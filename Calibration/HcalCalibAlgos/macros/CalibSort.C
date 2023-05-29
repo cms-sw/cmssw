@@ -82,8 +82,8 @@
 //                               in append/output mode
 //
 // .L CalibSort.C+g (for the o/p of isotrackRootTreeMaker.py)
-//  CalibFitPU c1(fname)
-//  c1.Loop(extractPUparams, fileName)
+//  CalibFitPU c1(fname);
+//  c1.Loop(extractPUparams, fileName);
 //
 //   fname        (const char*)= file name of the input ROOT tree which is
 //                               output of isotrackRootTreeMaker.py
@@ -93,6 +93,57 @@
 //                               will be names of files of parameters from
 //                               2D, profile, graphs; .root for storing all
 //                               histograms created)
+//
+// .L CalibSort.C+g (for merging information from PU and NoPU files)
+//  CalibMerge c1;
+//  c1.LoopNoPU(fileNameNoPU, dirnm);
+//  c1.LoopPU(fileNamePU, fname, dirnm);
+//  c1.close();
+//
+//   fileNameNoPU (const char*)= file name of the input ROOT tree for the
+//                               no PileUP Monte Carlo
+//   fileNamePU   (const char*)= file name of the input ROOT tree for the
+//                               PileUP Monte Carlo
+//   fname        (const char*)= file name of the output ROOT tree where the
+//                               combined information is written
+//   dirnm        (std::string) = name of the directory where Tree resides
+//                               (default "HcalIsoTrkAnalyzer")
+//
+// .L CalibSort.C+g
+//  combineML(inputFileList, outfile);
+//
+//  Combines the ML values otained from the analysis of muon analysis to
+//  determine depth dependent correction factors
+//
+//   inputFileList (const char*) = file containing filenames having the ML
+//                                 values for a given depth
+//   outfile       (const char*) = name of the output file where the
+//                                 depth dependent correction factors
+//                                 will be stored
+//   Example of a inputFileList:
+//      depth Name of the file
+//          1 ml_values_depth1.txt
+//          2 ml_values_depth2.txt
+//          3 ml_values_depth3.txt
+//          4 ml_values_depth4.txt
+//   where each file conatins
+//   (4 quantities per line with no tab separating each item):
+//   #ieta depth  ml    uncertainity-in-ml
+//
+// .L CalibSort.C+g
+//  calCorrCombine(inFileCorr, inFileDepth, outFileCorr, truncateFlag, etaMax);
+//
+//  Combines the correction factors obtained from CalibTree and the depth
+//  dependent correction factors used in the CalibTree command
+//
+//   inputFileCorr  (const char*) = file containing correction factors obtained
+//                                  from the CalibTree
+//   inputFileDepth (const char*) = file containing depth dependent correction
+//                                  factors used in the CalibTree step
+//   outfileCorr    (const char*) = name of the output file where the combined
+//                                  correction factors
+//   truncateFlag   (int)         = Truncate flag used in the CalibTree step
+//   etaMax         (int)         = Maximum eta value
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -149,6 +200,13 @@ struct recordEventLess {
   bool operator()(const recordEvent &a, const recordEvent &b) {
     return ((a.run_ < b.run_) || ((a.run_ == b.run_) && (a.event_ < b.event_)));
   }
+};
+
+struct listML {
+  listML(int dep = 0, double ml = 0, double dml = 0) : depth_(dep), ml_(ml), dml_(dml) {}
+
+  int depth_;
+  double ml_, dml_;
 };
 
 class CalibSort {
@@ -1635,6 +1693,11 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
 
     }  //End of Event Loop to extract PU correction parameters
 
+    for (int k = 0; k < n; k++)
+      std::cout << "Bin " << k << " for 2D Hist " << vec_h2[k] << ":" << vec_h2[k]->GetEntries() << " Graph "
+                << vec_gr[k] << ":" << points[k] << " Profile " << vec_hp[k] << ":" << vec_hp[k]->GetEntries()
+                << std::endl;
+
     std::ofstream myfile0, myfile1, myfile2;
     sprintf(filename, "%s_par2d.txt", fileName.c_str());
     myfile0.open(filename);
@@ -1677,7 +1740,7 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       sprintf(namepng, "%s.png", pad1->GetName());
       pad1->Print(namepng);
 
-      TF1 *f2 = ((k < 2) ? (new TF1("f2", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      TF1 *f2 = ((k < 2) ? (new TF1("f2", "[0]+[1]*x", 0, 5)) : (new TF1("f2", "[0]+[1]*x+[2]*x*x", 0, 5)));
       sprintf(name, "c_ieta%dPr", k);
       TCanvas *pad2 = new TCanvas(name, name, 500, 500);
       pad2->SetLeftMargin(0.10);
@@ -1706,7 +1769,7 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
       sprintf(namepng, "%s.png", pad2->GetName());
       pad2->Print(namepng);
 
-      TF1 *f3 = ((k < 2) ? (new TF1("f3", "[0]+[1]*x", 0, 5)) : (new TF1("f1", "[0]+[1]*x+[2]*x*x", 0, 5)));
+      TF1 *f3 = ((k < 2) ? (new TF1("f3", "[0]+[1]*x", 0, 5)) : (new TF1("f3", "[0]+[1]*x+[2]*x*x", 0, 5)));
       sprintf(name, "c_ieta%dGr", k);
       TCanvas *pad3 = new TCanvas(name, name, 500, 500);
       pad3->SetLeftMargin(0.10);
@@ -1938,4 +2001,551 @@ void CalibFitPU::Loop(bool extract_PU_parameters, std::string fileName) {
     vec_hp[k]->Write();
     vec_gr[k]->Write();
   }
+}
+
+class CalibMerge {
+public:
+  struct isotk {
+    isotk(int pv = 0, double rho = 0, double pp = 0, double eH = 0, double eH10 = 0, double eH30 = 0, double del = 0)
+        : goodPV(pv), rhoh(rho), p(pp), eHcal(eH), eHcal10(eH10), eHcal30(eH30), delta(del) {}
+
+    int goodPV;
+    double rhoh, p, eHcal, eHcal10, eHcal30, delta;
+  };
+
+  CalibMerge();
+  ~CalibMerge();
+  Int_t Cut(Long64_t entry);
+  Int_t GetEntry(Long64_t entry);
+  Long64_t LoadTree(Long64_t entry);
+  Bool_t Notify();
+  void Show(Long64_t entry = -1);
+  void LoopNoPU(const char *fnameNoPU, std::string dirnm = "HcalIsoTrkAnalyzer");
+  void LoopPU(const char *fnamePU, const char *fnameOut, std::string dirnm = "HcalIsoTrkAnalyzer");
+  bool Init(const char *fname, const std::string &dirnm);
+  void bookTree(const char *fname);
+  void close();
+
+private:
+  TChain *fChain;  //!pointer to the analyzed TTree or TChain
+  Int_t fCurrent;  //!current Tree number in a TChain
+
+  std::map<std::pair<int, int>, std::vector<isotk> > isotks_;
+
+  // Declaration of leaf types
+  Int_t t_Run;
+  Int_t t_Event;
+  Int_t t_DataType;
+  Int_t t_ieta;
+  Int_t t_iphi;
+  Double_t t_EventWeight;
+  Int_t t_nVtx;
+  Int_t t_nTrk;
+  Int_t t_goodPV;
+  Double_t t_l1pt;
+  Double_t t_l1eta;
+  Double_t t_l1phi;
+  Double_t t_l3pt;
+  Double_t t_l3eta;
+  Double_t t_l3phi;
+  Double_t t_p;
+  Double_t t_pt;
+  Double_t t_phi;
+  Double_t t_mindR1;
+  Double_t t_mindR2;
+  Double_t t_eMipDR;
+  Double_t t_eHcal;
+  Double_t t_eHcal10;
+  Double_t t_eHcal30;
+  Double_t t_hmaxNearP;
+  Double_t t_rhoh;
+  Bool_t t_selectTk;
+  Bool_t t_qltyFlag;
+  Bool_t t_qltyMissFlag;
+  Bool_t t_qltyPVFlag;
+  Double_t t_gentrackP;
+  std::vector<unsigned int> *t_DetIds;
+  std::vector<double> *t_HitEnergies;
+  std::vector<bool> *t_trgbits;
+  std::vector<unsigned int> *t_DetIds1;
+  std::vector<unsigned int> *t_DetIds3;
+  std::vector<double> *t_HitEnergies1;
+  std::vector<double> *t_HitEnergies3;
+
+  // List of branches
+  TBranch *b_t_Run;           //!
+  TBranch *b_t_Event;         //!
+  TBranch *b_t_DataType;      //!
+  TBranch *b_t_ieta;          //!
+  TBranch *b_t_iphi;          //!
+  TBranch *b_t_EventWeight;   //!
+  TBranch *b_t_nVtx;          //!
+  TBranch *b_t_nTrk;          //!
+  TBranch *b_t_goodPV;        //!
+  TBranch *b_t_l1pt;          //!
+  TBranch *b_t_l1eta;         //!
+  TBranch *b_t_l1phi;         //!
+  TBranch *b_t_l3pt;          //!
+  TBranch *b_t_l3eta;         //!
+  TBranch *b_t_l3phi;         //!
+  TBranch *b_t_p;             //!
+  TBranch *b_t_pt;            //!
+  TBranch *b_t_phi;           //!
+  TBranch *b_t_mindR1;        //!
+  TBranch *b_t_mindR2;        //!
+  TBranch *b_t_eMipDR;        //!
+  TBranch *b_t_eHcal;         //!
+  TBranch *b_t_eHcal10;       //!
+  TBranch *b_t_eHcal30;       //!
+  TBranch *b_t_hmaxNearP;     //!
+  TBranch *b_t_rhoh;          //!
+  TBranch *b_t_selectTk;      //!
+  TBranch *b_t_qltyFlag;      //!
+  TBranch *b_t_qltyMissFlag;  //!
+  TBranch *b_t_qltyPVFlag;    //!
+  TBranch *b_t_gentrackP;     //!
+  TBranch *b_t_DetIds;        //!
+  TBranch *b_t_HitEnergies;   //!
+  TBranch *b_t_trgbits;       //!
+  TBranch *b_t_DetIds1;       //!
+  TBranch *b_t_DetIds3;       //!
+  TBranch *b_t_HitEnergies1;  //!
+  TBranch *b_t_HitEnergies3;  //!
+
+  TFile *outputFile_;
+  TTree *outtree_;
+  Int_t event_;
+  Int_t ieta_;
+  Int_t nvtx_;
+  Double_t rhoh_;
+  Double_t p_NoPU_;
+  Double_t p_PU_;
+  Double_t eHcal_NoPU_;
+  Double_t eHcal_PU_;
+  Double_t eHcal10_NoPU_;
+  Double_t eHcal10_PU_;
+  Double_t eHcal30_NoPU_;
+  Double_t eHcal30_PU_;
+  Double_t delta_NoPU_;
+  Double_t delta_PU_;
+};
+
+CalibMerge::CalibMerge() : outputFile_(nullptr), outtree_(nullptr) {}
+
+CalibMerge::~CalibMerge() { close(); }
+
+Int_t CalibMerge::GetEntry(Long64_t entry) {
+  // Read contents of entry.
+  if (!fChain)
+    return 0;
+  return fChain->GetEntry(entry);
+}
+
+Long64_t CalibMerge::LoadTree(Long64_t entry) {
+  // Set the environment to read one entry
+  if (!fChain)
+    return -5;
+  Long64_t centry = fChain->LoadTree(entry);
+  if (centry < 0)
+    return centry;
+  if (fChain->GetTreeNumber() != fCurrent) {
+    fCurrent = fChain->GetTreeNumber();
+    Notify();
+  }
+  return centry;
+}
+
+Bool_t CalibMerge::Notify() {
+  // The Notify() function is called when a new file is opened. This
+  // can be either for a new TTree in a TChain or when when a new TTree
+  // is started when using PROOF. It is normally not necessary to make changes
+  // to the generated code, but the routine can be extended by the
+  // user if needed. The return value is currently not used.
+
+  return kTRUE;
+}
+
+void CalibMerge::Show(Long64_t entry) {
+  // Print contents of entry.
+  // If entry is not specified, print current entry
+  if (!fChain)
+    return;
+  fChain->Show(entry);
+}
+
+Int_t CalibMerge::Cut(Long64_t) {
+  // This function may be called from Loop.
+  // returns  1 if entry is accepted.
+  // returns -1 otherwise.
+  return 1;
+}
+
+void CalibMerge::LoopNoPU(const char *fname, std::string dirnm) {
+  bool ok = Init(fname, dirnm);
+  std::cout << "Opens no PU file " << fname << " with flag " << ok << std::endl;
+  isotks_.clear();
+  if (ok) {
+    Long64_t nentries = fChain->GetEntriesFast();
+    Long64_t nbytes = 0, nb = 0;
+    for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0)
+        break;
+      nb = fChain->GetEntry(jentry);
+      nbytes += nb;
+      std::pair<int, int> key(t_Event, t_ieta);
+      isotk tk(t_goodPV, t_rhoh, t_p, t_eHcal, t_eHcal10, t_eHcal30, (t_eHcal30 - t_eHcal10));
+      std::map<std::pair<int, int>, std::vector<isotk> >::iterator itr = isotks_.find(key);
+      if (itr == isotks_.end()) {
+        std::vector<isotk> v;
+        v.push_back(tk);
+        isotks_[key] = v;
+      } else {
+        (itr->second).push_back(tk);
+      }
+    }
+    std::cout << "Finds " << isotks_.size() << " tracks from " << nentries << " entries with " << nbytes << " bytes"
+              << std::endl;
+  }
+}
+
+void CalibMerge::LoopPU(const char *fname, const char *fout, std::string dirnm) {
+  bool ok = Init(fname, dirnm);
+  std::cout << "Opens PU file " << fname << " with flag " << ok << std::endl;
+  if (ok && (isotks_.size() > 0)) {
+    bookTree(fout);
+    Long64_t nentries = fChain->GetEntriesFast();
+    Long64_t nbytes(0), nb(0), merge(0);
+    for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0)
+        break;
+      nb = fChain->GetEntry(jentry);
+      nbytes += nb;
+      std::pair<int, int> key(t_Event, t_ieta);
+      std::map<std::pair<int, int>, std::vector<isotk> >::iterator itr = isotks_.find(key);
+      if (itr != isotks_.end()) {
+        for (unsigned int k = 0; (itr->second).size(); ++k) {
+          if (std::abs(t_p - (itr->second)[k].p) < 0.01) {
+            event_ = (itr->first).first;
+            ieta_ = (itr->first).second;
+            nvtx_ = (itr->second)[k].goodPV;
+            rhoh_ = (itr->second)[k].rhoh;
+            p_NoPU_ = (itr->second)[k].p;
+            p_PU_ = t_p;
+            eHcal_NoPU_ = (itr->second)[k].eHcal;
+            eHcal_PU_ = t_eHcal;
+            eHcal10_NoPU_ = (itr->second)[k].eHcal10;
+            eHcal10_PU_ = t_eHcal10;
+            eHcal30_NoPU_ = (itr->second)[k].eHcal30;
+            eHcal30_PU_ = t_eHcal30;
+            delta_NoPU_ = (itr->second)[k].delta;
+            delta_PU_ = (t_eHcal30 - t_eHcal10);
+            outtree_->Fill();
+            ++merge;
+            break;
+          }
+        }
+      }
+    }
+    std::cout << "Use " << isotks_.size() << ":" << nentries << " from noPU|PU files to produce " << merge
+              << " merged tracks";
+  }
+}
+
+bool CalibMerge::Init(const char *fname, const std::string &dirnm) {
+  char treeName[400];
+  sprintf(treeName, "%s/CalibTree", dirnm.c_str());
+  TChain *fChain = new TChain(treeName);
+  if (!fillChain(fChain, fname)) {
+    std::cout << "Creation of the chain for " << treeName << " from " << fname << " failed " << std::endl;
+    return false;
+  } else {
+    std::cout << "Proceed with a tree chain with " << fChain->GetEntries() << " entries" << std::endl;
+    fCurrent = -1;
+    fChain->SetMakeClass(1);
+    // Set object pointer
+    t_DetIds = 0;
+    t_DetIds1 = 0;
+    t_DetIds3 = 0;
+    t_HitEnergies = 0;
+    t_HitEnergies1 = 0;
+    t_HitEnergies3 = 0;
+    t_trgbits = 0;
+    fChain->SetBranchAddress("t_Run", &t_Run, &b_t_Run);
+    fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
+    fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
+    fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+    fChain->SetBranchAddress("t_iphi", &t_iphi, &b_t_iphi);
+    fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
+    fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
+    fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
+    fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
+    fChain->SetBranchAddress("t_l1pt", &t_l1pt, &b_t_l1pt);
+    fChain->SetBranchAddress("t_l1eta", &t_l1eta, &b_t_l1eta);
+    fChain->SetBranchAddress("t_l1phi", &t_l1phi, &b_t_l1phi);
+    fChain->SetBranchAddress("t_l3pt", &t_l3pt, &b_t_l3pt);
+    fChain->SetBranchAddress("t_l3eta", &t_l3eta, &b_t_l3eta);
+    fChain->SetBranchAddress("t_l3phi", &t_l3phi, &b_t_l3phi);
+    fChain->SetBranchAddress("t_p", &t_p, &b_t_p);
+    fChain->SetBranchAddress("t_pt", &t_pt, &b_t_pt);
+    fChain->SetBranchAddress("t_phi", &t_phi, &b_t_phi);
+    fChain->SetBranchAddress("t_mindR1", &t_mindR1, &b_t_mindR1);
+    fChain->SetBranchAddress("t_mindR2", &t_mindR2, &b_t_mindR2);
+    fChain->SetBranchAddress("t_eMipDR", &t_eMipDR, &b_t_eMipDR);
+    fChain->SetBranchAddress("t_eHcal", &t_eHcal, &b_t_eHcal);
+    fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
+    fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
+    fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+    fChain->SetBranchAddress("t_rhoh", &t_rhoh, &b_t_rhoh);
+    fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
+    fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
+    fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
+    fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
+    fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
+    fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
+    fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
+    fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
+    fChain->SetBranchAddress("t_DetIds1", &t_DetIds1, &b_t_DetIds1);
+    fChain->SetBranchAddress("t_DetIds3", &t_DetIds3, &b_t_DetIds3);
+    fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1, &b_t_HitEnergies1);
+    fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
+    Notify();
+    return true;
+  }
+}
+
+void CalibMerge::bookTree(const char *fname) {
+  std::cout << "BookTree in " << fname << std::endl;
+  outputFile_ = TFile::Open(fname, "RECREATE");
+  outputFile_->cd();
+  outtree_ = new TTree("Tree", "Tree");
+  outtree_->Branch("t_Event", &event_);
+  outtree_->Branch("t_ieta", &ieta_);
+  outtree_->Branch("t_nvtx", &nvtx_);
+  outtree_->Branch("t_rhoh", &rhoh_);
+  outtree_->Branch("t_p_noPU", &p_NoPU_);
+  outtree_->Branch("t_p_PU", &p_PU_);
+  outtree_->Branch("t_eHcal_noPU", &eHcal_NoPU_);
+  outtree_->Branch("t_eHcal_PU", &eHcal_PU_);
+  outtree_->Branch("t_eHcal10_noPU", &eHcal10_NoPU_);
+  outtree_->Branch("t_eHcal10_PU", &eHcal10_PU_);
+  outtree_->Branch("t_eHcal30_noPU", &eHcal30_NoPU_);
+  outtree_->Branch("t_eHcal30_PU", &eHcal30_PU_);
+  outtree_->Branch("t_delta_noPU", &delta_NoPU_);
+  outtree_->Branch("t_delta_PU", &delta_PU_);
+}
+
+void CalibMerge::close() {
+  if (outputFile_ != nullptr) {
+    outputFile_->cd();
+    std::cout << "file yet to be Written" << std::endl;
+    outtree_->Write();
+    std::cout << "file Written" << std::endl;
+    outputFile_->Close();
+  }
+  outputFile_ = nullptr;
+  std::cout << "now doing return" << std::endl;
+}
+
+void combineML(const char *inputFileList, const char *outfile) {
+  std::map<int, std::string> files;
+  std::ifstream infile(inputFileList);
+  if (!infile.is_open()) {
+    std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" << std::endl;
+  } else {
+    while (1) {
+      int depth;
+      std::string fname;
+      infile >> depth >> fname;
+      if (!infile.good())
+        break;
+      files[depth] = fname;
+    }
+    infile.close();
+  }
+  std::cout << "Gets a list of " << files.size() << " file names from " << inputFileList << std::endl;
+  if (files.size() > 0) {
+    std::map<int, std::vector<listML> > mlList;
+    for (std::map<int, std::string>::const_iterator itr = files.begin(); itr != files.end(); ++itr) {
+      int depth = itr->first;
+      std::string fname = itr->second;
+      std::ifstream fInput(fname.c_str());
+      if (!fInput.good()) {
+        std::cout << "Cannot open file " << fname << std::endl;
+      } else {
+        char buffer[1024];
+        unsigned int all(0), good1(0), good2(0);
+        while (fInput.getline(buffer, 1024)) {
+          ++all;
+          if (buffer[0] == '#')
+            continue;  //ignore comment
+          std::vector<std::string> items = splitString(std::string(buffer));
+          if (items.size() != 4) {
+            std::cout << "Ignore  line: " << buffer << std::endl;
+          } else {
+            ++good1;
+            int depth0 = std::atoi(items[1].c_str());
+            if (depth0 == depth) {
+              ++good2;
+              int ieta = std::atoi(items[0].c_str());
+              double ml = std::atoi(items[2].c_str());
+              double dml = std::atoi(items[3].c_str());
+              listML l0(depth, ml, dml);
+              if (mlList.find(ieta) == mlList.end()) {
+                std::vector<listML> l0v;
+                mlList[ieta] = l0v;
+              }
+              (mlList[ieta]).push_back(l0);
+            }
+          }
+        }
+        fInput.close();
+        std::cout << "Reads total of " << all << " and " << good1 << ":" << good2 << " good records for depth " << depth
+                  << std::endl;
+      }
+    }
+    if (mlList.size() > 0) {
+      std::ofstream fout(outfile);
+      for (std::map<int, std::vector<listML> >::const_iterator itr = mlList.begin(); itr != mlList.end(); ++itr) {
+        int ieta = itr->first;
+        std::vector<listML> l0v = itr->second;
+        double den(0), dden(0);
+        for (unsigned int k = 0; k < l0v.size(); ++k) {
+          if (l0v[k].depth_ == 2) {
+            den = l0v[k].ml_;
+            dden = l0v[k].dml_;
+          }
+        }
+        if (den > 0) {
+          fout << std::setw(4) << ieta << "   " << l0v.size();
+          for (unsigned int k = 0; k < l0v.size(); ++k) {
+            double ml = den / l0v[k].ml_;
+            double dml = l0v[k].dml_ * den / (l0v[k].ml_ * l0v[k].ml_);
+            fout << "  " << l0v[k].depth_ << "  " << std::setw(6) << ml << "  " << std::setw(6) << dml;
+          }
+          fout << std::endl;
+        }
+      }
+      fout.close();
+    }
+  }
+}
+
+void calCorrCombine(
+    const char *inFileCorr, const char *inFileDepth, const char *outFileCorr, int truncateFlag, int etaMax) {
+  const int neta = 58;
+  int ietas[neta] = {1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15,  16,  17,  18, 19,  20,
+                     21,  22,  23,  24,  25,  26,  27,  28,  29,  -1,  -2,  -3,  -4,  -5,  -6,  -7,  -8,  -9, -10, -11,
+                     -12, -13, -14, -15, -16, -17, -18, -19, -20, -21, -22, -23, -24, -25, -26, -27, -28, -29};
+  int depthMin[neta] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  int depthMax[neta] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3,
+                        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3};
+
+  // Read the correction factors
+  std::map<unsigned int, std::pair<double, double> > cfactors;
+  if (std::string(inFileCorr) != "") {
+    std::ifstream fInput(inFileCorr);
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << inFileCorr << std::endl;
+    } else {
+      char buffer[1024];
+      unsigned int all(0), good(0);
+      while (fInput.getline(buffer, 1024)) {
+        ++all;
+        if (buffer[0] == '#')
+          continue;  //ignore comment
+        std::vector<std::string> items = splitString(std::string(buffer));
+        if (items.size() != 5) {
+          std::cout << "Ignore  line: " << buffer << std::endl;
+        } else {
+          ++good;
+          std::istringstream converter(items[0].c_str());
+          unsigned int det;
+          converter >> std::hex >> det;
+          double corrf = std::atof(items[3].c_str());
+          double dcorr = std::atof(items[4].c_str());
+          cfactors[det] = std::pair<double, double>(corrf, dcorr);
+        }
+      }
+      fInput.close();
+      std::cout << "Reads total of " << all << " and " << good << " good records" << std::endl;
+    }
+  }
+
+  // Read in the depth dependent correction factors
+  std::map<int, std::vector<double> > weights;
+  if (std::string(inFileDepth) != "") {
+    std::ifstream infile(inFileDepth);
+    if (!infile.is_open()) {
+      std::cout << "Cannot open duplicate file " << inFileDepth << std::endl;
+    } else {
+      unsigned int all(0), good(0);
+      char buffer[1024];
+      while (infile.getline(buffer, 1024)) {
+        ++all;
+        std::string bufferString(buffer);
+        if (bufferString.substr(0, 1) == "#") {
+          continue;  //ignore other comments
+        } else {
+          std::vector<std::string> items = splitString(bufferString);
+          if (items.size() < 3) {
+            std::cout << "Ignore  line: " << buffer << " Size " << items.size() << std::endl;
+          } else {
+            ++good;
+            int ieta = std::atoi(items[0].c_str());
+            std::vector<double> weight;
+            for (unsigned int k = 1; k < items.size(); ++k) {
+              double corrf = std::atof(items[k].c_str());
+              weight.push_back(corrf);
+            }
+            weights[ieta] = weight;
+          }
+        }
+      }
+      infile.close();
+      std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
+                << inFileDepth << std::endl;
+    }
+  }
+
+  // Now combine the two information
+  std::map<unsigned int, std::pair<double, double> > cfacFinal;
+  std::ofstream outfile(outFileCorr);
+  outfile << "#" << std::setprecision(4) << std::setw(10) << "detId" << std::setw(10) << "ieta" << std::setw(10)
+          << "depth" << std::setw(15) << "corrFactor" << std::endl;
+  for (int k = 0; k < neta; ++k) {
+    int ieta = ietas[k];
+    for (int depth = depthMin[k]; depth <= depthMax[k]; ++depth) {
+      int subdet = ifHB(ieta, depth) ? 1 : 2;
+      int d = truncateDepth(ieta, depth, truncateFlag);
+      unsigned int key = repackId(subdet, ieta, 0, d);
+      double c1(1), dc1(0), c2(1);
+      if (cfactors.find(key) != cfactors.end()) {
+        c1 = cfactors[key].first;
+        dc1 = cfactors[key].second;
+      }
+      if (weights.find(ieta) != weights.end()) {
+        if (static_cast<unsigned int>(depth) <= weights[ieta].size())
+          c2 = (weights[ieta])[depth - 1];
+      }
+      double cf = c1 * c2;
+      double dcf = dc1 * c2;
+      if (std::abs(ieta) > etaMax) {
+        int ieta0 = (ieta > 0) ? etaMax : -etaMax;
+        key = repackId(subdet, ieta0, 0, depth);
+        if (cfacFinal.find(key) != cfacFinal.end()) {
+          cf = cfacFinal[key].first;
+          dcf = cfacFinal[key].second;
+        }
+      }
+      key = repackId(subdet, ieta, 0, depth);
+      cfacFinal[key] = std::pair<double, double>(cf, dcf);
+      if (std::abs(ieta) <= etaMax)
+        outfile << std::setw(10) << std::hex << key << std::setw(10) << std::dec << ieta << std::setw(10) << depth
+                << std::setw(10) << cf << " " << std::setw(10) << dcf << std::endl;
+    }
+  }
+  outfile.close();
 }

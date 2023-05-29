@@ -63,6 +63,13 @@ void L1TdeStage2RegionalShowerClient::processHistograms(DQMStore::IGetter &igett
   MonitorElement *emtfShowerEmulSummary_denom_ = igetter.get(monitorDir_ + "/emtf_shower_emul_summary_denom");
   MonitorElement *emtfShowerEmulSummary_num_ = igetter.get(monitorDir_ + "/emtf_shower_emul_summary_num");
 
+  if (emtfShowerDataSummary_denom_ == nullptr or emtfShowerDataSummary_num_ == nullptr or
+      emtfShowerEmulSummary_denom_ == nullptr or emtfShowerEmulSummary_num_ == nullptr) {
+    edm::LogWarning("L1TdeStage2RegionalShowerClient")
+        << __PRETTY_FUNCTION__ << " could not load the necessary histograms for the harvesting";
+    return;
+  }
+
   emtfShowerDataSummary_eff_->getTH2F()->Divide(
       emtfShowerDataSummary_num_->getTH2F(), emtfShowerDataSummary_denom_->getTH2F(), 1, 1, "");
   emtfShowerEmulSummary_eff_->getTH2F()->Divide(

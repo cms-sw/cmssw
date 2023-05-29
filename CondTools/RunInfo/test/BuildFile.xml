@@ -4,3 +4,7 @@
   <test name="RunInfoStart_O2O_test" command="RunInfoStart_O2O_test.sh"/>
 </ifarch>
 <test name="CondToolsRunInfoTest" command="test_runinfo.sh"/>
+<test name="CondToolsLHCInfoTest" command="test_lhcInfo.sh"/>
+<ifarch value="x86_64">
+<test name="CondToolsLHCInfoNewPopConTest" command="test_lhcInfoNewPopCon.sh"/>
+</ifarch>

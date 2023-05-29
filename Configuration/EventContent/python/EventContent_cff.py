@@ -56,7 +56,7 @@ from RecoBTau.Configuration.RecoBTau_EventContent_cff import *
 from RecoBTag.Configuration.RecoBTag_EventContent_cff import *
 from RecoTauTag.Configuration.RecoTauTag_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_EventContent_cff import *
+from RecoTracker.Configuration.RecoPixelVertexing_EventContent_cff import *
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
@@ -176,6 +176,13 @@ RAWEventContent = cms.PSet(
 )
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+approxSiStripClusters.toModify(RAWEventContent,
+                              outputCommands = RAWEventContent.outputCommands+[
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*'
+                              ])
+
 #
 #
 # HLTONLY Data Tier definition
@@ -459,6 +466,7 @@ AODSIMEventContent = cms.PSet(
     eventAutoFlushCompressedSize=cms.untracked.int32(30*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4),
+    overrideInputFileSplitLevels=cms.untracked.bool(True)
 )
 AODSIMEventContent.outputCommands.extend(AODEventContent.outputCommands)
 AODSIMEventContent.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
@@ -612,6 +620,10 @@ FEVTDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimFastTimingFEVTDEBUG.outputCommands)
+approxSiStripClusters.toModify(FEVTDEBUGEventContent,
+                              outputCommands = FEVTDEBUGEventContent.outputCommands+[
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*'
+                              ])
 #
 #
 # FEVTDEBUGHLT Data Tier definition
@@ -626,6 +638,10 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
+approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
+                              outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*'
+                              ])
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 
@@ -769,6 +785,12 @@ REPACKRAWEventContent = cms.PSet(
 )
 REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+approxSiStripClusters.toModify(REPACKRAWEventContent,
+                               outputCommands = REPACKRAWEventContent.outputCommands+[
+                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
+                                   'drop FEDRawDataCollection_rawDataRepacker_*_*',
+                                   'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*'
+                               ])
 
 REPACKRAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(),

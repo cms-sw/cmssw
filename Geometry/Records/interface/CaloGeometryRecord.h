@@ -24,7 +24,6 @@
 #include "Geometry/Records/interface/ZDCGeometryRecord.h"
 #include "Geometry/Records/interface/CastorGeometryRecord.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
-#include "Geometry/Records/interface/FastTimeGeometryRecord.h"
 #include "FWCore/Utilities/interface/mplVector.h"
 
 class CaloGeometryRecord
@@ -38,7 +37,6 @@ class CaloGeometryRecord
                                                                              HcalRecNumberingRecord,
                                                                              HcalGeometryRecord,
                                                                              HGCalGeometryRecord,
-                                                                             FastTimeGeometryRecord,
                                                                              CaloTowerGeometryRecord,
                                                                              CastorGeometryRecord,
                                                                              ZDCGeometryRecord> > {};

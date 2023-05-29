@@ -25,11 +25,9 @@
 //                   1 constant p ranges
 //            13-15: 0 no cut on ediff; 1-4 cuts at 5, 10, 15, 20 GeV
 //      modeLHC (integer) specifies the detector condition
-//              0      Run1   detector (till 2016)
-//              1      Plan36 detector (2018)
-//              2      Phase1 detector (Run3)
-//              3      Plan1  detector (2017)
-//              4      Phase2 detector
+//              1 (Run 1; valid till 2016); 2 (Run 2; 2018);
+//              3 (Run 3; post LS2); 4 (2017 Plan 1);
+//              5 (Run 4; post LS3); (default: 3)
 //
 //   AnalyzeLepTree a1(tree, mode, modeLHC);
 //   AnalyzeLepTree a1(fname, mode, modeLHC);
@@ -82,8 +80,8 @@
 
 class AnalyzeLepTree {
 public:
-  AnalyzeLepTree(TChain* tree, int mode = 0, int modeLHC = 1);
-  AnalyzeLepTree(const char* fname, int mode = 0, int modeLHC = 1);
+  AnalyzeLepTree(TChain* tree, int mode = 0, int modeLHC = 3);
+  AnalyzeLepTree(const char* fname, int mode = 0, int modeLHC = 3);
   virtual ~AnalyzeLepTree();
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);
@@ -253,13 +251,13 @@ void AnalyzeLepTree::Init(TChain* tree) {
     std::cout << "Make separate plot for each RBX\n";
   else
     std::cout << "Exclude the RBX " << exRBX_ << std::endl;
-  if (modeLHC_ == 0)
+  if (modeLHC_ == 1)
     std::cout << "This is Run1 detector (till 2016)\n";
-  else if (modeLHC_ == 1)
-    std::cout << "This is Plan36 detector (2018)\n";
   else if (modeLHC_ == 2)
-    std::cout << "This is Phase1 detector (after 2021)\n";
+    std::cout << "This is Plan36 detector (2018)\n";
   else if (modeLHC_ == 3)
+    std::cout << "This is Phase1 detector (after 2021)\n";
+  else if (modeLHC_ == 4)
     std::cout << "This is Plan1  detector (2017)\n";
   else
     std::cout << "This is Phase2 detector (after 2026)\n";
@@ -604,7 +602,9 @@ void AnalyzeLepTree::bookHisto() {
         int eta = (ieta > 0) ? ieta : -ieta;
         if (eta != 0) {
           int ndepth = ((kdepth_ == 0) ? nDepthBins(eta, 63, modeLHC_)
-                                       : ((kdepth_ != 1) ? nDepthBins(eta, 63, 0) : (eta == 16) ? 2 : 1));
+                                       : ((kdepth_ != 1) ? nDepthBins(eta, 63, 0)
+                                          : (eta == 16)  ? 2
+                                                         : 1));
           std::cout << "Eta " << ieta << " with " << nPhiBins(eta) << " phi bins " << ndepth << " maximum depths and "
                     << nPBins(eta) << " p bins" << std::endl;
         }
@@ -664,7 +664,7 @@ void AnalyzeLepTree::bookHisto() {
           ++book1;
         }
         for (int vbin = 0; vbin < nVxBins(); ++vbin) {
-          char vtx[12];
+          char vtx[24];
           if ((mode_ / 2) % 2 == 1) {
             sprintf(vtx, "N_{vtx}=%d:%d", npvbin_[vbin], npvbin_[vbin + 1]);
           } else {
@@ -713,7 +713,9 @@ void AnalyzeLepTree::bookHisto() {
             sprintf(phis, "All i#phi");
           }
           int ndepth = ((kdepth_ == 0) ? nDepthBins(eta, phi0, modeLHC_)
-                                       : ((kdepth_ != 1) ? nDepthBins(eta, phi0, 0) : (eta == 16) ? 2 : 1));
+                                       : ((kdepth_ != 1) ? nDepthBins(eta, phi0, 0)
+                                          : (eta == 16)  ? 2
+                                                         : 1));
           for (int depth = 0; depth < ndepth; ++depth) {
             char deps[20];
             if (kdepth_ == 1) {
@@ -826,7 +828,9 @@ void AnalyzeLepTree::writeHisto(const char* outfile) {
             phi = iphi + 1;
           };
           int ndepth = ((kdepth_ == 0) ? nDepthBins(eta, phi0, modeLHC_)
-                                       : ((kdepth_ != 1) ? nDepthBins(eta, phi0, 0) : (eta == 16) ? 2 : 1));
+                                       : ((kdepth_ != 1) ? nDepthBins(eta, phi0, 0)
+                                          : (eta == 16)  ? 2
+                                                         : 1));
           for (int depth = 0; depth < ndepth; ++depth) {
             for (int pbin = 0; pbin < nPBins(eta); ++pbin) {
               for (int vbin = 0; vbin < nVxBins(); ++vbin) {
@@ -875,7 +879,7 @@ void AnalyzeLepTree::writeMeanError(const char* outfile) {
           if (itr != h_nv2_.end()) {
             double mean = (itr->second)->GetMean();
             double error = (itr->second)->GetMeanError();
-            char vtx[12];
+            char vtx[24];
             if ((mode_ / 2) % 2 == 1) {
               sprintf(vtx, "Nvtx=%3d:%3d", npvbin_[vbin], npvbin_[vbin + 1]);
             } else {
@@ -1142,11 +1146,11 @@ void AnalyzeLepTree::makeVxBins(int modeLHC) {
   int npvbin3[nvbin_] = {0, 30, 40, 50, 70, 200};
   npvbin_.clear();
   for (int i = 0; i < nvbin_; ++i) {
-    if (modeLHC <= 0 || modeLHC == 3)
+    if (modeLHC == 3)
       npvbin_.push_back(npvbin0[i]);
     else if (modeLHC == 1)
       npvbin_.push_back(npvbin1[i]);
-    else if (modeLHC == 2)
+    else if ((modeLHC == 2) || (modeLHC == 4))
       npvbin_.push_back(npvbin2[i]);
     else
       npvbin_.push_back(npvbin3[i]);
@@ -1162,19 +1166,19 @@ int AnalyzeLepTree::nDepthBins(int eta, int phi, int modeLHC) {
   int nDepthR3[29] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3};
   // Run 4 scenario
   int nDepthR4[29] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
-  // modeLHC = 0 -->      corresponds to Run 1 (valid till 2016)
-  //         = 1 -->      corresponds to Run 2 (2018 geometry)
-  //         = 2 -->      corresponds to Run 3 (post LS2)
-  //         = 3 -->      corresponds to 2017  (Plan 1)
-  //         = 4 -->      corresponds to Run4  (post LS3)
+  // modeLHC = 1 -->      corresponds to Run 1 (valid till 2016)
+  //         = 2 -->      corresponds to Run 2 (2018 geometry)
+  //         = 3 -->      corresponds to Run 3 (post LS2)
+  //         = 4 -->      corresponds to 2017  (Plan 1)
+  //         = 5 -->      corresponds to Run4  (post LS3)
   int nbin(0);
-  if (modeLHC == 0) {
+  if (modeLHC == 1) {
     nbin = nDepthR1[eta - 1];
-  } else if (modeLHC == 1) {
-    nbin = nDepthR2[eta - 1];
   } else if (modeLHC == 2) {
-    nbin = nDepthR3[eta - 1];
+    nbin = nDepthR2[eta - 1];
   } else if (modeLHC == 3) {
+    nbin = nDepthR3[eta - 1];
+  } else if (modeLHC == 4) {
     if (phi > 0) {
       if (eta >= 16 && phi >= 63 && phi <= 66) {
         nbin = nDepthR2[eta - 1];
@@ -1200,7 +1204,7 @@ int AnalyzeLepTree::nDepthBins(int eta, int phi, int modeLHC) {
 
 int AnalyzeLepTree::nPhiBins(int eta) {
   int nphi = (eta <= 20) ? 72 : 36;
-  if (modeLHC_ == 4 && eta > 16)
+  if (modeLHC_ == 5 && eta > 16)
     nphi = 360;
   if (kphi_ == 0)
     nphi = 1;
@@ -1244,16 +1248,20 @@ void AnalyzeLepTree::getBins(int type, int ieta, int phi, int depth, int& nbin, 
   int eta = (ieta >= 0) ? ieta : -ieta;
   bool barrel = (eta < 16) || ((eta == 16) && (depth <= 2));
   bool rbx17 = (phi >= 63) && (phi <= 66) && (ieta >= 16) && (!barrel);
-  nbin = 5000;
-  xmax = 10.0;
+  nbin = 50000;
+  xmax = 500.0;
   if (type >= 4) {
-    if ((modeLHC_ == 0) || (((modeLHC_ == 1) || (modeLHC_ == 3)) && barrel) || ((modeLHC_ == 3) && (!rbx17))) {
+    if ((modeLHC_ == 1) || (((modeLHC_ == 2) || (modeLHC_ == 4)) && barrel) || ((modeLHC_ == 4) && (!rbx17))) {
       // HPD Channels
+      nbin = 5000;
       xmax = 50.0;
     } else {
       // SiPM Channels
-      xmax = 10000.0;
-      nbin = 10000;
+      nbin = 50000;
+      if (barrel && (depth > 4))
+        xmax = 100000.0;
+      else
+        xmax = 50000.0;
     }
   }
 }

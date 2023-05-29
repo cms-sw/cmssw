@@ -167,7 +167,6 @@ void popcon::EcalTPGLinConstHandler::getNewObjects() {
             typedef std::map<EcalLogicID, FEConfigLinDat>::const_iterator CIfelin;
             EcalLogicID ecid_xt;
             FEConfigLinDat rd_lin;
-            int icells = 0;
 
             for (CIfelin p = dataset_TpgLin.begin(); p != dataset_TpgLin.end(); p++) {
               ecid_xt = p->first;
@@ -189,7 +188,6 @@ void popcon::EcalTPGLinConstHandler::getNewObjects() {
                 item.shift_x12 = rd_lin.getShift12();
 
                 linC->insert(std::make_pair(ebdetid.rawId(), item));
-                ++icells;
               } else {
                 //EE data
                 int z = ecid_xt.getID1();
@@ -207,7 +205,6 @@ void popcon::EcalTPGLinConstHandler::getNewObjects() {
                 item.shift_x12 = rd_lin.getShift12();
 
                 linC->insert(std::make_pair(eedetid.rawId(), item));
-                ++icells;
               }
             }
 

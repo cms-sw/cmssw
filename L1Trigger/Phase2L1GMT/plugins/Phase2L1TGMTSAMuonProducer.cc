@@ -37,7 +37,7 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 
-#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 //
 // class declaration
@@ -127,27 +127,28 @@ void Phase2L1TGMTSAMuonProducer::produce(edm::Event& iEvent, const edm::EventSet
 //  Description:
 // ===========================================================================
 SAMuon Phase2L1TGMTSAMuonProducer::Convertl1tMuon(const l1t::Muon& mu, const int bx_) {
-  ap_uint<BITSSAQUALITY> qual = mu.hwQual();
+  qual_sa_t qual = mu.hwQual();
   int charge = mu.charge() > 0 ? 0 : 1;
 
-  ap_uint<BITSPT> pt = round(mu.pt() / LSBpt);
-  ap_int<BITSPHI> phi = round(mu.phi() / LSBphi);
-  ap_int<BITSETA> eta = round(mu.eta() / LSBeta);
+  pt_sa_t pt = round(mu.pt() / LSBpt);
+  phi_sa_t phi = round(mu.phi() / LSBphi);
+  eta_sa_t eta = round(mu.eta() / LSBeta);
   // FIXME: Below are not well defined in phase1 GMT
   // Using the version from Correlator for now
-  ap_int<BITSSAZ0> z0 = 0;  // No tracks info in Phase 1
+  z0_sa_t z0 = 0;  // No tracks info in Phase 1
   // Use 2 bits with LSB = 30cm for BMTF and 25cm for EMTF currently, but subjet to change
-  ap_int<BITSSAD0> d0 = mu.hwDXY();
+  d0_sa_t d0 = mu.hwDXY();
 
   int bstart = 0;
   wordtype word(0);
+  bstart = wordconcat<wordtype>(word, bstart, pt > 0, 1);
   bstart = wordconcat<wordtype>(word, bstart, pt, BITSGTPT);
   bstart = wordconcat<wordtype>(word, bstart, phi, BITSGTPHI);
   bstart = wordconcat<wordtype>(word, bstart, eta, BITSGTETA);
   bstart = wordconcat<wordtype>(word, bstart, z0, BITSSAZ0);
   bstart = wordconcat<wordtype>(word, bstart, d0, BITSSAD0);
   bstart = wordconcat<wordtype>(word, bstart, charge, 1);
-  bstart = wordconcat<wordtype>(word, bstart, qual, BITSSAQUALITY);
+  bstart = wordconcat<wordtype>(word, bstart, qual, BITSSAQUAL);
 
   SAMuon samuon(mu, charge, pt.to_uint(), eta.to_int(), phi.to_int(), z0.to_int(), d0.to_int(), qual.to_uint());
   samuon.setWord(word);

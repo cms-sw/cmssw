@@ -59,6 +59,8 @@ public:
   explicit SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet&);
   ~SiPixelGainCalibrationRejectNoisyAndDead() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pddToken_;
   SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
@@ -89,6 +91,16 @@ private:
 
 using namespace edm;
 using namespace std;
+
+void SiPixelGainCalibrationRejectNoisyAndDead::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("EDAnalyzer to create SiPixelGainCalibration payloads by rejecting noisy and dead ones");
+  desc.addUntracked<bool>("debug", false);
+  desc.addUntracked<int>("insertNoisyPixelsInDB", 1);
+  desc.addUntracked<std::string>("record", "SiPixelGainCalibrationOfflineRcd");
+  desc.addUntracked<std::string>("noisyPixelList", "noisypixel.txt");
+  descriptions.addWithDefaultLabel(desc);
+}
 
 SiPixelGainCalibrationRejectNoisyAndDead::SiPixelGainCalibrationRejectNoisyAndDead(const edm::ParameterSet& iConfig)
     : pddToken_(esConsumes()),
@@ -167,7 +179,6 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   int ndead = 0;
 
   int detid = 0;
-  int NDetid = 0;
 
   //checking for noisy pixels that won't be inserted ...
   bool willNoisyPixBeInserted;
@@ -200,9 +211,6 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       detid = ((*it)->geographicalId()).rawId();
     if (detid == 0)
       continue;
-    NDetid++;
-    //edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")<<NDetid<<"  "<<detid<<endl;
-    //if(NDetid==164) continue;
 
     if (DEBUG)
       edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> We are in module " << detid << endl;

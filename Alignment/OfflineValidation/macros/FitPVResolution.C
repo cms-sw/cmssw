@@ -153,7 +153,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
   setPVResolStyle();
 
   // check if the loader is empty
-  if (PVResolution::sourceList.size() != 0) {
+  if (!PVResolution::sourceList.empty()) {
     fromLoader = true;
   }
 
@@ -751,7 +751,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     TPad* current_pad = static_cast<TPad*>(c1->GetPad(1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c1->cd(2);
     j == 0 ? p_resolY_vsSumPt_[j]->Draw("E1") : p_resolY_vsSumPt_[j]->Draw("E1same");
@@ -761,7 +761,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c1->GetPad(2));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c1->cd(3);
     j == 0 ? p_resolZ_vsSumPt_[j]->Draw("E1") : p_resolZ_vsSumPt_[j]->Draw("E1same");
@@ -771,7 +771,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c1->GetPad(3));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     // second canvas
 
@@ -783,7 +783,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c2->GetPad(1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c2->cd(2);
     j == 0 ? p_pullY_vsSumPt_[j]->Draw("E1") : p_pullY_vsSumPt_[j]->Draw("E1same");
@@ -793,7 +793,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c2->GetPad(2));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c2->cd(3);
     j == 0 ? p_pullZ_vsSumPt_[j]->Draw("E1") : p_pullZ_vsSumPt_[j]->Draw("E1same");
@@ -803,7 +803,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c2->GetPad(3));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     // third canvas
 
@@ -815,7 +815,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c3->GetPad(1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c3->cd(2);
     j == 0 ? p_resolY_vsNtracks_[j]->Draw("E1") : p_resolY_vsNtracks_[j]->Draw("E1same");
@@ -825,7 +825,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c3->GetPad(2));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c3->cd(3);
     j == 0 ? p_resolZ_vsNtracks_[j]->Draw("E1") : p_resolZ_vsNtracks_[j]->Draw("E1same");
@@ -835,7 +835,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c3->GetPad(3));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     // fourth canvas
 
@@ -847,7 +847,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c4->GetPad(1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c4->cd(2);
     j == 0 ? p_pullY_vsNtracks_[j]->Draw("E1") : p_pullY_vsNtracks_[j]->Draw("E1same");
@@ -857,7 +857,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c4->GetPad(2));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c4->cd(3);
     j == 0 ? p_pullZ_vsNtracks_[j]->Draw("E1") : p_pullZ_vsNtracks_[j]->Draw("E1same");
@@ -867,7 +867,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c4->GetPad(3));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     // fifth canvas
 
@@ -879,7 +879,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c5->GetPad(1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c5->cd(2);
     j == 0 ? p_resolY_vsNVtx_[j]->Draw("E1") : p_resolY_vsNVtx_[j]->Draw("E1same");
@@ -889,7 +889,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c5->GetPad(2));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c5->cd(3);
     j == 0 ? p_resolZ_vsNVtx_[j]->Draw("E1") : p_resolZ_vsNVtx_[j]->Draw("E1same");
@@ -899,7 +899,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c5->GetPad(3));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     // sixth canvas
 
@@ -911,7 +911,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c6->GetPad(1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c6->cd(2);
     j == 0 ? p_pullY_vsNVtx_[j]->Draw("E1") : p_pullY_vsNVtx_[j]->Draw("E1same");
@@ -921,7 +921,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c6->GetPad(2));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
 
     c6->cd(3);
     j == 0 ? p_pullZ_vsNVtx_[j]->Draw("E1") : p_pullZ_vsNVtx_[j]->Draw("E1same");
@@ -931,7 +931,7 @@ void FitPVResolution(TString namesandlabels, TString theDate = "", bool isStrict
     if (theDate.Length() != 0)
       ptDate->Draw("same");
     current_pad = static_cast<TPad*>(c6->GetPad(3));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
   }
 
   if (theDate.Length() != 0)
@@ -1130,8 +1130,9 @@ void setPVResolStyle() {
   /*--------------------------------------------------------------------*/
 
   writeExtraText = true;  // if extra text
-  lumi_13TeV = "p-p collisions";
-  lumi_0p9TeV = "p-p collisions";
+  lumi_13p6TeV = "pp collisions";
+  lumi_13TeV = "pp collisions";
+  lumi_0p9TeV = "pp collisions";
   extraText = "Internal";
 
   TH1::StatOverflows(kTRUE);

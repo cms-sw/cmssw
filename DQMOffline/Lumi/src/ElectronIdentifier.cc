@@ -1,10 +1,7 @@
 #include "DQMOffline/Lumi/interface/ElectronIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
@@ -13,9 +10,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
-
-#include "DQMOffline/Lumi/interface/TTrigger.h"
-#include "DQMOffline/Lumi/interface/TriggerTools.h"
 
 #include <TLorentzVector.h>
 #include <TMath.h>

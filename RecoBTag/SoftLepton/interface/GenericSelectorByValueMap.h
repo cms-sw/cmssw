@@ -6,7 +6,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +35,7 @@ namespace edm {
   }  // namespace details
 
   template <typename T, typename C>
-  class GenericSelectorByValueMap : public edm::EDProducer {
+  class GenericSelectorByValueMap : public edm::global::EDProducer<> {
   public:
     explicit GenericSelectorByValueMap(edm::ParameterSet const& config);
 
@@ -44,7 +44,7 @@ namespace edm {
     typedef C selection_type;
     typedef typename details::template CompatibleConfigurationType<selection_type>::type cut_type;
 
-    void produce(edm::Event& event, edm::EventSetup const& setup) override;
+    void produce(edm::StreamID, edm::Event& event, edm::EventSetup const& setup) const override;
 
     edm::EDGetTokenT<edm::View<candidate_type>> token_electrons;
     edm::EDGetTokenT<edm::ValueMap<selection_type>> token_selection;
@@ -80,7 +80,7 @@ namespace edm {
   //------------------------------------------------------------------------------
 
   template <typename T, typename C>
-  void GenericSelectorByValueMap<T, C>::produce(edm::Event& event, const edm::EventSetup& setup) {
+  void GenericSelectorByValueMap<T, C>::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
     auto candidates = std::make_unique<edm::RefToBaseVector<candidate_type>>();
 
     // read the collection of GsfElectrons from the Event

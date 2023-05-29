@@ -121,6 +121,17 @@ namespace l1t {
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
         auto payload = block.payload();
 
+        // Run 3 has a different EMTF DAQ output format since August 26th
+        // Computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
+        bool run3_DAQ_format =
+            (getAlgoVersion() >=
+             11546);  // Firmware from 26.08.22 which enabled new Run 3 DAQ format for RPCs - EY 13.09.22
+        bool reducedDAQWindow =
+            (getAlgoVersion() >=
+             11656);  // Firmware from 08.12.22 which is used as a flag for new reduced readout window - EY 01.03.23
+
+        int nTPs = run3_DAQ_format ? 2 : 1;
+
         // Check Format of Payload
         l1t::emtf::RPC RPC_;
         for (int err = 0; err < checkFormat(block); err++)
@@ -132,109 +143,152 @@ namespace l1t {
         uint16_t RPCc = payload[2];
         uint16_t RPCd = payload[3];
 
-        // res is a pointer to a collection of EMTFDaqOut class objects
-        // There is one EMTFDaqOut for each MTF7 (60 deg. sector) in the event
-        EMTFDaqOutCollection* res;
-        res = static_cast<EMTFCollections*>(coll)->getEMTFDaqOuts();
-        int iOut = res->size() - 1;
+        // If there are 2 TPs in the block we fill them 1 by 1
+        for (int i = 1; i <= nTPs; i++) {
+          // res is a pointer to a collection of EMTFDaqOut class objects
+          // There is one EMTFDaqOut for each MTF7 (60 deg. sector) in the event
+          EMTFDaqOutCollection* res;
+          res = static_cast<EMTFCollections*>(coll)->getEMTFDaqOuts();
+          int iOut = res->size() - 1;
 
-        EMTFHitCollection* res_hit;
-        res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
-        EMTFHit Hit_;
+          EMTFHitCollection* res_hit;
+          res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
+          EMTFHit Hit_;
 
-        CPPFDigiCollection* res_CPPF;
-        res_CPPF = static_cast<EMTFCollections*>(coll)->getEMTFCPPFs();
+          CPPFDigiCollection* res_CPPF;
+          res_CPPF = static_cast<EMTFCollections*>(coll)->getEMTFCPPFs();
 
-        ////////////////////////////
-        // Unpack the RPC Data Record
-        ////////////////////////////
+          ////////////////////////////
+          // Unpack the RPC Data Record
+          ////////////////////////////
 
-        RPC_.set_phi(GetHexBits(RPCa, 0, 10));
+          if (run3_DAQ_format) {  // Run 3 DAQ format has 2 TPs per block
+            if (i == 1) {
+              RPC_.set_phi(GetHexBits(RPCa, 0, 10));
+              RPC_.set_word(GetHexBits(RPCa, 11, 12));
+              RPC_.set_frame(GetHexBits(RPCa, 13, 14));
 
-        RPC_.set_theta(GetHexBits(RPCb, 0, 4));
-        RPC_.set_word(GetHexBits(RPCb, 8, 9));
-        RPC_.set_frame(GetHexBits(RPCb, 10, 11));
-        RPC_.set_link(GetHexBits(RPCb, 12, 14));  // Link index (0 - 6); link number runs 1 - 7
+              if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+                RPC_.set_tbin(GetHexBits(RPCb, 0, 2) + 1);
+              else
+                RPC_.set_tbin(GetHexBits(RPCb, 0, 2));
+              RPC_.set_vp(GetHexBits(RPCb, 3, 3));
+              RPC_.set_theta(GetHexBits(RPCb, 4, 8));
+              RPC_.set_bc0(GetHexBits(RPCb, 9, 9));
+              RPC_.set_link(GetHexBits(RPCb, 12, 14));  // Link index (0 - 6); link number runs 1 - 7
+            } else if (i == 2) {
+              RPC_.set_phi(GetHexBits(RPCc, 0, 10));
+              RPC_.set_word(GetHexBits(RPCc, 11, 12));
+              RPC_.set_frame(GetHexBits(RPCc, 13, 14));
 
-        RPC_.set_rpc_bxn(GetHexBits(RPCc, 0, 11));
-        RPC_.set_bc0(GetHexBits(RPCc, 14, 14));
+              if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+                RPC_.set_tbin(GetHexBits(RPCd, 0, 2) + 1);
+              else
+                RPC_.set_tbin(GetHexBits(RPCd, 0, 2));
+              RPC_.set_vp(GetHexBits(RPCd, 3, 3));
+              RPC_.set_theta(GetHexBits(RPCd, 4, 8));
+              RPC_.set_bc0(GetHexBits(RPCd, 9, 9));
+              RPC_.set_link(GetHexBits(RPCd, 12, 14));  // Link index (0 - 6); link number runs 1 - 7
+            }
+          } else {  // Run 2 DAQ format
+            RPC_.set_phi(GetHexBits(RPCa, 0, 10));
 
-        RPC_.set_tbin(GetHexBits(RPCd, 0, 2));
-        RPC_.set_vp(GetHexBits(RPCd, 3, 3));
+            RPC_.set_theta(GetHexBits(RPCb, 0, 4));
+            RPC_.set_word(GetHexBits(RPCb, 8, 9));
+            RPC_.set_frame(GetHexBits(RPCb, 10, 11));
+            RPC_.set_link(GetHexBits(RPCb, 12, 14));  // Link index (0 - 6); link number runs 1 - 7
 
-        // RPC_.set_dataword            ( uint64_t dataword);
+            RPC_.set_rpc_bxn(GetHexBits(RPCc, 0, 11));
+            RPC_.set_bc0(GetHexBits(RPCc, 14, 14));
 
-        // Convert specially-encoded RPC quantities
-        int _station, _ring, _sector, _subsector, _neighbor, _segment;
-        convert_RPC_location(_station,
-                             _ring,
-                             _sector,
-                             _subsector,
-                             _neighbor,
-                             _segment,
-                             (res->at(iOut)).PtrEventHeader()->Sector(),
-                             RPC_.Frame(),
-                             RPC_.Word(),
-                             RPC_.Link());
+            RPC_.set_tbin(GetHexBits(RPCd, 0, 2));
+            RPC_.set_vp(GetHexBits(RPCd, 3, 3));
 
-        // Rotate by 20 deg to match RPC convention in CMSSW
-        int _sector_rpc = (_subsector < 5) ? _sector : (_sector % 6) + 1;
-        // Rotate by 2 to match RPC convention in CMSSW (RPCDetId.h)
-        int _subsector_rpc = ((_subsector + 1) % 6) + 1;
-        // Define chamber number
-        int _chamber = (_sector_rpc - 1) * 6 + _subsector_rpc;
-        // Define CSC-like subsector
-        int _subsector_csc = (_station != 1) ? 0 : ((_chamber % 6 > 2) ? 1 : 2);
+            // RPC_.set_dataword            ( uint64_t dataword);
+          }
 
-        Hit_.set_station(_station);
-        Hit_.set_ring(_ring);
-        Hit_.set_sector(_sector);
-        Hit_.set_subsector(_subsector_csc);
-        Hit_.set_sector_RPC(_sector_rpc);
-        Hit_.set_subsector_RPC(_subsector_rpc);
-        Hit_.set_chamber(_chamber);
-        Hit_.set_neighbor(_neighbor);
-        Hit_.set_pc_segment(_segment);
-        Hit_.set_fs_segment(_segment);
-        Hit_.set_bt_segment(_segment);
+          // Convert specially-encoded RPC quantities
+          int _station, _ring, _sector, _subsector, _neighbor, _segment;
+          convert_RPC_location(_station,
+                               _ring,
+                               _sector,
+                               _subsector,
+                               _neighbor,
+                               _segment,
+                               (res->at(iOut)).PtrEventHeader()->Sector(),
+                               RPC_.Frame(),
+                               RPC_.Word(),
+                               RPC_.Link());
 
-        // Fill the EMTFHit
-        ImportRPC(Hit_, RPC_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector());
+          // Rotate by 20 deg to match RPC convention in CMSSW
+          int _sector_rpc = (_subsector < 5) ? _sector : (_sector % 6) + 1;
+          // Rotate by 2 to match RPC convention in CMSSW (RPCDetId.h)
+          int _subsector_rpc = ((_subsector + 1) % 6) + 1;
+          // Define chamber number
+          int _chamber = (_sector_rpc - 1) * 6 + _subsector_rpc;
+          // Define CSC-like subsector
+          int _subsector_csc = (_station != 1) ? 0 : ((_chamber % 6 > 2) ? 1 : 2);
 
-        // Set the stub number for this hit
-        // Each chamber can send up to 2 stubs per BX
-        // Also count stubs in corresponding CSC chamber; RPC hit counting is on top of LCT counting
-        Hit_.set_stub_num(0);
-        // See if matching hit is already in event record
-        bool exact_duplicate = false;
-        for (auto const& iHit : *res_hit) {
-          if (Hit_.BX() == iHit.BX() && Hit_.Endcap() == iHit.Endcap() && Hit_.Station() == iHit.Station() &&
-              Hit_.Chamber() == iHit.Chamber()) {
-            if ((iHit.Is_CSC() == 1 && iHit.Ring() == 2) ||
-                (iHit.Is_RPC() == 1)) {  // RPC rings 2 and 3 both map to CSC ring 2
-              if (Hit_.Neighbor() == iHit.Neighbor()) {
-                Hit_.set_stub_num(Hit_.Stub_num() + 1);
-                if (iHit.Is_RPC() == 1 && iHit.Ring() == Hit_.Ring() && iHit.Theta_fp() == Hit_.Theta_fp() &&
-                    iHit.Phi_fp() == Hit_.Phi_fp()) {
-                  exact_duplicate = true;
+          Hit_.set_station(_station);
+          Hit_.set_ring(_ring);
+          Hit_.set_sector(_sector);
+          Hit_.set_subsector(_subsector_csc);
+          Hit_.set_sector_RPC(_sector_rpc);
+          Hit_.set_subsector_RPC(_subsector_rpc);
+          Hit_.set_chamber(_chamber);
+          Hit_.set_neighbor(_neighbor);
+          Hit_.set_pc_segment(_segment);
+          Hit_.set_fs_segment(_segment);
+          Hit_.set_bt_segment(_segment);
+
+          // Fill the EMTFHit
+          ImportRPC(Hit_, RPC_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector());
+
+          // Set the stub number for this hit
+          // Each chamber can send up to 2 stubs per BX
+          // Also count stubs in corresponding CSC chamber; RPC hit counting is on top of LCT counting
+          Hit_.set_stub_num(0);
+          // See if matching hit is already in event record
+          bool exact_duplicate = false;
+          for (auto const& iHit : *res_hit) {
+            if (Hit_.BX() == iHit.BX() && Hit_.Endcap() == iHit.Endcap() && Hit_.Station() == iHit.Station() &&
+                Hit_.Chamber() == iHit.Chamber()) {
+              if ((iHit.Is_CSC() == 1 && iHit.Ring() == 2) ||
+                  (iHit.Is_RPC() == 1)) {  // RPC rings 2 and 3 both map to CSC ring 2
+                if (Hit_.Neighbor() == iHit.Neighbor()) {
+                  Hit_.set_stub_num(Hit_.Stub_num() + 1);
+                  if (iHit.Is_RPC() == 1 && iHit.Ring() == Hit_.Ring() && iHit.Theta_fp() == Hit_.Theta_fp() &&
+                      iHit.Phi_fp() == Hit_.Phi_fp()) {
+                    exact_duplicate = true;
+                  }
                 }
               }
             }
+          }  // End loop: for (auto const & iHit : *res_hit)
+
+          // Reject TPs with out-of-range BX values. This needs to be adjusted if we increase l1a_window parameter in EMTF config - EY 03.08.2022
+          if (Hit_.BX() > 3 or Hit_.BX() < -3) {
+            edm::LogWarning("L1T|EMTF") << "EMTF unpacked CPPF digis with out-of-range BX! BX " << Hit_.BX()
+                                        << ", endcap " << Hit_.Endcap() << ", station " << Hit_.Station() << ", sector "
+                                        << Hit_.Sector() << ", neighbor " << Hit_.Neighbor() << ", ring " << Hit_.Ring()
+                                        << ", chamber " << Hit_.Chamber() << ", theta " << Hit_.Theta_fp() / 4
+                                        << ", phi " << Hit_.Phi_fp() / 4 << std::endl;
+            return true;
           }
-        }  // End loop: for (auto const & iHit : *res_hit)
 
-        if (exact_duplicate)
-          edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate CPPF digis: BX " << Hit_.BX() << ", endcap "
-                                      << Hit_.Endcap() << ", station " << Hit_.Station() << ", sector " << Hit_.Sector()
-                                      << ", neighbor " << Hit_.Neighbor() << ", ring " << Hit_.Ring() << ", chamber "
-                                      << Hit_.Chamber() << ", theta " << Hit_.Theta_fp() / 4 << ", phi "
-                                      << Hit_.Phi_fp() / 4 << std::endl;
+          if (exact_duplicate)
+            edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate CPPF digis: BX " << Hit_.BX() << ", endcap "
+                                        << Hit_.Endcap() << ", station " << Hit_.Station() << ", sector "
+                                        << Hit_.Sector() << ", neighbor " << Hit_.Neighbor() << ", ring " << Hit_.Ring()
+                                        << ", chamber " << Hit_.Chamber() << ", theta " << Hit_.Theta_fp() / 4
+                                        << ", phi " << Hit_.Phi_fp() / 4 << std::endl;
 
-        (res->at(iOut)).push_RPC(RPC_);
-        if (!exact_duplicate)
-          res_hit->push_back(Hit_);
-        if (!exact_duplicate)
-          res_CPPF->push_back(Hit_.CreateCPPFDigi());
+          (res->at(iOut)).push_RPC(RPC_);
+          if (!exact_duplicate and Hit_.Valid())
+            res_hit->push_back(Hit_);
+          if (!exact_duplicate and Hit_.Valid())
+            res_CPPF->push_back(Hit_.CreateCPPFDigi());
+        }
 
         // Finished with unpacking one RPC Data Record
         return true;

@@ -30,7 +30,6 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
   //and removing the collinear jets
   CaloJetCollection myTmpJets;
 
-  int iL1Jet = 0;
   for (vtoken_cjets::const_iterator s = jetSrc_token.begin(); s != jetSrc_token.end(); ++s) {
     edm::Handle<CaloJetCollection> tauJets;
     iEvent.getByToken(*s, tauJets);
@@ -42,7 +41,6 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
         myTmpJets.push_back(myJet);
       }
     }
-    iL1Jet++;
   }
 
   std::unique_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
@@ -58,8 +56,8 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
     tauL2jets->push_back(myTmpJets[0]);
     CaloJetCollection tmp;
     for (unsigned int i = 1; i < myTmpJets.size(); ++i) {
-      double DR = ROOT::Math::VectorUtil::DeltaR(myTmpJets[0].p4(), myTmpJets[i].p4());
-      if (DR > 0.1)
+      double DR2 = ROOT::Math::VectorUtil::DeltaR2(myTmpJets[0].p4(), myTmpJets[i].p4());
+      if (DR2 > 0.1 * 0.1)
         tmp.push_back(myTmpJets[i]);
     }
     myTmpJets.swap(tmp);
@@ -80,3 +78,6 @@ void L2TauJetsMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.setComment("Merges CaloJet collections removing duplicates");
   descriptions.add("L2TauJetsMerger", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2TauJetsMerger);

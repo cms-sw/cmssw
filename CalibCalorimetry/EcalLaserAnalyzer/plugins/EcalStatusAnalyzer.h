@@ -5,13 +5,16 @@
 
 #include <memory>
 #include <FWCore/Framework/interface/one/EDAnalyzer.h>
+#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
+#include <TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h>
 
 class Timestamp;
 
 class EcalStatusAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalStatusAnalyzer(const edm::ParameterSet& iConfig);
-  ~EcalStatusAnalyzer() override;
+  ~EcalStatusAnalyzer() override = default;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void beginJob() override;
@@ -27,10 +30,14 @@ public:
 private:
   int iEvent;
 
-  std::string resdir_;
-  std::string statusfile_;
-  std::string eventHeaderCollection_;
-  std::string eventHeaderProducer_;
+  const std::string _dataType;
+
+  const std::string resdir_;
+  const std::string statusfile_;
+  const std::string eventHeaderCollection_;
+  const std::string eventHeaderProducer_;
+  const edm::EDGetTokenT<EcalRawDataCollection> dccToken_;
+  const edm::EDGetTokenT<EcalTBEventHeader> headToken_;
 
   std::map<int, int> isFedLasCreated;
   std::map<int, int> isFedTPCreated;
@@ -42,8 +49,6 @@ private:
   std::vector<int> dccIDsLas;
   std::vector<int> dccIDsTP;
   std::vector<int> dccIDsPed;
-
-  std::string _dataType;
 
   // Identify run type
 

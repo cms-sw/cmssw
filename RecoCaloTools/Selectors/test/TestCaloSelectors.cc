@@ -5,29 +5,28 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 
-class TestCaloSelectors : public edm::EDAnalyzer {
+class TestCaloSelectors : public edm::one::EDAnalyzer<> {
 public:
-  TestCaloSelectors(const edm::ParameterSet& ps) : inputTag_(ps.getParameter<edm::InputTag>("inputTag")) {}
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& es);
+  TestCaloSelectors(const edm::ParameterSet& ps)
+      : token_(consumes(ps.getParameter<edm::InputTag>("inputTag"))), caloToken_(esConsumes()) {}
+  void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
-  edm::InputTag inputTag_;
+  edm::EDGetTokenT<HBHERecHitCollection> token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloToken_;
 };
 
 void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c) {
-  edm::Handle<HBHERecHitCollection> hbhe;
-  evt.getByLabel(inputTag_, hbhe);
-  edm::ESHandle<CaloGeometry> pG;
-  c.get<CaloGeometryRecord>().get(pG);
+  edm::ESHandle<CaloGeometry> pG = c.getHandle(caloToken_);
 
-  const HBHERecHitCollection& mhbhe = *hbhe;
+  const HBHERecHitCollection& mhbhe = evt.get(token_);
 
   double maxEt = -1;
   GlobalPoint pMax;

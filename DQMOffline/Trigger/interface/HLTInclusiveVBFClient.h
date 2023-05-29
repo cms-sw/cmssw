@@ -9,7 +9,7 @@
 
 #include <memory>
 #include <unistd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -33,7 +33,7 @@
 #include <fstream>
 #include <vector>
 
-class HLTInclusiveVBFClient : public edm::EDAnalyzer {
+class HLTInclusiveVBFClient : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -54,9 +54,8 @@ public:
   explicit HLTInclusiveVBFClient(const edm::ParameterSet&);
   ~HLTInclusiveVBFClient() override;
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
-  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   virtual void runClient_();
 };

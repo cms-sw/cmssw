@@ -1,6 +1,5 @@
 /*
  * Tests for running inference using custom thread pools.
- * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -15,32 +14,36 @@
 
 class testGraphLoading : public testBase {
   CPPUNIT_TEST_SUITE(testGraphLoading);
-  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void checkAll() override;
+  void test() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoading);
 
 std::string testGraphLoading::pyScript() const { return "createconstantgraph.py"; }
 
-void testGraphLoading::checkAll() {
+void testGraphLoading::test() {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
+
+  std::cout << "Testing CPU backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cpu;
+  tensorflow::Options options{backend};
 
   // initialize the TBB threadpool
   int nThreads = 4;
   tensorflow::TBBThreadPool::instance(nThreads);
+  options.setThreading(nThreads);
 
   // load the graph
-  tensorflow::setLogging();
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  tensorflow::Session* session = tensorflow::createSession(graphDef);
+  tensorflow::Session* session = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
 
   // prepare inputs
@@ -67,7 +70,7 @@ void testGraphLoading::checkAll() {
   CPPUNIT_ASSERT(outputs[0].matrix<float>()(0, 0) == 46.);
 
   // tensorflow defaut pool using a new session
-  tensorflow::Session* session2 = tensorflow::createSession(graphDef, nThreads);
+  tensorflow::Session* session2 = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
   outputs.clear();
   tensorflow::run(session2, {{"input", input}, {"scale", scale}}, {"output"}, &outputs, "tensorflow");

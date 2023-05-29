@@ -4,31 +4,55 @@
  *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
  *
  */
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerAnalFit.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include <iostream>
-#include <cmath>
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-//#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecAnalFitAlgo.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 
-//#include "CLHEP/Matrix/Matrix.h"
-//#include "CLHEP/Matrix/SymMatrix.h"
+#include <cmath>
+#include <iostream>
 #include <vector>
 
-#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+class EcalUncalibRecHitWorkerAnalFit : public EcalUncalibRecHitWorkerRunOneDigiBase {
+public:
+  EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c);
+  EcalUncalibRecHitWorkerAnalFit(){};
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt,
+           const EcalDigiCollection::const_iterator& digi,
+           EcalUncalibratedRecHitCollection& result) override;
+
+  edm::ParameterSetDescription getAlgoDescription() override;
+
+private:
+  EcalUncalibRecHitRecAnalFitAlgo<EBDataFrame> algoEB_;
+  EcalUncalibRecHitRecAnalFitAlgo<EEDataFrame> algoEE_;
+
+  edm::ESHandle<EcalGainRatios> pRatio;
+  edm::ESHandle<EcalPedestals> pedHandle;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> ratiosToken_;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedestalsToken_;
+};
 
 EcalUncalibRecHitWorkerAnalFit::EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
     : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c),

@@ -93,6 +93,19 @@ Bu_pset      = cms.PSet( name = cms.string( 'Bu' ),
                     massFitMax = cms.double( 6.00 ),
                    constrMJPsi = cms.bool( True )
 )
+Bp_pset      = cms.PSet( name = cms.string( 'Bp' ),
+                        ptMin = cms.double( 0.7 ),
+                       etaMax = cms.double( 10.0 ),
+                      mJPsiMin = cms.double( 2.80 ),
+                      mJPsiMax = cms.double( 3.40 ),
+                       massMin = cms.double( 3.50 ),
+                       massMax = cms.double( 8.00 ),
+                       probMin = cms.double( 0.02 ),
+                    massFitMin = cms.double( 5.00 ),
+                    massFitMax = cms.double( 6.00 ),
+                   constrMJPsi = cms.bool( False ),
+                   constrMPsi2 = cms.bool( True )
+)
 Bd_pset      = cms.PSet( name = cms.string( 'Bd' ),
                      mJPsiMin = cms.double( 2.80 ),
                      mJPsiMax = cms.double( 3.40 ),
@@ -167,7 +180,7 @@ Bc_pset      = cms.PSet( name = cms.string( 'Bc' ),
                    massFitMax = cms.double( 7.00 ),
                   constrMJPsi = cms.bool( True )
 )
-X3872_pset   = cms.PSet( name = cms.string( 'X3872' ),
+Psi2S_pset   = cms.PSet( name = cms.string( 'Psi2S' ),
                         ptMin = cms.double( 1.0 ),
                        etaMax = cms.double( 10.0 ),
                      mJPsiMin = cms.double( 2.80 ),
@@ -176,6 +189,18 @@ X3872_pset   = cms.PSet( name = cms.string( 'X3872' ),
                       massMax = cms.double( 4.50 ),
                       probMin = cms.double( 0.02 ),
                    massFitMin = cms.double( 3.60 ),
+                   massFitMax = cms.double( 3.80 ),
+                  constrMJPsi = cms.bool( True )
+)
+X3872_pset   = cms.PSet( name = cms.string( 'X3872' ),
+                        ptMin = cms.double( 1.0 ),
+                       etaMax = cms.double( 10.0 ),
+                     mJPsiMin = cms.double( 2.80 ),
+                     mJPsiMax = cms.double( 3.40 ),
+                      massMin = cms.double( 3.00 ),
+                      massMax = cms.double( 4.50 ),
+                      probMin = cms.double( 0.02 ),
+                   massFitMin = cms.double( 3.80 ),
                    massFitMax = cms.double( 4.00 ),
                   constrMJPsi = cms.bool( True )
 )
@@ -192,6 +217,7 @@ recoSelect = cms.VPSet(
       Kx0_pset,
     PhiKK_pset,
        Bu_pset,
+       Bp_pset,
        Bd_pset,
        Bs_pset,
       K0s_pset,
@@ -199,5 +225,6 @@ recoSelect = cms.VPSet(
        B0_pset,
   Lambdab_pset,
        Bc_pset,
+    Psi2S_pset,
     X3872_pset
 )

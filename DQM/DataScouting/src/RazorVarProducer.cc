@@ -35,10 +35,8 @@ RazorVarProducer::RazorVarProducer(const edm::ParameterSet &iConfig)
   LogDebug("") << "Inputs: " << inputTag_.encode() << " " << inputMetTag_.encode() << ".";
 }
 
-RazorVarProducer::~RazorVarProducer() {}
-
 // ------------ method called to produce the data  ------------
-void RazorVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void RazorVarProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -66,7 +64,7 @@ void RazorVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   iEvent.put(std::move(result));
 }
 
-double RazorVarProducer::CalcMR(TLorentzVector ja, TLorentzVector jb) {
+double RazorVarProducer::CalcMR(TLorentzVector ja, TLorentzVector jb) const {
   if (ja.Pt() <= 0.1)
     return -1;
 
@@ -103,7 +101,7 @@ double RazorVarProducer::CalcR(double MR,
                                const TLorentzVector &ja,
                                const TLorentzVector &jb,
                                edm::Handle<reco::CaloMETCollection> inputMet,
-                               const std::vector<math::XYZTLorentzVector> &muons) {
+                               const std::vector<math::XYZTLorentzVector> &muons) const {
   // now we can calculate MTR
   TVector3 met;
   met.SetPtEtaPhi((inputMet->front()).pt(), 0.0, (inputMet->front()).phi());

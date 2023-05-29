@@ -1,133 +1,93 @@
-#! /bin/bash
+#!/bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_12_4_0/HLT"             # no explicit version, take the most recent
-TARGET="/dev/CMSSW_12_4_0/\$TABLE"         # no explicit version, take the most recent
+MASTER="/dev/CMSSW_13_0_0/HLT"      # no explicit version, take the most recent
+TARGET="/dev/CMSSW_13_0_0/\$TABLE"  # no explicit version, take the most recent
 
-TABLES="GRun HIon PIon PRef"               # $TABLE in the above variable will be expanded to these TABLES
+TABLES="GRun HIon PIon PRef"        # $TABLE in the above variable will be expanded to these TABLES
 
-# print extra messages ?
-VERBOSE=false
+# command-line arguments
+VERBOSE=false # print extra messages to stdout
+DBPROXYOPTS="" # db-proxy configuration
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -v) VERBOSE=true; shift;;
+    --dbproxy) DBPROXYOPTS="${DBPROXYOPTS} --dbproxy"; shift;;
+    --dbproxyhost) DBPROXYOPTS="${DBPROXYOPTS} --dbproxyhost $2"; shift; shift;;
+    --dbproxyport) DBPROXYOPTS="${DBPROXYOPTS} --dbproxyport $2"; shift; shift;;
+    *) shift;;
+  esac
+done
 
-# this is used for brace expansion
-TABLES_=$(echo $TABLES | sed -e's/ \+/,/g')
+# remove spurious whitespaces and tabs from DBPROXYOPTS
+DBPROXYOPTS=$(echo "${DBPROXYOPTS}" | xargs)
 
-[ "$1" == "-v" ] && { VERBOSE=true;  shift; }
-[ "$1" == "-q" ] && { VERBOSE=false; shift; }
-
+# log: print to stdout only if VERBOSE=true
 function log() {
   $VERBOSE && echo -e "$@"
 }
 
-function findHltScript() {
-  local PACKAGE="HLTrigger/Configuration"
-  local SCRIPT="$1"
+# path to directory hosting this script
+TESTDIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 
-  if [ -f "$SCRIPT" ]; then
-    echo "./$SCRIPT"
-  elif [ -f "$CMSSW_BASE/src/$PACKAGE/test/$SCRIPT" ]; then
-    echo "$CMSSW_BASE/src/$PACKAGE/test/$SCRIPT"
-  elif [ -f "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/$SCRIPT" ]; then
-    echo "$CMSSW_RELEASE_BASE/src/$PACKAGE/test/$SCRIPT"
+# ensure that directory hosting this script corresponds to ${CMSSW_BASE}/src/HLTrigger/Configuration/test
+if [ "${TESTDIR}" != "${CMSSW_BASE}"/src/HLTrigger/Configuration/test ]; then
+  printf "\n%s\n" "ERROR -- the directory hosting getHLT.sh [1] does not correspond to \${CMSSW_BASE}/src/HLTrigger/Configuration/test [2]"
+  printf "%s\n"   "         [1] ${TESTDIR}"
+  printf "%s\n\n" "         [2] ${CMSSW_BASE}/src/HLTrigger/Configuration/test"
+  exit 1
+fi
+
+# ensure that the python/ directory hosting cff fragments exists
+if [ ! -d "${CMSSW_BASE}"/src/HLTrigger/Configuration/python ]; then
+  printf "\n%s\n" "ERROR -- the directory \${CMSSW_BASE}/src/HLTrigger/Configuration/python [1] does not exist"
+  printf "%s\n\n" "         [1] ${CMSSW_BASE}/src/HLTrigger/Configuration/python"
+  exit 1
+fi
+
+INITDIR="${PWD}"
+
+# execute the ensuing steps from ${CMSSW_BASE}/src/HLTrigger/Configuration/test
+cd "${CMSSW_BASE}"/src/HLTrigger/Configuration/test
+
+# create cff fragments and cfg configs
+for TABLE in FULL ${TABLES}; do
+  if [ "${TABLE}" = "FULL" ]; then
+    CONFIG="${MASTER}"
   else
-    echo "cannot find $SCRIPT, aborting" 
-    exit 1
-  fi
-}
-
-GETCONTENT=$(findHltScript getEventContent.py)
-GETDATASETS=$(findHltScript getDatasets.py)
-
-function getConfigForCVS() {
-  local CONFIG="$1"
-  local NAME="$2"
-  log "  dumping HLT cffs for $NAME from $CONFIG"
-
-  # do not use any conditions or L1 override
-  hltGetConfiguration --cff --data $CONFIG --type $NAME > HLT_${NAME}_cff.py
-}
-
-function getContentForCVS() {
-  local CONFIG="$1"
-
-  log "  dumping EventContet"
-  $GETCONTENT $CONFIG
-  rm -f hltOutput*_cff.py* hltScouting_cff.py*
-}
-
-function getDatasetsForCVS() {
-  local CONFIG="$1"
-  local TARGET="$2"
-
-  log "  dumping Primary Dataset"
-  $GETDATASETS $CONFIG > $TARGET
-}
-
-function getConfigForOnline() {
-  local CONFIG="$1"
-  local NAME="$2"
-# local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
-
-# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
-# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
-# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2015_25ns_v1_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2015_25ns_v1/sqlFile/L1Menu_Collisions2015_25ns_v1_mc.db"
-# local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
-# local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
-# local L1THI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
-# local L1THI="L1GtTriggerMenu_L1Menu_Collisions2015_25ns_v1_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2015_25ns_v1/sqlFile/L1Menu_Collisions2015_25ns_v1_mc.db"
-# local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2013_v0/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db"
-# local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc"
-# local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc"
-# local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2015_25ns_v1_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2015_25ns_v1/sqlFile/L1Menu_Collisions2015_25ns_v1_mc.db"
-
-  local L1TPP1=""
-  local L1TPP2=""
-
-  log "  dumping full HLT for $NAME from $CONFIG"
-  # override L1 menus
-  if [ "$NAME" == "Fake" ]; then
-    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
-  elif [ "$NAME" == "Fake1" ] || [ "$NAME" == "Fake2" ] || [ "$NAME" == "2018" ]; then
-    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
-  else
-    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run3_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
+    CONFIG=$(eval echo ${TARGET})
   fi
 
-}
+  echo "${TABLE} (config: ${CONFIG})"
 
-# make sure we're using *this* working area
-eval `scramv1 runtime -sh`
-hash -r
+  # cff fragment of each HLT menu (do not use any conditions or L1T override)
+  log "  creating cff fragment of HLT menu..."
+  hltGetConfiguration "${CONFIG}" --cff --data --type "${TABLE}" ${DBPROXYOPTS} > ../python/HLT_"${TABLE}"_cff.py
 
-# cff python dumps, in CVS under HLTrigger/Configuration/pyhon
-log "Extracting cff python dumps"
-echo "Extracting cff python dumps"
-FILES=$(eval echo HLT_FULL_cff.py HLT_{$TABLES_}_cff.py HLTrigger_Datasets_{$TABLES_}_cff.py HLTrigger_EventContent_cff.py )
-rm -f $FILES
-getConfigForCVS  $MASTER FULL
-getContentForCVS $MASTER
-for TABLE in $TABLES; do
-  log "$TABLE"
-  echo "$TABLE"
-  getConfigForCVS $(eval echo $TARGET) $TABLE
-  getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_${TABLE}_cff.py
+  # cff fragment of EventContents (only for MASTER config)
+  if [ "${TABLE}" = "FULL" ]; then
+    log "  creating cff fragment of EventContents..."
+    ./getEventContent.py "${MASTER}" ${DBPROXYOPTS} > ../python/HLTrigger_EventContent_cff.py
+  fi
+
+  # cff fragment of PrimaryDatasets of each HLT menu (except for MASTER config)
+  if [ "${TABLE}" != "FULL" ]; then
+    log "  creating cff fragment of Primary Datasets..."
+    ./getDatasets.py "${CONFIG}" ${DBPROXYOPTS} > ../python/HLTrigger_Datasets_"${TABLE}"_cff.py
+  fi
+
+  # GlobalTag
+  AUTOGT="auto:run3_hlt_${TABLE}"
+  if [ "${TABLE}" = "Fake1" ] || [ "${TABLE}" = "Fake2" ] || [ "${TABLE}" = "2018" ]; then
+    AUTOGT="auto:run2_hlt_${TABLE}"
+  elif [ "${TABLE}" = "Fake" ]; then
+    AUTOGT="auto:run1_hlt_${TABLE}"
+  fi
+
+  # standalone cfg file of each HLT menu (incl. MASTER config)
+  log "  creating full cfg of HLT menu..."
+  hltGetConfiguration "${CONFIG}" --full --data --type "${TABLE}" --unprescale --process "HLT${TABLE}" --globaltag "${AUTOGT}" \
+    --input "file:RelVal_Raw_${TABLE}_DATA.root" ${DBPROXYOPTS} > OnLine_HLT_"${TABLE}".py
 done
-log "Done"
-log "$(ls -l $FILES)"
-mv -f $FILES ../python/
-log
 
-# full config dumps, in CVS under HLTrigger/Configuration/test
-log "Extracting full configuration dumps"
-echo "Extracting full configuration dumps"
-FILES=$(eval echo OnLine_HLT_FULL.py OnLine_HLT_{$TABLES_}.py)
-rm -f $FILES
-getConfigForOnline $MASTER FULL
-for TABLE in $TABLES; do
-  log "$TABLE"
-  echo "$TABLE"
-  getConfigForOnline $(eval echo $TARGET) $TABLE
-done
-log "Done"
-log "$(ls -l $FILES)"
-log
+cd "${INITDIR}"

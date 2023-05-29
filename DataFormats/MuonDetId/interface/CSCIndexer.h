@@ -111,7 +111,7 @@ public:
    *
    * BEWARE! Includes ME42 so claims 2 rings in station 4. There is only 1 at CSC installation 2008.
    */
-  IndexType ringsInStation(IndexType is) const {
+  static IndexType ringsInStation(IndexType is) {
     const IndexType nrins[5] = {0, 3, 2, 2, 2};  // rings per station
     return nrins[is];
   }
@@ -121,7 +121,7 @@ public:
    *
    * Works for ME1a (ring 4 of ME1) too.
    */
-  IndexType chambersInRingOfStation(IndexType is, IndexType ir) const {
+  static IndexType chambersInRingOfStation(IndexType is, IndexType ir) {
     IndexType nc = 36;  // most rings have 36 chambers
     if (is > 1 && ir < 2)
       nc = 18;  // but 21, 31, 41 have 18
@@ -419,9 +419,9 @@ public:
   int dbIndex(const CSCDetId& id, int& channel);
 
 private:
-  void fillChamberLabel() const;  // const so it can be called in const function detIdFromChamberIndex
+  static std::vector<IndexType> fillChamberLabel();
 
-  mutable std::vector<IndexType> chamberLabel;  // mutable so can be filled by fillChamberLabel
+  static std::vector<IndexType> const& chamberLabel();
 };
 
 #endif

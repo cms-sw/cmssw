@@ -179,8 +179,11 @@ namespace l1t {
         // FW version is computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
         bool useNNBits_ = getAlgoVersion() >= 11098;   // FW versions >= 26.10.2021
         bool useHMTBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
+        bool reducedDAQWindow =
+            (getAlgoVersion() >=
+             11656);  // Firmware from 08.12.22 which is used as a flag for new reduced readout window - EY 01.03.23
 
-        static constexpr int nominalShower_ = 2;
+        static constexpr int nominalShower_ = 1;
         static constexpr int tightShower_ = 3;
 
         // Check Format of Payload
@@ -260,7 +263,10 @@ namespace l1t {
         SP_.set_me2_delay(GetHexBits(SP2b, 3, 5));
         SP_.set_me3_delay(GetHexBits(SP2b, 6, 8));
         SP_.set_me4_delay(GetHexBits(SP2b, 9, 11));
-        SP_.set_tbin(GetHexBits(SP2b, 12, 14));
+        if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+          SP_.set_tbin(GetHexBits(SP2b, 12, 14) + 1);
+        else
+          SP_.set_tbin(GetHexBits(SP2b, 12, 14));
 
         if (useNNBits_) {
           SP_.set_pt_dxy_GMT(GetHexBits(SP2c, 0, 7));
@@ -576,6 +582,18 @@ namespace l1t {
         //   // }
         //   std::cout << "***********************************************************\n\n" << std::endl;
         // }
+
+        // Reject tracks with out-of-range BX values. This needs to be adjusted if we increase l1a_window parameter in EMTF config - EY 03.08.2022
+        if (Track_.BX() > 3 or Track_.BX() < -3) {
+          edm::LogWarning("L1T|EMTF") << "EMTF unpacked track with out-of-range BX! BX: " << Track_.BX()
+                                      << " endcap: " << (Track_.Endcap() == 1 ? 1 : 2) << " sector: " << Track_.Sector()
+                                      << " address: " << Track_.PtLUT().address << " mode: " << Track_.Mode()
+                                      << " eta: " << (Track_.GMT_eta() >= 0 ? Track_.GMT_eta() : Track_.GMT_eta() + 512)
+                                      << " phi: " << Track_.GMT_phi() << " charge: " << Track_.GMT_charge()
+                                      << " qual: " << Track_.GMT_quality() << " pt: " << Track_.Pt()
+                                      << " pt_dxy: " << Track_.Pt_dxy() << std::endl;
+          return true;
+        }
 
         (res->at(iOut)).push_SP(SP_);
 

@@ -88,7 +88,7 @@ SeedGeneratorFromL1TTracksEDProducer::SeedGeneratorFromL1TTracksEDProducer(const
 
 void SeedGeneratorFromL1TTracksEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("InputCollection", {"TTTracksFromTrackletEmulation", "Level1TTTracks"});
+  desc.add<edm::InputTag>("InputCollection", {"l1tTTTracksFromTrackletEmulation", "Level1TTTracks"});
   desc.add<std::string>("estimator", "");
   desc.add<std::string>("propagator", "");
   desc.add<edm::InputTag>("MeasurementTrackerEvent", {""});

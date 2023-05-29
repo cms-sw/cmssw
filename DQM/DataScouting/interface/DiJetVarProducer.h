@@ -1,7 +1,7 @@
 #ifndef DiJetVarProducer_h
 #define DiJetVarProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,11 +16,11 @@
 
 #include <vector>
 
-class DiJetVarProducer : public edm::EDProducer {
+class DiJetVarProducer : public edm::global::EDProducer<> {
 public:
   explicit DiJetVarProducer(const edm::ParameterSet &);
-  ~DiJetVarProducer() override;
-  void produce(edm::Event &, const edm::EventSetup &) override;
+
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
   edm::InputTag inputJetTag_;  // input tag jets

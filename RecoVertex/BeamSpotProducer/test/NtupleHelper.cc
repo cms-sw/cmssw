@@ -58,14 +58,12 @@ zData NtupleHelper::Loop(int maxEvents) {
 
   std::cout << " total number of entries: " << fChain->GetEntries() << std::endl;
 
-  Int_t nbytes = 0, nb = 0;
   int theevent = 0;
   for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0)
       break;
-    nb = fChain->GetEntry(jentry);
-    nbytes += nb;
+    fChain->GetEntry(jentry);
     //      if (sigmaD <0.05&&pt>4.0)
     //	{
 

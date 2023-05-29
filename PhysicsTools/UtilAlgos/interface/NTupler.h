@@ -2,8 +2,6 @@
 #define NTupler_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"

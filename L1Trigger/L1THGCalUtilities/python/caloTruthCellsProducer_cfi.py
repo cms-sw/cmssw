@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import dummy_C2d_params
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import dummy_C2d_params
 
-caloTruthCellsProducer = cms.EDProducer('CaloTruthCellsProducer',
+l1tCaloTruthCellsProducer = cms.EDProducer('CaloTruthCellsProducer',
     caloParticles = cms.InputTag('mix', 'MergedCaloTruth'),
-    triggerCells = cms.InputTag('hgcalVFEProducer:HGCalVFEProcessorSums'),
+    triggerCells = cms.InputTag('l1tHGCalVFEProducer:HGCalVFEProcessorSums'),
     simHitsEE = cms.InputTag('g4SimHits:HGCHitsEE'),
     simHitsHEfront = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     simHitsHEback = cms.InputTag('g4SimHits:HcalHits'),

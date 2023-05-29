@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,15 +23,12 @@
 // class declaration
 //
 
-class InconsistentMuonPFCandidateFilter : public edm::EDFilter {
+class InconsistentMuonPFCandidateFilter : public edm::global::EDFilter<> {
 public:
   explicit InconsistentMuonPFCandidateFilter(const edm::ParameterSet&);
-  ~InconsistentMuonPFCandidateFilter() override;
 
 private:
-  void beginJob() override;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
@@ -63,14 +60,12 @@ InconsistentMuonPFCandidateFilter::InconsistentMuonPFCandidateFilter(const edm::
   produces<reco::PFCandidateCollection>("muons");
 }
 
-InconsistentMuonPFCandidateFilter::~InconsistentMuonPFCandidateFilter() {}
-
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool InconsistentMuonPFCandidateFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace std;
   using namespace edm;
 
@@ -125,12 +120,6 @@ bool InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::Ev
 
   return taggingMode_ || pass;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void InconsistentMuonPFCandidateFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void InconsistentMuonPFCandidateFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(InconsistentMuonPFCandidateFilter);

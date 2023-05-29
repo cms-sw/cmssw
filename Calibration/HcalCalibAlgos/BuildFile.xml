@@ -1,19 +1,19 @@
 <use name="root"/>
 <use name="rootgraphics"/>
 <use name="rootminuit"/>
-<use name="FWCore/Utilities"/>
-<use name="CommonTools/UtilAlgos"/>
-<use name="DataFormats/EcalDetId"/>
-<use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/DetId"/>
-<use name="DataFormats/HcalRecHit"/>
-<use name="Geometry/HcalTowerAlgo"/>
-<use name="CondTools/Hcal"/>
 <use name="Calibration/Tools"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CondTools/Hcal"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
+<use name="Geometry/HcalTowerAlgo"/>
 <use name="Utilities/Xerces"/>
 <export>
   <lib name="1"/>

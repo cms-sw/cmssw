@@ -63,7 +63,6 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
   bool use_match_dist_penalty = true;
 
   int nr_of_stations_crossed = 0;
-  int nr_of_stations_with_segment = 0;
   std::vector<int> stations_w_track(8);
   std::vector<int> station_has_segmentmatch(8);
   std::vector<int> station_was_crossed(8);
@@ -88,7 +87,6 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       }
       //current "raw" info that a segment is matched to the current track
       if (muon.segmentX(i, 1, arbitrationType) < 999999) {
-        ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
     } else {  // this is the section for the CSCs
@@ -103,7 +101,6 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       }
       //current "raw" info that a segment is matched to the current track
       if (muon.segmentX(i - 4, 2, arbitrationType) < 999999) {
-        ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
     }
@@ -1046,51 +1043,51 @@ reco::Muon::Selector muon::makeSelectorBitset(reco::Muon const& muon,
 
   // Base selectors
   if (muon::isLooseMuon(muon))
-    selectors |= reco::Muon::CutBasedIdLoose;
+    selectors |= (1UL << reco::Muon::CutBasedIdLoose);
   if (vertex) {
     if (muon::isTightMuon(muon, *vertex))
-      selectors |= reco::Muon::CutBasedIdTight;
+      selectors |= (1UL << reco::Muon::CutBasedIdTight);
     if (muon::isSoftMuon(muon, *vertex, run2016_hip_mitigation))
-      selectors |= reco::Muon::SoftCutBasedId;
+      selectors |= (1UL << reco::Muon::SoftCutBasedId);
     if (muon::isHighPtMuon(muon, *vertex))
-      selectors |= reco::Muon::CutBasedIdGlobalHighPt;
+      selectors |= (1UL << reco::Muon::CutBasedIdGlobalHighPt);
     if (muon::isTrackerHighPtMuon(muon, *vertex))
-      selectors |= reco::Muon::CutBasedIdTrkHighPt;
+      selectors |= (1UL << reco::Muon::CutBasedIdTrkHighPt);
   }
   if (muon::isMediumMuon(muon, run2016_hip_mitigation)) {
-    selectors |= reco::Muon::CutBasedIdMedium;
+    selectors |= (1UL << reco::Muon::CutBasedIdMedium);
     if (vertex and std::abs(muon.muonBestTrack()->dz(vertex->position())) < 0.1 and
         std::abs(muon.muonBestTrack()->dxy(vertex->position())) < 0.02)
-      selectors |= reco::Muon::CutBasedIdMediumPrompt;
+      selectors |= (1UL << reco::Muon::CutBasedIdMediumPrompt);
   }
 
   // PF isolation
   if (dbCorrectedRelIso < 0.40)
-    selectors |= reco::Muon::PFIsoVeryLoose;
+    selectors |= (1UL << reco::Muon::PFIsoVeryLoose);
   if (dbCorrectedRelIso < 0.25)
-    selectors |= reco::Muon::PFIsoLoose;
+    selectors |= (1UL << reco::Muon::PFIsoLoose);
   if (dbCorrectedRelIso < 0.20)
-    selectors |= reco::Muon::PFIsoMedium;
+    selectors |= (1UL << reco::Muon::PFIsoMedium);
   if (dbCorrectedRelIso < 0.15)
-    selectors |= reco::Muon::PFIsoTight;
+    selectors |= (1UL << reco::Muon::PFIsoTight);
   if (dbCorrectedRelIso < 0.10)
-    selectors |= reco::Muon::PFIsoVeryTight;
+    selectors |= (1UL << reco::Muon::PFIsoVeryTight);
   if (dbCorrectedRelIso < 0.05)
-    selectors |= reco::Muon::PFIsoVeryVeryTight;
+    selectors |= (1UL << reco::Muon::PFIsoVeryVeryTight);
 
   // Tracker isolation
   if (tkRelIso < 0.10)
-    selectors |= reco::Muon::TkIsoLoose;
+    selectors |= (1UL << reco::Muon::TkIsoLoose);
   if (tkRelIso < 0.05)
-    selectors |= reco::Muon::TkIsoTight;
+    selectors |= (1UL << reco::Muon::TkIsoTight);
 
   // Trigger selectors
   if (isLooseTriggerMuon(muon))
-    selectors |= reco::Muon::TriggerIdLoose;
+    selectors |= (1UL << reco::Muon::TriggerIdLoose);
 
   // Timing
   if (!outOfTimeMuon(muon))
-    selectors |= reco::Muon::InTimeMuon;
+    selectors |= (1UL << reco::Muon::InTimeMuon);
 
   return static_cast<reco::Muon::Selector>(selectors);
 }

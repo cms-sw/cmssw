@@ -172,6 +172,9 @@ namespace edm {
       void preEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
       void postEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
 
+      void preModuleStreamPrefetching(StreamContext const&, ModuleCallingContext const&);
+      void postModuleStreamPrefetching(StreamContext const&, ModuleCallingContext const&);
+
       void preModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
       void postModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
       void preModuleStreamEndRun(StreamContext const&, ModuleCallingContext const&);
@@ -188,6 +191,9 @@ namespace edm {
       void postModuleAccessInputProcessBlock(GlobalContext const&, ModuleCallingContext const&);
       void preModuleEndProcessBlock(GlobalContext const&, ModuleCallingContext const&);
       void postModuleEndProcessBlock(GlobalContext const&, ModuleCallingContext const&);
+
+      void preModuleGlobalPrefetching(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleGlobalPrefetching(GlobalContext const&, ModuleCallingContext const&);
 
       void preModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
@@ -215,6 +221,8 @@ namespace edm {
       void postESModulePrefetching(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
       void preESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
       void postESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void preESModuleAcquire(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void postESModuleAcquire(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
 
     private:
       std::string indention_;
@@ -358,6 +366,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPreEventReadFromSource(this, &Tracer::preEventReadFromSource);
   iRegistry.watchPostEventReadFromSource(this, &Tracer::postEventReadFromSource);
 
+  iRegistry.watchPreModuleStreamPrefetching(this, &Tracer::preModuleStreamPrefetching);
+  iRegistry.watchPostModuleStreamPrefetching(this, &Tracer::postModuleStreamPrefetching);
+
   iRegistry.watchPreModuleStreamBeginRun(this, &Tracer::preModuleStreamBeginRun);
   iRegistry.watchPostModuleStreamBeginRun(this, &Tracer::postModuleStreamBeginRun);
   iRegistry.watchPreModuleStreamEndRun(this, &Tracer::preModuleStreamEndRun);
@@ -374,6 +385,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPostModuleAccessInputProcessBlock(this, &Tracer::postModuleAccessInputProcessBlock);
   iRegistry.watchPreModuleEndProcessBlock(this, &Tracer::preModuleEndProcessBlock);
   iRegistry.watchPostModuleEndProcessBlock(this, &Tracer::postModuleEndProcessBlock);
+
+  iRegistry.watchPreModuleGlobalPrefetching(this, &Tracer::preModuleGlobalPrefetching);
+  iRegistry.watchPostModuleGlobalPrefetching(this, &Tracer::postModuleGlobalPrefetching);
 
   iRegistry.watchPreModuleGlobalBeginRun(this, &Tracer::preModuleGlobalBeginRun);
   iRegistry.watchPostModuleGlobalBeginRun(this, &Tracer::postModuleGlobalBeginRun);
@@ -401,6 +415,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPostESModulePrefetching(this, &Tracer::postESModulePrefetching);
   iRegistry.watchPreESModule(this, &Tracer::preESModule);
   iRegistry.watchPostESModule(this, &Tracer::postESModule);
+  iRegistry.watchPreESModuleAcquire(this, &Tracer::preESModuleAcquire);
+  iRegistry.watchPostESModuleAcquire(this, &Tracer::postESModuleAcquire);
 
   iRegistry.preSourceEarlyTerminationSignal_.connect([this](edm::TerminationOrigin iOrigin) {
     LogAbsolute out("Tracer");
@@ -1214,6 +1230,38 @@ void Tracer::postEventReadFromSource(StreamContext const& sc, ModuleCallingConte
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
 }
 
+void Tracer::preModuleStreamPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching before processing " << transitionName(sc.transition())
+      << " for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleStreamPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching before processing " << transitionName(sc.transition())
+      << " for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel()
+      << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
 void Tracer::preModuleStreamBeginRun(StreamContext const& sc, ModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
@@ -1330,6 +1378,36 @@ void Tracer::postModuleStreamEndLumi(StreamContext const& sc, ModuleCallingConte
       << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void Tracer::preModuleGlobalPrefetching(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching before processing " << transitionName(gc.transition()) << " for module: label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void Tracer::postModuleGlobalPrefetching(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching before processing " << transitionName(gc.transition()) << " for module: label = '"
+      << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if (dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
     out << mcc;
   }
 }
@@ -1687,6 +1765,28 @@ void Tracer::postESModule(eventsetup::EventSetupRecordKey const& iKey, ESModuleC
     out << indention_;
   }
   out << " finished: processing esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::preESModuleAcquire(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: processing esmodule acquire: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::postESModuleAcquire(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: processing esmodule acquire: label = '" << mcc.componentDescription()->label_
       << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
 }
 

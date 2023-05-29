@@ -143,7 +143,6 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();
 
-  Graph::index_type i = 0;
   (*m_xos) << "<PosPartSection label=\"" << ns_ << "\">" << std::endl;
   git = gra.begin();
   for (; git != gend; ++git) {
@@ -154,7 +153,6 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
     lpStore.insert(ddLP);
     addToMatStore(ddLP.material(), matStore);
     addToSolStore(ddLP.solid(), solStore, rotStore);
-    ++i;
     if (!git->empty()) {
       // ask for children of ddLP
       auto cit = git->begin();
@@ -191,7 +189,7 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
     if (!rit->isDefined().second)
       continue;
     if (rit->toString() != ":") {
-      DDRotation r(*rit);
+      const DDRotation& r(*rit);
       out.rotation(r, *m_xos);
     }
   }

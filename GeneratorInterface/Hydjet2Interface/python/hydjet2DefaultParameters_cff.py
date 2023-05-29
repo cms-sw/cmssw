@@ -50,7 +50,7 @@ collisionParameters2760GeV = cms.PSet(
 	fR 		= cms.double(13.45), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
 	fSigmaTau 	= cms.double(3.5), 	# Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
 
-	fWeakDecay 	= cms.double(0.000000000000001), # Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
+	fWeakDecay 	= cms.double(0.00000000000001), # Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
 
 )
 
@@ -66,19 +66,19 @@ collisionParameters5020GeV = cms.PSet(
 	fMu_th_pip	= cms.double(0.), 	# Chemical potential of pi+ at thermal freeze-out, fMu_th_pip [GeV] 
 
         ### Maximal longitudinal flow rapidity at thermal freeze-out ###
-        fYlmax          = cms.double(4.5),      # Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
+        fYlmax          = cms.double(3.99),      # Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
 
 
-	fUmax 		= cms.double(1.35), 	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
-	fPtmin 		= cms.double(10.), 	# Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
+	fUmax 		= cms.double(1.280), 	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
+	fPtmin 		= cms.double(9.06), 	# Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
 	fT0 		= cms.double(1.1), 	# Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]; allowed range [0.2,2.0]GeV;
 
 	### Volume parameters at thermal freeze-out ###
-	fTau 		= cms.double(13.2), 	# Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
-	fR 		= cms.double(13.9), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
+	fTau 		= cms.double(11.5), 	# Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
+	fR 		= cms.double(16.), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
 	fSigmaTau 	= cms.double(2.), 	# Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
 
-	fWeakDecay 	= cms.double(0.000000000000001), # Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
+	fWeakDecay 	= cms.double(0.00000000000001), # Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
 )
 
 qgpParametersLHC = cms.PSet(

@@ -1,6 +1,6 @@
-# hltGetConfiguration --full --data /dev/CMSSW_12_4_0/Fake --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
+# hltGetConfiguration /dev/CMSSW_13_0_0/Fake --full --data --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
 
-# /dev/CMSSW_12_4_0/Fake/V7 (CMSSW_12_4_0_pre4)
+# /dev/CMSSW_13_0_0/Fake/V9 (CMSSW_13_0_2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +8,7 @@ process = cms.Process( "HLTFake" )
 
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/Fake/V7')
+  tableName = cms.string('/dev/CMSSW_13_0_0/Fake/V9')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -284,6 +284,8 @@ process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -343,11 +345,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # enable TrigReport, TimeReport and MultiThreading
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True ),
-    numberOfThreads = cms.untracked.uint32( 4 ),
-    numberOfStreams = cms.untracked.uint32( 0 ),
-)
+process.options.wantSummary = True
+process.options.numberOfThreads = 4
+process.options.numberOfStreams = 0
 
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:

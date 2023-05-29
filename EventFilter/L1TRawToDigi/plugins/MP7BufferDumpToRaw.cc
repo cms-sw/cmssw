@@ -22,7 +22,7 @@
 // user include files
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,7 +53,7 @@
 
 namespace l1t {
 
-  class MP7BufferDumpToRaw : public edm::EDProducer {
+  class MP7BufferDumpToRaw : public edm::one::EDProducer<> {
   public:
     explicit MP7BufferDumpToRaw(const edm::ParameterSet&);
     ~MP7BufferDumpToRaw() override;
@@ -61,20 +61,13 @@ namespace l1t {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    void beginJob() override;
     void produce(edm::Event&, const edm::EventSetup&) override;
-    void endJob() override;
 
     std::vector<Block> getBlocks(int iAmc);
 
     void formatAMC(amc13::Packet& amc13, const std::vector<Block>& blocks, int iAmc);
 
     void formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawData& fed_data);
-
-    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
     // ----------member data ---------------------------
 
@@ -425,44 +418,6 @@ namespace l1t {
     FEDTrailer trailer(payload);
     trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
   }
-
-  // ------------ method called once each job just before starting event loop  ------------
-  void MP7BufferDumpToRaw::beginJob() {}
-
-  // ------------ method called once each job just after ending the event loop  ------------
-  void MP7BufferDumpToRaw::endJob() {}
-
-  // ------------ method called when starting to processes a run  ------------
-  /*
-void 
-MP7BufferDumpToRaw::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a run  ------------
-  /*
-void 
-MP7BufferDumpToRaw::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when starting to processes a luminosity block  ------------
-  /*
-vvoid 
-MP7BufferDumpToRaw::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a luminosity block  ------------
-  /*
-void 
-MP7BufferDumpToRaw::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void MP7BufferDumpToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -40,6 +40,7 @@ DTt0DBValidation::DTt0DBValidation(const ParameterSet &pset)
   LogVerbatim(metname_) << "[DTt0DBValidation] Constructor called!";
 
   // Get the DQM needed services
+  usesResource("DQMStore");
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
 

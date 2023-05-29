@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 // references
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -62,7 +63,8 @@
 class CSCOverlapsTrackPreparation : public edm::one::EDProducer<> {
 public:
   explicit CSCOverlapsTrackPreparation(const edm::ParameterSet&);
-  ~CSCOverlapsTrackPreparation() override;
+  ~CSCOverlapsTrackPreparation() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   enum { kNothing, kSimpleFit, kAllButOne, kExtrapolate };
@@ -72,11 +74,12 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  edm::InputTag m_src;
+  const edm::InputTag m_src;
 
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeomToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 };
 
 //
@@ -94,24 +97,24 @@ CSCOverlapsTrackPreparation::CSCOverlapsTrackPreparation(const edm::ParameterSet
     : m_src(iConfig.getParameter<edm::InputTag>("src")),
       cscGeomToken_(esConsumes<edm::Transition::BeginRun>()),
       magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
-      globalGeomToken_(esConsumes<edm::Transition::BeginRun>()) {
+      globalGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      trackToken_(consumes<reco::TrackCollection>(m_src)) {
   produces<std::vector<Trajectory>>();
   produces<TrajTrackAssociationCollection>();
-}
-
-CSCOverlapsTrackPreparation::~CSCOverlapsTrackPreparation() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
 // member functions
 //
+void CSCOverlapsTrackPreparation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("ALCARECOMuAlBeamHaloOverlaps"));
+  descriptions.add("cscOverlapsTrackPreparation", desc);
+}
 
 // ------------ method called to produce the data  ------------
 void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(m_src, tracks);
+  const edm::Handle<reco::TrackCollection>& tracks = iEvent.getHandle(trackToken_);
 
   const CSCGeometry* cscGeometry = &iSetup.getData(cscGeomToken_);
   const MagneticField* magneticField = &iSetup.getData(magneticFieldToken_);

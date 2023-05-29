@@ -6,6 +6,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <memory>
 
@@ -16,7 +17,7 @@ class MuonGeometryRecord;
 
 class CSCSegtoRPC {
 public:
-  explicit CSCSegtoRPC(edm::ConsumesCollector iC);
+  explicit CSCSegtoRPC(edm::ConsumesCollector iC, const edm::ParameterSet&);
   std::unique_ptr<RPCRecHitCollection> thePoints(CSCSegmentCollection const* allCSCSegments,
                                                  edm::EventSetup const& iSetup,
                                                  bool debug,
@@ -26,6 +27,8 @@ private:
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeoToken_;
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeoToken_;
   edm::ESGetToken<CSCObjectMap, MuonGeometryRecord> cscMapToken_;
+  int minBX;
+  int maxBX;
 };
 
 #endif

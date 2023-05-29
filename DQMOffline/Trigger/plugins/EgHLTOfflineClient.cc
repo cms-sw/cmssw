@@ -642,3 +642,6 @@ EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAn
   }
   return eff;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgHLTOfflineClient);

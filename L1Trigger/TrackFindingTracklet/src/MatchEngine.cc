@@ -60,12 +60,12 @@ void MatchEngine::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " could not find input: " << input;
 }
 
-void MatchEngine::execute() {
+void MatchEngine::execute(unsigned int iSector) {
   unsigned int countall = 0;
   unsigned int countpass = 0;
 
-  bool print = (getName() == "ME_L3PHIC20");
-  print = false;
+  //bool print = (iSector == 3 && getName() == "ME_L3PHIC20");
+  bool print = false;
 
   constexpr unsigned int kNBitsBuffer = 3;
 
@@ -222,9 +222,21 @@ void MatchEngine::execute() {
       //Read vmstub memory and extract data fields
       const VMStubME& vmstub = vmstubs_->getVMStubMEBin(rzbin, istubtmp);
 
-      bool isPSmodule = vmstub.isPSmodule();
-
       int stubfinerz = vmstub.finerz().value();
+
+      bool isPSmodule;
+
+      if (barrel_) {
+        isPSmodule = layerdisk_ < N_PSLAYER;
+      } else {
+        if (layerdisk_ < N_LAYER + 2) {
+          isPSmodule = ((rzbin & 7) < 3) || ((rzbin & 7) == 3 && stubfinerz <= 3);
+        } else {
+          isPSmodule = ((rzbin & 7) < 3) || ((rzbin & 7) == 3 && stubfinerz <= 2);
+        }
+      }
+
+      assert(isPSmodule == vmstub.isPSmodule());
 
       int nbits = isPSmodule ? N_BENDBITS_PS : N_BENDBITS_2S;
 

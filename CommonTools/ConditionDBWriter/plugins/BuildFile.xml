@@ -1,0 +1,9 @@
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/DataRecord"/>
+<library file="PCLMetadataWriter.cc" name="PCLMetadataWriter">
+  <flags EDM_PLUGIN="1"/>
+</library>

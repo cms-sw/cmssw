@@ -51,16 +51,21 @@ The offsets currently in use are:
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
+* 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.8: BPH Parking (Run-2)
+* 0.81: Running also HeavyFlavor DQM
 * 0.9: Vector hits
 * 0.12: Neutron background
 * 0.13: MLPF algorithm
 * 0.15: JME NanoAOD
 * 0.17: Run-3 deep core seeding for JetCore iteration
+* 0.19: ECAL SuperClustering with DeepSC algorithm
 * 0.21: Production-like sequence
+* 0.21X1 : Production-like sequence with classical mixing PU=X (X=10,20,30,40,50,60,70,80,90,100,120,140,160,180)
 * 0.24: 0 Tesla (Run-2, Run-3)
 * 0.31: Photon energy corrections with DRN architecture
-* 0.61: `phase2_ecal_devel` era
+* 0.61: ECAL `phase2_ecal_devel` era, on CPU
+* 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
 * 0.75: Phase-2 HLT
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
@@ -76,7 +81,13 @@ The offsets currently in use are:
 * 0.103: Phase-2 aging, 3000fb-1
 * 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
 * 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
-* 0.301: FastSim Run-3
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton
+* 0.278: Weighted Vertexing in Blocks
+* 0.279: Weighted Vertexing in Blocks and tracking only wf
+* 0.111: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency only)
+* 0.112: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 1% bad strips)
+* 0.113: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 5% bad strips)
+* 0.114: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 10% bad strips)
+* 0.141: Activate emulation of the signal shape of the InnerTracker FE chip (CROC)

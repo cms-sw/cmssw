@@ -194,20 +194,26 @@ struct DQMTTreeIO {
 
     void read(ULong64_t iIndex, DQMStore* dqmstore, int run, int lumi) override {
       // This will populate the fields as defined in setTree method
-      m_tree->GetEntry(iIndex);
+      try {
+        m_tree->GetEntry(iIndex);
 
-      auto key = makeKey(*m_fullName, run, lumi);
-      auto existing = dqmstore->findOrRecycle(key);
-      if (existing) {
-        // TODO: make sure there is sufficient locking here.
-        DQMMergeHelper::mergeTogether(existing->getTH1(), m_buffer);
-      } else {
-        // We make our own MEs here, to avoid a round-trip through the booking API.
-        MonitorElementData meData;
-        meData.key_ = key;
-        meData.value_.object_ = std::unique_ptr<T>((T*)(m_buffer->Clone()));
-        auto me = new MonitorElement(std::move(meData));
-        dqmstore->putME(me);
+        auto key = makeKey(*m_fullName, run, lumi);
+        auto existing = dqmstore->findOrRecycle(key);
+        if (existing) {
+          // TODO: make sure there is sufficient locking here.
+          DQMMergeHelper::mergeTogether(existing->getTH1(), m_buffer);
+        } else {
+          // We make our own MEs here, to avoid a round-trip through the booking API.
+          MonitorElementData meData;
+          meData.key_ = key;
+          meData.value_.object_ = std::unique_ptr<T>((T*)(m_buffer->Clone()));
+          auto me = new MonitorElement(std::move(meData));
+          dqmstore->putME(me);
+        }
+      } catch (cms::Exception& iExcept) {
+        using namespace std::string_literals;
+        iExcept.addContext("failed while reading "s + *m_fullName);
+        throw;
       }
     }
 
@@ -485,7 +491,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   m_openFiles.reserve(numFiles);
 
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
-    TFile* file;
+    TFile* file = nullptr;
     std::string pfn;
     std::string lfn;
     std::list<std::string> exInfo;
@@ -550,7 +556,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       }
     }  //end loop over names of the file
 
-    if (!isGoodFile && m_skipBadFiles)
+    if (!file || (!isGoodFile && m_skipBadFiles))
       continue;
 
     std::unique_ptr<std::string> guid{file->Get<std::string>(kCmsGuid)};

@@ -6,7 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 
 #include "SimpleAlgoGPU.h"
 
@@ -80,7 +80,6 @@ HBHERecHitProducerGPU::HBHERecHitProducerGPU(edm::ParameterSet const& ps)
       sipmCharacteristicsToken_{esConsumes()},
       chQualProductToken_{esConsumes()},
       pulseOffsetsToken_{esConsumes()} {
-  configParameters_.maxChannels = ps.getParameter<uint32_t>("maxChannels");
   configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
   configParameters_.kprep1dChannelsPerBlock = ps.getParameter<uint32_t>("kprep1dChannelsPerBlock");
   configParameters_.sipmQTSShift = ps.getParameter<int>("sipmQTSShift");
@@ -115,7 +114,6 @@ HBHERecHitProducerGPU::~HBHERecHitProducerGPU() {}
 
 void HBHERecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
   edm::ParameterSetDescription desc;
-  desc.add<uint32_t>("maxChannels", 10000u);
   desc.add<uint32_t>("maxTimeSamples", 10);
   desc.add<uint32_t>("kprep1dChannelsPerBlock", 32);
   desc.add<edm::InputTag>("digisLabelF01HE", edm::InputTag{"hcalRawToDigiGPU", "f01HEDigisGPU"});
@@ -156,6 +154,7 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& f01HEDigis = ctx.get(f01HEProduct);
   auto const& f5HBDigis = ctx.get(f5HBProduct);
   auto const& f3HBDigis = ctx.get(f3HBProduct);
+  auto const totalChannels = f01HEDigis.size + f5HBDigis.size + f3HBDigis.size;
 
   hcal::reconstruction::InputDataGPU inputGPU{f01HEDigis, f5HBDigis, f3HBDigis};
 
@@ -225,26 +224,20 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   // scratch mem on device
   hcal::reconstruction::ScratchDataGPU scratchGPU = {
-      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             ctx.stream()),
-      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             ctx.stream()),
-      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
-                                             ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(totalChannels * configParameters_.maxTimeSamples, ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(totalChannels * configParameters_.maxTimeSamples, ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(totalChannels * configParameters_.maxTimeSamples, ctx.stream()),
       cms::cuda::make_device_unique<float[]>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          ctx.stream()),
+          totalChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, ctx.stream()),
       cms::cuda::make_device_unique<float[]>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          ctx.stream()),
+          totalChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, ctx.stream()),
       cms::cuda::make_device_unique<float[]>(
-          configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
-          ctx.stream()),
-      cms::cuda::make_device_unique<int8_t[]>(configParameters_.maxChannels, ctx.stream()),
+          totalChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples, ctx.stream()),
+      cms::cuda::make_device_unique<int8_t[]>(totalChannels, ctx.stream()),
   };
 
   // output dev mem
-  outputGPU_.allocate(configParameters_, ctx.stream());
+  outputGPU_.allocate(configParameters_, totalChannels, ctx.stream());
 
   hcal::reconstruction::entryPoint(inputGPU, outputGPU_, conditions, scratchGPU, configParameters_, ctx.stream());
 

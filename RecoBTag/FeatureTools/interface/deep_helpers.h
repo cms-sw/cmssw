@@ -5,6 +5,7 @@
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 
@@ -14,6 +15,17 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <numeric>
+#include <nlohmann/json.hpp>
 
 namespace btagbtvdeep {
 
@@ -70,6 +82,9 @@ namespace btagbtvdeep {
                       const reco::Candidate *cand,
                       float mindr = 0.4);
 
+  // compute minimum distance between SVs and a candidate (from DeepNTuples, now polymorphic)
+  float mindistsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> &svs, const reco::TransientTrack track);
+
   // mimic the calculation in PackedCandidate
   float vtx_ass_from_pfcand(const reco::PFCandidate &pfcand, int pv_ass_quality, const reco::VertexRef &pv);
   float quality_from_pfcand(const reco::PFCandidate &pfcand);
@@ -103,6 +118,37 @@ namespace btagbtvdeep {
 
     VarInfo info(const std::string &name) const { return var_info_map.at(name); }
   };
+
+  int center_norm_pad(const std::vector<float> &input,
+                      float center,
+                      float scale,
+                      unsigned min_length,
+                      unsigned max_length,
+                      std::vector<float> &datavec,
+                      int startval,
+                      float pad_value = 0,
+                      float replace_inf_value = 0,
+                      float min = 0,
+                      float max = -1);
+
+  int center_norm_pad_halfRagged(const std::vector<float> &input,
+                                 float center,
+                                 float scale,
+                                 unsigned target_length,
+                                 std::vector<float> &datavec,
+                                 int startval,
+                                 float pad_value = 0,
+                                 float replace_inf_value = 0,
+                                 float min = 0,
+                                 float max = -1);
+
+  void ParticleNetConstructor(const edm::ParameterSet &Config_,
+                              bool doExtra,
+                              std::vector<std::string> &input_names_,
+                              std::unordered_map<std::string, PreprocessParams> &prep_info_map_,
+                              std::vector<std::vector<int64_t>> &input_shapes_,
+                              std::vector<unsigned> &input_sizes_,
+                              cms::Ort::FloatArrays *data_);
 
 }  // namespace btagbtvdeep
 #endif  //RecoBTag_FeatureTools_deep_helpers_h

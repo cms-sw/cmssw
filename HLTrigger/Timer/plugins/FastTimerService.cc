@@ -568,7 +568,9 @@ void FastTimerService::PlotsPerPath::book(dqm::reco::DQMStore::IBooker& booker,
                                           unsigned int lumisections,
                                           bool byls) {
   const std::string basedir = booker.pwd();
-  booker.setCurrentFolder(basedir + "/" + prefixDir + path.name_);
+  std::string folderName = basedir + "/" + prefixDir + path.name_;
+  fixForDQM(folderName);
+  booker.setCurrentFolder(folderName);
 
   total_.book(booker, "path", path.name_, ranges, lumisections, byls);
 
@@ -731,8 +733,10 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
     if (bymodule) {
       booker.setCurrentFolder(basedir + "/process " + process.name_ + " modules");
       for (unsigned int id : process.modules_) {
-        auto const& module_name = job.module(id).moduleLabel();
-        modules_[id].book(booker, module_name, module_name, module_ranges, lumisections, byls);
+        std::string const& module_label = job.module(id).moduleLabel();
+        std::string safe_label = module_label;
+        fixForDQM(safe_label);
+        modules_[id].book(booker, safe_label, module_label, module_ranges, lumisections, byls);
       }
       booker.setCurrentFolder(basedir);
     }
@@ -942,6 +946,15 @@ void FastTimerService::postGlobalBeginRun(edm::GlobalContext const& gc) { ignore
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const& sc) { ignoredSignal(__func__); }
 
+void FastTimerService::fixForDQM(std::string& label) {
+  // clean characters that are deemed unsafe for DQM
+  // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
+  static const auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
+  for (auto& c : label)
+    if (safe_for_dqm.find(c) == std::string::npos)
+      c = '_';
+}
+
 void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
   concurrent_lumis_ = bounds.maxNumberOfConcurrentLuminosityBlocks();
   concurrent_runs_ = bounds.maxNumberOfConcurrentRuns();
@@ -952,12 +965,8 @@ void FastTimerService::preallocate(edm::service::SystemBounds const& bounds) {
     dqm_path_ += fmt::sprintf(
         "/Running on %s with %d streams on %d threads", processor_model, concurrent_streams_, concurrent_threads_);
 
-  // clean characters that are deemed unsafe for DQM
-  // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
-  auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
-  for (auto& c : dqm_path_)
-    if (safe_for_dqm.find(c) == std::string::npos)
-      c = '_';
+  // fix the DQM path to avoid invalid characters
+  fixForDQM(dqm_path_);
 
   // allocate atomic variables to keep track of the completion of each step, process by process
   subprocess_event_check_ = std::make_unique<std::atomic<unsigned int>[]>(concurrent_streams_);
@@ -1058,7 +1067,7 @@ void FastTimerService::postGlobalEndLumi(edm::GlobalContext const& gc) {
       fmt::sprintf("run %d, lumisection %d", gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
   printTransition(out, lumi_transition_[index], label);
 
-  if (enable_dqm_transitions_) {
+  if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_lumi(lumi_transition_[index], gc.luminosityBlockID().luminosityBlock());
   }
 }
@@ -1089,7 +1098,7 @@ void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
   }
   printTransition(out, run_transition_[index], label);
 
-  if (enable_dqm_transitions_) {
+  if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_run(run_transition_[index]);
   }
 }

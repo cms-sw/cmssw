@@ -15,9 +15,6 @@ internally
 into the OscarProducer.  To do useful work, one must inherit from this class
 and one or more 'Observer<T>' classes.
 
-    A class that inherits from OscarProducer must have a constructor that takes
-a 'const edm::ParameterSet&' as its only argument.  This constructor will be
-called by the dynamic loading code.
 */
 //
 // Original Author:

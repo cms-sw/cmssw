@@ -26,7 +26,6 @@ bool JPTJet::overlap(const Candidate&) const { return false; }
 void JPTJet::printJet() const {
   std::cout << " Raw Calo jet " << getCaloJetRef()->et() << " " << getCaloJetRef()->eta() << " "
             << getCaloJetRef()->phi() << "    JPTJet specific:" << std::endl
-            << "      chargedhadrons energy: " << chargedHadronEnergy() << std::endl
             << "      charged multiplicity: " << chargedMultiplicity() << std::endl;
   std::cout << "      JPTCandidate constituents:" << std::endl;
   std::cout << " Number of pions: " << getPionsInVertexInCalo().size() + getPionsInVertexOutCalo().size() << std::endl;
@@ -39,7 +38,6 @@ std::string JPTJet::print() const {
   std::ostringstream out;
   out << Jet::print()  // generic jet info
       << "    JPTJet specific:" << std::endl
-      << "      chargedhadrons energy: " << chargedHadronEnergy() << std::endl
       << "      charged: " << chargedMultiplicity() << std::endl;
   out << "      JPTCandidate constituents:" << std::endl;
 

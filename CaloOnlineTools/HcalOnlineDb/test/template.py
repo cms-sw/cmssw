@@ -38,6 +38,10 @@ process.es_ascii = cms.ESSource('HcalTextCalibrations',
 	 file   = cms.FileInPath(CONDDIR+'/Pedestals/Pedestals_Run__RUN__.txt')
       ),	
       cms.PSet(
+         object = cms.string('EffectivePedestals'),
+	 file   = cms.FileInPath(CONDDIR+'/EffectivePedestals/EffectivePedestals_Run__RUN__.txt')
+      ),	
+      cms.PSet(
          object = cms.string('Gains'),
 	 file   = cms.FileInPath(CONDDIR+'/Gains/Gains_Run__RUN__.txt')
       ),

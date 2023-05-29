@@ -5,3 +5,6 @@
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "CondFormats/RunInfo/interface/FillInfo.h"
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
+#include "CondFormats/RunInfo/interface/LHCInfoPerLS.h"
+#include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
+#include "CondFormats/RunInfo/interface/LHCInfoVectorizedFields.h"

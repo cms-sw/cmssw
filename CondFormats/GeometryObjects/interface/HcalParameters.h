@@ -5,8 +5,8 @@
 
 class HcalParameters {
 public:
-  HcalParameters(void) {}
-  ~HcalParameters(void) {}
+  HcalParameters(void) = default;
+  ~HcalParameters(void) = default;
 
   struct LayerItem {
     unsigned int layer;
@@ -63,6 +63,7 @@ public:
   std::vector<LayerItem> layerGroupEtaSim, layerGroupEtaRec;
   int topologyMode;
 
+  uint32_t etaMaxHBHE() const { return static_cast<uint32_t>(etagroup.size()); }
   COND_SERIALIZABLE;
 };
 

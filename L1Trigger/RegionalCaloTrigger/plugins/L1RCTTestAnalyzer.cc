@@ -3,7 +3,6 @@
 
 // user include files
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -32,6 +31,7 @@ L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet &iConfig)
       rctDigisLabel(iConfig.getParameter<edm::InputTag>("rctDigisLabel")) {
   // now do what ever initialization is needed
 
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
 
   emTree = fs->make<TTree>("emTree", "L1 RCT EM tree");
@@ -135,7 +135,6 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
     h_emCandTimeSample->Fill((*em).bx());
     if ((*em).bx() == 0) {
-      unsigned short n_emcands = 0;
       // std::cout << std::endl << "rank: " << (*em).rank() ;
 
       if ((*em).rank() > 0) {
@@ -175,7 +174,6 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
           if (crate < 9) {
             eta_bin = -eta_bin;
           }
-          n_emcands++;
 
           //		   std::cout << /* "rank: " << (*em).rank() << */ "
           // eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: "

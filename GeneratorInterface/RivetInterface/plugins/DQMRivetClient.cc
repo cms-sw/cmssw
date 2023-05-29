@@ -31,6 +31,8 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
   typedef std::vector<std::string> vstring;
   typedef boost::escaped_list_separator<char> elsc;
 
+  usesResource("DQMStore");
+
   elsc commonEscapes("\\", " \t", "\'");
 
   // Parse Normalization commands

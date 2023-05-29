@@ -3,7 +3,7 @@
 
 #include <TNtuple.h>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +32,7 @@
 
 using namespace reco;
 
-class PileupJetAnalyzer : public edm::EDAnalyzer {
+class PileupJetAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   PileupJetAnalyzer(const edm::ParameterSet &params);
   ~PileupJetAnalyzer();
@@ -64,6 +64,7 @@ PileupJetAnalyzer::PileupJetAnalyzer(const edm::ParameterSet &params)
   tokenSimTrack = consumes<edm::SimTrackContainer>(edm::InputTag("fastSimProducer"));
   tokenSimVertex = consumes<edm::SimVertexContainer>(edm::InputTag("fastSimProducer"));
 
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   ntuple = fs->make<TNtuple>("jets", "", "mc:tag:et:eta");
 }

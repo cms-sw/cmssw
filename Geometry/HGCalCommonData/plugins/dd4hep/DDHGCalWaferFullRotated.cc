@@ -26,10 +26,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& material = args.value<std::string>("ModuleMaterial");
   const auto& thick = args.value<double>("ModuleThickness");
   const auto& waferSize = args.value<double>("WaferSize");
-  const auto& waferSepar = args.value<double>("SensorSeparation");
   const auto& waferThick = args.value<double>("WaferThickness");
   const auto& waferTag = args.value<std::string>("WaferTag");
 #ifdef EDM_ML_DEBUG
+  const auto& waferSepar = args.value<double>("SensorSeparation");
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Module " << args.parentName() << " made of " << material
                                 << " T " << thick << " Wafer 2r " << waferSize << " Half Separation " << waferSepar
                                 << " T " << waferThick;
@@ -40,6 +40,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& layerNames = args.value<std::vector<std::string> >("LayerNames");
   const auto& materials = args.value<std::vector<std::string> >("LayerMaterials");
   const auto& layerThick = args.value<std::vector<double> >("LayerThickness");
+  const auto& layerSizeOff = args.value<std::vector<double> >("LayerSizeOffset");
   const auto& layerType = args.value<std::vector<int> >("LayerTypes");
   std::vector<int> copyNumber;
   copyNumber.resize(materials.size(), 1);
@@ -47,7 +48,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << layerNames.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness " << layerThick[i]
-                                  << " filled with " << materials[i] << " type " << layerType[i];
+                                  << " size offset " << layerSizeOff[i] << " filled with " << materials[i] << " type "
+                                  << layerType[i];
 #endif
   const auto& layers = args.value<std::vector<int> >("Layers");
 #ifdef EDM_ML_DEBUG
@@ -57,12 +59,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "There are " << layers.size() << " blocks" << st1.str();
 #endif
   const auto& nCells = args.value<int>("NCells");
-  const auto& cellType = args.value<int>("CellType");
-  const auto& cellNames = args.value<std::vector<std::string> >("CellNames");
-  const auto& cellOffset = args.value<std::vector<int> >("CellOffset");
+  int cellType(-1);
+  std::vector<std::string> cellNames;
+  std::vector<int> cellOffset;
+  if (nCells > 0) {
+    cellType = args.value<int>("CellType");
+    cellNames = args.value<std::vector<std::string> >("CellNames");
+    cellOffset = args.value<std::vector<int> >("CellOffset");
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Cells/Wafer " << nCells << " Cell Type " << cellType
-                                << " # of cells " << cellNames.size();
+                                << " NameSpace " << ns.name() << " # of cells " << cellNames.size();
   std::ostringstream st2;
   for (unsigned int i = 0; i < cellOffset.size(); ++i)
     st2 << " [" << i << "] " << cellOffset[i];
@@ -78,10 +85,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   static const double sqrt3 = std::sqrt(3.0);
   double rM = 0.5 * waferSize;
   double RM2 = rM / sqrt3;
-  double r2 = 0.5 * waferSize;
-  double R2 = r2 / sqrt3;
   const int nFine(nCells), nCoarse(nCells);
-  HGCalCell wafer((waferSize + waferSepar), nFine, nCoarse);
+  HGCalCell wafer(waferSize, nFine, nCoarse);
   for (unsigned int k = 0; k < tag.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
@@ -104,8 +109,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
 
     // Then the layers
-    std::vector<double> xL = {r2, 0, -r2, -r2, 0, r2};
-    std::vector<double> yL = {R2, 2 * R2, R2, -R2, -2 * R2, -R2};
     std::vector<dd4hep::Volume> glogs(materials.size());
     for (unsigned int ii = 0; ii < copyNumber.size(); ii++) {
       copyNumber[ii] = 1;
@@ -113,6 +116,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     double zi(-0.5 * thick), thickTot(0.0);
     for (unsigned int l = 0; l < layers.size(); l++) {
       unsigned int i = layers[l];
+      double r2 = 0.5 * (waferSize - layerSizeOff[i]);
+      double R2 = r2 / sqrt3;
+      std::vector<double> xL = {r2, 0, -r2, -r2, 0, r2};
+      std::vector<double> yL = {R2, 2 * R2, R2, -R2, -2 * R2, -R2};
       if (copyNumber[i] == 1) {
         if (layerType[i] > 0) {
           zw[0] = -0.5 * waferThick;
@@ -122,6 +129,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           zw[1] = 0.5 * layerThick[i];
         }
         std::string layerName = layerNames[i] + tag[k] + waferTag;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ":" << layerName << " "
+                                      << layerSizeOff[i] << " r " << r2 << ":" << R2;
+#endif
         solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
         ns.addSolidNS(ns.prepend(layerName), solid);
         matter = ns.material(materials[i]);
@@ -145,8 +156,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       ++copyNumber[i];
       zi += layerThick[i];
       thickTot += layerThick[i];
-      if (layerType[i] > 0) {
-        //int n2 = nCells / 2;
+      if ((layerType[i] > 0) && (nCells > 0)) {
         for (int u = 0; u < 2 * nCells; ++u) {
           for (int v = 0; v < 2 * nCells; ++v) {
             if (((v - u) < nCells) && ((u - v) <= nCells)) {

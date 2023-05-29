@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 
 #include <utility>
@@ -15,7 +17,10 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-//#define EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
+#include "DataFormats/Math/interface/deltaPhi.h"
+using angle_units::operators::convertRadToDeg;
+#endif
 
 class DDNameFilter : public DDFilter {
 public:
@@ -45,29 +50,62 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   filter.add("mtd:");
   filter.add("btl:");
   filter.add("etl:");
-  filter.veto("service");
-  filter.veto("support");
-  filter.veto("FSide");
-  filter.veto("BSide");
-  filter.veto("LSide");
-  filter.veto("RSide");
-  filter.veto("Between");
-  filter.veto("SupportPlate");
-  filter.veto("Shield");
-  filter.veto("ThermalScreen");
-  filter.veto("Aluminium_Disc");
-  filter.veto("MIC6_Aluminium_Disc");
-  filter.veto("ThermalPad");
-  filter.veto("AlN");
-  filter.veto("LairdFilm");
-  filter.veto("ETROC");
-  filter.veto("SensorModule");
-  filter.veto("DiscSector");
-  filter.veto("LGAD_Substrate");
+
+  std::vector<std::string> volnames = {"service",
+                                       "support",
+                                       "FSide",
+                                       "BSide",
+                                       "LSide",
+                                       "RSide",
+                                       "Between",
+                                       "SupportPlate",
+                                       "Shield",
+                                       "ThermalScreen",
+                                       "Aluminium_Disc",
+                                       "MIC6_Aluminium_Disc",
+                                       "ThermalPad",
+                                       "AlN",
+                                       "LairdFilm",
+                                       "ETROC",
+                                       "SensorModule",
+                                       "SensorModule_Front_Left",
+                                       "SensorModule_Front_Right",
+                                       "SensorModule_Back_Left",
+                                       "SensorModule_Back_Right",
+                                       "DiscSector",
+                                       "LGAD_Substrate",
+                                       "ConcentratorCard",
+                                       "PowerControlCard",
+                                       "CoolingPlate",
+                                       "FrontEndCard",
+                                       "FrontModerator",
+                                       "Cables",
+                                       "Cables1",
+                                       "Cables2",
+                                       "Cables3",
+                                       "Cables4",
+                                       "Cables5",
+                                       "Cables6",
+                                       "Cables7",
+                                       "PatchPanel",
+                                       "Notich_cables",
+                                       "ServicesExtVolume1",
+                                       "ServicesExtVolume2",
+                                       "glueLGAD",
+                                       "BumpBonds",
+                                       "ModulePCB",
+                                       "connectorsGap",
+                                       "ReadoutBoard",
+                                       "LGAD"};
+  for (auto const& theVol : volnames) {
+    filter.veto(theVol);
+  }
 
   DDFilteredView fv(cpv, filter);
 
   CmsMTDStringToEnum theCmsMTDStringToEnum;
+  // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
+  auto isBTLV2 = false;
 
   auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDD<DDFilteredView>::getString(attribute, &fv));
   if (check_root != GeometricTimingDet::MTD) {
@@ -116,15 +154,17 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
 #endif
     }
     //
-    // the level chosen corresponds to wafers for D50 and previous scenarios
+    // workaround to make old and TDR structure to cohexist until needed
+    // the level chosen for old corresponds to wafers for D50 and previous scenarios
     //
     if ((thisNode == GeometricTimingDet::BTLModule) && limit == 0) {
-      limit = num + 1;
-    }
-    //
-    // workaround to make old and TDR structure to cohexist until needed
-    //
-    else if ((thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
+      if (theCmsMTDConstruction.isBTLV2(fv)) {
+        limit = num;
+        isBTLV2 = true;
+      } else {
+        limit = num + 1;
+      }
+    } else if ((thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
       if (theCmsMTDConstruction.isETLtdr(fv)) {
         limit = num;
       } else {
@@ -160,12 +200,26 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
 #endif
 
-  for (size_t index = 0; index < layer.size(); index++) {
-    GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
-    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
-    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
-    if (index > 0) {
-      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+  if (!isBTLV2) {
+    for (size_t index = 0; index < layer.size(); index++) {
+      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
+      if (index > 0) {
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+      }
+    }
+  } else {
+    for (size_t index = 0; index < layer.size(); index++) {
+      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+      if (index > 0) {
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+      } else {
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderPhi);
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderZ);
+      }
     }
   }
 
@@ -197,7 +251,9 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   comp = mtd->deepComponents();
   std::stringstream after(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
-    after << "ORDER2 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
+    after << "ORDER2 " << it->geographicalId().rawId() << " " << static_cast<MTDDetId>(it->geographicalId()).mtdRR()
+          << " " << it->type() << " " << it->translation().z() << " "
+          << convertRadToDeg(angle0to2pi::make0To2pi(it->phi())) << "\n";
   }
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif
@@ -246,6 +302,8 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   CmsMTDStringToEnum theCmsMTDStringToEnum;
 
   CmsMTDConstruction<cms::DDFilteredView> theCmsMTDConstruction;
+  // temporary workaround to distinguish BTL scenarios ordering without introducing a dependency on MTDTopologyMode
+  auto isBTLV2 = false;
 
   std::vector<GeometricTimingDet*> subdet;
   std::vector<GeometricTimingDet*> layer;
@@ -277,6 +335,11 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
+      if (isBTLV2 == false) {
+        if (theCmsMTDConstruction.isBTLV2(fv)) {
+          isBTLV2 = true;
+        }
+      }
       theCmsMTDConstruction.buildBTLModule(fv, layer.back());
     } else if (thisNode == GeometricTimingDet::ETLModule) {
 #ifdef EDM_ML_DEBUG
@@ -299,12 +362,26 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
 #endif
 
-  for (size_t index = 0; index < layer.size(); index++) {
-    GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
-    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<cms::DDFilteredView>::mtdOrderZ);
-    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<cms::DDFilteredView>::mtdOrderRR);
-    if (index > 0) {
-      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<cms::DDFilteredView>::mtdOrderPhi);
+  if (!isBTLV2) {
+    for (size_t index = 0; index < layer.size(); index++) {
+      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
+      if (index > 0) {
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+      }
+    }
+  } else {
+    for (size_t index = 0; index < layer.size(); index++) {
+      GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+      if (index > 0) {
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
+      } else {
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderPhi);
+        std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::btlOrderZ);
+      }
     }
   }
 
@@ -336,7 +413,9 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const cms::D
   comp = mtd->deepComponents();
   std::stringstream after(std::stringstream::in | std::stringstream::out);
   for (const auto& it : comp) {
-    after << "ORDER2 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
+    after << "ORDER2 " << it->geographicalId().rawId() << " " << static_cast<MTDDetId>(it->geographicalId()).mtdRR()
+          << " " << it->type() << " " << it->translation().z() << " "
+          << convertRadToDeg(angle0to2pi::make0To2pi(it->phi())) << "\n";
   }
   edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif

@@ -939,8 +939,6 @@ TPTask::TPTask(edm::ParameterSet const& ps)
 
   numHBHE = 0;
   numHF = 0;
-  numCutHBHE = 0;
-  numCutHF = 0;
   numMsnHBHE = 0;
   numMsnHF = 0;
   numCutHBHE = 0;
@@ -1130,7 +1128,9 @@ TPTask::TPTask(edm::ParameterSet const& ps)
       HcalElectronicsId const& eid(rawid);
 
       const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
-      const bool Hfb1Agreement = sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain();
+      const bool Hfb1Agreement =
+          (abs(ieta) < 29) ? true
+                           : (recdTp.SOI_compressedEt() == 0 || (sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain()));
       // Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
       const bool Hfb2Agreement =
           (abs(ieta) < 29) ? true

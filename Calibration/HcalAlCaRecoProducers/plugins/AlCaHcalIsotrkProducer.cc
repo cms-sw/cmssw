@@ -83,25 +83,25 @@
 // class declaration
 //
 
-namespace alcaHcalIsoTracks {
+namespace alCaHcalIsotrkProducer {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nRange_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nRange_;
   };
-}  // namespace alcaHcalIsoTracks
+}  // namespace alCaHcalIsotrkProducer
 
-class AlCaHcalIsotrkProducer : public edm::stream::EDProducer<edm::GlobalCache<alcaHcalIsoTracks::Counters>> {
+class AlCaHcalIsotrkProducer : public edm::stream::EDProducer<edm::GlobalCache<alCaHcalIsotrkProducer::Counters>> {
 public:
-  explicit AlCaHcalIsotrkProducer(edm::ParameterSet const&, const alcaHcalIsoTracks::Counters*);
+  explicit AlCaHcalIsotrkProducer(edm::ParameterSet const&, const alCaHcalIsotrkProducer::Counters*);
   ~AlCaHcalIsotrkProducer() override = default;
 
-  static std::unique_ptr<alcaHcalIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<alcaHcalIsoTracks::Counters>();
+  static std::unique_ptr<alCaHcalIsotrkProducer::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaHcalIsotrkProducer::Counters>();
   }
 
   void produce(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const alcaHcalIsoTracks::Counters* counters);
+  static void globalEndJob(const alCaHcalIsotrkProducer::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -211,7 +211,7 @@ private:
 };
 
 AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
-                                               const alcaHcalIsoTracks::Counters* counters)
+                                               const alCaHcalIsotrkProducer::Counters* counters)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -744,7 +744,7 @@ void AlCaHcalIsotrkProducer::endStream() {
   globalCache()->nRange_ += nRange_;
 }
 
-void AlCaHcalIsotrkProducer::globalEndJob(const alcaHcalIsoTracks::Counters* count) {
+void AlCaHcalIsotrkProducer::globalEndJob(const alCaHcalIsotrkProducer::Counters* count) {
   edm::LogVerbatim("HcalIsoTrack") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events and "
                                    << count->nRange_ << " events in the momentum range";
 }
@@ -786,7 +786,7 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
                                                        HcalIsoTrkEventVariables& hocalibEvent,
                                                        const edm::EventID& eventId) {
   int nSave(0), nLoose(0), nTight(0);
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   double rhohEV = (tower.isValid()) ? rhoh(tower) : 0;
 
   //Loop over tracks
@@ -884,7 +884,6 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
       flag += 8;
 #endif
     if (isoTk.qltyFlag_ && notMuon) {
-      nselTracks++;
       int nNearTRKs(0);
       ////////////////////////////////-MIP STUFF-//////////////////////////////
       std::vector<DetId> eIds;

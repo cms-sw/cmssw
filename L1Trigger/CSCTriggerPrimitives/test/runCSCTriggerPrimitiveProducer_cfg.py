@@ -31,8 +31,16 @@ options.register("useB904ME11", False, VarParsing.multiplicity.singleton, VarPar
 options.register("useB904ME21", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
                  "Set to True when using B904 ME2/1 data (also works for ME3/1 and ME4/1).")
 options.register("useB904ME234s2", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
-                 "Set to True when using B904 ME1/1 data (also works for MEX/2 and ME1/3).")
-options.register("run3", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True when using B904 ME4/2 data (also works for MEX/2 and ME1/3).")
+options.register('useB904ME11PositiveEndcap',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+                 "Set to True when using data from ME1/1 set as Positive Endcap chamber in B904.")
+options.register('useB904ME11NegativeEndcap',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+                 "Set to True when using data from ME1/1 set as Negative Endcap chamber in B904.")
+options.register('useB904GE11Short',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+                 "Set to True when using data from GE1/1 Short super chamber in B904.")
+options.register('useB904GE11Long',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+                 "Set to True when using data from GE1/1 Long super chamber in B904.")
+options.register("run3", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
                  "Set to True when using Run-3 data.")
 options.register("runCCLUTOTMB", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
                  "Set to True when using the CCLUT OTMB algorithm.")
@@ -116,14 +124,54 @@ if useB904Data:
       process.muonCSCDigis.DisableMappingCheck = True
       process.muonCSCDigis.B904Setup = True
       process.muonCSCDigis.InputObjects = "rawDataCollectorCSC"
+      
+      if options.useB904ME11:
+      
+        if options.useB904ME11PositiveEndcap + options.useB904ME11NegativeEndcap == 2:
+            print("Choose at most one between useB904ME11PositiveEndcap and useB904ME11NegativeEndcap!")
+        elif options.useB904ME11NegativeEndcap: # Set manually the VME crate number for ME-1/1/02
+            process.muonCSCDigis.B904vmecrate = 31
+        else: # Set manually the VME crate number for ME+1/1/02
+            process.muonCSCDigis.B904vmecrate = 1
+            
+        if options.useB904GE11Short + options.useB904GE11Long == 2:
+            print("Choose at most one between useB904GE11Short and useB904GE11Long!")
+        elif options.useB904GE11Short: # Set manually the DMB slot for ME+-1/1/01
+            process.muonCSCDigis.B904dmb = 2
+        else: # Set manually the DMB slot for ME+-1/1/02
+            process.muonCSCDigis.B904dmb = 3
+      
+      elif options.useB904ME21: # Set manually the VME crate number and default DMB for ME+2/1/01
+          process.muonCSCDigis.B904vmecrate = 18
+          process.muonCSCDigis.B904dmb = 3
+      
+      elif options.useB904ME234s2: # Set manually the VME crate number and default DMB for ME+4/2/01
+          process.muonCSCDigis.B904vmecrate = 30
+          process.muonCSCDigis.B904dmb = 9
+          
+      else: # Set manually the VME crate number and default DMB for ME+1/1/02
+          process.muonCSCDigis.B904vmecrate = 1
+          process.muonCSCDigis.B904dmb = 3
+
       if options.unpackGEM:
-            process.muonCSCDigis.useGEMs = True
-      ## GEM
+          process.muonCSCDigis.useGEMs = True
+
+      ## GEM mapping for b904 GEM-CSC integration stand
+      process.GlobalTag.toGet = cms.VPSet(
+              cms.PSet(record = cms.string("GEMChMapRcd"),
+                       tag = cms.string("GEMeMap_GE11_b904_v1"),
+                       connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+                      )
+      )
+      process.muonGEMDigis.useDBEMap = True
       process.muonGEMDigis.InputLabel = "rawDataCollectorGEM"
+      process.muonGEMDigis.fedIdStart = 1478
+      process.muonGEMDigis.fedIdEnd = 1478
 
 ## l1 emulator
 l1csc = process.cscTriggerPrimitiveDigis
 if options.l1:
+      l1csc.commonParam.run3 = cms.bool(options.run3)
       l1csc.commonParam.runCCLUT_OTMB = cms.bool(options.runCCLUTOTMB)
       l1csc.commonParam.runCCLUT_TMB = cms.bool(options.runCCLUTTMB)
       l1csc.commonParam.runME11ILT = options.runME11ILT
@@ -155,7 +203,7 @@ if options.dqmGEM:
             process.l1tdeGEMTPG.data = "emtfStage2Digis"
       ## GEM pad clusters from the CSC TPG
       else:
-            process.l1tdeGEMTPG.data = "muonCSCDigis"
+            process.l1tdeGEMTPG.data = "muonCSCDigis:MuonGEMPadDigiCluster"
       ## GEM pad clusters from the GEM TPG
       process.l1tdeGEMTPG.emul = "simMuonGEMPadDigiClusters"
 

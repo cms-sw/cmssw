@@ -32,7 +32,7 @@
 #include <iostream>
 
 HLTHcalLaserFilter::HLTHcalLaserFilter(const edm::ParameterSet& iConfig)
-    : hcalDigiCollection_(iConfig.getParameter<edm::InputTag>("hcalDigiCollection")),
+    : m_theCalibToken(consumes(iConfig.getParameter<edm::InputTag>("hcalDigiCollection"))),
       timeSlices_(iConfig.getParameter<std::vector<int> >("timeSlices")),
       thresholdsfC_(iConfig.getParameter<std::vector<double> >("thresholdsfC")),
       CalibCountFilterValues_(iConfig.getParameter<std::vector<int> >("CalibCountFilterValues")),
@@ -40,13 +40,7 @@ HLTHcalLaserFilter::HLTHcalLaserFilter(const edm::ParameterSet& iConfig)
       maxTotalCalibCharge_(iConfig.getParameter<double>("maxTotalCalibCharge")),
       maxAllowedHFcalib_(iConfig.getParameter<int>("maxAllowedHFcalib"))
 
-{
-  //maxAllowedHFcalib_=10;
-
-  m_theCalibToken = consumes<HcalCalibDigiCollection>(hcalDigiCollection_);
-}
-
-HLTHcalLaserFilter::~HLTHcalLaserFilter() = default;
+{}
 
 void HLTHcalLaserFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -68,7 +62,7 @@ void HLTHcalLaserFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
 // member functions
 //
 
-bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTHcalLaserFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<HcalCalibDigiCollection> hCalib;
   iEvent.getByToken(m_theCalibToken, hCalib);
 
@@ -85,7 +79,7 @@ bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     CalibCharge.push_back(0);
   }
 
-  const float adc2fC[128] = {
+  static constexpr float adc2fC[128] = {
       -0.5,   0.5,    1.5,    2.5,    3.5,    4.5,    5.5,    6.5,    7.5,    8.5,    9.5,    10.5,   11.5,
       12.5,   13.5,   15.,    17.,    19.,    21.,    23.,    25.,    27.,    29.5,   32.5,   35.5,   38.5,
       42.,    46.,    50.,    54.5,   59.5,   64.5,   59.5,   64.5,   69.5,   74.5,   79.5,   84.5,   89.5,

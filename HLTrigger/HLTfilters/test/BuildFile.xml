@@ -1,5 +1,5 @@
 <!-- test the TriggerResultsFilter reading the CMSSW results from the TriggerResults object of a previous process -->
-<test name="triggerResultsFilter_by_TriggerResults" command="cmsRun ${LOCALTOP}/src/HLTrigger/HLTfilters/test/triggerResultsFilter_producer.py; cmsRun ${LOCALTOP}/src/HLTrigger/HLTfilters/test/triggerResultsFilter_by_TriggerResults.py"/>
+<test name="testTriggerResultsFilter_by_TriggerResults" command="testTriggerResultsFilter_by_TriggerResults.sh"/>
 
 <!-- test the TriggerResultsFilter reading the CMSSW results from the HLTPathStatus objects of the current process -->
-<test name="triggerResultsFilter_by_PathStatus" command="cmsRun ${LOCALTOP}/src/HLTrigger/HLTfilters/test/triggerResultsFilter_by_PathStatus.py"/>
+<test name="testTriggerResultsFilter_by_PathStatus" command="testTriggerResultsFilter_by_PathStatus.sh"/>

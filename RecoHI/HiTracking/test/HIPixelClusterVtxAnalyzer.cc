@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -27,7 +27,7 @@
 // ROOT includes
 #include <TH1.h>
 
-class HIPixelClusterVtxAnalyzer : public edm::EDAnalyzer {
+class HIPixelClusterVtxAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps);
 
@@ -65,6 +65,7 @@ HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps
 
 {
   // Constructor
+  usesResource(TFileService::kSharedResource);
 }
 
 /*****************************************************************************/

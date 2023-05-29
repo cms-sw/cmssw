@@ -53,61 +53,61 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('TrackM
 
 if ReRunTracking:
   process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
-  producerSum = process.L1HybridTracks + process.L1HybridTracksWithAssociators
+  producerSum = process.L1THybridTracks + process.L1THybridTracksWithAssociators
 else:
   producerSum = None
 
 if GTTInput:
-  process.load('L1Trigger.L1TTrackMatch.L1GTTInputProducer_cfi')
+  process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
   producerSum = producerSum + process.L1GTTInputProducer
 
 
 
-process.load("L1Trigger.L1TTrackMatch.L1TrackerEtMissProducer_cfi")
-process.load("L1Trigger.L1TTrackMatch.L1TrackerEtMissEmulatorProducer_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1tTrackerEtMiss_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1tTrackerEmuEtMiss_cfi")
 process.load("L1Trigger.L1TTrackMatch.L1TkMETAnalyser_cfi")
 
 ############################################################
 # Primary vertex
 ############################################################
 
-process.load('L1Trigger.VertexFinder.VertexProducer_cff')
-process.VertexProducer.l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
+process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
+process.l1tVertexProducer.l1TracksInputTag = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks")  
 
 
-producerSum += process.VertexProducer
+producerSum += process.l1tVertexProducer
 
 producerName = 'VertexProducer{0}'.format("fastHisto")
 producerName = producerName.replace(".","p") # legalize the name
-producer = process.VertexProducer.clone()
+producer = process.l1tVertexProducer.clone()
 producer.VertexReconstruction.Algorithm = cms.string("fastHisto")
-process.L1TrackerEtMiss.L1VertexInputTag = cms.InputTag(producerName,"l1vertices")
+process.l1tTrackerEtMiss.L1VertexInputTag = cms.InputTag(producerName,"l1vertices")
 
 
 setattr(process, producerName, producer)
 producerSum += producer
-producerSum += process.L1TrackerEtMiss
+producerSum += process.l1tTrackerEtMiss
 
-process.L1TrackerEmuEtMiss.useGTTinput = GTTInput
+process.l1tTrackerEmuEtMiss.useGTTinput = GTTInput
 
 if GTTInput:
-  process.L1TrackerEmuEtMiss.L1TrackInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+  process.l1tTrackerEmuEtMiss.L1TrackInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
 else:
-  process.L1TrackerEmuEtMiss.L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
+  process.l1tTrackerEmuEtMiss.L1TrackInputTag = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks")  
 
 EmuproducerName = 'VertexProducer{0}'.format("fastHistoEmulation")
 EmuproducerName = EmuproducerName.replace(".","p") # legalize the name
-Emuproducer = process.VertexProducer.clone()
+Emuproducer = process.l1tVertexProducer.clone()
 Emuproducer.VertexReconstruction.Algorithm = cms.string("fastHistoEmulation")
-process.L1TrackerEmuEtMiss.L1VertexInputTag = cms.InputTag(EmuproducerName,"l1verticesEmulation")
+process.l1tTrackerEmuEtMiss.L1VertexInputTag = cms.InputTag(EmuproducerName,"l1verticesEmulation")
 
 if GTTInput:
-  Emuproducer.l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+  Emuproducer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
 else:
-  Emuproducer.l1TracksInputTag =  cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks")  
+  Emuproducer.l1TracksInputTag =  cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks")  
 
 setattr(process, EmuproducerName, Emuproducer)
 producerSum += Emuproducer
-producerSum += process.L1TrackerEmuEtMiss
+producerSum += process.l1tTrackerEmuEtMiss
   
 process.p = cms.Path(producerSum + process.L1TkMETAnalyser)

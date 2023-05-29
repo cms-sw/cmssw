@@ -15,6 +15,9 @@ from DQM.L1TMonitor.L1TStage2BMTF_cff import *
 # OMTF
 from DQM.L1TMonitor.L1TStage2OMTF_cfi import *
 
+# CPPF
+from DQM.L1TMonitor.L1TStage2CPPF_cfi import *
+
 # EMTF
 from DQM.L1TMonitor.L1TStage2EMTF_cfi import *
 
@@ -40,6 +43,7 @@ l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2BmtfOnlineDQMSeq +
     l1tStage2Omtf +
     l1tStage2Emtf +
+    l1tStage2Cppf +
     l1tStage2RegionalShower +  
     l1tStage2uGMTOnlineDQMSeq +
     l1tObjectsTiming +

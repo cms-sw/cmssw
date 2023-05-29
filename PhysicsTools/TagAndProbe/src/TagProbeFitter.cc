@@ -2,7 +2,6 @@
 #include <memory>
 
 #include <stdexcept>
-//#include "TagProbeFitter.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -13,35 +12,26 @@
 #include "TH2F.h"
 #include "TStyle.h"
 #include "Math/QuantFuncMathCore.h"
-#include "Roo1DTable.h"
-#include "RooAbsDataStore.h"
 #include "RooAbsReal.h"
-#include "RooAddPdf.h"
 #include "RooBinning.h"
 #include "RooBinningCategory.h"
 #include "RooCategory.h"
-#include "RooChebychev.h"
 #include "RooDataHist.h"
 #include "RooDataSet.h"
-#include "RooEfficiency.h"
-#include "RooExtendPdf.h"
+#include "RooFitLegacy/RooCatTypeLegacy.h"
 #include "RooFitResult.h"
 #include "RooFormulaVar.h"
-#include "RooGaussian.h"
-#include "RooGenericPdf.h"
 #include "RooGlobalFunc.h"
 #include "RooLinkedListIter.h"
 #include "RooMappedCategory.h"
 #include "RooMinimizer.h"
 #include "RooMsgService.h"
 #include "RooMultiCategory.h"
-#include "RooNLLVar.h"
 #include "RooNumIntConfig.h"
 #include "RooPlot.h"
 #include "RooProdPdf.h"
 #include "RooProfileLL.h"
 #include "RooRealVar.h"
-#include "RooSimultaneous.h"
 #include "RooThresholdCategory.h"
 #include "RooTrace.h"
 #include "RooWorkspace.h"
@@ -765,36 +755,25 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands) {
 
 void TagProbeFitter::setInitialValues(RooWorkspace* w) {
   // calculate initial values
-  double signalEfficiency = w->var("efficiency")->getVal();
-  double signalFractionInPassing = w->var("signalFractionInPassing")->getVal();
   double totPassing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
-  double totFailinging = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
-  double numSignalAll = totPassing * signalFractionInPassing / signalEfficiency;
+  double totFailing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
+  //std::cout << "Number of probes: " << totPassing+totFailing << std::endl;
 
-  //std::cout << "Number of probes: " << totPassing+totFailinging << std::endl;
-
-  // check if this value is inconsistent on the failing side
-  if (numSignalAll * (1 - signalEfficiency) > totFailinging)
-    numSignalAll = totFailinging;
   // now set the values
-  w->var("numTot")->setVal(totPassing + totFailinging);
-  w->var("numTot")->setMax(2.0 * (totPassing + totFailinging) + 10);  //wiggle room in case of 0 events in bin
+  w->var("numTot")->setVal(totPassing + totFailing);
+  w->var("numTot")->setMax(2.0 * (totPassing + totFailing) + 10);  //wiggle room in case of 0 events in bin
 
   if (totPassing == 0) {
     w->var("efficiency")->setVal(0.0);
     w->var("efficiency")->setAsymError(0, 1);
     w->var("efficiency")->setConstant(false);
-  } else if (totFailinging == 0) {
+  } else if (totFailing == 0) {
     w->var("efficiency")->setVal(1.0);
     w->var("efficiency")->setAsymError(-1, 0);
     w->var("efficiency")->setConstant(false);
   } else {
     w->var("efficiency")->setConstant(false);
   }
-
-  // if signal fraction is 1 then set the number of background events to 0.
-  //RooRealVar* fBkgPass = w->var("numBackgroundPass");
-  //if(signalFractionInPassing==1.0) { fBkgPass->setVal(0.0); fBkgPass->setConstant(true); }
 
   // save initial state for reference
   w->saveSnapshot("initialState", w->components());
@@ -866,7 +845,8 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w) {
   // plot the Fit Results
   canvas.cd(4);
   frames.push_back(mass->frame(Name("Fit Results"), Title("Fit Results")));
-  pdf.paramOn(frames.back(), dataAll, "", 0, "NELU", 0.1, 0.9, 0.9);
+  pdf.paramOn(
+      frames.back(), RooFit::Label(""), RooFit::Format("NELU", AutoPrecision(0)), RooFit::Layout(0.1, 0.9, 0.9));
   // draw only the parameter box not the whole frame
   frames.back()->findObject(Form("%s_paramBox", pdf.GetName()))->Draw();
   //save and clean up

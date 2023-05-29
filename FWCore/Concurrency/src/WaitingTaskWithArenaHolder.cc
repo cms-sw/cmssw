@@ -109,7 +109,7 @@ namespace edm {
     return holder;
   }
 
-  bool WaitingTaskWithArenaHolder::taskHasFailed() const noexcept { return m_task->exceptionPtr() != nullptr; }
+  bool WaitingTaskWithArenaHolder::taskHasFailed() const noexcept { return static_cast<bool>(m_task->exceptionPtr()); }
 
   bool WaitingTaskWithArenaHolder::hasTask() const noexcept { return m_task != nullptr; }
 

@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1
 from RecoTauTag.RecoTau.DeepTau_cfi import DeepTau
+from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p1, WORKING_POINTS_v2p5, WORKING_POINTS_PHASEII_v2p5
+
 import os
 import re
 
@@ -10,7 +12,7 @@ class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
     availableDiscriminators = [
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
-        "deepTau2017v2", "deepTau2017v2p1", "deepTau2018v2p5",
+        "deepTau2017v2", "deepTau2017v2p1", "deepTau2018v2p5", "deepTau2026v2p5",
         "againstEle2018",
         "newDMPhase2v1",
         "againstElePhase2v1"
@@ -20,7 +22,7 @@ class TauIDEmbedder(object):
                  originalTauName = "slimmedTaus",
                  updatedTauName = "slimmedTausNewID",
                  postfix = "",
-                 toKeep =  ["deepTau2017v2p1", "deepTau2018v2p5"],
+                 toKeep =  ["deepTau2017v2p1", "deepTau2018v2p5", "deepTau2026v2p5"],
                  tauIdDiscrMVA_trainings_run2_2017 = { 'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017", },
                  tauIdDiscrMVA_WPs_run2_2017 = {
                     'tauIdMVAIsoDBoldDMwLT2017' : {
@@ -58,7 +60,6 @@ class TauIDEmbedder(object):
             if discr not in TauIDEmbedder.availableDiscriminators:
                 raise RuntimeError('TauIDEmbedder: discriminator "{}" is not supported'.format(discr))
         self.toKeep = toKeep
-
     
     @staticmethod
     def get_cmssw_version(debug = False):
@@ -559,37 +560,10 @@ class TauIDEmbedder(object):
             tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs(_byIsolationNewDMMVArun2016v1, "_WPEff40")
 
         if "deepTau2017v2" in self.toKeep:
-            if self.debug: print ("Adding DeepTau IDs")
+            if self.debug: print ("Adding DeepTau v2 IDs")
 
             _deepTauName = "deepTau2017v2"
-            workingPoints_ = {
-                "e": {
-                    "VVVLoose": 0.0630386,
-                    "VVLoose": 0.1686942,
-                    "VLoose": 0.3628130,
-                    "Loose": 0.6815435,
-                    "Medium": 0.8847544,
-                    "Tight": 0.9675541,
-                    "VTight": 0.9859251,
-                    "VVTight": 0.9928449,
-                },
-                "mu": {
-                    "VLoose": 0.1058354,
-                    "Loose": 0.2158633,
-                    "Medium": 0.5551894,
-                    "Tight": 0.8754835,
-                },
-                "jet": {
-                    "VVVLoose": 0.2599605,
-                    "VVLoose": 0.4249705,
-                    "VLoose": 0.5983682,
-                    "Loose": 0.7848675,
-                    "Medium": 0.8834768,
-                    "Tight": 0.9308689,
-                    "VTight": 0.9573137,
-                    "VVTight": 0.9733927,
-                },
-            }
+            workingPoints_ = WORKING_POINTS_v2p1
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
@@ -601,8 +575,9 @@ class TauIDEmbedder(object):
                 Prediscriminants = noPrediscriminants,
                 taus             = self.originalTauName,
                 graph_file       = file_names,
+                year             = full_version[0],
                 version          = full_version[1],
-                sub_version      = 0 #MB: subversion cannot be properly deduced from file names
+                sub_version      = 1 #MB: subversion cannot be properly deduced from file names; it should be 1 also for v2
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
@@ -613,37 +588,10 @@ class TauIDEmbedder(object):
 
 
         if "deepTau2017v2p1" in self.toKeep:
-            if self.debug: print ("Adding DeepTau IDs")
+            if self.debug: print ("Adding DeepTau v2p1 IDs")
 
             _deepTauName = "deepTau2017v2p1"
-            workingPoints_ = {
-                "e": {
-                    "VVVLoose": 0.0630386,
-                    "VVLoose": 0.1686942,
-                    "VLoose": 0.3628130,
-                    "Loose": 0.6815435,
-                    "Medium": 0.8847544,
-                    "Tight": 0.9675541,
-                    "VTight": 0.9859251,
-                    "VVTight": 0.9928449,
-                },
-                "mu": {
-                    "VLoose": 0.1058354,
-                    "Loose": 0.2158633,
-                    "Medium": 0.5551894,
-                    "Tight": 0.8754835,
-                },
-                "jet": {
-                    "VVVLoose": 0.2599605,
-                    "VVLoose": 0.4249705,
-                    "VLoose": 0.5983682,
-                    "Loose": 0.7848675,
-                    "Medium": 0.8834768,
-                    "Tight": 0.9308689,
-                    "VTight": 0.9573137,
-                    "VVTight": 0.9733927,
-                },
-            }
+            workingPoints_ = WORKING_POINTS_v2p1
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
@@ -655,6 +603,7 @@ class TauIDEmbedder(object):
                 Prediscriminants = noPrediscriminants,
                 taus             = self.originalTauName,
                 graph_file       = file_names,
+                year             = full_version[0],
                 version          = full_version[1],
                 sub_version      = 1, #MB: subversion cannot be properly deduced from file names
                 disable_dxy_pca  = True
@@ -667,14 +616,10 @@ class TauIDEmbedder(object):
             _rerunMvaIsolationSequence += _deepTauProducer
 
         if "deepTau2018v2p5" in self.toKeep:
-            if self.debug: print ("Adding DeepTau IDs")
+            if self.debug: print ("Adding DeepTau v2p5 IDs")
 
             _deepTauName = "deepTau2018v2p5"
-            workingPoints_ = {
-                "e": {},
-                "mu": {},
-                "jet": {},
-            }
+            workingPoints_ = WORKING_POINTS_v2p5
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_core.pb',
@@ -686,6 +631,7 @@ class TauIDEmbedder(object):
                 Prediscriminants                = noPrediscriminants,
                 taus                            = self.originalTauName,
                 graph_file                      = file_names,
+                year                            = full_version[0],
                 version                         = full_version[1],
                 sub_version                     = full_version[2],
                 disable_dxy_pca                 = True,
@@ -697,6 +643,44 @@ class TauIDEmbedder(object):
 
             _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
             _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += _deepTauProducer
+
+        if "deepTau2026v2p5" in self.toKeep:
+            if self.debug: print ("Adding Phase2 DeepTau v2p5 IDs")
+
+            _deepTauName = "deepTau2026v2p5"
+            workingPoints_ = WORKING_POINTS_PHASEII_v2p5
+
+            file_names = [
+                'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2026v2p5_core.pb',
+                'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2026v2p5_inner.pb',
+                'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2026v2p5_outer.pb',
+            ]
+            full_version = self.getDeepTauVersion(file_names[0])
+            setattr(self.process,_deepTauName+self.postfix,DeepTau.clone(
+                Prediscriminants                = noPrediscriminants,
+                taus                            = self.originalTauName,
+                graph_file                      = file_names,
+                year                            = full_version[0],
+                version                         = full_version[1],
+                sub_version                     = full_version[2],
+                disable_dxy_pca                 = True,
+                disable_hcalFraction_workaround = True,
+                disable_CellIndex_workaround    = True
+            ))
+
+            from RecoTauTag.RecoTau.mergedPhase2SlimmedElectronsForTauId_cff import mergedSlimmedElectronsForTauId
+            if not hasattr(self.process,"mergedSlimmedElectronsForTauId"):
+                self.process.mergedSlimmedElectronsForTauId = mergedSlimmedElectronsForTauId
+            setattr(getattr(self.process, _deepTauName+self.postfix), "electrons", cms.InputTag("mergedSlimmedElectronsForTauId"))
+            setattr(getattr(self.process, _deepTauName+self.postfix), "vertices", cms.InputTag("offlineSlimmedPrimaryVertices4D"))
+
+            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
+
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+            _rerunMvaIsolationTask.add(self.process.mergedSlimmedElectronsForTauId)
+            _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += self.process.mergedSlimmedElectronsForTauId
             _rerunMvaIsolationSequence += _deepTauProducer
 
         if "againstEle2018" in self.toKeep:

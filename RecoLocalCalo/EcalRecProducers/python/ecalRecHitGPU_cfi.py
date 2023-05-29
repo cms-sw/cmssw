@@ -11,9 +11,6 @@ ecalRecHitGPU = cms.EDProducer("EcalRecHitProducerGPU",
     recHitsLabelEB = cms.string("EcalRecHitsEB"),
     recHitsLabelEE = cms.string("EcalRecHitsEE"),
  
-    maxNumberHitsEB = cms.uint32(61200),
-    maxNumberHitsEE = cms.uint32(14648),  
-  
     ## db statuses to be exluded from reconstruction (some will be recovered)
     ChannelStatusToBeExcluded = cms.vstring(   'kDAC',
                                                'kNoisy',

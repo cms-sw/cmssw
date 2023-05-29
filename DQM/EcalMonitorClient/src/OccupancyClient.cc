@@ -180,7 +180,7 @@ namespace ecaldqm {
             meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
       }
     }
-
+    /* Disabling as it's creating false alarms with whole FEDs RED when few hot towers show up. To be tuned.
     // Quality check: set entire FED to BAD if its occupancy begins to vanish
     // Fill FED statistics from (filtered) RecHit Occupancy
     float meanFEDEB(0), meanFEDEE(0), rmsFEDEB(0), rmsFEDEE(0);
@@ -223,7 +223,7 @@ namespace ecaldqm {
             id,
             meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
     }
-
+    */
   }  // producePlots()
 
   DEFINE_ECALDQM_WORKER(OccupancyClient);

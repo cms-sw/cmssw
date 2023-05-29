@@ -52,7 +52,7 @@ using namespace edm;
 
 TotemDAQTriggerDQMSource::TotemDAQTriggerDQMSource(const edm::ParameterSet &ps)
     : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)) {
-  tokenFEDInfo = consumes<vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"));
+  tokenFEDInfo = consumes<vector<TotemFEDInfo>>(ps.getUntrackedParameter<edm::InputTag>("tagFEDInfo"));
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -29,7 +29,7 @@ for i in range(50) :
 chi2ThresholdEE = 50.
 chi2ThresholdEB = 16.
 energyThresholdEE = 4.6
-energyThresholdEEFwd = 6.7
+energyThresholdEEFwd = 12.
 energyThresholdEB = 2.02
 timingVsBXThreshold = energyThresholdEB
 timeErrorThreshold = 3.

@@ -46,7 +46,7 @@ public:
   };
 
   explicit HGCalRecHitValidation(const edm::ParameterSet&);
-  ~HGCalRecHitValidation() override {}
+  ~HGCalRecHitValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -61,11 +61,11 @@ private:
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
 
   // ----------member data ---------------------------
-  std::string nameDetector_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geometry_token_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geometry_beginRun_token_;
-  edm::EDGetToken recHitSource_;
-  int verbosity_;
+  const std::string nameDetector_;
+  const int verbosity_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geometry_token_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geometry_beginRun_token_;
+  const edm::EDGetTokenT<HGCRecHitCollection> recHitSource_;
   unsigned int layers_;
   int firstLayer_;
   std::map<int, int> OccupancyMap_plus;
@@ -82,21 +82,12 @@ private:
 
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       geometry_token_(esConsumes(edm::ESInputTag("", nameDetector_))),
       geometry_beginRun_token_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", nameDetector_))),
-      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      firstLayer_(1) {
-  auto temp = iConfig.getParameter<edm::InputTag>("RecHitSource");
-  if (nameDetector_ == "HGCalEESensitive" || nameDetector_ == "HGCalHESiliconSensitive" ||
-      nameDetector_ == "HGCalHEScintillatorSensitive") {
-    recHitSource_ = consumes<HGCRecHitCollection>(temp);
-  } else {
-    throw cms::Exception("BadHGCRecHitSource") << "HGCal DetectorName given as " << nameDetector_ << " must be: "
-                                               << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", or "
-                                               << "\"HGCalHEScintillatorSensitive\"!";
-  }
-}
+      recHitSource_(consumes(iConfig.getParameter<edm::InputTag>("RecHitSource"))),
+      firstLayer_(1) {}
 
 void HGCalRecHitValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -112,7 +103,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   bool ok(true);
   unsigned int ntot(0), nused(0);
-  edm::ESHandle<HGCalGeometry> geomHandle = iSetup.getHandle(geometry_token_);
+  const edm::ESHandle<HGCalGeometry>& geomHandle = iSetup.getHandle(geometry_token_);
   if (!geomHandle.isValid()) {
     edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
                                         << "Object for " << nameDetector_;
@@ -120,8 +111,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     const HGCalGeometry* geom0 = geomHandle.product();
     int geomType = ((geom0->topology().waferHexagon8()) ? 1 : ((geom0->topology().tileTrapezoid()) ? 2 : 0));
 
-    edm::Handle<HGCRecHitCollection> theRecHitContainers;
-    iEvent.getByToken(recHitSource_, theRecHitContainers);
+    const edm::Handle<HGCRecHitCollection>& theRecHitContainers = iEvent.getHandle(recHitSource_);
     if (theRecHitContainers.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation")
@@ -130,9 +120,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 0)
-                         ? HGCalDetId(detId).layer()
-                         : ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer()));
+        int layer = ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer());
         recHitValidation(detId, layer, geom0, &it);
       }
     } else {
@@ -209,7 +197,7 @@ void HGCalRecHitValidation::fillHitsInfo(HitsInfo& hits) {
 }
 
 void HGCalRecHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HGCalGeometry> geomHandle = iSetup.getHandle(geometry_beginRun_token_);
+  const edm::ESHandle<HGCalGeometry>& geomHandle = iSetup.getHandle(geometry_beginRun_token_);
   if (!geomHandle.isValid()) {
     edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
                                         << "Object for " << nameDetector_;
@@ -225,7 +213,7 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const
   iB.setCurrentFolder("HGCAL/HGCalRecHitsV/" + nameDetector_);
   std::ostringstream histoname;
   for (unsigned int il = 0; il < layers_; ++il) {
-    int ilayer = firstLayer_ + (int)(il);
+    int ilayer = firstLayer_ + static_cast<int>(il);
     auto istr1 = std::to_string(ilayer);
     while (istr1.size() < 2) {
       istr1.insert(0, "0");

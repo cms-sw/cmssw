@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,16 +42,16 @@
 // class decleration
 //
 
-class ElectronIsoAnalyzer : public edm::EDAnalyzer {
+class ElectronIsoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ElectronIsoAnalyzer(const edm::ParameterSet&);
-  ~ElectronIsoAnalyzer();
+  ~ElectronIsoAnalyzer() override;
   //
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   edm::ParameterSet conf_;
 
@@ -101,6 +101,8 @@ ElectronIsoAnalyzer::ElectronIsoAnalyzer(const edm::ParameterSet& iConfig)
     : conf_(iConfig)
 
 {
+  usesResource(TFileService::kSharedResource);
+
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
   tokenGsfElectrons_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("Electrons"));
   tokensIsoValElectrons_ =

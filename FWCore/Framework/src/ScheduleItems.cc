@@ -16,14 +16,18 @@
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <memory>
 
 #include <set>
+#include <string>
+#include <vector>
 
 namespace edm {
   ScheduleItems::ScheduleItems()
@@ -121,6 +125,13 @@ namespace edm {
   }
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {
+    edm::Service<edm::ResourceInformation> resourceInformationService;
+    if (resourceInformationService.isAvailable()) {
+      auto const& selectedAccelerators =
+          parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
+      resourceInformationService->initializeAcceleratorTypes(selectedAccelerators);
+    }
+
     act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_ = std::make_shared<ProcessConfiguration>(
@@ -136,19 +147,70 @@ namespace edm {
                                                         bool hasSubprocesses,
                                                         PreallocationConfiguration const& config,
                                                         ProcessContext const* processContext,
+                                                        ModuleTypeResolverMaker const* typeResolverMaker,
                                                         ProcessBlockHelperBase& processBlockHelper) {
-    return std::make_unique<Schedule>(parameterSet,
-                                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
-                                      *preg_,
-                                      *branchIDListHelper_,
-                                      processBlockHelper,
-                                      *thinnedAssociationsHelper_,
-                                      subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
-                                      *act_table_,
-                                      actReg_,
-                                      processConfiguration(),
-                                      hasSubprocesses,
-                                      config,
-                                      processContext);
+    auto& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
+    auto ret = std::make_unique<Schedule>(parameterSet,
+                                          tns,
+                                          *preg_,
+                                          *act_table_,
+                                          actReg_,
+                                          processConfiguration(),
+                                          config,
+                                          processContext,
+                                          typeResolverMaker);
+    ret->finishSetup(parameterSet,
+                     tns,
+                     *preg_,
+                     *branchIDListHelper_,
+                     processBlockHelper,
+                     *thinnedAssociationsHelper_,
+                     subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
+                     actReg_,
+                     processConfiguration(),
+                     hasSubprocesses,
+                     config,
+                     processContext);
+    return ret;
   }
+
+  ScheduleItems::MadeModules ScheduleItems::initModules(ParameterSet& parameterSet,
+                                                        service::TriggerNamesService const& tns,
+                                                        PreallocationConfiguration const& config,
+                                                        ProcessContext const* processContext,
+                                                        ModuleTypeResolverMaker const* typeResolverMaker) {
+    return MadeModules(std::make_unique<Schedule>(parameterSet,
+                                                  tns,
+                                                  *preg_,
+                                                  *act_table_,
+                                                  actReg_,
+                                                  processConfiguration(),
+                                                  config,
+                                                  processContext,
+                                                  typeResolverMaker));
+  }
+
+  std::unique_ptr<Schedule> ScheduleItems::finishSchedule(MadeModules madeModules,
+                                                          ParameterSet& parameterSet,
+                                                          service::TriggerNamesService const& tns,
+                                                          bool hasSubprocesses,
+                                                          PreallocationConfiguration const& config,
+                                                          ProcessContext const* processContext,
+                                                          ProcessBlockHelperBase& processBlockHelper) {
+    auto sched = std::move(madeModules.m_schedule);
+    sched->finishSetup(parameterSet,
+                       tns,
+                       *preg_,
+                       *branchIDListHelper_,
+                       processBlockHelper,
+                       *thinnedAssociationsHelper_,
+                       subProcessParentageHelper_ ? subProcessParentageHelper_.get() : nullptr,
+                       actReg_,
+                       processConfiguration(),
+                       hasSubprocesses,
+                       config,
+                       processContext);
+    return sched;
+  }
+
 }  // namespace edm

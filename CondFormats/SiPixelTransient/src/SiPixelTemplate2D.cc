@@ -167,9 +167,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
 
     // next, layout the 2-d structure needed to store template
 
-    theCurrentTemp.entry.resize(theCurrentTemp.head.NTyx);
-    for (auto& item : theCurrentTemp.entry)
-      item.resize(theCurrentTemp.head.NTxx);
+    theCurrentTemp.resize(theCurrentTemp.head.NTyx, theCurrentTemp.head.NTxx);
 
     // Read in the file info
 
@@ -316,215 +314,220 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
 
   const int code_version = {21};
 
-  // We must create a new object because dbobject must be a const and our stream must not be
-  SiPixel2DTemplateDBObject db = dbobject;
+  // We must use a reader because dbobject must be a const and its stream must not be
+  SiPixel2DTemplateDBObject::Reader reader(dbobject);
 
-  // Create a local template storage entry
-  SiPixelTemplateStore2D theCurrentTemp;
+  struct Failed {};
 
   // Fill the template storage for each template calibration stored in the db
-  for (int m = 0; m < db.numOfTempl(); ++m) {
-    // Read-in a header string first and print it
+  for (int m = 0; m < dbobject.numOfTempl(); ++m) {
+    // Create a template storage entry
+    // SiPixelTemplateStore2D
+    pixelTemp.emplace_back();
+    auto& theCurrentTemp = pixelTemp.back();
 
-    SiPixel2DTemplateDBObject::char2float temp;
-    for (int i = 0; i < 20; ++i) {
-      temp.f = db.sVector()[db.index()];
-      theCurrentTemp.head.title[4 * i] = temp.c[0];
-      theCurrentTemp.head.title[4 * i + 1] = temp.c[1];
-      theCurrentTemp.head.title[4 * i + 2] = temp.c[2];
-      theCurrentTemp.head.title[4 * i + 3] = temp.c[3];
-      db.incrementIndex(1);
-    }
-    theCurrentTemp.head.title[79] = '\0';
-    LOGINFO("SiPixelTemplate2D") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
+    try {
+      // Read-in a header string first and print it
 
-    // next, the header information
-
-    db >> theCurrentTemp.head.ID >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >>
-        theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx >> theCurrentTemp.head.Dtype >>
-        theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >>
-        theCurrentTemp.head.qscale >> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >>
-        theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >>
-        theCurrentTemp.head.zsize;
-
-    if (db.fail()) {
-      LOGERROR("SiPixelTemplate2D") << "Error reading file 0A, no template load" << ENDL;
-      return false;
-    }
-
-    LOGINFO("SiPixelTemplate2D") << "Loading Pixel Template File - " << theCurrentTemp.head.title
-                                 << " code version = " << code_version << " object version "
-                                 << theCurrentTemp.head.templ_version << ENDL;
-
-    if (theCurrentTemp.head.templ_version > 17) {
-      db >> theCurrentTemp.head.ss50 >> theCurrentTemp.head.lorybias >> theCurrentTemp.head.lorxbias >>
-          theCurrentTemp.head.fbin[0] >> theCurrentTemp.head.fbin[1] >> theCurrentTemp.head.fbin[2];
-
-      if (db.fail()) {
-        LOGERROR("SiPixelTemplate2D") << "Error reading file 0B, no template load" << ENDL;
-        return false;
+      SiPixel2DTemplateDBObject::char2float temp;
+      for (int i = 0; i < 20; ++i) {
+        temp.f = dbobject.sVector()[reader.index()];
+        theCurrentTemp.head.title[4 * i] = temp.c[0];
+        theCurrentTemp.head.title[4 * i + 1] = temp.c[1];
+        theCurrentTemp.head.title[4 * i + 2] = temp.c[2];
+        theCurrentTemp.head.title[4 * i + 3] = temp.c[3];
+        reader.incrementIndex(1);
       }
-    } else {
-      // This is for older [legacy] payloads and the numbers are indeed magic [they are part of the payload for v>17]
-      theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
-      theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth / 2.f;
-      theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth / 2.f;
-      theCurrentTemp.head.fbin[0] = 1.50f;
-      theCurrentTemp.head.fbin[1] = 1.00f;
-      theCurrentTemp.head.fbin[2] = 0.85f;
-    }
+      theCurrentTemp.head.title[79] = '\0';
+      LOGINFO("SiPixelTemplate2D") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
 
-    LOGINFO("SiPixelTemplate2D") << "Template ID = " << theCurrentTemp.head.ID << ", Template Version "
-                                 << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield
-                                 << ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " << theCurrentTemp.head.NTyx
-                                 << ", NTxx = " << theCurrentTemp.head.NTxx << ", Dtype = " << theCurrentTemp.head.Dtype
-                                 << ", Bias voltage " << theCurrentTemp.head.Vbias << ", temperature "
-                                 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence
-                                 << ", Q-scaling factor " << theCurrentTemp.head.qscale << ", 1/2 multi dcol threshold "
-                                 << theCurrentTemp.head.s50 << ", 1/2 single dcol threshold "
-                                 << theCurrentTemp.head.ss50 << ", y Lorentz Width " << theCurrentTemp.head.lorywidth
-                                 << ", y Lorentz Bias " << theCurrentTemp.head.lorybias << ", x Lorentz width "
-                                 << theCurrentTemp.head.lorxwidth << ", x Lorentz Bias " << theCurrentTemp.head.lorxbias
-                                 << ", Q/Q_avg fractions for Qbin defs " << theCurrentTemp.head.fbin[0] << ", "
-                                 << theCurrentTemp.head.fbin[1] << ", " << theCurrentTemp.head.fbin[2]
-                                 << ", pixel x-size " << theCurrentTemp.head.xsize << ", y-size "
-                                 << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
+      // next, the header information
 
-    if (theCurrentTemp.head.templ_version < code_version) {
-      LOGINFO("SiPixelTemplate2D") << "code expects version " << code_version << " finds "
-                                   << theCurrentTemp.head.templ_version << ", load anyway " << ENDL;
-    }
+      reader >> theCurrentTemp.head.ID >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >>
+          theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx >>
+          theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >>
+          theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale >> theCurrentTemp.head.s50 >>
+          theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >>
+          theCurrentTemp.head.xsize >> theCurrentTemp.head.zsize;
 
-    if (theCurrentTemp.head.NTy != 0) {
-      LOGERROR("SiPixelTemplate2D")
-          << "Trying to load 1-d template info into the 2-d template object, check your DB/global tag!" << ENDL;
-      return false;
-    }
+      if (reader.fail()) {
+        LOGERROR("SiPixelTemplate2D") << "Error reading file 0A, no template load" << ENDL;
+        throw Failed();
+      }
 
-    // next, layout the 2-d structure needed to store template
+      LOGINFO("SiPixelTemplate2D") << "Loading Pixel Template File - " << theCurrentTemp.head.title
+                                   << " code version = " << code_version << " object version "
+                                   << theCurrentTemp.head.templ_version << ENDL;
 
-    theCurrentTemp.entry.resize(theCurrentTemp.head.NTyx);
-    for (auto& item : theCurrentTemp.entry)
-      item.resize(theCurrentTemp.head.NTxx);
+      if (theCurrentTemp.head.templ_version > 17) {
+        reader >> theCurrentTemp.head.ss50 >> theCurrentTemp.head.lorybias >> theCurrentTemp.head.lorxbias >>
+            theCurrentTemp.head.fbin[0] >> theCurrentTemp.head.fbin[1] >> theCurrentTemp.head.fbin[2];
 
-    // Read in the file info
-
-    for (int iy = 0; iy < theCurrentTemp.head.NTyx; ++iy) {
-      for (int jx = 0; jx < theCurrentTemp.head.NTxx; ++jx) {
-        db >> theCurrentTemp.entry[iy][jx].runnum >> theCurrentTemp.entry[iy][jx].costrk[0] >>
-            theCurrentTemp.entry[iy][jx].costrk[1] >> theCurrentTemp.entry[iy][jx].costrk[2];
-
-        if (db.fail()) {
-          LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # "
-                                        << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          return false;
+        if (reader.fail()) {
+          LOGERROR("SiPixelTemplate2D") << "Error reading file 0B, no template load" << ENDL;
+          throw Failed();
         }
+      } else {
+        // This is for older [legacy] payloads and the numbers are indeed magic [they are part of the payload for v>17]
+        theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
+        theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth / 2.f;
+        theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth / 2.f;
+        theCurrentTemp.head.fbin[0] = 1.50f;
+        theCurrentTemp.head.fbin[1] = 1.00f;
+        theCurrentTemp.head.fbin[2] = 0.85f;
+      }
 
-        // Calculate cot(alpha) and cot(beta) for this entry
+      LOGINFO("SiPixelTemplate2D") << "Template ID = " << theCurrentTemp.head.ID << ", Template Version "
+                                   << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield
+                                   << ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " << theCurrentTemp.head.NTyx
+                                   << ", NTxx = " << theCurrentTemp.head.NTxx
+                                   << ", Dtype = " << theCurrentTemp.head.Dtype << ", Bias voltage "
+                                   << theCurrentTemp.head.Vbias << ", temperature " << theCurrentTemp.head.temperature
+                                   << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor "
+                                   << theCurrentTemp.head.qscale << ", 1/2 multi dcol threshold "
+                                   << theCurrentTemp.head.s50 << ", 1/2 single dcol threshold "
+                                   << theCurrentTemp.head.ss50 << ", y Lorentz Width " << theCurrentTemp.head.lorywidth
+                                   << ", y Lorentz Bias " << theCurrentTemp.head.lorybias << ", x Lorentz width "
+                                   << theCurrentTemp.head.lorxwidth << ", x Lorentz Bias "
+                                   << theCurrentTemp.head.lorxbias << ", Q/Q_avg fractions for Qbin defs "
+                                   << theCurrentTemp.head.fbin[0] << ", " << theCurrentTemp.head.fbin[1] << ", "
+                                   << theCurrentTemp.head.fbin[2] << ", pixel x-size " << theCurrentTemp.head.xsize
+                                   << ", y-size " << theCurrentTemp.head.ysize << ", zsize "
+                                   << theCurrentTemp.head.zsize << ENDL;
 
-        theCurrentTemp.entry[iy][jx].cotalpha =
-            theCurrentTemp.entry[iy][jx].costrk[0] / theCurrentTemp.entry[iy][jx].costrk[2];
+      if (theCurrentTemp.head.templ_version < code_version) {
+        LOGINFO("SiPixelTemplate2D") << "code expects version " << code_version << " finds "
+                                     << theCurrentTemp.head.templ_version << ", load anyway " << ENDL;
+      }
 
-        theCurrentTemp.entry[iy][jx].cotbeta =
-            theCurrentTemp.entry[iy][jx].costrk[1] / theCurrentTemp.entry[iy][jx].costrk[2];
+      if (theCurrentTemp.head.NTy != 0) {
+        LOGERROR("SiPixelTemplate2D")
+            << "Trying to load 1-d template info into the 2-d template object, check your DB/global tag!" << ENDL;
+        throw Failed();
+      }
 
-        db >> theCurrentTemp.entry[iy][jx].qavg >> theCurrentTemp.entry[iy][jx].pixmax >>
-            theCurrentTemp.entry[iy][jx].sxymax >> theCurrentTemp.entry[iy][jx].iymin >>
-            theCurrentTemp.entry[iy][jx].iymax >> theCurrentTemp.entry[iy][jx].jxmin >>
-            theCurrentTemp.entry[iy][jx].jxmax;
+      // next, layout the 2-d structure needed to store template
+      theCurrentTemp.resize(theCurrentTemp.head.NTyx, theCurrentTemp.head.NTxx);
 
-        if (db.fail()) {
-          LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # "
-                                        << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          return false;
-        }
+      // Read in the file info
 
-        for (int k = 0; k < 2; ++k) {
-          db >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1] >>
-              theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >>
-              theCurrentTemp.entry[iy][jx].xypar[k][4];
+      for (int iy = 0; iy < theCurrentTemp.head.NTyx; ++iy) {
+        for (int jx = 0; jx < theCurrentTemp.head.NTxx; ++jx) {
+          reader >> theCurrentTemp.entry[iy][jx].runnum >> theCurrentTemp.entry[iy][jx].costrk[0] >>
+              theCurrentTemp.entry[iy][jx].costrk[1] >> theCurrentTemp.entry[iy][jx].costrk[2];
 
-          if (db.fail()) {
+          if (reader.fail()) {
             LOGERROR("SiPixelTemplate2D")
-                << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-            return false;
+                << "Error reading file 1, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+            throw Failed();
           }
-        }
 
-        for (int k = 0; k < 2; ++k) {
-          db >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1] >>
-              theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >>
-              theCurrentTemp.entry[iy][jx].lanpar[k][4];
+          // Calculate cot(alpha) and cot(beta) for this entry
 
-          if (db.fail()) {
+          theCurrentTemp.entry[iy][jx].cotalpha =
+              theCurrentTemp.entry[iy][jx].costrk[0] / theCurrentTemp.entry[iy][jx].costrk[2];
+
+          theCurrentTemp.entry[iy][jx].cotbeta =
+              theCurrentTemp.entry[iy][jx].costrk[1] / theCurrentTemp.entry[iy][jx].costrk[2];
+
+          reader >> theCurrentTemp.entry[iy][jx].qavg >> theCurrentTemp.entry[iy][jx].pixmax >>
+              theCurrentTemp.entry[iy][jx].sxymax >> theCurrentTemp.entry[iy][jx].iymin >>
+              theCurrentTemp.entry[iy][jx].iymax >> theCurrentTemp.entry[iy][jx].jxmin >>
+              theCurrentTemp.entry[iy][jx].jxmax;
+
+          if (reader.fail()) {
             LOGERROR("SiPixelTemplate2D")
-                << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-            return false;
+                << "Error reading file 2, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+            throw Failed();
           }
-        }
 
-        //  Read the 2D template entries as floats [they are formatted that way] and cast to short ints
+          for (int k = 0; k < 2; ++k) {
+            reader >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1] >>
+                theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >>
+                theCurrentTemp.entry[iy][jx].xypar[k][4];
 
-        float dummy[T2YSIZE];
-        for (int l = 0; l < 7; ++l) {
-          for (int k = 0; k < 7; ++k) {
-            for (int j = 0; j < T2XSIZE; ++j) {
-              for (int i = 0; i < T2YSIZE; ++i) {
-                db >> dummy[i];
-              }
-              if (db.fail()) {
-                LOGERROR("SiPixelTemplate2D")
-                    << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-                return false;
-              }
-              for (int i = 0; i < T2YSIZE; ++i) {
-                theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];
+            if (reader.fail()) {
+              LOGERROR("SiPixelTemplate2D")
+                  << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+              throw Failed();
+            }
+          }
+
+          for (int k = 0; k < 2; ++k) {
+            reader >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1] >>
+                theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >>
+                theCurrentTemp.entry[iy][jx].lanpar[k][4];
+
+            if (reader.fail()) {
+              LOGERROR("SiPixelTemplate2D")
+                  << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+              throw Failed();
+            }
+          }
+
+          //  Read the 2D template entries as floats [they are formatted that way] and cast to short ints
+
+          float dummy[T2YSIZE];
+          for (int l = 0; l < 7; ++l) {
+            for (int k = 0; k < 7; ++k) {
+              for (int j = 0; j < T2XSIZE; ++j) {
+                for (int i = 0; i < T2YSIZE; ++i) {
+                  reader >> dummy[i];
+                }
+                if (reader.fail()) {
+                  LOGERROR("SiPixelTemplate2D") << "Error reading file 5, no template load, run # "
+                                                << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+                  throw Failed();
+                }
+                for (int i = 0; i < T2YSIZE; ++i) {
+                  theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];
+                }
               }
             }
           }
-        }
 
-        db >> theCurrentTemp.entry[iy][jx].chi2ppix >> theCurrentTemp.entry[iy][jx].chi2scale >>
-            theCurrentTemp.entry[iy][jx].offsetx[0] >> theCurrentTemp.entry[iy][jx].offsetx[1] >>
-            theCurrentTemp.entry[iy][jx].offsetx[2] >> theCurrentTemp.entry[iy][jx].offsetx[3] >>
-            theCurrentTemp.entry[iy][jx].offsety[0] >> theCurrentTemp.entry[iy][jx].offsety[1] >>
-            theCurrentTemp.entry[iy][jx].offsety[2] >> theCurrentTemp.entry[iy][jx].offsety[3];
+          reader >> theCurrentTemp.entry[iy][jx].chi2ppix >> theCurrentTemp.entry[iy][jx].chi2scale >>
+              theCurrentTemp.entry[iy][jx].offsetx[0] >> theCurrentTemp.entry[iy][jx].offsetx[1] >>
+              theCurrentTemp.entry[iy][jx].offsetx[2] >> theCurrentTemp.entry[iy][jx].offsetx[3] >>
+              theCurrentTemp.entry[iy][jx].offsety[0] >> theCurrentTemp.entry[iy][jx].offsety[1] >>
+              theCurrentTemp.entry[iy][jx].offsety[2] >> theCurrentTemp.entry[iy][jx].offsety[3];
 
-        if (db.fail()) {
-          LOGERROR("SiPixelTemplate2D") << "Error reading file 6, no template load, run # "
-                                        << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          return false;
-        }
+          if (reader.fail()) {
+            LOGERROR("SiPixelTemplate2D")
+                << "Error reading file 6, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+            throw Failed();
+          }
 
-        db >> theCurrentTemp.entry[iy][jx].clsleny >> theCurrentTemp.entry[iy][jx].clslenx >>
-            theCurrentTemp.entry[iy][jx].mpvvav >> theCurrentTemp.entry[iy][jx].sigmavav >>
-            theCurrentTemp.entry[iy][jx].kappavav >> theCurrentTemp.entry[iy][jx].scalexavg >>
-            theCurrentTemp.entry[iy][jx].scaleyavg >> theCurrentTemp.entry[iy][jx].delyavg >>
-            theCurrentTemp.entry[iy][jx].delysig >> theCurrentTemp.entry[iy][jx].spare[0];
+          reader >> theCurrentTemp.entry[iy][jx].clsleny >> theCurrentTemp.entry[iy][jx].clslenx >>
+              theCurrentTemp.entry[iy][jx].mpvvav >> theCurrentTemp.entry[iy][jx].sigmavav >>
+              theCurrentTemp.entry[iy][jx].kappavav >> theCurrentTemp.entry[iy][jx].scalexavg >>
+              theCurrentTemp.entry[iy][jx].scaleyavg >> theCurrentTemp.entry[iy][jx].delyavg >>
+              theCurrentTemp.entry[iy][jx].delysig >> theCurrentTemp.entry[iy][jx].spare[0];
 
-        if (db.fail()) {
-          LOGERROR("SiPixelTemplate2D") << "Error reading file 7, no template load, run # "
-                                        << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          return false;
-        }
+          if (reader.fail()) {
+            LOGERROR("SiPixelTemplate2D")
+                << "Error reading file 7, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+            throw Failed();
+          }
 
-        db >> theCurrentTemp.entry[iy][jx].scalex[0] >> theCurrentTemp.entry[iy][jx].scalex[1] >>
-            theCurrentTemp.entry[iy][jx].scalex[2] >> theCurrentTemp.entry[iy][jx].scalex[3] >>
-            theCurrentTemp.entry[iy][jx].scaley[0] >> theCurrentTemp.entry[iy][jx].scaley[1] >>
-            theCurrentTemp.entry[iy][jx].scaley[2] >> theCurrentTemp.entry[iy][jx].scaley[3] >>
-            theCurrentTemp.entry[iy][jx].spare[1] >> theCurrentTemp.entry[iy][jx].spare[2];
+          reader >> theCurrentTemp.entry[iy][jx].scalex[0] >> theCurrentTemp.entry[iy][jx].scalex[1] >>
+              theCurrentTemp.entry[iy][jx].scalex[2] >> theCurrentTemp.entry[iy][jx].scalex[3] >>
+              theCurrentTemp.entry[iy][jx].scaley[0] >> theCurrentTemp.entry[iy][jx].scaley[1] >>
+              theCurrentTemp.entry[iy][jx].scaley[2] >> theCurrentTemp.entry[iy][jx].scaley[3] >>
+              theCurrentTemp.entry[iy][jx].spare[1] >> theCurrentTemp.entry[iy][jx].spare[2];
 
-        if (db.fail()) {
-          LOGERROR("SiPixelTemplate2D") << "Error reading file 8, no template load, run # "
-                                        << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-          return false;
+          if (reader.fail()) {
+            LOGERROR("SiPixelTemplate2D")
+                << "Error reading file 8, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+            throw Failed();
+          }
         }
       }
+
+    } catch (Failed&) {
+      pixelTemp.pop_back();
+      return false;
     }
-
-    // Add this template to the store
-
-    pixelTemp.push_back(theCurrentTemp);
   }
 
   return true;
@@ -626,6 +629,12 @@ bool SiPixelTemplate2D::getid(int id) {
 bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
   // Interpolate for a new set of track angles
 
+  //check for nan's
+  if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+    success_ = false;
+    return success_;
+  }
+
   // Local variables
 
   float acotb, dcota, dcotb;
@@ -680,12 +689,6 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
       throw cms::Exception("DataCorrupt")
           << "SiPixelTemplate2D::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
-
-      //check for nan's
-      if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
-        success_ = false;
-        return success_;
-      }
 #else
       std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
 #endif

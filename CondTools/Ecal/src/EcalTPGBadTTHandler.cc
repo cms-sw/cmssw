@@ -185,7 +185,6 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
             }
 
             // now put at 1 those that are bad
-            int icells = 0;
             for (CIfeped p = dataset_TpgBadTT.begin(); p != dataset_TpgBadTT.end(); p++) {
               rd_badTT = *p;
 
@@ -210,7 +209,6 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
                 const EcalTrigTowerDetId towid = id.tower();
                 towerStatus->setValue(towid.rawId(), rd_badTT.getStatus());
 
-                ++icells;
               } else {
                 // EE data
 
@@ -238,8 +236,6 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
                 } else {
                   std::cout << " these may be the additional towers TCC/TT " << tccid << "/" << towerid << std::endl;
                 }
-
-                ++icells;
               }
             }
 

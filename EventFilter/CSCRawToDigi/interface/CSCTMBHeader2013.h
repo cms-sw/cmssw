@@ -11,6 +11,7 @@ struct CSCTMBHeader2013 : public CSCVTMBHeaderFormat {
 
   uint16_t BXNCount() const override { return bits.bxnCount; }
   uint16_t ALCTMatchTime() const override { return bits.matchWin; }
+  void setALCTMatchTime(uint16_t alctmatchtime) override { bits.matchWin = alctmatchtime & 0xF; }
   uint16_t CLCTOnly() const override { return bits.clctOnly; }
   uint16_t ALCTOnly() const override { return bits.alctOnly; }
   uint16_t TMBMatch() const override { return bits.tmbMatch; }
@@ -25,6 +26,7 @@ struct CSCTMBHeader2013 : public CSCVTMBHeaderFormat {
   uint16_t syncErrorCLCT() const override { return bits.clct_sync_err; }
   uint16_t syncErrorMPC0() const override { return bits.MPC_Muon0_SyncErr_; }
   uint16_t syncErrorMPC1() const override { return bits.MPC_Muon1_SyncErr_; }
+  uint16_t L1AMatchTime() const override { return bits.pop_l1a_match_win; }
 
   /// == Run 3 CSC-GEM Trigger Format
   uint16_t clct0_ComparatorCode() const override { return 0; }

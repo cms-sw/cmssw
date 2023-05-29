@@ -23,8 +23,9 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
       toaLSB_ns_{},
       tdcResolutionInNs_{1e-9},  // set time resolution very small by default
       targetMIPvalue_ADC_{},
-      jitterNoise2_ns_{},
-      jitterConstant2_ns_{},
+      jitterNoise_ns_{},
+      jitterConstant_ns_{},
+      eventTimeOffset_ns_{{0.02, 0.02, 0.02}},
       noise_fC_{},
       toaMode_(WEIGHTEDBYE) {
   edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
@@ -86,16 +87,16 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 
   if (ps.exists("jitterNoise_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterNoise_ns");
-    if (temp.size() == jitterNoise2_ns_.size()) {
-      std::copy_n(temp.begin(), temp.size(), jitterNoise2_ns_.begin());
+    if (temp.size() == jitterNoise_ns_.size()) {
+      std::copy_n(temp.begin(), temp.size(), jitterNoise_ns_.begin());
     } else {
       throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterNoise ";
     }
   }
   if (ps.exists("jitterConstant_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterConstant_ns");
-    if (temp.size() == jitterConstant2_ns_.size()) {
-      std::copy_n(temp.begin(), temp.size(), jitterConstant2_ns_.begin());
+    if (temp.size() == jitterConstant_ns_.size()) {
+      std::copy_n(temp.begin(), temp.size(), jitterConstant_ns_.begin());
     } else {
       throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterConstant ";
     }
@@ -211,6 +212,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              float maxADC,
                                              int thickness,
                                              float tdcOnsetAuto,
+                                             float noiseWidth,
                                              const hgc_digi::FEADCPulseShape& adcPulse) {
   busyFlags.fill(false);
   totFlags.fill(false);
@@ -244,15 +246,17 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   //ToA is in central BX if fired -- std::floor(BX/25.)+9;
   int fireBX = 9;
   //noise fluctuation on charge is added after ToA computation
-  //do not recheck the ToA firing threshold tdcForToAOnset_fC_[thickness-1] not to bias the efficiency
   //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing
-  if (toaColl[fireBX] != 0.f) {
+  if (toaColl[fireBX] != 0.f && chargeColl[fireBX] > tdcForToAOnset_fC_[thickness - 1]) {
     timeToA = toaColl[fireBX];
-    float jitter = getTimeJitter(chargeColl[fireBX], thickness);
+    float sensor_noise = noiseWidth <= 0 ? noise_fC_[thickness - 1] : noiseWidth;
+    float noise = jitterNoise_ns_[thickness - 1] * sensor_noise;
+    float jitter = chargeColl[fireBX] == 0 ? 0 : (noise / chargeColl[fireBX]);
     if (jitter != 0)
       timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, jitter);
     else if (tdcResolutionInNs_ != 0)
       timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
+    timeToA += eventTimeOffset_ns_[thickness - 1];
     if (timeToA >= 0.f && timeToA <= 25.f)
       toaFlags[fireBX] = true;
   }
@@ -402,7 +406,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
     for (int it = 0; it < (int)(chargeColl.size()); ++it) {
       //if busy, charge has been already integrated
       //if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
-      if (!totFlags[it] & !busyFlags[it]) {
+      if (!totFlags[it] && !busyFlags[it]) {
         const int start = std::max(0, 2 - it);
         const int stop = std::min((int)adcPulse.size(), (int)newCharge.size() - it + 2);
         for (ipulse = start; ipulse < stop; ++ipulse) {
@@ -410,7 +414,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
           //notice that if the channel is already busy,
           //it has already been affected by the leakage of the SARS ADC
           //if(totFlags[itoffset] || busyFlags[itoffset]) continue;
-          if (!totFlags[itoffset] & !busyFlags[itoffset]) {
+          if (!totFlags[itoffset] && !busyFlags[itoffset]) {
             newCharge[itoffset] += chargeColl[it] * adcPulse[ipulse];
           }
           //if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse[ipulse] << "( " << chargeColl[it] << "->";

@@ -97,7 +97,7 @@ HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfi
       eeLabel_(iConfig.getParameter<std::string>("EECollection")),
       hcLabel_(iConfig.getParameter<std::string>("HCCollection")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      maxDepth_(iConfig.getUntrackedParameter<int>("MaxDepth", 4)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("MaxDepth", 7)),
       etaMax_(iConfig.getUntrackedParameter<double>("EtaMax", 3.0)),
       tMinE_(iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.)),
       tMaxE_(iConfig.getUntrackedParameter<double>("TimeMaxCutECAL", 500.)),
@@ -189,7 +189,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       unsigned int thisTrk = simTrkItr.trackId();
       spr::propagatedTrackDirection trkD = spr::propagateCALO(thisTrk, SimTk, SimVtx, geo, bField, debug);
 
-      double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
+      double eEcal(0), eHcal(0), activeLengthHotTot(0);
       double eHcalDepth[depthMax_], eHcalDepthHot[depthMax_];
       double activeL[depthMax_], activeHotL[depthMax_];
       unsigned int isHot(0);
@@ -272,7 +272,6 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           HcalDetId hcid0(subdet0, ieta, iphi, ehdepth[i].second);
           double actL = activeLength(DetId(hcid0));
           activeL[ehdepth[i].second - 1] = actL;
-          activeLengthTot += actL;
 #ifdef EDM_ML_DEBUG
           if ((verbosity_ % 10) > 0)
             edm::LogVerbatim("HBHEMuon") << hcid0 << " E " << ehdepth[i].first << " L " << actL;
@@ -401,7 +400,7 @@ void HcalHBHEMuonSimAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("EECollection", "EcalHitsEE");
   desc.add<std::string>("HCCollection", "HcalHits");
   desc.addUntracked<int>("Verbosity", 0);
-  desc.addUntracked<int>("MaxDepth", 4);
+  desc.addUntracked<int>("MaxDepth", 7);
   desc.addUntracked<double>("EtaMax", 3.0);
   desc.addUntracked<double>("TimeMinCutECAL", -500.);
   desc.addUntracked<double>("TimeMaxCutECAL", 500.);

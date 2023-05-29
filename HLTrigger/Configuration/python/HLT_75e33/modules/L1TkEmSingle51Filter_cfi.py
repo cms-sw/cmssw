@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TkEmSingle51Filter = cms.EDFilter("L1TTkEmFilter",
+l1tTkEmSingle51Filter = cms.EDFilter("L1TTkEmFilter",
     ApplyQual1 = cms.bool(True),
     ApplyQual2 = cms.bool(True),
     EtaBinsForIsolation = cms.vdouble(0.0, 1.479, 2.4),
@@ -17,7 +17,7 @@ L1TkEmSingle51Filter = cms.EDFilter("L1TTkEmFilter",
         endcap = cms.vdouble(3.17445, 1.13219, 0.0)
     ),
     TrkIsolation = cms.vdouble(99999.0, 99999.0),
-    inputTag1 = cms.InputTag("hltL1TkPhotonsCrystal","EG"),
-    inputTag2 = cms.InputTag("hltL1TkPhotonsHGC","EG"),
+    inputTag1 = cms.InputTag("l1tLayer1EG","L1TkEmEB"),
+    inputTag2 = cms.InputTag("l1tLayer1EG","L1TkEmEE"),
     saveTags = cms.bool(True)
 )

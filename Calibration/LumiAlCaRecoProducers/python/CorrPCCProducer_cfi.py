@@ -8,7 +8,7 @@ corrPCCProd = cms.EDProducer("CorrPCCProducer",
         ProdInst = cms.string("rawPCCRandom"),
         approxLumiBlockSize=cms.int32(50),
         trigstring = cms.untracked.string("corrPCCRand"),
-        type2_a= cms.double(0.00072),
-        type2_b= cms.double(0.014),
+        type2_a= cms.double(0.00094),
+        type2_b= cms.double(0.018),
     )
 )

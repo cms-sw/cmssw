@@ -14,6 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/LooperFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 
 //
 // static member functions
@@ -21,6 +22,7 @@
 namespace edm {
   namespace eventsetup {
     std::string LooperMakerTraits::name() { return "CMS EDM Framework EDLooper"; }
+    std::string const& LooperMakerTraits::baseType() { return ParameterSetDescriptionFillerBase::kBaseForEDLooper; }
 
     void LooperMakerTraits::replaceExisting(EventSetupProvider&, std::shared_ptr<EDLooperBase>) {
       throw edm::Exception(edm::errors::LogicError) << "LooperMakerTraits::replaceExisting\n"

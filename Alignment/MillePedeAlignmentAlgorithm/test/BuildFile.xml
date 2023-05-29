@@ -2,23 +2,16 @@
   <use name="CondFormats/AlignmentRecord"/>
   <use name="DataFormats/DetId"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
   <use name="CondFormats/Alignment"/>
-  <use name="Alignment/CommonAlignment"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<test name="test_PrepareInputDb" command="mps_prepare_input_db.py -g auto:run2_data -r 1 -o ${LOCALTOP}/tmp/test_input.db"/>
+<test name="test_PrepareInputDb" command="mps_prepare_input_db.py -g auto:run2_data -r 1 -o ./test_input.db"/>
 <test name="test_MpsWorkFlow" command="test_mps-workflow.sh"/>
 <test name="test-pede" command="pede -t">
   <use name="millepede"/>
-  <flags USE_UNITTEST_DIR="1"/>
 </test>
-<bin name="testPedeCampaign" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS="/bin/bash Alignment/MillePedeAlignmentAlgorithm/test test_pede.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
-<bin name="testPayloadSanity" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS="/bin/bash Alignment/MillePedeAlignmentAlgorithm/test test_payload_sanity.sh"/>
+<test name="testPedeCampaign" command="test_pede.sh"/>
+<test name="testPayloadSanity" command="test_payload_sanity.sh">
   <flags PRE_TEST="testPedeCampaign"/>
   <use name="FWCore/Utilities"/>
-</bin>
+</test>

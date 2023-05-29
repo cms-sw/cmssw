@@ -13,6 +13,7 @@ namespace ecaldqm {
     if (ByLumiResetSwitch) {
       MEs_.at("MapByLumi").reset(GetElectronicsMap());
       MEs_.at("ByLumi").reset(GetElectronicsMap());
+      MEs_.at("TTIDByLumi").reset(GetElectronicsMap());
     }
   }
 
@@ -78,6 +79,8 @@ namespace ecaldqm {
     MESet& meByLumi(MEs_.at("ByLumi"));
     MESet& meTotal(MEs_.at("Total"));
     MESet& meTrendNErrors(MEs_.at("TrendNErrors"));
+    MESet& meTTIDTotal(MEs_.at("TTIDTotal"));
+    MESet& meTTIDByLumi(MEs_.at("TTIDByLumi"));
 
     std::for_each(_ids.begin(), _ids.end(), [&](EcalElectronicsIdCollection::value_type const& id) {
       set->fill(getEcalDQMSetupObjects(), id);
@@ -90,6 +93,11 @@ namespace ecaldqm {
         nCrystals = 25.;
       meByLumi.fill(getEcalDQMSetupObjects(), dccid, nCrystals);
       meTotal.fill(getEcalDQMSetupObjects(), dccid, nCrystals);
+
+      if (_collection == kTowerIdErrors) {
+        meTTIDByLumi.fill(getEcalDQMSetupObjects(), dccid, nCrystals);
+        meTTIDTotal.fill(getEcalDQMSetupObjects(), dccid, nCrystals);
+      }
       // Fill Integrity Errors Map with tower errors for this lumi
       // Since binned by crystal for compatibility with channel errors,
       // fill with constituent channels of tower

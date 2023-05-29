@@ -22,7 +22,7 @@
 #include <iostream>
 #include <memory>
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -42,7 +42,7 @@
 // class declaration
 //
 
-class L1RCTRelValAnalyzer : public edm::EDAnalyzer {
+class L1RCTRelValAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1RCTRelValAnalyzer(const edm::ParameterSet &);
   ~L1RCTRelValAnalyzer() override;
@@ -51,8 +51,8 @@ public:
 
 private:
   // ----------member data ---------------------------
-  edm::InputTag rctEmCandsLabel;
-  edm::InputTag rctRegionsLabel;
+  edm::EDGetTokenT<L1CaloEmCollection> m_rctEmCands;
+  edm::EDGetTokenT<L1CaloRegionCollection> m_rctRegions;
 
   TH1F *h_emRank;
   TH1F *h_emIeta;

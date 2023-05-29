@@ -143,7 +143,7 @@ def propweights(y_true):
 # In[6]:
 
 
-from keras import optimizers
+from tensorflow.keras import optimizers
 print ("creating model=========>")
 model = Sequential()
 model.add(Dense(128, input_shape=(X_train.shape[1],), activation='relu'))
@@ -153,7 +153,7 @@ model.add(Dense(500, activation='relu',kernel_regularizer=regularizers.l2(0.01))
 model.add(Dense(60, activation='relu',kernel_regularizer=regularizers.l2(0.01)))
 model.add(Dense(1))
 
-RMS = keras.optimizers.RMSprop(lr=0.001, rho=0.9)
+RMS = tensorflow.keras.optimizers.RMSprop(learning_rate=0.001, rho=0.9)
 # Compile model
 print ("compilation up next=======>")
 model.compile(loss='logcosh',optimizer='adam')

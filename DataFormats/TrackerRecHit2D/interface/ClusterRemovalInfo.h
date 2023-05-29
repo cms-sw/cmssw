@@ -14,7 +14,7 @@ namespace reco {
   public:
     typedef SiStripRecHit2D::ClusterRef::product_type SiStripClusters;
     typedef SiPixelRecHit::ClusterRef::product_type SiPixelClusters;
-    typedef Phase2TrackerRecHit1D::CluRef::product_type Phase2TrackerCluster1Ds;
+    typedef Phase2TrackerRecHit1D::ClusterRef::product_type Phase2TrackerCluster1Ds;
     typedef edm::RefProd<SiStripClusters> SiStripClusterRefProd;
     typedef edm::RefProd<SiPixelClusters> SiPixelClusterRefProd;
     typedef edm::RefProd<Phase2TrackerCluster1Ds> Phase2TrackerCluster1DRefProd;

@@ -18,7 +18,7 @@ BaseDir=${FullPath#${CMSSW_BASE}/src/}
 CondDir=conditions
 templatefile=template.py
 
-inputConditions=(ElectronicsMap LutMetadata LUTCorrs QIETypes QIEData SiPMParameters TPParameters TPChannelParameters ChannelQuality Gains Pedestals RespCorrs L1TriggerObjects)
+inputConditions=(ElectronicsMap LutMetadata LUTCorrs QIETypes QIEData SiPMParameters TPParameters TPChannelParameters ChannelQuality Gains Pedestals EffectivePedestals PedestalWidths EffectivePedestalWidths RespCorrs L1TriggerObjects)
 
 
 
@@ -68,6 +68,9 @@ dump(){
     CheckParameter GlobalTag
 
     dumpCmd="cmsRun $CMSSW_RELEASE_BASE/src/CondTools/Hcal/test/runDumpHcalCond_cfg.py geometry=DB prefix="""
+    PedSTR='Pedestal'
+    PedWidthSTR='PedestalWidths'
+    EffSTR='Effective'
 
     if [ -z $frontier ]
     then
@@ -76,9 +79,23 @@ dump(){
 
     if [ ! -z $tag ]
     then
-	if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag  frontierloc=$frontier frontierlist=Hcal${record}Rcd:$tag  
-	then
-	    exit 1
+        if [[ ${record} == *"$EffSTR"* ]]; then
+	    if [[ ${record} == *"$PedWidthSTR"* ]]; then
+                if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag  frontierloc=$frontier frontierlist=HcalPedestalWidthsRcd:effective:$tag
+                then
+                    exit 1
+                fi
+	    elif [[ ${record} == *"$PedSTR"* ]]; then
+                if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag  frontierloc=$frontier frontierlist=HcalPedestalsRcd:effective:$tag
+                then
+                    exit 1
+                fi
+	    fi
+	else
+	    if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag  frontierloc=$frontier frontierlist=Hcal${record}Rcd:$tag  
+	    then
+	        exit 1
+	    fi
 	fi
     else 
 	if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag 
@@ -163,6 +180,9 @@ then
 
     mkdir -p $CondDir/$Tag/Debug
     hcalLUT merge storePrepend="$flist" outputFile=$CondDir/$Tag/${Tag}.xml
+    sed -i 's:UTF-8:ISO-8859-1:g' $CondDir/$Tag/${Tag}.xml
+    sed -i 's:"no" :'\''no'\'':g' $CondDir/$Tag/${Tag}.xml
+    sed -i '/^$/d' $CondDir/$Tag/${Tag}.xml
     mv *$Tag*.{xml,dat} $CondDir/$Tag/Debug
 
     echo "-------------------"
@@ -173,17 +193,33 @@ then
     HcalInput=( "${inputConditions[@]/#/Hcal}" )
     declare -A tagMap
     eval $(conddb list $GlobalTag | grep -E "$(export IFS="|"; echo "${HcalInput[*]}")" | \
-	awk '{if($2=="-" || $2=="effective") if(!($1~/^HcalPed/ && $2=="-")) print "tagMap["$1"]="$3}')
+	awk '{if($1~/^HcalPed/ && $2=="effective") print "tagMap["$1"+"$2"]="$3; else print "tagMap["$1"]="$3}')
 
+    EffSTR='Effective'
     individualInputTags=""
     for i in ${inputConditions[@]}; do
 	t=$i
 	v=${!t}
-	if [[ -z $v ]]; then
-	    v=${tagMap[Hcal${i}Rcd]}
+        if [[ -z $v ]]; then
+            if [[ ${i} == *"$EffSTR"* ]]; then
+                v=${tagMap[Hcal${i:9}Rcd+effective]}
+                l="effective"
+            else
+                v=${tagMap[Hcal${i}Rcd]}
+                l=""
+            fi
+        else
+            if [[ ${i} == *"$EffSTR"* ]]; then
+                l="effective"
+            else
+                l=""
+	    fi
 	fi
-	individualInputTags="""$individualInputTags
-    <Parameter type=\"string\" name=\"$t\">$v</Parameter>"""
+
+	if ! [[ -z $v ]]; then
+	    individualInputTags="""$individualInputTags
+    <Parameter type=\"string\" name=\"$t\" label=\"$l\">$v</Parameter>"""
+        fi
     done
 
     dd=$(date +"%Y-%m-%d %H:%M:%S")
@@ -216,7 +252,7 @@ then
     mkdir -p $CondDir/$Tag/Figures
     cmsRun PlotLUT.py globaltag=$GlobalTag run=$Run \
 	inputDir=$BaseDir/$CondDir plotsDir=$CondDir/$Tag/Figures/ \
-	tags=$OldTag,$Tag gains=$runs respcorrs=$runs pedestals=$runs quality=$runs 
+	tags=$OldTag,$Tag gains=$runs respcorrs=$runs pedestals=$runs effpedestals=$runs quality=$runs 
 
 elif [ "$cmd" == "upload" ]
 then

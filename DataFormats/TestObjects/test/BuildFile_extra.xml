@@ -1,0 +1,9 @@
+<library file="" name="DataFormatsTestObjectsParent1">
+  <flags LCG_DICT_HEADER="classes.h"/>
+  <flags LCG_DICT_XML="classes_def_parent1.xml"/>
+</library>
+
+<library file="" name="DataFormatsTestObjectsParent2">
+  <flags LCG_DICT_HEADER="classes.h"/>
+  <flags LCG_DICT_XML="classes_def_parent2.xml"/>
+</library>

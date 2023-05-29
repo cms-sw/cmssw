@@ -1,15 +1,14 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-## L1REPACK FULL:  Re-Emulate all of L1 and repack into RAW
-
+## L1REPACK Full2015Data : Re-Emulate all of L1 and repack into RAW
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-def _print(ignored):
-    print("# L1T WARN:  L1REPACK:Full2015Data only supports Stage 2 eras for now.")
-    print("# L1T WARN:  Use a legacy version of L1REPACK for now.")
-stage2L1Trigger.toModify(None, _print)
-(~stage2L1Trigger).toModify(None, lambda x: print("# L1T INFO:  L1REPACK:Full2015Data will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
+
+(~stage2L1Trigger).toModify(None, lambda x:
+    print("# L1T WARN:  L1REPACK:Full2015Data only supports Stage-2 eras for now.\n# L1T WARN:  Use a legacy version of L1REPACK for now."))
+stage2L1Trigger.toModify(None, lambda x:
+    print("# L1T INFO:  L1REPACK:Full2015Data will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
 
 # First, Unpack all inputs to L1:
 import EventFilter.DTTFRawToDigi.dttfunpacker_cfi

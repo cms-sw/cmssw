@@ -34,6 +34,8 @@ namespace edm {
   class EventSetupRecordIntervalFinder;
   class ParameterSet;
   class IOVSyncValue;
+  class ModuleTypeResolverMaker;
+  class ServiceToken;
   class WaitingTaskHolder;
   class WaitingTaskList;
 
@@ -44,17 +46,18 @@ namespace edm {
 
     class ESProducerInfo {
     public:
-      ESProducerInfo(ParameterSet const* ps, std::shared_ptr<DataProxyProvider> const& pr)
+      ESProducerInfo(ParameterSet* ps, std::shared_ptr<DataProxyProvider> const& pr)
           : pset_(ps), provider_(pr), subProcessIndexes_() {}
 
-      ParameterSet const* pset() const { return pset_; }
+      ParameterSet const* pset() const { return pset_.get(); }
+      ParameterSet* pset() { return pset_.get(); }
       std::shared_ptr<DataProxyProvider> const& provider() { return get_underlying(provider_); }
       DataProxyProvider const* providerGet() const { return provider_.get(); }
       std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
       std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
 
     private:
-      ParameterSet const* pset_;
+      edm::propagate_const<ParameterSet*> pset_;
       propagate_const<std::shared_ptr<DataProxyProvider>> provider_;
       std::vector<unsigned> subProcessIndexes_;
     };
@@ -79,6 +82,7 @@ namespace edm {
     class EventSetupsController {
     public:
       EventSetupsController();
+      explicit EventSetupsController(ModuleTypeResolverMaker const* resolverMaker);
 
       EventSetupsController(EventSetupsController const&) = delete;
       EventSetupsController const& operator=(EventSetupsController const&) = delete;
@@ -91,14 +95,28 @@ namespace edm {
                                                        unsigned int maxConcurrentIOVs = 0,
                                                        bool dumpOptions = false);
 
+      // The main purpose of this function is to call eventSetupForInstanceAsync. It might
+      // be called immediately or we might need to wait until all the currently active
+      // IOVs end. If there is an exception, then a signal is emitted and the exception
+      // is propagated.
+      void runOrQueueEventSetupForInstanceAsync(IOVSyncValue const&,
+                                                WaitingTaskHolder& taskToStartAfterIOVInit,
+                                                WaitingTaskList& endIOVWaitingTasks,
+                                                std::vector<std::shared_ptr<const EventSetupImpl>>&,
+                                                edm::SerialTaskQueue& queueWhichWaitsForIOVsToFinish,
+                                                ActivityRegistry*,
+                                                ServiceToken const&,
+                                                bool iForceCacheClear = false);
+
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).
       // Pass in a WaitingTaskHolder that allows the EventSetup to communicate when all
       // the IOVs are ready to process this IOVSyncValue. Note this preparation is often
       // done in asynchronous tasks and the function might return before all the preparation
       // is complete.
-      // Pass in endIOVWaitingTasks, additions to this WaitingTaskList allow the lumi to notify
-      // the EventSetup when the lumi is done and no longer needs its EventSetup IOVs.
+      // Pass in endIOVWaitingTasks, additions to this WaitingTaskList allow the lumi or
+      // run to notify the EventSetup system when a lumi or run transition is done and no
+      // longer needs its EventSetup IOVs.
       // Pass in a vector of EventSetupImpl that gets filled and is used to give clients
       // of EventSetup access to the EventSetup system such that for each record the IOV
       // associated with this IOVSyncValue will be used. The first element of the vector
@@ -114,7 +132,7 @@ namespace edm {
 
       std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset,
                                                                          unsigned subProcessIndex);
-      void putESProducer(ParameterSet const& pset,
+      void putESProducer(ParameterSet& pset,
                          std::shared_ptr<DataProxyProvider> const& component,
                          unsigned subProcessIndex);
 
@@ -147,7 +165,7 @@ namespace edm {
                                 unsigned subProcessIndex,
                                 unsigned precedingProcessIndex) const;
 
-      ParameterSet const* getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) const;
+      ParameterSet& getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex);
 
       std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> const& providers() const { return providers_; }
 
@@ -182,6 +200,8 @@ namespace edm {
       // to the component.
       std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
       std::multimap<ParameterSetID, ESSourceInfo> essources_;
+
+      ModuleTypeResolverMaker const* typeResolverMaker_ = nullptr;
 
       bool hasNonconcurrentFinder_ = false;
       bool mustFinishConfiguration_ = true;

@@ -32,12 +32,13 @@
 //
 
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 
 #include <algorithm>
 #include <cctype>
@@ -70,20 +71,6 @@ namespace edm {
         all_must_fail_noex_(),
         psetID_(),
         nPathNames_(0) {}
-
-  EventSelector::EventSelector(ParameterSet const& config, Strings const& pathNames)
-      : pathspecs_(config.empty() ? Strings() : initPathSpecs(config.getParameter<Strings>("SelectEvents"))),
-        results_from_current_process_(true),
-        accept_all_(initAcceptAll()),
-        absolute_acceptors_(),
-        conditional_acceptors_(),
-        exception_acceptors_(),
-        all_must_fail_(),
-        all_must_fail_noex_(),
-        psetID_(),
-        nPathNames_(0) {
-    initPathNames(pathNames);
-  }
 
   Strings EventSelector::initPathSpecs(Strings const& pathSpecs) {
     Strings trimmedPathSpecs(pathSpecs);
@@ -370,7 +357,7 @@ namespace edm {
     bool lookForException = (s == hlt::Exception);
     for (auto const& bit : b) {
       hlt::HLTState bstate = lookForException ? hlt::Exception : bit.accept_state_ ? hlt::Pass : hlt::Fail;
-      if (tr[bit.pos_].state() == bstate)
+      if (tr.at(bit.pos_).state() == bstate)
         return true;
     }
     return false;
@@ -381,7 +368,7 @@ namespace edm {
   bool EventSelector::acceptAllBits(Bits const& b, HLTGlobalStatus const& tr) const {
     for (auto const& bit : b) {
       hlt::HLTState bstate = bit.accept_state_ ? hlt::Pass : hlt::Fail;
-      if (tr[bit.pos_].state() != bstate)
+      if (tr.at(bit.pos_).state() != bstate)
         return false;
     }
     return true;
@@ -509,11 +496,11 @@ namespace edm {
       std::vector<bool> aFailAbs = expandDecisionList(a.absolute_acceptors_, false, N);
       std::vector<bool> aFailCon = expandDecisionList(a.conditional_acceptors_, false, N);
       std::vector<bool> aExc = expandDecisionList(a.exception_acceptors_, true, N);
-      std::vector<std::vector<bool> > aMustFail;
+      std::vector<std::vector<bool>> aMustFail;
       for (unsigned int m = 0; m != a.all_must_fail_.size(); ++m) {
         aMustFail.push_back(expandDecisionList(a.all_must_fail_[m], false, N));
       }
-      std::vector<std::vector<bool> > aMustFailNoex;
+      std::vector<std::vector<bool>> aMustFailNoex;
       for (unsigned int m = 0; m != a.all_must_fail_noex_.size(); ++m) {
         aMustFailNoex.push_back(expandDecisionList(a.all_must_fail_noex_[m], false, N));
       }
@@ -523,11 +510,11 @@ namespace edm {
       std::vector<bool> bFailAbs = expandDecisionList(b.absolute_acceptors_, false, N);
       std::vector<bool> bFailCon = expandDecisionList(b.conditional_acceptors_, false, N);
       std::vector<bool> bExc = expandDecisionList(b.exception_acceptors_, true, N);
-      std::vector<std::vector<bool> > bMustFail;
+      std::vector<std::vector<bool>> bMustFail;
       for (unsigned int m = 0; m != b.all_must_fail_.size(); ++m) {
         bMustFail.push_back(expandDecisionList(b.all_must_fail_[m], false, N));
       }
-      std::vector<std::vector<bool> > bMustFailNoex;
+      std::vector<std::vector<bool>> bMustFailNoex;
       for (unsigned int m = 0; m != b.all_must_fail_noex_.size(); ++m) {
         bMustFailNoex.push_back(expandDecisionList(b.all_must_fail_noex_[m], false, N));
       }
@@ -874,19 +861,19 @@ namespace edm {
     if (a.all_must_fail_.size() != b.all_must_fail_.size())
       return false;
 
-    std::vector<std::vector<bool> > aMustFail;
+    std::vector<std::vector<bool>> aMustFail;
     for (unsigned int m = 0; m != a.all_must_fail_.size(); ++m) {
       aMustFail.push_back(expandDecisionList(a.all_must_fail_[m], false, N));
     }
-    std::vector<std::vector<bool> > aMustFailNoex;
+    std::vector<std::vector<bool>> aMustFailNoex;
     for (unsigned int m = 0; m != a.all_must_fail_noex_.size(); ++m) {
       aMustFailNoex.push_back(expandDecisionList(a.all_must_fail_noex_[m], false, N));
     }
-    std::vector<std::vector<bool> > bMustFail;
+    std::vector<std::vector<bool>> bMustFail;
     for (unsigned int m = 0; m != b.all_must_fail_.size(); ++m) {
       bMustFail.push_back(expandDecisionList(b.all_must_fail_[m], false, N));
     }
-    std::vector<std::vector<bool> > bMustFailNoex;
+    std::vector<std::vector<bool>> bMustFailNoex;
     for (unsigned int m = 0; m != b.all_must_fail_noex_.size(); ++m) {
       bMustFailNoex.push_back(expandDecisionList(b.all_must_fail_noex_[m], false, N));
     }
@@ -993,7 +980,7 @@ namespace edm {
 
   void EventSelector::fillDescription(ParameterSetDescription& desc) {
     ParameterSetDescription selector;
-    selector.addOptional<std::vector<std::string> >("SelectEvents");
+    selector.addOptional<std::vector<std::string>>("SelectEvents");
     desc.addUntracked<ParameterSetDescription>("SelectEvents", selector);
   }
 

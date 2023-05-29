@@ -21,7 +21,7 @@ JetVertexMain::JetVertexMain(const ParameterSet& parameters) {
 std::pair<double, bool> JetVertexMain::Main(const reco::CaloJet& jet,
                                             edm::Handle<TrackCollection> tracks,
                                             double signal_vert_Z,
-                                            double signal_vert_z_error) {
+                                            double signal_vert_z_error) const {
   std::pair<double, bool> parameter;
 
   double jet_et = jet.et();
@@ -48,6 +48,7 @@ std::pair<double, bool> JetVertexMain::Main(const reco::CaloJet& jet,
         double DeltaZ_Error = sqrt((Vertex_Z_Error * Vertex_Z_Error) + (signal_vert_z_error * signal_vert_z_error));
         Pt_jets_X_tot += track->px();
         Pt_jets_Y_tot += track->py();
+        bool discriminator;
         if (cutType == "sig")
           discriminator = (fabs(DeltaZ) / DeltaZ_Error) <= cutSigmaZ;
         else
@@ -85,7 +86,7 @@ std::pair<double, bool> JetVertexMain::Main(const reco::CaloJet& jet,
   return parameter;
 }
 
-double JetVertexMain::DeltaR(double eta1, double eta2, double phi1, double phi2) {
+double JetVertexMain::DeltaR(double eta1, double eta2, double phi1, double phi2) const {
   double dphi = fabs(phi1 - phi2);
   if (dphi > M_PI)
     dphi = 2 * M_PI - dphi;
@@ -93,4 +94,4 @@ double JetVertexMain::DeltaR(double eta1, double eta2, double phi1, double phi2)
   return sqrt(dphi * dphi + deta * deta);
 }
 
-double JetVertexMain::Track_Pt(double px, double py) { return sqrt(px * px + py * py); }
+double JetVertexMain::Track_Pt(double px, double py) const { return sqrt(px * px + py * py); }

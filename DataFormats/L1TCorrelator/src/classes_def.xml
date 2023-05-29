@@ -1,15 +1,8 @@
 
 <lcgdict>
 
-  <class name="l1t::TkPrimaryVertex" ClassVersion="3">
-   <version ClassVersion="3" checksum="2843779965"/>
-  </class>
-  <class name="std::vector<l1t::TkPrimaryVertex>"/>
-  <class name="edm::Wrapper<std::vector<l1t::TkPrimaryVertex> >"/>
-  <class name="edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> >"/>
-  <class name="std::vector<edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> > >"/>
-
-  <class name="l1t::TkEtMiss" ClassVersion="4">
+  <class name="l1t::TkEtMiss" ClassVersion="5">
+   <version ClassVersion="5" checksum="1279701762"/>
    <version ClassVersion="4" checksum="2694422826"/>
    <version ClassVersion="3" checksum="77762919"/>
   </class>
@@ -51,7 +44,8 @@
   <class name="edm::Wrapper<std::vector<l1t::L1CaloTkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau> >"/>
 
-  <class name="l1t::TkElectron" ClassVersion="5">
+  <class name="l1t::TkElectron" ClassVersion="6">
+   <version ClassVersion="6" checksum="3899336964"/>
    <version ClassVersion="5" checksum="965807884"/>
    <version ClassVersion="4" checksum="3922083203"/>
    <version ClassVersion="3" checksum="3970647299"/>

@@ -22,7 +22,7 @@ options.register('current',
                  18000, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.float,
-                 "Magnet current (nominal values: 18164=3.8T; 16730=3.5T; 14340=3T; 9500=2T; -1=loop in different IOV")
+                 "Magnet current (nominal values: 18164=3.8T; 16730=3.5T; 14340=3T; 9500=2T; -1=loop in different IOVs, to test switching currents in the same job")
 
 options.parseArguments()
 
@@ -37,12 +37,15 @@ process.maxEvents = cms.untracked.PSet(
 
 REFERENCEFILE = 'none'
 
-if options.current < 0 : # Test all currents, simulating different IOVs with different values runInfo
-                         # FIXME: currents are set all equal for the time being because we need to set up a way to specify the correct
-                         # reference file file to be picked for each at runtime.
+if options.current < 0 : # Test switching of maps in the same job, simulating different IOVs with different currents in runInfo
+    # Note that this currently crashes with producerType='fromDB_DD4hep' when a different geometry has to be created in the switch, due a limitation of DD4hep.
+    
+    # FIXME: Only build the map and print the field at IP - no regression is actually run. To do that we would need to set up a mechanism to specify the
+    # reference file file to be picked for each current at runtime.
+    REFERENCEFILE = ''
+
     if options.producerType == 'static_DDD' or options.producerType == 'static_DD4hep' :
         sys.exit('Invalid configuration: current=-1 mode is not supported with static prouducers')
-    process.maxEvents.input = 4
     process.source.numberEventsInLuminosityBlock =cms.untracked.uint32(1)
 
     if options.era=='RunI':
@@ -51,12 +54,19 @@ if options.current < 0 : # Test all currents, simulating different IOVs with dif
             cms.LuminosityBlockID(20,2),
             cms.LuminosityBlockID(30,3),
             cms.LuminosityBlockID(40,4),
+            cms.LuminosityBlockID(50,5),
             )
+
+        process.riSource = cms.ESSource("EmptyESSource", recordName = cms.string("RunInfoRcd"),
+                                        iovIsRunNotTime = cms.bool(True),
+                                        firstValid = cms.vuint32(10,20,30,40,50))
+
         process.add_( cms.ESProducer("RunInfoTestESProducer",
                                      runInfos = cms.VPSet(cms.PSet(run = cms.int32(10), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(20), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(30), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(40), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(20), avg_current = cms.double(16000.)),
+                                                          cms.PSet(run = cms.int32(30), avg_current = cms.double(14000.)),
+                                                          cms.PSet(run = cms.int32(40), avg_current = cms.double(10000.)),
+                                                          cms.PSet(run = cms.int32(50), avg_current = cms.double(0.)),
                                                           ) ) )
     else :
         process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(
@@ -64,20 +74,19 @@ if options.current < 0 : # Test all currents, simulating different IOVs with dif
             cms.LuminosityBlockID(300002,2),
             cms.LuminosityBlockID(300003,3),
             cms.LuminosityBlockID(300004,4),
+            cms.LuminosityBlockID(300005,5),
             )
         process.add_( cms.ESProducer("RunInfoTestESProducer",
                                      runInfos = cms.VPSet(cms.PSet(run = cms.int32(300001), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(300002), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(300003), avg_current = cms.double(18000.)),
-                                                          cms.PSet(run = cms.int32(300004), avg_current = cms.double(18000.)),
+                                                          cms.PSet(run = cms.int32(300002), avg_current = cms.double(16000.)),
+                                                          cms.PSet(run = cms.int32(300003), avg_current = cms.double(14000.)),
+                                                          cms.PSet(run = cms.int32(300004), avg_current = cms.double(10000.)),
+                                                          cms.PSet(run = cms.int32(300005), avg_current = cms.double(0.)),
                                                           ) ) )
         
 
-    process.riSource = cms.ESSource("EmptyESSource", recordName = cms.string("RunInfoRcd"),
-                                iovIsRunNotTime = cms.bool(True),
-                                firstValid = cms.vuint32(10,20,30,40))
+    process.maxEvents.input = len(process.source.firstLuminosityBlockForEachRun)
 
-    REFERENCEFILE = 'MagneticField/Engine/data/Regression/referenceField_160812_RII_3_8T.bin' #FIXME cf. comment above.
 
 if options.current > 18765 or (options.current <= 4779 and options.current>0) :
     sys.exit('ERROR: invalid current value: ' +  str(options.current))

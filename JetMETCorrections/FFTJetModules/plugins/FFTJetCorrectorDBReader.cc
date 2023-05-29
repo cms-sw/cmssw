@@ -24,7 +24,7 @@
 #include "Alignment/Geners/interface/CompressedIO.hh"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,7 +42,7 @@
 //
 // class declaration
 //
-class FFTJetCorrectorDBReader : public edm::EDAnalyzer {
+class FFTJetCorrectorDBReader : public edm::stream::EDAnalyzer<> {
 public:
   explicit FFTJetCorrectorDBReader(const edm::ParameterSet&);
   FFTJetCorrectorDBReader() = delete;
@@ -58,6 +58,8 @@ private:
   bool printAsString;
   bool readArchive;
   bool isArchiveCompressed;
+
+  FFTJetCorrectorParametersLoader esLoader;
 };
 
 FFTJetCorrectorDBReader::FFTJetCorrectorDBReader(const edm::ParameterSet& ps)
@@ -65,11 +67,12 @@ FFTJetCorrectorDBReader::FFTJetCorrectorDBReader(const edm::ParameterSet& ps)
       init_param(std::string, outputFile),
       init_param(bool, printAsString),
       init_param(bool, readArchive),
-      init_param(bool, isArchiveCompressed) {}
+      init_param(bool, isArchiveCompressed) {
+  esLoader.acquireToken(record, consumesCollector());
+}
 
 void FFTJetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<FFTJetCorrectorParameters> JetCorParams;
-  StaticFFTJetCorrectorParametersLoader::instance().load(iSetup, record, JetCorParams);
+  edm::ESHandle<FFTJetCorrectorParameters> JetCorParams = esLoader.load(record, iSetup);
 
   if (printAsString || readArchive)
     std::cout << "++++ FFTJetCorrectorDBReader: info for record \"" << record << '"' << std::endl;

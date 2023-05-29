@@ -77,14 +77,12 @@ public:
   ~CandMCMatchTableProducer() override {}
 
   void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
-    edm::Handle<reco::CandidateView> cands;
-    iEvent.getByToken(src_, cands);
-    unsigned int ncand = cands->size();
+    const auto& candProd = iEvent.get(src_);
+    auto ncand = candProd.size();
 
     auto tab = std::make_unique<nanoaod::FlatTable>(ncand, objName_, false, true);
 
-    edm::Handle<edm::Association<reco::GenParticleCollection>> map;
-    iEvent.getByToken(candMap_, map);
+    const auto& mapProd = iEvent.get(candMap_);
 
     edm::Handle<edm::Association<reco::GenParticleCollection>> mapVisTau;
     if (type_ == MTau) {
@@ -100,18 +98,20 @@ public:
       iEvent.getByToken(genPartsToken_, genParts);
     }
 
-    std::vector<int> key(ncand, -1), flav(ncand, 0);
+    std::vector<int16_t> key(ncand, -1);
+    std::vector<uint8_t> flav(ncand, 0);
     for (unsigned int i = 0; i < ncand; ++i) {
       //std::cout << "cand #" << i << ": pT = " << cands->ptrAt(i)->pt() << ", eta = " << cands->ptrAt(i)->eta() << ", phi = " << cands->ptrAt(i)->phi() << std::endl;
-      reco::GenParticleRef match = (*map)[cands->ptrAt(i)];
+      const auto& cand = candProd.ptrAt(i);
+      reco::GenParticleRef match = mapProd[cand];
       reco::GenParticleRef matchVisTau;
       reco::GenJetRef matchDressedLep;
       bool hasTauAnc = false;
       if (type_ == MTau) {
-        matchVisTau = (*mapVisTau)[cands->ptrAt(i)];
+        matchVisTau = (*mapVisTau)[cand];
       }
       if (type_ == MElectron) {
-        matchDressedLep = (*mapDressedLep)[cands->ptrAt(i)];
+        matchDressedLep = (*mapDressedLep)[cand];
         if (matchDressedLep.isNonnull()) {
           hasTauAnc = (*mapTauAnc)[matchDressedLep];
         }
@@ -193,7 +193,7 @@ public:
       };
     }
 
-    tab->addColumn<int>(branchName_ + "Idx", key, "Index into genParticle list for " + doc_);
+    tab->addColumn<int16_t>(branchName_ + "Idx", key, "Index into genParticle list for " + doc_);
     tab->addColumn<uint8_t>(branchName_ + "Flav",
                             flav,
                             "Flavour of genParticle (DressedLeptons for electrons) for " + doc_ + ": " + flavDoc_);

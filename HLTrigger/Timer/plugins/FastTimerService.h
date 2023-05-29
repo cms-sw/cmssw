@@ -183,6 +183,7 @@ private:
 
 public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fixForDQM(std::string& label);
 
 private:
   // forward declarations
@@ -343,14 +344,14 @@ private:
 
   private:
     // resources spent in the module
-    dqm::reco::MonitorElement* time_thread_;       // TH1F
-    dqm::reco::MonitorElement* time_thread_byls_;  // TProfile
-    dqm::reco::MonitorElement* time_real_;         // TH1F
-    dqm::reco::MonitorElement* time_real_byls_;    // TProfile
-    dqm::reco::MonitorElement* allocated_;         // TH1F
-    dqm::reco::MonitorElement* allocated_byls_;    // TProfile
-    dqm::reco::MonitorElement* deallocated_;       // TH1F
-    dqm::reco::MonitorElement* deallocated_byls_;  // TProfile
+    dqm::reco::MonitorElement* time_thread_ = nullptr;       // TH1F
+    dqm::reco::MonitorElement* time_thread_byls_ = nullptr;  // TProfile
+    dqm::reco::MonitorElement* time_real_ = nullptr;         // TH1F
+    dqm::reco::MonitorElement* time_real_byls_ = nullptr;    // TProfile
+    dqm::reco::MonitorElement* allocated_ = nullptr;         // TH1F
+    dqm::reco::MonitorElement* allocated_byls_ = nullptr;    // TProfile
+    dqm::reco::MonitorElement* deallocated_ = nullptr;       // TH1F
+    dqm::reco::MonitorElement* deallocated_byls_ = nullptr;  // TProfile
   };
 
   // plots associated to each path or endpath
@@ -379,12 +380,12 @@ private:
     //   be better suited than a double, but there is no "TH1L" in ROOT.
 
     // how many times each module and their dependencies has run
-    dqm::reco::MonitorElement* module_counter_;  // TH1D
+    dqm::reco::MonitorElement* module_counter_ = nullptr;  // TH1D
     // resources spent in each module and their dependencies
-    dqm::reco::MonitorElement* module_time_thread_total_;  // TH1D
-    dqm::reco::MonitorElement* module_time_real_total_;    // TH1D
-    dqm::reco::MonitorElement* module_allocated_total_;    // TH1D
-    dqm::reco::MonitorElement* module_deallocated_total_;  // TH1D
+    dqm::reco::MonitorElement* module_time_thread_total_ = nullptr;  // TH1D
+    dqm::reco::MonitorElement* module_time_real_total_ = nullptr;    // TH1D
+    dqm::reco::MonitorElement* module_allocated_total_ = nullptr;    // TH1D
+    dqm::reco::MonitorElement* module_deallocated_total_ = nullptr;  // TH1D
   };
 
   class PlotsPerProcess {

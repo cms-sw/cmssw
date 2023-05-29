@@ -1,3 +1,4 @@
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -18,13 +19,20 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     }
   }
   REQUIRE(not dirString.empty());
-  SECTION("full-site-local-config.testfile") {
+  SECTION("sitelocalconfig/full/site-local-config.xml") {
     edm::ParameterSet pset;
-    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl", dirString + "/full-site-local-config.testfile");
+    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
+                                            dirString + "/sitelocalconfig/full/site-local-config.xml");
 
     edm::service::SiteLocalConfigService slc(pset);
 
-    CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
+    CHECK(slc.trivialDataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
+    edm::CatalogAttributes tmp("DUMMY", "DUMMY_SUB_SITE", "DUMMY_CROSS_SITE", "CMSXrootdFederation", "XRootD");
+    CHECK(slc.dataCatalogs()[0].site == tmp.site);
+    CHECK(slc.dataCatalogs()[0].subSite == tmp.subSite);
+    CHECK(slc.dataCatalogs()[0].storageSite == tmp.storageSite);
+    CHECK(slc.dataCatalogs()[0].volume == tmp.volume);
+    CHECK(slc.dataCatalogs()[0].protocol == tmp.protocol);
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/b/c");
     CHECK(slc.sourceCacheMinFree() == nullptr);
@@ -47,6 +55,7 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     CHECK(slc.statisticsInfo()->size() == 1);
     CHECK(slc.statisticsInfo()->find("dn") != slc.statisticsInfo()->end());
     CHECK(slc.siteName() == "DUMMY");
+    CHECK(slc.subSiteName() == "DUMMY_SUB_SITE");
     REQUIRE(slc.useLocalConnectString() == true);
     REQUIRE(slc.localConnectPrefix() == "Test:Prefix");
     REQUIRE(slc.localConnectSuffix() == "Test.Suffix");
@@ -54,7 +63,8 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
 
   SECTION("overrides") {
     edm::ParameterSet pset;
-    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl", dirString + "/full-site-local-config.testfile");
+    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
+                                            dirString + "/sitelocalconfig/full/site-local-config.xml");
 
     pset.addUntrackedParameter<std::string>("overrideSourceCacheTempDir", "/a/d");
     pset.addUntrackedParameter<double>("overrideSourceCacheMinFree", 10.);
@@ -73,7 +83,13 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
 
     edm::service::SiteLocalConfigService slc(pset);
 
-    CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
+    CHECK(slc.trivialDataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
+    edm::CatalogAttributes tmp("DUMMY", "DUMMY_SUB_SITE", "DUMMY_CROSS_SITE", "CMSXrootdFederation", "XRootD");
+    CHECK(slc.dataCatalogs()[0].site == tmp.site);
+    CHECK(slc.dataCatalogs()[0].subSite == tmp.subSite);
+    CHECK(slc.dataCatalogs()[0].storageSite == tmp.storageSite);
+    CHECK(slc.dataCatalogs()[0].volume == tmp.volume);
+    CHECK(slc.dataCatalogs()[0].protocol == tmp.protocol);
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/d");
     REQUIRE(slc.sourceCacheMinFree() != nullptr);
@@ -97,15 +113,16 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     CHECK(slc.statisticsInfo()->size() == 1);
     CHECK(slc.statisticsInfo()->find("nodn") != slc.statisticsInfo()->end());
     CHECK(slc.siteName() == "DUMMY");
+    CHECK(slc.subSiteName() == "DUMMY_SUB_SITE");
     REQUIRE(slc.useLocalConnectString() == false);
     REQUIRE(slc.localConnectPrefix() == "OverridePrefix");
     REQUIRE(slc.localConnectSuffix() == "OverrideSuffix");
   }
 
-  SECTION("throwtest-site-local-config.testfile") {
+  SECTION("sitelocalconfig/throw/site-local-config.xml") {
     edm::ParameterSet pset;
     pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
-                                            dirString + "/throwtest-site-local-config.testfile");
+                                            dirString + "/sitelocalconfig/throw/site-local-config.xml");
 
     REQUIRE_THROWS_AS(edm::service::SiteLocalConfigService(pset), cms::Exception);
   }

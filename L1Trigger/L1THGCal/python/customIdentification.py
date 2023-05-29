@@ -11,7 +11,7 @@ def custom_identification_drnn_cone(process,
     for wp,cat in zip(working_points,working_points_drnn_cone):
         if not wp in cat:
             raise KeyError('HGC TPG ID: Cannot find a cut corresponding to the working point {}'.format(wp))
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
     identification = egamma_identification_drnn_cone.clone(
             WorkingPoints = cms.vdouble(
                 [wps[eff] for wps,eff in zip(working_points_drnn_cone,working_points)]
@@ -30,7 +30,7 @@ def custom_identification_drnn_dbscan(process,
     for wp,cat in zip(working_points,working_points_drnn_dbscan):
         if not wp in cat:
             raise KeyError('HGC TPG ID: Cannot find a cut corresponding to the working point {}'.format(wp))
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
     identification = egamma_identification_drnn_dbscan.clone(
             WorkingPoints = cms.vdouble(
                 [wps[eff] for wps,eff in zip(working_points_drnn_dbscan,working_points)]
@@ -49,7 +49,7 @@ def custom_identification_histomax(process,
     for wp,cat in zip(working_points,working_points_drnn_dbscan):
         if not wp in cat:
             raise KeyError('HGC TPG ID: Cannot find a cut corresponding to the working point {}'.format(wp))
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
     identification = egamma_identification_histomax.clone(
             WorkingPoints = cms.vdouble(
                 [wps[eff] for wps,eff in zip(working_points_histomax,working_points)]

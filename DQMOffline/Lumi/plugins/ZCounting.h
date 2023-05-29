@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"   // definitions for declaring plug-in modules
 #include "FWCore/Framework/interface/Frameworkfwd.h"  // declaration of EDM types
-#include "FWCore/Framework/interface/EDAnalyzer.h"    // EDAnalyzer class
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"  // Parameters
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -21,22 +20,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQMOffline/Lumi/interface/TriggerDefs.h"
-#include "DQMOffline/Lumi/interface/TTrigger.h"
 #include "DQMOffline/Lumi/interface/TriggerTools.h"
-#include "DQMOffline/Lumi/interface/ElectronIdentifier.h"
-
-class TFile;
-class TH1D;
-class TTree;
-class TClonesArray;
-namespace edm {
-  class TriggerResults;
-  class TriggerNames;
-}  // namespace edm
-namespace ZCountingTrigger {
-  class TTrigger;
-}
 
 class ZCounting : public DQMEDAnalyzer {
 public:
@@ -53,142 +37,105 @@ protected:
 
 private:
   //other functions
-  void analyzeMuons(edm::Event const& e, edm::EventSetup const& eSetup);
-  void analyzeElectrons(edm::Event const& e, edm::EventSetup const& eSetup);
-  bool isMuonTrigger(const ZCountingTrigger::TTrigger& triggerMenu, const TriggerBits& hltBits);
-  bool isMuonTriggerObj(const ZCountingTrigger::TTrigger& triggerMenu, const TriggerObjects& hltMatchBits);
-  bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes& idType);
-  bool passMuonIso(const reco::Muon& muon, const MuonIsoTypes& isoType, const float isoCut);
+  bool passMuonID(const reco::Muon& muon, const reco::Vertex* vtx);
+  bool passMuonIso(const reco::Muon& muon);
   bool isCustomTightMuon(const reco::Muon& muon);
-
-  // Electron-specific functions
-  bool isElectronTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits);
-  bool isElectronTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits);
-  bool ele_probe_selection(double pt, double abseta);
-  bool ele_tag_selection(double pt, double abseta);
-
-  // initialization from HLT menu; needs to be called on every change in HLT menu
-  void initHLT(const edm::TriggerResults&, const edm::TriggerNames&);
+  bool passGlobalMuon(const reco::Muon& muon);
+  bool passTrack(const reco::Track& track);
 
   // EDM object collection names
-  edm::ParameterSetID fTriggerNamesID;
-  edm::InputTag fHLTObjTag;
-  edm::InputTag fHLTTag;
-  edm::EDGetTokenT<trigger::TriggerEvent> fHLTObjTag_token;
-  edm::EDGetTokenT<edm::TriggerResults> fHLTTag_token;
-  std::string fPVName;
+  const edm::InputTag triggerResultsInputTag_;
   edm::EDGetTokenT<reco::VertexCollection> fPVName_token;
 
   // Muons
-  std::string fMuonName;
   edm::EDGetTokenT<reco::MuonCollection> fMuonName_token;
   std::vector<std::string> fMuonHLTNames;
   std::vector<std::string> fMuonHLTObjectNames;
 
+  edm::EDGetTokenT<reco::TrackCollection> fStandaloneRegName_token;
+  edm::EDGetTokenT<reco::TrackCollection> fStandaloneUpdName_token;
+
   // Tracks
-  std::string fTrackName;
   edm::EDGetTokenT<reco::TrackCollection> fTrackName_token;
 
-  // Electrons
-  std::string fElectronName;
-  edm::EDGetTokenT<edm::View<reco::GsfElectron>> fGsfElectronName_token;
-  std::string fSCName;
-  edm::EDGetTokenT<edm::View<reco::SuperCluster>> fSCName_token;
+  // other input
+  const double PtCutL1_;
+  const double PtCutL2_;
+  const double EtaCutL1_;
+  const double EtaCutL2_;
 
-  edm::InputTag fRhoTag;
-  edm::EDGetTokenT<double> fRhoToken;
+  const int MassBin_;
+  const double MassMin_;
+  const double MassMax_;
 
-  edm::InputTag fBeamspotTag;
-  edm::EDGetTokenT<reco::BeamSpot> fBeamspotToken;
+  const int LumiBin_;
+  const double LumiMin_;
+  const double LumiMax_;
 
-  edm::InputTag fConversionTag;
-  edm::EDGetTokenT<reco::ConversionCollection> fConversionToken;
+  const int PVBin_;
+  const double PVMin_;
+  const double PVMax_;
 
-  // bacon fillers
-  std::unique_ptr<ZCountingTrigger::TTrigger> fTrigger;
+  const double VtxNTracksFitCut_;
+  const double VtxNdofCut_;
+  const double VtxAbsZCut_;
+  const double VtxRhoCut_;
 
-  std::string IDTypestr_;
-  std::string IsoTypestr_;
+  const std::string IDTypestr_;
+  const std::string IsoTypestr_;
+  const double IsoCut_;
+
+  // muon ID and ISO parameters
   MuonIDTypes IDType_{NoneID};
   MuonIsoTypes IsoType_{NoneIso};
-  double IsoCut_;
 
-  double PtCutL1_;
-  double PtCutL2_;
-  double EtaCutL1_;
-  double EtaCutL2_;
+  // trigger objects
+  HLTConfigProvider hltConfigProvider_;
+  TriggerTools* triggers;
 
-  int MassBin_;
-  double MassMin_;
-  double MassMax_;
+  // constants
+  const double DRMAX_HLT = 0.01;  // max deltaR^2 matching between muon and hlt object
+  const double DRMAX_IO = 0.09;   // max deltaR^2 matching between inner and outer muon track
 
-  int LumiBin_;
-  double LumiMin_;
-  double LumiMax_;
+  const double MIN_PT_TRK = 15;    // minimum pT of inner track considered for matching outer to inner track
+  const double MAX_ETA_TRK = 2.5;  // maximum |eta| of inner track considered for matching outer to inner track
+  const double MIN_PT_STA = 15;    // minimum pT of outer track considered for matching inner to outer track
+  const double MAX_ETA_STA = 2.4;  // maximum |eta| of outer track considered for matching inner to outer track
 
-  int PVBin_;
-  double PVMin_;
-  double PVMax_;
-
-  double VtxNTracksFitCut_;
-  double VtxNdofCut_;
-  double VtxAbsZCut_;
-  double VtxRhoCut_;
+  const int N_STA_HITS = 1;  // minimum number of valid standalone hits
 
   const double MUON_MASS = 0.105658369;
   const double MUON_BOUND = 0.9;
 
-  const float ELECTRON_MASS = 0.000511;
-
-  const float ELE_PT_CUT_TAG;
-  const float ELE_PT_CUT_PROBE;
-  const float ELE_ETA_CUT_TAG;
-  const float ELE_ETA_CUT_PROBE;
-  const float ELE_MASS_CUT_LOW;
-  const float ELE_MASS_CUT_HIGH;
-
-  const std::string ELE_ID_WP;
-  const float ELE_ETA_CRACK_LOW = 1.4442;
-  const float ELE_ETA_CRACK_HIGH = 1.56;
-  // Electron-specific members
-  ElectronIdentifier EleID_;
+  // General Histograms
+  MonitorElement* h_npv;
 
   // Muon Histograms
-  MonitorElement* h_mass_HLT_pass_central;
-  MonitorElement* h_mass_HLT_pass_forward;
-  MonitorElement* h_mass_HLT_fail_central;
-  MonitorElement* h_mass_HLT_fail_forward;
+  MonitorElement* h_mass_2HLT_BB;
+  MonitorElement* h_mass_2HLT_BE;
+  MonitorElement* h_mass_2HLT_EE;
 
-  MonitorElement* h_mass_SIT_pass_central;
-  MonitorElement* h_mass_SIT_pass_forward;
-  MonitorElement* h_mass_SIT_fail_central;
-  MonitorElement* h_mass_SIT_fail_forward;
+  MonitorElement* h_mass_1HLT_BB;
+  MonitorElement* h_mass_1HLT_BE;
+  MonitorElement* h_mass_1HLT_EE;
 
-  MonitorElement* h_mass_Glo_pass_central;
-  MonitorElement* h_mass_Glo_pass_forward;
-  MonitorElement* h_mass_Glo_fail_central;
-  MonitorElement* h_mass_Glo_fail_forward;
+  MonitorElement* h_mass_ID_fail_BB;
+  MonitorElement* h_mass_ID_fail_BE;
+  MonitorElement* h_mass_ID_fail_EE;
 
-  MonitorElement* h_npv;
-  MonitorElement* h_npv_yield_Z;
-  MonitorElement* h_mass_yield_Z;
-  MonitorElement* h_yieldBB_Z;
-  MonitorElement* h_yieldEE_Z;
+  MonitorElement* h_mass_Glo_pass_BB;
+  MonitorElement* h_mass_Glo_pass_BE;
+  MonitorElement* h_mass_Glo_pass_EE;
+  MonitorElement* h_mass_Glo_fail_BB;
+  MonitorElement* h_mass_Glo_fail_BE;
+  MonitorElement* h_mass_Glo_fail_EE;
 
-  // Electron Histograms
-  MonitorElement* h_ee_mass_id_pass_central;
-  MonitorElement* h_ee_mass_id_fail_central;
-  MonitorElement* h_ee_mass_id_pass_forward;
-  MonitorElement* h_ee_mass_id_fail_forward;
-
-  MonitorElement* h_ee_mass_HLT_pass_central;
-  MonitorElement* h_ee_mass_HLT_fail_central;
-  MonitorElement* h_ee_mass_HLT_pass_forward;
-  MonitorElement* h_ee_mass_HLT_fail_forward;
-
-  MonitorElement* h_ee_yield_Z_ebeb;
-  MonitorElement* h_ee_yield_Z_ebee;
-  MonitorElement* h_ee_yield_Z_eeee;
+  MonitorElement* h_mass_Sta_pass_BB;
+  MonitorElement* h_mass_Sta_pass_BE;
+  MonitorElement* h_mass_Sta_pass_EE;
+  MonitorElement* h_mass_Sta_fail_BB;
+  MonitorElement* h_mass_Sta_fail_BE;
+  MonitorElement* h_mass_Sta_fail_EE;
 };
 
 #endif

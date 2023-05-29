@@ -24,7 +24,7 @@ ALCARECOSiPixelCalSingleMuonLoose.etaMax = 3.5
 # Prescale events
 ##################################################################
 import CalibTracker.SiStripCommon.prescaleEvent_cfi
-scalerForSiPixelCalSingleMuonLoose = CalibTracker.SiStripCommon.prescaleEvent_cfi.prescaleEvent.clone(prescale = 100)
+scalerForSiPixelCalSingleMuonLoose = CalibTracker.SiStripCommon.prescaleEvent_cfi.prescaleEvent.clone(prescale = 10)
 
 ##################################################################
 # Loose Sequence
@@ -32,3 +32,9 @@ scalerForSiPixelCalSingleMuonLoose = CalibTracker.SiStripCommon.prescaleEvent_cf
 seqALCARECOSiPixelCalSingleMuonLoose = cms.Sequence(ALCARECOSiPixelCalSingleMuonLooseHLTFilter+
                                                     scalerForSiPixelCalSingleMuonLoose+
                                                     ALCARECOSiPixelCalSingleMuonLoose)
+
+## customizations for the pp_on_AA eras
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ALCARECOSiPixelCalSingleMuonLooseHLTFilter,
+                  eventSetupPathsKey='SiPixelCalSingleMuonHI'
+)

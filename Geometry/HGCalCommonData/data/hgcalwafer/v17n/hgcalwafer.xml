@@ -1,0 +1,887 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalwafer.xml" eval="true">
+  <Constant name="ModuleThicknessEE"     value="[hgcal:ModuleThicknessEE]"/>
+  <Constant name="ModuleThicknessHE"     value="[hgcal:ModuleThicknessHE]"/>
+  <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
+  <Constant name="WaferThickness"        value="[hgcal:WaferThickness]"/>
+  <Constant name="WaferThicknessFine"    value="[hgcal:WaferThicknessFine]"/>
+  <Constant name="WaferThicknessCoarse1" value="[hgcal:WaferThicknessCoarse1]"/>
+  <Constant name="WaferThicknessCoarse2" value="[hgcal:WaferThicknessCoarse2]"/>
+  <Constant name="SensorSeparation"      value="[hgcal:SensorSeparation]"/>
+  <Constant name="SensorSizeOffset"      value="[hgcal:SensorSizeOffset]"/>
+  <Constant name="CellThicknessFine"     value="[hgcal:CellThicknessFine]"/>
+  <Constant name="CellThicknessCoarse1"  value="[hgcal:CellThicknessCoarse1]"/>
+  <Constant name="CellThicknessCoarse2"  value="[hgcal:CellThicknessCoarse2]"/>
+  <Constant name="NumberOfCellsFine"     value="[hgcal:NumberOfCellsFine]"/>
+  <Constant name="NumberOfCellsCoarse"   value="[hgcal:NumberOfCellsCoarse]"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalwafer.xml" eval="true">
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      1, 1, 1, 1, 1, 1 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      00, 01, 02, 03, 04, 05 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      1, 1, 1, 1, 1, 1 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      00, 01, 02, 03, 04, 05 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11</Vector>  
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      1, 1, 1, 1, 1, 1 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      00, 01, 02, 03, 04, 05 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      1, 1, 1, 1, 1, 1 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      00, 01, 02, 03, 04, 05 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      1, 1, 1, 1, 1, 1 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      00, 01, 02, 03, 04, 05 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      1, 1, 1, 1, 1, 1 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      00, 01, 02, 03, 04, 05 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+    <Numeric name="NCells"           value="0"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="Tags" type="string" nEntries="5">
+      HD1, HD2, HD3, HD4, HD5</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="5">
+      21, 22, 23, 24, 25</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+    <String name="SenseName"     value="HGCalEECellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="Tags" type="string" nEntries="5">
+      HD1, HD2, HD3, HD4, HD5</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="5">
+      21, 22, 23, 24, 25</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      06, 07, 08, 09, 10, 11</Vector>
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10">
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+    <String name="SenseName"     value="HGCalEECellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+    <String name="SenseName"     value="HGCalEECellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      06, 07, 08, 09, 10, 11</Vector>
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+    <String name="SenseName"     value="HGCalEECellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+    <String name="SenseName"     value="HGCalEECellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      06, 07, 08, 09, 10, 11</Vector>
+    <Vector name="LayerNames" type="string" nEntries="9">
+      HGCalEEAirGap, HGCalEEPCB, HGCalEEConnector, HGCalEEMotherBoard, 
+      HGCalEEEpoxy, HGCalEEEpoxyT, HGCalEEKapton, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="9">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Epoxy, 
+      materials:Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="9">
+      0.225*mm, 1.60*mm, 3.73*mm, 1.60*mm, 0.075*mm, 0.065*mm, 0.265*mm, 
+      [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="9">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 
+      [SensorSizeOffset], 0.30*mm, [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="9"> 
+      0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+    <String name="SenseName"     value="HGCalEECellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="Tags" type="string" nEntries="5">
+      HD1, HD2, HD3, HD4, HD5</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="5">
+      21, 22, 23, 24, 25</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+    <String name="SenseName"     value="HGCalHESiliconCellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
+    <String name="WaferTag" value="Fine"/>
+    <Vector name="Tags" type="string" nEntries="5">
+      HD1, HD2, HD3, HD4, HD5</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="5">
+      21, 22, 23, 24, 25</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      6, 7, 8, 9, 10, 11 </Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+    <String name="SenseName"     value="HGCalHESiliconCellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+    <String name="SenseName"     value="HGCalHESiliconCellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      6, 7, 8, 9, 10, 11 </Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>    
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+    <String name="SenseName"     value="HGCalHESiliconCellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+    <String name="SenseName"     value="HGCalHESiliconCellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferPartialRotated">
+    <rParent name="hgcalwafer:HGCalHEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessHE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
+    <String name="WaferTag" value="Coarse2"/>
+    <Vector name="Tags" type="string" nEntries="6">
+      LD1, LD2, LD3, LD4, LD5, LD6</Vector>
+    <Vector name="PartialTypes" type="numeric" nEntries="6">
+      11, 12, 13, 14, 15, 16</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="6">
+      6, 7, 8, 9, 10, 11 </Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>   
+    <Vector name="LayerNames" type="string" nEntries="8">
+      HGCalHEAirGap, HGCalHEPCB, HGCalHEConnector, HGCalHEMotherBoard, 
+      HGCalHEEpoxy, HGCalHEKapton, HGCalHESiliconSensitive,
+      HGCalHEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="8">
+      materials:Air, hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_HEConnector,
+      hgcalMaterial:HGC_G10-FR4, materials:Epoxy, materials:Kapton, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="8">
+      0.40*mm, 1.60*mm, 3.475*mm, 1.60*mm, 0.075*mm, 0.10*mm, 
+      [WaferThickness], 1.0*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="8">
+      0.00*mm, 0.00*mm, 0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm, 
+      [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="8"> 
+      0, 0, 0, 0, 0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10"> 
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+    <String name="SenseName"     value="HGCalHESiliconCellSensitive"/>
+    <Numeric name="SenseType"    value="-1"/>
+    <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
+  </Algorithm>
+  </PosPartSection>
+</DDDefinition>

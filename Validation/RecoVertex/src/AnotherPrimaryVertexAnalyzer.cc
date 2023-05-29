@@ -102,15 +102,10 @@ AnotherPrimaryVertexAnalyzer::~AnotherPrimaryVertexAnalyzer() {}
 
 // ------------ method called to for each event  ------------
 void AnotherPrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // compute event weigth
-
-  double weight = 1.;
-
-  if (_weightprov)
-    weight = _weightprov->prescaleWeight(iEvent, iSetup);
+  // compute event weight
+  auto const weight = _weightprov ? _weightprov->prescaleWeight<double>(iEvent, iSetup) : 1.;
 
   // get PV
-
   edm::Handle<reco::VertexCollection> pvcoll;
   iEvent.getByToken(_recoVertexCollectionToken, pvcoll);
 

@@ -25,6 +25,8 @@
 <use name="CLHEP"/>
 <use name="rootmath"/>
 <use name="roothistmatrix"/>
+<use name="rootgraphics"/>
+<lib name="MultiProc" />
 <export>
   <lib name="1"/>
 </export>

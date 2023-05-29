@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, coarsetc_equalshare_proc, bestchoice_ndata_decentralized, custom_conc_proc, autoEncoder_conc_proc
+from L1Trigger.L1THGCal.l1tHGCalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, coarsetc_equalshare_proc, bestchoice_ndata_decentralized, custom_conc_proc, autoEncoder_conc_proc
 
 def custom_triggercellselect_supertriggercell(process,
                                               stcSize=supertc_conc_proc.stcSize,
@@ -11,7 +11,7 @@ def custom_triggercellselect_supertriggercell(process,
                                          type_energy_division = type_energy_division,
                                          fixedDataSizePerHGCROC = fixedDataSizePerHGCROC  
                                          )
-    process.hgcalConcentratorProducer.ProcessorParameters = parameters
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process
 
 
@@ -25,7 +25,7 @@ def custom_triggercellselect_threshold(process,
             threshold_scintillator = threshold_scintillator,
             coarsenTriggerCells = coarsenTriggerCells  
             )
-    process.hgcalConcentratorProducer.ProcessorParameters = parameters
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process
 
 
@@ -33,7 +33,7 @@ def custom_triggercellselect_bestchoice(process,
                                         triggercells=best_conc_proc.NData
                                         ):
     parameters = best_conc_proc.clone(NData = triggercells)
-    process.hgcalConcentratorProducer.ProcessorParameters = parameters
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process
 
 
@@ -55,7 +55,7 @@ def custom_coarsetc_onebitfraction(process,
         oneBitFractionLowValue = oneBitFractionLowValue,
         oneBitFractionHighValue = oneBitFractionHighValue,
     )
-    process.hgcalConcentratorProducer.ProcessorParameters = parameters
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process
 
 
@@ -69,7 +69,7 @@ def custom_coarsetc_equalshare(process,
         stcSize = stcSize,    
         fixedDataSizePerHGCROC = fixedDataSizePerHGCROC, 
     )
-    process.hgcalConcentratorProducer.ProcessorParameters = parameters
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process
     
 def custom_triggercellselect_mixedBestChoiceSuperTriggerCell(process,
@@ -84,7 +84,7 @@ def custom_triggercellselect_mixedBestChoiceSuperTriggerCell(process,
                                         NData=triggercells,
                                         Method = cms.vstring('bestChoiceSelect','superTriggerCellSelect','superTriggerCellSelect'),        
     )
-    process.hgcalConcentratorProducer.ProcessorParameters = parameters
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process
 
 def custom_triggercellselect_mixedBestChoiceSuperTriggerCell_decentralized(process):
@@ -116,5 +116,5 @@ def custom_triggercellselect_autoencoder(process,
             preserveModuleSum = preserveModuleSum,
             Method = cms.vstring(['autoEncoder','autoEncoder', scintillatorMethod]),
             )
-    process.hgcalConcentratorProducer.ProcessorParameters = parameters
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
     return process

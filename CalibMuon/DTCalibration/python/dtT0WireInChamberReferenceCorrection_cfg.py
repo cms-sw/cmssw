@@ -6,11 +6,9 @@ process.load("CalibMuon.DTCalibration.messageLoggerDebug_cff")
 process.MessageLogger.debugModules = cms.untracked.vstring('dtT0WireInChamberReferenceCorrection')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ''
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run3_data']
 
-#process.load("Configuration.StandardSequences.GeometryDB_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = ''
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")

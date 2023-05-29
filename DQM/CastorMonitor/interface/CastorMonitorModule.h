@@ -4,7 +4,6 @@
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,7 +14,6 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -98,8 +96,6 @@ private:
   edm::EDGetTokenT<BasicJetCollection> JetAlgorithm;
 
   edm::ESGetToken<CastorDbService, CastorDbRecord> castorDbServiceToken_;
-
-  //  std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
 
   std::unique_ptr<CastorRecHitMonitor> RecHitMon_;
   std::unique_ptr<CastorDigiMonitor> DigiMon_;

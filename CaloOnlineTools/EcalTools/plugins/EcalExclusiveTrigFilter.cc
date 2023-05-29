@@ -34,13 +34,10 @@ using namespace std;
 // constructors and destructor
 //
 EcalExclusiveTrigFilter::EcalExclusiveTrigFilter(const edm::ParameterSet& iConfig)
-    : l1GTReadoutRecTag_(iConfig.getUntrackedParameter<std::string>("L1GlobalReadoutRecord", "gtDigis")) {
+    : l1GTReadoutRecTag_(iConfig.getUntrackedParameter<std::string>("L1GlobalReadoutRecord", "gtDigis")),
+      l1GTReadoutRecToken_(consumes<L1MuGMTReadoutCollection>(l1GTReadoutRecTag_)),
+      l1GTReadoutToken_(consumes<L1GlobalTriggerReadoutRecord>(l1GTReadoutRecTag_)) {
   //now do what ever initialization is needed
-}
-
-EcalExclusiveTrigFilter::~EcalExclusiveTrigFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -50,8 +47,7 @@ EcalExclusiveTrigFilter::~EcalExclusiveTrigFilter() {
 // ------------ method called on each new Event  ------------
 bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the GMTReadoutCollection
-  Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-  iEvent.getByLabel(l1GTReadoutRecTag_, gmtrc_handle);
+  const Handle<L1MuGMTReadoutCollection>& gmtrc_handle = iEvent.getHandle(l1GTReadoutRecToken_);
   L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
   if (!(gmtrc_handle.isValid())) {
     LogWarning("EcalExclusiveTrigFilter") << "l1MuGMTReadoutCollection"
@@ -60,13 +56,11 @@ bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   // get hold of L1GlobalReadoutRecord
-  Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-  iEvent.getByLabel(l1GTReadoutRecTag_, L1GTRR);
+  const Handle<L1GlobalTriggerReadoutRecord>& L1GTRR = iEvent.getHandle(l1GTReadoutToken_);
   bool isEcalL1 = false;
   const unsigned int sizeOfDecisionWord(L1GTRR->decisionWord().size());
   if (!(L1GTRR.isValid())) {
     LogWarning("EcalExclusiveTrigFilter") << l1GTReadoutRecTag_ << " not available";
-    //return;
   } else if (sizeOfDecisionWord < 128) {
     LogWarning("EcalExclusiveTrigFilter")
         << "size of L1 decisionword is " << sizeOfDecisionWord << "; L1 Ecal triggering bits not available";
@@ -80,7 +74,6 @@ bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     for (unsigned int i = 0; i != sizeOfDecisionWord; ++i) {
       if (L1GTRR->decisionWord()[i]) {
         l1Accepts_[i]++;
-        //cout << "L1A bit: " << i << endl;
       }
     }
 
@@ -112,8 +105,6 @@ bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
-    //if(idt>0) std::cout << "Found " << idt << " valid DT candidates in bx wrt. L1A = "
-    //  << igmtrr->getBxInEvent() << std::endl;
     if (igmtrr->getBxInEvent() == 0 && idt > 0)
       isDTL1 = true;
 
@@ -126,8 +117,6 @@ bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
-    //if(irpcb>0) std::cout << "Found " << irpcb << " valid RPC candidates in bx wrt. L1A = "
-    //  << igmtrr->getBxInEvent() << std::endl;
     if (igmtrr->getBxInEvent() == 0 && irpcb > 0)
       isRPCL1 = true;
 
@@ -139,8 +128,6 @@ bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
         icsc++;
       }
     }
-    //if(icsc>0) std::cout << "Found " << icsc << " valid CSC candidates in bx wrt. L1A = "
-    //    //  << igmtrr->getBxInEvent() << std::endl;
     if (igmtrr->getBxInEvent() == 0 && icsc > 0)
       isCSCL1 = true;
   }
@@ -166,7 +153,6 @@ bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     }
     std::vector<int>::const_iterator iphi;
     for (iphi = valid_phi.begin(); iphi != valid_phi.end(); iphi++) {
-      //std::cout << "Found HCAL mip with phi=" << *iphi << " in bx wrt. L1A = " << ibx << std::endl;
       if (*iphi < 9)
         hcal_top = true;
       if (*iphi > 8)
@@ -176,18 +162,18 @@ bool EcalExclusiveTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       isHCALL1 = true;
   }
 
-  std::cout << "**** Trigger Source ****" << std::endl;
+  edm::LogVerbatim("EcalTools") << "**** Trigger Source ****";
   if (isDTL1)
-    std::cout << "DT" << std::endl;
+    edm::LogVerbatim("EcalTools") << "DT";
   if (isRPCL1)
-    std::cout << "RPC" << std::endl;
+    edm::LogVerbatim("EcalTools") << "RPC";
   if (isCSCL1)
-    cout << "CSC" << endl;
+    edm::LogVerbatim("EcalTools") << "CSC";
   if (isHCALL1)
-    std::cout << "HCAL" << std::endl;
+    edm::LogVerbatim("EcalTools") << "HCAL";
   if (isEcalL1)
-    std::cout << "ECAL" << std::endl;
-  std::cout << "************************" << std::endl;
+    edm::LogVerbatim("EcalTools") << "ECAL";
+  edm::LogVerbatim("EcalTools") << "************************";
 
   return (isEcalL1 && !isDTL1 && !isRPCL1 && !isCSCL1 && !isHCALL1);
 }

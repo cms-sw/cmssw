@@ -227,78 +227,78 @@ private:
 
   int t_nTracks;
   int t_RunNo, t_EvtNo, t_Lumi, t_Bunch;
-  std::vector<std::string> *t_L1AlgoNames;
-  std::vector<int> *t_L1PreScale;
+  std::vector<std::string> t_L1AlgoNames;
+  std::vector<int> t_L1PreScale;
   int t_L1Decision[128];
 
-  std::vector<double> *t_L1CenJetPt, *t_L1CenJetEta, *t_L1CenJetPhi;
-  std::vector<double> *t_L1FwdJetPt, *t_L1FwdJetEta, *t_L1FwdJetPhi;
-  std::vector<double> *t_L1TauJetPt, *t_L1TauJetEta, *t_L1TauJetPhi;
-  std::vector<double> *t_L1MuonPt, *t_L1MuonEta, *t_L1MuonPhi;
-  std::vector<double> *t_L1IsoEMPt, *t_L1IsoEMEta, *t_L1IsoEMPhi;
-  std::vector<double> *t_L1NonIsoEMPt, *t_L1NonIsoEMEta, *t_L1NonIsoEMPhi;
-  std::vector<double> *t_L1METPt, *t_L1METEta, *t_L1METPhi;
+  std::vector<double> t_L1CenJetPt, t_L1CenJetEta, t_L1CenJetPhi;
+  std::vector<double> t_L1FwdJetPt, t_L1FwdJetEta, t_L1FwdJetPhi;
+  std::vector<double> t_L1TauJetPt, t_L1TauJetEta, t_L1TauJetPhi;
+  std::vector<double> t_L1MuonPt, t_L1MuonEta, t_L1MuonPhi;
+  std::vector<double> t_L1IsoEMPt, t_L1IsoEMEta, t_L1IsoEMPhi;
+  std::vector<double> t_L1NonIsoEMPt, t_L1NonIsoEMEta, t_L1NonIsoEMPhi;
+  std::vector<double> t_L1METPt, t_L1METEta, t_L1METPhi;
 
-  std::vector<double> *t_PVx, *t_PVy, *t_PVz, *t_PVTracksSumPt;
-  std::vector<double> *t_PVTracksSumPtWt, *t_PVTracksSumPtHP, *t_PVTracksSumPtHPWt;
-  std::vector<int> *t_PVisValid, *t_PVNTracks, *t_PVNTracksWt, *t_PVndof;
-  std::vector<int> *t_PVNTracksHP, *t_PVNTracksHPWt;
+  std::vector<double> t_PVx, t_PVy, t_PVz, t_PVTracksSumPt;
+  std::vector<double> t_PVTracksSumPtWt, t_PVTracksSumPtHP, t_PVTracksSumPtHPWt;
+  std::vector<int> t_PVisValid, t_PVNTracks, t_PVNTracksWt, t_PVndof;
+  std::vector<int> t_PVNTracksHP, t_PVNTracksHPWt;
 
-  std::vector<double> *t_jetPt, *t_jetEta, *t_jetPhi;
-  std::vector<double> *t_nTrksJetCalo, *t_nTrksJetVtx;
+  std::vector<double> t_jetPt, t_jetEta, t_jetPhi;
+  std::vector<double> t_nTrksJetCalo, t_nTrksJetVtx;
 
-  std::vector<double> *t_trackPAll, *t_trackEtaAll, *t_trackPhiAll, *t_trackPdgIdAll;
-  std::vector<double> *t_trackPtAll;
-  std::vector<double> *t_trackDxyAll, *t_trackDzAll, *t_trackDxyPVAll, *t_trackDzPVAll, *t_trackChiSqAll;
+  std::vector<double> t_trackPAll, t_trackEtaAll, t_trackPhiAll, t_trackPdgIdAll;
+  std::vector<double> t_trackPtAll;
+  std::vector<double> t_trackDxyAll, t_trackDzAll, t_trackDxyPVAll, t_trackDzPVAll, t_trackChiSqAll;
 
-  std::vector<double> *t_trackP, *t_trackPt, *t_trackEta, *t_trackPhi;
-  std::vector<double> *t_trackEcalEta, *t_trackEcalPhi, *t_trackHcalEta, *t_trackHcalPhi;
-  std::vector<double> *t_trackDxy, *t_trackDxyBS, *t_trackDz, *t_trackDzBS;
-  std::vector<double> *t_trackDxyPV, *t_trackDzPV;
-  std::vector<double> *t_trackChiSq;
-  std::vector<int> *t_trackPVIdx;
+  std::vector<double> t_trackP, t_trackPt, t_trackEta, t_trackPhi;
+  std::vector<double> t_trackEcalEta, t_trackEcalPhi, t_trackHcalEta, t_trackHcalPhi;
+  std::vector<double> t_trackDxy, t_trackDxyBS, t_trackDz, t_trackDzBS;
+  std::vector<double> t_trackDxyPV, t_trackDzPV;
+  std::vector<double> t_trackChiSq;
+  std::vector<int> t_trackPVIdx;
 
-  std::vector<int> *t_NLayersCrossed, *t_trackNOuterHits;
-  std::vector<int> *t_trackHitsTOB, *t_trackHitsTEC;
-  std::vector<int> *t_trackHitInMissTOB, *t_trackHitInMissTEC, *t_trackHitInMissTIB, *t_trackHitInMissTID,
-      *t_trackHitInMissTIBTID;
-  std::vector<int> *t_trackHitOutMissTOB, *t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID,
-      *t_trackHitOutMissTOBTEC;
-  std::vector<int> *t_trackHitInMeasTOB, *t_trackHitInMeasTEC, *t_trackHitInMeasTIB, *t_trackHitInMeasTID;
-  std::vector<int> *t_trackHitOutMeasTOB, *t_trackHitOutMeasTEC, *t_trackHitOutMeasTIB, *t_trackHitOutMeasTID;
-  std::vector<double> *t_trackOutPosOutHitDr, *t_trackL;
+  std::vector<int> t_NLayersCrossed, t_trackNOuterHits;
+  std::vector<int> t_trackHitsTOB, t_trackHitsTEC;
+  std::vector<int> t_trackHitInMissTOB, t_trackHitInMissTEC, t_trackHitInMissTIB, t_trackHitInMissTID,
+      t_trackHitInMissTIBTID;
+  std::vector<int> t_trackHitOutMissTOB, t_trackHitOutMissTEC, t_trackHitOutMissTIB, t_trackHitOutMissTID,
+      t_trackHitOutMissTOBTEC;
+  std::vector<int> t_trackHitInMeasTOB, t_trackHitInMeasTEC, t_trackHitInMeasTIB, t_trackHitInMeasTID;
+  std::vector<int> t_trackHitOutMeasTOB, t_trackHitOutMeasTEC, t_trackHitOutMeasTIB, t_trackHitOutMeasTID;
+  std::vector<double> t_trackOutPosOutHitDr, t_trackL;
 
-  std::vector<double> *t_maxNearP31x31;
-  std::vector<double> *t_maxNearP21x21;
-  std::vector<int> *t_ecalSpike11x11;
+  std::vector<double> t_maxNearP31x31;
+  std::vector<double> t_maxNearP21x21;
+  std::vector<int> t_ecalSpike11x11;
 
-  std::vector<double> *t_e7x7, *t_e9x9, *t_e11x11, *t_e15x15;
-  std::vector<double> *t_e7x7_10Sig, *t_e9x9_10Sig, *t_e11x11_10Sig, *t_e15x15_10Sig;
-  std::vector<double> *t_e7x7_15Sig, *t_e9x9_15Sig, *t_e11x11_15Sig, *t_e15x15_15Sig;
-  std::vector<double> *t_e7x7_20Sig, *t_e9x9_20Sig, *t_e11x11_20Sig, *t_e15x15_20Sig;
-  std::vector<double> *t_e7x7_25Sig, *t_e9x9_25Sig, *t_e11x11_25Sig, *t_e15x15_25Sig;
-  std::vector<double> *t_e7x7_30Sig, *t_e9x9_30Sig, *t_e11x11_30Sig, *t_e15x15_30Sig;
+  std::vector<double> t_e7x7, t_e9x9, t_e11x11, t_e15x15;
+  std::vector<double> t_e7x7_10Sig, t_e9x9_10Sig, t_e11x11_10Sig, t_e15x15_10Sig;
+  std::vector<double> t_e7x7_15Sig, t_e9x9_15Sig, t_e11x11_15Sig, t_e15x15_15Sig;
+  std::vector<double> t_e7x7_20Sig, t_e9x9_20Sig, t_e11x11_20Sig, t_e15x15_20Sig;
+  std::vector<double> t_e7x7_25Sig, t_e9x9_25Sig, t_e11x11_25Sig, t_e15x15_25Sig;
+  std::vector<double> t_e7x7_30Sig, t_e9x9_30Sig, t_e11x11_30Sig, t_e15x15_30Sig;
 
-  std::vector<double> *t_esimPdgId, *t_simTrackP, *t_trkEcalEne;
-  std::vector<double> *t_esim7x7, *t_esim9x9, *t_esim11x11, *t_esim15x15;
-  std::vector<double> *t_esim7x7Matched, *t_esim9x9Matched, *t_esim11x11Matched, *t_esim15x15Matched;
-  std::vector<double> *t_esim7x7Rest, *t_esim9x9Rest, *t_esim11x11Rest, *t_esim15x15Rest;
-  std::vector<double> *t_esim7x7Photon, *t_esim9x9Photon, *t_esim11x11Photon, *t_esim15x15Photon;
-  std::vector<double> *t_esim7x7NeutHad, *t_esim9x9NeutHad, *t_esim11x11NeutHad, *t_esim15x15NeutHad;
-  std::vector<double> *t_esim7x7CharHad, *t_esim9x9CharHad, *t_esim11x11CharHad, *t_esim15x15CharHad;
+  std::vector<double> t_esimPdgId, t_simTrackP, t_trkEcalEne;
+  std::vector<double> t_esim7x7, t_esim9x9, t_esim11x11, t_esim15x15;
+  std::vector<double> t_esim7x7Matched, t_esim9x9Matched, t_esim11x11Matched, t_esim15x15Matched;
+  std::vector<double> t_esim7x7Rest, t_esim9x9Rest, t_esim11x11Rest, t_esim15x15Rest;
+  std::vector<double> t_esim7x7Photon, t_esim9x9Photon, t_esim11x11Photon, t_esim15x15Photon;
+  std::vector<double> t_esim7x7NeutHad, t_esim9x9NeutHad, t_esim11x11NeutHad, t_esim15x15NeutHad;
+  std::vector<double> t_esim7x7CharHad, t_esim9x9CharHad, t_esim11x11CharHad, t_esim15x15CharHad;
 
-  std::vector<double> *t_maxNearHcalP3x3, *t_maxNearHcalP5x5, *t_maxNearHcalP7x7;
-  std::vector<double> *t_h3x3, *t_h5x5, *t_h7x7;
-  std::vector<double> *t_h3x3Sig, *t_h5x5Sig, *t_h7x7Sig;
-  std::vector<int> *t_infoHcal;
+  std::vector<double> t_maxNearHcalP3x3, t_maxNearHcalP5x5, t_maxNearHcalP7x7;
+  std::vector<double> t_h3x3, t_h5x5, t_h7x7;
+  std::vector<double> t_h3x3Sig, t_h5x5Sig, t_h7x7Sig;
+  std::vector<int> t_infoHcal;
 
-  std::vector<double> *t_trkHcalEne;
-  std::vector<double> *t_hsim3x3, *t_hsim5x5, *t_hsim7x7;
-  std::vector<double> *t_hsim3x3Matched, *t_hsim5x5Matched, *t_hsim7x7Matched;
-  std::vector<double> *t_hsim3x3Rest, *t_hsim5x5Rest, *t_hsim7x7Rest;
-  std::vector<double> *t_hsim3x3Photon, *t_hsim5x5Photon, *t_hsim7x7Photon;
-  std::vector<double> *t_hsim3x3NeutHad, *t_hsim5x5NeutHad, *t_hsim7x7NeutHad;
-  std::vector<double> *t_hsim3x3CharHad, *t_hsim5x5CharHad, *t_hsim7x7CharHad;
+  std::vector<double> t_trkHcalEne;
+  std::vector<double> t_hsim3x3, t_hsim5x5, t_hsim7x7;
+  std::vector<double> t_hsim3x3Matched, t_hsim5x5Matched, t_hsim7x7Matched;
+  std::vector<double> t_hsim3x3Rest, t_hsim5x5Rest, t_hsim7x7Rest;
+  std::vector<double> t_hsim3x3Photon, t_hsim5x5Photon, t_hsim7x7Photon;
+  std::vector<double> t_hsim3x3NeutHad, t_hsim5x5NeutHad, t_hsim7x7NeutHad;
+  std::vector<double> t_hsim3x3CharHad, t_hsim5x5CharHad, t_hsim7x7CharHad;
 };
 
 static const bool useL1EventSetup(true);
@@ -319,181 +319,7 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet &iConfig)
       tMinE_(iConfig.getUntrackedParameter<double>("timeMinCutECAL", -500.)),
       tMaxE_(iConfig.getUntrackedParameter<double>("timeMaxCutECAL", 500.)),
       tMinH_(iConfig.getUntrackedParameter<double>("timeMinCutHCAL", -500.)),
-      tMaxH_(iConfig.getUntrackedParameter<double>("timeMaxCutHCAL", 500.)),
-      t_L1AlgoNames(nullptr),
-      t_L1PreScale(nullptr),
-      t_L1CenJetPt(nullptr),
-      t_L1CenJetEta(nullptr),
-      t_L1CenJetPhi(nullptr),
-      t_L1FwdJetPt(nullptr),
-      t_L1FwdJetEta(nullptr),
-      t_L1FwdJetPhi(nullptr),
-      t_L1TauJetPt(nullptr),
-      t_L1TauJetEta(nullptr),
-      t_L1TauJetPhi(nullptr),
-      t_L1MuonPt(nullptr),
-      t_L1MuonEta(nullptr),
-      t_L1MuonPhi(nullptr),
-      t_L1IsoEMPt(nullptr),
-      t_L1IsoEMEta(nullptr),
-      t_L1IsoEMPhi(nullptr),
-      t_L1NonIsoEMPt(nullptr),
-      t_L1NonIsoEMEta(nullptr),
-      t_L1NonIsoEMPhi(nullptr),
-      t_L1METPt(nullptr),
-      t_L1METEta(nullptr),
-      t_L1METPhi(nullptr),
-      t_PVx(nullptr),
-      t_PVy(nullptr),
-      t_PVz(nullptr),
-      t_PVTracksSumPt(nullptr),
-      t_PVTracksSumPtWt(nullptr),
-      t_PVTracksSumPtHP(nullptr),
-      t_PVTracksSumPtHPWt(nullptr),
-      t_PVisValid(nullptr),
-      t_PVNTracks(nullptr),
-      t_PVNTracksWt(nullptr),
-      t_PVndof(nullptr),
-      t_PVNTracksHP(nullptr),
-      t_PVNTracksHPWt(nullptr),
-      t_jetPt(nullptr),
-      t_jetEta(nullptr),
-      t_jetPhi(nullptr),
-      t_nTrksJetCalo(nullptr),
-      t_nTrksJetVtx(nullptr),
-      t_trackPAll(nullptr),
-      t_trackEtaAll(nullptr),
-      t_trackPhiAll(nullptr),
-      t_trackPdgIdAll(nullptr),
-      t_trackPtAll(nullptr),
-      t_trackDxyAll(nullptr),
-      t_trackDzAll(nullptr),
-      t_trackDxyPVAll(nullptr),
-      t_trackDzPVAll(nullptr),
-      t_trackChiSqAll(nullptr),
-      t_trackP(nullptr),
-      t_trackPt(nullptr),
-      t_trackEta(nullptr),
-      t_trackPhi(nullptr),
-      t_trackEcalEta(nullptr),
-      t_trackEcalPhi(nullptr),
-      t_trackHcalEta(nullptr),
-      t_trackHcalPhi(nullptr),
-      t_trackDxy(nullptr),
-      t_trackDxyBS(nullptr),
-      t_trackDz(nullptr),
-      t_trackDzBS(nullptr),
-      t_trackDxyPV(nullptr),
-      t_trackDzPV(nullptr),
-      t_trackChiSq(nullptr),
-      t_trackPVIdx(nullptr),
-      t_NLayersCrossed(nullptr),
-      t_trackNOuterHits(nullptr),
-      t_trackHitsTOB(nullptr),
-      t_trackHitsTEC(nullptr),
-      t_trackHitInMissTOB(nullptr),
-      t_trackHitInMissTEC(nullptr),
-      t_trackHitInMissTIB(nullptr),
-      t_trackHitInMissTID(nullptr),
-      t_trackHitInMissTIBTID(nullptr),
-      t_trackHitOutMissTOB(nullptr),
-      t_trackHitOutMissTEC(nullptr),
-      t_trackHitOutMissTIB(nullptr),
-      t_trackHitOutMissTID(nullptr),
-      t_trackHitOutMissTOBTEC(nullptr),
-      t_trackHitInMeasTOB(nullptr),
-      t_trackHitInMeasTEC(nullptr),
-      t_trackHitInMeasTIB(nullptr),
-      t_trackHitInMeasTID(nullptr),
-      t_trackHitOutMeasTOB(nullptr),
-      t_trackHitOutMeasTEC(nullptr),
-      t_trackHitOutMeasTIB(nullptr),
-      t_trackHitOutMeasTID(nullptr),
-      t_trackOutPosOutHitDr(nullptr),
-      t_trackL(nullptr),
-      t_maxNearP31x31(nullptr),
-      t_maxNearP21x21(nullptr),
-      t_ecalSpike11x11(nullptr),
-      t_e7x7(nullptr),
-      t_e9x9(nullptr),
-      t_e11x11(nullptr),
-      t_e15x15(nullptr),
-      t_e7x7_10Sig(nullptr),
-      t_e9x9_10Sig(nullptr),
-      t_e11x11_10Sig(nullptr),
-      t_e15x15_10Sig(nullptr),
-      t_e7x7_15Sig(nullptr),
-      t_e9x9_15Sig(nullptr),
-      t_e11x11_15Sig(nullptr),
-      t_e15x15_15Sig(nullptr),
-      t_e7x7_20Sig(nullptr),
-      t_e9x9_20Sig(nullptr),
-      t_e11x11_20Sig(nullptr),
-      t_e15x15_20Sig(nullptr),
-      t_e7x7_25Sig(nullptr),
-      t_e9x9_25Sig(nullptr),
-      t_e11x11_25Sig(nullptr),
-      t_e15x15_25Sig(nullptr),
-      t_e7x7_30Sig(nullptr),
-      t_e9x9_30Sig(nullptr),
-      t_e11x11_30Sig(nullptr),
-      t_e15x15_30Sig(nullptr),
-      t_esimPdgId(nullptr),
-      t_simTrackP(nullptr),
-      t_trkEcalEne(nullptr),
-      t_esim7x7(nullptr),
-      t_esim9x9(nullptr),
-      t_esim11x11(nullptr),
-      t_esim15x15(nullptr),
-      t_esim7x7Matched(nullptr),
-      t_esim9x9Matched(nullptr),
-      t_esim11x11Matched(nullptr),
-      t_esim15x15Matched(nullptr),
-      t_esim7x7Rest(nullptr),
-      t_esim9x9Rest(nullptr),
-      t_esim11x11Rest(nullptr),
-      t_esim15x15Rest(nullptr),
-      t_esim7x7Photon(nullptr),
-      t_esim9x9Photon(nullptr),
-      t_esim11x11Photon(nullptr),
-      t_esim15x15Photon(nullptr),
-      t_esim7x7NeutHad(nullptr),
-      t_esim9x9NeutHad(nullptr),
-      t_esim11x11NeutHad(nullptr),
-      t_esim15x15NeutHad(nullptr),
-      t_esim7x7CharHad(nullptr),
-      t_esim9x9CharHad(nullptr),
-      t_esim11x11CharHad(nullptr),
-      t_esim15x15CharHad(nullptr),
-      t_maxNearHcalP3x3(nullptr),
-      t_maxNearHcalP5x5(nullptr),
-      t_maxNearHcalP7x7(nullptr),
-      t_h3x3(nullptr),
-      t_h5x5(nullptr),
-      t_h7x7(nullptr),
-      t_h3x3Sig(nullptr),
-      t_h5x5Sig(nullptr),
-      t_h7x7Sig(nullptr),
-      t_infoHcal(nullptr),
-      t_trkHcalEne(nullptr),
-      t_hsim3x3(nullptr),
-      t_hsim5x5(nullptr),
-      t_hsim7x7(nullptr),
-      t_hsim3x3Matched(nullptr),
-      t_hsim5x5Matched(nullptr),
-      t_hsim7x7Matched(nullptr),
-      t_hsim3x3Rest(nullptr),
-      t_hsim5x5Rest(nullptr),
-      t_hsim7x7Rest(nullptr),
-      t_hsim3x3Photon(nullptr),
-      t_hsim5x5Photon(nullptr),
-      t_hsim7x7Photon(nullptr),
-      t_hsim3x3NeutHad(nullptr),
-      t_hsim5x5NeutHad(nullptr),
-      t_hsim7x7NeutHad(nullptr),
-      t_hsim3x3CharHad(nullptr),
-      t_hsim5x5CharHad(nullptr),
-      t_hsim7x7CharHad(nullptr) {
+      tMaxH_(iConfig.getUntrackedParameter<double>("timeMaxCutHCAL", 500.)) {
   if (L1TriggerAlgoInfo_) {
     m_l1GtUtils = std::make_unique<L1GtUtils>(
         iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this, L1GtUtils::UseEventSetupIn::Event);
@@ -555,182 +381,7 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet &iConfig)
   tok_htmap_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
 }
 
-IsolatedTracksNxN::~IsolatedTracksNxN() {
-  delete t_PVx;
-  delete t_PVy;
-  delete t_PVz;
-  delete t_PVisValid;
-  delete t_PVndof;
-  delete t_PVNTracks;
-  delete t_PVNTracksWt;
-  delete t_PVTracksSumPt;
-  delete t_PVTracksSumPtWt;
-  delete t_PVNTracksHP;
-  delete t_PVNTracksHPWt;
-  delete t_PVTracksSumPtHP;
-  delete t_PVTracksSumPtHPWt;
-  delete t_L1AlgoNames;
-  delete t_L1PreScale;
-  delete t_L1CenJetPt;
-  delete t_L1CenJetEta;
-  delete t_L1CenJetPhi;
-  delete t_L1FwdJetPt;
-  delete t_L1FwdJetEta;
-  delete t_L1FwdJetPhi;
-  delete t_L1TauJetPt;
-  delete t_L1TauJetEta;
-  delete t_L1TauJetPhi;
-  delete t_L1MuonPt;
-  delete t_L1MuonEta;
-  delete t_L1MuonPhi;
-  delete t_L1IsoEMPt;
-  delete t_L1IsoEMEta;
-  delete t_L1IsoEMPhi;
-  delete t_L1NonIsoEMPt;
-  delete t_L1NonIsoEMEta;
-  delete t_L1NonIsoEMPhi;
-  delete t_L1METPt;
-  delete t_L1METEta;
-  delete t_L1METPhi;
-  delete t_jetPt;
-  delete t_jetEta;
-  delete t_jetPhi;
-  delete t_nTrksJetCalo;
-  delete t_nTrksJetVtx;
-  delete t_trackPAll;
-  delete t_trackEtaAll;
-  delete t_trackPhiAll;
-  delete t_trackPdgIdAll;
-  delete t_trackPtAll;
-  delete t_trackDxyAll;
-  delete t_trackDzAll;
-  delete t_trackDxyPVAll;
-  delete t_trackDzPVAll;
-  delete t_trackChiSqAll;
-  delete t_trackP;
-  delete t_trackPt;
-  delete t_trackEta;
-  delete t_trackPhi;
-  delete t_trackEcalEta;
-  delete t_trackEcalPhi;
-  delete t_trackHcalEta;
-  delete t_trackHcalPhi;
-  delete t_trackNOuterHits;
-  delete t_NLayersCrossed;
-  delete t_trackDxy;
-  delete t_trackDxyBS;
-  delete t_trackDz;
-  delete t_trackDzBS;
-  delete t_trackDxyPV;
-  delete t_trackDzPV;
-  delete t_trackPVIdx;
-  delete t_trackChiSq;
-  delete t_trackHitsTOB;
-  delete t_trackHitsTEC;
-  delete t_trackHitInMissTOB;
-  delete t_trackHitInMissTEC;
-  delete t_trackHitInMissTIB;
-  delete t_trackHitInMissTID;
-  delete t_trackHitInMissTIBTID;
-  delete t_trackHitOutMissTOB;
-  delete t_trackHitOutMissTEC;
-  delete t_trackHitOutMissTIB;
-  delete t_trackHitOutMissTID;
-  delete t_trackHitOutMissTOBTEC;
-  delete t_trackHitInMeasTOB;
-  delete t_trackHitInMeasTEC;
-  delete t_trackHitInMeasTIB;
-  delete t_trackHitInMeasTID;
-  delete t_trackHitOutMeasTOB;
-  delete t_trackHitOutMeasTEC;
-  delete t_trackHitOutMeasTIB;
-  delete t_trackHitOutMeasTID;
-  delete t_trackOutPosOutHitDr;
-  delete t_trackL;
-  delete t_maxNearP31x31;
-  delete t_maxNearP21x21;
-  delete t_ecalSpike11x11;
-  delete t_e7x7;
-  delete t_e9x9;
-  delete t_e11x11;
-  delete t_e15x15;
-  delete t_e7x7_10Sig;
-  delete t_e9x9_10Sig;
-  delete t_e11x11_10Sig;
-  delete t_e15x15_10Sig;
-  delete t_e7x7_15Sig;
-  delete t_e9x9_15Sig;
-  delete t_e11x11_15Sig;
-  delete t_e15x15_15Sig;
-  delete t_e7x7_20Sig;
-  delete t_e9x9_20Sig;
-  delete t_e11x11_20Sig;
-  delete t_e15x15_20Sig;
-  delete t_e7x7_25Sig;
-  delete t_e9x9_25Sig;
-  delete t_e11x11_25Sig;
-  delete t_e15x15_25Sig;
-  delete t_e7x7_30Sig;
-  delete t_e9x9_30Sig;
-  delete t_e11x11_30Sig;
-  delete t_e15x15_30Sig;
-  delete t_esim7x7;
-  delete t_esim9x9;
-  delete t_esim11x11;
-  delete t_esim15x15;
-  delete t_esim7x7Matched;
-  delete t_esim9x9Matched;
-  delete t_esim11x11Matched;
-  delete t_esim15x15Matched;
-  delete t_esim7x7Rest;
-  delete t_esim9x9Rest;
-  delete t_esim11x11Rest;
-  delete t_esim15x15Rest;
-  delete t_esim7x7Photon;
-  delete t_esim9x9Photon;
-  delete t_esim11x11Photon;
-  delete t_esim15x15Photon;
-  delete t_esim7x7NeutHad;
-  delete t_esim9x9NeutHad;
-  delete t_esim11x11NeutHad;
-  delete t_esim15x15NeutHad;
-  delete t_esim7x7CharHad;
-  delete t_esim9x9CharHad;
-  delete t_esim11x11CharHad;
-  delete t_esim15x15CharHad;
-  delete t_trkEcalEne;
-  delete t_simTrackP;
-  delete t_esimPdgId;
-  delete t_maxNearHcalP3x3;
-  delete t_maxNearHcalP5x5;
-  delete t_maxNearHcalP7x7;
-  delete t_h3x3;
-  delete t_h5x5;
-  delete t_h7x7;
-  delete t_h3x3Sig;
-  delete t_h5x5Sig;
-  delete t_h7x7Sig;
-  delete t_infoHcal;
-  delete t_trkHcalEne;
-  delete t_hsim3x3;
-  delete t_hsim5x5;
-  delete t_hsim7x7;
-  delete t_hsim3x3Matched;
-  delete t_hsim5x5Matched;
-  delete t_hsim7x7Matched;
-  delete t_hsim3x3Rest;
-  delete t_hsim5x5Rest;
-  delete t_hsim7x7Rest;
-  delete t_hsim3x3Photon;
-  delete t_hsim5x5Photon;
-  delete t_hsim7x7Photon;
-  delete t_hsim3x3NeutHad;
-  delete t_hsim5x5NeutHad;
-  delete t_hsim7x7NeutHad;
-  delete t_hsim3x3CharHad;
-  delete t_hsim5x5CharHad;
-  delete t_hsim7x7CharHad;
-}
+IsolatedTracksNxN::~IsolatedTracksNxN() {}
 
 void IsolatedTracksNxN::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
@@ -831,17 +482,16 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       if (decision) {
         l1AlgoMap_[std::pair<unsigned int, std::string>(algBitNumber, algName)] += 1;
         h_L1AlgoNames->Fill(algBitNumber);
-        t_L1AlgoNames->push_back(itAlgo->first);
-        t_L1PreScale->push_back(preScale);
+        t_L1AlgoNames.push_back(itAlgo->first);
+        t_L1PreScale.push_back(preScale);
         t_L1Decision[algBitNumber] = 1;
         algbits.push_back(algBitNumber);
       }
     }
 
     if (debugL1Info_) {
-      for (unsigned int ii = 0; ii < t_L1AlgoNames->size(); ii++) {
-        edm::LogVerbatim("IsoTrack") << ii << " " << (*t_L1AlgoNames)[ii] << " " << (*t_L1PreScale)[ii] << " "
-                                     << algbits[ii];
+      for (unsigned int ii = 0; ii < t_L1AlgoNames.size(); ii++) {
+        edm::LogVerbatim("IsoTrack") << ii << " " << t_L1AlgoNames[ii] << " " << t_L1PreScale[ii] << " " << algbits[ii];
       }
       for (int i = 0; i < 128; ++i) {
         edm::LogVerbatim("IsoTrack") << "L1Decision: " << i << ":" << t_L1Decision[i];
@@ -849,15 +499,14 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     // L1Taus
-    edm::Handle<l1extra::L1JetParticleCollection> l1TauHandle;
-    iEvent.getByToken(tok_L1extTauJet_, l1TauHandle);
+    const edm::Handle<l1extra::L1JetParticleCollection> &l1TauHandle = iEvent.getHandle(tok_L1extTauJet_);
     l1extra::L1JetParticleCollection::const_iterator itr;
     int iL1Obj = 0;
     for (itr = l1TauHandle->begin(), iL1Obj = 0; itr != l1TauHandle->end(); ++itr, iL1Obj++) {
       if (iL1Obj < 1) {
-        t_L1TauJetPt->push_back(itr->pt());
-        t_L1TauJetEta->push_back(itr->eta());
-        t_L1TauJetPhi->push_back(itr->phi());
+        t_L1TauJetPt.push_back(itr->pt());
+        t_L1TauJetEta.push_back(itr->eta());
+        t_L1TauJetPhi.push_back(itr->phi());
       }
       if (debugL1Info_) {
         edm::LogVerbatim("IsoTrack") << "tauJ p/pt  " << itr->momentum() << " " << itr->pt() << "  eta/phi "
@@ -866,13 +515,12 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     // L1 Central Jets
-    edm::Handle<l1extra::L1JetParticleCollection> l1CenJetHandle;
-    iEvent.getByToken(tok_L1extCenJet_, l1CenJetHandle);
+    const edm::Handle<l1extra::L1JetParticleCollection> &l1CenJetHandle = iEvent.getHandle(tok_L1extCenJet_);
     for (itr = l1CenJetHandle->begin(), iL1Obj = 0; itr != l1CenJetHandle->end(); ++itr, iL1Obj++) {
       if (iL1Obj < 1) {
-        t_L1CenJetPt->push_back(itr->pt());
-        t_L1CenJetEta->push_back(itr->eta());
-        t_L1CenJetPhi->push_back(itr->phi());
+        t_L1CenJetPt.push_back(itr->pt());
+        t_L1CenJetEta.push_back(itr->eta());
+        t_L1CenJetPhi.push_back(itr->phi());
       }
       if (debugL1Info_) {
         edm::LogVerbatim("IsoTrack") << "cenJ p/pt     " << itr->momentum() << " " << itr->pt() << "  eta/phi "
@@ -881,13 +529,12 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     // L1 Forward Jets
-    edm::Handle<l1extra::L1JetParticleCollection> l1FwdJetHandle;
-    iEvent.getByToken(tok_L1extFwdJet_, l1FwdJetHandle);
+    const edm::Handle<l1extra::L1JetParticleCollection> &l1FwdJetHandle = iEvent.getHandle(tok_L1extFwdJet_);
     for (itr = l1FwdJetHandle->begin(), iL1Obj = 0; itr != l1FwdJetHandle->end(); ++itr, iL1Obj++) {
       if (iL1Obj < 1) {
-        t_L1FwdJetPt->push_back(itr->pt());
-        t_L1FwdJetEta->push_back(itr->eta());
-        t_L1FwdJetPhi->push_back(itr->phi());
+        t_L1FwdJetPt.push_back(itr->pt());
+        t_L1FwdJetEta.push_back(itr->eta());
+        t_L1FwdJetPhi.push_back(itr->phi());
       }
       if (debugL1Info_) {
         edm::LogVerbatim("IsoTrack") << "fwdJ p/pt     " << itr->momentum() << " " << itr->pt() << "  eta/phi "
@@ -897,13 +544,12 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
     // L1 Isolated EM onjects
     l1extra::L1EmParticleCollection::const_iterator itrEm;
-    edm::Handle<l1extra::L1EmParticleCollection> l1IsoEmHandle;
-    iEvent.getByToken(tok_L1extIsoEm_, l1IsoEmHandle);
+    const edm::Handle<l1extra::L1EmParticleCollection> &l1IsoEmHandle = iEvent.getHandle(tok_L1extIsoEm_);
     for (itrEm = l1IsoEmHandle->begin(), iL1Obj = 0; itrEm != l1IsoEmHandle->end(); ++itrEm, iL1Obj++) {
       if (iL1Obj < 1) {
-        t_L1IsoEMPt->push_back(itrEm->pt());
-        t_L1IsoEMEta->push_back(itrEm->eta());
-        t_L1IsoEMPhi->push_back(itrEm->phi());
+        t_L1IsoEMPt.push_back(itrEm->pt());
+        t_L1IsoEMEta.push_back(itrEm->eta());
+        t_L1IsoEMPhi.push_back(itrEm->phi());
       }
       if (debugL1Info_) {
         edm::LogVerbatim("IsoTrack") << "isoEm p/pt    " << itrEm->momentum() << " " << itrEm->pt() << "  eta/phi "
@@ -912,13 +558,12 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     // L1 Non-Isolated EM onjects
-    edm::Handle<l1extra::L1EmParticleCollection> l1NonIsoEmHandle;
-    iEvent.getByToken(tok_L1extNoIsoEm_, l1NonIsoEmHandle);
+    const edm::Handle<l1extra::L1EmParticleCollection> &l1NonIsoEmHandle = iEvent.getHandle(tok_L1extNoIsoEm_);
     for (itrEm = l1NonIsoEmHandle->begin(), iL1Obj = 0; itrEm != l1NonIsoEmHandle->end(); ++itrEm, iL1Obj++) {
       if (iL1Obj < 1) {
-        t_L1NonIsoEMPt->push_back(itrEm->pt());
-        t_L1NonIsoEMEta->push_back(itrEm->eta());
-        t_L1NonIsoEMPhi->push_back(itrEm->phi());
+        t_L1NonIsoEMPt.push_back(itrEm->pt());
+        t_L1NonIsoEMEta.push_back(itrEm->eta());
+        t_L1NonIsoEMPhi.push_back(itrEm->phi());
       }
       if (debugL1Info_) {
         edm::LogVerbatim("IsoTrack") << "nonIsoEm p/pt " << itrEm->momentum() << " " << itrEm->pt() << "  eta/phi "
@@ -928,13 +573,12 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
     // L1 Muons
     l1extra::L1MuonParticleCollection::const_iterator itrMu;
-    edm::Handle<l1extra::L1MuonParticleCollection> l1MuHandle;
-    iEvent.getByToken(tok_L1extMu_, l1MuHandle);
+    const edm::Handle<l1extra::L1MuonParticleCollection> &l1MuHandle = iEvent.getHandle(tok_L1extMu_);
     for (itrMu = l1MuHandle->begin(), iL1Obj = 0; itrMu != l1MuHandle->end(); ++itrMu, iL1Obj++) {
       if (iL1Obj < 1) {
-        t_L1MuonPt->push_back(itrMu->pt());
-        t_L1MuonEta->push_back(itrMu->eta());
-        t_L1MuonPhi->push_back(itrMu->phi());
+        t_L1MuonPt.push_back(itrMu->pt());
+        t_L1MuonEta.push_back(itrMu->eta());
+        t_L1MuonPhi.push_back(itrMu->phi());
       }
       if (debugL1Info_) {
         edm::LogVerbatim("IsoTrack") << "l1muon p/pt   " << itrMu->momentum() << " " << itrMu->pt() << "  eta/phi "
@@ -945,8 +589,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
   //============== store the information about all the Non-Fake vertices ===============
 
-  edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByToken(tok_recVtx_, recVtxs);
+  const edm::Handle<reco::VertexCollection> &recVtxs = iEvent.getHandle(tok_recVtx_);
 
   std::vector<reco::Track> svTracks;
   math::XYZPoint leadPV(0, 0, 0);
@@ -991,20 +634,20 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
         leadPV = math::XYZPoint((*recVtxs)[ind].x(), (*recVtxs)[ind].y(), (*recVtxs)[ind].z());
       }
 
-      t_PVx->push_back((*recVtxs)[ind].x());
-      t_PVy->push_back((*recVtxs)[ind].y());
-      t_PVz->push_back((*recVtxs)[ind].z());
-      t_PVisValid->push_back((*recVtxs)[ind].isValid());
-      t_PVNTracks->push_back((*recVtxs)[ind].tracksSize());
-      t_PVndof->push_back((*recVtxs)[ind].ndof());
-      t_PVNTracksWt->push_back(vtxTrkNWt);
-      t_PVTracksSumPt->push_back(vtxTrkSumPt);
-      t_PVTracksSumPtWt->push_back(vtxTrkSumPtWt);
+      t_PVx.push_back((*recVtxs)[ind].x());
+      t_PVy.push_back((*recVtxs)[ind].y());
+      t_PVz.push_back((*recVtxs)[ind].z());
+      t_PVisValid.push_back((*recVtxs)[ind].isValid());
+      t_PVNTracks.push_back((*recVtxs)[ind].tracksSize());
+      t_PVndof.push_back((*recVtxs)[ind].ndof());
+      t_PVNTracksWt.push_back(vtxTrkNWt);
+      t_PVTracksSumPt.push_back(vtxTrkSumPt);
+      t_PVTracksSumPtWt.push_back(vtxTrkSumPtWt);
 
-      t_PVNTracksHP->push_back(vtxTrkNHP);
-      t_PVNTracksHPWt->push_back(vtxTrkNHPWt);
-      t_PVTracksSumPtHP->push_back(vtxTrkSumPtHP);
-      t_PVTracksSumPtHPWt->push_back(vtxTrkSumPtHPWt);
+      t_PVNTracksHP.push_back(vtxTrkNHP);
+      t_PVNTracksHPWt.push_back(vtxTrkNHPWt);
+      t_PVTracksSumPtHP.push_back(vtxTrkSumPtHP);
+      t_PVTracksSumPtHPWt.push_back(vtxTrkSumPtHPWt);
 
       if (myverbose_ == 4) {
         edm::LogVerbatim("IsoTrack") << "PV " << ind << " isValid " << (*recVtxs)[ind].isValid() << " isFake "
@@ -1018,24 +661,20 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   //===================================================================================
 
   // Get the beamspot
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByToken(tok_bs_, beamSpotH);
+  const edm::Handle<reco::BeamSpot> &beamSpotH = iEvent.getHandle(tok_bs_);
   math::XYZPoint bspot;
   bspot = (beamSpotH.isValid()) ? beamSpotH->position() : math::XYZPoint(0, 0, 0);
 
   //=====================================================================
 
-  edm::Handle<reco::CaloJetCollection> jets;
-  iEvent.getByToken(tok_jets_, jets);
-  //  edm::Handle<reco::JetExtendedAssociation::Container> jetExtender;
-  //  iEvent.getByLabel(JetExtender_,jetExtender);
+  const edm::Handle<reco::CaloJetCollection> &jets = iEvent.getHandle(tok_jets_);
 
   for (unsigned int ijet = 0; ijet < (*jets).size(); ijet++) {
-    t_jetPt->push_back((*jets)[ijet].pt());
-    t_jetEta->push_back((*jets)[ijet].eta());
-    t_jetPhi->push_back((*jets)[ijet].phi());
-    t_nTrksJetVtx->push_back(-1.0);
-    t_nTrksJetCalo->push_back(-1.0);
+    t_jetPt.push_back((*jets)[ijet].pt());
+    t_jetEta.push_back((*jets)[ijet].eta());
+    t_jetPhi.push_back((*jets)[ijet].phi());
+    t_nTrksJetVtx.push_back(-1.0);
+    t_nTrksJetCalo.push_back(-1.0);
   }
 
   //===================================================================================
@@ -1046,8 +685,8 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
   const HcalTopology *theHBHETopology = &iSetup.getData(tok_topo_);
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
 
   // Retrieve the good/bad ECAL channels from the DB
@@ -1132,7 +771,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       if (!((*recVtxs)[ind].isFake())) {
         reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
         for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack != (*recVtxs)[ind].tracks_end(); vtxTrack++) {
-          const edm::RefToBase<reco::Track> pvtxTrack = (*vtxTrack);
+          const edm::RefToBase<reco::Track> &pvtxTrack = (*vtxTrack);
           if (pTrack == pvtxTrack.get()) {
             pVtxTkId = ind;
             break;
@@ -1199,21 +838,21 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       continue;
 
     if (writeAllTracks_ && p1 > 2.0 && nLayersCrossed > 7) {
-      t_trackPAll->push_back(p1);
-      t_trackEtaAll->push_back(eta1);
-      t_trackPhiAll->push_back(phi1);
-      t_trackPtAll->push_back(pt1);
-      t_trackDxyAll->push_back(dxy1);
-      t_trackDzAll->push_back(dz1);
-      t_trackDxyPVAll->push_back(dxypv1);
-      t_trackDzPVAll->push_back(dzpv1);
-      t_trackChiSqAll->push_back(chisq1);
+      t_trackPAll.push_back(p1);
+      t_trackEtaAll.push_back(eta1);
+      t_trackPhiAll.push_back(phi1);
+      t_trackPtAll.push_back(pt1);
+      t_trackDxyAll.push_back(dxy1);
+      t_trackDzAll.push_back(dz1);
+      t_trackDxyPVAll.push_back(dxypv1);
+      t_trackDzPVAll.push_back(dzpv1);
+      t_trackChiSqAll.push_back(chisq1);
     }
     if (doMC_) {
       edm::SimTrackContainer::const_iterator matchedSimTrkAll =
           spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
       if (writeAllTracks_ && matchedSimTrkAll != SimTk->end())
-        t_trackPdgIdAll->push_back(matchedSimTrkAll->type());
+        t_trackPdgIdAll.push_back(matchedSimTrkAll->type());
     }
 
     if (pt1 > minTrackP_ && std::abs(eta1) < maxTrackEta_ && trkDetItr->okECAL) {
@@ -1851,163 +1490,163 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
           if (!((*recVtxs)[ind].isFake())) {
             reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
             if (reco::deltaR(eta1, phi1, (*vtxTrack)->eta(), (*vtxTrack)->phi()) < 0.01)
-              t_trackPVIdx->push_back(ind);
+              t_trackPVIdx.push_back(ind);
             else
-              t_trackPVIdx->push_back(-1);
+              t_trackPVIdx.push_back(-1);
           }
         }
 
         // Fill the tree Branches here
-        t_trackPVIdx->push_back(pVtxTkId);
-        t_trackP->push_back(p1);
-        t_trackPt->push_back(pt1);
-        t_trackEta->push_back(eta1);
-        t_trackPhi->push_back(phi1);
-        t_trackEcalEta->push_back(etaEcal1);
-        t_trackEcalPhi->push_back(phiEcal1);
-        t_trackHcalEta->push_back(etaHcal1);
-        t_trackHcalPhi->push_back(phiHcal1);
-        t_trackDxy->push_back(dxy1);
-        t_trackDz->push_back(dz1);
-        t_trackDxyBS->push_back(dxybs1);
-        t_trackDzBS->push_back(dzbs1);
-        t_trackDxyPV->push_back(dxypv1);
-        t_trackDzPV->push_back(dzpv1);
-        t_trackChiSq->push_back(chisq1);
-        t_trackNOuterHits->push_back(nOuterHits);
-        t_NLayersCrossed->push_back(nLayersCrossed);
+        t_trackPVIdx.push_back(pVtxTkId);
+        t_trackP.push_back(p1);
+        t_trackPt.push_back(pt1);
+        t_trackEta.push_back(eta1);
+        t_trackPhi.push_back(phi1);
+        t_trackEcalEta.push_back(etaEcal1);
+        t_trackEcalPhi.push_back(phiEcal1);
+        t_trackHcalEta.push_back(etaHcal1);
+        t_trackHcalPhi.push_back(phiHcal1);
+        t_trackDxy.push_back(dxy1);
+        t_trackDz.push_back(dz1);
+        t_trackDxyBS.push_back(dxybs1);
+        t_trackDzBS.push_back(dzbs1);
+        t_trackDxyPV.push_back(dxypv1);
+        t_trackDzPV.push_back(dzpv1);
+        t_trackChiSq.push_back(chisq1);
+        t_trackNOuterHits.push_back(nOuterHits);
+        t_NLayersCrossed.push_back(nLayersCrossed);
 
-        t_trackHitsTOB->push_back(hitp.stripTOBLayersWithMeasurement());
-        t_trackHitsTEC->push_back(hitp.stripTECLayersWithMeasurement());
-        t_trackHitInMissTOB->push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-        t_trackHitInMissTEC->push_back(hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-        t_trackHitInMissTIB->push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-        t_trackHitInMissTID->push_back(hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-        t_trackHitInMissTIBTID->push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) +
-                                          hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
+        t_trackHitsTOB.push_back(hitp.stripTOBLayersWithMeasurement());
+        t_trackHitsTEC.push_back(hitp.stripTECLayersWithMeasurement());
+        t_trackHitInMissTOB.push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
+        t_trackHitInMissTEC.push_back(hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
+        t_trackHitInMissTIB.push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
+        t_trackHitInMissTID.push_back(hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
+        t_trackHitInMissTIBTID.push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) +
+                                         hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
 
-        t_trackHitOutMissTOB->push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-        t_trackHitOutMissTEC->push_back(hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-        t_trackHitOutMissTIB->push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-        t_trackHitOutMissTID->push_back(hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-        t_trackHitOutMissTOBTEC->push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS) +
-                                           hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
+        t_trackHitOutMissTOB.push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
+        t_trackHitOutMissTEC.push_back(hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
+        t_trackHitOutMissTIB.push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
+        t_trackHitOutMissTID.push_back(hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
+        t_trackHitOutMissTOBTEC.push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS) +
+                                          hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
 
-        t_trackHitInMeasTOB->push_back(hitp.stripTOBLayersWithMeasurement());
-        t_trackHitInMeasTEC->push_back(hitp.stripTECLayersWithMeasurement());
-        t_trackHitInMeasTIB->push_back(hitp.stripTIBLayersWithMeasurement());
-        t_trackHitInMeasTID->push_back(hitp.stripTIDLayersWithMeasurement());
-        t_trackHitOutMeasTOB->push_back(hitp.stripTOBLayersWithMeasurement());
-        t_trackHitOutMeasTEC->push_back(hitp.stripTECLayersWithMeasurement());
-        t_trackHitOutMeasTIB->push_back(hitp.stripTIBLayersWithMeasurement());
-        t_trackHitOutMeasTID->push_back(hitp.stripTIDLayersWithMeasurement());
-        t_trackOutPosOutHitDr->push_back(trackOutPosOutHitDr);
-        t_trackL->push_back(trackL);
+        t_trackHitInMeasTOB.push_back(hitp.stripTOBLayersWithMeasurement());
+        t_trackHitInMeasTEC.push_back(hitp.stripTECLayersWithMeasurement());
+        t_trackHitInMeasTIB.push_back(hitp.stripTIBLayersWithMeasurement());
+        t_trackHitInMeasTID.push_back(hitp.stripTIDLayersWithMeasurement());
+        t_trackHitOutMeasTOB.push_back(hitp.stripTOBLayersWithMeasurement());
+        t_trackHitOutMeasTEC.push_back(hitp.stripTECLayersWithMeasurement());
+        t_trackHitOutMeasTIB.push_back(hitp.stripTIBLayersWithMeasurement());
+        t_trackHitOutMeasTID.push_back(hitp.stripTIDLayersWithMeasurement());
+        t_trackOutPosOutHitDr.push_back(trackOutPosOutHitDr);
+        t_trackL.push_back(trackL);
 
-        t_maxNearP31x31->push_back(maxNearP31x31);
-        t_maxNearP21x21->push_back(maxNearP21x21);
+        t_maxNearP31x31.push_back(maxNearP31x31);
+        t_maxNearP21x21.push_back(maxNearP21x21);
 
-        t_ecalSpike11x11->push_back(e11x11P.second);
-        t_e7x7->push_back(e7x7P.first);
-        t_e9x9->push_back(e9x9P.first);
-        t_e11x11->push_back(e11x11P.first);
-        t_e15x15->push_back(e15x15P.first);
+        t_ecalSpike11x11.push_back(e11x11P.second);
+        t_e7x7.push_back(e7x7P.first);
+        t_e9x9.push_back(e9x9P.first);
+        t_e11x11.push_back(e11x11P.first);
+        t_e15x15.push_back(e15x15P.first);
 
-        t_e7x7_10Sig->push_back(e7x7_10SigP.first);
-        t_e9x9_10Sig->push_back(e9x9_10SigP.first);
-        t_e11x11_10Sig->push_back(e11x11_10SigP.first);
-        t_e15x15_10Sig->push_back(e15x15_10SigP.first);
-        t_e7x7_15Sig->push_back(e7x7_15SigP.first);
-        t_e9x9_15Sig->push_back(e9x9_15SigP.first);
-        t_e11x11_15Sig->push_back(e11x11_15SigP.first);
-        t_e15x15_15Sig->push_back(e15x15_15SigP.first);
-        t_e7x7_20Sig->push_back(e7x7_20SigP.first);
-        t_e9x9_20Sig->push_back(e9x9_20SigP.first);
-        t_e11x11_20Sig->push_back(e11x11_20SigP.first);
-        t_e15x15_20Sig->push_back(e15x15_20SigP.first);
-        t_e7x7_25Sig->push_back(e7x7_25SigP.first);
-        t_e9x9_25Sig->push_back(e9x9_25SigP.first);
-        t_e11x11_25Sig->push_back(e11x11_25SigP.first);
-        t_e15x15_25Sig->push_back(e15x15_25SigP.first);
-        t_e7x7_30Sig->push_back(e7x7_30SigP.first);
-        t_e9x9_30Sig->push_back(e9x9_30SigP.first);
-        t_e11x11_30Sig->push_back(e11x11_30SigP.first);
-        t_e15x15_30Sig->push_back(e15x15_30SigP.first);
+        t_e7x7_10Sig.push_back(e7x7_10SigP.first);
+        t_e9x9_10Sig.push_back(e9x9_10SigP.first);
+        t_e11x11_10Sig.push_back(e11x11_10SigP.first);
+        t_e15x15_10Sig.push_back(e15x15_10SigP.first);
+        t_e7x7_15Sig.push_back(e7x7_15SigP.first);
+        t_e9x9_15Sig.push_back(e9x9_15SigP.first);
+        t_e11x11_15Sig.push_back(e11x11_15SigP.first);
+        t_e15x15_15Sig.push_back(e15x15_15SigP.first);
+        t_e7x7_20Sig.push_back(e7x7_20SigP.first);
+        t_e9x9_20Sig.push_back(e9x9_20SigP.first);
+        t_e11x11_20Sig.push_back(e11x11_20SigP.first);
+        t_e15x15_20Sig.push_back(e15x15_20SigP.first);
+        t_e7x7_25Sig.push_back(e7x7_25SigP.first);
+        t_e9x9_25Sig.push_back(e9x9_25SigP.first);
+        t_e11x11_25Sig.push_back(e11x11_25SigP.first);
+        t_e15x15_25Sig.push_back(e15x15_25SigP.first);
+        t_e7x7_30Sig.push_back(e7x7_30SigP.first);
+        t_e9x9_30Sig.push_back(e9x9_30SigP.first);
+        t_e11x11_30Sig.push_back(e11x11_30SigP.first);
+        t_e15x15_30Sig.push_back(e15x15_30SigP.first);
 
         if (doMC_) {
-          t_esim7x7->push_back(simInfo7x7.eTotal);
-          t_esim9x9->push_back(simInfo9x9.eTotal);
-          t_esim11x11->push_back(simInfo11x11.eTotal);
-          t_esim15x15->push_back(simInfo15x15.eTotal);
+          t_esim7x7.push_back(simInfo7x7.eTotal);
+          t_esim9x9.push_back(simInfo9x9.eTotal);
+          t_esim11x11.push_back(simInfo11x11.eTotal);
+          t_esim15x15.push_back(simInfo15x15.eTotal);
 
-          t_esim7x7Matched->push_back(simInfo7x7.eMatched);
-          t_esim9x9Matched->push_back(simInfo9x9.eMatched);
-          t_esim11x11Matched->push_back(simInfo11x11.eMatched);
-          t_esim15x15Matched->push_back(simInfo15x15.eMatched);
+          t_esim7x7Matched.push_back(simInfo7x7.eMatched);
+          t_esim9x9Matched.push_back(simInfo9x9.eMatched);
+          t_esim11x11Matched.push_back(simInfo11x11.eMatched);
+          t_esim15x15Matched.push_back(simInfo15x15.eMatched);
 
-          t_esim7x7Rest->push_back(simInfo7x7.eRest);
-          t_esim9x9Rest->push_back(simInfo9x9.eRest);
-          t_esim11x11Rest->push_back(simInfo11x11.eRest);
-          t_esim15x15Rest->push_back(simInfo15x15.eRest);
+          t_esim7x7Rest.push_back(simInfo7x7.eRest);
+          t_esim9x9Rest.push_back(simInfo9x9.eRest);
+          t_esim11x11Rest.push_back(simInfo11x11.eRest);
+          t_esim15x15Rest.push_back(simInfo15x15.eRest);
 
-          t_esim7x7Photon->push_back(simInfo7x7.eGamma);
-          t_esim9x9Photon->push_back(simInfo9x9.eGamma);
-          t_esim11x11Photon->push_back(simInfo11x11.eGamma);
-          t_esim15x15Photon->push_back(simInfo15x15.eGamma);
+          t_esim7x7Photon.push_back(simInfo7x7.eGamma);
+          t_esim9x9Photon.push_back(simInfo9x9.eGamma);
+          t_esim11x11Photon.push_back(simInfo11x11.eGamma);
+          t_esim15x15Photon.push_back(simInfo15x15.eGamma);
 
-          t_esim7x7NeutHad->push_back(simInfo7x7.eNeutralHad);
-          t_esim9x9NeutHad->push_back(simInfo9x9.eNeutralHad);
-          t_esim11x11NeutHad->push_back(simInfo11x11.eNeutralHad);
-          t_esim15x15NeutHad->push_back(simInfo15x15.eNeutralHad);
+          t_esim7x7NeutHad.push_back(simInfo7x7.eNeutralHad);
+          t_esim9x9NeutHad.push_back(simInfo9x9.eNeutralHad);
+          t_esim11x11NeutHad.push_back(simInfo11x11.eNeutralHad);
+          t_esim15x15NeutHad.push_back(simInfo15x15.eNeutralHad);
 
-          t_esim7x7CharHad->push_back(simInfo7x7.eChargedHad);
-          t_esim9x9CharHad->push_back(simInfo9x9.eChargedHad);
-          t_esim11x11CharHad->push_back(simInfo11x11.eChargedHad);
-          t_esim15x15CharHad->push_back(simInfo15x15.eChargedHad);
+          t_esim7x7CharHad.push_back(simInfo7x7.eChargedHad);
+          t_esim9x9CharHad.push_back(simInfo9x9.eChargedHad);
+          t_esim11x11CharHad.push_back(simInfo11x11.eChargedHad);
+          t_esim15x15CharHad.push_back(simInfo15x15.eChargedHad);
 
-          t_trkEcalEne->push_back(trkEcalEne);
-          t_simTrackP->push_back(simTrackP);
-          t_esimPdgId->push_back(simInfo11x11.pdgMatched);
+          t_trkEcalEne.push_back(trkEcalEne);
+          t_simTrackP.push_back(simTrackP);
+          t_esimPdgId.push_back(simInfo11x11.pdgMatched);
         }
 
-        t_maxNearHcalP3x3->push_back(maxNearHcalP3x3);
-        t_maxNearHcalP5x5->push_back(maxNearHcalP5x5);
-        t_maxNearHcalP7x7->push_back(maxNearHcalP7x7);
+        t_maxNearHcalP3x3.push_back(maxNearHcalP3x3);
+        t_maxNearHcalP5x5.push_back(maxNearHcalP5x5);
+        t_maxNearHcalP7x7.push_back(maxNearHcalP7x7);
 
-        t_h3x3->push_back(h3x3);
-        t_h5x5->push_back(h5x5);
-        t_h7x7->push_back(h7x7);
-        t_h3x3Sig->push_back(h3x3Sig);
-        t_h5x5Sig->push_back(h5x5Sig);
-        t_h7x7Sig->push_back(h7x7Sig);
+        t_h3x3.push_back(h3x3);
+        t_h5x5.push_back(h5x5);
+        t_h7x7.push_back(h7x7);
+        t_h3x3Sig.push_back(h3x3Sig);
+        t_h5x5Sig.push_back(h5x5Sig);
+        t_h7x7Sig.push_back(h7x7Sig);
 
-        t_infoHcal->push_back(trkDetItr->okHCAL);
+        t_infoHcal.push_back(trkDetItr->okHCAL);
         if (doMC_) {
-          t_trkHcalEne->push_back(hcalScale * trkHcalEne);
+          t_trkHcalEne.push_back(hcalScale * trkHcalEne);
 
-          t_hsim3x3->push_back(hcalScale * hsimInfo3x3.eTotal);
-          t_hsim5x5->push_back(hcalScale * hsimInfo5x5.eTotal);
-          t_hsim7x7->push_back(hcalScale * hsimInfo7x7.eTotal);
+          t_hsim3x3.push_back(hcalScale * hsimInfo3x3.eTotal);
+          t_hsim5x5.push_back(hcalScale * hsimInfo5x5.eTotal);
+          t_hsim7x7.push_back(hcalScale * hsimInfo7x7.eTotal);
 
-          t_hsim3x3Matched->push_back(hcalScale * hsimInfo3x3.eMatched);
-          t_hsim5x5Matched->push_back(hcalScale * hsimInfo5x5.eMatched);
-          t_hsim7x7Matched->push_back(hcalScale * hsimInfo7x7.eMatched);
+          t_hsim3x3Matched.push_back(hcalScale * hsimInfo3x3.eMatched);
+          t_hsim5x5Matched.push_back(hcalScale * hsimInfo5x5.eMatched);
+          t_hsim7x7Matched.push_back(hcalScale * hsimInfo7x7.eMatched);
 
-          t_hsim3x3Rest->push_back(hcalScale * hsimInfo3x3.eRest);
-          t_hsim5x5Rest->push_back(hcalScale * hsimInfo5x5.eRest);
-          t_hsim7x7Rest->push_back(hcalScale * hsimInfo7x7.eRest);
+          t_hsim3x3Rest.push_back(hcalScale * hsimInfo3x3.eRest);
+          t_hsim5x5Rest.push_back(hcalScale * hsimInfo5x5.eRest);
+          t_hsim7x7Rest.push_back(hcalScale * hsimInfo7x7.eRest);
 
-          t_hsim3x3Photon->push_back(hcalScale * hsimInfo3x3.eGamma);
-          t_hsim5x5Photon->push_back(hcalScale * hsimInfo5x5.eGamma);
-          t_hsim7x7Photon->push_back(hcalScale * hsimInfo7x7.eGamma);
+          t_hsim3x3Photon.push_back(hcalScale * hsimInfo3x3.eGamma);
+          t_hsim5x5Photon.push_back(hcalScale * hsimInfo5x5.eGamma);
+          t_hsim7x7Photon.push_back(hcalScale * hsimInfo7x7.eGamma);
 
-          t_hsim3x3NeutHad->push_back(hcalScale * hsimInfo3x3.eNeutralHad);
-          t_hsim5x5NeutHad->push_back(hcalScale * hsimInfo5x5.eNeutralHad);
-          t_hsim7x7NeutHad->push_back(hcalScale * hsimInfo7x7.eNeutralHad);
+          t_hsim3x3NeutHad.push_back(hcalScale * hsimInfo3x3.eNeutralHad);
+          t_hsim5x5NeutHad.push_back(hcalScale * hsimInfo5x5.eNeutralHad);
+          t_hsim7x7NeutHad.push_back(hcalScale * hsimInfo7x7.eNeutralHad);
 
-          t_hsim3x3CharHad->push_back(hcalScale * hsimInfo3x3.eChargedHad);
-          t_hsim5x5CharHad->push_back(hcalScale * hsimInfo5x5.eChargedHad);
-          t_hsim7x7CharHad->push_back(hcalScale * hsimInfo7x7.eChargedHad);
+          t_hsim3x3CharHad.push_back(hcalScale * hsimInfo3x3.eChargedHad);
+          t_hsim5x5CharHad.push_back(hcalScale * hsimInfo5x5.eChargedHad);
+          t_hsim7x7CharHad.push_back(hcalScale * hsimInfo7x7.eChargedHad);
         }
 
       }  // if loosely isolated track
@@ -2055,205 +1694,205 @@ void IsolatedTracksNxN::endJob() {
 //========================================================================================================
 
 void IsolatedTracksNxN::clearTreeVectors() {
-  t_PVx->clear();
-  t_PVy->clear();
-  t_PVz->clear();
-  t_PVisValid->clear();
-  t_PVndof->clear();
-  t_PVNTracks->clear();
-  t_PVNTracksWt->clear();
-  t_PVTracksSumPt->clear();
-  t_PVTracksSumPtWt->clear();
-  t_PVNTracksHP->clear();
-  t_PVNTracksHPWt->clear();
-  t_PVTracksSumPtHP->clear();
-  t_PVTracksSumPtHPWt->clear();
+  t_PVx.clear();
+  t_PVy.clear();
+  t_PVz.clear();
+  t_PVisValid.clear();
+  t_PVndof.clear();
+  t_PVNTracks.clear();
+  t_PVNTracksWt.clear();
+  t_PVTracksSumPt.clear();
+  t_PVTracksSumPtWt.clear();
+  t_PVNTracksHP.clear();
+  t_PVNTracksHPWt.clear();
+  t_PVTracksSumPtHP.clear();
+  t_PVTracksSumPtHPWt.clear();
 
   for (int i = 0; i < 128; i++)
     t_L1Decision[i] = 0;
-  t_L1AlgoNames->clear();
-  t_L1PreScale->clear();
+  t_L1AlgoNames.clear();
+  t_L1PreScale.clear();
 
-  t_L1CenJetPt->clear();
-  t_L1CenJetEta->clear();
-  t_L1CenJetPhi->clear();
-  t_L1FwdJetPt->clear();
-  t_L1FwdJetEta->clear();
-  t_L1FwdJetPhi->clear();
-  t_L1TauJetPt->clear();
-  t_L1TauJetEta->clear();
-  t_L1TauJetPhi->clear();
-  t_L1MuonPt->clear();
-  t_L1MuonEta->clear();
-  t_L1MuonPhi->clear();
-  t_L1IsoEMPt->clear();
-  t_L1IsoEMEta->clear();
-  t_L1IsoEMPhi->clear();
-  t_L1NonIsoEMPt->clear();
-  t_L1NonIsoEMEta->clear();
-  t_L1NonIsoEMPhi->clear();
-  t_L1METPt->clear();
-  t_L1METEta->clear();
-  t_L1METPhi->clear();
+  t_L1CenJetPt.clear();
+  t_L1CenJetEta.clear();
+  t_L1CenJetPhi.clear();
+  t_L1FwdJetPt.clear();
+  t_L1FwdJetEta.clear();
+  t_L1FwdJetPhi.clear();
+  t_L1TauJetPt.clear();
+  t_L1TauJetEta.clear();
+  t_L1TauJetPhi.clear();
+  t_L1MuonPt.clear();
+  t_L1MuonEta.clear();
+  t_L1MuonPhi.clear();
+  t_L1IsoEMPt.clear();
+  t_L1IsoEMEta.clear();
+  t_L1IsoEMPhi.clear();
+  t_L1NonIsoEMPt.clear();
+  t_L1NonIsoEMEta.clear();
+  t_L1NonIsoEMPhi.clear();
+  t_L1METPt.clear();
+  t_L1METEta.clear();
+  t_L1METPhi.clear();
 
-  t_jetPt->clear();
-  t_jetEta->clear();
-  t_jetPhi->clear();
-  t_nTrksJetCalo->clear();
-  t_nTrksJetVtx->clear();
+  t_jetPt.clear();
+  t_jetEta.clear();
+  t_jetPhi.clear();
+  t_nTrksJetCalo.clear();
+  t_nTrksJetVtx.clear();
 
-  t_trackPAll->clear();
-  t_trackEtaAll->clear();
-  t_trackPhiAll->clear();
-  t_trackPdgIdAll->clear();
-  t_trackPtAll->clear();
-  t_trackDxyAll->clear();
-  t_trackDzAll->clear();
-  t_trackDxyPVAll->clear();
-  t_trackDzPVAll->clear();
-  t_trackChiSqAll->clear();
+  t_trackPAll.clear();
+  t_trackEtaAll.clear();
+  t_trackPhiAll.clear();
+  t_trackPdgIdAll.clear();
+  t_trackPtAll.clear();
+  t_trackDxyAll.clear();
+  t_trackDzAll.clear();
+  t_trackDxyPVAll.clear();
+  t_trackDzPVAll.clear();
+  t_trackChiSqAll.clear();
 
-  t_trackP->clear();
-  t_trackPt->clear();
-  t_trackEta->clear();
-  t_trackPhi->clear();
-  t_trackEcalEta->clear();
-  t_trackEcalPhi->clear();
-  t_trackHcalEta->clear();
-  t_trackHcalPhi->clear();
-  t_NLayersCrossed->clear();
-  t_trackNOuterHits->clear();
-  t_trackDxy->clear();
-  t_trackDxyBS->clear();
-  t_trackDz->clear();
-  t_trackDzBS->clear();
-  t_trackDxyPV->clear();
-  t_trackDzPV->clear();
-  t_trackChiSq->clear();
-  t_trackPVIdx->clear();
-  t_trackHitsTOB->clear();
-  t_trackHitsTEC->clear();
-  t_trackHitInMissTOB->clear();
-  t_trackHitInMissTEC->clear();
-  t_trackHitInMissTIB->clear();
-  t_trackHitInMissTID->clear();
-  t_trackHitInMissTIBTID->clear();
-  t_trackHitOutMissTOB->clear();
-  t_trackHitOutMissTEC->clear();
-  t_trackHitOutMissTIB->clear();
-  t_trackHitOutMissTID->clear();
-  t_trackHitOutMissTOBTEC->clear();
-  t_trackHitInMeasTOB->clear();
-  t_trackHitInMeasTEC->clear();
-  t_trackHitInMeasTIB->clear();
-  t_trackHitInMeasTID->clear();
-  t_trackHitOutMeasTOB->clear();
-  t_trackHitOutMeasTEC->clear();
-  t_trackHitOutMeasTIB->clear();
-  t_trackHitOutMeasTID->clear();
-  t_trackOutPosOutHitDr->clear();
-  t_trackL->clear();
+  t_trackP.clear();
+  t_trackPt.clear();
+  t_trackEta.clear();
+  t_trackPhi.clear();
+  t_trackEcalEta.clear();
+  t_trackEcalPhi.clear();
+  t_trackHcalEta.clear();
+  t_trackHcalPhi.clear();
+  t_NLayersCrossed.clear();
+  t_trackNOuterHits.clear();
+  t_trackDxy.clear();
+  t_trackDxyBS.clear();
+  t_trackDz.clear();
+  t_trackDzBS.clear();
+  t_trackDxyPV.clear();
+  t_trackDzPV.clear();
+  t_trackChiSq.clear();
+  t_trackPVIdx.clear();
+  t_trackHitsTOB.clear();
+  t_trackHitsTEC.clear();
+  t_trackHitInMissTOB.clear();
+  t_trackHitInMissTEC.clear();
+  t_trackHitInMissTIB.clear();
+  t_trackHitInMissTID.clear();
+  t_trackHitInMissTIBTID.clear();
+  t_trackHitOutMissTOB.clear();
+  t_trackHitOutMissTEC.clear();
+  t_trackHitOutMissTIB.clear();
+  t_trackHitOutMissTID.clear();
+  t_trackHitOutMissTOBTEC.clear();
+  t_trackHitInMeasTOB.clear();
+  t_trackHitInMeasTEC.clear();
+  t_trackHitInMeasTIB.clear();
+  t_trackHitInMeasTID.clear();
+  t_trackHitOutMeasTOB.clear();
+  t_trackHitOutMeasTEC.clear();
+  t_trackHitOutMeasTIB.clear();
+  t_trackHitOutMeasTID.clear();
+  t_trackOutPosOutHitDr.clear();
+  t_trackL.clear();
 
-  t_maxNearP31x31->clear();
-  t_maxNearP21x21->clear();
+  t_maxNearP31x31.clear();
+  t_maxNearP21x21.clear();
 
-  t_ecalSpike11x11->clear();
-  t_e7x7->clear();
-  t_e9x9->clear();
-  t_e11x11->clear();
-  t_e15x15->clear();
+  t_ecalSpike11x11.clear();
+  t_e7x7.clear();
+  t_e9x9.clear();
+  t_e11x11.clear();
+  t_e15x15.clear();
 
-  t_e7x7_10Sig->clear();
-  t_e9x9_10Sig->clear();
-  t_e11x11_10Sig->clear();
-  t_e15x15_10Sig->clear();
-  t_e7x7_15Sig->clear();
-  t_e9x9_15Sig->clear();
-  t_e11x11_15Sig->clear();
-  t_e15x15_15Sig->clear();
-  t_e7x7_20Sig->clear();
-  t_e9x9_20Sig->clear();
-  t_e11x11_20Sig->clear();
-  t_e15x15_20Sig->clear();
-  t_e7x7_25Sig->clear();
-  t_e9x9_25Sig->clear();
-  t_e11x11_25Sig->clear();
-  t_e15x15_25Sig->clear();
-  t_e7x7_30Sig->clear();
-  t_e9x9_30Sig->clear();
-  t_e11x11_30Sig->clear();
-  t_e15x15_30Sig->clear();
+  t_e7x7_10Sig.clear();
+  t_e9x9_10Sig.clear();
+  t_e11x11_10Sig.clear();
+  t_e15x15_10Sig.clear();
+  t_e7x7_15Sig.clear();
+  t_e9x9_15Sig.clear();
+  t_e11x11_15Sig.clear();
+  t_e15x15_15Sig.clear();
+  t_e7x7_20Sig.clear();
+  t_e9x9_20Sig.clear();
+  t_e11x11_20Sig.clear();
+  t_e15x15_20Sig.clear();
+  t_e7x7_25Sig.clear();
+  t_e9x9_25Sig.clear();
+  t_e11x11_25Sig.clear();
+  t_e15x15_25Sig.clear();
+  t_e7x7_30Sig.clear();
+  t_e9x9_30Sig.clear();
+  t_e11x11_30Sig.clear();
+  t_e15x15_30Sig.clear();
 
   if (doMC_) {
-    t_simTrackP->clear();
-    t_esimPdgId->clear();
-    t_trkEcalEne->clear();
+    t_simTrackP.clear();
+    t_esimPdgId.clear();
+    t_trkEcalEne.clear();
 
-    t_esim7x7->clear();
-    t_esim9x9->clear();
-    t_esim11x11->clear();
-    t_esim15x15->clear();
+    t_esim7x7.clear();
+    t_esim9x9.clear();
+    t_esim11x11.clear();
+    t_esim15x15.clear();
 
-    t_esim7x7Matched->clear();
-    t_esim9x9Matched->clear();
-    t_esim11x11Matched->clear();
-    t_esim15x15Matched->clear();
+    t_esim7x7Matched.clear();
+    t_esim9x9Matched.clear();
+    t_esim11x11Matched.clear();
+    t_esim15x15Matched.clear();
 
-    t_esim7x7Rest->clear();
-    t_esim9x9Rest->clear();
-    t_esim11x11Rest->clear();
-    t_esim15x15Rest->clear();
+    t_esim7x7Rest.clear();
+    t_esim9x9Rest.clear();
+    t_esim11x11Rest.clear();
+    t_esim15x15Rest.clear();
 
-    t_esim7x7Photon->clear();
-    t_esim9x9Photon->clear();
-    t_esim11x11Photon->clear();
-    t_esim15x15Photon->clear();
+    t_esim7x7Photon.clear();
+    t_esim9x9Photon.clear();
+    t_esim11x11Photon.clear();
+    t_esim15x15Photon.clear();
 
-    t_esim7x7NeutHad->clear();
-    t_esim9x9NeutHad->clear();
-    t_esim11x11NeutHad->clear();
-    t_esim15x15NeutHad->clear();
+    t_esim7x7NeutHad.clear();
+    t_esim9x9NeutHad.clear();
+    t_esim11x11NeutHad.clear();
+    t_esim15x15NeutHad.clear();
 
-    t_esim7x7CharHad->clear();
-    t_esim9x9CharHad->clear();
-    t_esim11x11CharHad->clear();
-    t_esim15x15CharHad->clear();
+    t_esim7x7CharHad.clear();
+    t_esim9x9CharHad.clear();
+    t_esim11x11CharHad.clear();
+    t_esim15x15CharHad.clear();
   }
 
-  t_maxNearHcalP3x3->clear();
-  t_maxNearHcalP5x5->clear();
-  t_maxNearHcalP7x7->clear();
+  t_maxNearHcalP3x3.clear();
+  t_maxNearHcalP5x5.clear();
+  t_maxNearHcalP7x7.clear();
 
-  t_h3x3->clear();
-  t_h5x5->clear();
-  t_h7x7->clear();
-  t_h3x3Sig->clear();
-  t_h5x5Sig->clear();
-  t_h7x7Sig->clear();
+  t_h3x3.clear();
+  t_h5x5.clear();
+  t_h7x7.clear();
+  t_h3x3Sig.clear();
+  t_h5x5Sig.clear();
+  t_h7x7Sig.clear();
 
-  t_infoHcal->clear();
+  t_infoHcal.clear();
 
   if (doMC_) {
-    t_trkHcalEne->clear();
+    t_trkHcalEne.clear();
 
-    t_hsim3x3->clear();
-    t_hsim5x5->clear();
-    t_hsim7x7->clear();
-    t_hsim3x3Matched->clear();
-    t_hsim5x5Matched->clear();
-    t_hsim7x7Matched->clear();
-    t_hsim3x3Rest->clear();
-    t_hsim5x5Rest->clear();
-    t_hsim7x7Rest->clear();
-    t_hsim3x3Photon->clear();
-    t_hsim5x5Photon->clear();
-    t_hsim7x7Photon->clear();
-    t_hsim3x3NeutHad->clear();
-    t_hsim5x5NeutHad->clear();
-    t_hsim7x7NeutHad->clear();
-    t_hsim3x3CharHad->clear();
-    t_hsim5x5CharHad->clear();
-    t_hsim7x7CharHad->clear();
+    t_hsim3x3.clear();
+    t_hsim5x5.clear();
+    t_hsim7x7.clear();
+    t_hsim3x3Matched.clear();
+    t_hsim5x5Matched.clear();
+    t_hsim7x7Matched.clear();
+    t_hsim3x3Rest.clear();
+    t_hsim5x5Rest.clear();
+    t_hsim7x7Rest.clear();
+    t_hsim3x3Photon.clear();
+    t_hsim5x5Photon.clear();
+    t_hsim7x7Photon.clear();
+    t_hsim3x3NeutHad.clear();
+    t_hsim5x5NeutHad.clear();
+    t_hsim7x7NeutHad.clear();
+    t_hsim3x3CharHad.clear();
+    t_hsim5x5CharHad.clear();
+    t_hsim7x7CharHad.clear();
   }
 }
 
@@ -2346,400 +1985,192 @@ void IsolatedTracksNxN::bookHistograms() {
   tree_->Branch("t_Lumi", &t_Lumi, "t_Lumi/I");
   tree_->Branch("t_Bunch", &t_Bunch, "t_Bunch/I");
 
-  t_PVx = new std::vector<double>();
-  t_PVy = new std::vector<double>();
-  t_PVz = new std::vector<double>();
-  t_PVisValid = new std::vector<int>();
-  t_PVndof = new std::vector<int>();
-  t_PVNTracks = new std::vector<int>();
-  t_PVNTracksWt = new std::vector<int>();
-  t_PVTracksSumPt = new std::vector<double>();
-  t_PVTracksSumPtWt = new std::vector<double>();
-  t_PVNTracksHP = new std::vector<int>();
-  t_PVNTracksHPWt = new std::vector<int>();
-  t_PVTracksSumPtHP = new std::vector<double>();
-  t_PVTracksSumPtHPWt = new std::vector<double>();
-
-  tree_->Branch("PVx", "std::vector<double>", &t_PVx);
-  tree_->Branch("PVy", "std::vector<double>", &t_PVy);
-  tree_->Branch("PVz", "std::vector<double>", &t_PVz);
-  tree_->Branch("PVisValid", "std::vector<int>", &t_PVisValid);
-  tree_->Branch("PVndof", "std::vector<int>", &t_PVndof);
-  tree_->Branch("PVNTracks", "std::vector<int>", &t_PVNTracks);
-  tree_->Branch("PVNTracksWt", "std::vector<int>", &t_PVNTracksWt);
-  tree_->Branch("t_PVTracksSumPt", "std::vector<double>", &t_PVTracksSumPt);
-  tree_->Branch("t_PVTracksSumPtWt", "std::vector<double>", &t_PVTracksSumPtWt);
-  tree_->Branch("PVNTracksHP", "std::vector<int>", &t_PVNTracksHP);
-  tree_->Branch("PVNTracksHPWt", "std::vector<int>", &t_PVNTracksHPWt);
-  tree_->Branch("t_PVTracksSumPtHP", "std::vector<double>", &t_PVTracksSumPtHP);
-  tree_->Branch("t_PVTracksSumPtHPWt", "std::vector<double>", &t_PVTracksSumPtHPWt);
-
   //----- L1Trigger information
   for (int i = 0; i < 128; i++)
     t_L1Decision[i] = 0;
-  t_L1AlgoNames = new std::vector<std::string>();
-  t_L1PreScale = new std::vector<int>();
-  t_L1CenJetPt = new std::vector<double>();
-  t_L1CenJetEta = new std::vector<double>();
-  t_L1CenJetPhi = new std::vector<double>();
-  t_L1FwdJetPt = new std::vector<double>();
-  t_L1FwdJetEta = new std::vector<double>();
-  t_L1FwdJetPhi = new std::vector<double>();
-  t_L1TauJetPt = new std::vector<double>();
-  t_L1TauJetEta = new std::vector<double>();
-  t_L1TauJetPhi = new std::vector<double>();
-  t_L1MuonPt = new std::vector<double>();
-  t_L1MuonEta = new std::vector<double>();
-  t_L1MuonPhi = new std::vector<double>();
-  t_L1IsoEMPt = new std::vector<double>();
-  t_L1IsoEMEta = new std::vector<double>();
-  t_L1IsoEMPhi = new std::vector<double>();
-  t_L1NonIsoEMPt = new std::vector<double>();
-  t_L1NonIsoEMEta = new std::vector<double>();
-  t_L1NonIsoEMPhi = new std::vector<double>();
-  t_L1METPt = new std::vector<double>();
-  t_L1METEta = new std::vector<double>();
-  t_L1METPhi = new std::vector<double>();
 
   tree_->Branch("t_L1Decision", t_L1Decision, "t_L1Decision[128]/I");
-  tree_->Branch("t_L1AlgoNames", "std::vector<string>", &t_L1AlgoNames);
-  tree_->Branch("t_L1PreScale", "std::vector<int>", &t_L1PreScale);
-  tree_->Branch("t_L1CenJetPt", "std::vector<double>", &t_L1CenJetPt);
-  tree_->Branch("t_L1CenJetEta", "std::vector<double>", &t_L1CenJetEta);
-  tree_->Branch("t_L1CenJetPhi", "std::vector<double>", &t_L1CenJetPhi);
-  tree_->Branch("t_L1FwdJetPt", "std::vector<double>", &t_L1FwdJetPt);
-  tree_->Branch("t_L1FwdJetEta", "std::vector<double>", &t_L1FwdJetEta);
-  tree_->Branch("t_L1FwdJetPhi", "std::vector<double>", &t_L1FwdJetPhi);
-  tree_->Branch("t_L1TauJetPt", "std::vector<double>", &t_L1TauJetPt);
-  tree_->Branch("t_L1TauJetEta", "std::vector<double>", &t_L1TauJetEta);
-  tree_->Branch("t_L1TauJetPhi", "std::vector<double>", &t_L1TauJetPhi);
-  tree_->Branch("t_L1MuonPt", "std::vector<double>", &t_L1MuonPt);
-  tree_->Branch("t_L1MuonEta", "std::vector<double>", &t_L1MuonEta);
-  tree_->Branch("t_L1MuonPhi", "std::vector<double>", &t_L1MuonPhi);
-  tree_->Branch("t_L1IsoEMPt", "std::vector<double>", &t_L1IsoEMPt);
-  tree_->Branch("t_L1IsoEMEta", "std::vector<double>", &t_L1IsoEMEta);
-  tree_->Branch("t_L1IsoEMPhi", "std::vector<double>", &t_L1IsoEMPhi);
-  tree_->Branch("t_L1NonIsoEMPt", "std::vector<double>", &t_L1NonIsoEMPt);
-  tree_->Branch("t_L1NonIsoEMEta", "std::vector<double>", &t_L1NonIsoEMEta);
-  tree_->Branch("t_L1NonIsoEMPhi", "std::vector<double>", &t_L1NonIsoEMPhi);
-  tree_->Branch("t_L1METPt", "std::vector<double>", &t_L1METPt);
-  tree_->Branch("t_L1METEta", "std::vector<double>", &t_L1METEta);
-  tree_->Branch("t_L1METPhi", "std::vector<double>", &t_L1METPhi);
+  tree_->Branch("t_L1AlgoNames", &t_L1AlgoNames);
+  tree_->Branch("t_L1PreScale", &t_L1PreScale);
+  tree_->Branch("t_L1CenJetPt", &t_L1CenJetPt);
+  tree_->Branch("t_L1CenJetEta", &t_L1CenJetEta);
+  tree_->Branch("t_L1CenJetPhi", &t_L1CenJetPhi);
+  tree_->Branch("t_L1FwdJetPt", &t_L1FwdJetPt);
+  tree_->Branch("t_L1FwdJetEta", &t_L1FwdJetEta);
+  tree_->Branch("t_L1FwdJetPhi", &t_L1FwdJetPhi);
+  tree_->Branch("t_L1TauJetPt", &t_L1TauJetPt);
+  tree_->Branch("t_L1TauJetEta", &t_L1TauJetEta);
+  tree_->Branch("t_L1TauJetPhi", &t_L1TauJetPhi);
+  tree_->Branch("t_L1MuonPt", &t_L1MuonPt);
+  tree_->Branch("t_L1MuonEta", &t_L1MuonEta);
+  tree_->Branch("t_L1MuonPhi", &t_L1MuonPhi);
+  tree_->Branch("t_L1IsoEMPt", &t_L1IsoEMPt);
+  tree_->Branch("t_L1IsoEMEta", &t_L1IsoEMEta);
+  tree_->Branch("t_L1IsoEMPhi", &t_L1IsoEMPhi);
+  tree_->Branch("t_L1NonIsoEMPt", &t_L1NonIsoEMPt);
+  tree_->Branch("t_L1NonIsoEMEta", &t_L1NonIsoEMEta);
+  tree_->Branch("t_L1NonIsoEMPhi", &t_L1NonIsoEMPhi);
+  tree_->Branch("t_L1METPt", &t_L1METPt);
+  tree_->Branch("t_L1METEta", &t_L1METEta);
+  tree_->Branch("t_L1METPhi", &t_L1METPhi);
 
-  t_jetPt = new std::vector<double>();
-  t_jetEta = new std::vector<double>();
-  t_jetPhi = new std::vector<double>();
-  t_nTrksJetCalo = new std::vector<double>();
-  t_nTrksJetVtx = new std::vector<double>();
-  tree_->Branch("t_jetPt", "std::vector<double>", &t_jetPt);
-  tree_->Branch("t_jetEta", "std::vector<double>", &t_jetEta);
-  tree_->Branch("t_jetPhi", "std::vector<double>", &t_jetPhi);
-  tree_->Branch("t_nTrksJetCalo", "std::vector<double>", &t_nTrksJetCalo);
-  tree_->Branch("t_nTrksJetVtx", "std::vector<double>", &t_nTrksJetVtx);
+  tree_->Branch("t_jetPt", &t_jetPt);
+  tree_->Branch("t_jetEta", &t_jetEta);
+  tree_->Branch("t_jetPhi", &t_jetPhi);
+  tree_->Branch("t_nTrksJetCalo", &t_nTrksJetCalo);
+  tree_->Branch("t_nTrksJetVtx", &t_nTrksJetVtx);
 
-  t_trackPAll = new std::vector<double>();
-  t_trackEtaAll = new std::vector<double>();
-  t_trackPhiAll = new std::vector<double>();
-  t_trackPdgIdAll = new std::vector<double>();
-  t_trackPtAll = new std::vector<double>();
-  t_trackDxyAll = new std::vector<double>();
-  t_trackDzAll = new std::vector<double>();
-  t_trackDxyPVAll = new std::vector<double>();
-  t_trackDzPVAll = new std::vector<double>();
-  t_trackChiSqAll = new std::vector<double>();
-  tree_->Branch("t_trackPAll", "std::vector<double>", &t_trackPAll);
-  tree_->Branch("t_trackPhiAll", "std::vector<double>", &t_trackPhiAll);
-  tree_->Branch("t_trackEtaAll", "std::vector<double>", &t_trackEtaAll);
-  tree_->Branch("t_trackPtAll", "std::vector<double>", &t_trackPtAll);
-  tree_->Branch("t_trackDxyAll", "std::vector<double>", &t_trackDxyAll);
-  tree_->Branch("t_trackDzAll", "std::vector<double>", &t_trackDzAll);
-  tree_->Branch("t_trackDxyPVAll", "std::vector<double>", &t_trackDxyPVAll);
-  tree_->Branch("t_trackDzPVAll", "std::vector<double>", &t_trackDzPVAll);
-  tree_->Branch("t_trackChiSqAll", "std::vector<double>", &t_trackChiSqAll);
-  //tree_->Branch("t_trackPdgIdAll",     "std::vector<double>", &t_trackPdgIdAll);
+  tree_->Branch("t_trackPAll", &t_trackPAll);
+  tree_->Branch("t_trackPhiAll", &t_trackPhiAll);
+  tree_->Branch("t_trackEtaAll", &t_trackEtaAll);
+  tree_->Branch("t_trackPtAll", &t_trackPtAll);
+  tree_->Branch("t_trackDxyAll", &t_trackDxyAll);
+  tree_->Branch("t_trackDzAll", &t_trackDzAll);
+  tree_->Branch("t_trackDxyPVAll", &t_trackDxyPVAll);
+  tree_->Branch("t_trackDzPVAll", &t_trackDzPVAll);
+  tree_->Branch("t_trackChiSqAll", &t_trackChiSqAll);
+  //tree_->Branch("t_trackPdgIdAll",     &t_trackPdgIdAll);
 
-  t_trackP = new std::vector<double>();
-  t_trackPt = new std::vector<double>();
-  t_trackEta = new std::vector<double>();
-  t_trackPhi = new std::vector<double>();
-  t_trackEcalEta = new std::vector<double>();
-  t_trackEcalPhi = new std::vector<double>();
-  t_trackHcalEta = new std::vector<double>();
-  t_trackHcalPhi = new std::vector<double>();
-  t_trackNOuterHits = new std::vector<int>();
-  t_NLayersCrossed = new std::vector<int>();
-  t_trackDxy = new std::vector<double>();
-  t_trackDxyBS = new std::vector<double>();
-  t_trackDz = new std::vector<double>();
-  t_trackDzBS = new std::vector<double>();
-  t_trackDxyPV = new std::vector<double>();
-  t_trackDzPV = new std::vector<double>();
-  t_trackPVIdx = new std::vector<int>();
-  t_trackChiSq = new std::vector<double>();
-  t_trackHitsTOB = new std::vector<int>();
-  t_trackHitsTEC = new std::vector<int>();
-  t_trackHitInMissTOB = new std::vector<int>();
-  t_trackHitInMissTEC = new std::vector<int>();
-  t_trackHitInMissTIB = new std::vector<int>();
-  t_trackHitInMissTID = new std::vector<int>();
-  t_trackHitOutMissTOB = new std::vector<int>();
-  t_trackHitOutMissTEC = new std::vector<int>();
-  t_trackHitOutMissTIB = new std::vector<int>();
-  t_trackHitOutMissTID = new std::vector<int>();
-  t_trackHitInMissTIBTID = new std::vector<int>();
-  t_trackHitOutMissTOB = new std::vector<int>();
-  t_trackHitOutMissTEC = new std::vector<int>();
-  t_trackHitOutMissTIB = new std::vector<int>();
-  t_trackHitOutMissTID = new std::vector<int>();
-  t_trackHitOutMissTOBTEC = new std::vector<int>();
-  t_trackHitInMeasTOB = new std::vector<int>();
-  t_trackHitInMeasTEC = new std::vector<int>();
-  t_trackHitInMeasTIB = new std::vector<int>();
-  t_trackHitInMeasTID = new std::vector<int>();
-  t_trackHitOutMeasTOB = new std::vector<int>();
-  t_trackHitOutMeasTEC = new std::vector<int>();
-  t_trackHitOutMeasTIB = new std::vector<int>();
-  t_trackHitOutMeasTID = new std::vector<int>();
-  t_trackOutPosOutHitDr = new std::vector<double>();
-  t_trackL = new std::vector<double>();
+  tree_->Branch("t_trackP", &t_trackP);
+  tree_->Branch("t_trackPt", &t_trackPt);
+  tree_->Branch("t_trackEta", &t_trackEta);
+  tree_->Branch("t_trackPhi", &t_trackPhi);
+  tree_->Branch("t_trackEcalEta", &t_trackEcalEta);
+  tree_->Branch("t_trackEcalPhi", &t_trackEcalPhi);
+  tree_->Branch("t_trackHcalEta", &t_trackHcalEta);
+  tree_->Branch("t_trackHcalPhi", &t_trackHcalPhi);
 
-  tree_->Branch("t_trackP", "std::vector<double>", &t_trackP);
-  tree_->Branch("t_trackPt", "std::vector<double>", &t_trackPt);
-  tree_->Branch("t_trackEta", "std::vector<double>", &t_trackEta);
-  tree_->Branch("t_trackPhi", "std::vector<double>", &t_trackPhi);
-  tree_->Branch("t_trackEcalEta", "std::vector<double>", &t_trackEcalEta);
-  tree_->Branch("t_trackEcalPhi", "std::vector<double>", &t_trackEcalPhi);
-  tree_->Branch("t_trackHcalEta", "std::vector<double>", &t_trackHcalEta);
-  tree_->Branch("t_trackHcalPhi", "std::vector<double>", &t_trackHcalPhi);
+  tree_->Branch("t_trackNOuterHits", &t_trackNOuterHits);
+  tree_->Branch("t_NLayersCrossed", &t_NLayersCrossed);
+  tree_->Branch("t_trackHitsTOB", &t_trackHitsTOB);
+  tree_->Branch("t_trackHitsTEC", &t_trackHitsTEC);
+  tree_->Branch("t_trackHitInMissTOB", &t_trackHitInMissTOB);
+  tree_->Branch("t_trackHitInMissTEC", &t_trackHitInMissTEC);
+  tree_->Branch("t_trackHitInMissTIB", &t_trackHitInMissTIB);
+  tree_->Branch("t_trackHitInMissTID", &t_trackHitInMissTID);
+  tree_->Branch("t_trackHitInMissTIBTID", &t_trackHitInMissTIBTID);
+  tree_->Branch("t_trackHitOutMissTOB", &t_trackHitOutMissTOB);
+  tree_->Branch("t_trackHitOutMissTEC", &t_trackHitOutMissTEC);
+  tree_->Branch("t_trackHitOutMissTIB", &t_trackHitOutMissTIB);
+  tree_->Branch("t_trackHitOutMissTID", &t_trackHitOutMissTID);
+  tree_->Branch("t_trackHitOutMissTOBTEC", &t_trackHitOutMissTOBTEC);
+  tree_->Branch("t_trackHitInMeasTOB", &t_trackHitInMeasTOB);
+  tree_->Branch("t_trackHitInMeasTEC", &t_trackHitInMeasTEC);
+  tree_->Branch("t_trackHitInMeasTIB", &t_trackHitInMeasTIB);
+  tree_->Branch("t_trackHitInMeasTID", &t_trackHitInMeasTID);
+  tree_->Branch("t_trackHitOutMeasTOB", &t_trackHitOutMeasTOB);
+  tree_->Branch("t_trackHitOutMeasTEC", &t_trackHitOutMeasTEC);
+  tree_->Branch("t_trackHitOutMeasTIB", &t_trackHitOutMeasTIB);
+  tree_->Branch("t_trackHitOutMeasTID", &t_trackHitOutMeasTID);
+  tree_->Branch("t_trackOutPosOutHitDr", &t_trackOutPosOutHitDr);
+  tree_->Branch("t_trackL", &t_trackL);
 
-  tree_->Branch("t_trackNOuterHits", "std::vector<int>", &t_trackNOuterHits);
-  tree_->Branch("t_NLayersCrossed", "std::vector<int>", &t_NLayersCrossed);
-  tree_->Branch("t_trackHitsTOB", "std::vector<int>", &t_trackHitsTOB);
-  tree_->Branch("t_trackHitsTEC", "std::vector<int>", &t_trackHitsTEC);
-  tree_->Branch("t_trackHitInMissTOB", "std::vector<int>", &t_trackHitInMissTOB);
-  tree_->Branch("t_trackHitInMissTEC", "std::vector<int>", &t_trackHitInMissTEC);
-  tree_->Branch("t_trackHitInMissTIB", "std::vector<int>", &t_trackHitInMissTIB);
-  tree_->Branch("t_trackHitInMissTID", "std::vector<int>", &t_trackHitInMissTID);
-  tree_->Branch("t_trackHitInMissTIBTID", "std::vector<int>", &t_trackHitInMissTIBTID);
-  tree_->Branch("t_trackHitOutMissTOB", "std::vector<int>", &t_trackHitOutMissTOB);
-  tree_->Branch("t_trackHitOutMissTEC", "std::vector<int>", &t_trackHitOutMissTEC);
-  tree_->Branch("t_trackHitOutMissTIB", "std::vector<int>", &t_trackHitOutMissTIB);
-  tree_->Branch("t_trackHitOutMissTID", "std::vector<int>", &t_trackHitOutMissTID);
-  tree_->Branch("t_trackHitOutMissTOBTEC", "std::vector<int>", &t_trackHitOutMissTOBTEC);
-  tree_->Branch("t_trackHitInMeasTOB", "std::vector<int>", &t_trackHitInMeasTOB);
-  tree_->Branch("t_trackHitInMeasTEC", "std::vector<int>", &t_trackHitInMeasTEC);
-  tree_->Branch("t_trackHitInMeasTIB", "std::vector<int>", &t_trackHitInMeasTIB);
-  tree_->Branch("t_trackHitInMeasTID", "std::vector<int>", &t_trackHitInMeasTID);
-  tree_->Branch("t_trackHitOutMeasTOB", "std::vector<int>", &t_trackHitOutMeasTOB);
-  tree_->Branch("t_trackHitOutMeasTEC", "std::vector<int>", &t_trackHitOutMeasTEC);
-  tree_->Branch("t_trackHitOutMeasTIB", "std::vector<int>", &t_trackHitOutMeasTIB);
-  tree_->Branch("t_trackHitOutMeasTID", "std::vector<int>", &t_trackHitOutMeasTID);
-  tree_->Branch("t_trackOutPosOutHitDr", "std::vector<double>", &t_trackOutPosOutHitDr);
-  tree_->Branch("t_trackL", "std::vector<double>", &t_trackL);
+  tree_->Branch("t_trackDxy", &t_trackDxy);
+  tree_->Branch("t_trackDxyBS", &t_trackDxyBS);
+  tree_->Branch("t_trackDz", &t_trackDz);
+  tree_->Branch("t_trackDzBS", &t_trackDzBS);
+  tree_->Branch("t_trackDxyPV", &t_trackDxyPV);
+  tree_->Branch("t_trackDzPV", &t_trackDzPV);
+  tree_->Branch("t_trackChiSq", &t_trackChiSq);
+  tree_->Branch("t_trackPVIdx", &t_trackPVIdx);
 
-  tree_->Branch("t_trackDxy", "std::vector<double>", &t_trackDxy);
-  tree_->Branch("t_trackDxyBS", "std::vector<double>", &t_trackDxyBS);
-  tree_->Branch("t_trackDz", "std::vector<double>", &t_trackDz);
-  tree_->Branch("t_trackDzBS", "std::vector<double>", &t_trackDzBS);
-  tree_->Branch("t_trackDxyPV", "std::vector<double>", &t_trackDxyPV);
-  tree_->Branch("t_trackDzPV", "std::vector<double>", &t_trackDzPV);
-  tree_->Branch("t_trackChiSq", "std::vector<double>", &t_trackChiSq);
-  tree_->Branch("t_trackPVIdx", "std::vector<int>", &t_trackPVIdx);
+  tree_->Branch("t_maxNearP31x31", &t_maxNearP31x31);
+  tree_->Branch("t_maxNearP21x21", &t_maxNearP21x21);
 
-  t_maxNearP31x31 = new std::vector<double>();
-  t_maxNearP21x21 = new std::vector<double>();
+  tree_->Branch("t_ecalSpike11x11", &t_ecalSpike11x11);
+  tree_->Branch("t_e7x7", &t_e7x7);
+  tree_->Branch("t_e9x9", &t_e9x9);
+  tree_->Branch("t_e11x11", &t_e11x11);
+  tree_->Branch("t_e15x15", &t_e15x15);
 
-  tree_->Branch("t_maxNearP31x31", "std::vector<double>", &t_maxNearP31x31);
-  tree_->Branch("t_maxNearP21x21", "std::vector<double>", &t_maxNearP21x21);
-
-  t_ecalSpike11x11 = new std::vector<int>();
-  t_e7x7 = new std::vector<double>();
-  t_e9x9 = new std::vector<double>();
-  t_e11x11 = new std::vector<double>();
-  t_e15x15 = new std::vector<double>();
-
-  tree_->Branch("t_ecalSpike11x11", "std::vector<int>", &t_ecalSpike11x11);
-  tree_->Branch("t_e7x7", "std::vector<double>", &t_e7x7);
-  tree_->Branch("t_e9x9", "std::vector<double>", &t_e9x9);
-  tree_->Branch("t_e11x11", "std::vector<double>", &t_e11x11);
-  tree_->Branch("t_e15x15", "std::vector<double>", &t_e15x15);
-
-  t_e7x7_10Sig = new std::vector<double>();
-  t_e9x9_10Sig = new std::vector<double>();
-  t_e11x11_10Sig = new std::vector<double>();
-  t_e15x15_10Sig = new std::vector<double>();
-  t_e7x7_15Sig = new std::vector<double>();
-  t_e9x9_15Sig = new std::vector<double>();
-  t_e11x11_15Sig = new std::vector<double>();
-  t_e15x15_15Sig = new std::vector<double>();
-  t_e7x7_20Sig = new std::vector<double>();
-  t_e9x9_20Sig = new std::vector<double>();
-  t_e11x11_20Sig = new std::vector<double>();
-  t_e15x15_20Sig = new std::vector<double>();
-  t_e7x7_25Sig = new std::vector<double>();
-  t_e9x9_25Sig = new std::vector<double>();
-  t_e11x11_25Sig = new std::vector<double>();
-  t_e15x15_25Sig = new std::vector<double>();
-  t_e7x7_30Sig = new std::vector<double>();
-  t_e9x9_30Sig = new std::vector<double>();
-  t_e11x11_30Sig = new std::vector<double>();
-  t_e15x15_30Sig = new std::vector<double>();
-
-  tree_->Branch("t_e7x7_10Sig", "std::vector<double>", &t_e7x7_10Sig);
-  tree_->Branch("t_e9x9_10Sig", "std::vector<double>", &t_e9x9_10Sig);
-  tree_->Branch("t_e11x11_10Sig", "std::vector<double>", &t_e11x11_10Sig);
-  tree_->Branch("t_e15x15_10Sig", "std::vector<double>", &t_e15x15_10Sig);
-  tree_->Branch("t_e7x7_15Sig", "std::vector<double>", &t_e7x7_15Sig);
-  tree_->Branch("t_e9x9_15Sig", "std::vector<double>", &t_e9x9_15Sig);
-  tree_->Branch("t_e11x11_15Sig", "std::vector<double>", &t_e11x11_15Sig);
-  tree_->Branch("t_e15x15_15Sig", "std::vector<double>", &t_e15x15_15Sig);
-  tree_->Branch("t_e7x7_20Sig", "std::vector<double>", &t_e7x7_20Sig);
-  tree_->Branch("t_e9x9_20Sig", "std::vector<double>", &t_e9x9_20Sig);
-  tree_->Branch("t_e11x11_20Sig", "std::vector<double>", &t_e11x11_20Sig);
-  tree_->Branch("t_e15x15_20Sig", "std::vector<double>", &t_e15x15_20Sig);
-  tree_->Branch("t_e7x7_25Sig", "std::vector<double>", &t_e7x7_25Sig);
-  tree_->Branch("t_e9x9_25Sig", "std::vector<double>", &t_e9x9_25Sig);
-  tree_->Branch("t_e11x11_25Sig", "std::vector<double>", &t_e11x11_25Sig);
-  tree_->Branch("t_e15x15_25Sig", "std::vector<double>", &t_e15x15_25Sig);
-  tree_->Branch("t_e7x7_30Sig", "std::vector<double>", &t_e7x7_30Sig);
-  tree_->Branch("t_e9x9_30Sig", "std::vector<double>", &t_e9x9_30Sig);
-  tree_->Branch("t_e11x11_30Sig", "std::vector<double>", &t_e11x11_30Sig);
-  tree_->Branch("t_e15x15_30Sig", "std::vector<double>", &t_e15x15_30Sig);
+  tree_->Branch("t_e7x7_10Sig", &t_e7x7_10Sig);
+  tree_->Branch("t_e9x9_10Sig", &t_e9x9_10Sig);
+  tree_->Branch("t_e11x11_10Sig", &t_e11x11_10Sig);
+  tree_->Branch("t_e15x15_10Sig", &t_e15x15_10Sig);
+  tree_->Branch("t_e7x7_15Sig", &t_e7x7_15Sig);
+  tree_->Branch("t_e9x9_15Sig", &t_e9x9_15Sig);
+  tree_->Branch("t_e11x11_15Sig", &t_e11x11_15Sig);
+  tree_->Branch("t_e15x15_15Sig", &t_e15x15_15Sig);
+  tree_->Branch("t_e7x7_20Sig", &t_e7x7_20Sig);
+  tree_->Branch("t_e9x9_20Sig", &t_e9x9_20Sig);
+  tree_->Branch("t_e11x11_20Sig", &t_e11x11_20Sig);
+  tree_->Branch("t_e15x15_20Sig", &t_e15x15_20Sig);
+  tree_->Branch("t_e7x7_25Sig", &t_e7x7_25Sig);
+  tree_->Branch("t_e9x9_25Sig", &t_e9x9_25Sig);
+  tree_->Branch("t_e11x11_25Sig", &t_e11x11_25Sig);
+  tree_->Branch("t_e15x15_25Sig", &t_e15x15_25Sig);
+  tree_->Branch("t_e7x7_30Sig", &t_e7x7_30Sig);
+  tree_->Branch("t_e9x9_30Sig", &t_e9x9_30Sig);
+  tree_->Branch("t_e11x11_30Sig", &t_e11x11_30Sig);
+  tree_->Branch("t_e15x15_30Sig", &t_e15x15_30Sig);
 
   if (doMC_) {
-    t_esim7x7 = new std::vector<double>();
-    t_esim9x9 = new std::vector<double>();
-    t_esim11x11 = new std::vector<double>();
-    t_esim15x15 = new std::vector<double>();
+    tree_->Branch("t_esim7x7", &t_esim7x7);
+    tree_->Branch("t_esim9x9", &t_esim9x9);
+    tree_->Branch("t_esim11x11", &t_esim11x11);
+    tree_->Branch("t_esim15x15", &t_esim15x15);
 
-    t_esim7x7Matched = new std::vector<double>();
-    t_esim9x9Matched = new std::vector<double>();
-    t_esim11x11Matched = new std::vector<double>();
-    t_esim15x15Matched = new std::vector<double>();
+    tree_->Branch("t_esim7x7Matched", &t_esim7x7Matched);
+    tree_->Branch("t_esim9x9Matched", &t_esim9x9Matched);
+    tree_->Branch("t_esim11x11Matched", &t_esim11x11Matched);
+    tree_->Branch("t_esim15x15Matched", &t_esim15x15Matched);
 
-    t_esim7x7Rest = new std::vector<double>();
-    t_esim9x9Rest = new std::vector<double>();
-    t_esim11x11Rest = new std::vector<double>();
-    t_esim15x15Rest = new std::vector<double>();
+    tree_->Branch("t_esim7x7Rest", &t_esim7x7Rest);
+    tree_->Branch("t_esim9x9Rest", &t_esim9x9Rest);
+    tree_->Branch("t_esim11x11Rest", &t_esim11x11Rest);
+    tree_->Branch("t_esim15x15Rest", &t_esim15x15Rest);
 
-    t_esim7x7Photon = new std::vector<double>();
-    t_esim9x9Photon = new std::vector<double>();
-    t_esim11x11Photon = new std::vector<double>();
-    t_esim15x15Photon = new std::vector<double>();
+    tree_->Branch("t_esim7x7Photon", &t_esim7x7Photon);
+    tree_->Branch("t_esim9x9Photon", &t_esim9x9Photon);
+    tree_->Branch("t_esim11x11Photon", &t_esim11x11Photon);
+    tree_->Branch("t_esim15x15Photon", &t_esim15x15Photon);
 
-    t_esim7x7NeutHad = new std::vector<double>();
-    t_esim9x9NeutHad = new std::vector<double>();
-    t_esim11x11NeutHad = new std::vector<double>();
-    t_esim15x15NeutHad = new std::vector<double>();
+    tree_->Branch("t_esim7x7NeutHad", &t_esim7x7NeutHad);
+    tree_->Branch("t_esim9x9NeutHad", &t_esim9x9NeutHad);
+    tree_->Branch("t_esim11x11NeutHad", &t_esim11x11NeutHad);
+    tree_->Branch("t_esim15x15NeutHad", &t_esim15x15NeutHad);
 
-    t_esim7x7CharHad = new std::vector<double>();
-    t_esim9x9CharHad = new std::vector<double>();
-    t_esim11x11CharHad = new std::vector<double>();
-    t_esim15x15CharHad = new std::vector<double>();
+    tree_->Branch("t_esim7x7CharHad", &t_esim7x7CharHad);
+    tree_->Branch("t_esim9x9CharHad", &t_esim9x9CharHad);
+    tree_->Branch("t_esim11x11CharHad", &t_esim11x11CharHad);
+    tree_->Branch("t_esim15x15CharHad", &t_esim15x15CharHad);
 
-    t_trkEcalEne = new std::vector<double>();
-    t_simTrackP = new std::vector<double>();
-    t_esimPdgId = new std::vector<double>();
-
-    tree_->Branch("t_esim7x7", "std::vector<double>", &t_esim7x7);
-    tree_->Branch("t_esim9x9", "std::vector<double>", &t_esim9x9);
-    tree_->Branch("t_esim11x11", "std::vector<double>", &t_esim11x11);
-    tree_->Branch("t_esim15x15", "std::vector<double>", &t_esim15x15);
-
-    tree_->Branch("t_esim7x7Matched", "std::vector<double>", &t_esim7x7Matched);
-    tree_->Branch("t_esim9x9Matched", "std::vector<double>", &t_esim9x9Matched);
-    tree_->Branch("t_esim11x11Matched", "std::vector<double>", &t_esim11x11Matched);
-    tree_->Branch("t_esim15x15Matched", "std::vector<double>", &t_esim15x15Matched);
-
-    tree_->Branch("t_esim7x7Rest", "std::vector<double>", &t_esim7x7Rest);
-    tree_->Branch("t_esim9x9Rest", "std::vector<double>", &t_esim9x9Rest);
-    tree_->Branch("t_esim11x11Rest", "std::vector<double>", &t_esim11x11Rest);
-    tree_->Branch("t_esim15x15Rest", "std::vector<double>", &t_esim15x15Rest);
-
-    tree_->Branch("t_esim7x7Photon", "std::vector<double>", &t_esim7x7Photon);
-    tree_->Branch("t_esim9x9Photon", "std::vector<double>", &t_esim9x9Photon);
-    tree_->Branch("t_esim11x11Photon", "std::vector<double>", &t_esim11x11Photon);
-    tree_->Branch("t_esim15x15Photon", "std::vector<double>", &t_esim15x15Photon);
-
-    tree_->Branch("t_esim7x7NeutHad", "std::vector<double>", &t_esim7x7NeutHad);
-    tree_->Branch("t_esim9x9NeutHad", "std::vector<double>", &t_esim9x9NeutHad);
-    tree_->Branch("t_esim11x11NeutHad", "std::vector<double>", &t_esim11x11NeutHad);
-    tree_->Branch("t_esim15x15NeutHad", "std::vector<double>", &t_esim15x15NeutHad);
-
-    tree_->Branch("t_esim7x7CharHad", "std::vector<double>", &t_esim7x7CharHad);
-    tree_->Branch("t_esim9x9CharHad", "std::vector<double>", &t_esim9x9CharHad);
-    tree_->Branch("t_esim11x11CharHad", "std::vector<double>", &t_esim11x11CharHad);
-    tree_->Branch("t_esim15x15CharHad", "std::vector<double>", &t_esim15x15CharHad);
-
-    tree_->Branch("t_trkEcalEne", "std::vector<double>", &t_trkEcalEne);
-    tree_->Branch("t_simTrackP", "std::vector<double>", &t_simTrackP);
-    tree_->Branch("t_esimPdgId", "std::vector<double>", &t_esimPdgId);
+    tree_->Branch("t_trkEcalEne", &t_trkEcalEne);
+    tree_->Branch("t_simTrackP", &t_simTrackP);
+    tree_->Branch("t_esimPdgId", &t_esimPdgId);
   }
 
-  t_maxNearHcalP3x3 = new std::vector<double>();
-  t_maxNearHcalP5x5 = new std::vector<double>();
-  t_maxNearHcalP7x7 = new std::vector<double>();
-  t_h3x3 = new std::vector<double>();
-  t_h5x5 = new std::vector<double>();
-  t_h7x7 = new std::vector<double>();
-  t_h3x3Sig = new std::vector<double>();
-  t_h5x5Sig = new std::vector<double>();
-  t_h7x7Sig = new std::vector<double>();
-  t_infoHcal = new std::vector<int>();
+  tree_->Branch("t_maxNearHcalP3x3", &t_maxNearHcalP3x3);
+  tree_->Branch("t_maxNearHcalP5x5", &t_maxNearHcalP5x5);
+  tree_->Branch("t_maxNearHcalP7x7", &t_maxNearHcalP7x7);
+  tree_->Branch("t_h3x3", &t_h3x3);
+  tree_->Branch("t_h5x5", &t_h5x5);
+  tree_->Branch("t_h7x7", &t_h7x7);
+  tree_->Branch("t_h3x3Sig", &t_h3x3Sig);
+  tree_->Branch("t_h5x5Sig", &t_h5x5Sig);
+  tree_->Branch("t_h7x7Sig", &t_h7x7Sig);
+  tree_->Branch("t_infoHcal", &t_infoHcal);
 
   if (doMC_) {
-    t_trkHcalEne = new std::vector<double>();
-    t_hsim3x3 = new std::vector<double>();
-    t_hsim5x5 = new std::vector<double>();
-    t_hsim7x7 = new std::vector<double>();
-    t_hsim3x3Matched = new std::vector<double>();
-    t_hsim5x5Matched = new std::vector<double>();
-    t_hsim7x7Matched = new std::vector<double>();
-    t_hsim3x3Rest = new std::vector<double>();
-    t_hsim5x5Rest = new std::vector<double>();
-    t_hsim7x7Rest = new std::vector<double>();
-    t_hsim3x3Photon = new std::vector<double>();
-    t_hsim5x5Photon = new std::vector<double>();
-    t_hsim7x7Photon = new std::vector<double>();
-    t_hsim3x3NeutHad = new std::vector<double>();
-    t_hsim5x5NeutHad = new std::vector<double>();
-    t_hsim7x7NeutHad = new std::vector<double>();
-    t_hsim3x3CharHad = new std::vector<double>();
-    t_hsim5x5CharHad = new std::vector<double>();
-    t_hsim7x7CharHad = new std::vector<double>();
-  }
-
-  tree_->Branch("t_maxNearHcalP3x3", "std::vector<double>", &t_maxNearHcalP3x3);
-  tree_->Branch("t_maxNearHcalP5x5", "std::vector<double>", &t_maxNearHcalP5x5);
-  tree_->Branch("t_maxNearHcalP7x7", "std::vector<double>", &t_maxNearHcalP7x7);
-  tree_->Branch("t_h3x3", "std::vector<double>", &t_h3x3);
-  tree_->Branch("t_h5x5", "std::vector<double>", &t_h5x5);
-  tree_->Branch("t_h7x7", "std::vector<double>", &t_h7x7);
-  tree_->Branch("t_h3x3Sig", "std::vector<double>", &t_h3x3Sig);
-  tree_->Branch("t_h5x5Sig", "std::vector<double>", &t_h5x5Sig);
-  tree_->Branch("t_h7x7Sig", "std::vector<double>", &t_h7x7Sig);
-  tree_->Branch("t_infoHcal", "std::vector<int>", &t_infoHcal);
-
-  if (doMC_) {
-    tree_->Branch("t_trkHcalEne", "std::vector<double>", &t_trkHcalEne);
-    tree_->Branch("t_hsim3x3", "std::vector<double>", &t_hsim3x3);
-    tree_->Branch("t_hsim5x5", "std::vector<double>", &t_hsim5x5);
-    tree_->Branch("t_hsim7x7", "std::vector<double>", &t_hsim7x7);
-    tree_->Branch("t_hsim3x3Matched", "std::vector<double>", &t_hsim3x3Matched);
-    tree_->Branch("t_hsim5x5Matched", "std::vector<double>", &t_hsim5x5Matched);
-    tree_->Branch("t_hsim7x7Matched", "std::vector<double>", &t_hsim7x7Matched);
-    tree_->Branch("t_hsim3x3Rest", "std::vector<double>", &t_hsim3x3Rest);
-    tree_->Branch("t_hsim5x5Rest", "std::vector<double>", &t_hsim5x5Rest);
-    tree_->Branch("t_hsim7x7Rest", "std::vector<double>", &t_hsim7x7Rest);
-    tree_->Branch("t_hsim3x3Photon", "std::vector<double>", &t_hsim3x3Photon);
-    tree_->Branch("t_hsim5x5Photon", "std::vector<double>", &t_hsim5x5Photon);
-    tree_->Branch("t_hsim7x7Photon", "std::vector<double>", &t_hsim7x7Photon);
-    tree_->Branch("t_hsim3x3NeutHad", "std::vector<double>", &t_hsim3x3NeutHad);
-    tree_->Branch("t_hsim5x5NeutHad", "std::vector<double>", &t_hsim5x5NeutHad);
-    tree_->Branch("t_hsim7x7NeutHad", "std::vector<double>", &t_hsim7x7NeutHad);
-    tree_->Branch("t_hsim3x3CharHad", "std::vector<double>", &t_hsim3x3CharHad);
-    tree_->Branch("t_hsim5x5CharHad", "std::vector<double>", &t_hsim5x5CharHad);
-    tree_->Branch("t_hsim7x7CharHad", "std::vector<double>", &t_hsim7x7CharHad);
+    tree_->Branch("t_trkHcalEne", &t_trkHcalEne);
+    tree_->Branch("t_hsim3x3", &t_hsim3x3);
+    tree_->Branch("t_hsim5x5", &t_hsim5x5);
+    tree_->Branch("t_hsim7x7", &t_hsim7x7);
+    tree_->Branch("t_hsim3x3Matched", &t_hsim3x3Matched);
+    tree_->Branch("t_hsim5x5Matched", &t_hsim5x5Matched);
+    tree_->Branch("t_hsim7x7Matched", &t_hsim7x7Matched);
+    tree_->Branch("t_hsim3x3Rest", &t_hsim3x3Rest);
+    tree_->Branch("t_hsim5x5Rest", &t_hsim5x5Rest);
+    tree_->Branch("t_hsim7x7Rest", &t_hsim7x7Rest);
+    tree_->Branch("t_hsim3x3Photon", &t_hsim3x3Photon);
+    tree_->Branch("t_hsim5x5Photon", &t_hsim5x5Photon);
+    tree_->Branch("t_hsim7x7Photon", &t_hsim7x7Photon);
+    tree_->Branch("t_hsim3x3NeutHad", &t_hsim3x3NeutHad);
+    tree_->Branch("t_hsim5x5NeutHad", &t_hsim5x5NeutHad);
+    tree_->Branch("t_hsim7x7NeutHad", &t_hsim7x7NeutHad);
+    tree_->Branch("t_hsim3x3CharHad", &t_hsim3x3CharHad);
+    tree_->Branch("t_hsim5x5CharHad", &t_hsim5x5CharHad);
+    tree_->Branch("t_hsim7x7CharHad", &t_hsim7x7CharHad);
   }
   tree_->Branch("t_nTracks", &t_nTracks, "t_nTracks/I");
 }
@@ -2764,7 +2195,7 @@ void IsolatedTracksNxN::printTrack(const reco::Track *pTrack) {
     std::ostringstream st1;
     st1 << "default ";
     for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
-      p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
+      p.printHitPattern(reco::HitPattern::TRACK_HITS, i, st1);
     }
     edm::LogVerbatim("IsoTrack") << st1.str();
     std::ostringstream st2;

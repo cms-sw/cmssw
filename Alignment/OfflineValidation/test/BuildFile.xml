@@ -1,19 +1,42 @@
 <environment>
-  <bin name="testAlignmentOfflineValidation" file="testAlignmentOfflineValidation.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_all.sh"/>
-    <use name="FWCore/Utilities"/>
+  <test name="validateAlignments" command="testingScripts/validateAlignments.sh"/>
+  <test name="DMRall" command="testingScripts/test_unitDMR.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
+  <test name="PVall" command="testingScripts/test_unitPV.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
+  <test name="SplitVall" command="testingScripts/test_unitSplitV.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
+  <test name="JetHTall" command="testingScripts/test_unitJetHT.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
+  <test name="GCPall" command="testingScripts/test_unitGCP.sh">
+    <flags PRE_TEST="validateAlignments"/>
+  </test>
+  <bin file="testTrackAnalyzers.cc" name="testTrackAnalysis">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
   </bin>
-
-  <bin file="testPVPlotting.cpp">
-    <flags PRE_TEST="testAlignmentOfflineValidation"/>
+  <test name="PrimaryVertex" command="testingScripts/test_unitPrimaryVertex.sh"/>
+  <bin file="testPVPlotting.cpp" name="testPVPlotting">
+    <flags PRE_TEST="PrimaryVertex"/>
     <use name="rootmath"/>
     <use name="roothistmatrix"/>
     <use name="rootgraphics"/>
     <use name="Alignment/OfflineValidation"/>
   </bin>
-
-  <bin name="testTrackAnalysis" file="testTrackAnalyzers.cc">
-    <use name="FWCore/TestProcessor"/>
-    <use name="catch2"/>
+  <test name="DiMuonVertex" command="testingScripts/test_unitDiMuonVertex.sh"/>
+  <test name="SubmitPVrbr" command="testingScripts/test_unitSubmitPVrbr.sh"/>
+  <test name="SubmitPVsplit" command="testingScripts/test_unitSubmitPVsplit.sh"/>
+  <test name="EoP" command="testingScripts/test_unitEoP.sh"/>
+  <bin file="testEoPPlotting.cpp" name="testEoPPlotting">
+    <flags PRE_TEST="EoP"/>
+    <use name="rootmath"/>
+    <use name="roothistmatrix"/>
+    <use name="rootgraphics"/>
+    <use name="Alignment/OfflineValidation"/>
   </bin>
+  <test name="Miscellanea" command="testingScripts/test_unitMiscellanea.sh"/>
 </environment>

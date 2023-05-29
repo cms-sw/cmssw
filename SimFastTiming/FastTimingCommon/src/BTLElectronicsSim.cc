@@ -6,6 +6,8 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+#include "Math/ChebyshevPol.h"
+
 using namespace mtd;
 
 BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
@@ -27,6 +29,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::Consume
       smearTimeForOOTtails_(pset.getParameter<bool>("SmearTimeForOOTtails")),
       Npe_to_pC_(pset.getParameter<double>("Npe_to_pC")),
       Npe_to_V_(pset.getParameter<double>("Npe_to_V")),
+      sigmaRelTOFHIRenergy_(pset.getParameter<std::vector<double>>("SigmaRelTOFHIRenergy")),
       adcNbits_(pset.getParameter<uint32_t>("adcNbits")),
       tdcNbits_(pset.getParameter<uint32_t>("tdcNbits")),
       adcSaturation_MIP_(pset.getParameter<double>("adcSaturation_MIP")),
@@ -43,7 +46,26 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::Consume
       SPTR2_(SinglePhotonTimeResolution_ * SinglePhotonTimeResolution_),
       DCRxRiseTime_(DarkCountRate_ * ScintillatorRiseTime_),
       SigmaElectronicNoise2_(SigmaElectronicNoise_ * SigmaElectronicNoise_),
-      SigmaClock2_(SigmaClock_ * SigmaClock_) {}
+      SigmaClock2_(SigmaClock_ * SigmaClock_) {
+#ifdef EDM_ML_DEBUG
+  float lightOutput = 4.2f * pset.getParameter<double>("LightYield") * pset.getParameter<double>("LightCollectionEff") *
+                      pset.getParameter<double>("PhotonDetectionEff");  // average npe for 4.2 MeV
+  float s1 = sigma_stochastic(lightOutput);
+  float s2 = std::sqrt(sigma2_DCR(lightOutput));
+  float s3 = std::sqrt(sigma2_electronics(lightOutput));
+  float s4 = SinglePhotonTimeResolution_ / std::sqrt(TimeThreshold1_);
+  float s5 = SigmaClock_;
+  LogDebug("BTLElectronicsSim") << " BTL time resolution model (ns, 1 SiPM), for an average light output of "
+                                << std::fixed << std::setw(14) << lightOutput << " N_pe:"
+                                << "\n sigma stochastic   = " << std::setw(14) << s1
+                                << "\n sigma DCR          = " << std::setw(14) << s2
+                                << "\n sigma electronics  = " << std::setw(14) << s3
+                                << "\n sigma sptr         = " << std::setw(14) << s4
+                                << "\n sigma clock        = " << std::setw(14) << s5 << "\n ---------------------"
+                                << "\n sigma total        = " << std::setw(14)
+                                << std::sqrt(s1 * s1 + s2 * s2 + s3 * s3 + s4 * s4 + s5 * s5);
+#endif
+}
 
 void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             BTLDigiCollection& output,
@@ -59,8 +81,8 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     toa2.fill(0.f);
     for (size_t iside = 0; iside < 2; iside++) {
       // --- Fluctuate the total number of photo-electrons
-      float Npe = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][iBX]);
-      if (Npe < EnergyThreshold_)
+      float npe = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[2 * iside][iBX]);
+      if (npe < EnergyThreshold_)
         continue;
 
       // --- Get the time of arrival and add a channel time offset
@@ -74,7 +96,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       // --- Calculate and add the time walk: the time of arrival is read in correspondence
       //                                      with two thresholds on the signal pulse
       std::array<float, 3> times =
-          btlPulseShape_.timeAtThr(Npe / ReferencePulseNpe_, TimeThreshold1_ * Npe_to_V_, TimeThreshold2_ * Npe_to_V_);
+          btlPulseShape_.timeAtThr(npe / ReferencePulseNpe_, TimeThreshold1_ * Npe_to_V_, TimeThreshold2_ * Npe_to_V_);
 
       // --- If the pulse amplitude is smaller than TimeThreshold2, the trigger does not fire
       if (times[1] == 0.)
@@ -96,7 +118,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
         }  // ibx loop
 
         if (rate_oot > 0.) {
-          float sigma_oot = sqrt(rate_oot * ScintillatorRiseTime_) * ScintillatorDecayTime_ / Npe;
+          float sigma_oot = sqrt(rate_oot * ScintillatorRiseTime_) * ScintillatorDecayTime_ / npe;
           float smearing_oot = CLHEP::RandGaussQ::shoot(hre, 0., sigma_oot);
           finalToA1 += smearing_oot;
           finalToA2 += smearing_oot;
@@ -107,7 +129,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       if (testBeamMIPTimeRes_ > 0.) {
         // In this case the time resolution is parametrized from the testbeam.
         // The same parameterization is used for both thresholds.
-        float sigma = testBeamMIPTimeRes_ / sqrt(Npe);
+        float sigma = sigma_stochastic(npe);
         float smearing_stat_thr1 = CLHEP::RandGaussQ::shoot(hre, 0., sigma);
         float smearing_stat_thr2 = CLHEP::RandGaussQ::shoot(hre, 0., sigma);
 
@@ -118,21 +140,17 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
         // In this case the time resolution is taken from the literature.
         // The fluctuations due to the first TimeThreshold1_ p.e. are common to both times
         float smearing_stat_thr1 =
-            CLHEP::RandGaussQ::shoot(hre, 0., ScintillatorDecayTime_ * sqrt(sigma2_pe(TimeThreshold1_, Npe)));
+            CLHEP::RandGaussQ::shoot(hre, 0., ScintillatorDecayTime_ * sqrt(sigma2_pe(TimeThreshold1_, npe)));
         float smearing_stat_thr2 = CLHEP::RandGaussQ::shoot(
-            hre, 0., ScintillatorDecayTime_ * sqrt(sigma2_pe(TimeThreshold2_ - TimeThreshold1_, Npe)));
+            hre, 0., ScintillatorDecayTime_ * sqrt(sigma2_pe(TimeThreshold2_ - TimeThreshold1_, npe)));
         finalToA1 += smearing_stat_thr1;
         finalToA2 += smearing_stat_thr1 + smearing_stat_thr2;
       }
 
       // --- Add in quadrature the uncertainties due to the SiPM timing resolution, the SiPM DCR,
       //     the electronic noise and the clock distribution:
-      float slew2 = ScintillatorDecayTime2_ / Npe / Npe;
-
-      float sigma2_tot_thr1 =
-          SPTR2_ / TimeThreshold1_ + (DCRxRiseTime_ + SigmaElectronicNoise2_) * slew2 + SigmaClock2_;
-      float sigma2_tot_thr2 =
-          SPTR2_ / TimeThreshold2_ + (DCRxRiseTime_ + SigmaElectronicNoise2_) * slew2 + SigmaClock2_;
+      float sigma2_tot_thr1 = SPTR2_ / TimeThreshold1_ + sigma2_DCR(npe) + sigma2_electronics(npe) + SigmaClock2_;
+      float sigma2_tot_thr2 = SPTR2_ / TimeThreshold2_ + sigma2_DCR(npe) + sigma2_electronics(npe) + SigmaClock2_;
 
       // --- Smear the arrival times using the correlated uncertainties:
       float smearing_thr1_uncorr = CLHEP::RandGaussQ::shoot(hre, 0., sqrt(sigma2_tot_thr1));
@@ -141,7 +159,17 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       finalToA1 += cosPhi_ * smearing_thr1_uncorr + sinPhi_ * smearing_thr2_uncorr;
       finalToA2 += sinPhi_ * smearing_thr1_uncorr + cosPhi_ * smearing_thr2_uncorr;
 
-      chargeColl[iside] = Npe * Npe_to_pC_;  // the p.e. number is here converted to pC
+      //Smear the energy according to TOFHIR energy branch measured resolution
+      float tofhir_ampnoise_relsigma = ROOT::Math::Chebyshev4(npe,
+                                                              sigmaRelTOFHIRenergy_[0],
+                                                              sigmaRelTOFHIRenergy_[1],
+                                                              sigmaRelTOFHIRenergy_[2],
+                                                              sigmaRelTOFHIRenergy_[3],
+                                                              sigmaRelTOFHIRenergy_[4]);
+      float smearing_tofhir = CLHEP::RandGaussQ::shoot(hre, 0., tofhir_ampnoise_relsigma);
+      // the amplitude resolution already includes the photostatistics fluctuation, use the original average deposit
+      chargeColl[iside] = (it->second).hit_info[2 * iside][iBX] * Npe_to_pC_ *
+                          (1. + smearing_tofhir);  // the p.e. number is here converted to pC
 
       toa1[iside] = finalToA1;
       toa2[iside] = finalToA2;
@@ -221,4 +249,24 @@ float BTLElectronicsSim::sigma2_pe(const float& Q, const float& R) const {
                   (Q + 1.) * (Q + 2.) * (2. * Q + 5.) * OneOverR2 * OneOverR);
 
   return sigma2;
+}
+
+float BTLElectronicsSim::sigma_stochastic(const float& npe) const { return testBeamMIPTimeRes_ / std::sqrt(npe); }
+
+float BTLElectronicsSim::sigma2_DCR(const float& npe) const {
+  // trick to safely switch off the electronics contribution for resolution studies
+
+  if (DCRxRiseTime_ == 0.) {
+    return 0.;
+  }
+  return DCRxRiseTime_ * ScintillatorDecayTime2_ / npe / npe;
+}
+
+float BTLElectronicsSim::sigma2_electronics(const float npe) const {
+  // trick to safely switch off the electronics contribution for resolution studies
+
+  if (SigmaElectronicNoise2_ == 0.) {
+    return 0.;
+  }
+  return SigmaElectronicNoise2_ * ScintillatorDecayTime2_ / npe / npe;
 }

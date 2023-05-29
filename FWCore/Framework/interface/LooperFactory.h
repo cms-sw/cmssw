@@ -82,6 +82,7 @@ namespace edm {
     struct LooperMakerTraits {
       typedef EDLooperBase base_type;
       static std::string name();
+      static std::string const& baseType();
       template <class T>
       static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, ParameterSet const&, bool) {
         //a looper does not always have to be a provider or a finder

@@ -22,14 +22,11 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHDecayVertex.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHKinematicFit.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHGenericPtr.h"
+class BPHEventSetupWrapper;
 class BPHRecoSelect;
 class BPHMomentumSelect;
 class BPHVertexSelect;
 class BPHFitSelect;
-
-namespace edm {
-  class EventSetup;
-}
 
 namespace reco {
   class RecoCandidate;
@@ -48,12 +45,10 @@ namespace reco {
 //              ---------------------
 
 class BPHRecoBuilder {
-  friend class BPHRecoSelect;
-
 public:
   /** Constructor
    */
-  BPHRecoBuilder(const edm::EventSetup& es);
+  BPHRecoBuilder(const BPHEventSetupWrapper& es);
 
   // deleted copy constructor and assignment operator
   BPHRecoBuilder(const BPHRecoBuilder& x) = delete;
@@ -65,8 +60,7 @@ public:
 
   /** Operations
    */
-
-  // common object to interface with edm collections
+  /// common object to interface with edm collections
   class BPHGenericCollection {
   public:
     BPHGenericCollection(const std::string& list) : sList(list) {}
@@ -133,11 +127,15 @@ public:
   std::vector<ComponentSet> build() const;
 
   /// get the EventSetup set in the constructor
-  const edm::EventSetup* eventSetup() const;
+  const BPHEventSetupWrapper* eventSetup() const;
 
-  // compare two particles with their track reference and return
-  // true or false for same or different particles, including a
-  // check with momentum difference
+  /// get simple or previously recontructed particle in current combination
+  const reco::Candidate* getDaug(const std::string& name) const;
+  BPHRecoConstCandPtr getComp(const std::string& name) const;
+
+  /// compare two particles with their track reference and return
+  /// true or false for same or different particles, including a
+  /// check with momentum difference
   static bool sameTrack(const reco::Candidate* lCand, const reco::Candidate* rCand, double minPDifference);
 
 private:
@@ -185,7 +183,7 @@ private:
   mutable std::map<std::string, const reco::Candidate*> daugMap;
   mutable std::map<std::string, BPHRecoConstCandPtr> compMap;
 
-  const edm::EventSetup* evSetup;
+  const BPHEventSetupWrapper* evSetup;
   double minPDiff;
 
   // list of simple and previously recontructed particles in the decay

@@ -944,7 +944,6 @@ void PFAlgo::relinkTrackToHcal(const reco::PFBlock& block,
                                const std::vector<bool>& active,
                                reco::PFBlock::LinkData& linkData,
                                unsigned int iTrack) {
-  unsigned ntt = 1;
   unsigned index = ecalElems.begin()->second;
   std::multimap<double, unsigned> sortedTracks;
   block.associatedElements(index, linkData, sortedTracks, reco::PFBlockElement::TRACK, reco::PFBlock::LINKTEST_ALL);
@@ -980,7 +979,6 @@ void PFAlgo::relinkTrackToHcal(const reco::PFBlock& block,
     if (sortedHCAL.empty())
       continue;
     LogTrace("PFAlgo|elementLoop") << "  and with an HCAL cluster " << sortedHCAL.begin()->second;
-    ntt++;
 
     // In that case establish a link with the first track
     block.setLink(iTrack, sortedHCAL.begin()->second, sortedECAL.begin()->first, linkData, PFBlock::LINKTEST_RECHIT);
@@ -2425,7 +2423,15 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       if (iTrack == corrTrack) {
         if (corrFact < 0.)
           corrFact = 0.;  // protect against negative scaling
-        (*pfCandidates_)[tmpi].rescaleMomentum(corrFact);
+        auto& candRescale = (*pfCandidates_)[tmpi];
+        LogTrace("PFAlgo|createCandidatesHCAL")
+            << "\tBefore rescaling: momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+            << candRescale.energy() << " mass " << candRescale.mass() << std::endl
+            << "\tTo rescale by " << corrFact << std::endl;
+        candRescale.rescaleMomentum(corrFact);
+        LogTrace("PFAlgo|createCandidatesHCAL")
+            << "\tRescaled candidate momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+            << candRescale.energy() << " mass " << candRescale.mass() << std::endl;
         trackMomentum *= corrFact;
       }
       chargedHadronsIndices.push_back(tmpi);
@@ -2508,7 +2514,15 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
             double rescaleFactor = x(i) / hcalP[i];
             if (rescaleFactor < 0.)
               rescaleFactor = 0.;  // protect against negative scaling
-            (*pfCandidates_)[ich].rescaleMomentum(rescaleFactor);
+            auto& candRescale = (*pfCandidates_)[ich];
+            LogTrace("PFAlgo|createCandidatesHCAL")
+                << "\tBefore rescaling: momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+                << candRescale.energy() << " mass " << candRescale.mass() << std::endl
+                << "\tTo rescale by " << rescaleFactor << std::endl;
+            candRescale.rescaleMomentum(rescaleFactor);
+            LogTrace("PFAlgo|createCandidatesHCAL")
+                << "\tRescaled candidate momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+                << candRescale.energy() << " mass " << candRescale.mass() << std::endl;
 
             LogTrace("PFAlgo|createCandidatesHCAL")
                 << "\t\t\told p " << hcalP[i] << " new p " << x(i) << " rescale " << rescaleFactor;
@@ -3439,7 +3453,6 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
   block.associatedElements(iEcal, linkData, sortedPS, psElementType, reco::PFBlock::LINKTEST_ALL);
 
   // Loop over these PS clusters
-  double totalPS = 0.;
   for (auto const& ps : sortedPS) {
     // CLuster index and distance to iEcal
     unsigned iPS = ps.second;
@@ -3461,7 +3474,6 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
     assert(pstype == psElementType);
     PFClusterRef psclusterref = elements[iPS].clusterRef();
     assert(!psclusterref.isNull());
-    totalPS += psclusterref->energy();
     psEne[0] += psclusterref->energy();
     active[iPS] = false;
   }

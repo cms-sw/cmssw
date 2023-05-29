@@ -20,9 +20,9 @@ BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector
       bxTime_(pset.getParameter<double>("bxTime")),
       LightYield_(pset.getParameter<double>("LightYield")),
       LightCollEff_(pset.getParameter<double>("LightCollectionEff")),
-      LightCollSlopeR_(pset.getParameter<double>("LightCollectionSlopeR")),
-      LightCollSlopeL_(pset.getParameter<double>("LightCollectionSlopeL")),
-      PDE_(pset.getParameter<double>("PhotonDetectionEff")) {}
+      LightCollSlope_(pset.getParameter<double>("LightCollectionSlope")),
+      PDE_(pset.getParameter<double>("PhotonDetectionEff")),
+      LCEpositionSlope_(pset.getParameter<double>("LCEpositionSlope")) {}
 
 void BTLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   geom_ = &evs.getData(geomToken_);
@@ -60,8 +60,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     // calculate the simhit row and column
-    const auto& pentry = hit.entryPoint();
-    Local3DPoint simscaled(convertMmToCm(pentry.x()), convertMmToCm(pentry.y()), convertMmToCm(pentry.z()));
+    const auto& position = hit.localPosition();
+    Local3DPoint simscaled(convertMmToCm(position.x()), convertMmToCm(position.y()), convertMmToCm(position.z()));
     // translate from crystal-local coordinates to module-local coordinates to get the row and column
     simscaled = topo.pixelToModuleLocalPoint(simscaled, btlid.row(topo.nrows()), btlid.column(topo.nrows()));
     const auto& thepixel = topo.pixel(simscaled);
@@ -87,8 +87,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     double distR = 0.5 * topo.pitch().first - convertMmToCm(hit.localPosition().x());
     double distL = 0.5 * topo.pitch().first + convertMmToCm(hit.localPosition().x());
 
-    double tR = std::get<2>(hitRef) + LightCollSlopeR_ * distR;
-    double tL = std::get<2>(hitRef) + LightCollSlopeL_ * distL;
+    double tR = std::get<2>(hitRef) + LightCollSlope_ * distR;
+    double tL = std::get<2>(hitRef) + LightCollSlope_ * distL;
 
     // --- Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
     const int iBXR = std::floor(tR / bxTime_) + mtd_digitizer::kInTimeBX;
@@ -97,7 +97,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     // --- Right side
     if (iBXR > 0 && iBXR < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
-      (simHitIt->second).hit_info[0][iBXR] += Npe;
+      (simHitIt->second).hit_info[0][iBXR] += Npe * (1. + LCEpositionSlope_ * convertMmToCm(hit.localPosition().x()));
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[1][iBXR] == 0 || tR < (simHitIt->second).hit_info[1][iBXR])
@@ -107,7 +107,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     // --- Left side
     if (iBXL > 0 && iBXL < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
-      (simHitIt->second).hit_info[2][iBXL] += Npe;
+      (simHitIt->second).hit_info[2][iBXL] += Npe * (1. - LCEpositionSlope_ * convertMmToCm(hit.localPosition().x()));
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[3][iBXL] == 0 || tL < (simHitIt->second).hit_info[3][iBXL])

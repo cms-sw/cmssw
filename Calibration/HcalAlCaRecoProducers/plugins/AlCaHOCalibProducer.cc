@@ -6,14 +6,14 @@
 //runTheMatrix.py -l 4.22
 
 // 7th Nov 2015 :  tmpHOCalib.ecal03 = iso05.sumPt; // iso03.emEt+muonenr.em;
-//                   tmpHOCalib.inslumi=lumiScale->begin()->pileup();
+//                   tmpHOCalib.pileup=lumiScale->begin()->pileup();
 //
 // April 2015 : Remove all digi part
 //  Also look for HO geometry in CMSSW in parallel with stanalone one.
 // Official one has problem in reco geometry, particularly tiles at the edge of wheel
 // Remove all histogrammes except occupancy one
 // Remove Trigger bits
-// But addition of these variables, ilumi (analyser), inslumi (analyser), nprim
+// But addition of these variables, ilumi (analyser), pileup (analyser), nprim
 
 // Feb09 2009
 // Move the initialisation of SteppingHelixPropagator from ::beginJob() to ::produce()
@@ -92,6 +92,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
@@ -199,6 +200,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> tok_vertex_;
   //  edm::EDGetTokenT<LumiDetails> tok_lumi_;
   edm::EDGetTokenT<LumiScalersCollection> tok_lumi_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> tok_metaData_;
 
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<HORecHitCollection> tok_ho_;
@@ -257,6 +259,7 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig) {
   tok_vertex_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTags"));
   //  tok_lumi_ = consumes<LumiDetails ,edm::InLumi>(iConfig.getParameter<edm::InputTag>("lumiTags"));
   tok_lumi_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("lumiTags"));
+  tok_metaData_ = consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("metadata"));
   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
   tok_tower_ = consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("towerInput"));
@@ -301,6 +304,7 @@ void AlCaHOCalibProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.addUntracked<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("vertexTags", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("lumiTags", edm::InputTag("scalersRawToDigi"));
+  desc.add<edm::InputTag>("metadata", edm::InputTag("onlineMetaDataDigis"));
   descriptions.add("alcaHOCalibProducer", desc);
 }
 
@@ -325,7 +329,7 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   bool muonOK(true);
   HOCalibVariables tmpHOCalib;
   tmpHOCalib.nprim = -1;
-  tmpHOCalib.inslumi = -1.;
+  tmpHOCalib.pileup = -1.;
 
   if (m_cosmic) {
     cosmicmuon = iEvent.getHandle(tok_muonsCosmic_);
@@ -340,16 +344,20 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         tmpHOCalib.nprim = primaryVertices->size();
       }
 
-      tmpHOCalib.inslumi = 0.;
+      tmpHOCalib.pileup = 0.;
 
       auto const& lumiScale = iEvent.getHandle(tok_lumi_);
+      auto const& metaData = iEvent.getHandle(tok_metaData_);
 
-      if (lumiScale.isValid()) {
-        if (lumiScale->empty()) {
-          edm::LogError("HOCalib") << "lumiScale collection is empty";
-        } else {
-          tmpHOCalib.inslumi = lumiScale->begin()->pileup();
+      // by default use Run-3 access (onlineMetaDataDigis)
+      if (metaData.isValid()) {
+        tmpHOCalib.pileup = metaData->avgPileUp();
+      } else if (lumiScale.isValid() && !lumiScale->empty()) {
+        if (lumiScale->begin() != lumiScale->end()) {
+          tmpHOCalib.pileup = lumiScale->begin()->pileup();
         }
+      } else {
+        edm::LogWarning("HOCalib") << "Neither LumiScalers nor OnlineMetadata collections found in the event";
       }
     }
   }

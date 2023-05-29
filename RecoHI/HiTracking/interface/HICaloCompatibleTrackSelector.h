@@ -14,7 +14,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -45,7 +45,7 @@
 namespace reco {
   namespace modules {
 
-    class HICaloCompatibleTrackSelector : public edm::EDProducer {
+    class HICaloCompatibleTrackSelector : public edm::stream::EDProducer<> {
     public:
       /// constructor
       explicit HICaloCompatibleTrackSelector(const edm::ParameterSet& cfg);

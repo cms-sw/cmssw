@@ -15,7 +15,7 @@ process = cms.Process("PROD", Phase2)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2026D77Reco. If a different geoemtry
+# The default geometry is Extended2026D92Reco. If a different geoemtry
 # is needed, the appropriate flag has to be passed at command line,
 # e.g.: cmsRun runP_HGCal_cfg.py geom="XYZ"
 
@@ -30,7 +30,7 @@ _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
 options.register('geom',             #name
-                 'Extended2026D77',      #default value
+                 'Extended2026D92',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message

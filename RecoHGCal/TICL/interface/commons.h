@@ -7,6 +7,10 @@
 
 namespace ticl {
 
+  //constants
+  constexpr double mpion = 0.13957;
+  constexpr float mpion2 = mpion * mpion;
+
   inline Trackster::ParticleType tracksterParticleTypeFromPdgId(int pdgId, int charge) {
     if (pdgId == 111) {
       return Trackster::ParticleType::neutral_pion;
@@ -33,42 +37,8 @@ namespace ticl {
     }
   }
 
-  static void addTrackster(
-      const int& index,
-      const std::vector<std::pair<edm::Ref<reco::CaloClusterCollection>, std::pair<float, float>>>& lcVec,
-      const std::vector<float>& inputClusterMask,
-      const float& fractionCut_,
-      const float& energy,
-      const int& pdgId,
-      const int& charge,
-      const edm::ProductID& seed,
-      const Trackster::IterationIndex iter,
-      std::vector<float>& output_mask,
-      std::vector<Trackster>& result) {
-    if (lcVec.empty())
-      return;
-
-    Trackster tmpTrackster;
-    tmpTrackster.zeroProbabilities();
-    tmpTrackster.vertices().reserve(lcVec.size());
-    tmpTrackster.vertex_multiplicity().reserve(lcVec.size());
-    for (auto const& [lc, energyScorePair] : lcVec) {
-      if (inputClusterMask[lc.index()] > 0) {
-        double fraction = energyScorePair.first / lc->energy();
-        if (fraction < fractionCut_)
-          continue;
-        tmpTrackster.vertices().push_back(lc.index());
-        output_mask[lc.index()] -= fraction;
-        tmpTrackster.vertex_multiplicity().push_back(1. / fraction);
-      }
-    }
-
-    tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(pdgId, charge), 1.f);
-    tmpTrackster.setRegressedEnergy(energy);
-    tmpTrackster.setIteration(iter);
-    tmpTrackster.setSeed(seed, index);
-    result.emplace_back(tmpTrackster);
-  }
+  // verbosity levels for ticl algorithms
+  enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
 }  // namespace ticl
 

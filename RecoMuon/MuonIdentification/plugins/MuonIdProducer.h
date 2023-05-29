@@ -53,6 +53,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
+#include "DataFormats/MuonReco/interface/MuonGEMHitMatch.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
@@ -244,9 +245,11 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
 
   edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
+  edm::EDGetTokenT<GEMRecHitCollection> gemHitToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
 
   edm::Handle<RPCRecHitCollection> rpcHitHandle_;
+  edm::Handle<GEMRecHitCollection> gemHitHandle_;
   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
 
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomTokenRun_;

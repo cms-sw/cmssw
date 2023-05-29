@@ -293,6 +293,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       if (outPtrP->back().pt() > minPtForTrackProperties_ || outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
           whiteList.find(ic) != whiteList.end() ||
           (cand.trackRef().isNonnull() && whiteListTk.find(cand.trackRef()) != whiteListTk.end())) {
+        outPtrP->back().setTrkAlgo(static_cast<uint8_t>(ctrack->algo()), static_cast<uint8_t>(ctrack->originalAlgo()));
         outPtrP->back().setFirstHit(ctrack->hitPattern().getHitPattern(reco::HitPattern::TRACK_HITS, 0));
         if (abs(outPtrP->back().pdgId()) == 22) {
           outPtrP->back().setTrackProperties(*ctrack, covariancePackingSchemas_[4], covarianceVersion_);

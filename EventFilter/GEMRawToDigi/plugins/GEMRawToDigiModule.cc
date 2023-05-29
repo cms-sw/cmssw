@@ -83,7 +83,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   desc.add<bool>("useDBEMap", false);
-  desc.add<bool>("keepDAQStatus", false);
+  desc.add<bool>("keepDAQStatus", true);
   desc.add<bool>("readMultiBX", false);
   desc.add<bool>("ge21Off", false);
   desc.add<unsigned int>("fedIdStart", FEDNumbering::MINGEMFEDID);
@@ -172,12 +172,13 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         GEMDetId cId(geb_dc.detId);
         int chamberType = geb_dc.chamberType;
 
-        GEMOHStatus st_oh(optoHybrid);
+        GEMOHStatus st_oh(optoHybrid, chamberType);
         if (st_oh.isBad()) {
           LogDebug("GEMRawToDigiModule") << st_oh;
           if (keepDAQStatus_) {
             outOHStatus.get()->insertDigi(cId, st_oh);
           }
+          continue;
         }
 
         //Read vfat data
@@ -194,7 +195,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             continue;
           }
 
-          GEMVFATStatus st_vfat(amc, vfat, vfat.phi(), readMultiBX_);
+          GEMVFATStatus st_vfat(amc, optoHybrid, vfat, chamberType, readMultiBX_);
           if (st_vfat.isBad()) {
             LogDebug("GEMRawToDigiModule") << st_vfat;
             if (keepDAQStatus_) {

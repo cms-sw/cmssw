@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -54,19 +55,22 @@
 class AlignmentMuonHIPTrajectorySelector : public edm::stream::EDProducer<> {
 public:
   explicit AlignmentMuonHIPTrajectorySelector(const edm::ParameterSet&);
-  ~AlignmentMuonHIPTrajectorySelector() override;
+  ~AlignmentMuonHIPTrajectorySelector() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ---------- member data --------------------------------
-  edm::InputTag m_input;
-  double m_minPt;
-  double m_maxTrackerForwardRedChi2;
-  int m_minTrackerDOF;
-  double m_maxMuonResidual;
+  const edm::InputTag m_input;
+  const double m_minPt;
+  const double m_maxTrackerForwardRedChi2;
+  const int m_minTrackerDOF;
+  const double m_maxMuonResidual;
 
-  bool m_hists;
+  const bool m_hists;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> mapToken_;
   TH1F *m_pt, *m_tracker_forwardredchi2, *m_tracker_dof;
   TH1F *m_resid_before, *m_resid_after;
 };
@@ -89,6 +93,7 @@ AlignmentMuonHIPTrajectorySelector::AlignmentMuonHIPTrajectorySelector(const edm
       m_minTrackerDOF(iConfig.getParameter<int>("minTrackerDOF")),
       m_maxMuonResidual(iConfig.getParameter<double>("maxMuonResidual")),
       m_hists(iConfig.getParameter<bool>("hists")),
+      mapToken_(consumes<TrajTrackAssociationCollection>(m_input)),
       m_pt(nullptr),
       m_tracker_forwardredchi2(nullptr),
       m_tracker_dof(nullptr) {
@@ -105,17 +110,19 @@ AlignmentMuonHIPTrajectorySelector::AlignmentMuonHIPTrajectorySelector(const edm
   }
 }
 
-AlignmentMuonHIPTrajectorySelector::~AlignmentMuonHIPTrajectorySelector() {}
-
 //
 // member functions
 //
+void AlignmentMuonHIPTrajectorySelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 
 // ------------ method called to produce the data  ------------
 void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // input
-  edm::Handle<TrajTrackAssociationCollection> originalTrajTrackMap;
-  iEvent.getByLabel(m_input, originalTrajTrackMap);
+  const edm::Handle<TrajTrackAssociationCollection>& originalTrajTrackMap = iEvent.getHandle(mapToken_);
 
   // output
   auto newTrajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
@@ -138,7 +145,7 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
       double tracker_dof = 0.;
       for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end();
            ++im) {
-        const TrajectoryMeasurement meas = *im;
+        const TrajectoryMeasurement& meas = *im;
         auto hit = &(*meas.recHit());
         const DetId id = hit->geographicalId();
 
@@ -186,7 +193,7 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
 
         for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end();
              ++im) {
-          const TrajectoryMeasurement meas = *im;
+          const TrajectoryMeasurement& meas = *im;
           auto hit = &(*meas.recHit());
           const DetId id = hit->geographicalId();
 

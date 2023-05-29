@@ -42,14 +42,14 @@ if process.dqmRunConfig.type.value() == "playback":
 process.load('HLTrigger.Timer.fastTimerServiceClient_cfi')
 process.fastTimerServiceClient.dqmPath = "HLT/TimerService"
 # timing VS lumi
-process.fastTimerServiceClient.doPlotsVsScalLumi  = True
+process.fastTimerServiceClient.doPlotsVsOnlineLumi = True
 process.fastTimerServiceClient.doPlotsVsPixelLumi = False
-process.fastTimerServiceClient.scalLumiME = cms.PSet(
-    folder = cms.string('HLT/LumiMonitoring'),
-    name   = cms.string('lumiVsLS'),
-    nbins  = cms.int32(5000),
-    xmin   = cms.double(0),
-    xmax   = cms.double(20000)
+process.fastTimerServiceClient.onlineLumiME = dict(
+    folder = 'HLT/LumiMonitoring',
+    name   = 'lumiVsLS',
+    nbins  = 6000,
+    xmin   = 0,
+    xmax   = 30000,
 )
 
 # ThroughputService client
@@ -63,13 +63,10 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
       folder = cms.string("HLT/PSMonitoring"),
       name   = cms.string("psColumnVSlumi"),
       doXaxis = cms.bool( True ),
-      nbinsX = cms.int32( 5000),
-      xminX  = cms.double(    0.),
-      xmaxX  = cms.double(20000.),
+      nbinsX = cms.int32( 6000 ),
+      xminX  = cms.double( 0. ),
+      xmaxX  = cms.double( 30000. ),
       doYaxis = cms.bool( False ),
-      nbinsY = cms.int32 (   8),
-      xminY  = cms.double(   0.),
-      xmaxY  = cms.double(   8.),
    ),
    me1 = cms.PSet(
       folder   = cms.string("HLT/LumiMonitoring"),
@@ -83,8 +80,5 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
    ),
 )
 
-process.load('DQM.HLTEvF.psMonitorClient_cfi')
-process.psChecker = process.psMonitorClient.clone()
-
 print("Final Source settings:", process.source)
-process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.psChecker + process.dqmEnv + process.dqmSaver + process.dqmSaverPB )
+process.p = cms.EndPath( process.fastTimerServiceClient + process.throughputServiceClient + process.psColumnVsLumi + process.dqmEnv + process.dqmSaver + process.dqmSaverPB )

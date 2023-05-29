@@ -14,12 +14,9 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
@@ -46,16 +43,13 @@ namespace l1t {
   bool operator>(const l1t::Tau &a, l1t::Tau &b) { return a.hwPt() > b.hwPt(); }
 }  // namespace l1t
 
-#include "TH1F.h"
-#include "TH2F.h"
-
 /**
  * Short class description.
  *
  * Longer class description...
  * ... desc continued.
  */
-class L1TStage2CaloLayer2Comp : public edm::EDProducer {
+class L1TStage2CaloLayer2Comp : public edm::stream::EDProducer<> {
 public:
   /**
    * Class constructor
@@ -344,12 +338,12 @@ bool L1TStage2CaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection
   }
 
   if (dataIt != jets->end() || emulBxIt != emulCol->end(currBx)) {
-    int nPos = 0;
     int nNeg = 0;
 
     while (true) {
       bool posGood = true;
       bool etGood = true;
+      bool qualGood = true;
 
       // object pt mismatch
       if (dataIt->hwPt() != emulBxIt->hwPt()) {
@@ -367,14 +361,18 @@ bool L1TStage2CaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection
         posGood = false;
       }
 
+      // object quality mismatch
+      if (dataIt->hwQual() != emulBxIt->hwQual()) {
+        qualGood = false;
+        eventGood = false;
+      }
+
       //bypass sorting bug
       if (etGood && !posGood) {
         l1t::JetBxCollection::const_iterator emulItCheckSort;
         l1t::JetBxCollection::const_iterator dataItCheckSort;
         for (emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
           for (dataItCheckSort = jets->begin(); dataItCheckSort != jets->end(); ++dataItCheckSort) {
-            if (dataItCheckSort->hwEta() > 0)
-              ++nPos;
             if (dataItCheckSort->hwEta() < 0)
               ++nNeg;
 
@@ -393,12 +391,13 @@ bool L1TStage2CaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection
       if (!posGood)
         eventGood = false;
 
-      // if both position and energy agree, object is good
-      if (!etGood || !posGood) {
+      //if both position and energy agree, object is good
+      if (!etGood || !posGood || !qualGood) {
         edm::LogProblem("l1tcalol2ebec") << "Jet Problem (data emul): "
                                          << "\tEt = " << dataIt->hwPt() << " " << emulBxIt->hwPt()
                                          << "\teta = " << dataIt->hwEta() << " " << emulBxIt->hwEta()
-                                         << "\tphi = " << dataIt->hwPhi() << " " << emulBxIt->hwPhi() << std::endl;
+                                         << "\tphi = " << dataIt->hwPhi() << " " << emulBxIt->hwPhi()
+                                         << "\tqual = " << dataIt->hwQual() << " " << emulBxIt->hwQual() << std::endl;
       }
 
       // increment position of pointers
@@ -450,7 +449,6 @@ bool L1TStage2CaloLayer2Comp::compareEGs(const edm::Handle<l1t::EGammaBxCollecti
 
   // processing continues only of length of data collections is the same
   if (dataIt != egs->end() || emulBxIt != emulCol->end(currBx)) {
-    int nPos = 0;
     int nNeg = 0;
 
     while (true) {
@@ -479,8 +477,6 @@ bool L1TStage2CaloLayer2Comp::compareEGs(const edm::Handle<l1t::EGammaBxCollecti
         l1t::EGammaBxCollection::const_iterator dataItCheckSort;
         for (emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
           for (dataItCheckSort = egs->begin(); dataItCheckSort != egs->end(); ++dataItCheckSort) {
-            if (dataItCheckSort->hwEta() > 0)
-              ++nPos;
             if (dataItCheckSort->hwEta() < 0)
               ++nNeg;
 
@@ -556,7 +552,6 @@ bool L1TStage2CaloLayer2Comp::compareTaus(const edm::Handle<l1t::TauBxCollection
 
   // processing continues only of length of data collections is the same
   if (dataIt != taus->end() || emulBxIt != emulCol->end(currBx)) {
-    int nPos = 0;
     int nNeg = 0;
 
     while (true) {
@@ -585,8 +580,6 @@ bool L1TStage2CaloLayer2Comp::compareTaus(const edm::Handle<l1t::TauBxCollection
         l1t::TauBxCollection::const_iterator dataItCheckSort;
         for (emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
           for (dataItCheckSort = taus->begin(); dataItCheckSort != taus->end(); ++dataItCheckSort) {
-            if (dataItCheckSort->hwEta() > 0)
-              ++nPos;
             if (dataItCheckSort->hwEta() < 0)
               ++nNeg;
 

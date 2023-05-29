@@ -1,6 +1,7 @@
 <lcgdict>
                       
-  <class name="l1t::PFCluster" ClassVersion="3">
+  <class name="l1t::PFCluster" ClassVersion="4">
+   <version ClassVersion="4" checksum="3917005656"/>
         <version ClassVersion="3" checksum="1668592434"/>
   </class> 
   <class name="l1t::PFClusterCollection"/>
@@ -19,7 +20,8 @@
   <class name="edm::RefVector<l1t::PFTrackCollection>" /> 
   <class name="std::vector<edm::Ref<l1t::PFTrackCollection> >" />
 
-  <class name="l1t::PFCandidate"  ClassVersion="6">
+  <class name="l1t::PFCandidate"  ClassVersion="7">
+        <version ClassVersion="7" checksum="2118795037"/>
         <version ClassVersion="6" checksum="2195440462"/>
         <version ClassVersion="5" checksum="3777180193"/>
         <version ClassVersion="4" checksum="3798885201"/>
@@ -33,7 +35,9 @@
   <class name="l1t::RegionalOutput<l1t::PFCandidateCollection>" />
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::PFCandidateCollection>>" />
 
-  <class name="l1t::PFJet"  ClassVersion="4">
+  <class name="l1t::PFJet"  ClassVersion="6">
+        <version ClassVersion="6" checksum="2599349078"/>
+        <version ClassVersion="5" checksum="2270932343"/>
         <version ClassVersion="4" checksum="1424452548"/>
         <version ClassVersion="3" checksum="133342988"/>
   </class>
@@ -53,7 +57,8 @@
   <class name="edm::RefVector<l1t::PFTauCollection>" /> 
   <class name="std::vector<edm::Ref<l1t::PFTauCollection> >" /> 
 
-  <class name="l1t::HPSPFTau" ClassVersion="13">
+  <class name="l1t::HPSPFTau" ClassVersion="14">
+    <version ClassVersion="14" checksum="927489833"/>
     <version ClassVersion="13" checksum="588131857"/>
     <version ClassVersion="12" checksum="1127525942"/>
     <version ClassVersion="11" checksum="98678086"/>
@@ -65,4 +70,3 @@
   <class name="std::vector<edm::Ref<l1t::HPSPFTauCollection> >" />
 
 </lcgdict>
-

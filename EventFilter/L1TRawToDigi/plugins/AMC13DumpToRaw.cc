@@ -22,7 +22,7 @@
 // user include files
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,7 +46,7 @@
 
 namespace l1t {
 
-  class AMC13DumpToRaw : public edm::EDProducer {
+  class AMC13DumpToRaw : public edm::one::EDProducer<> {
   public:
     explicit AMC13DumpToRaw(const edm::ParameterSet&);
     ~AMC13DumpToRaw() override;

@@ -6,6 +6,26 @@ EDIT HISTORY
 
 PREFACE: This file is a compendium on how the validation runs within mkFit, which makes use of the TTreeValidation class and other supporting macros.  
 
+2022-07-13 MT notes
+===================
+
+I have run the MIMI forPR validation in standalone build for the first time
+since migration to CMSSW. I have not tried anything else.
+
+Since standalone build is now done out-of-source, I did the following
+in the top-level standalone build directory (where mkFit executable is):
+
+ln -s ../RecoTracker/MkFitCore/standalone/xeon_scripts .
+ln -s ../RecoTracker/MkFitCore/standalone/val_scripts .
+ln -s ../RecoTracker/MkFitCore/standalone/plotting .
+ln -s ../RecoTracker/MkFitCore/standalone/web .
+
+rm -rf valtree_*.root log_*.txt
+val_scripts/validation-cmssw-benchmarks-multiiter.sh forPR --mtv-like-val TTbar_Phase2
+
+web/collectBenchmarks-multi.sh Phase2-0 forPR
+
+
 ===================
  Table of Contents
 ===================

@@ -28,7 +28,7 @@ namespace clangcms {
 
       if (!m_exception.reportGlobalStaticForType(t, DLoc, BR))
         return;
-      if (support::isSafeClassName(t.getCanonicalType().getAsString()))
+      if (support::isSafeClassName(t.getCanonicalType().getAsString()) || support::isSafeClassName(t.getAsString()))
         return;
 
       std::string buf;

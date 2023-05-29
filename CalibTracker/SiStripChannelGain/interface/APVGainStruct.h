@@ -34,6 +34,7 @@ struct stAPVGain {
   TH1F* HCharge;
   TH1F* HChargeN;
   bool isMasked;
+  char Side;
 };
 
 struct APVloc {

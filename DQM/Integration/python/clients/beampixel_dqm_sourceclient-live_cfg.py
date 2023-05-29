@@ -2,8 +2,12 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("BeamMonitor", Run3)
+if 'runkey=hi_run' in sys.argv:
+  from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
+  process = cms.Process("BeamPixel", Run3_pp_on_PbPb_approxSiStripClusters)
+else:
+  from Configuration.Eras.Era_Run3_cff import Run3
+  process = cms.Process("BeamPixel", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -47,7 +51,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 # Use this to run locally (for testing purposes), choose the right GT
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data", "")
+#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run3_data", "")
 # Otherwise use this
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
@@ -86,10 +90,10 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 #----------------------------
 # Pixel-Tracks&Vertices Config
 #----------------------------
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoTracker.Configuration.RecoPixelVertexing_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
     TkFilterParameters = dict(
@@ -151,7 +155,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.04),
-                                            VxErrCorr          = cms.double(1.2), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.0), # Was 1.2, changed to 1.0 in Run3 13.6 TeV collisions - Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
@@ -204,7 +208,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.04),
-                                            VxErrCorr          = cms.double(1.2), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.0), # Was 1.2, changed to 1.0 in Run3 13.6 TeV collisions - Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))

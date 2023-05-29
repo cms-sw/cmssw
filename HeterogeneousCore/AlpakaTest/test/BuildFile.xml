@@ -1,0 +1,10 @@
+<!-- TODO: dependence on CUDA only to make GPU IBs to run these tests -->
+<use name="cuda"/>
+
+<test name="testHeterogeneousCoreAlpakaTestWriteRead" command="testHeterogeneousCoreAlpakaTestWriteRead.sh"/>
+
+<ifrelease name="_GPU_">
+  <test name="testHeterogeneousCoreAlpakaTestModules" command="testAlpakaModules.sh cuda"/>
+<else/>
+  <test name="testHeterogeneousCoreAlpakaTestModules" command="testAlpakaModules.sh cpu"/>
+</ifrelease>

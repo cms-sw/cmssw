@@ -219,7 +219,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
 }
 
 bool Source::getHostname(const std::string &id, std::string &hostname) {
-  size_t pos = id.find(':');
+  size_t pos = id.find_last_of(':');
   hostname = id;
   if ((pos != std::string::npos) && (pos > 0)) {
     hostname = id.substr(0, pos);

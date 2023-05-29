@@ -156,9 +156,10 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
 
   const math::XYZTLorentzVectorD& momentumPrim = primaryCand.p4();
 
-  math::XYZTLorentzVectorD momentumSec;
+  math::XYZTLorentzVectorD momentumSec(0., 0., 0., 0.);
 
-  momentumSec = momentumPrim / momentumPrim.E() * (primaryCand.ecalEnergy() + primaryCand.hcalEnergy());
+  if (momentumPrim.E() > 0)
+    momentumSec = momentumPrim / momentumPrim.E() * (primaryCand.ecalEnergy() + primaryCand.hcalEnergy());
 
   map<double, math::XYZTLorentzVectorD> candidatesWithTrackExcess;
   map<double, math::XYZTLorentzVectorD> candidatesWithoutCalo;
@@ -203,14 +204,15 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
             pfCand.at(ce1).addElementInBlock(elementsInBlocks[blockElem].first, elementsInBlocks[blockElem].second);
         }
 
+        double candE = pfCand.at(ce2).p4().E();
         double caloEn = pfCand.at(ce2).ecalEnergy() + pfCand.at(ce2).hcalEnergy();
-        double deltaEn = pfCand.at(ce2).p4().E() - caloEn;
+        double deltaEn = candE - caloEn;
         int nMissOuterHits =
             pfCand.at(ce2).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
 
         // Check if the difference Track Calo is not too large and if we can trust the track, ie it doesn't miss too much hits.
-        if (deltaEn > 1 && nMissOuterHits > 1) {
-          math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce2).p4() * caloEn / pfCand.at(ce2).p4().E();
+        if (deltaEn > 1 && nMissOuterHits > 1 && candE > 0) {
+          math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce2).p4() * caloEn / candE;
           momentumSec += momentumToAdd;
           LogTrace("PFCandConnector|analyseNuclearWPrim")
               << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may "
@@ -220,8 +222,8 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
 
         } else {
           // Check if the difference Track Calo is not too large and if we can trust the track, ie it doesn't miss too much hits.
-          if (caloEn > 0.01 && deltaEn > 1 && nMissOuterHits > 0) {
-            math::XYZTLorentzVectorD momentumExcess = pfCand.at(ce2).p4() * deltaEn / pfCand.at(ce2).p4().E();
+          if (caloEn > 0.01 && deltaEn > 1 && nMissOuterHits > 0 && candE > 0) {
+            math::XYZTLorentzVectorD momentumExcess = pfCand.at(ce2).p4() * deltaEn / candE;
             candidatesWithTrackExcess[pfCand.at(ce2).trackRef()->pt() / pfCand.at(ce2).trackRef()->ptError()] =
                 momentumExcess;
           } else if (caloEn < 0.01)
@@ -278,7 +280,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
        (ref1->isThereMergedTracks() && dpt < dptRel_MergedTrack_)) &&
       momentumPrim.E() > momentumSec.E() && momentumSec.E() > 0.1) {
     if (bCalibPrimary_) {
-      double factor = rescaleFactor(momentumPrim.Pt(), momentumSec.E() / momentumPrim.E());
+      double factor = momentumPrim.E() > 0 ? rescaleFactor(momentumPrim.Pt(), momentumSec.E() / momentumPrim.E()) : 1.;
       LogTrace("PFCandConnector|analyseNuclearWPrim") << "factor = " << factor << endl;
       if (factor * momentumPrim.Pt() < momentumSec.Pt())
         momentumSec = momentumPrim;
@@ -286,9 +288,12 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
         momentumSec += (1 - factor) * momentumPrim;
     }
 
-    double px = momentumPrim.Px() * momentumSec.P() / momentumPrim.P();
-    double py = momentumPrim.Py() * momentumSec.P() / momentumPrim.P();
-    double pz = momentumPrim.Pz() * momentumSec.P() / momentumPrim.P();
+    double px = 0, py = 0, pz = 0.;
+    if (momentumPrim.P() > 0) {
+      px = momentumPrim.Px() * momentumSec.P() / momentumPrim.P();
+      py = momentumPrim.Py() * momentumSec.P() / momentumPrim.P();
+      pz = momentumPrim.Pz() * momentumSec.P() / momentumPrim.P();
+    }
     double E = sqrt(px * px + py * py + pz * pz + pion_mass2);
     math::XYZTLorentzVectorD momentum(px, py, pz, E);
     pfCand.at(ce1).setP4(momentum);
@@ -395,7 +400,10 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
   math::XYZTLorentzVectorD momentumSec = secondaryCand.p4();
 
   if (deltaEn > ptErrorSecondary_ && nMissOuterHits > 1) {
-    math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce1).p4() * caloEn / pfCand.at(ce1).p4().E();
+    math::XYZTLorentzVectorD momentumToAdd(0., 0., 0., 0.);
+    float candE = pfCand.at(ce1).p4().E();
+    if (candE > 0)
+      momentumToAdd = pfCand.at(ce1).p4() * caloEn / candE;
     momentumSec = momentumToAdd;
     LogTrace("PFCandConnector|analyseNuclearWSec")
         << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may have "
@@ -433,12 +441,13 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
             pfCand.at(ce1).addElementInBlock(elementsInBlocks[blockElem].first, elementsInBlocks[blockElem].second);
         }
 
+        double candE = pfCand.at(ce2).p4().E();
         double caloEn = pfCand.at(ce2).ecalEnergy() + pfCand.at(ce2).hcalEnergy();
-        double deltaEn = pfCand.at(ce2).p4().E() - caloEn;
+        double deltaEn = candE - caloEn;
         int nMissOuterHits =
             pfCand.at(ce2).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
         if (deltaEn > ptErrorSecondary_ && nMissOuterHits > 1) {
-          math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce2).p4() * caloEn / pfCand.at(ce2).p4().E();
+          math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce2).p4() * caloEn / candE;
           momentumSec += momentumToAdd;
           LogTrace("PFCandConnector|analyseNuclearWSec")
               << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may "

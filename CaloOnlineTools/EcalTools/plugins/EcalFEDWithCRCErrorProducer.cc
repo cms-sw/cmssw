@@ -51,7 +51,7 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::InputTag DataLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> DataToken_;
   std::vector<int> fedUnpackList_;
   bool writeAllEcalFEDs_;
 };
@@ -62,7 +62,7 @@ private:
 EcalFEDWithCRCErrorProducer::EcalFEDWithCRCErrorProducer(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
 
-  DataLabel_ = iConfig.getParameter<edm::InputTag>("InputLabel");
+  DataToken_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"));
   fedUnpackList_ = iConfig.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>());
   writeAllEcalFEDs_ = iConfig.getUntrackedParameter<bool>("writeAllEcalFED", false);
   if (fedUnpackList_.empty())
@@ -85,8 +85,7 @@ EcalFEDWithCRCErrorProducer::~EcalFEDWithCRCErrorProducer() {
 void EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(DataLabel_, rawdata);
+  const edm::Handle<FEDRawDataCollection>& rawdata = iEvent.getHandle(DataToken_);
 
   auto producedData = std::make_unique<FEDRawDataCollection>();
   // get fed raw data and SM id
@@ -108,8 +107,8 @@ void EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSe
       if (writeAllEcalFEDs_ || crcError) {
         FEDRawData& fedDataProd = producedData->FEDData(*i);
         if (fedDataProd.size() != 0) {
-          //                std::cout << " More than one FEDRawDataCollection with data in FED ";
-          //                std::cout << j << " Skipping the 2nd\n";
+          //                edm::LogVerbatim("EcalTools") << " More than one FEDRawDataCollection with data in FED ";
+          //                                              << j << " Skipping the 2nd";
           continue;
         }
         fedDataProd.resize(fedData.size());

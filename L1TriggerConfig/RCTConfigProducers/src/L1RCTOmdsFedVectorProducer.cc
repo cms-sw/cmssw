@@ -64,6 +64,8 @@ private:
   std::string connectionString;
   std::string authpath;
   std::string tableToRead;
+
+  edm::ESGetToken<RunInfo, RunInfoRcd> token_;
 };
 
 //
@@ -83,7 +85,7 @@ L1RCTOmdsFedVectorProducer::L1RCTOmdsFedVectorProducer(const edm::ParameterSet& 
       tableToRead(iConfig.getParameter<std::string>("tableToRead")) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this, "OmdsFedVector");
+  token_ = setWhatProduced(this, "OmdsFedVector").consumes();
 
   //now do what ever other initialization is needed
 }
@@ -104,9 +106,7 @@ L1RCTOmdsFedVectorProducer::ReturnType L1RCTOmdsFedVectorProducer::produce(const
   //  std::cout << "GETTING FED VECTOR FROM OMDS" << std::endl;
 
   // GETTING ALREADY-EXISTING RUNINFO OUT OF ES TO FIND OUT RUN NUMBER
-  edm::ESHandle<RunInfo> sum;
-  iRecord.get(sum);
-  const RunInfo* summary = sum.product();
+  const RunInfo* summary = &iRecord.get(token_);
   int runNumber = summary->m_run;
 
   // CREATING NEW RUNINFO WHICH WILL GET NEW FED VECTOR AND BE RETURNED

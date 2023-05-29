@@ -30,11 +30,12 @@ namespace edm {
       PreallocationConfiguration const& prealloc,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
-      std::shared_ptr<ProcessConfiguration> processConfiguration,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration,
       ProcessContext const* processContext)
-      : actReg_(areg), processContext_(processContext) {
-    workerManagers_.reserve(prealloc.numberOfLuminosityBlocks());
-    for (unsigned int i = 0; i < prealloc.numberOfLuminosityBlocks(); ++i) {
+      : actReg_(areg), processContext_(processContext), numberOfConcurrentLumis_(prealloc.numberOfLuminosityBlocks()) {
+    unsigned int nManagers = prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns();
+    workerManagers_.reserve(nManagers);
+    for (unsigned int i = 0; i < nManagers; ++i) {
       workerManagers_.emplace_back(modReg, areg, actions);
     }
     for (auto const& moduleLabel : iModulesToUse) {

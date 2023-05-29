@@ -52,6 +52,7 @@ namespace cms {
   public:
     explicit SiPixelCondObjAllPayloadsReader(const edm::ParameterSet& iConfig);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void analyze(const edm::Event&, const edm::EventSetup&) override;
     void endJob() override;
 
@@ -69,6 +70,14 @@ namespace cms {
 }  // namespace cms
 
 namespace cms {
+
+  void SiPixelCondObjAllPayloadsReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("EDAnalyzer to read per-module SiPixelGainCalibration payloads in the EventSetup, for any type");
+    desc.add<std::string>("payloadType", "HLT");
+    descriptions.addWithDefaultLabel(desc);
+  }
+
   SiPixelCondObjAllPayloadsReader::SiPixelCondObjAllPayloadsReader(const edm::ParameterSet& conf)
       : tkGeomToken_(esConsumes()) {
     usesResource(TFileService::kSharedResource);

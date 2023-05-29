@@ -1,0 +1,19 @@
+<lcgdict>
+  <class name="TotemT2Digi" ClassVersion="4">
+    <version ClassVersion="4" checksum="708922079"/>
+    <version ClassVersion="3" checksum="4024006040"/>
+  </class>
+  <class name="edmNew::DetSet<TotemT2Digi>"/>
+  <class name="edmNew::DetSetVector<TotemT2Digi>"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<TotemT2Digi> >"/>
+  <class name="std::vector<TotemT2Digi>"/>
+  <class name="std::vector<edmNew::DetSet<TotemT2Digi> >"/>
+  <class name="TotemT2RecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="969691996"/>
+  </class>
+  <class name="edmNew::DetSet<TotemT2RecHit>"/>
+  <class name="edmNew::DetSetVector<TotemT2RecHit>"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<TotemT2RecHit> >"/>
+  <class name="std::vector<TotemT2RecHit>"/>
+  <class name="std::vector<edmNew::DetSet<TotemT2RecHit> >"/>
+</lcgdict>

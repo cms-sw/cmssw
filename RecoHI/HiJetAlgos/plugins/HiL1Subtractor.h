@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,7 +39,7 @@
 // class declaration
 //
 
-class HiL1Subtractor : public edm::EDProducer {
+class HiL1Subtractor : public edm::global::EDProducer<> {
 protected:
   //
   // typedefs & structs
@@ -47,12 +47,9 @@ protected:
 
 public:
   explicit HiL1Subtractor(const edm::ParameterSet&);
-  ~HiL1Subtractor() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   // input jet source

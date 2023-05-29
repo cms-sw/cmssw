@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,37 +36,30 @@
 // class declaration
 //
 
-class EcalBasicUncalibRecHitFilter : public edm::EDFilter {
+class EcalBasicUncalibRecHitFilter : public edm::stream::EDFilter<> {
 public:
   explicit EcalBasicUncalibRecHitFilter(const edm::ParameterSet&);
-  ~EcalBasicUncalibRecHitFilter();
+  ~EcalBasicUncalibRecHitFilter() override = default;
 
 private:
-  virtual void beginJob();
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
-  edm::InputTag EcalUncalibRecHitCollection_;
-  double minAdc_;
+  const double minAdc_;
+  const edm::InputTag EcalUncalibRecHitCollection_;
   std::vector<int> maskedList_;
 };
 
 //
 // constructors and destructor
 //
-EcalBasicUncalibRecHitFilter::EcalBasicUncalibRecHitFilter(const edm::ParameterSet& iConfig) {
+EcalBasicUncalibRecHitFilter::EcalBasicUncalibRecHitFilter(const edm::ParameterSet& iConfig)
+    : minAdc_(iConfig.getUntrackedParameter<double>("adcCut", 12)),
+      EcalUncalibRecHitCollection_(iConfig.getParameter<edm::InputTag>("EcalUncalibRecHitCollection")) {
   //now do what ever initialization is needed
-  minAdc_ = iConfig.getUntrackedParameter<double>("adcCut", 12);
-  maskedList_ =
-      iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_);  //this is using the ashed index
-  EcalUncalibRecHitCollection_ = iConfig.getParameter<edm::InputTag>("EcalUncalibRecHitCollection");
-}
-
-EcalBasicUncalibRecHitFilter::~EcalBasicUncalibRecHitFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+  //masked list is using the ashed index
+  maskedList_ = iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_);
 }
 
 //
@@ -113,12 +106,6 @@ bool EcalBasicUncalibRecHitFilter::filter(edm::Event& iEvent, const edm::EventSe
 
   return thereIsSignal;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void EcalBasicUncalibRecHitFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void EcalBasicUncalibRecHitFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EcalBasicUncalibRecHitFilter);

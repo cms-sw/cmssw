@@ -1,7 +1,20 @@
-#! /bin/bash
+#!/bin/bash
 #
 # utility functions used to generate HLT tables from master table in ConfDB
 #
+
+# db-proxy configuration
+DBPROXY=""
+DBPROXYHOST="localhost"
+DBPROXYPORT="8080"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dbproxy) DBPROXY="--dbproxy"; shift;;
+    --dbproxyhost) DBPROXYHOST="$2"; shift; shift;;
+    --dbproxyport) DBPROXYPORT="$2"; shift; shift;;
+    *) shift;;
+  esac
+done
 
 # load common HLT functions
 if [ -f "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
@@ -31,12 +44,14 @@ function cleanup() {
 }
 
 function getPathList() {
-  local DATA=$(hltConfigFromDB --$Vx --$DB --cff --configName $MASTER --noedsources --noes --noservices --nosequences --nomodules)
-  if echo "$DATA" | grep -q 'Exhausted Resultset\|CONFIG_NOT_FOUND'; then
+  [ "x${DBPROXY}" = "x" ] || local DBPROXYOPTS="${DBPROXY} --dbproxyhost ${DBPROXYHOST} --dbproxyport ${DBPROXYPORT}"
+  local DATA=$(hltConfigFromDB --${Vx} --${DB} --cff --configName ${MASTER} \
+    --noedsources --noes --noservices --nosequences --nomodules ${DBPROXYOPTS})
+  if echo "${DATA}" | grep -q 'Exhausted Resultset\|CONFIG_NOT_FOUND'; then
     echo "Error: $MASTER is not a valid HLT menu"
     exit 1
   fi
-  echo "$DATA" | sed -ne's/ *= *cms.\(Final\|End\)\?Path.*//p'
+  echo "${DATA}" | sed -ne's/ *= *cms.\(Final\|End\)\?Path.*//p'
 }
 
 function checkJars() {
@@ -73,7 +88,7 @@ function makeCreateConfig() {
       if [ -f $workDir/$JAR ]; then
         continue
       fi
-      # download to a temporay file and use an atomic move (in case an other istance is downloading the same file
+      # download to a temporary file and use an atomic move (in case another instance is downloading the same file)
       local TMPJAR=$(mktemp -p "$workDir" .${JAR}.XXXXXXXXXX)
       curl -s -L "$baseUrl/$JAR" -o "$TMPJAR"
       mv -n "$TMPJAR" "$workDir/$JAR"
@@ -89,61 +104,60 @@ function makeCreateConfig() {
 
 function loadConfiguration() {
   case "$1" in
+    # v1 offline aka "hltdev"
     "v1/offline" | "v1/hltdev")
-      # v1 offline aka "hltdev"
-      DBHOST="cmsr1-v.cern.ch"
+      DBHOST="cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch"
+      [ "x${DBPROXY}" = "x" ] || DBHOST="10.116.96.89,10.116.96.139,10.116.96.105"
       DBNAME="cms_cond.cern.ch"
       DBUSER="cms_hltdev_writer"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
+    # v2 offline
     "v2/offline")
-      # v2 offline
-      DBHOST="cmsr1-v.cern.ch"
+      DBHOST="cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch"
+      [ "x${DBPROXY}" = "x" ] || DBHOST="10.116.96.89,10.116.96.139,10.116.96.105"
       DBNAME="cms_cond.cern.ch"
       DBUSER="cms_hlt_gdr_w"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
-     "v3/run3")
-      # v3 run3
-      DBHOST="cmsr1-s.cern.ch"
+    # converter=v3*, db=run3
+    "v3/run3" | "v3-beta/run3" | "v3-test/run3")
+      DBHOST="cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch"
+      [ "x${DBPROXY}" = "x" ] || DBHOST="10.116.96.89,10.116.96.139,10.116.96.105"
       DBNAME="cms_hlt.cern.ch"
       DBUSER="cms_hlt_v3_w"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
-      "v3-test/dev")
-      # v3-test dev
-      DBHOST="cmsr1-s.cern.ch"
-      DBNAME="cms_hlt.cern.ch"
-      DBUSER="cms_hlt_gdrdev_w"
-      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
-      ;;
-      "v3/dev")
-      # v3 dev
-      DBHOST="cmsr1-s.cern.ch"
+    # converter=v3*, db=dev
+    "v3/dev" | "v3-beta/dev" | "v3-test/dev")
+      DBHOST="cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch"
+      [ "x${DBPROXY}" = "x" ] || DBHOST="10.116.96.89,10.116.96.139,10.116.96.105"
       DBNAME="cms_hlt.cern.ch"
       DBUSER="cms_hlt_gdrdev_w"
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
     *)
       # see https://github.com/fwyzard/hlt-confdb/blob/confdbv2/test/runCreateConfig
-      echo "Error, unnown database \"$1\", exiting."
+      echo "Error, unknown database \"$1\", exiting."
       exit 1
       ;;
   esac
 }
 
 function runCreateConfig() {
+  [ "x${DBPROXY}" = "x" ] || local DBPROXYOPTS="-DsocksProxyHost=${DBPROXYHOST} -DsocksProxyPort=${DBPROXYPORT}"
   loadConfiguration "$1"
   java \
     -Djava.security.egd=file:///dev/urandom \
     -Doracle.jdbc.timezoneAsRegion=false \
+    ${DBPROXYOPTS} \
     -Xss32M \
     -Xmx1024m \
-    -classpath "$CLASSPATH" \
+    -classpath "${CLASSPATH}" \
     confdb.db.ConfDBCreateConfig \
-    --dbHost $DBHOST \
-    --dbName $DBNAME \
-    --dbUser $DBUSER \
+    --dbHost "${DBHOST}" \
+    --dbName "${DBNAME}" \
+    --dbUser "${DBUSER}" \
     --dbPwrd $2 \
     --master $3 \
     --paths $4 \
@@ -219,7 +233,7 @@ function createSubtables() {
   # ask the user for the database password
   readPassword
 
-  # make sure the needed sripts are available
+  # make sure the needed scripts are available
   makeCreateConfig
 
   # extract each subtable

@@ -1,6 +1,6 @@
 // L1TCaloParamsWriter
 //
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -27,7 +27,7 @@
 // class declaration
 //
 
-class L1TCaloParamsWriter : public edm::EDAnalyzer {
+class L1TCaloParamsWriter : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TCaloParamsWriter(const edm::ParameterSet&) {}
   ~L1TCaloParamsWriter() override {}

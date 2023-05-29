@@ -125,18 +125,17 @@ void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const&
 // ------------ method called to produce the data  ------------
 
 void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
   const std::vector<bool>* wordp = nullptr;
   bool unprefireable_bit = false;
   if (!legacyL1_) {
-    edm::Handle<GlobalAlgBlkBxCollection> handleResults;
-    iEvent.getByToken(token_, handleResults);
-    wordp = &handleResults->at(0, 0).getAlgoDecisionFinal();
+    const auto& resultsProd = iEvent.get(token_);
+    if (not resultsProd.isEmpty(0)) {
+      wordp = &resultsProd.at(0, 0).getAlgoDecisionFinal();
+    }
     if (store_unprefireable_bit_) {
-      edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
-      iEvent.getByToken(token_ext_, handleExtResults);
+      auto handleExtResults = iEvent.getHandle(token_ext_);
       if (handleExtResults.isValid()) {
-        if (handleExtResults->size() != 0) {
+        if (not handleExtResults->isEmpty(0)) {
           unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
         }
       } else {
@@ -145,22 +144,20 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     }
   } else {
     // Legacy access
-    edm::Handle<L1GlobalTriggerReadoutRecord> handleResults;
-    iEvent.getByToken(tokenLegacy_, handleResults);
-    wordp = &handleResults->decisionWord();
+    const auto& resultsProd = iEvent.get(tokenLegacy_);
+    wordp = &resultsProd.decisionWord();
   }
-  auto const& word = *wordp;
-  HLTGlobalStatus l1bitsAsHLTStatus(names_.size());
+  edm::HLTGlobalStatus l1bitsAsHLTStatus(names_.size());
   unsigned indices_size = indices_.size();
   for (size_t nidx = 0; nidx < indices_size; nidx++) {
-    unsigned int index = indices_[nidx];
-    bool result = word[index];
-    if (!mask_.empty())
-      result &= (mask_[index] != 0);
-    l1bitsAsHLTStatus[nidx] = HLTPathStatus(result ? edm::hlt::Pass : edm::hlt::Fail);
+    unsigned int const index = indices_[nidx];
+    bool result = wordp ? wordp->at(index) : false;
+    if (not mask_.empty())
+      result &= (mask_.at(index) != 0);
+    l1bitsAsHLTStatus[nidx] = edm::HLTPathStatus(result ? edm::hlt::Pass : edm::hlt::Fail);
   }
   if (store_unprefireable_bit_)
-    l1bitsAsHLTStatus[indices_size] = HLTPathStatus(unprefireable_bit ? edm::hlt::Pass : edm::hlt::Fail);
+    l1bitsAsHLTStatus[indices_size] = edm::HLTPathStatus(unprefireable_bit ? edm::hlt::Pass : edm::hlt::Fail);
   //mimic HLT trigger bits for L1
   auto out = std::make_unique<edm::TriggerResults>(l1bitsAsHLTStatus, names_);
   iEvent.put(std::move(out));

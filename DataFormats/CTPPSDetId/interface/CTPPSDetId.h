@@ -32,7 +32,13 @@
 class CTPPSDetId : public DetId {
 public:
   /// CTPPS sub-detectors
-  enum SubDetector { sdTrackingStrip = 3, sdTrackingPixel = 4, sdTimingDiamond = 5, sdTimingFastSilicon = 6 };
+  enum SubDetector {
+    sdTrackingStrip = 3,
+    sdTrackingPixel = 4,
+    sdTimingDiamond = 5,
+    sdTimingFastSilicon = 6,
+    sdTotemT2 = 7
+  };
 
   /// Construct from a raw id.
   explicit CTPPSDetId(uint32_t id);

@@ -13,6 +13,10 @@
 
 namespace dqm::implementation {
 
+  // list of acceptable characters for ME path names, in order to be able to upload to the CMS DQM GUI
+  // See https://github.com/cms-DQM/dqmgui_prod/blob/af0a388e8f57c60e51111585d298aeeea943367f/src/cpp/DQM/DQMStore.cc#L56
+  static const std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
+
   std::string NavigatorBase::pwd() {
     if (cwd_.empty()) {
       return "";
@@ -66,6 +70,19 @@ namespace dqm::implementation {
                                   bool forceReplace /* = false */) {
     MonitorElementData::Path path;
     std::string fullpath = cwd_ + std::string(name.View());
+
+    auto pathToCheck{fullpath};
+    std::string limiter{".root:/"};          // this indicates that all the substring before is a file name
+    size_t pos = pathToCheck.find(limiter);  //find location of limiter
+    //delete everything prior to location found as it might contain illegal chars
+    pathToCheck.erase(0, pos + limiter.size());
+
+    if (pathToCheck.find_first_not_of(s_safe) != std::string::npos) {
+      throw cms::Exception("BadMonitorElementPathName")
+          << " Monitor element path name: '" << pathToCheck.c_str() << "' uses unacceptable characters."
+          << "\n Acceptable characters are: " << s_safe.c_str();
+    }
+
     path.set(fullpath, MonitorElementData::Path::Type::DIR_AND_NAME);
 
     // We should check if there is a local ME for this module and name already.
@@ -82,15 +99,30 @@ namespace dqm::implementation {
       MonitorElementData medata;
       medata.key_.path_ = path;
       medata.key_.kind_ = kind;
-      medata.key_.scope_ = this->scope_;
+
+      const auto& MEs = store_->getMEsToSave();
+
+      if (not MEs.empty() && not store_->getMode()) {
+        bool pathInList = false;
+        for (const auto& thepath : MEs) {
+          if (fullpath == thepath) {
+            medata.key_.scope_ = MonitorElementData::Scope::LUMI;
+            pathInList = true;
+            break;
+          }
+        }
+        if (not pathInList)
+          medata.key_.scope_ = this->scope_;
+      } else
+        medata.key_.scope_ = this->scope_;
 
       // will be (0,0) ( = prototype) in the common case.
       // This branching is for harvesting, where we have run/lumi in the booker.
-      if (this->scope_ == MonitorElementData::Scope::JOB) {
+      if (medata.key_.scope_ == MonitorElementData::Scope::JOB) {
         medata.key_.id_ = edm::LuminosityBlockID();
-      } else if (this->scope_ == MonitorElementData::Scope::RUN) {
+      } else if (medata.key_.scope_ == MonitorElementData::Scope::RUN) {
         medata.key_.id_ = edm::LuminosityBlockID(this->runlumi_.run(), 0);
-      } else if (this->scope_ == MonitorElementData::Scope::LUMI) {
+      } else if (medata.key_.scope_ == MonitorElementData::Scope::LUMI) {
         // In the messy case of legacy-booking a LUMI ME in beginRun (or
         // similar), where we don't have a valid lumi number yet, make sure to
         // book a prototype instead.
@@ -640,22 +672,29 @@ namespace dqm::implementation {
     auto const& meset = store_->globalMEs_[edm::LuminosityBlockID(runNumber, lumi)];
     auto it = meset.lower_bound(path);
 
-    // decide if the ME should be save din DQMIO based on the list provided
-    bool saveIt = true;
-
-    // rfind can be used as a prefix match.
+    // decide if the ME should be saved in DQMIO and/or nanoDQMIO
+    // if doSaveByLumi_ is false: store all monitoring elements (needed for harvesting step!)
+    // if doSaveByLumi_ is true: store only selected monitoring elements (i.e. "nanoDQMIO")
     while (it != meset.end() && (*it)->getFullname().rfind(path_str, 0) == 0) {
+      bool saveIt = true;  // default value if doSaveByLumi_ is false
+
       if (store_->doSaveByLumi_ && not store_->MEsToSave_.empty()) {
+        std::string name = (*it)->getFullname();
+        saveIt = false;  // default value if doSaveByLumi_ is true
         for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
              ipath != store_->MEsToSave_.end();
              ++ipath) {
-          std::string name = (*it)->getFullname();
-          if (name.find(*ipath) != std::string::npos) {
+          const std::string& nameToSave = *ipath;
+          // option 1 (used in the past): inclusive selection
+          // (store all MEs that contain any of the requested patterns)
+          // if (name.find(nameToSave) != std::string::npos) {
+          // option 2 (current criterion): exact selection
+          // (store only MEs that exactly match a requested pattern)
+          if (name == nameToSave) {
             saveIt = true;
-            //std::cout<<name<<" compared to"<<ipath->data()<<std::endl;
+            // std::cout<<name<<" compared to"<<ipath->data()<<std::endl;
             break;
           }
-          saveIt = false;
         }
       }
 
@@ -738,10 +777,11 @@ namespace dqm::implementation {
 
   DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar) : IGetter(this), IBooker(this) {
     verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
-    assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", true);
+    assertLegacySafe_ = pset.getUntrackedParameter<bool>("assertLegacySafe", false);
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
     MEsToSave_ = pset.getUntrackedParameter<std::vector<std::string>>("MEsToSave", std::vector<std::string>());
     trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");
+    onlineMode_ = pset.getUntrackedParameter<bool>("onlineMode", false);
 
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be

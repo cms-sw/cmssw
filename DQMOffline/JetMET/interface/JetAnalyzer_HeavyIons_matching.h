@@ -54,7 +54,6 @@
 // include the centrality variables
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

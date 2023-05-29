@@ -10,6 +10,8 @@ void MahiFit::setParameters(bool iDynamicPed,
                             bool iApplyTimeSlew,
                             HcalTimeSlew::BiasSetting slewFlavor,
                             bool iCalculateArrivalTime,
+                            int timeAlgo,
+                            double iThEnergeticPulses,
                             double iMeanTime,
                             double iTimeSigmaHPD,
                             double iTimeSigmaSiPM,
@@ -27,6 +29,8 @@ void MahiFit::setParameters(bool iDynamicPed,
   slewFlavor_ = slewFlavor;
 
   calculateArrivalTime_ = iCalculateArrivalTime;
+  timeAlgo_ = timeAlgo;
+  thEnergeticPulses_ = iThEnergeticPulses;
   meanTime_ = iMeanTime;
   timeSigmaHPD_ = iTimeSigmaHPD;
   timeSigmaSiPM_ = iTimeSigmaSiPM;
@@ -210,8 +214,10 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
     if (correctedOutput.at(0) != 0) {
       // fixME store the timeslew
       float arrivalTime = 0.f;
-      if (calculateArrivalTime_)
+      if (calculateArrivalTime_ && timeAlgo_ == 1)
         arrivalTime = calculateArrivalTime(ipulseintime);
+      else if (calculateArrivalTime_ && timeAlgo_ == 2)
+        arrivalTime = ccTime(nnlsWork_.ampVec.coeff(ipulseintime));
       correctedOutput.at(1) = arrivalTime;  //time
     } else
       correctedOutput.at(1) = -9999.f;  //time
@@ -343,6 +349,71 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
   }
 
   nnlsWork_.covDecomp.compute(invCovMat);
+}
+
+float MahiFit::ccTime(const float itQ) const {
+  // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(itIndex);
+
+  // Selecting energetic hits - Fitted Energy > 20 GeV
+  if (itQ < thEnergeticPulsesFC_)
+    return HcalSpecialTimes::DEFAULT_ccTIME;
+
+  // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
+  // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
+  // To speed up check around the fitted time (?)
+
+  // distanze as in formula of page 6
+  // https://indico.cern.ch/event/1142347/contributions/4793749/attachments/2412936/4129323/HCAL%20timing%20update.pdf
+
+  float t0 = meanTime_;
+
+  if (applyTimeSlew_) {
+    if (itQ <= 1.f)
+      t0 += tsDelay1GeV_;
+    else
+      t0 += hcalTimeSlewDelay_->delay(float(itQ), slewFlavor_);
+  }
+
+  float ccTime = 0.f;
+  float distance_delta_max = 0.f;
+
+  std::array<double, hcal::constants::maxSamples> pulseN;
+
+  // making 8 TS out of the template i.e. 200 points
+  int TS_SOIandAfter = 25 * (nnlsWork_.tsSize - nnlsWork_.tsOffset);
+  int TS_beforeSOI = -25 * nnlsWork_.tsOffset;
+
+  for (int deltaNS = TS_beforeSOI; deltaNS < TS_SOIandAfter; ++deltaNS) {  // from -75ns and + 125ns
+    const float xx = t0 + deltaNS;
+
+    psfPtr_->singlePulseShapeFuncMahi(&xx);
+    psfPtr_->getPulseShape(pulseN);
+
+    float pulse2 = 0;
+    float norm2 = 0;
+    float numerator = 0;
+    //
+    int delta = 4 - nnlsWork_.tsOffset;  // like in updatePulseShape
+
+    // rm TS0 and TS7, to speed up and reduce noise
+    for (unsigned int iTS = 1; iTS < (nnlsWork_.tsSize - 1); ++iTS) {
+      //pulseN[iTS] is the area of the template
+      float norm = nnlsWork_.amplitudes.coeffRef(iTS);
+
+      //  Finding the distance after each iteration.
+      numerator += norm * pulseN[iTS + delta];
+      pulse2 += pulseN[iTS + delta] * pulseN[iTS + delta];
+      norm2 += norm * norm;
+    }
+
+    float distance = numerator / sqrt(pulse2 * norm2);
+    if (distance > distance_delta_max) {
+      distance_delta_max = distance;
+      ccTime = deltaNS;
+    }
+  }
+
+  return ccTime;
 }
 
 float MahiFit::calculateArrivalTime(const unsigned int itIndex) const {
@@ -478,7 +549,8 @@ void MahiFit::setPulseShapeTemplate(const int pulseShapeId,
                                     const HcalPulseShapes& ps,
                                     const bool hasTimeInfo,
                                     const HcalTimeSlew* hcalTimeSlewDelay,
-                                    const unsigned int nSamples) {
+                                    const unsigned int nSamples,
+                                    const float gain0) {
   if (hcalTimeSlewDelay != hcalTimeSlewDelay_) {
     assert(hcalTimeSlewDelay);
     hcalTimeSlewDelay_ = hcalTimeSlewDelay;
@@ -498,6 +570,9 @@ void MahiFit::setPulseShapeTemplate(const int pulseShapeId,
     nnlsWork_.noiseTerms.resize(nSamples);
     nnlsWork_.pedVals.resize(nSamples);
   }
+
+  // threshold in GeV for ccTime
+  thEnergeticPulsesFC_ = thEnergeticPulses_ / gain0;
 }
 
 void MahiFit::resetPulseShapeTemplate(const int pulseShapeId,

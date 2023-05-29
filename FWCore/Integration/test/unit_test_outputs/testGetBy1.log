@@ -148,8 +148,37 @@ GlobalContext: transition = BeginProcessBlock
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'a3' id = 7
+++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'a2' id = 6
+++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'a1' id = 5
+GlobalContext: transition = BeginProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = BeginProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'intProducerEndProcessBlock' id = 12
+++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'intProducerBeginProcessBlock' id = 11
+++++++++ finished: prefetching before processing begin ProcessBlock for module: label = 'intProducerBeginProcessBlock' id = 11
 ++++++ starting: begin process block for module: label = 'intProducerBeginProcessBlock' id = 11
 ++++++ finished: begin process block for module: label = 'intProducerBeginProcessBlock' id = 11
+++++++++ finished: prefetching before processing begin ProcessBlock for module: label = 'a1' id = 5
+GlobalContext: transition = BeginProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = BeginProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
 ++++++ starting: begin process block for module: label = 'a1' id = 5
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
@@ -174,10 +203,13 @@ ModuleCallingContext state = Running
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ finished: prefetching before processing begin ProcessBlock for module: label = 'intProducerEndProcessBlock' id = 12
 ++++++ starting: begin process block for module: label = 'intProducerEndProcessBlock' id = 12
 ++++++ finished: begin process block for module: label = 'intProducerEndProcessBlock' id = 12
+++++++++ finished: prefetching before processing begin ProcessBlock for module: label = 'a2' id = 6
 ++++++ starting: begin process block for module: label = 'a2' id = 6
 ++++++ finished: begin process block for module: label = 'a2' id = 6
+++++++++ finished: prefetching before processing begin ProcessBlock for module: label = 'a3' id = 7
 ++++++ starting: begin process block for module: label = 'a3' id = 7
 ++++++ finished: begin process block for module: label = 'a3' id = 7
 ++++ finished: begin process block
@@ -200,12 +232,39 @@ GlobalContext: transition = BeginProcessBlock
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
-++++ starting: source run
-++++ finished: source run
+++++ queuing: EventSetup synchronization run: 1 lumi: 0 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 0 event: 0
 ++++ post: EventSetup synchronizing run: 1 lumi: 0 event: 0
+++++ starting: source run
+++++ finished: source run
 ++++ starting: global begin run 1 : time = 1
 GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ starting: prefetching before processing global begin Run for module: label = 'a3' id = 7
+++++++++ starting: prefetching before processing global begin Run for module: label = 'a2' id = 6
+++++++++ starting: prefetching before processing global begin Run for module: label = 'a1' id = 5
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ finished: prefetching before processing global begin Run for module: label = 'a1' id = 5
+GlobalContext: transition = BeginRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
@@ -234,8 +293,10 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ finished: prefetching before processing global begin Run for module: label = 'a2' id = 6
 ++++++ starting: global begin run for module: label = 'a2' id = 6
 ++++++ finished: global begin run for module: label = 'a2' id = 6
+++++++++ finished: prefetching before processing global begin Run for module: label = 'a3' id = 7
 ++++++ starting: global begin run for module: label = 'a3' id = 7
 ++++++ finished: global begin run for module: label = 'a3' id = 7
 ++++ finished: global begin run 1 : time = 1
@@ -258,6 +319,9 @@ GlobalContext: transition = BeginRun
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
+++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
@@ -314,13 +378,36 @@ StreamContext: StreamID = 0 transition = BeginRun
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
-++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
-++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
-++++ post: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ starting: prefetching before processing global begin LuminosityBlock for module: label = 'a3' id = 7
+++++++++ starting: prefetching before processing global begin LuminosityBlock for module: label = 'a2' id = 6
+++++++++ starting: prefetching before processing global begin LuminosityBlock for module: label = 'a1' id = 5
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ finished: prefetching before processing global begin LuminosityBlock for module: label = 'a1' id = 5
+GlobalContext: transition = BeginLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
@@ -349,8 +436,10 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ finished: prefetching before processing global begin LuminosityBlock for module: label = 'a2' id = 6
 ++++++ starting: global begin lumi for module: label = 'a2' id = 6
 ++++++ finished: global begin lumi for module: label = 'a2' id = 6
+++++++++ finished: prefetching before processing global begin LuminosityBlock for module: label = 'a3' id = 7
 ++++++ starting: global begin lumi for module: label = 'a3' id = 7
 ++++++ finished: global begin lumi for module: label = 'a3' id = 7
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1
@@ -1107,6 +1196,9 @@ StreamContext: StreamID = 0 transition = Event
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++ queuing: EventSetup synchronization run: 1 lumi: 4294967295 event: 18446744073709551615
+++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
+++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
@@ -1169,6 +1261,32 @@ GlobalContext: transition = EndLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a3' id = 7
+++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a2' id = 6
+++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a1' id = 5
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'a1' id = 5
+GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = EndLuminosityBlock
+    run: 1 luminosityBlock: 1
+    runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
 ++++++ starting: global end lumi for module: label = 'a1' id = 5
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -1193,8 +1311,10 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'a2' id = 6
 ++++++ starting: global end lumi for module: label = 'a2' id = 6
 ++++++ finished: global end lumi for module: label = 'a2' id = 6
+++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'a3' id = 7
 ++++++ starting: global end lumi for module: label = 'a3' id = 7
 ++++++ finished: global end lumi for module: label = 'a3' id = 7
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
@@ -1245,8 +1365,6 @@ GlobalContext: transition = WriteLuminosityBlock
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
-++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
-++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end run: stream = 0 run = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
@@ -1309,6 +1427,32 @@ GlobalContext: transition = EndRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ starting: prefetching before processing global end Run for module: label = 'a3' id = 7
+++++++++ starting: prefetching before processing global end Run for module: label = 'a2' id = 6
+++++++++ starting: prefetching before processing global end Run for module: label = 'a1' id = 5
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ finished: prefetching before processing global end Run for module: label = 'a1' id = 5
+GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = EndRun
+    run: 1 luminosityBlock: 0
+    runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
 ++++++ starting: global end run for module: label = 'a1' id = 5
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
@@ -1333,8 +1477,10 @@ ModuleCallingContext state = Running
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ finished: prefetching before processing global end Run for module: label = 'a2' id = 6
 ++++++ starting: global end run for module: label = 'a2' id = 6
 ++++++ finished: global end run for module: label = 'a2' id = 6
+++++++++ finished: prefetching before processing global end Run for module: label = 'a3' id = 7
 ++++++ starting: global end run for module: label = 'a3' id = 7
 ++++++ finished: global end run for module: label = 'a3' id = 7
 ++++ finished: global end run 1 : time = 15000001
@@ -1391,10 +1537,40 @@ GlobalContext: transition = EndProcessBlock
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'a3' id = 7
+++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'a2' id = 6
+++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'a1' id = 5
+GlobalContext: transition = EndProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = EndProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
+++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'intProducerEndProcessBlock' id = 12
+++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'intProducerBeginProcessBlock' id = 11
+++++++++ finished: prefetching before processing end ProcessBlock for module: label = 'intProducerBeginProcessBlock' id = 11
 ++++++ starting: end process block for module: label = 'intProducerBeginProcessBlock' id = 11
 ++++++ finished: end process block for module: label = 'intProducerBeginProcessBlock' id = 11
+++++++++ finished: prefetching before processing end ProcessBlock for module: label = 'intProducerEndProcessBlock' id = 12
 ++++++ starting: end process block for module: label = 'intProducerEndProcessBlock' id = 12
 ++++++ finished: end process block for module: label = 'intProducerEndProcessBlock' id = 12
+++++++++ finished: prefetching before processing end ProcessBlock for module: label = 'a1' id = 5
+GlobalContext: transition = EndProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+ModuleCallingContext state = Prefetching
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    GlobalContext: transition = EndProcessBlock
+    run: 0 luminosityBlock: 0
+    runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
+    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+
 ++++++ starting: end process block for module: label = 'a1' id = 5
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
@@ -1419,8 +1595,10 @@ ModuleCallingContext state = Running
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++++++ finished: prefetching before processing end ProcessBlock for module: label = 'a2' id = 6
 ++++++ starting: end process block for module: label = 'a2' id = 6
 ++++++ finished: end process block for module: label = 'a2' id = 6
+++++++++ finished: prefetching before processing end ProcessBlock for module: label = 'a3' id = 7
 ++++++ starting: end process block for module: label = 'a3' id = 7
 ++++++ finished: end process block for module: label = 'a3' id = 7
 ++++ finished: end process block

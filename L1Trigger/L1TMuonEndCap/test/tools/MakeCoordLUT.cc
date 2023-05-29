@@ -8,7 +8,7 @@
 #include "TTree.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,19 +29,19 @@
 
 #include "helper.h"
 
-class MakeCoordLUT : public edm::EDAnalyzer {
+class MakeCoordLUT : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit MakeCoordLUT(const edm::ParameterSet&);
-  virtual ~MakeCoordLUT();
+  ~MakeCoordLUT() override;
 
 private:
   //virtual void beginJob();
   //virtual void endJob();
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   // Generate LUTs
   void generateLUTs();
@@ -101,6 +101,7 @@ private:
   bool done_;
 
   /// Event setup
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> theCSCGeometryToken_;
   const CSCGeometry* theCSCGeometry_;
 
   /// Constants
@@ -144,7 +145,8 @@ MakeCoordLUT::MakeCoordLUT(const edm::ParameterSet& iConfig)
       outdir_(iConfig.getParameter<std::string>("outdir")),
       please_validate_(iConfig.getParameter<bool>("please_validate")),
       verbose_sector_(2),
-      done_(false) {
+      done_(false),
+      theCSCGeometryToken_(esConsumes()) {
   // Zero multi-dimensional arrays
   memset(ph_init, 0, sizeof(ph_init));
   memset(ph_init_full, 0, sizeof(ph_init_full));
@@ -170,8 +172,7 @@ MakeCoordLUT::~MakeCoordLUT() {}
 
 void MakeCoordLUT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   /// Geometry setup
-  edm::ESHandle<CSCGeometry> cscGeometryHandle;
-  iSetup.get<MuonGeometryRecord>().get(cscGeometryHandle);
+  edm::ESHandle<CSCGeometry> cscGeometryHandle = iSetup.getHandle(theCSCGeometryToken_);
   if (!cscGeometryHandle.isValid()) {
     std::cout << "ERROR: Unable to get MuonGeometryRecord!" << std::endl;
   } else {

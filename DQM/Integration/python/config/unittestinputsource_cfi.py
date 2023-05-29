@@ -16,41 +16,39 @@ from Configuration.Applications.ConfigBuilder import filesFromDASQuery
 
 options = VarParsing.VarParsing("analysis")
 
-options.register(
-    "runkey",
-    "pp_run",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,
-    "Run Keys of CMS"
-)
+options.register("runkey",
+                 "pp_run",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Run Keys of CMS")
 
 # Parameter for frontierKey
 options.register('runUniqueKey',
-    'InValid',
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,
-    "Unique run key from RCMS for Frontier")
+                 'InValid',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Unique run key from RCMS for Frontier")
 
 options.register('runNumber',
-                 344518,
+                 355380,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number. This run number has to be present in the dataset configured with the dataset option.")
 
 options.register('dataset',
-                 '/ExpressCosmics/Commissioning2021-Express-v1/FEVT',
+                 '/ExpressPhysics/Run2022B-Express-v1/FEVT',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Dataset name like '/ExpressCosmics/Commissioning2021-Express-v1/FEVT'")
 
 options.register('maxLumi',
-                 2,
+                 20,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Only lumisections up to maxLumi are processed.")
 
 options.register('minLumi',
-                 1,
+                 19,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Only lumisections starting from minLumi are processed.")
@@ -102,7 +100,7 @@ for ls in range(options.minLumi, options.maxLumi+1):
     secFiles.extend(sec)
 
     # Get last eventsPerLumi of events in this file
-    command = "edmFileUtil --catalog file:/cvmfs/cms-ib.cern.ch/SITECONF/local/PhEDEx/storage.xml?protocol=xrootd --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
+    command = "edmFileUtil --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
     print(command)
     events = subprocess.check_output(command, shell=True)
     events = events.split(b'\n')

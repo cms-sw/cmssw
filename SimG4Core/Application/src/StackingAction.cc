@@ -1,6 +1,6 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
-#include "SimG4Core/Notification/interface/NewTrackAction.h"
+#include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
@@ -15,6 +15,7 @@
 #include "G4VSolid.hh"
 #include "G4TransportationManager.hh"
 #include "G4GammaGeneralProcess.hh"
+#include "G4LossTableManager.hh"
 
 StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
     : trackAction(trka), steppingVerbose(sv) {
@@ -38,16 +39,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   savePDandCinCalo = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInCalo", false);
   savePDandCinMuon = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInMuon", false);
   saveFirstSecondary = p.getUntrackedParameter<bool>("SaveFirstLevelSecondary", false);
-  killInCalo = false;
-  killInCaloEfH = false;
-
-  // Russian Roulette
-  regionEcal = nullptr;
-  regionHcal = nullptr;
-  regionMuonIron = nullptr;
-  regionPreShower = nullptr;
-  regionCastor = nullptr;
-  regionWorld = nullptr;
 
   gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit") * CLHEP::MeV;
   nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit") * CLHEP::MeV;
@@ -66,8 +57,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   nRusRoCastor = p.getParameter<double>("RusRoCastorNeutron");
   nRusRoWorld = p.getParameter<double>("RusRoWorldNeutron");
 
-  gRRactive = false;
-  nRRactive = false;
   if (gRusRoEnerLim > 0.0 && (gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || gRusRoMuonIron < 1.0 || gRusRoPreShower < 1.0 ||
                               gRusRoCastor < 1.0 || gRusRoWorld < 1.0)) {
     gRRactive = true;
@@ -87,7 +76,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   }
 
   initPointer();
-  newTA = new NewTrackAction();
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "StackingAction initiated with"
@@ -167,23 +155,33 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
                    ->GetSolid();
 }
 
-StackingAction::~StackingAction() { delete newTA; }
-
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
   const int abspdg = std::abs(pdg);
   auto track = const_cast<G4Track*>(aTrack);
+  const G4VProcess* creatorProc = aTrack->GetCreatorProcess();
 
+  if (creatorProc == nullptr && aTrack->GetParentID() != 0) {
+    edm::LogWarning("StackingAction::ClassifyNewTrack")
+        << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
+        << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy();
+  }
+  if (aTrack->GetKineticEnergy() < 0.0) {
+    edm::LogWarning("StackingAction::ClassifyNewTrack")
+        << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
+        << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy() << " creator "
+        << creatorProc->GetProcessName();
+  }
   // primary
-  if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
+  if (creatorProc == nullptr || aTrack->GetParentID() == 0) {
     if (!trackNeutrino && (abspdg == 12 || abspdg == 14 || abspdg == 16 || abspdg == 18)) {
       classification = fKill;
     } else if (worldSolid->Inside(aTrack->GetPosition()) == kOutside) {
       classification = fKill;
     } else {
-      newTA->primary(track);
+      MCTruthUtil::primary(track);
     }
   } else {
     // secondary
@@ -202,7 +200,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         classification = fKill;
       } else {
         const G4Track* mother = trackAction->geant4Track();
-        newTA->secondary(track, *mother, 0);
+        MCTruthUtil::secondary(track, *mother, 0);
       }
 
     } else if (isItOutOfTimeWindow(reg, time)) {
@@ -212,18 +210,11 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else {
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
-      auto proc = aTrack->GetCreatorProcess();
-      G4int subType = proc->GetProcessSubType();
-      if (subType == 16) {
-        auto ptr = static_cast<const G4GammaGeneralProcess*>(proc);
-        proc = ptr->GetSelectedProcess();
-        subType = proc->GetProcessSubType();
-        track->SetCreatorProcess(proc);
-      }
+      G4int subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
+
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
-                                       << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " "
-                                       << proc->GetProcessName();
+                                       << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " ";
 
       // kill tracks in specific regions
       if (isThisRegion(reg, deadRegions)) {
@@ -248,8 +239,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
 
-          if (killDeltaRay && classification != fKill &&
-              aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation) {
+          if (killDeltaRay && classification != fKill && subType == fIonisation) {
             classification = fKill;
           }
           if (killInCalo && classification != fKill && isThisRegion(reg, caloRegions)) {
@@ -268,12 +258,12 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           const G4Track* mother = trackAction->geant4Track();
           int flag = 0;
           if (savePDandCinAll) {
-            flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+            flag = isItPrimaryDecayProductOrConversion(subType, *mother);
           } else {
             if ((savePDandCinTracker && isThisRegion(reg, trackerRegions)) ||
                 (savePDandCinCalo && isThisRegion(reg, caloRegions)) ||
                 (savePDandCinMuon && isThisRegion(reg, muonRegions))) {
-              flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+              flag = isItPrimaryDecayProductOrConversion(subType, *mother);
             }
           }
           if (saveFirstSecondary && 0 == flag) {
@@ -338,19 +328,18 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
           if (classification != fKill) {
-            newTA->secondary(track, *mother, flag);
+            MCTruthUtil::secondary(track, *mother, flag);
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
               << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV
-              << " MeV from process " << proc->GetProcessName() << " subType=" << subType << " as " << classification
-              << " Flag: " << flag;
+              << " MeV from process subType=" << subType << " as " << classification << " Flag: " << flag;
         }
       }
     }
   }
   if (nullptr != steppingVerbose) {
-    steppingVerbose->StackFilled(aTrack, (classification == fKill));
+    steppingVerbose->stackFilled(aTrack, (classification == fKill));
   }
   return classification;
 }
@@ -399,7 +388,8 @@ void StackingAction::initPointer() {
     if (savePDandCinTracker &&
         (rname == "BeamPipe" || rname == "BeamPipeVacuum" || rname == "TrackerPixelSensRegion" ||
          rname == "TrackerPixelDeadRegion" || rname == "TrackerDeadRegion" || rname == "TrackerSensRegion" ||
-         rname == "FastTimerRegion" || rname == "FastTimerRegionSensBTL" || rname == "FastTimerRegionSensETL")) {
+         rname == "FastTimerRegionBTL" || rname == "FastTimerRegionETL" || rname == "FastTimerRegionSensBTL" ||
+         rname == "FastTimerRegionSensETL")) {
       trackerRegions.push_back(reg);
     }
     if (savePDandCinCalo && (rname == "HcalRegion" || rname == "EcalRegion" || rname == "PreshowerSensRegion" ||
@@ -432,14 +422,14 @@ bool StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Regio
   return flag;
 }
 
-int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track* aTrack, const G4Track& mother) const {
+int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track& mother) const {
   int flag = 0;
-  const TrackInformation& motherInfo(extractor(mother));
+  auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
   // Check whether mother is a primary
-  if (motherInfo.isPrimary()) {
-    if (aTrack->GetCreatorProcess()->GetProcessType() == fDecay) {
+  if (motherInfo->isPrimary()) {
+    if (stype == fDecay) {
       flag = 1;
-    } else if (aTrack->GetCreatorProcess()->GetProcessSubType() == fGammaConversion) {
+    } else if (stype == fGammaConversion) {
       flag = 2;
     }
   }
@@ -447,18 +437,18 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track* aTrack, c
 }
 
 bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) const {
-  const TrackInformation& motherInfo(extractor(mother));
+  auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
 
   // Check whether mother is gamma, e+, e-
-  const int genID = motherInfo.genParticlePID();
+  const int genID = motherInfo->genParticlePID();
   return (22 != genID && 11 != std::abs(genID));
 }
 
 int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
   int flag = flagIn;
   if (flag != 1) {
-    const TrackInformation& motherInfo(extractor(mother));
-    if (motherInfo.isPrimary()) {
+    auto ptr = static_cast<const TrackInformation*>(mother.GetUserInformation());
+    if (ptr->isPrimary()) {
       flag = 3;
     }
   }

@@ -304,6 +304,48 @@ namespace {
     }
   }
 
+  inline void CovXYconstrain(const MPlexQF& R00, const MPlexQF& R01, const MPlexLS& Ci, MPlexLS& Co) {
+    // C is transformed to align along y after rotation and rotated back
+
+    typedef float T;
+    const idx_t N = NN;
+
+    const T* r00 = R00.fArray;
+    ASSUME_ALIGNED(r00, 64);
+    const T* r01 = R01.fArray;
+    ASSUME_ALIGNED(r01, 64);
+    const T* ci = Ci.fArray;
+    ASSUME_ALIGNED(ci, 64);
+    T* co = Co.fArray;
+    ASSUME_ALIGNED(co, 64);
+
+#pragma omp simd
+    for (int n = 0; n < N; ++n) {
+      // a bit loopy to avoid temporaries
+      co[0 * N + n] =
+          r00[n] * r00[n] * ci[0 * N + n] + 2 * r00[n] * r01[n] * ci[1 * N + n] + r01[n] * r01[n] * ci[2 * N + n];
+      co[1 * N + n] = r00[n] * r01[n] * co[0 * N + n];
+      co[2 * N + n] = r01[n] * r01[n] * co[0 * N + n];
+      co[0 * N + n] = r00[n] * r00[n] * co[0 * N + n];
+
+      co[3 * N + n] = r00[n] * ci[3 * N + n] + r01[n] * ci[4 * N + n];
+      co[4 * N + n] = r01[n] * co[3 * N + n];
+      co[3 * N + n] = r00[n] * co[3 * N + n];
+
+      co[6 * N + n] = r00[n] * ci[6 * N + n] + r01[n] * ci[7 * N + n];
+      co[7 * N + n] = r01[n] * co[6 * N + n];
+      co[6 * N + n] = r00[n] * co[6 * N + n];
+
+      co[10 * N + n] = r00[n] * ci[10 * N + n] + r01[n] * ci[11 * N + n];
+      co[11 * N + n] = r01[n] * co[10 * N + n];
+      co[10 * N + n] = r00[n] * co[10 * N + n];
+
+      co[15 * N + n] = r00[n] * ci[15 * N + n] + r01[n] * ci[16 * N + n];
+      co[16 * N + n] = r01[n] * co[15 * N + n];
+      co[15 * N + n] = r00[n] * co[15 * N + n];
+    }
+  }
+
   void KalmanGain(const MPlexLS& A, const MPlex2S& B, MPlexL2& C) {
     // C = A * B, C is 6x2, A is 6x6 sym , B is 2x2
 
@@ -425,7 +467,7 @@ namespace mkfit {
                     MPlexLS& outErr,
                     MPlexLV& outPar,
                     const int N_proc) {
-    kalmanOperation(KFO_Update_Params, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
+    kalmanOperation(KFO_Update_Params | KFO_Local_Cov, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
   }
 
   void kalmanPropagateAndUpdate(const MPlexLS& psErr,
@@ -435,8 +477,9 @@ namespace mkfit {
                                 const MPlexHV& msPar,
                                 MPlexLS& outErr,
                                 MPlexLV& outPar,
+                                MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags propFlags,
+                                const PropagationFlags& propFlags,
                                 const bool propToHit) {
     if (propToHit) {
       MPlexLS propErr;
@@ -447,11 +490,13 @@ namespace mkfit {
         msRad.At(n, 0, 0) = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
       }
 
-      propagateHelixToRMPlex(psErr, psPar, Chg, msRad, propErr, propPar, N_proc, propFlags);
+      propagateHelixToRMPlex(psErr, psPar, Chg, msRad, propErr, propPar, outFailFlag, N_proc, propFlags);
 
-      kalmanOperation(KFO_Update_Params, propErr, propPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
+      kalmanOperation(
+          KFO_Update_Params | KFO_Local_Cov, propErr, propPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     } else {
-      kalmanOperation(KFO_Update_Params, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
+      kalmanOperation(
+          KFO_Update_Params | KFO_Local_Cov, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     }
     for (int n = 0; n < NN; ++n) {
       if (outPar.At(n, 3, 0) < 0) {
@@ -480,8 +525,9 @@ namespace mkfit {
                                      const MPlexHV& msPar,
                                      MPlexQF& outChi2,
                                      MPlexLV& propPar,
+                                     MPlexQI& outFailFlag,
                                      const int N_proc,
-                                     const PropagationFlags propFlags,
+                                     const PropagationFlags& propFlags,
                                      const bool propToHit) {
     propPar = psPar;
     if (propToHit) {
@@ -492,7 +538,7 @@ namespace mkfit {
         msRad.At(n, 0, 0) = std::hypot(msPar.constAt(n, 0, 0), msPar.constAt(n, 1, 0));
       }
 
-      propagateHelixToRMPlex(psErr, psPar, inChg, msRad, propErr, propPar, N_proc, propFlags);
+      propagateHelixToRMPlex(psErr, psPar, inChg, msRad, propErr, propPar, outFailFlag, N_proc, propFlags);
 
       kalmanOperation(KFO_Calculate_Chi2, propErr, propPar, msErr, msPar, dummy_err, dummy_par, outChi2, N_proc);
     } else {
@@ -608,9 +654,13 @@ namespace mkfit {
     }
 
     if (kfOp & KFO_Update_Params) {
+      MPlexLS psErrLoc = psErr;
+      if (kfOp & KFO_Local_Cov)
+        CovXYconstrain(rotT00, rotT01, psErr, psErrLoc);
+
       MPlexLH K;                                      // kalman gain, fixme should be L2
       KalmanHTG(rotT00, rotT01, resErr_loc, tempHH);  // intermediate term to get kalman gain (H^T*G)
-      KalmanGain(psErr, tempHH, K);
+      KalmanGain(psErrLoc, tempHH, K);
 
       MultResidualsAdd(K, psPar, res_loc, outPar);
       MPlexLL tempLL;
@@ -618,12 +668,21 @@ namespace mkfit {
       squashPhiMPlex(outPar, N_proc);  // ensure phi is between |pi|
 
       KHMult(K, rotT00, rotT01, tempLL);
-      KHC(tempLL, psErr, outErr);
-      outErr.subtract(psErr, outErr);
+      KHC(tempLL, psErrLoc, outErr);
+      outErr.subtract(psErrLoc, outErr);
 
 #ifdef DEBUG
       {
         dmutex_guard;
+        if (kfOp & KFO_Local_Cov) {
+          printf("psErrLoc:\n");
+          for (int i = 0; i < 6; ++i) {
+            for (int j = 0; j < 6; ++j)
+              printf("% 8e ", psErrLoc.At(0, i, j));
+            printf("\n");
+          }
+          printf("\n");
+        }
         printf("res_glo:\n");
         for (int i = 0; i < 3; ++i) {
           printf("%8f ", res_glo.At(0, i, 0));
@@ -686,8 +745,9 @@ namespace mkfit {
                                       const MPlexHV& msPar,
                                       MPlexLS& outErr,
                                       MPlexLV& outPar,
+                                      MPlexQI& outFailFlag,
                                       const int N_proc,
-                                      const PropagationFlags propFlags,
+                                      const PropagationFlags& propFlags,
                                       const bool propToHit) {
     if (propToHit) {
       MPlexLS propErr;
@@ -698,7 +758,7 @@ namespace mkfit {
         msZ.At(n, 0, 0) = msPar.constAt(n, 2, 0);
       }
 
-      propagateHelixToZMPlex(psErr, psPar, Chg, msZ, propErr, propPar, N_proc, propFlags);
+      propagateHelixToZMPlex(psErr, psPar, Chg, msZ, propErr, propPar, outFailFlag, N_proc, propFlags);
 
       kalmanOperationEndcap(KFO_Update_Params, propErr, propPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     } else {
@@ -731,8 +791,9 @@ namespace mkfit {
                                            const MPlexHV& msPar,
                                            MPlexQF& outChi2,
                                            MPlexLV& propPar,
+                                           MPlexQI& outFailFlag,
                                            const int N_proc,
-                                           const PropagationFlags propFlags,
+                                           const PropagationFlags& propFlags,
                                            const bool propToHit) {
     propPar = psPar;
     if (propToHit) {
@@ -743,7 +804,7 @@ namespace mkfit {
         msZ.At(n, 0, 0) = msPar.constAt(n, 2, 0);
       }
 
-      propagateHelixToZMPlex(psErr, psPar, inChg, msZ, propErr, propPar, N_proc, propFlags);
+      propagateHelixToZMPlex(psErr, psPar, inChg, msZ, propErr, propPar, outFailFlag, N_proc, propFlags);
 
       kalmanOperationEndcap(KFO_Calculate_Chi2, propErr, propPar, msErr, msPar, dummy_err, dummy_par, outChi2, N_proc);
     } else {

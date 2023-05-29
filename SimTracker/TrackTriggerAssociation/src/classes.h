@@ -7,8 +7,5 @@
  */
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
+#include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"

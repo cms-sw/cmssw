@@ -1,0 +1,21 @@
+<lcgdict>
+  <class name="cudatest::TestHostCollection"/>
+  <read
+    sourceClass="cudatest::TestHostCollection"
+    targetClass="cudatest::TestHostCollection"
+    version="[1-]"
+    source="portabletest::TestSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    cudatest::TestHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<cudatest::TestHostCollection>" splitLevel="0"/>
+
+  <class name="cudatest::TestDeviceCollection" persistent="false"/>
+  <class name="edm::Wrapper<cudatest::TestDeviceCollection>" persistent="false"/>
+
+  <class name="cms::cuda::Product<cudatest::TestDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<cudatest::TestDeviceCollection>>" persistent="false"/>
+</lcgdict>

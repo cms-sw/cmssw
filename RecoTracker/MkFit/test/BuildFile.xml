@@ -5,3 +5,6 @@
   <use name="RecoTracker/MkFitCore"/>
   <use name="RecoTracker/Record"/>
 </library>
+
+<test name="testDumpMkFitGeometry" command="testDumpMkFitGeometry.sh"/>
+

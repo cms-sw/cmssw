@@ -10,7 +10,19 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_PPStestSampicPCL_v1')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag = GlobalTag(process.GlobalTag, autoCond['run3_data_prompt'], '')
+#process.GlobalTag.toGet.append(
+#  cms.PSet(record = cms.string("PPSTimingCalibrationRcd"),
+#           tag =  cms.string("PPSDiamondSampicCalibration_test"),
+#           label = cms.untracked.string("DiamondSampicCalibration"),
+#           connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+#	)
+#)
+
+
+process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
+process.load("RecoPPS.Configuration.recoCTPPS_cff")
 
 # Source (histograms)
 process.source = cms.Source("DQMRootSource",
@@ -26,26 +38,35 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(
         cms.PSet(
-            record = cms.string('PPSTimingCalibrationRcd'),
-            tag = cms.string('DiamondSampicCalibration'),
+            record = cms.string('PPSTimingCalibrationRcd_SAMPIC'),
+            tag = cms.string('PPSDiamondSampicCalibration_pcl'),
         )
     )
 )
 
-################
-#geometry
-################
-process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2021_cfi')
+
+process.CondDB.connect = 'sqlite_file:corrected_sampic.sqlite' # SQLite input
+process.PoolDBESSource = cms.ESSource('PoolDBESSource',
+        process.CondDB,
+        DumpStats = cms.untracked.bool(True),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('PPSTimingCalibrationRcd'),
+                tag = cms.string('PPSDiamondSampicCalibration')
+        )
+    )
+)
 
 process.load("CalibPPS.TimingCalibration.PPSDiamondSampicTimingCalibrationPCLHarvester_cfi")
-#process.PPSDiamondSampicTimingCalibrationPCLHarvester.jsonCalibFile=cms.string("initial.cal.json")
+#process.PPSDiamondSampicTimingCalibrationPCLHarvester.jsonCalibFile="initial.cal.json"
+process.PPSDiamondSampicTimingCalibrationPCLHarvester.timingCalibrationTag= ''
 
 # load DQM framework
 process.load("DQMServices.Core.DQMStore_cfi")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmEnv.subSystemFolder = "CalibPPS"
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = "/CalibPPS/TimingCalibration/CMSSW_12_0_0_pre2"
+process.dqmSaver.workflow = "/CalibPPS/TimingCalibration/CMSSW_12_6_0_pre2"
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = 999999

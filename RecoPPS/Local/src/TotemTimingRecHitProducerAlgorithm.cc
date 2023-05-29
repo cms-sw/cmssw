@@ -11,15 +11,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoPPS/Local/interface/TotemTimingRecHitProducerAlgorithm.h"
-
-#include <memory>
+#include "RecoPPS/Local/interface/TotemTimingConversions.h"
 
 #include <numeric>
 
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet& iConfig)
-    : mergeTimePeaks_(iConfig.getParameter<bool>("mergeTimePeaks")),
+    : TimingRecHitProducerAlgorithm(iConfig),
+      mergeTimePeaks_(iConfig.getParameter<bool>("mergeTimePeaks")),
       baselinePoints_(iConfig.getParameter<int>("baselinePoints")),
       saturationLimit_(iConfig.getParameter<double>("saturationLimit")),
       cfdFraction_(iConfig.getParameter<double>("cfdFraction")),

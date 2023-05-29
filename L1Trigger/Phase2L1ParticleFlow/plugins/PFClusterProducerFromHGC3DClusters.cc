@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/corrector.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/HGC3DClusterEgID.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
@@ -129,7 +129,8 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
       //float em_old = cluster.emEt();
       float em_new = it->iPt(l1t::HGCalMulticluster::EnergyInterpretation::EM);
       float pt_new = had_old + em_new;
-      float hoe_new = em_new > 0 ? (had_old / em_new) : -1;
+      // FIXME: -1 can be a problem for later stages of the processing. For now we set it to something which saturates the hoe variable
+      float hoe_new = em_new > 0 ? (had_old / em_new) : 999;
       cluster = l1t::PFCluster(pt_new, it->eta(), it->phi(), hoe_new, /*isEM=*/isEM);
       //printf("Scenario %d: pt %7.2f eta %+5.3f em %7.2f, EMI %7.2f, h/e % 8.3f --> pt %7.2f, em %7.2f, h/e % 8.3f\n",
       //        2, pt, it->eta(), em_old, em_new, hoe, cluster.pt(), cluster.emEt(), cluster.hOverE());
@@ -155,6 +156,10 @@ void l1tpf::PFClusterProducerFromHGC3DClusters::produce(edm::Event &iEvent, cons
     if (corrector_.valid())
       corrector_.correctPt(cluster);
     cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
+
+    // We se the cluster shape variables used downstream
+    cluster.setAbsZBarycenter(fabs(it->zBarycenter()));
+    cluster.setSigmaRR(it->sigmaRRTot());
 
     out->push_back(cluster);
     out->back().addConstituent(edm::Ptr<l1t::L1Candidate>(multiclusters, multiclusters->key(it)));

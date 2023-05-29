@@ -1,0 +1,7 @@
+# This file contains the Effective Area (EA) constants for computing
+# PU-corrections for the variable neutral hadron isolation (IsoN)
+#
+# THIS IS A DUMMY FILE
+#
+# https://indico.cern.ch/event/1204275/#5-update-on-run3-photon-cut-ba
+# https://indico.cern.ch/event/1204277/#5-update-on-run3-photon-cut-ba

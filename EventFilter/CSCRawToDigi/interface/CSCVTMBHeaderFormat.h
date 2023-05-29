@@ -19,6 +19,7 @@ public:
   virtual void setEventInformation(const CSCDMBHeader&) = 0;
   virtual uint16_t BXNCount() const = 0;
   virtual uint16_t ALCTMatchTime() const = 0;
+  virtual void setALCTMatchTime(uint16_t alctmatchtime) = 0;
   virtual uint16_t CLCTOnly() const = 0;
   virtual uint16_t ALCTOnly() const = 0;
   virtual uint16_t TMBMatch() const = 0;
@@ -29,6 +30,7 @@ public:
   virtual uint16_t syncErrorCLCT() const = 0;
   virtual uint16_t syncErrorMPC0() const = 0;
   virtual uint16_t syncErrorMPC1() const = 0;
+  virtual uint16_t L1AMatchTime() const = 0;
 
   /// == Run 3 CSC-GEM Trigger Format
   virtual uint16_t clct0_ComparatorCode() const = 0;

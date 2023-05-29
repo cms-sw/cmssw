@@ -7,6 +7,7 @@
 // forward declarations
 namespace edm {
   class ActivityRegistry;
+  class ModuleTypeResolverMaker;
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
@@ -16,9 +17,10 @@ namespace edm {
                                                                unsigned subProcessIndex,
                                                                ActivityRegistry*);
 
-    void fillEventSetupProvider(EventSetupsController& esController, EventSetupProvider& cp, ParameterSet& params);
-
-    void validateEventSetupParameters(ParameterSet& pset);
+    void fillEventSetupProvider(ModuleTypeResolverMaker const* resolverMaker,
+                                EventSetupsController& esController,
+                                EventSetupProvider& cp,
+                                ParameterSet& params);
   }  // namespace eventsetup
 }  // namespace edm
 #endif

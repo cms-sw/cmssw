@@ -2,6 +2,7 @@
 <use name="DataFormats/TrajectoryState"/>
 <use name="DataFormats/SiStripDigi"/>
 <use name="DataFormats/SiStripDetId"/>
+<use name="FWCore/Utilities" source_only="1"/>
 <export>
   <lib name="1"/>
 </export>

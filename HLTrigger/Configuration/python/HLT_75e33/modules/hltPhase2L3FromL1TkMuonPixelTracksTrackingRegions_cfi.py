@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 hltPhase2L3FromL1TkMuonPixelTracksTrackingRegions = cms.EDProducer("CandidateSeededTrackingRegionsEDProducer",
     RegionPSet = cms.PSet(
-        beamSpot = cms.InputTag("offlineBeamSpot"),
+        beamSpot = cms.InputTag("hltOnlineBeamSpot"),
         deltaEta = cms.double(0.035),
         deltaPhi = cms.double(0.02),
-        input = cms.InputTag("hltL1TkMuons"),
+        input = cms.InputTag("l1tTkMuonsGmt"),
         maxNRegions = cms.int32(10000),
         maxNVertices = cms.int32(1),
         measurementTrackerName = cms.InputTag(""),

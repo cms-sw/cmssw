@@ -46,3 +46,44 @@
 <library file="XangleBetaStarFilter.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="L1TriggerScalerESAnalyzer.cc" name="CondToolsL1TriggerScalerESAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>  
+
+<library file="LHCInfoPerLSAnalyzer.cc" name="LHCInfoPerLSAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerFillWriter.cc" name="LHCInfoPerFillWriter">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerFillAnalyzer.cc" name="LHCInfoPerFillAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerLSPopConAnalyzer.cc" name="CondToolsLHCInfoPerLSPopConAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerFillPopConAnalyzer.cc" name="CondToolsLHCInfoPerFillPopConAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerLSWriter.cc" name="LHCInfoPerLSWriter">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerLSAnalyzer.cc" name="LHCInfoPerLSAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerFillWriter.cc" name="LHCInfoPerFillWriter">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+
+<library file="LHCInfoPerFillAnalyzer.cc" name="LHCInfoPerFillAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>

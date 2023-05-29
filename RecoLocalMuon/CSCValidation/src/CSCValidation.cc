@@ -1,10 +1,16 @@
 /*
  *  validation package for CSC DIGIs, RECHITs and SEGMENTs + more.
  *
- *  Michael Schmitt
- *  Andy Kubik
- *  Northwestern University
+ *  original authors:
+ *  Michael Schmitt (Northwestern University)
+ *  Andy Kubik (Northwestern University)
+ * 
+ *  CONTACT: CSC DPG (Jul-2022)
+ *  
  */
+
+// UPDATED AND RUNNING IN 12_x 15.07.2022 TIM COX - includes updates from external version
+
 #include "RecoLocalMuon/CSCValidation/src/CSCValidation.h"
 
 using namespace std;
@@ -50,6 +56,13 @@ CSCValidation::CSCValidation(const ParameterSet& pset) {
   l1_token = consumes<L1MuGMTReadoutCollection>(pset.getParameter<edm::InputTag>("l1aTag"));
   tr_token = consumes<TriggerResults>(pset.getParameter<edm::InputTag>("hltTag"));
   sh_token = consumes<PSimHitContainer>(pset.getParameter<edm::InputTag>("simHitTag"));
+  // conditions
+  pedestalsToken_ = esConsumes<CSCDBPedestals, CSCDBPedestalsRcd>();
+  gainsToken_ = esConsumes<CSCDBGains, CSCDBGainsRcd>();
+  noiseToken_ = esConsumes<CSCDBNoiseMatrix, CSCDBNoiseMatrixRcd>();
+  crosstalkToken_ = esConsumes<CSCDBCrosstalk, CSCDBCrosstalkRcd>();
+
+  crateToken_ = esConsumes<CSCCrateMap, CSCCrateMapRcd>();
 
   // flags to switch on/off individual modules
   makeOccupancyPlots = pset.getUntrackedParameter<bool>("makeOccupancyPlots", true);
@@ -98,7 +111,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset) {
   hRHEff = new TH1F("hRHEff", "recHit Efficiency", 20, 0.5, 20.5);
 
   const int nChambers = 36;
-  const int nTypes = 18;
+  const int nTypes = 20;
   float nCH_min = 0.5;
   float nCh_max = float(nChambers) + 0.5;
   float nT_min = 0.5;
@@ -119,6 +132,17 @@ CSCValidation::CSCValidation(const ParameterSet& pset) {
   hSensitiveAreaEvt =
       new TH2F("hSensitiveAreaEvt", "events in sensitive area", nChambers, nCH_min, nCh_max, nTypes, nT_min, nT_max);
 
+  hSSTETight = new TH1F("hSSTETight", "hSSTE Tight", 40, 0, 40);
+  hRHSTETight = new TH1F("hRHSTETight", "hRHSTE Tight", 40, 0, 40);
+
+  hSSTE2Tight = new TH2F("hSSTE2Tight", "hSSTE2 Tight", nChambers, nCH_min, nCh_max, nTypes, nT_min, nT_max);
+  hRHSTE2Tight = new TH2F("hRHSTE2Tight", "hRHSTE2 Tight", nChambers, nCH_min, nCh_max, nTypes, nT_min, nT_max);
+  hStripSTE2Tight =
+      new TH2F("hStripSTE2Tight", "hStripSTE2 Tight", nChambers, nCH_min, nCh_max, nTypes, nT_min, nT_max);
+  hWireSTE2Tight = new TH2F("hWireSTE2Tight", "hWireSTE2 Tight", nChambers, nCH_min, nCh_max, nTypes, nT_min, nT_max);
+  hEffDenominatorTight =
+      new TH2F("hEffDenominatorTight", "hEffDenominator Tight", nChambers, nCH_min, nCh_max, nTypes, nT_min, nT_max);
+
   // setup trees to hold global position data for rechits and segments
   if (writeTreeToFile)
     histos->setupTrees();
@@ -137,6 +161,14 @@ CSCValidation::~CSCValidation() {
   hRHEff2->Divide(hRHSTE2, hEffDenominator, 1., 1., "B");
   hStripEff2->Divide(hStripSTE2, hEffDenominator, 1., 1., "B");
   hWireEff2->Divide(hWireSTE2, hEffDenominator, 1., 1., "B");
+
+  histos->insertPlot(hRHSTETight, "hRHSTETight", "Efficiency");
+  histos->insertPlot(hSSTETight, "hSSTETight", "Efficiency");
+  histos->insertPlot(hStripSTE2Tight, "hStripSTE2Tight", "Efficiency");
+  histos->insertPlot(hWireSTE2Tight, "hWireSTE2Tight", "Efficiency");
+  histos->insertPlot(hRHSTE2Tight, "hRHSTE2Tight", "Efficiency");
+  histos->insertPlot(hSSTE2Tight, "hSSTE2Tight", "Efficiency");
+  histos->insertPlot(hEffDenominatorTight, "hEffDenominatorTight", "Efficiency");
 
   histos->insertPlot(hRHSTE, "hRHSTE", "Efficiency");
   histos->insertPlot(hSSTE, "hSSTE", "Efficiency");
@@ -173,7 +205,7 @@ CSCValidation::~CSCValidation() {
 ////////////////
 //  Analysis  //
 ////////////////
-void CSCValidation::analyze(const Event& event, const EventSetup& eventSetup) {
+void CSCValidation::analyze(edm::Event const& event, edm::EventSetup const& eventSetup) {
   // increment counter
   nEventsAnalyzed++;
 
@@ -696,20 +728,16 @@ void CSCValidation::doCalibrations(const edm::EventSetup& eventSetup) {
     LogDebug("Calibrations") << "Loading Calibrations...";
 
     // get the gains
-    edm::ESHandle<CSCDBGains> hGains;
-    eventSetup.get<CSCDBGainsRcd>().get(hGains);
+    edm::ESHandle<CSCDBGains> hGains = eventSetup.getHandle(gainsToken_);
     const CSCDBGains* pGains = hGains.product();
     // get the crosstalks
-    edm::ESHandle<CSCDBCrosstalk> hCrosstalk;
-    eventSetup.get<CSCDBCrosstalkRcd>().get(hCrosstalk);
+    edm::ESHandle<CSCDBCrosstalk> hCrosstalk = eventSetup.getHandle(crosstalkToken_);
     const CSCDBCrosstalk* pCrosstalk = hCrosstalk.product();
     // get the noise matrix
-    edm::ESHandle<CSCDBNoiseMatrix> hNoiseMatrix;
-    eventSetup.get<CSCDBNoiseMatrixRcd>().get(hNoiseMatrix);
+    edm::ESHandle<CSCDBNoiseMatrix> hNoiseMatrix = eventSetup.getHandle(noiseToken_);
     const CSCDBNoiseMatrix* pNoiseMatrix = hNoiseMatrix.product();
     // get pedestals
-    edm::ESHandle<CSCDBPedestals> hPedestals;
-    eventSetup.get<CSCDBPedestalsRcd>().get(hPedestals);
+    edm::ESHandle<CSCDBPedestals> hPedestals = eventSetup.getHandle(pedestalsToken_);
     const CSCDBPedestals* pPedestals = hPedestals.product();
 
     LogDebug("Calibrations") << "Calibrations Loaded!";
@@ -799,7 +827,7 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
   if (nWireGroupsTotal == 0)
     nWireGroupsTotal = -1;
 
-  histos->fill1DHist(nWireGroupsTotal, "hWirenGroupsTotal", "Wires Fired Per Event", 151, -0.5, 150.5, "Digis");
+  histos->fill1DHist(nWireGroupsTotal, "hWirenGroupsTotal", "Wires Fired Per Event", 251, -0.5, 250.5, "Digis");
 }
 
 // ==============================================
@@ -841,7 +869,7 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips) {
   if (nStripsFired == 0)
     nStripsFired = -1;
 
-  histos->fill1DHist(nStripsFired, "hStripNFired", "Fired Strips per Event", 251, -0.5, 250.5, "Digis");
+  histos->fill1DHist(nStripsFired, "hStripNFired", "Fired Strips per Event", 351, -0.5, 350.5, "Digis");
 }
 
 //=======================================================
@@ -900,13 +928,10 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
   // ---------------------
   // Loop over rechits
   // ---------------------
-  int iHit = 0;
 
   // Build iterator for rechits and loop :
   CSCRecHit2DCollection::const_iterator dRHIter;
   for (dRHIter = recHits->begin(); dRHIter != recHits->end(); dRHIter++) {
-    iHit++;
-
     // Find chamber with rechits in CSC
     CSCDetId idrec = (CSCDetId)(*dRHIter).cscDetId();
     int kEndcap = idrec.endcap();
@@ -1017,7 +1042,7 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
   if (nRecHits == 0)
     nRecHits = -1;
 
-  histos->fill1DHist(nRecHits, "hRHnrechits", "recHits per Event (all chambers)", 151, -0.5, 150.5, "recHits");
+  histos->fill1DHist(nRecHits, "hRHnrechits", "recHits per Event (all chambers)", 201, -0.5, 200.5, "recHits");
 }
 
 // ==============================================
@@ -1085,9 +1110,7 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
   // -----------------------
   // loop over segments
   // -----------------------
-  int iSegment = 0;
   for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    iSegment++;
     //
     CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
     int kEndcap = id.endcap();
@@ -1180,11 +1203,9 @@ void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, 
     // try to get the CSC recHits that contribute to this segment.
     std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
     int nRH = (*dSiter).nRecHits();
-    int jRH = 0;
     CLHEP::HepMatrix sp(6, 1);
     CLHEP::HepMatrix se(6, 1);
     for (std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
-      jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
       int kRing = idRH.ring();
       int kStation = idRH.station();
@@ -1380,7 +1401,7 @@ int CSCValidation::chamberSerial(CSCDetId id) {
   if (st == 4 && ri == 1)
     kSerial = ch + 216;
   if (st == 4 && ri == 2)
-    kSerial = ch + 234;  // one day...
+    kSerial = ch + 234;
   if (ec == 2)
     kSerial = kSerial + 300;
   return kSerial;
@@ -1599,21 +1620,32 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
           if (NumberOfLayers > 1) {
             //if(!(MultiSegments[iE][iS][iR][iC])){
             if (AllSegments[iE][iS][iR][iC]) {
-              //---- Efficient segment evenents
-              hSSTE->AddBinContent(bin);
+              //---- Efficient segment events
+              //hSSTE->AddBinContent(bin);
+              hSSTE->Fill(bin - 0.5);
+              if (NumberOfLayers > 3)
+                hSSTETight->Fill(bin - 0.5);
             }
             //---- All segment events (normalization)
-            hSSTE->AddBinContent(20 + bin);
-            //}
+            //hSSTE->AddBinContent(20+bin);
+            hSSTE->Fill(20 + bin - 0.5);
+            if (NumberOfLayers > 3)
+              hSSTETight->Fill(20 + bin - 0.5);
+            //}            //}
           }
           if (AllSegments[iE][iS][iR][iC]) {
             if (NumberOfLayers == 6) {
               //---- Efficient rechit events
-              hRHSTE->AddBinContent(bin);
+              //hRHSTE->AddBinContent(bin);
+              hRHSTE->Fill(bin - 0.5);
+              hRHSTETight->Fill(bin - 0.5);
               ;
             }
             //---- All rechit events (normalization)
-            hRHSTE->AddBinContent(20 + bin);
+            //hRHSTE->AddBinContent(20+bin);
+            hRHSTE->Fill(20 + bin - 0.5);
+            if (NumberOfLayers > 3)
+              hRHSTETight->Fill(20 + bin - 0.5);
             ;
           }
         }
@@ -1633,8 +1665,8 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
     theSeg.push_back(&theSegments[3]);
 
   // Needed for plots
-  // at the end the chamber types will be numbered as 1 to 18
-  // (ME-4/1, -ME3/2, -ME3/1, ..., +ME3/1, +ME3/2, ME+4/1 )
+  // at the end the chamber types will be numbered as 1 to 20
+  // (ME-4/2, ME-4/1, -ME3/2, -ME3/1, ..., +ME3/1, +ME3/2, ME+4/1, ME+4/2 )
   std::map<std::string, float> chamberTypes;
   chamberTypes["ME1/a"] = 0.5;
   chamberTypes["ME1/b"] = 1.5;
@@ -1645,6 +1677,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   chamberTypes["ME3/1"] = 6.5;
   chamberTypes["ME3/2"] = 7.5;
   chamberTypes["ME4/1"] = 8.5;
+  chamberTypes["ME4/2"] = 9.5;
 
   if (!theSeg.empty()) {
     std::map<int, GlobalPoint> extrapolatedPoint;
@@ -1716,7 +1749,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
           if (cscchamberCenter.z() < 0) {
             verticalScale = -verticalScale;
           }
-          verticalScale += 9.5;
+          verticalScale += 10.5;
           hSensitiveAreaEvt->Fill(float(cscchamber->id().chamber()), verticalScale);
           if (nRHLayers > 1) {  // this chamber contains a reliable signal
             //chamberTypes[cscchamber->specs()->chamberTypeName()];
@@ -1724,10 +1757,14 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
             //std::cout<<" verticalScale = "<<verticalScale<<" chType = "<<cscchamber->specs()->chamberTypeName()<<std::endl;
             // this is the denominator forr all efficiencies
             hEffDenominator->Fill(float(cscchamber->id().chamber()), verticalScale);
+            if (nRHLayers > 3)
+              hEffDenominatorTight->Fill(float(cscchamber->id().chamber()), verticalScale);
             // Segment efficiency
             if (AllSegments[cscchamber->id().endcap() - 1][cscchamber->id().station() - 1][cscchamber->id().ring() - 1]
                            [cscchamber->id().chamber() - 1]) {
               hSSTE2->Fill(float(cscchamber->id().chamber()), float(verticalScale));
+              if (nRHLayers > 3)
+                hSSTE2Tight->Fill(float(cscchamber->id().chamber()), float(verticalScale));
             }
 
             for (int iL = 0; iL < 6; ++iL) {
@@ -1737,6 +1774,8 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
               if (AllRecHits[cscchamber->id().endcap() - 1][cscchamber->id().station() - 1][cscchamber->id().ring() - 1]
                             [cscchamber->id().chamber() - 1][iL]) {
                 hRHSTE2->Fill(float(cscchamber->id().chamber()), float(verticalScale), weight);
+                if (nRHLayers > 3)
+                  hRHSTE2Tight->Fill(float(cscchamber->id().chamber()), float(verticalScale), weight);
               }
               if (useDigis) {
                 // Wire efficiency
@@ -1744,12 +1783,16 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
                             [cscchamber->id().chamber() - 1][iL]) {
                   // one shold account for the weight in the efficiency...
                   hWireSTE2->Fill(float(cscchamber->id().chamber()), float(verticalScale), weight);
+                  if (nRHLayers > 3)
+                    hWireSTE2Tight->Fill(float(cscchamber->id().chamber()), float(verticalScale), weight);
                 }
                 // Strip efficiency
                 if (allStrips[cscchamber->id().endcap() - 1][cscchamber->id().station() - 1]
                              [cscchamber->id().ring() - 1][cscchamber->id().chamber() - 1][iL]) {
                   // one shold account for the weight in the efficiency...
                   hStripSTE2->Fill(float(cscchamber->id().chamber()), float(verticalScale), weight);
+                  if (nRHLayers > 3)
+                    hStripSTE2Tight->Fill(float(cscchamber->id().chamber()), float(verticalScale), weight);
                 }
               }
             }
@@ -1880,11 +1923,18 @@ bool CSCValidation::withinSensitiveRegion(LocalPoint localPos,
            (localPos.y() > deadZoneCenter[2] + cutZone && localPos.y() < deadZoneCenter[3] - cutZone))) {
         pass = true;
       }
-    } else {
-      deadZoneCenter[0] = -81.0;
-      deadZoneCenter[1] = 81.0;
+    } else if (1 == ring) {  // ME1/1b
+      deadZoneCenter[0] = -31.5;
+      deadZoneCenter[1] = 86.0;
       if (localPos.y() > (yBorder) &&
-          (localPos.y() > deadZoneCenter[0] + cutZone && localPos.y() < deadZoneCenter[1] - cutZone)) {
+          (localPos.y() > deadZoneCenter[0] && localPos.y() < deadZoneCenter[1] - cutZone)) {
+        pass = true;
+      }
+    } else if (4 == ring) {  // ME1/1a
+      deadZoneCenter[0] = -86.0;
+      deadZoneCenter[1] = -31.5;
+      if (localPos.y() > (yBorder) &&
+          (localPos.y() > deadZoneCenter[0] + cutZone && localPos.y() < deadZoneCenter[1])) {
         pass = true;
       }
     }
@@ -2775,7 +2825,7 @@ void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
 }
 
 //---------------------------------------------------------------------------
-// Module for looking at Comparitor Timing
+// Module for looking at Comparator Timing
 // Author N. Terentiev
 //---------------------------------------------------------------------------
 
@@ -2945,10 +2995,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   // -----------------------
   // loop over segments
   // -----------------------
-  int iSegment = 0;
   for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    iSegment++;
-
     CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
     LocalPoint localPos = (*dSiter).localPosition();
     GlobalPoint globalPosition = GlobalPoint(0.0, 0.0, 0.0);
@@ -3313,8 +3360,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   // Taking code from EventFilter/CSCRawToDigis/CSCDCCUnpacker.cc
   // *******************************************************************
 
-  edm::ESHandle<CSCCrateMap> hcrate;
-  eventSetup.get<CSCCrateMapRcd>().get(hcrate);
+  edm::ESHandle<CSCCrateMap> hcrate = eventSetup.getHandle(crateToken_);
   const CSCCrateMap* pcrate = hcrate.product();
 
   /// Get a handle to the FED data collection
@@ -3600,6 +3646,8 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   }    // end DCC loop for NON-REFERENCE
 }
 
-void CSCValidation::endJob() { std::cout << "Events in " << nEventsAnalyzed << std::endl; }
+void CSCValidation::beginJob() { std::cout << "CSCValidation starting..." << std::endl; }
+
+void CSCValidation::endJob() { std::cout << "CSCValidation: Events analyzed " << nEventsAnalyzed << std::endl; }
 
 DEFINE_FWK_MODULE(CSCValidation);

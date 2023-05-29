@@ -59,6 +59,8 @@ public:
 private:
   void updateMagneticField(edm::EventSetup const &es);
 
+  void makeGeom(const edm::EventSetup &c);
+
   G4RunManagerKernel *m_kernel;
   edm::ParameterSet m_pField;
   SimActivityRegistry m_registry;
@@ -74,6 +76,7 @@ private:
   mutable const DDCompactView *m_pDD;
   mutable const cms::DDCompactView *m_pDD4hep;
 
+  int m_verbose;
   bool m_firstRun;
   bool m_pUseMagneticField;
   bool m_pUseSensitiveDetectors;

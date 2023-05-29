@@ -8,7 +8,5 @@ OutALCARECOPromptCalibProdSiPixelAli_noDrop = cms.PSet(
         'keep *_SiPixelAliMillePedeFileConverter_*_*')
 )
 
-import copy
-
-OutALCARECOPromptCalibProdSiPixelAli=copy.deepcopy(OutALCARECOPromptCalibProdSiPixelAli_noDrop)
+OutALCARECOPromptCalibProdSiPixelAli=OutALCARECOPromptCalibProdSiPixelAli_noDrop.clone()
 OutALCARECOPromptCalibProdSiPixelAli.outputCommands.insert(0, "drop *")

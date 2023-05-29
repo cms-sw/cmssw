@@ -45,7 +45,6 @@ public:
 private:
   int nNodes_;
   std::string ddTopNodeName_;
-  uint32_t theLayout_;
 
   MTDBaseNumber thisN_;
   BTLNumberingScheme btlNS_;
@@ -56,7 +55,6 @@ private:
 
 TestMTDIdealGeometry::TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
     : ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
-      theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
       thisN_(),
       btlNS_(),
       etlNS_() {
@@ -168,32 +166,9 @@ void TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSet
         std::stringstream snum;
 
         if (isBarrel) {
-          BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_));
-          int hIndex = theId.hashedIndex(lay);
-          BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
           sunitt << theId.rawId();
           snum << theId;
-          snum << "\n layout type = " << static_cast<int>(lay);
-          snum << "\n ieta        = " << theId.ieta(lay);
-          snum << "\n iphi        = " << theId.iphi(lay);
-          snum << "\n hashedIndex = " << theId.hashedIndex(lay);
-          snum << "\n BTLDetId hI = " << theNewId;
-          if (theId.mtdSide() != theNewId.mtdSide()) {
-            snum << "\n DIFFERENCE IN SIDE";
-          }
-          if (theId.mtdRR() != theNewId.mtdRR()) {
-            snum << "\n DIFFERENCE IN ROD";
-          }
-          if (theId.module() != theNewId.module()) {
-            snum << "\n DIFFERENCE IN MODULE";
-          }
-          if (theId.modType() != theNewId.modType()) {
-            snum << "\n DIFFERENCE IN MODTYPE";
-          }
-          if (theId.crystal() != theNewId.crystal()) {
-            snum << "\n DIFFERENCE IN CRYSTAL";
-          }
           snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));

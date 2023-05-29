@@ -21,7 +21,6 @@
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,19 +37,9 @@
 // forward declarations
 
 // constructor(s)
-L1MuCSCTFParametersTester::L1MuCSCTFParametersTester(const edm::ParameterSet& parSet) {
-  // empty
-}
-
-// destructor
-L1MuCSCTFParametersTester::~L1MuCSCTFParametersTester() {
-  // empty
-}
+L1MuCSCTFParametersTester::L1MuCSCTFParametersTester(const edm::ParameterSet& parSet) { token_ = esConsumes(); }
 
 // loop over events
 void L1MuCSCTFParametersTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1MuCSCTFConfiguration> l1CSCTFPar;
-  evSetup.get<L1MuCSCTFConfigurationRcd>().get(l1CSCTFPar);
-
-  l1CSCTFPar->print(std::cout);
+  evSetup.getData(token_).print(std::cout);
 }

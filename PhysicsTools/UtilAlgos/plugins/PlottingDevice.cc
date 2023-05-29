@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,15 +34,12 @@
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 
-class PlottingDevice : public edm::EDAnalyzer {
+class PlottingDevice : public edm::one::EDAnalyzer<> {
 public:
   explicit PlottingDevice(const edm::ParameterSet&);
-  ~PlottingDevice() override;
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
   std::string vHelperInstance_;
@@ -80,8 +77,6 @@ PlottingDevice::PlottingDevice(const edm::ParameterSet& iConfig) {
   plotter_ = PlotterFactory::get()->create(plotterName, plotPset);
 }
 
-PlottingDevice::~PlottingDevice() {}
-
 //
 // member functions
 //
@@ -92,9 +87,5 @@ void PlottingDevice::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   plotter_->fill(plotDirectoryName_, iEvent);
 }
-
-void PlottingDevice::beginJob() {}
-void PlottingDevice::endJob() {}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(PlottingDevice);

@@ -16,7 +16,7 @@ typename MultiGaussianStateCombiner<N>::SingleStatePtr MultiGaussianStateCombine
     return SingleStatePtr();
   }
 
-  const SingleStatePtr firstState(theComponents.front());
+  const SingleStatePtr& firstState(theComponents.front());
   if (theComponents.size() == 1) {
     return firstState;
   }

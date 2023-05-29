@@ -9,7 +9,6 @@ using std::ostream;
 
 #include <iomanip>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,8 +29,8 @@ L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet &conf)
       rct(new L1RCT(rctLookupTables)),
       useEcal(conf.getParameter<bool>("useEcal")),
       useHcal(conf.getParameter<bool>("useHcal")),
-      ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
-      hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
+      ecalDigisToken_(consumes(conf.getParameter<edm::InputTag>("ecalDigisLabel"))),
+      hcalDigisToken_(consumes(conf.getParameter<edm::InputTag>("hcalDigisLabel"))),
       rctParametersToken_(esConsumes<L1RCTParameters, L1RCTParametersRcd>()),
       channelMaskToken_(esConsumes<L1RCTChannelMask, L1RCTChannelMaskRcd>()),
       emScaleToken_(esConsumes<L1CaloEtScale, L1EmEtScaleRcd>()),
@@ -42,8 +41,7 @@ L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet &conf)
       tokens_(consumesCollector()) {
   ofs.open(fileName.c_str(), std::ios::app);
   if (!ofs) {
-    std::cerr << "Could not create " << fileName << std::endl;
-    exit(1);
+    throw cms::Exception("FailedFileOpen") << "Could not create " << fileName << std::endl;
   }
 }
 
@@ -141,10 +139,8 @@ void L1RCTSaveInput::analyze(const edm::Event &event, const edm::EventSetup &eve
     rctLookupTables->setEcalScale(e);
   }
 
-  edm::Handle<EcalTrigPrimDigiCollection> ecal;
-  edm::Handle<HcalTrigPrimDigiCollection> hcal;
-  event.getByLabel(ecalDigisLabel, ecal);
-  event.getByLabel(hcalDigisLabel, hcal);
+  edm::Handle<EcalTrigPrimDigiCollection> ecal = event.getHandle(ecalDigisToken_);
+  edm::Handle<HcalTrigPrimDigiCollection> hcal = event.getHandle(hcalDigisToken_);
   EcalTrigPrimDigiCollection ecalColl;
   HcalTrigPrimDigiCollection hcalColl;
   if (ecal.isValid()) {

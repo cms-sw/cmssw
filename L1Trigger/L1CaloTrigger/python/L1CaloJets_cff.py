@@ -8,17 +8,17 @@ import FWCore.ParameterSet.Config as cms
 #
 # ----    Produce the L1EGCrystal clusters using Emulator
 
-from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
-L1EGammaClusterEmuProducer.ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","")
+from L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi import *
+l1tEGammaClusterEmuProducer.ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","")
 
 
 # --------------------------------------------------------------------------------------------
 #
 # ----    Produce the calibrated tower collection combining Barrel, HGCal, HF
 
-from L1Trigger.L1CaloTrigger.L1TowerCalibrationProducer_cfi import *
-L1TowerCalibrationProducer.L1HgcalTowersInputTag = cms.InputTag("hgcalTowerProducer","HGCalTowerProcessor","")
-L1TowerCalibrationProducer.l1CaloTowers = cms.InputTag("L1EGammaClusterEmuProducer","L1CaloTowerCollection","")
+from L1Trigger.L1CaloTrigger.l1tTowerCalibrationProducer_cfi import *
+l1tTowerCalibrationProducer.L1HgcalTowersInputTag = cms.InputTag("l1tHGCalTowerProducer","HGCalTowerProcessor","")
+l1tTowerCalibrationProducer.l1CaloTowers = cms.InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection","")
 
 
 
@@ -26,9 +26,9 @@ L1TowerCalibrationProducer.l1CaloTowers = cms.InputTag("L1EGammaClusterEmuProduc
 #
 # ----    Produce the L1CaloJets
 
-from L1Trigger.L1CaloTrigger.L1CaloJetProducer_cfi import *
-L1CaloJetProducer.l1CaloTowers = cms.InputTag("L1TowerCalibrationProducer","L1CaloTowerCalibratedCollection","")
-L1CaloJetProducer.L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGXtalClusterEmulator","")
+from L1Trigger.L1CaloTrigger.l1tCaloJetProducer_cfi import *
+l1tCaloJetProducer.l1CaloTowers = cms.InputTag("l1tTowerCalibrationProducer","L1CaloTowerCalibratedCollection","")
+l1tCaloJetProducer.L1CrystalClustersInputTag = cms.InputTag("l1tEGammaClusterEmuProducer", "L1EGXtalClusterEmulator","")
 
 
 
@@ -36,13 +36,13 @@ L1CaloJetProducer.L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuPr
 #
 # ----    Produce the CaloJet HTT Sums
 
-from L1Trigger.L1CaloTrigger.L1CaloJetHTTProducer_cfi import *
+from L1Trigger.L1CaloTrigger.l1tCaloJetHTTProducer_cfi import *
 
 
 
-l1CaloJetsSequence = cms.Sequence( 
-        L1EGammaClusterEmuProducer *
-        L1TowerCalibrationProducer *
-        L1CaloJetProducer *
-        L1CaloJetHTTProducer
+L1TCaloJetsSequence = cms.Sequence( 
+        l1tEGammaClusterEmuProducer *
+        l1tTowerCalibrationProducer *
+        l1tCaloJetProducer *
+        l1tCaloJetHTTProducer
 )

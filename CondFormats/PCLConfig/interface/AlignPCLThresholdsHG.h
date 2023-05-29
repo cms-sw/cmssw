@@ -26,6 +26,7 @@ public:
   enum IntParamIndex { ISIZE = 0 };
   enum StringParamIndex { SSIZE = 0 };
 
+  void setFloatMap(const param_map &floatMap);
   void setFractionCut(const std::string &AlignableId, const coordType &type, const float &cut);
 
   const param_map &getFloatMap() const { return floatMap_; }
@@ -33,6 +34,8 @@ public:
 
   float getFractionCut(const std::string &AlignableId, const coordType &type) const;
   std::array<float, 6> getFractionCut(const std::string &AlignableId) const;
+
+  const bool hasFloatMap(const std::string &AlignableId) const;
 
   const int payloadVersion() const;
 

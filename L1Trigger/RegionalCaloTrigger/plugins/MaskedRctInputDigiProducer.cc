@@ -15,9 +15,13 @@ using std::vector;
 MaskedRctInputDigiProducer::MaskedRctInputDigiProducer(const edm::ParameterSet &iConfig)
     : useEcal_(iConfig.getParameter<bool>("useEcal")),
       useHcal_(iConfig.getParameter<bool>("useHcal")),
-      ecalDigisLabel_(iConfig.getParameter<edm::InputTag>("ecalDigisLabel")),
-      hcalDigisLabel_(iConfig.getParameter<edm::InputTag>("hcalDigisLabel")),
       maskFile_(iConfig.getParameter<edm::FileInPath>("maskFile")) {
+  if (useEcal_) {
+    ecalDigisToken_ = consumes(iConfig.getParameter<edm::InputTag>("ecalDigisLabel"));
+  }
+  if (useHcal_) {
+    hcalDigisToken_ = consumes(iConfig.getParameter<edm::InputTag>("hcalDigisLabel"));
+  }
   // register your products
   /* Examples
      produces<ExampleData2>();
@@ -42,27 +46,17 @@ MaskedRctInputDigiProducer::~MaskedRctInputDigiProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void MaskedRctInputDigiProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
-  /* This is an event example
-     //Read 'ExampleData' from the Event
-     Handle<ExampleData> pIn;
-     iEvent.getByLabel("example",pIn);
-
-     //Use the ExampleData to create an ExampleData2 which
-     // is put into the Event
-     std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-     iEvent.put(std::move(pOut));
-  */
 
   edm::Handle<EcalTrigPrimDigiCollection> ecal;
   edm::Handle<HcalTrigPrimDigiCollection> hcal;
 
   if (useEcal_) {
-    iEvent.getByLabel(ecalDigisLabel_, ecal);
+    ecal = iEvent.getHandle(ecalDigisToken_);
   }
   if (useHcal_) {
-    iEvent.getByLabel(hcalDigisLabel_, hcal);
+    hcal = iEvent.getHandle(hcalDigisToken_);
   }
 
   EcalTrigPrimDigiCollection ecalColl;
@@ -73,12 +67,6 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
   if (hcal.isValid()) {
     hcalColl = *hcal;
   }
-
-  /* this is an EventSetup example
-     //Read SetupData from the SetupRecord in the EventSetup
-     ESHandle<SetupData> pSetup;
-     iSetup.get<SetupRecord>().get(pSetup);
-  */
 
   ifstream maskFileStream(maskFile_.fullPath().c_str());
   if (!maskFileStream.is_open()) {
@@ -332,13 +320,6 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSet
   iEvent.put(std::move(maskedEcalTPs));
   iEvent.put(std::move(maskedHcalTPs));
 }
-
-// ------------ method called once each job just before starting event loop
-// ------------
-
-// ------------ method called once each job just after ending the event loop
-// ------------
-void MaskedRctInputDigiProducer::endJob() {}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(MaskedRctInputDigiProducer);

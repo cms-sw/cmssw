@@ -21,13 +21,16 @@ namespace edm {
     /**Reads a Streamer file */
     explicit StreamerInputFile(std::string const& name,
                                std::string const& LFN,
-                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
+                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>(),
+                               unsigned int prefetchMBytes = 0);
     explicit StreamerInputFile(std::string const& name,
-                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
+                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>(),
+                               unsigned int prefetchMBytes = 0);
 
     /** Multiple Streamer files */
     explicit StreamerInputFile(std::vector<FileCatalogItem> const& names,
-                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>());
+                               std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>(),
+                               unsigned int prefetchMBytes = 0);
 
     ~StreamerInputFile();
 
@@ -51,7 +54,10 @@ namespace edm {
 
   private:
     void openStreamerFile(std::string const& name, std::string const& LFN);
-    storage::IOSize readBytes(char* buf, storage::IOSize nBytes);
+    std::pair<storage::IOSize, char*> readBytes(char* buf,
+                                                storage::IOSize nBytes,
+                                                bool zeroCopy,
+                                                unsigned int skippedHdr = 0);
     storage::IOOffset skipBytes(storage::IOSize nBytes);
 
     void readStartMessage();
@@ -68,6 +74,10 @@ namespace edm {
 
     std::vector<char> headerBuf_; /** Buffer to store file Header */
     std::vector<char> eventBuf_;  /** Buffer to store Event Data */
+
+    std::vector<char> tempBuf_; /** Buffer to store prefetched bytes */
+    unsigned int tempLen_ = 0;
+    unsigned int tempPos_ = 0;
 
     unsigned int currentFile_;                   /** keeps track of which file is in use at the moment*/
     std::vector<FileCatalogItem> streamerNames_; /** names of Streamer files */

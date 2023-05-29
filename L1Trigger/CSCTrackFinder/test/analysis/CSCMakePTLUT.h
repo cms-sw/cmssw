@@ -10,19 +10,19 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 class CSCTFPtLUT;
 
-class CSCMakePTLUT : public edm::EDAnalyzer {
+class CSCMakePTLUT : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCMakePTLUT(edm::ParameterSet const& conf);
   virtual ~CSCMakePTLUT();
@@ -34,11 +34,13 @@ private:
 
   std::string fileSuffix() const;
   //CSCTFPtLUT* myTF[2][6][2][4]; // [Endcap][Sector][Subsector][Station]
-  CSCTFPtLUT* myTF;
   //bool writeLocalPhi, writeGlobalPhi, writeGlobalEta,
   bool binary;
   int endcap, sector, station;
   edm::ParameterSet LUTparam;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> scalesToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> ptScalesToken_;
 };
 
 DEFINE_FWK_MODULE(CSCMakePTLUT);

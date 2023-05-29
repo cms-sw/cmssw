@@ -591,8 +591,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
     return false;
   }
 
-  double phicritapprox = phi0approx - asin(0.5 * settings_.rcrit() * rinvapprox);
-  int phicrit = iphi0 - 2 * irinv;
+  double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
+  int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
   int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
   int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
@@ -691,7 +691,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
         continue;
 
       //check r projection in range
-      if (rprojdiskapprox[i] < settings_.rmindisk() || rprojdiskapprox[i] > settings_.rmaxdisk())
+      if (rprojdiskapprox[i] < settings_.rmindisk() || rprojdiskapprox[i] >= settings_.rmaxdisk())
         continue;
 
       projs[N_LAYER + i].init(settings_,
@@ -1006,8 +1006,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   if (!success)
     return false;
 
-  double phicritapprox = phi0approx - asin(0.5 * settings_.rcrit() * rinvapprox);
-  int phicrit = iphi0 - 2 * irinv;
+  double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
+  int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
   int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
   int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
@@ -1097,7 +1097,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
       if (iphiprojdisk[i] >= (1 << settings_.nphibitsstub(0)) - 1)
         continue;
 
-      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] > settings_.rmaxdisk() / krprojdisk)
+      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] >= settings_.rmaxdisk() / krprojdisk)
         continue;
 
       projs[N_LAYER + i + 2].init(settings_,
@@ -1402,8 +1402,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   if (!success)
     return false;
 
-  double phicritapprox = phi0approx - asin(0.5 * settings_.rcrit() * rinvapprox);
-  int phicrit = iphi0 - 2 * irinv;
+  double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
+  int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
   int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
   int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
@@ -1494,7 +1494,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
         continue;
 
       //Check r range of projection
-      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] > settings_.rmaxdisk() / krprojdisk)
+      if (irprojdisk[i] < settings_.rmindisk() / krprojdisk || irprojdisk[i] >= settings_.rmaxdisk() / krprojdisk)
         continue;
 
       projs[N_LAYER + i + 1].init(settings_,
@@ -1662,12 +1662,12 @@ void TrackletCalculatorDisplaced::exacttracklet(double r1,
                                                 double& d0,
                                                 double& t,
                                                 double& z0,
-                                                double phiproj[N_DISK],
-                                                double zproj[N_DISK],
+                                                double phiproj[N_LAYER - 2],
+                                                double zproj[N_LAYER - 2],
                                                 double phiprojdisk[N_DISK],
                                                 double rprojdisk[N_DISK],
-                                                double phider[N_DISK],
-                                                double zder[N_DISK],
+                                                double phider[N_LAYER - 2],
+                                                double zder[N_LAYER - 2],
                                                 double phiderdisk[N_DISK],
                                                 double rderdisk[N_DISK]) {
   //two lines perpendicular to the 1->2 and 2->3
@@ -1826,7 +1826,7 @@ void TrackletCalculatorDisplaced::approxprojdisk(double halfRinv,
   // double C_0 = -d0_0 * halfRinv_0;
 
   phiproj = phi0 - A + B * (1 + C - 2 * A_0 * A_0) + sixth * pow(-A_0 + B_0, 3);
-  phiprojder = -halfRinv / t - d0 * t * t * zmeanInv * zmeanInv;
+  phiprojder = -halfRinv / t + d0 * t * zmeanInv * zmeanInv;
 
   phiproj = angle0to2pi::make0To2pi(phiproj);
 

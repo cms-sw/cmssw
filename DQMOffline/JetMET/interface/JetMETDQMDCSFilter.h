@@ -18,7 +18,6 @@
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 
 class JetMETDQMDCSFilter {

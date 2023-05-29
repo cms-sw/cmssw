@@ -95,6 +95,7 @@ hltExoticaPostLowPtDimuon = make_exo_postprocessor("LowPtDimuon")
 hltExoticaPostLowPtDielectron = make_exo_postprocessor("LowPtDielectron")
 hltExoticaPostHighPtPhoton = make_exo_postprocessor("HighPtPhoton")
 hltExoticaPostDiPhoton = make_exo_postprocessor("DiPhoton")
+hltExoticaPostDisplacedDiPhoton = make_exo_postprocessor("DisplacedDiPhoton")
 hltExoticaPostSingleMuon = make_exo_postprocessor("SingleMuon")
 hltExoticaPostPFHT = make_exo_postprocessor("PFHT")
 hltExoticaPostCaloHT = make_exo_postprocessor("CaloHT")
@@ -128,6 +129,7 @@ hltExoticaPostProcessors = cms.Sequence(
     # Photon paths
     hltExoticaPostHighPtPhoton +
     hltExoticaPostDiPhoton +
+    hltExoticaPostDisplacedDiPhoton +
     # HT path
     hltExoticaPostPFHT +
     hltExoticaPostCaloHT +

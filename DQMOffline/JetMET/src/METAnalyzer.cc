@@ -102,7 +102,6 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   fill_met_high_level_histo = parameters.getParameter<bool>("fillMetHighLevel");
   fillCandidateMap_histos = parameters.getParameter<bool>("fillCandidateMaps");
 
-  hTriggerLabelsIsSet_ = false;
   //jet cleanup parameters
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
@@ -324,28 +323,18 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
   }
 
   if (!fillZPlots) {
-    hTrigger = ibooker.book1D("triggerResults", "triggerResults", 500, 0, 500);
-    for (unsigned int i = 0; i < allTriggerNames_.size(); i++) {
-      if (i < (unsigned int)hTrigger->getNbinsX()) {
-        if (!hTriggerLabelsIsSet_) {
-          hTrigger->setBinLabel(i + 1, allTriggerNames_[i]);
-        }
-      }
-    }
-    hTriggerLabelsIsSet_ = true;
-
     hMEx = ibooker.book1D("MEx", "MEx", 200, -500, 500);
     hMEy = ibooker.book1D("MEy", "MEy", 200, -500, 500);
     hMET = ibooker.book1D("MET", "MET", 200, 0, 1000);
-    hMET_2 = ibooker.book1D("MET_2", "MET Range 2", 200, 0, 2000);
-    hSumET = ibooker.book1D("SumET", "SumET", 400, 0, 4000);
 
     {
       auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+      hMET_2 = ibooker.book1D("MET_2", "MET Range 2", 200, 0, 2000);
+      hSumET = ibooker.book1D("SumET", "SumET", 400, 0, 4000);
       hMETSig = ibooker.book1D("METSig", "METSig", 51, 0, 51);
+      hMETPhi = ibooker.book1D("METPhi", "METPhi", 60, -M_PI, M_PI);
     }
 
-    hMETPhi = ibooker.book1D("METPhi", "METPhi", 60, -M_PI, M_PI);
     hMET_logx = ibooker.book1D("MET_logx", "MET_logx", 40, -1, 9);
     hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx", 40, -1, 9);
 
@@ -359,7 +348,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
     hMET_logx->setAxisTitle("log(MET) [GeV]", 1);
     hSumET_logx->setAxisTitle("log(SumET) [GeV]", 1);
 
-    map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "triggerResults", hTrigger));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MEx", hMEx));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MEy", hMEy));
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "MET", hMET));
@@ -1208,12 +1196,6 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
                 << " config extraction failure with process name " << triggerResultsLabel_.process() << std::endl;
   }
 
-  allTriggerNames_.clear();
-  for (unsigned int i = 0; i < hltConfig_.size(); i++) {
-    allTriggerNames_.push_back(hltConfig_.triggerName(i));
-  }
-  //  std::cout<<"Length: "<<allTriggerNames_.size()<<std::endl;
-
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
   for (std::vector<GenericTriggerEventFlag*>::const_iterator it = triggerFolderEventFlag_.begin();
        it != triggerFolderEventFlag_.end();
@@ -1463,11 +1445,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       unsigned int pos = it - triggerFolderEventFlag_.begin();
       bool fd = (*it)->accept(iEvent, iSetup);
       triggerFolderDecisions_[pos] = fd;
-    }
-    allTriggerDecisions_.clear();
-    for (unsigned int i = 0; i < allTriggerNames_.size(); ++i) {
-      allTriggerDecisions_.push_back((*triggerResults).accept(i));
-      //std::cout<<"TR "<<(*triggerResults).size()<<" "<<(*triggerResults).accept(i)<<" "<<allTriggerNames_[i]<<std::endl;
     }
   }
 
@@ -2260,15 +2237,6 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
 
     if (!subFolderName.empty()) {
       DirName = DirName + "/" + subFolderName;
-    }
-
-    hTrigger = map_of_MEs[DirName + "/triggerResults"];
-    if (hTrigger && hTrigger->getRootObject()) {
-      for (unsigned int i = 0; i < allTriggerDecisions_.size(); i++) {
-        if (i < (unsigned int)hTrigger->getNbinsX()) {
-          hTrigger->Fill(i + .5, allTriggerDecisions_[i]);
-        }
-      }
     }
 
     hMEx = map_of_MEs[DirName + "/" + "MEx"];

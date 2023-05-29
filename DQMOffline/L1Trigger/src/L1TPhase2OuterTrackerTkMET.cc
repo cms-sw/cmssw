@@ -40,7 +40,7 @@ L1TPhase2OuterTrackerTkMET::L1TPhase2OuterTrackerTkMET(const edm::ParameterSet& 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   ttTrackToken_ =
       consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(conf_.getParameter<edm::InputTag>("TTTracksTag"));
-  pvToken = consumes<l1t::TkPrimaryVertexCollection>(conf_.getParameter<edm::InputTag>("L1VertexInputTag"));
+  pvToken = consumes<l1t::VertexWordCollection>(conf_.getParameter<edm::InputTag>("L1VertexInputTag"));
 
   maxZ0 = conf_.getParameter<double>("maxZ0");
   DeltaZ = conf_.getParameter<double>("DeltaZ");
@@ -64,7 +64,7 @@ L1TPhase2OuterTrackerTkMET::~L1TPhase2OuterTrackerTkMET() {
 // ------------ method called for each event  ------------
 void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // L1 Primaries
-  edm::Handle<l1t::TkPrimaryVertexCollection> L1VertexHandle;
+  edm::Handle<l1t::VertexWordCollection> L1VertexHandle;
   iEvent.getByToken(pvToken, L1VertexHandle);
 
   edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackHandle;
@@ -85,13 +85,11 @@ void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::Ev
   }
   float sumPx = 0;
   float sumPy = 0;
-  float etTot = 0;
   double sumPx_PU = 0;
   double sumPy_PU = 0;
-  double etTot_PU = 0;
   int nTracks_counter = 0;
 
-  float zVTX = L1VertexHandle->begin()->zvertex();
+  float zVTX = L1VertexHandle->begin()->z0();
   unsigned int tkCnt = 0;
   for (const auto& trackIter : *TTTrackHandle) {
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > tempTrackPtr(TTTrackHandle, tkCnt++);  /// Make the pointer
@@ -155,11 +153,9 @@ void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::Ev
 
       sumPx += pt * cos(phi);
       sumPy += pt * sin(phi);
-      etTot += pt;
     } else {  // PU sums
       sumPx_PU += pt * cos(phi);
       sumPy_PU += pt * sin(phi);
-      etTot_PU += pt;
     }
   }  // end loop over tracks
 

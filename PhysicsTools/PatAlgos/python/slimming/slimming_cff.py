@@ -14,6 +14,7 @@ from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedCaloJets_cfi  import *
+from PhysicsTools.PatAlgos.slimming.slimmedJPTJets_cfi  import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedLowPtElectrons_cff import *
@@ -46,6 +47,7 @@ slimmingTask = cms.Task(
     selectedPatTrigger,
     slimmedPatTrigger,
     slimmedCaloJets,
+    slimmedJPTJets,
     slimmedJets,
     slimmedJetsAK8,
     slimmedGenJets,
@@ -72,6 +74,7 @@ slimmingTask = cms.Task(
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
+pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedJPTJets]))
 
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
@@ -104,7 +107,7 @@ run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexWith
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(pfEGammaToCandidateRemapperCleaned,slimmingTask.copy()))
 
 from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
-pp_on_AA.toReplaceWith(
+run2_miniAOD_pp_on_AA_103X.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
 

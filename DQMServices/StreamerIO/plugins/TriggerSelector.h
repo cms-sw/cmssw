@@ -1,14 +1,15 @@
 #ifndef DQMServices_StreamerIO_TriggerSelector_h
 #define DQMServices_StreamerIO_TriggerSelector_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "FWCore/Framework/interface/EventSelector.h"
-
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
+
+namespace edm {
+  class EventSelector;
+  class HLTGlobalStatus;
+  class TriggerResults;
+}  // namespace edm
 
 namespace dqmservices {
   /**
@@ -21,32 +22,21 @@ namespace dqmservices {
     typedef std::vector<std::string> Strings;
 
     /**
-   * Obsolete: Initializes TriggerSelector to use edm::EventSelector for
-   * selection.
+   * Initializes TriggerSelector to use edm::EventSelector for selection.
    */
     TriggerSelector(Strings const& pathspecs, Strings const& names);
-
-    /**
-   * Takes ParameterSet wth TriggerSelector string or EventSelection list, and a
-   * list of triggers.
-   * if old_ is true, it is forced to use EventSelection.
-   */
-    TriggerSelector(edm::ParameterSet const& pset, Strings const& triggernames, bool old_ = false);
 
     /**
    * Takes selection string and list of triggers
    */
     TriggerSelector(std::string const& expression, Strings const& triggernames);
 
-    ~TriggerSelector(){};
+    ~TriggerSelector() = default;
 
     /**
    * Returns status of always positive bit
    */
-    bool wantAll() const {
-      //	if (useOld_) return eventSelector_->wantAll();
-      return acceptAll_;
-    }
+    bool wantAll() const { return acceptAll_; }
 
     /**
    * Evaluates if trigger results pass selection
@@ -69,11 +59,6 @@ namespace dqmservices {
    * Does XMl compatible formatting of the selection string
    */
     static std::string makeXMLString(std::string const& input);
-
-    /*
-   * Obsolete: Returns SelectedEvents vector from ParameterSet
-   */
-    static std::vector<std::string> getEventSelectionVString(edm::ParameterSet const& pset);
 
   private:
     bool acceptAll_;
@@ -135,6 +120,7 @@ namespace dqmservices {
 
     static const bool debug_ = false;
   };
+
 }  // namespace dqmservices
 
-#endif
+#endif  // DQMServices_StreamerIO_TriggerSelector_h

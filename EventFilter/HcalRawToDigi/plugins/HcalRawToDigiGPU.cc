@@ -1,5 +1,4 @@
-#include <iostream>
-
+#include "CUDADataFormats/Common/interface/Product.h"
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -8,11 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #include "DeclsForKernels.h"
 #include "DecodeGPU.h"

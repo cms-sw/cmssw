@@ -38,6 +38,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
@@ -69,16 +71,16 @@ HGCalPartialCellTester::HGCalPartialCellTester(const edm::ParameterSet& iC)
       nTrials_(iC.getParameter<int>("numbberOfTrials")),
       modeUV_(iC.getParameter<int>("modeUV")) {
   edm::LogVerbatim("HGCalGeom") << "Test positions for wafer of size " << waferSize_ << " Type " << waferType_
-                                << " Placement Index " << placeIndex_ << " mode " << modeUV_ << " with " << nTrials_
-                                << " trials";
+                                << " Partial Type " << partialType_ << " Placement Index " << placeIndex_ << " mode "
+                                << modeUV_ << " with " << nTrials_ << " trials";
 }
 
 void HGCalPartialCellTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<double>("waferSize", 166.4408);
-  desc.add<int>("waferType", 1);
-  desc.add<int>("cellPlacementIndex", 2);
-  desc.add<int>("partialType", 11);
+  desc.add<int>("waferType", 0);
+  desc.add<int>("cellPlacementIndex", 3);
+  desc.add<int>("partialType", 25);
   desc.add<int>("numbberOfTrials", 1000);
   desc.add<int>("modeUV", 0);
   descriptions.add("hgcalPartialCellTester", desc);
@@ -100,16 +102,45 @@ void HGCalPartialCellTester::analyze(const edm::Event&, const edm::EventSetup&) 
     for (int i = 0; i < nTrials_; i++) {
       double xi = (2 * r2 * static_cast<double>(rand()) / RAND_MAX) - r2;
       double yi = (2 * R2 * static_cast<double>(rand()) / RAND_MAX) - R2;
-      double c1 = yi + xi / sqrt(3);
-      double c2 = yi - (xi / sqrt(3));
-      if ((xi < r2) && (xi > -1 * r2) && (c1 < R2) && (c1 > -1 * R2) && (c2 < R2) && (c2 > -1 * R2) &&
-          (xi > 0)) {  //Only allowing (x, y) inside a partial wafer 11, placement index 2
+      bool goodPoint = true;
+      int ug = 0;
+      int vg = 0;
+      if (partialType_ == 11 || partialType_ == 13 || partialType_ == 15 || partialType_ == 21 || partialType_ == 23 ||
+          partialType_ == 25) {
+        ug = 0;
+        vg = 0;
+      } else if (partialType_ == 12 || partialType_ == 14 || partialType_ == 16 || partialType_ == 22 ||
+                 partialType_ == 24) {
+        ug = nCells + 1;
+        vg = 2 * (nCells - 1);
+      }
+      std::pair<double, double> xyg = wafer2.cellUV2XY2(ug, vg, placeIndex_, waferType_);
+      std::vector<std::pair<double, double> > wxy =
+          HGCalWaferMask::waferXY(partialType_, placeIndex_, waferSize_, 0.0, 0.0, 0.0);
+      for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
+        double xp1 = wxy[i].first;
+        double yp1 = wxy[i].second;
+        double xp2 = wxy[i + 1].first;
+        double yp2 = wxy[i + 1].second;
+        if ((((xi - xp1) / (xp2 - xp1)) - ((yi - yp1) / (yp2 - yp1))) *
+                (((xyg.first - xp1) / (xp2 - xp1)) - ((xyg.second - yp1) / (yp2 - yp1))) <=
+            0) {
+          goodPoint = false;
+        }
+      }
+      if (goodPoint) {  //Only allowing (x, y) inside a partial wafer 11, placement index 2
         std::pair<int32_t, int32_t> uv1 = wafer.cellUVFromXY1(xi, yi, placeIndex_, waferType_, true, false);
         std::pair<int32_t, int32_t> uv5 =
             wafer.cellUVFromXY1(xi, yi, placeIndex_, waferType_, partialType_, true, false);
-        std::string cellType = (HGCalWaferMask::goodCell(uv5.first, uv5.second, 11)) ? "Goodcell" : "Badcell";
-        std::string comment = ((uv1.first != uv5.first) || (uv1.second != uv5.second)) ? " ***** ERROR *****" : "";
-        edm::LogVerbatim("HGCalGeom") << cellType << " x = " << xi << " y = " << yi << " type = " << waferType_
+        std::pair<double, double> xy1 = wafer2.cellUV2XY2(uv5.first, uv5.second, placeIndex_, waferType_);
+        std::string cellType = (HGCalWaferMask::goodCell(uv5.first, uv5.second, partialType_)) ? "Goodcell" : "Badcell";
+        std::string pointType = goodPoint ? "GoodPoint" : "BadPoint";
+        std::string comment =
+            ((uv1.first != uv5.first) || (uv1.second != uv5.second) || (xy1.first - xi > 6) || (xy1.second - yi > 6))
+                ? " ***** ERROR *****"
+                : "";
+        edm::LogVerbatim("HGCalGeom") << pointType << " " << cellType << " x = " << xi << ":" << xy1.first
+                                      << " y = " << yi << ":" << xy1.second << " type = " << waferType_
                                       << " placement index " << placeIndex_ << " u " << uv1.first << ":" << uv5.first
                                       << ":" << uv5.first << " v " << uv1.second << ":" << uv5.second << ":"
                                       << uv5.second << ":" << comment;

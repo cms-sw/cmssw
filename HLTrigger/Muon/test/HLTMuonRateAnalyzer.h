@@ -8,7 +8,7 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -20,20 +20,20 @@
 class TFile;
 class TH1F;
 
-class HLTMuonRateAnalyzer : public edm::EDAnalyzer {
+class HLTMuonRateAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   HLTMuonRateAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~HLTMuonRateAnalyzer();
+  ~HLTMuonRateAnalyzer() override;
 
   // Operations
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   // Input from cfg file

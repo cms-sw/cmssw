@@ -1,182 +1,17 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
-/** Returns BTL iphi index for crystal according to type tile or bar */
-int BTLDetId::iphi(CrysLayout lay) const {
-  int kCrystalsInPhi = 1;
-  switch (lay) {
-    case CrysLayout::tile: {
-      kCrystalsInPhi = kCrystalsInPhiTile;
-      break;
-    }
-    case CrysLayout::bar: {
-      kCrystalsInPhi = kCrystalsInPhiBar;
-      break;
-    }
-    case CrysLayout::barzflat: {
-      kCrystalsInPhi = kCrystalsInPhiBarZ;
-      break;
-    }
-    case CrysLayout::barphiflat: {
-      kCrystalsInPhi = kCrystalsInPhiBarPhi;
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  return kCrystalsInPhi * ((mtdRR() % HALF_ROD > 0 ? mtdRR() % HALF_ROD : HALF_ROD) - 1) +
-         (crystal() % kCrystalsInPhi > 0 ? crystal() % kCrystalsInPhi : kCrystalsInPhi);
-}
-
-/** Returns BTL ieta index for crystal according to type tile or bar */
-int BTLDetId::ietaAbs(CrysLayout lay) const {
-  int kCrystalsInEta = 1, kCrystalsInPhi = 1;
-  std::array<int, 4> kTypeBoundaries = {};
-  switch (lay) {
-    case CrysLayout::tile: {
-      kCrystalsInEta = kCrystalsInEtaTile;
-      kCrystalsInPhi = kCrystalsInPhiTile;
-      kTypeBoundaries = kTypeBoundariesReference;
-      break;
-    }
-    case CrysLayout::bar: {
-      kCrystalsInEta = kCrystalsInEtaBar;
-      kCrystalsInPhi = kCrystalsInPhiBar;
-      kTypeBoundaries = kTypeBoundariesReference;
-      break;
-    }
-    case CrysLayout::barzflat: {
-      kCrystalsInEta = kCrystalsInEtaBarZ;
-      kCrystalsInPhi = kCrystalsInPhiBarZ;
-      kTypeBoundaries = kTypeBoundariesBarZflat;
-      break;
-    }
-    case CrysLayout::barphiflat: {
-      kCrystalsInEta = kCrystalsInEtaBarPhi;
-      kCrystalsInPhi = kCrystalsInPhiBarPhi;
-      kTypeBoundaries = kTypeBoundariesBarPhiFlat;
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  int etaRowInModule =
-      zside() > 0 ? (crystal() - 1) / kCrystalsInPhi + 1 : kCrystalsInEta - (crystal() - 1) / kCrystalsInPhi;
-  return kCrystalsInEta * (module() - 1) + kCrystalsInEta * kTypeBoundaries[(modType() - 1)] + etaRowInModule;
-}
-
-int BTLDetId::hashedIndex(CrysLayout lay) const {
-  int max_iphi = 1, max_ieta = 1;
-  switch (lay) {
-    case CrysLayout::tile: {
-      max_iphi = MAX_IPHI_TILE;
-      max_ieta = MAX_IETA_TILE;
-      break;
-    }
-    case CrysLayout::bar: {
-      max_iphi = MAX_IPHI_BAR;
-      max_ieta = MAX_IETA_BAR;
-      break;
-    }
-    case CrysLayout::barzflat: {
-      max_iphi = MAX_IPHI_BARZFLAT;
-      max_ieta = MAX_IETA_BARZFLAT;
-      break;
-    }
-    case CrysLayout::barphiflat: {
-      max_iphi = MAX_IPHI_BARPHIFLAT;
-      max_ieta = MAX_IETA_BARPHIFLAT;
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  return (max_ieta + (zside() > 0 ? ietaAbs(lay) - 1 : -ietaAbs(lay))) * max_iphi + iphi(lay) - 1;
-}
-
-/** get a DetId from a compact index for arrays */
-
-BTLDetId BTLDetId::getUnhashedIndex(int hi, CrysLayout lay) const {
-  int max_iphi = 1, max_ieta = 1, nphi = 0, keta = 0, tmphi = hi + 1;
-  std::array<int, 4> kTypeBoundaries = {};
-  switch (lay) {
-    case CrysLayout::tile: {
-      max_iphi = MAX_IPHI_TILE;
-      max_ieta = MAX_IETA_TILE;
-      nphi = kCrystalsInPhiTile;
-      keta = kCrystalsInEtaTile;
-      kTypeBoundaries = kTypeBoundariesReference;
-      break;
-    }
-    case CrysLayout::bar: {
-      max_iphi = MAX_IPHI_BAR;
-      max_ieta = MAX_IETA_BAR;
-      nphi = kCrystalsInPhiBar;
-      keta = kCrystalsInEtaBar;
-      kTypeBoundaries = kTypeBoundariesReference;
-      break;
-    }
-    case CrysLayout::barzflat: {
-      max_iphi = MAX_IPHI_BARZFLAT;
-      max_ieta = MAX_IETA_BARZFLAT;
-      nphi = kCrystalsInPhiBarZ;
-      keta = kCrystalsInEtaBarZ;
-      kTypeBoundaries = kTypeBoundariesBarZflat;
-      break;
-    }
-    case CrysLayout::barphiflat: {
-      max_iphi = MAX_IPHI_BARPHIFLAT;
-      max_ieta = MAX_IETA_BARPHIFLAT;
-      nphi = kCrystalsInPhiBarPhi;
-      keta = kCrystalsInEtaBarPhi;
-      kTypeBoundaries = kTypeBoundariesBarPhiFlat;
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  int zside = 0, rod = 0, module = 0, modtype = 1, crystal = 0;
-  if (tmphi > max_ieta * max_iphi) {
-    zside = 1;
-  }
-  int ip = (tmphi - 1) % max_iphi + 1;
-  int ie = (tmphi - 1) / max_iphi - max_ieta;
-  ie = (zside == 1 ? ie + 1 : -ie);
-  rod = (ip - 1) / nphi + 1;
-  module = (ie - 1) / keta + 1;
-  if (module > kTypeBoundaries[1]) {
-    modtype = (module > kTypeBoundaries[2] ? 3 : 2);
-  }
-  if (modtype > 1) {
-    module = module - kTypeBoundaries[modtype - 1];
-  }
-  crystal = zside == 1 ? ((ip - 1) % nphi + 1) + ((ie - 1) % keta) * nphi
-                       : ((ip - 1) % nphi + 1) + (keta - 1 - (ie - 1) % keta) * nphi;
-  return BTLDetId(zside, rod, module, modtype, crystal);
-}
-
-int BTLDetId::modulesPerType(CrysLayout lay) const {
-  int mod = kTypeBoundariesReference[1];
-  if (lay == CrysLayout::barzflat) {
-    mod = kTypeBoundariesBarZflat[1];
-  } else if (lay == CrysLayout::barphiflat) {
-    mod = kTypeBoundariesBarPhiFlat[1];
-  }
-  return mod;
-}
-
 BTLDetId BTLDetId::geographicalId(CrysLayout lay) const {
-  // reorganize the modules to count from 0 to 54
-  //    (0 to 42 in the case of BarZflat geometry)
-  // remove module type
-  // remove crystal index
+  // For tracking geometry navigation
 
-  int boundRef = modulesPerType(lay);
+  if (lay == CrysLayout::barphiflat) {
+    // barphiflat: count modules in a rod, combining all types
+    return BTLDetId(mtdSide(), mtdRR(), module() + kModulePerTypeBarPhiFlat * (modType() - 1), 0, 1);
+  } else if (lay == CrysLayout::v2) {
+    // v2: set number of crystals to 17 to distinguish from crystal BTLDetId
+    return BTLDetId(mtdSide(), mtdRR(), runit(), module(), modType(), kCrystalsPerModuleV2 + 1);
+  }
 
-  return BTLDetId(mtdSide(), mtdRR(), module() + boundRef * (modType() - 1), 0, 1);
+  return 0;
 }
 
 #include <iomanip>
@@ -186,8 +21,9 @@ std::ostream& operator<<(std::ostream& os, const BTLDetId& id) {
   os << " BTL " << std::endl
      << " Side        : " << id.mtdSide() << std::endl
      << " Rod         : " << id.mtdRR() << std::endl
-     << " Module      : " << id.module() << std::endl
      << " Crystal type: " << id.modType() << std::endl
+     << " Readout unit: " << id.runit() << std::endl
+     << " Module      : " << id.module() << std::endl
      << " Crystal     : " << id.crystal() << std::endl;
   return os;
 }

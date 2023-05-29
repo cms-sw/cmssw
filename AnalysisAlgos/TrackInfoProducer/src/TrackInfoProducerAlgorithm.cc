@@ -22,7 +22,6 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
   std::vector<TrajectoryMeasurement>::iterator traj_mes_iterator;
   //edm::LogInfo("TrackInfoProducer") << "Number of Measurements: "<<measurements.size();
   TrackInfo::TrajectoryInfo trajinfo;
-  int nhit = 0;
   for (traj_mes_iterator = measurements.begin(); traj_mes_iterator != measurements.end();
        ++traj_mes_iterator) {  //loop on measurements
 
@@ -36,7 +35,6 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
     LocalPoint pos;
     if (ttrh->isValid())
       pos = ttrh->hit()->localPosition();
-    nhit++;
     unsigned int detid = ttrh->hit()->geographicalId().rawId();
 
     TrackingRecHitRef thehitref;
@@ -164,8 +162,6 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
     }
     //      else  edm::LogInfo("TrackInfoProducer") << "RecHit not associated ";
   }
-  //edm::LogInfo("TrackInfoProducer") << "Found "<<nhit<< " hits";
-  //if(fwdtrajinfo.size()!=nhit) edm::LogInfo("TrackInfoProducer") << "Number of trackinfos  "<<fwdtrajinfo.size()<< " doesn't match!";
   output = TrackInfo((traj_iterator->seed()), trajinfo);
 }
 

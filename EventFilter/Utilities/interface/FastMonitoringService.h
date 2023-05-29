@@ -39,6 +39,7 @@
 */
 
 class FedRawDataInputSource;
+class DAQSource;
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -209,6 +210,8 @@ namespace evf {
     void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
     unsigned int getEventsProcessedForLumi(unsigned int lumi, bool* abortFlag = nullptr);
     bool getAbortFlagForLumi(unsigned int lumi);
+    bool exceptionDetected() const;
+    bool isExceptionOnData(unsigned int ls);
     bool shouldWriteFiles(unsigned int lumi, unsigned int* proc = nullptr) {
       unsigned int processed = getEventsProcessedForLumi(lumi);
       if (proc)
@@ -217,6 +220,7 @@ namespace evf {
     }
     std::string getRunDirName() const { return runDirectory_.stem().string(); }
     void setInputSource(FedRawDataInputSource* inputSource) { inputSource_ = inputSource; }
+    void setInputSource(DAQSource* inputSource) { daqInputSource_ = inputSource; }
     void setInState(FastMonState::InputState inputState) { inputState_ = inputState; }
     void setInStateSup(FastMonState::InputState inputState) { inputSupervisorState_ = inputState; }
 
@@ -230,6 +234,7 @@ namespace evf {
     //Encoding encModule_;
     //std::vector<Encoding> encPath_;
     FedRawDataInputSource* inputSource_ = nullptr;
+    DAQSource* daqInputSource_ = nullptr;
     std::atomic<FastMonState::InputState> inputState_{FastMonState::InputState::inInit};
     std::atomic<FastMonState::InputState> inputSupervisorState_{FastMonState::InputState::inInit};
 
@@ -285,6 +290,8 @@ namespace evf {
 
     std::atomic<bool> monInit_;
     bool exception_detected_ = false;
+    std::atomic<bool> has_source_exception_ = false;
+    std::atomic<bool> has_data_exception_ = false;
     std::vector<unsigned int> exceptionInLS_;
     std::vector<std::string> fastPathList_;
   };

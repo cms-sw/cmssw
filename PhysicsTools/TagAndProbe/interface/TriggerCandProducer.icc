@@ -108,7 +108,7 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
     for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
       if ((*iMyHLT).label() == *iHLT) {
         triggerInMenu[(*iMyHLT).label()] = true;
-        if (hltPrescaleProvider_.prescaleValue(event, eventSetup, *iHLT) == 1)
+        if (hltPrescaleProvider_.prescaleValue<double>(event, eventSetup, *iHLT) == 1)
           triggerUnprescaled[(*iMyHLT).label()] = true;
       }
     }

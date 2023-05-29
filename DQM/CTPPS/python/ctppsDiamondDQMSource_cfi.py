@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ctppsDiamondDQMSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
-    tagStatus = cms.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
-    tagDigi = cms.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
-    tagFEDInfo = cms.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
-    tagDiamondRecHits = cms.InputTag("ctppsDiamondRecHits"),
-    tagDiamondLocalTracks = cms.InputTag("ctppsDiamondLocalTracks"),
-    tagPixelLocalTracks = cms.InputTag("ctppsPixelLocalTracks"),
+    tagStatus = cms.untracked.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
+    tagDigi = cms.untracked.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
+    tagFEDInfo = cms.untracked.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
+    tagDiamondRecHits = cms.untracked.InputTag("ctppsDiamondRecHits"),
+    tagDiamondLocalTracks = cms.untracked.InputTag("ctppsDiamondLocalTracks"),
+    tagPixelLocalTracks = cms.untracked.InputTag("ctppsPixelLocalTracks"),
 
     excludeMultipleHits = cms.bool(True),
     extractDigiInfo = cms.bool(True),
@@ -45,12 +45,12 @@ ctppsDiamondDQMSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
 )
 
 ctppsDiamondDQMOfflineSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
-    tagStatus = cms.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
-    tagDigi = cms.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
-    tagFEDInfo = cms.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
-    tagDiamondRecHits = cms.InputTag("ctppsDiamondRecHits"),
-    tagDiamondLocalTracks = cms.InputTag("ctppsDiamondLocalTracks"),
-    tagPixelLocalTracks = cms.InputTag("ctppsPixelLocalTracks"),
+    tagStatus = cms.untracked.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
+    tagDigi = cms.untracked.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
+    tagFEDInfo = cms.untracked.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
+    tagDiamondRecHits = cms.untracked.InputTag("ctppsDiamondRecHits"),
+    tagDiamondLocalTracks = cms.untracked.InputTag("ctppsDiamondLocalTracks"),
+    tagPixelLocalTracks = cms.untracked.InputTag("ctppsPixelLocalTracks"),
 
     excludeMultipleHits = cms.bool(True),
     extractDigiInfo = cms.bool(True),

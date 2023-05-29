@@ -90,6 +90,9 @@ public:
   }
 
   std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
+    if (etaMax - etaMin < 0) {
+      return std::array<int, 4>({{0, 0, 0, 0}});
+    }
     int etaBinMin = getEtaBin(etaMin);
     int etaBinMax = getEtaBin(etaMax);
     int phiBinMin = getPhiBin(phiMin);

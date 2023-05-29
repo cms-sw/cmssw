@@ -18,7 +18,7 @@ from DQM.GEM.gem_dqm_offline_source_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
-from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1HeterogenousDQM_FirstStep_cff import *
+from DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -100,6 +100,7 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from DQM.Physics.heavyFlavorDQMFirstStep_cff import *
 
 DQMOfflineVertex = cms.Sequence( pvMonitor )
 
@@ -123,6 +124,8 @@ DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 DQMOfflineBeam = cms.Sequence( alcaBeamMonitor )
 
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
+
+DQMOfflineHeavyFlavor = cms.Sequence( heavyFlavorDQMSource )
 
 DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflineMUO *
@@ -170,13 +173,6 @@ from Validation.RecoTau.DQMSequences_cfi import *
 DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
                                         pixelPVMonitor *
                                         monitorpixelSoASource )
-
-
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-_DQMOfflinePixelTrackingNoSoA = DQMOfflinePixelTracking.copy()
-_DQMOfflinePixelTrackingNoSoA = cms.Sequence(pixelTracksMonitoring * pixelPVMonitor)
-
-phase2_tracker.toReplaceWith(DQMOfflinePixelTracking, _DQMOfflinePixelTrackingNoSoA)
 
 DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
                                 OuterTrackerSource *
@@ -279,3 +275,5 @@ DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 from PhysicsTools.NanoAOD.nanogenDQM_cff import nanogenDQM
 DQMOfflineNanoGen = cms.Sequence(nanogenDQM)
+from PhysicsTools.NanoAOD.nanojmeDQM_cff import nanojmeDQM
+DQMOfflineNanoJME = cms.Sequence(nanojmeDQM)

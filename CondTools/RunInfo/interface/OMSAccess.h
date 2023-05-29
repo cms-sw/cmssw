@@ -52,6 +52,12 @@ namespace cond {
       unsigned long int_val = from_string_impl<unsigned long, &s_to_ul>(attributeValue, 0);
       return (unsigned short)int_val;
     }
+    inline unsigned long long s_to_ull(const std::string& val) { return std::stoull(val); }
+    template <>
+    inline unsigned long long from_string(const std::string& attributeValue) {
+      unsigned long long int_val = from_string_impl<unsigned long long, &s_to_ull>(attributeValue, 0);
+      return int_val;
+    }
 
     inline boost::posix_time::ptime s_to_time(const std::string& val) {
       boost::posix_time::time_input_facet* facet = new boost::posix_time::time_input_facet(OMS_TIME_FMT);
@@ -147,6 +153,9 @@ namespace cond {
     OMSServiceResultIterator begin() const;
     OMSServiceResultIterator end() const;
 
+    OMSServiceResultRef front() const;
+    OMSServiceResultRef back() const;
+
     // parse json returned from curl, filling the property tree
     size_t parseData(const std::string& data);
 
@@ -168,7 +177,9 @@ namespace cond {
     static constexpr const char* const NEQ = "NEQ";
     static constexpr const char* const EQ = "EQ";
     static constexpr const char* const LT = "LT";
+    static constexpr const char* const LE = "LE";
     static constexpr const char* const GT = "GT";
+    static constexpr const char* const GE = "GE";
     static constexpr const char* const SNULL = "null";
 
   public:
@@ -185,6 +196,9 @@ namespace cond {
       std::stringstream filter;
       if (m_filter.empty()) {
         filter << "?";
+        if (!m_limit.empty()) {
+          m_limit.front() = '&';
+        }
       } else {
         filter << m_filter << "&";
       }
@@ -206,11 +220,22 @@ namespace cond {
       return filter<T>(GT, varName, value);
     }
     template <typename T>
+    inline OMSServiceQuery& filterGE(const std::string& varName, const T& value) {
+      return filter<T>(GE, varName, value);
+    }
+    template <typename T>
     inline OMSServiceQuery& filterLT(const std::string& varName, const T& value) {
       return filter<T>(LT, varName, value);
     }
+    template <typename T>
+    inline OMSServiceQuery& filterLE(const std::string& varName, const T& value) {
+      return filter<T>(LE, varName, value);
+    }
     // not null filter
     inline OMSServiceQuery& filterNotNull(const std::string& varName) { return filterNEQ(varName, SNULL); }
+
+    // limit for the page size, when unspecified OMS's default limit is 100
+    OMSServiceQuery& limit(int value);
 
     // triggers the execution of the query ( calling curl functions )
     bool execute();
@@ -230,6 +255,7 @@ namespace cond {
   private:
     std::string m_url;
     std::string m_filter;
+    std::string m_limit;
     std::string m_varList;
     std::unique_ptr<OMSServiceResult> m_result;
     unsigned long m_status = 0;

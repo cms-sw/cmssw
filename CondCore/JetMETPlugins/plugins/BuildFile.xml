@@ -1,0 +1,14 @@
+<library file="JetResolution_PayloadInspector.cc" name="JetResolutionObject_PayloadInspector">
+  <use   name="DataFormats/Common"/>
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/JetMETObjects"/>
+  <use   name="CommonTools/Utils"/>
+</library>
+<library file="JetCorrector_PayloadInspector.cc" name="JetCorrectorParametersCollection_PayloadInspector">
+  <use   name="DataFormats/Common"/>
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/JetMETObjects"/>
+  <use   name="CommonTools/Utils"/>
+</library>

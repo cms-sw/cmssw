@@ -290,9 +290,16 @@ bool PFCandidate::overlap(const reco::Candidate& other) const {
   return false;
 }
 
+// Rescale three-momentum, preserving mass
 void PFCandidate::rescaleMomentum(double rescaleFactor) {
-  LorentzVector rescaledp4 = p4();
-  rescaledp4 *= rescaleFactor;
+  if (rescaleFactor < 0)
+    throw cms::Exception(
+        "NegativeScaling",
+        "Scale factor " + std::to_string(rescaleFactor) + " is < 0. Cannot rescale momentum by this value");
+
+  float e = std::sqrt(p() * p() * rescaleFactor * rescaleFactor + mass() * mass());
+
+  LorentzVector rescaledp4(rescaleFactor * px(), rescaleFactor * py(), rescaleFactor * pz(), e);
   setP4(rescaledp4);
 }
 

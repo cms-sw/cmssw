@@ -90,7 +90,7 @@ namespace mkfit {
   void runBuildingTestPlexDumbCMSSW(Event &ev, const EventOfHits &eoh, MkBuilder &builder) {
     const IterationConfig &itconf = Config::ItrInfo[0];
 
-    MkJob job({Config::TrkInfo, itconf, eoh});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot()});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -131,7 +131,7 @@ namespace mkfit {
 
     ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-    MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -160,13 +160,15 @@ namespace mkfit {
     // Hack, get the tracks out.
     ev.candidateTracks_ = builder.ref_tracks();
 
-    // For best hit, the candidateTracks_ vector is the direct input to the backward fit so only need to do find_duplicates once
+    // For best hit, the candidateTracks_ vector is the direct input to the backward fit so only need to do clean_duplicates once
     if (Config::quality_val || Config::sim_val || Config::cmssw_val) {
       //Mark tracks as duplicates; if within CMSSW, remove duplicate tracks before backward fit
-      if (Config::removeDuplicates) {
-        StdSeq::find_duplicates(ev.candidateTracks_);
-      }
+      // CCCC if (Config::removeDuplicates) {
+      // CCCC   StdSeq::clean_duplicates(ev.candidateTracks_);
+      // CCCC }
     }
+
+    job.switch_to_backward();
 
     // now do backwards fit... do we want to time this section?
     if (Config::backwardFit) {
@@ -218,7 +220,7 @@ namespace mkfit {
 
     ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-    MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -248,6 +250,8 @@ namespace mkfit {
     // first store candidate tracks
     builder.export_best_comb_cands(ev.candidateTracks_);
 
+    job.switch_to_backward();
+
     // now do backwards fit... do we want to time this section?
     if (Config::backwardFit) {
       // Using the TrackVec version until we home in on THE backward fit etc.
@@ -259,7 +263,7 @@ namespace mkfit {
       check_nan_n_silly_bkfit(ev);
     }
 
-    StdSeq::handle_duplicates(&ev);
+    // CCCC StdSeq::handle_duplicates(&ev);
 
     if (Config::quality_val) {
       StdSeq::Quality qval;
@@ -305,7 +309,7 @@ namespace mkfit {
 
     ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-    MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+    MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
     builder.begin_event(&job, &ev, __func__);
 
@@ -335,6 +339,8 @@ namespace mkfit {
     // first store candidate tracks - needed for BH backward fit and root_validation
     builder.export_best_comb_cands(ev.candidateTracks_);
 
+    job.switch_to_backward();
+
     // now do backwards fit... do we want to time this section?
     if (Config::backwardFit) {
       // a) TrackVec version:
@@ -349,7 +355,7 @@ namespace mkfit {
       check_nan_n_silly_bkfit(ev);
     }
 
-    StdSeq::handle_duplicates(&ev);
+    // CCCC StdSeq::handle_duplicates(&ev);
 
     // validation section
     if (Config::quality_val) {
@@ -386,6 +392,10 @@ namespace mkfit {
   // And if we care about doing too muich work for seeds that will never get processed.
   //==============================================================================
 
+  namespace {
+    constexpr unsigned int algorithms[] = {4, 22, 23, 5, 24, 7, 8, 9, 10, 6};  //9 iterations
+  }
+
   std::vector<double> runBtpCe_MultiIter(Event &ev, const EventOfHits &eoh, MkBuilder &builder, int n) {
     std::vector<double> timevec;
     if (n <= 0)
@@ -396,8 +406,6 @@ namespace mkfit {
 
     TrackVec seeds_used;
     TrackVec seeds1;
-
-    unsigned int algorithms[] = {4, 22, 23, 5, 24, 7, 8, 9, 10, 6};  //9 iterations
 
     if (validation_on) {
       for (auto const &s : ev.seedTracks_) {
@@ -421,7 +429,7 @@ namespace mkfit {
 
       ev.fill_hitmask_bool_vectors(itconf.m_track_algorithm, mask_ifc.m_mask_vector);
 
-      MkJob job({Config::TrkInfo, itconf, eoh, &mask_ifc});
+      MkJob job({Config::TrkInfo, itconf, eoh, eoh.refBeamSpot(), &mask_ifc});
 
       builder.begin_event(&job, &ev, __func__);
 
@@ -440,8 +448,10 @@ namespace mkfit {
         }
       }
 
-      if (itconf.m_requires_dupclean_tight)
-        StdSeq::clean_cms_seedtracks_iter(&seeds, itconf, eoh.refBeamSpot());
+      bool do_seed_clean = bool(itconf.m_seed_cleaner);
+
+      if (do_seed_clean)
+        itconf.m_seed_cleaner(seeds, itconf, eoh.refBeamSpot());
 
       builder.seed_post_cleaning(seeds);
 
@@ -449,7 +459,7 @@ namespace mkfit {
       if (seeds.size() <= 0)
         continue;
 
-      builder.find_tracks_load_seeds(seeds, itconf.m_requires_dupclean_tight);
+      builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
       double time = dtime();
 
@@ -464,29 +474,32 @@ namespace mkfit {
       if (validation_on)
         seeds_used.insert(seeds_used.end(), seeds.begin(), seeds.end());  //cleaned seeds need to be stored somehow
 
-      using Algo = TrackBase::TrackAlgorithm;
-      if (itconf.m_requires_quality_filter && Algo(itconf.m_track_algorithm) != Algo::detachedTripletStep) {
-        if (Algo(itconf.m_track_algorithm) == Algo::pixelPairStep) {
-          builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_n_hits_pixseed(t, 3); });
-        } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessFwd(t, eoh.refBeamSpot(), Config::TrkInfo); });
-        } else {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_n_hits(t, itconf.m_params.minHitsQF); });
-        }
-      }
+      // Pre backward-fit filtering.
+      // Note -- slightly different logic than run_OneIteration as we always do nan filters for
+      // export for validation.
+      filter_candidates_func pre_filter;
+      if (itconf.m_pre_bkfit_filter)
+        pre_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+          return itconf.m_pre_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+        };
+      else
+        pre_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+      // pre_filter is always at least doing nan_n_silly filter.
+      builder.filter_comb_cands(pre_filter, true);
 
       builder.select_best_comb_cands();
 
       {
         builder.export_tracks(tmp_tvec);
-        StdSeq::find_and_remove_duplicates(tmp_tvec, itconf);
+        if (itconf.m_duplicate_cleaner)
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf);
         ev.candidateTracks_.reserve(ev.candidateTracks_.size() + tmp_tvec.size());
         for (auto &&t : tmp_tvec)
           ev.candidateTracks_.emplace_back(std::move(t));
         tmp_tvec.clear();
       }
+
+      job.switch_to_backward();
 
       // now do backwards fit... do we want to time this section?
       if (Config::backwardFit) {
@@ -500,35 +513,37 @@ namespace mkfit {
         // before reaching seeding region. Ideally, we wouldn't add them in the first place but
         // if we want to export full tracks above we need to hold on to them (alternatively, we could
         // have a pointer to seed track in CombCandidate and copy them from there).
-        if (do_backward_search) {
+        if (do_backward_search)
           builder.compactifyHitStorageForBestCand(itconf.m_backward_drop_seed_hits, itconf.m_backward_fit_min_hits);
-        }
 
         builder.backwardFit();
 
         if (do_backward_search) {
           builder.beginBkwSearch();
           builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
+        }
+
+        // Post backward-fit filtering.
+        // Note -- slightly different logic than run_OneIteration as we export both pre and post
+        // backward-fit tracks.
+        filter_candidates_func post_filter;
+        if (itconf.m_post_bkfit_filter)
+          post_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+            return itconf.m_post_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+          };
+        else
+          post_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+        // post_filter is always at least doing nan_n_silly filter.
+        builder.filter_comb_cands(post_filter, true);
+
+        if (do_backward_search)
           builder.endBkwSearch();
-        }
-
-        if (itconf.m_requires_quality_filter && (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep ||
-                                                 Algo(itconf.m_track_algorithm) == Algo::pixelLessStep)) {
-          if (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep) {
-            builder.filter_comb_cands(
-                [&](const TrackCand &t) { return StdSeq::qfilter_n_layers(t, eoh.refBeamSpot(), Config::TrkInfo); });
-          } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-            builder.filter_comb_cands([&](const TrackCand &t) {
-              return StdSeq::qfilter_pixelLessBkwd(t, eoh.refBeamSpot(), Config::TrkInfo);
-            });
-          }
-        }
-
-        builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_nan_n_silly(t); });
 
         builder.select_best_comb_cands(true);  // true -> clear m_tracks as they were already filled once above
 
-        StdSeq::find_and_remove_duplicates(builder.ref_tracks_nc(), itconf);
+        if (itconf.m_duplicate_cleaner)
+          itconf.m_duplicate_cleaner(builder.ref_tracks_nc(), itconf);
+
         builder.export_tracks(ev.fitTracks_);
       }
 
@@ -536,7 +551,7 @@ namespace mkfit {
     }
 
     // MIMI - Fake back event pointer for final processing (that should be done elsewhere)
-    MkJob job({Config::TrkInfo, Config::ItrInfo[0], eoh});
+    MkJob job({Config::TrkInfo, Config::ItrInfo[0], eoh, eoh.refBeamSpot()});
     builder.begin_event(&job, &ev, __func__);
 
     if (validation_on) {

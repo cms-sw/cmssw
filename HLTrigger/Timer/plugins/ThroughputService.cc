@@ -13,6 +13,8 @@
 #include "HLTrigger/Timer/interface/processor_model.h"
 #include "ThroughputService.h"
 
+using namespace std::literals;
+
 // describe the module's configuration
 void ThroughputService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -44,6 +46,7 @@ ThroughputService::ThroughputService(const edm::ParameterSet& config, edm::Activ
       m_time_range(m_enable_dqm ? config.getUntrackedParameter<double>("timeRange") : 0.),
       m_time_resolution(m_enable_dqm ? config.getUntrackedParameter<double>("timeResolution") : 0.) {
   m_events.clear();  // erases all elements, but does not free internal arrays
+  registry.watchPreallocate(this, &ThroughputService::preallocate);
   registry.watchPreGlobalBeginRun(this, &ThroughputService::preGlobalBeginRun);
   registry.watchPreSourceEvent(this, &ThroughputService::preSourceEvent);
   registry.watchPostEvent(this, &ThroughputService::postEvent);
@@ -62,7 +65,7 @@ void ThroughputService::preallocate(edm::service::SystemBounds const& bounds) {
 void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
   // if the DQMStore is available, book the DQM histograms
   // check that the DQMStore service is available
-  if (m_enable_dqm and not edm::Service<dqm::legacy::DQMStore>().isAvailable()) {
+  if (m_enable_dqm and not edm::Service<DQMStore>().isAvailable()) {
     // the DQMStore is not available, disable all DQM plots
     m_enable_dqm = false;
     edm::LogWarning("ThroughputService") << "The DQMStore is not avalable, the DQM plots will not be generated";
@@ -73,8 +76,16 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     unsigned int bins = std::round(m_time_range / m_time_resolution);
     double range = bins * m_time_resolution;
 
+    // clean characters that are deemed unsafe for DQM
+    // see the definition of `s_safe` in DQMServices/Core/src/DQMStore.cc
+    auto safe_for_dqm = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# "s;
+    for (auto& c : m_dqm_path)
+      if (safe_for_dqm.find(c) == std::string::npos)
+        c = '_';
+
     // define a callback that can book the histograms
     auto bookTransactionCallback = [&, this](DQMStore::IBooker& booker, DQMStore::IGetter&) {
+      auto scope = dqm::reco::DQMStore::IBooker::UseRunScope(booker);
       booker.setCurrentFolder(m_dqm_path);
       m_sourced_events = booker.book1D("throughput_sourced", "Throughput (sourced events)", bins, 0., range);
       m_sourced_events->setXTitle("time [s]");

@@ -9,6 +9,7 @@
  */
 
 #include <Geometry/MTDGeometryBuilder/interface/MTDGeometry.h>
+#include <Geometry/MTDNumberingBuilder/interface/MTDTopology.h>
 #include <vector>
 
 class DetLayer;
@@ -22,7 +23,7 @@ public:
   virtual ~BTLDetLayerGeometryBuilder();
 
   /// Operations
-  static std::vector<DetLayer*> buildLayers(const MTDGeometry& geo);
+  static std::vector<DetLayer*> buildLayers(const MTDGeometry& geo, const MTDTopology& topo);
 
 private:
 };

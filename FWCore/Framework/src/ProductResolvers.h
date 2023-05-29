@@ -201,7 +201,7 @@ namespace edm {
   class PuttableProductResolver : public ProducedProductResolver {
   public:
     explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProducedProductResolver(bd, ProductStatus::NotPut), worker_(nullptr), prefetchRequested_(false) {}
+        : ProducedProductResolver(bd, ProductStatus::NotPut) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
@@ -218,12 +218,12 @@ namespace edm {
                         ModuleCallingContext const* mcc) const override;
     bool unscheduledWasNotRun_() const override { return false; }
 
-    void putProduct(std::unique_ptr<WrapperBase> edp) const override;
-    void resetProductData_(bool deleteEarly) override;
-
-    CMS_THREAD_SAFE mutable WaitingTaskList m_waitingTasks;
-    Worker* worker_;
-    mutable std::atomic<bool> prefetchRequested_;
+    // The WaitingTaskList below is the one from the worker, if one
+    // corresponds to this ProductResolver. For the Source-like cases
+    // where there is no such Worker, the tasks depending on the data
+    // depending on this ProductResolver are assumed to be eligible to
+    // run immediately after their prefetch.
+    WaitingTaskList* waitingTasks_ = nullptr;
   };
 
   class UnscheduledProductResolver : public ProducedProductResolver {
@@ -251,6 +251,37 @@ namespace edm {
     CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
     UnscheduledAuxiliary const* aux_ = nullptr;
     Worker* worker_ = nullptr;
+    mutable std::atomic<bool> prefetchRequested_ = false;
+  };
+
+  class TransformingProductResolver : public ProducedProductResolver {
+  public:
+    explicit TransformingProductResolver(std::shared_ptr<BranchDescription const> bd)
+        : ProducedProductResolver(bd, ProductStatus::ResolveNotRun), mcc_(nullptr) {}
+
+    void setupUnscheduled(UnscheduledConfigurator const&) final;
+
+  private:
+    void putProduct(std::unique_ptr<WrapperBase> edp) const override;
+    Resolution resolveProduct_(Principal const& principal,
+                               bool skipCurrentProcess,
+                               SharedResourcesAcquirer* sra,
+                               ModuleCallingContext const* mcc) const override;
+    void prefetchAsync_(WaitingTaskHolder waitTask,
+                        Principal const& principal,
+                        bool skipCurrentProcess,
+                        ServiceToken const& token,
+                        SharedResourcesAcquirer* sra,
+                        ModuleCallingContext const* mcc) const override;
+    bool unscheduledWasNotRun_() const override { return status() == ProductStatus::ResolveNotRun; }
+
+    void resetProductData_(bool deleteEarly) override;
+
+    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
+    UnscheduledAuxiliary const* aux_ = nullptr;
+    Worker* worker_ = nullptr;
+    CMS_THREAD_GUARD(prefetchRequested_) mutable ModuleCallingContext mcc_;
+    size_t index_;
     mutable std::atomic<bool> prefetchRequested_ = false;
   };
 

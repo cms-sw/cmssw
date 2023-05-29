@@ -1,6 +1,0 @@
-<export>
-  <lib name="1"/>
-</export>
-<use name="DataFormats/FEDRawData"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>

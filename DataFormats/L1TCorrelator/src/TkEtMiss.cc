@@ -9,7 +9,7 @@ TkEtMiss::TkEtMiss(const LorentzVector& p4,
                    const double& etTotal,
                    const double& etMissPU,
                    const double& etTotalPU,
-                   const edm::Ref<TkPrimaryVertexCollection>& avtxRef,
+                   const edm::Ref<l1t::VertexWordCollection>& avtxRef,
                    int bx)
     : L1Candidate(p4),
       type_(type),

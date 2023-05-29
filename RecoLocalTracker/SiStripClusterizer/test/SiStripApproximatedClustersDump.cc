@@ -55,7 +55,7 @@ private:
 };
 
 SiStripApproximatedClustersDump::SiStripApproximatedClustersDump(const edm::ParameterSet& conf) {
-  inputTagClusters = conf.getParameter<edm::InputTag>("approximatedClustersTag");
+  inputTagClusters = conf.getParameter<edm::InputTag>("approxSiStripClustersTag");
   clusterToken = consumes<edmNew::DetSetVector<SiStripApproximateCluster>>(inputTagClusters);
 
   usesResource("TFileService");
@@ -88,7 +88,7 @@ void SiStripApproximatedClustersDump::analyze(const edm::Event& event, const edm
 
 void SiStripApproximatedClustersDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("approximatedClustersTag", edm::InputTag("SiStripClusters2ApproxClusters"));
+  desc.add<edm::InputTag>("approxSiStripClustersTag", edm::InputTag("SiStripClusters2ApproxClusters"));
   descriptions.add("SiStripApproximatedClustersDump", desc);
 }
 

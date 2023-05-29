@@ -7,11 +7,15 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: M. Fierro            - HEPHY Vienna - ORCA version
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
- * \author: Vladimir Rekovic     - add correlation with overlap removal cases
- *                               - fractional prescales
- * \author: Elisa Fontanesi      - extended for three-body correlation conditions
+ * \author: M. Fierro                    - HEPHY Vienna - ORCA version
+ * \author: V. M. Ghete                  - HEPHY Vienna - CMSSW version
+ * \author: V. Rekovic                   - add correlation with overlap removal cases
+ *                                       - fractional prescales
+ * \author: E. Fontanesi                 - extended for three-body correlation conditions
+ *
+ * \author: E. Fontanesi, E. Yigitbasi, A. Loeliger (original implementation by S. Dildick, 2021)   
+ *                                       - fix for the muon shower triggers and check on all BXs
+ * \author: E. Fontanesi                 - added 2Loose HMT for 2023 Run 3
  *
  * $Date$
  * $Revision$
@@ -25,7 +29,6 @@
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalAlgorithm.h"
-
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/MuonShowerTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
@@ -37,11 +40,10 @@
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrWithOverlapRemovalCondition.h"
-
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
-// Conditions for uGt
+// Conditions for uGT
 #include "L1Trigger/L1TGlobal/interface/MuCondition.h"
 #include "L1Trigger/L1TGlobal/interface/MuonShowerCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
@@ -50,26 +52,19 @@
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrThreeBodyCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrWithOverlapRemovalCondition.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-// forward declarations
-
-// constructor
+// Constructor
 l1t::GlobalBoard::GlobalBoard()
     : m_candL1Mu(new BXVector<const l1t::Muon*>),
-      m_candL1MuShower(new BXVector<const l1t::MuonShower*>),
+      m_candL1MuShower(new BXVector<std::shared_ptr<l1t::MuonShower>>),
       m_candL1EG(new BXVector<const l1t::L1Candidate*>),
       m_candL1Tau(new BXVector<const l1t::L1Candidate*>),
       m_candL1Jet(new BXVector<const l1t::L1Candidate*>),
       m_candL1EtSum(new BXVector<const l1t::EtSum*>),
       m_candL1External(new BXVector<const GlobalExtBlk*>),
-      m_firstEv(true),
-      m_firstEvLumiSegment(true),
       m_currentLumi(0),
       m_isDebugEnabled(edm::isDebugEnabled()) {
   m_uGtAlgBlk.reset();
@@ -77,7 +72,9 @@ l1t::GlobalBoard::GlobalBoard()
   m_gtlAlgorithmOR.reset();
   m_gtlDecisionWord.reset();
 
-  // initialize cached IDs
+  m_prescaleCounterAlgoTrig.clear();
+
+  // Initialize cached IDs
   m_l1GtMenuCacheID = 0ULL;
   m_l1CaloGeometryCacheID = 0ULL;
   m_l1MuTriggerScalesCacheID = 0ULL;
@@ -85,12 +82,12 @@ l1t::GlobalBoard::GlobalBoard()
   // Counter for number of events board sees
   m_boardEventCount = 0;
 
-  // Need to expand use with more than one uGt GlobalBoard for now assume 1
+  // A single uGT GlobalBoard is taken into account in the emulator
   m_uGtBoardNumber = 0;
   m_uGtFinalBoard = true;
 }
 
-// destructor
+// Destructor
 l1t::GlobalBoard::~GlobalBoard() {
   //reset();  //why would we need a reset?
   delete m_candL1Mu;
@@ -100,11 +97,9 @@ l1t::GlobalBoard::~GlobalBoard() {
   delete m_candL1Jet;
   delete m_candL1EtSum;
   delete m_candL1External;
-
-  //    delete m_gtEtaPhiConversions;
 }
 
-// operations
+// Operations
 void l1t::GlobalBoard::setBxFirst(int bx) { m_bxFirst_ = bx; }
 
 void l1t::GlobalBoard::setBxLast(int bx) { m_bxLast_ = bx; }
@@ -130,12 +125,11 @@ void l1t::GlobalBoard::init(const int numberPhysTriggers,
 
   m_uGtAlgBlk.reset();
 
-  LogDebug("L1TGlobal") << "\t Initializing Board with bxFirst = " << m_bxFirst_ << ", bxLast = " << m_bxLast_
-                        << std::endl;
+  LogDebug("L1TGlobal") << "\t Initializing Board with bxFirst = " << m_bxFirst_ << ", bxLast = " << m_bxLast_;
 }
 
 // receive data from Calorimeter
-void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
+void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                              const edm::EDGetTokenT<BXVector<l1t::EGamma>>& egInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::Tau>>& tauInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::Jet>>& jetInputToken,
@@ -148,9 +142,8 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
                                              const int nrL1Jet,
                                              const bool receiveEtSums) {
   if (m_verbosity) {
-    LogDebug("L1TGlobal") << "\n**** Board receiving Calo Data "
-                          //<<  "\n     from input tag " << caloInputTag << "\n"
-                          << std::endl;
+    LogDebug("L1TGlobal") << "\n**** Board receiving Calo Data ";
+    //<<  "\n     from input tag " << caloInputTag << "\n"
   }
 
   resetCalo();
@@ -164,8 +157,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
       if (m_verbosity) {
         edm::LogWarning("L1TGlobal") << "\nWarning: BXVector<l1t::EGamma> with input tag "
                                      //<< caloInputTag
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << std::endl;
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
       // bx in EG data
@@ -180,19 +172,16 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
           if (nObj < nrL1EG) {
             (*m_candL1EG).push_back(i, &(*eg));
           } else {
-            edm::LogWarning("L1TGlobal") << " Too many EG (" << nObj << ") for uGT Configuration maxEG =" << nrL1EG
-                                         << std::endl;
+            edm::LogWarning("L1TGlobal") << " Too many EG (" << nObj << ") for uGT Configuration maxEG =" << nrL1EG;
           }
           LogDebug("L1TGlobal") << "EG  Pt " << eg->hwPt() << " Eta  " << eg->hwEta() << " Phi " << eg->hwPhi()
-                                << "  Qual " << eg->hwQual() << "  Iso " << eg->hwIso() << std::endl;
+                                << "  Qual " << eg->hwQual() << "  Iso " << eg->hwIso();
 
           nObj++;
         }  //end loop over EG in bx
       }    //end loop over bx
-
-    }  //end if over valid EG data
-
-  }  //end if ReveiveEG data
+    }      //end if over valid EG data
+  }        //end if ReceiveEG data
 
   if (receiveTau) {
     edm::Handle<BXVector<l1t::Tau>> tauData;
@@ -202,8 +191,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
       if (m_verbosity) {
         edm::LogWarning("L1TGlobal") << "\nWarning: BXVector<l1t::Tau> with input tag "
                                      //<< caloInputTag
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << std::endl;
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
       // bx in tau data
@@ -218,20 +206,17 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
           if (nObj < nrL1Tau) {
             (*m_candL1Tau).push_back(i, &(*tau));
           } else {
-            LogTrace("L1TGlobal") << " Too many Tau (" << nObj << ") for uGT Configuration maxTau =" << nrL1Tau
-                                  << std::endl;
+            LogTrace("L1TGlobal") << " Too many Tau (" << nObj << ") for uGT Configuration maxTau =" << nrL1Tau;
           }
 
           LogDebug("L1TGlobal") << "tau  Pt " << tau->hwPt() << " Eta  " << tau->hwEta() << " Phi " << tau->hwPhi()
-                                << "  Qual " << tau->hwQual() << "  Iso " << tau->hwIso() << std::endl;
+                                << "  Qual " << tau->hwQual() << "  Iso " << tau->hwIso();
           nObj++;
 
         }  //end loop over tau in bx
       }    //end loop over bx
-
-    }  //end if over valid tau data
-
-  }  //end if ReveiveTau data
+    }      //end if over valid tau data
+  }        //end if ReceiveTau data
 
   if (receiveJet) {
     edm::Handle<BXVector<l1t::Jet>> jetData;
@@ -241,8 +226,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
       if (m_verbosity) {
         edm::LogWarning("L1TGlobal") << "\nWarning: BXVector<l1t::Jet> with input tag "
                                      //<< caloInputTag
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << std::endl;
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
       // bx in jet data
@@ -257,19 +241,16 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
           if (nObj < nrL1Jet) {
             (*m_candL1Jet).push_back(i, &(*jet));
           } else {
-            edm::LogWarning("L1TGlobal") << " Too many Jets (" << nObj << ") for uGT Configuration maxJet =" << nrL1Jet
-                                         << std::endl;
+            edm::LogWarning("L1TGlobal") << " Too many Jets (" << nObj << ") for uGT Configuration maxJet =" << nrL1Jet;
           }
 
           LogDebug("L1TGlobal") << "Jet  Pt " << jet->hwPt() << " Eta  " << jet->hwEta() << " Phi " << jet->hwPhi()
-                                << "  Qual " << jet->hwQual() << "  Iso " << jet->hwIso() << std::endl;
+                                << "  Qual " << jet->hwQual() << "  Iso " << jet->hwIso();
           nObj++;
         }  //end loop over jet in bx
       }    //end loop over bx
-
-    }  //end if over valid jet data
-
-  }  //end if ReveiveJet data
+    }      //end if over valid jet data
+  }        //end if ReceiveJet data
 
   if (receiveEtSums) {
     edm::Handle<BXVector<l1t::EtSum>> etSumData;
@@ -279,8 +260,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
       if (m_verbosity) {
         edm::LogWarning("L1TGlobal") << "\nWarning: BXVector<l1t::EtSum> with input tag "
                                      //<< caloInputTag
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << std::endl;
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
       for (int i = etSumData->getFirstBX(); i <= etSumData->getLastBX(); ++i) {
@@ -297,35 +277,35 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 		     case l1t::EtSum::EtSumType::kMissingEt:
 		       {
 			 //(*m_candETM).push_back(i,&(*etsum));
-			 LogDebug("L1TGlobal") << "ETM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+			 LogDebug("L1TGlobal") << "ETM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi();
 		       }
 		       break; 
 		     case l1t::EtSum::EtSumType::kMissingHt:
 		       {
 			 //(*m_candHTM).push_back(i,&(*etsum));
-			 LogDebug("L1TGlobal") << "HTM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+			 LogDebug("L1TGlobal") << "HTM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi();
 		       }
 		       break; 		     
 		     case l1t::EtSum::EtSumType::kTotalEt:
 		       {
 			 //(*m_candETT).push_back(i,&(*etsum));
-			 LogDebug("L1TGlobal") << "ETT:  Pt " << etsum->hwPt() << std::endl;
+			 LogDebug("L1TGlobal") << "ETT:  Pt " << etsum->hwPt();
 		       }
 		       break; 		     
 		     case l1t::EtSum::EtSumType::kTotalHt:
 		       {
 			 //(*m_candHTT).push_back(i,&(*etsum));
-			 LogDebug("L1TGlobal") << "HTT:  Pt " << etsum->hwPt() << std::endl;
+			 LogDebug("L1TGlobal") << "HTT:  Pt " << etsum->hwPt();
 		       }
 		       break;
 		     case l1t::EtSum::EtSumType::kTowerCount:
 		       {
 			 //(*m_candTowerCount).push_back(i,&(*etsum));
-			 LogDebug("L1TGlobal") << "TowerCount: " << etsum->hwPt() << std::endl;
+			 LogDebug("L1TGlobal") << "TowerCount: " << etsum->hwPt();
 		       }
 		       break;
 		     default:
-		       LogDebug("L1TGlobal") << "Default encounted " << std::endl;
+		       LogDebug("L1TGlobal") << "Default encounted ";
 		       break;
 		  }
 */
@@ -337,14 +317,13 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 }
 
 // receive data from Global Muon Trigger
-void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
+void l1t::GlobalBoard::receiveMuonObjectData(const edm::Event& iEvent,
                                              const edm::EDGetTokenT<BXVector<l1t::Muon>>& muInputToken,
                                              const bool receiveMu,
                                              const int nrL1Mu) {
   if (m_verbosity) {
-    LogDebug("L1TGlobal") << "\n**** GlobalBoard receiving muon data = "
-                          //<< "\n     from input tag " << muInputTag << "\n"
-                          << std::endl;
+    LogDebug("L1TGlobal") << "\n**** GlobalBoard receiving muon data = ";
+    //<< "\n     from input tag " << muInputTag << "\n"
   }
 
   resetMu();
@@ -358,8 +337,7 @@ void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
       if (m_verbosity) {
         edm::LogWarning("L1TGlobal") << "\nWarning: BXVector<l1t::Muon> with input tag "
                                      //<< muInputTag
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << std::endl;
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
       // bx in muon data
@@ -374,24 +352,20 @@ void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
           if (nObj < nrL1Mu) {
             (*m_candL1Mu).push_back(i, &(*mu));
           } else {
-            edm::LogWarning("L1TGlobal") << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu
-                                         << std::endl;
+            edm::LogWarning("L1TGlobal") << " Too many Muons (" << nObj << ") for uGT Configuration maxMu =" << nrL1Mu;
           }
 
           LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx "
-                                << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso()
-                                << std::endl;
+                                << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
           nObj++;
         }  //end loop over muons in bx
       }    //end loop over bx
-
-    }  //end if over valid muon data
-
-  }  //end if ReveiveMuon data
+    }      //end if over valid muon data
+  }        //end if ReceiveMuon data
 }
 
 // receive muon shower data from Global Muon Trigger
-void l1t::GlobalBoard::receiveMuonShowerObjectData(edm::Event& iEvent,
+void l1t::GlobalBoard::receiveMuonShowerObjectData(const edm::Event& iEvent,
                                                    const edm::EDGetTokenT<BXVector<l1t::MuonShower>>& muShowerInputToken,
                                                    const bool receiveMuShower,
                                                    const int nrL1MuShower) {
@@ -403,49 +377,64 @@ void l1t::GlobalBoard::receiveMuonShowerObjectData(edm::Event& iEvent,
     if (!muonData.isValid()) {
       if (m_verbosity) {
         edm::LogWarning("L1TGlobal") << "\nWarning: BXVector<l1t::MuonShower> with input tag "
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << std::endl;
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
-      //Loop over Muon Showers in this bx
-      int nObj = 0;
-      for (auto mu = muonData->begin(0); mu != muonData->end(0); ++mu) {
-        if (nObj < nrL1MuShower) {
-          /* Important here to split up the single object into 4 separate MuonShower
-             bits for the global board. This is because the UTM library considers those bits separate as well
-           */
-          l1t::MuonShower mus0;
-          l1t::MuonShower mus1;
-          l1t::MuonShower musOutOfTime0;
-          l1t::MuonShower musOutOfTime1;
+      // Loop over bx in muon data
+      for (int i = muonData->getFirstBX(); i <= muonData->getLastBX(); ++i) {
+        // Prevent from pushing back bx that is outside of allowed range
+        if (i < m_bxFirst_ || i > m_bxLast_)
+          continue;
 
-          mus0.setMus0(mu->mus0());
-          mus1.setMus1(mu->mus1());
-          musOutOfTime0.setMusOutOfTime0(mu->musOutOfTime0());
-          musOutOfTime1.setMusOutOfTime1(mu->musOutOfTime1());
+        // Loop over Muon Showers in this bx
+        int nObj = 0;
+        for (std::vector<l1t::MuonShower>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
+          if (nObj < nrL1MuShower) {
+            /* NOTE: here the single object is split up into 5 separate MuonShower objects 
+	       similarly to the description in the UTM library, where the conditions are four different objects.
+	    */
 
-          (*m_candL1MuShower).push_back(0, &mus0);
-          (*m_candL1MuShower).push_back(0, &mus1);
-          (*m_candL1MuShower).push_back(0, &musOutOfTime0);
-          (*m_candL1MuShower).push_back(0, &musOutOfTime1);
-        } else {
-          edm::LogWarning("L1TGlobal") << " Too many Muon Showers (" << nObj
-                                       << ") for uGT Configuration maxMuShower =" << nrL1MuShower << std::endl;
-        }
-        nObj++;
-      }  //end loop over muon showers in bx
-    }    //end if over valid muon shower data
-  }      //end if ReveiveMuonShower data
+            std::shared_ptr<l1t::MuonShower> musOneNominalInTime =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musOneTightInTime =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musTwoLooseDiffSectorsInTime =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musOutOfTime0 =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musOutOfTime1 =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+
+            musOneNominalInTime->setOneNominalInTime(mu->isOneNominalInTime());
+            musOneTightInTime->setOneTightInTime(mu->isOneTightInTime());
+            musTwoLooseDiffSectorsInTime->setTwoLooseDiffSectorsInTime(mu->isTwoLooseDiffSectorsInTime());
+            musOutOfTime0->setMusOutOfTime0(mu->musOutOfTime0());
+            musOutOfTime1->setMusOutOfTime1(mu->musOutOfTime1());
+
+            (*m_candL1MuShower).push_back(i, musOneNominalInTime);
+            (*m_candL1MuShower).push_back(i, musOneTightInTime);
+            (*m_candL1MuShower).push_back(i, musTwoLooseDiffSectorsInTime);
+            (*m_candL1MuShower).push_back(i, musOutOfTime0);
+            (*m_candL1MuShower).push_back(i, musOutOfTime1);
+
+          } else {
+            edm::LogWarning("L1TGlobal") << " Too many Muon Showers (" << nObj
+                                         << ") for uGT Configuration maxMuShower =" << nrL1MuShower;
+          }
+          nObj++;
+        }  //end loop over muon showers in bx
+      }    //end loop over bx
+    }      //end if over valid muon shower data
+  }        //end if ReceiveMuonShower data
 }
 
 // receive data from Global External Conditions
-void l1t::GlobalBoard::receiveExternalData(edm::Event& iEvent,
+void l1t::GlobalBoard::receiveExternalData(const edm::Event& iEvent,
                                            const edm::EDGetTokenT<BXVector<GlobalExtBlk>>& extInputToken,
                                            const bool receiveExt) {
   if (m_verbosity) {
-    LogDebug("L1TGlobal") << "\n**** GlobalBoard receiving external data = "
-                          //<< "\n     from input tag " << muInputTag << "\n"
-                          << std::endl;
+    LogDebug("L1TGlobal") << "\n**** GlobalBoard receiving external data = ";
+    //<< "\n     from input tag " << muInputTag << "\n"
   }
 
   resetExternal();
@@ -459,8 +448,7 @@ void l1t::GlobalBoard::receiveExternalData(edm::Event& iEvent,
       if (m_verbosity) {
         edm::LogWarning("L1TGlobal") << "\nWarning: BXVector<GlobalExtBlk> with input tag "
                                      //<< muInputTag
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << std::endl;
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
       // bx in muon data
@@ -474,14 +462,12 @@ void l1t::GlobalBoard::receiveExternalData(edm::Event& iEvent,
           (*m_candL1External).push_back(i, &(*ext));
         }  //end loop over ext in bx
       }    //end loop over bx
-
-    }  //end if over valid ext data
-
-  }  //end if ReveiveExt data
+    }      //end if over valid ext data
+  }        //end if ReceiveExt data
 }
 
 // run GTL
-void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
+void l1t::GlobalBoard::runGTL(const edm::Event&,
                               const edm::EventSetup& evSetup,
                               const TriggerMenu* m_l1GtMenu,
                               const bool produceL1GtObjectMapRecord,
@@ -497,7 +483,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
   const GlobalScales& gtScales = m_l1GtMenu->gtScales();
   const std::string scaleSetName = gtScales.getScalesName();
-  LogDebug("L1TGlobal") << " L1 Menu Scales -- Set Name: " << scaleSetName << std::endl;
+  LogDebug("L1TGlobal") << " L1 Menu Scales -- Set Name: " << scaleSetName;
 
   // Reset AlgBlk for this bx
   m_uGtAlgBlk.reset();
@@ -515,12 +501,13 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
   const std::vector<std::vector<EnergySumTemplate>>& corrEnergySum = m_l1GtMenu->corEnergySumTemplate();
 
   LogDebug("L1TGlobal") << "Size corrMuon " << corrMuon.size() << "\nSize corrCalo " << corrCalo.size()
-                        << "\nSize corrSums " << corrEnergySum.size() << std::endl;
+                        << "\nSize corrSums " << corrEnergySum.size();
 
-  // loop over condition maps (one map per condition chip)
-  // then loop over conditions in the map
+  // -----------------------------------------------------
+  // Loop over condition maps (one map per condition chip),
+  // then loop over conditions in the map and
   // save the results in temporary maps
-
+  // -----------------------------------------------------
   // never happens in production but at first event...
   if (m_conditionResultMaps.size() != conditionMap.size()) {
     m_conditionResultMaps.clear();
@@ -556,7 +543,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             muCondition->print(myCout);
 
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+            LogTrace("L1TGlobal") << myCout.str();
           }
           //delete muCondition;
 
@@ -574,7 +561,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             muShowerCondition->print(myCout);
 
-            edm::LogWarning("L1TGlobal") << "MuonShowerCondition " << myCout.str() << std::endl;
+            edm::LogWarning("L1TGlobal") << "MuonShowerCondition " << myCout.str();
           }
           //delete muShowerCondition;
 
@@ -596,7 +583,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             caloCondition->print(myCout);
 
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+            LogTrace("L1TGlobal") << myCout.str();
           }
           //                    delete caloCondition;
 
@@ -613,7 +600,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             eSumCondition->print(myCout);
 
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+            LogTrace("L1TGlobal") << myCout.str();
           }
           //                    delete eSumCondition;
 
@@ -631,7 +618,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             extCondition->print(myCout);
 
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+            LogTrace("L1TGlobal") << myCout.str();
           }
           //                    delete extCondition;
 
@@ -650,8 +637,8 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
           // maximum number of objects received for evaluation of l1t::Type1s condition
           int cond0NrL1Objects = 0;
           int cond1NrL1Objects = 0;
-          LogDebug("L1TGlobal") << " cond0NrL1Objects" << cond0NrL1Objects << "  cond1NrL1Objects  " << cond1NrL1Objects
-                                << std::endl;
+          LogDebug("L1TGlobal") << " cond0NrL1Objects" << cond0NrL1Objects << "  cond1NrL1Objects  "
+                                << cond1NrL1Objects;
 
           switch (cond0Categ) {
             case CondMuon: {
@@ -695,7 +682,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             correlationCond->print(myCout);
 
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+            LogTrace("L1TGlobal") << myCout.str();
           }
 
           //  		delete correlationCond;
@@ -721,7 +708,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
           int cond1NrL1Objects = 0;
           int cond2NrL1Objects = 0;
           LogDebug("L1TGlobal") << "  cond0NrL1Objects  " << cond0NrL1Objects << "  cond1NrL1Objects  "
-                                << cond1NrL1Objects << "  cond2NrL1Objects  " << cond2NrL1Objects << std::endl;
+                                << cond1NrL1Objects << "  cond2NrL1Objects  " << cond2NrL1Objects;
           if (cond0Categ == CondMuon) {
             cond0Condition = &((corrMuon[iChip])[cond0Ind]);
           } else {
@@ -750,7 +737,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             correlationThreeBodyCond->print(myCout);
 
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+            LogTrace("L1TGlobal") << myCout.str();
           }
           //              delete correlationThreeBodyCond;
         } break;
@@ -775,7 +762,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
           int cond1NrL1Objects = 0;
           int cond2NrL1Objects = 0;
           LogDebug("L1TGlobal") << " cond0NrL1Objects" << cond0NrL1Objects << "  cond1NrL1Objects  " << cond1NrL1Objects
-                                << "  cond2NrL1Objects  " << cond2NrL1Objects << std::endl;
+                                << "  cond2NrL1Objects  " << cond2NrL1Objects;
 
           switch (cond0Categ) {
             case CondMuon: {
@@ -835,7 +822,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             std::ostringstream myCout;
             correlationCondWOR->print(myCout);
 
-            LogTrace("L1TGlobal") << myCout.str() << std::endl;
+            LogTrace("L1TGlobal") << myCout.str();
           }
 
           //  		delete correlationCondWOR;
@@ -853,9 +840,10 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
     }
   }
 
-  // loop over algorithm map
-  /// DMP Start debugging here
-  // empty vector for object maps - filled during loop
+  // -----------------------
+  // Loop over algorithm map
+  // -----------------------
+  // Empty vector for object maps - filled during loop
   std::vector<GlobalObjectMap> objMapVec;
   if (produceL1GtObjectMapRecord && (iBxInEvent == 0))
     objMapVec.reserve(numberPhysTriggers);
@@ -868,7 +856,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
     bool algResult = gtAlg.gtAlgoResult();
 
     LogDebug("L1TGlobal") << " ===> for iBxInEvent = " << iBxInEvent << ":\t algBitName = " << itAlgo->first
-                          << ",\t algBitNumber = " << algBitNumber << ",\t algResult = " << algResult << std::endl;
+                          << ",\t algBitNumber = " << algBitNumber << ",\t algResult = " << algResult;
 
     if (algResult) {
       //            m_gtlAlgorithmOR.set(algBitNumber);
@@ -881,7 +869,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
       (itAlgo->second).print(myCout);
       gtAlg.print(myCout);
 
-      LogTrace("L1TGlobal") << myCout.str() << std::endl;
+      LogTrace("L1TGlobal") << myCout.str();
     }
 
     // object maps only for BxInEvent = 0
@@ -889,11 +877,9 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
       std::vector<L1TObjectTypeInCond> otypes;
       for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop) {
         //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
-        int myChip = -1;
         int found = 0;
         L1TObjectTypeInCond otype;
         for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
-          myChip++;
           auto match = imap->find(iop->tokenName);
 
           if (match != imap->end()) {
@@ -929,7 +915,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
         std::ostringstream myCout1;
         objMap.print(myCout1);
 
-        LogTrace("L1TGlobal") << myCout1.str() << std::endl;
+        LogTrace("L1TGlobal") << myCout1.str();
       }
 
       objMapVec.push_back(objMap);
@@ -954,8 +940,10 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
   }
 }
 
-// run GTL
-void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
+// -------
+// Run GTL
+// -------
+void l1t::GlobalBoard::runFDL(const edm::Event& iEvent,
                               const int iBxInEvent,
                               const int totalBxInEvent,
                               const unsigned int numberPhysTriggers,
@@ -965,35 +953,21 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
                               const bool algorithmTriggersUnprescaled,
                               const bool algorithmTriggersUnmasked) {
   if (m_verbosity) {
-    LogDebug("L1TGlobal") << "\n**** GlobalBoard apply Final Decision Logic " << std::endl;
-  }
-
-  // prescale counters are reset at the beginning of the luminosity segment
-  if (m_firstEv) {
-    // prescale counters: numberPhysTriggers counters per bunch cross
-    m_prescaleCounterAlgoTrig.reserve(totalBxInEvent);
-
-    auto const& prescaleCountersAlgoTrig =
-        m_semiRandomInitialPSCounters ? semirandomNumber(iEvent, prescaleFactorsAlgoTrig) : prescaleFactorsAlgoTrig;
-
-    for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      m_prescaleCounterAlgoTrig.push_back(prescaleCountersAlgoTrig);
-    }
-    m_firstEv = false;
-    m_currentLumi = iEvent.luminosityBlock();
+    LogDebug("L1TGlobal") << "\n**** GlobalBoard apply Final Decision Logic ";
   }
 
   // update and clear prescales at the beginning of the luminosity segment
-  if (m_firstEvLumiSegment || (m_currentLumi != iEvent.luminosityBlock() && m_resetPSCountersEachLumiSec)) {
+  if (m_prescaleCounterAlgoTrig.empty() or
+      (m_currentLumi != iEvent.luminosityBlock() and m_resetPSCountersEachLumiSec)) {
     m_prescaleCounterAlgoTrig.clear();
-    for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      if (m_semiRandomInitialPSCounters) {
-        m_prescaleCounterAlgoTrig.push_back(semirandomNumber(iEvent, prescaleFactorsAlgoTrig));
-      } else {
-        m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
-      }
+    m_prescaleCounterAlgoTrig.reserve(totalBxInEvent);
+    auto const& prescaleCountersAlgoTrig =
+        m_semiRandomInitialPSCounters ? prescaleCountersWithSemirandomInitialCounter(prescaleFactorsAlgoTrig, iEvent)
+                                      : prescaleCounters(prescaleFactorsAlgoTrig);
+    for (int iBxInEvent = 0; iBxInEvent < totalBxInEvent; ++iBxInEvent) {
+      m_prescaleCounterAlgoTrig.push_back(prescaleCountersAlgoTrig);
     }
-    m_firstEvLumiSegment = false;
+
     m_currentLumi = iEvent.luminosityBlock();
   }
 
@@ -1006,25 +980,22 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   // -------------------------------------------
   if (!algorithmTriggersUnprescaled) {
     // iBxInEvent is ... -2 -1 0 1 2 ... while counters are 0 1 2 3 4 ...
-    int inBxInEvent = totalBxInEvent / 2 + iBxInEvent;
+    int const inBxInEvent = totalBxInEvent / 2 + iBxInEvent;
 
     bool temp_algPrescaledOr = false;
     bool alreadyReported = false;
     for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
-      bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial(iBit);
+      bool const bitValue = m_uGtAlgBlk.getAlgoDecisionInitial(iBit);
       if (bitValue) {
         // Make sure algo bit in range, warn otherwise
         if (iBit < prescaleFactorsAlgoTrig.size()) {
           if (prescaleFactorsAlgoTrig.at(iBit) != 1) {
-            (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
-            if (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0) {
-              // bit already true in algoDecisionWord, just reset counter
-              m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
+            bool const triggered = m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit).accept();
+            if (triggered) {
               temp_algPrescaledOr = true;
             } else {
               // change bit to false in prescaled word and final decision word
               m_uGtAlgBlk.setAlgoDecisionInterm(iBit, false);
-
             }  //if Prescale counter reached zero
           }    //if prescale factor is not 1 (ie. no prescale)
           else {
@@ -1033,8 +1004,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
         }  // require bit in range
         else if (!alreadyReported) {
           alreadyReported = true;
-          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() in bx " << iBxInEvent
-                                       << std::endl;
+          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() in bx " << iBxInEvent;
         }
       }  //if algo bit is set true
     }    //loop over alg bits
@@ -1055,7 +1025,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     bool temp_algFinalOr = false;
     bool alreadyReported = false;
     for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
-      bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm(iBit);
+      const bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm(iBit);
 
       if (bitValue) {
         //bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
@@ -1064,11 +1034,10 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
           isMasked = (triggerMaskAlgoTrig.at(iBit) == 0);
         else if (!alreadyReported) {
           alreadyReported = true;
-          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() in bx " << iBxInEvent
-                                       << std::endl;
+          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() in bx " << iBxInEvent;
         }
 
-        bool passMask = (bitValue && !isMasked);
+        bool const passMask = (bitValue && !isMasked);
 
         if (passMask)
           temp_algFinalOr = true;
@@ -1088,7 +1057,9 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 
   }  ///if we are masking.
 
+  // --------------------------
   // Set FinalOR for this board
+  // --------------------------
   m_algFinalOr = (m_algIntermOr & !m_algFinalOrVeto);
 }
 
@@ -1099,7 +1070,7 @@ void l1t::GlobalBoard::fillAlgRecord(int iBxInEvent,
                                      int menuUUID,
                                      int firmwareUUID) {
   if (m_verbosity) {
-    LogDebug("L1TGlobal") << "\n**** GlobalBoard fill DAQ Records for bx= " << iBxInEvent << std::endl;
+    LogDebug("L1TGlobal") << "\n**** GlobalBoard fill DAQ Records for bx= " << iBxInEvent;
   }
 
   // Set header information
@@ -1160,43 +1131,59 @@ void l1t::GlobalBoard::resetExternal() {
 
 // print Global Muon Trigger data received
 void l1t::GlobalBoard::printGmtData(const int iBxInEvent) const {
-  LogTrace("L1TGlobal") << "\nl1t::L1GlobalTrigger: uGMT data received for BxInEvent = " << iBxInEvent << std::endl;
+  LogTrace("L1TGlobal") << "\nl1t::L1GlobalTrigger: uGMT data received for BxInEvent = " << iBxInEvent;
 
   int nrL1Mu = m_candL1Mu->size(iBxInEvent);
-  LogTrace("L1TGlobal") << "Number of GMT muons = " << nrL1Mu << "\n" << std::endl;
-
-  LogTrace("L1TGlobal") << std::endl;
+  LogTrace("L1TGlobal") << "Number of GMT muons = " << nrL1Mu << "\n";
 }
 
-//initializer prescale counter using a semi-random value between [1, prescale value]
-const std::vector<double> l1t::GlobalBoard::semirandomNumber(const edm::Event& iEvent,
-                                                             const std::vector<double>& prescaleFactorsAlgoTrig) {
-  auto out = prescaleFactorsAlgoTrig;
-  // pick a random number from a combination of run, lumi, event numbers
-  std::srand(iEvent.id().run());
-  std::srand(std::rand() + iEvent.id().luminosityBlock());
-  // this causes different (semi)random number number for different streams
-  // reminder: different streams have different initial event number
-  std::srand(std::rand() + iEvent.id().event());
-  // very large (semi)random number
-  double const semirandom = std::rand();
-  for (auto& ps : out) {
-    // if the ps is smaller than 1 (e.g. ps=0, ps=1), it is not changed
-    // else, replace ps with a semirandom integer in the [1,ps] range
-    if (ps > 1) {
-      auto nps = semirandom - floor(semirandom / ps) * ps;
-      // if nps=0 or a wrong value (<0,>ps) use PS value (standard method)
-      if (nps > 0 and nps <= ps)
-        ps = nps;
-      else {
-        if (nps != 0)  // complain only if nps <0 or nps >PS
-          edm::LogWarning("L1TGlobal::semirandomNumber")
-              << "\n The inital prescale counter obtained by L1TGlobal::semirandomNumber is wrong."
-              << "\n This is probably do to the floating-point precision. Using the PS value."
-              << "\n semirandom = " << semirandom << "\n PS = " << ps << "\n nps = " << nps
-              << " <-- it should be in the range [0 , " << ps << "]" << std::endl;
-      }
-    }
+// initialize prescale counters to zero
+std::vector<l1t::GlobalBoard::PrescaleCounter> l1t::GlobalBoard::prescaleCounters(
+    std::vector<double> const& prescaleFactorsAlgoTrig) {
+  std::vector<PrescaleCounter> out;
+  out.reserve(prescaleFactorsAlgoTrig.size());
+  for (size_t iAlgo = 0; iAlgo < prescaleFactorsAlgoTrig.size(); ++iAlgo) {
+    out.emplace_back(prescaleFactorsAlgoTrig[iAlgo]);
   }
   return out;
+}
+
+// initialises prescale counters with a semi-random value in the range [0, prescale*10^precision - 1]
+std::vector<l1t::GlobalBoard::PrescaleCounter> l1t::GlobalBoard::prescaleCountersWithSemirandomInitialCounter(
+    std::vector<double> const& prescaleFactorsAlgoTrig, edm::Event const& iEvent) {
+  // pick a (semi)random number seeding based on run, lumi, event numbers,
+  // this leads to different (semi)random numbers for different streams,
+  // reminder: different streams have different initial event number
+  std::srand(iEvent.id().run());
+  std::srand(std::rand() + iEvent.id().luminosityBlock());
+  std::srand(std::rand() + iEvent.id().event());
+  int const semirandom = std::rand();
+
+  std::vector<PrescaleCounter> out;
+  out.reserve(prescaleFactorsAlgoTrig.size());
+
+  for (size_t iAlgo = 0; iAlgo < prescaleFactorsAlgoTrig.size(); ++iAlgo) {
+    out.emplace_back(prescaleFactorsAlgoTrig[iAlgo]);
+    // initialise trigger_counter to a (semi)random integer
+    // between 0 and prescale_count - 1 (both inclusive)
+    // (this only changes the behaviour of triggers with PS > 1)
+    auto& prescaleCounter = out.back();
+    if (prescaleCounter.prescale_count > 0) {
+      prescaleCounter.trigger_counter = semirandom % prescaleCounter.prescale_count;
+    }
+  }
+
+  return out;
+}
+
+// return decision of PrescalCounter, and update its internal counter
+bool l1t::GlobalBoard::PrescaleCounter::accept() {
+  trigger_counter += m_singlestep;
+
+  if (prescale_count == 0 or trigger_counter < prescale_count)
+    return false;
+
+  trigger_counter -= prescale_count;
+
+  return true;
 }

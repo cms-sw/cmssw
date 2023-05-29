@@ -580,10 +580,10 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
                 //cycle on subdets
                 for (uint32_t idet = 0; idet < SiStripRegionCabling::ALLSUBDETS; idet++) {  //cicle between 1 and 4
                   //get vector of layers whin subdet of region
-                  const SiStripRegionCabling::WedgeCabling regSubdetLayers = regSubdets[idet];  // at most 10 layers
+                  const SiStripRegionCabling::WedgeCabling& regSubdetLayers = regSubdets[idet];  // at most 10 layers
                   for (uint32_t ilayer = 0; ilayer < SiStripRegionCabling::ALLLAYERS; ilayer++) {
                     //get map of vectors of feds withing the layer of subdet of region
-                    const SiStripRegionCabling::ElementCabling fedVectorMap =
+                    const SiStripRegionCabling::ElementCabling& fedVectorMap =
                         regSubdetLayers[ilayer];  // vector of the fed
                     SiStripRegionCabling::ElementCabling::const_iterator itFedMap = fedVectorMap.begin();
                     for (; itFedMap != fedVectorMap.end(); itFedMap++) {

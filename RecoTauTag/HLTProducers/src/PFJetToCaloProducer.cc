@@ -13,7 +13,7 @@ PFJetToCaloProducer::PFJetToCaloProducer(const edm::ParameterSet& iConfig) {
 
 PFJetToCaloProducer::~PFJetToCaloProducer() {}
 
-void PFJetToCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
+void PFJetToCaloProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iES) const {
   using namespace reco;
   using namespace edm;
   using namespace std;
@@ -32,3 +32,6 @@ void PFJetToCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES
 
   iEvent.put(std::move(selectedTaus));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFJetToCaloProducer);

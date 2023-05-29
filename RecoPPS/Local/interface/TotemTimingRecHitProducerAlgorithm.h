@@ -11,27 +11,27 @@
 #ifndef RecoPPS_Local_TotemTimingRecHitProducerAlgorithm
 #define RecoPPS_Local_TotemTimingRecHitProducerAlgorithm
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoPPS/Local/interface/TimingRecHitProducerAlgorithm.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-
-#include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
-
-#include "RecoPPS/Local/interface/TotemTimingConversions.h"
 
 #include <memory>
 
-class TotemTimingRecHitProducerAlgorithm {
+class TotemTimingConversions;
+class TotemTimingRecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<CTPPSGeometry,
+                                                                                edm::DetSetVector<TotemTimingDigi>,
+                                                                                edm::DetSetVector<TotemTimingRecHit> > {
 public:
-  TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet& conf);
+  explicit TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet&);
 
   void setCalibration(const PPSTimingCalibration&);
-  void build(const CTPPSGeometry&, const edm::DetSetVector<TotemTimingDigi>&, edm::DetSetVector<TotemTimingRecHit>&);
+  void build(const CTPPSGeometry&,
+             const edm::DetSetVector<TotemTimingDigi>&,
+             edm::DetSetVector<TotemTimingRecHit>&) override;
 
 private:
   struct RegressionResults {

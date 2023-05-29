@@ -31,7 +31,7 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * Extended for Run-3 and Phase-2 by Vadim Khotilovich, Tao Huang and Sven Dildick
+ * Extended for Run-3 and Phase-2 by Vadim Khotilovich, Tao Huang, Sven Dildick and Giovanni Mocellin
  */
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
@@ -55,14 +55,24 @@ public:
                  unsigned sector,
                  unsigned subsector,
                  unsigned chamber,
-                 const edm::ParameterSet& conf);
+                 CSCBaseboard::Parameters& conf);
 
   /** Default destructor. */
   ~CSCMotherboard() override = default;
 
+  struct RunContext {
+    const CSCGeometry* cscGeometry_;
+    // access to lookup tables via eventsetup
+    const CSCL1TPLookupTableCCLUT* lookupTableCCLUT_;
+    const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
+    const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
+    /** Set configuration parameters obtained via EventSetup mechanism. */
+    const CSCDBL1TPParameters* parameters_;
+  };
+
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc, const RunContext&);
 
   /*
     Returns vector of good correlated LCTs in the read-out time window.
@@ -88,17 +98,7 @@ public:
   void selectLCTs();
 
   /** Returns shower bits */
-  CSCShowerDigi readoutShower() const;
-
-  /** Clears correlated LCT and passes clear signal on to cathode and anode
-      LCT processors. */
-  void clear();
-
-  /** Set configuration parameters obtained via EventSetup mechanism. */
-  void setConfigParameters(const CSCDBL1TPParameters* conf);
-  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
-  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
-  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
+  std::vector<CSCShowerDigi> readoutShower() const;
 
   /** Anode LCT processor. */
   std::unique_ptr<CSCAnodeLCTProcessor> alctProc;
@@ -108,75 +108,41 @@ public:
 
   // VK: change to protected, to allow inheritance
 protected:
-  // access to lookup tables via eventsetup
-  const CSCL1TPLookupTableCCLUT* lookupTableCCLUT_;
-  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
-  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
-
-  /* Containers for reconstructed ALCTs and CLCTs */
-  std::vector<CSCALCTDigi> alctV;
-  std::vector<CSCCLCTDigi> clctV;
-
-  /** Container with all LCTs prior to sorting and selecting. */
-  LCTContainer allLCTs_;
-
-  /* Container with sorted and selected LCTs */
-  std::vector<CSCCorrelatedLCTDigi> lctV;
-
-  CSCShowerDigi shower_;
+  std::tuple<std::vector<CSCALCTDigi>, std::vector<CSCCLCTDigi>> runCommon(const CSCWireDigiCollection* wiredc,
+                                                                           const CSCComparatorDigiCollection* compdc,
+                                                                           const RunContext& context);
 
   // helper function to return ALCT/CLCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
   CSCCLCTDigi getBXShiftedCLCT(const CSCCLCTDigi&) const;
 
   /** Configuration parameters. */
-  unsigned int mpc_block_me1a;
-  unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
-  unsigned int match_trig_window_size, tmb_l1a_window_size;
+  unsigned int match_trig_window_size() const { return match_trig_window_size_; }
+  unsigned int match_trig_enable() const { return match_trig_enable_; }
 
-  /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
-  bool drop_used_clcts;
+  int preferred_bx_match(unsigned int index) const { return preferred_bx_match_[index]; }
+  bool sort_clct_bx() const { return sort_clct_bx_; }
 
-  /** Phase2: separate handle for early time bins */
-  int early_tbins;
+  /*sort CLCT by quality+bending and if CLCTs from different BX have
+    same quality+bending, then rank CLCT by timing
+   */
+  void sortCLCTByQualBend(int alct_bx, std::vector<unsigned>& clctBxVector);
 
-  /** Phase2: whether to readout only the earliest two LCTs in readout window */
-  bool readout_earliest_2;
+  bool doesALCTCrossCLCT(const CSCALCTDigi&, const CSCCLCTDigi&) const;
 
-  // when set to true, ignore CLCTs found in later BX's
-  bool match_earliest_clct_only_;
+  // CLCT pattern number: encodes the pattern number itself
+  unsigned int encodePattern(const int clctPattern) const;
 
-  // encode special bits for high-multiplicity triggers
-  unsigned showerSource_;
-
-  bool ignoreAlctCrossClct_;
-
-  /*
-     Preferential index array in matching window, relative to the ALCT BX.
-     Where the central match BX goes first,
-     then the closest early, the closest late, etc.
-  */
-  std::vector<int> preferred_bx_match_;
-
-  /** Default values of configuration parameters. */
-  static const unsigned int def_mpc_block_me1a;
-  static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
-  static const unsigned int def_match_trig_enable, def_match_trig_window_size;
-  static const unsigned int def_tmb_l1a_window_size;
+  /** Container with all LCTs prior to sorting and selecting. */
+  LCTContainer allLCTs_;
 
   /* quality assignment */
   std::unique_ptr<LCTQualityAssignment> qualityAssignment_;
 
-  /* quality control */
-  std::unique_ptr<LCTQualityControl> qualityControl_;
-
-  /*
-    Helper class to check if an ALCT intersects with a CLCT. Normally
-    this class should not be used. It is left in the code as a potential
-    improvement for ME1/1 when unphysical LCTs are not desired. This
-    function is not implemented in the firmware.
-  */
-  std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
+private:
+  /** Clears correlated LCT and passes clear signal on to cathode and anode
+      LCT processors. */
+  void clear();
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
@@ -186,17 +152,9 @@ protected:
      match-time window. Valid CLCTs are matched in-time. If a match was found
      for the best ALCT and best CLCT, also the second best ALCT and second
      best CLCT are sent to a correlation function "correlateLCTs" that will
-     make the best-best pair and second-second pair (if applicable). This
-     "matchALCTCLCT" function used to be directly in the "run" function, but
-     was put in a separate procedure so it can be reused for the GEM-CSC
-     motherboards. The argument is a mask, which plays no role for regular
-     CSC motherboards (TMB or OTMB). It does play a role in the GEM-CSC
-     motherboard. Different kinds of LCTs can be made there (see
-     CSCGEMMotherboard class), and the matching follows a sequence of priority
-     (first ALCT-CLCT-(2)GEM, then ALCT-CLCT, then CLCT-2GEM, then ALCT-2GEM).
-     At each step bunch crossings are masked where at least one LCT was found.
+     make the best-best pair and second-second pair (if applicable).
   */
-  void matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]);
+  void matchALCTCLCT();
 
   /*
     This function matches maximum two ALCTs with maximum two CLCTs in
@@ -226,20 +184,79 @@ protected:
       const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
 
   /*
-    This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
-    if present, so that we always construct the maximum number of valid LCts
+    These functions copy valid ALCT/CLCT information to invalid the ALCT/CLCT
+    if present, so that we always construct the maximum number of valid LCTs
   */
-  void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
-
-  bool doesALCTCrossCLCT(const CSCALCTDigi&, const CSCCLCTDigi&) const;
-
-  // CLCT pattern number: encodes the pattern number itself
-  unsigned int encodePattern(const int clctPattern) const;
+  void copyValidToInValidALCT(CSCALCTDigi&, CSCALCTDigi&) const;
+  void copyValidToInValidCLCT(CSCCLCTDigi&, CSCCLCTDigi&) const;
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
 
+  /* match cathode shower and anode shower with and/or logic */
+  void matchShowers(CSCShowerDigi* anode_showers, CSCShowerDigi* cathode_showers, bool andlogic);
+
   /* encode high multiplicity bits for Run-3 exotic triggers */
   void encodeHighMultiplicityBits();
+
+  void setConfigParameters(const CSCDBL1TPParameters* conf);
+
+  /* Container with sorted and selected LCTs */
+  std::vector<CSCCorrelatedLCTDigi> lctV;
+
+  /*
+     Preferential index array in matching window, relative to the ALCT BX.
+     Where the central match BX goes first,
+     then the closest early, the closest late, etc.
+  */
+  std::vector<int> preferred_bx_match_;
+  // encode special bits for high-multiplicity triggers
+  std::vector<unsigned> showerSource_;
+
+  /* quality control */
+  std::unique_ptr<LCTQualityControl> qualityControl_;
+
+  /*
+    Helper class to check if an ALCT intersects with a CLCT. Normally
+    this class should not be used. It is left in the code as a potential
+    improvement for ME1/1 when unphysical LCTs are not desired. This
+    function is not implemented in the firmware.
+  */
+  std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
+
+  CSCShowerDigi showers_[CSCConstants::MAX_LCT_TBINS];
+
+  unsigned int mpc_block_me1a_;
+  unsigned int alct_trig_enable_, clct_trig_enable_, match_trig_enable_;
+  unsigned int match_trig_window_size_, tmb_l1a_window_size_;
+
+  /** Phase2: separate handle for early time bins */
+  int early_tbins;
+
+  // encode special bits for high-multiplicity triggers
+  unsigned thisShowerSource_;
+
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
+
+  /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
+  bool drop_used_clcts;
+
+  /** Phase2: whether to readout only the earliest two LCTs in readout window */
+  bool readout_earliest_2;
+
+  // when set to true, ignore CLCTs found in later BX's
+  bool match_earliest_clct_only_;
+
+  bool ignoreAlctCrossClct_;
+
+  /* sort CLCT by bx if true, otherwise sort CLCT by quality+bending */
+  bool sort_clct_bx_;
+
+  /** Default values of configuration parameters. */
+  static const unsigned int def_mpc_block_me1a;
+  static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
+  static const unsigned int def_match_trig_enable, def_match_trig_window_size;
+  static const unsigned int def_tmb_l1a_window_size;
 };
 #endif

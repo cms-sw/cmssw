@@ -8,13 +8,25 @@ hltDiDispStaMuonCosmicMonitoring = hltDiDispStaMuonMonitoring.clone(
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v*"]) #HLT_ZeroBias_v*
 )
 
-hltDiDispStaMuon10PromptL3Mu0VetoMonitoring = hltDiDispStaMuonMonitoring.clone(
-    FolderName = 'HLT/EXO/DiDispStaMuon/DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto/',
-    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto_v*"]) #HLT_ZeroBias_v*
+hltDiDispStaMuon10VetoL3Mu0DxyMax1cmMonitoring = hltDiDispStaMuonMonitoring.clone(
+    FolderName = 'HLT/EXO/DiDispStaMuon/DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm/',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_v*"]) #HLT_ZeroBias_v*
+)
+
+hltDiDispStaMuonL2MuL3Mu16VetoL3Mu0DxyMax1cmMonitoring = hltDiDispStaMuonMonitoring.clone(
+    FolderName = 'HLT/EXO/DiDispStaMuon/DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm/',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm_v*"]) #HLT_ZeroBias_v*
+)
+
+hltDiDispStaMuon10CosmicVetoL3Mu0DxyMax1cmMonitoring = hltDiDispStaMuonMonitoring.clone(
+    FolderName = 'HLT/EXO/DiDispStaMuon/DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm/',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_v*"]) #HLT_ZeroBias_v*
 )
 
 exoHLTdispStaMuonMonitoring = cms.Sequence(
     hltDiDispStaMuonMonitoring
     + hltDiDispStaMuonCosmicMonitoring
-    + hltDiDispStaMuon10PromptL3Mu0VetoMonitoring
+    + hltDiDispStaMuon10VetoL3Mu0DxyMax1cmMonitoring
+    + hltDiDispStaMuonL2MuL3Mu16VetoL3Mu0DxyMax1cmMonitoring
+    + hltDiDispStaMuon10CosmicVetoL3Mu0DxyMax1cmMonitoring
 )

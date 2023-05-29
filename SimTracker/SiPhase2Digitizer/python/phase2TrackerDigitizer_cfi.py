@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 PixelDigitizerAlgorithmCommon = cms.PSet(
     ElectronPerAdc = cms.double(1500.0),
-    ReadoutNoiseInElec = cms.double(0.0),
+    ReadoutNoiseInElec = cms.double(-99.9),       # not used at the moment
     ThresholdInElectrons_Barrel = cms.double(1000.0),
     ThresholdInElectrons_Endcap = cms.double(1000.0),
     AddThresholdSmearing = cms.bool(False),
@@ -13,8 +13,8 @@ PixelDigitizerAlgorithmCommon = cms.PSet(
     NoiseInElectrons = cms.double(0.0),
     Phase2ReadoutMode = cms.int32(3), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
     AdcFullScale = cms.int32(15),
-    TofUpperCut = cms.double(12.5),
-    TofLowerCut = cms.double(-12.5),
+    TofUpperCut = cms.double(20.),
+    TofLowerCut = cms.double(-5.),
     AddNoisyPixels = cms.bool(False),
     Alpha2Order = cms.bool(True),			#D.B.: second order effect, does not switch off magnetic field as described
     AddNoise = cms.bool(False),
@@ -35,6 +35,7 @@ PixelDigitizerAlgorithmCommon = cms.PSet(
     DeadModules = cms.VPSet(),
     AddInefficiency = cms.bool(False),
     Inefficiency_DB = cms.bool(False),				
+    UseReweighting = cms.bool(False),
     EfficiencyFactors_Barrel = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999 ),
     EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
                                            0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
@@ -74,6 +75,7 @@ phase2TrackerDigitizer = cms.PSet(
     GeometryType = cms.string('idealForDigi'),
     isOTreadoutAnalog = cms.bool(False),#set this to true if you want analog readout for OT
 # Common for Algos
+    usePseudoPixel3DAlgo = cms.bool(False),
     premixStage1 = cms.bool(False),
     AlgorithmCommon = cms.PSet(
       DeltaProductionCut = cms.double(0.03),
@@ -81,29 +83,30 @@ phase2TrackerDigitizer = cms.PSet(
     ),
 # Specific parameters
 #Pixel Digitizer Algorithm
-    PixelDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(),
+    PixelDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(
+       UseReweighting = cms.bool(False), # will be True for realistic simulations
+    ),
 #Pixel-3D Digitizer Algorithm
     Pixel3DDigitizerAlgorithm = PixelDigitizerAlgorithmCommon.clone(
         SigmaCoeff = cms.double(1.80),
         NPColumnRadius = cms.double(4.0),
         OhmicColumnRadius = cms.double(4.0),
-        NPColumnGap = cms.double(46.0)
+        NPColumnGap = cms.double(46.0),
+        UseReweighting = cms.bool(False),  # will be True for realistic simulations
     ),
-#Pixel-Bricked Digitizer Algorithm
-    PixelBrickedDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(),
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),
-      ReadoutNoiseInElec = cms.double(200.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
+      ReadoutNoiseInElec = cms.double(-99.9),       # not used at the moment
       ThresholdInElectrons_Barrel = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e)
       ThresholdInElectrons_Endcap = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e) 
-      AddThresholdSmearing = cms.bool(True),
+      AddThresholdSmearing = cms.bool(False),
       ThresholdSmearing_Barrel = cms.double(630.0),
       ThresholdSmearing_Endcap = cms.double(630.0),
       HIPThresholdInElectrons_Barrel = cms.double(1.0e10), # very high value to avoid Over threshold bit
       HIPThresholdInElectrons_Endcap = cms.double(1.0e10), # very high value to avoid Over threshold bit
       NoiseInElectrons = cms.double(200),	         # 30% of the readout noise (should be changed in future)
-      Phase2ReadoutMode = cms.int32(0), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
+      Phase2ReadoutMode = cms.int32(0), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1)), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
       AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
@@ -127,22 +130,23 @@ phase2TrackerDigitizer = cms.PSet(
       EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
       0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
       CellsToKill = cms.VPSet(),
-      AddBiasRailInefficiency= cms.bool(False)
+      BiasRailInefficiencyFlag = cms.int32(1), # Flag to decide BiasRail inefficiency : no inefficency(0) : inefficiency with optimistic(AND) scenario(1) : inefficiency with pessimistic(OR) scenario(2)
+      UseReweighting = cms.bool(False),
     ),
 #Strip in PS module
     PSSDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),
 #D.B.:the noise should be a function of strip capacitance, roughly: ReadoutNoiseInElec=500+(64*Cdet[pF]) ~= 500+(64*1.5[cm])
-      ReadoutNoiseInElec = cms.double(700.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
-      ThresholdInElectrons_Barrel = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e)
-      ThresholdInElectrons_Endcap = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e)
-      AddThresholdSmearing = cms.bool(True),
-      ThresholdSmearing_Barrel = cms.double(630.0),
-      ThresholdSmearing_Endcap = cms.double(630.0),
+      ReadoutNoiseInElec = cms.double(-99.9),       # not used at the moment
+      ThresholdInElectrons_Barrel = cms.double(4800.), #(0.4 MIP = 0.4 * 16000 e)
+      ThresholdInElectrons_Endcap = cms.double(4800.), #(0.4 MIP = 0.4 * 16000 e)
+      AddThresholdSmearing = cms.bool(False),
+      ThresholdSmearing_Barrel = cms.double(480.0),
+      ThresholdSmearing_Endcap = cms.double(480.0),
       HIPThresholdInElectrons_Barrel = cms.double(21000.), # 1.4 MIP considered as HIP
       HIPThresholdInElectrons_Endcap = cms.double(21000.), # 1.4 MIP considered as HIP 
-      NoiseInElectrons = cms.double(700),	         # 30% of the readout noise (should be changed in future)
-      Phase2ReadoutMode = cms.int32(0), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
+      NoiseInElectrons = cms.double(1010), # threshold = 4800e, noise=4800e/4.75=1010 (4.75 sigma=>occupancy =1e-6)
+      Phase2ReadoutMode = cms.int32(0), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1)), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
       AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
@@ -165,22 +169,23 @@ phase2TrackerDigitizer = cms.PSet(
       EfficiencyFactors_Barrel = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999 ),
       EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
       0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
-      CellsToKill = cms.VPSet()
+      CellsToKill = cms.VPSet(),
+      UseReweighting = cms.bool(False),
     ),
 #Two Strip Module
     SSDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),
 #D.B.:the noise should be a function of strip capacitance, roughly: ReadoutNoiseInElec=500+(64*Cdet[pF]) ~= 500+(64*1.5[cm])
-      ReadoutNoiseInElec = cms.double(1000.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
-      ThresholdInElectrons_Barrel = cms.double(5800.), #D.B.: this should correspond to a threshold of 530mV    
-      ThresholdInElectrons_Endcap = cms.double(5800.),
-      AddThresholdSmearing = cms.bool(True),
-      ThresholdSmearing_Barrel = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 210.0)
-      ThresholdSmearing_Endcap = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 245.0)
+      ReadoutNoiseInElec = cms.double(-99.9),       # not used at the moment
+      ThresholdInElectrons_Barrel = cms.double(6000.), 
+      ThresholdInElectrons_Endcap = cms.double(6000.),
+      AddThresholdSmearing = cms.bool(False),    
+      ThresholdSmearing_Barrel = cms.double(600.0),
+      ThresholdSmearing_Endcap = cms.double(600.0),
       HIPThresholdInElectrons_Barrel = cms.double(1.0e10), # very high value to avoid Over threshold bit
       HIPThresholdInElectrons_Endcap = cms.double(1.0e10), # very high value to avoid Over threshold bit
-      NoiseInElectrons = cms.double(1000),	         # 30% of the readout noise (should be changed in future)
-      Phase2ReadoutMode = cms.int32(0), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
+      NoiseInElectrons = cms.double(1263), # threshold = 6000e, noise=6000e/4.75=1263e (4.75 sigma=>occupancy =1e-6)
+      Phase2ReadoutMode = cms.int32(0), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1)), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
       AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
@@ -206,7 +211,8 @@ phase2TrackerDigitizer = cms.PSet(
       CellsToKill = cms.VPSet(),
       HitDetectionMode = cms.int32(0),  # (0/1/2/3/4 => SquareWindow/SampledMode/LatchedMode/SampledOrLachedMode/HIPFindingMode)
       PulseShapeParameters = cms.vdouble(-3.0, 16.043703, 99.999857, 40.571650, 2.0, 1.2459094),
-        CBCDeadTime = cms.double(0.0) # (2.7 ns deadtime in latched mode)
+      CBCDeadTime = cms.double(0.0), # (2.7 ns deadtime in latched mode)
+      UseReweighting = cms.bool(False),
     )
 )
 
@@ -242,7 +248,7 @@ _premixStage1ModifyDict = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
-        Phase2ReadoutMode = -1
+        Phase2ReadoutMode = -1,
     ),
     SSDigitizerAlgorithm = dict(
         AddNoisyPixels = False,

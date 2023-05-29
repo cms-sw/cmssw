@@ -5,12 +5,10 @@
 #include <vector>
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-#else
-#include "../../../utils/dbgPrintf.h"
 #endif
 
 namespace edm {
@@ -42,16 +40,16 @@ namespace l1ct {
       std::vector<T> eg_unsorted_inBoard = eg_sorted_inBoard;
       mergeEGObjFromRegions<T>(pfregions, outregions, region_index, eg_unsorted_inBoard);
 
-      if (debug_) {
-        dbgCout() << "\nUNSORTED\n";
+      if (debug_ && !eg_unsorted_inBoard.empty()) {
+        dbgCout() << "\nUNSORTED " << typeid(T).name() << "\n";
         for (int j = 0, nj = eg_unsorted_inBoard.size(); j < nj; j++)
           dbgCout() << "EG[" << j << "]: pt = " << eg_unsorted_inBoard[j].hwPt
                     << ",\t eta = " << eg_unsorted_inBoard[j].hwEta << ",\t phi = " << eg_unsorted_inBoard[j].hwPhi
                     << "\n";
       }
 
-      if (debug_)
-        dbgCout() << "\nSORTED\n";
+      if (debug_ && !eg_unsorted_inBoard.empty())
+        dbgCout() << "\nSORTED " << typeid(T).name() << "\n";
 
       eg_sorted_inBoard = eg_unsorted_inBoard;
       std::reverse(eg_sorted_inBoard.begin(), eg_sorted_inBoard.end());
@@ -59,7 +57,7 @@ namespace l1ct {
       if (eg_sorted_inBoard.size() > nObjSorted_)
         eg_sorted_inBoard.resize(nObjSorted_);
 
-      if (debug_) {
+      if (debug_ && !eg_unsorted_inBoard.empty()) {
         for (int j = 0, nj = eg_sorted_inBoard.size(); j < nj; j++)
           dbgCout() << "EG[" << j << "]: pt = " << eg_sorted_inBoard[j].hwPt
                     << ",\t eta = " << eg_sorted_inBoard[j].hwEta << ",\t phi = " << eg_sorted_inBoard[j].hwPhi << "\n";
@@ -105,19 +103,19 @@ namespace l1ct {
       for (unsigned int i : region_index) {
         const auto& region = pfregions[i].region;
 
-        if (debug_)
+        std::vector<T> eg_tmp;
+        extractEGObjEmu(region, outregions[i], eg_tmp);
+        if (debug_ && !eg_tmp.empty())
           dbgCout() << "\nOutput Region " << i << ": eta = " << region.floatEtaCenter()
                     << " and phi = " << region.floatPhiCenter() << " \n";
 
-        std::vector<T> eg_tmp;
-        extractEGObjEmu(region, outregions[i], eg_tmp);
-        for (int j = 0, nj = (eg_tmp.size() > nObjToSort_ ? nObjToSort_ : eg_tmp.size()); j < nj; j++) {
+        for (int j = 0, nj = std::min<int>(eg_tmp.size(), nObjToSort_); j < nj; j++) {
           if (debug_)
             dbgCout() << "EG[" << j << "] pt = " << eg_tmp[j].hwPt << ",\t eta = " << eg_tmp[j].hwEta
                       << ",\t phi = " << eg_tmp[j].hwPhi << "\n";
           eg_unsorted_inBoard.push_back(eg_tmp[j]);
         }
-        if (debug_)
+        if (debug_ && !eg_tmp.empty())
           dbgCout() << "\n";
       }
     }

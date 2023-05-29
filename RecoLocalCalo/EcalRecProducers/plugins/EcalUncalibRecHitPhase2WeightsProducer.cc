@@ -21,7 +21,8 @@ public:
 private:
   const float tRise_;
   const float tFall_;
-  const std::vector<double> weights_;
+  const std::vector<double> ampWeights_;
+  const std::vector<double> timeWeights_;
 
   const edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionToken_;
   const edm::EDPutTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitCollectionToken_;
@@ -33,7 +34,7 @@ void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::Configuration
   desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
   desc.add<double>("tRise", 0.2);
   desc.add<double>("tFall", 2.);
-  desc.add<std::vector<double>>("weights",
+  desc.add<std::vector<double>>("ampWeights",
                                 {-0.121016,
                                  -0.119899,
                                  -0.120923,
@@ -50,6 +51,23 @@ void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::Configuration
                                  -0.121737,
                                  -0.121737,
                                  -0.121737});
+  desc.add<std::vector<double>>("timeWeights",
+                                {0.429452,
+                                 0.442762,
+                                 0.413327,
+                                 0.858327,
+                                 4.42324,
+                                 2.04369,
+                                 -3.42426,
+                                 -4.16258,
+                                 -2.36061,
+                                 -0.725371,
+                                 0.0727267,
+                                 0.326005,
+                                 0.402035,
+                                 0.404287,
+                                 0.434207,
+                                 0.422775});
 
   desc.add<edm::InputTag>("BarrelDigis", edm::InputTag("simEcalUnsuppressedDigis", ""));
 
@@ -59,7 +77,8 @@ void EcalUncalibRecHitPhase2WeightsProducer::fillDescriptions(edm::Configuration
 EcalUncalibRecHitPhase2WeightsProducer::EcalUncalibRecHitPhase2WeightsProducer(const edm::ParameterSet& ps)
     : tRise_(ps.getParameter<double>("tRise")),
       tFall_(ps.getParameter<double>("tFall")),
-      weights_(ps.getParameter<std::vector<double>>("weights")),
+      ampWeights_(ps.getParameter<std::vector<double>>("ampWeights")),
+      timeWeights_(ps.getParameter<std::vector<double>>("timeWeights")),
       ebDigiCollectionToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))),
       ebUncalibRecHitCollectionToken_(
           produces<EBUncalibratedRecHitCollection>(ps.getParameter<std::string>("EBhitCollection"))) {}
@@ -87,6 +106,7 @@ void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm:
     adctrace.reserve(nSamples);
 
     float amp = 0;
+    float t0 = 0;
     float gratio;
 
     for (int sample = 0; sample < nSamples; ++sample) {
@@ -94,7 +114,9 @@ void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm:
       gratio = ecalPh2::gains[thisSample.gainId()];
       adctrace.push_back(thisSample.adc() * gratio);
 
-      amp = amp + adctrace[sample] * weights_[sample];
+      amp = amp + adctrace[sample] * ampWeights_[sample];
+
+      t0 = t0 + adctrace[sample] * timeWeights_[sample];
 
       if (thisSample.gainId() == 1)
         g1 = true;
@@ -106,7 +128,7 @@ void EcalUncalibRecHitPhase2WeightsProducer::produce(edm::Event& evt, const edm:
     float amp_e = 1;
     float t0_e = 0;
 
-    EcalUncalibratedRecHit rhit(detId, amp, 0., 0., 0., 0);  // rhit(detIt, amp, pedestal, t0, chi2, flags)
+    EcalUncalibratedRecHit rhit(detId, amp, 0., t0, 0., 0);  // rhit(detIt, amp, pedestal, t0, chi2, flags)
     rhit.setAmplitudeError(amp_e);
     rhit.setJitterError(t0_e);
     if (g1)

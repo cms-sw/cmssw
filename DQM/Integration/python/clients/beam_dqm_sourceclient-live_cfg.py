@@ -6,12 +6,16 @@ import FWCore.ParameterSet.Config as cms
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineLegacy'
 BSOnlineJobName = 'BeamSpotOnlineLegacy'
-BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+BSOnlineOmsServiceUrl = 'http://cmsoms-eventing.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("BeamMonitor", Run3)
+if 'runkey=hi_run' in sys.argv:
+  from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
+  process = cms.Process("BeamMonitorLegacy", Run3_pp_on_PbPb_approxSiStripClusters)
+else:
+  from Configuration.Eras.Era_Run3_cff import Run3
+  process = cms.Process("BeamMonitorLegacy", Run3)
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -77,10 +81,11 @@ if (live):
 else:
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
     process.GlobalTag.DBParameters.authenticationPath = '.'
     # you may need to set manually the GT in the line below
     #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
+
 
 #--------------------------------------------------------
 # Swap offline <-> online BeamSpot as in Express and HLT
@@ -116,7 +121,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
   src = 'siPixelClustersPreSplitting'
 )
@@ -324,11 +329,11 @@ process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
 
 process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
 process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
-process.dqmBeamMonitor.PVFitter.errorScale = 1.22
+process.dqmBeamMonitor.PVFitter.errorScale = 1.2
 
 #----------------------------
 # Pixel tracks/vertices reco
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoTracker.Configuration.RecoPixelVertexing_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
   TkFilterParameters = dict( minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
@@ -428,12 +433,32 @@ else:
         frontierKey = cms.untracked.string(options.runUniqueKey)
     )
 print("Configured frontierKey", options.runUniqueKey)
+
+#--------
+# Do no run on events with pixel or strip with HV off
+
+process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "sistrip" )
+)
+
+process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "pixel" )
+)
+
 #---------
 # Final path
 if (not process.runType.getRunType() == process.runType.hi_run):
     process.p = cms.Path(process.scalersRawToDigi
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
+                       * process.pixelTrackerHVOn
+                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.dqmcommon
@@ -444,6 +469,8 @@ else:
     process.p = cms.Path(process.scalersRawToDigi
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
+                       * process.pixelTrackerHVOn
+                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.filter_step # the only extra: pix-multi filter
@@ -452,5 +479,6 @@ else:
                        * process.monitor
                        * process.BeamSpotProblemModule)
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 

@@ -5,7 +5,7 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 hltTOPmonitoring = topMonitoring.clone()
 
 hltTOPmonitoring.FolderName = 'HLT/TOP/default/'
-hltTOPmonitoring.requireValidHLTPaths = True
+hltTOPmonitoring.requireValidHLTPaths = True 
 
 # histo PSets
 hltTOPmonitoring.histoPSet.lsPSet.nbins =  250
@@ -77,6 +77,7 @@ hltTOPmonitoring.histoPSet.phiBinning2D = [-3.1416,-1.8849,-0.6283,0.6283,1.8849
 
 hltTOPmonitoring.enablePhotonPlot = False
 hltTOPmonitoring.enableMETPlot = False
+hltTOPmonitoring.enable2DPlots = True
 
 hltTOPmonitoring.applyLeptonPVcuts = False
 hltTOPmonitoring.leptonPVcuts.dxy = 9999.

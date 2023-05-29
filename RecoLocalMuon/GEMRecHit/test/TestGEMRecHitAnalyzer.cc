@@ -42,12 +42,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
@@ -78,7 +77,7 @@
 // class declaration
 //
 
-class TestGEMRecHitAnalyzer : public edm::EDAnalyzer {
+class TestGEMRecHitAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestGEMRecHitAnalyzer(const edm::ParameterSet&);
   ~TestGEMRecHitAnalyzer();
@@ -89,7 +88,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   // ----------member data ---------------------------
-  edm::ESHandle<GEMGeometry> gemGeom;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeom_Token;
   edm::EDGetTokenT<GEMRecHitCollection> GEMRecHit_Token;
 
   std::string rootFileName;
@@ -129,6 +128,7 @@ TestGEMRecHitAnalyzer::TestGEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
 {
   //now do what ever initialization is needed
+  gemGeom_Token = esConsumes();
   GEMRecHit_Token = consumes<GEMRecHitCollection>(edm::InputTag("gemRecHits"));
   rootFileName = iConfig.getUntrackedParameter<std::string>("RootFileName");
   outputfile.reset(TFile::Open(rootFileName.c_str(), "RECREATE"));
@@ -417,7 +417,7 @@ TestGEMRecHitAnalyzer::~TestGEMRecHitAnalyzer() {
 
 // ------------ method called for each event  ------------
 void TestGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(gemGeom);
+  auto gemGeom = iSetup.getHandle(gemGeom_Token);
 
   // ================
   // GEM recHits
@@ -426,13 +426,8 @@ void TestGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(GEMRecHit_Token, gemRecHits);
 
   // count the number of GEM rechits
-  int nGEM = 0;
   GEMRecHitCollection::const_iterator recHit;
-  for (recHit = gemRecHits->begin(); recHit != gemRecHits->end(); recHit++) {
-    nGEM++;
-  }
 
-  // std::cout<<"The Number of RecHits is "<<nGEM<<std::endl;
   for (recHit = gemRecHits->begin(); recHit != gemRecHits->end(); recHit++) {
     GEMDetId rollId = (GEMDetId)(*recHit).gemId();
     LocalPoint recHitPos = recHit->localPosition();

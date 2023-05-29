@@ -30,8 +30,8 @@ DTDataIntegrityROSOffline::DTDataIntegrityROSOffline(const edm::ParameterSet& ps
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
       << "[DTDataIntegrityROSOffline]: Constructor" << endl;
 
-  dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
-  ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
+  dduToken = consumes<DTDDUCollection>(ps.getUntrackedParameter<InputTag>("dtDDULabel"));
+  ros25Token = consumes<DTROS25Collection>(ps.getUntrackedParameter<InputTag>("dtROS25Label"));
   FEDIDmin = FEDNumbering::MINDTFEDID;
   FEDIDmax = FEDNumbering::MAXDTFEDID;
 

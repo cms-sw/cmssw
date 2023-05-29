@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # load common HLT functions
 if [ -f "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
@@ -17,7 +17,6 @@ function err() {
   echo -e "$@" 1>&2
 }
 
-
 NAME=$(basename $0)
 
 HELP="Run the integration tests over all paths in a given HLT menu.
@@ -28,66 +27,76 @@ Usage:
         [--streams STREAMS] [--threads THREADS] [-x|--extra OPTIONS] [--mc]
         [ [-n|--size EVENTS] [-k|--skip EVENTS] | [-e|--events EVENTS] ] MENU
 
-  MENU is the HLT menu to test.
+  MENU is the HLT menu to test (format: a local cmsRun cfg file, or the name of a ConfDB configuration).
 
-  -s | --setup SETUP          Use the Services and EventSetup modules from a different menu
-                              (usefull when testing a ConfDB area with only some new paths).
-                              Note it is an error to specify the converter/db here, 
-                              it uses the same as set by the HLT menu
-  -d | --dir      WORKDIR     Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
-  -i | --input    INPUT       Use the specified RAW data file as input
-  -n | --size     EVENTS      Run on EVENTS events (-1 for all, default is 100)
-  -k | --skip     EVENTS      Skip the first EVENTS (default is 0)
-  -e | --events   EVENTS      Run on a comma-separated list of EVENTS, a VEventRange
-  -j | --jobs     JOBS        Run JOBS single trigger jobs in parallel (default 4)
-       --streams  STREAMS     Run with STREAMS parallel streams (i.e. events) (default 0 means as many streams as threads)
-       --threads  THREADS     Run with THREADS threads when running the whole HLT (default 4)
-  -x | --extra    OPTIONS     Pass OPTIONS directly to hltGetConfiguration
-       --mc                   Run over MC instead of data (the default)
-  --dbproxy                   Use a socks proxy to connect to the HLT database
-  --dbproxyhost    PROXYHOST  Host of the socks proxy (default: "localhost")
-  --dbproxyport    PROXYPORT  Port of the socks proxy (default: 8080)
-  -h | --help                 Print this help message and exit.
+  -s | --setup SETUP              HLT menu (format: ConfDB configuration) used for Services and EventSetup modules
+                                  (useful when testing a ConfDB config that only contains Paths).
+                                  Note it is an error to specify the converter/db here,
+                                  it uses the same as set by the HLT menu
+  -d | --dir         WORKDIR      Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
+  -i | --input       INPUT        Use the specified EDM file as input (data tier: RAW)
+  -n | --size        EVENTS       Run on EVENTS events (-1 for all, default is 100)
+  -k | --skip        EVENTS       Skip the first EVENTS (default is 0)
+  -e | --events      EVENTS       Run on a comma-separated list of EVENTS, a VEventRange
+  -j | --jobs        JOBS         Run JOBS single trigger jobs in parallel (default 4)
+       --streams     STREAMS      Run with STREAMS parallel streams (i.e. events) (default 0 means as many streams as threads)
+       --threads     THREADS      Run with THREADS threads when running the whole HLT (default 4)
+  -a | --accelerator ACCELERATOR  Keyword to choose allowed accelerators (examples: \"*\", \"cpu\", \"gpu-nvidia\")
+  -x | --extra       OPTIONS      If the HLT menu is a local cmsRun cfg file, OPTIONS is used as
+                                  additional arguments to cmsRun (i.e. \"cmsRun hlt.py [OPTIONS]\")
+                                  If the HLT menu is the name of a ConfDB configuration, OPTIONS is used as
+                                  additional arguments to hltGetConfiguration (i.e. \"hltGetConfiguration [MENU] [..] [OPTIONS]\")
+       --mc                       Run over MC instead of data (the default)
+  --dbproxy                       Use a socks proxy to connect to the ConfDB database
+  --dbproxyhost      PROXYHOST    Host of the socks proxy (default: \"localhost\")
+  --dbproxyport      PROXYPORT    Port of the socks proxy (default: 8080)
+  -h | --help                     Print this help message and exit.
 
-
-  The supported formats for both menu specifications are:
+  The HLT menu used for the integration tests (MENU) can be specified
+  as either (1) a cmsRun cfg file, or (2) the name of a ConfDB configuration.
+  MENU is identified as a cmsRun cfg file if it is an existing regular file.
+  For ConfDB configurations, the supported formats are
     - /path/to/configuration[/Vn]
     - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]
     - run:runnumber
-  The possible converters are \"v1\", \"v2\", and \"v3\" (default).
-  The possible databases are \"run3\" (default, used for offline run3 development), \"run2\" (previously used for run2 development), \"online\" (used to
-  extract online menus within Point 5) and \"adg\" (used to extract the online menus outside Point 5).
-  If no menu version is specified, the latest one is automatically used.
+  Allowed converters are \"v1\", \"v2\", and \"v3\" (default).
+  Allowed databases are
+    - \"run3\" (default, used for offline Run-3 development),
+    - \"run2\" (previously used for Run-2 development),
+    - \"online\" (used to extract online menus within Point 5) and
+    - \"adg\" (used to extract the online menus outside Point 5).
+  Other converters and databases exist, but they are for expert/special use only.
   If \"run:\" is used instead, the HLT menu used for the given run number is looked up and used.
-  Note other converters and databases exist but they are for expert/special use only.
+  If no menu version is specified, the latest one is automatically used.
 
-  It's possible to pass arbitrary command line options to hltGetConfiguration, using \"-x --option\".
+  It is possible to pass arbitrary command-line options to hltGetConfiguration, using \"-x --option\".
   To pass multiple options, enclose them in quotes, or use \"-x\" more than once.
 
   Note: '--events' is not supported together with '--size' or '--skip'.
 
 
-Exmples:
+Examples:
 
-  $NAME /dev/CMSSW_4_2_0/GRun
+  $NAME /dev/CMSSW_X_Y_Z/GRun
 
       will test the latest version of the GRun menu.
 
 
-  $NAME /dev/CMSSW_4_2_0/GRun -x --l1-emulator
+  $NAME /dev/CMSSW_X_Y_Z/GRun -x --l1-emulator
 
-      will test the latest version of the GRun, running the L1 emulator.
+      will test the latest version of the GRun running the L1-Trigger emulator.
 
 
   $NAME /users/fwyzard/physics/HLT/V6 -s adg:/cdaq/physics/Run2011/1e33/v1.3/HLT/V6
 
-      will test the paths from /users/fwyzard/physics/HLT/V6, using the environment from the
-      online menu \"1e33\" v1.3 V6
+      will test the paths from /users/fwyzard/physics/HLT/V6
+      using the environment from the online menu \"1e33\" v1.3 V6
 
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:x:h" -l "setup:,dir:,input:,jobs:,size:,skip:,streams:,threads:,events:,mc,extra:,help,dbproxy,dbproxyhost:,dbproxyport:" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:a:x:h" \
+ -l "setup:,dir:,input:,jobs:,size:,skip:,streams:,threads:,accelerator:,events:,mc,extra:,help,dbproxy,dbproxyhost:,dbproxyport:" -- "$@")
 
 # invalid options
 if [ $? != 0 ]; then
@@ -109,10 +118,11 @@ EVENTS=""
 JOBS=4
 THREADS=4
 STREAMS=0
+ACCELERATOR="cpu"
 WORKDIR="hltintegration"
 EXTRA=""
-DATA="--data"
-HLTLISTPATHPROXY=""
+DATA=""
+DBPROXYOPTS=""
 
 SELECTION=""
 
@@ -132,7 +142,7 @@ while true; do
       shift 2
       ;;
     "-i" | "--input" )
-      INPUT="--input $2"
+      INPUT="$2"
       shift 2
       ;;
     "-n" | "--size" )
@@ -190,6 +200,10 @@ while true; do
       THREADS=$2
       shift 2
       ;;
+    "-a" | "--accelerator" )
+      ACCELERATOR="$2"
+      shift 2
+      ;;
     "-x" | "--extra" )
       EXTRA="$EXTRA $2"
       shift 2
@@ -199,18 +213,15 @@ while true; do
       shift 1
       ;;
     "--dbproxy" )
-      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxy"
-      EXTRA="$EXTRA --dbproxy"
+      DBPROXYOPTS="${DBPROXYOPTS} --dbproxy"
       shift 1
       ;;
     "--dbproxyhost" )
-      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxyhost $2"
-      EXTRA="$EXTRA --dbproxyhost $2"
+      DBPROXYOPTS="${DBPROXYOPTS} --dbproxyhost $2"
       shift 2
       ;;
     "--dbproxyport" )
-      HLTLISTPATHPROXY="$HLTLISTPATHPROXY --dbproxyport $2"
-      EXTRA="$EXTRA --dbproxyport $2"
+      DBPROXYOPTS="${DBPROXYOPTS} --dbproxyport $2"
       shift 2
       ;;
     "--" )
@@ -220,6 +231,10 @@ while true; do
       ;;
   esac
 done
+
+# remove spurious whitespaces and tabs from EXTRA and DBPROXYOPTS
+EXTRA=$(echo "${EXTRA}" | xargs)
+DBPROXYOPTS=$(echo "${DBPROXYOPTS}" | xargs)
 
 # parse required argument
 if (( $# == 0 )); then
@@ -234,32 +249,92 @@ else
   MENU="$1"
 fi
 
+log "----------------------------"
+log "Starting hltIntegrationTests"
+log "----------------------------"
 
-# run the tests
-rm -rf "$WORKDIR"
-mkdir  "$WORKDIR"
-cd     "$WORKDIR"
+# create empty output directory
+rm -rf "${WORKDIR}"
+mkdir -p "${WORKDIR}"
 
-# find the list of all trigger paths
-TRIGGERS=$(hltListPaths "$MENU" $HLTLISTPATHPROXY -p --no-dep --exclude "^HLTriggerFinalPath$" "^Dataset_.+")
-echo "${TRIGGERS[@]}" > paths.txt
-
-# print some info
-if [ "$SELECTION" == "complex" ]; then
-  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $(echo $EVENTS | tr ',' '\n' | wc -l) events, with $JOBS jobs in parallel"
-elif [ "$SIZE" == "-1" ]; then
-  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over all events, with $JOBS jobs in parallel"
-else
-  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS jobs in parallel"
+# if MENU = local cfg file, copy it to output directory
+# (that copy will be customised and used for the integration tests)
+if [ -f "${MENU}" ]; then
+  cp "${MENU}" "${WORKDIR}"/hlt.py
 fi
 
-# create all dumps
-log "Extracting full menu dump"
-hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST$(date -u +'%Y%m%d%H%M%S')" --max-events $SIZE $EXTRA > hlt.py
+# move to, and run tests from, the output directory
+cd "${WORKDIR}"
+
+if [ -f hlt.py ]; then
+
+  # customise cfg file
+  log "Creating customised version of input cfg file (${MENU})"
+
+  # warn that ${DATA} will be ignored
+  [ ! "${DATA}" ] || printf "\n%s" "WARNING -- variable \${DATA}=\"${DATA}\" will be ignored !"
+
+  cat <<@EOF >> hlt.py
+
+# change name of cms.Process
+process.setName_("TEST$(date -u +'%Y%m%d%H%M%S')")
+
+# disable HLT prescales
+if hasattr(process, 'PrescaleService'):
+  del process.PrescaleService
+
+# set max number of input events
+process.maxEvents.input = ${SIZE}
+@EOF
+
+  if [ "x${INPUT}" != "x" ]; then
+    cat <<@EOF >> hlt.py
+
+# set input EDM file
+if hasattr(process, 'source') and hasattr(process.source, 'fileNames'):
+  process.source.fileNames = [
+    "${INPUT}",
+  ]
+else:
+  raise RuntimeError("ERROR -- unsupported cfg file: process.source.fileNames does not exist")
+@EOF
+  fi
+
+  # set MENU to name of ConfDB configuration (if any)
+  MENU=$(python3 -c """
+import sys
+# redefine sys.argv (necessary to import
+# cfg file if the latter uses VarParsing)
+sys.argv = ['python3', 'hlt.py']
+from hlt import cms,process
+try:
+  print(process.HLTConfigVersion.tableName.value())
+except:
+  print('')
+""")
+
+  # show name of ConfDB configuration (if available)
+  [ ! "${MENU}" ] || log "ConfDB configuration: ${MENU}"
+
+else
+  # if ${DATA} is empty, set it to "--data"
+  [ "${DATA}" ] || DATA="--data"
+  # download HLT menu from ConfDB
+  HLTGETCMD="hltGetConfiguration ${MENU} \
+    --process \"TEST$(date -u +'%Y%m%d%H%M%S')\"
+    --full --offline ${DATA} --unprescale \
+    --max-events ${SIZE} ${EXTRA} ${DBPROXYOPTS} --input ${INPUT}"
+  HLTGETCMD=$(echo "${HLTGETCMD}" | xargs)
+  log "Creating HLT menu from ConfDB configuration:\n> ${HLTGETCMD}"
+  ${HLTGETCMD} > hlt.py
+  # unset EXTRA environment variable (used later in cmsRun jobs)
+  unset HLTGETCMD EXTRA
+fi
 
 # if missing, add a simplified HLTriggerFinalPath
 if ! grep -q HLTriggerFinalPath hlt.py; then
   cat >> hlt.py << @EOF
+
 # add (simplified) HLTriggerFinalPath if missing
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     processName = cms.string( "@" )
@@ -273,13 +348,16 @@ process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hl
 fi
 
 # select which events to run on
-if [ "$SELECTION" == "complex" ]; then
+if [ "${SELECTION}" == "complex" ]; then
   cat >> hlt.py << @EOF
+
 # event selection customised by hltIntegrationTests
 process.source.eventsToProcess = cms.untracked.VEventRange( '$(echo $EVENTS | sed -e"s/,/','/g")' )
 @EOF
+
 elif (( $SKIP > 0 )); then
   cat >> hlt.py << @EOF
+
 # event selection customised by hltIntegrationTests
 process.source.skipEvents = cms.untracked.uint32( $SKIP )
 @EOF
@@ -287,17 +365,29 @@ fi
 
 # set the number of threads and streams for the whole hlt job
 cat >> hlt.py << @EOF
+
 # configure multithreading, and allocate 10 MB of stack space per thread
-process.options.numberOfThreads = cms.untracked.uint32( $THREADS )
-process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )
-process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
-process.options.accelerators = cms.untracked.vstring( 'cpu' )
+process.options.numberOfThreads = $THREADS
+process.options.numberOfStreams = $STREAMS
+process.options.sizeOfStackForThreadsInKB = 10*1024
+# set allowed accelerators
+process.options.accelerators = [ "$ACCELERATOR" ]
 
 process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 
-# dump the menu name, and its release template
-log "HLT menu: $(head -n1 hlt.py | cut -c 3-)"
+# find the list of all trigger paths
+TRIGGERS=$(hltListPaths hlt.py -p --no-dep --exclude "^HLTriggerFinalPath$")
+echo "${TRIGGERS[@]}" > paths.txt
+
+# print some info
+if [ "$SELECTION" == "complex" ]; then
+  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $(echo $EVENTS | tr ',' '\n' | wc -l) events, with $JOBS jobs in parallel"
+elif [ "$SIZE" == "-1" ]; then
+  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over all events, with $JOBS jobs in parallel"
+else
+  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS jobs in parallel"
+fi
 
 # check the prescale modules
 hltCheckPrescaleModules -w hlt.py
@@ -305,14 +395,16 @@ hltCheckPrescaleModules -w hlt.py
 # check for multi-threading
 edmCheckMultithreading hlt.py | grep legacy
 
-log "Preparing single-path configurations"
+log "Preparing single-trigger configurations"
 for TRIGGER in $TRIGGERS; do
-  cat > "$TRIGGER".py << @EOF
+  cat > "${TRIGGER}".py << @EOF
 from hlt import *
 
 process.hltOutput = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "$TRIGGER.root" ),
+    fileName = cms.untracked.string( "${TRIGGER}.root" ),
     fastCloning = cms.untracked.bool( False ),
+    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
+    compressionLevel = cms.untracked.int32( 1 ),
     outputCommands = cms.untracked.vstring(
       'drop *',
       'keep edmTriggerResults_*_*_*',
@@ -321,22 +413,27 @@ process.hltOutput = cms.OutputModule( "PoolOutputModule",
 
 process.Output = cms.EndPath( process.hltOutput )
 
-process.schedule = cms.Schedule( process.$TRIGGER, process.HLTriggerFinalPath, process.Output )
+process.schedule = cms.Schedule( process.${TRIGGER}, process.HLTriggerFinalPath, process.Output )
 
 process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
 done
 
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
-if [ "$SETUP" ]; then
-  log "Extracting setup_cff dump"
-  #we use $MENU not $SETUP here as we force the same DB / converter as the main menu
-  #this is the hltGetConfiguration behaviour and would be confusing if you had to 
-  #specify converter/db on the setup menu on hltIntegration tests but not on hltGetConfiguration
-  read SETUP_Vx SETUP_DB _ <<< $(parse_HLT_menu "$MENU")
+if [ "${SETUP}" ]; then
 
-  hltConfigFromDB --$SETUP_Vx --$SETUP_DB $HLTLISTPATHPROXY --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
-  sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
+  if [ "${MENU}" ]; then
+    # we use ${MENU} here, not ${SETUP}, as we force the same DB / converter as the main menu
+    # this is the hltGetConfiguration behaviour and would be confusing if you had to
+    # specify converter/db on the setup menu on hltIntegrationTests but not on hltGetConfiguration
+    read SETUP_Vx SETUP_DB _ <<< $(parse_HLT_menu "${MENU}")
+    log "Creating setup_cff from ConfDB configuration: ${SETUP_Vx}/${SETUP_DB}:${SETUP}"
+    hltConfigFromDB --${SETUP_Vx} --${SETUP_DB} ${DBPROXYOPTS} --cff --configName "$SETUP" \
+      --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
+    sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "${TRIGGER}".py; done)
+  else
+    printf "%s\n" "WARNING -- \"--setup ${SETUP}\" will be ignored (failed to deduce name of HLT menu from hlt.py)"
+  fi
 fi
 
 # run all HLT dumps
@@ -357,14 +454,13 @@ hlt: hlt.done
 
 hlt.done: hlt.py
 	@echo -e "\tfull menu dump"
-	@cmsRun hlt.py >& hlt.log < /dev/zero && touch hlt.done
+	@cmsRun hlt.py ${EXTRA} >& hlt.log < /dev/zero && touch hlt.done
 
 \$(TRIGGERS): %: %.done
 
 \$(DONE): %.done: %.py
 	@echo -e "\t\$*"
-	@cmsRun \$*.py >& \$*.log < /dev/zero && touch \$*.done
-
+	@cmsRun \$*.py ${EXTRA} >& \$*.log < /dev/zero && touch \$*.done
 @EOF
 
 log "Running..."
@@ -372,19 +468,22 @@ log "Running..."
 # otherwise, run it in parallel with the single-trigger jobs
 if ((THREADS > 0)); then
   make -f .makefile hlt
-  make -f .makefile -j$JOBS -k $TRIGGERS
+  make -f .makefile -j${JOBS} -k ${TRIGGERS}
 else
-  make -f .makefile -j$JOBS -k
+  make -f .makefile -j${JOBS} -k
 fi
-
 
 # compare HLT results
 log "Comparing the results of running each path by itself with those from the full menu"
 hltCompareResults
 STATUS=$?
+log "--------------------------"
+if [ "${STATUS}" -eq 0 ]; then
+  log "hltIntegrationTests PASSED"
+else
+  log "hltIntegrationTests FAILED"
+fi
+log "--------------------------"
 log "exit status: $STATUS"
-log "done"
-
-# done
 cd ..
-exit $STATUS
+exit ${STATUS}

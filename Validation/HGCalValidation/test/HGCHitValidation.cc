@@ -41,6 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -63,7 +64,7 @@
 class HGCHitValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCHitValidation(const edm::ParameterSet &);
-  ~HGCHitValidation() override {}
+  ~HGCHitValidation() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
@@ -85,21 +86,22 @@ private:
 
 private:
   //HGC Geometry
+  const std::vector<std::string> geometrySource_;
+  const std::vector<int> ietaExcludeBH_;
+  const bool makeTree_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_hgcal_;
+  const std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> tok_hgcalg_;
   std::vector<const HGCalDDDConstants *> hgcCons_;
   std::vector<const HGCalGeometry *> hgcGeometry_;
-  std::vector<std::string> geometrySource_;
-  std::vector<int> ietaExcludeBH_;
-  bool makeTree_;
 
-  edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
-  edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
-  edm::EDGetTokenT<std::vector<PCaloHit>> fhSimHitToken_;
-  edm::EDGetTokenT<std::vector<PCaloHit>> bhSimHitToken_;
-  edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
-  edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
-  edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitTokeng_;
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_hgcal_;
-  std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> tok_hgcalg_;
+  const edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> fhSimHitToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> bhSimHitToken_;
+  const edm::InputTag eeRecHitSource, fhRecHitSource, bhRecHitSource;
+  const edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
+  const edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
+  const edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitToken_;
 
   TTree *hgcHits_;
   std::vector<float> *heeRecX_, *heeRecY_, *heeRecZ_, *heeRecEnergy_;
@@ -122,33 +124,35 @@ private:
   TH1F *hefEnSim_, *heeEnRec_, *heeEnSim_;
 };
 
-HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg) {
+HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg)
+    : geometrySource_(cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource")),
+      ietaExcludeBH_(cfg.getParameter<std::vector<int>>("ietaExcludeBH")),
+      makeTree_(cfg.getUntrackedParameter<bool>("makeTree", true)),
+      tok_hgcal_{
+          edm::vector_transform(geometrySource_,
+                                [this](const std::string &name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      tok_hgcalg_{edm::vector_transform(
+          geometrySource_,
+          [this](const std::string &name) {
+            return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+          })},
+      eeSimHitSource(cfg.getParameter<edm::InputTag>("eeSimHitSource")),
+      fhSimHitSource(cfg.getParameter<edm::InputTag>("fhSimHitSource")),
+      bhSimHitSource(cfg.getParameter<edm::InputTag>("bhSimHitSource")),
+      eeSimHitToken_(consumes<std::vector<PCaloHit>>(eeSimHitSource)),
+      fhSimHitToken_(consumes<std::vector<PCaloHit>>(fhSimHitSource)),
+      bhSimHitToken_(consumes<std::vector<PCaloHit>>(bhSimHitSource)),
+      eeRecHitSource(cfg.getParameter<edm::InputTag>("eeRecHitSource")),
+      fhRecHitSource(cfg.getParameter<edm::InputTag>("fhRecHitSource")),
+      bhRecHitSource(cfg.getParameter<edm::InputTag>("bhRecHitSource")),
+      eeRecHitToken_(consumes<HGCeeRecHitCollection>(eeRecHitSource)),
+      fhRecHitToken_(consumes<HGChefRecHitCollection>(fhRecHitSource)),
+      bhRecHitToken_(consumes<HGChebRecHitCollection>(bhRecHitSource)) {
   usesResource(TFileService::kSharedResource);
 
-  geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource");
-  edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
-  eeSimHitSource = cfg.getParameter<edm::InputTag>("eeSimHitSource");
-  fhSimHitSource = cfg.getParameter<edm::InputTag>("fhSimHitSource");
-  bhSimHitSource = cfg.getParameter<edm::InputTag>("bhSimHitSource");
-  eeSimHitToken_ = consumes<std::vector<PCaloHit>>(eeSimHitSource);
-  fhSimHitToken_ = consumes<std::vector<PCaloHit>>(fhSimHitSource);
-  bhSimHitToken_ = consumes<std::vector<PCaloHit>>(bhSimHitSource);
-  edm::InputTag eeRecHitSource, fhRecHitSource, bhRecHitSource;
-  eeRecHitSource = cfg.getParameter<edm::InputTag>("eeRecHitSource");
-  fhRecHitSource = cfg.getParameter<edm::InputTag>("fhRecHitSource");
-  bhRecHitSource = cfg.getParameter<edm::InputTag>("bhRecHitSource");
-  eeRecHitToken_ = consumes<HGCeeRecHitCollection>(eeRecHitSource);
-  fhRecHitToken_ = consumes<HGChefRecHitCollection>(fhRecHitSource);
-  ietaExcludeBH_ = cfg.getParameter<std::vector<int>>("ietaExcludeBH");
-  bhRecHitTokeng_ = consumes<HGChebRecHitCollection>(bhRecHitSource);
-  for (size_t i = 0; i < geometrySource_.size(); i++) {
-    tok_hgcal_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
-        edm::ESInputTag{"", geometrySource_[i]}));
-    tok_hgcalg_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
-        edm::ESInputTag{"", geometrySource_[i]}));
-  }
-
-  makeTree_ = cfg.getUntrackedParameter<bool>("makeTree", true);
   hgcHits_ = nullptr;
   heeRecX_ = heeRecY_ = heeRecZ_ = heeRecEnergy_ = nullptr;
   hefRecX_ = hefRecY_ = hefRecZ_ = hefRecEnergy_ = nullptr;
@@ -289,8 +293,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   std::map<unsigned int, HGCHitTuple> eeHitRefs, fhHitRefs, bhHitRefs;
 
   //Accesing ee simhits
-  edm::Handle<std::vector<PCaloHit>> eeSimHits;
-  iEvent.getByToken(eeSimHitToken_, eeSimHits);
+  const edm::Handle<std::vector<PCaloHit>> &eeSimHits = iEvent.getHandle(eeSimHitToken_);
 
   if (eeSimHits.isValid()) {
     analyzeHGCalSimHit(eeSimHits, 0, heeEnSim_, eeHitRefs);
@@ -306,8 +309,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //Accesing fh simhits
-  edm::Handle<std::vector<PCaloHit>> fhSimHits;
-  iEvent.getByToken(fhSimHitToken_, fhSimHits);
+  const edm::Handle<std::vector<PCaloHit>> &fhSimHits = iEvent.getHandle(fhSimHitToken_);
   if (fhSimHits.isValid()) {
     analyzeHGCalSimHit(fhSimHits, 1, hefEnSim_, fhHitRefs);
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = fhHitRefs.begin(); itr != fhHitRefs.end(); ++itr) {
@@ -322,8 +324,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //Accessing bh simhits
-  edm::Handle<std::vector<PCaloHit>> bhSimHits;
-  iEvent.getByToken(bhSimHitToken_, bhSimHits);
+  const edm::Handle<std::vector<PCaloHit>> &bhSimHits = iEvent.getHandle(bhSimHitToken_);
   if (bhSimHits.isValid()) {
     analyzeHGCalSimHit(bhSimHits, 2, hebEnSim_, bhHitRefs);
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = bhHitRefs.begin(); itr != bhHitRefs.end(); ++itr) {
@@ -337,8 +338,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //accessing EE Rechit information
-  edm::Handle<HGCeeRecHitCollection> eeRecHit;
-  iEvent.getByToken(eeRecHitToken_, eeRecHit);
+  const edm::Handle<HGCeeRecHitCollection> &eeRecHit = iEvent.getHandle(eeRecHitToken_);
   if (eeRecHit.isValid()) {
     const HGCeeRecHitCollection *theHits = (eeRecHit.product());
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
@@ -378,8 +378,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //accessing FH Rechit information
-  edm::Handle<HGChefRecHitCollection> fhRecHit;
-  iEvent.getByToken(fhRecHitToken_, fhRecHit);
+  const edm::Handle<HGChefRecHitCollection> &fhRecHit = iEvent.getHandle(fhRecHitToken_);
   if (fhRecHit.isValid()) {
     const HGChefRecHitCollection *theHits = (fhRecHit.product());
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
@@ -419,8 +418,7 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
   }
 
   //accessing BH Rechit information
-  edm::Handle<HGChebRecHitCollection> bhRecHit;
-  iEvent.getByToken(bhRecHitTokeng_, bhRecHit);
+  const edm::Handle<HGChebRecHitCollection> &bhRecHit = iEvent.getHandle(bhRecHitToken_);
   if (bhRecHit.isValid()) {
     const HGChebRecHitCollection *theHits = (bhRecHit.product());
     analyzeHGCalRecHit(theHits, bhHitRefs);
@@ -485,7 +483,7 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       celltype = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcCons_[idet]->locateCell(layer, wafer, wafer2, cell, cell2, false, true);
+      xy = hgcCons_[idet]->locateCell(zside, layer, wafer, wafer2, cell, cell2, false, true, false, false);
     } else if (hgcCons_[idet]->tileTrapezoid()) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id);
       subdet = (int)(detId.det());
@@ -494,7 +492,7 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       celltype = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcCons_[idet]->locateCellTrap(layer, wafer, cell, false);
+      xy = hgcCons_[idet]->locateCellTrap(zside, layer, wafer, cell, false, false);
     } else {
       HGCalTestNumbering::unpackHexagonIndex(simHit.id(), subdet, zside, layer, wafer, celltype, cell);
       xy = hgcCons_[idet]->locateCell(cell, layer, wafer, false);

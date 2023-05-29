@@ -704,11 +704,7 @@ void EcalTestPulseAnalyzer::endJob() {
     if (moduleID >= 20)
       moduleID -= 2;  // Trick to fix endcap specificity
 
-    Long64_t nbytes = 0, nb = 0;
     for (Long64_t jentry = 0; jentry < trees[iCry]->GetEntriesFast(); jentry++) {
-      nb = trees[iCry]->GetEntry(jentry);
-      nbytes += nb;
-
       // PN Means and RMS
 
       if (firstChanMod[iMod] == iCry) {

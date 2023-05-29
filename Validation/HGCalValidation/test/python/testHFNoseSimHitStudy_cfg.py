@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C10_cff import Phase2C10
+from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
 
-process = cms.Process('SIM',Phase2C10)
+process = cms.Process('SIM',Phase2C20I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,8 +10,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D60Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D60_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D94Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -31,7 +30,6 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
     process.MessageLogger.HFNSim=dict()
     process.MessageLogger.HGCalValidation=dict()
-
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -80,22 +78,21 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:simevent.root'),
+    fileName = cms.untracked.string('file:step1D94.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 
 # Additional output definition
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hfnSimHitD44mu.root'),
+                                   fileName = cms.string('hfnSimHitD94mu.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T14', '')
-
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(

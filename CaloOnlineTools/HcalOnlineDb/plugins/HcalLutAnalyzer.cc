@@ -60,6 +60,7 @@ private:
   std::vector<std::string> tags_;
   std::vector<std::string> quality_;
   std::vector<std::string> pedestals_;
+  std::vector<std::string> effpedestals_;
   std::vector<std::string> gains_;
   std::vector<std::string> respcorrs_;
 
@@ -79,6 +80,7 @@ HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig) {
   tags_ = iConfig.getParameter<std::vector<std::string> >("tags");
   quality_ = iConfig.getParameter<std::vector<std::string> >("quality");
   pedestals_ = iConfig.getParameter<std::vector<std::string> >("pedestals");
+  effpedestals_ = iConfig.getParameter<std::vector<std::string> >("effpedestals");
   gains_ = iConfig.getParameter<std::vector<std::string> >("gains");
   respcorrs_ = iConfig.getParameter<std::vector<std::string> >("respcorrs");
 
@@ -100,13 +102,13 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned long int, float> LUTINPUT;
 
-  static const int NVAR = 5;  //variables
+  static const int NVAR = 6;  //variables
   static const int NDET = 2;  //detectors
   static const int NDEP = 7;  //depths
   static const int NLEV = 3;  //old,new,ratio
 
-  const bool doRatio[NVAR] = {false, true, true, false, true};
-  const char* titleVar[NVAR] = {"Pedestals", "RespCorrs", "Gains", "Threshold", "LUTs"};
+  const bool doRatio[NVAR] = {false, true, true, false, true, false};
+  const char* titleVar[NVAR] = {"Pedestals", "RespCorrs", "Gains", "Threshold", "LUTs", "EffPedestals"};
   const char* titleHisR[NLEV] = {"Old", "New", "Ratio"};
   const char* titleHisD[NLEV] = {"Old", "New", "Difference"};
   const char* titleDet[4] = {"HBHE", "HF", "HEP17", "HO"};
@@ -144,8 +146,8 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
     hslope[d]->SetYTitle("Lut ratio");
 
     for (int j = 0; j < NVAR; ++j) {
-      double rmin = doRatio[j] ? Ymin : -6;
-      double rmax = doRatio[j] ? Ymax : 6;
+      double rmin = doRatio[j] ? Ymin : -4;
+      double rmax = doRatio[j] ? Ymax : 4;
       r[j][d] = new TH2D(Form("r%s_%s", titleVar[j], titleDet[d]),
                          Form("%s, %s", titleVar[j], titleDet[d]),
                          83,
@@ -198,11 +200,13 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
   LUTINPUT lutgain[2];
   LUTINPUT lutresp[2];
   LUTINPUT lutpede[2];
+  LUTINPUT luteffpede[2];
 
   assert(tags_.size() == 2);
   assert(gains_.size() == 2);
   assert(respcorrs_.size() == 2);
   assert(pedestals_.size() == 2);
+  assert(effpedestals_.size() == 2);
 
   unsigned long int iraw;
   int ieta, iphi, idep;
@@ -237,6 +241,33 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
 
       HcalDetId id(subdet, ieta, iphi, idep);
       lutgain[ii].insert(LUTINPUT::value_type(id.rawId(), theval));
+    }
+
+    //Effective Pedestals
+    std::ifstream infeffped(
+        edm::FileInPath(
+            Form("%s/EffectivePedestals/EffectivePedestals_Run%s.txt", inputDir.c_str(), effpedestals_[ii].c_str()))
+            .fullPath()
+            .c_str());
+    assert(!infeffped.fail());
+    while (!infeffped.eof()) {
+      infeffped.getline(buffer, 1024);
+      if (buffer[0] == '#')
+        continue;
+      std::istringstream(buffer) >> ieta >> iphi >> idep >> det >> val1 >> val2 >> val3 >> val4 >> wid1 >> wid2 >>
+          wid3 >> wid4 >> iraw;
+      if (det != "HB" && det != "HE" && det != "HF")
+        continue;
+
+      float theval = (val1 + val2 + val3 + val4) / 4.0;
+
+      HcalSubdetector subdet = det == "HB"   ? HcalBarrel
+                               : det == "HE" ? HcalEndcap
+                               : det == "HF" ? HcalForward
+                                             : HcalOther;
+
+      HcalDetId id(subdet, ieta, iphi, idep);
+      luteffpede[ii].insert(LUTINPUT::value_type(id.rawId(), theval));
     }
 
     //Pedestals
@@ -464,6 +495,13 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
     h[3][2][hbhe][idep]->Fill(ieta, iphi, xfill);
     r[3][hbhe]->Fill(ieta, xfill);
     p[3][hbhe]->Fill(ieta, xfill);
+
+    h[5][0][hbhe][idep]->Fill(ieta, iphi, luteffpede[0][iraw]);
+    h[5][1][hbhe][idep]->Fill(ieta, iphi, luteffpede[1][iraw]);
+    xfill = luteffpede[1][iraw] - luteffpede[0][iraw];
+    h[5][2][hbhe][idep]->Fill(ieta, iphi, xfill);
+    r[5][hbhe]->Fill(ieta, xfill);
+    p[5][hbhe]->Fill(ieta, xfill);
 
     size_t maxvalue = hbhe == 0 ? 1023 : 2047;
 

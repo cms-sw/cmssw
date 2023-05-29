@@ -136,6 +136,8 @@ private:
   bool addGhostLCTs_;
   bool useGEMs_;
 
+  bool matchTypeTightLCT_;
+
   int minNHitsChamber_;
   int minNHitsChamberALCT_;
   int minNHitsChamberCLCT_;

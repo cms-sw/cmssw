@@ -36,6 +36,10 @@
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
+  <bin file="oneRadixSort_t.cu">
+    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+  </bin>
+
   <bin file="HistoContainer_t.cpp">
     <flags CXXFLAGS="-g"/>
   </bin>
@@ -128,5 +132,15 @@
     <use name="eigen"/>
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
     <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+  </bin>
+
+  <bin file="testCudaCheck.cpp" name="testCudaCheck">
+    <use name="catch2"/>
+    <use name="cuda"/>
+  </bin>
+
+  <bin file="testRequireCUDADevices.cpp" name="testRequireCUDADevices">
+    <use name="catch2"/>
+    <use name="cuda"/>
   </bin>
 </iftool>

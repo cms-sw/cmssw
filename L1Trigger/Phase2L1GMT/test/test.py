@@ -126,7 +126,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         "keep *_simEmtfDigis_*_*",
         "keep *_simOmtfDigis_*_*",
         "keep *_genParticles_*_*",
-        "keep *_TTTracksFromTrackletEmulation_Level1TTTracks_*"
+        "keep *_l1tTTTracksFromTrackletEmulation_Level1TTTracks_*"
     )
 )
 
@@ -203,7 +203,7 @@ process.stubs = cms.EDProducer("Phase2L1TGMTStubProducer",
 
 
 process.prod = cms.EDProducer('Phase2L1TGMTProducer',
-                              srcTracks = cms.InputTag("TTTracksFromTrackletEmulation:Level1TTTracks"),
+                              srcTracks = cms.InputTag("l1tTTTracksFromTrackletEmulation:Level1TTTracks"),
                               srcStubs  = cms.InputTag('stubs'),
                               srcBMTF   = cms.InputTag('simBmtfDigis','BMTF'),
                               srcEMTF   = cms.InputTag('simEmtfDigis','EMTF'),

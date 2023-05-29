@@ -1,0 +1,84 @@
+LFS: /eos/cms/store/group/alca_trackeralign/AlignmentValidation/AlignmentValidation/NewTool
+name: example_multiple_merge_jobs
+alignments:
+    2016postVFPMC:
+        color: 632
+        globaltag: 106X_mcRun2_asymptotic_v8
+        style: 2101
+        title: 2016 MC post VFP
+    2016preVFPMC:
+        color: 416
+        globaltag: 106X_mcRun2_asymptotic_preVFP_v8 
+        style: 2101
+        title: 2016 MC pre VFP
+    2017MC:
+        color: 616
+        globaltag: 110X_mc2017_realistic_v4
+        style: 2101
+        title: 2017 MC
+    2018MC:
+        color: 1
+        globaltag: 110X_upgrade2018_realistic_v9
+        style: 2101
+        title: 2018 MC
+
+validations:
+    PV:
+        merge:
+            2016MC:
+                singles:
+                - 2016postVFPMC
+                - 2016preVFPMC
+                doMaps: true
+                stdResiduals: true
+                autoLimits: false
+                m_dxyPhiMax: 20
+                m_dzPhiMax: 50
+                m_dxyEtaMax: 20
+                m_dzEtaMax: 50
+            1718MC:
+                singles:
+                - 2017And2018MC
+                doMaps: true
+                stdResiduals: true
+                autoLimits: false
+                m_dxyPhiMax: 20
+                m_dzPhiMax: 50
+                m_dxyEtaMax: 20
+                m_dzEtaMax: 50
+
+        single:
+            2016postVFPMC:
+                IOV:
+                - 316254
+                alignments:
+                - 2016postVFPMC
+                dataset: EXAMPLE_PATH/EXAMPLE_NAME_1_{}.txt
+                maxevents: 50000
+                trackcollection: ALCARECOTkAlMinBias
+                vertexcollection: offlinePrimaryVertices
+                isda: true
+                ismc: true
+            2016preVFPMC:
+                IOV:
+                - 316254
+                alignments:
+                - 2016preVFPMC
+                dataset: EXAMPLE_PATH/EXAMPLE_NAME_2_{}.txt
+                maxevents: 50000
+                trackcollection: ALCARECOTkAlMinBias
+                vertexcollection: offlinePrimaryVertices
+                isda: true
+                ismc: true
+            2017And2018MC:
+                IOV:
+                - 316254
+                alignments:
+                - 2017MC
+                - 2018MC
+                dataset: EXAMPLE_PATH/EXAMPLE_NAME_3_{}.txt
+                maxevents: 50000
+                trackcollection: ALCARECOTkAlMinBias
+                vertexcollection: offlinePrimaryVertices
+                isda: true
+                ismc: true

@@ -1,7 +1,6 @@
 #include "PhysicsTools/RecoUtils/interface/CheckHitPattern.h"
 
 // To get Tracker Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -18,24 +17,17 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-void CheckHitPattern::init(const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trkTool_);  // Needed for vertex fits
-
+void CheckHitPattern::init(const TrackerTopology* tTopo,
+                           const TrackerGeometry& geom,
+                           const TransientTrackBuilder& builder) {
+  trkTool_ = &builder;
   //
   // Note min/max radius (z) of each barrel layer (endcap disk).
   //
 
   geomInitDone_ = true;
 
-  // Get Tracker geometry
-  edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
-  const TrackingGeometry::DetContainer& dets = trackerGeometry->dets();
+  const TrackingGeometry::DetContainer& dets = geom.dets();
 
   // Loop over all modules in the Tracker.
   for (unsigned int i = 0; i < dets.size(); i++) {

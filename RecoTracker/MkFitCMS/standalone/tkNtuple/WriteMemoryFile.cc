@@ -45,16 +45,18 @@ void printHelp(const char* av0) {
   printf(
       "Usage: %s [options]\n"
       "Options:\n"
+      "  --help                    print help and exit\n"
       "  --input          <str>    input file\n"
       "  --output         <str>    output file\n"
-      "  --geo            <file>   binary TrackerInfo geometry (def: CMS-2017.bin)\n"
+      "  --geo            <file>   binary TrackerInfo geometry (def: CMS-phase1.bin)\n"
       "  --verbosity      <num>    print details (0 quiet, 1 print counts, 2 print all; def: 0)\n"
       "  --maxevt         <num>    maxevt events to write (-1 for everything in the file def: -1)\n"
       "  --clean-sim-tracks        apply sim track cleaning (def: no cleaning)\n"
       "  --write-all-events        write all events (def: skip events with 0 simtracks or seeds)\n"
       "  --write-rec-tracks        write rec tracks (def: not written)\n"
       "  --apply-ccc               apply cluster charge cut to strip hits (def: false)\n"
-      "  --all-seeds               merge all seeds from the input file (def: false)\n",
+      "  --all-seeds               write all seeds from the input file, not only initialStep and hltIter0 (def: "
+      "false)\n",
       av0);
 }
 
@@ -63,7 +65,7 @@ int main(int argc, char* argv[]) {
   std::string inputFileName;
   bool haveOutput = false;
   std::string outputFileName;
-  std::string geoFileName("CMS-2017.bin");
+  std::string geoFileName("CMS-phase1.bin");
 
   bool cleanSimTracks = false;
   bool writeAllEvents = false;
@@ -88,6 +90,7 @@ int main(int argc, char* argv[]) {
 
     if (*i == "-h" || *i == "-help" || *i == "--help") {
       printHelp(argv[0]);
+      exit(0);
     } else if (*i == "--input") {
       next_arg_or_die(mArgs, i);
       inputFileName = *i;
@@ -136,15 +139,6 @@ int main(int argc, char* argv[]) {
 
   using namespace std;
 
-  TrackerInfo tkinfo;
-  tkinfo.read_bin_file(geoFileName);
-  LayerNumberConverter lnc(TkLayout::phase1);
-  const unsigned int nTotalLayers = lnc.nLayers();
-  assert(nTotalLayers == (unsigned int)tkinfo.n_layers());
-
-  int nstot = 0;
-  std::vector<int> nhitstot(nTotalLayers, 0);
-
   TFile* f = TFile::Open(inputFileName.c_str());
   if (f == 0) {
     fprintf(stderr, "Failed opening input root file '%s'\n", inputFileName.c_str());
@@ -152,6 +146,16 @@ int main(int argc, char* argv[]) {
   }
 
   TTree* t = (TTree*)f->Get("trackingNtuple/tree");
+
+  bool hasPh2hits = t->GetBranch("ph2_isLower") != nullptr;
+  TrackerInfo tkinfo;
+  tkinfo.read_bin_file(geoFileName);
+  LayerNumberConverter lnc(hasPh2hits ? TkLayout::phase2 : TkLayout::phase1);
+  const unsigned int nTotalLayers = lnc.nLayers();
+  assert(nTotalLayers == (unsigned int)tkinfo.n_layers());
+
+  int nstot = 0;
+  std::vector<int> nhitstot(nTotalLayers, 0);
 
   unsigned long long event;
   t->SetBranchAddress("event", &event);
@@ -399,26 +403,28 @@ int main(int argc, char* argv[]) {
   vector<float>* glu_yz = 0;
   vector<float>* glu_zz = 0;
   vector<float>* glu_zx = 0;
-  t->SetBranchAddress("glu_isBarrel", &glu_isBarrel);
-  if (has910_det_lay) {
-    t->SetBranchAddress("glu_subdet", &glu_det);
-    t->SetBranchAddress("glu_layer", &glu_lay);
-  } else {
-    t->SetBranchAddress("glu_det", &glu_det);
-    t->SetBranchAddress("glu_lay", &glu_lay);
+  if (!hasPh2hits) {
+    t->SetBranchAddress("glu_isBarrel", &glu_isBarrel);
+    if (has910_det_lay) {
+      t->SetBranchAddress("glu_subdet", &glu_det);
+      t->SetBranchAddress("glu_layer", &glu_lay);
+    } else {
+      t->SetBranchAddress("glu_det", &glu_det);
+      t->SetBranchAddress("glu_lay", &glu_lay);
+    }
+    t->SetBranchAddress("glu_detId", &glu_detId);
+    t->SetBranchAddress("glu_monoIdx", &glu_monoIdx);
+    t->SetBranchAddress("glu_stereoIdx", &glu_stereoIdx);
+    t->SetBranchAddress("glu_x", &glu_x);
+    t->SetBranchAddress("glu_y", &glu_y);
+    t->SetBranchAddress("glu_z", &glu_z);
+    t->SetBranchAddress("glu_xx", &glu_xx);
+    t->SetBranchAddress("glu_xy", &glu_xy);
+    t->SetBranchAddress("glu_yy", &glu_yy);
+    t->SetBranchAddress("glu_yz", &glu_yz);
+    t->SetBranchAddress("glu_zz", &glu_zz);
+    t->SetBranchAddress("glu_zx", &glu_zx);
   }
-  t->SetBranchAddress("glu_detId", &glu_detId);
-  t->SetBranchAddress("glu_monoIdx", &glu_monoIdx);
-  t->SetBranchAddress("glu_stereoIdx", &glu_stereoIdx);
-  t->SetBranchAddress("glu_x", &glu_x);
-  t->SetBranchAddress("glu_y", &glu_y);
-  t->SetBranchAddress("glu_z", &glu_z);
-  t->SetBranchAddress("glu_xx", &glu_xx);
-  t->SetBranchAddress("glu_xy", &glu_xy);
-  t->SetBranchAddress("glu_yy", &glu_yy);
-  t->SetBranchAddress("glu_yz", &glu_yz);
-  t->SetBranchAddress("glu_zz", &glu_zz);
-  t->SetBranchAddress("glu_zx", &glu_zx);
 
   vector<short>* str_isBarrel = 0;
   vector<short>* str_isStereo = 0;
@@ -438,36 +444,78 @@ int main(int argc, char* argv[]) {
   vector<float>* str_chargePerCM = 0;
   vector<int>* str_csize = 0;
   vector<uint64_t>* str_usedMask = 0;
-  t->SetBranchAddress("str_isBarrel", &str_isBarrel);
-  t->SetBranchAddress("str_isStereo", &str_isStereo);
-  if (has910_det_lay) {
-    t->SetBranchAddress("str_subdet", &str_det);
-    t->SetBranchAddress("str_layer", &str_lay);
-  } else {
-    t->SetBranchAddress("str_det", &str_det);
-    t->SetBranchAddress("str_lay", &str_lay);
-  }
-  t->SetBranchAddress("str_detId", &str_detId);
-  t->SetBranchAddress("str_simType", &str_simType);
-  t->SetBranchAddress("str_x", &str_x);
-  t->SetBranchAddress("str_y", &str_y);
-  t->SetBranchAddress("str_z", &str_z);
-  t->SetBranchAddress("str_xx", &str_xx);
-  t->SetBranchAddress("str_xy", &str_xy);
-  t->SetBranchAddress("str_yy", &str_yy);
-  t->SetBranchAddress("str_yz", &str_yz);
-  t->SetBranchAddress("str_zz", &str_zz);
-  t->SetBranchAddress("str_zx", &str_zx);
-  t->SetBranchAddress("str_chargePerCM", &str_chargePerCM);
-  t->SetBranchAddress("str_clustSize", &str_csize);
-  if (writeHitIterMasks) {
-    t->SetBranchAddress("str_usedMask", &str_usedMask);
+  vector<vector<int>>* str_simHitIdx = 0;
+  vector<vector<float>>* str_chargeFraction = 0;
+  if (!hasPh2hits) {
+    t->SetBranchAddress("str_isBarrel", &str_isBarrel);
+    t->SetBranchAddress("str_isStereo", &str_isStereo);
+    if (has910_det_lay) {
+      t->SetBranchAddress("str_subdet", &str_det);
+      t->SetBranchAddress("str_layer", &str_lay);
+    } else {
+      t->SetBranchAddress("str_det", &str_det);
+      t->SetBranchAddress("str_lay", &str_lay);
+    }
+    t->SetBranchAddress("str_detId", &str_detId);
+    t->SetBranchAddress("str_simType", &str_simType);
+    t->SetBranchAddress("str_x", &str_x);
+    t->SetBranchAddress("str_y", &str_y);
+    t->SetBranchAddress("str_z", &str_z);
+    t->SetBranchAddress("str_xx", &str_xx);
+    t->SetBranchAddress("str_xy", &str_xy);
+    t->SetBranchAddress("str_yy", &str_yy);
+    t->SetBranchAddress("str_yz", &str_yz);
+    t->SetBranchAddress("str_zz", &str_zz);
+    t->SetBranchAddress("str_zx", &str_zx);
+    t->SetBranchAddress("str_chargePerCM", &str_chargePerCM);
+    t->SetBranchAddress("str_clustSize", &str_csize);
+    if (writeHitIterMasks) {
+      t->SetBranchAddress("str_usedMask", &str_usedMask);
+    }
+
+    t->SetBranchAddress("str_simHitIdx", &str_simHitIdx);
+    t->SetBranchAddress("str_chargeFraction", &str_chargeFraction);
   }
 
-  vector<vector<int>>* str_simHitIdx = 0;
-  t->SetBranchAddress("str_simHitIdx", &str_simHitIdx);
-  vector<vector<float>>* str_chargeFraction = 0;
-  t->SetBranchAddress("str_chargeFraction", &str_chargeFraction);
+  vector<unsigned short>* ph2_isLower = 0;
+  vector<unsigned short>* ph2_subdet = 0;
+  vector<unsigned short>* ph2_layer = 0;
+  vector<unsigned int>* ph2_detId = 0;
+  vector<unsigned short>* ph2_simType = 0;
+  vector<float>* ph2_x = 0;
+  vector<float>* ph2_y = 0;
+  vector<float>* ph2_z = 0;
+  vector<float>* ph2_xx = 0;
+  vector<float>* ph2_xy = 0;
+  vector<float>* ph2_yy = 0;
+  vector<float>* ph2_yz = 0;
+  vector<float>* ph2_zz = 0;
+  vector<float>* ph2_zx = 0;
+  vector<uint64_t>* ph2_usedMask = 0;
+  vector<vector<int>>* ph2_simHitIdx = 0;
+  if (hasPh2hits && applyCCC)
+    std::cout << "WARNING: applyCCC is set for Phase2 inputs: applyCCC will be ignored" << std::endl;
+  if (hasPh2hits) {
+    t->SetBranchAddress("ph2_isLower", &ph2_isLower);
+    t->SetBranchAddress("ph2_subdet", &ph2_subdet);
+    t->SetBranchAddress("ph2_layer", &ph2_layer);
+    t->SetBranchAddress("ph2_detId", &ph2_detId);
+    t->SetBranchAddress("ph2_simType", &ph2_simType);
+    t->SetBranchAddress("ph2_x", &ph2_x);
+    t->SetBranchAddress("ph2_y", &ph2_y);
+    t->SetBranchAddress("ph2_z", &ph2_z);
+    t->SetBranchAddress("ph2_xx", &ph2_xx);
+    t->SetBranchAddress("ph2_xy", &ph2_xy);
+    t->SetBranchAddress("ph2_yy", &ph2_yy);
+    t->SetBranchAddress("ph2_yz", &ph2_yz);
+    t->SetBranchAddress("ph2_zz", &ph2_zz);
+    t->SetBranchAddress("ph2_zx", &ph2_zx);
+    if (writeHitIterMasks) {
+      t->SetBranchAddress("ph2_usedMask", &ph2_usedMask);
+    }
+    t->SetBranchAddress("ph2_simHitIdx", &ph2_simHitIdx);
+  }
+  vector<float> ph2_chargeFraction_dummy(16, 0.f);
 
   // beam spot
   float bsp_x;
@@ -523,10 +571,12 @@ int main(int argc, char* argv[]) {
     bs.beamWidthY = bsp_sigmay;
     //dxdz and dydz are not in the trackingNtuple at the moment
 
-    for (unsigned int istr = 0; istr < str_lay->size(); ++istr) {
-      if (str_chargePerCM->at(istr) < cutValueCCC)
-        numFailCCC++;
-      numTotalStr++;
+    if (!hasPh2hits) {
+      for (unsigned int istr = 0; istr < str_lay->size(); ++istr) {
+        if (str_chargePerCM->at(istr) < cutValueCCC)
+          numFailCCC++;
+        numTotalStr++;
+      }
     }
 
     auto nSims = sim_q->size();
@@ -675,6 +725,16 @@ int main(int argc, char* argv[]) {
               }
               break;
             }
+            case HitType::Phase2OT: {
+              int istr = ihIdx;
+              if (istr < 0)
+                continue;
+              int cmsswlay = lnc.convertLayerNumber(
+                  ph2_subdet->at(istr), ph2_layer->at(istr), useMatched, ph2_isLower->at(istr), ph2_z->at(istr) > 0);
+              if (cmsswlay >= 0 && cmsswlay < static_cast<int>(nTotalLayers))
+                hitlay[cmsswlay]++;
+              break;
+            }
             case HitType::Invalid:
               break;  //FIXME. Skip, really?
             default:
@@ -729,28 +789,43 @@ int main(int argc, char* argv[]) {
             if (simTkIdxNt >= 0)
               nRecToSimHit++;
           }
-          if (useMatched) {
-            for (unsigned int iglu = 0; iglu < glu_lay->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++iglu) {
-              if (glu_isBarrel->at(iglu) == 0)
+          if (hasPh2hits) {
+            for (unsigned int istr = 0; istr < ph2_layer->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++istr) {
+              int ilay = -1;
+              ilay = lnc.convertLayerNumber(
+                  ph2_subdet->at(istr), ph2_layer->at(istr), useMatched, ph2_isLower->at(istr), ph2_z->at(istr) > 0);
+              if (useMatched && !ph2_isLower->at(istr))
                 continue;
-              int igluMono = glu_monoIdx->at(iglu);
-              int simTkIdxNt =
-                  bestTkIdx(str_simHitIdx->at(igluMono), str_chargeFraction->at(igluMono), igluMono, HitType::Strip);
+              if (ilay == -1)
+                continue;
+              int simTkIdxNt = bestTkIdx(ph2_simHitIdx->at(istr), ph2_chargeFraction_dummy, istr, HitType::Phase2OT);
               if (simTkIdxNt >= 0)
                 nRecToSimHit++;
             }
-          }
-          for (unsigned int istr = 0; istr < str_lay->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++istr) {
-            int ilay = -1;
-            ilay = lnc.convertLayerNumber(
-                str_det->at(istr), str_lay->at(istr), useMatched, str_isStereo->at(istr), str_z->at(istr) > 0);
-            if (useMatched && str_isBarrel->at(istr) == 1 && str_isStereo->at(istr))
-              continue;
-            if (ilay == -1)
-              continue;
-            int simTkIdxNt = bestTkIdx(str_simHitIdx->at(istr), str_chargeFraction->at(istr), istr, HitType::Strip);
-            if (simTkIdxNt >= 0)
-              nRecToSimHit++;
+          } else {
+            if (useMatched) {
+              for (unsigned int iglu = 0; iglu < glu_lay->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++iglu) {
+                if (glu_isBarrel->at(iglu) == 0)
+                  continue;
+                int igluMono = glu_monoIdx->at(iglu);
+                int simTkIdxNt =
+                    bestTkIdx(str_simHitIdx->at(igluMono), str_chargeFraction->at(igluMono), igluMono, HitType::Strip);
+                if (simTkIdxNt >= 0)
+                  nRecToSimHit++;
+              }
+            }
+            for (unsigned int istr = 0; istr < str_lay->size() && nRecToSimHit < cleanSimTrack_minRecHits; ++istr) {
+              int ilay = -1;
+              ilay = lnc.convertLayerNumber(
+                  str_det->at(istr), str_lay->at(istr), useMatched, str_isStereo->at(istr), str_z->at(istr) > 0);
+              if (useMatched && str_isBarrel->at(istr) == 1 && str_isStereo->at(istr))
+                continue;
+              if (ilay == -1)
+                continue;
+              int simTkIdxNt = bestTkIdx(str_simHitIdx->at(istr), str_chargeFraction->at(istr), istr, HitType::Strip);
+              if (simTkIdxNt >= 0)
+                nRecToSimHit++;
+            }
           }
           if (nRecToSimHit < cleanSimTrack_minRecHits)
             continue;
@@ -766,8 +841,9 @@ int main(int argc, char* argv[]) {
 
     vector<Track>& seedTracks_ = EE.seedTracks_;
     vector<vector<int>> pixHitSeedIdx(pix_lay->size());
-    vector<vector<int>> strHitSeedIdx(str_lay->size());
-    vector<vector<int>> gluHitSeedIdx(glu_lay->size());
+    vector<vector<int>> strHitSeedIdx(hasPh2hits ? 0 : str_lay->size());
+    vector<vector<int>> gluHitSeedIdx(hasPh2hits ? 0 : glu_lay->size());
+    vector<vector<int>> ph2HitSeedIdx(hasPh2hits ? ph2_layer->size() : 0);
     for (unsigned int is = 0; is < see_q->size(); ++is) {
       auto isAlgo = TrackAlgorithm(see_algo->at(is));
       if (not allSeeds)
@@ -843,6 +919,10 @@ int main(int argc, char* argv[]) {
             }
             break;
           }
+          case HitType::Phase2OT: {
+            ph2HitSeedIdx[hidx].push_back(seedTracks_.size());
+            break;
+          }
           case HitType::Invalid:
             break;  //FIXME. Skip, really?
           default:
@@ -857,8 +937,9 @@ int main(int argc, char* argv[]) {
 
     vector<Track>& cmsswTracks_ = EE.cmsswTracks_;
     vector<vector<int>> pixHitRecIdx(pix_lay->size());
-    vector<vector<int>> strHitRecIdx(str_lay->size());
-    vector<vector<int>> gluHitRecIdx(glu_lay->size());
+    vector<vector<int>> strHitRecIdx(hasPh2hits ? 0 : str_lay->size());
+    vector<vector<int>> gluHitRecIdx(hasPh2hits ? 0 : glu_lay->size());
+    vector<vector<int>> ph2HitRecIdx(hasPh2hits ? ph2_layer->size() : 0);
     for (unsigned int ir = 0; ir < trk_q->size(); ++ir) {
       //check the origin; redundant for initialStep ntuples
       if (not allSeeds)
@@ -922,15 +1003,20 @@ int main(int argc, char* argv[]) {
             break;
           }
           case HitType::Strip: {
-            //cout << "pix=" << hidx << " track=" << cmsswTracks_.size() << endl;
+            //cout << "str=" << hidx << " track=" << cmsswTracks_.size() << endl;
             strHitRecIdx[hidx].push_back(cmsswTracks_.size());
             break;
           }
           case HitType::Glued: {
             if (not useMatched)
               throw std::logic_error("Tracks have glued hits, but matchedHit load is not configured");
-            //cout << "pix=" << hidx << " track=" << cmsswTracks_.size() << endl;
+            //cout << "glu=" << hidx << " track=" << cmsswTracks_.size() << endl;
             gluHitRecIdx[hidx].push_back(cmsswTracks_.size());
+            break;
+          }
+          case HitType::Phase2OT: {
+            //cout << "ph2=" << hidx << " track=" << cmsswTracks_.size() << endl;
+            ph2HitRecIdx[hidx].push_back(cmsswTracks_.size());
             break;
           }
           case HitType::Invalid:
@@ -958,7 +1044,6 @@ int main(int argc, char* argv[]) {
 
       int simTkIdxNt = bestTkIdx(pix_simHitIdx->at(ipix), pix_chargeFraction->at(ipix), ipix, HitType::Pixel);
       int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
-
       //cout << Form("pix lay=%i det=%i x=(%6.3f, %6.3f, %6.3f)",ilay+1,pix_det->at(ipix),pix_x->at(ipix),pix_y->at(ipix),pix_z->at(ipix)) << endl;
       SVector3 pos(pix_x->at(ipix), pix_y->at(ipix), pix_z->at(ipix));
       SMatrixSym33 err;
@@ -989,105 +1074,155 @@ int main(int argc, char* argv[]) {
       totHits++;
     }
 
-    if (useMatched) {
-      for (unsigned int iglu = 0; iglu < glu_lay->size(); ++iglu) {
-        if (glu_isBarrel->at(iglu) == 0)
+    if (hasPh2hits) {
+      vector<int> ph2Idx(ph2_layer->size());
+      for (unsigned int iph2 = 0; iph2 < ph2_layer->size(); ++iph2) {
+        int ilay = -1;
+        ilay = lnc.convertLayerNumber(
+            ph2_subdet->at(iph2), ph2_layer->at(iph2), useMatched, ph2_isLower->at(iph2), ph2_z->at(iph2) > 0);
+        if (useMatched && !ph2_isLower->at(iph2))
           continue;
-        int igluMono = glu_monoIdx->at(iglu);
-        int simTkIdxNt =
-            bestTkIdx(str_simHitIdx->at(igluMono), str_chargeFraction->at(igluMono), igluMono, HitType::Strip);
+        if (ilay == -1)
+          continue;
+
+        unsigned int imoduleid = tkinfo[ilay].short_id(ph2_detId->at(iph2));
+
+        int simTkIdxNt = bestTkIdx(ph2_simHitIdx->at(iph2), ph2_chargeFraction_dummy, iph2, HitType::Phase2OT);
         int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
 
-        int ilay = lnc.convertLayerNumber(glu_det->at(iglu), glu_lay->at(iglu), useMatched, -1, glu_z->at(iglu) > 0);
-        // cout << Form("glu lay=%i det=%i bar=%i x=(%6.3f, %6.3f, %6.3f)",ilay+1,glu_det->at(iglu),glu_isBarrel->at(iglu),glu_x->at(iglu),glu_y->at(iglu),glu_z->at(iglu)) << endl;
-        SVector3 pos(glu_x->at(iglu), glu_y->at(iglu), glu_z->at(iglu));
+        SVector3 pos(ph2_x->at(iph2), ph2_y->at(iph2), ph2_z->at(iph2));
         SMatrixSym33 err;
-        err.At(0, 0) = glu_xx->at(iglu);
-        err.At(1, 1) = glu_yy->at(iglu);
-        err.At(2, 2) = glu_zz->at(iglu);
-        err.At(0, 1) = glu_xy->at(iglu);
-        err.At(0, 2) = glu_zx->at(iglu);
-        err.At(1, 2) = glu_yz->at(iglu);
+        err.At(0, 0) = ph2_xx->at(iph2);
+        err.At(1, 1) = ph2_yy->at(iph2);
+        err.At(2, 2) = ph2_zz->at(iph2);
+        err.At(0, 1) = ph2_xy->at(iph2);
+        err.At(0, 2) = ph2_zx->at(iph2);
+        err.At(1, 2) = ph2_yz->at(iph2);
         if (simTkIdx >= 0) {
           simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
         }
-        for (unsigned int ir = 0; ir < gluHitSeedIdx[iglu].size(); ir++) {
-          //cout << "xxx iglu=" << iglu << " seed=" << gluHitSeedIdx[iglu][ir] << endl;
-          seedTracks_[gluHitSeedIdx[iglu][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+        for (unsigned int ir = 0; ir < ph2HitSeedIdx[iph2].size(); ir++) {
+          //cout << "xxx iph2=" << iph2 << " seed=" << ph2HitSeedIdx[iph2][ir] << endl;
+          seedTracks_[ph2HitSeedIdx[iph2][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
         }
-        for (unsigned int ir = 0; ir < gluHitRecIdx[iglu].size(); ir++) {
-          //cout << "xxx iglu=" << iglu << " recTrack=" << gluHitRecIdx[iglu][ir] << endl;
-          cmsswTracks_[gluHitRecIdx[iglu][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+        for (unsigned int ir = 0; ir < ph2HitRecIdx[iph2].size(); ir++) {
+          //cout << "xxx iph2=" << iph2 << " recTrack=" << ph2HitRecIdx[iph2][ir] << endl;
+          cmsswTracks_[ph2HitRecIdx[iph2][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
         }
-
-        // QQQQ module-id-in-layer, adc and phi/theta spans are not done for matched hits.
-        // Will we ever use / need this?
-        assert(false && "Implement module-ids, cluster adc and spans for matched hits!");
-
         Hit hit(pos, err, totHits);
-        layerHits_[ilay].push_back(hit);
-        MCHitInfo hitInfo(simTkIdx, ilay, layerHits_[ilay].size() - 1, totHits);
-        simHitsInfo_.push_back(hitInfo);
-        totHits++;
-      }
-    }
-
-    vector<int> strIdx;
-    strIdx.resize(str_lay->size());
-    for (unsigned int istr = 0; istr < str_lay->size(); ++istr) {
-      int ilay = -1;
-      ilay = lnc.convertLayerNumber(
-          str_det->at(istr), str_lay->at(istr), useMatched, str_isStereo->at(istr), str_z->at(istr) > 0);
-      if (useMatched && str_isBarrel->at(istr) == 1 && str_isStereo->at(istr))
-        continue;
-      if (ilay == -1)
-        continue;
-
-      unsigned int imoduleid = tkinfo[ilay].short_id(str_detId->at(istr));
-
-      int simTkIdxNt = bestTkIdx(str_simHitIdx->at(istr), str_chargeFraction->at(istr), istr, HitType::Strip);
-      int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
-
-      bool passCCC = applyCCC ? (str_chargePerCM->at(istr) > cutValueCCC) : true;
-
-      //if (str_onTrack->at(istr)==0) continue;//do not consider hits that are not on track!
-      SVector3 pos(str_x->at(istr), str_y->at(istr), str_z->at(istr));
-      SMatrixSym33 err;
-      err.At(0, 0) = str_xx->at(istr);
-      err.At(1, 1) = str_yy->at(istr);
-      err.At(2, 2) = str_zz->at(istr);
-      err.At(0, 1) = str_xy->at(istr);
-      err.At(0, 2) = str_zx->at(istr);
-      err.At(1, 2) = str_yz->at(istr);
-      if (simTkIdx >= 0) {
-        if (passCCC)
-          simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
-        else
-          simTracks_[simTkIdx].addHitIdx(-9, ilay, 0);
-      }
-      for (unsigned int ir = 0; ir < strHitSeedIdx[istr].size(); ir++) {
-        //cout << "xxx istr=" << istr << " seed=" << strHitSeedIdx[istr][ir] << endl;
-        if (passCCC)
-          seedTracks_[strHitSeedIdx[istr][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
-        else
-          seedTracks_[strHitSeedIdx[istr][ir]].addHitIdx(-9, ilay, 0);
-      }
-      for (unsigned int ir = 0; ir < strHitRecIdx[istr].size(); ir++) {
-        //cout << "xxx istr=" << istr << " recTrack=" << strHitRecIdx[istr][ir] << endl;
-        if (passCCC)
-          cmsswTracks_[strHitRecIdx[istr][ir]].addHitIdx(layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
-        else
-          cmsswTracks_[strHitRecIdx[istr][ir]].addHitIdx(-9, ilay, 0);
-      }
-      if (passCCC) {
-        Hit hit(pos, err, totHits);
-        hit.setupAsStrip(imoduleid, str_chargePerCM->at(istr), str_csize->at(istr));
+        hit.setupAsStrip(imoduleid, 0, 1);
         layerHits_[ilay].push_back(hit);
         if (writeHitIterMasks)
-          layerHitMasks_[ilay].push_back(str_usedMask->at(istr));
+          layerHitMasks_[ilay].push_back(ph2_usedMask->at(iph2));
         MCHitInfo hitInfo(simTkIdx, ilay, layerHits_[ilay].size() - 1, totHits);
         simHitsInfo_.push_back(hitInfo);
         totHits++;
+      }
+    } else {
+      if (useMatched) {
+        for (unsigned int iglu = 0; iglu < glu_lay->size(); ++iglu) {
+          if (glu_isBarrel->at(iglu) == 0)
+            continue;
+          int igluMono = glu_monoIdx->at(iglu);
+          int simTkIdxNt =
+              bestTkIdx(str_simHitIdx->at(igluMono), str_chargeFraction->at(igluMono), igluMono, HitType::Strip);
+          int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
+
+          int ilay = lnc.convertLayerNumber(glu_det->at(iglu), glu_lay->at(iglu), useMatched, -1, glu_z->at(iglu) > 0);
+          // cout << Form("glu lay=%i det=%i bar=%i x=(%6.3f, %6.3f, %6.3f)",ilay+1,glu_det->at(iglu),glu_isBarrel->at(iglu),glu_x->at(iglu),glu_y->at(iglu),glu_z->at(iglu)) << endl;
+          SVector3 pos(glu_x->at(iglu), glu_y->at(iglu), glu_z->at(iglu));
+          SMatrixSym33 err;
+          err.At(0, 0) = glu_xx->at(iglu);
+          err.At(1, 1) = glu_yy->at(iglu);
+          err.At(2, 2) = glu_zz->at(iglu);
+          err.At(0, 1) = glu_xy->at(iglu);
+          err.At(0, 2) = glu_zx->at(iglu);
+          err.At(1, 2) = glu_yz->at(iglu);
+          if (simTkIdx >= 0) {
+            simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
+          }
+          for (unsigned int ir = 0; ir < gluHitSeedIdx[iglu].size(); ir++) {
+            //cout << "xxx iglu=" << iglu << " seed=" << gluHitSeedIdx[iglu][ir] << endl;
+            seedTracks_[gluHitSeedIdx[iglu][ir]].addHitIdx(
+                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+          }
+          for (unsigned int ir = 0; ir < gluHitRecIdx[iglu].size(); ir++) {
+            //cout << "xxx iglu=" << iglu << " recTrack=" << gluHitRecIdx[iglu][ir] << endl;
+            cmsswTracks_[gluHitRecIdx[iglu][ir]].addHitIdx(
+                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+          }
+
+          // QQQQ module-id-in-layer, adc and phi/theta spans are not done for matched hits.
+          // Will we ever use / need this?
+          assert(false && "Implement module-ids, cluster adc and spans for matched hits!");
+
+          Hit hit(pos, err, totHits);
+          layerHits_[ilay].push_back(hit);
+          MCHitInfo hitInfo(simTkIdx, ilay, layerHits_[ilay].size() - 1, totHits);
+          simHitsInfo_.push_back(hitInfo);
+          totHits++;
+        }
+      }
+
+      vector<int> strIdx;
+      strIdx.resize(str_lay->size());
+      for (unsigned int istr = 0; istr < str_lay->size(); ++istr) {
+        int ilay = -1;
+        ilay = lnc.convertLayerNumber(
+            str_det->at(istr), str_lay->at(istr), useMatched, str_isStereo->at(istr), str_z->at(istr) > 0);
+        if (useMatched && str_isBarrel->at(istr) == 1 && str_isStereo->at(istr))
+          continue;
+        if (ilay == -1)
+          continue;
+
+        unsigned int imoduleid = tkinfo[ilay].short_id(str_detId->at(istr));
+
+        int simTkIdxNt = bestTkIdx(str_simHitIdx->at(istr), str_chargeFraction->at(istr), istr, HitType::Strip);
+        int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
+
+        bool passCCC = applyCCC ? (str_chargePerCM->at(istr) > cutValueCCC) : true;
+
+        //if (str_onTrack->at(istr)==0) continue;//do not consider hits that are not on track!
+        SVector3 pos(str_x->at(istr), str_y->at(istr), str_z->at(istr));
+        SMatrixSym33 err;
+        err.At(0, 0) = str_xx->at(istr);
+        err.At(1, 1) = str_yy->at(istr);
+        err.At(2, 2) = str_zz->at(istr);
+        err.At(0, 1) = str_xy->at(istr);
+        err.At(0, 2) = str_zx->at(istr);
+        err.At(1, 2) = str_yz->at(istr);
+        if (simTkIdx >= 0) {
+          if (passCCC)
+            simTracks_[simTkIdx].addHitIdx(layerHits_[ilay].size(), ilay, 0);
+          else
+            simTracks_[simTkIdx].addHitIdx(-9, ilay, 0);
+        }
+        for (unsigned int ir = 0; ir < strHitSeedIdx[istr].size(); ir++) {
+          //cout << "xxx istr=" << istr << " seed=" << strHitSeedIdx[istr][ir] << endl;
+          if (passCCC)
+            seedTracks_[strHitSeedIdx[istr][ir]].addHitIdx(
+                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+          else
+            seedTracks_[strHitSeedIdx[istr][ir]].addHitIdx(-9, ilay, 0);
+        }
+        for (unsigned int ir = 0; ir < strHitRecIdx[istr].size(); ir++) {
+          //cout << "xxx istr=" << istr << " recTrack=" << strHitRecIdx[istr][ir] << endl;
+          if (passCCC)
+            cmsswTracks_[strHitRecIdx[istr][ir]].addHitIdx(
+                layerHits_[ilay].size(), ilay, 0);  //per-hit chi2 is not known
+          else
+            cmsswTracks_[strHitRecIdx[istr][ir]].addHitIdx(-9, ilay, 0);
+        }
+        if (passCCC) {
+          Hit hit(pos, err, totHits);
+          hit.setupAsStrip(imoduleid, str_chargePerCM->at(istr), str_csize->at(istr));
+          layerHits_[ilay].push_back(hit);
+          if (writeHitIterMasks)
+            layerHitMasks_[ilay].push_back(str_usedMask->at(istr));
+          MCHitInfo hitInfo(simTkIdx, ilay, layerHits_[ilay].size() - 1, totHits);
+          simHitsInfo_.push_back(hitInfo);
+          totHits++;
+        }
       }
     }
 
@@ -1241,7 +1376,8 @@ int main(int argc, char* argv[]) {
            il,
            float(nhitstot[il]) / float(savedEvents));  //Includes those that failed the cluster charge cut
 
-  printf("Out of %i hits, %i failed the cut", numTotalStr, numFailCCC);
+  if (!hasPh2hits)
+    printf("Out of %i hits, %i failed the cut", numTotalStr, numFailCCC);
 
   //========================================================================
 

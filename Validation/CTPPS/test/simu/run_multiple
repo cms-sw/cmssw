@@ -7,9 +7,9 @@ then
 fi
 
 inputDir="."
-if [ -n "$LOCAL_TEST_DIR" ]
+if [ -n "$SCRAM_TEST_PATH" ]
 then
-	inputDir="$LOCAL_TEST_DIR"
+	inputDir="$SCRAM_TEST_PATH/simu"
 	n_events="1E2"
 fi
 
@@ -48,8 +48,6 @@ RunOne "2016" "Run2_2016"
 RunOne "2017" "Run2_2017"
 
 RunOne "2018" "Run2_2018"
-
-RunOne "2021" "Run3"
 
 RunOne "2022" "Run3"
 

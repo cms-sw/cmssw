@@ -51,12 +51,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& layerNames = args.value<std::vector<std::string>>("LayerNames");
   const auto& materials = args.value<std::vector<std::string>>("LayerMaterials");
   const auto& layerThick = args.value<std::vector<double>>("LayerThickness");
+  const auto& layerSizeOff = args.value<std::vector<double>>("LayerSizeOffset");
   const auto& layerType = args.value<std::vector<int>>("LayerTypes");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: " << layerNames.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness "
-                                  << cms::convert2mm(layerThick[i]) << " filled with " << materials[i] << " type "
+                                  << cms::convert2mm(layerThick[i]) << " size offset "
+                                  << cms::convert2mm(layerSizeOff[i]) << " filled with " << materials[i] << " type "
                                   << layerType[i];
 #endif
   const auto& layers = args.value<std::vector<int>>("Layers");
@@ -74,10 +76,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << senseName << " Thickness " << senseT << " Type " << senseType;
 #endif
 
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWaferPartialRotated...";
+#endif
   static constexpr double tol = 0.00001 * dd4hep::mm;
-  static const double sqrt3 = std::sqrt(3.0);
-  double r = 0.5 * waferSize;
-  double R = 2.0 * r / sqrt3;
 
   // Loop over all types
   for (unsigned int k = 0; k < tags.size(); ++k) {
@@ -85,7 +87,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       // First the mother
       std::string mother = parentName + placementIndexTags[m] + waferTag + tags[k];
       std::vector<std::pair<double, double>> wxy =
-          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], r, R, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -112,17 +114,22 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       // Then the layers
       dd4hep::Rotation3D rotation;
-      wxy = HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], r, R, 0.0, 0.0);
-      std::vector<double> xL, yL;
-      for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
-        xL.emplace_back(wxy[i].first);
-        yL.emplace_back(wxy[i].second);
-      }
       std::vector<dd4hep::Volume> glogs(materials.size());
       std::vector<int> copyNumber(materials.size(), 1);
       double zi(-0.5 * thick), thickTot(0.0);
       for (unsigned int l = 0; l < layers.size(); l++) {
         unsigned int i = layers[l];
+        wxy = HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, layerSizeOff[i], 0.0, 0.0);
+        std::vector<double> xL, yL;
+        for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
+          xL.emplace_back(wxy[i0].first);
+          yL.emplace_back(wxy[i0].second);
+        }
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated:Layer " << l << ":" << i << " T " << layerThick[i]
+                                      << " Size offset " << layerSizeOff[i] << " Copy " << copyNumber[i]
+                                      << " Partial type " << partialTypes[k];
+#endif
         if (copyNumber[i] == 1) {
           if (layerType[i] > 0) {
             zw[0] = -0.5 * waferThick;
@@ -142,16 +149,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         << " extruded polygon made of " << materials[i] << " z|x|y|s (0) "
                                         << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
                                         << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) "
-                                        << cms::convert2mm(zw[1]) << ": partial " << partialTypes[k]
-                                        << " placement index " << placementIndex[m] << cms::convert2mm(zx[1]) << ":"
-                                        << cms::convert2mm(zy[1]) << ":" << scale[1] << " and " << xM.size()
-                                        << " edges";
+                                        << cms::convert2mm(zw[1]) << ": " << cms::convert2mm(zx[1]) << ":"
+                                        << cms::convert2mm(zy[1]) << ":" << scale[1] << " partial " << partialTypes[k]
+                                        << " placement index " << placementIndex[m] << " and " << xM.size() << " edges";
           for (unsigned int j = 0; j < xL.size(); ++j)
             edm::LogVerbatim("HGCalGeom")
                 << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
 #endif
         }
-        if (layerType[i] > 0) {
+        if ((layerType[i] > 0) && (senseType >= 0)) {
           std::string sname = senseName + placementIndexTags[m] + waferTag + tags[k];
           zw[0] = -0.5 * senseT;
           zw[1] = 0.5 * senseT;
@@ -187,7 +193,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: " << glogs[i].name() << " number "
                                       << copyNumber[i] << " positioned in " << glogM.name() << " at (0,0,"
-                                      << cms::convert2mm(zi + 0.5 * layerThick[i]) << " with no rotation";
+                                      << cms::convert2mm(zi + 0.5 * layerThick[i]) << ") with no rotation";
 #endif
         ++copyNumber[i];
         zi += layerThick[i];

@@ -1,14 +1,48 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalGeometryCheck_cfg.py geometry=D88
+#
+#   Options for geometry D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-#process = cms.Process('PROD',Phase2C9)
-#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D88",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D88, D92, D93")
 
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-process = cms.Process('PROD',Phase2C11)
-process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+if (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCGeomCheck',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    fileName = 'HGCGeomStudyV17n.root'
+elif (options.geometry == "D92"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCGeomCheck',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    fileName = 'HGCGeomStudyV17.root'
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCGeomCheck',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    fileName = 'HGCGeomStudyV16.root'
+
+print("Output file: ", fileName)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Geometry.HGCalGeometry.hgcalGeometryCheck_cfi')
@@ -42,7 +76,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcGeomStudyV14.root'),
+                                   fileName = cms.string(fileName),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

@@ -26,8 +26,8 @@ _CFGLINES_
 
 if 'CONFDB' not in os.environ:
     import CondCore.Utilities.credentials as auth
-    user, _, passwd = auth.get_credentials('cmsonr_lb/cms_trk_r')
-    process.SiStripConfigDb.ConfDb = '{user}/{passwd}@{path}'.format(user=user, passwd=passwd, path='cmsonr_lb')
+    user, _, passwd = auth.get_credentials('cms_omds_adg/cms_trk_r')
+    process.SiStripConfigDb.ConfDb = '{user}/{passwd}@{path}'.format(user=user, passwd=passwd, path='cms_omds_adg')
 
 process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb",

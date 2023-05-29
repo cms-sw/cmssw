@@ -1,11 +1,10 @@
 #include "MkFinder.h"
 
-#include "CandCloner.h"
+#include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
+#include "CandCloner.h"
 #include "FindingFoos.h"
-
 #include "KalmanUtilsMPlex.h"
-
 #include "MatriplexPackers.h"
 
 //#define DEBUG
@@ -15,41 +14,36 @@
 #include "RecoTracker/MkFitCore/standalone/Event.h"
 #endif
 
-#ifndef MKFIT_STANDALONE
-#include "FWCore/Utilities/interface/isFinite.h"
-#endif
-
 #include <algorithm>
-
-namespace {
-  bool isFinite(float x) {
-#ifndef MKFIT_STANDALONE
-    return edm::isFinite(x);
-#else
-    return std::isfinite(x);
-#endif
-  }
-}  // namespace
 
 namespace mkfit {
 
   void MkFinder::setup(const PropagationConfig &pc,
                        const IterationParams &ip,
                        const IterationLayerConfig &ilc,
-                       const std::vector<bool> *ihm) {
+                       const SteeringParams &sp,
+                       const std::vector<bool> *ihm,
+                       bool infwd) {
     m_prop_config = &pc;
     m_iteration_params = &ip;
     m_iteration_layer_config = &ilc;
+    m_steering_params = &sp;
     m_iteration_hit_mask = ihm;
+    m_in_fwd = infwd;
   }
 
-  void MkFinder::setup_bkfit(const PropagationConfig &pc) { m_prop_config = &pc; }
+  void MkFinder::setup_bkfit(const PropagationConfig &pc, const SteeringParams &sp) {
+    m_prop_config = &pc;
+    m_steering_params = &sp;
+  }
 
   void MkFinder::release() {
     m_prop_config = nullptr;
     m_iteration_params = nullptr;
     m_iteration_layer_config = nullptr;
+    m_steering_params = nullptr;
     m_iteration_hit_mask = nullptr;
+    m_in_fwd = true;
   }
 
   //==============================================================================
@@ -110,6 +104,38 @@ namespace mkfit {
     }
   }
 
+  void MkFinder::inputTracksAndHits(const std::vector<CombCandidate> &tracks,
+                                    const LayerOfHits &layer_of_hits,
+                                    const std::vector<UpdateIndices> &idxs,
+                                    int beg,
+                                    int end,
+                                    bool inputProp) {
+    // Assign track parameters to initial state and copy hit values in.
+
+    // This might not be true for the last chunk!
+    // assert(end - beg == NN);
+
+    const int iI = inputProp ? iP : iC;
+
+    for (int i = beg, imp = 0; i < end; ++i, ++imp) {
+      const TrackCand &trk = tracks[idxs[i].seed_idx][idxs[i].cand_idx];
+
+      copy_in(trk, imp, iI);
+
+#ifdef DUMPHITWINDOW
+      m_SeedAlgo(imp, 0, 0) = tracks[idxs[i].seed_idx].seed_algo();
+      m_SeedLabel(imp, 0, 0) = tracks[idxs[i].seed_idx.seed_label();
+#endif
+
+      m_SeedIdx(imp, 0, 0) = idxs[i].seed_idx;
+      m_CandIdx(imp, 0, 0) = idxs[i].cand_idx;
+
+      const Hit &hit = layer_of_hits.refHit(idxs[i].hit_idx);
+      m_msErr.copyIn(imp, hit.errArray());
+      m_msPar.copyIn(imp, hit.posArray());
+    }
+  }
+
   void MkFinder::inputTracksAndHitIdx(const std::vector<CombCandidate> &tracks,
                                       const std::vector<std::pair<int, IdxChi2List>> &idxs,
                                       int beg,
@@ -167,34 +193,28 @@ namespace mkfit {
 
   void MkFinder::getHitSelDynamicWindows(
       const float invpt, const float theta, float &min_dq, float &max_dq, float &min_dphi, float &max_dphi) {
-    const IterationLayerConfig &ILC = *m_iteration_layer_config;
+    float max_invpt = std::min(invpt, 10.0f);  // => pT>0.1 GeV
 
-    float max_invpt = invpt;
-    if (invpt > 10.0)
-      max_invpt = 10.0;  // => pT>0.1 GeV
+    enum SelWinParameters_e { dp_sf = 0, dp_0, dp_1, dp_2, dq_sf, dq_0, dq_1, dq_2 };
+    auto &v = m_iteration_layer_config->get_window_params(m_in_fwd, true);
 
-    // dq hit selection window
-    float this_dq = (ILC.c_dq_0) * max_invpt + (ILC.c_dq_1) * theta + (ILC.c_dq_2);
-    // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    if ((ILC.c_dq_sf) * this_dq > 0.f) {
-      min_dq = (ILC.c_dq_sf) * this_dq;
-      max_dq = 2.0f * min_dq;
+    if (!v.empty()) {
+      // dq hit selection window
+      float this_dq = v[dq_sf] * (v[dq_0] * max_invpt + v[dq_1] * theta + v[dq_2]);
+      // In case value is below 0 (bad window derivation or other reasons), leave original limits
+      if (this_dq > 0.f) {
+        min_dq = this_dq;
+        max_dq = 2.0f * min_dq;
+      }
+
+      // dphi hit selection window
+      float this_dphi = v[dp_sf] * (v[dp_0] * max_invpt + v[dp_1] * theta + v[dp_2]);
+      // In case value is too low (bad window derivation or other reasons), leave original limits
+      if (this_dphi > min_dphi) {
+        min_dphi = this_dphi;
+        max_dphi = 2.0f * min_dphi;
+      }
     }
-
-    // dphi hit selection window
-    float this_dphi = (ILC.c_dp_0) * max_invpt + (ILC.c_dp_1) * theta + (ILC.c_dp_2);
-    // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    if ((ILC.c_dp_sf) * this_dphi > min_dphi) {
-      min_dphi = (ILC.c_dp_sf) * this_dphi;
-      max_dphi = 2.0f * min_dphi;
-    }
-
-    //// For future optimization: for layer & iteration dependend hit chi2 cut
-    //float this_c2 = (ILC.c_c2_0)*invpt+(ILC.c_c2_1)*theta+(ILC.c_c2_2);
-    //// In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    //if(this_c2>0.f){
-    //  max_c2 = (ILC.c_c2_sf)*this_c2;
-    //}
   }
 
   //==============================================================================
@@ -203,22 +223,22 @@ namespace mkfit {
   // From HitSelectionWindows.h: track-related config on hit selection windows
 
   inline float MkFinder::getHitSelDynamicChi2Cut(const int itrk, const int ipar) {
-    const IterationLayerConfig &ILC = *m_iteration_layer_config;
-
     const float minChi2Cut = m_iteration_params->chi2Cut_min;
     const float invpt = m_Par[ipar].At(itrk, 3, 0);
     const float theta = std::abs(m_Par[ipar].At(itrk, 5, 0) - Const::PIOver2);
 
-    float max_invpt = invpt;
-    if (invpt > 10.0)
-      max_invpt = 10.0;
+    float max_invpt = std::min(invpt, 10.0f);  // => pT>0.1 GeV
 
-    float this_c2 = ILC.c_c2_0 * max_invpt + ILC.c_c2_1 * theta + ILC.c_c2_2;
-    // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    if ((ILC.c_c2_sf) * this_c2 > minChi2Cut)
-      return ILC.c_c2_sf * this_c2;
-    else
-      return minChi2Cut;
+    enum SelWinParameters_e { c2_sf = 8, c2_0, c2_1, c2_2 };
+    auto &v = m_iteration_layer_config->get_window_params(m_in_fwd, true);
+
+    if (!v.empty()) {
+      float this_c2 = v[c2_sf] * (v[c2_0] * max_invpt + v[c2_1] * theta + v[c2_2]);
+      // In case value is too low (bad window derivation or other reasons), leave original limits
+      if (this_c2 > minChi2Cut)
+        return this_c2;
+    }
+    return minChi2Cut;
   }
 
   //==============================================================================
@@ -279,8 +299,14 @@ namespace mkfit {
     };
 
     if (L.is_barrel()) {
-      // Pull out the part of the loop that vectorizes
+      // Pull out the part of the loop that vectorizes with icc and gcc
+      // In llvm16 clang issues a warning that it can't vectorize
+      // the loop.  Unfortunately, there doesn't seem to be a
+      // pragma to suppress the warning, so we ifdef it out.  This
+      // should be rechecked if llvm vectorization improves.
+#if !defined(__clang__)
 #pragma omp simd
+#endif
       for (int itrack = 0; itrack < NN; ++itrack) {
         m_XHitSize[itrack] = 0;
 
@@ -316,8 +342,13 @@ namespace mkfit {
       }
     } else  // endcap
     {
-      // Pull out the part of the loop that vectorizes
+      //layer half-thikness for dphi spread calculation; only for very restrictive iters
+      const float layerD = std::abs(L.layer_info()->zmax() - L.layer_info()->zmin()) * 0.5f *
+                           (m_iteration_params->maxConsecHoles == 0 || m_iteration_params->maxHolesPerCand == 0);
+      // Pull out the part of the loop that vectorizes with icc and gcc
+#if !defined(__clang__)
 #pragma omp simd
+#endif
       for (int itrack = 0; itrack < NN; ++itrack) {
         m_XHitSize[itrack] = 0;
 
@@ -333,13 +364,18 @@ namespace mkfit {
         const float x = m_Par[iI].constAt(itrack, 0, 0);
         const float y = m_Par[iI].constAt(itrack, 1, 0);
         const float r2 = x * x + y * y;
-        const float dphidx = -y / r2, dphidy = x / r2;
-        const float dphi2 = calcdphi2(itrack, dphidx, dphidy);
+        const float r2Inv = 1.f / r2;
+        const float dphidx = -y * r2Inv, dphidy = x * r2Inv;
+        const float phi = getPhi(x, y);
+        const float dphi2 =
+            calcdphi2(itrack, dphidx, dphidy)
+            //range from finite layer thickness
+            + std::pow(layerD * std::tan(m_Par[iI].At(itrack, 5, 0)) * std::sin(m_Par[iI].At(itrack, 4, 0) - phi), 2) *
+                  r2Inv;
 #ifdef HARD_CHECK
         assert(dphi2 >= 0);
 #endif
 
-        const float phi = getPhi(x, y);
         float dphi = calcdphi(dphi2, min_dphi);
 
         const float r = std::sqrt(r2);
@@ -358,6 +394,14 @@ namespace mkfit {
     // Vectorizing this makes it run slower!
     //#pragma omp simd
     for (int itrack = 0; itrack < N_proc; ++itrack) {
+      // PROP-FAIL-ENABLE The following to be enabled when propagation failure
+      // detection is properly implemented in propagate-to-R/Z.
+      // if (m_FailFlag[itrack]) {
+      //   m_XWsrResult[itrack].m_wsr = WSR_Failed;
+      //   m_XHitSize[itrack] = -1;
+      //   continue;
+      // }
+
       if (m_XWsrResult[itrack].m_wsr == WSR_Outside) {
         m_XHitSize[itrack] = -1;
         continue;
@@ -680,7 +724,7 @@ namespace mkfit {
 
       mhp.reset();
 
-#pragma omp simd
+      //#pragma omp simd doesn't vectorize with current compilers
       for (int itrack = 0; itrack < N_proc; ++itrack) {
         if (hit_cnt < m_XHitSize[itrack]) {
           mhp.addInputAt(itrack, layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)));
@@ -692,6 +736,7 @@ namespace mkfit {
       //now compute the chi2 of track state vs hit
       MPlexQF outChi2;
       MPlexLV tmpPropPar;
+      clearFailFlag();
       (*fnd_foos.m_compute_chi2_foo)(m_Err[iP],
                                      m_Par[iP],
                                      m_Chg,
@@ -699,6 +744,7 @@ namespace mkfit {
                                      m_msPar,
                                      outChi2,
                                      tmpPropPar,
+                                     m_FailFlag,
                                      N_proc,
                                      m_prop_config->finding_intra_layer_pflags,
                                      m_prop_config->finding_requires_propagation_to_hit_pos);
@@ -777,6 +823,7 @@ namespace mkfit {
     // are already done when computing chi2. Not sure it's worth caching them?)
 
     dprint("update parameters");
+    clearFailFlag();
     (*fnd_foos.m_update_param_foo)(m_Err[iP],
                                    m_Par[iP],
                                    m_Chg,
@@ -784,6 +831,7 @@ namespace mkfit {
                                    m_msPar,
                                    m_Err[iC],
                                    m_Par[iC],
+                                   m_FailFlag,
                                    N_proc,
                                    m_prop_config->finding_intra_layer_pflags,
                                    m_prop_config->finding_requires_propagation_to_hit_pos);
@@ -892,7 +940,7 @@ namespace mkfit {
 
       int charge_pcm[NN];
 
-#pragma omp simd
+      //#pragma omp simd doesn't vectorize with current compilers
       for (int itrack = 0; itrack < N_proc; ++itrack) {
         if (hit_cnt < m_XHitSize[itrack]) {
           const auto &hit = layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0));
@@ -906,6 +954,7 @@ namespace mkfit {
       //now compute the chi2 of track state vs hit
       MPlexQF outChi2;
       MPlexLV propPar;
+      clearFailFlag();
       (*fnd_foos.m_compute_chi2_foo)(m_Err[iP],
                                      m_Par[iP],
                                      m_Chg,
@@ -913,6 +962,7 @@ namespace mkfit {
                                      m_msPar,
                                      outChi2,
                                      propPar,
+                                     m_FailFlag,
                                      N_proc,
                                      m_prop_config->finding_intra_layer_pflags,
                                      m_prop_config->finding_requires_propagation_to_hit_pos);
@@ -960,6 +1010,7 @@ namespace mkfit {
 
       if (oneCandPassCut) {
         MPlexQI tmpChg = m_Chg;
+        clearFailFlag();
         (*fnd_foos.m_update_param_foo)(m_Err[iP],
                                        m_Par[iP],
                                        tmpChg,
@@ -967,6 +1018,7 @@ namespace mkfit {
                                        m_msPar,
                                        m_Err[iC],
                                        m_Par[iC],
+                                       m_FailFlag,
                                        N_proc,
                                        m_prop_config->finding_intra_layer_pflags,
                                        m_prop_config->finding_requires_propagation_to_hit_pos);
@@ -1032,7 +1084,10 @@ namespace mkfit {
                 copy_out(newcand, itrack, iC);
                 newcand.setCharge(tmpChg(itrack, 0, 0));
                 newcand.addHitIdx(hit_idx, layer_of_hits.layer_id(), chi2);
-                newcand.setScore(getScoreCand(newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
+                newcand.setScore(getScoreCand(m_steering_params->m_track_scorer,
+                                              newcand,
+                                              true /*penalizeTailMissHits*/,
+                                              true /*inFindCandidates*/));
                 newcand.setOriginIndex(m_CandIdx(itrack, 0, 0));
 
                 // To apply a fixed cut instead of dynamic cut for overlap: m_iteration_params->chi2CutOverlap
@@ -1089,7 +1144,8 @@ namespace mkfit {
       TrackCand newcand;
       copy_out(newcand, itrack, iP);
       newcand.addHitIdx(fake_hit_idx, layer_of_hits.layer_id(), 0.);
-      newcand.setScore(getScoreCand(newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
+      newcand.setScore(getScoreCand(
+          m_steering_params->m_track_scorer, newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
       // Only relevant when we actually add a hit
       // newcand.setOriginIndex(m_CandIdx(itrack, 0, 0));
       tmp_candidates[m_SeedIdx(itrack, 0, 0) - offset].emplace_back(newcand);
@@ -1131,7 +1187,7 @@ namespace mkfit {
 
       int charge_pcm[NN];
 
-#pragma omp simd
+      //#pragma omp simd doesn't vectorize with current compilers
       for (int itrack = 0; itrack < N_proc; ++itrack) {
         if (hit_cnt < m_XHitSize[itrack]) {
           const auto &hit = layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0));
@@ -1145,6 +1201,7 @@ namespace mkfit {
       //now compute the chi2 of track state vs hit
       MPlexQF outChi2;
       MPlexLV propPar;
+      clearFailFlag();
       (*fnd_foos.m_compute_chi2_foo)(m_Err[iP],
                                      m_Par[iP],
                                      m_Chg,
@@ -1152,19 +1209,23 @@ namespace mkfit {
                                      m_msPar,
                                      outChi2,
                                      propPar,
+                                     m_FailFlag,
                                      N_proc,
                                      m_prop_config->finding_intra_layer_pflags,
                                      m_prop_config->finding_requires_propagation_to_hit_pos);
 
-#pragma omp simd  // DOES NOT VECTORIZE AS IT IS NOW
+      //#pragma omp simd  // DOES NOT VECTORIZE AS IT IS NOW
       for (int itrack = 0; itrack < N_proc; ++itrack) {
-        // make sure the hit was in the compatiblity window for the candidate
-
-        float max_c2 = getHitSelDynamicChi2Cut(itrack, iP);
-
-        if (hit_cnt < m_XHitSize[itrack]) {
-          // XXX-NUM-ERR assert(chi2 >= 0);
+        // We can be in failed state from the initial propagation before selectHitIndices
+        // and there hit_count for track is set to -1 and WSR state to Failed, handled below.
+        // Or we might have hit it here in propagate-to-hit.
+        // PROP-FAIL-ENABLE FailFlag check to be enabled when propagation failure
+        // detection is properly implemented in propagate-to-R/Z.
+        if (/*!m_FailFlag[itrack] &&*/ hit_cnt < m_XHitSize[itrack]) {
+          // make sure the hit was in the compatiblity window for the candidate
+          const float max_c2 = getHitSelDynamicChi2Cut(itrack, iP);
           const float chi2 = std::abs(outChi2[itrack]);  //fixme negative chi2 sometimes...
+          // XXX-NUM-ERR assert(chi2 >= 0);
 
           dprint("chi2=" << chi2 << " for trkIdx=" << itrack << " hitIdx=" << m_XHitArr.At(itrack, hit_cnt, 0));
           if (chi2 < max_c2) {
@@ -1226,7 +1287,7 @@ namespace mkfit {
               tmpList.pt = std::abs(1.0f / m_Par[iP].At(itrack, 3, 0));
               tmpList.chi2 = m_Chi2(itrack, 0, 0) + chi2;
               tmpList.chi2_hit = chi2;
-              tmpList.score = getScoreStruct(tmpList);
+              tmpList.score = getScoreStruct(m_steering_params->m_track_scorer, tmpList);
               cloner.add_cand(m_SeedIdx(itrack, 0, 0) - offset, tmpList);
 
               dprint("  adding hit with hit_cnt=" << hit_cnt << " for trkIdx=" << tmpList.trkIdx
@@ -1266,6 +1327,13 @@ namespace mkfit {
         fake_hit_idx = Hit::kHitMaxClusterIdx;
       }
 
+      // PROP-FAIL-ENABLE The following to be enabled when propagation failure
+      // detection is properly implemented in propagate-to-R/Z.
+      // // Override for failed propagation, this trumps all other cases.
+      // if (m_XWsrResult[itrack].m_wsr == WSR_Failed) {
+      //   fake_hit_idx = Hit::kHitStopIdx;
+      // }
+
       IdxChi2List tmpList;
       tmpList.trkIdx = m_CandIdx(itrack, 0, 0);
       tmpList.hitIdx = fake_hit_idx;
@@ -1278,28 +1346,20 @@ namespace mkfit {
       tmpList.pt = std::abs(1.0f / m_Par[iP].At(itrack, 3, 0));
       tmpList.chi2 = m_Chi2(itrack, 0, 0);
       tmpList.chi2_hit = 0;
-      tmpList.score = getScoreStruct(tmpList);
+      tmpList.score = getScoreStruct(m_steering_params->m_track_scorer, tmpList);
       cloner.add_cand(m_SeedIdx(itrack, 0, 0) - offset, tmpList);
       dprint("adding invalid hit " << fake_hit_idx);
     }
   }
 
   //==============================================================================
-  // UpdateWithLastHit
+  // UpdateWithLoadedHit
   //==============================================================================
 
-  void MkFinder::updateWithLastHit(const LayerOfHits &layer_of_hits, int N_proc, const FindingFoos &fnd_foos) {
-    for (int i = 0; i < N_proc; ++i) {
-      const HitOnTrack &hot = m_LastHoT[i];
-
-      const Hit &hit = layer_of_hits.refHit(hot.index);
-
-      m_msErr.copyIn(i, hit.errArray());
-      m_msPar.copyIn(i, hit.posArray());
-    }
-
+  void MkFinder::updateWithLoadedHit(int N_proc, const FindingFoos &fnd_foos) {
     // See comment in MkBuilder::find_tracks_in_layer() about intra / inter flags used here
     // for propagation to the hit.
+    clearFailFlag();
     (*fnd_foos.m_update_param_foo)(m_Err[iP],
                                    m_Par[iP],
                                    m_Chg,
@@ -1307,9 +1367,20 @@ namespace mkfit {
                                    m_msPar,
                                    m_Err[iC],
                                    m_Par[iC],
+                                   m_FailFlag,
                                    N_proc,
                                    m_prop_config->finding_inter_layer_pflags,
                                    m_prop_config->finding_requires_propagation_to_hit_pos);
+
+    // PROP-FAIL-ENABLE The following to be enabled when propagation failure
+    // detection is properly implemented in propagate-to-R/Z.
+    // for (int i = 0; i < N_proc; ++i) {
+    //   if (m_FailFlag[i]) {
+    //     dprintf("MkFinder::updateWithLoadedHit fail in update, recovering.\n");
+    //     m_Err[iC].copySlot(i, m_Err[iP]);
+    //     m_Par[iC].copySlot(i, m_Par[iP]);
+    //   }
+    // }
   }
 
   //==============================================================================
@@ -1408,7 +1479,7 @@ namespace mkfit {
 
       trk.setChi2(m_Chi2(itrack, 0, 0));
       if (isFinite(trk.chi2())) {
-        trk.setScore(getScoreCand(trk));
+        trk.setScore(getScoreCand(m_steering_params->m_track_scorer, trk));
       }
     }
   }
@@ -1429,7 +1500,7 @@ namespace mkfit {
 
       trk.setChi2(m_Chi2(itrack, 0, 0));
       if (isFinite(trk.chi2())) {
-        trk.setScore(getScoreCand(trk));
+        trk.setScore(getScoreCand(m_steering_params->m_track_scorer, trk));
       }
     }
   }
@@ -1497,7 +1568,7 @@ namespace mkfit {
       if (LI.is_barrel()) {
         propagateTracksToHitR(m_msPar, N_proc, m_prop_config->backward_fit_pflags);
 
-        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params,
+        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
                         m_Err[iP],
                         m_Par[iP],
                         m_msErr,
@@ -1579,6 +1650,22 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
+  void MkFinder::print_par_err(int corp, int mslot) const {
+#ifdef DEBUG
+    printf("Parameters:\n");
+    for (int i = 0; i < 6; ++i) {
+      printf("  %12.4g", m_Par[corp].constAt(mslot, i, 0));
+    }
+    printf("\nError matrix\n");
+    for (int i = 0; i < 6; ++i) {
+      for (int j = 0; j < 6; ++j) {
+        printf("  %12.4g", m_Err[corp].constAt(mslot, i, j));
+      }
+      printf("\n");
+    }
+#endif
+  }
+
   void MkFinder::bkFitFitTracks(const EventOfHits &eventofhits,
                                 const SteeringParams &st_par,
                                 const int N_proc,
@@ -1589,10 +1676,18 @@ namespace mkfit {
     // Layers should be collected during track finding and list all layers that have actual hits.
     // Then we could avoid checking which layers actually do have hits.
 
+    // bool debug = true;
+
     MPlexQF tmp_chi2;
     MPlexQI no_mat_effs;
     float tmp_err[6] = {666, 0, 666, 0, 0, 666};
     float tmp_pos[3];
+
+#if defined(DEBUG_PROP_UPDATE)
+    const int DSLOT = 0;
+    printf("bkfit entry, track in slot %d\n", DSLOT);
+    print_par_err(iC, DSLOT);
+#endif
 
     for (auto lp_iter = st_par.make_iterator(SteeringParams::IT_BkwFit); lp_iter.is_valid(); ++lp_iter) {
       const int layer = lp_iter.layer();
@@ -1600,7 +1695,6 @@ namespace mkfit {
       const LayerOfHits &L = eventofhits[layer];
       const LayerInfo &LI = *L.layer_info();
 
-      // XXXX
 #if defined(DEBUG_BACKWARD_FIT)
       const Hit *last_hit_ptr[NN];
 #endif
@@ -1656,10 +1750,14 @@ namespace mkfit {
 
       // ZZZ Could add missing hits here, only if there are any actual matches.
 
+      clearFailFlag();
+
+      // PROP-FAIL-ENABLE Once always "copy input to output on fail" is removed from
+      // propagateToR one might want to enable this for barrel or endcap or both.
       if (LI.is_barrel()) {
         propagateTracksToHitR(m_msPar, N_proc, m_prop_config->backward_fit_pflags, &no_mat_effs);
 
-        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params,
+        kalmanOperation(KFO_Calculate_Chi2 | KFO_Update_Params | KFO_Local_Cov,
                         m_Err[iP],
                         m_Par[iP],
                         m_msErr,
@@ -1682,16 +1780,69 @@ namespace mkfit {
                               N_proc);
       }
 
-      //fixup invpt sign and charge
-      for (int n = 0; n < N_proc; ++n) {
-        if (m_Par[iC].At(n, 3, 0) < 0) {
-          m_Chg.At(n, 0, 0) = -m_Chg.At(n, 0, 0);
-          m_Par[iC].At(n, 3, 0) = -m_Par[iC].At(n, 3, 0);
+#if defined(DEBUG_PROP_UPDATE)
+      printf("\nbkfit at layer %d, track in slot %d -- fail=%d, had hit=%d (%g, %g, %g)\n",
+             LI.layer_id(),
+             DSLOT,
+             m_FailFlag[DSLOT],
+             1 - no_mat_effs[DSLOT],
+             m_msPar(DSLOT, 0, 0),
+             m_msPar(DSLOT, 1, 0),
+             m_msPar(DSLOT, 2, 0));
+      printf("Propagated:\n");
+      print_par_err(iP, DSLOT);
+      printf("Updated:\n");
+      print_par_err(iC, DSLOT);
+#endif
+
+      // Fixup for failed propagation or invpt sign and charge.
+      for (int i = 0; i < N_proc; ++i) {
+        // PROP-FAIL-ENABLE The following to be enabled when propagation failure
+        // detection is properly implemented in propagate-to-R/Z.
+        // 1. The following code was only expecting barrel state to be restored.
+        //      auto barrel_pf(m_prop_config->backward_fit_pflags);
+        //      barrel_pf.copy_input_state_on_fail = true;
+        // 2. There is also check on chi2, commented out to keep physics changes minimal.
+        /*
+        if (m_FailFlag[i] && LI.is_barrel()) {
+          // Barrel pflags are set to include PF_copy_input_state_on_fail.
+          // Endcap errors are immaterial here (relevant for fwd search), with prop error codes
+          // one could do other things.
+          // Are there also fail conditions in KalmanUpdate?
+#ifdef DEBUG
+          if (debug && g_debug) {
+            dprintf("MkFinder::bkFitFitTracks prop fail: chi2=%f, layer=%d, label=%d. Recovering.\n",
+                    tmp_chi2[i], LI.layer_id(), m_Label[i]);
+            print_par_err(iC, i);
+          }
+#endif
+          m_Err[iC].copySlot(i, m_Err[iP]);
+          m_Par[iC].copySlot(i, m_Par[iP]);
+        } else if (tmp_chi2[i] > 200 || tmp_chi2[i] < 0) {
+#ifdef DEBUG
+          if (debug && g_debug) {
+            dprintf("MkFinder::bkFitFitTracks chi2 fail: chi2=%f, layer=%d, label=%d. Recovering.\n",
+                    tmp_chi2[i], LI.layer_id(), m_Label[i]);
+            print_par_err(iC, i);
+          }
+#endif
+          // Go back to propagated state (at the current hit, the previous one is lost).
+          m_Err[iC].copySlot(i, m_Err[iP]);
+          m_Par[iC].copySlot(i, m_Par[iP]);
+        }
+        */
+        // Fixup invpt sign and charge.
+        if (m_Par[iC].At(i, 3, 0) < 0) {
+          m_Chg.At(i, 0, 0) = -m_Chg.At(i, 0, 0);
+          m_Par[iC].At(i, 3, 0) = -m_Par[iC].At(i, 3, 0);
         }
       }
 
-      for (int i = 0; i < N_proc; ++i) {
 #if defined(DEBUG_BACKWARD_FIT)
+      // clang-format off
+      bool debug = true;
+      const char beg_cur_sep = '/'; // set to ' ' root parsable printouts
+      for (int i = 0; i < N_proc; ++i) {
         if (chiDebug && last_hit_ptr[i]) {
           TrackCand &bb = *m_TrkCand[i];
           int ti = iP;
@@ -1701,43 +1852,40 @@ namespace mkfit {
 #if defined(MKFIT_STANDALONE)
           const MCHitInfo &mchi = m_event->simHitsInfo_[last_hit_ptr[i]->mcHitID()];
 
-          printf(
-              "BKF_OVERLAP %d %d %d %d %d %d %d "
-              "%f %f %f %f %d %d %d %d "
-              "%f %f %f %f %f\n",
+          dprintf("BKF_OVERLAP %d %d %d %d %d %d %d "
+                  "%f%c%f %f %f%c%f %f %f %f %d %d %d %d "
+                  "%f %f %f %f %f\n",
               m_event->evtID(),
 #else
-          printf(
-              "BKF_OVERLAP %d %d %d %d %d %d "
-              "%f %f %f %f %d %d %d "
-              "%f %f %f %f %f\n",
+          dprintf("BKF_OVERLAP %d %d %d %d %d %d "
+                  "%f%c%f %f %f%c%f %f %f %f %d %d %d "
+                  "%f %f %f %f %f\n",
 #endif
-              bb.label(),
-              (int)bb.prodType(),
-              bb.isFindable(),
-              layer,
-              L.is_stereo(),
-              L.is_barrel(),
-              bb.pT(),
+              bb.label(), (int)bb.prodType(), bb.isFindable(),
+              layer, L.is_stereo(), L.is_barrel(),
+              bb.pT(), beg_cur_sep, 1.0f / m_Par[ti].At(i, 3, 0),
               bb.posEta(),
-              bb.posPhi(),
+              bb.posPhi(), beg_cur_sep, std::atan2(m_Par[ti].At(i, 1, 0), m_Par[ti].At(i, 0, 0)),
+              std::hypot(m_Par[ti].At(i, 0, 0), m_Par[ti].At(i, 1, 0)),
+              m_Par[ti].At(i, 2, 0),
               chi_prnt,
-              std::isnan(chi),
-              std::isfinite(chi),
-              chi > 0,
+              std::isnan(chi), std::isfinite(chi), chi > 0,
 #if defined(MKFIT_STANDALONE)
               mchi.mcTrackID(),
 #endif
-              e2s(m_Err[ti].At(i, 0, 0)),
-              e2s(m_Err[ti].At(i, 1, 1)),
-              e2s(m_Err[ti].At(i, 2, 2)),  // sx_t sy_t sz_t -- track errors
+              // The following three can get negative / prouce nans in e2s.
+              // std::abs the args for FPE hunt.
+              e2s(std::abs(m_Err[ti].At(i, 0, 0))),
+              e2s(std::abs(m_Err[ti].At(i, 1, 1))),
+              e2s(std::abs(m_Err[ti].At(i, 2, 2))),  // sx_t sy_t sz_t -- track errors
               1e4f * std::hypot(m_msPar.At(i, 0, 0) - m_Par[ti].At(i, 0, 0),
                                 m_msPar.At(i, 1, 0) - m_Par[ti].At(i, 1, 0)),  // d_xy
               1e4f * (m_msPar.At(i, 2, 0) - m_Par[ti].At(i, 2, 0))             // d_z
           );
         }
-#endif
       }
+      // clang-format on
+#endif
 
       // update chi2
       m_Chi2.add(tmp_chi2);

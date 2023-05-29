@@ -17,12 +17,12 @@ DQMTauProducer::DQMTauProducer(const edm::ParameterSet& iConfig) {
 
 DQMTauProducer::~DQMTauProducer() {}
 
-void DQMTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
+void DQMTauProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iES) const {
   using namespace reco;
   using namespace edm;
   using namespace std;
 
-  HLTTauCollection* jetCollection = new HLTTauCollection;
+  auto jetCollection = std::make_unique<HLTTauCollection>();
 
   edm::Handle<IsolatedTauTagInfoCollection> tauL25Jets;
   iEvent.getByToken(trackIsolatedJets_, tauL25Jets);
@@ -55,7 +55,5 @@ void DQMTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
     jetCollection->push_back(pippo);
   }
 
-  std::unique_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
-
-  iEvent.put(std::move(selectedTaus));
+  iEvent.put(std::move(jetCollection));
 }

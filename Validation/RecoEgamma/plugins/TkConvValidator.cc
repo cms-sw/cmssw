@@ -1454,7 +1454,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     //////////////////Measure reco efficiencies
     // cout << " size of conversions " << convHandle->size() << endl;
     for (reco::ConversionCollection::const_iterator conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
-      const reco::Conversion aConv = (*conv);
+      const reco::Conversion& aConv = (*conv);
       if (arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged))
         continue;
       if (generalTracksOnly_ && !aConv.quality(reco::Conversion::generalTracksOnly))
@@ -1586,7 +1586,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   // ########################### RECO to SIM ############################## //
 
   for (reco::ConversionCollection::const_iterator conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
-    const reco::Conversion aConv = (*conv);
+    const reco::Conversion& aConv = (*conv);
     if (arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged))
       continue;
     if (generalTracksOnly_ && !aConv.quality(reco::Conversion::generalTracksOnly))

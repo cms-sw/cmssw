@@ -82,6 +82,8 @@ private:
   const double egammaPtCut;
   const double egammaEtaCut;
   const double egammaHoverECut;
+  const std::vector<double> egammaSigmaIEtaIEtaCut;
+  const std::vector<double> absEtaBinUpperEdges;
   const int mantissaPrecision;
   const bool saveRecHitTiming;
   const int rechitMatrixSize;

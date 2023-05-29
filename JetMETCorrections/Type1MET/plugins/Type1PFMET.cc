@@ -11,7 +11,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,12 +25,12 @@
 #include <memory>
 #include <cstring>
 
-class Type1PFMET : public edm::EDProducer {
+class Type1PFMET : public edm::global::EDProducer<> {
 public:
   explicit Type1PFMET(const edm::ParameterSet&);
   explicit Type1PFMET();
   ~Type1PFMET() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -47,7 +47,7 @@ private:
            double jetPTthreshold,
            double jetEMfracLimit,
            double jetMufracLimit,
-           reco::METCollection* corMET);
+           reco::METCollection* corMET) const;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -87,7 +87,7 @@ Type1PFMET::Type1PFMET() {}
 Type1PFMET::~Type1PFMET() {}
 
 // PRODUCER METHODS -----------------------------------------------
-void Type1PFMET::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void Type1PFMET::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   Handle<PFJetCollection> inputUncorJets;
   iEvent.getByToken(tokenUncorJets, inputUncorJets);
@@ -112,7 +112,7 @@ void Type1PFMET::run(const METCollection& uncorMET,
                      double jetPTthreshold,
                      double jetEMfracLimit,
                      double jetMufracLimit,
-                     METCollection* corMET) {
+                     METCollection* corMET) const {
   if (!corMET) {
     std::cerr << "Type1METAlgo_run-> undefined output MET collection. Stop. " << std::endl;
     return;

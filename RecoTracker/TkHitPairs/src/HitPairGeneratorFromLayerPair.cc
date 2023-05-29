@@ -73,27 +73,32 @@ namespace {
 
 }  // namespace
 
-void HitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region,
+bool HitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion& region,
                                              OrderedHitPairs& result,
                                              const edm::Event& iEvent,
                                              const edm::EventSetup& iSetup,
                                              Layers layers) {
   auto const& ds = doublets(region, iEvent, iSetup, layers);
-  for (std::size_t i = 0; i != ds.size(); ++i) {
-    result.push_back(OrderedHitPair(ds.hit(i, HitDoublets::inner), ds.hit(i, HitDoublets::outer)));
+  if (not ds) {
+    return false;
+  }
+  for (std::size_t i = 0; i != ds->size(); ++i) {
+    result.push_back(OrderedHitPair(ds->hit(i, HitDoublets::inner), ds->hit(i, HitDoublets::outer)));
   }
   if (theMaxElement != 0 && result.size() >= theMaxElement) {
     result.clear();
     edm::LogError("TooManyPairs") << "number of pairs exceed maximum, no pairs produced";
+    return false;
   }
+  return true;
 }
 
-HitDoublets HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
-                                                    const edm::Event& iEvent,
-                                                    const edm::EventSetup& iSetup,
-                                                    const Layer& innerLayer,
-                                                    const Layer& outerLayer,
-                                                    LayerCacheType& layerCache) {
+std::optional<HitDoublets> HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
+                                                                   const edm::Event& iEvent,
+                                                                   const edm::EventSetup& iSetup,
+                                                                   const Layer& innerLayer,
+                                                                   const Layer& outerLayer,
+                                                                   LayerCacheType& layerCache) {
   const RecHitsSortedInPhi& innerHitsMap = layerCache(innerLayer, region);
   if (innerHitsMap.empty())
     return HitDoublets(innerHitsMap, innerHitsMap);
@@ -105,20 +110,23 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region
   const auto& msmaker = iSetup.getData(theMSMakerToken);
   HitDoublets result(innerHitsMap, outerHitsMap);
   result.reserve(std::max(innerHitsMap.size(), outerHitsMap.size()));
-  doublets(region,
-           *innerLayer.detLayer(),
-           *outerLayer.detLayer(),
-           innerHitsMap,
-           outerHitsMap,
-           field,
-           msmaker,
-           theMaxElement,
-           result);
-
-  return result;
+  bool succeeded = doublets(region,
+                            *innerLayer.detLayer(),
+                            *outerLayer.detLayer(),
+                            innerHitsMap,
+                            outerHitsMap,
+                            field,
+                            msmaker,
+                            theMaxElement,
+                            result);
+  if (succeeded) {
+    return result;
+  } else {
+    return std::nullopt;
+  }
 }
 
-void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
+bool HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
                                              const DetLayer& innerHitDetLayer,
                                              const DetLayer& outerHitDetLayer,
                                              const RecHitsSortedInPhi& innerHitsMap,
@@ -188,7 +196,7 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
         if (theMaxElement != 0 && result.size() >= theMaxElement) {
           result.clear();
           edm::LogError("TooManyPairs") << "number of pairs exceed maximum, no pairs produced";
-          return;
+          return false;
         }
         result.add(b + i, io);
       }
@@ -196,4 +204,5 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
   }
   LogDebug("HitPairGeneratorFromLayerPair") << " total number of pairs provided back: " << result.size();
   result.shrink_to_fit();
+  return true;
 }

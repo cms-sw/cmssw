@@ -7,6 +7,7 @@ from L1Trigger.L1TNtuples.l1UpgradeTfMuonTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTfMuonShowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
 from L1Trigger.L1TNtuples.l1uGTTree_cfi import *
+from L1Trigger.L1TNtuples.l1uGTTestcrateTree_cfi import *
 from L1Trigger.L1TNtuples.l1HOTree_cfi import *
 
 # we don't have omtfDigis yet, use unpacked input payloads of GMT
@@ -22,6 +23,7 @@ L1NtupleRAW = cms.Sequence(
   +l1UpgradeTfMuonShowerTree
   +l1UpgradeTree
   +l1uGTTree
+  +l1uGTTestcrateTree
   +l1HOTree
 )
 

@@ -18,6 +18,7 @@ namespace ecaldqm {
     float expectedMean_;
     float toleranceLow_;
     float toleranceHigh_;
+    float toleranceHighFwd_;
     float toleranceRMS_;
     float toleranceRMSFwd_;
   };

@@ -1,5 +1,5 @@
-#ifndef PrimaryVertexValidation_h
-#define PrimaryVertexValidation_h
+#ifndef Alignment_OfflineValidation_PrimaryVertexValidation_h
+#define Alignment_OfflineValidation_PrimaryVertexValidation_h
 
 // system include files
 #include <string>

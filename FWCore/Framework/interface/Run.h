@@ -59,7 +59,7 @@ namespace edm {
 
     typedef PrincipalGetAdapter Base;
     // AUX functions are defined in RunBase
-    RunAuxiliary const& runAuxiliary() const override { return aux_; }
+    RunAuxiliary const& runAuxiliary() const final;
     // AUX functions.
     //     RunID const& id() const {return aux_.id();}
     //     RunNumber_t run() const {return aux_.run();}
@@ -159,7 +159,7 @@ namespace edm {
     // Override version from RunBase class
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                std::type_info const& iProductType,
-                               InputTag const& iTag) const override;
+                               InputTag const& iTag) const final;
 
     template <typename PROD>
     void putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);

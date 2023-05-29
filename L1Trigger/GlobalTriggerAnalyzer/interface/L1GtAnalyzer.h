@@ -29,7 +29,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,7 +44,7 @@
 
 // class declaration
 
-class L1GtAnalyzer : public edm::EDAnalyzer {
+class L1GtAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   explicit L1GtAnalyzer(const edm::ParameterSet&);
   ~L1GtAnalyzer() override;

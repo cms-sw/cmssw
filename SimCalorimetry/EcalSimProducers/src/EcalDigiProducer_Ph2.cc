@@ -4,6 +4,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentSimParameterMap.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalLiteDTUCoder.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -47,6 +48,9 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params,
   if (m_apdSeparateDigi)
     producesCollector.produces<EBDigiCollectionPh2>(m_apdDigiTag);
 
+  if (m_componentSeparateDigi)
+    producesCollector.produces<EBDigiCollectionPh2>(m_componentDigiTag);
+
   producesCollector.produces<EBDigiCollectionPh2>(m_EBdigiCollection);
 }
 
@@ -54,6 +58,7 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params,
 EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm::ConsumesCollector& iC)
     : DigiAccumulatorMixMod(),
       m_APDShape(iC),
+      m_ComponentShapes(iC),
       m_EBShape(iC),
 
       m_EBdigiCollection(params.getParameter<std::string>("EBdigiCollectionPh2")),
@@ -61,6 +66,7 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
       m_hitsProducerTag(params.getParameter<std::string>("hitsProducer")),
       m_useLCcorrection(params.getUntrackedParameter<bool>("UseLCcorrection")),
       m_apdSeparateDigi(params.getParameter<bool>("apdSeparateDigi")),
+      m_componentSeparateDigi(params.getParameter<bool>("componentSeparateDigi")),
 
       m_EBs25notCont(params.getParameter<double>("EBs25notContainment")),
 
@@ -88,22 +94,56 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
                                                          m_apdDigiTag,
                                                          params.getParameter<std::vector<double>>("apdNonlParms"))),
 
-      m_APDResponse(!m_apdSeparateDigi
-                        ? nullptr
-                        : std::make_unique<EBHitResponse_Ph2>(
-                              m_ParameterMap.get(), &m_EBShape, true, m_apdParameters.get(), &m_APDShape)),
+      m_componentDigiTag(params.getParameter<std::string>("componentDigiTag")),
+      m_componentParameters(
+          std::make_unique<ComponentSimParameterMap>(params.getParameter<bool>("componentAddToBarrel"),
+                                                     m_componentSeparateDigi,
+                                                     params.getParameter<double>("simHitToPhotoelectronsBarrel"),
+                                                     0,  // endcap parameters not needed
+                                                     params.getParameter<double>("photoelectronsToAnalogBarrel"),
+                                                     0,
+                                                     params.getParameter<double>("samplingFactor"),
+                                                     params.getParameter<double>("componentTimePhase"),
+                                                     m_readoutFrameSize,
+                                                     params.getParameter<int>("binOfMaximum"),
+                                                     params.getParameter<bool>("doPhotostatistics"),
+                                                     params.getParameter<bool>("syncPhase"))),
+
+      m_APDResponse(!m_apdSeparateDigi ? nullptr
+                                       : std::make_unique<EBHitResponse_Ph2>(m_ParameterMap.get(),
+                                                                             &m_EBShape,
+                                                                             true,
+                                                                             false,
+                                                                             m_apdParameters.get(),
+                                                                             &m_APDShape,
+                                                                             m_componentParameters.get(),
+                                                                             &m_ComponentShapes)),
+
+      m_ComponentResponse(!m_componentSeparateDigi ? nullptr
+                                                   : std::make_unique<EBHitResponse_Ph2>(m_ParameterMap.get(),
+                                                                                         &m_EBShape,
+                                                                                         false,
+                                                                                         true,
+                                                                                         m_apdParameters.get(),
+                                                                                         &m_APDShape,
+                                                                                         m_componentParameters.get(),
+                                                                                         &m_ComponentShapes)),
 
       m_EBResponse(std::make_unique<EBHitResponse_Ph2>(m_ParameterMap.get(),
                                                        &m_EBShape,
                                                        false,  // barrel
+                                                       false,  // not component-based
                                                        m_apdParameters.get(),
-                                                       &m_APDShape)),
+                                                       &m_APDShape,
+                                                       m_componentParameters.get(),
+                                                       &m_ComponentShapes)),
 
       m_PreMix1(params.getParameter<bool>("EcalPreMixStage1")),
       m_PreMix2(params.getParameter<bool>("EcalPreMixStage2")),
       m_HitsEBToken(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"))),
 
       m_APDDigitizer(nullptr),
+      m_ComponentDigitizer(nullptr),
       m_BarrelDigitizer(nullptr),
       m_ElectronicsSim(nullptr),
       m_Coder(nullptr),
@@ -167,6 +207,14 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
 
     m_APDDigitizer = std::make_unique<EBDigitizer_Ph2>(m_APDResponse.get(), m_APDElectronicsSim.get(), false);
   }
+  if (m_componentSeparateDigi) {
+    m_ComponentCoder =
+        std::make_unique<EcalLiteDTUCoder>(addNoise, m_PreMix1, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
+    m_ComponentElectronicsSim = std::make_unique<EcalElectronicsSim_Ph2>(
+        m_ParameterMap.get(), m_ComponentCoder.get(), applyConstantTerm, rmsConstantTerm);
+    m_ComponentDigitizer =
+        std::make_unique<EBDigitizer_Ph2>(m_ComponentResponse.get(), m_ComponentElectronicsSim.get(), addNoise);
+  }
 
   m_BarrelDigitizer = std::make_unique<EBDigitizer_Ph2>(m_EBResponse.get(), m_ElectronicsSim.get(), addNoise);
 }
@@ -184,6 +232,9 @@ void EcalDigiProducer_Ph2::initializeEvent(edm::Event const& event, edm::EventSe
   if (m_apdSeparateDigi) {
     m_APDDigitizer->initializeHits();
   }
+  if (m_componentSeparateDigi) {
+    m_ComponentDigitizer->initializeHits();
+  }
 }
 
 void EcalDigiProducer_Ph2::accumulateCaloHits(HitsHandle const& ebHandle, int bunchCrossing) {
@@ -193,6 +244,9 @@ void EcalDigiProducer_Ph2::accumulateCaloHits(HitsHandle const& ebHandle, int bu
     if (m_apdSeparateDigi) {
       m_APDDigitizer->add(*ebHandle.product(), bunchCrossing, randomEngine_);
     }
+    if (m_componentSeparateDigi) {
+      m_ComponentDigitizer->add(*ebHandle.product(), bunchCrossing, randomEngine_);
+    }
   }
 }
 
@@ -201,6 +255,7 @@ void EcalDigiProducer_Ph2::accumulate(edm::Event const& e, edm::EventSetup const
 
   m_EBShape.setEventSetup(eventSetup);
   m_APDShape.setEventSetup(eventSetup);
+  m_ComponentShapes.setEventSetup(eventSetup);
   const edm::Handle<std::vector<PCaloHit>>& ebHandle = e.getHandle(m_HitsEBToken);
 
   accumulateCaloHits(ebHandle, 0);
@@ -221,9 +276,13 @@ void EcalDigiProducer_Ph2::accumulate(PileUpEventPrincipal const& e,
 void EcalDigiProducer_Ph2::finalizeEvent(edm::Event& event, edm::EventSetup const& eventSetup) {
   // Step B: Create empty output
   std::unique_ptr<EBDigiCollectionPh2> apdResult(nullptr);
+  std::unique_ptr<EBDigiCollectionPh2> componentResult(nullptr);
   std::unique_ptr<EBDigiCollectionPh2> barrelResult = std::make_unique<EBDigiCollectionPh2>();
   if (m_apdSeparateDigi) {
     apdResult = std::make_unique<EBDigiCollectionPh2>();
+  }
+  if (m_componentSeparateDigi) {
+    componentResult = std::make_unique<EBDigiCollectionPh2>();
   }
   // run the algorithm
 
@@ -236,10 +295,17 @@ void EcalDigiProducer_Ph2::finalizeEvent(edm::Event& event, edm::EventSetup cons
     m_APDDigitizer->run(*apdResult, randomEngine_);
     edm::LogInfo("DigiInfo") << "APD Digis: " << apdResult->size();
   }
+  if (m_componentSeparateDigi) {
+    m_ComponentDigitizer->run(*componentResult, randomEngine_);
+    edm::LogInfo("DigiInfo") << "Component Digis: " << componentResult->size();
+  }
 
   // Step D: Put outputs into event
 
   event.put(std::move(barrelResult), m_EBdigiCollection);
+  if (m_componentSeparateDigi) {
+    event.put(std::move(componentResult), m_componentDigiTag);
+  }
 
   randomEngine_ = nullptr;  // to prevent access outside event
 }
@@ -255,6 +321,8 @@ void EcalDigiProducer_Ph2::beginLuminosityBlock(edm::LuminosityBlock const& lumi
 
   if (nullptr != m_APDResponse)
     m_APDResponse->initialize(engine);
+  if (nullptr != m_ComponentResponse)
+    m_ComponentResponse->initialize(engine);
   m_EBResponse->initialize(engine);
 }
 
@@ -265,6 +333,8 @@ void EcalDigiProducer_Ph2::checkCalibrations(const edm::Event& event, const edm:
   m_Coder->setPedestals(pedestals);
   if (nullptr != m_APDCoder)
     m_APDCoder->setPedestals(pedestals);
+  if (nullptr != m_ComponentCoder)
+    m_ComponentCoder->setPedestals(pedestals);
 
   // Ecal Intercalibration Constants
   auto ical = &eventSetup.getData(icalToken_);
@@ -272,10 +342,14 @@ void EcalDigiProducer_Ph2::checkCalibrations(const edm::Event& event, const edm:
   m_Coder->setIntercalibConstants(ical);
   if (nullptr != m_APDCoder)
     m_APDCoder->setIntercalibConstants(ical);
+  if (nullptr != m_ComponentCoder)
+    m_ComponentCoder->setIntercalibConstants(ical);
 
   m_EBResponse->setIntercal(ical);
   if (nullptr != m_APDResponse)
     m_APDResponse->setIntercal(ical);
+  if (nullptr != m_ComponentResponse)
+    m_ComponentResponse->setIntercal(ical);
 
   // Ecal LaserCorrection Constants
   auto laser = &eventSetup.getData(laserToken_);
@@ -291,6 +365,8 @@ void EcalDigiProducer_Ph2::checkCalibrations(const edm::Event& event, const edm:
   m_Coder->setGainRatios(ecalPh2::gains[0] / ecalPh2::gains[1]);
   if (nullptr != m_APDCoder)
     m_APDCoder->setGainRatios(ecalPh2::gains[0] / ecalPh2::gains[1]);
+  if (nullptr != m_ComponentCoder)
+    m_ComponentCoder->setGainRatios(ecalPh2::gains[0] / ecalPh2::gains[1]);
 
   const double EBscale((agc->getEBValue()) * ecalPh2::gains[1] * (ecalPh2::MAXADC)*m_EBs25notCont);
 
@@ -301,6 +377,8 @@ void EcalDigiProducer_Ph2::checkCalibrations(const edm::Event& event, const edm:
   m_Coder->setFullScaleEnergy(EBscale);
   if (nullptr != m_APDCoder)
     m_APDCoder->setFullScaleEnergy(EBscale);
+  if (nullptr != m_ComponentCoder)
+    m_ComponentCoder->setFullScaleEnergy(EBscale);
 }
 
 void EcalDigiProducer_Ph2::checkGeometry(const edm::EventSetup& eventSetup) {
@@ -317,6 +395,8 @@ void EcalDigiProducer_Ph2::checkGeometry(const edm::EventSetup& eventSetup) {
 void EcalDigiProducer_Ph2::updateGeometry() {
   if (nullptr != m_APDResponse)
     m_APDResponse->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
+  if (nullptr != m_ComponentResponse)
+    m_ComponentResponse->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
   m_EBResponse->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
 }
 

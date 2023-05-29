@@ -76,9 +76,9 @@ private:
   edm::EDGetToken tagAMC_;
   edm::EDGetToken tagAMC13_;
 
+  Bool_t bWarnedNotFound_;
+
   MonitorElement *h2AMC13Status_;
-  MonitorElement *h2AMCStatusPos_;
-  MonitorElement *h2AMCStatusNeg_;
 
   MEMap3Inf mapStatusOH_;
   MEMap3Inf mapStatusVFAT_;
@@ -100,9 +100,14 @@ private:
 
   std::string strFolderMain_;
 
+  Bool_t bFillAMC_;
+
   Int_t nBXMin_, nBXMax_;
 
   std::map<UInt_t, int> mapFEDIdToRe_;
+  std::map<UInt_t, int> mapFEDIdToSt_;
+  std::map<UInt_t, int> mapFEDIdToPosition_;
+  std::map<UInt_t, MonitorElement *> mapFEDIdToAMCStatus_;
   std::map<int, std::vector<GEMDetId>> mapAMC13ToListChamber_;
   std::map<std::tuple<int, int>, std::vector<GEMDetId>> mapAMCToListChamber_;
   Int_t nAMCSlots_;

@@ -814,7 +814,8 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
     reco::FormulaEvaluator f("-(-2.36997+0.413917*TMath::Log(208))/208");
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == -(-2.36997 + 0.413917 * std::log(208.)) / 208.);
+    auto value = f.evaluate(emptyV, emptyV);
+    CPPUNIT_ASSERT(std::abs(value - (-(-2.36997 + 0.413917 * std::log(208.)) / 208.)) / value < 5.0E-16);
   }
 
   {

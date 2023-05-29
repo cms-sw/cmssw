@@ -31,9 +31,6 @@
 <use name="Validation/HcalHits"/>
 <use name="Validation/HGCalValidation"/>
 <use name="geant4static"/>
+<use name="g4hepemstatic"/>
 <flags DROP_DEP="geant4core"/>
-<!-- Hack needed to avoid undefined variable in CLHEP -->
-<flags REM_CXXFLAGS="-Werror=unused-variable"/>
-<!-- Disable LTO in BigLibs, as it seems to clash with debugging symbols with gcc 4.9.X -->
-<flags REM_BIGOBJ_CXXFLAGS="-flto"/>
-<flags BIGOBJ_CXXFLAGS="-fno-lto"/>
+<flags DROP_DEP="g4hepemcore"/>

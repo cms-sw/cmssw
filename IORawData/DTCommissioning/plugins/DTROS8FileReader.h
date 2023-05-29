@@ -9,8 +9,8 @@
  *  \author M. Zanetti - INFN Padova
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include <IORawData/DTCommissioning/plugins/RawFile.h>
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "IORawData/DTCommissioning/plugins/RawFile.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -18,7 +18,7 @@
 
 #include <fstream>
 
-class DTROS8FileReader : public edm::EDProducer {
+class DTROS8FileReader : public edm::one::EDProducer<> {
 public:
   /// Constructor
   DTROS8FileReader(const edm::ParameterSet& pset);

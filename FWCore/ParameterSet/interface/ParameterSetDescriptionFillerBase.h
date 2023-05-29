@@ -30,9 +30,6 @@ and query the component for its allowed ParameterSetDescription.
 #include <string>
 
 namespace edm {
-  class EDProducer;
-  class EDFilter;
-  class EDAnalyzer;
 
   namespace one {
     class EDProducerBase;
@@ -78,12 +75,13 @@ namespace edm {
 
     // ---------- member functions ---------------------------
 
-  protected:
-    static const std::string kEmpty;
-    static const std::string kBaseForService;
     static const std::string kBaseForESSource;
     static const std::string kBaseForESProducer;
     static const std::string kBaseForEDLooper;
+
+  protected:
+    static const std::string kEmpty;
+    static const std::string kBaseForService;
     static const std::string kExtendedBaseForEDAnalyzer;
     static const std::string kExtendedBaseForEDProducer;
     static const std::string kExtendedBaseForEDFilter;
@@ -103,9 +101,6 @@ namespace edm {
     static const std::string kExtendedBaseForLimitedEDFilter;
     static const std::string kExtendedBaseForLimitedOutputModule;
 
-    static const std::string& extendedBaseType(EDAnalyzer const*) { return kExtendedBaseForEDAnalyzer; }
-    static const std::string& extendedBaseType(EDProducer const*) { return kExtendedBaseForEDProducer; }
-    static const std::string& extendedBaseType(EDFilter const*) { return kExtendedBaseForEDFilter; }
     static const std::string& extendedBaseType(one::EDAnalyzerBase const*) { return kExtendedBaseForOneEDAnalyzer; }
     static const std::string& extendedBaseType(one::EDProducerBase const*) { return kExtendedBaseForOneEDProducer; }
     static const std::string& extendedBaseType(one::EDFilterBase const*) { return kExtendedBaseForOneEDFilter; }

@@ -1,18 +1,22 @@
 <use name="HeterogeneousCore/CUDAUtilities"/>
 
-<bin file="TrackSoAHeterogeneous_t.cpp">
-  <use name="eigen"/>
-  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
-</bin>
+<use name="CUDADataFormats/Track"/>
 
 <bin file="TrajectoryStateSOA_t.cpp" name="cpuTrajectoryStateSOA_t">
-  <use name="eigen"/>
-  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
-</bin>
-
-<bin file="TrajectoryStateSOA_t.cu" name="gpuTrajectoryStateSOA_t">
   <use name="eigen"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
 </bin>
-
+<iftool name="cuda-gcc-support">
+  <bin file="TrackSoAHeterogeneous_test.cpp TrackSoAHeterogeneous_test.cu" name="TrackSoAHeterogeneous_test">
+	<use name="eigen"/>
+	<flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+	<flags CXXFLAGS="-g -DGPU_DEBUG"/>
+  </bin>
+  <bin file="TrajectoryStateSOA_t.cu" name="gpuTrajectoryStateSOA_t">
+	<use name="eigen"/>	
+	<flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+	<flags CXXFLAGS="-g -DGPU_DEBUG"/>	
+  </bin>
+  
+</iftool>

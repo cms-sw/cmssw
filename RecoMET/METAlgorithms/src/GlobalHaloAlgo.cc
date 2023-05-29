@@ -147,9 +147,6 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   // Container to store Ecal/Hcal iPhi values matched to impact point of CSC tracks
   std::vector<int> vEcaliPhi, vHcaliPhi;
 
-  // Keep track of number of calo pointing CSC halo tracks that do not match to Phi wedges
-  int N_Unmatched_Tracks = 0;
-
   for (std::vector<GlobalPoint>::iterator Pos = TheGlobalPositions.begin(); Pos != TheGlobalPositions.end(); Pos++) {
     // Calculate global phi coordinate for central most rechit in the track
     float global_phi = Pos->phi();
@@ -158,7 +155,6 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
     // Convert global phi to iPhi
     int global_EcaliPhi = Phi_To_EcaliPhi(global_phi);
     int global_HcaliPhi = Phi_To_HcaliPhi(global_phi);
-    bool MATCHED = false;
 
     //Loop over Ecal Phi Wedges
     for (std::vector<PhiWedge>::iterator iWedge = EcalWedges.begin(); iWedge != EcalWedges.end(); iWedge++) {
@@ -175,7 +171,6 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
           vEcaliPhi.push_back(iWedge->iPhi());
           TheGlobalHaloData.GetMatchedEcalPhiWedges().push_back(NewWedge);
         }
-        MATCHED = true;
       }
     }
     //Loop over Hcal Phi Wedges
@@ -194,11 +189,8 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
           PhiWedge wedge(*iWedge);
           TheGlobalHaloData.GetMatchedHcalPhiWedges().push_back(NewWedge);
         }
-        MATCHED = true;
       }
     }
-    if (!MATCHED)
-      N_Unmatched_Tracks++;
   }
 
   // Corrections to MEx, MEy

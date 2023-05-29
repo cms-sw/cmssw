@@ -2,11 +2,5 @@
 <use name="roothistmatrix"/>
 <use name="protobuf"/>
 <use name="cppunit"/>
-<environment>
-  <bin name="runFastHadd" file="runFastHadd.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash DQMServices/Components/test run_fastHadd_tests.sh"/>
-  </bin>
-
-</environment>
-<bin file="testSchemaEvolution.cpp">
-</bin>
+<test name="runFastHadd" command="run_fastHadd_tests.sh"/>
+<bin file="testSchemaEvolution.cpp"/>

@@ -6,6 +6,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <memory>
 
@@ -16,7 +17,7 @@ class MuonGeometryRecord;
 
 class DTSegtoRPC {
 public:
-  explicit DTSegtoRPC(edm::ConsumesCollector iC);
+  explicit DTSegtoRPC(edm::ConsumesCollector iC, const edm::ParameterSet&);
   std::unique_ptr<RPCRecHitCollection> thePoints(DTRecSegment4DCollection const* all4DSegments,
                                                  edm::EventSetup const& iSetup,
                                                  bool debug,
@@ -33,6 +34,8 @@ private:
   double MaxD;
   double MaxDrb4;
   double MaxDistanceBetweenSegments;
+  int minPhiBX;
+  int maxPhiBX;
 };
 
 #endif

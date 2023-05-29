@@ -12,6 +12,7 @@
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
@@ -34,6 +35,7 @@ namespace l1t {
             EMTFHits_ZS_(new EMTFHitCollection()),
             EMTFTracks_(new EMTFTrackCollection()),
             EMTFLCTs_(new CSCCorrelatedLCTDigiCollection()),
+            EMTFCSCShowers_(new CSCShowerDigiCollection()),
             EMTFCPPFs_(new CPPFDigiCollection()),
             EMTFCPPFs_ZS_(new CPPFDigiCollection()),
             EMTFGEMPadClusters_(std::make_unique<GEMPadDigiClusterCollection>()),
@@ -48,6 +50,7 @@ namespace l1t {
       inline EMTFHitCollection* getEMTFHits_ZS() { return EMTFHits_ZS_.get(); }
       inline EMTFTrackCollection* getEMTFTracks() { return EMTFTracks_.get(); }
       inline CSCCorrelatedLCTDigiCollection* getEMTFLCTs() { return EMTFLCTs_.get(); }
+      inline CSCShowerDigiCollection* getEMTFCSCShowers() { return EMTFCSCShowers_.get(); }
       inline CPPFDigiCollection* getEMTFCPPFs() { return EMTFCPPFs_.get(); }
       inline CPPFDigiCollection* getEMTFCPPFs_ZS() { return EMTFCPPFs_ZS_.get(); }
       inline GEMPadDigiClusterCollection* getEMTFGEMPadClusters() { return EMTFGEMPadClusters_.get(); }
@@ -61,6 +64,7 @@ namespace l1t {
       std::unique_ptr<EMTFHitCollection> EMTFHits_ZS_;
       std::unique_ptr<EMTFTrackCollection> EMTFTracks_;
       std::unique_ptr<CSCCorrelatedLCTDigiCollection> EMTFLCTs_;
+      std::unique_ptr<CSCShowerDigiCollection> EMTFCSCShowers_;
       std::unique_ptr<CPPFDigiCollection> EMTFCPPFs_;
       std::unique_ptr<CPPFDigiCollection> EMTFCPPFs_ZS_;
       std::unique_ptr<GEMPadDigiClusterCollection> EMTFGEMPadClusters_;

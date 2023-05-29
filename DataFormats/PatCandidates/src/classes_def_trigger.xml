@@ -58,7 +58,8 @@
   <class name="pat::TriggerFilterRefVector" />
   <class name="pat::TriggerFilterRefVectorIterator" />
 
-  <class name="pat::TriggerPath"  ClassVersion="10">
+  <class name="pat::TriggerPath"  ClassVersion="11">
+   <version ClassVersion="11" checksum="565824196"/>
    <version ClassVersion="10" checksum="2458567651"/>
   </class>
   <class name="std::vector&lt;pat::TriggerPath&gt;" />
@@ -103,7 +104,8 @@
   </class>
   <class name="edm::Wrapper&lt;pat::TriggerEvent&gt;" />
 
-  <class name="pat::PackedTriggerPrescales"  ClassVersion="10">
+  <class name="pat::PackedTriggerPrescales"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3391959050"/>
    <version ClassVersion="10" checksum="2688342584"/>
    <field name="triggerNames_" transient="true" />
   </class>

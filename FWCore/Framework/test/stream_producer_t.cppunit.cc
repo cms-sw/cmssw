@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -125,16 +126,11 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     edm::ServiceToken token;
     iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(*e);
-    }
+    task.wait();
   }
 
   template <typename T>
@@ -410,8 +406,8 @@ testStreamProducer::testStreamProducer()
 
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
-  m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_rp.reset(new edm::RunPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_rp->setAux(edm::RunAuxiliary(eventID.run(), now, now));
   auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
   m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
   m_lbp->setAux(*lumiAux);
@@ -438,26 +434,34 @@ testStreamProducer::testStreamProducer()
 
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext parentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext parentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
@@ -473,26 +477,34 @@ testStreamProducer::testStreamProducer()
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext parentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
 
   m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext parentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };

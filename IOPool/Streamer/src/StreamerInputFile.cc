@@ -20,11 +20,13 @@ namespace edm {
 
   StreamerInputFile::StreamerInputFile(std::string const& name,
                                        std::string const& LFN,
-                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID,
+                                       unsigned int prefetchMBytes)
       : startMsg_(),
         currentEvMsg_(),
         headerBuf_(1000 * 1000),
         eventBuf_(1000 * 1000 * 7),
+        tempBuf_(1024 * 1024 * prefetchMBytes),
         currentFile_(0),
         streamerNames_(),
         multiStreams_(false),
@@ -40,15 +42,19 @@ namespace edm {
     readStartMessage();
   }
 
-  StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID)
-      : StreamerInputFile(name, name, eventSkipperByID) {}
+  StreamerInputFile::StreamerInputFile(std::string const& name,
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID,
+                                       unsigned int prefetchMBytes)
+      : StreamerInputFile(name, name, eventSkipperByID, prefetchMBytes) {}
 
   StreamerInputFile::StreamerInputFile(std::vector<FileCatalogItem> const& names,
-                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID,
+                                       unsigned int prefetchMBytes)
       : startMsg_(),
         currentEvMsg_(),
         headerBuf_(1000 * 1000),
         eventBuf_(1000 * 1000 * 7),
+        tempBuf_(1024 * 1024 * prefetchMBytes),
         currentFile_(0),
         streamerNames_(names),
         multiStreams_(true),
@@ -111,16 +117,50 @@ namespace edm {
     currentFileOpen_ = false;
   }
 
-  storage::IOSize StreamerInputFile::readBytes(char* buf, storage::IOSize nBytes) {
+  std::pair<storage::IOSize, char*> StreamerInputFile::readBytes(char* buf,
+                                                                 storage::IOSize nBytes,
+                                                                 bool zeroCopy,
+                                                                 unsigned int skippedHdr) {
     storage::IOSize n = 0;
+    //returned pointer should point to the beginning of the header
+    //even if we read event payload that comes afterwards
+    char* ptr = buf - skippedHdr;
     try {
-      n = storage_->read(buf, nBytes);
+      if (!tempBuf_.empty()) {
+        if (tempPos_ == tempLen_) {
+          n = storage_->read(&tempBuf_[0], tempBuf_.size());
+          tempPos_ = 0;
+          tempLen_ = n;
+          if (n == 0)
+            return std::pair<storage::IOSize, char*>(0, ptr);
+        }
+        if (nBytes <= tempLen_ - tempPos_) {
+          //zero-copy can't done when header start address is in the previous buffer
+          if (!zeroCopy || skippedHdr > tempPos_) {
+            memcpy(buf, &tempBuf_[0] + tempPos_, nBytes);
+            tempPos_ += nBytes;
+          } else {
+            //pass pointer to the prebuffer address (zero copy) at the beginning of the header
+            ptr = &tempBuf_[0] + tempPos_ - skippedHdr;
+            tempPos_ += nBytes;
+          }
+          n = nBytes;
+        } else {
+          //crossing buffer boundary
+          auto len = tempLen_ - tempPos_;
+          memcpy(buf, &tempBuf_[0] + tempPos_, len);
+          tempPos_ += len;
+          char* tmpPtr = buf + len;
+          n = len + readBytes(tmpPtr, nBytes - len, false).first;
+        }
+      } else
+        n = storage_->read(buf, nBytes);
     } catch (cms::Exception& ce) {
       Exception ex(errors::FileReadError, "", ce);
       ex.addContext("Calling StreamerInputFile::readBytes()");
       throw ex;
     }
-    return n;
+    return std::pair<storage::IOSize, char*>(n, ptr);
   }
 
   storage::IOOffset StreamerInputFile::skipBytes(storage::IOSize nBytes) {
@@ -139,39 +179,41 @@ namespace edm {
 
   void StreamerInputFile::readStartMessage() {
     using namespace edm::storage;
-    IOSize nWant = sizeof(HeaderView);
-    IOSize nGot = readBytes(&headerBuf_[0], nWant);
+    IOSize nWant = sizeof(InitHeader);
+    IOSize nGot = readBytes(&headerBuf_[0], nWant, false).first;
     if (nGot != nWant) {
       throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
           << "Failed reading streamer file, first read in readStartMessage\n";
     }
 
-    HeaderView head(&headerBuf_[0]);
-    uint32 code = head.code();
-    if (code != Header::INIT) /** Not an init message should return ******/
+    uint32 headerSize;
     {
-      throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
-          << "Expecting an init Message at start of file\n";
-      return;
+      HeaderView head(&headerBuf_[0]);
+      uint32 code = head.code();
+      if (code != Header::INIT) /** Not an init message should return ******/
+      {
+        throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
+            << "Expecting an init Message at start of file\n";
+        return;
+      }
+      headerSize = head.size();
     }
 
-    uint32 headerSize = head.size();
     if (headerBuf_.size() < headerSize)
       headerBuf_.resize(headerSize);
 
-    if (headerSize > sizeof(HeaderView)) {
-      nWant = headerSize - sizeof(HeaderView);
-      nGot = readBytes(&headerBuf_[sizeof(HeaderView)], nWant);
-      if (nGot != nWant) {
+    if (headerSize > sizeof(InitHeader)) {
+      nWant = headerSize - sizeof(InitHeader);
+      auto res = readBytes(&headerBuf_[sizeof(InitHeader)], nWant, true, sizeof(InitHeader));
+      if (res.first != nWant) {
         throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
             << "Failed reading streamer file, second read in readStartMessage\n";
       }
+      startMsg_ = std::make_shared<InitMsgView>(res.second);  // propagate_const<T> has no reset() function
     } else {
       throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
           << "Failed reading streamer file, init header size from data too small\n";
     }
-
-    startMsg_ = std::make_shared<InitMsgView>(&headerBuf_[0]);  // propagate_const<T> has no reset() function
   }
 
   StreamerInputFile::Next StreamerInputFile::next() {
@@ -228,29 +270,76 @@ namespace edm {
 
     using namespace edm::storage;
     bool eventRead = false;
+    unsigned hdrSkipped = 0;
     while (!eventRead) {
       IOSize nWant = sizeof(EventHeader);
-      IOSize nGot = readBytes(&eventBuf_[0], nWant);
+      IOSize nGot = readBytes(&eventBuf_[hdrSkipped], nWant - hdrSkipped, false).first + hdrSkipped;
+      while (nGot == nWant) {
+        //allow padding before next event or end of file.
+        //event header starts with code 0 - 17, so 0xff (Header:PADDING) uniquely represents padding
+        bool headerFetched = false;
+        for (size_t i = 0; i < nGot; i++) {
+          if ((unsigned char)eventBuf_[i] != Header::PADDING) {
+            //no padding 0xff
+            if (i != 0) {
+              memmove(&eventBuf_[0], &eventBuf_[i], nGot - i);
+              //read remainder of the header
+              nGot = nGot - i + readBytes(&eventBuf_[nGot - i], i, false).first;
+            }
+            headerFetched = true;
+            break;
+          }
+        }
+        if (headerFetched)
+          break;
+        //read another block
+        nGot = readBytes(&eventBuf_[0], nWant, false).first;
+      }
       if (nGot == 0) {
         // no more data available
         endOfFile_ = true;
         return 0;
       }
       if (nGot != nWant) {
-        throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
-            << "Failed reading streamer file, first read in readEventMessage\n"
-            << "Requested " << nWant << " bytes, read function returned " << nGot << " bytes\n";
+        for (size_t i = 0; i < nGot; i++) {
+          if ((unsigned char)eventBuf_[i] != Header::PADDING)
+            throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
+                << "Failed reading streamer file, first read in readEventMessage\n"
+                << "Requested " << nWant << " bytes, read function returned " << nGot
+                << " bytes, non-padding at offset " << i;
+        }
+        //padded 0xff only
+        endOfFile_ = true;
+        return 0;
       }
-      HeaderView head(&eventBuf_[0]);
-      uint32 code = head.code();
+      uint32 eventSize;
+      {
+        HeaderView head(&eventBuf_[0]);
+        uint32 code = head.code();
 
-      // If it is not an event then something is wrong.
-      if (code != Header::EVENT) {
-        throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
-            << "Failed reading streamer file, unknown code in event header\n"
-            << "code = " << code << "\n";
+        // If it is not an event then something is wrong.
+        eventSize = head.size();
+        if (code != Header::EVENT) {
+          if (code == Header::INIT) {
+            edm::LogWarning("StreamerInputFile") << "Found another INIT header in the file. It will be skipped";
+            if (eventSize < sizeof(EventHeader)) {
+              //very unlikely case that EventHeader is larger than total INIT size inserted in the middle of the file
+              hdrSkipped = nGot - eventSize;
+              memmove(&eventBuf_[0], &eventBuf_[eventSize], hdrSkipped);
+              continue;
+            }
+            if (headerBuf_.size() < eventSize)
+              headerBuf_.resize(eventSize);
+            memcpy(&headerBuf_[0], &eventBuf_[0], nGot);
+            readBytes(&headerBuf_[nGot], eventSize, true, nGot);
+            //do not parse this header and proceed to the next event
+            continue;
+          }
+          throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
+              << "Failed reading streamer file, unknown code in event header\n"
+              << "code = " << code << "\n";
+        }
       }
-      uint32 eventSize = head.size();
       if (eventSize <= sizeof(EventHeader)) {
         throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
             << "Failed reading streamer file, event header size from data too small\n";
@@ -266,12 +355,15 @@ namespace edm {
       if (eventRead) {
         if (eventBuf_.size() < eventSize)
           eventBuf_.resize(eventSize);
-        nGot = readBytes(&eventBuf_[sizeof(EventHeader)], nWant);
-        if (nGot != nWant) {
+
+        auto res = readBytes(&eventBuf_[sizeof(EventHeader)], nWant, true, sizeof(EventHeader));
+        if (res.first != nWant) {
           throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
               << "Failed reading streamer file, second read in readEventMessage\n"
-              << "Requested " << nWant << " bytes, read function returned " << nGot << " bytes\n";
+              << "Requested " << nWant << " bytes, read function returned " << res.first << " bytes\n";
         }
+        currentEvMsg_ =
+            std::make_shared<EventMsgView>((void*)res.second);  // propagate_const<T> has no reset() function
       } else {
         nGot = skipBytes(nWant);
         if (nGot != nWant) {
@@ -281,7 +373,6 @@ namespace edm {
         }
       }
     }
-    currentEvMsg_ = std::make_shared<EventMsgView>((void*)&eventBuf_[0]);  // propagate_const<T> has no reset() function
     return 1;
   }
 

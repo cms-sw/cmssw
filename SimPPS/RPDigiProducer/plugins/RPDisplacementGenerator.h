@@ -6,11 +6,6 @@
 #include <Math/Rotation3D.h>
 #include <map>
 
-namespace edm {
-  class ParameterSet;
-  class EventSetup;
-}  // namespace edm
-
 class PSimHit;
 
 /**
@@ -22,16 +17,21 @@ class PSimHit;
  *
  * PSimHit points are given in the "local Det frame" (PSimHit.h)
  */
+class CTPPSRPAlignmentCorrectionsData;
+class CTPPSGeometry;
 
 class RPDisplacementGenerator {
 public:
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
-  RPDisplacementGenerator(const edm::ParameterSet &, RPDetId, const edm::EventSetup &);
+  RPDisplacementGenerator(bool iIsOn,
+                          RPDetId,
+                          const CTPPSRPAlignmentCorrectionsData* alignments,
+                          const CTPPSGeometry& geom);
 
   /// returns displaced PSimHit
-  PSimHit displace(const PSimHit &);
+  PSimHit displace(const PSimHit&);
 
   static uint32_t rawToDecId(uint32_t raw);
 
@@ -47,7 +47,7 @@ private:
   bool isOn_;
 
   /// displaces a point
-  Local3DPoint displacePoint(const Local3DPoint &);
+  Local3DPoint displacePoint(const Local3DPoint&);
 };
 
 #endif

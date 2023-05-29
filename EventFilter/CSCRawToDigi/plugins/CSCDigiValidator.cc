@@ -13,7 +13,7 @@
 
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,7 +45,7 @@ class CSCCorrelatedLCTDigi;
 class CSCDetId;
 class CSCChamberMap;
 
-class CSCDigiValidator : public edm::EDFilter {
+class CSCDigiValidator : public edm::one::EDFilter<> {
 public:
   explicit CSCDigiValidator(const edm::ParameterSet&);
   ~CSCDigiValidator() override;

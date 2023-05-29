@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@
 // class declaration
 //
 
-class HLTLevel1Pattern : public edm::EDFilter {
+class HLTLevel1Pattern : public edm::stream::EDFilter<> {
 public:
   explicit HLTLevel1Pattern(const edm::ParameterSet&);
   ~HLTLevel1Pattern() override;
@@ -41,18 +41,18 @@ public:
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::InputTag m_gtReadoutRecord;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutRecordToken;
-  std::string m_triggerBit;
-  std::vector<int> m_bunchCrossings;
+  const edm::InputTag m_gtReadoutRecord;
+  const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutRecordToken;
+  const std::string m_triggerBit;
+  const std::vector<int> m_bunchCrossings;
   std::vector<int> m_triggerPattern;
-  unsigned int m_daqPartitions;
+  const unsigned int m_daqPartitions;
   unsigned int m_triggerNumber;
   bool m_triggerAlgo;
   bool m_triggerMasked;
-  bool m_ignoreL1Mask;
-  bool m_invert;
-  bool m_throw;
+  const bool m_ignoreL1Mask;
+  const bool m_invert;
+  const bool m_throw;
 
   edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> const m_l1GtTriggerMenuToken;
   edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> const m_l1GtTriggerMaskAlgoTrigRcdToken;
@@ -73,6 +73,7 @@ private:
 //
 HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet& config)
     : m_gtReadoutRecord(config.getParameter<edm::InputTag>("L1GtReadoutRecordTag")),
+      m_gtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecord)),
       m_triggerBit(config.getParameter<std::string>("triggerBit")),
       m_bunchCrossings(config.getParameter<std::vector<int> >("bunchCrossings")),
       m_triggerPattern(m_bunchCrossings.size(), false),
@@ -86,7 +87,6 @@ HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet& config)
       m_l1GtTriggerMenuToken(esConsumes()),
       m_l1GtTriggerMaskAlgoTrigRcdToken(esConsumes()),
       m_l1GtTriggerMaskTechTrigRcdToken(esConsumes()) {
-  m_gtReadoutRecordToken = consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecord);
   std::vector<int> pattern(config.getParameter<std::vector<int> >("triggerPattern"));
   if (pattern.size() != m_bunchCrossings.size())
     throw cms::Exception("Configuration") << "\"bunchCrossings\" and \"triggerPattern\" parameters do not match";

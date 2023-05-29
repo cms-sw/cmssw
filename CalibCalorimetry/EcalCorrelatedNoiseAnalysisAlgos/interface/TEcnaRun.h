@@ -614,10 +614,10 @@ public:
   void HighFrequencyMeanCorrelationsBetweenStins();
 
   //...................................... ROOT file methods
-  TString GetRootFileName();
-  TString GetRootFileNameShort();
-  TString GetNewRootFileName();
-  TString GetNewRootFileNameShort();
+  const TString& GetRootFileName() const;
+  const TString& GetRootFileNameShort() const;
+  const TString& GetNewRootFileName() const;
+  const TString& GetNewRootFileNameShort() const;
 
   Bool_t WriteRootFile();
   Bool_t WriteNewRootFile(const TString&);

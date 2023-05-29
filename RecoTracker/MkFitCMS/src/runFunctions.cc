@@ -38,15 +38,15 @@ namespace mkfit {
                         bool do_remove_duplicates) {
     IterationMaskIfcCmssw it_mask_ifc(trackerInfo, hit_masks);
 
-    MkJob job({trackerInfo, itconf, eoh, &it_mask_ifc});
+    MkJob job({trackerInfo, itconf, eoh, eoh.refBeamSpot(), &it_mask_ifc});
 
     builder.begin_event(&job, nullptr, __func__);
 
-    if (do_seed_clean) {
-      // Seed cleaning not done on pixelLess / tobTec iters
-      if (itconf.m_requires_dupclean_tight)
-        StdSeq::clean_cms_seedtracks_iter(&seeds, itconf, eoh.refBeamSpot());
-    }
+    // Seed cleaning not done on all iterations.
+    do_seed_clean = do_seed_clean && itconf.m_seed_cleaner;
+
+    if (do_seed_clean)
+      itconf.m_seed_cleaner(seeds, itconf, eoh.refBeamSpot());
 
     // Check nans in seeds -- this should not be needed when Slava fixes
     // the track parameter coordinate transformation.
@@ -61,18 +61,21 @@ namespace mkfit {
 
     builder.findTracksCloneEngine();
 
-    using Algo = TrackBase::TrackAlgorithm;
-    if (itconf.m_requires_quality_filter && Algo(itconf.m_track_algorithm) != Algo::detachedTripletStep) {
-      if (Algo(itconf.m_track_algorithm) == Algo::pixelPairStep) {
-        builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_n_hits_pixseed(t, 3); });
-      } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-        builder.filter_comb_cands(
-            [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessFwd(t, eoh.refBeamSpot(), trackerInfo); });
-      } else {
-        builder.filter_comb_cands(
-            [&](const TrackCand &t) { return StdSeq::qfilter_n_hits(t, itconf.m_params.minHitsQF); });
-      }
-    }
+    // Pre backward-fit filtering.
+    filter_candidates_func pre_filter;
+    if (do_backward_fit && itconf.m_pre_bkfit_filter)
+      pre_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+        return itconf.m_pre_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+      };
+    else if (itconf.m_pre_bkfit_filter)
+      pre_filter = itconf.m_pre_bkfit_filter;
+    else if (do_backward_fit)
+      pre_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+    // pre_filter can be null if we are not doing backward fit as nan_n_silly will be run below.
+    if (pre_filter)
+      builder.filter_comb_cands(pre_filter, true);
+
+    job.switch_to_backward();
 
     if (do_backward_fit) {
       if (itconf.m_backward_search) {
@@ -84,27 +87,27 @@ namespace mkfit {
       if (itconf.m_backward_search) {
         builder.beginBkwSearch();
         builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
-        builder.endBkwSearch();
-      }
-
-      if (itconf.m_requires_quality_filter && (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep ||
-                                               Algo(itconf.m_track_algorithm) == Algo::pixelLessStep)) {
-        if (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep) {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_n_layers(t, eoh.refBeamSpot(), trackerInfo); });
-        } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
-          builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessBkwd(t, eoh.refBeamSpot(), trackerInfo); });
-        }
       }
     }
 
-    builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_nan_n_silly(t); });
+    // Post backward-fit filtering.
+    filter_candidates_func post_filter;
+    if (do_backward_fit && itconf.m_post_bkfit_filter)
+      post_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+        return itconf.m_post_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+      };
+    else
+      post_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+    // post_filter is always at least doing nan_n_silly filter.
+    builder.filter_comb_cands(post_filter, true);
+
+    if (do_backward_fit && itconf.m_backward_search)
+      builder.endBkwSearch();
 
     builder.export_best_comb_cands(out_tracks, true);
 
-    if (do_remove_duplicates) {
-      StdSeq::find_and_remove_duplicates(out_tracks, itconf);
+    if (do_remove_duplicates && itconf.m_duplicate_cleaner) {
+      itconf.m_duplicate_cleaner(out_tracks, itconf);
     }
 
     builder.end_event();

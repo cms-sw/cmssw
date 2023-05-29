@@ -202,8 +202,7 @@ namespace tmtt {
       // Get Kalman encoded layer ID for this stub.
       int kalmanLay = this->kalmanLayer(etaReg, stub->layerIdReduced(), stub->barrel(), stub->r(), stub->z());
 
-      constexpr unsigned int invalidKFlayer = 7;
-      if (kalmanLay != invalidKFlayer) {
+      if (kalmanLay != invalidKFlayer_) {
         if (layerStubs[kalmanLay].size() < settings_->kalmanMaxStubsPerLayer()) {
           layerStubs[kalmanLay].push_back(stub);
         } else {
@@ -218,8 +217,6 @@ namespace tmtt {
     // If user asked to add up to 7 layers to track, increase number of iterations by 1.
     const unsigned int maxIterations = std::max(nTypicalLayers, settings_->kalmanMaxNumStubs());
     for (unsigned iteration = 0; iteration < maxIterations; iteration++) {
-      int combinations_per_iteration = 0;
-
       bool easy = (l1track3D.numStubs() < settings_->kalmanMaxStubsEasy());
       unsigned int kalmanMaxSkipLayers =
           easy ? settings_->kalmanMaxSkipLayersEasy() : settings_->kalmanMaxSkipLayersHard();
@@ -267,7 +264,7 @@ namespace tmtt {
           if (kfDeadLayers.find(layer + 1) != kfDeadLayers.end() && layerStubs[layer + 1].empty()) {
             nextlay_stubs = layerStubs[layer + 2];
             nSkippedDeadLayers_nextStubs++;
-          } else if (this->kalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer + 1].empty()) {
+          } else if (this->kalmanAmbiguousLayer(etaReg, layer + 1) && layerStubs[layer + 1].empty()) {
             nextlay_stubs = layerStubs[layer + 2];
             nSkippedAmbiguousLayers_nextStubs++;
           } else {
@@ -305,8 +302,6 @@ namespace tmtt {
           nextlay_stubs = temp_nextlaystubs;
         }
 
-        combinations_per_iteration += thislay_stubs.size() + nextlay_stubs.size();
-
         // loop over each stub in this layer and check for compatibility with this state
         for (unsigned i = 0; i < thislay_stubs.size(); i++) {
           Stub *stub = thislay_stubs[i];
@@ -343,19 +338,6 @@ namespace tmtt {
 
         new_states.insert(new_states.end(), next_states.begin(), next_states.end());
         new_states.insert(new_states.end(), next_states_skipped.begin(), next_states_skipped.end());
-        /*
-        i = 0;
-        for (auto state : next_states) {
-            new_states.push_back(state);
-          i++;
-        }
-
-        i = 0;
-        for (auto state : next_states_skipped) {
-            new_states.push_back(state);
-          i++;
-        }
-*/
       }  //end of state loop
 
       // copy new_states into prev_states for next iteration or end if we are on
@@ -375,7 +357,7 @@ namespace tmtt {
         // We're done.
         prev_states.clear();
         new_states.clear();
-
+        break;
       } else {
         // Continue iterating.
         prev_states = new_states;
@@ -600,6 +582,8 @@ namespace tmtt {
     TVectorD delta = vd - hx;
 
     // Calculate higher order corrections to residuals.
+    // TO DO: Check if these could be determined using Tracklet/HT input track helix params,
+    //        so only need applying at input to KF, instead of very iteration?
 
     if (not settings_->kalmanHOfw()) {
       TVectorD correction(2);
@@ -618,6 +602,11 @@ namespace tmtt {
 
         deltaS = (1. / 6.) * (stub->r()) * pow(corr, 2);
         correction[1] -= deltaS * tanL;
+
+        if (nHelixPar_ == 5) {
+          float d0 = vecX[D0];
+          correction[0] += (1. / 6.) * pow(d0 / stub->r(), 3);  // Division by r hard in FPGA?
+        }
       }
 
       if ((not stub->barrel()) && not(stub->psModule())) {
@@ -689,33 +678,9 @@ namespace tmtt {
 
   unsigned int KFbase::kalmanLayer(
       unsigned int iEtaReg, unsigned int layerIDreduced, bool barrel, float r, float z) const {
-    // index across is GP encoded layer ID (where barrel layers=1,2,7,5,4,3 & endcap wheels=3,4,5,6,7 & 0 never occurs)
-    // index down is eta reg
-    // element is kalman layer, where 7 is invalid
-
-    // If stub with given GP encoded layer ID can have different KF layer ID depending on whether it
-    // is barrel or endcap, then in layerMap, the the barrel case is assumed.
-    // The endcap case is fixed by hand later in this function.
-
-    const unsigned int nEta = 16;
-    const unsigned int nGPlayID = 7;
-
-    if (nEta != numEtaRegions_)
+    if (nEta_ != numEtaRegions_)
       throw cms::Exception("LogicError")
-          << "ERROR KFbase::getKalmanLayer hardwired value of nEta differs from NumEtaRegions cfg param";
-
-    // In cases where identical GP encoded layer ID present in this sector from both barrel & endcap, this array filled considering barrel. The endcap is fixed by subsequent code.
-
-    constexpr unsigned layerMap[nEta / 2][nGPlayID + 1] = {
-        {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6 -- current FW
-        {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
-        {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
-        {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
-        {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4(/D3) B5(/D2) B6(/D1)
-        {7, 0, 1, 3, 4, 2, 6, 2},  // B1 B2 B3(/D5)+B4(/D3) D1 D2 X D4
-        {7, 0, 1, 1, 2, 3, 4, 5},  // B1 B2+D1 D2 D3 D5 D6
-        {7, 0, 7, 1, 2, 3, 4, 5},  // B1 D1 D2 D3 D4 D5
-    };
+          << "ERROR KFbase::getKalmanLayer hardwired value of nEta_ differs from NumEtaRegions cfg param";
 
     unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
     if (iEtaReg < numEtaRegions_ / 2) {
@@ -724,45 +689,15 @@ namespace tmtt {
       kfEtaReg = iEtaReg - numEtaRegions_ / 2;
     }
 
-    unsigned int kalmanLay = layerMap[kfEtaReg][layerIDreduced];
+    unsigned int kalmanLay =
+        barrel ? layerMap_[kfEtaReg][layerIDreduced].first : layerMap_[kfEtaReg][layerIDreduced].second;
 
-    // Fixes to layermap when "maybe layer" used
-    if (settings_->kfUseMaybeLayers()) {
+    // Switch back to the layermap that is consistent with current FW when "maybe layer" is not used
+    if (not settings_->kfUseMaybeLayers()) {
       switch (kfEtaReg) {
-        case 5:  //case 5: B1 B2 (B3+B4)* D1 D2 D3+D4 D5+D6  -- B3 is combined with B4 and is flagged as "maybe layer"
-          if (layerIDreduced == 6) {
-            kalmanLay = 5;
-          }
-          break;
-        case 6:  //case 6: B1* B2* D1 D2 D3 D4 D5 -- B1 and B2 are flagged as "maybe layer"
+        case 6:  //case 6: B1 B2+D1 D2 D3 D4 D5
           if (layerIDreduced > 2) {
-            kalmanLay++;
-          }
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Fixes to endcap stubs, for cases where identical GP encoded layer ID present in this sector from both barrel & endcap.
-
-    if (not barrel) {
-      switch (kfEtaReg) {
-        case 4:  // B1 B2 B3 B4 B5/D1 B6/D2 D3
-          if (layerIDreduced == 3) {
-            kalmanLay = 4;
-          } else if (layerIDreduced == 4) {
-            kalmanLay = 5;
-          } else if (layerIDreduced == 5) {
-            kalmanLay = 6;
-          }
-          break;
-          //case 5:  // B1 B2 B3+B4 D1 D2 D3 D4/D5
-        case 5:  // B1 B2 B3 D1+B4 D2 D3 D4/D5
-          if (layerIDreduced == 5) {
-            kalmanLay = 5;
-          } else if (layerIDreduced == 7) {
-            kalmanLay = 6;
+            kalmanLay--;
           }
           break;
         default:
@@ -812,9 +747,7 @@ namespace tmtt {
     // Only helps in extreme forward sector, and there not significantly.
     // UNDERSTAND IF CAN BE USED ELSEWHERE.
 
-    const unsigned int nEta = 16;
-    const unsigned int nKFlayer = 7;
-    constexpr bool ambiguityMap[nEta / 2][nKFlayer] = {
+    constexpr bool ambiguityMap[nEta_ / 2][nKFlayer_] = {
         {false, false, false, false, false, false, false},
         {false, false, false, false, false, false, false},
         {false, false, false, false, false, false, false},
@@ -833,7 +766,7 @@ namespace tmtt {
     }
 
     bool ambiguous = false;
-    if (settings_->kfUseMaybeLayers() and kfLayer < nKFlayer)
+    if (settings_->kfUseMaybeLayers() && kfLayer < nKFlayer_)
       ambiguous = ambiguityMap[kfEtaReg][kfLayer];
 
     return ambiguous;

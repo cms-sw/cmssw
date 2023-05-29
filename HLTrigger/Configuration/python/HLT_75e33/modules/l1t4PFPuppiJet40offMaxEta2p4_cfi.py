@@ -10,5 +10,5 @@ l1t4PFPuppiJet40offMaxEta2p4 = cms.EDFilter("L1TJetFilter",
         endcap = cms.vdouble(42.4039, 1.33052, 0),
         overlap = cms.vdouble(24.8375, 1.4152, 0)
     ),
-    inputTag = cms.InputTag("l1tSlwPFPuppiJetsCorrected","Phase1L1TJetFromPfCandidates")
+    inputTag = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed","Phase1L1TJetFromPfCandidates")
 )

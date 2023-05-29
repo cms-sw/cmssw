@@ -48,6 +48,8 @@ DTRecHitReader::DTRecHitReader(const ParameterSet& pset) {
   hRHitZ_W1 = new H1DRecHit("RZ_W1");
   hRHitZ_W2 = new H1DRecHit("RZ_W2");
   hRHitZ_All = new H1DRecHit("RZ_All");
+
+  dtGeomToken_ = esConsumes();
 }
 
 // Destructor
@@ -69,8 +71,8 @@ DTRecHitReader::~DTRecHitReader() {
 void DTRecHitReader::analyze(const Event& event, const EventSetup& eventSetup) {
   cout << "--- [DTRecHitReader] Event analysed #Run: " << event.id().run() << " #Event: " << event.id().event() << endl;
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<DTGeometry> dtGeom = eventSetup.getHandle(dtGeomToken_);
+  ;
 
   // Get the rechit collection from the event
   Handle<DTRecHitCollection> dtRecHits;

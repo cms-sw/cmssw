@@ -35,8 +35,13 @@ namespace edm {
 
       void postEndLumi(GlobalContext const &gc);
 
+      void preEndRun(GlobalContext const &gc);
       void postEndRun(GlobalContext const &gc);
 
+      void preEndProcessBlock(GlobalContext const &gc);
+      void postEndProcessBlock(GlobalContext const &gc);
+
+      void preEndJob();
       void postEndJob();
 
       void postOpenFile(std::string const &);
@@ -64,7 +69,11 @@ namespace edm {
       std::string atPostModuleEvent_;
 
       std::string atPostEndLumi_;
+      std::string atPreEndRun_;
       std::string atPostEndRun_;
+      std::string atPreEndProcessBlock_;
+      std::string atPostEndProcessBlock_;
+      std::string atPreEndJob_;
       std::string atPostEndJob_;
 
       std::string atPostOpenFile_;

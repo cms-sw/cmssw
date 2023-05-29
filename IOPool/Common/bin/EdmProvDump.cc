@@ -1,5 +1,7 @@
 #include "DataFormats/Common/interface/setIsMergeable.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/branchIDToProductID.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
@@ -29,6 +31,7 @@
 #include <iostream>
 #include <memory>
 #include <map>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -441,7 +444,8 @@ public:
                    bool showTopLevelPSets,
                    std::vector<std::string> const& findMatch,
                    bool dontPrintProducts,
-                   std::string const& dumpPSetID);
+                   std::string const& dumpPSetID,
+                   int productIDEntry);
 
   ProvenanceDumper(ProvenanceDumper const&) = delete;             // Disallow copying and moving
   ProvenanceDumper& operator=(ProvenanceDumper const&) = delete;  // Disallow copying and moving
@@ -482,12 +486,14 @@ private:
   std::vector<std::string> findMatch_;
   bool dontPrintProducts_;
   std::string dumpPSetID_;
+  int const productIDEntry_;
 
   void work_();
   void dumpProcessHistory_();
   void dumpEventFilteringParameterSets_(TFile* file);
   void dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids);
   void dumpParameterSetForID_(edm::ParameterSetID const& id);
+  std::optional<std::tuple<edm::BranchIDListHelper, std::vector<edm::ProcessIndex>>> makeBranchIDListHelper();
 };
 
 ProvenanceDumper::ProvenanceDumper(std::string const& filename,
@@ -499,7 +505,8 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
                                    bool showTopLevelPSets,
                                    std::vector<std::string> const& findMatch,
                                    bool dontPrintProducts,
-                                   std::string const& dumpPSetID)
+                                   std::string const& dumpPSetID,
+                                   int productIDEntry)
     : filename_(filename),
       inputFile_(makeTFile(filename)),
       exitCode_(0),
@@ -514,7 +521,8 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
       showTopLevelPSets_(showTopLevelPSets),
       findMatch_(findMatch),
       dontPrintProducts_(dontPrintProducts),
-      dumpPSetID_(dumpPSetID) {}
+      dumpPSetID_(dumpPSetID),
+      productIDEntry_(productIDEntry) {}
 
 void ProvenanceDumper::dump() { work_(); }
 
@@ -627,6 +635,71 @@ void ProvenanceDumper::dumpProcessHistory_() {
   historyGraph_.printHistory();
 }
 
+std::optional<std::tuple<edm::BranchIDListHelper, std::vector<edm::ProcessIndex>>>
+ProvenanceDumper::makeBranchIDListHelper() {
+  // BranchID-to-ProductID mapping disabled
+  if (productIDEntry_ < 0) {
+    return {};
+  }
+
+  TTree* metaTree = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
+  if (nullptr == metaTree) {
+    //std::cerr << "Did not find " << edm::poolNames::metaDataTreeName() << " tree" << std::endl;
+    return {};
+  }
+
+  TBranch* branchIDListsBranch = metaTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
+  if (nullptr == branchIDListsBranch) {
+    /*
+    std::cerr << "Did not find " << edm::poolNames::branchIDListBranchName() << " from "
+              << edm::poolNames::metaDataTreeName() << " tree" << std::endl;
+    */
+    return {};
+  }
+
+  edm::BranchIDLists branchIDLists;
+  edm::BranchIDLists* branchIDListsPtr = &branchIDLists;
+  branchIDListsBranch->SetAddress(&branchIDListsPtr);
+  if (branchIDListsBranch->GetEntry(0) <= 0) {
+    //std::cerr << "Failed to read an entry from " << edm::poolNames::branchIDListBranchName() << std::endl;
+    return {};
+  }
+
+  edm::BranchIDListHelper branchIDListHelper;
+  branchIDListHelper.updateFromInput(branchIDLists);
+
+  TTree* events = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::eventTreeName().c_str()));
+  assert(events != nullptr);
+  TBranch* branchListIndexesBranch = events->GetBranch(edm::poolNames::branchListIndexesBranchName().c_str());
+  if (nullptr == branchListIndexesBranch) {
+    /*
+    std::cerr << "Did not find " << edm::poolNames::branchListIndexesBranchName() << " from "
+              << edm::poolNames::eventTreeName() << " tree" << std::endl;
+    */
+    return {};
+  }
+  edm::BranchListIndexes branchListIndexes;
+  edm::BranchListIndexes* pbranchListIndexes = &branchListIndexes;
+  branchListIndexesBranch->SetAddress(&pbranchListIndexes);
+  if (branchListIndexesBranch->GetEntry(productIDEntry_) <= 0 or branchListIndexes.empty()) {
+    /*
+    std::cerr << "Failed to read entry from " << edm::poolNames::branchListIndexesBranchName() << ", or it is empty"
+              << std::endl;
+    */
+    return {};
+  }
+
+  if (not branchIDListHelper.fixBranchListIndexes(branchListIndexes)) {
+    //std::cerr << "Call to branchIDListHelper.fixBranchListIndexes() failed" << std::endl;
+    return {};
+  }
+
+  // Fill in helper map for Branch to ProductID mapping
+  auto branchListIndexToProcessIndex = edm::makeBranchListIndexToProcessIndex(branchListIndexes);
+
+  return std::tuple(std::move(branchIDListHelper), std::move(branchListIndexToProcessIndex));
+}
+
 void ProvenanceDumper::work_() {
   TTree* meta = dynamic_cast<TTree*>(inputFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
   assert(nullptr != meta);
@@ -716,6 +789,9 @@ void ProvenanceDumper::work_() {
     dumpParameterSetForID_(psetID);
     return;
   }
+
+  // Helper to map BranchID to ProductID (metadata tree needed also for parentage information)
+  auto branchIDListHelperAndToProcessIndex = makeBranchIDListHelper();
 
   //Prepare the parentage information if requested
   std::map<edm::BranchID, std::set<edm::ParentageID>> perProductParentage;
@@ -887,7 +963,17 @@ void ProvenanceDumper::work_() {
       std::set<edm::BranchID> branchIDs;
       for (auto const& branch : idBranch.second) {
         if (!dontPrintProducts_) {
-          sout << "  " << branch.branchName() << std::endl;
+          sout << "  " << branch.branchName();
+          edm::ProductID id;
+          if (branchIDListHelperAndToProcessIndex) {
+            sout << " ProductID "
+                 << edm::branchIDToProductID(branch.branchID(),
+                                             std::get<0>(*branchIDListHelperAndToProcessIndex),
+                                             std::get<1>(*branchIDListHelperAndToProcessIndex));
+          } else {
+            sout << " BranchID " << branch.branchID();
+          }
+          sout << std::endl;
         }
         branchIDs.insert(branch.branchID());
         allBranchIDsForLabelAndProcess.insert(branch.branchID());
@@ -1042,6 +1128,7 @@ static char const* const kHelpCommandOpt = "help,h";
 static char const* const kFileNameOpt = "input-file";
 static char const* const kDumpPSetIDOpt = "dumpPSetID";
 static char const* const kDumpPSetIDCommandOpt = "dumpPSetID,i";
+static char const* const kProductIDEntryOpt = "productIDEntry";
 
 int main(int argc, char* argv[]) {
   using namespace boost::program_options;
@@ -1066,7 +1153,10 @@ int main(int argc, char* argv[]) {
       "be repeated with different strings)")(kDontPrintProductsCommandOpt, "do not print products produced by module")(
       kDumpPSetIDCommandOpt,
       value<std::string>(),
-      "print the parameter set associated with the parameter set ID string (and print nothing else)");
+      "print the parameter set associated with the parameter set ID string (and print nothing else)")(
+      kProductIDEntryOpt,
+      value<int>(),
+      "show ProductID instead of BranchID using the specified entry in the Events tree");
   // clang-format on
 
   //we don't want users to see these in the help messages since this
@@ -1168,6 +1258,16 @@ int main(int argc, char* argv[]) {
     dontPrintProducts = true;
   }
 
+  int productIDEntry = -1;
+  if (vm.count(kProductIDEntryOpt)) {
+    try {
+      productIDEntry = vm[kProductIDEntryOpt].as<int>();
+    } catch (boost::bad_any_cast const& e) {
+      std::cout << e.what() << std::endl;
+      return 2;
+    }
+  }
+
   //silence ROOT warnings about missing dictionaries
   gErrorIgnoreLevel = kError;
 
@@ -1180,7 +1280,8 @@ int main(int argc, char* argv[]) {
                           showTopLevelPSets,
                           findMatch,
                           dontPrintProducts,
-                          dumpPSetID);
+                          dumpPSetID,
+                          productIDEntry);
   int exitCode(0);
   try {
     dumper.dump();

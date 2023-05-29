@@ -22,12 +22,25 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   setBookStatOverflowFlag(set_StatOverflowFlag);
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation";
-  bookH1andDivide(iBooker, iGetter, "etaEff", "mc_Eta_matched", "mc_Eta", "#eta", "Efficiency", "");
+  bookH1andDivide(iBooker,
+                  iGetter,
+                  "etaEff_Extended",
+                  "mc_Eta_Extended_matched",
+                  "mc_Eta_Extended",
+                  "#eta",
+                  "Efficiency",
+                  "Efficiency vs gen eta");  //Efficiency vs gen eta --- Eta of matched electrons
   bookH1andDivide(iBooker, iGetter, "zEff", "mc_Z_matched", "mc_Z", "z (cm)", "Efficiency", "");
-  bookH1andDivide(iBooker, iGetter, "absetaEff", "mc_AbsEta_matched", "mc_AbsEta", "|#eta|", "Efficiency", "");
+  bookH1andDivide(iBooker,
+                  iGetter,
+                  "absetaEff_Extended",
+                  "mc_AbsEta_Extended_matched",
+                  "mc_AbsEta_Extended",
+                  "|#eta|",
+                  "Efficiency",
+                  "");
   bookH1andDivide(iBooker, iGetter, "ptEff", "mc_Pt_matched", "mc_Pt", "p_{T} (GeV/c)", "Efficiency", "");
   bookH1andDivide(iBooker, iGetter, "phiEff", "mc_Phi_matched", "mc_Phi", "#phi (rad)", "Efficiency", "");
-  //bookH2andDivide(iBooker, iGetter, "ptEtaEff", "mc_PtEta_matched", "mc_PtEta", "#eta", "p_{T} (GeV/c)", "");
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "q-misid calculation";
   bookH1andDivide(iBooker, iGetter, "etaQmisid", "mc_Eta_matched_qmisid", "mc_Eta", "#eta", "q misId", "");
@@ -64,7 +77,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
                   "|#eta|",
                   "Fraction of electrons",
                   "fraction of showering electrons vs eta");
-  /**/
+
   // fbrem
   MonitorElement* p1_ele_fbremVsEta_mean = get(iGetter, "fbremvsEtamean");
   TAxis* etaAxis = p1_ele_fbremVsEta_mean->getTProfile()->GetXaxis();
@@ -89,6 +102,11 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   MonitorElement* h1_ele_provenance_endcaps = get(iGetter, "provenance_endcaps");
   if (h1_ele_provenance_endcaps->getBinContent(3) > 0) {
     h1_ele_provenance_endcaps->getTH1F()->Scale(1. / h1_ele_provenance_endcaps->getBinContent(3));
+  } /**/
+
+  MonitorElement* h1_ele_provenance_Extended = get(iGetter, "provenance_Extended");
+  if (h1_ele_provenance_Extended->getBinContent(3) > 0) {
+    h1_ele_provenance_Extended->getTH1F()->Scale(1. / h1_ele_provenance_Extended->getBinContent(3));
   }
 
   // profiles from 2D histos
@@ -96,6 +114,13 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
            iGetter,
            "scl_EoEtrueVsrecOfflineVertices",
            "E/Etrue vs number of primary vertices",
+           "N_{primary vertices}",
+           "E/E_{true}",
+           0.8);
+  profileX(iBooker,
+           iGetter,
+           "scl_EoEtrueVsrecOfflineVertices_Extended",
+           "E/Etrue vs number of primary vertices, 2.5<|eta|<3",
            "N_{primary vertices}",
            "E/E_{true}",
            0.8);
@@ -114,7 +139,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
            "E/E_{true}",
            0.8);
 
-  profileX(iBooker, iGetter, "PoPtrueVsEta", "mean ele momentum / gen momentum vs eta", "#eta", "<P/P_{gen}>");
+  profileX(iBooker, iGetter, "PoPtrueVsEta_Extended", "mean ele momentum / gen momentum vs eta", "#eta", "<P/P_{gen}>");
   profileX(iBooker, iGetter, "PoPtrueVsPhi", "mean ele momentum / gen momentum vs phi", "#phi (rad)", "<P/P_{gen}>");
   profileX(iBooker, iGetter, "sigmaIetaIetaVsPt", "SigmaIetaIeta vs pt", "p_{T} (GeV/c)", "SigmaIetaIeta");
   profileX(iBooker,
@@ -137,8 +162,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   profileX(iBooker, iGetter, "PhiMnPhiTrueVsPhi", "mean ele phi - gen phi vs phi", "#phi (rad)", "");
   profileX(iBooker, iGetter, "vertexPtVsEta", "mean ele transverse momentum vs eta", "#eta", "<p_{T}> (GeV/c)");
   profileX(iBooker, iGetter, "vertexPtVsPhi", "mean ele transverse momentum vs phi", "#phi (rad)", "<p_{T}> (GeV/c)");
-  profileX(iBooker, iGetter, "EoPVsEta", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
-  profileX(iBooker, iGetter, "EoPVsEtaExtended", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
+  profileX(iBooker, iGetter, "EoPVsEta_Extended", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPVsPhi", "mean ele E/p vs phi", "#phi (rad)", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPoutVsEta", "mean ele E/pout vs eta", "#eta", "<E_{seed}/P_{out}>");
   profileX(iBooker, iGetter, "EoPoutVsPhi", "mean ele E/pout vs phi", "#phi (rad)", "<E_{seed}/P_{out}>");
@@ -149,7 +173,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   profileX(iBooker, iGetter, "chi2VsEta", "mean ele track chi2 vs eta", "#eta", "<#Chi^{2}>");
   profileX(iBooker, iGetter, "chi2VsPhi", "mean ele track chi2 vs phi", "#phi (rad)", "<#Chi^{2}>");
   profileX(iBooker, iGetter, "ambiguousTracksVsEta", "mean ele # ambiguous tracks  vs eta", "#eta", "<N_{ambiguous}>");
-  profileX(iBooker, iGetter, "foundHitsVsEta", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
+  profileX(iBooker, iGetter, "foundHitsVsEta_Extended", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
   profileX(iBooker, iGetter, "foundHitsVsEta_mAOD", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
   profileX(iBooker, iGetter, "foundHitsVsPhi", "mean ele track # found hits vs phi", "#phi (rad)", "<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsEta", "mean ele track # lost hits vs eta", "#eta", "<N_{hits}>");

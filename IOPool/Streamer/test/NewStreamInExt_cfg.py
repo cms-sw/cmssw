@@ -8,7 +8,7 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.source = cms.Source("NewEventStreamFileReader",
-    fileNames = cms.untracked.vstring('file:teststreamfile.dat', 'file:teststreamfile_ext.dat')
+    fileNames = cms.untracked.vstring('file:teststreamfile.dat', 'file:teststreamfile_ext.dat', 'file:teststreamfile_ext2.dat', 'file:teststreamfile_ext2.dat'),
     #firstEvent = cms.untracked.uint64(10123456835)
 )
 

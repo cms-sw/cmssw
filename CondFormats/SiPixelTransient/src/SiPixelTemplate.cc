@@ -1328,6 +1328,12 @@ void SiPixelTemplate::postInit(std::vector<SiPixelTemplateStore>& thePixelTemp_)
 bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
   // Interpolate for a new set of track angles
 
+  //check for nan's
+  if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
+    success_ = false;
+    return success_;
+  }
+
   // Local variables
   int i, j;
   int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
@@ -1392,12 +1398,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     if (index_id_ < 0 || index_id_ >= (int)thePixelTemp_.size()) {
       throw cms::Exception("DataCorrupt")
           << "SiPixelTemplate::interpolate can't find needed template ID = " << id << std::endl;
-    }
-
-    //check for nan's
-    if (!edm::isFinite(cotalpha) || !edm::isFinite(cotbeta)) {
-      success_ = false;
-      return success_;
     }
 #else
     assert(index_id_ >= 0 && index_id_ < (int)thePixelTemp_.size());
@@ -2271,7 +2271,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
 //! \param xsum - (input) 11-element vector of pixel signals
 //! \param xsig2 - (output) 11-element vector of x errors (squared)
 // ************************************************************************************************************
-void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11], float xsig2[11])
+void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[BXSIZE], float xsig2[BXSIZE])
 
 {
   // Interpolate using quantities already stored in the private variables

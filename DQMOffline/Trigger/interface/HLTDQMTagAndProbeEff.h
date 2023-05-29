@@ -58,7 +58,6 @@ namespace {
 template <typename TagType, typename TagCollType, typename ProbeType = TagType, typename ProbeCollType = TagCollType>
 class HLTDQMTagAndProbeEff {
 public:
-  typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
 
   explicit HLTDQMTagAndProbeEff(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc);

@@ -205,7 +205,8 @@ public:
         int prompt = (fb & 0b10) >> 1;
         int delay1 = (fb & 0b100) >> 2;
         int delay2 = (fb & 0b1000) >> 3;
-        data |= (depth | ((!prompt) & (delay1 | delay2))) << tower;  // bit[0] | (!bit[1] & (bit[2] | bit[3]))
+        if (cEta < 16)
+          data |= (depth | ((!prompt) & (delay1 | delay2))) << tower;  // bit[0] | (!bit[1] & (bit[2] | bit[3]))
       } else
         data |= (fb & 0x1) << tower;
     }

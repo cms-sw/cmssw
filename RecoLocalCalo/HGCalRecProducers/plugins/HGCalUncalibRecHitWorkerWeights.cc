@@ -55,13 +55,12 @@ void configureIt(const edm::ParameterSet& conf, HGCalUncalibRecHitRecWeightsAlgo
   } else {
     maker.set_fCPerMIP(std::vector<double>({1.0}));
   }
+
+  maker.set_tofDelay(conf.getParameter<double>("tofDelay"));
 }
 
 HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
-    : HGCalUncalibRecHitWorkerBaseClass(ps, iC),
-      ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
-      hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
-      hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {
+    : HGCalUncalibRecHitWorkerBaseClass(ps, iC) {
   const edm::ParameterSet& ee_cfg = ps.getParameterSet("HGCEEConfig");
   const edm::ParameterSet& hef_cfg = ps.getParameterSet("HGCHEFConfig");
   const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
@@ -72,41 +71,39 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
   configureIt(hfnose_cfg, uncalibMaker_hfnose_);
 }
 
-void HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es) {
-  if (uncalibMaker_ee_.isSiFESim()) {
-    uncalibMaker_ee_.setGeometry(&es.getData(ee_geometry_token_));
-  }
-  if (uncalibMaker_hef_.isSiFESim()) {
-    uncalibMaker_hef_.setGeometry(&es.getData(hef_geometry_token_));
-  }
-  uncalibMaker_heb_.setGeometry(nullptr);
-  if (uncalibMaker_hfnose_.isSiFESim()) {
-    uncalibMaker_hfnose_.setGeometry(&es.getData(hfnose_geometry_token_));
-  }
+bool HGCalUncalibRecHitWorkerWeights::run(const edm::ESHandle<HGCalGeometry>& geom,
+                                          const HGCalDigiCollection& digis,
+                                          HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame>& uncalibMaker,
+                                          edm::SortedCollection<HGCUncalibratedRecHit>& result) {
+  uncalibMaker.setGeometry(geom);
+  result.reserve(result.size() + digis.size());
+  for (const auto& digi : digis)
+    result.push_back(uncalibMaker.makeRecHit(digi));
+  return true;
 }
 
-bool HGCalUncalibRecHitWorkerWeights::runHGCEE(const HGCalDigiCollection::const_iterator& itdg,
+bool HGCalUncalibRecHitWorkerWeights::runHGCEE(const edm::ESHandle<HGCalGeometry>& geom,
+                                               const HGCalDigiCollection& digis,
                                                HGCeeUncalibratedRecHitCollection& result) {
-  result.push_back(uncalibMaker_ee_.makeRecHit(*itdg));
-  return true;
+  return run(geom, digis, uncalibMaker_ee_, result);
 }
 
-bool HGCalUncalibRecHitWorkerWeights::runHGCHEsil(const HGCalDigiCollection::const_iterator& itdg,
+bool HGCalUncalibRecHitWorkerWeights::runHGCHEsil(const edm::ESHandle<HGCalGeometry>& geom,
+                                                  const HGCalDigiCollection& digis,
                                                   HGChefUncalibratedRecHitCollection& result) {
-  result.push_back(uncalibMaker_hef_.makeRecHit(*itdg));
-  return true;
+  return run(geom, digis, uncalibMaker_hef_, result);
 }
 
-bool HGCalUncalibRecHitWorkerWeights::runHGCHEscint(const HGCalDigiCollection::const_iterator& itdg,
+bool HGCalUncalibRecHitWorkerWeights::runHGCHEscint(const edm::ESHandle<HGCalGeometry>& geom,
+                                                    const HGCalDigiCollection& digis,
                                                     HGChebUncalibratedRecHitCollection& result) {
-  result.push_back(uncalibMaker_heb_.makeRecHit(*itdg));
-  return true;
+  return run(geom, digis, uncalibMaker_heb_, result);
 }
 
-bool HGCalUncalibRecHitWorkerWeights::runHGCHFNose(const HGCalDigiCollection::const_iterator& itdg,
+bool HGCalUncalibRecHitWorkerWeights::runHGCHFNose(const edm::ESHandle<HGCalGeometry>& geom,
+                                                   const HGCalDigiCollection& digis,
                                                    HGChfnoseUncalibratedRecHitCollection& result) {
-  result.push_back(uncalibMaker_hfnose_.makeRecHit(*itdg));
-  return true;
+  return run(geom, digis, uncalibMaker_hfnose_, result);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

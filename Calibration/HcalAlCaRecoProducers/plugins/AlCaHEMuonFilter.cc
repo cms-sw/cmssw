@@ -38,25 +38,25 @@
 // class declaration
 //
 
-namespace AlCaHEMuons {
+namespace alCaHEMuonFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nFinal_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nFinal_;
   };
-}  // namespace AlCaHEMuons
+}  // namespace alCaHEMuonFilter
 
-class AlCaHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaHEMuons::Counters> > {
+class AlCaHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaHEMuonFilter::Counters> > {
 public:
-  explicit AlCaHEMuonFilter(edm::ParameterSet const&, const AlCaHEMuons::Counters* count);
+  explicit AlCaHEMuonFilter(edm::ParameterSet const&, const alCaHEMuonFilter::Counters* count);
   ~AlCaHEMuonFilter() override;
 
-  static std::unique_ptr<AlCaHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaHEMuons::Counters>();
+  static std::unique_ptr<alCaHEMuonFilter::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaHEMuonFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaHEMuons::Counters* counters);
+  static void globalEndJob(const alCaHEMuonFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -89,7 +89,7 @@ private:
 //
 // constructors and destructor
 //
-AlCaHEMuonFilter::AlCaHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHEMuons::Counters* count)
+AlCaHEMuonFilter::AlCaHEMuonFilter(edm::ParameterSet const& iConfig, const alCaHEMuonFilter::Counters* count)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -226,7 +226,7 @@ void AlCaHEMuonFilter::endStream() {
   globalCache()->nFinal_ += nFinal_;
 }
 
-void AlCaHEMuonFilter::globalEndJob(const AlCaHEMuons::Counters* count) {
+void AlCaHEMuonFilter::globalEndJob(const alCaHEMuonFilter::Counters* count) {
   edm::LogVerbatim("HEMuon") << "Selects " << count->nFinal_ << " out of " << count->nGood_ << " good events out of "
                              << count->nAll_ << " total # of events\n";
 }
@@ -254,7 +254,7 @@ void AlCaHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("triggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("muonLabel", edm::InputTag("muons"));
   desc.add<std::vector<std::string> >("triggers", triggers);
-  desc.add<double>("muonPtCut", 20.0);
+  desc.add<double>("muonPtCut", 5.0);
   desc.add<double>("muonEtaCut", 1.305);
   desc.add<bool>("pfCut", true);
   desc.add<double>("pfIsolationCut", 0.15);

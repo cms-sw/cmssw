@@ -5,8 +5,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 
 EcalTrigTowerConstituentsMap::EcalTrigTowerConstituentsMap() {}
+
+EcalTrigTowerDetId EcalTrigTowerConstituentsMap::barrelTowerOf(const DetId& id) {
+  assert(id.det() == DetId::Ecal && id.subdetId() == EcalBarrel);
+  //--------------------
+  // Ecal Barrel
+  //--------------------
+  EBDetId myId(id);
+  return myId.tower();
+}
 
 EcalTrigTowerDetId EcalTrigTowerConstituentsMap::towerOf(const DetId& id) const {
   if (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) {
@@ -30,7 +40,8 @@ EcalTrigTowerDetId EcalTrigTowerConstituentsMap::towerOf(const DetId& id) const 
       //..........from file and done only for 1 quadrant
       //move from quadrant 1 to the actual one:
       // phiTower = changeTowerQuadrant(phiTower, 1, originalId.iquadrant());
-      // std::cout << originalId.zside() <<  " " << etaTower << " " << phiTower << std::endl;
+      edm::LogVerbatim("EcalTrigTowerConstituentsMap")
+          << "EcalTrigTowerConstituentsMap " << originalId.zside() << " " << etaTower << " " << phiTower;
       return EcalTrigTowerDetId(originalId.zside(), EcalEndcap, etaTower, phiTower);
     }
   }

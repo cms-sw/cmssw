@@ -42,31 +42,35 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> &fjInputs,
                                                                std::vector<ticl::Trackster> &result) {
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
     edm::LogVerbatim("PatternRecogntionbyFastJet")
         << "Creating FastJet with " << fjInputs.size() << " LayerClusters in input";
   }
   fastjet::ClusterSequence sequence(fjInputs, JetDefinition(antikt_algorithm, antikt_radius_));
   auto jets = fastjet::sorted_by_pt(sequence.inclusive_jets(0));
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
     edm::LogVerbatim("PatternRecogntionbyFastJet") << "FastJet produced " << jets.size() << " jets/trackster";
   }
 
   auto trackster_idx = result.size();
-  result.resize(trackster_idx + jets.size());
+  auto jetsSize = std::count_if(jets.begin(), jets.end(), [=](fastjet::PseudoJet jet) {
+    return jet.constituents().size() > static_cast<unsigned int>(minNumLayerCluster_);
+  });
+  result.resize(trackster_idx + jetsSize);
+
   for (const auto &pj : jets) {
     if (pj.constituents().size() > static_cast<unsigned int>(minNumLayerCluster_)) {
       for (const auto &component : pj.constituents()) {
         result[trackster_idx].vertices().push_back(component.user_index());
         result[trackster_idx].vertex_multiplicity().push_back(1);
-        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
           edm::LogVerbatim("PatternRecogntionbyFastJet")
               << "Jet has " << pj.constituents().size() << " components that are stored in trackster " << trackster_idx;
         }
       }
       trackster_idx++;
     } else {
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyFastJet")
             << "Jet with " << pj.constituents().size() << " constituents discarded since too small wrt "
             << minNumLayerCluster_;
@@ -105,18 +109,18 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
     const auto &tileOnLayer = input.tiles[currentLayer];
     for (int ieta = 0; ieta <= nEtaBin; ++ieta) {
       auto offset = ieta * nPhiBin;
-      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+      if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
         edm::LogVerbatim("PatternRecogntionbyFastJet") << "offset: " << offset;
       }
       for (int iphi = 0; iphi <= nPhiBin; ++iphi) {
-        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
           edm::LogVerbatim("PatternRecogntionbyFastJet") << "iphi: " << iphi;
           edm::LogVerbatim("PatternRecogntionbyFastJet") << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
         }
         for (auto clusterIdx : tileOnLayer[offset + iphi]) {
           // Skip masked layer clusters
           if (input.mask[clusterIdx] == 0.) {
-            if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
+            if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
               edm::LogVerbatim("PatternRecogntionbyFastJet") << "Skipping masked layerIdx " << clusterIdx;
             }
             continue;
@@ -144,7 +148,7 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, input.tfSession, result);
-  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Basic) {
+  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
     for (auto const &t : result) {
       edm::LogVerbatim("PatternRecogntionbyFastJet") << "Barycenter: " << t.barycenter();
       edm::LogVerbatim("PatternRecogntionbyFastJet") << "LCs: " << t.vertices().size();
@@ -162,7 +166,7 @@ void PatternRecognitionbyFastJet<TILES>::energyRegressionAndID(const std::vector
   //
   // 1. Set default values for regressed energy and particle id for each trackster.
   // 2. Store indices of tracksters whose total sum of cluster energies is above the
-  //    eidMinClusterEnergy_ (GeV) treshold. Inference is not applied for soft tracksters.
+  //    eidMinClusterEnergy_ (GeV) threshold. Inference is not applied for soft tracksters.
   // 3. When no trackster passes the selection, return.
   // 4. Create input and output tensors. The batch dimension is determined by the number of
   //    selected tracksters.
@@ -269,7 +273,7 @@ void PatternRecognitionbyFastJet<TILES>::energyRegressionAndID(const std::vector
   }
 
   // run the inference (7)
-  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
+  tensorflow::run(eidSession, inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {

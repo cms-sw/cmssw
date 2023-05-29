@@ -671,8 +671,8 @@ int main(int narg, char* args[]) {
   endTime = getDateTime();
 
   dip = Dip::create("CmsBeamSpotServer");
-  //  dip->setDNSNode("cmsdimns1.cern.ch");
-  dip->setDNSNode("cmsdimns2.cern.ch");
+  // Use both CMS-based DIM DNS server (https://its.cern.ch/jira/browse/CMSOMS-280)
+  dip->setDNSNode("cmsdimns1.cern.ch,cmsdimns2.cern.ch");
 
   cerr << "reading from file (NFS)" << endl;
 

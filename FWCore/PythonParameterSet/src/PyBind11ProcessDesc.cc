@@ -9,11 +9,23 @@
 #include <sstream>
 #include <iostream>
 
-PyBind11ProcessDesc::PyBind11ProcessDesc() : theProcessPSet(), theMainModule(), theOwnsInterpreter(false) {}
+PyBind11InterpreterSentry::PyBind11InterpreterSentry(bool ownsInterpreter)
+    : mainModule(), ownsInterpreter_(ownsInterpreter) {
+  if (ownsInterpreter_) {
+    pybind11::initialize_interpreter();
+  }
+}
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config)
-    : theProcessPSet(), theMainModule(), theOwnsInterpreter(true) {
-  pybind11::initialize_interpreter();
+PyBind11InterpreterSentry::~PyBind11InterpreterSentry() {
+  if (ownsInterpreter_) {
+    mainModule = pybind11::object();
+    pybind11::finalize_interpreter();
+  }
+}
+
+PyBind11ProcessDesc::PyBind11ProcessDesc() : theProcessPSet(), theInterpreter(false) {}
+
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config) : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
   read(config);
@@ -21,11 +33,9 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config)
 
 PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, char* argv[])
     : theProcessPSet(),
-      theMainModule(),
-      theOwnsInterpreter(true)
+      theInterpreter(true)
 
 {
-  pybind11::initialize_interpreter();
   edm::python::initializePyBind11Module();
   prepareToRead();
   {
@@ -50,18 +60,13 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, ch
   read(config);
 }
 
-PyBind11ProcessDesc::~PyBind11ProcessDesc() {
-  if (theOwnsInterpreter) {
-    theMainModule = pybind11::object();
-    pybind11::finalize_interpreter();
-  }
-}
+PyBind11ProcessDesc::~PyBind11ProcessDesc() = default;
 
 void PyBind11ProcessDesc::prepareToRead() {
   //  pybind11::scoped_interpreter guard{};
-  theMainModule = pybind11::module::import("__main__");
-  theMainModule.attr("processDesc") = this;
-  theMainModule.attr("processPSet") = &theProcessPSet;
+  theInterpreter.mainModule = pybind11::module::import("__main__");
+  theInterpreter.mainModule.attr("processDesc") = this;
+  theInterpreter.mainModule.attr("processPSet") = &theProcessPSet;
 }
 
 void PyBind11ProcessDesc::read(std::string const& config) {

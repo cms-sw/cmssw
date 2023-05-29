@@ -14,7 +14,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"

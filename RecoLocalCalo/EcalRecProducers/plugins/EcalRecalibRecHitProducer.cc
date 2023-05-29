@@ -5,22 +5,57 @@
  *
  **/
 
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecalibRecHitProducer.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
-
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <iostream>
-#include <cmath>
-#include <vector>
-
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
+
+#include <cmath>
+#include <iostream>
+#include <vector>
+
+class EcalRecalibRecHitProducer : public edm::global::EDProducer<> {
+public:
+  explicit EcalRecalibRecHitProducer(const edm::ParameterSet& ps);
+  void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
+
+private:
+  const edm::InputTag EBRecHitCollection_;
+  const edm::InputTag EERecHitCollection_;
+  const edm::EDGetTokenT<EBRecHitCollection> EBRecHitToken_;
+  const edm::EDGetTokenT<EERecHitCollection> EERecHitToken_;
+
+  const std::string EBRecalibRecHitCollection_;  // secondary name to be given to EB collection of hits
+  const std::string EERecalibRecHitCollection_;  // secondary name to be given to EE collection of hits
+
+  const bool doEnergyScale_;
+  const bool doIntercalib_;
+  const bool doLaserCorrections_;
+  const bool doEnergyScaleInverse_;
+  const bool doIntercalibInverse_;
+  const bool doLaserCorrectionsInverse_;
+
+  edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCToGeVConstantToken_;
+  edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> ecalIntercalibConstantsToken_;
+  edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> ecalLaserDBServiceToken_;
+};
 
 EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps)
     : EBRecHitCollection_(ps.getParameter<edm::InputTag>("EBRecHitCollection")),

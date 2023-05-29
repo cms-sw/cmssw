@@ -14,7 +14,6 @@
 // Our own stuff
 #include "SiPixelClusterProducer.h"
 #include "PixelThresholdClusterizer.h"
-#include "PixelThresholdClusterizerForBricked.h"
 
 // Geometry
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -143,9 +142,6 @@ void SiPixelClusterProducer::setupClusterizer(const edm::ParameterSet& conf) {
   if (clusterMode_ == "PixelThresholdReclusterizer" || clusterMode_ == "PixelThresholdClusterizer") {
     clusterizer_ = std::make_unique<PixelThresholdClusterizer>(conf);
     clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
-  } else if (clusterMode_ == "PixelThresholdClusterizerForBricked") {
-    clusterizer_ = std::make_unique<PixelThresholdClusterizerForBricked>(conf);
-    clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
   } else {
     throw cms::Exception("Configuration") << "[SiPixelClusterProducer]:"
                                           << " choice " << clusterMode_ << " is invalid.\n"
@@ -161,13 +157,10 @@ template <typename T>
 void SiPixelClusterProducer::run(const T& input,
                                  const edm::ESHandle<TrackerGeometry>& geom,
                                  edmNew::DetSetVector<SiPixelCluster>& output) {
-  int numberOfDetUnits = 0;
   int numberOfClusters = 0;
 
   // Iterate on detector units
   for (auto const& dsv : input) {
-    ++numberOfDetUnits;
-
     //  LogDebug takes very long time, get rid off.
     //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << dsv.id;
 
@@ -204,10 +197,6 @@ void SiPixelClusterProducer::run(const T& input,
       break;
     }
   }  // end of DetUnit loop
-
-  //LogDebug ("SiPixelClusterProducer") << " Executing "
-  //      << clusterMode_ << " resulted in " << numberOfClusters
-  //      << " SiPixelClusters in " << numberOfDetUnits << " DetUnits.";
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

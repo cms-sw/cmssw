@@ -1,7 +1,6 @@
 #ifndef EventFilter_DTDigiToRaw_h
 #define EventFilter_DTDigiToRaw_h
 
-#include <FWCore/Framework/interface/EDProducer.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 
 class FEDRawDataCollection;

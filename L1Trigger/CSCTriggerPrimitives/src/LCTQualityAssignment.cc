@@ -5,7 +5,7 @@ LCTQualityAssignment::LCTQualityAssignment(unsigned endcap,
                                            unsigned sector,
                                            unsigned subsector,
                                            unsigned chamber,
-                                           const edm::ParameterSet& conf)
+                                           CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
   // at least one integrated local trigger is running
   runILT_ = (isME11_ and runME11ILT_) or (isME21_ and runME21ILT_);
@@ -13,7 +13,7 @@ LCTQualityAssignment::LCTQualityAssignment(unsigned endcap,
 
 unsigned LCTQualityAssignment::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const {
   // ALCT-CLCT matching without a cluster and ILT off
-  if (runCCLUT_ and !runILT_) {
+  if (run3_ and !runILT_) {
     return findQualityRun3(aLCT, cLCT);
   }
   // ALCT-CLCT matching without a cluster and ILT on

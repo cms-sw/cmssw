@@ -80,7 +80,8 @@ private:
   int L1EvtCnt, HltEvtCnt, nhltpart;
 
   int *trigflag, *l1flag, *l1flag5Bx, *l1techflag;
-  int *trigPrescl, *l1Prescl, *l1techPrescl;
+  double* trigPrescl;
+  int *l1Prescl, *l1techPrescl;
 
   TString* algoBitToName;
   TString* techBitToName;

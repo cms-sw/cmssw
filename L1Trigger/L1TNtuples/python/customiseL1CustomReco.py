@@ -5,6 +5,7 @@ from CondCore.CondDB.CondDB_cfi import *
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from JetMETCorrections.Configuration.JetCorrectors_cff import *
+from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
 def L1NtupleCustomReco(process):
 
@@ -16,6 +17,22 @@ def L1NtupleCustomReco(process):
 
     # re-apply JEC for AK4 CHS PF jets
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+
+    process.load('L1Trigger.L1TNtuples.l1JetRecoTree_cfi')
+
+    addJetCollection(
+        process,
+        labelName = "CorrectedPuppiJets",
+        jetSource = process.l1JetRecoTree.puppiJetToken,
+        jetCorrections = ('AK4PFPuppi', ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'], 'None'),
+        pfCandidates = cms.InputTag("particleFlow"),
+        algo= 'AK', rParam = 0.4,
+        getJetMCFlavour=False
+    )
+    delattr(process, 'patJetGenJetMatchCorrectedPuppiJets')
+    delattr(process, 'patJetPartonMatchCorrectedPuppiJets')
+
+
 
 ####  Custom Met Filter reco
 

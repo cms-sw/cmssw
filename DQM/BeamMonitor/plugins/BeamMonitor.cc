@@ -131,7 +131,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
   tracksLabel_ = consumes<reco::TrackCollection>(
       ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection"));
   pvSrc_ = consumes<reco::VertexCollection>(ps.getUntrackedParameter<InputTag>("primaryVertex"));
-  hltSrc_ = consumes<TriggerResults>(ps.getParameter<InputTag>("hltResults"));
+  hltSrc_ = consumes<TriggerResults>(ps.getUntrackedParameter<InputTag>("hltResults"));
   intervalInSec_ = ps.getUntrackedParameter<int>("timeInterval", 920);  //40 LS X 23"
   fitNLumi_ = ps.getUntrackedParameter<int>("fitEveryNLumi", -1);
   resetFitNLumi_ = ps.getUntrackedParameter<int>("resetEveryNLumi", -1);
@@ -166,7 +166,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
   nextlumi_ = 0;
   processed_ = false;
 
-  tcdsToken_ = consumes<TCDSRecord>(ps.getParameter<InputTag>("tcdsRecord"));
+  tcdsToken_ = consumes<TCDSRecord>(ps.getUntrackedParameter<InputTag>("tcdsRecord"));
 }
 
 //--------------------------------------------------------

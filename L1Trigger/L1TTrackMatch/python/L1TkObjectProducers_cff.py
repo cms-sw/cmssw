@@ -50,18 +50,15 @@ pL1TkPhotonsHGC = cms.Path( L1TkPhotonsHGC )
 # from L1Trigger.L1TTrackMatch.L1TkCaloJetProducer_cfi import L1TkCaloJets
 # pL1TkCaloJets = cms.Path( L1TkCaloJets)
 
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
-pVertexProducer = cms.Path( VertexProducer )
+from L1Trigger.VertexFinder.l1tVertexProducer_cfi import l1tVertexProducer
+pVertexProducer = cms.Path( l1tVertexProducer )
 
-from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
-pVertexProducer = cms.Path( VertexProducer )
+# from L1Trigger.L1TTrackMatch.l1tTrackerEtMiss_cfi import l1tTrackerEtMiss
+# pL1TrkMET = cms.Path( l1tTrackerEtMiss )
 
-# from L1Trigger.L1TTrackMatch.L1TrackerEtMissProducer_cfi import L1TrackerEtMiss
-# pL1TrkMET = cms.Path( L1TrackerEtMiss )
-
-# from L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi import L1TkCaloHTMissVtx, L1TrackerHTMiss
-# pL1TkCaloHTMissVtx = cms.Path( L1TkCaloHTMissVtx )
-# pL1TrackerHTMiss = cms.Path( L1TrackerHTMiss )
+# from L1Trigger.L1TTrackMatch.l1tTrackerHTMiss_cfi import l1tTkCaloHTMissVtx, l1tTrackerHTMiss
+# pL1TkCaloHTMissVtx = cms.Path( l1tTkCaloHTMissVtx )
+# pL1TrackerHTMiss = cms.Path( l1tTrackerHTMiss )
 
 from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons, L1TkMuonsTP
 pL1TkMuon = cms.Path( L1TkMuons * L1TkMuonsTP )

@@ -255,7 +255,10 @@ namespace mkfit {
     return cand1.score() > cand2.score();
   }
 
-  inline float getScoreCand(const TrackCand& cand1, bool penalizeTailMissHits = false, bool inFindCandidates = false) {
+  inline float getScoreCand(const track_score_func& score_func,
+                            const TrackCand& cand1,
+                            bool penalizeTailMissHits = false,
+                            bool inFindCandidates = false) {
     int nfoundhits = cand1.nFoundHits();
     int noverlaphits = cand1.nOverlapHits();
     int nmisshits = cand1.nInsideMinusOneHits();
@@ -265,7 +268,7 @@ namespace mkfit {
     // Do not allow for chi2<0 in score calculation
     if (chi2 < 0)
       chi2 = 0.f;
-    return getScoreCalc(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
+    return score_func(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
   }
 
   // CombCandidate -- a set of candidates from a given seed.
@@ -369,20 +372,28 @@ namespace mkfit {
       m_hots.reserve(expected_num_hots);
       m_hots_size = 0;
       m_hots.clear();
+
+      m_lastHitIdx_before_bkwsearch = -1;
+      m_nInsideMinusOneHits_before_bkwsearch = -1;
+      m_nTailMinusOneHits_before_bkwsearch = -1;
     }
 
-    void importSeed(const Track& seed, int region);
+    void importSeed(const Track& seed, const track_score_func& score_func, int region);
 
     int addHit(const HitOnTrack& hot, float chi2, int prev_idx) {
       m_hots.push_back({hot, chi2, prev_idx});
       return m_hots_size++;
     }
 
-    void mergeCandsAndBestShortOne(const IterationParams& params, bool update_score, bool sort_cands);
+    void mergeCandsAndBestShortOne(const IterationParams& params,
+                                   const track_score_func& score_func,
+                                   bool update_score,
+                                   bool sort_cands);
 
     void compactifyHitStorageForBestCand(bool remove_seed_hits, int backward_fit_min_hits);
     void beginBkwSearch();
-    void endBkwSearch();
+    void repackCandPostBkwSearch(int i);
+    // not needed for CombCand::endBkwSearch(), reinit performed in reset() for a new event.
 
     // Accessors
     //-----------
@@ -494,9 +505,10 @@ namespace mkfit {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int thisL = hot_node.m_hot.layer;
       if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == Hit::kHitCCCFilterIdx)) {
+        bool cStereo = trk_inf[thisL].is_stereo();
         if (trk_inf[thisL].is_pixel())
           ++pix;
-        else if (trk_inf[thisL].is_stereo()) {
+        else if (cStereo) {
           ++stereo;
           if (thisL == prevL)
             doubleStereo = thisL;
@@ -509,7 +521,7 @@ namespace mkfit {
             ++matched;  //doubleMatch, the first is counted early on
         }
         prevL = thisL;
-        prevStereo = stereo;
+        prevStereo = cStereo;
       }
       ch = hot_node.m_prev_idx;
     }
@@ -527,9 +539,10 @@ namespace mkfit {
       int thisL = hot_node.m_hot.layer;
       if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == Hit::kHitCCCFilterIdx) &&
           thisL != prevL) {
+        bool cStereo = trk_inf[thisL].is_stereo();
         if (trk_inf[thisL].is_pixel())
           ++pix;
-        else if (trk_inf[thisL].is_stereo())
+        else if (cStereo)
           ++stereo;
         else {
           //mono if not pixel, nor stereo - can be matched to stereo
@@ -538,7 +551,7 @@ namespace mkfit {
             ++matched;
         }
         prevL = thisL;
-        prevStereo = stereo;
+        prevStereo = cStereo;
       }
       ch = hot_node.m_prev_idx;
     }
@@ -610,10 +623,10 @@ namespace mkfit {
       m_n_seeds_inserted -= n_removed;
     }
 
-    void insertSeed(const Track& seed, int region, int pos) {
+    void insertSeed(const Track& seed, const track_score_func& score_func, int region, int pos) {
       assert(pos < m_size);
 
-      m_candidates[pos].importSeed(seed, region);
+      m_candidates[pos].importSeed(seed, score_func, region);
 
       ++m_n_seeds_inserted;
     }
@@ -626,10 +639,11 @@ namespace mkfit {
     void beginBkwSearch() {
       for (int i = 0; i < m_size; ++i)
         m_candidates[i].beginBkwSearch();
+      m_cands_in_backward_rep = true;
     }
     void endBkwSearch() {
-      for (int i = 0; i < m_size; ++i)
-        m_candidates[i].endBkwSearch();
+      // There is no CombCand::endBkwSearch(), setup correctly in CombCand::reset().
+      m_cands_in_backward_rep = false;
     }
 
     // Accessors
@@ -638,6 +652,8 @@ namespace mkfit {
     const CombCandidate& operator[](int i) const { return m_candidates[i]; }
     CombCandidate& operator[](int i) { return m_candidates[i]; }
     CombCandidate& cand(int i) { return m_candidates[i]; }
+
+    bool cands_in_backward_rep() const { return m_cands_in_backward_rep; }
 
     // Direct access for vectorized functions in MkBuilder / MkFinder
     const std::vector<CombCandidate>& refCandidates() const { return m_candidates; }
@@ -651,6 +667,7 @@ namespace mkfit {
     int m_capacity = 0;
     int m_size = 0;
     int m_n_seeds_inserted = 0;
+    bool m_cands_in_backward_rep = false;
   };
 
 }  // namespace mkfit

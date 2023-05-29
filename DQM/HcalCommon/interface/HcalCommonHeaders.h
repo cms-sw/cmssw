@@ -43,7 +43,6 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"

@@ -1430,7 +1430,9 @@ namespace sistrip {
 
   inline FEDReadoutMode FEDBufferBase::readoutMode() const { return specialHeader_.readoutMode(); }
 
-  inline bool FEDBufferBase::doChecks() const { return doTrackerSpecialHeaderChecks() & doDAQHeaderAndTrailerChecks(); }
+  inline bool FEDBufferBase::doChecks() const {
+    return doTrackerSpecialHeaderChecks() && doDAQHeaderAndTrailerChecks();
+  }
 
   inline uint8_t FEDBufferBase::packetCode(bool legacy, const uint8_t internalFEDChannelNum) const {
     if (legacy) {

@@ -58,7 +58,8 @@ SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
   dqm_tag_.push_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
   dqm_tag_.push_back("Harvest");     // statistic collection: Harvest
 
-  tTopoToken_ = esConsumes<edm::Transition::EndRun>();
+  tTopoTokenBR_ = esConsumes<edm::Transition::BeginRun>();
+  tTopoTokenER_ = esConsumes<edm::Transition::EndRun>();
   tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
   gainToken_ = esConsumes<edm::Transition::BeginRun>();
   qualityToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -686,6 +687,7 @@ bool SiStripGainsPCLHarvester::IsGoodLandauFit(double* FitResults) {
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
   auto newBareTkGeomPtr = &es.getData(tkGeomToken_);
+  auto bareTkTopoPtr = &es.getData(tTopoTokenBR_);
   if (newBareTkGeomPtr == bareTkGeomPtr_)
     return;  // already filled APVColls, nothing changed
 
@@ -712,6 +714,14 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
           APV->Index = Index;
           APV->Bin = -1;
           APV->DetId = Detid.rawId();
+          APV->Side = 0;
+
+          if (SubDet == StripSubdetector::TID) {
+            APV->Side = bareTkTopoPtr->tidSide(Detid);
+          } else if (SubDet == StripSubdetector::TEC) {
+            APV->Side = bareTkTopoPtr->tecSide(Detid);
+          }
+
           APV->APVId = j;
           APV->SubDet = SubDet;
           APV->FitMPV = -1;
@@ -761,6 +771,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
             APV->Index = Index;
             APV->Bin = -1;
             APV->DetId = Detid.rawId();
+            APV->Side = 0;
             APV->APVId = (j << 3 | i);
             APV->SubDet = SubDet;
             APV->FitMPV = -1;
@@ -945,6 +956,6 @@ void SiStripGainsPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& 
 //********************************************************************************//
 void SiStripGainsPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {
   if (!tTopo_) {
-    tTopo_ = std::make_unique<TrackerTopology>(isetup.getData(tTopoToken_));
+    tTopo_ = std::make_unique<TrackerTopology>(isetup.getData(tTopoTokenER_));
   }
 }

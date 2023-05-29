@@ -32,7 +32,6 @@ namespace edm {
 
   class ProductResolverIndexHelper;
   class TypeID;
-  class TypeWithDict;
 
   class ProductRegistry {
   public:
@@ -70,6 +69,8 @@ namespace edm {
                       BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);
 
     void updateFromInput(ProductList const& other);
+    // triggers callbacks for modules watching registration
+    void addFromInput(edm::ProductRegistry const&);
 
     void updateFromInput(std::vector<BranchDescription> const& other);
 
@@ -96,6 +97,7 @@ namespace edm {
 
     //NOTE: this is not const since we only want items that have non-const access to this class to be
     // able to call this internal iteration
+    // Called only for branches that are present (part of avoiding creating type information for dropped branches)
     template <typename T>
     void callForEachBranch(T const& iFunc) {
       //NOTE: If implementation changes from a map, need to check that iterators are still valid
@@ -103,7 +105,9 @@ namespace edm {
       for (ProductRegistry::ProductList::const_iterator itEntry = productList_.begin(), itEntryEnd = productList_.end();
            itEntry != itEntryEnd;
            ++itEntry) {
-        iFunc(itEntry->second);
+        if (itEntry->second.present()) {
+          iFunc(itEntry->second);
+        }
       }
     }
     ProductList::size_type size() const { return productList_.size(); }
@@ -172,12 +176,12 @@ namespace edm {
                                 std::string const* processName);
     void addElementTypesForAliases(std::set<TypeID> const* elementTypesConsumed,
                                    std::map<TypeID, TypeID> const& containedTypeMap,
-                                   std::map<TypeID, std::vector<TypeWithDict>> const& containedTypeToBaseTypesMap);
+                                   std::map<TypeID, std::vector<TypeID>> const& containedTypeToBaseTypesMap);
 
     void checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
                                           std::set<TypeID> const* elementTypesConsumed,
                                           std::map<TypeID, TypeID> const& containedTypeMap,
-                                          std::map<TypeID, std::vector<TypeWithDict>>& containedTypeToBaseTypesMap);
+                                          std::map<TypeID, std::vector<TypeID>>& containedTypeToBaseTypesMap);
 
     void checkForDuplicateProcessName(BranchDescription const& desc, std::string const* processName) const;
 

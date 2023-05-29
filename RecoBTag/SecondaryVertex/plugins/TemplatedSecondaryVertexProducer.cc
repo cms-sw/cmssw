@@ -388,8 +388,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         std::vector<edm::Ptr<reco::Candidate> > constituents = it->getJetConstituents();
         std::vector<edm::Ptr<reco::Candidate> >::const_iterator m;
         for (m = constituents.begin(); m != constituents.end(); ++m) {
-          reco::CandidatePtr constit = *m;
-          if (constit->pt() == 0) {
+          const reco::CandidatePtr &constit = *m;
+          if (constit.isNull() || constit->pt() <= std::numeric_limits<double>::epsilon()) {
             edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
             continue;
           }
@@ -399,8 +399,10 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
                   << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
                   << std::endl;
             float w = (*weightsHandle)[constit];
-            fjInputs.push_back(
-                fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+            if (w > 0) {
+              fjInputs.push_back(
+                  fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+            }
           } else {
             fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
           }
@@ -412,8 +414,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         std::vector<edm::Ptr<reco::Candidate> > constituents = it->jet()->getJetConstituents();
         std::vector<edm::Ptr<reco::Candidate> >::const_iterator m;
         for (m = constituents.begin(); m != constituents.end(); ++m) {
-          reco::CandidatePtr constit = *m;
-          if (constit->pt() == 0) {
+          const reco::CandidatePtr &constit = *m;
+          if (constit.isNull() || constit->pt() <= std::numeric_limits<double>::epsilon()) {
             edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
             continue;
           }
@@ -423,8 +425,10 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
                   << "TemplatedSecondaryVertexProducer: No weights (e.g. PUPPI) given for weighted jet collection"
                   << std::endl;
             float w = (*weightsHandle)[constit];
-            fjInputs.push_back(
-                fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+            if (w > 0) {
+              fjInputs.push_back(
+                  fastjet::PseudoJet(constit->px() * w, constit->py() * w, constit->pz() * w, constit->energy() * w));
+            }
           } else {
             fjInputs.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
           }

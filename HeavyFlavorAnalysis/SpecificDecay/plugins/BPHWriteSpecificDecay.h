@@ -1,25 +1,34 @@
 #ifndef HeavyFlavorAnalysis_SpecificDecay_BPHWriteSpecificDecay_h
 #define HeavyFlavorAnalysis_SpecificDecay_BPHWriteSpecificDecay_h
 
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
-#include "DataFormats/PatCandidates/interface/GenericParticle.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
+
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexCompositePtrCandidate.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/GenericParticle.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
+
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include <string>
 #include <vector>
@@ -28,20 +37,17 @@
 class TH1F;
 class BPHRecoCandidate;
 
-class BPHWriteSpecificDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_producer> {
+class BPHWriteSpecificDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::stream_producer> {
 public:
   explicit BPHWriteSpecificDecay(const edm::ParameterSet& ps);
   ~BPHWriteSpecificDecay() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void beginJob() override;
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
-  virtual void fill(edm::Event& ev, const edm::EventSetup& es);
-  void endJob() override;
+  virtual void fill(edm::Event& ev, const BPHEventSetupWrapper& es);
 
 private:
-  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken;
   std::string pVertexLabel;
   std::string patMuonLabel;
   std::string ccCandsLabel;
@@ -54,16 +60,18 @@ private:
   std::string lSCandsLabel;
 
   // token wrappers to allow running both on "old" and "new" CMSSW versions
-  BPHTokenWrapper<std::vector<reco::Vertex>> pVertexToken;
+  BPHESTokenWrapper<MagneticField, IdealMagneticFieldRecord> magFieldToken;
+  BPHESTokenWrapper<TransientTrackBuilder, TransientTrackRecord> ttBToken;
+  BPHTokenWrapper<std::vector<reco::Vertex> > pVertexToken;
   BPHTokenWrapper<pat::MuonCollection> patMuonToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> ccCandsToken;
-  BPHTokenWrapper<std::vector<reco::PFCandidate>> pfCandsToken;
-  BPHTokenWrapper<std::vector<BPHTrackReference::candidate>> pcCandsToken;
-  BPHTokenWrapper<std::vector<pat::GenericParticle>> gpCandsToken;
-  BPHTokenWrapper<std::vector<reco::VertexCompositeCandidate>> k0CandsToken;
-  BPHTokenWrapper<std::vector<reco::VertexCompositeCandidate>> l0CandsToken;
-  BPHTokenWrapper<std::vector<reco::VertexCompositePtrCandidate>> kSCandsToken;
-  BPHTokenWrapper<std::vector<reco::VertexCompositePtrCandidate>> lSCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > ccCandsToken;
+  BPHTokenWrapper<std::vector<reco::PFCandidate> > pfCandsToken;
+  BPHTokenWrapper<std::vector<BPHTrackReference::candidate> > pcCandsToken;
+  BPHTokenWrapper<std::vector<pat::GenericParticle> > gpCandsToken;
+  BPHTokenWrapper<std::vector<reco::VertexCompositeCandidate> > k0CandsToken;
+  BPHTokenWrapper<std::vector<reco::VertexCompositeCandidate> > l0CandsToken;
+  BPHTokenWrapper<std::vector<reco::VertexCompositePtrCandidate> > kSCandsToken;
+  BPHTokenWrapper<std::vector<reco::VertexCompositePtrCandidate> > lSCandsToken;
 
   bool usePV;
   bool usePM;
@@ -80,6 +88,7 @@ private:
   std::string sdName;
   std::string ssName;
   std::string buName;
+  std::string bpName;
   std::string bdName;
   std::string bsName;
   std::string k0Name;
@@ -87,6 +96,7 @@ private:
   std::string b0Name;
   std::string lbName;
   std::string bcName;
+  std::string psi2SName;
   std::string x3872Name;
 
   enum recoType {
@@ -101,6 +111,7 @@ private:
     Kx0,
     Pkk,
     Bu,
+    Bp,
     Bd,
     Bs,
     K0s,
@@ -108,6 +119,7 @@ private:
     B0,
     Lambdab,
     Bc,
+    Psi2S,
     X3872
   };
   enum parType {
@@ -130,18 +142,21 @@ private:
     mFitMax,
     constrMass,
     constrSigma,
+    requireJPsi,
     constrMJPsi,
+    constrMPsi2,
     writeCandidate
   };
   std::map<std::string, recoType> rMap;
   std::map<std::string, parType> pMap;
   std::map<std::string, parType> fMap;
-  std::map<recoType, std::map<parType, double>> parMap;
+  std::map<recoType, std::map<parType, double> > parMap;
 
   bool recoOnia;
   bool recoKx0;
   bool recoPkk;
   bool recoBu;
+  bool recoBp;
   bool recoBd;
   bool recoBs;
   bool recoK0s;
@@ -149,12 +164,19 @@ private:
   bool recoB0;
   bool recoLambdab;
   bool recoBc;
+  bool recoPsi2S;
   bool recoX3872;
+
+  bool allKx0;
+  bool allPkk;
+  bool allK0s;
+  bool allLambda0;
 
   bool writeOnia;
   bool writeKx0;
   bool writePkk;
   bool writeBu;
+  bool writeBp;
   bool writeBd;
   bool writeBs;
   bool writeK0s;
@@ -162,6 +184,7 @@ private:
   bool writeB0;
   bool writeLambdab;
   bool writeBc;
+  bool writePsi2S;
   bool writeX3872;
 
   bool writeVertex;
@@ -172,6 +195,7 @@ private:
   std::vector<BPHRecoConstCandPtr> lSd;
   std::vector<BPHRecoConstCandPtr> lSs;
   std::vector<BPHRecoConstCandPtr> lBu;
+  std::vector<BPHRecoConstCandPtr> lBp;
   std::vector<BPHRecoConstCandPtr> lBd;
   std::vector<BPHRecoConstCandPtr> lBs;
   std::vector<BPHPlusMinusConstCandPtr> lK0;
@@ -179,16 +203,21 @@ private:
   std::vector<BPHRecoConstCandPtr> lB0;
   std::vector<BPHRecoConstCandPtr> lLb;
   std::vector<BPHRecoConstCandPtr> lBc;
+  std::vector<BPHRecoConstCandPtr> lPsi2S;
   std::vector<BPHRecoConstCandPtr> lX3872;
 
   std::map<const BPHRecoCandidate*, const BPHRecoCandidate*> jPsiOMap;
   std::map<const BPHRecoCandidate*, const BPHRecoCandidate*> daughMap;
-  typedef edm::Ref<std::vector<reco::Vertex>> vertex_ref;
+  typedef edm::Ref<std::vector<reco::Vertex> > vertex_ref;
   std::map<const BPHRecoCandidate*, vertex_ref> pvRefMap;
   typedef edm::Ref<pat::CompositeCandidateCollection> compcc_ref;
   std::map<const BPHRecoCandidate*, compcc_ref> ccRefMap;
 
   void setRecoParameters(const edm::ParameterSet& ps);
+
+  static void addTrackModes(const std::string& name, const BPHRecoCandidate& cand, std::string& modes, bool& count);
+
+  static void addTrackModes(const std::string& name, const BPHRecoCandidate& cand, pat::CompositeCandidate& cc);
 
   template <class T>
   edm::OrphanHandle<pat::CompositeCandidateCollection> write(edm::Event& ev,
@@ -209,6 +238,11 @@ private:
       const T& ptr = list[i];
       ccList->push_back(ptr->composite());
       pat::CompositeCandidate& cc = ccList->back();
+      std::string modes;
+      bool count = false;
+      addTrackModes("", *ptr, modes, count);
+      cc.addUserData("trackModes", modes, true);
+      addTrackModes("trackMode_", *ptr, cc);
       if ((pvrIter = pvRefMap.find(ptr.get())) != pvrIend)
         cc.addUserData("primaryVertex", pvrIter->second);
       const std::vector<std::string>& cNames = ptr->compNames();
@@ -231,7 +265,7 @@ private:
       }
       const BPHPlusMinusCandidate* pmp = dynamic_cast<const BPHPlusMinusCandidate*>(ptr.get());
       if (pmp != nullptr) {
-        cc.addUserData("cowboy", pmp->isCowboy());
+        cc.addUserInt("cowboy", (pmp->isCowboy() ? +1 : -1));
         //        cc.addUserFloat(    "dca", pmp->cAppInRPhi().distance() );
       }
       if (writeVertex)

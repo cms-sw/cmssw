@@ -66,7 +66,7 @@ HLTHcalMETNoiseCleaner::HLTHcalMETNoiseCleaner(const edm::ParameterSet& iConfig)
       minRecHitE_(iConfig.getParameter<double>("minRecHitE")),
       minLowHitE_(iConfig.getParameter<double>("minLowHitE")),
       minHighHitE_(iConfig.getParameter<double>("minHighHitE")),
-      minR45HitE_(5.0),
+      minR45HitE_(iConfig.getParameter<double>("minR45HitE")),
       TS4TS5EnergyThreshold_(iConfig.getParameter<double>("TS4TS5EnergyThreshold")) {
   std::vector<double> TS4TS5UpperThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperThreshold");
   std::vector<double> TS4TS5UpperCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperCut");
@@ -83,9 +83,6 @@ HLTHcalMETNoiseCleaner::HLTHcalMETNoiseCleaner(const edm::ParameterSet& iConfig)
 
   m_theCaloMetToken = consumes<reco::CaloMETCollection>(CaloMetCollectionTag_);
   m_theHcalNoiseToken = consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_);
-
-  if (iConfig.existsAs<double>("minR45HitE"))
-    minR45HitE_ = iConfig.getParameter<double>("minR45HitE");
 
   produces<reco::CaloMETCollection>();
 }
@@ -138,7 +135,7 @@ void HLTHcalMETNoiseCleaner::fillDescriptions(edm::ConfigurationDescriptions& de
 // member functions
 //
 
-bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HLTHcalMETNoiseCleaner::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace reco;
 
   //output collection
@@ -339,7 +336,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   return (corMet.pt() > CaloMetCut_);
 }
 
-reco::CaloMET HLTHcalMETNoiseCleaner::BuildCaloMet(float sumet, float pt, float phi) {
+reco::CaloMET HLTHcalMETNoiseCleaner::BuildCaloMet(float sumet, float pt, float phi) const {
   // Instantiate the container to hold the calorimeter specific information
 
   typedef math::XYZPoint Point;

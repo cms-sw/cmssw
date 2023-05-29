@@ -93,6 +93,7 @@ public:
   }
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
+    edm::Service<DQMStore>()->initLumi(lumi.run(), lumi.luminosityBlock(), meId());
     edm::Service<DQMStore>()->enterLumi(lumi.run(), lumi.luminosityBlock(), meId());
   }
 

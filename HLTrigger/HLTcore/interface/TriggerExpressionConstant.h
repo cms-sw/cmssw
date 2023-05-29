@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionConstant_h
-#define HLTrigger_HLTfilters_TriggerExpressionConstant_h
+#ifndef HLTrigger_HLTcore_TriggerExpressionConstant_h
+#define HLTrigger_HLTcore_TriggerExpressionConstant_h
 
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
@@ -13,7 +13,7 @@ namespace triggerExpression {
 
     bool operator()(const Data& data) const override { return m_value; }
 
-    void dump(std::ostream& out) const override { out << (m_value ? "TRUE" : "FALSE"); }
+    void dump(std::ostream& out, bool const ignoreMasks = false) const override { out << (m_value ? "TRUE" : "FALSE"); }
 
   private:
     bool m_value;
@@ -21,4 +21,4 @@ namespace triggerExpression {
 
 }  // namespace triggerExpression
 
-#endif  // HLTrigger_HLTfilters_TriggerExpressionConstant_h
+#endif  // HLTrigger_HLTcore_TriggerExpressionConstant_h

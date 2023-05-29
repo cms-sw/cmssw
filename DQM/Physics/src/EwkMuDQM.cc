@@ -499,15 +499,12 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   bool zmuon_sel[NFLAGSZ];
   bool muon4Z = false;
 
-  double number_of_muons = 0;
   double number_of_goodMuons = 0;
 
   for (unsigned int i = 0; i < muonCollectionSize; i++) {
     for (int j = 0; j < NFLAGS; ++j) {
       muon_sel[j] = false;
     }
-
-    number_of_muons++;
 
     const Muon& mu = muonCollection->at(i);
     if (!mu.isGlobalMuon())
@@ -831,7 +828,6 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     n_zselPt2thr_->Fill(nmuonsForZ2);
   }
 
-  // nmuons_->Fill(number_of_muons);
   // nmuons_->Fill(muonCollectionSize);
   ngoodmuons_->Fill(number_of_goodMuons);
 

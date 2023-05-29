@@ -17,7 +17,7 @@
 #define L1Trigger_DTTrigger_DTTrigTest_h
 
 // Framework related headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,7 +29,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
-class DTTrigTest : public edm::EDAnalyzer {
+class DTTrigTest : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   //! Constructor
   DTTrigTest(const edm::ParameterSet& pset);
@@ -46,6 +46,7 @@ public:
 
   //! Create DTTrig instance and TUs
   void beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) override;
+  void endRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) override {}
 
   //! Analyze function executed on all the events
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iEventSetup) override;

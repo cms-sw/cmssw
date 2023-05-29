@@ -46,6 +46,13 @@ namespace l1t {
           GlobalAlgBlk talg = GlobalAlgBlk();
           res_->push_back(bx, talg);
         }
+        //If this is not the first block, but the vector is empty, something has gone wrong (corrupted data)
+        else if (res_->isEmpty(bx))
+          throw cms::Exception("InvalidGlobalAlgBlkBxCollection")
+              << "The GlobalAlgBlk unpacker result vector is empty, but is not receiving the first expected header "
+                 "ID! This may be due to corrupted, or poorly formatted events.\n"
+              << "uGTBoard: " << uGTBoard << "\nBX: " << bx << "\nFirst expected block: " << initialBlkID
+              << "\nReceived block: " << block.header().getID();
 
         //fetch
         GlobalAlgBlk alg = res_->at(bx, 0);
@@ -111,11 +118,8 @@ namespace l1t {
         }
 
         //Redetermine Final (multiboard)  FINOR
-        if (alg.getFinalORPreVeto() & !alg.getFinalORVeto()) {
-          alg.setFinalOR(true);
-        } else {
-          alg.setFinalOR(false);  //be explicit and must set to false if we find a board with veto set.
-        }
+        //be explicit and must set to false if we find a board with veto set.
+        alg.setFinalOR(alg.getFinalORPreVeto() && !alg.getFinalORVeto());
 
         // Put the object back into place (Must be better way)
         res_->set(bx, 0, alg);

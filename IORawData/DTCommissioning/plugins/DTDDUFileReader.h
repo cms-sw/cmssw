@@ -8,7 +8,7 @@
  *  $Revision: 1.11 $
  *  \author M. Zanetti - INFN Padova
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "IORawData/DTCommissioning/plugins/RawFile.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,7 +19,7 @@
 #include <fstream>
 #include <cstdint>
 
-class DTDDUFileReader : public edm::EDProducer {
+class DTDDUFileReader : public edm::one::EDProducer<> {
 public:
   /// Constructor
   DTDDUFileReader(const edm::ParameterSet& pset);

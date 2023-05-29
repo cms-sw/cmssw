@@ -72,7 +72,7 @@
 class HGCalWaferValidation : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalWaferValidation(const edm::ParameterSet&);
-  ~HGCalWaferValidation() override;
+  ~HGCalWaferValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -168,13 +168,6 @@ HGCalWaferValidation::HGCalWaferValidation(const edm::ParameterSet& iConfig)
     : geometryFileName_(iConfig.getParameter<edm::FileInPath>("GeometryFileName")) {
   viewToken_ = esConsumes<DDCompactView, IdealGeometryRecord>();
   //now do what ever initialization is needed
-}
-
-HGCalWaferValidation::~HGCalWaferValidation() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  //
-  // please remove this method altogether if it would be left empty
 }
 
 //

@@ -1,25 +1,43 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runHGCHitAnalyzer_cfg.py geometry=D88
+#
+#   Options for geometry D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-#process = cms.Process('HGCGeomAnalysis',Phase2C9)
-#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D88",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D88, D92, D93")
 
-#from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
-#process = cms.Process('HGCGeomAnalysis',Phase2C12)
-#process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+### get and parse the command line arguments
+options.parseArguments()
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D70_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D70Reco_cff')
+print(options)
 
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-process = cms.Process('HGCGeomAnalysis',Phase2C11)
-process.load('Configuration.Geometry.GeometryExtended2026D71_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
+####################################################################
+# Use the options
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('HGCHitAnalyzer',Phase2C17I13M9)
 
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+inFile = "file:step3" + options.geometry + ".root"
+outFile = "relValTTbar" + options.geometry + ".root"
+
+print("Geometry file: ", geomFile)
+print("Input file:    ", inFile)
+print("Output file:   ", outFile)
+
+# import of standard configurations
+process.load(geomFile)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')    
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -28,27 +46,21 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-##Global Tag used for production in
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
-#process.MessageLogger.cerr.FwkReport.reportEvery = 100
-#
 #    
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-        'file:step3.root',
-        #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/90X_upgrade2023_realistic_v0_2023D4-v1/10000/085AD7B1-8ABA-E611-A7DA-0CC47A4C8EB6.root',
-        #'/store/relval/CMSSW_8_1_0_pre8/RelValTTbar_14TeV/GEN-SIM-RECO/81X_mcRun2_asymptotic_v1_2023LReco-v1/10000/08E719D4-DE3D-E611-9092-003048FFD722.root',
-        )
-                            )
+                            fileNames = cms.untracked.vstring(inFile)
+)
 
 process.load('Validation.HGCalValidation.hgcHitValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('relValTTbarD71.root'),
+                                   fileName = cms.string(outFile),
                                    closeFileFast = cms.untracked.bool(True)
-                                   )
+)
 
 SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) )
 

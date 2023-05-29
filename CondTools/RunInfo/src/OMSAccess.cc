@@ -33,6 +33,16 @@ namespace cond {
 
   OMSServiceResultIterator OMSServiceResult::end() const { return OMSServiceResultIterator(m_data->end()); }
 
+  OMSServiceResultRef OMSServiceResult::front() const {
+    auto& attributeList = m_data->front().second.get_child("attributes");
+    return OMSServiceResultRef(&attributeList);
+  }
+
+  OMSServiceResultRef OMSServiceResult::back() const {
+    auto& attributeList = m_data->back().second.get_child("attributes");
+    return OMSServiceResultRef(&attributeList);
+  }
+
   size_t OMSServiceResult::parseData(const std::string& data) {
     m_data = nullptr;
     std::stringstream sout;
@@ -83,6 +93,18 @@ namespace cond {
     return *this;
   }
 
+  OMSServiceQuery& OMSServiceQuery::limit(int value) {
+    std::stringstream pageLimit;
+    if (m_filter.empty()) {
+      pageLimit << "?";
+    } else {
+      pageLimit << "&";
+    }
+    pageLimit << "page[limit]=" << value;
+    m_limit = pageLimit.str();
+    return *this;
+  }
+
   bool OMSServiceQuery::execute() {
     bool ret = false;
     std::string out;
@@ -99,7 +121,7 @@ namespace cond {
 
   OMSServiceResult& OMSServiceQuery::result() { return *m_result; }
 
-  std::string OMSServiceQuery::url() { return m_url + m_filter + m_varList; }
+  std::string OMSServiceQuery::url() { return m_url + m_filter + m_limit + m_varList; }
 
   OMSService::OMSService() : m_baseUrl() {}
 

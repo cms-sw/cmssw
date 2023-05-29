@@ -1,9 +1,38 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalParametersDDD_cfg.py type=V17
+#
+#   Options for type V16, V17, V17n, V17Shift, V18
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("HGCalParametersTest",Phase2C11)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V16, V17, V17n, V17Shift, V18")
+
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+
+process = cms.Process("HGCalParametersTest",Phase2C17I13M9)
+
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
+
+print("Geometry file: ", geomFile)
+
+process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D82Reco_cff")
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -43,5 +72,5 @@ process.hgcParameterTesterHESci = process.hgcParameterTesterEE.clone(
     Name = cms.string("HGCalHEScintillatorSensitive"),
     Mode = cms.int32(2)
 )
-
+ 
 process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil*process.hgcParameterTesterHESci)

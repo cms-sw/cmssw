@@ -6,7 +6,7 @@
 #ifndef L1ScalersCLIENT_H
 #define L1ScalersCLIENT_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -19,7 +19,8 @@
 #define MAX_TT 80
 #define MAX_LUMI_SEG 2000
 
-class L1ScalersClient : public edm::EDAnalyzer {
+class L1ScalersClient
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -44,6 +45,7 @@ public:
 
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
+  void beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override {}
   void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
   // unused

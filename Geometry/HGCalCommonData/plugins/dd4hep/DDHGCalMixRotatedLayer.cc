@@ -45,11 +45,12 @@ struct HGCalMixRotatedLayer {
     orientationTypes_ = args.value<int>("OrientationTypes");
     placeOffset_ = args.value<int>("PlaceOffset");
     phiBinsScint_ = args.value<int>("NPhiBinScint");
+    forFireworks_ = args.value<int>("ForFireWorks");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer::Number of types of wafers: " << waferTypes_
                                   << " facings: " << facingTypes_ << " Orientations: " << orientationTypes_
-                                  << " PlaceOffset: " << placeOffset_ << "; number of cells along phi "
-                                  << phiBinsScint_;
+                                  << " PlaceOffset: " << placeOffset_ << "; number of cells along phi " << phiBinsScint_
+                                  << " forFireworks_: " << forFireworks_;
 #endif
     firstLayer_ = args.value<int>("FirstLayer");
     absorbMode_ = args.value<int>("AbsorberMode");
@@ -392,16 +393,18 @@ struct HGCalMixRotatedLayer {
         int fimin = std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         int fimax = std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         double phi1 = dphi * (fimin - 1);
-        double phi2 = dphi * (fimax - fimin + 1);
+        double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
         auto cshift = cassette_.getShift(layer + 1, 1, cassette);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << " iR "
-                                      << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
-                                      << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R "
+        int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << ":" << (layer + 1) << " iR "
+                                      << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << ":"
+                                      << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R "
                                       << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
                                       << cms::convert2mm((2.0 * hthickl)) << " phi " << fimin << ":" << fimax << ":"
                                       << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
-                                      << cassette << " Shift " << cshift.first << ":" << cshift.second;
+                                      << cassette << ":" << cassette0 << " Shift " << cshift.first << ":"
+                                      << cshift.second;
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;
@@ -415,11 +418,12 @@ struct HGCalMixRotatedLayer {
                                       << cms::convert2mm(r2) << ", " << cms::convert2mm(hthickl) << ", "
                                       << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
-        dd4hep::Position tran(cshift.first, cshift.second, zpos);
+        dd4hep::Position tran(-cshift.first, cshift.second, zpos);
         glog.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Position " << glog1.name() << " number " << copy
-                                      << " in " << glog.name() << " at (0, 0, " << cms::convert2mm(zpos)
+                                      << " in " << glog.name() << " at (" << cms::convert2mm(cshift.first) << ", "
+                                      << cms::convert2mm(cshift.second) << ", " << cms::convert2mm(zpos)
                                       << ") with no rotation";
 #endif
       }
@@ -428,11 +432,11 @@ struct HGCalMixRotatedLayer {
     }
     if (std::abs(thickTot - thick) > tol2_) {
       if (thickTot > thick) {
-        edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(thick) << " is smaller than "
-                                   << cms::convert2mm(thickTot)
+        edm::LogError("HGCalGeom") << "DDHGCalMixRotatedLayer: Thickness of the partition " << cms::convert2mm(thick)
+                                   << " is smaller than " << cms::convert2mm(thickTot)
                                    << ": thickness of all its components in the top part **** ERROR ****";
       } else {
-        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(thick)
+        edm::LogWarning("HGCalGeom") << "DDHGCalMixRotatedLayer: Thickness of the partition " << cms::convert2mm(thick)
                                      << " does not match with " << cms::convert2mm(thickTot)
                                      << " of the components in top part";
       }
@@ -474,13 +478,22 @@ struct HGCalMixRotatedLayer {
       int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
       int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " index:Property:layertype:type:part:orien:cassette:place:offsets:ind " << k
-                                    << ":" << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":"
-                                    << orien << ":" << cassette << ":" << place;
+      edm::LogVerbatim("HGCalGeom")
+          << "DDHGCalMixRotatedLayer::index:Property:layertype:type:part:orien:cassette:place:offsets:ind " << k << ":"
+          << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien << ":" << cassette
+          << ":" << place;
 #endif
-      auto cshift = cassette_.getShift(layer + 1, 1, cassette);
-      double xpos = xyoff.first + cshift.first + nc * delx;
+      auto cshift = cassette_.getShift(layer + 1, -1, cassette);
+      double xpos = xyoff.first - cshift.first + nc * delx;
       double ypos = xyoff.second + cshift.second + nr * dy;
+#ifdef EDM_ML_DEBUG
+      double xorig = xyoff.first + nc * delx;
+      double yorig = xyoff.second + nr * dy;
+      double angle = std::atan2(yorig, xorig);
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer::Wafer: layer " << layer + 1 << " cassette " << cassette
+                                    << " Shift " << cshift.first << ":" << cshift.second << " Original " << xorig << ":"
+                                    << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":" << ypos;
+#endif
       std::string wafer;
       int i(999);
       if (part == HGCalTypes::WaferFull) {
@@ -545,6 +558,7 @@ struct HGCalMixRotatedLayer {
   int orientationTypes_;                  // Number of partial wafer orienations
   int placeOffset_;                       // Offset for placement
   int phiBinsScint_;                      // Maximum number of cells along phi
+  int forFireworks_;                      // Needed for Fireworks(1)/Geant4(0)
   int firstLayer_;                        // Copy # of the first sensitive layer
   int absorbMode_;                        // Absorber mode
   int sensitiveMode_;                     // Sensitive mode

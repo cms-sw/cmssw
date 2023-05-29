@@ -185,9 +185,9 @@ ElasticPlotDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned in
 
 ElasticPlotDQMSource::ElasticPlotDQMSource(const edm::ParameterSet &ps)
     : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)) {
-  tokenRecHit = consumes<edm::DetSetVector<TotemRPRecHit>>(ps.getParameter<edm::InputTag>("tagRecHit"));
-  tokenUVPattern = consumes<DetSetVector<TotemRPUVPattern>>(ps.getParameter<edm::InputTag>("tagUVPattern"));
-  tokenLocalTrack = consumes<DetSetVector<TotemRPLocalTrack>>(ps.getParameter<edm::InputTag>("tagLocalTrack"));
+  tokenRecHit = consumes<edm::DetSetVector<TotemRPRecHit>>(ps.getUntrackedParameter<edm::InputTag>("tagRecHit"));
+  tokenUVPattern = consumes<DetSetVector<TotemRPUVPattern>>(ps.getUntrackedParameter<edm::InputTag>("tagUVPattern"));
+  tokenLocalTrack = consumes<DetSetVector<TotemRPLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagLocalTrack"));
 }
 
 //----------------------------------------------------------------------------------------------------

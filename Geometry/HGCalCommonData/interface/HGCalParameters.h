@@ -57,7 +57,7 @@ public:
   };
 
   HGCalParameters(const std::string& nam);
-  ~HGCalParameters(void);
+  ~HGCalParameters(void) = default;
   void fillModule(const hgtrap& mytr, bool reco);
   hgtrap getModule(unsigned int k, bool reco) const;
   void fillTrForm(const hgtrform& mytr);
@@ -71,6 +71,7 @@ public:
 
   std::string name_;
   int detectorType_;
+  int useSimWt_;
   int nCells_;
   int nSectors_;
   int firstLayer_;
@@ -152,7 +153,10 @@ public:
   double waferSize_;
   double waferThick_;
   double sensorSeparation_;
+  double sensorSizeOffset_;
+  double guardRingOffset_;
   double mouseBite_;
+  int useOffset_;
   int waferUVMax_;
   std::vector<int> waferUVMaxLayer_;
   bool defineFull_;
@@ -192,6 +196,12 @@ public:
   int nphiCassette_;
   int phiOffset_;
   std::vector<double> cassetteShift_;
+  double calibCellRHD_;
+  std::vector<int> calibCellFullHD_;
+  std::vector<int> calibCellPartHD_;
+  double calibCellRLD_;
+  std::vector<int> calibCellFullLD_;
+  std::vector<int> calibCellPartLD_;
 
   COND_SERIALIZABLE;
 

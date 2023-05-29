@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import vfe_proc
+from L1Trigger.L1THGCal.l1tHGCalVFEProducer_cfi import vfe_proc
 
 class CreateVfe(object):
     def __init__(self,
@@ -17,7 +17,7 @@ class CreateVfe(object):
         )
 
     def __call__(self, process):
-        producer = process.hgcalVFEProducer.clone(
+        producer = process.l1tHGCalVFEProducer.clone(
             ProcessorParameters = self.processor
         )
         return producer

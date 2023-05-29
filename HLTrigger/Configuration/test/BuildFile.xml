@@ -1,0 +1,2 @@
+<!-- test access to EDM files used in HLT-AddOnTests and HLT-Validation tests -->
+<test name="testAccessToEDMInputsOfHLTTests" command="testAccessToEDMInputsOfHLTTests.sh"/>

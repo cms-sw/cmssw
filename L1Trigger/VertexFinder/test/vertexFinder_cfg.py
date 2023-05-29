@@ -70,20 +70,20 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 
 #--- Load config fragment that configures vertex producer
-process.load('L1Trigger.VertexFinder.VertexProducer_cff')
-process.VertexProducer.l1TracksInputTag = l1TracksTag
+process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
+process.l1tVertexProducer.l1TracksInputTag = l1TracksTag
 
 #--- Load config fragment that configures vertex analyzer
 process.load('L1Trigger.VertexFinder.VertexAnalyzer_cff')
-process.L1TVertexAnalyzer.l1TracksInputTag = l1TracksTag
+process.l1tVertexAnalyzer.l1TracksInputTag = l1TracksTag
 
-if process.L1TVertexAnalyzer.debug == 0:
+if process.l1tVertexAnalyzer.debug == 0:
     process.MessageLogger.cerr.FwkReport.reportEvery = 50
 
 
 if (options.analysis):
-    process.p = cms.Path(process.VertexProducer + process.L1TVertexAnalyzer)
+    process.p = cms.Path(process.l1tVertexProducer + process.l1tVertexAnalyzer)
 else:
-    process.p = cms.Path(process.VertexProducer)
+    process.p = cms.Path(process.l1tVertexProducer)
 
 # process.e = cms.EndPath(process.out)

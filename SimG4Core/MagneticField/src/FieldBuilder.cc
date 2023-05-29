@@ -16,6 +16,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4TMagFieldEquation.hh"
+#include "CMSTMagFieldEquation.h"
 #include "G4PropagatorInField.hh"
 
 using namespace sim;
@@ -56,8 +57,10 @@ void FieldBuilder::configureForVolume(const std::string &volName,
   edm::ParameterSet stpPSet = volPSet.getParameter<edm::ParameterSet>("StepperParam");
   double minStep = stpPSet.getParameter<double>("MinStep") * CLHEP::mm;
 
-  if (stepper == "G4TDormandPrince45") {
-    theFieldEquation = new G4TMagFieldEquation<Field>(theField);
+  if (stepper == "CMSTDormandPrince45") {
+    theFieldEquation = new CMSTMagFieldEquation<sim::Field>(theField);
+  } else if (stepper == "G4TDormandPrince45") {
+    theFieldEquation = new G4TMagFieldEquation<sim::Field>(theField);
   } else {
     theFieldEquation = new G4Mag_UsualEqRhs(theField);
   }

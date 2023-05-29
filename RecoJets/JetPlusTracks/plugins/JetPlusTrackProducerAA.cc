@@ -113,11 +113,11 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
   using namespace edm;
 
   // get stuff from Event
-  edm::Handle<edm::View<reco::CaloJet> > jets_h;
-  iEvent.getByToken(input_jets_token_, jets_h);
 
   edm::Handle<reco::TrackCollection> tracks_h;
   iEvent.getByToken(input_tracks_token_, tracks_h);
+
+  auto const& jets_h = iEvent.get(input_jets_token_);
 
   std::vector<reco::TrackRef> fTracks;
   fTracks.reserve(tracks_h->size());
@@ -132,10 +132,9 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   reco::JPTJetCollection tmpColl;
 
-  for (unsigned i = 0; i < jets_h->size(); ++i) {
-    const reco::CaloJet* oldjet = &(*(jets_h->refAt(i)));
-
-    reco::CaloJet corrected = *oldjet;
+  int iJet = 0;
+  for (auto const& oldjet : jets_h) {
+    reco::CaloJet corrected = oldjet;
 
     // ZSP corrections
 
@@ -155,21 +154,21 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     jpt::MatchedTracks pions;
     jpt::MatchedTracks muons;
     jpt::MatchedTracks elecs;
-    bool ok = false;
+    bool validMatches = false;
 
     if (!vectorial_) {
-      scaleJPT = mJPTalgo->correction(corrected, *oldjet, iEvent, iSetup, pions, muons, elecs, ok);
+      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, validMatches);
       p4 = math::XYZTLorentzVector(corrected.px() * scaleJPT,
                                    corrected.py() * scaleJPT,
                                    corrected.pz() * scaleJPT,
                                    corrected.energy() * scaleJPT);
     } else {
-      scaleJPT = mJPTalgo->correction(corrected, *oldjet, iEvent, iSetup, p4, pions, muons, elecs, ok);
+      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, validMatches);
     }
 
     reco::JPTJet::Specific specific;
 
-    if (ok) {
+    if (validMatches) {
       specific.pionsInVertexInCalo = pions.inVertexInCalo_;
       specific.pionsInVertexOutCalo = pions.inVertexOutOfCalo_;
       specific.pionsOutVertexInCalo = pions.outOfVertexInCalo_;
@@ -182,9 +181,7 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Fill JPT Specific
-    edm::RefToBase<reco::Jet> myjet = (edm::RefToBase<reco::Jet>)jets_h->refAt(i);
-    specific.theCaloJetRef = myjet;
-    specific.mZSPCor = factorZSP;
+    specific.theCaloJetRef = edm::RefToBase<reco::Jet>(jets_h.refAt(iJet));
     specific.mResponseOfChargedWithEff = (float)mJPTalgo->getResponseOfChargedWithEff();
     specific.mResponseOfChargedWithoutEff = (float)mJPTalgo->getResponseOfChargedWithoutEff();
     specific.mSumPtOfChargedWithEff = (float)mJPTalgo->getSumPtWithEff();
@@ -192,6 +189,7 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     specific.mSumEnergyOfChargedWithEff = (float)mJPTalgo->getSumEnergyWithEff();
     specific.mSumEnergyOfChargedWithoutEff = (float)mJPTalgo->getSumEnergyWithoutEff();
     specific.mChargedHadronEnergy = (float)mJPTalgo->getSumEnergyWithoutEff();
+
     // Fill Charged Jet shape parameters
     double deR2Tr = 0.;
     double deEta2Tr = 0.;
@@ -286,7 +284,6 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     specific.Zch = Zch;
 
     // Create JPT jet
-
     reco::Particle::Point vertex_ = reco::Jet::Point(0, 0, 0);
 
     // If we add primary vertex
@@ -296,10 +293,10 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
       vertex_ = pvCollection->begin()->position();
 
     reco::JPTJet fJet(p4, vertex_, specific, corrected.getJetConstituents());
-    // fJet.printJet();
 
     // Temporarily collection before correction for background
 
+    iJet++;
     tmpColl.push_back(fJet);
   }
 
@@ -384,14 +381,11 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
   }  //tracks
 
   //=====> Propagate BG tracks to calo
-  int nValid = 0;
   for (std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = extrapolations_h->begin(),
                                                              xtrpEnd = extrapolations_h->end(),
                                                              ixtrp = xtrpBegin;
        ixtrp != xtrpEnd;
        ++ixtrp) {
-    nValid++;
-
     reco::TrackRefVector::iterator it = find(trBgOutOfVertex.begin(), trBgOutOfVertex.end(), (*ixtrp).track());
 
     if (it != trBgOutOfVertex.end()) {

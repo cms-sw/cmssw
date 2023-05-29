@@ -17,7 +17,7 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -31,7 +31,7 @@
 // class decleration
 //
 
-class DumpGctDigis : public edm::EDAnalyzer {
+class DumpGctDigis : public edm::one::EDAnalyzer<> {
 public:
   explicit DumpGctDigis(const edm::ParameterSet&);
   ~DumpGctDigis() override;

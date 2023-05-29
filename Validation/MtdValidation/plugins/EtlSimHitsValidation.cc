@@ -34,13 +34,7 @@
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x;
-  float y;
-  float z;
-};
+#include "MTDHit.h"
 
 class EtlSimHitsValidation : public DQMEDAnalyzer {
 public:
@@ -117,10 +111,9 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   bool topo1Dis = false;
   bool topo2Dis = false;
-  if (topology->getMTDTopologyMode() <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+  if (MTDTopologyMode::etlLayoutFromTopoMode(topology->getMTDTopologyMode()) == ETLDetId::EtlLayout::tp) {
     topo1Dis = true;
-  }
-  if (topology->getMTDTopologyMode() > static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+  } else {
     topo2Dis = true;
   }
 
@@ -175,7 +168,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     if ((simHitIt->second).time == 0 || simHit.tof() < (simHitIt->second).time) {
       (simHitIt->second).time = simHit.tof();
 
-      auto hit_pos = simHit.entryPoint();
+      auto hit_pos = simHit.localPosition();
       (simHitIt->second).x = hit_pos.x();
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();

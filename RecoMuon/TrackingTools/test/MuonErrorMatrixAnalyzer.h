@@ -13,7 +13,7 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,6 +30,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 class MagneticField;
+class IdealMagneticFieldRecord;
+class TrackingComponentsRecord;
 class TH1;
 class TH2;
 class Propagator;
@@ -37,7 +39,7 @@ class Propagator;
 // class decleration
 //
 
-class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
+class MuonErrorMatrixAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// constructor
   explicit MuonErrorMatrixAnalyzer(const edm::ParameterSet&);
@@ -69,6 +71,7 @@ private:
 
   /// hold on the magnetic field
   edm::ESHandle<MagneticField> theField;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
 
   /// class holder for the reported error parametrization
   MuonErrorMatrix* theErrorMatrixStore_Reported;
@@ -100,6 +103,7 @@ private:
   /// propagator used to go to the cylinder surface, ALONG momentum
   std::string thePropagatorName;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
 
   /// put the free trajectory state to the TSCPBuilderNoMaterial or the cylinder surface
   FreeTrajectoryState refLocusState(const FreeTrajectoryState& fts);

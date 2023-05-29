@@ -73,7 +73,7 @@ public:
     };
   };
 
-  GEMOptoHybrid() : ch_(0), ct_(0){};
+  GEMOptoHybrid() : ch_(0), ct_(0), existVFATs_(0){};
   ~GEMOptoHybrid() { vfatd_.clear(); }
 
   void setVersion(uint8_t i) { ver_ = i; }
@@ -114,7 +114,7 @@ public:
   uint16_t vfatWordCntT() const {
     if (ver_ == 0)
       return GEBchamberTrailer{ct_}.VfWdCntT;
-    return GEBchamberTrailer{ch_}.VfWdCntTv302;
+    return GEBchamberTrailer{ct_}.VfWdCntTv302;
   }
 
   bool bxmVvV() const { return GEBchamberHeader{ch_}.BxmVvV; }
@@ -147,9 +147,13 @@ public:
   uint32_t zsMask() const { return GEBchamberTrailer{ct_}.ZSMask; }
 
   //!Adds VFAT data to the vector
-  void addVFAT(GEMVFAT v) { vfatd_.push_back(v); }
+  void addVFAT(GEMVFAT v) {
+    existVFATs_ = existVFATs_ | (0x1 << v.vfatId());
+    vfatd_.push_back(v);
+  }
   //!Returns the vector of VFAT data
   const std::vector<GEMVFAT>* vFATs() const { return &vfatd_; }
+  uint32_t existVFATs() const { return existVFATs_; }
   //!Clear the vector rof VFAT data
   void clearVFATs() { vfatd_.clear(); }
 
@@ -160,6 +164,8 @@ private:
 
   uint64_t ch_;  // GEBchamberHeader
   uint64_t ct_;  // GEBchamberTrailer
+
+  uint32_t existVFATs_;
 
   std::vector<GEMVFAT> vfatd_;
 };

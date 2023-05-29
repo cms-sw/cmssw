@@ -25,8 +25,8 @@ PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, edm:
                                       conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm"),
                                       iC),
       geomToken_(iC.esConsumes()),
-      addBiasRailInefficiency_(
-          conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm").getParameter<bool>("AddBiasRailInefficiency")) {
+      biasRailInefficiencyFlag_(
+          conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm").getParameter<int>("BiasRailInefficiencyFlag")) {
   if (use_LorentzAngle_DB_)
     siPhase2OTLorentzAngleToken_ = iC.esConsumes();
   pixelFlag_ = false;
@@ -37,14 +37,14 @@ PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, edm:
                                     << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
                                     << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
                                     << tMax_ << " pix-inefficiency " << addPixelInefficiency_
-                                    << "Bias Rail Inefficiency " << addBiasRailInefficiency_;
+                                    << "Bias Rail Inefficiency " << biasRailInefficiencyFlag_;
 }
 PSPDigitizerAlgorithm::~PSPDigitizerAlgorithm() { LogDebug("PSPDigitizerAlgorithm") << "Algorithm deleted"; }
 //
 // -- Select the Hit for Digitization (sigScale will be implemented in future)
 //
 bool PSPDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) const {
-  if (addBiasRailInefficiency_ && isInBiasRailRegion(hit))
+  if (biasRailInefficiencyFlag_ > 0 && isInBiasRailRegion(hit))
     return false;
   double toa = hit.tof() - tCorr;
   return (toa > theTofLowerCut_ && toa < theTofUpperCut_);
@@ -52,7 +52,7 @@ bool PSPDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double&
 //
 // -- Compare Signal with Threshold
 //
-bool PSPDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo,
+bool PSPDigitizerAlgorithm::isAboveThreshold(const digitizerUtility::SimHitInfo* hitInfo,
                                              float charge,
                                              float thr) const {
   return (charge >= thr);
@@ -68,10 +68,16 @@ bool PSPDigitizerAlgorithm::isInBiasRailRegion(const PSimHit& hit) const {
   constexpr float block_unit = implant + bRail;
   float yin = hit.entryPoint().y() + block_len;
   float yout = hit.exitPoint().y() + block_len;
-  if (std::fmod(yin, block_unit) > implant || std::fmod(yout, block_unit) > implant)
-    return true;
-  else
-    return false;
+  bool result = false;
+
+  // Flag= 1 corresponds to optimistic case when the entire trajectory is withon the bias rail region the SimHit will be rejected
+  if (biasRailInefficiencyFlag_ == 1 && (std::fmod(yin, block_unit) > implant && std::fmod(yout, block_unit) > implant))
+    result = true;
+  // Flag= 2 corresponds to pessimistic case i.e iven in a small part of the trajectory is inside the bias rain region the SimHit is rejected
+  else if (biasRailInefficiencyFlag_ == 2 &&
+           (std::fmod(yin, block_unit) > implant || std::fmod(yout, block_unit) > implant))
+    result = true;
+  return result;
 }
 //
 // -- Read Bad Channels from the Condidion DB and kill channels/module accordingly

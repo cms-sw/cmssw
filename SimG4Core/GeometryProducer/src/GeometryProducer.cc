@@ -20,6 +20,8 @@
 
 #include "G4RunManagerKernel.hh"
 #include "G4TransportationManager.hh"
+#include "G4EmParameters.hh"
+#include "G4HadronicParameters.hh"
 
 #include <iostream>
 #include <memory>
@@ -58,18 +60,31 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
       m_p(p),
       m_pDD(nullptr),
       m_pDD4hep(nullptr),
+      m_verbose(0),
       m_firstRun(true),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),
-      m_pGeoFromDD4hep(false) {
+      m_pGeoFromDD4hep(p.getParameter<bool>("GeoFromDD4hep")) {
   // Look for an outside SimActivityRegistry
   // this is used by the visualization code
+
   edm::Service<SimActivityRegistry> otherRegistry;
   if (otherRegistry)
     m_registry.connect(*otherRegistry);
   createWatchers(m_p, m_registry, m_watchers, m_producers);
 
-  m_sdMakers = sim::sensitiveDetectorMakers(m_p, consumesCollector(), std::vector<std::string>());
+  G4EmParameters::Instance()->SetVerbose(m_verbose);
+  G4HadronicParameters::Instance()->SetVerboseLevel(m_verbose);
+
+  m_kernel = G4RunManagerKernel::GetRunManagerKernel();
+  if (m_kernel == nullptr)
+    m_kernel = new G4RunManagerKernel();
+
+  m_kernel->SetVerboseLevel(m_verbose);
+
+  //if (m_pUseSensitiveDetectors)
+  //  m_sdMakers = sim::sensitiveDetectorMakers(m_p, consumesCollector(), std::vector<std::string>());
+
   tokMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   if (m_pGeoFromDD4hep) {
     tokDD4hep_ = esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
@@ -103,6 +118,7 @@ void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSe
 }
 
 void GeometryProducer::beginRun(const edm::Run &run, const edm::EventSetup &es) {
+  makeGeom(es);
   updateMagneticField(es);
   for (auto &maker : m_sdMakers) {
     maker.second->beginRun(es);
@@ -115,12 +131,15 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
   if (!m_firstRun)
     return;
   m_firstRun = false;
+  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
+    (*itProd)->produce(e, es);
+  }
+}
 
-  edm::LogVerbatim("GeometryProducer") << "Producing G4 Geom";
+void GeometryProducer::makeGeom(const edm::EventSetup &es) {
+  if (!m_firstRun)
+    return;
 
-  m_kernel = G4RunManagerKernel::GetRunManagerKernel();
-  if (m_kernel == nullptr)
-    m_kernel = new G4RunManagerKernel();
   edm::LogVerbatim("GeometryProducer") << " GeometryProducer initializing ";
   // DDDWorld: get the DDCV from the ES and use it to build the World
   if (m_pGeoFromDD4hep) {
@@ -130,7 +149,7 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
   }
 
   SensitiveDetectorCatalog catalog;
-  const DDDWorld *dddworld = new DDDWorld(m_pDD, m_pDD4hep, catalog, 1, false, false);
+  const DDDWorld *dddworld = new DDDWorld(m_pDD, m_pDD4hep, catalog, m_verbose, false, false);
   G4VPhysicalVolume *world = dddworld->GetWorldVolume();
   if (nullptr != world)
     edm::LogVerbatim("GeometryProducer") << " World Volume: " << world->GetName();
@@ -155,10 +174,6 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
 
     edm::LogInfo("GeometryProducer") << " Sensitive Detector building finished; found " << m_sensTkDets.size()
                                      << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
-  }
-
-  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
-    (*itProd)->produce(e, es);
   }
 }
 

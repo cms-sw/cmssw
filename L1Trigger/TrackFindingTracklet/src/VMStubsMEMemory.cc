@@ -43,7 +43,7 @@ void VMStubsMEMemory::writeStubs(bool first, unsigned int iSector) {
       stub += "|" + finephipos.str();
       FPGAWord finepos = binnedstubs_[i][j].finerz();
       stub += "|" + finepos.str();
-      out_ << hex << i << " " << j << dec << " " << stub << " " << trklet::hexFormat(stub) << endl;
+      out_ << hexstr(i) << " " << hexstr(j) << " " << stub << " " << trklet::hexFormat(stub) << endl;
     }
   }
   out_.close();

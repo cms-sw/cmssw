@@ -71,7 +71,6 @@ bool HDRShower::computeShower() {
 
   thetaFunction(nthetaStep);
   int maxLoops = 10000;
-  float esum = e;
   for (int itheta = 0; itheta < nthetaStep; itheta++) {
     float theta, es;
     for (int i = 0; i <= thetaSpots[itheta]; i++) {
@@ -79,14 +78,11 @@ bool HDRShower::computeShower() {
         es = elastspot[itheta];
       else
         es = eHDspot;
-      float loops = 0;
       for (int j = 0; j < maxLoops; j++) {
         theta = (itheta + random->flatShoot()) * thetaStep;
         if (setHit(es, theta))
           break;
-        loops++;
       }
-      esum -= es;  // to check only
     }
   }
   return (true);

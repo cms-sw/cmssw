@@ -7,6 +7,7 @@
 #include <thread>
 #include <memory>
 #include <filesystem>
+#include <ctime>
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
@@ -42,6 +43,20 @@ static char const* const kVerboseCommandOpt = "verbose,v";
 CMS_THREAD_SAFE static std::string s_uniqueID;
 
 //NOTE: Can use TestProcessor as the harness for the worker
+
+namespace {
+  //Based on MessageLogger time handling
+  constexpr char timeFormat[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+  constexpr size_t kTimeSize = sizeof(timeFormat);
+  std::array<char, kTimeSize> formattedTime() {
+    auto t = time(nullptr);
+    std::array<char, kTimeSize> ts;
+
+    struct tm timebuf;
+    std::strftime(ts.data(), ts.size(), "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &timebuf));
+    return ts;
+  }
+}  // namespace
 
 using namespace edm::shared_memory;
 class Harness {
@@ -88,7 +103,7 @@ namespace {
 
   void atexit_handler() {
     if (s_sharedLock) {
-      std::cerr << s_uniqueID << " process: early exit called: unlock\n";
+      std::cerr << s_uniqueID << " process: early exit called: unlock " << formattedTime().data() << "\n";
       s_sharedLock->unlock();
     }
   }
@@ -175,7 +190,7 @@ int main(int argc, char* argv[]) {
 
       monitorThread.setAction([lockPtr]() {
         if (lockPtr) {
-          std::cerr << s_uniqueID << " process: SIGNAL CAUGHT: unlock\n";
+          std::cerr << s_uniqueID << " process: SIGNAL CAUGHT: unlock " << formattedTime().data() << "\n";
           lockPtr->unlock();
         }
       });
@@ -188,7 +203,7 @@ int main(int argc, char* argv[]) {
       std::atexit(atexit_handler);
       auto releaseLock = []() {
         if (s_sharedLock) {
-          std::cerr << s_uniqueID << " process: terminate called: unlock\n";
+          std::cerr << s_uniqueID << " process: terminate called: unlock " << formattedTime().data() << "\n";
           s_sharedLock->unlock();
           s_sharedLock = nullptr;
           //deactivate the abort signal
@@ -212,7 +227,7 @@ int main(int argc, char* argv[]) {
       ROOTDeserializer<edm::RandomNumberGeneratorState, ReadBuffer> random_deserializer(sm_readbuffer);
 
       presentState = "reading configuration";
-      std::cerr << uniqueID << " process: initializing " << std::endl;
+      std::cerr << uniqueID << " process: initializing " << formattedTime().data() << std::endl;
       int nlines;
       std::cin >> nlines;
 
@@ -237,30 +252,30 @@ int main(int argc, char* argv[]) {
       std::set_terminate(releaseLock);
 
       if (verbose) {
-        std::cerr << uniqueID << " process: done initializing" << std::endl;
+        std::cerr << uniqueID << " process: done initializing " << formattedTime().data() << std::endl;
       }
       presentState = "finished initialization";
       communicationChannel.workerSetupDone();
 
       presentState = "waiting for transition";
       if (verbose)
-        std::cerr << uniqueID << " process: waiting " << counter << std::endl;
+        std::cerr << uniqueID << " process: waiting " << counter << " " << formattedTime().data() << std::endl;
       communicationChannel.handleTransitions([&](edm::Transition iTransition, unsigned long long iTransitionID) {
         ++counter;
         switch (iTransition) {
           case edm::Transition::BeginRun: {
             presentState = "beginRun transition";
             if (verbose)
-              std::cerr << uniqueID << " process: start beginRun " << std::endl;
+              std::cerr << uniqueID << " process: start beginRun " << formattedTime().data() << std::endl;
             if (verbose)
-              std::cerr << uniqueID << " process: end beginRun " << std::endl;
+              std::cerr << uniqueID << " process: end beginRun " << formattedTime().data() << std::endl;
 
             break;
           }
           case edm::Transition::BeginLuminosityBlock: {
             presentState = "begin lumi";
             if (verbose)
-              std::cerr << uniqueID << " process: start beginLumi " << std::endl;
+              std::cerr << uniqueID << " process: start beginLumi " << formattedTime().data() << std::endl;
             auto randState = random_deserializer.deserialize();
             presentState = "deserialized random state in begin lumi";
             if (verbose)
@@ -274,7 +289,7 @@ int main(int argc, char* argv[]) {
             presentState = "serialize lumi";
             bl_serializer.serialize(value);
             if (verbose)
-              std::cerr << uniqueID << " process: end beginLumi " << std::endl;
+              std::cerr << uniqueID << " process: end beginLumi " << formattedTime().data() << std::endl;
             if (verbose)
               std::cerr << uniqueID << "   rand " << value.randomState_.state_.size() << " " << value.randomState_.seed_
                         << std::endl;
@@ -283,7 +298,7 @@ int main(int argc, char* argv[]) {
           case edm::Transition::Event: {
             presentState = "begin event";
             if (verbose)
-              std::cerr << uniqueID << " process: event " << counter << std::endl;
+              std::cerr << uniqueID << " process: event " << counter << " " << formattedTime().data() << std::endl;
             presentState = "deserialized random state in event";
             auto randState = random_deserializer.deserialize();
             randomService->setState(randState.state_, randState.seed_);
@@ -293,7 +308,7 @@ int main(int argc, char* argv[]) {
             value.randomState_.seed_ = randomService->mySeed();
 
             if (verbose)
-              std::cerr << uniqueID << " process: event " << counter << std::endl;
+              std::cerr << uniqueID << " process: event " << counter << " " << formattedTime().data() << std::endl;
 
             presentState = "serialize event";
             serializer.serialize(value);
@@ -306,28 +321,28 @@ int main(int argc, char* argv[]) {
           case edm::Transition::EndLuminosityBlock: {
             presentState = "begin end lumi";
             if (verbose)
-              std::cerr << uniqueID << " process: start endLumi " << std::endl;
+              std::cerr << uniqueID << " process: start endLumi " << formattedTime().data() << std::endl;
             presentState = "processing end lumi";
             auto value = harness.getEndLumiValue();
 
             presentState = "serialize end lumi";
             el_serializer.serialize(value);
             if (verbose)
-              std::cerr << uniqueID << " process: end endLumi " << std::endl;
+              std::cerr << uniqueID << " process: end endLumi " << formattedTime().data() << std::endl;
 
             break;
           }
           case edm::Transition::EndRun: {
             presentState = "begin end run";
             if (verbose)
-              std::cerr << uniqueID << " process: start endRun " << std::endl;
+              std::cerr << uniqueID << " process: start endRun " << formattedTime().data() << std::endl;
             presentState = "process end run";
             auto value = harness.getEndRunValue();
 
             presentState = "serialize end run";
             er_serializer.serialize(value);
             if (verbose)
-              std::cerr << uniqueID << " process: end endRun " << std::endl;
+              std::cerr << uniqueID << " process: end endRun " << formattedTime().data() << std::endl;
 
             break;
           }
@@ -337,19 +352,20 @@ int main(int argc, char* argv[]) {
         }
         presentState = "notifying and waiting after " + presentState;
         if (verbose)
-          std::cerr << uniqueID << " process: notifying and waiting " << counter << std::endl;
+          std::cerr << uniqueID << " process: notifying and waiting " << counter << " " << std::endl;
       });
     }
   } catch (std::exception const& iExcept) {
     std::cerr << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
               << s_uniqueID << " process: caught exception \n"
-              << iExcept.what() << "\n"
+              << iExcept.what() << " " << formattedTime().data() << "\n"
               << "  while " << presentState << "\n"
               << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
     return 1;
   } catch (...) {
     std::cerr << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
-              << s_uniqueID << " process: caught unknown exception\n  while " << presentState << "\n"
+              << s_uniqueID << " process: caught unknown exception " << formattedTime().data() << "\n  while "
+              << presentState << "\n"
               << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
     return 1;
   }

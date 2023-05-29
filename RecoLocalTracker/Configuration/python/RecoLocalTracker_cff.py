@@ -24,6 +24,12 @@ striptrackerlocalrecoTask = cms.Task(
     siStripClusters,
     siStripMatchedRecHits)
 
+_approxSiStripClustersTask = striptrackerlocalrecoTask.copy()
+_approxSiStripClustersTask.remove(siStripZeroSuppression)
+
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+approxSiStripClusters.toReplaceWith(striptrackerlocalrecoTask, _approxSiStripClustersTask)
+
 trackerlocalrecoTask = cms.Task(
     pixeltrackerlocalrecoTask,
     striptrackerlocalrecoTask,

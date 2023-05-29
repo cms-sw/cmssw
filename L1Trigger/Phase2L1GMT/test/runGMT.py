@@ -87,11 +87,11 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('reprocess.root'),
     outputCommands = cms.untracked.vstring(
         "drop *_*_*_*",
-        "keep *_gmtMuons_*_*",
-        "keep *_gmtStubs_*_*",
+        "keep *_l1tGMTMuons_*_*",
+        "keep *_l1tGMTStubs_*_*",
         "keep *_genParticles_*_*",
-        "keep *_TTTracksFromTrackletEmulation_Level1TTTracks_*",
-        "keep *_L1TkMuons_*_*"
+        "keep *_l1tTTTracksFromTrackletEmulation_Level1TTTracks_*",
+        "keep *_l1tTkMuons_*_*"
     ),
     splitLevel = cms.untracked.int32(0)
 )
@@ -115,31 +115,10 @@ process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 
 process.load("L1Trigger.Phase2L1GMT.gmt_cff")
-process.gmtMuons.trackMatching.verbose=1
-process.gmtMuons.verbose=0
-process.gmtMuons.trackConverter.verbose=0
-
-
-
-#process.schedule = cms.Schedule(process.L1TrackTrigger_step,process.pL1TMuonTPS,process.endjob_step,process.e) # Adding MuonTPS
-
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
-#process.pL1TkPrimaryVertex = cms.Path(process.L1TkPrimaryVertex)
-#process.pL1TkPhotonsCrystal = cms.Path(process.L1TkPhotonsCrystal)
-#process.pL1TkIsoElectronsCrystal = cms.Path(process.L1TkIsoElectronsCrystal)
-#process.pL1TkElectronsLooseCrystal = cms.Path(process.L1TkElectronsLooseCrystal)
-#process.pL1TkElectronsLooseHGC = cms.Path(process.L1TkElectronsLooseHGC)
-#process.pL1TkElectronsHGC = cms.Path(process.L1TkElectronsHGC)
-process.pL1TkMuon = cms.Path(process.L1TkMuons+process.L1TkMuonsTP)
-#process.pL1TkElectronsEllipticMatchHGC = cms.Path(process.L1TkElectronsEllipticMatchHGC)
-#process.pL1TkElectronsCrystal = cms.Path(process.L1TkElectronsCrystal)
-#process.pL1TkPhotonsHGC = cms.Path(process.L1TkPhotonsHGC)
-#process.pL1TkIsoElectronsHGC = cms.Path(process.L1TkIsoElectronsHGC)
-#process.pL1TkElectronsEllipticMatchCrystal = cms.Path(process.L1TkElectronsEllipticMatchCrystal)
-#process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.testpath=cms.Path(process.CalibratedDigis*process.dtTriggerPhase2PrimitiveDigis*process.phase2GMT)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)

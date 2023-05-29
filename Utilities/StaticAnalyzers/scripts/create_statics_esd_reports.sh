@@ -35,6 +35,7 @@ fi
 sort -u < statics-report.txt.unsorted > statics-report.txt
 grep -e "^In call stack " statics-report.txt | awk '{print $0"\n"}' > modules2statics.txt
 grep -e "^Non-const static variable " statics-report.txt | awk '{print $0"\n"}' > statics2modules.txt
+grep -e "^Known thread unsafe function " statics-report.txt | awk '{print $0"\n"}' >> statics2modules.txt
 
 if [ ! -f ./edm-global-class.py ]
 	then
@@ -45,12 +46,3 @@ edm-global-class.py >edm-global-classes.txt.unsorted
 sort -u edm-global-classes.txt.unsorted | grep -e"^EDM global class " | sort -u >edm-global-classes.txt
 sort -u edm-global-classes.txt.unsorted | grep -v -e"^EDM global class " >edm-global-classes.txt.extra
 
-if [ ! -f ./callgraph.py ]
-   then
-   cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/callgraph.py .
-   cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/module_to_package.yaml .
-   cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/modules_in_ib.yaml .
-fi
-curl -OL https://raw.githubusercontent.com/fwyzard/circles/master/web/groups/packages.json
-touch eventsetuprecord-get-all.txt eventsetuprecord-get.txt
-./callgraph.py 2>&1 | tee eventsetuprecord-get.txt

@@ -828,10 +828,8 @@ namespace {
       std::map<uint32_t, int> zeropeds_per_detid;
 
       for (const auto& d : detid) {
-        int nstrips = 0;
         SiStripPedestals::Range range = payload->getRange(d);
         for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
-          nstrips++;
           auto ped = payload->getPed(it, range);
           if (ped == 0.) {
             zeropeds_per_detid[d] += 1;

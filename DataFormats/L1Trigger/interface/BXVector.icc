@@ -1,0 +1,297 @@
+#include <cassert>
+
+// FIXME: these 3 lines are required by other packages
+#include <vector>
+#include <iostream>
+using namespace std;
+
+template <class T>
+BXVector<T>::BXVector(unsigned size,  // number of objects per BX
+                      int bxFirst,    // first BX stored
+                      int bxLast)     // last BX stored
+    : bxFirst_(std::min(0, bxFirst)), bxLast_(std::max(0, bxLast)), data_(std::vector<T>(size * numBX())) {
+  assert(bxFirst_ <= bxLast_);
+  itrs_.clear();
+  for (unsigned i = 0; i < numBX(); i++) {
+    itrs_.push_back(i * size);
+  }
+}
+
+// set BX range, adds an empty bx so you must push_pack to see anything
+template <class T>
+void BXVector<T>::setBXRange(int bxFirst, int bxLast) {
+  int bxF = bxFirst_;
+  int bxL = bxLast_;
+  if (bxFirst < bxFirst_) {
+    for (int i = 0; i < bxF - bxFirst; i++) {
+      itrs_.insert(itrs_.begin(), itrs_[0]);
+    }
+  }
+  if (bxFirst > bxFirst_) {
+    for (int i = 0; i < bxFirst - bxF; i++) {
+      deleteBX(bxF + i);
+    }
+  }
+  if (bxLast > bxLast_) {
+    for (int i = 0; i < bxLast - bxL; i++) {
+      addBX();
+    }
+  }
+  if (bxLast < bxLast_) {
+    for (int i = 0; i < bxL - bxLast; i++) {
+      deleteBX(bxL - i);
+    }
+  }
+  bxFirst_ = bxFirst;
+  bxLast_ = bxLast;
+}
+
+// add a BX, empty bx
+template <class T>
+void BXVector<T>::addBX() {
+  itrs_.push_back(data_.size());
+  bxLast_ = bxLast_ + 1;
+}
+
+// delete a BX
+template <class T>
+void BXVector<T>::deleteBX(int bx) {
+  clearBX(bx);
+  itrs_.erase(itrs_.begin() + indexFromBX(bx));
+  if (bx == getFirstBX()) {
+    bxFirst_ = bxFirst_ + 1;
+  }
+  if (bx == getLastBX()) {
+    bxLast_ = bxLast_ - 1;
+  }
+}
+// set size for a given BX
+template <class T>
+void BXVector<T>::resize(int bx, unsigned max) {
+  T k;
+  unsigned s = size(bx);
+  if (size(bx) < max) {
+    for (unsigned i = 0; i < max - s; i++) {
+      push_back(bx, k);
+    }
+  } else {
+    for (unsigned i = 0; i < s - max; i++) {
+      erase(bx, s - i - 1);
+    }
+  }
+}
+
+// set size for all BXs
+template <class T>
+void BXVector<T>::resizeAll(unsigned size) {
+  for (unsigned i = 0; i < itrs_.size(); ++i) {
+    resize(i, size);
+  }
+}
+
+// iterator access by BX
+template <class T>
+typename BXVector<T>::const_iterator BXVector<T>::begin(int bx) const {
+  assert(!itrs_.empty());
+  return data_.begin() + itrs_[indexFromBX(bx)];
+}
+
+// iterator access by BX
+template <class T>
+typename BXVector<T>::const_iterator BXVector<T>::end(int bx) const {
+  return data_.begin() + itrs_[indexFromBX(bx)] + size(bx);
+}
+
+// get the first BX stored
+template <class T>
+int BXVector<T>::getFirstBX() const {
+  return bxFirst_;
+}
+
+// get the last BX stored
+template <class T>
+int BXVector<T>::getLastBX() const {
+  return bxLast_;
+}
+
+// get N objects for a given BX
+template <class T>
+unsigned BXVector<T>::size(int bx) const {
+  if (isEmpty(bx)) {
+    return 0;
+  }
+
+  if (indexFromBX(bx) == (itrs_.size() - 1)) {
+    return (data_.size() - itrs_[itrs_.size() - 1]);
+  } else {
+    return (itrs_[indexFromBX(bx + 1)] - itrs_[indexFromBX(bx)]);
+  }
+}
+
+// add element with given BX index
+template <class T>
+void BXVector<T>::push_back(int bx, T object) {
+  data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + size(bx), object);
+  for (unsigned k = 0; k < itrs_.size(); k++) {
+    if (k > indexFromBX(bx)) {
+      itrs_[k]++;
+    }
+  }
+}
+
+// clear entire BXVector
+template <class T>
+void BXVector<T>::clear() {
+  data_.clear();
+  for (unsigned k = 0; k < itrs_.size(); k++) {
+    itrs_[k] = 0;
+  }
+}
+
+// insert data in location i of bx
+template <class T>
+void BXVector<T>::insert(int bx, unsigned i, T object) {
+  if (i > size(bx)) {
+    //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+  } else {
+    data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + i, object);
+
+    for (unsigned k = 0; k < itrs_.size(); k++) {
+      if (k > indexFromBX(bx)) {
+        itrs_[k]++;
+      }
+    }
+  }
+}
+
+// erase data in location i of bx
+template <class T>
+void BXVector<T>::erase(int bx, unsigned i) {
+  if (i >= size(bx)) {
+    //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+  } else {
+    data_.erase(data_.begin() + itrs_[indexFromBX(bx)] + i);
+    for (unsigned k = 0; k < itrs_.size(); k++) {
+      if (k > indexFromBX(bx)) {
+        itrs_[k]--;
+      }
+    }
+  }
+}
+
+// clear information for given bx but keeps record of the empty BX
+template <class T>
+void BXVector<T>::clearBX(int bx) {
+  unsigned si = size(bx);
+  for (unsigned i = 0; i < si; i++) {
+    erase(bx, 0);
+  }
+}
+
+// access data at a given location i in bunch crossing bx
+template <class T>
+const T& BXVector<T>::at(int bx, unsigned i) const {
+  return data_.at(itrs_[indexFromBX(bx)] + i);
+}
+
+// set data at a given location i in bunch crossing bx
+template <class T>
+void BXVector<T>::set(int bx, unsigned i, const T& object) {
+  if (i >= size(bx)) {
+    //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
+  } else {
+    data_.at(itrs_[indexFromBX(bx)] + i) = object;
+  }
+}
+
+// redefine bunch crossing starting from 0
+template <class T>
+unsigned BXVector<T>::indexFromBX(int bx) const {
+  return bx - bxFirst_;
+}
+
+// check to see if bx is empty
+template <class T>
+bool BXVector<T>::isEmpty(int bx) const {
+  if (bx < bxFirst_) {
+    return true;
+  }
+
+  auto const index_bx = indexFromBX(bx);
+
+  if (index_bx >= itrs_.size()) {
+    return true;
+  }
+
+  if (itrs_[index_bx] == data_.size()) {
+    return true;
+  }
+
+  auto const index_bxPlus1 = indexFromBX(bx + 1);
+
+  if (index_bxPlus1 >= itrs_.size()) {
+    return false;
+  }
+
+  if (itrs_[index_bx] == itrs_[index_bxPlus1]) {
+    return true;
+  }
+
+  return false;
+}
+
+// edm::View support
+template <class T>
+inline void BXVector<T>::fillView(edm::ProductID const& id,
+                                  std::vector<void const*>& pointers,
+                                  edm::FillViewHelperVector& helpers) const {
+  edm::detail::reallyFillView(*this, id, pointers, helpers);
+}
+//
+namespace edm {
+  template <class T>
+  inline void fillView(BXVector<T> const& obj,
+                       edm::ProductID const& id,
+                       std::vector<void const*>& pointers,
+                       edm::FillViewHelperVector& helpers) {
+    obj.fillView(id, pointers, helpers);
+  }
+  template <class T>
+  struct has_fillView<BXVector<T> > {
+    static bool const value = true;
+  };
+}  // namespace edm
+
+// edm::Ptr support
+template <class T>
+inline void BXVector<T>::setPtr(std::type_info const& toType, unsigned long index, void const*& ptr) const {
+  edm::detail::reallySetPtr<BXVector<T> >(*this, toType, index, ptr);
+}
+template <class T>
+inline void BXVector<T>::fillPtrVector(std::type_info const& toType,
+                                       std::vector<unsigned long> const& indices,
+                                       std::vector<void const*>& ptrs) const {
+  edm::detail::reallyfillPtrVector(*this, toType, indices, ptrs);
+}
+//
+template <class T>
+inline void setPtr(BXVector<T> const& obj, std::type_info const& toType, unsigned long index, void const*& ptr) {
+  obj.setPtr(toType, index, ptr);
+}
+template <class T>
+inline void fillPtrVector(BXVector<T> const& obj,
+                          std::type_info const& toType,
+                          std::vector<unsigned long> const& indices,
+                          std::vector<void const*>& ptrs) {
+  obj.fillPtrVector(toType, indices, ptrs);
+}
+namespace edm {
+  template <class T>
+  struct has_setPtr<BXVector<T> > {
+    static bool const value = true;
+  };
+}  // namespace edm
+
+// Local Variables:
+// mode: c++
+// End:

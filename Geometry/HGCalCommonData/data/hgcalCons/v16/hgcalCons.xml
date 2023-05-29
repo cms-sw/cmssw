@@ -37,6 +37,7 @@
     <Parameter name="FirstMixedLayer"     value="-1"/>
     <Parameter name="LayerOffset"         value="0"/>
     <Parameter name="DetectorType"        value="1"/>
+    <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="2"/>
     <Parameter name="WaferZside"          value="-1"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
@@ -99,6 +100,7 @@
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="26"/>
     <Parameter name="DetectorType"        value="2"/>
+    <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="3"/>
     <Parameter name="WaferZside"          value="-1"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
@@ -156,6 +158,7 @@
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="26"/>
     <Parameter name="DetectorType"        value="3"/>
+    <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="4"/>
     <Parameter name="WaferZside"          value="1"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
@@ -199,7 +202,10 @@
     <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
+    <Parameter name="SensorSizeOffset"    value="[hgcal:SensorSizeOffset]"/>
+    <Parameter name="GuardRingOffset"     value="[hgcal:GuardRingOffset]"/>
     <Parameter name="MouseBite"           value="[hgcal:MouseBite]"/>
+    <Parameter name="UseOffset"           value="0"/>
     <Parameter name="NumberOfCellsFine"   value="[hgcal:NumberOfCellsFine]"/>
     <Parameter name="NumberOfCellsCoarse" value="[hgcal:NumberOfCellsCoarse]"/>
   </SpecPar>

@@ -14,7 +14,6 @@
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
@@ -36,7 +35,6 @@
 #include "G4MTRunManagerKernel.hh"
 #include "G4UImanager.hh"
 
-#include "G4EventManager.hh"
 #include "G4Run.hh"
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
@@ -75,7 +73,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_g4overlap(p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_G4CommandsEndRun(p.getParameter<std::vector<std::string> >("G4CommandsEndRun")),
       m_p(p) {
   m_currentRun = nullptr;
   m_UIsession = new CustomUIsession();
@@ -203,15 +200,24 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     }
   }
 
+  setupVoxels();
+
   m_stateManager->SetNewState(G4State_Init);
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: G4State is Init";
   m_kernel->InitializePhysics();
+  if (verb > 0) {
+    G4EmParameters::Instance()->Dump();
+  }
   m_kernel->SetUpDecayChannels();
 
   if (m_kernel->RunInitialization()) {
     m_managerInitialized = true;
   } else {
     throw cms::Exception("LogicError") << "G4RunManagerKernel initialization failed!";
+  }
+
+  if (m_check) {
+    checkVoxels();
   }
 
   if (m_StorePhysicsTables) {
@@ -244,6 +250,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   // G4Region dump file name
   auto regionFile = m_p.getUntrackedParameter<std::string>("FileNameRegions", "");
+  runForPhase2();
 
   // Geometry checks
   if (m_check || !regionFile.empty()) {
@@ -277,22 +284,17 @@ void RunManagerMT::Connect(RunAction* runAction) {
 }
 
 void RunManagerMT::stopG4() {
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::stopG4";
   G4GeometryManager::GetInstance()->OpenGeometry();
   m_stateManager->SetNewState(G4State_Quit);
-  // Geant4 UI commands after the run
-  if (!m_G4CommandsEndRun.empty()) {
-    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Requested end of run UI commands: ";
-    for (const std::string& command : m_G4CommandsEndRun) {
-      edm::LogVerbatim("SimG4CoreApplication") << "    " << command;
-      G4UImanager::GetUIpointer()->ApplyCommand(command);
-    }
-  }
   if (!m_runTerminated) {
     terminateRun();
   }
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::stopG4 done";
 }
 
 void RunManagerMT::terminateRun() {
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::terminateRun";
   if (nullptr != m_userRunAction) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction;
@@ -302,5 +304,68 @@ void RunManagerMT::terminateRun() {
     m_kernel->RunTermination();
   }
   m_runTerminated = true;
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: terminateRun done";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::terminateRun done";
+}
+
+void RunManagerMT::checkVoxels() {
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  int numLV = lvs->size();
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: nLV=" << numLV;
+  int nvox = 0;
+  int nslice = 0;
+  for (int i = 0; i < numLV; ++i) {
+    auto lv = (*lvs)[i];
+    auto nd = lv->GetNoDaughters();
+    auto vox = lv->GetVoxelHeader();
+    auto sma = lv->GetSmartless();
+    auto reg = lv->GetRegion();
+    size_t nsl = (nullptr == vox) ? 0 : vox->GetNoSlices();
+    if (0 < nsl) {
+      nslice += nsl;
+      std::string rname = (nullptr != reg) ? reg->GetName() : "";
+      edm::LogVerbatim("Voxels") << " " << i << ". Nd=" << nd << " Nsl=" << nsl << " Smartless=" << sma << " "
+                                 << lv->GetName() << " Region: " << rname;
+      ++nvox;
+    }
+  }
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMT: nLV=" << numLV << " NlvVox=" << nvox << " Nslices=" << nslice;
+}
+
+void RunManagerMT::setupVoxels() {
+  double density = m_p.getParameter<double>("DefaultVoxelDensity");
+  std::vector<std::string> rnames = m_p.getParameter<std::vector<std::string> >("VoxelRegions");
+  std::vector<double> rdensities = m_p.getParameter<std::vector<double> >("VoxelDensityPerRegion");
+  int nr = 0;
+  std::size_t n = rnames.size();
+  if (n == rdensities.size()) {
+    nr = (int)n;
+  }
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  for (auto& lv : *lvs) {
+    double den = density;
+    if (0 < nr) {
+      std::string nam = lv->GetRegion()->GetName();
+      for (int i = 0; i < nr; ++i) {
+        if (nam == rnames[i]) {
+          den = rdensities[i];
+          break;
+        }
+      }
+    }
+    lv->SetSmartless(den);
+  }
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMT: default voxel density=" << density << "; number of regions with special density " << nr;
+}
+
+void RunManagerMT::runForPhase2() {
+  const G4RegionStore* regStore = G4RegionStore::GetInstance();
+  for (auto& r : *regStore) {
+    const G4String& name = r->GetName();
+    if (name == "HGCalRegion" || name == "FastTimerRegionETL" || name == "FastTimerRegionBTL") {
+      m_isPhase2 = true;
+      break;
+    }
+  }
 }

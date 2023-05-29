@@ -29,7 +29,7 @@ process.load("DQMServices.Components.DQMProvInfo_cfi")
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cfi')
+process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cff')
 process.load("DQM.GEM.GEMDQM_cff")
 process.load("DQM.GEM.gemEffByGEMCSCSegment_cff")
 
@@ -40,6 +40,12 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.keepDAQStatus = True
+
+process.gemRecHits.ge21Off = cms.bool(False)
+
+process.GEMDigiSource.runType = "online"
+process.GEMRecHitSource.runType = "online"
+process.GEMDAQStatusSource.runType = "online"
 
 # from csc_dqm_sourceclient-live_cfg.py
 process.CSCGeometryESModule.useGangedStripsInME1a = False

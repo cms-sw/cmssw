@@ -20,7 +20,6 @@
 #include <stdio.h>
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
@@ -60,6 +59,8 @@ Double_t linearF(Double_t* x, Double_t* par) {
 
 // Constructor
 RPCRecHitReader::RPCRecHitReader(const edm::ParameterSet& pset) : _phi(0) {
+  rpcGeomToken_ = esConsumes();
+  rpcGeomBRToken_ = esConsumes<edm::Transition::BeginRun>();
   // Get the various input parameters
   fOutputFileName = pset.getUntrackedParameter<std::string>("HistOutFile");
   recHitLabel1 = pset.getUntrackedParameter<std::string>("recHitLabel1");
@@ -90,8 +91,7 @@ RPCRecHitReader::RPCRecHitReader(const edm::ParameterSet& pset) : _phi(0) {
 }
 
 void RPCRecHitReader::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  edm::ESHandle<RPCGeometry> rpcGeo = iSetup.getHandle(rpcGeomBRToken_);
 
   RPCDetId id(region, wheel, station, sector, layer, subsector, 3);
   const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeo->roll(id));
@@ -174,8 +174,7 @@ void RPCRecHitReader::analyze(const edm::Event& event, const edm::EventSetup& ev
     std::cout << " Event analysed #Run: " << event.id().run() << " #Event: " << event.id().event() << std::endl;
 
   // Get the RPC Geometry :
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  edm::ESHandle<RPCGeometry> rpcGeom = eventSetup.getHandle(rpcGeomToken_);
 
   // Get the RecHits collection :
   edm::Handle<RPCRecHitCollection> recHits;

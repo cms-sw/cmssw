@@ -193,8 +193,6 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
 
         // Count number of Unique Regions (UR) that share stubs, and the number of UR that each track hits
         unsigned int nShareUR = 0;
-        unsigned int nURStubTrk1 = 0;
-        unsigned int nURStubTrk2 = 0;
         if (settings_.mergeComparison() == "CompareAll") {
           bool URArray[16];
           for (auto& i : URArray) {
@@ -256,14 +254,6 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
                 stubsTrk1[t1i].second == stubsTrk2[t2i].second)
               nShareUR++;
           }
-          // Calculate the number of unique regions hit by each track, so that this number can be used in calculating the number of independent
-          // stubs on a track (not enabled/used by default)
-          for (int i = 0; i < 16; i++) {
-            if (URStubidsTrk1[i] != -1)
-              nURStubTrk1++;
-            if (URStubidsTrk2[i] != -1)
-              nURStubTrk2++;
-          }
         }
 
         // Fill duplicate map
@@ -323,26 +313,29 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
 
     // Make the final track objects, fit with KF, and send to output
     for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-      Tracklet* tracklet = inputtracklets_[itrk];
-      std::vector<const Stub*> trackstublist = inputstublists_[itrk];
+      bool duplicateTrack = trackInfo[itrk].second;
+      if (not duplicateTrack) {  // Don't waste CPU by calling KF for duplicates
 
-      HybridFit hybridFitter(iSector, settings_, globals_);
-      hybridFitter.Fit(tracklet, trackstublist);
+        Tracklet* tracklet = inputtracklets_[itrk];
+        std::vector<const Stub*> trackstublist = inputstublists_[itrk];
 
-      // If the track was accepted (and thus fit), add to output
-      if (tracklet->fit()) {
-        // Add track to output if it wasn't merged into another
-        Track* outtrack = tracklet->getTrack();
-        outtrack->setSector(iSector);
-        if (trackInfo[itrk].second == true)
-          outtrack->setDuplicate(true);
-        else
+        // Run KF track fit
+        HybridFit hybridFitter(iSector, settings_, globals_);
+        hybridFitter.Fit(tracklet, trackstublist);
+
+        // If the track was accepted (and thus fit), add to output
+        if (tracklet->fit()) {
+          // Add fitted Track to output (later converted to TTTrack)
+          Track* outtrack = tracklet->getTrack();
+          outtrack->setSector(iSector);
+          // Also store fitted track as more detailed Tracklet object.
           outputtracklets_[trackInfo[itrk].first]->addTrack(tracklet);
 
-        // Add all tracks to standalone root file output
-        outtrack->setStubIDpremerge(inputstubidslists_[itrk]);
-        outtrack->setStubIDprefit(mergedstubidslists_[itrk]);
-        outputtracks_.push_back(*outtrack);
+          // Add all tracks to standalone root file output
+          outtrack->setStubIDpremerge(inputstubidslists_[itrk]);
+          outtrack->setStubIDprefit(mergedstubidslists_[itrk]);
+          outputtracks_.push_back(*outtrack);
+        }
       }
     }
   }
@@ -494,7 +487,7 @@ double PurgeDuplicate::getPhiRes(Tracklet* curTracklet, const Stub* curStub) {
   // Get phi projection of tracklet
   int seedindex = curTracklet->seedIndex();
   // If this stub is a seed stub, set projection=phi, so that res=0
-  if ((seedindex == 0 && (Layer == 1 || Layer == 2)) || (seedindex == 1 && (Layer == 2 || abs(Disk) == 0)) ||
+  if ((seedindex == 0 && (Layer == 1 || Layer == 2)) || (seedindex == 1 && (Layer == 2 || Layer == 3)) ||
       (seedindex == 2 && (Layer == 3 || Layer == 4)) || (seedindex == 3 && (Layer == 5 || Layer == 6)) ||
       (seedindex == 4 && (abs(Disk) == 1 || abs(Disk) == 2)) ||
       (seedindex == 5 && (abs(Disk) == 3 || abs(Disk) == 4)) || (seedindex == 6 && (Layer == 1 || abs(Disk) == 1)) ||

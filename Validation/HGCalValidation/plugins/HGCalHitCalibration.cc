@@ -12,25 +12,20 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
@@ -192,38 +187,25 @@ void HGCalHitCalibration::fillWithRecHits(std::map<DetId, const HGCRecHit*>& hit
 }
 
 void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
-  edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeomToken_);
+  const edm::ESHandle<CaloGeometry>& geom = iSetup.getHandle(caloGeomToken_);
   recHitTools_.setGeometry(*geom);
 
-  Handle<HGCRecHitCollection> recHitHandleEE;
-  Handle<HGCRecHitCollection> recHitHandleFH;
-  Handle<HGCRecHitCollection> recHitHandleBH;
-
-  Handle<std::vector<CaloParticle> > caloParticleHandle;
-  iEvent.getByToken(caloParticles_, caloParticleHandle);
+  const edm::Handle<std::vector<CaloParticle> >& caloParticleHandle = iEvent.getHandle(caloParticles_);
   const std::vector<CaloParticle>& caloParticles = *caloParticleHandle;
 
-  Handle<std::vector<reco::PFCluster> > hgcalMultiClustersHandle;
-  iEvent.getByToken(hgcalMultiClusters_, hgcalMultiClustersHandle);
+  const edm::Handle<std::vector<reco::PFCluster> >& hgcalMultiClustersHandle = iEvent.getHandle(hgcalMultiClusters_);
 
-  Handle<std::vector<reco::GsfElectron> > PFElectronHandle;
-  iEvent.getByToken(electrons_, PFElectronHandle);
+  const edm::Handle<std::vector<reco::GsfElectron> >& PFElectronHandle = iEvent.getHandle(electrons_);
 
-  Handle<std::vector<reco::Photon> > PFPhotonHandle;
-  iEvent.getByToken(photons_, PFPhotonHandle);
+  const edm::Handle<std::vector<reco::Photon> >& PFPhotonHandle = iEvent.getHandle(photons_);
 
   // make a map detid-rechit
   std::map<DetId, const HGCRecHit*> hitmap;
   switch (algo_) {
     case 1: {
-      iEvent.getByToken(recHitsEE_, recHitHandleEE);
-      iEvent.getByToken(recHitsFH_, recHitHandleFH);
-      iEvent.getByToken(recHitsBH_, recHitHandleBH);
-      const auto& rechitsEE = *recHitHandleEE;
-      const auto& rechitsFH = *recHitHandleFH;
-      const auto& rechitsBH = *recHitHandleBH;
+      const auto& rechitsEE = iEvent.get(recHitsEE_);
+      const auto& rechitsFH = iEvent.get(recHitsFH_);
+      const auto& rechitsBH = iEvent.get(recHitsBH_);
       for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
         hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
       }
@@ -236,18 +218,15 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       break;
     }
     case 2: {
-      iEvent.getByToken(recHitsEE_, recHitHandleEE);
-      const HGCRecHitCollection& rechitsEE = *recHitHandleEE;
+      const HGCRecHitCollection& rechitsEE = iEvent.get(recHitsEE_);
       for (unsigned int i = 0; i < rechitsEE.size(); i++) {
         hitmap[rechitsEE[i].detid()] = &rechitsEE[i];
       }
       break;
     }
     case 3: {
-      iEvent.getByToken(recHitsFH_, recHitHandleFH);
-      iEvent.getByToken(recHitsBH_, recHitHandleBH);
-      const auto& rechitsFH = *recHitHandleFH;
-      const auto& rechitsBH = *recHitHandleBH;
+      const auto& rechitsFH = iEvent.get(recHitsFH_);
+      const auto& rechitsBH = iEvent.get(recHitsBH_);
       for (unsigned int i = 0; i < rechitsFH.size(); i++) {
         hitmap[rechitsFH[i].detid()] = &rechitsFH[i];
       }
@@ -292,10 +271,8 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
         DetId hitid = (it_haf.first);
         // dump raw RecHits and match
         if (rawRecHits_) {
-          if ((hitid.det() == DetId::Forward &&
-               (hitid.subdetId() == HGCEE || hitid.subdetId() == HGCHEF || hitid.subdetId() == HGCHEB)) ||
-              (hitid.det() == DetId::HGCalEE) || (hitid.det() == DetId::HGCalHSi) || (hitid.det() == DetId::HGCalHSc) ||
-              (hitid.det() == DetId::Hcal && hitid.subdetId() == HcalEndcap))
+          if ((hitid.det() == DetId::Forward) || (hitid.det() == DetId::HGCalEE) || (hitid.det() == DetId::HGCalHSi) ||
+              (hitid.det() == DetId::HGCalHSc))
             fillWithRecHits(hitmap, hitid, hitlayer, it_haf.second, seedDet, seedEnergy);
         }
       }  // end simHit
@@ -351,8 +328,9 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       auto const& ele = (*PFElectronHandle);
       auto closest = std::min_element(ele.begin(), ele.end(), closest_fcn);
       if (closest != ele.end() &&
-          (closest->superCluster()->seed()->seed().det() == DetId::Forward ||
-           closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) &&
+          ((closest->superCluster()->seed()->seed().det() == DetId::Forward) ||
+           (closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) ||
+           (closest->superCluster()->seed()->seed().det() == DetId::HGCalHSi)) &&
           reco::deltaR2(*closest, it_caloPart) < 0.01) {
         seedDet = recHitTools_.getSiThickness(closest->superCluster()->seed()->seed());
         if (closest->superCluster()->seed()->seed().det() == DetId::HGCalHSc) {
@@ -369,8 +347,9 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       auto const& photon = (*PFPhotonHandle);
       auto closest = std::min_element(photon.begin(), photon.end(), closest_fcn);
       if (closest != photon.end() &&
-          (closest->superCluster()->seed()->seed().det() == DetId::Forward ||
-           closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) &&
+          ((closest->superCluster()->seed()->seed().det() == DetId::Forward) ||
+           (closest->superCluster()->seed()->seed().det() == DetId::HGCalEE) ||
+           (closest->superCluster()->seed()->seed().det() == DetId::HGCalHSi)) &&
           reco::deltaR2(*closest, it_caloPart) < 0.01) {
         seedDet = recHitTools_.getSiThickness(closest->superCluster()->seed()->seed());
         if (hgcal_photon_EoP_CPene_calib_fraction_.count(seedDet)) {

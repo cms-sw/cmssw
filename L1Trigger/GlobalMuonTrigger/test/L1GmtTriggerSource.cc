@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,15 +35,15 @@
 // class decleration
 //
 
-class L1GmtTriggerSource : public edm::EDAnalyzer {
+class L1GmtTriggerSource : public edm::one::EDAnalyzer<> {
 public:
   explicit L1GmtTriggerSource(const edm::ParameterSet&);
-  ~L1GmtTriggerSource();
+  ~L1GmtTriggerSource() override;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
   edm::InputTag m_GMTInputTag;

@@ -32,7 +32,7 @@
 class HGCalBHValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCalBHValidation(const edm::ParameterSet& ps);
-  ~HGCalBHValidation() override {}
+  ~HGCalBHValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -41,8 +41,6 @@ protected:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  template <class T>
-  void analyzeDigi(const T&, double const&, bool const&, int const&, unsigned int&);
 
 private:
   edm::Service<TFileService> fs_;
@@ -51,8 +49,8 @@ private:
   const int iSample_;
   const double threshold_;
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  const edm::EDGetToken tok_digi_;
-  const int etaMax_;
+  const edm::EDGetTokenT<HGCalDigiCollection> tok_digi_;
+  const int ringMax_;
 
   TH1D *hsimE1_, *hsimE2_, *hsimTm_;
   TH1D *hsimLn_, *hdigEn_, *hdigLn_;
@@ -68,7 +66,7 @@ HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps)
       threshold_(ps.getParameter<double>("Threshold")),
       tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hits_))),
       tok_digi_(consumes<HGCalDigiCollection>(digis_)),
-      etaMax_(100) {
+      ringMax_(50) {
   usesResource(TFileService::kSharedResource);
 
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation::Input for SimHit:" << edm::InputTag(g4Label_, hits_)
@@ -88,30 +86,29 @@ void HGCalBHValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation::Maximum Number of"
-                                      << " eta sectors:" << etaMax_ << "\nHitsValidationHcal::Booking the Histograms";
+                                      << " ring sectors:" << ringMax_ << "\nHitsValidationHcal::Booking the Histograms";
 
   //Histograms for Sim Hits
   hsimE1_ = fs_->make<TH1D>("SimHitEn1", "Sim Hit Energy", 1000, 0.0, 1.0);
   hsimE2_ = fs_->make<TH1D>("SimHitEn2", "Sim Hit Energy", 1000, 0.0, 1.0);
   hsimTm_ = fs_->make<TH1D>("SimHitTime", "Sim Hit Time", 1000, 0.0, 500.0);
   hsimLn_ = fs_->make<TH1D>("SimHitLong", "Sim Hit Long. Profile", 50, 0.0, 25.0);
-  hsimOc_ = fs_->make<TH2D>("SimHitOccup", "Sim Hit Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
-  hsi2Oc_ = fs_->make<TH2D>("SimHitOccu2", "Sim Hit Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
-  hsi3Oc_ = fs_->make<TH2D>("SimHitOccu3", "Sim Hit Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 50, 0, 25);
+  hsimOc_ = fs_->make<TH2D>("SimHitOccup", "Sim Hit Occupnacy", 2 * ringMax_ + 1, -ringMax_, ringMax_ + 1, 360, 0, 360);
+  hsi2Oc_ = fs_->make<TH2D>("SimHitOccu2", "Sim Hit Occupnacy", 2 * ringMax_ + 1, -ringMax_, ringMax_ + 1, 360, 0, 360);
+  hsi3Oc_ = fs_->make<TH2D>("SimHitOccu3", "Sim Hit Occupnacy", 2 * ringMax_ + 1, -ringMax_, ringMax_ + 1, 50, 0, 25);
   //Histograms for Digis
   hdigEn_ = fs_->make<TH1D>("DigiEnergy", "Digi ADC Sample", 1000, 0.0, 1000.0);
   hdigLn_ = fs_->make<TH1D>("DigiLong", "Digi Long. Profile", 50, 0.0, 25.0);
-  hdigOc_ = fs_->make<TH2D>("DigiOccup", "Digi Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
-  hdi2Oc_ = fs_->make<TH2D>("DigiOccu2", "Digi Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 360, 0, 360);
-  hdi3Oc_ = fs_->make<TH2D>("DigiOccu3", "Digi Occupnacy", 2 * etaMax_ + 1, -etaMax_, etaMax_ + 1, 50, 0, 25);
+  hdigOc_ = fs_->make<TH2D>("DigiOccup", "Digi Occupnacy", 2 * ringMax_ + 1, -ringMax_, ringMax_ + 1, 360, 0, 360);
+  hdi2Oc_ = fs_->make<TH2D>("DigiOccu2", "Digi Occupnacy", 2 * ringMax_ + 1, -ringMax_, ringMax_ + 1, 360, 0, 360);
+  hdi3Oc_ = fs_->make<TH2D>("DigiOccu3", "Digi Occupnacy", 2 * ringMax_ + 1, -ringMax_, ringMax_ + 1, 50, 0, 25);
 }
 
 void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation:Run = " << e.id().run() << " Event = " << e.id().event();
 
   //SimHits
-  edm::Handle<edm::PCaloHitContainer> hitsHE;
-  e.getByToken(tok_hits_, hitsHE);
+  const edm::Handle<edm::PCaloHitContainer>& hitsHE = e.getHandle(tok_hits_);
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation.: PCaloHitContainer"
                                       << " obtained with flag " << hitsHE.isValid();
   if (hitsHE.isValid()) {
@@ -122,29 +119,24 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
       double energy = it->energy();
       double time = it->time();
       unsigned int id = it->id();
-      int eta(0), phi(0), lay(0);
-      bool bh = (DetId(id).det() == DetId::HGCalHSc);
-      if (bh) {
-        eta = HGCScintillatorDetId(id).ieta();
-        phi = HGCScintillatorDetId(id).iphi();
-        lay = HGCScintillatorDetId(id).layer();
-      }
-      double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
-      if (bh) {
-        hsi2Oc_->Fill(eta1, (phi - 0.1), energy);
+      if (DetId(id).det() == DetId::HGCalHSc) {
+        double ring = 0.01 + HGCScintillatorDetId(id).ring();
+        double phi = HGCScintillatorDetId(id).iphi() - 0.01;
+        int lay = HGCScintillatorDetId(id).layer();
+        double ring1 = ring * HGCScintillatorDetId(id).zside();
+        hsi2Oc_->Fill(ring1, phi, energy);
         hsimE1_->Fill(energy);
         hsimTm_->Fill(time, energy);
-        hsimOc_->Fill(eta1, (phi - 0.1), energy);
+        hsimOc_->Fill(ring1, phi, energy);
         hsimLn_->Fill(lay, energy);
-        hsi3Oc_->Fill(eta1, lay, energy);
+        hsi3Oc_->Fill(ring1, lay, energy);
         double ensum(0);
         if (map_try.count(id) != 0)
           ensum = map_try[id];
         ensum += energy;
         map_try[id] = ensum;
-        ++i;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << i << "] ID " << std::hex << " " << id << std::dec << " "
-                                            << HGCScintillatorDetId(id) << " E " << energy << " time " << time;
+        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << ++i << "] ID " << std::hex << " " << id << std::dec
+                                            << " " << HGCScintillatorDetId(id) << " E " << energy << " time " << time;
       }
     }
     for (std::map<unsigned int, double>::iterator itr = map_try.begin(); itr != map_try.end(); ++itr) {
@@ -154,8 +146,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
 
   //Digits
   unsigned int kount(0);
-  edm::Handle<HGCalDigiCollection> hecoll;
-  e.getByToken(tok_digi_, hecoll);
+  const edm::Handle<HGCalDigiCollection>& hecoll = e.getHandle(tok_digi_);
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation.: "
                                       << "HGCalDigiCollection obtained with"
                                       << " flag " << hecoll.isValid();
@@ -163,34 +154,24 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
     edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: HGCalDigi "
                                         << "buffer " << hecoll->size();
     for (HGCalDigiCollection::const_iterator it = hecoll->begin(); it != hecoll->end(); ++it) {
-      HGCalDataFrame df(*it);
+      const HGCalDataFrame& df(*it);
       double energy = df[iSample_].data();
-      bool bh = (DetId(df.id()).det() == DetId::HGCalHSc);
-      if (bh) {
+      if (DetId(df.id()).det() == DetId::HGCalHSc) {
         HGCScintillatorDetId cell(df.id());
         int depth = cell.layer();
-        analyzeDigi(cell, energy, bh, depth, kount);
+        if (energy > threshold_) {
+          double ring = 0.01 + cell.ring();
+          double phi = cell.iphi() - 0.01;
+          double ring1 = cell.zside() * ring;
+          hdi2Oc_->Fill(ring1, phi);
+          hdigEn_->Fill(energy);
+          hdigOc_->Fill(ring1, phi);
+          hdigLn_->Fill(depth);
+          hdi3Oc_->Fill(ring1, depth);
+          edm::LogVerbatim("HGCalValidation")
+              << "HGCalBHDigit[" << ++kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
+        }
       }
-    }
-  }
-}
-
-template <class T>
-void HGCalBHValidation::analyzeDigi(
-    const T& cell, double const& energy, bool const& bh, int const& depth, unsigned int& kount) {
-  if (energy > threshold_) {
-    int eta = cell.ieta();
-    int phi = cell.iphi();
-    double eta1 = (eta >= 0) ? (eta + 0.1) : (eta - 0.1);
-    hdi2Oc_->Fill(eta1, (phi - 0.1));
-    if (bh) {
-      hdigEn_->Fill(energy);
-      hdigOc_->Fill(eta1, (phi - 0.1));
-      hdigLn_->Fill(depth);
-      hdi3Oc_->Fill(eta1, depth);
-      ++kount;
-      edm::LogVerbatim("HGCalValidation")
-          << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy << ":" << (energy > threshold_);
     }
   }
 }

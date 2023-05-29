@@ -22,17 +22,21 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include <algorithm>
 //
 // constructors and destructor
 //
 
 namespace {
-  bool isDupMuon(const l1t::TkMuonRef& muon, const std::vector<l1t::TkMuonRef>& existing) {
+  bool isDupMuon(const l1t::TrackerMuonRef& muon, const std::vector<l1t::TrackerMuonRef>& existing) {
     for (const auto& exist : existing) {
       //it is our understanding that there is an exact eta phi match
       //and we should not be concerned with numerical precision
-      if (reco::deltaR2(*muon, *exist) <= 0) {
+      // DISCUSS: should this use hardware or physics pt?
+      // For the time being we use hardware pt, because this is just for a duplicate check.
+      if (reco::deltaR2(muon->hwEta(), muon->hwPhi(), exist->hwEta(), exist->hwPhi()) <= 0) {
         return true;
       }
     }
@@ -43,18 +47,25 @@ namespace {
 L1TTkMuonFilter::L1TTkMuonFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1TkMuonTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
-      tkMuonToken_(consumes<TkMuonCollection>(l1TkMuonTag_)),
-      qualityCut_(iConfig.getParameter<edm::ParameterSet>("qualities")) {
+      tkMuonToken_(consumes(l1TkMuonTag_)) {
   min_Pt_ = iConfig.getParameter<double>("MinPt");
   min_N_ = iConfig.getParameter<int>("MinN");
   min_Eta_ = iConfig.getParameter<double>("MinEta");
   max_Eta_ = iConfig.getParameter<double>("MaxEta");
   applyQuality_ = iConfig.getParameter<bool>("applyQuality");
   applyDuplicateRemoval_ = iConfig.getParameter<bool>("applyDuplicateRemoval");
+  qualities_ = iConfig.getParameter<std::vector<int>>("qualities");
   scalings_ = iConfig.getParameter<edm::ParameterSet>("Scalings");
   barrelScalings_ = scalings_.getParameter<std::vector<double>>("barrel");
   overlapScalings_ = scalings_.getParameter<std::vector<double>>("overlap");
   endcapScalings_ = scalings_.getParameter<std::vector<double>>("endcap");
+
+  std::sort(qualities_.begin(), qualities_.end());
+
+  if (applyQuality_ && qualities_.empty()) {
+    throw cms::Exception("InvalidConfiguration")
+        << "If you want to applyQuality the qualities vector should not be empty!";
+  }
 }
 
 L1TTkMuonFilter::~L1TTkMuonFilter() = default;
@@ -71,10 +82,9 @@ void L1TTkMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("MaxEta", 5.0);
   desc.add<int>("MinN", 1);
   desc.add<edm::InputTag>("inputTag", edm::InputTag("L1TkMuons"));
-  desc.add<bool>("applyQuality", true);
+  desc.add<bool>("applyQuality", false);
   desc.add<bool>("applyDuplicateRemoval", true);
-  desc.add<edm::ParameterSetDescription>("qualities", MuonQualityCut::makePSetDescription());
-
+  desc.add<std::vector<int>>("qualities", {});
   edm::ParameterSetDescription descScalings;
   descScalings.add<std::vector<double>>("barrel", {0.0, 1.0, 0.0});
   descScalings.add<std::vector<double>>("overlap", {0.0, 1.0, 0.0});
@@ -105,20 +115,26 @@ bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
   // Specific filter code
 
   // get hold of products from Event
-  Handle<l1t::TkMuonCollection> tkMuons;
+  Handle<l1t::TrackerMuonCollection> tkMuons;
   iEvent.getByToken(tkMuonToken_, tkMuons);
 
   //it looks rather slow to get the added muons back out of the filterproduct
   //so we just make a vector of passing and then add them all at the end
-  std::vector<l1t::TkMuonRef> passingMuons;
+  std::vector<l1t::TrackerMuonRef> passingMuons;
   auto atrkmuons(tkMuons->begin());
   auto otrkmuons(tkMuons->end());
-  TkMuonCollection::const_iterator itkMuon;
+  l1t::TrackerMuonCollection::const_iterator itkMuon;
   for (itkMuon = atrkmuons; itkMuon != otrkmuons; itkMuon++) {
-    double offlinePt = this->TkMuonOfflineEt(itkMuon->pt(), itkMuon->eta());
-    bool passesQual = !applyQuality_ || qualityCut_(*itkMuon);
-    if (passesQual && offlinePt >= min_Pt_ && itkMuon->eta() <= max_Eta_ && itkMuon->eta() >= min_Eta_) {
-      l1t::TkMuonRef ref(l1t::TkMuonRef(tkMuons, distance(atrkmuons, itkMuon)));
+    double offlinePt = this->TkMuonOfflineEt(itkMuon->phPt(), itkMuon->phEta());
+
+    // The muonDetector() and quality() methods are not available for TrackerMuon
+    // as they were for TkMuon (TkMuon being the old implementation, at the times
+    // of the HLT-TDR). So we fall back to the hwQual() method inherited from
+    // L1Candidate, and compare it with a vector of allowed qualities.
+    bool passesQual = !applyQuality_ || std::binary_search(qualities_.begin(), qualities_.end(), itkMuon->hwQual());
+
+    if (passesQual && offlinePt >= min_Pt_ && itkMuon->phEta() <= max_Eta_ && itkMuon->phEta() >= min_Eta_) {
+      l1t::TrackerMuonRef ref(tkMuons, distance(atrkmuons, itkMuon));
       if (!applyDuplicateRemoval_ || !isDupMuon(ref, passingMuons)) {
         passingMuons.push_back(ref);
       }
@@ -131,45 +147,6 @@ bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
   // return with final filter decision
   const bool accept(static_cast<int>(passingMuons.size()) >= min_N_);
   return accept;
-}
-
-L1TTkMuonFilter::MuonQualityCut::MuonQualityCut(const edm::ParameterSet& iConfig) {
-  auto detQualities = iConfig.getParameter<std::vector<edm::ParameterSet>>("values");
-  for (const auto& detQuality : detQualities) {
-    auto dets = detQuality.getParameter<std::vector<int>>("detectors");
-    auto qualities = detQuality.getParameter<std::vector<int>>("qualities");
-    std::sort(qualities.begin(), qualities.end());
-    for (const auto& det : dets) {
-      allowedQualities_.insert({det, std::move(qualities)});
-    }
-  }
-}
-
-bool L1TTkMuonFilter::MuonQualityCut::operator()(const l1t::TkMuon& muon) const {
-  const auto& qualities = allowedQualities_.find(muon.muonDetector());
-  if (qualities != allowedQualities_.end()) {
-    return std::binary_search(qualities->second.begin(), qualities->second.end(), muon.quality());
-  } else {
-    return true;  //if qualities for that detector is not specified, we return true
-  }
-}
-
-void L1TTkMuonFilter::MuonQualityCut::fillPSetDescription(edm::ParameterSetDescription& desc) {
-  edm::ParameterSetDescription detQualDesc;
-  detQualDesc.add<std::vector<int>>("detectors", {3});
-  detQualDesc.add<std::vector<int>>("qualities", {11, 13, 14, 15});
-  std::vector<edm::ParameterSet> detQualDefaults;
-  edm::ParameterSet detQualDefault;
-  detQualDefault.addParameter<std::vector<int>>("detectors", {3});
-  detQualDefault.addParameter<std::vector<int>>("qualities", {11, 13, 14, 15});
-  detQualDefaults.push_back(detQualDefault);
-  desc.addVPSet("values", detQualDesc, detQualDefaults);
-}
-
-edm::ParameterSetDescription L1TTkMuonFilter::MuonQualityCut::makePSetDescription() {
-  edm::ParameterSetDescription desc;
-  fillPSetDescription(desc);
-  return desc;
 }
 
 double L1TTkMuonFilter::TkMuonOfflineEt(double Et, double Eta) const {

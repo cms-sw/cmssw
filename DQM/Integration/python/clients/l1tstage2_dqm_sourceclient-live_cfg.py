@@ -26,11 +26,11 @@ else:
 # process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Required to load Global Tag
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi") 
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # # Condition for lxplus: change and possibly customise the GT
 # from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-# process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+# process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 # Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
@@ -51,7 +51,7 @@ process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver * process.dqm
 #--------------------------------------------------
 # Standard Unpacking Path
 
-process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 # remove unneeded unpackers
 process.RawToDigi.remove(process.ecalPreshowerDigis)
@@ -63,7 +63,6 @@ process.RawToDigi.remove(process.siStripDigis)
 process.RawToDigi.remove(process.castorDigis)
 process.RawToDigi.remove(process.scalersRawToDigi)
 process.RawToDigi.remove(process.tcdsDigis)
-process.RawToDigi.remove(process.totemTriggerRawToDigi)
 process.RawToDigi.remove(process.totemRPRawToDigi)
 process.RawToDigi.remove(process.ctppsDiamondRawToDigi)
 process.RawToDigi.remove(process.ctppsPixelDigis)
@@ -144,7 +143,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.tcdsDigis.InputLabel = "rawDataRepacker"
     process.tcdsRawToDigi.InputLabel = "rawDataRepacker"
     process.totemRPRawToDigi.rawDataTag = "rawDataRepacker"
-    process.totemTriggerRawToDigi.rawDataTag = "rawDataRepacker"
     process.totemTimingRawToDigi.rawDataTag = "rawDataRepacker"
     process.csctfDigis.producer = "rawDataRepacker"
     process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
@@ -160,8 +158,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.caloStage2Digis.InputLabel = "rawDataRepacker"
     process.gtStage2Digis.InputLabel = "rawDataRepacker"
     process.l1tStage2CaloLayer1.fedRawDataLabel = "rawDataRepacker"
-    process.l1tStage2uGMTZeroSupp.rawData = "rawDataRepacker"
-    process.l1tStage2uGMTZeroSuppFatEvts.rawData = "rawDataRepacker"
     process.l1tStage2BmtfZeroSupp.rawData = "rawDataRepacker"
     process.l1tStage2BmtfZeroSuppFatEvts.rawData = "rawDataRepacker"
     process.selfFatEventFilter.rawInput = "rawDataRepacker"

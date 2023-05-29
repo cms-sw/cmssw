@@ -1,0 +1,26 @@
+<iftool name="cuda-gcc-support">
+  <bin file="SoALayoutAndView_t.cu" name="testCudaSoALayoutAndView_t">
+    <use name="boost"/>
+    <use name="cuda"/>
+    <use name="eigen"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+  </bin>
+</iftool>
+
+<iftool name="rocm">
+  <bin file="SoALayoutAndView_t.hip.cc" name="testRocmSoALayoutAndView_t">
+    <use name="boost"/>
+    <use name="eigen"/>
+    <use name="rocm"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+  </bin>
+</iftool>
+
+<!-- This test triggers a bug in ROOT, so it's kept disabled
+<bin file="SoAStreamer_t.cpp" name="SoAStreamer_t">
+  <use name="root"/>
+</bin>
+-->
+
+<!-- dictionaries for FakeSoA -->
+<library file="" name="FakeSoADict"/>

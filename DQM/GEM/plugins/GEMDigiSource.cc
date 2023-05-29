@@ -3,7 +3,8 @@
 using namespace std;
 using namespace edm;
 
-GEMDigiSource::GEMDigiSource(const edm::ParameterSet& cfg) : GEMDQMBase(cfg) {
+GEMDigiSource::GEMDigiSource(const edm::ParameterSet& cfg)
+    : GEMDQMBase(cfg), gemChMapToken_(esConsumes<GEMChMap, GEMChMapRcd, edm::Transition::BeginRun>()) {
   tagDigi_ = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel"));
   lumiScalers_ = consumes<LumiScalersCollection>(
       cfg.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
@@ -21,11 +22,65 @@ void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& description
   descriptions.add("GEMDigiSource", desc);
 }
 
+void GEMDigiSource::LoadROMap(edm::EventSetup const& iSetup) {
+  //if (useDBEMap_)
+  if (true) {
+    const auto& chMap = iSetup.getData(gemChMapToken_);
+    auto gemChMap = std::make_unique<GEMChMap>(chMap);
+
+    std::map<int, bool> mapCheckedType;
+    for (auto const& p : gemChMap->chamberMap()) {
+      auto& dc = p.second;
+      GEMDetId gemChId(dc.detId);
+      for (Int_t ieta = 1; ieta <= 24; ieta++) {
+        if (!gemChMap->isValidStrip(dc.chamberType, ieta, 1))
+          continue;
+        mapChamberType_[{gemChId.station(), gemChId.layer(), gemChId.chamber(), ieta}] = dc.chamberType;
+        if (mapCheckedType[dc.chamberType])
+          continue;
+        for (Int_t strip = 0; strip <= 3 * 128; strip++) {
+          if (!gemChMap->isValidStrip(dc.chamberType, ieta, strip))
+            continue;
+          auto& stripInfo = gemChMap->getChannel(dc.chamberType, ieta, strip);
+          mapStripToVFAT_[{dc.chamberType, ieta, strip}] = stripInfo.vfatAdd;
+        }
+      }
+      mapCheckedType[dc.chamberType] = true;
+    }
+  } else {
+    // no EMap in DB, using dummy
+    auto gemChMap = std::make_unique<GEMChMap>();
+    gemChMap->setDummy();
+
+    std::map<int, bool> mapCheckedType;
+    for (auto const& p : gemChMap->chamberMap()) {
+      auto& dc = p.second;
+      GEMDetId gemChId(dc.detId);
+
+      for (Int_t ieta = 1; ieta <= 24; ieta++) {
+        if (!gemChMap->isValidStrip(dc.chamberType, ieta, 1))
+          continue;
+        mapChamberType_[{gemChId.station(), gemChId.layer(), gemChId.chamber(), ieta}] = dc.chamberType;
+        if (mapCheckedType[dc.chamberType])
+          continue;
+        mapCheckedType[dc.chamberType] = true;
+        for (Int_t strip = 0; strip <= 3 * 128; strip++) {
+          if (!gemChMap->isValidStrip(dc.chamberType, ieta, strip))
+            continue;
+          auto& stripInfo = gemChMap->getChannel(dc.chamberType, ieta, strip);
+          mapStripToVFAT_[{dc.chamberType, ieta, strip}] = stripInfo.vfatAdd;
+        }
+      }
+    }
+  }
+}
+
 void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const& iSetup) {
   initGeometry(iSetup);
   if (GEMGeometry_ == nullptr)
     return;
   loadChambers();
+  LoadROMap(iSetup);
 
   strFolderMain_ = "GEM/Digis";
 
@@ -66,7 +121,6 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
     mapDigiWheel_layer_.TurnOff();
     mapBX_.TurnOff();
-    mapTotalDigi_layer_.TurnOff();
   }
 
   if (nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
@@ -105,12 +159,20 @@ int GEMDigiSource::ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) {
 int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
+  Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
+  Int_t nNewMinIdxChamber = stationInfo.nNumModules_ * (stationInfo.nMinIdxChamber_ - 1) + 1;
+  Int_t nNewMaxIdxChamber = stationInfo.nNumModules_ * stationInfo.nMaxIdxChamber_;
+
+  nNewNumCh *= stationInfo.nNumModules_;
+
+  Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
+
   int nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
 
-  mapTotalDigi_layer_.SetBinConfX(stationInfo.nNumChambers_);
-  mapTotalDigi_layer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
+  mapTotalDigi_layer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
+  mapTotalDigi_layer_.SetBinConfY(nNumVFATPerModule, -0.5);
   mapTotalDigi_layer_.bookND(bh, key);
-  mapTotalDigi_layer_.SetLabelForChambers(key, 1);
+  mapTotalDigi_layer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber, stationInfo.nNumModules_);
   mapTotalDigi_layer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapDigiWheel_layer_.SetBinLowEdgeX(stationInfo.fMinPhi_);
@@ -140,7 +202,7 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
   int nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
   int nNumCh = stationInfo.nNumDigi_;
 
-  mapDigiOccPerCh_.SetBinConfX(nNumCh * nNumVFATPerEta, -0.5);
+  mapDigiOccPerCh_.SetBinConfX(nNumCh * nNumVFATPerEta, stationInfo.nFirstStrip_ - 0.5);
   mapDigiOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapDigiOccPerCh_.bookND(bh, key);
   mapDigiOccPerCh_.SetLabelForIEta(key, 2);
@@ -158,8 +220,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
 
   std::map<ME3IdsKey, Int_t> total_digi_layer;
   std::map<ME3IdsKey, Int_t> total_digi_eta;
-  for (const auto& ch : gemChambers_) {
-    GEMDetId gid = ch.id();
+  for (auto gid : listChamberId_) {
     ME2IdsKey key2{gid.region(), gid.station()};
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
@@ -169,16 +230,19 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     const BoundPlane& surface = GEMGeometry_->idToDet(gid)->surface();
     if (total_digi_layer.find(key3) == total_digi_layer.end())
       total_digi_layer[key3] = 0;
-    for (auto iEta : ch.etaPartitions()) {
+    for (auto iEta : mapEtaPartition_[gid]) {
       GEMDetId eId = iEta->id();
       ME3IdsKey key3IEta{gid.region(), gid.station(), eId.ieta()};
       if (total_digi_eta.find(key3IEta) == total_digi_eta.end())
         total_digi_eta[key3IEta] = 0;
       const auto& digis_in_det = gemDigis->get(eId);
+      auto nChamberType = mapChamberType_[{gid.station(), gid.layer(), gid.chamber(), eId.ieta()}];
+      Int_t nIdxModule = getIdxModule(gid.station(), nChamberType);
+      Int_t nCh = (gid.chamber() - 1) * stationInfo.nNumModules_ + nIdxModule;
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
-        Int_t nIdxVFAT = getVFATNumberByDigi(gid.station(), eId.ieta(), d->strip());
-        mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT);
+        Int_t nIdxVFAT = mapStripToVFAT_[{nChamberType, eId.ieta(), d->strip()}];
+        mapTotalDigi_layer_.Fill(key3, nCh, nIdxVFAT);
 
         // Filling of digi
         mapDigiOcc_ieta_.Fill(key3, eId.ieta());  // Eta (partition)

@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="rmin"       value="0.0*fm"/>
+  <Constant name="rmax"       value="50.0*cm"/>
+  <Constant name="zmin"       value="-1.0*cm"/>
+  <Constant name="zmax"       value="124.511*cm"/>
+  <Constant name="rminEE"     value="0.0*fm"/>
+  <Constant name="rmaxEE"     value="8.0*cm"/>
+  <Constant name="zminEE1"    value="36.647*cm"/>
+  <Constant name="zmaxEE1"    value="36.953*cm"/>
+  <Constant name="zminEE2"    value="122.7*cm"/>
+  <Constant name="zmaxEE2"    value="124.2*cm"/>
+  <Constant name="rmaxEEF"    value="9.5*cm"/>
+  <Constant name="thPCB"      value="1.6*mm"/>
+  <Constant name="thKapton"   value="0.01*mm"/>
+  <Constant name="thAbsEE"    value="1.2*mm"/>
+  <Constant name="thAbsCuEE"  value="1.15*mm"/>
+  <Constant name="WaferW"     value="123.7*mm"/>
+  <Constant name="tan30deg"   value="tan(30.0*deg)"/>
+</ConstantsSection>
+
+<MaterialSection label="hgcal.xml">
+  <CompositeMaterial name="WCu" density="14.979*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.75">
+      <rMaterial name="materials:Tungsten"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.25">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+<SolidSection label="hgcal.xml">
+  <Polycone name="HGCal"    startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zmin]"    rMin="[rmin]" rMax="[rmax]"/>
+    <ZSection z="[zmax]"    rMin="[rmin]" rMax="[rmax]"/>
+  </Polycone>
+  <Polycone name="HGCalEE1" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zminEE1]" rMin="[rminEE]" rMax="[rmaxEE]"/>
+    <ZSection z="[zmaxEE1]" rMin="[rminEE]" rMax="[rmaxEE]"/>
+  </Polycone>
+  <Polycone name="HGCalEE2" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zminEE2]" rMin="[rminEE]" rMax="[rmaxEE]"/>
+    <ZSection z="[zmaxEE2]" rMin="[rminEE]" rMax="[rmaxEE]"/>
+  </Polycone>
+  <Polyhedra name="HGCalPCB" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[thPCB]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+    <ZSection z= "[thPCB]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalKapton" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[thKapton]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+    <ZSection z= "[thKapton]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalEEAbs" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+    <ZSection z= "[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalEECuAbs" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[thAbsCuEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+    <ZSection z= "[thAbsCuEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+  </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE1" category="unspecified">
+    <rSolid name="HGCalEE1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE2" category="unspecified">
+    <rSolid name="HGCalEE2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEPCB" category="unspecified">
+    <rSolid name="HGCalPCB"/>
+    <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEKapton" category="unspecified">
+    <rSolid name="HGCalKapton"/>
+    <rMaterial name="materials:Kapton"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAbsorber" category="unspecified">
+    <rSolid name="HGCalEEAbs"/>
+    <rMaterial name="hgcal:WCu"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalCuEEAbsorber" category="unspecified">
+    <rSolid name="HGCalEECuAbs"/>
+    <rMaterial name="materials:Copper"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcal:HGCal"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalEE1"/>
+    <rRotation name="rotations:R090"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalEE2"/>
+    <rRotation name="rotations:R090"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

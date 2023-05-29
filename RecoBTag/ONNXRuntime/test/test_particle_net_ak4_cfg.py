@@ -3,15 +3,29 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
-options.inputFiles = '/store/mc/RunIISummer19UL17MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v4/30000/FFA0194D-1BBC-EF4F-9B8F-8FBED2C62FC8.root'
+#options.inputFiles = '/store/mc/RunIISummer19UL17MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v4/30000/FFA0194D-1BBC-EF4F-9B8F-8FBED2C62FC8.root'
+options.inputFiles = 'file:/storage/local/data1/home/jduarte1/forPatrick/FFA0194D-1BBC-EF4F-9B8F-8FBED2C62FC8.root'
 options.maxEvents = 1000
 options.parseArguments()
+
+from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
+process = cms.Process('PATtest',enableSonicTriton)
 
 process = cms.Process("PATtest")
 
 ## MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
+
+keepMsgs = ['TritonClient','TritonService']
+keepMsgs.extend(['BoostedJetONNXJetTagsProducer'])
+keepMsgs.extend(['ParticleNetSonicJetTagsProducer', 'ParticleNetSonicJetTagsProducer:TritonClient'])
+for msg in keepMsgs:
+    setattr(process.MessageLogger.cerr,msg,
+        cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000),
+        )
+    )
 
 
 ## Options and Output Report
@@ -23,6 +37,22 @@ process.source = cms.Source("PoolSource",
 )
 ## Maximal Number of Events
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(options.maxEvents))
+
+process.load("HeterogeneousCore.SonicTriton.TritonService_cff")
+process.TritonService.verbose = True
+# fallback server                                                                                                                                                                                                                             
+process.TritonService.fallback.enable = True
+process.TritonService.fallback.verbose = True
+process.TritonService.fallback.useGPU = False
+process.TritonService.servers.append(
+    cms.PSet(
+        name = cms.untracked.string("default"),
+        #address = cms.untracked.string("prp-gpu-1.t2.ucsd.edu"),
+        address = cms.untracked.string("ailab01.fnal.gov"),
+        port = cms.untracked.uint32(8001),
+    )
+)
+
 
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.Geometry.GeometryRecoDB_cff")

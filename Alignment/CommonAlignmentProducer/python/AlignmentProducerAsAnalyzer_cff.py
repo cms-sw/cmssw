@@ -75,6 +75,9 @@ AlignmentProducer = cms.EDProducer("AlignmentProducerAsAnalyzer",
 
                     # update alignables if triggered by corresponding input IOV boundary
                     enableAlignableUpdates = cms.bool(False),
+                    
+                    # Change tracker alignment record name to avoid confusion bettwen HG and LG PCL alignment
+                    trackerAlignmentRcdName = cms.string("TrackerAlignmentRcd")
                     )
 import Geometry.DTGeometryBuilder.dtGeometryDB_cfi
 DTGeometryAlignmentProducerAsAnalyzer = Geometry.DTGeometryBuilder.dtGeometryDB_cfi.DTGeometryESModule.clone()

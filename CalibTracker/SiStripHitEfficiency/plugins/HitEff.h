@@ -11,6 +11,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -48,7 +49,7 @@
 
 class TrackerTopology;
 
-class HitEff : public edm::one::EDAnalyzer<> {
+class HitEff : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HitEff(const edm::ParameterSet& conf);
   ~HitEff() override = default;
@@ -61,6 +62,7 @@ private:
   // ----------member data ---------------------------
 
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
+  const edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > commonModeToken_;
 
   SiStripClusterInfo siStripClusterInfo_;

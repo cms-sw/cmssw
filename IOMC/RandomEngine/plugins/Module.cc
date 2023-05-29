@@ -2,9 +2,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-#include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
-#include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
-#include "IOMC/RandomEngine/src/RandomFilter.h"
+#include "RandomNumberGeneratorService.h"
+#include "RandomEngineStateProducer.h"
+#include "RandomFilter.h"
 
 using edm::RandomFilter;
 using edm::service::RandomNumberGeneratorService;

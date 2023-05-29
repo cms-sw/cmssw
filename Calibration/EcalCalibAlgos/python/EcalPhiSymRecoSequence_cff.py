@@ -66,7 +66,7 @@ def ecal_phisym_flattables(process, produce_by_run : bool=False):
     """
 
     process.load('Calibration.EcalCalibAlgos.EcalPhiSymFlatTableProducers_cfi')
-    
+
     nmis = process.EcalPhiSymRecHitProducerRun.nMisCalib.value()
     for imis in range(1, nmis+1):
         # get the naming and indexing right.
@@ -169,7 +169,7 @@ def customise(process):
         process.schedule.remove(process.ALCARECOStreamEcalPhiSymByRunOutPath)
     if "ALCARECOStreamEcalPhiSymByLumiOutPath" in process.pathNames():
         process.schedule.remove(process.ALCARECOStreamEcalPhiSymByLumiOutPath)
-    process.ALCARECOStreamEcalPhiSymOutNanoPath = cms.EndPath(ecal_phisym_output(process, save_flatnano=True)[0])
+    process.ALCARECOStreamEcalPhiSymOutNanoPath = cms.EndPath(ecal_phisym_output(process, save_edm=False, save_edmnano=True, save_flatnano=False)[0])
     process.schedule.append(process.ALCARECOStreamEcalPhiSymOutNanoPath)
 
     return process

@@ -33,9 +33,7 @@ L1GctInternJetProducer::L1GctInternJetProducer(const edm::ParameterSet& iConfig)
   produces<L1JetParticleCollection>("Internal");
 }
 
-L1GctInternJetProducer::~L1GctInternJetProducer() {}
-
-void L1GctInternJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void L1GctInternJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   //std::cout << "ARGGHHH!" << std::endl;
   using namespace edm;
   using namespace l1extra;
@@ -84,10 +82,6 @@ void L1GctInternJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   OrphanHandle<L1JetParticleCollection> internalJetHandle = iEvent.put(std::move(internJetColl), "Internal");
 }
-
-void L1GctInternJetProducer::beginJob() {}
-
-void L1GctInternJetProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1GctInternJetProducer);

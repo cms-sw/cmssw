@@ -38,26 +38,26 @@
 // class declaration
 //
 
-namespace AlCaGammaJet {
+namespace alCaGammaJetSelector {
   struct Counters {
     Counters() : nProcessed_(0), nSelected_(0) {}
     mutable std::atomic<unsigned int> nProcessed_, nSelected_;
   };
-}  // namespace AlCaGammaJet
+}  // namespace alCaGammaJetSelector
 
-class AlCaGammaJetSelector : public edm::stream::EDFilter<edm::GlobalCache<AlCaGammaJet::Counters> > {
+class AlCaGammaJetSelector : public edm::stream::EDFilter<edm::GlobalCache<alCaGammaJetSelector::Counters> > {
 public:
-  explicit AlCaGammaJetSelector(const edm::ParameterSet&, const AlCaGammaJet::Counters* count);
+  explicit AlCaGammaJetSelector(const edm::ParameterSet&, const alCaGammaJetSelector::Counters* count);
   ~AlCaGammaJetSelector() override = default;
 
-  static std::unique_ptr<AlCaGammaJet::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaGammaJet::Counters>();
+  static std::unique_ptr<alCaGammaJetSelector::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaGammaJetSelector::Counters>();
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaGammaJet::Counters* counters);
+  static void globalEndJob(const alCaGammaJetSelector::Counters* counters);
 
 private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
@@ -87,7 +87,8 @@ private:
 //
 // constructors and destructor
 //
-AlCaGammaJetSelector::AlCaGammaJetSelector(const edm::ParameterSet& iConfig, const AlCaGammaJet::Counters* counters) {
+AlCaGammaJetSelector::AlCaGammaJetSelector(const edm::ParameterSet& iConfig,
+                                           const alCaGammaJetSelector::Counters* counters) {
   nProcessed_ = 0;
   nSelected_ = 0;
 
@@ -153,7 +154,7 @@ void AlCaGammaJetSelector::endStream() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 
-void AlCaGammaJetSelector::globalEndJob(const AlCaGammaJet::Counters* count) {
+void AlCaGammaJetSelector::globalEndJob(const alCaGammaJetSelector::Counters* count) {
   edm::LogWarning("AlCaGammaJet") << "Finds " << count->nSelected_ << " good events out of " << count->nProcessed_;
 }
 

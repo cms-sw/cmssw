@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -36,7 +36,7 @@ using namespace std;
 // class decleration
 //
 
-class CentralityTableProducer : public edm::EDAnalyzer {
+class CentralityTableProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CentralityTableProducer(const edm::ParameterSet&);
   ~CentralityTableProducer() override;
@@ -76,6 +76,7 @@ private:
 // constructors and destructor
 //
 CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig) : text_("bins.txt"), runnum_(0) {
+  usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile", true);
   makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB", false);

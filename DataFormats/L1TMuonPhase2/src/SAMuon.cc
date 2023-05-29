@@ -1,4 +1,5 @@
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace l1t;
 

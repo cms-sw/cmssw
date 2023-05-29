@@ -1,3 +1,6 @@
+<use name="boost"/>
+<use name="rootcore"/>
+<use name="tbb"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Common"/>
@@ -5,13 +8,13 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Reflection"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Version"/>
-<use name="boost"/>
-<use name="rootcore"/>
 <flags ADD_SUBDIR="1"/>
+<!-- Disable header consistency checks: https://github.com/cms-sw/cmssw/pull/39710 -->
+<flags IGNORE_HEADER_CHECK="EDFilter.h EDProducer.h EDAnalyzer.h"/>
 <export>
   <lib name="1"/>
 </export>

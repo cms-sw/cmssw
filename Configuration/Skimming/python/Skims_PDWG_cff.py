@@ -293,6 +293,17 @@ SKIMStreamEXODelayedJetMET = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
+from Configuration.Skimming.PDWG_EXOLLPJetHCAL_cff import *
+EXOLLPJetHCALPath = cms.Path(EXOLLPJetHCALSkimSequence)
+SKIMStreamEXOLLPJetHCAL = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOLLPJetHCAL',
+    paths = (EXOLLPJetHCALPath),
+    content = skimRawAODContent.outputCommands+['keep *_hbhereco__*'],
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
 from Configuration.Skimming.PDWG_EXODTCluster_cff import *
 EXODTClusterPath = cms.Path(EXODTClusterSkimSequence)
 SKIMStreamEXODTCluster = cms.FilteredStream(
@@ -304,6 +315,18 @@ SKIMStreamEXODTCluster = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
+from Configuration.Skimming.PDWG_EXOCSCCluster_cff import *
+EXOCSCClusterPath = cms.Path(EXOCSCClusterSkimSequence)
+SKIMStreamEXOCSCCluster = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOCSCCluster',
+    paths = (EXOCSCClusterPath),
+    content = skimRawAODContent.outputCommands+['keep *_csc2DRecHits_*_*','keep *_dt1DRecHits_*_*'],
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+
 from Configuration.Skimming.PDWG_EXODisappTrk_cff import *
 EXODisappTrkPath = cms.Path(EXODisappTrkSkimSequence)
 SKIMStreamEXODisappTrk = cms.FilteredStream(
@@ -313,6 +336,17 @@ SKIMStreamEXODisappTrk = cms.FilteredStream(
     content = EXODisappTrkSkimContent.outputCommands, 
     selectEvents = cms.untracked.PSet(), 
     dataTier = cms.untracked.string('AOD')
+    )
+
+from Configuration.Skimming.PDWG_EXODisappMuon_cff import *
+EXODisappMuonPath = cms.Path(EXODisappMuonSkimSequence)
+SKIMStreamEXODisappMuon = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODisappMuon',
+    paths = (EXODisappMuonPath),
+    content = EXODisappMuonSkimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
     )
 
 #####################

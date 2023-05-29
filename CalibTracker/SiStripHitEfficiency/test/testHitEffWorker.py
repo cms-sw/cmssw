@@ -10,7 +10,7 @@ options.register("isUnitTest",
 options.parseArguments()
 
 process = cms.Process("HitEff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -20,16 +20,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(
     # 10 random files, will need the rest later
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/E3D6AECF-3F12-6540-97DC-4A6994CFEBF3.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/242566C3-0540-8C43-8D6E-BB42C1FE0BB5.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/BC8C0839-F645-B948-9040-15FCB5D50472.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A806401-2CBC-4345-A5CB-593AABD4BE4E.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/852C3C1E-2BD4-A843-A65B-51110A503FBD.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/B795F9A0-4681-A34A-B879-E33A0DEC8720.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A0884F2-A395-C541-8EFB-740C45A57CCE.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/D274E7C1-5A9D-A544-B9B3-6A30166FC16C.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/C4D243DC-2A09-CF42-A050-7678EF4A90D7.root",
-    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/7946A89D-8AC5-6B4F-BAD2-AE3B971865C5.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/E3D6AECF-3F12-6540-97DC-4A6994CFEBF3.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/242566C3-0540-8C43-8D6E-BB42C1FE0BB5.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/BC8C0839-F645-B948-9040-15FCB5D50472.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A806401-2CBC-4345-A5CB-593AABD4BE4E.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/852C3C1E-2BD4-A843-A65B-51110A503FBD.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/B795F9A0-4681-A34A-B879-E33A0DEC8720.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A0884F2-A395-C541-8EFB-740C45A57CCE.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/D274E7C1-5A9D-A544-B9B3-6A30166FC16C.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/C4D243DC-2A09-CF42-A050-7678EF4A90D7.root",
+    "/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/7946A89D-8AC5-6B4F-BAD2-AE3B971865C5.root",
     ))
 
 if(options.isUnitTest):

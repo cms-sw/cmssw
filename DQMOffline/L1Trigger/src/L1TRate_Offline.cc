@@ -505,14 +505,14 @@ bool L1TRate_Offline::getXSexFitsPython(const edm::ParameterSet& ps) {
           foundFit = true;
           break;
         }
+      }
 
-        if (!foundFit) {
-          noError = false;
+      if (!foundFit) {
+        noError = false;
 
-          int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_PY_MISSING_FIT);
-          eCount++;
-          m_ErrorMonitor->getTH1()->SetBinContent(WARNING_PY_MISSING_FIT, eCount);
-        }
+        int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_PY_MISSING_FIT);
+        eCount++;
+        m_ErrorMonitor->getTH1()->SetBinContent(WARNING_PY_MISSING_FIT, eCount);
       }
     }
   }

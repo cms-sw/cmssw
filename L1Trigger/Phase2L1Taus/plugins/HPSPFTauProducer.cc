@@ -30,7 +30,7 @@ HPSPFTauProducer::HPSPFTauProducer(const edm::ParameterSet& cfg)
   }
   srcL1Vertices_ = cfg.getParameter<edm::InputTag>("srcL1Vertices");
   if (!srcL1Vertices_.label().empty()) {
-    tokenL1Vertices_ = consumes<std::vector<l1t::TkPrimaryVertex>>(srcL1Vertices_);
+    tokenL1Vertices_ = consumes<l1t::VertexWordCollection>(srcL1Vertices_);
   }
   deltaR2Cleaning_ = deltaRCleaning_ * deltaRCleaning_;
 
@@ -58,14 +58,14 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<l1t::PFCandidateCollection> l1PFCands;
   evt.getByToken(tokenL1PFCands_, l1PFCands);
 
-  l1t::TkPrimaryVertexRef primaryVertex;
+  l1t::VertexWordRef primaryVertex;
   float primaryVertex_z = 0.;
   if (!srcL1Vertices_.label().empty()) {
-    edm::Handle<std::vector<l1t::TkPrimaryVertex>> vertices;
+    edm::Handle<l1t::VertexWordCollection> vertices;
     evt.getByToken(tokenL1Vertices_, vertices);
     if (!vertices->empty()) {
-      primaryVertex = l1t::TkPrimaryVertexRef(vertices, 0);
-      primaryVertex_z = primaryVertex->zvertex();
+      primaryVertex = l1t::VertexWordRef(vertices, 0);
+      primaryVertex_z = primaryVertex->z0();
     }
   }
 
@@ -154,7 +154,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           std::fabs(l1PFTau.leadChargedPFCand()->eta()) < maxLeadChargedPFCandEta_ &&
           (srcL1Vertices_.label().empty() ||
            (primaryVertex.isNonnull() && l1PFTau.leadChargedPFCand()->pfTrack().isNonnull() &&
-            std::fabs(l1PFTau.leadChargedPFCand()->pfTrack()->vertex().z() - primaryVertex->zvertex()) <
+            std::fabs(l1PFTau.leadChargedPFCand()->pfTrack()->vertex().z() - primaryVertex->z0()) <
                 maxLeadChargedPFCandDz_)) &&
           l1PFTau.sumChargedIso() < maxChargedIso_ && l1PFTau.sumChargedIso() < maxChargedRelIso_ * l1PFTau.pt()))
       continue;
@@ -220,7 +220,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minSeedJetPt", 30.0);
   desc.add<double>("maxChargedRelIso", 1.0);
   desc.add<double>("minSeedChargedPFCandPt", 5.0);
-  desc.add<edm::InputTag>("srcL1PFCands", edm::InputTag("l1ctLayer1", "PF"));
+  desc.add<edm::InputTag>("srcL1PFCands", edm::InputTag("l1tLayer1", "PF"));
   desc.add<double>("stripSizeEta", 0.05);
   desc.add<double>("maxLeadChargedPFCandEta", 2.4);
   desc.add<double>("deltaRCleaning", 0.4);
@@ -230,7 +230,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("maxSeedChargedPFCandEta", 2.4);
   desc.add<bool>("applyPreselection", false);
   desc.add<double>("isolationConeSize", 0.4);
-  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("L1TkPrimaryVertex"));
+  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
   desc.add<double>("maxChargedIso", 1000.0);
   {
     edm::ParameterSetDescription psd0;
@@ -269,7 +269,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("maxSeedJetEta", 2.4);
   desc.add<std::string>("signalConeSize", "2.8/max(1., pt)");
   desc.add<edm::InputTag>("srcL1Jets",
-                          edm::InputTag("Phase1L1TJetProducer", "UncalibratedPhase1L1TJetFromPfCandidates"));
+                          edm::InputTag("l1tPhase1JetCalibrator9x9trimmed", "Phase1L1TJetFromPfCandidates"));
   desc.addUntracked<bool>("debug", false);
   desc.add<double>("maxPFTauEta", 2.4);
   desc.add<double>("maxSignalConeSize", 0.1);

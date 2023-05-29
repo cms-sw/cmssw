@@ -162,7 +162,7 @@ void JetPlusTrackAddonSeedProducer::produce(edm::Event& iEvent, const edm::Event
       caloen = 0.001;
     math::XYZTLorentzVector pcalo4(caloen * jet.p4() / trackp);
     reco::CaloJet::Specific calospe;
-    calospe.mTowersArea = -1 * ncand;
+    calospe.mTowersArea = ncand;
     calospe.mHadEnergyInHO = hadinho;
     calospe.mHadEnergyInHB = hadinhb;
     calospe.mHadEnergyInHE = hadinhe;

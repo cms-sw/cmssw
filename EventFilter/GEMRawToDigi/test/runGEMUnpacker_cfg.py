@@ -74,10 +74,16 @@ options.register('unpackerLabel',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Label for the GEM unpacker RAW input collection")
-options.register('useB904Data',
+options.register('useB904GE11Long',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool)
+                 VarParsing.VarParsing.varType.bool,
+                 "Set to True when using data from GE1/1 Long super chamber in B904.")
+options.register('useB904GE11Short',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Set to True when using data from GE1/1 Short super chamber in B904.")
 
 options.parseArguments()
 
@@ -142,9 +148,16 @@ if (options.debug):
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun3_Prompt_v5', '')
-## for the time being the mapping does not work with the data label. Use MC instead
-if options.useB904Data:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
+
+# Mapping for b904 GEM-CSC integration stand
+if (options.useB904GE11Long or options.useB904GE11Short):
+    process.GlobalTag.toGet = cms.VPSet(
+            cms.PSet(record = cms.string("GEMChMapRcd"),
+                     tag = cms.string("GEMeMap_GE11_b904_v1"),
+                     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+                    )
+    )
+    process.muonGEMDigis.useDBEMap = True
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer(
@@ -162,6 +175,8 @@ process.output = cms.OutputModule(
 )
 
 process.muonGEMDigis.InputLabel = options.unpackerLabel
+process.muonGEMDigis.fedIdStart = options.feds[0]
+process.muonGEMDigis.fedIdEnd = options.feds[-1]
 process.simMuonGEMPadDigis.InputCollection = 'muonGEMDigis'
 
 ## schedule and path definition

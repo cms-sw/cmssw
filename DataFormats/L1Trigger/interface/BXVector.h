@@ -1,5 +1,5 @@
-#ifndef BXVector_h
-#define BXVector_h
+#ifndef DataFormats_L1Trigger_BXVector_h
+#define DataFormats_L1Trigger_BXVector_h
 
 // this class is an extension of std::vector
 // designed to store objects corresponding to several time-samples (BX)
@@ -132,6 +132,6 @@ private:
   std::vector<unsigned> itrs_;
 };
 
-#include "BXVector.impl"
+#include "BXVector.icc"
 
-#endif
+#endif  // DataFormats_L1Trigger_BXVector_h

@@ -1,0 +1,43 @@
+<lcgdict>
+   <class name="HGCalElectronicsId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2587023721"/>
+   </class>
+
+   <class name="HGCROCChannelDataFrame<HGCalDetId>" ClassVersion="3">
+   <version ClassVersion="3" checksum="2026905296"/>
+   </class>
+
+   <class name="HGCROCChannelDataFrame<HGCalElectronicsId>" ClassVersion="3">
+   <version ClassVersion="3" checksum="2054618736"/>
+   </class>
+
+   <class name="std::vector<HGCROCChannelDataFrame<HGCalDetId> >"/>
+   <class name="std::vector<HGCROCChannelDataFrame<HGCalElectronicsId> >"/>
+
+   <class name="edm::SortedCollection<HGCROCChannelDataFrame<HGCalDetId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalDetId> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCROCChannelDataFrame<HGCalDetId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalDetId> > > >" />
+
+   <class name="edm::SortedCollection<HGCROCChannelDataFrame<HGCalElectronicsId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalElectronicsId> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCROCChannelDataFrame<HGCalElectronicsId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalElectronicsId> > > >" />
+
+   <class name="PHGCSimAccumulator"/>
+   <class name="PHGCSimAccumulator::DetIdSize"/>
+   <class name="PHGCSimAccumulator::SimHitCollection"/>
+   <class name="std::vector<PHGCSimAccumulator::DetIdSize>"/>
+   <class name="std::vector<PHGCSimAccumulator::SimHitCollection>"/>
+   <class name="edm::Wrapper<PHGCSimAccumulator>"/>
+
+  <class name="std::vector<std::vector<bool>>"/>
+  <class name="HGCalECONDEmulatorInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="2429167065"/>
+  </class>
+  <class name="std::unordered_map<unsigned int, HGCalECONDEmulatorInfo>"/>
+  <class name="HGCalCaptureBlockEmulatorInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="2386641758"/>
+  </class>
+  <class name="std::unordered_map<unsigned int, HGCalCaptureBlockEmulatorInfo>"/>
+  <class name="HGCalSlinkEmulatorInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="2245547372"/>
+  </class>
+  <class name="edm::Wrapper<HGCalSlinkEmulatorInfo>"/>
+</lcgdict>

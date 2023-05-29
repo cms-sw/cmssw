@@ -81,7 +81,7 @@ events=Events(map(strAppend,dy200))
 
 def fetchTracks(event):
      trackHandle = Handle('vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >')
-     event.getByLabel("TTTracksFromTrackletEmulation:Level1TTTracks",trackHandle)
+     event.getByLabel("l1tTTTracksFromTrackletEmulation:Level1TTTracks",trackHandle)
      return trackHandle.product()
      
 
@@ -154,8 +154,8 @@ for event in events:
     if counter==100000:
          break;
     gen=fetchGEN(event,2.4)
-    stubs = fetchStubs(event,'gmtStubs')
-    tps = filter(lambda x: ID(x.hwEta(),x.hwPt(),x.hwQual()),fetchTPS(event,'gmtMuons'))
+    stubs = fetchStubs(event,'l1tGMTStubs')
+    tps = filter(lambda x: ID(x.hwEta(),x.hwPt(),x.hwQual()),fetchTPS(event,'l1tGMTMuons'))
 #    tps = fetchTPS(event,'gmtMuons')
     tracks=fetchTracks(event)
 

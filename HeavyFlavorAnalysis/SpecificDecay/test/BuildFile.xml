@@ -6,6 +6,8 @@
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TransientTrack"/>
 <library file="stubs/*.cc" name="HeavyFlavorAnalysisSpecificDecayTest">
   <flags EDM_PLUGIN="1"/>
 </library>

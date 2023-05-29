@@ -256,7 +256,7 @@ void L1FastTrackingJetProducer::fillDescriptions(edm::ConfigurationDescriptions&
   {
     // L1FastTrackingJets
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
     desc.add<std::string>("L1PrimaryVertexTag", "l1vertices");
     desc.add<edm::InputTag>("GenInfo", edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
     desc.add<double>("trk_zMax", 15.0);

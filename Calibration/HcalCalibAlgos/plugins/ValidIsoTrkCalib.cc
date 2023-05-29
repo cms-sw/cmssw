@@ -65,8 +65,6 @@ class ValidIsoTrkCalib : public edm::one::EDAnalyzer<edm::one::SharedResources> 
 public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
 
-  //  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
-
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -217,13 +215,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const edm::Handle<reco::TrackCollection>& isoProdTracks = iEvent.getHandle(tok_track1_);
 
   const edm::Handle<reco::IsolatedPixelTrackCandidateCollection>& isoPixelTracks = iEvent.getHandle(tok_track_);
-  //edm::Handle<reco::TrackCollection> isoPixelTracks;
-
-  /*
-  edm::Handle<EcalRecHitCollection> ecal;
-  iEvent.getByLabel(eLabel_,ecal);
-  const EcalRecHitCollection Hitecal = *(ecal.product());
-  */
 
   const edm::Handle<HBHERecHitCollection>& hbhe = iEvent.getHandle(tok_hbhe_);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
@@ -233,13 +224,10 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const HcalGeometry* gHcal = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
   //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
 
-  // Lumi_n=iEvent.luminosityBlock();
   parameters_.useEcal = true;
   parameters_.useHcal = true;
   parameters_.useCalo = false;
   parameters_.useMuon = false;
-  //parameters_.dREcal = taECALCone_;
-  //parameters_.dRHcal = taHCALCone_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ValidIsoTrkCalib") << "Hello World. TrackCollectionSize: " << isoPixelTracks->size();
 #endif
@@ -248,15 +236,11 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   for (reco::TrackCollection::const_iterator trit = isoProdTracks->begin(); trit != isoProdTracks->end(); trit++) {
     reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched = isoPixelTracks->begin();
-    //reco::TrackCollection::const_iterator isoMatched=isoPixelTracks->begin();
     bool matched = false;
 
-    //for (reco::IsolatedPixelTrackCandidateCollection::const_iterator trit = isoPixelTracks->begin(); trit!=isoPixelTracks->end(); trit++)
     for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = isoPixelTracks->begin();
          it != isoPixelTracks->end();
-         it++)
-    //for (reco::TrackCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
-    {
+         it++) {
       if (abs((trit->pt() - it->pt()) / it->pt()) < 0.005 && abs(trit->eta() - it->eta()) < 0.01) {
         isoMatched = it;
         matched = true;
@@ -307,11 +291,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         trackAssociator_.getFreeTrajectoryState(&iSetup.getData(parameters_.bFieldToken), *trit),
         parameters_);
 
-    //float etaecal=info.trkGlobPosAtEcal.eta();
-    //float phiecal=info.trkGlobPosAtEcal.phi();
-    //  float etahcal=info.trkGlobPosAtHcal.eta();
-    // float phihcal=info.trkGlobPosAtHcal.phi();
-
     xTrkEcal = info.trkGlobPosAtEcal.x();
     yTrkEcal = info.trkGlobPosAtEcal.y();
     zTrkEcal = info.trkGlobPosAtEcal.z();
@@ -329,14 +308,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       continue;
     }
 
-    /*GlobalVector trackMomAtEcal = info.trkMomAtEcal;
-      GlobalVector trackMomAtHcal = info.trkMomAtHcal;
-	
-      PxTrkHcal = trackMomAtHcal.x();
-      PyTrkHcal = trackMomAtHcal.y();
-      PzTrkHcal = trackMomAtHcal.z();
-      */
-
     GlobalPoint gPointEcal(xTrkEcal, yTrkEcal, zTrkEcal);
     GlobalPoint gPointHcal(xTrkHcal, yTrkHcal, zTrkHcal);
 
@@ -352,15 +323,10 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     //container for used recHits
     std::vector<DetId> usedHits;
-    //
     usedHits.clear();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ValidIsoTrkCalib") << "Point 1. Entrance to HBHECollection";
 #endif
-    //float dddeta = 1000.;
-    //float dddphi = 1000.;
-    //int iphitrue = 1234;
-    //int ietatrue = 1234;
 
     GlobalPoint gPhot;
 
@@ -381,8 +347,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       // rof end
 
       GlobalPoint pos = geo->getPosition(hhit->detid());
-      //float phihit = pos.phi();
-      //float etahit = pos.eta();
 
       int iphihitm = (hhit->id()).iphi();
       int ietahitm = (hhit->id()).ieta();
@@ -400,7 +364,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       float dr = sqrt(dphi * dphi + deta * deta);
 #endif
 
-      //double distAtHcal =  getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, pos);
       double distAtHcal = getDistInPlaneSimple(gPointHcal, pos);
 
       if (distAtHcal < associationConeSize_) {
@@ -425,10 +388,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           MaxHit.ietahitm = (hhit->id()).ieta();
           MaxHit.iphihitm = (hhit->id()).iphi();
           MaxHit.dr = distAtHcal;
-          //MaxHit.depthhit  = (hhit->id()).depth();
           MaxHit.depthhit = 1;
-
-          //gPhot = geo->getPosition(hhit->detid());
         }
       }
     }  //end of all HBHE hits cycle
@@ -490,20 +450,12 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       int numbercell = 100;  //always collect Wide clastor!
 
-      //if(AxB_=="5x5" || AxB_=="3x3" || AxB_=="7x7"|| AxB_=="Cone")
-
-      //if(AxB_=="3x3") numbercell = 1;
-      //if(AxB_=="5x5") numbercell = 2;
-      //if(AxB_=="Cone") numbercell = 1000;
-
       if (abs(DIETA) <= numbercell &&
           (abs(DIPHI) <= numbercell || (abs(MaxHit.ietahitm) >= 20 && abs(DIPHI) <= numbercell + 1))) {
         const GlobalPoint pos2 = geo->getPosition(hhit->detid());
 
         if (passCuts && hhit->energy() > 0) {
-          float factor = 0.0;
-          // factor = CalibFactors[hhit->id()];
-          factor = respRecalib->getValues(hhit->id())->getValue();
+          float factor = respRecalib->getValues(hhit->id())->getValue();
 
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("ValidIsoTrkCalib") << " calib factors: " << factor;

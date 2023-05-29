@@ -36,12 +36,14 @@ TString lumi_13TeV = "20.1 fb^{-1}";
 TString lumi_8TeV = "19.7 fb^{-1}";
 TString lumi_7TeV = "5.1 fb^{-1}";
 TString lumi_0p9TeV = "";
+TString lumi_13p6TeV = "";
 TString lumi_sqrtS = "";
+bool writeExraLumi = false;
 bool drawLogo = false;
 
 void CMS_lumi(TPad* pad, int iPeriod = 3, int iPosX = 10);
 
-void CMS_lumi(TPad* pad, int iPeriod, int iPosX) {
+inline void CMS_lumi(TPad* pad, int iPeriod, int iPosX) {
   bool outOfFrame = false;
   if (iPosX / 10 == 0) {
     outOfFrame = true;
@@ -76,39 +78,53 @@ void CMS_lumi(TPad* pad, int iPeriod, int iPosX) {
   TString lumiText;
   if (iPeriod == 1) {
     lumiText += lumi_7TeV;
-    lumiText += " (7 TeV)";
+    if (writeExraLumi)
+      lumiText += " (7 TeV)";
   } else if (iPeriod == 2) {
     lumiText += lumi_8TeV;
-    lumiText += " (8 TeV)";
+    if (writeExraLumi)
+      lumiText += " (8 TeV)";
   } else if (iPeriod == 3) {
     lumiText = lumi_8TeV;
-    lumiText += " (8 TeV)";
-    lumiText += " + ";
-    lumiText += lumi_7TeV;
-    lumiText += " (7 TeV)";
+    if (writeExraLumi) {
+      lumiText += " (8 TeV)";
+      lumiText += " + ";
+      lumiText += lumi_7TeV;
+      lumiText += " (7 TeV)";
+    }
   } else if (iPeriod == 4) {
     lumiText += lumi_13TeV;
-    lumiText += " (#sqrt{s} = 13 TeV)";
+    if (writeExraLumi)
+      lumiText += " (#sqrt{s} = 13 TeV)";
   } else if (iPeriod == 5) {
     lumiText += lumi_0p9TeV;
-    lumiText += " (#sqrt{s} = 0.9 TeV)";
+    if (writeExraLumi)
+      lumiText += " (#sqrt{s} = 0.9 TeV)";
+  } else if (iPeriod == 6) {
+    lumiText += lumi_13p6TeV;
+    if (writeExraLumi)
+      lumiText += " (#sqrt{s} = 13.6 TeV)";
   } else if (iPeriod == 7) {
     if (outOfFrame)
       lumiText += "#scale[0.85]{";
     lumiText += lumi_13TeV;
-    lumiText += " (13 TeV)";
-    lumiText += " + ";
-    lumiText += lumi_8TeV;
-    lumiText += " (8 TeV)";
-    lumiText += " + ";
-    lumiText += lumi_7TeV;
-    lumiText += " (7 TeV)";
+    if (writeExraLumi) {
+      lumiText += " (13 TeV)";
+      lumiText += " + ";
+      lumiText += lumi_8TeV;
+      lumiText += " (8 TeV)";
+      lumiText += " + ";
+      lumiText += lumi_7TeV;
+      lumiText += " (7 TeV)";
+    }
     if (outOfFrame)
       lumiText += "}";
   } else if (iPeriod == 12) {
-    lumiText += "8 TeV";
+    if (writeExraLumi)
+      lumiText += "8 TeV";
   } else if (iPeriod == 0) {
-    lumiText += lumi_sqrtS;
+    if (writeExraLumi)
+      lumiText += lumi_sqrtS;
   }
 
   std::cout << lumiText << std::endl;

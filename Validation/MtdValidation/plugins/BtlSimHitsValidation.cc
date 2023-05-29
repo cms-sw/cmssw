@@ -39,13 +39,7 @@
 
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x;
-  float y;
-  float z;
-};
+#include "MTDHit.h"
 
 class BtlSimHitsValidation : public DQMEDAnalyzer {
 public:
@@ -148,7 +142,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     if ((simHitIt->second).time == 0 || simHit.tof() < (simHitIt->second).time) {
       (simHitIt->second).time = simHit.tof();
 
-      auto hit_pos = simHit.entryPoint();
+      auto hit_pos = simHit.localPosition();
       (simHitIt->second).x = hit_pos.x();
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();

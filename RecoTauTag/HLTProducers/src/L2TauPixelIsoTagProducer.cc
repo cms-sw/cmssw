@@ -126,3 +126,6 @@ void L2TauPixelIsoTagProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   descriptions.setComment("Produces isolation tag for caloJets/L2Taus");
   descriptions.add("L2TauPixelIsoTagProducer", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L2TauPixelIsoTagProducer);

@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,7 +26,7 @@
 
 namespace l1t {
 
-  class L1TStage2CaloAnalyzer : public edm::EDAnalyzer {
+  class L1TStage2CaloAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit L1TStage2CaloAnalyzer(const edm::ParameterSet&);
     ~L1TStage2CaloAnalyzer() override;
@@ -154,6 +154,7 @@ namespace l1t {
   L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig)
       : doText_(iConfig.getUntrackedParameter<bool>("doText", true)),
         doHistos_(iConfig.getUntrackedParameter<bool>("doHistos", true)) {
+    usesResource(TFileService::kSharedResource);
     //now do what ever initialization is needed
 
     m_mpBx = iConfig.getParameter<int>("mpBx");
@@ -447,7 +448,6 @@ namespace l1t {
     }
 
     // get jet
-    int njetmp = 0;
     std::vector<l1t::Jet> thejets_poseta;
     std::vector<l1t::Jet> thejets_negeta;
 
@@ -463,7 +463,6 @@ namespace l1t {
           continue;
 
         for (auto itr = mpjets->begin(ibx); itr != mpjets->end(ibx); ++itr) {
-          njetmp += 1;
           hbx_.at(MPJet)->Fill(ibx);
           het_.at(MPJet)->Fill(itr->hwPt());
           heta_.at(MPJet)->Fill(itr->hwEta());
@@ -497,8 +496,6 @@ namespace l1t {
         }
       }
     }
-
-    //std::cout<<"njetmp "<<njetmp<<std::endl;
 
     // get sums
     if (m_doMPSums) {
@@ -630,7 +627,6 @@ namespace l1t {
     }
 
     // get jet
-    int njetdem = 0;
     std::vector<l1t::Jet> thejets;
 
     if (m_doJets) {
@@ -642,7 +638,6 @@ namespace l1t {
           continue;
 
         for (auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr) {
-          njetdem += 1;
           hbx_.at(Jet)->Fill(ibx);
           het_.at(Jet)->Fill(itr->hwPt());
           heta_.at(Jet)->Fill(itr->hwEta());

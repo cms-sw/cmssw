@@ -12,7 +12,6 @@
 #include <memory>
 #include <vector>
 
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -31,7 +30,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -48,7 +47,7 @@ using namespace std;
 // class decleration
 //
 
-class HLTOverallSummary : public edm::EDAnalyzer {
+class HLTOverallSummary : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -72,6 +71,7 @@ private:
 HLTOverallSummary::HLTOverallSummary(const edm::ParameterSet& pset)
 
 {
+  usesResource("DQMStore");
   using namespace edm;
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();

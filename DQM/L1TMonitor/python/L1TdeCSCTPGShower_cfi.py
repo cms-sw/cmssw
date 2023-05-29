@@ -9,11 +9,11 @@ l1tdeCSCTPGShower = DQMEDAnalyzer(
     # something like cms.InputTag("muonCSCDigis", "MuonCSCShowerDigiAnode") for Anode shower,
     # and something like cms.InputTag("muonCSCDigis", "MuonCSCShowerDigiCathode") for Cathode shower
     # - 2021.12.06 Xunwu Zuo
-    dataALCTShower = cms.InputTag("valCscStage2Digis", "Anode"),
+    dataALCTShower = cms.InputTag("muonCSCDigis", "MuonCSCShowerDigiAnode"),
     emulALCTShower = cms.InputTag("valCscStage2Digis", "Anode"),
-    dataCLCTShower = cms.InputTag("valCscStage2Digis", "Cathode"),
+    dataCLCTShower = cms.InputTag("muonCSCDigis", "MuonCSCShowerDigiCathode"),
     emulCLCTShower = cms.InputTag("valCscStage2Digis", "Cathode"),
-    dataLCTShower = cms.InputTag("valCscStage2Digis"),
+    dataLCTShower = cms.InputTag("muonCSCDigis","MuonCSCShowerDigi"),
     emulLCTShower = cms.InputTag("valCscStage2Digis"),
     monitorDir = cms.untracked.string("L1TEMU/L1TdeCSCTPGShower"),
 )

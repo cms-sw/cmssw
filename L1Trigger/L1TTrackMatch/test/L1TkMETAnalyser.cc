@@ -189,10 +189,10 @@ void L1TkMETAnalyser::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   m_HwNtrk->clear();
 
   float SimEtmiss = L1TkMETSimHandle->begin()->etMiss();
-  float EmuEtmiss = L1TkMETEmuHandle->begin()->hwPt() * l1tmetemu::kStepMET;
+  float EmuEtmiss = L1TkMETEmuHandle->begin()->hwPt() * l1tmetemu::kStepMETwordEt;
 
   float SimEtPhi = L1TkMETSimHandle->begin()->etPhi();
-  float EmuEtPhi = L1TkMETEmuHandle->begin()->hwPhi() * l1tmetemu::kStepMETPhi - M_PI;
+  float EmuEtPhi = L1TkMETEmuHandle->begin()->hwPhi() * l1tmetemu::kStepMETwordPhi;
 
   int SimEtNtrk = L1TkMETSimHandle->begin()->etQual();
   int EmuEtNtrk = L1TkMETEmuHandle->begin()->hwQual();

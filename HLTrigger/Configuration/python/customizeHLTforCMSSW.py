@@ -210,16 +210,21 @@ def customiseForOffline(process):
 
     return process
 
-
-# ECAL GPU unpacker: adapt the buffer size to the ECAL FEDs size (#38202)
-# remove the EcalRawToDigi.maxFedSize parameter from the menu
-def customizeHLTfor38202(process):
-    for producer in producers_by_type(process, "EcalRawToDigiGPU"):
-        if hasattr(producer, "maxFedSize"):
-            delattr(producer, "maxFedSize")
+def customizeHLTfor41058(process):
+    for prod in esproducers_by_type(process, 'ClusterShapeHitFilterESProducer'):
+        prod.PixelShapeFile = "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par"
+        prod.PixelShapeFileL1 = "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par"
 
     return process
 
+def customizeHLTfor41495(process):
+    for producer in filters_by_type(process, 'HLTPixelIsolTrackL1TFilter'):
+        if hasattr(producer, 'L1GTSeedLabel'):
+            del producer.L1GTSeedLabel
+        if hasattr(producer, 'MinDeltaPtL1Jet'):
+            del producer.MinDeltaPtL1Jet
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -228,6 +233,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customizeHLTfor38202(process)
+
+    process = customizeHLTfor41058(process)
+    process = customizeHLTfor41495(process)
 
     return process

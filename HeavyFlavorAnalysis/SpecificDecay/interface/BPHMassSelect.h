@@ -40,7 +40,7 @@ public:
 
   /** Destructor
    */
-  ~BPHMassSelect() override {}
+  ~BPHMassSelect() override = default;
 
   /** Operations
    */

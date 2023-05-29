@@ -221,7 +221,8 @@ namespace pat {
           normalizedChi2_(iOther.normalizedChi2_),
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
-          firstHit_(iOther.firstHit_) {}
+          firstHit_(iOther.firstHit_),
+          trkAlgoPacked_(iOther.trkAlgoPacked_) {}
 
     PackedCandidate(PackedCandidate &&iOther)
         : packedPt_(iOther.packedPt_),
@@ -262,7 +263,8 @@ namespace pat {
           normalizedChi2_(iOther.normalizedChi2_),
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
-          firstHit_(iOther.firstHit_) {}
+          firstHit_(iOther.firstHit_),
+          trkAlgoPacked_(iOther.trkAlgoPacked_) {}
 
     PackedCandidate &operator=(const PackedCandidate &iOther) {
       if (this == &iOther) {
@@ -339,6 +341,7 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
+      trkAlgoPacked_ = iOther.trkAlgoPacked_;
       return *this;
     }
 
@@ -385,6 +388,7 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
+      trkAlgoPacked_ = iOther.trkAlgoPacked_;
       return *this;
     }
 
@@ -787,6 +791,10 @@ namespace pat {
         unpackTrk();
       return *track_;
     }
+    /// Return reference to a pseudo track made with candidate kinematics,
+    /// parameterized error for eta,phi,pt and full IP covariance
+    /// and the coviriance matrix is forced to be positive definite according to BPH recommandations
+    virtual const reco::Track pseudoPosDefTrack() const;
 
     /// return a pointer to the track if present. otherwise, return a null pointer
     const reco::Track *bestTrack() const override {
@@ -832,6 +840,15 @@ namespace pat {
     void setFirstHit(uint16_t pattern) { firstHit_ = pattern; }
     /// Return first hit from HitPattern for tracks with high level details
     uint16_t firstHit() const { return firstHit_; }
+
+    /// Set/get track algo
+    void setTrkAlgo(uint8_t algo, uint8_t original) {
+      trkAlgoPacked_ = algo | ((algo == original ? 0 : original) << 8);
+    }
+    uint8_t trkAlgo() const { return trkAlgoPacked_ & 0xff; }
+    uint8_t trkOriginalAlgo() const {
+      return (trkAlgoPacked_ & 0xff00) == 0 ? trkAlgo() : ((trkAlgoPacked_ >> 8) & 0xff);
+    }
 
     void setMuonID(bool isStandAlone, bool isGlobal) {
       int16_t muonFlags = isStandAlone | (2 * isGlobal);
@@ -1104,6 +1121,12 @@ namespace pat {
       return covarianceParameterization_;
     }
 
+    /// details (hit pattern) of the first hit on track
+    uint16_t firstHit_;
+
+    /// track algorithm details
+    uint16_t trkAlgoPacked_ = 0;
+
     /// check overlap with another Candidate
     bool overlap(const reco::Candidate &) const override;
     template <typename, typename, typename>
@@ -1138,8 +1161,6 @@ namespace pat {
     static constexpr int EXPO_TIMEERROR = 5;            // power of 2 used in encoding timeError
     static constexpr int EXPO_TIME_NOERROR = 6;         // power of 2 used in encoding time without timeError
     static constexpr int EXPO_TIME_WITHERROR = -6;      // power of 2 used in encoding time with timeError
-  public:
-    uint16_t firstHit_;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;

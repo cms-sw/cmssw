@@ -24,3 +24,9 @@ ALCARECOSiPixelCalSingleMuon.etaMax = 3.5
 # Loose Sequence
 ##################################################################
 seqALCARECOSiPixelCalSingleMuon = cms.Sequence(ALCARECOSiPixelCalSingleMuonHLTFilter+ALCARECOSiPixelCalSingleMuon)
+
+## customizations for the pp_on_AA eras
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ALCARECOSiPixelCalSingleMuonHLTFilter,
+                  eventSetupPathsKey='SiPixelCalSingleMuonHI'
+)

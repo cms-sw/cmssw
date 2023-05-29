@@ -34,6 +34,7 @@
 
 //#define EDM_ML_DEBUG
 //#define plotDebug
+//#define printDebug
 
 #ifdef plotDebug
 #include <TH1F.h>
@@ -576,6 +577,37 @@ bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
 
 uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int lay = 1) {
   uint32_t id = 0;
+  if (det == 0) {
+#ifdef printDebug
+    double eta = std::abs(pos.eta());
+#endif
+    if (std::abs(pos.z()) > maxZ_) {
+      det = 5;
+#ifdef printDebug
+      if (eta < 2.868)
+        ++detNull_[2];
+#endif
+    } else if (!(hcalConstants_->isHE())) {
+      det = 3;
+#ifdef printDebug
+      ++detNull_[0];
+#endif
+    } else {
+      double minR = minRoff_ + slopeHE_ * std::abs(pos.z());
+      double maxR = maxRoff_ + slopeHE_ * std::abs(pos.z());
+      det = ((pos.perp() > minR) && (pos.perp() < maxR)) ? 4 : 3;
+#ifdef printDebug
+      ++detNull_[det - 3];
+#endif
+    }
+#ifdef printDEBUG
+    edm::LogVerbatim("HcalSim") << "Position " << pos.perp() << ":" << std::abs(pos.z()) << " Limits "
+                                << !(hcalConstants_->isHE()) << ":" << maxZ_ << " det " << det;
+  } else {
+    ++detNull_[3];
+#endif
+  }
+
   if (numberingFromDDD.get()) {
     //get the ID's as eta, phi, depth, ... indices
     HcalNumberingFromDDD::HcalID tmp =
@@ -1048,4 +1080,19 @@ void HCalSD::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
   } else if ((id.subdet == 1 || id.subdet == 2) && testNumber) {
     id.depth = (depth_ == 0) ? 1 : 2;
   }
+}
+
+void HCalSD::initEvent(const BeginOfEvent*) {
+#ifdef printDebug
+  detNull_ = {0, 0, 0, 0};
+#endif
+}
+
+void HCalSD::endEvent() {
+#ifdef printDebug
+  int sum = detNull_[0] + detNull_[1] + detNull_[2];
+  if (sum > 0)
+    edm::LogVerbatim("HcalSim") << "NullDets " << detNull_[0] << " " << detNull_[1] << " " << detNull_[2] << " "
+                                << detNull_[3] << " " << (static_cast<float>(sum) / (sum + detNull_[3]));
+#endif
 }

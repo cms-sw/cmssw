@@ -44,7 +44,7 @@ void VertexFromTrackProducer::produce(edm::StreamID iStreamId,
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(beamSpotLabel, recoBeamSpotHandle);
   if (recoBeamSpotHandle.isValid()) {
-    reco::BeamSpot beamSpot = *recoBeamSpotHandle;
+    const reco::BeamSpot& beamSpot = *recoBeamSpotHandle;
     vertexPoint = beamSpot.position();
   } else {
     edm::LogError("UnusableBeamSpot") << "No beam spot found in Event";
@@ -197,3 +197,6 @@ void VertexFromTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& d
       "taken from BeamSpot/Vertex");
   descriptions.add("hltVertexFromTrackProducer", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(VertexFromTrackProducer);

@@ -16,7 +16,7 @@ from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMHarvesting_cff import *
-from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1HeterogenousDQMHarvesting_cff import *
+from DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQMHarvesting_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -98,7 +98,7 @@ DQMOffline_SecondStepPOG = cms.Sequence(
                                          DQMMessageLoggerClientSeq )
 
 
-HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * trackingForDisplacedJetMonitorClientHLT)
+HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * trackEfficiencyMonitoringClientHLT * trackingForDisplacedJetMonitorClientHLT)
 HLTMonitoringClientPA= cms.Sequence(trackingMonitorClientHLT * PAtrackingMonitorClientHLT)
 
 DQMOffline_SecondStep = cms.Sequence(
@@ -126,6 +126,7 @@ from DQM.CTPPS.ctppsDQM_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorClient.pixelTrackingEffFromHitPattern_cff import *
 from DQM.TrackingMonitorClient.pixelVertexResolutionClient_cfi import *
+from DQMOffline.Alignment.DiMuonMassBiasHarvesting_cff import *
 
 DQMHarvestTrackerStrip = cms.Sequence ( SiStripOfflineDQMClient )
 
@@ -187,7 +188,7 @@ DQMHarvestTrackingZeroBias = cms.Sequence( TrackingOfflineDQMClientZeroBias *
 
 DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern *
                                         pixelVertexResolutionClient *
-                                        siPixelPhase1HeterogenousDQMHarvesting )
+                                        siPixelHeterogeneousDQMHarvesting )
 
 DQMHarvestOuterTracker = cms.Sequence(
                                  OuterTrackerClient *
@@ -203,7 +204,10 @@ DQMHarvestCTPPS = cms.Sequence( ctppsDQMOfflineHarvest )
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
                                cscOfflineCollisionsClients *
-                               muonQualityTests
+                               muonQualityTests *
+                               alcaTkAlZMuMuBiasClients *
+                               alcaTkAlJpsiMuMuBiasClients *
+                               alcaTkAlUpsilonMuMuBiasClients
                                )
 
 _run3_GEM_DQMHarvestMuon = DQMHarvestMuon.copy()

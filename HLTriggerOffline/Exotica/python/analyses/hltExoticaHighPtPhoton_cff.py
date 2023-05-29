@@ -3,11 +3,7 @@ import FWCore.ParameterSet.Config as cms
 HighPtPhotonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_Photon175_v",  # Run2 proposal # Claimed path for Run3
-#        "HLT_Photon150_v", # 0T # Not claimed path for Run3
-        "HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v", # 2017 # Claimed path for Run3
-#        "HLT_Photon33_v", # 2017 # Not claimed path for Run3
-#        "HLT_Photon60_R9Id90_CaloIdL_IsoL_v", # 2017 # Not claimed path for Run3
-#        "HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_v" # 2017 # Not claimed path for Run3
+        "HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350_v", # Path updated for 2023
         "HLT_Photon110EB_TightID_TightIso_v", # Claimed path for Run3 
         "HLT_Photon200_v" # Claimed path for Run3
         ),

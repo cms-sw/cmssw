@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 
 // forward declarations
 namespace edm {
@@ -35,6 +36,7 @@ namespace edm {
   class ProductRegistry;
   class ThinnedAssociationsHelper;
   class WaitingTaskWithArenaHolder;
+  class EventForTransformer;
 
   namespace stream {
     class EDProducerAdaptorBase;
@@ -73,6 +75,12 @@ namespace edm {
       virtual void registerThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) = 0;
+      virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const;
+      virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const;
+      virtual void transformAsync_(WaitingTaskHolder iTask,
+                                   std::size_t iIndex,
+                                   edm::EventForTransformer& iEvent,
+                                   ServiceWeakToken const& iToken) const;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------

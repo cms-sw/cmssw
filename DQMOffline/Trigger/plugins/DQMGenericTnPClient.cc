@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,7 +19,7 @@ using namespace std;
 
 using vstring = std::vector<std::string>;
 
-class DQMGenericTnPClient : public edm::EDAnalyzer {
+class DQMGenericTnPClient : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
@@ -27,6 +27,7 @@ public:
   DQMGenericTnPClient(const edm::ParameterSet& pset);
   ~DQMGenericTnPClient() override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override{};
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void calculateEfficiency(const std::string& dirName, const ParameterSet& pset);
   void findAllSubdirectories(const std::string& dir, std::set<std::string>* myList, TString pattern);
@@ -47,6 +48,7 @@ DQMGenericTnPClient::DQMGenericTnPClient(const edm::ParameterSet& pset)
       myDQMrootFolder(pset.getUntrackedParameter<std::string>("MyDQMrootFolder", "")),
       verbose(pset.getUntrackedParameter<bool>("Verbose", false)),
       efficiencies(pset.getUntrackedParameter<VParameterSet>("Efficiencies")) {
+  usesResource("DQMStore");
   TString savePlotsInRootFileName = pset.getUntrackedParameter<string>("SavePlotsInRootFileName", "");
   plots = savePlotsInRootFileName != "" ? new TFile(savePlotsInRootFileName, "recreate") : nullptr;
   GPLfitter = new GaussianPlusLinearFitter(verbose);

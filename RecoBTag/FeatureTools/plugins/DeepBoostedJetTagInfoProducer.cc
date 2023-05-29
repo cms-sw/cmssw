@@ -200,6 +200,9 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
     use_puppi_value_map_ = true;
+  } else if (use_puppiP4_) {
+    throw edm::Exception(edm::errors::Configuration,
+                         "puppi_value_map is not set but use_puppiP4 is set to True. Must also set puppi_value_map.");
   }
 
   const auto &pvas_tag = iConfig.getParameter<edm::InputTag>("vertex_associator");
@@ -323,10 +326,16 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
 float DeepBoostedJetTagInfoProducer::puppiWgt(const reco::CandidatePtr &cand) {
   const auto *pack_cand = dynamic_cast<const pat::PackedCandidate *>(&(*cand));
   const auto *reco_cand = dynamic_cast<const reco::PFCandidate *>(&(*cand));
-  float wgt = 1.;
-  if (pack_cand)
-    wgt = pack_cand->puppiWeight();
-  else if (reco_cand) {
+
+  //
+  // Access puppi weight from ValueMap.
+  //
+  float wgt = 1.;  // Set to fallback value
+
+  if (pack_cand) {
+    if (use_puppi_value_map_)
+      wgt = (*puppi_value_map_)[cand];
+  } else if (reco_cand) {
     if (use_puppi_value_map_)
       wgt = (*puppi_value_map_)[cand];
   } else
@@ -647,6 +656,7 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
           } else
             lostHits = (nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
           candidate.setLostInnerHits(lostHits);
+          candidate.setTrkAlgo(static_cast<uint8_t>(track->algo()), static_cast<uint8_t>(track->originalAlgo()));
 
           if (useTrackProperties(reco_cand) or
               std::find(whiteListSV.begin(), whiteListSV.end(), icand) != whiteListSV.end() or

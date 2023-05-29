@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import tpScales
-from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
-from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
-from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from CalibCalorimetry.CaloTPG.tpScales_cff import tpScales
 
 LSParameter =cms.untracked.PSet(
 HcalFeatureHFEMBit= cms.bool(False),
@@ -18,34 +14,34 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     peakFilter = cms.bool(True),
     weights = cms.vdouble(1.0, 1.0), ##hardware algo        
     weightsQIE11 = cms.PSet(
-        ieta1 = cms.vdouble(1.0, 1.0),
-        ieta2 = cms.vdouble(1.0, 1.0),
-        ieta3 = cms.vdouble(1.0, 1.0),
-        ieta4 = cms.vdouble(1.0, 1.0),
-        ieta5 = cms.vdouble(1.0, 1.0),
-        ieta6 = cms.vdouble(1.0, 1.0),
-        ieta7 = cms.vdouble(1.0, 1.0),
-        ieta8 = cms.vdouble(1.0, 1.0),
-        ieta9 = cms.vdouble(1.0, 1.0),
-        ieta10 = cms.vdouble(1.0, 1.0),
-        ieta11 = cms.vdouble(1.0, 1.0),
-        ieta12 = cms.vdouble(1.0, 1.0),
-        ieta13 = cms.vdouble(1.0, 1.0),
-        ieta14 = cms.vdouble(1.0, 1.0),
-        ieta15 = cms.vdouble(1.0, 1.0),
-        ieta16 = cms.vdouble(1.0, 1.0),
-        ieta17 = cms.vdouble(1.0, 1.0),
-        ieta18 = cms.vdouble(1.0, 1.0),
-        ieta19 = cms.vdouble(1.0, 1.0),
-        ieta20 = cms.vdouble(1.0, 1.0),
-        ieta21 = cms.vdouble(1.0, 1.0),
-        ieta22 = cms.vdouble(1.0, 1.0),
-        ieta23 = cms.vdouble(1.0, 1.0),
-        ieta24 = cms.vdouble(1.0, 1.0),
-        ieta25 = cms.vdouble(1.0, 1.0),
-        ieta26 = cms.vdouble(1.0, 1.0),
-        ieta27 = cms.vdouble(1.0, 1.0),
-        ieta28 = cms.vdouble(1.0, 1.0)
+        ieta1 = cms.vint32(255, 255),
+        ieta2 = cms.vint32(255, 255),
+        ieta3 = cms.vint32(255, 255),
+        ieta4 = cms.vint32(255, 255),
+        ieta5 = cms.vint32(255, 255),
+        ieta6 = cms.vint32(255, 255),
+        ieta7 = cms.vint32(255, 255),
+        ieta8 = cms.vint32(255, 255),
+        ieta9 = cms.vint32(255, 255),
+        ieta10 = cms.vint32(255, 255),
+        ieta11 = cms.vint32(255, 255),
+        ieta12 = cms.vint32(255, 255),
+        ieta13 = cms.vint32(255, 255),
+        ieta14 = cms.vint32(255, 255),
+        ieta15 = cms.vint32(255, 255),
+        ieta16 = cms.vint32(255, 255),
+        ieta17 = cms.vint32(255, 255),
+        ieta18 = cms.vint32(255, 255),
+        ieta19 = cms.vint32(255, 255),
+        ieta20 = cms.vint32(255, 255),
+        ieta21 = cms.vint32(255, 255),
+        ieta22 = cms.vint32(255, 255),
+        ieta23 = cms.vint32(255, 255),
+        ieta24 = cms.vint32(255, 255),
+        ieta25 = cms.vint32(255, 255),
+        ieta26 = cms.vint32(255, 255),
+        ieta27 = cms.vint32(255, 255),
+        ieta28 = cms.vint32(255, 255)
     ),
 
     latency = cms.int32(1),
@@ -93,13 +89,18 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     tpScales = tpScales,
 )
 
-run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=cms.bool(True))
-run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, 
-                      upgradeHF=cms.bool(True),
-                      numberOfSamplesHF = cms.int32(2),
-                      numberOfPresamplesHF = cms.int32(1)
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=True)
+
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis,
+                      upgradeHF=True,
+                      numberOfSamplesHF = 2,
+                      numberOfPresamplesHF = 1
 )
-run2_HF_2017.toModify(tpScales.HF, NCTShift=cms.int32(2))
-run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))
-run3_common.toModify(simHcalTriggerPrimitiveDigis, applySaturationFix=cms.bool(True))
-run3_HB.toModify(tpScales.HBHE, LSBQIE11Overlap=cms.double(1/16.))
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=True)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(simHcalTriggerPrimitiveDigis, applySaturationFix=True)

@@ -32,9 +32,12 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
   }
 
   //register your products
-  produces<reco::TrackCollection>().setBranchAlias(alias_ + "Tracks");
   produces<reco::TrackExtraCollection>().setBranchAlias(alias_ + "TrackExtras");
   produces<TrackingRecHitCollection>().setBranchAlias(alias_ + "RecHits");
+  // TrackCollection refers to TrackingRechit and TrackExtra
+  // collections, need to declare its production after them to work
+  // around a rare race condition in framework scheduling
+  produces<reco::TrackCollection>().setBranchAlias(alias_ + "Tracks");
   produces<std::vector<Trajectory> >();
   produces<std::vector<int> >();
   produces<TrajTrackAssociationCollection>();

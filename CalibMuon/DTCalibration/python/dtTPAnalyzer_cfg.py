@@ -4,10 +4,11 @@ process = cms.Process("DTTPAnalyzer")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run3_data']
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ""
 
 process.load("CondCore.CondDB.CondDB_cfi")
 

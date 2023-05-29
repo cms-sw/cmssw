@@ -72,7 +72,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
       good_vertices_(0),
       bx_(0),
       pixel_lumi_(0.),
-      scal_lumi_(0.) {
+      online_lumi_(0.) {
   initHistos();
   TopFolder_ = iConfig.getParameter<std::string>("FolderName");
 }
@@ -203,12 +203,12 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker& ibooker,
   if (doEffFromHitPatternVsBX_ || doAllPlots_)
     bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsBX", false);
   if (doEffFromHitPatternVsLUMI_ || doAllPlots_)
-    bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsSCALLUMI", false);
+    bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsOnlineLUMI", false);
   //  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsPIXELLUMI");
   if (doEffFromHitPatternVsPU_ || doAllPlots_)
     bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "", true);
   if (doEffFromHitPatternVsLUMI_ || doAllPlots_)
-    bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsSCALLUMI", true);
+    bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsOnlineLUMI", true);
 
   // book tracker specific related histograms
   // ---------------------------------------------------------------------------------//
@@ -1122,15 +1122,15 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiscalersToken_);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
-      scal_lumi_ = scalit->instantLumi();
+      online_lumi_ = scalit->instantLumi();
     } else
-      scal_lumi_ = -1;
+      online_lumi_ = -1;
   } else {
     edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataToken_);
     if (metaData.isValid())
-      scal_lumi_ = metaData->instLumi();
+      online_lumi_ = metaData->instLumi();
     else
-      scal_lumi_ = -1;
+      online_lumi_ = -1;
   }
 
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters = iEvent.getHandle(pixelClustersToken_);
@@ -1140,7 +1140,6 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
     // Count the number of clusters with at least a minimum
     // number of pixels per cluster and at least a minimum charge.
     size_t numClusters = 0;
-    size_t tot = 0;
 
     edmNew::DetSetVector<SiPixelCluster>::const_iterator pixCluDet = pixelClusters->begin();
     for (; pixCluDet != pixelClusters->end(); ++pixCluDet) {
@@ -1153,7 +1152,6 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
 
       edmNew::DetSet<SiPixelCluster>::const_iterator pixClu = pixCluDet->begin();
       for (; pixClu != pixCluDet->end(); ++pixClu) {
-        ++tot;
         if ((pixClu->size() >= minNumberOfPixelsPerCluster_) && (pixClu->charge() >= minPixelClusterCharge_)) {
           ++numClusters;
         }
@@ -1235,12 +1233,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doEffFromHitPatternVsBX_ || doAllPlots_)
     fillHistosForEfficiencyFromHitPatter(track, "VsBX", float(bx_), false);
   if (doEffFromHitPatternVsLUMI_ || doAllPlots_)
-    fillHistosForEfficiencyFromHitPatter(track, "VsSCALLUMI", scal_lumi_, false);
+    fillHistosForEfficiencyFromHitPatter(track, "VsOnlineLUMI", online_lumi_, false);
   //  if (doEffFromHitPatternVsLUMI_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsPIXELLUMI", pixel_lumi_           );
   if (doEffFromHitPatternVsPU_ || doAllPlots_)
     fillHistosForEfficiencyFromHitPatter(track, "", float(good_vertices_), true);
   if (doEffFromHitPatternVsLUMI_ || doAllPlots_)
-    fillHistosForEfficiencyFromHitPatter(track, "VsSCALLUMI", scal_lumi_, true);
+    fillHistosForEfficiencyFromHitPatter(track, "VsOnlineLUMI", online_lumi_, true);
 
   if (doGeneralPropertiesPlots_ || doAllPlots_) {
     // fitting

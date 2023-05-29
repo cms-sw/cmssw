@@ -1,23 +1,24 @@
 <use name="cuda"/>
+<use name="tbb"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/Utilities"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HGCalObjects"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/HGCDigi"/>
 <use name="DataFormats/HGCRecHit"/>
 <use name="DataFormats/HcalDetId"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="RecoLocalCalo/HGCalRecProducers"/>
-<use name="FWCore/MessageLogger"/>
-<use name="Geometry/CaloGeometry"/>
-<use name="Geometry/HGCalGeometry"/>
-<use name="Geometry/HGCalCommonData"/>
-<use name="CondFormats/DataRecord"/>
-<use name="CondFormats/HGCalObjects"/>
-<library   file="*.cc *.cu" name="RecoLocalCaloHGCalRecProducersPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc *.cu" name="RecoLocalCaloHGCalRecProducersPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>

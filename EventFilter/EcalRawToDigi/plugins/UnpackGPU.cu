@@ -53,7 +53,7 @@ namespace ecal {
       const uint64_t mask =
           0xC0001000D0000000 + (uint64_t(TOWER_L1_MASK) << TOWER_L1_B) + (uint64_t(TOWER_BX_MASK) << TOWER_BX_B);
 
-      while (next_tower_block != trailer) {
+      while (next_tower_block < trailer) {
         if ((*next_tower_block & mask) == sign) {
           current_tower_block = next_tower_block;
           return uint8_t(*next_tower_block & TOWER_ID_MASK);
@@ -232,7 +232,7 @@ namespace ecal {
       auto const* current_tower_block = tower_blocks_start;
       uint8_t iCh = 0;
       uint8_t next_tower_id = exp_ttids[iCh];
-      while (current_tower_block != trailer && iCh < numbChannels) {
+      while (current_tower_block < trailer && iCh < numbChannels) {
         auto const w = *current_tower_block;
         uint8_t ttid = w & TOWER_ID_MASK;
         uint16_t bxlocal = (w >> TOWER_BX_B) & TOWER_BX_MASK;

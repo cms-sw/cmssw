@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltL1TEGammaHGCFilteredCollectionProducer = cms.EDProducer("L1TEGammaFilteredCollectionProducer",
     applyQual = cms.bool(True),
-    inputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts"),
+    inputTag = cms.InputTag("l1tLayer1EG","L1EgEE"),
     maxBX = cms.int32(1),
     minBX = cms.int32(-1),
     minPt = cms.double(5.0),

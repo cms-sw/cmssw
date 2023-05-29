@@ -53,7 +53,7 @@ public:
                        unsigned sector,
                        unsigned subsector,
                        unsigned chamber,
-                       const edm::ParameterSet& conf);
+                       CSCBaseboard::Parameters& conf);
 
   /** Default destructor. */
   ~CSCAnodeLCTProcessor() override = default;
@@ -66,7 +66,7 @@ public:
 
   // This is the main routine for normal running.  It gets wire times
   // from the wire digis and then passes them on to another run() function.
-  std::vector<CSCALCTDigi> run(const CSCWireDigiCollection* wiredc);
+  std::vector<CSCALCTDigi> run(const CSCWireDigiCollection* wiredc, CSCChamber const* chamber);
 
   // This version of the run() function can either be called in a standalone
   // test, being passed the time array, or called by the run() function above.
@@ -87,12 +87,11 @@ public:
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
 
-  /* get special bits for high multiplicity triggers */
-  unsigned getInTimeHMT() const { return inTimeHMT_; }
-  unsigned getOutTimeHMT() const { return outTimeHMT_; }
+  /* get array of high multiplicity triggers */
+  std::vector<CSCShowerDigi> getAllShower() const;
 
   /** Returns shower bits */
-  CSCShowerDigi readoutShower() const;
+  std::vector<CSCShowerDigi> readoutShower() const;
 
 protected:
   /** Best LCTs in this chamber, as found by the processor.
@@ -107,7 +106,7 @@ protected:
 
   PulseArray pulse_;
 
-  CSCShowerDigi shower_;
+  CSCShowerDigi anode_showers_[CSCConstants::MAX_ALCT_TBINS];
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -127,16 +126,12 @@ protected:
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits(
-      const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
-  unsigned inTimeHMT_;
-  unsigned outTimeHMT_;
+  void encodeHighMultiplicityBits();
   std::vector<unsigned> thresholds_;
-  unsigned showerMinInTBin_;
-  unsigned showerMaxInTBin_;
-  unsigned showerMinOutTBin_;
-  unsigned showerMaxOutTBin_;
+  unsigned showerNumTBins_;
   unsigned minLayersCentralTBin_;
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

@@ -1,6 +1,5 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,16 +25,14 @@ JetSignalVertexCompatibility::JetSignalVertexCompatibility(const edm::ParameterS
     : algo(params.getParameter<double>("cut"), params.getParameter<double>("temperature")) {
   jetTracksAssocToken = consumes<JetTracksAssociationCollection>(params.getParameter<edm::InputTag>("jetTracksAssoc"));
   primaryVerticesToken = consumes<VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
+  builderToken = esConsumes(edm::ESInputTag("", "TransientTrackBuilder"));
   produces<JetFloatAssociation::Container>();
 }
 
 JetSignalVertexCompatibility::~JetSignalVertexCompatibility() {}
 
 void JetSignalVertexCompatibility::produce(edm::Event &event, const edm::EventSetup &es) {
-  edm::ESHandle<TransientTrackBuilder> trackBuilder;
-  es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
-
-  algo.resetEvent(trackBuilder.product());
+  algo.resetEvent(&es.getData(builderToken));
 
   edm::Handle<JetTracksAssociationCollection> jetTracksAssoc;
   event.getByToken(jetTracksAssocToken, jetTracksAssoc);

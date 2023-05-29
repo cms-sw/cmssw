@@ -37,15 +37,20 @@ AlCa_HIEcalPi0EEonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEBonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEEonly_v*	#	CMSHLT-1680
 
+DQM_HIEcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIHcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+
 ## EndPaths / FinalPaths ##
 
-PhysicsEndOfFillOutput
 PhysicsCommissioningOutput
-PhysicsEGammaOutput
-PhysicsHadronsTausOutput
-PhysicsMuonsOutput
-PhysicsForwardOutput
-PhysicsTracksOutput
+PhysicsDispJetBTagMuEGTauOutput # CMSHLT-2431
+PhysicsEGamma0Output            # CMSHLT-2596
+PhysicsEGamma1Output            # CMSHLT-2596
+PhysicsJetMET0Output            # CMSHLT-2431, CMSHLT-2596
+PhysicsJetMET1Output            # CMSHLT-2431, CMSHLT-2596
+PhysicsMuon0Output              # CMSHLT-2431, CMSHLT-2596
+PhysicsMuon1Output              # CMSHLT-2431, CMSHLT-2596
 
 PhysicsHIZeroBias1Output
 PhysicsHIZeroBias2Output
@@ -56,8 +61,9 @@ PhysicsHIZeroBias6Output
 
 DQMOutput
 DQMEventDisplayOutput
-DQMCalibrationOutput
 DQMOnlineBeamspotOutput
+DQMCalibrationOutput
+DQMGPUvsCPUOutput          # CMSHLT-2287, CMSHLT-2343
 HLTMonitorOutput
 CalibrationOutput
 EcalCalibrationOutput

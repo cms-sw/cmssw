@@ -108,8 +108,6 @@ namespace tmtt {
     double t = x[T];
     double z0 = x[Z0];
 
-    double chiSq = 0.0;
-
     unsigned int j = 0;
 
     largestresid_ = -1.0;
@@ -154,8 +152,6 @@ namespace tmtt {
         delta[j++] = (r_track - ri) / sigmaPar;
         delta[j++] = Delta / sigmaPerp;
       }
-
-      chiSq += delta[j - 2] * delta[j - 2] + delta[j - 1] * delta[j - 1];
 
       if (std::abs(delta[j - 2]) > largestresid_) {
         largestresid_ = std::abs(delta[j - 2]);

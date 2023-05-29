@@ -22,6 +22,7 @@ namespace edm {
   class ActivityRegistry;
   struct WorkerParams;
   class ModuleRegistry;
+  class ModuleTypeResolverMaker;
   class ParameterSet;
   namespace maker {
     class ModuleHolder;
@@ -37,7 +38,7 @@ namespace edm {
 
   class WorkerRegistry {
   public:
-    explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg);
+    explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, ModuleTypeResolverMaker const* resolverMaker);
     WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> iModReg);
     ~WorkerRegistry();
 

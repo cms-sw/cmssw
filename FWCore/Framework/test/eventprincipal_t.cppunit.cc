@@ -173,8 +173,8 @@ void test_ep::setUp() {
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
-    auto runAux = std::make_shared<edm::RunAuxiliary>(eventID_.run(), now, now);
-    auto rp = std::make_shared<edm::RunPrincipal>(runAux, pProductRegistry_, *process, &historyAppender_, 0);
+    auto rp = std::make_shared<edm::RunPrincipal>(pProductRegistry_, *process, &historyAppender_, 0);
+    rp->setAux(edm::RunAuxiliary(eventID_.run(), now, now));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
     lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(pProductRegistry_, *process, &historyAppender_, 0);
     lbp_->setAux(lumiAux);

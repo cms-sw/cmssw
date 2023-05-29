@@ -4,7 +4,6 @@
 #include "FWCore/PythonParameterSet/interface/Python11ParameterSet.h"
 
 #include <memory>
-
 #include <string>
 #include <vector>
 
@@ -12,6 +11,17 @@ namespace edm {
   class ParameterSet;
   class ProcessDesc;
 }  // namespace edm
+
+class PyBind11InterpreterSentry {
+public:
+  PyBind11InterpreterSentry(bool ownsInterpreter);
+  ~PyBind11InterpreterSentry();
+
+  pybind11::object mainModule;
+
+private:
+  bool const ownsInterpreter_;
+};
 
 class PyBind11ProcessDesc {
 public:
@@ -49,8 +59,7 @@ private:
   void readString(std::string const& pyConfig);
 
   Python11ParameterSet theProcessPSet;
-  pybind11::object theMainModule;
-  bool theOwnsInterpreter;
+  PyBind11InterpreterSentry theInterpreter;
 };
 
 #endif

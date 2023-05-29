@@ -29,12 +29,16 @@ clctPhase1 = cms.PSet(
 
     # BX to start CLCT finding (poor man's dead-time shortening):
     clctStartBxShift  = cms.int32(0),
+    # local shower zone 
+    clctLocalShowerZone = cms.int32(25),
+    # local shower thresh 
+    clctLocalShowerThresh = cms.int32(12),
 )
 
 # Parameters for upgrade CLCT processors
 clctPhase2 = clctPhase1.clone(
     # decrease possible minimal #HS distance between two CLCTs in a BX from 10 to 5:
-    clctMinSeparation     = 5,
+    clctMinSeparation = 5,
 
     # Turns on algorithms of localized dead-time zones:
     useDeadTimeZoning = True,
@@ -49,11 +53,9 @@ clctPhase2 = clctPhase1.clone(
     clctPretriggerTriggerZone = cms.uint32(224),
 )
 
-# in the GEM-CSC trigger, we can lower the CLCT threshold from 4 to 3,
-# provided there is at least one matching GEM cluster. This cluster matching
-# is done in the CSCGEMMatcher
+# CLCT threshold still set to 4 for now
 clctPhase2GEM = clctPhase2.clone(
-    clctNplanesHitPattern = 3
+    clctNplanesHitPattern = 4
 )
 
 clctPSets = cms.PSet(

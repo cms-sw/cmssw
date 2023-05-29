@@ -74,8 +74,9 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       const MTDDetId mtdId(it->geographicalId());
       std::stringstream moduleLabel;
       if (mtdId.mtdSubDetector() == 1) {
-        moduleLabel << " BTL side " << mtdId.mtdSide() << " Rod " << mtdId.mtdRR() << " mod "
-                    << (static_cast<const BTLDetId>(mtdId)).module();
+        const BTLDetId btlId(it->geographicalId());
+        moduleLabel << " BTL side " << btlId.mtdSide() << " Rod " << btlId.mtdRR() << " type/RU " << btlId.modType()
+                    << "/" << btlId.runit() << " mod " << btlId.module();
       } else if (mtdId.mtdSubDetector() == 2) {
         const ETLDetId etlId(it->geographicalId());
         moduleLabel << " ETL side " << mtdId.mtdSide() << " Disc/Side/Sector " << etlId.nDisc() << " "

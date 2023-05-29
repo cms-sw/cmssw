@@ -29,11 +29,19 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHDecayMomentum::BPHDecayMomentum() : oldMom(true) { dList.reserve(2); }
+BPHDecayMomentum::BPHDecayMomentum(int daugNum, int compNum) : oldMom(true) {
+  nList.reserve(daugNum);
+  dList.reserve(daugNum);
+  nComp.reserve(compNum);
+  cList.reserve(compNum);
+}
 
-BPHDecayMomentum::BPHDecayMomentum(const map<string, BPHDecayMomentum::Component>& daugMap) : oldMom(true) {
+BPHDecayMomentum::BPHDecayMomentum(const map<string, BPHDecayMomentum::Component>& daugMap, int compNum)
+    : oldMom(true) {
   // clone and store simple particles
   clonesList(daugMap);
+  nComp.reserve(compNum);
+  cList.reserve(compNum);
 }
 
 BPHDecayMomentum::BPHDecayMomentum(const map<string, BPHDecayMomentum::Component>& daugMap,
@@ -166,7 +174,7 @@ void BPHDecayMomentum::clonesList(const map<string, Component>& daugMap) {
   map<string, Component>::const_iterator iter = daugMap.begin();
   map<string, Component>::const_iterator iend = daugMap.end();
   while (iter != iend) {
-    const pair<string, Component>& entry = *iter++;
+    const map<string, Component>::value_type& entry = *iter++;
     const Component& comp = entry.second;
     const reco::Candidate* cand = comp.cand;
     // store component for usage
@@ -192,43 +200,50 @@ void BPHDecayMomentum::dCompList() {
   cList.resize(n);
   nComp.resize(n);
   int i = 0;
-  map<string, BPHRecoConstCandPtr>::const_iterator iter = cMap.begin();
-  map<string, BPHRecoConstCandPtr>::const_iterator iend = cMap.end();
-  while (iter != iend) {
-    const pair<string, BPHRecoConstCandPtr>& entry = *iter++;
-    nComp[i] = entry.first;
-    BPHRecoConstCandPtr comp = entry.second;
+  map<string, BPHRecoConstCandPtr>::const_iterator c_iter = cMap.begin();
+  map<string, BPHRecoConstCandPtr>::const_iterator c_iend = cMap.end();
+  while (c_iter != c_iend) {
+    const map<string, BPHRecoConstCandPtr>::value_type& c_entry = *c_iter++;
+    nComp[i] = c_entry.first;
+    BPHRecoConstCandPtr comp = c_entry.second;
     cList[i++] = comp;
     clonesMap.insert(comp->clonesMap.begin(), comp->clonesMap.end());
   }
   return;
 }
 
-void BPHDecayMomentum::sumMomentum(const vector<const reco::Candidate*> dl) const {
+void BPHDecayMomentum::sumMomentum(const vector<const reco::Candidate*>& dl, const vector<string>& dn) const {
   // add the particles to pat::CompositeCandidate
   int n = dl.size();
   while (n--)
-    compCand.addDaughter(*dl[n]);
+    compCand.addDaughter(*dl[n], dn[n]);
   return;
 }
 
-void BPHDecayMomentum::fillDaug(vector<const reco::Candidate*>& ad) const {
+void BPHDecayMomentum::fillDaug(vector<const reco::Candidate*>& ad, const string& name, vector<string>& an) const {
   // recursively fill the list of simple particles, produced
   // directly or in cascade decays
   ad.insert(ad.end(), dList.begin(), dList.end());
+  vector<string>::const_iterator iter = nList.begin();
+  vector<string>::const_iterator iend = nList.end();
+  while (iter != iend)
+    an.push_back(name + *iter++);
   int n = cList.size();
   while (n--)
-    cList[n]->fillDaug(ad);
+    cList[n]->fillDaug(ad, name + nComp[n] + "/", an);
   return;
 }
 
 void BPHDecayMomentum::computeMomentum() const {
   // reset full list of daughters
   dFull.clear();
-  fillDaug(dFull);
+  dFull.reserve(10);
+  vector<string> nFull;
+  nFull.reserve(10);
+  fillDaug(dFull, "", nFull);
   // reset and fill pat::CompositeCandidate
   compCand.clearDaughters();
-  sumMomentum(dFull);
+  sumMomentum(dFull, nFull);
   // compute the total momentum
   AddFourMomenta addP4;
   addP4.set(compCand);

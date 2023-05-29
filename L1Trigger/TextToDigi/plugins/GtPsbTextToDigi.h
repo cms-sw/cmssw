@@ -23,7 +23,7 @@
   as specified to me by I.Mikulec, M.Jeitler, J.Brooke
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,7 +31,7 @@
 #include <fstream>
 #include <memory>
 
-class GtPsbTextToDigi : public edm::EDProducer {
+class GtPsbTextToDigi : public edm::one::EDProducer<> {
 public:
   explicit GtPsbTextToDigi(const edm::ParameterSet &);
   ~GtPsbTextToDigi() override;

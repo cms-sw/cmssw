@@ -33,7 +33,7 @@ using namespace edm;
 DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) {
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: Constructor" << endl;
 
-  fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel"));
+  fedToken = consumes<DTuROSFEDDataCollection>(ps.getUntrackedParameter<InputTag>("dtFEDlabel"));
   FEDIDmin = FEDNumbering::MINDTUROSFEDID;
   FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
 

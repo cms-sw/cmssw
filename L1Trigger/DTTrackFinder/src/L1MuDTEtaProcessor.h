@@ -58,7 +58,7 @@ class L1MuDTQualPatternLutRcd;
 class L1MuDTEtaProcessor {
 public:
   /// constructor
-  L1MuDTEtaProcessor(const L1MuDTTrackFinder&, int id, edm::ConsumesCollector&& iC);
+  L1MuDTEtaProcessor(const L1MuDTTrackFinder&, int id, edm::ConsumesCollector iC);
 
   /// destructor
   virtual ~L1MuDTEtaProcessor();

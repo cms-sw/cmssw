@@ -10,6 +10,6 @@ hltL1TripleMuFiltered3 = cms.EDFilter("L1TTkMuonFilter",
         endcap = cms.vdouble(0.864715, 1.03215, 0.0),
         overlap = cms.vdouble(0.920897, 1.03712, 0.0)
     ),
-    inputTag = cms.InputTag("hltL1TkMuons"),
+    inputTag = cms.InputTag("l1tTkMuonsGmt"),
     saveTags = cms.bool(True)
 )

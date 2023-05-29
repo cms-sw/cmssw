@@ -54,14 +54,14 @@ LocalPoint RectangularMTDTopology::localPosition(const MeasurementPoint& mp) con
 // measuremet to local transformation for X coordinate
 float RectangularMTDTopology::localX(const float mpx) const {
   // The final position in local coordinates
-  float lpX = mpx * m_pitchx + m_xoffset;
+  float lpX = (mpx + 0.5f) * m_pitchx + m_xoffset;
 
   return lpX;
 }
 
 float RectangularMTDTopology::localY(const float mpy) const {
   // The final position in local coordinates
-  float lpY = mpy * m_pitchy + m_yoffset;
+  float lpY = (mpy + 0.5f) * m_pitchy + m_yoffset;
 
   return lpY;
 }

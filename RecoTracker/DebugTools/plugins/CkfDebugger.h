@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -37,14 +38,20 @@ class MagneticField;
 class Chi2MeasurementEstimator;
 class Propagator;
 class NavigationSchool;
+class TrackerDigiGeometryRecord;
+class IdealMagneticFieldRecord;
+class IdealGeometryRecord;
+class NavigationSchoolRecord;
 
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
 
 class CkfDebugger {
 public:
-  CkfDebugger(edm::EventSetup const& es, edm::ConsumesCollector&& iC);
+  CkfDebugger(edm::ConsumesCollector iC);
 
   ~CkfDebugger();
+
+  void setConditions(edm::EventSetup const& es);
 
   void printSimHits(const edm::Event& iEvent);
 
@@ -96,6 +103,11 @@ private:
   const GeometricSearchTracker* theGeomSearchTracker;
   const MeasurementEstimator* theChi2;
   const Propagator* theForwardPropagator;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theTrackerToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  edm::ESGetToken<TrackerTopology, IdealGeometryRecord> theTopoHandToken;
+  edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> theNavToken;
+
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   TrackerHitAssociator* hitAssociator;
   const MeasurementTrackerEvent* theMeasurementTracker;

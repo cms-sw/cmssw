@@ -1,0 +1,8 @@
+<iftool name="rocm">
+  <use name="rocm"/>
+  <bin name="rocmComputeCapabilities" file="rocmComputeCapabilities.cpp isRocmDeviceSupported.hip.cc"/>
+  <bin name="rocmIsEnabled" file="rocmIsEnabled.cpp isRocmDeviceSupported.hip.cc"/>
+<else/>
+  <bin name="rocmComputeCapabilities" file="rocmComputeCapabilities_fallback.cpp"/>
+  <bin name="rocmIsEnabled" file="rocmIsEnabled_fallback.cpp"/>
+</iftool>

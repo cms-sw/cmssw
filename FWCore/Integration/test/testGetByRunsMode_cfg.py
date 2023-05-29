@@ -33,9 +33,13 @@ process.a1 = cms.EDAnalyzer("TestFindProduct",
   )
 )
 
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testGetByRunsMode.root')
+)
 
 process.p1 = cms.Path(process.intProducerBeginProcessBlock +
                       process.intProducerEndProcessBlock +
                       process.a1
 )
 
+process.e1 = cms.EndPath(process.out)

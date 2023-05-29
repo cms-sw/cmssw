@@ -2,12 +2,7 @@
 #define PFALGO_COMMON_REF_H
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
-
-#ifdef CMSSW_GIT_HASH
 #include "pfalgo_types.h"
-#else
-#include "../firmware/pfalgo_types.h"
-#endif
 
 #include <algorithm>
 #include <vector>

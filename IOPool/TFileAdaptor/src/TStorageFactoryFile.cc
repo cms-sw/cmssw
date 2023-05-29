@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <iostream>
 #include <cassert>
+#include <atomic>
 
 #if 0
 #include "TTreeCache.h"
@@ -72,27 +73,30 @@ public:
 using namespace edm::storage;
 
 ClassImp(TStorageFactoryFile);
-static StorageAccount::Counter *s_statsCtor = nullptr;
-static StorageAccount::Counter *s_statsOpen = nullptr;
-static StorageAccount::Counter *s_statsClose = nullptr;
-static StorageAccount::Counter *s_statsFlush = nullptr;
-static StorageAccount::Counter *s_statsStat = nullptr;
-static StorageAccount::Counter *s_statsSeek = nullptr;
-static StorageAccount::Counter *s_statsRead = nullptr;
-static StorageAccount::Counter *s_statsCRead = nullptr;
-static StorageAccount::Counter *s_statsCPrefetch = nullptr;
-static StorageAccount::Counter *s_statsARead = nullptr;
-static StorageAccount::Counter *s_statsXRead = nullptr;
-static StorageAccount::Counter *s_statsWrite = nullptr;
-static StorageAccount::Counter *s_statsCWrite = nullptr;
-static StorageAccount::Counter *s_statsXWrite = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsCtor = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsOpen = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsClose = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsFlush = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsStat = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsSeek = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsRead = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsCRead = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsCPrefetch = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsARead = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsXRead = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsWrite = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsCWrite = nullptr;
+static std::atomic<StorageAccount::Counter *> s_statsXWrite = nullptr;
 
-static inline StorageAccount::Counter &storageCounter(StorageAccount::Counter *&c,
+static inline StorageAccount::Counter &storageCounter(std::atomic<StorageAccount::Counter *> &c,
                                                       StorageAccount::Operation operation) {
   static const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
-  if (!c)
-    c = &StorageAccount::counter(token, operation);
-  return *c;
+  if (!c) {
+    auto v = &StorageAccount::counter(token, operation);
+    StorageAccount::Counter *expected = nullptr;
+    c.compare_exchange_strong(expected, v);
+  }
+  return *c.load();
 }
 
 TStorageFactoryFile::TStorageFactoryFile(void) : storage_() {

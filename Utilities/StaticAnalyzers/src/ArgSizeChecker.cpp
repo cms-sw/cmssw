@@ -32,27 +32,15 @@ namespace clangcms {
     llvm::SmallString<100> buf;
     llvm::raw_svector_ostream os(buf);
 
-    //	llvm::errs()<<E->getStmtClassName()<<";\t";
-    //	E->dumpPretty(ctx.getASTContext());
-    //	llvm::errs()<<"\n";
-    //	E->dump();
-    //	llvm::errs()<<"\n";
-
     for (clang::Stmt::const_child_iterator I = E->child_begin(), F = E->child_end(); I != F; ++I) {
       const Expr *child = llvm::dyn_cast_or_null<Expr>(*I);
       if (!child)
         continue;
       if (llvm::isa<DeclRefExpr>(child->IgnoreImpCasts())) {
-        //			(*I)->dump();
-        //			llvm::errs()<<"\n";
         const NamedDecl *ND = llvm::cast<DeclRefExpr>(child->IgnoreImpCasts())->getFoundDecl();
         if (llvm::isa<ParmVarDecl>(ND)) {
-          //				ND->dump();
-          //				llvm::errs()<<"\n";
           const ParmVarDecl *PVD = llvm::cast<ParmVarDecl>(ND);
           QualType QT = PVD->getOriginalType();
-          //				QT.dump();
-          //				llvm::errs()<<"\n";
           if (QT->isIncompleteType() || QT->isDependentType())
             continue;
           clang::QualType PQT = QT.getCanonicalType();
@@ -66,25 +54,8 @@ namespace clangcms {
             continue;
           std::string qname = QT.getAsString();
           std::string pname = PQT.getAsString();
-          std::string bpname = "class boost::";
-          std::string cbpname = "const class boost::";
-          std::string sfname = "class std::function<";
-          std::string ehname = "class edm::Handle<";
-          std::string cehname = "const class edm::Handle<";
-          std::string xname = "class xoap::";
-          std::string ername = "class edm::Ptr<";
-          std::string epname = "class edm::Ref<";
-          std::string cername = "const class edm::Ptr<";
-          std::string cepname = "const class edm::Ref<";
-          std::string erviname = "class edm::RefVectorIterator<";
           const CXXMethodDecl *MD =
               llvm::dyn_cast_or_null<CXXMethodDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl());
-          //                              if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname
-          //                                      || pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
-          //                                      || pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
-          //                                      || pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
-          //                                      || pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname
-          //                                      || pname.substr(0,erviname.length()) == erviname ) continue;
           os << "Function parameter copied by value with size '" << size_param << "' bits > max size '" << max_bits
              << "' bits parameter type '" << pname << "' function '";
 
@@ -95,7 +66,6 @@ namespace clangcms {
           os << "'\n";
 
           std::string oname = "operator";
-          //                              if ( fname.substr(0,oname.length()) == oname ) continue;
 
           const clang::ento::PathDiagnosticLocation DLoc =
               clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
@@ -115,7 +85,6 @@ namespace clangcms {
     CmsException m_exception;
     PathDiagnosticLocation DLoc = PathDiagnosticLocation::createBegin(MD, SM);
 
-    //       	return;
     if (!m_exception.reportGeneral(DLoc, BR))
       return;
 
@@ -136,34 +105,11 @@ namespace clangcms {
         continue;
       std::string qname = QT.getAsString();
       std::string pname = PQT.getAsString();
-      std::string bpname = "class boost::";
-      std::string cbpname = "const class boost::";
-      std::string sfname = "class std::function<";
-      std::string ehname = "class edm::Handle<";
-      std::string cehname = "const class edm::Handle<";
-      std::string xname = "class xoap::";
-      std::string ername = "class edm::Ptr<";
-      std::string epname = "class edm::Ref<";
-      std::string cername = "const class edm::Ptr<";
-      std::string cepname = "const class edm::Ref<";
-      std::string erviname = "class edm::RefVectorIterator<";
-
-      //		if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname
-      //                      || pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
-      //                      || pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
-      //                      || pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
-      //                      || pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname
-      //                      || pname.substr(0,erviname.length()) == erviname ) continue;
       std::string fname = MD->getNameAsString();
       os << "Function parameter passed by value with size of parameter '" << size_param << "' bits > max size '"
-         << max_bits
-         //	  		<<"'\n";
-         //	  	llvm::errs()<< "Function parameter passed by value with size of parameter '"<<size_param
-         //			<<"' bits > max size '"<<max_bits
-         << "' bits parameter type '" << pname << "' function '" << fname << "' class '"
+         << max_bits << "' bits parameter type '" << pname << "' function '" << fname << "' class '"
          << MD->getParent()->getNameAsString() << "'\n";
       std::string oname = "operator";
-      //             if ( fname.substr(0,oname.length()) == oname ) continue;
 
       BugType *BT = new BugType(this, "Function parameter with size > max", "ArgSize");
       std::unique_ptr<BasicBugReport> report = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);

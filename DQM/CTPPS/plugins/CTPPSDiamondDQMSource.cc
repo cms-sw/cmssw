@@ -9,7 +9,6 @@
 *
 ****************************************************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -587,12 +586,12 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
 
 CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
     : perLSsaving_(ps.getUntrackedParameter<bool>("perLSsaving", false)),
-      tokenPixelTrack_(
-          consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(ps.getParameter<edm::InputTag>("tagPixelLocalTracks"))),
-      tokenDiamondHit_(
-          consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(ps.getParameter<edm::InputTag>("tagDiamondRecHits"))),
-      tokenDiamondTrack_(
-          consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(ps.getParameter<edm::InputTag>("tagDiamondLocalTracks"))),
+      tokenPixelTrack_(consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(
+          ps.getUntrackedParameter<edm::InputTag>("tagPixelLocalTracks"))),
+      tokenDiamondHit_(consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(
+          ps.getUntrackedParameter<edm::InputTag>("tagDiamondRecHits"))),
+      tokenDiamondTrack_(consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(
+          ps.getUntrackedParameter<edm::InputTag>("tagDiamondLocalTracks"))),
       ctppsGeometryRunToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord, edm::Transition::BeginRun>()),
       ctppsGeometryEventToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       // ctppsLhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd>()),
@@ -607,9 +606,9 @@ CTPPSDiamondDQMSource::CTPPSDiamondDQMSource(const edm::ParameterSet& ps)
       EC_difference_56_(-500),
       EC_difference_45_(-500) {
   if (extract_digi_info_) {
-    tokenStatus_ = consumes<edm::DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
-    tokenFEDInfo_ = consumes<std::vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"));
-    tokenDigi_ = consumes<edm::DetSetVector<CTPPSDiamondDigi>>(ps.getParameter<edm::InputTag>("tagDigi"));
+    tokenStatus_ = consumes<edm::DetSetVector<TotemVFATStatus>>(ps.getUntrackedParameter<edm::InputTag>("tagStatus"));
+    tokenFEDInfo_ = consumes<std::vector<TotemFEDInfo>>(ps.getUntrackedParameter<edm::InputTag>("tagFEDInfo"));
+    tokenDigi_ = consumes<edm::DetSetVector<CTPPSDiamondDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagDigi"));
   }
   for (const auto& pset : ps.getParameter<std::vector<edm::ParameterSet>>("offsetsOOT")) {
     runParameters_.emplace_back(
@@ -686,9 +685,18 @@ std::shared_ptr<dds::Cache> CTPPSDiamondDQMSource::globalBeginLuminosityBlock(co
   auto d = std::make_shared<dds::Cache>();
   d->hitDistribution2dMap.reserve(potPlots_.size());
   if (!perLSsaving_ && plotOnline_) {
-    for (auto& plot : potPlots_)
-      d->hitDistribution2dMap[plot.first] =
-          std::unique_ptr<TH2F>(static_cast<TH2F*>(plot.second.hitDistribution2d_lumisection->getTH2F()->Clone()));
+    for (auto& plot : potPlots_) {
+      d->hitDistribution2dMap[plot.first] = std::make_unique<TH2F>(
+          "hits in planes lumisection",
+          (std::string(plot.second.hitDistribution2d_lumisection->getTH2F()->GetTitle()) + ";plane number;x (mm)")
+              .c_str(),
+          10,
+          -0.5,
+          4.5,
+          19. * INV_DISPLAY_RESOLUTION_FOR_HITS_MM,
+          -0.5,
+          18.5);
+    }
   }
   return d;
 }
@@ -912,7 +920,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         }
       }
 
-      if (rechit.toT() != 0) {
+      if (rechit.toT() > 0) {
         // Both
         potPlots_[detId_pot].leadingEdgeCumulative_both->Fill(rechit.time() + 25 * rechit.ootIndex());
         potPlots_[detId_pot].timeOverThresholdCumulativePot->Fill(rechit.toT());
@@ -922,18 +930,18 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i)
-          hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
+          hitHistoOOTTmp->Fill(detId.plane() + 1. / windowsNum_ * rechit.ootIndex(),
                                hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
+
       } else if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && plotOnline_) {
         // Only leading
         TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
         TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
         int startBin = hitHistoOOTTmpYAxis->FindBin(rechit.x() - x_shift.global - 0.5 * rechit.xWidth());
         int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
-        for (int i = 0; i < numOfBins; ++i) {
-          hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
+        for (int i = 0; i < numOfBins; ++i)
+          hitHistoOOTTmp->Fill(detId.plane() + 1. / windowsNum_ * rechit.ootIndex(),
                                hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
-        }
       }
       if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
           potPlots_[detId_pot].activity_per_bx.count(rechit.ootIndex()) > 0)
@@ -1275,9 +1283,8 @@ void CTPPSDiamondDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock&
   auto lumiCache = luminosityBlockCache(iLumi.index());
   if (!perLSsaving_) {
     if (plotOnline_)
-      for (auto& plot : potPlots_) {
+      for (auto& plot : potPlots_)
         *(plot.second.hitDistribution2d_lumisection->getTH2F()) = *(lumiCache->hitDistribution2dMap[plot.first]);
-      }
 
     for (auto& plot : channelPlots_) {
       auto hitsCounterPerLumisection = lumiCache->hitsCounterMap[plot.first];

@@ -12,7 +12,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -243,7 +242,6 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
   vector<const CSCSegment*> pointerToCSCSegments;
 
   double matchRatioCSC = 0;
-  int numCSC = 0;
   double CSCXCut = 0.001;
   double CSCYCut = 0.001;
   double countMuonCSCHits = 0;
@@ -255,7 +253,6 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
     if (!segmentCSC->isValid())
       continue;
 
-    numCSC++;
     const vector<CSCRecHit2D>& CSCRechits2D = segmentCSC->specificRecHits();
     countMuonCSCHits = 0;
     CSCDetId myChamber((*segmentCSC).geographicalId().rawId());

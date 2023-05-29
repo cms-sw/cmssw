@@ -17,6 +17,8 @@ from DQM.CTPPS.elasticPlotDQMSource_cfi import *
 
 from DQM.CTPPS.ctppsCommonDQMSource_cfi import *
 
+from DQM.CTPPS.ctppsRandomDQMSource_cfi import *
+
 # sequences used by the online DQM in normal running
 ctppsCommonDQMSourceOnline = ctppsCommonDQMSource.clone(
   makeProtonRecoPlots = False
@@ -51,6 +53,14 @@ ctppsCommonDQMSourceOffline = ctppsCommonDQMSource.clone(
   makeProtonRecoPlots = True
 )
 
+# sequences used by the dedicated random trigger stream
+_ctppsDQMRandomSource = cms.Sequence(
+  ctppsRandomDQMSource
+)
+
+_ctppsDQMRandomHarvest = cms.Sequence(
+)
+
 #Check if perLSsaving is enabled to mask MEs vs LS
 from Configuration.ProcessModifiers.dqmPerLSsaving_cff import dqmPerLSsaving
 dqmPerLSsaving.toModify(ctppsDiamondDQMSource, perLSsaving=True)
@@ -81,6 +91,13 @@ ctpps_2018.toReplaceWith(
     
 )
 
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toReplaceWith(
+    _ctppsDQMOfflineSource,
+    cms.Sequence(
+    )
+)
+
 
 # the actually used sequences must be empty for pre-PPS data
 from Configuration.Eras.Modifier_ctpps_cff import ctpps
@@ -99,3 +116,8 @@ ctppsDQMOfflineSource = cms.Sequence()
 ctppsDQMOfflineHarvest = cms.Sequence()
 ctpps.toReplaceWith(ctppsDQMOfflineSource, _ctppsDQMOfflineSource)
 ctpps.toReplaceWith(ctppsDQMOfflineHarvest, _ctppsDQMOfflineHarvest)
+
+ctppsDQMRandomSource = cms.Sequence()
+ctppsDQMRandomHarvest = cms.Sequence()
+ctpps.toReplaceWith(ctppsDQMRandomSource, _ctppsDQMRandomSource)
+ctpps.toReplaceWith(ctppsDQMRandomHarvest, _ctppsDQMRandomHarvest)

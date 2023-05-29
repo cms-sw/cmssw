@@ -71,15 +71,15 @@ HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iC
     maskedList_ =
         iConfig.getParameter<std::vector<unsigned int> >("maskedChannels");  //this is using the raw DetId index
   else
-      //worry about possible user menus with the old interface
-      if (iConfig.existsAs<std::vector<int> >("maskedChannels")) {
-    std::vector<int> tVec = iConfig.getParameter<std::vector<int> >("maskedChannels");
-    if (!tVec.empty()) {
-      edm::LogError("cfg error") << "masked list of channels missing from HLT menu. Migration from vector of ints to "
-                                    "vector of uints needed for this release";
-      cms::Exception("Invalid/obsolete masked list of channels");
+    //worry about possible user menus with the old interface
+    if (iConfig.existsAs<std::vector<int> >("maskedChannels")) {
+      std::vector<int> tVec = iConfig.getParameter<std::vector<int> >("maskedChannels");
+      if (!tVec.empty()) {
+        edm::LogError("cfg error") << "masked list of channels missing from HLT menu. Migration from vector of ints to "
+                                      "vector of uints needed for this release";
+        cms::Exception("Invalid/obsolete masked list of channels");
+      }
     }
-  }
   HcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("HFRecHitCollection");
   HcalRecHitsToken_ = consumes<HFRecHitCollection>(HcalRecHitCollection_);
 }

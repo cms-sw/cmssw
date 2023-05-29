@@ -148,8 +148,7 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg)
 /// produce fitted object collections and meta data describing fit quality
 void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // get jet collection
-  edm::Handle<std::vector<pat::Jet> > jets;
-  event.getByToken(jetsToken_, jets);
+  const edm::Handle<std::vector<pat::Jet> >& jets = event.getHandle(jetsToken_);
 
   // get match in case that useOnlyMatch_ is true
   std::vector<int> match;
@@ -157,8 +156,7 @@ void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& 
   if (useOnlyMatch_) {
     kinFitter->setUseOnlyMatch(true);
     // in case that only a ceratin match should be used, get match here
-    edm::Handle<std::vector<std::vector<int> > > matches;
-    event.getByToken(matchToken_, matches);
+    const edm::Handle<std::vector<std::vector<int> > >& matches = event.getHandle(matchToken_);
     match = *(matches->begin());
     // check if match is valid
     if (match.size() != nPartons) {

@@ -28,6 +28,7 @@ private:
   const edm::EDGetToken rpcDigiToken_;
   const edm::EDGetToken recHitToken_;
   const edm::EDGetToken rpcDigiSimLinkToken_;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
 
   enum class CppfSource { File, EventSetup } cppfSource_;
   std::vector<RecHitProcessor::CppfItem> CppfVec_1;

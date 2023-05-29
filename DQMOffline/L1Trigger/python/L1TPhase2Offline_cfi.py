@@ -5,8 +5,8 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 OuterTrackerTkMET = DQMEDAnalyzer('L1TPhase2OuterTrackerTkMET',
     TopFolderName  = cms.string('L1T/L1TPhase2/'),
-    TTTracksTag    = cms.InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"),
-    L1VertexInputTag = cms.InputTag("L1TkPrimaryVertex"),
+    TTTracksTag    = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"),
+    L1VertexInputTag = cms.InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"),
     maxZ0 = cms.double ( 15. ) ,    # in cm
     maxEta = cms.double ( 2.4 ) ,
     chi2dofMax = cms.double( 10. ),
@@ -93,9 +93,9 @@ l1tPhase2CorrelatorOfflineDQM = DQMEDAnalyzer(
     genParticlesInputTag = cms.untracked.InputTag("genParticles"),
     isParticleGun = cms.bool(False),
     objects = cms.PSet(
-        L1PF = cms.VInputTag("l1pfCandidates:PF",),
+        L1PF = cms.VInputTag("l1tLayer1:PF",),
         L1PF_sel = cms.string("pt > 0"),
-        L1Puppi = cms.VInputTag("l1pfCandidates:Puppi",),
+        L1Puppi = cms.VInputTag("l1tLayer1:Puppi",),
         L1Puppi_sel = cms.string("pt > 0"),
     ),
 
@@ -131,10 +131,12 @@ l1tPhase2CorrelatorOfflineDQM = DQMEDAnalyzer(
             xmax=cms.untracked.double(5.),
         ),
     ),
-
 )
+
+from DQMOffline.L1Trigger.L1TPhase2MuonOffline_cfi import *
 
 l1tPhase2OfflineDQM = cms.Sequence(
                           l1tPhase2CorrelatorOfflineDQM +
-                          OuterTrackerTkMET
+                          OuterTrackerTkMET +
+                          l1tPhase2MuonOffline
                           )

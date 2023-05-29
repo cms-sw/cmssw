@@ -276,8 +276,6 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     produces<edm::ValueMap<int>>();
     produces<QualityMaskCollection>("QualityMasks");
   } else {
-    produces<reco::TrackCollection>();
-
     makeReKeyedSeeds_ = conf.getUntrackedParameter<bool>("makeReKeyedSeeds", false);
     if (makeReKeyedSeeds_) {
       copyExtras_ = true;
@@ -288,6 +286,12 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
       produces<reco::TrackExtraCollection>();
       produces<TrackingRecHitCollection>();
     }
+
+    // TrackCollection refers to TrackingRechit and TrackExtra
+    // collections, need to declare its production after them to work
+    // around a rare race condition in framework scheduling
+    produces<reco::TrackCollection>();
+
     produces<std::vector<Trajectory>>();
     produces<TrajTrackAssociationCollection>();
   }
@@ -448,8 +452,8 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
   std::vector<std::vector<IHit>> rh1(ngood);  // "not an array" of vectors!
   //const TrackingRecHit*  fh1[ngood];  // first hit...
-  reco::TrackBase::TrackAlgorithm algo[ngood];
-  float score[ngood];
+  reco::TrackBase::TrackAlgorithm algo[std::max(1, ngood)];
+  float score[std::max(1, ngood)];
 
   for (unsigned int j = 0; j < rSize; j++) {
     if (selected[j] == 0)

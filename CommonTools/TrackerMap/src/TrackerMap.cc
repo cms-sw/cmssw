@@ -157,7 +157,6 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
   }
   // Now load fec cabling information
   if (enableFecProcessing) {
-    int nfec = 0;
     int nccu;
     int nmod;
     int crate, slot, ring, addr, pos;
@@ -185,7 +184,6 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
         for (std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end();
              iring++) {
           nccu = 0;
-          nfec++;
           for (std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end();
                iccu++) {
             nccu++;
@@ -210,7 +208,6 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
               ccu->nmod = nmod;
               ccu->layer = layer;
             }
-            //std::cout <<nfec<<" "<< nccu << " " << nmod << std::endl;
           }
         }
       }
@@ -470,7 +467,6 @@ void TrackerMap::reset() {
 }
 
 void TrackerMap::init() {
-  int ntotmod = 0;
   ix = 0;
   iy = 0;  //used to compute the place of each layer in the tracker map
   firstcall = true;
@@ -509,14 +505,12 @@ void TrackerMap::init() {
             smodule = new TmModule(module, ring, layer_g);
             key = layer_g * 100000 + ring * 1000 + module;  //key identifying module
             smoduleMap[key] = smodule;
-            ntotmod++;
           }
           if (isRingStereo(key))
             for (int module = 1; module < nmodules + 1; module++) {  //loop on stereo modules
               smodule = new TmModule(module + 100, ring, layer_g);
               int key = layer_g * 100000 + ring * 1000 + module + 100;
               smoduleMap[key] = smodule;
-              ntotmod++;
             }
         }
       }
@@ -559,11 +553,6 @@ TrackerMap::~TrackerMap() {
     TmPsu *psu = ipsu->second;
     delete psu;
   }
-
-  gROOT->Reset();
-
-  //for(std::vector<TColor*>::iterator col1=vc.begin();col1!=vc.end();col1++){
-  //     std::cout<<(*col1)<<std::endl;}
 }
 
 void TrackerMap::drawModule(TmModule *mod, int key, int mlay, bool print_total, std::ofstream *svgfile) {
@@ -3319,7 +3308,7 @@ void TrackerMap::build() {
   int nmods, pix_sil, fow_bar, ring, nmod, layer;
   unsigned int idex;
   float posx, posy, posz, length, width, thickness, widthAtHalfLength;
-  int iModule = 0, old_layer = 0, ntotMod = 0;
+  int old_layer = 0, ntotMod = 0;
   std::string name, dummys;
   std::ifstream infile(edm::FileInPath(infilename).fullPath().c_str(), std::ios::in);
   while (!infile.eof()) {
@@ -3329,9 +3318,7 @@ void TrackerMap::build() {
     getline(infile, name);
     if (old_layer != layer) {
       old_layer = layer;
-      iModule = 0;
     }
-    iModule++;
     ntotMod++;
     int key = layer * 100000 + ring * 1000 + nmod;
     TmModule *mod = smoduleMap[key];
@@ -3537,13 +3524,11 @@ void TrackerMap::printonline() {
         TmModule *mod = smoduleMap[key];
         if (mod != nullptr && !mod->notInUse()) {
           int idmod = mod->idex;
-          int nchan = 0;
           *txtfile << "<a name=" << idmod << "><pre>" << std::endl;
           std::multimap<const int, TmApvPair *>::iterator pos;
           for (pos = apvModuleMap.lower_bound(idmod); pos != apvModuleMap.upper_bound(idmod); ++pos) {
             TmApvPair *apvpair = pos->second;
             if (apvpair != nullptr) {
-              nchan++;
               *txtfile << apvpair->text << std::endl;
             }
           }
@@ -3911,13 +3896,11 @@ void TrackerMap::printall(bool print_total, float minval1, float maxval1, std::s
           TmModule *mod = smoduleMap[key];
           if (mod != nullptr && !mod->notInUse()) {
             int idmod = mod->idex;
-            int nchan = 0;
             *txtfile << "<a name=" << idmod << "><pre>" << std::endl;
             std::multimap<const int, TmApvPair *>::iterator pos;
             for (pos = apvModuleMap.lower_bound(idmod); pos != apvModuleMap.upper_bound(idmod); ++pos) {
               TmApvPair *apvpair = pos->second;
               if (apvpair != nullptr) {
-                nchan++;
                 *txtfile << apvpair->text << std::endl;
               }
             }

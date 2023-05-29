@@ -51,7 +51,7 @@ process.MessageLogger.files.mtdCommonDataDD4hep = cms.untracked.PSet(
 )
 
 process.load('Configuration.Geometry.GeometryDD4hep_cff')
-process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D88.xml")
+process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D95.xml")
 
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
                                                      appendToDataLabel = cms.string('')
@@ -59,14 +59,12 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
 
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),
-                                 ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
-                                 theLayout = cms.untracked.uint32(4)
+                                 ddTopNodeName = cms.untracked.string('BarrelTimingLayer')
                                 )
 
 process.testETL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),
-                                 ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
-                                 theLayout = cms.untracked.uint32(4)
+                                 ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
                                 )
 
 process.Timing = cms.Service("Timing")

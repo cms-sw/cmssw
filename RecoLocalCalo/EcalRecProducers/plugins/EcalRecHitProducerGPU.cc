@@ -27,7 +27,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "EcalRecHitBuilderKernels.h"
@@ -103,9 +103,6 @@ void EcalRecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& con
   desc.add<double>("EELaserMIN", 0.01);
   desc.add<double>("EBLaserMAX", 30.0);
   desc.add<double>("EELaserMAX", 30.0);
-
-  desc.add<uint32_t>("maxNumberHitsEB", 61200);
-  desc.add<uint32_t>("maxNumberHitsEE", 14648);
 }
 
 EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
@@ -124,10 +121,6 @@ EcalRecHitProducerGPU::EcalRecHitProducerGPU(const edm::ParameterSet& ps) {
   configParameters_.EELaserMIN = ps.getParameter<double>("EELaserMIN");
   configParameters_.EBLaserMAX = ps.getParameter<double>("EBLaserMAX");
   configParameters_.EELaserMAX = ps.getParameter<double>("EELaserMAX");
-
-  // max number of digis to allocate for
-  configParameters_.maxNumberHitsEB = ps.getParameter<uint32_t>("maxNumberHitsEB");
-  configParameters_.maxNumberHitsEE = ps.getParameter<uint32_t>("maxNumberHitsEE");
 
   flagmask_ = 0;
   flagmask_ |= 0x1 << EcalRecHit::kNeighboursRecovered;
@@ -182,11 +175,6 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   if (neb_ + nee_ == 0)
     return;
 
-  if ((neb_ > configParameters_.maxNumberHitsEB) || (nee_ > configParameters_.maxNumberHitsEE)) {
-    edm::LogError("EcalRecHitProducerGPU")
-        << "max number of channels exceeded. See options 'maxNumberHitsEB and maxNumberHitsEE' ";
-  }
-
   int nchannelsEB = ebUncalibRecHits.size;  // --> offsetForInput, first EB and then EE
 
   // conditions
@@ -227,7 +215,7 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
                                               IntercalibConstantsHandle_->getOffset()};
 
   // dev mem
-  eventOutputDataGPU_.allocate(configParameters_, ctx.stream());
+  eventOutputDataGPU_.allocate(configParameters_, neb_, nee_, ctx.stream());
 
   //
   // schedule algorithms

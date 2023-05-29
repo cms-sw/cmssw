@@ -3,7 +3,6 @@
 
 // user include files
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -24,10 +23,11 @@ using std::string;
 // constructors and destructor
 //
 L1RCTRelValAnalyzer::L1RCTRelValAnalyzer(const edm::ParameterSet &iConfig)
-    : rctEmCandsLabel(iConfig.getParameter<edm::InputTag>("rctEmCandsLabel")),
-      rctRegionsLabel(iConfig.getParameter<edm::InputTag>("rctRegionsLabel")) {
+    : m_rctEmCands(consumes(iConfig.getParameter<edm::InputTag>("rctEmCandsLabel"))),
+      m_rctRegions(consumes(iConfig.getParameter<edm::InputTag>("rctRegionsLabel"))) {
   // now do what ever initialization is needed
 
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   h_emRank = fs->make<TH1F>("emRank", "emRank", 64, 0., 64.);
   h_emIeta = fs->make<TH1F>("emOccupancyIeta", "emOccupancyIeta", 22, 0., 22.);
@@ -52,27 +52,12 @@ L1RCTRelValAnalyzer::~L1RCTRelValAnalyzer() {
 // ------------ method called to produce the data  ------------
 void L1RCTRelValAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
 
   // as in L1GctTestAnalyzer.cc
-  Handle<L1CaloEmCollection> rctEmCands;
-  Handle<L1CaloRegionCollection> rctRegions;
+  Handle<L1CaloEmCollection> rctEmCands = iEvent.getHandle(m_rctEmCands);
+  Handle<L1CaloRegionCollection> rctRegions = iEvent.getHandle(m_rctRegions);
 
-  L1CaloEmCollection::const_iterator em;
-  L1CaloRegionCollection::const_iterator rgn;
-
-  iEvent.getByLabel(rctEmCandsLabel, rctEmCands);
-  iEvent.getByLabel(rctRegionsLabel, rctRegions);
-
-  for (em = rctEmCands->begin(); em != rctEmCands->end(); em++) {
+  for (auto em = rctEmCands->begin(); em != rctEmCands->end(); em++) {
     if ((*em).rank() > 0) {
       h_emRank->Fill((*em).rank());
       h_emIeta->Fill((*em).regionId().ieta());
@@ -85,7 +70,7 @@ void L1RCTRelValAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
     }
   }
 
-  for (rgn = rctRegions->begin(); rgn != rctRegions->end(); rgn++) {
+  for (auto rgn = rctRegions->begin(); rgn != rctRegions->end(); rgn++) {
     if ((*rgn).et() > 0) {
       h_regionSum->Fill((*rgn).et());
       h_regionSumIetaIphi->Fill((*rgn).gctEta(), (*rgn).gctPhi(), (*rgn).et());

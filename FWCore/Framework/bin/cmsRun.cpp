@@ -240,6 +240,8 @@ int main(int argc, char* argv[]) {
       try {
         std::unique_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
         processDesc.reset(new edm::ProcessDesc(std::move(parameterSet)));
+      } catch (edm::Exception const&) {
+        throw;
       } catch (cms::Exception& iException) {
         edm::Exception e(edm::errors::ConfigFileReadError, "", iException);
         throw e;

@@ -74,7 +74,7 @@ bool LHEVpTFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSet
   if (lepCands.size() == 2) {
     vpt_ = (lepCands[0] + lepCands[1]).pt();
   }
-  if (vpt_ <= vptMax_ && vpt_ > vptMin_) {
+  if (vpt_ < vptMax_ && vpt_ >= vptMin_) {
     return true;
   } else {
     return false;

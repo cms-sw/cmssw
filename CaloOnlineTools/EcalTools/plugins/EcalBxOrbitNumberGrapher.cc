@@ -36,9 +36,9 @@ using namespace std;
 // constructors and destructor
 //
 EcalBxOrbitNumberGrapher::EcalBxOrbitNumberGrapher(const edm::ParameterSet& iConfig)
-    : digiProducer_(iConfig.getParameter<std::string>("RawDigis")),
+    : digiProducer_(consumes<EcalRawDataCollection>(iConfig.getParameter<std::string>("RawDigis"))),
       runNum_(-1),
-      fileName_(iConfig.getUntrackedParameter<std::string>("fileName", std::string("ecalURechHitHists"))) {}
+      fileName_(iConfig.getUntrackedParameter<std::string>("fileName", "ecalURechHitHists")) {}
 
 EcalBxOrbitNumberGrapher::~EcalBxOrbitNumberGrapher() {}
 
@@ -48,7 +48,6 @@ EcalBxOrbitNumberGrapher::~EcalBxOrbitNumberGrapher() {}
 
 // ------------ method called to for each event  ------------
 void EcalBxOrbitNumberGrapher::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
   using namespace cms;
   //int ievt = iEvent.id().event();
   int orbit = -100;
@@ -56,8 +55,7 @@ void EcalBxOrbitNumberGrapher::analyze(const edm::Event& iEvent, const edm::Even
   int numorbiterrors = 0;
   bool orbiterror = false;
 
-  edm::Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel(digiProducer_, DCCHeaders);
+  const edm::Handle<EcalRawDataCollection>& DCCHeaders = iEvent.getHandle(digiProducer_);
   if (!DCCHeaders.isValid()) {
     edm::LogError("BxOrbitNumber") << "can't get the product for EcalRawDataCollection";
   }
@@ -72,7 +70,8 @@ void EcalBxOrbitNumberGrapher::analyze(const edm::Event& iEvent, const edm::Even
     if (orbit == -100) {
       orbit = myorbit;
     } else if (orbit != myorbit) {
-      std::cout << " NOOOO This header has a conflicting orbit OTHER " << orbit << " new " << myorbit << std::endl;
+      edm::LogVerbatim("EcalTools") << " NOOOO This header has a conflicting orbit OTHER " << orbit << " new "
+                                    << myorbit;
       orbiterror = true;
       numorbiterrors++;
       orbitErrorBxDiffPlot_->Fill(myorbit - orbit);
@@ -81,13 +80,12 @@ void EcalBxOrbitNumberGrapher::analyze(const edm::Event& iEvent, const edm::Even
     if (bx == -100) {
       bx = mybx;
     } else if (bx != mybx) {
-      std::cout << " NOOOO This header has a conflicting bx OTHER " << bx << " new " << mybx << std::endl;
+      edm::LogVerbatim("EcalTools") << " NOOOO This header has a conflicting bx OTHER " << bx << " new " << mybx;
     }
-    //LogDebug("EcalTimingCosmic") << " Lambda " << lambda; //hmm... this isn't good, I should keep a record of the wavelength in the headers as an inactive SM might have a different wavelength for this field and make this not go through.
   }
 
   if ((bx != -100) & (orbit != -100)) {
-    std::cout << " Interesting event Orbit " << orbit << " BX " << bx << std::endl;
+    edm::LogVerbatim("EcalTools") << " Interesting event Orbit " << orbit << " BX " << bx;
     bxnumberPlot_->Fill(bx);
     if (orbiterror) {
       orbitErrorPlot_->Fill(bx);

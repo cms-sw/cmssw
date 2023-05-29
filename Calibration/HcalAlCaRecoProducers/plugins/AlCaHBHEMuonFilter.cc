@@ -38,25 +38,25 @@
 // class declaration
 //
 
-namespace AlCaHBHEMuons {
+namespace alCaHBHEMuonFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nFinal_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nFinal_;
   };
-}  // namespace AlCaHBHEMuons
+}  // namespace alCaHBHEMuonFilter
 
-class AlCaHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaHBHEMuons::Counters> > {
+class AlCaHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaHBHEMuonFilter::Counters> > {
 public:
-  explicit AlCaHBHEMuonFilter(edm::ParameterSet const&, const AlCaHBHEMuons::Counters* count);
-  ~AlCaHBHEMuonFilter() override;
+  explicit AlCaHBHEMuonFilter(edm::ParameterSet const&, const alCaHBHEMuonFilter::Counters* count);
+  ~AlCaHBHEMuonFilter() override = default;
 
-  static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaHBHEMuons::Counters>();
+  static std::unique_ptr<alCaHBHEMuonFilter::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaHBHEMuonFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaHBHEMuons::Counters* counters);
+  static void globalEndJob(const alCaHBHEMuonFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -91,7 +91,7 @@ private:
 //
 // constructors and destructor
 //
-AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count)
+AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const alCaHBHEMuonFilter::Counters* count)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -120,8 +120,6 @@ AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const A
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("HBHEMuon") << "Trigger[" << k << "] " << trigNames_[k] << "\n";
 }  // AlCaHBHEMuonFilter::AlCaHBHEMuonFilter  constructor
-
-AlCaHBHEMuonFilter::~AlCaHBHEMuonFilter() {}
 
 //
 // member functions
@@ -236,7 +234,7 @@ void AlCaHBHEMuonFilter::endStream() {
   globalCache()->nFinal_ += nFinal_;
 }
 
-void AlCaHBHEMuonFilter::globalEndJob(const AlCaHBHEMuons::Counters* count) {
+void AlCaHBHEMuonFilter::globalEndJob(const alCaHBHEMuonFilter::Counters* count) {
   edm::LogVerbatim("HBHEMuon") << "Selects " << count->nFinal_ << " out of " << count->nGood_ << " good events out of "
                                << count->nAll_ << " total # of events\n";
 }
@@ -263,7 +261,7 @@ void AlCaHBHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("ProcessName", "HLT");
   desc.add<edm::InputTag>("TriggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
-  desc.add<double>("MinimumMuonP", 10.0);
+  desc.add<double>("MinimumMuonP", 5.0);
   desc.add<std::vector<std::string> >("Triggers", triggers);
   desc.add<bool>("PFCut", true);
   desc.add<double>("PFIsolationCut", 0.12);

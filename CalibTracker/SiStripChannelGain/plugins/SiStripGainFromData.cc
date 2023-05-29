@@ -1,57 +1,53 @@
 // Original Author:  Loic QUERTENMONT
 //         Created:  Wed Feb  6 08:55:18 CET 2008
 
+// system includes
 #include <memory>
+#include <unordered_map>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-
+// user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
-
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibTracker/Records/interface/SiStripGainRcd.h"
-
+// ROOT inclues
 #include "TFile.h"
 #include "TObjString.h"
 #include "TString.h"
@@ -61,34 +57,16 @@
 #include "TF1.h"
 #include "TROOT.h"
 
-#include <unordered_map>
-#include <memory>
-
 using namespace edm;
 using namespace reco;
 using namespace std;
-
-struct stAPVGain {
-  unsigned int Index;
-  int DetId;
-  int APVId;
-  int SubDet;
-  float Eta;
-  float R;
-  float Phi;
-  float Thickness;
-  double MPV;
-  double Gain;
-  double PreviousGain;
-  char Side;
-};
 
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripGainFromData(const edm::ParameterSet&);
-  ~SiStripGainFromData() override;
+  ~SiStripGainFromData() override = default;
 
 private:
   void algoBeginJob(const edm::EventSetup&) override;
@@ -337,8 +315,6 @@ SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig)
   //if( OutputHistos!="" )
   //  dqmStore_->open(OutputHistos.c_str(), true);
 }
-
-SiStripGainFromData::~SiStripGainFromData() {}
 
 void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
   const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
@@ -601,7 +577,7 @@ void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
         APV->DetId = Detid.rawId();
         APV->APVId = j;
         APV->SubDet = SubDet;
-        APV->MPV = -1;
+        APV->FitMPV = -1;
         APV->Gain = -1;
         APV->PreviousGain = 1;
         APV->Eta = Eta;
@@ -611,7 +587,7 @@ void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
         APV->Side = 0;
 
         if (SubDet == StripSubdetector::TID) {
-          APV->Side = tTopo->tecSide(Detid);
+          APV->Side = tTopo->tidSide(Detid);
         } else if (SubDet == StripSubdetector::TEC) {
           APV->Side = tTopo->tecSide(Detid);
         }
@@ -780,44 +756,44 @@ void SiStripGainFromData::algoEndJob() {
       //std::cout << "Proj->GetEntries(): " << Proj->GetEntries() << ", Proj->GetMean(): " << Proj->GetMean() << std::endl;
 
       getPeakOfLandau(Proj, FitResults);
-      APV->MPV = FitResults[0];
+      APV->FitMPV = FitResults[0];
       //         printf("MPV = %f - %f\n",FitResults[0], FitResults[1]);
       if (FitResults[0] != -0.5 && FitResults[1] < MaxMPVError) {
-        APV_MPV->Fill(APV->Index, APV->MPV);
-        MPVs->Fill(APV->MPV);
+        APV_MPV->Fill(APV->Index, APV->FitMPV);
+        MPVs->Fill(APV->FitMPV);
         if (APV->Thickness < 0.04)
-          MPVs320->Fill(APV->MPV);
+          MPVs320->Fill(APV->FitMPV);
         if (APV->Thickness > 0.04)
-          MPVs500->Fill(APV->MPV);
+          MPVs500->Fill(APV->FitMPV);
 
-        MPV_Vs_R->Fill(APV->R, APV->MPV);
-        MPV_Vs_Eta->Fill(APV->Eta, APV->MPV);
+        MPV_Vs_R->Fill(APV->R, APV->FitMPV);
+        MPV_Vs_Eta->Fill(APV->Eta, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TIB)
-          MPV_Vs_EtaTIB->Fill(APV->Eta, APV->MPV);
+          MPV_Vs_EtaTIB->Fill(APV->Eta, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TID)
-          MPV_Vs_EtaTID->Fill(APV->Eta, APV->MPV);
+          MPV_Vs_EtaTID->Fill(APV->Eta, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TOB)
-          MPV_Vs_EtaTOB->Fill(APV->Eta, APV->MPV);
+          MPV_Vs_EtaTOB->Fill(APV->Eta, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TEC) {
-          MPV_Vs_EtaTEC->Fill(APV->Eta, APV->MPV);
+          MPV_Vs_EtaTEC->Fill(APV->Eta, APV->FitMPV);
           if (APV->Thickness < 0.04)
-            MPV_Vs_EtaTEC1->Fill(APV->Eta, APV->MPV);
+            MPV_Vs_EtaTEC1->Fill(APV->Eta, APV->FitMPV);
           if (APV->Thickness > 0.04)
-            MPV_Vs_EtaTEC2->Fill(APV->Eta, APV->MPV);
+            MPV_Vs_EtaTEC2->Fill(APV->Eta, APV->FitMPV);
         }
-        MPV_Vs_Phi->Fill(APV->Phi, APV->MPV);
+        MPV_Vs_Phi->Fill(APV->Phi, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TIB)
-          MPV_Vs_PhiTIB->Fill(APV->Phi, APV->MPV);
+          MPV_Vs_PhiTIB->Fill(APV->Phi, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TID)
-          MPV_Vs_PhiTID->Fill(APV->Phi, APV->MPV);
+          MPV_Vs_PhiTID->Fill(APV->Phi, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TOB)
-          MPV_Vs_PhiTOB->Fill(APV->Phi, APV->MPV);
+          MPV_Vs_PhiTOB->Fill(APV->Phi, APV->FitMPV);
         if (APV->SubDet == StripSubdetector::TEC) {
-          MPV_Vs_PhiTEC->Fill(APV->Phi, APV->MPV);
+          MPV_Vs_PhiTEC->Fill(APV->Phi, APV->FitMPV);
           if (APV->Thickness < 0.04)
-            MPV_Vs_PhiTEC1->Fill(APV->Phi, APV->MPV);
+            MPV_Vs_PhiTEC1->Fill(APV->Phi, APV->FitMPV);
           if (APV->Thickness > 0.04)
-            MPV_Vs_PhiTEC2->Fill(APV->Phi, APV->MPV);
+            MPV_Vs_PhiTEC2->Fill(APV->Phi, APV->FitMPV);
         }
 
         if (APV->SubDet == StripSubdetector::TIB)
@@ -891,8 +867,8 @@ void SiStripGainFromData::algoEndJob() {
     double MPVmean = 300.;  //MPVs->GetMean();
     for (auto it = APVsColl.begin(); it != APVsColl.end(); it++) {
       stAPVGain* APV = it->second;
-      if (APV->MPV > 0) {
-        APV->Gain = APV->MPV / MPVmean;  // APV->MPV;
+      if (APV->FitMPV > 0) {
+        APV->Gain = APV->FitMPV / MPVmean;  // APV->FitMPV;
         GOOD++;
       } else {
         NoMPV_Vs_EtaPhi->Fill(APV->Eta, APV->Phi);
@@ -1105,11 +1081,11 @@ void SiStripGainFromData::algoEndJob() {
               APV->Gain);
     }
 
-    std::vector<int> DetIdOfBuggedAPV;
+    std::vector<unsigned int> DetIdOfBuggedAPV;
     fprintf(Gains, "----------------------------------------------------------------------\n");
     for (std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
       stAPVGain* APV = *it;
-      if (APV->MPV > 0 && APV->MPV < 200) {
+      if (APV->FitMPV > 0 && APV->FitMPV < 200) {
         bool tmpBug = false;
         for (unsigned int b = 0; b < DetIdOfBuggedAPV.size() && !tmpBug; b++) {
           if (DetIdOfBuggedAPV[b] == APV->DetId)
@@ -1493,7 +1469,7 @@ std::unique_ptr<SiStripApvGain> SiStripGainFromData::getNewObject() {
 
   auto obj = std::make_unique<SiStripApvGain>();
   std::vector<float>* theSiStripVector = nullptr;
-  int PreviousDetId = -1;
+  unsigned int PreviousDetId = -1;
   for (unsigned int a = 0; a < APVsCollOrdered.size(); a++) {
     stAPVGain* APV = APVsCollOrdered[a];
     if (APV == nullptr) {

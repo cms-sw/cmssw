@@ -90,6 +90,8 @@ namespace edm {
 
   void ActivityRegistry::connectGlobals(ActivityRegistry& iOther) {
     preallocateSignal_.connect(std::cref(iOther.preallocateSignal_));
+    beginProcessingSignal_.connect(std::cref(iOther.beginProcessingSignal_));
+    endProcessingSignal_.connect(std::cref(iOther.endProcessingSignal_));
     postBeginJobSignal_.connect(std::cref(iOther.postBeginJobSignal_));
     preEndJobSignal_.connect(std::cref(iOther.preEndJobSignal_));
     postEndJobSignal_.connect(std::cref(iOther.postEndJobSignal_));
@@ -228,6 +230,12 @@ namespace edm {
     preModuleEventPrefetchingSignal_.connect(std::cref(iOther.preModuleEventPrefetchingSignal_));
     postModuleEventPrefetchingSignal_.connect(std::cref(iOther.postModuleEventPrefetchingSignal_));
 
+    preModuleStreamPrefetchingSignal_.connect(std::cref(iOther.preModuleStreamPrefetchingSignal_));
+    postModuleStreamPrefetchingSignal_.connect(std::cref(iOther.postModuleStreamPrefetchingSignal_));
+
+    preModuleGlobalPrefetchingSignal_.connect(std::cref(iOther.preModuleGlobalPrefetchingSignal_));
+    postModuleGlobalPrefetchingSignal_.connect(std::cref(iOther.postModuleGlobalPrefetchingSignal_));
+
     preModuleEventSignal_.connect(std::cref(iOther.preModuleEventSignal_));
     postModuleEventSignal_.connect(std::cref(iOther.postModuleEventSignal_));
 
@@ -288,6 +296,9 @@ namespace edm {
     preESModuleSignal_.connect(std::cref(iOther.preESModuleSignal_));
     postESModuleSignal_.connect(std::cref(iOther.postESModuleSignal_));
 
+    preESModuleAcquireSignal_.connect(std::cref(iOther.preESModuleAcquireSignal_));
+    postESModuleAcquireSignal_.connect(std::cref(iOther.postESModuleAcquireSignal_));
+
     postESModuleRegistrationSignal_.connect(std::cref(iOther.postESModuleRegistrationSignal_));
 
     //preModuleSignal_.connect(std::cref(iOther.preModuleSignal_));
@@ -318,6 +329,8 @@ namespace edm {
 
   void ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {
     copySlotsToFrom(preallocateSignal_, iOther.preallocateSignal_);
+    copySlotsToFrom(beginProcessingSignal_, iOther.beginProcessingSignal_);
+    copySlotsToFrom(endProcessingSignal_, iOther.endProcessingSignal_);
     copySlotsToFrom(preBeginJobSignal_, iOther.preBeginJobSignal_);
     copySlotsToFrom(postBeginJobSignal_, iOther.postBeginJobSignal_);
     copySlotsToFromReverse(preEndJobSignal_, iOther.preEndJobSignal_);
@@ -447,6 +460,12 @@ namespace edm {
     copySlotsToFrom(preModuleEventPrefetchingSignal_, iOther.preModuleEventPrefetchingSignal_);
     copySlotsToFromReverse(postModuleEventPrefetchingSignal_, iOther.postModuleEventPrefetchingSignal_);
 
+    copySlotsToFrom(preModuleStreamPrefetchingSignal_, iOther.preModuleStreamPrefetchingSignal_);
+    copySlotsToFromReverse(postModuleStreamPrefetchingSignal_, iOther.postModuleStreamPrefetchingSignal_);
+
+    copySlotsToFrom(preModuleGlobalPrefetchingSignal_, iOther.preModuleGlobalPrefetchingSignal_);
+    copySlotsToFromReverse(postModuleGlobalPrefetchingSignal_, iOther.postModuleGlobalPrefetchingSignal_);
+
     copySlotsToFrom(preModuleEventSignal_, iOther.preModuleEventSignal_);
     copySlotsToFromReverse(postModuleEventSignal_, iOther.postModuleEventSignal_);
 
@@ -506,6 +525,9 @@ namespace edm {
 
     copySlotsToFrom(preESModuleSignal_, iOther.preESModuleSignal_);
     copySlotsToFromReverse(postESModuleSignal_, iOther.postESModuleSignal_);
+
+    copySlotsToFrom(preESModuleAcquireSignal_, iOther.preESModuleAcquireSignal_);
+    copySlotsToFromReverse(postESModuleAcquireSignal_, iOther.postESModuleAcquireSignal_);
 
     copySlotsToFromReverse(postESModuleRegistrationSignal_, iOther.postESModuleRegistrationSignal_);
     /*

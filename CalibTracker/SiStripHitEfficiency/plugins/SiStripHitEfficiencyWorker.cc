@@ -9,6 +9,7 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEffData.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
@@ -23,6 +24,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h" /* for STRIPS_PER_APV*/
@@ -64,8 +66,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob();  // TODO remove
-  void endJob();    // TODO remove
   void bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void fillForTraj(const TrajectoryAtInvalidHit& tm,
@@ -82,9 +82,11 @@ private:
                    bool highPurity);
 
   // ----------member data ---------------------------
+  SiStripHitEffData calibData_;
 
   // event data tokens
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
+  const edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> commonModeToken_;
   const edm::EDGetTokenT<reco::TrackCollection> combinatorialTracks_token_;
   const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
@@ -127,9 +129,6 @@ private:
 
   // output file
   std::set<uint32_t> badModules_;
-
-  // counters
-  int events, EventTrackCKF;
 
   struct EffME1 {
     EffME1() : hTotal(nullptr), hFound(nullptr) {}
@@ -180,6 +179,7 @@ private:
 
 SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& conf)
     : scalerToken_(consumes<LumiScalersCollection>(conf.getParameter<edm::InputTag>("lumiScalers"))),
+      metaDataToken_(consumes<OnlineLuminosityRecord>(conf.getParameter<edm::InputTag>("metadata"))),
       commonModeToken_(mayConsume<edm::DetSetVector<SiStripRawDigi>>(conf.getParameter<edm::InputTag>("commonMode"))),
       combinatorialTracks_token_(
           consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("combinatorialTracks"))),
@@ -243,12 +243,6 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
   }
 }
 
-void SiStripHitEfficiencyWorker::beginJob() {
-  // TODO convert to counters, or simply remove?
-  events = 0;
-  EventTrackCKF = 0;
-}
-
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
                                                 const edm::Run& run,
                                                 const edm::EventSetup& setup) {
@@ -258,6 +252,11 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   h_PU = booker.book1D("PU", "PU", 200, 0, 200);
   h_nTracks = booker.book1D("ntracks", "n.tracks;n. tracks;n.events", 500, -0.5, 499.5);
   h_nTracksVsPU = booker.bookProfile("nTracksVsPU", "n. tracks vs PU; PU; n.tracks ", 200, 0, 200, 500, -0.5, 499.5);
+
+  calibData_.EventStats = booker.book2I("EventStats", "Statistics", 3, -0.5, 2.5, 1, 0, 1);
+  calibData_.EventStats->setBinLabel(1, "events count", 1);
+  calibData_.EventStats->setBinLabel(2, "tracks count", 1);
+  calibData_.EventStats->setBinLabel(3, "measurements count", 1);
 
   booker.setCurrentFolder(dqmDir_);
   h_goodLayer = EffME1(booker.book1D("goodlayer_total", "goodlayer_total", 35, 0., 35.),
@@ -309,9 +308,15 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
 
-      const auto tit = Form("%s%i: Map of missing hits", partition, (isTIB ? layer : layer - bounds::k_LayersAtTIBEnd));
+      const auto& tit =
+          Form("%s%i: Map of missing hits", partition, (isTIB ? layer : layer - bounds::k_LayersAtTIBEnd));
 
-      auto ihhotcold = booker.book2D(tit, tit, 100, -1, 361, 100, -yMax, yMax);
+      // histogram name must not contain ":" otherwise it fails upload to the GUI
+      // see https://github.com/cms-DQM/dqmgui_prod/blob/af0a388e8f57c60e51111585d298aeeea943367f/src/cpp/DQM/DQMStore.cc#L56
+      std::string name{tit};
+      ::replaceInString(name, ":", "");
+
+      auto ihhotcold = booker.book2D(name, tit, 100, -1, 361, 100, -yMax, yMax);
       ihhotcold->setAxisTitle("#phi [deg]", 1);
       ihhotcold->setBinLabel(1, "360", 1);
       ihhotcold->setBinLabel(50, "180", 1);
@@ -322,14 +327,24 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
     } else {
       const bool isTID = layer <= bounds::k_LayersAtTIDEnd;
       const auto partitions =
-          (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
+          (isTID ? std::vector<std::string>{"TIDplus", "TIDminus"} : std::vector<std::string>{"TECplus", "TECminus"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        const auto tit = Form("%s%i: Map of missing hits",
-                              part.c_str(),
-                              (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
+        // create the title by replacing the minus/plus symbols
+        std::string forTitle{part};
+        ::replaceInString(forTitle, "minus", "-");
+        ::replaceInString(forTitle, "plus", "+");
 
-        auto ihhotcold = booker.book2D(tit, tit, 100, -axMax, axMax, 100, -axMax, axMax);
+        // histogram name must not contain ":" otherwise it fails upload to the GUI
+        // see https://github.com/cms-DQM/dqmgui_prod/blob/af0a388e8f57c60e51111585d298aeeea943367f/src/cpp/DQM/DQMStore.cc#L56
+        const auto& name = Form("%s %i Map of Missing Hits",
+                                part.c_str(),
+                                (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
+        const auto& tit = Form("%s%i: Map of Missing Hits",
+                               forTitle.c_str(),
+                               (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
+
+        auto ihhotcold = booker.book2D(name, tit, 100, -axMax, axMax, 100, -axMax, axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
         ihhotcold->setBinLabel(1, "+Y", 1);
         ihhotcold->setBinLabel(50, "0", 1);
@@ -352,6 +367,12 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   h_module =
       EffTkMap(std::make_unique<TkHistoMap>(tkDetMap, booker, tkDetMapFolder, "perModule_total", 0, false, true),
                std::make_unique<TkHistoMap>(tkDetMap, booker, tkDetMapFolder, "perModule_found", 0, false, true));
+
+  // fill the FED Errors
+  booker.setCurrentFolder(dqmDir_);
+  const auto FEDErrorMapFolder = fmt::format("{}/FEDErrorTkDetMaps", dqmDir_);
+  calibData_.FEDErrorOccupancy =
+      std::make_unique<TkHistoMap>(tkDetMap, booker, FEDErrorMapFolder, "perModule_FEDErrors", 0, false, true);
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -364,16 +385,25 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   // Step A: Get Inputs
 
   // Luminosity informations
-  edm::Handle<LumiScalersCollection> lumiScalers;
+  edm::Handle<LumiScalersCollection> lumiScalers = e.getHandle(scalerToken_);
+  edm::Handle<OnlineLuminosityRecord> metaData = e.getHandle(metaDataToken_);
+
   float instLumi = 0;
   float PU = 0;
   if (addLumi_) {
-    e.getByToken(scalerToken_, lumiScalers);
-    if (lumiScalers->begin() != lumiScalers->end()) {
-      instLumi = lumiScalers->begin()->instantLumi();
-      PU = lumiScalers->begin()->pileup();
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      if (lumiScalers->begin() != lumiScalers->end()) {
+        instLumi = lumiScalers->begin()->instantLumi();
+        PU = lumiScalers->begin()->pileup();
+      }
+    } else if (metaData.isValid()) {
+      instLumi = metaData->instLumi();
+      PU = metaData->avgPileUp();
+    } else {
+      edm::LogWarning("SiStripHitEfficiencyWorker") << "could not find a source for the Luminosity and PU";
     }
   }
+
   h_bx->Fill(e.bunchCrossing());
   h_instLumi->Fill(instLumi);
   h_PU->Fill(PU);
@@ -397,6 +427,19 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::Handle<DetIdCollection> fedErrorIds;
   e.getByToken(digis_token_, fedErrorIds);
 
+  // fill the calibData with the FEDErrors
+  for (const auto& fedErr : *fedErrorIds) {
+    // fill the TkHistoMap occupancy map
+    calibData_.FEDErrorOccupancy->fill(fedErr.rawId(), 1.);
+
+    // fill the unordered map
+    if (calibData_.fedErrorCounts.find(fedErr.rawId()) != calibData_.fedErrorCounts.end()) {
+      calibData_.fedErrorCounts[fedErr.rawId()] += 1;
+    } else {
+      calibData_.fedErrorCounts.insert(std::make_pair(fedErr.rawId(), 1));
+    }
+  }
+
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   e.getByToken(trackerEvent_token_, measurementTrackerEvent);
 
@@ -408,13 +451,16 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   const auto& chi2Estimator = es.getData(chi2EstimatorToken_);
   const auto& prop = es.getData(propagatorToken_);
 
-  ++events;
-
   // Tracking
   LogDebug("SiStripHitEfficiencyWorker") << "number ckf tracks found = " << tracksCKF->size();
 
   h_nTracks->Fill(tracksCKF->size());
   h_nTracksVsPU->Fill(PU, tracksCKF->size());
+
+  // bin 0: one entry for each event
+  calibData_.EventStats->Fill(0., 0., 1);
+  // bin 1: one entry for each track
+  calibData_.EventStats->Fill(1., 0., tracksCKF->size());
 
   if (!tracksCKF->empty()) {
     if (cutOnTracks_ && (tracksCKF->size() >= trackMultiplicityCut_))
@@ -422,8 +468,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
     if (cutOnTracks_)
       LogDebug("SiStripHitEfficiencyWorker")
           << "starting checking good event with < " << trackMultiplicityCut_ << " tracks";
-
-    ++EventTrackCKF;
 
     // actually should do a loop over all the tracks in the event here
 
@@ -438,10 +482,13 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         return tm.recHit()->getType() == TrackingRecHit::Type::missing;
       });
 
-      // Loop on each measurement and take it into consideration
+      // Loop on each measurement and take into consideration
       //--------------------------------------------------------
       for (auto itm = TMeas.cbegin(); itm != TMeas.cend(); ++itm) {
         const auto theInHit = (*itm).recHit();
+
+        //bin 2: one entry for each measurement
+        calibData_.EventStats->Fill(2., 0., 1.);
 
         LogDebug("SiStripHitEfficiencyWorker") << "theInHit is valid = " << theInHit->isValid();
 
@@ -933,14 +980,14 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           h_layer_vsCM[layer - 1].fill(commonMode, !badflag);
         }
         h_goodLayer.fill(layerWithSide, !badflag);
-
-        // efficiency with bad modules excluded
-        if (TKlayers) {
-          h_module.fill(iidd, !badflag);
-        }
       }
       // efficiency without bad modules excluded
       h_allLayer.fill(layerWithSide, !badflag);
+
+      // efficiency without bad modules excluded
+      if (TKlayers) {
+        h_module.fill(iidd, !badflag);
+      }
 
       /* Used in SiStripHitEffFromCalibTree:
        * run              -> "run"              -> run              // e.id().run()
@@ -971,11 +1018,6 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
                                          << ", layers=" << layers_;
 }
 
-void SiStripHitEfficiencyWorker::endJob() {
-  LogDebug("SiStripHitEfficiencyWorker") << " Events Analysed             " << events;
-  LogDebug("SiStripHitEfficiencyWorker") << " Number Of Tracked events    " << EventTrackCKF;
-}
-
 void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("dqmDir", "AlCaReco/SiStripHitEfficiency");
@@ -990,6 +1032,7 @@ void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("combinatorialTracks", edm::InputTag{"generalTracks"});
   desc.add<edm::InputTag>("commonMode", edm::InputTag{"siStripDigis", "CommonMode"});
   desc.add<edm::InputTag>("lumiScalers", edm::InputTag{"scalersRawToDigi"});
+  desc.add<edm::InputTag>("metadata", edm::InputTag{"onlineMetaDataDigis"});
   desc.add<edm::InputTag>("siStripClusters", edm::InputTag{"siStripClusters"});
   desc.add<edm::InputTag>("siStripDigis", edm::InputTag{"siStripDigis"});
   desc.add<edm::InputTag>("trackerEvent", edm::InputTag{"MeasurementTrackerEvent"});

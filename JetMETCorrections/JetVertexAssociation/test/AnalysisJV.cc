@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "JetMETCorrections/JetVertexAssociation/test/AnalysisJV.h"
@@ -72,6 +71,7 @@ void AnalysisJV::beginJob() {
 void AnalysisJV::endJob() {
   fOutputFile->Write();
   fOutputFile->Close();
+  delete fOutputFile;
 
   return;
 }

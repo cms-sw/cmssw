@@ -1,3 +1,8 @@
+<use name="clhep"/>
+<use name="roothistmatrix"/>
+<use name="tbb"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/RunInfo"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
@@ -7,10 +12,8 @@
 <use name="FWCore/Sources"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Version"/>
-<use name="clhep"/>
-<use name="roothistmatrix"/>
-<use name="CondFormats/RunInfo"/>
-<use name="CondFormats/DataRecord"/>
+<use name="IOMC/RandomEngine"/>
+<use name="SimDataFormats/RandomEngine"/>
 <export>
   <lib name="1"/>
 </export>

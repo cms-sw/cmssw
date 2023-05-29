@@ -1,9 +1,9 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
-        "CTPPPSTimingCalibration_SAMPIC_byPCL_v0_prompt": {}
+        "CTPPPSTimingCalibration_SAMPIC_byPCL_v1_prompt": {}
     }, 
-    "inputTag": "DiamondSampicCalibration", 
+    "inputTag": "PPSDiamondSampicCalibration_pcl", 
     "since": null, 
     "userText": "Tier0 PCL Upload for PPSDiamondTimingCalibration (Sampic)"
 }

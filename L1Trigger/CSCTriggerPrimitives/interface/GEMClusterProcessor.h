@@ -4,7 +4,7 @@
 /** \class GEMClusterProcessor
  *
  * \author Sven Dildick (Rice University)
- *
+ * \updates by Giovanni Mocellin (UC Davis)
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,26 +25,21 @@ public:
   void clear();
 
   /** Runs the CoPad processor code. */
-  void run(const GEMPadDigiClusterCollection*);
+  void run(const GEMPadDigiClusterCollection*,
+           const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+           const CSCL1TPLookupTableME21ILT* lookupTableME21ILT);
 
   /* Returns clusters around deltaBX for a given BX
     The parameter option determines which clusters should be returned
     1: single and coincidence, 2: only coincidence, 3: only single
   */
   enum ClusterTypes { AllClusters = 1, SingleClusters = 2, CoincidenceClusters = 3 };
-  std::vector<GEMInternalCluster> getClusters(int bx, int deltaBX = 0, ClusterTypes option = AllClusters) const;
-
-  /* Returns coincidence clusters for a given BX */
-  std::vector<GEMInternalCluster> getCoincidenceClusters(int bx) const;
+  std::vector<GEMInternalCluster> getClusters(int bx, ClusterTypes option = AllClusters) const;
 
   /** Returns vector of CoPads in the read-out time window, if any. */
   std::vector<GEMCoPadDigi> readoutCoPads() const;
 
   bool hasGE21Geometry16Partitions() const { return hasGE21Geometry16Partitions_; }
-
-  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
-
-  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
 
 private:
   // put coincidence clusters in GEMInternalCluster vector
@@ -57,14 +52,17 @@ private:
   // translate the cluster central pad numbers into 1/8-strip number,
   // and roll numbers into min and max wiregroup numbers
   // for matching with CSC trigger primitives
-  void doCoordinateConversion();
+  void doCoordinateConversion(const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                              const CSCL1TPLookupTableME21ILT* lookupTableME21ILT);
 
-  /** Chamber id (trigger-type labels). */
+  // Chamber id (trigger-type labels)
   const int region_;
   const int station_;
   const int chamber_;
   bool isEven_;
 
+  unsigned int tmbL1aWindowSize_;
+  unsigned int delayGEMinOTMB_;
   unsigned int maxDeltaPad_;
   unsigned int maxDeltaBX_;
   unsigned int maxDeltaRoll_;
@@ -73,9 +71,6 @@ private:
 
   // output collection
   std::vector<GEMInternalCluster> clusters_;
-
-  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
-  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
 };
 
 #endif

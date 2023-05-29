@@ -44,7 +44,6 @@ public:
                            float pitchx,
                            float pitchy,
                            bool upgradeGeometry,
-                           bool isBricked,
                            int ROWS_PER_ROC,       // Num of Rows per ROC
                            int COLS_PER_ROC,       // Num of Cols per ROC
                            int BIG_PIX_PER_ROC_X,  // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
@@ -59,8 +58,7 @@ public:
         m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
         m_ROCS_X(ROCS_X),              // 2 for SLHC
         m_ROCS_Y(ROCS_Y),              // 8 for SLHC
-        m_upgradeGeometry(upgradeGeometry),
-        m_isBricked(isBricked) {
+        m_upgradeGeometry(upgradeGeometry) {
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.
     // Take into account large pixels
@@ -73,7 +71,7 @@ public:
                                          << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", ROWS_PER_ROC "
                                          << ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X
                                          << ", ROCS_Y " << ROCS_Y << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X
-                                         << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y << ", isBricked " << m_isBricked;
+                                         << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y;
   }
 
   // Topology interface, go from Masurement to Local corrdinates
@@ -145,7 +143,7 @@ public:
   bool isItEdgePixelInX(int ixbin) const override { return ((ixbin == 0) | (ixbin == (m_nrows - 1))); }
   bool isItEdgePixelInY(int iybin) const override { return ((iybin == 0) | (iybin == (m_ncols - 1))); }
   bool isItEdgePixel(int ixbin, int iybin) const override {
-    return (isItEdgePixelInX(ixbin) | isItEdgePixelInY(iybin));
+    return (isItEdgePixelInX(ixbin) || isItEdgePixelInY(iybin));
   }
 
   //------------------------------------------------------------------
@@ -165,7 +163,6 @@ public:
   int colsperroc() const override { return m_COLS_PER_ROC; }
   float xoffset() const { return m_xoffset; }
   float yoffset() const { return m_yoffset; }
-  bool isBricked() const override { return m_isBricked; }
 
 private:
   float m_pitchx;
@@ -179,7 +176,6 @@ private:
   int m_ROCS_X;
   int m_ROCS_Y;
   bool m_upgradeGeometry;
-  bool m_isBricked;
 };
 
 #endif

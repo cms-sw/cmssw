@@ -8,6 +8,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -31,6 +32,7 @@ class testmakeprocess : public CppUnit::TestFixture {
   CPPUNIT_TEST(taskTest);
   CPPUNIT_TEST(taskTestWithEmptySchedule);
   CPPUNIT_TEST(taskTestWithSchedule);
+  CPPUNIT_TEST(edmException);
   //CPPUNIT_TEST(windowsLineEndingTest);
   //CPPUNIT_TEST_EXCEPTION(emptyPsetTest,edm::Exception);
   CPPUNIT_TEST_SUITE_END();
@@ -46,6 +48,7 @@ public:
   void taskTest();
   void taskTestWithEmptySchedule();
   void taskTestWithSchedule();
+  void edmException();
   //void windowsLineEndingTest();
 private:
   typedef std::shared_ptr<edm::ParameterSet> ParameterSetPtr;
@@ -509,6 +512,46 @@ void testmakeprocess::taskTestWithSchedule() {
     result = false;
   }
   CPPUNIT_ASSERT(result);
+}
+
+void testmakeprocess::edmException() {
+  {
+    char const* const kTest =
+        "import FWCore.ParameterSet.Config as cms\n"
+        "raise cms.EDMException(cms.edm.errors.Configuration,'test message')\n";
+
+    bool exceptionHappened = false;
+    try {
+      (void)pSet(kTest);
+    } catch (edm::Exception const& e) {
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(e.categoryCode() == edm::errors::Configuration);
+    } catch (std::exception const& e) {
+      std::cout << "wrong error " << e.what() << std::endl;
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(false);
+    }
+    CPPUNIT_ASSERT(exceptionHappened);
+  }
+
+  {
+    char const* const kTest =
+        "import FWCore.ParameterSet.Config as cms\n"
+        "raise cms.EDMException(cms.edm.errors.UnavailableAccelerator,'test message')\n";
+
+    bool exceptionHappened = false;
+    try {
+      (void)pSet(kTest);
+    } catch (edm::Exception const& e) {
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(e.categoryCode() == edm::errors::UnavailableAccelerator);
+    } catch (std::exception const& e) {
+      std::cout << "wrong error " << e.what() << std::endl;
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(false);
+    }
+    CPPUNIT_ASSERT(exceptionHappened);
+  }
 }
 
 /*

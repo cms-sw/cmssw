@@ -1,7 +1,7 @@
 #ifndef L2TauPixelTrackMatch_h
 #define L2TauPixelTrackMatch_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,11 +18,11 @@
  * from vertex z (relative to beamspot) of dr-matched pixel tracks 
  * that are above some pt threshold and beamline x & y.
  */
-class L2TauPixelTrackMatch : public edm::EDProducer {
+class L2TauPixelTrackMatch : public edm::global::EDProducer<> {
 public:
   explicit L2TauPixelTrackMatch(const edm::ParameterSet&);
   ~L2TauPixelTrackMatch() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   struct TinyTrack {

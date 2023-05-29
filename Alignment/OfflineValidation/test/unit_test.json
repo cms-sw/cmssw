@@ -1,0 +1,250 @@
+{    
+    "LFS": "$CMSSW_BASE/tmp/UnitTest",
+    "name": "test_json",
+
+    "alignments": {
+        "unitTest": {
+           "color": "1",
+           "globaltag": "auto:phase1_2018_realistic",
+           "style": "2101",
+           "title": "unit test"
+        },
+        "unitTestPV": {
+           "color": "1",
+           "globaltag": "110X_dataRun2_v10",
+           "style": "2001",
+           "title": "unit test"
+        },
+        "ideal": {
+           "color": "1",
+           "globaltag": "auto:phase1_2017_design",
+           "style": "2101",
+           "title": "ideal",
+           "conditions": {
+              "TrackerAlignmentRcd": {
+                 "connect": "frontier://FrontierProd/CMS_CONDITIONS",
+                 "tag": "TrackerAlignment_Upgrade2017_design_v4"
+              } 
+           }
+        },
+        "SURun3": {
+           "color": "632",
+           "globaltag": "auto:phase1_2017_design",
+           "style": "2101",
+           "title": "startup run3",
+           "conditions": {
+              "TrackerAlignmentRcd": { 
+                 "connect": "frontier://FrontierProd/CMS_CONDITIONS",
+                 "tag": "TrackerAlignment_Run3Startup_v0_mc"
+              } 
+           }
+        },
+        "unitTestJetHT": {
+           "color": "1",
+           "globaltag": "auto:run2_data",
+           "style": "2101",
+           "title": "unit test"
+        },
+        "unitTestJetHTMC": {
+           "color": "1",
+           "globaltag": "auto:phase1_2018_realistic",
+           "style": "2101",
+           "title": "unit test"
+        }
+    },
+    "validations": {
+        "DMR": {
+             "single": {
+                 "TestSingleMC": {
+                      "IOV": ["1"],
+                      "alignments": ["unitTest"],
+                      "trackcollection": "generalTracks",
+                      "vertexcollection": "offlinePrimaryVertices",
+                      "magneticfield": "true",
+                      "maxevents": "1",
+                      "maxtracks": "1"
+                 }
+             },
+             "merge": {
+                 "TestMergeMC": {
+                      "methods": ["median", "rmsNorm"],
+                      "curves": ["plain","split"],
+                      "legendoptions": ["mean", "rms"],
+                      "singles": ["TestSingleMC"],
+                      "usefit": "true",
+                      "minimum": "15",
+                      "customrighttitle": "IOV"
+                 }
+             },
+             "trends": {
+                 "TestTrendMC": {
+                      "merges": ["TestMergeMC"],
+                      "Variables": ["median"],
+                      "doUnitTest": "true" 
+                 }
+             },
+             "averaged": {
+                 "TestAveragedMC": {
+                     "merges": ["TestMergeMC"],
+                     "maxfiles": "700",
+                     "lumiPerRun": ["Alignment/OfflineValidation/data/lumiperRun2018_delivered.csv"],
+                     "lumiMC": ["1::TestMergeMC::64482.432"]
+                 }
+             }
+        },
+        "PV": {
+             "single": {
+                 "TestDATA": {
+                      "IOV": ["317087"],
+                      "alignments": ["unitTestPV"],
+                      "trackcollection": "ALCARECOTkAlMinBias",
+                      "vertexcollection": "offlinePrimaryVertices",
+                      "maxevents": "10",
+                      "isda": "true",
+                      "ismc": "false"
+                 }
+             },
+             "merge": {
+                 "TestDATA": {
+                      "singles": ["TestDATA"],
+                      "doMaps": "true",
+                      "stdResiduals": "true",
+                      "autoLimits": "false",
+                      "m_dxyPhiMax": "20",
+                      "m_dzPhiMax": "50",
+                      "m_dxyEtaMax": "20",
+                      "m_dzEtaMax": "50"
+                 }
+             },  
+	     "trends": {
+                 "TestDATA": {
+                      "singles": ["TestDATA"],
+                      "doUnitTest": "true"
+                 }
+             }
+        },
+	"SplitV": {
+	     "merge": {
+                 "testUnits": {
+                      "singles": ["testUnits"]
+                 }
+             },
+             "single": {
+                 "testUnits": {
+                      "IOV": ["1"],
+                      "alignments": ["unitTest"],
+                      "trackcollection": "generalTracks",
+		      "HLTSelection": "False",
+                      "triggerBits" : "HLT_*",
+                      "maxevents": "10"
+                 }
+             }
+        },
+        "GCP": {
+             "GCPdetUnits": {
+                 "levels": "DetUnit",
+                 "plotPng": "true"
+             },
+             "compare": {
+                 "GCPdetUnits": {
+                      "SURun3vsIdeal": {
+                      "reference": "ideal",
+                      "compared": "SURun3",
+                      "IOVpairs": [["1", "1"]]
+                    }
+                 }
+             },
+             "doUnitTest": "true"
+        },
+        "JetHT": {
+            "single": {
+                "testJob": {
+                    "alignments": ["unitTestJetHT"],
+                    "trackCollection": "ALCARECOTkAlMinBias",
+                    "maxevents": 100,
+                    "iovListFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt"
+                },
+                "testMC": {
+                    "alignments": ["unitTestJetHTMC"],
+                    "trackCollection": "ALCARECOTkAlMinBias",
+                    "mc": "True",
+                    "maxevents": 100
+                }
+            },
+            "merge": {
+                "testJob": {
+                    "singles": ["testJob"],
+                    "alignments": ["unitTestJetHT"]
+                },
+                "testMC": {
+                    "singles": ["testMC"],
+                    "alignments": ["unitTestJetHTMC"]
+                }
+            },
+            "plot": {
+                "testJob": {
+                    "merges": ["testJob"],
+                    "alignments": ["unitTestJetHT"],
+                    "jethtplot":{
+                        "drawProfiles": {
+                            "drawDzErrorVsPt": true,
+                            "drawDxyErrorVsPt": true
+                        },
+                        "drawHistograms": {
+                            "drawDz": true,
+                            "drawDxy": true
+                        }
+                    }
+                },
+                "testMC": {
+                    "merges": ["testMC"],
+                    "alignments": ["unitTestJetHTMC"],
+                    "jethtplot":{
+                        "drawProfiles": {
+                            "drawDzErrorVsPt": true,
+                            "drawDxyErrorVsPt": true
+                        },
+                        "drawHistograms": {
+                            "drawDz": true,
+                            "drawDxy": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "style":{
+        "trends":{
+             "CMSlabel": "Internal",
+             "earlyStops": ["unitTest"],
+             "lines": {
+                 "pixel": {
+                      "line": {
+                          "title": "Pixel calibration update",
+                          "style": "kDotted",
+                          "color": "kGray"
+                      },
+                      "runs": ["186500", "195360", "197749", "200961", "203368", "204601", "206446", "238341", "246866", "253914", "255655", "271866", "276315", "278271", "280928", "290543", "297281", "298653", "299443", "300389", "301046", "302131", "303790", "303998", "304911", "313041", "314881", "316758", "317475", "317485", "317527", "317661", "317664", "318227", "320377", "321831", "322510", "322603", "323232", "324245"]
+                 },
+                 "years": {
+                      "line": {
+                          "style": "kSolid",
+                          "color": "kBlack",
+                          "width": "1"
+                      },
+                      "runs": ["272008", "290543", "313041"],
+                      "labels": ["2016", "2017", "2018"]
+                 },
+                 "phases": {
+                      "line": {
+                          "style": "kSolid",
+                          "color": "kBlack",
+                          "width": "2"
+                      },
+                      "runs": ["272008", "290543"],
+                      "labels": ["Phase-0", "Phase-1"]
+                 }
+             }
+        }
+    }
+}

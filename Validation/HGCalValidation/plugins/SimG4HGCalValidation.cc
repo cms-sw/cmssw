@@ -3,20 +3,14 @@
 // Description: Main analysis class for HGCal Validation of G4 Hits
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
-#include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 
 // to retreive hits
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -26,7 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
@@ -51,7 +44,7 @@
 class SimG4HGCalValidation : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const G4Step*> {
 public:
   SimG4HGCalValidation(const edm::ParameterSet& p);
-  ~SimG4HGCalValidation() override;
+  ~SimG4HGCalValidation() override = default;
 
   void registerConsumes(edm::ConsumesCollector) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -73,14 +66,16 @@ private:
 
 private:
   //HGCal numbering scheme
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > ddconsToken_;
-  std::vector<HGCNumberingScheme*> hgcNumbering_;
-  std::vector<HGCalNumberingScheme*> hgcalNumbering_;
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> ddconsToken_;
+  std::vector<std::unique_ptr<HGCalNumberingScheme>> hgcalNumbering_;
 
   // to read from parameter set
-  std::vector<std::string> names_;
-  std::vector<int> types_, detTypes_, subdet_;
-  std::string labelLayer_;
+  const edm::ParameterSet m_Anal;
+  const std::vector<std::string> names_;
+  const std::vector<int> types_, detTypes_;
+  const std::string labelLayer_;
+  const int verbosity_;
+  std::vector<int> subdet_;
   std::vector<std::string> nameXs_;
 
   // parameters from geometry
@@ -88,21 +83,22 @@ private:
 
   // some private members for ananlysis
   unsigned int count_;
-  int verbosity_;
   double edepEE_, edepHEF_, edepHEB_;
   std::vector<double> hgcEEedep_, hgcHEFedep_, hgcHEBedep_;
   std::vector<unsigned int> dets_, hgchitDets_, hgchitIndex_;
   std::vector<double> hgchitX_, hgchitY_, hgchitZ_;
 };
 
-SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p) : levelT1_(999), levelT2_(999), count_(0) {
-  edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HGCalValidation");
-  names_ = m_Anal.getParameter<std::vector<std::string> >("Names");
-  types_ = m_Anal.getParameter<std::vector<int> >("Types");
-  detTypes_ = m_Anal.getParameter<std::vector<int> >("DetTypes");
-  labelLayer_ = m_Anal.getParameter<std::string>("LabelLayerInfo");
-  verbosity_ = m_Anal.getUntrackedParameter<int>("Verbosity", 0);
-
+SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p)
+    : m_Anal(p.getParameter<edm::ParameterSet>("SimG4HGCalValidation")),
+      names_(m_Anal.getParameter<std::vector<std::string>>("Names")),
+      types_(m_Anal.getParameter<std::vector<int>>("Types")),
+      detTypes_(m_Anal.getParameter<std::vector<int>>("DetTypes")),
+      labelLayer_(m_Anal.getParameter<std::string>("LabelLayerInfo")),
+      verbosity_(m_Anal.getUntrackedParameter<int>("Verbosity", 0)),
+      levelT1_(999),
+      levelT2_(999),
+      count_(0) {
   produces<PHGCalValidInfo>(labelLayer_);
 
   if (verbosity_ > 0) {
@@ -116,35 +112,18 @@ SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p) : levelT1
   }
 }
 
-SimG4HGCalValidation::~SimG4HGCalValidation() {
-  for (auto number : hgcNumbering_)
-    delete number;
-  for (auto number : hgcalNumbering_)
-    delete number;
-}
-
 void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
   for (unsigned int type = 0; type < types_.size(); ++type) {
     int detType = detTypes_[type];
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
-      if (types_[type] == 0) {
-        subdet_.emplace_back(ForwardSubdetector::ForwardEmpty);
-        if (detType == 0)
-          dets_.emplace_back((int)(DetId::HGCalEE));
-        else if (detType == 1)
-          dets_.emplace_back((int)(DetId::HGCalHSi));
-        else
-          dets_.emplace_back((int)(DetId::HGCalHSc));
-      } else {
-        dets_.emplace_back((unsigned int)(DetId::Forward));
-        if (detType == 0)
-          subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
-        else if (detType == 1)
-          subdet_.emplace_back((int)(ForwardSubdetector::HGCHEF));
-        else
-          subdet_.emplace_back((int)(ForwardSubdetector::HGCHEB));
-      }
+      dets_.emplace_back(static_cast<unsigned int>(DetId::Forward));
+      if (detType == 0)
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCEE));
+      else if (detType == 1)
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCHEF));
+      else
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCHEB));
       if (detType == 0)
         nameX = "HGCalEESensitive";
       else if (detType == 1)
@@ -173,20 +152,12 @@ void SimG4HGCalValidation::beginRun(edm::EventSetup const& es) {
   for (unsigned int type = 0; type < types_.size(); ++type) {
     int layers(0);
     int detType = detTypes_[type];
-    edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(ddconsToken_[type]);
+    const edm::ESHandle<HGCalDDDConstants>& hdc = es.getHandle(ddconsToken_[type]);
     if (hdc.isValid()) {
       levelT1_ = hdc->levelTop(0);
       levelT2_ = hdc->levelTop(1);
-      if (hdc->tileTrapezoid()) {
-        types_[type] = -1;
-        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
-      } else if (hdc->waferHexagon6()) {
-        types_[type] = 1;
-        hgcNumbering_.emplace_back(new HGCNumberingScheme(*hdc, nameXs_[type]));
-      } else {
-        types_[type] = 0;
-        hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc, (DetId::Detector)(dets_[type]), nameXs_[type]));
-      }
+      hgcalNumbering_.emplace_back(
+          std::make_unique<HGCalNumberingScheme>(*hdc, static_cast<DetId::Detector>(dets_[type]), nameXs_[type], ""));
       layers = hdc->layers(false);
     } else {
       edm::LogError("ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameXs_[type];
@@ -266,27 +237,15 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
         float globalZ = touchable->GetTranslation(0).z();
         int iz(globalZ > 0 ? 1 : -1);
         int module(-1), cell(-1);
-        if (types_[type] == 1) {
-          if (touchable->GetHistoryDepth() == levelT1_) {
-            layer = touchable->GetReplicaNumber(0);
-          } else {
-            layer = touchable->GetReplicaNumber(2);
-            module = touchable->GetReplicaNumber(1);
-            cell = touchable->GetReplicaNumber(0);
-          }
-          index =
-              hgcNumbering_[type]->getUnitID((ForwardSubdetector)(subdet_[type]), layer, module, cell, iz, localpos);
+        if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
+          layer = touchable->GetReplicaNumber(0);
         } else {
-          if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
-            layer = touchable->GetReplicaNumber(0);
-          } else {
-            layer = touchable->GetReplicaNumber(3);
-            module = touchable->GetReplicaNumber(2);
-            cell = touchable->GetReplicaNumber(1);
-          }
-          double weight(0);
-          index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
+          layer = touchable->GetReplicaNumber(3);
+          module = touchable->GetReplicaNumber(2);
+          cell = touchable->GetReplicaNumber(1);
         }
+        double weight(0);
+        index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
         if (verbosity_ > 1)
           edm::LogVerbatim("ValidHGCal") << "HGCal: " << name << " Layer " << layer << " Module " << module << " Cell "
                                          << cell;
@@ -297,15 +256,15 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
                                          << edeposit << " hit at " << hitPoint;
         if (detType == 0) {
           edepEE_ += edeposit;
-          if (layer < (int)(hgcEEedep_.size()))
+          if (layer < static_cast<int>(hgcEEedep_.size()))
             hgcEEedep_[layer] += edeposit;
         } else if (detType == 1) {
           edepHEF_ += edeposit;
-          if (layer < (int)(hgcHEFedep_.size()))
+          if (layer < static_cast<int>(hgcHEFedep_.size()))
             hgcHEFedep_[layer] += edeposit;
         } else {
           edepHEB_ += edeposit;
-          if (layer < (int)(hgcHEBedep_.size()))
+          if (layer < static_cast<int>(hgcHEBedep_.size()))
             hgcHEBedep_[layer] += edeposit;
         }
         G4String nextVolume("XXX");

@@ -35,10 +35,8 @@ DiJetVarProducer::DiJetVarProducer(const edm::ParameterSet &iConfig)
   LogDebug("") << "Radius Parameter Wide Jet: " << wideJetDeltaR_ << ".";
 }
 
-DiJetVarProducer::~DiJetVarProducer() {}
-
 // ------------ method called to produce the data  ------------
-void DiJetVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void DiJetVarProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace std;
   using namespace edm;
   using namespace reco;

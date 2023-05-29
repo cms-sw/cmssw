@@ -111,10 +111,13 @@ L2MuonProducer::L2MuonProducer(const edm::ParameterSet& parameterSet) {
                                         std::make_unique<MuonTrajectoryCleaner>(true),
                                         iC);
 
-  produces<reco::TrackCollection>();
-  produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  // TrackCollection refers to TrackingRechit and TrackExtra
+  // collections, need to declare its production after them to work
+  // around a rare race condition in framework scheduling
+  produces<reco::TrackCollection>();
+  produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<reco::TrackToTrackMap>();
 
   produces<std::vector<Trajectory>>();

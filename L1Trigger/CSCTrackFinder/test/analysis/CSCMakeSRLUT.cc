@@ -7,7 +7,6 @@
  */
 
 #include <fstream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,6 +33,7 @@ CSCMakeSRLUT::CSCMakeSRLUT(edm::ParameterSet const& conf) {
   writeGlobalEta = conf.getUntrackedParameter<bool>("WriteGlobalEta", true);
   binary = conf.getUntrackedParameter<bool>("BinaryOutput", true);
   LUTparam = conf.getParameter<edm::ParameterSet>("lutParam");
+  geomToken_ = esConsumes();
 
   //init Sector Receiver LUTs
   for (int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
@@ -66,8 +66,7 @@ CSCMakeSRLUT::~CSCMakeSRLUT() {
 }
 
 void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
-  edm::ESHandle<CSCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  edm::ESHandle<CSCGeometry> pDD = iSetup.getHandle(geomToken_);
 
   if (writeLocalPhi) {
     std::string filename = std::string("LocalPhiLUT") + ((binary) ? std::string(".bin") : std::string(".dat"));

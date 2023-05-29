@@ -6,7 +6,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
@@ -20,19 +20,19 @@ class TFile;
 class TH1F;
 class TH2F;
 
-class L3MuonIsolationAnalyzer : public edm::EDAnalyzer {
+class L3MuonIsolationAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   L3MuonIsolationAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~L3MuonIsolationAnalyzer();
+  ~L3MuonIsolationAnalyzer() override;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   void Puts(const char* fmt, ...);

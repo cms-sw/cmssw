@@ -1,0 +1,481 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalBeam.xml" eval="true">
+  <Constant name="dzCerenkov"  value="15600.0*mm"/>
+  <Constant name="dzMT6SC1"    value="6.25*mm"/>
+  <Constant name="dzAirSC1Tel" value="2996.75*mm"/>
+  <Constant name="dzTelescope" value="1020.0*mm"/>
+  <Constant name="dzAirSC2Tel" value="6450.0*mm"/>
+  <Constant name="dzMT6SC2"    value="3.2*mm"/>
+  <Constant name="dzAirSC23"   value="4626.8*mm"/>
+  <Constant name="dzMT6SC3"    value="3.2*mm"/>
+  <Constant name="dzAirGap1"   value="37.5*mm"/>
+  <Constant name="dzHeTube"    value="1550.0*mm"/>
+  <Constant name="dzAirGap2"   value="100.0*mm"/>
+  <Constant name="dzFeChamber" value="100.0*mm"/>
+  <Constant name="dzAirGap3"   value="1500.0*mm"/>
+  <Constant name="dzScint1"    value="5.0*mm"/>
+  <Constant name="dzAirGap4"   value="775.0*mm"/>
+  <Constant name="dzAirGap5"   value="50.0*mm"/>
+  <Constant name="dzScint2"    value="6.25*mm"/>
+  <Constant name="dzAirGap6"   value="25.0*mm"/>
+  <Constant name="dzAirGap7"   value="200.0*mm"/>
+  <Constant name="dzCFSiTrack" value="25.0*mm"/>
+  <Constant name="dzAirGap8"   value="437.5*mm"/>
+  <Constant name="dzAlPlate"   value="1.56*mm"/>
+  <Constant name="dzBox1"      value="([dzCerenkov]+[dzMT6SC1]+[dzAirSC1Tel]+
+				      [dzTelescope]+[dzAirSC2Tel]+
+				      [dzMT6SC2]+[dzAirSC23])"/>
+  <Constant name="dzBox"       value="([dzBox1]+
+				      [dzMT6SC3]+[dzAirGap1]+[dzHeTube]+
+				      [dzAirGap2]+[dzFeChamber]+[dzAirGap3]+
+				      [dzScint1]+[dzAirGap4]+[dzFeChamber]+
+				      [dzAirGap5]+[dzScint2]+[dzAirGap6]+
+				      [dzScint2]+[dzAirGap7]+[dzCFSiTrack]+
+				      [dzAirGap8]+[dzAlPlate])"/>
+  <Constant name="zCerenkov"   value="0.5*([dzCerenkov]-[dzBox])"/>
+  <Constant name="zMT6SC1"     value="-2209.505*mm"/>
+<!--
+  <Constant name="zMT6SC1"     value="([dzCerenkov]+0.5*([dzMT6SC1]-[dzBox])"/>
+  <Constant name="zTelescope"  value="([zMT6SC1]+[dzAirSC1Tel]+
+				      0.5*([dzTelescope]+[dzMT6SC1])"/>
+  <Constant name="zMT6SC2"     value="([zTelescope]+[dzAirSC2Tel]+
+				      0.5*([dzTelescope]+[dzMT6SC2])"/>
+-->
+  <Constant name="zTelescope"  value="1300.37*mm"/>
+  <Constant name="zMT6SC2"     value="8261.97*mm"/>
+  <Constant name="zMT6SC3"     value="([dzBox1]+0.5*([dzMT6SC3]-[dzBox]))"/>
+  <Constant name="zHeTube"     value="([zMT6SC3]+[dzAirGap1]+
+				      0.5*([dzMT6SC3]+[dzHeTube]))"/>
+  <Constant name="zFeChamber1" value="([zHeTube]+[dzAirGap2]+
+				      0.5*([dzHeTube]+[dzFeChamber]))"/>
+  <Constant name="zScint1"     value="([zFeChamber1]+[dzAirGap3]+
+				      0.5*([dzScint1]+[dzFeChamber]))"/>
+  <Constant name="zFeChamber2" value="([zScint1]+[dzAirGap4]+
+				      0.5*([dzScint1]+[dzFeChamber]))"/>
+  <Constant name="zScint2"     value="([zFeChamber2]+[dzAirGap5]+
+                                      0.5*([dzScint2]+[dzFeChamber]))"/>
+  <Constant name="zScint3"     value="([zScint2]+[dzAirGap6]+[dzScint2])"/>
+  <Constant name="zCFSiTrack"  value="([zScint3]+[dzAirGap7]+
+				      0.5*([dzScint2]+[dzCFSiTrack]))"/>
+  <Constant name="zAlPlate"    value="([zCFSiTrack]+[dzAirGap8]+
+				      0.5*([dzAlPlate]+[dzCFSiTrack]))"/>
+  <Constant name="dzAlChamb"   value="0.625*mm"/>
+  <Constant name="dzGasChamb"  value="18.75*mm"/>
+  <Constant name="zAlChamb"    value="-0.5*[dzAlChamb]"/>
+  <Constant name="zGasChamb"   value="0.5*[dzGasChamb]"/>
+  <Constant name="dzCFTrack"   value="0.70*mm"/>
+  <Constant name="dzSiTrack"   value="0.30*mm"/>
+  <Constant name="zSiTrack1"   value="0.5*([dzSiTrack]-[dzCFSiTrack])"/>
+  <Constant name="zCFTrack1"   value="([zSiTrack1]+0.5*([dzSiTrack]+[dzCFTrack]))"/>
+  <Constant name="zCFTrack2"   value="0.5*([dzCFSiTrack]-[dzCFTrack])"/>
+  <Constant name="zSiTrack2"   value="([zCFTrack2]-0.5*([dzSiTrack]+[dzCFTrack]))"/>
+  <Constant name="dzGlass"     value="2.5*mm"/>
+  <Constant name="zGlass1"     value="0.5*([dzGlass]-[dzCerenkov])"/>
+  <Constant name="zGlass2"     value="([zGlass1]+2920.0*mm)"/>
+  <Constant name="zGlass4"     value="0.5*([dzCerenkov]-[dzGlass])"/>
+  <Constant name="zGlass3"     value="([zGlass4]-2920.0*mm)"/>
+  <Constant name="dzSilicon1"  value="0.6*mm"/>
+  <Constant name="dzCFiber1"   value="1.0*mm"/>
+  <Constant name="dzFR4"       value="1.0*mm"/>
+  <Constant name="dzSilicon2"  value="0.3*mm"/>
+  <Constant name="dzCFiber2"   value="0.5*mm"/>
+  <Constant name="dzChamber1"  value="2.0*([dzSilicon1]+[dzFR4]+[dzCFiber1]+
+				      [dzSilicon2]+[dzCFiber2])"/>
+  <Constant name="dzChamber2"  value="6.0*([dzSilicon2]+[dzCFiber2])"/>
+  <Constant name="zposTB"      value="-0.5*[dzBox]"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalBeam.xml">
+  <Box  name="HGCalTB"      dx="10.0*cm" dy="10.0*cm" dz="[dzBox]/2"/>
+  <Box  name="HGCCerenkov"  dx="5.0*cm"  dy="5.0*cm"  dz="[dzCerenkov]/2"/>
+  <Box  name="HGCTelescope" dx="8.5*cm"  dy="8.5*cm"  dz="[dzTelescope]/2"/>
+  <Box  name="HGCMT6SC1"    dx="5.0*cm"  dy="5.0*cm"  dz="[dzMT6SC1]/2"/>
+  <Box  name="HGCMT6SC2"    dx="5.0*cm"  dy="5.0*cm"  dz="[dzMT6SC2]/2"/>
+  <Box  name="HGCMT6SC3"    dx="5.0*cm"  dy="5.0*cm"  dz="[dzMT6SC3]/2"/>
+  <Tubs name="HGCHeTube" rMin="0.0*fm" rMax="5.0*cm" dz="[dzHeTube]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Box  name="HGCFeChamber" dx="5.0*cm"  dy="5.0*cm"  dz="[dzFeChamber]/2"/>
+  <Box  name="HGCScint1"    dx="4.0*cm"  dy="4.75*cm" dz="[dzScint1]/2"/>
+  <Box  name="HGCScint2"    dx="3.5*cm"  dy="3.5*cm"  dz="[dzScint2]/2"/>
+  <Box  name="HGCFSiTrack"  dx="1.62*cm" dy="0.81*cm" dz="[dzCFSiTrack]/2"/>
+  <Box  name="HGCFTrack"    dx="1.62*cm" dy="0.81*cm" dz="[dzCFTrack]/2"/>
+  <Box  name="HGCAlPlate"   dx="5.0*cm"  dy="5.0*cm"  dz="[dzAlPlate]/2"/>
+  <Box  name="HGCCerWindw"  dx="5.0*cm"  dy="5.0*cm"  dz="[dzGlass]/2"/>
+  <Box  name="HGCAlChamb"   dx="5.0*cm"  dy="5.0*cm"  dz="[dzAlChamb]/2"/>
+  <Box  name="HGCGasChamb"  dx="5.0*cm"  dy="5.0*cm"  dz="[dzGasChamb]/2"/>
+  <Box  name="HGCChamber1"  dx="8.5*cm"  dy="8.5*cm"  dz="[dzChamber1]/2"/>
+  <Box  name="HGCChamber2"  dx="8.5*cm"  dy="8.5*cm"  dz="[dzChamber2]/2"/>
+  <Box  name="HGCSilicon1"  dx="8.5*cm"  dy="8.5*cm"  dz="[dzSilicon1]/2"/>
+  <Box  name="HGCFR4"       dx="8.5*cm"  dy="8.5*cm"  dz="[dzFR4]/2"/>
+  <Box  name="HGCCFiber1"   dx="8.5*cm"  dy="8.5*cm"  dz="[dzCFiber1]/2"/>
+  <Box  name="HGCSilicon2"  dx="8.5*cm"  dy="8.5*cm"  dz="[dzSilicon2]/2"/>
+  <Box  name="HGCCFiber2"   dx="8.5*cm"  dy="8.5*cm"  dz="[dzCFiber2]/2"/>
+  <Box  name="HGCSiTrack"   dx="1.62*cm" dy="0.81*cm" dz="[dzSiTrack]/2"/>
+ </SolidSection>
+
+<LogicalPartSection label="hgcalBeam.xml">
+  <LogicalPart name="HGCalTB" category="unspecified">
+    <rSolid name="HGCalTB"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCCerenkov" category="unspecified">
+    <rSolid name="HGCCerenkov"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCCerWindw" category="unspecified">
+    <rSolid name="HGCCerWindw"/>
+    <rMaterial name="materials:Glass"/>
+  </LogicalPart>
+  <LogicalPart name="HGCMT6SC1" category="unspecified">
+    <rSolid name="HGCMT6SC1"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCTelescope" category="unspecified">
+    <rSolid name="HGCTelescope"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCMT6SC2" category="unspecified">
+    <rSolid name="HGCMT6SC2"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCMT6SC3" category="unspecified">
+    <rSolid name="HGCMT6SC3"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCHeTube" category="unspecified">
+    <rSolid name="HGCHeTube"/>
+    <rMaterial name="materials:Helium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCFeChamber" category="unspecified">
+    <rSolid name="HGCFeChamber"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCAlChamb" category="unspecified">
+    <rSolid name="HGCAlChamb"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCGasChamb" category="unspecified">
+    <rSolid name="HGCGasChamb"/>
+    <rMaterial name="materials:80pct Argon plus 20pct CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="HGCScint1" category="unspecified">
+    <rSolid name="HGCScint1"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCScint2" category="unspecified">
+    <rSolid name="HGCScint2"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCFSiTrack" category="unspecified">
+    <rSolid name="HGCFSiTrack"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCFTrack" category="unspecified">
+    <rSolid name="HGCFTrack"/>
+    <rMaterial name="materials:Carbon fib.str."/>
+  </LogicalPart>
+  <LogicalPart name="HGCSiTrack" category="unspecified">
+    <rSolid name="HGCSiTrack"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCAlPlate" category="unspecified">
+    <rSolid name="HGCAlPlate"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCChamber1" category="unspecified">
+    <rSolid name="HGCChamber1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCChamber2" category="unspecified">
+    <rSolid name="HGCChamber2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCSilicon1" category="unspecified">
+    <rSolid name="HGCSilicon1"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCFR4" category="unspecified">
+    <rSolid name="HGCFR4"/>
+    <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="HGCCFiber1" category="unspecified">
+    <rSolid name="HGCCFiber1"/>
+    <rMaterial name="materials:Carbon fib.str."/>
+  </LogicalPart>
+  <LogicalPart name="HGCSilicon2" category="unspecified">
+    <rSolid name="HGCSilicon2"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCCFiber2" category="unspecified">
+    <rSolid name="HGCCFiber2"/>
+    <rMaterial name="materials:Carbon fib.str."/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalBeam.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalBeam:HGCalTB"/>
+    <Translation x="0*fm" y="0*fm" z="[zposTB]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCCerenkov"/>
+    <Translation x="0*fm" y="0*fm" z="[zCerenkov]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCMT6SC1"/>
+    <Translation x="0*fm" y="0*fm" z="[zMT6SC1]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCTelescope"/>
+    <Translation x="0*fm" y="0*fm" z="[zTelescope]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCMT6SC2"/>
+    <Translation x="0*fm" y="0*fm" z="[zMT6SC2]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCMT6SC3"/>
+    <Translation x="0*fm" y="0*fm" z="[zMT6SC3]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCHeTube"/>
+    <Translation x="0*fm" y="0*fm" z="[zHeTube]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCFeChamber"/>
+    <Translation x="0*fm" y="0*fm" z="[zFeChamber1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCFeChamber"/>
+    <Translation x="0*fm" y="0*fm" z="[zFeChamber2]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCScint1"/>
+    <Translation x="0*fm" y="0*fm" z="[zScint1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCScint2"/>
+    <Translation x="0*fm" y="0*fm" z="[zScint2]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCScint2"/>
+    <Translation x="0*fm" y="0*fm" z="[zScint3]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCFSiTrack"/>
+    <Translation x="0*fm" y="0*fm" z="[zCFSiTrack]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalTB"/>
+    <rChild name="hgcalBeam:HGCAlPlate"/>
+    <Translation x="0*fm" y="0*fm" z="[zAlPlate]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCCerenkov"/>
+    <rChild name="hgcalBeam:HGCCerWindw"/>
+    <Translation x="0*fm" y="0*fm" z="[zGlass1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCCerenkov"/>
+    <rChild name="hgcalBeam:HGCCerWindw"/>
+    <Translation x="0*fm" y="0*fm" z="[zGlass2]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCCerenkov"/>
+    <rChild name="hgcalBeam:HGCCerWindw"/>
+    <Translation x="0*fm" y="0*fm" z="[zGlass3]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcalBeam:HGCCerenkov"/>
+    <rChild name="hgcalBeam:HGCCerWindw"/>
+    <Translation x="0*fm" y="0*fm" z="[zGlass4]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCTelescope"/>
+    <rChild name="hgcalBeam:HGCChamber1"/>
+    <Translation x="0*fm" y="0*fm" z="-360.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCTelescope"/>
+    <rChild name="hgcalBeam:HGCChamber1"/>
+    <Translation x="0*fm" y="0*fm" z="-320.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCTelescope"/>
+    <rChild name="hgcalBeam:HGCChamber1"/>
+    <Translation x="0*fm" y="0*fm" z="320.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcalBeam:HGCTelescope"/>
+    <rChild name="hgcalBeam:HGCChamber1"/>
+    <Translation x="0*fm" y="0*fm" z="360.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCTelescope"/>
+    <rChild name="hgcalBeam:HGCChamber2"/>
+    <Translation x="0*fm" y="0*fm" z="0.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCSilicon1"/>
+    <Translation x="0*fm" y="0*fm" z="-3.1*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCFR4"/>
+    <Translation x="0*fm" y="0*fm" z="-2.3*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCCFiber1"/>
+    <Translation x="0*fm" y="0*fm" z="-1.3*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="-0.65*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="-0.25*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCSilicon1"/>
+    <Translation x="0*fm" y="0*fm" z="0.30*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCFR4"/>
+    <Translation x="0*fm" y="0*fm" z="1.10*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCCFiber1"/>
+    <Translation x="0*fm" y="0*fm" z="2.10*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="2.75*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCChamber1"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="3.15*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="-2.25*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="-1.85*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="-1.45*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="-1.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="-0.65*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="-0.25*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="0.15*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="0.55*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="0.95*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="1.35*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCSilicon2"/>
+    <Translation x="0*fm" y="0*fm" z="1.75*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="hgcalBeam:HGCChamber2"/>
+    <rChild name="hgcalBeam:HGCCFiber2"/>
+    <Translation x="0*fm" y="0*fm" z="2.15*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCFeChamber"/>
+    <rChild name="hgcalBeam:HGCAlChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zAlChamb]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCFeChamber"/>
+    <rChild name="hgcalBeam:HGCGasChamb"/>
+    <Translation x="0*fm" y="0*fm" z="[zGasChamb]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCFSiTrack"/>
+    <rChild name="hgcalBeam:HGCFTrack"/>
+    <Translation x="0*fm" y="0*fm" z="[zCFTrack1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCFSiTrack"/>
+    <rChild name="hgcalBeam:HGCFTrack"/>
+    <Translation x="0*fm" y="0*fm" z="[zCFTrack2]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCFSiTrack"/>
+    <rChild name="hgcalBeam:HGCSiTrack"/>
+    <Translation x="0*fm" y="0*fm" z="[zSiTrack1]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCFSiTrack"/>
+    <rChild name="hgcalBeam:HGCSiTrack"/>
+    <Translation x="0*fm" y="0*fm" z="[zSiTrack2]"/>
+  </PosPart>
+</PosPartSection>
+
+<SpecParSection label="hgcalBeam.xml" eval="true">
+  <SpecPar name="hgcalBeam">
+    <PartSelector path="//HGCScint.*"/>
+    <Parameter name="SensitiveDetector" value="HGCalTB1601SensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalTB06BeamHits" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

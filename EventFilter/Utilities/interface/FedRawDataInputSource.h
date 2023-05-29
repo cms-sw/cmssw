@@ -7,6 +7,8 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <random>
+#include <algorithm>
 
 #include "oneapi/tbb/concurrent_queue.h"
 #include "oneapi/tbb/concurrent_vector.h"
@@ -27,7 +29,7 @@ class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
 
-struct InputFile;
+class InputFile;
 struct InputChunk;
 
 namespace evf {
@@ -38,7 +40,7 @@ namespace evf {
 }  // namespace evf
 
 class FedRawDataInputSource : public edm::RawInputSource {
-  friend struct InputFile;
+  friend class InputFile;
   friend struct InputChunk;
 
 public:
@@ -152,7 +154,7 @@ private:
   tbb::concurrent_queue<std::unique_ptr<InputFile>> fileQueue_;
 
   std::mutex mReader_;
-  std::vector<std::condition_variable*> cvReader_;
+  std::vector<std::unique_ptr<std::condition_variable>> cvReader_;
   std::vector<unsigned int> tid_active_;
 
   std::atomic<bool> quit_threads_;
@@ -187,37 +189,56 @@ private:
 struct InputChunk {
   unsigned char* buf_;
   InputChunk* next_ = nullptr;
-  uint32_t size_;
-  uint32_t usedSize_ = 0;
-  unsigned int index_;
-  unsigned int offset_;
+  uint64_t size_;
+  uint64_t usedSize_ = 0;
+  //unsigned int index_;
+  uint64_t offset_;
   unsigned int fileIndex_;
   std::atomic<bool> readComplete_;
 
-  InputChunk(unsigned int index, uint32_t size) : size_(size), index_(index) {
+  InputChunk(uint64_t size) : size_(size) {
     buf_ = new unsigned char[size_];
     reset(0, 0, 0);
   }
-  void reset(unsigned int newOffset, unsigned int toRead, unsigned int fileIndex) {
+  void reset(uint64_t newOffset, uint64_t toRead, unsigned int fileIndex) {
     offset_ = newOffset;
     usedSize_ = toRead;
     fileIndex_ = fileIndex;
     readComplete_ = false;
   }
 
+  bool resize(uint64_t wantedSize, uint64_t maxSize) {
+    if (wantedSize > maxSize)
+      return false;
+    if (size_ < wantedSize) {
+      size_ = uint64_t(wantedSize * 1.05);
+      delete[] buf_;
+      buf_ = new unsigned char[size_];
+    }
+    return true;
+  }
+
   ~InputChunk() { delete[] buf_; }
 };
 
-struct InputFile {
+class InputFile {
+public:
   FedRawDataInputSource* parent_;
   evf::EvFDaqDirector::FileStatus status_;
   unsigned int lumi_;
   std::string fileName_;
+  //used by DAQSource
+  std::vector<std::string> fileNames_;
+  std::vector<uint64_t> diskFileSizes_;
+  std::vector<uint64_t> bufferOffsets_;
+  std::vector<uint64_t> fileSizes_;
+  std::vector<unsigned int> fileOrder_;
   bool deleteFile_;
   int rawFd_;
   uint64_t fileSize_;
   uint16_t rawHeaderSize_;
-  uint32_t nChunks_;
+  uint16_t nChunks_;
+  uint16_t numFiles_;
   int nEvents_;
   unsigned int nProcessed_;
 
@@ -234,7 +255,7 @@ struct InputFile {
             int rawFd = -1,
             uint64_t fileSize = 0,
             uint16_t rawHeaderSize = 0,
-            uint32_t nChunks = 0,
+            uint16_t nChunks = 0,
             int nEvents = 0,
             FedRawDataInputSource* parent = nullptr)
       : parent_(parent),
@@ -246,14 +267,38 @@ struct InputFile {
         fileSize_(fileSize),
         rawHeaderSize_(rawHeaderSize),
         nChunks_(nChunks),
+        numFiles_(1),
         nEvents_(nEvents),
         nProcessed_(0) {
+    fileNames_.push_back(name);
+    fileOrder_.push_back(fileOrder_.size());
+    diskFileSizes_.push_back(fileSize);
+    fileSizes_.push_back(0);
+    bufferOffsets_.push_back(0);
+    chunks_.reserve(nChunks_);
     for (unsigned int i = 0; i < nChunks; i++)
       chunks_.push_back(nullptr);
   }
-  ~InputFile();
+  virtual ~InputFile();
 
-  InputFile(std::string& name) : fileName_(name) {}
+  void setChunks(uint16_t nChunks) {
+    nChunks_ = nChunks;
+    chunks_.clear();
+    chunks_.reserve(nChunks_);
+    for (unsigned int i = 0; i < nChunks_; i++)
+      chunks_.push_back(nullptr);
+  }
+
+  void appendFile(std::string const& name, uint64_t size) {
+    size_t prevOffset = bufferOffsets_.back();
+    size_t prevSize = diskFileSizes_.back();
+    numFiles_++;
+    fileNames_.push_back(name);
+    fileOrder_.push_back(fileOrder_.size());
+    diskFileSizes_.push_back(size);
+    fileSizes_.push_back(0);
+    bufferOffsets_.push_back(prevOffset + prevSize);
+  }
 
   bool waitForChunk(unsigned int chunkid) {
     //some atomics to make sure everything is cache synchronized for the main thread
@@ -262,6 +307,11 @@ struct InputFile {
   bool advance(unsigned char*& dataPosition, const size_t size);
   void moveToPreviousChunk(const size_t size, const size_t offset);
   void rewindChunk(const size_t size);
+  void unsetDeleteFile() { deleteFile_ = false; }
+  void randomizeOrder(std::default_random_engine& rng) {
+    std::shuffle(std::begin(fileOrder_), std::end(fileOrder_), rng);
+  }
+  uint64_t currentChunkSize() const { return chunks_[currentChunk_]->size_; }
 };
 
 #endif  // EventFilter_Utilities_FedRawDataInputSource_h

@@ -115,39 +115,63 @@ namespace ecaldqm {
     edso_.topology = &_es.getData(topoHandleEndLumi);
   }
 
-  EcalElectronicsMapping const *DQWorker::GetElectronicsMap() {
-    if (!edso_.electronicsMap)
+  bool DQWorker::checkElectronicsMap(bool doThrow /* = true*/) {
+    if (edso_.electronicsMap)
+      return true;
+    if (doThrow)
       throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+    return false;
+  }
+
+  bool DQWorker::checkTrigTowerMap(bool doThrow /* = true*/) {
+    if (edso_.trigtowerMap)
+      return true;
+    if (doThrow)
+      throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
+    return false;
+  }
+
+  bool DQWorker::checkGeometry(bool doThrow /* = true*/) {
+    if (edso_.geometry)
+      return true;
+    if (doThrow)
+      throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
+    return false;
+  }
+
+  bool DQWorker::checkTopology(bool doThrow /* = true*/) {
+    if (edso_.topology)
+      return true;
+    if (doThrow)
+      throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
+    return false;
+  }
+
+  EcalElectronicsMapping const *DQWorker::GetElectronicsMap() {
+    checkElectronicsMap();
     return edso_.electronicsMap;
   }
 
   EcalTrigTowerConstituentsMap const *DQWorker::GetTrigTowerMap() {
-    if (!edso_.trigtowerMap)
-      throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
+    checkTrigTowerMap();
     return edso_.trigtowerMap;
   }
 
   CaloGeometry const *DQWorker::GetGeometry() {
-    if (!edso_.geometry)
-      throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
+    checkGeometry();
     return edso_.geometry;
   }
 
   CaloTopology const *DQWorker::GetTopology() {
-    if (!edso_.topology)
-      throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
+    checkTopology();
     return edso_.topology;
   }
 
   EcalDQMSetupObjects const DQWorker::getEcalDQMSetupObjects() {
-    if (!edso_.electronicsMap)
-      throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
-    if (!edso_.trigtowerMap)
-      throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
-    if (!edso_.geometry)
-      throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
-    if (!edso_.topology)
-      throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
+    checkElectronicsMap();
+    checkTrigTowerMap();
+    checkGeometry();
+    checkTopology();
     return edso_;
   }
 

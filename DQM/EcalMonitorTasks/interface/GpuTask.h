@@ -33,7 +33,17 @@ namespace ecaldqm {
     void setParams(edm::ParameterSet const&) override;
 
     bool runGpuTask_;
-    bool gpuOnlyPlots_;
+    bool enableDigi_;
+    bool enableUncalib_;
+    bool enableRecHit_;
+
+    bool digi1D_;
+    bool digi2D_;
+    bool uncalib1D_;
+    bool uncalib2D_;
+    bool rechit1D_;
+    bool rechit2D_;
+
     std::vector<int> uncalibOOTAmps_;
 
     EBDigiCollection const* EBCpuDigis_;
@@ -49,46 +59,46 @@ namespace ecaldqm {
   inline bool GpuTask::analyze(void const* collection_data, Collections collection) {
     switch (collection) {
       case kEBCpuDigi:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableDigi_)
           runOnCpuDigis(*static_cast<EBDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEECpuDigi:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableDigi_)
           runOnCpuDigis(*static_cast<EEDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBGpuDigi:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableDigi_)
           runOnGpuDigis(*static_cast<EBDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEEGpuDigi:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableDigi_)
           runOnGpuDigis(*static_cast<EEDigiCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBCpuUncalibRecHit:
       case kEECpuUncalibRecHit:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableUncalib_)
           runOnCpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBGpuUncalibRecHit:
       case kEEGpuUncalibRecHit:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableUncalib_)
           runOnGpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBCpuRecHit:
       case kEECpuRecHit:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableRecHit_)
           runOnCpuRecHits(*static_cast<EcalRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;
       case kEBGpuRecHit:
       case kEEGpuRecHit:
-        if (collection_data && runGpuTask_)
+        if (collection_data && runGpuTask_ && enableRecHit_)
           runOnGpuRecHits(*static_cast<EcalRecHitCollection const*>(collection_data), collection);
         return runGpuTask_;
         break;

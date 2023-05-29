@@ -5,7 +5,7 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
-CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset) : edm::EDAnalyzer() {
+CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset) {
   verbose = pset.getUntrackedParameter<unsigned int>("verbose", 0);
   dataTrackProducer = pset.getUntrackedParameter<edm::InputTag>("dataTrackProducer", edm::InputTag("csctfDigis"));
   emulTrackProducer = pset.getUntrackedParameter<edm::InputTag>("emulTrackProducer", edm::InputTag("csctfTrackDigis"));

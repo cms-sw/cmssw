@@ -4,9 +4,7 @@ test=testRunMerge
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-echo LOCAL_TMP_DIR = ${LOCAL_TMP_DIR}
-
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo ${test}PROD100 ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD100_cfg.py || die "cmsRun ${test}PROD100_cfg.py" $?
 
@@ -48,7 +46,5 @@ pushd ${LOCAL_TMP_DIR}
 
   echo ${test}COPY101 ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}COPY101_cfg.py || die "cmsRun ${test}COPY101_cfg.py" $?
-
-popd
 
 exit 0

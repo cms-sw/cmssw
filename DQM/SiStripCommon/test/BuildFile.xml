@@ -10,6 +10,9 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="plugins/Test_SiStrip_HistId.cc" name="Test_SiStrip_HistId">
+<library file="plugins/testSiStripHistId.cc" name="testSiStripHistId">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="test_TkHistoMap" command="cmsRun ${LOCALTOP}/src/DQM/SiStripCommon/test/testTkHistoMap_cfg.py"/>
+<test name="test_SiStripHitId" command="cmsRun ${LOCALTOP}/src/DQM/SiStripCommon/test/testSiStripHistId_cfg.py"/>

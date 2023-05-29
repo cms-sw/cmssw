@@ -2,7 +2,7 @@
 // Basic example ROOT script for making tracking performance plots using the ntuples produced by L1TrackNtupleMaker.cc
 //
 // e.g. in ROOT do: [0] .L L1TrackQualityPlot.C++
-//                  [1] L1TrackQualityPlot("TTbar_PU200_D49")
+//                  [1] L1TrackQualityPlot("TTbar_PU200_D76")
 //
 // By Claire Savard, July 2020
 // Based off of L1TrackNtuplePlot.C

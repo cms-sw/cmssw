@@ -19,10 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -538,30 +535,26 @@ namespace FSQ {
     edm::Handle<reco::VertexCollection> vertices;
     iEvent.getByToken(m_tokens[lVerticesTag.encode()], vertices);
 
-    //double bestvz=-999.9, bestvx=-999.9, bestvy=-999.9;
-
-    double dxy, dz, dzsigma, dxysigma;
     math::XYZPoint vtxPoint(0.0, 0.0, 0.0);
     double vzErr = 0.0, vxErr = 0.0, vyErr = 0.0;
 
     // take first vertex passing the criteria
-    int bestVtx = -1;
-    for (size_t i = 0; i < vertices->size(); ++i) {
-      if (vertices->at(i).ndof() < lMinNDOF)
+    bool vtxfound = false;
+    for (const auto& vertex : *vertices) {
+      if (vertex.ndof() < lMinNDOF)
         continue;
-      if (fabs(vertices->at(i).z()) > lMaxZ)
+      if (fabs(vertex.z()) > lMaxZ)
         continue;
 
-      vtxPoint = vertices->at(i).position();
-      vzErr = vertices->at(i).zError();
-      vxErr = vertices->at(i).xError();
-      vyErr = vertices->at(i).yError();
-      bestVtx = i;
+      vtxPoint = vertex.position();
+      vzErr = vertex.zError();
+      vxErr = vertex.xError();
+      vyErr = vertex.yError();
+      vtxfound = true;
       break;
     }
-    if (bestVtx < 0)
+    if (!vtxfound)
       return;
-    // const reco::Vertex & vtx = vertices->at(bestVtx);
 
     Handle<std::vector<reco::Track> > hIn;
     iEvent.getByToken(m_tokens[m_input.encode()], hIn);
@@ -573,19 +566,22 @@ namespace FSQ {
     for (auto const& i : *hIn) {
       if (!m_singleObjectSelection(i))
         continue;
-      dxy = 0.0, dz = 0.0, dxysigma = 0.0, dzsigma = 0.0;
-      dxy = -1. * i.dxy(vtxPoint);
-      dz = i.dz(vtxPoint);
-      dxysigma = sqrt(i.dxyError() * i.dxyError() + vxErr * vyErr);
-      dzsigma = sqrt(i.dzError() * i.dzError() + vzErr * vzErr);
 
-      if (fabs(dz) > lMaxDZ)
+      double absdz = fabs(i.dz(vtxPoint));
+      if (absdz > lMaxDZ)
         continue;  // TODO...
-      if (fabs(dz / dzsigma) > lMaxDZ2dzsigma)
+
+      //      double absdxy = fabs(-1. * i.dxy(vtxPoint));
+      double absdxy = fabs(i.dxy(vtxPoint));
+      if (absdxy > lMaxDXY)
         continue;
-      if (fabs(dxy) > lMaxDXY)
+
+      double dzsigma2 = i.dzError() * i.dzError() + vzErr * vzErr;
+      if (absdz * absdz > lMaxDZ2dzsigma * lMaxDZ2dzsigma * dzsigma2)
         continue;
-      if (fabs(dxy / dxysigma) > lMaxDXY2dxysigma)
+
+      double dxysigma2 = i.dxyError() * i.dxyError() + vxErr * vyErr;
+      if (absdxy * absdxy > lMaxDXY2dxysigma * lMaxDXY2dxysigma * dxysigma2)
         continue;
 
       cands.at(0) += 1;
@@ -887,3 +883,6 @@ void FSQDiJetAve::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(FSQDiJetAve);

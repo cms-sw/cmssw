@@ -92,3 +92,6 @@ void HLTTauPostProcessor::plotFilterEfficiencies(DQMStore::IBooker& iBooker,
     prev->SetBinError(i - 1, std::sqrt(efficiency * efficiency + err * err));
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTTauPostProcessor);

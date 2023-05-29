@@ -1,29 +1,50 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("test")
+
+##
+## prepare options
+##
+options = VarParsing.VarParsing("analysis")
+
+options.register ('globalTag',
+                  "auto:run3_data",VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,        # string, int, or float
+                  "GlobalTag")
+
+options.register ('forHLT',
+                  True,VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.bool,          # string, int, or float
+                  "payload type to be used")
+
+options.register ('firstRun',
+                  1,VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "first run to be processed")
+
+options.parseArguments()
+
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = "CRAFT_ALL_V5::All"
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 process.insertNoisyandDead = cms.EDAnalyzer("SiPixelGainCalibrationRejectNoisyAndDead",
-    #record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),                
-    record = cms.untracked.string('SiPixelGainCalibrationForHLTRcd'),                  
-    debug = cms.untracked.bool(False)              
+                                            record = cms.untracked.string('SiPixelGainCalibrationForHLTRcd' if(options.forHLT) else 'SiPixelGainCalibrationOfflineRcd'),
+                                            debug = cms.untracked.bool(False)              
 )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-
-process.source = cms.Source("EmptyIOVSource",                            
-                            lastRun = cms.untracked.uint32(1),
+process.source = cms.Source("EmptyIOVSource",
+                            lastValue = cms.uint64(1),
                             timetype = cms.string('runnumber'),
-                            firstValue = cms.uint64(1),
-                            lastValue=cms.uint64(1),
+                            firstValue = cms.uint64(options.firstRun),
                             interval = cms.uint64(1)
                             )
 
@@ -35,12 +56,10 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('.')
     ),
     toGet = cms.VPSet(cms.PSet(
-        #record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-        record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-        tag = cms.string('SiPixelGainCalibration_TBuffer_hlt_const')
+        record = cms.string('SiPixelGainCalibrationForHLTRcd' if(options.forHLT) else 'SiPixelGainCalibrationOfflineRcd'),
+        tag = cms.string('SiPixelGainCalibrationHLT_2009runs_express' if(options.forHLT) else 'SiPixelGainCalibration_2009runs_express')
     )),
-    connect = cms.string('sqlite_file:prova_HLT.db')
-
+    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
 )
 
 #Output DB
@@ -52,11 +71,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ),
     toPut = cms.VPSet(
         cms.PSet(
-            #record = cms.string('SiPixelGainCalibrationOfflineRcd'),
-            record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-            tag = cms.string('GainCalib_TEST_hlt')
+            record = cms.string('SiPixelGainCalibrationForHLTRcd' if(options.forHLT) else 'SiPixelGainCalibrationOfflineRcd'),
+            tag = cms.string('GainCalib_TEST_hlt' if(options.forHLT) else 'GainCalib_Offline_hlt')
     )),
-    connect = cms.string('sqlite_file:provaOUT.db')
+    connect = cms.string('sqlite_file:SiPixelGainCalibrationRejectedNoisyAndDead.db')
 )
 
 process.prefer("PoolDBESSource")

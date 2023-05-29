@@ -1,7 +1,8 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionOperators_h
-#define HLTrigger_HLTfilters_TriggerExpressionOperators_h
+#ifndef HLTrigger_HLTcore_TriggerExpressionOperators_h
+#define HLTrigger_HLTcore_TriggerExpressionOperators_h
 
 #include <memory>
+
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
 namespace triggerExpression {
@@ -13,6 +14,9 @@ namespace triggerExpression {
 
     // initialize the depending modules
     void init(const Data& data) override { m_arg->init(data); }
+
+    // apply mask(s) to the Evaluator
+    void mask(Evaluator const& arg) override { m_arg->mask(arg); }
 
     // return the patterns from the depending modules
     std::vector<std::string> patterns() const override { return m_arg->patterns(); }
@@ -30,6 +34,12 @@ namespace triggerExpression {
     void init(const Data& data) override {
       m_arg1->init(data);
       m_arg2->init(data);
+    }
+
+    // apply mask(s) to the Evaluators
+    void mask(Evaluator const& arg) override {
+      m_arg1->mask(arg);
+      m_arg2->mask(arg);
     }
 
     // return the patterns from the depending modules
@@ -54,9 +64,11 @@ namespace triggerExpression {
 
     bool operator()(const Data& data) const override { return not(*m_arg)(data); }
 
-    void dump(std::ostream& out) const override {
+    void dump(std::ostream& out, bool const ignoreMasks = false) const override {
+      out << '(';
       out << "NOT ";
-      m_arg->dump(out);
+      m_arg->dump(out, ignoreMasks);
+      out << ')';
     }
   };
 
@@ -65,16 +77,18 @@ namespace triggerExpression {
     OperatorAnd(Evaluator* arg1, Evaluator* arg2) : BinaryOperator(arg1, arg2) {}
 
     bool operator()(const Data& data) const override {
-      // force the execution af both arguments, otherwise precalers won't work properly
+      // force the execution of both arguments, otherwise prescalers won't work properly
       bool r1 = (*m_arg1)(data);
       bool r2 = (*m_arg2)(data);
       return r1 and r2;
     }
 
-    void dump(std::ostream& out) const override {
-      m_arg1->dump(out);
+    void dump(std::ostream& out, bool const ignoreMasks = false) const override {
+      out << '(';
+      m_arg1->dump(out, ignoreMasks);
       out << " AND ";
-      m_arg2->dump(out);
+      m_arg2->dump(out, ignoreMasks);
+      out << ')';
     }
   };
 
@@ -83,16 +97,18 @@ namespace triggerExpression {
     OperatorOr(Evaluator* arg1, Evaluator* arg2) : BinaryOperator(arg1, arg2) {}
 
     bool operator()(const Data& data) const override {
-      // force the execution af both arguments, otherwise precalers won't work properly
+      // force the execution of both arguments, otherwise prescalers won't work properly
       bool r1 = (*m_arg1)(data);
       bool r2 = (*m_arg2)(data);
       return r1 or r2;
     }
 
-    void dump(std::ostream& out) const override {
-      m_arg1->dump(out);
+    void dump(std::ostream& out, bool const ignoreMasks = false) const override {
+      out << '(';
+      m_arg1->dump(out, ignoreMasks);
       out << " OR ";
-      m_arg2->dump(out);
+      m_arg2->dump(out, ignoreMasks);
+      out << ')';
     }
   };
 
@@ -101,19 +117,47 @@ namespace triggerExpression {
     OperatorXor(Evaluator* arg1, Evaluator* arg2) : BinaryOperator(arg1, arg2) {}
 
     bool operator()(const Data& data) const override {
-      // force the execution af both arguments, otherwise precalers won't work properly
+      // force the execution of both arguments, otherwise prescalers won't work properly
       bool r1 = (*m_arg1)(data);
       bool r2 = (*m_arg2)(data);
       return r1 xor r2;
     }
 
-    void dump(std::ostream& out) const override {
-      m_arg1->dump(out);
+    void dump(std::ostream& out, bool const ignoreMasks = false) const override {
+      out << '(';
+      m_arg1->dump(out, ignoreMasks);
       out << " XOR ";
-      m_arg2->dump(out);
+      m_arg2->dump(out, ignoreMasks);
+      out << ')';
+    }
+  };
+
+  class OperatorMasking : public BinaryOperator {
+  public:
+    OperatorMasking(Evaluator* arg1, Evaluator* arg2) : BinaryOperator(arg1, arg2) {}
+
+    bool operator()(const Data& data) const override { return (*m_arg1)(data); }
+
+    void init(const Data& data) override {
+      m_arg1->init(data);
+      m_arg2->init(data);
+      m_arg1->mask(*m_arg2);
+    }
+
+    // apply mask(s) only to the first Evaluator
+    // (the second Evaluator is not used in the decision of OperatorMasking)
+    void mask(Evaluator const& arg) override { m_arg1->mask(arg); }
+
+    void dump(std::ostream& out, bool const ignoreMasks = false) const override {
+      out << '(';
+      // ignore masks on the first Evaluator to dump the full logical expression
+      m_arg1->dump(out, true);
+      out << " MASKING ";
+      m_arg2->dump(out, ignoreMasks);
+      out << ')';
     }
   };
 
 }  // namespace triggerExpression
 
-#endif  // HLTrigger_HLTfilters_TriggerExpressionOperators_h
+#endif  // HLTrigger_HLTcore_TriggerExpressionOperators_h

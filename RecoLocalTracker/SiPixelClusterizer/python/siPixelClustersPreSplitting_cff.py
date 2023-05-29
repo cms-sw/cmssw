@@ -24,15 +24,17 @@ run3_common.toModify(siPixelClustersPreSplittingCUDA,
                      clusterThreshold_layer1 = 4000)
 
 # convert the pixel digis (except errors) and clusters to the legacy format
-from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
-siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoA.clone()
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase1_cfi import siPixelDigisClustersFromSoAPhase1 as _siPixelDigisClustersFromSoAPhase1
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase2_cfi import siPixelDigisClustersFromSoAPhase2 as _siPixelDigisClustersFromSoAPhase2
+
+siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoAPhase1.clone()
 
 run3_common.toModify(siPixelDigisClustersPreSplitting,
                      clusterThreshold_layer1 = 4000)
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
-(gpu & ~phase2_tracker).toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
+gpu.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # conditions used *only* by the modules running on GPU
     siPixelROCsStatusAndMappingWrapperESProducer,
     siPixelGainCalibrationForHLTGPU,
@@ -55,12 +57,13 @@ siPixelDigisPhase2SoA = _siPixelDigisSoAFromCUDA.clone(
     src = "siPixelClustersPreSplittingCUDA"
 )
 
-phase2_tracker.toModify(siPixelDigisClustersPreSplitting,
+phase2_tracker.toReplaceWith(siPixelDigisClustersPreSplitting, _siPixelDigisClustersFromSoAPhase2.clone(
                         clusterThreshold_layer1 = 4000,
                         clusterThreshold_otherLayers = 4000,
                         src = "siPixelDigisPhase2SoA",
                         #produceDigis = False
-                        )
+                        ))
+
 (gpu & phase2_tracker).toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
                             # reconstruct the pixel clusters on the gpu from copied digis
                             siPixelClustersPreSplittingCUDA,

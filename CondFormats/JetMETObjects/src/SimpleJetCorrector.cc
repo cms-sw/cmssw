@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <algorithm>
 
 //------------------------------------------------------------------------
 //--- SimpleJetCorrector constructor -------------------------------------
@@ -78,25 +79,30 @@ float SimpleJetCorrector::correctionBin(unsigned fBin, const std::vector<float>&
     handleError("SimpleJetCorrector", sserr.str());
   }
   unsigned N = fY.size();
-  if (N > 4) {
-    std::stringstream sserr;
-    sserr << "two many variables: " << N << " maximum is 4";
-    handleError("SimpleJetCorrector", sserr.str());
+  if (!fY.empty() && N <= 4) {
+    const std::vector<float>& par = mParameters.record(fBin).parameters();
+    auto nParams = static_cast<int>(par.size() - 2 * N);
+    if (nParams > 0) {
+      double params[nParams];
+      for (unsigned int i = 2 * N; i < par.size(); i++) {
+        params[i - 2 * N] = par[i];
+      }
+      double x[4] = {};
+      for (unsigned i = 0; i < N; i++) {
+        x[i] = (fY[i] < par[2 * i]) ? par[2 * i] : (fY[i] > par[2 * i + 1]) ? par[2 * i + 1] : fY[i];
+      }
+      if (mParameters.definitions().isResponse()) {
+        return invert(x, params);
+      }
+      return mFunc.evaluate(reco::formula::ArrayAdaptor(x, N), reco::formula::ArrayAdaptor(params, par.size() - 2 * N));
+    } else {
+      return 1.0;
+    }
+  } else {
+    edm::LogWarning("SimpleJetCorrector") << "Expect number of variables to be 0<N<=4 but is " << N << "in bin " << fBin
+                                          << ". Returning zero" << std::endl;
+    return 0.0;
   }
-  const std::vector<float>& par = mParameters.record(fBin).parameters();
-
-  double params[par.size() - 2 * N];
-  for (unsigned int i = 2 * N; i < par.size(); i++) {
-    params[i - 2 * N] = par[i];
-  }
-  double x[4] = {};
-  for (unsigned i = 0; i < N; i++) {
-    x[i] = (fY[i] < par[2 * i]) ? par[2 * i] : (fY[i] > par[2 * i + 1]) ? par[2 * i + 1] : fY[i];
-  }
-  if (mParameters.definitions().isResponse()) {
-    return invert(x, params);
-  }
-  return mFunc.evaluate(reco::formula::ArrayAdaptor(x, N), reco::formula::ArrayAdaptor(params, par.size() - 2 * N));
 }
 //------------------------------------------------------------------------
 //--- find invertion variable (JetPt) ------------------------------------

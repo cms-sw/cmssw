@@ -1,9 +1,3 @@
-/**\class PFECALSuperClusterProducer 
-
-\author Nicolas Chanon
-Additional authors for Mustache: Y. Gershtein, R. Patel, L. Gray
-\date   July 2012
-*/
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"
@@ -30,24 +24,40 @@ Additional authors for Mustache: Y. Gershtein, R. Patel, L. Gray
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/SCProducerCache.h"
 #include "TVector2.h"
 
 #include <memory>
 #include <vector>
 
-class PFECALSuperClusterProducer : public edm::stream::EDProducer<> {
+/*
+ * class PFECALSuperClusterProducer 
+ * author Nicolas Chanon
+ * Additional authors for Mustache: Y. Gershtein, R. Patel, L. Gray
+ * Additional authors for DeepSC: D.Valsecchi, B.Marzocchi
+ * date   July 2012
+ * updates Feb 2022
+ */
+
+class PFECALSuperClusterProducer : public edm::stream::EDProducer<edm::GlobalCache<reco::SCProducerCache>> {
 public:
-  explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
+  explicit PFECALSuperClusterProducer(const edm::ParameterSet&, const reco::SCProducerCache* gcache);
   ~PFECALSuperClusterProducer() override;
 
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static std::unique_ptr<reco::SCProducerCache> initializeGlobalCache(const edm::ParameterSet& config) {
+    return std::make_unique<reco::SCProducerCache>(config);
+  }
+
+  static void globalEndJob(const reco::SCProducerCache*){};
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -81,18 +91,22 @@ private:
 DEFINE_FWK_MODULE(PFECALSuperClusterProducer);
 
 using namespace std;
+
 using namespace edm;
 
 namespace {
   const std::string ClusterType__BOX("Box");
   const std::string ClusterType__Mustache("Mustache");
+  const std::string ClusterType__DeepSC("DeepSC");
 
   const std::string EnergyWeight__Raw("Raw");
   const std::string EnergyWeight__CalibratedNoPS("CalibratedNoPS");
   const std::string EnergyWeight__CalibratedTotal("CalibratedTotal");
 }  // namespace
 
-PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& iConfig) {
+PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& iConfig,
+                                                       const reco::SCProducerCache* gcache)
+    : superClusterAlgo_(gcache) {
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
   superClusterAlgo_.setUseRegression(iConfig.getParameter<bool>("useRegression"));
@@ -105,14 +119,12 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     _theclusteringtype = PFECALSuperClusterAlgo::kBOX;
   } else if (_typename == ClusterType__Mustache) {
     _theclusteringtype = PFECALSuperClusterAlgo::kMustache;
+  } else if (_typename == ClusterType__DeepSC) {
+    _theclusteringtype = PFECALSuperClusterAlgo::kDeepSC;
   } else {
     throw cms::Exception("InvalidClusteringType") << "You have not chosen a valid clustering type,"
-                                                  << " please choose from \"Box\" or \"Mustache\"!";
+                                                  << " please choose from \"Box\" or \"Mustache\" or \"DeepSC\"!";
   }
-  superClusterAlgo_.setClusteringType(_theclusteringtype);
-  superClusterAlgo_.setUseDynamicDPhi(iConfig.getParameter<bool>("useDynamicDPhiWindow"));
-  // clusteringType and useDynamicDPhi need to be defined before setting the tokens in order to esConsume only the necessary records
-  superClusterAlgo_.setTokens(iConfig, consumesCollector());
 
   std::string _weightname = iConfig.getParameter<std::string>("EnergyWeight");
   if (_weightname == EnergyWeight__Raw) {
@@ -130,6 +142,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   // parameters for clustering
   bool seedThresholdIsET = iConfig.getParameter<bool>("seedThresholdIsET");
 
+  bool useDynamicDPhi = iConfig.getParameter<bool>("useDynamicDPhiWindow");
+
   double threshPFClusterSeedBarrel = iConfig.getParameter<double>("thresh_PFClusterSeedBarrel");
   double threshPFClusterBarrel = iConfig.getParameter<double>("thresh_PFClusterBarrel");
 
@@ -146,6 +160,11 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   double satelliteClusterSeedThreshold = iConfig.getParameter<double>("satelliteClusterSeedThreshold");
   double satelliteMajorityFraction = iConfig.getParameter<double>("satelliteMajorityFraction");
   bool dropUnseedable = iConfig.getParameter<bool>("dropUnseedable");
+
+  superClusterAlgo_.setClusteringType(_theclusteringtype);
+  superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
+  // clusteringType and useDynamicDPhi need to be defined before setting the tokens in order to esConsume only the necessary records
+  superClusterAlgo_.setTokens(iConfig, consumesCollector());
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setEnergyWeighting(_theenergyweight);
@@ -354,7 +373,6 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::string>("PFBasicClusterCollectionEndcap", "particleFlowBasicClusterECALEndcap");
   desc.add<edm::InputTag>("PFClusters", edm::InputTag("particleFlowClusterECAL"));
   desc.add<double>("thresh_PFClusterSeedBarrel", 1.0);
-  desc.add<std::string>("ClusteringType", "Mustache");
   desc.add<std::string>("EnergyWeight", "Raw");
   desc.add<edm::InputTag>("BeamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<double>("thresh_PFClusterSeedEndcap", 1.0);
@@ -367,5 +385,29 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::string>("PFSuperClusterCollectionEndcapWithPreshower",
                         "particleFlowSuperClusterECALEndcapWithPreshower");
   desc.add<bool>("dropUnseedable", false);
+
+  edm::ParameterSetDescription deepSCParams;
+  deepSCParams.add<std::string>("modelFile", "");
+  deepSCParams.add<std::string>("configFileClusterFeatures", "");
+  deepSCParams.add<std::string>("configFileWindowFeatures", "");
+  deepSCParams.add<std::string>("configFileHitsFeatures", "");
+  deepSCParams.add<uint>("nClusterFeatures", 12);
+  deepSCParams.add<uint>("nWindowFeatures", 18);
+  deepSCParams.add<uint>("nHitsFeatures", 4);
+  deepSCParams.add<uint>("maxNClusters", 40);
+  deepSCParams.add<uint>("maxNRechits", 40);
+  deepSCParams.add<uint>("batchSize", 64);
+  deepSCParams.add<std::string>("collectionStrategy", "Cascade");
+
+  EmptyGroupDescription emptyGroup;
+
+  // Add DeepSC parameters only to the specific ClusteringType
+  edm::ParameterSwitch<std::string> switchNode(
+      edm::ParameterDescription<std::string>("ClusteringType", ClusterType__Mustache, true),
+      ClusterType__Mustache >> emptyGroup or ClusterType__BOX >> emptyGroup or
+          ClusterType__DeepSC >>
+              edm::ParameterDescription<edm::ParameterSetDescription>("deepSuperClusterConfig", deepSCParams, true));
+  desc.addNode(switchNode);
+
   descriptions.add("particleFlowSuperClusterECALMustache", desc);
 }

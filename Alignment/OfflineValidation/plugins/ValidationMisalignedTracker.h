@@ -1,5 +1,5 @@
-#ifndef ValidationMisalignedTracker_h
-#define ValidationMisalignedTracker_h
+#ifndef Alignment_OfflineValidation_ValidationMisalignedTracker_h
+#define Alignment_OfflineValidation_ValidationMisalignedTracker_h
 
 // system include files
 #include <memory>
@@ -8,24 +8,30 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 //
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "TTree.h"
 #include "TFile.h"
 
-#include <TROOT.h>
-#include <TSystem.h>
-#include <TCanvas.h>
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TCanvas.h"
 #include <cmath>
 #include "TStyle.h"
 
@@ -37,6 +43,7 @@ class ValidationMisalignedTracker : public edm::one::EDAnalyzer<> {
 public:
   explicit ValidationMisalignedTracker(const edm::ParameterSet&);
   ~ValidationMisalignedTracker() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -46,10 +53,18 @@ private:
 
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
-
-  std::string simobject, trackassociator;
-  bool selection_eff, selection_fake, ZmassSelection_;
-  std::string rootfile_;
+  const bool selection_eff, selection_fake, ZmassSelection_;
+  const std::string simobject, trackassociator;
+  const std::vector<std::string> associators;
+  const std::vector<edm::InputTag> label;
+  const edm::InputTag label_tp_effic;
+  const edm::InputTag label_tp_fake;
+  const std::string rootfile_;
+  const edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
+  const edm::EDGetTokenT<TrackingParticleCollection> tpeffToken_;
+  const edm::EDGetTokenT<TrackingParticleCollection> tpfakeToken_;
+  const edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
+  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> assocToken_;
 
   bool skip;
   int eventCount_;
@@ -94,11 +109,6 @@ private:
   double chi2tmp;
   float fractiontmp;
   bool onlyDiag;
-  std::vector<std::string> associators;
-
-  std::vector<edm::InputTag> label;
-  edm::InputTag label_tp_effic;
-  edm::InputTag label_tp_fake;
 
   GlobalVector magField;
   std::vector<float> ptused;

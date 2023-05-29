@@ -377,6 +377,11 @@ expertSettings.add_option("--profile",
                           default=None,
                           dest="profile")
 
+expertSettings.add_option("--heap_profile",
+                          help="add the JeProfService with the parameter provided PROFILER:START:STEP:PEREVENOUTPUTFORMAT:ENDOFJOBOUTPUTFORMAT",
+                          default=None,
+                          dest="heap_profile")
+
 expertSettings.add_option("--io",
                           help="Create a json file with io informations",
                           default=None,

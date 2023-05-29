@@ -7,7 +7,9 @@ from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsAAGHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripHitEfficiencyHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvester_cff import *
+from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvesterMCS_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
+from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHG_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
 from Calibration.LumiAlCaRecoProducers.AlcaLumiPCCHarvester_cff import *
 from CalibTracker.SiPixelQuality.SiPixelStatusHarvester_cfi import *
@@ -16,7 +18,7 @@ from CalibPPS.TimingCalibration.PPSTimingCalibrationHarvester_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSDiamondSampicTimingCalibHarvester_cff import *
 from CalibPPS.AlignmentGlobal.PPSAlignmentHarvester_cff import *
 
-from Calibration.TkAlCaRecoProducers.PCLMetadataWriter_cfi import *
+from CommonTools.ConditionDBWriter.PCLMetadataWriter_cfi import *
 
 # common ingredients
 from CondCore.CondDB.CondDB_cfi import CondDB
@@ -168,6 +170,15 @@ ALCAHARVESTSiPixelAli_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentR
                                           )
 
 # --------------------------------------------------------------------------------------
+# SiPixel Alignment HG
+ALCAHARVESTSiPixelAliHG_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentHGRcd'))
+
+ALCAHARVESTSiPixelAliHG_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentHGRcd'),
+                                          tag = cms.string('SiPixelAliHG_pcl'),
+                                          timetype   = cms.untracked.string('runnumber')
+                                          )
+
+# --------------------------------------------------------------------------------------
 # SiPixel Lorentz Angle
 ALCAHARVESTSiPixelLA_metadata = cms.PSet(record = cms.untracked.string('SiPixelLorentzAngleRcd'))
 
@@ -176,6 +187,14 @@ ALCAHARVESTSiPixelLA_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngl
                                          timetype   = cms.untracked.string('runnumber')
                                          )
 
+# --------------------------------------------------------------------------------------
+# SiPixel Lorentz Angle Minimal Cluster Size
+ALCAHARVESTSiPixelLAMCS_metadata = cms.PSet(record = cms.untracked.string('SiPixelLorentzAngleRcdMCS'))
+
+ALCAHARVESTSiPixelLAMCS_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngleRcdMCS'),
+                                            tag = cms.string('SiPixelLAMCS_pcl'),
+                                            timetype   = cms.untracked.string('runnumber')
+                                         )
 # --------------------------------------------------------------------------------------
 # ECAL Pedestals
 ALCAHARVESTEcalPedestals_metadata = cms.PSet(record = cms.untracked.string('EcalPedestalsRcd'))
@@ -238,15 +257,15 @@ if ALCAHARVESTSiPixelQuality.debug == cms.untracked.bool(True) :
 
 # --------------------------------------------------------------------------------------
 # PPS calibration
-ALCAHARVESTPPSTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd'))
-ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd'),
+ALCAHARVESTPPSTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_HPTDC'))
+ALCAHARVESTPPSTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_HPTDC'),
                                                     tag = cms.string('PPSDiamondTimingCalibration_pcl'),
                                                     timetype = cms.untracked.string('runnumber')
                                                     )
 
-ALCAHARVESTPPSDiamondSampicTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_Sampic'))
-ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_Sampic'),
-                                            tag = cms.string('DiamondSampicCalibration'),
+ALCAHARVESTPPSDiamondSampicTimingCalibration_metadata = cms.PSet(record = cms.untracked.string('PPSTimingCalibrationRcd_SAMPIC'))
+ALCAHARVESTPPSDiamondSampicTimingCalibration_dbOutput = cms.PSet(record = cms.string('PPSTimingCalibrationRcd_SAMPIC'),
+                                            tag = cms.string('PPSDiamondSampicCalibration_pcl'),
                                             timetype = cms.untracked.string('runnumber'))
 
 ALCAHARVESTPPSAlignment_metadata = cms.PSet(record = cms.untracked.string('CTPPSRPAlignmentCorrectionsDataRcd'))
@@ -266,7 +285,9 @@ SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 SiStripHitEff = cms.Path(ALCAHARVESTSiStripHitEfficiency)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
+SiPixelAliHG     = cms.Path(ALCAHARVESTSiPixelAliHG)
 SiPixelLA      = cms.Path(ALCAHARVESTSiPixelLorentzAngle)
+SiPixelLAMCS      = cms.Path(ALCAHARVESTSiPixelLorentzAngleMCS)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
 SiPixelQuality = cms.Path(dqmEnvSiPixelQuality+ALCAHARVESTSiPixelQuality)#+siPixelPhase1DQMHarvester)

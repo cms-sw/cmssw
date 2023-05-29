@@ -1,4 +1,3 @@
-<bin name="testSiStripDQM_OfflineTkMap" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS="/bin/bash DQM/SiStripMonitorClient/test test_SiStripDQM_OfflineTkMap.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="testSiStripDQM_OfflineTkMap" command="test_SiStripDQM_OfflineTkMap.sh"/>
+
+<test name="test_TreeAndTkMapProducer" command="test_TreeAndTkMapProducer.sh"/>

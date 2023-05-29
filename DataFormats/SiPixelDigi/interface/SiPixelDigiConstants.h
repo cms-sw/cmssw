@@ -55,6 +55,7 @@ namespace sipixelconstants {
     inline constexpr uint32_t getRow(uint32_t ww) { return ((ww >> ROW_shift) & ROW_mask); }
     inline constexpr uint32_t getDCol(uint32_t ww) { return ((ww >> DCOL_shift) & DCOL_mask); }
     inline constexpr uint32_t getPxId(uint32_t ww) { return ((ww >> PXID_shift) & PXID_mask); }
+    inline constexpr uint32_t removeADC(uint32_t ww) { return (ww & ~(ADC_mask << ADC_shift)); }
   }  // namespace functions
 }  // namespace sipixelconstants
 

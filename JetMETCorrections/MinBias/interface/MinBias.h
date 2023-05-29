@@ -6,36 +6,29 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include "TTree.h"
 
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}  // namespace edm
-
-//
-// class decleration
-//
 namespace cms {
-  class MinBias : public edm::EDAnalyzer {
+  class MinBias : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
     explicit MinBias(const edm::ParameterSet&);
 
     void analyze(const edm::Event&, const edm::EventSetup&) override;
     void beginJob() override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
     void endJob() override;
 
   private:
@@ -46,6 +39,7 @@ namespace cms {
     edm::EDGetTokenT<HBHERecHitCollection> hbheToken_;
     edm::EDGetTokenT<HORecHitCollection> hoToken_;
     edm::EDGetTokenT<HFRecHitCollection> hfToken_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryESToken_;
     // stuff for histogramms
     bool allowMissingInputs_;
     //

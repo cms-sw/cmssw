@@ -14,6 +14,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 #include <string>
 #include <vector>
@@ -52,16 +53,12 @@ private:
   // Get the name of the chamber
   std::string getChamberName(const DTChamberId&) const;
 
-  edm::InputTag digiLabel_;
-  bool useTimeWindow_;
-  double triggerWidth_;
-  int timeWindowOffset_;
-  double maximumNoiseRate_;
-  bool useAbsoluteRate_;
-
-  /*bool fastAnalysis;
-  int wh;
-  int sect;*/
+  const edm::EDGetTokenT<DTDigiCollection> digiToken_;
+  const bool useTimeWindow_;
+  const double triggerWidth_;
+  const int timeWindowOffset_;
+  const double maximumNoiseRate_;
+  const bool useAbsoluteRate_;
 
   bool readDB_;
   int defaultTtrig_;
@@ -93,9 +90,5 @@ private:
   std::map<DTChamberId, TH1F*> chamberOccupancyVsLumiMap_;
   // Map of occupancy by time by chamber
   std::map<DTChamberId, TH1F*> chamberOccupancyVsTimeMap_;
-  // Map of the histograms with the number of events per evt per wire
-  //std::map<DTLayerId, TH2F*> theHistoEvtPerWireMap_;
-  // Map of skipped histograms
-  //std::map<DTLayerId, int> skippedPlot;
 };
 #endif

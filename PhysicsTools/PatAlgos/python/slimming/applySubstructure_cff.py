@@ -80,6 +80,13 @@ def applySubstructure( process, postfix="" ) :
         groomedFatJets=cms.InputTag('ak8PFJetsPuppiSoftDrop') # needed for subjet flavor clustering
     )
 
+    from Configuration.Eras.Modifier_run3_common_cff import run3_common
+    run3_common.toModify(process.patJetsAK8PFPuppiSoftDropSubjets,
+                         discriminatorSources = cms.VInputTag(
+                            cms.InputTag("pfDeepCSVJetTagsAK8PFPuppiSoftDropSubjets","probb"),
+                            cms.InputTag("pfDeepCSVJetTagsAK8PFPuppiSoftDropSubjets","probbb")
+                         )
+    )
 
     # add groomed ECFs and N-subjettiness to soft dropped pat::Jets for fat jets and subjets
     process.load('RecoJets.JetProducers.ECF_cff')
@@ -130,6 +137,16 @@ def applySubstructure( process, postfix="" ) :
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).cut = cms.string("pt > 100")
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).cutLoose = cms.string("pt > 30")
     getattr(process,"selectedPatJetsAK8Puppi"+postfix).nLoose = cms.uint32(3)
+
+    from Configuration.Eras.Modifier_run3_common_cff import run3_common
+    run3_common.toModify(process.patJetsAK8Puppi,
+                         discriminatorSources = cms.VInputTag(
+                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probb"),
+                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probc"),
+                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probudsg"),
+                            cms.InputTag("pfDeepCSVJetTagsAK8Puppi","probbb")
+                         )
+    )
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     addToProcessAndTask('ak8PFJetsPuppiTracksAssociatorAtVertex'+postfix, cms.EDProducer("JetTracksAssociatorAtVertex",

@@ -21,18 +21,14 @@
 #include <FWCore/Utilities/interface/Exception.h>
 
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
-#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMatacq.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMom.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMTQ.h>
-
-using namespace std;
 
 //========================================================================
 EcalMatacqAnalyzer::EcalMatacqAnalyzer(const edm::ParameterSet& iConfig)
@@ -60,6 +56,13 @@ EcalMatacqAnalyzer::EcalMatacqAnalyzer(const edm::ParameterSet& iConfig)
       _slide(iConfig.getUntrackedParameter<unsigned int>("nSlide", 100)),
       _fedid(iConfig.getUntrackedParameter<int>("fedID", -999)),
       _debug(iConfig.getUntrackedParameter<int>("debug", 0)),
+      resdir_(iConfig.getUntrackedParameter<std::string>("resDir")),
+      digiCollection_(iConfig.getParameter<std::string>("digiCollection")),
+      digiProducer_(iConfig.getParameter<std::string>("digiProducer")),
+      eventHeaderCollection_(iConfig.getParameter<std::string>("eventHeaderCollection")),
+      eventHeaderProducer_(iConfig.getParameter<std::string>("eventHeaderProducer")),
+      pmatToken_(consumes<EcalMatacqDigiCollection>(edm::InputTag(digiProducer_, digiCollection_))),
+      dccToken_(consumes<EcalRawDataCollection>(edm::InputTag(eventHeaderProducer_, eventHeaderCollection_))),
       nSides(NSIDES),
       lightside(0),
       runType(-1),
@@ -73,22 +76,6 @@ EcalMatacqAnalyzer::EcalMatacqAnalyzer(const edm::ParameterSet& iConfig)
 //========================================================================
 {
   //now do what ever initialization is needed
-
-  resdir_ = iConfig.getUntrackedParameter<std::string>("resDir");
-
-  digiCollection_ = iConfig.getParameter<std::string>("digiCollection");
-  digiProducer_ = iConfig.getParameter<std::string>("digiProducer");
-
-  eventHeaderCollection_ = iConfig.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_ = iConfig.getParameter<std::string>("eventHeaderProducer");
-}
-
-//========================================================================
-EcalMatacqAnalyzer::~EcalMatacqAnalyzer() {
-  //========================================================================
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //========================================================================
@@ -142,35 +129,28 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   ++iEvent;
 
   if (_debug == 1)
-    std::cout << "-- debug test -- Entering Analyze -- event= " << iEvent << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- Entering Analyze -- event= " << iEvent;
 
   // retrieving MATACQ :
-  edm::Handle<EcalMatacqDigiCollection> pmatacqDigi;
-  const EcalMatacqDigiCollection* matacqDigi = nullptr;
-  try {
-    e.getByLabel(digiProducer_, digiCollection_, pmatacqDigi);
-    matacqDigi = pmatacqDigi.product();
+  const edm::Handle<EcalMatacqDigiCollection>& pmatacqDigi = e.getHandle(pmatToken_);
+  const EcalMatacqDigiCollection* matacqDigi = (pmatacqDigi.isValid()) ? pmatacqDigi.product() : nullptr;
+  if (pmatacqDigi.isValid()) {
     if (_debug == 1)
-      std::cout << "-- debug test -- Matacq Digis Found -- " << std::endl;
-
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product EcalMatacqDigi producer:" << digiProducer_.c_str()
-              << " collection:" << digiCollection_.c_str() << std::endl;
-    if (_debug == 1)
-      std::cout << "-- debug test -- No Matacq Digis Found -- " << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- Matacq Digis Found -- ";
+  } else {
+    edm::LogError("EcalMatacqAnalyzzer") << "Error! can't get the product EcalMatacqDigi producer:"
+                                         << digiProducer_.c_str() << " collection:" << digiCollection_.c_str();
     return;
   }
 
   // retrieving DCC header
 
-  edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const EcalRawDataCollection* DCCHeader = nullptr;
-  try {
-    e.getByLabel(eventHeaderProducer_, eventHeaderCollection_, pDCCHeader);
-    DCCHeader = pDCCHeader.product();
-  } catch (std::exception& ex) {
-    std::cerr << "Error! can't get the product EcalRawData producer:" << eventHeaderProducer_.c_str()
-              << " collection:" << eventHeaderCollection_.c_str() << std::endl;
+  const edm::Handle<EcalRawDataCollection>& pDCCHeader = e.getHandle(dccToken_);
+  const EcalRawDataCollection* DCCHeader = (pDCCHeader.isValid()) ? pDCCHeader.product() : nullptr;
+  if (!pDCCHeader.isValid()) {
+    edm::LogError("EcalMatacqAnalyzzer") << "Error! can't get the product EcalRawData producer:"
+                                         << eventHeaderProducer_.c_str()
+                                         << " collection:" << eventHeaderCollection_.c_str();
     return;
   }
 
@@ -179,7 +159,7 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   // ====================================
 
   if (_debug == 1)
-    std::cout << "-- debug test -- Before header -- " << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- Before header -- ";
 
   for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
        ++headerItr) {
@@ -200,7 +180,8 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
     event = headerItr->getLV1();
 
     if (_debug == 1)
-      std::cout << "-- debug test -- runtype:" << runType << " event:" << event << " runNum:" << runNum << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer")
+          << "-- debug test -- runtype:" << runType << " event:" << event << " runNum:" << runNum;
 
     dccID = headerItr->getDccInTCCCommand();
     fedID = headerItr->fedId();
@@ -209,12 +190,13 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
     //assert (lightside<2 && lightside>=0);
 
     if (lightside != 1 && lightside != 0) {
-      std::cout << "Unexpected lightside: " << lightside << " for event " << iEvent << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << "Unexpected lightside: " << lightside << " for event " << iEvent;
       return;
     }
     if (_debug == 1) {
-      std::cout << "-- debug test -- Inside header before fed cut -- color=" << color << ", dcc=" << dccID
-                << ", fed=" << fedID << ",  lightside=" << lightside << ", runType=" << runType << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer")
+          << "-- debug test -- Inside header before fed cut -- color=" << color << ", dcc=" << dccID
+          << ", fed=" << fedID << ",  lightside=" << lightside << ", runType=" << runType;
     }
 
     // take event only if the fed corresponds to the DCC in TCC
@@ -222,8 +204,9 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
       continue;
 
     if (_debug == 1) {
-      std::cout << "-- debug test -- Inside header after fed cut -- color=" << color << ", dcc=" << dccID
-                << ", fed=" << fedID << ",  lightside=" << lightside << ", runType=" << runType << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer")
+          << "-- debug test -- Inside header after fed cut -- color=" << color << ", dcc=" << dccID << ", fed=" << fedID
+          << ",  lightside=" << lightside << ", runType=" << runType;
     }
 
     // Cut on runType
@@ -235,12 +218,12 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
     std::vector<int>::iterator iter = find(colors.begin(), colors.end(), color);
     if (iter == colors.end()) {
       colors.push_back(color);
-      std::cout << " new color found " << color << " " << colors.size() << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << " new color found " << color << " " << colors.size();
     }
   }
 
   if (_debug == 1)
-    std::cout << "-- debug test -- Before digis -- Event:" << iEvent << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- Before digis -- Event:" << iEvent;
 
   // Count laser events
   laserEvents++;
@@ -249,7 +232,6 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   // Decode Matacq Information
   // ===========================
 
-  int iCh = 0;
   double max = 0;
 
   for (EcalMatacqDigiCollection::const_iterator it = matacqDigi->begin(); it != matacqDigi->end();
@@ -258,9 +240,8 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
     //
     const EcalMatacqDigi& digis = *it;
 
-    //if(digis.size()==0 || iCh>=N_channels) continue;
     if (_debug == 1) {
-      std::cout << "-- debug test -- Inside digis -- digi size=" << digis.size() << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- Inside digis -- digi size=" << digis.size();
     }
 
     if (digis.size() == 0)
@@ -281,14 +262,13 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
       }
     }
     if (_debug == 1) {
-      std::cout << "-- debug test -- Inside digis -- nsamples=" << nsamples << ", max=" << max << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer")
+          << "-- debug test -- Inside digis -- nsamples=" << nsamples << ", max=" << max;
     }
-
-    iCh++;
   }
 
   if (_debug == 1)
-    std::cout << "-- debug test -- After digis -- Event: " << iEvent << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- After digis -- Event: " << iEvent;
   tree->Fill();
 
 }  // analyze
@@ -297,9 +277,9 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
 void EcalMatacqAnalyzer::endJob() {
   // Don't do anything if there is no events
   if (!isThereMatacq) {
-    std::cout << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
-    std::cout << "\t+=+     WARNING! NO MATACQ        +=+" << std::endl;
-    std::cout << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "\t+=+     WARNING! NO MATACQ        +=+";
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
 
     // Remove temporary file
     FILE* test;
@@ -327,8 +307,8 @@ void EcalMatacqAnalyzer::endJob() {
   TProfile* shapeMatTmp = new TProfile(
       "shapeLaserTmp", "shapeLaserTmp", _timeaftmax + _timebefmax, -0.5, double(_timeaftmax + _timebefmax) - 0.5);
 
-  std::cout << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
-  std::cout << "\t+=+     Analyzing MATACQ data     +=+" << std::endl;
+  edm::LogVerbatim("EcalMatacqAnalyzzer") << "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
+  edm::LogVerbatim("EcalMatacqAnalyzzer") << "\t+=+     Analyzing MATACQ data     +=+";
 
   //
   // create output ntuple
@@ -377,15 +357,13 @@ void EcalMatacqAnalyzer::endJob() {
   // loop over the entries of the tree
   TChain* fChain = (TChain*)tree;
   Long64_t nentries = fChain->GetEntriesFast();
-  Long64_t nbytes = 0, nb = 0;
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     // load the event
     Long64_t ientry = fChain->LoadTree(jentry);
     if (ientry < 0)
       break;
-    nb = fChain->GetEntry(jentry);
-    nbytes += nb;
+    fChain->GetEntry(jentry);
 
     status = 0;
     peak = -1;
@@ -402,7 +380,8 @@ void EcalMatacqAnalyzer::endJob() {
     sliding = 0;
 
     if (_debug == 1)
-      std::cout << "-- debug test -- inside loop 1  -- jentry:" << jentry << " over nentries=" << nentries << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer")
+          << "-- debug test -- inside loop 1  -- jentry:" << jentry << " over nentries=" << nentries;
 
     // create the object for Matacq data analysis
 
@@ -421,7 +400,7 @@ void EcalMatacqAnalyzer::endJob() {
                                _slide);
 
     if (_debug == 1)
-      std::cout << "-- debug test -- inside loop 2  -- " << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 2  -- ";
 
     // analyse the Matacq data
     if (mtq->rawPulseAnalysis(nsamples, &matacq[0]) == 0) {
@@ -430,13 +409,13 @@ void EcalMatacqAnalyzer::endJob() {
       pedsig = mtq->getsigBaseLine();
 
       if (_debug == 1)
-        std::cout << "-- debug test -- inside loop 3  -- ped:" << ped << std::endl;
+        edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 3  -- ped:" << ped;
       if (mtq->findPeak() == 0) {
         peak = mtq->getTimpeak();
         sigma = mtq->getsigTimpeak();
       }
       if (_debug == 1)
-        std::cout << "-- debug test -- inside loop 4  -- peak:" << peak << std::endl;
+        edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 4  -- peak:" << peak;
       if (mtq->doFit() == 0) {
         fit = mtq->getTimax();
         ampl = mtq->getAmpl();
@@ -446,16 +425,16 @@ void EcalMatacqAnalyzer::endJob() {
         sliding = mtq->getSlide();
       }
       if (_debug == 1)
-        std::cout << "-- debug test -- inside loop 4  -- ampl:" << ampl << std::endl;
+        edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 4  -- ampl:" << ampl;
       if (mtq->compute_trise() == 0) {
         trise = mtq->getTrise();
       }
       if (_debug == 1)
-        std::cout << "-- debug test -- inside loop 5  -- trise:" << trise << std::endl;
+        edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 5  -- trise:" << trise;
     }
 
     if (_debug == 1)
-      std::cout << "-- debug test -- inside loop 6  -- status:" << status << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 6  -- status:" << status;
 
     if (status == 1 && mtq->findPeak() == 0) {
       int firstS = int(peak - double(_timebefmax));
@@ -463,7 +442,8 @@ void EcalMatacqAnalyzer::endJob() {
 
       // Fill histo if there are enough samples
       if (_debug == 1)
-        std::cout << "-- debug test -- inside loop 7  -- firstS:" << firstS << ", nsamples:" << nsamples << std::endl;
+        edm::LogVerbatim("EcalMatacqAnalyzzer")
+            << "-- debug test -- inside loop 7  -- firstS:" << firstS << ", nsamples:" << nsamples;
 
       if (firstS >= 0 && lastS <= nsamples) {
         for (int i = firstS; i < lastS; i++) {
@@ -511,7 +491,7 @@ void EcalMatacqAnalyzer::endJob() {
       }
     }
     if (_debug == 1)
-      std::cout << "-- debug test -- inside loop 8" << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 8";
 
     // get back color
 
@@ -523,8 +503,8 @@ void EcalMatacqAnalyzer::endJob() {
       }
     }
     if (_debug == 1)
-      std::cout << "-- debug test -- inside loop 8bis color:" << color << " iCol:" << iCol << " nCol:" << nCol
-                << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer")
+          << "-- debug test -- inside loop 8bis color:" << color << " iCol:" << iCol << " nCol:" << nCol;
 
     // fill TMTQ
 
@@ -534,7 +514,7 @@ void EcalMatacqAnalyzer::endJob() {
     // fill the output tree
 
     if (_debug == 1)
-      std::cout << "-- debug test -- inside loop 9" << std::endl;
+      edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside loop 9";
     mtqShape->Fill();
 
     // clean up
@@ -542,7 +522,7 @@ void EcalMatacqAnalyzer::endJob() {
   }
 
   if (_debug == 1)
-    std::cout << "-- debug test -- after loop " << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- after loop ";
   sampFile->Close();
 
   double Peak[6], Sigma[6], Fit[6], Ampl[6], Trise[6], Fwhm[6], Fw20[6], Fw80[6], Ped[6], Pedsig[6], Sliding[6];
@@ -627,7 +607,7 @@ void EcalMatacqAnalyzer::endJob() {
       }
       meanTree[iCol]->Fill();
       if (_debug == 1)
-        std::cout << "-- debug test -- inside final loop  " << std::endl;
+        edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- inside final loop  ";
     }
   }
 
@@ -655,7 +635,7 @@ void EcalMatacqAnalyzer::endJob() {
   // Compute and save laser shape
 
   if (_debug == 1)
-    std::cout << "-- debug test -- computing shape  " << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- computing shape  ";
 
   int firstBin = 0;
   double height = 0.0;
@@ -680,7 +660,7 @@ void EcalMatacqAnalyzer::endJob() {
     meanTree[iColor]->Write();
   }
   if (_debug == 1)
-    std::cout << "-- debug test -- writing  " << std::endl;
+    edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- writing  ";
   shapeMat->Write();
 
   // close the output file
@@ -695,8 +675,8 @@ void EcalMatacqAnalyzer::endJob() {
     system(del2.str().c_str());
   }
 
-  std::cout << "\t+=+    .................... done  +=+" << std::endl;
-  std::cout << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
+  edm::LogVerbatim("EcalMatacqAnalyzzer") << "\t+=+    .................... done  +=+";
+  edm::LogVerbatim("EcalMatacqAnalyzzer") << "\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
 }
 
 DEFINE_FWK_MODULE(EcalMatacqAnalyzer);

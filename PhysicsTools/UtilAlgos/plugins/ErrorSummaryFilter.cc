@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,13 +35,12 @@
 // class declaration
 //
 
-class ErrorSummaryFilter : public edm::EDFilter {
+class ErrorSummaryFilter : public edm::global::EDFilter<> {
 public:
   explicit ErrorSummaryFilter(edm::ParameterSet const&);
-  ~ErrorSummaryFilter() override;
 
 private:
-  bool filter(edm::Event&, edm::EventSetup const&) override;
+  bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > srcToken_;
@@ -72,17 +71,12 @@ ErrorSummaryFilter::ErrorSummaryFilter(edm::ParameterSet const& iConfig)
   }
 }
 
-ErrorSummaryFilter::~ErrorSummaryFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool ErrorSummaryFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+bool ErrorSummaryFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   edm::Handle<std::vector<edm::ErrorSummaryEntry> > errorSummaryEntry;
   iEvent.getByToken(srcToken_, errorSummaryEntry);
 

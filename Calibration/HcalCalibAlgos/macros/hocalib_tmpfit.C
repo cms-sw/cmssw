@@ -198,7 +198,7 @@ int main() {
   unsigned ievt, hoflag;
   int irun, ilumi, nprim, isect, isect2, ndof, nmuon;
 
-  float inslumi, trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, hoang, htime,
+  float pileup, trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, hoang, htime,
       hosig[9], hocorsig[18], hocro, hbhesig[9], caloen[3];
   float momatho, tkpt03, ecal03, hcal03;
   float tmphoang;
@@ -217,7 +217,7 @@ int main() {
 
     Tin->SetBranchAddress("ilumi", &ilumi);
     if (!m_cosmic) {
-      Tin->SetBranchAddress("inslumi", &inslumi);
+      Tin->SetBranchAddress("pileup", &pileup);
       Tin->SetBranchAddress("nprim", &nprim);
       Tin->SetBranchAddress("tkpt03", &tkpt03);
       Tin->SetBranchAddress("ecal03", &ecal03);

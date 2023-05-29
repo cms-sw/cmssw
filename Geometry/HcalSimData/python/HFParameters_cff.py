@@ -23,15 +23,23 @@ HFShowerBlock = cms.PSet(
 )
 
 ##
-## Change the HFShowerLibrary file from Run 2
+## Change the HFShowerLibrary file for Run2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )
+from Configuration.ProcessModifiers.applyHFLibraryFix_cff import applyHFLibraryFix
+#
+#--- Default: to keep using the library with a problem
+(~applyHFLibraryFix & run2_common).toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )
+#
+#--- Alternative: to use Run3 library with applyHFLibraryFix modifier
+(applyHFLibraryFix & run2_common).toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v7.root', FileVersion = 3 )
+(applyHFLibraryFix & run2_common).toModify( HFShowerBlock, EqualizeTimeShift = True )
+#
 run2_common.toModify( HFShowerBlock, ProbMax = 0.5 )
 
 ##
-## Change for the new HFShowerLibrary file to be used for Run 3
+## Change for the latest HFShowerLibrary file for Run 3
 ##
 from Configuration.Eras.Modifier_run3_HFSL_cff import run3_HFSL
-run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v6.root', FileVersion = 2 )
+run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v7.root', FileVersion = 3 )
 run3_HFSL.toModify( HFShowerBlock, EqualizeTimeShift = True )

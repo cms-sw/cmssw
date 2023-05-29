@@ -1,5 +1,5 @@
 {
-    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
         "SiStripApvGain_PCL_multirun_v0_prompt": {},
         "SiStripApvGain_PCL_multirun_v0_hlt": {}

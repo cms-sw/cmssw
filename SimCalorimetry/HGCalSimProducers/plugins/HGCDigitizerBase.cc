@@ -103,6 +103,7 @@ void HGCDigitizerBase::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
       RandNoiseGenerationFlag_ = true;
     }
   }
+  myFEelectronics_->generateTimeOffset(engine);
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
   else
@@ -183,7 +184,7 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
               : std::floor(cell.thickness * myFEelectronics_->getADCThreshold() / myFEelectronics_->getADClsb());
     }
 
-    //loop over time samples and add noise
+    //loop over time samples, compute toa and add noise
     for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
 
@@ -207,8 +208,18 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
     //run the shaper to create a new data frame
     DFr rawDataFrame(id);
     int thickness = cell.thickness > 0 ? cell.thickness : 1;
-    myFEelectronics_->runShaper(
-        rawDataFrame, chargeColl, toa, adcPulse, engine, thrADC, lsbADC, gainIdx, maxADC, thickness, tdcOnsetAuto);
+    myFEelectronics_->runShaper(rawDataFrame,
+                                chargeColl,
+                                toa,
+                                adcPulse,
+                                engine,
+                                thrADC,
+                                lsbADC,
+                                gainIdx,
+                                maxADC,
+                                thickness,
+                                tdcOnsetAuto,
+                                noiseWidth);
 
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);

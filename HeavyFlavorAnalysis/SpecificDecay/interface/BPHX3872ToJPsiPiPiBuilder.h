@@ -12,41 +12,49 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToJPsiPiPiBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayConstrainedBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-class BPHParticleChargeSelect;
-class BPHParticlePtSelect;
-class BPHParticleEtaSelect;
-class BPHMassSelect;
-class BPHChi2Select;
-class BPHMassFitSelect;
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
-
+#include <vector>
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHX3872ToJPsiPiPiBuilder {
+class BPHX3872ToJPsiPiPiBuilder : public BPHDecayToJPsiPiPiBuilder {
 public:
   /** Constructor
    */
-  BPHX3872ToJPsiPiPiBuilder(const edm::EventSetup& es,
+  BPHX3872ToJPsiPiPiBuilder(const BPHEventSetupWrapper& es,
                             const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
                             const BPHRecoBuilder::BPHGenericCollection* posCollection,
-                            const BPHRecoBuilder::BPHGenericCollection* negCollection);
+                            const BPHRecoBuilder::BPHGenericCollection* negCollection)
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayToJPsiPiPiBuilder(jpsiCollection, posCollection, negCollection) {
+    setResMassRange(2.80, 3.40);
+    setTrkPtMin(1.0);
+    setTrkEtaMax(10.0);
+    setMassRange(3.00, 4.50);
+    setProbMin(0.02);
+    setMassFitRange(3.80, 4.20);
+  }
 
   // deleted copy constructor and assignment operator
   BPHX3872ToJPsiPiPiBuilder(const BPHX3872ToJPsiPiPiBuilder& x) = delete;
@@ -54,60 +62,7 @@ public:
 
   /** Destructor
    */
-  virtual ~BPHX3872ToJPsiPiPiBuilder();
-
-  /** Operations
-   */
-  /// build X3872 candidates
-  std::vector<BPHRecoConstCandPtr> build();
-
-  /// set cuts
-  void setPiPtMin(double pt);
-  void setPiEtaMax(double eta);
-  void setJPsiMassMin(double m);
-  void setJPsiMassMax(double m);
-  void setMassMin(double m);
-  void setMassMax(double m);
-  void setProbMin(double p);
-  void setMassFitMin(double m);
-  void setMassFitMax(double m);
-  void setConstr(bool flag);
-
-  /// get current cuts
-  double getPiPtMin() const;
-  double getPiEtaMax() const;
-  double getJPsiMassMin() const;
-  double getJPsiMassMax() const;
-  double getMassMin() const;
-  double getMassMax() const;
-  double getProbMin() const;
-  double getMassFitMin() const;
-  double getMassFitMax() const;
-  bool getConstr() const;
-
-private:
-  std::string jPsiName;
-  std::string pionPosName;
-  std::string pionNegName;
-
-  const edm::EventSetup* evSetup;
-  const std::vector<BPHPlusMinusConstCandPtr>* jCollection;
-  const BPHRecoBuilder::BPHGenericCollection* pCollection;
-  const BPHRecoBuilder::BPHGenericCollection* nCollection;
-
-  BPHMassSelect* jpsiSel;
-  double ptMin;
-  double etaMax;
-
-  BPHMassSelect* massSel;
-  BPHChi2Select* chi2Sel;
-  BPHMassFitSelect* mFitSel;
-
-  bool massConstr;
-  float minPDiff;
-  bool updated;
-
-  std::vector<BPHRecoConstCandPtr> x3872List;
+  ~BPHX3872ToJPsiPiPiBuilder() override = default;
 };
 
 #endif

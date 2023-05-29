@@ -6,6 +6,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 
 from Configuration.StandardSequences.Eras import eras
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuon_string
 
 ###################################################################
 def best_match(rcd):
@@ -56,7 +57,7 @@ options.register ('myseed',
                   "seed number")
 
 options.register ('myfile',
-                  '/store/relval/CMSSW_10_6_1/RelValZMM_13/GEN-SIM-RECO/PU25ns_106X_mc2017_realistic_v6_HS-v1/10000/44690279-DDF3-0D43-B92D-F5CB57EF7E6A.root', # default value
+                  filesDefaultMC_DoubleMuon_string, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "file name")

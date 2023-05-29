@@ -5,7 +5,7 @@ hltTripleMuon3DR0 = cms.EDFilter("HLT2L1TkMuonL1TkMuonMuRefDR",
     MinN = cms.int32(3),
     inputTag1 = cms.InputTag("hltL1TripleMuFiltered3"),
     inputTag2 = cms.InputTag("hltL1TripleMuFiltered3"),
-    originTag1 = cms.VInputTag("hltL1TkMuons"),
-    originTag2 = cms.VInputTag("hltL1TkMuons"),
+    originTag1 = cms.VInputTag("l1tTkMuonsGmt"),
+    originTag2 = cms.VInputTag("l1tTkMuonsGmt"),
     saveTags = cms.bool(True)
 )

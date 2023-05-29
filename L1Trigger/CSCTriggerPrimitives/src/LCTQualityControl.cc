@@ -8,9 +8,9 @@ LCTQualityControl::LCTQualityControl(unsigned endcap,
                                      unsigned sector,
                                      unsigned subsector,
                                      unsigned chamber,
-                                     const edm::ParameterSet& conf)
+                                     CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
-  nplanes_clct_hit_pattern = clctParams_.getParameter<unsigned int>("clctNplanesHitPattern");
+  nplanes_clct_hit_pattern = conf.clctParams().getParameter<unsigned int>("clctNplanesHitPattern");
 }
 
 // Check if the ALCT is valid
@@ -488,8 +488,8 @@ std::pair<unsigned, unsigned> LCTQualityControl::get_csc_lct_min_max_quality(uns
 
   const bool GEMCSC = (isME11_ and runME11ILT_) or (isME21_ and runME21ILT_);
 
-  // Run-3 with CCLUT on
-  if (runCCLUT_ and !GEMCSC) {
+  // Run-3
+  if (run3_ and !GEMCSC) {
     min_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3::LowQ);
     max_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3::HighQ);
   }
@@ -502,7 +502,7 @@ std::pair<unsigned, unsigned> LCTQualityControl::get_csc_lct_min_max_quality(uns
 
   // Run-3 CSC with GEM-CSC on and CCLUT on
   if (runCCLUT_ and GEMCSC) {
-    min_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_2GEM);
+    min_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::CLCT_2GEM);
     max_quality = static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_2GEM_GEMCSCBend);
   }
   return std::make_pair(min_quality, max_quality);

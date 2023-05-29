@@ -22,17 +22,23 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker& iBooker, DQMStore:
   setBookStatOverflowFlag(set_StatOverflowFlag);
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation ";
-  bookH1andDivide(
-      iBooker, iGetter, "etaEff", "matchingObjectEta_matched", "matchingObject_eta", "#eta", "Efficiency", "");
-  bookH1andDivide(iBooker, iGetter, "zEff", "matchingObjectZ_matched", "matchingObject_z", "z (cm)", "Efficiency", "");
   bookH1andDivide(iBooker,
                   iGetter,
-                  "absetaEff",
-                  "matchingObjectAbsEta_matched",
-                  "matchingObject_abseta",
+                  "etaEff_Extended",
+                  "matchingObjectEta_Extended_matched",
+                  "matchingObject_eta_Extended",
+                  "#eta",
+                  "Efficiency",
+                  "");
+  bookH1andDivide(iBooker,
+                  iGetter,
+                  "absetaEff_Extended",
+                  "matchingObjectAbsEta_Extended_matched",
+                  "matchingObject_abseta_Extended",
                   "|#eta|",
                   "Efficiency",
                   "");
+  bookH1andDivide(iBooker, iGetter, "zEff", "matchingObjectZ_matched", "matchingObject_z", "z (cm)", "Efficiency", "");
   bookH1andDivide(
       iBooker, iGetter, "ptEff", "matchingObjectPt_matched", "matchingObject_Pt", "p_{T} (GeV/c)", "Efficiency", "");
   bookH1andDivide(
@@ -102,6 +108,10 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker& iBooker, DQMStore:
   if (h1_ele_provenance_endcaps->getBinContent(3) > 0) {
     h1_ele_provenance_endcaps->getTH1F()->Scale(1. / h1_ele_provenance_endcaps->getBinContent(3));
   }
+  MonitorElement* h1_ele_provenance_Extended = get(iGetter, "provenance_Extended");
+  if (h1_ele_provenance_Extended->getBinContent(3) > 0) {
+    h1_ele_provenance_Extended->getTH1F()->Scale(1. / h1_ele_provenance_Extended->getBinContent(3));
+  }
 
   // profiles from 2D histos
   profileX(iBooker, iGetter, "PoPmatchingObjectVsEta", "", "#eta", "<P/P_{gen}>");
@@ -112,7 +122,7 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker& iBooker, DQMStore:
   profileX(iBooker, iGetter, "PhiMnPhimatchingObjectVsPhi", "", "#phi (rad)", "");
   profileX(iBooker, iGetter, "vertexPtVsEta", "mean ele transverse momentum vs eta", "#eta", "<p_{T}> (GeV/c)");
   profileX(iBooker, iGetter, "vertexPtVsPhi", "mean ele transverse momentum vs phi", "#phi (rad)", "<p_{T}> (GeV/c)");
-  profileX(iBooker, iGetter, "EoPVsEta", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
+  profileX(iBooker, iGetter, "EoPVsEta_Extended", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPVsPhi", "mean ele E/p vs phi", "#phi (rad)", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPoutVsEta", "mean ele E/pout vs eta", "#eta", "<E_{seed}/P_{out}>");
   profileX(iBooker, iGetter, "EoPoutVsPhi", "mean ele E/pout vs phi", "#phi (rad)", "<E_{seed}/P_{out}>");
@@ -122,7 +132,7 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker& iBooker, DQMStore:
   profileX(iBooker, iGetter, "HoEVsPhi", "mean ele H/E vs phi", "#phi (rad)", "<H/E>");
   profileX(iBooker, iGetter, "chi2VsEta", "mean ele track chi2 vs eta", "#eta", "<#Chi^{2}>");
   profileX(iBooker, iGetter, "chi2VsPhi", "mean ele track chi2 vs phi", "#phi (rad)", "<#Chi^{2}>");
-  profileX(iBooker, iGetter, "foundHitsVsEta", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
+  profileX(iBooker, iGetter, "foundHitsVsEta_Extended", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
   profileX(iBooker, iGetter, "foundHitsVsPhi", "mean ele track # found hits vs phi", "#phi (rad)", "<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsEta", "mean ele track # lost hits vs eta", "#eta", "<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsPhi", "mean ele track # lost hits vs phi", "#phi (rad)", "<N_{hits}>");

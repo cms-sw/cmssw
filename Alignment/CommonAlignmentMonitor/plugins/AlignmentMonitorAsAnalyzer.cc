@@ -44,7 +44,6 @@
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
-#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
@@ -89,7 +88,6 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTokenTTopo_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> esTokenGeomDet_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> esTokenPTP_;
-  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> esTokenPtitp_;
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
   const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
@@ -102,6 +100,7 @@ private:
   const edm::ESGetToken<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd> esTokenCSCAPE_;
   const edm::ESGetToken<Alignments, GEMAlignmentRcd> esTokenGEMAl_;
   const edm::ESGetToken<AlignmentErrorsExtended, GEMAlignmentErrorExtendedRcd> esTokenGEMAPE_;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackToken_;
   bool m_firstEvent;
 };
 
@@ -122,7 +121,6 @@ AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& 
       esTokenTTopo_(esConsumes()),
       esTokenGeomDet_(esConsumes()),
       esTokenPTP_(esConsumes()),
-      esTokenPtitp_(esConsumes()),
       esTokenDT_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
       esTokenCSC_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
       esTokenGEM_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
@@ -134,7 +132,8 @@ AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& 
       esTokenCSCAl_(esConsumes()),
       esTokenCSCAPE_(esConsumes()),
       esTokenGEMAl_(esConsumes()),
-      esTokenGEMAPE_(esConsumes()) {
+      esTokenGEMAPE_(esConsumes()),
+      trajTrackToken_(consumes<TrajTrackAssociationCollection>(m_tjTag)) {
   edm::ConsumesCollector consumeCollector = consumesCollector();
   std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string>>("monitors");
 
@@ -158,9 +157,8 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
     const GeometricDet* geom = &iSetup.getData(esTokenGeomDet_);
     const PTrackerParameters& ptp = iSetup.getData(esTokenPTP_);
-    const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(esTokenPtitp_);
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-    std::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(geom, ptitp, ptp, tTopo));
+    std::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(geom, ptp, tTopo));
 
     edm::ESHandle<DTGeometry> theMuonDT = iSetup.getHandle(esTokenDT_);
     edm::ESHandle<CSCGeometry> theMuonCSC = iSetup.getHandle(esTokenCSC_);
@@ -213,8 +211,7 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
   // Retrieve trajectories and tracks from the event
-  edm::Handle<TrajTrackAssociationCollection> trajTracksMap;
-  iEvent.getByLabel(m_tjTag, trajTracksMap);
+  const edm::Handle<TrajTrackAssociationCollection>& trajTracksMap = iEvent.getHandle(trajTrackToken_);
 
   // Form pairs of trajectories and tracks
   ConstTrajTrackPairCollection trajTracks;

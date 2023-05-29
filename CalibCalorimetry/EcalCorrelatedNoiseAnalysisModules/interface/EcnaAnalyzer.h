@@ -157,6 +157,9 @@ private:
   std::string eventHeaderCollection_;
   std::string EBdigiCollection_;
   std::string EEdigiCollection_;
+  edm::EDGetTokenT<EcalRawDataCollection> eventHeaderToken_;
+  edm::EDGetTokenT<EBDigiCollection> EBdigiToken_;
+  edm::EDGetTokenT<EEDigiCollection> EEdigiToken_;
 
   TString sAnalysisName_;
   TString sNbOfSamples_;

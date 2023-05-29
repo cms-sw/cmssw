@@ -13,9 +13,10 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToTkpTknSymChargeBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToTkpTknSymChargeBuilder.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //---------------
@@ -31,79 +32,79 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const edm::EventSetup& es,
-                                                         const std::string& d1Name,
-                                                         double d1Mass,
-                                                         double d1Sigma,
-                                                         const std::string& d2Name,
-                                                         double d2Mass,
-                                                         double d2Sigma,
-                                                         const BPHRecoBuilder::BPHGenericCollection* posCollection,
-                                                         const BPHRecoBuilder::BPHGenericCollection* negCollection,
+BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const BPHEventSetupWrapper& es,
+                                                         const string& daug1Name,
+                                                         double daug1Mass,
+                                                         double daug1Sigma,
+                                                         const string& daug2Name,
+                                                         double daug2Mass,
+                                                         double daug2Sigma,
+                                                         const BPHRecoBuilder::BPHGenericCollection* daug1Collection,
+                                                         const BPHRecoBuilder::BPHGenericCollection* daug2Collection,
                                                          double expectedMass)
-    : BPHDecayToV0Builder(es, d1Name, d2Name, posCollection, negCollection),
-      p1Mass(d1Mass),
-      p2Mass(d2Mass),
-      p1Sigma(d1Sigma),
-      p2Sigma(d2Sigma),
+    : BPHDecayGenericBuilderBase(es),
+      BPHDecayToV0Builder(es, daug1Name, daug2Name, daug1Collection, daug2Collection),
+      BPHDecayToTkpTknSymChargeBuilder(es,
+                                       daug1Name,
+                                       daug1Mass,
+                                       daug1Sigma,
+                                       daug2Name,
+                                       daug2Mass,
+                                       daug2Sigma,
+                                       daug1Collection,
+                                       daug2Collection,
+                                       expectedMass),
+      p1Mass(daug1Mass),
+      p2Mass(daug2Mass),
+      p1Sigma(daug1Sigma),
+      p2Sigma(daug2Sigma),
       expMass(expectedMass) {}
 
-BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const edm::EventSetup& es,
-                                                         const std::string& d1Name,
-                                                         double d1Mass,
-                                                         double d1Sigma,
-                                                         const std::string& d2Name,
-                                                         double d2Mass,
-                                                         double d2Sigma,
-                                                         const std::vector<reco::VertexCompositeCandidate>* v0Collection,
+BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const BPHEventSetupWrapper& es,
+                                                         const string& daug1Name,
+                                                         double daug1Mass,
+                                                         double daug1Sigma,
+                                                         const string& daug2Name,
+                                                         double daug2Mass,
+                                                         double daug2Sigma,
+                                                         const vector<reco::VertexCompositeCandidate>* v0Collection,
                                                          double expectedMass,
-                                                         const std::string& searchList)
-    : BPHDecayToV0Builder(es, d1Name, d2Name, v0Collection, searchList),
-      p1Mass(d1Mass),
-      p2Mass(d2Mass),
-      p1Sigma(d1Sigma),
-      p2Sigma(d2Sigma),
+                                                         const string& searchList)
+    : BPHDecayGenericBuilderBase(es),
+      BPHDecayToV0Builder(es, daug1Name, daug2Name, v0Collection, searchList),
+      BPHDecayToTkpTknSymChargeBuilder(
+          es, daug1Name, daug1Mass, daug1Sigma, daug2Name, daug2Mass, daug2Sigma, nullptr, nullptr, expectedMass),
+      p1Mass(daug1Mass),
+      p2Mass(daug2Mass),
+      p1Sigma(daug1Sigma),
+      p2Sigma(daug2Sigma),
       expMass(expectedMass) {}
 
-BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(
-    const edm::EventSetup& es,
-    const std::string& d1Name,
-    double d1Mass,
-    double d1Sigma,
-    const std::string& d2Name,
-    double d2Mass,
-    double d2Sigma,
-    const std::vector<reco::VertexCompositePtrCandidate>* vpCollection,
-    double expectedMass,
-    const std::string& searchList)
-    : BPHDecayToV0Builder(es, d1Name, d2Name, vpCollection, searchList),
-      p1Mass(d1Mass),
-      p2Mass(d2Mass),
-      p1Sigma(d1Sigma),
-      p2Sigma(d2Sigma),
+BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const BPHEventSetupWrapper& es,
+                                                         const string& daug1Name,
+                                                         double daug1Mass,
+                                                         double daug1Sigma,
+                                                         const string& daug2Name,
+                                                         double daug2Mass,
+                                                         double daug2Sigma,
+                                                         const vector<reco::VertexCompositePtrCandidate>* vpCollection,
+                                                         double expectedMass,
+                                                         const string& searchList)
+    : BPHDecayGenericBuilderBase(es),
+      BPHDecayToV0Builder(es, daug1Name, daug2Name, vpCollection, searchList),
+      BPHDecayToTkpTknSymChargeBuilder(
+          es, daug1Name, daug1Mass, daug1Sigma, daug2Name, daug2Mass, daug2Sigma, nullptr, nullptr, expectedMass),
+      p1Mass(daug1Mass),
+      p2Mass(daug2Mass),
+      p1Sigma(daug1Sigma),
+      p2Sigma(daug2Sigma),
       expMass(expectedMass) {}
-
-//--------------
-// Destructor --
-//--------------
-BPHDecayToV0DiffMassBuilder::~BPHDecayToV0DiffMassBuilder() {}
 
 //--------------
 // Operations --
 //--------------
 void BPHDecayToV0DiffMassBuilder::buildFromBPHGenericCollection() {
-  BPHDecayToTkpTknSymChargeBuilder b(
-      *evSetup, p1Name, p1Mass, p1Sigma, p2Name, p2Mass, p2Sigma, p1Collection, p2Collection, expMass);
-
-  b.setTrk1PtMin(ptMin);
-  b.setTrk2PtMin(ptMin);
-  b.setTrk1EtaMax(etaMax);
-  b.setTrk2EtaMax(etaMax);
-  b.setMassRange(getMassMin(), getMassMax());
-  b.setProbMin(getProbMin());
-
-  cList = b.build();
-
+  BPHDecayToTkpTknSymChargeBuilder::build();
   return;
 }
 

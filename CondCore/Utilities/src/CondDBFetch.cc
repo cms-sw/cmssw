@@ -164,6 +164,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(HcalLutMetadata)
       FETCH_PAYLOAD_CASE(HcalMCParams)
       FETCH_PAYLOAD_CASE(HcalPFCorrs)
+      FETCH_PAYLOAD_CASE(HcalPFCuts)
       FETCH_PAYLOAD_CASE(HcalPedestalWidths)
       FETCH_PAYLOAD_CASE(HcalPedestals)
       FETCH_PAYLOAD_CASE(HcalQIEData)

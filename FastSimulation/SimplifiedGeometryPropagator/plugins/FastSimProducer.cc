@@ -87,6 +87,7 @@ private:
   edm::ESWatcher<CaloTopologyRecord> watchCaloTopology_;
   std::unique_ptr<CalorimetryManager> myCalorimetry;  // unfortunately, default constructor cannot be called
   bool simulateMuons;
+  bool useFastSimsDecayer;
 
   fastsim::Decayer decayer_;  //!< Handles decays of non-stable particles using pythia
   std::vector<std::unique_ptr<fastsim::InteractionModel> > interactionModels_;  //!< All defined interaction models
@@ -109,6 +110,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       _randomEngine(nullptr),
       simulateCalorimetry(iConfig.getParameter<bool>("simulateCalorimetry")),
       simulateMuons(iConfig.getParameter<bool>("simulateMuons")),
+      useFastSimsDecayer(iConfig.getParameter<bool>("useFastSimsDecayer")),
       particleDataTableESToken_(esConsumes()) {
   if (simulateCalorimetry) {
     caloGeometryESToken_ = esConsumes();
@@ -196,11 +198,15 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                            deltaRchargedMother_,
                                            particleFilter_,
                                            *simTracks_,
-                                           *simVertices_);
+                                           *simVertices_,
+                                           useFastSimsDecayer);
 
   //  Initialize the calorimeter geometry
   if (simulateCalorimetry) {
-    if (watchCaloGeometry_.check(iSetup) || watchCaloTopology_.check(iSetup)) {
+    //evaluate here since || short circuits and we want to be sure bother are updated
+    auto newGeom = watchCaloGeometry_.check(iSetup);
+    auto newTopo = watchCaloTopology_.check(iSetup);
+    if (newGeom || newTopo) {
       auto const& pG = iSetup.getData(caloGeometryESToken_);
       myCalorimetry->getCalorimeter()->setupGeometry(pG);
 
@@ -292,7 +298,8 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10) {
         LogDebug(MESSAGECATEGORY) << "Decaying particle...";
         std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
-        decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
+        if (useFastSimsDecayer)
+          decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
         LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
         particleManager.addSecondaries(particle->position(), particle->simTrackIndex(), secondaries);
         continue;
@@ -504,7 +511,8 @@ FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
   if (!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10) {
     LogDebug(MESSAGECATEGORY) << "Decaying particle...";
     std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
-    decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
+    if (useFastSimsDecayer)
+      decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
     LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
     particleManager->addSecondaries(particle->position(), particle->simTrackIndex(), secondaries);
   }

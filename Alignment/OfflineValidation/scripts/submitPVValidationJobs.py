@@ -443,13 +443,11 @@ class Job:
         self.outputCfgName=self.output_full_name+"_cfg.py"
         fout=open(os.path.join(self.cfg_dir,self.outputCfgName),'w')
 
-        template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_cfg.py")
-
-        fin = open(template_cfg_file)
+        template_cfg_file = os.path.join(self.CMSSW_dir,"src/Alignment/OfflineValidation/test","PVValidation_T_cfg.py")
+        file = open(template_cfg_file,'r')
 
         config_txt = '\n\n' + CopyRights + '\n\n'
-        config_txt += fin.read()
-
+        config_txt += file.read()
         config_txt=config_txt.replace("ISDATEMPLATE",self.isDA)
         config_txt=config_txt.replace("ISMCTEMPLATE",self.isMC)
         config_txt=config_txt.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
@@ -477,27 +475,36 @@ class Job:
         config_txt=config_txt.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]")
         config_txt=config_txt.replace("OUTFILETEMPLATE",self.output_full_name+".root")
 
+        ### now for the extra conditions
+        textToWrite=''
+        for element in self.extraCondVect :
+            if("Rcd" in element):
+                params = self.extraCondVect[element].split(',')
+                text = '''\n
+          process.conditionsIn{record} = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+               connect = cms.string('{database}'),
+               toGet = cms.VPSet(cms.PSet(record = cms.string('{record}'),
+                                          tag = cms.string('{tag}'),
+                                          label = cms.untracked.string('{label}')
+                                         )
+                                )
+          )
+          process.prefer_conditionsIn{record} = cms.ESPrefer("PoolDBESSource", "conditionsIn{record}")
+        '''.format(record = element, database = params[0], tag = params[1], label = (params[2] if len(params)>2 else ''))
+                textToWrite+=text
+
+        if(self.applyEXTRACOND=="True"):
+            if not self.extraCondVect:
+                raise Exception('Requested extra conditions, but none provided')
+
+            config_txt=config_txt.replace("END OF EXTRA CONDITIONS",textToWrite)
+        else:
+            print("INFO: Will not apply any extra conditions")
+            pass
+
         fout.write(config_txt)
 
-        for line in fin.readlines():
-
-            if 'END OF EXTRA CONDITIONS' in line:
-                for element in self.extraCondVect :
-                    if("Rcd" in element):
-                        params = self.extraCondVect[element].split(',')
-
-                        fout.write(" \n")
-                        fout.write("     process.conditionsIn"+element+"= CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone( \n")
-                        fout.write("          connect = cms.string('"+params[0]+"'), \n")
-                        fout.write("          toGet = cms.VPSet(cms.PSet(record = cms.string('"+element+"'), \n")
-                        fout.write("                                     tag = cms.string('"+params[1]+"'), \n")
-                        if (len(params)>2):
-                            fout.write("                                     label = cms.untracked.string('"+params[2]+"') \n")
-                        fout.write("                                     ) \n")
-                        fout.write("                            ) \n")
-                        fout.write("          ) \n")
-                        fout.write("     process.prefer_conditionsIn"+element+" = cms.ESPrefer(\"PoolDBESSource\", \"conditionsIn"+element[0]+"\") \n \n") 
-            fout.write(line)
+        file.close()
         fout.close()
                           
     def createTheLSFFile(self):
@@ -615,8 +622,7 @@ def main():
 
     # CMSSW section
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
-    AnalysisStep_dir = os.path.join(input_CMSSW_BASE,"src/Alignment/OfflineValidation/test")
-    lib_path = os.path.abspath(AnalysisStep_dir)
+    lib_path = os.path.abspath(os.path.join(input_CMSSW_BASE,"src/Alignment/OfflineValidation/test"))
     sys.path.append(lib_path)
 
     ## N.B.: this is dediced here once and for all
@@ -916,7 +922,7 @@ def main():
         ##  print "==========>",conditions
 
         # for hadd script
-        scripts_dir = os.path.join(AnalysisStep_dir,"scripts")
+        scripts_dir = "scripts"
         if not os.path.exists(scripts_dir):
             os.makedirs(scripts_dir)
         hadd_script_file = os.path.join(scripts_dir,jobName[iConf]+"_"+opts.taskname+".sh")
@@ -1048,7 +1054,7 @@ def main():
                        vertextype[iConf], tracktype[iConf],
                        refittertype[iConf], ttrhtype[iConf],
                        applyruncontrol[iConf],
-                       ptcut[iConf],input_CMSSW_BASE,AnalysisStep_dir)
+                       ptcut[iConf],input_CMSSW_BASE,'.')
             
             aJob.setEOSout(eosdir)
             aJob.createTheCfgFile(theSrcFiles)

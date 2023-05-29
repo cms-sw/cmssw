@@ -1,9 +1,12 @@
 #include "RecoTauTag/HLTProducers/interface/L1HLTJetsMatching.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 //
 // class decleration
 //
@@ -20,9 +23,7 @@ L1HLTJetsMatching::L1HLTJetsMatching(const edm::ParameterSet& iConfig) {
   produces<CaloJetCollection>();
 }
 
-L1HLTJetsMatching::~L1HLTJetsMatching() {}
-
-void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
+void L1HLTJetsMatching::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iES) const {
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -33,8 +34,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
 
   unique_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
 
-  double deltaR = 1.0;
-  double matchingR = 0.5;
+  constexpr double matchingR2 = 0.5 * 0.5;
+
   //Getting HLT jets to be matched
   edm::Handle<edm::View<Candidate> > tauJets;
   iEvent.getByToken(jetSrc, tauJets);
@@ -44,8 +45,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
   iEvent.getByToken(tauTrigger, l1TriggeredTaus);
 
-  tauCandRefVec.clear();
-  jetCandRefVec.clear();
+  std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
+  std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
 
   l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet, tauCandRefVec);
   l1TriggeredTaus->getObjects(trigger::TriggerL1CenJet, jetCandRefVec);
@@ -56,8 +57,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
     for (unsigned int iJet = 0; iJet < tauJets->size(); iJet++) {
       //Find the relative L2TauJets, to see if it has been reconstructed
       const Candidate& myJet = (*tauJets)[iJet];
-      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
-      if (deltaR < matchingR) {
+      double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+      if (deltaR2 < matchingR2) {
         //		 LeafCandidate myLC(myJet);
         CaloJet myCaloJet(myJet.p4(), a, f);
         if (myJet.pt() > mEt_Min) {
@@ -73,8 +74,8 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
     for (unsigned int iJet = 0; iJet < tauJets->size(); iJet++) {
       const Candidate& myJet = (*tauJets)[iJet];
       //Find the relative L2TauJets, to see if it has been reconstructed
-      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
-      if (deltaR < matchingR) {
+      double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
+      if (deltaR2 < matchingR2) {
         //		 LeafCandidate myLC(myJet);
         CaloJet myCaloJet(myJet.p4(), a, f);
         if (myJet.pt() > mEt_Min) {
@@ -91,3 +92,6 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES) 
   iEvent.put(std::move(tauL2jets));
   // iEvent.put(std::move(tauL2LC));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L1HLTJetsMatching);

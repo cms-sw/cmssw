@@ -14,6 +14,8 @@
 TauDQMSimpleFileSaver::TauDQMSimpleFileSaver(const edm::ParameterSet& cfg) {
   //std::cout << "<TauDQMSimpleFileSaver::TauDQMSimpleFileSaver>:" << std::endl;
 
+  usesResource("DQMStore");
+
   cfgError_ = 0;
 
   outputFileName_ = cfg.getParameter<std::string>("outputFileName");

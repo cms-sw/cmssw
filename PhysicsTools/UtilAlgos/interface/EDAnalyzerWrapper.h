@@ -2,7 +2,7 @@
 #define PhysicsTools_UtilAlgos_interface_EDAnalyzerWrapper_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -41,7 +41,7 @@
 namespace edm {
 
   template <class T>
-  class AnalyzerWrapper : public EDAnalyzer {
+  class AnalyzerWrapper : public one::EDAnalyzer<one::SharedResources> {
   public:
     /// default contructor
     AnalyzerWrapper(const edm::ParameterSet& cfg);
@@ -62,6 +62,7 @@ namespace edm {
   /// default contructor
   template <class T>
   AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg) {
+    usesResource(TFileService::kSharedResource);
     // defined TFileService
     edm::Service<TFileService> fileService;
     // create analysis class of type BasicAnalyzer

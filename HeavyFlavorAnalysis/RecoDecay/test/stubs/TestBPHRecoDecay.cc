@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
@@ -12,16 +13,16 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
-#include <TH1.h>
-#include <TFile.h>
-#include <TMath.h>
+#include "TH1.h"
+#include "TFile.h"
+#include "TMath.h"
 
 #include <set>
 #include <string>
@@ -42,16 +43,17 @@ TestBPHRecoDecay::TestBPHRecoDecay(const edm::ParameterSet& ps) {
   usePC = (!SET_LABEL(pcCandsLabel, ps).empty());
   useGP = (!SET_LABEL(gpCandsLabel, ps).empty());
 
+  esConsume<TransientTrackBuilder, TransientTrackRecord>(ttBToken, "TransientTrackBuilder");
   if (usePM)
     consume<pat::MuonCollection>(patMuonToken, patMuonLabel);
   if (useCC)
-    consume<vector<pat::CompositeCandidate>>(ccCandsToken, ccCandsLabel);
+    consume<vector<pat::CompositeCandidate> >(ccCandsToken, ccCandsLabel);
   if (usePF)
-    consume<vector<reco::PFCandidate>>(pfCandsToken, pfCandsLabel);
+    consume<vector<reco::PFCandidate> >(pfCandsToken, pfCandsLabel);
   if (usePC)
-    consume<vector<BPHTrackReference::candidate>>(pcCandsToken, pcCandsLabel);
+    consume<vector<BPHTrackReference::candidate> >(pcCandsToken, pcCandsLabel);
   if (useGP)
-    consume<vector<pat::GenericParticle>>(gpCandsToken, gpCandsLabel);
+    consume<vector<pat::GenericParticle> >(gpCandsToken, gpCandsLabel);
   SET_LABEL(outDump, ps);
   SET_LABEL(outHist, ps);
   if (outDump.empty())
@@ -59,8 +61,6 @@ TestBPHRecoDecay::TestBPHRecoDecay(const edm::ParameterSet& ps) {
   else
     fPtr = new ofstream(outDump.c_str());
 }
-
-TestBPHRecoDecay::~TestBPHRecoDecay() {}
 
 void TestBPHRecoDecay::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -92,6 +92,9 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   ostream& outF = *fPtr;
   outF << "--------- event " << ev.id().run() << " / " << ev.id().event() << " ---------" << endl;
 
+  // create a "wrapper" for EventSetup
+  BPHEventSetupWrapper ew(es, BPHRecoCandidate::transientTrackBuilder, &ttBToken);
+
   // get object collections
   // collections are got through "BPHTokenWrapper" interface to allow
   // uniform access in different CMSSW versions
@@ -99,7 +102,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   int nrc = 0;
 
   // get reco::PFCandidate collection (in full AOD )
-  edm::Handle<vector<reco::PFCandidate>> pfCands;
+  edm::Handle<vector<reco::PFCandidate> > pfCands;
   if (usePF) {
     pfCandsToken.get(ev, pfCands);
     nrc = pfCands->size();
@@ -113,7 +116,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   // pat::PackedCandidate is not defined in CMSSW_5XY, so a
   // typedef (BPHTrackReference::candidate) is used, actually referring
   // to pat::PackedCandidate only for CMSSW versions where it's defined
-  edm::Handle<vector<BPHTrackReference::candidate>> pcCands;
+  edm::Handle<vector<BPHTrackReference::candidate> > pcCands;
   if (usePC) {
     pcCandsToken.get(ev, pcCands);
     nrc = pcCands->size();
@@ -124,7 +127,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   }
 
   // get pat::GenericParticle collection (in skimmed data)
-  edm::Handle<vector<pat::GenericParticle>> gpCands;
+  edm::Handle<vector<pat::GenericParticle> > gpCands;
   if (useGP) {
     gpCandsToken.get(ev, gpCands);
     nrc = gpCands->size();
@@ -150,7 +153,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   vector<const reco::Candidate*> muDaugs;
   set<const pat::Muon*> muonSet;
   if (useCC) {
-    edm::Handle<vector<pat::CompositeCandidate>> ccCands;
+    edm::Handle<vector<pat::CompositeCandidate> > ccCands;
     ccCandsToken.get(ev, ccCands);
     int n = ccCands->size();
     if (ccCands.isValid())
@@ -197,7 +200,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonChargeSelect : public BPHRecoSelect {
   public:
     MuonChargeSelect(int c) : charge(c) {}
-    ~MuonChargeSelect() override {}
+    ~MuonChargeSelect() override = default;
     bool accept(const reco::Candidate& cand) const override {
       const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
@@ -213,7 +216,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonPtSelect : public BPHRecoSelect {
   public:
     MuonPtSelect(float pt) : ptCut(pt) {}
-    ~MuonPtSelect() override {}
+    ~MuonPtSelect() override = default;
     bool accept(const reco::Candidate& cand) const override {
       const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
@@ -229,7 +232,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonEtaSelect : public BPHRecoSelect {
   public:
     MuonEtaSelect(float eta) : etaCut(eta) {}
-    ~MuonEtaSelect() override {}
+    ~MuonEtaSelect() override = default;
     bool accept(const reco::Candidate& cand) const override {
       const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
@@ -245,7 +248,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonChargeSelect : public BPHRecoSelect {
   public:
     KaonChargeSelect(int c) : charge(c) {}
-    ~KaonChargeSelect() override {}
+    ~KaonChargeSelect() override = default;
     bool accept(const reco::Candidate& cand) const override { return ((charge * cand.charge()) > 0); }
 
   private:
@@ -255,7 +258,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonNeutralVeto : public BPHRecoSelect {
   public:
     KaonNeutralVeto() {}
-    ~KaonNeutralVeto() override {}
+    ~KaonNeutralVeto() override = default;
     bool accept(const reco::Candidate& cand) const override { return lround(fabs(cand.charge())); }
   };
 
@@ -263,7 +266,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonPtSelect : public BPHRecoSelect {
   public:
     KaonPtSelect(float pt) : ptCut(pt) {}
-    ~KaonPtSelect() override {}
+    ~KaonPtSelect() override = default;
     bool accept(const reco::Candidate& cand) const override { return (cand.p4().pt() > ptCut); }
 
   private:
@@ -274,7 +277,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonEtaSelect : public BPHRecoSelect {
   public:
     KaonEtaSelect(float eta) : etaCut(eta) {}
-    ~KaonEtaSelect() override {}
+    ~KaonEtaSelect() override = default;
     bool accept(const reco::Candidate& cand) const override { return (fabs(cand.p4().eta()) < etaCut); }
 
   private:
@@ -289,7 +292,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MassSelect : public BPHMomentumSelect {
   public:
     MassSelect(double minMass, double maxMass) : mMin(minMass), mMax(maxMass) {}
-    ~MassSelect() override {}
+    ~MassSelect() override = default;
     bool accept(const BPHDecayMomentum& cand) const override {
       double mass = cand.composite().mass();
       return ((mass > mMin) && (mass < mMax));
@@ -304,7 +307,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class Chi2Select : public BPHVertexSelect {
   public:
     Chi2Select(double minProb) : mProb(minProb) {}
-    ~Chi2Select() override {}
+    ~Chi2Select() override = default;
     bool accept(const BPHDecayVertex& cand) const override {
       const reco::Vertex& v = cand.vertex();
       if (v.isFake())
@@ -325,7 +328,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   MuonEtaSelect muEta(2.1);
   string muPos = "MuPos";
   string muNeg = "MuNeg";
-  BPHRecoBuilder bJPsi(es);
+  BPHRecoBuilder bJPsi(ew);
   if (usePM) {
     bJPsi.add(muPos, BPHRecoBuilder::createCollection(patMuon, "cfmig"), 0.105658);
     bJPsi.add(muNeg, BPHRecoBuilder::createCollection(patMuon, "cfmig"), 0.105658);
@@ -361,7 +364,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   // build and dump Phi
 
   outF << "build and dump Phi" << endl;
-  BPHRecoBuilder bPhi(es);
+  BPHRecoBuilder bPhi(ew);
   KaonChargeSelect tkPos(+1);
   KaonChargeSelect tkNeg(-1);
   KaonPtSelect tkPt(0.7);
@@ -401,7 +404,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
 
   if (nJPsi && nPhi) {
     outF << "build and dump Bs" << endl;
-    BPHRecoBuilder bBs(es);
+    BPHRecoBuilder bBs(ew);
     bBs.setMinPDiffererence(1.0e-5);
     bBs.add("JPsi", lJPsi);
     bBs.add("Phi", lPhi);
@@ -429,7 +432,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
 
   if (nJPsi && nrc) {
     outF << "build and dump Bu" << endl;
-    BPHRecoBuilder bBu(es);
+    BPHRecoBuilder bBu(ew);
     bBu.setMinPDiffererence(1.0e-5);
     bBu.add("JPsi", lJPsi);
     if (usePF) {

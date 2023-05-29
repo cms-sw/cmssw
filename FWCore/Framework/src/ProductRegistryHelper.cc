@@ -94,6 +94,10 @@ namespace edm {
         }
         pdesc.setSwitchAliasModuleLabel(p->branchAlias_);
       }
+      if (p->isTransform_) {
+        pdesc.setOnDemand(true);
+        pdesc.setIsTransform(true);
+      }
       setIsMergeable(pdesc);
 
       if (pdesc.transient()) {

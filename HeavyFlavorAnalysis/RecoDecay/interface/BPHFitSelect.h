@@ -17,6 +17,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 class BPHKinematicFit;
+class BPHRecoBuilder;
 
 //---------------
 // C++ Headers --
@@ -38,7 +39,7 @@ public:
 
   /** Destructor
    */
-  virtual ~BPHFitSelect() {}
+  virtual ~BPHFitSelect() = default;
 
   using AcceptArg = BPHKinematicFit;
 
@@ -46,6 +47,7 @@ public:
    */
   /// accept function
   virtual bool accept(const BPHKinematicFit& cand) const = 0;
+  virtual bool accept(const BPHKinematicFit& cand, const BPHRecoBuilder* builder) const { return accept(cand); }
 };
 
 #endif

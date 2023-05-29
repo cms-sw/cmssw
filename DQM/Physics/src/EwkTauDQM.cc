@@ -248,16 +248,13 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
   double theElectronTrackIsoPt = 1.e+3;
   double theElectronEcalIsoPt = 1.e+3;
-  double theElectronHcalIsoPt = 1.e+3;
   if (theElectron) {
     theElectronTrackIsoPt = theElectron->dr03TkSumPt();
     theElectronEcalIsoPt = theElectron->dr03EcalRecHitSumEt();
-    theElectronHcalIsoPt = theElectron->dr03HcalTowerSumEt();
 
     if (electronIsoMode_ == kRelativeIso && theElectron->pt() > 0.) {
       theElectronTrackIsoPt /= theElectron->pt();
       theElectronEcalIsoPt /= theElectron->pt();
-      theElectronHcalIsoPt /= theElectron->pt();
     }
   }
 
@@ -400,17 +397,6 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   //-----------------------------------------------------------------------------
   // apply selection criteria; fill histograms
   //-----------------------------------------------------------------------------
-
-  //--- fill electron multiplicity histogram
-  unsigned numIdElectrons = 0;
-  for (reco::GsfElectronCollection::const_iterator electron = electrons->begin(); electron != electrons->end();
-       ++electron) {
-    if (passesElectronId(*electron)) {
-      ++numIdElectrons;
-    }
-  }
-
-  // hNumIdElectrons_->Fill(numIdElectrons);
 
   ++numEventsAnalyzed_;
 
@@ -862,16 +848,6 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   //-----------------------------------------------------------------------------
   // apply selection criteria; fill histograms
   //-----------------------------------------------------------------------------
-
-  //--- fill muon multiplicity histogram
-  unsigned numGlobalMuons = 0;
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
-    if (muon->isGlobalMuon()) {
-      ++numGlobalMuons;
-    }
-  }
-
-  // hNumGlobalMuons_->Fill(numGlobalMuons);
 
   ++numEventsAnalyzed_;
 

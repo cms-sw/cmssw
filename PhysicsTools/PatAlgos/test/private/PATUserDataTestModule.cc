@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -63,19 +63,19 @@ namespace edm {
 // class decleration
 //
 
-class PATUserDataTestModule : public edm::EDProducer {
+class PATUserDataTestModule : public edm::stream::EDProducer<> {
 public:
   explicit PATUserDataTestModule(const edm::ParameterSet&);
-  ~PATUserDataTestModule();
+  ~PATUserDataTestModule() override = default;
 
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<edm::View<pat::Muon>> muonsToken_;
-  std::string label_;
+  const edm::EDGetTokenT<edm::View<pat::Muon>> muonsToken_;
+  const std::string label_;
   enum TestMode { TestRead, TestWrite, TestExternal };
-  TestMode mode_;
+  const TestMode mode_;
 };
 
 //
@@ -98,8 +98,6 @@ PATUserDataTestModule::PATUserDataTestModule(const edm::ParameterSet& iConfig)
     produces<edm::ValueMap<edm::Ptr<pat::UserData>>>();
   }
 }
-
-PATUserDataTestModule::~PATUserDataTestModule() {}
 
 // ------------ method called to for each event  ------------
 void PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

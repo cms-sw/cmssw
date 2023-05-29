@@ -46,7 +46,7 @@ options.register('TemplateFilePath',
 				 opts.VarParsing.varType.string,
 				 'Location of template files')
 options.register('GlobalTag',
-				 'auto:phase2_realistic',
+				 'auto:phase2_realistic_T21', # as needed by the unit test
 				 opts.VarParsing.multiplicity.singleton,
 				 opts.VarParsing.varType.string,
 				 'Global tag for this run')
@@ -186,8 +186,8 @@ process.load("CondCore.CondDB.CondDB_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('SiPixel2DTemplateDBObjectUploader_Phase2.log'))
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')

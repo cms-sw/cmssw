@@ -110,6 +110,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
       m_showHGCalEE(this, "Show HGCalEE", false),
       m_showHGCalHSi(this, "Show HGCalHSi", false),
       m_showHGCalHSc(this, "Show HGCalHSc", false),
+      m_showMtdBarrel(this, "Show MTD Barrel", false),
+      m_showMtdEndcap(this, "Show MTD Endcap", false),
       m_ecalBarrel(nullptr),
       m_showEcalBarrel(this, "Show Ecal Barrel", false),
       m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
@@ -183,6 +185,8 @@ void FW3DViewBase::setContext(const fireworks::Context& context) {
   m_showHGCalHSi.changed_.connect(std::bind(&FW3DViewGeometry::showHGCalHSi, m_geometry, std::placeholders::_1));
   m_showHGCalHSc.changed_.connect(std::bind(&FW3DViewGeometry::showHGCalHSc, m_geometry, std::placeholders::_1));
   m_showMuonEndcap.changed_.connect(std::bind(&FW3DViewGeometry::showMuonEndcap, m_geometry, std::placeholders::_1));
+  m_showMtdBarrel.changed_.connect(std::bind(&FW3DViewGeometry::showMtdBarrel, m_geometry, std::placeholders::_1));
+  m_showMtdEndcap.changed_.connect(std::bind(&FW3DViewGeometry::showMtdEndcap, m_geometry, std::placeholders::_1));
   m_showEcalBarrel.changed_.connect(std::bind(&FW3DViewBase::showEcalBarrel, this, std::placeholders::_1));
 
   // don't clip event scene --  ideally, would have TGLClipNoClip in root
@@ -484,6 +488,8 @@ void FW3DViewBase::populateController(ViewerParameterGUI& gui) const {
       .addParam(&m_showPixelBarrel)
       .addParam(&m_showPixelEndcap)
       .addParam(&m_showEcalBarrel)
+      .addParam(&m_showMtdBarrel)
+      .addParam(&m_showMtdEndcap)
       .addParam(&m_rnrStyle)
       .addParam(&m_selectable);
 

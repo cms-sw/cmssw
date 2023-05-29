@@ -59,7 +59,7 @@ bool MTDParametersFromDD::build(const DDCompactView* cvp, PMTDParameters& ptp) {
     throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
-  if (topoMode >= static_cast<int>(MTDTopologyMode::Mode::btlv1etlv5)) {
+  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == ETLDetId::EtlLayout::v5) {
     std::array<std::string, 8> etlLayout{{
         "StartCopyNo_Front_Left",
         "StartCopyNo_Front_Right",
@@ -97,6 +97,7 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
       if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
         subdet++;
         std::vector<int> subdetPars;
+        subdetPars.reserve(it.second.size());
         for (const auto& i : it.second)
           subdetPars.emplace_back(std::round(i));
         putOne(subdet, subdetPars, ptp);
@@ -132,7 +133,7 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
     throw cms::Exception("MTDParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
-  if (topoMode >= static_cast<int>(MTDTopologyMode::Mode::btlv1etlv5)) {
+  if (MTDTopologyMode::etlLayoutFromTopoMode(topoMode) == ETLDetId::EtlLayout::v5) {
     std::array<std::string, 8> etlLayout{{
         "StartCopyNo_Front_Left",
         "StartCopyNo_Front_Right",
@@ -150,6 +151,7 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
           sector++;
           std::vector<int> ipos;
+          ipos.reserve(it.second.size());
           for (const auto& i : it.second)
             ipos.emplace_back(std::round(i));
           putOne(sector, ipos, ptp);

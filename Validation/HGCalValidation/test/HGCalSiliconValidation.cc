@@ -27,16 +27,13 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
 // Root objects
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 
 class HGCalSiliconValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCalSiliconValidation(const edm::ParameterSet& ps);
-  ~HGCalSiliconValidation() override {}
+  ~HGCalSiliconValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -51,8 +48,8 @@ private:
   const edm::InputTag hgcalDigis_;
   const int iSample_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcalgeom_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  edm::EDGetToken tok_digi_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  const edm::EDGetTokenT<HGCalDigiCollection> tok_digi_;
 
   TH1D *hsimE1_, *hsimE2_, *hsimTm_;
   TH1D *hsimLn_, *hdigEn_, *hdigLn_;
@@ -65,11 +62,11 @@ HGCalSiliconValidation::HGCalSiliconValidation(const edm::ParameterSet& ps)
       hgcalHits_((ps.getUntrackedParameter<std::string>("HitCollection", "HGCHitsEE"))),
       hgcalDigis_(ps.getUntrackedParameter<edm::InputTag>("DigiCollection")),
       iSample_(ps.getUntrackedParameter<int>("Sample", 5)),
-      tok_hgcalgeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})) {
+      tok_hgcalgeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})),
+      tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hgcalHits_))),
+      tok_digi_(consumes<HGCalDigiCollection>(hgcalDigis_)) {
   usesResource(TFileService::kSharedResource);
 
-  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hgcalHits_));
-  tok_digi_ = consumes<HGCalDigiCollection>(hgcalDigis_);
   edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation::Input for SimHit:"
                                       << edm::InputTag(g4Label_, hgcalHits_) << "  Digits:" << hgcalDigis_
                                       << "  Sample: " << iSample_;
@@ -107,15 +104,14 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
   edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation:Run = " << e.id().run()
                                       << " Event = " << e.id().event();
 
-  edm::ESHandle<HGCalGeometry> geom = iSetup.getHandle(tok_hgcalgeom_);
+  const edm::ESHandle<HGCalGeometry>& geom = iSetup.getHandle(tok_hgcalgeom_);
   if (!geom.isValid()) {
     edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
   } else {
     const HGCalGeometry* geom0 = geom.product();
 
     //SimHits
-    edm::Handle<edm::PCaloHitContainer> hitsCalo;
-    e.getByToken(tok_hits_, hitsCalo);
+    const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_hits_);
     edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation.: PCaloHitContainer obtained with flag "
                                         << hitsCalo.isValid();
     if (hitsCalo.isValid()) {
@@ -139,7 +135,7 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
         ensum += energy;
         map_try[id] = ensum;
         ++i;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHHit[" << i << "] ID " << std::hex << " " << id << std::dec << " "
+        edm::LogVerbatim("HGCalValidation") << "HGCalHit[" << i << "] ID " << std::hex << " " << id << std::dec << " "
                                             << HGCSiliconDetId(id) << " E " << energy << " time " << time;
       }
       for (std::map<unsigned int, double>::iterator itr = map_try.begin(); itr != map_try.end(); ++itr) {
@@ -149,8 +145,7 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
 
     //Digits
     unsigned int kount(0);
-    edm::Handle<HGCalDigiCollection> digicoll;
-    e.getByToken(tok_digi_, digicoll);
+    const edm::Handle<HGCalDigiCollection>& digicoll = e.getHandle(tok_digi_);
     edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation.: HGCalDigiCollection obtained with flag "
                                         << digicoll.isValid();
     if (digicoll.isValid()) {
@@ -168,7 +163,7 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
         hdigOc_->Fill(r, depth);
         hdi2Oc_->Fill(z, r);
         ++kount;
-        edm::LogVerbatim("HGCalValidation") << "HGCalBHDigit[" << kount << "] ID " << cell << " E " << energy;
+        edm::LogVerbatim("HGCalValidation") << "HGCalDigit[" << kount << "] ID " << cell << " E " << energy;
       }
     }
   }

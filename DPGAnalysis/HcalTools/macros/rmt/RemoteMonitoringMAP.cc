@@ -21651,8 +21651,9 @@ std::cout<<" We are here to print ADC "<<std::endl;
           flag_P = 0;
           for (int test = 1; test <= 6; test++) {  //Test: 1-Wm, 2-Rm, etc
                                                    //Bad
-            if (Map_Ampl[test][sub][k]->GetBinContent(i, j) >
-                0.1) {  //Rate 0.1 for displaying  on whole detector map and subdetector map
+
+            if (Map_Ampl[test][sub][k]->GetBinContent(i, j) > 0.1 &&
+                NBad < 9999) {  //Rate 0.1 for displaying  on whole detector map and subdetector map
               Map_ALL->SetBinContent(i, j, 1.);
               Map_SUB[sub][k]->SetBinContent(i, j, 1.);
               if (flag_B == 0) {

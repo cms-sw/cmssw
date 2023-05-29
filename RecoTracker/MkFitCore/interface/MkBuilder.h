@@ -4,6 +4,7 @@
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/interface/TrackStructures.h"
+#include "RecoTracker/MkFitCore/interface/MkJob.h"
 
 #include <atomic>
 #include <functional>
@@ -21,42 +22,12 @@ namespace mkfit {
   class Event;
 
   //==============================================================================
-  // MkJob
-  //==============================================================================
-
-  class MkJob {
-  public:
-    const TrackerInfo &m_trk_info;
-    // Config &config; // If we want to get rid of namespace / global config
-    const IterationConfig &m_iter_config;
-    const EventOfHits &m_event_of_hits;
-
-    const IterationMaskIfcBase *m_iter_mask_ifc = nullptr;
-
-    int num_regions() const { return m_iter_config.m_n_regions; }
-    const auto regions_begin() const { return m_iter_config.m_region_order.begin(); }
-    const auto regions_end() const { return m_iter_config.m_region_order.end(); }
-
-    const auto &steering_params(int i) { return m_iter_config.m_steering_params[i]; }
-
-    const auto &params() const { return m_iter_config.m_params; }
-    const auto &params_bks() const { return m_iter_config.m_backward_params; }
-
-    int max_max_cands() const { return std::max(params().maxCandsPerSeed, params_bks().maxCandsPerSeed); }
-
-    const std::vector<bool> *get_mask_for_layer(int layer) {
-      return m_iter_mask_ifc ? m_iter_mask_ifc->get_mask_for_layer(layer) : nullptr;
-    }
-  };
-
-  //==============================================================================
   // MkBuilder
   //==============================================================================
 
   class MkBuilder {
   public:
     using insert_seed_foo = void(const Track &, int, int);
-    using filter_track_cand_foo = bool(const TrackCand &);
 
     typedef std::vector<std::pair<int, int>> CandIdx_t;
 
@@ -80,7 +51,7 @@ namespace mkfit {
     void import_seeds(const TrackVec &in_seeds, const bool seeds_sorted, std::function<insert_seed_foo> insert_seed);
 
     // filter for rearranging cands that will / will not do backward search.
-    int filter_comb_cands(std::function<filter_track_cand_foo> filter);
+    int filter_comb_cands(filter_candidates_func filter, bool attempt_all_cands);
 
     void find_min_max_hots_size();
 
@@ -98,6 +69,8 @@ namespace mkfit {
     // MIMI hack to export tracks for BH
     const TrackVec &ref_tracks() const { return m_tracks; }
     TrackVec &ref_tracks_nc() { return m_tracks; }
+
+    const EventOfCombCandidates &ref_eocc() const { return m_event_of_comb_cands; }
 
     // --------
 

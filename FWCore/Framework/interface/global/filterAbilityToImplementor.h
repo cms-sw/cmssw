@@ -101,6 +101,11 @@ namespace edm {
         using Type = edm::global::impl::ExternalWork<edm::global::EDFilterBase>;
       };
 
+      template <>
+      struct AbilityToImplementor<edm::Transformer> {
+        using Type = edm::global::impl::Transformer<edm::global::EDFilterBase>;
+      };
+
       template <bool, bool, typename T>
       struct SpecializeAbilityToImplementor {
         using Type = typename AbilityToImplementor<T>::Type;

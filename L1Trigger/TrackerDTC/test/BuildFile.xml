@@ -1,6 +1,5 @@
 <library file="*.cc" name="TrackerDTCTests">
   <use name="CommonTools/UtilAlgos"/>
   <use name="L1Trigger/TrackerDTC"/>
-  <use name="SimDataFormats/TrackingAnalysis"/>
   <flags EDM_PLUGIN="1"/>
 </library>

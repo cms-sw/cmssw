@@ -17,7 +17,7 @@
 //
 #include <iostream>
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -39,25 +39,22 @@
 // class declaration
 //
 
-class L1RCTChannelMaskTester : public edm::EDAnalyzer {
+class L1RCTChannelMaskTester : public edm::one::EDAnalyzer<> {
 public:
-  explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {}
-  ~L1RCTChannelMaskTester() override {}
+  explicit L1RCTChannelMaskTester(const edm::ParameterSet&) : maskToken_(esConsumes()), noisyToken_(esConsumes()) {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::ESGetToken<L1RCTChannelMask, L1RCTChannelMaskRcd> maskToken_;
+  edm::ESGetToken<L1RCTNoisyChannelMask, L1RCTNoisyChannelMaskRcd> noisyToken_;
 };
 
 void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   //
-  edm::ESHandle<L1RCTChannelMask> rctChanMask;
-  evSetup.get<L1RCTChannelMaskRcd>().get(rctChanMask);
-
-  rctChanMask->print(std::cout);
+  evSetup.getData(maskToken_).print(std::cout);
 
   if (auto maskRecord = evSetup.tryToGet<L1RCTNoisyChannelMaskRcd>()) {
-    edm::ESHandle<L1RCTNoisyChannelMask> rctNoisyChanMask;
-    maskRecord->get(rctNoisyChanMask);
-
-    rctNoisyChanMask->print(std::cout);
+    maskRecord->get(noisyToken_).print(std::cout);
   } else {
     std::cout << "\nRecord \""
               << "L1RCTNoisyChannelMaskRcd"

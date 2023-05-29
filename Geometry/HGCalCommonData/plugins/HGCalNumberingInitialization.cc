@@ -55,7 +55,9 @@ HGCalNumberingInitialization::~HGCalNumberingInitialization() {}
 
 // ------------ method called to produce the data  ------------
 HGCalNumberingInitialization::ReturnType HGCalNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "in HGCalNumberingInitialization::produce for " << name_;
+#endif
   const auto& pHGpar = iRecord.get(hgParToken_);
   return std::make_unique<HGCalDDDConstants>(&pHGpar, name_);
 }

@@ -13,7 +13,15 @@ namespace ecaldqm {
   GpuTask::GpuTask()
       : DQWorkerTask(),
         runGpuTask_(false),
-        gpuOnlyPlots_(false),
+        enableDigi_(false),
+        enableUncalib_(false),
+        enableRecHit_(false),
+        digi1D_(false),
+        digi2D_(false),
+        uncalib1D_(false),
+        uncalib2D_(false),
+        rechit1D_(false),
+        rechit2D_(false),
         EBCpuDigis_(nullptr),
         EECpuDigis_(nullptr),
         EBCpuUncalibRecHits_(nullptr),
@@ -37,13 +45,29 @@ namespace ecaldqm {
 
   void GpuTask::setParams(edm::ParameterSet const& params) {
     runGpuTask_ = params.getUntrackedParameter<bool>("runGpuTask");
-    // Only makes sense to run GPU-only plots if we're running at all...
-    gpuOnlyPlots_ = runGpuTask_ && params.getUntrackedParameter<bool>("gpuOnlyPlots");
+
+    // Enabling objects set to false if runGpuTask_ is false
+    enableDigi_ = runGpuTask_ && params.getUntrackedParameter<bool>("enableDigi");
+    enableUncalib_ = runGpuTask_ && params.getUntrackedParameter<bool>("enableUncalib");
+    enableRecHit_ = runGpuTask_ && params.getUntrackedParameter<bool>("enableRecHit");
+
+    // Flags set to false if corresponding type is not enabled
+    digi1D_ = enableDigi_ && params.getUntrackedParameter<bool>("digi1D");
+    digi2D_ = enableDigi_ && params.getUntrackedParameter<bool>("digi2D");
+    uncalib1D_ = enableUncalib_ && params.getUntrackedParameter<bool>("uncalib1D");
+    uncalib2D_ = enableUncalib_ && params.getUntrackedParameter<bool>("uncalib2D");
+    rechit1D_ = enableRecHit_ && params.getUntrackedParameter<bool>("rechit1D");
+    rechit2D_ = enableRecHit_ && params.getUntrackedParameter<bool>("rechit2D");
+
     uncalibOOTAmps_ = params.getUntrackedParameter<std::vector<int> >("uncalibOOTAmps");
 
-    if (!runGpuTask_) {
+    if (!enableDigi_) {
+      MEs_.erase(std::string("DigiCpu"));
       MEs_.erase(std::string("DigiCpuAmplitude"));
+      MEs_.erase(std::string("DigiGpuCpu"));
       MEs_.erase(std::string("DigiGpuCpuAmplitude"));
+    }
+    if (!enableUncalib_) {
       MEs_.erase(std::string("UncalibCpu"));
       MEs_.erase(std::string("UncalibCpuAmp"));
       MEs_.erase(std::string("UncalibCpuAmpError"));
@@ -62,6 +86,8 @@ namespace ecaldqm {
       MEs_.erase(std::string("UncalibGpuCpuChi2"));
       MEs_.erase(std::string("UncalibGpuCpuOOTAmp"));
       MEs_.erase(std::string("UncalibGpuCpuFlags"));
+    }
+    if (!enableRecHit_) {
       MEs_.erase(std::string("RecHitCpu"));
       MEs_.erase(std::string("RecHitCpuEnergy"));
       MEs_.erase(std::string("RecHitCpuTime"));
@@ -71,12 +97,11 @@ namespace ecaldqm {
       MEs_.erase(std::string("RecHitGpuCpuTime"));
       MEs_.erase(std::string("RecHitGpuCpuFlags"));
     }
-    if (!gpuOnlyPlots_) {
+    if (!digi1D_) {
+      MEs_.erase(std::string("DigiGpu"));
       MEs_.erase(std::string("DigiGpuAmplitude"));
-      MEs_.erase(std::string("RecHitGpu"));
-      MEs_.erase(std::string("RecHitGpuEnergy"));
-      MEs_.erase(std::string("RecHitGpuTime"));
-      MEs_.erase(std::string("RecHitGpuFlags"));
+    }
+    if (!uncalib1D_) {
       MEs_.erase(std::string("UncalibGpu"));
       MEs_.erase(std::string("UncalibGpuAmp"));
       MEs_.erase(std::string("UncalibGpuAmpError"));
@@ -86,6 +111,33 @@ namespace ecaldqm {
       MEs_.erase(std::string("UncalibGpuChi2"));
       MEs_.erase(std::string("UncalibGpuOOTAmp"));
       MEs_.erase(std::string("UncalibGpuFlags"));
+    }
+    if (!rechit1D_) {
+      MEs_.erase(std::string("RecHitGpu"));
+      MEs_.erase(std::string("RecHitGpuEnergy"));
+      MEs_.erase(std::string("RecHitGpuTime"));
+      MEs_.erase(std::string("RecHitGpuFlags"));
+    }
+    if (!digi2D_) {
+      MEs_.erase(std::string("Digi2D"));
+      MEs_.erase(std::string("Digi2DAmplitude"));
+    }
+    if (!uncalib2D_) {
+      MEs_.erase(std::string("Uncalib2D"));
+      MEs_.erase(std::string("Uncalib2DAmp"));
+      MEs_.erase(std::string("Uncalib2DAmpError"));
+      MEs_.erase(std::string("Uncalib2DPedestal"));
+      MEs_.erase(std::string("Uncalib2DJitter"));
+      MEs_.erase(std::string("Uncalib2DJitterError"));
+      MEs_.erase(std::string("Uncalib2DChi2"));
+      MEs_.erase(std::string("Uncalib2DOOTAmp"));
+      MEs_.erase(std::string("Uncalib2DFlags"));
+    }
+    if (!rechit2D_) {
+      MEs_.erase(std::string("RecHit2D"));
+      MEs_.erase(std::string("RecHit2DEnergy"));
+      MEs_.erase(std::string("RecHit2DTime"));
+      MEs_.erase(std::string("RecHit2DFlags"));
     }
   }
 
@@ -172,9 +224,14 @@ namespace ecaldqm {
 
     meDigiGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuDigis - nCpuDigis);
 
-    if (gpuOnlyPlots_) {
+    if (digi1D_) {
       MESet& meDigiGpu(MEs_.at("DigiGpu"));
       meDigiGpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuDigis);
+    }
+
+    if (digi2D_) {
+      MESet& meDigi2D(MEs_.at("Digi2D"));
+      meDigi2D.fill(getEcalDQMSetupObjects(), iSubdet, nCpuDigis, nGpuDigis);
     }
 
     for (auto const& gpuDigi : gpuDigis) {
@@ -198,10 +255,16 @@ namespace ecaldqm {
 
         meDigiGpuCpuAmplitude.fill(getEcalDQMSetupObjects(), iSubdet, gpuAmp - cpuAmp);
 
-        if (gpuOnlyPlots_) {
+        if (digi1D_) {
           MESet& meDigiGpuAmplitude(MEs_.at("DigiGpuAmplitude"));
           static_cast<MESetMulti&>(meDigiGpuAmplitude).use(iSample);
           meDigiGpuAmplitude.fill(getEcalDQMSetupObjects(), iSubdet, gpuAmp);
+        }
+
+        if (digi2D_) {
+          MESet& meDigi2DAmplitude(MEs_.at("Digi2DAmplitude"));
+          static_cast<MESetMulti&>(meDigi2DAmplitude).use(iSample);
+          meDigi2DAmplitude.fill(getEcalDQMSetupObjects(), iSubdet, cpuAmp, gpuAmp);
         }
       }
     }
@@ -287,9 +350,14 @@ namespace ecaldqm {
 
     meUncalibGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits - nCpuHits);
 
-    if (gpuOnlyPlots_) {
+    if (uncalib1D_) {
       MESet& meUncalibGpu(MEs_.at("UncalibGpu"));
       meUncalibGpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits);
+    }
+
+    if (uncalib2D_) {
+      MESet& meUncalib2D(MEs_.at("Uncalib2D"));
+      meUncalib2D.fill(getEcalDQMSetupObjects(), iSubdet, nCpuHits, nGpuHits);
     }
 
     for (auto const& gpuHit : gpuHits) {
@@ -332,7 +400,7 @@ namespace ecaldqm {
       meUncalibGpuCpuChi2.fill(getEcalDQMSetupObjects(), iSubdet, gpuChi2 - cpuChi2);
       meUncalibGpuCpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags - cpuFlags);
 
-      if (gpuOnlyPlots_) {
+      if (uncalib1D_) {
         MESet& meUncalibGpuAmp(MEs_.at("UncalibGpuAmp"));
         MESet& meUncalibGpuAmpError(MEs_.at("UncalibGpuAmpError"));
         MESet& meUncalibGpuPedestal(MEs_.at("UncalibGpuPedestal"));
@@ -350,6 +418,24 @@ namespace ecaldqm {
         meUncalibGpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags);
       }
 
+      if (uncalib2D_) {
+        MESet& meUncalib2DAmp(MEs_.at("Uncalib2DAmp"));
+        MESet& meUncalib2DAmpError(MEs_.at("Uncalib2DAmpError"));
+        MESet& meUncalib2DPedestal(MEs_.at("Uncalib2DPedestal"));
+        MESet& meUncalib2DJitter(MEs_.at("Uncalib2DJitter"));
+        MESet& meUncalib2DJitterError(MEs_.at("Uncalib2DJitterError"));
+        MESet& meUncalib2DChi2(MEs_.at("Uncalib2DChi2"));
+        MESet& meUncalib2DFlags(MEs_.at("Uncalib2DFlags"));
+
+        meUncalib2DAmp.fill(getEcalDQMSetupObjects(), iSubdet, cpuAmp, gpuAmp);
+        meUncalib2DAmpError.fill(getEcalDQMSetupObjects(), iSubdet, cpuAmpError, gpuAmpError);
+        meUncalib2DPedestal.fill(getEcalDQMSetupObjects(), iSubdet, cpuPedestal, gpuPedestal);
+        meUncalib2DJitter.fill(getEcalDQMSetupObjects(), iSubdet, cpuJitter, gpuJitter);
+        meUncalib2DJitterError.fill(getEcalDQMSetupObjects(), iSubdet, cpuJitterError, gpuJitterError);
+        meUncalib2DChi2.fill(getEcalDQMSetupObjects(), iSubdet, cpuChi2, gpuChi2);
+        meUncalib2DFlags.fill(getEcalDQMSetupObjects(), iSubdet, cpuFlags, gpuFlags);
+      }
+
       for (unsigned iAmp = 0; iAmp < uncalibOOTAmps_.size(); iAmp++) {
         static_cast<MESetMulti&>(meUncalibGpuCpuOOTAmp).use(iAmp);
 
@@ -359,10 +445,16 @@ namespace ecaldqm {
 
         meUncalibGpuCpuOOTAmp.fill(getEcalDQMSetupObjects(), iSubdet, gpuOOTAmp - cpuOOTAmp);
 
-        if (gpuOnlyPlots_) {
+        if (uncalib1D_) {
           MESet& meUncalibGpuOOTAmp(MEs_.at("UncalibGpuOOTAmp"));
           static_cast<MESetMulti&>(meUncalibGpuOOTAmp).use(iAmp);
           meUncalibGpuOOTAmp.fill(getEcalDQMSetupObjects(), iSubdet, gpuOOTAmp);
+        }
+
+        if (uncalib2D_) {
+          MESet& meUncalib2DOOTAmp(MEs_.at("Uncalib2DOOTAmp"));
+          static_cast<MESetMulti&>(meUncalib2DOOTAmp).use(iAmp);
+          meUncalib2DOOTAmp.fill(getEcalDQMSetupObjects(), iSubdet, cpuOOTAmp, gpuOOTAmp);
         }
       }
     }
@@ -418,9 +510,13 @@ namespace ecaldqm {
 
     meRecHitGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits - nCpuHits);
 
-    if (gpuOnlyPlots_) {
+    if (rechit1D_) {
       MESet& meRecHitGpu(MEs_.at("RecHitGpu"));
       meRecHitGpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits);
+    }
+    if (rechit2D_) {
+      MESet& meRecHit2D(MEs_.at("RecHit2D"));
+      meRecHit2D.fill(getEcalDQMSetupObjects(), iSubdet, nCpuHits, nGpuHits);
     }
 
     for (auto const& gpuHit : gpuHits) {
@@ -445,7 +541,7 @@ namespace ecaldqm {
       meRecHitGpuCpuTime.fill(getEcalDQMSetupObjects(), iSubdet, gpuTime - cpuTime);
       meRecHitGpuCpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags - cpuFlags);
 
-      if (gpuOnlyPlots_) {
+      if (rechit1D_) {
         MESet& meRecHitGpuEnergy(MEs_.at("RecHitGpuEnergy"));
         MESet& meRecHitGpuTime(MEs_.at("RecHitGpuTime"));
         MESet& meRecHitGpuFlags(MEs_.at("RecHitGpuFlags"));
@@ -453,6 +549,16 @@ namespace ecaldqm {
         meRecHitGpuEnergy.fill(getEcalDQMSetupObjects(), iSubdet, gpuEnergy);
         meRecHitGpuTime.fill(getEcalDQMSetupObjects(), iSubdet, gpuTime);
         meRecHitGpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags);
+      }
+
+      if (rechit2D_) {
+        MESet& meRecHit2DEnergy(MEs_.at("RecHit2DEnergy"));
+        MESet& meRecHit2DTime(MEs_.at("RecHit2DTime"));
+        MESet& meRecHit2DFlags(MEs_.at("RecHit2DFlags"));
+
+        meRecHit2DEnergy.fill(getEcalDQMSetupObjects(), iSubdet, cpuEnergy, gpuEnergy);
+        meRecHit2DTime.fill(getEcalDQMSetupObjects(), iSubdet, cpuTime, gpuTime);
+        meRecHit2DFlags.fill(getEcalDQMSetupObjects(), iSubdet, cpuFlags, gpuFlags);
       }
     }
   }

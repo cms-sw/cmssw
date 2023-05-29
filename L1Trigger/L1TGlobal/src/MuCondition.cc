@@ -141,9 +141,6 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
   int jumpIndex = 1;
   int jump = myfactorial;  //factorial(numberObjects - nObjInCond);
 
-  int totalLoops = 0;
-  int passLoops = 0;
-
   // condition result condResult set to true if at least one permutation
   //     passes all requirements
   // all possible permutations are checked
@@ -162,7 +159,6 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
       continue;
 
     jumpIndex = jump;
-    totalLoops++;
 
     // clear the indices in the combination
     objectsInComb.clear();
@@ -308,15 +304,9 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
     // set the general result for evaluateCondition to "true"
 
     condResult = true;
-    passLoops++;
     (combinationsInCond()).push_back(objectsInComb);
 
   } while (std::next_permutation(index.begin(), index.end()));
-
-  //LogTrace("L1TGlobal")
-  //    << "\n  MuCondition: total number of permutations found:          " << totalLoops
-  //    << "\n  MuCondition: number of permutations passing requirements: " << passLoops
-  //    << "\n" << std::endl;
 
   return condResult;
 }
@@ -435,13 +425,8 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
   }
 
   // check eta
-  if (!checkRangeEta(cand.hwEtaAtVtx(),
-                     objPar.etaWindow1Lower,
-                     objPar.etaWindow1Upper,
-                     objPar.etaWindow2Lower,
-                     objPar.etaWindow2Upper,
-                     8)) {
-    LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
+  if (!checkRangeEta(cand.hwEtaAtVtx(), objPar.etaWindows, 8)) {
+    LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeEta" << std::endl;
     return false;
   }
 
@@ -484,6 +469,12 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
   bool passIsoLUT = ((objPar.isolationLUT >> cand.hwIso()) & 1);
   if (!passIsoLUT) {
     LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
+    return false;
+  }
+
+  // check muon TF index
+  if (!checkRangeTfMuonIndex(cand.tfMuonIndex(), objPar.tfMuonIndexWindows)) {
+    LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeTfMuonIndex" << std::endl;
     return false;
   }
 

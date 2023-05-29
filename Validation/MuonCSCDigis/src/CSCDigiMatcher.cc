@@ -68,6 +68,7 @@ void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollectio
       cout << endl;
     }
 
+    int ndigis = 0;
     const auto& comp_digis_in_det = comparators.get(layer_id);
     for (auto c = comp_digis_in_det.first; c != comp_digis_in_det.second; ++c) {
       if (verboseComparator_)
@@ -76,6 +77,8 @@ void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollectio
       // check that the first BX for this digi wasn't too early or too late
       if (c->getTimeBin() < minBXComparator_ || c->getTimeBin() > maxBXComparator_)
         continue;
+
+      ndigis++;
 
       int comparator = c->getStrip();  // comparators are counted from 1
       // check that it matches a comparator that was hit by SimHits from our track
@@ -87,6 +90,7 @@ void CSCDigiMatcher::matchComparatorsToSimTrack(const CSCComparatorDigiCollectio
       detid_to_comparators_[id].push_back(*c);
       chamber_to_comparators_[layer_id.chamberId().rawId()].push_back(*c);
     }
+    detid_to_totalcomparators_[id] = ndigis;  //id to totalcomparators
   }
 }
 
@@ -112,10 +116,16 @@ void CSCDigiMatcher::matchStripsToSimTrack(const CSCStripDigiCollection& strips)
       cout << endl;
     }
 
+    int ndigis = 0;
+
     const auto& strip_digis_in_det = strips.get(layer_id);
     for (auto c = strip_digis_in_det.first; c != strip_digis_in_det.second; ++c) {
+      //next is to remove the strips with pulse at noise level, with ACD info
+      //the detail may be from CSC rechits algorithm
       if (verboseStrip_)
-        edm::LogInfo("CSCDigiMatcher") << "sdigi " << layer_id << " (strip, Tbin ) " << *c;
+        edm::LogInfo("CSCDigiMatcher") << "sdigi " << layer_id << " (strip, ADC ) " << *c;
+
+      ndigis++;
 
       int strip = c->getStrip();  // strips are counted from 1
       // check that it matches a strip that was hit by SimHits from our track
@@ -127,6 +137,7 @@ void CSCDigiMatcher::matchStripsToSimTrack(const CSCStripDigiCollection& strips)
       detid_to_strips_[id].push_back(*c);
       chamber_to_strips_[layer_id.chamberId().rawId()].push_back(*c);
     }
+    detid_to_totalstrips_[id] = ndigis;
   }
 }
 
@@ -142,6 +153,8 @@ void CSCDigiMatcher::matchWiresToSimTrack(const CSCWireDigiCollection& wires) {
       cout << endl;
     }
 
+    int ndigis = 0;
+
     const auto& wire_digis_in_det = wires.get(layer_id);
     for (auto w = wire_digis_in_det.first; w != wire_digis_in_det.second; ++w) {
       if (verboseStrip_)
@@ -150,6 +163,8 @@ void CSCDigiMatcher::matchWiresToSimTrack(const CSCWireDigiCollection& wires) {
       // check that the first BX for this digi wasn't too early or too late
       if (w->getTimeBin() < minBXWire_ || w->getTimeBin() > maxBXWire_)
         continue;
+
+      ndigis++;
 
       int wg = w->getWireGroup();  // wiregroups are counted from 1
       // check that it matches a strip that was hit by SimHits from our track
@@ -161,6 +176,7 @@ void CSCDigiMatcher::matchWiresToSimTrack(const CSCWireDigiCollection& wires) {
       detid_to_wires_[id].push_back(*w);
       chamber_to_wires_[layer_id.chamberId().rawId()].push_back(*w);
     }
+    detid_to_totalwires_[id] = ndigis;
   }
 }
 
@@ -374,6 +390,24 @@ std::set<int> CSCDigiMatcher::wiregroupsInChamber(unsigned int detid, int max_ga
     }
   }
   return result;
+}
+
+int CSCDigiMatcher::totalComparators(unsigned int detid) const {
+  if (detid_to_totalcomparators_.find(detid) == detid_to_totalcomparators_.end())
+    return 0;
+  return detid_to_totalcomparators_.at(detid);
+}
+
+int CSCDigiMatcher::totalStrips(unsigned int detid) const {
+  if (detid_to_totalstrips_.find(detid) == detid_to_totalstrips_.end())
+    return 0;
+  return detid_to_totalstrips_.at(detid);
+}
+
+int CSCDigiMatcher::totalWires(unsigned int detid) const {
+  if (detid_to_totalwires_.find(detid) == detid_to_totalwires_.end())
+    return 0;
+  return detid_to_totalwires_.at(detid);
 }
 
 void CSCDigiMatcher::clear() {

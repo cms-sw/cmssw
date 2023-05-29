@@ -34,6 +34,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<iftool name="cuda-gcc-support">
 <bin file="gpuClustering_t.cu" name="gpuClustering_t">
   <use name="cuda"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
@@ -46,6 +47,7 @@
   <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
+</iftool>
 
 <bin file="cpuClustering_t.cpp" name="cpuClustering_t">
   <use name="HeterogeneousCore/CUDAUtilities"/>

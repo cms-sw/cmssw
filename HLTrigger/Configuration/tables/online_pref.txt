@@ -153,7 +153,6 @@ HLT_HIAK8PFJetFwd60_v*	#	CMSHLT-1679
 HLT_HIAK8PFJetFwd80_v*	#	CMSHLT-1679
 HLT_HIAK8PFJetFwd140_v*	#	CMSHLT-1679
 HLT_HIDmesonPPTrackingGlobal_Dpt8_v*	#	CMSHLT-1674
-HLT_HIDmesonPPTrackingGlobal_Dpt15_v*	#	CMSHLT-1674
 HLT_HIDmesonPPTrackingGlobal_Dpt30_v*	#	CMSHLT-1674
 HLT_HIDmesonPPTrackingGlobal_Dpt40_v*	#	CMSHLT-1674
 HLT_HIDmesonPPTrackingGlobal_Dpt50_v*	#	CMSHLT-1674
@@ -175,15 +174,20 @@ AlCa_HIEcalPi0EEonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEBonly_v*	#	CMSHLT-1680
 AlCa_HIEcalEtaEEonly_v*	#	CMSHLT-1680
 
+DQM_HIEcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIHcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+
 ## EndPaths / FinalPaths ##
 
-PhysicsEndOfFillOutput
 PhysicsCommissioningOutput
-PhysicsEGammaOutput
-PhysicsHadronsTausOutput
-PhysicsMuonsOutput
-PhysicsForwardOutput
-PhysicsTracksOutput
+PhysicsDispJetBTagMuEGTauOutput # CMSHLT-2431
+PhysicsEGamma0Output            # CMSHLT-2596
+PhysicsEGamma1Output            # CMSHLT-2596
+PhysicsJetMET0Output            # CMSHLT-2431, CMSHLT-2596
+PhysicsJetMET1Output            # CMSHLT-2431, CMSHLT-2596
+PhysicsMuon0Output              # CMSHLT-2431, CMSHLT-2596
+PhysicsMuon1Output              # CMSHLT-2431, CMSHLT-2596
 
 PhysicsHIZeroBias1Output
 PhysicsHIZeroBias2Output
@@ -194,8 +198,9 @@ PhysicsHIZeroBias6Output
 
 DQMOutput
 DQMEventDisplayOutput
-DQMCalibrationOutput
 DQMOnlineBeamspotOutput
+DQMCalibrationOutput
+DQMGPUvsCPUOutput          # CMSHLT-2287, CMSHLT-2343
 HLTMonitorOutput
 CalibrationOutput
 EcalCalibrationOutput
@@ -210,6 +215,6 @@ NanoDSTOutput
 
 ######## paths that are different between PRef and online_pref ################################
 
-#HLTAnalyzerEndpath              # only in 'GRun', not in 'online'
+#HLTAnalyzerEndpath            # only in 'GRun', not in 'online'
 RatesMonitoring                # only in 'online', not in 'GRun'
 DQMHistograms                  # only in 'online', not in 'GRun'

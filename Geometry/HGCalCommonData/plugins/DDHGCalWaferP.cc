@@ -21,8 +21,8 @@
 class DDHGCalWaferP : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalWaferP();
-  ~DDHGCalWaferP() override;
+  DDHGCalWaferP() {}
+  ~DDHGCalWaferP() override = default;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -51,14 +51,6 @@ private:
   int posSense_;                         // Position depleted layer
   std::string nameSpace_;                // Namespace to be used
 };
-
-DDHGCalWaferP::DDHGCalWaferP() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: Creating an instance";
-#endif
-}
-
-DDHGCalWaferP::~DDHGCalWaferP() {}
 
 void DDHGCalWaferP::initialize(const DDNumericArguments& nArgs,
                                const DDVectorArguments& vArgs,
@@ -107,20 +99,13 @@ void DDHGCalWaferP::initialize(const DDNumericArguments& nArgs,
   posSense_ = static_cast<int>(nArgs["PosSensitive"]);
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: NameSpace " << nameSpace_ << " Sensitive Layer Name " << senseName_
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: NameSpace " << nameSpace_ << ": Sensitive Layer Name " << senseName_
                                 << " Thickness " << senseT_ << " Type " << senseType_ << " Position " << posSense_;
 #endif
 }
 
 void DDHGCalWaferP::execute(DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWaferP...";
-#endif
-
   static constexpr double tol = 0.00001;
-  static const double sqrt3 = std::sqrt(3.0);
-  double r = 0.5 * waferSize_;
-  double R = 2.0 * r / sqrt3;
   std::string parentName = parent().name().name();
 
   // Loop over all types
@@ -128,7 +113,7 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
     // First the mother
     std::string mother = parentName + tags_[k];
     std::vector<std::pair<double, double> > wxy =
-        HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, r, R, 0.0, 0.0);
+        HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, waferSize_, 0.0, 0.0, 0.0);
     std::vector<double> xM, yM;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xM.emplace_back(wxy[i].first);
@@ -151,7 +136,7 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
 #endif
 
     // Then the layers
-    wxy = HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, r, R, 0.0, 0.0);
+    wxy = HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, waferSize_, 0.0, 0.0, 0.0);
     std::vector<double> xL, yL;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xL.emplace_back(wxy[i].first);

@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -21,22 +21,21 @@ namespace edm {
 using namespace std;
 using namespace edm;
 
-class TestDIPLumiProducer : public edm::EDAnalyzer {
+class TestDIPLumiProducer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit TestDIPLumiProducer(edm::ParameterSet const&);
-  virtual ~TestDIPLumiProducer();
 
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+  void beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override {}
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override;
+
+private:
+  edm::ESGetToken<DIPLumiSummary, DIPLuminosityRcd> token_;
 };
 
 // -----------------------------------------------------------------
 
-TestDIPLumiProducer::TestDIPLumiProducer(edm::ParameterSet const& ps) {}
-
-// -----------------------------------------------------------------
-
-TestDIPLumiProducer::~TestDIPLumiProducer() {}
+TestDIPLumiProducer::TestDIPLumiProducer(edm::ParameterSet const& ps) : token_(esConsumes()) {}
 
 // -----------------------------------------------------------------
 
@@ -53,8 +52,7 @@ void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlo
               << "\" does not exist " << std::endl;
   }
   try {
-    edm::ESHandle<DIPLumiSummary> datahandle;
-    es.getData(datahandle);
+    edm::ESHandle<DIPLumiSummary> datahandle = es.getHandle(token_);
     if (datahandle.isValid()) {
       const DIPLumiSummary* mydata = datahandle.product();
       if (!mydata->isNull()) {

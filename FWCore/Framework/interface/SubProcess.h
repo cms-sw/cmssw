@@ -36,6 +36,7 @@ namespace edm {
   class LuminosityBlockPrincipal;
   class LumiTransitionInfo;
   class MergeableRunProductMetadata;
+  class ModuleTypeResolverMaker;
   class ParameterSet;
   class Principal;
   class ProcessBlockTransitionInfo;
@@ -63,7 +64,8 @@ namespace edm {
                ServiceToken const& token,
                serviceregistry::ServiceLegacy iLegacy,
                PreallocationConfiguration const& preallocConfig,
-               ProcessContext const* parentProcessContext);
+               ProcessContext const* parentProcessContext,
+               ModuleTypeResolverMaker const* typeResolverMaker);
 
     ~SubProcess() override;
 
@@ -129,17 +131,14 @@ namespace edm {
 
     void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
 
-    void deleteLumiFromCache(LuminosityBlockPrincipal&);
+    void clearLumiPrincipal(LuminosityBlockPrincipal&);
 
     using ProcessBlockType = PrincipalCache::ProcessBlockType;
     void writeProcessBlockAsync(edm::WaitingTaskHolder task, ProcessBlockType);
 
-    void writeRunAsync(WaitingTaskHolder,
-                       ProcessHistoryID const& parentPhID,
-                       int runNumber,
-                       MergeableRunProductMetadata const*);
+    void writeRunAsync(WaitingTaskHolder, RunPrincipal const&, MergeableRunProductMetadata const*);
 
-    void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
+    void clearRunPrincipal(RunPrincipal&);
 
     void clearProcessBlockPrincipal(ProcessBlockType);
 
@@ -286,11 +285,11 @@ namespace edm {
     std::vector<ProcessHistoryRegistry> processHistoryRegistries_;
     std::vector<HistoryAppender> historyAppenders_;
     PrincipalCache principalCache_;
-    //vector index is principal lumi's index value
+    //vector index is principal's index value
+    std::vector<std::shared_ptr<RunPrincipal>> inUseRunPrincipals_;
     std::vector<std::shared_ptr<LuminosityBlockPrincipal>> inUseLumiPrincipals_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
-    std::map<ProcessHistoryID, ProcessHistoryID> parentToChildPhID_;
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<ParameterSet>> processParameterSet_;
 

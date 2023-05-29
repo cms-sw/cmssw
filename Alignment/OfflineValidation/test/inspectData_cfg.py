@@ -1,5 +1,6 @@
 import glob
 import FWCore.ParameterSet.Config as cms
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_Comissioning2022_Cosmics_string
 
 ###################################################################
 # Setup 'standard' options
@@ -90,7 +91,7 @@ process.source = cms.Source("PoolSource",fileNames = readFiles)
 the_files=[]
 if(options.unitTest):
     ## fixed input for the unit test
-    readFiles.extend(["/store/express/Commissioning2022/ExpressCosmics/FEVT/Express-v1/000/350/010/00000/e0edb947-f8c4-4e6a-b856-ab64117fc6ee.root"]) 
+    readFiles.extend([filesDefaultData_Comissioning2022_Cosmics_string]) 
 else:
     file_list = glob.glob(options.inputData)
     for f in file_list:
@@ -98,7 +99,7 @@ else:
     print(the_files)
     readFiles.extend(the_files)
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32((10 if (options.unitTest) else options.maxEvents)))
 
 ###################################################################
 # momentum constraint for 0T
@@ -148,7 +149,7 @@ process.TrackRefitter1 = process.TrackRefitterP5.clone(
 ###################################################################
 from CommonTools.RecoAlgos.ptMaxTrackCountFilter_cfi import ptMaxTrackCountFilter
 process.myfilter = ptMaxTrackCountFilter.clone(src = cms.InputTag(options.trackCollection),
-                                               ptMax = cms.double(3.))
+                                               ptMax = cms.double(10.))
 
 process.preAnaSeq = cms.Sequence()
 if(options.unitTest):

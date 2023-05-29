@@ -86,7 +86,9 @@ public:
 
 private:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &, APVGain::APVGainHistograms &) const override;
-  void checkBookAPVColls(const TrackerGeometry *bareTkGeomPtr, APVGain::APVGainHistograms &histograms) const;
+  void checkBookAPVColls(const TrackerGeometry *bareTkGeomPtr,
+                         const TrackerTopology *bareTkTopoPtr,
+                         APVGain::APVGainHistograms &histograms) const;
 
   std::vector<std::string> dqm_tag_;
 
@@ -114,7 +116,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::Track>> m_tracks_token;
   edm::EDGetTokenT<TrajTrackAssociationCollection> m_association_token;
 
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoTokenBR_, tTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomTokenBR_, tkGeomToken_;
   edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;

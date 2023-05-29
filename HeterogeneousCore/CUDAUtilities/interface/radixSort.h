@@ -149,7 +149,7 @@ __device__ __forceinline__ void radixSortImpl(
     // broadcast
     ibs = size - 1;
     __syncthreads();
-    while (__syncthreads_and(ibs > 0)) {
+    while (__syncthreads_and(ibs >= 0)) {
       int i = ibs - threadIdx.x;
       if (threadIdx.x < sb) {
         cu[threadIdx.x] = -1;

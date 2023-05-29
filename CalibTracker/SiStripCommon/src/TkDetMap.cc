@@ -149,7 +149,7 @@ const int16_t TkLayerMap::layerSearch(DetId detid, const TrackerTopology* tTopo)
     case SiStripDetId::TEC:
       return TkLayerMap::TECM_W1 - 1 + (tTopo->tecSide(detid) - 1) * 9 + tTopo->tecWheel(detid);
     default:
-      return 0;
+      return TkLayerMap::INVALID;
   }
 }
 
@@ -575,6 +575,11 @@ int16_t TkDetMap::findLayer(DetId detid,
   cached_detid = detid;
 
   int16_t layer = TkLayerMap::layerSearch(detid, tTopo_);
+  if (layer == TkLayerMap::INVALID) {
+    // there is something wrong if the layer is 0, early return
+    return TkLayerMap::INVALID;
+  }
+
   LogTrace("TkDetMap") << "[findLayer] detid " << detid.rawId() << " layer " << layer;
   if (layer != cached_layer) {
     cached_layer = layer;

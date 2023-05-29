@@ -4,11 +4,12 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/FastTimeGeometryRecord.h"
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 
 class FWRecoGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           FWRecoGeometryRecord,
-          edm::mpl::Vector<MuonGeometryRecord, GlobalTrackingGeometryRecord, CaloGeometryRecord> > {};
+          edm::mpl::Vector<MuonGeometryRecord, GlobalTrackingGeometryRecord, MTDDigiGeometryRecord, CaloGeometryRecord> > {
+};
 
 #endif  // GEOMETRY_FWRECO_GEOMETRY_RECORD_H

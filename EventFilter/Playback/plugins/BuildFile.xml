@@ -1,5 +1,0 @@
-<library file="*.cc" name="EventFilterPlaybackPlugins">
-  <flags EDM_PLUGIN="1"/>
-  <use name="EventFilter/Playback"/>
-  <use name="FWCore/PluginManager"/>
-</library>

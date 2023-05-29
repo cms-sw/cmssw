@@ -6,7 +6,7 @@
  *
  *  This class is an HLTFilter (-> EDFilter) implementing a very basic
  *  HLT trigger acting on TkMuon candidates
- *
+ *  2022-08-01: moving from TkMuon to TrackerMuon
  *
  *
  *  \author Simone Gennai
@@ -14,8 +14,7 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 
 //
 // class declaration
@@ -31,33 +30,20 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
-  class MuonQualityCut {
-  public:
-    MuonQualityCut(const edm::ParameterSet&);
-    bool operator()(const l1t::TkMuon&) const;
-    static void fillPSetDescription(edm::ParameterSetDescription& desc);
-    static edm::ParameterSetDescription makePSetDescription();
-
-  private:
-    std::unordered_map<int, std::vector<int>> allowedQualities_;
-  };
-
-  edm::InputTag l1TkMuonTag_;  //input tag for L1 Tk Muon product
-  typedef std::vector<l1t::TkMuon> TkMuonCollection;
-  edm::EDGetTokenT<TkMuonCollection> tkMuonToken_;  // token identifying product containing L1 TkMuons
+  edm::InputTag l1TkMuonTag_;                                 //input tag for L1 TrackerMuon product
+  edm::EDGetTokenT<l1t::TrackerMuonCollection> tkMuonToken_;  // token identifying product containing L1 TrackerMuons
 
   double min_Pt_;                        // min pt cut
   int min_N_;                            // min number of candidates above pT cut
   double min_Eta_;                       // min eta cut
   double max_Eta_;                       // max eta cut
-  bool applyQuality_;                    // apply quaility cuts
+  bool applyQuality_;                    // apply quality cuts
   bool applyDuplicateRemoval_;           // apply duplicate removal
+  std::vector<int> qualities_;           // allowed qualities
   edm::ParameterSet scalings_;           // all scalings. An indirection level allows extra flexibility
   std::vector<double> barrelScalings_;   // barrel scalings
   std::vector<double> overlapScalings_;  // overlap scalings
   std::vector<double> endcapScalings_;   // endcap scalings
-
-  MuonQualityCut qualityCut_;
 
   double TkMuonOfflineEt(double Et, double Eta) const;
 };

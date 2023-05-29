@@ -96,7 +96,7 @@ private:
   // HiggsTo2photons anaysis code. Template is introduced to handle reco/pat
   // photons and aod/miniAOD PF candidates collections
   float computeWorstPFChargedIsolation(const reco::Photon& photon,
-                                       const edm::View<reco::Candidate>& pfCands,
+                                       const std::vector<edm::Ptr<reco::Candidate>>& pfCands,
                                        const reco::VertexCollection& vertices,
                                        const reco::Vertex& pv,
                                        unsigned char options,
@@ -205,6 +205,15 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
   std::vector<float> vars[nVars_];
 
+  std::vector<edm::Ptr<reco::Candidate>> pfCandNoNaN;
+  for (const auto& pf : pfCandsHandle->ptrs()) {
+    if (edm::isNotFinite(pf->pt())) {
+      edm::LogWarning("PhotonIDValueMapProducer") << "PF candidate pT is NaN, skipping, see issue #39110" << std::endl;
+    } else {
+      pfCandNoNaN.push_back(pf);
+    }
+  }
+
   // reco::Photon::superCluster() is virtual so we can exploit polymorphism
   for (auto const& iPho : src->ptrs()) {
     //
@@ -241,8 +250,8 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     float neutralHadronIsoSum = 0.;
     float photonIsoSum = 0.;
 
-    // Loop over all PF candidates
-    for (auto const& iCand : pfCandsHandle->ptrs()) {
+    // Loop over nan-free PF candidates
+    for (auto const& iCand : pfCandNoNaN) {
       // Here, the type will be a simple reco::Candidate. We cast it
       // for full PFCandidate or PackedCandidate below as necessary
 
@@ -309,15 +318,15 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
     // Worst isolation computed with no vetos or ptMin cut, as in Run 1 Hgg code.
     unsigned char options = 0;
-    vars[13].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
+    vars[13].push_back(computeWorstPFChargedIsolation(*iPho, pfCandNoNaN, *vertices, pv, options, isAOD_));
 
     // Worst isolation computed with cone vetos and a ptMin cut, as in Run 2 Hgg code.
     options |= PT_MIN_THRESH | DR_VETO;
-    vars[14].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
+    vars[14].push_back(computeWorstPFChargedIsolation(*iPho, pfCandNoNaN, *vertices, pv, options, isAOD_));
 
     // Like before, but adding primary vertex constraint
     options |= PV_CONSTRAINT;
-    vars[15].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
+    vars[15].push_back(computeWorstPFChargedIsolation(*iPho, pfCandNoNaN, *vertices, pv, options, isAOD_));
 
     // PFCluster Isolations
     vars[16].push_back(iPho->trkSumPtSolidConeDR04());
@@ -358,7 +367,7 @@ void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 // Charged isolation with respect to the worst vertex. See more
 // comments above at the function declaration.
 float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photon& photon,
-                                                               const edm::View<reco::Candidate>& pfCands,
+                                                               const std::vector<edm::Ptr<reco::Candidate>>& pfCands,
                                                                const reco::VertexCollection& vertices,
                                                                const reco::Vertex& pv,
                                                                unsigned char options,
@@ -371,14 +380,14 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
   chargedCands.reserve(pfCands.size());
   for (auto const& aCand : pfCands) {
     // require that PFCandidate is a charged hadron
-    reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&aCand, isAOD);
+    reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&*aCand, isAOD);
     if (thisCandidateType != reco::PFCandidate::h)
       continue;
 
-    if ((options & PT_MIN_THRESH) && aCand.pt() < ptMin)
+    if ((options & PT_MIN_THRESH) && aCand.get()->pt() < ptMin)
       continue;
 
-    chargedCands.emplace_back(&aCand, isAOD);
+    chargedCands.emplace_back(&*aCand, isAOD);
   }
 
   // Calculate isolation sum separately for each vertex
@@ -396,6 +405,7 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
     // Loop over the PFCandidates
     for (auto const& aCCand : chargedCands) {
       auto iCand = aCCand.candidate;
+
       float dR2 = deltaR2(phoWrtVtxEta, phoWrtVtxPhi, iCand->eta(), iCand->phi());
       if (dR2 > coneSizeDR2 || (options & DR_VETO && dR2 < dRveto2))
         continue;

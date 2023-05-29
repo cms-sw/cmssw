@@ -77,7 +77,10 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
                                 << "\n";
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
-    static std::vector<std::string> types = {"F", "b", "g", "gm", "a", "d", "dm", "c", "am", "bm", "X"};
+    edm::LogVerbatim("HGCalGeom")
+        << "Old Partial types: 1|Five, 2|ChopTwo, 3|ChopTwoM, 4|Half, 5|Semi, 6|Semi2, 7|Three, 8|Half2, 9|Five2\nNew "
+           "Partial types: 11|LDTop, 12|LDBottom, 13|LDLeft, 14|LDRight, 15|LDFive, 16|LDThree, 21|HDTop, 22|HDBottom, "
+           "23|HDLeft, 24|HDRight, 25|HDFive\nCommon Partial types: 0|Full, 99|Out";
     // See if all entries in the file are valid
     int bad1(0);
     for (unsigned int k = 0; k < hgdc.waferFileSize(); ++k) {
@@ -89,10 +92,9 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
       HGCSiliconDetId id(det, 1, type, layer, waferU, waferV, 0, 0);
       if (!geom->topology().validModule(id, 3)) {
         int part = std::get<1>(hgdc.waferFileInfoFromIndex(indx));
-        std::string typex = (part < static_cast<int>(types.size())) ? types[part] : "X";
         const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
         edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU
-                                      << ", " << waferV << ", " << typex << ") at (" << std::setprecision(4) << xy.first
+                                      << ", " << waferV << ", " << part << ") at (" << std::setprecision(4) << xy.first
                                       << ", " << xy.second << ", " << hgdc.waferZ(layer, true) << ") not valid";
         ++bad1;
       }
@@ -111,11 +113,10 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
         if (!hgdc.waferFileInfoExist(indx)) {
           int part = hgdc.waferTypeRotation(id.layer(), id.waferU(), id.waferV(), false, false).first;
           if (part != HGCalTypes::WaferOut) {
-            std::string typex = (part < static_cast<int>(types.size())) ? types[part] : "X";
             const auto& xy = hgdc.waferPosition(id.layer(), id.waferU(), id.waferV(), true, false);
             edm::LogVerbatim("HGCalGeom")
                 << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + id.layer()) << ", " << id.waferU() << ", "
-                << id.waferV() << ", " << typex << ")  at (" << std::setprecision(4) << xy.first << ", " << xy.second
+                << id.waferV() << ", " << part << ")  at (" << std::setprecision(4) << xy.first << ", " << xy.second
                 << ", " << hgdc.waferZ(id.layer(), true) << ") not in wafer-list";
             ++bad2;
           } else {
@@ -144,7 +145,8 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
         int part2 = hgdc.waferTypeRotation(id.layer(), id.waferU(), id.waferV(), false, false).first;
         int rotn2 = hgdc.waferTypeRotation(id.layer(), id.waferU(), id.waferV(), false, false).second;
         bool typeOK = (type1 == type2);
-        bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)));
+        bool partOK = ((part1 == part2) || ((part1 == HGCalTypes::WaferFull) && (part2 == HGCalTypes::WaferOut)) ||
+                       ((part2 == HGCalTypes::WaferFull) && (part1 != HGCalTypes::WaferOut)));
         bool rotnOK = ((rotn1 == rotn2) || (part1 == HGCalTypes::WaferFull) || (part2 == HGCalTypes::WaferFull));
         if (part1 < part2)
           ++badP2;
@@ -161,12 +163,10 @@ void HGCalWaferInFileCheck::analyze(const edm::Event& iEvent, const edm::EventSe
           ++badR;
         if ((!typeOK) || (!partOK) || (!rotnOK)) {
           ++badG;
-          std::string partx1 = (part1 < static_cast<int>(types.size())) ? types[part1] : "X";
-          std::string partx2 = (part2 < static_cast<int>(types.size())) ? types[part2] : "X";
           const auto& xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
           edm::LogVerbatim("HGCalGeom") << "ID[" << k << "]: (" << (hgdc.getLayerOffset() + layer) << ", " << waferU
-                                        << ", " << waferV << ", " << type1 << ":" << type2 << ", " << partx1 << ":"
-                                        << partx2 << ", " << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4)
+                                        << ", " << waferV << ", " << type1 << ":" << type2 << ", " << part1 << ":"
+                                        << part2 << ", " << rotn1 << ":" << rotn2 << ") at (" << std::setprecision(4)
                                         << xy.first << ", " << xy.second << ", " << hgdc.waferZ(layer, true)
                                         << ") failure flag " << typeOK << ":" << partOK << ":" << rotnOK << ":"
                                         << (part1 >= part2);

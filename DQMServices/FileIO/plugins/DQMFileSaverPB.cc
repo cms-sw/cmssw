@@ -43,6 +43,17 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet& ps) : DQMFileSaverBase(p
   if (tag_ != "UNKNOWN") {
     streamLabel_ = "DQMLive";
   }
+
+  if (!fakeFilterUnitMode_) {
+    if (!edm::Service<evf::EvFDaqDirector>().isAvailable())
+      throw cms::Exception("DQMFileSaverPB") << "EvFDaqDirector is not available";
+    std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_);
+    std::ofstream file(initFileName);
+    if (!file)
+      throw cms::Exception("DQMFileSaverPB")
+          << "Cannot create INI file: " << initFileName << " error: " << strerror(errno);
+    file.close();
+  }
 }
 
 DQMFileSaverPB::~DQMFileSaverPB() = default;
@@ -51,13 +62,6 @@ void DQMFileSaverPB::initRun() const {
   if (!fakeFilterUnitMode_) {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel_);
     mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_, evf::MergeTypePB);
-  }
-
-  if (!fakeFilterUnitMode_) {
-    evf::EvFDaqDirector* daqDirector = (evf::EvFDaqDirector*)(edm::Service<evf::EvFDaqDirector>().operator->());
-    const std::string initFileName = daqDirector->getInitFilePath(streamLabel_);
-    std::ofstream file(initFileName);
-    file.close();
   }
 }
 

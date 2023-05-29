@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tSlwPFPuppiJetsCorrected = cms.EDProducer("Phase1L1TJetCalibrator",
+l1tPhase1JetCalibrator9x9 = cms.EDProducer("Phase1L1TJetCalibrator",
     absEtaBinning = cms.vdouble(
         0, 0.435, 0.783, 1.131, 1.305,
         1.479, 1.653, 1.83, 1.93, 2.043,

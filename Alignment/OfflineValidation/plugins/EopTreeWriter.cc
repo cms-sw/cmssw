@@ -332,40 +332,9 @@ void EopTreeWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.setComment("Generate tree for Tracker Alignment E/p validation");
   desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
 
-  // track association
+  // track association (take defaults)
   edm::ParameterSetDescription psd0;
-  psd0.add<bool>("accountForTrajectoryChangeCalo", false);
-  psd0.add<bool>("propagateAllDirections", true);
-  psd0.add<bool>("truthMatch", false);
-  psd0.add<bool>("useCalo", false);
-  psd0.add<bool>("useEcal", true);
-  psd0.add<bool>("useGEM", false);
-  psd0.add<bool>("useHO", true);
-  psd0.add<bool>("useHcal", true);
-  psd0.add<bool>("useME0", false);
-  psd0.add<bool>("useMuon", true);
-  psd0.add<bool>("usePreshower", false);
-  psd0.add<double>("dREcal", 9999.0);
-  psd0.add<double>("dREcalPreselection", 0.05);
-  psd0.add<double>("dRHcal", 9999.0);
-  psd0.add<double>("dRHcalPreselection", 0.2);
-  psd0.add<double>("dRMuon", 9999.0);
-  psd0.add<double>("dRMuonPreselection", 0.2);
-  psd0.add<double>("dRPreshowerPreselection", 0.2);
-  psd0.add<double>("muonMaxDistanceSigmaX", 0.0);
-  psd0.add<double>("muonMaxDistanceSigmaY", 0.0);
-  psd0.add<double>("muonMaxDistanceX", 5.0);
-  psd0.add<double>("muonMaxDistanceY", 5.0);
-  psd0.add<double>("trajectoryUncertaintyTolerance", -1.0);
-  psd0.add<edm::InputTag>("CSCSegmentCollectionLabel", edm::InputTag("cscSegments"));
-  psd0.add<edm::InputTag>("CaloTowerCollectionLabel", edm::InputTag("towerMaker"));
-  psd0.add<edm::InputTag>("DTRecSegment4DCollectionLabel", edm::InputTag("dt4DSegments"));
-  psd0.add<edm::InputTag>("EBRecHitCollectionLabel", edm::InputTag("IsoProd", "IsoTrackEcalRecHitCollection"));
-  psd0.add<edm::InputTag>("EERecHitCollectionLabel", edm::InputTag("IsoProd", "IsoTrackEcalRecHitCollection"));
-  psd0.add<edm::InputTag>("GEMSegmentCollectionLabel", edm::InputTag("gemSegments"));
-  psd0.add<edm::InputTag>("HBHERecHitCollectionLabel", edm::InputTag("IsoProd", "IsoTrackHBHERecHitCollection"));
-  psd0.add<edm::InputTag>("HORecHitCollectionLabel", edm::InputTag("IsoProd", "IsoTrackHORecHitCollection"));
-  psd0.add<edm::InputTag>("ME0SegmentCollectionLabel", edm::InputTag("me0Segments"));
+  TrackAssociatorParameters::fillPSetDescription(psd0);
   desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters", psd0);
 
   descriptions.addWithDefaultLabel(desc);

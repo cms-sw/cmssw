@@ -8,9 +8,7 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
@@ -23,17 +21,14 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
@@ -52,7 +47,7 @@ public:
   };
 
   explicit HGCalSimHitStudy(const edm::ParameterSet&);
-  ~HGCalSimHitStudy() override {}
+  ~HGCalSimHitStudy() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -70,9 +65,9 @@ private:
   const double etamin_, etamax_;
   const int nbinR_, nbinZ_, nbinEta_, nLayers_, verbosity_;
   const bool ifNose_, ifLayer_;
-  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
+  const std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
+  const std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
   std::vector<const HGCalDDDConstants*> hgcons_;
-  std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
   std::vector<int> layers_, layerFront_;
 
   //histogram related stuff
@@ -96,14 +91,17 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
       nLayers_(iConfig.getUntrackedParameter<int>("layers", 50)),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
-      ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)) {
+      ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)),
+      tok_hgcGeom_{
+          edm::vector_transform(nameDetectors_,
+                                [this](const std::string& name) {
+                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+                                      edm::ESInputTag{"", name});
+                                })},
+      tok_hits_{edm::vector_transform(caloHitSources_, [this](const std::string& source) {
+        return consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source));
+      })} {
   usesResource(TFileService::kSharedResource);
-
-  for (auto const& name : nameDetectors_)
-    tok_hgcGeom_.emplace_back(
-        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-  for (auto const& source : caloHitSources_)
-    tok_hits_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source)));
 }
 
 void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -131,8 +129,7 @@ void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descript
 void HGCalSimHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Now the hits
   for (unsigned int k = 0; k < tok_hits_.size(); ++k) {
-    edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
-    iEvent.getByToken(tok_hits_[k], theCaloHitContainers);
+    const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hits_[k]);
     if (theCaloHitContainers.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation") << " PcalohitItr = " << theCaloHitContainers->size();
@@ -172,7 +169,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
       type = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
+      xy = hgcons_[ih]->locateCell(zside, layer, sector, sector2, cell, cell2, false, true, false, false);
       h_W2_[ih]->Fill(sector2);
       h_C2_[ih]->Fill(cell2);
     } else if (hgcons_[ih]->waferHexagon8()) {
@@ -185,7 +182,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
       type = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
+      xy = hgcons_[ih]->locateCell(zside, layer, sector, sector2, cell, cell2, false, true, false, false);
       h_W2_[ih]->Fill(sector2);
       h_C2_[ih]->Fill(cell2);
     } else if (hgcons_[ih]->tileTrapezoid()) {
@@ -196,10 +193,10 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
       type = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcons_[ih]->locateCellTrap(layer, sector, cell, false);
+      xy = hgcons_[ih]->locateCellTrap(zside, layer, sector, cell, false, false);
     } else {
-      HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, type, cell);
-      xy = hgcons_[ih]->locateCell(cell, layer, sector, false);
+      edm::LogError("HGCalValidation") << "HGCalSimHitStudy: Wrong geometry mode " << hgcons_[ih]->geomMode();
+      continue;
     }
     double zp = hgcons_[ih]->waferZ(layer, false);
     if (zside < 0)

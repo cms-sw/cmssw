@@ -138,6 +138,7 @@ namespace edm {
       std::shared_ptr<const void> sigIllHandler_;
       std::shared_ptr<const void> sigTermHandler_;
       std::shared_ptr<const void> sigAbrtHandler_;
+      std::shared_ptr<const void> sigFpeHandler_;
     };
 
     inline bool isProcessWideService(InitRootHandlers const*) { return true; }
@@ -325,6 +326,7 @@ namespace {
     signal(SIGSEGV, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
     signal(SIGTERM, SIG_DFL);
+    signal(SIGFPE, SIG_DFL);
     signal(SIGABRT, SIG_DFL);
   }
 
@@ -519,6 +521,10 @@ namespace {
         signalname = "illegal instruction";
         break;
       }
+      case SIGFPE: {
+        signalname = "floating point exception";
+        break;
+      }
       case SIGTERM: {
         signalname = "external termination request";
         break;
@@ -597,9 +603,10 @@ namespace {
     full_cerr_write(signalname);
     full_cerr_write("\n");
 
-    // For these five known cases, re-raise the signal to get the correct
+    // For these known cases, re-raise the signal to get the correct
     // exit code.
-    if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS) || (sig == SIGTERM) || (sig == SIGABRT)) {
+    if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS) || (sig == SIGTERM) || (sig == SIGFPE) ||
+        (sig == SIGABRT)) {
       signal(sig, SIG_DFL);
       raise(sig);
     } else {
@@ -796,6 +803,7 @@ namespace edm {
         gSystem->ResetSignal(kSigBus);
         gSystem->ResetSignal(kSigSegmentationViolation);
         gSystem->ResetSignal(kSigIllegalInstruction);
+        gSystem->ResetSignal(kSigFloatingException);
         installCustomHandler(SIGBUS, sig_dostack_then_abort);
         sigBusHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGBUS, sig_abort); });
         installCustomHandler(SIGSEGV, sig_dostack_then_abort);
@@ -804,6 +812,8 @@ namespace edm {
         sigIllHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGILL, sig_abort); });
         installCustomHandler(SIGTERM, sig_dostack_then_abort);
         sigTermHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGTERM, sig_abort); });
+        installCustomHandler(SIGFPE, sig_dostack_then_abort);
+        sigFpeHandler_ = std::shared_ptr<const void>(nullptr, [](void*) { installCustomHandler(SIGFPE, sig_abort); });
         installCustomHandler(SIGABRT, sig_dostack_then_abort);
         sigAbrtHandler_ = std::shared_ptr<const void>(nullptr, [](void*) {
           signal(SIGABRT, SIG_DFL);  // release SIGABRT to default

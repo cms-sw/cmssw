@@ -14,7 +14,7 @@
 #include "TTree.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,19 +42,19 @@ typedef L1TMuon::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
 #include "helper.h"
 
-class MakeAngleLUT : public edm::EDAnalyzer {
+class MakeAngleLUT : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit MakeAngleLUT(const edm::ParameterSet&);
-  virtual ~MakeAngleLUT();
+  ~MakeAngleLUT() override;
 
 private:
   //virtual void beginJob();
   //virtual void endJob();
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   void generateLUTs();
 

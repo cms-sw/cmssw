@@ -1,32 +1,31 @@
 <iftool name="cuda-gcc-support">
   <bin file="test_*.cc test_*.cu" name="testHeterogeneousCoreCUDACore">
+    <use name="catch2"/>
+    <use name="cuda"/>
+    <use name="tbb"/>
     <use name="CUDADataFormats/Common"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>
     <use name="FWCore/ServiceRegistry"/>
     <use name="HeterogeneousCore/CUDACore"/>
-    <use name="catch2"/>
-    <use name="cuda"/>
   </bin>
 
   <bin file="testStreamEvent.cu" name="testHeterogeneousCoreCUDACoreStreamEvent">
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
   </bin>
 
   <bin name="cudaTimeMeasurement" file="cudaTimeMeasurement.cu">
     <use name="cuda"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
     <flags TEST_RUNNER_CMD="cudaTimeMeasurement -a10 -t100 -s10000 -q -p12345"/>
-</bin>
+  </bin>
 
-<bin name="mpiCudaGeneric" file="mpiCudaGeneric.cu">
-    <use name="openmpi"/>
+  <bin name="mpiCudaGeneric" file="mpiCudaGeneric.cu">
     <use name="cuda"/>
+    <use name="openmpi"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
-    <flags TEST_RUNNER_CMD="cmsenv_mpirun  -np 2 mpiCudaGeneric -t100 -a10 -s200000 -p123"/>
-</bin>
-
+    <flags TEST_RUNNER_CMD="cudaIsEnabled &amp;&amp; cmsenv_mpirun -np 2 mpiCudaGeneric -t100 -a10 -s200000 -p123 || echo 'Failed to initialise the CUDA runtime, the test will be skipped.'"/>
+  </bin>
 </iftool>
-

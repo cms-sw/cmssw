@@ -815,7 +815,7 @@ void TEcnaRead::FileParameters(const TString &typ_ana,
 //   GetLastReqEvtNumber, GetReqNbOfEvts, GetStexNumber
 //
 //=========================================================================
-TString TEcnaRead::GetAnalysisName() { return fFileHeader->fTypAna; }
+const TString &TEcnaRead::GetAnalysisName() const { return fFileHeader->fTypAna; }
 Int_t TEcnaRead::GetNbOfSamples() { return fFileHeader->fNbOfSamples; }
 Int_t TEcnaRead::GetRunNumber() { return fFileHeader->fRunNumber; }
 Int_t TEcnaRead::GetFirstReqEvtNumber() { return fFileHeader->fFirstReqEvtNumber; }
@@ -829,8 +829,8 @@ Int_t TEcnaRead::GetStexNumber() { return fFileHeader->fStex; }
 //=========================================================================
 time_t TEcnaRead::GetStartTime() { return fFileHeader->fStartTime; }
 time_t TEcnaRead::GetStopTime() { return fFileHeader->fStopTime; }
-TString TEcnaRead::GetStartDate() { return fFileHeader->fStartDate; }
-TString TEcnaRead::GetStopDate() { return fFileHeader->fStopDate; }
+const TString &TEcnaRead::GetStartDate() const { return fFileHeader->fStartDate; }
+const TString &TEcnaRead::GetStopDate() const { return fFileHeader->fStopDate; }
 TString TEcnaRead::GetRunType() {
   TString cType = "run type not defined";
   Int_t numtype = fFileHeader->fRunType;
@@ -4209,8 +4209,8 @@ TString TEcnaRead::GetTypeOfQuantity(const CnaResultTyp arg_typ) {
 //    Get the ROOT file name (long and short)
 //
 //-------------------------------------------------------------------------
-TString TEcnaRead::GetRootFileName() { return fCnaWrite->GetRootFileName(); }
-TString TEcnaRead::GetRootFileNameShort() { return fCnaWrite->GetRootFileNameShort(); }
+const TString &TEcnaRead::GetRootFileName() const { return fCnaWrite->GetRootFileName(); }
+const TString &TEcnaRead::GetRootFileNameShort() const { return fCnaWrite->GetRootFileNameShort(); }
 //-------------------------------------------------------------------------
 //
 //                     GetStexStinFromIndex

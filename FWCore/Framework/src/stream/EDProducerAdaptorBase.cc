@@ -32,6 +32,27 @@ using namespace edm::stream;
 namespace edm {
   namespace stream {
 
+    template <>
+    ProductResolverIndex ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::transformPrefetch_(
+        size_t iTransformIndex) const {
+      return m_streamModules[0]->transformPrefetch_(iTransformIndex);
+    }
+    template <>
+    size_t ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::transformIndex_(
+        edm::BranchDescription const& iBranch) const {
+      return m_streamModules[0]->transformIndex_(iBranch);
+    }
+    template <>
+    void ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::doTransformAsync(WaitingTaskHolder iTask,
+                                                                                   size_t iTransformIndex,
+                                                                                   EventPrincipal const& iEvent,
+                                                                                   ActivityRegistry*,
+                                                                                   ModuleCallingContext const* iMCC,
+                                                                                   ServiceWeakToken const& iToken) {
+      EventForTransformer ev(iEvent, iMCC);
+      m_streamModules[iEvent.streamID()]->transformAsync_(iTask, iTransformIndex, ev, iToken);
+    }
+
     //
     // constants, enums and typedefs
     //

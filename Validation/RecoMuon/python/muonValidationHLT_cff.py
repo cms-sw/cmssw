@@ -46,6 +46,11 @@ l3IOFromL1TkMuonMuTrackV = MTVhlt.clone(
     label = ('hltIterL3MuonAndMuonFromL1Merged:',),
     muonHistoParameters = trkMuonHistoParameters
 )
+l0l3FromL1TkMuonMuTrackV = MTVhlt.clone(
+    associatormap = 'tpToL0L3FromL1TkMuonAssociation',
+    label = ('hltIter0IterL3FromL1MuonTrackSelectionHighPurity:',),
+    muonHistoParameters = trkMuonHistoParameters
+)
 l3GlbMuonMuTrackV = MTVhlt.clone(
     associatormap = 'tpToL3GlbMuonAssociation',
     label = ('hltIterL3GlbMuon:',),
@@ -69,7 +74,8 @@ muonValidationHLT_seq = cms.Sequence(
     +tpToL2UpdMuonAssociation + l2UpdMuonMuTrackV
     +tpToL3OITkMuonAssociation + l3OITkMuonMuTrackV
     +tpToL3TkMuonAssociation + l3TkMuonMuTrackV
-    +tpToL3FromL1TkMuonAssociation + l3IOFromL1TkMuonMuTrackV
+    +tpToL3FromL1TkMuonAssociation + l3IOFromL1TkMuonMuTrackV 
+    +tpToL0L3FromL1TkMuonAssociation + l0l3FromL1TkMuonMuTrackV
     +tpToL3GlbMuonAssociation + l3GlbMuonMuTrackV
     +hltIterL3MuonsNoIDTracks_seq + tpToL3NoIDMuonAssociation + l3NoIDMuonMuTrackV
     +hltIterL3MuonsTracks_seq + tpToL3MuonAssociation + l3MuonMuTrackV

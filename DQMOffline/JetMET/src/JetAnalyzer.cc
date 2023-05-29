@@ -381,6 +381,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   mPt_1 = ibooker.book1D("Pt_1", "Pt spectrum of jets - range 1", 20, 0, 100);
   mPt_2 = ibooker.book1D("Pt_2", "Pt spectrum of jets - range 2", 60, 0, 300);
   mPt_3 = ibooker.book1D("Pt_3", "Pt spectrum of jets - range 3", 100, 0, 5000);
+  mPt_log = ibooker.book1D("Pt_log", "Pt spectrum of jets - log", 100, 0, 50);
   // Low and high pt trigger paths
   mPt_Lo = ibooker.book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100);
   //mEta_Lo                 = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
@@ -394,6 +395,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_1", mPt_1));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_2", mPt_2));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_3", mPt_3));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_log", mPt_log));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Lo", mPt_Lo));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Lo", mPhi_Lo));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Hi", mPt_Hi));
@@ -3896,6 +3898,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       mPt_3 = map_of_MEs[DirName + "/" + "Pt_3"];
       if (mPt_3 && mPt_3->getRootObject())
         mPt_3->Fill(correctedJet.pt());
+      mPt_log = map_of_MEs[DirName + "/" + "Pt_log"];
+      if (mPt_log && mPt_log->getRootObject())
+        mPt_log->Fill(log10(correctedJet.pt()));
       mEta = map_of_MEs[DirName + "/" + "Eta"];
       if (mEta && mEta->getRootObject())
         mEta->Fill(correctedJet.eta());

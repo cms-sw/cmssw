@@ -1,6 +1,5 @@
 /*
  * Tests for loading graphs via the converted protobuf files.
- * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -15,32 +14,35 @@
 
 class testGraphLoading : public testBase {
   CPPUNIT_TEST_SUITE(testGraphLoading);
-  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void checkAll() override;
+  void test() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoading);
 
 std::string testGraphLoading::pyScript() const { return "createconstantgraph.py"; }
 
-void testGraphLoading::checkAll() {
+void testGraphLoading::test() {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
 
+  std::cout << "Testing CPU backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cpu;
+
   // load the graph
-  tensorflow::setLogging();
+  tensorflow::Options options{backend};
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  tensorflow::Session* session = tensorflow::createSession(graphDef);
+  tensorflow::Session* session = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
 
   // check for exception
-  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr), cms::Exception);
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, options), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
@@ -75,5 +77,6 @@ void testGraphLoading::checkAll() {
 
   // cleanup
   CPPUNIT_ASSERT(tensorflow::closeSession(session));
+  CPPUNIT_ASSERT(session == nullptr);
   delete graphDef;
 }

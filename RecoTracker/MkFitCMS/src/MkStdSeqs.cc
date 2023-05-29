@@ -1,7 +1,10 @@
+#include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 #include "RecoTracker/MkFitCMS/interface/MkStdSeqs.h"
 
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
+#include "RecoTracker/MkFitCore/interface/MkJob.h"
+#include "RecoTracker/MkFitCore/interface/TrackStructures.h"
 
 #include "RecoTracker/MkFitCore/interface/binnor.h"
 
@@ -81,20 +84,22 @@ namespace mkfit {
     //=========================================================================
     // Seed cleaning (multi-iter)
     //=========================================================================
-    int clean_cms_seedtracks_iter(TrackVec *seed_ptr, const IterationConfig &itrcfg, const BeamSpot &bspot) {
+    int clean_cms_seedtracks_iter(TrackVec &seeds, const IterationConfig &itrcfg, const BeamSpot &bspot) {
+      using Algo = TrackBase::TrackAlgorithm;
+
       const float etamax_brl = Config::c_etamax_brl;
       const float dpt_common = Config::c_dpt_common;
 
-      const float dzmax_bh = itrcfg.m_params.c_dzmax_bh;
-      const float drmax_bh = itrcfg.m_params.c_drmax_bh;
-      const float dzmax_eh = itrcfg.m_params.c_dzmax_eh;
-      const float drmax_eh = itrcfg.m_params.c_drmax_eh;
-      const float dzmax_bl = itrcfg.m_params.c_dzmax_bl;
-      const float drmax_bl = itrcfg.m_params.c_drmax_bl;
-      const float dzmax_el = itrcfg.m_params.c_dzmax_el;
-      const float drmax_el = itrcfg.m_params.c_drmax_el;
+      const float dzmax_bh = itrcfg.sc_dzmax_bh;
+      const float drmax_bh = itrcfg.sc_drmax_bh;
+      const float dzmax_eh = itrcfg.sc_dzmax_eh;
+      const float drmax_eh = itrcfg.sc_drmax_eh;
+      const float dzmax_bl = itrcfg.sc_dzmax_bl;
+      const float drmax_bl = itrcfg.sc_drmax_bl;
+      const float dzmax_el = itrcfg.sc_dzmax_el;
+      const float drmax_el = itrcfg.sc_drmax_el;
 
-      const float ptmin_hpt = itrcfg.m_params.c_ptthr_hpt;
+      const float ptmin_hpt = itrcfg.sc_ptthr_hpt;
 
       const float dzmax2_inv_bh = 1.f / (dzmax_bh * dzmax_bh);
       const float drmax2_inv_bh = 1.f / (drmax_bh * drmax_bh);
@@ -106,12 +111,14 @@ namespace mkfit {
       const float drmax2_inv_el = 1.f / (drmax_el * drmax_el);
 
       // Merge hits from overlapping seeds?
-      // For now always true, we require extra hits after seed.
+      // For now always true, we require extra hits after seed,
+      // except for lowPtQuadStep, where we only merge hits for seeds at low pT and large pseudo-rapidity
       const bool merge_hits = true;  // itrcfg.merge_seed_hits_during_cleaning();
+      const float ptmax_merge_lowPtQuad = 0.2;
+      const float etamin_merge_lowPtQuad = 1.5;
 
-      if (seed_ptr == nullptr)
+      if (seeds.empty())
         return 0;
-      TrackVec &seeds = *seed_ptr;
 
       const int ns = seeds.size();
 #ifdef DEBUG
@@ -264,7 +271,9 @@ namespace mkfit {
                 // NOTE: We have a limit in Track::Status for the number of seed hits.
                 //       There is a check at entry and after adding of a new hit.
                 Track &tk = seeds[i1];
-                if (merge_hits && tk.nTotalHits() < Track::Status::kMaxSeedHits) {
+                if (merge_hits && tk.nTotalHits() < Track::Status::kMaxSeedHits &&
+                    (Algo(itrcfg.m_track_algorithm) != Algo::lowPtQuadStep ||
+                     (pt1 < ptmax_merge_lowPtQuad && std::abs(eta1) > etamin_merge_lowPtQuad))) {
                   const Track &tk2 = seeds[i2];
                   //We are not actually fitting to the extra hits; use chi2 of 0
                   float fakeChi2 = 0.0;
@@ -328,11 +337,24 @@ namespace mkfit {
       return seeds.size();
     }
 
+    namespace {
+      CMS_SA_ALLOW struct register_seed_cleaners {
+        register_seed_cleaners() {
+          IterationConfig::register_seed_cleaner("phase1:default", clean_cms_seedtracks_iter);
+        }
+      } rsc_instance;
+    }  // namespace
+
     //=========================================================================
     // Duplicate cleaning
     //=========================================================================
 
-    void find_duplicates(TrackVec &tracks) {
+    void remove_duplicates(TrackVec &tracks) {
+      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
+                   tracks.end());
+    }
+
+    void clean_duplicates(TrackVec &tracks, const IterationConfig &) {
       const auto ntracks = tracks.size();
       float eta1, phi1, pt1, deta, dphi, dr2;
 
@@ -341,10 +363,6 @@ namespace mkfit {
       }
       for (auto itrack = 0U; itrack < ntracks - 1; itrack++) {
         auto &track = tracks[itrack];
-        using Algo = TrackBase::TrackAlgorithm;
-        auto const algo = track.algorithm();
-        if (algo == Algo::pixelLessStep || algo == Algo::tobTecStep)
-          continue;
         eta1 = track.momEta();
         phi1 = track.momPhi();
         pt1 = track.pT();
@@ -414,18 +432,16 @@ namespace mkfit {
           }    //end of else
         }      //end of loop over track2
       }        //end of loop over track1
-    }
 
-    void remove_duplicates(TrackVec &tracks) {
-      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
-                   tracks.end());
+      remove_duplicates(tracks);
     }
 
     //=========================================================================
     // SHARED HITS DUPLICATE CLEANING
     //=========================================================================
 
-    void find_duplicates_sharedhits(TrackVec &tracks, const float fraction) {
+    void clean_duplicates_sharedhits(TrackVec &tracks, const IterationConfig &itconf) {
+      const float fraction = itconf.dc_fracSharedHits;
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
@@ -485,15 +501,14 @@ namespace mkfit {
         }  // end sharing hits loop
       }    // end trk loop
 
-      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
-                   tracks.end());
+      remove_duplicates(tracks);
     }
 
-    void find_duplicates_sharedhits_pixelseed(TrackVec &tracks,
-                                              const float fraction,
-                                              const float drth_central,
-                                              const float drth_obarrel,
-                                              const float drth_forward) {
+    void clean_duplicates_sharedhits_pixelseed(TrackVec &tracks, const IterationConfig &itconf) {
+      const float fraction = itconf.dc_fracSharedHits;
+      const float drth_central = itconf.dc_drth_central;
+      const float drth_obarrel = itconf.dc_drth_obarrel;
+      const float drth_forward = itconf.dc_drth_forward;
       const auto ntracks = tracks.size();
 
       std::vector<float> ctheta(ntracks);
@@ -579,39 +594,178 @@ namespace mkfit {
         }
       }  //end loop one over tracks
 
-      //removal here
-      tracks.erase(std::remove_if(tracks.begin(), tracks.end(), [](auto track) { return track.getDuplicateValue(); }),
-                   tracks.end());
+      remove_duplicates(tracks);
     }
 
+    namespace {
+      CMS_SA_ALLOW struct register_duplicate_cleaners {
+        register_duplicate_cleaners() {
+          IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates", clean_duplicates);
+          IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates_sharedhits",
+                                                      clean_duplicates_sharedhits);
+          IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates_sharedhits_pixelseed",
+                                                      clean_duplicates_sharedhits_pixelseed);
+        }
+      } rdc_instance;
+    }  // namespace
+
     //=========================================================================
-    //
+    // Quality filters
     //=========================================================================
 
-    void find_and_remove_duplicates(TrackVec &tracks, const IterationConfig &itconf) {
-#ifdef DEBUG
-      std::cout << " find_and_remove_duplicates: input track size " << tracks.size() << std::endl;
-#endif
-      if (itconf.m_requires_quality_filter && !(itconf.m_requires_dupclean_tight)) {
-        find_duplicates_sharedhits(tracks, itconf.m_params.fracSharedHits);
-      } else if (itconf.m_requires_dupclean_tight) {
-        find_duplicates_sharedhits_pixelseed(tracks,
-                                             itconf.m_params.fracSharedHits,
-                                             itconf.m_params.drth_central,
-                                             itconf.m_params.drth_obarrel,
-                                             itconf.m_params.drth_forward);
-      } else {
-        find_duplicates(tracks);
-        remove_duplicates(tracks);
-      }
-
-#ifdef DEBUG
-      std::cout << " find_and_remove_duplicates: output track size " << tracks.size() << std::endl;
-      for (auto const &tk : tracks) {
-        std::cout << tk.parameters() << std::endl;
-      }
-#endif
+    // quality filter for n hits with seed hit "penalty" for strip-based seeds
+    //   this implicitly separates triplets and doublet seeds with glued layers
+    template <class TRACK>
+    bool qfilter_n_hits(const TRACK &t, const MkJob &j) {
+      int seedHits = t.getNSeedHits();
+      int seedReduction = (seedHits <= 5) ? 2 : 3;
+      return t.nFoundHits() - seedReduction >= j.params_cur().minHitsQF;
     }
+
+    // simple hit-count quality filter; used with pixel-based seeds
+    template <class TRACK>
+    bool qfilter_n_hits_pixseed(const TRACK &t, const MkJob &j) {
+      return t.nFoundHits() >= j.params_cur().minHitsQF;
+    }
+
+    // layer-dependent quality filter
+    // includes ad hoc tuning for phase-1
+    template <class TRACK>
+    bool qfilter_n_layers(const TRACK &t, const MkJob &j) {
+      const BeamSpot &bspot = j.m_beam_spot;
+      const TrackerInfo &trk_inf = j.m_trk_info;
+      int enhits = t.nHitsByTypeEncoded(trk_inf);
+      int npixhits = t.nPixelDecoded(enhits);
+      int enlyrs = t.nLayersByTypeEncoded(trk_inf);
+      int npixlyrs = t.nPixelDecoded(enlyrs);
+      int nmatlyrs = t.nTotMatchDecoded(enlyrs);
+      int llyr = t.getLastFoundHitLyr();
+      int lplyr = t.getLastFoundPixelHitLyr();
+      float invpt = t.invpT();
+
+      // based on fr and eff vs pt (convert to native invpt)
+      float invptmin = 1.43;  // min 1/pT (=1/0.7) for full filter on (npixhits<=3 .or. npixlyrs<=3)
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+      float d0_max = 0.1;  // 1 mm, max for somewhat prompt
+
+      // next-to-outermost pixel layers (almost): BPIX3 or FPIX1
+      bool endsInsidePix = (llyr == 2 || llyr == 18 || llyr == 45);
+      // not last pixel layers: BPIX[123] or FPIX[12]
+      bool lastInsidePix = ((0 <= lplyr && lplyr < 3) || (18 <= lplyr && lplyr < 20) || (45 <= lplyr && lplyr < 47));
+      // reject short tracks missing last pixel layer except for prompt-looking
+      return !(((npixhits <= 3 || npixlyrs <= 3) && endsInsidePix &&
+                (invpt < invptmin || (invpt >= invptmin && std::abs(d0BS) > d0_max))) ||
+               ((npixlyrs <= 3 && nmatlyrs <= 6) && lastInsidePix && llyr != lplyr && std::abs(d0BS) > d0_max));
+    }
+
+    /// quality filter tuned for pixelLess iteration during forward search
+    // includes ad hoc tuning for phase-1
+    template <class TRACK>
+    bool qfilter_pixelLessFwd(const TRACK &t, const MkJob &j) {
+      const BeamSpot &bspot = j.m_beam_spot;
+      const TrackerInfo &tk_info = j.m_trk_info;
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+      float d0_max = 0.05;  // 0.5 mm, max for somewhat prompt
+
+      int encoded;
+      encoded = t.nLayersByTypeEncoded(tk_info);
+      int nLyrs = t.nTotMatchDecoded(encoded);
+      encoded = t.nHitsByTypeEncoded(tk_info);
+      int nHits = t.nTotMatchDecoded(encoded);
+
+      // to subtract stereo seed layers to count just r-phi seed layers (better pt err)
+      int seedReduction = (t.getNSeedHits() <= 5) ? 2 : 3;
+
+      // based on fr and eff vs pt and eta (convert to native invpt and theta)
+      float invpt = t.invpT();
+      float invptmin = 1.11;  // =1/0.9
+
+      float thetasym = std::abs(t.theta() - Const::PIOver2);
+      float thetasymmin = 1.11;  // -> |eta|=1.45
+
+      // accept longer tracks, reject too short and displaced
+      return (((t.nFoundHits() - seedReduction >= 4 && invpt < invptmin) ||
+               (t.nFoundHits() - seedReduction >= 3 && invpt > invptmin && thetasym <= thetasymmin) ||
+               (t.nFoundHits() - seedReduction >= 4 && invpt > invptmin && thetasym > thetasymmin)) &&
+              !((nLyrs <= 4 || nHits <= 4) && std::abs(d0BS) > d0_max && invpt < invptmin));
+    }
+
+    /// quality filter tuned for pixelLess iteration during backward search
+    // includes ad hoc tuning for phase-1
+    template <class TRACK>
+    bool qfilter_pixelLessBkwd(const TRACK &t, const MkJob &j) {
+      const BeamSpot &bspot = j.m_beam_spot;
+      const TrackerInfo &tk_info = j.m_trk_info;
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+      float d0_max = 0.1;  // 1 mm
+
+      int encoded;
+      encoded = t.nLayersByTypeEncoded(tk_info);
+      int nLyrs = t.nTotMatchDecoded(encoded);
+      encoded = t.nHitsByTypeEncoded(tk_info);
+      int nHits = t.nTotMatchDecoded(encoded);
+
+      // based on fr and eff vs pt and eta (convert to native invpt and theta)
+      float invpt = t.invpT();
+      float invptmin = 1.11;  // =1/0.9
+
+      float thetasym = std::abs(t.theta() - Const::PIOver2);
+      float thetasymmin_l = 0.80;  // -> |eta|=0.9
+      float thetasymmin_h = 1.11;  // -> |eta|=1.45
+
+      // reject too short or too displaced tracks
+      return !(
+          ((nLyrs <= 3 || nHits <= 3)) ||
+          ((nLyrs <= 4 || nHits <= 4) && (invpt < invptmin || (thetasym > thetasymmin_l && std::abs(d0BS) > d0_max))) ||
+          ((nLyrs <= 5 || nHits <= 5) && (invpt > invptmin && thetasym > thetasymmin_h && std::abs(d0BS) > d0_max)));
+    }
+
+    namespace {
+      CMS_SA_ALLOW struct register_quality_filters {
+        register_quality_filters() {
+          IterationConfig::register_candidate_filter("phase1:qfilter_n_hits", qfilter_n_hits<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_n_hits_pixseed",
+                                                     qfilter_n_hits_pixseed<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_n_layers", qfilter_n_layers<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_pixelLessFwd", qfilter_pixelLessFwd<TrackCand>);
+          IterationConfig::register_candidate_filter("phase1:qfilter_pixelLessBkwd", qfilter_pixelLessBkwd<TrackCand>);
+        }
+      } rqf_instance;
+    }  // namespace
+
+    //=========================================================================
+    // Track scoring
+    //=========================================================================
+
+    float trackScoreDefault(const int nfoundhits,
+                            const int ntailholes,
+                            const int noverlaphits,
+                            const int nmisshits,
+                            const float chi2,
+                            const float pt,
+                            const bool inFindCandidates) {
+      float maxBonus = 8.0;
+      float bonus = Config::validHitSlope_ * nfoundhits + Config::validHitBonus_;
+      float penalty = Config::missingHitPenalty_;
+      float tailPenalty = Config::tailMissingHitPenalty_;
+      float overlapBonus = Config::overlapHitBonus_;
+      if (pt < 0.9) {
+        penalty *= inFindCandidates ? 1.7f : 1.5f;
+        bonus = std::min(bonus * (inFindCandidates ? 0.9f : 1.0f), maxBonus);
+      }
+      float score =
+          bonus * nfoundhits + overlapBonus * noverlaphits - penalty * nmisshits - tailPenalty * ntailholes - chi2;
+      return score;
+    }
+
+    namespace {
+      CMS_SA_ALLOW struct register_track_scorers {
+        register_track_scorers() {
+          IterationConfig::register_track_scorer("default", trackScoreDefault);
+          IterationConfig::register_track_scorer("phase1:default", trackScoreDefault);
+        }
+      } rts_instance;
+    }  // namespace
 
   }  // namespace StdSeq
 }  // namespace mkfit

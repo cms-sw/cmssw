@@ -4,8 +4,10 @@ import collections
 
 def customiseEarlyDeleteForCKF(process, products):
 
+    references = collections.defaultdict(list)
+    
     if "trackExtenderWithMTD" not in process.producerNames():
-        return products
+        return (products, references)
 
     def _branchName(productType, moduleLabel, instanceLabel=""):
         return "%s_%s_%s_%s" % (productType, moduleLabel, instanceLabel, process.name_())
@@ -15,6 +17,7 @@ def customiseEarlyDeleteForCKF(process, products):
     def _addProduct(name):
         products[name].append(_branchName("Trajectorys", name))
         products[name].append(_branchName("TrajectorysToOnerecoTracksAssociation", name))
+        references[_branchName("TrajectorysToOnerecoTracksAssociation", name)] = [_branchName("Trajectorys", name)]
         trajectoryLabels.append(name)
 
     for name, module in process.producers_().items():
@@ -53,4 +56,4 @@ def customiseEarlyDeleteForCKF(process, products):
                 noTrajectoryYet.append(tlm)
         trackListMergers = noTrajectoryYet
 
-    return products
+    return (products, references)

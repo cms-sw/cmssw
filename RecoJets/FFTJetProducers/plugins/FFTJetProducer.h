@@ -67,6 +67,8 @@
 #include "RecoJets/FFTJetAlgorithms/interface/AbsPileupCalculator.h"
 #include "RecoJets/FFTJetProducers/interface/FFTJetInterface.h"
 
+#include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequenceLoader.h"
+
 namespace fftjetcms {
   class DiscretizedEnergyFlow;
 }
@@ -407,6 +409,8 @@ private:
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topology_token_;
+
+  FFTJetLookupTableSequenceLoader esLoader_;
 };
 
 #endif  // RecoJets_FFTJetProducers_FFTJetProducer_h

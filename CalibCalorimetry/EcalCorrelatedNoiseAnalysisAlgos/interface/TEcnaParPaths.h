@@ -75,12 +75,12 @@ public:
 
   Bool_t GetPaths();
 
-  TString ResultsRootFilePath();
-  TString ResultsAsciiFilePath();
-  TString HistoryRunListFilePath();
-  TString CMSSWBase();
-  TString CMSSWSubsystem();
-  TString SCRAMArch();
+  const TString &ResultsRootFilePath() const;
+  const TString &ResultsAsciiFilePath() const;
+  const TString &HistoryRunListFilePath() const;
+  const TString &CMSSWBase() const;
+  const TString &CMSSWSubsystem() const;
+  const TString &SCRAMArch() const;
 
   void SetResultsRootFilePath(const TString &);
   void SetResultsAsciiFilePath(const TString &);

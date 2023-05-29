@@ -1,7 +1,7 @@
 #ifndef AlphaTVarProducer_h
 #define AlphaTVarProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,14 +13,14 @@
 
 #include <vector>
 
-class AlphaTVarProducer : public edm::EDProducer {
+class AlphaTVarProducer : public edm::global::EDProducer<> {
 public:
   explicit AlphaTVarProducer(const edm::ParameterSet &);
-  ~AlphaTVarProducer() override;
-  void produce(edm::Event &, const edm::EventSetup &) override;
+
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
-  double CalcAlphaT(const std::vector<TLorentzVector> &);
+  double CalcAlphaT(const std::vector<TLorentzVector> &) const;
   static double CalcHT(const std::vector<TLorentzVector> &);
   static double CalcMHT(const std::vector<TLorentzVector> &);
   static double deltaHt(const std::vector<double> &);

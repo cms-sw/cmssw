@@ -266,52 +266,46 @@ namespace pat {
     LorentzVector shiftedP4_74x(METUncertainty shift, METCorrectionLevel level) const;
     double shiftedSumEt_74x(METUncertainty shift, METCorrectionLevel level) const;
 
-    /// this below should be private but Reflex doesn't like it
-    class PackedMETUncertainty {
+    class UnpackedMETUncertainty {
       // defined as C++ class so that I can change the packing without having to touch the code elsewhere
       // the compiler should anyway inline everything whenever possible
     public:
-      PackedMETUncertainty() : dpx_(0), dpy_(0), dsumEt_(0) {
-        pack();
-        unpack();
-      }
-      PackedMETUncertainty(float dpx, float dpy, float dsumEt) : dpx_(dpx), dpy_(dpy), dsumEt_(dsumEt) {
-        pack();
-        unpack();
-      }
-      double dpx() const {
-        if (!unpacked_)
-          unpack();
-        return dpx_;
-      }
-      double dpy() const {
-        if (!unpacked_)
-          unpack();
-        return dpy_;
-      }
-      double dsumEt() const {
-        if (!unpacked_)
-          unpack();
-        return dsumEt_;
-      }
+      UnpackedMETUncertainty() : dpx_(0), dpy_(0), dsumEt_(0) {}
+      UnpackedMETUncertainty(float dpx, float dpy, float dsumEt) : dpx_(dpx), dpy_(dpy), dsumEt_(dsumEt) {}
+      double dpx() const { return dpx_; }
+      double dpy() const { return dpy_; }
+      double dsumEt() const { return dsumEt_; }
       void set(float dpx, float dpy, float dsumEt) {
         dpx_ = dpx;
         dpy_ = dpy;
         dsumEt_ = dsumEt;
-        pack();
-        unpack();
       }
       void add(float dpx, float dpy, float dsumEt) {
         dpx_ += dpx;
         dpy_ += dpy;
         dsumEt_ += dsumEt;
       }
-      void unpack() const;
-      void pack();
+
+    private:
+      float dpx_, dpy_, dsumEt_;
+    };
+
+    /// this below should be private but Reflex doesn't like it
+    class PackedMETUncertainty {
+      // defined as C++ class so that I can change the packing without having to touch the code elsewhere
+      // the compiler should anyway inline everything whenever possible
+    public:
+      PackedMETUncertainty() { pack(0, 0, 0); }
+      PackedMETUncertainty(float dpx, float dpy, float dsumEt) { pack(dpx, dpy, dsumEt); }
+      void set(float dpx, float dpy, float dsumEt) { pack(dpx, dpy, dsumEt); }
+      UnpackedMETUncertainty unpack() const;
+
+      float unpackDSumEt() const;
+      float unpackDpx() const;
+      float unpackDpy() const;
 
     protected:
-      mutable float dpx_, dpy_, dsumEt_;
-      mutable bool unpacked_;
+      void pack(float dpx, float dpy, float dsumEt);
       uint16_t packedDpx_, packedDpy_, packedDSumEt_;
     };
 
@@ -328,7 +322,7 @@ namespace pat {
     // MET sumPtUnclustered for MET Significance
     double sumPtUnclustered_;
 
-    const PackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
+    UnpackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
 
     std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> > corMap_;
     void initCorMap();

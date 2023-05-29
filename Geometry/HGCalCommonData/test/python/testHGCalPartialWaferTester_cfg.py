@@ -33,6 +33,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("Geometry.HGCalCommonData.hgcalPartialWaferTester_cfi")
-#process.hgcalPartialWaferTester.nameSense = "HGCalEESensitive"
+process.hgcalPartialWaferTester.nameSense = "HGCalEESensitive"
  
 process.p1 = cms.Path(process.generator*process.hgcalPartialWaferTester)

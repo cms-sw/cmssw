@@ -7,9 +7,7 @@
 #include <vector>
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
@@ -26,7 +24,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
@@ -48,7 +45,7 @@ public:
   };
 
   explicit HGCalDigiValidation(const edm::ParameterSet&);
-  ~HGCalDigiValidation() override {}
+  ~HGCalDigiValidation() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -69,8 +66,8 @@ private:
   const int verbosity_, SampleIndx_;
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcalc_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcalg_;
+  const edm::EDGetTokenT<HGCalDigiCollection> digiSource_;
   int layers_, firstLayer_;
-  edm::EDGetToken digiSource_;
 
   std::map<int, int> OccupancyMap_plus_;
   std::map<int, int> OccupancyMap_minus_;
@@ -93,17 +90,8 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig)
       tok_hgcalc_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})),
       tok_hgcalg_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})),
-      firstLayer_(1) {
-  auto temp = iConfig.getParameter<edm::InputTag>("DigiSource");
-  if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive") ||
-      (nameDetector_ == "HGCalHEScintillatorSensitive") || (nameDetector_ == "HGCalHFNoseSensitive")) {
-    digiSource_ = consumes<HGCalDigiCollection>(temp);
-  } else {
-    throw cms::Exception("BadHGCDigiSource") << "HGCal DetectorName given as " << nameDetector_ << " must be: "
-                                             << "\"HGCalEESensitive\", \"HGCalHESiliconSensitive\", or "
-                                             << "\"HGCalHEScintillatorSensitive\", \"HGCalHFNoseSensitive\"!";
-  }
-}
+      digiSource_(consumes<HGCalDigiCollection>(iConfig.getParameter<edm::InputTag>("DigiSource"))),
+      firstLayer_(1) {}
 
 void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -123,7 +111,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   const HGCalGeometry* geom0 = &iSetup.getData(tok_hgcalg_);
   if (geom0->topology().waferHexagon8())
     geomType = 1;
-  else if (geom0->topology().tileTrapezoid())
+  else
     geomType = 2;
   if (nameDetector_ == "HGCalHFNoseSensitive")
     geomType = 3;
@@ -131,8 +119,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   unsigned int ntot(0), nused(0);
   if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHFNoseSensitive")) {
     //HGCalEE
-    edm::Handle<HGCalDigiCollection> theHGCEEDigiContainers;
-    iEvent.getByToken(digiSource_, theHGCEEDigiContainers);
+    const edm::Handle<HGCalDigiCollection>& theHGCEEDigiContainers = iEvent.getHandle(digiSource_);
     if (theHGCEEDigiContainers.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation")
@@ -141,9 +128,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 0)   ? HGCalDetId(detId).layer()
-                     : (geomType == 1) ? HGCSiliconDetId(detId).layer()
-                                       : HFNoseDetId(detId).layer());
+        int layer = ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HFNoseDetId(detId).layer());
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t gain = hgcSample.toa();
         uint16_t adc = hgcSample.data();
@@ -159,8 +144,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   } else if ((nameDetector_ == "HGCalHESiliconSensitive") || (nameDetector_ == "HGCalHEScintillatorSensitive")) {
     //HGCalHE
-    edm::Handle<HGCalDigiCollection> theHGCHEDigiContainers;
-    iEvent.getByToken(digiSource_, theHGCHEDigiContainers);
+    const edm::Handle<HGCalDigiCollection>& theHGCHEDigiContainers = iEvent.getHandle(digiSource_);
     if (theHGCHEDigiContainers.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation")
@@ -169,9 +153,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 0)
-                         ? HGCalDetId(detId).layer()
-                         : ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer()));
+        int layer = ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer());
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t gain = hgcSample.toa();
         uint16_t adc = hgcSample.data();

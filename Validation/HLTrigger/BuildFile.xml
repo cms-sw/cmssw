@@ -1,0 +1,10 @@
+<use name="DQMOffline/Trigger"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/HLTReco"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="DQMServices/Core"/>
+<use name="root"/>
+<export>
+  <lib name="1"/>
+</export>

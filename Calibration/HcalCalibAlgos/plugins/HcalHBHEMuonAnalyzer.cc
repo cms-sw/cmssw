@@ -95,6 +95,7 @@ private:
   const edm::InputTag labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
   const std::string labelVtx_, labelMuon_, fileInCorr_;
   const std::vector<std::string> triggers_;
+  const double pMinMuon_;
   const int verbosity_, useRaw_;
   const bool unCorrect_, collapseDepth_, isItPlan1_;
   const bool ignoreHECorr_, isItPreRecHit_;
@@ -180,6 +181,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
       labelMuon_(iConfig.getParameter<std::string>("labelMuon")),
       fileInCorr_(iConfig.getUntrackedParameter<std::string>("fileInCorr", "")),
       triggers_(iConfig.getParameter<std::vector<std::string>>("triggers")),
+      pMinMuon_(iConfig.getParameter<double>("pMinMuon")),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       useRaw_(iConfig.getParameter<int>("useRaw")),
       unCorrect_(iConfig.getParameter<bool>("unCorrect")),
@@ -189,7 +191,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
       isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit", false)),
       getCharge_(iConfig.getParameter<bool>("getCharge")),
       writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr", false)),
-      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 4)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 7)),
       modnam_(iConfig.getUntrackedParameter<std::string>("moduleName", "")),
       procnm_(iConfig.getUntrackedParameter<std::string>("processName", "")),
       tok_trigRes_(consumes<edm::TriggerResults>(hlTriggerResults_)),
@@ -246,7 +248,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("HBHEMuon") << "Flags used: UseRaw " << useRaw_ << " GetCharge " << getCharge_ << " UnCorrect "
                                << unCorrect_ << " IgnoreHECorr " << ignoreHECorr_ << " CollapseDepth " << collapseDepth_
                                << ":" << mergedDepth_ << " IsItPlan1 " << isItPlan1_ << " IsItPreRecHit "
-                               << isItPreRecHit_ << " UseMyCorr " << useMyCorr_;
+                               << isItPreRecHit_ << " UseMyCorr " << useMyCorr_ << " pMinMuon " << pMinMuon_;
 }
 
 //
@@ -296,12 +298,12 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::LogVerbatim("HBHEMuon") << "Run " << runNumber_ << " Event " << eventNumber_ << " Lumi " << lumiNumber_ << " BX "
                                << bxNumber_ << std::endl;
 #endif
-  const edm::Handle<edm::TriggerResults> _Triggers = iEvent.getHandle(tok_trigRes_);
+  const edm::Handle<edm::TriggerResults>& _Triggers = iEvent.getHandle(tok_trigRes_);
 #ifdef EDM_ML_DEBUG
   if ((verbosity_ / 10000) % 10 > 0)
     edm::LogVerbatim("HBHEMuon") << "Size of all triggers " << all_triggers_.size();
 #endif
-  int Ntriggers = all_triggers_.size();
+  int Ntriggers = static_cast<int>(all_triggers_.size());
 #ifdef EDM_ML_DEBUG
   if ((verbosity_ / 10000) % 10 > 0)
     edm::LogVerbatim("HBHEMuon") << "Size of HLT MENU: " << _Triggers->size();
@@ -311,7 +313,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     std::vector<int> index;
     for (int i = 0; i < Ntriggers; i++) {
       index.push_back(triggerNames_.triggerIndex(all_triggers_[i]));
-      int triggerSize = int(_Triggers->size());
+      int triggerSize = static_cast<int>(_Triggers->size());
 #ifdef EDM_ML_DEBUG
       if ((verbosity_ / 10000) % 10 > 0)
         edm::LogVerbatim("HBHEMuon") << "outside loop " << index[i] << "\ntriggerSize " << triggerSize;
@@ -339,14 +341,14 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
-  const edm::Handle<reco::VertexCollection> vtx = iEvent.getHandle(tok_Vtx_);
+  const edm::Handle<reco::VertexCollection>& vtx = iEvent.getHandle(tok_Vtx_);
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
 
   edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_HBHE_);
 
-  const edm::Handle<reco::MuonCollection> _Muon = iEvent.getHandle(tok_Muon_);
+  const edm::Handle<reco::MuonCollection>& _Muon = iEvent.getHandle(tok_Muon_);
 
   // require a good vertex
   math::XYZPoint pvx;
@@ -495,7 +497,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       if (RecMuon.innerTrack().isNonnull()) {
         const reco::Track* pTrack = (RecMuon.innerTrack()).get();
         spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo_, bField, (((verbosity_ / 100) % 10 > 0)));
-        if ((RecMuon.p() > 10.0) && (trackID.okHCAL))
+        if ((RecMuon.p() > pMinMuon_) && (trackID.okHCAL))
           accept = true;
 
         ecalDetId.push_back((trackID.detIdECAL)());
@@ -1062,19 +1064,20 @@ void HcalHBHEMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("labelHBHERecHit", edm::InputTag("hbhereco"));
   desc.add<std::string>("labelVertex", "offlinePrimaryVertices");
   desc.add<std::string>("labelMuon", "muons");
-  std::vector<std::string> trig = {"HLT_IsoMu17", "HLT_IsoMu20", "HLT_IsoMu24", "HLT_IsoMu27", "HLT_Mu45", "HLT_Mu50"};
+  std::vector<std::string> trig = {};
   desc.add<std::vector<std::string>>("triggers", trig);
+  desc.add<double>("pMinMuon", 5.0);
   desc.addUntracked<int>("verbosity", 0);
   desc.add<int>("useRaw", 0);
-  desc.add<bool>("unCorrect", false);
-  desc.add<bool>("getCharge", false);
+  desc.add<bool>("unCorrect", true);
+  desc.add<bool>("getCharge", true);
   desc.add<bool>("collapseDepth", false);
   desc.add<bool>("isItPlan1", false);
   desc.addUntracked<bool>("ignoreHECorr", false);
   desc.addUntracked<bool>("isItPreRecHit", false);
   desc.addUntracked<std::string>("moduleName", "");
   desc.addUntracked<std::string>("processName", "");
-  desc.addUntracked<int>("maxDepth", 4);
+  desc.addUntracked<int>("maxDepth", 7);
   desc.addUntracked<std::string>("fileInCorr", "");
   desc.addUntracked<bool>("writeRespCorr", false);
   descriptions.add("hcalHBHEMuon", desc);

@@ -3,64 +3,48 @@
 using namespace std;
 
 namespace l1tmetemu {
-  std::vector<global_phi_t> generateCosLUT(unsigned int size) {  // Fill cosine LUT with integer values
+  std::vector<cos_lut_fixed_t> generateCosLUT(unsigned int size) {  // Fill cosine LUT with integer values
     float phi = 0;
-    std::vector<global_phi_t> cosLUT;
+    std::vector<cos_lut_fixed_t> cosLUT;
     for (unsigned int LUT_idx = 0; LUT_idx < size; LUT_idx++) {
-      cosLUT.push_back((global_phi_t)(floor(cos(phi) * (kGlobalPhiBins - 1))));
-      phi += l1tmetemu::kStepPhi;
+      cosLUT.push_back((cos_lut_fixed_t)(cos(phi)));
+      phi += TTTrack_TrackWord::stepPhi0;
+      //std::cout << LUT_idx << "," << (cos_lut_fixed_t)(cos(phi)) << std::endl;
     }
-    cosLUT.push_back((global_phi_t)(0));  //Prevent overflow in last bin
+    cosLUT.push_back((cos_lut_fixed_t)(0));  //Prevent overflow in last bin
     return cosLUT;
   }
 
-  // Generate Eta LUT for track to vertex association
-  std::vector<eta_t> generateEtaRegionLUT(vector<double> EtaRegions) {
-    std::vector<eta_t> LUT;
-    for (unsigned int q = 0; q < EtaRegions.size(); q++) {
-      LUT.push_back(digitizeSignedValue<eta_t>(EtaRegions[q], l1tmetemu::kInternalEtaWidth, l1tmetemu::kStepEta));
-      //std::cout << LUT[q] << "|" <<  EtaRegions[q] << std::endl;
+  global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift) {
+    global_phi_t PhiMin = 0;
+    global_phi_t PhiMax = 2 * M_PI / TTTrack_TrackWord::stepPhi0;
+
+    // The initial word comes in as a uint; the correct bits, but not automatically using 2s compliment format.
+    global_phi_t globalPhi = local_phi;
+
+    // Once the word is in a larger, signed container, shift it down so that the negative numbers are automatically represented in 2s compliment.
+    if (local_phi >= (1 << (TTTrack_TrackWord::TrackBitWidths::kPhiSize - 1)))
+      globalPhi -= (1 << TTTrack_TrackWord::TrackBitWidths::kPhiSize);
+
+    globalPhi += sector_shift;
+
+    if (globalPhi < PhiMin) {
+      globalPhi = globalPhi + PhiMax;
+    } else if (globalPhi > PhiMax) {
+      globalPhi = globalPhi - PhiMax;
     }
-    return LUT;
+
+    return globalPhi;
   }
 
-  std::vector<z_t> generateDeltaZLUT(vector<double> DeltaZBins) {
-    std::vector<z_t> LUT;
-    for (unsigned int q = 0; q < DeltaZBins.size(); q++) {
-      LUT.push_back(digitizeSignedValue<z_t>(DeltaZBins[q], l1tmetemu::kInternalVTXWidth, l1tmetemu::kStepZ0));
-      //std::cout << LUT[q] << "|" <<  DeltaZBins[q] << std::endl;
+  std::vector<global_phi_t> generatePhiSliceLUT(unsigned int N) {
+    float sliceCentre = 0.0;
+    std::vector<global_phi_t> phiLUT;
+    for (unsigned int q = 0; q <= N; q++) {
+      phiLUT.push_back((global_phi_t)(sliceCentre / TTTrack_TrackWord::stepPhi0));
+      sliceCentre += 2 * M_PI / N;
     }
-    return LUT;
-  }
-
-  int unpackSignedValue(unsigned int bits, unsigned int nBits) {
-    int isign = 1;
-    unsigned int digitized_maximum = (1 << nBits) - 1;
-    if (bits & (1 << (nBits - 1))) {  // check the sign
-      isign = -1;
-      bits = (1 << (nBits + 1)) - bits;  // if negative, flip everything for two's complement encoding
-    }
-    return (int(bits & digitized_maximum)) * isign;
-  }
-
-  unsigned int transformSignedValue(unsigned int bits, unsigned int oldnBits, unsigned int newnBits) {
-    int isign = 1;
-    unsigned int olddigitized_maximum = (1 << oldnBits) - 1;
-    unsigned int newdigitized_maximum = (1 << newnBits) - 1;
-    if (bits & (1 << (oldnBits - 1))) {  // check the sign
-      isign = -1;
-      bits = (1 << (oldnBits + 1)) - bits;  // if negative, flip everything for two's complement encoding
-    }
-    unsigned int temp = (int(bits & olddigitized_maximum));
-
-    temp = round(temp / (1 << (oldnBits - newnBits)));
-
-    if (temp > newdigitized_maximum)
-      temp = newdigitized_maximum;
-    if (isign < 0)
-      temp = (1 << newnBits) - 1 - temp;  // two's complement encoding
-
-    return temp;
+    return phiLUT;
   }
 
 }  // namespace l1tmetemu

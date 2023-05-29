@@ -16,6 +16,8 @@
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionData.h"
 #include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "CondFormats/DataRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h"
@@ -33,6 +35,7 @@
 #include <iomanip>
 #include <cmath>
 #include <utility>
+#include <algorithm>
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -108,6 +111,8 @@ private:
                                                        double binWidth = -1.,
                                                        double min = -1.);
 
+  CTPPSRPAlignmentCorrectionsData getLongIdResults(CTPPSRPAlignmentCorrectionsData finalResults);
+
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenTest_;
   edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenReference_;
 
@@ -120,6 +125,8 @@ private:
   const bool yAliFinalSlopeFixed_;
   const std::pair<double, double> xCorrRange_;
   const std::pair<double, double> yCorrRange_;
+  const unsigned int detectorId_;
+  const unsigned int subdetectorId_;
   const bool debug_;
 
   // other class variables
@@ -153,6 +160,8 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
                                  iConfig.getParameter<double>("x_corr_max") / 1000.)),  // um -> mm
       yCorrRange_(std::make_pair(iConfig.getParameter<double>("y_corr_min") / 1000.,
                                  iConfig.getParameter<double>("y_corr_max") / 1000.)),  // um -> mm
+      detectorId_(iConfig.getParameter<unsigned int>("detector_id")),
+      subdetectorId_(iConfig.getParameter<unsigned int>("subdetector_id")),
       debug_(iConfig.getParameter<bool>("debug")) {
   auto textResultsPath = iConfig.getParameter<std::string>("text_results_path");
   if (!textResultsPath.empty()) {
@@ -178,8 +187,11 @@ PPSAlignmentHarvester::PPSAlignmentHarvester(const edm::ParameterSet& iConfig)
     li << "* x_corr_min: " << std::fixed << xCorrRange_.first * 1000. << ", x_corr_max: " << xCorrRange_.second * 1000.
        << "\n";
     // print in um
-    li << "* y_corr_min: " << std::fixed << yCorrRange_.first * 1000. << ", y_corr_max: " << yCorrRange_.second * 1000.;
-    li << "* debug: " << std::boolalpha << debug_ << "\n";
+    li << "* y_corr_min: " << std::fixed << yCorrRange_.first * 1000. << ", y_corr_max: " << yCorrRange_.second * 1000.
+       << "\n";
+    li << "* detector_id: " << detectorId_ << "\n";
+    li << "* subdetector_id: " << subdetectorId_ << "\n";
+    li << "* debug: " << std::boolalpha << debug_;
   });
 }
 
@@ -203,6 +215,8 @@ void PPSAlignmentHarvester::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("x_corr_max", 1'000'000.);
   desc.add<double>("y_corr_min", -1'000'000.);
   desc.add<double>("y_corr_max", 1'000'000.);
+  desc.add<unsigned int>("detector_id", 7);
+  desc.add<unsigned int>("subdetector_id", 4);
   desc.add<bool>("debug", false);
 
   descriptions.addWithDefaultLabel(desc);
@@ -321,9 +335,14 @@ void PPSAlignmentHarvester::dqmEndRun(DQMStore::IBooker& iBooker,
 
   // if requested, store the results in a DB object
   if (writeSQLiteResults_) {
+    CTPPSRPAlignmentCorrectionsData longIdFinalResults = getLongIdResults(finalResults);
+    edm::LogInfo("PPSAlignmentHarvester") << "trying to store final merged results with long ids:\n"
+                                          << longIdFinalResults;
+
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
     if (poolDbService.isAvailable()) {
-      poolDbService->writeOneIOV(finalResults, poolDbService->currentTime(), "CTPPSRPAlignmentCorrectionsDataRcd");
+      poolDbService->writeOneIOV(
+          longIdFinalResults, poolDbService->currentTime(), "CTPPSRPAlignmentCorrectionsDataRcd");
     } else {
       edm::LogWarning("PPSAlignmentHarvester")
           << "Could not store the results in a DB object. PoolDBService not available.";
@@ -386,6 +405,7 @@ std::unique_ptr<TGraphErrors> PPSAlignmentHarvester::buildGraphFromMonitorElemen
       std::string parentPath = me->getPathname();
       size_t parentPos = parentPath.substr(0, parentPath.size() - 1).find_last_of('/') + 1;
       std::string parentName = parentPath.substr(parentPos);
+      std::replace(parentName.begin(), parentName.end(), '_', '.');  // replace _ with .
       size_t d = parentName.find('-');
       const double x_min = std::stod(parentName.substr(0, d));
       const double x_max = std::stod(parentName.substr(d + 1));
@@ -581,7 +601,7 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
                                    std::make_pair(cfg.sectorConfig56(), cfg_ref.sectorConfig56())}) {
     for (const auto& [rpc, rpc_ref] :
          {std::make_pair(sc.rp_F_, sc_ref.rp_F_), std::make_pair(sc.rp_N_, sc_ref.rp_N_)}) {
-      auto mes_test = iGetter.getAllContents(dqmDir_ + "/worker/" + sc.name_ + "/near_far/x slices, " + rpc.position_);
+      auto mes_test = iGetter.getAllContents(dqmDir_ + "/worker/" + sc.name_ + "/near_far/x slices " + rpc.position_);
       if (mes_test.empty()) {
         edm::LogWarning("PPSAlignmentHarvester") << "[x_alignment] " << rpc.name_ << ": could not load mes_test";
         continue;
@@ -1041,6 +1061,22 @@ std::unique_ptr<TH1D> PPSAlignmentHarvester::getTH1DFromTGraphErrors(
     hist->SetBinError(hist->GetXaxis()->FindBin(x), graph->GetErrorY(i));
   }
   return hist;
+}
+
+// Get Long 32-bit detector ID from short 3-digit ID
+CTPPSRPAlignmentCorrectionsData PPSAlignmentHarvester::getLongIdResults(CTPPSRPAlignmentCorrectionsData shortIdResults) {
+  CTPPSRPAlignmentCorrectionsData longIdResults;
+  for (const auto& [shortId, correction] : shortIdResults.getRPMap()) {
+    unsigned int arm = shortId / 100;
+    unsigned int station = (shortId / 10) % 10;
+    unsigned int rp = shortId % 10;
+
+    uint32_t longDetId = detectorId_ << 28 | subdetectorId_ << 25 | arm << 24 | station << 22 | rp << 19;
+
+    longIdResults.addRPCorrection(longDetId, correction);
+  }
+
+  return longIdResults;
 }
 
 DEFINE_FWK_MODULE(PPSAlignmentHarvester);

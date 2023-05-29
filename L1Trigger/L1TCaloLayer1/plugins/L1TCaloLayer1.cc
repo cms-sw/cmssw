@@ -81,6 +81,7 @@ private:
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > ecalLUT;
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > hcalLUT;
   std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > hfLUT;
+  std::vector<unsigned long long int> hcalFBLUT;
 
   std::vector<unsigned int> ePhiMap;
   std::vector<unsigned int> hPhiMap;
@@ -93,6 +94,7 @@ private:
   bool useECALLUT;
   bool useHCALLUT;
   bool useHFLUT;
+  bool useHCALFBLUT;
   bool verbose;
   bool unpackHcalMask;
   bool unpackEcalMask;
@@ -128,7 +130,8 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig)
       useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
       useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
       useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
-      verbose(iConfig.getParameter<bool>("verbose")),
+      useHCALFBLUT(iConfig.getParameter<bool>("useHCALFBLUT")),
+      verbose(iConfig.getUntrackedParameter<bool>("verbose")),
       unpackHcalMask(iConfig.getParameter<bool>("unpackHcalMask")),
       unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")) {
@@ -172,7 +175,6 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   CaloTowerBxCollection towersColl;
   L1CaloRegionCollection rgnCollection;
 
-  uint32_t expectedTotalET = 0;
   if (!layer1->clearEvent()) {
     LOG_ERROR << "UCT: Failed to clear event" << std::endl;
     return;
@@ -190,7 +192,6 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       LOG_ERROR << "UCT: Failed loading an ECAL tower" << std::endl;
       return;
     }
-    expectedTotalET += et;
   }
 
   if (hcalTPs.isValid()) {
@@ -223,14 +224,13 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             // fg2 should only be set for HF
             if (fg2)
               featureBits |= 0b10;
-          } else
+          } else if (absCaloEta < 16)
             featureBits |= (fg | ((!fg2) & (fg3 | fg4)));  // depth | (!prompt & (delay1 | delay2))
           if (!layer1->setHCALData(t, featureBits, et)) {
             LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
             LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
             return;
           }
-          expectedTotalET += et;
         } else {
           LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << "; et = " << et
                     << std::endl;
@@ -297,6 +297,7 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                               ecalLUT,
                               hcalLUT,
                               hfLUT,
+                              hcalFBLUT,
                               ePhiMap,
                               hPhiMap,
                               hfPhiMap,
@@ -305,6 +306,7 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                               useECALLUT,
                               useHCALLUT,
                               useHFLUT,
+                              useHCALFBLUT,
                               fwVersion)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> eCalLayer1EtaSideEtArray;
@@ -355,10 +357,22 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TCaloLayer1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  //Description set to reflect default present in simCaloStage2Layer1Digis_cfi.py
+  //Currently redundant, but could be adjusted to provide defaults in case additional LUT
+  //checks are added and before other configurations adjust to match.
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<edm::InputTag>("ecalToken", edm::InputTag("simEcalTriggerPrimitiveDigis"));
+  desc.add<edm::InputTag>("hcalToken", edm::InputTag("simHcalTriggerPrimitiveDigis"));
+  desc.add<bool>("useLSB", true);
+  desc.add<bool>("useCalib", true);
+  desc.add<bool>("useECALLUT", true);
+  desc.add<bool>("useHCALLUT", true);
+  desc.add<bool>("useHFLUT", true);
+  desc.add<bool>("useHCALFBLUT", false);
+  desc.addUntracked<bool>("verbose", false);
+  desc.add<bool>("unpackEcalMask", false);
+  desc.add<bool>("unpackHcalMask", false);
+  desc.add<int>("firmwareVersion", 1);
   descriptions.addDefault(desc);
 }
 

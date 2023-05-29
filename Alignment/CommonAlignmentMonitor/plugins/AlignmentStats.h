@@ -8,9 +8,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
 // #include <Riostream.h>
 #include <fstream>
@@ -28,7 +31,9 @@
 class AlignmentStats : public edm::one::EDAnalyzer<> {
 public:
   AlignmentStats(const edm::ParameterSet &iConfig);
-  ~AlignmentStats() override;
+  ~AlignmentStats() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   void beginJob() override;
   void endJob() override;
@@ -39,13 +44,17 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenTkGeo_;
 
   //////inputs from config file
-  edm::InputTag src_;
-  edm::InputTag overlapAM_;
-  bool keepTrackStats_;
-  bool keepHitPopulation_;
-  std::string statsTreeName_;
-  std::string hitsTreeName_;
-  uint32_t prescale_;
+  const edm::InputTag src_;
+  const edm::InputTag overlapAM_;
+  const bool keepTrackStats_;
+  const bool keepHitPopulation_;
+  const std::string statsTreeName_;
+  const std::string hitsTreeName_;
+  const uint32_t prescale_;
+
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  const edm::EDGetTokenT<AliClusterValueMap> mapToken_;
+
   //////
   uint32_t tmpPresc_;
 

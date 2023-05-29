@@ -123,13 +123,13 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   // Tracker Topology
   const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
 
-  edm::Handle<l1t::VertexCollection> TkPrimaryVertexHandle;
-  iEvent.getByToken(pvToken_, TkPrimaryVertexHandle);
+  edm::Handle<l1t::VertexCollection> L1PrimaryVertexHandle;
+  iEvent.getByToken(pvToken_, L1PrimaryVertexHandle);
 
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, coneSize_);
   std::vector<fastjet::PseudoJet> JetInputs;
 
-  float recoVtx = TkPrimaryVertexHandle->begin()->z0();
+  float recoVtx = L1PrimaryVertexHandle->begin()->z0();
   unsigned int this_l1track = 0;
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     this_l1track++;

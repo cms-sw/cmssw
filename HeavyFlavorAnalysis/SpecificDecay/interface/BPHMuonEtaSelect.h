@@ -39,7 +39,7 @@ public:
 
   /** Destructor
    */
-  ~BPHMuonEtaSelect() override {}
+  ~BPHMuonEtaSelect() override = default;
 
   /** Operations
    */

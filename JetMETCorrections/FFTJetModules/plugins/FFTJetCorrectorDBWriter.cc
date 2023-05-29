@@ -24,7 +24,7 @@
 #include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -39,7 +39,7 @@
 //
 // class declaration
 //
-class FFTJetCorrectorDBWriter : public edm::EDAnalyzer {
+class FFTJetCorrectorDBWriter : public edm::stream::EDAnalyzer<> {
 public:
   explicit FFTJetCorrectorDBWriter(const edm::ParameterSet&);
   FFTJetCorrectorDBWriter() = delete;

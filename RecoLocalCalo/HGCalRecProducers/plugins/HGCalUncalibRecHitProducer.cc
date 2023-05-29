@@ -14,6 +14,10 @@ HGCalUncalibRecHitProducer::HGCalUncalibRecHitProducer(const edm::ParameterSet& 
       hefDigiCollection_(consumes<HGCalDigiCollection>(ps.getParameter<edm::InputTag>("HGCHEFdigiCollection"))),
       hebDigiCollection_(consumes<HGCalDigiCollection>(ps.getParameter<edm::InputTag>("HGCHEBdigiCollection"))),
       hfnoseDigiCollection_(consumes<HGCalDigiCollection>(ps.getParameter<edm::InputTag>("HGCHFNosedigiCollection"))),
+      ee_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
+      hef_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
+      heb_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalHEScintillatorSensitive"))),
+      hfnose_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))),
       eeHitCollection_(ps.getParameter<std::string>("HGCEEhitCollection")),
       hefHitCollection_(ps.getParameter<std::string>("HGCHEFhitCollection")),
       hebHitCollection_(ps.getParameter<std::string>("HGCHEBhitCollection")),
@@ -31,9 +35,6 @@ HGCalUncalibRecHitProducer::~HGCalUncalibRecHitProducer() {}
 void HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   using namespace edm;
 
-  // tranparently get things from event setup
-  worker_->set(es);
-
   // prepare output
   auto eeUncalibRechits = std::make_unique<HGCeeUncalibratedRecHitCollection>();
   auto hefUncalibRechits = std::make_unique<HGChefUncalibratedRecHitCollection>();
@@ -41,43 +42,24 @@ void HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
   auto hfnoseUncalibRechits = std::make_unique<HGChfnoseUncalibratedRecHitCollection>();
 
   // loop over HGCEE digis
-  edm::Handle<HGCalDigiCollection> pHGCEEDigis;
-  evt.getByToken(eeDigiCollection_, pHGCEEDigis);
-  const HGCalDigiCollection* eeDigis = pHGCEEDigis.product();
-  eeUncalibRechits->reserve(eeDigis->size());
-  for (auto itdg = eeDigis->begin(); itdg != eeDigis->end(); ++itdg) {
-    worker_->runHGCEE(itdg, *eeUncalibRechits);
-  }
+  const auto& pHGCEEDigis = evt.getHandle(eeDigiCollection_);
+  if (pHGCEEDigis.isValid())
+    worker_->runHGCEE(es.getHandle(ee_geometry_token_), *pHGCEEDigis, *eeUncalibRechits);
 
   // loop over HGCHEsil digis
-  edm::Handle<HGCalDigiCollection> pHGCHEFDigis;
-  evt.getByToken(hefDigiCollection_, pHGCHEFDigis);
-  const HGCalDigiCollection* hefDigis = pHGCHEFDigis.product();
-  hefUncalibRechits->reserve(hefDigis->size());
-  for (auto itdg = hefDigis->begin(); itdg != hefDigis->end(); ++itdg) {
-    worker_->runHGCHEsil(itdg, *hefUncalibRechits);
-  }
+  const auto& pHGCHEFDigis = evt.getHandle(hefDigiCollection_);
+  if (pHGCHEFDigis.isValid())
+    worker_->runHGCHEsil(es.getHandle(hef_geometry_token_), *pHGCHEFDigis, *hefUncalibRechits);
 
   // loop over HGCHEscint digis
-  edm::Handle<HGCalDigiCollection> pHGCHEBDigis;
-  evt.getByToken(hebDigiCollection_, pHGCHEBDigis);
-  const HGCalDigiCollection* hebDigis = pHGCHEBDigis.product();
-  hebUncalibRechits->reserve(hebDigis->size());
-  for (auto itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {
-    worker_->runHGCHEscint(itdg, *hebUncalibRechits);
-  }
+  const auto& pHGCHEBDigis = evt.getHandle(hebDigiCollection_);
+  if (pHGCHEBDigis.isValid())
+    worker_->runHGCHEscint(es.getHandle(heb_geometry_token_), *pHGCHEBDigis, *hebUncalibRechits);
 
   // loop over HFNose digis
-  edm::Handle<HGCalDigiCollection> pHGCHFNoseDigis;
-  evt.getByToken(hfnoseDigiCollection_, pHGCHFNoseDigis);
-  if (pHGCHFNoseDigis.isValid()) {
-    const HGCalDigiCollection* hfnoseDigis = pHGCHFNoseDigis.product();
-    if (!(hfnoseDigis->empty())) {
-      hfnoseUncalibRechits->reserve(hfnoseDigis->size());
-      for (auto itdg = hfnoseDigis->begin(); itdg != hfnoseDigis->end(); ++itdg)
-        worker_->runHGCHFNose(itdg, *hfnoseUncalibRechits);
-    }
-  }
+  const auto& pHGCHFNoseDigis = evt.getHandle(hfnoseDigiCollection_);
+  if (pHGCHFNoseDigis.isValid())
+    worker_->runHGCHFNose(es.getHandle(hfnose_geometry_token_), *pHGCHFNoseDigis, *hfnoseUncalibRechits);
 
   // put the collection of recunstructed hits in the event
   evt.put(std::move(eeUncalibRechits), eeHitCollection_);

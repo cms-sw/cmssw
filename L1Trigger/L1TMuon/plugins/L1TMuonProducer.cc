@@ -90,6 +90,8 @@ private:
                     GMTInternalWedges& wedges,
                     int bx) const;
 
+  int computeMuonIdx(const RegionalMuonCand& mu, int currentLink, int muIdxAuto) const;
+
   void addMuonsToCollections(MicroGMTConfiguration::InterMuonList& coll,
                              MicroGMTConfiguration::InterMuonList& interout,
                              std::unique_ptr<MuonBxCollection>& out,
@@ -393,10 +395,8 @@ void L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, uns
     (*mu1)->setHwWins(0);
   }
 
-  int nCancelled = 0;
   for (mu1 = muons.begin(); mu1 != muons.end(); ++mu1) {
     int mu1CancelBit = (*mu1)->hwCancelBit();
-    nCancelled += mu1CancelBit;
     auto mu2 = mu1;
     mu2++;
     for (; mu2 != muons.end(); ++mu2) {
@@ -487,21 +487,21 @@ void L1TMuonProducer::splitAndConvertMuons(const edm::Handle<MicroGMTConfigurati
   }
   if (bx < in->getFirstBX() || bx > in->getLastBX())
     return;
-  int muIdx = 0;
+  int muIdxAuto = 0;
   int currentLink = 0;
-  for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
+  for (size_t i = 0; i < in->size(bx); ++i, ++muIdxAuto) {
     if (in->at(bx, i).hwPt() > 0) {
       int link = in->at(bx, i).link();
       if (m_inputsToDisable.test(link) || m_maskedInputs.test(link)) {
         continue;  // only process if input link is enabled and not masked
       }
       if (currentLink != link) {
-        muIdx = 0;
+        muIdxAuto = 0;
         currentLink = link;
       }
       int gPhi = MicroGMTConfiguration::calcGlobalPhi(
           in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
-      int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
+      int tfMuonIdx{computeMuonIdx(in->at(bx, i), currentLink, muIdxAuto)};
       std::shared_ptr<GMTInternalMuon> out = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
       if (in->at(bx, i).hwEta() > 0) {
         out_pos.push_back(out);
@@ -534,23 +534,21 @@ void L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::Inpu
   if (bx < in->getFirstBX() || bx > in->getLastBX()) {
     return;
   }
-  int muIdx = 0;
+  int muIdxAuto = 0;
   int currentLink = 0;
-  for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
+  for (size_t i = 0; i < in->size(bx); ++i, ++muIdxAuto) {
     if (in->at(bx, i).hwPt() > 0) {
       int link = in->at(bx, i).link();
       if (m_inputsToDisable.test(link) || m_maskedInputs.test(link)) {
         continue;  // only process if input link is enabled and not masked
       }
       if (currentLink != link) {
-        muIdx = 0;
+        muIdxAuto = 0;
         currentLink = link;
       }
       int gPhi = MicroGMTConfiguration::calcGlobalPhi(
           in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
-      // If the muon index was set in the data format we should use that. Otherwise we use the value computed from the position in the vector.
-      int muIdxDF{in->at(bx, i).muIdx()};
-      int tfMuonIdx{3 * (currentLink - 36) + ((muIdxDF != -1) ? muIdxDF : muIdx)};
+      int tfMuonIdx{computeMuonIdx(in->at(bx, i), currentLink, muIdxAuto)};
       std::shared_ptr<GMTInternalMuon> outMu = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
       out.emplace_back(outMu);
       wedges[in->at(bx, i).processor()].push_back(outMu);
@@ -561,6 +559,15 @@ void L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::Inpu
       edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel. Wedge " << i << ": Size "
                                         << wedges[i].size() << std::endl;
     }
+  }
+}
+
+int L1TMuonProducer::computeMuonIdx(const RegionalMuonCand& mu, int currentLink, int muIdxAuto) const {
+  // If the muon index was set in the data format we should use that. Otherwise we use the value computed from the position in the vector.
+  if (mu.muIdx() != -1) {
+    return 3 * (currentLink - 36) + mu.muIdx();
+  } else {
+    return 3 * (currentLink - 36) + muIdxAuto;
   }
 }
 

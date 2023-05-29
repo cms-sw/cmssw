@@ -1,48 +1,44 @@
-#include <string>
-#include <sstream>
-#include <vector>
-#include <iomanip>
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-#include <cassert>
-#include "TFile.h"
-#include "TPaveStats.h"
-#include "TROOT.h"
-#include "TList.h"
-#include "TNtuple.h"
-#include "TTree.h"
-#include "TError.h"
-#include "TH1.h"
 #include "TArrow.h"
-#include "TH2.h"
-#include "THStack.h"
-#include "TStyle.h"
-#include "TLegendEntry.h"
-#include "TPaveText.h"
-#include "TCut.h"
-#include "TLegend.h"
-#include "TGraphErrors.h"
-#include "TF1.h"
-#include "TMath.h"
-#include "TVectorD.h"
+#include "TAxis.h"
 #include "TCanvas.h"
 #include "TColor.h"
-#include "TAxis.h"
-#include "TGaxis.h"
-#include "TROOT.h"
-#include "TObjArray.h"
-#include "TGraphErrors.h"
+#include "TCut.h"
+#include "TDatime.h"
+#include "TError.h"
 #include "TF1.h"
-#include "TMinuit.h"
-#include "TString.h"
+#include "TFile.h"
+#include "TGaxis.h"
+#include "TGraphErrors.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "THStack.h"
+#include "TLegend.h"
+#include "TLegendEntry.h"
+#include "TList.h"
 #include "TMath.h"
-#include <TDatime.h>
-#include <TSpectrum.h>
-#include <TSystem.h>
-#include <TTimeStamp.h>
-#include <TStopwatch.h>
-#include <TObjString.h>
+#include "TMinuit.h"
+#include "TNtuple.h"
+#include "TObjArray.h"
+#include "TObjString.h"
+#include "TPaveStats.h"
+#include "TPaveText.h"
+#include "TROOT.h"
+#include "TSpectrum.h"
+#include "TStopwatch.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TTimeStamp.h"
+#include "TTree.h"
+#include "TVectorD.h"
+#include <cassert>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 //#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #define PLOTTING_MACRO  // to remove message logger
@@ -338,7 +334,9 @@ void FitPVResiduals(TString namesandlabels,
                     bool stdres = true,
                     bool do2DMaps = false,
                     TString theDate = "bogus",
-                    bool setAutoLimits = true);
+                    bool setAutoLimits = true,
+                    TString CMSlabel = "",
+                    TString Rlabel = "");
 TH1F *DrawZero(TH1F *hist, Int_t nbins, Double_t lowedge, Double_t highedge, Int_t iter);
 TH1F *DrawConstant(TH1F *hist, Int_t nbins, Double_t lowedge, Double_t highedge, Int_t iter, Double_t theConst);
 void makeNewXAxis(TH1F *h);
@@ -352,7 +350,7 @@ void FitDLine(TH1 *hist);
 
 params::measurement getTheRangeUser(TH1F *thePlot, Limits *thePlotLimits, bool tag = false);
 
-void setStyle();
+void setStyle(TString customCMSLabel = "", TString customRightLabel = "");
 
 // global variables
 
@@ -398,7 +396,13 @@ void loadFileList(const char *inputFile, TString baseDir, TString legendName, in
 }
 
 //*************************************************************
-void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString theDate, bool setAutoLimits)
+void FitPVResiduals(TString namesandlabels,
+                    bool stdres,
+                    bool do2DMaps,
+                    TString theDate,
+                    bool setAutoLimits,
+                    TString CMSlabel,
+                    TString Rlabel)
 //*************************************************************
 {
   // only for fatal errors (useful in debugging)
@@ -434,10 +438,10 @@ void FitPVResiduals(TString namesandlabels, bool stdres, bool do2DMaps, TString 
   Int_t markers[9];
   Int_t colors[9];
 
-  setStyle();
+  setStyle(CMSlabel, Rlabel);
 
   // check if the loader is empty
-  if (sourceList.size() != 0) {
+  if (!sourceList.empty()) {
     fromLoader = true;
   }
 
@@ -2360,7 +2364,7 @@ void arrangeBiasCanvas(TCanvas *canv,
     lego->Draw();
 
     TPad *current_pad = static_cast<TPad *>(canv->GetPad(k + 1));
-    CMS_lumi(current_pad, 4, 33);
+    CMS_lumi(current_pad, 6, 33);
     if (theDate != "")
       ptDate->Draw("same");
   }
@@ -2404,7 +2408,7 @@ void arrangeCanvas(TCanvas *canv,
   lego->SetLineColor(10);
   lego->SetShadowColor(10);
 
-  TPaveText *ptDate = NULL;
+  TPaveText *ptDate = nullptr;
 
   canv->SetFillColor(10);
 
@@ -2521,7 +2525,7 @@ void arrangeCanvas(TCanvas *canv,
     current_pad = static_cast<TPad *>(canv->GetPad(0));
   }
 
-  CMS_lumi(current_pad, 4, 33);
+  CMS_lumi(current_pad, 6, 33);
   if (theDate != "")
     ptDate->Draw("same");
 
@@ -2567,7 +2571,7 @@ void arrangeCanvas(TCanvas *canv,
     lego->Draw();
 
     TPad *current_pad2 = static_cast<TPad *>(canv->GetPad(2));
-    CMS_lumi(current_pad2, 4, 33);
+    CMS_lumi(current_pad2, 6, 33);
     if (theDate != "")
       ptDate->Draw("same");
   }
@@ -2805,7 +2809,7 @@ void arrangeFitCanvas(TCanvas *canv, TH1F *meanplots[100], Int_t nFiles, TString
 
   //TkAlStyle::drawStandardTitle(Coll0T15);
   lego->Draw("same");
-  CMS_lumi(canv, 4, 33);
+  CMS_lumi(canv, 6, 33);
   if (theDate != "")
     ptDate->Draw("same");
   //pt->Draw("same");
@@ -2817,7 +2821,7 @@ std::pair<params::measurement, params::measurement> fitStudentTResiduals(TH1 *hi
 {
   hist->SetMarkerStyle(21);
   hist->SetMarkerSize(0.8);
-  hist->SetStats(1);
+  hist->SetStats(true);
 
   double dx = hist->GetBinWidth(1);
   double nmax = hist->GetBinContent(hist->GetMaximumBin());
@@ -2934,9 +2938,9 @@ params::measurement getMedian(TH1F *histo)
   median = TMath::Median(nbins, x, y);
 
   delete[] x;
-  x = 0;
+  x = nullptr;
   delete[] y;
-  y = 0;
+  y = nullptr;
 
   params::measurement result;
   result = std::make_pair(median, median / TMath::Sqrt(histo->GetEntries()));
@@ -3301,7 +3305,7 @@ void FillTrendPlot(TH1F *trendPlot, TH1F *residualsPlot[100], params::estimator 
       MakeNicePlotStyle(residualsPlot[i]);
       residualsPlot[i]->SetMarkerStyle(20);
       residualsPlot[i]->SetMarkerSize(1.);
-      residualsPlot[i]->SetStats(0);
+      residualsPlot[i]->SetStats(false);
       //residualsPlot[i]->GetXaxis()->SetRangeUser(-3*(tmp1->GetParameter(1)),3*(tmp1->GetParameter(1)));
       residualsPlot[i]->Draw("e1");
       residualsPlot[i]->GetYaxis()->UnZoom();
@@ -3367,7 +3371,7 @@ void FillTrendPlot(TH1F *trendPlot, TH1F *residualsPlot[100], params::estimator 
         residualsPull[i]->GetListOfFunctions()->Remove(toDel);
       residualsPull[i]->SetMarkerStyle(20);
       residualsPull[i]->SetMarkerSize(1.);
-      residualsPull[i]->SetStats(0);
+      residualsPull[i]->SetStats(false);
 
       residualsPull[i]->GetYaxis()->SetTitle("(res-fit)/res");
       // residualsPull[i]->SetOptTitle(1);
@@ -3864,12 +3868,25 @@ std::pair<TH2F *, TH2F *> trimTheMap(TH2 *hist) {
 }
 
 /*--------------------------------------------------------------------*/
-void setStyle() {
+void setStyle(TString customCMSLabel, TString customRightLabel) {
   /*--------------------------------------------------------------------*/
 
   writeExtraText = true;  // if extra text
-  lumi_13TeV = "p-p collisions";
-  extraText = "Internal";
+  writeExraLumi = false;  // if write sqrt(s) info
+  if (customRightLabel != "") {
+    lumi_13TeV = customRightLabel;
+    lumi_13p6TeV = customRightLabel;
+    lumi_0p9TeV = customRightLabel;
+  } else {
+    lumi_13TeV = "pp collisions";
+    lumi_13p6TeV = "pp collisions";
+    lumi_0p9TeV = "pp collisions";
+  }
+  if (customCMSLabel != "") {
+    extraText = customCMSLabel;
+  } else {
+    extraText = "Internal";
+  }
 
   TH1::StatOverflows(kTRUE);
   gStyle->SetOptTitle(0);

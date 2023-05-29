@@ -1,6 +1,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,7 +18,7 @@
 #include "DataFormats/JetMatching/interface/JetFlavour.h"
 #include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
 
-class printGenJetRatio : public edm::EDAnalyzer {
+class printGenJetRatio : public edm::one::EDAnalyzer<> {
 public:
   typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 

@@ -14,7 +14,7 @@
 */
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,20 +31,12 @@
 // forward declarations
 class L1CaloGeometry;
 
-class L1GctInternJetProducer : public edm::EDProducer {
+class L1GctInternJetProducer : public edm::global::EDProducer<> {
 public:
   explicit L1GctInternJetProducer(const edm::ParameterSet&);
-  ~L1GctInternJetProducer() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
-
-  math::PtEtaPhiMLorentzVector gctLorentzVector(const double& et,
-                                                const L1GctCand& cand,
-                                                const L1CaloGeometry* geom,
-                                                bool central);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::InputTag internalJetSource_;
   edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> caloGeomToken_;

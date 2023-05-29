@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESProducer_h
 #define FWCore_Framework_ESProducer_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProducer
@@ -76,6 +76,7 @@ Example: two algorithms each creating only one objects
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/Framework/interface/es_impl/MayConsumeChooserBase.h"
+#include "FWCore/Framework/interface/es_impl/ReturnArgumentTypes.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
@@ -90,7 +91,6 @@ Example: two algorithms each creating only one objects
 // forward declarations
 namespace edm {
   namespace eventsetup {
-
     class ESRecordsToProxyIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
@@ -105,8 +105,10 @@ namespace edm {
   public:
     ESProducer();
     ~ESProducer() noexcept(false) override;
-    ESProducer(const ESProducer&) = delete;                   // stop default
-    ESProducer const& operator=(const ESProducer&) = delete;  // stop default
+    ESProducer(const ESProducer&) = delete;
+    ESProducer& operator=(const ESProducer&) = delete;
+    ESProducer(ESProducer&&) = delete;
+    ESProducer& operator=(ESProducer&&) = delete;
 
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
     ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
@@ -168,6 +170,7 @@ namespace edm {
     auto setWhatProduced(T* iThis, const char* iLabel) {
       return setWhatProduced(iThis, es::Label(iLabel));
     }
+
     template <typename T>
     auto setWhatProduced(T* iThis, const std::string& iLabel) {
       return setWhatProduced(iThis, es::Label(iLabel));
@@ -178,42 +181,74 @@ namespace edm {
       return setWhatProduced(iThis, &T::produce, iDec, iLabel);
     }
     /** \param iThis the 'this' pointer to an inheriting class instance
-        \param iMethod a member method of then inheriting class
-        The method determines the Record argument and return value of the iMethod argument
-        method in order to do the registration with the EventSetup
+        \param iMethod a member method of the inheriting class
+        The TRecord and TReturn template parameters can be deduced
+        from iMethod in order to do the registration with the EventSetup
     */
     template <typename T, typename TReturn, typename TRecord>
-    auto setWhatProduced(T* iThis, TReturn (T ::*iMethod)(const TRecord&), const es::Label& iLabel = {}) {
+    auto setWhatProduced(T* iThis, TReturn (T::*iMethod)(const TRecord&), const es::Label& iLabel = {}) {
       return setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(), iLabel);
     }
-    /** \param iThis the 'this' pointer to an inheriting class instance
-        \param iMethod a member method of then inheriting class
-        \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
-        The method determines the Record argument and return value of the iMethod argument
-        method in order to do the registration with the EventSetup
+    /** \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
+        This function has the same template parameters and arguments as the previous function
+        except for the addition of the decorator.
     */
-    template <typename T, typename TReturn, typename TRecord, typename TArg>
-    ESConsumesCollectorT<TRecord> setWhatProduced(T* iThis,
-                                                  TReturn (T ::*iMethod)(const TRecord&),
-                                                  const TArg& iDec,
-                                                  const es::Label& iLabel = {}) {
-      const auto id = consumesInfos_.size();
-      using DecoratorType = typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t;
-      using CallbackType = eventsetup::Callback<T, TReturn, TRecord, DecoratorType>;
+    template <typename T, typename TReturn, typename TRecord, typename TDecorator>
+    auto setWhatProduced(T* iThis,
+                         TReturn (T ::*iMethod)(const TRecord&),
+                         const TDecorator& iDec,
+                         const es::Label& iLabel = {}) {
+      return setWhatProduced<TReturn, TRecord>(
+          [iThis, iMethod](TRecord const& iRecord) { return (iThis->*iMethod)(iRecord); },
+          createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec),
+          iLabel);
+    }
+
+    /**
+     * This overload allows lambdas (functors) to be used as the
+     * production function. As of now it is not intended for wide use
+     * (we are thinking for a better API for users)
+     *
+     * The main use case of the decorator functionality was
+     * dependsOn(), but in practice that became unused with
+     * concurrent IOVs, so it is not clear if the
+     * decorator functionality is still needed.
+     */
+    template <typename TFunc>
+    auto setWhatProduced(TFunc&& func, const es::Label& iLabel = {}) {
+      using Types = eventsetup::impl::ReturnArgumentTypes<TFunc>;
+      using TReturn = typename Types::return_type;
+      using TRecord = typename Types::argument_type;
+      using DecoratorType = eventsetup::CallbackSimpleDecorator<TRecord>;
+      return setWhatProduced<TReturn, TRecord>(std::forward<TFunc>(func), DecoratorType(), iLabel);
+    }
+
+    template <typename TReturn, typename TRecord, typename TFunc, typename TDecorator>
+    ESConsumesCollectorT<TRecord> setWhatProduced(TFunc&& func, TDecorator&& iDec, const es::Label& iLabel = {}) {
+      const auto id = consumesInfoSize();
+      using DecoratorType = std::decay_t<TDecorator>;
+      using CallbackType = eventsetup::Callback<ESProducer, TFunc, TReturn, TRecord, DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
-      auto temp = std::make_shared<CallbackType>(
-          iThis, iMethod, id, createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec));
+      auto temp = std::make_shared<CallbackType>(this, std::forward<TFunc>(func), id, std::forward<TDecorator>(iDec));
       auto callback =
           std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
       registerProducts(std::move(callback),
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
-      return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(), id);
+      return ESConsumesCollectorT<TRecord>(consumesInfoPushBackNew(), id);
     }
 
-  private:
+    // These next four functions are intended for use in this class and
+    // class ESProducerExternalWork only. They should not be used in
+    // other classes derived from them.
+    unsigned int consumesInfoSize() const { return consumesInfos_.size(); }
+
+    ESConsumesInfo* consumesInfoPushBackNew() {
+      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
+      return consumesInfos_.back().get();
+    }
+
     template <typename CallbackT, typename TList, typename TRecord>
     void registerProducts(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                           const TList*,
@@ -231,6 +266,7 @@ namespace edm {
       //do nothing
     }
 
+  private:
     template <typename CallbackT, typename TProduct, typename TRecord>
     void registerProduct(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                          const TProduct*,

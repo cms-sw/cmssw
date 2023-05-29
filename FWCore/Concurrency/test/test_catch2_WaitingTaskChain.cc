@@ -11,6 +11,7 @@
 #include "oneapi/tbb/global_control.h"
 
 #include "FWCore/Concurrency/interface/chain_first.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 TEST_CASE("Test chain::first", "[chain::first]") {
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
@@ -19,8 +20,8 @@ TEST_CASE("Test chain::first", "[chain::first]") {
     SECTION("first | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](edm::WaitingTaskHolder h) {
@@ -31,17 +32,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](auto h) {
@@ -56,17 +57,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](auto h) {
@@ -85,17 +86,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | runLast") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         first([&count](auto h) {
@@ -109,17 +110,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
           REQUIRE(count.load() == 3);
         }) | runLast(edm::WaitingTaskHolder(group, &waitTask));
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](edm::WaitingTaskHolder h) {
@@ -130,17 +131,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::make_exception_ptr(std::exception()));
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 0);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
 
     SECTION("first(exception) | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](edm::WaitingTaskHolder h) {
@@ -152,17 +153,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
 
     SECTION("first(exception) | then | then | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](auto h) {
@@ -182,10 +183,10 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
   }
 
@@ -193,8 +194,8 @@ TEST_CASE("Test chain::first", "[chain::first]") {
     SECTION("first | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
@@ -206,17 +207,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, auto h) {
@@ -233,17 +234,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, auto h) {
@@ -265,17 +266,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
@@ -287,17 +288,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::make_exception_ptr(std::exception()));
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | then | lastTask") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
@@ -315,10 +316,10 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::make_exception_ptr(std::exception()));
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
   }
 
@@ -327,8 +328,8 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
       std::atomic<int> exceptCount{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -342,19 +343,19 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(exceptCount.load() == 0);
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | lastTask") {
       std::atomic<int> count{0};
       std::atomic<int> exceptCount{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -375,19 +376,19 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(exceptCount.load() == 0);
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | lastTask") {
       std::atomic<int> count{0};
       std::atomic<int> exceptCount{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -415,19 +416,19 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::exception_ptr());
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(exceptCount.load() == 0);
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | then | then | lastTask") {
       std::atomic<int> count{0};
       std::atomic<int> exceptCount{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -455,11 +456,11 @@ TEST_CASE("Test chain::first", "[chain::first]") {
 
         h.doneWaiting(std::make_exception_ptr(std::exception()));
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(exceptCount.load() == 3);
       REQUIRE(count.load() == 0);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
   }
 
@@ -467,8 +468,8 @@ TEST_CASE("Test chain::first", "[chain::first]") {
     SECTION("first | ifThen(true) | then | runLast") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         first([&count](auto h) {
@@ -482,17 +483,17 @@ TEST_CASE("Test chain::first", "[chain::first]") {
           REQUIRE(count.load() == 3);
         }) | runLast(edm::WaitingTaskHolder(group, &waitTask));
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | ifThen(false) | then | runLast") {
       std::atomic<int> count{0};
 
-      edm::FinalWaitingTask waitTask;
       oneapi::tbb::task_group group;
+      edm::FinalWaitingTask waitTask{group};
       {
         using namespace edm::waiting_task::chain;
         first([&count](auto h) {
@@ -506,10 +507,10 @@ TEST_CASE("Test chain::first", "[chain::first]") {
           REQUIRE(count.load() == 2);
         }) | runLast(edm::WaitingTaskHolder(group, &waitTask));
       }
-      group.wait();
+      waitTask.waitNoThrow();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
   }
 }

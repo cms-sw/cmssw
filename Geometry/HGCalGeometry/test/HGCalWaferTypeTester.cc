@@ -100,18 +100,47 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
                             0xFFF001, 0xFF001F, 0xF001FF, 0x001FFF, 0x01FFF0, 0x1FFF00, 0xFFC007, 0xFC007F, 0xC007FF,
                             0x007FFC, 0x07FFC0, 0x7FFC00, 0xFF8003, 0xF8003F, 0x8003FF, 0x003FF8, 0x03FF80, 0x3FF800,
                             0xFF0001, 0xF0001F, 0x0001FF, 0x001FF0, 0x01FF00, 0x1FF000, 0xFFFFFF};
+    const std::vector<int> partTypeNew = {HGCalTypes::WaferLDBottom,
+                                          HGCalTypes::WaferLDLeft,
+                                          HGCalTypes::WaferLDRight,
+                                          HGCalTypes::WaferLDFive,
+                                          HGCalTypes::WaferLDThree,
+                                          HGCalTypes::WaferHDTop,
+                                          HGCalTypes::WaferHDBottom,
+                                          HGCalTypes::WaferHDLeft,
+                                          HGCalTypes::WaferHDRight,
+                                          HGCalTypes::WaferHDFive};
+    const std::vector<int> partTypeOld = {HGCalTypes::WaferHalf,
+                                          HGCalTypes::WaferHalf,
+                                          HGCalTypes::WaferSemi,
+                                          HGCalTypes::WaferSemi,
+                                          HGCalTypes::WaferFive,
+                                          HGCalTypes::WaferThree,
+                                          HGCalTypes::WaferHalf2,
+                                          HGCalTypes::WaferChopTwoM,
+                                          HGCalTypes::WaferSemi2,
+                                          HGCalTypes::WaferSemi2,
+                                          HGCalTypes::WaferFive2};
     const std::vector<DetId>& ids = geom->getValidGeomDetIds();
     int all(0), total(0), good(0), bad(0);
     for (auto id : ids) {
       HGCSiliconDetId hid(id);
-      auto type = hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV());
+      auto type = hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), false, false);
       if (hid.zside() > 0)
         ++all;
       // Not a full wafer
-      if (type.first > 0 && type.first < 10 && hid.zside() > 0) {
+      int part = type.first;
+      if (part > 10) {
+        auto itr = std::find(partTypeNew.begin(), partTypeNew.end(), part);
+        if (itr != partTypeNew.end()) {
+          unsigned int indx = static_cast<unsigned int>(itr - partTypeNew.begin());
+          part = partTypeOld[indx];
+        }
+      }
+      if (part > 0 && part < 10 && hid.zside() > 0) {
         ++total;
-        int wtype = hgdc.waferType(hid.layer(), hid.waferU(), hid.waferV());
-        int indx = (type.first - 1) * 6 + type.second;
+        int wtype = hgdc.waferType(hid.layer(), hid.waferU(), hid.waferV(), false);
+        int indx = (part - 1) * 6 + type.second;
         GlobalPoint xyz = geom->getWaferPosition(id);
         auto range = hgdc.rangeRLayer(hid.layer(), true);
         unsigned int ipat(0), ii(1);
@@ -154,12 +183,13 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
         }
         std::string cherr = (!match) ? " ***** ERROR *****" : "";
         edm::LogVerbatim("HGCalGeomX") << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", "
-                                       << hid.waferV() << "]  with type: rotation " << type.first << ":" << type.second
-                                       << " Pattern " << std::hex << pat[indx] << ":" << ipat << std::dec << cherr;
+                                       << hid.waferV() << "]  with type: rotation " << type.first << "(" << part
+                                       << "):" << type.second << " Pattern " << std::hex << pat[indx] << ":" << ipat
+                                       << std::dec << cherr;
         if (!match) {
           ++bad;
           // Need debug information here
-          hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true);
+          hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true, false);
           HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
           for (unsigned int i = 0; i < 24; ++i) {
             double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) + (xyz.y() + dy[i]) * (xyz.y() + dy[i]));

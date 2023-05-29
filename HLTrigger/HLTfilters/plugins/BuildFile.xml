@@ -14,10 +14,10 @@
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TauReco"/>
+<use name="DataFormats/L1TMuonPhase2"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
-<use name="L1Trigger/L1TMuon"/>
 <flags EDM_PLUGIN="1"/>

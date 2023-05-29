@@ -73,12 +73,12 @@ from L1Trigger.L1THGCal.customVFE import custom_hgcroc_compression, custom_hgcro
 process = custom_hgcroc_compression(process, exponentBits=4, mantissaBits=4, truncationBits_hdm=0, truncationBits_ldm=0, rounding=False)
 process = custom_hgcroc_oot(process, oot_coefficients=[0., -0.2])
 
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
+process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
 
 
 # load ntuplizer
 process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
-process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
+process.ntuple_step = cms.Path(process.L1THGCalTriggerNtuples)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)

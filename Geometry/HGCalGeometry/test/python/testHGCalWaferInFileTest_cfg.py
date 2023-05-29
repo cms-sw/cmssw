@@ -1,12 +1,45 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalWaferInFileTest_cfg.py geometry=V17
+#
+#   Options for geometry V16, V17
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD",Phase2C11)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: V16, V17")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+if (options.geometry == "V16"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCWaferInFileTest',Phase2C17I13M9)
+    process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
+    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCWaferInFileTest',Phase2C17I13M9)
+    process.load("Geometry.HGCalCommonData.testHGCalV17XML_cfi")
+    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
+process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load("Geometry.HGCalGeometry.hgcalEEWaferInFileTest_cfi")
 

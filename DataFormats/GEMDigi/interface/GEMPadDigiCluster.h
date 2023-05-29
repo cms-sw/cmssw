@@ -38,14 +38,19 @@ public:
 
   const std::vector<uint16_t>& pads() const { return v_; }
   int bx() const { return bx_; }
+
   GEMSubDetId::Station station() const { return station_; }
 
   unsigned nPartitions() const { return part_; }
   void print() const;
 
+  int alctMatchTime() const { return alctMatchTime_; }
+  void setAlctMatchTime(int matchWin) { alctMatchTime_ = matchWin; }
+
 private:
   std::vector<uint16_t> v_;
   int32_t bx_;
+  int alctMatchTime_ = -1;
   GEMSubDetId::Station station_;
   // number of eta partitions
   unsigned part_;

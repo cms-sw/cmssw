@@ -105,7 +105,6 @@ void TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID,
     if (ptTrk > ptTrkMaxInCaloCone_)
       continue;
 
-    int ntrk2 = 0;
     double ptTrk2 = 0.;
 
     for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); track++) {
@@ -113,7 +112,6 @@ void TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID,
       double trackPhi = deltaPhi(track->phi(), phiJet);
       double deltaR2 = trackEta * trackEta + trackPhi * trackPhi;
       if (deltaR2 < isolationConeSize2) {
-        ntrk2++;
         ptTrk2 += track->pt();
       }
     }
@@ -165,3 +163,6 @@ void TauJetSelectorForHLTTrackSeeding::fillDescriptions(edm::ConfigurationDescri
       "TrackJet collection with CaloJets passing isolation critera - tau candidates");
   descriptions.add("tauJetSelectorForHLTTrackSeeding", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TauJetSelectorForHLTTrackSeeding);

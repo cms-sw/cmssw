@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,7 +20,7 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-class printTrackJet : public edm::EDAnalyzer {
+class printTrackJet : public edm::one::EDAnalyzer<> {
 public:
   explicit printTrackJet(const edm::ParameterSet&);
   ~printTrackJet(){};

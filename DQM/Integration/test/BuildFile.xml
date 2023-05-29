@@ -1,6 +1,3 @@
-<ifrelease name="_ASAN_">
-  <flags NO_TEST_PREFIX="1"/>
-</ifrelease>
 <test name="TestDQMOnlineClient-beam_dqm_sourceclient" command="runtest.sh beam_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py"/>

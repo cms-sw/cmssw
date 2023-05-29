@@ -7,7 +7,7 @@
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"         // l1t::HPSPFTau
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate, l1t::PFCandidateCollection, l1t::PFCandidateRef
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 #include <vector>
 
@@ -18,7 +18,7 @@ public:
 
   void reset();
   void setL1PFCandProductID(const edm::ProductID& l1PFCandProductID);
-  void setVertex(const l1t::TkPrimaryVertexRef& primaryVertex);
+  void setVertex(const l1t::VertexWordRef& primaryVertex);
   void setL1PFTauSeed(const l1t::PFCandidateRef& l1PFCandSeed);
   //void setL1PFTauSeed(const reco::CaloJetRef& l1Jet_seed);
   void setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed, const std::vector<l1t::PFCandidateRef>& l1PFCands);
@@ -62,7 +62,7 @@ private:
   double l1PFTauSeedPhi_;
   double l1PFTauSeedZVtx_;
   double sumAllL1PFCandidatesPt_;
-  l1t::TkPrimaryVertexRef primaryVertex_;
+  l1t::VertexWordRef primaryVertex_;
   l1t::HPSPFTau l1PFTau_;
 
   reco::Particle::LorentzVector stripP4_;

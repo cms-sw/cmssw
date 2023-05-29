@@ -5,6 +5,10 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "DataFormats/Math/interface/liblogintpack.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+
+#include "TMatrixDSym.h"
+#include "TVectorD.h"
 using namespace logintpack;
 
 CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;
@@ -105,6 +109,7 @@ void pat::PackedCandidate::unpackCovariance() const {
     unpackCovarianceElement(*m, packedCovariance_.dxydz, 3, 4);
     unpackCovarianceElement(*m, packedCovariance_.dlambdadz, 1, 4);
     unpackCovarianceElement(*m, packedCovariance_.dphidxy, 2, 3);
+
     reco::TrackBase::CovarianceMatrix *expected = nullptr;
     if (m_.compare_exchange_strong(expected, m.get())) {
       m.release();
@@ -159,6 +164,53 @@ float pat::PackedCandidate::dz(const Point &p) const {
   const float pzpt = deta_ ? std::sinh(etaAtVtx()) : p4_.load()->Pz() / p4_.load()->Pt();
   return (vertex_.load()->Z() - p.Z()) -
          ((vertex_.load()->X() - p.X()) * std::cos(phi) + (vertex_.load()->Y() - p.Y()) * std::sin(phi)) * pzpt;
+}
+
+const reco::Track pat::PackedCandidate::pseudoPosDefTrack() const {
+  // perform the regular unpacking of the track
+  if (!track_)
+    unpackTrk();
+
+  //calculate the determinant and verify positivity
+  double det = 0;
+  bool notPosDef = (!(*m_).Sub<AlgebraicSymMatrix22>(0, 0).Det(det) || det < 0) ||
+                   (!(*m_).Sub<AlgebraicSymMatrix33>(0, 0).Det(det) || det < 0) ||
+                   (!(*m_).Sub<AlgebraicSymMatrix44>(0, 0).Det(det) || det < 0) || (!(*m_).Det(det) || det < 0);
+
+  if (notPosDef) {
+    reco::TrackBase::CovarianceMatrix m(*m_);
+    //if not positive-definite, alter values to allow for pos-def
+    TMatrixDSym eigenCov(5);
+    for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 5; j++) {
+        if (edm::isNotFinite((m)(i, j)))
+          eigenCov(i, j) = 1e-6;
+        else
+          eigenCov(i, j) = (m)(i, j);
+      }
+    }
+    TVectorD eigenValues(5);
+    eigenCov.EigenVectors(eigenValues);
+    double minEigenValue = eigenValues.Min();
+    double delta = 1e-6;
+    if (minEigenValue < 0) {
+      for (int i = 0; i < 5; i++)
+        m(i, i) += delta - minEigenValue;
+    }
+
+    // make a track object with pos def covariance matrix
+    return reco::Track(normalizedChi2_ * (*track_).ndof(),
+                       (*track_).ndof(),
+                       *vertex_,
+                       (*track_).momentum(),
+                       (*track_).charge(),
+                       m,
+                       reco::TrackBase::undefAlgorithm,
+                       reco::TrackBase::loose);
+  } else {
+    // just return a copy of the unpacked track
+    return reco::Track(*track_);
+  }
 }
 
 void pat::PackedCandidate::unpackTrk() const {

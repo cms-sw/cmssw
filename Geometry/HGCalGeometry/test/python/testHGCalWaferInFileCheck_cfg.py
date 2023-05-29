@@ -1,22 +1,46 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalWaferInFileCheck_cfg.py geometry=D88
+#
+#   Options for geometry D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD",Phase2C11)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D88",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D88, D92, D93")
+
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+####################################################################
+# Use the options
+if (options.geometry == "D92"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('WaferInFileCheck',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('WaferInFileCheck',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('WaferInFileCheck',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
-process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
-process.load("Geometry.MuonNumbering.muonOffsetESProducer_cff")
-process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
-process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
-process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load("Geometry.HGCalGeometry.hgcalEEWaferInFileCheck_cfi")
-
 process.load('FWCore.MessageService.MessageLogger_cfi')
+
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
 

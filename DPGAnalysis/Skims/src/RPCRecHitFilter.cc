@@ -106,7 +106,6 @@ bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   bool condition = true;
 
-  int nRecHits = 0;
   int nBarrel = 0;
   int nEndcap = 0;
 
@@ -161,8 +160,6 @@ bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
         ++nEndcap;
       }
-
-      ++nRecHits;
 
       break;
     }

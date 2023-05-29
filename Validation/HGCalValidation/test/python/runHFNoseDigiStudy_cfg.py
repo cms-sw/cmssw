@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('PROD',Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+process = cms.Process('PROD',Phase2C20I13M9)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load('Configuration.Geometry.GeometryExtended2026D82_cff')
-process.load('Configuration.Geometry.GeometryExtended2026DReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D94Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -19,9 +18,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-        'file:step2.root',
-        )
+                            fileNames = cms.untracked.vstring('file:step2D94.root')
                             )
 
 process.maxEvents = cms.untracked.PSet(
@@ -29,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hfnDigiD82tt.root'),
+                                   fileName = cms.string('hfnDigiD94tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 

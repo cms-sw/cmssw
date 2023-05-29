@@ -10,7 +10,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,17 +30,16 @@
 // class decleration
 //
 
-class CSCTFConfigTestAnalyzer : public edm::EDAnalyzer {
+class CSCTFConfigTestAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCTFConfigTestAnalyzer(const edm::ParameterSet&);
-  ~CSCTFConfigTestAnalyzer() override;
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data ---------------------------
+  edm::ESGetToken<L1TriggerKeyList, L1TriggerKeyListRcd> keyListToken_;
+  edm::ESGetToken<L1TriggerKey, L1TriggerKeyRcd> keyToken_;
 };
 
 //
@@ -54,15 +53,8 @@ private:
 //
 // constructors and destructor
 //
-CSCTFConfigTestAnalyzer::CSCTFConfigTestAnalyzer(const edm::ParameterSet& iConfig)
-
-{
+CSCTFConfigTestAnalyzer::CSCTFConfigTestAnalyzer(const edm::ParameterSet& iConfig) : keyToken_(esConsumes()) {
   //now do what ever initialization is needed
-}
-
-CSCTFConfigTestAnalyzer::~CSCTFConfigTestAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -73,8 +65,7 @@ CSCTFConfigTestAnalyzer::~CSCTFConfigTestAnalyzer() {
 void CSCTFConfigTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  ESHandle<L1TriggerKeyList> pList;
-  iSetup.get<L1TriggerKeyListRcd>().get(pList);
+  ESHandle<L1TriggerKeyList> pList = iSetup.getHandle(keyListToken_);
 
   std::cout << "Found " << pList->tscKeyToTokenMap().size() << " TSC keys:" << std::endl;
 
@@ -100,8 +91,7 @@ void CSCTFConfigTestAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   try {
-    ESHandle<L1TriggerKey> pKey;
-    iSetup.get<L1TriggerKeyRcd>().get(pKey);
+    ESHandle<L1TriggerKey> pKey = iSetup.getHandle(keyToken_);
 
     // std::cout << "Current TSC key = " << pKey->getTSCKey() << std::endl ;
     std::cout << "Current TSC key = " << pKey->tscKey() << std::endl;
@@ -125,12 +115,6 @@ void CSCTFConfigTestAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     std::cout << "No L1TriggerKey found." << std::endl;
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void CSCTFConfigTestAnalyzer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void CSCTFConfigTestAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCTFConfigTestAnalyzer);

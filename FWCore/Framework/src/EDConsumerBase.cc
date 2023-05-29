@@ -110,11 +110,14 @@ unsigned int EDConsumerBase::recordConsumes(BranchType iBranch,
   return index;
 }
 
+void EDConsumerBase::extendUpdateLookup(BranchType, ProductResolverIndexHelper const&) {}
+
 void EDConsumerBase::updateLookup(BranchType iBranchType,
                                   ProductResolverIndexHelper const& iHelper,
                                   bool iPrefetchMayGet) {
   frozen_ = true;
   assert(!containsCurrentProcessAlias_);
+  extendUpdateLookup(iBranchType, iHelper);
   {
     auto itKind = m_tokenInfo.begin<kKind>();
     auto itLabels = m_tokenInfo.begin<kLabels>();

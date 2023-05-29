@@ -4,7 +4,7 @@ test=testSubProcess
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   rm -f testSubProcess.grep.txt
   rm -f ${test}.log
@@ -13,7 +13,7 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/${test}_cfg.py >& ${test}.log 2>&1 || die "cmsRun ${test}_cfg.py" $?
   grep Doodad ${test}.log > testSubProcess.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcess.grep.txt testSubProcess.grep.txt || die "comparing testSubProcess.grep.txt" $?
-  grep "++" ${test}.log | grep -v "Disabling gnu" > testSubProcess.grep2.txt
+  grep "^++" ${test}.log | grep -v "Disabling gnu" > testSubProcess.grep2.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcess.grep2.txt testSubProcess.grep2.txt || die "comparing testSubProcess.grep2.txt" $?
 
   echo cmsRun readSubProcessOutput_cfg.py
@@ -37,7 +37,5 @@ pushd ${LOCAL_TMP_DIR}
 
   echo cmsRun testSubProcessUnscheduledRead_cfg.py
   cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessUnscheduledRead_cfg.py || die "cmsRun testSubProcessUnscheduledRead_cfg.py" $?
-
-popd
 
 exit 0

@@ -27,26 +27,19 @@ private:
   void beginJob() override;
   void endJob() override;
 
-  //  void pnGraphs (edm::Handle<EcalPnDiodeDigiCollection> PNs );
-
   std::string intToString(int num);
 
   EcalFedMap* fedMap;
 
 protected:
-  //  std::string ebDigiCollection_;
-  //std::string eeDigiCollection_;
-  std::string digiProducer_;
+  edm::EDGetTokenT<EcalPnDiodeDigiCollection> digiProducer_;
 
   std::vector<int> feds_;
   std::vector<std::string> ebs_;
 
   int verbosity;
   int eventCounter;
-
-  //  std::vector<int ieb_id;
   int first_Pn;
-
   bool inputIsOk;
 
   std::string fileName;

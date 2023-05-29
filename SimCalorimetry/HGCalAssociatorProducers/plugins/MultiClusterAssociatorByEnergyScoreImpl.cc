@@ -180,7 +180,6 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
 
       std::unordered_map<unsigned, unsigned> occurrencesCPinMCL;
       unsigned int numberOfNoiseHitsInMCL = 0;
-      unsigned int numberOfHaloHitsInMCL = 0;
       unsigned int numberOfHitsInMCL = 0;
 
       //number of hits related to that cluster
@@ -242,7 +241,6 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
         // contribute to the number of noise hits
         if (rhFraction == 0.) {  // this could be a real hit that has been marked as halo
           hitsToCaloParticleId[hitId] = -2;
-          numberOfHaloHitsInMCL++;
         }
         if (hit_find_in_CP == detIdToCaloParticleId_Map.end()) {
           hitsToCaloParticleId[hitId] -= 1;

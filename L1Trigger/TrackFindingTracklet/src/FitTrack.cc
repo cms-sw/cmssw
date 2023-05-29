@@ -4,6 +4,8 @@
 #include "L1Trigger/TrackFindingTracklet/interface/HybridFit.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
+#include "DataFormats/L1TrackTrigger/interface/TTBV.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -124,13 +126,14 @@ void FitTrack::trackFitKF(Tracklet* tracklet,
         stubidslist.push_back(std::make_pair(layer, it->phiregionaddress()));
       }
 
-      // And that's all we need! The rest is just for fitting (in PurgeDuplicate)
-      return;
-    }
+      // And that's all we need! The rest is just for track fit (done in PurgeDuplicate)
 
-    HybridFit hybridFitter(iSector_, settings_, globals_);
-    hybridFitter.Fit(tracklet, trackstublist);
-    return;
+    } else {
+      // Track fit only called here if not running duplicate removal
+      // before fit. (e.g. If skipping duplicate removal).
+      HybridFit hybridFitter(iSector_, settings_, globals_);
+      hybridFitter.Fit(tracklet, trackstublist);
+    }
   }
 }
 #endif
@@ -540,7 +543,6 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   double tseedexact = tracklet->t();
   double z0seedexact = tracklet->z0();
 
-  double chisqseed = 0.0;
   double chisqseedexact = 0.0;
 
   double delta[2 * N_FITSTUB];
@@ -576,7 +578,6 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     delta[j] = zresid[i];
     deltaexact[j++] = zresidexact[i];
 
-    chisqseed += (delta[j - 2] * delta[j - 2] + delta[j - 1] * delta[j - 1]);
     chisqseedexact += (deltaexact[j - 2] * deltaexact[j - 2] + deltaexact[j - 1] * deltaexact[j - 1]);
   }
   assert(j <= 12);
@@ -867,7 +868,14 @@ std::vector<Tracklet*> FitTrack::orderedMatches(vector<FullMatchMemory*>& fullma
   return tmp;
 }
 
-void FitTrack::execute(unsigned int iSector) {
+// Adds the fitted track to the output memories to be used by pure Tracklet algo.
+// (Also used by Hybrid algo with non-exact Old KF emulation)
+// Also create output streams, that bypass these memories, (so can include gaps in time),
+// to be used by Hybrid case with exact New KF emulation.
+
+void FitTrack::execute(deque<string>& streamTrackRaw,
+                       vector<deque<StubStreamData>>& streamsStubRaw,
+                       unsigned int iSector) {
   // merge
   const std::vector<Tracklet*>& matches1 = orderedMatches(fullmatch1_);
   const std::vector<Tracklet*>& matches2 = orderedMatches(fullmatch2_);
@@ -889,8 +897,8 @@ void FitTrack::execute(unsigned int iSector) {
     indexArray[i] = 0;
   }
 
-  int countAll = 0;
-  int countFit = 0;
+  unsigned int countAll = 0;
+  unsigned int countFit = 0;
 
   Tracklet* bestTracklet = nullptr;
   do {
@@ -989,12 +997,17 @@ void FitTrack::execute(unsigned int iSector) {
 
     std::vector<const Stub*> trackstublist;
     std::vector<std::pair<int, int>> stubidslist;
+    // Track Builder cut of >= 4 layers with stubs.
     if ((bestTracklet->getISeed() >= (int)N_SEED_PROMPT && nMatchesUniq >= 1) ||
         nMatchesUniq >= 2) {  //For seeds index >=8 (triplet seeds), there are three stubs associated from start.
       countFit++;
 
 #ifdef USEHYBRID
-      trackFitKF(bestTracklet, trackstublist, stubidslist);
+      if (settings_.fakefit()) {
+        trackFitFake(bestTracklet, trackstublist, stubidslist);
+      } else {
+        trackFitKF(bestTracklet, trackstublist, stubidslist);
+      }
 #else
       if (settings_.fakefit()) {
         trackFitFake(bestTracklet, trackstublist, stubidslist);
@@ -1021,7 +1034,51 @@ void FitTrack::execute(unsigned int iSector) {
       }
     }
 
-  } while (bestTracklet != nullptr);
+    // store bit and clock accurate TB output
+    if (settings_.storeTrackBuilderOutput() && bestTracklet) {
+      // add gap if enough layer to form track
+      if (!bestTracklet->fit()) {
+        static const string invalid = "0";
+        streamTrackRaw.emplace_back(invalid);
+        for (auto& stream : streamsStubRaw)
+          stream.emplace_back(StubStreamData());
+        continue;
+      }
+      // convert Track word
+      const string rinv = bestTracklet->fpgarinv().str();
+      const string phi0 = bestTracklet->fpgaphi0().str();
+      const string z0 = bestTracklet->fpgaz0().str();
+      const string t = bestTracklet->fpgat().str();
+      const int seedType = bestTracklet->getISeed();
+      const string seed = TTBV(seedType, settings_.nbitsseed()).str();
+      const string valid("1");
+      streamTrackRaw.emplace_back(valid + seed + rinv + phi0 + z0 + t);
+
+      unsigned int ihit(0);
+      for (unsigned int ilayer = 0; ilayer < N_LAYER + N_DISK; ilayer++) {
+        if (bestTracklet->match(ilayer)) {
+          const Residual& resid = bestTracklet->resid(ilayer);
+          // create bit accurate 64 bit word
+          const string valid("1");
+          string r = resid.stubptr()->r().str();
+          const string& phi = resid.fpgaphiresid().str();
+          const string& rz = resid.fpgarzresid().str();
+          const L1TStub* stub = resid.stubptr()->l1tstub();
+          static constexpr int widthDisk2Sidentifier = 8;
+          bool disk2S = (stub->disk() != 0) && (stub->isPSmodule() == 0);
+          if (disk2S)
+            r = string(widthDisk2Sidentifier, '0') + r;
+          // store seed, L1TStub, and bit accurate 64 bit word in clock accurate output
+          streamsStubRaw[ihit++].emplace_back(seedType, *stub, valid + r + phi + rz);
+        }
+      }
+      // fill all layer with no stubs with gaps
+      while (ihit < streamsStubRaw.size()) {
+        streamsStubRaw[ihit++].emplace_back();
+      }
+    }
+
+  } while (bestTracklet != nullptr && countAll < settings_.maxStep("TB"));
 
   if (settings_.writeMonitorData("FT")) {
     globals_->ofstream("fittrack.txt") << getName() << " " << countAll << " " << countFit << endl;

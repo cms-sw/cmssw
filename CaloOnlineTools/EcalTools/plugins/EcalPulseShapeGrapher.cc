@@ -30,10 +30,12 @@
 // constructors and destructor
 //
 EcalPulseShapeGrapher::EcalPulseShapeGrapher(const edm::ParameterSet& iConfig)
-    : EBUncalibratedRecHitCollection_(iConfig.getParameter<edm::InputTag>("EBUncalibratedRecHitCollection")),
-      EBDigis_(iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
-      EEUncalibratedRecHitCollection_(iConfig.getParameter<edm::InputTag>("EEUncalibratedRecHitCollection")),
-      EEDigis_(iConfig.getParameter<edm::InputTag>("EEDigiCollection")),
+    : EBUncalibratedRecHitCollection_(consumes<EcalUncalibratedRecHitCollection>(
+          iConfig.getParameter<edm::InputTag>("EBUncalibratedRecHitCollection"))),
+      EBDigis_(consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("EBDigiCollection"))),
+      EEUncalibratedRecHitCollection_(consumes<EcalUncalibratedRecHitCollection>(
+          iConfig.getParameter<edm::InputTag>("EEUncalibratedRecHitCollection"))),
+      EEDigis_(consumes<EEDigiCollection>(iConfig.getParameter<edm::InputTag>("EEDigiCollection"))),
       ampCut_(iConfig.getUntrackedParameter<int>("AmplitudeCutADC", 13)),
       rootFilename_(iConfig.getUntrackedParameter<std::string>("rootFilename", "pulseShapeGrapher")) {
   //now do what ever initialization is needed
@@ -75,11 +77,6 @@ EcalPulseShapeGrapher::EcalPulseShapeGrapher(const edm::ParameterSet& iConfig)
     abscissa[i] = i;
 }
 
-EcalPulseShapeGrapher::~EcalPulseShapeGrapher() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -89,23 +86,10 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
   using namespace edm;
   using namespace std;
 
-  int numHitsWithActivity = 0;
-
-  //int eventNum = iEvent.id().event();
-  //vector<EcalUncalibratedRecHit> sampleHitsPastCut;
-
-  Handle<EcalUncalibratedRecHitCollection> EBHits;
-  iEvent.getByLabel(EBUncalibratedRecHitCollection_, EBHits);
-  Handle<EcalUncalibratedRecHitCollection> EEHits;
-  iEvent.getByLabel(EEUncalibratedRecHitCollection_, EEHits);
-  //cout << "event: " << eventNum << " sample hits collection size: " << sampleHits->size() << endl;
-  //Handle<EcalUncalibratedRecHitCollection> fittedHits;
-  //iEvent.getByLabel(FittedUncalibratedRecHitCollection_, fittedHits);
-  Handle<EBDigiCollection> EBdigis;
-  iEvent.getByLabel(EBDigis_, EBdigis);
-  Handle<EEDigiCollection> EEdigis;
-  iEvent.getByLabel(EEDigis_, EEdigis);
-  //cout << "event: " << eventNum << " digi collection size: " << digis->size() << endl;
+  const Handle<EcalUncalibratedRecHitCollection>& EBHits = iEvent.getHandle(EBUncalibratedRecHitCollection_);
+  const Handle<EcalUncalibratedRecHitCollection>& EEHits = iEvent.getHandle(EEUncalibratedRecHitCollection_);
+  const Handle<EBDigiCollection>& EBdigis = iEvent.getHandle(EBDigis_);
+  const Handle<EEDigiCollection>& EEdigis = iEvent.getHandle(EEDigis_);
 
   unique_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
 
@@ -128,12 +112,10 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
 
     ampHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
-    //cout << "Cry hash:" << hitDetId.hashedIndex() << " amplitude: " << amplitude << endl;
     if (amplitude < ampCut_)
       continue;
 
     cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
-    numHitsWithActivity++;
     EBDigiCollection::const_iterator digiItr = EBdigis->begin();
     while (digiItr != EBdigis->end() && digiItr->id() != hitItr->id()) {
       digiItr++;
@@ -163,12 +145,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
       sampleADC[i] = pedestal + (df.sample(i).adc() - pedestal) * gain;
     }
 
-    //cout << "1) maxsample amp:" << maxSampleAmp << " maxSampleIndex:" << maxSampleIndex << endl;
     for (int i = 0; i < 10; ++i) {
-      //cout << "Filling hist for:" << hitDetId.hashedIndex() << " with sample:" << i
-      //<< " amp:" <<(float)(df.sample(i).adc()-baseline)/(maxSampleAmp-baseline) << endl;
-      //cout << "ADC of sample:" << df.sample(i).adc() << " baseline:" << baseline << " maxSampleAmp:"
-      //<< maxSampleAmp << endl << endl;
       pulseShapeHistMap_[hitDetId.hashedIndex()]->Fill(i, (float)(sampleADC[i] - pedestal) / amplitude);
       rawPulseShapeHistMap_[hitDetId.hashedIndex()]->Fill(i, (float)(sampleADC[i]));
     }
@@ -194,12 +171,10 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
 
     ampHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
-    //cout << "Cry hash:" << hitDetId.hashedIndex() << " amplitude: " << amplitude << endl;
     if (amplitude < ampCut_)
       continue;
 
     cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
-    numHitsWithActivity++;
     EEDigiCollection::const_iterator digiItr = EEdigis->begin();
     while (digiItr != EEdigis->end() && digiItr->id() != hitItr->id()) {
       digiItr++;
@@ -229,12 +204,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
       sampleADC[i] = pedestal + (df.sample(i).adc() - pedestal) * gain;
     }
 
-    //cout << "1) maxsample amp:" << maxSampleAmp << " maxSampleIndex:" << maxSampleIndex << endl;
     for (int i = 0; i < 10; ++i) {
-      //cout << "Filling hist for:" << hitDetId.hashedIndex() << " with sample:" << i
-      //<< " amp:" <<(float)(df.sample(i).adc()-baseline)/(maxSampleAmp-baseline) << endl;
-      //cout << "ADC of sample:" << df.sample(i).adc() << " baseline:" << baseline << " maxSampleAmp:"
-      //<< maxSampleAmp << endl << endl;
       pulseShapeHistMap_[hitDetId.hashedIndex()]->Fill(i, (float)(sampleADC[i] - pedestal) / amplitude);
       rawPulseShapeHistMap_[hitDetId.hashedIndex()]->Fill(i, (float)(sampleADC[i]));
     }
@@ -257,9 +227,6 @@ void EcalPulseShapeGrapher::endJob() {
     TProfile* t2 = (TProfile*)(rawPulseShapeHistMap_[*itr]->ProfileX());
     t2->Write();
     //TODO: fix the normalization so these are correct
-    //pulseShapeHistMap_[*itr]->Write();
-    //TProfile* t1 = (TProfile*) (pulseShapeHistMap_[*itr]->ProfileX());
-    //t1->Write();
   }
 
   file_->Write();

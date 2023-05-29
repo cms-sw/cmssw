@@ -15,7 +15,6 @@
 // #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
@@ -702,9 +701,6 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   EtaOk10 = 0;
   EtaOk13 = 0;
   EtaOk40 = 0;
-
-  //  const JetCorrector* corrector =
-  //    JetCorrector::getJetCorrector (JetCorrectionService, es);
 
   double highestPt;
   double nextPt;
@@ -2550,17 +2546,8 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   // Unclustered Energy
   // *********************
 
-  double SumPtJet(0);
-
   double SumEtNotJets(0);
   double SumEtJets(0);
-  double SumEtTowers(0);
-
-  double sumJetPx(0);
-  double sumJetPy(0);
-
-  double sumTowerAllPx(0);
-  double sumTowerAllPy(0);
 
   double sumTowerAllEx(0);
   double sumTowerAllEy(0);
@@ -2611,7 +2598,6 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       // ********
 
       Double_t phi = tower->phi();
-      SumEtTowers += tower->et();
 
       sumTowerAllEx += et * cos(phi);
       sumTowerAllEy += et * sin(phi);
@@ -2652,16 +2638,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   // --- Loop over jets and make a list of all the used towers
   evt.getByLabel(CaloJetAlgorithm1, jets);
   for (CaloJetCollection::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
-    Double_t jetPt = ijet->pt();
-    Double_t jetPhi = ijet->phi();
-
     //    if (jetPt>5.0) {
-
-    Double_t jetPx = jetPt * cos(jetPhi);
-    Double_t jetPy = jetPt * sin(jetPhi);
-
-    sumJetPx += jetPx;
-    sumJetPy += jetPy;
 
     const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
@@ -2669,7 +2646,6 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       UsedTowerList.push_back(jetCaloRefs[i]);
     }
 
-    SumPtJet += jetPt;
     //    }
   }
 
@@ -2677,16 +2653,10 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
+    const CaloTower& t = *tower;
     Double_t et = tower->et();
 
     if (et > 0) {
-      Double_t phi = tower->phi();
-      SumEtTowers += tower->et();
-
-      sumTowerAllPx += et * cos(phi);
-      sumTowerAllPy += et * sin(phi);
-
       bool used = false;
 
       for (int i = 0; i < NTowersUsed; i++) {
@@ -2733,16 +2703,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   // --- Loop over jets and make a list of all the used towers
   evt.getByLabel(CaloJetAlgorithm2, jets);
   for (CaloJetCollection::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
-    Double_t jetPt = ijet->pt();
-    Double_t jetPhi = ijet->phi();
-
     //    if (jetPt>5.0) {
-
-    Double_t jetPx = jetPt * cos(jetPhi);
-    Double_t jetPy = jetPt * sin(jetPhi);
-
-    sumJetPx += jetPx;
-    sumJetPy += jetPy;
 
     const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
@@ -2750,7 +2711,6 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       UsedTowerList.push_back(jetCaloRefs[i]);
     }
 
-    SumPtJet += jetPt;
     //    }
   }
 
@@ -2761,17 +2721,10 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
+    const CaloTower& t = *tower;
     Double_t et = tower->et();
 
     if (et > 0) {
-      Double_t phi = tower->phi();
-
-      SumEtTowers += tower->et();
-
-      sumTowerAllPx += et * cos(phi);
-      sumTowerAllPy += et * sin(phi);
-
       bool used = false;
 
       for (int i = 0; i < NTowersUsed; i++) {
@@ -2818,16 +2771,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   // --- Loop over jets and make a list of all the used towers
   evt.getByLabel(CaloJetAlgorithm3, jets);
   for (CaloJetCollection::const_iterator ijet = jets->begin(); ijet != jets->end(); ijet++) {
-    Double_t jetPt = ijet->pt();
-    Double_t jetPhi = ijet->phi();
-
     //    if (jetPt>5.0) {
-
-    Double_t jetPx = jetPt * cos(jetPhi);
-    Double_t jetPy = jetPt * sin(jetPhi);
-
-    sumJetPx += jetPx;
-    sumJetPy += jetPy;
 
     const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
@@ -2835,7 +2779,6 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
       UsedTowerList.push_back(jetCaloRefs[i]);
     }
 
-    SumPtJet += jetPt;
     //    }
   }
 
@@ -2846,16 +2789,10 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
+    const CaloTower& t = *tower;
     Double_t et = tower->et();
 
     if (et > 0) {
-      //      Double_t phi = tower->phi();
-
-      //      SumEtTowers   += tower->et();
-      //      sumTowerAllPx += et*cos(phi);
-      //      sumTowerAllPy += et*sin(phi);
-
       bool used = false;
 
       for (int i = 0; i < NTowersUsed; i++) {

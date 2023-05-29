@@ -236,7 +236,6 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
       offlineCounter++;
     }
 
-    float caloHT = 0.0;
     float pfHT = 0.0;
     for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
          ++i_pfjet) {
@@ -253,7 +252,6 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
         continue;
       if (fabs(i_calojet->eta()) > etaThrJet_)
         continue;
-      caloHT += i_calojet->pt();
     }
 
     if (hasFiredAuxiliaryForMuEleLeg && !MuonCollection->empty() && !ElectronCollection->empty()) {

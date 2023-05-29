@@ -2,7 +2,7 @@
 #define HLTCOMPARATOR_H
 // Original Author: James Jackson
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -12,7 +12,7 @@
 
 class TH1F;
 
-class HltComparator : public edm::EDFilter {
+class HltComparator : public edm::one::EDFilter<edm::one::SharedResources> {
 public:
   explicit HltComparator(const edm::ParameterSet &);
   ~HltComparator() override;

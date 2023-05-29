@@ -11,7 +11,7 @@ HcalTBTriggerFilter::HcalTBTriggerFilter(const edm::ParameterSet& ps)
   tok_tb_ = consumes<HcalTBTriggerData>(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
 }
 
-bool HcalTBTriggerFilter::filter(edm::Event& e, edm::EventSetup const& c) {
+bool HcalTBTriggerFilter::filter(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const {
   edm::Handle<HcalTBTriggerData> h;
   e.getByToken(tok_tb_, h);
 

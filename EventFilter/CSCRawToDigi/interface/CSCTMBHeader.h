@@ -42,6 +42,7 @@ public:
 
   uint16_t BXNCount() const { return theHeaderFormat->BXNCount(); }
   uint16_t ALCTMatchTime() const { return theHeaderFormat->ALCTMatchTime(); }
+  void setALCTMatchTime(uint16_t alctmatchtime) { theHeaderFormat->setALCTMatchTime(alctmatchtime); }
   uint16_t CLCTOnly() const { return theHeaderFormat->CLCTOnly(); }
   uint16_t ALCTOnly() const { return theHeaderFormat->ALCTOnly(); }
   uint16_t TMBMatch() const { return theHeaderFormat->TMBMatch(); }
@@ -53,6 +54,7 @@ public:
 
   uint16_t sizeInBytes() const { return theHeaderFormat->sizeInWords() * 2; }
 
+  uint16_t L1AMatchTime() const { return theHeaderFormat->L1AMatchTime(); }
   /// will throw if the cast fails
   CSCTMBHeader2007 tmbHeader2007() const;
   CSCTMBHeader2007_rev0x50c3 tmbHeader2007_rev0x50c3() const;

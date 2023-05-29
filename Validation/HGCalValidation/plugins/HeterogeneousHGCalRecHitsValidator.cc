@@ -57,8 +57,8 @@ void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const 
       const float gpuTime = gpuHit.time();
       const float cpuTimeErr = cpuHit.timeError();
       const float gpuTimeErr = gpuHit.timeError();
-      const HGCalDetId cpuDetId = cpuHit.detid();
-      const HGCalDetId gpuDetId = gpuHit.detid();
+      const DetId cpuDetId = cpuHit.detid();
+      const DetId gpuDetId = gpuHit.detid();
       const float cpuFB = cpuHit.flagBits();
       const float gpuFB = gpuHit.flagBits();
       const float cpuSoN = cpuHit.signalOverSigmaNoise();

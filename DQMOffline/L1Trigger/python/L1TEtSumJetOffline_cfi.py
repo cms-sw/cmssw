@@ -87,7 +87,7 @@ goodPFJetsForL1T = cms.EDFilter(
 from L1Trigger.L1TNtuples.L1TPFMetNoMuProducer_cfi import l1tPFMetNoMu
 
 l1tPFMetNoMuForDQM = l1tPFMetNoMu.clone(
-    pfMETCollection= 'pfMETT1',
+    pfMETCollection= 'pfMet',  ## Was 'pfMETT1', threw errors - AWB 2022.09.28
     muonCollection= 'muons'
 )
 

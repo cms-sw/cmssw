@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
@@ -30,8 +31,8 @@ public:
 private:
   std::string getHistoName(const DTLayerId&);
 
-  bool subtractT0_;
-  edm::InputTag digiLabel_;
+  const bool subtractT0_;
+  const edm::EDGetTokenT<DTDigiCollection> digiToken_;
 
   TFile* rootFile_;
   edm::ESHandle<DTGeometry> dtGeom_;
@@ -54,7 +55,6 @@ private:
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "CondFormats/DTObjects/interface/DTT0.h"
@@ -64,7 +64,7 @@ private:
 
 DTTPAnalyzer::DTTPAnalyzer(const edm::ParameterSet& pset)
     : subtractT0_(pset.getParameter<bool>("subtractT0")),
-      digiLabel_(pset.getParameter<edm::InputTag>("digiLabel")),
+      digiToken_(consumes<DTDigiCollection>(pset.getParameter<edm::InputTag>("digiLabel"))),
       dtGeomToken_(esConsumes()) {
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
@@ -80,8 +80,7 @@ DTTPAnalyzer::~DTTPAnalyzer() { rootFile_->Close(); }
 
 void DTTPAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   // Get the digis from the event
-  edm::Handle<DTDigiCollection> digis;
-  event.getByLabel(digiLabel_, digis);
+  const edm::Handle<DTDigiCollection>& digis = event.getHandle(digiToken_);
 
   if (subtractT0_) {
     tTrigSync_->setES(setup);

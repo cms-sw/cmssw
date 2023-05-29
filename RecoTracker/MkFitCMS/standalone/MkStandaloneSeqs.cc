@@ -3,6 +3,7 @@
 
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/standalone/Event.h"
+#include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 
 #include "RecoTracker/MkFitCore/src/Debug.h"
 
@@ -29,20 +30,22 @@ namespace mkfit {
       eoh.setBeamSpot(ev.beamSpot_);
     }
 
-    void handle_duplicates(Event *event) {
+    void handle_duplicates(Event *) {
+      /*
       // Mark tracks as duplicates; if within CMSSW, remove duplicate tracks from fit or candidate track collection
       if (Config::removeDuplicates) {
         if (Config::quality_val || Config::sim_val || Config::cmssw_val) {
-          find_duplicates(event->candidateTracks_);
+          clean_duplicates(event->candidateTracks_);
           if (Config::backwardFit)
-            find_duplicates(event->fitTracks_);
+            clean_duplicates(event->fitTracks_);
         }
         // For the MEIF benchmarks and the stress tests, no validation flags are set so we will enter this block
         else {
           // Only care about the candidate tracks here; no need to run the duplicate removal on both candidate and fit tracks
-          find_duplicates(event->candidateTracks_);
+          clean_duplicates(event->candidateTracks_);
         }
       }
+      */
     }
 
     //=========================================================================
@@ -136,7 +139,7 @@ namespace mkfit {
       const auto label = tkcand.label();
       TrackExtra extra(label);
 
-      // track_print(tkcand, "XXX");
+      // track_print(event, tkcand, "quality_process -> track_print:");
 
       // access temp seed trk and set matching seed hits
       const auto &seed = event->seedTracks_[itrack];
@@ -184,11 +187,6 @@ namespace mkfit {
         // grep "FOUND_LABEL" | sort -n -k 8,8 -k 2,2
         // printf("FOUND_LABEL %6d  pT_mc= %8.2f eta_mc= %8.2f event= %d\n", label, pTmc, etamc, event->evtID());
       }
-
-#ifdef SELECT_SEED_LABEL
-      if (label == SELECT_SEED_LABEL)
-        track_print(tkcand, "MkBuilder::quality_process SELECT_SEED_LABEL:");
-#endif
 
       float pTcmssw = 0.f, etacmssw = 0.f, phicmssw = 0.f;
       int nfoundcmssw = -1;
@@ -394,8 +392,9 @@ namespace mkfit {
     }
 
     void score_tracks(TrackVec &tracks) {
+      auto score_func = IterationConfig::get_track_scorer("default");
       for (auto &track : tracks) {
-        track.setScore(getScoreCand(track));
+        track.setScore(getScoreCand(score_func, track));
       }
     }
 

@@ -116,7 +116,7 @@ void HcalPacker::pack(int fedid,
   for (int spigot = 0; spigot < 15; spigot++) {
     spigots[spigot].allocate(HTRFormatVersion);
     HcalElectronicsId exampleEId;
-    int npresent = 0, npresenttp = 0;
+    int npresent = 0;
     int presamples = -1, samples = -1;
     bool haveUnsuppressed = false;
     for (int fiber = 1; fiber <= 8; fiber++) {
@@ -192,7 +192,6 @@ void HcalPacker::pack(int fedid,
           triglen[linear] = processTrig(inputs.tpCont, tid, trigbase);
           if (triglen[linear]) {
             npresent++;
-            npresenttp++;
           }
 
           for (unsigned char q = 0; q < triglen[linear]; q++) {

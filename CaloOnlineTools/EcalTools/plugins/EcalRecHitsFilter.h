@@ -53,9 +53,9 @@ private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  double EnergyCut;
-  int NumBadXtalsThreshold_;
-  edm::InputTag EBRecHitCollection_;
+  const int NumBadXtalsThreshold_;
+  const edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollection_;
+  const double EnergyCut;
 
   TH1F* nRecHitsGreater1GevPerEvent_hist;
   TH2F* nRecHitsGreater1GevPerEvent_hist_MAP;

@@ -14,6 +14,7 @@
 #include <thread>
 #include "oneapi/tbb/task.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 class WaitingTaskList_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(WaitingTaskList_test);
@@ -41,7 +42,7 @@ namespace {
 
     void execute() final {
       if (exceptionPtr()) {
-        m_ptr = *exceptionPtr();
+        m_ptr = exceptionPtr();
       }
       m_called = true;
       return;
@@ -185,7 +186,7 @@ void WaitingTaskList_test::stressTest() {
   unsigned int index = 1000;
   const unsigned int nTasks = 10000;
   while (0 != --index) {
-    edm::FinalWaitingTask waitTask;
+    edm::FinalWaitingTask waitTask{group};
     auto* pWaitTask = &waitTask;
     {
       edm::WaitingTaskHolder waitTaskH(group, pWaitTask);
@@ -199,9 +200,7 @@ void WaitingTaskList_test::stressTest() {
       std::thread doneWaitThread([&waitList, waitTaskH] { waitList.doneWaiting(std::exception_ptr{}); });
       std::shared_ptr<std::thread>(&doneWaitThread, join_thread);
     }
-    do {
-      group.wait();
-    } while (not waitTask.done());
+    waitTask.wait();
   }
 }
 

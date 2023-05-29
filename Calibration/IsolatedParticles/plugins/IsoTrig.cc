@@ -18,6 +18,7 @@
 
 // system include files
 #include <memory>
+#include <unordered_map>
 
 // Root objects
 #include "TROOT.h"
@@ -198,8 +199,8 @@ private:
   const CaloGeometry *geo_;
   math::XYZPoint leadPV_;
 
-  std::map<unsigned int, unsigned int> trigList_;
-  std::map<unsigned int, const std::pair<int, int>> trigPreList_;
+  std::unordered_map<unsigned int, unsigned int> trigList_;
+  std::unordered_map<unsigned int, const std::pair<double, double>> trigPreList_;
   bool changed_;
   double pLimits_[6];
   edm::Service<TFileService> fs_;
@@ -263,7 +264,8 @@ private:
   TH1D *h_eMaxNearP[2], *h_eNeutIso[2];
   TH1D *h_etaCalibTracks[5][2][2], *h_etaMipTracks[5][2][2];
   TH1D *h_eHcal[5][6][48], *h_eCalo[5][6][48];
-  TH1I *g_Pre, *g_PreL1, *g_PreHLT, *g_Accepts;
+  TH1D *g_Pre, *g_PreL1, *g_PreHLT;
+  TH1I *g_Accepts;
   std::vector<math::XYZTLorentzVector> vec_[3];
 };
 
@@ -660,7 +662,8 @@ void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     const std::vector<std::string> &triggerNames_ = triggerNames.triggerNames();
     if (verbosity_ % 10 > 1)
       edm::LogVerbatim("IsoTrack") << "number of HLTs " << triggerNames_.size();
-    int hlt(-1), preL1(-1), preHLT(-1), prescale(-1);
+    double preL1(-1), preHLT(-1), prescale(-1);
+    int hlt(-1);
     for (unsigned int i = 0; i < triggerResults->size(); i++) {
       unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[i]);
       const std::vector<std::string> &moduleLabels(hltConfig.moduleLabels(triggerindx));
@@ -680,7 +683,7 @@ void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
             edm::Handle<trigger::TriggerFilterObjectWithRefs> L1cands;
             iEvent.getByToken(tok_l1cand_, L1cands);
 
-            const std::pair<int, int> prescales(hltPrescaleProvider_.prescaleValues(iEvent, iSetup, triggerNames_[i]));
+            auto const prescales = hltPrescaleProvider_.prescaleValues<double>(iEvent, iSetup, triggerNames_[i]);
             preL1 = prescales.first;
             preHLT = prescales.second;
             prescale = preL1 * preHLT;
@@ -692,8 +695,8 @@ void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
             if (trigList_.find(RunNo) != trigList_.end()) {
               trigList_[RunNo] += 1;
             } else {
-              trigList_.insert(std::pair<unsigned int, unsigned int>(RunNo, 1));
-              trigPreList_.insert(std::pair<unsigned int, std::pair<int, int>>(RunNo, prescales));
+              trigList_.insert({RunNo, 1});
+              trigPreList_.insert({RunNo, prescales});
             }
             //loop over all trigger filters in event (i.e. filters passed)
             for (unsigned int ifilter = 0; ifilter < triggerEvent.sizeFilters(); ++ifilter) {
@@ -1174,27 +1177,24 @@ void IsoTrig::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void IsoTrig::endJob() {
-  unsigned int preL1, preHLT;
-  std::map<unsigned int, unsigned int>::iterator itr;
-  std::map<unsigned int, const std::pair<int, int>>::iterator itrPre;
   edm::LogWarning("IsoTrack") << trigNames_.size() << "Triggers were run. RunNo vs HLT accepts for";
   for (unsigned int i = 0; i < trigNames_.size(); ++i)
     edm::LogWarning("IsoTrack") << "[" << i << "]: " << trigNames_[i];
   unsigned int n = maxRunNo_ - minRunNo_ + 1;
-  g_Pre = fs_->make<TH1I>("h_PrevsRN", "PreScale Vs Run Number", n, minRunNo_, maxRunNo_);
-  g_PreL1 = fs_->make<TH1I>("h_PreL1vsRN", "L1 PreScale Vs Run Number", n, minRunNo_, maxRunNo_);
-  g_PreHLT = fs_->make<TH1I>("h_PreHLTvsRN", "HLT PreScale Vs Run Number", n, minRunNo_, maxRunNo_);
+  g_Pre = fs_->make<TH1D>("h_PrevsRN", "PreScale Vs Run Number", n, minRunNo_, maxRunNo_);
+  g_PreL1 = fs_->make<TH1D>("h_PreL1vsRN", "L1 PreScale Vs Run Number", n, minRunNo_, maxRunNo_);
+  g_PreHLT = fs_->make<TH1D>("h_PreHLTvsRN", "HLT PreScale Vs Run Number", n, minRunNo_, maxRunNo_);
   g_Accepts = fs_->make<TH1I>("h_HLTAcceptsvsRN", "HLT Accepts Vs Run Number", n, minRunNo_, maxRunNo_);
 
-  for (itr = trigList_.begin(), itrPre = trigPreList_.begin(); itr != trigList_.end(); itr++, itrPre++) {
-    preL1 = (itrPre->second).first;
-    preHLT = (itrPre->second).second;
-    edm::LogVerbatim("IsoTrack") << itr->first << " " << itr->second << " " << itrPre->first << " " << preL1 << " "
-                                 << preHLT;
-    g_Accepts->Fill(itr->first, itr->second);
-    g_PreL1->Fill(itr->first, preL1);
-    g_PreHLT->Fill(itr->first, preHLT);
-    g_Pre->Fill(itr->first, preL1 * preHLT);
+  for (auto const &[runNum, nAccept] : trigList_) {
+    auto const &triggerPrescales = trigPreList_[runNum];
+    auto const preL1 = triggerPrescales.first;
+    auto const preHLT = triggerPrescales.second;
+    edm::LogVerbatim("IsoTrack") << runNum << " " << nAccept << " " << preL1 << " " << preHLT;
+    g_Accepts->Fill(runNum, nAccept);
+    g_PreL1->Fill(runNum, preL1);
+    g_PreHLT->Fill(runNum, preHLT);
+    g_Pre->Fill(runNum, preL1 * preHLT);
   }
 }
 
@@ -1712,7 +1712,7 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                                      << hit->energy();
       }
     }
-    unsigned int nTracks = 0, ngoodTk = 0, nselTk = 0;
+    unsigned int nTracks = 0;
     int ieta = 999;
     for (trkDetItr = trkCaloDirections.begin(); trkDetItr != trkCaloDirections.end(); trkDetItr++, nTracks++) {
       bool l3Track = (std::find(goodTks.begin(), goodTks.end(), trkDetItr->trkItr) != goodTks.end());
@@ -1733,7 +1733,6 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
         edm::LogVerbatim("IsoTrack") << "Track ECAL " << trkDetItr->okECAL << " HCAL " << trkDetItr->okHCAL << " Flag "
                                      << selectTk;
       if (selectTk && trkDetItr->okECAL && trkDetItr->okHCAL) {
-        ngoodTk++;
         int nRH_eMipDR = 0, nNearTRKs = 0;
         double e1 = spr::eCone_ecal(geo_,
                                     barrelRecHitsHandle_,
@@ -1779,8 +1778,6 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                                 iphiHotCell,
                                 gposHotCell,
                                 -1);
-        if (eMipDR < 1.0)
-          nselTk++;
       }
       if (l3Track) {
         fillHist(10, v4);
@@ -1822,7 +1819,6 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
         }
       }
     }
-    //   edm::LogVerbatim("IsoTrack") << "Number of tracks selected offline " << nselTk;
   }
 }
 

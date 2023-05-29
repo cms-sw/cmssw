@@ -8,7 +8,7 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
-  enum KalmanFilterOperation { KFO_Calculate_Chi2 = 1, KFO_Update_Params = 2 };
+  enum KalmanFilterOperation { KFO_Calculate_Chi2 = 1, KFO_Update_Params = 2, KFO_Local_Cov = 4 };
 
   //------------------------------------------------------------------------------
 
@@ -27,8 +27,9 @@ namespace mkfit {
                                 const MPlexHV& msPar,
                                 MPlexLS& outErr,
                                 MPlexLV& outPar,
+                                MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags propFlags,
+                                const PropagationFlags& propFlags,
                                 const bool propToHit);
 
   void kalmanComputeChi2(const MPlexLS& psErr,
@@ -46,8 +47,9 @@ namespace mkfit {
                                      const MPlexHV& msPar,
                                      MPlexQF& outChi2,
                                      MPlexLV& propPar,
+                                     MPlexQI& outFailFlag,
                                      const int N_proc,
-                                     const PropagationFlags propFlags,
+                                     const PropagationFlags& propFlags,
                                      const bool propToHit);
 
   void kalmanOperation(const int kfOp,
@@ -77,8 +79,9 @@ namespace mkfit {
                                       const MPlexHV& msPar,
                                       MPlexLS& outErr,
                                       MPlexLV& outPar,
+                                      MPlexQI& outFailFlag,
                                       const int N_proc,
-                                      const PropagationFlags propFlags,
+                                      const PropagationFlags& propFlags,
                                       const bool propToHit);
 
   void kalmanComputeChi2Endcap(const MPlexLS& psErr,
@@ -96,8 +99,9 @@ namespace mkfit {
                                            const MPlexHV& msPar,
                                            MPlexQF& outChi2,
                                            MPlexLV& propPar,
+                                           MPlexQI& outFailFlag,
                                            const int N_proc,
-                                           const PropagationFlags propFlags,
+                                           const PropagationFlags& propFlags,
                                            const bool propToHit);
 
   void kalmanOperationEndcap(const int kfOp,

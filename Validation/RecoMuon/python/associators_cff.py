@@ -208,6 +208,11 @@ tpToL3FromL1TkMuonAssociation = MABHhlt.clone(
     UseTracker = True,
     UseMuon = False
 )
+tpToL0L3FromL1TkMuonAssociation = MABHhlt.clone(
+    tracksTag = 'hltIter0IterL3FromL1MuonTrackSelectionHighPurity',
+    UseTracker = True,
+    UseMuon = False
+)
 tpToL3GlbMuonAssociation = MABHhlt.clone(
     tracksTag = 'hltIterL3GlbMuon',
     UseTracker = True,
@@ -318,7 +323,7 @@ muonAssociationCosmic_seq = cms.Sequence(
 
 muonAssociationHLT_seq = cms.Sequence(
     tpToL2MuonAssociation+tpToL2UpdMuonAssociation
-    +tpToL3OITkMuonAssociation+tpToL3TkMuonAssociation+tpToL3FromL1TkMuonAssociation
+    +tpToL3OITkMuonAssociation+tpToL3TkMuonAssociation+tpToL3FromL1TkMuonAssociation+tpToL0L3FromL1TkMuonAssociation
     +tpToL3GlbMuonAssociation
     +hltIterL3MuonsNoIDTracks_seq+tpToL3NoIDMuonAssociation
     +hltIterL3MuonsTracks_seq+tpToL3MuonAssociation
@@ -333,6 +338,7 @@ fastSim.toModify(tpToL2UpdMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3OITkMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3TkMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3FromL1TkMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL0L3FromL1TkMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3GlbMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3NoIDMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3MuonAssociation, DTrechitTag = _DTrechitTag)

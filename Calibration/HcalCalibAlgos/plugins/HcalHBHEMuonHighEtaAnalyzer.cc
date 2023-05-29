@@ -272,10 +272,10 @@ void HcalHBHEMuonHighEtaAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("etaMin", 2.0);
   desc.add<double>("emaxNearPThreshold", 10.0);
   desc.add<bool>("analyzeMuon", true);
-  desc.add<bool>("unCorrect", false);
+  desc.add<bool>("unCorrect", true);
   desc.add<bool>("collapseDepth", false);
   desc.add<bool>("isItPlan1", false);
-  desc.add<bool>("getCharge", false);
+  desc.add<bool>("getCharge", true);
   desc.add<int>("useRaw", 0);
   desc.add<int>("verbosity", 0);
   desc.addUntracked<std::string>("fileInCorr", "");
@@ -372,7 +372,7 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   conditions_ = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
-  const edm::Handle<reco::VertexCollection> vtx = iEvent.getHandle(tok_Vtx_);
+  const edm::Handle<reco::VertexCollection>& vtx = iEvent.getHandle(tok_Vtx_);
 
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle_);
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle_);
@@ -495,7 +495,7 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
 }
 
 bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XYZPoint& leadPV) {
-  const edm::Handle<reco::MuonCollection> _Muon = iEvent.getHandle(tok_Muon_);
+  const edm::Handle<reco::MuonCollection>& _Muon = iEvent.getHandle(tok_Muon_);
   bool accept = false;
 
   if (_Muon.isValid()) {

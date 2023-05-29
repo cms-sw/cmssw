@@ -22,7 +22,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 

@@ -101,23 +101,57 @@ bool L1TEnergySumFilterT<T>::hltFilter(edm::Event& iEvent,
 
   auto const& l1tSums = iEvent.getHandle(l1tSumToken_);
 
-  int nSum(0);
-  for (auto iSum = l1tSums->begin(); iSum != l1tSums->end(); ++iSum) {
-    double offlinePt = 0.0;
-    // pt or sumEt?
-    if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMET or
-        l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMHT) {
-      offlinePt = offlineEnergySum(iSum->pt());
-    } else if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFETT or
-               l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFHT) {
-      offlinePt = offlineEnergySum(iSum->sumEt());
-    }
+  /// Thiago: this is now a bit ugly, because the fact that the object is HT or MHT
+  /// is now encoded on the fact that it is the 0th or 1st element in the vector.
+  ///
+  /*
+  l1t::EtSum HT = l1L1PFPhase1L1JetSums->at(0);
+  l1t::EtSum MHT = l1L1PFPhase1L1JetSums->at(1);
+  l1extra_.phase1PuppiHT = HT.pt();
+  l1extra_.phase1PuppiMHTEt = MHT.pt();
+  l1t::EtSum met = l1MetPF->at(0);
+  l1extra_.puppiMETEt = met.et();
+  */
+  if (l1tSums->size() < 1) {
+    throw cms::Exception("BadCollectionSize") << "l1tSums should have size() >= 1";
+  }
 
-    if (offlinePt >= minPt_) {
-      ++nSum;
-      edm::Ref<std::vector<T>> ref(l1tSums, std::distance(l1tSums->begin(), iSum));
-      filterproduct.addObject(l1tSumType_, ref);
+  int nSum(0);
+  double onlinePt(0.0);
+  auto iSum = l1tSums->begin();
+
+  // The correct way of doing this would be using the EtSumHelper class.
+  // However, it doesn't support std::vector<l1t::EtSum>, only the
+  // older BXVector<l1t::EtSum> collection.
+  if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMET) {
+    // MET is index [0], and uses .et() method
+    onlinePt = iSum->et();
+  } else if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFHT) {
+    // HT is index [0], and uses .pt() method
+    onlinePt = iSum->pt();
+  } else if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFMHT) {
+    // MHT is index [1], and uses .pt() method
+    if (l1tSums->size() < 2) {
+      throw cms::Exception("BadCollectionSize")
+          << "If we want trigger::TriggerObjectType::TriggerL1PFMHT, l1tSums should have size() >= 2";
     }
+    ++iSum;
+    onlinePt = iSum->pt();
+  }
+  if (l1tSumType_ == trigger::TriggerObjectType::TriggerL1PFETT) {
+    // As of now, L1 doesn't support this object it seems.
+    throw cms::Exception("UnsupportedType")
+        << "As of now, L1 doesn't support trigger::TriggerObjectType::TriggerL1PFETT";
+  }
+
+  // Do the scaling
+  auto const offlinePt = offlineEnergySum(onlinePt);
+
+  // Add the passing element to the filterproduct.
+  if (offlinePt >= minPt_) {
+    ++nSum;
+    edm::Ref<std::vector<T>> ref(l1tSums, std::distance(l1tSums->begin(), iSum));
+    filterproduct.addObject(l1tSumType_, ref);
   }
 
   // return final filter decision

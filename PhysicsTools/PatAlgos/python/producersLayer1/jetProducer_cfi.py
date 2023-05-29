@@ -99,26 +99,85 @@ _patJets = _mod.PATJetProducer.clone(
     resolutions     = dict()
 )
 
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(_patJets, 
-                                           jetSource = "akCs4PFJets",
-                                           genJetMatch = "patJetGenJetMatch",
-                                           genPartonMatch = "patJetPartonMatch",
-                                           JetFlavourInfoSource = "patJetFlavourAssociation",
-                                           JetPartonMapSource = "patJetFlavourAssociationLegacy",
-                                           jetCorrFactorsSource = ["patJetCorrFactors"],
-                                           trackAssociationSource = "ak5JetTracksAssociatorAtVertex",
-                                           useLegacyJetMCFlavour = True,
-                                           discriminatorSources = [
-                                               "simpleSecondaryVertexHighEffBJetTags",
-                                               "simpleSecondaryVertexHighPurBJetTags",
-                                               "combinedSecondaryVertexV2BJetTags",
-                                               "jetBProbabilityBJetTags",
-                                               "jetProbabilityBJetTags",
-                                               "trackCountingHighEffBJetTags",
-                                               "trackCountingHighPurBJetTags",
-                                           ],
-                                           addJetCharge = False,
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(_patJets,
+              jetSource = "ak4PFJetsCHS",
+              genJetMatch = "patJetGenJetMatch",
+              genPartonMatch = "patJetPartonMatch",
+              JetFlavourInfoSource = "patJetFlavourAssociation",
+              JetPartonMapSource = "patJetFlavourAssociationLegacy",
+              jetCorrFactorsSource = ["patJetCorrFactors"],
+              addBTagInfo          = True,   ## master switch
+              addDiscriminators    = True,   ## addition btag disc.
+              discriminatorSources = ["pfJetBProbabilityBJetTags",
+                                      "pfJetProbabilityBJetTags",
+                                      "pfTrackCountingHighEffBJetTags",
+                                      # DeepFlavour
+                                      'pfDeepCSVJetTags:probb',
+                                      'pfDeepCSVJetTags:probc',
+                                      'pfDeepCSVJetTags:probudsg',
+                                      'pfDeepCSVJetTags:probbb',
+                                      # New DeepFlavour (commented until available in RelVals)
+                                      #'pfDeepFlavourJetTags:probb',
+                                      #'pfDeepFlavourJetTags:probbb',
+                                      #'pfDeepFlavourJetTags:problepb',
+                                      #'pfDeepFlavourJetTags:probc',
+                                      #'pfDeepFlavourJetTags:probuds',
+                                      #'pfDeepFlavourJetTags:probg'
+                                      #'pfDeepFlavourJetTags:probuds',
+                                      #'pfDeepFlavourJetTags:probg'
+                                     ],
+              addTagInfos     = False,
+              tagInfoSources  = [],
+              # track association
+              addAssociatedTracks    = True,
+              trackAssociationSource = "ak4JetTracksAssociatorAtVertexPF",
+              # jet charge
+              addJetCharge    = True,
+              jetChargeSource = "patJetCharge",
+
+              addJetID = False,
+              jetIDMap = "ak4JetID",
+)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(_patJets, 
+                       jetSource = "akCs4PFJets",
+                       genJetMatch = "patJetGenJetMatch",
+                       genPartonMatch = "patJetPartonMatch",
+                       JetFlavourInfoSource = "patJetFlavourAssociation",
+                       JetPartonMapSource = "patJetFlavourAssociationLegacy",
+                       jetCorrFactorsSource = ["patJetCorrFactors"],
+                       trackAssociationSource = "ak5JetTracksAssociatorAtVertex",
+                       useLegacyJetMCFlavour = True,
+                       discriminatorSources = [
+                           "simpleSecondaryVertexHighEffBJetTags",
+                           "simpleSecondaryVertexHighPurBJetTags",
+                           "combinedSecondaryVertexV2BJetTags",
+                           "jetBProbabilityBJetTags",
+                           "jetProbabilityBJetTags",
+                           "trackCountingHighEffBJetTags",
+                           "trackCountingHighPurBJetTags",
+                       ],
+                    addJetCharge = False,
+)
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(_patJets, 
+                         jetSource = "akCs4PFJets",
+                         genJetMatch = "patJetGenJetMatch",
+                         genPartonMatch = "patJetPartonMatch",
+                         JetFlavourInfoSource = "patJetFlavourAssociation",
+                         JetPartonMapSource = "patJetFlavourAssociationLegacy",
+                         jetCorrFactorsSource = ["patJetCorrFactors"],
+                         trackAssociationSource = "",
+                         useLegacyJetMCFlavour = True,
+                         discriminatorSources = [],
+                         tagInfoSources = [],
+                         addJetCharge = False,
+                         addTagInfos = False,
+                         addDiscriminators = False,
+                         addAssociatedTracks    = False,
 )
 
 patJets = _patJets.clone()

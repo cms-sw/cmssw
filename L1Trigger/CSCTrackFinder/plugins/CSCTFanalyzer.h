@@ -1,7 +1,7 @@
 #ifndef CSCTFAnalyzer_h
 #define CSCTFAnalyzer_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +15,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
-class CSCTFanalyzer : public edm::EDAnalyzer {
+class CSCTFanalyzer : public edm::one::EDAnalyzer<> {
 private:
   edm::InputTag lctProducer, mbProducer, dataTrackProducer, emulTrackProducer;
   edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> scalesToken;

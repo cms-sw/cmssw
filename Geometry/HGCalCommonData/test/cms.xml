@@ -2,8 +2,8 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <SolidSection label="hgcalwafer.xml">
-  <Tubs name="OCMS" rMin="0.0*fm" rMax="2.0*m" dz="10*cm" startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="CMSE" rMin="0.0*fm" rMax="2.0*m" dz="10*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="OCMS" rMin="0.0*fm" rMax="2.0*m" dz="50*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="CMSE" rMin="0.0*fm" rMax="2.0*m" dz="50*cm" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="cms.xml">

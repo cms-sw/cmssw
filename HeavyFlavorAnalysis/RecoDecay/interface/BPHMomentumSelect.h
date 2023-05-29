@@ -17,6 +17,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 class BPHDecayMomentum;
+class BPHRecoBuilder;
 
 //---------------
 // C++ Headers --
@@ -38,7 +39,7 @@ public:
 
   /** Destructor
    */
-  virtual ~BPHMomentumSelect() {}
+  virtual ~BPHMomentumSelect() = default;
 
   using AcceptArg = BPHDecayMomentum;
 
@@ -46,6 +47,7 @@ public:
    */
   /// accept function
   virtual bool accept(const BPHDecayMomentum& cand) const = 0;
+  virtual bool accept(const BPHDecayMomentum& cand, const BPHRecoBuilder* builder) const { return accept(cand); }
 };
 
 #endif

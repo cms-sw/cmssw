@@ -57,8 +57,10 @@
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver) : G4VPhysicsConstructor("CMSEmStandard_emm") {
+CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver, const edm::ParameterSet& p)
+    : G4VPhysicsConstructor("CMSEmStandard_emm") {
   SetVerboseLevel(ver);
+  // EM parameters specific for this EM physics configuration
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(ver);
@@ -67,9 +69,10 @@ CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver) : G4VPhysicsConstruc
   param->SetMscRangeFactor(0.2);
   param->SetMscStepLimitType(fMinimal);
   SetPhysicsType(bElectromagnetic);
+  double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
+  param->SetLowestElectronEnergy(tcut);
+  param->SetLowestMuHadEnergy(tcut);
 }
-
-CMSEmStandardPhysicsLPM::~CMSEmStandardPhysicsLPM() {}
 
 void CMSEmStandardPhysicsLPM::ConstructParticle() {
   // minimal set of particles for EM physics

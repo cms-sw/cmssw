@@ -169,6 +169,9 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   edm::InputTag rpcHitTag("rpcRecHits");
   rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
 
+  edm::InputTag gemHitTag("gemRecHits");
+  gemHitToken_ = consumes<GEMRecHitCollection>(gemHitTag);
+
   //Consumes... UGH
   inputCollectionTypes_.resize(inputCollectionLabels_.size());
   for (unsigned int i = 0; i < inputCollectionLabels_.size(); ++i) {
@@ -257,6 +260,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
+  iEvent.getByToken(gemHitToken_, gemHitHandle_);
   if (fillGlobalTrackQuality_)
     iEvent.getByToken(glbQualToken_, glbQualHandle_);
   if (selectHighPurity_)
@@ -633,7 +637,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       for (auto& muon : *outputMuons) {
         if (!muon.standAloneMuon().isNull()) {
           // global muon
-          if (muon.standAloneMuon().get() == &outerTrack) {
+          if (muon.standAloneMuon().get() == &outerTrack ||
+              (muon.standAloneMuon()->extra().isNonnull() &&
+               muon.standAloneMuon()->extra().get() == outerTrack.extra().get())) {
             newMuon = false;
             break;
           }
@@ -800,9 +806,13 @@ bool MuonIdProducer::isGoodRPCMuon(const reco::Muon& muon) {
 }
 
 bool MuonIdProducer::isGoodGEMMuon(const reco::Muon& muon) {
+  // require GEMMuon to be a TrackerMuon
+  if (!isGoodTrackerMuon(muon))
+    return false;
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
-  return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) >= 1);
+  return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) +
+          muon.numberOfMatches(reco::Muon::GEMHitAndTrackArbitration)) >= 1;
 }
 
 bool MuonIdProducer::isGoodME0Muon(const reco::Muon& muon) {
@@ -877,7 +887,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
     }
     aMuon.setCalEnergy(muonEnergy);
   }
-  if (!fillMatching_ && !aMuon.isTrackerMuon() && !aMuon.isRPCMuon())
+  if (!fillMatching_ && !aMuon.isTrackerMuon() && !aMuon.isRPCMuon() && !aMuon.isGEMMuon())
     return;
 
   // fill muon match info
@@ -887,6 +897,9 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
   for (const auto& chamber : info.chambers) {
     if (chamber.id.subdetId() == MuonSubdetId::RPC && rpcHitHandle_.isValid())
       continue;  // Skip RPC chambers, they are taken care of below)
+    if (chamber.id.subdetId() == MuonSubdetId::GEM && gemHitHandle_.isValid() &&
+        GEMDetId(chamber.id.rawId()).station() != 0)
+      continue;  // Skip GE1/1 and 2/1 chambers, they are taken care of below)
     reco::MuonChamberMatch matchedChamber;
 
     const auto& lErr = chamber.tState.localError();
@@ -1036,6 +1049,65 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
     }
   }
 
+  // Fill GEM info
+  LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId :: fill GEM info";
+  if (gemHitHandle_.isValid()) {
+    for (const auto& chamber : info.chambers) {
+      // only GE1/1 and 2/1 are for rechits, reject station 0 and segments (layer==0 for GEMSegment)
+      if (chamber.id.subdetId() != MuonSubdetId::GEM || GEMDetId(chamber.id.rawId()).station() == 0 ||
+          GEMDetId(chamber.id.rawId()).layer() == 0)
+        continue;  // Consider GEM chambers only
+      const auto& lErr = chamber.tState.localError();
+      const auto& lPos = chamber.tState.localPosition();
+      const auto& lDir = chamber.tState.localDirection();
+
+      reco::MuonChamberMatch matchedChamber;
+
+      LocalError localError = lErr.positionError();
+      matchedChamber.x = lPos.x();
+      matchedChamber.y = lPos.y();
+      matchedChamber.xErr = sqrt(localError.xx());
+      matchedChamber.yErr = sqrt(localError.yy());
+
+      matchedChamber.dXdZ = lDir.z() != 0 ? lDir.x() / lDir.z() : 9999;
+      matchedChamber.dYdZ = lDir.z() != 0 ? lDir.y() / lDir.z() : 9999;
+      // DANGEROUS - compiler cannot guaranty parameters ordering
+      AlgebraicSymMatrix55 trajectoryCovMatrix = lErr.matrix();
+      matchedChamber.dXdZErr = trajectoryCovMatrix(1, 1) > 0 ? sqrt(trajectoryCovMatrix(1, 1)) : 0;
+      matchedChamber.dYdZErr = trajectoryCovMatrix(2, 2) > 0 ? sqrt(trajectoryCovMatrix(2, 2)) : 0;
+
+      matchedChamber.edgeX = chamber.localDistanceX;
+      matchedChamber.edgeY = chamber.localDistanceY;
+
+      theShowerDigiFiller_->fillDefault(matchedChamber);
+
+      matchedChamber.id = chamber.id;
+
+      for (const auto& gemRecHit : *gemHitHandle_) {
+        reco::MuonGEMHitMatch gemHitMatch;
+
+        if (GEMDetId(gemRecHit.gemId().region(),
+                     gemRecHit.gemId().ring(),
+                     gemRecHit.gemId().station(),
+                     gemRecHit.gemId().layer(),
+                     gemRecHit.gemId().chamber(),
+                     0)
+                .rawId() != chamber.id.rawId())
+          continue;
+
+        gemHitMatch.x = gemRecHit.localPosition().x();
+        gemHitMatch.mask = 0;
+        gemHitMatch.bx = gemRecHit.BunchX();
+
+        const double absDx = std::abs(gemRecHit.localPosition().x() - chamber.tState.localPosition().x());
+        if (absDx <= 5 or absDx * absDx <= 16 * localError.xx())
+          matchedChamber.gemHitMatches.push_back(gemHitMatch);
+      }
+
+      muonChamberMatches.push_back(matchedChamber);
+    }
+  }
+
   aMuon.setMatches(muonChamberMatches);
 
   LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.matches().size() << "\n"
@@ -1057,7 +1129,8 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
         // TrackerMuon failed arbitration
         // If not any other base type - erase the element
         // (PFMuon is not a base type)
-        unsigned int mask = reco::Muon::TrackerMuon | reco::Muon::PFMuon;
+        // GEMMuon should be a subset of TrackerMuon, so don't count it either
+        unsigned int mask = reco::Muon::TrackerMuon | reco::Muon::PFMuon | reco::Muon::GEMMuon;
         if ((muon->type() & (~mask)) == 0) {
           const reco::CaloMuon& caloMuon = makeCaloMuon(*muon);
           if (isGoodCaloMuon(caloMuon))
@@ -1065,7 +1138,7 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
           muon = muons->erase(muon);
           continue;
         } else {
-          muon->setType(muon->type() & (~reco::Muon::TrackerMuon));
+          muon->setType(muon->type() & (~(reco::Muon::TrackerMuon | reco::Muon::GEMMuon)));
         }
       }
     }

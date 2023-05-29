@@ -51,9 +51,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-// JetCorrection
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 // Substructure
 #include "RecoJets/JetAlgorithms/interface/CATopJetHelper.h"
 #include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"

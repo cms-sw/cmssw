@@ -5,8 +5,8 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx,
                                                double minLowHitE,
                                                double minHighHitE,
                                                double TS4TS5EnergyThreshold,
-                                               std::vector<std::pair<double, double> >& TS4TS5UpperCut,
-                                               std::vector<std::pair<double, double> >& TS4TS5LowerCut,
+                                               std::vector<std::pair<double, double> > const& TS4TS5UpperCut,
+                                               std::vector<std::pair<double, double> > const& TS4TS5LowerCut,
                                                double minRBXRechitR45E)
     : r45Count_(0), r45Fraction_(0), r45EnergyFraction_(0) {
   // energy
@@ -382,7 +382,7 @@ void JoinCaloTowerRefVectorsWithoutDuplicates::operator()(edm::RefVector<CaloTow
 
 bool CommonHcalNoiseRBXData::CheckPassFilter(double Charge,
                                              double Discriminant,
-                                             std::vector<std::pair<double, double> >& Cuts,
+                                             std::vector<std::pair<double, double> > const& Cuts,
                                              int Side) {
   //
   // Checks whether Discriminant value passes Cuts for the specified Charge.  True if pulse is good.

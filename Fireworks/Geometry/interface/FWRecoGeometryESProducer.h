@@ -16,8 +16,9 @@ class CaloGeometryRecord;
 class GlobalTrackingGeometry;
 class GlobalTrackingGeometryRecord;
 class TrackerGeometry;
-class FastTimeGeometry;
 class IdealGeometryRecord;
+class MTDGeometry;
+class MTDDigiGeometryRecord;
 class FWRecoGeometry;
 class FWRecoGeometryRecord;
 class GeomDet;
@@ -46,9 +47,11 @@ private:
   void addTECGeometry(FWRecoGeometry&);
   void addCaloGeometry(FWRecoGeometry&);
 
-  void addFTLGeometry(FWRecoGeometry&);
+  void addMTDGeometry(FWRecoGeometry&);
 
   void ADD_PIXEL_TOPOLOGY(unsigned int rawid, const GeomDet* detUnit, FWRecoGeometry&);
+
+  void ADD_MTD_TOPOLOGY(unsigned int rawid, const GeomDet* detUnit, FWRecoGeometry&);
 
   unsigned int insert_id(unsigned int id, FWRecoGeometry&);
   void fillPoints(unsigned int id,
@@ -59,13 +62,11 @@ private:
   void writeTrackerParametersXML(FWRecoGeometry&);
 
   edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_trackingGeomToken;
-  edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> m_ftlBarrelGeomToken;
-  edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> m_ftlEndcapGeomToken;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> m_mtdGeomToken;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_caloGeomToken;
   const GlobalTrackingGeometry* m_trackingGeom = nullptr;
+  const MTDGeometry* m_mtdGeom = nullptr;
   const CaloGeometry* m_caloGeom = nullptr;
-  const FastTimeGeometry* m_ftlBarrelGeom = nullptr;
-  const FastTimeGeometry* m_ftlEndcapGeom = nullptr;
   const TrackerGeometry* m_trackerGeom = nullptr;
 
   unsigned int m_current;

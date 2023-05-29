@@ -6,6 +6,9 @@
 
 #include <netdb.h>
 
+#include "XrdCl/XrdClPostMasterInterfaces.hh"
+#include "XrdCl/XrdClPostMaster.hh"
+
 #include "XrdCl/XrdClFile.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
 #include "XrdCl/XrdClFileSystem.hh"
@@ -118,6 +121,51 @@ static void SendMonitoringInfo(XrdCl::File &file) {
   }
 }
 
+namespace {
+  std::unique_ptr<std::string> getQueryTransport(const XrdCl::URL &url, uint16_t query) {
+    XrdCl::AnyObject result;
+    XrdCl::DefaultEnv::GetPostMaster()->QueryTransport(url, query, result);
+    std::string *tmp;
+    result.Get(tmp);
+    return std::unique_ptr<std::string>(tmp);
+  }
+
+  void tracerouteRedirections(const XrdCl::HostList *hostList) {
+    edm::LogInfo("XrdAdaptorLvl2").log([hostList](auto &li) {
+      int idx_redirection = 1;
+      li << "-------------------------------\nTraceroute:\n";
+      for (auto const &host : *hostList) {
+        // Query info
+        std::unique_ptr<std::string> stack_ip_method = getQueryTransport(host.url, XrdCl::StreamQuery::IpStack);
+        std::unique_ptr<std::string> ip_method = getQueryTransport(host.url, XrdCl::StreamQuery::IpAddr);
+        std::unique_ptr<std::string> auth_method = getQueryTransport(host.url, XrdCl::TransportQuery::Auth);
+        std::unique_ptr<std::string> hostname_method = getQueryTransport(host.url, XrdCl::StreamQuery::HostName);
+        std::string type_resource = "endpoint";
+        std::string authentication;
+        // Organize redirection info
+        if (!auth_method->empty()) {
+          authentication = *auth_method;
+        } else {
+          authentication = "no auth";
+        };
+        if (host.loadBalancer == 1) {
+          type_resource = "load balancer";
+        };
+        li.format("{}. || {} / {} / {} / {} / {} / {} ||\n",
+                  idx_redirection,
+                  *hostname_method,
+                  *stack_ip_method,
+                  *ip_method,
+                  host.url.GetPort(),
+                  authentication,
+                  type_resource);
+        ++idx_redirection;
+      }
+      li.format("-------------------------------");
+    });
+  }
+}  // namespace
+
 RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
     : m_serverToAdvertise(nullptr),
       m_timeout(XRD_DEFAULT_TIMEOUT),
@@ -175,6 +223,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
     handler.WaitForResponse();
     std::unique_ptr<XrdCl::XRootDStatus> status = handler.GetStatus();
     std::unique_ptr<XrdCl::HostList> hostList = handler.GetHosts();
+    tracerouteRedirections(hostList.get());
     Source::determineHostExcludeString(*file, hostList.get(), excludeString);
     assert(status);
     if (status->IsOK()) {
@@ -293,15 +342,30 @@ void RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source>> const
                                       std::vector<std::shared_ptr<Source>> const &iNew,
                                       std::string orig_site) const {
   auto siteList = formatSites(iNew);
-  if (!orig_site.empty() && (orig_site != siteList)) {
-    edm::LogWarning("XrdAdaptor") << "Data is served from " << siteList << " instead of original site " << orig_site;
-  } else {
+  if (orig_site.empty() || (orig_site == siteList)) {
     auto oldSites = formatSites(iOld);
-    if (orig_site.empty() && (siteList != oldSites)) {
-      if (!oldSites.empty())
-        edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << oldSites;
-    }
   }
+
+  edm::LogInfo("XrdAdaptorLvl1").log([&](auto &li) {
+    li << "Serving data from: ";
+    int size_active_sources = iNew.size();
+    for (int i = 0; i < size_active_sources; ++i) {
+      std::string hostname_a;
+      Source::getHostname(iNew[i]->PrettyID(), hostname_a);
+      li.format("   [{}] {}", i + 1, hostname_a);
+    }
+  });
+
+  edm::LogInfo("XrdAdaptorLvl3").log([&](auto &li) {
+    li << "The quality of the active sources is: ";
+    int size_active_sources = iNew.size();
+    for (int i = 0; i < size_active_sources; ++i) {
+      std::string hostname_a;
+      Source::getHostname(iNew[i]->PrettyID(), hostname_a);
+      std::string quality = std::to_string(iNew[i]->getQuality());
+      li.format("   [{}] {} for {}", i + 1, quality, hostname_a);
+    }
+  });
 }
 
 void RequestManager::checkSources(timespec &now,
@@ -330,14 +394,26 @@ bool RequestManager::compareSources(const timespec &now,
   if (activeSources.size() < std::max(a, b) + 1) {
     return false;
   }
-
+  unsigned quality_a = activeSources[a]->getQuality();
+  unsigned quality_b = activeSources[b]->getQuality();
   bool findNewSource = false;
-  if ((activeSources[a]->getQuality() > 5130) ||
-      ((activeSources[a]->getQuality() > 260) &&
-       (activeSources[b]->getQuality() * 4 < activeSources[a]->getQuality()))) {
-    edm::LogVerbatim("XrdAdaptorInternal")
-        << "Removing " << activeSources[a]->PrettyID() << " from active sources due to poor quality ("
-        << activeSources[a]->getQuality() << " vs " << activeSources[b]->getQuality() << ")" << std::endl;
+  if ((quality_a > 5130) || ((quality_a > 260) && (quality_b * 4 < quality_a))) {
+    std::string hostname_a;
+    Source::getHostname(activeSources[a]->ID(), hostname_a);
+    if (quality_a > 5130) {
+      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
+                                        << quality_a << ") is above 5130 and it is not the only active server";
+    }
+    if ((quality_a > 260) && (quality_b * 4 < quality_a)) {
+      std::string hostname_b;
+      Source::getHostname(activeSources[b]->ID(), hostname_b);
+      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
+                                        << quality_a
+                                        << ") is higher than 260 and 4 times larger than the other active server "
+                                        << hostname_b << " (" << quality_b << ") ";
+    }
+    edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << hostname_a << " from active sources due to poor quality ("
+                                           << quality_a << " vs " << quality_b << ")" << std::endl;
     if (activeSources[a]->getLastDowngrade().tv_sec != 0) {
       findNewSource = true;
     }
@@ -357,6 +433,8 @@ void RequestManager::checkSourcesImpl(timespec &now,
   bool findNewSource = false;
   if (activeSources.size() <= 1) {
     findNewSource = true;
+    edm::LogInfo("XrdAdaptorLvl3")
+        << "Looking for an additional source because the number of active sources is smaller than 2";
   } else if (activeSources.size() > 1) {
     edm::LogVerbatim("XrdAdaptorInternal") << "Source 0 quality " << activeSources[0]->getQuality()
                                            << ", source 1 quality " << activeSources[1]->getQuality() << std::endl;
@@ -1007,7 +1085,7 @@ void XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRo
   std::shared_ptr<Source> source;
   std::unique_ptr<XrdCl::XRootDStatus> status(status_ptr);
   std::unique_ptr<XrdCl::HostList> hostList(hostList_ptr);
-
+  tracerouteRedirections(hostList.get());
   auto manager = m_manager.lock();
   // Manager object has already been deleted.  Cleanup the
   // response objects, remove our self-reference, and ignore the response.

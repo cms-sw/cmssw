@@ -60,15 +60,17 @@ namespace fwlite {
         std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
         bool useCache = false,
         std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
-    virtual ~DataGetterHelper();
+    ~DataGetterHelper();
 
     // ---------- const member functions ---------------------
-    virtual std::string const getBranchNameFor(std::type_info const&, char const*, char const*, char const*) const;
+    std::string const getBranchNameFor(std::type_info const&, char const*, char const*, char const*) const;
+    std::optional<edm::BranchID> getBranchIDFor(std::type_info const&, char const*, char const*, char const*) const;
 
     // This function should only be called by fwlite::Handle<>
-    virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
+    bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
 
     edm::WrapperBase const* getByProductID(edm::ProductID const& pid, Long_t eventEntry) const;
+    edm::WrapperBase const* getByBranchID(edm::BranchID const& bid, Long_t eventEntry) const;
     std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const& pid,
                                                                                        unsigned int key,
                                                                                        Long_t eventEntry) const;
@@ -98,7 +100,6 @@ namespace fwlite {
     internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;
     void getBranchData(edm::EDProductGetter const*, Long64_t, internal::Data&) const;
     bool getByBranchDescription(edm::BranchDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
-    edm::WrapperBase const* getByBranchID(edm::BranchID const& bid, Long_t eventEntry) const;
     edm::WrapperBase const* wrapperBasePtr(edm::ObjectWithDict const&) const;
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 

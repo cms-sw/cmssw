@@ -5,7 +5,7 @@
 // Package:     FWCore/Framework
 // Class  :     LuminosityBlockProcessingStatus
 //
-/**\class LuminosityBlockProcessingStatus LuminosityBlockProcessingStatus.h "LuminosityBlockProcessingStatus.h"
+/**\class edm::LuminosityBlockProcessingStatus
 
  Description: Keep status information about one LuminosityBlock transition
 
@@ -33,22 +33,18 @@
 // forward declarations
 namespace edm {
 #if !defined(TEST_NO_FWD_DECL)
-  class EventProcessor;
   class LuminosityBlockPrincipal;
   class LuminosityBlockProcessingStatus;
 #endif
 
   class LuminosityBlockProcessingStatus {
   public:
-    LuminosityBlockProcessingStatus(EventProcessor* iEP, unsigned int iNStreams, std::shared_ptr<void> iRunResource)
-        : run_(std::move(iRunResource)), eventProcessor_(iEP), nStreamsStillProcessingLumi_(iNStreams) {}
+    LuminosityBlockProcessingStatus(unsigned int iNStreams) : nStreamsStillProcessingLumi_(iNStreams) {}
 
     LuminosityBlockProcessingStatus(LuminosityBlockProcessingStatus const&) = delete;
     LuminosityBlockProcessingStatus const& operator=(LuminosityBlockProcessingStatus const&) = delete;
 
     ~LuminosityBlockProcessingStatus() { endIOVWaitingTasks_.doneWaiting(std::exception_ptr{}); }
-
-    std::shared_ptr<LuminosityBlockPrincipal>& lumiPrincipal() { return lumiPrincipal_; }
 
     void setResumer(LimitedTaskQueue::Resumer iResumer) { globalLumiQueueResumer_ = std::move(iResumer); }
     void resumeGlobalLumiQueue() {
@@ -59,6 +55,9 @@ namespace edm {
 
     void resetResources();
 
+    std::shared_ptr<LuminosityBlockPrincipal>& lumiPrincipal() { return lumiPrincipal_; }
+    void setLumiPrincipal(std::shared_ptr<LuminosityBlockPrincipal> val) { lumiPrincipal_ = std::move(val); }
+
     EventSetupImpl const& eventSetupImpl(unsigned subProcessIndex) const {
       return *eventSetupImpls_.at(subProcessIndex);
     }
@@ -68,27 +67,10 @@ namespace edm {
 
     WaitingTaskList& endIOVWaitingTasks() { return endIOVWaitingTasks_; }
 
+    void setGlobalEndRunHolder(WaitingTaskHolder);
+    void globalEndRunHolderDoneWaiting() { globalEndRunHolder_.doneWaiting(std::exception_ptr{}); }
+
     bool streamFinishedLumi() { return 0 == (--nStreamsStillProcessingLumi_); }
-
-    bool wasEventProcessingStopped() const { return stopProcessingEvents_; }
-    void stopProcessingEvents() { stopProcessingEvents_ = true; }
-    void startProcessingEvents() { stopProcessingEvents_ = false; }
-
-    bool isLumiEnding() const { return lumiEnding_; }
-    void endLumi() { lumiEnding_ = true; }
-
-    bool continuingLumi() const { return continuingLumi_; }
-    void haveContinuedLumi() { continuingLumi_ = false; }
-    void needToContinueLumi() { continuingLumi_ = true; }
-
-    bool haveStartedNextLumi() const { return startedNextLumi_; }
-    void startNextLumi() { startedNextLumi_ = true; }
-
-    bool didGlobalBeginSucceed() const { return globalBeginSucceeded_; }
-    void globalBeginDidSucceed() { globalBeginSucceeded_ = true; }
-
-    void noExceptionHappened() { cleaningUpAfterException_ = false; }
-    bool cleaningUpAfterException() const { return cleaningUpAfterException_; }
 
     //These should only be called while in the InputSource's task queue
     void updateLastTimestamp(edm::Timestamp const& iTime) {
@@ -98,34 +80,36 @@ namespace edm {
     }
     edm::Timestamp const& lastTimestamp() const { return endTime_; }
 
-    void setNextSyncValue(IOVSyncValue const& iValue) { nextSyncValue_ = iValue; }
-
-    const IOVSyncValue nextSyncValue() const { return nextSyncValue_; }
-
-    std::shared_ptr<void> const& runResource() const { return run_; }
-
     //Called once all events in Lumi have been processed
     void setEndTime();
 
+    enum class EventProcessingState { kProcessing, kPauseForFileTransition, kStopLumi };
+    EventProcessingState eventProcessingState() const { return eventProcessingState_; }
+    void setEventProcessingState(EventProcessingState val) { eventProcessingState_ = val; }
+
+    bool haveStartedNextLumiOrEndedRun() const { return startedNextLumiOrEndedRun_; }
+    void startNextLumiOrEndRun() { startedNextLumiOrEndedRun_ = true; }
+
+    bool didGlobalBeginSucceed() const { return globalBeginSucceeded_; }
+    void globalBeginDidSucceed() { globalBeginSucceeded_ = true; }
+
+    bool cleaningUpAfterException() const { return cleaningUpAfterException_; }
+    void setCleaningUpAfterException(bool value) { cleaningUpAfterException_ = value; }
+
   private:
     // ---------- member data --------------------------------
-    std::shared_ptr<void> run_;
     LimitedTaskQueue::Resumer globalLumiQueueResumer_;
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     std::vector<std::shared_ptr<const EventSetupImpl>> eventSetupImpls_;
     WaitingTaskList endIOVWaitingTasks_;
-    EventProcessor* eventProcessor_ = nullptr;
-    IOVSyncValue nextSyncValue_;
+    edm::WaitingTaskHolder globalEndRunHolder_;
     std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};  //read/write as streams finish lumi so must be atomic
     edm::Timestamp endTime_{};
     std::atomic<char> endTimeSetStatus_{0};
-    bool stopProcessingEvents_{false};  //read/write in m_sourceQueue OR from main thread when no tasks running
-    bool lumiEnding_{
-        false};  //read/write in m_sourceQueue NOTE: This is a useful cache instead of recalculating each call
-    bool continuingLumi_{false};   //read/write in m_sourceQueue OR from main thread when no tasks running
-    bool startedNextLumi_{false};  //read/write in m_sourceQueue
+    EventProcessingState eventProcessingState_{EventProcessingState::kProcessing};
+    bool startedNextLumiOrEndedRun_{false};  //read/write in m_sourceQueue
     bool globalBeginSucceeded_{false};
-    bool cleaningUpAfterException_{true};
+    bool cleaningUpAfterException_{false};
   };
 }  // namespace edm
 

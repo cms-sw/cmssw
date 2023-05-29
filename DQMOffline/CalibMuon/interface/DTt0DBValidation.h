@@ -8,7 +8,7 @@
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,7 +29,7 @@
 class DTT0;
 class TFile;
 
-class DTt0DBValidation : public edm::EDAnalyzer {
+class DTt0DBValidation : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;

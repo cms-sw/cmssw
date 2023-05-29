@@ -1,7 +1,7 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
-        "CTPPPSTimingCalibration_HPTDC_byPCL_v0_prompt": {}
+        "CTPPPSTimingCalibration_HPTDC_byPCL_v1_prompt": {}
     }, 
     "inputTag": "PPSDiamondTimingCalibration_pcl", 
     "since": null, 

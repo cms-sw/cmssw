@@ -81,7 +81,7 @@ void l1ct::PFAlgoEmulatorBase::pfalgo_mu_ref(const PFInputRegion &in, OutputRegi
   for (unsigned int im = 0; im < nMU; ++im) {
     if (in.muon[im].hwPt > 0) {
       int ibest = -1;
-      pt_t dptmin = in.muon[im].hwPt >> 1;
+      pt_t dptmin = (in.muon[im].hwPt << 1) + in.muon[im].hwPt;
       for (unsigned int it = 0; it < nTRACK; ++it) {
         if (!in.track[it].isPFLoose())
           continue;

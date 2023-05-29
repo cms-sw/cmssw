@@ -22,7 +22,7 @@
 // user include files
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,7 +46,7 @@
 
 namespace l1t {
 
-  class AMCDumpToRaw : public edm::EDProducer {
+  class AMCDumpToRaw : public edm::one::EDProducer<> {
   public:
     explicit AMCDumpToRaw(const edm::ParameterSet&);
     ~AMCDumpToRaw() override;
@@ -63,11 +63,6 @@ namespace l1t {
     void formatAMC(amc13::Packet& amc13, const std::vector<uint32_t>& load32);
 
     void formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawData& fed_data);
-
-    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
     // ----------member data ---------------------------
     std::ifstream file_;
@@ -207,38 +202,6 @@ namespace l1t {
 
   // ------------ method called once each job just after ending the event loop  ------------
   void AMCDumpToRaw::endJob() { file_.close(); }
-
-  // ------------ method called when starting to processes a run  ------------
-  /*
-void 
-AMCDumpToRaw::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a run  ------------
-  /*
-void 
-AMCDumpToRaw::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when starting to processes a luminosity block  ------------
-  /*
-vvoid 
-AMCDumpToRaw::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-  // ------------ method called when ending the processing of a luminosity block  ------------
-  /*
-void 
-AMCDumpToRaw::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void AMCDumpToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

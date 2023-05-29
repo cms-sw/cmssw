@@ -76,25 +76,25 @@
 // class declaration
 //
 
-namespace AlCaIsoTracks {
+namespace alCaIsoTracksProducer {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nRange_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nRange_;
   };
-}  // namespace AlCaIsoTracks
+}  // namespace alCaIsoTracksProducer
 
-class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaIsoTracks::Counters> > {
+class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<alCaIsoTracksProducer::Counters> > {
 public:
-  explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
-  ~AlCaIsoTracksProducer() override;
+  explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const alCaIsoTracksProducer::Counters* count);
+  ~AlCaIsoTracksProducer() override = default;
 
-  static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaIsoTracks::Counters>();
+  static std::unique_ptr<alCaIsoTracksProducer::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaIsoTracksProducer::Counters>();
   }
 
   void produce(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsoTracks::Counters* counters);
+  static void globalEndJob(const alCaIsoTracksProducer::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -147,7 +147,8 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 };
 
-AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, const AlCaIsoTracks::Counters* counters)
+AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig,
+                                             const alCaIsoTracksProducer::Counters* counters)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -244,8 +245,6 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, c
                                    << "EcalRecHitCollection with label EcalRecHitsEE\n"
                                    << "HBHERecHitCollection with label " << labelHBHE_.label();
 }
-
-AlCaIsoTracksProducer::~AlCaIsoTracksProducer() {}
 
 void AlCaIsoTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -456,7 +455,7 @@ void AlCaIsoTracksProducer::endStream() {
   globalCache()->nRange_ += nRange_;
 }
 
-void AlCaIsoTracksProducer::globalEndJob(const AlCaIsoTracks::Counters* count) {
+void AlCaIsoTracksProducer::globalEndJob(const alCaIsoTracksProducer::Counters* count) {
   edm::LogVerbatim("HcalIsoTrack") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events and "
                                    << count->nRange_ << " events in the momentum raange";
 }
@@ -508,7 +507,7 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
   spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections, false);
 
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
        trkDetItr++, nTracks++) {
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
@@ -525,7 +524,6 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
 #endif
     if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
       double t_p = pTrack->p();
-      nselTracks++;
       int nRH_eMipDR(0), nNearTRKs(0);
       double eMipDR = spr::eCone_ecal(geo,
                                       barrelRecHitsHandle,

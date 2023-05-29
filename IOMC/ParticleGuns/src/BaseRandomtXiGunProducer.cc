@@ -7,7 +7,6 @@
 #include <ostream>
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

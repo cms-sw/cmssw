@@ -4,7 +4,7 @@ process = cms.Process("ReTracking")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
@@ -12,8 +12,8 @@ process.load("Configuration.EventContent.EventContentCosmics_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ########## include here the correct global tag. ########## 
 # Have a look here: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-# to check if there are newer tags
-process.GlobalTag.globaltag = "CRAFT_ALL_V11::All"
+# 2022 data
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 process.prefer("GlobalTag")
 ##########################################################
 

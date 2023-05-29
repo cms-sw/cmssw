@@ -15,6 +15,9 @@
 #include "CSCSegtoRPC.h"
 #include "TracktoRPC.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 //
 // class decleration
 //
@@ -22,6 +25,7 @@
 class RPCPointProducer : public edm::stream::EDProducer<> {
 public:
   explicit RPCPointProducer(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;

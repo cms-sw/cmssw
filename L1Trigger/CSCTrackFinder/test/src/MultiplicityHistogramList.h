@@ -7,12 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "L1Trigger/CSCTrackFinder/test/src/TFTrack.h"
@@ -25,19 +20,17 @@
 #include <TH2.h>
 #include <TH1F.h>
 
-namespace csctf_analysis
-{
-  class  MultiplicityHistogramList
-  {
-    public:
+namespace csctf_analysis {
+  class MultiplicityHistogramList {
+  public:
     MultiplicityHistogramList();
-	
-    void FillMultiplicityHist( std::vector<TFTrack>*);
 
-    TH1F* nTFTracks, *highestTFPt, *highestTFPtMed, *highestTFPtLow;
+    void FillMultiplicityHist(std::vector<TFTrack> *);
 
-    private:
-	edm::Service<TFileService> fs;
+    TH1F *nTFTracks, *highestTFPt, *highestTFPtMed, *highestTFPtLow;
+
+  private:
+    edm::Service<TFileService> fs;
   };
-}
+}  // namespace csctf_analysis
 #endif

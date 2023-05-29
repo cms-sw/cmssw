@@ -33,16 +33,46 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
+#include "DataFormats/Common/interface/Ptr.h"
 
 //
 // class declaration
 //
 
+namespace {
+
+  //will fail for non-electrons/photons (which so far are not used for this class)
+  //when we want to use non-electrons/photons, template specalisation will be necessary
+  template <typename T>
+  bool equal(const T& lhs, const T& rhs) {
+    return lhs.superCluster()->seed()->seed().rawId() == rhs.superCluster()->seed()->seed().rawId();
+  }
+
+  //returns a edm::Ptr to the object matching the passed in object in object coll
+  //if objColl is invalid, passes the original pointer back
+  //if valid but not found, returns null
+  template <typename T>
+  edm::Ptr<T> getObjInColl(edm::Ptr<T> obj, edm::Handle<edm::View<T>> objColl) {
+    if (objColl.isValid()) {
+      for (auto& objToMatch : objColl->ptrs()) {
+        if (equal(*obj, *objToMatch)) {
+          return objToMatch;
+        }
+      }
+      return edm::Ptr<T>(objColl.id());
+    }
+    return obj;
+  }
+
+}  // namespace
+
 template <typename T>
 class VIDNestedWPBitmapProducer : public edm::stream::EDProducer<> {
 public:
   explicit VIDNestedWPBitmapProducer(const edm::ParameterSet& iConfig)
-      : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))), isInit_(false) {
+      : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
+        srcForIDToken_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcForID"))),
+        isInit_(false) {
     auto const& vwp = iConfig.getParameter<std::vector<std::string>>("WorkingPoints");
     for (auto const& wp : vwp) {
       src_bitmaps_.push_back(consumes<edm::ValueMap<unsigned int>>(edm::InputTag(wp + std::string("Bitmap"))));
@@ -60,6 +90,7 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<T>> src_;
+  edm::EDGetTokenT<edm::View<T>> srcForIDToken_;
   std::vector<edm::EDGetTokenT<edm::ValueMap<unsigned int>>> src_bitmaps_;
   std::vector<edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult>>> src_cutflows_;
 
@@ -76,6 +107,9 @@ template <typename T>
 void VIDNestedWPBitmapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<T>> src;
   iEvent.getByToken(src_, src);
+
+  auto srcForIDHandle = iEvent.getHandle(srcForIDToken_);
+
   std::vector<edm::Handle<edm::ValueMap<unsigned int>>> src_bitmaps(nWP);
   for (unsigned int i = 0; i < nWP; i++)
     iEvent.getByToken(src_bitmaps_[i], src_bitmaps[i]);
@@ -86,13 +120,14 @@ void VIDNestedWPBitmapProducer<T>::produce(edm::Event& iEvent, const edm::EventS
   std::vector<unsigned int> res;
 
   for (auto const& obj : src->ptrs()) {
+    auto objForID = getObjInColl(obj, srcForIDHandle);
     for (unsigned int j = 0; j < nWP; j++) {
-      auto cutflow = (*(src_cutflows[j]))[obj];
+      auto cutflow = (*(src_cutflows[j]))[objForID];
       if (!isInit_)
         initNCuts(cutflow.cutFlowSize());
       if (cutflow.cutFlowSize() != nCuts)
         throw cms::Exception("Configuration", "Trying to compress VID bitmaps for cutflows of different size");
-      auto bitmap = (*(src_bitmaps[j]))[obj];
+      auto bitmap = (*(src_bitmaps[j]))[objForID];
       for (unsigned int k = 0; k < nCuts; k++) {
         if (j == 0)
           res_[k] = 0;
@@ -135,18 +170,19 @@ template <typename T>
 void VIDNestedWPBitmapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
+  desc.add<edm::InputTag>("srcForID", edm::InputTag())->setComment("physics object collection the ID value maps are ");
   desc.add<std::vector<std::string>>("WorkingPoints")->setComment("working points to be saved in the bitmask");
   std::string modname;
-  if (typeid(T) == typeid(pat::Electron))
+  if (typeid(T) == typeid(reco::GsfElectron))
     modname += "Ele";
-  else if (typeid(T) == typeid(pat::Photon))
+  else if (typeid(T) == typeid(reco::Photon))
     modname += "Pho";
   modname += "VIDNestedWPBitmapProducer";
   descriptions.add(modname, desc);
 }
 
-typedef VIDNestedWPBitmapProducer<pat::Electron> EleVIDNestedWPBitmapProducer;
-typedef VIDNestedWPBitmapProducer<pat::Photon> PhoVIDNestedWPBitmapProducer;
+typedef VIDNestedWPBitmapProducer<reco::GsfElectron> EleVIDNestedWPBitmapProducer;
+typedef VIDNestedWPBitmapProducer<reco::Photon> PhoVIDNestedWPBitmapProducer;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EleVIDNestedWPBitmapProducer);

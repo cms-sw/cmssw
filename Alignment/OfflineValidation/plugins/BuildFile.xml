@@ -16,6 +16,7 @@
 <use name="DQMServices/Core"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/SiPixelDetId"/>
@@ -36,7 +37,9 @@
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
+<use name="HLTrigger/HLTcore"/>
 <use name="MagneticField/Records"/>
+<use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoMuon/TrackingTools"/>
 <use name="RecoVertex/PrimaryVertexProducer"/>
 <use name="SimDataFormats/GeneratorProducts"/>

@@ -37,8 +37,9 @@ TempTrajectory::TempTrajectory(Trajectory&& traj)
       theCCCThreshold_(traj.cccThreshold()),
       stopReason_(traj.stopReason()) {
   for (auto& it : traj.measurements()) {
-    push(std::move(it));
+    push(it);
   }
+  traj.measurements().clear();
 }
 
 void TempTrajectory::pop() {
@@ -118,7 +119,7 @@ void TempTrajectory::join(TempTrajectory& segment) {
 PropagationDirection TempTrajectory::direction() const { return PropagationDirection(theDirection); }
 
 void TempTrajectory::check() const {
-  if (theData.size() == 0)
+  if (theData.empty())
     throw cms::Exception("TrackingTools/PatternTools",
                          "Trajectory::check() - information requested from empty Trajectory");
 }

@@ -7,24 +7,23 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 # Running on multiple threads and streams to test any behavior that
 # occurs when there are many of them
 NUMTHREADS=4
-
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "*************************************************"
   echo "SwitchProducer in a Task"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py || die "cmsRun ${test}Task_cfg.py 1" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py || die "cmsRun ${test}Task_cfg.py" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a Task, case test2 disabled"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py disableTest2 || die "cmsRun ${test}Task_cfg.py 2" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --disableTest2 || die "cmsRun ${test}Task_cfg.py -- --disableTest2" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a Task, SwitchProducers have same labels as products in input file"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}TaskInput_cfg.py || die "cmsRun ${test}TaskInput_cfg.py 1" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --input|| die "cmsRun ${test}Task_cfg.py -- --input" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a Task, SwitchProducers have same labels as products in input file, case test2 disabled"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}TaskInput_cfg.py disableTest2 || die "cmsRun ${test}TaskInput_cfg.py 2" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --input --disableTest2 || die "cmsRun ${test}TaskInput_cfg.py -- --input --disableTest2" $?
 
   echo "*************************************************"
   echo "Merge outputs (Task)"
@@ -43,11 +42,11 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "*************************************************"
   echo "SwitchProducer in a ConditionalTask"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTask_cfg.py || die "cmsRun ${test}ConditionalTask_cfg.py 1" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --conditionalTask || die "cmsRun ${test}Task_cfg.py -- --conditionalTask" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a ConditionalTask, case test2 disabled"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTask_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTask_cfg.py 2" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --conditionalTask --disableTest2 || die "cmsRun ${test}Task_cfg.py -- --conditionalTask --disableTest2" $?
 
   echo "*************************************************"
   echo "Merge outputs (ConditionalTask)"
@@ -78,6 +77,19 @@ pushd ${LOCAL_TMP_DIR}
   echo "*************************************************"
   echo "SwitchProducer in a ConditionalTask, test EDAlias with all cases being explicitly consumed, case test2 disabled"
   cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py 2" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with a wildcard"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with a wildcard pattern, other module having the wildcard"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py -- --patternOnOtherModule || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py --patternOnOtherModule" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with an a wildcard, case test2 disabled"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py -- --disableTest2 || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py --disableTest2" $?
+
 
   
   echo "*************************************************"
@@ -127,7 +139,5 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "SwitchProducer tests succeeded"
   echo "*************************************************"
-
-popd
 
 exit 0

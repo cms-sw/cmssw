@@ -5,10 +5,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PFC")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['startup']
+process.GlobalTag.globaltag = autoCond['phase1_2022_realistic']
 
 
 process.source = cms.Source("PoolSource", 

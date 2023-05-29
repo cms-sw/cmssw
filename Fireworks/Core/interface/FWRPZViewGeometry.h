@@ -48,6 +48,8 @@ public:
   void showRpcEndcap(bool);
   void showGEM(bool);
   void showME0(bool);
+  void showMtdBarrel(bool);
+  void showMtdEndcap(bool);
 
 private:
   FWRPZViewGeometry(const FWRPZViewGeometry&);                   // stop default
@@ -77,6 +79,8 @@ private:
   TEveElementList* m_rpcEndcapElements;
   TEveElementList* m_GEMElements;
   TEveElementList* m_ME0Elements;
+  TEveElementList* m_mtdBarrelElements;
+  TEveElementList* m_mtdEndcapElements;
 };
 
 #endif

@@ -26,8 +26,6 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 #include <cmath>
 #include "TH1F.h"
 #include "TProfile.h"
@@ -784,3 +782,6 @@ bool HLTInclusiveVBFSource::isTriggerObjectFound(std::string objectName) {
   }
   return output;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTInclusiveVBFSource);

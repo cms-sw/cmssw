@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
 
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),

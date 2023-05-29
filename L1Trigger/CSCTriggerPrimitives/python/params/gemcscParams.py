@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # GEM coincidence pad processors
 copadParamGE11 = cms.PSet(
     verbosity = cms.uint32(0),
-    maxDeltaPad = cms.uint32(4),
+    maxDeltaPad = cms.uint32(8),
     maxDeltaRoll = cms.uint32(1),
     maxDeltaBX = cms.uint32(0)
 )

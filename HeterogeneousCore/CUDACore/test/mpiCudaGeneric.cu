@@ -137,7 +137,6 @@ bool saveToFile(const std::string &name, const Timing &timing);
 
 void printHelp(void);
 int main(int argc, char *argv[]) {
-  cms::cudatest::requireDevices();
   int c;  //to get parameters from user.
 
   UserChoises user;  //Setup Uuser's input variables

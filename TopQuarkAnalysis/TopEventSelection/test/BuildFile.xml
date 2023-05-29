@@ -1,7 +1,1 @@
-<environment>
-  <bin file="runtestTqafTopEventSelection.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopEventSelection/test runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
+<test name="runtestTqafTopEventSelection" command="runtests.sh"/>

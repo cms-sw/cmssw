@@ -1,30 +1,37 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 
+from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator, pileupJetId
 from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
 
 from PhysicsTools.NanoAOD.common_cff import Var, P4Vars
-from PhysicsTools.NanoAOD.jets_cff   import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger, hfJetShowerShapeforNanoAOD
-from PhysicsTools.NanoAOD.jets_cff   import genJetTable, genJetFlavourAssociation, genJetFlavourTable
+from PhysicsTools.NanoAOD.jetsAK4_CHS_cff import jetTable, jetCorrFactorsNano, updatedJets, finalJets, qgtagger
+from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData
+from PhysicsTools.NanoAOD.jetMC_cff  import genJetTable, genJetFlavourAssociation, genJetFlavourTable
 
 from PhysicsTools.PatAlgos.tools.jetCollectionTools import GenJetAdder, RecoJetAdder
 from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
-import copy
-
 bTagCSVV2    = ['pfCombinedInclusiveSecondaryVertexV2BJetTags']
-bTagDeepCSV  = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
+bTagDeepCSV  = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc','pfDeepCSVJetTags:probudsg']
 bTagDeepJet  = [
   'pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb',
   'pfDeepFlavourJetTags:probc','pfDeepFlavourJetTags:probuds','pfDeepFlavourJetTags:probg'
 ]
 from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll
-bTagDiscriminatorsForAK4 = bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll
+from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll
+bTagDiscriminatorsForAK4 = cms.PSet(foo = cms.vstring(bTagDeepJet+_pfParticleNetAK4JetTagsAll+_pfParticleTransformerAK4JetTagsAll))
+run2_nanoAOD_ANY.toModify(
+  bTagDiscriminatorsForAK4,
+  foo = bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll
+)
+bTagDiscriminatorsForAK4 = bTagDiscriminatorsForAK4.foo.value()
 
 from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
 from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll
@@ -68,7 +75,7 @@ nanoInfo_genjets = {
 }
 #
 # By default, these collections are saved in the main NanoAODs:
-# - ak4pfchs   (Jet    in NanoAOD), slimmedJets in MiniAOD
+# - ak4pfpuppi  (Jet   in NanoAOD), slimmedJetsPuppi in MiniAOD
 # - ak8pfpuppi (FatJet in NanoAOD), slimmedJetsAK8 in MiniAOD
 # Below is a list of recojets that we can save in NanoAOD. Set
 # "enabled" to true if you want to store the recojet collection.
@@ -88,14 +95,6 @@ config_recojets = [
     "minPtFastjet" : 0.,
   },
   {
-    "jet" : "ak4pfpuppi",
-    "enabled" : True,
-    "inputCollection" : "",
-    "genJetsCollection": "AK4GenJetsNoNu",
-    "bTagDiscriminators": bTagDiscriminatorsForAK4,
-    "minPtFastjet" : 0.,
-  },
-  {
     "jet" : "ak8pf",
     "enabled" : False,
     "inputCollection" : "",
@@ -110,20 +109,12 @@ config_recojets = list(filter(lambda k: k['enabled'], config_recojets))
 nanoInfo_recojets = {
   "ak4calo" : {
     "name": "JetCalo",
-    "doc" : "AK4 Calo jets with JECs applied",
+    "doc" : "AK4 Calo jets (slimmedCaloJets)",
   },
   "ak4pf" : {
     "name"  : "JetPF",
     "doc"   : "AK4 PF jets",
     "ptcut" : "",
-  },
-  "ak4pfpuppi" : {
-    "name"  : "JetPuppi",
-    "doc"   : "AK4 PF Puppi",
-    "ptcut" : "",
-    "doQGL" : True,
-    "doPUIDVar": True,
-    "doBTag": True,
   },
   "ak8pf" : {
     "name"  : "FatJetPF",
@@ -157,46 +148,55 @@ PFJETVARS = cms.PSet(P4Vars,
   nConstPhotons   = Var("photonMultiplicity()",int,doc="number of photons in the jet"),
 )
 PUIDVARS = cms.PSet(
-  puId_dR2Mean    = Var("?(pt>10)?userFloat('puId_dR2Mean'):-1",float,doc="pT^2-weighted average square distance of jet constituents from the jet axis (PileUp ID BDT input variable)", precision= 6),
-  puId_majW       = Var("?(pt>10)?userFloat('puId_majW'):-1",float,doc="major axis of jet ellipsoid in eta-phi plane (PileUp ID BDT input variable)", precision= 6),
-  puId_minW       = Var("?(pt>10)?userFloat('puId_minW'):-1",float,doc="minor axis of jet ellipsoid in eta-phi plane (PileUp ID BDT input variable)", precision= 6),
-  puId_frac01     = Var("?(pt>10)?userFloat('puId_frac01'):-1",float,doc="fraction of constituents' pT contained within dR <0.1 (PileUp ID BDT input variable)", precision= 6),
-  puId_frac02     = Var("?(pt>10)?userFloat('puId_frac02'):-1",float,doc="fraction of constituents' pT contained within 0.1< dR <0.2 (PileUp ID BDT input variable)", precision= 6),
-  puId_frac03     = Var("?(pt>10)?userFloat('puId_frac03'):-1",float,doc="fraction of constituents' pT contained within 0.2< dR <0.3 (PileUp ID BDT input variable)", precision= 6),
-  puId_frac04     = Var("?(pt>10)?userFloat('puId_frac04'):-1",float,doc="fraction of constituents' pT contained within 0.3< dR <0.4 (PileUp ID BDT input variable)", precision= 6),
-  puId_ptD        = Var("?(pt>10)?userFloat('puId_ptD'):-1",float,doc="pT-weighted average pT of constituents (PileUp ID BDT input variable)", precision= 6),
-  puId_beta       = Var("?(pt>10)?userFloat('puId_beta'):-1",float,doc="fraction of pT of charged constituents associated to PV (PileUp ID BDT input variable)", precision= 6),
-  puId_pull       = Var("?(pt>10)?userFloat('puId_pull'):-1",float,doc="magnitude of pull vector (PileUp ID BDT input variable)", precision= 6),
-  puId_jetR       = Var("?(pt>10)?userFloat('puId_jetR'):-1",float,doc="fraction of jet pT carried by the leading constituent (PileUp ID BDT input variable)", precision= 6),
-  puId_jetRchg    = Var("?(pt>10)?userFloat('puId_jetRchg'):-1",float,doc="fraction of jet pT carried by the leading charged constituent (PileUp ID BDT input variable)", precision= 6),
-  puId_nCharged   = Var("?(pt>10)?userInt('puId_nCharged'):-1",int,doc="number of charged constituents (PileUp ID BDT input variable)"),
+  puId_dR2Mean    = Var("?(pt>=10)?userFloat('puId_dR2Mean'):-1",float,doc="pT^2-weighted average square distance of jet constituents from the jet axis (PileUp ID BDT input variable)", precision=14),
+  puId_majW       = Var("?(pt>=10)?userFloat('puId_majW'):-1",float,doc="major axis of jet ellipsoid in eta-phi plane (PileUp ID BDT input variable)", precision=14),
+  puId_minW       = Var("?(pt>=10)?userFloat('puId_minW'):-1",float,doc="minor axis of jet ellipsoid in eta-phi plane (PileUp ID BDT input variable)", precision=14),
+  puId_frac01     = Var("?(pt>=10)?userFloat('puId_frac01'):-1",float,doc="fraction of constituents' pT contained within dR <0.1 (PileUp ID BDT input variable)", precision=14),
+  puId_frac02     = Var("?(pt>=10)?userFloat('puId_frac02'):-1",float,doc="fraction of constituents' pT contained within 0.1< dR <0.2 (PileUp ID BDT input variable)", precision=14),
+  puId_frac03     = Var("?(pt>=10)?userFloat('puId_frac03'):-1",float,doc="fraction of constituents' pT contained within 0.2< dR <0.3 (PileUp ID BDT input variable)", precision=14),
+  puId_frac04     = Var("?(pt>=10)?userFloat('puId_frac04'):-1",float,doc="fraction of constituents' pT contained within 0.3< dR <0.4 (PileUp ID BDT input variable)", precision=14),
+  puId_ptD        = Var("?(pt>=10)?userFloat('puId_ptD'):-1",float,doc="pT-weighted average pT of constituents (PileUp ID BDT input variable)", precision=14),
+  puId_beta       = Var("?(pt>=10)?userFloat('puId_beta'):-1",float,doc="fraction of pT of charged constituents associated to PV (PileUp ID BDT input variable)", precision=14),
+  puId_pull       = Var("?(pt>=10)?userFloat('puId_pull'):-1",float,doc="magnitude of pull vector (PileUp ID BDT input variable)", precision=14),
+  puId_jetR       = Var("?(pt>=10)?userFloat('puId_jetR'):-1",float,doc="fraction of jet pT carried by the leading constituent (PileUp ID BDT input variable)", precision=14),
+  puId_jetRchg    = Var("?(pt>=10)?userFloat('puId_jetRchg'):-1",float,doc="fraction of jet pT carried by the leading charged constituent (PileUp ID BDT input variable)", precision=14),
+  puId_nCharged   = Var("?(pt>=10)?userInt('puId_nCharged'):-1",int,doc="number of charged constituents (PileUp ID BDT input variable)"),
 )
 QGLVARS = cms.PSet(
-  qgl_axis2       =  Var("?(pt>10)?userFloat('qgl_axis2'):-1",float,doc="ellipse minor jet axis (Quark vs Gluon likelihood input variable)", precision= 6),
-  qgl_ptD         =  Var("?(pt>10)?userFloat('qgl_ptD'):-1",float,doc="pT-weighted average pT of constituents (Quark vs Gluon likelihood input variable)", precision= 6),
-  qgl_mult        =  Var("?(pt>10)?userInt('qgl_mult'):-1", int,doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)"),
+  qgl_axis2       =  Var("?(pt>=10)?userFloat('qgl_axis2'):-1",float,doc="ellipse minor jet axis (Quark vs Gluon likelihood input variable)", precision=14),
+  qgl_ptD         =  Var("?(pt>=10)?userFloat('qgl_ptD'):-1",float,doc="pT-weighted average pT of constituents (Quark vs Gluon likelihood input variable)", precision=14),
+  qgl_mult        =  Var("?(pt>=10)?userInt('qgl_mult'):-1", int,doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)"),
 )
 BTAGVARS = cms.PSet(
-  btagDeepB = Var("?(pt>15)&&((bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0)?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
-  btagCSVV2 = Var("?pt>15?bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'):-1",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
-  btagDeepCvL = Var("?(pt>15)&&(bDiscriminator('pfDeepCSVJetTags:probc')>=0)?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
-  btagDeepCvB = Var("?(pt>15)&&bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10),
+  btagDeepB = Var("?(pt>=15)&&((bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0)?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+  btagDeepCvL = Var("?(pt>=15)&&(bDiscriminator('pfDeepCSVJetTags:probc')>=0)?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
+  btagDeepCvB = Var("?(pt>=15)&&bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10),
 )
 DEEPJETVARS = cms.PSet(
-  btagDeepFlavB   = Var("?pt>15?bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'):-1",float,doc="DeepJet b+bb+lepb tag discriminator",precision=10),
-  btagDeepFlavC   = Var("?pt>15?bDiscriminator('pfDeepFlavourJetTags:probc'):-1",float,doc="DeepFlavour charm tag raw score",precision=10),
-  btagDeepFlavG   = Var("?pt>15?bDiscriminator('pfDeepFlavourJetTags:probg'):-1",float,doc="DeepFlavour gluon tag raw score",precision=10),
-  btagDeepFlavUDS = Var("?pt>15?bDiscriminator('pfDeepFlavourJetTags:probuds'):-1",float,doc="DeepFlavour uds tag raw score",precision=10),
-  btagDeepFlavCvL = Var("?(pt>15)&&(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')):-1",float,doc="DeepJet c vs uds+g discriminator",precision=10),
-  btagDeepFlavCvB = Var("?(pt>15)&&(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1",float,doc="DeepJet c vs b+bb+lepb discriminator",precision=10),
-  btagDeepFlavQG  = Var("?(pt>15)&&(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1",float,doc="DeepJet g vs uds discriminator",precision=10),
+  btagDeepFlavB   = Var("?(pt>=15)?bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'):-1",float,doc="DeepJet b+bb+lepb tag discriminator",precision=10),
+  btagDeepFlavC   = Var("?(pt>=15)?bDiscriminator('pfDeepFlavourJetTags:probc'):-1",float,doc="DeepFlavour charm tag raw score",precision=10),
+  btagDeepFlavG   = Var("?(pt>=15)?bDiscriminator('pfDeepFlavourJetTags:probg'):-1",float,doc="DeepFlavour gluon tag raw score",precision=10),
+  btagDeepFlavUDS = Var("?(pt>=15)?bDiscriminator('pfDeepFlavourJetTags:probuds'):-1",float,doc="DeepFlavour uds tag raw score",precision=10),
+  btagDeepFlavCvL = Var("?(pt>=15)&&(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')):-1",float,doc="DeepJet c vs uds+g discriminator",precision=10),
+  btagDeepFlavCvB = Var("?(pt>=15)&&(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1",float,doc="DeepJet c vs b+bb+lepb discriminator",precision=10),
+  btagDeepFlavQG  = Var("?(pt>=15)&&(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1",float,doc="DeepJet g vs uds discriminator",precision=10),
+)
+ROBUSTPARTAK4VARS = cms.PSet(
+  btagRobustParTAK4B   = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'):-1",float,doc="DeepJet b+bb+lepb tag discriminator",precision=10),
+  btagRobustParTAK4C   = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probc'):-1",float,doc="DeepFlavour charm tag raw score",precision=10),
+  btagRobustParTAK4G   = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probg'):-1",float,doc="DeepFlavour gluon tag raw score",precision=10),
+  btagRobustParTAK4UDS = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probuds'):-1",float,doc="DeepFlavour uds tag raw score",precision=10),
+  btagRobustParTAK4CvL = Var("?(pt>=15)&&(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfParticleTransformerAK4JetTags:probg'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfParticleTransformerAK4JetTags:probg')):-1",float,doc="DeepJet c vs uds+g discriminator",precision=10),
+  btagRobustParTAK4CvB = Var("?(pt>=15)&&(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfParticleTransformerAK4JetTags:problepb'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfParticleTransformerAK4JetTags:problepb')):-1",float,doc="DeepJet c vs b+bb+lepb discriminator",precision=10),
+  btagRobustParTAK4QG  = Var("?(pt>=15)&&(bDiscriminator('pfParticleTransformerAK4JetTags:probg')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probg')/(bDiscriminator('pfParticleTransformerAK4JetTags:probg')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')):-1",float,doc="DeepJet g vs uds discriminator",precision=10),
 )
 PARTICLENETAK4VARS = cms.PSet(
-  particleNetAK4_B = Var("?pt>15?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:BvsAll'):-1",float,doc="ParticleNetAK4 tagger b vs all (udsg, c) discriminator",precision=10),
-  particleNetAK4_CvsL = Var("?pt>15?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsL'):-1",float,doc="ParticleNetAK4 tagger c vs udsg discriminator",precision=10),
-  particleNetAK4_CvsB = Var("?pt>15?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsB'):-1",float,doc="ParticleNetAK4 tagger c vs b discriminator",precision=10),
-  particleNetAK4_QvsG = Var("?pt>15?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:QvsG'):-1",float,doc="ParticleNetAK4 tagger uds vs g discriminator",precision=10),
-  particleNetAK4_puIdDisc = Var("?pt>15?1-bDiscriminator('pfParticleNetAK4JetTags:probpu'):-1",float,doc="ParticleNetAK4 tagger pileup jet discriminator",precision=10),
+  particleNetAK4_B = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:BvsAll'):-1",float,doc="ParticleNetAK4 tagger b vs all (udsg, c) discriminator",precision=10),
+  particleNetAK4_CvsL = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsL'):-1",float,doc="ParticleNetAK4 tagger c vs udsg discriminator",precision=10),
+  particleNetAK4_CvsB = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsB'):-1",float,doc="ParticleNetAK4 tagger c vs b discriminator",precision=10),
+  particleNetAK4_QvsG = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:QvsG'):-1",float,doc="ParticleNetAK4 tagger uds vs g discriminator",precision=10),
+  particleNetAK4_G = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4JetTags:probg'):-1",float,doc="ParticleNetAK4 tagger g raw score",precision=10),
+  particleNetAK4_puIdDisc = Var("?(pt>=15)?1-bDiscriminator('pfParticleNetAK4JetTags:probpu'):-1",float,doc="ParticleNetAK4 tagger pileup jet discriminator",precision=10),
 )
 
 CALOJETVARS = cms.PSet(P4Vars,
@@ -213,12 +213,12 @@ CALOJETVARS = cms.PSet(P4Vars,
 #
 #
 #******************************************
-def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
+def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   """
   Setup modules to calculate PF jet ID
   """
 
-  isPUPPIJet = True if "Puppi" in jetName else False
+  isPUPPIJet = True if "PUPPI" in jetName.upper() else False
 
   looseJetId = "looseJetId{}".format(jetName)
   setattr(proc, looseJetId, proc.looseJetId.clone(
@@ -247,14 +247,11 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
     )
   )
 
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(getattr(proc, tightJetId).filterParams, version = "WINTER16" )
-    modifier.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER16" )
-  for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(getattr(proc, tightJetId).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else ""))
-    modifier.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "WINTER17{}".format("PUPPI" if isPUPPIJet else ""))
-  run2_nanoAOD_102Xv1.toModify(getattr(proc, tightJetId).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "") )
-  run2_nanoAOD_102Xv1.toModify(getattr(proc, tightJetIdLepVeto).filterParams, version = "SUMMER18{}".format("PUPPI" if isPUPPIJet else "") )
+  run2_jme_2016.toModify(
+    getattr(proc, tightJetId).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
+  )
 
   #
   # Save variables as userInts in each jet
@@ -262,28 +259,18 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
   patJetWithUserData = "{}WithUserData".format(jetSrc)
   getattr(proc, patJetWithUserData).userInts.tightId = cms.InputTag(tightJetId)
   getattr(proc, patJetWithUserData).userInts.tightIdLepVeto = cms.InputTag(tightJetIdLepVeto)
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(getattr(proc, patJetWithUserData).userInts, looseId = cms.InputTag(looseJetId))
 
   #
   # Specfiy variables in the jetTable to save in NanoAOD
   #
   getattr(proc, jetTableName).variables.jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto")
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(getattr(proc, jetTableName).variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int, doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
 
-
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, jetSrc))+1, getattr(proc, tightJetId))
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, tightJetId))+1, getattr(proc, tightJetIdLepVeto))
-
-  setattr(proc,"_"+jetSequenceName+"_2016", getattr(proc,jetSequenceName).copy())
-  getattr(proc,"_"+jetSequenceName+"_2016").insert(getattr(proc, "_"+jetSequenceName+"_2016").index(getattr(proc, tightJetId)), getattr(proc, looseJetId))
-  for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toReplaceWith(getattr(proc,jetSequenceName), getattr(proc, "_"+jetSequenceName+"_2016"))
+  getattr(proc,jetTaskName).add(getattr(proc, tightJetId))
+  getattr(proc,jetTaskName).add(getattr(proc, tightJetIdLepVeto))
 
   return proc
 
-def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName=""):
+def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   """
   Setup modules to calculate pileup jet ID input variables for PF jet
   """
@@ -297,10 +284,10 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequence
       vertexes  = "offlineSlimmedPrimaryVertices",
       inputIsCorrected = True,
       applyJec  = False,
-      usePuppi = True if "Puppi" in jetName else False
+      srcConstituentWeights = "packedPFCandidatespuppi" if "PUPPI" in jetName.upper() else ""
     )
   )
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, jetSrc))+1, getattr(proc, puJetIdVarsCalculator))
+  getattr(proc,jetTaskName).add(getattr(proc, puJetIdVarsCalculator))
 
   #
   # Get the variables
@@ -311,7 +298,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequence
       srcPileupJetId = cms.InputTag(puJetIdVarsCalculator)
     )
   )
-  getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, puJetIdVarsCalculator))+1, getattr(proc, puJetIDVar))
+  getattr(proc,jetTaskName).add(getattr(proc, puJetIDVar))
 
   #
   # Save variables as userFloats and userInts for each jet
@@ -350,19 +337,24 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetSequence
 
   return proc
 
-def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetSequenceName="", calculateQGLVars=False):
+def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName="", calculateQGLVars=False):
   """
   Schedule the QGTagger module to calculate input variables to the QG likelihood
   """
+
+  isPUPPIJet = True if "PUPPI" in jetName.upper() else False
 
   QGLTagger="qgtagger{}".format(jetName)
   patJetWithUserData="{}WithUserData".format(jetSrc)
 
   if calculateQGLVars:
     setattr(proc, QGLTagger, qgtagger.clone(
-        srcJets = jetSrc
+        srcJets = jetSrc,
+        computeLikelihood = False,
       )
     )
+    if isPUPPIJet:
+      getattr(proc,QGLTagger).srcConstituentWeights = cms.InputTag("packedPFCandidatespuppi")
 
   #
   # Save variables as userFloats and userInts for each jet
@@ -379,7 +371,7 @@ def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetSequenceNa
   getattr(proc,jetTableName).variables.qgl_mult  =  QGLVARS.qgl_mult
 
   if calculateQGLVars:
-    getattr(proc,jetSequenceName).insert(getattr(proc,jetSequenceName).index(getattr(proc, jetSrc))+1, getattr(proc, QGLTagger))
+    getattr(proc,jetTaskName).add(getattr(proc, QGLTagger))
 
   return proc
 
@@ -388,13 +380,17 @@ def AddBTaggingScores(proc, jetTableName=""):
   Store b-tagging scores from various algortihm
   """
 
-  getattr(proc, jetTableName).variables.btagDeepB       = BTAGVARS.btagDeepB
-  getattr(proc, jetTableName).variables.btagCSVV2       = BTAGVARS.btagCSVV2
-  getattr(proc, jetTableName).variables.btagDeepCvL     = BTAGVARS.btagDeepCvL
-  getattr(proc, jetTableName).variables.btagDeepCvB     = BTAGVARS.btagDeepCvB
   getattr(proc, jetTableName).variables.btagDeepFlavB   = DEEPJETVARS.btagDeepFlavB
   getattr(proc, jetTableName).variables.btagDeepFlavCvL = DEEPJETVARS.btagDeepFlavCvL
   getattr(proc, jetTableName).variables.btagDeepFlavCvB = DEEPJETVARS.btagDeepFlavCvB
+
+  run2_nanoAOD_ANY.toModify(
+    getattr(proc, jetTableName).variables,
+    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
+    btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+    btagDeepCvL = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
+    btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
+  )
 
   return proc
 
@@ -409,6 +405,17 @@ def AddDeepJetGluonLQuarkScores(proc, jetTableName=""):
 
   return proc
 
+def AddRobustParTAK4Scores(proc, jetTableName=""):
+  """
+  Store RobustParTAK4 scores in jetTable
+  """
+
+  getattr(proc, jetTableName).variables.btagRobustParTAK4B = ROBUSTPARTAK4VARS.btagRobustParTAK4B
+  getattr(proc, jetTableName).variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
+  getattr(proc, jetTableName).variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
+
+  return proc
+
 def AddParticleNetAK4Scores(proc, jetTableName=""):
   """
   Store ParticleNetAK4 scores in jetTable
@@ -418,6 +425,7 @@ def AddParticleNetAK4Scores(proc, jetTableName=""):
   getattr(proc, jetTableName).variables.particleNetAK4_CvsL = PARTICLENETAK4VARS.particleNetAK4_CvsL
   getattr(proc, jetTableName).variables.particleNetAK4_CvsB = PARTICLENETAK4VARS.particleNetAK4_CvsB
   getattr(proc, jetTableName).variables.particleNetAK4_QvsG = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  getattr(proc, jetTableName).variables.particleNetAK4_G = PARTICLENETAK4VARS.particleNetAK4_G
   getattr(proc, jetTableName).variables.particleNetAK4_puIdDisc = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
 
   return proc
@@ -436,7 +444,7 @@ def AddNewPatJets(proc, recoJetInfo, runOnMC):
   nanoInfoForJet = nanoInfo_recojets[recoJetInfo.jet]
   jetTablePrefix = nanoInfoForJet["name"]
   jetTableDoc    = nanoInfoForJet["doc"]
-  ptcut          = nanoInfoForJet["ptcut"] if "ptcut" in nanoInfoForJet else ""
+  ptcut          = nanoInfoForJet["ptcut"] if "ptcut" in nanoInfoForJet else 8
   doPUIDVar      = nanoInfoForJet["doPUIDVar"] if "doPUIDVar" in nanoInfoForJet else False
   doQGL          = nanoInfoForJet["doQGL"] if "doQGL" in nanoInfoForJet else False
   doBTag         = nanoInfoForJet["doBTag"] if "doBTag" in nanoInfoForJet else False
@@ -449,7 +457,7 @@ def AddNewPatJets(proc, recoJetInfo, runOnMC):
   return proc
 
 def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTableDoc,
-                doPF, doCalo, ptcut="", doPUIDVar=False, doQGL=False, doBTag=False, runOnMC=False):
+                doPF, doCalo, ptcut, doPUIDVar=False, doQGL=False, doBTag=False, runOnMC=False):
   """
   Schedule modules for a given patJet collection and save its variables into custom NanoAOD
   """
@@ -488,14 +496,14 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   #
   # Filter jets with pt cut
   #
-  finalJetsCutDefault = "(pt >= 8)"
+  finalJetsCut = "(pt >= {ptcut:.0f})".format(ptcut=ptcut)
   if runOnMC:
-    finalJetsCutDefault = "(pt >= 8) || ((pt < 8) && (genJetFwdRef().backRef().isNonnull()))"
+    finalJetsCut = "(pt >= {ptcut:.0f}) || ((pt < {ptcut:.0f}) && (genJetFwdRef().backRef().isNonnull()))".format(ptcut=ptcut)
 
   finalJetsForTable = "finalJets{}".format(jetName)
   setattr(proc, finalJetsForTable, finalJets.clone(
       src = srcJetsWithUserData,
-      cut = ptcut if ptcut != "" else finalJetsCutDefault
+      cut = finalJetsCut
     )
   )
 
@@ -508,32 +516,33 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
 
   jetTableCutDefault = "" #Don't apply any cuts for the table.
 
-  jetTableDocDefault = jetTableDoc + " with JECs applied. Jets with pt > 8 GeV are stored."
+  jetTableDocDefault = jetTableDoc + " with JECs applied. Jets with pt >= {ptcut:.0f} GeV are stored.".format(ptcut=ptcut)
   if runOnMC:
-    jetTableDocDefault += "For jets with pt < 8 GeV, only those matched to gen jets are stored."
+    jetTableDocDefault += "For jets with pt < {ptcut:.0f} GeV, only those matched to gen jets are stored.".format(ptcut=ptcut)
 
-  jetTable = "jet{}Table".format(jetName)
-  setattr(proc,jetTable, cms.EDProducer("SimpleCandidateFlatTableProducer",
+  if doCalo:
+    jetTableDocDefault = jetTableDoc
+
+  jetTableName = "jet{}Table".format(jetName)
+  setattr(proc,jetTableName, simpleCandidateFlatTableProducer.clone(
       src = cms.InputTag(finalJetsForTable),
       cut = cms.string(jetTableCutDefault),
       name = cms.string(jetTablePrefix),
       doc  = cms.string(jetTableDocDefault),
-      singleton = cms.bool(False), # the number of entries is variable
-      extension = cms.bool(False), # this is the main table for the jets
       variables = cms.PSet(tableContent)
     )
   )
-  getattr(proc,jetTable).variables.pt.precision=10
+  getattr(proc,jetTableName).variables.pt.precision=10
+  getattr(proc,jetTableName).variables.rawFactor.precision=10
 
   #
   # Save MC-only jet variables in table
   #
-  jetMCTable = "jet{}MCTable".format(jetName)
-  setattr(proc, jetMCTable, cms.EDProducer("SimpleCandidateFlatTableProducer",
+  jetMCTableName = "jet{}MCTable".format(jetName)
+  setattr(proc, jetMCTableName, simpleCandidateFlatTableProducer.clone(
       src = cms.InputTag(finalJetsForTable),
-      cut = getattr(proc,jetTable).cut,
+      cut = getattr(proc,jetTableName).cut,
       name = cms.string(jetTablePrefix),
-      singleton = cms.bool(False),
       extension = cms.bool(True), # this is an extension table
       variables = cms.PSet(
         partonFlavour = Var("partonFlavour()", int, doc="flavour from parton matching"),
@@ -544,60 +553,224 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   )
 
   #
-  # Define the jet modules sequence first
+  # Define the jet modules Task first
   #
-  jetSequenceName = "jet{}Sequence".format(jetName)
-  setattr(proc, jetSequenceName, cms.Sequence(
-      getattr(proc,jetCorrFactors)+
-      getattr(proc,srcJets)+
-      getattr(proc,srcJetsWithUserData)+
-      getattr(proc,finalJetsForTable)
-    )
+  jetTaskName = "jet{}Task".format(jetName)
+  setattr(proc, jetTaskName, cms.Task(
+     getattr(proc,jetCorrFactors),
+     getattr(proc,srcJets),
+     getattr(proc,srcJetsWithUserData),
+     getattr(proc,finalJetsForTable)
+   )
   )
+  proc.nanoTableTaskCommon.add(getattr(proc,jetTaskName))
 
   #
-  # Define the jet table sequences
+  # Define the jet tables Task
   #
-  jetTableSequenceName = "jet{}TablesSequence".format(jetName)
-  setattr(proc, jetTableSequenceName, cms.Sequence(getattr(proc,jetTable)))
+  jetTableTaskName = "jet{}TablesTask".format(jetName)
+  setattr(proc, jetTableTaskName, cms.Task(getattr(proc,jetTableName)))
+  proc.nanoTableTaskCommon.add(getattr(proc,jetTableTaskName))
 
-  jetTableSequenceMCName = "jet{}MCTablesSequence".format(jetName)
-  setattr(proc, jetTableSequenceMCName, cms.Sequence(getattr(proc,jetMCTable)))
-
+  jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
+  setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTableName)))
   if runOnMC:
-    proc.nanoSequenceMC += getattr(proc,jetSequenceName)
-    proc.nanoSequenceMC += getattr(proc,jetTableSequenceName)
-    proc.nanoSequenceMC += getattr(proc,jetTableSequenceMCName)
-  else:
-    proc.nanoSequence += getattr(proc,jetSequenceName)
-    proc.nanoSequence += getattr(proc,jetTableSequenceName)
+    proc.nanoTableTaskFS.add(getattr(proc,jetMCTableTaskName))
 
   #
   # Schedule plugins to calculate Jet ID, PileUp Jet ID input variables, and Quark-Gluon Likehood input variables.
   #
   if doPF:
-    proc = AddJetID(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName)
+    proc = AddJetID(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTableName, jetTaskName=jetTaskName)
     if doPUIDVar:
-      proc = AddPileUpJetIDVars(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName)
+      proc = AddPileUpJetIDVars(proc, jetName=jetName, jetSrc=srcJets, jetTableName=jetTableName, jetTaskName=jetTaskName)
     if doQGL:
-      proc = AddQGLTaggerVars(proc,jetName=jetName, jetSrc=srcJets, jetTableName=jetTable, jetSequenceName=jetSequenceName, calculateQGLVars=True)
+      proc = AddQGLTaggerVars(proc,jetName=jetName, jetSrc=srcJets, jetTableName=jetTableName, jetTaskName=jetTaskName, calculateQGLVars=True)
 
   #
   # Save b-tagging algorithm scores. Should only be done for jet collection with b-tagging
   # calculated when reclustered or collection saved with b-tagging info in MiniAOD
   #
   if doBTag:
-    AddBTaggingScores(proc,jetTableName=jetTable)
-    AddDeepJetGluonLQuarkScores(proc,jetTableName=jetTable)
-    AddParticleNetAK4Scores(proc,jetTableName=jetTable)
+    AddBTaggingScores(proc,jetTableName=jetTableName)
+    AddDeepJetGluonLQuarkScores(proc,jetTableName=jetTableName)
+    AddParticleNetAK4Scores(proc,jetTableName=jetTableName)
+    AddRobustParTAK4Scores(proc,jetTableName=jetTableName)
+
+  return proc
+
+
+def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
+  """
+  Recluster AK4 Puppi jets and replace slimmedJetsPuppi
+  that is used as default to save AK4 Puppi jets in NanoAODs.
+  """
+  print("custom_jme_cff::ReclusterAK4PuppiJets: Recluster AK4 PF Puppi jets")
+
+  #
+  # Recluster AK4 Puppi jets
+  #
+  cfg = {
+    "jet" : "ak4pfpuppi",
+    "inputCollection" : "",
+    "genJetsCollection": "AK4GenJetsNoNu",
+    "bTagDiscriminators": bTagDiscriminatorsForAK4,
+    "minPtFastjet" : 0.,
+  }
+  recoJetInfo = recoJA.addRecoJetCollection(proc, **cfg)
+
+  jetName = recoJetInfo.jetUpper
+  patJetFinalColl = recoJetInfo.patJetFinalCollection
+
+  #
+  # Set the jetID for UL 16 era
+  #
+  run2_jme_2016.toModify(
+    proc.tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
+  ).toModify(
+    proc.tightJetIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
+  )
+
+  #
+  # Change the input jet source for jetCorrFactorsNano
+  # and updatedJets
+  #
+  proc.jetPuppiCorrFactorsNano.src=patJetFinalColl
+  proc.updatedJetsPuppi.jetSource=patJetFinalColl
+
+  #
+  # Change pt cut
+  #
+  finalJetsPuppiCut = ""
+  if runOnMC:
+    finalJetsPuppiCut = "(pt >= 8) || ((pt < 8) && (genJetFwdRef().backRef().isNonnull()))"
+  else:
+    finalJetsPuppiCut = "(pt >= 8)"
+
+  proc.finalJetsPuppi.cut = finalJetsPuppiCut
+  #
+  # Add a minimum pt cut for corrT1METJets.
+  #
+  proc.corrT1METJetPuppiTable.cut = "pt>=8 && pt<15 && abs(eta)<9.9"
+
+  #
+  # Jet table 
+  #
+  # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
+  run2_nanoAOD_ANY.toModify(
+    proc.jetTable, name = "Jet"
+  ).toModify(
+    # So need to change the table name for AK4 puppi here
+    proc.jetPuppiTable,
+    name = "JetPuppi",
+    src = cms.InputTag("finalJetsPuppi")
+  )
+  
+  #
+  # Jet table documentation
+  #
+  jetPuppiTableDoc = "AK4 PF Puppi jets with JECs applied. Jets with pt >= 8 GeV are stored."
+  if runOnMC:
+    jetPuppiTableDoc += "For jets with pt < 8 GeV, only those matched to AK4 Gen jets are stored."
+  proc.jetPuppiTable.doc = jetPuppiTableDoc
+
+  proc.jetPuppiTable.variables.rawFactor.precision = 10
+
+  #
+  # Add variables
+  #
+  proc.jetPuppiTable.variables.hfHEF         = PFJETVARS.hfHEF
+  proc.jetPuppiTable.variables.hfEmEF        = PFJETVARS.hfEmEF
+  proc.jetPuppiTable.variables.nConstChHads  = PFJETVARS.nConstChHads
+  proc.jetPuppiTable.variables.nConstNeuHads = PFJETVARS.nConstNeuHads
+  proc.jetPuppiTable.variables.nConstHFHads  = PFJETVARS.nConstHFHads
+  proc.jetPuppiTable.variables.nConstHFEMs   = PFJETVARS.nConstHFEMs
+  proc.jetPuppiTable.variables.nConstMuons   = PFJETVARS.nConstMuons
+  proc.jetPuppiTable.variables.nConstElecs   = PFJETVARS.nConstElecs
+  proc.jetPuppiTable.variables.nConstPhotons = PFJETVARS.nConstPhotons
+
+  #
+  # Add variables for pileup jet ID studies.
+  #
+
+  proc = AddPileUpJetIDVars(proc,
+    jetName = jetName,
+    jetSrc = "updatedJetsPuppi",
+    jetTableName = "jetPuppiTable",
+    jetTaskName = "jetPuppiTask"
+  )
+  #
+  # Add variables for quark guon likelihood tagger studies.
+  # Save variables as userFloats and userInts in each jet
+  #
+  proc = AddQGLTaggerVars(proc,
+                          jetName = jetName,
+                          jetSrc = "updatedJetsPuppi",
+                          jetTableName = "jetPuppiTable",
+                          jetTaskName = "jetPuppiTask",
+                          calculateQGLVars=True
+                        )
+  #
+  # Save DeepJet b-tagging and c-tagging variables
+  #
+  proc.jetPuppiTable.variables.btagDeepFlavB   = DEEPJETVARS.btagDeepFlavB
+  proc.jetPuppiTable.variables.btagDeepFlavCvL = DEEPJETVARS.btagDeepFlavCvL
+  proc.jetPuppiTable.variables.btagDeepFlavCvB = DEEPJETVARS.btagDeepFlavCvB
+  #
+  # Save DeepJet raw score for gluon and light quarks
+  #
+  proc.jetPuppiTable.variables.btagDeepFlavG   = DEEPJETVARS.btagDeepFlavG
+  proc.jetPuppiTable.variables.btagDeepFlavUDS = DEEPJETVARS.btagDeepFlavUDS
+  proc.jetPuppiTable.variables.btagDeepFlavQG  = DEEPJETVARS.btagDeepFlavQG
+  #
+  # Save RobustParTAK4 b-tagging and c-tagging variables
+  #
+  proc.jetPuppiTable.variables.btagRobustParTAK4B   = ROBUSTPARTAK4VARS.btagRobustParTAK4B
+  proc.jetPuppiTable.variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
+  proc.jetPuppiTable.variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
+  #
+  # Add ParticleNetAK4 scores
+  #
+  proc.jetPuppiTable.variables.particleNetAK4_B        = PARTICLENETAK4VARS.particleNetAK4_B
+  proc.jetPuppiTable.variables.particleNetAK4_CvsL     = PARTICLENETAK4VARS.particleNetAK4_CvsL
+  proc.jetPuppiTable.variables.particleNetAK4_CvsB     = PARTICLENETAK4VARS.particleNetAK4_CvsB
+  proc.jetPuppiTable.variables.particleNetAK4_QvsG     = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  proc.jetPuppiTable.variables.particleNetAK4_G        = PARTICLENETAK4VARS.particleNetAK4_G
+  proc.jetPuppiTable.variables.particleNetAK4_puIdDisc = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
+
+  #
+  # For Run-2 eras, don't need to save the low pt AK4 Puppi jet table for MET
+  #
+  run2_nanoAOD_ANY.toReplaceWith(
+    proc.jetPuppiForMETTask,
+    proc.jetPuppiForMETTask.copyAndExclude([proc.corrT1METJetPuppiTable])
+  )
+
+  #
+  # Save MC-only jet variables in jet table
+  #
+  if runOnMC:
+
+    jetMCTableName = "jet{}MCTable".format(jetName)
+    setattr(proc, jetMCTableName, proc.jetMCTable.clone(
+        src = proc.jetPuppiTable.src,
+        name = proc.jetPuppiTable.name
+      )
+    )
+    jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
+    setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTableName)))
+
+    run2_nanoAOD_ANY.toReplaceWith(
+      proc.nanoTableTaskFS,
+      proc.nanoTableTaskFS.copyAndAdd( getattr(proc,jetMCTableTaskName))
+    )
 
   return proc
 
 def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   """
-  Recluster AK4 CHS jets and replace slimmedJets
-  that is used as default to save AK4 CHS jets
-  in NanoAODs.
+  Recluster AK4 CHS jets and replace slimmedJets that is used as default to
+  save AK4 CHS jets in NanoAODs (for Run-2).
   """
   print("custom_jme_cff::ReclusterAK4CHSJets: Recluster AK4 PF CHS jets")
 
@@ -642,16 +815,29 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   # Jet table cut
   #
   jetTableCut = "" # must not have any cut at the jetTable for AK4 CHS as it has been cross-cleaned
+  proc.jetTable.src   = cms.InputTag("finalJets")
   proc.jetTable.cut   = jetTableCut
   proc.jetMCTable.cut = jetTableCut
+  proc.jetTable.name  = "JetCHS"
+
+  #
+  # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
+  #
+  run2_nanoAOD_ANY.toModify(
+    proc.jetTable,
+    src = cms.InputTag("linkedObjects","jets"),
+    name = "Jet"
+  )
 
   #
   # Jet table documentation
   #
-  jetTableDoc = "AK4 PF CHS jets with JECs applied. Jets with pt > 8 GeV are stored."
+  jetTableDoc = "AK4 PF CHS jets with JECs applied. Jets with pt >= 8 GeV are stored."
   if runOnMC:
     jetTableDoc += "For jets with pt < 8 GeV, only those matched to AK4 Gen jets are stored."
   proc.jetTable.doc   = jetTableDoc
+
+  proc.jetTable.variables.rawFactor.precision = 10
 
   #
   # Add variables
@@ -667,28 +853,6 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.nConstPhotons = PFJETVARS.nConstPhotons
 
   #
-  # Setup pileup jet ID with 80X training.
-  #
-  pileupJetId80X = "pileupJetId80X"
-  setattr(proc, pileupJetId80X, pileupJetId.clone(
-      jets = "updatedJets",
-      algos = cms.VPSet(_chsalgos_81x),
-      inputIsCorrected = True,
-      applyJec = False,
-      vertexes = "offlineSlimmedPrimaryVertices"
-    )
-  )
-  proc.jetSequence.insert(proc.jetSequence.index(proc.pileupJetId94X), getattr(proc, pileupJetId80X))
-
-  proc.updatedJetsWithUserData.userInts.puId80XfullId = cms.InputTag('pileupJetId80X:fullId')
-  proc.updatedJetsWithUserData.userFloats.puId80XDisc = cms.InputTag("pileupJetId80X:fullDiscriminant")
-
-  run2_nanoAOD_94X2016.toModify(proc.jetTable.variables, puIdDisc = Var("userFloat('puId80XDisc')",float,doc="Pilup ID discriminant with 80X (2016) training",precision=10))
-
-  for modifier in run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
-    modifier.toModify(proc.jetTable.variables, puId = Var("userInt('puId80XfullId')", int, doc="Pileup ID flags with 80X (2016) training"))
-
-  #
   # Add charged energy fraction from other primary vertices
   #
   proc.updatedJetsWithUserData.userFloats.chFPV1EF = cms.InputTag("jercVars:chargedFromPV1EnergyFraction")
@@ -702,10 +866,10 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   # Add variables for pileup jet ID studies.
   #
   proc = AddPileUpJetIDVars(proc,
-    jetName = "",
+    jetName = jetName,
     jetSrc = "updatedJets",
     jetTableName = "jetTable",
-    jetSequenceName = "jetSequence"
+    jetTaskName = "jetTask"
   )
   #
   # Add variables for quark guon likelihood tagger studies.
@@ -724,7 +888,6 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   # Save standard b-tagging and c-tagging variables
   #
   proc.jetTable.variables.btagDeepB = BTAGVARS.btagDeepB
-  proc.jetTable.variables.btagCSVV2 = BTAGVARS.btagCSVV2
   proc.jetTable.variables.btagDeepCvL = BTAGVARS.btagDeepCvL
   proc.jetTable.variables.btagDeepCvB = BTAGVARS.btagDeepCvB
   #
@@ -740,19 +903,26 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.btagDeepFlavUDS = DEEPJETVARS.btagDeepFlavUDS
   proc.jetTable.variables.btagDeepFlavQG  = DEEPJETVARS.btagDeepFlavQG
   #
+  # Save RobustParTAK4 b-tagging and c-tagging variables
+  #
+  proc.jetTable.variables.btagRobustParTAK4B   = ROBUSTPARTAK4VARS.btagRobustParTAK4B
+  proc.jetTable.variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
+  proc.jetTable.variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
+  #
   # Add ParticleNetAK4 scores
   #
   proc.jetTable.variables.particleNetAK4_B          = PARTICLENETAK4VARS.particleNetAK4_B
   proc.jetTable.variables.particleNetAK4_CvsL       = PARTICLENETAK4VARS.particleNetAK4_CvsL
   proc.jetTable.variables.particleNetAK4_CvsB       = PARTICLENETAK4VARS.particleNetAK4_CvsB
   proc.jetTable.variables.particleNetAK4_QvsG       = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  proc.jetTable.variables.particleNetAK4_G          = PARTICLENETAK4VARS.particleNetAK4_G
   proc.jetTable.variables.particleNetAK4_puIdDisc   = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
 
   #Adding hf shower shape producer to the jet sequence. By default this producer is not automatically rerun at the NANOAOD step
   #The following lines make sure it is.
   hfJetShowerShapeforCustomNanoAOD = "hfJetShowerShapeforCustomNanoAOD"
-  setattr(proc, hfJetShowerShapeforCustomNanoAOD, hfJetShowerShapeforNanoAOD.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices") )
-  proc.jetSequence.insert(proc.jetSequence.index(proc.updatedJetsWithUserData), getattr(proc, hfJetShowerShapeforCustomNanoAOD))
+  setattr(proc, hfJetShowerShapeforCustomNanoAOD, hfJetShowerShape.clone(jets="updatedJets", vertices="offlineSlimmedPrimaryVertices") )
+  proc.jetUserDataTask.add(getattr(proc, hfJetShowerShapeforCustomNanoAOD))
   proc.updatedJetsWithUserData.userFloats.hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:sigmaEtaEta')
   proc.updatedJetsWithUserData.userFloats.hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:sigmaPhiPhi')
   proc.updatedJetsWithUserData.userInts.hfcentralEtaStripSize = cms.InputTag('hfJetShowerShapeforCustomNanoAOD:centralEtaStripSize')
@@ -761,6 +931,58 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.hfsigmaPhiPhi = Var("userFloat('hfsigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10)
   proc.jetTable.variables.hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable) ")
   proc.jetTable.variables.hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable) ")
+
+  #
+  # Since AK4 Puppi jet is the main AK4 jet collection for Run-3, disable
+  # b-jets/c-jets NN-based mass regression for AK4 CHS.  
+  #
+  (~run2_nanoAOD_ANY).toReplaceWith(
+    proc.jetUserDataTask,
+    proc.jetUserDataTask.copyAndExclude([proc.bJetVars])
+  ).toReplaceWith(
+    proc.jetTablesTask,
+    proc.jetTablesTask.copyAndExclude([proc.bjetNN, proc.cjetNN])
+  ).toModify(proc.updatedJetsWithUserData.userFloats,
+    leadTrackPt = None,
+    leptonPtRelv0 = None,
+    leptonPtRelInvv0 = None,
+    leptonDeltaR = None,
+    vtxPt = None,
+    vtxMass = None,
+    vtx3dL = None,
+    vtx3deL = None,
+    ptD = None,
+  ).toModify(
+    proc.updatedJetsWithUserData.userInts,
+    vtxNtrk = None,
+    leptonPdgId = None
+  ).toModify(
+    proc.jetTable, externalVariables = cms.PSet()
+  ).toReplaceWith(
+  #
+  # For Run-3, don't need to save the low pt AK4 CHS jet table for MET
+  #
+    proc.jetForMETTask,
+    proc.jetForMETTask.copyAndExclude([proc.corrT1METJetTable])
+  )
+
+  #
+  # Save MC-only jet variables in jet table
+  #
+  if runOnMC:
+    jetMCTableName = "jet{}MCTable".format(jetName)
+    setattr(proc, jetMCTableName, proc.jetMCTable.clone(
+        src = proc.jetTable.src,
+        name = proc.jetTable.name
+      )
+    )
+    jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
+    setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTableName)))
+
+    (~run2_nanoAOD_ANY).toReplaceWith(
+      proc.nanoTableTaskFS,
+      proc.nanoTableTaskFS.copyAndAdd(getattr(proc,jetMCTableTaskName))
+    )
 
   return proc
 
@@ -788,7 +1010,7 @@ def AddNewAK8PuppiJetsForJEC(proc, recoJA, runOnMC):
   patJetFinalColl = recoJetInfo.patJetFinalCollection
   jetTablePrefix  = "FatJetForJEC"
   jetTableDoc     = "AK8 PF Puppi jets with JECs applied. Reclustered for JEC studies so only minimal info stored."
-  ptcut           = ""# No need to specify ptcut. Use default in SavePatJets function
+  ptcut           = 15
 
   SavePatJets(proc,
     jetName, payload, patJetFinalColl, jetTablePrefix, jetTableDoc, doPF=True,
@@ -820,7 +1042,7 @@ def AddNewAK8CHSJets(proc, recoJA, runOnMC):
   patJetFinalColl = recoJetInfo.patJetFinalCollection
   jetTablePrefix  = "FatJetCHS"
   jetTableDoc     = "AK8 PF CHS jets with JECs applied. Reclustered for JEC studies so only minimal info stored."
-  ptcut           = ""# No need to specify ptcut. Use default in SavePatJets function
+  ptcut           = 15
 
   SavePatJets(proc,
     jetName, payload, patJetFinalColl, jetTablePrefix, jetTableDoc, doPF=True,
@@ -833,6 +1055,8 @@ def AddVariablesForAK8PuppiJets(proc):
   """
   Add more variables for AK8 PFPUPPI jets
   """
+
+  proc.fatJetTable.variables.rawFactor.precision = 10
 
   #
   #  These variables are not stored for AK8PFPUPPI (slimmedJetsAK8)
@@ -883,8 +1107,8 @@ def SaveGenJets(proc, genJetName, genJetAlgo, genJetSizeNr, genJetFinalColl, gen
   Schedule modules for a given genJet collection and save its variables into custom NanoAOD
   """
 
-  genJetTableThisJet = "jet{}Table".format(genJetName)
-  setattr(proc, genJetTableThisJet, genJetTable.clone(
+  genJetTableName = "jet{}Table".format(genJetName)
+  setattr(proc, genJetTableName, genJetTable.clone(
       src       = genJetFinalColl,
       cut       = "", # No cut specified here. Save all gen jets after clustering
       name      = genJetTablePrefix,
@@ -893,31 +1117,31 @@ def SaveGenJets(proc, genJetName, genJetAlgo, genJetSizeNr, genJetFinalColl, gen
     )
   )
 
-  genJetFlavourAssociationThisJet = "genJet{}FlavourAssociation".format(genJetName)
-  setattr(proc, genJetFlavourAssociationThisJet, genJetFlavourAssociation.clone(
-      jets           = getattr(proc,genJetTableThisJet).src,
+  genJetFlavourAssociationName = "genJet{}FlavourAssociation".format(genJetName)
+  setattr(proc, genJetFlavourAssociationName, genJetFlavourAssociation.clone(
+      jets           = getattr(proc,genJetTableName).src,
       jetAlgorithm   = supportedJetAlgos[genJetAlgo],
       rParam         = genJetSizeNr,
     )
   )
 
-  genJetFlavourTableThisJet = "genJet{}FlavourTable".format(genJetName)
-  setattr(proc, genJetFlavourTableThisJet, genJetFlavourTable.clone(
-      name            = getattr(proc,genJetTableThisJet).name,
-      src             = getattr(proc,genJetTableThisJet).src,
-      cut             = getattr(proc,genJetTableThisJet).cut,
-      jetFlavourInfos = genJetFlavourAssociationThisJet,
+  genJetFlavourTableName = "genJet{}FlavourTable".format(genJetName)
+  setattr(proc, genJetFlavourTableName, genJetFlavourTable.clone(
+      name            = getattr(proc,genJetTableName).name,
+      src             = getattr(proc,genJetTableName).src,
+      cut             = getattr(proc,genJetTableName).cut,
+      jetFlavourInfos = genJetFlavourAssociationName,
     )
   )
 
-  genJetSequenceName = "genJet{}Sequence".format(genJetName)
-  setattr(proc, genJetSequenceName, cms.Sequence(
-      getattr(proc,genJetTableThisJet)+
-      getattr(proc,genJetFlavourAssociationThisJet)+
-      getattr(proc,genJetFlavourTableThisJet)
+  genJetTaskName = "genJet{}Task".format(genJetName)
+  setattr(proc, genJetTaskName, cms.Task(
+      getattr(proc,genJetTableName),
+      getattr(proc,genJetFlavourAssociationName),
+      getattr(proc,genJetFlavourTableName)
     )
   )
-  proc.nanoSequenceMC.insert(proc.nanoSequenceMC.index(proc.jetMC)+1, getattr(proc,genJetSequenceName))
+  proc.jetMCTask.add(getattr(proc,genJetTaskName))
 
   return proc
 
@@ -951,14 +1175,14 @@ def ReclusterAK4GenJets(proc, genJA):
   proc.genJetTable.cut = "" # No cut specified here. Save all gen jets after clustering
   proc.genJetTable.doc = "AK4 Gen jets (made with visible genparticles) with pt > 3 GeV" # default pt cut after clustering is 3 GeV
 
-  genJetFlavourAssociationThisJet = "genJet{}FlavourAssociation".format(genJetName)
-  setattr(proc, genJetFlavourAssociationThisJet, genJetFlavourAssociation.clone(
+  genJetFlavourAssociationName = "genJet{}FlavourAssociation".format(genJetName)
+  setattr(proc, genJetFlavourAssociationName, genJetFlavourAssociation.clone(
       jets           = proc.genJetTable.src,
       jetAlgorithm   = supportedJetAlgos[genJetAlgo],
       rParam         = genJetSizeNr,
     )
   )
-  proc.jetMC.insert(proc.jetMC.index(proc.genJetFlavourTable), getattr(proc, genJetFlavourAssociationThisJet))
+  proc.jetMCTask.add(getattr(proc, genJetFlavourAssociationName))
   return proc
 
 def AddNewAK8GenJetsForJEC(proc, genJA):
@@ -1006,6 +1230,7 @@ def RemoveAllJetPtCuts(proc):
   """
 
   proc.finalJets.cut             = "" # 15 -> 10
+  proc.finalJetsPuppi.cut        = "" # 15 -> 10
   proc.finalJetsAK8.cut          = "" # 170 -> 170
   proc.genJetTable.cut           = "" # 10 -> 8
   proc.genJetFlavourTable.cut    = "" # 10 -> 8
@@ -1077,12 +1302,45 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   ###########################################################################
   process = ReclusterAK4CHSJets(process, recoJA, runOnMC)
   ###########################################################################
+  # Recluster AK4 Puppi jets and replace "slimmedJets"
+  ###########################################################################
+  process = ReclusterAK4PuppiJets(process, recoJA, runOnMC)
+  ###########################################################################
   # Add additional Reco jets to NanoAOD
   ###########################################################################
   for jetConfig in config_recojets:
     cfg = { k : v for k, v in jetConfig.items() if k != "enabled"}
     recoJetInfo = recoJA.addRecoJetCollection(process, **cfg)
     AddNewPatJets(process, recoJetInfo, runOnMC)
+
+  ###########################################################################
+  # Add jet tasks
+  # By default for Run-3, add AK4 CHS jet tasks.
+  # For Run-2 eras, add AK4 Puppi jet tasks
+  ###########################################################################
+  def addAK4JetTasks(proc, addAK4CHSJetTasks, addAK4PuppiJetTasks):
+    if addAK4CHSJetTasks:
+      proc.nanoTableTaskCommon.add(proc.jetTask)
+      proc.nanoTableTaskCommon.add(proc.jetTablesTask)
+      proc.nanoTableTaskCommon.add(proc.jetForMETTask)
+    if addAK4PuppiJetTasks:
+      proc.nanoTableTaskCommon.add(proc.jetPuppiTask)
+      proc.nanoTableTaskCommon.add(proc.jetPuppiTablesTask)
+      proc.nanoTableTaskCommon.add(proc.jetPuppiForMETTask)
+    return proc
+
+  jmeNano_addAK4JetTasks_switch = cms.PSet(
+    jmeNano_addAK4CHS_switch = cms.untracked.bool(True),
+    jmeNano_addAK4Puppi_switch = cms.untracked.bool(False)
+  )
+  run2_nanoAOD_ANY.toModify(jmeNano_addAK4JetTasks_switch,
+    jmeNano_addAK4CHS_switch = False,
+    jmeNano_addAK4Puppi_switch = True
+  )
+  process = addAK4JetTasks(process, 
+    addAK4CHSJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4CHS_switch,
+    addAK4PuppiJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4Puppi_switch,
+  )
 
   ###########################################################################
   # Save Maximum of Pt Hat Max
@@ -1099,9 +1357,10 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   return process
 
 def PrepJMECustomNanoAOD_MC(process):
-  PrepJMECustomNanoAOD(process,runOnMC=True)
+  process = PrepJMECustomNanoAOD(process,runOnMC=True)
+
   return process
 
 def PrepJMECustomNanoAOD_Data(process):
-  PrepJMECustomNanoAOD(process,runOnMC=False)
+  process = PrepJMECustomNanoAOD(process,runOnMC=False)
   return process

@@ -80,7 +80,7 @@ public:
                         HcalTrigPrimDigiCollection& result);
   void setPeakFinderAlgorithm(int algo);
   void setWeightsQIE11(const edm::ParameterSet& weightsQIE11);
-  void setWeightQIE11(int aieta, double weight);
+  void setWeightQIE11(int aieta, int weight);
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 
@@ -136,7 +136,7 @@ private:
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
-  std::array<std::array<double, 2>, 29> weightsQIE11_;
+  std::array<std::array<int, 2>, 29> weightsQIE11_;
   int latency_;
   uint32_t FG_threshold_;
   std::vector<uint32_t> FG_HF_thresholds_;

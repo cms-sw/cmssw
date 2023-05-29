@@ -23,6 +23,7 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtElectron_cff    import Hi
 from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtElectron_cff     import LowPtElectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff      import HighPtPhotonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff          import DiPhotonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDiPhoton_cff import DisplacedDiPhotonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPFHT_cff              import PFHTPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaCaloHT_cff            import CaloHTPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff         import JetNoBptxPSet
@@ -62,6 +63,7 @@ hltExoticaValidator = DQMEDAnalyzer(
         "LowPtElectron",
         "HighPtPhoton",
         "DiPhoton",
+        "DisplacedDiPhoton",
         "SingleMuon",
         "JetNoBptx",
         "MuonNoBptx",
@@ -213,6 +215,7 @@ hltExoticaValidator = DQMEDAnalyzer(
     LowPtElectron    = LowPtElectronPSet,
     HighPtPhoton     = HighPtPhotonPSet,                                 
     DiPhoton         = DiPhotonPSet,                                 
+    DisplacedDiPhoton = DisplacedDiPhotonPSet,
     SingleMuon       = SingleMuonPSet,
     JetNoBptx        = JetNoBptxPSet,
     MuonNoBptx       = MuonNoBptxPSet,

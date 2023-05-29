@@ -1,4 +1,5 @@
 #include "HLTrigger/HLTcore/interface/TriggerExpressionPrescaler.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
 
@@ -24,7 +25,7 @@ namespace triggerExpression {
     UnaryOperator::init(data);
 
     // initialize the counter to the first event number seen,
-    // in order to avoid all prescalers on different FUs to be syncronous
+    // in order to avoid all prescalers on different FUs to be synchronous
     m_counter = data.eventNumber();
   }
 

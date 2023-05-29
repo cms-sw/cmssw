@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,24 +11,21 @@
 
 #include <iostream>
 
-class EcalRecHitDump : public edm::EDAnalyzer {
+class EcalRecHitDump : public edm::stream::EDAnalyzer<> {
 public:
   explicit EcalRecHitDump(const edm::ParameterSet&);
 
 private:
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;
-  edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
+  const edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;
+  const edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
 };
 
-EcalRecHitDump::EcalRecHitDump(const edm::ParameterSet& iConfig) {
-  EBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"));
-  EERecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"));
-}
+EcalRecHitDump::EcalRecHitDump(const edm::ParameterSet& iConfig)
+    : EBRecHitCollectionT_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"))),
+      EERecHitCollectionT_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"))) {}
 
 void EcalRecHitDump::analyze(const edm::Event& ev, const edm::EventSetup&) {
   edm::Handle<EcalRecHitCollection> EBRecHits_;

@@ -90,10 +90,29 @@ def customisePostEra_Run3(process):
     customisePostEra_Run2_2018(process)
     return process
 
+def customisePostEra_Run3_2023(process):
+    #start with a repeat of Run3
+    customisePostEra_Run3(process)
+    return process
+
 def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
     return process
+
+def customisePostEra_Run3_pp_on_PbPb_express_trackingOnly(process):
+    #start with repeat of 2018
+    customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb(process):
+    customisePostEra_Run3(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters(process):
+    customisePostEra_Run3_pp_on_PbPb(process)
+    return process
+
 
 ##############################################################################
 def customisePPData(process):

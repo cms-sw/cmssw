@@ -4,21 +4,19 @@
 #include "TLorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 
-class TtFullLepKinSolutionProducer : public edm::EDProducer {
+class TtFullLepKinSolutionProducer : public edm::stream::EDProducer<> {
 public:
   explicit TtFullLepKinSolutionProducer(const edm::ParameterSet& iConfig);
-  ~TtFullLepKinSolutionProducer() override;
+  ~TtFullLepKinSolutionProducer() override = default;
 
-  void beginJob() override;
   void produce(edm::Event& evt, const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
 private:
   // next methods are avoidable but they make the code legible
@@ -41,7 +39,7 @@ private:
   double tmassbegin_, tmassend_, tmassstep_;
   std::vector<double> nupars_;
 
-  TtFullLepKinSolver* solver;
+  std::unique_ptr<TtFullLepKinSolver> solver;
 };
 
 inline bool TtFullLepKinSolutionProducer::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const {
@@ -80,15 +78,9 @@ inline TtFullLepKinSolutionProducer::TtFullLepKinSolutionProducer(const edm::Par
   produces<std::vector<reco::LeafCandidate> >("fullLepNeutrinoBars");
   produces<std::vector<double> >("solWeight");  //weight for a specific kin solution
   produces<bool>("isWrongCharge");              //true if leptons have the same charge
+
+  solver = std::make_unique<TtFullLepKinSolver>(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
-
-inline TtFullLepKinSolutionProducer::~TtFullLepKinSolutionProducer() {}
-
-inline void TtFullLepKinSolutionProducer::beginJob() {
-  solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
-}
-
-inline void TtFullLepKinSolutionProducer::endJob() { delete solver; }
 
 inline void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::EventSetup& iSetup) {
   //create vectors fo runsorted output
@@ -104,14 +96,10 @@ inline void TtFullLepKinSolutionProducer::produce(edm::Event& evt, const edm::Ev
   std::unique_ptr<std::vector<double> > pWeight(new std::vector<double>);
   std::unique_ptr<bool> pWrongCharge(new bool);
 
-  edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByToken(jetsToken_, jets);
-  edm::Handle<std::vector<pat::Electron> > electrons;
-  evt.getByToken(electronsToken_, electrons);
-  edm::Handle<std::vector<pat::Muon> > muons;
-  evt.getByToken(muonsToken_, muons);
-  edm::Handle<std::vector<pat::MET> > mets;
-  evt.getByToken(metsToken_, mets);
+  const edm::Handle<std::vector<pat::Jet> >& jets = evt.getHandle(jetsToken_);
+  const edm::Handle<std::vector<pat::Electron> >& electrons = evt.getHandle(electronsToken_);
+  const edm::Handle<std::vector<pat::Muon> >& muons = evt.getHandle(muonsToken_);
+  const edm::Handle<std::vector<pat::MET> >& mets = evt.getHandle(metsToken_);
 
   int selMuon1 = -1, selMuon2 = -1;
   int selElectron1 = -1, selElectron2 = -1;

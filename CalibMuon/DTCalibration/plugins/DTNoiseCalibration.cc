@@ -22,7 +22,6 @@
 
 // Digis
 #include "DataFormats/DTDigi/interface/DTDigi.h"
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
@@ -40,7 +39,7 @@ using namespace edm;
 using namespace std;
 
 DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
-    : digiLabel_(pset.getParameter<InputTag>("digiLabel")),
+    : digiToken_(consumes<DTDigiCollection>(pset.getParameter<InputTag>("digiLabel"))),
       useTimeWindow_(pset.getParameter<bool>("useTimeWindow")),
       triggerWidth_(pset.getParameter<double>("triggerWidth")),
       timeWindowOffset_(pset.getParameter<int>("timeWindowOffset")),
@@ -104,27 +103,14 @@ void DTNoiseCalibration::beginRun(const edm::Run& run, const edm::EventSetup& se
     tTrigMap_ = &setup.getData(ttrigToken_);
   runBeginTime_ = time_t(run.beginTime().value() >> 32);
   runEndTime_ = time_t(run.endTime().value() >> 32);
-  /*
-  nevents = 0;
-  counter = 0;
-
-  // TDC time distribution
-  int numBin = (triggerWidth_*(32/25))/50;
-  hTDCTriggerWidth = new TH1F("TDC_Time_Distribution", "TDC_Time_Distribution", numBin, 0, triggerWidth_*(32/25));*/
 }
 
 void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   ++nevents_;
 
   // Get the digis from the event
-  Handle<DTDigiCollection> dtdigis;
-  event.getByLabel(digiLabel_, dtdigis);
+  const Handle<DTDigiCollection>& dtdigis = event.getHandle(digiToken_);
 
-  /*TH1F *hOccupancyHisto;
-  TH2F *hEvtPerWireH;
-  string Histo2Name;*/
-
-  //RunNumber_t runNumber = event.id().run();
   time_t eventTime = time_t(event.time().value() >> 32);
   unsigned int lumiSection = event.luminosityBlock();
 
@@ -171,14 +157,10 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
       if (useTimeWindow_ && tdcTime > upperLimit)
         continue;
 
-      /*LogTrace("Calibration") << "TDC time (ns): " << ((float)tdcTime*25)/32
-                                <<" --- trigger width (ns): " << ((float)upperLimit*25)/32;*/
-
       const DTLayerId dtLId = (*dtLayerId_It).first;
       const DTTopology& dtTopo = dtGeom_->layer(dtLId)->specificTopology();
       const int firstWire = dtTopo.firstChannel();
       const int lastWire = dtTopo.lastChannel();
-      //const int nWires = dtTopo.channels();
       const int nWires = lastWire - firstWire + 1;
 
       // Book the occupancy histos
@@ -239,93 +221,11 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
         chamberOccupancyVsTimeMap_[dtChId] = hOccupancyVsTimeHisto;
       }
       chamberOccupancyVsTimeMap_[dtChId]->Fill((unsigned int)eventTime, 1. / triggerWidth_s);
-
-      /*// Book the digi event plot every 1000 events if the analysis is not "fast" and if is the correct sector
-	if(!fastAnalysis &&
-	   dtLId.superlayerId().chamberId().wheel()==wh &&
-	   dtLId.superlayerId().chamberId().sector()==sect) {
-	  if(theHistoEvtPerWireMap.find(dtLId) == theHistoEvtPerWireMap.end() ||
-	     (theHistoEvtPerWireMap.find(dtLId) != theHistoEvtPerWireMap.end() &&
-	      skippedPlot[dtLId] != counter)){ 
-	    skippedPlot[dtLId] = counter;
-	    Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + std::to_string(counter);
-	    theFile->cd();
-	    hEvtPerWireH = new TH2F(Histo2Name.c_str(), Histo2Name.c_str(), 1000,0.5,1000.5,nWires, firstWire, lastWire+1);
-	    if(hEvtPerWireH){
-	      if(debug)
-		cout << "  New Histo with the number of digi per evt per wire: " << hEvtPerWireH->GetName() << endl;
-	      theHistoEvtPerWireMap[dtLId]=hEvtPerWireH;
-	    }
-	  }
-	}*/
     }
   }
-
-  /*//Fill the plot of the number of digi per event per wire
-  std::map<int,int > DigiPerWirePerEvent;
-  // LOOP OVER ALL THE CHAMBERS
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
-  for (; ch_it != ch_end; ++ch_it) {
-    DTChamberId ch = (*ch_it)->id();
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
-    // Loop over the SLs
-    for(; sl_it != sl_end; ++sl_it) {
-      DTSuperLayerId sl = (*sl_it)->id();
-      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
-      vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
-      // Loop over the Ls
-      for(; l_it != l_end; ++l_it) {
-	DTLayerId layerId = (*l_it)->id();
-	
-	// Get the number of wires
-	const DTTopology& dtTopo = dtGeom->layer(layerId)->specificTopology();
-	const int firstWire = dtTopo.firstChannel();
-	const int lastWire = dtTopo.lastChannel();
-	  
-	if (theHistoEvtPerWireMap.find(layerId) != theHistoEvtPerWireMap.end() &&
-	    skippedPlot[layerId] == counter) {
-	  
-	  for (int wire=firstWire; wire<=lastWire; wire++) {
-	    DigiPerWirePerEvent[wire]= 0;
-	  }	
-	  // loop over all the digis of the event
-	  DTDigiCollection::Range layerDigi= dtdigis->get(layerId);
-	  for (DTDigiCollection::const_iterator digi = layerDigi.first;
-	       digi!=layerDigi.second;
-	       ++digi){
-	    if((cosmicRun && (*digi).countsTDC()<upperLimit) || (!cosmicRun))
-	      DigiPerWirePerEvent[(*digi).wire()]+=1;
-	  }
-	  // fill the digi event histo
-	  for (int wire=firstWire; wire<=lastWire; wire++) {
-	    theFile->cd();
-	    int histoEvents = nevents - (counter*1000);
-	    theHistoEvtPerWireMap[layerId]->Fill(histoEvents,wire,DigiPerWirePerEvent[wire]);
-	  }
-	}
-      } //Loop Ls
-    } //Loop SLs
-  } //Loop chambers
-  
-  
-  if(nevents % 1000 == 0) {
-    counter++;
-    // save the digis event plot on file
-    for(map<DTLayerId,  TH2F* >::const_iterator lHisto = theHistoEvtPerWireMap.begin();
-	lHisto != theHistoEvtPerWireMap.end();
-	lHisto++) {
-      theFile->cd();
-      if((*lHisto).second)
-	(*lHisto).second->Write();
-    }
-    theHistoEvtPerWireMap.clear();
-  }*/
 }
 
 void DTNoiseCalibration::endJob() {
-  //LogVerbatim("Calibration") << "[DTNoiseCalibration] endjob called!";
   LogVerbatim("Calibration") << "[DTNoiseCalibration] Total number of events analyzed: " << nevents_;
 
   // Save the TDC digi plot
@@ -360,26 +260,6 @@ void DTNoiseCalibration::endJob() {
   for (map<DTLayerId, TH1F*>::const_iterator lHisto = theHistoOccupancyMap_.begin();
        lHisto != theHistoOccupancyMap_.end();
        ++lHisto) {
-    /*double triggerWidth_s = 0.;
-     if( useTimeWindow_ ){
-        double triggerWidth_ns = 0.;
-        if( readDB_ ){
-           float tTrig, tTrigRMS, kFactor;
-           DTSuperLayerId slId = ((*lHisto).first).superlayerId();
-           int status = tTrigMap_->get( slId, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
-           if(status != 0) throw cms::Exception("DTNoiseCalibration") << "Could not find tTrig entry in DB for" << slId << endl;
-           triggerWidth_ns = tTrig - timeWindowOffset_;
-        } else{
-           triggerWidth_ns = defaultTtrig_ - timeWindowOffset_;
-        }
-        triggerWidth_ns = (triggerWidth_ns*25)/32;
-        triggerWidth_s = triggerWidth_ns/1e9;
-     } else{
-        triggerWidth_s = double(triggerWidth_/1e9);
-     }
-     LogTrace("Calibration") << (*lHisto).second->GetName() << " trigger width (s): " << triggerWidth_s;*/
-
-    //double normalization = 1./(nevents_*triggerWidth_s);
     if ((*lHisto).second) {
       (*lHisto).second->Scale(normalization);
       rootFile_->cd();
@@ -387,7 +267,6 @@ void DTNoiseCalibration::endJob() {
       const DTTopology& dtTopo = dtGeom_->layer((*lHisto).first)->specificTopology();
       const int firstWire = dtTopo.firstChannel();
       const int lastWire = dtTopo.lastChannel();
-      //const int nWires = dtTopo.channels();
       const int nWires = lastWire - firstWire + 1;
       // Find average in layer
       double averageRate = 0.;

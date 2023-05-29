@@ -5,7 +5,6 @@ from PhysicsTools.PatUtils.bJetOperatingPointsParameters_cfi import *
 process = cms.Process("PatBTagAnalyzer")
 
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('file:PATLayer1_Output.fromAOD_full_ttbar.root')
     fileNames = cms.untracked.vstring('/store/relval/2008/7/21/RelVal-RelValTTbar-1216579481-IDEAL_V5-2nd/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre9-RelVal-1216579481-IDEAL_V5-2nd-unmerged/0000/00BCD825-6E57-DD11-8C1F-000423D98EA8.root')
 )
 
@@ -17,9 +16,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_V5::All')
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 

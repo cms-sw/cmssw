@@ -1,30 +1,82 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-#include "SiStripCertificationInfo.h"
-
-#include "DataFormats/Histograms/interface/DQMToken.h"
-
-//Run Info
-#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <iostream>
-#include <iomanip>
-#include <cstdio>
+#include <fstream>
 #include <string>
-#include <sstream>
-#include <cmath>
+#include <vector>
+#include <map>
 
-SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&) {
+class SiStripDetCabling;
+
+class SiStripCertificationInfo
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
+  SiStripCertificationInfo(const edm::ParameterSet& ps);
+
+private:
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override{};
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+
+  void bookSiStripCertificationMEs(DQMStore& dqm_store);
+  void resetSiStripCertificationMEs(DQMStore& dqm_store);
+  void fillSiStripCertificationMEs(DQMStore& dqm_store, edm::EventSetup const& eSetup);
+
+  void fillDummySiStripCertification(DQMStore& dqm_store);
+  void fillSiStripCertificationMEsAtLumi(DQMStore& dqm_store);
+
+  struct SubDetMEs {
+    MonitorElement* det_fractionME;
+    std::string folder_name;
+    std::string subdet_tag;
+    int n_layer;
+  };
+
+  MonitorElement* SiStripCertification{nullptr};
+  MonitorElement* SiStripCertificationMap{nullptr};
+  std::map<std::string, SubDetMEs> SubDetMEsMap{};
+  MonitorElement* SiStripCertificationSummaryMap{nullptr};
+
+  bool sistripCertificationBooked_{false};
+
+  edm::ESHandle<SiStripDetCabling> detCabling_{};
+
+  int nFEDConnected_{};
+
+  const edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+};
+
+SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const&)
+    : detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      tTopoToken_(esConsumes<edm::Transition::EndRun>()),
+      runInfoToken_(esConsumes<edm::Transition::BeginRun>()) {
+  usesResource("DQMStore");
   consumes<DQMToken, edm::InRun>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserRun"));
   consumes<DQMToken, edm::InLumi>(edm::InputTag("siStripOfflineAnalyser", "DQMGenerationSiStripAnalyserLumi"));
-  detCablingToken_ = esConsumes<edm::Transition::BeginRun>();
-  tTopoToken_ = esConsumes<edm::Transition::EndRun>();
-  runInfoToken_ = esConsumes<edm::Transition::BeginRun>();
 }
 
 void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {

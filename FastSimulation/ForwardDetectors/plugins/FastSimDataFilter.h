@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include <vector>
 #include <utility>
@@ -22,8 +23,7 @@ namespace cms {
   class FastSimDataFilter : public edm::stream::EDFilter<> {
   public:
     FastSimDataFilter(const edm::ParameterSet& pset);
-
-    ~FastSimDataFilter() override;
+    ~FastSimDataFilter() override = default;
 
     bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void beginJob();
@@ -31,8 +31,9 @@ namespace cms {
 
   private:
     typedef math::RhoEtaPhiVector Vector;
+    const edm::EDGetTokenT<CaloTowerCollection> tokTowers_;
 
-    double towercut;
+    const double towercut;
     int ntotal, npassed;
   };
 }  // namespace cms

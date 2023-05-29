@@ -47,6 +47,7 @@ private:
   std::vector<std::string> materials_;   // Materials of the layers
   std::vector<std::string> tag_;         // Tag of placement index
   std::vector<double> layerThick_;       // Thickness of layers
+  std::vector<double> layerSizeOff_;     // Size offset for each layer
   std::vector<int> layerType_;           // Layer types
   std::vector<int> copyNumber_;          // Initial copy numbers
   std::vector<int> layers_;              // Number of layers in a section
@@ -87,13 +88,15 @@ void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
   layerNames_ = vsArgs["LayerNames"];
   materials_ = vsArgs["LayerMaterials"];
   layerThick_ = vArgs["LayerThickness"];
+  layerSizeOff_ = vArgs["LayerSizeOffset"];
   layerType_ = dbl_to_int(vArgs["LayerTypes"]);
   copyNumber_.resize(materials_.size(), 1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << layerNames_.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i]
-                                  << " filled with " << materials_[i] << " type " << layerType_[i];
+                                  << " size offset " << layerSizeOff_[i] << " filled with " << materials_[i] << " type "
+                                  << layerType_[i];
 #endif
   layers_ = dbl_to_int(vArgs["Layers"]);
 #ifdef EDM_ML_DEBUG
@@ -102,14 +105,18 @@ void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
     st1 << " [" << i << "] " << layers_[i];
   edm::LogVerbatim("HGCalGeom") << "There are " << layers_.size() << " blocks" << st1.str();
 #endif
-  nCells_ = (int)(nArgs["NCells"]);
-  cellType_ = (int)(nArgs["CellType"]);
-  cellNames_ = vsArgs["CellNames"];
-  cellOffset_ = dbl_to_int(vArgs["CellOffset"]);
+  nCells_ = static_cast<int>(nArgs["NCells"]);
+  if (nCells_ > 0) {
+    cellType_ = static_cast<int>(nArgs["CellType"]);
+    cellNames_ = vsArgs["CellNames"];
+    cellOffset_ = dbl_to_int(vArgs["CellOffset"]);
+  } else {
+    cellType_ = -1;
+  }
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Cells/Wafer " << nCells_ << " Cell Type " << cellType_
-                                << " NameSpace " << nameSpace_ << " # of cells " << cellNames_.size();
+                                << " NameSpace " << nameSpace_ << ": # of cells " << cellNames_.size();
   std::ostringstream st2;
   for (unsigned int i = 0; i < cellOffset_.size(); ++i)
     st2 << " [" << i << "] " << cellOffset_[i];
@@ -129,10 +136,8 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   double rM = 0.5 * waferSize_;
   double RM2 = rM / sqrt3;
-  double r2 = 0.5 * waferSize_;
-  double R2 = r2 / sqrt3;
   const int nFine(nCells_), nCoarse(nCells_);
-  HGCalCell wafer((waferSize_ + waferSepar_), nFine, nCoarse);
+  HGCalCell wafer(waferSize_, nFine, nCoarse);
   for (unsigned int k = 0; k < tag_.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
@@ -155,8 +160,6 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
 #endif
 
     // Then the layers
-    std::vector<double> xL = {r2, 0, -r2, -r2, 0, r2};
-    std::vector<double> yL = {R2, 2 * R2, R2, -R2, -2 * R2, -R2};
     std::vector<DDLogicalPart> glogs(materials_.size());
     for (unsigned int ii = 0; ii < copyNumber_.size(); ii++) {
       copyNumber_[ii] = 1;
@@ -164,6 +167,10 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
     double zi(-0.5 * thick_), thickTot(0.0);
     for (unsigned int l = 0; l < layers_.size(); l++) {
       unsigned int i = layers_[l];
+      double r2 = 0.5 * (waferSize_ - layerSizeOff_[i]);
+      double R2 = r2 / sqrt3;
+      std::vector<double> xL = {r2, 0, -r2, -r2, 0, r2};
+      std::vector<double> yL = {R2, 2 * R2, R2, -R2, -2 * R2, -R2};
       if (copyNumber_[i] == 1) {
         if (layerType_[i] > 0) {
           zw[0] = -0.5 * waferThick_;
@@ -173,11 +180,14 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
           zw[1] = 0.5 * layerThick_[i];
         }
         std::string layerName = layerNames_[i] + tag_[k] + waferTag_;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ": " << layerName << " "
+                                      << layerSizeOff_[i] << " r " << r2 << ":" << R2;
+#endif
         solid = DDSolidFactory::extrudedpolygon(layerName, xL, yL, zw, zx, zy, scale);
         DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);
         DDMaterial matter(matN);
         glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
-
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << solid.name() << " extruded polygon made of "
                                       << matN << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":"
@@ -197,8 +207,7 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
       ++copyNumber_[i];
       zi += layerThick_[i];
       thickTot += layerThick_[i];
-      if (layerType_[i] > 0) {
-        //int n2 = nCells_ / 2;
+      if ((layerType_[i] > 0) && (nCells_ > 0)) {
         for (int u = 0; u < 2 * nCells_; ++u) {
           for (int v = 0; v < 2 * nCells_; ++v) {
             if (((v - u) < nCells_) && ((u - v) <= nCells_)) {

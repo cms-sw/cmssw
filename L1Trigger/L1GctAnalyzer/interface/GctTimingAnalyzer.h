@@ -19,7 +19,7 @@ Description: Analyse the timing of all of the GCT pipelines
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,7 +33,7 @@ Description: Analyse the timing of all of the GCT pipelines
 #include <iostream>
 #include <fstream>
 
-class GctTimingAnalyzer : public edm::EDAnalyzer {
+class GctTimingAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit GctTimingAnalyzer(const edm::ParameterSet&);
   ~GctTimingAnalyzer() override;

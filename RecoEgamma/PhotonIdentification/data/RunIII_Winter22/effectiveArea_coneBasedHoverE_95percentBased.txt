@@ -1,0 +1,23 @@
+# This file contains the Effective Area (EA) constants for computing
+# PU-corrections for the variable cone-based H/E
+#
+# Note that there was no PU correction for H/E variable in Run2 ID
+#
+# It has been introduced for Run3 as it gave flatter profile for the
+# signal (gamma) efficiencies against no. of vertices (nvtx)
+#
+# https://indico.cern.ch/event/1204275/#5-update-on-run3-photon-cut-ba
+# https://indico.cern.ch/event/1204277/#5-update-on-run3-photon-cut-ba
+#
+# The corrections are made by fitting degree 2 polynomials and
+# hence, each correction has two EA constants.
+#
+#
+# |eta| min   |eta| max       EA for H/E (linear quadratic)
+0.0            1.0               0.00198598 -1.15014e-05
+1.0            1.479             0.00249958 -1.41497e-05
+1.479          2.0               0.00302416 -1.51973e-05
+2.0            2.2               0.00349404 -1.49651e-05
+2.2            2.3               0.00334674 -1.47232e-05
+2.3            2.4               0.00416787 -2.13958e-05
+2.4            2.5               0.00458106 -2.80795e-05

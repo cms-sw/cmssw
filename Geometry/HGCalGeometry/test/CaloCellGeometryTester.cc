@@ -6,7 +6,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include <iostream>
 #include <string>

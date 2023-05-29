@@ -18,6 +18,9 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
+
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 
 #include <TMath.h>
@@ -34,6 +37,10 @@ public:  // interface
     SUMMER18PUPPI,
     RUN2UL16CHS,
     RUN2UL16PUPPI,
+    RUN3WINTER22CHSrunsBCDEprompt,
+    RUN3WINTER22PUPPIrunsBCDEprompt,
+    RUN3WINTER22CHS,
+    RUN3WINTER22PUPPI,
     RUN2ULCHS,
     RUN2ULPUPPI,
     N_VERSIONS
@@ -73,8 +80,16 @@ public:  // interface
       version_ = RUN2ULCHS;
     else if (versionStr == "RUN2ULPUPPI")
       version_ = RUN2ULPUPPI;
+    else if (versionStr == "RUN3WINTER22CHSrunsBCDEprompt")
+      version_ = RUN3WINTER22CHSrunsBCDEprompt;
+    else if (versionStr == "RUN3WINTER22PUPPIrunsBCDEprompt")
+      version_ = RUN3WINTER22PUPPIrunsBCDEprompt;
+    else if (versionStr == "RUN3WINTER22CHS")
+      version_ = RUN3WINTER22CHS;
+    else if (versionStr == "RUN3WINTER22PUPPI")
+      version_ = RUN3WINTER22PUPPI;
     else
-      version_ = RUN2ULCHS;  //set RUN2ULCHS as default
+      version_ = RUN3WINTER22PUPPI;  //set RUN3WINTER22PUPPI as default //this is extremely unsafe
 
     if (qualityStr == "LOOSE")
       quality_ = LOOSE;
@@ -83,180 +98,24 @@ public:  // interface
     else if (qualityStr == "TIGHTLEPVETO")
       quality_ = TIGHTLEPVETO;
     else
-      quality_ = TIGHT;
+      quality_ = TIGHT;  //this is extremely unsafe
 
     initCuts();
 
-    // Now check the configuration to see if the user changed anything
-    if (params.exists("CHF"))
-      set("CHF", params.getParameter<double>("CHF"));
-    if (params.exists("NHF"))
-      set("NHF", params.getParameter<double>("NHF"));
-    if ((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
-        quality_ != TIGHT) {
-      if (params.exists("CEF"))
-        set("CEF", params.getParameter<double>("CEF"));
-    }
-    if (params.exists("NEF"))
-      set("NEF", params.getParameter<double>("NEF"));
-    if (params.exists("NCH"))
-      set("NCH", params.getParameter<int>("NCH"));
-    if (params.exists("nConstituents"))
-      set("nConstituents", params.getParameter<int>("nConstituents"));
-    if (version_ == RUNIISTARTUP) {
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW"))
-        set("nNeutrals_FW", params.getParameter<int>("nNeutrals_FW"));
-    }
-    if (version_ == WINTER16) {
-      if (params.exists("NHF_EC"))
-        set("NHF_EC", params.getParameter<double>("NHF_EC"));
-      if (params.exists("NEF_EC"))
-        set("NEF_EC", params.getParameter<double>("NEF_EC"));
-      if (params.exists("nNeutrals_EC"))
-        set("nNeutrals_EC", params.getParameter<int>("nNeutrals_EC"));
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW"))
-        set("nNeutrals_FW", params.getParameter<int>("nNeutrals_FW"));
-      if (quality_ == TIGHTLEPVETO) {
-        if (params.exists("MUF"))
-          set("MUF", params.getParameter<double>("MUF"));
-      }
-    }
-    if (version_ == WINTER17) {
-      if (params.exists("NEF_EC_L"))
-        set("NEF_EC_L", params.getParameter<double>("NEF_EC_L"));
-      if (params.exists("NEF_EC_U"))
-        set("NEF_EC_U", params.getParameter<double>("NEF_EC_U"));
-      if (params.exists("nNeutrals_EC"))
-        set("nNeutrals_EC", params.getParameter<int>("nNeutrals_EC"));
-      if (params.exists("NHF_FW"))
-        set("NHF_FW", params.getParameter<double>("NHF_FW"));
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW"))
-        set("nNeutrals_FW", params.getParameter<int>("nNeutrals_FW"));
-      if (quality_ == TIGHTLEPVETO) {
-        if (params.exists("MUF"))
-          set("MUF", params.getParameter<double>("MUF"));
-      }
-    }
-    if (version_ == WINTER17PUPPI) {
-      if (params.exists("NHF_EC"))
-        set("NHF_EC", params.getParameter<double>("NHF_EC"));
-      if (params.exists("NHF_FW"))
-        set("NHF_FW", params.getParameter<double>("NHF_FW"));
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW_L"))
-        set("nNeutrals_FW_L", params.getParameter<int>("nNeutrals_FW_L"));
-      if (params.exists("nNeutrals_FW_U"))
-        set("nNeutrals_FW_U", params.getParameter<int>("nNeutrals_FW_U"));
-      if (quality_ == TIGHTLEPVETO) {
-        if (params.exists("MUF"))
-          set("MUF", params.getParameter<double>("MUF"));
-      }
-    }
-    if (version_ == RUN2UL16CHS) {
-      if (params.exists("NHF_TR"))
-        set("NHF_TR", params.getParameter<double>("NHF_TR"));
-      if (params.exists("NEF_TR"))
-        set("NEF_TR", params.getParameter<double>("NEF_TR"));
-      if (params.exists("NHF_EC"))
-        set("NHF_EC", params.getParameter<double>("NHF_EC"));
-      if (params.exists("NEF_EC_L"))
-        set("NEF_EC_L", params.getParameter<double>("NEF_EC_L"));
-      if (params.exists("NEF_EC_U"))
-        set("NEF_EC_U", params.getParameter<double>("NEF_EC_U"));
-      if (params.exists("nNeutrals_EC"))
-        set("nNeutrals_EC", params.getParameter<int>("nNeutrals_EC"));
-      if (params.exists("NHF_FW"))
-        set("NHF_FW", params.getParameter<double>("NHF_FW"));
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW"))
-        set("nNeutrals_FW", params.getParameter<int>("nNeutrals_FW"));
-      if (quality_ == TIGHTLEPVETO) {
-        if (params.exists("MUF"))
-          set("MUF", params.getParameter<double>("MUF"));
-      }
-    }
-    if (version_ == RUN2UL16PUPPI) {
-      if (params.exists("NHF_TR"))
-        set("NHF_TR", params.getParameter<double>("NHF_TR"));
-      if (params.exists("NEF_TR"))
-        set("NEF_TR", params.getParameter<double>("NEF_TR"));
-      if (params.exists("nNeutrals_EC"))
-        set("nNeutrals_EC", params.getParameter<int>("nNeutrals_EC"));
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW_L"))
-        set("nNeutrals_FW_L", params.getParameter<int>("nNeutrals_FW_L"));
-      if (params.exists("nNeutrals_FW_U"))
-        set("nNeutrals_FW_U", params.getParameter<int>("nNeutrals_FW_U"));
-      if (quality_ == TIGHTLEPVETO) {
-        if (params.exists("MUF"))
-          set("MUF", params.getParameter<double>("MUF"));
-      }
-    }
-    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
-      if (params.exists("NHF_TR"))
-        set("NHF_TR", params.getParameter<double>("NHF_TR"));
-      if (params.exists("NEF_TR"))
-        set("NEF_TR", params.getParameter<double>("NEF_TR"));
-      if (params.exists("NCH_TR"))
-        set("NCH_TR", params.getParameter<int>("NCH_TR"));
-      if (params.exists("NEF_EC_L"))
-        set("NEF_EC_L", params.getParameter<double>("NEF_EC_L"));
-      if (params.exists("NEF_EC_U"))
-        set("NEF_EC_U", params.getParameter<double>("NEF_EC_U"));
-      if (params.exists("nNeutrals_EC"))
-        set("nNeutrals_EC", params.getParameter<int>("nNeutrals_EC"));
-      if (params.exists("NHF_FW"))
-        set("NHF_FW", params.getParameter<double>("NHF_FW"));
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW"))
-        set("nNeutrals_FW", params.getParameter<int>("nNeutrals_FW"));
-      if (quality_ == TIGHTLEPVETO) {
-        if (params.exists("MUF"))
-          set("MUF", params.getParameter<double>("MUF"));
-        if (params.exists("MUF_TR"))
-          set("MUF_TR", params.getParameter<double>("MUF_TR"));
-        if (params.exists("CEF_TR"))
-          set("CEF_TR", params.getParameter<double>("CEF_TR"));
-      }
-    }
-    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI)) {
-      if (params.exists("NHF_TR"))
-        set("NHF_TR", params.getParameter<double>("NHF_TR"));
-      if (params.exists("NEF_TR"))
-        set("NEF_TR", params.getParameter<double>("NEF_TR"));
-      if (params.exists("NHF_EC"))
-        set("NHF_EC", params.getParameter<double>("NHF_EC"));
-      if (params.exists("NHF_FW"))
-        set("NHF_FW", params.getParameter<double>("NHF_FW"));
-      if (params.exists("NEF_FW"))
-        set("NEF_FW", params.getParameter<double>("NEF_FW"));
-      if (params.exists("nNeutrals_FW_L"))
-        set("nNeutrals_FW_L", params.getParameter<int>("nNeutrals_FW_L"));
-      if (params.exists("nNeutrals_FW_U"))
-        set("nNeutrals_FW_U", params.getParameter<int>("nNeutrals_FW_U"));
-      if (quality_ == TIGHTLEPVETO) {
-        if (params.exists("MUF"))
-          set("MUF", params.getParameter<double>("MUF"));
-        if (params.exists("MUF_TR"))
-          set("MUF_TR", params.getParameter<double>("MUF_TR"));
-        if (params.exists("CEF_TR"))
-          set("CEF_TR", params.getParameter<double>("CEF_TR"));
+    // loop over the std::string in bits_ and check for what was overwritten.
+    const auto strings_set = this->bits_.strings();
+    for (auto i = strings_set.begin(); i != strings_set.end(); ++i) {
+      const std::string &item = *i;
+      if (params.exists(item)) {
+        if (params.existsAs<int>(item))
+          set(item, params.getParameter<int>(item));
+        else
+          set(item, params.getParameter<double>(item));
       }
     }
 
     if (params.exists("cutsToIgnore"))
-      setIgnoredCuts(params.getParameter<std::vector<std::string> >("cutsToIgnore"));
+      setIgnoredCuts(params.getParameter<std::vector<std::string>>("cutsToIgnore"));
 
     initIndex();
   }
@@ -267,12 +126,94 @@ public:  // interface
   }
 
   //
+  // give a configuration description for derived class
+  //
+  static edm::ParameterSetDescription getDescription() {
+    edm::ParameterSetDescription desc;
+
+    desc.ifValue(edm::ParameterDescription<std::string>("version", "RUN3WINTER22PUPPI", true, edm::Comment("")),
+                 edm::allowedValues<std::string>("FIRSTDATA",
+                                                 "RUNIISTARTUP",
+                                                 "WINTER16",
+                                                 "WINTER17",
+                                                 "WINTER17PUPPI",
+                                                 "SUMMER18",
+                                                 "SUMMER18PUPPI",
+                                                 "RUN2UL16CHS",
+                                                 "RUN2UL16PUPPI",
+                                                 "RUN2ULCHS",
+                                                 "RUN2ULPUPPI",
+                                                 "RUN3WINTER22CHSrunsBCDEprompt",
+                                                 "RUN3WINTER22PUPPIrunsBCDEprompt",
+                                                 "RUN3WINTER22CHS",
+                                                 "RUN3WINTER22PUPPI"));
+    desc.ifValue(edm::ParameterDescription<std::string>("quality", "TIGHT", true, edm::Comment("")),
+                 edm::allowedValues<std::string>("LOOSE", "TIGHT", "TIGHTLEPVETO"));
+    desc.addOptional<std::vector<std::string>>("cutsToIgnore")->setComment("");
+
+    edm::ParameterDescription<double> CHF("CHF", true, edm::Comment(""));
+    edm::ParameterDescription<double> NHF("NHF", true, edm::Comment(""));
+    edm::ParameterDescription<double> NHF_FW("NHF_FW", true, edm::Comment(""));
+    edm::ParameterDescription<double> NHF_EC("NHF_EC", true, edm::Comment(""));
+    edm::ParameterDescription<double> NHF_TR("NHF_TR", true, edm::Comment(""));
+
+    edm::ParameterDescription<double> CEF("CEF", true, edm::Comment(""));
+    edm::ParameterDescription<double> CEF_TR("CEF_TR", true, edm::Comment(""));
+
+    edm::ParameterDescription<double> NEF("NEF", true, edm::Comment(""));
+    edm::ParameterDescription<double> NEF_FW("NEF_FW", true, edm::Comment(""));
+    edm::ParameterDescription<double> NEF_EC_L("NEF_EC_L", true, edm::Comment(""));
+    edm::ParameterDescription<double> NEF_EC_U("NEF_EC_U", true, edm::Comment(""));
+    edm::ParameterDescription<double> NEF_TR("NEF_TR", true, edm::Comment(""));
+
+    edm::ParameterDescription<int> NCH("NCH", true, edm::Comment(""));
+
+    edm::ParameterDescription<double> MUF("MUF", true, edm::Comment(""));
+    edm::ParameterDescription<double> MUF_TR("MUF_TR", true, edm::Comment(""));
+
+    edm::ParameterDescription<int> nConstituents("nConstituents", true, edm::Comment(""));
+    edm::ParameterDescription<int> nNeutrals_FW("nNeutrals_FW", true, edm::Comment(""));
+    edm::ParameterDescription<int> nNeutrals_FW_L("nNeutrals_FW_L", true, edm::Comment(""));
+    edm::ParameterDescription<int> nNeutrals_FW_U("nNeutrals_FW_U", true, edm::Comment(""));
+    edm::ParameterDescription<int> nnNeutrals_EC("nNeutrals_EC", true, edm::Comment(""));
+
+    desc.addOptionalNode(CHF, false);
+    desc.addOptionalNode(NHF, false);
+    desc.addOptionalNode(NHF_FW, false);
+    desc.addOptionalNode(NHF_EC, false);
+    desc.addOptionalNode(NHF_TR, false);
+
+    desc.addOptionalNode(CEF, false);
+    desc.addOptionalNode(CEF_TR, false);
+
+    desc.addOptionalNode(NEF, false);
+    desc.addOptionalNode(NEF_FW, false);
+    desc.addOptionalNode(NEF_EC_L, false);
+    desc.addOptionalNode(NEF_EC_U, false);
+    desc.addOptionalNode(NEF_TR, false);
+
+    desc.addOptionalNode(NCH, false);
+
+    desc.addOptionalNode(MUF, false);
+    desc.addOptionalNode(MUF_TR, false);
+
+    desc.addOptionalNode(nConstituents, false);
+    desc.addOptionalNode(nNeutrals_FW, false);
+    desc.addOptionalNode(nNeutrals_FW_L, false);
+    desc.addOptionalNode(nNeutrals_FW_U, false);
+    desc.addOptionalNode(nnNeutrals_EC, false);
+
+    return desc;
+  }
+  //
   // Accessor from PAT jets
   //
   bool operator()(const pat::Jet &jet, pat::strbitset &ret) override {
     if (version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16 || version_ == WINTER17 ||
         version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2UL16CHS ||
-        version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
+        version_ == RUN2UL16PUPPI || version_ == RUN3WINTER22CHSrunsBCDEprompt ||
+        version_ == RUN3WINTER22PUPPIrunsBCDEprompt || version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI ||
+        version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
       if (jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable())
         return firstDataCuts(jet, ret, version_);
       else
@@ -290,7 +231,9 @@ public:  // interface
   bool operator()(const reco::PFJet &jet, pat::strbitset &ret) {
     if (version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16 || version_ == WINTER17 ||
         version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2UL16CHS ||
-        version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
+        version_ == RUN2UL16PUPPI || version_ == RUN3WINTER22CHSrunsBCDEprompt ||
+        version_ == RUN3WINTER22PUPPIrunsBCDEprompt || version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI ||
+        version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
       return firstDataCuts(jet, ret, version_);
     } else {
       return false;
@@ -436,10 +379,14 @@ public:  // interface
 
     float etaB = 2.4;
     // Cuts for |eta| < 2.6 for Summer18
-    if (version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI)
+    if (version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI ||
+        version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+        version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI)
       etaB = 2.6;
     if ((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
+         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN3WINTER22CHSrunsBCDEprompt &&
+         version_ != RUN3WINTER22PUPPIrunsBCDEprompt && version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI &&
+         version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
         quality_ != TIGHT) {
       if (ignoreCut(indexCEF_) || (cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > etaB))
         passCut(ret, indexCEF_);
@@ -646,7 +593,8 @@ public:  // interface
           (nneutrals < cut(indexNNeutrals_FW_U_, int()) || std::abs(jet.eta()) <= 3.0))
         passCut(ret, indexNNeutrals_FW_U_);
 
-    } else if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
+    } else if ((version_ == SUMMER18) || (version_ == RUN2ULCHS) || (version_ == RUN3WINTER22CHSrunsBCDEprompt) ||
+               (version_ == RUN3WINTER22CHS)) {
       // Cuts for |eta| <= 2.6 for SUMMER18 scenario
       if (ignoreCut(indexNConstituents_) ||
           (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.6))
@@ -699,7 +647,8 @@ public:  // interface
         passCut(ret, indexNNeutrals_FW_);
     }
 
-    else if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI)) {
+    else if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI) ||
+             (version_ == RUN3WINTER22PUPPIrunsBCDEprompt) || (version_ == RUN3WINTER22PUPPI)) {
       // Cuts for |eta| <= 2.6 for SUMMER18PUPPI scenario
       if (ignoreCut(indexNConstituents_) ||
           (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.6))
@@ -759,7 +708,9 @@ private:  // member variables
     push_back("CHF");
     push_back("NHF");
     if ((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
+         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI &&
+         version_ != RUN3WINTER22CHSrunsBCDEprompt && version_ != RUN3WINTER22PUPPIrunsBCDEprompt &&
+         version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI) ||
         quality_ != TIGHT)
       push_back("CEF");
     push_back("NEF");
@@ -824,7 +775,8 @@ private:  // member variables
         push_back("MUF");
       }
     }
-    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
+    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS) || (version_ == RUN3WINTER22CHSrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22CHS)) {
       push_back("NHF_TR");
       push_back("NEF_TR");
       push_back("NCH_TR");
@@ -841,7 +793,8 @@ private:  // member variables
         push_back("CEF_TR");
       }
     }
-    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI)) {
+    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI) || (version_ == RUN3WINTER22PUPPIrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22PUPPI)) {
       push_back("NHF_TR");
       push_back("NEF_TR");
       push_back("NHF_EC");
@@ -858,7 +811,9 @@ private:  // member variables
     }
 
     if ((version_ == WINTER17 || version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI ||
-         version_ == RUN2UL16CHS || version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) &&
+         version_ == RUN2UL16CHS || version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI ||
+         version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+         version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI) &&
         quality_ == LOOSE) {
       edm::LogWarning("BadJetIDVersion")
           << "The LOOSE operating point is only supported for the WINTER16 JetID version -- defaulting to TIGHT";
@@ -887,8 +842,15 @@ private:  // member variables
       set("CHF", 0.0);
       set("NHF", 0.9);
       if (version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-          version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI)
+          version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI &&
+          version_ != RUN3WINTER22CHSrunsBCDEprompt && version_ != RUN3WINTER22PUPPIrunsBCDEprompt &&
+          version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI)
         set("CEF", 0.99);
+      if (version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+          version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI)
+        set("CHF", 0.01);
+      if (version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI)
+        set("NHF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
@@ -949,7 +911,7 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 999999);
-      } else if (version_ == RUN2ULCHS) {
+      } else if (version_ == RUN2ULCHS || version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22CHS) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("NCH_TR", 0);
@@ -959,7 +921,7 @@ private:  // member variables
         set("NHF_FW", 0.2);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
-      } else if (version_ == RUN2ULPUPPI) {
+      } else if (version_ == RUN2ULPUPPI || version_ == RUN3WINTER22PUPPIrunsBCDEprompt) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("NHF_EC", 0.9999);
@@ -967,30 +929,42 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 999999);
+      } else if (version_ == RUN3WINTER22PUPPI) {
+        set("NHF_TR", 0.9);
+        set("NEF_TR", 0.99);
+        set("NHF_EC", 0.9999);
+        set("NHF_FW", -1.0);
+        set("NEF_FW", 0.90);
+        set("nNeutrals_FW_L", 1);
+        set("nNeutrals_FW_U", 999999);
       }
     } else if (quality_ == TIGHTLEPVETO) {
       set("CHF", 0.0);
       set("NHF", 0.9);
+      set("CEF", 0.8);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
+      set("MUF", 0.8);
       if (version_ == WINTER17) {
-        set("CEF", 0.8);
         set("NEF_EC_L", 0.02);
         set("NEF_EC_U", 0.99);
         set("nNeutrals_EC", 2);
         set("NHF_FW", 0.02);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
-        set("MUF", 0.8);
+      }
+      if (version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+          version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI) {
+        set("CHF", 0.01);
+      } else if (version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI) {
+        set("NHF", 0.99);
       } else if (version_ == WINTER17PUPPI) {
-        set("CEF", 0.8);
         set("NHF_EC", 0.99);
         set("NHF_FW", 0.02);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 15);
-        set("MUF", 0.8);
       } else if (version_ == WINTER16) {
         set("CEF", 0.9);
         set("NEF_EC", 0.01);
@@ -998,15 +972,12 @@ private:  // member variables
         set("nNeutrals_EC", 2);
         set("nNeutrals_FW", 10);
         set("NEF_FW", 0.90);
-        set("MUF", 0.8);
       } else if (version_ == WINTER17PUPPI) {
-        set("CEF", 0.8);
         set("NHF_EC", 0.99);
         set("NHF_FW", 0.02);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 15);
-        set("MUF", 0.8);
       } else if (version_ == WINTER16) {
         set("CEF", 0.9);
         set("NEF_EC", 0.01);
@@ -1014,10 +985,7 @@ private:  // member variables
         set("nNeutrals_EC", 2);
         set("nNeutrals_FW", 10);
         set("NEF_FW", 0.90);
-        set("MUF", 0.8);
       } else if (version_ == SUMMER18) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -1030,8 +998,6 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
       } else if (version_ == SUMMER18PUPPI) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -1042,8 +1008,6 @@ private:  // member variables
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 15);
       } else if (version_ == RUN2UL16CHS) {
-        set("MUF", 0.8);
-        set("CEF", 0.8);
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("NHF_EC", 0.9);
@@ -1054,17 +1018,13 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
       } else if (version_ == RUN2UL16PUPPI) {
-        set("MUF", 0.8);
-        set("CEF", 0.8);
         set("NHF_TR", 0.98);
         set("NEF_TR", 0.99);
         set("nNeutrals_EC", 1);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 999999);
-      } else if (version_ == RUN2ULCHS) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
+      } else if (version_ == RUN2ULCHS || version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22CHS) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -1076,9 +1036,7 @@ private:  // member variables
         set("NHF_FW", 0.2);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
-      } else if (version_ == RUN2ULPUPPI) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
+      } else if (version_ == RUN2ULPUPPI || version_ == RUN3WINTER22PUPPIrunsBCDEprompt) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -1087,6 +1045,16 @@ private:  // member variables
         set("NHF_FW", -1.0);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
+        set("nNeutrals_FW_U", 999999);
+      } else if (version_ == RUN3WINTER22PUPPI) {
+        set("NHF_TR", 0.9);
+        set("NEF_TR", 0.99);
+        set("MUF_TR", 0.8);
+        set("CEF_TR", 0.8);
+        set("NHF_EC", 0.9999);
+        set("NHF_FW", -1.0);
+        set("NEF_FW", 0.90);
+        set("nNeutrals_FW_L", 1);
         set("nNeutrals_FW_U", 999999);
       }
     }
@@ -1097,7 +1065,9 @@ private:  // member variables
     indexNEF_ = index_type(&bits_, "NEF");
     indexNHF_ = index_type(&bits_, "NHF");
     if ((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
+         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI &&
+         version_ != RUN3WINTER22CHSrunsBCDEprompt && version_ != RUN3WINTER22PUPPIrunsBCDEprompt &&
+         version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI) ||
         quality_ != TIGHT)
       indexCEF_ = index_type(&bits_, "CEF");
 
@@ -1138,7 +1108,8 @@ private:  // member variables
         indexMUF_ = index_type(&bits_, "MUF");
       }
     }
-    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
+    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS) || (version_ == RUN3WINTER22CHSrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22CHS)) {
       indexNHF_TR_ = index_type(&bits_, "NHF_TR");
       indexNEF_TR_ = index_type(&bits_, "NEF_TR");
       indexNCH_TR_ = index_type(&bits_, "NCH_TR");
@@ -1154,7 +1125,8 @@ private:  // member variables
         indexCEF_TR_ = index_type(&bits_, "CEF_TR");
       }
     }
-    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI)) {
+    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI) || (version_ == RUN3WINTER22PUPPIrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22PUPPI)) {
       indexNHF_TR_ = index_type(&bits_, "NHF_TR");
       indexNEF_TR_ = index_type(&bits_, "NEF_TR");
       indexNHF_EC_ = index_type(&bits_, "NHF_EC");

@@ -1,6 +1,8 @@
+<use name="DataFormats/GeometryVector" source_only="1"/>
 <use name="SimG4Core/Watcher"/>
 <use name="SimG4Core/Notification"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
 <use name="geant4core"/>
 <use name="clhep"/>
 <use name="boost"/>

@@ -13,6 +13,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilder.h"
 
 //------------------------------------
@@ -21,11 +22,11 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexCompositePtrCandidate.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -38,7 +39,8 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHDecayToV0Builder : public BPHDecayGenericBuilder {
+class BPHDecayToV0Builder : public virtual BPHDecayGenericBuilderBase,
+                            public virtual BPHDecayGenericBuilder<BPHPlusMinusCandidate> {
 public:
   enum v0Type { VertexCompositeCandidate, VertexCompositePtrCandidate };
   struct V0Info {
@@ -48,19 +50,19 @@ public:
 
   /** Constructor
    */
-  BPHDecayToV0Builder(const edm::EventSetup& es,
-                      const std::string& d1Name,
-                      const std::string& d2Name,
-                      const BPHRecoBuilder::BPHGenericCollection* d1Collection,
-                      const BPHRecoBuilder::BPHGenericCollection* d2Collection);
-  BPHDecayToV0Builder(const edm::EventSetup& es,
-                      const std::string& d1Name,
-                      const std::string& d2Name,
+  BPHDecayToV0Builder(const BPHEventSetupWrapper& es,
+                      const std::string& daug1Name,
+                      const std::string& daug2Name,
+                      const BPHRecoBuilder::BPHGenericCollection* daug1Collection,
+                      const BPHRecoBuilder::BPHGenericCollection* daug2Collection);
+  BPHDecayToV0Builder(const BPHEventSetupWrapper& es,
+                      const std::string& daug1Name,
+                      const std::string& daug2Name,
                       const std::vector<reco::VertexCompositeCandidate>* v0Collection,
                       const std::string& searchList = "cfp");
-  BPHDecayToV0Builder(const edm::EventSetup& es,
-                      const std::string& d1Name,
-                      const std::string& d2Name,
+  BPHDecayToV0Builder(const BPHEventSetupWrapper& es,
+                      const std::string& daug1Name,
+                      const std::string& daug2Name,
                       const std::vector<reco::VertexCompositePtrCandidate>* vpCollection,
                       const std::string& searchList = "cfp");
 
@@ -72,22 +74,7 @@ public:
    */
   ~BPHDecayToV0Builder() override;
 
-  /** Operations
-   */
-  /// build candidates
-  std::vector<BPHPlusMinusConstCandPtr> build();
-
-  /// set cuts
-  void setPtMin(double pt);
-  void setEtaMax(double eta);
-
-  /// get current cuts
-  double getPtMin() const;
-  double getEtaMax() const;
-
 protected:
-  std::vector<BPHPlusMinusConstCandPtr> cList;
-
   std::string p1Name;
   std::string p2Name;
 
@@ -96,9 +83,6 @@ protected:
   const std::vector<reco::VertexCompositeCandidate>* vCollection;
   const std::vector<reco::VertexCompositePtrCandidate>* rCollection;
   std::string sList;
-
-  double ptMin;
-  double etaMax;
 
   std::map<const BPHRecoCandidate*, const V0Info*> v0Map;
 
@@ -111,6 +95,9 @@ protected:
                                                   const void* v0,
                                                   v0Type type) = 0;
   void v0Clear();
+
+  /// build candidates
+  void fillRecList() override;
 };
 
 #endif

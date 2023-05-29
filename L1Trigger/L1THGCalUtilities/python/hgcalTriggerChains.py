@@ -64,7 +64,7 @@ class HGCalTriggerChains:
         self.truth_chain.append( (vfe, truth_prod, backend1, backend2, selector, ntuple) )
 
     def create_sequences(self, process):
-        if not hasattr(process, 'hgcalTriggerSelector'):
+        if not hasattr(process, 'L1THGCalTriggerSelector'):
             process.load('L1Trigger.L1THGCalUtilities.HGC3DClusterGenMatchSelector_cff')
         tmp = cms.TaskPlaceholder("tmp")
         tmpseq = cms.SequencePlaceholder("tmp")
@@ -121,26 +121,26 @@ class HGCalTriggerChains:
         backend2_task.remove(tmp)
         selector_sequence.remove(tmpseq)
         ntuple_sequence.remove(tmpseq)
-        process.globalReplace('hgcalVFE', vfe_task)
-        process.globalReplace('hgcalConcentrator', concentrator_task)
+        process.globalReplace('L1THGCalVFE', vfe_task)
+        process.globalReplace('L1THGCalConcentrator', concentrator_task)
         if 'HGCalBackendStage1Processor' in backend1_processor:
-            process.globalReplace('hgcalBackEndStage1', backend1_task)
-            process.globalReplace('hgcalBackEndStage2', backend2_task)
+            process.globalReplace('L1THGCalBackEndStage1', backend1_task)
+            process.globalReplace('L1THGCalBackEndStage2', backend2_task)
         else:
-            process.globalReplace('hgcalBackEndLayer1', backend1_task)
-            process.globalReplace('hgcalBackEndLayer2', backend2_task)
-        process.globalReplace('hgcalTriggerSelector', selector_sequence)
-        process.globalReplace('hgcalTriggerNtuples', ntuple_sequence)
+            process.globalReplace('L1THGCalBackEndLayer1', backend1_task)
+            process.globalReplace('L1THGCalBackEndLayer2', backend2_task)
+        process.globalReplace('L1THGCalTriggerSelector', selector_sequence)
+        process.globalReplace('L1THGCalTriggerNtuples', ntuple_sequence)
         return process
 
     def create_truth_sequences(self, process):
         if not hasattr(process, 'caloTruthCellsProducer'):
-            from L1Trigger.L1THGCalUtilities.caloTruthCellsProducer_cfi import caloTruthCellsProducer
+            from L1Trigger.L1THGCalUtilities.caloTruthCellsProducer_cfi import l1tCaloTruthCellsProducer
             process.load('L1Trigger.L1THGCalUtilities.caloTruthCells_cff')
-            process.truthCellsProd = cms.Task(caloTruthCellsProducer)
-            hgcalTriggerPrimitivesTask = cms.Task(process.hgcalVFE, process.truthCellsProd, process.hgcalBackEndLayer1, process.hgcalBackEndLayer2, process.hgcalTowerMap, process.hgcalTower)
-            process.hgcalTriggerPrimitivesTruth = cms.Sequence(hgcalTriggerPrimitivesTask)
-        if not hasattr(process, 'hgcalTriggerSelector'):
+            process.L1TTruthCellsProd = cms.Task(l1tCaloTruthCellsProducer)
+            L1THGCalTriggerPrimitivesTask = cms.Task(process.L1THGcalVFE, process.L1TTruthCellsProd, process.L1THGCalBackEndLayer1, process.L1THGCalBackEndLayer2, process.L1THGCalTowerMap, process.L1THGCalTower)
+            process.L1THGCalTriggerPrimitivesTruth = cms.Sequence(L1THGCalTriggerPrimitivesTask)
+        if not hasattr(process, 'L1THGCalTriggerSelector'):
             process.load('L1Trigger.L1THGCalUtilities.HGC3DClusterGenMatchSelector_cff')
         tmp = cms.TaskPlaceholder("tmp")
         tmpseq = cms.SequencePlaceholder("tmp")
@@ -207,10 +207,10 @@ class HGCalTriggerChains:
         backend2_task.remove(tmp)
         selector_sequence.remove(tmpseq)
         ntuple_sequence.remove(tmpseq)
-        process.globalReplace('hgcalVFE', vfe_task)
-        process.globalReplace('truthCellsProd', truth_prod_task)
-        process.globalReplace('hgcalBackEndLayer1', backend1_task)
-        process.globalReplace('hgcalBackEndLayer2', backend2_task)
-        process.globalReplace('hgcalTriggerSelector', selector_sequence)
-        process.globalReplace('hgcalTriggerNtuples', ntuple_sequence)
+        process.globalReplace('L1THGCalVFE', vfe_task)
+        process.globalReplace('L1TTruthCellsProd', truth_prod_task)
+        process.globalReplace('L1THGCalBackEndLayer1', backend1_task)
+        process.globalReplace('L1THGCalBackEndLayer2', backend2_task)
+        process.globalReplace('L1THGCalTriggerSelector', selector_sequence)
+        process.globalReplace('L1THGCalTriggerNtuples', ntuple_sequence)
         return process

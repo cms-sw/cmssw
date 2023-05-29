@@ -16,7 +16,7 @@ PPSDiamondSampicTimingCalibrationPCLWorker.totemTimingDigiTags=cms.VInputTag(cms
 PPSDiamondSampicTimingCalibrationPCLWorker.totemTimingRecHitTags=cms.VInputTag(cms.InputTag("totemTimingRecHitsAlCaRecoProducer"),
                                                   		    cms.InputTag("totemTimingRecHits"))
 
-taskALCARECOPromptCalibProdPPSDiamondSampicTimingCalib = cms.Task(
+taskALCARECOPromptCalibProdPPSDiamondSampic = cms.Task(
     PPSDiamondSampicTimingCalibrationPCLWorker,
     MEtoEDMConvertPPSDiamondSampicTimingCalib
 )

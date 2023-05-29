@@ -48,6 +48,25 @@ offlinePrimaryVertices = cms.EDProducer(
                                         
 )
 
+from Configuration.ProcessModifiers.weightedVertexing_cff import weightedVertexing
+weightedVertexing.toModify(offlinePrimaryVertices,
+                           vertexCollections = cms.VPSet(
+                           [cms.PSet(label=cms.string(""),
+                                     algorithm=cms.string("WeightedMeanFitter"),
+                                     chi2cutoff = cms.double(2.5),
+                                     minNdof=cms.double(0.0),
+                                     useBeamConstraint = cms.bool(False),
+                                     maxDistanceToBeam = cms.double(1.0)
+                           ),
+                           cms.PSet(label=cms.string("WithBS"),
+                                     algorithm = cms.string('WeightedMeanFitter'),
+                                     minNdof=cms.double(0.0),
+                                     chi2cutoff = cms.double(2.5),
+                                     useBeamConstraint = cms.bool(True),
+                                     maxDistanceToBeam = cms.double(1.0)
+                                     )
+                           ]
+                           ))
 # This customization is needed in the trackingLowPU era to be able to
 # produce vertices also in the cases in which the pixel detector is
 # not included in data-taking, like it was the case for "Quiet Beam"
@@ -67,20 +86,24 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (pp_on_XeXe_2017 | pp_on_AA).toModify(offlinePrimaryVertices,
                TkFilterParameters = dict(
+                   algorithm="filterWithThreshold",
                    maxD0Significance = 2.0,
                    maxD0Error = 10.0, 
                    maxDzError = 10.0, 
                    minPixelLayersWithHits=3,
                    minPt = 0.7,
-                   trackQuality = "highPurity"
+                   trackQuality = "highPurity",
+                   numTracksThreshold = cms.int32(10),
+                   maxNumTracksThreshold = cms.int32(1000),
+                   minPtTight = cms.double(1.0)
                ),
                TkClusParameters = cms.PSet(
-            algorithm = cms.string("gap"),
-            TkGapClusParameters = cms.PSet(
-                zSeparation = cms.double(1.0)        
-                )
-            )
+                 algorithm = cms.string("gap"),
+                 TkGapClusParameters = cms.PSet(
+                   zSeparation = cms.double(1.0)        
+                 )
                )
+)
     
 from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
 highBetaStar_2018.toModify(offlinePrimaryVertices,

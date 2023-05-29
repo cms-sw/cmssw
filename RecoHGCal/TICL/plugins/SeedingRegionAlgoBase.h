@@ -33,8 +33,6 @@ namespace ticl {
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); }
 
-    enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
-
   protected:
     int algo_verbosity_;
     int algoId_;

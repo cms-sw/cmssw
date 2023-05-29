@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 tkEgAlgoParameters = cms.PSet(
     nTRACK=cms.uint32(50),  # very large numbers for first test
     nTRACK_EGIN=cms.uint32(50),  # very large numbers for first test
@@ -10,6 +9,7 @@ tkEgAlgoParameters = cms.PSet(
     writeBeforeBremRecovery=cms.bool(True),
     filterHwQuality=cms.bool(False),
     caloHwQual=cms.int32(4),
+    doEndcapHwQual=cms.bool(False),
     dEtaMaxBrem=cms.double(0.02),
     dPhiMaxBrem=cms.double(0.1),
     absEtaBoundaries=cms.vdouble(0.0, 0.9, 1.5),
@@ -49,7 +49,15 @@ tkEgAlgoParameters = cms.PSet(
     doTkIso=cms.bool(True),
     doPfIso=cms.bool(True),
     hwIsoTypeTkEle=cms.uint32(0),
-    hwIsoTypeTkEm=cms.uint32(2)
+    hwIsoTypeTkEm=cms.uint32(2),
+    doCompositeTkEle=cms.bool(False),
+    nCompCandPerCluster=cms.uint32(3),
+    compositeParametersTkEle=cms.PSet(
+        # the working points are cuts on BDT output logits log(p/1-p)
+        loose_wp=cms.double(-0.732422),
+        tight_wp=cms.double(0.214844),
+        model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/compositeID.json")
+    ),
 )
 
 tkEgSorterParameters = cms.PSet(

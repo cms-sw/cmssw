@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
@@ -20,36 +20,38 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTHcalMETNoiseFilter : public edm::EDFilter {
+class HLTHcalMETNoiseFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTHcalMETNoiseFilter(const edm::ParameterSet&);
-  ~HLTHcalMETNoiseFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
   // parameters
-  edm::InputTag HcalNoiseRBXCollectionTag_;
-  int severity_;
-  int maxNumRBXs_;
-  int numRBXsToConsider_;
-  bool needEMFCoincidence_;
-  double minRBXEnergy_;
-  double minRatio_;
-  double maxRatio_;
-  int minHPDHits_;
-  int minRBXHits_;
-  int minHPDNoOtherHits_;
-  int minZeros_;
-  double minHighEHitTime_;
-  double maxHighEHitTime_;
-  double maxRBXEMF_;
+  const edm::InputTag HcalNoiseRBXCollectionTag_;
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
+  const int severity_;
+  const int maxNumRBXs_;
+  const int numRBXsToConsider_;
+  const bool needEMFCoincidence_;
+  const double minRBXEnergy_;
+  const double minRatio_;
+  const double maxRatio_;
+  const int minHPDHits_;
+  const int minRBXHits_;
+  const int minHPDNoOtherHits_;
+  const int minZeros_;
+  const double minHighEHitTime_;
+  const double maxHighEHitTime_;
+  const double maxRBXEMF_;
 
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
-  double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_;
+  const double minRecHitE_;
+  const double minLowHitE_;
+  const double minHighHitE_;
+  const double minR45HitE_;
 
-  double TS4TS5EnergyThreshold_;
+  const double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;
   std::vector<std::pair<double, double> > TS4TS5LowerCut_;
 

@@ -2555,16 +2555,16 @@ def dump(args):
             filter(IOV.tag_name == name).\
             distinct():
             if args.format == 'xml':
-                xmlProcessor.payload2xml(session, payload)
+                xmlProcessor.payload2xml(session, payload, args.destfile)
             else:
                 _dump_payload(session, payload, args.loadonly)
 
-    elif args.type == 'gt' and _exists(session, conddb.GlobalTag.name, name) != None:
+    elif args.type == 'gt' and _exists(session, GlobalTag.name, name) != None:
         for payload, in session.query(IOV.payload_hash).\
             filter(GlobalTagMap.global_tag_name == name, IOV.tag_name == GlobalTagMap.tag_name).\
             distinct():
             if args.format == 'xml':
-                xmlProcessor.payload2xml(session, payload)
+                xmlProcessor.payload2xml(session, payload, args.destfile)
             else:
                 _dump_payload(session, payload, args.loadonly)
 

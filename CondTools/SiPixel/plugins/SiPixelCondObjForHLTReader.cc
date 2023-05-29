@@ -51,6 +51,9 @@ namespace cms {
   public:
     explicit SiPixelCondObjForHLTReader(const edm::ParameterSet &iConfig);
 
+    ~SiPixelCondObjForHLTReader() override = default;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
     void analyze(const edm::Event &, const edm::EventSetup &) override;
     void endJob() override;
 
@@ -271,6 +274,15 @@ namespace cms {
   void SiPixelCondObjForHLTReader::endJob() {
     edm::LogPrint("SiPixelCondObjForHLTReader") << " ---> End job " << std::endl;
   }
+
+  void SiPixelCondObjForHLTReader::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setComment("EDAnalyzer to read per-module SiPixelGainCalibrationForHLT payloads in the EventSetup");
+    desc.add<bool>("useSimRcd", false);
+    desc.addUntracked<double>("maxRangeDeadPixHist", 0.001);
+    descriptions.addWithDefaultLabel(desc);
+  }
+
 }  // namespace cms
 
 using namespace cms;

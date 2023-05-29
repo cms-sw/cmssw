@@ -103,6 +103,7 @@ private:
   bool instantiateDQM;
 
   bool disableMappingCheck, b904Setup;
+  int b904vmecrate, b904dmb;
 
   CSCMonitorInterface* monitor;
 
@@ -140,6 +141,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet& pset) : numOfEvents(0) {
   disableMappingCheck = pset.getUntrackedParameter<bool>("DisableMappingCheck", false);
   // Make aware the unpacker that B904 test setup is used (disable mapping inconsistency check)
   b904Setup = pset.getUntrackedParameter<bool>("B904Setup", false);
+  b904vmecrate = pset.getUntrackedParameter<int>("B904vmecrate", 1);
+  b904dmb = pset.getUntrackedParameter<int>("B904dmb", 3);
 
   /// Visualization of raw data
   visualFEDInspect = pset.getUntrackedParameter<bool>("VisualFEDInspect", false);
@@ -229,6 +232,8 @@ void CSCDCCUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<bool>("DisableMappingCheck", false)
       ->setComment("# Disable FED/DDU to chamber mapping inconsistency check");
   desc.addUntracked<bool>("B904Setup", false)->setComment("# Make the unpacker aware of B904 test setup configuration");
+  desc.addUntracked<int>("B904vmecrate", 1)->setComment("# Set vmecrate number for chamber used in B904 test setup");
+  desc.addUntracked<int>("B904dmb", 3)->setComment("# Set dmb slot for chamber used in B904 test setup");
   descriptions.add("muonCSCDCCUnpacker", desc);
   descriptions.setComment(" This is the generic cfi file for CSC unpacking");
 }
@@ -466,8 +471,9 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
           for (unsigned int iCSC = 0; iCSC < cscData.size(); ++iCSC)  // loop over CSCs
           {
             ///first process chamber-wide digis such as LCT
-            int vmecrate = cscData[iCSC].dmbHeader()->crateID();
-            int dmb = cscData[iCSC].dmbHeader()->dmbID();
+
+            int vmecrate = b904Setup ? b904vmecrate : cscData[iCSC].dmbHeader()->crateID();
+            int dmb = b904Setup ? b904dmb : cscData[iCSC].dmbHeader()->dmbID();
 
             int icfeb = 0;   /// default value for all digis not related to cfebs
             int ilayer = 0;  /// layer=0 flags entire chamber
@@ -523,8 +529,11 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
               if (SuppressZeroLCT) {
                 std::vector<CSCALCTDigi> alctDigis_0;
                 for (int unsigned i = 0; i < alctDigis.size(); ++i) {
-                  if (alctDigis[i].isValid())
+                  if (alctDigis[i].isValid()) {
+                    if (debug)
+                      LogTrace("CSCDCCUnpacker|CSCRawToDigi") << alctDigis[i] << std::endl;
                     alctDigis_0.push_back(alctDigis[i]);
+                  }
                 }
                 alctProduct->move(std::make_pair(alctDigis_0.begin(), alctDigis_0.end()), layer);
               } else
@@ -562,8 +571,11 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
               if (SuppressZeroLCT) {
                 std::vector<CSCCorrelatedLCTDigi> correlatedlctDigis_0;
                 for (int unsigned i = 0; i < correlatedlctDigis.size(); ++i) {
-                  if (correlatedlctDigis[i].isValid())
+                  if (correlatedlctDigis[i].isValid()) {
+                    if (debug)
+                      LogTrace("CSCDCCUnpacker|CSCRawToDigi") << correlatedlctDigis[i] << std::endl;
                     correlatedlctDigis_0.push_back(correlatedlctDigis[i]);
+                  }
                 }
                 corrlctProduct->move(std::make_pair(correlatedlctDigis_0.begin(), correlatedlctDigis_0.end()), layer);
               } else
@@ -573,8 +585,11 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
               if (SuppressZeroLCT) {
                 std::vector<CSCCLCTDigi> clctDigis_0;
                 for (int unsigned i = 0; i < clctDigis.size(); ++i) {
-                  if (clctDigis[i].isValid())
+                  if (clctDigis[i].isValid()) {
+                    if (debug)
+                      LogTrace("CSCDCCUnpacker|CSCRawToDigi") << clctDigis[i] << std::endl;
                     clctDigis_0.push_back(clctDigis[i]);
+                  }
                 }
                 clctProduct->move(std::make_pair(clctDigis_0.begin(), clctDigis_0.end()), layer);
               } else
@@ -623,12 +638,12 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                     int gem_region = (layer.endcap() == 1) ? 1 : -1;
                     // Loop over GEM layer eta/rolls
                     for (unsigned ieta = 0; ieta < 8; ieta++) {
-                      // GE11 eta/roll collection addressing according to GEMDetID definition is 1-8
+                      // GE11 eta/roll collection addressing according to GEMDetID definition is 1-8 (eta 8 being closest to beampipe)
                       GEMDetId gemid(gem_region, layer.ring(), layer.station(), igem + 1, gem_chamber, ieta + 1);
-                      // GE11 actual data format reporting eta/rolls in 0-7 range
+                      // GE11 trigger data format reports eta/rolls in 0-7 range (eta 0 being closest to beampipe)
                       // mapping agreement is that real data eta needs to be reversed from 0-7 to 8-1 for GEMDetId collection convention
-                      std::vector<GEMPadDigiCluster> gemDigis =
-                          cscData[iCSC].tmbData()->gemData()->etaDigis(igem, 7 - ieta);
+                      std::vector<GEMPadDigiCluster> gemDigis = cscData[iCSC].tmbData()->gemData()->etaDigis(
+                          igem, 7 - ieta, cscData[iCSC].tmbHeader()->ALCTMatchTime());
                       if (!gemDigis.empty()) {
                         gemProduct->move(std::make_pair(gemDigis.begin(), gemDigis.end()), gemid);
                       }
@@ -864,7 +879,6 @@ void CSCDCCUnpacker::visual_raw(
   int dcc_h1_check = 0;
 
   //Flags
-  int ddu_h2_found = 0;  //DDU Header 2 found
   int w = 0;
 
   //Logic variables
@@ -945,9 +959,6 @@ void CSCDCCUnpacker::visual_raw(
               buf[i + 4 * (j - 1)]);
 
       // WARNING in 5_0_X for time being
-      ddu_h2_found++;
-      ddu_h2_found--;
-
       ddu_h2_check[j] = ((buf[i + 4 * (j - 1) + 1] == 0x8000) && (buf[i + 4 * (j - 1) + 2] == 0x0001) &&
                          (buf[i + 4 * (j - 1) + 3] == 0x8000));
 
@@ -1139,7 +1150,6 @@ void CSCDCCUnpacker::visual_raw(
       ddu_h2_coll.push_back(word_numbering);
       std::cout << tempbuf1 << std::endl;
       w = 0;
-      ddu_h2_found = 1;
     }
 
     // DDU Header 3 (either between DDU Header 2 DMB Header or DDU Header 2 DDU Trailer1)
@@ -1162,7 +1172,6 @@ void CSCDCCUnpacker::visual_raw(
       ddu_h3_coll.push_back(word_numbering);
       std::cout << tempbuf1 << std::endl;
       w = 0;
-      ddu_h2_found = 0;
     }
 
     // DMB Header 1,2
@@ -1198,7 +1207,6 @@ void CSCDCCUnpacker::visual_raw(
       dmb_h1_coll.push_back(word_numbering);
       std::cout << tempbuf1 << std::endl;
       w = 0;
-      ddu_h2_found = 1;
     }
 
     else if (dmb_h2_check[1]) {
@@ -1226,7 +1234,6 @@ void CSCDCCUnpacker::visual_raw(
               dmb_inst_l1a);
       std::cout << tempbuf1 << std::endl;
       w = 0;
-      ddu_h2_found = 1;
     }
 
     //DDU Trailer 1

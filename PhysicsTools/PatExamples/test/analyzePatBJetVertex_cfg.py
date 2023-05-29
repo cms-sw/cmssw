@@ -11,12 +11,11 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
 )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.GlobalTag.globaltag = cms.string('IDEAL_V12::All')
-
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 # produce PAT Layer 1
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 # switch old trigger matching off

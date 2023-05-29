@@ -1,5 +1,10 @@
+
 #ifndef FIRMWARE_TkJetWord_h
 #define FIRMWARE_TkJetWord_h
+
+// Class to store the 128-bit TkJet word for L1 Track Trigger.
+// Author: Emily MacDonald, updated by Benjamin Radburn-Smith (September 2022)
+// 2nd update: George Karathanasis (Oct 2022)
 
 #include <vector>
 #include <ap_int.h>
@@ -7,17 +12,15 @@
 #include <cmath>
 #include <bitset>
 #include <string>
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 
 namespace l1t {
 
   class TkJetWord {
   public:
     // ----------constants, enums and typedefs ---------
-    int INTPHI_PI = 720;
-    int INTPHI_TWOPI = 2 * INTPHI_PI;
-    float INTPT_LSB = 1 >> 5;
-    float ETAPHI_LSB = M_PI / (1 << 12);
-    float Z0_LSB = 0.05;
+    static constexpr double MAX_Z0 = 30.;
+    static constexpr double MAX_ETA = 8.;
 
     enum TkJetBitWidths {
       kPtSize = 16,
@@ -27,33 +30,38 @@ namespace l1t {
       kZ0Size = 10,
       kNtSize = 5,
       kXtSize = 4,
-      kUnassignedSize = 8,
-      kTkJetWordSize = kPtSize + kGlbEtaSize + kGlbPhiSize + kZ0Size + kNtSize + kXtSize + kUnassignedSize,
+      kDispFlagSize = 1,
+      kUnassignedSize = 65,
+      kTkJetWordSize =
+          kPtSize + kGlbEtaSize + kGlbPhiSize + kZ0Size + kNtSize + kXtSize + kDispFlagSize + kUnassignedSize,
     };
 
     enum TkJetBitLocations {
       kPtLSB = 0,
       kPtMSB = kPtLSB + TkJetBitWidths::kPtSize - 1,
-      kGlbEtaLSB = kPtMSB + 1,
-      kGlbEtaMSB = kGlbEtaLSB + TkJetBitWidths::kGlbEtaSize - 1,
-      kGlbPhiLSB = kGlbEtaMSB + 1,
+      kGlbPhiLSB = kPtMSB + 1,
       kGlbPhiMSB = kGlbPhiLSB + TkJetBitWidths::kGlbPhiSize - 1,
-      kZ0LSB = kGlbPhiMSB + 1,
+      kGlbEtaLSB = kGlbPhiMSB + 1,
+      kGlbEtaMSB = kGlbEtaLSB + TkJetBitWidths::kGlbEtaSize - 1,
+      kZ0LSB = kGlbEtaMSB + 1,
       kZ0MSB = kZ0LSB + TkJetBitWidths::kZ0Size - 1,
       kNtLSB = kZ0MSB + 1,
       kNtMSB = kNtLSB + TkJetBitWidths::kNtSize - 1,
       kXtLSB = kNtMSB + 1,
       kXtMSB = kXtLSB + TkJetBitWidths::kXtSize - 1,
-      kUnassignedLSB = kXtMSB + 1,
+      kDispFlagLSB = kXtMSB + 1,
+      kDispFlagMSB = kDispFlagLSB + TkJetBitWidths::kDispFlagSize - 1,
+      kUnassignedLSB = kDispFlagMSB + 1,
       kUnassignedMSB = kUnassignedLSB + TkJetBitWidths::kUnassignedSize - 1,
     };
 
     typedef ap_ufixed<kPtSize, kPtMagSize, AP_TRN, AP_SAT> pt_t;
     typedef ap_int<kGlbEtaSize> glbeta_t;
     typedef ap_int<kGlbPhiSize> glbphi_t;
-    typedef ap_int<kZ0Size> z0_t;                                        // 40cm / 0.1
-    typedef ap_uint<kNtSize> nt_t;                                       //number of tracks
-    typedef ap_uint<kXtSize> nx_t;                                       //number of tracks with xbit = 1
+    typedef ap_int<kZ0Size> z0_t;   // 40cm / 0.1
+    typedef ap_uint<kNtSize> nt_t;  //number of tracks
+    typedef ap_uint<kXtSize> nx_t;  //number of tracks with xbit = 1
+    typedef ap_uint<kDispFlagSize> dispflag_t;
     typedef ap_uint<TkJetBitWidths::kUnassignedSize> tkjetunassigned_t;  // Unassigned bits
     typedef std::bitset<TkJetBitWidths::kTkJetWordSize> tkjetword_bs_t;
     typedef ap_uint<TkJetBitWidths::kTkJetWordSize> tkjetword_t;
@@ -61,28 +69,14 @@ namespace l1t {
   public:
     // ----------Constructors --------------------------
     TkJetWord() {}
-    TkJetWord(pt_t pt, glbeta_t eta, glbphi_t phi, z0_t z0, nt_t nt, nx_t nx, tkjetunassigned_t unassigned) {
-      std::string word = "";
-      word.append(TkJetBitWidths::kUnassignedSize - (unassigned.to_string().length() - 2), '0');
-      word = word + (unassigned.to_string().substr(2, unassigned.to_string().length() - 2));
-      word.append(TkJetBitWidths::kXtSize - (nx.to_string().length() - 2), '0');
-      word = word + (nx.to_string().substr(2, nx.to_string().length() - 2));
-      word.append(TkJetBitWidths::kNtSize - (nt.to_string().length() - 2), '0');
-      word = word + (nt.to_string().substr(2, nt.to_string().length() - 2));
-      word.append(TkJetBitWidths::kZ0Size - (z0.to_string().length() - 2), '0');
-      word = word + (z0.to_string().substr(2, z0.to_string().length() - 2));
-      word.append(TkJetBitWidths::kGlbPhiSize - (phi.to_string().length() - 2), '0');
-      word = word + (phi.to_string().substr(2, phi.to_string().length() - 2));
-      word.append(TkJetBitWidths::kGlbEtaSize - (eta.to_string().length() - 2), '0');
-      word = word + (eta.to_string().substr(2, eta.to_string().length() - 2));
-      ap_ufixed<kPtSize + 5, kPtMagSize + 5, AP_TRN, AP_SAT> pt_2 = pt;
-      ap_uint<kPtSize> pt_temp = pt_2 << 5;
-      word.append(TkJetBitWidths::kPtSize - (pt_temp.to_string().length() - 2), '0');
-      word = word + (pt_temp.to_string().substr(2, pt_temp.to_string().length() - 2));
-
-      tkjetword_bs_t tmp(word);
-      tkJetWord_ = tmp;
-    }
+    TkJetWord(pt_t pt,
+              glbeta_t eta,
+              glbphi_t phi,
+              z0_t z0,
+              nt_t nt,
+              nx_t nx,
+              dispflag_t dispflag,
+              tkjetunassigned_t unassigned);
 
     ~TkJetWord() {}
 
@@ -127,6 +121,12 @@ namespace l1t {
       ret.V = tkJetWord()(TkJetBitLocations::kXtMSB, TkJetBitLocations::kXtLSB);
       return ret;
     }
+    dispflag_t dispFlagWord() const {
+      dispflag_t ret;
+      ret.V = tkJetWord()(TkJetBitLocations::kDispFlagMSB, TkJetBitLocations::kDispFlagLSB);
+      return ret;
+    }
+
     tkjetunassigned_t unassignedWord() const {
       return tkJetWord()(TkJetBitLocations::kUnassignedMSB, TkJetBitLocations::kUnassignedLSB);
     }
@@ -140,20 +140,37 @@ namespace l1t {
     unsigned int z0Bits() const { return z0Word().to_uint(); }
     unsigned int ntBits() const { return ntWord().to_uint(); }
     unsigned int xtBits() const { return xtWord().to_uint(); }
+    unsigned int dispFlagBits() const { return dispFlagWord().to_uint(); }
     unsigned int unassignedBits() const { return unassignedWord().to_uint(); }
 
     // These functions return the unpacked and converted values
     // These functions return real numbers converted from the digitized quantities by unpacking the 64-bit vertex word
     float pt() const { return ptWord().to_float(); }
-    float glbeta() const { return glbEtaWord().to_float() * ETAPHI_LSB; }
-    float glbphi() const { return glbPhiWord().to_float() * ETAPHI_LSB; }
-    float z0() const { return z0Word().to_float() * Z0_LSB; }
+    float glbeta() const {
+      return unpackSignedValue(
+          glbEtaWord(), TkJetBitWidths::kGlbEtaSize, (MAX_ETA) / (1 << TkJetBitWidths::kGlbEtaSize));
+    }
+    float glbphi() const {
+      return unpackSignedValue(
+          glbPhiWord(), TkJetBitWidths::kGlbPhiSize, (2. * std::abs(M_PI)) / (1 << TkJetBitWidths::kGlbPhiSize));
+    }
+    float z0() const {
+      return unpackSignedValue(z0Word(), TkJetBitWidths::kZ0Size, MAX_Z0 / (1 << TkJetBitWidths::kZ0Size));
+    }
     int nt() const { return (ap_ufixed<kNtSize + 2, kNtSize>(ntWord())).to_int(); }
     int xt() const { return (ap_ufixed<kXtSize + 2, kXtSize>(xtWord())).to_int(); }
+    int dispflag() const { return (ap_ufixed<kDispFlagSize + 2, kDispFlagSize>(dispFlagWord())).to_int(); }
     unsigned int unassigned() const { return unassignedWord().to_uint(); }
 
     // ----------member functions (setters) ------------
-    void setTkJetWord(pt_t pt, glbeta_t eta, glbphi_t phi, z0_t z0, nt_t nt, nx_t nx, tkjetunassigned_t unassigned);
+    void setTkJetWord(pt_t pt,
+                      glbeta_t eta,
+                      glbphi_t phi,
+                      z0_t z0,
+                      nt_t nt,
+                      nx_t nx,
+                      dispflag_t dispflag,
+                      tkjetunassigned_t unassigned);
 
   private:
     // ----------private member functions --------------

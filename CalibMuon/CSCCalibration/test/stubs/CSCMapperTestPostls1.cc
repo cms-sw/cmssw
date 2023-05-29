@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -10,24 +10,18 @@
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
 #include <iostream>
 
-class CSCMapperTestPostls1 : public edm::EDAnalyzer {
+class CSCMapperTestPostls1 : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCMapperTestPostls1(const edm::ParameterSet &);
-  ~CSCMapperTestPostls1();
+  ~CSCMapperTestPostls1() override = default;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
-
-  std::string algoName;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   const edm::ESGetToken<CSCChannelMapperBase, CSCChannelMapperRecord> theCSCChannelMapperToken_;
 };
 
 CSCMapperTestPostls1::CSCMapperTestPostls1(const edm::ParameterSet &pset) : theCSCChannelMapperToken_(esConsumes()) {}
-
-CSCMapperTestPostls1::~CSCMapperTestPostls1() {}
 
 void CSCMapperTestPostls1::analyze(const edm::Event &ev, const edm::EventSetup &iSetup) {
   const int egeo[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};          // endcap 1=+z, 2=-z
@@ -59,7 +53,7 @@ void CSCMapperTestPostls1::analyze(const edm::Event &ev, const edm::EventSetup &
 
   const auto mapper_ = &iSetup.getData(theCSCChannelMapperToken_);
 
-  algoName = mapper_->name();
+  std::string algoName = mapper_->name();
 
   std::cout << "CSCMapperTestPostls1: analyze sees algorithm " << algoName << " in Event Setup" << std::endl;
 
@@ -144,10 +138,6 @@ void CSCMapperTestPostls1::analyze(const edm::Event &ev, const edm::EventSetup &
     std::cout << " " << id << " " << idout << std::endl;
   }
 }
-
-void CSCMapperTestPostls1::beginJob() {}
-
-void CSCMapperTestPostls1::endJob() {}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(CSCMapperTestPostls1);

@@ -60,6 +60,7 @@ private:
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   const edm::EDPutTokenT<MkFitSeedWrapper> putToken_;
+  const unsigned int maxNSeeds_;
 };
 
 MkFitSeedConverter::MkFitSeedConverter(edm::ParameterSet const& iConfig)
@@ -69,13 +70,15 @@ MkFitSeedConverter::MkFitSeedConverter(edm::ParameterSet const& iConfig)
       ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
       mfToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      putToken_{produces<MkFitSeedWrapper>()} {}
+      putToken_{produces<MkFitSeedWrapper>()},
+      maxNSeeds_{iConfig.getParameter<unsigned int>("maxNSeeds")} {}
 
 void MkFitSeedConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add("seeds", edm::InputTag{"initialStepSeeds"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
+  desc.add("maxNSeeds", 500000U);
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -95,6 +98,11 @@ mkfit::TrackVec MkFitSeedConverter::convertSeeds(const edm::View<TrajectorySeed>
                                                  const MagneticField& mf,
                                                  const MkFitGeometry& mkFitGeom) const {
   mkfit::TrackVec ret;
+  if (seeds.size() > maxNSeeds_) {
+    edm::LogError("TooManySeeds") << "Exceeded maximum number of seeds! maxNSeeds=" << maxNSeeds_
+                                  << " nSeed=" << seeds.size();
+    return ret;
+  }
   ret.reserve(seeds.size());
 
   auto isPlusSide = [&ttopo](const DetId& detid) {

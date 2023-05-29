@@ -26,13 +26,16 @@ class CMSSteppingVerbose {
 public:
   explicit CMSSteppingVerbose(
       G4int verb, G4double ekin, std::vector<G4int>& evtNum, std::vector<G4int>& primV, std::vector<G4int>& trNum);
-  ~CMSSteppingVerbose();
+  ~CMSSteppingVerbose() = default;
 
-  void BeginOfEvent(const G4Event*);
-  void TrackStarted(const G4Track*, bool isKilled);
-  void TrackEnded(const G4Track*) const;
-  void StackFilled(const G4Track*, bool isKilled) const;
-  void NextStep(const G4Step*, const G4SteppingManager* ptr, bool isKilled) const;
+  void beginOfEvent(const G4Event*);
+  void trackStarted(const G4Track*, bool isKilled);
+  void trackEnded(const G4Track*) const;
+  void stackFilled(const G4Track*, bool isKilled) const;
+  void nextStep(const G4Step*, const G4SteppingManager* ptr, bool isKilled) const;
+
+  void stopEventPrint();
+  void setVerbose(int val) { m_verbose = val; }
 
 private:
   G4bool m_PrintEvent;

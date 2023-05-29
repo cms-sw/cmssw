@@ -17,22 +17,19 @@
 class HGCalGeometryClient : public DQMEDHarvester {
 public:
   explicit HGCalGeometryClient(const edm::ParameterSet&);
-  ~HGCalGeometryClient() override;
+  ~HGCalGeometryClient() override = default;
 
   void beginRun(const edm::Run& run, const edm::EventSetup& c) override {}
   void dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& ig) override;
 
 private:
-  std::string subDirectory_;
-
   int geometryEndjob(const std::vector<MonitorElement*>& hcalMEs);
+
+  const std::string subDirectory_;
 };
 
-HGCalGeometryClient::HGCalGeometryClient(const edm::ParameterSet& iConfig) {
-  subDirectory_ = iConfig.getParameter<std::string>("DirectoryName");
-}
-
-HGCalGeometryClient::~HGCalGeometryClient() {}
+HGCalGeometryClient::HGCalGeometryClient(const edm::ParameterSet& iConfig)
+    : subDirectory_(iConfig.getParameter<std::string>("DirectoryName")) {}
 
 void HGCalGeometryClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& ig) {
   ig.setCurrentFolder("/");

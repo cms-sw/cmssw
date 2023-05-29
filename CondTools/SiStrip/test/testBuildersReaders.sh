@@ -16,7 +16,7 @@ pwd
 echo " testing CondTools/SiStrip"
 
 # do the builders first (need the input db file)
-for entry in "${LOCAL_TEST_DIR}/"SiStrip*Builder_cfg.py
+for entry in "${SCRAM_TEST_PATH}/"SiStrip*Builder_cfg.py
 do
   echo "===== Test \"cmsRun $entry \" ===="
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
@@ -25,7 +25,7 @@ done
 echo -e " Done with the writers \n\n"
 
 ## do the readers
-for entry in "${LOCAL_TEST_DIR}/"SiStrip*Reader_cfg.py
+for entry in "${SCRAM_TEST_PATH}/"SiStrip*Reader_cfg.py
 do
   echo "===== Test \"cmsRun $entry \" ===="
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
@@ -36,7 +36,7 @@ echo -e " Done with the readers \n\n"
 sleep 5
 
 ## do the builders from file
-for entry in "${LOCAL_TEST_DIR}/"SiStrip*FromASCIIFile_cfg.py
+for entry in "${SCRAM_TEST_PATH}/"SiStrip*FromASCIIFile_cfg.py
 do
   echo "===== Test \"cmsRun $entry \" ===="
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
@@ -45,7 +45,7 @@ done
 echo -e " Done with the builders from file \n\n"
 
 ## do the miscalibrators
-for entry in "${LOCAL_TEST_DIR}/"SiStrip*Miscalibrator_cfg.py
+for entry in "${SCRAM_TEST_PATH}/"SiStrip*Miscalibrator_cfg.py
 do
   echo "===== Test \"cmsRun $entry \" ===="
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
@@ -75,11 +75,25 @@ sqlite3 gainManipulations.db "update IOV SET SINCE=1 where SINCE=$((--OLDG2since
 echo -e "\n\n Checking the content of the local conditions file \n\n"
 sqlite3 gainManipulations.db "select * from IOV"
 
-(cmsRun ${LOCAL_TEST_DIR}/SiStripApvGainRescaler_cfg.py additionalConds=sqlite_file:${PWD}/gainManipulations.db) || die "Failure using cmsRun SiStripApvGainRescaler_cfg.py)" $?
+(cmsRun ${SCRAM_TEST_PATH}/SiStripApvGainRescaler_cfg.py additionalConds=sqlite_file:${PWD}/gainManipulations.db) || die "Failure using cmsRun SiStripApvGainRescaler_cfg.py)" $?
 echo -e " Done with the gain rescaler \n\n"
 
 ## do the visualization code
 
-(cmsRun "${LOCAL_TEST_DIR}/"SiStripCondVisualizer_cfg.py) || die "Failure using cmsRun SiStripCondVisualizer_cfg.py" $?
-(python3 "${LOCAL_TEST_DIR}/"db_tree_dump_wrapper.py) || die "Failure running python3 db_tree_dump_wrapper.py" $?
+(cmsRun "${SCRAM_TEST_PATH}/"SiStripCondVisualizer_cfg.py) || die "Failure using cmsRun SiStripCondVisualizer_cfg.py" $?
+(python3 "${SCRAM_TEST_PATH}/"db_tree_dump_wrapper.py) || die "Failure running python3 db_tree_dump_wrapper.py" $?
 echo -e " Done with the visualization \n\n"
+
+echo -e "\n\n Testing the conditions patching code: \n\n"
+## do the bad components patching code
+myFEDs=""
+for i in {51..490..2}; do
+    myFEDs+="${i},"
+done
+myFEDs+=491
+echo " masking the following FEDs: "${myFEDs}
+
+(cmsRun "${SCRAM_TEST_PATH}/"SiStripBadChannelPatcher_cfg.py isUnitTest=True FEDsToAdd=${myFEDs} outputTag=OddFEDs) || die "Failure using cmsRun SiStripBadChannelPatcher_cfg.py when adding FEDs" $?
+(cmsRun "${SCRAM_TEST_PATH}/"SiStripBadChannelPatcher_cfg.py isUnitTest=True inputConnection=sqlite_file:outputDB.db inputTag=OddFEDs FEDsToRemove=${myFEDs} outputTag=OddFEDsRemoved) || die "Failure using cmsRun SiStripBadChannelPatcher_cfg.py when removing FEDs" $?
+
+echo -e " Done with the bad components patching \n\n"

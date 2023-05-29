@@ -101,10 +101,21 @@ namespace dqmoffline {
                                              const std::string triggerProcess) {
       std::vector<edm::InputTag> results;
       for (auto trigger : triggers) {
-        unsigned int hltIndexOffset(2);
-        unsigned int moduleIndex = hltConfig.size(trigger) - hltIndexOffset;
+        // For some reason various modules now come *after* "hltBoolEnd"
+        // Really just want module one index before "hltBoolEnd" - AWB 2022.09.28
+        unsigned int moduleIndex = 999999;
+        for (int ii = 0; ii < int(hltConfig.size(trigger)); ii++) {
+          if (hltConfig.moduleLabels(trigger)[ii] == "hltBoolEnd") {
+            moduleIndex = ii - 1;
+            break;
+          }
+        }
+        if (moduleIndex == 999999) {
+          edm::LogError("L1TCommon") << " Found no module label in trigger " << trigger << std::endl;
+          continue;
+        }
         const std::vector<std::string> &modules(hltConfig.moduleLabels(trigger));
-        std::string module(modules[moduleIndex]);
+        const std::string &module(modules[moduleIndex]);
         edm::InputTag filterInputTag = edm::InputTag(module, "", triggerProcess);
         results.push_back(filterInputTag);
       }

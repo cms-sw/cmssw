@@ -39,8 +39,8 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namex_ = iC.getParameter<std::string>("nameX");
   fromDD4hep_ = iC.getParameter<bool>("fromDD4hep");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" << namec_ << ":"
-                                << namet_ << " and fromDD4hep flag " << fromDD4hep_;
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
+                                << namec_ << ":" << namet_ << ":" << namex_ << " and fromDD4hep flag " << fromDD4hep_;
 #endif
   auto cc = setWhatProduced(this, namex_);
   if (fromDD4hep_)
@@ -51,10 +51,10 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
 
 void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("name", "HGCalEESensitive");
-  desc.add<std::string>("name2", "HGCalEE");
+  desc.add<std::string>("name", "HGCalEELayer");
+  desc.add<std::string>("name2", "HGCalEESensitive");
   desc.add<std::string>("nameW", "HGCalEEWafer");
-  desc.add<std::string>("nameC", "HGCalEECell");
+  desc.add<std::string>("nameC", "HGCalEESensitive");
   desc.add<std::string>("nameT", "HGCal");
   desc.add<std::string>("nameX", "HGCalEESensitive");
   desc.add<bool>("fromDD4hep", false);

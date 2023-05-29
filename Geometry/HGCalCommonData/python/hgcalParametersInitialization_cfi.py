@@ -1,22 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.HGCalCommonData.hgcalEEParametersInitialize_cfi import *
-
-from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-
-dd4hep.toModify(hgcalEEParametersInitialize,
-                fromDD4hep = True )
+from Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi import *
 
 hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(
-    name  = "HGCalHESiliconSensitive",
+    name  = "HGCalHESiliconLayer",
+    name2 = "HGCalHESiliconSensitive",
     nameW = "HGCalHEWafer",
-    nameC = "HGCalHECell",
+    nameC = "HGCalHESiliconSensitive",
     nameX = "HGCalHESiliconSensitive",
 )
 
 hgcalHEScParametersInitialize = hgcalEEParametersInitialize.clone(
     name  = "HGCalHEScintillatorSensitive",
+    name2 = "HGCalHEScintillatorSensitive",
     nameW = "HGCalWafer",
-    nameC = "HGCalCell",
+    nameC = "HGCalHEScintillatorSensitive",
     nameX = "HGCalHEScintillatorSensitive",
 )

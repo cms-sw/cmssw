@@ -62,6 +62,7 @@ public:
   std::vector<HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType> HcalCellTypes(const HcalSubdetector&, int ieta = -1, int depth = -1) const;
   bool isBH() const { return isBH_; }
+  bool isHE() const { return (hpar->etaMax[1] > hpar->etaMin[1]); }
   const HcalLayerDepthMap* ldMap() const { return &ldmap_; }
   int maxHFDepth(const int& ieta, const int& iphi) const;
   unsigned int numberOfCells(const HcalSubdetector&) const;

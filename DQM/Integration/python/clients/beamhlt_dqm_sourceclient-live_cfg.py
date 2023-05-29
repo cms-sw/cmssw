@@ -6,12 +6,17 @@ import FWCore.ParameterSet.Config as cms
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineHLT'
 BSOnlineJobName = 'BeamSpotOnlineHLT'
-BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+BSOnlineOmsServiceUrl = 'http://cmsoms-eventing.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("BeamMonitor", Run3)
+if 'runkey=hi_run' in sys.argv:
+  from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
+  process = cms.Process("BeamMonitorHLT", Run3_pp_on_PbPb_approxSiStripClusters)
+else:
+  from Configuration.Eras.Era_Run3_cff import Run3
+  process = cms.Process("BeamMonitorHLT", Run3)
+
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -39,32 +44,10 @@ if 'unitTest=True' in sys.argv:
 # Common part for PP and H.I Running
 #-----------------------------
 if unitTest:
-  process.load("DQM.Integration.config.unittestinputsource_cfi")
-  from DQM.Integration.config.unittestinputsource_cfi import options
-
-  # Overwrite source of the unitTest to use a streamer file instead of the DAS query output
-  print("[beamhlt_dqm_sourceclient-live_cfg]:: Overriding DAS input to use a streamer file")
-
-  # Read streamer files from https://github.com/cms-data/DQM-Integration
-  import os
-  dqm_integration_data = [os.path.join(dir,'DQM/Integration/data') for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,'DQM/Integration/data'))][0]
-
-  # Set the process source
-  process.source = cms.Source("DQMStreamerReader",
-      runNumber = cms.untracked.uint32(346373),
-      runInputDir = cms.untracked.string(dqm_integration_data),
-      SelectEvents = cms.untracked.vstring('*'),
-      streamLabel = cms.untracked.string('streamDQMOnlineBeamspot'),
-      scanOnce = cms.untracked.bool(True),
-      minEventsPerLumi = cms.untracked.int32(1000),
-      delayMillis = cms.untracked.uint32(500),
-      nextLumiTimeoutMillis = cms.untracked.int32(0),
-      skipFirstLumis = cms.untracked.bool(False),
-      deleteDatFiles = cms.untracked.bool(False),
-      endOfRunKills  = cms.untracked.bool(False),
-      inputFileTransitionsEachEvent = cms.untracked.bool(False)
-  )
-
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+  # new stream label
+  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 elif live:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
@@ -117,7 +100,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 # Change Beam Monitor variables
 process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)
@@ -146,18 +129,17 @@ process = customise(process)
 from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
 process.tcdsDigis = tcdsRawToDigi.clone()
 
-#------------------------
-# Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
-if (process.runType.getRunType() == process.runType.hi_run and live):
-    rawDataInputTag = "rawDataRepacker"
-elif unitTest:
-    # This is needed until we update the streamer files used for the unitTest
-    rawDataInputTag = "rawDataCollector"
-else:
-    # Use raw data from selected TCDS FEDs (1024, 1025)
-    rawDataInputTag = "hltFEDSelectorTCDS"
+# Import raw to digi modules
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
-process.tcdsDigis.InputLabel = rawDataInputTag
+# Set InputTags from selected TCDS FEDs (1024, 1025) and OnlineMetaData FED (1022)
+# NOTE: these collections MUST be added to streamDQMOnlineBeamspot for all HLT menus (both pp and HI)
+rawDataInputTag        = "hltFEDSelectorTCDS"
+onlineMetaDataInputTag = "hltFEDSelectorOnlineMetaData"
+
+process.onlineMetaDataDigis.onlineMetaDataInputLabel = onlineMetaDataInputTag
+process.scalersRawToDigi.scalersInputTag             = rawDataInputTag
+process.tcdsDigis.InputLabel                         = rawDataInputTag
 
 #-----------------------------------------------------------
 # Swap offline <-> online BeamSpot as in Express and HLT
@@ -165,6 +147,23 @@ import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
+#--------
+# Do no run on events with pixel or strip with HV off
+
+process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "sistrip" )
+)
+
+process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
+    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
+    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
+    DebugOn = cms.untracked.bool( False ),
+    DetectorType = cms.untracked.string( "pixel" )
+)
 
 #--------------------------
 # Proton-Proton Stuff
@@ -268,9 +267,14 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.tcdsDigis
+                        * process.scalersRawToDigi
+                        * process.onlineMetaDataDigis
+                        * process.pixelTrackerHVOn
+                        * process.stripTrackerHVOn
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 

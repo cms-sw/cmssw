@@ -7,7 +7,7 @@
  */
 
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include <fstream>
 #include <string>
 
@@ -19,7 +19,7 @@ namespace edm {
 
 class DTChamberId;
 
-class DTTPGParamsWriter : public edm::EDAnalyzer {
+class DTTPGParamsWriter : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTTPGParamsWriter(const edm::ParameterSet &pset);

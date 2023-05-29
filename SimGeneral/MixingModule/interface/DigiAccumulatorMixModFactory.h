@@ -29,6 +29,5 @@ namespace edm {
 }  // namespace edm
 
 #define DEFINE_DIGI_ACCUMULATOR(type) DEFINE_EDM_PLUGIN(edm::DigiAccumulatorMixModPluginFactory, type, #type)
-//DEFINE_EDM_PLUGIN (edm::DigiAccumulatorMixModPluginFactory,type,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
 
 #endif

@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckMuon_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2016, 2017, 2021, 2026D77, 2026D86, 2026D88
+#   Options for geometry 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2021, 2026D77, 2026D86, 2026D88")
+                  "geometry of operations: 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99")
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -33,20 +33,25 @@ print(options)
 # Use the options
 
 if (options.geometry == "2026D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('G4PrintGeometry',Phase2C11M9)
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
     baseName = 'Muon2026D88'
-elif (options.geometry == "2026D86"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('G4PrintGeometry',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
-    baseName = 'Muon2026D86'
-elif (options.geometry == "2026D77"):
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('G4PrintGeometry',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-    baseName = 'Muon2026D77'
+elif (options.geometry == "2026D92"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    baseName = 'Muon2026D92'
+elif (options.geometry == "2026D93"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    baseName = 'Muon2026D93'
+elif (options.geometry == "2026D99"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
+    baseName = 'Muon2026D99'
 elif (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ################################################################################
 # Modules
@@ -56,22 +57,19 @@ finalLowPtElectrons = cms.EDFilter(
 )
 
 ################################################################################
-# electronTable 
+# electronTable
 ################################################################################
 
-lowPtElectronTable = cms.EDProducer(
-    "SimpleCandidateFlatTableProducer",
+lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","lowPtElectrons"),
-    cut = cms.string(""),
     name= cms.string("LowPtElectron"),
     doc = cms.string("slimmedLowPtElectrons after basic selection (" + finalLowPtElectrons.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the electrons
     variables = cms.PSet(
         # Basic variables
         CandVars,
-        # Overlaps with PF electron
-        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of the overlapping PF electron (-1 if none)"),
+        # Overlaps with PF electron and photon
+        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", "int16", doc="index of the overlapping PF electron (-1 if none)"),
+        photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", "int16", doc="index of the first associated photon (-1 if none)"),
         # BDT scores and WPs
         ID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
         unbiased = Var("electronID('unbiased')",float,doc="ElectronSeed, pT- and dxy- agnostic BDT (raw) score"),
@@ -84,7 +82,7 @@ lowPtElectronTable = cms.EDProducer(
         # Conversions
         convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto"),
         convWP = Var("userInt('convOpen')*1 + userInt('convLoose')*2 + userInt('convTight')*4",
-                     int,doc="conversion flag bit map: 1=Veto, 2=Loose, 3=Tight"),
+                     "uint8", doc="conversion flag bit map: 1=Veto, 2=Loose, 3=Tight"),
         convVtxRadius = Var("userFloat('convVtxRadius')",float,doc="conversion vertex radius (cm)",precision=7),
         # Tracking
         lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits"),
@@ -101,9 +99,6 @@ lowPtElectronTable = cms.EDProducer(
         dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
-        # Cross-referencing
-        #jetIdx
-        #photonIdx
     ),
 )
 
@@ -182,32 +177,24 @@ lowPtElectronMCTask = cms.Task(
 # Modifiers
 ################################################################################
 
-_modifiers = ( run2_miniAOD_80XLegacy |
-               run2_nanoAOD_94XMiniAODv1 |
-               run2_nanoAOD_94XMiniAODv2 |
-               run2_nanoAOD_94X2016 |
-               run2_nanoAOD_102Xv1 |
-               run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronTask,cms.Task())
-(_modifiers).toReplaceWith(lowPtElectronTablesTask,cms.Task())
-(_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())
-
 # To preserve "nano v9" functionality ...
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
-run2_nanoAOD_106Xv2.toModify(modifiedLowPtElectrons.modifierConfig,
-                             modifications = cms.VPSet(lowPtElectronModifier,
-                                                       lowPtRegressionModifier))
-
-run2_nanoAOD_106Xv2.toModify(updatedLowPtElectronsWithUserData.userFloats,
-                             ID = cms.InputTag("lowPtPATElectronID"))
-
-run2_nanoAOD_106Xv2.toModify(finalLowPtElectrons,
-                             cut = "pt > 1. && userFloat('ID') > -0.25")
-
-run2_nanoAOD_106Xv2.toModify(lowPtElectronTable.variables,
-                             embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
-                             ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score"))
+run2_nanoAOD_106Xv2.toModify(
+    modifiedLowPtElectrons.modifierConfig,
+    modifications = cms.VPSet(lowPtElectronModifier,
+                              lowPtRegressionModifier)
+).toModify(
+    updatedLowPtElectronsWithUserData.userFloats,
+    ID = cms.InputTag("lowPtPATElectronID")
+).toModify(
+    finalLowPtElectrons,
+    cut = "pt > 1. && userFloat('ID') > -0.25"
+).toModify(
+    lowPtElectronTable.variables,
+    embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
+    ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score")
+)
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
 lowPtPATElectronID = lowPtGsfElectronID.clone(
@@ -219,6 +206,7 @@ lowPtPATElectronID = lowPtGsfElectronID.clone(
     ],
 )
 
-_lowPtElectronTask = cms.Task(lowPtPATElectronID)
-_lowPtElectronTask.add(lowPtElectronTask.copy())
-run2_nanoAOD_106Xv2.toReplaceWith(lowPtElectronTask,_lowPtElectronTask)
+run2_nanoAOD_106Xv2.toReplaceWith(
+    lowPtElectronTask,
+    lowPtElectronTask.copyAndAdd(lowPtPATElectronID)
+)

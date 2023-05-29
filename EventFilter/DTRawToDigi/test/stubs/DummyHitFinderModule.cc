@@ -1,4 +1,4 @@
- /**
+/**
  * \file DummyHitFinderModule.h 
  * dummy module  for the test of  DaqFileInputService
  *   
@@ -7,52 +7,36 @@
  *
 */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include <iostream>
 #include <vector>
 
+class DummyHitFinderModule : public edm::one::EDAnalyzer<> {
+public:
+  DummyHitFinderModule(const edm::ParameterSet& ps) {}
 
-
-  class DummyHitFinderModule: public edm::EDAnalyzer{
-
-  public:
-    DummyHitFinderModule(const edm::ParameterSet& ps){}
-    
-  protected:
-
-    void analyze( edm::Event const & e, const  edm::EventSetup& c){
-      
+protected:
+  void analyze(edm::Event const& e, const edm::EventSetup& c) {
     // ...Reconstruction, first step are the unpacking modules to
     // build digis...
-      
-      
-      edm::Handle<DTDigiCollection> dtdigis;
-      
-      e.getByLabel("dtunpacker", dtdigis);
-  
 
-      DTDigiCollection::DigiRangeIterator detUnitIt;
-      for (detUnitIt=dtdigis->begin();
-	   detUnitIt!=dtdigis->end();
-	   ++detUnitIt){
-	
-	for (DTDigiCollection::const_iterator digiIt = 
-	       (*detUnitIt).second.first;
-	     digiIt!=(*detUnitIt).second.second;
-	     ++digiIt){
-	  std::cout << "Digi: "  << *digiIt << std::endl;
+    edm::Handle<DTDigiCollection> dtdigis;
 
-	}// for cells
-      }// for layers
+    e.getByLabel("dtunpacker", dtdigis);
 
+    DTDigiCollection::DigiRangeIterator detUnitIt;
+    for (detUnitIt = dtdigis->begin(); detUnitIt != dtdigis->end(); ++detUnitIt) {
+      for (DTDigiCollection::const_iterator digiIt = (*detUnitIt).second.first; digiIt != (*detUnitIt).second.second;
+           ++digiIt) {
+        std::cout << "Digi: " << *digiIt << std::endl;
 
-    } // analyze
-  };// class DummyHitFinderModule
- 
+      }  // for cells
+    }    // for layers
+
+  }  // analyze
+};   // class DummyHitFinderModule
+
 DEFINE_FWK_MODULE(DummyHitFinderModule);
-
-
-

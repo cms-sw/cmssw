@@ -6,6 +6,7 @@
 #include <boost/regex.hpp>
 
 // Root headers
+#include <TH1D.h>
 #include <TH1F.h>
 
 // CMSSW headers
@@ -33,15 +34,13 @@ struct MEPSet {
 class FastTimerServiceClient : public DQMEDHarvester {
 public:
   explicit FastTimerServiceClient(edm::ParameterSet const&);
-  ~FastTimerServiceClient() override;
+  ~FastTimerServiceClient() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static void fillLumiMePSetDescription(edm::ParameterSetDescription& pset);
   static void fillPUMePSetDescription(edm::ParameterSetDescription& pset);
 
 private:
-  std::string m_dqm_path;
-
   void dqmEndLuminosityBlock(DQMStore::IBooker& booker,
                              DQMStore::IGetter& getter,
                              edm::LuminosityBlock const&,
@@ -58,34 +57,34 @@ private:
                        DQMStore::IGetter& getter,
                        std::string const& current_path,
                        std::string const& suffix,
-                       MEPSet pset);
+                       MEPSet const& pset);
 
   static MEPSet getHistoPSet(const edm::ParameterSet& pset);
 
-  bool doPlotsVsScalLumi_;
-  bool doPlotsVsPixelLumi_;
-  bool doPlotsVsPU_;
+  std::string const dqm_path_;
 
-  MEPSet scalLumiMEPSet_;
-  MEPSet pixelLumiMEPSet_;
-  MEPSet puMEPSet_;
+  bool const doPlotsVsOnlineLumi_;
+  bool const doPlotsVsPixelLumi_;
+  bool const doPlotsVsPU_;
 
-  bool fillEveryLumiSection_;
+  MEPSet const onlineLumiMEPSet_;
+  MEPSet const pixelLumiMEPSet_;
+  MEPSet const puMEPSet_;
+
+  bool const fillEveryLumiSection_;
 };
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const& config)
-    : m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
-      doPlotsVsScalLumi_(config.getParameter<bool>("doPlotsVsScalLumi")),
+    : dqm_path_(config.getUntrackedParameter<std::string>("dqmPath")),
+      doPlotsVsOnlineLumi_(config.getParameter<bool>("doPlotsVsOnlineLumi")),
       doPlotsVsPixelLumi_(config.getParameter<bool>("doPlotsVsPixelLumi")),
       doPlotsVsPU_(config.getParameter<bool>("doPlotsVsPU")),
-      scalLumiMEPSet_(doPlotsVsScalLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("scalLumiME"))
-                                         : MEPSet{}),
+      onlineLumiMEPSet_(doPlotsVsOnlineLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("onlineLumiME"))
+                                             : MEPSet{}),
       pixelLumiMEPSet_(doPlotsVsPixelLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("pixelLumiME"))
                                            : MEPSet{}),
       puMEPSet_(doPlotsVsPU_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("puME")) : MEPSet{}),
       fillEveryLumiSection_(config.getParameter<bool>("fillEveryLumiSection")) {}
-
-FastTimerServiceClient::~FastTimerServiceClient() = default;
 
 void FastTimerServiceClient::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   fillSummaryPlots(booker, getter);
@@ -100,13 +99,13 @@ void FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker& booker,
 }
 
 void FastTimerServiceClient::fillSummaryPlots(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
-  if (getter.get(m_dqm_path + "/event time_real")) {
+  if (getter.get(dqm_path_ + "/event time_real")) {
     // the plots are directly in the configured folder
-    fillProcessSummaryPlots(booker, getter, m_dqm_path);
+    fillProcessSummaryPlots(booker, getter, dqm_path_);
   } else {
     static const boost::regex running_n_processes(".*/Running .*");
 
-    booker.setCurrentFolder(m_dqm_path);
+    booker.setCurrentFolder(dqm_path_);
     std::vector<std::string> subdirs = getter.getSubdirs();
     for (auto const& subdir : subdirs) {
       // the plots are in a per-number-of-processes folder
@@ -133,12 +132,12 @@ void FastTimerServiceClient::fillProcessSummaryPlots(DQMStore::IBooker& booker,
     // no FastTimerService DQM information
     return;
 
-  if (doPlotsVsScalLumi_)
-    fillPlotsVsLumi(booker, getter, current_path, "VsScalLumi", scalLumiMEPSet_);
+  if (doPlotsVsOnlineLumi_)
+    fillPlotsVsLumi(booker, getter, current_path, "vs_lumi", onlineLumiMEPSet_);
   if (doPlotsVsPixelLumi_)
-    fillPlotsVsLumi(booker, getter, current_path, "VsPixelLumi", pixelLumiMEPSet_);
+    fillPlotsVsLumi(booker, getter, current_path, "vs_pixelLumi", pixelLumiMEPSet_);
   if (doPlotsVsPU_)
-    fillPlotsVsLumi(booker, getter, current_path, "VsPU", puMEPSet_);
+    fillPlotsVsLumi(booker, getter, current_path, "vs_pileup", puMEPSet_);
 
   //  getter.setCurrentFolder(current_path);
 
@@ -353,12 +352,12 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
     }
 
     // vs lumi
-    if (doPlotsVsScalLumi_)
-      fillPlotsVsLumi(booker, getter, subsubdir, "VsScalLumi", scalLumiMEPSet_);
+    if (doPlotsVsOnlineLumi_)
+      fillPlotsVsLumi(booker, getter, subsubdir, "vs_lumi", onlineLumiMEPSet_);
     if (doPlotsVsPixelLumi_)
-      fillPlotsVsLumi(booker, getter, subsubdir, "VsPixelLumi", pixelLumiMEPSet_);
+      fillPlotsVsLumi(booker, getter, subsubdir, "vs_pixelLumi", pixelLumiMEPSet_);
     if (doPlotsVsPU_)
-      fillPlotsVsLumi(booker, getter, subsubdir, "VsPU", puMEPSet_);
+      fillPlotsVsLumi(booker, getter, subsubdir, "vs_pileup", puMEPSet_);
   }
 }
 
@@ -367,11 +366,10 @@ void FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker& booker,
                                              DQMStore::IGetter& getter,
                                              std::string const& current_path,
                                              std::string const& suffix,
-                                             MEPSet pset) {
+                                             MEPSet const& pset) {
   std::vector<std::string> menames;
 
   static const boost::regex byls(".*byls");
-  static const boost::regex test(suffix);
   // get all MEs in the current_path
   getter.setCurrentFolder(current_path);
   std::vector<std::string> allmenames = getter.getMEs();
@@ -477,13 +475,13 @@ void FastTimerServiceClient::fillDescriptions(edm::ConfigurationDescriptions& de
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("dqmPath", "HLT/TimerService");
-  desc.add<bool>("doPlotsVsScalLumi", true);
+  desc.add<bool>("doPlotsVsOnlineLumi", true);
   desc.add<bool>("doPlotsVsPixelLumi", false);
   desc.add<bool>("doPlotsVsPU", true);
 
-  edm::ParameterSetDescription scalLumiMEPSet;
-  fillLumiMePSetDescription(scalLumiMEPSet);
-  desc.add<edm::ParameterSetDescription>("scalLumiME", scalLumiMEPSet);
+  edm::ParameterSetDescription onlineLumiMEPSet;
+  fillLumiMePSetDescription(onlineLumiMEPSet);
+  desc.add<edm::ParameterSetDescription>("onlineLumiME", onlineLumiMEPSet);
 
   edm::ParameterSetDescription pixelLumiMEPSet;
   fillLumiMePSetDescription(pixelLumiMEPSet);

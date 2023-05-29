@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
+l1tGMTStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
     verbose = cms.int32(0),
     srcCSC = cms.InputTag("simCscTriggerPrimitiveDigis"),
     srcDT = cms.InputTag("dtTriggerPhase2PrimitiveDigis"),
@@ -43,9 +43,9 @@ gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
 
 
 
-gmtMuons = cms.EDProducer('Phase2L1TGMTProducer',
-                     srcTracks = cms.InputTag("TTTracksFromTrackletEmulation:Level1TTTracks"),
-                     srcStubs  = cms.InputTag('gmtStubs'),
+l1tGMTMuons = cms.EDProducer('Phase2L1TGMTProducer',
+                     srcTracks = cms.InputTag("l1tTTTracksFromTrackletEmulation:Level1TTTracks"),
+                     srcStubs  = cms.InputTag('l1tGMTStubs'),
                      srcBMTF   = cms.InputTag('simBmtfDigis','BMTF'),
                      srcEMTF   = cms.InputTag('simEmtfDigis','EMTF'),
                      srcOMTF   = cms.InputTag('simOmtfDigis','OMTF'),
@@ -70,13 +70,24 @@ gmtMuons = cms.EDProducer('Phase2L1TGMTProducer',
                        RelIsoThresholdM = cms.double(0.05),
                        RelIsoThresholdT = cms.double(0.01),
                        verbose       = cms.int32(0),
-                       IsodumpForHLS = cms.int32(1),
+                       IsodumpForHLS = cms.int32(0),
                      ),
                     tauto3mu = cms.PSet()
 
 )
 
-standaloneMuons = cms.EDProducer('Phase2L1TGMTSAMuonProducer',
+
+l1tGMTFilteredMuons = cms.EDProducer('Phase2L1TGMTFilter',
+                    srcMuons = cms.InputTag("l1tTkMuonsGmt",""),
+                    applyLowPtFilter = cms.bool(True),
+                    ptBarrelMin = cms.int32(8),
+                    ptEndcapMin = cms.int32(8),
+                    etaBE = cms.double(0.9)
+                                     
+)
+
+
+l1tStandaloneMuons = cms.EDProducer('Phase2L1TGMTSAMuonProducer',
                                  muonToken  = cms.InputTag('simGmtStage2Digis'),
                                  Nprompt    = cms.uint32(12),
                                  Ndisplaced = cms.uint32(12)

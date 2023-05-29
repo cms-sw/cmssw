@@ -44,10 +44,13 @@ private:
   std::string nameX_;
   HGCalGeometryMode::GeometryMode geom_mode_;
   double eminHit_, slopeMin_, distanceFromEdge_;
-  int levelT1_, levelT2_;
+  int levelT1_, levelT2_, firstLayer_, verbose_;
   bool storeAllG4Hits_, fiducialCut_;
   bool useBirk_;
   double birk1_, birk2_, birk3_, weight_;
+  bool checkID_;
+  std::string fileName_;
+  std::vector<int> tiles_;
 };
 
 #endif  // HGCScintSD_h

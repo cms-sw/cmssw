@@ -11,8 +11,8 @@ class HGCalParameters;
 
 class HGCalParametersFromDD {
 public:
-  HGCalParametersFromDD() {}
-  virtual ~HGCalParametersFromDD() {}
+  HGCalParametersFromDD() = default;
+  virtual ~HGCalParametersFromDD() = default;
 
   bool build(const DDCompactView* cpv,
              HGCalParameters& php,

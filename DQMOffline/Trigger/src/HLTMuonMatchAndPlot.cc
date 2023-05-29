@@ -109,6 +109,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
     book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
     book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
+    book1D(iBooker, "efficiencyNVertex_" + suffix, "NVertex", ";NVertex;");
 
     if (isLastFilter_)
       iBooker.setCurrentFolder(baseDir + pathSansSuffix);
@@ -119,6 +120,8 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
       continue;  //this will be plotted only for the last filter
 
     book1D(iBooker, "efficiencyCharge_" + suffix, "charge", ";charge;");
+    book1D(iBooker, "efficiencyZ0_" + suffix, "z0", ";z0;");
+    book1D(iBooker, "efficiency_DZ_Mu_" + suffix, "z0", ";z0;");
   }
 }
 
@@ -207,9 +210,11 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         else if (muon.isStandAloneMuon())
           track = &*muon.outerTrack();
         if (track) {
+          hists_["efficiencyNVertex_" + suffix]->Fill(vertices->size());
           hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
 
           if (isLastFilter_) {
+            hists_["efficiencyZ0_" + suffix]->Fill(track->dz(beamSpot->position()));
             hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
           }
         }
@@ -231,38 +236,11 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
   if (!isLastFilter_)
     return;
   unsigned int numTriggers = trigNames.size();
-  bool passTrigger = false;
-  if (requiredTriggers_.empty())
-    passTrigger = true;
-  for (auto const& requiredTrigger : requiredTriggers_) {
-    for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
-      passTrigger = (trigNames.triggerName(hltIndex).find(requiredTrigger) != std::string::npos &&
-                     triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
-      if (passTrigger)
-        break;
-    }
-  }
 
   int nMatched = 0;
   for (unsigned long matche : matches) {
     if (matche < targetMuons.size())
       nMatched++;
-  }
-
-  string nonSameSignPath = hltPath_;
-  bool ssPath = false;
-  if (nonSameSignPath.rfind("_SameSign") < nonSameSignPath.length()) {
-    ssPath = true;
-    nonSameSignPath = boost::replace_all_copy<string>(nonSameSignPath, "_SameSign", "");
-    nonSameSignPath = nonSameSignPath.substr(0, nonSameSignPath.rfind("_v") + 2);
-  }
-  bool passTriggerSS = false;
-  if (ssPath) {
-    for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
-      passTriggerSS =
-          passTriggerSS || (trigNames.triggerName(hltIndex).substr(0, nonSameSignPath.size()) == nonSameSignPath &&
-                            triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
-    }
   }
 
   string nonDZPath = hltPath_;
@@ -273,20 +251,40 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     nonDZPath = nonDZPath.substr(0, nonDZPath.rfind("_v") + 2);
   }
   bool passTriggerDZ = false;
+
   if (dzPath) {
     for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
       passTriggerDZ = passTriggerDZ || (trigNames.triggerName(hltIndex).find(nonDZPath) != std::string::npos &&
                                         triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
     }
   }
+  if (dzPath && targetMuons.size() > 1 && passTriggerDZ) {
+    const Track* track0 = nullptr;
+    const Track* track1 = nullptr;
+    if (targetMuons.at(0).isTrackerMuon())
+      track0 = &*targetMuons.at(0).innerTrack();
+    else if (targetMuons.at(0).isStandAloneMuon())
+      track0 = &*targetMuons.at(0).outerTrack();
+    if (targetMuons.at(1).isTrackerMuon())
+      track1 = &*targetMuons.at(1).innerTrack();
+    else if (targetMuons.at(1).isStandAloneMuon())
+      track1 = &*targetMuons.at(1).outerTrack();
+
+    if (track0 && track1) {
+      hists_["efficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
+      if (nMatched > 1) {
+        hists_["efficiency_DZ_Mu_numer"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
+      }
+    }
+  }
 
 }  // End analyze() method.
 
 // Method to fill binning parameters from a vector of doubles.
-void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<double>& binning) {
+bool HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<double>& binning) {
   if (binning.size() < 3) {
     LogWarning("HLTMuonVal") << "Invalid binning parameters!";
-    return;
+    return false;
   }
 
   // Fixed-width binning.
@@ -306,6 +304,7 @@ void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<d
     for (size_t i = 0; i <= nBins; i++)
       edges[i] = binning[i];
   }
+  return true;
 }
 
 // This is an unorthodox method of getting parameters, but cleaner in my mind
@@ -432,14 +431,14 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const 
 
   size_t nBins;
   float* edges = nullptr;
-  fillEdges(nBins, edges, binParams_[binningType]);
-  hists_[name] = iBooker.book1D(name, title, nBins, edges);
-  if (hists_[name])
+  bool bookhist = fillEdges(nBins, edges, binParams_[binningType]);
+  if (bookhist) {
+    hists_[name] = iBooker.book1D(name, title, nBins, edges);
     if (hists_[name]->getTH1F()->GetSumw2N())
       hists_[name]->enableSumw2();
 
-  if (edges)
     delete[] edges;
+  }
 }
 
 void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
@@ -455,19 +454,17 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
 
   size_t nBinsX;
   float* edgesX = nullptr;
-  fillEdges(nBinsX, edgesX, binParams_[binningTypeX]);
+  bool bookhist = fillEdges(nBinsX, edgesX, binParams_[binningTypeX]);
 
   size_t nBinsY;
   float* edgesY = nullptr;
-  fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
-
-  hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
-  if (hists_[name])
+  bookhist &= fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
+  if (bookhist) {
+    hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
     if (hists_[name]->getTH2F()->GetSumw2N())
       hists_[name]->enableSumw2();
 
-  if (edgesX)
     delete[] edgesX;
-  if (edgesY)
     delete[] edgesY;
+  }
 }

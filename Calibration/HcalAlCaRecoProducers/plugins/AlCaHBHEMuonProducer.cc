@@ -38,25 +38,25 @@
 // class declaration
 //
 
-namespace AlCaHBHEMuons {
+namespace alCaHBHEMuonProducer {
   struct Counters {
     Counters() : nAll_(0), nGood_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_;
   };
-}  // namespace AlCaHBHEMuons
+}  // namespace alCaHBHEMuonProducer
 
-class AlCaHBHEMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaHBHEMuons::Counters> > {
+class AlCaHBHEMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<alCaHBHEMuonProducer::Counters> > {
 public:
-  explicit AlCaHBHEMuonProducer(edm::ParameterSet const&, const AlCaHBHEMuons::Counters* count);
+  explicit AlCaHBHEMuonProducer(edm::ParameterSet const&, const alCaHBHEMuonProducer::Counters* count);
   ~AlCaHBHEMuonProducer() override;
 
-  static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::make_unique<AlCaHBHEMuons::Counters>();
+  static std::unique_ptr<alCaHBHEMuonProducer::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<alCaHBHEMuonProducer::Counters>();
   }
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaHBHEMuons::Counters* counters);
+  static void globalEndJob(const alCaHBHEMuonProducer::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -78,7 +78,8 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
 };
 
-AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count)
+AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig,
+                                           const alCaHBHEMuonProducer::Counters* count)
     : nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -216,7 +217,7 @@ void AlCaHBHEMuonProducer::endStream() {
   globalCache()->nGood_ += nGood_;
 }
 
-void AlCaHBHEMuonProducer::globalEndJob(const AlCaHBHEMuons::Counters* count) {
+void AlCaHBHEMuonProducer::globalEndJob(const alCaHBHEMuonProducer::Counters* count) {
   edm::LogVerbatim("HcalHBHEMuon") << "Finds " << count->nGood_ << " good tracks in " << count->nAll_ << " events";
 }
 
@@ -230,7 +231,7 @@ void AlCaHBHEMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("EERecHitLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("HBHERecHitLabel", edm::InputTag("hbhereco"));
   desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
-  desc.add<double>("MinimumMuonP", 10.0);
+  desc.add<double>("MinimumMuonP", 5.0);
   descriptions.add("alcaHBHEMuonProducer", desc);
 }
 

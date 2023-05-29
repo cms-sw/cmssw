@@ -62,7 +62,7 @@ hiRegitMuDetachedTripletStepHitTriplets = RecoTracker.IterativeTracking.Detached
 hiRegitMuDetachedTripletStepSeeds = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.clone(
     seedingHitSets = "hiRegitMuDetachedTripletStepHitTriplets"
 )
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 
 
 # building: feed the new-named seeds

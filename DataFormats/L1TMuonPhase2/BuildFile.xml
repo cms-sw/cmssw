@@ -1,6 +1,9 @@
 <export>
   <lib name="1"/>
 </export>
+<use name="rootrflx"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/L1Trigger"/>
-<use name="rootrflx"/>
+<use name="DataFormats/L1TMuon"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="FWCore/MessageLogger"/>

@@ -105,7 +105,16 @@ void SensitiveDetector::setNames(const std::vector<std::string>& hnames) {
 }
 
 void SensitiveDetector::NaNTrap(const G4Step* aStep) const {
-  const G4Track* currentTrk = aStep->GetTrack();
+  G4Track* currentTrk = aStep->GetTrack();
+  double ekin = currentTrk->GetKineticEnergy();
+  if (ekin < 0.0) {
+    const G4VPhysicalVolume* pCurrentVol = aStep->GetPreStepPoint()->GetPhysicalVolume();
+    edm::LogWarning("SensitiveDetector") << "Negative kinetic energy Ekin(MeV)=" << ekin / CLHEP::MeV << " of "
+                                         << currentTrk->GetDefinition()->GetParticleName()
+                                         << " trackID= " << currentTrk->GetTrackID() << " inside "
+                                         << pCurrentVol->GetName();
+    currentTrk->SetKineticEnergy(0.0);
+  }
   const G4ThreeVector& currentPos = currentTrk->GetPosition();
   double xyz = currentPos.x() + currentPos.y() + currentPos.z();
   const G4ThreeVector& currentMom = currentTrk->GetMomentum();

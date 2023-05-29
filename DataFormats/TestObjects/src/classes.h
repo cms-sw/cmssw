@@ -29,6 +29,7 @@
 #include "DataFormats/TestObjects/interface/DeleteEarly.h"
 
 #include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RandomNumberGeneratorState.h"

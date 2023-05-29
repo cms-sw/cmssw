@@ -25,7 +25,7 @@ namespace edm {
   public:
     typedef T value_type;
     typedef T wrapped_type;  // used with the dictionary to identify Wrappers
-    Wrapper() : WrapperBase(), present(false), obj() {}
+    Wrapper() : WrapperBase(), obj(), present(false) {}
     explicit Wrapper(std::unique_ptr<T> ptr);
     Wrapper(Wrapper<T> const& rh) = delete;             // disallow copy construction
     Wrapper<T>& operator=(Wrapper<T> const&) = delete;  // disallow assignment
@@ -46,7 +46,7 @@ namespace edm {
     Wrapper(T*);
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(3)
+    CMS_CLASS_VERSION(4)
 
   private:
     bool isPresent_() const override { return present; }
@@ -73,12 +73,12 @@ namespace edm {
     std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const override;
 
   private:
-    bool present;
     T obj;
+    bool present;
   };
 
   template <typename T>
-  Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) : WrapperBase(), present(ptr.get() != nullptr), obj() {
+  Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) : WrapperBase(), obj(), present(ptr.get() != nullptr) {
     if (present) {
       obj = std::move(*ptr);
     }
@@ -86,7 +86,7 @@ namespace edm {
 
   template <typename T>
   template <typename... Args>
-  Wrapper<T>::Wrapper(Emplace, Args&&... args) : WrapperBase(), present(true), obj(std::forward<Args>(args)...) {}
+  Wrapper<T>::Wrapper(Emplace, Args&&... args) : WrapperBase(), obj(std::forward<Args>(args)...), present(true) {}
 
   template <typename T>
   Wrapper<T>::Wrapper(T* ptr) : WrapperBase(), present(ptr != 0), obj() {

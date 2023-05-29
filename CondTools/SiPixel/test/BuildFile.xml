@@ -1,6 +1,3 @@
-<environment>
-  <bin file="testPixelDBs.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash CondTools/SiPixel/test createTestDBObjects.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<test name="createDBObjecs" command="createTestDBObjects.sh"/>
+<test name="SiPixelGainCalibrationTests" command="testSiPixelGainCalibrationHandlers.sh"/>
+<test name="SiPixelCondPlottingTests" command="testPlottingSiPixelObjects.sh"/>

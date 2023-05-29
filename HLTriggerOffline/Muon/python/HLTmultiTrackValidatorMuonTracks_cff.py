@@ -5,8 +5,6 @@ hltMuonTrackValidator = hltMultiTrackValidator.clone(
     label = [
         "hltIter0HighPtTkMuPixelTracks",
         "hltIter0HighPtTkMuTrackSelectionHighPurity",
-        "hltIter2HighPtTkMuTrackSelectionHighPurity",
-        "hltIter2HighPtTkMuMerged",
     ],
     label_tp_effic           = "trackingParticlesMuon",
     label_tp_effic_refvector = True,

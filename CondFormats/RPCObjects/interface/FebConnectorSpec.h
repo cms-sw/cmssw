@@ -9,6 +9,7 @@
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
 #include <string>
+#include <atomic>
 
 /** \class FebConnectorSpec 
  * Specifies the input for LinkBoard. In hardware the data goes through
@@ -24,6 +25,9 @@ class FebConnectorSpec {
 public:
   FebConnectorSpec(int num = -1) : theLinkBoardInputNum(num), theRawId(0) {}
   FebConnectorSpec(int num, const ChamberLocationSpec& chamber, const FebLocationSpec& feb);
+  FebConnectorSpec(FebConnectorSpec const&);
+
+  FebConnectorSpec& operator=(FebConnectorSpec const&);
 
   /// this FEB channel in LinkBoard
   int linkBoardInputNum() const { return theLinkBoardInputNum; }
@@ -35,7 +39,7 @@ public:
   const ChamberStripSpec strip(int pinNumber) const;
 
   /// DetUnit to which data belongs
-  const uint32_t& rawId() const;
+  uint32_t rawId() const;
 
   const ChamberLocationSpec& chamber() const { return theChamber; }
   const FebLocationSpec& feb() const { return theFeb; }
@@ -58,7 +62,7 @@ private:
   FebLocationSpec theFeb;
 
   int theAlgo;
-  mutable uint32_t theRawId COND_TRANSIENT;
+  mutable std::atomic<uint32_t> theRawId COND_TRANSIENT;
 
   COND_SERIALIZABLE;
 };

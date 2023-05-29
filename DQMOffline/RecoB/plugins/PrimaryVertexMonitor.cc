@@ -39,6 +39,10 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
       dz(nullptr),
       dxyErr(nullptr),
       dzErr(nullptr),
+      phi_pt1(nullptr),
+      eta_pt1(nullptr),
+      phi_pt10(nullptr),
+      eta_pt10(nullptr),
       dxyVsPhi_pt1(nullptr),
       dzVsPhi_pt1(nullptr),
       dxyVsEta_pt1(nullptr),
@@ -51,8 +55,6 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
       dzVsEta_pt10(nullptr),
       dxyVsEtaVsPhi_pt10(nullptr),
       dzVsEtaVsPhi_pt10(nullptr) {
-  //  dqmStore_ = edm::Service<DQMStore>().operator->();
-
   vertexInputTag_ = pSet.getParameter<InputTag>("vertexLabel");
   beamSpotInputTag_ = pSet.getParameter<InputTag>("beamSpotLabel");
   vertexToken_ = consumes<reco::VertexCollection>(vertexInputTag_);
@@ -150,8 +152,8 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   dqmLabel = TopFolderName_ + "/" + beamSpotInputTag_.label();
   iBooker.setCurrentFolder(dqmLabel);
 
-  bsX = iBooker.book1D("bsX", "BeamSpot x0", 100, -0.1, 0.1);
-  bsY = iBooker.book1D("bsY", "BeamSpot y0", 100, -0.1, 0.1);
+  bsX = iBooker.book1D("bsX", "BeamSpot x0", 100, vposx - 0.1, vposx + 0.1);
+  bsY = iBooker.book1D("bsY", "BeamSpot y0", 100, vposy - 0.1, vposy + 0.1);
   bsZ = iBooker.book1D("bsZ", "BeamSpot z0", 100, -2., 2.);
   bsSigmaZ = iBooker.book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10.);
   bsDxdz = iBooker.book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
@@ -207,6 +209,13 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   dxyErr = iBooker.book1D("dxyErr", "PV tracks (p_{T} > 1 GeV) d_{xy} error (#mum)", 100, 0., 2000.);
   dz = iBooker.book1D("dz", "PV tracks (p_{T} > 1 GeV) d_{z} (#mum)", DzBin, DzMin, DzMax);
   dzErr = iBooker.book1D("dzErr", "PV tracks (p_{T} > 1 GeV) d_{z} error(#mum)", 100, 0., 10000.);
+
+  phi_pt1 = iBooker.book1D("phi_pt1", "PV tracks (p_{T} > 1 GeV) #phi; PV tracks #phi;#tracks", PhiBin, PhiMin, PhiMax);
+  eta_pt1 = iBooker.book1D("eta_pt1", "PV tracks (p_{T} > 1 GeV) #eta; PV tracks #eta;#tracks", EtaBin, EtaMin, EtaMax);
+  phi_pt10 =
+      iBooker.book1D("phi_pt10", "PV tracks (p_{T} > 10 GeV) #phi; PV tracks #phi;#tracks", PhiBin, PhiMin, PhiMax);
+  eta_pt10 =
+      iBooker.book1D("eta_pt10", "PV tracks (p_{T} > 10 GeV) #phi; PV tracks #eta;#tracks", EtaBin, EtaMin, EtaMax);
 
   dxyVsPhi_pt1 = iBooker.bookProfile("dxyVsPhi_pt1",
                                      "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #phi",
@@ -369,8 +378,6 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 3);
 }
 
-PrimaryVertexMonitor::~PrimaryVertexMonitor() {}
-
 void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(vertexToken_, recVtxs);
@@ -445,9 +452,9 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   bsSigmaZ->Fill(beamSpot.sigmaZ());
   bsDxdz->Fill(beamSpot.dxdz());
   bsDydz->Fill(beamSpot.dydz());
-  bsBeamWidthX->Fill(beamSpot.BeamWidthX() * 10000);
-  bsBeamWidthY->Fill(beamSpot.BeamWidthY() * 10000);
-  // bsType->Fill(beamSpot.type());
+  bsBeamWidthX->Fill(beamSpot.BeamWidthX() * cmToUm);
+  bsBeamWidthY->Fill(beamSpot.BeamWidthY() * cmToUm);
+  bsType->Fill(beamSpot.type());
 }
 
 void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
@@ -465,7 +472,6 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
 
   size_t nTracks = 0;
   float sumPT = 0.;
-  const int cmToUm = 10000;
 
   for (reco::Vertex::trackRef_iterator t = v.tracks_begin(); t != v.tracks_end(); t++) {
     bool isHighPurity = (**t).quality(reco::TrackBase::highPurity);
@@ -484,8 +490,8 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     float w = v.trackWeight(*t);
     float chi2NDF = (**t).normalizedChi2();
     float chi2Prob = TMath::Prob((**t).chi2(), (int)(**t).ndof());
-    float Dxy = (**t).dxy(myVertex) * cmToUm;  // is it needed ?
-    float Dz = (**t).dz(myVertex) * cmToUm;    // is it needed ?
+    float Dxy = (**t).dxy(myVertex) * cmToUm;
+    float Dz = (**t).dz(myVertex) * cmToUm;
     float DxyErr = (**t).dxyError() * cmToUm;
     float DzErr = (**t).dzError() * cmToUm;
 
@@ -500,6 +506,8 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     dz->Fill(Dz);
     dxyErr->Fill(DxyErr);
     dzErr->Fill(DzErr);
+    phi_pt1->Fill(phi);
+    eta_pt1->Fill(eta);
 
     dxyVsPhi_pt1->Fill(phi, Dxy);
     dzVsPhi_pt1->Fill(phi, Dz);
@@ -510,6 +518,9 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
 
     if (pt < 10.)
       continue;
+
+    phi_pt10->Fill(phi);
+    eta_pt10->Fill(eta);
     dxyVsPhi_pt10->Fill(phi, Dxy);
     dzVsPhi_pt10->Fill(phi, Dz);
     dxyVsEta_pt10->Fill(eta, Dxy);
@@ -549,15 +560,15 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex& v, const BeamSpot& beamSpot
 
     float xb = beamSpot.x0() + beamSpot.dxdz() * (v.position().z() - beamSpot.z0());
     float yb = beamSpot.y0() + beamSpot.dydz() * (v.position().z() - beamSpot.z0());
-    xDiff[i]->Fill((v.position().x() - xb) * 10000);
-    yDiff[i]->Fill((v.position().y() - yb) * 10000);
+    xDiff[i]->Fill((v.position().x() - xb) * cmToUm);
+    yDiff[i]->Fill((v.position().y() - yb) * cmToUm);
 
-    xerr[i]->Fill(v.xError() * 10000);
-    yerr[i]->Fill(v.yError() * 10000);
-    zerr[i]->Fill(v.zError() * 10000);
-    xerrVsTrks[i]->Fill(weight, v.xError() * 10000);
-    yerrVsTrks[i]->Fill(weight, v.yError() * 10000);
-    zerrVsTrks[i]->Fill(weight, v.zError() * 10000);
+    xerr[i]->Fill(v.xError() * cmToUm);
+    yerr[i]->Fill(v.yError() * cmToUm);
+    zerr[i]->Fill(v.zError() * cmToUm);
+    xerrVsTrks[i]->Fill(weight, v.xError() * cmToUm);
+    yerrVsTrks[i]->Fill(weight, v.yError() * cmToUm);
+    zerrVsTrks[i]->Fill(weight, v.zError() * cmToUm);
 
     nans[i]->Fill(1., edm::isNotFinite(v.position().x()) * 1.);
     nans[i]->Fill(2., edm::isNotFinite(v.position().y()) * 1.);

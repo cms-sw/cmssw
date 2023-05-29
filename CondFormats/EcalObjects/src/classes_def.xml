@@ -296,6 +296,12 @@
    <field name = "time_interval" mapping = "blob"/>
 </class>
 
+<class name="EcalSimComponentShape">
+   <field name = "barrel_shapes" mapping = "blob"/>
+   <field name = "barrel_thresh" mapping = "blob"/>
+   <field name = "time_interval" mapping = "blob"/>
+</class>
+
 <class name="EcalMustacheSCParameters">
    <field name="parabolaParametersCollection_" mapping="blob"/>
 </class>

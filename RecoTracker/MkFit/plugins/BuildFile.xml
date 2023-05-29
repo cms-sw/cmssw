@@ -1,13 +1,15 @@
 <library file="*.cc" name="RecoTrackerMkFitPlugins">
+  <use name="rootmath"/>
+  <use name="tbb"/>
   <use name="CalibFormats/SiStripObjects"/>
   <use name="CalibTracker/Records"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/SiPixelObjects"/>
   <use name="DataFormats/BeamSpot"/>
   <use name="DataFormats/Common"/>
+  <use name="DataFormats/SiPixelCluster"/>
   <use name="DataFormats/SiStripCluster"/>
   <use name="DataFormats/SiStripCommon"/>
-  <use name="DataFormats/SiPixelCluster"/>
   <use name="DataFormats/TrackCandidate"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/TrackerCommon"/>
@@ -19,20 +21,17 @@
   <use name="Geometry/CommonTopologies"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="PhysicsTools/TensorFlow"/>
   <use name="RecoTracker/MkFit"/>
   <use name="RecoTracker/TkDetLayers"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>
   <use name="TrackingTools/GeomPropagators"/>
   <use name="TrackingTools/KalmanUpdators"/>
   <use name="TrackingTools/MaterialEffects"/>
+  <use name="TrackingTools/PatternTools"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TrackFitters"/>
   <use name="TrackingTools/TrajectoryState"/>
   <use name="TrackingTools/TransientTrackingRecHit"/>
-  <use name="rootmath"/>
-  <use name="CondFormats/GBRForest"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <use name="TrackingTools/PatternTools"/>
-  <use name="RecoTracker/FinalTrackSelectors"/>
   <flags EDM_PLUGIN="1"/>
 </library>

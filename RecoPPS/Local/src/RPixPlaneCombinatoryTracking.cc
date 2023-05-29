@@ -163,6 +163,58 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
   //The loop stops when the number of planes with recorded hits is less than the minimum number of planes required
   //or if the track with minimum chiSquare found has a chiSquare higher than the maximum required
 
+  // bad Pot patch -- beginning
+  // check number of hits in road
+  unsigned int hitNum = 0;
+  for (const auto &plane : *hitMap_) {
+    hitNum += plane.second.size();
+  }
+
+  if (hitMap_->size() == 2 && hitNum == 2) {  // look for roads with 2 hits in 2 different planes
+
+    GlobalPoint hit[2];
+    PointInPlaneList pIPL;
+
+    unsigned int i = 0;
+    for (const auto &plane : *hitMap_) {
+      if (plane.second.size() > 1)
+        break;  // only 1 hit per plane per road allowed
+      GlobalPoint gP(plane.second[0].globalPoint.x(), plane.second[0].globalPoint.y(), plane.second[0].globalPoint.z());
+      hit[i] = gP;
+      i++;
+      pIPL.push_back(plane.second[0]);
+    }
+
+    // calculate 2 point track parameters (no need of fits)
+    double tx = (hit[0].x() - hit[1].x()) / (hit[0].z() - hit[1].z());
+    double ty = (hit[0].y() - hit[1].y()) / (hit[0].z() - hit[1].z());
+    double xat0 = (hit[1].x() * hit[0].z() - hit[0].x() * hit[1].z()) / (hit[0].z() - hit[1].z());
+    double yat0 = (hit[1].y() * hit[0].z() - hit[0].y() * hit[1].z()) / (hit[0].z() - hit[1].z());
+    double z0 = geometry_->rpTranslation(romanPotId_).z();
+    double xatz0 = xat0 + tx * z0;
+    double yatz0 = yat0 + ty * z0;
+
+    math::Vector<4>::type parameterVector{xatz0, yatz0, tx, ty};
+    ROOT::Math::SVector<double, 10> v(0.01, 0.0, 0.01, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01);
+    math::Error<4>::type covarianceMatrix(v);
+
+    CTPPSPixelLocalTrack track(z0, parameterVector, covarianceMatrix, 0);
+
+    // save used points into track
+    for (const auto &hhit : pIPL) {
+      GlobalPoint pOD(hhit.globalPoint.x(), hhit.globalPoint.y(), hhit.globalPoint.z());
+      LocalPoint res(0, 0);
+      LocalPoint pulls(0, 0);
+      CTPPSPixelFittedRecHit usedRecHit(hhit.recHit, pOD, res, pulls);
+      usedRecHit.setIsRealHit(true);
+      track.addHit(hhit.detId, usedRecHit);
+    }
+
+    // save track in collection
+    localTrackVector_.push_back(track);
+  }
+  // bad Pot patch -- end
+
   while (hitMap_->size() >= trackMinNumberOfPoints_) {
     if (verbosity_ >= 1)
       edm::LogInfo("RPixPlaneCombinatoryTracking") << "Number of plane with hits " << hitMap_->size();

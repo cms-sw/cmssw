@@ -106,12 +106,12 @@ for cc,be in itertools.product(concentrator_algos,backend_algos):
 process = chains.create_sequences(process)
 
 # Remove towers from sequence
-process.hgcalTriggerPrimitives.remove(process.hgcalTowerMap)
-process.hgcalTriggerPrimitives.remove(process.hgcalTower)
+process.L1THGCalTriggerPrimitives.remove(process.L1THGCalTowerMap)
+process.L1THGCalTriggerPrimitives.remove(process.L1THGCalTower)
 
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-process.selector_step = cms.Path(process.hgcalTriggerSelector)
-process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
+process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
+process.selector_step = cms.Path(process.L1THGCalTriggerSelector)
+process.ntuple_step = cms.Path(process.L1THGCalTriggerNtuples)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.hgcl1tpg_step, process.selector_step, process.ntuple_step)

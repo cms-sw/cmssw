@@ -92,9 +92,11 @@ void RawDataMapperByLabel::produce(Event& e, const EventSetup& c) {
 void RawDataMapperByLabel::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::vector<edm::InputTag>>(
-      "rawCollectionList",
-      {{"rawDataCollector", "", "@skipCurrentProcess"}, {"rawDataRepacker"}, {"rawDataReducedFormat"}});
+  desc.add<std::vector<edm::InputTag>>("rawCollectionList",
+                                       {{"rawDataCollector", "", "@skipCurrentProcess"},
+                                        {"rawDataRepacker"},
+                                        {"rawPrimeDataRepacker"},
+                                        {"rawDataReducedFormat"}});
   desc.add<edm::InputTag>("mainCollection", edm::InputTag("rawDataCollector"));
 
   descriptions.add("rawDataMapperByLabel", desc);

@@ -94,10 +94,8 @@ EcalTBHodoscopeGeometryAnalyzer::~EcalTBHodoscopeGeometryAnalyzer() {
 void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, int subdetn) {
   const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det, subdetn));
 
-  int n = 0;
   const std::vector<DetId>& ids = geom->getValidDetIds(det, subdetn);
   for (auto id : ids) {
-    n++;
     auto cell = geom->getGeometry(id);
     if (det == DetId::Ecal) {
       if (subdetn == EcalLaserPnDiode) {
@@ -115,7 +113,7 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
 
 // ------------ method called to produce the data  ------------
 void EcalTBHodoscopeGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::cout << "Here I am " << std::endl;
+  edm::LogVerbatim("EcalGeom") << "Here I am ";
 
   auto const& pG = iSetup.getData(geometryToken_);
   //

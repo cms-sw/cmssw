@@ -68,7 +68,6 @@ namespace hcal {
     };
 
     struct ConfigParameters {
-      uint32_t maxChannels;
       uint32_t maxTimeSamples;
       uint32_t kprep1dChannelsPerBlock;
       int sipmQTSShift;
@@ -93,12 +92,12 @@ namespace hcal {
     struct OutputDataGPU {
       RecHitCollection<::calo::common::DevStoragePolicy> recHits;
 
-      void allocate(ConfigParameters const& config, cudaStream_t cudaStream) {
-        recHits.energy = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.chi2 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.energyM0 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.timeM0 = cms::cuda::make_device_unique<float[]>(config.maxChannels, cudaStream);
-        recHits.did = cms::cuda::make_device_unique<uint32_t[]>(config.maxChannels, cudaStream);
+      void allocate(ConfigParameters const& config, uint32_t size, cudaStream_t cudaStream) {
+        recHits.energy = cms::cuda::make_device_unique<float[]>(size, cudaStream);
+        recHits.chi2 = cms::cuda::make_device_unique<float[]>(size, cudaStream);
+        recHits.energyM0 = cms::cuda::make_device_unique<float[]>(size, cudaStream);
+        recHits.timeM0 = cms::cuda::make_device_unique<float[]>(size, cudaStream);
+        recHits.did = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
       }
     };
 

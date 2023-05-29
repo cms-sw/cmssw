@@ -56,6 +56,9 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
     } else if (objectName == "GainWidths") {
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceGainWidths).consumes();
       findingRecord<HcalGainWidthsRcd>();
+    } else if (objectName == "PFCuts") {
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::producePFCuts).consumes();
+      findingRecord<HcalPFCutsRcd>();
     } else if (objectName == "QIEData") {
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceQIEData).consumes();
       findingRecord<HcalQIEDataRcd>();
@@ -63,8 +66,7 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceQIETypes).consumes();
       findingRecord<HcalQIETypesRcd>();
     } else if (objectName == "ChannelQuality") {
-      mTokens[objectName] =
-          setWhatProduced(this, &HcalTextCalibrations::produceChannelQuality, edm::es::Label("withTopo")).consumes();
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceChannelQuality).consumes();
       findingRecord<HcalChannelQualityRcd>();
     } else if (objectName == "ZSThresholds") {
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceZSThresholds).consumes();
@@ -134,7 +136,7 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
       findingRecord<HcalTPParametersRcd>();
     } else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName << "', known names are: "
-                << "Pedestals PedestalWidths Gains GainWidths QIEData QIETypes ChannelQuality ElectronicsMap "
+                << "Pedestals PedestalWidths Gains GainWidths PFCuts QIEData QIETypes ChannelQuality ElectronicsMap "
                 << "FrontEndMap ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
                 << "ValidationCorrs LutMetadata DcsValues DcsMap "
                 << "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
@@ -213,6 +215,11 @@ std::unique_ptr<HcalGains> HcalTextCalibrations::produceGains(const HcalGainsRcd
 std::unique_ptr<HcalGainWidths> HcalTextCalibrations::produceGainWidths(const HcalGainWidthsRcd& rcd) {
   std::string const n = "GainWidths";
   return get_impl_topo<HcalGainWidths>(mInputs[n], &rcd.get(mTokens[n]));
+}
+
+std::unique_ptr<HcalPFCuts> HcalTextCalibrations::producePFCuts(const HcalPFCutsRcd& rcd) {
+  std::string const n = "PFCuts";
+  return get_impl_topo<HcalPFCuts>(mInputs[n], &rcd.get(mTokens[n]));
 }
 
 std::unique_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData(const HcalQIEDataRcd& rcd) {

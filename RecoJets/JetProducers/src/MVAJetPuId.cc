@@ -223,7 +223,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
 
   reco::TrackRef impactTrack;
   float jetPt = jet->pt() / jec;  // use uncorrected pt for shape variables
-  float sumPt = 0., sumPt2 = 0., sumTkPt = 0., sumPtCh = 0, sumPtNe = 0;
+  float sumPt = 0., sumPt2 = 0., sumPtCh = 0, sumPtNe = 0;
   float sum_deta = 0;
   float sum_dphi = 0;
   float sum_deta2 = 0;
@@ -299,7 +299,6 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
 
     if (icand->trackRef().isNonnull() && icand->trackRef().isAvailable()) {
       float tkpt = icand->trackRef()->pt();
-      sumTkPt += tkpt;
       bool inVtx0 =
           find(vtx->tracks_begin(), vtx->tracks_end(), reco::TrackBaseRef(icand->trackRef())) != vtx->tracks_end();
       bool inAnyOther = false;

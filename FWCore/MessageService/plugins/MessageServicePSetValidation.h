@@ -156,7 +156,7 @@ namespace edm {
         vString x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
-          std::string val = (*i);
+          const std::string& val = (*i);
           if (val != ok) {
             flaws_ << psetName << " PSet: \n"
                    << val << " is used as a " << type << "\n"
@@ -180,7 +180,7 @@ namespace edm {
         vString x = pset.template getParameterNamesForType<T>(false);
         vString::const_iterator end = x.end();
         for (vString::const_iterator i = x.begin(); i != end; ++i) {
-          std::string val = (*i);
+          const std::string& val = (*i);
           if ((val != ok1) && (val != ok2)) {
             flaws_ << psetName << " PSet: \n"
                    << val << " is used as a " << type << "\n"

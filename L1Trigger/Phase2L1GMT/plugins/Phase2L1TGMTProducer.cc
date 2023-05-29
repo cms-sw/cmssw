@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
-#include "L1Trigger/Phase2L1GMT/interface/Node.h"
+#include "Node.h"
 
 //
 // class declaration

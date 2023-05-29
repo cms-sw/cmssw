@@ -1,14 +1,174 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.h"
+/** \class EcalUncalibRecHitRecGlobalAlgo
+ *  Template used to compute amplitude, pedestal using a weights method
+ *                           time using a ratio method
+ *                           chi2 using express method
+ *
+ *  \author R. Bruneliere - A. Zabi
+ */
 
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPulseShapesRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
+#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
+#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecChi2Algo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimeWeightsAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimingCCAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
-#include <FWCore/ParameterSet/interface/EmptyGroupDescription.h>
+class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBaseClass {
+public:
+  EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
+  EcalUncalibRecHitWorkerMultiFit(){};
+
+private:
+  void set(const edm::EventSetup& es) override;
+  void set(const edm::Event& evt) override;
+  void run(const edm::Event& evt, const EcalDigiCollection& digis, EcalUncalibratedRecHitCollection& result) override;
+
+public:
+  edm::ParameterSetDescription getAlgoDescription() override;
+
+private:
+  edm::ESHandle<EcalPedestals> peds;
+  edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> pedsToken_;
+  edm::ESHandle<EcalGainRatios> gains;
+  edm::ESGetToken<EcalGainRatios, EcalGainRatiosRcd> gainsToken_;
+  edm::ESHandle<EcalSamplesCorrelation> noisecovariances;
+  edm::ESGetToken<EcalSamplesCorrelation, EcalSamplesCorrelationRcd> noiseConvariancesToken_;
+  edm::ESHandle<EcalPulseShapes> pulseshapes;
+  edm::ESGetToken<EcalPulseShapes, EcalPulseShapesRcd> pulseShapesToken_;
+  edm::ESHandle<EcalPulseCovariances> pulsecovariances;
+  edm::ESGetToken<EcalPulseCovariances, EcalPulseCovariancesRcd> pulseConvariancesToken_;
+
+  double timeCorrection(float ampli, const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
+
+  const SampleMatrix& noisecor(bool barrel, int gain) const { return noisecors_[barrel ? 1 : 0][gain]; }
+  const SampleMatrixGainArray& noisecor(bool barrel) const { return noisecors_[barrel ? 1 : 0]; }
+
+  // multifit method
+  std::array<SampleMatrixGainArray, 2> noisecors_;
+  BXVector activeBX;
+  bool ampErrorCalculation_;
+  bool useLumiInfoRunHeader_;
+  EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
+
+  int bunchSpacingManual_;
+  edm::EDGetTokenT<unsigned int> bunchSpacing_;
+
+  // determine which of the samples must actually be used by ECAL local reco
+  edm::ESHandle<EcalSampleMask> sampleMaskHand_;
+  edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> sampleMaskToken_;
+
+  // time algorithm to be used to set the jitter and its uncertainty
+  enum TimeAlgo { noMethod, ratioMethod, weightsMethod, crossCorrelationMethod };
+  TimeAlgo timealgo_ = noMethod;
+
+  // time weights method
+  edm::ESHandle<EcalWeightXtalGroups> grps;
+  edm::ESGetToken<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd> grpsToken_;
+  edm::ESHandle<EcalTBWeights> wgts;
+  edm::ESGetToken<EcalTBWeights, EcalTBWeightsRcd> wgtsToken_;
+  const EcalWeightSet::EcalWeightMatrix* weights[2];
+  EcalUncalibRecHitTimeWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
+  EcalUncalibRecHitTimeWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
+  bool doPrefitEB_;
+  bool doPrefitEE_;
+  double prefitMaxChiSqEB_;
+  double prefitMaxChiSqEE_;
+  bool dynamicPedestalsEB_;
+  bool dynamicPedestalsEE_;
+  bool mitigateBadSamplesEB_;
+  bool mitigateBadSamplesEE_;
+  bool gainSwitchUseMaxSampleEB_;
+  bool gainSwitchUseMaxSampleEE_;
+  bool selectiveBadSampleCriteriaEB_;
+  bool selectiveBadSampleCriteriaEE_;
+  double addPedestalUncertaintyEB_;
+  double addPedestalUncertaintyEE_;
+  bool simplifiedNoiseModelForGainSwitch_;
+
+  // ratio method
+  std::vector<double> EBtimeFitParameters_;
+  std::vector<double> EEtimeFitParameters_;
+  std::vector<double> EBamplitudeFitParameters_;
+  std::vector<double> EEamplitudeFitParameters_;
+  std::pair<double, double> EBtimeFitLimits_;
+  std::pair<double, double> EEtimeFitLimits_;
+
+  EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
+  EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
+
+  double EBtimeConstantTerm_;
+  double EEtimeConstantTerm_;
+  double EBtimeNconst_;
+  double EEtimeNconst_;
+  double outOfTimeThreshG12pEB_;
+  double outOfTimeThreshG12mEB_;
+  double outOfTimeThreshG61pEB_;
+  double outOfTimeThreshG61mEB_;
+  double outOfTimeThreshG12pEE_;
+  double outOfTimeThreshG12mEE_;
+  double outOfTimeThreshG61pEE_;
+  double outOfTimeThreshG61mEE_;
+  double amplitudeThreshEB_;
+  double amplitudeThreshEE_;
+  double ebSpikeThresh_;
+
+  edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
+  edm::ESGetToken<EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd> timeCorrBiasToken_;
+
+  edm::ESHandle<EcalTimeCalibConstants> itime;
+  edm::ESGetToken<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd> itimeToken_;
+  edm::ESHandle<EcalTimeOffsetConstant> offtime;
+  edm::ESGetToken<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd> offtimeToken_;
+  std::vector<double> ebPulseShape_;
+  std::vector<double> eePulseShape_;
+
+  // chi2 thresholds for flags settings
+  bool kPoorRecoFlagEB_;
+  bool kPoorRecoFlagEE_;
+  double chi2ThreshEB_;
+  double chi2ThreshEE_;
+
+  //Timing Cross Correlation Algo
+  std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCC_;
+  double CCminTimeToBeLateMin_;
+  double CCminTimeToBeLateMax_;
+  double CCTimeShiftWrtRations_;
+  double CCtargetTimePrecision_;
+  double CCtargetTimePrecisionForDelayedPulses_;
+};
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
     : EcalUncalibRecHitWorkerBaseClass(ps, c) {
@@ -69,8 +229,13 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = crossCorrelationMethod;
     double startTime = ps.getParameter<double>("crossCorrelationStartTime");
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
-    double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
-    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
+    CCtargetTimePrecision_ = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
+    CCtargetTimePrecisionForDelayedPulses_ =
+        ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
+    CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalcctiming::clockToNS;
+    CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalcctiming::clockToNS;
+    CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
+    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime);
   } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
@@ -473,10 +638,76 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
         float jitterError = 0.;
-        float jitter = computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
+        float jitter =
+            computeCC_->computeTimeCC(
+                *itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, CCtargetTimePrecision_, true) +
+            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
+        float noCorrectedJitter = computeCC_->computeTimeCC(*itdg,
+                                                            amplitudes,
+                                                            aped,
+                                                            aGain,
+                                                            fullpulse,
+                                                            uncalibRecHit,
+                                                            jitterError,
+                                                            CCtargetTimePrecisionForDelayedPulses_,
+                                                            false) +
+                                  CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
 
         uncalibRecHit.setJitter(jitter);
-        uncalibRecHit.setJitterError(jitterError);
+        uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);
+
+        float retreivedNonCorrectedTime = uncalibRecHit.nonCorrectedTime();
+        float noCorrectedTime = ecalcctiming::clockToNS * noCorrectedJitter;
+        if (retreivedNonCorrectedTime > -29.0 && std::abs(retreivedNonCorrectedTime - noCorrectedTime) > 0.05) {
+          edm::LogError("EcalUncalibRecHitError") << "Problem with noCorrectedJitter: true value:" << noCorrectedTime
+                                                  << "\t received: " << retreivedNonCorrectedTime << std::endl;
+        }  //<<>>if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1);
+
+        // consider flagging as kOutOfTime only if above noise
+        float threshold, cterm, timeNconst;
+        float timeThrP = 0.;
+        float timeThrM = 0.;
+        if (barrel) {
+          threshold = pedRMSVec[0] * amplitudeThreshEB_;
+          cterm = EBtimeConstantTerm_;
+          timeNconst = EBtimeNconst_;
+          timeThrP = outOfTimeThreshG12pEB_;
+          timeThrM = outOfTimeThreshG12mEB_;
+          if (uncalibRecHit.amplitude() > 3000.) {  // Gain switch
+            for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES; iSample++) {
+              int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+              if (GainId != 1) {
+                timeThrP = outOfTimeThreshG61pEB_;
+                timeThrM = outOfTimeThreshG61mEB_;
+                break;
+              }
+            }
+          }
+        } else {  //EndCap
+          threshold = pedRMSVec[0] * amplitudeThreshEE_;
+          cterm = EEtimeConstantTerm_;
+          timeNconst = EEtimeNconst_;
+          timeThrP = outOfTimeThreshG12pEE_;
+          timeThrM = outOfTimeThreshG12mEE_;
+          if (uncalibRecHit.amplitude() > 3000.) {  // Gain switch
+            for (int iSample = 0; iSample < EEDataFrame::MAXSAMPLES; iSample++) {
+              int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+              if (GainId != 1) {
+                timeThrP = outOfTimeThreshG61pEE_;
+                timeThrM = outOfTimeThreshG61mEE_;
+                break;
+              }
+            }
+          }
+        }
+        if (uncalibRecHit.amplitude() > threshold) {
+          float correctedTime = noCorrectedJitter * ecalcctiming::clockToNS + itimeconst + offsetTime;
+          float sigmaped = pedRMSVec[0];  // approx for lower gains
+          float nterm = timeNconst * sigmaped / uncalibRecHit.amplitude();
+          float sigmat = std::sqrt(nterm * nterm + cterm * cterm);
+          if ((correctedTime > sigmat * timeThrP) || (correctedTime < -sigmat * timeThrM))
+            uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kOutOfTime);
+        }
 
       } else {  // no time method;
         uncalibRecHit.setJitter(0.);
@@ -555,9 +786,13 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
-              edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
+              edm::ParameterDescription<double>("crossCorrelationStartTime", -15.0, true) and
               edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
-              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true));
+              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
+              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecisionForDelayedPulses", 0.05, true) and
+              edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 1., true) and
+              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMin", 2., true) and
+              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMax", 5., true));
 
   return psd;
 }

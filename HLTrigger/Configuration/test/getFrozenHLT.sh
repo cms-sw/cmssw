@@ -1,79 +1,77 @@
-#! /bin/bash
+#!/bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake1 Fake2 2022v11"
-HLT_Fake="/dev/CMSSW_12_4_0/Fake"
-HLT_Fake1="/dev/CMSSW_12_4_0/Fake1"
-HLT_Fake2="/dev/CMSSW_12_4_0/Fake2"
-HLT_2022v11="/frozen/2022/2e34/v1.1/HLT"
+TABLES="Fake Fake1 Fake2 2023v11"
+HLT_Fake="/dev/CMSSW_13_0_0/Fake"
+HLT_Fake1="/dev/CMSSW_13_0_0/Fake1"
+HLT_Fake2="/dev/CMSSW_13_0_0/Fake2"
+HLT_2023v11="/frozen/2023/2e34/v1.1/HLT"
 
-# print extra messages ?
-VERBOSE=false
+# command-line arguments
+VERBOSE=false # print extra messages to stdout
+DBPROXYOPTS="" # db-proxy configuration
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -v) VERBOSE=true; shift;;
+    --dbproxy) DBPROXYOPTS="${DBPROXYOPTS} --dbproxy"; shift;;
+    --dbproxyhost) DBPROXYOPTS="${DBPROXYOPTS} --dbproxyhost $2"; shift; shift;;
+    --dbproxyport) DBPROXYOPTS="${DBPROXYOPTS} --dbproxyport $2"; shift; shift;;
+    *) shift;;
+  esac
+done
 
-# this is used for brace expansion
-TABLES_=$(echo $TABLES | sed -e's/ \+/,/g')
+# remove spurious whitespaces and tabs from DBPROXYOPTS
+DBPROXYOPTS=$(echo "${DBPROXYOPTS}" | xargs)
 
-[ "$1" == "-v" ] && { VERBOSE=true;  shift; }
-[ "$1" == "-q" ] && { VERBOSE=false; shift; }
-
+# log: print to stdout only if VERBOSE=true
 function log() {
-  $VERBOSE && echo -e "$@"
+  ${VERBOSE} && echo -e "$@"
 }
 
-function getConfigForCVS() {
-  local CONFIG="$1"
-  local NAME="$2"
-  log "  dumping HLT cffs for $NAME from $CONFIG"
-  # do not use any conditions or L1 override
-  hltGetConfiguration --cff --data $CONFIG --type $NAME  > HLT_${NAME}_cff.py
-}
+# path to directory hosting this script
+TESTDIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 
-function getConfigForOnline() {
-  local CONFIG="$1"
-  local NAME="$2"
-  log "  dumping full HLT for $NAME from $CONFIG"
-  # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
+# ensure that directory hosting this script corresponds to ${CMSSW_BASE}/src/HLTrigger/Configuration/test
+if [ "${TESTDIR}" != "${CMSSW_BASE}"/src/HLTrigger/Configuration/test ]; then
+  printf "\n%s\n" "ERROR -- the directory hosting getHLT.sh [1] does not correspond to \${CMSSW_BASE}/src/HLTrigger/Configuration/test [2]"
+  printf "%s\n"   "         [1] ${TESTDIR}"
+  printf "%s\n\n" "         [2] ${CMSSW_BASE}/src/HLTrigger/Configuration/test"
+  exit 1
+fi
 
-  if [ "$NAME" == "Fake" ]; then
-    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
-  elif [ "$NAME" == "Fake1" ] || [ "$NAME" == "Fake2" ] || [ "$NAME" == "2018" ]; then
-   hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
-  else
-    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run3_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+# ensure that the python/ directory hosting cff fragments exists
+if [ ! -d "${CMSSW_BASE}"/src/HLTrigger/Configuration/python ]; then
+  printf "\n%s\n" "ERROR -- the directory \${CMSSW_BASE}/src/HLTrigger/Configuration/python [1] does not exist"
+  printf "%s\n\n" "         [1] ${CMSSW_BASE}/src/HLTrigger/Configuration/python"
+  exit 1
+fi
+
+INITDIR="${PWD}"
+
+# execute the ensuing steps from ${CMSSW_BASE}/src/HLTrigger/Configuration/test
+cd "${CMSSW_BASE}"/src/HLTrigger/Configuration/test
+
+# create cff fragments and cfg configs
+for TABLE in ${TABLES}; do
+  CONFIG=$(eval echo \$$(echo HLT_"${TABLE}"))
+  echo "${TABLE} (config: ${CONFIG})"
+
+  # cff fragment of each HLT menu (do not use any conditions or L1T override)
+  log "  creating cff fragment of HLT menu..."
+  hltGetConfiguration "${CONFIG}" --cff --data --type "${TABLE}" ${DBPROXYOPTS} > ../python/HLT_"${TABLE}"_cff.py
+
+  # GlobalTag
+  AUTOGT="auto:run3_hlt_${TABLE}"
+  if [ "${TABLE}" = "Fake1" ] || [ "${TABLE}" = "Fake2" ] || [ "${TABLE}" = "2018" ]; then
+    AUTOGT="auto:run2_hlt_${TABLE}"
+  elif [ "${TABLE}" = "Fake" ]; then
+    AUTOGT="auto:run1_hlt_${TABLE}"
   fi
-}
 
-# make sure we're using *this* working area
-eval `scramv1 runtime -sh`
-hash -r
-
-# cff python dumps, in CVS under HLTrigger/Configuration/pyhon
-log "Extracting cff python dumps"
-echo "Extracting cff python dumps"
-FILES=$(eval echo HLT_{$TABLES_}_cff.py)
-rm -f $FILES
-for TABLE in $TABLES; do
-  log "$TABLE"
-  echo "$TABLE"
-  CONFIG=$(eval echo \$$(echo HLT_$TABLE))
-  getConfigForCVS    $CONFIG $TABLE
+  # standalone cfg file of each HLT menu
+  log "  creating full cfg of HLT menu..."
+  hltGetConfiguration "${CONFIG}" --full --data --type "${TABLE}" --unprescale --process "HLT${TABLE}" --globaltag "${AUTOGT}" \
+    --input "file:RelVal_Raw_${TABLE}_DATA.root" ${DBPROXYOPTS} > OnLine_HLT_"${TABLE}".py
 done
-log "Done"
-log "$(ls -l $FILES)"
-mv -f $FILES ../python/
-log
 
-# full config dumps, in CVS under HLTrigger/Configuration/test
-log "Extracting full configuration dumps"
-echo "Extracting full configuration dumps"
-FILES=$(eval echo OnLine_HLT_{$TABLES_}.py)
-rm -f $FILES
-for TABLE in $TABLES; do
-  log "$TABLE"
-  echo "$TABLE"
-  CONFIG=$(eval echo \$$(echo HLT_$TABLE))
-  getConfigForOnline $CONFIG $TABLE
-done
-log "Done"
-log "$(ls -l $FILES)"
-log
+cd "${INITDIR}"

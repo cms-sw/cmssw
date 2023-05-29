@@ -6,10 +6,11 @@ function cleanTheHouse {
     rm -fr pede*
     rm -fr treeFile.root
     rm -fr testPCLAlCaHarvesting.db
+    rm -fr HGalignment
 }
 
 echo "TESTING Calibration/TkAlCaRecoProducers ..."
-cmsRun -e -j testPCLAlCaHarvesting.xml ${LOCAL_TEST_DIR}/testPCLAlCaHarvesting.py || die "Failure running testPCLAlCaHarvesting.py" $?
+cmsRun -e -j testPCLAlCaHarvesting.xml ${SCRAM_TEST_PATH}/testPCLAlCaHarvesting.py || die "Failure running testPCLAlCaHarvesting.py" $?
 cleanTheHouse
 echo "PARSING Framework Job Report ..."
-python3 ${LOCAL_TEST_DIR}/parseFwkJobReport.py
+python3 ${SCRAM_TEST_PATH}/parseFwkJobReport.py

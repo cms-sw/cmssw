@@ -1,6 +1,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -31,7 +31,7 @@
 #include <Math/VectorUtil.h>
 #include <TMath.h>
 
-class printJetFlavour : public edm::EDAnalyzer {
+class printJetFlavour : public edm::one::EDAnalyzer<> {
 public:
   explicit printJetFlavour(const edm::ParameterSet&);
   ~printJetFlavour(){};

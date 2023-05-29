@@ -7,8 +7,10 @@
 #include "DataFormats/Math/interface/FastMath.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "SimG4CMS/Calo/interface/HGCScintSD.h"
+#include "SimG4CMS/Calo/interface/CaloSimUtils.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
@@ -41,7 +43,8 @@ HGCScintSD::HGCScintSD(const std::string& name,
       hgcons_(hgc),
       slopeMin_(0),
       levelT1_(99),
-      levelT2_(99) {
+      levelT2_(99),
+      firstLayer_(0) {
   numberingScheme_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCScintSD");
@@ -53,6 +56,9 @@ HGCScintSD::HGCScintSD(const std::string& name,
   birk2_ = m_HGC.getParameter<double>("BirkC2");
   birk3_ = m_HGC.getParameter<double>("BirkC3");
   storeAllG4Hits_ = m_HGC.getParameter<bool>("StoreAllG4Hits");
+  checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
+  fileName_ = m_HGC.getUntrackedParameter<std::string>("TileFileName");
+  verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -79,12 +85,34 @@ HGCScintSD::HGCScintSD(const std::string& name,
                              << "**************************************************";
 #endif
   edm::LogVerbatim("HGCSim") << "HGCScintSD:: Threshold for storing hits: " << eminHit_ << " for " << nameX_
-                             << " detector " << mydet_;
+                             << " detector " << mydet_ << " File " << fileName_;
   edm::LogVerbatim("HGCSim") << "Flag for storing individual Geant4 Hits " << storeAllG4Hits_;
   edm::LogVerbatim("HGCSim") << "Fiducial volume cut with cut from eta/phi "
                              << "boundary " << fiducialCut_ << " at " << distanceFromEdge_;
   edm::LogVerbatim("HGCSim") << "Use of Birks law is set to      " << useBirk_
                              << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_;
+
+  if (!fileName_.empty()) {
+    edm::FileInPath filetmp("SimG4CMS/Calo/data/" + fileName_);
+    std::string fileName = filetmp.fullPath();
+    std::ifstream fInput(fileName.c_str());
+    if (!fInput.good()) {
+      edm::LogVerbatim("HGCSim") << "Cannot open file " << fileName;
+    } else {
+      char buffer[80];
+      while (fInput.getline(buffer, 80)) {
+        std::vector<std::string> items = CaloSimUtils::splitString(std::string(buffer));
+        if (items.size() > 2) {
+          int layer = std::atoi(items[0].c_str());
+          int ring = std::atoi(items[1].c_str());
+          int phi = std::atoi(items[2].c_str());
+          tiles_.emplace_back(HGCalTileIndex::tileIndex(layer, ring, phi));
+        }
+      }
+      edm::LogVerbatim("HGCSim") << "Reads in " << tiles_.size() << " tile information from " << fileName_;
+      fInput.close();
+    }
+  }
 }
 
 double HGCScintSD::getEnergyDeposit(const G4Step* aStep) {
@@ -169,12 +197,42 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
     return 0;
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
+  bool debug(false);
+  if (!tiles_.empty()) {
+    HGCScintillatorDetId hid(id);
+    int indx = HGCalTileIndex::tileIndex(firstLayer_ + hid.layer(), hid.ring(), hid.iphi());
+    if (std::find(tiles_.begin(), tiles_.end(), indx) != tiles_.end())
+      debug = true;
+  }
+  if (debug)
+    edm::LogVerbatim("HGCSim") << "Layer:module:cell:iz " << layer << ":" << module << ":" << cell << ":" << iz
+                               << "  Point (" << hitPoint.x() << ", " << hitPoint.y() << ", " << hitPoint.z() << ") "
+                               << HGCScintillatorDetId(id);
+
   if (!isItinFidVolume(hitPoint)) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec << " " << HGCScintillatorDetId(id)
                                << " is rejected by fiducilal volume cut";
 #endif
     id = 0;
+  }
+  if ((id != 0) && checkID_) {
+    HGCScintillatorDetId hid1(id);
+    std::string_view pid =
+        ((hgcons_->cassetteShiftScintillator(hid1.zside(), hid1.layer(), hid1.iphi())) ? "HGCSim" : "HGCalSim");
+    bool debug = (verbose_ > 0) ? true : false;
+    auto xy = hgcons_->locateCell(HGCScintillatorDetId(id), debug);
+    double dx = xy.first - (hitPoint.x() / CLHEP::cm);
+    double dy = xy.second - (hitPoint.y() / CLHEP::cm);
+    double diff = std::sqrt(dx * dx + dy * dy);
+    constexpr double tol = 10.0;
+    bool valid = hgcons_->isValidTrap(hid1.zside(), hid1.layer(), hid1.ring(), hid1.iphi());
+    if ((diff > tol) || (!valid))
+      pid = "HGCalError";
+    edm::LogVerbatim(pid) << "CheckID " << HGCScintillatorDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
+                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xy.first << ", "
+                          << xy.second << ") distance " << diff << " Valid " << valid
+                          << " Rho = " << hitPoint.perp() / CLHEP::cm;
   }
   return id;
 }
@@ -185,12 +243,13 @@ void HGCScintSD::update(const BeginOfJob* job) {
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);
     levelT2_ = hgcons_->levelTop(1);
+    firstLayer_ = hgcons_->firstLayer() - 1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCScintSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
-                               << " top Level " << levelT1_ << ":" << levelT2_;
+                               << " top Level " << levelT1_ << ":" << levelT2_ << " FirstLayer " << firstLayer_;
 #endif
 
-    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, fileName_);
   } else {
     throw cms::Exception("Unknown", "HGCScintSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

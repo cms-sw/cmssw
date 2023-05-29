@@ -42,7 +42,7 @@
 #include <utility>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -53,7 +53,8 @@
 #define MAX_PATHS 200
 #define MAX_LUMI_SEG_HLT 2400
 
-class HLTScalersClient : public edm::EDAnalyzer {
+class HLTScalersClient
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 private:
   std::ofstream textfile_;
 
@@ -133,6 +134,7 @@ public:
 
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
+  void beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override {}
   void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
   // unused

@@ -12,6 +12,7 @@
  <class name="std::bitset<27>"/>
  <class name="std::bitset<64>"/>
  <class name="std::bitset<96>"/>
+ <class name="std::bitset<128>"/>
  <class name="std::deque<int>"/>
  <class name="std::forward_iterator_tag"/>
  <class name="std::input_iterator_tag"/>

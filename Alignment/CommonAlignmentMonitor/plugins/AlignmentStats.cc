@@ -2,6 +2,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -15,7 +16,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -34,7 +34,9 @@ AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig)
       keepHitPopulation_(iConfig.getParameter<bool>("keepHitStats")),
       statsTreeName_(iConfig.getParameter<string>("TrkStatsFileName")),
       hitsTreeName_(iConfig.getParameter<string>("HitStatsFileName")),
-      prescale_(iConfig.getParameter<uint32_t>("TrkStatsPrescale")) {
+      prescale_(iConfig.getParameter<uint32_t>("TrkStatsPrescale")),
+      trackToken_(consumes<reco::TrackCollection>(src_)),
+      mapToken_(consumes<AliClusterValueMap>(overlapAM_)) {
   //sanity checks
 
   //init
@@ -42,8 +44,16 @@ AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig)
 
 }  //end constructor
 
-AlignmentStats::~AlignmentStats() {
-  //
+void AlignmentStats::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("OverlapAssoMap", edm::InputTag("OverlapAssoMap"));
+  desc.add<bool>("keepTrackStats", false);
+  desc.add<bool>("keepHitStats", false);
+  desc.add<std::string>("TrkStatsFileName", "tracks_statistics.root");
+  desc.add<std::string>("HitStatsFileName", "HitMaps.root");
+  desc.add<unsigned int>("TrkStatsPrescale", 1);
+  descriptions.add("AlignmentStats", desc);
 }
 
 void AlignmentStats::beginJob() {  // const edm::EventSetup &iSetup
@@ -87,12 +97,10 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   //take trajectories and tracks to loop on
   // edm::Handle<TrajTrackAssociationCollection> TrackAssoMap;
-  edm::Handle<reco::TrackCollection> Tracks;
-  iEvent.getByLabel(src_, Tracks);
+  const edm::Handle<reco::TrackCollection> &Tracks = iEvent.getHandle(trackToken_);
 
   //take overlap HitAssomap
-  edm::Handle<AliClusterValueMap> hMap;
-  iEvent.getByLabel(overlapAM_, hMap);
+  const edm::Handle<AliClusterValueMap> &hMap = iEvent.getHandle(mapToken_);
   const AliClusterValueMap &OverlapMap = *hMap;
 
   // Initialise
@@ -102,7 +110,8 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   run_ = iEvent.id().run();
   event_ = iEvent.id().event();
   ntracks = Tracks->size();
-  //  if(ntracks>1) std::cout<<"~~~~~~~~~~~~\n For this event processing "<<ntracks<<" tracks"<<std::endl;
+  if (ntracks > 1)
+    edm::LogVerbatim("AlignmenStats") << "~~~~~~~~~~~~\n For this event processing " << ntracks << " tracks";
 
   unsigned int trk_cnt = 0;
 
@@ -129,11 +138,13 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     Pt[trk_cnt] = ittrk->pt();
     Nhits[trk_cnt][0] = ittrk->numberOfValidHits();
 
-    //   if(ntracks>1)std::cout<<"Track #"<<trk_cnt+1<<" params:    Eta="<< Eta[trk_cnt]<<"  Phi="<< Phi[trk_cnt]<<"  P="<<P[trk_cnt]<<"   Nhits="<<Nhits[trk_cnt][0]<<std::endl;
+    if (ntracks > 1)
+      edm::LogVerbatim("AlignmenStats") << "Track #" << trk_cnt + 1 << " params:    Eta=" << Eta[trk_cnt]
+                                        << "  Phi=" << Phi[trk_cnt] << "  P=" << P[trk_cnt]
+                                        << "   Nhits=" << Nhits[trk_cnt][0];
 
-    int nhit = 0;
     //loop on tracking rechits
-    //std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
+    //edm::LogVerbatim("AlignmenStats") << "   loop on hits of track #" << (itt - tracks->begin());
     for (auto const &hit : ittrk->recHits()) {
       if (!hit->isValid())
         continue;
@@ -188,7 +199,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
           if (striphit != nullptr) {
             SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
             inval = OverlapMap[stripclust];
-            //cout<<"Taken the Strip Cluster with ProdId "<<stripclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
+            //edm::LogVerbatim("AlignmenStats")<<"Taken the Strip Cluster with ProdId "<<stripclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")";
           } else {
             throw cms::Exception("NullPointerError")
                 << "ERROR in <AlignmentStats::analyze>: Dynamic cast of Strip RecHit2D failed!   TypeId of the RecHit: "
@@ -203,7 +214,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
         if (pixelhit != nullptr) {
           SiPixelClusterRefNew pixclust(pixelhit->cluster());
           inval = OverlapMap[pixclust];
-          //cout<<"Taken the Pixel Cluster with ProdId "<<pixclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
+          //edm::LogVerbatim("AlignmenStats")<<"Taken the Pixel Cluster with ProdId "<<pixclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")";
         } else {
           edm::LogError("AlignmentStats")
               << "ERROR in <AlignmentStats::analyze>: Dynamic cast of Pixel RecHit failed!   TypeId of the RecHit: "
@@ -214,7 +225,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       bool isOverlapHit(inval.isOverlap());
 
       if (isOverlapHit) {
-        //cout<<"This hit is an overlap !"<<endl;
+        edm::LogVerbatim("AlignmenStats") << "This hit is an overlap !";
         DetHitMap::iterator overlapiter;
         overlapiter = overlapmap_.find(rawId);
 
@@ -227,15 +238,15 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       }  //end if the hit is an overlap
 
       int subdethit = static_cast<int>(hit->geographicalId().subdetId());
-      // if(ntracks>1)std::cout<<"Hit in SubDet="<<subdethit<<std::endl;
+      if (ntracks > 1)
+        edm::LogVerbatim("AlignmenStats") << "Hit in SubDet=" << subdethit;
       Nhits[trk_cnt][subdethit] = Nhits[trk_cnt][subdethit] + 1;
-      nhit++;
     }  //end loop on trackingrechits
     trk_cnt++;
 
   }  //end loop on tracks
 
-  //  cout<<"Total number of pixel hits is "<<npxbhits<<endl;
+  //edm::LogVerbatim("AlignmenStats")<<"Total number of pixel hits is " << npxbhits;
 
   tmpPresc_--;
   if (tmpPresc_ < 1) {
@@ -250,7 +261,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
 void AlignmentStats::endJob() {
   treefile_->cd();
-  edm::LogInfo("AlignmentStats") << "Writing out the TrackStatistics in " << gDirectory->GetPath() << std::endl;
+  edm::LogInfo("AlignmentStats") << "Writing out the TrackStatistics in " << gDirectory->GetPath();
   outtree_->Write();
   delete outtree_;
 
@@ -300,7 +311,7 @@ void AlignmentStats::endJob() {
       std::make_unique<AlignableTracker>(trackerGeometry_.get(), trackerTopology_.get());
   const auto &Detunitslist = theAliTracker->deepComponents();
   int ndetunits = Detunitslist.size();
-  edm::LogInfo("AlignmentStats") << "Number of DetUnits in the AlignableTracker: " << ndetunits << std::endl;
+  edm::LogInfo("AlignmentStats") << "Number of DetUnits in the AlignableTracker: " << ndetunits;
 
   for (int det_cnt = 0; det_cnt < ndetunits; ++det_cnt) {
     //re-initialize for safety

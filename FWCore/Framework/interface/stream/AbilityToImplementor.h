@@ -103,6 +103,13 @@ namespace edm {
     // As currently implemented this ability only works
     // with EDProducer, not with EDAnalyzers or EDFilters!
     template <>
+    struct AbilityToImplementor<edm::Transformer> {
+      using Type = edm::stream::impl::Transformer;
+    };
+
+    // As currently implemented this ability only works
+    // with EDProducer, not with EDAnalyzers or EDFilters!
+    template <>
     struct AbilityToImplementor<edm::Accumulator> {
       using Type = edm::stream::impl::Accumulator;
     };

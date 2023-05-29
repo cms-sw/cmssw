@@ -11,7 +11,7 @@
 
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
+#include "DataFormats/HGCalDigi/interface/PHGCSimAccumulator.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -117,9 +117,6 @@ private:
 
   //misc switches
   const uint32_t verbosity_;
-
-  //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
-  const float refSpeed_;
 
   //delay to apply after evaluating time of arrival at the sensitive detector
   const float tofDelay_;

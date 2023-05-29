@@ -54,7 +54,8 @@ class MatrixReader(object):
                              'relval_2026':'2026-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
-                             'relval_premix': 'premix-'
+                             'relval_premix': 'premix-',
+                             'relval_nano':'nano-'
                              }
 
         self.files = ['relval_standard' ,
@@ -71,7 +72,8 @@ class MatrixReader(object):
                       'relval_2026',
                       'relval_identity',
                       'relval_machine',
-                      'relval_premix'
+                      'relval_premix',
+                      'relval_nano'
                       ]
         self.filesDefault = {'relval_standard':True ,
                              'relval_highstats':True ,
@@ -87,7 +89,8 @@ class MatrixReader(object):
                              'relval_2026':True,
                              'relval_identity':False,
                              'relval_machine':True,
-                             'relval_premix':True
+                             'relval_premix':True,
+                             'relval_nano':True
                              }
 
         self.relvalModule = None
@@ -182,7 +185,6 @@ class MatrixReader(object):
                     self.relvalModule.steps,
                     [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
                     )
-            
 
         for num, wfInfo in self.relvalModule.workflows.items():
             commands=[]
@@ -218,6 +220,7 @@ class MatrixReader(object):
                 if len(wfSuffix)>0: name = name+wfSuffix
             stepIndex=0
             ranStepList=[]
+            name_for_workflow = name
 
             #first resolve INPUT possibilities
             if num in fromInput:
@@ -244,8 +247,7 @@ class MatrixReader(object):
                             stepList.pop(0)
                         #print "\t\tmod",stepList
                         break
-                                                        
-                                                    
+
             for (stepI,step) in enumerate(stepList):
                 stepName=step
                 if self.relvalModule.steps[stepName] is None:
@@ -254,7 +256,7 @@ class MatrixReader(object):
                     #cannot put a certain number of things in wm
                     if stepName in ['SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
-                    
+
                 #replace stepName is needed
                 #if stepName in self.replaceStep
                 if len(name) > 0 : name += '+'
@@ -305,8 +307,7 @@ class MatrixReader(object):
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1
-                
-            self.workFlowSteps[(num,prefix)] = (num, name, commands, ranStepList)
+            self.workFlowSteps[(num,prefix)] = (num, name_for_workflow, commands, ranStepList)
         
         return
 
@@ -349,7 +350,6 @@ class MatrixReader(object):
                 #trick to skip the HImix IB test
                 if key[0]==203.1 or key[0]==204.1 or key[0]==205.1 or key[0]==4.51 or key[0]==4.52: continue
                 num, name, commands, stepList = self.workFlowSteps[key]
-                
                 wfName,stepNames= name.split('+',1)
                 
                 stepNames=stepNames.replace('+SKIMCOSD','')
@@ -449,7 +449,8 @@ class MatrixReader(object):
             #pad with zeros
             for i in range(len(N),len(wf.cmds)):                N.append(0)
             N[len(wf.cmds)-1]+=1
-            wfName, stepNames = wf.nameId.split('+',1)
+            wfName = wf.nameId
+            stepNames = '+'.join(wf.stepList)
             for i,s in enumerate(wf.cmds):
                 if extended:
                     if i==0:
@@ -488,7 +489,7 @@ class MatrixReader(object):
             else:
                 self.nameList[nameId] = val
 
-            self.workFlows.append(WorkFlow(num, name, commands=commands))
+            self.workFlows.append(WorkFlow(num, name, commands=commands, stepList=stepList))
 
         return
 

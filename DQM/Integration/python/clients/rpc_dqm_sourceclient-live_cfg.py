@@ -45,7 +45,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 #process.GlobalTag.globaltag = "102X_dataRun2_Express_v4"
 process.GlobalTag.RefreshEachRun = True
 

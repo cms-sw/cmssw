@@ -118,13 +118,25 @@ public:
 
   // linear average position (barycenter)
   inline float x() const {
-    auto x_pos = [this](unsigned int i) { return this->theHitOffset[i * 2] + minHitRow() + 0.5f; };
+    auto x_pos = [this](unsigned int i) { return this->theHitOffset[i * 2] + minHitRow(); };
     return weighted_mean(this->theHitENERGY, x_pos);
   }
 
   inline float y() const {
-    auto y_pos = [this](unsigned int i) { return this->theHitOffset[i * 2 + 1] + minHitCol() + 0.5f; };
+    auto y_pos = [this](unsigned int i) { return this->theHitOffset[i * 2 + 1] + minHitCol(); };
     return weighted_mean(this->theHitENERGY, y_pos);
+  }
+
+  inline float positionError(const float sigmaPos) const {
+    float sumW2(0.f), sumW(0.f);
+    for (const auto& hitW : theHitENERGY) {
+      sumW2 += hitW * hitW;
+      sumW += hitW;
+    }
+    if (sumW > 0)
+      return sigmaPos * std::sqrt(sumW2) / sumW;
+    else
+      return -999.f;
   }
 
   inline float time() const {
@@ -193,11 +205,11 @@ public:
     theHitRowSpan = std::min(xspan, uint16_t(MAXSPAN));
   }
 
+  void setClusterPosX(float posx) { pos_x = posx; }
   void setClusterErrorX(float errx) { err_x = errx; }
-  void setClusterErrorY(float erry) { err_y = erry; }
   void setClusterErrorTime(float errtime) { err_time = errtime; }
+  float getClusterPosX() const { return pos_x; }
   float getClusterErrorX() const { return err_x; }
-  float getClusterErrorY() const { return err_y; }
   float getClusterErrorTime() const { return err_time; }
 
 private:
@@ -213,8 +225,8 @@ private:
   uint8_t theHitRowSpan = 0;       // Span hit index in the x direction (low edge).
   uint8_t theHitColSpan = 0;       // Span hit index in the y direction (left edge).
 
-  float err_x = -99999.9f;
-  float err_y = -99999.9f;
+  float pos_x = -99999.9f;  // For pixels with internal position information in one coordinate (i.e. BTL crystals)
+  float err_x = -99999.9f;  // For pixels with internal position information in one coordinate (i.e. BTL crystals)
   float err_time = -99999.9f;
 
   uint8_t seed_;

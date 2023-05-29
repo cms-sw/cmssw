@@ -13,6 +13,8 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
+#include <type_traits>
+
 namespace pat {
 
   template <typename T>

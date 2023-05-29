@@ -53,5 +53,5 @@ private:
 
 // c++11 requires that your template implementation should be in a header file
 // to do so we include here implementation file (__class__inl).
-#include "__class__.inl"
+#include "__class__.icc"
 #endif

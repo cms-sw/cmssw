@@ -7,21 +7,75 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
+//#define GPU_DEBUG
+
 namespace gpuClustering {
+
+  // Phase-1 pixel modules
+  constexpr uint32_t pixelSizeX = 160;
+  constexpr uint32_t pixelSizeY = 416;
+
+  namespace pixelStatus {
+    // Use 0x00, 0x01, 0x03 so each can be OR'ed on top of the previous ones
+    enum Status : uint32_t { kEmpty = 0x00, kFound = 0x01, kDuplicate = 0x03 };
+
+    constexpr uint32_t bits = 2;
+    constexpr uint32_t mask = (0x01 << bits) - 1;
+    constexpr uint32_t valuesPerWord = sizeof(uint32_t) * 8 / bits;
+    constexpr uint32_t size = pixelSizeX * pixelSizeY / valuesPerWord;
+
+    __device__ static constexpr inline uint32_t getIndex(uint16_t x, uint16_t y) {
+      return (pixelSizeX * y + x) / valuesPerWord;
+    }
+
+    __device__ constexpr inline uint32_t getShift(uint16_t x, uint16_t y) { return (x % valuesPerWord) * 2; }
+
+    __device__ constexpr inline Status getStatus(uint32_t const* __restrict__ status, uint16_t x, uint16_t y) {
+      uint32_t index = getIndex(x, y);
+      uint32_t shift = getShift(x, y);
+      return Status{(status[index] >> shift) & mask};
+    }
+
+    __device__ constexpr inline bool isDuplicate(uint32_t const* __restrict__ status, uint16_t x, uint16_t y) {
+      return getStatus(status, x, y) == kDuplicate;
+    }
+
+    __device__ constexpr inline void promote(uint32_t* __restrict__ status, const uint16_t x, const uint16_t y) {
+      uint32_t index = getIndex(x, y);
+      uint32_t shift = getShift(x, y);
+      uint32_t old_word = status[index];
+      uint32_t expected = old_word;
+      do {
+        expected = old_word;
+        Status old_status{(old_word >> shift) & mask};
+        if (kDuplicate == old_status) {
+          // nothing to do
+          return;
+        }
+        Status new_status = (kEmpty == old_status) ? kFound : kDuplicate;
+        uint32_t new_word = old_word | (static_cast<uint32_t>(new_status) << shift);
+        old_word = atomicCAS(&status[index], expected, new_word);
+      } while (expected != old_word);
+    }
+
+  }  // namespace pixelStatus
 
 #ifdef GPU_DEBUG
   __device__ uint32_t gMaxHit = 0;
 #endif
 
-  template <bool isPhase2>
+  template <typename TrackerTraits>
   __global__ void countModules(uint16_t const* __restrict__ id,
                                uint32_t* __restrict__ moduleStart,
                                int32_t* __restrict__ clusterId,
                                int numElements) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+
+    [[maybe_unused]] constexpr int nMaxModules = TrackerTraits::numberOfModules;
+
     assert(nMaxModules < maxNumModules);
     for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
       clusterId[i] = i;
@@ -38,8 +92,9 @@ namespace gpuClustering {
     }
   }
 
-  template <bool isPhase2>
-  __global__ void findClus(uint16_t const* __restrict__ id,           // module id of each pixel
+  template <typename TrackerTraits>
+  __global__ void findClus(uint32_t* __restrict__ rawIdArr,
+                           uint16_t* __restrict__ id,                 // module id of each pixel
                            uint16_t const* __restrict__ x,            // local coordinates of each pixel
                            uint16_t const* __restrict__ y,            //
                            uint32_t const* __restrict__ moduleStart,  // index of the first pixel of each module
@@ -47,18 +102,22 @@ namespace gpuClustering {
                            uint32_t* __restrict__ moduleId,           // output: module id of each module
                            int32_t* __restrict__ clusterId,           // output: cluster id of each pixel
                            int numElements) {
+    // status is only used for Phase-1, but it cannot be declared conditionally only if isPhase2 is false;
+    // to minimize the impact on Phase-2 reconstruction it is declared with a very small size.
+    constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
+    constexpr const uint32_t pixelStatusSize = isPhase2 ? 1 : pixelStatus::size;
+    __shared__ uint32_t status[pixelStatusSize];  // packed words array used to store the PixelStatus of each pixel
     __shared__ int msize;
 
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
 
-    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
-    assert(nMaxModules < maxNumModules);
+    assert(TrackerTraits::numberOfModules < maxNumModules);
 
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      assert(thisModuleId < nMaxModules);
+      assert(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
       if (thisModuleId % 100 == 1)
@@ -84,9 +143,10 @@ namespace gpuClustering {
 
       //init hist  (ymax=416 < 512 : 9bits)
       //6000 max pixels required for HI operations with no measurable impact on pp performance
-      constexpr uint32_t maxPixInModule = 6000;
-      constexpr auto nbins = isPhase2 ? 1024 : phase1PixelTopology::numColsInModule + 2;  //2+2;
-      constexpr auto nbits = isPhase2 ? 10 : 9;                                           //2+2;
+      constexpr uint32_t maxPixInModule = TrackerTraits::maxPixInModule;
+      constexpr auto nbins = TrackerTraits::clusterBinning;
+      constexpr auto nbits = TrackerTraits::clusterBits;
+
       using Hist = cms::cuda::HistoContainer<uint16_t, nbins, maxPixInModule, nbits, uint16_t>;
       __shared__ Hist hist;
       __shared__ typename Hist::Counter ws[32];
@@ -113,6 +173,34 @@ namespace gpuClustering {
       totGood = 0;
       __syncthreads();
 #endif
+
+      // remove duplicate pixels
+      if constexpr (not isPhase2) {
+        if (msize > 1) {
+          for (uint32_t i = threadIdx.x; i < pixelStatus::size; i += blockDim.x) {
+            status[i] = 0;
+          }
+          __syncthreads();
+          for (int i = first; i < msize - 1; i += blockDim.x) {
+            // skip invalid pixels
+            if (id[i] == invalidModuleId)
+              continue;
+            pixelStatus::promote(status, x[i], y[i]);
+          }
+          __syncthreads();
+          for (int i = first; i < msize - 1; i += blockDim.x) {
+            // skip invalid pixels
+            if (id[i] == invalidModuleId)
+              continue;
+            if (pixelStatus::isDuplicate(status, x[i], y[i])) {
+              // printf("found dup %d %d %d %d\n", i, id[i], x[i], y[i]);
+              id[i] = invalidModuleId;
+              rawIdArr[i] = 0;
+            }
+          }
+          __syncthreads();
+        }
+      }
 
       // fill histo
       for (int i = first; i < msize; i += blockDim.x) {

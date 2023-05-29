@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import dummy_C2d_params, \
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import dummy_C2d_params, \
                                                               stage1truncation_proc, \
                                                               truncation_params
 
@@ -15,7 +15,7 @@ class RozBinTruncation(object):
         )
 
     def __call__(self,process,inputs):
-        producer = process.hgcalBackEndStage1Producer.clone(
+        producer = process.l1tHGCalBackEndStage1Producer.clone(
             InputTriggerCells = cms.InputTag(inputs),
             C2d_parameters = dummy_C2d_params.clone(),
             ProcessorParameters = self.processor

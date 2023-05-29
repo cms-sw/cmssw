@@ -1012,7 +1012,8 @@ namespace cscdqm {
                         }
                       }
                       for (unsigned ieta = 0; ieta < 8; ieta++) {
-                        std::vector<GEMPadDigiCluster> gemEtaDigis = gemData->etaDigis(i, ieta);
+                        std::vector<GEMPadDigiCluster> gemEtaDigis =
+                            gemData->etaDigis(i, ieta, tmbHeader->ALCTMatchTime());
                         if (!gemEtaDigis.empty()) {
                           for (unsigned digi = 0; digi < gemEtaDigis.size(); digi++) {
                             if (gemEtaDigis[digi].isValid()) {

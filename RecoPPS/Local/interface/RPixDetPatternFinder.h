@@ -38,7 +38,7 @@ public:
   typedef std::vector<PointInPlane> Road;
 
   void setHits(const edm::DetSetVector<CTPPSPixelRecHit> *hitVector) { hitVector_ = hitVector; }
-  virtual void findPattern() = 0;
+  virtual void findPattern(bool *is2planepot) = 0;
   void clear() { patternVector_.clear(); }
   std::vector<Road> const &getPatterns() const { return patternVector_; }
   void setGeometry(const CTPPSGeometry *geometry) { geometry_ = geometry; }

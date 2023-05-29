@@ -28,7 +28,7 @@ private:
   edm::EDPutTokenT<SiPixelErrorsSoA> digiErrorPutToken_;
 
   cms::cuda::host::unique_ptr<SiPixelErrorCompact[]> data_;
-  cms::cuda::SimpleVector<SiPixelErrorCompact> error_;
+  cms::cuda::SimpleVector<SiPixelErrorCompact> error_ = cms::cuda::make_SimpleVector<SiPixelErrorCompact>(0, nullptr);
   const SiPixelFormatterErrors* formatterErrors_ = nullptr;
 };
 

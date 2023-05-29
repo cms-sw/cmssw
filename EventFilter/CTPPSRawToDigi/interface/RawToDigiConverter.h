@@ -3,6 +3,8 @@
 * This is a part of the TOTEM offline software.
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Nicola Minafra
+*   Laurent Forthomme
 *
 ****************************************************************************/
 
@@ -11,6 +13,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 
@@ -21,6 +24,7 @@
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+#include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 
 /// \brief Collection of code to convert TOTEM raw data into digi.
 class RawToDigiConverter {
@@ -48,6 +52,13 @@ public:
            edm::DetSetVector<TotemTimingDigi> &digi,
            edm::DetSetVector<TotemVFATStatus> &status);
 
+  /// Creates Totem T2 digi
+  void run(const VFATFrameCollection &coll,
+           const TotemDAQMapping &mapping,
+           const TotemAnalysisMask &mask,
+           edmNew::DetSetVector<TotemT2Digi> &digi,
+           edm::DetSetVector<TotemVFATStatus> &status);
+
   /// Print error summaries.
   void printSummaries() const;
 
@@ -59,6 +70,8 @@ private:
   };
 
   unsigned char verbosity;
+
+  unsigned int olderTotemT2FileTest;  //Test file with T2 frame ver 2.1
 
   unsigned int printErrorSummary;
   unsigned int printUnknownFrameSummary;

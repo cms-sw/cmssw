@@ -4,6 +4,8 @@
 //         Created:  Tue, 13 Mar 2018 09:26:52 GMT
 //
 //
+// NOTE: this file is deprecated and only kept for compatibility when running the
+// frozen nanoAOD V10 config
 
 // system include files
 #include <memory>
@@ -232,7 +234,7 @@ void BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
   }
 
-  iEvent.put(move(out));
+  iEvent.put(std::move(out));
 }
 
 //define this as a plug-in

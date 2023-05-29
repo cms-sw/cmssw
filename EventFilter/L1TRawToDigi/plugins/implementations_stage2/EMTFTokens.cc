@@ -15,6 +15,7 @@ namespace l1t {
       EMTFHitToken_ = cc.consumes<EMTFHitCollection>(tag);
       EMTFTrackToken_ = cc.consumes<EMTFTrackCollection>(tag);
       EMTFLCTToken_ = cc.consumes<CSCCorrelatedLCTDigiCollection>(tag);
+      EMTFCSCShowerToken_ = cc.consumes<CSCShowerDigiCollection>(tag);
       EMTFCPPFToken_ = cc.consumes<CPPFDigiCollection>(tag);
       EMTFGEMPadClusterToken_ = cc.consumes<GEMPadDigiClusterCollection>(tag);
     }

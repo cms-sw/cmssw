@@ -2,12 +2,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "RecoPPS/Local/interface/RPixDetClusterizer.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 
 namespace {
   constexpr int maxCol = CTPPSPixelCluster::MAXCOL;
   constexpr int maxRow = CTPPSPixelCluster::MAXROW;
   constexpr double highRangeCal = 1800.;
   constexpr double lowRangeCal = 260.;
+  constexpr int rocMask = 0xE000;
+  constexpr int rocOffset = 13;
 }  // namespace
 
 RPixDetClusterizer::RPixDetClusterizer(edm::ParameterSet const &conf) : params_(conf), SeedVector_(0) {
@@ -28,11 +31,31 @@ void RPixDetClusterizer::buildClusters(unsigned int detId,
                                        const CTPPSPixelGainCalibrations *pcalibrations,
                                        const CTPPSPixelAnalysisMask *maskera) {
   std::map<uint32_t, CTPPSPixelROCAnalysisMask> const &mask = maskera->analysisMask;
-  std::map<uint32_t, CTPPSPixelROCAnalysisMask>::const_iterator mask_it = mask.find(detId);
-
   std::set<std::pair<unsigned char, unsigned char> > maskedPixels;
-  if (mask_it != mask.end())
-    maskedPixels = mask_it->second.maskedPixels;
+
+  bool fullyMaskedRoc[6][6] = {{false}};
+  CTPPSPixelDetId currentId(detId);
+
+  // read and store masked pixels after converting ROC numbering into module numbering
+  CTPPSPixelIndices pI;
+  for (auto const &det : mask) {
+    uint32_t planeId = det.first & ~rocMask;
+
+    if (planeId == detId) {
+      unsigned int rocNum = (det.first & rocMask) >> rocOffset;
+      if (rocNum > 5)
+        throw cms::Exception("InvalidRocNumber") << "roc number from mask: " << rocNum;
+      if (det.second.fullMask)
+        fullyMaskedRoc[currentId.plane()][rocNum] = true;
+      for (auto const &paio : det.second.maskedPixels) {
+        std::pair<unsigned char, unsigned char> pa = paio;
+        int modCol, modRow;
+        pI.transformToModule(pa.second, pa.first, rocNum, modCol, modRow);
+        std::pair<int, int> modPix(modRow, modCol);
+        maskedPixels.insert(modPix);
+      }
+    }
+  }
 
   if (verbosity_)
     edm::LogInfo("RPixDetClusterizer") << detId << " received digi.size()=" << digi.size();
@@ -58,7 +81,12 @@ void RPixDetClusterizer::buildClusters(unsigned int detId,
 
     // check if pixel is noisy or dead (i.e. in the mask)
     const bool is_in = maskedPixels.find(pixel) != maskedPixels.end();
-    if (!is_in) {
+
+    // check if pixel inside a fully masked roc
+    int piano = currentId.plane();
+    int rocId = pI.getROCId(column, row);
+
+    if (!is_in && !fullyMaskedRoc[piano][rocId]) {
       //calibrate digi and store the new ones
       electrons = calibrate(detId, adc, row, column, pcalibrations);
       if (electrons < SeedADCThreshold_ * ElectronADCGain_)

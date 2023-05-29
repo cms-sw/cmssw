@@ -85,7 +85,9 @@ private:
   edm::ESGetToken<PDetGeomDesc, VeryForwardIdealGeometryRecord> dbToken_;
   const bool fromPreprocessedDB_, fromDD4hep_;
 
+  edm::ESGetToken<DetGeomDesc, IdealGeometryRecord> idealGDToken2_;
   edm::ESGetToken<DetGeomDesc, IdealGeometryRecord> idealGDToken_;
+  edm::ESGetToken<DetGeomDesc, VeryForwardIdealGeometryRecord> idealDBGDToken2_;
   edm::ESGetToken<DetGeomDesc, VeryForwardIdealGeometryRecord> idealDBGDToken_;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPRealAlignmentRecord> realAlignmentToken_;
   edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord> misAlignmentToken_;
@@ -110,6 +112,7 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
 
     if (buildMisalignedGeometry_) {
       auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGDFromPreprocessedDB);
+      idealDBGDToken2_ = c2.consumesFrom<DetGeomDesc, VeryForwardIdealGeometryRecord>(edm::ESInputTag());
       misAlignmentToken_ =
           c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
     }
@@ -123,6 +126,7 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
 
     if (buildMisalignedGeometry_) {
       auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
+      idealGDToken2_ = c2.consumesFrom<DetGeomDesc, IdealGeometryRecord>(edm::ESInputTag());
       misAlignmentToken_ =
           c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
     }
@@ -137,6 +141,7 @@ CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet& iConfig)
 
     if (buildMisalignedGeometry_) {
       auto c2 = setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
+      idealGDToken2_ = c2.consumesFrom<DetGeomDesc, IdealGeometryRecord>(edm::ESInputTag());
       misAlignmentToken_ =
           c2.consumesFrom<CTPPSRPAlignmentCorrectionsData, RPMisalignedAlignmentRecord>(edm::ESInputTag());
     }
@@ -239,7 +244,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGDFromPrepr
     const VeryForwardMisalignedGeometryRecord& iRecord) {
   return produceGD(iRecord.getRecord<VeryForwardIdealGeometryRecord>(),
                    iRecord.tryToGetRecord<RPMisalignedAlignmentRecord>(),
-                   idealDBGDToken_,
+                   idealDBGDToken2_,
                    misAlignmentToken_,
                    "CTPPSGeometryESModule::produceMisalignedGDFromPreprocessedDB");
 }
@@ -260,7 +265,7 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGD(
     const VeryForwardMisalignedGeometryRecord& iRecord) {
   return produceGD(iRecord.getRecord<IdealGeometryRecord>(),
                    iRecord.tryToGetRecord<RPMisalignedAlignmentRecord>(),
-                   idealGDToken_,
+                   idealGDToken2_,
                    misAlignmentToken_,
                    "CTPPSGeometryESModule::produceMisalignedGD");
 }

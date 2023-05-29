@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,10 +9,10 @@
 // class declaration
 //
 
-class CSCMap1Read : public edm::EDAnalyzer {
+class CSCMap1Read : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCMap1Read(const edm::ParameterSet &);
-  ~CSCMap1Read() override;
+  ~CSCMap1Read() override = default;
 
 private:
   void beginJob() override;
@@ -24,7 +24,6 @@ private:
 DEFINE_FWK_MODULE(CSCMap1Read);
 
 CSCMap1Read::CSCMap1Read(const edm::ParameterSet &) {}
-CSCMap1Read::~CSCMap1Read() {}
 
 void CSCMap1Read::analyze(const edm::Event &, const edm::EventSetup &) {
   CSCMapItem::MapItem item;

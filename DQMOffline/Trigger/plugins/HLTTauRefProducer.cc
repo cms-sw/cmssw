@@ -221,7 +221,7 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
       }
     }
   }
-  iEvent.put(move(product_PFTaus), "PFTaus");
+  iEvent.put(std::move(product_PFTaus), "PFTaus");
 }
 
 void HLTTauRefProducer::doElectrons(edm::Event& iEvent) const {
@@ -230,7 +230,7 @@ void HLTTauRefProducer::doElectrons(edm::Event& iEvent) const {
   edm::Handle<reco::TrackCollection> pCtfTracks;
   if (!iEvent.getByToken(e_ctfTrackCollection_, pCtfTracks)) {
     edm::LogInfo("") << "Error! Can't get " << e_ctfTrackCollectionSrc_.label() << " by label. ";
-    iEvent.put(move(product_Electrons), "Electrons");
+    iEvent.put(std::move(product_Electrons), "Electrons");
     return;
   }
 
@@ -268,7 +268,7 @@ void HLTTauRefProducer::doElectrons(edm::Event& iEvent) const {
       }
     }
   }
-  iEvent.put(move(product_Electrons), "Electrons");
+  iEvent.put(std::move(product_Electrons), "Electrons");
 }
 
 void HLTTauRefProducer::doMuons(edm::Event& iEvent) const {
@@ -283,7 +283,7 @@ void HLTTauRefProducer::doMuons(edm::Event& iEvent) const {
       }
     }
   }
-  iEvent.put(move(product_Muons), "Muons");
+  iEvent.put(std::move(product_Muons), "Muons");
 }
 
 void HLTTauRefProducer::doJets(edm::Event& iEvent) const {
@@ -298,7 +298,7 @@ void HLTTauRefProducer::doJets(edm::Event& iEvent) const {
       }
     }
   }
-  iEvent.put(move(product_Jets), "Jets");
+  iEvent.put(std::move(product_Jets), "Jets");
 }
 
 void HLTTauRefProducer::doTowers(edm::Event& iEvent) const {
@@ -323,7 +323,7 @@ void HLTTauRefProducer::doTowers(edm::Event& iEvent) const {
       }
     }
   }
-  iEvent.put(move(product_Towers), "Towers");
+  iEvent.put(std::move(product_Towers), "Towers");
 }
 
 void HLTTauRefProducer::doPhotons(edm::Event& iEvent) const {
@@ -338,7 +338,7 @@ void HLTTauRefProducer::doPhotons(edm::Event& iEvent) const {
       }
     }
   }
-  iEvent.put(move(product_Gammas), "Photons");
+  iEvent.put(std::move(product_Gammas), "Photons");
 }
 
 void HLTTauRefProducer::doMET(edm::Event& iEvent) const {
@@ -349,5 +349,8 @@ void HLTTauRefProducer::doMET(edm::Event& iEvent) const {
     auto const& metMom = met->front().p4();
     product_MET->emplace_back(metMom.Px(), metMom.Py(), 0, metMom.Pt());
   }
-  iEvent.put(move(product_MET), "MET");
+  iEvent.put(std::move(product_MET), "MET");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTTauRefProducer);

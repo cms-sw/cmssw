@@ -46,7 +46,7 @@ public:
 
   /** Destructor
    */
-  ~BPHKinematicFit() override;
+  ~BPHKinematicFit() override = default;
 
   /** Operations
    */
@@ -95,26 +95,26 @@ public:
   double getMassSigma(const reco::Candidate* cand) const;
 
   /// retrieve independent fit flag
-  bool getIndependentFit(const std::string& name) const;
+  bool getIndependentFit(const std::string& name, double& mass, double& sigma) const;
 
 protected:
   // constructors
-  BPHKinematicFit();
+  BPHKinematicFit(int daugNum = 2, int compNum = 2);
   // pointer used to retrieve informations from other bases
   BPHKinematicFit(const BPHKinematicFit* ptr);
 
-  /// add a simple particle giving it a name
-  /// particles are cloned, eventually specifying a different mass
-  /// and a sigma
+  // add a simple particle giving it a name
+  // particles are cloned, eventually specifying a different mass
+  // and a sigma
   virtual void addK(const std::string& name, const reco::Candidate* daug, double mass = -1.0, double sigma = -1.0);
-  /// add a simple particle and specify a criterion to search for
-  /// the associated track
+  // add a simple particle and specify a criterion to search for
+  // the associated track
   virtual void addK(const std::string& name,
                     const reco::Candidate* daug,
                     const std::string& searchList,
                     double mass = -1.0,
                     double sigma = -1.0);
-  /// add a previously reconstructed particle giving it a name
+  // add a previously reconstructed particle giving it a name
   virtual void addK(const std::string& name, const BPHRecoConstCandPtr& comp);
 
   // utility function used to cash reconstruction results
@@ -157,11 +157,13 @@ private:
   virtual void getParticles(const std::string& moth,
                             const std::string& daug,
                             std::vector<RefCountedKinematicParticle>& kl,
-                            std::set<RefCountedKinematicParticle>& ks) const;
+                            std::set<RefCountedKinematicParticle>& ks,
+                            const BPHKinematicFit* curr) const;
   virtual void getParticles(const std::string& moth,
                             const std::vector<std::string>& daug,
                             std::vector<RefCountedKinematicParticle>& kl,
-                            std::set<RefCountedKinematicParticle>& ks) const;
+                            std::set<RefCountedKinematicParticle>& ks,
+                            const BPHKinematicFit* curr) const;
   virtual unsigned int numParticles(const BPHKinematicFit* cand = nullptr) const;
   static void insertParticle(RefCountedKinematicParticle& kp,
                              std::vector<RefCountedKinematicParticle>& kl,

@@ -6,7 +6,7 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 // Collaborating Class Header
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,20 +34,20 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-class GLBMuonAnalyzer : public edm::EDAnalyzer {
+class GLBMuonAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   GLBMuonAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
-  virtual ~GLBMuonAnalyzer();
+  ~GLBMuonAnalyzer() override;
 
   // Operations
 
-  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 protected:
 private:
@@ -71,6 +71,9 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
 };
 
 using namespace std;
@@ -78,6 +81,8 @@ using namespace edm;
 
 /// Constructor
 GLBMuonAnalyzer::GLBMuonAnalyzer(const ParameterSet &pset) {
+  theMGFieldToken = esConsumes();
+  theTrackingGeometryToken = esConsumes();
   theGLBMuonLabel = pset.getUntrackedParameter<edm::InputTag>("GlobalTrackCollectionLabel");
 
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -140,11 +145,9 @@ void GLBMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) 
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theGLBMuonLabel, staTracks);
 
-  ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  ESHandle<MagneticField> theMGField = eventSetup.getHandle(theMGFieldToken);
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(theTrackingGeometryToken);
 
   double recPt = 0.;
   double simPt = 0.;
@@ -193,7 +196,6 @@ void GLBMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) 
     trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
     trackingRecHit_iterator rhend = staTrack->recHitsEnd();
 
-    int muHit = 0;
     int tkHit = 0;
 
     //LogTrace("Analyzer")<<"RecHits:"<<endl;
@@ -202,8 +204,6 @@ void GLBMuonAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) 
       //      double r = geomDet->surface().position().perp();
       //      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
       //LogTrace("Analyzer")<<"r: "<< r <<" z: "<<z <<endl;
-      if ((*recHit)->geographicalId().det() == DetId::Muon)
-        ++muHit;
       if ((*recHit)->geographicalId().det() == DetId::Tracker)
         ++tkHit;
     }

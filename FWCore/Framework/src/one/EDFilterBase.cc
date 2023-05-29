@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/EventForTransformer.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -79,12 +80,32 @@ namespace edm {
 
     void EDFilterBase::doEndJob() { this->endJob(); }
 
+    void EDFilterBase::doTransformAsync(WaitingTaskHolder iTask,
+                                        size_t iTransformIndex,
+                                        EventPrincipal const& iEvent,
+                                        ActivityRegistry*,
+                                        ModuleCallingContext const* iMCC,
+                                        ServiceWeakToken const& iToken) {
+      EventForTransformer ev(iEvent, iMCC);
+      transformAsync_(iTask, iTransformIndex, ev, iToken);
+    }
+
+    size_t EDFilterBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
+    ProductResolverIndex EDFilterBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
+    void EDFilterBase::transformAsync_(WaitingTaskHolder iTask,
+                                       std::size_t iIndex,
+                                       edm::EventForTransformer& iEvent,
+                                       ServiceWeakToken const& iToken) const {}
+
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nThreads = iPrealloc.numberOfThreads();
       preallocThreads(nThreads);
+      preallocRuns(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
-    void EDFilterBase::preallocLumis(unsigned int){};
+
+    void EDFilterBase::preallocRuns(unsigned int) {}
+    void EDFilterBase::preallocLumis(unsigned int) {}
 
     void EDFilterBase::doBeginProcessBlock(ProcessBlockPrincipal const& pbp, ModuleCallingContext const* mcc) {
       ProcessBlock processBlock(pbp, moduleDescription_, mcc, false);

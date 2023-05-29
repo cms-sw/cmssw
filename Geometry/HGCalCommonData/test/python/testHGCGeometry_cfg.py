@@ -1,13 +1,39 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCGeometry_cfg.py geometry=D88
+#
+#   Options for geometry D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D88",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D88, D92, D93")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('TestHGCalGeometry',Phase2C17I13M9)
+
+geomFile = "Geometry.CMSCommonData.cmsExtendedGeometry2026" + options.geometry + "XML_cfi"
+
+print("Geometry file: ", geomFile)
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D49XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D68XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D70XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D71XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+process.load(geomFile)
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")

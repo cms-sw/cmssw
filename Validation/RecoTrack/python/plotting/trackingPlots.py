@@ -529,6 +529,9 @@ _possibleTrackingColls = [
     'jetCoreRegionalStep',
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
+    'displacedRegionalStepPair',  # seeds
+    'displacedRegionalStepTripl', # seeds
+    'displacedRegionalStep',
     'duplicateMerge',
 ] + _possibleTrackingNonIterationColls
 _possibleTrackingCollsOld = {
@@ -1594,6 +1597,21 @@ _iterations = [
                          "muonSeededTracksOutIntSelector"],
 #              other=["earlyMuons"]
           ),
+    Iteration("displacedRegionalStep",
+              seeding=["displacedRegionalStepSeedLayersTripl",
+                       "displacedRegionalStepSeedLayersPair",
+                       "displacedRegionalStepTrackingRegionsTripl",
+                       "displacedRegionalStepTrackingRegionsPair",
+                       "displacedRegionalStepHitDoubletsTripl",
+                       "displacedRegionalStepHitDoubletsPair",
+                       "displacedRegionalStepHitTripletsTripl",
+                       "displacedRegionalStepSeedsTripl",
+                       "displacedRegionalStepSeedsPair",
+                       "displacedRegionalStepSeeds"],
+              selection=["displacedRegionalStepClassifier1",
+                         "displacedRegionalStepClassifier2",
+                         "displacedRegionalStep",
+                         "displacedRegionalStepSelector"]),
     Iteration("duplicateMerge",
               clusterMasking=[], seeding=[],
               building=["duplicateTrackCandidates"],
@@ -1810,7 +1828,7 @@ class TrackingTimingTable:
         return self._section
 
     def _getValues(self, tdirectory, histo):
-        h = tdirectory.Get(histo)
+        h = tdirectory.Get(histo._timeHisto)
         totalReco = None
         if h:
             totalReco = "%.1f" % h.Integral()

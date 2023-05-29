@@ -29,7 +29,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/Transition.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/SharedMemory/interface/BufferInfo.h"
 
 // forward declarations
@@ -63,7 +63,7 @@ namespace edm::shared_memory {
       if (not wait(lock)) {
         //std::cout << id_ << " FAILED waiting for external process" << std::endl;
         *stop_ = true;
-        throw cms::Exception("ExternalFailed")
+        throw edm::Exception(edm::errors::ExternalFailure)
             << "Failed waiting for external process while setting up the process. Timed out after " << maxWaitInSeconds_
             << " seconds.";
       } else {
@@ -87,7 +87,7 @@ namespace edm::shared_memory {
         if (not wait(lock)) {
           if (not iRetry()) {
             *stop_ = true;
-            throw cms::Exception("ExternalFailed")
+            throw edm::Exception(edm::errors::ExternalFailure)
                 << "Failed waiting for external process while setting up the process. Timed out after "
                 << maxWaitInSeconds_ << " seconds with " << retryCount << " retries.";
           }
@@ -189,13 +189,43 @@ namespace edm::shared_memory {
     int id_;
     unsigned int maxWaitInSeconds_;
     std::string smName_;
+    struct SMORemover {
+      //handle removing the shared memory object from the system even
+      // if an exception happens during construction
+      SMORemover(const std::string& iName) : m_name(iName) {
+        //remove an object which was left from a previous failed job
+        boost::interprocess::shared_memory_object::remove(m_name.c_str());
+      }
+      ~SMORemover() { boost::interprocess::shared_memory_object::remove(m_name.c_str()); };
+      //ControllerChannel passes in smName_ so it owns the string
+      std::string const& m_name;
+    } smRemover_;
     boost::interprocess::managed_shared_memory managed_sm_;
     BufferInfo* toWorkerBufferInfo_;
     BufferInfo* fromWorkerBufferInfo_;
 
+    struct MutexRemover {
+      MutexRemover(std::string iName) : m_name(std::move(iName)) {
+        boost::interprocess::named_mutex::remove(m_name.c_str());
+      }
+      ~MutexRemover() { boost::interprocess::named_mutex::remove(m_name.c_str()); };
+      std::string const m_name;
+    };
+    MutexRemover mutexRemover_;
     boost::interprocess::named_mutex mutex_;
+
+    struct ConditionRemover {
+      ConditionRemover(std::string iName) : m_name(std::move(iName)) {
+        boost::interprocess::named_condition::remove(m_name.c_str());
+      }
+      ~ConditionRemover() { boost::interprocess::named_condition::remove(m_name.c_str()); };
+      std::string const m_name;
+    };
+
+    ConditionRemover cndFromMainRemover_;
     boost::interprocess::named_condition cndFromMain_;
 
+    ConditionRemover cndToMainRemover_;
     boost::interprocess::named_condition cndToMain_;
 
     edm::Transition* transitionType_;

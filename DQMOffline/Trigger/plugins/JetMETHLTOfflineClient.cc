@@ -101,3 +101,6 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
     }    // fullSubPath
   }      // fullPath
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(JetMETHLTOfflineClient);

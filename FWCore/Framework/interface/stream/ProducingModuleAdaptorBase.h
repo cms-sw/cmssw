@@ -53,6 +53,9 @@ namespace edm {
   class PreallocationConfiguration;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
+  class ActivityRegistry;
+  class WaitingTaskHolder;
+  class ServiceWeakToken;
 
   namespace maker {
     template <typename T>
@@ -125,6 +128,15 @@ namespace edm {
 
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
+      ProductResolverIndex transformPrefetch_(size_t iTransformIndex) const;
+      size_t transformIndex_(edm::BranchDescription const& iBranch) const;
+      void doTransformAsync(WaitingTaskHolder iTask,
+                            size_t iTransformIndex,
+                            EventPrincipal const& iEvent,
+                            ActivityRegistry*,
+                            ModuleCallingContext const*,
+                            ServiceWeakToken const&);
+
     protected:
       template <typename F>
       void createStreamModules(F iFunc) {
@@ -154,6 +166,7 @@ namespace edm {
 
     private:
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocRuns(unsigned int) {}
       virtual void preallocLumis(unsigned int) {}
       virtual void setupStreamModules() = 0;
       virtual void doBeginJob() = 0;

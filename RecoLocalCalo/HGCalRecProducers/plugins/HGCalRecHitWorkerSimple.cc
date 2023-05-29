@@ -219,7 +219,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
   float SoN = new_E / sigmaNoiseGeV;
   myrechit.setSignalOverSigmaNoise(SoN);
 
-  if (detid.det() == DetId::HGCalHSc || myrechit.time() < 0.) {
+  if (detid.det() == DetId::HGCalHSc || myrechit.time() == -99.) {
     myrechit.setTimeError(-1.);
   } else {
     float timeError = timeEstimatorSi_.getTimeError("recHit", SoN);

@@ -1,4 +1,17 @@
-<bin file="test_catch2_*.cc" name="testHLTriggerHLTcoreCatch2">
+<bin file="test_catch2_HLTConfigData.cc" name="testHLTriggerHLTcoreHLTConfigDataCatch2">
+  <use name="FWCore/ParameterSet"/>
   <use name="HLTrigger/HLTcore"/>
   <use name="catch2"/>
 </bin>
+
+<bin file="test_catch2_TriggerExpressionParser.cc" name="testHLTriggerHLTcoreTriggerExpressionParserCatch2">
+  <use name="FWCore/MessageLogger"/>
+  <use name="HLTrigger/HLTcore"/>
+  <use name="catch2"/>
+</bin>
+
+<!-- test the HLTPrescaleExample plugin -->
+<test name="testHLTPrescaleExample" command="testHLTPrescaleExample.sh"/>
+
+<!-- test EDAnalyzers using TriggerEvent and TriggerEventWithRefs -->
+<test name="testTriggerEventAnalyzers" command="testTriggerEventAnalyzers.sh"/>

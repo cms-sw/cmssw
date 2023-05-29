@@ -94,6 +94,12 @@ namespace ecaldqm {
 
     void setSetupObjects(edm::EventSetup const &);
     void setSetupObjectsEndLumi(edm::EventSetup const &);
+
+    bool checkElectronicsMap(bool = true);
+    bool checkTrigTowerMap(bool = true);
+    bool checkGeometry(bool = true);
+    bool checkTopology(bool = true);
+
     EcalElectronicsMapping const *GetElectronicsMap();
     EcalTrigTowerConstituentsMap const *GetTrigTowerMap();
     CaloGeometry const *GetGeometry();

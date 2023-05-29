@@ -176,7 +176,7 @@ void PrimitiveConversion::convert_csc(int pc_sector,
 
     // this LUT follows the same convention as in CSCPatternBank.cc
     unsigned slope_and_sign(tp_data.slope);
-    if (tp_data.bend == 0) {
+    if (tp_data.bend == 1) {
       slope_and_sign += 16;
     }
     unsigned run2_converted_PID = slopeList[slope_and_sign];

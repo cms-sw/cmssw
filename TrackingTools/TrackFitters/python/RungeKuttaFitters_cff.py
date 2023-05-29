@@ -16,7 +16,8 @@ import TrackingTools.TrackFitters.KFFittingSmoother_cfi
 RKFittingSmoother = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone(
     ComponentName = 'RKFittingSmoother',
     Fitter        = 'RKFitter',
-    Smoother      = 'RKSmoother'
+    Smoother      = 'RKSmoother',
+    MinNumberOfHits = 3
 )
 
 KFFittingSmootherWithOutliersRejectionAndRK = RKFittingSmoother.clone(

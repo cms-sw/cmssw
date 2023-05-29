@@ -12,9 +12,8 @@ Most of the information here is associated with the current
 run being processed. Most of it is cleared when a new run
 is started. If multiple runs are being processed concurrently,
 then there will be an object instantiated for each concurrent
-run. (At the present time concurrent runs are not possible, but
-there plans to implement that in the future). The primary
-RunPrincipal for the current run owns the object.
+run. The primary RunPrincipal for the current run owns the
+object.
 
 This class gets information from the input file from the
 StoredMergeableRunProductMetadata object and IndexIntoFile object.
@@ -26,7 +25,7 @@ to use in later processing steps.
 If there are SubProcesses, they use the same object as the top
 level process because they share the same input.
 
-There will be a TWIKI page on the Framework page of the Software
+There is a TWIKI page on the Framework page of the Software
 Guide which explains the details about how this works. There
 are significant limitations related to what the Framework does
 and does not do managing mergeable run products.

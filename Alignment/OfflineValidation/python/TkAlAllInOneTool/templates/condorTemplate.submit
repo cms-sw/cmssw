@@ -1,0 +1,10 @@
+universe = vanilla
+getenv = true
+executable = run.sh
+output = condor/condor.out
+error  = condor/condor.err
+log    = condor/condor.log
+requirements = (OpSysAndVer =?= "CentOS7")
++JobFlavour = "espresso"
++AccountingGroup = "group_u_CMS.CAF.ALCA"
+queue

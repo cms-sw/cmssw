@@ -53,6 +53,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient(const edm::
       parameters_(pset) {
   LogTrace(mlDqmClient_) << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
                          << " Constructing object...";
+  usesResource("DQMStore");
   setInputFiles(inputFiles_,
                 pset.getUntrackedParameter<std::string>("FilePath"),
                 pset.existsAs<std::string>("PartitionName") ? pset.getParameter<std::string>("PartitionName") : "",

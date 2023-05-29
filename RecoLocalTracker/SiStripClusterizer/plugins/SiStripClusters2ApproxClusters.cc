@@ -25,10 +25,13 @@ public:
 private:
   edm::InputTag inputClusters;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken;
+
+  unsigned int maxNSat;
 };
 
 SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::ParameterSet& conf) {
   inputClusters = conf.getParameter<edm::InputTag>("inputClusters");
+  maxNSat = conf.getParameter<unsigned int>("maxSaturatedStrips");
 
   clusterToken = consumes<edmNew::DetSetVector<SiStripCluster> >(inputClusters);
   produces<edmNew::DetSetVector<SiStripApproximateCluster> >();
@@ -42,7 +45,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
     edmNew::DetSetVector<SiStripApproximateCluster>::FastFiller ff{*result, detClusters.id()};
 
     for (const auto& cluster : detClusters)
-      ff.push_back(SiStripApproximateCluster(cluster));
+      ff.push_back(SiStripApproximateCluster(cluster, maxNSat));
   }
 
   event.put(std::move(result));
@@ -51,6 +54,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
 void SiStripClusters2ApproxClusters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputClusters", edm::InputTag("siStripClusters"));
+  desc.add<unsigned int>("maxSaturatedStrips", 3);
   descriptions.add("SiStripClusters2ApproxClusters", desc);
 }
 

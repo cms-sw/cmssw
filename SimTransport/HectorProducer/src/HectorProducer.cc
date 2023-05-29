@@ -42,7 +42,8 @@ HectorProducer::HectorProducer(edm::ParameterSet const &p)
   produces<edm::HepMCProduct>();
   produces<edm::LHCTransportLinkContainer>();
 
-  m_Hector = new Hector(p, tok_pdt_, m_verbosity, m_FP420Transport, m_ZDCTransport);
+  usesResource("Hector");
+  m_Hector = std::make_unique<Hector>(p, tok_pdt_, m_verbosity, m_FP420Transport, m_ZDCTransport);
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
@@ -56,10 +57,6 @@ HectorProducer::HectorProducer(edm::ParameterSet const &p)
 }
 
 HectorProducer::~HectorProducer() {}
-
-void HectorProducer::beginRun(const edm::Run &r, const edm::EventSetup &c) {}
-
-void HectorProducer::endRun(const edm::Run &r, const edm::EventSetup &c) {}
 
 void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -85,30 +82,30 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
     throw cms::Exception("LogicError") << "HectorTrasported HepMCProduce already exists\n";
   }
 
-  evt_ = new HepMC::GenEvent(*HepMCEvt->GetEvent());
+  auto evt = new HepMC::GenEvent(*HepMCEvt->GetEvent());
   m_Hector->clearApertureFlags();
   if (m_FP420Transport) {
     m_Hector->clear();
-    m_Hector->add(evt_, es);
+    m_Hector->add(evt, es);
     m_Hector->filterFP420(rootEngine);
   }
   if (m_ZDCTransport) {
     m_Hector->clear();
-    m_Hector->add(evt_, es);
+    m_Hector->add(evt, es);
     m_Hector->filterZDC(rootEngine);
 
     m_Hector->clear();
-    m_Hector->add(evt_, es);
+    m_Hector->add(evt, es);
     m_Hector->filterD1(rootEngine);
   }
-  evt_ = m_Hector->addPartToHepMC(evt_);
+  evt = m_Hector->addPartToHepMC(evt);
   if (m_verbosity)
-    evt_->print();
+    evt->print();
 
   edm::LogVerbatim("SimTransportHectorProducer") << "new HepMC product ";
 
   unique_ptr<edm::HepMCProduct> NewProduct(new edm::HepMCProduct());
-  NewProduct->addHepMCData(evt_);
+  NewProduct->addHepMCData(evt);
 
   iEvent.put(std::move(NewProduct));
 

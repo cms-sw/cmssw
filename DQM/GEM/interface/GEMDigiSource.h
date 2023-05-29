@@ -17,6 +17,8 @@
 
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
+#include "CondFormats/DataRecord/interface/GEMChMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMChMap.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
@@ -34,6 +36,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
+  void LoadROMap(edm::EventSetup const& iSetup);
+
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override{};
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
@@ -46,9 +50,14 @@ private:
 
   const static int nNumBitDigiOcc_ = 16384;
 
+  const edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
+
   edm::EDGetToken tagDigi_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiScalers_;
+
+  std::map<ME4IdsKey, Int_t> mapChamberType_;
+  std::map<ME3IdsKey, Int_t> mapStripToVFAT_;
 
   MEMap3Inf mapTotalDigi_layer_;
   MEMap3Inf mapDigiWheel_layer_;

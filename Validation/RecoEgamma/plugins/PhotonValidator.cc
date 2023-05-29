@@ -3232,32 +3232,13 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     e.getByToken(conversionIOTrackPr_Token_, inOutTrkHandle);
 
     // Loop over Out In Tracks
-    int iTrk = 0;
-    int nHits = 0;
     for (View<reco::Track>::const_iterator iTk = outInTrkHandle->begin(); iTk != outInTrkHandle->end(); iTk++) {
       h_OIinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
-        if ((*itHits)->isValid()) {
-          nHits++;
-        }
-      }
-
-      iTrk++;
     }
 
     // Loop over In Out Tracks Barrel
-    iTrk = 0;
     for (View<reco::Track>::const_iterator iTk = inOutTrkHandle->begin(); iTk != inOutTrkHandle->end(); iTk++) {
       h_IOinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
-      nHits = 0;
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
-        if ((*itHits)->isValid()) {
-          nHits++;
-        }
-      }
-      iTrk++;
     }
 
   }  // if !fastSim
@@ -4325,7 +4306,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
             p_nHitsVsR_[type]->Fill(mcConvR_, float(tracks[i]->numberOfValidHits() - 0.0001));
             h_tkChi2_[type]->Fill(tracks[i]->normalizedChi2());
 
-            RefToBase<reco::Track> tfrb = tracks[i];
+            const RefToBase<reco::Track>& tfrb = tracks[i];
             RefToBaseVector<reco::Track> tc;
             tc.push_back(tfrb);
             // reco::RecoToSimCollection q = trackAssociator->associateRecoToSim(tc,theConvTP_);
@@ -4666,7 +4647,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
               }
               ///////////  Quantities per track
               for (unsigned int i = 0; i < tracks.size(); i++) {
-                RefToBase<reco::Track> tfrb(tracks[i]);
+                const RefToBase<reco::Track>& tfrb(tracks[i]);
                 itAss = myAss.find(tfrb.get());
                 if (itAss == myAss.end())
                   continue;
@@ -4787,7 +4768,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
                 h_convSLVtxRvsZ_[2]->Fill(tracks[0]->innerPosition().z(), sqrt(tracks[0]->innerPosition().Perp2()));
               }
 
-              RefToBase<reco::Track> tfrb = tracks[i];
+              const RefToBase<reco::Track>& tfrb = tracks[i];
               RefToBaseVector<reco::Track> tc;
               tc.push_back(tfrb);
               reco::SimToRecoCollection q = trackAssociator->associateSimToReco(tc, theConvTP_);

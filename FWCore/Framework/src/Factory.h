@@ -13,11 +13,11 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
-  class ModuleTypeResolverBase;
+  class ModuleTypeResolverMaker;
 
   class Factory {
   public:
-    typedef std::map<std::string, edm::propagate_const<Maker*>> MakerMap;
+    typedef std::map<std::string, std::unique_ptr<Maker const>> MakerMap;
 
     ~Factory();
 
@@ -25,7 +25,7 @@ namespace edm {
 
     //This function is not const-thread safe
     std::shared_ptr<maker::ModuleHolder> makeModule(const MakeModuleParams&,
-                                                    const ModuleTypeResolverBase*,
+                                                    const ModuleTypeResolverMaker*,
                                                     signalslot::Signal<void(const ModuleDescription&)>& pre,
                                                     signalslot::Signal<void(const ModuleDescription&)>& post) const;
 
@@ -33,7 +33,7 @@ namespace edm {
 
   private:
     Factory();
-    Maker* findMaker(const MakeModuleParams& p, const ModuleTypeResolverBase*) const;
+    Maker const* findMaker(const MakeModuleParams& p, const ModuleTypeResolverMaker*) const;
     static Factory const singleInstance_;
     //It is not safe to create modules across threads
     CMS_SA_ALLOW mutable MakerMap makers_;

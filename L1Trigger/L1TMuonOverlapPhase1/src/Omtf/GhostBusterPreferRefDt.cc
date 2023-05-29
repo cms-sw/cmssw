@@ -157,6 +157,8 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
     AlgoMuon fixed = mu;
     fixed.setEta(mu.fixedEta);
     refHitCleanCands.emplace_back(new AlgoMuon(fixed));
+    if (refHitCleanCands.size() >= 3)
+      break;
   }
 
   while (refHitCleanCands.size() < 3)

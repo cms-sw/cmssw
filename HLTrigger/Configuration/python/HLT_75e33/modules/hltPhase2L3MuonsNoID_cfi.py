@@ -207,7 +207,7 @@ hltPhase2L3MuonsNoID = cms.EDProducer("MuonIdProducer",
         usePreshower = cms.bool(False)
     ),
     TrackExtractorPSet = cms.PSet(
-        BeamSpotLabel = cms.InputTag("offlineBeamSpot"),
+        BeamSpotLabel = cms.InputTag("hltOnlineBeamSpot"),
         BeamlineOption = cms.string('BeamSpotFromEvent'),
         Chi2Ndof_Max = cms.double(1e+64),
         Chi2Prob_Min = cms.double(-1.0),

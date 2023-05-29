@@ -29,7 +29,7 @@ private:
 
 public:
   explicit HGCalRecHitsClient(const edm::ParameterSet &);
-  ~HGCalRecHitsClient() override {}
+  ~HGCalRecHitsClient() override = default;
 
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
@@ -189,7 +189,7 @@ int HGCalRecHitsClient::recHitsEndjob(const std::vector<MonitorElement *> &hgcal
     if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
       MeanHitOccupancy_Plus_.push_back(hgcalMEs[ih]);
       unsigned int indx = MeanHitOccupancy_Plus_.size() - 1;
-      for (int ilayer = 0; ilayer < (int)layers_; ++ilayer) {
+      for (int ilayer = 0; ilayer < static_cast<int>(layers_); ++ilayer) {
         double meanVal = HitOccupancy_Plus_.at(ilayer)->getMean();
         MeanHitOccupancy_Plus_[indx]->setBinContent(ilayer + 1, meanVal);
       }
@@ -203,7 +203,7 @@ int HGCalRecHitsClient::recHitsEndjob(const std::vector<MonitorElement *> &hgcal
     if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
       MeanHitOccupancy_Minus_.push_back(hgcalMEs[ih]);
       unsigned indx = MeanHitOccupancy_Minus_.size() - 1;
-      for (int ilayer = 0; ilayer < (int)layers_; ++ilayer) {
+      for (int ilayer = 0; ilayer < static_cast<int>(layers_); ++ilayer) {
         double meanVal = HitOccupancy_Minus_.at(ilayer)->getMean();
         MeanHitOccupancy_Minus_[indx]->setBinContent(ilayer + 1, meanVal);
       }

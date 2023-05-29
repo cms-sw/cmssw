@@ -10,5 +10,8 @@ from  DQMOffline.CalibTracker.ALCARECOSiStripCalZeroBiasDQM_cff import *
 # DQM for SiStripCalMinBias #
 from  DQMOffline.CalibTracker.ALCARECOSiStripCalMinBiasDQM_cff import *
 
-#DQM for SIStripCalMinBiasAAG
+#DQM for SiStripCalMinBiasAAG
 from  DQMOffline.CalibTracker.ALCARECOSiStripCalMinBiasAAGDQM_cff import *
+
+#DQM for SiPixelCalSingleMuonTight
+from  DQMOffline.CalibTracker.ALCARECOSiPixelCalSingleMuonDQM_cff import *

@@ -1,7 +1,5 @@
 #include "DQM/EcalMonitorClient/interface/MLClient.h"
 
-#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
@@ -12,16 +10,25 @@
 
 #include "DQM/EcalCommon/interface/MESetNonObject.h"
 
+#include <fstream>
+#include <string>
+
 using namespace cms::Ort;
 
 namespace ecaldqm {
   MLClient::MLClient() : DQWorkerClient() { qualitySummaries_.insert("MLQualitySummary"); }
 
   void MLClient::setParams(edm::ParameterSet const& _params) {
-    MLThreshold_ = _params.getUntrackedParameter<double>("MLThreshold");
-    PUcorr_slope_ = _params.getUntrackedParameter<double>("PUcorr_slope");
-    PUcorr_intercept_ = _params.getUntrackedParameter<double>("PUcorr_intercept");
-    avgOcc_ = _params.getUntrackedParameter<std::vector<double>>("avgOcc");
+    EBThreshold_ = _params.getUntrackedParameter<double>("EBThreshold");
+    EEpThreshold_ = _params.getUntrackedParameter<double>("EEpThreshold");
+    EEmThreshold_ = _params.getUntrackedParameter<double>("EEmThreshold");
+    EB_PUcorr_slope_ = _params.getUntrackedParameter<double>("EB_PUcorr_slope");
+    EB_PUcorr_intercept_ = _params.getUntrackedParameter<double>("EB_PUcorr_intercept");
+    EEp_PUcorr_slope_ = _params.getUntrackedParameter<double>("EEp_PUcorr_slope");
+    EEp_PUcorr_intercept_ = _params.getUntrackedParameter<double>("EEp_PUcorr_intercept");
+    EEm_PUcorr_slope_ = _params.getUntrackedParameter<double>("EEm_PUcorr_slope");
+    EEm_PUcorr_intercept_ = _params.getUntrackedParameter<double>("EEm_PUcorr_intercept");
+
     if (!onlineMode_) {
       MEs_.erase(std::string("MLQualitySummary"));
       MEs_.erase(std::string("EventsperMLImage"));
@@ -29,12 +36,17 @@ namespace ecaldqm {
       sources_.erase(std::string("NumEvents"));
       sources_.erase(std::string("DigiAllByLumi"));
       sources_.erase(std::string("AELoss"));
+      sources_.erase(std::string("BadTowerCount"));
+      sources_.erase(std::string("BadTowerCountNorm"));
     }
   }
 
   void MLClient::producePlots(ProcessType) {
     if (!onlineMode_)
       return;
+    nbadtowerEB = 0;
+    nbadtowerEE = 0;
+
     using namespace std;
     MESet& meMLQualitySummary(MEs_.at("MLQualitySummary"));
     MESet& meEventsperMLImage(MEs_.at("EventsperMLImage"));
@@ -45,6 +57,7 @@ namespace ecaldqm {
     //Get the no.of events and the PU per LS calculated in OccupancyTask
     int nEv = sNumEvents.getFloatValue();
     double pu = sPU.getFloatValue();
+
     //Do not compute ML quality if PU is non existent.
     if (pu < 0.) {
       return;
@@ -68,22 +81,48 @@ namespace ecaldqm {
     //This padding is then removed during inference on the model output.
 
     //Get the histogram of the input digi occupancy per lumisection.
+    TH2F* hEEmDigiMap((sources_.at("DigiAllByLumi")).getME(0)->getTH2F());
     TH2F* hEbDigiMap((sources_.at("DigiAllByLumi")).getME(1)->getTH2F());
+    TH2F* hEEpDigiMap((sources_.at("DigiAllByLumi")).getME(2)->getTH2F());
 
-    size_t nTowers = nEtaTowers * nPhiTowers;  //Each occupancy map is of size 34x72 towers
-    std::vector<float> ebOccMap1dCumulPad;     //Vector to feed into the ML network
-    std::valarray<float> ebOccMap1d(nTowers);  //Array to store occupancy map of size 34x72
+    size_t nEBTowers = nEBEtaTowers * nEBPhiTowers;  //Each EB occupancy map is of size 34x72 towers
+    size_t nEETowers = nEEEtaTowers * nEEPhiTowers;  //Each EE occupancy map is of size 20x20 towers
+
+    //Vectors to feed into the ML network
+    std::vector<float> ebOccMap1dCumulPad;
+    std::vector<float> eemOccMap1dCumulPad;
+    std::vector<float> eepOccMap1dCumulPad;
+
+    //Array to store occupancy maps
+    std::valarray<float> ebOccMap1d(nEBTowers);
+    std::valarray<float> eemOccMap1d(nEETowers);
+    std::valarray<float> eepOccMap1d(nEETowers);
+
     //Store the values from the input histogram into the array
     //to do preprocessing
     for (int i = 0; i < hEbDigiMap->GetNbinsY(); i++) {  //NbinsY = 34, NbinsX = 72
       for (int j = 0; j < hEbDigiMap->GetNbinsX(); j++) {
         int bin = hEbDigiMap->GetBin(j + 1, i + 1);
-        int k = (i * nPhiTowers) + j;
+        int k = (i * nEBPhiTowers) + j;
         ebOccMap1d[k] = hEbDigiMap->GetBinContent(bin);
       }
     }
     ebOccMap1dQ.push_back(ebOccMap1d);  //Queue which stores input occupancy maps for nLS lumis
-    NEventQ.push_back(nEv);             //Queue which stores the no.of events per LS for nLS lumis
+
+    for (int i = 0; i < hEEpDigiMap->GetNbinsY(); i++) {  //NbinsY = 20, NbinsX = 20
+      for (int j = 0; j < hEEpDigiMap->GetNbinsX(); j++) {
+        int bin = hEEpDigiMap->GetBin(j + 1, i + 1);
+        int k = (i * nEEPhiTowers) + j;
+        eemOccMap1d[k] = hEEmDigiMap->GetBinContent(bin);
+        eepOccMap1d[k] = hEEpDigiMap->GetBinContent(bin);
+      }
+    }
+
+    //Queue which stores input occupancy maps for nLS lumis
+    eemOccMap1dQ.push_back(eemOccMap1d);
+    eepOccMap1dQ.push_back(eepOccMap1d);
+
+    NEventQ.push_back(nEv);  //Queue which stores the no.of events per LS for nLS lumis
 
     if (NEventQ.size() < nLS) {
       return;  //Should have nLS lumis to add the occupancy over.
@@ -93,48 +132,139 @@ namespace ecaldqm {
     }
     if (ebOccMap1dQ.size() > nLS) {
       ebOccMap1dQ.pop_front();  //Same conditon for the input occupancy maps.
+      eemOccMap1dQ.pop_front();
+      eepOccMap1dQ.pop_front();
     }
 
     int TNum = 0;
     for (size_t i = 0; i < nLS; i++) {
       TNum += NEventQ[i];  //Total no.of events over nLS lumis
     }
-    if (TNum < 200) {
-      return;  //The total no.of events should be atleast 200 over nLS for meaningful statistics
+
+    if (TNum < 400) {
+      return;  //The total no.of events should be atleast 400 over nLS for meaningful statistics
     }
     //Fill the ME to monitor the trend of the total no.of events in each input image to the ML model
     meEventsperMLImage.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), double(TNum));
 
-    //Array to hold the sum of inputs, which make atleast 200 events.
-    std::valarray<float> ebOccMap1dCumul(0., nTowers);
+    //Array to hold the sum of inputs, which make atleast 400 events.
+    std::valarray<float> ebOccMap1dCumul(0., nEBTowers);
+    std::valarray<float> eemOccMap1dCumul(0., nEETowers);
+    std::valarray<float> eepOccMap1dCumul(0., nEETowers);
 
+    //Sum the input arrays of nLS.
     for (size_t i = 0; i < ebOccMap1dQ.size(); i++) {
-      ebOccMap1dCumul += ebOccMap1dQ[i];  //Sum the input arrays of N LS.
+      ebOccMap1dCumul += ebOccMap1dQ[i];
+      eemOccMap1dCumul += eemOccMap1dQ[i];
+      eepOccMap1dCumul += eepOccMap1dQ[i];
     }
-    //Applying PU correction derived from training
-    ebOccMap1dCumul = ebOccMap1dCumul / (PUcorr_slope_ * pu + PUcorr_intercept_);
 
-    //Scaling up to match input dimensions. 36*72 used instead of 34*72 to accommodate the additional padding
-    //of 2 rows to prevent the "edge effect" which is done below
-    ebOccMap1dCumul = ebOccMap1dCumul * (nEtaTowersPad * nPhiTowers);
+    //Applying PU correction derived from training
+    ebOccMap1dCumul = ebOccMap1dCumul / (EB_PUcorr_slope_ * pu + EB_PUcorr_intercept_);
+    eemOccMap1dCumul = eemOccMap1dCumul / (EEm_PUcorr_slope_ * pu + EEm_PUcorr_intercept_);
+    eepOccMap1dCumul = eepOccMap1dCumul / (EEp_PUcorr_slope_ * pu + EEp_PUcorr_intercept_);
+
+    //Scaling up to match input dimensions.
+    ebOccMap1dCumul = ebOccMap1dCumul * (nEBEtaTowers * nEBPhiTowers);
+    eemOccMap1dCumul = eemOccMap1dCumul * nEEEtaTowers * nEEPhiTowers;  //(nEETowersPad * nEETowersPad);
+    eepOccMap1dCumul = eepOccMap1dCumul * nEEEtaTowers * nEEPhiTowers;  //(nEETowersPad * nEETowersPad);
 
     //Correction for no.of events in each input image as originally model trained with 500 events per image
     ebOccMap1dCumul = ebOccMap1dCumul * (500. / TNum);
+    eemOccMap1dCumul = eemOccMap1dCumul * (500. / TNum);
+    eepOccMap1dCumul = eepOccMap1dCumul * (500. / TNum);
 
-    //The pre-processed input is now fed into the input tensor vector which will go into the ML model
-    ebOccMap1dCumulPad.assign(std::begin(ebOccMap1dCumul), std::end(ebOccMap1dCumul));
-
-    //Replicate and pad with the first and last row to prevent the edge effect
-    for (int k = 0; k < nPhiTowers; k++) {
-      float val = ebOccMap1dCumulPad[nPhiTowers - 1];
-      ebOccMap1dCumulPad.insert(ebOccMap1dCumulPad.begin(),
-                                val);  //padding in the beginning with the first row elements
+    std::vector<std::vector<float>> ebOccMap2dCumul(nEBEtaTowers, std::vector<float>(nEBPhiTowers, 0.));
+    //Convert 1dCumul to 2d
+    for (size_t i = 0; i < nEBEtaTowers; i++) {
+      for (size_t j = 0; j < nEBPhiTowers; j++) {
+        int k = (i * nEBPhiTowers) + j;
+        ebOccMap2dCumul[i][j] = ebOccMap1dCumul[k];
+      }
     }
 
-    int size = ebOccMap1dCumulPad.size();
-    for (int k = (size - nPhiTowers); k < size; k++) {
-      float val = ebOccMap1dCumulPad[k];
-      ebOccMap1dCumulPad.push_back(val);  //padding at the end with the last row elements
+    std::vector<float> pad_top;
+    std::vector<float> pad_bottom;
+    std::vector<float> pad_left;
+    std::vector<float> pad_right;
+
+    pad_top = ebOccMap2dCumul[0];
+    pad_bottom = ebOccMap2dCumul[ebOccMap2dCumul.size() - 1];
+
+    ebOccMap2dCumul.insert(ebOccMap2dCumul.begin(), pad_top);
+    ebOccMap2dCumul.push_back(pad_bottom);
+
+    //// Endcaps ///
+    std::vector<std::vector<float>> eemOccMap2dCumul(nEEEtaTowers, std::vector<float>(nEEPhiTowers, 0.));
+    std::vector<std::vector<float>> eepOccMap2dCumul(nEEEtaTowers, std::vector<float>(nEEPhiTowers, 0.));
+
+    for (size_t i = 0; i < nEEEtaTowers; i++) {
+      for (size_t j = 0; j < nEEPhiTowers; j++) {
+        int k = (i * nEEPhiTowers) + j;
+        eemOccMap2dCumul[i][j] = eemOccMap1dCumul[k];
+        eepOccMap2dCumul[i][j] = eepOccMap1dCumul[k];
+      }
+    }
+
+    // EE - //
+    pad_top.clear();
+    pad_bottom.clear();
+    pad_left.clear();
+    pad_right.clear();
+
+    pad_top = eemOccMap2dCumul[0];
+    pad_bottom = eemOccMap2dCumul[eemOccMap2dCumul.size() - 1];
+
+    eemOccMap2dCumul.insert(eemOccMap2dCumul.begin(), pad_top);
+    eemOccMap2dCumul.push_back(pad_bottom);
+
+    for (auto& row : eemOccMap2dCumul) {
+      pad_left.push_back(row[0]);
+      pad_right.push_back(row[row.size() - 1]);
+    }
+
+    std::size_t Lindex = 0;
+    std::size_t Rindex = 0;
+
+    for (auto& row : eemOccMap2dCumul) {
+      row.insert(row.begin(), pad_left[Lindex++]);
+      row.insert(row.end(), pad_right[Rindex++]);
+    }
+
+    // EE + //
+    pad_top.clear();
+    pad_bottom.clear();
+
+    pad_top = eepOccMap2dCumul[0];
+    pad_bottom = eepOccMap2dCumul[eepOccMap2dCumul.size() - 1];
+
+    eepOccMap2dCumul.insert(eepOccMap2dCumul.begin(), pad_top);
+    eepOccMap2dCumul.push_back(pad_bottom);
+
+    for (auto& row : eepOccMap2dCumul) {
+      pad_left.push_back(row[0]);
+      pad_right.push_back(row[row.size() - 1]);
+    }
+
+    Lindex = 0;
+    Rindex = 0;
+
+    for (auto& row : eepOccMap2dCumul) {
+      row.insert(row.begin(), pad_left[Lindex++]);
+      row.insert(row.end(), pad_right[Rindex++]);
+    }
+
+    //The pre-processed input is now fed into the 1D input tensor vector which will go into the ML model
+    for (auto& row : ebOccMap2dCumul) {
+      ebOccMap1dCumulPad.insert(ebOccMap1dCumulPad.end(), row.begin(), row.end());
+    }
+
+    for (auto& row : eemOccMap2dCumul) {
+      eemOccMap1dCumulPad.insert(eemOccMap1dCumulPad.end(), row.begin(), row.end());
+    }
+
+    for (auto& row : eepOccMap2dCumul) {
+      eepOccMap1dCumulPad.insert(eepOccMap1dCumulPad.end(), row.begin(), row.end());
     }
 
     ///// Model Inference //////
@@ -164,25 +294,26 @@ namespace ecaldqm {
 
     Ort::AllocatorWithDefaultOptions allocator;
 
-    const char* inputName = session.GetInputName(0, allocator);
+    // Strings returned by session.GetInputNameAllocated are temporary, need to copy them before they are deallocated
+    std::string inputName{session.GetInputNameAllocated(0, allocator).get()};
 
     Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
     auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
 
     std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
 
-    const char* outputName = session.GetOutputName(0, allocator);
+    std::string outputName{session.GetOutputNameAllocated(0, allocator).get()};
 
     Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
     auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
 
     std::vector<int64_t> outputDims = outputTensorInfo.GetShape();
 
-    size_t TensorSize = nEtaTowersPad * nPhiTowers;
+    size_t TensorSize = nEBEtaTowersPad * nEBPhiTowers;
     std::vector<float> ebRecoOccMap1dPad(TensorSize);  //To store the output reconstructed occupancy
 
-    std::vector<const char*> inputNames{inputName};
-    std::vector<const char*> outputNames{outputName};
+    std::vector<const char*> inputNames{inputName.c_str()};
+    std::vector<const char*> outputNames{outputName.c_str()};
     std::vector<Ort::Value> inputTensors;
     std::vector<Ort::Value> outputTensors;
 
@@ -202,62 +333,280 @@ namespace ecaldqm {
                 outputTensors.data(),
                 1);
 
+    //Endcaps
+    // EE- //
+
+    inputDims.clear();
+    outputDims.clear();
+    inputNames.clear();
+    outputNames.clear();
+    inputTensors.clear();
+    outputTensors.clear();
+
+    modelFilepath = edm::FileInPath("DQM/EcalMonitorClient/data/onnxModels/EEm_resnet2018.onnx").fullPath();
+
+    Ort::Session EEm_session(env, modelFilepath.c_str(), sessionOptions);
+
+    inputName = EEm_session.GetInputNameAllocated(0, allocator).get();
+
+    inputTypeInfo = EEm_session.GetInputTypeInfo(0);
+    auto EEm_inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    inputDims = EEm_inputTensorInfo.GetShape();
+
+    outputName = EEm_session.GetOutputNameAllocated(0, allocator).get();
+
+    //Ort::TypeInfo
+    outputTypeInfo = EEm_session.GetOutputTypeInfo(0);
+    auto EEm_outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    outputDims = EEm_outputTensorInfo.GetShape();
+
+    size_t EE_TensorSize = nEETowersPad * nEETowersPad;
+    std::vector<float> eemRecoOccMap1dPad(EE_TensorSize);  //To store the output reconstructed occupancy
+
+    inputNames.push_back(inputName.c_str());
+    outputNames.push_back(outputName.c_str());
+
+    //Ort::MemoryInfo
+    memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+    inputTensors.push_back(Ort::Value::CreateTensor<float>(
+        memoryInfo, eemOccMap1dCumulPad.data(), EE_TensorSize, inputDims.data(), inputDims.size()));
+
+    outputTensors.push_back(Ort::Value::CreateTensor<float>(
+        memoryInfo, eemRecoOccMap1dPad.data(), EE_TensorSize, outputDims.data(), outputDims.size()));
+
+    EEm_session.Run(Ort::RunOptions{nullptr},
+                    inputNames.data(),
+                    inputTensors.data(),
+                    1,
+                    outputNames.data(),
+                    outputTensors.data(),
+                    1);
+
+    // EE+ //
+    inputDims.clear();
+    outputDims.clear();
+    inputNames.clear();
+    outputNames.clear();
+    inputTensors.clear();
+    outputTensors.clear();
+
+    modelFilepath = edm::FileInPath("DQM/EcalMonitorClient/data/onnxModels/EEp_resnet2018.onnx").fullPath();
+
+    Ort::Session EEp_session(env, modelFilepath.c_str(), sessionOptions);
+
+    inputName = EEp_session.GetInputNameAllocated(0, allocator).get();
+
+    inputTypeInfo = EEp_session.GetInputTypeInfo(0);
+    auto EEp_inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    inputDims = EEp_inputTensorInfo.GetShape();
+
+    outputName = EEp_session.GetOutputNameAllocated(0, allocator).get();
+
+    outputTypeInfo = EEp_session.GetOutputTypeInfo(0);
+
+    auto EEp_outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
+
+    outputDims = EEp_outputTensorInfo.GetShape();
+
+    std::vector<float> eepRecoOccMap1dPad(EE_TensorSize);  //To store the output reconstructed occupancy
+
+    inputNames.push_back(inputName.c_str());
+    outputNames.push_back(outputName.c_str());
+
+    //Ort::MemoryInfo
+    memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+    inputTensors.push_back(Ort::Value::CreateTensor<float>(
+        memoryInfo, eepOccMap1dCumulPad.data(), EE_TensorSize, inputDims.data(), inputDims.size()));
+
+    outputTensors.push_back(Ort::Value::CreateTensor<float>(
+        memoryInfo, eepRecoOccMap1dPad.data(), EE_TensorSize, outputDims.data(), outputDims.size()));
+
+    EEp_session.Run(Ort::RunOptions{nullptr},
+                    inputNames.data(),
+                    inputTensors.data(),
+                    1,
+                    outputNames.data(),
+                    outputTensors.data(),
+                    1);
+
     ///Inference on the output from the model///
     //2D Loss map to store tower by tower loss between the output (reconstructed) and input occupancies,
     //Have same dimensions as the occupancy plot
-    std::valarray<std::valarray<float>> lossMap2d(std::valarray<float>(nPhiTowers), nEtaTowers);
+    std::valarray<std::valarray<float>> EBlossMap2d(std::valarray<float>(nEBPhiTowers), nEBEtaTowers);
+    std::valarray<std::valarray<float>> EEmlossMap2d(std::valarray<float>(nEEPhiTowers), nEEEtaTowers);
+    std::valarray<std::valarray<float>> EEplossMap2d(std::valarray<float>(nEEPhiTowers), nEEEtaTowers);
 
     //1D val arrays to store row wise information corresponding to the reconstructed, input and average occupancies, and loss.
     //and to do element wise (tower wise) operations on them to calculate the MSE loss between the reco and input occupancy.
-    std::valarray<float> recoOcc1d(0., nPhiTowers);
-    std::valarray<float> inputOcc1d(0., nPhiTowers);
-    std::valarray<float> avgOcc1d(0., nPhiTowers);
-    std::valarray<float> loss_;
+    std::valarray<float> EBrecoOcc1d(0., nEBPhiTowers);
+    std::valarray<float> EBinputOcc1d(0., nEBPhiTowers);
+    std::valarray<float> EBavgOcc1d(0., nEBPhiTowers);
+    std::valarray<float> EBloss_;
+
+    std::valarray<float> EEmrecoOcc1d(0., nEEPhiTowers);
+    std::valarray<float> EEminputOcc1d(0., nEEPhiTowers);
+    std::valarray<float> EEmavgOcc1d(0., nEEPhiTowers);
+    std::valarray<float> EEmloss_;
+
+    std::valarray<float> EEprecoOcc1d(0., nEEPhiTowers);
+    std::valarray<float> EEpinputOcc1d(0., nEEPhiTowers);
+    std::valarray<float> EEpavgOcc1d(0., nEEPhiTowers);
+    std::valarray<float> EEploss_;
+
+    std::string EBOccpath =
+        edm::FileInPath("DQM/EcalMonitorClient/data/MLAvgOccupancy/EB_avgocc_Run2022_500ev.dat").fullPath();
+    std::ifstream inFile;
+    double val;
+    inFile.open((EBOccpath).c_str());
+    while (inFile) {
+      inFile >> val;
+      if (inFile.eof())
+        break;
+      EBavgOcc.push_back(val);
+    }
+    inFile.close();
+
+    std::string EEmOccpath =
+        edm::FileInPath("DQM/EcalMonitorClient/data/MLAvgOccupancy/EEm_avgocc_Run2022_500ev.dat").fullPath();
+    inFile.open((EEmOccpath).c_str());
+    while (inFile) {
+      inFile >> val;
+      if (inFile.eof())
+        break;
+      EEmavgOcc.push_back(val);
+    }
+    inFile.close();
+
+    std::string EEpOccpath =
+        edm::FileInPath("DQM/EcalMonitorClient/data/MLAvgOccupancy/EEp_avgocc_Run2022_500ev.dat").fullPath();
+    inFile.open((EEpOccpath).c_str());
+    while (inFile) {
+      inFile >> val;
+      if (inFile.eof())
+        break;
+      EEpavgOcc.push_back(val);
+    }
+    inFile.close();
 
     //Loss calculation
     //Ignore the top and bottom replicated padded rows when doing inference
-    //by making index i run over (1,35) instead of (0,36)
-    for (int i = 1; i < 35; i++) {
-      for (int j = 0; j < nPhiTowers; j++) {
-        int k = (i * nPhiTowers) + j;
-        recoOcc1d[j] = ebRecoOccMap1dPad[k];
-        inputOcc1d[j] = ebOccMap1dCumulPad[k];
-        avgOcc1d[j] = avgOcc_[k];
+    //by making index i run over (1,35) instead of (0,36) for EB, and over (1,21) for EE
+
+    MESet const& sAEReco(sources_.at("AEReco"));
+    TH2F* hEBRecoMap2d(sAEReco.getME(1)->getTH2F());
+
+    for (int i = 1; i < nEBEtaTowersPad - 1; i++) {
+      for (int j = 0; j < nEBPhiTowers; j++) {
+        int k = (i * nEBPhiTowers) + j;
+        int bin_ = hEBRecoMap2d->GetBin(j + 1, i);
+        EBrecoOcc1d[j] = ebRecoOccMap1dPad[k];
+        EBinputOcc1d[j] = ebOccMap1dCumulPad[k];
+        EBavgOcc1d[j] = EBavgOcc[k];
+        double content = ebRecoOccMap1dPad[k];
+        hEBRecoMap2d->SetBinContent(bin_, content);
       }
       //Calculate the MSE loss = (output-input)^2, with avg response correction
-      loss_ = std::pow((recoOcc1d / avgOcc1d - inputOcc1d / avgOcc1d), 2);
-      lossMap2d[i - 1] = (loss_);
+      EBloss_ = std::pow((EBrecoOcc1d / EBavgOcc1d - EBinputOcc1d / EBavgOcc1d), 2);
+      EBlossMap2d[i - 1] = (EBloss_);
     }
 
-    lossMap2dQ.push_back(lossMap2d);  //Store each loss map from the output in the queue
-    if (lossMap2dQ.size() > nLSloss) {
-      lossMap2dQ.pop_front();  //Keep exactly nLSloss loss maps to multiply
+    TH2F* hEEmRecoMap2d(sAEReco.getME(0)->getTH2F());
+    TH2F* hEEpRecoMap2d(sAEReco.getME(2)->getTH2F());
+
+    for (int i = 1; i < nEETowersPad - 1; i++) {
+      for (int j = 0; j < nEEPhiTowers; j++) {
+        int k = (i * nEETowersPad) + j + 1;
+        int bin_ = hEEmRecoMap2d->GetBin(j + 1, i);
+
+        EEmrecoOcc1d[j] = eemRecoOccMap1dPad[k];
+        EEminputOcc1d[j] = eemOccMap1dCumulPad[k];
+        EEmavgOcc1d[j] = EEmavgOcc[k];
+        double EEmcontent = eemRecoOccMap1dPad[k];
+        hEEmRecoMap2d->SetBinContent(bin_, EEmcontent);
+
+        EEprecoOcc1d[j] = eepRecoOccMap1dPad[k];
+        EEpinputOcc1d[j] = eepOccMap1dCumulPad[k];
+        EEpavgOcc1d[j] = EEpavgOcc[k];
+        double EEpcontent = eepRecoOccMap1dPad[k];
+        hEEpRecoMap2d->SetBinContent(bin_, EEpcontent);
+      }
+      //Calculate the MSE loss = (output-input)^2, with avg response correction
+      EEmloss_ = std::pow((EEmrecoOcc1d / EEmavgOcc1d - EEminputOcc1d / EEmavgOcc1d), 2);
+      EEmlossMap2d[i - 1] = (EEmloss_);
+
+      EEploss_ = std::pow((EEprecoOcc1d / EEpavgOcc1d - EEpinputOcc1d / EEpavgOcc1d), 2);
+      EEplossMap2d[i - 1] = (EEploss_);
     }
-    if (lossMap2dQ.size() < nLSloss) {  //Exit if there are not nLSloss loss maps
+
+    //Store each loss map from the output in the queue
+    EBlossMap2dQ.push_back(EBlossMap2d);
+    EEmlossMap2dQ.push_back(EEmlossMap2d);
+    EEplossMap2dQ.push_back(EEplossMap2d);
+
+    //Keep exactly nLSloss loss maps to multiply
+    if (EBlossMap2dQ.size() > nLSloss) {
+      EBlossMap2dQ.pop_front();
+      EEmlossMap2dQ.pop_front();
+      EEplossMap2dQ.pop_front();
+    }
+    if (EBlossMap2dQ.size() < nLSloss) {  //Exit if there are not nLSloss loss maps
       return;
     }
+
     //To hold the final multiplied loss
-    std::valarray<std::valarray<float>> lossMap2dMult(std::valarray<float>(1., nPhiTowers), nEtaTowers);
+    std::valarray<std::valarray<float>> EBlossMap2dMult(std::valarray<float>(1., nEBPhiTowers), nEBEtaTowers);
+    std::valarray<std::valarray<float>> EEmlossMap2dMult(std::valarray<float>(1., nEEPhiTowers), nEEEtaTowers);
+    std::valarray<std::valarray<float>> EEplossMap2dMult(std::valarray<float>(1., nEEPhiTowers), nEEEtaTowers);
 
     //Multiply together the last nLSloss loss maps
     //So that real anomalies which persist with time are enhanced and fluctuations are suppressed.
-    for (size_t i = 0; i < lossMap2dQ.size(); i++) {
-      lossMap2dMult *= lossMap2dQ[i];
+    for (size_t i = 0; i < EBlossMap2dQ.size(); i++) {
+      EBlossMap2dMult *= EBlossMap2dQ[i];
+      EEmlossMap2dMult *= EEmlossMap2dQ[i];
+      EEplossMap2dMult *= EEplossMap2dQ[i];
     }
 
     //Fill the AELoss ME with the values of this time multiplied loss map
-    MESet const& sAELoss(sources_.at("AELoss"));
-    TH2F* hLossMap2dMult(sAELoss.getME(1)->getTH2F());
-    for (int i = 0; i < hLossMap2dMult->GetNbinsY(); i++) {
-      for (int j = 0; j < hLossMap2dMult->GetNbinsX(); j++) {
-        int bin_ = hLossMap2dMult->GetBin(j + 1, i + 1);
-        double content = lossMap2dMult[i][j];
-        hLossMap2dMult->SetBinContent(bin_, content);
+    //MESet const& sAELoss(sources_.at("AELoss"));
+    MESet& sAELoss(sources_.at("AELoss"));
+
+    TH2F* hEBLossMap2dMult(sAELoss.getME(1)->getTH2F());
+
+    for (int i = 0; i < hEBLossMap2dMult->GetNbinsY(); i++) {
+      for (int j = 0; j < hEBLossMap2dMult->GetNbinsX(); j++) {
+        int bin_ = hEBLossMap2dMult->GetBin(j + 1, i + 1);
+        double content = EBlossMap2dMult[i][j];
+        hEBLossMap2dMult->SetBinContent(bin_, content);
       }
     }
+
+    TH2F* hEEmLossMap2dMult(sAELoss.getME(0)->getTH2F());
+    TH2F* hEEpLossMap2dMult(sAELoss.getME(2)->getTH2F());
+
+    for (int i = 0; i < hEEmLossMap2dMult->GetNbinsY(); i++) {
+      for (int j = 0; j < hEEmLossMap2dMult->GetNbinsX(); j++) {
+        int bin_ = hEEmLossMap2dMult->GetBin(j + 1, i + 1);
+
+        double EEmcontent = EEmlossMap2dMult[i][j];
+        hEEmLossMap2dMult->SetBinContent(bin_, EEmcontent);
+
+        double EEpcontent = EEplossMap2dMult[i][j];
+        hEEpLossMap2dMult->SetBinContent(bin_, EEpcontent);
+      }
+    }
+
     ///////////////////// ML Quality Summary /////////////////////
     //Apply the quality threshold on the time multiplied loss map stored in the ME AELoss
     //If anomalous, the tower entry will have a large loss value. If good, the value will be close to zero.
+
+    MESet& meBadTowerCount(sources_.at("BadTowerCount"));
+    MESet& meBadTowerCountNorm(sources_.at("BadTowerCountNorm"));
+    MESet& meTrendMLBadTower(MEs_.at("TrendMLBadTower"));
+
+    LScount++;
 
     MESet::const_iterator dAEnd(sAELoss.end(GetElectronicsMap()));
     for (MESet::const_iterator dItr(sAELoss.beginChannel(GetElectronicsMap())); dItr != dAEnd;
@@ -267,15 +616,40 @@ namespace ecaldqm {
       bool doMaskML(meMLQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
       float entries(dItr->getBinContent());
+
       int quality(doMaskML ? kMGood : kGood);
+      float MLThreshold;
+
+      if (id.subdetId() == EcalEndcap) {
+        EEDetId eeid(id);
+        if (eeid.zside() > 0)
+          MLThreshold = EEpThreshold_;
+        else
+          MLThreshold = EEmThreshold_;
+      } else {
+        MLThreshold = EBThreshold_;
+      }
+
       //If a trigger tower entry is greater than the ML threshold, set it to Bad quality, otherwise Good.
-      if (entries > MLThreshold_) {
+      if (entries > MLThreshold) {
         quality = doMaskML ? kMBad : kBad;
+        meBadTowerCount.fill(getEcalDQMSetupObjects(), id);
+        if (id.subdetId() == EcalEndcap)
+          nbadtowerEE++;
+        else
+          nbadtowerEB++;
       }
       //Fill the quality summary with the quality of the given tower id.
       meMLQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, double(quality));
+
+      double badtowcount(meBadTowerCount.getBinContent(getEcalDQMSetupObjects(), id));
+      meBadTowerCountNorm.setBinContent(getEcalDQMSetupObjects(), id, double(badtowcount / LScount));
     }  // ML Quality Summary
-  }    // producePlots()
+
+    meTrendMLBadTower.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), double(nbadtowerEB));
+    meTrendMLBadTower.fill(getEcalDQMSetupObjects(), EcalEndcap, double(timestamp_.iLumi), double(nbadtowerEE));
+
+  }  // producePlots()
 
   DEFINE_ECALDQM_WORKER(MLClient);
 }  // namespace ecaldqm

@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -85,7 +86,7 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     const FEDRawDataCollection* rdc = rawIn.product();
 
-    for (int j = 0; j < FEDNumbering::MAXFEDID; j++) {
+    for (int j = 0; j <= FEDNumbering::MAXFEDID; j++) {
       bool rightFED = false;
       for (uint32_t k = 0; k < EC_FED_IDs.size(); k++) {
         if (j == EcalRegionCabling::fedIndex(EC_FED_IDs[k])) {
@@ -109,8 +110,8 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         // this fed has data -- lets copy it
         FEDRawData& fedDataProd = producedData->FEDData(j);
         if (fedDataProd.size() != 0) {
-          //		  std::cout << " More than one FEDRawDataCollection with data in FED ";
-          //		  std::cout << j << " Skipping the 2nd\n";
+          edm::LogVerbatim("HcalCalib") << " More than one FEDRawDataCollection with data in FED " << j
+                                        << " Skipping the 2nd";
           continue;
         }
         fedDataProd.resize(size);

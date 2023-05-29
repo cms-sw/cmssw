@@ -1898,7 +1898,11 @@ namespace edm {
     ProductRegistry::ProductList& pList = inputProdDescReg.productListUpdator();
     for (auto& product : pList) {
       BranchDescription& prod = product.second;
-      prod.init();
+      // Initialize BranchDescription from dictionary only if the
+      // branch is present. This allows a subsequent job to process
+      // data where a dictionary of a transient parent branch has been
+      // removed from the release after the file has been written.
+      prod.initBranchName();
       if (prod.branchType() == InProcess) {
         std::vector<std::string> const& processes = storedProcessBlockHelper.processesWithProcessBlockProducts();
         auto it = std::find(processes.begin(), processes.end(), prod.processName());
@@ -1912,6 +1916,9 @@ namespace edm {
         }
       } else {
         treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
+      }
+      if (prod.present()) {
+        prod.initFromDictionary();
       }
     }
   }
@@ -2053,7 +2060,7 @@ namespace edm {
       TString tString;
       for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
-        if (prod.branchType() != InEvent && prod.branchType() != InProcess) {
+        if (prod.present() and prod.branchType() != InEvent and prod.branchType() != InProcess) {
           TClass* cp = prod.wrappedType().getClass();
           void* p = cp->New();
           int offset = cp->GetBaseClassOffset(edProductClass_);
@@ -2320,7 +2327,7 @@ namespace edm {
               << "The parentage ID index value " << prov.parentageIDIndex_
               << " is out of bounds.  The maximum value is " << parentageIDLookup_.size() - 1 << ".\n"
               << "This should never happen.\n"
-              << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
+              << "Please report this to the framework developers.";
         }
         retValue.emplace(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]);
       }

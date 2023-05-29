@@ -272,15 +272,16 @@ void VMRouter::execute() {
                       FPGAWord(stub->bend().value(), nbendbits, true, __LINE__, __FILE__),
                       allStubIndex);
 
-      assert(vmstubsMEPHI_[ivmPlus] != nullptr);
-      vmstubsMEPHI_[ivmPlus]->addStub(vmstub, vmbin);
+      if (!(settings_.reduced()))
+        assert(vmstubsMEPHI_[ivmPlus] != nullptr);
+      if (vmstubsMEPHI_[ivmPlus] != nullptr)
+        vmstubsMEPHI_[ivmPlus]->addStub(vmstub, vmbin);
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << getName() << " adding stub to " << vmstubsMEPHI_[ivmPlus]->getName()
                                      << " ivmPlus" << ivmPlus << " bin=" << vmbin;
       }
 
-      if (ivmMinus != ivmPlus) {
-        assert(vmstubsMEPHI_[ivmMinus] != nullptr);
+      if (ivmMinus != ivmPlus && vmstubsMEPHI_[ivmMinus] != nullptr) {
         vmstubsMEPHI_[ivmMinus]->addStub(vmstub, vmbin);
         if (settings_.debugTracklet()) {
           edm::LogVerbatim("Tracklet") << getName() << " adding stub to " << vmstubsMEPHI_[ivmMinus]->getName()
@@ -363,7 +364,8 @@ void VMRouter::execute() {
 
         unsigned int nmem = ivmstubTEPHI.vmstubmem[ivmte].size();
 
-        assert(nmem > 0);
+        if (!(settings_.reduced()))
+          assert(nmem > 0);
 
         for (unsigned int l = 0; l < nmem; l++) {
           if (settings_.debugTracklet()) {

@@ -1,0 +1,19 @@
+{
+   "dy_max"    : 200, 
+   "dx_max"    : 200, 
+   "dz_max"    : 200, 
+   "dr_max"    : 200, 
+   "rdphi_max" : 200, 
+   "dalpha_max": 100, 
+   "dbeta_max" : 100, 
+   "dgamma_max": 100, 
+
+   "dy_min"    : -200, 
+   "dx_min"    : -200, 
+   "dz_min"    : -200, 
+   "dr_min"    : -200, 
+   "rdphi_min" : -200, 
+   "dalpha_min": -100, 
+   "dbeta_min" : -100, 
+   "dgamma_min": -100 
+}

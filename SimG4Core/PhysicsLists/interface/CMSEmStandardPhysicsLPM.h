@@ -12,10 +12,12 @@
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 class CMSEmStandardPhysicsLPM : public G4VPhysicsConstructor {
 public:
-  CMSEmStandardPhysicsLPM(G4int ver);
-  ~CMSEmStandardPhysicsLPM() override;
+  CMSEmStandardPhysicsLPM(G4int ver, const edm::ParameterSet& p);
+  ~CMSEmStandardPhysicsLPM() override = default;
 
   void ConstructParticle() override;
   void ConstructProcess() override;

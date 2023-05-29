@@ -25,6 +25,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <algorithm>
 
 #include "TF1.h"
 #include "TProfile.h"
@@ -213,7 +214,7 @@ PPSAlignmentConfigurationESSource::PPSAlignmentConfigurationESSource(const edm::
             gDirectory = debugFile->mkdir(rpConfigs[p.first]->name_.c_str())->mkdir("fits_ref");
 
           auto* d_ref = (TDirectory*)ad_ref->Get(
-              (sectorNames[p.first] + "/near_far/x slices, " + rpConfigs[p.first]->position_).c_str());
+              (sectorNames[p.first] + "/near_far/x slices " + rpConfigs[p.first]->position_).c_str());
           if (d_ref == nullptr) {
             edm::LogWarning("PPS") << "[ESSource] could not load d_ref";
           } else {
@@ -627,6 +628,7 @@ std::vector<PPSAlignmentConfiguration::PointErrors> PPSAlignmentConfigurationESS
 
     std::string name = k->GetName();
     size_t d = name.find('-');
+    std::replace(name.begin(), name.end(), '_', '.');  // replace _ with .
     const double x_min = std::stod(name.substr(0, d));
     const double x_max = std::stod(name.substr(d + 1));
 

@@ -53,6 +53,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer(edm::ParameterSet const& co
       theOffset_L1(conf.getParameter<int>("VCaltoElectronOffset_L1")),
       theElectronPerADCGain(conf.getParameter<double>("ElectronPerADCGain")),
       doPhase2Calibration(conf.getParameter<bool>("Phase2Calibration")),
+      dropDuplicates(conf.getParameter<bool>("DropDuplicates")),
       thePhase2ReadoutMode(conf.getParameter<int>("Phase2ReadoutMode")),
       thePhase2DigiBaseline(conf.getParameter<double>("Phase2DigiBaseline")),
       thePhase2KinkADC(conf.getParameter<int>("Phase2KinkADC")),
@@ -64,6 +65,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer(edm::ParameterSet const& co
       doSplitClusters(conf.getParameter<bool>("SplitClusters")) {
   theBuffer.setSize(theNumOfRows, theNumOfCols);
   theFakePixels.clear();
+  thePixelOccurrence.clear();
 }
 /////////////////////////////////////////////////////////////////////////////
 PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
@@ -81,6 +83,7 @@ void PixelThresholdClusterizer::fillPSetDescription(edm::ParameterSetDescription
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
   desc.add<double>("ElectronPerADCGain", 135.);
+  desc.add<bool>("DropDuplicates", true);
   desc.add<bool>("Phase2Calibration", false);
   desc.add<int>("Phase2ReadoutMode", -1);
   desc.add<double>("Phase2DigiBaseline", 1200.);
@@ -112,6 +115,8 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit* pixDet) {
   }
 
   theFakePixels.resize(nrows * ncols, false);
+
+  thePixelOccurrence.resize(nrows * ncols, 0);
 
   return true;
 }
@@ -186,6 +191,8 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
   clear_buffer(begin, end);
 
   theFakePixels.clear();
+
+  thePixelOccurrence.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -287,17 +294,34 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
 
     if (adc < 100)
       adc = 100;  // put all negative pixel charges into the 100 elec bin
-    /* This is semi-random good number. The exact number (in place of 100) is irrelevant from the point 
+    /* This is semi-random good number. The exact number (in place of 100) is irrelevant from the point
        of view of the final cluster charge since these are typically >= 20000.
     */
 
-    if (adc >= thePixelThreshold) {
-      theBuffer.set_adc(row, col, adc);
-      // VV: add pixel to the fake list. Only when running on digi collection
-      if (di->flag() != 0)
-        theFakePixels[row * theNumOfCols + col] = true;
-      if (adc >= theSeedThreshold)
-        theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+    thePixelOccurrence[theBuffer.index(row, col)]++;  // increment the occurrence counter
+    uint8_t occurrence =
+        (!dropDuplicates) ? 1 : thePixelOccurrence[theBuffer.index(row, col)];  // get the occurrence counter
+
+    switch (occurrence) {
+      // the 1st occurrence (standard treatment)
+      case 1:
+        if (adc >= thePixelThreshold) {
+          theBuffer.set_adc(row, col, adc);
+          // VV: add pixel to the fake list. Only when running on digi collection
+          if (di->flag() != 0)
+            theFakePixels[row * theNumOfCols + col] = true;
+          if (adc >= theSeedThreshold)
+            theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
+        }
+        break;
+
+      // the 2nd occurrence (duplicate pixel: reset the buffer to 0 and remove from the list of seed pixels)
+      case 2:
+        theBuffer.set_adc(row, col, 0);
+        std::remove(theSeeds.begin(), theSeeds.end(), SiPixelCluster::PixelPos(row, col));
+        break;
+
+        // in case a pixel appears more than twice, nothing needs to be done because it was already removed at the 2nd occurrence
     }
   }
   assert(i == (end - begin));
@@ -420,7 +444,7 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   /*  this is not possible as dead and noisy pixel cannot make it into a seed...
   if ( doMissCalibrate &&
-       (theSiPixelGainCalibrationService_->isDead(theDetid,pix.col(),pix.row()) || 
+       (theSiPixelGainCalibrationService_->isDead(theDetid,pix.col(),pix.row()) ||
 	theSiPixelGainCalibrationService_->isNoisy(theDetid,pix.col(),pix.row())) )
     {
       std::cout << "IMPOSSIBLE" << std::endl;
@@ -465,15 +489,15 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
         }
 
         /* //Commenting out the addition of dead pixels to the cluster until further testing -- dfehling 06/09
-	      //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors 
-	      else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){ 
+	      //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors
+	      else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){
 	      //Check for dead/noisy pixels check that the buffer is not -1 (already considered).  Check whether we want to split clusters separated by dead pixels or not.
 	      if((theSiPixelGainCalibrationService_->isDead(theDetid,c,r) || theSiPixelGainCalibrationService_->isNoisy(theDetid,c,r)) && theBuffer(r,c) != 1){
-	      
-	      //If a pixel is dead or noisy, check to see if we want to split the clusters or not.  
+
+	      //If a pixel is dead or noisy, check to see if we want to split the clusters or not.
 	      //Push it into a dead pixel stack in case we want to split the clusters.  Otherwise add it to the cluster.
    	      //If we are splitting the clusters, we will iterate over the dead pixel stack later.
-	      
+
 	      SiPixelCluster::PixelPos newpix(r,c);
 	      if(!doSplitClusters){
 
@@ -481,10 +505,10 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 	      else if(doSplitClusters){
 	      dead_pixel_stack.push(newpix);
 	      dead_flag = true;}
-	      
+
 	      theBuffer.set_adc(newpix, 1);
-	      } 
-	      
+	      }
+
 	      }
 	      */
       }

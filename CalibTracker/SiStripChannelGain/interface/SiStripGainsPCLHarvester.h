@@ -102,7 +102,7 @@ private:
   std::vector<std::shared_ptr<stAPVGain> > APVsCollOrdered;
   std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl;
 
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoTokenBR_, tTopoTokenER_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;

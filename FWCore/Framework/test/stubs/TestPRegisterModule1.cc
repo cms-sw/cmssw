@@ -1,25 +1,44 @@
-/**
-   \file
-   Test Modules for testProductRegistry
+// -*- C++ -*-
+//
+// Package:     FWCore/Framework
+// Class  :     TestPRegisterModule1
+//
+/**\class TestPRegisterModule1
 
-   \author Stefano ARGIRO
+ Description:
+
+ Usage:
+
+   \author Stefano ARGIRO, Chris Jones
    \date 19 May 2005
 */
 
-#include "FWCore/Framework/interface/Event.h"
-
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/test/stubs/TestPRegisterModule1.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <memory>
 #include <string>
 
-using namespace edm;
+class TestPRegisterModule1 : public edm::global::EDProducer<> {
+public:
+  explicit TestPRegisterModule1(edm::ParameterSet const&);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-TestPRegisterModule1::TestPRegisterModule1(edm::ParameterSet const& p) : pset_(p) {
+private:
+  edm::ParameterSet pset_;
+};
+
+TestPRegisterModule1::TestPRegisterModule1(edm::ParameterSet const& pset) : pset_(pset) {
   produces<edmtest::StringProduct>();
 }
 
-void TestPRegisterModule1::produce(Event& e, EventSetup const&) {
+void TestPRegisterModule1::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const {
   std::string myname = pset_.getParameter<std::string>("@module_label");
-  e.put(std::make_unique<edmtest::StringProduct>(myname));
+  event.put(std::make_unique<edmtest::StringProduct>(myname));
 }
+
+DEFINE_FWK_MODULE(TestPRegisterModule1);

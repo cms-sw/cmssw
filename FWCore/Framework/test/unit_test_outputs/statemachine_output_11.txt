@@ -57,7 +57,7 @@ Left processing loop.
     *** nextItemType: File 0 ***
 	endRun 9
 	writeRun 9
-	deleteRunFromCache 9
+	clearRunPrincipal 9
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -70,7 +70,7 @@ Left processing loop.
     *** nextItemType: File 0 ***
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -83,13 +83,13 @@ Left processing loop.
     *** nextItemType: Run 2 ***
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
     *** nextItemType: File 0 ***
 	endRun 2
 	writeRun 2
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -102,7 +102,7 @@ Left processing loop.
     *** nextItemType: File 0 ***
 	endRun 2
 	writeRun 2
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -118,10 +118,10 @@ Left processing loop.
     *** nextItemType: File 0 ***
 	endLumi 2/1
 	writeLumi 2/1
-	deleteLumiFromCache 2/1
+	clearLumiPrincipal 2/1
 	endRun 2
 	writeRun 2
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -137,16 +137,16 @@ Left processing loop.
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	writeLumi 2/2
-	deleteLumiFromCache 2/2
+	clearLumiPrincipal 2/2
 	readLuminosityBlock 3
 	beginLumi 2/3
     *** nextItemType: File 0 ***
 	endLumi 2/3
 	writeLumi 2/3
-	deleteLumiFromCache 2/3
+	clearLumiPrincipal 2/3
 	endRun 2
 	writeRun 2
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -159,7 +159,7 @@ Left processing loop.
     *** nextItemType: File 0 ***
 	endRun 2
 	writeRun 2
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -175,10 +175,10 @@ Left processing loop.
     *** nextItemType: File 0 ***
 	endLumi 2/3
 	writeLumi 2/3
-	deleteLumiFromCache 2/3
+	clearLumiPrincipal 2/3
 	endRun 2
 	writeRun 2
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -205,10 +205,10 @@ Left processing loop.
     *** nextItemType: File 0 ***
 	endLumi 5/1
 	writeLumi 5/1
-	deleteLumiFromCache 5/1
+	clearLumiPrincipal 5/1
 	endRun 5
 	writeRun 5
-	deleteRunFromCache 5
+	clearRunPrincipal 5
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -235,10 +235,10 @@ Left processing loop.
     *** nextItemType: Restart 0 ***
 	endLumi 6/1
 	writeLumi 6/1
-	deleteLumiFromCache 6/1
+	clearLumiPrincipal 6/1
 	endRun 6
 	writeRun 6
-	deleteRunFromCache 6
+	clearRunPrincipal 6
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -313,7 +313,7 @@ Left processing loop.
     *** nextItemType: Run 1 ***
 	endRun 9
 	writeRun 9
-	deleteRunFromCache 9
+	clearRunPrincipal 9
 	readRun 1
 	beginRun 1
     *** nextItemType: File 0 ***
@@ -327,7 +327,7 @@ Left processing loop.
     *** nextItemType: Run 2 ***
 	endRun 1
 	writeRun 1
-	deleteRunFromCache 1
+	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
     *** nextItemType: File 0 ***
@@ -360,13 +360,13 @@ Left processing loop.
     *** nextItemType: Lumi 2 ***
 	endLumi 2/1
 	writeLumi 2/1
-	deleteLumiFromCache 2/1
+	clearLumiPrincipal 2/1
 	readLuminosityBlock 2
 	beginLumi 2/2
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
 	writeLumi 2/2
-	deleteLumiFromCache 2/2
+	clearLumiPrincipal 2/2
 	readLuminosityBlock 3
 	beginLumi 2/3
     *** nextItemType: File 0 ***
@@ -396,10 +396,10 @@ Left processing loop.
     *** nextItemType: Lumi 4 ***
 	endLumi 2/3
 	writeLumi 2/3
-	deleteLumiFromCache 2/3
+	clearLumiPrincipal 2/3
 	endRun 2
 	writeRun 2
-	deleteRunFromCache 2
+	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -425,10 +425,10 @@ Left processing loop.
     *** nextItemType: Event ***
 	endLumi 5/1
 	writeLumi 5/1
-	deleteLumiFromCache 5/1
+	clearLumiPrincipal 5/1
 	endRun 5
 	writeRun 5
-	deleteRunFromCache 5
+	clearRunPrincipal 5
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles
@@ -448,10 +448,10 @@ Left processing loop.
     *** nextItemType: Restart 0 ***
 	endLumi 6/1
 	writeLumi 6/1
-	deleteLumiFromCache 6/1
+	clearLumiPrincipal 6/1
 	endRun 6
 	writeRun 6
-	deleteRunFromCache 6
+	clearRunPrincipal 6
 	respondToCloseInputFile
 	closeInputFile
 	closeOutputFiles

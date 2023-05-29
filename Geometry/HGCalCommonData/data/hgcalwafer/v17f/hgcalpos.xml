@@ -5,62 +5,122 @@
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer00Fine"/>
-    <Translation x="0.0*cm" y="-120.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="-120.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer01Fine"/>
-    <Translation x="0.0*cm" y="-100.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="-100.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer02Fine"/>
-    <Translation x="0.0*cm" y="-80.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="-80.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer03Fine"/>
-    <Translation x="0.0*cm" y="-60.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="-60.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer04Fine"/>
-    <Translation x="0.0*cm" y="-40.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="-40.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer05Fine"/>
-    <Translation x="0.0*cm" y="-20.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="-20.0*cm" z="20.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer06Fine"/>
-    <Translation x="0.0*cm" y="0.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="0.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer07Fine"/>
-    <Translation x="0.0*cm" y="20.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="20.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer08Fine"/>
-    <Translation x="0.0*cm" y="40.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="40.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer09Fine"/>
-    <Translation x="0.0*cm" y="60.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="60.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer10Fine"/>
-    <Translation x="0.0*cm" y="80.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="80.0*cm" z="-10.0*cm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
     <rChild name="hgcalwafer:HGCalEEWafer11Fine"/>
-    <Translation x="0.0*cm" y="100.0*cm" z="0*cm"/>
+    <Translation x="0.0*cm" y="100.0*cm" z="-10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer00Coarse1"/>
+    <Translation x="0.0*cm" y="-120.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer01Coarse1"/>
+    <Translation x="0.0*cm" y="-100.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer02Coarse1"/>
+    <Translation x="0.0*cm" y="-80.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer03Coarse1"/>
+    <Translation x="0.0*cm" y="-60.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer04Coarse1"/>
+    <Translation x="0.0*cm" y="-40.0*cm" z="0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer05Coarse1"/>
+    <Translation x="0.0*cm" y="-20.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer06Coarse1"/>
+    <Translation x="0.0*cm" y="0.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer07Coarse1"/>
+    <Translation x="0.0*cm" y="20.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer08Coarse1"/>
+    <Translation x="0.0*cm" y="40.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer09Coarse1"/>
+    <Translation x="0.0*cm" y="60.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer10Coarse1"/>
+    <Translation x="0.0*cm" y="80.0*cm" z="10.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalHEWafer11Coarse1"/>
+    <Translation x="0.0*cm" y="100.0*cm" z="10.0*cm"/>
   </PosPart>
 </PosPartSection>
 </DDDefinition>

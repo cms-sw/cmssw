@@ -7,9 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
@@ -73,10 +71,11 @@ private:
   const int inpType_;
   const int verbosity_;
   const bool ifNose_;
-  edm::EDGetToken digiHitSource_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> geomToken_;
+  const edm::EDGetTokenT<HGCalDigiCollection> digiSource_;
+  const edm::EDGetTokenT<HGCRecHitCollection> recHitSource_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hit_;
   const HGCalDDDConstants* hgcons_;
-  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> geomToken_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hit_;
   std::map<int, int> badTypes_, occupancy_;
   std::vector<int> goodChannels_;
   static const int waferMax = 12;
@@ -92,12 +91,9 @@ HGCalWaferHitCheck::HGCalWaferHitCheck(const edm::ParameterSet& iConfig, const H
       ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
       geomToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})),
+      digiSource_(consumes<HGCalDigiCollection>(source_)),
+      recHitSource_(consumes<HGCRecHitCollection>(source_)),
       tok_hit_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))) {
-  if (inpType_ == Digi) {
-    digiHitSource_ = consumes<HGCalDigiCollection>(source_);
-  } else if (inpType_ >= Reco) {
-    digiHitSource_ = consumes<HGCRecHitCollection>(source_);
-  }
   edm::LogVerbatim("HGCalValidation") << "Validation for input type " << inpType_ << " for " << nameDetector_;
 }
 
@@ -115,8 +111,7 @@ void HGCalWaferHitCheck::fillDescriptions(edm::ConfigurationDescriptions& descri
 void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Get collection depending on inputType
   if (inpType_ <= Sim) {
-    edm::Handle<edm::PCaloHitContainer> theCaloHitContainer;
-    iEvent.getByToken(tok_hit_, theCaloHitContainer);
+    const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainer = iEvent.getHandle(tok_hit_);
     if (theCaloHitContainer.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theCaloHitContainer->size() << " SimHits";
@@ -125,8 +120,7 @@ void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup
       edm::LogVerbatim("HGCalValidation") << "PCaloHitContainer does not exist for " << nameDetector_;
     }
   } else if (inpType_ == Digi) {
-    edm::Handle<HGCalDigiCollection> theDigiContainer;
-    iEvent.getByToken(digiHitSource_, theDigiContainer);
+    const edm::Handle<HGCalDigiCollection>& theDigiContainer = iEvent.getHandle(digiSource_);
     if (theDigiContainer.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theDigiContainer->size() << " Digis";
@@ -135,8 +129,7 @@ void HGCalWaferHitCheck::analyze(const edm::Event& iEvent, const edm::EventSetup
       edm::LogVerbatim("HGCalValidation") << "DigiContainer does not exist for " << nameDetector_;
     }
   } else {
-    edm::Handle<HGCRecHitCollection> theRecHitContainer;
-    iEvent.getByToken(digiHitSource_, theRecHitContainer);
+    const edm::Handle<HGCRecHitCollection>& theRecHitContainer = iEvent.getHandle(recHitSource_);
     if (theRecHitContainer.isValid()) {
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theRecHitContainer->size() << " hits";

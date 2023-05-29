@@ -1,6 +1,8 @@
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+#include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
+#include "RecoTracker/MkFitCore/interface/Config.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
-#include "MaterialEffects.h"
 #include "PropagationMPlex.h"
 
 //#define DEBUG
@@ -297,7 +299,12 @@ namespace mkfit {
     MPlexLL errorPropTmp(0.f);   //initialize to zero
     MPlexLL errorPropSwap(0.f);  //initialize to zero
 
+    // loop does not vectorize with llvm16, and it issues a warning
+    // that apparently can't be suppressed with a pragma.  Needs to
+    // be rechecked if future llvm versions improve vectorization.
+#if !defined(__clang__)
 #pragma omp simd
+#endif
     for (int n = 0; n < NN; ++n) {
       //initialize erroProp to identity matrix
       errorProp(n, 0, 0) = 1.f;
@@ -413,7 +420,7 @@ namespace mkfit {
               << " pT=" << 1. / std::abs(outPar.At(n, 3, 0)) << std::endl);
 
 #ifdef DEBUG
-      if (n < N_proc) {
+      if (debug && g_debug && n < N_proc) {
         dmutex_guard;
         std::cout << n << " jacobian" << std::endl;
         printf("%5f %5f %5f %5f %5f %5f\n",
@@ -477,7 +484,7 @@ namespace mkfit {
                                 MPlexLL& errorProp,
                                 MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags pflags) {
+                                const PropagationFlags& pflags) {
     errorProp.setVal(0.f);
     outFailFlag.setVal(0.f);
 
@@ -490,8 +497,9 @@ namespace mkfit {
                               const MPlexQF& msRad,
                               MPlexLS& outErr,
                               MPlexLV& outPar,
+                              MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags& pflags,
                               const MPlexQI* noMatEffPtr) {
     // bool debug = true;
 
@@ -503,18 +511,17 @@ namespace mkfit {
     outPar = inPar;
 
     MPlexLL errorProp;
-    MPlexQI failFlag;
 
-    helixAtRFromIterativeCCS(inPar, inChg, msRad, outPar, errorProp, failFlag, N_proc, pflags);
+    helixAtRFromIterativeCCS(inPar, inChg, msRad, outPar, errorProp, outFailFlag, N_proc, pflags);
 
 #ifdef DEBUG
-    {
+    if (debug && g_debug) {
       for (int kk = 0; kk < N_proc; ++kk) {
         dprintf("outErr before prop %d\n", kk);
         for (int i = 0; i < 6; ++i) {
           for (int j = 0; j < 6; ++j)
             dprintf("%8f ", outErr.At(kk, i, j));
-          printf("\n");
+          dprintf("\n");
         }
         dprintf("\n");
 
@@ -522,7 +529,7 @@ namespace mkfit {
         for (int i = 0; i < 6; ++i) {
           for (int j = 0; j < 6; ++j)
             dprintf("%8f ", errorProp.At(kk, i, j));
-          printf("\n");
+          dprintf("\n");
         }
         dprintf("\n");
       }
@@ -533,20 +540,18 @@ namespace mkfit {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
       MPlexQF propSign;
+
+      const TrackerInfo& tinfo = *pflags.tracker_info;
+
 #pragma omp simd
-      for (int n = 0; n < N_proc; ++n) {
-        if (failFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
+      for (int n = 0; n < NN; ++n) {
+        if (n >= N_proc || (outFailFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0)))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const int zbin = Config::materialEff.getZbin(outPar(n, 2, 0));
-          const int rbin = Config::materialEff.getRbin(msRad(n, 0, 0));
-          hitsRl(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getRlVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
-          hitsXi(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getXiVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
+          auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), msRad(n, 0, 0));
+          hitsRl(n, 0, 0) = mat.radl;
+          hitsXi(n, 0, 0) = mat.bbxi;
         }
         const float r0 = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
         const float r = msRad(n, 0, 0);
@@ -577,17 +582,16 @@ namespace mkfit {
      }
    */
 
-    // FIXUP BOTCHED (low pT) propagations.
-    // For now let's enforce reseting output to input for failed cases. But:
-    // - perhaps this should be optional;
-    // - alternatively, it could also be an extra output parameter;
-    // - if we pass fail outwards, we might *not* need to also reset botched output.
+    // PROP-FAIL-ENABLE To keep physics changes minimal, we always restore the
+    // state to input when propagation fails -- as was the default before.
+    // if (pflags.copy_input_state_on_fail) {
     for (int i = 0; i < N_proc; ++i) {
-      if (failFlag(i, 0, 0)) {
+      if (outFailFlag(i, 0, 0)) {
         outPar.copySlot(i, inPar);
         outErr.copySlot(i, inErr);
       }
     }
+    // }
   }
 
   //==============================================================================
@@ -598,8 +602,9 @@ namespace mkfit {
                               const MPlexQF& msZ,
                               MPlexLS& outErr,
                               MPlexLV& outPar,
+                              MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags& pflags,
                               const MPlexQI* noMatEffPtr) {
     // debug = true;
 
@@ -608,16 +613,16 @@ namespace mkfit {
 
     MPlexLL errorProp;
 
-    helixAtZ(inPar, inChg, msZ, outPar, errorProp, N_proc, pflags);
+    helixAtZ(inPar, inChg, msZ, outPar, errorProp, outFailFlag, N_proc, pflags);
 
 #ifdef DEBUG
-    {
+    if (debug && g_debug) {
       for (int kk = 0; kk < N_proc; ++kk) {
         dprintf("inErr %d\n", kk);
         for (int i = 0; i < 6; ++i) {
           for (int j = 0; j < 6; ++j)
             dprintf("%8f ", inErr.constAt(kk, i, j));
-          printf("\n");
+          dprintf("\n");
         }
         dprintf("\n");
 
@@ -625,7 +630,7 @@ namespace mkfit {
         for (int i = 0; i < 6; ++i) {
           for (int j = 0; j < 6; ++j)
             dprintf("%8f ", errorProp.At(kk, i, j));
-          printf("\n");
+          dprintf("\n");
         }
         dprintf("\n");
       }
@@ -636,20 +641,19 @@ namespace mkfit {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
       MPlexQF propSign;
+
+      const TrackerInfo& tinfo = *pflags.tracker_info;
+
 #pragma omp simd
-      for (int n = 0; n < N_proc; ++n) {
-        if (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0)) {
+      for (int n = 0; n < NN; ++n) {
+        if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const int zbin = Config::materialEff.getZbin(msZ(n, 0, 0));
-          const int rbin = Config::materialEff.getRbin(std::hypot(outPar(n, 0, 0), outPar(n, 1, 0)));
-          hitsRl(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getRlVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
-          hitsXi(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getXiVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
+          const float hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
+          auto mat = tinfo.material_checked(std::abs(msZ(n, 0, 0)), hypo);
+          hitsRl(n, 0, 0) = mat.radl;
+          hitsXi(n, 0, 0) = mat.bbxi;
         }
         const float zout = msZ.constAt(n, 0, 0);
         const float zin = inPar.constAt(n, 2, 0);
@@ -665,6 +669,17 @@ namespace mkfit {
     MPlexLL temp;
     MultHelixPropEndcap(errorProp, outErr, temp);
     MultHelixPropTranspEndcap(errorProp, temp, outErr);
+
+    // PROP-FAIL-ENABLE To keep physics changes minimal, we always restore the
+    // state to input when propagation fails -- as was the default before.
+    // if (pflags.copy_input_state_on_fail) {
+    for (int i = 0; i < N_proc; ++i) {
+      if (outFailFlag(i, 0, 0)) {
+        outPar.copySlot(i, inPar);
+        outErr.copySlot(i, inErr);
+      }
+    }
+    // }
 
     // This dump is now out of its place as similarity is done with matriplex ops.
     /*
@@ -699,8 +714,9 @@ namespace mkfit {
                 const MPlexQF& msZ,
                 MPlexLV& outPar,
                 MPlexLL& errorProp,
+                MPlexQI& outFailFlag,
                 const int N_proc,
-                const PropagationFlags pflags) {
+                const PropagationFlags& pflags) {
     errorProp.setVal(0.f);
 
 #pragma omp simd
@@ -924,10 +940,32 @@ namespace mkfit {
               << " pT=" << 1. / std::abs(outPar.At(n, 3, 0)) << std::endl);
     }
 
-#ifdef DEBUG
-#pragma omp simd
+    // PROP-FAIL-ENABLE Disabled to keep physics changes minimal.
+    // To be reviewed, enabled and processed accordingly elsewhere.
+    /*
+    // Check for errors, set fail-flag.
     for (int n = 0; n < NN; ++n) {
-      if (n < N_proc) {
+      // We propagate for alpha: mark fail when prop angle more than pi/2
+      if (std::abs(alpha[n]) > 1.57) {
+        dprintf("helixAtZ: more than quarter turn, alpha = %f\n", alpha[n]);
+        outFailFlag[n] = 1;
+      } else {
+        // Have we reached desired z? We can't know, we copy desired z to actual z.
+        // Are we close to apex? Same condition as in propToR, 12.5 deg, cos(78.5deg) = 0.2
+        float dotp = (outPar.At(n, 0, 0) * std::cos(outPar.At(n, 4, 0)) +
+                      outPar.At(n, 1, 0) * std::sin(outPar.At(n, 4, 0))) /
+                     std::hypot(outPar.At(n, 0, 0), outPar.At(n, 1, 0));
+        if (dotp < 0.2 || dotp < 0) {
+          dprintf("helixAtZ: dot product bad, dotp = %f\n", dotp);
+          outFailFlag[n] = 1;
+        }
+      }
+    }
+    */
+
+#ifdef DEBUG
+    if (debug && g_debug) {
+      for (int n = 0; n < N_proc; ++n) {
         dmutex_guard;
         std::cout << n << ": jacobian" << std::endl;
         printf("%5f %5f %5f %5f %5f %5f\n",

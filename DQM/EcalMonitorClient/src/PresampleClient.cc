@@ -16,6 +16,7 @@ namespace ecaldqm {
         expectedMean_(0.),
         toleranceLow_(0.),
         toleranceHigh_(0.),
+        toleranceHighFwd_(0.),
         toleranceRMS_(0.),
         toleranceRMSFwd_(0.) {
     qualitySummaries_.insert("Quality");
@@ -27,6 +28,7 @@ namespace ecaldqm {
     expectedMean_ = _params.getUntrackedParameter<double>("expectedMean");
     toleranceLow_ = _params.getUntrackedParameter<double>("toleranceLow");
     toleranceHigh_ = _params.getUntrackedParameter<double>("toleranceHigh");
+    toleranceHighFwd_ = _params.getUntrackedParameter<double>("toleranceHighFwd");
     toleranceRMS_ = _params.getUntrackedParameter<double>("toleranceRMS");
     toleranceRMSFwd_ = _params.getUntrackedParameter<double>("toleranceRMSFwd");
   }
@@ -40,6 +42,7 @@ namespace ecaldqm {
     MESet& meRMSMap(MEs_.at("RMSMap"));
     MESet& meRMSMapAll(MEs_.at("RMSMapAll"));
     MESet& meRMSMapAllByLumi(MEs_.at("RMSMapAllByLumi"));
+    MESet& meMeanMapAll(MEs_.at("MeanMapAll"));
 
     MESet const& sPedestal(sources_.at("Pedestal"));
     MESet const& sPedestalByLS(sources_.at("PedestalByLS"));
@@ -64,9 +67,12 @@ namespace ecaldqm {
       bool doMask(meQuality.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
       double rmsThresh(toleranceRMS_);
+      double meanThreshHigh(toleranceHigh_);
 
-      if (isForward(id))
+      if (isForward(id)) {
         rmsThresh = toleranceRMSFwd_;
+        meanThreshHigh = toleranceHighFwd_;
+      }
 
       double entries(pItr->getBinEntries());
       double entriesLS(pLSItr->getBinEntries());
@@ -90,7 +96,7 @@ namespace ecaldqm {
       meRMSMap.setBinContent(getEcalDQMSetupObjects(), id, rms);
       meRMSMapAllByLumi.setBinContent(getEcalDQMSetupObjects(), id, rmsLS);
 
-      if (((mean > expectedMean_ + toleranceHigh_) || (mean < expectedMean_ - toleranceLow_)) || rms > rmsThresh) {
+      if (((mean > expectedMean_ + meanThreshHigh) || (mean < expectedMean_ - toleranceLow_)) || rms > rmsThresh) {
         qItr->setBinContent(doMask ? kMBad : kBad);
         meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMBad : kBad);
         if (!doMask)
@@ -129,6 +135,7 @@ namespace ecaldqm {
     }  // qItr
 
     towerAverage_(meRMSMapAll, meRMSMap, -1.);
+    towerAverage_(meMeanMapAll, sPedestal, -1.);
 
     MESet& meTrendMean(MEs_.at("TrendMean"));
     MESet& meTrendRMS(MEs_.at("TrendRMS"));

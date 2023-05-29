@@ -1,20 +1,21 @@
 ## Dump  10  events in CSC rechit builder - Tim Cox - 07.11.2012
 ## This version runs in 6_0_1_PostLS1 on a simulated data DIGI sample.
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-##process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+##process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
-
-process.GlobalTag.globaltag = "POSTLS161_V11::All"
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 # --- NUMBER OF EVENTS
 

@@ -43,7 +43,7 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig)
       m_thtEtaMask(iConfig.getParameter<unsigned>("HtEtaMask")) {
   //the following lines are needed to tell the framework what
   // data is being produced
-  setWhatProduced(this, &L1GctConfigProducers::produceJfParams);
+  m_caloGeomToken = setWhatProduced(this, &L1GctConfigProducers::produceJfParams).consumes();
   setWhatProduced(this, &L1GctConfigProducers::produceChanMask);
 
   //now do what ever other initialization is needed
@@ -115,9 +115,7 @@ L1GctConfigProducers::~L1GctConfigProducers() {
 
 L1GctConfigProducers::JfParamsReturnType L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd& aRcd) {
   // get geometry
-  const L1CaloGeometryRecord& geomRcd = aRcd.getRecord<L1CaloGeometryRecord>();
-  edm::ESHandle<L1CaloGeometry> geom;
-  geomRcd.get(geom);
+  edm::ESHandle<L1CaloGeometry> geom = aRcd.getHandle(m_caloGeomToken);
 
   // construct jet finder params object
   auto pL1GctJetFinderParams = std::make_unique<L1GctJetFinderParams>(m_rgnEtLsb,

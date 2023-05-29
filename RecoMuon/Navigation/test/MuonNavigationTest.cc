@@ -5,7 +5,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,19 +24,21 @@
 //#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-class MuonNavigationTest : public edm::EDAnalyzer {
+class MuonNavigationTest : public edm::one::EDAnalyzer<> {
 public:
   explicit MuonNavigationTest(const edm::ParameterSet&);
-  ~MuonNavigationTest();
+  ~MuonNavigationTest() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
+  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> geomToken_;
 };
 
 // constructor
 
 MuonNavigationTest::MuonNavigationTest(const edm::ParameterSet& iConfig) {
+  geomToken_ = esConsumes();
   std::cout << "Muon Navigation Printer Begin:" << std::endl;
 }
 
@@ -51,13 +53,11 @@ void MuonNavigationTest::analyze(const edm::Event& iEvent, const edm::EventSetup
   //
   // get Geometry
   //
-  edm::ESHandle<MuonDetLayerGeometry> muon;
-  iSetup.get<MuonRecoGeometryRecord>().get(muon);
-  const MuonDetLayerGeometry* mm(&(*muon));
+  const MuonDetLayerGeometry& mm = iSetup.getData(geomToken_);
 
   if (testMuon) {
-    MuonNavigationSchool school(mm);
-    MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, school);
+    MuonNavigationSchool school(&mm);
+    MuonNavigationPrinter* printer = new MuonNavigationPrinter(&mm, school);
     delete printer;
   }
   /*

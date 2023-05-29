@@ -3,22 +3,24 @@
 //
 // class declaration
 //
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-class MuEnrichType1Filter : public edm::EDFilter {
+#include <atomic>
+
+class MuEnrichType1Filter : public edm::global::EDFilter<> {
 public:
   explicit MuEnrichType1Filter(const edm::ParameterSet&);
   ~MuEnrichType1Filter();
 
 private:
-  virtual void beginJob();
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void endJob() override;
   edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
-  int nrejected;
-  int naccepted;
+  mutable std::atomic<int> nrejected;
+  mutable std::atomic<int> naccepted;
   int type;
   // ----------member data ---------------------------
 };

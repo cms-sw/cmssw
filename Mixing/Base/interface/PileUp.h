@@ -4,20 +4,17 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <optional>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TRandom.h"
-#include "TFile.h"
 #include "TH1F.h"
-
-class TFile;
-class TH1F;
 
 namespace CLHEP {
   class RandPoissonQ;
@@ -27,6 +24,7 @@ namespace CLHEP {
 
 class MixingModuleConfig;
 class MixingRcd;
+class PileupRandomNumberGenerator;
 
 namespace edm {
   class SecondaryEventProvider;
@@ -81,6 +79,7 @@ namespace edm {
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
       input_->dropUnwantedBranches(wantedBranches);
     }
+    void beginJob(eventsetup::ESRecordsToProxyIndices const&);
     void beginStream(edm::StreamID);
     void endStream();
 
@@ -111,6 +110,8 @@ namespace edm {
     std::unique_ptr<CLHEP::RandPoissonQ> const& poissonDistribution(StreamID const& streamID);
     std::unique_ptr<CLHEP::RandPoisson> const& poissonDistr_OOT(StreamID const& streamID);
     CLHEP::HepRandomEngine* randomEngine(StreamID const& streamID);
+    void setRandomEngine(StreamID);
+    void setRandomEngine(LuminosityBlock const&);
 
     unsigned int inputType_;
     std::string type_;
@@ -146,6 +147,8 @@ namespace edm {
     std::unique_ptr<EventPrincipal> eventPrincipal_;
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     std::shared_ptr<RunPrincipal> runPrincipal_;
+    PileupRandomNumberGenerator* randomGenerator_ = nullptr;
+    std::optional<ServiceToken> serviceToken_;
     std::unique_ptr<SecondaryEventProvider> provider_;
     std::unique_ptr<CLHEP::RandPoissonQ> PoissonDistribution_;
     std::unique_ptr<CLHEP::RandPoisson> PoissonDistr_OOT_;

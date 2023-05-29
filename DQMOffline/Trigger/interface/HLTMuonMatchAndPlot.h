@@ -73,7 +73,7 @@ public:
   void endRun(const edm::Run &, const edm::EventSetup &);
 
   // Helper Methods
-  void fillEdges(size_t &nBins, float *&edges, const std::vector<double> &binning);
+  bool fillEdges(size_t &nBins, float *&edges, const std::vector<double> &binning);
   template <class T>
   void fillMapFromPSet(std::map<std::string, T> &, const edm::ParameterSet &, const std::string &);
   template <class T1, class T2>

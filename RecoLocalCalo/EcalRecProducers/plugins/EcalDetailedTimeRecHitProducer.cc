@@ -1,43 +1,83 @@
-/** \class EcalDetailedTimeRecHitProducer
- *   produce ECAL detailed time Rechits
- *  \author Paolo Meridiani
- *
+/** \class  EcalDetailedTimeRecHitProducer
+ *   produce ECAL rechits associating them with improved ecalTimeDigis
+ *  \author Paolo Meridiani, INFN Roma
  **/
 
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalDetailedTimeRecHitProducer.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <cmath>
 #include <iostream>
 #include <memory>
-
 #include <vector>
 
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
+class EcalDetailedTimeRecHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps);
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+private:
+  //Functions to correct the TOF from the EcalDigi which is not corrected for the vertex position
+  double deltaTimeOfFlight(GlobalPoint& vertex, const DetId& detId, int layer) const;
+
+  const CaloGeometry* m_geometry;
+
+  edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollection_;  // secondary name given to collection of EBrechits
+  edm::EDGetTokenT<EERecHitCollection> EERecHitCollection_;  // secondary name given to collection of EErechits
+
+  edm::EDGetTokenT<reco::VertexCollection> recoVertex_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertex_;
+  bool correctForVertexZPosition_;
+  bool useMCTruthVertex_;
+
+  int ebTimeLayer_;
+  int eeTimeLayer_;
+
+  edm::EDGetTokenT<EcalTimeDigiCollection>
+      ebTimeDigiCollection_;  // secondary name given to collection of EB uncalib rechits
+  edm::EDGetTokenT<EcalTimeDigiCollection>
+      eeTimeDigiCollection_;  // secondary name given to collection of EE uncalib rechits
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
+
+  std::string EBDetailedTimeRecHitCollection_;  // secondary name to be given to EB collection of hits
+  std::string EEDetailedTimeRecHitCollection_;  // secondary name to be given to EE collection of hits
+};
 
 EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps) : m_geometry(nullptr) {
   EBRecHitCollection_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBRecHitCollection"));
@@ -67,8 +107,6 @@ EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::Parame
   produces<EBRecHitCollection>(EBDetailedTimeRecHitCollection_);
   produces<EERecHitCollection>(EEDetailedTimeRecHitCollection_);
 }
-
-EcalDetailedTimeRecHitProducer::~EcalDetailedTimeRecHitProducer() {}
 
 void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   using namespace edm;

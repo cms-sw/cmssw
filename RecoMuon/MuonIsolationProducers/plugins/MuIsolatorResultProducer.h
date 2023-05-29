@@ -1,7 +1,7 @@
 #ifndef MuonIsolationProducers_MuIsolatorResultProducer_H
 #define MuonIsolationProducers_MuIsolatorResultProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
@@ -50,7 +50,7 @@ struct muisorhelper {
 
 //! BT == base type
 template <typename BT = reco::Candidate>
-class MuIsolatorResultProducer : public edm::EDProducer {
+class MuIsolatorResultProducer : public edm::stream::EDProducer<> {
 public:
   MuIsolatorResultProducer(const edm::ParameterSet&);
 
@@ -85,7 +85,9 @@ private:
 
   unsigned int initAssociation(edm::Event& event, CandMap& candMapT) const;
 
-  void initVetos(std::vector<reco::IsoDeposit::Vetos*>& vetos, CandMap& candMap) const;
+  void initVetos(reco::TrackBase::Point const& theBeam,
+                 std::vector<reco::IsoDeposit::Vetos*>& vetos,
+                 CandMap& candMap) const;
 
   template <typename RT>
   void writeOutImpl(edm::Event& event, const CandMap& candMapT, const Results& results) const;
@@ -106,7 +108,6 @@ private:
   //! beam spot
   std::string theBeamlineOption;
   edm::InputTag theBeamSpotLabel;
-  reco::TrackBase::Point theBeam;
 };
 
 //! actually do the writing here
@@ -159,7 +160,6 @@ inline void MuIsolatorResultProducer<BT>::callWhatProduces() {
 }
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -184,10 +184,7 @@ inline void MuIsolatorResultProducer<BT>::callWhatProduces() {
 //! constructor with config
 template <typename BT>
 MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const edm::ParameterSet& par)
-    : theConfig(par),
-      theRemoveOtherVetos(par.getParameter<bool>("RemoveOtherVetos")),
-      theIsolator(nullptr),
-      theBeam(0, 0, 0) {
+    : theConfig(par), theRemoveOtherVetos(par.getParameter<bool>("RemoveOtherVetos")), theIsolator(nullptr) {
   LogDebug("RecoMuon|MuonIsolation") << " MuIsolatorResultProducer CTOR";
 
   //! read input config for deposit types and weights and thresholds to apply to them
@@ -284,7 +281,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
                     << " BEGINING OF EVENT "
                     << "================================";
 
-  theBeam = reco::TrackBase::Point(0, 0, 0);
+  reco::TrackBase::Point theBeam = reco::TrackBase::Point(0, 0, 0);
 
   //! do it only if needed
   if (theRemoveOtherVetos && !theVetoCuts.selectAll) {
@@ -319,7 +316,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
 
   if (colSize != 0) {
     if (theRemoveOtherVetos) {
-      initVetos(vetoDeps, candMapT);
+      initVetos(theBeam, vetoDeps, candMapT);
     }
 
     //! call the isolator result, passing {[deposit,vetos]_type} set and the candidate
@@ -387,7 +384,9 @@ unsigned int MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, Ca
 }
 
 template <typename BT>
-void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::IsoDeposit::Vetos*>& vetos, CandMap& candMapT) const {
+void MuIsolatorResultProducer<BT>::initVetos(reco::TrackBase::Point const& theBeam,
+                                             std::vector<reco::IsoDeposit::Vetos*>& vetos,
+                                             CandMap& candMapT) const {
   std::string metname = "RecoMuon|MuonIsolationProducers";
 
   if (theRemoveOtherVetos) {

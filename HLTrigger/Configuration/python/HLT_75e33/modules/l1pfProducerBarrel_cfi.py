@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-l1pfProducerBarrel = cms.EDProducer("L1TPFProducer",
+l1tPFProducerBarrel = cms.EDProducer("L1TPFProducer",
     debug = cms.untracked.int32(0),
-    emClusters = cms.VInputTag(cms.InputTag("pfClustersFromL1EGClusters")),
+    emClusters = cms.VInputTag(cms.InputTag("l1tPFClustersFromL1EGClusters")),
     emPtCut = cms.double(0.5),
     etaCharged = cms.double(2.5),
-    hadClusters = cms.VInputTag(cms.InputTag("pfClustersFromCombinedCaloHCal","calibrated")),
+    hadClusters = cms.VInputTag(cms.InputTag("l1tPFClustersFromCombinedCaloHCal","calibrated")),
     hadPtCut = cms.double(1.0),
     linking = cms.PSet(
         caloEmPtMinFrac = cms.double(0.5),
@@ -63,9 +63,9 @@ l1pfProducerBarrel = cms.EDProducer("L1TPFProducer",
         phiExtra = cms.double(0.0),
         phiSlices = cms.uint32(1)
     )),
-    tkMuons = cms.InputTag("hltL1TkMuons"),
+    tkMuons = cms.InputTag("l1tTkMuonsGmt"),
     trackRegionMode = cms.string('atCalo'),
-    tracks = cms.InputTag("pfTracksFromL1TracksBarrel"),
+    tracks = cms.InputTag("l1tPFTracksFromL1TracksBarrel"),
     trkMaxChi2 = cms.double(15),
     trkMinStubs = cms.uint32(4),
     trkPtCut = cms.double(2.0),
@@ -74,7 +74,7 @@ l1pfProducerBarrel = cms.EDProducer("L1TPFProducer",
     useTrackerMuons = cms.bool(False),
     vtxAdaptiveCut = cms.bool(True),
     vtxAlgo = cms.string('external'),
-    vtxCollection = cms.InputTag("L1TkPrimaryVertex"),
+    vtxCollection = cms.InputTag("l1tTkPrimaryVertex"),
     vtxFormat = cms.string('TkPrimaryVertex'),
     vtxRes = cms.double(0.333)
 )

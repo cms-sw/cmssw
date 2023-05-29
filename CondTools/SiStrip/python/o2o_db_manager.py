@@ -5,7 +5,7 @@ import logging
 import CondCore.Utilities.credentials as auth
 
 prod_db_service = ['cms_orcon_prod', 'cms_orcon_prod/cms_cond_general_w']
-dev_db_service = ['cms_orcoff_prep', 'cms_orcoff_prep/cms_test_conditions']
+dev_db_service = ['cms_orcoff_prep', 'cms_orcoff_prep/cms_cond_general_w']
 schema_dict = {'cms_orcon_prod':'cms_cond_o2o', 'cms_orcoff_prep':'cms_cond_strip'}
 sqlalchemy_tpl = 'oracle://%s:%s@%s'
 coral_tpl = 'oracle://%s/%s'

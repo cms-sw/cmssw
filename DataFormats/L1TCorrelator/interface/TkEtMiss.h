@@ -3,7 +3,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 
 namespace l1t {
   class TkEtMiss : public L1Candidate {
@@ -15,7 +15,7 @@ namespace l1t {
              const double& etTotal,
              const double& etMissPU,
              const double& etTotalPU,
-             const edm::Ref<TkPrimaryVertexCollection>& aVtxRef = edm::Ref<TkPrimaryVertexCollection>(),
+             const edm::Ref<l1t::VertexWordCollection>& aVtxRef = edm::Ref<l1t::VertexWordCollection>(),
              int bx = 0);
 
     TkEtMiss(const LorentzVector& p4,
@@ -37,7 +37,7 @@ namespace l1t {
     double etMissPU() const { return etMissPU_; }
     double etTotalPU() const { return etTotalPU_; }
     int bx() const { return bx_; }
-    const edm::Ref<TkPrimaryVertexCollection>& vtxRef() const { return vtxRef_; }
+    const edm::Ref<l1t::VertexWordCollection>& vtxRef() const { return vtxRef_; }
 
     double etPhi() const { return etPhi_; }
     int etQual() const { return etQual_; }
@@ -52,7 +52,7 @@ namespace l1t {
     double etTot_;
     double etMissPU_;
     double etTotalPU_;
-    edm::Ref<TkPrimaryVertexCollection> vtxRef_;
+    edm::Ref<l1t::VertexWordCollection> vtxRef_;
 
     double etMiss_;
     double etPhi_;

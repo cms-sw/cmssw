@@ -1,11 +1,11 @@
 #ifndef PFDQMEventSelector_H
 #define PFDQMEventSelector_H
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class PFDQMEventSelector : public edm::EDFilter {
+class PFDQMEventSelector : public edm::one::EDFilter<edm::one::SharedResources> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;

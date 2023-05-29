@@ -22,10 +22,11 @@
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/>
 
-<class name="GEMPadDigiCluster" ClassVersion="12">
+<class name="GEMPadDigiCluster" ClassVersion="13">
  <version ClassVersion="10" checksum="2569340006"/>
  <version ClassVersion="11" checksum="3372991553"/>
  <version ClassVersion="12" checksum="533478463"/>
+ <version ClassVersion="13" checksum="3488459777"/>
 </class>
 <class name="std::vector<GEMPadDigiCluster>"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
@@ -60,8 +61,10 @@
 <class name="MuonDigiCollection<uint16_t,GEMAMCStatus>"/>
 <class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMAMCStatus> >" splitLevel="0"/>
 
-<class name="GEMOHStatus" ClassVersion="3">
+<class name="GEMOHStatus" ClassVersion="5">
  <version ClassVersion="3" checksum="1715607020"/>
+ <version ClassVersion="4" checksum="442197271"/>
+ <version ClassVersion="5" checksum="3896553455"/>
 </class>
 <class name="std::vector<GEMOHStatus>"/>
 <class name="std::map<GEMDetId,std::vector<GEMOHStatus> >"/>
@@ -69,8 +72,10 @@
 <class name="MuonDigiCollection<GEMDetId,GEMOHStatus>"/>
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMOHStatus> >" splitLevel="0"/>
 
-<class name="GEMVFATStatus" ClassVersion="3">
+<class name="GEMVFATStatus" ClassVersion="5">
  <version ClassVersion="3" checksum="2994917778"/>
+ <version ClassVersion="4" checksum="2298275534"/>
+ <version ClassVersion="5" checksum="272057922"/>
 </class>
 <class name="std::vector<GEMVFATStatus>"/>
 <class name="std::map<GEMDetId,std::vector<GEMVFATStatus> >"/>

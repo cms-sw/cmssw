@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -11,6 +12,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 typedef EZArrayFL<GlobalPoint> CornersVec;
 
@@ -34,8 +36,8 @@ void EcalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
   const CaloSubdetectorGeometry* ecalGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
 
-  std::cout << "\n\nStudy Detector = Ecal SubDetector = EB"
-            << "\n======================================\n\n";
+  edm::LogVerbatim("EcalGeom") << "\n\nStudy Detector = Ecal SubDetector = EB"
+                               << "\n======================================\n";
   const std::vector<DetId>& ids = ecalGeom->getValidDetIds(DetId::Ecal, EcalBarrel);
   int nall(0);
   for (auto id : ids) {
@@ -43,20 +45,21 @@ void EcalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
     std::shared_ptr<const CaloCellGeometry> geom = ecalGeom->getGeometry(id);
     EBDetId ebid(id.rawId());
 
-    std::cout << "IEta = " << ebid.ieta() << ";  IPhi = " << ebid.iphi() << " geom->getPosition "
-              << std::setprecision(4) << geom->getPosition() << " BackPoint " << geom->getBackPoint()
-              << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", " << geom->etaPos() << ":"
-              << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
+    std::ostringstream st1;
+    st1 << "IEta = " << ebid.ieta() << ";  IPhi = " << ebid.iphi() << " geom->getPosition " << std::setprecision(4)
+        << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
+        << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
+        << geom->phiSpan() << ")";
 
     const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 
     for (unsigned int ci(0); ci != corners.size(); ci++) {
-      std::cout << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
+      st1 << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
     }
 
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalGeom") << st1.str();
   }
-  std::cout << "\n\nDumps a total of : " << nall << " cells of the detector\n" << std::endl;
+  edm::LogVerbatim("EcalGeom") << "\n\nDumps a total of : " << nall << " cells of the detector\n";
 }
 
 DEFINE_FWK_MODULE(EcalBarrelCellParameterDump);

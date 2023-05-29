@@ -35,7 +35,6 @@
 #include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -63,7 +62,7 @@ namespace cms {
     produces<ResultCollection2>("JetType");
   }
 
-  void JetVertexAssociation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  void JetVertexAssociation::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
     edm::Handle<CaloJetCollection> jets;
     iEvent.getByToken(jet_token, jets);
 

@@ -39,12 +39,9 @@
 //
 // constructors and destructor
 //
-MuEnrichType1Filter::MuEnrichType1Filter(const edm::ParameterSet& iConfig) {
+MuEnrichType1Filter::MuEnrichType1Filter(const edm::ParameterSet& iConfig) : nrejected{0}, naccepted{0} {
   type = iConfig.getParameter<int>("type");
   theGenToken = consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"));
-  //now do what ever initialization is needed
-  nrejected = 0;
-  naccepted = 0;
 }
 
 MuEnrichType1Filter::~MuEnrichType1Filter() {
@@ -57,7 +54,7 @@ MuEnrichType1Filter::~MuEnrichType1Filter() {
 //
 
 // ------------ method called on each new Event  ------------
-bool MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool MuEnrichType1Filter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace std;
   using namespace HepMC;

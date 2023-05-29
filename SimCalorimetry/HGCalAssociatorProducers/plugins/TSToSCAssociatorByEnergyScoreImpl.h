@@ -25,7 +25,7 @@ namespace hgcal {
     }
   };
 
-  struct simClusterOnLayer {
+  struct simClusterOnBLayer {
     unsigned int simClusterId;
     float energy = 0;
     std::vector<std::pair<DetId, float>> hits_and_fractions;
@@ -33,7 +33,7 @@ namespace hgcal {
   };
 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> tracksterToSimCluster;
-  typedef std::vector<hgcal::simClusterOnLayer> simClusterToTrackster;
+  typedef std::vector<hgcal::simClusterOnBLayer> simClusterToTrackster;
   typedef std::tuple<tracksterToSimCluster, simClusterToTrackster> association;
 }  // namespace hgcal
 

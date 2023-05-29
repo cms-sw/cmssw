@@ -3,41 +3,6 @@
 
 namespace mkfit {
 
-  enum PropagationFlagsEnum { PF_none = 0, PF_use_param_b_field = 0x1, PF_apply_material = 0x2 };
-
-  struct PropagationFlags {
-    bool use_param_b_field : 1;
-    bool apply_material : 1;
-    // Could add: bool use_trig_approx       -- now Config::useTrigApprox = true
-    // Could add: int  n_prop_to_r_iters : 8 -- now Config::Niter = 5
-
-    PropagationFlags() : use_param_b_field(false), apply_material(false) {}
-
-    PropagationFlags(int pfe)
-        : use_param_b_field(pfe & PF_use_param_b_field), apply_material(pfe & PF_apply_material) {}
-  };
-
-  class PropagationConfig {
-  public:
-    bool backward_fit_to_pca;
-    bool finding_requires_propagation_to_hit_pos;
-    PropagationFlags finding_inter_layer_pflags;
-    PropagationFlags finding_intra_layer_pflags;
-    PropagationFlags backward_fit_pflags;
-    PropagationFlags forward_fit_pflags;
-    PropagationFlags seed_fit_pflags;
-    PropagationFlags pca_prop_pflags;
-
-    void set_as_default(bool force = false);
-
-    static const PropagationConfig& get_default() { return *s_default; }
-
-  private:
-    static const PropagationConfig* s_default;
-  };
-
-  //------------------------------------------------------------------------------
-
   namespace Const {
     constexpr float PI = 3.14159265358979323846;
     constexpr float TwoPI = 6.28318530717958647692;
@@ -84,7 +49,7 @@ namespace mkfit {
     constexpr int Niter = 5;
     constexpr bool useTrigApprox = true;
 
-    // Config for Bfield. Note: for now the same for CMS-2017 and CylCowWLids.
+    // Config for Bfield. Note: for now the same for CMS-phase1 and CylCowWLids.
     constexpr float Bfield = 3.8112;
     constexpr float mag_c1 = 3.8114;
     constexpr float mag_b0 = -3.94991e-06;

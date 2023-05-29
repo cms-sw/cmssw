@@ -1,5 +1,6 @@
 #include "DQM/Physics/src/TopSingleLeptonDQM.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -10,6 +11,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 using namespace std;
 namespace TopSingleLepton {
@@ -102,7 +104,8 @@ namespace TopSingleLepton {
       // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
       if (jetExtras.existsAs<std::string>("jetCorrector")) {
-        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
+        jetCorrector_ =
+            iC.consumes<reco::JetCorrector>(edm::InputTag(jetExtras.getParameter<std::string>("jetCorrector")));
       }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
@@ -516,31 +519,19 @@ namespace TopSingleLepton {
   ------------------------------------------------------------
   */
 
-    const JetCorrector* corrector = nullptr;
-    if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
-      // check whether a jet correcto is in the event setup or not
-      if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
-        corrector = &setup.getData(jetCorrector_);
+    const reco::JetCorrector* corrector = nullptr;
+    if (!jetCorrector_.isUninitialized()) {
+      // check whether a jet corrector is in the event or not
+      edm::Handle<reco::JetCorrector> correctorHandle = event.getHandle(jetCorrector_);
+      if (correctorHandle.isValid()) {
+        corrector = correctorHandle.product();
       } else {
         edm::LogVerbatim("TopDiLeptonOfflineDQM") << "\n"
                                                   << "-----------------------------------------------------------------"
                                                      "-------------------- \n"
-                                                  << " No JetCorrectionsRecord available from EventSetup:              "
+                                                  << " No JetCorrector available from Event:              "
                                                      "                     \n"
                                                   << "  - Jets will not be corrected.                                  "
-                                                     "                     \n"
-                                                  << "  - If you want to change this add the following lines to your "
-                                                     "cfg file:              \n"
-                                                  << "                                                                 "
-                                                     "                     \n"
-                                                  << "  ## load jet corrections                                        "
-                                                     "                     \n"
-                                                  << "  "
-                                                     "process.load(\"JetMETCorrections.Configuration."
-                                                     "JetCorrectionServicesAllAlgos_cff\") \n"
-                                                  << "  process.prefer(\"ak5CaloL2L3\")                                "
-                                                     "                     \n"
-                                                  << "                                                                 "
                                                      "                     \n"
                                                   << "-----------------------------------------------------------------"
                                                      "-------------------- \n";
@@ -781,7 +772,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
       return;
   }
   //  cout<<" apply selection steps"<<endl;
-  unsigned int passed = 0;
   unsigned int nJetSteps = -1;
   unsigned int nPFJetSteps = -1;
   unsigned int nCaloJetSteps = -1;
@@ -794,7 +784,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
       }
       if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
-          ++passed;
           //      cout<<"selected event! "<<selection_[key].second<<endl;
           selection_[key].second->fill(event, setup);
         } else
@@ -804,7 +793,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
       if (type == "elecs" && ElectronStep != nullptr) {
         // cout<<"In electrons ..."<<endl;
         if (ElectronStep->select(event, "electron")) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
@@ -812,7 +800,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
       // cout<<" apply selection steps 3"<<endl;
       if (type == "pvs" && PvStep != nullptr) {
         if (PvStep->selectVertex(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
@@ -822,7 +809,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
         nJetSteps++;
         if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -832,7 +818,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
         nPFJetSteps++;
         if (PFJetSteps[nPFJetSteps] != nullptr) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -842,7 +827,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
         nCaloJetSteps++;
         if (CaloJetSteps[nCaloJetSteps] != nullptr) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -850,7 +834,6 @@ void TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup&
       }
       if (type == "met" && METStep != nullptr) {
         if (METStep->select(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;

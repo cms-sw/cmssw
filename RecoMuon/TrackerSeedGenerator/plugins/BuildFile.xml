@@ -19,7 +19,7 @@
   <use name="RecoMuon/GlobalTrackingTools"/>
   <use name="RecoMuon/TrackerSeedGenerator"/>
   <use name="RecoMuon/TrackingTools"/>
-  <use name="RecoPixelVertexing/PixelTrackFitting"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
   <use name="RecoTracker/MeasurementDet"/>
   <use name="RecoTracker/Record"/>
   <use name="RecoTracker/TkDetLayers"/>

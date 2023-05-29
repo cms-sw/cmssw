@@ -11,8 +11,18 @@ hltDisappTrk = _hltHighLevel.hltHighLevel.clone(
    throw = False,
    andOr = True,
    HLTPaths = [
-      #"HLT_MET105_IsoTrk50_v*",
-      "MC_PFMET_v17"
+      "HLT_PFMET*_PFMHT*_IDTight_v*",
+      "HLT_PFMETTypeOne*_PFMHT*_IDTight_v*",
+      "HLT_PFMETNoMu*_PFMHTNoMu*_IDTight_v*",
+      "HLT_MET*_IsoTrk*_v*",
+      "HLT_PFMET*_*Cleaned_v*",
+      "HLT_Ele*_WPTight_Gsf_v*",
+      "HLT_Ele*_WPLoose_Gsf_v*",
+      "HLT_IsoMu*_v*",
+      "HLT_MediumChargedIsoPFTau*HighPtRelaxedIso_Trk50_eta2p1_v*",
+      "HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v*",
+      "HLT_DoubleMediumDeepTauPFTauHPS*_L2NN_eta2p1_*",
+      "HLT_LooseDeepTauPFTauHPS*_L2NN_eta2p1_v*"
    ]
 )
 

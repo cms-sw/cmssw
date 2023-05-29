@@ -7,10 +7,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-#include "DQMOffline/Lumi/interface/TriggerDefs.h"
-#include "DQMOffline/Lumi/interface/TTrigger.h"
-#include "DQMOffline/Lumi/interface/TriggerTools.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <TLorentzVector.h>
 
@@ -18,66 +15,59 @@
 
 #include "DQMOffline/Lumi/plugins/ZCounting.h"
 
-using namespace ZCountingTrigger;
-
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
 ZCounting::ZCounting(const edm::ParameterSet& iConfig)
-    : fHLTObjTag(iConfig.getParameter<edm::InputTag>("TriggerEvent")),
-      fHLTTag(iConfig.getParameter<edm::InputTag>("TriggerResults")),
-      fPVName(iConfig.getUntrackedParameter<std::string>("edmPVName", "offlinePrimaryVertices")),
-      fMuonName(iConfig.getUntrackedParameter<std::string>("edmName", "muons")),
-      fTrackName(iConfig.getUntrackedParameter<std::string>("edmTrackName", "generalTracks")),
+    : triggerResultsInputTag_(iConfig.getParameter<edm::InputTag>("TriggerResults")),
+      fPVName_token(consumes<reco::VertexCollection>(
+          iConfig.getUntrackedParameter<std::string>("edmPVName", "offlinePrimaryVertices"))),
+      fMuonName_token(consumes<reco::MuonCollection>(iConfig.getUntrackedParameter<std::string>("edmName", "muons"))),
+      fStandaloneRegName_token(consumes<reco::TrackCollection>(
+          iConfig.getUntrackedParameter<std::string>("StandaloneReg", "standAloneMuons"))),
+      fStandaloneUpdName_token(consumes<reco::TrackCollection>(
+          iConfig.getUntrackedParameter<std::string>("StandaloneUpd", "standAloneMuons:UpdatedAtVtx"))),
+      fTrackName_token(
+          consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<std::string>("edmTrackName", "generalTracks"))),
 
-      // Electron-specific Parameters
-      fElectronName(iConfig.getUntrackedParameter<std::string>("edmGsfEleName", "gedGsfElectrons")),
-      fSCName(iConfig.getUntrackedParameter<std::string>("edmSCName", "particleFlowEGamma")),
+      PtCutL1_(iConfig.getUntrackedParameter<double>("PtCutL1")),
+      PtCutL2_(iConfig.getUntrackedParameter<double>("PtCutL2")),
+      EtaCutL1_(iConfig.getUntrackedParameter<double>("EtaCutL1")),
+      EtaCutL2_(iConfig.getUntrackedParameter<double>("EtaCutL2")),
 
-      // Electron-specific Tags
-      fRhoTag(iConfig.getParameter<edm::InputTag>("rhoname")),
-      fBeamspotTag(iConfig.getParameter<edm::InputTag>("beamspotName")),
-      fConversionTag(iConfig.getParameter<edm::InputTag>("conversionsName")),
+      MassBin_(iConfig.getUntrackedParameter<int>("MassBin")),
+      MassMin_(iConfig.getUntrackedParameter<double>("MassMin")),
+      MassMax_(iConfig.getUntrackedParameter<double>("MassMax")),
 
-      // Electron-specific Cuts
-      ELE_PT_CUT_TAG(iConfig.getUntrackedParameter<double>("PtCutEleTag")),
-      ELE_PT_CUT_PROBE(iConfig.getUntrackedParameter<double>("PtCutEleProbe")),
-      ELE_ETA_CUT_TAG(iConfig.getUntrackedParameter<double>("EtaCutEleTag")),
-      ELE_ETA_CUT_PROBE(iConfig.getUntrackedParameter<double>("EtaCutEleProbe")),
+      LumiBin_(iConfig.getUntrackedParameter<int>("LumiBin")),
+      LumiMin_(iConfig.getUntrackedParameter<double>("LumiMin")),
+      LumiMax_(iConfig.getUntrackedParameter<double>("LumiMax")),
 
-      ELE_MASS_CUT_LOW(iConfig.getUntrackedParameter<double>("MassCutEleLow")),
-      ELE_MASS_CUT_HIGH(iConfig.getUntrackedParameter<double>("MassCutEleHigh")),
+      PVBin_(iConfig.getUntrackedParameter<int>("PVBin")),
+      PVMin_(iConfig.getUntrackedParameter<double>("PVMin")),
+      PVMax_(iConfig.getUntrackedParameter<double>("PVMax")),
 
-      ELE_ID_WP(iConfig.getUntrackedParameter<std::string>("ElectronIDType", "TIGHT")),
-      EleID_(ElectronIdentifier(iConfig)) {
+      VtxNTracksFitCut_(iConfig.getUntrackedParameter<double>("VtxNTracksFitMin")),
+      VtxNdofCut_(iConfig.getUntrackedParameter<double>("VtxNdofMin")),
+      VtxAbsZCut_(iConfig.getUntrackedParameter<double>("VtxAbsZMax")),
+      VtxRhoCut_(iConfig.getUntrackedParameter<double>("VtxRhoMax")),
+
+      IDTypestr_(iConfig.getUntrackedParameter<std::string>("IDType")),
+      IsoTypestr_(iConfig.getUntrackedParameter<std::string>("IsoType")),
+      IsoCut_(iConfig.getUntrackedParameter<double>("IsoCut")) {
   edm::LogInfo("ZCounting") << "Constructor  ZCounting::ZCounting " << std::endl;
 
-  //Get parameters from configuration file
-  fHLTTag_token = consumes<edm::TriggerResults>(fHLTTag);
-  fHLTObjTag_token = consumes<trigger::TriggerEvent>(fHLTObjTag);
-  fPVName_token = consumes<reco::VertexCollection>(fPVName);
-  fMuonName_token = consumes<reco::MuonCollection>(fMuonName);
-  fTrackName_token = consumes<reco::TrackCollection>(fTrackName);
+  // Trigger settings
+  triggers = new TriggerTools();
+  triggers->setTriggerResultsToken(consumes<edm::TriggerResults>(triggerResultsInputTag_));
+  triggers->setTriggerEventToken(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("TriggerEvent")));
+  triggers->setDRMAX(DRMAX_HLT);
 
-  // Trigger-specific Parameters
-  fMuonHLTNames = iConfig.getParameter<std::vector<std::string>>("MuonTriggerNames");
-  fMuonHLTObjectNames = iConfig.getParameter<std::vector<std::string>>("MuonTriggerObjectNames");
-  if (fMuonHLTNames.size() != fMuonHLTObjectNames.size()) {
-    edm::LogError("ZCounting") << "List of MuonTriggerNames and MuonTriggerObjectNames has to be the same length"
-                               << std::endl;
+  edm::LogVerbatim("ZCounting") << "ZCounting::ZCounting set trigger names";
+  const std::vector<std::string> patterns_ = iConfig.getParameter<std::vector<std::string>>("MuonTriggerNames");
+  for (const std::string& pattern_ : patterns_) {
+    triggers->addTriggerRecord(pattern_);
   }
-
-  // Electron-specific parameters
-  fGsfElectronName_token = consumes<edm::View<reco::GsfElectron>>(fElectronName);
-  fSCName_token = consumes<edm::View<reco::SuperCluster>>(fSCName);
-  fRhoToken = consumes<double>(fRhoTag);
-  fBeamspotToken = consumes<reco::BeamSpot>(fBeamspotTag);
-  fConversionToken = consumes<reco::ConversionCollection>(fConversionTag);
-
-  // Muon-specific Cuts
-  IDTypestr_ = iConfig.getUntrackedParameter<std::string>("IDType");
-  IsoTypestr_ = iConfig.getUntrackedParameter<std::string>("IsoType");
-  IsoCut_ = iConfig.getUntrackedParameter<double>("IsoCut");
 
   if (IDTypestr_ == "Loose")
     IDType_ = LooseID;
@@ -85,6 +75,8 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig)
     IDType_ = MediumID;
   else if (IDTypestr_ == "Tight")
     IDType_ = TightID;
+  else if (IDTypestr_ == "CustomTight")
+    IDType_ = CustomTightID;
   else
     IDType_ = NoneID;
 
@@ -94,30 +86,6 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig)
     IsoType_ = PFIso;
   else
     IsoType_ = NoneIso;
-
-  PtCutL1_ = iConfig.getUntrackedParameter<double>("PtCutL1");
-  PtCutL2_ = iConfig.getUntrackedParameter<double>("PtCutL2");
-  EtaCutL1_ = iConfig.getUntrackedParameter<double>("EtaCutL1");
-  EtaCutL2_ = iConfig.getUntrackedParameter<double>("EtaCutL2");
-
-  MassBin_ = iConfig.getUntrackedParameter<int>("MassBin");
-  MassMin_ = iConfig.getUntrackedParameter<double>("MassMin");
-  MassMax_ = iConfig.getUntrackedParameter<double>("MassMax");
-
-  LumiBin_ = iConfig.getUntrackedParameter<int>("LumiBin");
-  LumiMin_ = iConfig.getUntrackedParameter<double>("LumiMin");
-  LumiMax_ = iConfig.getUntrackedParameter<double>("LumiMax");
-
-  PVBin_ = iConfig.getUntrackedParameter<int>("PVBin");
-  PVMin_ = iConfig.getUntrackedParameter<double>("PVMin");
-  PVMax_ = iConfig.getUntrackedParameter<double>("PVMax");
-
-  VtxNTracksFitCut_ = iConfig.getUntrackedParameter<double>("VtxNTracksFitMin");
-  VtxNdofCut_ = iConfig.getUntrackedParameter<double>("VtxNdofMin");
-  VtxAbsZCut_ = iConfig.getUntrackedParameter<double>("VtxAbsZMax");
-  VtxRhoCut_ = iConfig.getUntrackedParameter<double>("VtxRhoMax");
-
-  EleID_.setID(ELE_ID_WP);
 }
 
 //
@@ -128,12 +96,29 @@ ZCounting::~ZCounting() { edm::LogInfo("ZCounting") << "Destructor ZCounting::~Z
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void ZCounting::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {
+void ZCounting::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   edm::LogInfo("ZCounting") << "ZCounting::beginRun" << std::endl;
 
-  // Triggers
-  fTrigger = std::make_unique<ZCountingTrigger::TTrigger>(fMuonHLTNames, fMuonHLTObjectNames);
+  // initialize triggers
+
+  edm::LogVerbatim("ZCounting") << "ZCounting::dqmBeginRun now at " << iRun.id();
+  bool hltChanged_ = true;
+  if (hltConfigProvider_.init(iRun, iSetup, triggerResultsInputTag_.process(), hltChanged_)) {
+    edm::LogVerbatim("ZCounting") << "ZCounting::dqmBeginRun [TriggerObjMatchValueMapsProducer::beginRun] "
+                                     "HLTConfigProvider initialized [processName() = \""
+                                  << hltConfigProvider_.processName() << "\", tableName() = \""
+                                  << hltConfigProvider_.tableName() << "\", size() = " << hltConfigProvider_.size()
+                                  << "]";
+  } else {
+    edm::LogError("ZCounting") << "ZCounting::dqmBeginRun Initialization of HLTConfigProvider failed for Run="
+                               << iRun.id() << " (process=\"" << triggerResultsInputTag_.process()
+                               << "\") -> plugin will not produce outputs for this Run";
+    return;
+  }
+
+  triggers->initHLTObjects(hltConfigProvider_);
 }
+
 //
 // -------------------------------------- bookHistos --------------------------------------------
 //
@@ -143,164 +128,215 @@ void ZCounting::bookHistograms(DQMStore::IBooker& ibooker_, edm::Run const&, edm
   ibooker_.setCurrentFolder("ZCounting/Histograms");
 
   // Muon histograms
-  h_mass_HLT_pass_central = ibooker_.book2D("h_mass_HLT_pass_central",
-                                            "Muon HLT passing probes central",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_HLT_pass_forward = ibooker_.book2D("h_mass_HLT_pass_forward",
-                                            "Muon HLT passing probes forward",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_HLT_fail_central = ibooker_.book2D("h_mass_HLT_fail_central",
-                                            "Muon HLT failing probes central",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_HLT_fail_forward = ibooker_.book2D("h_mass_HLT_fail_forward",
-                                            "Muon HLT failing probes forward",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
+  h_mass_2HLT_BB = ibooker_.book2D("h_mass_2HLT_BB",
+                                   "Both muon pass HLT in barrel-barrel",
+                                   LumiBin_,
+                                   LumiMin_,
+                                   LumiMax_,
+                                   MassBin_,
+                                   MassMin_,
+                                   MassMax_);
+  h_mass_2HLT_BE = ibooker_.book2D("h_mass_2HLT_BE",
+                                   "Both muon pass HLT passing in barrel-endcap",
+                                   LumiBin_,
+                                   LumiMin_,
+                                   LumiMax_,
+                                   MassBin_,
+                                   MassMin_,
+                                   MassMax_);
+  h_mass_2HLT_EE = ibooker_.book2D("h_mass_2HLT_EE",
+                                   "Both muon pass HLT passing in endcap-endcap",
+                                   LumiBin_,
+                                   LumiMin_,
+                                   LumiMax_,
+                                   MassBin_,
+                                   MassMin_,
+                                   MassMax_);
+  h_mass_1HLT_BB = ibooker_.book2D("h_mass_1HLT_BB",
+                                   "One muon pass HLT in barrel-barrel",
+                                   LumiBin_,
+                                   LumiMin_,
+                                   LumiMax_,
+                                   MassBin_,
+                                   MassMin_,
+                                   MassMax_);
+  h_mass_1HLT_BE = ibooker_.book2D("h_mass_1HLT_BE",
+                                   "One muon pass HLT passing in barrel-endcap",
+                                   LumiBin_,
+                                   LumiMin_,
+                                   LumiMax_,
+                                   MassBin_,
+                                   MassMin_,
+                                   MassMax_);
+  h_mass_1HLT_EE = ibooker_.book2D("h_mass_1HLT_EE",
+                                   "One muon pass HLT passing in endcap-endcap",
+                                   LumiBin_,
+                                   LumiMin_,
+                                   LumiMax_,
+                                   MassBin_,
+                                   MassMin_,
+                                   MassMax_);
 
-  h_mass_SIT_pass_central = ibooker_.book2D("h_mass_SIT_pass_central",
-                                            "Muon SIT passing probes central",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_SIT_pass_forward = ibooker_.book2D("h_mass_SIT_pass_forward",
-                                            "Muon SIT passing probes forward",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_SIT_fail_central = ibooker_.book2D("h_mass_SIT_fail_central",
-                                            "Muon SIT_failing probes central",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_SIT_fail_forward = ibooker_.book2D("h_mass_SIT_fail_forward",
-                                            "Muon SIT failing probes forward",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
+  h_mass_ID_fail_BB = ibooker_.book2D(
+      "h_mass_ID_fail_BB", "Muon ID failing barrel-barrel", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_ID_fail_BE = ibooker_.book2D(
+      "h_mass_ID_fail_BE", "Muon ID failing barrel-endcap", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
 
-  h_mass_Glo_pass_central = ibooker_.book2D("h_mass_Glo_pass_central",
-                                            "Muon Glo passing probes central",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_Glo_pass_forward = ibooker_.book2D("h_mass_Glo_pass_forward",
-                                            "Muon Glo passing probes forward",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_Glo_fail_central = ibooker_.book2D("h_mass_Glo_fail_central",
-                                            "Muon Glo failing probes central",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
-  h_mass_Glo_fail_forward = ibooker_.book2D("h_mass_Glo_fail_forward",
-                                            "Muon Glo failing probes forward",
-                                            LumiBin_,
-                                            LumiMin_,
-                                            LumiMax_,
-                                            MassBin_,
-                                            MassMin_,
-                                            MassMax_);
+  h_mass_ID_fail_EE = ibooker_.book2D(
+      "h_mass_ID_fail_EE", "Muon ID failing endcap-endcap", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+
+  h_mass_Glo_pass_BB = ibooker_.book2D("h_mass_Glo_pass_BB",
+                                       "Muon Glo passing barrel-barrel",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+  h_mass_Glo_pass_BE = ibooker_.book2D("h_mass_Glo_pass_BE",
+                                       "Muon Glo passing barrel-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Glo_pass_EE = ibooker_.book2D("h_mass_Glo_pass_EE",
+                                       "Muon Glo passing endcap-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Glo_fail_BB = ibooker_.book2D("h_mass_Glo_fail_BB",
+                                       "Muon Glo failing barrel-barrel",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+  h_mass_Glo_fail_BE = ibooker_.book2D("h_mass_Glo_fail_BE",
+                                       "Muon Glo failing barrel-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Glo_fail_EE = ibooker_.book2D("h_mass_Glo_fail_EE",
+                                       "Muon Glo failing endcap-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Sta_pass_BB = ibooker_.book2D("h_mass_Sta_pass_BB",
+                                       "Muon Sta passing barrel-barrel",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+  h_mass_Sta_pass_BE = ibooker_.book2D("h_mass_Sta_pass_BE",
+                                       "Muon Sta passing barrel-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Sta_pass_EE = ibooker_.book2D("h_mass_Sta_pass_EE",
+                                       "Muon Sta passing endcap-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Sta_fail_BB = ibooker_.book2D("h_mass_Sta_fail_BB",
+                                       "Muon Sta failing barrel-barrel",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+  h_mass_Sta_fail_BE = ibooker_.book2D("h_mass_Sta_fail_BE",
+                                       "Muon Sta failing barrel-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Sta_fail_EE = ibooker_.book2D("h_mass_Sta_fail_EE",
+                                       "Muon Sta failing endcap-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
 
   h_npv = ibooker_.book2D(
       "h_npv", "Events with valid primary vertex", LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
-  h_mass_yield_Z = ibooker_.book2D(
-      "h_mass_yield_Z", "reconstructed Z bosons", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_npv_yield_Z =
-      ibooker_.book2D("h_npv_yield_Z", "reconstructed Z bosons", LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
-  h_yieldBB_Z = ibooker_.book1D("h_yieldBB_Z", "reconstructed Z bosons in barrel", LumiBin_, LumiMin_, LumiMax_);
-  h_yieldEE_Z = ibooker_.book1D("h_yieldEE_Z", "reconstructed Z bosons in endcap", LumiBin_, LumiMin_, LumiMax_);
 
   // Axis titles
-  h_mass_HLT_pass_central->setAxisTitle("luminosiry section", 1);
-  h_mass_HLT_pass_forward->setAxisTitle("luminosiry section", 1);
-  h_mass_HLT_fail_central->setAxisTitle("luminosiry section", 1);
-  h_mass_HLT_fail_forward->setAxisTitle("luminosiry section", 1);
-  h_mass_SIT_pass_central->setAxisTitle("luminosiry section", 1);
-  h_mass_SIT_pass_forward->setAxisTitle("luminosiry section", 1);
-  h_mass_SIT_fail_central->setAxisTitle("luminosiry section", 1);
-  h_mass_SIT_fail_forward->setAxisTitle("luminosiry section", 1);
-  h_mass_Glo_pass_central->setAxisTitle("luminosiry section", 1);
-  h_mass_Glo_pass_forward->setAxisTitle("luminosiry section", 1);
-  h_mass_Glo_fail_central->setAxisTitle("luminosiry section", 1);
-  h_mass_Glo_fail_forward->setAxisTitle("luminosiry section", 1);
-  h_mass_HLT_pass_central->setAxisTitle("tag and probe mass", 2);
-  h_mass_HLT_pass_forward->setAxisTitle("tag and probe mass", 2);
-  h_mass_HLT_fail_central->setAxisTitle("tag and probe mass", 2);
-  h_mass_HLT_fail_forward->setAxisTitle("tag and probe mass", 2);
-  h_mass_SIT_pass_central->setAxisTitle("tag and probe mass", 2);
-  h_mass_SIT_pass_forward->setAxisTitle("tag and probe mass", 2);
-  h_mass_SIT_fail_central->setAxisTitle("tag and probe mass", 2);
-  h_mass_SIT_fail_forward->setAxisTitle("tag and probe mass", 2);
-  h_mass_Glo_pass_central->setAxisTitle("tag and probe mass", 2);
-  h_mass_Glo_pass_forward->setAxisTitle("tag and probe mass", 2);
-  h_mass_Glo_fail_central->setAxisTitle("tag and probe mass", 2);
-  h_mass_Glo_fail_forward->setAxisTitle("tag and probe mass", 2);
+  h_mass_2HLT_BB->setAxisTitle("luminosity section", 1);
+  h_mass_2HLT_BE->setAxisTitle("luminosity section", 1);
+  h_mass_2HLT_EE->setAxisTitle("luminosity section", 1);
+  h_mass_1HLT_BB->setAxisTitle("luminosity section", 1);
+  h_mass_1HLT_BE->setAxisTitle("luminosity section", 1);
+  h_mass_1HLT_EE->setAxisTitle("luminosity section", 1);
+  h_mass_ID_fail_BB->setAxisTitle("luminosity section", 1);
+  h_mass_ID_fail_BE->setAxisTitle("luminosity section", 1);
+  h_mass_ID_fail_EE->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_pass_BB->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_pass_BE->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_pass_EE->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_fail_BB->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_fail_BE->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_fail_EE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_pass_BB->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_pass_BE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_pass_EE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_fail_BB->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_fail_BE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_fail_EE->setAxisTitle("luminosity section", 1);
+  h_mass_2HLT_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_2HLT_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_2HLT_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_1HLT_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_1HLT_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_1HLT_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_ID_fail_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_ID_fail_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_ID_fail_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_pass_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_pass_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_pass_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_fail_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_fail_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_fail_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_pass_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_pass_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_pass_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_fail_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_fail_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_fail_EE->setAxisTitle("tag and probe mass", 2);
   h_npv->setAxisTitle("luminosity section", 1);
   h_npv->setAxisTitle("number of primary vertices", 2);
-  h_npv_yield_Z->setAxisTitle("luminosiry section", 1);
-  h_npv_yield_Z->setAxisTitle("number of primary vertices", 2);
-  h_mass_yield_Z->setAxisTitle("luminosiry section", 1);
-  h_mass_yield_Z->setAxisTitle("tag and probe mass", 2);
-
-  h_yieldBB_Z->setAxisTitle("luminosiry section", 1);
-  h_yieldEE_Z->setAxisTitle("luminosiry section", 1);
-
-  /*
-  // Electron histograms
-  h_ee_mass_id_pass_central  = ibooker_.book2D("h_ee_mass_id_pass_central", "h_ee_mass_id_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_id_fail_central  = ibooker_.book2D("h_ee_mass_id_fail_central", "h_ee_mass_id_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_id_pass_forward  = ibooker_.book2D("h_ee_mass_id_pass_forward", "h_ee_mass_id_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_id_fail_forward  = ibooker_.book2D("h_ee_mass_id_fail_forward", "h_ee_mass_id_fail_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-
-  h_ee_mass_HLT_pass_central = ibooker_.book2D("h_ee_mass_HLT_pass_central", "h_ee_mass_HLT_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_HLT_fail_central = ibooker_.book2D("h_ee_mass_HLT_fail_central", "h_ee_mass_HLT_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_HLT_pass_forward = ibooker_.book2D("h_ee_mass_HLT_pass_forward", "h_ee_mass_HLT_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_ee_mass_HLT_fail_forward = ibooker_.book2D("h_ee_mass_HLT_fail_forward", "h_ee_mass_HLT_fail_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-
-  h_ee_yield_Z_ebeb       = ibooker_.book1D("h_ee_yield_Z_ebeb", "h_ee_yield_Z_ebeb", LumiBin_, LumiMin_, LumiMax_);
-  h_ee_yield_Z_ebee       = ibooker_.book1D("h_ee_yield_Z_ebee", "h_ee_yield_Z_ebee", LumiBin_, LumiMin_, LumiMax_);
-  h_ee_yield_Z_eeee       = ibooker_.book1D("h_ee_yield_Z_eeee", "h_ee_yield_Z_eeee", LumiBin_, LumiMin_, LumiMax_);*/
 }
 
 //
@@ -309,23 +345,18 @@ void ZCounting::bookHistograms(DQMStore::IBooker& ibooker_, edm::Run const&, edm
 //--------------------------------------------------------------------------------------------------
 void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {  // Fill event tree on the fly
   edm::LogInfo("ZCounting") << "ZCounting::analyze" << std::endl;
-  analyzeMuons(iEvent, iSetup);
-  //analyzeElectrons(iEvent, iSetup);
-}
 
-void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::LogInfo("ZCounting") << "ZCounting::analyzeMuons" << std::endl;
   //-------------------------------
   //--- Vertex
   //-------------------------------
   edm::Handle<reco::VertexCollection> hVertexProduct;
   iEvent.getByToken(fPVName_token, hVertexProduct);
   if (!hVertexProduct.isValid()) {
-    edm::LogWarning("ZCounting") << "ZCounting::analyzeMuons - no valid primary vertex product found" << std::endl;
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid primary vertex product found" << std::endl;
     return;
   }
-  const reco::VertexCollection* pvCol = hVertexProduct.product();
-  const reco::Vertex* pv = &(*pvCol->begin());
+
+  const reco::Vertex* pv = nullptr;
   int nvtx = 0;
 
   for (auto const& itVtx : *hVertexProduct) {
@@ -351,50 +382,100 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
   //-------------------------------
   //--- Trigger
   //-------------------------------
-  edm::Handle<edm::TriggerResults> hTrgRes;
-  iEvent.getByToken(fHLTTag_token, hTrgRes);
-  if (!hTrgRes.isValid())
-    return;
-
-  edm::Handle<trigger::TriggerEvent> hTrgEvt;
-  iEvent.getByToken(fHLTObjTag_token, hTrgEvt);
-
-  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*hTrgRes);
-  bool config_changed = false;
-  if (fTriggerNamesID != triggerNames.parameterSetID()) {
-    fTriggerNamesID = triggerNames.parameterSetID();
-    config_changed = true;
-  }
-  if (config_changed) {
-    initHLT(*hTrgRes, triggerNames);
-  }
-
-  TriggerBits triggerBits;
-  for (unsigned int irec = 0; irec < fTrigger->fRecords.size(); irec++) {
-    if (fTrigger->fRecords[irec].hltPathIndex == (unsigned int)-1)
-      continue;
-    if (hTrgRes->accept(fTrigger->fRecords[irec].hltPathIndex)) {
-      triggerBits[fTrigger->fRecords[irec].baconTrigBit] = true;
-    }
-  }
-  //if(fSkipOnHLTFail && triggerBits == 0) return;
+  triggers->readEvent(iEvent);
 
   // Trigger requirement
-  if (!isMuonTrigger(*fTrigger, triggerBits))
+  if (!triggers->pass())
     return;
 
   //-------------------------------
-  //--- Muons and Tracks
+  //--- Muon and Track collections
   //-------------------------------
   edm::Handle<reco::MuonCollection> hMuonProduct;
   iEvent.getByToken(fMuonName_token, hMuonProduct);
-  if (!hMuonProduct.isValid())
+  if (!hMuonProduct.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid hMuonProduct found" << std::endl;
     return;
+  }
 
   edm::Handle<reco::TrackCollection> hTrackProduct;
   iEvent.getByToken(fTrackName_token, hTrackProduct);
-  if (!hTrackProduct.isValid())
+  if (!hTrackProduct.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid hTrackProduct found" << std::endl;
     return;
+  }
+
+  //-------------------------------
+  //--- Merged standalone muon collections
+  //--- The muon collection contains duplicates (from standAloneMuons and standAloneMuons:UpdatedAtVtx collections) and missing standAloneMuons
+  //--- We need to produce a merged standalone muon collection to reproduce the decision in the global muon producer
+  //-------------------------------
+  edm::Handle<reco::TrackCollection> tracksStandAlone;
+  iEvent.getByToken(fStandaloneRegName_token, tracksStandAlone);
+  if (!tracksStandAlone.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid tracksStandAlone found" << std::endl;
+    return;
+  }
+
+  edm::Handle<reco::TrackCollection> tracksStandAloneUpdatedAtVtx;
+  iEvent.getByToken(fStandaloneUpdName_token, tracksStandAloneUpdatedAtVtx);
+  if (!tracksStandAloneUpdatedAtVtx.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid tracksStandAloneUpdatedAtVtx found" << std::endl;
+    return;
+  }
+
+  std::vector<const reco::Track*> hStandaloneProduct;
+  std::vector<bool> passGlobalMuonMap;
+
+  for (auto const& standAlone : *tracksStandAlone) {
+    auto const extraIdx = standAlone.extra().key();
+
+    const reco::Track* track = &standAlone;
+
+    // replicate logic in GlobalMuonProducer, take the updatedAtVtx track if it exists and has
+    // the same eta sign as the original, otherwise take the original
+    for (auto const& standAloneUpdatedAtVtx : *tracksStandAloneUpdatedAtVtx) {
+      if (standAloneUpdatedAtVtx.extra().key() == extraIdx) {
+        const bool etaFlip1 = (standAloneUpdatedAtVtx.eta() * standAlone.eta()) >= 0;
+        if (etaFlip1) {
+          track = &standAloneUpdatedAtVtx;
+        }
+        break;
+      }
+    }
+
+    // kinematic cuts
+    if (track->pt() < MIN_PT_STA)
+      continue;
+    if (fabs(track->eta()) > MAX_ETA_STA)
+      continue;
+    // require minimum number of valid hits (mainly to reduce background)
+    if (track->numberOfValidHits() < N_STA_HITS)
+      continue;
+
+    // look for corresponding muon object to check if the standalone muon is global
+    bool isGlobalMuon = false;
+    for (auto const& itMu2 : *hMuonProduct) {
+      if (itMu2.standAloneMuon().isNull())
+        continue;
+
+      auto const& muonStandAlone = *itMu2.standAloneMuon();
+
+      if (track->extra().key() == muonStandAlone.extra().key()) {
+        // we found a corresponding muon object
+        if (muonStandAlone.pt() == track->pt() && muonStandAlone.eta() == track->eta() &&
+            muonStandAlone.phi() == track->phi()) {
+          // the corresponding muon object uses the same standalone muon track
+          // check if is a global muon
+          isGlobalMuon = passGlobalMuon(itMu2);
+        }
+        break;
+      }
+    }
+
+    passGlobalMuonMap.push_back(isGlobalMuon);
+    hStandaloneProduct.push_back(track);
+  }
 
   TLorentzVector vTag(0., 0., 0., 0.);
   TLorentzVector vProbe(0., 0., 0., 0.);
@@ -402,32 +483,36 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // Tag loop
   for (auto const& itMu1 : *hMuonProduct) {
-    float pt1 = itMu1.muonBestTrack()->pt();
-    float eta1 = itMu1.muonBestTrack()->eta();
-    float phi1 = itMu1.muonBestTrack()->phi();
-    float q1 = itMu1.muonBestTrack()->charge();
+    const float pt1 = itMu1.muonBestTrack()->pt();
+    const float eta1 = itMu1.muonBestTrack()->eta();
+    const float phi1 = itMu1.muonBestTrack()->phi();
+    const float q1 = itMu1.muonBestTrack()->charge();
 
     // Tag selection: kinematic cuts, lepton selection and trigger matching
     if (pt1 < PtCutL1_)
       continue;
     if (fabs(eta1) > EtaCutL1_)
       continue;
-    if (!(passMuonID(itMu1, *pv, IDType_) && passMuonIso(itMu1, IsoType_, IsoCut_)))
+    if (!(passGlobalMuon(itMu1) && passMuonID(itMu1, pv) && passMuonIso(itMu1)))
       continue;
-    if (!isMuonTriggerObj(*fTrigger, TriggerTools::matchHLT(eta1, phi1, fTrigger->fRecords, *hTrgEvt)))
+    if (!triggers->passObj(eta1, phi1))
       continue;
 
     vTag.SetPtEtaPhiM(pt1, eta1, phi1, MUON_MASS);
+
+    bool isTagCentral = false;
+    if (fabs(eta1) < MUON_BOUND)
+      isTagCentral = true;
 
     // Probe loop over muons
     for (auto const& itMu2 : *hMuonProduct) {
       if (&itMu2 == &itMu1)
         continue;
 
-      float pt2 = itMu2.muonBestTrack()->pt();
-      float eta2 = itMu2.muonBestTrack()->eta();
-      float phi2 = itMu2.muonBestTrack()->phi();
-      float q2 = itMu2.muonBestTrack()->charge();
+      const float pt2 = itMu2.muonBestTrack()->pt();
+      const float eta2 = itMu2.muonBestTrack()->eta();
+      const float phi2 = itMu2.muonBestTrack()->phi();
+      const float q2 = itMu2.muonBestTrack()->charge();
 
       // Probe selection: kinematic cuts and opposite charge requirement
       if (pt2 < PtCutL2_)
@@ -445,105 +530,94 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
       if ((dilepMass < MassMin_) || (dilepMass > MassMax_))
         continue;
 
-      bool isTagCentral = false;
-      bool isProbeCentral = false;
-      if (fabs(eta1) < MUON_BOUND)
-        isTagCentral = true;
-      if (fabs(eta2) < MUON_BOUND)
-        isProbeCentral = true;
+      bool isProbeCentral = fabs(eta2) < MUON_BOUND;
 
       // Determine event category for efficiency calculation
-      if (passMuonID(itMu2, *pv, IDType_) && passMuonIso(itMu2, IsoType_, IsoCut_)) {
-        if (isMuonTriggerObj(*fTrigger, TriggerTools::matchHLT(eta2, phi2, fTrigger->fRecords, *hTrgEvt))) {
+      if (passGlobalMuon(itMu2) && passMuonID(itMu2, pv) && passMuonIso(itMu2)) {
+        if (triggers->passObj(eta2, phi2)) {
           // category 2HLT: both muons passing trigger requirements
           if (&itMu1 > &itMu2)
             continue;  // make sure we don't double count MuMu2HLT category
 
-          // Fill twice for each event, since both muons pass trigger
-          if (isTagCentral) {
-            h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+          if (isTagCentral && isProbeCentral) {
+            h_mass_2HLT_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+          } else if (!isTagCentral && !isProbeCentral) {
+            h_mass_2HLT_EE->Fill(iEvent.luminosityBlock(), dilepMass);
           } else {
-            h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_2HLT_BE->Fill(iEvent.luminosityBlock(), dilepMass);
           }
-
-          if (isProbeCentral) {
-            h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-          } else {
-            h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-          }
-
         } else {
-          // category 1HLT: probe passing selection but not trigger
-          if (isProbeCentral) {
-            h_mass_HLT_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+          // category 1HLT: only one muon passes trigger
+          if (isTagCentral && isProbeCentral) {
+            h_mass_1HLT_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+          } else if (!isTagCentral && !isProbeCentral) {
+            h_mass_1HLT_EE->Fill(iEvent.luminosityBlock(), dilepMass);
           } else {
-            h_mass_HLT_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_1HLT_BE->Fill(iEvent.luminosityBlock(), dilepMass);
           }
         }
-        // category 2HLT + 1HLT: Fill once for Z yield
-        h_npv_yield_Z->Fill(iEvent.luminosityBlock(), nvtx);
-        h_mass_yield_Z->Fill(iEvent.luminosityBlock(), dilepMass);
-        if (isTagCentral && isProbeCentral)
-          h_yieldBB_Z->Fill(iEvent.luminosityBlock());
-        else if (!isTagCentral && !isProbeCentral)
-          h_yieldEE_Z->Fill(iEvent.luminosityBlock());
-      } else if (itMu2.isGlobalMuon()) {
+      } else if (passGlobalMuon(itMu2)) {
         // category Glo: probe is a Global muon but failing selection
-        if (isProbeCentral) {
-          h_mass_SIT_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
-          h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+        if (isTagCentral && isProbeCentral) {
+          h_mass_ID_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isProbeCentral) {
+          h_mass_ID_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
         } else {
-          h_mass_SIT_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-          h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-        }
-      } else if (itMu2.isStandAloneMuon()) {
-        // category Sta: probe is a Standalone muon
-        if (isProbeCentral) {
-          h_mass_Glo_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
-        } else {
-          h_mass_Glo_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-        }
-      } else if (itMu2.innerTrack()->hitPattern().trackerLayersWithMeasurement() >= 6 &&
-                 itMu2.innerTrack()->hitPattern().numberOfValidPixelHits() >= 1) {
-        // cateogry Trk: probe is a tracker track
-        if (isProbeCentral) {
-          h_mass_Glo_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
-        } else {
-          h_mass_Glo_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_ID_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
-
     }  // End of probe loop over muons
+
+    // Probe loop over standalone muons, for global muon efficiency calculation
+    for (std::vector<reco::Track>::size_type idx = 0; idx < hStandaloneProduct.size(); idx++) {
+      const reco::Track* itSta = hStandaloneProduct[idx];
+
+      // standalone muon kinematics
+      const float pt2 = itSta->pt();
+      const float eta2 = itSta->eta();
+      const float phi2 = itSta->phi();
+
+      // kinematic cuts
+      if (pt2 < PtCutL2_)
+        continue;
+      if (fabs(eta2) > EtaCutL2_)
+        continue;
+
+      vProbe.SetPtEtaPhiM(pt2, eta2, phi2, MUON_MASS);
+
+      // Mass window
+      TLorentzVector vDilep = vTag + vProbe;
+      float dilepMass = vDilep.M();
+      if ((dilepMass < MassMin_) || (dilepMass > MassMax_))
+        continue;
+
+      const bool isProbeCentral = fabs(eta2) < MUON_BOUND;
+
+      if (passGlobalMuonMap[idx]) {
+        if (isTagCentral && isProbeCentral) {
+          h_mass_Glo_pass_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isProbeCentral) {
+          h_mass_Glo_pass_EE->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else {
+          h_mass_Glo_pass_BE->Fill(iEvent.luminosityBlock(), dilepMass);
+        }
+      } else {
+        if (isTagCentral && isProbeCentral) {
+          h_mass_Glo_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isProbeCentral) {
+          h_mass_Glo_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else {
+          h_mass_Glo_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
+        }
+      }
+    }
 
     // Probe loop over tracks, only for standalone efficiency calculation
     for (auto const& itTrk : *hTrackProduct) {
-      // Check track is not a muon
-      bool isMuon = false;
-      for (auto const& itMu : *hMuonProduct) {
-        if (itMu.innerTrack().isNonnull() && itMu.innerTrack().get() == &itTrk) {
-          isMuon = true;
-          break;
-        }
-      }
-      if (isMuon)
-        continue;
-
-      float pt2 = itTrk.pt();
-      float eta2 = itTrk.eta();
-      float phi2 = itTrk.phi();
-      float q2 = itTrk.charge();
+      const float pt2 = itTrk.pt();
+      const float eta2 = itTrk.eta();
+      const float phi2 = itTrk.phi();
+      const float q2 = itTrk.charge();
 
       // Probe selection:  kinematic cuts and opposite charge requirement
       if (pt2 < PtCutL2_)
@@ -551,6 +625,8 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
       if (fabs(eta2) > EtaCutL2_)
         continue;
       if (q1 == q2)
+        continue;
+      if (!passTrack(itTrk))
         continue;
 
       vTrack.SetPtEtaPhiM(pt2, eta2, phi2, MUON_MASS);
@@ -560,365 +636,109 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
       if ((dilepMass < MassMin_) || (dilepMass > MassMax_))
         continue;
 
-      bool isTrackCentral = false;
-      if (fabs(eta2) < MUON_BOUND)
-        isTrackCentral = true;
-
-      if (itTrk.hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk.hitPattern().numberOfValidPixelHits() >= 1) {
-        if (isTrackCentral)
-          h_mass_Glo_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
-        else
-          h_mass_Glo_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-      }
-
-    }  //End of probe loop over tracks
-
-  }  //End of tag loop
-}
-void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::LogInfo("ZCounting") << "ZCounting::analyzeElectrons" << std::endl;
-
-  //-------------------------------
-  //--- Vertex
-  //-------------------------------
-  edm::Handle<reco::VertexCollection> hVertexProduct;
-  iEvent.getByToken(fPVName_token, hVertexProduct);
-  if (!hVertexProduct.isValid())
-    return;
-
-  const reco::VertexCollection* pvCol = hVertexProduct.product();
-  int nvtx = 0;
-
-  for (auto const& vtx : *pvCol) {
-    if (vtx.isFake())
-      continue;
-    if (vtx.tracksSize() < VtxNTracksFitCut_)
-      continue;
-    if (vtx.ndof() < VtxNdofCut_)
-      continue;
-    if (fabs(vtx.z()) > VtxAbsZCut_)
-      continue;
-    if (vtx.position().Rho() > VtxRhoCut_)
-      continue;
-
-    nvtx++;
-  }
-
-  // Good vertex requirement
-  if (nvtx == 0)
-    return;
-
-  //-------------------------------
-  //--- Trigger
-  //-------------------------------
-  edm::Handle<edm::TriggerResults> hTrgRes;
-  iEvent.getByToken(fHLTTag_token, hTrgRes);
-  if (!hTrgRes.isValid())
-    return;
-
-  edm::Handle<trigger::TriggerEvent> hTrgEvt;
-  iEvent.getByToken(fHLTObjTag_token, hTrgEvt);
-
-  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*hTrgRes);
-  Bool_t config_changed = false;
-  if (fTriggerNamesID != triggerNames.parameterSetID()) {
-    fTriggerNamesID = triggerNames.parameterSetID();
-    config_changed = true;
-  }
-  if (config_changed) {
-    initHLT(*hTrgRes, triggerNames);
-  }
-
-  TriggerBits triggerBits;
-  for (unsigned int irec = 0; irec < fTrigger->fRecords.size(); irec++) {
-    if (fTrigger->fRecords[irec].hltPathIndex == (unsigned int)-1)
-      continue;
-    if (hTrgRes->accept(fTrigger->fRecords[irec].hltPathIndex)) {
-      triggerBits[fTrigger->fRecords[irec].baconTrigBit] = true;
-    }
-  }
-
-  // Trigger requirement
-  if (!isElectronTrigger(*fTrigger, triggerBits))
-    return;
-
-  // Get Electrons
-  edm::Handle<edm::View<reco::GsfElectron>> electrons;
-  iEvent.getByToken(fGsfElectronName_token, electrons);
-
-  // Get SuperClusters
-  edm::Handle<edm::View<reco::SuperCluster>> superclusters;
-  iEvent.getByToken(fSCName_token, superclusters);
-
-  // Get Rho
-  edm::Handle<double> rhoHandle;
-  iEvent.getByToken(fRhoToken, rhoHandle);
-  EleID_.setRho(*rhoHandle);
-
-  // Get beamspot
-  edm::Handle<reco::BeamSpot> beamspotHandle;
-  iEvent.getByToken(fBeamspotToken, beamspotHandle);
-
-  // Conversions
-  edm::Handle<reco::ConversionCollection> conversionsHandle;
-  iEvent.getByToken(fConversionToken, conversionsHandle);
-
-  edm::Ptr<reco::GsfElectron> eleProbe;
-  enum { eEleEle2HLT = 1, eEleEle1HLT1L1, eEleEle1HLT, eEleEleNoSel, eEleSC };  // event category enum
-
-  // Loop over Tags
-  for (size_t itag = 0; itag < electrons->size(); ++itag) {
-    const auto el1 = electrons->ptrAt(itag);
-    if (not EleID_.passID(el1, beamspotHandle, conversionsHandle))
-      continue;
-
-    float pt1 = el1->pt();
-    float eta1 = el1->eta();
-    float phi1 = el1->phi();
-
-    if (!isElectronTriggerObj(*fTrigger, TriggerTools::matchHLT(eta1, phi1, fTrigger->fRecords, *hTrgEvt)))
-      continue;
-    TLorentzVector vTag(0., 0., 0., 0.);
-    vTag.SetPtEtaPhiM(pt1, eta1, phi1, ELECTRON_MASS);
-
-    // Tag selection: kinematic cuts, lepton selection and trigger matching
-    double tag_pt = vTag.Pt();
-    double tag_abseta = fabs(vTag.Eta());
-
-    bool tag_is_valid_tag = ele_tag_selection(tag_pt, tag_abseta);
-    bool tag_is_valid_probe = ele_probe_selection(tag_pt, tag_abseta);
-
-    if (not(tag_is_valid_tag or tag_is_valid_probe))
-      continue;
-
-    // Loop over probes
-    for (size_t iprobe = 0; iprobe < superclusters->size(); ++iprobe) {
-      // Initialize probe
-      const auto sc = superclusters->ptrAt(iprobe);
-      if (*sc == *(el1->superCluster())) {
-        continue;
-      }
-
-      // Find matching electron
-      for (size_t iele = 0; iele < electrons->size(); ++iele) {
-        if (iele == itag)
-          continue;
-        const auto ele = electrons->ptrAt(iele);
-        if (*sc == *(ele->superCluster())) {
-          eleProbe = ele;
+      // check if track is matched to standalone muon
+      bool isStandalone = false;
+      for (const reco::Track* itSta : hStandaloneProduct) {
+        if (reco::deltaR2(itSta->eta(), itSta->phi(), eta2, phi2) < DRMAX_IO) {
+          isStandalone = true;
           break;
         }
       }
 
-      // Assign final probe 4-vector
-      TLorentzVector vProbe(0., 0., 0., 0.);
-      if (eleProbe.isNonnull()) {
-        vProbe.SetPtEtaPhiM(eleProbe->pt(), eleProbe->eta(), eleProbe->phi(), ELECTRON_MASS);
-      } else {
-        double pt = sc->energy() * sqrt(1 - pow(tanh(sc->eta()), 2));
-        vProbe.SetPtEtaPhiM(pt, sc->eta(), sc->phi(), ELECTRON_MASS);
-      }
+      const bool isTrackCentral = fabs(eta2) < MUON_BOUND;
 
-      // Probe Selection
-      double probe_pt = vProbe.Pt();
-      double probe_abseta = fabs(sc->eta());
-      bool probe_is_valid_probe = ele_probe_selection(probe_pt, probe_abseta);
-      if (!probe_is_valid_probe)
-        continue;
-
-      // Good Probe found!
-
-      // Require good Z
-      TLorentzVector vDilep = vTag + vProbe;
-
-      if ((vDilep.M() < ELE_MASS_CUT_LOW) || (vDilep.M() > ELE_MASS_CUT_HIGH))
-        continue;
-      if (eleProbe.isNonnull() and (eleProbe->charge() != -el1->charge()))
-        continue;
-
-      // Good Z found!
-
-      long ls = iEvent.luminosityBlock();
-      bool probe_pass_trigger = isElectronTriggerObj(
-          *fTrigger, TriggerTools::matchHLT(vProbe.Eta(), vProbe.Phi(), fTrigger->fRecords, *hTrgEvt));
-      bool probe_pass_id = eleProbe.isNonnull() and EleID_.passID(eleProbe, beamspotHandle, conversionsHandle);
-
-      //// Fill for yields
-      bool probe_is_forward = probe_abseta > ELE_ETA_CRACK_LOW;
-      bool tag_is_forward = tag_abseta > ELE_ETA_CRACK_LOW;
-
-      if (probe_pass_id) {
-        if (probe_is_forward and tag_is_forward) {
-          h_ee_yield_Z_eeee->Fill(ls);
-        } else if (!probe_is_forward and !tag_is_forward) {
-          h_ee_yield_Z_ebeb->Fill(ls);
+      if (isStandalone) {
+        if (isTagCentral && isTrackCentral) {
+          h_mass_Sta_pass_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isTrackCentral) {
+          h_mass_Sta_pass_EE->Fill(iEvent.luminosityBlock(), dilepMass);
         } else {
-          h_ee_yield_Z_ebee->Fill(ls);
-        }
-      }
-
-      if (!tag_is_valid_tag)
-        continue;
-
-      /// Fill for ID efficiency
-      if (probe_pass_id) {
-        if (probe_is_forward) {
-          h_ee_mass_id_pass_forward->Fill(ls, vDilep.M());
-        } else {
-          h_ee_mass_id_pass_central->Fill(ls, vDilep.M());
+          h_mass_Sta_pass_BE->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       } else {
-        if (probe_is_forward) {
-          h_ee_mass_id_fail_forward->Fill(ls, vDilep.M());
+        if (isTagCentral && isTrackCentral) {
+          h_mass_Sta_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isTrackCentral) {
+          h_mass_Sta_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
         } else {
-          h_ee_mass_id_fail_central->Fill(ls, vDilep.M());
+          h_mass_Sta_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
-
-      /// Fill for HLT efficiency
-      if (probe_pass_id and probe_pass_trigger) {
-        if (probe_is_forward) {
-          h_ee_mass_HLT_pass_forward->Fill(ls, vDilep.M());
-        } else {
-          h_ee_mass_HLT_pass_central->Fill(ls, vDilep.M());
-        }
-      } else if (probe_pass_id) {
-        if (probe_is_forward) {
-          h_ee_mass_HLT_fail_forward->Fill(ls, vDilep.M());
-        } else {
-          h_ee_mass_HLT_fail_central->Fill(ls, vDilep.M());
-        }
-      }
-    }  // End of probe loop
+    }  //End of probe loop over tracks
   }    //End of tag loop
 }
 
-bool ZCounting::ele_probe_selection(double pt, double abseta) {
-  if (pt < ELE_PT_CUT_PROBE)
-    return false;
-  if (abseta > ELE_ETA_CUT_PROBE)
-    return false;
-  if ((abseta > ELE_ETA_CRACK_LOW) and (abseta < ELE_ETA_CRACK_HIGH))
-    return false;
-  return true;
-}
-bool ZCounting::ele_tag_selection(double pt, double abseta) {
-  if (pt < ELE_PT_CUT_TAG)
-    return false;
-  if (abseta > ELE_ETA_CUT_TAG)
-    return false;
-  if ((abseta > ELE_ETA_CRACK_LOW) and (abseta < ELE_ETA_CRACK_HIGH))
-    return false;
-  return true;
-}
 //
 // -------------------------------------- functions --------------------------------------------
 //
 
-void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNames& triggerNames) {
-  for (unsigned int irec = 0; irec < fTrigger->fRecords.size(); irec++) {
-    fTrigger->fRecords[irec].hltPathName = "";
-    fTrigger->fRecords[irec].hltPathIndex = (unsigned int)-1;
-    const std::string pattern = fTrigger->fRecords[irec].hltPattern;
-    if (edm::is_glob(pattern)) {  // handle pattern with wildcards (*,?)
-      std::vector<std::vector<std::string>::const_iterator> matches =
-          edm::regexMatch(triggerNames.triggerNames(), pattern);
-      if (matches.empty()) {
-        edm::LogWarning("ZCounting") << "requested pattern [" << pattern << "] does not match any HLT paths"
-                                     << std::endl;
-      } else {
-        for (auto const& match : matches) {
-          fTrigger->fRecords[irec].hltPathName = *match;
-        }
-      }
-    } else {  // take full HLT path name given
-      fTrigger->fRecords[irec].hltPathName = pattern;
-    }
-    // Retrieve index in trigger menu corresponding to HLT path
-    unsigned int index = triggerNames.triggerIndex(fTrigger->fRecords[irec].hltPathName);
-    if (index < result.size()) {  // check for valid index
-      fTrigger->fRecords[irec].hltPathIndex = index;
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-bool ZCounting::isMuonTrigger(const ZCountingTrigger::TTrigger& triggerMenu, const TriggerBits& hltBits) {
-  for (unsigned int i = 0; i < fMuonHLTNames.size(); ++i) {
-    if (triggerMenu.pass(fMuonHLTNames.at(i), hltBits))
-      return true;
-  }
-  return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-bool ZCounting::isMuonTriggerObj(const ZCountingTrigger::TTrigger& triggerMenu, const TriggerObjects& hltMatchBits) {
-  for (unsigned int i = 0; i < fMuonHLTNames.size(); ++i) {
-    if (triggerMenu.passObj(fMuonHLTNames.at(i), fMuonHLTObjectNames.at(i), hltMatchBits))
-      return true;
-  }
-  return false;
-}
-
 //--------------------------------------------------------------------------------------------------
 // Definition of the CustomTightID function
 bool ZCounting::isCustomTightMuon(const reco::Muon& muon) {
-  if (!muon.isPFMuon() || !muon.isGlobalMuon())
-    return false;
-
-  bool muID = isGoodMuon(muon, muon::GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
-
-  bool muIdAndHits = muID && muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-                     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
-
-  return muIdAndHits;
+  // tight POG cut based ID w/o impact parameter cuts
+  return muon.isGlobalMuon() && muon.isPFMuon() && muon.globalTrack()->normalizedChi2() < 10. &&
+         muon.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && muon.numberOfMatchedStations() > 1 &&
+         muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+         muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::passMuonID(
-    const reco::Muon& muon,
-    const reco::Vertex& vtx,
-    const MuonIDTypes& idType) {  //Muon ID selection, using internal function "DataFormats/MuonReco/src/MuonSelectors.cc
-
-  if (idType == LooseID && muon::isLooseMuon(muon))
-    return true;
-  else if (idType == MediumID && muon::isMediumMuon(muon))
-    return true;
-  else if (idType == TightID && muon::isTightMuon(muon, vtx))
-    return true;
-  else if (idType == CustomTightID && isCustomTightMuon(muon))
-    return true;
-  else if (idType == NoneID)
-    return true;
-  else
-    return false;
-}
-//--------------------------------------------------------------------------------------------------
-bool ZCounting::passMuonIso(const reco::Muon& muon,
-                            const MuonIsoTypes& isoType,
-                            const float isoCut) {  //Muon isolation selection, up-to-date with MUO POG recommendation
-
-  if (isoType == TrackerIso && muon.isolationR03().sumPt < isoCut)
-    return true;
-  else if (isoType == PFIso &&
-           muon.pfIsolationR04().sumChargedHadronPt +
-                   std::max(0.,
-                            muon.pfIsolationR04().sumNeutralHadronEt + muon.pfIsolationR04().sumPhotonEt -
-                                0.5 * muon.pfIsolationR04().sumPUPt) <
-               isoCut)
-    return true;
-  else if (isoType == NoneIso)
-    return true;
-  else
-    return false;
+bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex* vtx) {
+  // Muon ID selection, using internal function "DataFormats/MuonReco/src/MuonSelectors.cc
+  switch (IDType_) {
+    case LooseID:
+      return muon::isLooseMuon(muon);
+    case MediumID:
+      return muon::isMediumMuon(muon);
+    case CustomTightID:
+      return isCustomTightMuon(muon);
+    case TightID:
+      return vtx != nullptr && muon::isTightMuon(muon, *vtx);
+    case NoneID:
+      return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::isElectronTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits) {
-  return triggerMenu.pass("HLT_Ele35_WPTight_Gsf_v*", hltBits);
+bool ZCounting::passGlobalMuon(const reco::Muon& muon) {
+  // Global muon selection:
+  // - standard global muon criterium,
+  // - requirements on inner and outer track pT>15 and |eta|
+  // - requirements on deltaR(inner track, outer track)
+
+  return muon.isGlobalMuon() && muon.outerTrack()->numberOfValidHits() >= N_STA_HITS &&
+         muon.innerTrack()->pt() > MIN_PT_TRK && std::abs(muon.innerTrack()->eta()) < MAX_ETA_TRK &&
+         muon.outerTrack()->pt() > MIN_PT_STA && std::abs(muon.outerTrack()->eta()) < MAX_ETA_STA &&
+         reco::deltaR2(
+             muon.outerTrack()->eta(), muon.outerTrack()->phi(), muon.innerTrack()->eta(), muon.innerTrack()->phi()) <
+             DRMAX_IO;
 }
+
 //--------------------------------------------------------------------------------------------------
-bool ZCounting::isElectronTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits) {
-  return triggerMenu.passObj("HLT_Ele35_WPTight_Gsf_v*", "hltEle35noerWPTightGsfTrackIsoFilter", hltMatchBits);
+bool ZCounting::passTrack(const reco::Track& track) {
+  return track.hitPattern().trackerLayersWithMeasurement() >= 6 && track.hitPattern().numberOfValidPixelHits() >= 1 &&
+         track.originalAlgo() != 13      // reject muon seeded tracks - InOut
+         && track.originalAlgo() != 14;  // reject muon seeded tracks - OutIn
 }
+
+//--------------------------------------------------------------------------------------------------
+bool ZCounting::passMuonIso(const reco::Muon& muon) {
+  //Muon isolation selection, up-to-date with MUO POG recommendation
+  switch (IsoType_) {
+    case TrackerIso:
+      return muon.isolationR03().sumPt < IsoCut_;
+    case PFIso:
+      return muon.pfIsolationR04().sumChargedHadronPt +
+                 std::max(0.,
+                          muon.pfIsolationR04().sumNeutralHadronEt + muon.pfIsolationR04().sumPhotonEt -
+                              0.5 * muon.pfIsolationR04().sumPUPt) <
+             IsoCut_;
+    case NoneIso:
+      return true;
+  }
+
+  return false;
+}
+
 DEFINE_FWK_MODULE(ZCounting);

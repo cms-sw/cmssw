@@ -865,10 +865,8 @@ void EcalLaserAnalyzer2::endJob() {
     // Loop on events
     //================
 
-    Long64_t nbytes = 0, nb = 0;
     for (Long64_t jentry = 0; jentry < ADCtrees[iCry]->GetEntriesFast(); jentry++) {  // Loop on events
-      nb = ADCtrees[iCry]->GetEntry(jentry);
-      nbytes += nb;
+      ADCtrees[iCry]->GetEntry(jentry);
 
       flagfit = 1;
       apdAmpl = 0.0;
@@ -1119,10 +1117,8 @@ void EcalLaserAnalyzer2::endJob() {
     // Final loop on events
     //=======================
 
-    Long64_t nbytes = 0, nb = 0;
     for (Long64_t jentry = 0; jentry < APDtrees[iCry]->GetEntriesFast(); jentry++) {
-      nb = APDtrees[iCry]->GetEntry(jentry);
-      nbytes += nb;
+      APDtrees[iCry]->GetEntry(jentry);
 
       double pnmean;
       if (pn0 < 10 && pn1 > 10) {

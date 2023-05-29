@@ -27,6 +27,7 @@ using namespace edm;
 using namespace std;
 
 ESDaqInfoTask::ESDaqInfoTask(const ParameterSet& ps) {
+  usesResource("DQMStore");
   dqmStore_ = Service<DQMStore>().operator->();
   runInfoToken_ = esConsumes<edm::Transition::BeginLuminosityBlock>();
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -160,6 +161,8 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     LogWarning("ESDaqInfoTask") << "Cannot find any RunInfoRcd" << endl;
   }
 }
+
+void ESDaqInfoTask::endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void ESDaqInfoTask::reset(void) {
   if (meESDaqFraction_)

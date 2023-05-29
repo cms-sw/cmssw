@@ -3,7 +3,7 @@
 function die { echo $1: status $2 ;  exit $2; }
 function diecat { echo "$1: status $2, log" ;  cat $3; exit $2; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/EventSetupTest_cfg.py || die 'Failed in EventSetupTest_cfg.py' $?
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/EventSetupAppendLabelTest_cfg.py || die 'Failed in EventSetupAppendLabelTest_cfg.py' $?
@@ -41,4 +41,12 @@ echo EventSetupIncorrectConsumes_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/EventSetupIncorrectConsumes_cfg.py &> testEventSetupIncorrectConsumes.txt && die 'Failed EventSetupIncorrectConsumes_cfg.py, the configuration succeeded while it should have failed' 1
 grep "A module declared it consumes an EventSetup product after its constructor" testEventSetupIncorrectConsumes.txt >/dev/null || diecat 'Failed EventSetupIncorrectConsumes_cfg.py, the configuration failed but in an unexpected way' $? testEventSetupIncorrectConsumes.txt
 
-popd
+echo testConcurrentIOVsAndRuns_cfg.py
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRuns_cfg.py || die 'Failed in testConcurrentIOVsAndRuns_cfg.py' $?
+
+echo testConcurrentIOVsAndRunsRead_cfg.py
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRunsRead_cfg.py || die 'Failed in testConcurrentIOVsAndRunsRead_cfg.py' $?
+
+echo testESProducerUsingAcquire_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/testESProducerUsingAcquire_cfg.py || die 'Failed in testESProducerUsingAcquire_cfg.py' $?
+

@@ -16,6 +16,7 @@ public:
 private:
   void produce(edm::Event& event, const edm::EventSetup&) override;
   bool isPhotonFromPrunedHadron(const pat::PackedGenParticle& pk) const;
+  bool isLeptonFromPrunedPhoton(const reco::GenParticle& pk) const;
 
   edm::EDGetTokenT<edm::View<reco::GenParticle>> input_pruned_;
   edm::EDGetTokenT<edm::View<pat::PackedGenParticle>> input_packed_;

@@ -86,6 +86,7 @@ for node in nodes:
     if node in visited:
         continue
     visited.add(node)
+    stack = []
     if node in Hdg:
         stack = [(node, iter(Hdg[node]))]
     if node in Idg:

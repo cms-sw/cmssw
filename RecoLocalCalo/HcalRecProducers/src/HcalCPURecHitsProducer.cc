@@ -103,14 +103,18 @@ void HcalCPURecHitsProducer::produce(edm::Event& event, edm::EventSetup const& s
     // did not set size with ctor as there is no setter for did
     recHitsLegacy->reserve(tmpRecHits_.did.size());
     for (uint32_t i = 0; i < tmpRecHits_.did.size(); i++) {
+      // skip bad channels
+      if (tmpRecHits_.chi2[i] < 0)
+        continue;
+
+      // build a legacy rechit with the computed detid and MAHI energy
       recHitsLegacy->emplace_back(HcalDetId{tmpRecHits_.did[i]},
                                   tmpRecHits_.energy[i],
                                   0  // timeRising
       );
-
-      // update newly pushed guy
-      (*recHitsLegacy)[i].setChiSquared(tmpRecHits_.chi2[i]);
-      (*recHitsLegacy)[i].setRawEnergy(tmpRecHits_.energyM0[i]);
+      // update the legacy rechit with the Chi2 and M0 values
+      recHitsLegacy->back().setChiSquared(tmpRecHits_.chi2[i]);
+      recHitsLegacy->back().setRawEnergy(tmpRecHits_.energyM0[i]);
     }
 
     // put the legacy collection

@@ -165,6 +165,15 @@ namespace edm {
                                          ParentContext const&,
                                          typename T::Context const*);
 
+    virtual size_t transformIndex(edm::BranchDescription const&) const = 0;
+    void doTransformAsync(WaitingTaskHolder,
+                          size_t iTransformIndex,
+                          EventPrincipal const&,
+                          ServiceToken const&,
+                          StreamID,
+                          ModuleCallingContext const&,
+                          StreamContext const*);
+
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
     void skipOnPath(EventPrincipal const& iEvent);
     void beginJob();
@@ -241,6 +250,9 @@ namespace edm {
 
     virtual bool hasAccumulator() const = 0;
 
+    // Used in PuttableProductResolver
+    edm::WaitingTaskList& waitingTaskList() { return waitingTasks_; }
+
   protected:
     template <typename O>
     friend class workerhelper::CallImpl;
@@ -256,6 +268,13 @@ namespace edm {
     virtual void implDoAcquire(EventTransitionInfo const&,
                                ModuleCallingContext const*,
                                WaitingTaskWithArenaHolder&) = 0;
+
+    virtual void implDoTransformAsync(WaitingTaskHolder,
+                                      size_t iTransformIndex,
+                                      EventPrincipal const&,
+                                      ParentContext const&,
+                                      ServiceWeakToken const&) = 0;
+    virtual ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const = 0;
 
     virtual bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
@@ -289,7 +308,6 @@ namespace edm {
 
     virtual std::vector<ESProxyIndex> const& esItemsToGetFrom(Transition) const = 0;
     virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
-    virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
@@ -351,10 +369,20 @@ namespace edm {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
     }
 
+    void emitPostModuleStreamPrefetchingSignal() {
+      actReg_->postModuleStreamPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),
+                                                       moduleCallingContext_);
+    }
+
+    void emitPostModuleGlobalPrefetchingSignal() {
+      actReg_->postModuleGlobalPrefetchingSignal_.emit(*moduleCallingContext_.getGlobalContext(),
+                                                       moduleCallingContext_);
+    }
+
     virtual bool hasAcquire() const = 0;
 
     template <typename T>
-    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr const*,
+    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr,
                                                    typename T::TransitionInfoType const&,
                                                    StreamID,
                                                    ParentContext const&,
@@ -362,12 +390,12 @@ namespace edm {
 
     void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskWithArenaHolder&);
 
-    void runAcquireAfterAsyncPrefetch(std::exception_ptr const*,
+    void runAcquireAfterAsyncPrefetch(std::exception_ptr,
                                       EventTransitionInfo const&,
                                       ParentContext const&,
                                       WaitingTaskWithArenaHolder);
 
-    std::exception_ptr handleExternalWorkException(std::exception_ptr const* iEPtr, ParentContext const& parentContext);
+    std::exception_ptr handleExternalWorkException(std::exception_ptr iEPtr, ParentContext const& parentContext);
 
     template <typename T>
     class RunModuleTask : public WaitingTask {
@@ -418,10 +446,14 @@ namespace edm {
             } catch (...) {
               temp_excptr = std::current_exception();
               if (not excptr) {
-                excptr = &temp_excptr;
+                excptr = temp_excptr;
               }
             }
           }
+        } else if constexpr (std::is_same_v<typename T::Context, StreamContext>) {
+          m_worker->emitPostModuleStreamPrefetchingSignal();
+        } else if constexpr (std::is_same_v<typename T::Context, GlobalContext>) {
+          m_worker->emitPostModuleGlobalPrefetchingSignal();
         }
 
         if (not excptr) {
@@ -439,7 +471,7 @@ namespace edm {
               // at the end transition. This can guarantee that the module
               // only processes one run or lumi at a time
               EnableQueueGuard enableQueueGuard{workerhelper::CallImpl<T>::enableGlobalQueue(worker)};
-              std::exception_ptr* ptr = nullptr;
+              std::exception_ptr ptr;
               worker->template runModuleAfterAsyncPrefetch<T>(ptr, info, streamID, parentContext, sContext);
             };
             //keep another global transition from running if necessary
@@ -513,7 +545,7 @@ namespace edm {
         } catch (...) {
           temp_excptr = std::current_exception();
           if (not excptr) {
-            excptr = &temp_excptr;
+            excptr = temp_excptr;
           }
         }
 
@@ -528,7 +560,7 @@ namespace edm {
                          //Need to make the services available
                          ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
 
-                         std::exception_ptr* ptr = nullptr;
+                         std::exception_ptr ptr;
                          worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, holder);
                        });
             return;
@@ -916,8 +948,12 @@ namespace edm {
 
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
 
-    if (principal.branchType() == InEvent) {
+    if constexpr (T::isEvent_) {
       actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
+    } else if constexpr (std::is_same_v<typename T::Context, StreamContext>) {
+      actReg_->preModuleStreamPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
+    } else if constexpr (std::is_same_v<typename T::Context, GlobalContext>) {
+      actReg_->preModuleGlobalPrefetchingSignal_.emit(*moduleCallingContext_.getGlobalContext(), moduleCallingContext_);
     }
 
     workerhelper::CallImpl<T>::esPrefetchAsync(this, iTask, token, transitionInfo, iTransition);
@@ -1019,16 +1055,15 @@ namespace edm {
   }
 
   template <typename T>
-  std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+  std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr iEPtr,
                                                          typename T::TransitionInfoType const& transitionInfo,
                                                          StreamID streamID,
                                                          ParentContext const& parentContext,
                                                          typename T::Context const* context) {
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
-      assert(*iEPtr);
-      if (shouldRethrowException(*iEPtr, parentContext, T::isEvent_)) {
-        exceptionPtr = *iEPtr;
+      if (shouldRethrowException(iEPtr, parentContext, T::isEvent_)) {
+        exceptionPtr = iEPtr;
         setException<T::isEvent_>(exceptionPtr);
       } else {
         setPassed<T::isEvent_>();
@@ -1149,7 +1184,7 @@ namespace edm {
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) {
     timesVisited_.fetch_add(1, std::memory_order_relaxed);
-    std::exception_ptr const* prefetchingException = nullptr;  // null because there was no prefetching to do
+    std::exception_ptr prefetchingException;  // null because there was no prefetching to do
     return runModuleAfterAsyncPrefetch<T>(prefetchingException, transitionInfo, streamID, parentContext, context);
   }
 }  // namespace edm

@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TkPrimaryVertex = cms.EDProducer("L1TkFastVertexProducer",
+l1tTkPrimaryVertex = cms.EDProducer("L1TkFastVertexProducer",
     CHI2MAX = cms.double(100.0),
     GenParticleInputTag = cms.InputTag("genParticles"),
     HepMCInputTag = cms.InputTag("generator"),
     HighPtTracks = cms.int32(0),
-    L1TrackInputTag = cms.InputTag("TTTracksFromTrackletEmulation","Level1TTTracks"),
+    L1TrackInputTag = cms.InputTag("l1tTTTracksFromTrackletEmulation","Level1TTTracks"),
     MonteCarloVertex = cms.bool(False),
     PTMAX = cms.double(50.0),
     PTMINTRA = cms.double(2.0),

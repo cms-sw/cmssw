@@ -32,6 +32,7 @@ public:
 private:
   const std::string m_dqm_path;
   const bool m_dqm_merge;
+  const bool m_fillEveryLumiSection;
 
   void dqmEndLuminosityBlock(DQMStore::IBooker &booker,
                              DQMStore::IGetter &getter,
@@ -45,7 +46,8 @@ private:
 
 ThroughputServiceClient::ThroughputServiceClient(edm::ParameterSet const &config)
     : m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
-      m_dqm_merge(config.getUntrackedParameter<bool>("createSummary")) {}
+      m_dqm_merge(config.getUntrackedParameter<bool>("createSummary")),
+      m_fillEveryLumiSection(config.getParameter<bool>("fillEveryLumiSection")) {}
 
 void ThroughputServiceClient::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
   fillSummaryPlots(booker, getter);
@@ -55,7 +57,9 @@ void ThroughputServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker &booker,
                                                     DQMStore::IGetter &getter,
                                                     edm::LuminosityBlock const &,
                                                     edm::EventSetup const &) {
-  fillSummaryPlots(booker, getter);
+  if (m_fillEveryLumiSection) {
+    fillSummaryPlots(booker, getter);
+  }
 }
 
 void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
@@ -70,9 +74,10 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     std::vector<std::string> subdirs = getter.getSubdirs();
     for (auto const &subdir : subdirs) {
       if (boost::regex_match(subdir, running_n_processes)) {
-        if (getter.get(subdir + "/throughput_sourced"))
+        if (getter.get(subdir + "/throughput_sourced")) {
           // the plots are in a per-number-of-processes subfolder
           folders.push_back(subdir);
+        }
       }
     }
   }
@@ -121,13 +126,14 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     width = avg_max - avg_min;
 
     // define the range for .../average_sourced
-    int64_t first = sourced->FindFirstBinAbove(0.);
-    int64_t last = sourced->FindLastBinAbove(0.);
+    auto first = sourced->FindFirstBinAbove(0.);
+    auto last = sourced->FindLastBinAbove(0.);
     booker.setCurrentFolder(folder);
     // (re)book and fill .../average_sourced
     average = booker.book1D("average_sourced", "Throughput (sourced events)", (int)width, avg_min, avg_max)->getTH1F();
-    for (int64_t i = std::max(first, (int64_t)0); i <= last; ++i)
-      average->Fill(sourced->GetBinContent(i));
+    if (first >= 0)
+      for (auto i = first; i <= last; ++i)
+        average->Fill(sourced->GetBinContent(i));
 
     // define the range for .../average_retired
     first = retired->FindFirstBinAbove(0.);
@@ -135,8 +141,9 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     booker.setCurrentFolder(folder);
     // (re)book and fill .../average_retired
     average = booker.book1D("average_retired", "Throughput (retired events)", (int)width, avg_min, avg_max)->getTH1F();
-    for (int64_t i = std::max(first, (int64_t)0); i <= last; ++i)
-      average->Fill(retired->GetBinContent(i));
+    if (first >= 0)
+      for (auto i = first; i <= last; ++i)
+        average->Fill(retired->GetBinContent(i));
   }
 }
 
@@ -144,6 +151,7 @@ void ThroughputServiceClient::fillDescriptions(edm::ConfigurationDescriptions &d
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("dqmPath", "HLT/Throughput");
   desc.addUntracked<bool>("createSummary", true);
+  desc.add<bool>("fillEveryLumiSection", true);
   descriptions.add("throughputServiceClient", desc);
 }
 

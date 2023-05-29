@@ -25,7 +25,7 @@
 
 // user include
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,14 +40,13 @@
 // class declaration
 //
 
-class CastorCellProducer : public edm::EDProducer {
+class CastorCellProducer : public edm::global::EDProducer<> {
 public:
   explicit CastorCellProducer(const edm::ParameterSet&);
-  ~CastorCellProducer() override;
 
 private:
   void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void endJob() override;
 
   // member data
@@ -60,9 +59,9 @@ private:
 //
 // constants, enums and typedefs
 //
-
-const double MYR2D = 180 / M_PI;
-
+namespace {
+  constexpr double MYR2D = 180 / M_PI;
+}
 //
 // static data member definitions
 //
@@ -79,18 +78,13 @@ CastorCellProducer::CastorCellProducer(const edm::ParameterSet& iConfig) {
   // now do what ever other initialization is needed
 }
 
-CastorCellProducer::~CastorCellProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
 
-void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void CastorCellProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace reco;
   using namespace TMath;

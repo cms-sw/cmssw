@@ -8,6 +8,8 @@
 //
 // author:      Alexx Perloff
 // created:     March 17, 2021
+// modified by:    Nick Manganelli
+// modified:    November 18, 2022
 //
 ///////
 
@@ -30,11 +32,11 @@ namespace l1t {
       kZ0Size = 15,           // Width of z-position
       kZ0MagSize = 6,         // Width of z-position magnitude (signed)
       kNTrackInPVSize = 8,    // Width of the multiplicity in the PV (unsigned)
-      kSumPtSize = 10,        // Width of pT
-      kSumPtMagSize = 8,      // Width of pT magnitude (unsigned)
+      kSumPtSize = 12,        // Width of pT
+      kSumPtMagSize = 10,     // Width of pT magnitude (unsigned)
       kQualitySize = 3,       // Width of the quality field
       kNTrackOutPVSize = 10,  // Width of the multiplicity outside the PV (unsigned)
-      kUnassignedSize = 17,   // Width of the unassigned bits
+      kUnassignedSize = 15,   // Width of the unassigned bits
 
       kVertexWordSize = kValidSize + kZ0Size + kNTrackInPVSize + kSumPtSize + kQualitySize + kNTrackOutPVSize +
                         kUnassignedSize,  // Width of the vertex word in bits
@@ -193,7 +195,7 @@ namespace l1t {
   };
 
   typedef std::vector<VertexWord> VertexWordCollection;
-
+  typedef edm::Ref<VertexWordCollection> VertexWordRef;
 }  // namespace l1t
 
 #endif

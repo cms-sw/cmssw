@@ -162,7 +162,11 @@ namespace edm {
                 addSourceProduct(cbd);
               } else if (bd.onDemand()) {
                 assert(branchType_ == InEvent);
-                addUnscheduledProduct(cbd);
+                if (bd.isTransform()) {
+                  addTransformProduct(cbd);
+                } else {
+                  addUnscheduledProduct(cbd);
+                }
               } else {
                 addScheduledProduct(cbd);
               }
@@ -348,6 +352,10 @@ namespace edm {
 
   void Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
     addProductOrThrow(std::make_unique<UnscheduledProductResolver>(std::move(bd)));
+  }
+
+  void Principal::addTransformProduct(std::shared_ptr<BranchDescription const> bd) {
+    addProductOrThrow(std::make_unique<TransformingProductResolver>(std::move(bd)));
   }
 
   void Principal::addAliasedProduct(std::shared_ptr<BranchDescription const> bd) {
@@ -769,6 +777,24 @@ namespace edm {
                                 inputTag.instance(),
                                 appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
       } else if (index == ProductResolverIndexInvalid) {
+        // can occur because of missing consumes if nothing else in the process consumes the product
+        for (auto const& item : preg_->productList()) {
+          auto const& bd = item.second;
+          if (bd.present() and bd.unwrappedTypeID() == typeID and bd.moduleLabel() == inputTag.label() and
+              bd.productInstanceName() == inputTag.instance()) {
+            bool const inCurrentProcess = bd.processName() == processConfiguration_->processName();
+            if (inputTag.process().empty() or bd.processName() == inputTag.process() or
+                (skipCurrentProcess and not inCurrentProcess) or
+                (inputTag.process() == InputTag::kCurrentProcess and inCurrentProcess)) {
+              failedToRegisterConsumes(
+                  kindOfType,
+                  typeID,
+                  inputTag.label(),
+                  inputTag.instance(),
+                  appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
+            }
+          }
+        }
         return nullptr;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
@@ -808,6 +834,16 @@ namespace edm {
     if (index == ProductResolverIndexAmbiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     } else if (index == ProductResolverIndexInvalid) {
+      // can occur because of missing consumes if nothing else in the process consumes the product
+      for (auto const& item : preg_->productList()) {
+        auto const& bd = item.second;
+        if (bd.present() and bd.unwrappedTypeID() == typeID and bd.moduleLabel() == label and
+            bd.productInstanceName() == instance) {
+          if (process.empty() or bd.processName() == process) {
+            failedToRegisterConsumes(kindOfType, typeID, label, instance, process);
+          }
+        }
+      }
       return nullptr;
     }
 

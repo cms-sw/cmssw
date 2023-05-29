@@ -47,10 +47,10 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
       saveDeformationsToDB_{config.getParameter<bool>("saveDeformationsToDB")},
       useSurvey_{config.getParameter<bool>("useSurvey")},
       enableAlignableUpdates_{config.getParameter<bool>("enableAlignableUpdates")},
+      tkAliRcdName_{config.getParameter<std::string>("trackerAlignmentRcdName")},
       ttopoToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       geomDetToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       ptpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
-      ptitpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       dtGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
       cscGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
       gemGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
@@ -431,9 +431,8 @@ void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, cons
   if (doTracker_) {
     const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
     const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
-    const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(geometricDet, ptitp, *ptp, tTopo));
+    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(geometricDet, *ptp, tTopo));
   }
 
   if (doMuon_) {
@@ -853,8 +852,7 @@ void AlignmentProducerBase::writeForRunRange(cond::Time_t time) {
 
     auto alignments = alignableTracker_->alignments();
     auto alignmentErrors = alignableTracker_->alignmentErrors();
-    this->writeDB(
-        alignments, "TrackerAlignmentRcd", alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal, time);
+    this->writeDB(alignments, tkAliRcdName_, alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal, time);
 
     // Save surface deformations to database
     if (saveDeformationsToDB_) {

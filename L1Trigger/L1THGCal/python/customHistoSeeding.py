@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import histoMax_C3d_seeding_params, \
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer2Producer_cfi import histoMax_C3d_seeding_params, \
                                                               histoSecondaryMax_C3d_params, \
                                                               histoInterpolatedMax_C3d_params, \
                                                               histoThreshold_C3d_params, \
@@ -31,7 +31,7 @@ def custom_3dclustering_histoMax(process,
     parameters_c3d = histoMax_C3d_seeding_params.clone()
     set_histomax_seeding_params(parameters_c3d, nBins_X1, nBins_X2, binSumsHisto,
                         seed_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
     return process
 
 def custom_3dclustering_histoSecondaryMax(process,
@@ -43,7 +43,7 @@ def custom_3dclustering_histoSecondaryMax(process,
     parameters_c3d = histoSecondaryMax_C3d_params.clone()
     set_histomax_seeding_params(parameters_c3d, nBins_X1, nBins_X2, binSumsHisto,
                         threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
     return process
 
 
@@ -58,7 +58,7 @@ def custom_3dclustering_histoInterpolatedMax1stOrder(process,
             )
     set_histomax_seeding_params(parameters_c3d, nBins_X1, nBins_X2, binSumsHisto,
                         seed_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
     return process
 
 
@@ -73,7 +73,7 @@ def custom_3dclustering_histoInterpolatedMax2ndOrder(process,
             )
     set_histomax_seeding_params(parameters_c3d, nBins_X1, nBins_X2, binSumsHisto,
                         seed_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
     return process
 
 
@@ -86,7 +86,7 @@ def custom_3dclustering_histoThreshold(process,
     parameters_c3d = histoThreshold_C3d_params.clone()
     set_histomax_seeding_params(parameters_c3d, nBins_X1, nBins_X2, binSumsHisto,
                         seed_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
     return process
 
 
@@ -99,6 +99,6 @@ def custom_3dclustering_XYHistoMax(process,
     parameters_c3d = histoMaxXYVariableDR_C3d_params.clone()
     set_histomax_seeding_params(parameters_c3d, nBins_X1, nBins_X2,
             histoMaxXYVariableDR_C3d_params.binSumsHisto,seed_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
+    process.l1tHGCalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_seeding_parameters = parameters_c3d
     return process
 

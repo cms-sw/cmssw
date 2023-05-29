@@ -46,7 +46,7 @@
 class EcalPulseShapeGrapher : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalPulseShapeGrapher(const edm::ParameterSet&);
-  ~EcalPulseShapeGrapher() override;
+  ~EcalPulseShapeGrapher() override = default;
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -54,10 +54,10 @@ private:
 
   std::string intToString(int);
 
-  edm::InputTag EBUncalibratedRecHitCollection_;
-  edm::InputTag EBDigis_;
-  edm::InputTag EEUncalibratedRecHitCollection_;
-  edm::InputTag EEDigis_;
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EBUncalibratedRecHitCollection_;
+  const edm::EDGetTokenT<EBDigiCollection> EBDigis_;
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EEUncalibratedRecHitCollection_;
+  const edm::EDGetTokenT<EEDigiCollection> EEDigis_;
 
   int abscissa[10];
   int ordinate[10];

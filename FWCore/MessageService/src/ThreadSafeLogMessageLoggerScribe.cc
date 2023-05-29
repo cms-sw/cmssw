@@ -527,7 +527,7 @@ namespace edm {
 
       // establish this destination's limit/interval/timespan for each category:
       for (vString::const_iterator id_it = categories.begin(); id_it != categories.end(); ++id_it) {
-        std::string msgID = *id_it;
+        const std::string& msgID = *id_it;
         edm::ParameterSet default_category_pset =
             getAparameter<edm::ParameterSet>(default_pset, msgID, empty_PSet);  // change log 5
         edm::ParameterSet category_pset = getAparameter<edm::ParameterSet>(dest_pset, msgID, default_category_pset);
@@ -577,7 +577,7 @@ namespace edm {
 
       // establish this destination's limit for each severity:
       for (vString::const_iterator sev_it = severities.begin(); sev_it != severities.end(); ++sev_it) {
-        std::string sevID = *sev_it;
+        const std::string& sevID = *sev_it;
         ELseverityLevel severity(sevID);
         edm::ParameterSet default_sev_pset = getAparameter<edm::ParameterSet>(default_pset, sevID, empty_PSet);
         edm::ParameterSet sev_pset = getAparameter<edm::ParameterSet>(dest_pset, sevID, default_sev_pset);
@@ -656,7 +656,7 @@ namespace edm {
       // establish each destination:
       std::vector<std::string> ordinary_destination_filenames;
       for (vString::const_iterator it = destinations.begin(); it != destinations.end(); ++it) {
-        std::string filename = *it;
+        const std::string& filename = *it;
         const std::string& psetname = filename;
 
         // check that this destination is not just a placeholder // change log 11
@@ -884,6 +884,15 @@ namespace edm {
         m_statisticsDestControls[i]->summary(m_tooManyWaitingMessagesCount.load());
         if (m_statisticsResets[i])
           m_statisticsDestControls[i]->wipe();
+      }
+      auto dropped = m_tooManyWaitingMessagesCount.load();
+      if (m_statisticsDestControls.empty() and dropped != 0) {
+        if (m_stream_ps.find("cerr") != m_stream_ps.end()) {
+          std::cerr << "MessageLogger: dropped waiting message count " << dropped << "\n";
+        }
+        if (m_stream_ps.find("cout") != m_stream_ps.end()) {
+          std::cout << "MessageLogger: dropped waiting message count " << dropped << "\n";
+        }
       }
     }
 

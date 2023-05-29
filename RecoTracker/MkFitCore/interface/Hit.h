@@ -199,7 +199,7 @@ namespace mkfit {
 
     static constexpr int kMinChargePerCM = 1620;
     static constexpr int kChargePerCMBits = 8;
-    static constexpr int kDetIdInLayerBits = 12;
+    static constexpr int kDetIdInLayerBits = 14;
     static constexpr int kClusterSizeBits = 5;
     static constexpr int kMaxClusterSize = (1 << kClusterSizeBits) - 1;
 

@@ -12,7 +12,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
                                                  const int nmin,
                                                  const int nmax,
                                                  const int N_proc,
-                                                 const PropagationFlags pf) {
+                                                 const PropagationFlags& pf) {
   // bool debug = true;
 
 #pragma omp simd
@@ -171,7 +171,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
       r0[n - nmin] = hipo(outPar(n, 0, 0), outPar(n, 1, 0));
     }
 
-    // Use one over dot produce of transverse momentum and radial
+    // Use one over dot product of transverse momentum and radial
     // direction to scale the step. Propagation is prevented from reaching
     // too close to the apex (dotp > 0.2).
     // - Can / should we come up with a better approximation?
@@ -188,6 +188,10 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
       if (oodotp[n - nmin] > 5.0f || oodotp[n - nmin] < 0)  // 0.2 is 78.5 deg
       {
         outFailFlag(n, 0, 0) = 1;
+        oodotp[n - nmin] = 0.0f;
+      } else if (r[n - nmin] - r0[n - nmin] < 0.0f && pt[n - nmin] < 1.0f) {
+        // Scale down the correction for low-pT ingoing tracks.
+        oodotp[n - nmin] = 1.0f + (oodotp[n - nmin] - 1.0f) * pt[n - nmin];
       }
     }
 
@@ -195,8 +199,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
     for (int n = nmin; n < nmax; ++n) {
       // Can we come up with a better approximation?
       // Should take +/- curvature into account.
-      id[n - nmin] =
-          (oodotp[n - nmin] > 5.0f || oodotp[n - nmin] < 0) ? 0.0f : (r[n - nmin] - r0[n - nmin]) * oodotp[n - nmin];
+      id[n - nmin] = (r[n - nmin] - r0[n - nmin]) * oodotp[n - nmin];
     }
 
 #pragma omp simd
@@ -236,7 +239,8 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
                     << " pz=" << pt[n - nmin] * std::tan(theta[n - nmin]) << " q=" << inChg(n, 0, 0) << std::endl
                     << "   r=" << std::setprecision(9) << r[n - nmin] << " r0=" << std::setprecision(9) << r0[n - nmin]
                     << " id=" << std::setprecision(9) << id[n - nmin] << " dr=" << std::setprecision(9)
-                    << r[n - nmin] - r0[n - nmin] << " cosa=" << cosa[n - nmin] << " sina=" << sina[n - nmin]);
+                    << r[n - nmin] - r0[n - nmin] << " cosa=" << cosa[n - nmin] << " sina=" << sina[n - nmin]
+                    << " dir_cos(rad,pT)=" << 1.0f / oodotp[n]);
     }
 
     //update derivatives on total distance
@@ -249,7 +253,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
 #pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
         oor0[n - nmin] =
-            (r0[n - nmin] > 0.f && std::abs(r[n - nmin] - r0[n - nmin]) < 0.0001f) ? 1.f / r0[n - nmin] : 0.f;
+            (r0[n - nmin] > 0.f && std::abs(r[n - nmin] - r0[n - nmin]) > 0.0001f) ? 1.f / r0[n - nmin] : 0.f;
       }
 #pragma omp simd
       for (int n = nmin; n < nmax; ++n) {
@@ -452,8 +456,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
 
   for (int n = nmin; n < nmax; ++n) {
     dprint_np(n,
-              "propagation end, dump parameters"
-                  << std::endl
+              "propagation end, dump parameters\n"
                   << "   pos = " << outPar(n, 0, 0) << " " << outPar(n, 1, 0) << " " << outPar(n, 2, 0) << "\t\t r="
                   << std::sqrt(outPar(n, 0, 0) * outPar(n, 0, 0) + outPar(n, 1, 0) * outPar(n, 1, 0)) << std::endl
                   << "   mom = " << std::cos(outPar(n, 4, 0)) / outPar(n, 3, 0) << " "
@@ -463,7 +466,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
 
 #ifdef DEBUG
   for (int n = nmin; n < nmax; ++n) {
-    if (n < N_proc) {
+    if (debug && g_debug && n < N_proc) {
       dmutex_guard;
       std::cout << n << ": jacobian" << std::endl;
       printf("%5f %5f %5f %5f %5f %5f\n",

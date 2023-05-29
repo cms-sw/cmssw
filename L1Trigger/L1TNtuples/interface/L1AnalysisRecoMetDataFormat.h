@@ -24,6 +24,10 @@ namespace L1Analysis {
       pfMetNoMuPx = -999.;
       pfMetNoMuPy = -999.;
       pfMetNoMuPhi = -999.;
+      puppi_metNoMu = -999.;
+      puppi_metNoMuPx = -999.;
+      puppi_metNoMuPy = -999.;
+      puppi_metNoMuPhi = -999.;
       caloMet = -999.;
       caloMetPhi = -999.;
       caloSumEt = -999.;
@@ -34,6 +38,9 @@ namespace L1Analysis {
       Ht = -999.;
       mHt = -999.;
       mHtPhi = -999.;
+      puppi_Ht = -999.;
+      puppi_mHt = -999.;
+      puppi_mHtPhi = -999.;
       sumEt = -999.;
       ecalFlag = 0;
       hcalFlag = 0;
@@ -43,6 +50,10 @@ namespace L1Analysis {
     float metPx;
     float metPy;
     float metPhi;
+    float puppi_metNoMu;
+    float puppi_metNoMuPx;
+    float puppi_metNoMuPy;
+    float puppi_metNoMuPhi;
     float pfMetNoMu;
     float pfMetNoMuPx;
     float pfMetNoMuPy;
@@ -58,6 +69,9 @@ namespace L1Analysis {
     float mHt;
     float mHtPhi;
     float sumEt;
+    float puppi_Ht;
+    float puppi_mHt;
+    float puppi_mHtPhi;
     unsigned short ecalFlag;
     unsigned short hcalFlag;
   };

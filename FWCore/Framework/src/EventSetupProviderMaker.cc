@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -91,16 +90,17 @@ namespace edm {
     }
 
     // ---------------------------------------------------------------
-    void fillEventSetupProvider(EventSetupsController& esController, EventSetupProvider& cp, ParameterSet& params) {
+    void fillEventSetupProvider(ModuleTypeResolverMaker const* resolverMaker,
+                                EventSetupsController& esController,
+                                EventSetupProvider& cp,
+                                ParameterSet& params) {
       std::vector<std::string> providers = params.getParameter<std::vector<std::string> >("@all_esmodules");
 
       for (std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
            itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        validateEventSetupParameters(*providerPSet);
-        providerPSet->registerIt();
-        ModuleFactory::get()->addTo(esController, cp, *providerPSet);
+        ModuleFactory::get()->addTo(esController, cp, *providerPSet, resolverMaker);
       }
 
       std::vector<std::string> sources = params.getParameter<std::vector<std::string> >("@all_essources");
@@ -108,39 +108,7 @@ namespace edm {
       for (std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        validateEventSetupParameters(*providerPSet);
-        providerPSet->registerIt();
-        SourceFactory::get()->addTo(esController, cp, *providerPSet);
-      }
-    }
-
-    // ---------------------------------------------------------------
-    void validateEventSetupParameters(ParameterSet& pset) {
-      std::string modtype;
-      std::string moduleLabel;
-      modtype = pset.getParameter<std::string>("@module_type");
-      moduleLabel = pset.getParameter<std::string>("@module_label");
-      // Check for the "unlabeled" case
-      // This is an artifact left over from the old configuration language
-      // we were using before switching to the python configuration
-      // This is handled in the validation code and python configuration
-      // files by using a label equal to the module typename.
-      if (moduleLabel == std::string("")) {
-        moduleLabel = modtype;
-      }
-
-      std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
-          ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
-      ConfigurationDescriptions descriptions(filler->baseType(), modtype);
-      filler->fill(descriptions);
-      try {
-        edm::convertException::wrap([&]() { descriptions.validate(pset, moduleLabel); });
-      } catch (cms::Exception& iException) {
-        std::ostringstream ost;
-        ost << "Validating configuration of ESProducer or ESSource of type " << modtype << " with label: '"
-            << moduleLabel << "'";
-        iException.addContext(ost.str());
-        throw;
+        SourceFactory::get()->addTo(esController, cp, *providerPSet, resolverMaker);
       }
     }
   }  // namespace eventsetup

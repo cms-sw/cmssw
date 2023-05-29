@@ -3,35 +3,21 @@
 // Package:     HLTMuonValidator
 // Class:       HLTMuonValidator
 //
-
-//
 // Jason Slaunwhite and Jeff Klukas
 //
-//
-
-// system include files
-#include <iostream>
-#include <memory>
-#include <tuple>
-
-// user include files
-#include "HLTriggerOffline/Muon/interface/HLTMuonPlotter.h"
+#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTriggerOffline/Muon/interface/HLTMuonPlotter.h"
 
-#include "TDirectory.h"
-#include "TFile.h"
 #include "TPRegexp.h"
-
-//////////////////////////////////////////////////////////////////////////////
-//////// Define the interface ////////////////////////////////////////////////
 
 class HLTMuonValidator : public DQMEDAnalyzer {
 public:
@@ -44,8 +30,10 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   // Extra Methods
-  std::vector<std::string> moduleLabels(std::string);
-  std::vector<std::string> stepLabels(const std::vector<std::string> &);
+  void fillLabels(std::string const &path,
+                  std::vector<std::string> &moduleLabels,
+                  std::vector<std::string> &stepLabels) const;
+  std::string stepLabel(std::string const &moduleLabel) const;
 
   // Input from Configuration File
   edm::ParameterSet pset_;
@@ -63,86 +51,92 @@ private:
   HLTMuonPlotter::L1MuonMatcherAlgoForDQM const l1tMuonMatcherAlgo_;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-//////// Namespaces, Typedefs, and Constants /////////////////////////////////
-
-using namespace std;
-using namespace edm;
-using namespace reco;
-using namespace trigger;
-
-typedef vector<string> vstring;
-
-//////////////////////////////////////////////////////////////////////////////
-//////// Class Methods ///////////////////////////////////////////////////////
-
-HLTMuonValidator::HLTMuonValidator(const ParameterSet &pset)
+HLTMuonValidator::HLTMuonValidator(const edm::ParameterSet &pset)
     : pset_(pset),
-      hltProcessName_(pset.getParameter<string>("hltProcessName")),
-      hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck")),
+      hltProcessName_(pset.getParameter<std::string>("hltProcessName")),
+      hltPathsToCheck_(pset.getParameter<std::vector<std::string>>("hltPathsToCheck")),
       triggerEventToken_(consumes(edm::InputTag("hltTriggerSummaryRAW"))),
-      genParticlesToken_(consumes(pset.getParameter<string>("genParticleLabel"))),
-      recoMuonsToken_(consumes(pset.getParameter<string>("recMuonLabel"))),
+      genParticlesToken_(consumes(pset.getParameter<std::string>("genParticleLabel"))),
+      recoMuonsToken_(consumes(pset.getParameter<std::string>("recMuonLabel"))),
       l1tMuonMatcherAlgo_(pset, consumesCollector()) {}
 
-vector<string> HLTMuonValidator::moduleLabels(string path) {
-  vector<string> modules = hltConfig_.moduleLabels(path);
-  vector<string>::iterator iter = modules.begin();
+void HLTMuonValidator::fillLabels(std::string const &path,
+                                  std::vector<std::string> &moduleLabels,
+                                  std::vector<std::string> &stepLabels) const {
+  auto const &hltFilters = hltConfig_.saveTagsModules(path);
 
-  while (iter != modules.end())
-    if (iter->find("Filtered") == string::npos)
-      iter = modules.erase(iter);
-    else
-      ++iter;
+  moduleLabels.clear();
+  moduleLabels.reserve(hltFilters.size());
 
-  return modules;
-}
+  stepLabels.clear();
+  stepLabels.reserve(hltFilters.size() + 1);
 
-vector<string> HLTMuonValidator::stepLabels(const vector<string> &modules) {
-  vector<string> steps(1, "All");
-  for (size_t i = 0; i < modules.size(); i++) {
-    if ((modules[i].find("IsoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3TkIso");
-      else
-        steps.push_back("L2Iso");
-    } else if ((modules[i].find("pfecalIsoRhoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3EcalIso");
-      else if (modules[i].find("TkFiltered") != string::npos)
-        steps.push_back("TkEcalIso");
-    } else if ((modules[i].find("pfhcalIsoRhoFiltered") != string::npos)) {
-      if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3HcalIso");
-      else if (modules[i].find("TkFiltered") != string::npos)
-        steps.push_back("TkHcalIso");
-    } else if (modules[i].find("TkFiltered") != string::npos) {
-      steps.push_back("Tk");
-    } else if (modules[i].find("L3") != string::npos)
-      steps.push_back("L3");
-    else if (modules[i].find("L2") != string::npos)
-      steps.push_back("L2");
-    else if (modules[i].find("L1") != string::npos)
-      steps.push_back("L1");
-    else
-      return vector<string>();
+  for (auto const &module : hltFilters) {
+    if (module.find("Filtered") == std::string::npos)
+      continue;
+
+    auto const step_label = stepLabel(module);
+    if (step_label.empty() or std::find(stepLabels.begin(), stepLabels.end(), step_label) != stepLabels.end())
+      continue;
+
+    moduleLabels.emplace_back(module);
+    stepLabels.emplace_back(step_label);
   }
 
-  if (steps.size() < 2 || ((steps[1] != "L1") && (steps[1] != "Tk")))
-    return vector<string>();
-  return steps;
+  if (stepLabels.empty()) {
+    return;
+  }
+
+  if (stepLabels[0] != "L1" and std::find(stepLabels.begin(), stepLabels.end(), "L1") != stepLabels.end()) {
+    edm::LogWarning wrn("HLTMuonValidator");
+    wrn << "Unsupported list of 'step' labels (the label 'L1' is present, but is not the first one): stepLabels=(";
+    for (auto const &foo : stepLabels)
+      wrn << " " << foo;
+    wrn << " )";
+
+    moduleLabels.clear();
+    stepLabels.clear();
+    return;
+  }
+
+  stepLabels.insert(stepLabels.begin(), "All");
+}
+
+std::string HLTMuonValidator::stepLabel(std::string const &module) const {
+  if (module.find("IsoFiltered") != std::string::npos) {
+    return (module.find("L3") != std::string::npos) ? "L3TkIso" : "L2Iso";
+  } else if (module.find("pfecalIsoRhoFiltered") != std::string::npos) {
+    if (module.find("L3") != std::string::npos)
+      return "L3EcalIso";
+    else if (module.find("TkFiltered") != std::string::npos)
+      return "TkEcalIso";
+  } else if (module.find("pfhcalIsoRhoFiltered") != std::string::npos) {
+    if (module.find("L3") != std::string::npos)
+      return "L3HcalIso";
+    else if (module.find("TkFiltered") != std::string::npos)
+      return "TkHcalIso";
+  } else if (module.find("TkFiltered") != std::string::npos)
+    return "Tk";
+  else if (module.find("L3") != std::string::npos)
+    return "L3";
+  else if (module.find("L2") != std::string::npos)
+    return "L2";
+  else if (module.find("L1") != std::string::npos)
+    return "L1";
+
+  return "";
 }
 
 void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Initialize hltConfig
   bool changedConfig;
   if (!hltConfig_.init(iRun, iSetup, hltProcessName_, changedConfig)) {
-    LogError("HLTMuonVal") << "Initialization of HLTConfigProvider failed!!";
+    edm::LogError("HLTMuonVal") << "Initialization of HLTConfigProvider failed!!";
     return;
   }
 
   // Get the set of trigger paths we want to make plots for
-  set<string> hltPaths;
+  std::set<std::string> hltPaths;
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
     TPRegexp pattern(hltPathsToCheck_[i]);
     for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
@@ -152,15 +146,16 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &
 
   // Initialize the analyzers
   analyzers_.clear();
-  set<string>::iterator iPath;
+  std::set<std::string>::iterator iPath;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
-    string path = *iPath;
-    string shortpath = path;
+    const std::string &path = *iPath;
+    std::string shortpath = path;
     if (path.rfind("_v") < path.length())
       shortpath = path.substr(0, path.rfind("_v"));
 
-    vector<string> labels = moduleLabels(path);
-    vector<string> steps = stepLabels(labels);
+    std::vector<std::string> labels;
+    std::vector<std::string> steps;
+    fillLabels(path, labels, steps);
 
     if (!labels.empty() && !steps.empty()) {
       HLTMuonPlotter analyzer(
@@ -172,18 +167,17 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &
 
 void HLTMuonValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup) {
   // Call the beginRun (which books all the histograms)
-  vector<HLTMuonPlotter>::iterator iter;
-  for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
-    iter->beginRun(iBooker, iRun, iSetup);
+  for (auto &analyzer : analyzers_) {
+    analyzer.beginRun(iBooker, iRun, iSetup);
   }
 }
 
-void HLTMuonValidator::analyze(const Event &iEvent, const EventSetup &iSetup) {
-  vector<HLTMuonPlotter>::iterator iter;
-  for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
-    iter->analyze(iEvent, iSetup);
+void HLTMuonValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  for (auto &analyzer : analyzers_) {
+    analyzer.analyze(iEvent, iSetup);
   }
 }
 
 // define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTMuonValidator);

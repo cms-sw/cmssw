@@ -123,6 +123,9 @@ public:
     inline void setProbabilityQ(float prob, QualWordType& qualWord) const {
       if (prob > 1.0f && prob <= 1.0f + std::numeric_limits<float>::epsilon()) {
         prob = 1;
+      } else if (prob == -1.0f) {
+        // default prob in absence of Q probability computation is -1 --> set to 0
+        prob = 0;
       } else if (prob < 0.0f || prob > 1.0f + std::numeric_limits<float>::epsilon()) {
         warningOutOfBoundProb("Q", prob, qualWord);
         prob = 0;

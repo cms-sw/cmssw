@@ -5,7 +5,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"  // reco::LeafCandidate
 #include "DataFormats/Candidate/interface/Particle.h"       // reco::Particle::LorentzVector
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 
 #include <ostream>
 
@@ -52,7 +52,7 @@ namespace l1t {
     const l1t::PFCandidateRefVector& sumPhotons() const { return sumPhotons_; }
     const l1t::PFCandidateRefVector& sumMuons() const { return sumMuons_; }
 
-    const l1t::TkPrimaryVertexRef& primaryVertex() const { return primaryVertex_; }
+    const l1t::VertexWordRef& primaryVertex() const { return primaryVertex_; }
 
     enum Kind { kUndefined, kOneProng0Pi0, kOneProng1Pi0, kThreeProng0Pi0, kThreeProng1Pi0 };
     Kind tauType() const { return tauType_; }
@@ -120,7 +120,7 @@ namespace l1t {
     void setSumPhotons(l1t::PFCandidateRefVector sumPhotons) { sumPhotons_ = sumPhotons; }
     void setSumMuons(l1t::PFCandidateRefVector sumMuons) { sumMuons_ = sumMuons; }
 
-    void setPrimaryVertex(l1t::TkPrimaryVertexRef primaryVertex) { primaryVertex_ = primaryVertex; }
+    void setPrimaryVertex(l1t::VertexWordRef primaryVertex) { primaryVertex_ = primaryVertex; }
 
     void setTauType(Kind tauType) { tauType_ = tauType; }
 
@@ -176,7 +176,7 @@ namespace l1t {
     l1t::PFCandidateRefVector sumPhotons_;
     l1t::PFCandidateRefVector sumMuons_;
 
-    l1t::TkPrimaryVertexRef primaryVertex_;
+    l1t::VertexWordRef primaryVertex_;
     Kind tauType_;
 
     reco::Particle::LorentzVector stripP4_;
@@ -208,7 +208,7 @@ namespace l1t {
 /// print to stream
 std::ostream& operator<<(std::ostream& os, const l1t::HPSPFTau& l1PFTau);
 
-void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::TkPrimaryVertexRef& primaryVertex);
+void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, const l1t::VertexWordRef& primaryVertex);
 void printPFCand(ostream& os, const l1t::PFCandidate& l1PFCand, float primaryVertexZ);
 
 #endif

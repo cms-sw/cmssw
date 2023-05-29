@@ -20,6 +20,7 @@ ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iCon
 #endif
 
   scalerToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("lumiScalers"));
+  metaDataToken_ = consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("metadata"));
 }
 
 void ShallowEventDataProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -57,15 +58,20 @@ void ShallowEventDataProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 #endif
 
   // Luminosity informations
-  edm::Handle<LumiScalersCollection> lumiScalers;
+  edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(scalerToken_);
+  edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataToken_);
+
   float instLumi_ = 0;
   float PU_ = 0;
-  iEvent.getByToken(scalerToken_, lumiScalers);
-  if (lumiScalers.isValid()) {
+
+  if (lumiScalers.isValid() && !lumiScalers->empty()) {
     if (lumiScalers->begin() != lumiScalers->end()) {
       instLumi_ = lumiScalers->begin()->instantLumi();
       PU_ = lumiScalers->begin()->pileup();
     }
+  } else if (metaData.isValid()) {
+    instLumi_ = metaData->instLumi();
+    PU_ = metaData->avgPileUp();
   } else {
     edm::LogInfo("ShallowEventDataProducer")
         << "LumiScalers collection not found in the event; will write dummy values";

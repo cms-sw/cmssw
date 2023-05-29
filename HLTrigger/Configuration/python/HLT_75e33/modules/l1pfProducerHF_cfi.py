@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1pfProducerHF = cms.EDProducer("L1TPFProducer",
+l1tPFProducerHF = cms.EDProducer("L1TPFProducer",
     debug = cms.untracked.int32(0),
     emClusters = cms.VInputTag(),
     emPtCut = cms.double(0.5),
@@ -71,7 +71,7 @@ l1pfProducerHF = cms.EDProducer("L1TPFProducer",
             phiSlices = cms.uint32(1)
         )
     ),
-    tkMuons = cms.InputTag("hltL1TkMuons"),
+    tkMuons = cms.InputTag("l1tTkMuonsGmt"),
     trackRegionMode = cms.string('atCalo'),
     tracks = cms.InputTag(""),
     trkMaxChi2 = cms.double(15),
@@ -82,7 +82,7 @@ l1pfProducerHF = cms.EDProducer("L1TPFProducer",
     useTrackerMuons = cms.bool(False),
     vtxAdaptiveCut = cms.bool(True),
     vtxAlgo = cms.string('external'),
-    vtxCollection = cms.InputTag("L1TkPrimaryVertex"),
+    vtxCollection = cms.InputTag("l1tTkPrimaryVertex"),
     vtxFormat = cms.string('TkPrimaryVertex'),
     vtxRes = cms.double(0.333)
 )

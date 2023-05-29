@@ -1,9 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  HBHEMuonOfflineAnalyzer h1(tree,outfile,rcorFile,flag,mode,maxDHB,maxDHE,
-//                             runLo,runHi,etaMin,etaMax,debug);
-//  HBHEMuonOfflineAnalyzer h1(infile,outfile,rcorFile,flag,mode,maxDHB,maxDHE,
-//                             runLo,runHi,etaMin,etaMax,debug);
+//  HBHEMuonOfflineAnalyzer h1(tree, outfile, rcorFile, flag, mode, maxDHB,
+//                             maxDHE, cutMu, cutP, nevMax, over, runLo,
+//                             runHi, etaMin, etaMax, debug);
+//  HBHEMuonOfflineAnalyzer h1(infile, outfile, rcorFile, flag, mode, maxDHB,
+//                             maxDHE, cutMu, cutP, nevMax, over, runLo,
+//                             runHi, etaMin, etaMax, debug);
 //   h1.Loop()
 //
 //   tree       TTree*       Pointer to the tree chain
@@ -20,9 +22,16 @@
 //   mode       int          Geometry file used 0:(defined by maxDHB/HE);
 //                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
 //                           3 (Run 3; post LS2); 4 (2017 Plan 1);
-//                           5 (Run 4; post LS3); default (2)
+//                           5 (Run 4; post LS3); default (3)
 //   maxDHB     int          Maximum number of depths for HB (4)
 //   maxDHE     int          Maximum number of depths for HE (7)
+//   cutMu      int          Selection of muon type:
+//                           (tight:0; medium:1; loose:2) default (0)
+//   cutP       float        Minimum muon momentum; default (10)
+//   nevMax     int          Maximum # oe entries to be processed; -1 means
+//                           all entries (-1)
+//   over       int          Override some of the selection
+//                           (0: not to override; 1: override) default (0)
 //   runLO      int          Minimum run number (1)
 //   runHI      int          Maximum run number (99999999)
 //   etaMin     int          Minimum (absolute) eta value (1)
@@ -331,9 +340,13 @@ public:
                           const char *outfile = "dyll_PU20_25_output_10.root",
                           const char *rcorFileName = "",
                           int flag = 0,
-                          int mode = 2,
+                          int mode = 3,
                           int maxDHB = 4,
                           int maxDHE = 7,
+                          int cutMu = 0,
+                          float cutP = 5,
+                          int nevMax = -1,
+                          int over = 0,
                           int runLo = 1,
                           int runHi = 99999999,
                           int etaMin = 1,
@@ -343,16 +356,20 @@ public:
                           const char *outfile = "dyll_PU20_25_output_10.root",
                           const char *rcorFileName = "",
                           int flag = 0,
-                          int mode = 2,
+                          int mode = 3,
                           int maxDHB = 4,
                           int maxDHE = 7,
+                          int cutMu = 0,
+                          float cutP = 5,
+                          int nevMax = -1,
+                          int over = 0,
                           int runLo = 1,
                           int runHi = 99999999,
                           int etaMin = 1,
                           int etaMax = 29,
                           bool debug = false);
   // mode of LHC is kept 1 for 2017 scenario as no change in depth segmentation
-  // mode of LHC is 0 for 2021
+  // mode of LHC is 3 for 2021
   virtual ~HBHEMuonOfflineAnalyzer();
 
   virtual Int_t Cut(Long64_t entry);
@@ -400,9 +417,11 @@ private:
   static const int maxPhi_ = 72;
   //3x16x72x2 + 5x4x72x2 + 5x9x36x2
   static const int maxHist_ = 20000;  //13032;
-  static const int nCut_ = 1;
   static const unsigned int nmax_ = 10;
-  const bool debug_;
+  int nCut_;
+  const double cutP_;
+  const int nevMax_;
+  const bool over_, debug_;
   int modeLHC_, maxDepthHB_, maxDepthHE_, maxDepth_;
   int runLo_, runHi_, etaMin_, etaMax_;
   bool cFactor_, useCorrect_, mergeDepth_;
@@ -418,33 +437,31 @@ private:
   std::vector<double> t_ene, t_enec, t_actln, t_charge;
   std::vector<int> t_depth;
 
-  TH1D *h_evtype, *h_Pt_Muon[3], *h_Eta_Muon[3], *h_Phi_Muon[3], *h_P_Muon[3];
-  TH1D *h_PF_Muon[3], *h_GlobTrack_Chi[3], *h_Global_Muon_Hits[3];
-  TH1D *h_MatchedStations[3], *h_Tight_TransImpactparameter[3];
-  TH1D *h_Tight_LongitudinalImpactparameter[3], *h_InnerTrackPixelHits[3];
-  TH1D *h_TrackerLayer[3], *h_IsolationR04[3], *h_Global_Muon[3];
-  TH1D *h_LongImpactParameter[3], *h_LongImpactParameterBin1[3], *h_LongImpactParameterBin2[3];
+  TH1D *h_evtype, *h_Pt_Muon, *h_Eta_Muon, *h_Phi_Muon, *h_P_Muon;
+  TH1D *h_PF_Muon, *h_GlobTrack_Chi, *h_Global_Muon_Hits;
+  TH1D *h_MatchedStations, *h_Tight_TransImpactparameter;
+  TH1D *h_Tight_LongitudinalImpactparameter, *h_InnerTrackPixelHits;
+  TH1D *h_TrackerLayer, *h_IsolationR04, *h_Global_Muon;
+  TH1D *h_LongImpactParameter, *h_LongImpactParameterBin1, *h_LongImpactParameterBin2;
 
-  TH1D *h_TransImpactParameter[3], *h_TransImpactParameterBin1[3], *h_TransImpactParameterBin2[3];
-  TH1D *h_Hot_MuonEnergy_hcal_ClosestCell[3][maxHist_], *h_Hot_MuonEnergy_hcal_HotCell[3][maxHist_],
-      *h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[3][maxHist_], *h_HotCell_MuonEnergy_phi[3][maxHist_],
-      *h_active_length_Fill[3][maxHist_], *h_p_muon_ineta[3][maxHist_], *h_charge_signal[3][maxHist_],
-      *h_charge_bg[3][maxHist_];
-  TH2D *h_2D_Bin1[3], *h_2D_Bin2[3];
-  TH1D *h_ecal_energy[3], *h_hcal_energy[3], *h_3x3_ecal[3], *h_1x1_hcal[3];
-  TH1D *h_MuonHittingEcal[3], *h_HotCell[3], *h_MuonEnergy_hcal[3][maxHist_];
-  TH1D *h_Hot_MuonEnergy_hcal[3][maxHist_];
-  TH2D *hcal_ietaVsEnergy[3];
-  TProfile *h_EtaX_hcal[3], *h_PhiY_hcal[3], *h_EtaX_ecal[3], *h_PhiY_ecal[3];
-  TProfile *h_Eta_ecal[3], *h_Phi_ecal[3];
-  TProfile *h_MuonEnergy_eta[3][maxDep_], *h_MuonEnergy_phi[3][maxDep_], *h_MuonEnergy_muon_eta[3][maxDep_];
-  TProfile *h_Hot_MuonEnergy_eta[3][maxDep_], *h_Hot_MuonEnergy_phi[3][maxDep_], *h_Hot_MuonEnergy_muon_eta[3][maxDep_];
-  TProfile *h_IsoHot_MuonEnergy_eta[3][maxDep_], *h_IsoHot_MuonEnergy_phi[3][maxDep_],
-      *h_IsoHot_MuonEnergy_muon_eta[3][maxDep_];
-  TProfile *h_IsoWithoutHot_MuonEnergy_eta[3][maxDep_], *h_IsoWithoutHot_MuonEnergy_phi[3][maxDep_],
-      *h_IsoWithoutHot_MuonEnergy_muon_eta[3][maxDep_];
-  TProfile *h_HotWithoutIso_MuonEnergy_eta[3][maxDep_], *h_HotWithoutIso_MuonEnergy_phi[3][maxDep_],
-      *h_HotWithoutIso_MuonEnergy_muon_eta[3][maxDep_];
+  TH1D *h_TransImpactParameter, *h_TransImpactParameterBin1, *h_TransImpactParameterBin2;
+  TH1D *h_Hot_MuonEnergy_hcal_ClosestCell[maxHist_], *h_Hot_MuonEnergy_hcal_HotCell[maxHist_],
+      *h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[maxHist_], *h_HotCell_MuonEnergy_phi[maxHist_],
+      *h_active_length_Fill[maxHist_], *h_p_muon_ineta[maxHist_], *h_charge_signal[maxHist_], *h_charge_bg[maxHist_];
+  TH2D *h_2D_Bin1, *h_2D_Bin2;
+  TH1D *h_ecal_energy, *h_hcal_energy, *h_3x3_ecal, *h_1x1_hcal;
+  TH1D *h_MuonHittingEcal, *h_HotCell, *h_MuonEnergy_hcal[maxHist_];
+  TH1D *h_Hot_MuonEnergy_hcal[maxHist_];
+  TH2D *hcal_ietaVsEnergy;
+  TProfile *h_EtaX_hcal, *h_PhiY_hcal, *h_EtaX_ecal, *h_PhiY_ecal;
+  TProfile *h_Eta_ecal, *h_Phi_ecal;
+  TProfile *h_MuonEnergy_eta[maxDep_], *h_MuonEnergy_phi[maxDep_], *h_MuonEnergy_muon_eta[maxDep_];
+  TProfile *h_Hot_MuonEnergy_eta[maxDep_], *h_Hot_MuonEnergy_phi[maxDep_], *h_Hot_MuonEnergy_muon_eta[maxDep_];
+  TProfile *h_IsoHot_MuonEnergy_eta[maxDep_], *h_IsoHot_MuonEnergy_phi[maxDep_], *h_IsoHot_MuonEnergy_muon_eta[maxDep_];
+  TProfile *h_IsoWithoutHot_MuonEnergy_eta[maxDep_], *h_IsoWithoutHot_MuonEnergy_phi[maxDep_],
+      *h_IsoWithoutHot_MuonEnergy_muon_eta[maxDep_];
+  TProfile *h_HotWithoutIso_MuonEnergy_eta[maxDep_], *h_HotWithoutIso_MuonEnergy_phi[maxDep_],
+      *h_HotWithoutIso_MuonEnergy_muon_eta[maxDep_];
 };
 
 HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(TChain *tree,
@@ -454,12 +471,18 @@ HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(TChain *tree,
                                                  int mode,
                                                  int maxDHB,
                                                  int maxDHE,
+                                                 int cutMu,
+                                                 float cutP,
+                                                 int nevMax,
+                                                 int over,
                                                  int runLo,
                                                  int runHi,
                                                  int etaMin,
                                                  int etaMax,
                                                  bool deb)
-    : debug_(deb), cFactor_(false) {
+    : nCut_(cutMu), cutP_(cutP), nevMax_(nevMax), over_(over == 1), debug_(deb), cFactor_(false) {
+  if ((nCut_ < 0) || (nCut_ > 2))
+    nCut_ = 0;
   Init(tree, rcorFileName, flag, mode, maxDHB, maxDHE, runLo, runHi, etaMin, etaMax);
 
   //Now book histograms
@@ -473,12 +496,18 @@ HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(const char *infile,
                                                  int mode,
                                                  int maxDHB,
                                                  int maxDHE,
+                                                 int cutMu,
+                                                 float cutP,
+                                                 int nevMax,
+                                                 int over,
                                                  int runLo,
                                                  int runHi,
                                                  int etaMin,
                                                  int etaMax,
                                                  bool deb)
-    : debug_(deb), cFactor_(false) {
+    : nCut_(cutMu), cutP_(cutP), nevMax_(nevMax), over_(over == 1), debug_(deb), cFactor_(false) {
+  if ((nCut_ < 0) || (nCut_ > 2))
+    nCut_ = 0;
   TChain *chain = new TChain("hcalHBHEMuon/TREE");
   if (!fillChain(chain, infile)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
@@ -839,11 +868,13 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     return;
 
   Long64_t nentries = fChain->GetEntriesFast();
-
   if (debug_)
     std::cout << "nevent = " << nentries << std::endl;
+  if (nevMax_ > 0)
+    nentries = nevMax_;
 
-  Long64_t nbytes = 0, nb = 0;
+  Long64_t nbytes = 0, nb = 0, nsel1 = 0, nsel2 = 0;
+  Long64_t nstep1 = 0, nstep2 = 0, nstep3 = 0, nstep4 = 0;
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -853,6 +884,7 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     nbytes += nb;
     if ((int)(Run_No) < runLo_ || (int)(Run_No) > runHi_)
       continue;
+    ++nstep1;
     if (debug_)
       std::cout << "Run " << Run_No << " Event " << Event_No << " Muon pt " << pt_of_muon << std::endl;
 
@@ -877,7 +909,7 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     int etaHcal, phiHcal, depthHcal;
     etaPhiHcal(hcal_detID, etaHcal, phiHcal, depthHcal);
 
-    int eta = (etaHcal > 0) ? etaHcal - 1 : -(1 + etaHcal);
+    int eta = (etaHcal > 0) ? etaHcal - 1 : -etaHcal - 1;
     double etaXHcal = (etaHcal > 0) ? etaHcal - 0.5 : etaHcal + 0.5;
     int nDepth = nDepthBins(eta + 1, phiHcal);
     int nPhi = nPhiBins(eta + 1);
@@ -888,9 +920,9 @@ void HBHEMuonOfflineAnalyzer::Loop() {
     t_p = p_of_muon;
     t_ediff = hcal_3into3 - hcal_1x1;
     t_nvtx = GoodVertex;
-    if (p_of_muon > 20)
+    if (p_of_muon > cutP_)
       pcut = true;
-    if (pt_of_muon > 20)
+    if (pt_of_muon > cutP_)
       ptcut = true;
     if (looseMuon())
       loose = true;
@@ -903,171 +935,179 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       std::cout << " etaHcal " << etaHcal << ":" << etaXHcal << " phiHcal " << phiHcal << ":" << phiYHcal << ":" << PHI
                 << " Depth " << nDepth << " Muon Pt " << pt_of_muon << " Isol " << IsolationR04 << std::endl;
 
-    for (int cut = 0; cut < nCut_; ++cut) {
-      bool select(false);
-      if (cut == 0)
-        select = tightMuon();
-      else if (cut == 1)
-        select = softMuon();
-      else
-        select = looseMuon();
+    int cut(nCut_);
+    bool select(false);
+    if (cut == 0)
+      select = tightMuon();
+    else if (cut == 1)
+      select = softMuon();
+    else
+      select = looseMuon();
 
-      if (select && ((eta + 1) >= etaMin_) && ((eta + 1) <= etaMax_)) {
-        h_Pt_Muon[cut]->Fill(pt_of_muon);
-        h_Eta_Muon[cut]->Fill(eta_of_muon);
-        h_Phi_Muon[cut]->Fill(phi_of_muon);
-        h_PF_Muon[cut]->Fill(PF_Muon);
-        h_GlobTrack_Chi[cut]->Fill(GlobTrack_Chi);
-        h_Global_Muon_Hits[cut]->Fill(Global_Muon_Hits);
-        h_MatchedStations[cut]->Fill(MatchedStations);
-        h_Tight_TransImpactparameter[cut]->Fill(Tight_TransImpactparameter);
-        h_Tight_LongitudinalImpactparameter[cut]->Fill(Tight_LongitudinalImpactparameter);
-        h_InnerTrackPixelHits[cut]->Fill(InnerTrackPixelHits);
-        h_TrackerLayer[cut]->Fill(TrackerLayer);
-        h_IsolationR04[cut]->Fill(IsolationR04);
-        h_Global_Muon[cut]->Fill(Global_Muon);
+    if (select)
+      ++nstep2;
+    if (select && ((eta + 1) >= etaMin_) && ((eta + 1) <= etaMax_)) {
+      ++nstep3;
+      h_Pt_Muon->Fill(pt_of_muon);
+      h_Eta_Muon->Fill(eta_of_muon);
+      h_Phi_Muon->Fill(phi_of_muon);
+      h_PF_Muon->Fill(PF_Muon);
+      h_GlobTrack_Chi->Fill(GlobTrack_Chi);
+      h_Global_Muon_Hits->Fill(Global_Muon_Hits);
+      h_MatchedStations->Fill(MatchedStations);
+      h_Tight_TransImpactparameter->Fill(Tight_TransImpactparameter);
+      h_Tight_LongitudinalImpactparameter->Fill(Tight_LongitudinalImpactparameter);
+      h_InnerTrackPixelHits->Fill(InnerTrackPixelHits);
+      h_TrackerLayer->Fill(TrackerLayer);
+      h_IsolationR04->Fill(IsolationR04);
+      h_Global_Muon->Fill(Global_Muon);
 
-        h_TransImpactParameter[cut]->Fill(Tight_TransImpactparameter);
-        h_LongImpactParameter[cut]->Fill(Tight_LongitudinalImpactparameter);
+      h_TransImpactParameter->Fill(Tight_TransImpactparameter);
+      h_LongImpactParameter->Fill(Tight_LongitudinalImpactparameter);
 
-        //in Phi Bins
-        if (((phi_of_muon) >= -1.5) || ((phi_of_muon) <= 0.5)) {
-          h_TransImpactParameterBin1[cut]->Fill(Tight_TransImpactparameter);
-          h_LongImpactParameterBin1[cut]->Fill(Tight_LongitudinalImpactparameter);
-          h_2D_Bin1[cut]->Fill(Tight_TransImpactparameter, Tight_LongitudinalImpactparameter);
+      //in Phi Bins
+      if (((phi_of_muon) >= -1.5) || ((phi_of_muon) <= 0.5)) {
+        h_TransImpactParameterBin1->Fill(Tight_TransImpactparameter);
+        h_LongImpactParameterBin1->Fill(Tight_LongitudinalImpactparameter);
+        h_2D_Bin1->Fill(Tight_TransImpactparameter, Tight_LongitudinalImpactparameter);
+      }
+
+      if ((phi_of_muon > 0.5) || (phi_of_muon < -1.5)) {
+        h_TransImpactParameterBin2->Fill(Tight_TransImpactparameter);
+        h_LongImpactParameterBin2->Fill(Tight_LongitudinalImpactparameter);
+        h_2D_Bin2->Fill(Tight_TransImpactparameter, Tight_LongitudinalImpactparameter);
+      }
+
+      h_ecal_energy->Fill(ecal_3into3);
+      h_3x3_ecal->Fill(ecal_3x3);
+      h_Eta_ecal->Fill(eta_of_muon, ecal_3x3);
+      h_Phi_ecal->Fill(phi_of_muon, ecal_3x3);
+      h_MuonHittingEcal->Fill(typeEcal);
+      if (typeEcal == 1) {
+        h_EtaX_ecal->Fill(etaEcal, ecal_3x3);
+        h_PhiY_ecal->Fill(phiEcal, ecal_3x3);
+      }
+
+      h_hcal_energy->Fill(hcal_3into3);
+      h_1x1_hcal->Fill(hcal_1x1);
+      h_EtaX_hcal->Fill(etaXHcal, hcal_1x1);
+      h_PhiY_hcal->Fill(phiYHcal, hcal_1x1);
+      h_HotCell->Fill(hcal_cellHot);
+      if (mergeDepth_) {
+        double en1(0), en2(0), actLTot(0), chargeS(0), chargeBG(0);
+        double enh(0), enc(0);
+        for (int dep = 0; dep < nDepth; ++dep) {
+          double enb(0), enu(0), eh0(0), ec0(0), chgS(0), chgB(0), actL(0);
+          getEnergy(dep, enb, enu, eh0, ec0, chgS, chgB, actL);
+          en1 += ((useCorrect_) ? enu : enb);
+          en2 += ((useCorrect_) ? ec0 : eh0);
+          enh += (eh0);
+          enc += (ec0);
+          actLTot += (actL);
+          chargeS += (chgS);
+          chargeBG += (chgB);
         }
+        int ind = (etaHcal > 0) ? indxEta[eta][0][PHI] : 1 + indxEta[eta][0][PHI];
+        if (debug_)  // || eta==15 || eta==17)
+          std::cout << "Matched Id " << matchedId << " Hot " << hcal_cellHot << " eta " << etaHcal << ":" << eta
+                    << " phi " << phiHcal << ":" << PHI << " Index " << ind << " E " << en1 << ":" << en2 << ":" << enh
+                    << ":" << enc << " L " << actLTot << " Charge " << chargeS << ":" << chargeBG << std::endl;
+        if (!(matchedId) && !(over_))
+          continue;
+        if ((hcal_cellHot == 1) || over_) {
+          if (actLTot > 0) {
+            h_Hot_MuonEnergy_hcal_HotCell[ind]->Fill(en2);
+            h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ind]->Fill(en2 / actLTot);
+            h_active_length_Fill[ind]->Fill(actLTot);
+            h_p_muon_ineta[ind]->Fill(p_of_muon);
+            h_charge_signal[ind]->Fill(chargeS);
+            h_charge_bg[ind]->Fill(chargeBG);
 
-        if ((phi_of_muon > 0.5) || (phi_of_muon < -1.5)) {
-          h_TransImpactParameterBin2[cut]->Fill(Tight_TransImpactparameter);
-          h_LongImpactParameterBin2[cut]->Fill(Tight_LongitudinalImpactparameter);
-          h_2D_Bin2[cut]->Fill(Tight_TransImpactparameter, Tight_LongitudinalImpactparameter);
-        }
+            t_ene.push_back(enh);
+            t_enec.push_back(enc);
+            t_charge.push_back(chargeS);
+            t_actln.push_back(actLTot);
+            t_depth.push_back(0);
 
-        h_ecal_energy[cut]->Fill(ecal_3into3);
-        h_3x3_ecal[cut]->Fill(ecal_3x3);
-        h_Eta_ecal[cut]->Fill(eta_of_muon, ecal_3x3);
-        h_Phi_ecal[cut]->Fill(phi_of_muon, ecal_3x3);
-        h_MuonHittingEcal[cut]->Fill(typeEcal);
-        if (typeEcal == 1) {
-          h_EtaX_ecal[cut]->Fill(etaEcal, ecal_3x3);
-          h_PhiY_ecal[cut]->Fill(phiEcal, ecal_3x3);
-        }
-
-        h_hcal_energy[cut]->Fill(hcal_3into3);
-        h_1x1_hcal[cut]->Fill(hcal_1x1);
-        h_EtaX_hcal[cut]->Fill(etaXHcal, hcal_1x1);
-        h_PhiY_hcal[cut]->Fill(phiYHcal, hcal_1x1);
-        h_HotCell[cut]->Fill(hcal_cellHot);
-        if (mergeDepth_) {
-          double en1(0), en2(0), energyFill(0), chargeS(0), chargeBG(0);
-          double enh(0), enc(0);
-          for (int dep = 0; dep < nDepth; ++dep) {
-            double enb(0), enu(0), eh0(0), ec0(0), chgS(0), chgB(0), actL(0);
-            getEnergy(dep, enb, enu, eh0, ec0, chgS, chgB, actL);
-            en1 += ((useCorrect_) ? enu : enb);
-            en2 += ((useCorrect_) ? ec0 : eh0);
-            enh += (eh0);
-            enc += (ec0);
-            energyFill += (actL);
-            chargeS += (chgS);
-            chargeBG += (chgB);
+            outtree_->Fill();
+            ++nsel1;
           }
-          int ind = (etaHcal > 0) ? indxEta[eta][0][PHI] : 1 + indxEta[eta][0][PHI];
+        }
+      } else {
+        bool fillTree(false);
+        ++nstep4;
+        for (int dep = 0; dep < nDepth; ++dep) {
+          if (debug_)
+            std::cout << "dep:" << dep << std::endl;
+
+          double actL(0), chargeS(-9999), chargeBG(-9999);
+          double enh(-9999), enc(-9999), enb(0), enu(0);
+          bool ok1 = getEnergy(dep, enb, enu, enh, enc, chargeS, chargeBG, actL);
+          double en1 = ((useCorrect_) ? enu : enb);
+          double en2 = ((useCorrect_) ? enc : enh);
+          if (debug_)
+            std::cout << "Hello in " << dep + 1 << " " << en1 << ":" << en2 << ":" << actL << std::endl;
+
+          bool ok2 = ok1;
+
+          if (debug_)
+            std::cout << "Before Index " << ok1 << ":" << ok2 << std::endl;
+
+          int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
           if (debug_)  // || eta==15 || eta==17)
             std::cout << "Matched Id " << matchedId << " Hot " << hcal_cellHot << " eta " << etaHcal << ":" << eta
-                      << " phi " << phiHcal << ":" << PHI << " Index " << ind << " E " << en1 << ":" << en2 << ":"
-                      << enh << ":" << enc << " L " << energyFill << " Charge " << chargeS << ":" << chargeBG
+                      << " phi " << phiHcal << ":" << PHI << " depth " << dep << " Index " << ind << " E " << en1 << ":"
+                      << en2 << ":" << enh << ":" << enc << " L " << actL << " Charge " << chargeS << ":" << chargeBG
                       << std::endl;
-          if (!(matchedId))
+          if (debug_)
+            std::cout << "matchedId " << matchedId << " Over " << over_ << " OK " << ok1 << ":" << ok2 << " cellHot "
+                      << (hcal_cellHot == 1) << std::endl;
+          if (!(matchedId) && !(over_))
             continue;
-          if (hcal_cellHot == 1) {
-            if (energyFill > 0) {
-              h_Hot_MuonEnergy_hcal_HotCell[cut][ind]->Fill(en2);
-              h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
-              h_active_length_Fill[cut][ind]->Fill(energyFill);
-              h_p_muon_ineta[cut][ind]->Fill(p_of_muon);
-              h_charge_signal[cut][ind]->Fill(chargeS);
-              h_charge_bg[cut][ind]->Fill(chargeBG);
+          if (ok1 || over_) {
+            if (debug_)
+              std::cout << "enter ok1" << std::endl;
 
-              t_ene.push_back(enh);
-              t_enec.push_back(enc);
-              t_charge.push_back(chargeS);
-              t_actln.push_back(energyFill);
-              t_depth.push_back(0);
-
-              outtree_->Fill();
+            if ((hcal_cellHot == 1) || (over_)) {
+              if (actL > 0) {
+                h_Hot_MuonEnergy_hcal_HotCell[ind]->Fill(en2);
+                h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ind]->Fill(en2 / actL);
+                h_active_length_Fill[ind]->Fill(actL);
+                h_p_muon_ineta[ind]->Fill(p_of_muon);
+                h_charge_signal[ind]->Fill(chargeS);
+                h_charge_bg[ind]->Fill(chargeBG);
+                t_ene.push_back(enh);
+                t_enec.push_back(enc);
+                t_charge.push_back(chargeS);
+                t_actln.push_back(actL);
+                // added depth vector AmanKalsi
+                t_depth.push_back(dep);
+                fillTree = true;
+              } else {
+                t_ene.push_back(-999.0);
+                t_enec.push_back(-999.0);
+                t_charge.push_back(-999.0);
+                t_actln.push_back(-999.0);
+                t_depth.push_back(-999.0);
+              }
+              if (debug_)
+                std::cout << "enter hot cell" << std::endl;
             }
           }
-        } else {
-          bool fillTree(false);
-          for (int dep = 0; dep < nDepth; ++dep) {
+
+          if (ok2) {
             if (debug_)
-              std::cout << "dep:" << dep << std::endl;
-
-            double energyFill(0), chargeS(-9999), chargeBG(-9999);
-            double enh(-9999), enc(-9999), enb(0), enu(0);
-            bool ok1 = getEnergy(dep, enb, enu, enh, enc, chargeS, chargeBG, energyFill);
-            double en1 = ((useCorrect_) ? enu : enb);
-            double en2 = ((useCorrect_) ? enc : enh);
-            if (debug_)
-              std::cout << "Hello in " << dep + 1 << " " << en1 << ":" << en2 << ":" << energyFill << std::endl;
-
-            bool ok2 = ok1;
-
-            if (debug_)
-              std::cout << "Before Index " << ok1 << ":" << ok2 << std::endl;
-
-            int ind = (etaHcal > 0) ? indxEta[eta][dep][PHI] : 1 + indxEta[eta][dep][PHI];
-            if (debug_)  // || eta==15 || eta==17)
-              std::cout << "Matched Id " << matchedId << " Hot " << hcal_cellHot << " eta " << etaHcal << ":" << eta
-                        << " phi " << phiHcal << ":" << PHI << " depth " << dep << " Index " << ind << " E " << en1
-                        << ":" << en2 << ":" << enh << ":" << enc << " L " << energyFill << " Charge " << chargeS << ":"
-                        << chargeBG << std::endl;
-            if (!(matchedId))
-              continue;
-            if (ok1) {
-              if (debug_)
-                std::cout << "enter ok1" << std::endl;
-
-              if (hcal_cellHot == 1) {
-                if (energyFill > 0) {
-                  h_Hot_MuonEnergy_hcal_HotCell[cut][ind]->Fill(en2);
-                  h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[cut][ind]->Fill(en2 / energyFill);
-                  h_active_length_Fill[cut][ind]->Fill(energyFill);
-                  h_p_muon_ineta[cut][ind]->Fill(p_of_muon);
-                  h_charge_signal[cut][ind]->Fill(chargeS);
-                  h_charge_bg[cut][ind]->Fill(chargeBG);
-                  t_ene.push_back(enh);
-                  t_enec.push_back(enc);
-                  t_charge.push_back(chargeS);
-                  t_actln.push_back(energyFill);
-                  // added depth vector AmanKalsi
-                  t_depth.push_back(dep);
-                  fillTree = true;
-                } else {
-                  t_ene.push_back(-999.0);
-                  t_enec.push_back(-999.0);
-                  t_charge.push_back(-999.0);
-                  t_actln.push_back(-999.0);
-                  t_depth.push_back(-999.0);
-                }
-                if (debug_)
-                  std::cout << "enter hot cell" << std::endl;
-              }
+              std::cout << "enter ok2" << std::endl;
+            if (hcal_cellHot != 1) {
             }
-
-            if (ok2) {
-              if (debug_)
-                std::cout << "enter ok2" << std::endl;
-              if (hcal_cellHot != 1) {
-              }
-            }
-
-            if (debug_)
-              std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
           }
-          if (fillTree)
-            outtree_->Fill();
+
+          if (debug_)
+            std::cout << "ETA \t" << eta << "DEPTH \t" << dep << std::endl;
+        }
+        if (fillTree) {
+          outtree_->Fill();
+          ++nsel2;
         }
       }
     }
@@ -1084,6 +1124,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       evtype += 16;
     h_evtype->Fill(evtype);
   }
+  std::cout << "Number of events in the output root tree: " << nsel1 << ":" << nsel2 << ":" << nstep1 << ":" << nstep2
+            << ":" << nstep3 << ":" << nstep4 << std::endl;
   close();
 }
 
@@ -1197,20 +1239,15 @@ void HBHEMuonOfflineAnalyzer::bookHistograms(const char *fname) {
   outtree_->Branch("t_actln", &t_actln);
   outtree_->Branch("t_depth", &t_depth);
 
-  std::string type[] = {"tight"};  //,"soft","loose"};
+  std::string type[] = {"tight", "soft", "loose"};
   char name[128], title[500];
 
   nHist = 0;
   for (int eta = etaMin_; eta <= etaMax_; ++eta) {
     int nDepth = nDepthBins(eta, -1);
     int nPhi = nPhiBins(eta);
-    //std::cout<<"problem 2"<<std::endl;
-    //std::cout<<"Eta: "<<eta<<" nDepth "<<nDepth<<" nPhi "<<nPhi<<std::endl;
     for (int depth = 0; depth < nDepth; depth++) {
-      //std::cout<<"problem 3"<<std::endl;
-      //std::cout<<"Eta:"<<eta<<"Depth:"<<depth<<std::endl;
       for (int PHI = 0; PHI < nPhi; ++PHI) {
-        //std::cout<<"Eta:"<<eta<<"Depth:"<<depth<<"PHI:"<<PHI<<std::endl;
         indxEta[eta - 1][depth][PHI] = nHist;
         nHist += 2;
       }
@@ -1222,250 +1259,247 @@ void HBHEMuonOfflineAnalyzer::bookHistograms(const char *fname) {
   //	TDirectory *d_output_file[nCut_][29];
   //output_file->cd();
   h_evtype = new TH1D("EvType", "Event Type", 100, 0, 100);
-  for (int i = 0; i < nCut_; ++i) {
-    sprintf(name, "h_Pt_Muon_%s", type[i].c_str());
-    sprintf(title, "p_{T} of %s muons (GeV)", type[i].c_str());
-    h_Pt_Muon[i] = new TH1D(name, title, 100, 0, 200);
+  int i(nCut_);
+  sprintf(name, "h_Pt_Muon_%s", type[i].c_str());
+  sprintf(title, "p_{T} of %s muons (GeV)", type[i].c_str());
+  h_Pt_Muon = new TH1D(name, title, 100, 0, 200);
 
-    sprintf(name, "h_Eta_Muon_%s", type[i].c_str());
-    sprintf(title, "#eta of %s muons", type[i].c_str());
-    h_Eta_Muon[i] = new TH1D(name, title, 50, -2.5, 2.5);
+  sprintf(name, "h_Eta_Muon_%s", type[i].c_str());
+  sprintf(title, "#eta of %s muons", type[i].c_str());
+  h_Eta_Muon = new TH1D(name, title, 50, -2.5, 2.5);
 
-    sprintf(name, "h_Phi_Muon_%s", type[i].c_str());
-    sprintf(title, "#phi of %s muons", type[i].c_str());
-    h_Phi_Muon[i] = new TH1D(name, title, 100, -3.1415926, 3.1415926);
+  sprintf(name, "h_Phi_Muon_%s", type[i].c_str());
+  sprintf(title, "#phi of %s muons", type[i].c_str());
+  h_Phi_Muon = new TH1D(name, title, 100, -3.1415926, 3.1415926);
 
-    sprintf(name, "h_P_Muon_%s", type[i].c_str());
-    sprintf(title, "p of %s muons (GeV)", type[i].c_str());
-    h_P_Muon[i] = new TH1D(name, title, 100, 0, 200);
+  sprintf(name, "h_P_Muon_%s", type[i].c_str());
+  sprintf(title, "p of %s muons (GeV)", type[i].c_str());
+  h_P_Muon = new TH1D(name, title, 100, 0, 200);
 
-    sprintf(name, "h_PF_Muon_%s", type[i].c_str());
-    sprintf(title, "PF %s muons (GeV)", type[i].c_str());
-    h_PF_Muon[i] = new TH1D(name, title, 2, 0, 2);
+  sprintf(name, "h_PF_Muon_%s", type[i].c_str());
+  sprintf(title, "PF %s muons (GeV)", type[i].c_str());
+  h_PF_Muon = new TH1D(name, title, 2, 0, 2);
 
-    sprintf(name, "h_Global_Muon_Chi2_%s", type[i].c_str());
-    sprintf(title, "Chi2 Global %s muons (GeV)", type[i].c_str());
-    h_GlobTrack_Chi[i] = new TH1D(name, title, 15, 0, 15);
+  sprintf(name, "h_Global_Muon_Chi2_%s", type[i].c_str());
+  sprintf(title, "Chi2 Global %s muons (GeV)", type[i].c_str());
+  h_GlobTrack_Chi = new TH1D(name, title, 15, 0, 15);
 
-    sprintf(name, "h_Global_Muon_Hits_%s", type[i].c_str());
-    sprintf(title, "Global Hits %s muons (GeV)", type[i].c_str());
-    h_Global_Muon_Hits[i] = new TH1D(name, title, 10, 0, 10);
+  sprintf(name, "h_Global_Muon_Hits_%s", type[i].c_str());
+  sprintf(title, "Global Hits %s muons (GeV)", type[i].c_str());
+  h_Global_Muon_Hits = new TH1D(name, title, 10, 0, 10);
 
-    sprintf(name, "h_Matched_Stations_%s", type[i].c_str());
-    sprintf(title, "Matched Stations %s muons (GeV)", type[i].c_str());
-    h_MatchedStations[i] = new TH1D(name, title, 10, 0, 10);
+  sprintf(name, "h_Matched_Stations_%s", type[i].c_str());
+  sprintf(title, "Matched Stations %s muons (GeV)", type[i].c_str());
+  h_MatchedStations = new TH1D(name, title, 10, 0, 10);
 
-    sprintf(name, "h_Transverse_ImpactParameter_%s", type[i].c_str());
-    sprintf(title, "Transverse_ImpactParameter of %s muons (GeV)", type[i].c_str());
-    h_Tight_TransImpactparameter[i] = new TH1D(name, title, 50, 0, 10);
+  sprintf(name, "h_Transverse_ImpactParameter_%s", type[i].c_str());
+  sprintf(title, "Transverse_ImpactParameter of %s muons (GeV)", type[i].c_str());
+  h_Tight_TransImpactparameter = new TH1D(name, title, 50, 0, 10);
 
-    sprintf(name, "h_Longitudinal_ImpactParameter_%s", type[i].c_str());
-    sprintf(title, "Longitudinal_ImpactParameter of %s muons (GeV)", type[i].c_str());
-    h_Tight_LongitudinalImpactparameter[i] = new TH1D(name, title, 20, 0, 10);
+  sprintf(name, "h_Longitudinal_ImpactParameter_%s", type[i].c_str());
+  sprintf(title, "Longitudinal_ImpactParameter of %s muons (GeV)", type[i].c_str());
+  h_Tight_LongitudinalImpactparameter = new TH1D(name, title, 20, 0, 10);
 
-    sprintf(name, "h_InnerTrack_PixelHits_%s", type[i].c_str());
-    sprintf(title, "InnerTrack_PixelHits of %s muons (GeV)", type[i].c_str());
-    h_InnerTrackPixelHits[i] = new TH1D(name, title, 20, 0, 20);
+  sprintf(name, "h_InnerTrack_PixelHits_%s", type[i].c_str());
+  sprintf(title, "InnerTrack_PixelHits of %s muons (GeV)", type[i].c_str());
+  h_InnerTrackPixelHits = new TH1D(name, title, 20, 0, 20);
 
-    sprintf(name, "h_TrackLayers_%s", type[i].c_str());
-    sprintf(title, "No. of Tracker Layers of %s muons (GeV)", type[i].c_str());
-    h_TrackerLayer[i] = new TH1D(name, title, 20, 0, 20);
-    ;
+  sprintf(name, "h_TrackLayers_%s", type[i].c_str());
+  sprintf(title, "No. of Tracker Layers of %s muons (GeV)", type[i].c_str());
+  h_TrackerLayer = new TH1D(name, title, 20, 0, 20);
 
-    sprintf(name, "h_IsolationR04_%s", type[i].c_str());
-    sprintf(title, "IsolationR04 %s muons (GeV)", type[i].c_str());
-    h_IsolationR04[i] = new TH1D(name, title, 45, 0, 5);
-    ;
+  sprintf(name, "h_IsolationR04_%s", type[i].c_str());
+  sprintf(title, "IsolationR04 %s muons (GeV)", type[i].c_str());
+  h_IsolationR04 = new TH1D(name, title, 45, 0, 5);
 
-    sprintf(name, "h_Global_Muon_%s", type[i].c_str());
-    sprintf(title, "Global %s muons (GeV)", type[i].c_str());
-    h_Global_Muon[i] = new TH1D(name, title, 2, 0, 2);
+  sprintf(name, "h_Global_Muon_%s", type[i].c_str());
+  sprintf(title, "Global %s muons (GeV)", type[i].c_str());
+  h_Global_Muon = new TH1D(name, title, 2, 0, 2);
 
-    sprintf(name, "h_TransImpactParameter_%s", type[i].c_str());
-    sprintf(title, "TransImpactParameter of %s muons (GeV)", type[i].c_str());
-    h_TransImpactParameter[i] = new TH1D(name, title, 100, 0, 0.5);
+  sprintf(name, "h_TransImpactParameter_%s", type[i].c_str());
+  sprintf(title, "TransImpactParameter of %s muons (GeV)", type[i].c_str());
+  h_TransImpactParameter = new TH1D(name, title, 100, 0, 0.5);
 
-    sprintf(name, "h_TransImpactParameterBin1_%s", type[i].c_str());
-    sprintf(title, "TransImpactParameter of %s muons (GeV) in -1.5 <= #phi <= 0.5", type[i].c_str());
-    h_TransImpactParameterBin1[i] = new TH1D(name, title, 100, 0, 0.5);
+  sprintf(name, "h_TransImpactParameterBin1_%s", type[i].c_str());
+  sprintf(title, "TransImpactParameter of %s muons (GeV) in -1.5 <= #phi <= 0.5", type[i].c_str());
+  h_TransImpactParameterBin1 = new TH1D(name, title, 100, 0, 0.5);
 
-    sprintf(name, "h_TransImpactParameterBin2_%s", type[i].c_str());
-    sprintf(title, "TransImpactParameter of %s muons (GeV) in #phi> 0.5 and #phi< -1.5 ", type[i].c_str());
-    h_TransImpactParameterBin2[i] = new TH1D(name, title, 100, 0, 0.5);
-    //
-    sprintf(name, "h_LongImpactParameter_%s", type[i].c_str());
-    sprintf(title, "LongImpactParameter of %s muons (GeV)", type[i].c_str());
-    h_LongImpactParameter[i] = new TH1D(name, title, 100, 0, 30);
+  sprintf(name, "h_TransImpactParameterBin2_%s", type[i].c_str());
+  sprintf(title, "TransImpactParameter of %s muons (GeV) in #phi> 0.5 and #phi< -1.5 ", type[i].c_str());
+  h_TransImpactParameterBin2 = new TH1D(name, title, 100, 0, 0.5);
 
-    sprintf(name, "h_LongImpactParameterBin1_%s", type[i].c_str());
-    sprintf(title, "LongImpactParameter of %s muons (GeV) in -1.5 <= #phi <= 0.5", type[i].c_str());
-    h_LongImpactParameterBin1[i] = new TH1D(name, title, 100, 0, 30);
+  sprintf(name, "h_LongImpactParameter_%s", type[i].c_str());
+  sprintf(title, "LongImpactParameter of %s muons (GeV)", type[i].c_str());
+  h_LongImpactParameter = new TH1D(name, title, 100, 0, 30);
 
-    sprintf(name, "h_LongImpactParameterBin2_%s", type[i].c_str());
-    sprintf(title, "LongImpactParameter of %s muons (GeV) in #phi> 0.5 and #phi< -1.5 ", type[i].c_str());
-    h_LongImpactParameterBin2[i] = new TH1D(name, title, 100, 0, 30);
+  sprintf(name, "h_LongImpactParameterBin1_%s", type[i].c_str());
+  sprintf(title, "LongImpactParameter of %s muons (GeV) in -1.5 <= #phi <= 0.5", type[i].c_str());
+  h_LongImpactParameterBin1 = new TH1D(name, title, 100, 0, 30);
 
-    sprintf(name, "h_2D_Bin1_%s", type[i].c_str());
-    sprintf(title, "Trans/Long ImpactParameter of %s muons (GeV) in -1.5 <= #phi< 0.5 ", type[i].c_str());
-    h_2D_Bin1[i] = new TH2D(name, title, 100, 0, 0.5, 100, 0, 30);
+  sprintf(name, "h_LongImpactParameterBin2_%s", type[i].c_str());
+  sprintf(title, "LongImpactParameter of %s muons (GeV) in #phi> 0.5 and #phi< -1.5 ", type[i].c_str());
+  h_LongImpactParameterBin2 = new TH1D(name, title, 100, 0, 30);
 
-    sprintf(name, "h_2D_Bin2_%s", type[i].c_str());
-    sprintf(title, "Trans/Long ImpactParameter of %s muons (GeV) in #phi> 0.5 and #phi< -1.5 ", type[i].c_str());
-    h_2D_Bin2[i] = new TH2D(name, title, 100, 0, 0.5, 100, 0, 30);
+  sprintf(name, "h_2D_Bin1_%s", type[i].c_str());
+  sprintf(title, "Trans/Long ImpactParameter of %s muons (GeV) in -1.5 <= #phi< 0.5 ", type[i].c_str());
+  h_2D_Bin1 = new TH2D(name, title, 100, 0, 0.5, 100, 0, 30);
 
-    sprintf(name, "h_ecal_energy_%s", type[i].c_str());
-    sprintf(title, "ECAL energy for %s muons", type[i].c_str());
-    h_ecal_energy[i] = new TH1D(name, title, 1000, -10.0, 90.0);
+  sprintf(name, "h_2D_Bin2_%s", type[i].c_str());
+  sprintf(title, "Trans/Long ImpactParameter of %s muons (GeV) in #phi> 0.5 and #phi< -1.5 ", type[i].c_str());
+  h_2D_Bin2 = new TH2D(name, title, 100, 0, 0.5, 100, 0, 30);
 
-    sprintf(name, "h_hcal_energy_%s", type[i].c_str());
-    sprintf(title, "HCAL energy for %s muons", type[i].c_str());
-    h_hcal_energy[i] = new TH1D(name, title, 500, -10.0, 90.0);
+  sprintf(name, "h_ecal_energy_%s", type[i].c_str());
+  sprintf(title, "ECAL energy for %s muons", type[i].c_str());
+  h_ecal_energy = new TH1D(name, title, 1000, -10.0, 90.0);
 
-    sprintf(name, "h_3x3_ecal_%s", type[i].c_str());
-    sprintf(title, "ECAL energy in 3x3 for %s muons", type[i].c_str());
-    h_3x3_ecal[i] = new TH1D(name, title, 1000, -10.0, 90.0);
+  sprintf(name, "h_hcal_energy_%s", type[i].c_str());
+  sprintf(title, "HCAL energy for %s muons", type[i].c_str());
+  h_hcal_energy = new TH1D(name, title, 500, -10.0, 90.0);
 
-    sprintf(name, "h_1x1_hcal_%s", type[i].c_str());
-    sprintf(title, "HCAL energy in 1x1 for %s muons", type[i].c_str());
-    h_1x1_hcal[i] = new TH1D(name, title, 500, -10.0, 90.0);
+  sprintf(name, "h_3x3_ecal_%s", type[i].c_str());
+  sprintf(title, "ECAL energy in 3x3 for %s muons", type[i].c_str());
+  h_3x3_ecal = new TH1D(name, title, 1000, -10.0, 90.0);
 
-    sprintf(name, "h_EtaX_hcal_%s", type[i].c_str());
-    sprintf(title, "HCAL energy as a function of i#eta for %s muons", type[i].c_str());
-    h_EtaX_hcal[i] = new TProfile(name, title, 60, -30.0, 30.0);
+  sprintf(name, "h_1x1_hcal_%s", type[i].c_str());
+  sprintf(title, "HCAL energy in 1x1 for %s muons", type[i].c_str());
+  h_1x1_hcal = new TH1D(name, title, 500, -10.0, 90.0);
 
-    sprintf(name, "h_PhiY_hcal_%s", type[i].c_str());
-    sprintf(title, "HCAL energy as a function of i#phi for %s muons", type[i].c_str());
-    h_PhiY_hcal[i] = new TProfile(name, title, 72, 0, 72);
+  sprintf(name, "h_EtaX_hcal_%s", type[i].c_str());
+  sprintf(title, "HCAL energy as a function of i#eta for %s muons", type[i].c_str());
+  h_EtaX_hcal = new TProfile(name, title, 60, -30.0, 30.0);
 
-    sprintf(name, "h_EtaX_ecal_%s", type[i].c_str());
-    sprintf(title, "EB energy as a function of i#eta for %s muons", type[i].c_str());
-    h_EtaX_ecal[i] = new TProfile(name, title, 170, -85.0, 85.0);
+  sprintf(name, "h_PhiY_hcal_%s", type[i].c_str());
+  sprintf(title, "HCAL energy as a function of i#phi for %s muons", type[i].c_str());
+  h_PhiY_hcal = new TProfile(name, title, 72, 0, 72);
 
-    sprintf(name, "h_PhiY_ecal_%s", type[i].c_str());
-    sprintf(title, "EB energy as a function of i#phi for %s muons", type[i].c_str());
-    h_PhiY_ecal[i] = new TProfile(name, title, 360, 0, 360);
+  sprintf(name, "h_EtaX_ecal_%s", type[i].c_str());
+  sprintf(title, "EB energy as a function of i#eta for %s muons", type[i].c_str());
+  h_EtaX_ecal = new TProfile(name, title, 170, -85.0, 85.0);
 
-    sprintf(name, "h_Eta_ecal_%s", type[i].c_str());
-    sprintf(title, "ECAL energy as a function of #eta for %s muons", type[i].c_str());
-    h_Eta_ecal[i] = new TProfile(name, title, 100, -2.5, 2.5);
+  sprintf(name, "h_PhiY_ecal_%s", type[i].c_str());
+  sprintf(title, "EB energy as a function of i#phi for %s muons", type[i].c_str());
+  h_PhiY_ecal = new TProfile(name, title, 360, 0, 360);
 
-    sprintf(name, "h_Phi_ecal_%s", type[i].c_str());
-    sprintf(title, "ECAL energy as a function of #phi for %s muons", type[i].c_str());
-    h_Phi_ecal[i] = new TProfile(name, title, 100, -3.1415926, 3.1415926);
+  sprintf(name, "h_Eta_ecal_%s", type[i].c_str());
+  sprintf(title, "ECAL energy as a function of #eta for %s muons", type[i].c_str());
+  h_Eta_ecal = new TProfile(name, title, 100, -2.5, 2.5);
 
-    sprintf(name, "h_MuonHittingEcal_%s", type[i].c_str());
-    sprintf(title, "%s muons hitting ECAL", type[i].c_str());
-    h_MuonHittingEcal[i] = new TH1D(name, title, 100, 0, 5.0);
+  sprintf(name, "h_Phi_ecal_%s", type[i].c_str());
+  sprintf(title, "ECAL energy as a function of #phi for %s muons", type[i].c_str());
+  h_Phi_ecal = new TProfile(name, title, 100, -3.1415926, 3.1415926);
 
-    sprintf(name, "h_HotCell_%s", type[i].c_str());
-    sprintf(title, "Hot cell for %s muons", type[i].c_str());
-    h_HotCell[i] = new TH1D(name, title, 100, 0, 2);
+  sprintf(name, "h_MuonHittingEcal_%s", type[i].c_str());
+  sprintf(title, "%s muons hitting ECAL", type[i].c_str());
+  h_MuonHittingEcal = new TH1D(name, title, 100, 0, 5.0);
 
-    //		output_file->cd();
-    for (int eta = etaMin_; eta <= etaMax_; ++eta) {
-      int nDepth = nDepthBins(eta, -1);
-      int nPhi = nPhiBins(eta);
-      //sprintf(name, "Dir_muon_type_%s_ieta%d",type[i].c_str(), eta);
-      //d_output_file[i][eta]= output_file->mkdir(name);
-      //output_file->cd(name);
-      //d_output_file[i][eta]->cd();
-      for (int depth = 0; depth < nDepth; ++depth) {
-        for (int PHI = 0; PHI < nPhi; ++PHI) {
-          int PHI0 = (nPhi == 72) ? PHI + 1 : 2 * PHI + 1;
-          int ih = indxEta[eta - 1][depth][PHI];
-          if (debug_)
-            std::cout << "eta:" << eta << " depth:" << depth << " PHI:" << PHI << ":" << PHI0 << " ih:" << ih
-                      << std::endl;
+  sprintf(name, "h_HotCell_%s", type[i].c_str());
+  sprintf(title, "Hot cell for %s muons", type[i].c_str());
+  h_HotCell = new TH1D(name, title, 100, 0, 2);
 
-          sprintf(name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell", eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title,
-                  "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi = %d) for extrapolated %s muons (Hot Cell)",
-                  eta,
-                  (depth + 1),
-                  PHI0,
-                  type[i].c_str());
-          h_Hot_MuonEnergy_hcal_HotCell[i][ih] = new TH1D(name, title, 4000, 0.0, 10.0);
-          h_Hot_MuonEnergy_hcal_HotCell[i][ih]->Sumw2();
+  //		output_file->cd();
+  for (int eta = etaMin_; eta <= etaMax_; ++eta) {
+    int nDepth = nDepthBins(eta, -1);
+    int nPhi = nPhiBins(eta);
+    //sprintf(name, "Dir_muon_type_%s_ieta%d",type[i].c_str(), eta);
+    //d_output_file[i][eta]= output_file->mkdir(name);
+    //output_file->cd(name);
+    //d_output_file[i][eta]->cd();
+    for (int depth = 0; depth < nDepth; ++depth) {
+      for (int PHI = 0; PHI < nPhi; ++PHI) {
+        int PHI0 = (nPhi == 72) ? PHI + 1 : 2 * PHI + 1;
+        int ih = indxEta[eta - 1][depth][PHI];
+        if (debug_)
+          std::cout << "eta:" << eta << " depth:" << depth << " PHI:" << PHI << ":" << PHI0 << " ih:" << ih
+                    << std::endl;
 
-          sprintf(
-              name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell_ByActiveLength", eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title,
-                  "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi = %d) for extrapolated %s muons (Hot Cell) "
-                  "divided by Active Length",
-                  eta,
-                  (depth + 1),
-                  PHI0,
-                  type[i].c_str());
-          h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[i][ih] = new TH1D(name, title, 4000, 0.0, 10.0);
-          h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[i][ih]->Sumw2();
+        sprintf(name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell", eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title,
+                "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi = %d) for extrapolated %s muons (Hot Cell)",
+                eta,
+                (depth + 1),
+                PHI0,
+                type[i].c_str());
+        h_Hot_MuonEnergy_hcal_HotCell[ih] = new TH1D(name, title, 4000, 0.0, 10.0);
+        h_Hot_MuonEnergy_hcal_HotCell[ih]->Sumw2();
 
-          sprintf(name, "h_active_length_Fill_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title, "active_length%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          h_active_length_Fill[i][ih] = new TH1D(name, title, 20, 0, 20);
-          h_active_length_Fill[i][ih]->Sumw2();
+        sprintf(
+            name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell_ByActiveLength", eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title,
+                "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi = %d) for extrapolated %s muons (Hot Cell) "
+                "divided by Active Length",
+                eta,
+                (depth + 1),
+                PHI0,
+                type[i].c_str());
+        h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ih] = new TH1D(name, title, 4000, 0.0, 10.0);
+        h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ih]->Sumw2();
 
-          sprintf(name, "h_p_muon_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title, "p_muon_in%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          h_p_muon_ineta[i][ih] = new TH1D(name, title, 500, 0, 500);
-          h_p_muon_ineta[i][ih]->Sumw2();
+        sprintf(name, "h_active_length_Fill_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title, "active_length%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        h_active_length_Fill[ih] = new TH1D(name, title, 20, 0, 20);
+        h_active_length_Fill[ih]->Sumw2();
 
-          sprintf(name, "h_charge_signal_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(name, "charge_signal_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          h_charge_signal[i][ih] = new TH1D(name, title, 500, 0, 500);
-          h_charge_signal[i][ih]->Sumw2();
+        sprintf(name, "h_p_muon_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title, "p_muon_in%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        h_p_muon_ineta[ih] = new TH1D(name, title, 500, 0, 500);
+        h_p_muon_ineta[ih]->Sumw2();
 
-          sprintf(name, "h_charge_bg_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(name, "charge_bg_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
-          h_charge_bg[i][ih] = new TH1D(name, title, 500, 0, 500);
-          h_charge_bg[i][ih]->Sumw2();
+        sprintf(name, "h_charge_signal_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(name, "charge_signal_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        h_charge_signal[ih] = new TH1D(name, title, 500, 0, 500);
+        h_charge_signal[ih]->Sumw2();
 
-          ih++;
+        sprintf(name, "h_charge_bg_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(name, "charge_bg_in_%d_%d_%d_%s", eta, (depth + 1), PHI0, type[i].c_str());
+        h_charge_bg[ih] = new TH1D(name, title, 500, 0, 500);
+        h_charge_bg[ih]->Sumw2();
 
-          sprintf(name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell", -eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title,
-                  "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi = %d) for extrapolated %s muons (Hot Cell)",
-                  -eta,
-                  (depth + 1),
-                  PHI0,
-                  type[i].c_str());
-          h_Hot_MuonEnergy_hcal_HotCell[i][ih] = new TH1D(name, title, 4000, 0.0, 10.0);
-          h_Hot_MuonEnergy_hcal_HotCell[i][ih]->Sumw2();
+        ih++;
 
-          sprintf(
-              name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell_ByActiveLength", -eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title,
-                  "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi=%d) for extrapolated %s muons (Hot Cell) "
-                  "divided by Active Length",
-                  -eta,
-                  (depth + 1),
-                  PHI0,
-                  type[i].c_str());
-          h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[i][ih] = new TH1D(name, title, 4000, 0.0, 10.0);
-          h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[i][ih]->Sumw2();
+        sprintf(name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell", -eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title,
+                "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi = %d) for extrapolated %s muons (Hot Cell)",
+                -eta,
+                (depth + 1),
+                PHI0,
+                type[i].c_str());
+        h_Hot_MuonEnergy_hcal_HotCell[ih] = new TH1D(name, title, 4000, 0.0, 10.0);
+        h_Hot_MuonEnergy_hcal_HotCell[ih]->Sumw2();
 
-          sprintf(name, "h_active_length_Fill_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title, "active_length%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          h_active_length_Fill[i][ih] = new TH1D(name, title, 20, 0, 20);
-          h_active_length_Fill[i][ih]->Sumw2();
+        sprintf(
+            name, "h_Hot_MuonEnergy_hc_%d_%d_%d_%s_HotCell_ByActiveLength", -eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title,
+                "HCAL energy in hot tower (i#eta=%d, depth=%d, i#phi=%d) for extrapolated %s muons (Hot Cell) "
+                "divided by Active Length",
+                -eta,
+                (depth + 1),
+                PHI0,
+                type[i].c_str());
+        h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ih] = new TH1D(name, title, 4000, 0.0, 10.0);
+        h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ih]->Sumw2();
 
-          sprintf(name, "h_p_muon_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(title, "p_muon_in%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          h_p_muon_ineta[i][ih] = new TH1D(name, title, 500, 0, 500);
-          h_p_muon_ineta[i][ih]->Sumw2();
+        sprintf(name, "h_active_length_Fill_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title, "active_length%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        h_active_length_Fill[ih] = new TH1D(name, title, 20, 0, 20);
+        h_active_length_Fill[ih]->Sumw2();
 
-          sprintf(name, "h_charge_signal_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(name, "charge_signal_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          h_charge_signal[i][ih] = new TH1D(name, title, 500, 0, 500);
-          h_charge_signal[i][ih]->Sumw2();
+        sprintf(name, "h_p_muon_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(title, "p_muon_in%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        h_p_muon_ineta[ih] = new TH1D(name, title, 500, 0, 500);
+        h_p_muon_ineta[ih]->Sumw2();
 
-          sprintf(name, "h_charge_bg_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          sprintf(name, "charge_bg_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
-          h_charge_bg[i][ih] = new TH1D(name, title, 500, 0, 500);
-          h_charge_bg[i][ih]->Sumw2();
-        }
+        sprintf(name, "h_charge_signal_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(name, "charge_signal_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        h_charge_signal[ih] = new TH1D(name, title, 500, 0, 500);
+        h_charge_signal[ih]->Sumw2();
+
+        sprintf(name, "h_charge_bg_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        sprintf(name, "charge_bg_in_%d_%d_%d_%s", -eta, (depth + 1), PHI0, type[i].c_str());
+        h_charge_bg[ih] = new TH1D(name, title, 500, 0, 500);
+        h_charge_bg[ih]->Sumw2();
       }
-      //output_file->cd();
     }
+    //output_file->cd();
   }
   //output_file->cd();
 }
@@ -1655,7 +1689,7 @@ void HBHEMuonOfflineAnalyzer::close() {
 
 void HBHEMuonOfflineAnalyzer::writeHistograms() {
   //output_file->cd();
-  std::string type[] = {"tight"};  //,"soft","loose"};
+  std::string type[] = {"tight", "soft", "loose"};
   char name[128];
 
   std::cout << "WriteHistograms" << std::endl;
@@ -1675,92 +1709,84 @@ void HBHEMuonOfflineAnalyzer::writeHistograms() {
     }
   }
 
-  TDirectory *d_output_file[nCut_][29];
+  TDirectory *d_output_file[29];
   h_evtype->Write();
   //output_file->cd();
-  for (int i = 0; i < nCut_; ++i) {
-    h_Pt_Muon[i]->Write();
-    h_Eta_Muon[i]->Write();
-    h_Phi_Muon[i]->Write();
+  int i(nCut_);
+  h_Pt_Muon->Write();
+  h_Eta_Muon->Write();
+  h_Phi_Muon->Write();
 
-    h_P_Muon[i]->Write();
-    h_PF_Muon[i]->Write();
-    h_GlobTrack_Chi[i]->Write();
-    h_Global_Muon_Hits[i]->Write();
+  h_P_Muon->Write();
+  h_PF_Muon->Write();
+  h_GlobTrack_Chi->Write();
+  h_Global_Muon_Hits->Write();
 
-    h_MatchedStations[i]->Write();
-    h_Tight_TransImpactparameter[i]->Write();
-    h_Tight_LongitudinalImpactparameter[i]->Write();
+  h_MatchedStations->Write();
+  h_Tight_TransImpactparameter->Write();
+  h_Tight_LongitudinalImpactparameter->Write();
 
-    h_InnerTrackPixelHits[i]->Write();
-    h_TrackerLayer[i]->Write();
-    h_IsolationR04[i]->Write();
+  h_InnerTrackPixelHits->Write();
+  h_TrackerLayer->Write();
+  h_IsolationR04->Write();
 
-    h_Global_Muon[i]->Write();
-    h_TransImpactParameter[i]->Write();
-    ;
-    h_TransImpactParameterBin1[i]->Write();
-    h_TransImpactParameterBin2[i]->Write();
-    //
-    h_LongImpactParameter[i]->Write();
-    h_LongImpactParameterBin1[i]->Write();
-    h_LongImpactParameterBin2[i]->Write();
+  h_Global_Muon->Write();
+  h_TransImpactParameter->Write();
 
-    h_ecal_energy[i]->Write();
-    h_hcal_energy[i]->Write();
-    ;
-    h_3x3_ecal[i]->Write();
-    h_1x1_hcal[i]->Write();
-    ;
+  h_TransImpactParameterBin1->Write();
+  h_TransImpactParameterBin2->Write();
 
-    h_EtaX_hcal[i]->Write();
-    h_PhiY_hcal[i]->Write();
-    ;
+  h_LongImpactParameter->Write();
+  h_LongImpactParameterBin1->Write();
+  h_LongImpactParameterBin2->Write();
 
-    h_EtaX_ecal[i]->Write();
-    ;
-    h_PhiY_ecal[i]->Write();
-    ;
-    h_Eta_ecal[i]->Write();
-    ;
-    h_Phi_ecal[i]->Write();
-    ;
-    h_MuonHittingEcal[i]->Write();
-    ;
-    h_HotCell[i]->Write();
-    ;
+  h_ecal_energy->Write();
+  h_hcal_energy->Write();
 
-    output_file->cd();
-    for (int eta = etaMin_; eta <= etaMax_; ++eta) {
-      int nDepth = nDepthBins(eta, -1);
-      int nPhi = nPhiBins(eta);
-      sprintf(name, "Dir_muon_type_%s_ieta%d", type[i].c_str(), eta);
-      d_output_file[i][eta - 1] = output_file->mkdir(name);
-      //output_file->cd(name);
-      d_output_file[i][eta - 1]->cd();
-      for (int depth = 0; depth < nDepth; ++depth) {
-        for (int PHI = 0; PHI < nPhi; ++PHI) {
-          //	std::cout<<"eta:"<<eta<<"depth:"<<depth<<"PHI:"<<PHI<<std::endl;
-          int ih = indxEta[eta - 1][depth][PHI];
-          //	std::cout<<"ih:"<<ih<<std::endl;
-          h_Hot_MuonEnergy_hcal_HotCell[i][ih]->Write();
+  h_3x3_ecal->Write();
+  h_1x1_hcal->Write();
 
-          h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[i][ih]->Write();
-          h_active_length_Fill[i][ih]->Write();
-          h_p_muon_ineta[i][ih]->Write();
-          h_charge_signal[i][ih]->Write();
-          h_charge_bg[i][ih]->Write();
-          ih++;
-          h_Hot_MuonEnergy_hcal_HotCell[i][ih]->Write();
-          h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[i][ih]->Write();
-          h_active_length_Fill[i][ih]->Write();
-          h_p_muon_ineta[i][ih]->Write();
-          h_charge_signal[i][ih]->Write();
-          h_charge_bg[i][ih]->Write();
-        }
+  h_EtaX_hcal->Write();
+  h_PhiY_hcal->Write();
+
+  h_EtaX_ecal->Write();
+  h_PhiY_ecal->Write();
+
+  h_Eta_ecal->Write();
+  h_Phi_ecal->Write();
+  h_MuonHittingEcal->Write();
+  h_HotCell->Write();
+
+  output_file->cd();
+  for (int eta = etaMin_; eta <= etaMax_; ++eta) {
+    int nDepth = nDepthBins(eta, -1);
+    int nPhi = nPhiBins(eta);
+    sprintf(name, "Dir_muon_type_%s_ieta%d", type[i].c_str(), eta);
+    d_output_file[eta - 1] = output_file->mkdir(name);
+    //output_file->cd(name);
+    d_output_file[eta - 1]->cd();
+    for (int depth = 0; depth < nDepth; ++depth) {
+      for (int PHI = 0; PHI < nPhi; ++PHI) {
+        //	std::cout<<"eta:"<<eta<<"depth:"<<depth<<"PHI:"<<PHI<<std::endl;
+        int ih = indxEta[eta - 1][depth][PHI];
+        //	std::cout<<"ih:"<<ih<<std::endl;
+        h_Hot_MuonEnergy_hcal_HotCell[ih]->Write();
+
+        h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ih]->Write();
+        h_active_length_Fill[ih]->Write();
+        h_p_muon_ineta[ih]->Write();
+        h_charge_signal[ih]->Write();
+        h_charge_bg[ih]->Write();
+        ih++;
+        h_Hot_MuonEnergy_hcal_HotCell[ih]->Write();
+        h_Hot_MuonEnergy_hcal_HotCell_VsActiveLength[ih]->Write();
+        h_active_length_Fill[ih]->Write();
+        h_p_muon_ineta[ih]->Write();
+        h_charge_signal[ih]->Write();
+        h_charge_bg[ih]->Write();
       }
-      output_file->cd();
     }
+    output_file->cd();
   }
   output_file->cd();
 }

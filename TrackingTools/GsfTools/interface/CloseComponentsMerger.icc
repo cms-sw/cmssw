@@ -73,7 +73,7 @@ MultiGaussianState<N> CloseComponentsMerger<N>::merge(const MultiState& mgs) con
       comp.push_back(ori[toMerge.top()]);
       comp.push_back(ori[ii]);
       active[ii] = false;
-      while ((!toMerge.empty()) & (!active[toMerge.top()])) {
+      while ((!toMerge.empty()) && (!active[toMerge.top()])) {
         toMerge.pop();
       }
       --nComp;

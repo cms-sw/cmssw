@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

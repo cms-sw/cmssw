@@ -38,6 +38,8 @@ namespace edm {
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
   class WaitingTaskWithArenaHolder;
+  class EventForTransformer;
+  class ServiceWeakToken;
 
   namespace maker {
     template <typename T>
@@ -77,6 +79,12 @@ namespace edm {
                      ActivityRegistry*,
                      ModuleCallingContext const*,
                      WaitingTaskWithArenaHolder&);
+      void doTransformAsync(WaitingTaskHolder iTask,
+                            size_t iTransformIndex,
+                            EventPrincipal const& iEvent,
+                            ActivityRegistry*,
+                            ModuleCallingContext const*,
+                            ServiceWeakToken const&);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
@@ -116,6 +124,8 @@ namespace edm {
       virtual void endJob() {}
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocRuns(unsigned int);
+      virtual void preallocRunsSummary(unsigned int);
       virtual void preallocLumis(unsigned int);
       virtual void preallocLumisSummary(unsigned int);
       virtual void preallocate(PreallocationConfiguration const&);
@@ -146,6 +156,13 @@ namespace edm {
       virtual void doEndRunProduce_(Run& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
+
+      virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const;
+      virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const;
+      virtual void transformAsync_(WaitingTaskHolder iTask,
+                                   std::size_t iIndex,
+                                   edm::EventForTransformer& iEvent,
+                                   ServiceWeakToken const& iToken) const;
 
       virtual void clearInputProcessBlockCaches();
       virtual bool hasAcquire() const { return false; }

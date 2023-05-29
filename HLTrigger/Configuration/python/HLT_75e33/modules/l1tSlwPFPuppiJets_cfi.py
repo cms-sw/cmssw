@@ -49,7 +49,7 @@ l1tSlwPFPuppiJets = cms.EDProducer("Phase1L1TJetProducer",
         5.0
     ),
     etaRegions = cms.vdouble(-1.5, -0.75, 0, 0.75, 1.5),
-    inputCollectionTag = cms.InputTag("l1pfCandidates","Puppi"),
+    inputCollectionTag = cms.InputTag("l1tPFCandidates","Puppi"),
     jetIEtaSize = cms.uint32(7),
     jetIPhiSize = cms.uint32(7),
     nBinsPhi = cms.uint32(72),

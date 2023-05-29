@@ -7,20 +7,19 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "RecoMET/METPUSubtraction/interface/DeepMETHelp.h"
 
-struct DeepMETCache {
-  std::atomic<tensorflow::GraphDef*> graph_def;
-};
+using namespace deepmet_helper;
 
-class DeepMETProducer : public edm::stream::EDProducer<edm::GlobalCache<DeepMETCache> > {
+class DeepMETProducer : public edm::stream::EDProducer<edm::GlobalCache<tensorflow::SessionCache> > {
 public:
-  explicit DeepMETProducer(const edm::ParameterSet&, const DeepMETCache*);
+  explicit DeepMETProducer(const edm::ParameterSet&, const tensorflow::SessionCache*);
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   // static methods for handling the global cache
-  static std::unique_ptr<DeepMETCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(DeepMETCache*);
+  static std::unique_ptr<tensorflow::SessionCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(tensorflow::SessionCache*){};
 
 private:
   const edm::EDGetTokenT<std::vector<pat::PackedCandidate> > pf_token_;
@@ -28,33 +27,20 @@ private:
   const bool ignore_leptons_;
   const unsigned int max_n_pf_;
 
-  tensorflow::Session* session_;
+  const tensorflow::Session* session_;
 
   tensorflow::Tensor input_;
   tensorflow::Tensor input_cat0_;
   tensorflow::Tensor input_cat1_;
   tensorflow::Tensor input_cat2_;
-
-  inline static const std::unordered_map<int, int32_t> charge_embedding_{{-1, 0}, {0, 1}, {1, 2}};
-  inline static const std::unordered_map<int, int32_t> pdg_id_embedding_{
-      {-211, 0}, {-13, 1}, {-11, 2}, {0, 3}, {1, 4}, {2, 5}, {11, 6}, {13, 7}, {22, 8}, {130, 9}, {211, 10}};
 };
 
-namespace {
-  float scale_and_rm_outlier(float val, float scale) {
-    float ret_val = val * scale;
-    if (ret_val > 1e6 || ret_val < -1e6)
-      return 0.;
-    return ret_val;
-  }
-}  // namespace
-
-DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const DeepMETCache* cache)
+DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const tensorflow::SessionCache* cache)
     : pf_token_(consumes<std::vector<pat::PackedCandidate> >(cfg.getParameter<edm::InputTag>("pf_src"))),
       norm_(cfg.getParameter<double>("norm_factor")),
       ignore_leptons_(cfg.getParameter<bool>("ignore_leptons")),
       max_n_pf_(cfg.getParameter<unsigned int>("max_n_pf")),
-      session_(tensorflow::createSession(cache->graph_def)) {
+      session_(cache->getSession()) {
   produces<pat::METCollection>();
 
   const tensorflow::TensorShape shape({1, max_n_pf_, 8});
@@ -103,8 +89,8 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     *(++ptr) = pf.puppiWeight();
     *(++ptr) = scale_and_rm_outlier(pf.px(), scale);
     *(++ptr) = scale_and_rm_outlier(pf.py(), scale);
-    input_cat0_.tensor<float, 3>()(0, i_pf, 0) = charge_embedding_.at(pf.charge());
-    input_cat1_.tensor<float, 3>()(0, i_pf, 0) = pdg_id_embedding_.at(pf.pdgId());
+    input_cat0_.tensor<float, 3>()(0, i_pf, 0) = charge_embedding.at(pf.charge());
+    input_cat1_.tensor<float, 3>()(0, i_pf, 0) = pdg_id_embedding.at(pf.pdgId());
     input_cat2_.tensor<float, 3>()(0, i_pf, 0) = pf.fromPV();
 
     ++i_pf;
@@ -126,27 +112,20 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   px -= px_leptons;
   py -= py_leptons;
 
+  LogDebug("produce") << "<DeepMETProducer::produce>:" << std::endl
+                      << " MET from DeepMET Producer is MET_x " << px << " and MET_y " << py << std::endl;
+
   auto pf_mets = std::make_unique<pat::METCollection>();
   const reco::Candidate::LorentzVector p4(px, py, 0., std::hypot(px, py));
   pf_mets->emplace_back(reco::MET(p4, {}));
   event.put(std::move(pf_mets));
 }
 
-std::unique_ptr<DeepMETCache> DeepMETProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  // this method is supposed to create, initialize and return a DeepMETCache instance
-  std::unique_ptr<DeepMETCache> cache = std::make_unique<DeepMETCache>();
-
-  // load the graph def and save it
-  std::string graphPath = params.getParameter<std::string>("graph_path");
-  if (!graphPath.empty()) {
-    graphPath = edm::FileInPath(graphPath).fullPath();
-    cache->graph_def = tensorflow::loadGraphDef(graphPath);
-  }
-
-  return cache;
+std::unique_ptr<tensorflow::SessionCache> DeepMETProducer::initializeGlobalCache(const edm::ParameterSet& params) {
+  // this method is supposed to create, initialize and return a SessionCache instance
+  std::string graphPath = edm::FileInPath(params.getParameter<std::string>("graph_path")).fullPath();
+  return std::make_unique<tensorflow::SessionCache>(graphPath);
 }
-
-void DeepMETProducer::globalEndJob(DeepMETCache* cache) { delete cache->graph_def; }
 
 void DeepMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -154,7 +133,7 @@ void DeepMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("ignore_leptons", false);
   desc.add<double>("norm_factor", 50.);
   desc.add<unsigned int>("max_n_pf", 4500);
-  desc.add<std::string>("graph_path", "RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_2018.pb");
+  desc.add<std::string>("graph_path", "RecoMET/METPUSubtraction/data/models/deepmet/deepmet_v1_2018/model.graphdef");
   descriptions.add("deepMETProducer", desc);
 }
 

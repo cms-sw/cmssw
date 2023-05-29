@@ -3,6 +3,7 @@ noConcurrentLumiGenerators = [
     "AMPTGeneratorFilter",
     "BeamHaloProducer",
     "CosMuoGenProducer",
+    "ExhumeGeneratorFilter",
     "Herwig7GeneratorFilter",
     "HydjetGeneratorFilter",
     "Hydjet2GeneratorFilter",

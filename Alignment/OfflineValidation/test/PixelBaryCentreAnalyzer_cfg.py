@@ -27,13 +27,21 @@ options.register('lastRun',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.int,
                 "the run number to stop")
+options.register('unitTest',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "is it a unit test?")
 
 options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = options.lumisPerRun*1000   # do not clog output with I/O
 
-numberOfRuns = options.lastRun - options.firstRun + 1
+if options.unitTest:
+    numberOfRuns = 10
+else:
+    numberOfRuns = options.lastRun - options.firstRun + 1
 print("number of Runs "+str(numberOfRuns))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.lumisPerRun*numberOfRuns) ) 
@@ -100,8 +108,8 @@ for label in beamSpots.keys() :
 ####################################################################
 # Load and configure analyzer
 ####################################################################
-bcLabels_ = cms.untracked.vstring("")
-bsLabels_ = cms.untracked.vstring("")
+bcLabels_ = [] # cms.untracked.vstring("")
+bsLabels_ = [] # cms.untracked.vstring("")
 
 for label in tkAligns.keys() :
     bcLabels_.append(label)
@@ -109,19 +117,19 @@ for label in tkAligns.keys() :
 for label in beamSpots.keys() :
     bsLabels_.append(label)
 
-process.PixelBaryCentreAnalyzer = cms.EDAnalyzer("PixelBaryCentreAnalyzer",
-                    usePixelQuality = cms.untracked.bool(False),
-                    tkAlignLabels = bcLabels_,
-                    beamSpotLabels = bsLabels_
-                  )
+from Alignment.OfflineValidation.pixelBaryCentreAnalyzer_cfi import pixelBaryCentreAnalyzer as _pixelBaryCentreAnalyzer
 
-process.PixelBaryCentreAnalyzerWithPixelQuality = cms.EDAnalyzer("PixelBaryCentreAnalyzer",
-                    usePixelQuality = cms.untracked.bool(True),
-                    tkAlignLabels = bcLabels_,
-                    beamSpotLabels = bsLabels_
-                  )
+process.PixelBaryCentreAnalyzer = _pixelBaryCentreAnalyzer.clone(
+    usePixelQuality = False,
+    tkAlignLabels = bcLabels_,
+    beamSpotLabels = bsLabels_
+)
 
-
+process.PixelBaryCentreAnalyzerWithPixelQuality = _pixelBaryCentreAnalyzer.clone(
+    usePixelQuality = True,
+    tkAlignLabels = bcLabels_,
+    beamSpotLabels = bsLabels_
+)
 
 ####################################################################
 # Output file

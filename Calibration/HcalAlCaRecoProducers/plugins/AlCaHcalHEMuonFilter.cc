@@ -22,19 +22,20 @@
 // class declaration
 //
 
-namespace alcaHcalHBHEMuon {
+namespace alCaHcalHEMuonFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nFinal_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nFinal_;
   };
-}  // namespace alcaHcalHBHEMuon
+}  // namespace alCaHcalHEMuonFilter
 
-class AlCaHcalHEMuonFilter : public edm::global::EDFilter<edm::RunCache<alcaHcalHBHEMuon::Counters> > {
+class AlCaHcalHEMuonFilter : public edm::global::EDFilter<edm::RunCache<alCaHcalHEMuonFilter::Counters> > {
 public:
   AlCaHcalHEMuonFilter(edm::ParameterSet const&);
   ~AlCaHcalHEMuonFilter() override = default;
 
-  std::shared_ptr<alcaHcalHBHEMuon::Counters> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
+  std::shared_ptr<alCaHcalHEMuonFilter::Counters> globalBeginRun(edm::Run const&,
+                                                                 edm::EventSetup const&) const override;
 
   bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
   void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override;
@@ -112,10 +113,10 @@ bool AlCaHcalHEMuonFilter::filter(edm::StreamID, edm::Event& iEvent, edm::EventS
 }  // AlCaHcalHEMuonFilter::filter
 
 // ------------ method called when starting to processes a run  ------------
-std::shared_ptr<alcaHcalHBHEMuon::Counters> AlCaHcalHEMuonFilter::globalBeginRun(edm::Run const& iRun,
-                                                                                 edm::EventSetup const&) const {
+std::shared_ptr<alCaHcalHEMuonFilter::Counters> AlCaHcalHEMuonFilter::globalBeginRun(edm::Run const& iRun,
+                                                                                     edm::EventSetup const&) const {
   edm::LogVerbatim("HBHEMuon") << "Start the Run " << iRun.run();
-  return std::make_shared<alcaHcalHBHEMuon::Counters>();
+  return std::make_shared<alCaHcalHEMuonFilter::Counters>();
 }
 
 // ------------ method called when ending the processing of a run  ------------

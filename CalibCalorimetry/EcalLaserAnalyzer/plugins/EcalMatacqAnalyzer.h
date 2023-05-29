@@ -1,6 +1,8 @@
 // $Id: EcalMatacqAnalyzer.h
 
 #include <memory>
+#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include <FWCore/Framework/interface/one/EDAnalyzer.h>
 
 class TFile;
@@ -14,7 +16,7 @@ class TMTQ;
 class EcalMatacqAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalMatacqAnalyzer(const edm::ParameterSet &iConfig);
-  ~EcalMatacqAnalyzer() override;
+  ~EcalMatacqAnalyzer() override = default;
 
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   void beginJob() override;
@@ -30,29 +32,31 @@ private:
   // Framework parameters
   //
 
-  double _presample;
-  unsigned int _nsamplesaftmax;
-  unsigned int _noiseCut;
-  unsigned int _parabnbefmax;
-  unsigned int _parabnaftmax;
-  unsigned int _thres;
-  unsigned int _lowlev;
-  unsigned int _highlev;
-  unsigned int _nevlasers;
-  unsigned int _timebefmax;
-  unsigned int _timeaftmax;
-  double _cutwindow;
-  unsigned int _nsamplesshape;
-  unsigned int _presampleshape;
-  unsigned int _slide;
-  int _fedid;
-  int _debug;
+  const double _presample;
+  const unsigned int _nsamplesaftmax;
+  const unsigned int _noiseCut;
+  const unsigned int _parabnbefmax;
+  const unsigned int _parabnaftmax;
+  const unsigned int _thres;
+  const unsigned int _lowlev;
+  const unsigned int _highlev;
+  const unsigned int _nevlasers;
+  const unsigned int _timebefmax;
+  const unsigned int _timeaftmax;
+  const double _cutwindow;
+  const unsigned int _nsamplesshape;
+  const unsigned int _presampleshape;
+  const unsigned int _slide;
+  const int _fedid;
+  const int _debug;
 
-  std::string resdir_;
-  std::string digiCollection_;
-  std::string digiProducer_;
-  std::string eventHeaderCollection_;
-  std::string eventHeaderProducer_;
+  const std::string resdir_;
+  const std::string digiCollection_;
+  const std::string digiProducer_;
+  const std::string eventHeaderCollection_;
+  const std::string eventHeaderProducer_;
+  const edm::EDGetTokenT<EcalMatacqDigiCollection> pmatToken_;
+  const edm::EDGetTokenT<EcalRawDataCollection> dccToken_;
 
   std::string outfile;
   std::string sampfile;

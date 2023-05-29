@@ -449,8 +449,8 @@ void testEvent::setUp() {
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
-  auto runAux = std::make_shared<RunAuxiliary>(id.run(), time, time);
-  auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<RunPrincipal>(preg, pc, &historyAppender_, 0);
+  rp->setAux(RunAuxiliary(id.run(), time, time));
   lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
   lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp_->setRunPrincipal(rp);
@@ -499,6 +499,16 @@ void testEvent::getByTokenFromEmpty() {
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
   CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
+
+  {
+    edm::EventBase const* eb = currentEvent_.get();
+    Handle<int> nonesuch;
+    CPPUNIT_ASSERT(!nonesuch.isValid());
+    CPPUNIT_ASSERT(!eb->getByToken(consumer.m_tokens[0], nonesuch));
+    CPPUNIT_ASSERT(!nonesuch.isValid());
+    CPPUNIT_ASSERT(nonesuch.failedToGet());
+    CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
+  }
 }
 
 void testEvent::getHandleFromEmpty() {
@@ -765,6 +775,7 @@ void testEvent::getByToken() {
   consumer.updateLookup(InEvent, principal_->productLookup(), false);
 
   currentEvent_->setConsumer(&consumer);
+  edm::EventBase const* eb = currentEvent_.get();
 
   const auto modMultiToken = consumer.m_tokens[0];
   const auto modMultiInt1Token = consumer.m_tokens[1];
@@ -778,8 +789,12 @@ void testEvent::getByToken() {
   handle_t h;
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiToken, h));
   CPPUNIT_ASSERT(h->value == 3);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiToken, h));
+  CPPUNIT_ASSERT(h->value == 3);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
+  CPPUNIT_ASSERT(h->value == 200);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1Token, h));
   CPPUNIT_ASSERT(h->value == 200);
 
   CPPUNIT_ASSERT(!currentEvent_->getByToken(modMultinomatchToken, h));
@@ -788,20 +803,32 @@ void testEvent::getByToken() {
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
   CPPUNIT_ASSERT(h->value == 200);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1Token, h));
+  CPPUNIT_ASSERT(h->value == 200);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1EarlyToken, h));
+  CPPUNIT_ASSERT(h->value == 1);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1EarlyToken, h));
   CPPUNIT_ASSERT(h->value == 1);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1LateToken, h));
   CPPUNIT_ASSERT(h->value == 100);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1LateToken, h));
+  CPPUNIT_ASSERT(h->value == 100);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1CurrentToken, h));
+  CPPUNIT_ASSERT(h->value == 200);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1CurrentToken, h));
   CPPUNIT_ASSERT(h->value == 200);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt2EarlyToken, h));
   CPPUNIT_ASSERT(h->value == 2);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiInt2EarlyToken, h));
+  CPPUNIT_ASSERT(h->value == 2);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modOneToken, h));
+  CPPUNIT_ASSERT(h->value == 4);
+  CPPUNIT_ASSERT(eb->getByToken(modOneToken, h));
   CPPUNIT_ASSERT(h->value == 4);
 }
 

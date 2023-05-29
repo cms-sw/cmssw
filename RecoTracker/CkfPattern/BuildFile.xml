@@ -1,22 +1,25 @@
+<use name="root"/>
+<!-- used only if VI_TBB is defined in src/CkfTrackCandidateMakerBase.cc
+<use name="tbb"/>
+-->
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrajectorySeed"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="RecoTracker/MeasurementDet"/>
+<use name="RecoTracker/TkDetLayers"/>
+<use name="TrackingTools/KalmanUpdators"/>
+<use name="TrackingTools/MaterialEffects"/>
+<use name="TrackingTools/MeasurementDet"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/TrackFitters"/>
+<use name="TrackingTools/TrajectoryCleaning"/>
+<use name="TrackingTools/TrajectoryFiltering"/>
 <export>
   <lib name="1"/>
 </export>
-<use name="RecoTracker/TkDetLayers"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/MessageLogger"/>
-<use name="DataFormats/Common"/>
-<use name="DataFormats/TrajectorySeed"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
-<use name="TrackingTools/KalmanUpdators"/>
-<use name="MagneticField/Records"/>
-<use name="MagneticField/Engine"/>
-<use name="TrackingTools/MeasurementDet"/>
-<use name="RecoTracker/MeasurementDet"/>
-<use name="TrackingTools/PatternTools"/>
-<use name="TrackingTools/MaterialEffects"/>
-<use name="TrackingTools/TrajectoryCleaning"/>
-<use name="TrackingTools/TrajectoryFiltering"/>
-<use name="TrackingTools/TrackFitters"/>
-<use name="root"/>

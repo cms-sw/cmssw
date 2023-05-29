@@ -10,20 +10,27 @@ updatedTauName = "slimmedTausNewID"
 minimalOutput = True
 eventsToProcess = 100
 nThreads = 1
+phase2 = False
 
 process = cms.Process('TauID')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
+if phase2:
+    process.load('Configuration.Geometry.GeometryExtended2026D97Reco_cff')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', '')
+    inputfile = '/store/mc/Phase2Spring21DRMiniAOD/TTbar_TuneCP5_14TeV-pythia8/MINIAODSIM/PU200Phase2D80_113X_mcRun4_realistic_T25_v1_ext1-v1/280000/04e6741c-489a-4fed-9e0c-d7703c274b5a.root'
+else:
+    process.load('Configuration.Geometry.GeometryRecoDB_cff')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
+    inputfile = '/store/mc/RunIISummer20UL18MiniAOD/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/009636D7-07B2-DB49-882D-C251FD62CCE7.root'
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
     # File from dataset TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8
-    '/store/mc/RunIISummer20UL18MiniAOD/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/009636D7-07B2-DB49-882D-C251FD62CCE7.root'
+    inputfile
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
@@ -38,6 +45,12 @@ toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
            # "DPFTau_2016_v1",
            "againstEle2018",
            ]
+if phase2:
+    toKeep = [ "newDMPhase2v1",
+               # "deepTau2018v2p5",
+               "deepTau2026v2p5",
+               "againstElePhase2v1",
+              ]
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False,
                     updatedTauName = updatedTauName,
                     toKeep = toKeep)
@@ -66,6 +79,10 @@ if not minimalOutput:
      process.out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
 process.out.outputCommands.append("keep *_"+updatedTauName+"_*_*")
 process.out.outputCommands.append("keep *_"+updatedTauName+postfix+"_*_*")
+
+# Adapt to old phase2 input samples where slimmedElectronsHGC are called slimmedElectronsFromMultiCl
+if phase2:
+    process.mergedSlimmedElectronsForTauId.src = ["slimmedElectrons","slimmedElectronsFromMultiCl"]
 
 # Path and EndPath definitions
 process.p = cms.Path(

@@ -1,10 +1,40 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalGeomLocatorSc_cfg.py geometry=D88
+#
+#   Options for type D88, D92, D93
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD")
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D92",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: D88, D92, D93")
+
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("HGCalGeomLocatorSc",Phase2C17I13M9)
+
+####################################################################
+# Use the options
+if (options.geometry == "D88"):
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+elif (options.geometry == "D93"):
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+else:
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-
-process.load("Configuration.Geometry.GeometryExtended2026D71Reco_cff")
-#process.load("Configuration.Geometry.GeometryExtended2026D49Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):

@@ -167,10 +167,10 @@ public:
   void WriteAsciiHisto(const TString&, const Int_t&, const TVectorD&);
 
   //...........................................................................
-  TString GetAsciiFileName();
-  TString GetRootFileName();
-  TString GetRootFileNameShort();
-  TString GetAnalysisName();
+  const TString& GetAsciiFileName() const;
+  const TString& GetRootFileName() const;
+  const TString& GetRootFileNameShort() const;
+  const TString& GetAnalysisName() const;
 
   Int_t GetNbOfSamples();
   Int_t GetRunNumber();

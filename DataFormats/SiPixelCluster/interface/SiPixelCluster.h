@@ -60,6 +60,7 @@ public:
     constexpr int row() const { return row_; }
     constexpr int col() const { return col_; }
     constexpr PixelPos operator+(const Shift& shift) const { return PixelPos(row() + shift.dx(), col() + shift.dy()); }
+    constexpr bool operator==(const PixelPos& pos) const { return (row() == pos.row() && col() == pos.col()); }
 
   private:
     int row_;

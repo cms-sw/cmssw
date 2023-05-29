@@ -76,8 +76,8 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
-  auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<edm::RunPrincipal>(pregc, pc, &historyAppender_, 0);
+  rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_, 0);
   lbp->setAux(lumiAux);
@@ -170,8 +170,8 @@ void testEventGetRefBeforePut::getRefTest() {
       processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
   edm::ProcessConfiguration& pc = *pcPtr;
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
-  auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<edm::RunPrincipal>(pregc, pc, &historyAppender_, 0);
+  rp->setAux(edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_, 0);
   lbp->setAux(lumiAux);

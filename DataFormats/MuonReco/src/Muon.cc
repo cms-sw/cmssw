@@ -74,6 +74,13 @@ int Muon::numberOfMatches(ArbitrationType type) const {
       continue;
     }
 
+    if (type == GEMHitAndTrackArbitration) {
+      if (chamberMatch.gemHitMatches.empty())
+        continue;
+      matches += chamberMatch.gemHitMatches.size();
+      continue;
+    }
+
     if (chamberMatch.segmentMatches.empty())
       continue;
     if (type == NoArbitration) {

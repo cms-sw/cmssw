@@ -14,7 +14,8 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoJets.Configuration.CaloTowersES_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag='106X_mcRun3_2021_realistic_v3'
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['phase1_2022_realistic']
 
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.HcalCalibAlgos.hcalHBHEMuonHighEta_cfi")

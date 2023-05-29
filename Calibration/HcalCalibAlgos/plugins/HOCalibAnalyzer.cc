@@ -12,7 +12,7 @@
      <Notes on implementation>
 
 April 2015
-// Addition of these variables, ilumi (analyser), inslumi (analyser), nprim
+// Addition of these variables, ilumi (analyser), pileup (analyser), nprim
 
 
 */
@@ -33,12 +33,14 @@ April 2015
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -46,16 +48,12 @@ April 2015
 #include "TTree.h"
 #include "TProfile.h"
 
-#include <string>
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
+#include <vector>
 
-using namespace std;
-using namespace edm;
-
-//#define EDM_ML_DEBUG
 //
 // class decleration
 //
@@ -64,6 +62,8 @@ class HOCalibAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HOCalibAnalyzer(const edm::ParameterSet&);
   ~HOCalibAnalyzer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob() override {}
@@ -77,7 +77,7 @@ private:
 
   const char* varcrit[3] = {"All", "steps", "n-1"};  // or opposite
 
-  const double elosfact = (14.9 + 0.96 * fabs(log(8 * 2.8)) + 0.033 * 8 * (1.0 - pow(8, -0.33)));
+  const double elosfact = (14.9 + 0.96 * std::fabs(std::log(8 * 2.8)) + 0.033 * 8 * (1.0 - std::pow(8, -0.33)));
 
   int getHOieta(int ij) { return (ij < netamx / 2) ? -netamx / 2 + ij : -netamx / 2 + ij + 1; }
   int invert_HOieta(int ieta) { return (ieta < 0) ? netamx / 2 + ieta : netamx / 2 + ieta - 1; }
@@ -91,6 +91,7 @@ private:
   const double m_ahigh;
   const bool m_histFill;  //Stored signals of individual HO towers with default selection criteria
   const bool m_treeFill;  //Store rootuple without almost any selection criteria except a quality on muon
+  const bool m_verbose;
 
   int ipass;
 
@@ -110,7 +111,6 @@ private:
   TH1F* sel_muonph;
   TH1F* sel_muonch;
 
-  //  TProfile* sigvsevt[15][ncut];
   TH2F* sig_eta_evt[3 * netamx][ncut];  //For individual eta
   TH2F* sigvsevt[3 * netamx][ncut];
   TH1F* variab[3 * netamx][ncut];
@@ -120,7 +120,7 @@ private:
   unsigned ievt, hoflag;
   int irun, ilumi, nprim, isect, isect2, ndof, nmuon;
 
-  float inslumi, trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, hoang, htime,
+  float pileup, trkdr, trkdz, trkvx, trkvy, trkvz, trkmm, trkth, trkph, chisq, therr, pherr, hodx, hody, hoang, htime,
       hosig[9], hocorsig[18], hocro, hbhesig[9], caloen[3];
   float momatho, tkpt03, ecal03, hcal03;
   float tmphoang;
@@ -155,6 +155,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
       m_ahigh(iConfig.getUntrackedParameter<double>("upperRange", 29.0)),
       m_histFill(iConfig.getUntrackedParameter<bool>("histFill", true)),
       m_treeFill(iConfig.getUntrackedParameter<bool>("treeFill", false)),
+      m_verbose(iConfig.getUntrackedParameter<bool>("verbose", false)),
       tok_ho_(consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))),
       tok_allho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"))) {
   // It is very likely you want the following in your configuration
@@ -182,7 +183,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 
   T1->Branch("ilumi", &ilumi, "ilumi/I");
   if (!m_cosmic) {
-    T1->Branch("inslumi", &inslumi, "inslumi/F");
+    T1->Branch("pileup", &pileup, "pileup/F");
     T1->Branch("nprim", &nprim, "nprim/I");
     T1->Branch("tkpt03", &tkpt03, " tkpt03/F");
     T1->Branch("ecal03", &ecal03, " ecal03/F");
@@ -240,8 +241,6 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   sel_muonph = fs->make<TH1F>("sel_muonph", "{Phi}_{mu}(sel)", 180, -180., 180.);
   sel_muonch = fs->make<TH1F>("sel_muonch", "{chi^2}/ndf(sel)", 100, 0., 1000.);
 
-  float pival = acos(-1.);
-
   //if change order, change in iselect_wotime also and other efficiency numbers
   const char* varnam[ncut] = {"ndof",
                               "chisq",
@@ -258,8 +257,9 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
                               "#eta-dir",
                               "time"};
   int nbinxx[ncut] = {25, 60, 60, 60, 60, 60, 60, 120, 6, 60, 60, 120, 120, 60};
-  double alowxx[ncut] = {5.5, 0., 0., -pival, 0.0, 0.0, 0.0, 0., 0.5, 0.0, 0.0, -20., -32., -45.0};
-  double ahghxx[ncut] = {30.5, 40., pival, pival, 0.8, 0.02, 0.5, 300., 6.5, 10.0, 24.0, 20.0, 32.0, 45.0};
+  double alowxx[ncut] = {5.5, 0., 0., -angle_units::piRadians, 0.0, 0.0, 0.0, 0., 0.5, 0.0, 0.0, -20., -32., -45.0};
+  double ahghxx[ncut] = {
+      30.5, 40., angle_units::piRadians, angle_units::piRadians, 0.8, 0.02, 0.5, 300., 6.5, 10.0, 24.0, 20.0, 32.0, 45.0};
 
   for (int kl = 0; kl < ncut; kl++) {
     for (int jk = 0; jk < 3; jk++) {
@@ -304,7 +304,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   }
 
   for (int ij = 0; ij < 31; ij++) {
-    mypow_2[ij] = pow(2, ij);
+    mypow_2[ij] = std::pow(2, ij);
   }
   for (int ij = 0; ij < ringmx; ij++) {
     for (int jk = 0; jk < ncut + 10; jk++) {
@@ -314,26 +314,35 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 }
 
 HOCalibAnalyzer::~HOCalibAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
-  edm::LogVerbatim("HOCalibAnalyzer") << " Total events = " << setw(7) << nevents[0] << " " << setw(7) << nevents[1]
-                                      << " " << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7)
-                                      << nevents[4] << " " << setw(7) << nevents[5] << " Selected events # is "
-                                      << ipass;
+  edm::LogVerbatim("HOCalibAnalyzer") << " Total events = " << std::setw(7) << nevents[0] << " " << std::setw(7)
+                                      << nevents[1] << " " << std::setw(7) << nevents[2] << " " << std::setw(7)
+                                      << nevents[3] << " " << std::setw(7) << nevents[4] << " " << std::setw(7)
+                                      << nevents[5] << " Selected events # is " << ipass;
 }
 
 //
 // member functions
 //
+void HOCalibAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("hoCalibVariableCollectionTag",
+                          edm::InputTag("hoCalibProducer", "HOCalibVariableCollection"));
+  desc.add<edm::InputTag>("hoInputTag", edm::InputTag("horeco"));
+  desc.addUntracked<bool>("cosmic", true);
+  desc.addUntracked<bool>("zeroField", false);
+  desc.addUntracked<int>("HOSignalBins", 120);
+  desc.addUntracked<double>("lowerRange", -1.0);
+  desc.addUntracked<double>("upperRange", 29.0);
+  desc.addUntracked<bool>("histFill", true);
+  desc.addUntracked<bool>("treeFill", false);
+  desc.addUntracked<double>("sigma", 0.05);
+  desc.addUntracked<bool>("verbose", false);
+  descriptions.add("hoCalibAnalyzer", desc);
+}
 
 // ------------ method called to for each event  ------------
 void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   nevents[0]++;
-
-  using namespace edm;
-
-  float pival = acos(-1.);
 
   ievt = iEvent.id().event();
   ilumi = iEvent.luminosityBlock();
@@ -341,9 +350,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const edm::Handle<HOCalibVariableCollection>& HOCalib = iEvent.getHandle(tok_ho_);
 
   if (nevents[0] % 20000 == 1) {
-    edm::LogVerbatim("HOCalibAnalyzer") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1]
-                                        << " " << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " "
-                                        << setw(7) << nevents[4] << " " << setw(7) << nevents[5];
+    edm::LogVerbatim("HOCalibAnalyzer") << "nmuon event # " << std::setw(7) << nevents[0] << " " << std::setw(7)
+                                        << nevents[1] << " " << std::setw(7) << nevents[2] << " " << std::setw(7)
+                                        << nevents[3] << " " << std::setw(7) << nevents[4] << " " << std::setw(7)
+                                        << nevents[5];
     edm::LogVerbatim("HOCalibAnalyzer") << " Run # " << iEvent.id().run() << " Evt # " << iEvent.id().event() << " "
                                         << int(HOCalib.isValid()) << " " << ipass;
   }
@@ -364,7 +374,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       trkth = (*hoC).trkth;
       trkph = (*hoC).trkph;
 
-      ndof = (int)(*hoC).ndof;
+      ndof = static_cast<int>((*hoC).ndof);
       chisq = (*hoC).chisq;
       momatho = (*hoC).momatho;
 
@@ -374,7 +384,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       if (!m_cosmic) {
         nprim = (*hoC).nprim;
-        inslumi = (*hoC).inslumi;
+        pileup = (*hoC).pileup;
         tkpt03 = (*hoC).tkpt03;
         ecal03 = (*hoC).ecal03;
         hcal03 = (*hoC).hcal03;
@@ -386,21 +396,19 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       hody = (*hoC).hody;
       hoang = (*hoC).hoang;
 
-      tmphoang = sin(trkth) - hoang;
+      tmphoang = std::sin(trkth) - hoang;
 
       htime = (*hoC).htime;
       hoflag = (*hoC).hoflag;
       for (int ij = 0; ij < 9; ij++) {
         hosig[ij] = (*hoC).hosig[ij];
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalibAnalyzer") << "hosig " << ij << " " << hosig[ij];
-#endif
+        if (m_verbose)
+          edm::LogVerbatim("HOCalibAnalyzer") << "hosig " << ij << " " << hosig[ij];
       }
       for (int ij = 0; ij < 18; ij++) {
         hocorsig[ij] = (*hoC).hocorsig[ij];
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalibAnalyzer") << "hocorsig " << ij << " " << hocorsig[ij];
-#endif
+        if (m_verbose)
+          edm::LogVerbatim("HOCalibAnalyzer") << "hocorsig " << ij << " " << hocorsig[ij];
       }
       hocro = (*hoC).hocro;
       for (int ij = 0; ij < 3; ij++) {
@@ -426,33 +434,34 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       nevents[2]++;
       bool isZSps = (hosig[4] < -99.0) ? false : true;
 
-      if ((!m_cosmic) && fabs(trkmm) < momatho)
+      if ((!m_cosmic) && std::fabs(trkmm) < momatho)
         continue;
 
       nevents[3]++;
-      if (fabs(trkth - pival / 2) < 0.000001)
+      if (std::fabs(trkth - angle_units::piRadians / 2) < 0.000001)
         continue;  //22OCT07
       nevents[4]++;
 
-      int ieta = int((abs(isect) % 10000) / 100.) - 50;  //an offset to acodate -ve eta values
-      if (abs(ieta) >= 16)
+      int ieta = int((std::abs(isect) % 10000) / 100.) - 50;  //an offset to acodate -ve eta values
+      if (std::abs(ieta) >= 16)
         continue;
       nevents[5]++;
-      int iphi = abs(isect) % 100;
+      int iphi = std::abs(isect) % 100;
 
       int iring = 0;
 
       int iring2 = iring + 2;
 
-      double abshoang = (m_cosmic) ? fabs(hoang) : hoang;
+      double abshoang = (m_cosmic) ? std::fabs(hoang) : hoang;
 
-      double elos = 1.0 / TMath::Max(0.1, abs(1.0 * hoang));
+      double elos = 1.0 / std::max(0.1, std::abs(static_cast<double>(hoang)));
 
       if (!m_zeroField)
-        elos *= ((14.9 + 0.96 * fabs(log(momatho * 2.8)) + 0.033 * momatho * (1.0 - pow(momatho, -0.33))) / elosfact);
+        elos *= ((14.9 + 0.96 * std::fabs(log(momatho * 2.8)) + 0.033 * momatho * (1.0 - std::pow(momatho, -0.33))) /
+                 elosfact);
 
       if (m_cosmic) {
-        if (abs(ndof) >= 20 && abs(ndof) < 55) {
+        if (std::abs(ndof) >= 20 && std::abs(ndof) < 55) {
           ips0 = mypow_2[0];
           ipsall += ips0;
         }
@@ -461,11 +470,11 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           ipsall += ips1;
         }  //18Jan2008
 
-        if (trkth > 0.3 && trkth < pival - 0.3) {
+        if (trkth > 0.3 && trkth < angle_units::piRadians - 0.3) {
           ips2 = mypow_2[2];
           ipsall += ips2;
         }  //No nead for pp evt
-        if (trkph > -pival + 0.1 && trkph < -0.1) {
+        if (trkph > -angle_units::piRadians + 0.1 && trkph < -0.1) {
           ips3 = mypow_2[3];
           ipsall += ips3;
         }  //No nead for pp evt
@@ -483,7 +492,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           ipsall += ips6;
         }
 
-        if (m_zeroField || (fabs(momatho) > 5.0 && fabs(momatho) < 2000.0)) {
+        if (m_zeroField || (std::fabs(momatho) > 5.0 && std::fabs(momatho) < 2000.0)) {
           ips7 = mypow_2[7];
           ipsall += ips7;
         }
@@ -493,7 +502,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           ipsall += ips8;
         }
 
-        //	if (hodx>0 && hody>0) { }
+        // initially for: if (hodx>0 && hody>0) { }
         ips9 = mypow_2[9];
         ipsall += ips9;
 
@@ -501,23 +510,25 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         ipsall += ips10;
 
         if (iring2 == 2) {
-          if (fabs(hodx) < 100 && fabs(hodx) > 2 && fabs(hocorsig[8]) < 40 && fabs(hocorsig[8]) > 2) {
+          if (std::fabs(hodx) < 100 && std::fabs(hodx) > 2 && std::fabs(hocorsig[8]) < 40 &&
+              std::fabs(hocorsig[8]) > 2) {
             ips11 = mypow_2[11];
             ipsall += ips11;
           }
 
-          if (fabs(hody) < 100 && fabs(hody) > 2 && fabs(hocorsig[9]) < 40 && fabs(hocorsig[9]) > 2) {
+          if (std::fabs(hody) < 100 && std::fabs(hody) > 2 && std::fabs(hocorsig[9]) < 40 &&
+              std::fabs(hocorsig[9]) > 2) {
             ips12 = mypow_2[12];
             ipsall += ips12;
           }
 
         } else {
-          if (fabs(hodx) < 100 && fabs(hodx) > 2) {
+          if (std::fabs(hodx) < 100 && std::fabs(hodx) > 2) {
             ips11 = mypow_2[11];
             ipsall += ips11;
           }
 
-          if (fabs(hody) < 100 && fabs(hody) > 2) {
+          if (std::fabs(hody) < 100 && std::fabs(hody) > 2) {
             ips12 = mypow_2[12];
             ipsall += ips12;
           }
@@ -561,7 +572,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           }
         }
       } else {
-        if (abs(ndof) >= 10 && abs(ndof) < 25) {
+        if (std::abs(ndof) >= 10 && std::abs(ndof) < 25) {
           ips0 = mypow_2[0];
           ipsall += ips0;
         }
@@ -570,11 +581,11 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           ipsall += ips1;
         }  //18Jan2008
 
-        if (fabs(trkth - pival / 2) < 21.5) {
+        if (std::fabs(trkth - angle_units::piRadians / 2) < 21.5) {
           ips2 = mypow_2[2];
           ipsall += ips2;
         }  //No nead for pp evt
-        if (fabs(trkph + pival / 2) < 21.5) {
+        if (std::fabs(trkph + angle_units::piRadians / 2) < 21.5) {
           ips3 = mypow_2[3];
           ipsall += ips3;
         }  //No nead for pp evt
@@ -587,22 +598,22 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           ips5 = mypow_2[5];
           ipsall += ips5;
         }
-        //	if (abshoang >0.40 && abshoang <1.0) {ips6 = mypow_2[6];  ipsall +=ips6;}
+        // earlier: if (abshoang >0.40 && abshoang <1.0) {ips6 = mypow_2[6];  ipsall +=ips6;}
         if (tmphoang < 0.065) {
           ips6 = mypow_2[6];
           ipsall += ips6;
         }
 
-        if (fabs(momatho) < 250.0 && fabs(momatho) > 15.0) {
+        if (std::fabs(momatho) < 250.0 && std::fabs(momatho) > 15.0) {
           if (iring2 == 2) {
             ips7 = mypow_2[7];
             ipsall += ips7;
           }
-          if ((iring2 == 1 || iring2 == 3) && fabs(momatho) > 17.0) {
+          if ((iring2 == 1 || iring2 == 3) && std::fabs(momatho) > 17.0) {
             ips7 = mypow_2[7];
             ipsall += ips7;
           }
-          if ((iring2 == 0 || iring2 == 4) && fabs(momatho) > 20.0) {
+          if ((iring2 == 0 || iring2 == 4) && std::fabs(momatho) > 20.0) {
             ips7 = mypow_2[7];
             ipsall += ips7;
           }
@@ -623,23 +634,25 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }  //4.0
 
         if (iring2 == 2) {
-          if (fabs(hodx) < 100 && fabs(hodx) > 2 && fabs(hocorsig[8]) < 40 && fabs(hocorsig[8]) > 2) {
+          if (std::fabs(hodx) < 100 && std::fabs(hodx) > 2 && std::fabs(hocorsig[8]) < 40 &&
+              std::fabs(hocorsig[8]) > 2) {
             ips11 = mypow_2[11];
             ipsall += ips11;
           }
 
-          if (fabs(hody) < 100 && fabs(hody) > 2 && fabs(hocorsig[9]) < 40 && fabs(hocorsig[9]) > 2) {
+          if (std::fabs(hody) < 100 && std::fabs(hody) > 2 && std::fabs(hocorsig[9]) < 40 &&
+              std::fabs(hocorsig[9]) > 2) {
             ips12 = mypow_2[12];
             ipsall += ips12;
           }
 
         } else {
-          if (fabs(hodx) < 100 && fabs(hodx) > 2) {
+          if (std::fabs(hodx) < 100 && std::fabs(hodx) > 2) {
             ips11 = mypow_2[11];
             ipsall += ips11;
           }
 
-          if (fabs(hody) < 100 && fabs(hody) > 2) {
+          if (std::fabs(hody) < 100 && std::fabs(hody) > 2) {
             ips12 = mypow_2[12];
             ipsall += ips12;
           }
@@ -681,10 +694,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       if (ipsall - ips0 == mypow_2[ncut] - mypow_2[0] - 1) {
         if (isZSps) {
-          sigvsevt[iring2][0]->Fill(abs(ndof), nomHOSig);
-          sig_eta_evt[tmpxet][0]->Fill(abs(ndof), nomHOSig);
+          sigvsevt[iring2][0]->Fill(std::abs(ndof), nomHOSig);
+          sig_eta_evt[tmpxet][0]->Fill(std::abs(ndof), nomHOSig);
         }
-        variab[iring2][0]->Fill(abs(ndof));
+        variab[iring2][0]->Fill(std::abs(ndof));
       }
       if (ipsall - ips1 == mypow_2[ncut] - mypow_2[1] - 1) {
         if (isZSps) {
@@ -730,10 +743,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
       if (ipsall - ips7 == mypow_2[ncut] - mypow_2[7] - 1) {
         if (isZSps) {
-          sigvsevt[iring2][7]->Fill(fabs(trkmm), nomHOSig);
-          sig_eta_evt[tmpxet][7]->Fill(fabs(trkmm), nomHOSig);
+          sigvsevt[iring2][7]->Fill(std::fabs(trkmm), nomHOSig);
+          sig_eta_evt[tmpxet][7]->Fill(std::fabs(trkmm), nomHOSig);
         }
-        variab[iring2][7]->Fill(fabs(trkmm));
+        variab[iring2][7]->Fill(std::fabs(trkmm));
       }
       if (ipsall - ips8 == mypow_2[ncut] - mypow_2[8] - 1) {
         if (isZSps) {
@@ -782,10 +795,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
 
       if (isZSps) {
-        sigvsevt[iring2 + ringmx][0]->Fill(abs(ndof), nomHOSig);
-        sig_eta_evt[netamx + tmpxet][0]->Fill(abs(ndof), nomHOSig);
+        sigvsevt[iring2 + ringmx][0]->Fill(std::abs(ndof), nomHOSig);
+        sig_eta_evt[netamx + tmpxet][0]->Fill(std::abs(ndof), nomHOSig);
       }
-      variab[iring2 + 5][0]->Fill(abs(ndof));
+      variab[iring2 + 5][0]->Fill(std::abs(ndof));
 
       ncount[iring2][0]++;
       if (isZSps) {
@@ -842,10 +855,10 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                   if (ips6 > 0) {
                     if (isZSps) {
                       ncount[iring2][16]++;
-                      sigvsevt[iring2 + ringmx][7]->Fill(fabs(trkmm), nomHOSig);
-                      sig_eta_evt[netamx + tmpxet][7]->Fill(fabs(trkmm), nomHOSig);
+                      sigvsevt[iring2 + ringmx][7]->Fill(std::fabs(trkmm), nomHOSig);
+                      sig_eta_evt[netamx + tmpxet][7]->Fill(std::fabs(trkmm), nomHOSig);
                     }
-                    variab[iring2 + ringmx][7]->Fill(fabs(trkmm));
+                    variab[iring2 + ringmx][7]->Fill(std::fabs(trkmm));
                     mu_projection[7]->Fill(ieta, iphi);
                     if (ips7 > 0) {
                       ncount[iring2][4]++;  //Efficiency of Muon detection
@@ -923,7 +936,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
       }
       if (isZSps) {
-        sigvsevt[iring2 + 2 * ringmx][0]->Fill(abs(ndof), nomHOSig);
+        sigvsevt[iring2 + 2 * ringmx][0]->Fill(std::abs(ndof), nomHOSig);
         sigvsevt[iring2 + 2 * ringmx][1]->Fill(chisq, nomHOSig);
         sigvsevt[iring2 + 2 * ringmx][2]->Fill(trkth, nomHOSig);
         sigvsevt[iring2 + 2 * ringmx][3]->Fill(trkph, nomHOSig);
@@ -932,7 +945,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (abshoang > 0.01) {
           sigvsevt[iring2 + 2 * ringmx][6]->Fill(tmphoang, (nomHOSig)*abshoang);
         }
-        sigvsevt[iring2 + 2 * ringmx][7]->Fill(fabs(trkmm), nomHOSig);
+        sigvsevt[iring2 + 2 * ringmx][7]->Fill(std::fabs(trkmm), nomHOSig);
         sigvsevt[iring2 + 2 * ringmx][8]->Fill(nmuon, nomHOSig);
         if (!m_cosmic)
           sigvsevt[iring2 + 2 * ringmx][9]->Fill(caloen[0], nomHOSig);
@@ -941,7 +954,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         sigvsevt[iring2 + 2 * ringmx][12]->Fill(hody, nomHOSig);
         sigvsevt[iring2 + 2 * ringmx][13]->Fill(htime, nomHOSig);
 
-        sig_eta_evt[2 * netamx + tmpxet][0]->Fill(abs(ndof), nomHOSig);
+        sig_eta_evt[2 * netamx + tmpxet][0]->Fill(std::abs(ndof), nomHOSig);
         sig_eta_evt[2 * netamx + tmpxet][1]->Fill(chisq, nomHOSig);
         sig_eta_evt[2 * netamx + tmpxet][2]->Fill(trkth, nomHOSig);
         sig_eta_evt[2 * netamx + tmpxet][3]->Fill(trkph, nomHOSig);
@@ -950,7 +963,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (abshoang > 0.01) {
           sig_eta_evt[2 * netamx + tmpxet][6]->Fill(tmphoang, (nomHOSig)*abshoang);
         }
-        sig_eta_evt[2 * netamx + tmpxet][7]->Fill(fabs(trkmm), nomHOSig);
+        sig_eta_evt[2 * netamx + tmpxet][7]->Fill(std::fabs(trkmm), nomHOSig);
         sig_eta_evt[2 * netamx + tmpxet][8]->Fill(nmuon, nomHOSig);
         if (!m_cosmic)
           sig_eta_evt[2 * netamx + tmpxet][9]->Fill(caloen[0], nomHOSig);
@@ -960,14 +973,14 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         sig_eta_evt[2 * netamx + tmpxet][13]->Fill(htime, nomHOSig);
       }
 
-      variab[iring2 + 2 * ringmx][0]->Fill(abs(ndof));
+      variab[iring2 + 2 * ringmx][0]->Fill(std::abs(ndof));
       variab[iring2 + 2 * ringmx][1]->Fill(chisq);
       variab[iring2 + 2 * ringmx][2]->Fill(trkth);
       variab[iring2 + 2 * ringmx][3]->Fill(trkph);
       variab[iring2 + 2 * ringmx][4]->Fill(1000 * therr);
       variab[iring2 + 2 * ringmx][5]->Fill(1000 * pherr);
       variab[iring2 + 2 * ringmx][6]->Fill(tmphoang);
-      variab[iring2 + 2 * ringmx][7]->Fill(fabs(trkmm));
+      variab[iring2 + 2 * ringmx][7]->Fill(std::fabs(trkmm));
       variab[iring2 + 2 * ringmx][8]->Fill(nmuon);
       if (!m_cosmic)
         variab[iring2 + 2 * ringmx][9]->Fill(caloen[0]);
@@ -978,8 +991,8 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       muonnm->Fill(nmuon);
       muonmm->Fill(trkmm);
-      muonth->Fill(trkth * 180 / pival);
-      muonph->Fill(trkph * 180 / pival);
+      muonth->Fill(trkth * 180 / angle_units::piRadians);
+      muonph->Fill(trkph * 180 / angle_units::piRadians);
       muonch->Fill(chisq);
 
       int iselect = (ipsall == mypow_2[ncut] - 1) ? 1 : 0;
@@ -988,8 +1001,8 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         ipass++;
         sel_muonnm->Fill(nmuon);
         sel_muonmm->Fill(trkmm);
-        sel_muonth->Fill(trkth * 180 / pival);
-        sel_muonph->Fill(trkph * 180 / pival);
+        sel_muonth->Fill(trkth * 180 / angle_units::piRadians);
+        sel_muonph->Fill(trkph * 180 / angle_units::piRadians);
         sel_muonch->Fill(chisq);
         if (m_histFill && tmpxet >= 0 && tmpxet < netamx && iphi >= 0 && iphi < nphimx) {
           ho_indenergy[tmpxet][iphi - 1]->Fill(nomHOSig);
@@ -998,8 +1011,8 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           T1->Fill();
         }
       }
-    }  //for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
-  }    //if (isCosMu)
+    }  //close the for loop: (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
+  }  //end of the if loop (isCosMu)
 }
 
 //define this as a plug-in

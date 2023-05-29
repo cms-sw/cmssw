@@ -399,6 +399,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
     using Context = GlobalContext;
+    static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::BeginProcessBlock;
 
@@ -436,6 +437,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
     using Context = GlobalContext;
+    static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::AccessInputProcessBlock;
 
@@ -473,6 +475,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
     using Context = GlobalContext;
+    static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;
     static Transition constexpr transition_ = Transition::EndProcessBlock;
 

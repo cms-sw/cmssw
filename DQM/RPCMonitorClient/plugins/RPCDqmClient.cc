@@ -48,6 +48,7 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& pset) {
 
   //clear counters
   lumiCounter_ = 0;
+  RPCEvents_ = nullptr;
 
   rpcGeomToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 }

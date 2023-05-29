@@ -794,11 +794,14 @@ std::vector<const reco::Track*> BTVHLTOfflineSource::getOnlineBTagTracks(float h
 
     unsigned int trackSize = ipInfo.selectedTracks().size();
     for (unsigned int itt = 0; itt < trackSize; ++itt) {
-      const auto ptrackRef = (ipInfo.selectedTracks()[itt]);  //TrackRef or
-      const reco::Track* ptrackPtr = reco::btag::toTrack(ptrackRef);
-      onlineTracks.push_back(ptrackPtr);
-      onlineIP3D.push_back(ip[itt].ip3d.value());
-      onlineIP3DSig.push_back(ip[itt].ip3d.significance());
+      const auto ptrackRef = (ipInfo.selectedTracks()[itt]);
+
+      if (ptrackRef.isAvailable()) {
+        const reco::Track* ptrackPtr = reco::btag::toTrack(ptrackRef);
+        onlineTracks.push_back(ptrackPtr);
+        onlineIP3D.push_back(ip[itt].ip3d.value());
+        onlineIP3DSig.push_back(ip[itt].ip3d.significance());
+      }
     }
   }
   return onlineTracks;

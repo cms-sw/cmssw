@@ -4,17 +4,17 @@ import FWCore.ParameterSet.Config as cms
 from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
 
 # monitoring of efficiencies of HLT paths and filters
-from DQMOffline.Trigger.hltFiltersDQMonitor_cfi import *
-hltFiltersDQM = hltFiltersDQMonitor.clone(
-  folderName = 'HLT/Filters',
-  efficPlotNamePrefix = 'effic_',
-  triggerResults = 'TriggerResults::HLT',
-  triggerSummaryAOD = 'hltTriggerSummaryAOD::HLT',
-  triggerSummaryRAW = 'hltTriggerSummaryRAW::HLT',
+from DQMOffline.Trigger.dqmHLTFiltersDQMonitor_cfi import dqmHLTFiltersDQMonitor as _dqmHLTFiltersDQMonitor
+dqmHLTFiltersDQMonitor = _dqmHLTFiltersDQMonitor.clone(
+    folderName = 'HLT/Filters',
+    efficPlotNamePrefix = 'effic_',
+    triggerResults = 'TriggerResults::HLT',
+    triggerEvent = 'hltTriggerSummaryAOD::HLT',
+    triggerEventWithRefs = 'hltTriggerSummaryRAW::HLT'
 )
 
 # Lumi
-from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
+from DQMOffline.Trigger.DQMOffline_LumiMonitoring_cff import *
 
 # Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cff import *
@@ -38,6 +38,8 @@ from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 from DQMOffline.Trigger.BTagAndProbeMonitor_cfi import *
 from DQMOffline.Trigger.BTagAndProbeMonitoring_cff import *
 
+# ParticleNet jet flavor tagging monitoring
+from DQMOffline.Trigger.ParticleNetJetTagMonitoring_cff import *
 
 # vertexing
 from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
@@ -119,7 +121,7 @@ offlineHLTSourceOnMiniAOD = cms.Sequence(
 ## ADD here sequences/modules which rely ONLY on collections stored in the AOD format
 offlineHLTSourceOnAOD = cms.Sequence(
       dqmEnvHLT
-    * hltFiltersDQM
+    * dqmHLTFiltersDQMonitor
     * lumiMonitorHLTsequence
     * muonFullOfflineDQM
     * HLTTauDQMOffline
@@ -143,7 +145,7 @@ offlineHLTSourceOnAOD = cms.Sequence(
 
 ## w/ the RECO step on-the-fly (to be added to offlineHLTSourceOnAOD which should run anyhow)
 offlineHLTSourceWithRECO = cms.Sequence(
-      hltFiltersDQM
+      dqmHLTFiltersDQMonitor
     * egHLTOffDQMSource       ## NEEDED in VALIDATION, not really in MONITORING
     * egHLTOffDQMSource_HEP17 ## NEEDED in VALIDATION, not really in MONITORING
     * jetMETHLTOfflineAnalyzer
@@ -194,11 +196,12 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     BTVHLTOfflineSource *             # BTV
     bTagHLTTrackMonitoringSequence *  # BTV relative track efficiencies
     trackingMonitorHLT *              # tracking
-    BTagAndProbeHLT *                 #BTag and Probe
+    BTagAndProbeHLT *                 # BTag and Probe
     trackingMonitorHLTDisplacedJet*   # EXO : DisplacedJet Tracking 
     egmTrackingMonitorHLT *           # EGM tracking
     hltToOfflineTrackValidatorSequence *  # Relative Online to Offline performace
-    vertexingMonitorHLT               # vertexing
+    vertexingMonitorHLT *             # vertexing
+    particleNetMonitoringHLT          # HIG: monitoring of HLT PNET taggers (incl. comparisons to Offline PNET)
 )
 
 # sequences run @tier0 on HLTMonitor PD

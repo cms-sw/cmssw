@@ -43,12 +43,15 @@ namespace evf {
 
   class GlobalEvFOutputEventWriter {
   public:
-    explicit GlobalEvFOutputEventWriter(std::string const& filePath)
-        : filePath_(filePath), accepted_(0), stream_writer_events_(new StreamerOutputFile(filePath)) {}
+    explicit GlobalEvFOutputEventWriter(std::string const& filePath, unsigned int ls)
+        : filePath_(filePath), ls_(ls), accepted_(0), stream_writer_events_(new StreamerOutputFile(filePath)) {}
 
     ~GlobalEvFOutputEventWriter() {}
 
-    void close() { stream_writer_events_->close(); }
+    bool close() {
+      stream_writer_events_->close();
+      return (discarded_ || edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_));
+    }
 
     void doOutputEvent(EventMsgBuilder const& msg) {
       EventMsgView eview(msg.startAddress());
@@ -58,6 +61,12 @@ namespace evf {
 
     void doOutputEventAsync(std::unique_ptr<EventMsgBuilder> msg, edm::WaitingTaskHolder iHolder) {
       throttledCheck();
+      discardedCheck();
+      if (discarded_) {
+        incAccepted();
+        msg.reset();
+        return;
+      }
       auto group = iHolder.group();
       writeQueue_.push(*group, [holder = std::move(iHolder), msg = msg.release(), this]() {
         try {
@@ -72,13 +81,24 @@ namespace evf {
 
     inline void throttledCheck() {
       unsigned int counter = 0;
-      while (edm::Service<evf::EvFDaqDirector>()->inputThrottled()) {
+      while (edm::Service<evf::EvFDaqDirector>()->inputThrottled() && !discarded_) {
         if (edm::shutdown_flag.load(std::memory_order_relaxed))
           break;
         if (!(counter % 100))
           edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, writing is paused...";
         usleep(100000);
         counter++;
+        if (edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_)) {
+          edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
+          discarded_ = true;
+        }
+      }
+    }
+
+    inline void discardedCheck() {
+      if (!discarded_ && edm::Service<evf::EvFDaqDirector>()->lumisectionDiscarded(ls_)) {
+        edm::LogWarning("FedRawDataInputSource") << "Detected that the lumisection is discarded -: " << ls_;
+        discarded_ = true;
       }
     }
 
@@ -93,24 +113,31 @@ namespace evf {
 
   private:
     std::string filePath_;
+    const unsigned ls_;
     std::atomic<unsigned long> accepted_;
     edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_events_;
     edm::SerialTaskQueue writeQueue_;
+    bool discarded_ = false;
   };
 
   class GlobalEvFOutputJSONDef {
   public:
-    GlobalEvFOutputJSONDef();
+    GlobalEvFOutputJSONDef(std::string const& streamLabel, bool writeJsd);
+    void updateDestination(std::string const& streamLabel);
 
     jsoncollector::DataPointDefinition outJsonDef_;
     std::string outJsonDefName_;
+    jsoncollector::StringJ transferDestination_;
+    jsoncollector::StringJ mergeType_;
   };
 
   class GlobalEvFOutputJSONWriter {
   public:
     GlobalEvFOutputJSONWriter(std::string const& streamLabel,
                               jsoncollector::DataPointDefinition const&,
-                              std::string const& outJsonDefName);
+                              std::string const& outJsonDefName,
+                              jsoncollector::StringJ const& transferDestination,
+                              jsoncollector::StringJ const& mergeType);
 
     jsoncollector::IntJ processed_;
     jsoncollector::IntJ accepted_;
@@ -166,11 +193,9 @@ namespace evf {
 
   };  //end-of-class-def
 
-  GlobalEvFOutputJSONDef::GlobalEvFOutputJSONDef() {
+  GlobalEvFOutputJSONDef::GlobalEvFOutputJSONDef(std::string const& streamLabel, bool writeJsd) {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
     LogDebug("GlobalEvFOutputModule") << "writing .dat files to -: " << baseRunDir;
-
-    edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
 
     outJsonDef_.setDefaultGroup("data");
     outJsonDef_.addLegendItem("Processed", "integer", jsoncollector::DataPointDefinition::SUM);
@@ -185,28 +210,40 @@ namespace evf {
     outJsonDef_.addLegendItem("MergeType", "string", jsoncollector::DataPointDefinition::SAME);
     outJsonDef_.addLegendItem("HLTErrorEvents", "integer", jsoncollector::DataPointDefinition::SUM);
 
-    std::stringstream tmpss, ss;
-    tmpss << baseRunDir << "/open/"
-          << "output_" << getpid() << ".jsd";
+    std::stringstream ss;
     ss << baseRunDir << "/"
        << "output_" << getpid() << ".jsd";
-    std::string outTmpJsonDefName = tmpss.str();
     outJsonDefName_ = ss.str();
 
-    edm::Service<evf::EvFDaqDirector>()->lockInitLock();
-    struct stat fstat;
-    if (stat(outJsonDefName_.c_str(), &fstat) != 0) {  //file does not exist
-      LogDebug("GlobalEvFOutputModule") << "writing output definition file -: " << outJsonDefName_;
-      std::string content;
-      jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
-      jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
-      std::filesystem::rename(outTmpJsonDefName, outJsonDefName_);
+    if (writeJsd) {
+      std::stringstream tmpss;
+      tmpss << baseRunDir << "/open/"
+            << "output_" << getpid() << ".jsd";
+      std::string outTmpJsonDefName = tmpss.str();
+      edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
+      edm::Service<evf::EvFDaqDirector>()->lockInitLock();
+      struct stat fstat;
+      if (stat(outJsonDefName_.c_str(), &fstat) != 0) {  //file does not exist
+        LogDebug("GlobalEvFOutputModule") << "writing output definition file -: " << outJsonDefName_;
+        std::string content;
+        jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
+        jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
+        std::filesystem::rename(outTmpJsonDefName, outJsonDefName_);
+      }
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
   }
+
+  void GlobalEvFOutputJSONDef::updateDestination(std::string const& streamLabel) {
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel);
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel, evf::MergeTypeDAT);
+  }
+
   GlobalEvFOutputJSONWriter::GlobalEvFOutputJSONWriter(std::string const& streamLabel,
                                                        jsoncollector::DataPointDefinition const& outJsonDef,
-                                                       std::string const& outJsonDefName)
+                                                       std::string const& outJsonDefName,
+                                                       jsoncollector::StringJ const& transferDestination,
+                                                       jsoncollector::StringJ const& mergeType)
       : processed_(0),
         accepted_(0),
         errorEvents_(0),
@@ -215,10 +252,9 @@ namespace evf {
         filesize_(0),
         inputFiles_(),
         fileAdler32_(1),
+        transferDestination_(transferDestination),
+        mergeType_(mergeType),
         hltErrorEvents_(0) {
-    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel);
-    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel, evf::MergeTypeDAT);
-
     processed_.setName("Processed");
     accepted_.setName("Accepted");
     errorEvents_.setName("ErrorEvents");
@@ -275,6 +311,21 @@ namespace evf {
           << "stream (case-insensitive) sequence was found in stream suffix. This is reserved and can not be used for "
              "names in FFF based HLT, but was detected in stream name";
 
+    //output initemp file. This lets hltd know number of streams early on
+    if (!edm::Service<evf::EvFDaqDirector>().isAvailable())
+      throw cms::Exception("GlobalEvFOutputModule") << "EvFDaqDirector is not available";
+
+    const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitTempFilePath(streamLabel_);
+    std::ofstream file(iniFileName);
+    if (!file)
+      throw cms::Exception("GlobalEvFOutputModule") << "can not create " << iniFileName << "error: " << strerror(errno);
+    file.close();
+
+    edm::LogInfo("GlobalEvFOutputModule") << "Constructor created initemp file -: " << iniFileName;
+
+    //create JSD
+    GlobalEvFOutputJSONDef(streamLabel_, true);
+
     fms_ = (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
   }
 
@@ -296,8 +347,8 @@ namespace evf {
 
   std::shared_ptr<GlobalEvFOutputJSONDef> GlobalEvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const {
     //create run Cache holding JSON file writer and variables
-    auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>();
-
+    auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>(streamLabel_, false);
+    jsonDef->updateDestination(streamLabel_);
     edm::StreamerOutputModuleCommon streamerCommon(ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
@@ -332,17 +383,21 @@ namespace evf {
     //read back file to check integrity of what was written
     off_t readInput = 0;
     uint32_t adlera = 1, adlerb = 0;
-    FILE* src = fopen(openIniFileName.c_str(), "r");
+    std::ifstream src(openIniFileName, std::ifstream::binary);
+    if (!src)
+      throw cms::Exception("GlobalEvFOutputModule")
+          << "can not read back " << openIniFileName << " error: " << strerror(errno);
 
     //allocate buffer to write INI file
-    std::unique_ptr<unsigned char[]> outBuf = std::make_unique<unsigned char[]>(1024 * 1024);
+    std::unique_ptr<char[]> outBuf = std::make_unique<char[]>(1024 * 1024);
     while (readInput < istat.st_size) {
       size_t toRead = readInput + 1024 * 1024 < istat.st_size ? 1024 * 1024 : istat.st_size - readInput;
-      fread(outBuf.get(), toRead, 1, src);
-      cms::Adler32(const_cast<const char*>(reinterpret_cast<char*>(outBuf.get())), toRead, adlera, adlerb);
+      src.read(outBuf.get(), toRead);
+      //cms::Adler32(const_cast<const char*>(reinterpret_cast<char*>(outBuf.get())), toRead, adlera, adlerb);
+      cms::Adler32(const_cast<const char*>(outBuf.get()), toRead, adlera, adlerb);
       readInput += toRead;
     }
-    fclose(src);
+    src.close();
 
     //clear serialization buffers
     streamerCommon.getSerializerBuffer()->clearHeaderBuffer();
@@ -373,7 +428,7 @@ namespace evf {
       edm::LuminosityBlockForOutput const& iLB) const {
     auto openDatFilePath = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(iLB.luminosityBlock(), streamLabel_);
 
-    return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath);
+    return std::make_shared<GlobalEvFOutputEventWriter>(openDatFilePath, iLB.luminosityBlock());
   }
 
   void GlobalEvFOutputModule::acquire(edm::StreamID id,
@@ -394,17 +449,31 @@ namespace evf {
   void GlobalEvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const {
     auto lumiWriter = luminosityBlockCache(iLB.index());
     //close dat file
-    const_cast<evf::GlobalEvFOutputEventWriter*>(lumiWriter)->close();
+    const bool discarded = const_cast<evf::GlobalEvFOutputEventWriter*>(lumiWriter)->close();
 
     //auto jsonWriter = const_cast<GlobalEvFOutputJSONWriter*>(runCache(iLB.getRun().index()));
     auto jsonDef = runCache(iLB.getRun().index());
-    GlobalEvFOutputJSONWriter jsonWriter(streamLabel_, jsonDef->outJsonDef_, jsonDef->outJsonDefName_);
+    GlobalEvFOutputJSONWriter jsonWriter(streamLabel_,
+                                         jsonDef->outJsonDef_,
+                                         jsonDef->outJsonDefName_,
+                                         jsonDef->transferDestination_,
+                                         jsonDef->mergeType_);
 
     jsonWriter.fileAdler32_.value() = lumiWriter->get_adler32();
     jsonWriter.accepted_.value() = lumiWriter->getAccepted();
 
     bool abortFlag = false;
-    jsonWriter.processed_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
+
+    if (!discarded) {
+      jsonWriter.processed_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
+    } else {
+      jsonWriter.errorEvents_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(), &abortFlag);
+      jsonWriter.processed_.value() = 0;
+      jsonWriter.accepted_.value() = 0;
+      edm::LogInfo("GlobalEvFOutputModule")
+          << "Output suppressed, setting error events for LS -: " << iLB.luminosityBlock();
+    }
+
     if (abortFlag) {
       edm::LogInfo("GlobalEvFOutputModule") << "Abort flag has been set. Output is suppressed";
       return;

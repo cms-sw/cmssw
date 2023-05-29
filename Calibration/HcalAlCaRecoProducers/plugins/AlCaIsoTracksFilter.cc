@@ -62,25 +62,25 @@
 // class declaration
 //
 
-namespace AlCaIsoTracks {
+namespace alCaIsoTracksFilter {
   struct Counters {
     Counters() : nAll_(0), nGood_(0), nRange_(0), nHigh_(0) {}
     mutable std::atomic<unsigned int> nAll_, nGood_, nRange_, nHigh_;
   };
-}  // namespace AlCaIsoTracks
+}  // namespace alCaIsoTracksFilter
 
-class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<AlCaIsoTracks::Counters>> {
+class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaIsoTracksFilter::Counters>> {
 public:
-  explicit AlCaIsoTracksFilter(edm::ParameterSet const&, const AlCaIsoTracks::Counters* count);
+  explicit AlCaIsoTracksFilter(edm::ParameterSet const&, const alCaIsoTracksFilter::Counters* count);
   ~AlCaIsoTracksFilter() override = default;
 
-  static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
-    return std::make_unique<AlCaIsoTracks::Counters>();
+  static std::unique_ptr<alCaIsoTracksFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    return std::make_unique<alCaIsoTracksFilter::Counters>();
   }
 
   bool filter(edm::Event&, edm::EventSetup const&) override;
   void endStream() override;
-  static void globalEndJob(const AlCaIsoTracks::Counters* counters);
+  static void globalEndJob(const alCaIsoTracksFilter::Counters* counters);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -134,7 +134,7 @@ private:
 //
 // constructors and destructor
 //
-AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const AlCaIsoTracks::Counters* count)
+AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const alCaIsoTracksFilter::Counters* count)
     : trigNames_(iConfig.getParameter<std::vector<std::string>>("triggers")),
       labelGenTrack_(iConfig.getParameter<edm::InputTag>("labelTrack")),
       labelRecVtx_(iConfig.getParameter<edm::InputTag>("labelVertex")),
@@ -357,7 +357,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
         edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: Has " << trkCaloDirections.size()
                                          << " propagated tracks from a total of " << trkCollection->size();
 #endif
-      unsigned int nTracks(0), nselTracks(0), ntrin(0), ntrout(0), ntrH(0);
+      unsigned int nTracks(0), ntrin(0), ntrout(0), ntrH(0);
       for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
            trkDetItr++, nTracks++) {
         const reco::Track* pTrack = &(*(trkDetItr->trkItr));
@@ -382,7 +382,6 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 #endif
         if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
           double t_p = pTrack->p();
-          nselTracks++;
           int nNearTRKs(0);
           std::vector<DetId> eIds;
           std::vector<double> eHit;
@@ -479,7 +478,7 @@ void AlCaIsoTracksFilter::endStream() {
   globalCache()->nHigh_ += nHigh_;
 }
 
-void AlCaIsoTracksFilter::globalEndJob(const AlCaIsoTracks::Counters* count) {
+void AlCaIsoTracksFilter::globalEndJob(const alCaIsoTracksFilter::Counters* count) {
   edm::LogVerbatim("HcalIsoTrack") << "Selects " << count->nGood_ << " in " << count->nAll_ << " events and with "
                                    << count->nRange_ << " events in the p-range" << count->nHigh_
                                    << " events with high p";
@@ -544,9 +543,9 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow", 20.0);
   desc.add<double>("momentumRangeHigh", 40.0);
-  desc.add<int>("preScaleFactor", 1);
+  desc.add<int>("preScaleFactor", 10);
   desc.add<double>("momentumHigh", 60.0);
-  desc.add<int>("preScaleHigh", 1);
+  desc.add<int>("preScaleHigh", 5);
   std::vector<int> events;
   desc.add<std::vector<int>>("debugEvents", events);
   desc.add<bool>("usePFThreshold", true);

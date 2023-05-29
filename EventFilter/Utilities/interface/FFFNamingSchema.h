@@ -59,6 +59,13 @@ namespace fffnaming {
     return ss.str();
   }
 
+  inline std::string initTempFileNameWithPid(const unsigned int run, const unsigned int ls, std::string const& stream) {
+    std::stringstream ss;
+    runLumiPrefixFill(ss, run, ls);
+    ss << "_" << stream << "_pid" << std::setfill('0') << std::setw(5) << getpid() << ".initemp";
+    return ss.str();
+  }
+
   inline std::string initFileNameWithInstance(const unsigned int run,
                                               const unsigned int ls,
                                               std::string const& stream,

@@ -39,5 +39,5 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  edm::InputTag fedRawDataCollectionTag_;
+  const edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
 };

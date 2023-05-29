@@ -4,6 +4,8 @@
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"
 #include "DataFormats/L1TParticleFlow/interface/pf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/conifer.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/inversion.h"
 
 namespace edm {
   class ParameterSet;
@@ -21,6 +23,7 @@ namespace l1ct {
     bool doBremRecovery;
     bool writeBeforeBremRecovery;
     int caloHwQual;
+    bool doEndcapHwQual;
     float emClusterPtMin;  // GeV
     float dEtaMaxBrem;
     float dPhiMaxBrem;
@@ -29,6 +32,8 @@ namespace l1ct {
     std::vector<double> dEtaValues;
     std::vector<double> dPhiValues;
     float trkQualityPtMin;  // GeV
+    bool doCompositeTkEle;
+    unsigned int nCompCandPerCluster;
     bool writeEgSta;
 
     struct IsoParameters {
@@ -52,6 +57,18 @@ namespace l1ct {
     bool doPfIso;
     EGIsoEleObjEmu::IsoType hwIsoTypeTkEle;
     EGIsoObjEmu::IsoType hwIsoTypeTkEm;
+
+    struct CompIDParameters {
+      CompIDParameters(const edm::ParameterSet &);
+      CompIDParameters(double bdtScore_loose_wp, double bdtScore_tight_wp, const std::string &model)
+          : bdtScore_loose_wp(bdtScore_loose_wp), bdtScore_tight_wp(bdtScore_tight_wp), conifer_model(model) {}
+      const double bdtScore_loose_wp;  // XGBOOST score
+      const double bdtScore_tight_wp;  // XGBOOST score
+      const std::string conifer_model;
+    };
+
+    CompIDParameters compIDparams;
+
     int debug = 0;
 
     PFTkEGAlgoEmuConfig(const edm::ParameterSet &iConfig);
@@ -63,6 +80,7 @@ namespace l1ct {
                         bool doBremRecovery,
                         bool writeBeforeBremRecovery = false,
                         int caloHwQual = 4,
+                        bool doEndcapHwQual = false,
                         float emClusterPtMin = 2.,
                         float dEtaMaxBrem = 0.02,
                         float dPhiMaxBrem = 0.1,
@@ -70,6 +88,8 @@ namespace l1ct {
                         const std::vector<double> &dEtaValues = {0.015, 0.01},
                         const std::vector<double> &dPhiValues = {0.07, 0.07},
                         float trkQualityPtMin = 10.,
+                        bool doCompositeTkEle = false,
+                        unsigned int nCompCandPerCluster = 4,
                         bool writeEgSta = false,
                         const IsoParameters &tkIsoParams_tkEle = {2., 0.6, 0.03, 0.2},
                         const IsoParameters &tkIsoParams_tkEm = {2., 0.6, 0.07, 0.3},
@@ -78,7 +98,9 @@ namespace l1ct {
                         bool doTkIso = true,
                         bool doPfIso = false,
                         EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,
-                        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV)
+                        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV,
+                        const CompIDParameters &compIDparams = {-4, 0.214844, "compositeID.json"},
+                        int debug = 0)
 
         : nTRACK(nTrack),
           nTRACK_EGIN(nTrack_in),
@@ -88,6 +110,7 @@ namespace l1ct {
           doBremRecovery(doBremRecovery),
           writeBeforeBremRecovery(writeBeforeBremRecovery),
           caloHwQual(caloHwQual),
+          doEndcapHwQual(doEndcapHwQual),
           emClusterPtMin(emClusterPtMin),
           dEtaMaxBrem(dEtaMaxBrem),
           dPhiMaxBrem(dPhiMaxBrem),
@@ -95,6 +118,8 @@ namespace l1ct {
           dEtaValues(dEtaValues),
           dPhiValues(dPhiValues),
           trkQualityPtMin(trkQualityPtMin),
+          doCompositeTkEle(doCompositeTkEle),
+          nCompCandPerCluster(nCompCandPerCluster),
           writeEgSta(writeEgSta),
           tkIsoParams_tkEle(tkIsoParams_tkEle),
           tkIsoParams_tkEm(tkIsoParams_tkEm),
@@ -103,12 +128,14 @@ namespace l1ct {
           doTkIso(doTkIso),
           doPfIso(doPfIso),
           hwIsoTypeTkEle(hwIsoTypeTkEle),
-          hwIsoTypeTkEm(hwIsoTypeTkEm) {}
+          hwIsoTypeTkEm(hwIsoTypeTkEm),
+          compIDparams(compIDparams),
+          debug(debug) {}
   };
 
   class PFTkEGAlgoEmulator {
   public:
-    PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config) : cfg(config), debug_(cfg.debug) {}
+    PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config);
 
     virtual ~PFTkEGAlgoEmulator() {}
 
@@ -127,13 +154,33 @@ namespace l1ct {
 
     bool writeEgSta() const { return cfg.writeEgSta; }
 
+    typedef ap_fixed<21, 12, AP_RND_CONV, AP_SAT> bdt_feature_t;
+    typedef ap_fixed<12, 3, AP_RND_CONV, AP_SAT> bdt_score_t;
+
   private:
     void link_emCalo2emCalo(const std::vector<EmCaloObjEmu> &emcalo, std::vector<int> &emCalo2emCalo) const;
 
-    void link_emCalo2tk(const PFRegionEmu &r,
-                        const std::vector<EmCaloObjEmu> &emcalo,
-                        const std::vector<TkObjEmu> &track,
-                        std::vector<int> &emCalo2tk) const;
+    void link_emCalo2tk_elliptic(const PFRegionEmu &r,
+                                 const std::vector<EmCaloObjEmu> &emcalo,
+                                 const std::vector<TkObjEmu> &track,
+                                 std::vector<int> &emCalo2tk) const;
+
+    void link_emCalo2tk_composite(const PFRegionEmu &r,
+                                  const std::vector<EmCaloObjEmu> &emcalo,
+                                  const std::vector<TkObjEmu> &track,
+                                  std::vector<int> &emCalo2tk,
+                                  std::vector<float> &emCaloTkBdtScore) const;
+
+    struct CompositeCandidate {
+      unsigned int cluster_idx;
+      unsigned int track_idx;
+      double dpt;  // For sorting
+    };
+
+    float compute_composite_score(CompositeCandidate &cand,
+                                  const std::vector<EmCaloObjEmu> &emcalo,
+                                  const std::vector<TkObjEmu> &track,
+                                  const PFTkEGAlgoEmuConfig::CompIDParameters &params) const;
 
     //FIXME: still needed
     float deltaPhi(float phi1, float phi2) const;
@@ -147,6 +194,7 @@ namespace l1ct {
                  const std::vector<TkObjEmu> &track,
                  const std::vector<int> &emCalo2emCalo,
                  const std::vector<int> &emCalo2tk,
+                 const std::vector<float> &emCaloTkBdtScore,
                  std::vector<EGObjEmu> &egstas,
                  std::vector<EGIsoObjEmu> &egobjs,
                  std::vector<EGIsoEleObjEmu> &egeleobjs) const;
@@ -157,27 +205,29 @@ namespace l1ct {
                        const std::vector<EmCaloObjEmu> &emcalo,
                        const std::vector<TkObjEmu> &track,
                        const int calo_idx,
-                       const int hwQual,
+                       const unsigned int hwQual,
                        const pt_t ptCorr,
                        const int tk_idx,
+                       const float bdtScore,
                        const std::vector<unsigned int> &components = {}) const;
 
     EGObjEmu &addEGStaToPF(std::vector<EGObjEmu> &egobjs,
                            const EmCaloObjEmu &calo,
-                           const int hwQual,
+                           const unsigned int hwQual,
                            const pt_t ptCorr,
                            const std::vector<unsigned int> &components) const;
 
     EGIsoObjEmu &addEGIsoToPF(std::vector<EGIsoObjEmu> &egobjs,
                               const EmCaloObjEmu &calo,
-                              const int hwQual,
+                              const unsigned int hwQual,
                               const pt_t ptCorr) const;
 
     EGIsoEleObjEmu &addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> &egobjs,
                                     const EmCaloObjEmu &calo,
                                     const TkObjEmu &track,
-                                    const int hwQual,
-                                    const pt_t ptCorr) const;
+                                    const unsigned int hwQual,
+                                    const pt_t ptCorr,
+                                    const float bdtScore) const;
 
     // FIXME: reimplemented from PFAlgoEmulatorBase
     template <typename T>
@@ -304,6 +354,7 @@ namespace l1ct {
                            z0_t z0) const;
 
     PFTkEGAlgoEmuConfig cfg;
+    conifer::BDT<bdt_feature_t, ap_fixed<12, 3, AP_RND_CONV, AP_SAT>, false> *composite_bdt_;
     int debug_;
   };
 }  // namespace l1ct

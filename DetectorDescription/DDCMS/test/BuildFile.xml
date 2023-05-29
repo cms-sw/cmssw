@@ -62,10 +62,7 @@
   <use name="DetectorDescription/DDCMS"/>
 </bin>
 
-<bin file="dummyMain.cpp" name="DetectorDescriptionDDCMSTestDriver">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash DetectorDescription/DDCMS/test runTest.sh"/>
-</bin>
+<test name="DetectorDescriptionDDCMSTestDriver" command="runTest.sh"/>
 
 <bin name="testDDUnits" file="testRunner.cpp,DDUnits.cppunit.cc">
   <use name="clhep"/>

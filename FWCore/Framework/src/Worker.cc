@@ -236,6 +236,32 @@ namespace edm {
 
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) { earlyDeleteHelper_ = iHelper; }
 
+  size_t Worker::transformIndex(edm::BranchDescription const&) const { return -1; }
+  void Worker::doTransformAsync(WaitingTaskHolder iTask,
+                                size_t iTransformIndex,
+                                EventPrincipal const& iPrincipal,
+                                ServiceToken const& iToken,
+                                StreamID,
+                                ModuleCallingContext const& mcc,
+                                StreamContext const*) {
+    ServiceWeakToken weakToken = iToken;
+
+    //Need to make the services available early so other services can see them
+    auto task = make_waiting_task([this, iTask, weakToken, &iPrincipal, iTransformIndex, parent = mcc.parent()](
+                                      std::exception_ptr const* iExcept) mutable {
+      if (iExcept) {
+        iTask.doneWaiting(*iExcept);
+        return;
+      }
+      implDoTransformAsync(iTask, iTransformIndex, iPrincipal, parent, weakToken);
+    });
+
+    //NOTE: need different ModuleCallingContext. The ProductResolver will copy the context in order to get
+    // a longer lifetime than this function call.
+    iPrincipal.prefetchAsync(
+        WaitingTaskHolder(*iTask.group(), task), itemToGetForTransform(iTransformIndex), false, iToken, &mcc);
+  }
+
   void Worker::resetModuleDescription(ModuleDescription const* iDesc) {
     ModuleCallingContext temp(iDesc,
                               moduleCallingContext_.state(),
@@ -364,16 +390,15 @@ namespace edm {
     }
   }
 
-  void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+  void Worker::runAcquireAfterAsyncPrefetch(std::exception_ptr iEPtr,
                                             EventTransitionInfo const& eventTransitionInfo,
                                             ParentContext const& parentContext,
                                             WaitingTaskWithArenaHolder holder) {
     ranAcquireWithoutException_ = false;
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
-      assert(*iEPtr);
-      if (shouldRethrowException(*iEPtr, parentContext, true)) {
-        exceptionPtr = *iEPtr;
+      if (shouldRethrowException(iEPtr, parentContext, true)) {
+        exceptionPtr = iEPtr;
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     } else {
@@ -389,18 +414,17 @@ namespace edm {
     holder.doneWaiting(exceptionPtr);
   }
 
-  std::exception_ptr Worker::handleExternalWorkException(std::exception_ptr const* iEPtr,
-                                                         ParentContext const& parentContext) {
+  std::exception_ptr Worker::handleExternalWorkException(std::exception_ptr iEPtr, ParentContext const& parentContext) {
     if (ranAcquireWithoutException_) {
       try {
-        convertException::wrap([iEPtr]() { std::rethrow_exception(*iEPtr); });
+        convertException::wrap([iEPtr]() { std::rethrow_exception(iEPtr); });
       } catch (cms::Exception& ex) {
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
         edm::exceptionContext(ex, moduleCallingContext_);
         return std::current_exception();
       }
     }
-    return *iEPtr;
+    return iEPtr;
   }
 
   Worker::HandleExternalWorkExceptionTask::HandleExternalWorkExceptionTask(Worker* worker,

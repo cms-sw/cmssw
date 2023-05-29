@@ -21,7 +21,7 @@ Implementation:
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,15 +41,12 @@ Implementation:
 // class declaration
 //
 
-class TMTFilter : public edm::EDFilter {
+class TMTFilter : public edm::global::EDFilter<> {
 public:
   explicit TMTFilter(const edm::ParameterSet&);
-  ~TMTFilter() override;
 
 private:
-  void beginJob() override;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<FEDRawDataCollection> fedData_;
@@ -67,17 +64,12 @@ TMTFilter::TMTFilter(const edm::ParameterSet& iConfig)
   fedData_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 }
 
-TMTFilter::~TMTFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool TMTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool TMTFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   edm::Handle<FEDRawDataCollection> feds;
@@ -100,12 +92,6 @@ bool TMTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   return mp;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void TMTFilter::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void TMTFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TMTFilter);

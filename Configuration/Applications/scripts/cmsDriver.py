@@ -33,13 +33,8 @@ def run():
 
         # handle different dump options
         if options.dump_python:
-            result = {}
-            exec(open(options.python_filename).read(), result)
-            process = result["process"]
-            expanded = process.dumpPython()
-            expandedFile = open(options.python_filename,"w")
-            expandedFile.write(expanded)
-            expandedFile.close()
+            status_code = os.system('edmConfigDump -o {f} {f}'.format(f=options.python_filename))
+            if status_code: sys.exit(status_code)
             print("Expanded config file", options.python_filename, "created")
             sys.exit(0)           
   
@@ -50,10 +45,8 @@ def run():
             commandString = options.prefix+" cmsRun "+options.suffix
             print("Starting "+commandString+' '+options.python_filename)
             commands = commandString.lstrip().split()
+            sys.stdout.flush()
             os.execvpe(commands[0],commands+[options.python_filename],os.environ)
             sys.exit()
 
 run()
-
-
-    

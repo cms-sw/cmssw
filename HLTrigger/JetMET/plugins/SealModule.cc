@@ -98,7 +98,7 @@
 #include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
 #include "HLTrigger/JetMET/src/HLTExclDiJetFilter.cc"
 //
-#include "HLTrigger/JetMET/interface/HLTPFJetsMatchedToFilteredJetsProducer.h"
+#include "HLTJetsMatchedToFilteredJetsProducer.h"
 
 using namespace reco;
 using namespace trigger;
@@ -251,10 +251,17 @@ DEFINE_FWK_MODULE(HLTFatPFJetMassFilter);
 DEFINE_FWK_MODULE(HLTExclDiCaloJetFilter);
 DEFINE_FWK_MODULE(HLTExclDiPFJetFilter);
 
-typedef HLTPFJetsMatchedToFilteredJetsProducer<reco::CaloJetRef> HLTPFJetsMatchedToFilteredCaloJetsProducer;
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::CaloJet, reco::CaloJetRef>
+    HLTCaloJetsMatchedToFilteredCaloJetsProducer;
+DEFINE_FWK_MODULE(HLTCaloJetsMatchedToFilteredCaloJetsProducer);
+
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::CaloJet, reco::PFJetRef> HLTCaloJetsMatchedToFilteredPFJetsProducer;
+DEFINE_FWK_MODULE(HLTCaloJetsMatchedToFilteredPFJetsProducer);
+
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::PFJet, reco::CaloJetRef> HLTPFJetsMatchedToFilteredCaloJetsProducer;
 DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredCaloJetsProducer);
 
-typedef HLTPFJetsMatchedToFilteredJetsProducer<reco::PFJetRef> HLTPFJetsMatchedToFilteredPFJetsProducer;
+typedef HLTJetsMatchedToFilteredJetsProducer<reco::PFJet, reco::PFJetRef> HLTPFJetsMatchedToFilteredPFJetsProducer;
 DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredPFJetsProducer);
 
 typedef HLTJetHFCleaner<reco::CaloJet> HLTCaloJetHFCleaner;

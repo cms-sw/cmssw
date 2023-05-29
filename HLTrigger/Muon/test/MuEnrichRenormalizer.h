@@ -1,7 +1,7 @@
 #ifndef MuEnrichRenormalizer_H
 #define MuEnrichRenormalizer_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "TProfile.h"
 
@@ -11,7 +11,7 @@ class TH1D;
 class TH2D;
 class TTree;
 
-class MuEnrichRenormalizer : public edm::EDAnalyzer {
+class MuEnrichRenormalizer : public edm::one::EDAnalyzer<> {
 public:
   //
   explicit MuEnrichRenormalizer(const edm::ParameterSet&);

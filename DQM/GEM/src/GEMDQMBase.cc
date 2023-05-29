@@ -26,11 +26,9 @@ GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) : geomToken_(esConsumes<edm
 
 int GEMDQMBase::initGeometry(edm::EventSetup const& iSetup) {
   GEMGeometry_ = nullptr;
-  try {
-    //edm::ESHandle<GEMGeometry> hGeom;
-    //iSetup.get<MuonGeometryRecord>().get(hGeom);
-    GEMGeometry_ = &iSetup.getData(geomToken_);
-  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+  if (auto handle = iSetup.getHandle(geomToken_)) {
+    GEMGeometry_ = handle.product();
+  } else {
     edm::LogError(log_category_) << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return -1;
   }
@@ -58,23 +56,19 @@ int GEMDQMBase::getNumEtaPartitions(const GEMStation* station) {
 int GEMDQMBase::loadChambers() {
   if (GEMGeometry_ == nullptr)
     return -1;
-  gemChambers_.clear();
-  const std::vector<const GEMSuperChamber*>& superChambers_ = GEMGeometry_->superChambers();
-  for (auto sch : superChambers_) {  // FIXME: This loop can be merged into the below loop
-    int n_lay = sch->nChambers();
-    for (int l = 0; l < n_lay; l++) {
-      Bool_t bExist = false;
-      if (not sch->chamber(l + 1))
-        continue;
-      for (const auto& ch : gemChambers_) {
-        if (ch.id() == sch->chamber(l + 1)->id()) {
-          bExist = true;
-          break;
+  listChamberId_.clear();
+  mapEtaPartition_.clear();
+  for (const GEMRegion* region : GEMGeometry_->regions()) {
+    for (const GEMStation* station : region->stations()) {
+      for (auto sch : station->superChambers()) {
+        for (auto pchamber : sch->chambers()) {
+          GEMDetId gid = pchamber->id();
+          listChamberId_.push_back(pchamber->id());
+          for (auto iEta : pchamber->etaPartitions()) {
+            mapEtaPartition_[gid].push_back(iEta);
+          }
         }
       }
-      if (bExist)
-        continue;
-      gemChambers_.push_back(*sch->chamber(l + 1));
     }
   }
 
@@ -87,19 +81,42 @@ int GEMDQMBase::loadChambers() {
       const auto&& superchambers = station->superChambers();
 
       const int station_number = station->station();
-      const int num_superchambers = superchambers.size();
-      const int num_layers = superchambers.front()->nChambers();
+      const int num_superchambers = (station_number == 1 ? 36 : 18);
+      const int num_mod = getNumModule(station->station());
       const int max_vfat = getMaxVFAT(station->station());  // the number of VFATs per GEMEtaPartition
       const int num_etas = getNumEtaPartitions(station);    // the number of eta partitions per GEMChamber
       const int num_vfat = num_etas * max_vfat;             // the number of VFATs per GEMChamber
+      const int strip1st = (station_number == 2 ? 1 : 0);   // the index of the first strip
       const int num_digi = GEMeMap::maxChan_;               // the number of digis (channels) per VFAT
 
-      nMaxNumCh_ = std::max(nMaxNumCh_, num_superchambers);
+      nMaxNumCh_ = std::max(nMaxNumCh_, num_superchambers * num_mod);
 
-      for (int layer_number = 1; layer_number <= num_layers; layer_number++) {
+      Int_t nMinIdxChamber = 1048576;
+      Int_t nMaxIdxChamber = -1048576;
+      for (auto sch : superchambers) {
+        auto nIdxChamber = sch->chambers().front()->id().chamber();
+        if (nMinIdxChamber > nIdxChamber)
+          nMinIdxChamber = nIdxChamber;
+        if (nMaxIdxChamber < nIdxChamber)
+          nMaxIdxChamber = nIdxChamber;
+      }
+
+      const auto& chambers = superchambers.front()->chambers();
+
+      for (auto pchamber : chambers) {
+        int layer_number = pchamber->id().layer();
         ME3IdsKey key3(region_number, station_number, layer_number);
-        mapStationInfo_[key3] =
-            MEStationInfo(region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_digi);
+        mapStationInfo_[key3] = MEStationInfo(region_number,
+                                              station_number,
+                                              layer_number,
+                                              num_superchambers,
+                                              num_mod,
+                                              num_etas,
+                                              num_vfat,
+                                              strip1st,
+                                              num_digi,
+                                              nMinIdxChamber,
+                                              nMaxIdxChamber);
         readGeometryRadiusInfoChamber(station, mapStationInfo_[key3]);
         readGeometryPhiInfoChamber(station, mapStationInfo_[key3]);
       }
@@ -130,6 +147,7 @@ int GEMDQMBase::SortingLayers(std::vector<ME3IdsKey>& listLayers) {
 
 dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& ibooker, TString strName) {
   std::vector<ME3IdsKey> listLayers;
+  listLayers.reserve(mapStationInfo_.size());
   for (auto const& [key, stationInfo] : mapStationInfo_)
     listLayers.push_back(key);
   SortingLayers(listLayers);
@@ -153,7 +171,7 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     auto label =
         Form("GE%+i1-%cL%i;%s", region * keyToStation(key), (region > 0 ? 'P' : 'M'), keyToLayer(key), strInfo.Data());
     h2Res->setBinLabel(i, label, 2);
-    Int_t nNumCh = mapStationInfo_[key].nNumChambers_;
+    Int_t nNumCh = mapStationInfo_[key].nNumChambers_ * mapStationInfo_[key].nNumModules_;
     h2Res->setBinContent(0, i, nNumCh);
   }
 
@@ -167,8 +185,7 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
   MEMap3Check_.clear();
   MEMap3WithChCheck_.clear();
   MEMap4Check_.clear();
-  for (const auto& ch : gemChambers_) {
-    GEMDetId gid = ch.id();
+  for (auto gid : listChamberId_) {
     ME2IdsKey key2{gid.region(), gid.station()};
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
     ME4IdsKey key3WithChamber{gid.region(), gid.station(), gid.layer(), gid.chamber()};
@@ -196,7 +213,7 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
       ProcessWithMEMap3WithChamber(bh3Ch, key3WithChamber);
       MEMap3WithChCheck_[key3WithChamber] = true;
     }
-    for (auto iEta : ch.etaPartitions()) {
+    for (auto iEta : mapEtaPartition_[gid]) {
       GEMDetId eId = iEta->id();
       ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), eId.ieta()};
       ME3IdsKey key2WithEta{gid.region(), gid.station(), eId.ieta()};
@@ -330,7 +347,7 @@ int GEMDQMBase::readGeometryPhiInfoChamber(const GEMStation* station, MEStationI
     listDivPhi.back().second.second = bFlipped;
   }
 
-  stationInfo.fMinPhi_ = 1048576.0;
+  stationInfo.fMinPhi_ = 0.0;
   for (auto p : listDivPhi) {
     if (p.first == 1) {
       stationInfo.fMinPhi_ = p.second.first.first;

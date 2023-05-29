@@ -1,0 +1,10 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DQMServices/Core"/>
+<use name="DQMOffline/Trigger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="DataFormats/HLTReco"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="Validation/HLTrigger"/>
+<flags EDM_PLUGIN="1"/>

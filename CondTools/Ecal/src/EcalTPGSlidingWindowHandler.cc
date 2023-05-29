@@ -183,7 +183,6 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects() {
             typedef std::map<EcalLogicID, FEConfigSlidingDat>::const_iterator CIfesli;
             EcalLogicID ecid_xt;
             FEConfigSlidingDat rd_sli;
-            int icells = 0;
 
             for (CIfesli p = dataset_TpgSli.begin(); p != dataset_TpgSli.end(); p++) {
               ecid_xt = p->first;
@@ -205,7 +204,6 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects() {
                 unsigned int stripEBId = 303176 + (tt - 1) * 64 + (strip - 1) * 8 + (tcc - 37) * 8192;
 
                 sliW->setValue(stripEBId, (unsigned int)rd_sli.getSliding());
-                ++icells;
 
               } else if (ecid_name == "ECAL_readout_strip") {
                 // EE data
@@ -233,8 +231,6 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects() {
                 } else {
                   std::cout << " these may be the additional towers TCC/TT " << id1 << "/" << id2 << std::endl;
                 }
-
-                ++icells;
               }
             }
 

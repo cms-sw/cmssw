@@ -3,7 +3,7 @@
 //
 // Package:    CSCTFEfficiency
 // Class:      CSCTFEfficiency
-// 
+//
 /**\class CSCTFEfficiency CSCTFEfficiency.cc jhugon/CSCTFEfficiency/src/CSCTFEfficiency.cc
    
 Description: [one line class summary]
@@ -27,14 +27,12 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include <SimDataFormats/Track/interface/SimTrack.h>
@@ -74,31 +72,27 @@ Implementation:
 #include <L1Trigger/CSCTrackFinder/test/src/StatisticsFile.h>
 #include <L1Trigger/CSCTrackFinder/test/src/RHistogram.h>
 
-namespace csctf_analysis
-{
+namespace csctf_analysis {
   unsigned int minIndex(const std::vector<int>*);
   unsigned int minIndex(const std::vector<double>*);
-}
-
+}  // namespace csctf_analysis
 
 //
 // class declaration
 //
 
-class CSCTFEfficiency : public edm::EDAnalyzer 
-{
+class CSCTFEfficiency : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CSCTFEfficiency(const edm::ParameterSet&);
   ~CSCTFEfficiency();
-  
-  
+
 private:
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
+  virtual void endJob();
+
   // ----------member data ---------------------------
-  
+
   csctf_analysis::TrackHistogramList* tfHistList;
   csctf_analysis::TrackHistogramList* refHistList;
   csctf_analysis::EffHistogramList* effhistlist;
@@ -108,7 +102,7 @@ private:
   csctf_analysis::RHistogram* rHistogram;
 
   unsigned int nEvents;
-  
+
   edm::InputTag inputTag;
   double minPtSim;
   double maxPtSim;
@@ -118,10 +112,10 @@ private:
   double minQualityTF;
   std::string ghostLoseParam;
   std::string statsFilename;
-  double minMatchRParam; // Added by Daniel 07/02
-  
+  double minMatchRParam;  // Added by Daniel 07/02
+
   const edm::ParameterSet* configuration;
-  
+
   bool inputData;
   bool wantmodes;
   bool saveHistImages;
@@ -129,6 +123,5 @@ private:
   bool noRefTracks;
   int dataType;
   std::vector<unsigned> cutOnModes;
-
 };
 #endif

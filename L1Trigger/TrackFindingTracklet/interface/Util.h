@@ -47,9 +47,7 @@ namespace trklet {
   }
 
   inline double rinv(double phi1, double phi2, double r1, double r2) {
-    if (r2 <= r1) {  //FIXME can not form tracklet should not call function with r2<=r1
-      return 20.0;
-    }
+    assert(r1 < r2);  //Can not form tracklet should not call function with r2<=r1
 
     double dphi = phi2 - phi1;
     double dr = r2 - r1;

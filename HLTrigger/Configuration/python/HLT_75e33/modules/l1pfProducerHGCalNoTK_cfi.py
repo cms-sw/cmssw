@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-l1pfProducerHGCalNoTK = cms.EDProducer("L1TPFProducer",
+l1tPFProducerHGCalNoTK = cms.EDProducer("L1TPFProducer",
     debug = cms.untracked.int32(0),
     emClusters = cms.VInputTag(),
     emPtCut = cms.double(0.5),
     etaCharged = cms.double(2.5),
-    hadClusters = cms.VInputTag(cms.InputTag("pfClustersFromHGC3DClusters")),
+    hadClusters = cms.VInputTag(cms.InputTag("l1tPFClustersFromHGC3DClusters")),
     hadPtCut = cms.double(1.0),
     linking = cms.PSet(
         caloEmPtMinFrac = cms.double(0.5),
@@ -71,9 +71,9 @@ l1pfProducerHGCalNoTK = cms.EDProducer("L1TPFProducer",
             phiSlices = cms.uint32(1)
         )
     ),
-    tkMuons = cms.InputTag("hltL1TkMuons"),
+    tkMuons = cms.InputTag("l1tTkMuonsGmt"),
     trackRegionMode = cms.string('atCalo'),
-    tracks = cms.InputTag("pfTracksFromL1TracksHGCal"),
+    tracks = cms.InputTag("l1tPFTracksFromL1TracksHGCal"),
     trkMaxChi2 = cms.double(15),
     trkMinStubs = cms.uint32(4),
     trkPtCut = cms.double(2.0),
@@ -82,7 +82,7 @@ l1pfProducerHGCalNoTK = cms.EDProducer("L1TPFProducer",
     useTrackerMuons = cms.bool(False),
     vtxAdaptiveCut = cms.bool(True),
     vtxAlgo = cms.string('external'),
-    vtxCollection = cms.InputTag("L1TkPrimaryVertex"),
+    vtxCollection = cms.InputTag("l1tTkPrimaryVertex"),
     vtxFormat = cms.string('TkPrimaryVertex'),
     vtxRes = cms.double(0.333)
 )

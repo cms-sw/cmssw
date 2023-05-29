@@ -25,7 +25,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtDefinitions.h"
 
 /// board types in GT
-enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM, BoardNull };
+enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM, BoardNull, L1GtBoardTypeInvalid = -1 };
 
 struct L1GtBoardTypeStringToEnum {
   const char* label;
@@ -62,7 +62,8 @@ enum L1GtPsbQuad {
   HfQ,
   BptxQ,
   GtExternalQ,
-  PsbQuadNull
+  PsbQuadNull,
+  L1GtPsbQuadInvalid = -1
 };
 
 struct L1GtPsbQuadStringToEnum {

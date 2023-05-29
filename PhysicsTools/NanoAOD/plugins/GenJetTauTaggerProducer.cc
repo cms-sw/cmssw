@@ -61,8 +61,7 @@ GenJetTauTaggerProducer::~GenJetTauTaggerProducer() {}
 void GenJetTauTaggerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::Handle<reco::GenJetCollection> jets;
-  iEvent.getByToken(src_, jets);
+  auto jets = iEvent.getHandle(src_);
 
   std::vector<bool> tags;
 
@@ -75,7 +74,7 @@ void GenJetTauTaggerProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     tags.push_back(found);
   }
 
-  std::unique_ptr<edm::ValueMap<bool>> tagsV(new edm::ValueMap<bool>());
+  auto tagsV = std::make_unique<edm::ValueMap<bool>>();
   edm::ValueMap<bool>::Filler fillerCorr(*tagsV);
   fillerCorr.insert(jets, tags.begin(), tags.end());
   fillerCorr.fill();

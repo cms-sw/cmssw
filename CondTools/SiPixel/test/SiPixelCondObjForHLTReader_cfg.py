@@ -3,22 +3,19 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PixelDBReader")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("histo.root")
+                                   fileName = cms.string("histo_GainsForHLT.root")
                                    )
 
 process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = 'sqlite_file:prova.db'
+process.CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.CondDB.DBParameters.messageLevel = 2
 process.CondDB.DBParameters.authenticationPath = ''
 
@@ -41,16 +38,16 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelGainCalibrationForHLTRcd'),
-        tag = cms.string('GainCalib_TEST_hlt')
+        tag = cms.string('SiPixelGainCalibrationHLT_2009runs_express')
     ))
 )
 
 process.prefer("PoolDBESSource")
 process.SiPixelCondObjForHLTReader = cms.EDAnalyzer("SiPixelCondObjForHLTReader",
-    process.SiPixelGainCalibrationServiceParameters,
-    maxRangeDeadPixHist = cms.untracked.double(0.001)
-
-)
+                                                    process.SiPixelGainCalibrationServiceParameters,
+                                                    maxRangeDeadPixHist = cms.untracked.double(0.001),
+                                                    useSimRcd = cms.bool(False)
+                                                    )
 
 #process.print = cms.OutputModule("AsciiOutputModule")
 

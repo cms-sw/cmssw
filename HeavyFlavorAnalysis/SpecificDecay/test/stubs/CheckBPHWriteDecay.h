@@ -2,19 +2,20 @@
 #define HeavyFlavorAnalysis_SpecificDecay_CheckBPHWriteDecay_h
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 #include <vector>
+#include <map>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -25,7 +26,7 @@ class BPHRecoCandidate;
 class CheckBPHWriteDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
 public:
   explicit CheckBPHWriteDecay(const edm::ParameterSet& ps);
-  ~CheckBPHWriteDecay() override;
+  ~CheckBPHWriteDecay() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -37,24 +38,26 @@ private:
   std::ostream* osPtr;
   unsigned int runNumber;
   unsigned int evtNumber;
+  bool writePtr;
 
   std::vector<std::string> candsLabel;
-  std::vector<BPHTokenWrapper<std::vector<pat::CompositeCandidate>>> candsToken;
+  std::vector<BPHTokenWrapper<std::vector<pat::CompositeCandidate> > > candsToken;
+  std::map<const pat::CompositeCandidate*, int> idMap;
 
-  typedef edm::Ref<std::vector<reco::Vertex>> vertex_ref;
+  typedef edm::Ref<std::vector<reco::Vertex> > vertex_ref;
   typedef edm::Ref<pat::CompositeCandidateCollection> compcc_ref;
 
-  static void dump(std::ostream& os, const pat::CompositeCandidate& cand);
+  void dump(std::ostream& os, const pat::CompositeCandidate& cand);
   template <class T>
-  static void writePosition(std::ostream& os, const std::string& s, const T& p, bool endLine = true) {
-    os << s << p.x() << " " << p.y() << " " << p.z();
+  static void writeCartesian(std::ostream& os, const std::string& s, const T& v, bool endLine = true) {
+    os << s << v.x() << " " << v.y() << " " << v.z();
     if (endLine)
       os << std::endl;
     return;
   }
   template <class T>
-  static void writeMomentum(std::ostream& os, const std::string& s, const T& p, bool endLine = true) {
-    os << s << p.pt() << " " << p.eta() << " " << p.phi();
+  static void writeCylindric(std::ostream& os, const std::string& s, const T& v, bool endLine = true) {
+    os << s << v.pt() << " " << v.eta() << " " << v.phi();
     if (endLine)
       os << std::endl;
     return;

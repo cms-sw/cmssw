@@ -100,12 +100,12 @@ for be in backend_algos:
 process = chains.create_truth_sequences(process)
 
 # Remove towers from sequence
-process.hgcalTriggerPrimitivesTruth.remove(process.hgcalTowerMap)
-process.hgcalTriggerPrimitivesTruth.remove(process.hgcalTower)
+process.L1THGCalTriggerPrimitivesTruth.remove(process.L1THGCalTowerMap)
+process.L1THGCalTriggerPrimitivesTruth.remove(process.L1THGCalTower)
 
-process.hgcl1tpg_truth_step = cms.Path(process.hgcalTriggerPrimitivesTruth)
-process.selector_step = cms.Path(process.hgcalTriggerSelector)
-process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
+process.hgcl1tpg_truth_step = cms.Path(process.L1THGCalTriggerPrimitivesTruth)
+process.selector_step = cms.Path(process.L1THGCalTriggerSelector)
+process.ntuple_step = cms.Path(process.L1THGCalTriggerNtuples)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.hgcl1tpg_truth_step, process.selector_step, process.ntuple_step)

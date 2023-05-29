@@ -1,13 +1,35 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalNumbering_cfg.py type=V17
+#
+#   Options for type V16, V17, V17n
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD",Phase2C11)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V16, V17, V17n")
 
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("HGCalNumberingTest",Phase2C17I13M9)
+
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
+print("Geometry file: ", geomFile)
+
+process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D49XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D68XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D70XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
@@ -44,7 +66,6 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Geometry.HGCalCommonData.hgcalNumberingTesterEE_cfi")
 process.hgcalNumberingTesterEE.LocalPositionX= [500.0,350.0,800.0,1400.0]
 process.hgcalNumberingTesterEE.LocalPositionY= [500.0,0.0,0.0,0.0]
-#process.hgcalNumberingTesterEE.DetType = 1
 
 process.hgcalNumberingTesterHEF = process.hgcalNumberingTesterEE.clone(
     NameSense  = "HGCalHESiliconSensitive",
@@ -61,5 +82,4 @@ process.hgcalNumberingTesterHEB = process.hgcalNumberingTesterEE.clone(
     DetType    = 0
 )
  
-#process.p1 = cms.Path(process.generator*process.hgcalNumberingTesterEE*process.hgcalNumberingTesterHEF)
 process.p1 = cms.Path(process.generator*process.hgcalNumberingTesterEE*process.hgcalNumberingTesterHEF*process.hgcalNumberingTesterHEB)

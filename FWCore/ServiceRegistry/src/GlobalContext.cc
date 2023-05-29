@@ -18,6 +18,14 @@ namespace edm {
         timestamp_(timestamp),
         processContext_(processContext) {}
 
+  GlobalContext::GlobalContext(Transition transition, ProcessContext const* processContext)
+      : transition_(transition),
+        luminosityBlockID_(),
+        runIndex_(RunIndex::invalidRunIndex()),
+        luminosityBlockIndex_(LuminosityBlockIndex::invalidLuminosityBlockIndex()),
+        timestamp_(),
+        processContext_(processContext) {}
+
   std::ostream& operator<<(std::ostream& os, GlobalContext const& gc) {
     os << "GlobalContext: transition = ";
     switch (gc.transition()) {
@@ -110,4 +118,33 @@ namespace edm {
     }
   }
 
+  std::string_view transitionName(GlobalContext::Transition iTrans) {
+    switch (iTrans) {
+      case GlobalContext::Transition::kBeginJob:
+        return "begin Job";
+      case GlobalContext::Transition::kBeginProcessBlock:
+        return "begin ProcessBlock";
+      case GlobalContext::Transition::kAccessInputProcessBlock:
+        return "access input ProcessBlock";
+      case GlobalContext::Transition::kBeginRun:
+        return "global begin Run";
+      case GlobalContext::Transition::kBeginLuminosityBlock:
+        return "global begin LuminosityBlock";
+      case GlobalContext::Transition::kEndLuminosityBlock:
+        return "global end LuminosityBlock";
+      case GlobalContext::Transition::kEndRun:
+        return "global end Run";
+      case GlobalContext::Transition::kEndProcessBlock:
+        return "end ProcessBlock";
+      case GlobalContext::Transition::kEndJob:
+        return "endJob";
+      case GlobalContext::Transition::kWriteProcessBlock:
+        return "write ProcessBlock";
+      case GlobalContext::Transition::kWriteRun:
+        return "write Run";
+      case GlobalContext::Transition::kWriteLuminosityBlock:
+        return "write LuminosityBlock";
+    }
+    return "Unknown";
+  }
 }  // namespace edm

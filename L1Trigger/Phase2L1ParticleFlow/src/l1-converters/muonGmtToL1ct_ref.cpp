@@ -23,20 +23,20 @@ l1ct::MuObjEmu l1ct::GMTMuonDecoderEmulator::decode(const ap_uint<64> &in) const
   const int z0_scale = std::round(z0Scale_ / l1ct::Scales::Z0_LSB);
   const int dxy_scale = std::round(dxyScale_ / l1ct::Scales::DXY_LSB);
 
-  bool gmt_chg = in[55];
-  ap_uint<13> gmt_ipt = in(15, 0);
-  ap_int<13> gmt_phi = in(28, 16);
-  ap_int<14> gmt_eta = in(42, 29);
-  ap_int<5> gmt_z0 = in(47, 43);
-  ap_int<7> gmt_d0 = in(54, 48);
-  ap_uint<4> gmt_qual = in(59, 56);
+  bool gmt_valid = in[0], gmt_chg = in[56];
+  ap_uint<13> gmt_ipt = in(16, 1);
+  ap_int<13> gmt_phi = in(29, 17);
+  ap_int<14> gmt_eta = in(43, 30);
+  ap_int<5> gmt_z0 = in(48, 44);
+  ap_int<7> gmt_d0 = in(55, 49);
+  ap_uint<4> gmt_qual = in(60, 57);
 
   gmt_pt_t gmt_pt;
   gmt_pt(gmt_pt_t::width - 1, 0) = gmt_ipt(gmt_pt_t::width - 1, 0);  // copy the bits
 
   l1ct::MuObjEmu out;
   out.clear();
-  if (gmt_pt != 0) {
+  if (gmt_valid && gmt_pt != 0) {
     // add a shift in order to get the proper rounding
     out.hwPt = gmt_pt + gmt_pt_t(l1ct::Scales::INTPT_LSB / 2);
 

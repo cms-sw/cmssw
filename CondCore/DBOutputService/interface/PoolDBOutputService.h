@@ -34,6 +34,8 @@ namespace cond {
     public:
       PoolDBOutputService(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iAR);
 
+      static const std::string kSharedResource;
+
       virtual ~PoolDBOutputService();
 
       //use these to control connections
@@ -113,7 +115,7 @@ namespace cond {
           auto& myrecord = this->getRecord(recordName);
           m_logger.logInfo() << "Tag mapped to record " << recordName << ": " << myrecord.m_tag;
           bool newTag = isNewTagRequest(recordName);
-          cond::Time_t lastSince;
+          cond::Time_t lastSince = 0;
           cond::persistency::IOVEditor editor;
           if (newTag) {
             std::string payloadType = cond::demangledName(typeid(T));

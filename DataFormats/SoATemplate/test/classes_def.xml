@@ -1,0 +1,14 @@
+<lcgdict>
+  <class name="FakeSoA"/>
+  <ioread
+    sourceClass="FakeSoA"
+    targetClass="FakeSoA"
+    version="[1-]"
+    source="Int_t size_; uint16_t * a16_; uint32_t * b32_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    newObj->allocateAndIoRead(onfile);
+  ]]>
+  </ioread>
+</lcgdict>

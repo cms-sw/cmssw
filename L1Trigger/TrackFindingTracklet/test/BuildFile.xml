@@ -9,7 +9,6 @@
     <use   name="CommonTools/UtilAlgos"/>
     <use   name="DataFormats/Common"/>
     <use   name="DataFormats/L1TrackTrigger"/>
-    <use   name="DataFormats/JetReco"/>
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/MessageLogger"/>
     <use   name="FWCore/PluginManager"/>
@@ -18,10 +17,11 @@
     <use   name="Geometry/CommonDetUnit"/>
     <use   name="Geometry/Records"/>
     <use   name="Geometry/TrackerGeometryBuilder"/>
-    <use   name="MagneticField/Engine"/>
-    <use   name="MagneticField/Records"/>
     <use   name="SimTracker/TrackTriggerAssociation"/>
     <use   name="SimDataFormats/TrackingHit"/>
     <use   name="SimDataFormats/TrackingAnalysis"/>
+    <use name="L1Trigger/TrackerTFP"/>
+    <use name="L1Trigger/TrackFindingTracklet"/>
+    <use name="L1Trigger/TrackTrigger"/>
   </library>
 </environment>

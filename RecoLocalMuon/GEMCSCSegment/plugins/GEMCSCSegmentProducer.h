@@ -11,9 +11,9 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
@@ -31,6 +31,8 @@ public:
   explicit GEMCSCSegmentProducer(const edm::ParameterSet&);
   /// Destructor
   ~GEMCSCSegmentProducer() override;
+  /// generate gemcscSegment_cfi
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   /// Produce the GEM-CSCSegment collection
   void produce(edm::Event&, const edm::EventSetup&) override;
 

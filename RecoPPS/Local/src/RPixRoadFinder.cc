@@ -20,6 +20,7 @@ RPixRoadFinder::RPixRoadFinder(edm::ParameterSet const& parameterSet) : RPixDetP
   roadRadius_ = parameterSet.getParameter<double>("roadRadius");
   minRoadSize_ = parameterSet.getParameter<int>("minRoadSize");
   maxRoadSize_ = parameterSet.getParameter<int>("maxRoadSize");
+  roadRadiusBadPot_ = parameterSet.getParameter<double>("roadRadiusBadPot");
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -28,9 +29,9 @@ RPixRoadFinder::~RPixRoadFinder() {}
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixRoadFinder::findPattern() {
+void RPixRoadFinder::findPattern(bool* is2PlanePot) {
   Road temp_all_hits;
-  temp_all_hits.clear();
+  Road temp_all_hits_2PlanePot[4];
 
   // convert local hit sto global and push them to a vector
   for (const auto& ds_rh2 : *hitVector_) {
@@ -64,7 +65,20 @@ void RPixRoadFinder::findPattern() {
                                       theRotationTMatrix(2, 2));
 
       math::Error<3>::type globalError = ROOT::Math::SimilarityT(theRotationTMatrix, localError);
-      temp_all_hits.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+
+      // create new collections for bad (2 planes) and good pots
+
+      if (is2PlanePot[0] == true && myid.arm() == 0 && myid.station() == 2) {  // 45-220
+        temp_all_hits_2PlanePot[0].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      } else if (is2PlanePot[1] == true && myid.arm() == 0 && myid.station() == 0) {  // 45-210
+        temp_all_hits_2PlanePot[1].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      } else if (is2PlanePot[2] == true && myid.arm() == 1 && myid.station() == 0) {  // 56-210
+        temp_all_hits_2PlanePot[2].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      } else if (is2PlanePot[3] == true && myid.arm() == 1 && myid.station() == 2) {  // 56-220
+        temp_all_hits_2PlanePot[3].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      } else {
+        temp_all_hits.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      }
     }
   }
 
@@ -102,4 +116,36 @@ void RPixRoadFinder::findPattern() {
       patternVector_.push_back(temp_road);
   }
   // end of algorithm
+
+  // 2PlanePot algorithm
+
+  for (unsigned int i = 0; i < 4; i++) {
+    if (is2PlanePot[i]) {
+      Road::iterator it_gh1_bP = temp_all_hits_2PlanePot[i].begin();
+      Road::iterator it_gh2_bP;
+
+      while (it_gh1_bP != temp_all_hits_2PlanePot[i].end() && temp_all_hits_2PlanePot[i].size() >= 2) {
+        Road temp_road;
+
+        it_gh2_bP = it_gh1_bP;
+
+        const auto currPoint = it_gh1_bP->globalPoint;
+
+        while (it_gh2_bP != temp_all_hits_2PlanePot[i].end()) {
+          const auto subtraction = currPoint - it_gh2_bP->globalPoint;
+
+          if (subtraction.Rho() < roadRadiusBadPot_) {
+            temp_road.push_back(*it_gh2_bP);
+            temp_all_hits_2PlanePot[i].erase(it_gh2_bP);
+          } else {
+            ++it_gh2_bP;
+          }
+        }
+
+        if (temp_road.size() == 2) {  // look for isolated tracks
+          patternVector_.push_back(temp_road);
+        }
+      }
+    }
+  }
 }

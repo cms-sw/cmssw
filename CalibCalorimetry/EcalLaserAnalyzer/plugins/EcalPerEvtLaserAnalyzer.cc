@@ -654,10 +654,8 @@ void EcalPerEvtLaserAnalyzer::endJob() {
 
   // Define submodule and channel number inside the submodule (as Patrice)
 
-  Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry = 0; jentry < ADCtrees->GetEntriesFast(); jentry++) {  // Loop on events
-    nb = ADCtrees->GetEntry(jentry);
-    nbytes += nb;
+    ADCtrees->GetEntry(jentry);
 
     int iCry = channelNumber;
 

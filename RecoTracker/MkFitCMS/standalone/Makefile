@@ -7,10 +7,13 @@ CMS_DIR := ${SRCDIR}/RecoTracker/MkFitCMS
 LIB_CMS := ../libMicCMS.so
 MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
+WMF_DICT_PCM := ../WriteMemFileDict_rdict.pcm
+SHELL_DICT_PCM := ../ShellDict_rdict.pcm
+ROOTOUT := WriteMemFileDict.cc ShellDict.cc
 
 TGTS := ${LIB_CMS} ${MAIN}
 ifdef WITH_ROOT
-TGTS += ${WRMEMF}
+TGTS += ${WRMEMF} ${WMF_DICT_PCM} ${SHELL_DICT_PCM}
 endif
 
 .PHONY: all clean distclean
@@ -20,6 +23,15 @@ all: ${TGTS}
 SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
+WriteMemFileDict.cc: ${SACMS}/tkNtuple/DictsLinkDef.h
+	rootcling -I=${SRCDIR} -f WriteMemFileDict.cc $<
+${WMF_DICT_PCM}: WriteMemFileDict.cc
+	mv WriteMemFileDict_rdict.pcm ${WMF_DICT_PCM}
+SRCS += ShellDict.cc
+ShellDict.cc: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+	rootcling -I=${SRCDIR} -f ShellDict.cc ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+${SHELL_DICT_PCM}: ShellDict.cc
+	mv ShellDict_rdict.pcm ${SHELL_DICT_PCM}
 endif
 SRCB := $(notdir ${SRCS})
 DEPS := $(SRCB:.cc=.d)
@@ -34,7 +46,7 @@ include ${DEPS}
 endif
 
 clean-local:
-	-rm -f ${TGTS} *.d *.o *.om *.so
+	-rm -f ${TGTS} *.d *.o *.om *.so *.pcm ${ROOTOUT}
 	-rm -rf main.dSYM
 	-rm -rf plotting/*.so plotting/*.d plotting/*.pcm
 
@@ -51,7 +63,7 @@ ${LIB_CMS}: ${CMS_OBJS}
 ${MAIN}: ${LIB_CMS} mkFit.o
 	${CXX} ${CXXFLAGS} ${VEC_HOST} ${LDFLAGS} mkFit.o -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -lMicCMS -Wl,-rpath=.
 
-${WRMEMF}: WriteMemoryFile.o
+${WRMEMF}: WriteMemoryFile.o WriteMemFileDict.o
 	${CXX} ${CXXFLAGS} ${LDFLAGS} $^ -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -Wl,-rpath=.
 
 ${OBJS}: %.o: %.cc %.d

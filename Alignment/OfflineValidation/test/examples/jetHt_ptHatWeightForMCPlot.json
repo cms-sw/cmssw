@@ -1,0 +1,53 @@
+{
+    "jethtplot": {
+        "alignments": {
+          "ULJet320": {
+            "inputFile": "root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_Run2018A-D_UltraLegacy_PFJet320_2021-01-07.root",
+            "legendText": "UltraLegacy PFJet320",
+            "color": 418,
+            "style": 20
+          },
+          "ReRecoJet320": {
+            "inputFile": "root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_Run2018A-D_PFJet320_ReReco_2021-01-20.root",
+            "legendText": "ReReco PFJet320",
+            "color": 632,
+            "style": 20
+          },
+          "MCPFJet320": {
+            "inputFile": "$CMSSW_BASE/src/Alignment/OfflineValidation/test/examples/ptHatFiles_MC2018_PFJet320.txt",
+            "legendText": "MC PFJet320 weight",
+            "color": 1,
+            "style": 20
+          }
+        },
+        "drawTrackQA": false,
+        "drawHistograms": {
+            "drawDz": false,
+            "drawDzError": false,
+            "drawDxy": false,
+            "drawDxyError": false
+        },
+        "drawProfiles": {
+            "drawDzErrorVsPt": true,
+            "drawDzErrorVsPhi": true,
+            "drawDzErrorVsEta": true,
+            "drawDzErrorVsPtWide": false,
+            "drawDxyErrorVsPt": true,
+            "drawDxyErrorVsPhi": true,
+            "drawDxyErrorVsEta": true,
+            "drawDxyErrorVsPtWide": false,
+            "drawCentralEtaSummaryProfile": false,
+            "nIovInOnePlot": 1
+        },
+        "drawTrends": {
+            "drawDzError": false,
+            "drawDxyError": false
+        },
+        "lumiPerIovFile": "Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
+        "drawPlotsForEachIOV": false,
+        "normalizeQAplots": true,
+        "makeIovlistForSlides": false,
+        "iovListForSlides": "iovListForSlides.txt",
+        "saveComment": ""
+    }
+}

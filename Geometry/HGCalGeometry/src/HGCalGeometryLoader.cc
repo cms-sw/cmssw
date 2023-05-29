@@ -103,11 +103,11 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::layer:rad:phi:type:sipm " << layer << ":"
                                         << ring * zside << ":" << iphi << ":" << type << ":" << typm.first << ":"
-                                        << typm.second << " Test " << test << ":" << ok;
+                                        << typm.second << " Test " << test << ":" << ok << " ID " << id;
 #endif
           if (ok) {
             DetId detId = static_cast<DetId>(id);
-            const auto& w = topology.dddConstants().locateCellTrap(layer, ring, iphi, true);
+            const auto& w = topology.dddConstants().locateCellTrap(zside, layer, ring, iphi, true, false);
             double xx = (zside > 0) ? w.first : -w.first;
             CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
             const HepGeom::Transform3D ht3d(mytr.hr, h3v);

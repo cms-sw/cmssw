@@ -31,7 +31,6 @@ public:
 
 private:
   /// Input PFCandidates
-  const edm::InputTag inputTagGenParticles_;
   const edm::EDGetTokenT<reco::GenParticleCollection> tokenGenParticles_;
 
   /// if yes, neutrinos will be included, for debug purposes

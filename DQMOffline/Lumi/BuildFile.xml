@@ -4,6 +4,7 @@
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/HLTReco"/>
 <use name="CommonTools/Egamma"/>
+<use name="HLTrigger/HLTcore"/>
 <use name="rootcore"/>
 <export>
   <lib name="1"/>

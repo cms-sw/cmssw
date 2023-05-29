@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalwafer.xml" eval="true">
+  <Constant name="ModuleThicknessEE"     value="[hgcal:ModuleThicknessEE]"/>
+  <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
+  <Constant name="WaferThickness"        value="[hgcal:WaferThickness]"/>
+  <Constant name="WaferThicknessFine"    value="[hgcal:WaferThicknessFine]"/>
+  <Constant name="WaferThicknessCoarse1" value="[hgcal:WaferThicknessCoarse1]"/>
+  <Constant name="WaferThicknessCoarse2" value="[hgcal:WaferThicknessCoarse2]"/>
+  <Constant name="SensorSeparation"      value="[hgcal:SensorSeparation]"/>
+  <Constant name="SensorSizeOffset"      value="[hgcal:SensorSizeOffset]"/>
+  <Constant name="CellThicknessFine"     value="[hgcal:CellThicknessFine]"/>
+  <Constant name="CellThicknessCoarse1"  value="[hgcal:CellThicknessCoarse1]"/>
+  <Constant name="CellThicknessCoarse2"  value="[hgcal:CellThicknessCoarse2]"/>
+  <Constant name="NumberOfCellsFine"     value="[hgcal:NumberOfCellsFine]"/>
+  <Constant name="NumberOfCellsCoarse"   value="[hgcal:NumberOfCellsCoarse]"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalwafer.xml" eval="true">
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
+    <String name="WaferTag" value="Coarse1"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>  
+    <Vector name="LayerNames" type="string" nEntries="4">
+      HGCalEEMotherBoard, HGCalEEConnector, HGCalEESensitive,
+      HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="4">
+      hgcalMaterial:HGC_G10-FR4, hgcalMaterial:HGC_EEConnector,
+      materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="4">
+      1.30*mm, 0.40*mm, [WaferThickness], 1.40*mm </Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="4">
+      0.70*mm, [SensorSizeOffset], [SensorSizeOffset], 0.50*mm </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="4"> 
+      0, 0, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="4"> 
+      0, 1, 2, 3 </Vector>
+    <Numeric name="NCells"           value="[NumberOfCellsCoarse]"/>
+    <Numeric name="CellType"         value="1"/>
+    <Vector name="CellOffset" type="numeric" nEntries="4"> 
+      0, 1, 13, 19 </Vector>
+    <Vector name="CellNames" type="string" nEntries="25">
+      hgcalcell:HGCalEECellFull0Coarse1,   hgcalcell:HGCalEECellCorner01Coarse1, 
+      hgcalcell:HGCalEECellCorner02Coarse1,hgcalcell:HGCalEECellCorner03Coarse1,
+      hgcalcell:HGCalEECellCorner04Coarse1,hgcalcell:HGCalEECellCorner05Coarse1,
+      hgcalcell:HGCalEECellCorner06Coarse1,hgcalcell:HGCalEECellCorner07Coarse1,
+      hgcalcell:HGCalEECellCorner08Coarse1,hgcalcell:HGCalEECellCorner09Coarse1,
+      hgcalcell:HGCalEECellCorner10Coarse1,hgcalcell:HGCalEECellCorner11Coarse1,
+      hgcalcell:HGCalEECellCorner12Coarse1,hgcalcell:HGCalEECellTrunc01Coarse1,
+      hgcalcell:HGCalEECellTrunc02Coarse1, hgcalcell:HGCalEECellTrunc03Coarse1,
+      hgcalcell:HGCalEECellTrunc04Coarse1, hgcalcell:HGCalEECellTrunc05Coarse1,
+      hgcalcell:HGCalEECellTrunc06Coarse1, hgcalcell:HGCalEECellExten01Coarse1,
+      hgcalcell:HGCalEECellExten02Coarse1, hgcalcell:HGCalEECellExten03Coarse1,
+      hgcalcell:HGCalEECellExten04Coarse1, hgcalcell:HGCalEECellExten05Coarse1, 
+      hgcalcell:HGCalEECellExten06Coarse1</Vector>
+  </Algorithm>
+  </PosPartSection>
+</DDDefinition>

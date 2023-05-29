@@ -7,8 +7,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 ALCARECOSiPixelCalSingleMuonTightHLTFilter = hltHighLevel.clone()
 ALCARECOSiPixelCalSingleMuonTightHLTFilter.andOr = True ## choose logical OR between Triggerbits
 ALCARECOSiPixelCalSingleMuonTightHLTFilter.throw = False ## dont throw on unknown path names
-ALCARECOSiPixelCalSingleMuonTightHLTFilter.HLTPaths = ["HLT_*"]
-#ALCARECOSiPixelCalSingleMuonTightHLTFilter.eventSetupPathsKey = 'SiPixelCalSingleMuonTight'  ## FIXME: to be changed once trigger bit is updated
+ALCARECOSiPixelCalSingleMuonTightHLTFilter.eventSetupPathsKey = 'SiPixelCalSingleMuon' # share the same trigger bit with the loose one
 
 ##################################################################
 # Filter on the DCS partitions
@@ -97,3 +96,8 @@ seqALCARECOSiPixelCalSingleMuonTight = cms.Sequence(offlineBeamSpot+
                                                     ALCARECOSiPixelCalSingleMuonTight+
                                                     trackDistances +
                                                     ALCARECOSiPixelCalSingleMuonTightOffTrackClusters)
+## customizations for the pp_on_AA eras
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(ALCARECOSiPixelCalSingleMuonTightHLTFilter,
+                  eventSetupPathsKey='SiPixelCalSingleMuonHI'
+)

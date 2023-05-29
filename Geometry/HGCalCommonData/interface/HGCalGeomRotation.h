@@ -7,7 +7,7 @@ public:
   enum class WaferCentring { WaferCentred, CornerCentredY, CornerCentredMercedes };
 
   HGCalGeomRotation(SectorType sectorType) { sectorType_ = sectorType; };
-  ~HGCalGeomRotation() {}
+  ~HGCalGeomRotation() = default;
 
   void uvMappingFromSector0(WaferCentring waferCentring, int& moduleU, int& moduleV, unsigned sector) const;
   unsigned uvMappingToSector0(WaferCentring waferCentring, int& moduleU, int& moduleV) const;

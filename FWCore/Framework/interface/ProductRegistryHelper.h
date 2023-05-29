@@ -36,19 +36,21 @@ namespace edm {
     };
 
     struct TypeLabelItem {
-      enum class AliasType { kBranchAlias, kSwitchAlias };
+      enum class AliasType : char { kBranchAlias, kSwitchAlias };
 
       TypeLabelItem(Transition const& transition, TypeID const& tid, std::string pin)
           : transition_(transition),
             typeID_(tid),
             productInstanceName_(std::move(pin)),
             branchAlias_(),
-            aliasType_(AliasType::kBranchAlias) {}
+            aliasType_(AliasType::kBranchAlias),
+            isTransform_(false) {}
       Transition transition_;
       TypeID typeID_;
       std::string productInstanceName_;
       std::string branchAlias_;
       AliasType aliasType_;
+      bool isTransform_;
     };
 
     struct BranchAliasSetter {
@@ -179,6 +181,14 @@ namespace edm {
       typeLabelList_.emplace_back(B, id, std::move(instanceName));
       recordProvenanceList_.push_back(recordProvenance and B == Transition::Event);
       return BranchAliasSetter{typeLabelList_.back(), EDPutToken{index}};
+    }
+
+    EDPutToken transforms(const TypeID& id, std::string instanceName) {
+      unsigned int index = typeLabelList_.size();
+      typeLabelList_.emplace_back(Transition::Event, id, std::move(instanceName));
+      typeLabelList_.back().isTransform_ = true;
+      recordProvenanceList_.push_back(true);
+      return EDPutToken{index};
     }
 
     virtual bool hasAbilityToProduceInBeginProcessBlocks() const { return false; }

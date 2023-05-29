@@ -3,7 +3,7 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
-#for dnn classifier
+# for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
@@ -168,7 +168,7 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStep
 
 
 # seeding
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 pixelLessStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     ComponentName    = 'pixelLessStepClusterShapeHitFilter',
     doStripShapeCut  = cms.bool(False),
@@ -187,7 +187,7 @@ pixelLessStepHitTriplets = _multiHitFromChi2EDProducer.clone(
     doublets = 'pixelLessStepHitDoublets',
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
     seedingHitSets = 'pixelLessStepHitTriplets',
     SeedComparitorPSet = dict(
@@ -201,11 +201,15 @@ pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.
                 FilterStripHits    = cms.bool(True),
                 ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
                 ClusterShapeCacheSrc      = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
-            ), 
-            _StripSubClusterShapeSeedFilter.clone()
+            )
         )
     )
 )
+
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+(~approxSiStripClusters).toModify(pixelLessStepSeeds.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
+
 trackingLowPU.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
 trackingLowPU.toModify(pixelLessStepSeeds,
     seedingHitSets = 'pixelLessStepHitDoublets',
@@ -274,7 +278,7 @@ vectorHits.toModify(pixelLessStepChi2Est,
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
-pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
+pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilderIterativeDefault.clone(
     trajectoryFilter       = dict(refToPSet_ = 'pixelLessStepTrajectoryFilter'),
     minNrOfHitsForRebuild  = 4,
     maxCand                = 2,
@@ -289,7 +293,7 @@ trackingNoLoopers.toModify(pixelLessStepTrajectoryBuilder,
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 # Give handle for CKF for HI
-_pixelLessStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+_pixelLessStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidatesIterativeDefault.clone(
     src                   = 'pixelLessStepSeeds',
     clustersToSkip        = 'pixelLessStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
@@ -321,7 +325,7 @@ trackingMkFitPixelLessStep.toReplaceWith(pixelLessStepTrackCandidates, mkFitOutp
     seeds = 'pixelLessStepSeeds',
     mkFitSeeds = 'pixelLessStepTrackCandidatesMkFitSeeds',
     tracks = 'pixelLessStepTrackCandidatesMkFit',
-    candMVASel = True,
+    candMVASel = False,
     candWP = -0.7,
 ))
 (pp_on_XeXe_2017 | pp_on_AA).toModify(pixelLessStepTrackCandidatesMkFitConfig, minPt=2.0)
@@ -350,8 +354,8 @@ trackingLowPU.toModify(pixelLessStepTrajectoryCleanerBySharedHits, fractionShare
 
 
 # TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
+pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     src           = 'pixelLessStepTrackCandidates',
     AlgorithmName = 'pixelLessStep',
     Fitter        = 'FlexibleKFFittingSmoother'
@@ -393,10 +397,14 @@ from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_CKF_cfi import *
 trackdnn.toReplaceWith(pixelLessStep, trackTfClassifier.clone(
+    mva         = dict(tfDnnLabel  = 'trackSelectionTfPLess'),
     src         = 'pixelLessStepTracks',
     qualityCuts = qualityCutDictionary.PixelLessStep.value()
 ))
 (trackdnn & fastSim).toModify(pixelLessStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
+((~trackingMkFitPixelLessStep) & trackdnn).toModify(pixelLessStep, mva = dict(tfDnnLabel  = 'trackSelectionTf_CKF'),
+                                                    qualityCuts = [-0.82, -0.61, -0.16])
 
 pp_on_AA.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 

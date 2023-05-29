@@ -67,7 +67,7 @@ void ME0RecHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &i
   edm::Handle<ME0RecHitCollection> ME0RecHits;
   e.getByToken(InputTagToken_RecHit, ME0RecHits);
 
-  if (!ME0Hits.isValid() | !ME0RecHits.isValid()) {
+  if (!ME0Hits.isValid() || !ME0RecHits.isValid()) {
     edm::LogError("ME0RecHitsValidation") << "Cannot get ME0Hits/ME0RecHits by Token simInputTagToken";
     return;
   }

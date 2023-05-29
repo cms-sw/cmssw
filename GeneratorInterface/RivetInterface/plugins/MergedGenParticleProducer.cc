@@ -36,9 +36,19 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
   // This index will be the same in the merged collection.
   std::map<reco::Candidate const*, std::size_t> pruned_idx_map;
 
-  for (unsigned int i = 0; i < pruned_handle->size(); ++i) {
+  unsigned int nLeptonsFromPrunedPhoton = 0;
+
+  for (unsigned int i = 0, idx = 0; i < pruned_handle->size(); ++i) {
     reco::GenParticle const& src = pruned_handle->at(i);
-    pruned_idx_map[&src] = i;
+    pruned_idx_map[&src] = idx;
+    ++idx;
+
+    // check for electrons+muons from pruned photons
+    if (isLeptonFromPrunedPhoton(src)) {
+      ++nLeptonsFromPrunedPhoton;
+      ++idx;
+    }
+
     if (src.status() != 1)
       continue;
 
@@ -75,28 +85,51 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
   }
 
   // At this point we know what the size of the merged GenParticle will be so we can create it
-  const unsigned int n =
-      pruned_handle->size() + (packed_handle->size() - st1_dup_map.size()) + nPhotonsFromPrunedHadron;
+  const unsigned int n = pruned_handle->size() + (packed_handle->size() - st1_dup_map.size()) +
+                         nPhotonsFromPrunedHadron + nLeptonsFromPrunedPhoton;
   auto cands = std::make_unique<reco::GenParticleCollection>(n);
 
   // First copy in all the pruned candidates
+  unsigned idx = 0;
   for (unsigned i = 0; i < pruned_handle->size(); ++i) {
     reco::GenParticle const& old_cand = pruned_handle->at(i);
-    reco::GenParticle& new_cand = cands->at(i);
+    reco::GenParticle& new_cand = cands->at(idx);
     new_cand = reco::GenParticle(pruned_handle->at(i));
     // Update the mother and daughter refs to this new merged collection
     new_cand.resetMothers(ref.id());
     new_cand.resetDaughters(ref.id());
-    for (unsigned m = 0; m < old_cand.numberOfMothers(); ++m) {
-      new_cand.addMother(reco::GenParticleRef(ref, pruned_idx_map.at(old_cand.mother(m))));
+    // Insert dummy photon mothers for orphaned electrons+muons
+    if (isLeptonFromPrunedPhoton(old_cand)) {
+      ++idx;
+      reco::GenParticle& dummy_mother = cands->at(idx);
+      dummy_mother = reco::GenParticle(0, old_cand.p4(), old_cand.vertex(), 22, 2, true);
+      for (unsigned m = 0; m < old_cand.numberOfMothers(); ++m) {
+        new_cand.addMother(reco::GenParticleRef(ref, idx));
+        // Since the packed candidates drop the vertex position we'll take this from the mother
+        if (m == 0) {
+          dummy_mother.setP4(old_cand.mother(0)->p4());
+          dummy_mother.setVertex(old_cand.mother(0)->vertex());
+          new_cand.setVertex(old_cand.mother(0)->vertex());
+        }
+        // Should then add the GenParticle as a daughter of its dummy mother
+        dummy_mother.addDaughter(reco::GenParticleRef(ref, idx - 1));
+        for (unsigned m = 0; m < old_cand.numberOfMothers(); ++m) {
+          dummy_mother.addMother(reco::GenParticleRef(ref, pruned_idx_map.at(old_cand.mother(m))));
+        }
+      }
+    } else {
+      for (unsigned m = 0; m < old_cand.numberOfMothers(); ++m) {
+        new_cand.addMother(reco::GenParticleRef(ref, pruned_idx_map.at(old_cand.mother(m))));
+      }
     }
     for (unsigned d = 0; d < old_cand.numberOfDaughters(); ++d) {
       new_cand.addDaughter(reco::GenParticleRef(ref, pruned_idx_map.at(old_cand.daughter(d))));
     }
+    ++idx;
   }
 
   // Now copy in the packed candidates that are not already in the pruned
-  for (unsigned i = 0, idx = pruned_handle->size(); i < packed_handle->size(); ++i) {
+  for (unsigned i = 0; i < packed_handle->size(); ++i) {
     pat::PackedGenParticle const& pk = packed_handle->at(i);
     if (st1_dup_map.count(&pk))
       continue;
@@ -146,6 +179,17 @@ bool MergedGenParticleProducer::isPhotonFromPrunedHadron(const pat::PackedGenPar
     HepPDT::ParticleID motherid(pk.mother(0)->pdgId());
     if (not(motherid.isHadron() and pk.mother(0)->status() == 2))
       return true;
+  }
+  return false;
+}
+
+bool MergedGenParticleProducer::isLeptonFromPrunedPhoton(const reco::GenParticle& pk) const {
+  if ((abs(pk.pdgId()) == 11 or abs(pk.pdgId()) == 13) and
+      not(pk.statusFlags().fromHardProcess() or pk.statusFlags().isDirectTauDecayProduct())) {
+    // this is probably not a prompt lepton but from pair production via a pruned photon
+    if (pk.numberOfMothers() > 0 and pk.mother(0)->pdgId() != 22) {
+      return true;
+    }
   }
   return false;
 }

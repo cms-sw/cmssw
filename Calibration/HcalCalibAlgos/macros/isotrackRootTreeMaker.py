@@ -1,7 +1,8 @@
 ######################################################################################
 # Makes pkl, root and text files comparing PU and noPU samples for training regressor and other stuff
 # Usage:
-# python3 isotrackRootTreeMaker.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -NPU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_noPU.root -O isotrackRelval 
+# source /cvmfs/sft.cern.ch/lcg/views/LCG_97apython3/x86_64-centos7-gcc8-opt/setup.csh
+# python3 isotrackRootTreeMaker.py -PU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -NPU root://eoscms.cern.ch//eos/cms/store/group/dpg_hcal/comm_hcal/ISOTRACK/SinglePion_E-50_Eta-0to3_Run3Winter21_112X_PU.root -O isotrackRelval 
 ######################################################################################
 
 import uproot

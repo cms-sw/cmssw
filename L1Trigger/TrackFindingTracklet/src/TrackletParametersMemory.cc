@@ -33,10 +33,7 @@ void TrackletParametersMemory::writeTPAR(bool first, unsigned int iSector) {
 
   for (unsigned int j = 0; j < tracklets_.size(); j++) {
     string tpar = tracklets_[j]->trackletparstr();
-    out_ << "0x";
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << tpar << " " << trklet::hexFormat(tpar) << endl;
+    out_ << hexstr(j) << " " << tpar << " " << trklet::hexFormat(tpar) << endl;
   }
   out_.close();
 

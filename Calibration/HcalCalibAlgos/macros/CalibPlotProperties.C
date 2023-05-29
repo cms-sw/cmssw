@@ -6,7 +6,7 @@
 //                         useGen, scale, useScale, etalo, etahi, runlo, runhi,
 //                         phimin, phimax, zside, nvxlo, nvxhi, rbx, exclude,
 //                         etamax);
-//  c1.Loop();
+//  c1.Loop(nentries);
 //  c1.savePlot(histFileName, append, all, debug);
 //
 //        This will prepare a set of histograms with properties of the tracks
@@ -16,33 +16,41 @@
 //
 //        This will plot the heistograms and save the canvases
 //
+// .L CalibPlotProperties.C+g
+//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, debug);
+//  c1.Loop(nentries);
 //
 //   where:
 //
-//   fname   (std::string)     = file name of the input ROOT tree
+//   fname   (const char*)     = file name of the input ROOT tree
 //                               or name of the file containing a list of
 //                               file names of input ROOT trees
-//   dirname (std::string)     = name of the directory where Tree resides
+//   dirname (const char*)     = name of the directory where Tree resides
 //                               (use "HcalIsoTrkAnalyzer")
-//   dupFileName (char*)       = name of the file containing list of entries
+//   dupFileName (const char*) = name of the file containing list of entries
 //                               of duplicate events
 //   prefix (std::string)      = String to be added to the name of histogram
 //                               (usually a 4 character string; default="")
-//   corrFileName (char*)      = name of the text file having the correction
+//   corrFileName (const char*)= name of the text file having the correction
 //                               factors to be used (default="", no corr.)
-//   rcorFileName (char*)      = name of the text file having the correction
+//   rcorFileName (const char*)= name of the text file having the correction
 //                               factors as a function of run numbers or depth
-//                               to be used for raddam/depth dependent
-//                               correction  (default="", no corr.)
+//                               to be used for raddam/depth/pileup/phisym
+//                               dependent correction  (default="", no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
-//                               correction (-2)
-//   flag (int)                = 6 digit integer (mlthdo) with control
-//                               information (m=0/1 for controlling creation
-//                               of depth depedendent histograms;
-//                               l=2/1/0 for type of rcorFileName (2 for overall
-//                               response corrections; 1 for depth dependence
-//                               corrections; 0 for raddam corrections);
+//                               correction (-8)
+//   flag (int)                = 7 digit integer (ymlthdo) with control
+//                               information (y=1/0 containing list of
+//                               duplicate entries (1) or depth dependent wts
+//                               (0) in dupFileName; m=0/1 for controlling
+//                               creation of depth depedendent histograms;
+//                               l=4/3/2/1/0 for type of rcorFileName (4 for
+//                               using results from phi-symmetry; 3 for
+//                               pileup correction using machine learning
+//                               method; 2 for overall response corrections;
+//                               1 for depth dependence corrections; 0 for
+//                               raddam corrections);
 //                               t = bit information (lower bit set will
 //                               apply a cut on L1 closeness; and higher bit
 //                               set read correction file with Marina format);
@@ -83,6 +91,8 @@
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
 //                               in the table is taken (false)
+//   nentries        (int)     = maximum number of entries to be processed,
+//                               if -1, all entries to be processed (-1)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the histogram file to be opened
@@ -99,11 +109,15 @@
 //                               Default = 111
 //   save (int)                = flag to create or not save the plot in a file
 //                               (0 = no save, > 0 pdf file, < 0 hpg file)
+//
+//   outFileName (std::string)= name of the file containing saved tree
+//   pmin (double)            = minimum track momentum (40.0)
+//   pmax (double)            = maximum track momentum (60.0)
+//   debug (bool)             = debug flag (false)
 //////////////////////////////////////////////////////////////////////////////
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-#include <TF1.h>
 #include <TH1D.h>
 #include <TH2F.h>
 #include <TProfile.h>
@@ -119,10 +133,12 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <string>
 
+void unpackDetId(unsigned int, int &, int &, int &, int &, int &);
 #include "CalibCorr.C"
 
 namespace CalibPlots {
@@ -238,7 +254,7 @@ public:
                       const std::string &prefix = "",
                       const char *corrFileName = "",
                       const char *rcorFileName = "",
-                      int puCorr = -1,
+                      int puCorr = -8,
                       int flag = 101111,
                       bool dataMC = true,
                       int truncateFlag = 0,
@@ -261,7 +277,7 @@ public:
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void Init(TChain *, const char *);
+  virtual void Init(TChain *);
   virtual void Loop(Long64_t nentries = -1);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
@@ -275,6 +291,7 @@ private:
   CalibCorrFactor *corrFactor_;
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
+  CalibDuplicate *cDuplicate_;
   const std::string fname_, dirnm_, prefix_, outFileName_;
   const int corrPU_, flag_;
   const bool dataMC_, useGen_;
@@ -284,14 +301,13 @@ private:
   const int phimin_, phimax_, zside_, nvxlo_, nvxhi_, rbx_;
   bool exclude_, corrE_, cutL1T_;
   bool includeRun_, getHist_;
-  int flexibleSelect_;
+  int flexibleSelect_, ifDepth_, duplicate_;
   bool plotBasic_, plotEnergy_, plotHists_;
   double log2by18_;
   std::ofstream fileout_;
-  std::vector<Long64_t> entries_;
   std::vector<std::pair<int, int> > events_;
   TH1D *h_p[CalibPlots::ntitles];
-  TH1D *h_eta[CalibPlots::ntitles], *h_nvtx;
+  TH1D *h_eta[CalibPlots::ntitles], *h_nvtx, *h_nvtxEv, *h_nvtxTk;
   std::vector<TH1D *> h_eta0, h_eta1, h_eta2, h_eta3, h_eta4;
   std::vector<TH1D *> h_dL1, h_vtx;
   std::vector<TH1D *> h_etaEH[CalibPlots::npbin0];
@@ -332,6 +348,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     : corrFactor_(nullptr),
       cFactor_(nullptr),
       cSelect_(nullptr),
+      cDuplicate_(nullptr),
       fname_(fname),
       dirnm_(dirnm),
       prefix_(prefix),
@@ -361,8 +378,9 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   int oneplace = ((flag_ / 1000) % 10);
   cutL1T_ = (oneplace % 2);
   bool marina = ((oneplace / 2) % 2);
-  bool ifDepth = (((flag_ / 10000) % 10) > 0);
+  ifDepth_ = ((flag_ / 10000) % 10);
   plotHists_ = (((flag_ / 100000) % 10) > 0);
+  duplicate_ = ((flag_ / 1000000) % 10);
   log2by18_ = std::log(2.5) / 18.0;
   if (runlo_ < 0 || runhi_ < 0) {
     runlo_ = std::abs(runlo_);
@@ -382,9 +400,16 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
-    Init(chain, dupFileName);
-    if (std::string(rcorFileName) != "")
-      cFactor_ = new CalibCorr(rcorFileName, ifDepth, false);
+    Init(chain);
+    if (std::string(rcorFileName) != "") {
+      cFactor_ = new CalibCorr(rcorFileName, ifDepth_, false);
+      if (cFactor_->absent())
+        ifDepth_ = -1;
+    } else {
+      ifDepth_ = -1;
+    }
+    if (std::string(dupFileName) != "")
+      cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
     if (rbx != 0)
       cSelect_ = new CalibSelectRBX(rbx, false);
   }
@@ -423,7 +448,7 @@ Long64_t CalibPlotProperties::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
+void CalibPlotProperties::Init(TChain *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -487,28 +512,17 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  if (std::string(dupFileName) != "") {
-    ifstream infil1(dupFileName);
-    if (!infil1.is_open()) {
-      std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
-    } else {
-      while (1) {
-        Long64_t jentry;
-        infil1 >> jentry;
-        if (!infil1.good())
-          break;
-        entries_.push_back(jentry);
-      }
-      infil1.close();
-      std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
-    }
-  }
-
   char name[20], title[200];
   unsigned int kk(0);
 
   if (plotBasic_) {
     std::cout << "Book Basic Histos" << std::endl;
+    h_nvtx = new TH1D("hnvtx", "Number of vertices (selected entries)", 10, 0, 100);
+    h_nvtx->Sumw2();
+    h_nvtxEv = new TH1D("hnvtxEv", "Number of vertices (selected events)", 10, 0, 100);
+    h_nvtxEv->Sumw2();
+    h_nvtxTk = new TH1D("hnvtxTk", "Number of vertices (selected tracks)", 10, 0, 100);
+    h_nvtxTk->Sumw2();
     for (int k = 0; k < CalibPlots::ntitles; ++k) {
       sprintf(name, "%sp%d", prefix_.c_str(), k);
       sprintf(title, "Momentum for %s", CalibPlots::getTitle(k).c_str());
@@ -685,8 +699,6 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
   }
 
   if (plotHists_) {
-    h_nvtx = new TH1D("hnvtx", "Number of vertices", 10, 0, 100);
-    h_nvtx->Sumw2();
     for (int i = 0; i < CalibPlots::ndepth; i++) {
       sprintf(name, "b_edepth%d", i);
       sprintf(title, "Total RecHit energy in depth %d (Barrel)", i + 1);
@@ -775,6 +787,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
   if (nentries < 0)
     nentries = fChain->GetEntriesFast();
   std::cout << "Total entries " << nentries << ":" << fChain->GetEntriesFast() << std::endl;
+  std::vector<std::pair<int, int> > runEvent;
   Long64_t nbytes(0), nb(0);
   unsigned int duplicate(0), good(0), kount(0);
   double sel(0), selHB(0), selHE(0);
@@ -786,7 +799,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
     nbytes += nb;
     if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
-    bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
+    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 1)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select) {
       ++duplicate;
       if (debug)
@@ -827,6 +840,15 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
       continue;
     }
 
+    if (plotBasic_) {
+      h_nvtx->Fill(t_nVtx);
+      std::pair<int, int> runEv(t_Run, t_Event);
+      if (std::find(runEvent.begin(), runEvent.end(), runEv) == runEvent.end()) {
+        h_nvtxEv->Fill(t_nVtx);
+        runEvent.push_back(runEv);
+      }
+    }
+
     // if (Cut(ientry) < 0) continue;
     int kp = CalibPlots::npbin0;
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
@@ -859,8 +881,10 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
         // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
         unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
         eHcal += (cfac * ((*t_HitEnergies)[k]));
         if (debug) {
           int subdet, zside, ieta, iphi, depth;
@@ -878,6 +902,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
                 << "|" << kp << " Cuts " << t_qltyFlag << "|" << t_selectTk << "|" << (t_hmaxNearP < cut) << "|"
                 << (t_eMipDR < 1.0) << "|" << goodTk << "|" << (rat > rcut) << " Select Phi " << selPhi << std::endl;
     if (plotBasic_) {
+      h_nvtxTk->Fill(t_nVtx);
       h_p[0]->Fill(pmom, t_EventWeight);
       h_eta[0]->Fill(t_ieta, t_EventWeight);
       if (kp < CalibPlots::npbin0)
@@ -937,7 +962,6 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
         }
 
         if (plotHists_) {
-          h_nvtx->Fill(t_nVtx);
           if ((std::fabs(rat - 1) < 0.15) && (kp == kp50) && ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
             float weight = (dataMC_ ? t_EventWeight : t_EventWeight * puweight(t_nVtx));
             h_etaE->Fill(t_ieta, eHcal, weight);
@@ -948,8 +972,10 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
             for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
               unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
               double cfac = corrFactor_->getCorr(id);
-              if (cFactor_ != 0)
+              if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
                 cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+                cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
               double ener = cfac * (*t_HitEnergies)[k];
               if (corrPU_)
                 correctEnergy(ener);
@@ -1048,6 +1074,11 @@ void CalibPlotProperties::savePlot(const std::string &theName, bool append, bool
   theFile->cd();
 
   if (plotBasic_) {
+    if (debug)
+      std::cout << "nvtx " << h_nvtx << ":" << h_nvtxEv << ":" << h_nvtxTk << std::endl;
+    h_nvtx->Write();
+    h_nvtxEv->Write();
+    h_nvtxTk->Write();
     for (int k = 0; k < CalibPlots::ntitles; ++k) {
       if (debug)
         std::cout << "[" << k << "] p " << h_p[k] << " eta " << h_eta[k] << std::endl;
@@ -1134,8 +1165,7 @@ void CalibPlotProperties::savePlot(const std::string &theName, bool append, bool
 
   if (plotHists_) {
     if (debug)
-      std::cout << "nvtx " << h_nvtx << " etaE " << h_etaE << std::endl;
-    h_nvtx->Write();
+      std::cout << "etaE " << h_etaE << std::endl;
     h_etaE->Write();
     for (int i = 0; i < CalibPlots::ndepth; ++i) {
       if (debug)
@@ -1163,16 +1193,20 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
         unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
         double hitEn = cfac * (*t_HitEnergies1)[idet];
         Etot1 += hitEn;
       }
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
         unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds)[idet]);
         double hitEn = cfac * (*t_HitEnergies3)[idet];
         Etot3 += hitEn;
       }
@@ -1254,6 +1288,21 @@ void PlotHist(const char *hisFileName,
   TH1D *hist;
   if ((file != nullptr) && plotBasic) {
     std::cout << "Plot Basic Histos" << std::endl;
+    hist = (TH1D *)(file->FindObjectAny("hnvtx"));
+    if (hist != nullptr) {
+      hist->GetXaxis()->SetTitle("Number of vertices (selected entries)");
+      PlotThisHist(hist, text, save);
+    }
+    hist = (TH1D *)(file->FindObjectAny("hnvtxEv"));
+    if (hist != nullptr) {
+      hist->GetXaxis()->SetTitle("Number of vertices (selected events)");
+      PlotThisHist(hist, text, save);
+    }
+    hist = (TH1D *)(file->FindObjectAny("hnvtxTk"));
+    if (hist != nullptr) {
+      hist->GetXaxis()->SetTitle("Number of vertices (selected tracks)");
+      PlotThisHist(hist, text, save);
+    }
     for (int k = 0; k < CalibPlots::ntitles; ++k) {
       sprintf(name, "%sp%d", prefix.c_str(), k);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1466,11 +1515,6 @@ void PlotHist(const char *hisFileName,
   }
 
   if (plotHists) {
-    hist = (TH1D *)(file->FindObjectAny("hnvtx"));
-    if (hist != nullptr) {
-      hist->GetXaxis()->SetTitle("Number of vertices");
-      PlotThisHist(hist, text, save);
-    }
     for (int i = 0; i < CalibPlots::ndepth; i++) {
       sprintf(name, "b_edepth%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));
@@ -1550,4 +1594,500 @@ void PlotHist(const char *hisFileName,
       }
     }
   }
+}
+
+class CalibSplit {
+public:
+  TChain *fChain;  //!pointer to the analyzed TTree or TChain
+  Int_t fCurrent;  //!current Tree number in a TChain
+
+  // Declaration of leaf types
+  Int_t t_Run;
+  Int_t t_Event;
+  Int_t t_DataType;
+  Int_t t_ieta;
+  Int_t t_iphi;
+  Double_t t_EventWeight;
+  Int_t t_nVtx;
+  Int_t t_nTrk;
+  Int_t t_goodPV;
+  Double_t t_l1pt;
+  Double_t t_l1eta;
+  Double_t t_l1phi;
+  Double_t t_l3pt;
+  Double_t t_l3eta;
+  Double_t t_l3phi;
+  Double_t t_p;
+  Double_t t_pt;
+  Double_t t_phi;
+  Double_t t_mindR1;
+  Double_t t_mindR2;
+  Double_t t_eMipDR;
+  Double_t t_eHcal;
+  Double_t t_eHcal10;
+  Double_t t_eHcal30;
+  Double_t t_hmaxNearP;
+  Double_t t_rhoh;
+  Bool_t t_selectTk;
+  Bool_t t_qltyFlag;
+  Bool_t t_qltyMissFlag;
+  Bool_t t_qltyPVFlag;
+  Double_t t_gentrackP;
+  std::vector<unsigned int> *t_DetIds;
+  std::vector<double> *t_HitEnergies;
+  std::vector<bool> *t_trgbits;
+  std::vector<unsigned int> *t_DetIds1;
+  std::vector<unsigned int> *t_DetIds3;
+  std::vector<double> *t_HitEnergies1;
+  std::vector<double> *t_HitEnergies3;
+
+  // List of branches
+  TBranch *b_t_Run;           //!
+  TBranch *b_t_Event;         //!
+  TBranch *b_t_DataType;      //!
+  TBranch *b_t_ieta;          //!
+  TBranch *b_t_iphi;          //!
+  TBranch *b_t_EventWeight;   //!
+  TBranch *b_t_nVtx;          //!
+  TBranch *b_t_nTrk;          //!
+  TBranch *b_t_goodPV;        //!
+  TBranch *b_t_l1pt;          //!
+  TBranch *b_t_l1eta;         //!
+  TBranch *b_t_l1phi;         //!
+  TBranch *b_t_l3pt;          //!
+  TBranch *b_t_l3eta;         //!
+  TBranch *b_t_l3phi;         //!
+  TBranch *b_t_p;             //!
+  TBranch *b_t_pt;            //!
+  TBranch *b_t_phi;           //!
+  TBranch *b_t_mindR1;        //!
+  TBranch *b_t_mindR2;        //!
+  TBranch *b_t_eMipDR;        //!
+  TBranch *b_t_eHcal;         //!
+  TBranch *b_t_eHcal10;       //!
+  TBranch *b_t_eHcal30;       //!
+  TBranch *b_t_hmaxNearP;     //!
+  TBranch *b_t_rhoh;          //!
+  TBranch *b_t_selectTk;      //!
+  TBranch *b_t_qltyFlag;      //!
+  TBranch *b_t_qltyMissFlag;  //!
+  TBranch *b_t_qltyPVFlag;    //!
+  TBranch *b_t_gentrackP;     //!
+  TBranch *b_t_DetIds;        //!
+  TBranch *b_t_HitEnergies;   //!
+  TBranch *b_t_trgbits;       //!
+  TBranch *b_t_DetIds1;       //!
+  TBranch *b_t_DetIds3;       //!
+  TBranch *b_t_HitEnergies1;  //!
+  TBranch *b_t_HitEnergies3;  //!
+
+  // Declaration of output leaf types
+  Int_t tout_Run;
+  Int_t tout_Event;
+  Int_t tout_DataType;
+  Int_t tout_ieta;
+  Int_t tout_iphi;
+  Double_t tout_EventWeight;
+  Int_t tout_nVtx;
+  Int_t tout_nTrk;
+  Int_t tout_goodPV;
+  Double_t tout_l1pt;
+  Double_t tout_l1eta;
+  Double_t tout_l1phi;
+  Double_t tout_l3pt;
+  Double_t tout_l3eta;
+  Double_t tout_l3phi;
+  Double_t tout_p;
+  Double_t tout_pt;
+  Double_t tout_phi;
+  Double_t tout_mindR1;
+  Double_t tout_mindR2;
+  Double_t tout_eMipDR;
+  Double_t tout_eHcal;
+  Double_t tout_eHcal10;
+  Double_t tout_eHcal30;
+  Double_t tout_hmaxNearP;
+  Double_t tout_rhoh;
+  Bool_t tout_selectTk;
+  Bool_t tout_qltyFlag;
+  Bool_t tout_qltyMissFlag;
+  Bool_t tout_qltyPVFlag;
+  Double_t tout_gentrackP;
+  std::vector<unsigned int> *tout_DetIds;
+  std::vector<double> *tout_HitEnergies;
+  std::vector<bool> *tout_trgbits;
+  std::vector<unsigned int> *tout_DetIds1;
+  std::vector<unsigned int> *tout_DetIds3;
+  std::vector<double> *tout_HitEnergies1;
+  std::vector<double> *tout_HitEnergies3;
+
+  CalibSplit(const char *fname,
+             const std::string &dirname,
+             const std::string &outFileName,
+             double pmin = 40.0,
+             double pmax = 60.0,
+             bool debug = false);
+  virtual ~CalibSplit();
+  virtual Int_t Cut(Long64_t entry);
+  virtual Int_t GetEntry(Long64_t entry);
+  virtual Long64_t LoadTree(Long64_t entry);
+  virtual void Init(TChain *);
+  virtual void Loop(Long64_t nentries = -1);
+  virtual Bool_t Notify();
+  virtual void Show(Long64_t entry = -1);
+  void copyTree();
+  void close();
+
+private:
+  const std::string fname_, dirnm_, outFileName_;
+  const double pmin_, pmax_;
+  const bool debug_;
+  TFile *outputFile_;
+  TDirectoryFile *outputDir_;
+  TTree *outputTree_;
+};
+
+CalibSplit::CalibSplit(
+    const char *fname, const std::string &dirnm, const std::string &outFileName, double pmin, double pmax, bool debug)
+    : fname_(fname),
+      dirnm_(dirnm),
+      outFileName_(outFileName),
+      pmin_(pmin),
+      pmax_(pmax),
+      debug_(debug),
+      outputFile_(nullptr),
+      outputDir_(nullptr),
+      outputTree_(nullptr) {
+  char treeName[400];
+  sprintf(treeName, "%s/CalibTree", dirnm.c_str());
+  TChain *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << fname << " to write tracs of momentum in the range "
+            << pmin_ << ":" << pmax_ << " to file " << outFileName_ << std::endl;
+  if (!fillChain(chain, fname)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
+    Init(chain);
+  }
+}
+
+CalibSplit::~CalibSplit() {
+  if (!fChain)
+    return;
+  delete fChain->GetCurrentFile();
+}
+
+Int_t CalibSplit::GetEntry(Long64_t entry) {
+  // Read contents of entry.
+  if (!fChain)
+    return 0;
+  return fChain->GetEntry(entry);
+}
+
+Long64_t CalibSplit::LoadTree(Long64_t entry) {
+  // Set the environment to read one entry
+  if (!fChain)
+    return -5;
+  Long64_t centry = fChain->LoadTree(entry);
+  if (centry < 0)
+    return centry;
+  if (!fChain->InheritsFrom(TChain::Class()))
+    return centry;
+  TChain *chain = (TChain *)fChain;
+  if (chain->GetTreeNumber() != fCurrent) {
+    fCurrent = chain->GetTreeNumber();
+    Notify();
+  }
+  return centry;
+}
+
+void CalibSplit::Init(TChain *tree) {
+  // The Init() function is called when the selector needs to initialize
+  // a new tree or chain. Typically here the branch addresses and branch
+  // pointers of the tree will be set.
+  // It is normally not necessary to make changes to the generated
+  // code, but the routine can be extended by the user if needed.
+  // Init() will be called many times when running on PROOF
+  // (once per file to be processed).
+
+  // Set object pointer
+  t_DetIds = nullptr;
+  t_DetIds1 = nullptr;
+  t_DetIds3 = nullptr;
+  t_HitEnergies = nullptr;
+  t_HitEnergies1 = nullptr;
+  t_HitEnergies3 = nullptr;
+  t_trgbits = nullptr;
+  // Set branch addresses and branch pointers
+  fChain = tree;
+  fCurrent = -1;
+  if (!tree)
+    return;
+  fChain->SetMakeClass(1);
+
+  fChain->SetBranchAddress("t_Run", &t_Run, &b_t_Run);
+  fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
+  fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
+  fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+  fChain->SetBranchAddress("t_iphi", &t_iphi, &b_t_iphi);
+  fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
+  fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
+  fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
+  fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
+  fChain->SetBranchAddress("t_l1pt", &t_l1pt, &b_t_l1pt);
+  fChain->SetBranchAddress("t_l1eta", &t_l1eta, &b_t_l1eta);
+  fChain->SetBranchAddress("t_l1phi", &t_l1phi, &b_t_l1phi);
+  fChain->SetBranchAddress("t_l3pt", &t_l3pt, &b_t_l3pt);
+  fChain->SetBranchAddress("t_l3eta", &t_l3eta, &b_t_l3eta);
+  fChain->SetBranchAddress("t_l3phi", &t_l3phi, &b_t_l3phi);
+  fChain->SetBranchAddress("t_p", &t_p, &b_t_p);
+  fChain->SetBranchAddress("t_pt", &t_pt, &b_t_pt);
+  fChain->SetBranchAddress("t_phi", &t_phi, &b_t_phi);
+  fChain->SetBranchAddress("t_mindR1", &t_mindR1, &b_t_mindR1);
+  fChain->SetBranchAddress("t_mindR2", &t_mindR2, &b_t_mindR2);
+  fChain->SetBranchAddress("t_eMipDR", &t_eMipDR, &b_t_eMipDR);
+  fChain->SetBranchAddress("t_eHcal", &t_eHcal, &b_t_eHcal);
+  fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
+  fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
+  fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_rhoh", &t_rhoh, &b_t_rhoh);
+  fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
+  fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
+  fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
+  fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
+  fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
+  fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
+  fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
+  fChain->SetBranchAddress("t_DetIds1", &t_DetIds1, &b_t_DetIds1);
+  fChain->SetBranchAddress("t_DetIds3", &t_DetIds3, &b_t_DetIds3);
+  fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1, &b_t_HitEnergies1);
+  fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
+  Notify();
+
+  tout_DetIds = new std::vector<unsigned int>();
+  tout_HitEnergies = new std::vector<double>();
+  tout_trgbits = new std::vector<bool>();
+  tout_DetIds1 = new std::vector<unsigned int>();
+  tout_DetIds3 = new std::vector<unsigned int>();
+  tout_HitEnergies1 = new std::vector<double>();
+  tout_HitEnergies3 = new std::vector<double>();
+
+  outputFile_ = TFile::Open(outFileName_.c_str(), "RECREATE");
+  outputFile_->cd();
+  outputDir_ = new TDirectoryFile(dirnm_.c_str(), dirnm_.c_str());
+  outputDir_->cd();
+  outputTree_ = new TTree("CalibTree", "CalibTree");
+  outputTree_->Branch("t_Run", &tout_Run);
+  outputTree_->Branch("t_Event", &tout_Event);
+  outputTree_->Branch("t_DataType", &tout_DataType);
+  outputTree_->Branch("t_ieta", &tout_ieta);
+  outputTree_->Branch("t_iphi", &tout_iphi);
+  outputTree_->Branch("t_EventWeight", &tout_EventWeight);
+  outputTree_->Branch("t_nVtx", &tout_nVtx);
+  outputTree_->Branch("t_nTrk", &tout_nTrk);
+  outputTree_->Branch("t_goodPV", &tout_goodPV);
+  outputTree_->Branch("t_l1pt", &tout_l1pt);
+  outputTree_->Branch("t_l1eta", &tout_l1eta);
+  outputTree_->Branch("t_l1phi", &tout_l1phi);
+  outputTree_->Branch("t_l3pt", &tout_l3pt);
+  outputTree_->Branch("t_l3eta", &tout_l3eta);
+  outputTree_->Branch("t_l3phi", &tout_l3phi);
+  outputTree_->Branch("t_p", &tout_p);
+  outputTree_->Branch("t_pt", &tout_pt);
+  outputTree_->Branch("t_phi", &tout_phi);
+  outputTree_->Branch("t_mindR1", &tout_mindR1);
+  outputTree_->Branch("t_mindR2", &tout_mindR2);
+  outputTree_->Branch("t_eMipDR", &tout_eMipDR);
+  outputTree_->Branch("t_eHcal", &tout_eHcal);
+  outputTree_->Branch("t_eHcal10", &tout_eHcal10);
+  outputTree_->Branch("t_eHcal30", &tout_eHcal30);
+  outputTree_->Branch("t_hmaxNearP", &tout_hmaxNearP);
+  outputTree_->Branch("t_rhoh", &tout_rhoh);
+  outputTree_->Branch("t_selectTk", &tout_selectTk);
+  outputTree_->Branch("t_qltyFlag", &tout_qltyFlag);
+  outputTree_->Branch("t_qltyMissFlag", &tout_qltyMissFlag);
+  outputTree_->Branch("t_qltyPVFlag", &tout_qltyPVFlag);
+  outputTree_->Branch("t_gentrackP", &tout_gentrackP);
+  outputTree_->Branch("t_DetIds", &tout_DetIds);
+  outputTree_->Branch("t_HitEnergies", &tout_HitEnergies);
+  outputTree_->Branch("t_trgbits", &tout_trgbits);
+  outputTree_->Branch("t_DetIds1", &tout_DetIds1);
+  outputTree_->Branch("t_DetIds3", &tout_DetIds3);
+  outputTree_->Branch("t_HitEnergies1", &tout_HitEnergies1);
+  outputTree_->Branch("t_HitEnergies3", &tout_HitEnergies3);
+
+  std::cout << "Output CalibTree is created in directory " << dirnm_ << " of " << outFileName_ << std::endl;
+}
+
+Bool_t CalibSplit::Notify() {
+  // The Notify() function is called when a new file is opened. This
+  // can be either for a new TTree in a TChain or when when a new TTree
+  // is started when using PROOF. It is normally not necessary to make changes
+  // to the generated code, but the routine can be extended by the
+  // user if needed. The return value is currently not used.
+
+  return kTRUE;
+}
+
+void CalibSplit::Show(Long64_t entry) {
+  // Print contents of entry.
+  // If entry is not specified, print current entry
+  if (!fChain)
+    return;
+  fChain->Show(entry);
+}
+
+Int_t CalibSplit::Cut(Long64_t) {
+  // This function may be called from Loop.
+  // returns  1 if entry is accepted.
+  // returns -1 otherwise.
+  return 1;
+}
+
+void CalibSplit::Loop(Long64_t nentries) {
+  //   In a ROOT session, you can do:
+  //      Root > .L CalibMonitor.C
+  //      Root > CalibMonitor t
+  //      Root > t.GetEntry(12); // Fill t data members with entry number 12
+  //      Root > t.Show();       // Show values of entry 12
+  //      Root > t.Show(16);     // Read and show values of entry 16
+  //      Root > t.Loop();       // Loop on all entries
+  //
+
+  //   This is the loop skeleton where:
+  //      jentry is the global entry number in the chain
+  //      ientry is the entry number in the current Tree
+  //   Note that the argument to GetEntry must be:
+  //      jentry for TChain::GetEntry
+  //      ientry for TTree::GetEntry and TBranch::GetEntry
+  //
+  //       To read only selected branches, Insert statements like:
+  // METHOD1:
+  //    fChain->SetBranchStatus("*",0);  // disable all branches
+  //    fChain->SetBranchStatus("branchname",1);  // activate branchname
+  // METHOD2: replace line
+  //    fChain->GetEntry(jentry);       //read all branches
+  //by  b_branchname->GetEntry(ientry); //read only this branch
+
+  if (fChain == 0)
+    return;
+
+  // Find list of duplicate events
+  if (nentries < 0)
+    nentries = fChain->GetEntriesFast();
+  std::cout << "Total entries " << nentries << ":" << fChain->GetEntriesFast() << std::endl;
+  Long64_t nbytes(0), nb(0);
+  unsigned int good(0), reject(0), kount(0);
+  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0)
+      break;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
+    if (jentry % 1000000 == 0)
+      std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
+    ++kount;
+    bool select = ((t_p >= pmin_) && (t_p < pmax_));
+    if (!select) {
+      ++reject;
+      if (debug_)
+        std::cout << "Rejected event " << t_Run << " " << t_Event << " " << t_p << std::endl;
+      continue;
+    }
+    ++good;
+    copyTree();
+    outputTree_->Fill();
+  }
+  std::cout << "\nSelect " << good << " Reject " << reject << " entries out of a total of " << kount << " counts"
+            << std::endl;
+  close();
+}
+
+void CalibSplit::copyTree() {
+  tout_Run = t_Run;
+  tout_Event = t_Event;
+  tout_DataType = t_DataType;
+  tout_ieta = t_ieta;
+  tout_iphi = t_iphi;
+  tout_EventWeight = t_EventWeight;
+  tout_nVtx = t_nVtx;
+  tout_nTrk = t_nTrk;
+  tout_goodPV = t_goodPV;
+  tout_l1pt = t_l1pt;
+  tout_l1eta = t_l1eta;
+  tout_l1phi = t_l1phi;
+  tout_l3pt = t_l3pt;
+  tout_l3eta = t_l3eta;
+  tout_l3phi = t_l3phi;
+  tout_p = t_p;
+  tout_pt = t_pt;
+  tout_phi = t_phi;
+  tout_mindR1 = t_mindR1;
+  tout_mindR2 = t_mindR2;
+  tout_eMipDR = t_eMipDR;
+  tout_eHcal = t_eHcal;
+  tout_eHcal10 = t_eHcal10;
+  tout_eHcal30 = t_eHcal30;
+  tout_hmaxNearP = t_hmaxNearP;
+  tout_rhoh = t_rhoh;
+  tout_selectTk = t_selectTk;
+  tout_qltyFlag = t_qltyFlag;
+  tout_qltyMissFlag = t_qltyMissFlag;
+  tout_qltyPVFlag = t_qltyPVFlag;
+  tout_gentrackP = t_gentrackP;
+  tout_DetIds->clear();
+  if (t_DetIds != nullptr) {
+    tout_DetIds->reserve(t_DetIds->size());
+    for (unsigned int i = 0; i < t_DetIds->size(); ++i)
+      tout_DetIds->push_back((*t_DetIds)[i]);
+  }
+  tout_HitEnergies->clear();
+  if (t_HitEnergies != nullptr) {
+    tout_HitEnergies->reserve(t_HitEnergies->size());
+    for (unsigned int i = 0; i < t_HitEnergies->size(); ++i)
+      tout_HitEnergies->push_back((*t_HitEnergies)[i]);
+  }
+  tout_trgbits->clear();
+  if (t_trgbits != nullptr) {
+    tout_trgbits->reserve(t_trgbits->size());
+    for (unsigned int i = 0; i < t_trgbits->size(); ++i)
+      tout_trgbits->push_back((*t_trgbits)[i]);
+  }
+  tout_DetIds1->clear();
+  if (t_DetIds1 != nullptr) {
+    tout_DetIds1->reserve(t_DetIds1->size());
+    for (unsigned int i = 0; i < t_DetIds1->size(); ++i)
+      tout_DetIds1->push_back((*t_DetIds1)[i]);
+  }
+  tout_DetIds3->clear();
+  if (t_DetIds3 != nullptr) {
+    tout_DetIds3->reserve(t_DetIds3->size());
+    for (unsigned int i = 0; i < t_DetIds3->size(); ++i)
+      tout_DetIds3->push_back((*t_DetIds3)[i]);
+  }
+  tout_HitEnergies1->clear();
+  if (t_HitEnergies1 != nullptr) {
+    tout_HitEnergies1->reserve(t_HitEnergies1->size());
+    for (unsigned int i = 0; i < t_HitEnergies1->size(); ++i)
+      tout_HitEnergies1->push_back((*t_HitEnergies1)[i]);
+  }
+  tout_HitEnergies3->clear();
+  if (t_HitEnergies1 != nullptr) {
+    tout_HitEnergies3->reserve(t_HitEnergies3->size());
+    for (unsigned int i = 0; i < t_HitEnergies3->size(); ++i)
+      tout_HitEnergies3->push_back((*t_HitEnergies3)[i]);
+  }
+}
+
+void CalibSplit::close() {
+  if (outputFile_) {
+    outputDir_->cd();
+    std::cout << "file yet to be Written" << std::endl;
+    outputTree_->Write();
+    std::cout << "file Written" << std::endl;
+    outputFile_->Close();
+    std::cout << "now doing return" << std::endl;
+  }
+  outputFile_ = nullptr;
 }

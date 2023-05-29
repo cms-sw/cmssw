@@ -243,6 +243,7 @@ namespace edm {
     void resetItemsToGetFrom(BranchType iType) { itemsToGetFromBranch_[iType].clear(); }
 
   private:
+    virtual void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const&);
     virtual void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) {}
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
     ESTokenIndex recordESConsumes(Transition,

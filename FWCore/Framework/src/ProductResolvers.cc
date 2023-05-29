@@ -407,47 +407,21 @@ namespace edm {
         }
       }
 
-      //Need to try modifying prefetchRequested_ before adding to m_waitingTasks
-      bool expected = false;
-      bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
-      m_waitingTasks.add(waitTask);
-
-      if (worker_ and prefetchRequested) {
-        //using a waiting task to do a callback guarantees that
-        // the m_waitingTasks list will be released from waiting even
-        // if the module does not put this data product or the
-        // module has an exception while running
-
-        auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
-          if (nullptr != iException) {
-            m_waitingTasks.doneWaiting(*iException);
-          } else {
-            m_waitingTasks.doneWaiting(std::exception_ptr());
-          }
-        });
-        worker_->callWhenDoneAsync(WaitingTaskHolder(*waitTask.group(), waiting));
+      if (waitingTasks_) {
+        // using a waiting task to do a callback guarantees that the
+        // waitingTasks_ list (from the worker) will be released from
+        // waiting even if the module does not put this data product
+        // or the module has an exception while running
+        waitingTasks_->add(waitTask);
       }
     }
   }
 
-  void PuttableProductResolver::putProduct(std::unique_ptr<WrapperBase> edp) const {
-    ProducedProductResolver::putProduct(std::move(edp));
-    bool expected = false;
-    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
-      m_waitingTasks.doneWaiting(std::exception_ptr());
-    }
-  }
-
-  void PuttableProductResolver::resetProductData_(bool deleteEarly) {
-    if (not deleteEarly) {
-      prefetchRequested_ = false;
-      m_waitingTasks.reset();
-    }
-    DataManagingProductResolver::resetProductData_(deleteEarly);
-  }
-
   void PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
-    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+    auto worker = iConfigure.findWorker(branchDescription().moduleLabel());
+    if (worker) {
+      waitingTasks_ = &worker->waitingTaskList();
+    }
   }
 
   void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
@@ -515,6 +489,97 @@ namespace edm {
   }
 
   void UnscheduledProductResolver::resetProductData_(bool deleteEarly) {
+    if (not deleteEarly) {
+      prefetchRequested_ = false;
+      waitingTasks_.reset();
+    }
+    DataManagingProductResolver::resetProductData_(deleteEarly);
+  }
+
+  void TransformingProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    aux_ = iConfigure.auxiliary();
+    worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
+    // worker can be missing if the corresponding module is
+    // unscheduled and none of its products are consumed
+    if (worker_) {
+      index_ = worker_->transformIndex(branchDescription());
+    }
+  }
+
+  ProductResolverBase::Resolution TransformingProductResolver::resolveProduct_(Principal const&,
+                                                                               bool skipCurrentProcess,
+                                                                               SharedResourcesAcquirer*,
+                                                                               ModuleCallingContext const*) const {
+    if (!skipCurrentProcess and worker_) {
+      return resolveProductImpl<false>([] {});
+    }
+    return Resolution(nullptr);
+  }
+
+  void TransformingProductResolver::putProduct(std::unique_ptr<WrapperBase> edp) const {
+    // Override putProduct() to not set the resolver status to
+    // ResolveFailed when the Event::commit_() checks which produced
+    // products were actually produced and which not, because the
+    // transforming products are never produced by time of commit_()
+    // by construction.
+    if (edp) {
+      ProducedProductResolver::putProduct(std::move(edp));
+    }
+  }
+
+  void TransformingProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
+                                                   Principal const& principal,
+                                                   bool skipCurrentProcess,
+                                                   ServiceToken const& token,
+                                                   SharedResourcesAcquirer* sra,
+                                                   ModuleCallingContext const* mcc) const {
+    if (skipCurrentProcess) {
+      return;
+    }
+    if (worker_ == nullptr) {
+      throw cms::Exception("LogicError") << "TransformingProductResolver::prefetchAsync_()  called with null worker_. "
+                                            "This should not happen, please contact framework developers.";
+    }
+    //need to try changing prefetchRequested_ before adding to waitingTasks_
+    bool expected = false;
+    bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
+    waitingTasks_.add(waitTask);
+    if (prefetchRequested) {
+      //Have to create a new task which will make sure the state for TransformingProductResolver
+      // is properly set after the module has run
+      auto t = make_waiting_task([this](std::exception_ptr const* iPtr) {
+        //The exception is being rethrown because resolveProductImpl sets the ProductResolver to a failed
+        // state for the case where an exception occurs during the call to the function.
+        // Caught exception is propagated via WaitingTaskList
+        CMS_SA_ALLOW try {
+          resolveProductImpl<true>([iPtr]() {
+            if (iPtr) {
+              std::rethrow_exception(*iPtr);
+            }
+          });
+        } catch (...) {
+          waitingTasks_.doneWaiting(std::current_exception());
+          return;
+        }
+        waitingTasks_.doneWaiting(nullptr);
+      });
+
+      //This gives a lifetime greater than this call
+      ParentContext parent(mcc);
+      mcc_ = ModuleCallingContext(worker_->description(), ModuleCallingContext::State::kPrefetching, parent, nullptr);
+
+      EventTransitionInfo const& info = aux_->eventTransitionInfo();
+      worker_->doTransformAsync(WaitingTaskHolder(*waitTask.group(), t),
+                                index_,
+                                info.principal(),
+                                token,
+                                info.principal().streamID(),
+                                mcc_,
+                                mcc->getStreamContext());
+    }
+  }
+
+  void TransformingProductResolver::resetProductData_(bool deleteEarly) {
     if (not deleteEarly) {
       prefetchRequested_ = false;
       waitingTasks_.reset();
@@ -989,7 +1054,7 @@ namespace edm {
       void execute() final {
         auto exceptPtr = exceptionPtr();
         if (exceptPtr) {
-          resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, *exceptPtr);
+          resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, exceptPtr);
         } else {
           if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
             resolver_->tryPrefetchResolverAsync(

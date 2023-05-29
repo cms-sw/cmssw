@@ -7,7 +7,7 @@
  *  From D. Fortin  - UC Riverside
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,26 +35,31 @@ class TH1F;
 class TH2F;
 
 class RPCRecHit;
+class RPCGeometry;
+class MuonGeometryRecord;
 
-class RPCRecHitReader : public edm::EDAnalyzer {
+class RPCRecHitReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   RPCRecHitReader(const edm::ParameterSet& pset);
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void endJob() override;
 
   /// Destructor
-  virtual ~RPCRecHitReader();
+  ~RPCRecHitReader() override;
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   unsigned int layerRecHit(RPCRecHit);
 
 private:
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomBRToken_;
   std::string fOutputFileName;
   std::string recHitLabel1;
   std::string recHitLabel2;

@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -96,16 +97,11 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     edm::ServiceToken token;
     iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, id, iContext, nullptr);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(*e);
-    }
+    task.wait();
   }
 
   class BasicOutputModule : public edm::global::OutputModule<> {
@@ -173,8 +169,8 @@ testGlobalOutputModule::testGlobalOutputModule()
 
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
-  m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_rp.reset(new edm::RunPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_rp->setAux(edm::RunAuxiliary(eventID.run(), now, now));
   edm::LuminosityBlockAuxiliary lumiAux(m_rp->run(), 1, now, now);
   m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
   m_lbp->setAux(lumiAux);
@@ -194,14 +190,18 @@ testGlobalOutputModule::testGlobalOutputModule()
 
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
@@ -217,34 +217,28 @@ testGlobalOutputModule::testGlobalOutputModule()
 
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
-    }
+    task.wait();
   };
 
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
-    }
+    task.wait();
   };
 
   m_transToFunc[Trans::kGlobalCloseInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
@@ -300,12 +294,15 @@ template <typename T>
 void testGlobalOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
-  iMod->doPreallocate(m_preallocConfig);
-  edm::WorkerT<edm::global::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
-  edm::OutputModuleCommunicatorT<edm::global::OutputModuleBase> comm(iMod.get());
-  for (auto& keyVal : m_transToFunc) {
-    testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);
-  }
+  oneapi::tbb::task_arena arena(1);
+  arena.execute([&]() {
+    iMod->doPreallocate(m_preallocConfig);
+    edm::WorkerT<edm::global::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
+    edm::OutputModuleCommunicatorT<edm::global::OutputModuleBase> comm(iMod.get());
+    for (auto& keyVal : m_transToFunc) {
+      testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);
+    }
+  });
 }
 
 void testGlobalOutputModule::basicTest() {

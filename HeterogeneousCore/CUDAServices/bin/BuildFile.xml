@@ -1,9 +1,0 @@
-<iftool name="cuda-gcc-support">
-  <bin name="cudaComputeCapabilities" file="cudaComputeCapabilities.cpp isCudaDeviceSupported.cu">
-    <use name="cuda"/>
-  </bin>
-
-  <bin name="cudaIsEnabled" file="cudaIsEnabled.cpp isCudaDeviceSupported.cu">
-    <use name="cuda"/>
-  </bin>
-</iftool>

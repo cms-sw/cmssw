@@ -34,7 +34,8 @@ namespace edm {
 
     template <typename... T>
     class EDProducer : public AbilityToImplementor<T>::Type...,
-                       public std::conditional<CheckAbility<edm::module::Abilities::kAccumulator, T...>::kHasIt,
+                       public std::conditional<CheckAbility<edm::module::Abilities::kAccumulator, T...>::kHasIt or
+                                                   CheckAbility<edm::module::Abilities::kTransformer, T...>::kHasIt,
                                                impl::EmptyType,
                                                EDProducerBase>::type {
     public:

@@ -10,7 +10,6 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
-#include "L1Trigger/DemonstratorTools/interface/BoardData.h"
 
 namespace l1t::demo::codecs {
 

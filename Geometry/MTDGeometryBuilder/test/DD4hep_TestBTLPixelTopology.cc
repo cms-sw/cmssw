@@ -224,10 +224,10 @@ void DD4hep_TestBTLPixelTopology::analyze(const edm::Event& iEvent, const edm::E
 
       int origRow = theId.row(topo.nrows());
       int origCol = theId.column(topo.nrows());
-      spix << "rawId= " << theId.rawId() << " side/rod= " << theId.mtdSide() << " / " << theId.mtdRR()
+      spix << "rawId= " << theId.rawId() << " geoId= " << geoId.rawId() << " side/rod= " << theId.mtdSide() << " / "
+           << theId.mtdRR() << " type/RU= " << theId.modType() << " / " << theId.runit()
            << " module/geomodule= " << theId.module() << " / " << static_cast<BTLDetId>(geoId).module()
-           << " crys/type= " << theId.crystal() << " / " << theId.modType() << " BTLDetId row/col= " << origRow << " / "
-           << origCol;
+           << " crys= " << theId.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol;
       spix << "\n";
 
       //
@@ -279,6 +279,8 @@ void DD4hep_TestBTLPixelTopology::analyze(const edm::Event& iEvent, const edm::E
           recoCol = origCol;
         }
 
+        Local3DPoint recoRefLocal = topo.moduleToPixelLocalPoint(modLocal);
+
         // reconstructed global position from reco geometry and rectangluar MTD topology
 
         const auto& modGlobal = thedet->toGlobal(modLocal);
@@ -287,17 +289,30 @@ void DD4hep_TestBTLPixelTopology::analyze(const edm::Event& iEvent, const edm::E
         const double deltay = convertCmToMm(modGlobal.y()) - (refGlobalPoints[iloop].y() / dd4hep::mm);
         const double deltaz = convertCmToMm(modGlobal.z()) - (refGlobalPoints[iloop].z() / dd4hep::mm);
 
+        const double local_deltax = recoRefLocal.x() - cmRefLocal.x();
+        const double local_deltay = recoRefLocal.y() - cmRefLocal.y();
+        const double local_deltaz = recoRefLocal.z() - cmRefLocal.z();
+
         spix << "Ref#" << iloop << " local= " << fround(refLocalPoints[iloop].x() / dd4hep::mm)
              << fround(refLocalPoints[iloop].y() / dd4hep::mm) << fround(refLocalPoints[iloop].z() / dd4hep::mm)
              << " Orig global= " << fround(refGlobalPoints[iloop].x() / dd4hep::mm)
              << fround(refGlobalPoints[iloop].y() / dd4hep::mm) << fround(refGlobalPoints[iloop].z() / dd4hep::mm)
              << " Reco global= " << fround(convertCmToMm(modGlobal.x())) << fround(convertCmToMm(modGlobal.y()))
              << fround(convertCmToMm(modGlobal.z())) << " Delta= " << fround(deltax) << fround(deltay) << fround(deltaz)
-             << "\n";
+             << " Local Delta= " << fround(local_deltax) << fround(local_deltay) << fround(local_deltaz) << "\n";
         if (std::abs(deltax) > tolerance || std::abs(deltay) > tolerance || std::abs(deltaz) > tolerance) {
           std::stringstream warnmsg;
           warnmsg << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop << " dx/dy/dz= " << fround(deltax)
                   << fround(deltay) << fround(deltaz) << "\n";
+          spix << warnmsg.str();
+          sunitt << warnmsg.str();
+        }
+        if (std::abs(local_deltax) > tolerance || std::abs(local_deltay) > tolerance ||
+            std::abs(local_deltaz) > tolerance) {
+          std::stringstream warnmsg;
+          warnmsg << "DIFFERENCE detId/ref# " << theId.rawId() << " " << iloop
+                  << " local dx/dy/dz= " << fround(local_deltax) << fround(local_deltay) << fround(local_deltaz)
+                  << "\n";
           spix << warnmsg.str();
           sunitt << warnmsg.str();
         }

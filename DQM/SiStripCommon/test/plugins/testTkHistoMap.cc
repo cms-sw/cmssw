@@ -6,6 +6,7 @@
 #include <vector>
 
 // user include files
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerCommon/interface/SiStripSubStructure.h"
@@ -13,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -39,6 +41,8 @@ public:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   void endJob(void) override;
 
 private:
@@ -48,15 +52,28 @@ private:
   const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tTopoToken;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeoToken;
 
-  bool readFromFile;
-  std::unique_ptr<TkHistoMap> tkhisto, tkhistoBis, tkhistoZ, tkhistoPhi, tkhistoR, tkhistoCheck;
+  const bool readFromFile_;
+  const edm::FileInPath fp_;
+  std::unique_ptr<TkHistoMap> tkhistoID, tkhisto, tkhistoBis, tkhistoZ, tkhistoPhi, tkhistoR, tkhistoCheck;
 };
+
+void testTkHistoMap::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("readFromFile", false)->setComment("read the map from ROOT file");
+  desc.add<edm::FileInPath>("inputFile", edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile))
+      ->setComment("source of the tkhisto map values");
+  descriptions.add("testglobalrunsummary", desc);
+}
 
 //
 testTkHistoMap::testTkHistoMap(const edm::ParameterSet& iConfig)
-    : tTopoToken(esConsumes()), tkGeoToken(esConsumes()), readFromFile(iConfig.getParameter<bool>("readFromFile")) {}
+    : tTopoToken(esConsumes()),
+      tkGeoToken(esConsumes()),
+      readFromFile_(iConfig.getParameter<bool>("readFromFile")),
+      fp_(iConfig.getParameter<edm::FileInPath>("inputFile")) {}
 
 void testTkHistoMap::create(const TkDetMap* tkDetMap) {
+  tkhistoID = std::make_unique<TkHistoMap>(tkDetMap, "detIdV", "detIdV", -1);
   tkhisto = std::make_unique<TkHistoMap>(tkDetMap, "detId", "detId", -1);
   tkhistoBis = std::make_unique<TkHistoMap>(
       tkDetMap,
@@ -78,6 +95,7 @@ void testTkHistoMap::create(const TkDetMap* tkDetMap) {
 void testTkHistoMap::read(const TkDetMap* tkDetMap) {
   edm::Service<DQMStore>().operator->()->open("test.root");
 
+  tkhistoID = std::make_unique<TkHistoMap>(tkDetMap);
   tkhisto = std::make_unique<TkHistoMap>(tkDetMap);
   tkhistoBis = std::make_unique<TkHistoMap>(tkDetMap);
   tkhistoZ = std::make_unique<TkHistoMap>(tkDetMap);
@@ -85,6 +103,7 @@ void testTkHistoMap::read(const TkDetMap* tkDetMap) {
   tkhistoR = std::make_unique<TkHistoMap>(tkDetMap);
   tkhistoCheck = std::make_unique<TkHistoMap>(tkDetMap);
 
+  tkhistoID->loadTkHistoMap("detIdV", "detIdV");
   tkhisto->loadTkHistoMap("detId", "detId");
   tkhistoBis->loadTkHistoMap("detIdBis", "detIdBis", true);
   tkhistoZ->loadTkHistoMap("Zmap", "Zmap");
@@ -127,7 +146,7 @@ void testTkHistoMap::endJob(void) {
   }
   ps.Close();
 
-  if (!readFromFile)
+  if (!readFromFile_)
     edm::Service<DQMStore>().operator->()->save("test.root");
 
   tkhisto->saveAsCanvas("test.canvas.root", "LEGO", "RECREATE");
@@ -164,13 +183,13 @@ void testTkHistoMap::endJob(void) {
 // // ------------ method called to produce the data  ------------
 void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const TkDetMap* tkDetMap = &iSetup.getData(tTopoToken);
-  if (!readFromFile) {
+  if (!readFromFile_) {
     create(tkDetMap);
   } else {
     read(tkDetMap);
   }
 
-  if (readFromFile)
+  if (readFromFile_)
     return;
 
   const TrackerGeometry* tkgeom = &iSetup.getData(tkGeoToken);
@@ -179,8 +198,8 @@ void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   LocalPoint localPos(0., 0., 0.);
   GlobalPoint globalPos;
 
-  tkhisto->fillFromAscii("test.txt");
-  tkhistoBis->fillFromAscii("test2.txt");
+  tkhisto->fillFromAscii(fp_.fullPath());
+  tkhistoBis->fillFromAscii(fp_.fullPath());
 
   for (const auto det : tkgeom->detUnits()) {
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
@@ -190,7 +209,7 @@ void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       value = id % 1000000;
 
-      //tkhisto->fill(id,value);
+      tkhistoID->fill(id, value);
       //tkhistoBis->fill(id,value);
       tkhistoZ->fill(id, globalPos.z());
       tkhistoPhi->fill(id, globalPos.phi());
@@ -201,9 +220,9 @@ void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       edm::LogInfo("testTkHistoMap") << "detid " << id.rawId() << " pos z " << globalPos.z() << " phi "
                                      << globalPos.phi() << " r " << globalPos.perp() << std::endl;
 
-      if (value != tkhisto->getValue(id))
+      if (value != tkhistoID->getValue(id))
         edm::LogError("testTkHistoMap") << " input value " << value << " differs from read value "
-                                        << tkhisto->getValue(id) << std::endl;
+                                        << tkhistoID->getValue(id) << std::endl;
 
       // For usage that reset histo content use setBinContent instead than fill
       /* 

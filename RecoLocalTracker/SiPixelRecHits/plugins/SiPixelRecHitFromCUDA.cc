@@ -4,7 +4,7 @@
 
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Common/interface/Product.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -24,14 +24,16 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
-class SiPixelRecHitFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
+template <typename TrackerTraits>
+class SiPixelRecHitFromCUDAT : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  explicit SiPixelRecHitFromCUDA(const edm::ParameterSet& iConfig);
-  ~SiPixelRecHitFromCUDA() override = default;
+  explicit SiPixelRecHitFromCUDAT(const edm::ParameterSet& iConfig);
+  ~SiPixelRecHitFromCUDAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   using HMSstorage = HostProduct<uint32_t[]>;
+  using HitsOnDevice = TrackingRecHitSoADevice<TrackerTraits>;
 
 private:
   void acquire(edm::Event const& iEvent,
@@ -40,64 +42,70 @@ private:
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  const edm::EDGetTokenT<cms::cuda::Product<TrackingRecHit2DGPU>> hitsToken_;  // CUDA hits
-  const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;           // legacy clusters
-  const edm::EDPutTokenT<SiPixelRecHitCollection> rechitsPutToken_;            // legacy rechits
+  const edm::EDGetTokenT<cms::cuda::Product<HitsOnDevice>> hitsToken_;  // CUDA hits
+  const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;    // legacy clusters
+  const edm::EDPutTokenT<SiPixelRecHitCollection> rechitsPutToken_;     // legacy rechits
   const edm::EDPutTokenT<HMSstorage> hostPutToken_;
 
   uint32_t nHits_;
-  uint32_t nMaxModules_;
   cms::cuda::host::unique_ptr<float[]> store32_;
   cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStart_;
 };
 
-SiPixelRecHitFromCUDA::SiPixelRecHitFromCUDA(const edm::ParameterSet& iConfig)
+template <typename TrackerTraits>
+SiPixelRecHitFromCUDAT<TrackerTraits>::SiPixelRecHitFromCUDAT(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
-      hitsToken_(
-          consumes<cms::cuda::Product<TrackingRecHit2DGPU>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
+      hitsToken_(consumes<cms::cuda::Product<HitsOnDevice>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))),
       rechitsPutToken_(produces<SiPixelRecHitCollection>()),
       hostPutToken_(produces<HMSstorage>()) {}
 
-void SiPixelRecHitFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void SiPixelRecHitFromCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingCUDA"));
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
+
   descriptions.addWithDefaultLabel(desc);
 }
 
-void SiPixelRecHitFromCUDA::acquire(edm::Event const& iEvent,
-                                    edm::EventSetup const& iSetup,
-                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  cms::cuda::Product<TrackingRecHit2DGPU> const& inputDataWrapped = iEvent.get(hitsToken_);
+template <typename TrackerTraits>
+void SiPixelRecHitFromCUDAT<TrackerTraits>::acquire(edm::Event const& iEvent,
+                                                    edm::EventSetup const& iSetup,
+                                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+  cms::cuda::Product<HitsOnDevice> const& inputDataWrapped = iEvent.get(hitsToken_);
+
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
+
   auto const& inputData = ctx.get(inputDataWrapped);
 
   nHits_ = inputData.nHits();
-  nMaxModules_ = inputData.nMaxModules();
   LogDebug("SiPixelRecHitFromCUDA") << "converting " << nHits_ << " Hits";
 
   if (0 == nHits_)
     return;
   store32_ = inputData.localCoordToHostAsync(ctx.stream());
+
   hitsModuleStart_ = inputData.hitsModuleStartToHostAsync(ctx.stream());
 }
 
-void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& es) {
+template <typename TrackerTraits>
+void SiPixelRecHitFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::EventSetup const& es) {
   // allocate a buffer for the indices of the clusters
-  auto hmsp = std::make_unique<uint32_t[]>(nMaxModules_ + 1);
+  constexpr auto nMaxModules = TrackerTraits::numberOfModules;
+  auto hmsp = std::make_unique<uint32_t[]>(nMaxModules + 1);
 
   SiPixelRecHitCollection output;
-  output.reserve(nMaxModules_, nHits_);
+  output.reserve(nMaxModules, nHits_);
 
   if (0 == nHits_) {
     iEvent.emplace(rechitsPutToken_, std::move(output));
     iEvent.emplace(hostPutToken_, std::move(hmsp));
     return;
   }
-  output.reserve(nMaxModules_, nHits_);
+  output.reserve(nMaxModules, nHits_);
 
-  std::copy(hitsModuleStart_.get(), hitsModuleStart_.get() + nMaxModules_ + 1, hmsp.get());
+  std::copy(hitsModuleStart_.get(), hitsModuleStart_.get() + nMaxModules + 1, hmsp.get());
   // wrap the buffer in a HostProduct, and move it to the Event, without reallocating the buffer or affecting hitsModuleStart
   iEvent.emplace(hostPutToken_, std::move(hmsp));
 
@@ -130,7 +138,7 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
 
     assert(lc > fc);
     LogDebug("SiPixelRecHitFromCUDA") << "in det " << gind << ": conv " << nhits << " hits from " << dsv.size()
-                                      << " legacy clusters" << ' ' << fc << ',' << lc;
+                                      << " legacy clusters" << ' ' << fc << ',' << lc << "\n";
     if (nhits > maxHitsInModule)
       edm::LogWarning("SiPixelRecHitFromCUDA") << fmt::sprintf(
           "Too many clusters %d in module %d. Only the first %d hits will be converted", nhits, gind, maxHitsInModule);
@@ -185,4 +193,8 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
   iEvent.emplace(rechitsPutToken_, std::move(output));
 }
 
-DEFINE_FWK_MODULE(SiPixelRecHitFromCUDA);
+using SiPixelRecHitFromCUDAPhase1 = SiPixelRecHitFromCUDAT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAPhase1);
+
+using SiPixelRecHitFromCUDAPhase2 = SiPixelRecHitFromCUDAT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAPhase2);

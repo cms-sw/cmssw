@@ -7,6 +7,8 @@
 <use name="CondFormats/External"/>
 <use name="DataFormats/L1CaloTrigger"/>
 <use name="FWCore/MessageLogger"/>
+<use name="xerces-c"/>
+<use name="utm"/>
 <export>
   <lib name="1"/>
 </export>

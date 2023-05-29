@@ -47,9 +47,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
-#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
@@ -78,6 +76,8 @@ public:
   explicit TrackerGeometryIntoNtuples(const edm::ParameterSet&);
   ~TrackerGeometryIntoNtuples() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
@@ -87,7 +87,6 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
-  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<Alignments, TrackerAlignmentRcd> aliToken_;
   const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> aliErrorToken_;
   const edm::ESGetToken<AlignmentSurfaceDeformations, TrackerSurfaceDeformationRcd> surfDefToken_;
@@ -135,7 +134,6 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
     : topoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
-      ptitpToken_(esConsumes()),
       aliToken_(esConsumes()),
       aliErrorToken_(esConsumes()),
       surfDefToken_(esConsumes()),
@@ -174,6 +172,15 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 
 TrackerGeometryIntoNtuples::~TrackerGeometryIntoNtuples() { delete theCurrentTracker; }
 
+void TrackerGeometryIntoNtuples::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment(
+      "Validates alignment payloads by comparing the relative position and orientations of tracker modules");
+  desc.addUntracked<std::string>("outputFile", {});
+  desc.addUntracked<std::string>("outputTreename", {});
+  descriptions.addWithDefaultLabel(desc);
+}
+
 //
 // member functions
 //
@@ -188,11 +195,10 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
   //accessing the initial geometry
   const GeometricDet* theGeometricDet = &iSetup.getData(geomDetToken_);
   const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
-  const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
 
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
   //currernt tracker
-  TrackerGeometry* theCurTracker = trackerBuilder.build(theGeometricDet, ptitp, *ptp, tTopo);
+  TrackerGeometry* theCurTracker = trackerBuilder.build(theGeometricDet, *ptp, tTopo);
 
   //build the tracker
   const Alignments* alignments = &iSetup.getData(aliToken_);
@@ -259,14 +265,12 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 
   // Get GeomDetUnits for the current tracker
   auto const& detUnits = theCurTracker->detUnits();
-  int detUnit(0);
   //\\for (unsigned int iDet = 0; iDet < detUnits.size(); ++iDet) {
   for (auto iunit = detUnits.begin(); iunit != detUnits.end(); ++iunit) {
     DetId detid = (*iunit)->geographicalId();
     m_rawid = detid.rawId();
     m_subdetid = detid.subdetId();
 
-    ++detUnit;
     //\\GeomDetUnit* geomDetUnit = detUnits.at(iDet) ;
     auto geomDetUnit = *iunit;
 

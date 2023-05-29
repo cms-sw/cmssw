@@ -175,7 +175,7 @@ class CondRegressionTester(object):
         execName = 'test/%s/testReadWritePayloads' %self.arch
         executable = '%s/%s' %(os.environ['LOCALRT'],execName)
         if not os.path.exists(executable):
-            print('Executable %s not found in local release.')
+            print('Executable %s not found in local release.' % executable)
             executable = None
             for rel_base_env in ['CMSSW_BASE', 'CMSSW_RELEASE_BASE', 'CMSSW_FULL_RELEASE_BASE' ]:
                 if os.getenv(rel_base_env) and os.path.exists(str(os.environ[rel_base_env])+'/%s' %execName):

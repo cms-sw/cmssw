@@ -5,7 +5,11 @@
  *
  *  Manages Histograms for CSCValidation
  *
- *  Andy Kubik - Northwestern University
+ *  original author:
+ *  Andy Kubik (Northwestern University)
+ *
+ *  contact
+ *  CSC DPG
  *
  */
 

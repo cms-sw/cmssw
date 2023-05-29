@@ -17,6 +17,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -29,16 +30,13 @@
 #include <stdexcept>
 #include <vector>
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
 ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig) {
   rootfile_ = iConfig.getParameter<std::string>("rootfile");
-  recHitLabel_ = iConfig.getParameter<edm::InputTag>("ebRecHitsLabel");
-  electronLabel_ = iConfig.getParameter<edm::InputTag>("electronLabel");
+  recHitToken_ = consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebRecHitsLabel"));
+  electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronLabel"));
   trackLabel_ = iConfig.getParameter<edm::InputTag>("trackLabel");
   calibAlgo_ = iConfig.getParameter<std::string>("CALIBRATION_ALGO");
-  std::cout << " The used Algorithm is  " << calibAlgo_ << std::endl;
+  edm::LogVerbatim("EcalCalib") << " The used Algorithm is  " << calibAlgo_;
   keventweight_ = iConfig.getParameter<int>("keventweight");
   ClusterSize_ = iConfig.getParameter<int>("Clustersize");
   ElePt_ = iConfig.getParameter<double>("ElePt");
@@ -50,7 +48,7 @@ ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig) {
   cut2_ = iConfig.getParameter<double>("cut2");
   cut3_ = iConfig.getParameter<double>("cut3");
   elecclass_ = iConfig.getParameter<int>("elecclass");
-  std::cout << " The electronclass is " << elecclass_ << std::endl;
+  edm::LogVerbatim("EcalCalib") << " The electronclass is " << elecclass_;
   numevent_ = iConfig.getParameter<int>("numevent");
   miscalibfile_ = iConfig.getParameter<std::string>("miscalibfile");
 
@@ -233,8 +231,8 @@ void ElectronCalibration::beginJob() {
     if (calibAlgo_ == "HH" || calibAlgo_ == "HHReg") {
       MyHH = new HouseholderDecomposition(calibClusterSize, etaMin, etaMax, phiMin, phiMax);
     } else {
-      std::cout << " Name of Algorithm is not recognize " << calibAlgo_ << " Should be either L3, HH or HHReg. Abort! "
-                << std::endl;
+      edm::LogError("EcalCalib") << " Name of Algorithm is not recognize " << calibAlgo_
+                                 << " Should be either L3, HH or HHReg. Abort! ";
     }
   }
   read_events = 0;
@@ -251,7 +249,7 @@ void ElectronCalibration::beginJob() {
     }
   }
 
-  std::cout << " Begin JOB " << std::endl;
+  edm::LogVerbatim("EcalCalib") << " Begin JOB ";
 }
 
 //========================================================================
@@ -269,13 +267,13 @@ void ElectronCalibration::endJob() {
       if (calibAlgo_ == "HHReg") {
         solution = MyHH->runRegional(EventMatrix, MaxCCeta, MaxCCphi, EnergyVector, 2);
       } else {
-        std::cout << " Calibration not run due to problem in Algo Choice..." << std::endl;
+        edm::LogError("EcalCalib") << " Calibration not run due to problem in Algo Choice...";
         return;
       }
     }
   }
   for (int ii = 0; ii < (int)solution.size(); ii++) {
-    std::cout << "solution[" << ii << "] = " << solution[ii] << std::endl;
+    edm::LogVerbatim("EcalCalib") << "solution[" << ii << "] = " << solution[ii];
     calibs->Fill(solution[ii]);
   }
 
@@ -295,7 +293,6 @@ void ElectronCalibration::endJob() {
   while (fileStatus != EOF) {
     fileStatus = fscanf(MisCalib, "%d %d %f\n", &eta, &phi, &coeff);
     if (eta != -1 && phi != -1 && coeff != -1) {
-      //      std::cout<<" We have read correctly the coefficient " << coeff << " corresponding to eta "<<eta<<" and  phi "<<phi<<std::endl;
       OldCoeff.insert(std::make_pair(EBDetId(eta, phi, EBDetId::ETAPHIMODE), coeff));
     }
   }
@@ -352,7 +349,7 @@ void ElectronCalibration::endJob() {
       if (calibAlgo_ == "HHReg") {
         solutionNoCuts = MyHH->runRegional(EventMatrixNoCuts, MaxCCetaNoCuts, MaxCCphiNoCuts, EnergyVectorNoCuts, 2);
       } else {
-        std::cout << " Calibration not run due to problem in AlgoChoice..." << std::endl;
+        edm::LogError("EcalCalib") << " Calibration not run due to problem in AlgoChoice...";
         return;
       }
     }
@@ -397,9 +394,8 @@ void ElectronCalibration::endJob() {
 
   ////////////////////////       FINAL STATISTICS           ////////////////////
 
-  std::cout << " " << std::endl;
-  std::cout << "************* STATISTICS **************" << std::endl;
-  std::cout << " Events Studied " << read_events << std::endl;
+  edm::LogVerbatim("EcalCalib") << "\n************* STATISTICS **************";
+  edm::LogVerbatim("EcalCalib") << " Events Studied " << read_events;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -414,7 +410,6 @@ EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection>& phits) 
 
   EcalRecHitCollection ecrh = *phits;
   EcalRecHitCollection::iterator it;
-  int count = 0;
   EBDetId save;
   float en_save = 0;
   for (it = ecrh.begin(); it != ecrh.end(); it++) {
@@ -423,7 +418,6 @@ EBDetId ElectronCalibration::findMaxHit(edm::Handle<EBRecHitCollection>& phits) 
       en_save = it->energy();
       save = p;
     }
-    count++;
   }
   return save;
 }
@@ -442,7 +436,7 @@ EBDetId ElectronCalibration::findMaxHit2(const std::vector<DetId>& v1, const EBR
     itrechit = hits->find(*idsIt);
 
     if (itrechit == hits->end()) {
-      std::cout << "ElectronCalibration::findMaxHit2: rechit not found! " << std::endl;
+      edm::LogVerbatim("EcalCalib") << "ElectronCalibration::findMaxHit2: rechit not found! ";
       continue;
     }
     if (itrechit->energy() > currEnergy) {
@@ -460,26 +454,23 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
 
   // Get EBRecHits
-  Handle<EBRecHitCollection> phits;
-  iEvent.getByLabel(recHitLabel_, phits);
+  const Handle<EBRecHitCollection>& phits = iEvent.getHandle(recHitToken_);
   if (!phits.isValid()) {
-    std::cerr << "Error! can't get the product EBRecHitCollection: " << std::endl;
+    edm::LogError("EcalCalib") << "Error! can't get the product EBRecHitCollection: ";
   }
 
   const EBRecHitCollection* hits = phits.product();  // get a ptr to the product
 
   // Get pixelElectrons
-  Handle<reco::GsfElectronCollection> pElectrons;
-
-  iEvent.getByLabel(electronLabel_, pElectrons);
+  const Handle<reco::GsfElectronCollection>& pElectrons = iEvent.getHandle(electronToken_);
   if (!pElectrons.isValid()) {
-    std::cerr << "Error! can't get the product ElectronCollection: " << std::endl;
+    edm::LogError("EcalCalib") << "Error! can't get the product ElectronCollection: ";
   }
 
   const reco::GsfElectronCollection* electronCollection = pElectrons.product();
   read_events++;
   if (read_events % 1000 == 0)
-    std::cout << "read_events = " << read_events << std::endl;
+    edm::LogVerbatim("EcalCalib") << "read_events = " << read_events << std::endl;
 
   if (!hits)
     return;
@@ -518,12 +509,10 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
     return;
   const reco::SuperCluster& sc = *(highPtElectron.superCluster());
   if (fabs(sc.eta()) > (maxeta_ + 3) * 0.0175) {
-    std::cout << "++++ Problem with electron, electron eta is " << highPtElectron.eta() << " while SC is " << sc.eta()
-              << std::endl;
+    edm::LogVerbatim("EcalCalib") << "++++ Problem with electron, electron eta is " << highPtElectron.eta()
+                                  << " while SC is " << sc.eta() << std::endl;
     return;
   }
-  //      std::cout << "track eta = " << highPtElectron.eta() << std::endl;
-  //      std::cout << "track phi = " << highPtElectron.phi() << std::endl;
 
   std::vector<DetId> v1;
   //Loop to fill the vector of DetIds
@@ -533,13 +522,13 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
     v1.push_back(idsIt->first);
   }
 
-  //getHitsByDetId(); //Change function name
+  //Change function name
   EBDetId maxHitId;
 
   maxHitId = findMaxHit2(v1, hits);
 
   if (maxHitId.null()) {
-    std::cout << " Null " << std::endl;
+    edm::LogVerbatim("EcalCalib") << " Null " << std::endl;
     return;
   }
 
@@ -578,7 +567,7 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       continue;
     itrechit = hits->find(Xtals5x5[icry]);
     if (itrechit == hits->end()) {
-      std::cout << "DetId not is e25" << std::endl;
+      edm::LogVerbatim("EcalCalib") << "DetId not is e25";
       continue;
     }
 
@@ -594,7 +583,7 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
   if ((int)energy.size() != ClusterSize_ * ClusterSize_)
     return;
-  //Once we have the matrix 5x5, we have to correct for gaps/cracks/umbrella and maincontainement
+  // Once we have the matrix 5x5, we have to correct for gaps/cracks/umbrella and maincontainement
 
   GeneralMap->Fill(maxCC_Eta, maxCC_Phi);
 

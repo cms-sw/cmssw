@@ -526,8 +526,9 @@ class TH2PolyOfflineMaps:
         c1.Print(self.outputDirName + mv + ".png")
       
   def __del__(self):
-    if self.inputFile.IsOpen():
-      self.inputFile.Close()
+    if self.inputFile :
+      if self.inputFile.IsOpen():
+        self.inputFile.Close()
       
 #--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--
 for i in range(1, len(sys.argv), 1):

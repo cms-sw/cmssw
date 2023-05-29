@@ -3,8 +3,8 @@
 /** \class BPHDecayToResFlyingBuilder
  *
  *  Description: 
- *     Class to build a particle decaying to a resonances and a flying particle,
- *     both decaying to an opposite charged particles pair
+ *     Class to build a particle decaying to a particle, decaying itself
+ *     in cascade, and an additional flying particle, for generic particle types
  *
  *  \author Paolo Ronchese INFN Padova
  *
@@ -13,42 +13,54 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToResFlyingBuilderBase.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayConstrainedBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToFlyingCascadeBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecaySpecificBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHKinFitChi2Select.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-
-#include "FWCore/Framework/interface/Event.h"
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
-
+#include <iostream>
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHDecayToResFlyingBuilder : public BPHDecayConstrainedBuilder {
+template <class ProdType, class ResType, class FlyingType>
+class BPHDecayToResFlyingBuilder : public BPHDecayToResFlyingBuilderBase,
+                                   public BPHDecayConstrainedBuilder<ProdType, ResType>,
+                                   public BPHDecayToFlyingCascadeBuilder<ProdType, FlyingType>,
+                                   public BPHDecaySpecificBuilder<ProdType> {
 public:
+  using typename BPHDecayGenericBuilder<ProdType>::prod_ptr;
+  using typename BPHDecayConstrainedBuilder<ProdType, ResType>::res_ptr;
+  using typename BPHDecayToFlyingCascadeBuilder<ProdType, FlyingType>::flying_ptr;
+
   /** Constructor
    */
-  BPHDecayToResFlyingBuilder(const edm::EventSetup& es,
+  BPHDecayToResFlyingBuilder(const BPHEventSetupWrapper& es,
                              const std::string& resName,
                              double resMass,
                              double resWidth,
-                             const std::vector<BPHPlusMinusConstCandPtr>& resCollection,
+                             const std::vector<res_ptr>& resCollection,
                              const std::string& flyName,
                              double flyMass,
                              double flyMSigma,
-                             const std::vector<BPHPlusMinusConstCandPtr>& flyCollection);
+                             const std::vector<flying_ptr>& flyCollection)
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayConstrainedBuilderBase(resName, resMass, resWidth),
+        BPHDecayToFlyingCascadeBuilderBase(flyName, flyMass, flyMSigma),
+        BPHDecayConstrainedBuilder<ProdType, ResType>(resCollection),
+        BPHDecayToFlyingCascadeBuilder<ProdType, FlyingType>(flyCollection) {}
 
   // deleted copy constructor and assignment operator
   BPHDecayToResFlyingBuilder(const BPHDecayToResFlyingBuilder& x) = delete;
@@ -56,39 +68,18 @@ public:
 
   /** Destructor
    */
-  ~BPHDecayToResFlyingBuilder() override;
+  ~BPHDecayToResFlyingBuilder() override = default;
 
-  /** Operations
-   */
-  /// build candidates
-  std::vector<BPHRecoConstCandPtr> build();
+protected:
+  BPHDecayToResFlyingBuilder(const std::vector<res_ptr>& resCollection, const std::vector<flying_ptr>& flyCollection)
+      : BPHDecayConstrainedBuilder<ProdType, ResType>(resCollection),
+        BPHDecayToFlyingCascadeBuilder<ProdType, FlyingType>(flyCollection) {}
 
-  /// get original daughters map
-  const std::map<const BPHRecoCandidate*, const BPHRecoCandidate*>& daughMap() const { return dMap; }
-
-  /// set cuts
-  void setFlyingMassMin(double m);
-  void setFlyingMassMax(double m);
-  void setFlyingMassRange(double mMin, double mMax);
-  void setKinFitProbMin(double p);
-
-  /// get current cuts
-  double getFlyingMassMin() const { return flySel->getMassMin(); }
-  double getFlyingMassMax() const { return flySel->getMassMax(); }
-  double getKinFitProbMin() const { return kfChi2Sel->getProbMin(); }
-
-private:
-  std::string fName;
-  double fMass;
-  double fMSigma;
-
-  const std::vector<BPHPlusMinusConstCandPtr>* fCollection;
-
-  BPHMassFitSelect* flySel;
-  BPHKinFitChi2Select* kfChi2Sel;
-
-  std::map<const BPHRecoCandidate*, const BPHRecoCandidate*> dMap;
-  std::vector<BPHRecoConstCandPtr> recList;
+  void fillRecList() override {
+    BPHDecaySpecificBuilder<ProdType>::fillRecList();
+    this->fitAndFilter(this->recList);
+    return;
+  }
 };
 
 #endif

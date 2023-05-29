@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,15 +62,15 @@
 // class decleration
 //
 
-class ElectronTestAnalyzer : public edm::EDAnalyzer {
+class ElectronTestAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ElectronTestAnalyzer(const edm::ParameterSet&);
-  ~ElectronTestAnalyzer();
+  ~ElectronTestAnalyzer() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   virtual void myBindVariables();
   virtual void myVar(const reco::GsfElectron& ele,
                      const reco::Vertex& vertex,
@@ -92,6 +92,8 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEBRecHitCollectionToken_;
   edm::EDGetTokenT<EcalRecHitCollection> reducedEERecHitCollectionToken_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken_;
+
   const EcalClusterLazyTools::ESGetTokens ecalClusterESGetTokens_;
 
   EGammaMvaEleEstimator* myMVATrigV0;
@@ -181,7 +183,10 @@ ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig)
       muonToken_(consumes<reco::MuonCollection>(edm::InputTag("muons"))),
       reducedEBRecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"))),
       reducedEERecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"))),
+      builderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       ecalClusterESGetTokens_{consumesCollector()} {
+  usesResource(TFileService::kSharedResource);
+
   Bool_t manualCat = true;
 
   ev = 0;
@@ -299,9 +304,7 @@ void ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   EcalClusterLazyTools lazyTools(
       iEvent, ecalClusterESGetTokens_.get(iSetup), reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
+  TransientTrackBuilder thebuilder = iSetup.getData(builderToken_);
 
   bool debug = true;
   bool debugMVAclass = false;
@@ -693,9 +696,7 @@ void ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::Ev
   EcalClusterLazyTools lazyTools(
       iEvent, ecalClusterESGetTokens_.get(iSetup), reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
+  TransientTrackBuilder thebuilder = iSetup.getData(builderToken_);
 
   for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin(); iE != inElectrons.end(); ++iE) {
     reco::GsfElectron ele = *iE;

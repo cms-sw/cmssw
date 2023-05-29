@@ -44,8 +44,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuon.h"
-#include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
@@ -88,13 +87,17 @@ namespace trigger {
   typedef l1t::EtSumVectorRef VRl1tetsum;
 
   /* Phase-2 */
-  typedef l1t::TkMuonVectorRef VRl1ttkmuon;
+  // This is a std::vector<TrackerMuonRef>,
+  // and should be called TrackerMuonVectorRef upstream.
+  // The L1T group should be made aware of that
+  typedef l1t::TrackerMuonRefVector VRl1ttkmuon;
   typedef l1t::TkElectronVectorRef VRl1ttkele;
   typedef l1t::TkEmVectorRef VRl1ttkem;
   typedef l1t::PFJetVectorRef VRl1tpfjet;
   typedef l1t::HPSPFTauVectorRef VRl1thpspftau;
   typedef l1t::PFTauVectorRef VRl1tpftau;
   typedef l1t::PFTrackVectorRef VRl1tpftrack;
+  typedef l1t::EtSumVectorP2Ref VRl1tp2etsum;
 
   typedef std::vector<reco::PFJetRef> VRpfjet;
   typedef std::vector<reco::PFTauRef> VRpftau;
@@ -160,6 +163,8 @@ namespace trigger {
     VRl1thpspftau l1thpspftauRefs_;
     Vids l1tpftrackIds_;
     VRl1tpftrack l1tpftrackRefs_;
+    Vids l1tp2etsumIds_;
+    VRl1tp2etsum l1tp2etsumRefs_;
 
     Vids pfjetIds_;
     VRpfjet pfjetRefs_;
@@ -228,6 +233,8 @@ namespace trigger {
           l1thpspftauRefs_(),
           l1tpftrackIds_(),
           l1tpftrackRefs_(),
+          l1tp2etsumIds_(),
+          l1tp2etsumRefs_(),
 
           pfjetIds_(),
           pfjetRefs_(),
@@ -294,6 +301,8 @@ namespace trigger {
       std::swap(l1thpspftauRefs_, other.l1thpspftauRefs_);
       std::swap(l1tpftrackIds_, other.l1tpftrackIds_);
       std::swap(l1tpftrackRefs_, other.l1tpftrackRefs_);
+      std::swap(l1tp2etsumIds_, other.l1tp2etsumIds_);
+      std::swap(l1tp2etsumRefs_, other.l1tp2etsumRefs_);
 
       std::swap(pfjetIds_, other.pfjetIds_);
       std::swap(pfjetRefs_, other.pfjetRefs_);
@@ -383,7 +392,7 @@ namespace trigger {
     }
 
     /* Phase-2 */
-    void addObject(int id, const l1t::TkMuonRef& ref) {
+    void addObject(int id, const l1t::TrackerMuonRef& ref) {
       l1ttkmuonIds_.push_back(id);
       l1ttkmuonRefs_.push_back(ref);
     }
@@ -410,6 +419,10 @@ namespace trigger {
     void addObject(int id, const l1t::PFTrackRef& ref) {
       l1tpftrackIds_.push_back(id);
       l1tpftrackRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::EtSumP2Ref& ref) {
+      l1tp2etsumIds_.push_back(id);
+      l1tp2etsumRefs_.push_back(ref);
     }
     void addObject(int id, const reco::PFJetRef& ref) {
       pfjetIds_.push_back(id);
@@ -583,6 +596,12 @@ namespace trigger {
       l1tpftrackIds_.insert(l1tpftrackIds_.end(), ids.begin(), ids.end());
       l1tpftrackRefs_.insert(l1tpftrackRefs_.end(), refs.begin(), refs.end());
       return l1tpftrackIds_.size();
+    }
+    size_type addObjects(const Vids& ids, const VRl1tp2etsum& refs) {
+      assert(ids.size() == refs.size());
+      l1tp2etsumIds_.insert(l1tp2etsumIds_.end(), ids.begin(), ids.end());
+      l1tp2etsumRefs_.insert(l1tp2etsumRefs_.end(), refs.begin(), refs.end());
+      return l1tp2etsumIds_.size();
     }
 
     size_type addObjects(const Vids& ids, const VRpfjet& refs) {
@@ -1516,6 +1535,41 @@ namespace trigger {
       return;
     }
 
+    void getObjects(Vids& ids, VRl1tp2etsum& refs) const { getObjects(ids, refs, 0, l1tp2etsumIds_.size()); }
+    void getObjects(Vids& ids, VRl1tp2etsum& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tp2etsumIds_.size());
+      const size_type n(end - begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        ids[j] = l1tp2etsumIds_[i];
+        refs[j] = l1tp2etsumRefs_[i];
+        ++j;
+      }
+    }
+    void getObjects(int id, VRl1tp2etsum& refs) const { getObjects(id, refs, 0, l1tp2etsumIds_.size()); }
+    void getObjects(int id, VRl1tp2etsum& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tp2etsumIds_.size());
+      size_type n(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tp2etsumIds_[i]) {
+          ++n;
+        }
+      }
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tp2etsumIds_[i]) {
+          refs[j] = l1tp2etsumRefs_[i];
+          ++j;
+        }
+      }
+      return;
+    }
+
     void getObjects(Vids& ids, VRpfjet& refs) const { getObjects(ids, refs, 0, pfjetIds_.size()); }
     void getObjects(Vids& ids, VRpfjet& refs, size_type begin, size_type end) const {
       assert(begin <= end);
@@ -1731,6 +1785,10 @@ namespace trigger {
     size_type l1tpftrackSize() const { return l1tpftrackIds_.size(); }
     const Vids& l1tpftrackIds() const { return l1tpftrackIds_; }
     const VRl1tpftrack& l1tpftrackRefs() const { return l1tpftrackRefs_; }
+
+    size_type l1tp2etsumSize() const { return l1tp2etsumIds_.size(); }
+    const Vids& l1tp2etsumIds() const { return l1tp2etsumIds_; }
+    const VRl1tp2etsum& l1tp2etsumRefs() const { return l1tp2etsumRefs_; }
 
     size_type l1ttauSize() const { return l1ttauIds_.size(); }
     const Vids& l1ttauIds() const { return l1ttauIds_; }

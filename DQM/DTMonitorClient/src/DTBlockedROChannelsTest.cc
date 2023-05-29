@@ -384,8 +384,8 @@ DTBlockedROChannelsTest::DTLinkBinsMap::DTLinkBinsMap(DQMStore::IGetter& igetter
   int wheel = (ddu - 770) % 5 - 2;
 
   // get the pointer to the corresondig histo
-  urosHName = "DT/00-DataIntegrity/Wheel" + to_string(wheel) + "/ROS" + to_string(ros) + "/W" + to_string(wheel) +
-              "_ROS" + to_string(ros) + "_ROSError";
+  urosHName = "DT/00-DataIntegrity/Wheel" + to_string(wheel) + "/Sector" + to_string(ros) + "/W" + to_string(wheel) +
+              "_Sector" + to_string(ros) + "_ROSError";
   meuROS = igetter.get(urosHName);
 }
 

@@ -62,7 +62,6 @@
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 #include "DataFormats/METReco/interface/PFMETCollection.h"

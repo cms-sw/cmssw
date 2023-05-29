@@ -49,16 +49,14 @@ process.MessageLogger.files.mtdCommonDataDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D95_cff')
 
 process.testBTL = cms.EDAnalyzer("TestMTDIdealGeometry",
-                               ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
-                               theLayout = cms.untracked.uint32(4)
+                               ddTopNodeName = cms.untracked.string('BarrelTimingLayer')
                                )
 
 process.testETL = cms.EDAnalyzer("TestMTDIdealGeometry",
-                               ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
-                               theLayout = cms.untracked.uint32(4)
+                               ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
                                )
 
 process.Timing = cms.Service("Timing")

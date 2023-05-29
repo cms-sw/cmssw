@@ -227,7 +227,7 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
         if (!refitted0.empty())
           tkTrajectory = std::make_unique<Trajectory>(*(refitted0.begin()));
         else
-          edm::LogWarning(theCategory) << "     Failed to load tracker track trajectory";
+          LogDebug(theCategory) << "     Failed to load tracker track trajectory";
       } else
         tkTrajectory = it->releaseTrackerTrajectory();
       if (tkTrajectory)
@@ -263,7 +263,7 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
         if (!refitted0.empty()) {
           tkTrajectory = std::make_unique<Trajectory>(*(refitted0.begin()));
         } else
-          edm::LogWarning(theCategory) << "     Failed to load tracker track trajectory";
+          LogDebug(theCategory) << "     Failed to load tracker track trajectory";
       } else
         tkTrajectory = it->releaseTrackerTrajectory();
       std::unique_ptr<Trajectory> cpy;

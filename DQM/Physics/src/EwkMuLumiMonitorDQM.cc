@@ -235,11 +235,8 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
       bool prescaled = false;
       const unsigned int prescaleSize = hltConfigProvider_.prescaleSize();
       for (unsigned int ps = 0; ps < prescaleSize; ps++) {
-        const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trig);
-        if (prescaleValue != 1)
+        if (hltConfigProvider_.prescaleValue<double>(ps, trig) != 1)
           prescaled = true;
-        //	std::cout<< " prescaleValue[" << ps << "] =" << prescaleValue
-        //<<std::endl;
       }
       if (!prescaled) {
         // looking now for the lowest hlt path not prescaled, with name of the
@@ -318,7 +315,6 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
   }
   ev.getByToken(trigEvToken_, handleTriggerEvent);
   const trigger::TriggerObjectCollection& toc(handleTriggerEvent->getObjects());
-  size_t nMuHLT = 0;
   std::vector<reco::Particle> HLTMuMatched;
   for (size_t ia = 0; ia < handleTriggerEvent->sizeFilters(); ++ia) {
     std::string fullname = handleTriggerEvent->filterTag(ia).encode();
@@ -340,7 +336,6 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
           hlt_sel = true;
           nhlt++;
           HLTMuMatched.push_back(toc[*ki].particle());
-          nMuHLT++;
         }
       }
     }

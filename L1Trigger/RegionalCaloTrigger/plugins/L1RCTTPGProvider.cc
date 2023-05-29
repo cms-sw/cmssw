@@ -3,8 +3,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTTPGProvider.h"
 
 L1RCTTPGProvider::L1RCTTPGProvider(const edm::ParameterSet &iConfig)
-    : ecalTPG_(iConfig.getParameter<edm::InputTag>("ecalTPGs")),
-      hcalTPG_(iConfig.getParameter<edm::InputTag>("hcalTPGs")),
+    : ecalTPG_(consumes(iConfig.getParameter<edm::InputTag>("ecalTPGs"))),
+      hcalTPG_(consumes(iConfig.getParameter<edm::InputTag>("hcalTPGs"))),
       useHcalCosmicTiming(iConfig.getParameter<bool>("useHCALCosmicTiming")),
       useEcalCosmicTiming(iConfig.getParameter<bool>("useECALCosmicTiming")),
       preSamples(iConfig.getParameter<int>("preSamples")),
@@ -45,7 +45,7 @@ L1RCTTPGProvider::~L1RCTTPGProvider() {
 //
 
 // ------------ method called to produce the data  ------------
-void L1RCTTPGProvider::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void L1RCTTPGProvider::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
   // Declare handles
   Handle<EcalTrigPrimDigiCollection> ecal;
@@ -58,7 +58,7 @@ void L1RCTTPGProvider::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 
   unsigned nSamples = preSamples + postSamples + 1;
 
-  if (iEvent.getByLabel(ecalTPG_, ecal))
+  if ((ecal = iEvent.getHandle(ecalTPG_)))
     if (ecal.isValid()) {
       // loop through all ecal digis
       for (EcalTrigPrimDigiCollection::const_iterator ecal_it = ecal->begin(); ecal_it != ecal->end(); ecal_it++) {
@@ -152,7 +152,7 @@ void L1RCTTPGProvider::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       }
     }
 
-  if (iEvent.getByLabel(hcalTPG_, hcal))
+  if ((hcal = iEvent.getHandle(hcalTPG_)))
     if (hcal.isValid()) {
       // loop through all hcal digis
       for (HcalTrigPrimDigiCollection::const_iterator hcal_it = hcal->begin(); hcal_it != hcal->end(); hcal_it++) {
@@ -301,10 +301,3 @@ void L1RCTTPGProvider::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
     iEvent.put(std::move(hcalIn2), hcal_label);
   }
 }
-
-// ------------ method called once each job just before starting event loop
-// ------------
-
-// ------------ method called once each job just after ending the event loop
-// ------------
-void L1RCTTPGProvider::endJob() {}

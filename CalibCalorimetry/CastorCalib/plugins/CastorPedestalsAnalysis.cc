@@ -83,13 +83,17 @@ public:
 private:
   //Container for data, 1 per channel
   std::vector<NewPedBunch> Bunches;
+  const edm::EDGetTokenT<CastorDigiCollection> castorDigiCollectionToken_;
+  const edm::ESGetToken<CastorDbService, CastorDbRecord> tok_cond_;
+  const edm::ESGetToken<CastorElectronicsMap, CastorElectronicsMapRcd> tok_map_;
   //Flag for saving histos
-  bool hiSaveFlag;
-  bool dumpXML;
-  bool verboseflag;
+  const bool hiSaveFlag;
+  const bool dumpXML;
+  const bool verboseflag;
+  const int firstTS;
+  const int lastTS;
+  bool firsttime;
   int runnum;
-  int firstTS;
-  int lastTS;
   std::string ROOTfilename;
   std::string pedsADCfilename;
   std::string pedsfCfilename;
@@ -99,33 +103,26 @@ private:
   std::string XMLtag;
   std::string ZSfilename;
 
-  edm::ESGetToken<CastorDbService, CastorDbRecord> tok_cond_;
-  edm::ESGetToken<CastorElectronicsMap, CastorElectronicsMapRcd> tok_map_;
-
   TH1F* CASTORMeans;
   TH1F* CASTORWidths;
 
   // TH2F *dephist[4];
   TH2F* dephist;
-
-  bool firsttime;
-
-  edm::InputTag castorDigiCollectionTag;
 };
 
 CastorPedestalsAnalysis::CastorPedestalsAnalysis(const edm::ParameterSet& ps)
-    : castorDigiCollectionTag(ps.getParameter<edm::InputTag>("castorDigiCollectionTag")) {
+    : castorDigiCollectionToken_(
+          consumes<CastorDigiCollection>(ps.getParameter<edm::InputTag>("castorDigiCollectionTag"))),
+      tok_cond_(esConsumes<CastorDbService, CastorDbRecord>()),
+      tok_map_(esConsumes<CastorElectronicsMap, CastorElectronicsMapRcd>()),
+      hiSaveFlag(ps.getUntrackedParameter<bool>("hiSaveFlag", false)),
+      dumpXML(ps.getUntrackedParameter<bool>("dumpXML", false)),
+      verboseflag(ps.getUntrackedParameter<bool>("verbose", false)),
+      firstTS(ps.getUntrackedParameter<int>("firstTS", 0)),
+      lastTS(ps.getUntrackedParameter<int>("lastTS", 9)) {
   usesResource(TFileService::kSharedResource);
 
-  hiSaveFlag = ps.getUntrackedParameter<bool>("hiSaveFlag", false);
-  dumpXML = ps.getUntrackedParameter<bool>("dumpXML", false);
-  verboseflag = ps.getUntrackedParameter<bool>("verbose", false);
-  firstTS = ps.getUntrackedParameter<int>("firstTS", 0);
-  lastTS = ps.getUntrackedParameter<int>("lastTS", 9);
   firsttime = true;
-
-  tok_cond_ = esConsumes<CastorDbService, CastorDbRecord>();
-  tok_map_ = esConsumes<CastorElectronicsMap, CastorElectronicsMapRcd>();
 }
 
 CastorPedestalsAnalysis::~CastorPedestalsAnalysis() {
@@ -294,29 +291,9 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis() {
     //  CastorCondXML::dumpObject (outStream5, runnum, runnum, runnum, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem));
   }
 
-  /*
-  if (hiSaveFlag) {
-    theFile->Write();
-  } else {
-    theFile->cd();
-    theFile->cd("CASTOR");
-    CASTORMeans->Write();
-    CASTORWidths->Write();
-  }
-  theFile->cd();
-  dephist->Write();
-  */
   dephist->SetDrawOption("colz");
   dephist->GetXaxis()->SetTitle("module");
   dephist->GetYaxis()->SetTitle("sector");
-
-  //for (int n=0; n!= 4; n++)
-  //{
-  //dephist[n]->Write();
-  //dephist[n]->SetDrawOption("colz");
-  //dephist[n]->GetXaxis()->SetTitle("i#eta");
-  //dephist[n]->GetYaxis()->SetTitle("i#phi");
-  //}
 
   std::stringstream tempstringout;
   tempstringout << runnum;
@@ -364,8 +341,7 @@ CastorPedestalsAnalysis::~CastorPedestalsAnalysis() {
 
 // ------------ method called to for each event  ------------
 void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-  edm::Handle<CastorDigiCollection> castor;
-  e.getByLabel(castorDigiCollectionTag, castor);
+  const edm::Handle<CastorDigiCollection>& castor = e.getHandle(castorDigiCollectionToken_);
 
   auto conditions = &iSetup.getData(tok_cond_);
   const CastorQIEShape* shape = conditions->getCastorShape();
@@ -386,21 +362,10 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
 
     edm::Service<TFileService> fs;
     fs->mkdir("CASTOR");
-    /*
-    theFile = new TFile(ROOTfilename.c_str(), "RECREATE");
-    theFile->cd();
-    // Create sub-directories
-    theFile->mkdir("CASTOR");
-    theFile->cd();
-    */
     CASTORMeans = fs->make<TH1F>("All Ped Means CASTOR", "All Ped Means CASTOR", 100, 0, 9);
     CASTORWidths = fs->make<TH1F>("All Ped Widths CASTOR", "All Ped Widths CASTOR", 100, 0, 3);
 
     dephist = fs->make<TH2F>("Pedestals (ADC)", "All Castor", 14, 0., 14.5, 16, .5, 16.5);
-    // dephist[0] = fs->make<TH2F>("Pedestals (ADC)","Depth 1",89, -44, 44, 72, .5, 72.5);
-    // dephist[1] = fs->make<TH2F>("Pedestals (ADC)","Depth 2",89, -44, 44, 72, .5, 72.5);
-    // dephist[2] = fs->make<TH2F>("Pedestals (ADC)","Depth 3",89, -44, 44, 72, .5, 72.5);
-    // dephist[3] = fs->make<TH2F>("Pedestals (ADC)","Depth 4",89, -44, 44, 72, .5, 72.5);
 
     const CastorElectronicsMap* myRefEMap = &iSetup.getData(tok_map_);
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();

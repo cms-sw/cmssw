@@ -10,14 +10,20 @@ import CondCore.Utilities.conddblib as conddb
 ##############################################
 def execme(command, dryrun=False):
 ##############################################
-    '''Wrapper for executing commands.
-    '''
+    """This function executes `command` and returns it output.
+    Arguments:
+    - `command`: Shell command to be invoked by this function.
+    """
     if dryrun:
         print(command)
+        return None
     else:
-        print(" * Executing: %s ..." % (command))
-        os.system(command)
-        print(" * Executed!")
+        child = os.popen(command)
+        data = child.read()
+        err = child.close()
+        if err:
+            raise Exception('%s failed w/ exit code %d' % (command, err))
+        return data
 
 ##############################################
 def main():
@@ -72,9 +78,10 @@ def main():
         gtstring=autoCond.autoCond[key]
         print("Will use the resolved key %s" % gtstring)
 
-    command='cmsRun db_tree_dump.py outputRootFile=sistrip_db_tree_'+gtstring+'_'+str(options.inputRun)+'.root GlobalTag='+options.inputGT+' runNumber='+str(options.inputRun)+' runStartTime='+str(bestRunStartTime)
+    command='cmsRun $CMSSW_BASE/src/CondTools/SiStrip/test/db_tree_dump.py outputRootFile=sistrip_db_tree_'+gtstring+'_'+str(options.inputRun)+'.root GlobalTag='+options.inputGT+' runNumber='+str(options.inputRun)+' runStartTime='+str(bestRunStartTime)
     
-    execme(command)
+    data = execme(command)
+    print("\n output of execution: \n\n",data)
 
 if __name__ == "__main__":        
     main()

@@ -1,6 +1,4 @@
-#! /usr/bin/env python3
-
-from __future__ import print_function
+#!/usr/bin/env python3
 import sys
 import types
 import re
@@ -17,7 +15,12 @@ if len(sys.argv) != 2:
   sys.exit(1)
 
 # whitelist paths exempt from validation
-whitelist = ('HLTriggerFirstPath', 'HLTriggerFinalPath')
+whitelist = [
+  'HLTriggerFirstPath',
+  'HLTriggerFinalPath',
+  'Status_OnCPU',
+  'Status_OnGPU',
+]
 
 # load the menu and get the "process" object
 menu = types.ModuleType('menu')
@@ -28,7 +31,7 @@ process = menu.process
 # get all paths
 paths = process.paths_()
 
-# keep track of precaler names, and of duplicates
+# keep track of prescaler names, and of duplicates
 prescalerNames = set()
 duplicateNames = set()
 

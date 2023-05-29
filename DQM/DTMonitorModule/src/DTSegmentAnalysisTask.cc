@@ -37,7 +37,8 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset)
   // switch for detailed analysis
   detailedAnalysis = pset.getUntrackedParameter<bool>("detailedAnalysis", false);
   // the name of the 4D rec hits collection
-  recHits4DToken_ = consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
+  recHits4DToken_ =
+      consumes<DTRecSegment4DCollection>(edm::InputTag(pset.getUntrackedParameter<string>("recHits4DLabel")));
   // Get the map of noisy channels
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels", false);
   phiSegmCut = pset.getUntrackedParameter<double>("phiSegmCut", 30.);

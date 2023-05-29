@@ -156,7 +156,7 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
                                                                  unsigned int gid,
                                                                  GEMDetId detId) const {
   std::vector<std::string>::const_iterator strStart = rgeo.strStart(gid);
-  std::string name = *(strStart);
+  const std::string& name = *(strStart);
   LogDebug("GEMGeometryBuilderFromCondDB") << "buildEtaPartition " << name << " " << detId;
 
   std::vector<double>::const_iterator shapeStart = rgeo.shapeStart(gid);

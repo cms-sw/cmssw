@@ -40,7 +40,7 @@
 class HGCalValidHexTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalValidHexTester(const edm::ParameterSet&);
-  ~HGCalValidHexTester() override {}
+  ~HGCalValidHexTester() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
@@ -96,7 +96,8 @@ void HGCalValidHexTester::analyze(const edm::Event& iEvent, const edm::EventSetu
     for (int u = 0; u < 2 * nCells; ++u) {
       for (int v = 0; v < 2 * nCells; ++v) {
         if (((v - u) < nCells) && (u - v) <= nCells) {
-          std::string state = hgdc.isValidHex8(layers_[k], moduleU_[k], moduleV_[k], u, v) ? "within" : "outside of";
+          std::string state =
+              hgdc.isValidHex8(layers_[k], moduleU_[k], moduleV_[k], u, v, false) ? "within" : "outside of";
           edm::LogVerbatim("HGCalGeom") << "Cell[" << k << "," << ncell << "] "
                                         << HGCSiliconDetId(
                                                det, 1, types_[k], layers_[k], moduleU_[k], moduleV_[k], u, v)

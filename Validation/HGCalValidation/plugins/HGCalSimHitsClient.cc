@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -31,7 +30,7 @@ private:
 
 public:
   explicit HGCalSimHitsClient(const edm::ParameterSet &);
-  ~HGCalSimHitsClient() override {}
+  ~HGCalSimHitsClient() override = default;
 
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;

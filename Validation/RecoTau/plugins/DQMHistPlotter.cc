@@ -19,143 +19,144 @@
 
 #include <iostream>
 
-//defaults for cfgEntryProcess
-const std::string type_smMC = "smMC";
-const std::string type_bsmMC = "bsmMC";
-const std::string type_smSumMC = "smSumMC";
-const std::string type_Data = "Data";
+namespace {
+  //defaults for cfgEntryProcess
+  const std::string type_smMC = "smMC";
+  const std::string type_bsmMC = "bsmMC";
+  const std::string type_smSumMC = "smSumMC";
+  const std::string type_Data = "Data";
 
-//defaults for cfgEntryAxisX
-const double defaultMinX = -1.;
-const double defaultMaxX = -1.;
-const double defaultXaxisTitleOffset = 1.0;
-const double defaultXaxisTitleSize = 0.05;
+  //defaults for cfgEntryAxisX
+  const double defaultMinX = -1.;
+  const double defaultMaxX = -1.;
+  const double defaultXaxisTitleOffset = 1.0;
+  const double defaultXaxisTitleSize = 0.05;
 
-//defaults for cfgEntryAxisY
-const double defaultMinY_linear = 0.;
-const double defaultMinY_log = 1.e-2;
-const double defaultMaxY_linear = -1.;
-const double defaultMaxY_log = -1.;
-const std::string yScale_linear = "linear";
-const std::string yScale_log = "log";
-const std::string defaultYscale = yScale_linear;
-const double defaultYaxisTitleOffset = 1.0;
-const double defaultYaxisTitleSize = 0.05;
-const double defaultYaxisMaximumScaleFactor_linear = 1.6;
-const double defaultYaxisMaximumScaleFactor_log = 5.e+2;
+  //defaults for cfgEntryAxisY
+  const double defaultMinY_linear = 0.;
+  const double defaultMinY_log = 1.e-2;
+  const double defaultMaxY_linear = -1.;
+  const double defaultMaxY_log = -1.;
+  const std::string yScale_linear = "linear";
+  const std::string yScale_log = "log";
+  const std::string defaultYscale = yScale_linear;
+  const double defaultYaxisTitleOffset = 1.0;
+  const double defaultYaxisTitleSize = 0.05;
+  const double defaultYaxisMaximumScaleFactor_linear = 1.6;
+  const double defaultYaxisMaximumScaleFactor_log = 5.e+2;
 
-// defaults for cfgEntryLegend
-const double defaultLegendPosX = 0.50;
-const double defaultLegendPosY = 0.55;
-const double defaultLegendSizeX = 0.39;
-const double defaultLegendSizeY = 0.34;
-const std::string defaultLegendHeader = "";
-const std::string defaultLegendOptions = "brNDC";
-const int defaultLegendBorderSize = 0;
-const int defaultLegendFillColor = 0;
+  // defaults for cfgEntryLegend
+  const double defaultLegendPosX = 0.50;
+  const double defaultLegendPosY = 0.55;
+  const double defaultLegendSizeX = 0.39;
+  const double defaultLegendSizeY = 0.34;
+  const std::string defaultLegendHeader = "";
+  const std::string defaultLegendOptions = "brNDC";
+  const int defaultLegendBorderSize = 0;
+  const int defaultLegendFillColor = 0;
 
-// defaults for cfgEntryLabel
-const double defaultLabelPosX = 0.66;
-const double defaultLabelPosY = 0.82;
-const double defaultLabelSizeX = 0.26;
-const double defaultLabelSizeY = 0.10;
-const std::string defaultLabelOptions = "brNDC";
-const int defaultLabelBorderSize = 0;
-const int defaultLabelFillColor = 0;
-const int defaultLabelTextColor = 1;
-const double defaultLabelTextSize = 0.05;
-const int defaultLabelTextAlign = 22;  // horizontally and vertically centered, see documentation of TAttText
-const double defaultLabelTextAngle = 0.;
+  // defaults for cfgEntryLabel
+  const double defaultLabelPosX = 0.66;
+  const double defaultLabelPosY = 0.82;
+  const double defaultLabelSizeX = 0.26;
+  const double defaultLabelSizeY = 0.10;
+  const std::string defaultLabelOptions = "brNDC";
+  const int defaultLabelBorderSize = 0;
+  const int defaultLabelFillColor = 0;
+  const int defaultLabelTextColor = 1;
+  const double defaultLabelTextSize = 0.05;
+  const int defaultLabelTextAlign = 22;  // horizontally and vertically centered, see documentation of TAttText
+  const double defaultLabelTextAngle = 0.;
 
-// defaults for cfgEntryDrawOption
-const int defaultMarkerColor = 1;
-const int defaultMarkerSize = 1;
-const int defaultMarkerStyle = 2;
-const int defaultLineColor = 0;
-const int defaultLineStyle = 1;
-const int defaultLineWidth = 2;
-const int defaultFillColor = 0;
-const int defaultFillStyle = 1001;
-const std::string defaultDrawOption = "";
-const std::string defaultDrawOptionLegend = "lpf";
+  // defaults for cfgEntryDrawOption
+  const int defaultMarkerColor = 1;
+  const int defaultMarkerSize = 1;
+  const int defaultMarkerStyle = 2;
+  const int defaultLineColor = 0;
+  const int defaultLineStyle = 1;
+  const int defaultLineWidth = 2;
+  const int defaultFillColor = 0;
+  const int defaultFillStyle = 1001;
+  const std::string defaultDrawOption = "";
+  const std::string defaultDrawOptionLegend = "lpf";
 
-const std::string drawOption_eBand = "eBand";
+  const std::string drawOption_eBand = "eBand";
 
-// global defaults
-const int defaultCanvasSizeX = 800;
-const int defaultCanvasSizeY = 600;
+  // global defaults
+  const int defaultCanvasSizeX = 800;
+  const int defaultCanvasSizeY = 600;
 
-const std::string drawOptionSeparator = "#.#";
+  const std::string drawOptionSeparator = "#.#";
 
-const int verbosity = 0;
+  const int verbosity = 0;
 
-template <class T>
-void checkCfgDef(const std::string& cfgEntryName,
-                 std::map<std::string, T>& def,
-                 int& errorFlag,
-                 const std::string& defType,
-                 const std::string& drawJobName) {
-  if (def.find(cfgEntryName) == def.end()) {
-    edm::LogError("checkCfgDef") << " " << defType << " = " << cfgEntryName
-                                 << " undefined, needed by drawJob = " << drawJobName << " !!";
-    errorFlag = 1;
+  template <class T>
+  void checkCfgDef(const std::string& cfgEntryName,
+                   std::map<std::string, T>& def,
+                   int& errorFlag,
+                   const std::string& defType,
+                   const std::string& drawJobName) {
+    if (def.find(cfgEntryName) == def.end()) {
+      edm::LogError("checkCfgDef") << " " << defType << " = " << cfgEntryName
+                                   << " undefined, needed by drawJob = " << drawJobName << " !!";
+      errorFlag = 1;
+    }
   }
-}
 
-template <class T>
-void checkCfgDefs(const std::vector<std::string>& cfgEntryNames,
-                  std::map<std::string, T>& def,
-                  int& errorFlag,
-                  const std::string& defType,
-                  const std::string& drawJobName) {
-  for (std::vector<std::string>::const_iterator cfgEntryName = cfgEntryNames.begin();
-       cfgEntryName != cfgEntryNames.end();
-       ++cfgEntryName) {
-    checkCfgDef(*cfgEntryName, def, errorFlag, defType, drawJobName);
-  }
-}
-
-template <class T>
-const T* findCfgDef(const std::string& cfgEntryName,
+  template <class T>
+  void checkCfgDefs(const std::vector<std::string>& cfgEntryNames,
                     std::map<std::string, T>& def,
+                    int& errorFlag,
                     const std::string& defType,
                     const std::string& drawJobName) {
-  typename std::map<std::string, T>::const_iterator it = def.find(cfgEntryName);
-  if (it != def.end()) {
-    return &(it->second);
-  } else {
-    edm::LogError("findCfgDef") << " " << defType << " = " << cfgEntryName
-                                << " undefined, needed by drawJob = " << drawJobName << " !!";
-    return nullptr;
+    for (std::vector<std::string>::const_iterator cfgEntryName = cfgEntryNames.begin();
+         cfgEntryName != cfgEntryNames.end();
+         ++cfgEntryName) {
+      checkCfgDef(*cfgEntryName, def, errorFlag, defType, drawJobName);
+    }
   }
-}
 
-//
-//-----------------------------------------------------------------------------------------------------------------------
-//
-
-typedef std::pair<TH1*, std::string> histoDrawEntry;
-
-void drawHistograms(const std::list<histoDrawEntry>& histogramList, bool& isFirstHistogram) {
-  for (std::list<histoDrawEntry>::const_iterator it = histogramList.begin(); it != histogramList.end(); ++it) {
-    std::string drawOption = (isFirstHistogram) ? it->second : std::string(it->second).append("same");
-    it->first->Draw(drawOption.data());
-    isFirstHistogram = false;
+  template <class T>
+  const T* findCfgDef(const std::string& cfgEntryName,
+                      std::map<std::string, T>& def,
+                      const std::string& defType,
+                      const std::string& drawJobName) {
+    typename std::map<std::string, T>::const_iterator it = def.find(cfgEntryName);
+    if (it != def.end()) {
+      return &(it->second);
+    } else {
+      edm::LogError("findCfgDef") << " " << defType << " = " << cfgEntryName
+                                  << " undefined, needed by drawJob = " << drawJobName << " !!";
+      return nullptr;
+    }
   }
-}
 
-//
-//-----------------------------------------------------------------------------------------------------------------------
-//
+  //
+  //-----------------------------------------------------------------------------------------------------------------------
+  //
 
-bool find_vstring(const std::vector<std::string>& vs, const std::string& s) {
-  for (std::vector<std::string>::const_iterator it = vs.begin(); it != vs.end(); ++it) {
-    if ((*it) == s)
-      return true;
+  typedef std::pair<TH1*, std::string> histoDrawEntry;
+
+  void drawHistograms(const std::list<histoDrawEntry>& histogramList, bool& isFirstHistogram) {
+    for (std::list<histoDrawEntry>::const_iterator it = histogramList.begin(); it != histogramList.end(); ++it) {
+      std::string drawOption = (isFirstHistogram) ? it->second : std::string(it->second).append("same");
+      it->first->Draw(drawOption.data());
+      isFirstHistogram = false;
+    }
   }
-  return false;
-}
 
+  //
+  //-----------------------------------------------------------------------------------------------------------------------
+  //
+
+  bool find_vstring(const std::vector<std::string>& vs, const std::string& s) {
+    for (std::vector<std::string>::const_iterator it = vs.begin(); it != vs.end(); ++it) {
+      if ((*it) == s)
+        return true;
+    }
+    return false;
+  }
+}  // namespace
 //
 //-----------------------------------------------------------------------------------------------------------------------
 //
@@ -554,6 +555,7 @@ void TauDQMHistPlotter::cfgEntryDrawJob::print() const {
 //
 
 TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg) {
+  usesResource("DQMStore");
   if (verbosity)
     std::cout << "<TauDQMHistPlotter::TauDQMHistPlotter>:" << std::endl;
 

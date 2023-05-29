@@ -44,10 +44,11 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps)
   doTimeBoxHistos = ps.getUntrackedParameter<bool>("doTbHistos", false);
 
   // The label to retrieve the digis
-  dtDigiToken_ = consumes<DTDigiCollection>(ps.getParameter<InputTag>("dtDigiLabel"));
+  dtDigiToken_ = consumes<DTDigiCollection>(ps.getUntrackedParameter<InputTag>("dtDigiLabel"));
 
   // the name of the 4D rec hits collection
-  recHits4DToken_ = consumes<DTRecSegment4DCollection>(edm::InputTag(ps.getParameter<string>("recHits4DLabel")));
+  recHits4DToken_ =
+      consumes<DTRecSegment4DCollection>(edm::InputTag(ps.getUntrackedParameter<string>("recHits4DLabel")));
 
   // switch for segment veto
   doSegmentVeto = ps.getUntrackedParameter<bool>("doSegmentVeto", false);

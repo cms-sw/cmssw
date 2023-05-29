@@ -16,6 +16,11 @@
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DQMServices/Core"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="RecoLocalTracker/Records"/>
+<use name="TrackingTools/TrackFitters"/>
+<use name="CalibTracker/SiPixelESProducers"/>
 <library file="*.cc" name="DQMOfflineCalibTrackerplugins">
   <flags EDM_PLUGIN="1"/>
 </library>

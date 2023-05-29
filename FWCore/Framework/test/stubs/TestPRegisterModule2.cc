@@ -1,32 +1,47 @@
-/**
-   \file
-   Test Module for testProductRegistry
+// -*- C++ -*-
+//
+// Package:     FWCore/Framework
+// Class  :     TestPRegisterModule2
+//
+/**\class TestPRegisterModule2
 
-   \author Stefano ARGIRO
+ Description:
+
+ Usage:
+
+   \author Stefano ARGIRO, Chris Jones
    \date 19 May 2005
 */
 
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/Framework/test/stubs/TestPRegisterModule2.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "cppunit/extensions/HelperMacros.h"
-#include <cassert>
-#include <memory>
-#include <string>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
-using namespace edm;
+#include "cppunit/extensions/HelperMacros.h"
+
+#include <memory>
+#include <vector>
+
+class TestPRegisterModule2 : public edm::global::EDProducer<> {
+public:
+  explicit TestPRegisterModule2(edm::ParameterSet const&);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+};
 
 TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&) {
   produces<edmtest::DoubleProduct>();
   consumes<edmtest::StringProduct>(edm::InputTag{"m2"});
 }
 
-void TestPRegisterModule2::produce(Event& e, EventSetup const&) {
+void TestPRegisterModule2::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const {
   std::vector<edm::StableProvenance const*> plist;
-  e.getAllStableProvenance(plist);
+  event.getAllStableProvenance(plist);
 
   std::vector<edm::StableProvenance const*>::const_iterator pd = plist.begin();
 
@@ -50,9 +65,11 @@ void TestPRegisterModule2::produce(Event& e, EventSetup const&) {
   CPPUNIT_ASSERT(dID.friendlyClassName() == (*pd)->friendlyClassName());
   CPPUNIT_ASSERT((*pd)->moduleLabel() == "m2");
 
-  Handle<edmtest::StringProduct> stringp;
-  e.getByLabel("m2", stringp);
+  edm::Handle<edmtest::StringProduct> stringp;
+  event.getByLabel("m2", stringp);
   CPPUNIT_ASSERT(stringp->name_ == "m1");
 
-  e.put(std::make_unique<edmtest::DoubleProduct>());
+  event.put(std::make_unique<edmtest::DoubleProduct>());
 }
+
+DEFINE_FWK_MODULE(TestPRegisterModule2);

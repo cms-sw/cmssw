@@ -17,78 +17,73 @@
 
 // system include files
 #include <memory>
+#include <vector>
+#include <utility>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
-#include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
+// ROOT includes
 #include "TFile.h"
 #include "TTree.h"
-
-#include <vector>
-#include <utility>
 
 using namespace std;
 //
 // class decleration
 //
 
-class OverlapValidation : public edm::one::EDAnalyzer<> {
+class OverlapValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit OverlapValidation(const edm::ParameterSet&);
   ~OverlapValidation() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   typedef vector<Trajectory> TrajectoryCollection;
@@ -200,6 +195,7 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig)
       addExtraBranches_(false),
       minHitsCut_(6),
       chi2ProbCut_(0.001) {
+  usesResource(TFileService::kSharedResource);
   edm::ConsumesCollector&& iC = consumesCollector();
   //now do what ever initialization is needed
   trajectoryTag_ = iConfig.getParameter<edm::InputTag>("trajectories");
@@ -274,11 +270,28 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig)
   rootTree_->Branch("localydotglobaly", localydotglobaly_, "localydotglobaly[2]/F");
 }
 
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void OverlapValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Overlap Validation analyzer plugin.");
+  TrackerHitAssociator::fillPSetDescription(desc);
+  //desc.add<bool>("associateStrip",false);  // NB this comes from the fillPSetDescription
+  desc.addUntracked<int>("compressionSettings", -1);
+  desc.add<edm::InputTag>("trajectories", edm::InputTag("FinalTrackRefitter"));
+  desc.add<bool>("barrelOnly", false);
+  desc.add<bool>("usePXB", true);
+  desc.add<bool>("usePXF", true);
+  desc.add<bool>("useTIB", true);
+  desc.add<bool>("useTOB", true);
+  desc.add<bool>("useTID", true);
+  desc.add<bool>("useTEC", true);
+  descriptions.addWithDefaultLabel(desc);
+}
+
 OverlapValidation::~OverlapValidation() {
   edm::LogWarning w("Overlaps");
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
   w << "Counters =";
   w << " Number of tracks: " << overlapCounts_[0];
   w << " Number of valid hits: " << overlapCounts_[1];

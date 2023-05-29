@@ -25,7 +25,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +41,7 @@
 #include <fstream>
 #include <iostream>
 
-class SourceCardTextToRctDigi : public edm::EDProducer {
+class SourceCardTextToRctDigi : public edm::one::EDProducer<> {
 public:
   explicit SourceCardTextToRctDigi(const edm::ParameterSet &);
   ~SourceCardTextToRctDigi() override;

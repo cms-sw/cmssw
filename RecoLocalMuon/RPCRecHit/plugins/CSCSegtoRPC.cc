@@ -11,9 +11,13 @@
 #include "CSCSegtoRPC.h"
 #include "CSCStationIndex.h"
 #include "CSCObjectMap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-CSCSegtoRPC::CSCSegtoRPC(edm::ConsumesCollector iC)
-    : rpcGeoToken_(iC.esConsumes()), cscGeoToken_(iC.esConsumes()), cscMapToken_(iC.esConsumes()) {}
+CSCSegtoRPC::CSCSegtoRPC(edm::ConsumesCollector iC, const edm::ParameterSet& iConfig)
+    : rpcGeoToken_(iC.esConsumes()), cscGeoToken_(iC.esConsumes()), cscMapToken_(iC.esConsumes()) {
+  minBX = iConfig.getParameter<int>("minBX");
+  maxBX = iConfig.getParameter<int>("maxBX");
+}
 
 std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentCollection* allCSCSegments,
                                                             const edm::EventSetup& iSetup,
@@ -26,42 +30,51 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
   double MaxD = 80.;
 
   if (debug)
-    std::cout << "CSC \t Number of CSC Segments in this event = " << allCSCSegments->size() << std::endl;
+    LogDebug("CSCSegtoRPC") << "CSC \t Number of CSC Segments in this event = " << allCSCSegments->size() << std::endl;
 
   auto _ThePoints = std::make_unique<RPCRecHitCollection>();
   edm::OwnVector<RPCRecHit> RPCPointVector;
 
   if (allCSCSegments->size() == 0) {
     if (debug)
-      std::cout << "CSC 0 segments skiping event" << std::endl;
+      LogDebug("CSCSegtoRPC") << "CSC 0 segments skiping event" << std::endl;
   } else {
     std::map<CSCDetId, int> CSCSegmentsCounter;
     CSCSegmentCollection::const_iterator segment;
 
-    int segmentsInThisEventInTheEndcap = 0;
-
     for (segment = allCSCSegments->begin(); segment != allCSCSegments->end(); ++segment) {
       CSCSegmentsCounter[segment->cscDetId()]++;
-      segmentsInThisEventInTheEndcap++;
     }
 
+    float myTime = -9999.;
+    float myTimeErr = -9999.;
+    int myBx = -99;
+    const float bunchCrossTimeDiff = 25.;  // time between bunch crossings
+
     if (debug)
-      std::cout << "CSC \t loop over all the CSCSegments " << std::endl;
+      LogDebug("CSCSegtoRPC") << "CSC \t loop over all the CSCSegments " << std::endl;
     for (segment = allCSCSegments->begin(); segment != allCSCSegments->end(); ++segment) {
       CSCDetId CSCId = segment->cscDetId();
 
+      myTime = segment->time();
+      myBx = round(myTime / bunchCrossTimeDiff);
+      if (!(myBx <= maxBX && myBx >= minBX))  // rpc read in bx in [-2, 2]
+        continue;
+
       if (debug)
-        std::cout << "CSC \t \t This Segment is in Chamber id: " << CSCId << std::endl;
+        LogDebug("CSCSegtoRPC") << "CSC \t \t This Segment is in Chamber id: " << CSCId << std::endl;
       if (debug)
-        std::cout << "CSC \t \t Number of segments in this CSC = " << CSCSegmentsCounter[CSCId] << std::endl;
+        LogDebug("CSCSegtoRPC") << "CSC \t \t Number of segments in this CSC = " << CSCSegmentsCounter[CSCId]
+                                << std::endl;
       if (debug)
-        std::cout << "CSC \t \t Is the only one in this CSC? is not ind the ring 1? Are there more than 2 "
-                     "segments in the event?"
-                  << std::endl;
+        LogDebug("CSCSegtoRPC")
+            << "CSC \t \t Is the only one in this CSC? is not ind the ring 1? Are there more than 2 "
+               "segments in the event?"
+            << std::endl;
 
       if (CSCSegmentsCounter[CSCId] == 1 && CSCId.ring() != 1 && allCSCSegments->size() >= 2) {
         if (debug)
-          std::cout << "CSC \t \t yes" << std::endl;
+          LogDebug("CSCSegtoRPC") << "CSC \t \t yes" << std::endl;
         int cscEndCap = CSCId.endcap();
         int cscStation = CSCId.station();
         int cscRing = CSCId.ring();
@@ -79,21 +92,20 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
         float dz = segmentDirection.z();
 
         if (debug)
-          std::cout << "CSC \t \t \t Information about the segment"
-                    << "RecHits =" << segment->nRecHits() << "Angle =" << acos(dz) * 180 / 3.1415926 << std::endl;
+          LogDebug("CSCSegtoRPC") << "CSC \t \t \t Information about the segment"
+                                  << "RecHits =" << segment->nRecHits() << "Angle =" << acos(dz) * 180 / 3.1415926
+                                  << std::endl;
 
         if (debug)
-          std::cout << "CSC \t \t Is a good Segment? dim = 4, 4 <= nRecHits <= 10 Incident angle int range 45 < "
-                    << acos(dz) * 180 / 3.1415926 << " < 135? " << std::endl;
+          LogDebug("CSCSegtoRPC")
+              << "CSC \t \t Is a good Segment? dim = 4, 4 <= nRecHits <= 10 Incident angle int range 45 < "
+              << acos(dz) * 180 / 3.1415926 << " < 135? " << std::endl;
 
         if ((segment->dimension() == 4) && (segment->nRecHits() <= 10 && segment->nRecHits() >= 4)) {
-          //&& acos(dz)*180/3.1415926 > 45. && acos(dz)*180/3.1415926 < 135.){
-          //&& segment->chi2()< ??)Add 3 segmentes in the endcaps???
-
           if (debug)
-            std::cout << "CSC \t \t yes" << std::endl;
+            LogDebug("CSCSegtoRPC") << "CSC \t \t yes" << std::endl;
           if (debug)
-            std::cout << "CSC \t \t CSC Segment Dimension " << segment->dimension() << std::endl;
+            LogDebug("CSCSegtoRPC") << "CSC \t \t CSC Segment Dimension " << segment->dimension() << std::endl;
 
           float Xo = segmentPosition.x();
           float Yo = segmentPosition.y();
@@ -103,59 +115,65 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
           float dz = segmentDirection.z();
 
           if (debug)
-            std::cout << "Creating the CSCIndex" << std::endl;
+            LogDebug("CSCSegtoRPC") << "Creating the CSCIndex" << std::endl;
           CSCStationIndex theindex(rpcRegion, rpcStation, rpcRing, rpcSegment);
           if (debug)
-            std::cout << "Getting the Rolls for the given index" << std::endl;
+            LogDebug("CSCSegtoRPC") << "Getting the Rolls for the given index" << std::endl;
           std::set<RPCDetId> rollsForThisCSC = cscMap->getRolls(theindex);
           if (debug)
-            std::cout << "CSC \t \t Getting chamber from Geometry" << std::endl;
+            LogDebug("CSCSegtoRPC") << "CSC \t \t Getting chamber from Geometry" << std::endl;
           const CSCChamber* TheChamber = cscGeo->chamber(CSCId);
           if (debug)
-            std::cout << "CSC \t \t Getting ID from Chamber" << std::endl;
+            LogDebug("CSCSegtoRPC") << "CSC \t \t Getting ID from Chamber" << std::endl;
           const CSCDetId TheId = TheChamber->id();
 
           if (debug)
-            std::cout << "CSC \t \t Number of rolls for this CSC = " << rollsForThisCSC.size() << std::endl;
+            LogDebug("CSCSegtoRPC") << "CSC \t \t Number of rolls for this CSC = " << rollsForThisCSC.size()
+                                    << std::endl;
 
           if (debug)
-            std::cout << "CSC \t \t Printing The Id" << TheId << std::endl;
+            LogDebug("CSCSegtoRPC") << "CSC \t \t Printing The Id" << TheId << std::endl;
 
           if (rpcRing != 1) {  //They don't exist in Run3!
 
             assert(!rollsForThisCSC.empty());
 
             if (debug)
-              std::cout << "CSC \t \t Loop over all the rolls asociated to this CSC" << std::endl;
+              LogDebug("CSCSegtoRPC") << "CSC \t \t Loop over all the rolls asociated to this CSC" << std::endl;
             for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin(); iteraRoll != rollsForThisCSC.end();
                  iteraRoll++) {
               const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
               RPCDetId rpcId = rollasociated->id();
 
               if (debug)
-                std::cout << "CSC \t \t \t We are in the roll getting the surface" << rpcId << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t We are in the roll getting the surface" << rpcId << std::endl;
               const BoundPlane& RPCSurface = rollasociated->surface();
 
               if (debug)
-                std::cout << "CSC \t \t \t RollID: " << rpcId << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t RollID: " << rpcId << std::endl;
 
               if (debug)
-                std::cout << "CSC \t \t \t Doing the extrapolation to this roll" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Doing the extrapolation to this roll" << std::endl;
               if (debug)
-                std::cout << "CSC \t \t \t CSC Segment Direction in CSCLocal " << segmentDirection << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t CSC Segment Direction in CSCLocal " << segmentDirection
+                                        << std::endl;
               if (debug)
-                std::cout << "CSC \t \t \t CSC Segment Point in CSCLocal " << segmentPosition << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t CSC Segment Point in CSCLocal " << segmentPosition
+                                        << std::endl;
 
               GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0, 0, 0));
               if (debug)
-                std::cout << "CSC \t \t \t Center (0,0,0) of the Roll in Global" << CenterPointRollGlobal << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Center (0,0,0) of the Roll in Global" << CenterPointRollGlobal
+                                        << std::endl;
               GlobalPoint CenterPointCSCGlobal = TheChamber->toGlobal(LocalPoint(0, 0, 0));
               if (debug)
-                std::cout << "CSC \t \t \t Center (0,0,0) of the CSC in Global" << CenterPointCSCGlobal << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Center (0,0,0) of the CSC in Global" << CenterPointCSCGlobal
+                                        << std::endl;
               GlobalPoint segmentPositionInGlobal =
                   TheChamber->toGlobal(segmentPosition);  //new way to convert to global
               if (debug)
-                std::cout << "CSC \t \t \t Segment Position in Global" << segmentPositionInGlobal << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Segment Position in Global" << segmentPositionInGlobal
+                                        << std::endl;
               LocalPoint CenterRollinCSCFrame = TheChamber->toLocal(CenterPointRollGlobal);
 
               if (debug) {  //to check CSC RPC phi relation!
@@ -174,19 +192,19 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
                 float dfg = df * 180. / 3.14159265;
 
                 if (debug)
-                  std::cout << "CSC \t \t \t z of RPC=" << CenterPointRollGlobal.z() << "z of CSC"
-                            << CenterPointCSCGlobal.z() << " dfg=" << dfg << std::endl;
+                  LogDebug("CSCSegtoRPC") << "CSC \t \t \t z of RPC=" << CenterPointRollGlobal.z() << "z of CSC"
+                                          << CenterPointCSCGlobal.z() << " dfg=" << dfg << std::endl;
 
                 RPCGeomServ rpcsrv(rpcId);
 
                 if (dr > 200. || fabs(dz) > 55. || dfg > 1.) {
-                  //if(rpcRegion==1&&dfg>1.&&dr>100.){
                   if (debug)
-                    std::cout << "\t \t \t CSC Station= " << CSCId.station() << " Ring= " << CSCId.ring()
-                              << " Chamber= " << CSCId.chamber() << " cscphi=" << cscphi * 180 / 3.14159265
-                              << "\t RPC Station= " << rpcId.station() << " ring= " << rpcId.ring() << " segment =-> "
-                              << rpcsrv.segment() << " rollphi=" << rpcphi * 180 / 3.14159265 << "\t dfg=" << dfg
-                              << " dz=" << diffz << " dr=" << dr << std::endl;
+                    LogDebug("CSCSegtoRPC")
+                        << "\t \t \t CSC Station= " << CSCId.station() << " Ring= " << CSCId.ring()
+                        << " Chamber= " << CSCId.chamber() << " cscphi=" << cscphi * 180 / 3.14159265
+                        << "\t RPC Station= " << rpcId.station() << " ring= " << rpcId.ring() << " segment =-> "
+                        << rpcsrv.segment() << " rollphi=" << rpcphi * 180 / 3.14159265 << "\t dfg=" << dfg
+                        << " dz=" << diffz << " dr=" << dr << std::endl;
                 }
               }
 
@@ -200,77 +218,83 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
                   dynamic_cast<const TrapezoidalStripTopology*>(&(rollasociated->topology()));
               LocalPoint xmin = top_->localPosition(0.);
               if (debug)
-                std::cout << "CSC \t \t \t xmin of this  Roll " << xmin << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t xmin of this  Roll " << xmin << "cm" << std::endl;
               LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
               if (debug)
-                std::cout << "CSC \t \t \t xmax of this  Roll " << xmax << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t xmax of this  Roll " << xmax << "cm" << std::endl;
               float rsize = fabs(xmax.x() - xmin.x());
               if (debug)
-                std::cout << "CSC \t \t \t Roll Size " << rsize << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Roll Size " << rsize << "cm" << std::endl;
               float stripl = top_->stripLength();
               float stripw = top_->pitch();
 
               if (debug)
-                std::cout << "CSC \t \t \t Strip Lenght " << stripl << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Strip Lenght " << stripl << "cm" << std::endl;
               if (debug)
-                std::cout << "CSC \t \t \t Strip Width " << stripw << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Strip Width " << stripw << "cm" << std::endl;
 
               if (debug)
-                std::cout << "CSC \t \t \t X Predicted in CSCLocal= " << X << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t X Predicted in CSCLocal= " << X << "cm" << std::endl;
               if (debug)
-                std::cout << "CSC \t \t \t Y Predicted in CSCLocal= " << Y << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Y Predicted in CSCLocal= " << Y << "cm" << std::endl;
               if (debug)
-                std::cout << "CSC \t \t \t Z Predicted in CSCLocal= " << Z << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Z Predicted in CSCLocal= " << Z << "cm" << std::endl;
 
               float extrapolatedDistance = sqrt((X - Xo) * (X - Xo) + (Y - Yo) * (Y - Yo) + (Z - Zo) * (Z - Zo));
 
               if (debug)
-                std::cout << "CSC \t \t \t Is the distance of extrapolation less than MaxD? =" << extrapolatedDistance
-                          << "cm"
-                          << " MaxD=" << MaxD << "cm" << std::endl;
+                LogDebug("CSCSegtoRPC") << "CSC \t \t \t Is the distance of extrapolation less than MaxD? ="
+                                        << extrapolatedDistance << "cm"
+                                        << " MaxD=" << MaxD << "cm" << std::endl;
 
               if (extrapolatedDistance <= MaxD) {
                 if (debug)
-                  std::cout << "CSC \t \t \t yes" << std::endl;
+                  LogDebug("CSCSegtoRPC") << "CSC \t \t \t yes" << std::endl;
 
                 GlobalPoint GlobalPointExtrapolated = TheChamber->toGlobal(LocalPoint(X, Y, Z));
                 if (debug)
-                  std::cout << "CSC \t \t \t Point ExtraPolated in Global" << GlobalPointExtrapolated << std::endl;
+                  LogDebug("CSCSegtoRPC")
+                      << "CSC \t \t \t Point ExtraPolated in Global" << GlobalPointExtrapolated << std::endl;
 
                 LocalPoint PointExtrapolatedRPCFrame = RPCSurface.toLocal(GlobalPointExtrapolated);
 
                 if (debug)
-                  std::cout << "CSC \t \t \t Point Extrapolated in RPCLocal" << PointExtrapolatedRPCFrame << std::endl;
+                  LogDebug("CSCSegtoRPC")
+                      << "CSC \t \t \t Point Extrapolated in RPCLocal" << PointExtrapolatedRPCFrame << std::endl;
                 if (debug)
-                  std::cout << "CSC \t \t \t Corner of the Roll = (" << rsize * eyr << "," << stripl * eyr << ")"
-                            << std::endl;
+                  LogDebug("CSCSegtoRPC") << "CSC \t \t \t Corner of the Roll = (" << rsize * eyr << "," << stripl * eyr
+                                          << ")" << std::endl;
                 if (debug)
-                  std::cout << "CSC \t \t \t Info About the Point Extrapolated in X Abs ("
-                            << fabs(PointExtrapolatedRPCFrame.x()) << "," << fabs(PointExtrapolatedRPCFrame.y()) << ","
-                            << fabs(PointExtrapolatedRPCFrame.z()) << ")" << std::endl;
+                  LogDebug("CSCSegtoRPC")
+                      << "CSC \t \t \t Info About the Point Extrapolated in X Abs ("
+                      << fabs(PointExtrapolatedRPCFrame.x()) << "," << fabs(PointExtrapolatedRPCFrame.y()) << ","
+                      << fabs(PointExtrapolatedRPCFrame.z()) << ")" << std::endl;
                 if (debug)
-                  std::cout << "CSC \t \t \t dz=" << fabs(PointExtrapolatedRPCFrame.z())
-                            << " dx=" << fabs(PointExtrapolatedRPCFrame.x())
-                            << " dy=" << fabs(PointExtrapolatedRPCFrame.y()) << std::endl;
+                  LogDebug("CSCSegtoRPC") << "CSC \t \t \t dz=" << fabs(PointExtrapolatedRPCFrame.z())
+                                          << " dx=" << fabs(PointExtrapolatedRPCFrame.x())
+                                          << " dy=" << fabs(PointExtrapolatedRPCFrame.y()) << std::endl;
 
                 if (debug)
-                  std::cout << "CSC \t \t \t Does the extrapolation go inside this roll????" << std::endl;
+                  LogDebug("CSCSegtoRPC") << "CSC \t \t \t Does the extrapolation go inside this roll????" << std::endl;
 
                 if (fabs(PointExtrapolatedRPCFrame.z()) < 1. && fabs(PointExtrapolatedRPCFrame.x()) < rsize * eyr &&
                     fabs(PointExtrapolatedRPCFrame.y()) < stripl * eyr) {
                   if (debug)
-                    std::cout << "CSC \t \t \t \t yes" << std::endl;
+                    LogDebug("CSCSegtoRPC") << "CSC \t \t \t \t yes" << std::endl;
                   if (debug)
-                    std::cout << "CSC \t \t \t \t Creating the RecHit" << std::endl;
-                  RPCRecHit RPCPoint(rpcId, 0, PointExtrapolatedRPCFrame);
+                    LogDebug("CSCSegtoRPC") << "CSC \t \t \t \t Creating the RecHit" << std::endl;
+
+                  RPCRecHit RPCPoint(rpcId, myBx, PointExtrapolatedRPCFrame);
+                  RPCPoint.setTimeAndError(myTime, myTimeErr);
+
                   if (debug)
-                    std::cout << "CSC \t \t \t \t Clearing the vector" << std::endl;
+                    LogDebug("CSCSegtoRPC") << "CSC \t \t \t \t Clearing the vector" << std::endl;
                   RPCPointVector.clear();
                   if (debug)
-                    std::cout << "CSC \t \t \t \t Pushing back" << std::endl;
+                    LogDebug("CSCSegtoRPC") << "CSC \t \t \t \t Pushing back" << std::endl;
                   RPCPointVector.push_back(RPCPoint);
                   if (debug)
-                    std::cout << "CSC \t \t \t \t Putting the vector" << std::endl;
+                    LogDebug("CSCSegtoRPC") << "CSC \t \t \t \t Putting the vector" << std::endl;
                   _ThePoints->put(rpcId, RPCPointVector.begin(), RPCPointVector.end());
                 }
               }

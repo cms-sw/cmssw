@@ -470,10 +470,12 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
     // value of the code compute inside TrackWithHistory
     setGenId(g4daught, (*vpdec)->barcode());
 
-    if (verbose > 2)
-      LogDebug("SimG4CoreGenerator") << "Assigning a " << (*vpdec)->pdg_id() << " as daughter of a " << vp->pdg_id();
+    int status = (*vpdec)->status();
+    if (verbose > 1)
+      LogDebug("SimG4CoreGenerator::::particleAssignDaughters")
+          << "Assigning a " << (*vpdec)->pdg_id() << " as daughter of a " << vp->pdg_id() << " status=" << status;
 
-    if (((*vpdec)->status() == 2 || ((*vpdec)->status() == 23 && std::abs(vp->pdg_id()) == 1000015)) &&
+    if ((status == 2 || (status == 23 && std::abs(vp->pdg_id()) == 1000015) || (status > 50 && status < 100)) &&
         (*vpdec)->end_vertex() != nullptr) {
       double x2 = (*vpdec)->end_vertex()->position().x();
       double y2 = (*vpdec)->end_vertex()->position().y();
@@ -481,7 +483,7 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
       double dd = std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2));
       particleAssignDaughters(g4daught, *vpdec, dd);
     }
-    (*vpdec)->set_status(1000 + (*vpdec)->status());
+    (*vpdec)->set_status(1000 + status);
     g4p->SetDaughter(g4daught);
 
     if (verbose > 1)

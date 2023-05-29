@@ -30,8 +30,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load("Configuration.StandardSequences.Services_cff")
 
 if 'phase2' in options.globalTag:
-    process.load("Configuration.Geometry.GeometryExtended2026D49_cff")
-    process.load("Configuration.Geometry.GeometryExtended2026D49Reco_cff")
+    process.load("Configuration.Geometry.GeometryExtended2026D92_cff")
+    process.load("Configuration.Geometry.GeometryExtended2026D92Reco_cff")
 else:
     process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 

@@ -51,7 +51,6 @@ public:
 private:
   const edm::ESInputTag tag_;
   std::string ddTopNodeName_;
-  uint32_t theLayout_;
 
   MTDBaseNumber thisN_;
   BTLNumberingScheme btlNS_;
@@ -68,7 +67,6 @@ using cms_rounding::roundIfNear0;
 DD4hep_TestMTDIdealGeometry::DD4hep_TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
     : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
       ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
-      theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
       thisN_(),
       btlNS_(),
       etlNS_() {
@@ -210,29 +208,9 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         std::stringstream snum;
 
         if (isBarrel) {
-          BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_));
-          int hIndex = theId.hashedIndex(lay);
-          BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
           sunitt << theId.rawId();
-          snum << theId << "\n layout type = " << static_cast<int>(lay) << "\n ieta        = " << theId.ieta(lay)
-               << "\n iphi        = " << theId.iphi(lay) << "\n hashedIndex = " << theId.hashedIndex(lay)
-               << "\n BTLDetId hI = " << theNewId;
-          if (theId.mtdSide() != theNewId.mtdSide()) {
-            snum << "\n DIFFERENCE IN SIDE";
-          }
-          if (theId.mtdRR() != theNewId.mtdRR()) {
-            snum << "\n DIFFERENCE IN ROD";
-          }
-          if (theId.module() != theNewId.module()) {
-            snum << "\n DIFFERENCE IN MODULE";
-          }
-          if (theId.modType() != theNewId.modType()) {
-            snum << "\n DIFFERENCE IN MODTYPE";
-          }
-          if (theId.crystal() != theNewId.crystal()) {
-            snum << "\n DIFFERENCE IN CRYSTAL";
-          }
+          snum << theId;
           snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));

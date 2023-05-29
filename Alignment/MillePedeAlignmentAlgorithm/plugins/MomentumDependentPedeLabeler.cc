@@ -50,7 +50,7 @@ MomentumDependentPedeLabeler::~MomentumDependentPedeLabeler() {}
 
 //___________________________________________________________________________
 /// Return 32-bit unique label for alignable, 0 indicates failure.
-unsigned int MomentumDependentPedeLabeler::alignableLabel(Alignable *alignable) const {
+unsigned int MomentumDependentPedeLabeler::alignableLabel(const Alignable *alignable) const {
   if (!alignable)
     return 0;
 
@@ -70,7 +70,7 @@ unsigned int MomentumDependentPedeLabeler::alignableLabel(Alignable *alignable) 
 
 //___________________________________________________________________________
 // Return 32-bit unique label for alignable, 0 indicates failure.
-unsigned int MomentumDependentPedeLabeler::alignableLabelFromParamAndInstance(Alignable *alignable,
+unsigned int MomentumDependentPedeLabeler::alignableLabelFromParamAndInstance(const Alignable *alignable,
                                                                               unsigned int param,
                                                                               unsigned int instance) const {
   if (!alignable)

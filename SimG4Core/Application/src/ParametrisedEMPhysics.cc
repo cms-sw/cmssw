@@ -14,6 +14,7 @@
 
 #include "G4FastSimulationManagerProcess.hh"
 #include "G4ProcessManager.hh"
+#include "G4HadronicParameters.hh"
 #include "G4EmBuilder.hh"
 
 #include "G4RegionStore.hh"
@@ -62,6 +63,7 @@ G4ThreadLocal ParametrisedEMPhysics::TLSmod* ParametrisedEMPhysics::m_tpmod = nu
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm::ParameterSet& p)
     : G4VPhysicsConstructor(name), theParSet(p) {
+  // EM parameters common for any EM physics configuration
   G4EmParameters* param = G4EmParameters::Instance();
   G4int verb = theParSet.getUntrackedParameter<int>("Verbosity", 0);
   param->SetVerbose(verb);
@@ -71,8 +73,20 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
   G4double mubrth = theParSet.getParameter<double>("G4MuonBremsstrahlungThreshold") * CLHEP::GeV;
   param->SetMuHadBremsstrahlungTh(mubrth);
 
-  bool genp = theParSet.getParameter<bool>("G4GeneralProcess");
+  bool genp = theParSet.getParameter<bool>("G4GammaGeneralProcess");
   param->SetGeneralProcessActive(genp);
+
+  bool pe = p.getParameter<bool>("PhotoeffectBelowKShell");
+  param->SetPhotoeffectBelowKShell(pe);
+
+  int type = p.getParameter<int>("G4TransportWithMSC");
+  G4TransportationWithMscType trtype = G4TransportationWithMscType::fDisabled;
+  if (type == 1) {
+    trtype = G4TransportationWithMscType::fEnabled;
+  } else if (type == 2) {
+    trtype = G4TransportationWithMscType::fMultipleSteps;
+  }
+  param->SetTransportationWithMsc(trtype);
 
   bool mudat = theParSet.getParameter<bool>("ReadMuonData");
   param->SetRetrieveMuDataFromFile(mudat);
@@ -86,10 +100,11 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
   int nt = theParSet.getUntrackedParameter<int>("ThresholdTrials");
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "ParametrisedEMPhysics::ConstructProcess: bremsstrahlung threshold Eth= " << bremth / GeV << " GeV"
-      << "\n                                         verbosity= " << verb << "  fluoFlag: " << fluo
-      << "  modifyTransport: " << modifyT << "  Ntrials= " << nt
-      << "\n                                         ThWarning(MeV)= " << th1 << "  ThException(MeV)= " << th2;
+      << "### ParametrisedEMPhysics parameters:"
+      << "\n verbosity= " << verb << "\n fluoFlag: " << fluo << "\n fluo below K-shell: " << pe
+      << "\n transportation with msc: " << type << "\n modifyTransport: " << modifyT << "  Ntrials= " << nt
+      << "\n ThWarning(MeV)= " << th1 / CLHEP::MeV << "\n ThException(MeV)= " << th2 / CLHEP::MeV
+      << "\n read muon data: " << mudat << "\n bremsstrahlung threshold Eth(GeV)= " << bremth / CLHEP::GeV;
 
   // Russian roulette and tracking cut for e+-
   double energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit") * MeV;

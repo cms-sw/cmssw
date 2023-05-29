@@ -22,14 +22,13 @@ CaloTowerFromL1TCreatorForTauHLT::CaloTowerFromL1TCreatorForTauHLT(const Paramet
       mVerbose(p.getUntrackedParameter<int>("verbose", 0)),
       mtowers_token(consumes<CaloTowerCollection>(p.getParameter<InputTag>("towers"))),
       mCone(p.getParameter<double>("UseTowersInCone")),
+      mCone2(mCone * mCone),
       mTauTrigger_token(consumes<l1t::TauBxCollection>(p.getParameter<InputTag>("TauTrigger"))),
       mEtThreshold(p.getParameter<double>("minimumEt")),
       mEThreshold(p.getParameter<double>("minimumE")),
       mTauId(p.getParameter<int>("TauId")) {
   produces<CaloTowerCollection>();
 }
-
-CaloTowerFromL1TCreatorForTauHLT::~CaloTowerFromL1TCreatorForTauHLT() {}
 
 void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const EventSetup& stp) const {
   edm::Handle<CaloTowerCollection> caloTowers;
@@ -42,11 +41,15 @@ void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const E
   std::unique_ptr<CaloTowerCollection> cands(new CaloTowerCollection);
   cands->reserve(caloTowers->size());
 
+  if (mCone < 0.) {
+    evt.put(std::move(cands));
+    return;
+  }
+
   int idTau = 0;
   if (jetsgen.isValid()) {
     for (auto myL1Jet = jetsgen->begin(mBX); myL1Jet != jetsgen->end(mBX); myL1Jet++) {
       if (idTau == mTauId) {
-        double Sum08 = 0.;
         unsigned idx = 0;
         for (; idx < caloTowers->size(); idx++) {
           const CaloTower* cal = &((*caloTowers)[idx]);
@@ -58,10 +61,9 @@ void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const E
           }
           if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold) {
             math::PtEtaPhiELorentzVector p(cal->et(), cal->eta(), cal->phi(), cal->energy());
-            double delta = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
-            if (delta < mCone) {
+            double delta2 = ROOT::Math::VectorUtil::DeltaR2((*myL1Jet).p4().Vect(), p);
+            if (delta2 < mCone2) {
               isAccepted = true;
-              Sum08 += cal->et();
               cands->push_back(*cal);
             }
           }
@@ -97,3 +99,6 @@ void CaloTowerFromL1TCreatorForTauHLT::fillDescriptions(edm::ConfigurationDescri
   desc.add("CaloTowerFromL1TCreatorForTauHLT", aDesc);
   desc.setComment("Produce tower collection around L1 particle seed.");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CaloTowerFromL1TCreatorForTauHLT);

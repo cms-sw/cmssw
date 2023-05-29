@@ -785,12 +785,10 @@ namespace l1tVertexFinder {
 
     static constexpr unsigned int kTableSize =
         ((1 << HistogramBitWidths::kSumPtLinkSize) - 1) * HistogramBitWidths::kWindowSize;
-    static constexpr double kZ0Scale =
-        (TTTrack_TrackWord::stepZ0 *
-         (1 << (TrackBitWidths::kZ0Size - TrackBitWidths::kZ0MagSize)));  // scale = 1.27932032
 
     typedef ap_ufixed<TrackBitWidths::kPtSize, TrackBitWidths::kPtMagSize, AP_RND_CONV, AP_SAT> pt_t;
-    typedef ap_fixed<TrackBitWidths::kZ0Size, TrackBitWidths::kZ0MagSize, AP_RND_CONV, AP_SAT> z0_t;
+    // Same size as TTTrack_TrackWord::z0_t, but now taking into account the sign bit (i.e. 2's complement)
+    typedef ap_int<TrackBitWidths::kZ0Size> z0_t;
     // 7 bits chosen to represent values between [0,127]
     // This is the next highest power of 2 value to our chosen track pt saturation value (100)
     typedef ap_ufixed<TrackBitWidths::kReducedPrecisionPt, TrackBitWidths::kReducedPrecisionPt, AP_RND_INF, AP_SAT>
@@ -819,16 +817,23 @@ namespace l1tVertexFinder {
         inverse_t;
 
     auto track_quality_check = [&](const track_pt_fixed_t& pt) -> bool {
-      // track quality cuts
+      // Track quality cuts
       if (pt.to_double() < settings_->vx_TrackMinPt())
         return false;
       return true;
     };
 
     auto fetch_bin = [&](const z0_t& z0, int nbins) -> std::pair<histbin_t, bool> {
-      histbin_t bin = (z0 * histbin_fixed_t(1.0 / settings_->vx_histogram_binwidth())) +
-                      histbin_t(std::floor(
-                          nbins / 2.));  // Rounding down (std::floor) taken care of by implicitly casting to ap_uint
+      // Increase the the number of bits in the word to allow for additional dynamic range
+      ap_int<TrackBitWidths::kZ0Size + 1> z0_13 = z0;
+      // Add a number equal to half of the range in z0, meaning that the range is now [0, 2*z0_max]
+      ap_int<TrackBitWidths::kZ0Size + 1> absz0_13 = z0_13 + (1 << (TrackBitWidths::kZ0Size - 1));
+      // Shift the bits down to truncate the dynamic range to the most significant HistogramBitWidths::kBinFixedSize bits
+      ap_int<TrackBitWidths::kZ0Size + 1> absz0_13_reduced =
+          absz0_13 >> (TrackBitWidths::kZ0Size - HistogramBitWidths::kBinFixedSize);
+      // Put the relevant bits into the histbin_t container
+      histbin_t bin = absz0_13_reduced.range(HistogramBitWidths::kBinFixedSize - 1, 0);
+
       if (settings_->debug() > 2) {
         edm::LogInfo("VertexProducer")
             << "fastHistoEmulation::fetchBin() Checking the mapping from z0 to bin index ... \n"
@@ -872,7 +877,7 @@ namespace l1tVertexFinder {
       return inversion_table.at(index);
     };
 
-    auto bin_center = [&](zsliding_t iz, int nbins) -> z0_t {
+    auto bin_center = [&](zsliding_t iz, int nbins) -> l1t::VertexWord::vtxz0_t {
       zsliding_t z = iz - histbin_t(std::floor(nbins / 2.));
       std::unique_ptr<edm::LogInfo> log;
       if (settings_->debug() >= 1) {
@@ -883,9 +888,9 @@ namespace l1tVertexFinder {
              << "binwidth = " << zsliding_t(settings_->vx_histogram_binwidth()) << "\n"
              << "z = " << z << "\n"
              << "zsliding_t(z * zsliding_t(binwidth)) = " << std::setprecision(7)
-             << z0_t(z * zsliding_t(settings_->vx_histogram_binwidth()));
+             << l1t::VertexWord::vtxz0_t(z * zsliding_t(settings_->vx_histogram_binwidth()));
       }
-      return z0_t(z * zsliding_t(settings_->vx_histogram_binwidth()));
+      return l1t::VertexWord::vtxz0_t(z * zsliding_t(settings_->vx_histogram_binwidth()));
     };
 
     auto weighted_position = [&](histbin_t b_max,
@@ -946,8 +951,8 @@ namespace l1tVertexFinder {
     };
 
     // Create the histogram
-    unsigned int nbins =
-        std::ceil((settings_->vx_histogram_max() - settings_->vx_histogram_min()) / settings_->vx_histogram_binwidth());
+    unsigned int nbins = std::round((settings_->vx_histogram_max() - settings_->vx_histogram_min()) /
+                                    settings_->vx_histogram_binwidth());
     unsigned int nsums = nbins - settings_->vx_windowSize();
     std::vector<link_pt_sum_fixed_t> hist(nbins, 0);
 
@@ -963,12 +968,7 @@ namespace l1tVertexFinder {
       tkpt.V = track.getTTTrackPtr()->getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1,
                                                      TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
       track_pt_fixed_t pt_tmp = tkpt;
-      //z0_t tkZ0 = track.getTTTrackPtr()->getZ0();
-      z0_t tkZ0 = 0;
-      tkZ0.V = track.getTTTrackPtr()->getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kZ0MSB,
-                                                     TTTrack_TrackWord::TrackBitLocations::kZ0LSB);
-      ap_ufixed<32, 1> kZ0Scale_fixed = kZ0Scale;
-      tkZ0 *= kZ0Scale_fixed;
+      z0_t tkZ0 = track.getTTTrackPtr()->getZ0Word();
 
       if ((settings_->vx_DoQualityCuts() && track_quality_check(tkpt)) || (!settings_->vx_DoQualityCuts())) {
         //

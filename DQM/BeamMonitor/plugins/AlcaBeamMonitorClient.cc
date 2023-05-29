@@ -24,6 +24,7 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient(const ParameterSet& ps)
     : parameters_(ps),
       monitorName_(parameters_.getUntrackedParameter<string>("MonitorName", "YourSubsystemName")),
       numberOfValuesToSave_(0) {
+  usesResource("DQMStore");
   dbe_ = Service<DQMStore>().operator->();
 
   if (!monitorName_.empty())

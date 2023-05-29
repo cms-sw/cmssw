@@ -64,23 +64,17 @@ private:
 template <typename T>
 void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   // needs jet collection (srcJet), leptons collection
-  edm::Handle<edm::View<pat::Jet>> srcJet;
-  iEvent.getByToken(srcJet_, srcJet);
-  edm::Handle<edm::View<pat::Electron>> srcEle;
-  iEvent.getByToken(srcEle_, srcEle);
-  edm::Handle<edm::View<pat::Muon>> srcMu;
-  iEvent.getByToken(srcMu_, srcMu);
+  auto srcJet = iEvent.getHandle(srcJet_);
+  const auto &eleProd = iEvent.get(srcEle_);
+  const auto &muProd = iEvent.get(srcMu_);
 
   unsigned int nJet = srcJet->size();
-  unsigned int nEle = srcEle->size();
-  unsigned int nMu = srcMu->size();
+  unsigned int nEle = eleProd.size();
+  unsigned int nMu = muProd.size();
 
   std::vector<float> vlsf3;
   std::vector<int> vmuIdx3SJ;
   std::vector<int> veleIdx3SJ;
-
-  int ele_pfmatch_index = -1;
-  int mu_pfmatch_index = -1;
 
   // Find leptons in jets
   for (unsigned int ij = 0; ij < nJet; ij++) {
@@ -94,17 +88,19 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
       fastjet::PseudoJet p(d->px(), d->py(), d->pz(), d->energy());
       lClusterParticles.emplace_back(p);
     }
+    int ele_pfmatch_index = -1;
+    int mu_pfmatch_index = -1;
 
     // match to leading and closest electron or muon
     double dRmin(0.8), dRele(999), dRmu(999), dRtmp(999);
     for (unsigned int il(0); il < nEle; il++) {
-      auto itLep = srcEle->ptrAt(il);
-      if (matchByCommonSourceCandidatePtr(*itLep, itJet)) {
-        dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), itLep->eta(), itLep->phi());
-        if (dRtmp < dRmin && dRtmp < dRele && itLep->pt() > lepPt) {
-          lepPt = itLep->pt();
-          lepEta = itLep->eta();
-          lepPhi = itLep->phi();
+      const auto &lep = eleProd.at(il);
+      if (matchByCommonSourceCandidatePtr(lep, itJet)) {
+        dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), lep.eta(), lep.phi());
+        if (dRtmp < dRmin && dRtmp < dRele && lep.pt() > lepPt) {
+          lepPt = lep.pt();
+          lepEta = lep.eta();
+          lepPhi = lep.phi();
           lepId = 11;
           ele_pfmatch_index = il;
           dRele = dRtmp;
@@ -113,13 +109,13 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
       }
     }
     for (unsigned int il(0); il < nMu; il++) {
-      auto itLep = srcMu->ptrAt(il);
-      if (matchByCommonSourceCandidatePtr(*itLep, itJet)) {
-        dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), itLep->eta(), itLep->phi());
-        if (dRtmp < dRmin && dRtmp < dRele && dRtmp < dRmu && itLep->pt() > lepPt) {
-          lepPt = itLep->pt();
-          lepEta = itLep->eta();
-          lepPhi = itLep->phi();
+      const auto &lep = muProd.at(il);
+      if (matchByCommonSourceCandidatePtr(lep, itJet)) {
+        dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), lep.eta(), lep.phi());
+        if (dRtmp < dRmin && dRtmp < dRele && dRtmp < dRmu && lep.pt() > lepPt) {
+          lepPt = lep.pt();
+          lepEta = lep.eta();
+          lepPhi = lep.phi();
           lepId = 13;
           ele_pfmatch_index = -1;
           mu_pfmatch_index = il;
@@ -138,19 +134,19 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
   }
 
   // Filling table
-  std::unique_ptr<edm::ValueMap<float>> lsf3V(new edm::ValueMap<float>());
+  auto lsf3V = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerlsf3(*lsf3V);
   fillerlsf3.insert(srcJet, vlsf3.begin(), vlsf3.end());
   fillerlsf3.fill();
   iEvent.put(std::move(lsf3V), "lsf3");
 
-  std::unique_ptr<edm::ValueMap<int>> muIdx3SJV(new edm::ValueMap<int>());
+  auto muIdx3SJV = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler fillermuIdx3SJ(*muIdx3SJV);
   fillermuIdx3SJ.insert(srcJet, vmuIdx3SJ.begin(), vmuIdx3SJ.end());
   fillermuIdx3SJ.fill();
   iEvent.put(std::move(muIdx3SJV), "muIdx3SJ");
 
-  std::unique_ptr<edm::ValueMap<int>> eleIdx3SJV(new edm::ValueMap<int>());
+  auto eleIdx3SJV = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler fillereleIdx3SJ(*eleIdx3SJV);
   fillereleIdx3SJ.insert(srcJet, veleIdx3SJ.begin(), veleIdx3SJ.end());
   fillereleIdx3SJ.fill();
@@ -210,12 +206,7 @@ void LeptonInJetProducer<T>::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<edm::InputTag>("src")->setComment("jet input collection");
   desc.add<edm::InputTag>("srcEle")->setComment("electron input collection");
   desc.add<edm::InputTag>("srcMu")->setComment("muon input collection");
-  std::string modname;
-  modname += "LepIn";
-  if (typeid(T) == typeid(pat::Jet))
-    modname += "Jet";
-  modname += "Producer";
-  descriptions.add(modname, desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 typedef LeptonInJetProducer<pat::Jet> LepInJetProducer;

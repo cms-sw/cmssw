@@ -11,8 +11,17 @@ tracker detector. Support for the phase2 tracker will be added later.
 
 ## Modifier for runTheMatrix workflows (offline reconstruction)
 
-* `Configuration.ProcessModifiers.trackingMkFit_cff.trackingMkFit`
-  * Replaces initialStep track building module with `mkFit`.
+* `Configuration/Eras/python/ModifierChain_trackingMkFitProd_cff.py`
+  * Replaces track building module with `mkFit` for 6 tracking iterations: 
+     * InitialStepPreSplitting
+     * InitialStep
+     * HighPtTripletStep
+     * DetachedQuadStep
+     * DetachedTripletStep
+     * PixelLessStep
+
+* `Configuration/ProcessModifiers/python/trackingMkFitDevel_cff.py`
+  * Replaces track building module with `mkFit` for all tracking iterations
 
 ## Customize functions for runTheMatrix workflows (offline reconstruction)
 
@@ -29,7 +38,7 @@ tracker detector. Support for the phase2 tracker will be added later.
 
 These can be used with e.g.
 ```bash
-$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers trackingMkFit --customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepOnly"
+$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers trackingMkFitDevel --customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepOnly"
 ```
 
 ## Description of configuration parameters
@@ -38,11 +47,40 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 
 * *m_track_algorithm:* CMSSW track algorithm (used internally for reporting and consistency checks)
 * *m_requires_seed_hit_sorting:* do hits on seed tracks need to be sorted (required for seeds that include strip layers)
-* *m_requires_quality_filter:* is additional post-processing required for result tracks
-* *m_requires_dupclean_tight:* is tight duplicate removal post-processing required for result tracks
 * *m_params:* IterationParams structure for this iteration
 * *m_backward_params:* IterationParams structure for backward search for this iteration
 * *m_layer_configs:* std::vector of per-layer parameters
+
+#### Seed cleaning params (based on elliptical dR-dz cut) [in class IterationConfig]
+
+* *m_seed_cleaner_name:* name of standard function to call for seed cleaning; if not set or empty seed cleaning is not performed
+* *sc_ptthr_hpt:* pT threshold used to tighten seed cleaning requirements
+* *sc_drmax_bh:* dR cut used for seed tracks with std::fabs(eta)<0.9 and pT > c_ptthr_hpt
+* *sc_dzmax_bh:* dz cut used for seed tracks with std::fabs(eta)<0.9 and pT > c_ptthr_hpt
+* *sc_drmax_eh:* dR cut used for seed tracks with std::fabs(eta)>0.9 and pT > c_ptthr_hpt
+* *sc_dzmax_eh:* dz cut used for seed tracks with std::fabs(eta)>0.9 and pT > c_ptthr_hpt
+* *sc_drmax_bl:* dR cut used for seed tracks with std::fabs(eta)<0.9 and pT < c_ptthr_hpt
+* *sc_dzmax_bl:* dz cut used for seed tracks with std::fabs(eta)<0.9 and pT < c_ptthr_hpt
+* *sc_drmax_el:* dR cut used for seed tracks with std::fabs(eta)>0.9 and pT < c_ptthr_hpt
+* *sc_dzmax_el:* dz cut used for seed tracks with std::fabs(eta)>0.9 and pT < c_ptthr_hpt
+
+#### Seed partitioning params [in class IterationConfig]
+
+* *m_seed_partitioner_name:* name of standard function to call for seed partitioning
+
+#### Pre / post backward-fit candidate top-level params [in class IterationConfig]
+
+* *m_pre_bkfit_filter_name:* name of standard function used for candidate filtering after forward
+search but before backward fit; if not set or empty no candidate filtering is performed at this stage
+* *m_post_bkfit_filter_name:* name of standard function used for candidate filtering after backward fit; if not set or empty no candidate filtering is performed at this stage
+
+#### Duplicate cleaning parameters [in class IterationConfig]
+
+* *m_duplicate_cleaner_name:* name of standard function used for duplicate cleaning; if not set or empty duplicate cleaning is not performed
+* *dc_fracSharedHits:* min fraction of shared hits to determine duplicate track candidate
+* *dc_drth_central:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))<1.99 (abs(eta)<1.44)
+* *dc_drth_obarrel:* dR cut used to identify duplicate candidates if 1.99<std::abs(cotan(theta))<6.05 (1.44<abs(eta)<2.5)
+* *dc_drth_forward:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))>6.05 (abs(eta)>2.5)
 
 ### Iteration parameters [class IterationParams]
 
@@ -54,25 +92,8 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *chi2CutOverlap:*  chi2 cut for accepting an overlap hit (currently NOT used)
 * *pTCutOverlap:*    pT cut below which the overlap hits are not picked up
 
-#### Seed cleaning params (based on elliptical dR-dz cut)
-
-* *c_ptthr_hpt:* pT threshold used to tighten seed cleaning requirements
-* *c_drmax_bh:* dR cut used for seed tracks with std::fabs(eta)<0.9 and pT > c_ptthr_hpt
-* *c_dzmax_bh:* dz cut used for seed tracks with std::fabs(eta)<0.9 and pT > c_ptthr_hpt
-* *c_drmax_eh:* dR cut used for seed tracks with std::fabs(eta)>0.9 and pT > c_ptthr_hpt
-* *c_dzmax_eh:* dz cut used for seed tracks with std::fabs(eta)>0.9 and pT > c_ptthr_hpt
-* *c_drmax_bl:* dR cut used for seed tracks with std::fabs(eta)<0.9 and pT < c_ptthr_hpt
-* *c_dzmax_bl:* dz cut used for seed tracks with std::fabs(eta)<0.9 and pT < c_ptthr_hpt
-* *c_drmax_el:* dR cut used for seed tracks with std::fabs(eta)>0.9 and pT < c_ptthr_hpt
-* *c_dzmax_el:* dz cut used for seed tracks with std::fabs(eta)>0.9 and pT < c_ptthr_hpt
-
-#### Duplicate cleaning parameters
-
-* *minHitsQF:* min number of hits on track candidate to apply duplicate cleaning based on fraction of shared hits
-* *fracSharedHits:* min fraction of shared hits to determine duplicate track candidate
-* *drth_central:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))<1.99 (abs(eta)<1.44)
-* *drth_obarrel:* dR cut used to identify duplicate candidates if 1.99<std::abs(cotan(theta))<6.05 (1.44<abs(eta)<2.5)
-* *drth_forward:* dR cut used to identify duplicate candidates if std::abs(cotan(theta))>6.05 (abs(eta)>2.5)
+#### Pre / post backward-fit candidate filtering params
+* *minHitsQF:* minimum number of hits, interpretation depends on particular filtering function used
 
 ### Per-layer parameters [class IterationLayerConfig]
 

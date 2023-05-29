@@ -1,8 +1,10 @@
 #include "RecoTauTag/HLTProducers/interface/PFJetsMaxInvMassModule.h"
 #include "Math/GenVector/VectorUtil.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 //
 // class declaration
@@ -13,7 +15,6 @@ PFJetsMaxInvMassModule::PFJetsMaxInvMassModule(const edm::ParameterSet& iConfig)
       removeMaxInvMassPair_(iConfig.getParameter<bool>("removeMaxInvMassPair")) {
   produces<reco::PFJetCollection>();
 }
-PFJetsMaxInvMassModule::~PFJetsMaxInvMassModule() {}
 
 void PFJetsMaxInvMassModule::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
   std::unique_ptr<reco::PFJetCollection> addPFJets(new reco::PFJetCollection);
@@ -23,14 +24,14 @@ void PFJetsMaxInvMassModule::produce(edm::StreamID iSId, edm::Event& iEvent, con
 
   unsigned iCan = 0;
   unsigned jCan = 0;
-  double mjj_max = 0;
+  double m2jj_max = 0;
 
   if (jets->size() > 1) {
     for (unsigned i = 0; i < jets->size(); i++) {
       for (unsigned j = i + 1; j < jets->size(); j++) {
-        double test = ((*jets)[i].p4() + (*jets)[j].p4()).M();
-        if (test > mjj_max) {
-          mjj_max = test;
+        double test = ((*jets)[i].p4() + (*jets)[j].p4()).M2();
+        if (test > m2jj_max) {
+          m2jj_max = test;
           iCan = i;
           jCan = j;
         }
@@ -61,3 +62,6 @@ void PFJetsMaxInvMassModule::fillDescriptions(edm::ConfigurationDescriptions& de
       "filter.");
   descriptions.add("PFJetsMaxInvMassModule", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFJetsMaxInvMassModule);

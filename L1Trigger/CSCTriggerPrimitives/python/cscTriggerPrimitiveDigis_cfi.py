@@ -34,6 +34,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer(
 
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
+    #selected chamebrs to process
+    selectedChambers = cms.vstring(),
 
     # Anode-DAQ rate determined by pre-CLCTs
     keepCLCTPreTriggers = cms.bool(True),
@@ -63,7 +65,9 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( cscTriggerPrimitiveDigis,
                       keepShowers = True,
-                      commonParam = dict(runPhase2 = True,
+                      commonParam = dict(run3 = True,
+                                         runCCLUT_OTMB = True,
+                                         runPhase2 = True,
                                          runME11Up = True,
                                          runME21Up = True,
                                          runME31Up = True,
