@@ -10,10 +10,11 @@
 #include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
@@ -23,8 +24,6 @@
 #include <vector>
 #include <iomanip>
 #include <set>
-
-using namespace std;
 
 class RPCSectorAnalyzer : public edm::one::EDAnalyzer<> {
 public:
@@ -52,29 +51,29 @@ RPCSectorAnalyzer::RPCSectorAnalyzer(const edm::ParameterSet& /*iConfig*/)
       dashedLine_(std::string(dashedLineWidth_, '-')),
       myName_("RPCSectorAnalyzer") {
   ofos.open("MytestOutput.out");
-  std::cout << "======================== Opening output file" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << "======================== Opening output file";
 }
 
 RPCSectorAnalyzer::~RPCSectorAnalyzer() {
   ofos.close();
-  std::cout << "======================== Closing output file" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << "======================== Closing output file";
 }
 
 void RPCSectorAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   const RPCGeometry* pDD = &iSetup.getData(tokRPC_);
 
-  std::cout << myName() << ": Analyzer..." << std::endl;
-  std::cout << "start " << dashedLine_ << std::endl;
+  ofos << myName() << ": Analyzer..." << std::endl;
+  ofos << "start " << dashedLine_ << std::endl;
 
-  std::cout << " Geometry node for RPCGeom is  " << &(*pDD) << std::endl;
-  cout << " I have " << pDD->detTypes().size() << " detTypes" << endl;
-  cout << " I have " << pDD->detUnits().size() << " detUnits" << endl;
-  cout << " I have " << pDD->dets().size() << " dets" << endl;
-  cout << " I have " << pDD->rolls().size() << " rolls" << endl;
-  cout << " I have " << pDD->chambers().size() << " chambers" << endl;
+  ofos << " Geometry node for RPCGeom is  " << &(*pDD) << std::endl;
+  ofos << " I have " << pDD->detTypes().size() << " detTypes" << std::endl;
+  ofos << " I have " << pDD->detUnits().size() << " detUnits" << std::endl;
+  ofos << " I have " << pDD->dets().size() << " dets" << std::endl;
+  ofos << " I have " << pDD->rolls().size() << " rolls" << std::endl;
+  ofos << " I have " << pDD->chambers().size() << " chambers" << std::endl;
 
-  std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
-  std::cout << "iter " << dashedLine_ << std::endl;
+  ofos << myName() << ": Begin iteration over geometry..." << std::endl;
+  ofos << "iter " << dashedLine_ << std::endl;
 
   const double dPi = 3.14159265358;
   const double radToDeg = 180. / dPi;  //@@ Where to get pi from?
@@ -92,7 +91,7 @@ void RPCSectorAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
         if (roll->id().region() == -1 && roll->id().station() > 0)  // &&
         // (*r)->id().sector() == 8)
         {
-          std::cout << "RPCDetId = " << roll->id() << std::endl;
+          ofos << "RPCDetId = " << roll->id() << std::endl;
           RPCGeomServ geosvc(roll->id());
           LocalPoint centre(0., 0., 0.);
           GlobalPoint gc = roll->toGlobal(centre);
@@ -103,7 +102,7 @@ void RPCSectorAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
           if (philast < 0)
             philast = 360. + philast;
           double deltaphi = philast - phifirs;
-          if (abs(deltaphi) > 180.) {
+          if (std::abs(deltaphi) > 180.) {
             if (deltaphi < 0) {
               deltaphi += 360.;
             } else if (deltaphi > 0) {
@@ -111,28 +110,27 @@ void RPCSectorAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
             }
           }
 
-          std::cout << " Position " << gc << " phi=" << double(gc.phi()) * radToDeg << " strip 1 " << phifirs
+          ofos << " Position " << gc << " phi=" << double(gc.phi()) * radToDeg << " strip 1 " << phifirs
                     << " strip " << roll->nstrips() << " " << philast << std::endl;
-          std::cout << geosvc.name() << " "
-                    << "Anticlockwise ? ";
+          ofos << geosvc.name() << " " << "Anticlockwise ? ";
           if (geosvc.aclockwise()) {
-            std::cout << "yes ";
+            ofos << "yes ";
           } else {
-            std::cout << "no ";
+            ofos << "no ";
           }
           if (deltaphi > 0. && geosvc.aclockwise()) {
-            std::cout << " OK ";
+            ofos << " OK ";
           } else if (deltaphi < 0. && !geosvc.aclockwise()) {
-            std::cout << " OK ";
+            ofos << " OK ";
           } else {
-            std::cout << " NOTOK ";
+            ofos << " NOTOK ";
           }
-          std::cout << " /\\phi=" << deltaphi << std::endl;
+          ofos << " /\\phi=" << deltaphi << std::endl;
         }
       }
     }
   }
-  std::cout << dashedLine_ << " end" << std::endl;
+  edm::LogVerbatim("RPCGeometry") << dashedLine_ << " end";
 }
 
 //define this as a plug-in
