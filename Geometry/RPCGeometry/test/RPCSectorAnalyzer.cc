@@ -110,9 +110,10 @@ void RPCSectorAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
             }
           }
 
-          ofos << " Position " << gc << " phi=" << double(gc.phi()) * radToDeg << " strip 1 " << phifirs
-                    << " strip " << roll->nstrips() << " " << philast << std::endl;
-          ofos << geosvc.name() << " " << "Anticlockwise ? ";
+          ofos << " Position " << gc << " phi=" << double(gc.phi()) * radToDeg << " strip 1 " << phifirs << " strip "
+               << roll->nstrips() << " " << philast << std::endl;
+          ofos << geosvc.name() << " "
+               << "Anticlockwise ? ";
           if (geosvc.aclockwise()) {
             ofos << "yes ";
           } else {

@@ -99,7 +99,7 @@ void RPCRadiiAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSet
           double phic = double(gc.phi()) * radToDeg;
           double radii = double(gc.perp());
           ofos << geosvc.name() << " phi=" << phic << " r=" << radii << " detName " << roll->specs()->detName()
-                    << " s=" << roll->id().sector() << " subs=" << roll->id().subsector() << std::endl;
+               << " s=" << roll->id().sector() << " subs=" << roll->id().subsector() << std::endl;
         }
       }
     }

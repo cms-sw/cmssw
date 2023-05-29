@@ -75,9 +75,10 @@ void RPCGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
   ofos << "iter " << dashedLine_ << std::endl;
 
   ofos << "\n  #     id(hex)      id(dec)                   "
-    "  g(x=0)   g(y=0)   g(z=0)  g(z=-1)  g(z=+1)  Ns "
-    "  phi(0)  phi(s1)  phi(sN)    dphi    dphi'      ds     off"
-    "       uR       uL       lR       lL"  << std::endl;
+          "  g(x=0)   g(y=0)   g(z=0)  g(z=-1)  g(z=+1)  Ns "
+          "  phi(0)  phi(s1)  phi(sN)    dphi    dphi'      ds     off"
+          "       uR       uL       lR       lL"
+       << std::endl;
 
   int iRPCCHcount = 0;
 
@@ -107,7 +108,7 @@ void RPCGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
       int idRaf = detId.rawId();
       //       const RPCRoll* rollRaf = ch->roll(1);
       ofos << "Num = " << iRPCCHcount << "  "
-	   << "RPCDet = " << idRaf << "  Num Rolls =" << ch->nrolls();
+           << "RPCDet = " << idRaf << "  Num Rolls =" << ch->nrolls();
       //       "  "<<"Roll 1 = "<<(rollRaf->id()).rawId()<<std::endl;
 
       std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
@@ -115,9 +116,9 @@ void RPCGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
         if (r->id().region() == 0) {
           ofos << "RPCDetId = " << r->id().rawId() << std::endl;
           ofos << "Region = " << r->id().region() << "  Ring = " << r->id().ring()
-                    << "  Station = " << r->id().station() << "  Sector = " << r->id().sector()
-                    << "  Layer = " << r->id().layer() << "  Subsector = " << r->id().subsector()
-                    << "  Roll = " << r->id().roll() << std::endl;
+               << "  Station = " << r->id().station() << "  Sector = " << r->id().sector()
+               << "  Layer = " << r->id().layer() << "  Subsector = " << r->id().subsector()
+               << "  Roll = " << r->id().roll() << std::endl;
         }
       }
     }

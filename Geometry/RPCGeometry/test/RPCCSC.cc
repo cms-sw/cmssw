@@ -239,16 +239,18 @@ void RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup
       float diffz = CenterPointRollGlobal.z() - CenterPointCSCGlobal.z();
       float dfg = df * 180. / 3.14159265;
 
-      edm::LogVerbatim("RPCGeometry") << "CSC \t " << rpcsrv.segment() << rpcsrv.name() << " dr=" << dr << " dz=" << diffz << " dfg=" << dfg;
+      edm::LogVerbatim("RPCGeometry") << "CSC \t " << rpcsrv.segment() << rpcsrv.name() << " dr=" << dr
+                                      << " dz=" << diffz << " dfg=" << dfg;
 
       bool print = false;
 
       if ((dr > 200. || fabs(diffz) > 55. || dfg > 1.) && print) {
         edm::LogVerbatim("RPCGeometry") << "\t \t problem CSC Station= " << CSCId.station() << " Ring= " << CSCId.ring()
-                  << " Chamber= " << CSCId.chamber() << " cscphi=" << cscphi * 180 / 3.14159265
-                  << "\t RPC Station= " << rpcId.station() << " ring= " << rpcId.ring() << " segment =-> "
-                  << rpcsrv.segment() << " rollphi=" << rpcphi * 180 / 3.14159265 << "\t dfg=" << dfg << " dz=" << diffz
-                  << " dr=" << dr;
+                                        << " Chamber= " << CSCId.chamber() << " cscphi=" << cscphi * 180 / 3.14159265
+                                        << "\t RPC Station= " << rpcId.station() << " ring= " << rpcId.ring()
+                                        << " segment =-> " << rpcsrv.segment()
+                                        << " rollphi=" << rpcphi * 180 / 3.14159265 << "\t dfg=" << dfg
+                                        << " dz=" << diffz << " dr=" << dr;
       }
     }
   }
