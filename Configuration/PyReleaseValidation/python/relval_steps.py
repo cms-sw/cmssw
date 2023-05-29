@@ -2550,7 +2550,7 @@ steps['RECODR3']=merge([{'--scenario':'pp',
                          '--era':'Run3',
                          '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3'},dataReco])
 
-steps['RECODR3_reHLT']=merge([{'--conditions':'auto:run3_data_prompt', '--hltProcess':'reHLT'},steps['RECODR3']])
+steps['RECODR3_reHLT']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
