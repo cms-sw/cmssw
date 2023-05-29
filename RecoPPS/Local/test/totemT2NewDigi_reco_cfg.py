@@ -31,14 +31,14 @@ process.maxEvents = cms.untracked.PSet(
 # raw-to-digi conversion
 process.load('CalibPPS.ESProducers.totemT2DAQMapping_cff')
 process.load('EventFilter.CTPPSRawToDigi.totemT2Digis_cfi')
-process.totemT2Digis.rawDataTag = cms.InputTag("rawDataCollector")
-process.totemDAQMappingESSourceXML.verbosity = cms.untracked.uint32(1)
-process.totemT2Digis.RawUnpacking.verbosity = cms.untracked.uint32(1)
-process.totemT2Digis.RawToDigi.verbosity = cms.untracked.uint32(3)
-process.totemT2Digis.RawToDigi.useOlderT2TestFile = cms.untracked.uint32(1)
-process.totemT2Digis.RawToDigi.printUnknownFrameSummary = cms.untracked.uint32(3)
-process.totemT2Digis.RawToDigi.printErrorSummary = cms.untracked.uint32(3)
-process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = cms.untracked.bool(True)
+process.totemT2Digis.rawDataTag = "rawDataCollector"
+process.totemDAQMappingESSourceXML.verbosity = 1
+process.totemT2Digis.RawUnpacking.verbosity = 1
+process.totemT2Digis.RawToDigi.verbosity = 3
+process.totemT2Digis.RawToDigi.useOlderT2TestFile = True
+process.totemT2Digis.RawToDigi.printUnknownFrameSummary = True
+process.totemT2Digis.RawToDigi.printErrorSummary = True
+process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = True
 
 # rechits production
 process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')
