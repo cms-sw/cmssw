@@ -2583,7 +2583,7 @@ for s in autoSkim.keys():
                                             '--data':'',
                                             '--era':'Run3',
                                             '--scenario':'pp',
-                                            '--conditions':'auto:run3_data_prompt',
+                                            '--conditions':'auto:run3_data_prompt_relval',
                                             '--hltProcess':'reHLT'}
     if 'Cosmics' in s:
         steps['SKIM'+s.upper()+'RUN3_reHLT']['--scenario'] = 'cosmics'
