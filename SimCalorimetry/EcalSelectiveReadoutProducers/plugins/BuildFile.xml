@@ -1,4 +1,12 @@
 <use name="SimCalorimetry/EcalSelectiveReadoutProducers"/>
+<use name="SimCalorimetry/EcalSelectiveReadoutAlgos"/>
+<use name="FWCore/Framework"/>
+ <use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="DataFormats/EcalDigi"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/EcalObjects"/>
+<use name="CondCore/DBOutputService"/>
 <library file="*.cc" name="EcalSelectiveReadoutProducersPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>
