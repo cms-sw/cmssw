@@ -3442,7 +3442,7 @@ steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
 steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['HARVESTDC']])
 
 steps['HARVESTDR3']  = merge([{'--conditions':'auto:run3_data','--era':'Run3'}, steps['HARVESTD']])
-steps['HARVESTDR3_reHLT']  = merge([{'--conditions':'auto:run3_data_prompt','--hltProcess':'reHLT','-s':'HARVESTING:@standardDQM+@miniAODDQM'}, steps['HARVESTDR3']])
+steps['HARVESTDR3_reHLT']  = merge([{'--conditions':'auto:run3_data_prompt_relval','--hltProcess':'reHLT','-s':'HARVESTING:@standardDQM+@miniAODDQM'}, steps['HARVESTDR3']])
 steps['HARVESTD2021MB_reHLT'] = merge([{'-s':'HARVESTING:@commonSiStripZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTDR3_reHLT'] ])
 steps['HARVESTD2021ZB_reHLT'] = merge([{'-s':'HARVESTING:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTDR3_reHLT'] ])
 steps['HARVESTD2021HLTPhy_reHLT'] = merge([{'-s':'HARVESTING:@commonReduced+@miniAODDQM'}, steps['HARVESTDR3_reHLT'] ])
