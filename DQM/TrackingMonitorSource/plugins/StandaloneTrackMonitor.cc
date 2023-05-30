@@ -112,6 +112,8 @@ private:
 
   MonitorElement* trackEtaH_;
   MonitorElement* trackEtaerrH_;
+  MonitorElement* trackCosThetaH_;
+  MonitorElement* trackThetaerrH_;
   MonitorElement* trackPhiH_;
   MonitorElement* trackPhierrH_;
   MonitorElement* trackPH_;
@@ -215,6 +217,12 @@ private:
   MonitorElement* nVertexH_;
   MonitorElement* nVtxH_;
 
+  MonitorElement* nPixBarrelH_;
+  MonitorElement* nPixEndcapH_;
+  MonitorElement* nStripTIBH_;
+  MonitorElement* nStripTOBH_;
+  MonitorElement* nStripTECH_;
+  MonitorElement* nStripTIDH_;
   MonitorElement* nTracksH_;
 
   // MC only
@@ -388,6 +396,46 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
                                                 consumes<QualityMaskCollection>(edm::InputTag(v, "QualityMasks"))));
   }
 
+  trackEtaH_ = nullptr;
+  trackEtaerrH_ = nullptr;
+  trackCosThetaH_ = nullptr;
+  trackThetaerrH_ = nullptr;
+  trackPhiH_ = nullptr;
+  trackPhierrH_ = nullptr;
+  trackPH_ = nullptr;
+  trackPtH_ = nullptr;
+  trackPtUpto2GeVH_ = nullptr;
+  trackPtOver10GeVH_ = nullptr;
+  trackPterrH_ = nullptr;
+  trackqOverpH_ = nullptr;
+  trackqOverperrH_ = nullptr;
+  trackChargeH_ = nullptr;
+  nlostHitsH_ = nullptr;
+  nvalidTrackerHitsH_ = nullptr;
+  nvalidPixelHitsH_ = nullptr;
+  nvalidStripHitsH_ = nullptr;
+  trkLayerwithMeasurementH_ = nullptr;
+  pixelLayerwithMeasurementH_ = nullptr;
+  stripLayerwithMeasurementH_ = nullptr;
+  beamSpotXYposH_ = nullptr;
+  beamSpotXYposerrH_ = nullptr;
+  beamSpotZposH_ = nullptr;
+  beamSpotZposerrH_ = nullptr;
+  trackChi2H_ = nullptr;
+  tracknDOFH_ = nullptr;
+  trackd0H_ = nullptr;
+  trackChi2bynDOFH_ = nullptr;
+  vertexXposH_ = nullptr;
+  vertexYposH_ = nullptr;
+  vertexZposH_ = nullptr;
+
+  nPixBarrelH_ = nullptr;
+  nPixEndcapH_ = nullptr;
+  nStripTIBH_ = nullptr;
+  nStripTOBH_ = nullptr;
+  nStripTECH_ = nullptr;
+  nStripTIDH_ = nullptr;
+
   // for MC only
   nVtxH_ = nullptr;
   nVertexH_ = nullptr;
@@ -518,6 +566,8 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                               TrackEtaHistoPar_.getParameter<double>("Xmax"));
 
     trackEtaerrH_ = ibook.book1D("trackEtaerr", "Track Eta Error", 50, 0.0, 1.0);
+    trackCosThetaH_ = ibook.book1D("trackCosTheta", "Track Cos(Theta)", 50, -1.0, 1.0);
+    trackThetaerrH_ = ibook.book1D("trackThetaerr", "Track Theta Error", 50, 0.0, 1.0);
     trackPhiH_ = ibook.book1D("trackPhi", "Track Phi", 70, -3.5, 3.5);
     trackPhierrH_ = ibook.book1D("trackPhierr", "Track Phi Error", 50, 0.0, 1.0);
 
@@ -640,7 +690,12 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D("nMissingOuterHitB", "No. missing outer hit per Track in Barrel", 11, -0.5, 10.5);
     nMissingOuterHitEH_ =
         ibook.book1D("nMissingOuterHitE", "No. missing outer hit per Track in Endcap", 11, -0.5, 10.5);
-
+    nPixBarrelH_ = ibook.book1D("nHitPixelBarrel", "No. of hits in Pixel Barrel per Track", 20, 0, 20.0);
+    nPixEndcapH_ = ibook.book1D("nHitPixelEndcap", "No. of hits in Pixel Endcap per Track", 20, 0, 20.0);
+    nStripTIBH_ = ibook.book1D("nHitStripTIB", "No. of hits in Strip TIB per Track", 30, 0, 30.0);
+    nStripTOBH_ = ibook.book1D("nHitStripTOB", "No. of hits in Strip TOB per Track", 30, 0, 30.0);
+    nStripTECH_ = ibook.book1D("nHitStripTEC", "No. of hits in Strip TEC per Track", 30, 0, 30.0);
+    nStripTIDH_ = ibook.book1D("nHitStripTID", "No. of hits in Strip TID per Tracks", 30, 0, 30.0);
     nTracksH_ = ibook.book1D("nTracks", "No. of Tracks", 1200, -0.5, 1199.5);
     nJet_ = ibook.book1D("nJet", "Number of Jets", 101, -0.5, 100.5);
     Jet_pt_ = ibook.book1D("Jet_pt", "Jet p_{T}", 200, 0., 200.);
@@ -1395,6 +1450,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
 
       if (haveAllHistograms_) {
         double etaError = track.etaError();
+        double thetaError = track.thetaError();
         double phiError = track.phiError();
         double p = track.p();
         double ptError = track.ptError();
@@ -1472,6 +1528,8 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
         trackDeltaRwrtClosestTrack_->Fill(trackdeltaR, wfac);
         trackEtaH_->Fill(eta, wfac);
         trackEtaerrH_->Fill(etaError, wfac);
+        trackCosThetaH_->Fill(std::cos(theta), wfac);
+        trackThetaerrH_->Fill(thetaError, wfac);
         trackPhiH_->Fill(phi, wfac);
         trackPhierrH_->Fill(phiError, wfac);
         trackPH_->Fill(p, wfac);
@@ -1508,6 +1566,43 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
         vertexXposH_->Fill(vx, wfac);
         vertexYposH_->Fill(vy, wfac);
         vertexZposH_->Fill(vz, wfac);
+
+        int nPixBarrel = 0, nPixEndcap = 0, nStripTIB = 0, nStripTOB = 0, nStripTEC = 0, nStripTID = 0;
+        for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); ++it) {
+          const TrackingRecHit& hit = (**it);
+          if (hit.isValid()) {
+            if (hit.geographicalId().det() == DetId::Tracker) {
+              int subdetId = hit.geographicalId().subdetId();
+              if (subdetId == PixelSubdetector::PixelBarrel)
+                ++nPixBarrel;
+              else if (subdetId == PixelSubdetector::PixelEndcap)
+                ++nPixEndcap;
+              else if (subdetId == StripSubdetector::TIB)
+                ++nStripTIB;
+              else if (subdetId == StripSubdetector::TOB)
+                ++nStripTOB;
+              else if (subdetId == StripSubdetector::TEC)
+                ++nStripTEC;
+              else if (subdetId == StripSubdetector::TID)
+                ++nStripTID;
+
+              // Find on-track clusters
+              processHit(hit, iSetup, tkGeom, wfac);
+            }
+          }
+        }
+        if (verbose_)
+          edm::LogInfo("StandaloneTrackMonitor")
+              << " >>> HITs: nPixBarrel: " << nPixBarrel << " nPixEndcap: " << nPixEndcap << " nStripTIB: " << nStripTIB
+              << " nStripTOB: " << nStripTOB << " nStripTEC: " << nStripTEC << " nStripTID: " << nStripTID;
+        if (haveAllHistograms_) {
+          nPixBarrelH_->Fill(nPixBarrel, wfac);
+          nPixEndcapH_->Fill(nPixEndcap, wfac);
+          nStripTIBH_->Fill(nStripTIB, wfac);
+          nStripTOBH_->Fill(nStripTOB, wfac);
+          nStripTECH_->Fill(nStripTEC, wfac);
+          nStripTIDH_->Fill(nStripTID, wfac);
+        }
 
         DistanceOfClosestApproachToPVH_->Fill(distanceOfClosestApproachToPV, wfac);
         DistanceOfClosestApproachToPVZoomedH_->Fill(distanceOfClosestApproachToPV, wfac);

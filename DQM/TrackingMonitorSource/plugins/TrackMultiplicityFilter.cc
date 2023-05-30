@@ -35,7 +35,7 @@ bool TrackMultiplicityFilter::filter(edm::StreamID iStream, edm::Event& iEvent, 
 
   pass = (count >= nmin_);
 
-  std::cout << "pass : " << pass << std::endl;
+  edm::LogInfo("TrackMultiplicityFilter") << "pass : " << pass;
 
   return pass;
 }

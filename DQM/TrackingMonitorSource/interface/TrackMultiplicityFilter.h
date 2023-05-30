@@ -1,5 +1,5 @@
-#ifndef TRACKMULTIPLICITYFILTER_H
-#define TRACKMULTIPLICITYFILTER_H
+#ifndef DQM_TrackingMonitorSource_TrackMultiplicityFilter_H
+#define DQM_TrackingMonitorSource_TrackMultiplicityFilter_H
 
 // system include files
 #include <memory>
