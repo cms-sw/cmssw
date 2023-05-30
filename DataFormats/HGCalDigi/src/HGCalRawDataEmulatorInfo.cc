@@ -41,6 +41,7 @@ void HGCalECONDEmulatorInfo::addERxChannelsEnable(const std::vector<bool>& erx_c
 
 std::vector<bool> HGCalECONDEmulatorInfo::channelsEnabled(size_t ch_id) const {
   std::vector<bool> ch_en;
+  ch_en.reserve(erx_pois_.size());
   for (const auto& erx_channels_poi : erx_pois_)
     ch_en.emplace_back(erx_channels_poi.at(ch_id));
   return ch_en;
