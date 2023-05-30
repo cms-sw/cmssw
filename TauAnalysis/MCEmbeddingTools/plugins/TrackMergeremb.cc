@@ -195,6 +195,12 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
       reco::ElectronSeedRef seed = it->seedRef().castTo<reco::ElectronSeedRef>();
       (const_cast<reco::ElectronSeed*>(seed.get()))->setCtfTrack(simple_track_to_track_map[seed->ctfTrack()]);
       outTracks->push_back(reco::GsfTrack(*it));
+      auto rechits = it->recHits();
+      // Fixing geometry records of detector components for tracking rec. hits
+      for (auto ith = rechits.begin(); ith!= rechits.end(); ith++){
+        auto hit = *(&(*ith));
+        hit->setDet(*geometry_->idToDet(hit->rawId()));
+      }
       outTracks_ex->push_back(reco::TrackExtra(*it->extra()));
       outTracks_exgsf->push_back(reco::GsfTrackExtra(*it->gsfExtra()));
 
