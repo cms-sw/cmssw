@@ -88,7 +88,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEG90HEFilter')","hltEG90HEFilter"),
                 mksel("filter('hltEG120HEFilter')","hltEG120HEFilter"),
                 mksel("filter('hltEG150HEFilter')","hltEG150HEFilter"),
-                mksel("filter('hltEG175HEFilter')","hltEG150HEFilter"),
+                mksel("filter('hltEG175HEFilter')","hltEG175HEFilter"),
                 mksel("filter('hltEG200HEFilter')","hltEG200HEFilter"),
                 mksel("filter('hltHtEcal800')","hltHtEcal800"),
                 mksel("filter('hltEG110EBTightIDTightIsoTrackIsoFilter')","hltEG110EBTightIDTightIsoTrackIsoFilter"),
