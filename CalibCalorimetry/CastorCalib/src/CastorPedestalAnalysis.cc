@@ -107,7 +107,7 @@ void CastorPedestalAnalysis::processEvent(const CastorDigiCollection& castor, co
   // HF
   try {
     if (castor.empty())
-      throw(int) castor.size();
+      throw (int)castor.size();
     for (CastorDigiCollection::const_iterator j = castor.begin(); j != castor.end(); ++j) {
       const CastorDataFrame digi = (const CastorDataFrame)(*j);
       m_coder = cond.getCastorCoder(digi.id());

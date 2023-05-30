@@ -770,7 +770,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
           auto const& hbheht = iEvent.getHandle(tok_hbhe_);  // iEvent.getByType(hbheht);
           if (!(*hbheht).empty()) {
             if ((*hbheht).empty())
-              throw(int)(*hbheht).size();
+              throw (int)(*hbheht).size();
 
             for (HBHERecHitCollection::const_iterator jk = (*hbheht).begin(); jk != (*hbheht).end(); jk++) {
               HcalDetId id = (*jk).id();
