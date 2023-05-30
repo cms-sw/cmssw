@@ -275,7 +275,7 @@
 #define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                  \
   delete[] BOOST_PP_CAT(NAME, _); \
   BOOST_PP_CAT(NAME, _) = nullptr; \
-// clang-format on
+  // clang-format on
 
 #define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME) _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME
 
