@@ -182,13 +182,13 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::produceElectrons(edm::Event& iEvent) const {
-    if (electronsFloatingPointValues_.size() != 19) {
+    if (electronsFloatingPointValues_.size() != 25) {
       throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceElectrons, test configuration error, "
-                                          << "electronsFloatingPointValues must have 19 elements and it does not";
+                                          << "electronsFloatingPointValues must have 25 elements and it does not";
     }
-    if (electronsIntegralValues_.size() != 5) {
+    if (electronsIntegralValues_.size() != 6) {
       throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceElectrons, test configuration error, "
-                                          << "electronsIntegralValues must have 5 elements and it does not";
+                                          << "electronsIntegralValues must have 6 elements and it does not";
     }
     auto run3ScoutingElectrons = std::make_unique<std::vector<Run3ScoutingElectron>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
@@ -197,13 +197,40 @@ namespace edmtest {
       double offset = static_cast<double>(iEvent.id().event() + i);
       int iOffset = static_cast<int>(iEvent.id().event() + i);
 
+      // Note the first seven of these vectors use an out of sequence index
+      // (starting at 19 or 5) because they are data members added in a format
+      // change. In the CMSSW_12_4_0 version, they didn't exist.
+      // Also the index values 4 and 5 in electronsFloatingPointValues_
+      // and index 1 in electronsIntegralValues_ are not used because
+      // those data members were dropped in the same format change.
+      std::vector<float> trkd0;
+      std::vector<float> trkdz;
+      std::vector<float> trkpt;
+      std::vector<float> trketa;
+      std::vector<float> trkphi;
+      std::vector<float> trkchi2overndf;
+      std::vector<int> trkcharge;
       std::vector<float> energyMatrix;
       std::vector<unsigned int> detIds;
       std::vector<float> timingMatrix;
+      trkd0.reserve(vectorSize);
+      trkdz.reserve(vectorSize);
+      trkpt.reserve(vectorSize);
+      trketa.reserve(vectorSize);
+      trkphi.reserve(vectorSize);
+      trkchi2overndf.reserve(vectorSize);
+      trkcharge.reserve(vectorSize);
       energyMatrix.reserve(vectorSize);
       detIds.reserve(vectorSize);
       timingMatrix.reserve(vectorSize);
       for (unsigned int j = 0; j < vectorSize; ++j) {
+        trkd0.push_back(static_cast<float>(electronsFloatingPointValues_[19] + offset + j * 10));
+        trkdz.push_back(static_cast<float>(electronsFloatingPointValues_[20] + offset + j * 10));
+        trkpt.push_back(static_cast<float>(electronsFloatingPointValues_[21] + offset + j * 10));
+        trketa.push_back(static_cast<float>(electronsFloatingPointValues_[22] + offset + j * 10));
+        trkphi.push_back(static_cast<float>(electronsFloatingPointValues_[23] + offset + j * 10));
+        trkchi2overndf.push_back(static_cast<float>(electronsFloatingPointValues_[24] + offset + j * 10));
+        trkcharge.push_back(static_cast<int>(electronsIntegralValues_[5] + offset + j * 10));
         energyMatrix.push_back(static_cast<float>(electronsFloatingPointValues_[17] + offset + j * 10));
         detIds.push_back(static_cast<uint32_t>(electronsIntegralValues_[3] + iOffset + j * 10));
         timingMatrix.push_back(static_cast<float>(electronsFloatingPointValues_[18] + offset + j * 10));
@@ -212,15 +239,19 @@ namespace edmtest {
                                           static_cast<float>(electronsFloatingPointValues_[1] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[2] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[3] + offset),
-                                          static_cast<float>(electronsFloatingPointValues_[4] + offset),
-                                          static_cast<float>(electronsFloatingPointValues_[5] + offset),
+                                          std::move(trkd0),
+                                          std::move(trkdz),
+                                          std::move(trkpt),
+                                          std::move(trketa),
+                                          std::move(trkphi),
+                                          std::move(trkchi2overndf),
                                           static_cast<float>(electronsFloatingPointValues_[6] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[7] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[8] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[9] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[10] + offset),
                                           electronsIntegralValues_[0] + iOffset,
-                                          electronsIntegralValues_[1] + iOffset,
+                                          std::move(trkcharge),
                                           static_cast<float>(electronsFloatingPointValues_[11] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[12] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[13] + offset),
