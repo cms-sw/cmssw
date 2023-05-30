@@ -540,6 +540,11 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     unsigned char* dataPosition;
 
     //read header, copy it to a single chunk if necessary
+    if (currentFile_->fileSizeLeft() < FRDHeaderVersionSize[detectedFRDversion_])
+      throw cms::Exception("FedRawDataInputSource::getNextEvent")
+          << "Premature end of input file (missing:"
+          << (FRDHeaderVersionSize[detectedFRDversion_] - currentFile_->fileSizeLeft())
+          << ") while reading event data for next event header";
     bool chunkEnd = currentFile_->advance(dataPosition, FRDHeaderVersionSize[detectedFRDversion_]);
 
     event_ = std::make_unique<FRDEventMsgView>(dataPosition);
@@ -552,9 +557,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
 
     const uint32_t msgSize = event_->size() - FRDHeaderVersionSize[detectedFRDversion_];
 
-    if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize) {
+    if (currentFile_->fileSizeLeft() < msgSize) {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
-          << "Premature end of input file while reading event data";
+          << "Premature end of input file (missing:" << (msgSize - currentFile_->fileSizeLeft())
+          << ") while reading event data for event " << event_->event() << " lumi:" << event_->lumi();
     }
 
     if (chunkEnd) {
@@ -584,6 +590,12 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         assert(!chunkEnd);
         chunkIsFree_ = false;
       }
+    }
+    //sanity-check check that the buffer position has not exceeded file size after preparing event
+    if (currentFile_->fileSize_ < currentFile_->bufferPosition_) {
+      throw cms::Exception("FedRawDataInputSource::getNextEvent")
+          << "Exceeded file size by " << currentFile_->bufferPosition_ - currentFile_->fileSize_
+          << " after reading last event declared size of " << event_->size() << " bytes";
     }
   }  //end multibuffer mode
   setMonState(inChecksumEvent);
@@ -800,7 +812,12 @@ void FedRawDataInputSource::readSupervisor() {
       //sleep until woken up by condition or a timeout
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
-        //if (!(counter%50)) edm::LogInfo("FedRawDataInputSource") << "No free chunks or threads...";
+        if (!(counter % 6000)) {
+          edm::LogWarning("FedRawDataInputSource")
+              << "No free chunks or threads. Worker pool empty:" << workerPool_.empty()
+              << ", free chunks empty:" << freeChunks_.empty() << ", number of files buffered:" << readingFilesCount_
+              << " / " << maxBufferedFiles_;
+        }
         LogDebug("FedRawDataInputSource") << "No free chunks or threads...";
       } else {
         assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
@@ -1420,6 +1437,7 @@ inline bool InputFile::advance(unsigned char*& dataPosition, const size_t size) 
 
   if (currentLeft < size) {
     //we need next chunk
+    assert(chunks_.size() > currentChunk_ + 1);
     while (!waitForChunk(currentChunk_ + 1)) {
       parent_->setMonState(inWaitChunk);
       usleep(100000);
