@@ -1193,7 +1193,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 }
 void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   if (verbose_)
-    std::cout << "Begin StandaloneTrackMonitor" << std::endl;
+    edm::LogInfo("StandaloneTrackMonitor") << "Begin StandaloneTrackMonitor" << std::endl;
 
   nevt++;
 
@@ -1204,11 +1204,10 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   edm::Handle<reco::VertexCollection> vertexColl;
   iEvent.getByToken(vertexToken_, vertexColl);
   if (!vertexColl.isValid()) {
-    std::cerr << "Error! Failed to get reco::Vertex Collection, for " << vertexTag_ << std::endl;
     edm::LogError("DqmTrackStudy") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
   }
   if (vertexColl->empty()) {
-    std::cerr << "No good vertex in the event!!" << std::endl;
+    edm::LogError("StandalonaTrackMonitor") << "No good vertex in the event!!" << std::endl;
     return;
   }
   const reco::Vertex& pv = (*vertexColl)[0];
@@ -1217,13 +1216,13 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
   if (!beamSpot.isValid())
-    std::cerr << "Beamspot for input tag: " << bsTag_ << " not found!!" << std::endl;
+    edm::LogError("StandalonaTrackMonitor") << "Beamspot for input tag: " << bsTag_ << " not found!!";
 
   // Track collection
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(trackToken_, tracks);
   if (!tracks.isValid())
-    std::cerr << "TrackCollection for input tag: " << trackTag_ << " not found!!" << std::endl;
+    edm::LogError("StandalonaTrackMonitor") << "TrackCollection for input tag: " << trackTag_ << " not found!!";
 
   // Access PU information
   double wfac = 1.0;  // for data
@@ -1254,7 +1253,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
         }
       }
     } else
-      std::cerr << "PUSummary for input tag: " << puSummaryTag_ << " not found!!" << std::endl;
+      edm::LogError("StandalonaTrackMonitor") << "PUSummary for input tag: " << puSummaryTag_ << " not found!!";
     if (doTrackCorrection_) {
       int ntrack = 0;
       for (auto const& track : *tracks) {
@@ -1270,8 +1269,6 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   }
   if (verbose_)
     edm::LogInfo("StandaloneTrackMonitor") << "PU reweight factor = " << wfac;
-  if (verbose_)
-    std::cout << "PU scale factor" << wfac << std::endl;
 
   if (haveAllHistograms_) {
     int nvtx = (vertexColl.isValid() ? vertexColl->size() : 0);
@@ -1283,12 +1280,9 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   int ntracks = 0;
 
   if (tracks.isValid()) {
-    edm::LogInfo("StandaloneTrackMonitor") << "Total # of Tracks: " << tracks->size();
     if (verbose_)
       edm::LogInfo("StandaloneTrackMonitor") << "Total # of Tracks: " << tracks->size();
     reco::Track::TrackQuality quality = reco::Track::qualityByName(trackQuality_);
-    if (verbose_)
-      std::cout << "Total # of Tracks: " << tracks->size() << std::endl;
 
     std::vector<TLorentzVector> list;
 
@@ -1306,7 +1300,8 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
       double nAllHits = hitp.numberOfAllHits(reco::HitPattern::TRACK_HITS);
       double nAllTrackerHits = hitp.numberOfAllTrackerHits(reco::HitPattern::TRACK_HITS);
 
-      double trackdeltaR = 100000000000;
+      double trackdeltaR = std::numeric_limits<double>::max();
+      ;
 
       TLorentzVector track1;
       track1.SetPtEtaPhiM(track.pt(), track.eta(), track.phi(), 0.);
@@ -1707,7 +1702,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   processClusters(iEvent, iSetup, tkGeom, wfac);
 
   if (verbose_)
-    std::cout << "Ends StandaloneTrackMonitor successfully" << std::endl;
+    edm::LogInfo("StandaloneTrackMonitor") << "Ends StandaloneTrackMonitor successfully";
 }
 void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
                                              edm::EventSetup const& iSetup,
