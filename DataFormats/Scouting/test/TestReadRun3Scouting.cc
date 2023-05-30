@@ -65,6 +65,7 @@ namespace edmtest {
     std::vector<double> expectedCaloJetsValues_;
     edm::EDGetTokenT<std::vector<Run3ScoutingCaloJet>> caloJetsToken_;
 
+    int inputElectronClassVersion_;
     std::vector<double> expectedElectronFloatingPointValues_;
     std::vector<int> expectedElectronIntegralValues_;
     edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
@@ -97,6 +98,7 @@ namespace edmtest {
   TestReadRun3Scouting::TestReadRun3Scouting(edm::ParameterSet const& iPSet)
       : expectedCaloJetsValues_(iPSet.getParameter<std::vector<double>>("expectedCaloJetsValues")),
         caloJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("caloJetsTag"))),
+        inputElectronClassVersion_(iPSet.getParameter<int>("electronClassVersion")),
         expectedElectronFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedElectronFloatingPointValues")),
         expectedElectronIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedElectronIntegralValues")),
@@ -138,6 +140,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<double>>("expectedCaloJetsValues");
     desc.add<edm::InputTag>("caloJetsTag");
+    desc.add<int>("electronClassVersion");
     desc.add<std::vector<double>>("expectedElectronFloatingPointValues");
     desc.add<std::vector<int>>("expectedElectronIntegralValues");
     desc.add<edm::InputTag>("electronsTag");
@@ -228,12 +231,12 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzeElectrons(edm::Event const& iEvent) const {
-    if (expectedElectronFloatingPointValues_.size() != 19) {
+    if (expectedElectronFloatingPointValues_.size() != 25) {
       throwWithMessage(
-          "analyzeElectrons, test configuration error, expectedElectronFloatingPointValues must have size 19");
+          "analyzeElectrons, test configuration error, expectedElectronFloatingPointValues must have size 25");
     }
-    if (expectedElectronIntegralValues_.size() != 5) {
-      throwWithMessage("analyzeElectrons, test configuration error, expectedElectronIntegralValues must have size 5");
+    if (expectedElectronIntegralValues_.size() != 6) {
+      throwWithMessage("analyzeElectrons, test configuration error, expectedElectronIntegralValues must have size 6");
     }
     auto const& electrons = iEvent.get(electronsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
@@ -257,11 +260,19 @@ namespace edmtest {
       if (electron.m() != expectedElectronFloatingPointValues_[3] + offset) {
         throwWithMessage("analyzeElectrons, m does not equal expected value");
       }
-      if (electron.d0() != expectedElectronFloatingPointValues_[4] + offset) {
-        throwWithMessage("analyzeElectrons, d0 does not equal expected value");
-      }
-      if (electron.dz() != expectedElectronFloatingPointValues_[5] + offset) {
-        throwWithMessage("analyzeElectrons,  dz does not equal expected value");
+      if (inputElectronClassVersion_ == 5) {
+        if (electron.trkd0().size() != 1) {
+          throwWithMessage("analyzeElectrons, trkd0 does not have expected size");
+        }
+        if (electron.trkd0()[0] != expectedElectronFloatingPointValues_[4] + offset) {
+          throwWithMessage("analyzeElectrons, d0 does not equal expected value");
+        }
+        if (electron.trkdz().size() != 1) {
+          throwWithMessage("analyzeElectrons, trkdz does not have expected size");
+        }
+        if (electron.trkdz()[0] != expectedElectronFloatingPointValues_[5] + offset) {
+          throwWithMessage("analyzeElectrons,  dz does not equal expected value");
+        }
       }
       if (electron.dEtaIn() != expectedElectronFloatingPointValues_[6] + offset) {
         throwWithMessage("analyzeElectrons,  dEtaIn does not equal expected value");
@@ -281,8 +292,13 @@ namespace edmtest {
       if (electron.missingHits() != expectedElectronIntegralValues_[0] + iOffset) {
         throwWithMessage("analyzeElectrons, missingHits does not equal expected value");
       }
-      if (electron.charge() != expectedElectronIntegralValues_[1] + iOffset) {
-        throwWithMessage("analyzeElectrons, charge does not equal expected value");
+      if (inputElectronClassVersion_ == 5) {
+        if (electron.trkcharge().size() != 1) {
+          throwWithMessage("analyzeElectrons, trkcharge does not have expected size");
+        }
+        if (electron.trkcharge()[0] != expectedElectronIntegralValues_[1] + iOffset) {
+          throwWithMessage("analyzeElectrons, charge does not equal expected value");
+        }
       }
       if (electron.ecalIso() != expectedElectronFloatingPointValues_[11] + offset) {
         throwWithMessage("analyzeElectrons, ecalIso does not equal expected value");
@@ -337,6 +353,78 @@ namespace edmtest {
       }
       if (electron.rechitZeroSuppression() != static_cast<bool>((expectedElectronIntegralValues_[4] + iOffset) % 2)) {
         throwWithMessage("analyzeElectrons, rechitZeroSuppression does not equal expected value");
+      }
+      if (inputElectronClassVersion_ == 6) {
+        if (electron.trkd0().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkd0 does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkd0()) {
+          if (val != expectedElectronFloatingPointValues_[19] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkd0 does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trkdz().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkdz does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkdz()) {
+          if (val != expectedElectronFloatingPointValues_[20] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkdz does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trkpt().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkpt does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkpt()) {
+          if (val != expectedElectronFloatingPointValues_[21] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkpt does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trketa().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trketa does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trketa()) {
+          if (val != expectedElectronFloatingPointValues_[22] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trketa does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trkphi().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkphi does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkphi()) {
+          if (val != expectedElectronFloatingPointValues_[23] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkphi does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trkchi2overndf().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkchi2overndf does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkchi2overndf()) {
+          if (val != expectedElectronFloatingPointValues_[24] + offset + 10 * j) {
+            throwWithMessage("analyzeElectrons, trkchi2overndf does not contain expected value");
+          }
+          ++j;
+        }
+        if (electron.trkcharge().size() != vectorSize) {
+          throwWithMessage("analyzeElectrons, trkcharge does not have expected size");
+        }
+        j = 0;
+        for (auto const& val : electron.trkcharge()) {
+          if (val != static_cast<int>(expectedElectronIntegralValues_[5] + iOffset + 10 * j)) {
+            throwWithMessage("analyzeElectrons, trkcharge does not contain expected value");
+          }
+          ++j;
+        }
       }
       ++i;
     }

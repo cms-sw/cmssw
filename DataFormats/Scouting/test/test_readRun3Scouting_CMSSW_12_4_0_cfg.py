@@ -14,7 +14,7 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
         22.0, 24.0, 26.0, 28.0, 30.0,
         32.0),
     caloJetsTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
-    electronClassVersion = cms.int32(6),
+    electronClassVersion = cms.int32(5),
     expectedElectronFloatingPointValues = cms.vdouble(
         10.0,   20.0,  30.0,  40.0,  50.0,
         60.0,   70.0,  80.0,  90.0, 100.0,
@@ -93,7 +93,7 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRun3Scouting2.root')
+    fileName = cms.untracked.string('testRun3Scouting2_CMSSW_12_4_0.root')
 )
 
 process.path = cms.Path(process.testReadRun3Scouting)
