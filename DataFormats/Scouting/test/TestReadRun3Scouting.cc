@@ -56,43 +56,44 @@ namespace edmtest {
     void analyzeTracks(edm::Event const&) const;
     void analyzeVertexes(edm::Event const&) const;
 
+    void throwWithMessageFromConstructor(const char*) const;
     void throwWithMessage(const char*) const;
 
     // These expected values are meaningless other than we use them
     // to check that values read from persistent storage match the values
     // we know were written.
 
-    std::vector<double> expectedCaloJetsValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingCaloJet>> caloJetsToken_;
+    const std::vector<double> expectedCaloJetsValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingCaloJet>> caloJetsToken_;
 
-    int inputElectronClassVersion_;
-    std::vector<double> expectedElectronFloatingPointValues_;
-    std::vector<int> expectedElectronIntegralValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
+    const int inputElectronClassVersion_;
+    const std::vector<double> expectedElectronFloatingPointValues_;
+    const std::vector<int> expectedElectronIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
 
-    std::vector<double> expectedMuonFloatingPointValues_;
-    std::vector<int> expectedMuonIntegralValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken_;
+    const std::vector<double> expectedMuonFloatingPointValues_;
+    const std::vector<int> expectedMuonIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken_;
 
-    std::vector<double> expectedParticleFloatingPointValues_;
-    std::vector<int> expectedParticleIntegralValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> particlesToken_;
+    const std::vector<double> expectedParticleFloatingPointValues_;
+    const std::vector<int> expectedParticleIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> particlesToken_;
 
-    std::vector<double> expectedPFJetFloatingPointValues_;
-    std::vector<int> expectedPFJetIntegralValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfJetsToken_;
+    const std::vector<double> expectedPFJetFloatingPointValues_;
+    const std::vector<int> expectedPFJetIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfJetsToken_;
 
-    std::vector<double> expectedPhotonFloatingPointValues_;
-    std::vector<int> expectedPhotonIntegralValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken_;
+    const std::vector<double> expectedPhotonFloatingPointValues_;
+    const std::vector<int> expectedPhotonIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken_;
 
-    std::vector<double> expectedTrackFloatingPointValues_;
-    std::vector<int> expectedTrackIntegralValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
+    const std::vector<double> expectedTrackFloatingPointValues_;
+    const std::vector<int> expectedTrackIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
 
-    std::vector<double> expectedVertexFloatingPointValues_;
-    std::vector<int> expectedVertexIntegralValues_;
-    edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> vertexesToken_;
+    const std::vector<double> expectedVertexFloatingPointValues_;
+    const std::vector<int> expectedVertexIntegralValues_;
+    const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> vertexesToken_;
   };
 
   TestReadRun3Scouting::TestReadRun3Scouting(edm::ParameterSet const& iPSet)
@@ -123,7 +124,55 @@ namespace edmtest {
         expectedVertexFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedVertexFloatingPointValues")),
         expectedVertexIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedVertexIntegralValues")),
-        vertexesToken_(consumes(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {}
+        vertexesToken_(consumes(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {
+    if (expectedCaloJetsValues_.size() != 16) {
+      throwWithMessageFromConstructor("test configuration error, expectedCaloJetsValues must have size 16");
+    }
+    if (expectedElectronFloatingPointValues_.size() != 25) {
+      throwWithMessageFromConstructor(
+          "test configuration error, expectedElectronFloatingPointValues must have size 25");
+    }
+    if (expectedElectronIntegralValues_.size() != 6) {
+      throwWithMessageFromConstructor("test configuration error, expectedElectronIntegralValues must have size 6");
+    }
+    if (expectedMuonFloatingPointValues_.size() != 37) {
+      throwWithMessageFromConstructor("test configuration error, expectedMuonFloatingPointValues must have size 37");
+    }
+    if (expectedMuonIntegralValues_.size() != 26) {
+      throwWithMessageFromConstructor("test configuration error, expectedMuonIntegralValues must have size 26");
+    }
+    if (expectedParticleFloatingPointValues_.size() != 11) {
+      throwWithMessageFromConstructor(
+          "test configuration error, expectedParticleFloatingPointValues must have size 11");
+    }
+    if (expectedParticleIntegralValues_.size() != 5) {
+      throwWithMessageFromConstructor("test configuration error, expectedParticleIntegralValues must have size 5");
+    }
+    if (expectedPFJetFloatingPointValues_.size() != 15) {
+      throwWithMessageFromConstructor("test configuration error, expectedPFJetFloatingPointValues must have size 15");
+    }
+    if (expectedPFJetIntegralValues_.size() != 8) {
+      throwWithMessageFromConstructor("test configuration error, expectedPFJetIntegralValues must have size 8");
+    }
+    if (expectedPhotonFloatingPointValues_.size() != 14) {
+      throwWithMessageFromConstructor("test configuration error, expectedPhotonFloatingPointValues must have size 14");
+    }
+    if (expectedPhotonIntegralValues_.size() != 3) {
+      throwWithMessageFromConstructor("test configuration error, expectedPhotonIntegralValues must have size 3");
+    }
+    if (expectedTrackFloatingPointValues_.size() != 29) {
+      throwWithMessageFromConstructor("test configuration error, expectedTrackFloatingPointValues must have size 29");
+    }
+    if (expectedTrackIntegralValues_.size() != 5) {
+      throwWithMessageFromConstructor("test configuration error, expectedTrackIntegralValues must have size 5");
+    }
+    if (expectedVertexFloatingPointValues_.size() != 7) {
+      throwWithMessageFromConstructor("test configuration error, expectedVertexFloatingPointValues must have size 7");
+    }
+    if (expectedVertexIntegralValues_.size() != 3) {
+      throwWithMessageFromConstructor("test configuration error, expectedVertexIntegralValues must have size 3");
+    }
+  }
 
   void TestReadRun3Scouting::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
     analyzeCaloJets(iEvent);
@@ -166,9 +215,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzeCaloJets(edm::Event const& iEvent) const {
-    if (expectedCaloJetsValues_.size() != 16) {
-      throwWithMessage("analyzeCaloJets, test configuration error, expectedCaloJetsValues must have size 16");
-    }
     auto const& caloJets = iEvent.get(caloJetsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (caloJets.size() != vectorSize) {
@@ -231,13 +277,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzeElectrons(edm::Event const& iEvent) const {
-    if (expectedElectronFloatingPointValues_.size() != 25) {
-      throwWithMessage(
-          "analyzeElectrons, test configuration error, expectedElectronFloatingPointValues must have size 25");
-    }
-    if (expectedElectronIntegralValues_.size() != 6) {
-      throwWithMessage("analyzeElectrons, test configuration error, expectedElectronIntegralValues must have size 6");
-    }
     auto const& electrons = iEvent.get(electronsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (electrons.size() != vectorSize) {
@@ -431,12 +470,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzeMuons(edm::Event const& iEvent) const {
-    if (expectedMuonFloatingPointValues_.size() != 37) {
-      throwWithMessage("analyzeMuons, test configuration error, expectedMuonFloatingPointValues must have size 37");
-    }
-    if (expectedMuonIntegralValues_.size() != 26) {
-      throwWithMessage("analyzeMuons, test configuration error, expectedMuonIntegralValues must have size 26");
-    }
     auto const& muons = iEvent.get(muonsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (muons.size() != vectorSize) {
@@ -650,13 +683,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzeParticles(edm::Event const& iEvent) const {
-    if (expectedParticleFloatingPointValues_.size() != 11) {
-      throwWithMessage(
-          "analyzeParticles, test configuration error, expectedParticleFloatingPointValues must have size 11");
-    }
-    if (expectedParticleIntegralValues_.size() != 5) {
-      throwWithMessage("analyzeParticles, test configuration error, expectedParticleIntegralValues must have size 5");
-    }
     auto const& particles = iEvent.get(particlesToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (particles.size() != vectorSize) {
@@ -720,12 +746,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzePFJets(edm::Event const& iEvent) const {
-    if (expectedPFJetFloatingPointValues_.size() != 15) {
-      throwWithMessage("analyzePFJets, test configuration error, expectedPFJetFloatingPointValues must have size 15");
-    }
-    if (expectedPFJetIntegralValues_.size() != 8) {
-      throwWithMessage("analyzePFJets, test configuration error, expectedPFJetIntegralValues must have size 8");
-    }
     auto const& pfJets = iEvent.get(pfJetsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (pfJets.size() != vectorSize) {
@@ -814,12 +834,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzePhotons(edm::Event const& iEvent) const {
-    if (expectedPhotonFloatingPointValues_.size() != 14) {
-      throwWithMessage("analyzePhotons, test configuration error, expectedPhotonFloatingPointValues must have size 14");
-    }
-    if (expectedPhotonIntegralValues_.size() != 3) {
-      throwWithMessage("analyzePhotons, test configuration error, expectedPhotonIntegralValues must have size 3");
-    }
     auto const& photons = iEvent.get(photonsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (photons.size() != vectorSize) {
@@ -908,12 +922,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzeTracks(edm::Event const& iEvent) const {
-    if (expectedTrackFloatingPointValues_.size() != 29) {
-      throwWithMessage("analyzeTracks, test configuration error, expectedTrackFloatingPointValues must have size 29");
-    }
-    if (expectedTrackIntegralValues_.size() != 5) {
-      throwWithMessage("analyzeTracks, test configuration error, expectedTrackIntegralValues must have size 5");
-    }
     auto const& tracks = iEvent.get(tracksToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (tracks.size() != vectorSize) {
@@ -1031,12 +1039,6 @@ namespace edmtest {
   }
 
   void TestReadRun3Scouting::analyzeVertexes(edm::Event const& iEvent) const {
-    if (expectedVertexFloatingPointValues_.size() != 7) {
-      throwWithMessage("analyzeVertexes, test configuration error, expectedVertexFloatingPointValues must have size 7");
-    }
-    if (expectedVertexIntegralValues_.size() != 3) {
-      throwWithMessage("analyzeVertexes, test configuration error, expectedVertexIntegralValues must have size 3");
-    }
     auto const& vertexes = iEvent.get(vertexesToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (vertexes.size() != vectorSize) {
@@ -1079,6 +1081,10 @@ namespace edmtest {
       }
       ++i;
     }
+  }
+
+  void TestReadRun3Scouting::throwWithMessageFromConstructor(const char* msg) const {
+    throw cms::Exception("TestFailure") << "TestReadRun3Scouting constructor, " << msg;
   }
 
   void TestReadRun3Scouting::throwWithMessage(const char* msg) const {
