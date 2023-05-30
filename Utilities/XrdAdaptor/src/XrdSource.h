@@ -42,9 +42,7 @@ namespace XrdAdaptor {
 
     unsigned getQuality() { return m_qm->get(); }
 
-    struct timespec getLastDowngrade() const {
-      return m_lastDowngrade;
-    }
+    struct timespec getLastDowngrade() const { return m_lastDowngrade; }
     void setLastDowngrade(struct timespec now) { m_lastDowngrade = now; }
 
     static bool getDomain(const std::string &host, std::string &domain);

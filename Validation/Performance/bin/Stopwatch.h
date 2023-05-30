@@ -6,7 +6,7 @@ typedef struct {
   double last_time;
   double total;
 
-} * Stopwatch, Stopwatch_struct;
+} *Stopwatch, Stopwatch_struct;
 
 double seconds();
 
