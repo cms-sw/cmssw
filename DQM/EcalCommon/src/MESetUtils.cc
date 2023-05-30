@@ -58,8 +58,8 @@ namespace ecaldqm {
 #else
       set = nullptr;
 #endif
-      else if (btype == binning::kProjEta || btype == binning::kProjPhi) set =
-          new MESetProjection(path, otype, btype, kind, hasYaxis ? &yaxis : nullptr);
+    else if (btype == binning::kProjEta || btype == binning::kProjPhi)
+      set = new MESetProjection(path, otype, btype, kind, hasYaxis ? &yaxis : nullptr);
     else {
       unsigned logicalDimensions(-1);
       switch (kind) {
