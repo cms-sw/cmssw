@@ -8,11 +8,7 @@
 #include <cassert>
 #include <algorithm>
 
-#ifdef CMSSW_GIT_HASH
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-#else
-#include "../../utils/dbgPrintf.h"
-#endif
 
 namespace l1ct {
   namespace tdr_regionizer {
