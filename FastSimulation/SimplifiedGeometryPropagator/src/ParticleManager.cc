@@ -33,6 +33,7 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
       particleFilter_(&particleFilter),
       simTracks_(&simTracks),
       simVertices_(&simVertices),
+      fixLongLivedBug_(fixLongLivedBug),
       useFastSimsDecayer_(useFastSimsDecayer)
       // prepare unit convsersions
       //  --------------------------------------------
@@ -46,8 +47,7 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
       momentumUnitConversionFactor_(conversion_factor(genEvent_->momentum_unit(), HepMC::Units::GEV)),
       lengthUnitConversionFactor_(conversion_factor(genEvent_->length_unit(), HepMC::Units::LengthUnit::CM)),
       lengthUnitConversionFactor2_(lengthUnitConversionFactor_ * lengthUnitConversionFactor_),
-      timeUnitConversionFactor_(lengthUnitConversionFactor_ / fastsim::Constants::speedOfLight),
-      fixLongLivedBug_(fixLongLivedBug)
+      timeUnitConversionFactor_(lengthUnitConversionFactor_ / fastsim::Constants::speedOfLight)
 
 {
   // add the main vertex from the signal event to the simvertex collection
