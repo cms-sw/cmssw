@@ -68,12 +68,14 @@ namespace {
 namespace l1t::demo {
 
   FileFormat parseFileFormat(const std::string& s) {
-    static const std::unordered_map<std::string, FileFormat> kFormatStringMap({{"EMP", FileFormat::EMP},
-                                                                               {"emp", FileFormat::EMP},
+    static const std::unordered_map<std::string, FileFormat> kFormatStringMap({{"EMP", FileFormat::EMPv1},
+                                                                               {"emp", FileFormat::EMPv1},
+                                                                               {"EMPv1", FileFormat::EMPv1},
+                                                                               {"EMPv2", FileFormat::EMPv2},
                                                                                {"APx", FileFormat::APx},
                                                                                {"apx", FileFormat::APx},
-                                                                               {"X20", FileFormat::X20},
-                                                                               {"x20", FileFormat::X20}});
+                                                                               {"X2O", FileFormat::X2O},
+                                                                               {"x2O", FileFormat::X2O}});
 
     const auto it = kFormatStringMap.find(s);
     if (it == kFormatStringMap.end())
@@ -82,11 +84,13 @@ namespace l1t::demo {
     return it->second;
   }
 
-  BoardData readAPxFile(std::istream&, const FileFormat);
+  BoardData readAPxFile(std::istream&);
 
-  BoardData readEMPFile(std::istream&, const FileFormat);
+  BoardData readEMPFileV1(std::istream&);
 
-  BoardData readX20File(std::istream&, const FileFormat);
+  BoardData readEMPFileV2(std::istream&);
+
+  BoardData readX2OFile(std::istream&);
 
   BoardData read(const std::string& filePath, const FileFormat format) {
     std::ifstream file(filePath);
@@ -98,15 +102,23 @@ namespace l1t::demo {
   }
 
   BoardData read(std::istream& file, const FileFormat format) {
-    if (format == FileFormat::APx)
-      return readAPxFile(file, format);
-    else if (format == FileFormat::EMP)
-      return readEMPFile(file, format);
-    else
-      return readX20File(file, format);
+    switch (format) {
+      case FileFormat::APx:
+        return readAPxFile(file);
+      case FileFormat::EMPv1:
+        return readEMPFileV1(file);
+      case FileFormat::EMPv2:
+        return readEMPFileV2(file);
+      case FileFormat::X2O:
+        return readX2OFile(file);
+    }
+
+    std::ostringstream messageStream;
+    messageStream << "No read function registered for format " << format;
+    throw std::runtime_error(messageStream.str());
   }
 
-  BoardData readAPxFile(std::istream& file, const FileFormat format) {
+  BoardData readAPxFile(std::istream& file) {
     std::string line;
 
     // Complain if file is empty
@@ -171,8 +183,8 @@ namespace l1t::demo {
         else if ((count % 2) == 1) {
           uint16_t sbValue = std::stoul(token, nullptr, 16);
           dataRows.back().at((count - 1) / 2).valid = (sbValue & 0x1);
-          dataRows.back().at((count - 1) / 2).start = ((sbValue >> 1) & 0x1);
-          dataRows.back().at((count - 1) / 2).end = ((sbValue >> 3) & 0x1);
+          dataRows.back().at((count - 1) / 2).startOfPacket = ((sbValue >> 1) & 0x1);
+          dataRows.back().at((count - 1) / 2).endOfPacket = ((sbValue >> 3) & 0x1);
         }
         // Data word
         else
@@ -187,7 +199,7 @@ namespace l1t::demo {
     return createBoardDataFromRows("", indices, dataRows);
   }
 
-  BoardData readEMPFile(std::istream& file, const FileFormat format) {
+  BoardData readEMPFileV1(std::istream& file) {
     // 1) Search for ID string
     std::string id, line;
     while (getline(file, line)) {
@@ -257,15 +269,94 @@ namespace l1t::demo {
     return createBoardDataFromRows(id, channels, dataRows);
   }
 
-  BoardData readX20File(std::istream& file, const FileFormat format) {
-    throw std::runtime_error("Reading X20 file format not yet implemented. Will be done ASAP.");
+  BoardData readEMPFileV2(std::istream& file) {
+    // 1) Search for ID string
+    std::string id, line;
+    while (getline(file, line)) {
+      if (line.empty())
+        continue;
+      if (line[0] == '#')
+        continue;
+
+      if (line.rfind("ID: ", 0) != std::string::npos) {
+        id = line.substr(4);
+        break;
+      } else
+        throw std::logic_error("Found unexpected line found when searching for board ID: \"" + line + "\"");
+    }
+
+    // 2) Check that next line states metadata formatting
+    getline(file, line);
+    if (line.find("Metadata: (strobe,) start of orbit, start of packet, end of packet, valid") != 0)
+      throw std::logic_error("Expected metadata line following 'ID' line. Instead found:" + line);
+
+    // 3) Search for column labels (i.e. list of channels/links)
+    const auto tokens = searchAndTokenize(file, "Link  ");
+    std::vector<size_t> channels;
+    std::transform(tokens.begin(), tokens.end(), std::back_inserter(channels), [](const std::string& s) {
+      return std::stoull(s);
+    });
+
+    // 4) Read the main data rows
+    const std::regex delimiterRegex("\\s\\s+");
+    static const std::regex frameRegex("([01])?([01])([01])([01])([01]) ([0-9a-fA-F]{16})");
+    std::vector<std::vector<Frame>> dataRows;
+    while (file.good() and getline(file, line)) {
+      if (line.empty() or line[0] == '#')
+        continue;
+
+      std::ostringstream prefixStream;
+      prefixStream << "Frame ";
+      prefixStream << std::setw(4) << std::setfill('0') << dataRows.size();
+      prefixStream << "  ";
+
+      const std::string prefix(prefixStream.str());
+      if (line.rfind(prefix, 0) == std::string::npos)
+        throw std::logic_error("Found unexpected line found when searching for \"" + prefix + "\": \"" + line + "\"");
+
+      std::vector<l1t::demo::Frame> row;
+      std::sregex_token_iterator it(line.begin() + prefix.size(), line.end(), delimiterRegex, -1);
+      for (; it != std::sregex_token_iterator(); it++) {
+        const std::string token(it->str());
+        if (token.empty())
+          continue;
+
+        std::smatch what;
+        if (not std::regex_match(token, what, frameRegex))
+          throw std::logic_error("Token '" + token + "' doesn't match the valid format");
+
+        l1t::demo::Frame value;
+        // Import strobe if the strobe group is matched
+        if (what[1].matched) {
+          value.strobe = (what[1] == "1");
+        }
+
+        value.startOfOrbit = (what[2] == "1");
+        value.startOfPacket = (what[3] == "1");
+        value.endOfPacket = (what[4] == "1");
+        value.valid = (what[5] == "1");
+        value.data = ap_uint<64>(std::stoull(what[6].str(), nullptr, 16));
+
+        row.push_back(value);
+      }
+
+      dataRows.push_back(row);
+    }
+
+    return createBoardDataFromRows(id, channels, dataRows);
   }
 
-  void writeAPxFile(const BoardData&, std::ostream&, const FileFormat);
+  BoardData readX2OFile(std::istream& file) {
+    throw std::runtime_error("Reading X2O file format not yet implemented. Will be done ASAP.");
+  }
 
-  void writeEMPFile(const BoardData&, std::ostream&, const FileFormat);
+  void writeAPxFile(const BoardData&, std::ostream&);
 
-  void writeX20File(const BoardData&, std::ostream&, const FileFormat);
+  void writeEMPFileV1(const BoardData&, std::ostream&);
+
+  void writeEMPFileV2(const BoardData&, std::ostream&);
+
+  void writeX2OFile(const BoardData&, std::ostream&);
 
   void write(const BoardData& data, const std::string& filePath, const FileFormat format) {
     // Open file
@@ -302,18 +393,21 @@ namespace l1t::demo {
     // Call relevant write function
     switch (format) {
       case FileFormat::APx:
-        writeAPxFile(data, file, format);
+        writeAPxFile(data, file);
         return;
-      case FileFormat::EMP:
-        writeEMPFile(data, file, format);
+      case FileFormat::EMPv1:
+        writeEMPFileV1(data, file);
         return;
-      case FileFormat::X20:
-        writeX20File(data, file, format);
+      case FileFormat::EMPv2:
+        writeEMPFileV2(data, file);
+        return;
+      case FileFormat::X2O:
+        writeX2OFile(data, file);
         return;
     }
   }
 
-  void writeAPxFile(const BoardData& data, std::ostream& file, const FileFormat format) {
+  void writeAPxFile(const BoardData& data, std::ostream& file) {
     // Note: APx sideband encoding
     //   Short-term, simulation only:
     //     0 -> Valid
@@ -350,8 +444,8 @@ namespace l1t::demo {
         //const auto j = channel.first;
         const auto channelData = channel.second;
         uint16_t sideband = channelData.at(i).valid;
-        sideband |= channelData.at(i).start << 1;
-        sideband |= channelData.at(i).end << 3;
+        sideband |= channelData.at(i).startOfPacket << 1;
+        sideband |= channelData.at(i).endOfPacket << 3;
         file << "    0x" << std::setw(2) << sideband;
         file << " 0x" << std::setw(16) << uint64_t(channelData.at(i).data);
       }
@@ -359,7 +453,7 @@ namespace l1t::demo {
     }
   }
 
-  void writeEMPFile(const BoardData& data, std::ostream& file, const FileFormat format) {
+  void writeEMPFileV1(const BoardData& data, std::ostream& file) {
     file << std::setfill('0');
 
     // Board name/id
@@ -398,8 +492,47 @@ namespace l1t::demo {
     }
   }
 
-  void writeX20File(const BoardData& data, std::ostream& file, const FileFormat format) {
-    throw std::runtime_error("Writing X20 file format not yet implemented. Will be done ASAP.");
+  void writeEMPFileV2(const BoardData& data, std::ostream& file) {
+    file << std::setfill('0');
+
+    // Board name/id
+    file << "ID: " << data.name() << std::endl;
+    file << "Metadata: (strobe,) start of orbit, start of packet, end of packet, valid" << std::endl;
+    file << std::endl;
+
+    // Link header
+    file << "      Link  ";
+    std::map<size_t, bool> strobedLinkMap;
+    for (const auto& channel : data) {
+      const auto i = channel.first;
+      strobedLinkMap[i] =
+          std::any_of(channel.second.begin(), channel.second.end(), [](const Frame& x) { return not x.strobe; });
+      if (strobedLinkMap.at(i))
+        file << " ";
+      file << "            " << std::setw(3) << i << "        ";
+    }
+    file << std::endl;
+
+    // Frames
+    const auto firstChannel = data.begin();
+    for (size_t i = 0; i < firstChannel->second.size(); i++) {
+      file << "Frame " << std::setw(4) << i << "  ";
+      for (const auto& channel : data) {
+        //const auto j = channel.first;
+        const auto channelData = channel.second;
+        file << "  ";
+        if (strobedLinkMap.at(channel.first))
+          file << std::setw(1) << channelData.at(i).strobe;
+        file << std::setw(1) << channelData.at(i).startOfOrbit << channelData.at(i).startOfPacket
+             << channelData.at(i).endOfPacket << channelData.at(i).valid;
+        file << " " << std::setw(16) << std::hex << uint64_t(channelData.at(i).data);
+      }
+      file << std::endl << std::dec;
+    }
+  }
+
+  void writeX2OFile(const BoardData& data, std::ostream& file) {
+    throw std::runtime_error("Writing X2O file format not yet implemented. Will be done ASAP.");
   }
 
 }  // namespace l1t::demo
