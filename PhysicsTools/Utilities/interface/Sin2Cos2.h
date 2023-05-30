@@ -10,9 +10,13 @@
 
 namespace funct {
 
-  TEMPL(T1) struct Sin2 { typedef POWER(SIN(A), NUM(2)) type; };
+  TEMPL(T1) struct Sin2 {
+    typedef POWER(SIN(A), NUM(2)) type;
+  };
 
-  TEMPL(T1) struct Cos2 { typedef POWER(COS(A), NUM(2)) type; };
+  TEMPL(T1) struct Cos2 {
+    typedef POWER(COS(A), NUM(2)) type;
+  };
 
 }  // namespace funct
 
