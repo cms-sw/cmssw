@@ -57,36 +57,38 @@ namespace edmtest {
     void produceTracks(edm::Event&) const;
     void produceVertexes(edm::Event&) const;
 
-    std::vector<double> caloJetsValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingCaloJet>> caloJetsPutToken_;
+    void throwWithMessage(const char*) const;
 
-    std::vector<double> electronsFloatingPointValues_;
-    std::vector<int> electronsIntegralValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingElectron>> electronsPutToken_;
+    const std::vector<double> caloJetsValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingCaloJet>> caloJetsPutToken_;
 
-    std::vector<double> muonsFloatingPointValues_;
-    std::vector<int> muonsIntegralValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingMuon>> muonsPutToken_;
+    const std::vector<double> electronsFloatingPointValues_;
+    const std::vector<int> electronsIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingElectron>> electronsPutToken_;
 
-    std::vector<double> particlesFloatingPointValues_;
-    std::vector<int> particlesIntegralValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingParticle>> particlesPutToken_;
+    const std::vector<double> muonsFloatingPointValues_;
+    const std::vector<int> muonsIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingMuon>> muonsPutToken_;
 
-    std::vector<double> pfJetsFloatingPointValues_;
-    std::vector<int> pfJetsIntegralValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingPFJet>> pfJetsPutToken_;
+    const std::vector<double> particlesFloatingPointValues_;
+    const std::vector<int> particlesIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingParticle>> particlesPutToken_;
 
-    std::vector<double> photonsFloatingPointValues_;
-    std::vector<int> photonsIntegralValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingPhoton>> photonsPutToken_;
+    const std::vector<double> pfJetsFloatingPointValues_;
+    const std::vector<int> pfJetsIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingPFJet>> pfJetsPutToken_;
 
-    std::vector<double> tracksFloatingPointValues_;
-    std::vector<int> tracksIntegralValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingTrack>> tracksPutToken_;
+    const std::vector<double> photonsFloatingPointValues_;
+    const std::vector<int> photonsIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingPhoton>> photonsPutToken_;
 
-    std::vector<double> vertexesFloatingPointValues_;
-    std::vector<int> vertexesIntegralValues_;
-    edm::EDPutTokenT<std::vector<Run3ScoutingVertex>> vertexesPutToken_;
+    const std::vector<double> tracksFloatingPointValues_;
+    const std::vector<int> tracksIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingTrack>> tracksPutToken_;
+
+    const std::vector<double> vertexesFloatingPointValues_;
+    const std::vector<int> vertexesIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingVertex>> vertexesPutToken_;
   };
 
   TestWriteRun3Scouting::TestWriteRun3Scouting(edm::ParameterSet const& iPSet)
@@ -112,7 +114,53 @@ namespace edmtest {
         tracksPutToken_(produces()),
         vertexesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("vertexesFloatingPointValues")),
         vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")),
-        vertexesPutToken_(produces()) {}
+        vertexesPutToken_(produces()) {
+    if (caloJetsValues_.size() != 16) {
+      throwWithMessage("caloJetsValues must have 16 elements and it does not");
+    }
+    if (electronsFloatingPointValues_.size() != 25) {
+      throwWithMessage("electronsFloatingPointValues must have 25 elements and it does not");
+    }
+    if (electronsIntegralValues_.size() != 6) {
+      throwWithMessage("electronsIntegralValues must have 6 elements and it does not");
+    }
+    if (muonsFloatingPointValues_.size() != 37) {
+      throwWithMessage("muonsFloatingPointValues must have 37 elements and it does not");
+    }
+    if (muonsIntegralValues_.size() != 26) {
+      throwWithMessage("muonsIntegralValues must have 26 elements and it does not");
+    }
+    if (particlesFloatingPointValues_.size() != 11) {
+      throwWithMessage("particlesFloatingPointValues must have 11 elements and it does not");
+    }
+    if (particlesIntegralValues_.size() != 5) {
+      throwWithMessage("particlesIntegralValues must have 5 elements and it does not");
+    }
+    if (pfJetsFloatingPointValues_.size() != 15) {
+      throwWithMessage("pfJetsFloatingPointValues must have 15 elements and it does not");
+    }
+    if (pfJetsIntegralValues_.size() != 8) {
+      throwWithMessage("pfJetsIntegralValues must have 8 elements and it does not");
+    }
+    if (photonsFloatingPointValues_.size() != 14) {
+      throwWithMessage("photonsFloatingPointValues must have 14 elements and it does not");
+    }
+    if (photonsIntegralValues_.size() != 3) {
+      throwWithMessage("photonsIntegralValues must have 3 elements and it does not");
+    }
+    if (tracksFloatingPointValues_.size() != 29) {
+      throwWithMessage("tracksFloatingPointValues must have 29 elements and it does not");
+    }
+    if (tracksIntegralValues_.size() != 5) {
+      throwWithMessage("tracksIntegralValues must have 5 elements and it does not");
+    }
+    if (vertexesFloatingPointValues_.size() != 7) {
+      throwWithMessage("vertexesFloatingPointValues must have 7 elements and it does not");
+    }
+    if (vertexesIntegralValues_.size() != 3) {
+      throwWithMessage("vertexesIntegralValues must have 3 elements and it does not");
+    }
+  }
 
   void TestWriteRun3Scouting::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
     // Fill Run3 scouting objects. Make sure all the containers inside
@@ -152,10 +200,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::produceCaloJets(edm::Event& iEvent) const {
-    if (caloJetsValues_.size() != 16) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceCalojets, test configuration error, "
-                                          << "caloJetsValues must have 16 elements and it does not";
-    }
     auto run3ScoutingCaloJets = std::make_unique<std::vector<Run3ScoutingCaloJet>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingCaloJets->reserve(vectorSize);
@@ -182,14 +226,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::produceElectrons(edm::Event& iEvent) const {
-    if (electronsFloatingPointValues_.size() != 25) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceElectrons, test configuration error, "
-                                          << "electronsFloatingPointValues must have 25 elements and it does not";
-    }
-    if (electronsIntegralValues_.size() != 6) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceElectrons, test configuration error, "
-                                          << "electronsIntegralValues must have 6 elements and it does not";
-    }
     auto run3ScoutingElectrons = std::make_unique<std::vector<Run3ScoutingElectron>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingElectrons->reserve(vectorSize);
@@ -268,14 +304,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::produceMuons(edm::Event& iEvent) const {
-    if (muonsFloatingPointValues_.size() != 37) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceMuons, test configuration error, "
-                                          << "muonsFloatingPointValues must have 37 elements and it does not";
-    }
-    if (muonsIntegralValues_.size() != 26) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceMuons, test configuration error, "
-                                          << "muonsIntegralValues must have 26 elements and it does not";
-    }
     auto run3ScoutingMuons = std::make_unique<std::vector<Run3ScoutingMuon>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingMuons->reserve(vectorSize);
@@ -363,14 +391,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::produceParticles(edm::Event& iEvent) const {
-    if (particlesFloatingPointValues_.size() != 11) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceParticles, test configuration error, "
-                                          << "particlesFloatingPointValues must have 11 elements and it does not";
-    }
-    if (particlesIntegralValues_.size() != 5) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceParticles, test configuration error, "
-                                          << "particlesIntegralValues must have 5 elements and it does not";
-    }
     auto run3ScoutingParticles = std::make_unique<std::vector<Run3ScoutingParticle>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingParticles->reserve(vectorSize);
@@ -398,14 +418,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::producePFJets(edm::Event& iEvent) const {
-    if (pfJetsFloatingPointValues_.size() != 15) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::producePFJets, test configuration error, "
-                                          << "pfJetsFloatingPointValues must have 15 elements and it does not";
-    }
-    if (pfJetsIntegralValues_.size() != 8) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::producePFJets, test configuration error, "
-                                          << "pfJetsIntegralValues must have 8 elements and it does not";
-    }
     auto run3ScoutingPFJets = std::make_unique<std::vector<Run3ScoutingPFJet>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingPFJets->reserve(vectorSize);
@@ -448,14 +460,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::producePhotons(edm::Event& iEvent) const {
-    if (photonsFloatingPointValues_.size() != 14) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::producePhotons, test configuration error, "
-                                          << "photonsFloatingPointValues must have 14 elements and it does not";
-    }
-    if (photonsIntegralValues_.size() != 3) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::producePhotons, test configuration error, "
-                                          << "photonsIntegralValues must have 3 elements and it does not";
-    }
     auto run3ScoutingPhotons = std::make_unique<std::vector<Run3ScoutingPhoton>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingPhotons->reserve(vectorSize);
@@ -496,14 +500,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::produceTracks(edm::Event& iEvent) const {
-    if (tracksFloatingPointValues_.size() != 29) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceTracks, test configuration error, "
-                                          << "tracksFloatingPointValues must have 29 elements and it does not";
-    }
-    if (tracksIntegralValues_.size() != 5) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceTracks, test configuration error, "
-                                          << "tracksIntegralValues must have 5 elements and it does not";
-    }
     auto run3ScoutingTracks = std::make_unique<std::vector<Run3ScoutingTrack>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingTracks->reserve(vectorSize);
@@ -551,14 +547,6 @@ namespace edmtest {
   }
 
   void TestWriteRun3Scouting::produceVertexes(edm::Event& iEvent) const {
-    if (vertexesFloatingPointValues_.size() != 7) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceVertexes, test configuration error, "
-                                          << "vertexesFloatingPointValues must have 7 elements and it does not";
-    }
-    if (vertexesIntegralValues_.size() != 3) {
-      throw cms::Exception("TestFailure") << "TestReadRun3Scouting::produceVertexes, test configuration error, "
-                                          << "vertexesIntegralValues must have 3 elements and it does not";
-    }
     auto run3ScoutingVertexes = std::make_unique<std::vector<Run3ScoutingVertex>>();
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     run3ScoutingVertexes->reserve(vectorSize);
@@ -579,6 +567,10 @@ namespace edmtest {
                                          static_cast<bool>((vertexesIntegralValues_[2] + iOffset) % 2));
     }
     iEvent.put(vertexesPutToken_, std::move(run3ScoutingVertexes));
+  }
+
+  void TestWriteRun3Scouting::throwWithMessage(const char* msg) const {
+    throw cms::Exception("TestFailure") << "TestWriteRun3Scouting constructor, test configuration error, " << msg;
   }
 
 }  // namespace edmtest
