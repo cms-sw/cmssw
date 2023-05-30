@@ -11,6 +11,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "TLorentzVector.h"
 
 // Forward declaration
 class TH1D;
