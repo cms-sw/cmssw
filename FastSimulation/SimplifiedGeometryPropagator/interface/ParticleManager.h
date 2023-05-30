@@ -51,7 +51,8 @@ namespace fastsim {
                     double deltaRchargedMother,
                     const ParticleFilter& particleFilter,
                     std::vector<SimTrack>& simTracks,
-                    std::vector<SimVertex>& simVertices);
+                    std::vector<SimVertex>& simVertices,
+                    bool useFastSimsDecayer);
 
     //! Default destructor.
     ~ParticleManager();
@@ -132,6 +133,7 @@ namespace fastsim {
     const ParticleFilter* const particleFilter_;  //!< (Kinematic) cuts on the particles that have to be propagated.
     std::vector<SimTrack>* simTracks_;            //!< The generated SimTrack of this event.
     std::vector<SimVertex>* simVertices_;         //!< The generated SimVertices of this event.
+    bool useFastSimsDecayer_;
     double momentumUnitConversionFactor_;         //!< Convert pythia units to GeV (FastSim standard)
     double lengthUnitConversionFactor_;           //!< Convert pythia unis to cm (FastSim standard)
     double lengthUnitConversionFactor2_;          //!< Convert pythia unis to cm^2 (FastSim standard)
