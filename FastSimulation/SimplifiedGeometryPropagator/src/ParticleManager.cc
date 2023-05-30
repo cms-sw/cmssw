@@ -216,21 +216,29 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     if (std::abs(particle.pdg_id()) < 10 || std::abs(particle.pdg_id()) == 21) {
       continue;
     }
-    // particles which do not descend from exotics must be produced within the beampipe
+    
+    // FastSim will not make hits out of particles that decay before reaching the beam pipe
+    const bool decayedWithinBeamPipe =
+        endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
+        
+    if (decayedWithinBeamPipe) {
+      continue;
+    }
+    
+        
+    // boring particles (which do not descend from exotics) must be produced within the beampipe to leave hits
     int exoticRelativeId = 0;
     const bool producedWithinBeamPipe =
         productionVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
-    if (!producedWithinBeamPipe) {
+    if (!producedWithinBeamPipe  && useFastSimsDecayer_) {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
       if (!isExotic(exoticRelativeId)) {
         continue;
       }
     }
-
-    // FastSim will not make hits out of particles that decay before reaching the beam pipe
-    const bool decayedWithinBeamPipe =
-        endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
+            
     if (!producedWithinBeamPipe && useFastSimsDecayer_) {
+      exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
       continue;
     }
 
@@ -262,7 +270,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
       newParticle->setRemainingProperLifeTimeC(labFrameLifeTime / newParticle->gamma() *
                                                fastsim::Constants::speedOfLight);
     }
-
+    
     // Find production vertex if it already exists. Otherwise create new vertex
     // Possible to recreate the whole GenEvent using SimTracks/SimVertices (see FBaseSimEvent::fill(..))
     bool foundVtx = false;
