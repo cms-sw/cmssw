@@ -3,33 +3,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TLorentzVector.h"
-
-// Electron selector
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-//#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
-// Muon Selector
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-// Jet Selector
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
-// b-jet Selector
-#include "DataFormats/BTauReco/interface/JetTag.h"
-
-// Met Selector
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -41,12 +14,9 @@ using namespace edm;
 
 ttbarEventSelector::ttbarEventSelector(const edm::ParameterSet& ps)
     : electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
-      jetsTag_(ps.getUntrackedParameter<edm::InputTag>("jetsInputTag", edm::InputTag("ak4PFJetsCHS"))),  //
-      //  bJetsTag_(ps.getUntrackedParameter<edm::InputTag>("jetsInputTag", edm\|#include "DataFormats/EgammaCandidates/interface/Electron.h"
-      //						    ::InputTag("slimmedJets"))),
-
+      jetsTag_(ps.getUntrackedParameter<edm::InputTag>("jetsInputTag", edm::InputTag("ak4PFJetsCHS"))),
       bjetsTag_(ps.getUntrackedParameter<edm::InputTag>("bjetsInputTag", edm::InputTag("pfDeepCSVJetTags", "probb"))),
-      pfmetTag_(ps.getUntrackedParameter<edm::InputTag>("pfmetTag", edm::InputTag("pfMet"))),  //("pfMetT1T2Txy"))),
+      pfmetTag_(ps.getUntrackedParameter<edm::InputTag>("pfmetTag", edm::InputTag("pfMet"))),
       muonTag_(ps.getUntrackedParameter<edm::InputTag>("muonInputTag", edm::InputTag("muons"))),
       bsTag_(ps.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
       electronToken_(consumes<reco::GsfElectronCollection>(electronTag_)),
@@ -107,7 +77,7 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
   // Read Electron Collection
   edm::Handle<reco::GsfElectronCollection> electronColl;
   iEvent.getByToken(electronToken_, electronColl);
-  int le, lj, lm, lbj = 0;
+  int le = 0, lj = 0, lm = 0, lbj = 0;
   std::vector<TLorentzVector> list_ele;
   std::vector<int> chrgeList_ele;
 
@@ -175,16 +145,13 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       TLorentzVector lv_ele;
       lv_ele.SetPtEtaPhiE(ele.pt(), ele.eta(), ele.phi(), ele.energy());
       list_ele.push_back(lv_ele);
-      //le = list_ele.size();
+      le = list_ele.size();
       chrgeList_ele.push_back(ele.charge());
     }
     le = list_ele.size();
   } else {
     edm::LogError("ElectronSelector") << "Error >> Failed to get ElectronCollection for label: " << electronTag_;
   }
-  //if (list_ele.size() < 2) return false;
-  //if (chrgeList_ele[0] + chrgeList_ele[1] != 0) return false;
-  //if (list_ele[0].Pt() < minPtHighest_) return false;
 
   // Read Muon Collection
   edm::Handle<reco::MuonCollection> muonColl;
@@ -211,13 +178,11 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
         continue;
 
       reco::TrackRef tk = mu.innerTrack();
-      double trkd0 = tk->d0();
-      double trkdz = tk->dz();
       if (beamSpot.isValid()) {
-        trkd0 = -(tk->dxy(beamSpot->position()));
+        double trkd0 = -(tk->dxy(beamSpot->position()));
         if (std::fabs(trkd0) >= maxD0_)
           continue;
-        trkdz = tk->dz(beamSpot->position());
+        double trkdz = tk->dz(beamSpot->position());
         if (std::fabs(trkdz) >= maxDz_)
           continue;
       } else {
@@ -250,7 +215,7 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       TLorentzVector lv_mu;
       lv_mu.SetPtEtaPhiE(mu.pt(), mu.eta(), mu.phi(), mu.energy());
       list_mu.push_back(lv_mu);
-      //lm = list_mu.size();
+      lm = list_mu.size();
       chrgeList_mu.push_back(mu.charge());
     }
     lm = list_mu.size();
@@ -258,11 +223,6 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     edm::LogError("MuonSelector") << "Error >> Failed to get MuonCollection for label: " << muonTag_;
     return false;
   }
-
-  //if (list_mu.size() < 2) return false;
-  //  if (chrgeList_ele[0] + chrgeList_ele[1] != 0) return false;
-  //if (list_mu[0].Pt() < minPtHighest_) return false;
-  //  TLorentzVector zv_mu = list[0] + list[1];
 
   // for Track jet collections
   edm::Handle<reco::PFJetCollection> jetColl;
@@ -278,10 +238,6 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       TLorentzVector lv_jets;  // lv_bJets;
       lv_jets.SetPtEtaPhiE(jets.pt(), jets.eta(), jets.phi(), jets.energy());
       list_jets.push_back(lv_jets);
-
-      //      if (jets.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btagFactor_) list_bJets.push_back(lv_bJets);
-
-      //  lbj = list_bJets.size();
     }
     lj = list_jets.size();
   }
@@ -305,56 +261,64 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
 
   std::cout << "le " << le << "\tlm " << lm << "\tlj " << lj << "\tlbj " << lbj << std::endl;
 
-  // int bj = list_bjets.size();
-
   // for MET collection
   edm::Handle<reco::PFMETCollection> pfColl;
   iEvent.getByToken(pfmetToken_, pfColl);
-  //if (EventCategory(le,lm,lj,lbj) == 11){ // dilepton- ele ele
-  //  if (list_ele[0].Pt() < minPtHighest_) return false;
-  //  if ((list_ele[0].Pt() < list_mu[0].Pt()) || (list_ele[1].Pt() < list_mu[0].Pt())) return false;
-  //  if (chrgeList_ele[0] + chrgeList_ele[1] != 0) return false;
-  //  if (pfColl.isValid()) {
-  //    double mt1 = getMt(list_ele[0], pfColl->front());
-  //    double mt2 = getMt(list_ele[1], pfColl->front());
-  //    double mt = mt1 + mt2;
-  //    if (mt < 2*minMet_ || mt > 2*maxMet_) return false;
-  //  }
-  //  else {
-  //    edm::LogError("ttbarEventSelector") << "Error >> Failed to get PFMETCollection in dilepton ele-ele channel for label: " << pfmetTag_;
-  //    return false;
-  //  }
-  //}
-  //else if (EventCategory(le,lm,lj,lbj) == 12){ // dilepton - mu mu
-  //  if (list_mu[0].Pt() < minPtHighest_) return false;
-  //  if ((list_mu[0].Pt() < list_ele[0].Pt()) || (list_mu[1].Pt() < list_ele[0].Pt())) return false;
-  //  if (chrgeList_mu[0] + chrgeList_mu[1] != 0) return false;
-  //  if (pfColl.isValid()) {
-  //    double mt1 = getMt(list_mu[0], pfColl->front());
-  //    double mt2 = getMt(list_mu[1], pfColl->front());
-  //    double mt = mt1 + mt2;
-  //    if (mt < 2*minMet_ || mt > 2*maxMet_) return false;
-  //  }
-  //  else {
-  //    edm::LogError("ttbarEventSelector") << "Error >> Failed to get PFMETCollection in dilepton mu-mu channel for label: " << pfmetTag_;
-  //    return false;
-  //  }
-  //}
-  //else if (EventCategory(le,lm,lj,lbj) == 13){ // dilepton - ele mu
-  //  if ((list_mu[0].Pt() < list_ele[1].Pt()) || (list_ele[0].Pt() < list_mu[1].Pt()) ) return false;
-  //  if ((list_mu[0].Pt() < minPtHighest_)||(list_ele[0].Pt() < minPtHighest_)) return false;
-  //  if (chrgeList_mu[0] + chrgeList_ele[0] != 0) return false;
-  //  if (pfColl.isValid()) {
-  //    double mt1 = getMt(list_mu[0], pfColl->front());
-  //    double mt2 = getMt(list_ele[0], pfColl->front());
-  //    double mt = mt1 + mt2;
-  //    if (mt < 2*minMet_ || mt > 2*maxMet_) return false;
-  //  }
-  //  else {
-  //    edm::LogError("ttbarEventSelector") << "Error >> Failed to get PFMETCollection in dilepton ele-mu channel for label: " << pfmetTag_;
-  //    return false;
-  //  }
-  //}
+  if (EventCategory(le, lm, lj, lbj) == 11) {  // dilepton- ele ele
+    if (list_ele[0].Pt() < minPtHighestEle_)
+      return false;
+    if ((list_ele[0].Pt() < list_mu[0].Pt()) || (list_ele[1].Pt() < list_mu[0].Pt()))
+      return false;
+    if (chrgeList_ele[0] + chrgeList_ele[1] != 0)
+      return false;
+    if (pfColl.isValid()) {
+      double mt1 = getMt(list_ele[0], pfColl->front());
+      double mt2 = getMt(list_ele[1], pfColl->front());
+      double mt = mt1 + mt2;
+      if (mt < 2 * minMet_ || mt > 2 * maxMet_)
+        return false;
+    } else {
+      edm::LogError("ttbarEventSelector")
+          << "Error >> Failed to get PFMETCollection in dilepton ele-ele channel for label: " << pfmetTag_;
+      return false;
+    }
+  } else if (EventCategory(le, lm, lj, lbj) == 12) {  // dilepton - mu mu
+    if (list_mu[0].Pt() < minPtHighestMu_)
+      return false;
+    if ((list_mu[0].Pt() < list_ele[0].Pt()) || (list_mu[1].Pt() < list_ele[0].Pt()))
+      return false;
+    if (chrgeList_mu[0] + chrgeList_mu[1] != 0)
+      return false;
+    if (pfColl.isValid()) {
+      double mt1 = getMt(list_mu[0], pfColl->front());
+      double mt2 = getMt(list_mu[1], pfColl->front());
+      double mt = mt1 + mt2;
+      if (mt < 2 * minMet_ || mt > 2 * maxMet_)
+        return false;
+    } else {
+      edm::LogError("ttbarEventSelector")
+          << "Error >> Failed to get PFMETCollection in dilepton mu-mu channel for label: " << pfmetTag_;
+      return false;
+    }
+  } else if (EventCategory(le, lm, lj, lbj) == 13) {  // dilepton - ele mu
+    if ((list_mu[0].Pt() < list_ele[1].Pt()) || (list_ele[0].Pt() < list_mu[1].Pt()))
+      return false;
+    if ((list_mu[0].Pt() < minPtHighestMu_) || (list_ele[0].Pt() < minPtHighestEle_))
+      return false;
+    if (chrgeList_mu[0] + chrgeList_ele[0] != 0)
+      return false;
+    if (pfColl.isValid()) {
+      double mt1 = getMt(list_mu[0], pfColl->front());
+      double mt2 = getMt(list_ele[0], pfColl->front());
+      double mt = mt1 + mt2;
+      if (mt < 2 * minMet_ || mt > 2 * maxMet_)
+        return false;
+    } else {
+      edm::LogError("ttbarEventSelector")
+          << "Error >> Failed to get PFMETCollection in dilepton ele-mu channel for label: " << pfmetTag_;
+      return false;
+    }
+  }
   if (EventCategory(le, lm, lj, lbj) == 21) {  // semilepton - ele or mu
     if (list_jets[0].Pt() < minPtHighest_Jets_)
       return false;
@@ -366,14 +330,6 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
         (!list_mu.empty() && list_mu[0].Pt() > minPtHighestMu_))
       return false;
 
-    /*if (pfColl.isValid()) {
-      double mt = getMt(vlep, pfColl->front());
-      if (mt < minMet_ || mt > maxMet_) return false;
-    }
-    else {
-      edm::LogError("ttbarEventSelector") << "Error >> Failed to get PFMETCollection in dilepton ele-mu channel for label: " << pfmetTag_;
-      return false;
-    }*/
     return true;
   }
   if (EventCategory(le, lm, lj, lbj) == 22) {  // semilepton - ele or mu
@@ -387,30 +343,23 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
         (!list_mu.empty() && list_mu[0].Pt() > minPtHighestMu_))
       return false;
 
-    /*if (pfColl.isValid()) {
-      double mt = getMt(vlep, pfColl->front());
-      if (mt < minMet_ || mt > maxMet_) return false;
-    }
-    else {
-      edm::LogError("ttbarEventSelector") << "Error >> Failed to get PFMETCollection in dilepton ele-mu channel for label: " << pfmetTag_;
-      return false;
-    }*/
     return true;
-  }
-  //else if (EventCategory(le,lm,lj,lbj) == 30){
-  //  if (list_jets[0].Pt() < minPtHighest_Jets_) return false;
-  //  for (int i=0; i<4; i++){
-  //    TLorentzVector vjet1;
-  //    for (int j=i+1; j<4; j++){
-  //	TLorentzVector vjet2;
-  //	vjet1 = list_jets[i];
-  //	vjet2 = list_jets[j];
-  //	TLorentzVector vjet = vjet1 + vjet2;
-  //	if (vjet.M() < minWmass_ || vjet.M() > maxWmass_) return false;
-  //      }
-  //    }
-  //  }
-  //  else if (EventCategory(le,lm,lj,lbj) == 50) return false;
+  } else if (EventCategory(le, lm, lj, lbj) == 30) {
+    if (list_jets[0].Pt() < minPtHighest_Jets_)
+      return false;
+    for (int i = 0; i < 4; i++) {
+      TLorentzVector vjet1;
+      for (int j = i + 1; j < 4; j++) {
+        TLorentzVector vjet2;
+        vjet1 = list_jets[i];
+        vjet2 = list_jets[j];
+        TLorentzVector vjet = vjet1 + vjet2;
+        if (vjet.M() < minWmass_ || vjet.M() > maxWmass_)
+          return false;
+      }
+    }
+  } else if (EventCategory(le, lm, lj, lbj) == 50)
+    return false;
 
   return false;
 }

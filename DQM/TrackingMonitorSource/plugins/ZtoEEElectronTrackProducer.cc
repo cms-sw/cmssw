@@ -1,7 +1,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-//#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
 
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -17,7 +16,6 @@
 
 using namespace std;
 using namespace edm;
-//using namespace reco;
 
 ZtoEEElectronTrackProducer::ZtoEEElectronTrackProducer(const edm::ParameterSet& ps)
     : electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
@@ -48,7 +46,9 @@ ZtoEEElectronTrackProducer::ZtoEEElectronTrackProducer(const edm::ParameterSet& 
 
 ZtoEEElectronTrackProducer::~ZtoEEElectronTrackProducer() {}
 
-void ZtoEEElectronTrackProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+void ZtoEEElectronTrackProducer::produce(edm::StreamID streamID,
+                                         edm::Event& iEvent,
+                                         edm::EventSetup const& iSetup) const {
   std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
 
   // Read Electron Collection

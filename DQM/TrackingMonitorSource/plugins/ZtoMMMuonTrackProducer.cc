@@ -1,14 +1,9 @@
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TLorentzVector.h"
 
@@ -16,7 +11,6 @@
 
 using namespace std;
 using namespace edm;
-//using namespace reco;
 
 ZtoMMMuonTrackProducer::ZtoMMMuonTrackProducer(const edm::ParameterSet& ps)
     : muonTag_(ps.getUntrackedParameter<edm::InputTag>("muonInputTag", edm::InputTag("muons"))),
@@ -25,7 +19,7 @@ ZtoMMMuonTrackProducer::ZtoMMMuonTrackProducer(const edm::ParameterSet& ps)
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),
       maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4)),
       minPt_(ps.getUntrackedParameter<double>("minPt", 5)),
-      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 0)),
+      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 1000)),
       maxD0_(ps.getUntrackedParameter<double>("maxD0", 0.02)),
       maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
       minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),
@@ -42,7 +36,7 @@ ZtoMMMuonTrackProducer::ZtoMMMuonTrackProducer(const edm::ParameterSet& ps)
 
 ZtoMMMuonTrackProducer::~ZtoMMMuonTrackProducer() {}
 
-void ZtoMMMuonTrackProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+void ZtoMMMuonTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
 
   // Read Muon Collection
@@ -73,13 +67,11 @@ void ZtoMMMuonTrackProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
         continue;
 
       reco::TrackRef tk = mu.innerTrack();
-      double trkd0 = tk->d0();
-      double trkdz = tk->dz();
       if (beamSpot.isValid()) {
-        trkd0 = -(tk->dxy(beamSpot->position()));
+        double trkd0 = -(tk->dxy(beamSpot->position()));
         if (std::fabs(trkd0) >= maxD0_)
           continue;
-        trkdz = tk->dz(beamSpot->position());
+        double trkdz = tk->dz(beamSpot->position());
         if (std::fabs(trkdz) >= maxDz_)
           continue;
       } else {

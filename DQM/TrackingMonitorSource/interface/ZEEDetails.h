@@ -21,7 +21,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -38,8 +37,6 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-  edm::ParameterSet ps_;
-
   std::string moduleName_;
   std::string folderName_;
 

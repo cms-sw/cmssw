@@ -10,30 +10,12 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "TPRegexp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DQM/TrackingMonitorSource/interface/ZEEDetails.h"
-#include "DQM/TrackingMonitor/interface/TrackBuildingAnalyzer.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -42,40 +24,39 @@
 #include <ostream>
 
 ZEEDetails::ZEEDetails(const edm::ParameterSet& ps)
-    : ps_(ps),
-      moduleName_(ps_.getUntrackedParameter<std::string>("moduleName", "ZEEDetails")),
-      folderName_(ps_.getUntrackedParameter<std::string>("folderName", "ElectronTracks")),
-      electronTag_(ps_.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
-      bsTag_(ps_.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
-      puSummaryTag_(ps_.getUntrackedParameter<edm::InputTag>("puTag", edm::InputTag("addPileupInfo"))),
-      vertexTag_(ps_.getUntrackedParameter<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"))),
+    : moduleName_(ps.getUntrackedParameter<std::string>("moduleName", "ZEEDetails")),
+      folderName_(ps.getUntrackedParameter<std::string>("folderName", "ElectronTracks")),
+      electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
+      bsTag_(ps.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
+      puSummaryTag_(ps.getUntrackedParameter<edm::InputTag>("puTag", edm::InputTag("addPileupInfo"))),
+      vertexTag_(ps.getUntrackedParameter<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"))),
       electronToken_(consumes<reco::GsfElectronCollection>(electronTag_)),
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),
       puSummaryToken_(consumes<std::vector<PileupSummaryInfo> >(puSummaryTag_)),
       vertexToken_(consumes<reco::VertexCollection>(vertexTag_)),
-      maxEta_(ps_.getUntrackedParameter<double>("maxEta", 2.4)),
-      minPt_(ps_.getUntrackedParameter<double>("minPt", 5)),
-      maxDeltaPhiInEB_(ps_.getUntrackedParameter<double>("maxDeltaPhiInEB", 0.15)),
-      maxDeltaEtaInEB_(ps_.getUntrackedParameter<double>("maxDeltaEtaInEB", 0.007)),
-      maxHOEEB_(ps_.getUntrackedParameter<double>("maxHOEEB", 0.12)),
-      maxSigmaiEiEEB_(ps_.getUntrackedParameter<double>("maxSigmaiEiEEB", 0.01)),
-      maxDeltaPhiInEE_(ps_.getUntrackedParameter<double>("maxDeltaPhiInEE", 0.1)),
-      maxDeltaEtaInEE_(ps_.getUntrackedParameter<double>("maxDeltaEtaInEE", 0.009)),
-      maxHOEEE_(ps_.getUntrackedParameter<double>("maxHOEEB_", .10)),
-      maxSigmaiEiEEE_(ps_.getUntrackedParameter<double>("maxSigmaiEiEEE", 0.03)),
-      maxNormChi2_(ps_.getUntrackedParameter<double>("maxNormChi2", 10)),
-      maxD0_(ps_.getUntrackedParameter<double>("maxD0", 0.02)),
-      maxDz_(ps_.getUntrackedParameter<double>("maxDz", 20.)),
-      minPixelHits_(ps_.getUntrackedParameter<uint32_t>("minPixelHits", 1)),
-      minStripHits_(ps_.getUntrackedParameter<uint32_t>("minStripHits", 8)),
-      maxIso_(ps_.getUntrackedParameter<double>("maxIso", 0.3)),
-      minPtHighest_(ps_.getUntrackedParameter<double>("minPtHighest", 24)),
-      minInvMass_(ps_.getUntrackedParameter<double>("minInvMass", 60)),
-      maxInvMass_(ps_.getUntrackedParameter<double>("maxInvMass", 120)),
-      trackQuality_(ps_.getUntrackedParameter<std::string>("trackQuality", "highPurity")),
-      isMC_(ps_.getUntrackedParameter<bool>("isMC", false)),
-      doPUCorrection_(ps_.getUntrackedParameter<bool>("doPUCorrection", false)),
-      puScaleFactorFile_(ps_.getUntrackedParameter<std::string>("puScaleFactorFile", "PileupScaleFactor.root")) {
+      maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4)),
+      minPt_(ps.getUntrackedParameter<double>("minPt", 5)),
+      maxDeltaPhiInEB_(ps.getUntrackedParameter<double>("maxDeltaPhiInEB", 0.15)),
+      maxDeltaEtaInEB_(ps.getUntrackedParameter<double>("maxDeltaEtaInEB", 0.007)),
+      maxHOEEB_(ps.getUntrackedParameter<double>("maxHOEEB", 0.12)),
+      maxSigmaiEiEEB_(ps.getUntrackedParameter<double>("maxSigmaiEiEEB", 0.01)),
+      maxDeltaPhiInEE_(ps.getUntrackedParameter<double>("maxDeltaPhiInEE", 0.1)),
+      maxDeltaEtaInEE_(ps.getUntrackedParameter<double>("maxDeltaEtaInEE", 0.009)),
+      maxHOEEE_(ps.getUntrackedParameter<double>("maxHOEEB_", .10)),
+      maxSigmaiEiEEE_(ps.getUntrackedParameter<double>("maxSigmaiEiEEE", 0.03)),
+      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 10)),
+      maxD0_(ps.getUntrackedParameter<double>("maxD0", 0.02)),
+      maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
+      minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),
+      minStripHits_(ps.getUntrackedParameter<uint32_t>("minStripHits", 8)),
+      maxIso_(ps.getUntrackedParameter<double>("maxIso", 0.3)),
+      minPtHighest_(ps.getUntrackedParameter<double>("minPtHighest", 24)),
+      minInvMass_(ps.getUntrackedParameter<double>("minInvMass", 60)),
+      maxInvMass_(ps.getUntrackedParameter<double>("maxInvMass", 120)),
+      trackQuality_(ps.getUntrackedParameter<std::string>("trackQuality", "highPurity")),
+      isMC_(ps.getUntrackedParameter<bool>("isMC", false)),
+      doPUCorrection_(ps.getUntrackedParameter<bool>("doPUCorrection", false)),
+      puScaleFactorFile_(ps.getUntrackedParameter<std::string>("puScaleFactorFile", "PileupScaleFactor.root")) {
   if (isMC_ && doPUCorrection_) {
     vpu_.clear();
     TFile* f1 = TFile::Open(puScaleFactorFile_.c_str());

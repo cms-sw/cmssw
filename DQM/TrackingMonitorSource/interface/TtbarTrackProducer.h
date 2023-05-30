@@ -4,32 +4,43 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+// Electron selector
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
+// Muon Selector
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+// Jet Selector
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+
+// b-jet Selector
 #include "DataFormats/BTauReco/interface/JetTag.h"
+
+// Met Selector
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 
-class TtbarTrackProducer : public edm::one::EDProducer<> {
+class TtbarTrackProducer : public edm::global::EDProducer<> {
 public:
   explicit TtbarTrackProducer(const edm::ParameterSet&);
   ~TtbarTrackProducer() override;
 
-  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
+  void produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
 private:
   // ----------member data ---------------------------

@@ -4,7 +4,8 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -13,12 +14,12 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-class ZtoMMMuonTrackProducer : public edm::one::EDProducer<> {
+class ZtoMMMuonTrackProducer : public edm::global::EDProducer<> {
 public:
   explicit ZtoMMMuonTrackProducer(const edm::ParameterSet&);
   ~ZtoMMMuonTrackProducer() override;
 
-  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
+  void produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
 private:
   // ----------member data ---------------------------

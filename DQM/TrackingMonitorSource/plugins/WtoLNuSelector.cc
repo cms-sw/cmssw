@@ -26,7 +26,6 @@ WtoLNuSelector::WtoLNuSelector(const edm::ParameterSet& ps)
     : electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
       bsTag_(ps.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
       muonTag_(ps.getUntrackedParameter<edm::InputTag>("muonInputTag", edm::InputTag("muons"))),
-      //pfmetTag_(ps.getUntrackedParameter<edm::InputTag>("pfmetTag", edm::InputTag("pfMet"))),
       pfmetTag_(ps.getUntrackedParameter<edm::InputTag>("pfmetTag", edm::InputTag("pfMetT1T2Txy"))),
       electronToken_(consumes<reco::GsfElectronCollection>(electronTag_)),
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),

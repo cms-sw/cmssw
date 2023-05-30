@@ -20,7 +20,7 @@ ZtoMMEventSelector::ZtoMMEventSelector(const edm::ParameterSet& ps)
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),
       maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4)),
       minPt_(ps.getUntrackedParameter<double>("minPt", 5)),
-      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 10)),
+      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 1000)),
       maxD0_(ps.getUntrackedParameter<double>("maxD0", 0.02)),
       maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
       minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),

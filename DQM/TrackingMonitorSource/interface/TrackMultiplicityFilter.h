@@ -12,8 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -27,13 +25,10 @@ public:
   explicit TrackMultiplicityFilter(const edm::ParameterSet&);
   ~TrackMultiplicityFilter() override = default;
 
-  //  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
 private:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
-  edm::ParameterSet parameters_;
   const edm::InputTag tracksTag_;
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
 

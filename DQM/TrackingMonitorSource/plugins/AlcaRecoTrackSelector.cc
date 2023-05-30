@@ -1,15 +1,6 @@
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TLorentzVector.h"
-//#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -20,18 +11,17 @@ using namespace std;
 using namespace edm;
 
 AlcaRecoTrackSelector::AlcaRecoTrackSelector(const edm::ParameterSet& ps)
-    : parameters_(ps),
-      tracksTag_(parameters_.getUntrackedParameter<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"))),
+    : tracksTag_(ps.getUntrackedParameter<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"))),
       tracksToken_(consumes<reco::TrackCollection>(tracksTag_)),
-      ptmin_(parameters_.getUntrackedParameter<double>("ptmin", 0.)),
-      pmin_(parameters_.getUntrackedParameter<double>("pmin", 0.)),
-      etamin_(parameters_.getUntrackedParameter<double>("etamin", -4.)),
-      etamax_(parameters_.getUntrackedParameter<double>("etamax", 4.)),
-      nhits_(parameters_.getUntrackedParameter<uint32_t>("nhits", 1)) {
+      ptmin_(ps.getUntrackedParameter<double>("ptmin", 0.)),
+      pmin_(ps.getUntrackedParameter<double>("pmin", 0.)),
+      etamin_(ps.getUntrackedParameter<double>("etamin", -4.)),
+      etamax_(ps.getUntrackedParameter<double>("etamax", 4.)),
+      nhits_(ps.getUntrackedParameter<uint32_t>("nhits", 1)) {
   produces<reco::TrackCollection>("");
 }
 
-void AlcaRecoTrackSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void AlcaRecoTrackSelector::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
 
   // Read Track collection
@@ -40,7 +30,6 @@ void AlcaRecoTrackSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   if (tracks.isValid()) {
     for (auto const& trk : *tracks) {
-      //      std::cout << "alcareco track pt : " << trk.pt() << "  |  eta : " << trk.eta() << "  |  nhits : " << trk.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS) << std::endl;
       if (trk.pt() < ptmin_)
         continue;
       if (trk.p() < pmin_)

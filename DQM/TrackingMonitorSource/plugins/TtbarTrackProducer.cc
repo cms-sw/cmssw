@@ -5,48 +5,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TLorentzVector.h"
 
-// Electron selector
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-//#include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
-// Muon Selector
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-// Jet Selector
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
-// b-jet Selector
-#include "DataFormats/BTauReco/interface/JetTag.h"
-
-// Met Selector
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
-#include "DQM/TrackingMonitorSource/interface/ttbarEventSelector.h"
 
 #include "DQM/TrackingMonitorSource/interface/TtbarTrackProducer.h"
 
 using namespace std;
 using namespace edm;
-//using namespace reco;
 
 TtbarTrackProducer::TtbarTrackProducer(const edm::ParameterSet& ps)
     : electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
-      jetsTag_(ps.getUntrackedParameter<edm::InputTag>("jetsInputTag", edm::InputTag("ak4PFJetsCHS"))),  //
-      //  bJetsTag_(ps.getUntrackedParameter<edm::InputTag>("jetsInputTag", edm\|#include "DataFormats/EgammaCandidates/interface/Electron.h"
-      //						    ::InputTag("slimmedJets"))),
+      jetsTag_(ps.getUntrackedParameter<edm::InputTag>("jetsInputTag", edm::InputTag("ak4PFJetsCHS"))),
 
       bjetsTag_(ps.getUntrackedParameter<edm::InputTag>("bjetsInputTag", edm::InputTag("pfDeepCSVJetTags", "probb"))),
       pfmetTag_(ps.getUntrackedParameter<edm::InputTag>("pfmetTag", edm::InputTag("pfMet"))),  //("pfMetT1T2Txy"))),
@@ -106,7 +76,7 @@ TtbarTrackProducer::TtbarTrackProducer(const edm::ParameterSet& ps)
 
 TtbarTrackProducer::~TtbarTrackProducer() {}
 
-void TtbarTrackProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+void TtbarTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
 
   // beamspot
@@ -135,10 +105,6 @@ void TtbarTrackProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSet
       lv_jets.SetPtEtaPhiE(jets.pt(), jets.eta(), jets.phi(), jets.energy());
       list_jets.push_back(lv_jets);
       Jets.push_back(jets);
-
-      //      if (jets.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btagFactor_) list_bJets.push_back(lv_bJets);
-
-      //  lbj = list_bJets.size();
     }
   }
 

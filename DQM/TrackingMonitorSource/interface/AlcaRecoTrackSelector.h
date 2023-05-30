@@ -7,11 +7,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -20,15 +20,14 @@
 
 //                                                                        // class declaration                                                    //
 
-class AlcaRecoTrackSelector : public edm::one::EDProducer<> {
+class AlcaRecoTrackSelector : public edm::global::EDProducer<> {
 public:
   explicit AlcaRecoTrackSelector(const edm::ParameterSet&);
   ~AlcaRecoTrackSelector() override = default;
 
 private:
-  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
+  void produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
-  edm::ParameterSet parameters_;
   const edm::InputTag tracksTag_;
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   const double ptmin_;

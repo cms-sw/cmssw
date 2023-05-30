@@ -68,8 +68,6 @@ protected:
   void endJob();
 
 private:
-  edm::ParameterSet parameters_;
-
   std::string moduleName_;
   std::string folderName_;
 
@@ -108,12 +106,12 @@ private:
   std::string histname;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transTrackToken_;
+  const edm::ParameterSet TrackEtaHistoPar_;
+  const edm::ParameterSet TrackPtHistoPar_;
   const TrackerGeometry* tkGeom_ = nullptr;
 
   MonitorElement* trackEtaH_;
   MonitorElement* trackEtaerrH_;
-  //MonitorElement* trackCosThetaH_;
-  //MonitorElement* trackThetaerrH_;
   MonitorElement* trackPhiH_;
   MonitorElement* trackPhierrH_;
   MonitorElement* trackPH_;
@@ -128,16 +126,6 @@ private:
   MonitorElement* trackChi2H_;
   MonitorElement* tracknDOFH_;
   MonitorElement* trackChi2ProbH_;
-  //MonitorElement* trackChi2ProbTestH_;
-  //MonitorElement* trackChi2ProbGtCutH_;
-  /*  MonitorElement* trackChi2ProbGtLCut1H_;
-  MonitorElement* trackChi2ProbGtLCut2H_;
-  MonitorElement* trackChi2ProbGtLCut3H_;
-  MonitorElement* trackChi2ProbGtLCut4H_;
-  MonitorElement* trackChi2ProbZoomedH_;
-  MonitorElement* trackChi2Prob_ptGt3H_;
-  MonitorElement* trackChi2Prob_ptGt10H_;
-  MonitorElement* trackChi2Prob_LHlt8H_;*/
   MonitorElement* trackChi2oNDFH_;
   MonitorElement* trackd0H_;
   MonitorElement* trackChi2bynDOFH_;
@@ -166,18 +154,10 @@ private:
 
   MonitorElement* ip3dToPVH_;
   MonitorElement* iperr3dToPVH_;
-  //MonitorElement* iperr3dToPVEta1H_;
-  //MonitorElement* iperr3dToPVEta2H_;
-  //MonitorElement* iperr3dToPVEta3H_;
-  //MonitorElement* iperr3dToPVGtChi2CutH_;
   MonitorElement* iperr3dToPVWtH_;
   MonitorElement* sip3dToPVH_;
   MonitorElement* sip3dToBSH_;
   MonitorElement* sip2dToPVH_;
-  //MonitorElement* sip2dToPVEta1H_;
-  //MonitorElement* sip2dToPVEta2H_;
-  //MonitorElement* sip2dToPVEta3H_;
-  //MonitorElement* sip2dToPVGtChi2CutH_;
   MonitorElement* sip2dToPVWtH_;
   MonitorElement* sipDxyToPVH_;
   MonitorElement* sipDzToPVH_;
@@ -209,19 +189,6 @@ private:
   MonitorElement* nMissingInnerHitEH_;
   MonitorElement* nMissingOuterHitBH_;
   MonitorElement* nMissingOuterHitEH_;
-
-  /*  MonitorElement* residualXPBH_;
-  MonitorElement* residualXPEH_;
-  MonitorElement* residualXTIBH_;
-  MonitorElement* residualXTOBH_;
-  MonitorElement* residualXTIDH_;
-  MonitorElement* residualXTECH_;
-  MonitorElement* residualYPBH_;
-  MonitorElement* residualYPEH_;
-  MonitorElement* residualYTIBH_;
-  MonitorElement* residualYTOBH_;
-  MonitorElement* residualYTIDH_;
-  MonitorElement* residualYTECH_;*/
 
   MonitorElement* trkLayerwithMeasurementH_;
   MonitorElement* pixelLayerwithMeasurementH_;
@@ -333,50 +300,16 @@ private:
   MonitorElement* trackChi2probVsEtaH_;
   MonitorElement* trackChi2probVsPhiH_;
 
-  /*  MonitorElement* trackChi2probVsPtH_;
-  MonitorElement* trackChi2probVsnHitsH_;
-  MonitorElement* trackChi2probVsnTrackerHitsH_;
-  MonitorElement* trackChi2probVsEta2DH_;
-  MonitorElement* trackChi2probVsPhi2DH_;
-  MonitorElement* trackChi2probVsPt2DH_;
-  MonitorElement* trackChi2probVsnHits2DH_;
-  MonitorElement* trackChi2probVsnTrackerHits2DH_;
-  MonitorElement* trackChi2probVsnValidHits2DH_;
-  MonitorElement* trackChi2probVsnLostHits2DH_;
-  MonitorElement* trackChi2probVsnMissingInnerHits2DH_;
-  MonitorElement* trackChi2probVsnMissingOuterHits2DH_;
-
-  MonitorElement* trackChi2probVsAlgo2DH_;
-  MonitorElement* trackChi2probVsOrigAlgo2DH_;
-  MonitorElement* trackChi2probVsStoppingSource2DH_;*/
-
   MonitorElement* trackIperr3dVsEtaH_;
-  //MonitorElement* trackIperr3dVsPtH_;
   MonitorElement* trackIperr3dVsChi2probH_;
-  //MonitorElement* trackIperr3dVsnHitsH_;
-  //MonitorElement* trackIperr3dVsnValidHitsH_;
-  //MonitorElement* trackIperr3dVsnLostHitsH_;
 
   MonitorElement* trackSip2dVsEtaH_;
-  //MonitorElement* trackSip2dVsPtH_;
-  //MonitorElement* trackSip2dVsChi2probH_;
-  //MonitorElement* trackSip2dVsnHitsH_;
-  //MonitorElement* trackSip2dVsnValidHitsH_;
-  //MonitorElement* trackSip2dVsnLostHitsH_;
 
   MonitorElement* trackIperr3dVsEta2DH_;
-  //MonitorElement* trackIperr3dVsPt2DH_;
   MonitorElement* trackIperr3dVsChi2prob2DH_;
-  //MonitorElement* trackIperr3dVsnHits2DH_;
-  //MonitorElement* trackIperr3dVsnValidHits2DH_;
-  //MonitorElement* trackIperr3dVsnLostHits2DH_;
 
   MonitorElement* trackSip2dVsEta2DH_;
-  //MonitorElement* trackSip2dVsPt2DH_;
   MonitorElement* trackSip2dVsChi2prob2DH_;
-  //MonitorElement* trackSip2dVsnHits2DH_;
-  //MonitorElement* trackSip2dVsnValidHits2DH_;
-  //MonitorElement* trackSip2dVsnLostHits2DH_;
 
   MonitorElement* hOnTrkClusChargeThinH_;
   MonitorElement* hOnTrkClusWidthThinH_;
@@ -417,40 +350,39 @@ private:
 // constructors and destructor
 // -----------------------------
 StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
-    : parameters_(ps),
-      moduleName_(parameters_.getUntrackedParameter<std::string>("moduleName", "StandaloneTrackMonitor")),
-      folderName_(parameters_.getUntrackedParameter<std::string>("folderName", "highPurityTracks")),
+    : moduleName_(ps.getUntrackedParameter<std::string>("moduleName", "StandaloneTrackMonitor")),
+      folderName_(ps.getUntrackedParameter<std::string>("folderName", "highPurityTracks")),
       siStripClusterInfo_(consumesCollector()),
-      trackTag_(parameters_.getUntrackedParameter<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"))),
-      bsTag_(parameters_.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
-      vertexTag_(
-          parameters_.getUntrackedParameter<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"))),
-      puSummaryTag_(parameters_.getUntrackedParameter<edm::InputTag>("puTag", edm::InputTag("addPileupInfo"))),
-      clusterTag_(parameters_.getUntrackedParameter<edm::InputTag>("clusterTag", edm::InputTag("siStripClusters"))),
-      jetsTag_(parameters_.getUntrackedParameter<edm::InputTag>("PFJetsCollection", edm::InputTag("ak4PFJetsCHS"))),
+      trackTag_(ps.getUntrackedParameter<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"))),
+      bsTag_(ps.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
+      vertexTag_(ps.getUntrackedParameter<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"))),
+      puSummaryTag_(ps.getUntrackedParameter<edm::InputTag>("puTag", edm::InputTag("addPileupInfo"))),
+      clusterTag_(ps.getUntrackedParameter<edm::InputTag>("clusterTag", edm::InputTag("siStripClusters"))),
+      jetsTag_(ps.getUntrackedParameter<edm::InputTag>("PFJetsCollection", edm::InputTag("ak4PFJetsCHS"))),
       trackToken_(consumes<reco::TrackCollection>(trackTag_)),
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),
       vertexToken_(consumes<reco::VertexCollection>(vertexTag_)),
       puSummaryToken_(consumes<std::vector<PileupSummaryInfo> >(puSummaryTag_)),
       clusterToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(clusterTag_)),
       jetsToken_(consumes<std::vector<reco::PFJet> >(jetsTag_)),
-      trackQuality_(parameters_.getUntrackedParameter<std::string>("trackQuality", "highPurity")),
-      doPUCorrection_(parameters_.getUntrackedParameter<bool>("doPUCorrection", false)),
-      doTrackCorrection_(parameters_.getUntrackedParameter<bool>("doTrackCorrection", false)),
-      isMC_(parameters_.getUntrackedParameter<bool>("isMC", false)),
-      haveAllHistograms_(parameters_.getUntrackedParameter<bool>("haveAllHistograms", false)),
-      puScaleFactorFile_(parameters_.getUntrackedParameter<std::string>("puScaleFactorFile", "PileupScaleFactor.root")),
-      trackScaleFactorFile_(
-          parameters_.getUntrackedParameter<std::string>("trackScaleFactorFile", "PileupScaleFactor.root")),
-      mvaProducers_(parameters_.getUntrackedParameter<std::vector<std::string> >("MVAProducers")),
-      mvaTrackTag_(parameters_.getUntrackedParameter<edm::InputTag>("TrackProducerForMVA")),
+      trackQuality_(ps.getUntrackedParameter<std::string>("trackQuality", "highPurity")),
+      doPUCorrection_(ps.getUntrackedParameter<bool>("doPUCorrection", false)),
+      doTrackCorrection_(ps.getUntrackedParameter<bool>("doTrackCorrection", false)),
+      isMC_(ps.getUntrackedParameter<bool>("isMC", false)),
+      haveAllHistograms_(ps.getUntrackedParameter<bool>("haveAllHistograms", false)),
+      puScaleFactorFile_(ps.getUntrackedParameter<std::string>("puScaleFactorFile", "PileupScaleFactor.root")),
+      trackScaleFactorFile_(ps.getUntrackedParameter<std::string>("trackScaleFactorFile", "PileupScaleFactor.root")),
+      mvaProducers_(ps.getUntrackedParameter<std::vector<std::string> >("MVAProducers")),
+      mvaTrackTag_(ps.getUntrackedParameter<edm::InputTag>("TrackProducerForMVA")),
       mvaTrackToken_(consumes<edm::View<reco::Track> >(mvaTrackTag_)),
-      tcProducer_(parameters_.getUntrackedParameter<edm::InputTag>("TCProducer")),
-      algoName_(parameters_.getUntrackedParameter<std::string>("AlgoName")),
-      verbose_(parameters_.getUntrackedParameter<bool>("verbose", false)),
+      tcProducer_(ps.getUntrackedParameter<edm::InputTag>("TCProducer")),
+      algoName_(ps.getUntrackedParameter<std::string>("AlgoName")),
+      verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
       geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       transTrackToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord, edm::Transition::Event>(
-          edm::ESInputTag{"", "TransientTrackBuilder"})) {
+          edm::ESInputTag{"", "TransientTrackBuilder"})),
+      TrackEtaHistoPar_(ps.getParameter<edm::ParameterSet>("trackEtaH")),
+      TrackPtHistoPar_(ps.getParameter<edm::ParameterSet>("trackPtH")) {
   for (const auto& v : mvaProducers_) {
     mvaQualityTokens_.push_back(std::make_tuple(consumes<MVACollection>(edm::InputTag(v, "MVAValues")),
                                                 consumes<QualityMaskCollection>(edm::InputTag(v, "QualityMasks"))));
@@ -574,24 +506,16 @@ void StandaloneTrackMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                             edm::Run const& iRun,
                                             edm::EventSetup const& iSetup) {
-  edm::ParameterSet TrackEtaHistoPar = parameters_.getParameter<edm::ParameterSet>("trackEtaH");
-  edm::ParameterSet TrackPtHistoPar = parameters_.getParameter<edm::ParameterSet>("trackPtH");
-  edm::ParameterSet TrackMVAHistoPar = parameters_.getParameter<edm::ParameterSet>("trackMVAH");
-
   std::string currentFolder = moduleName_ + "/" + folderName_;
   ibook.setCurrentFolder(currentFolder);
-
-  std::vector<std::string> mvaProducers = parameters_.getUntrackedParameter<std::vector<std::string> >("MVAProducers");
-  edm::InputTag tcProducer = parameters_.getUntrackedParameter<edm::InputTag>("TCProducer");
-  // MVA
 
   // The following are common with the official tool
   if (haveAllHistograms_) {
     trackEtaH_ = ibook.book1D("trackEta",
                               "Track Eta",
-                              TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                              TrackEtaHistoPar.getParameter<double>("Xmin"),
-                              TrackEtaHistoPar.getParameter<double>("Xmax"));
+                              TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                              TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                              TrackEtaHistoPar_.getParameter<double>("Xmax"));
 
     trackEtaerrH_ = ibook.book1D("trackEtaerr", "Track Eta Error", 50, 0.0, 1.0);
     trackPhiH_ = ibook.book1D("trackPhi", "Track Phi", 70, -3.5, 3.5);
@@ -600,9 +524,9 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     trackPH_ = ibook.book1D("trackP", "Track 4-momentum", 50, 0.0, 10.0);
     trackPtH_ = ibook.book1D("trackPt",
                              "Track Pt",
-                             TrackPtHistoPar.getParameter<int32_t>("Xbins"),
-                             TrackPtHistoPar.getParameter<double>("Xmin"),
-                             TrackPtHistoPar.getParameter<double>("Xmax"));
+                             TrackPtHistoPar_.getParameter<int32_t>("Xbins"),
+                             TrackPtHistoPar_.getParameter<double>("Xmin"),
+                             TrackPtHistoPar_.getParameter<double>("Xmax"));
     trackPt_ZoomH_ = ibook.book1D("trackPt_Zoom", "Track Pt", 100, 60, 70);
     trackPterrH_ = ibook.book1D("trackPterr", "Track Pt Error", 100, 0.0, 100.0);
     trackqOverpH_ = ibook.book1D("trackqOverp", "q Over p", 40, -10.0, 10.0);
@@ -744,17 +668,17 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   nLostHitsVspTH_ = ibook.bookProfile("nLostHitsVspT",
                                       "Number of Lost Hits Vs pT",
-                                      TrackPtHistoPar.getParameter<int32_t>("Xbins"),
-                                      TrackPtHistoPar.getParameter<double>("Xmin"),
-                                      TrackPtHistoPar.getParameter<double>("Xmax"),
+                                      TrackPtHistoPar_.getParameter<int32_t>("Xbins"),
+                                      TrackPtHistoPar_.getParameter<double>("Xmin"),
+                                      TrackPtHistoPar_.getParameter<double>("Xmax"),
                                       0.0,
                                       0.0,
                                       "g");
   nLostHitsVsEtaH_ = ibook.bookProfile("nLostHitsVsEta",
                                        "Number of Lost Hits Vs Eta",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
@@ -766,92 +690,92 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   nHitsTIBSVsEtaH_ = ibook.bookProfile("nHitsTIBSVsEta",
                                        "Number of Hits in TIB Vs Eta (Single-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
   nHitsTOBSVsEtaH_ = ibook.bookProfile("nHitsTOBSVsEta",
                                        "Number of Hits in TOB Vs Eta (Single-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
   nHitsTECSVsEtaH_ = ibook.bookProfile("nHitsTECSVsEta",
                                        "Number of Hits in TEC Vs Eta (Single-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
   nHitsTIDSVsEtaH_ = ibook.bookProfile("nHitsTIDSVsEta",
                                        "Number of Hits in TID Vs Eta (Single-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
 
   nHitsStripSVsEtaH_ = ibook.bookProfile("nHitsStripSVsEta",
                                          "Number of Strip Hits Vs Eta (Single-sided)",
-                                         TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                         TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                         TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                         TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                         TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                         TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                          0.0,
                                          0.0,
                                          "g");
 
   nHitsTIBDVsEtaH_ = ibook.bookProfile("nHitsTIBDVsEta",
                                        "Number of Hits in TIB Vs Eta (Double-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
   nHitsTOBDVsEtaH_ = ibook.bookProfile("nHitsTOBDVsEta",
                                        "Number of Hits in TOB Vs Eta (Double-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
   nHitsTECDVsEtaH_ = ibook.bookProfile("nHitsTECDVsEta",
                                        "Number of Hits in TEC Vs Eta (Double-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
   nHitsTIDDVsEtaH_ = ibook.bookProfile("nHitsTIDDVsEta",
                                        "Number of Hits in TID Vs Eta (Double-sided)",
-                                       TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                       TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                       TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                       TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
   nHitsStripDVsEtaH_ = ibook.bookProfile("nHitsStripDVsEta",
                                          "Number of Strip Hits Vs Eta (Double-sided)",
-                                         TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                         TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                         TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                         TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                         TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                         TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                          0.0,
                                          0.0,
                                          "g");
 
   nValidHitsVspTH_ = ibook.bookProfile("nValidHitsVspT",
                                        "Number of Valid Hits Vs pT",
-                                       TrackPtHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackPtHistoPar.getParameter<double>("Xmin"),
-                                       TrackPtHistoPar.getParameter<double>("Xmax"),
+                                       TrackPtHistoPar_.getParameter<int32_t>("Xbins"),
+                                       TrackPtHistoPar_.getParameter<double>("Xmin"),
+                                       TrackPtHistoPar_.getParameter<double>("Xmax"),
                                        0.0,
                                        0.0,
                                        "g");
@@ -859,9 +783,9 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
       ibook.bookProfile("nValidHitsVsnVtx", "Number of Valid Hits Vs Number of Vertex", 100, 0., 50., 0.0, 0.0, "g");
   nValidHitsVsEtaH_ = ibook.bookProfile("nValidHitsVsEta",
                                         "Number of Hits Vs Eta",
-                                        TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                        TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                        TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                        TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                         0.0,
                                         0.0,
                                         "g");
@@ -873,260 +797,260 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   nValidHitsPixVsEtaH_ = ibook.bookProfile("nValidHitsPixVsEta",
                                            "Number of Valid Hits in Pixel Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsPixBVsEtaH_ = ibook.bookProfile("nValidHitsPixBVsEta",
                                             "Number of Valid Hits in Pixel Barrel Vs Eta",
-                                            TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
   nValidHitsPixEVsEtaH_ = ibook.bookProfile("nValidHitsPixEVsEta",
                                             "Number of Valid Hits in Pixel Endcap Vs Eta",
-                                            TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
   nValidHitsStripVsEtaH_ = ibook.bookProfile("nValidHitsStripVsEta",
                                              "Number of Valid Hits in SiStrip Vs Eta",
-                                             TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                             TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                             TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                             TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                             TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                             TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                              0.0,
                                              0.0,
                                              "g");
   nValidHitsTIBVsEtaH_ = ibook.bookProfile("nValidHitsTIBVsEta",
                                            "Number of Valid Hits in TIB Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTOBVsEtaH_ = ibook.bookProfile("nValidHitsTOBVsEta",
                                            "Number of Valid Hits in TOB Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTECVsEtaH_ = ibook.bookProfile("nValidHitsTECVsEta",
                                            "Number of Valid Hits in TEC Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTIDVsEtaH_ = ibook.bookProfile("nValidHitsTIDVsEta",
                                            "Number of Valid Hits in TID Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
 
   nValidHitsPixVsPhiH_ = ibook.bookProfile("nValidHitsPixVsPhi",
                                            "Number of Valid Hits in Pixel Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsPixBVsPhiH_ = ibook.bookProfile("nValidHitsPixBVsPhi",
                                             "Number of Valid Hits in Pixel Barrel Vs Phi",
-                                            TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
   nValidHitsPixEVsPhiH_ = ibook.bookProfile("nValidHitsPixEVsPhi",
                                             "Number of Valid Hits in Pixel Endcap Vs Phi",
-                                            TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
   nValidHitsStripVsPhiH_ = ibook.bookProfile("nValidHitsStripVsPhi",
                                              "Number of Valid Hits in SiStrip Vs Phi",
-                                             TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                             TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                             TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                             TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                             TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                             TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                              0.0,
                                              0.0,
                                              "g");
   nValidHitsTIBVsPhiH_ = ibook.bookProfile("nValidHitsTIBVsPhi",
                                            "Number of Valid Hits in TIB Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTOBVsPhiH_ = ibook.bookProfile("nValidHitsTOBVsPhi",
                                            "Number of Valid Hits in TOB Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTECVsPhiH_ = ibook.bookProfile("nValidHitsTECVsPhi",
                                            "Number of Valid Hits in TEC Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTIDVsPhiH_ = ibook.bookProfile("nValidHitsTIDVsPhi",
                                            "Number of Valid Hits in TID Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
 
   nLostHitsPixVsEtaH_ = ibook.bookProfile("nLostHitsPixVsEta",
                                           "Number of Lost Hits in Pixel Vs Eta",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsPixBVsEtaH_ = ibook.bookProfile("nLostHitsPixBVsEta",
                                            "Number of Lost Hits in Pixel Barrel Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nLostHitsPixEVsEtaH_ = ibook.bookProfile("nLostHitsPixEVsEta",
                                            "Number of Lost Hits in Pixel Endcap Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nLostHitsStripVsEtaH_ = ibook.bookProfile("nLostHitsStripVsEta",
                                             "Number of Lost Hits in SiStrip Vs Eta",
-                                            TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
   nLostHitsTIBVsEtaH_ = ibook.bookProfile("nLostHitsTIBVsEta",
                                           "Number of Lost Hits in TIB Vs Eta",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTOBVsEtaH_ = ibook.bookProfile("nLostHitsTOBVsEta",
                                           "Number of Lost Hits in TOB Vs Eta",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTECVsEtaH_ = ibook.bookProfile("nLostHitsTECVsEta",
                                           "Number of Lost Hits in TEC Vs Eta",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTIDVsEtaH_ = ibook.bookProfile("nLostHitsTIDVsEta",
                                           "Number of Lost Hits in TID Vs Eta",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
 
   nLostHitsPixVsPhiH_ = ibook.bookProfile("nLostHitsPixVsPhi",
                                           "Number of Lost Hits in Pixel Vs Phi",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsPixBVsPhiH_ = ibook.bookProfile("nLostHitsPixBVsPhi",
                                            "Number of Lost Hits in Pixel Barrel Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nLostHitsPixEVsPhiH_ = ibook.bookProfile("nLostHitsPixEVsPhi",
                                            "Number of Lost Hits in Pixel Endcap Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nLostHitsStripVsPhiH_ = ibook.bookProfile("nLostHitsStripVsPhi",
                                             "Number of Lost Hits in SiStrip Vs Phi",
-                                            TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
   nLostHitsTIBVsPhiH_ = ibook.bookProfile("nLostHitsTIBVsPhi",
                                           "Number of Lost Hits in TIB Vs Phi",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTOBVsPhiH_ = ibook.bookProfile("nLostHitsTOBVsPhi",
                                           "Number of Lost Hits in TOB Vs Phi",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTECVsPhiH_ = ibook.bookProfile("nLostHitsTECVsPhi",
                                           "Number of Lost Hits in TEC Vs Phi",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTIDVsPhiH_ = ibook.bookProfile("nLostHitsTIDVsPhi",
                                           "Number of Lost Hits in TID Vs Phi",
-                                          TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
@@ -1150,34 +1074,34 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   trackChi2oNDFVsEtaH_ = ibook.bookProfile("trackChi2oNDFVsEta",
                                            "chi2/ndof of Tracks Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   trackChi2oNDFVsPhiH_ = ibook.bookProfile("trackChi2oNDFVsPhi",
                                            "chi2/ndof of Tracks Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
 
   trackChi2probVsEtaH_ = ibook.bookProfile("trackChi2probVsEta",
                                            "chi2 probability of Tracks Vs Eta",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   trackChi2probVsPhiH_ = ibook.bookProfile("trackChi2probVsPhi",
                                            "chi2 probability of Tracks Vs Phi",
-                                           TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar.getParameter<double>("Xmax"),
+                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
