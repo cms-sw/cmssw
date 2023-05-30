@@ -192,6 +192,10 @@ public:
       : InputFile(status, lumi, name, deleteFile, rawFd, fileSize, rawHeaderSize, nChunks, nEvents, nullptr),
         sourceParent_(parent) {}
   bool advance(unsigned char*& dataPosition, const size_t size);
+  void advance(const size_t size) {
+    chunkPosition_ += size;
+    bufferPosition_ += size;
+  }
 
 private:
   DAQSource* sourceParent_;
