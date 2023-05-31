@@ -119,12 +119,12 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
         bool at_least_one_SL1_confirmation = false;
         bool at_least_one_SL3_confirmation = false;
 
-        bool useFitSL1[SL1metaPrimitives.size()];
+        vector<bool> useFitSL1;
         for (unsigned int i = 0; i < SL1metaPrimitives.size(); i++)
-          useFitSL1[i] = false;
-        bool useFitSL3[SL3metaPrimitives.size()];
+          useFitSL1.push_back(false);
+        vector<bool> useFitSL3;
         for (unsigned int i = 0; i < SL3metaPrimitives.size(); i++)
-          useFitSL3[i] = false;
+          useFitSL3.push_back(false);
 
         //SL1-SL3
         vector<metaPrimitive> chamberMetaPrimitives;
@@ -986,9 +986,9 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 }
 
 void MuonPathAssociator::removeSharingFits(vector<metaPrimitive> &chamberMPaths, vector<metaPrimitive> &allMPaths) {
-  bool useFit[chamberMPaths.size()];
+  vector<bool> useFit;
   for (unsigned int i = 0; i < chamberMPaths.size(); i++) {
-    useFit[i] = true;
+    useFit.push_back(true);
   }
   for (unsigned int i = 0; i < chamberMPaths.size(); i++) {
     if (debug_)
