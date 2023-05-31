@@ -29,9 +29,6 @@ bool TrackMultiplicityFilter::filter(edm::StreamID iStream, edm::Event& iEvent, 
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(tracksToken_, tracks);
   double count = std::count_if(tracks->begin(), tracks->end(), selector_);
-  std::cout << "count : " << count << std::endl;
-  std::cout << "nmin_ : " << nmin_ << std::endl;
-  std::cout << "tracks size : " << tracks->size() << std::endl;
 
   pass = (count >= nmin_);
 

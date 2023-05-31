@@ -71,10 +71,7 @@ private:
   const double maxSigmaiEiEEE_;
 
   const double minChambers_;
-  const double minMatches_;
-  const double minMatchedStations_;
 
-  const double minEtaHighest_Jets_;
   const double minEta_Jets_;
 
   const double btagFactor_;

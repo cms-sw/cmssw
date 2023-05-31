@@ -105,9 +105,9 @@ ttbarTracks = cms.EDProducer("TtbarTrackProducer")
 
 # For MinBias
 standaloneTrackMonitorMC = standaloneTrackMonitor.clone(
-    puScaleFactorFile = cms.untracked.string("PileupScaleFactor_316060_wrt_nVertex_ZeroBias.root"),
-    doPUCorrection    = cms.untracked.bool(True),
-    isMC              = cms.untracked.bool(True)
+    puScaleFactorFile = "PileupScaleFactor_316060_wrt_nVertex_ZeroBias.root",
+    doPUCorrection    = True,
+    isMC              = True
     )
 standaloneValidationMinbias = cms.Sequence(
     hltPathFilter
@@ -125,22 +125,22 @@ standaloneValidationMinbiasMC = cms.Sequence(
     * standaloneTrackMonitorMC)
 # For ZtoEE
 standaloneTrackMonitorElec = standaloneTrackMonitor.clone(
-    folderName = cms.untracked.string("ElectronTracks"),
-    trackInputTag = cms.untracked.InputTag('electronTracks'),
+    folderName = "ElectronTracks",
+    trackInputTag = 'electronTracks',
     )
 
 standaloneTrackMonitorElecMC = standaloneTrackMonitor.clone(
-    folderName = cms.untracked.string("ElectronTracks"),
-    trackInputTag = cms.untracked.InputTag('electronTracks'),
-    puScaleFactorFile = cms.untracked.string("PileupScaleFactor_316082_wrt_nVertex_DYToLL.root"),
-    doPUCorrection    = cms.untracked.bool(True),
-    isMC              = cms.untracked.bool(True)
+    folderName = "ElectronTracks",
+    trackInputTag = 'electronTracks',
+    puScaleFactorFile = "PileupScaleFactor_316082_wrt_nVertex_DYToLL.root",
+    doPUCorrection    = True,
+    isMC              = True
     )
 
 ZEEDetailsMC = ZEEDetails.clone(
-    puScaleFactorFile = cms.untracked.string("PileupScaleFactor_316082_wrt_nVertex_DYToLL.root"),
-    doPUCorrection    = cms.untracked.bool(True),
-    isMC              = cms.untracked.bool(True)
+    puScaleFactorFile = "PileupScaleFactor_316082_wrt_nVertex_DYToLL.root",
+    doPUCorrection    = True,
+    isMC              = True
     )
 
 standaloneValidationElec = cms.Sequence(
@@ -163,15 +163,15 @@ standaloneValidationElecMC = cms.Sequence(
     * ZEEDetailsMC)
 # For ZtoMM
 standaloneTrackMonitorMuon = standaloneTrackMonitor.clone(
-    folderName = cms.untracked.string("MuonTracks"),
-    trackInputTag = cms.untracked.InputTag('muonTracks'),
+    folderName = "MuonTracks",
+    trackInputTag = 'muonTracks',
     )
 standaloneTrackMonitorMuonMC = standaloneTrackMonitor.clone(
-    folderName = cms.untracked.string("MuonTracks"),
-    trackInputTag = cms.untracked.InputTag('muonTracks'),
-    puScaleFactorFile = cms.untracked.string("PileupScaleFactor_316082_wrt_nVertex_DYToLL.root"),
-    doPUCorrection    = cms.untracked.bool(True),
-    isMC              = cms.untracked.bool(True)
+    folderName = "MuonTracks",
+    trackInputTag = 'muonTracks',
+    puScaleFactorFile = "PileupScaleFactor_316082_wrt_nVertex_DYToLL.root",
+    doPUCorrection    = True,
+    isMC              = True
     )
 
 standaloneValidationMuon = cms.Sequence(
@@ -194,16 +194,16 @@ standaloneValidationMuonMC = cms.Sequence(
 
 # For ttbar
 standaloneTrackMonitorTTbar = standaloneTrackMonitor.clone(
-    folderName = cms.untracked.string("TTbarTracks"),
-    trackInputTag = cms.untracked.InputTag('ttbarTracks'),
+    folderName = "TTbarTracks",
+    trackInputTag = 'ttbarTracks',
     )
 
 standaloneTrackMonitorTTbarMC = standaloneTrackMonitor.clone(
-    folderName = cms.untracked.string("TTbarTracks"),
-    trackInputTag = cms.untracked.InputTag('ttbarTracks'),
-    puScaleFactorFile = cms.untracked.string("PileupScaleFactor_316082_wrt_nVertex_DYToLL.root"),
-    doPUCorrection    = cms.untracked.bool(True),
-    isMC              = cms.untracked.bool(True)
+    folderName = "TTbarTracks",
+    trackInputTag = 'ttbarTracks',
+    puScaleFactorFile = "PileupScaleFactor_316082_wrt_nVertex_DYToLL.root",
+    doPUCorrection    = True,
+    isMC              = True
     )
 
 standaloneValidationTTbar = cms.Sequence(

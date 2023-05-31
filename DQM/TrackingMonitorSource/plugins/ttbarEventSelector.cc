@@ -74,10 +74,11 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
 
+  int le = 0, lm = 0, lj = 0, lbj = 0;
+
   // Read Electron Collection
   edm::Handle<reco::GsfElectronCollection> electronColl;
   iEvent.getByToken(electronToken_, electronColl);
-  int le = 0, lj = 0, lm = 0, lbj = 0;
   std::vector<TLorentzVector> list_ele;
   std::vector<int> chrgeList_ele;
 
@@ -136,16 +137,14 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
 
       // PF Isolation
       reco::GsfElectron::PflowIsolationVariables pfIso = ele.pfIsolationVariables();
-      float absiso =
+      const float eiso =
           pfIso.sumChargedHadronPt + std::max(0.0, pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt);
-      float eiso = absiso / (ele.pt());
-      if (eiso > maxIsoEle_)
+      if (eiso > maxIsoEle_ * ele.pt())
         continue;
 
       TLorentzVector lv_ele;
       lv_ele.SetPtEtaPhiE(ele.pt(), ele.eta(), ele.phi(), ele.energy());
       list_ele.push_back(lv_ele);
-      le = list_ele.size();
       chrgeList_ele.push_back(ele.charge());
     }
     le = list_ele.size();
@@ -209,13 +208,12 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       const reco::MuonPFIsolation& pfIso04 = mu.pfIsolationR04();
       double absiso = pfIso04.sumChargedHadronPt +
                       std::max(0.0, pfIso04.sumNeutralHadronEt + pfIso04.sumPhotonEt - 0.5 * pfIso04.sumPUPt);
-      if (absiso / mu.pt() > maxIsoMu_)
+      if (absiso > maxIsoMu_ * mu.pt())
         continue;
 
       TLorentzVector lv_mu;
       lv_mu.SetPtEtaPhiE(mu.pt(), mu.eta(), mu.phi(), mu.energy());
       list_mu.push_back(lv_mu);
-      lm = list_mu.size();
       chrgeList_mu.push_back(mu.charge());
     }
     lm = list_mu.size();
@@ -246,7 +244,6 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
   iEvent.getByToken(bjetsToken_, bTagHandle);
   const reco::JetTagCollection& bTags = *(bTagHandle.product());
   std::vector<TLorentzVector> list_bjets;
-  std::cout << "nbjets " << bTags.size() << std::endl;
 
   if (!bTags.empty()) {
     for (unsigned bj = 0; bj != bTags.size(); ++bj) {
@@ -258,8 +255,6 @@ bool ttbarEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     }
     lbj = list_bjets.size();
   }
-
-  std::cout << "le " << le << "\tlm " << lm << "\tlj " << lj << "\tlbj " << lbj << std::endl;
 
   // for MET collection
   edm::Handle<reco::PFMETCollection> pfColl;

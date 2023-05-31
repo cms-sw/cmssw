@@ -145,10 +145,9 @@ void ZEEDetails::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
       // DB corrected PF Isolation
       reco::GsfElectron::PflowIsolationVariables pfIso = ele.pfIsolationVariables();
-      float absiso =
+      const float eiso =
           pfIso.sumChargedHadronPt + std::max(0.0, pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt);
-      float eiso = absiso / (ele.pt());
-      if (eiso > maxIso_)
+      if (eiso > maxIso_ * ele.pt())
         continue;
 
       if (!tk->quality(reco::Track::qualityByName(trackQuality_)))
@@ -167,11 +166,10 @@ void ZEEDetails::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::VertexCollection> vertexColl;
   iEvent.getByToken(vertexToken_, vertexColl);
   if (!vertexColl.isValid()) {
-    std::cerr << "Error! Failed to get reco::Vertex Collection, for " << vertexTag_ << std::endl;
     edm::LogError("DqmTrackStudy") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
   }
   if (vertexColl->empty()) {
-    std::cerr << "No good vertex in the event!!" << std::endl;
+    edm::LogError("DqmTrackStudy") << "No good vertex in the event!!";
     return;
   }
 
@@ -195,7 +193,7 @@ void ZEEDetails::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         }
       }
     } else
-      std::cerr << "PUSummary for input tag: " << puSummaryTag_ << " not found!!" << std::endl;
+      edm::LogError("DqmTrackStudy") << "PUSummary for input tag: " << puSummaryTag_ << " not found!!";
   }
 
   for (unsigned int I = 0; I != finalelectrons.size(); I++) {

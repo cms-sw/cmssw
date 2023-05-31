@@ -116,10 +116,9 @@ void ZtoEEElectronTrackProducer::produce(edm::StreamID streamID,
 
       // DB corrected PF Isolation
       reco::GsfElectron::PflowIsolationVariables pfIso = ele.pfIsolationVariables();
-      float absiso =
+      const float eiso =
           pfIso.sumChargedHadronPt + std::max(0.0, pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt);
-      float eiso = absiso / (ele.pt());
-      if (eiso > maxIso_)
+      if (eiso > maxIso_ * ele.pt())
         continue;
 
       outputTColl->push_back(*tk);

@@ -44,11 +44,8 @@ TtbarTrackProducer::TtbarTrackProducer(const edm::ParameterSet& ps)
 
       // for Muon only
       minChambers_(ps.getUntrackedParameter<uint32_t>("minChambers", 2)),
-      minMatches_(ps.getUntrackedParameter<uint32_t>("minMatches", 2)),
-      minMatchedStations_(ps.getUntrackedParameter<double>("minMatchedStations", 2)),
 
       // for Jets only
-      minEtaHighest_Jets_(ps.getUntrackedParameter<double>("minEtaHighest_Jets", 2.4)),
       minEta_Jets_(ps.getUntrackedParameter<double>("minEta_Jets", 3.0)),
 
       // for b-tag only
@@ -112,7 +109,6 @@ void TtbarTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm
   iEvent.getByToken(bjetsToken_, bTagHandle);
   const reco::JetTagCollection& bTags = *(bTagHandle.product());
   std::vector<TLorentzVector> list_bjets;
-  std::cout << "nbjets " << bTags.size() << std::endl;
 
   if (!bTags.empty()) {
     for (unsigned bj = 0; bj != bTags.size(); ++bj) {
