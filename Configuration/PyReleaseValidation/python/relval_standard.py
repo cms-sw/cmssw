@@ -524,7 +524,7 @@ workflows[141.011] = ['',['RunEGamma2023B','HLTDR3_2023','RECONANORUN3_reHLT_202
 workflows[141.012] = ['',['RunTau2023B','HLTDR3_2023','RECONANORUN3_reHLT_2023','HARVESTRUN3_2023']]
 workflows[141.013] = ['',['RunMuonEG2023B','HLTDR3_2023','RECONANORUN3_reHLT_2023','HARVESTRUN3_2023']]
 
-### run3-2023 (2022 data) - Pixel-only (triplets), ECAL-only and HCAL-only
+### run3-2023 (2023 data) - Pixel-only (triplets), ECAL-only and HCAL-only
 workflows[141.008505] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsCPU','HARVESTRUN3_pixelTrackingOnly']]
 workflows[141.008511] = ['Run3-2023_JetMET2023B_RecoECALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_ECALOnlyCPU','HARVESTRUN3_ECALOnly']]
 workflows[141.008521] = ['Run3-2023_JetMET2023B_RecoHCALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_HCALOnlyCPU','HARVESTRUN3_HCALOnly']]
