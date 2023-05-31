@@ -198,7 +198,7 @@ namespace ecaldqm {
     MESet& meRecHitThr1D(MEs_.at("RecHitThr1D"));
     MESet& meTrendNRecHitThr(MEs_.at("TrendNRecHitThr"));
 
-    uint32_t mask(~(0x1 << EcalRecHit::kGood));
+    uint32_t goodBits(0x1 << EcalRecHit::kGood);
     double nFiltered(0.);
 
     float nRHThrp(0), nRHThrm(0);
@@ -210,7 +210,7 @@ namespace ecaldqm {
       meRecHitProjEta.fill(getEcalDQMSetupObjects(), id);
       meRecHitProjPhi.fill(getEcalDQMSetupObjects(), id);
 
-      if (!hit.checkFlagMask(mask) && hit.energy() > recHitThreshold_) {
+      if (hit.checkFlagMask(goodBits) && hit.energy() > recHitThreshold_) {
         meRecHitThrProjEta.fill(getEcalDQMSetupObjects(), id);
         meRecHitThrProjPhi.fill(getEcalDQMSetupObjects(), id);
         meRecHitThrAll.fill(getEcalDQMSetupObjects(), id);
