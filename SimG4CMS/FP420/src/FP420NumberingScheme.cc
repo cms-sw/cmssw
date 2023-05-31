@@ -81,16 +81,15 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
     edm::LogVerbatim("FP420") << "FP420NumberingScheme det=" << det << " zside=" << zside << " station=" << station
                               << " plane=" << plane;
 #endif
-
   }
   return intindex;
 }
 
 unsigned FP420NumberingScheme::packFP420Index(int det, int zside, int station, int plane) {
   unsigned int idx = ((det - 1) & 3) << 19;  //bit 19-20 (det-1):0- 3 = 4-->2**2 = 4  -> 4-1  ->((det-1)&3)  2 bit: 0-1
-  idx += (zside & 7) << 7;  //bits  7- 9   zside:0- 7 = 8-->2**3 = 8  -> 8-1  ->  (zside&7)  3 bits:0-2
-  idx += (station & 7) << 4;  //bits  4- 6 station:0- 7 = 8-->2**3 = 8  -> 8-1  ->(station&7)  3 bits:0-2
-  idx += (plane & 15);        //bits  0- 3   plane:0-15 =16-->2**4 =16  ->16-1  -> (plane&15)  4 bits:0-3
+  idx += (zside & 7) << 7;                   //bits  7- 9   zside:0- 7 = 8-->2**3 = 8  -> 8-1  ->  (zside&7)  3 bits:0-2
+  idx += (station & 7) << 4;                 //bits  4- 6 station:0- 7 = 8-->2**3 = 8  -> 8-1  ->(station&7)  3 bits:0-2
+  idx += (plane & 15);                       //bits  0- 3   plane:0-15 =16-->2**4 =16  ->16-1  -> (plane&15)  4 bits:0-3
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("FP420") << "FP420 packing: det " << det << " zside  " << zside << " station " << station
