@@ -68,6 +68,6 @@ for numWF in numWFIB:
 #           Patatrack ECAL-only:             RunJetMET2022D on GPU (optional)
 #           Patatrack HCAL-only:             RunJetMET2022D on GPU (optional)
 
-workflows[140.065506] = ['Run3-2023_JetMET2022D_RecoPixelOnlyTripletsGPU',['RunJetMET2022D','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU','HARVESTRUN3_pixelTrackingOnly']]
-workflows[140.065512] = ['Run3-2023_JetMET2022D_RecoECALOnlyGPU',['RunJetMET2022D','HLTDR3_2023','RECODR3_reHLT_ECALOnlyGPU','HARVESTRUN3_ECALOnly']]
-workflows[140.065522] = ['Run3-2023_JetMET2022D_RecoHCALOnlyGPU',['RunJetMET2022D','HLTDR3_2023','RECODR3_reHLT_HCALOnlyGPU','HARVESTRUN3_HCALOnly']]
+workflows[140.065506] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU','HARVESTRUN3_pixelTrackingOnly']]
+workflows[140.065512] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_ECALOnlyGPU','HARVESTRUN3_ECALOnly']]
+workflows[140.065522] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_HCALOnlyGPU','HARVESTRUN3_HCALOnly']]
