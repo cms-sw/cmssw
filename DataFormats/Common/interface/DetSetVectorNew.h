@@ -85,7 +85,7 @@ namespace edmNew {
         return *this;
       }
       mutable std::atomic<bool> m_filling;
-      std::shared_ptr<void> m_getter;
+      std::shared_ptr<void const> m_getter;
       mutable std::atomic<size_type> m_dataSize;
 
       void swap(DetSetVectorTrans& rh) {
@@ -609,7 +609,7 @@ namespace edmNew {
     class LazyGetter {
     public:
       virtual ~LazyGetter() {}
-      virtual void fill(typename DetSetVector<T>::TSFastFiller&) = 0;
+      virtual void fill(typename DetSetVector<T>::TSFastFiller&) const = 0;
     };
   }  // namespace dslv
 
@@ -642,7 +642,7 @@ namespace edmNew {
       assert(item.initializing());
       {
         TSFastFiller ff(*this, item);
-        static_cast<Getter*>(m_getter.get())->fill(ff);
+        static_cast<Getter const*>(m_getter.get())->fill(ff);
       }
       assert(item.isValid());
     }
