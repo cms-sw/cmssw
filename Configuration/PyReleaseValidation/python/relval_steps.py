@@ -3516,9 +3516,6 @@ steps['HARVESTRUN3_ECALOnly'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVES
 steps['HARVESTRUN3_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVESTRUN3'] ])
 
 steps['HARVESTRUN3_2023']=merge([{'--era':'Run3_2023'},steps['HARVESTDRUN3']])
-steps['HARVESTRUN3_pixelTrackingOnly_2023'] = merge([ {'-s':'HARVESTING:@pixelTrackingOnlyDQM'}, steps['HARVESTRUN3_2023'] ])
-steps['HARVESTRUN3_ECALOnly_2023'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVESTRUN3_2023'] ])
-steps['HARVESTRUN3_HCALOnly_2023'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVESTRUN3_2023'] ])
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
