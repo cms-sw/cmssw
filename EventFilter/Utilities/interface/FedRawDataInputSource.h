@@ -312,6 +312,7 @@ public:
     std::shuffle(std::begin(fileOrder_), std::end(fileOrder_), rng);
   }
   uint64_t currentChunkSize() const { return chunks_[currentChunk_]->size_; }
+  int64_t fileSizeLeft() const { return (int64_t)fileSize_ - (int64_t)bufferPosition_; }
 };
 
 #endif  // EventFilter_Utilities_FedRawDataInputSource_h
