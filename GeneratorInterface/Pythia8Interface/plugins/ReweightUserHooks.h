@@ -39,7 +39,7 @@ public:
            3.5e+02};
     sigma = [this](double x) -> double {
       return (p[0] * pow(x, p[2] + p[3] * log(0.01 * x) + p[4] * pow(log(0.01 * x), 2)) *
-              pow(1 - 2 * x / (13000. + p[5]), p[1])) *
+              pow(1 - 2 * x / (13600. + p[5]), p[1])) *
              x;
     };
   }
