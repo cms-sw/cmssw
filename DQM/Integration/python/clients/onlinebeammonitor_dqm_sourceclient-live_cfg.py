@@ -122,6 +122,10 @@ process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
 process.dqmSaverPB.runNumber   = options.runNumber
 
+# for running offline enhance the time validity of the online beamspot in DB
+if (unitTest or process.isDqmPlayback.value):
+  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
+
 #-----------------------------
 # BeamMonitor
 #-----------------------------
