@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 layerClusterCaloParticleAssociation = cms.EDProducer("LCToCPAssociatorEDProducer",
     associator = cms.InputTag('lcAssocByEnergyScoreProducer'),
     label_cp = cms.InputTag("mix","MergedCaloTruth"),
-    label_lc = cms.InputTag("hgcalLayerClusters")
+    label_lc = cms.InputTag("hgcalMergeLayerClusters")
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

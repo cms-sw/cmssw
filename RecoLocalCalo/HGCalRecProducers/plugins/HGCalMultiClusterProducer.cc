@@ -70,7 +70,7 @@ HGCalMultiClusterProducer::HGCalMultiClusterProducer(const edm::ParameterSet& ps
 void HGCalMultiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("HGCLayerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("HGCLayerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.addUntracked<unsigned int>("verbosity", 3);
   desc.add<bool>("doSharing", false);
   desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
@@ -82,7 +82,7 @@ void HGCalMultiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
                                     5.0,
                                 });
   desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
-  desc.add<edm::InputTag>("HGCLayerClustersSharing", edm::InputTag("hgcalLayerClusters", "sharing"));
+  desc.add<edm::InputTag>("HGCLayerClustersSharing", edm::InputTag("hgcalMergeLayerClusters", "sharing"));
   desc.add<unsigned int>("minClusters", 3);
   descriptions.add("hgcalMultiClusters", desc);
 }
