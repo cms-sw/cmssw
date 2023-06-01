@@ -263,6 +263,7 @@ struct InputFile {
   void moveToPreviousChunk(const size_t size, const size_t offset);
   void rewindChunk(const size_t size);
   void unsetDeleteFile() { deleteFile_ = false; }
+  int64_t fileSizeLeft() const { return (int64_t)fileSize_ - (int64_t)bufferPosition_; }
 };
 
 #endif  // EventFilter_Utilities_FedRawDataInputSource_h
