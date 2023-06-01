@@ -37,16 +37,11 @@ public:
            -5.1575514014931e-01,
            5.5951279807561e-02,
            3.5e+02};
-    if (tuneName == "CP5Run3")
-      sigma = [this](double x) -> double {
-        return (p[0] * pow(x, p[2] + p[3] * log(0.01 * x) + p[4] * pow(log(0.01 * x), 2)) *
-              pow(1 - 2 * x / (13600. + p[5]), p[1])) * x;
-      }
-    else
-      sigma = [this](double x) -> double {
-        return (p[0] * pow(x, p[2] + p[3] * log(0.01 * x) + p[4] * pow(log(0.01 * x), 2)) *
-              pow(1 - 2 * x / (13000. + p[5]), p[1])) * x;
-      };
+    const double ecms = ( tuneName == "CP5Run3" ? 13600. : 13000.);
+    sigma = [this](double x) -> double {
+      return (p[0] * pow(x, p[2] + p[3] * log(0.01 * x) + p[4] * pow(log(0.01 * x), 2)) *
+                  pow(1 - 2 * x / (ecms + p[5]), p[1])) * x;
+    };
   }
   ~PtHatEmpReweightUserHook() override {}
 
