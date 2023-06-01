@@ -72,6 +72,8 @@ namespace l1t {
     static constexpr int kUgmtFwVersionFirstWithShowers = 0x7000000;
     static constexpr int kUgtFwVersionFirstWithShowers = 0x113B;
     static constexpr int kUgmtFwVersionShowersFrom2023 = 0x8000000;
+    static constexpr int kUgmtFwVersionShowersFrom2023_patched =
+        0x8000001;  // This fixed a miscommunication wrt the link used for the two loose shower bit
     static constexpr int kUgtFwVersionShowersFrom2023 = 0x1150;
 
   private:
