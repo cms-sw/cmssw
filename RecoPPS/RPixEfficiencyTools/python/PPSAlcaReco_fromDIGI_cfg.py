@@ -83,14 +83,14 @@ print('Using GT:',gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 # Manually add local alignment from sqlite file
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string('RPRealAlignmentRecord'),
-        tag = cms.string("CTPPSRPAlignment_real"),
-        label = cms.untracked.string(""),
-        connect = cms.string("sqlite_file:/eos/cms/store/group/phys_pps/reconstruction/alignment/2023/CTPPSRPAlignment_reference.db")
-        )
-)
+# process.GlobalTag.toGet = cms.VPSet(
+#     cms.PSet(
+#         record = cms.string('RPRealAlignmentRecord'),
+#         tag = cms.string("CTPPSRPAlignment_real"),
+#         label = cms.untracked.string(""),
+#         connect = cms.string("sqlite_file:/eos/cms/store/group/phys_pps/reconstruction/alignment/2023/CTPPSRPAlignment_reference.db")
+#         )
+# )
 
 if len(options.inputFiles) != 0:
     inputFiles = cms.untracked.vstring(options.inputFiles)
