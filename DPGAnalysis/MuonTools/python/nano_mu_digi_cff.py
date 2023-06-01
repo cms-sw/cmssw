@@ -72,7 +72,11 @@ gemDigiFlatTableProducer.detIdVariables = cms.PSet(
         region = DetIdVar("region()", "int8", doc = "GE11 region where the digi is detected"
                                             "<br />(int, positive endcap: +1, negative endcap: -1)"),
         roll = DetIdVar("roll()", "int8", doc = "roll id (also known as eta partition)"
-                                        "<br />(partitions numbered from 1 to 8)")
+                                        "<br />(partitions numbered from 1 to 8)"),
+        chamber = DetIdVar("chamber()", "int8", doc = "GE11 superchamber where the hit is reconstructed"
+                                              "<br />(chambers numbered from 0 to 35)"),
+        layer = DetIdVar("layer()", "int8", doc = "GE11 layer where the hit is reconstructed"
+                                          "<br />(layer1: 1, layer2: 2)")        
 )
 
 

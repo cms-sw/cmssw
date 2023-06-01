@@ -138,6 +138,8 @@ gemSegmentFlatTableProducer.detIdVariables = cms.PSet(
                                             "<br />(int, positive endcap: +1, negative endcap: -1)"),
         ring = DetIdVar("ring()", "int8", doc = ""),
         station = DetIdVar("station()", "int8", doc = "GEM station <br />(always 1 for GE1/1)"),
+        chamber = DetIdVar("chamber()", "int8", doc = "GE11 superchamber where the hit is reconstructed"
+                                              "<br />(chambers numbered from 0 to 35)")
 )
 
 gemSegmentFlatTableProducer.globalPosVariables = cms.PSet(

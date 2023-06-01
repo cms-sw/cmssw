@@ -233,7 +233,6 @@ void MuCSCTnPFlatTableProducer::getFromES(const edm::EventSetup& environment) {
 
 void MuCSCTnPFlatTableProducer::fillTable(edm::Event& ev) {
   unsigned int m_nZCands = 0;  // the # of digis (size of all following vectors)
-  int nMuon = 0;
 
   // Muon track tag variables
   std::vector<float> m_muonPt;        // muon pT [GeV/c]
@@ -323,8 +322,6 @@ void MuCSCTnPFlatTableProducer::fillTable(edm::Event& ev) {
   if (muons.isValid() && tracks.isValid() && segments.isValid() && primaryVertices.isValid() &&
       m_transientTrackBuilder.isValid()) {
     for (const auto& muon : (*muons)) {
-      nMuon++;
-
       if (!muonTagSelection(muon))
         continue;
 

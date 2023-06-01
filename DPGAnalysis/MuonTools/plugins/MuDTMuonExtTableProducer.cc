@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -60,7 +61,7 @@ protected:
 
 private:
   /// Tokens
-  nano_mu::EDTokenHandle<reco::MuonCollection> m_muToken;
+  nano_mu::EDTokenHandle<edm::View<reco::Muon>> m_muToken;
   nano_mu::EDTokenHandle<DTRecSegment4DCollection> m_dtSegmentToken;
 
   nano_mu::EDTokenHandle<edm::TriggerResults> m_trigResultsToken;
@@ -110,7 +111,7 @@ void MuDTMuonExtTableProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("name", "muon");
-  desc.add<edm::InputTag>("src", edm::InputTag{"muons"});
+  desc.add<edm::InputTag>("src", edm::InputTag{"patMuons"});
   desc.add<edm::InputTag>("dtSegmentSrc", edm::InputTag{"dt4DSegments"});
   desc.add<edm::InputTag>("trigEventSrc", edm::InputTag{"hltTriggerSummaryAOD::HLT"});
   desc.add<edm::InputTag>("trigResultsSrc", edm::InputTag{"TriggerResults::HLT"});

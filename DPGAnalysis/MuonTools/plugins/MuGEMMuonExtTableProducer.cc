@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -43,7 +44,7 @@ protected:
 
 private:
   /// The RECO mu token
-  nano_mu::EDTokenHandle<reco::MuonCollection> m_token;
+  nano_mu::EDTokenHandle<edm::View<reco::Muon>> m_token;
 
   /// Fill matches table
   bool m_fillPropagated;
@@ -77,7 +78,7 @@ void MuGEMMuonExtTableProducer::fillDescriptions(edm::ConfigurationDescriptions&
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("name", "muon");
-  desc.add<edm::InputTag>("src", edm::InputTag{"muons"});
+  desc.add<edm::InputTag>("src", edm::InputTag{"patMuons"});
 
   desc.add<bool>("fillPropagated", true);
   desc.setAllowAnything();
