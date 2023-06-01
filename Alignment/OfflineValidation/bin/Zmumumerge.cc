@@ -145,7 +145,7 @@ const TString tstring_variables_name[variables_number] = {
 void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path) {
   TH2D* th2d_mass_variables[variables_number];
   TFile* inputfile = TFile::Open(inputfile_name.Data());
-  TDirectoryFile* tdirectory = (TDirectoryFile*)inputfile->Get("myanalysis");
+  TDirectoryFile* tdirectory = (TDirectoryFile*)inputfile->Get("DiMuonMassValidation");
   for (int i = 0; i < variables_number; i++) {
     TString th2d_name = Form("th2d_mass_%s", tstring_variables_name[i].Data());
     th2d_mass_variables[i] = (TH2D*)tdirectory->Get(th2d_name);
@@ -238,12 +238,18 @@ void Draw_TH1D_forMultiRootFiles(const vector<TString>& file_names,
   }
   lg->Draw("same");
   c->SaveAs(output_name);
+  if (output_name.Contains(".pdf")) {
+    TString output_name_png(output_name);  // output_name is const, copy to modify
+    output_name_png.Replace(output_name_png.Index(".pdf"), 4, ".png");
+    c->SaveAs(output_name_png);
+  }
 }
 
 int Zmumumerge(int argc, char* argv[]) {
   vector<TString> vec_single_file_path;
   vector<TString> vec_single_file_name;
   vector<TString> vec_global_tag;
+  vector<TString> vec_title;
   vector<int> vec_color;
   vector<int> vec_style;
 
@@ -260,6 +266,7 @@ int Zmumumerge(int argc, char* argv[]) {
     vec_color.push_back(childTree.second.get<int>("color"));
     vec_style.push_back(childTree.second.get<int>("style"));
     vec_global_tag.push_back(childTree.second.get<std::string>("globaltag"));
+    vec_title.push_back(childTree.second.get<std::string>("title"));
 
     //Fitting_GetMassmeanVSvariables(childTree.second.get<std::string>("file") + "/Zmumu.root", childTree.second.get<std::string>("file"));
   }
@@ -278,7 +285,7 @@ int Zmumumerge(int argc, char* argv[]) {
     TString th1d_name = Form("th1d_meanmass_%s", tstring_variables_name[idx_variable].Data());
     Draw_TH1D_forMultiRootFiles(
         vec_single_fittingoutput,
-        vec_global_tag,
+        vec_title,
         vec_color,
         vec_style,
         th1d_name,
@@ -286,7 +293,7 @@ int Zmumumerge(int argc, char* argv[]) {
     TString th1d_name_entries = Form("th1d_entries_%s", tstring_variables_name[idx_variable].Data());
     Draw_TH1D_forMultiRootFiles(
         vec_single_fittingoutput,
-        vec_global_tag,
+        vec_title,
         vec_color,
         vec_style,
         th1d_name_entries,
