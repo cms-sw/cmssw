@@ -66,6 +66,10 @@ namespace edm {
     /// Checks for non-null
     bool isNonnull() const { return product_.isNonnull(); }
 
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const { return product_.isAvailable(); }
+
     /// Checks for null
     bool operator!() const { return isNull(); }
 
