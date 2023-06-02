@@ -652,10 +652,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       float dphi = reco::deltaPhi(*icand, *jet);
       sum_deta += deta * weight2;
       sum_dphi += dphi * weight2;
-      if (sumW2 > 0) {
-        ave_deta = sum_deta / sumW2;
-        ave_dphi = sum_dphi / sumW2;
-      }
     }
   }
 
@@ -767,11 +763,11 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       float dphi = reco::deltaPhi(*part, *jet);
       sum_deta += deta * weight2;
       sum_dphi += dphi * weight2;
-      }
-    if (sumW2 > 0) {
-      ave_deta = sum_deta / sumW2;
-      ave_dphi = sum_dphi / sumW2;
     }
+  }
+  if (sumW2 > 0) {
+    ave_deta = sum_deta / sumW2;
+    ave_dphi = sum_dphi / sumW2;
   }
   float ddetaR_sum(0.0), ddphiR_sum(0.0), pull_tmp(0.0);
   
