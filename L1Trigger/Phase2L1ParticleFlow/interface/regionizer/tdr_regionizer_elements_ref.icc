@@ -1,3 +1,6 @@
+#include <stdexcept>
+
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_elements_ref.h"
 
 // PIPE ENTRY AND BUFFER
 template <typename T>
@@ -74,7 +77,9 @@ inline unsigned int l1ct::tdr_regionizer::Buffer<T>::nextObjClk(unsigned int ndu
 // explicit for tracks
 template <>
 inline unsigned int l1ct::tdr_regionizer::Buffer<l1ct::TkObjEmu>::nextObjClk(unsigned int ndup) {
-  assert(ndup == 1);
+  if (ndup != 1) {
+    throw std::invalid_argument("Only ndup==1 is currently supported for the TkObjEmu buffers.");
+  }
 
   unsigned int nextVal = std::max(clkindex360_, clkindex240_) / 3;
 
