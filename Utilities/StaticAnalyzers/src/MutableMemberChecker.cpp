@@ -18,8 +18,7 @@ namespace clangcms {
       return;
     if (D->isMutable() && D->getDeclContext()->isRecord()) {
       clang::QualType t = D->getType();
-      clang::ento::PathDiagnosticLocation DLoc =
-          clang::ento::PathDiagnosticLocation::create(D, BR.getSourceManager());
+      clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::create(D, BR.getSourceManager());
 
       if (!m_exception.reportMutableMember(t, DLoc, BR))
         return;
@@ -32,14 +31,15 @@ namespace clangcms {
       os << "Mutable member '" << D->getQualifiedNameAsString() << "' in class '" << pname
          << "', might be thread-unsafe when accessing via a const pointer.";
       if (!BT)
-	      BT = std::make_unique<clang::ento::BugType>(this,"mutable member if accessed via const pointer", "ConstThreadSafety");
+        BT = std::make_unique<clang::ento::BugType>(
+            this, "mutable member if accessed via const pointer", "ConstThreadSafety");
       std::unique_ptr<clang::ento::BasicBugReport> R =
-	      std::make_unique<clang::ento::BasicBugReport>( *BT, llvm::StringRef(os.str()), DLoc);
+          std::make_unique<clang::ento::BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);
       R->setDeclWithIssue(D);
       R->addRange(D->getSourceRange());
       BR.emitReport(std::move(R));
       std::string tname = "mutablemember-checker.txt.unsorted";
-      std::string ostring = "flagged class '" + pname + "' mutable member '" + D->getQualifiedNameAsString() +"'";
+      std::string ostring = "flagged class '" + pname + "' mutable member '" + D->getQualifiedNameAsString() + "'";
       support::writeLog(ostring, tname);
     }
   }
