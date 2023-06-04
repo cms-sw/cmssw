@@ -422,8 +422,6 @@ HLT_Mu30_TkMu0_Psi_v*	#	CMSHLT-1882
 HLT_Mu30_TkMu0_Upsilon_v*	#	CMSHLT-1882
 HLT_Photon35_TwoProngs35_v*	#	CMSHLT-1885
 HLT_IsoMu24_TwoProngs35_v*	#	CMSHLT-1885
-HLT_PFHT400_SixPFJet32_v*	#	CMSHLT-1857
-HLT_PFHT450_SixPFJet36_v*	#	CMSHLT-1857
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_v*	#	CMSHLT-1796
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_v*	#	CMSHLT-1796
 HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v*         # CMSHLT-2289
@@ -444,8 +442,10 @@ HLT_LooseDeepTauPFTauHPS180_L2NN_eta2p1_v*                                      
 HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepJet_4p5_v*			# CMSHLT-2184
 HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepJet_4p5_v*			# CMSHLT-2184
 HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepJet_4p5_v*			# CMSHLT-2184
-HLT_PFHT400_SixPFJet32_DoublePFBTagDeepJet_2p94_v*					# CMSHLT-2184
-HLT_PFHT450_SixPFJet36_PFBTagDeepJet_1p59_v*						# CMSHLT-2184
+HLT_PFHT400_SixPFJet32_v*                   # CMSHLT-1857, CMSHLT-2705
+HLT_PFHT400_SixPFJet32_PNet2BTagMean0p50_v* # CMSHLT-2705
+HLT_PFHT450_SixPFJet36_v*                   # CMSHLT-1857, CMSHLT-2705
+HLT_PFHT450_SixPFJet36_PNetBTag0p35_v*      # CMSHLT-2705
 HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
 HLT_QuadPFJet103_88_75_15_PFBTagDeepJet_1p3_VBF2_v*					# CMSHLT-2184
 HLT_QuadPFJet105_88_76_15_DoublePFBTagDeepJet_1p3_7p7_VBF1_v*				# CMSHLT-2184
@@ -573,16 +573,18 @@ HLT_HT400_DisplacedDijet40_DisplacedTrack_v*                # CMSHLT-1259
 HLT_HT430_DisplacedDijet40_DisplacedTrack_v*                # CMSHLT-1259, CMSHLT-2743
 HLT_HT550_DisplacedDijet60_Inclusive_v*                     # CMSHLT-1259
 HLT_HT650_DisplacedDijet60_Inclusive_v*                     # CMSHLT-1259, CMSHLT-2743
-HLT_CaloMET60_DTCluster50_v*                                            # CMSHLT-2211
-HLT_CaloMET60_DTClusterNoMB1S50_v*                                      # CMSHLT-2211
-HLT_L1MET_DTCluster50_v*                                                # CMSHLT-2211
-HLT_L1MET_DTClusterNoMB1S50_v*                                          # CMSHLT-2211
-HLT_CscCluster_Loose_v*                                                 # CMSHLT-2211
-HLT_CscCluster_Medium_v*                                                # CMSHLT-2211
-HLT_CscCluster_Tight_v*                                                 # CMSHLT-2211
-HLT_L1CSCShower_DTCluster50_v*                                          # CMSHLT-2211
-HLT_L1CSCShower_DTCluster75_v*                                          # CMSHLT-2211
-HLT_PFMET105_IsoTrk50_v*                                                # CMSHLT-2211
+HLT_CaloMET60_DTCluster50_v*        # CMSHLT-2211
+HLT_CaloMET60_DTClusterNoMB1S50_v*  # CMSHLT-2211
+HLT_L1MET_DTCluster50_v*            # CMSHLT-2211
+HLT_L1MET_DTClusterNoMB1S50_v*      # CMSHLT-2211
+HLT_CscCluster_Loose_v*             # CMSHLT-2211
+HLT_CscCluster_Medium_v*            # CMSHLT-2211
+HLT_CscCluster_Tight_v*             # CMSHLT-2211
+HLT_DoubleCscCluster75_v*           # CMSHLT-2811
+HLT_DoubleCscCluster100_v*          # CMSHLT-2811
+HLT_L1CSCShower_DTCluster50_v*      # CMSHLT-2211
+HLT_L1CSCShower_DTCluster75_v*      # CMSHLT-2211
+HLT_PFMET105_IsoTrk50_v*            # CMSHLT-2211
 HLT_L1SingleLLPJet_v*                                                 # CMSHLT-2730
 HLT_HT170_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
 HLT_HT200_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
@@ -683,11 +685,10 @@ HLT_PPSMaxTracksPerRP4_v*  # CMSHLT-2179
 HLT_PPSRandom_v*           # CMSHLT-2606
 
 HLT_ExpressMuons_v*       # CMSHLT-2245
-HLT_OnlineMonitorGroup_v* # CMSHLT-2245
 
-DQM_EcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2696
-DQM_HcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2696
-DQM_PixelReconstruction_v* # CMSHLT-2287, CMSHLT-2696
+DQM_EcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720
+DQM_HcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720
+DQM_PixelReconstruction_v* # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720
 
 ## EndPaths / FinalPaths ##
 
@@ -723,8 +724,14 @@ ExpressOutput
 ExpressAlignmentOutput
 NanoDSTOutput
 
-PhysicsHLTPhysicsOutput # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403
-PhysicsZeroBiasOutput   # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403
+PhysicsHLTPhysics0Output # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
+PhysicsHLTPhysics1Output # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
+PhysicsHLTPhysics2Output # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
+PhysicsHLTPhysics3Output # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
+PhysicsZeroBias0Output   # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
+PhysicsZeroBias1Output   # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
+PhysicsZeroBias2Output   # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
+PhysicsZeroBias3Output   # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403, CMSHLT-2807
 
 ParkingDoubleElectronLowMassOutput # CMSHLT-2273, CMSHLT-2729
 ParkingDoubleMuonLowMass0Output # CMSHLT-2261
