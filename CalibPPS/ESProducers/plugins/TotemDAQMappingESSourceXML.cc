@@ -371,9 +371,11 @@ TotemDAQMappingESSourceXML::produce(const TotemReadoutRcd &) {
     cms::concurrency::xercesTerminate();
   } catch (const XMLException &e) {
     throw cms::Exception("XMLDocument") << "cms::concurrency::xercesInitialize failed because of "
-                                        << to_string(e.getMessage()) << std::endl;
+                                        << to_string(e.getMessage());
   } catch (const SAXException &e) {
-    throw cms::Exception("XMLDocument") << "XML parser reported: " << to_string(e.getMessage()) << "." << std::endl;
+    throw cms::Exception("XMLDocument") << "XML parser (SAX) reported: " << to_string(e.getMessage()) << ".";
+  } catch (const DOMException &e) {
+    throw cms::Exception("XMLDocument") << "XML parser (DOM) reported: " << to_string(e.getMessage()) << ".";
   }
 
   // commit the products
