@@ -252,9 +252,7 @@ HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v*              # CMS
 HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v*             # CMSHLT-2471
 HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v*                       # CMSHLT-2471
 
-HLT_HIMinimumBias_v* # CMSHLT-2251
-
-HLT_HIOnlineMonitorGroup_v* # CMSHLT-2245
+HLT_HIMinimumBias_v* # CMSHLT-2521
 
 DQM_HIEcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
 DQM_HIHcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
