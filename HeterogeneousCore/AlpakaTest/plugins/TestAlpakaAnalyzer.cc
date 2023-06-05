@@ -101,7 +101,7 @@ public:
           << "  id   @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size())
           << ",\n"
           << "  r    @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
-          << "  m    @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::all)
+          << "  m    @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::indexing::all)
           << " } ... } \n";
       msg << std::hex << "  [y - x] = 0x"
           << reinterpret_cast<intptr_t>(view.metadata().addressOf_y()) -
