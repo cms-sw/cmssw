@@ -279,9 +279,15 @@ std::array<std::array<uint32_t, 4>, 2> l1t::MuonRawDigiTranslator::getPackedShow
     res.at(0).at(0) = shower.isOneNominalInTime() ? (1 << showerShift_) : 0;
     res.at(0).at(1) = shower.isOneTightInTime() ? (1 << showerShift_) : 0;
   }
-  if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionShowersFrom2023) ||
+  if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionShowersFrom2023_patched) ||
       (fedId == kUgtFedId && fwId >= kUgtFwVersionShowersFrom2023)) {
-    res.at(1).at(0) = shower.isTwoLooseDiffSectorsInTime() ? (1 << showerShift_) : 0;
+    res.at(1).at(1) = shower.isTwoLooseDiffSectorsInTime()
+                          ? (1 << showerShift_)
+                          : 0;  // The two loose shower is on the second link in the second muon word.
+  } else if (fedId == kUgmtFedId && fwId >= kUgmtFwVersionShowersFrom2023) {
+    res.at(1).at(0) = shower.isTwoLooseDiffSectorsInTime()
+                          ? (1 << showerShift_)
+                          : 0;  // uGMT was briefly transmitting it on the first link instead.
   }
   return res;
 }
