@@ -1,8 +1,6 @@
 // Authors: Olivie Franklova - olivie.abigail.franklova@cern.ch
 // Date: 03/2023
 // @file create layer clusters
-#ifndef __RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__
-#define __RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,7 +9,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
@@ -104,8 +101,6 @@ private:
                                         const std::vector<std::pair<DetId, float>>& hitsAndFractions,
                                         size_t sizeCluster);
 };
-
-DEFINE_FWK_MODULE(HGCalLayerClusterProducer);
 
 HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps)
     : algoId_(reco::CaloCluster::undefined),
@@ -289,4 +284,6 @@ void HGCalLayerClusterProducer::setAlgoId() {
     algoId_ = reco::CaloCluster::hgcal_had;
   }
 }
-#endif  //__RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HGCalLayerClusterProducer);

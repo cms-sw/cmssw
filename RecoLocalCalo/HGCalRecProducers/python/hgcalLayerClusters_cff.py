@@ -11,7 +11,7 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, HGCA
 
 hgcalLayerClustersEE = hgcalLayerClusters_.clone(
     detector = 'EE',
-    recHits = cms.InputTag("HGCalRecHit", "HGCEERecHits"),
+    recHits = "HGCalRecHit:HGCEERecHits",
     plugin = dict(
         dEdXweights = HGCalRecHit.layerWeights.value(),
         #With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
@@ -24,13 +24,13 @@ hgcalLayerClustersEE = hgcalLayerClusters_.clone(
         #Extending noises as fcPerMip, see comment above.
         noises = HGCAL_noises.values.value() + HGCAL_noises.values.value(),
         noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
-        type = cms.string('SiCLUE')
+        type = "SiCLUE"
     )
 )
 
 hgcalLayerClustersHSi = hgcalLayerClusters_.clone(
     detector = 'FH',
-    recHits = cms.InputTag("HGCalRecHit", "HGCHEFRecHits"),
+    recHits = "HGCalRecHit:HGCHEFRecHits",
     plugin = dict(
         dEdXweights = HGCalRecHit.layerWeights.value(),
         #With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
@@ -43,13 +43,13 @@ hgcalLayerClustersHSi = hgcalLayerClusters_.clone(
         #Extending noises as fcPerMip, see comment above.
         noises = HGCAL_noises.values.value() + HGCAL_noises.values.value(),
         noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
-        type = cms.string('SiCLUE')
+        type = "SiCLUE"
     )
 )
 
 hgcalLayerClustersHSci = hgcalLayerClusters_.clone(
     detector = 'BH',
-    recHits = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"),
+    recHits = "HGCalRecHit:HGCHEBRecHits",
     plugin = dict(
         dEdXweights = HGCalRecHit.layerWeights.value(),
         #With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
@@ -62,13 +62,13 @@ hgcalLayerClustersHSci = hgcalLayerClusters_.clone(
         #Extending noises as fcPerMip, see comment above.
         noises = HGCAL_noises.values.value() + HGCAL_noises.values.value(),
         noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
-        type = cms.string('SciCLUE')
+        type = "SciCLUE"
     )
 )
 
 hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
     detector = 'HFNose',
-    recHits = cms.InputTag("HGCalRecHit", "HGCHFNoseRecHits"),
+    recHits = "HGCalRecHit:HGCHFNoseRecHits",
     nHitsTime = 3,
     plugin = dict(
         dEdXweights = HGCalRecHit.layerNoseWeights.value(),
@@ -78,7 +78,7 @@ hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
         fcPerEle = fC_per_ele,
         noises = HGCAL_noises.values.value(),
         noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
-        type = cms.string('SciCLUE')
+        type = "SciCLUE"
     )
 )
 
