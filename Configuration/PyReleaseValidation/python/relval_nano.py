@@ -1,6 +1,26 @@
 from  Configuration.PyReleaseValidation.relval_steps import *
 import math
 
+## as simple class to number workflows dynamically
+class WFN:
+    def __init__(self, offset):
+        self.offset = offset
+        self.index=0
+        self.subindex=0
+    def __call__(self):
+        if self.subindex==100:
+            print("this is not going to work nicely")
+            self.subindex=0/0
+        r=float(f'{self.offset}.{self.index}{self.subindex:02d}')
+        self.subindex+=1
+        return r
+    def next(self):
+        self.index+=1
+        self.subindex=0
+    def subnext(self):
+        # go to the next tenth for the subindex 10 because of 02d formating
+        self.subindex = math.ceil(self.subindex/10.)*10
+
 workflows = Matrix()
 
 _runOnly20events={'-n':'20'}
@@ -135,34 +155,39 @@ steps['NANO_mc13.2']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
                             _NANO_mc])
 
+_wfn=WFN(2500)
 ################
 #10.6 input
-workflows[2500.100] = ['NANOmc106Xul16v2', ['TTbarMINIAOD10.6_UL16v2','NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
-workflows[2500.101] = ['NANOmc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2','NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
-workflows[2500.102] = ['NANOmc106Xul18v2', ['TTbarMINIAOD10.6_UL18v2','NANO_mc10.6ul18v2', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc106Xul16v2', ['TTbarMINIAOD10.6_UL16v2','NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2','NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc106Xul18v2', ['TTbarMINIAOD10.6_UL18v2','NANO_mc10.6ul18v2', 'HRV_NANO_mc']]
+_wfn.subnext()
+workflows[_wfn()] = ['NANOdata106Xul16v2', ['MuonEG2016MINIAOD10.6v2', 'NANO_data10.6ul16v2', 'HRV_NANO_data']]
+workflows[_wfn()] = ['NANOdata106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2', 'HRV_NANO_data']]
+workflows[_wfn()] = ['NANOdata106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2', 'HRV_NANO_data']]
 
-workflows[2500.110] = ['NANOdata106Xul16v2', ['MuonEG2016MINIAOD10.6v2', 'NANO_data10.6ul16v2', 'HRV_NANO_data']]
-workflows[2500.111] = ['NANOdata106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2', 'HRV_NANO_data']]
-workflows[2500.112] = ['NANOdata106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2', 'HRV_NANO_data']]
-
+_wfn.next()
 ################
 #12.2 input
-workflows[2500.200] = ['NANOmc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2', 'HRV_NANO_mc']]
 
+_wfn.next()
 ################
 #12.4 input
-workflows[2500.300] = ['NANOmc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
+_wfn.subnext()
+workflows[_wfn()] = ['NANOdata124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
+workflows[_wfn()] = ['NANOdata124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4_prompt', 'HRV_NANO_data']]
 
-workflows[2500.310] = ['NANOdata124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
-workflows[2500.311] = ['NANOdata124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4_prompt', 'HRV_NANO_data']]
-
+_wfn.next()
 ################
 #13.0 workflows
-workflows[2500.400] = ['NANOmc130X', ['TTBarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc130X', ['TTBarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO_mc']]
+_wfn.subnext()
+workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
+workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
 
-workflows[2500.410] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
-workflows[2500.411] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
-
+_wfn.next()
 ################
 #13.2 workflows
-workflows[2500.500] = ['NANOmc132X', ['TTBarMINIAOD13.2', 'NANO_mc13.2', 'HRV_NANO_mc']]
+workflows[_wfn()] = ['NANOmc132X', ['TTBarMINIAOD13.2', 'NANO_mc13.2', 'HRV_NANO_mc']]
