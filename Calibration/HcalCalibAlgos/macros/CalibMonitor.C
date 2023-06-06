@@ -4,7 +4,7 @@
 //  CalibMonitor c1(fname, dirname, dupFileName, comFileName, outFileName,
 //                  prefix, corrFileName, rcorFileName, puCorr, flag, numb,
 //                  dataMC, truncateFlag, useGen, scale, useScale, etalo, etahi,
-//                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbx,
+//                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbxFile,
 //                  exclude, etamax);
 //  c1.Loop(nmax);
 //  c1.savePlot(histFileName,append,all);
@@ -48,8 +48,10 @@
 //   flag (int)                = 8 digit integer (xymlthdo) with control
 //                               information (x=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
-//                               y=1/0 containing list of duplicate entries
-//                               (1) or depth dependent wts (0) in dupFileName;
+//                               y=2/1/0 containing list of ieta, iphi of
+//                               channels to be selected (2); list containing
+//                               depth dependent weights for each ieta (1);
+//                               list of duplicate entries (0) in dupFileName;
 //                               m=1/0 for (not) making plots for each RBX;
 //                               l=4/3/2/1/0 for type of rcorFileName (4 for
 //                               using results from phi-symmetry; 3 for
@@ -81,9 +83,13 @@
 //                               (default = false)
 //   scale (double)            = energy scale if correction factor to be used
 //                               (default = 1.0)
-//   useScale (int)            = application of scale factor (0: nowehere,
+//   useScale (int)            = two digit number (do) with o: as the flag for
+//                               application of scale factor (0: nowehere,
 //                               1: barrel; 2: endcap, 3: everywhere)
-//                               barrel => |ieta| < 16; endcap => |ieta| > 15
+//                               barrel => |ieta| < 16; endcap => |ieta| > 15;
+//                               d: as the format for threshold application,
+//                               0: no threshold; 1: 2022 prompt data; 2:
+//                               2022 reco data; 3: 2023 prompt data
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (default = 0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
@@ -98,10 +104,12 @@
 //                               (default = 0)
 //   nvxhi           (int)     = maximum # of vertex in event to be used
 //                               (default = 1000)
-//   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered
-//                               (default = 0). For HEP17 it will be 217
-//   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
-//                               considered (default = false)
+//   rbxFile         (char *)  = Name of the file containing a list of RBX's
+//                               to be consdered (default = ""). RBX's are
+//                               specified by zside*(Subdet*100+RBX #).
+//                               For HEP17 it will be 217
+//   exclude         (bool)    = RBX specified by the contents in *rbxFile* to
+//                               be exluded or only considered (default = false)
 //   etamax          (bool)    = if set and if the corr-factor not found in the
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
@@ -264,7 +272,7 @@ public:
                int zside = 1,
                int nvxlo = 0,
                int nvxhi = 1000,
-               int rbx = 0,
+               const char *rbxFile = "",
                bool exclude = false,
                bool etamax = false);
   virtual ~CalibMonitor();
@@ -295,11 +303,12 @@ private:
   const int truncateFlag_;
   const int etalo_, etahi_;
   int runlo_, runhi_;
-  const int phimin_, phimax_, zside_, nvxlo_, nvxhi_, rbx_;
+  const int phimin_, phimax_, zside_, nvxlo_, nvxhi_;
+  const char *rbxFile_;
   bool exclude_, cutL1T_, selRBX_;
   bool includeRun_;
   int coarseBin_, plotType_;
-  int flexibleSelect_, ifDepth_, duplicate_;
+  int flexibleSelect_, ifDepth_, duplicate_, thrForm_;
   double log2by18_;
   std::ofstream fileout_;
   std::vector<std::pair<int, int> > events_;
@@ -336,7 +345,7 @@ CalibMonitor::CalibMonitor(const char *fname,
                            int zside,
                            int nvxlo,
                            int nvxhi,
-                           int rbx,
+                           const char *rbxFile,
                            bool exc,
                            bool etam)
     : corrFactor_(nullptr),
@@ -362,7 +371,7 @@ CalibMonitor::CalibMonitor(const char *fname,
       zside_(zside),
       nvxlo_(nvxlo),
       nvxhi_(nvxhi),
-      rbx_(rbx),
+      rbxFile_(rbxFile),
       exclude_(exc),
       includeRun_(true) {
   // if parameter tree is not specified (or zero), connect the file
@@ -385,6 +394,8 @@ CalibMonitor::CalibMonitor(const char *fname,
     runhi_ = std::abs(runhi_);
     includeRun_ = false;
   }
+  int useScale0 = useScale % 10;
+  thrForm_ = useScale / 10;
   char treeName[400];
   sprintf(treeName, "%s/CalibTree", dirnm_.c_str());
   TChain *chain = new TChain(treeName);
@@ -393,12 +404,12 @@ CalibMonitor::CalibMonitor(const char *fname,
             << " run range " << runlo_ << ":" << runhi_ << " (inclusion flag " << includeRun_ << ")\n Selection of RBX "
             << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ << "\n corrFileName: " << corrFileName
             << " useScale " << useScale << ":" << scale << ":" << etam << "\n rcorFileName: " << rcorFileName
-            << " flag " << ifDepth_ << ":" << cutL1T_ << ":" << marina << std::endl;
+            << " flag " << ifDepth_ << ":" << cutL1T_ << ":" << marina << " Threshold Flag " << thrForm_ << std::endl;
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
-    corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scale, etam, marina, false);
+    corrFactor_ = new CalibCorrFactor(corrFileName, useScale0, scale, etam, marina, false);
     Init(chain, comFileName, outFName);
     if (std::string(dupFileName) != "")
       cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
@@ -409,8 +420,8 @@ CalibMonitor::CalibMonitor(const char *fname,
     } else {
       ifDepth_ = -1;
     }
-    if (rbx != 0)
-      cSelect_ = new CalibSelectRBX(rbx, false);
+    if (std::string(rbxFile) != "")
+      cSelect_ = new CalibSelectRBX(rbxFile, false);
   }
 }
 
@@ -921,7 +932,7 @@ void CalibMonitor::Loop(Long64_t nmax) {
     } else if (kp == 5) {
       ++kount5[0];
     }
-    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 1)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select) {
       ++duplicate;
       if (debug)
@@ -995,6 +1006,10 @@ void CalibMonitor::Loop(Long64_t nmax) {
         if (!(cSelect_->isItRBX(t_ieta, t_iphi)))
           continue;
       }
+    }
+    if (cDuplicate_ != nullptr) {
+      if (cDuplicate_->select(t_ieta, t_iphi))
+        continue;
     }
     if (p4060)
       ++kount50[4];
@@ -1104,22 +1119,26 @@ void CalibMonitor::Loop(Long64_t nmax) {
     if ((corrFactor_->doCorr()) || (cFactor_ != nullptr) || ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))) {
       eHcal = 0;
       for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > threshold((*t_DetIds)[k], thrForm_));
         // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-        double cfac(1.0);
-        if (corrFactor_->doCorr()) {
-          unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
-          cfac = corrFactor_->getCorr(id);
-        }
-        if ((cFactor_ != nullptr) && (ifDepth_ != 3) && (ifDepth_ > 0))
-          cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
-          cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
-        eHcal += (cfac * ((*t_HitEnergies)[k]));
-        if (debug) {
-          int subdet, zside, ieta, iphi, depth;
-          unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
-          std::cout << zside << ":" << ieta << ":" << depth << " Corr " << cfac << " " << (*t_HitEnergies)[k] << " Out "
-                    << eHcal << std::endl;
+        if (okcell) {
+          double cfac(1.0);
+          if (corrFactor_->doCorr()) {
+            unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
+            cfac = corrFactor_->getCorr(id);
+          }
+          if ((cFactor_ != nullptr) && (ifDepth_ != 3) && (ifDepth_ > 0))
+            cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
+          eHcal += (cfac * ((*t_HitEnergies)[k]));
+          if (debug) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds)[k], subdet, zside, ieta, iphi, depth);
+            std::cout << zside << ":" << ieta << ":" << depth << " Corr " << cfac << " " << (*t_HitEnergies)[k]
+                      << " Out " << eHcal << std::endl;
+          }
         }
       }
     }
@@ -1512,11 +1531,15 @@ bool CalibMonitor::selectPhi(bool debug) {
     double eTotal(0), eSelec(0);
     // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
-      int iphi = ((*t_DetIds)[k]) & (0x3FF);
-      int zside = ((*t_DetIds)[k] & 0x80000) ? (1) : (-1);
-      eTotal += ((*t_HitEnergies)[k]);
-      if (iphi >= phimin_ && iphi <= phimax_ && zside == zside_)
-        eSelec += ((*t_HitEnergies)[k]);
+      // Apply thresholds if necessary
+      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > threshold((*t_DetIds)[k], thrForm_));
+      if (okcell) {
+        int iphi = ((*t_DetIds)[k]) & (0x3FF);
+        int zside = ((*t_DetIds)[k] & 0x80000) ? (1) : (-1);
+        eTotal += ((*t_HitEnergies)[k]);
+        if (iphi >= phimin_ && iphi <= phimax_ && zside == zside_)
+          eSelec += ((*t_HitEnergies)[k]);
+      }
     }
     if (eSelec < 0.9 * eTotal)
       select = false;
@@ -1690,24 +1713,32 @@ void CalibMonitor::correctEnergy(double &eHcal, const Long64_t &entry) {
       double Etot1(0), Etot3(0);
       // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
-        unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
-        double cfac = corrFactor_->getCorr(id);
-        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
-          cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
-          cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
-        double hitEn = cfac * (*t_HitEnergies1)[idet];
-        Etot1 += hitEn;
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > threshold((*t_DetIds1)[idet], thrForm_));
+        if (okcell) {
+          unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
+          double cfac = corrFactor_->getCorr(id);
+          if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
+            cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
+          double hitEn = cfac * (*t_HitEnergies1)[idet];
+          Etot1 += hitEn;
+        }
       }
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
-        unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
-        double cfac = corrFactor_->getCorr(id);
-        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
-          cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
-          cfac *= cDuplicate_->getWeight((*t_DetIds3)[idet]);
-        double hitEn = cfac * (*t_HitEnergies3)[idet];
-        Etot3 += hitEn;
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > threshold((*t_DetIds3)[idet], thrForm_));
+        if (okcell) {
+          unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
+          double cfac = corrFactor_->getCorr(id);
+          if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
+            cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            cfac *= cDuplicate_->getWeight((*t_DetIds3)[idet]);
+          double hitEn = cfac * (*t_HitEnergies3)[idet];
+          Etot3 += hitEn;
+        }
       }
       ediff = (Etot3 - Etot1);
     }
