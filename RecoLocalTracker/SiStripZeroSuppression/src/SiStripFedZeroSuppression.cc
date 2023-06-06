@@ -83,17 +83,21 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
                                          uint32_t detID,
                                          const SiStripNoises& noise,
                                          const SiStripThreshold& threshold) {
-  int inSize = in.size();
+  selectedSignal.clear();
+  size_t inSize = in.size();
+  if (inSize == 0) {
+    return;
+  }
+
   SiStripNoises::Range detNoiseRange = noise.getRange(detID);
   SiStripThreshold::Range detThRange = threshold.getRange(detID);
 
   // reserving more than needed, but quicker than one at a time
-  selectedSignal.clear();
   selectedSignal.reserve(inSize);
 
   // load status
   uint8_t stat[inSize];
-  for (int i = 0; i < inSize; i++) {
+  for (size_t i = 0; i < inSize; i++) {
     auto strip = (uint32_t)in[i].strip();
 
     auto ladc = in[i].adc();
@@ -114,7 +118,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
       stat[i] = highTh;
   }
 
-  for (int i = 0; i < inSize; i++) {
+  for (size_t i = 0; i < inSize; i++) {
     auto strip = (uint32_t)in[i].strip();
     Payload ldata;
 
@@ -137,11 +141,11 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
 
     if (((strip) % 128) == 0) {
       ldata.statPrev = zeroTh;
-    } else if (i - 1 >= 0 && in[i - 1].strip() == strip - 1) {
+    } else if (i >= 1 && in[i - 1].strip() == strip - 1) {
       ldata.statPrev = stat[i - 1];
       if (((strip) % 128) == 1) {
         ldata.statPrev2 = zeroTh;
-      } else if (i - 2 >= 0 && in[i - 2].strip() == strip - 2) {
+      } else if (i >= 2 && in[i - 2].strip() == strip - 2) {
         ldata.statPrev2 = stat[i - 2];
       }
     }
