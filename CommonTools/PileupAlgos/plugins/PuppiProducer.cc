@@ -80,6 +80,7 @@ private:
   uint fNumOfPUVtxsForCharged;
   double fDZCutForChargedFromPUVtxs;
   bool fUseExistingWeights;
+  bool fApplyPhotonProtectionForExistingWeights;
   bool fClonePackedCands;
   int fVtxNdofCut;
   double fVtxZCut;
@@ -104,6 +105,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fNumOfPUVtxsForCharged = iConfig.getParameter<uint>("NumOfPUVtxsForCharged");
   fDZCutForChargedFromPUVtxs = iConfig.getParameter<double>("DeltaZCutForChargedFromPUVtxs");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
+  fApplyPhotonProtectionForExistingWeights = iConfig.getParameter<bool>("applyPhotonProtectionForExistingWeights");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
@@ -363,9 +365,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           curpupweight = lPack->puppiWeight();
         }
       }
-      // Protect high pT photons (important for gamma to hadronic recoil balance)
-      if ((fPtMaxPhotons > 0) && (lPack->pdgId() == 22) && (std::abs(lPack->eta()) < fEtaMaxPhotons) &&
-          (lPack->pt() > fPtMaxPhotons))
+
+      // Optional: Protect high pT photons (important for gamma to hadronic recoil balance) for existing weights.
+      if (fApplyPhotonProtectionForExistingWeights && (fPtMaxPhotons > 0) && (lPack->pdgId() == 22) &&
+          (std::abs(lPack->eta()) < fEtaMaxPhotons) && (lPack->pt() > fPtMaxPhotons))
         curpupweight = 1;
       lWeights.push_back(curpupweight);
       lPackCtr++;
@@ -511,6 +514,8 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<uint>("NumOfPUVtxsForCharged", 0);
   desc.add<double>("DeltaZCutForChargedFromPUVtxs", 0.2);
   desc.add<bool>("useExistingWeights", false);
+  desc.add<bool>("applyPhotonProtectionForExistingWeights", false);
+  desc.add<bool>("useBugFix",false);
   desc.add<bool>("clonePackedCands", false);
   desc.add<int>("vtxNdofCut", 4);
   desc.add<double>("vtxZCut", 24);
