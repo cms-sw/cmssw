@@ -10,7 +10,6 @@ SERVER=triton_server_instance
 RETRIES=3
 REPOS=()
 MODELS=()
-ENSEMBLEMODELS=()
 FORCE=""
 CLEANUP=true
 TMPDIR=""
@@ -355,13 +354,11 @@ edit_model(){
 		SUBNAME=$(grep "model_name:" "$CONFIG")
 		for s in ${SUBNAME}; do
 			if ! [[ $s == *"model_name"* ]]; then
-				submodel=$(echo $s | tr -d '"')
-				ENSEMBLEMODELS+=($(echo ${MODELLOC}/$s | tr -d '"'))
+				SUBMODEL=$(echo ${MODELLOC}/$s | tr -d '"')
+				edit_model $SUBMODEL "$INSTANCES"
 			fi
 		done
-	fi
-
-	if ! [[ $PLATFORM == *"ensemble"* ]]; then	
+	else
 		cat <<EOF >> $CONFIG
 
 instance_group [
@@ -410,17 +407,6 @@ list_models(){
 			edit_model $MODEL "$INSTANCES"
 		else
 			REPOS+=("$(dirname "$MODEL")")
-		fi
-	done
-	for ENSEMBLEMODEL in ${ENSEMBLEMODELS[@]}; do
-		# check if file was provided rather than directory
-		if [ -f "$ENSEMBLEMODEL" ]; then
-			ENSEMBLEMODEL="$(dirname "$ENSEMBLEMODEL")"
-		fi
-		if [ "$INSTANCES" -gt 0 ]; then
-			edit_model $ENSEMBLEMODEL "$INSTANCES"
-		else
-			REPOS+=("$(dirname "$ENSEMBLEMODEL")")
 		fi
 	done
 	if [ "$INSTANCES" -gt 0 ]; then
