@@ -67,18 +67,19 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const tensorflow:
       fDebug(cfg.getParameter<bool>("debug")),
       fL1PFToken_(consumes<vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
   std::string lNNFile = cfg.getParameter<std::string>("NNFileName");  //,"L1Trigger/Phase2L1Taus/data/tau_3layer.pb");
-
   if (fHW) {
     fTauNNIdHW_ = std::make_unique<TauNNIdHW>();
     fTauNNIdHW_->initialize("input_1:0", fNParticles_);
   } else {
-    fTauNNId_ = std::make_unique<TauNNId>(
-        lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0", cache, lNNFile, fNParticles_);
+    fTauNNId_ = std::make_unique<TauNNId>(lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0",
+                                          cache->getSession(),
+                                          lNNFile,
+                                          fNParticles_);
   }
   produces<l1t::PFTauCollection>("L1PFTausNN");
 }
 
-std::unique_ptr<TauNNTFCache> L1NNTauProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
+std::unique_ptr<tensorflow::SessionCache> L1NNTauProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
   tensorflow::setLogging("3");
   std::string graphPath = edm::FileInPath(cfg.getParameter<std::string>("NNFileName")).fullPath();
   return std::make_unique<tensorflow::SessionCache>(graphPath);
@@ -112,7 +113,7 @@ void L1NNTauProducer::process_SW(const l1t::PFCandidateCollection& parts,
         std::abs(l1PFCand.eta()) < track_trigger_eta_max)
       pfChargedHadrons_sort_v.push_back(std::make_unique<l1t::PFCandidate>(l1PFCand));
 
-  if (pfChargedHadrons_sort_v.size() == 0)
+  if (pfChargedHadrons_sort_v.empty())
     return;
   std::sort(
       pfChargedHadrons_sort_v.begin(),
