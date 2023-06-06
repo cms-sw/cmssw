@@ -25,12 +25,8 @@ using namespace edm;
 
 RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf)
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
-      printErrorSummary(conf.existsAs<bool>("printErrorSummary", false)
-                            ? conf.getUntrackedParameter<bool>("printErrorSummary")
-                            : true),
-      printUnknownFrameSummary(conf.existsAs<bool>("printUnknownFrameSummary", false)
-                                   ? conf.getUntrackedParameter<bool>("printUnknownFrameSummary")
-                                   : true),
+      printErrorSummary(conf.getUntrackedParameter<bool>("printErrorSummary")),
+      printUnknownFrameSummary(conf.getUntrackedParameter<bool>("printUnknownFrameSummary")),
 
       testFootprint(conf.getParameter<unsigned int>("testFootprint")),
       testCRC(conf.getParameter<unsigned int>("testCRC")),
@@ -44,8 +40,7 @@ RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf)
       EC_fraction(conf.getUntrackedParameter<double>("EC_fraction", 0.6)),
       BC_fraction(conf.getUntrackedParameter<double>("BC_fraction", 0.6)),
 
-      olderTotemT2FileTest(
-          conf.existsAs<bool>("useOlderT2TestFile", true) ? conf.getParameter<bool>("useOlderT2TestFile") : false) {}
+      olderTotemT2FileTest(conf.getParameter<bool>("useOlderT2TestFile")) {}
 
 void RawToDigiConverter::runCommon(const VFATFrameCollection &input,
                                    const TotemDAQMapping &mapping,

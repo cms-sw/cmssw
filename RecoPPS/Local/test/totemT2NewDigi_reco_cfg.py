@@ -41,12 +41,12 @@ process.totemT2Digis.RawToDigi.printErrorSummary = True
 process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = True
 
 # rechits production
-process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')
-process.load('Geometry.ForwardGeometry.totemGeometryESModule_cfi')
-process.load('RecoPPS.Local.totemT2RecHits_cfi')
+#process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')
+#process.load('Geometry.ForwardGeometry.totemGeometryESModule_cfi')
+#process.load('RecoPPS.Local.totemT2RecHits_cfi')
 
 process.output = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string("file:output-miniDaq2303-T2testFile-ver2.1--1ev.root"),
+        fileName = cms.untracked.string("file:output-miniDaq2303-T2testFile-ver2.1-noRecHits--1ev.root"),
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_totemT2*_*_*',
@@ -56,7 +56,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # execution configuration
 process.p = cms.Path(
     process.totemT2Digis
-    * process.totemT2RecHits
+#    * process.totemT2RecHits
 )
 
 process.outpath = cms.EndPath(process.output)

@@ -149,10 +149,6 @@ from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsPixelDigis, isRun3 = False )
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemDAQMappingESSourceXML_TotemTiming, sampicSubDetId = 6)
 
-# The Totem T2 mapping was expanded with a 2-channel unpacker in PR #41472, changing the xml format causing this module to not accept
-# the 2021 dummy mapping copied from diamonds if this parameter is turned on
-(ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemDAQMappingESSourceXML_TotemT2, multipleChannelsPerPayload = False)
-
 # raw-to-digi task and sequence
 ctppsRawToDigiTask = cms.Task(
   totemRPRawToDigi,

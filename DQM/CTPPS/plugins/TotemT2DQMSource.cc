@@ -21,7 +21,6 @@
 
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
-#include "DataFormats/TotemReco/interface/TotemT2RecHit.h"
 
 #include "Geometry/Records/interface/TotemGeometryRcd.h"
 #include "DQM/CTPPS/interface/TotemT2Segmentation.h"
@@ -46,14 +45,11 @@ private:
   void bookErrorFlagsHistogram(DQMStore::IBooker&);
   void fillErrorFlagsHistogram(const TotemT2Digi&, const TotemT2DetId&);
   void fillEdges(const TotemT2Digi&, const TotemT2DetId&);
-  void fillToT(const TotemT2RecHit&, const TotemT2DetId&);
+  void fillToT(const TotemT2Digi&, const TotemT2DetId&);
   void fillFlags(const TotemT2Digi&, const TotemT2DetId&);
 
   const edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
   const edm::EDGetTokenT<edmNew::DetSetVector<TotemT2Digi>> digiToken_;
-  const edm::EDGetTokenT<edmNew::DetSetVector<TotemT2RecHit>> rechitToken_;
-
-  std::unique_ptr<TotemT2Segmentation> segm_;
 
   static constexpr double T2_BIN_WIDTH_NS_ = 25. / 4;
   MonitorElement* totemT2ErrorFlags_2D_ = nullptr;
@@ -129,7 +125,7 @@ TotemT2DQMSource::SectorPlots::SectorPlots(
       "trailing edge", title + " trailing edge (DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
 
   timeOverTreshold = ibooker.book1D(
-      "time over threshold", title + " time over threshold (rechit);time over threshold (ns)", 500, -50, 200);
+      "time over threshold", title + " time over threshold (digi);time over threshold (ns)", 500, -50, 200);
 
   eventFlags = ibooker.book1D(
       "event flags", title + " event flags (digi);Event flags (TE/LE valid, TE/LE multiple)", 4, -0.5, 3.5);
@@ -183,7 +179,7 @@ TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, unsigne
       "trailing edge", title + " trailing edge (DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
 
   timeOverTresholdCh = ibooker.book1D(
-      "time over threshold", title + " time over threshold (rechit);time over threshold (ns)", 500, -50, 200);
+      "time over threshold", title + " time over threshold (digi);time over threshold (ns)", 500, -50, 200);
 
   eventFlagsCh = ibooker.book1D(
       "event flags", title + " event flags (digi);Event flags (TE/LE valid, TE/LE multiple)", 4, -0.5, 3.5);
@@ -195,7 +191,6 @@ TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, unsigne
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
     : geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd, edm::Transition::BeginRun>()),
       digiToken_(consumes<edmNew::DetSetVector<TotemT2Digi>>(iConfig.getParameter<edm::InputTag>("digisTag"))),
-      rechitToken_(consumes<edmNew::DetSetVector<TotemT2RecHit>>(iConfig.getParameter<edm::InputTag>("rechitsTag"))),
       nbinsx_(iConfig.getParameter<unsigned int>("nbinsx")),
       nbinsy_(iConfig.getParameter<unsigned int>("nbinsy")),
       windowsNum_(iConfig.getParameter<unsigned int>("windowsNum")) {}
@@ -224,47 +219,23 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   // build a segmentation helper for the size of histograms previously booked
-  segm_ = std::make_unique<TotemT2Segmentation>(iSetup.getData(geometryToken_), nbinsx_, nbinsy_);
 }
 
 void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // fill digis information
   for (const auto& ds_digis : iEvent.get(digiToken_)) {
-    const TotemT2DetId detid(ds_digis.detId());
-    const TotemT2DetId planeId(detid.planeId());
-    for (const auto& digi : ds_digis) {
-      segm_->fill(planePlots_[planeId].digisMultiplicity->getTH2D(), detid);
-      fillTriggerBitset(detid);
-      fillErrorFlagsHistogram(digi, detid);
-      fillEdges(digi, detid);
-      fillFlags(digi, detid);
-    }
-  }
-
-  // fill rechits information
-  std::unordered_map<unsigned int, std::set<unsigned int>> planes;
-  for (const auto& ds_rechits : iEvent.get(rechitToken_)) {
-    const TotemT2DetId detid(ds_rechits.detId());
-    const TotemT2DetId planeId(detid.planeId());
-    for (const auto& rechit : ds_rechits) {
-      segm_->fill(planePlots_[planeId].rechitMultiplicity->getTH2D(), detid);
-      fillToT(rechit, detid);
-      fillActivePlanes(planes, detid);
-    }
-  }
-
-  for (const auto& plt : sectorPlots_)
-    plt.second.activePlanesCount->Fill(planes[plt.first].size());
-
-  for (unsigned short arm = 0; arm <= CTPPSDetId::maxArm; ++arm)
-    for (unsigned short plane = 0; plane <= 1; ++plane)
-      for (unsigned short id = 0; id <= TotemT2DetId::maxChannel; ++id) {
-        const TotemT2DetId detid(arm, plane, id);
-        if (areChannelsTriggered(detid)) {
-          const TotemT2DetId secId(detid.armId());
-          segm_->fill(sectorPlots_[secId].triggerEmulator->getTH2D(), detid);
-        }
+    if (!ds_digis.empty()) {
+      const TotemT2DetId detid(ds_digis.detId());
+      for (const auto& digi : ds_digis) {
+        fillTriggerBitset(detid);
+        fillErrorFlagsHistogram(digi, detid);
+        fillEdges(digi, detid);
+        fillToT(digi, detid);
+        fillFlags(digi, detid);
       }
+    }
+  }
+  // fill rechits information
 
   clearTriggerBitset();
 }
@@ -321,7 +292,7 @@ void TotemT2DQMSource::bookErrorFlagsHistogram(DQMStore::IBooker& ibooker) {
 void TotemT2DQMSource::fillErrorFlagsHistogram(const TotemT2Digi& digi, const TotemT2DetId& detid) {
   // readout flags histogram filling
   for (unsigned int i = 0; i < 4; i++) {
-    if (digi.getStatus() & (1 << i))
+    if (digi.status() & (1 << i))
       totemT2ErrorFlags_2D_->Fill(i + 0.0, detid.arm() + 0.0);
   }
 }
@@ -334,10 +305,18 @@ void TotemT2DQMSource::fillEdges(const TotemT2Digi& digi, const TotemT2DetId& de
   channelPlots_[detid].trailingEdgeCh->Fill(T2_BIN_WIDTH_NS_ * digi.trailingEdge());
 }
 
-void TotemT2DQMSource::fillToT(const TotemT2RecHit& rechit, const TotemT2DetId& detid) {
+void TotemT2DQMSource::fillToT(const TotemT2Digi& digi, const TotemT2DetId& detid) {
   const TotemT2DetId secId(detid.armId());
-  sectorPlots_[secId].timeOverTreshold->Fill(rechit.toT());
-  channelPlots_[detid].timeOverTresholdCh->Fill(rechit.toT());
+
+  const int t_lead = digi.leadingEdge(), t_trail = digi.trailingEdge();
+  // don't skip no-edge digis
+  double toT = 0.;
+  if (digi.hasLE() && digi.hasTE()) {
+    toT = (t_trail - t_lead) * T2_BIN_WIDTH_NS_;  // in ns
+  }
+
+  sectorPlots_[secId].timeOverTreshold->Fill(toT);
+  channelPlots_[detid].timeOverTresholdCh->Fill(toT);
 }
 
 void TotemT2DQMSource::fillFlags(const TotemT2Digi& digi, const TotemT2DetId& detid) {

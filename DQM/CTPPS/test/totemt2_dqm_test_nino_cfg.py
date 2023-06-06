@@ -49,9 +49,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_HLT_v2', '')
 #Raw-to-digi
 process.load('EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff')
 
-# local RP reconstruction chain with standard settings
-process.load("RecoPPS.Configuration.recoCTPPS_cff")
-
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")
 process.totemDAQMappingESSourceXML_TotemT2.verbosity = 0
@@ -65,7 +62,6 @@ process.totemT2Digis.RawToDigi.printErrorSummary = True
 process.path = cms.Path(
     process.ctppsRawToDigi *
     process.totemT2Digis *
-    process.totemT2RecHits *
     process.totemT2DQMSource
 )
 

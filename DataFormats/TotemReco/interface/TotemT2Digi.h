@@ -18,7 +18,7 @@ public:
   unsigned short leadingEdge() const { return lead_edge_; }
   void setTrailingEdge(unsigned short te) { trail_edge_ = te; }
   unsigned short trailingEdge() const { return trail_edge_; }
-  unsigned char getStatus() const { return status_ & 0xF; }
+  unsigned char status() const { return status_ & 0xF; }
   bool hasLE() const { return marker_ & 0x1; }
   bool hasTE() const { return marker_ & 0x2; }
   bool hasManyLE() const { return marker_ & 0x4; }
