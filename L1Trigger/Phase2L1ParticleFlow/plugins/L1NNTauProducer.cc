@@ -71,8 +71,10 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const tensorflow:
     fTauNNIdHW_ = std::make_unique<TauNNIdHW>();
     fTauNNIdHW_->initialize("input_1:0", fNParticles_);
   } else {
-    fTauNNId_ = std::make_unique<TauNNId>(
-        lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0", cache->getSession(), lNNFile, fNParticles_);
+    fTauNNId_ = std::make_unique<TauNNId>(lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0",
+                                          cache->getSession(),
+                                          lNNFile,
+                                          fNParticles_);
   }
   produces<l1t::PFTauCollection>("L1PFTausNN");
 }
