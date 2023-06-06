@@ -351,6 +351,7 @@ edit_model(){
 	PLATFORM=$(grep -m 1 "^platform:" "$CONFIG")
 
 	if [[ $PLATFORM == *"ensemble"* ]]; then
+		#recurse over submodels of ensemble model
 		SUBNAME=$(grep "model_name:" "$CONFIG")
 		for s in ${SUBNAME}; do
 			if ! [[ $s == *"model_name"* ]]; then
@@ -359,8 +360,8 @@ edit_model(){
 			fi
 		done
 	else
+		#This is not an emsemble model, so we should edit the config file
 		cat <<EOF >> $CONFIG
-
 instance_group [
   {
     count: $NUMINSTANCES
@@ -369,21 +370,20 @@ instance_group [
 ]
 
 EOF
-	fi
-
-	if [[ $PLATFORM == *"onnx"* ]]; then
-		cat <<EOF >> $CONFIG
+		if [[ $PLATFORM == *"onnx"* ]]; then
+			cat <<EOF >> $CONFIG
 parameters { key: "intra_op_thread_count" value: { string_value: "1" } }
 parameters { key: "inter_op_thread_count" value: { string_value: "1" } }
 EOF
-	elif [[ $PLATFORM == *"tensorflow"* ]]; then
-		cat <<EOF >> $CONFIG
+		elif [[ $PLATFORM == *"tensorflow"* ]]; then
+			cat <<EOF >> $CONFIG
 parameters { key: "TF_NUM_INTRA_THREADS" value: { string_value: "1" } }
 parameters { key: "TF_NUM_INTER_THREADS" value: { string_value: "1" } }
 parameters { key: "TF_USE_PER_SESSION_THREADS" value: { string_value: "1" } }
 EOF
-	else
-		echo "Warning: thread (instance) control not implemented for $PLATFORM"
+		else
+			echo "Warning: thread (instance) control not implemented for $PLATFORM"
+		fi
 	fi
 }
 
