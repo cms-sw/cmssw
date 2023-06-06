@@ -1,29 +1,15 @@
-#ifndef __RecoLocalCalo_HGCRecProducers_MergeClusterProducer_H__
-#define __RecoLocalCalo_HGCRecProducers_MergeClusterProducer_H__
 // Authors: Olivie Franklova - olivie.abigail.franklova@cern.ch
 // Date: 03/2023
 // @file merge layer clusters which were produce by HGCalLayerClusterProducer
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
-#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
-
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 class MergeClusterProducer : public edm::stream::EDProducer<> {
@@ -131,8 +117,6 @@ private:
   }
 };
 
-DEFINE_FWK_MODULE(MergeClusterProducer);
-
 MergeClusterProducer::MergeClusterProducer(const edm::ParameterSet &ps)
     : timeClname_(ps.getParameter<std::string>("timeClname")),
       clustersTimeEE_token_(
@@ -192,6 +176,7 @@ void MergeClusterProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   filler.fill();
   evt.put(std::move(timeCl), timeClname_);
 }
+
 void MergeClusterProducer::mergeTogether(std::vector<reco::CaloCluster> &merge,
                                          const std::vector<reco::CaloCluster> &EE,
                                          const std::vector<reco::CaloCluster> &HSi,
@@ -204,4 +189,5 @@ void MergeClusterProducer::mergeTogether(std::vector<reco::CaloCluster> &merge,
   merge.insert(merge.end(), HSci.begin(), HSci.end());
 }
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MergeClusterProducer);

@@ -101,22 +101,21 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
       lt.clear();
       lt.fill(cells_[i].dim1, cells_[i].dim2);
 
-      float delta_c;  // maximum search distance (critical distance) for local
-      // density calculation
-      if (i % maxlayer_ < lastLayerEE_)
-        delta_c = vecDeltas_[0];
-      else if (i % maxlayer_ < (firstLayerBH_ - 1))
-        delta_c = vecDeltas_[1];
-      else
-        delta_c = vecDeltas_[2];
-      float delta_r = vecDeltas_[3];
-
       float delta;
-
-      if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>)
+      if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
+        // maximum search distance (critical distance) for local density calculation
+        float delta_c;
+        if (i % maxlayer_ < lastLayerEE_)
+          delta_c = vecDeltas_[0];
+        else if (i % maxlayer_ < (firstLayerBH_ - 1))
+          delta_c = vecDeltas_[1];
+        else
+          delta_c = vecDeltas_[2];
         delta = delta_c;
-      else
+      } else {
+        float delta_r = vecDeltas_[3];
         delta = delta_r;
+      }
       LogDebug("HGCalCLUEAlgo") << "maxlayer: " << maxlayer_ << " lastLayerEE: " << lastLayerEE_
                                 << " firstLayerBH: " << firstLayerBH_ << "\n";
 
