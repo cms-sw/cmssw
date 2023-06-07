@@ -20,4 +20,9 @@ SingleJetMetPaths = DQMEDAnalyzer('HLTJetMETValidation',
     HLTriggerResults      = cms.InputTag("TriggerResults::HLT"),
 )
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(SingleJetMetPaths,
+                       PatternJetTrg = cms.untracked.string("HLT_(AK4)?PF(NoPU|Puppi)?Jet([0-9])+(_v[0-9]+)?$")
+                       )
+
 SingleJetValidation = cms.Sequence(SingleJetMetPaths)
