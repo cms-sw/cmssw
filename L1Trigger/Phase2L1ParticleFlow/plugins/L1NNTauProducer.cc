@@ -260,8 +260,6 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   float pNNVec[80];
   for (unsigned i0 = 0; i0 < 80; i0++)
     pNNVec[i0] = float(lNNVector[i0]);
-  L1TauEmu::etaphi_t eta = etaphi_t(seed.eta() * L1TauEmu::etaphi_base);
-  L1TauEmu::etaphi_t phi = etaphi_t(seed.phi() * L1TauEmu::etaphi_base);
 
   //Firmware Tau
   l1ct::Tau l1ctTau;
