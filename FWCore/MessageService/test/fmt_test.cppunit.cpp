@@ -45,7 +45,9 @@ auto capture(const Args&... args) {
   return std::make_tuple(args...);
 }
 
-auto print_message = [](const auto&... args) { fmt::print(args...); };
+auto vprint_message = [](auto&& format, auto&&... args) {
+  fmt::vprint(format, fmt::make_format_args(std::forward<decltype(args)>(args)...));
+};
 
 void test_fmt_external::test_fmt()
 
@@ -54,11 +56,11 @@ void test_fmt_external::test_fmt()
   std::string s_check = "The date is 2012-12-9";
   CPPUNIT_ASSERT(s_check == s);
   auto args = capture("{} {}", 42, "foo");
-  std::apply(print_message, args);
+  std::apply(vprint_message, args);
   auto buf = fmt::memory_buffer();
   format_to(std::back_inserter(buf), "{}", 42);  // replaces itoa(42, buffer, 10)
-  fmt::print(to_string(buf));
+  fmt::vprint(to_string(buf), fmt::make_format_args());
   format_to(std::back_inserter(buf), "{:x}", 42);  // replaces itoa(42, buffer, 16)
-  fmt::print(to_string(buf));
+  fmt::vprint(to_string(buf), fmt::make_format_args());
 }
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
