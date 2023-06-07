@@ -200,16 +200,11 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   L1TauEmu::detaphi_t rCone2 =
       L1TauEmu::detaphi_t(fTauSize_ * fTauSize_ * L1TauEmu::etaphi_base * L1TauEmu::etaphi_base);
   unsigned lId = 0;
-  L1TauEmu::pt_t pt_tot = 0;
+
   input2_t p1_tot = 0;
   input2_t p1x_tot = 0;
   input2_t p1y_tot = 0;
   input2_t p1z_tot = 0;
-
-  float p_tot = 0;
-  float px_tot = 0;
-  float py_tot = 0;
-  float pz_tot = 0;
 
   float eta_1 = seed.eta();
   float phi_1 = seed.phi();
@@ -218,19 +213,13 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   L1TauEmu::pt_t pt = 0;
   L1TauEmu::z0_t z0 = 0;
   L1TauEmu::dxy_t dxy = 0;
+
   for (unsigned i0 = 0; i0 < parts.size(); i0++) {
-    pt_tot = pt_tot + L1TauEmu::pt_t(parts[i0].pt());
     if (L1TauEmu::inCone(seed, (parts[i0]), rCone2)) {
       if (parts[i0].id() == l1t::PFCandidate::Electron || parts[i0].id() == l1t::PFCandidate::ChargedHadron ||
           parts[i0].id() == l1t::PFCandidate::Photon) {
         lId++;
         pt = pt + L1TauEmu::pt_t(parts[i0].pt());
-        float deta = parts[i0].eta() - eta_1;
-        float dphi = parts[i0].phi() - phi_1;
-        float dr2 = deta * deta + dphi * dphi;
-        pz_tot = pz_tot + (parts[i0].pt()) * (1 - dr2 * 0.5);
-        py_tot = py_tot + (parts[i0].pt()) * dphi;  //sin(dphi ));
-        px_tot = px_tot + (parts[i0].pt()) * deta;  //sin(deta ));
 
         input2_t d1eta = input_t(parts[i0].eta()) - e1ta_1;
         input2_t d1phi = input_t(parts[i0].phi()) - p1hi_1;
@@ -240,8 +229,8 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
         p1z_tot = p1z_tot + tmppt * (1 - d1r2 * half);
         p1y_tot = p1y_tot + tmppt * d1phi;
         p1x_tot = p1x_tot + tmppt * d1eta;
-        p_tot = p_tot + (parts[i0].pt());
         p1_tot = p1_tot + tmppt;
+
         if (z0 == 0 && parts[i0].id() == l1t::PFCandidate::ChargedHadron) {
           z0 = parts[i0].hwZ0();
           dxy = parts[i0].hwDxy();
@@ -249,14 +238,19 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
       }
     }
   }
+
+  //Compute the mass
   input2_t tmpmass1 = (p1_tot * p1_tot - p1x_tot * p1x_tot - p1y_tot * p1y_tot - p1z_tot * p1z_tot);
   if (tmpmass1 < 0)
     tmpmass1 = 0;
   L1TauEmu::pt_t mass = l1ct::pt_t(tmpmass1);
+
   if (pt < fSeedPt_)
     return;
+
   result_t NN = fTauNNIdHW_->compute(seed, parts);
   input_t* lNNVector = fTauNNIdHW_->NNVectorVar();
+
   float pNNVec[80];
   for (unsigned i0 = 0; i0 < 80; i0++)
     pNNVec[i0] = float(lNNVector[i0]);
