@@ -343,6 +343,11 @@ edit_model(){
 	NUMINSTANCES=$2
 	
 	cp -r $MODELNAME $TMPDIR/$LOCALMODELREPO/
+	COPY_EXIT=$?
+	if [ "$COPY_EXIT" -ne 0 ]; then
+		echo "Could not copy $MODELNAME into $TMPDIR/$LOCALMODELREPO/"
+		exit "$COPY_EXIT"
+	fi
 	IFS='/' read -ra ADDR <<< "$MODELNAME"
 	CONFIG=$TMPDIR/$LOCALMODELREPO/${ADDR[-1]}/config.pbtxt
 
@@ -357,7 +362,7 @@ edit_model(){
 			edit_model $SUBMODEL "$INSTANCES"
 		done
 	else
-		#This is not an emsemble model, so we should edit the config file
+		#This is not an ensemble model, so we should edit the config file
 		cat <<EOF >> $CONFIG
 instance_group [
   {
@@ -392,7 +397,12 @@ list_models(){
 			#Want to start with a fresh copy of model files in case this directory already exists with local edits
 			rm -rf $TMPDIR/$LOCALMODELREPO
 		fi
-		mkdir $TMPDIR/$LOCALMODELREPO
+		$DRYRUN mkdir $TMPDIR/$LOCALMODELREPO
+		MKMODELDIR_EXIT=$?
+		if [ "$MKMODELDIR_EXIT" -ne 0 ]; then
+			echo "Could not create local_model_repo dir: $TMPDIR/$LOCALMODELREPO"
+			exit "$MKMODELDIR_EXIT"
+		fi
 	fi
 
 	for MODEL in ${MODELS[@]}; do
