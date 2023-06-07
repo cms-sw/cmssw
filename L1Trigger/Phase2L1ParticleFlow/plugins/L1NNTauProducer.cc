@@ -206,8 +206,6 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   input2_t p1y_tot = 0;
   input2_t p1z_tot = 0;
 
-  float eta_1 = seed.eta();
-  float phi_1 = seed.phi();
   input_t e1ta_1 = seed.eta();
   input_t p1hi_1 = seed.phi();
   L1TauEmu::pt_t pt = 0;
