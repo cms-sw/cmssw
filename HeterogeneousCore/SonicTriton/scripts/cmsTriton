@@ -345,19 +345,16 @@ edit_model(){
 	cp -r $MODELNAME $TMPDIR/$LOCALMODELREPO/
 	IFS='/' read -ra ADDR <<< "$MODELNAME"
 	CONFIG=$TMPDIR/$LOCALMODELREPO/${ADDR[-1]}/config.pbtxt
-	
-	MODELLOC=$(echo ""${ADDR[@]:0:${#ADDR[@]}-1} | sed "s/ /\//g")
 
 	PLATFORM=$(grep -m 1 "^platform:" "$CONFIG")
 
 	if [[ $PLATFORM == *"ensemble"* ]]; then
 		#recurse over submodels of ensemble model
-		SUBNAME=$(grep "model_name:" "$CONFIG")
-		for s in ${SUBNAME}; do
-			if ! [[ $s == *"model_name"* ]]; then
-				SUBMODEL=$(echo ${MODELLOC}/$s | tr -d '"')
-				edit_model $SUBMODEL "$INSTANCES"
-			fi
+		MODELLOC=$(echo ""${ADDR[@]:0:${#ADDR[@]}-1} | sed "s/ /\//g")
+		SUBNAME=$(grep "model_name:" "$CONFIG" | sed 's/model_name://; s/"//g')
+		for SUBMODEL in ${SUBNAME}; do
+			SUBMODEL=${MODELLOC}/${SUBMODEL}
+			edit_model $SUBMODEL "$INSTANCES"
 		done
 	else
 		#This is not an emsemble model, so we should edit the config file
