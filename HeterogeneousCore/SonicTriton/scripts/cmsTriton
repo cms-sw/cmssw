@@ -606,15 +606,6 @@ elif [ "$OP" == start ]; then
 	PORT_EXIT=$?
 	if [ "$PORT_EXIT" -ne 0 ]; then exit $PORT_EXIT; fi
 
-	make_tmp
-
-	list_models
-
-	# after make_tmp because this may create file in tmp dir
-	check_drivers
-	DRIVER_EXIT=$?
-	if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
-
 	# if parent PID is provided, automatically stop server when finished
 	# do this before actually trying to start the server in case of ctrl+c
 	if [ -n "$PARENTPID" ]; then
@@ -623,14 +614,12 @@ elif [ "$OP" == start ]; then
 
 	START_EXIT=0
 	for ((counter=0; counter < ${RETRIES}; counter++)); do
-		if [ "$START_EXIT" -ne 0 ]; then
-			make_tmp
-			#If we plan on editing model configs, must repull files into /tmp/local_model_repo, which was deleted
-			if [ "$INSTANCES" -gt 0 ]; then list_models; fi
-			check_drivers
-			DRIVER_EXIT=$?
-			if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
-		fi
+		make_tmp
+		#If we plan on editing model configs, must repull files into /tmp/local_model_repo, which is deleted upon retry
+		if [ "$counter" -eq 0 ] || [ "$INSTANCES" -gt 0 ]; then list_models; fi
+		check_drivers
+		DRIVER_EXIT=$?
+		if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
 
 		$START_FN
 		START_EXIT=$?
