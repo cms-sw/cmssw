@@ -61,6 +61,8 @@ class Reco(Scenario):
 
         miniAODStep = ''
         nanoAODStep = ''
+        if not 'customs' in args:
+            args['customs']=[]
 
         if 'outputs' in args:
             print(args['outputs']) 
@@ -68,7 +70,8 @@ class Reco(Scenario):
                 if a['dataTier'] == 'MINIAOD':
                     miniAODStep = ',PAT' 
                 if a['dataTier'] in ['NANOAOD', 'NANOEDMAOD']:
-                    nanoAODStep = ',NANO' 
+                    nanoAODStep = ',NANO'
+                    args['customs'].append('PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize')
 
         self._checkRepackedFlag(options, **args)
 
