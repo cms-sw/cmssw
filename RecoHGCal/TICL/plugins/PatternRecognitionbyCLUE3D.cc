@@ -686,7 +686,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       int etaWindow = 1;
       int phiWindow = 1;
       int etaBinMin = std::max(tileOnLayer.etaBin(clustersOnLayer.eta[i]) - etaWindow, 0);
-      int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin);
+      int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin - 1);
       int phiBinMin = tileOnLayer.phiBin(clustersOnLayer.phi[i]) - phiWindow;
       int phiBinMax = tileOnLayer.phiBin(clustersOnLayer.phi[i]) + phiWindow;
       for (int ieta = etaBinMin; ieta <= etaBinMax; ++ieta) {
