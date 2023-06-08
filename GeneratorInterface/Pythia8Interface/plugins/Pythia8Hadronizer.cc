@@ -19,7 +19,7 @@ using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
-
+#include "GeneratorInterface/Pythia8Interface/plugins/test273.h"
 // PS matchning prototype
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
@@ -151,6 +151,9 @@ private:
 
   //Generic customized hooks vector
   std::shared_ptr<UserHooksVector> fCustomHooksVector;
+
+  //RecoilToTop userhook
+  std::shared_ptr<TopRecoilHook> fTopRecoilHook;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -423,6 +426,16 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     if (!fPowhegHooksBB4L.get())
       fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
+  }
+
+  std::cout << "Here goes my change" << std::endl;
+
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook.reset(new TopRecoilHook());
+    (fUserHooksVector->hooks).push_back(fTopRecoilHook);
   }
 
   //adapted from main89.cc in pythia8 examples
