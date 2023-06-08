@@ -25,7 +25,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
   SiPhase2OuterTrackerLorentzAngle = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
 )
 
-tag = 'SiPhase2OuterTrackerLorentzAngle_T15'
+tag = 'SiPhase2OuterTrackerLorentzAngle_T21'
 suffix = 'v0'
 outfile = tag+'_'+suffix+'.db'
 outdb = 'sqlite_file:'+outfile
@@ -38,12 +38,12 @@ if os.path.exists(outfile):
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = cms.string(outdb)
 
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("EmptyIOVSource",
