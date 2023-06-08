@@ -991,10 +991,8 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float mvaID = 0.0;
     constexpr int MVAsentinelValue = -99;
     constexpr float mvaIDmediumCut = 0.08;
-    constexpr float mvaIDtightCut = 0.12;
+    constexpr float mvaIDtightCut = 0.20;
     if (computeMuonIDMVA_) {
-      const double dz = std::abs(muon.muonBestTrack()->dz(primaryVertex.position()));
-      const double dxy = std::abs(muon.muonBestTrack()->dxy(primaryVertex.position()));
       if (muon.isLooseMuon()) {
         mvaID = globalCache()->muonMvaIDEstimator().computeMVAID(muon)[1];
       } else {
@@ -1002,7 +1000,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       muon.setMvaIDValue(mvaID);
       muon.setSelector(reco::Muon::MvaIDwpMedium, muon.mvaIDValue() > mvaIDmediumCut);
-      muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > mvaIDtightCut and dz < 0.5 and dxy < 0.2);
+      muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > mvaIDtightCut);
     }
 
     //SOFT MVA
