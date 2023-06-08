@@ -32,11 +32,13 @@ process.run2ScoutingProducer = cms.EDProducer("TestWriteRun2Scouting",
     muonsFloatingPointValues = cms.vdouble(
         10.0,   20.0,  30.0,  40.0,  50.0,
         60.0,   70.0,  80.0,  90.0, 100.0,
-        110.0
+        110.0, 120.0, 130.0, 140.0, 150.0,
+        160.0, 170.0, 180.0, 190.0, 200.0,
+        210.0, 220.0, 230.0
     ),
     muonsIntegralValues = cms.vint32(
         10,   20,  30,  40,  50,
-        60
+        60,   70,  80
     ),
     particlesFloatingPointValues = cms.vdouble(
         11.0,   21.0,  31.0,  41.0
@@ -58,8 +60,12 @@ process.run2ScoutingProducer = cms.EDProducer("TestWriteRun2Scouting",
         63.0,   73.0,  83.0
     ),
     vertexesFloatingPointValues = cms.vdouble(
-        15.0,   25.0,  35.0,  45.0
+        15.0,   25.0,  35.0,  45.0,  55.0,
+        65.0,   75.0
     ),
+    vertexesIntegralValues = cms.vint32(
+        12,   22,  32
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

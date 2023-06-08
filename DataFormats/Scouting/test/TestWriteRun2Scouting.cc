@@ -79,6 +79,7 @@ namespace edmtest {
     //const edm::EDPutTokenT<std::vector<ScoutingPhoton>> photonsPutToken_;
 
     const std::vector<double> vertexesFloatingPointValues_;
+    const std::vector<int> vertexesIntegralValues_;
     //const edm::EDPutTokenT<std::vector<ScoutingVertex>> vertexesPutToken_;
   };
 
@@ -99,8 +100,9 @@ namespace edmtest {
         //pfJetsPutToken_(produces()),
         photonsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("photonsFloatingPointValues")),
         //photonsPutToken_(produces()),
-        vertexesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("vertexesFloatingPointValues")) {
-        //vertexesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("vertexesFloatingPointValues")),
+        vertexesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("vertexesFloatingPointValues")),
+        vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")) {
+        //vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")),
         //vertexesPutToken_(produces()) {
     produces<std::vector<ScoutingCaloJet>>();
     produces<std::vector<ScoutingElectron>>();
@@ -118,11 +120,11 @@ namespace edmtest {
     if (electronsIntegralValues_.size() != 2) {
       throwWithMessage("electronsIntegralValues must have 2 elements and it does not");
     }
-    if (muonsFloatingPointValues_.size() != 11) {
-      throwWithMessage("muonsFloatingPointValues must have 11 elements and it does not");
+    if (muonsFloatingPointValues_.size() != 23) {
+      throwWithMessage("muonsFloatingPointValues must have 23 elements and it does not");
     }
-    if (muonsIntegralValues_.size() != 6) {
-      throwWithMessage("muonsIntegralValues must have 6 elements and it does not");
+    if (muonsIntegralValues_.size() != 8) {
+      throwWithMessage("muonsIntegralValues must have 8 elements and it does not");
     }
     if (particlesFloatingPointValues_.size() != 4) {
       throwWithMessage("particlesFloatingPointValues must have 4 elements and it does not");
@@ -139,8 +141,11 @@ namespace edmtest {
     if (photonsFloatingPointValues_.size() != 8) {
       throwWithMessage("photonsFloatingPointValues must have 8 elements and it does not");
     }
-    if (vertexesFloatingPointValues_.size() != 4) {
-      throwWithMessage("vertexesFloatingPointValues must have 4 elements and it does not");
+    if (vertexesFloatingPointValues_.size() != 7) {
+      throwWithMessage("vertexesFloatingPointValues must have 7 elements and it does not");
+    }
+    if (vertexesIntegralValues_.size() != 3) {
+      throwWithMessage("vertexesIntegralValues must have 3 elements and it does not");
     }
   }
 
@@ -173,6 +178,7 @@ namespace edmtest {
     desc.add<std::vector<int>>("pfJetsIntegralValues");
     desc.add<std::vector<double>>("photonsFloatingPointValues");
     desc.add<std::vector<double>>("vertexesFloatingPointValues");
+    desc.add<std::vector<int>>("vertexesIntegralValues");
     descriptions.addDefault(desc);
   }
 
@@ -240,6 +246,12 @@ namespace edmtest {
       double offset = static_cast<double>(iEvent.id().event() + i);
       int iOffset = static_cast<int>(iEvent.id().event() + i);
 
+      std::vector<int> vtxIndx;
+      vtxIndx.reserve(vectorSize);
+      for (unsigned int j = 0; j < vectorSize; ++j) {
+        vtxIndx.push_back(static_cast<int>(muonsIntegralValues_[7] + iOffset + j * 10));
+      }
+
       run2ScoutingMuons->emplace_back(static_cast<float>(muonsFloatingPointValues_[0] + offset),
                                       static_cast<float>(muonsFloatingPointValues_[1] + offset),
                                       static_cast<float>(muonsFloatingPointValues_[2] + offset),
@@ -256,7 +268,21 @@ namespace edmtest {
                                       muonsIntegralValues_[2] + iOffset,
                                       muonsIntegralValues_[3] + iOffset,
                                       muonsIntegralValues_[4] + iOffset,
-                                      muonsIntegralValues_[5] + iOffset);
+                                      muonsIntegralValues_[5] + iOffset,
+                                      muonsIntegralValues_[6] + iOffset,
+                                      static_cast<float>(muonsFloatingPointValues_[11] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[12] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[13] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[14] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[15] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[16] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[17] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[18] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[19] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[20] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[21] + offset),
+                                      static_cast<float>(muonsFloatingPointValues_[22] + offset),
+                                      std::move(vtxIndx));
     }
     //iEvent.put(muonsPutToken_, std::move(run2ScoutingMuons));
     iEvent.put(std::move(run2ScoutingMuons));
@@ -350,11 +376,18 @@ namespace edmtest {
 
     for (unsigned int i = 0; i < vectorSize; ++i) {
       double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
 
       run2ScoutingVertexes->emplace_back(static_cast<float>(vertexesFloatingPointValues_[0] + offset),
                                          static_cast<float>(vertexesFloatingPointValues_[1] + offset),
                                          static_cast<float>(vertexesFloatingPointValues_[2] + offset),
-                                         static_cast<float>(vertexesFloatingPointValues_[3] + offset));
+                                         static_cast<float>(vertexesFloatingPointValues_[3] + offset),
+                                         static_cast<float>(vertexesFloatingPointValues_[4] + offset),
+                                         static_cast<float>(vertexesFloatingPointValues_[5] + offset),
+                                         vertexesIntegralValues_[0] + iOffset,
+                                         static_cast<float>(vertexesFloatingPointValues_[6] + offset),
+                                         vertexesIntegralValues_[1] + iOffset,
+                                         static_cast<bool>((vertexesIntegralValues_[2] + iOffset) % 2));
     }
     //iEvent.put(vertexesPutToken_, std::move(run2ScoutingVertexes));
     iEvent.put(std::move(run2ScoutingVertexes));

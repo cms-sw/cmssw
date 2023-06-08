@@ -89,6 +89,7 @@ namespace edmtest {
     edm::EDGetTokenT<std::vector<ScoutingPhoton>> photonsToken_;
 
     const std::vector<double> expectedVertexFloatingPointValues_;
+    const std::vector<int> expectedVertexIntegralValues_;
     //const edm::EDGetTokenT<std::vector<ScoutingVertex>> vertexesToken_;
     edm::EDGetTokenT<std::vector<ScoutingVertex>> vertexesToken_;
   };
@@ -121,6 +122,7 @@ namespace edmtest {
         photonsToken_(consumes<std::vector<ScoutingPhoton>>(iPSet.getParameter<edm::InputTag>("photonsTag"))),
         expectedVertexFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedVertexFloatingPointValues")),
+        expectedVertexIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedVertexIntegralValues")),
         //vertexesToken_(consumes(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {
         vertexesToken_(consumes<std::vector<ScoutingVertex>>(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {
     if (expectedCaloJetsValues_.size() != 16) {
@@ -133,11 +135,11 @@ namespace edmtest {
     if (expectedElectronIntegralValues_.size() != 2) {
       throwWithMessageFromConstructor("test configuration error, expectedElectronIntegralValues must have size 2");
     }
-    if (expectedMuonFloatingPointValues_.size() != 11) {
-      throwWithMessageFromConstructor("test configuration error, expectedMuonFloatingPointValues must have size 11");
+    if (expectedMuonFloatingPointValues_.size() != 23) {
+      throwWithMessageFromConstructor("test configuration error, expectedMuonFloatingPointValues must have size 23");
     }
-    if (expectedMuonIntegralValues_.size() != 6) {
-      throwWithMessageFromConstructor("test configuration error, expectedMuonIntegralValues must have size 6");
+    if (expectedMuonIntegralValues_.size() != 8) {
+      throwWithMessageFromConstructor("test configuration error, expectedMuonIntegralValues must have size 8");
     }
     if (expectedParticleFloatingPointValues_.size() != 4) {
       throwWithMessageFromConstructor(
@@ -155,8 +157,11 @@ namespace edmtest {
     if (expectedPhotonFloatingPointValues_.size() != 8) {
       throwWithMessageFromConstructor("test configuration error, expectedPhotonFloatingPointValues must have size 8");
     }
-    if (expectedVertexFloatingPointValues_.size() != 4) {
-      throwWithMessageFromConstructor("test configuration error, expectedVertexFloatingPointValues must have size 4");
+    if (expectedVertexFloatingPointValues_.size() != 7) {
+      throwWithMessageFromConstructor("test configuration error, expectedVertexFloatingPointValues must have size 7");
+    }
+    if (expectedVertexIntegralValues_.size() != 3) {
+      throwWithMessageFromConstructor("test configuration error, expectedPFJetIntegralValues must have size 3");
     }
   }
 
@@ -189,6 +194,7 @@ namespace edmtest {
     desc.add<std::vector<double>>("expectedPhotonFloatingPointValues");
     desc.add<edm::InputTag>("photonsTag");
     desc.add<std::vector<double>>("expectedVertexFloatingPointValues");
+    desc.add<std::vector<int>>("expectedVertexIntegralValues");
     desc.add<edm::InputTag>("vertexesTag");
     descriptions.addDefault(desc);
   }
@@ -389,6 +395,52 @@ namespace edmtest {
       if (muon.type() != expectedMuonIntegralValues_[5] + iOffset) {
         throwWithMessage("analyzeMuons, type does not equal expected value");
       }
+      if (muon.nValidStripHits() != expectedMuonIntegralValues_[6] + iOffset) {
+        throwWithMessage("analyzeMuons, nValidStripHits does not equal expected value");
+      }
+      if (muon.trk_qoverp() != expectedMuonFloatingPointValues_[11] + offset) {
+        throwWithMessage("analyzeMuons, trk_qoverp does not equal expected value");
+      }
+      if (muon.trk_lambda() != expectedMuonFloatingPointValues_[12] + offset) {
+        throwWithMessage("analyzeMuons, trk_lambda does not equal expected value");
+      }
+      if (muon.trk_pt() != expectedMuonFloatingPointValues_[13] + offset) {
+        throwWithMessage("analyzeMuons, trk_pt does not equal expected value");
+      }
+      if (muon.trk_phi() != expectedMuonFloatingPointValues_[14] + offset) {
+        throwWithMessage("analyzeMuons, trk_phi does not equal expected value");
+      }
+      if (muon.trk_eta() != expectedMuonFloatingPointValues_[15] + offset) {
+        throwWithMessage("analyzeMuons, trk_eta does not equal expected value");
+      }
+      if (muon.dxyError() != expectedMuonFloatingPointValues_[16] + offset) {
+        throwWithMessage("analyzeMuons, dxyError does not equal expected value");
+      }
+      if (muon.dzError() != expectedMuonFloatingPointValues_[17] + offset) {
+        throwWithMessage("analyzeMuons, dzError does not equal expected value");
+      }
+      if (muon.trk_qoverpError() != expectedMuonFloatingPointValues_[18] + offset) {
+        throwWithMessage("analyzeMuons, trk_qoverpError does not equal expected value");
+      }
+      if (muon.trk_lambdaError() != expectedMuonFloatingPointValues_[19] + offset) {
+        throwWithMessage("analyzeMuons, trk_lambdaError does not equal expected value");
+      }
+      if (muon.trk_phiError() != expectedMuonFloatingPointValues_[20] + offset) {
+        throwWithMessage("analyzeMuons, trk_phiError does not equal expected value");
+      }
+      if (muon.trk_dsz() != expectedMuonFloatingPointValues_[21] + offset) {
+        throwWithMessage("analyzeMuons, trk_dsz does not equal expected value");
+      }
+      if (muon.trk_dszError() != expectedMuonFloatingPointValues_[22] + offset) {
+        throwWithMessage("analyzeMuons, trk_dszError does not equal expected value");
+      }
+      int j = 0;
+      for (auto const& val : muon.vtxIndx()) {
+        if (val != expectedMuonIntegralValues_[7] + iOffset + 10 * j) {
+          throwWithMessage("analyzeMuons, vtxIndx does not contain expected value");
+        }
+        ++j;
+      }
       ++i;
     }
   }
@@ -573,6 +625,7 @@ namespace edmtest {
     unsigned int i = 0;
     for (auto const& vertex : vertexes) {
       double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
 
       if (vertex.x() != expectedVertexFloatingPointValues_[0] + offset) {
         throwWithMessage("analyzeVertexes, x does not equal expected value");
@@ -585,6 +638,24 @@ namespace edmtest {
       }
       if (vertex.zError() != expectedVertexFloatingPointValues_[3] + offset) {
         throwWithMessage("analyzeVertexes, zError does not equal expected value");
+      }
+      if (vertex.xError() != expectedVertexFloatingPointValues_[4] + offset) {
+        throwWithMessage("analyzeVertexes, xError does not equal expected value");
+      }
+      if (vertex.yError() != expectedVertexFloatingPointValues_[5] + offset) {
+        throwWithMessage("analyzeVertexes, yError does not equal expected value");
+      }
+      if (vertex.tracksSize() != expectedVertexIntegralValues_[0] + iOffset) {
+        throwWithMessage("analyzeVertexes, tracksSize does not equal expected value");
+      }
+      if (vertex.chi2() != expectedVertexFloatingPointValues_[6] + offset) {
+        throwWithMessage("analyzeVertexes, chi2 does not equal expected value");
+      }
+      if (vertex.ndof() != expectedVertexIntegralValues_[1] + iOffset) {
+        throwWithMessage("analyzeVertexes, ndof does not equal expected value");
+      }
+      if (vertex.isValidVtx() != static_cast<bool>((expectedVertexIntegralValues_[2] + iOffset) % 2)) {
+        throwWithMessage("analyzeVertexes, isValidVtx does not equal expected value");
       }
       ++i;
     }

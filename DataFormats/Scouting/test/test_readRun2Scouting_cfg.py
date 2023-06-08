@@ -25,11 +25,13 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
     expectedMuonFloatingPointValues = cms.vdouble(
         10.0,   20.0,  30.0,  40.0,  50.0,
         60.0,   70.0,  80.0,  90.0, 100.0,
-        110.0
+        110.0, 120.0, 130.0, 140.0, 150.0,
+        160.0, 170.0, 180.0, 190.0, 200.0,
+        210.0, 220.0, 230.0
     ),
     expectedMuonIntegralValues = cms.vint32(
         10,   20,  30,  40,  50,
-        60
+        60,   70,  80
     ),
     muonsTag = cms.InputTag("run2ScoutingProducer", "", "PROD"),
     expectedParticleFloatingPointValues = cms.vdouble(
@@ -55,7 +57,11 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
     ),
     photonsTag = cms.InputTag("run2ScoutingProducer", "", "PROD"),
     expectedVertexFloatingPointValues = cms.vdouble(
-        15.0,   25.0,  35.0,  45.0
+        15.0,   25.0,  35.0,  45.0,  55.0,
+        65.0,   75.0
+    ),
+    expectedVertexIntegralValues = cms.vint32(
+        12,   22,  32
     ),
     vertexesTag = cms.InputTag("run2ScoutingProducer", "", "PROD")
 )
