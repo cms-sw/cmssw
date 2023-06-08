@@ -15,7 +15,7 @@ def applySubstructure( process, postfix="" ) :
     # Configure the RECO jets
     from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents
     setattr(process,'ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone())
-    setattr(process,'ak8PFJetsPuppiConstituents'+postfix, ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ))
+    setattr(process,'ak8PFJetsPuppiConstituents'+postfix, ak8PFJetsPuppiConstituents.clone())
     setattr(process,'ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = 'ak8PFJetsPuppiConstituents'+postfix+':constituents' ))
     from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
     setattr(process,'ak8PFJetsPuppiSoftDropMass'+postfix, ak8PFJetsPuppiSoftDropMass.clone())
@@ -32,6 +32,8 @@ def applySubstructure( process, postfix="" ) :
                                 getattr(process,'ak8PFJetsPuppiSoftDrop'),
                                 getattr(process,'ak8PFJetsPuppiSoftDropMass'))
       (_run2_miniAOD_ANY | pA_2016 ).toReplaceWith(task, _rerun_puppijets_task)
+      (_run2_miniAOD_ANY | pA_2016 ).toModify(getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
+        cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4'))
     else:
       task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
                getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
