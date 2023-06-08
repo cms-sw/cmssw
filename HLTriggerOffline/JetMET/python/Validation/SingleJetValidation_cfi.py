@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #pfjetcoll="hltAK4PFJetsCorrected"
 pfjetcoll="hltAK4PFJets"
+pfjetcollPhase2 = "hltAK4PFPuppiJetsCorrected"
 
 foldernm="HLT/HLTJETMET/"
 
@@ -22,7 +23,8 @@ SingleJetMetPaths = DQMEDAnalyzer('HLTJetMETValidation',
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(SingleJetMetPaths,
-                       PatternJetTrg = cms.untracked.string("HLT_(AK4)?PF(NoPU|Puppi)?Jet([0-9])+(_v[0-9]+)?$")
+                       PatternJetTrg = 'HLT_(AK4)?PFPuppiJet([0-9])+(_v[0-9]+)?$',
+                       PFJetAlgorithm = cms.untracked.InputTag(pfjetcollPhase2)
                        )
 
 SingleJetValidation = cms.Sequence(SingleJetMetPaths)
