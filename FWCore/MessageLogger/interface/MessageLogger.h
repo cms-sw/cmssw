@@ -101,6 +101,13 @@ namespace edm {
       return *this;
     }
 
+    template <typename... Args>
+    ThisLog& printf(std::string_view fmt, Args const&... args) {
+      if (ap.valid())
+        ap.printf(fmt, args...);
+      return *this;
+    }
+
     template <typename F>
     ThisLog& log(F&& iF) {
       if (ap.valid()) {
@@ -199,6 +206,11 @@ namespace edm {
 
     template <typename... Args>
     Suppress_LogDebug_& format(std::string_view fmt, Args const&... args) {
+      return *this;
+    }
+
+    template <typename... Args>
+    Suppress_LogDebug_& printf(std::string_view fmt, Args const&... args) {
       return *this;
     }
 

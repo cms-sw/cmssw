@@ -22,3 +22,15 @@ Test of format precision: Pi with precision 12 is 3.14159265359
 %MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
 Test of format spacing: The following should read a b cc: a b cc
 %MSG
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of printf hex: 145 in hex is 91
+%MSG
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of printf fill and width: The following should read   abcdefg 00012:   abcdefg 00012
+%MSG
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of printf precision: Pi with precision 12 is 3.14159265359
+%MSG
+%MSG-w cat_A:  UnitTestClient_C:sendSomeMessages Run: 1 Event: 1
+Test of printf spacing: The following should read a b cc: a b cc
+%MSG
