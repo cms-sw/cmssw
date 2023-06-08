@@ -20,6 +20,7 @@ from DQM.SiPixelHeterogeneous.siPixelPhase2CompareRecHitsSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase1CompareTrackSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase2CompareTrackSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelCompareVertexSoA_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelPhase1RawDataErrorComparator_cfi import *
 
 ## rechits
 siPixelPhase1MonitorRecHitsSoACPU = siPixelPhase1MonitorRecHitsSoA.clone(
@@ -83,7 +84,8 @@ monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorRecHitsSoACPU *
                                             siPixelPhase1CompareTrackSoA *
                                             siPixelMonitorVertexSoACPU *
                                             siPixelMonitorVertexSoAGPU *
-                                            siPixelCompareVertexSoA)
+                                            siPixelCompareVertexSoA *
+                                            siPixelPhase1RawDataErrorComparator)
 
 # Phase-2 sequence
 _monitorpixelSoACompareSource =  cms.Sequence(siPixelPhase2MonitorRecHitsSoACPU *
