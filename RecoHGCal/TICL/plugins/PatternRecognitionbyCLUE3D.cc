@@ -532,7 +532,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
       const int etaWindow = 2;
       const int phiWindow = 2;
       int etaBinMin = std::max(tileOnLayer.etaBin(clustersOnLayer.eta[i]) - etaWindow, 0);
-      int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin);
+      int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin - 1);
       int phiBinMin = tileOnLayer.phiBin(clustersOnLayer.phi[i]) - phiWindow;
       int phiBinMax = tileOnLayer.phiBin(clustersOnLayer.phi[i]) + phiWindow;
       if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
