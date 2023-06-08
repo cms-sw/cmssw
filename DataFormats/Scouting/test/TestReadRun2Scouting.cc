@@ -63,80 +63,69 @@ namespace edmtest {
     // we know were written.
 
     const std::vector<double> expectedCaloJetsValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingCaloJet>> caloJetsToken_;
-    edm::EDGetTokenT<std::vector<ScoutingCaloJet>> caloJetsToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingCaloJet>> caloJetsToken_;
 
     const std::vector<double> expectedElectronFloatingPointValues_;
     const std::vector<int> expectedElectronIntegralValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingElectron>> electronsToken_;
-    edm::EDGetTokenT<std::vector<ScoutingElectron>> electronsToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingElectron>> electronsToken_;
 
+    const int inputMuonClassVersion_;
     const std::vector<double> expectedMuonFloatingPointValues_;
     const std::vector<int> expectedMuonIntegralValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingMuon>> muonsToken_;
-    edm::EDGetTokenT<std::vector<ScoutingMuon>> muonsToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingMuon>> muonsToken_;
 
     const std::vector<double> expectedParticleFloatingPointValues_;
     const std::vector<int> expectedParticleIntegralValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingParticle>> particlesToken_;
-    edm::EDGetTokenT<std::vector<ScoutingParticle>> particlesToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingParticle>> particlesToken_;
 
     const std::vector<double> expectedPFJetFloatingPointValues_;
     const std::vector<int> expectedPFJetIntegralValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingPFJet>> pfJetsToken_;
-    edm::EDGetTokenT<std::vector<ScoutingPFJet>> pfJetsToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingPFJet>> pfJetsToken_;
 
     const std::vector<double> expectedPhotonFloatingPointValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingPhoton>> photonsToken_;
-    edm::EDGetTokenT<std::vector<ScoutingPhoton>> photonsToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingPhoton>> photonsToken_;
 
+    const int inputTrackClassVersion_;
     const std::vector<double> expectedTrackFloatingPointValues_;
     const std::vector<int> expectedTrackIntegralValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingTrack>> tracksToken_;
-    edm::EDGetTokenT<std::vector<ScoutingTrack>> tracksToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingTrack>> tracksToken_;
 
+    const int inputVertexClassVersion_;
     const std::vector<double> expectedVertexFloatingPointValues_;
     const std::vector<int> expectedVertexIntegralValues_;
-    //const edm::EDGetTokenT<std::vector<ScoutingVertex>> vertexesToken_;
-    edm::EDGetTokenT<std::vector<ScoutingVertex>> vertexesToken_;
+    const edm::EDGetTokenT<std::vector<ScoutingVertex>> vertexesToken_;
   };
 
   TestReadRun2Scouting::TestReadRun2Scouting(edm::ParameterSet const& iPSet)
       : expectedCaloJetsValues_(iPSet.getParameter<std::vector<double>>("expectedCaloJetsValues")),
-        //caloJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("caloJetsTag"))),
-        caloJetsToken_(consumes<std::vector<ScoutingCaloJet>>(iPSet.getParameter<edm::InputTag>("caloJetsTag"))),
+        caloJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("caloJetsTag"))),
         expectedElectronFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedElectronFloatingPointValues")),
         expectedElectronIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedElectronIntegralValues")),
-        //electronsToken_(consumes(iPSet.getParameter<edm::InputTag>("electronsTag"))),
-        electronsToken_(consumes<std::vector<ScoutingElectron>>(iPSet.getParameter<edm::InputTag>("electronsTag"))),
+        electronsToken_(consumes(iPSet.getParameter<edm::InputTag>("electronsTag"))),
+        inputMuonClassVersion_(iPSet.getParameter<int>("muonClassVersion")),
         expectedMuonFloatingPointValues_(iPSet.getParameter<std::vector<double>>("expectedMuonFloatingPointValues")),
         expectedMuonIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedMuonIntegralValues")),
-        //muonsToken_(consumes(iPSet.getParameter<edm::InputTag>("muonsTag"))),
-        muonsToken_(consumes<std::vector<ScoutingMuon>>(iPSet.getParameter<edm::InputTag>("muonsTag"))),
+        muonsToken_(consumes(iPSet.getParameter<edm::InputTag>("muonsTag"))),
         expectedParticleFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedParticleFloatingPointValues")),
         expectedParticleIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedParticleIntegralValues")),
-        //particlesToken_(consumes(iPSet.getParameter<edm::InputTag>("particlesTag"))),
-        particlesToken_(consumes<std::vector<ScoutingParticle>>(iPSet.getParameter<edm::InputTag>("particlesTag"))),
+        particlesToken_(consumes(iPSet.getParameter<edm::InputTag>("particlesTag"))),
         expectedPFJetFloatingPointValues_(iPSet.getParameter<std::vector<double>>("expectedPFJetFloatingPointValues")),
         expectedPFJetIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedPFJetIntegralValues")),
-        //pfJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("pfJetsTag"))),
-        pfJetsToken_(consumes<std::vector<ScoutingPFJet>>(iPSet.getParameter<edm::InputTag>("pfJetsTag"))),
+        pfJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("pfJetsTag"))),
         expectedPhotonFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedPhotonFloatingPointValues")),
-        //photonsToken_(consumes(iPSet.getParameter<edm::InputTag>("photonsTag"))),
-        photonsToken_(consumes<std::vector<ScoutingPhoton>>(iPSet.getParameter<edm::InputTag>("photonsTag"))),
-        expectedTrackFloatingPointValues_(
-            iPSet.getParameter<std::vector<double>>("expectedTrackFloatingPointValues")),
+        photonsToken_(consumes(iPSet.getParameter<edm::InputTag>("photonsTag"))),
+        inputTrackClassVersion_(iPSet.getParameter<int>("trackClassVersion")),
+        expectedTrackFloatingPointValues_(iPSet.getParameter<std::vector<double>>("expectedTrackFloatingPointValues")),
         expectedTrackIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedTrackIntegralValues")),
-        //tracksToken_(consumes(iPSet.getParameter<edm::InputTag>("tracksTag"))),
-        tracksToken_(consumes<std::vector<ScoutingTrack>>(iPSet.getParameter<edm::InputTag>("tracksTag"))),
+        tracksToken_(consumes(iPSet.getParameter<edm::InputTag>("tracksTag"))),
+        inputVertexClassVersion_(iPSet.getParameter<int>("vertexClassVersion")),
         expectedVertexFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedVertexFloatingPointValues")),
         expectedVertexIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedVertexIntegralValues")),
-        //vertexesToken_(consumes(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {
-        vertexesToken_(consumes<std::vector<ScoutingVertex>>(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {
+        vertexesToken_(consumes(iPSet.getParameter<edm::InputTag>("vertexesTag"))) {
     if (expectedCaloJetsValues_.size() != 16) {
       throwWithMessageFromConstructor("test configuration error, expectedCaloJetsValues must have size 16");
     }
@@ -154,8 +143,7 @@ namespace edmtest {
       throwWithMessageFromConstructor("test configuration error, expectedMuonIntegralValues must have size 8");
     }
     if (expectedParticleFloatingPointValues_.size() != 4) {
-      throwWithMessageFromConstructor(
-          "test configuration error, expectedParticleFloatingPointValues must have size 4");
+      throwWithMessageFromConstructor("test configuration error, expectedParticleFloatingPointValues must have size 4");
     }
     if (expectedParticleIntegralValues_.size() != 2) {
       throwWithMessageFromConstructor("test configuration error, expectedParticleIntegralValues must have size 2");
@@ -201,6 +189,7 @@ namespace edmtest {
     desc.add<std::vector<double>>("expectedElectronFloatingPointValues");
     desc.add<std::vector<int>>("expectedElectronIntegralValues");
     desc.add<edm::InputTag>("electronsTag");
+    desc.add<int>("muonClassVersion");
     desc.add<std::vector<double>>("expectedMuonFloatingPointValues");
     desc.add<std::vector<int>>("expectedMuonIntegralValues");
     desc.add<edm::InputTag>("muonsTag");
@@ -212,9 +201,11 @@ namespace edmtest {
     desc.add<edm::InputTag>("pfJetsTag");
     desc.add<std::vector<double>>("expectedPhotonFloatingPointValues");
     desc.add<edm::InputTag>("photonsTag");
+    desc.add<int>("trackClassVersion");
     desc.add<std::vector<double>>("expectedTrackFloatingPointValues");
     desc.add<std::vector<int>>("expectedTrackIntegralValues");
     desc.add<edm::InputTag>("tracksTag");
+    desc.add<int>("vertexClassVersion");
     desc.add<std::vector<double>>("expectedVertexFloatingPointValues");
     desc.add<std::vector<int>>("expectedVertexIntegralValues");
     desc.add<edm::InputTag>("vertexesTag");
@@ -222,10 +213,7 @@ namespace edmtest {
   }
 
   void TestReadRun2Scouting::analyzeCaloJets(edm::Event const& iEvent) const {
-    //auto const& caloJets = iEvent.get(caloJetsToken_);
-    edm::Handle<std::vector<ScoutingCaloJet>> handle;
-    iEvent.getByToken(caloJetsToken_, handle);
-    auto const& caloJets = *handle;
+    auto const& caloJets = iEvent.get(caloJetsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (caloJets.size() != vectorSize) {
       throwWithMessage("analyzeCaloJets, caloJets does not have expected size");
@@ -287,10 +275,7 @@ namespace edmtest {
   }
 
   void TestReadRun2Scouting::analyzeElectrons(edm::Event const& iEvent) const {
-    //auto const& electrons = iEvent.get(electronsToken_);
-    edm::Handle<std::vector<ScoutingElectron>> handle;
-    iEvent.getByToken(electronsToken_, handle);
-    auto const& electrons = *handle;
+    auto const& electrons = iEvent.get(electronsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (electrons.size() != vectorSize) {
       throwWithMessage("analyzeElectrons, electrons does not have expected size");
@@ -353,10 +338,7 @@ namespace edmtest {
   }
 
   void TestReadRun2Scouting::analyzeMuons(edm::Event const& iEvent) const {
-    //auto const& muons = iEvent.get(muonsToken_);
-    edm::Handle<std::vector<ScoutingMuon>> handle;
-    iEvent.getByToken(muonsToken_, handle);
-    auto const& muons = *handle;
+    auto const& muons = iEvent.get(muonsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (muons.size() != vectorSize) {
       throwWithMessage("analyzeMuons, muons does not have expected size");
@@ -417,61 +399,61 @@ namespace edmtest {
       if (muon.type() != expectedMuonIntegralValues_[5] + iOffset) {
         throwWithMessage("analyzeMuons, type does not equal expected value");
       }
-      if (muon.nValidStripHits() != expectedMuonIntegralValues_[6] + iOffset) {
-        throwWithMessage("analyzeMuons, nValidStripHits does not equal expected value");
-      }
-      if (muon.trk_qoverp() != expectedMuonFloatingPointValues_[11] + offset) {
-        throwWithMessage("analyzeMuons, trk_qoverp does not equal expected value");
-      }
-      if (muon.trk_lambda() != expectedMuonFloatingPointValues_[12] + offset) {
-        throwWithMessage("analyzeMuons, trk_lambda does not equal expected value");
-      }
-      if (muon.trk_pt() != expectedMuonFloatingPointValues_[13] + offset) {
-        throwWithMessage("analyzeMuons, trk_pt does not equal expected value");
-      }
-      if (muon.trk_phi() != expectedMuonFloatingPointValues_[14] + offset) {
-        throwWithMessage("analyzeMuons, trk_phi does not equal expected value");
-      }
-      if (muon.trk_eta() != expectedMuonFloatingPointValues_[15] + offset) {
-        throwWithMessage("analyzeMuons, trk_eta does not equal expected value");
-      }
-      if (muon.dxyError() != expectedMuonFloatingPointValues_[16] + offset) {
-        throwWithMessage("analyzeMuons, dxyError does not equal expected value");
-      }
-      if (muon.dzError() != expectedMuonFloatingPointValues_[17] + offset) {
-        throwWithMessage("analyzeMuons, dzError does not equal expected value");
-      }
-      if (muon.trk_qoverpError() != expectedMuonFloatingPointValues_[18] + offset) {
-        throwWithMessage("analyzeMuons, trk_qoverpError does not equal expected value");
-      }
-      if (muon.trk_lambdaError() != expectedMuonFloatingPointValues_[19] + offset) {
-        throwWithMessage("analyzeMuons, trk_lambdaError does not equal expected value");
-      }
-      if (muon.trk_phiError() != expectedMuonFloatingPointValues_[20] + offset) {
-        throwWithMessage("analyzeMuons, trk_phiError does not equal expected value");
-      }
-      if (muon.trk_dsz() != expectedMuonFloatingPointValues_[21] + offset) {
-        throwWithMessage("analyzeMuons, trk_dsz does not equal expected value");
-      }
-      if (muon.trk_dszError() != expectedMuonFloatingPointValues_[22] + offset) {
-        throwWithMessage("analyzeMuons, trk_dszError does not equal expected value");
-      }
-      int j = 0;
-      for (auto const& val : muon.vtxIndx()) {
-        if (val != expectedMuonIntegralValues_[7] + iOffset + 10 * j) {
-          throwWithMessage("analyzeMuons, vtxIndx does not contain expected value");
+
+      if (inputMuonClassVersion_ > 2) {
+        if (muon.nValidStripHits() != expectedMuonIntegralValues_[6] + iOffset) {
+          throwWithMessage("analyzeMuons, nValidStripHits does not equal expected value");
         }
-        ++j;
+        if (muon.trk_qoverp() != expectedMuonFloatingPointValues_[11] + offset) {
+          throwWithMessage("analyzeMuons, trk_qoverp does not equal expected value");
+        }
+        if (muon.trk_lambda() != expectedMuonFloatingPointValues_[12] + offset) {
+          throwWithMessage("analyzeMuons, trk_lambda does not equal expected value");
+        }
+        if (muon.trk_pt() != expectedMuonFloatingPointValues_[13] + offset) {
+          throwWithMessage("analyzeMuons, trk_pt does not equal expected value");
+        }
+        if (muon.trk_phi() != expectedMuonFloatingPointValues_[14] + offset) {
+          throwWithMessage("analyzeMuons, trk_phi does not equal expected value");
+        }
+        if (muon.trk_eta() != expectedMuonFloatingPointValues_[15] + offset) {
+          throwWithMessage("analyzeMuons, trk_eta does not equal expected value");
+        }
+        if (muon.dxyError() != expectedMuonFloatingPointValues_[16] + offset) {
+          throwWithMessage("analyzeMuons, dxyError does not equal expected value");
+        }
+        if (muon.dzError() != expectedMuonFloatingPointValues_[17] + offset) {
+          throwWithMessage("analyzeMuons, dzError does not equal expected value");
+        }
+        if (muon.trk_qoverpError() != expectedMuonFloatingPointValues_[18] + offset) {
+          throwWithMessage("analyzeMuons, trk_qoverpError does not equal expected value");
+        }
+        if (muon.trk_lambdaError() != expectedMuonFloatingPointValues_[19] + offset) {
+          throwWithMessage("analyzeMuons, trk_lambdaError does not equal expected value");
+        }
+        if (muon.trk_phiError() != expectedMuonFloatingPointValues_[20] + offset) {
+          throwWithMessage("analyzeMuons, trk_phiError does not equal expected value");
+        }
+        if (muon.trk_dsz() != expectedMuonFloatingPointValues_[21] + offset) {
+          throwWithMessage("analyzeMuons, trk_dsz does not equal expected value");
+        }
+        if (muon.trk_dszError() != expectedMuonFloatingPointValues_[22] + offset) {
+          throwWithMessage("analyzeMuons, trk_dszError does not equal expected value");
+        }
+        int j = 0;
+        for (auto const& val : muon.vtxIndx()) {
+          if (val != expectedMuonIntegralValues_[7] + iOffset + 10 * j) {
+            throwWithMessage("analyzeMuons, vtxIndx does not contain expected value");
+          }
+          ++j;
+        }
       }
       ++i;
     }
   }
 
   void TestReadRun2Scouting::analyzeParticles(edm::Event const& iEvent) const {
-    //auto const& particles = iEvent.get(particlesToken_);
-    edm::Handle<std::vector<ScoutingParticle>> handle;
-    iEvent.getByToken(particlesToken_, handle);
-    auto const& particles = *handle;
+    auto const& particles = iEvent.get(particlesToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (particles.size() != vectorSize) {
       throwWithMessage("analyzeParticles, particles does not have expected size");
@@ -504,10 +486,7 @@ namespace edmtest {
   }
 
   void TestReadRun2Scouting::analyzePFJets(edm::Event const& iEvent) const {
-    //auto const& pfJets = iEvent.get(pfJetsToken_);
-    edm::Handle<std::vector<ScoutingPFJet>> handle;
-    iEvent.getByToken(pfJetsToken_, handle);
-    auto const& pfJets = *handle;
+    auto const& pfJets = iEvent.get(pfJetsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (pfJets.size() != vectorSize) {
       throwWithMessage("analyzePFJets, pfJets does not have expected size");
@@ -595,10 +574,7 @@ namespace edmtest {
   }
 
   void TestReadRun2Scouting::analyzePhotons(edm::Event const& iEvent) const {
-    //auto const& photons = iEvent.get(photonsToken_);
-    edm::Handle<std::vector<ScoutingPhoton>> handle;
-    iEvent.getByToken(photonsToken_, handle);
-    auto const& photons = *handle;
+    auto const& photons = iEvent.get(photonsToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (photons.size() != vectorSize) {
       throwWithMessage("analyzePhotons, photons does not have expected size");
@@ -636,10 +612,10 @@ namespace edmtest {
   }
 
   void TestReadRun2Scouting::analyzeTracks(edm::Event const& iEvent) const {
-    //auto const& tracks = iEvent.get(tracksToken_);
-    edm::Handle<std::vector<ScoutingTrack>> handle;
-    iEvent.getByToken(tracksToken_, handle);
-    auto const& tracks = *handle;
+    if (inputTrackClassVersion_ < 2) {
+      return;
+    }
+    auto const& tracks = iEvent.get(tracksToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (tracks.size() != vectorSize) {
       throwWithMessage("analyzeTracks, tracks does not have expected size");
@@ -714,10 +690,7 @@ namespace edmtest {
   }
 
   void TestReadRun2Scouting::analyzeVertexes(edm::Event const& iEvent) const {
-    //auto const& vertexes = iEvent.get(vertexesToken_);
-    edm::Handle<std::vector<ScoutingVertex>> handle;
-    iEvent.getByToken(vertexesToken_, handle);
-    auto const& vertexes = *handle;
+    auto const& vertexes = iEvent.get(vertexesToken_);
     unsigned int vectorSize = 2 + iEvent.id().event() % 4;
     if (vertexes.size() != vectorSize) {
       throwWithMessage("analyzeVertexes, vertexes does not have expected size");
@@ -739,23 +712,25 @@ namespace edmtest {
       if (vertex.zError() != expectedVertexFloatingPointValues_[3] + offset) {
         throwWithMessage("analyzeVertexes, zError does not equal expected value");
       }
-      if (vertex.xError() != expectedVertexFloatingPointValues_[4] + offset) {
-        throwWithMessage("analyzeVertexes, xError does not equal expected value");
-      }
-      if (vertex.yError() != expectedVertexFloatingPointValues_[5] + offset) {
-        throwWithMessage("analyzeVertexes, yError does not equal expected value");
-      }
-      if (vertex.tracksSize() != expectedVertexIntegralValues_[0] + iOffset) {
-        throwWithMessage("analyzeVertexes, tracksSize does not equal expected value");
-      }
-      if (vertex.chi2() != expectedVertexFloatingPointValues_[6] + offset) {
-        throwWithMessage("analyzeVertexes, chi2 does not equal expected value");
-      }
-      if (vertex.ndof() != expectedVertexIntegralValues_[1] + iOffset) {
-        throwWithMessage("analyzeVertexes, ndof does not equal expected value");
-      }
-      if (vertex.isValidVtx() != static_cast<bool>((expectedVertexIntegralValues_[2] + iOffset) % 2)) {
-        throwWithMessage("analyzeVertexes, isValidVtx does not equal expected value");
+      if (inputVertexClassVersion_ > 2) {
+        if (vertex.xError() != expectedVertexFloatingPointValues_[4] + offset) {
+          throwWithMessage("analyzeVertexes, xError does not equal expected value");
+        }
+        if (vertex.yError() != expectedVertexFloatingPointValues_[5] + offset) {
+          throwWithMessage("analyzeVertexes, yError does not equal expected value");
+        }
+        if (vertex.tracksSize() != expectedVertexIntegralValues_[0] + iOffset) {
+          throwWithMessage("analyzeVertexes, tracksSize does not equal expected value");
+        }
+        if (vertex.chi2() != expectedVertexFloatingPointValues_[6] + offset) {
+          throwWithMessage("analyzeVertexes, chi2 does not equal expected value");
+        }
+        if (vertex.ndof() != expectedVertexIntegralValues_[1] + iOffset) {
+          throwWithMessage("analyzeVertexes, ndof does not equal expected value");
+        }
+        if (vertex.isValidVtx() != static_cast<bool>((expectedVertexIntegralValues_[2] + iOffset) % 2)) {
+          throwWithMessage("analyzeVertexes, isValidVtx does not equal expected value");
+        }
       }
       ++i;
     }

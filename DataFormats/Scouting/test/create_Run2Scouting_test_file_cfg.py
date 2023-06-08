@@ -5,10 +5,7 @@ process = cms.Process("PROD")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.source = cms.Source("EmptySource")
-#process.maxEvents.input = 10
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
-)
+process.maxEvents.input = 10
 
 process.run2ScoutingProducer = cms.EDProducer("TestWriteRun2Scouting",
     # Test values below are meaningless. We just make sure when we read
@@ -74,7 +71,7 @@ process.run2ScoutingProducer = cms.EDProducer("TestWriteRun2Scouting",
     ),
     vertexesIntegralValues = cms.vint32(
         12,   22,  32
-    ) 
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

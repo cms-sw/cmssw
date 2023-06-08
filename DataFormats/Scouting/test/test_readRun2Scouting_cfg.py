@@ -1,9 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 import sys
+import argparse
+
+parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test Run 2 Scouting data formats')
+
+parser.add_argument("--muonVersion", type=int, help="muon data format version (default: 3)", default=3)
+parser.add_argument("--trackVersion", type=int, help="track data format version (default: 2)", default=2)
+parser.add_argument("--vertexVersion", type=int, help="vertex data format version (default: 3)", default=3)
+parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun2Scouting.root)", default="testRun2Scouting.root")
+parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun2Scouting2.root)", default="testRun2Scouting2.root")
+argv = sys.argv[:]
+if '--' in argv:
+    argv.remove("--")
+args, unknown = parser.parse_known_args(argv)
 
 process = cms.Process("READ")
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[2]))
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+args.inputFile))
 
 process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
     # I stick to values exactly convertable to float
@@ -22,6 +35,7 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
     ),
     expectedElectronIntegralValues = cms.vint32(10, 20),
     electronsTag = cms.InputTag("run2ScoutingProducer", "", "PROD"),
+    muonClassVersion = cms.int32(args.muonVersion),
     expectedMuonFloatingPointValues = cms.vdouble(
         10.0,   20.0,  30.0,  40.0,  50.0,
         60.0,   70.0,  80.0,  90.0, 100.0,
@@ -56,6 +70,7 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
         63.0,   73.0,  83.0
     ),
     photonsTag = cms.InputTag("run2ScoutingProducer", "", "PROD"),
+    trackClassVersion = cms.int32(args.trackVersion),
     expectedTrackFloatingPointValues = cms.vdouble(
         215.0,   225.0,  235.0,  245.0,  255.0,
         265.0,   275.0,  285.0,  295.0,  305.0,
@@ -66,6 +81,7 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
         52,   62,  72,  82
     ),
     tracksTag = cms.InputTag("run2ScoutingProducer", "", "PROD"),
+    vertexClassVersion = cms.int32(args.vertexVersion),
     expectedVertexFloatingPointValues = cms.vdouble(
         15.0,   25.0,  35.0,  45.0,  55.0,
         65.0,   75.0
@@ -77,7 +93,7 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRun2Scouting2.root')
+    fileName = cms.untracked.string(args.outputFileName)
 )
 
 process.path = cms.Path(process.testReadRun2Scouting)

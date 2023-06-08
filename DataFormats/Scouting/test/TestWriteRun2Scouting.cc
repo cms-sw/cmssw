@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-//#include "FWCore/Utilities/interface/EDPutToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
@@ -59,68 +59,59 @@ namespace edmtest {
     void throwWithMessage(const char*) const;
 
     const std::vector<double> caloJetsValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingCaloJet>> caloJetsPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingCaloJet>> caloJetsPutToken_;
 
     const std::vector<double> electronsFloatingPointValues_;
     const std::vector<int> electronsIntegralValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingElectron>> electronsPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingElectron>> electronsPutToken_;
 
     const std::vector<double> muonsFloatingPointValues_;
     const std::vector<int> muonsIntegralValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingMuon>> muonsPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingMuon>> muonsPutToken_;
 
     const std::vector<double> particlesFloatingPointValues_;
     const std::vector<int> particlesIntegralValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingParticle>> particlesPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingParticle>> particlesPutToken_;
 
     const std::vector<double> pfJetsFloatingPointValues_;
     const std::vector<int> pfJetsIntegralValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingPFJet>> pfJetsPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingPFJet>> pfJetsPutToken_;
 
     const std::vector<double> photonsFloatingPointValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingPhoton>> photonsPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingPhoton>> photonsPutToken_;
 
     const std::vector<double> tracksFloatingPointValues_;
     const std::vector<int> tracksIntegralValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingTrack>> tracksPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingTrack>> tracksPutToken_;
 
     const std::vector<double> vertexesFloatingPointValues_;
     const std::vector<int> vertexesIntegralValues_;
-    //const edm::EDPutTokenT<std::vector<ScoutingVertex>> vertexesPutToken_;
+    const edm::EDPutTokenT<std::vector<ScoutingVertex>> vertexesPutToken_;
   };
 
   TestWriteRun2Scouting::TestWriteRun2Scouting(edm::ParameterSet const& iPSet)
       : caloJetsValues_(iPSet.getParameter<std::vector<double>>("caloJetsValues")),
-        //caloJetsPutToken_(produces()),
+        caloJetsPutToken_(produces()),
         electronsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("electronsFloatingPointValues")),
         electronsIntegralValues_(iPSet.getParameter<std::vector<int>>("electronsIntegralValues")),
-        //electronsPutToken_(produces()),
+        electronsPutToken_(produces()),
         muonsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("muonsFloatingPointValues")),
         muonsIntegralValues_(iPSet.getParameter<std::vector<int>>("muonsIntegralValues")),
-        //muonsPutToken_(produces()),
+        muonsPutToken_(produces()),
         particlesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("particlesFloatingPointValues")),
         particlesIntegralValues_(iPSet.getParameter<std::vector<int>>("particlesIntegralValues")),
-        //particlesPutToken_(produces()),
+        particlesPutToken_(produces()),
         pfJetsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("pfJetsFloatingPointValues")),
         pfJetsIntegralValues_(iPSet.getParameter<std::vector<int>>("pfJetsIntegralValues")),
-        //pfJetsPutToken_(produces()),
+        pfJetsPutToken_(produces()),
         photonsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("photonsFloatingPointValues")),
-        //photonsPutToken_(produces()),
+        photonsPutToken_(produces()),
         tracksFloatingPointValues_(iPSet.getParameter<std::vector<double>>("tracksFloatingPointValues")),
         tracksIntegralValues_(iPSet.getParameter<std::vector<int>>("tracksIntegralValues")),
-        //tracksPutToken_(produces()),
+        tracksPutToken_(produces()),
         vertexesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("vertexesFloatingPointValues")),
-        vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")) {
-        //vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")),
-        //vertexesPutToken_(produces()) {
-    produces<std::vector<ScoutingCaloJet>>();
-    produces<std::vector<ScoutingElectron>>();
-    produces<std::vector<ScoutingMuon>>();
-    produces<std::vector<ScoutingParticle>>();
-    produces<std::vector<ScoutingPFJet>>();
-    produces<std::vector<ScoutingPhoton>>();
-    produces<std::vector<ScoutingTrack>>();
-    produces<std::vector<ScoutingVertex>>();
+        vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")),
+        vertexesPutToken_(produces()) {
     if (caloJetsValues_.size() != 16) {
       throwWithMessage("caloJetsValues must have 16 elements and it does not");
     }
@@ -224,8 +215,7 @@ namespace edmtest {
                                          static_cast<float>(caloJetsValues_[14] + offset),
                                          static_cast<float>(caloJetsValues_[15] + offset));
     }
-    //iEvent.put(caloJetsPutToken_, std::move(run2ScoutingCaloJets));
-    iEvent.put(std::move(run2ScoutingCaloJets));
+    iEvent.put(caloJetsPutToken_, std::move(run2ScoutingCaloJets));
   }
 
   void TestWriteRun2Scouting::produceElectrons(edm::Event& iEvent) const {
@@ -253,8 +243,7 @@ namespace edmtest {
                                           static_cast<float>(electronsFloatingPointValues_[12] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[13] + offset));
     }
-    //iEvent.put(electronsPutToken_, std::move(run2ScoutingElectrons));
-    iEvent.put(std::move(run2ScoutingElectrons));
+    iEvent.put(electronsPutToken_, std::move(run2ScoutingElectrons));
   }
 
   void TestWriteRun2Scouting::produceMuons(edm::Event& iEvent) const {
@@ -303,8 +292,7 @@ namespace edmtest {
                                       static_cast<float>(muonsFloatingPointValues_[22] + offset),
                                       std::move(vtxIndx));
     }
-    //iEvent.put(muonsPutToken_, std::move(run2ScoutingMuons));
-    iEvent.put(std::move(run2ScoutingMuons));
+    iEvent.put(muonsPutToken_, std::move(run2ScoutingMuons));
   }
 
   void TestWriteRun2Scouting::produceParticles(edm::Event& iEvent) const {
@@ -321,8 +309,7 @@ namespace edmtest {
                                           particlesIntegralValues_[0] + iOffset,
                                           particlesIntegralValues_[1] + iOffset);
     }
-    //iEvent.put(particlesPutToken_, std::move(run2ScoutingParticles));
-    iEvent.put(std::move(run2ScoutingParticles));
+    iEvent.put(particlesPutToken_, std::move(run2ScoutingParticles));
   }
 
   void TestWriteRun2Scouting::producePFJets(edm::Event& iEvent) const {
@@ -364,8 +351,7 @@ namespace edmtest {
                                        static_cast<float>(pfJetsFloatingPointValues_[14] + offset),
                                        std::move(constituents));
     }
-    //iEvent.put(pfJetsPutToken_, std::move(run2ScoutingPFJets));
-    iEvent.put(std::move(run2ScoutingPFJets));
+    iEvent.put(pfJetsPutToken_, std::move(run2ScoutingPFJets));
   }
 
   void TestWriteRun2Scouting::producePhotons(edm::Event& iEvent) const {
@@ -384,8 +370,7 @@ namespace edmtest {
                                         static_cast<float>(photonsFloatingPointValues_[6] + offset),
                                         static_cast<float>(photonsFloatingPointValues_[7] + offset));
     }
-    //iEvent.put(photonsPutToken_, std::move(run2ScoutingPhotons));
-    iEvent.put(std::move(run2ScoutingPhotons));
+    iEvent.put(photonsPutToken_, std::move(run2ScoutingPhotons));
   }
 
   void TestWriteRun2Scouting::produceTracks(edm::Event& iEvent) const {
@@ -417,8 +402,7 @@ namespace edmtest {
                                        static_cast<float>(tracksFloatingPointValues_[14] + offset),
                                        static_cast<float>(tracksFloatingPointValues_[15] + offset));
     }
-    //iEvent.put(tracksPutToken_, std::move(run2ScoutingTracks));
-    iEvent.put(std::move(run2ScoutingTracks));
+    iEvent.put(tracksPutToken_, std::move(run2ScoutingTracks));
   }
 
   void TestWriteRun2Scouting::produceVertexes(edm::Event& iEvent) const {
@@ -441,8 +425,7 @@ namespace edmtest {
                                          vertexesIntegralValues_[1] + iOffset,
                                          static_cast<bool>((vertexesIntegralValues_[2] + iOffset) % 2));
     }
-    //iEvent.put(vertexesPutToken_, std::move(run2ScoutingVertexes));
-    iEvent.put(std::move(run2ScoutingVertexes));
+    iEvent.put(vertexesPutToken_, std::move(run2ScoutingVertexes));
   }
 
   void TestWriteRun2Scouting::throwWithMessage(const char* msg) const {

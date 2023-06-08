@@ -1,9 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 import sys
+import argparse
+
+parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test Run 3 Scouting data formats')
+
+parser.add_argument("--electronVersion", type=int, help="electron data format version (default: 6)", default=6)
+parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun3Scouting.root)", default="testRun3Scouting.root")
+parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun3Scouting2.root)", default="testRun3Scouting2.root")
+argv = sys.argv[:]
+if '--' in argv:
+    argv.remove("--")
+args, unknown = parser.parse_known_args(argv)
 
 process = cms.Process("READ")
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[2]))
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+args.inputFile))
 
 process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
     # I stick to values exactly convertable to float
@@ -14,7 +25,7 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
         22.0, 24.0, 26.0, 28.0, 30.0,
         32.0),
     caloJetsTag = cms.InputTag("run3ScoutingProducer", "", "PROD"),
-    electronClassVersion = cms.int32(6),
+    electronClassVersion = cms.int32(args.electronVersion),
     expectedElectronFloatingPointValues = cms.vdouble(
         10.0,   20.0,  30.0,  40.0,  50.0,
         60.0,   70.0,  80.0,  90.0, 100.0,
@@ -93,7 +104,7 @@ process.testReadRun3Scouting = cms.EDAnalyzer("TestReadRun3Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRun3Scouting2.root')
+    fileName = cms.untracked.string(args.outputFileName)
 )
 
 process.path = cms.Path(process.testReadRun3Scouting)
