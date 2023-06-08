@@ -21,6 +21,7 @@
 #include "DataFormats/Scouting/interface/ScoutingParticle.h"
 #include "DataFormats/Scouting/interface/ScoutingPFJet.h"
 #include "DataFormats/Scouting/interface/ScoutingPhoton.h"
+#include "DataFormats/Scouting/interface/ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -52,6 +53,7 @@ namespace edmtest {
     void produceParticles(edm::Event&) const;
     void producePFJets(edm::Event&) const;
     void producePhotons(edm::Event&) const;
+    void produceTracks(edm::Event&) const;
     void produceVertexes(edm::Event&) const;
 
     void throwWithMessage(const char*) const;
@@ -78,6 +80,10 @@ namespace edmtest {
     const std::vector<double> photonsFloatingPointValues_;
     //const edm::EDPutTokenT<std::vector<ScoutingPhoton>> photonsPutToken_;
 
+    const std::vector<double> tracksFloatingPointValues_;
+    const std::vector<int> tracksIntegralValues_;
+    //const edm::EDPutTokenT<std::vector<ScoutingTrack>> tracksPutToken_;
+
     const std::vector<double> vertexesFloatingPointValues_;
     const std::vector<int> vertexesIntegralValues_;
     //const edm::EDPutTokenT<std::vector<ScoutingVertex>> vertexesPutToken_;
@@ -100,6 +106,9 @@ namespace edmtest {
         //pfJetsPutToken_(produces()),
         photonsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("photonsFloatingPointValues")),
         //photonsPutToken_(produces()),
+        tracksFloatingPointValues_(iPSet.getParameter<std::vector<double>>("tracksFloatingPointValues")),
+        tracksIntegralValues_(iPSet.getParameter<std::vector<int>>("tracksIntegralValues")),
+        //tracksPutToken_(produces()),
         vertexesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("vertexesFloatingPointValues")),
         vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")) {
         //vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")),
@@ -110,6 +119,7 @@ namespace edmtest {
     produces<std::vector<ScoutingParticle>>();
     produces<std::vector<ScoutingPFJet>>();
     produces<std::vector<ScoutingPhoton>>();
+    produces<std::vector<ScoutingTrack>>();
     produces<std::vector<ScoutingVertex>>();
     if (caloJetsValues_.size() != 16) {
       throwWithMessage("caloJetsValues must have 16 elements and it does not");
@@ -141,6 +151,12 @@ namespace edmtest {
     if (photonsFloatingPointValues_.size() != 8) {
       throwWithMessage("photonsFloatingPointValues must have 8 elements and it does not");
     }
+    if (tracksFloatingPointValues_.size() != 16) {
+      throwWithMessage("tracksFloatingPointValues must have 16 elements and it does not");
+    }
+    if (tracksIntegralValues_.size() != 4) {
+      throwWithMessage("tracksIntegralValues must have 4 elements and it does not");
+    }
     if (vertexesFloatingPointValues_.size() != 7) {
       throwWithMessage("vertexesFloatingPointValues must have 7 elements and it does not");
     }
@@ -162,6 +178,7 @@ namespace edmtest {
     produceParticles(iEvent);
     producePFJets(iEvent);
     producePhotons(iEvent);
+    produceTracks(iEvent);
     produceVertexes(iEvent);
   }
 
@@ -177,6 +194,8 @@ namespace edmtest {
     desc.add<std::vector<double>>("pfJetsFloatingPointValues");
     desc.add<std::vector<int>>("pfJetsIntegralValues");
     desc.add<std::vector<double>>("photonsFloatingPointValues");
+    desc.add<std::vector<double>>("tracksFloatingPointValues");
+    desc.add<std::vector<int>>("tracksIntegralValues");
     desc.add<std::vector<double>>("vertexesFloatingPointValues");
     desc.add<std::vector<int>>("vertexesIntegralValues");
     descriptions.addDefault(desc);
@@ -367,6 +386,39 @@ namespace edmtest {
     }
     //iEvent.put(photonsPutToken_, std::move(run2ScoutingPhotons));
     iEvent.put(std::move(run2ScoutingPhotons));
+  }
+
+  void TestWriteRun2Scouting::produceTracks(edm::Event& iEvent) const {
+    auto run2ScoutingTracks = std::make_unique<std::vector<ScoutingTrack>>();
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    run2ScoutingTracks->reserve(vectorSize);
+    for (unsigned int i = 0; i < vectorSize; ++i) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      run2ScoutingTracks->emplace_back(static_cast<float>(tracksFloatingPointValues_[0] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[1] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[2] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[3] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[4] + offset),
+                                       tracksIntegralValues_[0] + iOffset,
+                                       static_cast<float>(tracksFloatingPointValues_[5] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[6] + offset),
+                                       tracksIntegralValues_[1] + iOffset,
+                                       tracksIntegralValues_[2] + iOffset,
+                                       tracksIntegralValues_[3] + iOffset,
+                                       static_cast<float>(tracksFloatingPointValues_[7] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[8] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[9] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[10] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[11] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[12] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[13] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[14] + offset),
+                                       static_cast<float>(tracksFloatingPointValues_[15] + offset));
+    }
+    //iEvent.put(tracksPutToken_, std::move(run2ScoutingTracks));
+    iEvent.put(std::move(run2ScoutingTracks));
   }
 
   void TestWriteRun2Scouting::produceVertexes(edm::Event& iEvent) const {

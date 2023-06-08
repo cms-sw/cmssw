@@ -21,6 +21,7 @@
 #include "DataFormats/Scouting/interface/ScoutingParticle.h"
 #include "DataFormats/Scouting/interface/ScoutingPFJet.h"
 #include "DataFormats/Scouting/interface/ScoutingPhoton.h"
+#include "DataFormats/Scouting/interface/ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -51,6 +52,7 @@ namespace edmtest {
     void analyzeParticles(edm::Event const&) const;
     void analyzePFJets(edm::Event const&) const;
     void analyzePhotons(edm::Event const&) const;
+    void analyzeTracks(edm::Event const&) const;
     void analyzeVertexes(edm::Event const&) const;
 
     void throwWithMessageFromConstructor(const char*) const;
@@ -88,6 +90,11 @@ namespace edmtest {
     //const edm::EDGetTokenT<std::vector<ScoutingPhoton>> photonsToken_;
     edm::EDGetTokenT<std::vector<ScoutingPhoton>> photonsToken_;
 
+    const std::vector<double> expectedTrackFloatingPointValues_;
+    const std::vector<int> expectedTrackIntegralValues_;
+    //const edm::EDGetTokenT<std::vector<ScoutingTrack>> tracksToken_;
+    edm::EDGetTokenT<std::vector<ScoutingTrack>> tracksToken_;
+
     const std::vector<double> expectedVertexFloatingPointValues_;
     const std::vector<int> expectedVertexIntegralValues_;
     //const edm::EDGetTokenT<std::vector<ScoutingVertex>> vertexesToken_;
@@ -120,6 +127,11 @@ namespace edmtest {
             iPSet.getParameter<std::vector<double>>("expectedPhotonFloatingPointValues")),
         //photonsToken_(consumes(iPSet.getParameter<edm::InputTag>("photonsTag"))),
         photonsToken_(consumes<std::vector<ScoutingPhoton>>(iPSet.getParameter<edm::InputTag>("photonsTag"))),
+        expectedTrackFloatingPointValues_(
+            iPSet.getParameter<std::vector<double>>("expectedTrackFloatingPointValues")),
+        expectedTrackIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedTrackIntegralValues")),
+        //tracksToken_(consumes(iPSet.getParameter<edm::InputTag>("tracksTag"))),
+        tracksToken_(consumes<std::vector<ScoutingTrack>>(iPSet.getParameter<edm::InputTag>("tracksTag"))),
         expectedVertexFloatingPointValues_(
             iPSet.getParameter<std::vector<double>>("expectedVertexFloatingPointValues")),
         expectedVertexIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedVertexIntegralValues")),
@@ -157,11 +169,17 @@ namespace edmtest {
     if (expectedPhotonFloatingPointValues_.size() != 8) {
       throwWithMessageFromConstructor("test configuration error, expectedPhotonFloatingPointValues must have size 8");
     }
+    if (expectedTrackFloatingPointValues_.size() != 16) {
+      throwWithMessageFromConstructor("test configuration error, expectedTrackFloatingPointValues must have size 16");
+    }
+    if (expectedTrackIntegralValues_.size() != 4) {
+      throwWithMessageFromConstructor("test configuration error, expectedTrackIntegralValues must have size 4");
+    }
     if (expectedVertexFloatingPointValues_.size() != 7) {
       throwWithMessageFromConstructor("test configuration error, expectedVertexFloatingPointValues must have size 7");
     }
     if (expectedVertexIntegralValues_.size() != 3) {
-      throwWithMessageFromConstructor("test configuration error, expectedPFJetIntegralValues must have size 3");
+      throwWithMessageFromConstructor("test configuration error, expectedVertexIntegralValues must have size 3");
     }
   }
 
@@ -172,6 +190,7 @@ namespace edmtest {
     analyzeParticles(iEvent);
     analyzePFJets(iEvent);
     analyzePhotons(iEvent);
+    analyzeTracks(iEvent);
     analyzeVertexes(iEvent);
   }
 
@@ -193,6 +212,9 @@ namespace edmtest {
     desc.add<edm::InputTag>("pfJetsTag");
     desc.add<std::vector<double>>("expectedPhotonFloatingPointValues");
     desc.add<edm::InputTag>("photonsTag");
+    desc.add<std::vector<double>>("expectedTrackFloatingPointValues");
+    desc.add<std::vector<int>>("expectedTrackIntegralValues");
+    desc.add<edm::InputTag>("tracksTag");
     desc.add<std::vector<double>>("expectedVertexFloatingPointValues");
     desc.add<std::vector<int>>("expectedVertexIntegralValues");
     desc.add<edm::InputTag>("vertexesTag");
@@ -608,6 +630,84 @@ namespace edmtest {
       }
       if (photon.hcalIso() != expectedPhotonFloatingPointValues_[7] + offset) {
         throwWithMessage("analyzePhotons, hcalIso does not equal expected value");
+      }
+      ++i;
+    }
+  }
+
+  void TestReadRun2Scouting::analyzeTracks(edm::Event const& iEvent) const {
+    //auto const& tracks = iEvent.get(tracksToken_);
+    edm::Handle<std::vector<ScoutingTrack>> handle;
+    iEvent.getByToken(tracksToken_, handle);
+    auto const& tracks = *handle;
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    if (tracks.size() != vectorSize) {
+      throwWithMessage("analyzeTracks, tracks does not have expected size");
+    }
+    unsigned int i = 0;
+    for (auto const& track : tracks) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      if (track.tk_pt() != expectedTrackFloatingPointValues_[0] + offset) {
+        throwWithMessage("analyzeTracks, tk_pt does not equal expected value");
+      }
+      if (track.tk_eta() != expectedTrackFloatingPointValues_[1] + offset) {
+        throwWithMessage("analyzeTracks, tk_eta does not equal expected value");
+      }
+      if (track.tk_phi() != expectedTrackFloatingPointValues_[2] + offset) {
+        throwWithMessage("analyzeTracks, tk_phi does not equal expected value");
+      }
+      if (track.tk_chi2() != expectedTrackFloatingPointValues_[3] + offset) {
+        throwWithMessage("analyzeTracks, tk_chi2 does not equal expected value");
+      }
+      if (track.tk_ndof() != expectedTrackFloatingPointValues_[4] + offset) {
+        throwWithMessage("analyzeTracks, tk_ndof does not equal expected value");
+      }
+      if (track.tk_charge() != expectedTrackIntegralValues_[0] + iOffset) {
+        throwWithMessage("analyzeTracks, tk_charge does not equal expected value");
+      }
+      if (track.tk_dxy() != expectedTrackFloatingPointValues_[5] + offset) {
+        throwWithMessage("analyzeTracks, tk_dxy does not equal expected value");
+      }
+      if (track.tk_dz() != expectedTrackFloatingPointValues_[6] + offset) {
+        throwWithMessage("analyzeTracks, tk_dz does not equal expected value");
+      }
+      if (track.tk_nValidPixelHits() != expectedTrackIntegralValues_[1] + iOffset) {
+        throwWithMessage("analyzeTracks, tk_nValidPixelHits does not equal expected value");
+      }
+      if (track.tk_nTrackerLayersWithMeasurement() != expectedTrackIntegralValues_[2] + iOffset) {
+        throwWithMessage("analyzeTracks, tk_nTrackerLayersWithMeasurement does not equal expected value");
+      }
+      if (track.tk_nValidStripHits() != expectedTrackIntegralValues_[3] + iOffset) {
+        throwWithMessage("analyzeTracks, tk_nValidStripHits does not equal expected value");
+      }
+      if (track.tk_qoverp() != expectedTrackFloatingPointValues_[7] + offset) {
+        throwWithMessage("analyzeTracks, tk_qoverp does not equal expected value");
+      }
+      if (track.tk_lambda() != expectedTrackFloatingPointValues_[8] + offset) {
+        throwWithMessage("analyzeTracks, tk_lambda does not equal expected value");
+      }
+      if (track.tk_dxy_Error() != expectedTrackFloatingPointValues_[9] + offset) {
+        throwWithMessage("analyzeTracks, tk_dxy_Error does not equal expected value");
+      }
+      if (track.tk_dz_Error() != expectedTrackFloatingPointValues_[10] + offset) {
+        throwWithMessage("analyzeTracks, tk_dz_Error does not equal expected value");
+      }
+      if (track.tk_qoverp_Error() != expectedTrackFloatingPointValues_[11] + offset) {
+        throwWithMessage("analyzeTracks, tk_qoverp_Error does not equal expected value");
+      }
+      if (track.tk_lambda_Error() != expectedTrackFloatingPointValues_[12] + offset) {
+        throwWithMessage("analyzeTracks, tk_lambda_Error does not equal expected value");
+      }
+      if (track.tk_phi_Error() != expectedTrackFloatingPointValues_[13] + offset) {
+        throwWithMessage("analyzeTracks, tk_phi_Error does not equal expected value");
+      }
+      if (track.tk_dsz() != expectedTrackFloatingPointValues_[14] + offset) {
+        throwWithMessage("analyzeTracks, tk_dsz does not equal expected value");
+      }
+      if (track.tk_dsz_Error() != expectedTrackFloatingPointValues_[15] + offset) {
+        throwWithMessage("analyzeTracks, tk_dsz_Error does not equal expected value");
       }
       ++i;
     }

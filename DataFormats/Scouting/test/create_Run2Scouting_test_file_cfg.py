@@ -59,13 +59,22 @@ process.run2ScoutingProducer = cms.EDProducer("TestWriteRun2Scouting",
         14.0,   23.0,  33.0,  43.0,  53.0,
         63.0,   73.0,  83.0
     ),
+    tracksFloatingPointValues = cms.vdouble(
+        215.0,   225.0,  235.0,  245.0,  255.0,
+        265.0,   275.0,  285.0,  295.0,  305.0,
+        315.0,   325.0,  335.0,  345.0,  355.0,
+        365.0
+    ),
+    tracksIntegralValues = cms.vint32(
+        52,   62,  72,  82
+    ),
     vertexesFloatingPointValues = cms.vdouble(
         15.0,   25.0,  35.0,  45.0,  55.0,
         65.0,   75.0
     ),
     vertexesIntegralValues = cms.vint32(
         12,   22,  32
-    )
+    ) 
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

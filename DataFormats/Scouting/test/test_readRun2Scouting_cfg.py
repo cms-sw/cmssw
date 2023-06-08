@@ -56,6 +56,16 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
         63.0,   73.0,  83.0
     ),
     photonsTag = cms.InputTag("run2ScoutingProducer", "", "PROD"),
+    expectedTrackFloatingPointValues = cms.vdouble(
+        215.0,   225.0,  235.0,  245.0,  255.0,
+        265.0,   275.0,  285.0,  295.0,  305.0,
+        315.0,   325.0,  335.0,  345.0,  355.0,
+        365.0
+    ),
+    expectedTrackIntegralValues = cms.vint32(
+        52,   62,  72,  82
+    ),
+    tracksTag = cms.InputTag("run2ScoutingProducer", "", "PROD"),
     expectedVertexFloatingPointValues = cms.vdouble(
         15.0,   25.0,  35.0,  45.0,  55.0,
         65.0,   75.0
