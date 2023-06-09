@@ -399,7 +399,7 @@ namespace cms::soa {
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                          \
   LOCAL_NAME(size_type _soa_impl_index) {                                                                              \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
-      if (_soa_impl_index >= base_type::elements_)                                                                     \
+      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #LOCAL_NAME "(size_type index)")                       \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
@@ -437,7 +437,7 @@ namespace cms::soa {
                 template RestrictQualifier<restrictQualify>::ParamReturnType                                           \
   LOCAL_NAME(size_type _soa_impl_index) const {                                                                        \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
-      if (_soa_impl_index >= elements_)                                                                                \
+      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in const " #LOCAL_NAME "(size_type index)")                         \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
@@ -649,7 +649,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
     element operator[](size_type _soa_impl_index) {                                                                    \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (_soa_impl_index >= base_type::elements_)                                                                   \
+        if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #VIEW "::operator[]")                                        \
       }                                                                                                                \
       return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};        \
@@ -810,7 +810,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
     const_element operator[](size_type _soa_impl_index) const {                                                        \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (_soa_impl_index >= elements_)                                                                              \
+        if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #CONST_VIEW "::operator[]")                                  \
       }                                                                                                                \
       return const_element{                                                                                            \
