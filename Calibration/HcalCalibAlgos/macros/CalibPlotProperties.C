@@ -4,8 +4,8 @@
 //  CalibPlotProperties c1(fname, dirname, dupFileName, prefix, corrFileName,
 //	                   rcorFileName, puCorr, flag, dataMC, truncateFlag,
 //                         useGen, scale, useScale, etalo, etahi, runlo, runhi,
-//                         phimin, phimax, zside, nvxlo, nvxhi, rbx, exclude,
-//                         etamax);
+//                         phimin, phimax, zside, nvxlo, nvxhi, rbxFile,
+//                         exclude, etamax);
 //  c1.Loop(nentries);
 //  c1.savePlot(histFileName, append, all, debug);
 //
@@ -41,8 +41,10 @@
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-8)
 //   flag (int)                = 7 digit integer (ymlthdo) with control
-//                               information (y=1/0 containing list of
-//                               duplicate entries (1) or depth dependent wts
+//                               information (y=2/1/0 containing list of
+//                               ieta, iphi of channels to be selected (2);
+//                               list containing depth dependent weights for
+//                               each ieta (1); list of duplicate entries
 //                               (0) in dupFileName; m=0/1 for controlling
 //                               creation of depth depedendent histograms;
 //                               l=4/3/2/1/0 for type of rcorFileName (4 for
@@ -70,9 +72,14 @@
 //                               or reconstruction level momentum (def false)
 //   scale (double)            = energy scale if correction factor to be used
 //                               (default = 1.0)
-//   useScale (int)            = application of scale factor (0: nowehere,
+//   useScale (int)            = two digit number (do) with o: as the flag for
+//                               application of scale factor (0: nowehere,
 //                               1: barrel; 2: endcap, 3: everywhere)
-//                               barrel => |ieta| < 16; endcap => |ieta| > 15
+//                               barrel => |ieta| < 16; endcap => |ieta| > 15;
+//                               d: as the format for threshold application,
+//                               0: no threshold; 1: 2022 prompt data; 2:
+//                               2022 reco data; 3: 2023 prompt data
+//                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
 //                               or excluded (-ve) (default 0)
@@ -84,9 +91,12 @@
 //                               differ from 1-72 (1)
 //   nvxlo           (int)     = minimum # of vertex in event to be used (0)
 //   nvxhi           (int)     = maximum # of vertex in event to be used (1000)
-//   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
-//   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
-//                               considered (false)
+//   rbxFile         (char *)  = Name of the file containing a list of RBX's
+//                               to be consdered (default = ""). RBX's are
+//                               specified by zside*(Subdet*100+RBX #).
+//                               For HEP17 it will be 217
+//   exclude         (bool)    = RBX specified by the contents in *rbxFile* to
+//                               be exluded or only considered (default = false)
 //   etamax          (bool)    = if set and if the corr-factor not found in the
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
@@ -270,7 +280,7 @@ public:
                       int zside = 1,
                       int nvxlo = 0,
                       int nvxhi = 1000,
-                      int rbx = 0,
+                      const char *rbxFile = "",
                       bool exclude = false,
                       bool etamax = false);
   virtual ~CalibPlotProperties();
@@ -298,10 +308,11 @@ private:
   const int truncateFlag_;
   const int etalo_, etahi_;
   int runlo_, runhi_;
-  const int phimin_, phimax_, zside_, nvxlo_, nvxhi_, rbx_;
+  const int phimin_, phimax_, zside_, nvxlo_, nvxhi_;
+  const char *rbxFile_;
   bool exclude_, corrE_, cutL1T_;
   bool includeRun_, getHist_;
-  int flexibleSelect_, ifDepth_, duplicate_;
+  int flexibleSelect_, ifDepth_, duplicate_, thrForm_;
   bool plotBasic_, plotEnergy_, plotHists_;
   double log2by18_;
   std::ofstream fileout_;
@@ -342,7 +353,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
                                          int zside,
                                          int nvxlo,
                                          int nvxhi,
-                                         int rbx,
+                                         const char *rbxFile,
                                          bool exc,
                                          bool etam)
     : corrFactor_(nullptr),
@@ -366,7 +377,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
       zside_(zside),
       nvxlo_(nvxlo),
       nvxhi_(nvxhi),
-      rbx_(rbx),
+      rbxFile_(rbxFile),
       exclude_(exc),
       includeRun_(true) {
   // if parameter tree is not specified (or zero), connect the file
@@ -387,6 +398,8 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     runhi_ = std::abs(runhi_);
     includeRun_ = false;
   }
+  int useScale0 = useScale % 10;
+  thrForm_ = useScale / 10;
   char treeName[400];
   sprintf(treeName, "%s/CalibTree", dirnm.c_str());
   TChain *chain = new TChain(treeName);
@@ -394,8 +407,8 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
             << plotBasic_ << "|"
             << "|" << plotEnergy_ << "|" << plotHists_ << "|" << corrPU_ << " cons " << log2by18_ << " eta range "
             << etalo_ << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ << " (inclusion flag " << includeRun_
-            << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ << std::endl;
-  corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scl, etam, marina, false);
+            << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ << " Threshold Flag " << thrForm_ << std::endl;
+  corrFactor_ = new CalibCorrFactor(corrFileName, useScale0, scl, etam, marina, false);
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
@@ -410,8 +423,8 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     }
     if (std::string(dupFileName) != "")
       cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
-    if (rbx != 0)
-      cSelect_ = new CalibSelectRBX(rbx, false);
+    if (std::string(rbxFile) != "")
+      cSelect_ = new CalibSelectRBX(rbxFile, false);
   }
 }
 
@@ -799,7 +812,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
     nbytes += nb;
     if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
-    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 1)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select) {
       ++duplicate;
       if (debug)
@@ -824,6 +837,10 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
         if (!(cSelect_->isItRBX(t_ieta, t_iphi)))
           continue;
       }
+    }
+    if (cDuplicate_ != nullptr) {
+      if (cDuplicate_->select(t_ieta, t_iphi))
+        continue;
     }
     select = (!cutL1T_ || (t_mindR1 >= 0.5));
     if (!select) {
@@ -878,19 +895,23 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
     if (corrFactor_->doCorr()) {
       eHcal = 0;
       for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
-        // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-        unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
-        double cfac = corrFactor_->getCorr(id);
-        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
-          cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
-          cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
-        eHcal += (cfac * ((*t_HitEnergies)[k]));
-        if (debug) {
-          int subdet, zside, ieta, iphi, depth;
-          unpackDetId(id, subdet, zside, ieta, iphi, depth);
-          std::cout << zside << ":" << ieta << ":" << depth << " Corr " << cfac << " " << (*t_HitEnergies)[k] << " Out "
-                    << eHcal << std::endl;
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > threshold((*t_DetIds)[k], thrForm_));
+        if (okcell) {
+          // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
+          unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
+          double cfac = corrFactor_->getCorr(id);
+          if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
+            cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
+          eHcal += (cfac * ((*t_HitEnergies)[k]));
+          if (debug) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId(id, subdet, zside, ieta, iphi, depth);
+            std::cout << zside << ":" << ieta << ":" << depth << " Corr " << cfac << " " << (*t_HitEnergies)[k]
+                      << " Out " << eHcal << std::endl;
+          }
         }
       }
     }
@@ -970,29 +991,33 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
             std::vector<int> bnrec(7, 0), enrec(7, 0);
             double eb(0), ee(0);
             for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
-              unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
-              double cfac = corrFactor_->getCorr(id);
-              if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
-                cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
-              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
-                cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
-              double ener = cfac * (*t_HitEnergies)[k];
-              if (corrPU_)
-                correctEnergy(ener);
-              unsigned int idx = (unsigned int)((*t_DetIds)[k]);
-              int subdet, zside, ieta, iphi, depth;
-              unpackDetId(idx, subdet, zside, ieta, iphi, depth);
-              if (depth > 0 && depth <= CalibPlots::ndepth) {
-                if (subdet == 1) {
-                  eb += ener;
-                  bv[depth - 1] += ener;
-                  h_bvlist2[depth - 1]->Fill(ener, weight);
-                  ++bnrec[depth - 1];
-                } else if (subdet == 2) {
-                  ee += ener;
-                  ev[depth - 1] += ener;
-                  h_evlist2[depth - 1]->Fill(ener, weight);
-                  ++enrec[depth - 1];
+              // Apply thresholds if necessary
+              bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > threshold((*t_DetIds)[k], thrForm_));
+              if (okcell) {
+                unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
+                double cfac = corrFactor_->getCorr(id);
+                if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
+                  cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+                if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+                  cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
+                double ener = cfac * (*t_HitEnergies)[k];
+                if (corrPU_)
+                  correctEnergy(ener);
+                unsigned int idx = (unsigned int)((*t_DetIds)[k]);
+                int subdet, zside, ieta, iphi, depth;
+                unpackDetId(idx, subdet, zside, ieta, iphi, depth);
+                if (depth > 0 && depth <= CalibPlots::ndepth) {
+                  if (subdet == 1) {
+                    eb += ener;
+                    bv[depth - 1] += ener;
+                    h_bvlist2[depth - 1]->Fill(ener, weight);
+                    ++bnrec[depth - 1];
+                  } else if (subdet == 2) {
+                    ee += ener;
+                    ev[depth - 1] += ener;
+                    h_evlist2[depth - 1]->Fill(ener, weight);
+                    ++enrec[depth - 1];
+                  }
                 }
               }
             }
@@ -1047,11 +1072,15 @@ bool CalibPlotProperties::selectPhi(bool debug) {
     double eTotal(0), eSelec(0);
     // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
-      int iphi = ((*t_DetIds)[k]) & (0x3FF);
-      int zside = ((*t_DetIds)[k] & 0x80000) ? (1) : (-1);
-      eTotal += ((*t_HitEnergies)[k]);
-      if (iphi >= phimin_ && iphi <= phimax_ && zside == zside_)
-        eSelec += ((*t_HitEnergies)[k]);
+      // Apply thresholds if necessary
+      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > threshold((*t_DetIds)[k], thrForm_));
+      if (okcell) {
+        int iphi = ((*t_DetIds)[k]) & (0x3FF);
+        int zside = ((*t_DetIds)[k] & 0x80000) ? (1) : (-1);
+        eTotal += ((*t_HitEnergies)[k]);
+        if (iphi >= phimin_ && iphi <= phimax_ && zside == zside_)
+          eSelec += ((*t_HitEnergies)[k]);
+      }
     }
     if (eSelec < 0.9 * eTotal)
       select = false;
@@ -1191,24 +1220,32 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
       double Etot1(0), Etot3(0);
       // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
-        unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
-        double cfac = corrFactor_->getCorr(id);
-        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
-          cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
-          cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
-        double hitEn = cfac * (*t_HitEnergies1)[idet];
-        Etot1 += hitEn;
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > threshold((*t_DetIds1)[idet], thrForm_));
+        if (okcell) {
+          unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
+          double cfac = corrFactor_->getCorr(id);
+          if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
+            cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
+          double hitEn = cfac * (*t_HitEnergies1)[idet];
+          Etot1 += hitEn;
+        }
       }
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
-        unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
-        double cfac = corrFactor_->getCorr(id);
-        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
-          cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
-          cfac *= cDuplicate_->getWeight((*t_DetIds)[idet]);
-        double hitEn = cfac * (*t_HitEnergies3)[idet];
-        Etot3 += hitEn;
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > threshold((*t_DetIds3)[idet], thrForm_));
+        if (okcell) {
+          unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
+          double cfac = corrFactor_->getCorr(id);
+          if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
+            cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            cfac *= cDuplicate_->getWeight((*t_DetIds)[idet]);
+          double hitEn = cfac * (*t_HitEnergies3)[idet];
+          Etot3 += hitEn;
+        }
       }
       ediff = (Etot3 - Etot1);
     }

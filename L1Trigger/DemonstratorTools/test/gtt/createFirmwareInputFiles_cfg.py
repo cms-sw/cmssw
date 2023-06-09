@@ -15,7 +15,7 @@ options.register ('format',
                   'EMP', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "File format (APx, EMP or X20)")
+                  "File format (APx, EMP or X2O)")
 options.register('threads',
                  1, # default value
                  VarParsing.VarParsing.multiplicity.singleton,

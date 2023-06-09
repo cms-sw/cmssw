@@ -76,7 +76,9 @@ extern "C" HEPCOM_DEF HEPCOM;
 
 #else
 extern "C" {
-extern struct { char data[epos_bytes_allocation]; } hepcom_;
+extern struct {
+  char data[epos_bytes_allocation];
+} hepcom_;
 }
 #define hepcom hepcom_
 

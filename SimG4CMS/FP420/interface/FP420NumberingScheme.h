@@ -15,36 +15,23 @@ class G4String;
 class FP420NumberingScheme {
 public:
   FP420NumberingScheme();
-  virtual ~FP420NumberingScheme();
+  ~FP420NumberingScheme() = default;
 
-  virtual unsigned int getUnitID(const G4Step* aStep) const;
-
-  // Utilities to get detector levels during a step
-  virtual int detectorLevel(const G4Step*) const;
-  virtual void detectorLevel(const G4Step*, int&, int*, G4String*) const;
-
-  //protected:
+  unsigned int getUnitID(const G4Step* aStep) const;
 
   static unsigned int packFP420Index(int det, int zside, int station, int superplane);
-
   static void unpackFP420Index(const unsigned int& idx, int& det, int& zside, int& station, int& superplane);
-
-  //  private:
-  //
 
   static unsigned packMYIndex(int rn0, int pn0, int sn0, int det, int zside, int sector, int zmodule) {
     int zScale = (rn0 - 1);           // rn0=3 - current --> for update  rn0=7
     int sScale = zScale * (pn0 - 1);  //pn0=6
     int dScale = sScale * (sn0 - 1);  //sn0=3
-
     unsigned int intindex = dScale * (det - 1) + sScale * (sector - 1) + zScale * (zmodule - 1) + zside;
-    //
     return intindex;
   }
 
   static void unpackMYIndex(const int& idx, int rn0, int pn0, int sn0, int& det, int& zside, int& sector, int& zmodule) {
     int zScale = (rn0 - 1), sScale = (rn0 - 1) * (pn0 - 1), dScale = (rn0 - 1) * (pn0 - 1) * (sn0 - 1);
-
     det = (idx - 1) / dScale + 1;
     sector = (idx - 1 - dScale * (det - 1)) / sScale + 1;
     zmodule = (idx - 1 - dScale * (det - 1) - sScale * (sector - 1)) / zScale + 1;
@@ -67,11 +54,10 @@ public:
   static int unpackCopyIndex(int rn0, int zside) {
     // 1,2,3
     int copyIndex = 0;
-    if (zside > (rn0 - 1) || zside < 1) {
-    } else {
-      int layerIndex = 1, b;
+    if (zside <= (rn0 - 1) && zside >= 1) {
+      int layerIndex = 1;
       float a = (zside + 1) / 2.;
-      b = (int)a;
+      int b = (int)a;
       if (a - b != 0.)
         layerIndex = 2;
       if (layerIndex == 2)
@@ -79,7 +65,6 @@ public:
       if (layerIndex == 1)
         copyIndex = (zside + 1) / 2;
     }
-
     return copyIndex;
   }
 
@@ -119,11 +104,9 @@ public:
     }
     //new:
     if (rn0 == 7) {
-      //    if(zside==3 || zside==6) zsidereal=0; // ????
       if (zside == 4 || zside == 5)
         zsidereal = 0;
     }
-    //
     return zsidereal;
   }
 };

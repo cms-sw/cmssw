@@ -469,7 +469,7 @@ namespace mkfit {
 
       const SteeringParams &st_par = m_job->steering_params(region);
       const TrackerInfo &trk_info = m_job->m_trk_info;
-      const PropagationConfig &prop_config = PropagationConfig::get_default();
+      const PropagationConfig &prop_config = trk_info.prop_config();
 
       const RegionOfSeedIndices rosi(m_seedEtaSeparators, region);
 
@@ -752,7 +752,7 @@ namespace mkfit {
       const TrackerInfo &trk_info = m_job->m_trk_info;
       const SteeringParams &st_par = m_job->steering_params(region);
       const IterationParams &params = m_job->params();
-      const PropagationConfig &prop_config = PropagationConfig::get_default();
+      const PropagationConfig &prop_config = trk_info.prop_config();
 
       const RegionOfSeedIndices rosi(m_seedEtaSeparators, region);
 
@@ -965,7 +965,7 @@ namespace mkfit {
     const TrackerInfo &trk_info = m_job->m_trk_info;
     const SteeringParams &st_par = m_job->steering_params(region);
     const IterationParams &params = m_job->params();
-    const PropagationConfig &prop_config = PropagationConfig::get_default();
+    const PropagationConfig &prop_config = trk_info.prop_config();
 
     const int n_seeds = end_seed - start_seed;
 
@@ -1183,7 +1183,7 @@ namespace mkfit {
 
   void MkBuilder::fit_cands_BH(MkFinder *mkfndr, int start_cand, int end_cand, int region) {
     const SteeringParams &st_par = m_job->steering_params(region);
-    const PropagationConfig &prop_config = PropagationConfig::get_default();
+    const PropagationConfig &prop_config = m_job->m_trk_info.prop_config();
 #ifdef DEBUG_FINAL_FIT
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     bool debug = true;
@@ -1279,7 +1279,7 @@ namespace mkfit {
   void MkBuilder::fit_cands(MkFinder *mkfndr, int start_cand, int end_cand, int region) {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     const SteeringParams &st_par = m_job->steering_params(region);
-    const PropagationConfig &prop_config = PropagationConfig::get_default();
+    const PropagationConfig &prop_config = m_job->m_trk_info.prop_config();
     mkfndr->setup_bkfit(prop_config, st_par);
 
     int step = NN;

@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 filteredLayerClustersTrk = cms.EDProducer("FilteredLayerClustersProducer",
-    LayerClusters = cms.InputTag("hgcalLayerClusters"),
+    LayerClusters = cms.InputTag("hgcalMergeLayerClusters"),
     LayerClustersInputMask = cms.InputTag("ticlTrackstersEM"),
-    algo_number = cms.int32(8),
     clusterFilter = cms.string('ClusterFilterByAlgoAndSize'),
     iteration_label = cms.string('Trk'),
     max_cluster_size = cms.int32(9999),

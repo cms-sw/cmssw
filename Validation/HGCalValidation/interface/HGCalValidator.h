@@ -89,7 +89,6 @@ protected:
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const HGCRecHit*>> hitMap_;
-  edm::EDGetTokenT<Density> density_;
   edm::EDGetTokenT<hgcal::RecoToSimCollection> associatorMapRtS;
   edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapStR;
   edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimtR;

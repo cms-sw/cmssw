@@ -87,6 +87,7 @@ public:
   int getTypeHex(int layer, int waferU, int waferV) const;
   std::pair<double, double> getXY(int layer, double x, double y, bool forwd) const;
   inline int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
+  double guardRingOffset(bool reco) const;
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
   bool isValidHex8(int lay, int waferU, int waferV, bool fullAndPart) const;
@@ -131,6 +132,7 @@ public:
   std::pair<double, double> rangeZ(bool reco) const;
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   inline int sectors() const { return hgpar_->nSectors_; }
+  double sensorSizeOffset(bool reco) const;
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
   int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const;

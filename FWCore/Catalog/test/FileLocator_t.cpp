@@ -35,9 +35,7 @@ namespace {
     bool enablePrefetching() const final { return false; }
     unsigned int debugLevel() const final { return 0; }
     std::vector<std::string> const* sourceNativeProtocols() const final { return nullptr; }
-    struct addrinfo const* statisticsDestination() const final {
-      return nullptr;
-    }
+    struct addrinfo const* statisticsDestination() const final { return nullptr; }
     std::set<std::string> const* statisticsInfo() const final { return nullptr; }
     std::string const& siteName(void) const final { return m_emptyString; }
     std::string const& subSiteName(void) const final { return m_emptyString; }

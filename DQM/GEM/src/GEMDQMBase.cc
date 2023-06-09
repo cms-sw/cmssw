@@ -147,6 +147,7 @@ int GEMDQMBase::SortingLayers(std::vector<ME3IdsKey>& listLayers) {
 
 dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& ibooker, TString strName) {
   std::vector<ME3IdsKey> listLayers;
+  listLayers.reserve(mapStationInfo_.size());
   for (auto const& [key, stationInfo] : mapStationInfo_)
     listLayers.push_back(key);
   SortingLayers(listLayers);

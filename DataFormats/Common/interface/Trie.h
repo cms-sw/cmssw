@@ -295,7 +295,7 @@ edm::TrieFactory<T>::~TrieFactory() {
   typename std::list<TrieNode<T> *>::const_iterator it;
 
   for (it = _allocatedNodes.begin(); it != _allocatedNodes.end(); ++it)
-    delete[] * it;
+    delete[] *it;
   if (_lastNodes)
     delete[] _lastNodes;
 }
@@ -318,7 +318,7 @@ template <typename T>
 void edm::TrieFactory<T>::clear() {
   typename std::list<TrieNode<T> *>::const_iterator it;
   for (it = _allocatedNodes.begin(); it != _allocatedNodes.end(); ++it)
-    delete[] * it;
+    delete[] *it;
   _allocatedNodes.clear();
   _nbUsedInLastNodes = 0;
 }

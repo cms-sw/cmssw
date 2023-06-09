@@ -107,6 +107,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         nEMCALO_EGIN = 10,
         nEM_EGOUT = 10,
     ),
+    tkEgSorterAlgo = cms.string("Barrel"),
     tkEgSorterParameters=tkEgSorterParameters.clone(
         nObjToSort = 10
     ),
@@ -266,6 +267,7 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         writeEGSta=True,
         doCompositeTkEle=True,
         trkQualityPtMin=0.), # This should be 10 GeV when doCompositeTkEle=False
+    tkEgSorterAlgo = cms.string("Endcap"),
     tkEgSorterParameters=tkEgSorterParameters.clone(
         nObjToSort = 5
     ),
@@ -360,6 +362,7 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
         doEndcapHwQual=True,
         writeBeforeBremRecovery=False,
         writeEGSta=True),
+    tkEgSorterAlgo = cms.string("Endcap"),
     tkEgSorterParameters=tkEgSorterParameters.clone(
         nObjToSort=5
     ),
@@ -443,6 +446,7 @@ l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
         nEM_EGOUT = 5,        # to be defined
         doBremRecovery=True,
         writeEGSta=True),
+    tkEgSorterAlgo = cms.string("Endcap"),
     tkEgSorterParameters=tkEgSorterParameters.clone(),
     caloSectors = cms.VPSet(
         cms.PSet( 

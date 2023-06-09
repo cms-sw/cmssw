@@ -40,7 +40,7 @@ void MultiClustersFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("Tracksters", edm::InputTag("Tracksters", "TrackstersByCA"));
-  desc.add<edm::InputTag>("LayerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("LayerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.addUntracked<unsigned int>("verbosity", 3);
   descriptions.add("multiClustersFromTrackstersProducer", desc);
 }

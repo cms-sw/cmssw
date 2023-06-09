@@ -33,9 +33,10 @@ namespace edmtest {
     edm::LogWarning("cat_A")
         .format("Test of format fill and width: ")
         .format("The following should read ++abcdefg $$$12: {:+>9} {:$>5}", "abcdefg", 12);
-    edm::LogWarning("cat_A").format("Test of format precision: Pi with precision 12 is {:.12g}", d);
-    edm::LogWarning("cat_A").format(
-        "Test of format spacing: The following should read a b cc: {} {:+>} {:>2}", "a", "b", "cc");
+    edm::LogWarning("cat_A").vformat(std::string("Test of format precision: Pi with precision 12 is {:.12g}"),
+                                     fmt::make_format_args(d));
+    edm::LogWarning("cat_A").vformat("Test of format spacing: The following should read a b cc: {} {:+>} {:>2}",
+                                     fmt::make_format_args("a", "b", "cc"));
   }
 
 }  // namespace edmtest

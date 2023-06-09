@@ -30,15 +30,16 @@
 using namespace std;
 using namespace edm;
 
-DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) {
+DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps)
+    : nevents(0), FEDIDmin(FEDNumbering::MINDTUROSFEDID), FEDIDmax(FEDNumbering::MAXDTUROSFEDID) {
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: Constructor" << endl;
 
   fedToken = consumes<DTuROSFEDDataCollection>(ps.getUntrackedParameter<InputTag>("dtFEDlabel"));
-  FEDIDmin = FEDNumbering::MINDTUROSFEDID;
-  FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
 
+#ifdef EDM_ML_DEBUG
   neventsFED = 0;
   neventsuROS = 0;
+#endif
 
   fedIntegrityFolder = ps.getUntrackedParameter<string>("fedIntegrityFolder", "DT/FEDIntegrity");
   nLinksForFatal = ps.getUntrackedParameter<int>("nLinksForFatal", 15);  //per wheel
@@ -61,10 +62,12 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 }
 
 DTDataIntegrityTask::~DTDataIntegrityTask() {
+#ifdef EDM_ML_DEBUG
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: Destructor. Analyzed " << neventsFED << " events" << endl;
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: postEndJob called!" << endl;
+#endif
 }
 
 /*
@@ -526,10 +529,12 @@ void DTDataIntegrityTask::bookHistosuROS(DQMStore::IBooker& ibooker, const int f
 }
 
 void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
+#ifdef EDM_ML_DEBUG
   neventsuROS++;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "[DTDataIntegrityTask]: " << neventsuROS << " events analyzed by processuROS" << endl;
+#endif
 
   if (mode == 3)  // || mode == 1)
     return;       //Avoid duplication of Info in FEDIntegrity_EvF
@@ -834,10 +839,12 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
 }
 
 void DTDataIntegrityTask::processFED(DTuROSFEDData& data, int fed) {
+#ifdef EDM_ML_DEBUG
   neventsFED++;
   if (neventsFED % 1000 == 0)
     LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
         << "[DTDataIntegrityTask]: " << neventsFED << " events analyzed by processFED" << endl;
+#endif
 
   if (fed < FEDIDmin || fed > FEDIDmax)
     return;
@@ -941,14 +948,14 @@ std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
   return folder;
 }
 
-std::shared_ptr<dtdi::Void> DTDataIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
-                                                                            const edm::EventSetup& es) const {
-  nEventsLS = 0;
-  return std::shared_ptr<dtdi::Void>();
+std::shared_ptr<dtdi::LumiCache> DTDataIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& ls,
+                                                                                 const edm::EventSetup& es) const {
+  return std::make_shared<dtdi::LumiCache>();
 }
 
 void DTDataIntegrityTask::globalEndLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
   int lumiBlock = ls.id().luminosityBlock();
+  const auto nEventsLS = luminosityBlockCache(ls.index())->nEventsLS;
 
   map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedIt = fedTimeHistos.begin();
   map<string, map<int, DTTimeEvolutionHisto*> >::iterator fedEnd = fedTimeHistos.end();
@@ -970,7 +977,7 @@ void DTDataIntegrityTask::globalEndLuminosityBlock(const edm::LuminosityBlock& l
 void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   nevents++;
   nEventMonitor->Fill(nevents);
-  nEventsLS++;
+  luminosityBlockCache(e.getLuminosityBlock().index())->nEventsLS++;
 
   //errorX[6][12][5] = {0};  //5th is notOK flag and 6th is TDC Fatal; ros; wheel
   fill(&errorX[0][0][0], &errorX[0][0][0] + 360, 0);

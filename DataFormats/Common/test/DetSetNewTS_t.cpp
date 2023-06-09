@@ -216,7 +216,7 @@ void TestDetSet::fillSeq() {
 struct Getter final : public DSTV::Getter {
   Getter(TestDetSet* itest) : ntot(0), test(*itest) {}
 
-  void fill(TSFF& ff) override {
+  void fill(TSFF& ff) const override {
     int n = ff.id() - 20;
     CPPUNIT_ASSERT(n >= 0);
     CPPUNIT_ASSERT(ff.size() == 0);
@@ -229,7 +229,7 @@ struct Getter final : public DSTV::Getter {
     ntot.fetch_add(1, std::memory_order_acq_rel);
   }
 
-  std::atomic<unsigned int> ntot;
+  mutable std::atomic<unsigned int> ntot;
   TestDetSet& test;
 };
 

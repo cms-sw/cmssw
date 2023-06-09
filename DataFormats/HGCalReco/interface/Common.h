@@ -29,7 +29,7 @@ namespace ticl {
 }  // namespace ticl
 
 namespace ticl {
-  typedef std::vector<std::pair<unsigned int, float> > HgcalClusterFilterMask;
+  typedef std::vector<std::pair<unsigned int, float> > TICLClusterFilterMask;
 }  // namespace ticl
 
 #endif  // DataFormats_HGCalReco_Common_h

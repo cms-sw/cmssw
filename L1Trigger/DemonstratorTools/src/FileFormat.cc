@@ -10,11 +10,14 @@ namespace l1t::demo {
       case FileFormat::APx:
         os << "APx";
         break;
-      case FileFormat::EMP:
-        os << "EMP";
+      case FileFormat::EMPv1:
+        os << "EMPv1";
         break;
-      case FileFormat::X20:
-        os << "X20";
+      case FileFormat::EMPv2:
+        os << "EMPv2";
+        break;
+      case FileFormat::X2O:
+        os << "X2O";
     }
     return os;
   }

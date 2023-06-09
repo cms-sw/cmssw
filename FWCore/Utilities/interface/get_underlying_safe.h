@@ -52,7 +52,7 @@ namespace edm {
     return get_underlying(iP);
   }
   template <typename T>
-  constexpr std::shared_ptr<T const []> get_underlying_safe(propagate_const_array<std::shared_ptr<T[]>> const& iP) {
+  constexpr std::shared_ptr<T const[]> get_underlying_safe(propagate_const_array<std::shared_ptr<T[]>> const& iP) {
     std::shared_ptr<T const[]> copy = get_underlying(iP);
     return copy;
   }
@@ -96,7 +96,7 @@ namespace edm {
   }
   // the template below will deliberately not compile.
   template <typename T>
-  constexpr std::unique_ptr<T const []> get_underlying_safe(propagate_const_array<std::unique_ptr<T[]>> const& iP) {
+  constexpr std::unique_ptr<T const[]> get_underlying_safe(propagate_const_array<std::unique_ptr<T[]>> const& iP) {
     std::unique_ptr<T const[]> copy = get_underlying(iP);
     return copy;
   }

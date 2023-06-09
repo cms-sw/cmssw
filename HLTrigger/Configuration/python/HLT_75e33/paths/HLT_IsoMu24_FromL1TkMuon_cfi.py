@@ -8,7 +8,9 @@ from ..modules.hltL3crIsoL1TkSingleMu22L3f24QL3trkIsoRegionalNewFiltered0p07Ecal
 from ..modules.hltL3fL1TkSingleMu22L3Filtered24Q_cfi import *
 from ..modules.bunchSpacingProducer_cfi import *
 from ..modules.hgcalDigis_cfi import *
-from ..modules.hgcalLayerClusters_cfi import *
+from ..modules.hgcalLayerClustersHSci_cfi import *
+from ..modules.hgcalLayerClustersEE_cfi import *
+from ..modules.hgcalLayerClustersHSi_cfi import *
 from ..modules.HGCalRecHit_cfi import *
 from ..modules.HGCalUncalibRecHit_cfi import *
 from ..modules.hltCsc2DRecHits_cfi import *
@@ -124,6 +126,8 @@ from ..modules.trackerClusterCheck_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
+from ..modules.hgcalMergeLayerClusters_cfi import *
+
 HLT_IsoMu24_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
     hltL1TkSingleMuFiltered22 +
@@ -139,7 +143,10 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         MeasurementTrackerEvent,
         bunchSpacingProducer,
         hgcalDigis,
-        hgcalLayerClusters,
+        hgcalLayerClustersEE,
+        hgcalLayerClustersHSi,
+        hgcalLayerClustersHSci,
+        hgcalMergeLayerClusters,
         hltCsc2DRecHits,
         hltCscSegments,
         hltDt1DRecHits,

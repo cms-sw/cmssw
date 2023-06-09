@@ -524,25 +524,25 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     histname = "NumberEventsVsLUMI";
     NumberEventsOfVsLUMI = ibooker.book1D(histname, histname, LUMIBin, LUMIMin, LUMIMax);
-    NumberEventsOfVsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+    NumberEventsOfVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberEventsOfVsLUMI->setAxisTitle("Number of events", 2);
 
     histname = "NumberOfTracksVsLUMI";
     NumberOfTracksVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, TKNoMin, TKNoMax * 3, "");
-    NumberOfTracksVsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfTracksVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfTracksVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     if (doFractionPlot_) {
       histname = "GoodTracksFractionVsLUMI";
       GoodTracksFractionVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, 0., 1.1, "");
-      GoodTracksFractionVsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+      GoodTracksFractionVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
       GoodTracksFractionVsLUMI->setAxisTitle("Mean number of vertices", 2);
     }
 
     histname = "NumberOfRecHitsPerTrackVsLUMI";
     NumberOfRecHitsPerTrackVsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, RecHitMin, RecHitMax * 5, "");
-    NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     double PVMin = conf->getParameter<double>("PVMin");
@@ -550,13 +550,13 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     histname = "NumberOfGoodPVtxVsLUMI";
     NumberOfGoodPVtxVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, PVMin, 3. * PVMax, "");
-    NumberOfGoodPVtxVsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfGoodPVtxVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfGoodPVtxVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     histname = "NumberOfGoodPVtxWO0VsLUMI";
     NumberOfGoodPVtxWO0VsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, PVMin, 3. * PVMax, "");
-    NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     double NClusPxMin = conf->getParameter<double>("NClusPxMin");
@@ -564,7 +564,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     histname = "NumberOfPixelClustersVsGoodPVtx";
     NumberOfPixelClustersVsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, NClusPxMin, 3. * NClusPxMax, "");
-    NumberOfPixelClustersVsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfPixelClustersVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfPixelClustersVsLUMI->setAxisTitle("Mean number of pixel clusters", 2);
 
     double NClusStrMin = conf->getParameter<double>("NClusStrMin");
@@ -572,7 +572,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     histname = "NumberOfStripClustersVsLUMI";
     NumberOfStripClustersVsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, NClusStrMin, 3. * NClusStrMax, "");
-    NumberOfStripClustersVsLUMI->setAxisTitle("online lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfStripClustersVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfStripClustersVsLUMI->setAxisTitle("Mean number of strip clusters", 2);
   }
 

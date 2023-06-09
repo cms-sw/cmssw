@@ -169,14 +169,9 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
         partsHad->clear();          //++
         partsHad->resize(5 * nph);  //++
       }
-      float nphot_long = 0;
-      float nphot_short = 0;
       // cycle over photons in shower -------------------------------------------
       for (int iph = 0; iph < nphot; ++iph) {
-        if (fiberId[iph] == 1) {
-          nphot_long++;
-        } else {
-          nphot_short++;
+        if (fiberId[iph] != 1) {
           z[iph] = -z[iph];
         }
 

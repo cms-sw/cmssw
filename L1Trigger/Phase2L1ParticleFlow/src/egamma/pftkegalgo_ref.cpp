@@ -156,6 +156,16 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_elliptic(const PFRegionEmu &r,
       float dEtaMax = cfg.dEtaValues[eta_index];
       float dPhiMax = cfg.dPhiValues[eta_index];
 
+      if (debug_ > 2 && calo.hwPt > 0) {
+        dbgCout() << "[REF] tried to link calo " << ic << " (pt " << calo.intPt() << ", eta " << calo.intEta()
+                  << ", phi " << calo.intPhi() << ") "
+                  << " to tk " << itk << " (pt " << tk.intPt() << ", eta " << tk.intEta() << ", phi " << tk.intPhi()
+                  << "): "
+                  << " eta_index " << eta_index << ", "
+                  << " dEta " << d_eta << " (max " << dEtaMax << "), dPhi " << d_phi << " (max " << dPhiMax << ") "
+                  << " ellipse = "
+                  << (((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))) << "\n";
+      }
       if ((((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))) < 1.) {
         // NOTE: for now we implement only best pt match. This is NOT what is done in the L1TkElectronTrackProducer
         if (fabs(tk.floatPt() - calo.floatPt()) < dPtMin) {
