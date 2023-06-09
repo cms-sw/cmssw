@@ -37,6 +37,8 @@ GENERATE_SOA_LAYOUT(SoAHostDeviceLayoutTemplate,
 
 using SoAHostDeviceLayout = SoAHostDeviceLayoutTemplate<>;
 using SoAHostDeviceView = SoAHostDeviceLayout::View;
+using SoAHostDeviceRangeCheckingView =
+    SoAHostDeviceLayout::ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::enabled>;
 using SoAHostDeviceConstView = SoAHostDeviceLayout::ConstView;
 
 GENERATE_SOA_LAYOUT(SoADeviceOnlyLayoutTemplate,
@@ -128,6 +130,12 @@ int main(void) {
   hipCheck(hipHostMalloc((void**)&h_buf, hostDeviceSize));
   SoAHostDeviceLayout h_soahdLayout(h_buf, numElements);
   SoAHostDeviceView h_soahd(h_soahdLayout);
+
+  // Validation of range checking variants initialization
+  SoAHostDeviceRangeCheckingView h_soahdrc(h_soahdLayout);
+  [[maybe_unused]] SoAHostDeviceRangeCheckingView h_soahdrc2 = h_soahdLayout;
+  [[maybe_unused]] SoAHostDeviceRangeCheckingView h_soahdrc3{h_soahd};
+  [[maybe_unused]] SoAHostDeviceRangeCheckingView h_soahdrc4 = h_soahd;
   SoAHostDeviceConstView h_soahd_c(h_soahdLayout);
 
   // Alocate buffer, stores and views on the device (single, shared buffer).

@@ -132,6 +132,8 @@ namespace cms::soa {
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
 
+    TupleOrPointerType tupleOrPointer() { return addr_; }
+
   public:
     // scalar or column
     ValueType const* addr_ = nullptr;
@@ -165,6 +167,8 @@ namespace cms::soa {
       const auto& [addr, stride] = tuple;
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
+
+    TupleOrPointerType tupleOrPointer() { return {addr_, stride_}; }
 
   public:
     // address and stride
@@ -201,6 +205,8 @@ namespace cms::soa {
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
 
+    TupleOrPointerType tupleOrPointer() { return addr_; }
+
   public:
     // scalar or column
     ValueType* addr_ = nullptr;
@@ -233,6 +239,8 @@ namespace cms::soa {
       const auto& [addr, stride] = tuple;
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
+
+    TupleOrPointerType tupleOrPointer() { return {addr_, stride_}; }
 
   public:
     // address and stride
