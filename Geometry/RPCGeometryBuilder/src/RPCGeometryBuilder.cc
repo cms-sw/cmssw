@@ -61,7 +61,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
   edm::LogVerbatim("RPCGeometryBuilder") << "Building the geometry service";
   std::unique_ptr<RPCGeometry> geometry = std::make_unique<RPCGeometry>();
   edm::LogVerbatim("RPCGeometryBuilder") << "About to run through the RPC structure\n"
-                                 << " First logical part " << fview.logicalPart().name().name();
+                                         << " First logical part " << fview.logicalPart().name().name();
   bool doSubDets = fview.firstChild();
   edm::LogVerbatim("RPCGeometryBuilder") << "doSubDets = " << doSubDets;
   while (doSubDets) {
@@ -69,7 +69,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
     MuonGeometryNumbering mdddnum(muonConstants);
     edm::LogVerbatim("RPCGeometryBuilder") << "Getting the Muon base Number";
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
-//  edm::LogVerbatim("RPCGeometryBuilder") << "Start the Rpc Numbering Schema";
+    //  edm::LogVerbatim("RPCGeometryBuilder") << "Start the Rpc Numbering Schema";
     RPCNumberingScheme rpcnum(muonConstants);
     edm::LogVerbatim("RPCGeometryBuilder") << "Getting the Unit Number";
     const int detid = rpcnum.baseNumberToUnitNumber(mbn);
@@ -144,11 +144,10 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
 
       bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
 
-      const std::vector<float> pars = {be, te, ap,
-                                       float(numbOfStrips.doubles()[0])};
+      const std::vector<float> pars = {be, te, ap, float(numbOfStrips.doubles()[0])};
       //Forward
-      edm::LogVerbatim("RPCGeometryBuilder")
-	<< "(4) be: " << be << " te: " << te << " ap: " << ap << " ti: " << ti << " strips " << numbOfStrips.doubles()[0];
+      edm::LogVerbatim("RPCGeometryBuilder") << "(4) be: " << be << " te: " << te << " ap: " << ap << " ti: " << ti
+                                             << " strips " << numbOfStrips.doubles()[0];
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, name, pars);
 
@@ -320,7 +319,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
       bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
       const std::vector<float> pars = {be, te, ap, float(nStrips)};
       edm::LogVerbatim("RPCGeometryBuilder")
-	<< "(4) be: " << be << " te: " << te << " ap: " << ap << " ti: " << ti << " strips " << nStrips;
+          << "(4) be: " << be << " te: " << te << " ap: " << ap << " ti: " << ti << " strips " << nStrips;
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, std::string(name), pars);
 
       Basic3DVector<float> newX(1., 0., 0.);
