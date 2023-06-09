@@ -50,9 +50,7 @@ public:
   unsigned int sourceID() const { return (sourceID_); }
   unsigned int bunchNumber() const { return (bunchNumber_); }
 
-  struct timespec collectionTime() const {
-    return (collectionTime_.get_timespec());
-  }
+  struct timespec collectionTime() const { return (collectionTime_.get_timespec()); }
 
   unsigned int lumiSegmentNr() const { return (lumiSegmentNr_); }
   unsigned int lumiSegmentOrbits() const { return (lumiSegmentOrbits_); }
@@ -67,9 +65,7 @@ public:
   int prescaleIndexAlgo() const { return (prescaleIndexAlgo_); }
   int prescaleIndexTech() const { return (prescaleIndexTech_); }
 
-  struct timespec collectionTimeLumiSeg() const {
-    return (collectionTimeLumiSeg_.get_timespec());
-  }
+  struct timespec collectionTimeLumiSeg() const { return (collectionTimeLumiSeg_.get_timespec()); }
 
   unsigned int lumiSegmentNrLumiSeg() const { return (lumiSegmentNrLumiSeg_); }
 

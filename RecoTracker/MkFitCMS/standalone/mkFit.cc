@@ -14,8 +14,6 @@
 
 #include "RecoTracker/MkFitCore/standalone/Event.h"
 
-#include "RecoTracker/MkFitCore/src/MaterialEffects.h"
-
 #ifndef NO_ROOT
 #include "RecoTracker/MkFitCore/standalone/Validation.h"
 #endif

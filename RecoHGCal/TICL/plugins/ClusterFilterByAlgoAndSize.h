@@ -16,19 +16,20 @@ namespace ticl {
   public:
     ClusterFilterByAlgoAndSize(const edm::ParameterSet& ps)
         : ClusterFilterBase(ps),
-          algo_number_(ps.getParameter<int>("algo_number")),
+          algo_number_(ps.getParameter<std::vector<int>>("algo_number")),
           min_cluster_size_(ps.getParameter<int>("min_cluster_size")),
           max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
     ~ClusterFilterByAlgoAndSize() override{};
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
-                const HgcalClusterFilterMask& availableLayerClusters,
+                const TICLClusterFilterMask& availableLayerClusters,
                 std::vector<float>& layerClustersMask,
                 hgcal::RecHitTools& rhtools) const override {
-      auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
+      auto filteredLayerClusters = std::make_unique<TICLClusterFilterMask>();
       for (auto const& cl : availableLayerClusters) {
         auto const& layerCluster = layerClusters[cl.first];
-        if (layerCluster.algo() == algo_number_ and layerCluster.hitsAndFractions().size() <= max_cluster_size_ and
+        if (find(algo_number_.begin(), algo_number_.end(), layerCluster.algo()) != algo_number_.end() and
+            layerCluster.hitsAndFractions().size() <= max_cluster_size_ and
             (layerCluster.hitsAndFractions().size() >= min_cluster_size_ or
              (!(rhtools.isSilicon(layerCluster.hitsAndFractions()[0].first))))) {
           filteredLayerClusters->emplace_back(cl);
@@ -39,7 +40,7 @@ namespace ticl {
     }
 
   private:
-    int algo_number_;
+    std::vector<int> algo_number_;
     unsigned int min_cluster_size_;
     unsigned int max_cluster_size_;
   };

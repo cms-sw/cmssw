@@ -31,6 +31,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegalgo_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo_common_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegsorter_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegsorter_barrel_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TCorrelatorLayer1PatternFileWriter.h"
 
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
@@ -237,8 +238,15 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   l1tkegalgo_ = std::make_unique<l1ct::PFTkEGAlgoEmulator>(
       l1ct::PFTkEGAlgoEmuConfig(iConfig.getParameter<edm::ParameterSet>("tkEgAlgoParameters")));
 
-  l1tkegsorter_ =
-      std::make_unique<l1ct::PFTkEGSorterEmulator>(iConfig.getParameter<edm::ParameterSet>("tkEgSorterParameters"));
+  const std::string &egsortalgo = iConfig.getParameter<std::string>("tkEgSorterAlgo");
+  if (egsortalgo == "Barrel") {
+    l1tkegsorter_ = std::make_unique<l1ct::PFTkEGSorterBarrelEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("tkEgSorterParameters"));
+  } else if (egsortalgo == "Endcap") {
+    l1tkegsorter_ =
+        std::make_unique<l1ct::PFTkEGSorterEmulator>(iConfig.getParameter<edm::ParameterSet>("tkEgSorterParameters"));
+  } else
+    throw cms::Exception("Configuration", "Unsupported tkEgSorterAlgo");
 
   if (l1tkegalgo_->writeEgSta())
     produces<BXVector<l1t::EGamma>>("L1Eg");
@@ -441,8 +449,8 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
 
   // l1tkegsorter_->setDebug(true);
   for (auto &board : event_.board_out) {
-    l1tkegsorter_->run(event_.pfinputs, event_.out, board.region_index, board.egphoton);
-    l1tkegsorter_->run(event_.pfinputs, event_.out, board.region_index, board.egelectron);
+    l1tkegsorter_->runPho(event_.pfinputs, event_.out, board.region_index, board.egphoton);
+    l1tkegsorter_->runEle(event_.pfinputs, event_.out, board.region_index, board.egelectron);
   }
 
   // save PF into the event

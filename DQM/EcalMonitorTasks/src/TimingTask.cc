@@ -69,11 +69,11 @@ namespace ecaldqm {
     MESet& meTime1D(MEs_.at("Time1D"));
     MESet& meChi2(MEs_.at("Chi2"));
 
-    uint32_t mask(~((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime)));
+    uint32_t goodOROOTBits(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kOutOfTime);
     int signedSubdet;
 
     std::for_each(_hits.begin(), _hits.end(), [&](EcalRecHitCollection::value_type const& hit) {
-      if (hit.checkFlagMask(mask))
+      if (!hit.checkFlagMask(goodOROOTBits))
         return;
 
       DetId id(hit.id());

@@ -192,7 +192,9 @@ void SiStripModule::addApv(const uint16_t &apv_address) {
   ss << " Crate/FEC/Ring/CCU/Module: " << key_.fecCrate() << "/" << key_.fecSlot() << "/" << key_.fecRing() << "/"
      << key_.ccuAddr() << "/" << key_.ccuChan() << "/" << apv_address;
   // if ( added_apv ) { LogTrace(mlCabling_) << ss.str(); }
-  /* else */ if (!added_apv) { edm::LogWarning(mlCabling_) << ss.str(); }
+  /* else */ if (!added_apv) {
+    edm::LogWarning(mlCabling_) << ss.str();
+  }
 }
 
 // -----------------------------------------------------------------------------

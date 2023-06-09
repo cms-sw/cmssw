@@ -82,11 +82,33 @@ process.l1tLayer1Barrel9.boards=cms.VPSet(
             regions=cms.vuint32(*[6+9*ie+i for ie in range(3) for i in range(3)])),
     )
 
+process.l1tLayer1BarrelSerenity = process.l1tLayer1Barrel.clone()
+process.l1tLayer1BarrelSerenity.regionizerAlgo = "MultififoBarrel"
+process.l1tLayer1BarrelSerenity.regionizerAlgoParameters = cms.PSet(
+        barrelSetup = cms.string("Full54"),
+        useAlsoVtxCoords = cms.bool(True),
+        nClocks = cms.uint32(54),
+        nHCalLinks = cms.uint32(2),
+        nECalLinks = cms.uint32(1),
+        nTrack = cms.uint32(22),
+        nCalo = cms.uint32(15),
+        nEmCalo = cms.uint32(12),
+        nMu = cms.uint32(2))
+process.l1tLayer1BarrelSerenity.pfAlgoParameters.nTrack = 22
+process.l1tLayer1BarrelSerenity.pfAlgoParameters.nSelCalo = 15
+process.l1tLayer1BarrelSerenity.pfAlgoParameters.nCalo = 15
+process.l1tLayer1BarrelSerenity.pfAlgoParameters.nAllNeutral = 27
+process.l1tLayer1BarrelSerenity.puAlgoParameters.nTrack = 22
+process.l1tLayer1BarrelSerenity.puAlgoParameters.nIn = 27
+process.l1tLayer1BarrelSerenity.puAlgoParameters.nOut = 27
+process.l1tLayer1BarrelSerenity.puAlgoParameters.finalSortAlgo = "FoldedHybrid"
+
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
 if not args.patternFilesOFF:
     process.l1tLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
     # process.l1tLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
     process.l1tLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
+    process.l1tLayer1HGCalElliptic.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
     process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
     process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 
@@ -95,8 +117,10 @@ process.runPF = cms.Path(
         process.l1tGTTInputProducer +
         process.l1tVertexFinderEmulator +
         process.l1tLayer1Barrel +
+        process.l1tLayer1BarrelSerenity +
         process.l1tLayer1Barrel9 +
         process.l1tLayer1HGCal +
+        process.l1tLayer1HGCalElliptic +
         process.l1tLayer1HGCalNoTK +
         process.l1tLayer1HF +
         process.l1tLayer1 +
@@ -124,7 +148,7 @@ if not args.patternFilesOFF:
     process.l1tLayer2SeedConeJetWriter.maxLinesPerFile = eventsPerFile_*54
 
 if not args.dumpFilesOFF:
-  for det in "Barrel", "Barrel9", "HGCal", "HGCalNoTK", "HF":
+  for det in "Barrel", "BarrelSerenity", "Barrel9", "HGCal", "HGCalElliptic", "HGCalNoTK", "HF":
         l1pf = getattr(process, 'l1tLayer1'+det)
         l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
 

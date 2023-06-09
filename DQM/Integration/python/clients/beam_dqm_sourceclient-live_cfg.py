@@ -91,6 +91,11 @@ else:
 # Swap offline <-> online BeamSpot as in Express and HLT
 import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+
+# for running offline enhance the time validity of the online beamspot in DB
+if ((not live) or process.isDqmPlayback.value): 
+  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
+
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
@@ -435,14 +440,7 @@ else:
 print("Configured frontierKey", options.runUniqueKey)
 
 #--------
-# Do no run on events with pixel or strip with HV off
-
-process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
-    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
-    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
-    DebugOn = cms.untracked.bool( False ),
-    DetectorType = cms.untracked.string( "sistrip" )
-)
+# Do no run on events with pixel with HV off
 
 process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
     DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
@@ -458,7 +456,6 @@ if (not process.runType.getRunType() == process.runType.hi_run):
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
                        * process.pixelTrackerHVOn
-                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.dqmcommon
@@ -470,7 +467,6 @@ else:
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
                        * process.pixelTrackerHVOn
-                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.filter_step # the only extra: pix-multi filter

@@ -256,6 +256,7 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles) {
     ele.setLooseCutCode(eleLooseCuts_.getCutCode(ele));
 
     std::vector<std::pair<TrigCodes::TrigBitSet, int> > trigCutsCutCodes;
+    trigCutsCutCodes.reserve(trigCuts_.size());
     for (auto& trigCut : trigCuts_)
       trigCutsCutCodes.push_back(std::make_pair(trigCut.first, trigCut.second.getCutCode(ele)));
     ele.setTrigCutsCutCodes(trigCutsCutCodes);
@@ -425,6 +426,7 @@ int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos) {
     pho.setLooseCutCode(phoLooseCuts_.getCutCode(pho));
 
     std::vector<std::pair<TrigCodes::TrigBitSet, int> > trigCutsCutCodes;
+    trigCutsCutCodes.reserve(trigCuts_.size());
     for (auto& trigCut : trigCuts_)
       trigCutsCutCodes.push_back(std::make_pair(trigCut.first, trigCut.second.getCutCode(pho)));
     pho.setTrigCutsCutCodes(trigCutsCutCodes);

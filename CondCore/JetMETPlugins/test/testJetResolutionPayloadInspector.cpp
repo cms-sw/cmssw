@@ -31,56 +31,77 @@ int main(int argc, char** argv) {
   std::string tag_sf = "JR_Fall17_V3_106X_MC_SF_AK4PF";
   cond::Time_t start = static_cast<unsigned long long>(1);
   cond::Time_t end = static_cast<unsigned long long>(1);
+  py::dict inputs;
 
-  edm::LogWarning("JER_PI") << "## Jet Pt Resolution Histograms" << std::endl;
+  inputs["Jet_Pt"] = "120.";
+  inputs["Jet_Eta"] = "0.";
+  inputs["Jet_Rho"] = "30.";
+
+  edm::LogPrint("JER_PI") << "## Jet Pt Resolution Histograms" << std::endl;
 
   JME::JetResolutionVsEta histo1;
+  histo1.setInputParamValues(inputs);
   histo1.process(connectionString, PI::mk_input(tag_pt, start, end));
-  edm::LogWarning("JER_PI") << histo1.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo1.data() << std::endl;
 
   JME::JetResolutionVsPt histo2;
+  histo2.setInputParamValues(inputs);
   histo2.process(connectionString, PI::mk_input(tag_pt, start, end));
-  edm::LogWarning("JER_PI") << histo2.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo2.data() << std::endl;
 
-  edm::LogWarning("JER_PI") << "## Jet Eta Resolution Histograms" << std::endl;
+  edm::LogPrint("JER_PI") << "## Jet Eta Resolution Histograms" << std::endl;
 
   JME::JetResolutionVsEta histo3;
+  histo3.setInputParamValues(inputs);
   histo3.process(connectionString, PI::mk_input(tag_eta, start, end));
-  edm::LogWarning("JER_PI") << histo3.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo3.data() << std::endl;
 
   JME::JetResolutionVsPt histo4;
+  histo4.setInputParamValues(inputs);
   histo4.process(connectionString, PI::mk_input(tag_eta, start, end));
-  edm::LogWarning("JER_PI") << histo4.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo4.data() << std::endl;
 
-  edm::LogWarning("JER_PI") << "## Jet SF vs. Eta Histograms" << std::endl;
+  edm::LogPrint("JER_PI") << "## Jet SF vs. Eta Histograms" << std::endl;
 
   JME::JetScaleFactorVsEtaNORM histo5;
+  histo5.setInputParamValues(inputs);
   histo5.process(connectionString, PI::mk_input(tag_sf, start, end));
-  edm::LogWarning("JER_PI") << histo5.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo5.data() << std::endl;
 
   JME::JetScaleFactorVsEtaDOWN histo6;
+  histo6.setInputParamValues(inputs);
   histo6.process(connectionString, PI::mk_input(tag_sf, start, end));
-  edm::LogWarning("JER_PI") << histo6.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo6.data() << std::endl;
 
   JME::JetScaleFactorVsEtaUP histo7;
+  histo7.setInputParamValues(inputs);
   histo7.process(connectionString, PI::mk_input(tag_sf, start, end));
-  edm::LogWarning("JER_PI") << histo7.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo7.data() << std::endl;
 
   tag_sf = "JR_Autumn18_V7_MC_SF_AK4PF";
 
-  edm::LogWarning("JER_PI") << "## Jet SF vs. Pt Histograms" << std::endl;
+  edm::LogPrint("JER_PI") << "## Jet SF vs. Pt Histograms" << std::endl;
 
   JME::JetScaleFactorVsPtNORM histo8;
+  histo8.setInputParamValues(inputs);
   histo8.process(connectionString, PI::mk_input(tag_sf, start, end));
-  edm::LogWarning("JER_PI") << histo8.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo8.data() << std::endl;
 
   JME::JetScaleFactorVsPtDOWN histo9;
+  histo9.setInputParamValues(inputs);
   histo9.process(connectionString, PI::mk_input(tag_sf, start, end));
-  edm::LogWarning("JER_PI") << histo9.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo9.data() << std::endl;
 
   JME::JetScaleFactorVsPtUP histo10;
+  histo10.setInputParamValues(inputs);
   histo10.process(connectionString, PI::mk_input(tag_sf, start, end));
-  edm::LogWarning("JER_PI") << histo10.data() << std::endl;
+  edm::LogPrint("JER_PI") << histo10.data() << std::endl;
+
+  inputs.clear();
+#if PY_MAJOR_VERSION >= 3
+  // TODO check why this Py_INCREF is necessary...
+  Py_INCREF(inputs.ptr());
+#endif
 
   Py_Finalize();
 }

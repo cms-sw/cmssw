@@ -1,6 +1,8 @@
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+#include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
+#include "RecoTracker/MkFitCore/interface/Config.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
-#include "MaterialEffects.h"
 #include "PropagationMPlex.h"
 
 //#define DEBUG
@@ -297,7 +299,12 @@ namespace mkfit {
     MPlexLL errorPropTmp(0.f);   //initialize to zero
     MPlexLL errorPropSwap(0.f);  //initialize to zero
 
+    // loop does not vectorize with llvm16, and it issues a warning
+    // that apparently can't be suppressed with a pragma.  Needs to
+    // be rechecked if future llvm versions improve vectorization.
+#if !defined(__clang__)
 #pragma omp simd
+#endif
     for (int n = 0; n < NN; ++n) {
       //initialize erroProp to identity matrix
       errorProp(n, 0, 0) = 1.f;
@@ -477,7 +484,7 @@ namespace mkfit {
                                 MPlexLL& errorProp,
                                 MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags pflags) {
+                                const PropagationFlags& pflags) {
     errorProp.setVal(0.f);
     outFailFlag.setVal(0.f);
 
@@ -492,7 +499,7 @@ namespace mkfit {
                               MPlexLV& outPar,
                               MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags& pflags,
                               const MPlexQI* noMatEffPtr) {
     // bool debug = true;
 
@@ -533,20 +540,18 @@ namespace mkfit {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
       MPlexQF propSign;
+
+      const TrackerInfo& tinfo = *pflags.tracker_info;
+
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         if (n >= N_proc || (outFailFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0)))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const int zbin = Config::materialEff.getZbin(outPar(n, 2, 0));
-          const int rbin = Config::materialEff.getRbin(msRad(n, 0, 0));
-          hitsRl(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getRlVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
-          hitsXi(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getXiVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
+          auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), msRad(n, 0, 0));
+          hitsRl(n, 0, 0) = mat.radl;
+          hitsXi(n, 0, 0) = mat.bbxi;
         }
         const float r0 = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
         const float r = msRad(n, 0, 0);
@@ -599,7 +604,7 @@ namespace mkfit {
                               MPlexLV& outPar,
                               MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags& pflags,
                               const MPlexQI* noMatEffPtr) {
     // debug = true;
 
@@ -636,20 +641,19 @@ namespace mkfit {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
       MPlexQF propSign;
+
+      const TrackerInfo& tinfo = *pflags.tracker_info;
+
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const int zbin = Config::materialEff.getZbin(msZ(n, 0, 0));
-          const int rbin = Config::materialEff.getRbin(std::hypot(outPar(n, 0, 0), outPar(n, 1, 0)));
-          hitsRl(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getRlVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
-          hitsXi(n, 0, 0) = (zbin >= 0 && zbin < Config::nBinsZME && rbin >= 0 && rbin < Config::nBinsRME)
-                                ? Config::materialEff.getXiVal(zbin, rbin)
-                                : 0.f;  // protect against crazy propagations
+          const float hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
+          auto mat = tinfo.material_checked(std::abs(msZ(n, 0, 0)), hypo);
+          hitsRl(n, 0, 0) = mat.radl;
+          hitsXi(n, 0, 0) = mat.bbxi;
         }
         const float zout = msZ.constAt(n, 0, 0);
         const float zin = inPar.constAt(n, 2, 0);
@@ -712,7 +716,7 @@ namespace mkfit {
                 MPlexLL& errorProp,
                 MPlexQI& outFailFlag,
                 const int N_proc,
-                const PropagationFlags pflags) {
+                const PropagationFlags& pflags) {
     errorProp.setVal(0.f);
 
 #pragma omp simd

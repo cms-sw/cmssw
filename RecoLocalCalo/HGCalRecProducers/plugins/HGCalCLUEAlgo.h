@@ -16,6 +16,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalCLUEStrategy.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -24,18 +25,13 @@
 #include <string>
 #include <vector>
 
-using Density = hgcal_clustering::Density;
-
-template <typename TILE>
+template <typename TILE, typename STRATEGY>
 class HGCalCLUEAlgoT : public HGCalClusteringAlgoBase {
 public:
-  HGCalCLUEAlgoT(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
+  HGCalCLUEAlgoT(const edm::ParameterSet& ps)
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
-            reco::CaloCluster::undefined,
-            iC),
-        thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
-        positionDeltaRho2_(ps.getParameter<double>("positionDeltaRho2")),
+            reco::CaloCluster::undefined),
         vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),
         kappa_(ps.getParameter<double>("kappa")),
         ecut_(ps.getParameter<double>("ecut")),
@@ -77,10 +73,7 @@ public:
       cells.clear();
       cells.shrink_to_fit();
     }
-    density_.clear();
   }
-
-  Density getDensity() override;
 
   void computeThreshold();
 
@@ -123,19 +116,12 @@ public:
   typedef math::XYZPoint Point;
 
 private:
-  // To compute the cluster position
-  std::vector<double> thresholdW0_;
-  const double positionDeltaRho2_;
-
   // The two parameters used to identify clusters
   std::vector<double> vecDeltas_;
   double kappa_;
 
   // The hit energy cutoff
   double ecut_;
-
-  // For keeping the density per hit
-  Density density_;
 
   // various parameters used for calculating the noise levels for a given sensor (and whether to use
   // them)
@@ -161,11 +147,8 @@ private:
 
   struct CellsOnLayer {
     std::vector<DetId> detid;
-    std::vector<bool> isSi;
-    std::vector<float> x;
-    std::vector<float> y;
-    std::vector<float> eta;
-    std::vector<float> phi;
+    std::vector<float> dim1;
+    std::vector<float> dim2;
 
     std::vector<float> weight;
     std::vector<float> rho;
@@ -179,11 +162,8 @@ private:
 
     void clear() {
       detid.clear();
-      isSi.clear();
-      x.clear();
-      y.clear();
-      eta.clear();
-      phi.clear();
+      dim1.clear();
+      dim2.clear();
       weight.clear();
       rho.clear();
       delta.clear();
@@ -196,11 +176,8 @@ private:
 
     void shrink_to_fit() {
       detid.shrink_to_fit();
-      isSi.shrink_to_fit();
-      x.shrink_to_fit();
-      y.shrink_to_fit();
-      eta.shrink_to_fit();
-      phi.shrink_to_fit();
+      dim1.shrink_to_fit();
+      dim2.shrink_to_fit();
       weight.shrink_to_fit();
       rho.shrink_to_fit();
       delta.shrink_to_fit();
@@ -216,38 +193,32 @@ private:
 
   std::vector<int> numberOfClustersPerLayer_;
 
-  inline float distance2(int cell1, int cell2, int layerId, bool isEtaPhi) const {  // distance squared
-    if (isEtaPhi) {
-      const float dphi = reco::deltaPhi(cells_[layerId].phi[cell1], cells_[layerId].phi[cell2]);
-      const float deta = cells_[layerId].eta[cell1] - cells_[layerId].eta[cell2];
-      return (deta * deta + dphi * dphi);
-    } else {
-      const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
-      const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
-      return (dx * dx + dy * dy);
-    }
-  }
-
-  inline float distance(int cell1, int cell2, int layerId, bool isEtaPhi) const {  // 2-d distance on the layer (x-y)
-    return std::sqrt(distance2(cell1, cell2, layerId, isEtaPhi));
+  inline float distance(const TILE& lt, int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
+    return std::sqrt(lt.distance2(cells_[layerId].dim1[cell1],
+                                  cells_[layerId].dim2[cell1],
+                                  cells_[layerId].dim1[cell2],
+                                  cells_[layerId].dim2[cell2]));
   }
 
   void prepareDataStructures(const unsigned int layerId);
+  void calculateLocalDensity(const TILE& lt, const unsigned int layerId,
+                             float delta);  // return max density
+  void calculateLocalDensity(const TILE& lt, const unsigned int layerId, float delta, HGCalSiliconStrategy strategy);
   void calculateLocalDensity(const TILE& lt,
                              const unsigned int layerId,
-                             float delta_c,
-                             float delta_r);  // return max density
-  void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta_c, float delta_r);
-  int findAndAssignClusters(const unsigned int layerId, float delta_c, float delta_r);
-  math::XYZPoint calculatePosition(const std::vector<int>& v, const unsigned int layerId) const;
-  void setDensity(const unsigned int layerId);
+                             float delta,
+                             HGCalScintillatorStrategy strategy);
+  void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta);
+  int findAndAssignClusters(const unsigned int layerId, float delta);
 };
 
 // explicit template instantiation
-extern template class HGCalCLUEAlgoT<HGCalLayerTiles>;
-extern template class HGCalCLUEAlgoT<HFNoseLayerTiles>;
+extern template class HGCalCLUEAlgoT<HGCalSiliconLayerTiles, HGCalSiliconStrategy>;
+extern template class HGCalCLUEAlgoT<HGCalScintillatorLayerTiles, HGCalScintillatorStrategy>;
+extern template class HGCalCLUEAlgoT<HFNoseLayerTiles, HGCalSiliconStrategy>;
 
-using HGCalCLUEAlgo = HGCalCLUEAlgoT<HGCalLayerTiles>;
-using HFNoseCLUEAlgo = HGCalCLUEAlgoT<HFNoseLayerTiles>;
+using HGCalSiCLUEAlgo = HGCalCLUEAlgoT<HGCalSiliconLayerTiles, HGCalSiliconStrategy>;
+using HGCalSciCLUEAlgo = HGCalCLUEAlgoT<HGCalScintillatorLayerTiles, HGCalScintillatorStrategy>;
+using HFNoseCLUEAlgo = HGCalCLUEAlgoT<HFNoseLayerTiles, HGCalSiliconStrategy>;
 
 #endif

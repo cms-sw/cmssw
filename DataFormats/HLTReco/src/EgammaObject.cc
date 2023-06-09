@@ -39,6 +39,7 @@ float trigger::EgammaObject::var(const std::string& varName, const bool raiseExc
 
 std::vector<std::string> trigger::EgammaObject::varNames() const {
   std::vector<std::string> names;
+  names.reserve(vars_.size());
   for (const auto& var : vars_) {
     names.push_back(var.first);
   }

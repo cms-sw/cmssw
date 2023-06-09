@@ -10,6 +10,9 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="RecoLocalTracker/SiStripClusterizer"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/IPTools"/>
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="DQMTrackingMonitorSourcePlugins">
 </library>

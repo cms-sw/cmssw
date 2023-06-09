@@ -1,27 +1,27 @@
-#include <cub/cub.cuh>
-
-#include "HeterogeneousCore/CUDAUtilities/interface/allocate_device.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/allocate_host.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
-
-#include "CUDADataFormats/SiStripCluster/interface/SiStripClustersCUDA.h"
-
-#include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditionsGPU.h"
-
-#include "ChannelLocsGPU.h"
-#include "SiStripRawToClusterGPUKernel.h"
-#include "StripDataView.h"
-
 //#define GPU_DEBUG
 #if defined(EDM_ML_DEBUG) || defined(GPU_DEBUG)
 #define GPU_CHECK
 #include <cstdio>
 #endif
+
+#include <cub/cub.cuh>
+// prevent _Float16 defined by CUDA headers from hiding the ISO C type used by GCC
+#ifdef _Float16
+#undef _Float16
+#endif
+
+#include "CUDADataFormats/SiStripCluster/interface/SiStripClustersCUDA.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditionsGPU.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/allocate_device.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/allocate_host.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+
+#include "ChannelLocsGPU.h"
+#include "SiStripRawToClusterGPUKernel.h"
+#include "StripDataView.h"
 
 using namespace stripgpu;
 using ConditionsDeviceView = SiStripClusterizerConditionsGPU::Data::DeviceView;
