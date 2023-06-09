@@ -3511,11 +3511,10 @@ steps['HARVESTPROMPTRUN3']=merge([{'--data':'', '-s':'HARVESTING:@allForPrompt',
 
 
 steps['HARVESTRUN3_2022']=merge([{'--data':'', '-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM+@nanoAODDQM','--era':'Run3'},steps['HARVESTDRUN3']])
+steps['HARVESTRUN3_2023']=merge([{'--era':'Run3_2023', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['HARVESTRUN3_2022']])
 steps['HARVESTRUN3_pixelTrackingOnly'] = merge([ {'-s':'HARVESTING:@pixelTrackingOnlyDQM'}, steps['HARVESTRUN3_2023'] ])
 steps['HARVESTRUN3_ECALOnly'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVESTRUN3_2023'] ])
 steps['HARVESTRUN3_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVESTRUN3_2023'] ])
-
-steps['HARVESTRUN3_2023']=merge([{'--era':'Run3_2023', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['HARVESTRUN3_2022']])
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
