@@ -123,6 +123,7 @@ protected:
   const Int_t nCodeError_ = 2;
   const Int_t nCodeWarning_ = 3;
   const Int_t nCodeLowError_ = 4;
+  const Int_t nCodeMasked_ = 5;
 
   const Int_t nBitWarnVFAT_ = 7;
   const Int_t nBitErrVFAT_ = 6;
@@ -416,6 +417,8 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
 
 Int_t GEMDQMHarvester::assessOneBin(
     std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumErr, Float_t fNumWarn) {
+  if (fNumErr < 0)
+    return nCodeMasked_;
   if (fNumErr > fCutErr_ * fAll)  // The error status criterion
     return nCodeError_;
   else if (fNumErr > fCutLowErr_ * fAll)  // The low-error status criterion

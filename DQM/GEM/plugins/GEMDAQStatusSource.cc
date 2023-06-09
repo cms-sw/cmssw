@@ -128,6 +128,7 @@ void GEMDAQStatusSource::SetLabelOHStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "L1A FIFO near full", 2);
   h2Status->setBinLabel(unBinPos++, "Event size warn", 2);
   h2Status->setBinLabel(unBinPos++, "Invalid VFAT", 2);
+  h2Status->setBinLabel(unBinPos++, "missing VFATs", 2);
   h2Status->setBinLabel(unBinPos++, "Event FIFO full", 2);
   h2Status->setBinLabel(unBinPos++, "Input FIFO full", 2);
   h2Status->setBinLabel(unBinPos++, "L1A FIFO full", 2);
@@ -154,6 +155,7 @@ void GEMDAQStatusSource::SetLabelVFATStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "Invalid header", 2);
   h2Status->setBinLabel(unBinPos++, "AMC EC mismatch", 2);
   h2Status->setBinLabel(unBinPos++, "AMC BC mismatch", 2);
+  h2Status->setBinLabel(unBinPos++, "missing VFAT", 2);
 }
 
 void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &iSetup) {
@@ -458,8 +460,15 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     }
   }
 
+  std::map<ME5IdsKey, uint32_t> map_missingVFATs;
+  std::map<ME5IdsKey, uint32_t> map_vfatMask;
+
   for (auto ohIt = gemOH->begin(); ohIt != gemOH->end(); ++ohIt) {
     GEMDetId gid = (*ohIt).first;
+    ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
+    MEStationInfo &stationInfo = mapStationInfo_[key3];
+
+    Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
 
     const GEMOHStatusCollection::Range &range = (*ohIt).second;
     for (auto OHStatus = range.first; OHStatus != range.second; ++OHStatus) {
@@ -468,6 +477,17 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), nIdxModule};
       ME5IdsKey key5Mod{
           gid.region(), gid.station(), gid.layer(), nIdxModule, nCh};  // WARNING: Chamber+Module, not iEta
+
+      auto vfatMask = OHStatus->vfatMask();
+      map_missingVFATs[key5Mod] = OHStatus->missingVFATs();
+      map_vfatMask[key5Mod] = vfatMask;
+
+      for (Int_t i = 0; i < nNumVFATPerModule; i++) {
+        if ((vfatMask & (1 << i)) == 0) {
+          // -16: A sufficient large number to avoid any effect from a buggy filling
+          mapStatusErrVFATPerLayer_.Fill(key4, nCh, i, -16);
+        }
+      }
 
       GEMOHStatus::Warnings warnings{OHStatus->warnings()};
       if (warnings.EvtNF)
@@ -480,30 +500,32 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
         mapStatusOH_.Fill(key4, nCh, 5);
       if (warnings.InValidVFAT)
         mapStatusOH_.Fill(key4, nCh, 6);
+      if (warnings.missingVFAT)
+        mapStatusOH_.Fill(key4, nCh, 7);
 
       GEMOHStatus::Errors errors{OHStatus->errors()};
       if (errors.EvtF)
-        mapStatusOH_.Fill(key4, nCh, 7);
-      if (errors.InF)
         mapStatusOH_.Fill(key4, nCh, 8);
-      if (errors.L1aF)
+      if (errors.InF)
         mapStatusOH_.Fill(key4, nCh, 9);
-      if (errors.EvtSzOFW)
+      if (errors.L1aF)
         mapStatusOH_.Fill(key4, nCh, 10);
-      if (errors.Inv)
+      if (errors.EvtSzOFW)
         mapStatusOH_.Fill(key4, nCh, 11);
-      if (errors.OOScAvV)
+      if (errors.Inv)
         mapStatusOH_.Fill(key4, nCh, 12);
-      if (errors.OOScVvV)
+      if (errors.OOScAvV)
         mapStatusOH_.Fill(key4, nCh, 13);
-      if (errors.BxmAvV)
+      if (errors.OOScVvV)
         mapStatusOH_.Fill(key4, nCh, 14);
-      if (errors.BxmVvV)
+      if (errors.BxmAvV)
         mapStatusOH_.Fill(key4, nCh, 15);
-      if (errors.InUfw)
+      if (errors.BxmVvV)
         mapStatusOH_.Fill(key4, nCh, 16);
-      if (errors.badVFatCount)
+      if (errors.InUfw)
         mapStatusOH_.Fill(key4, nCh, 17);
+      if (errors.badVFatCount)
+        mapStatusOH_.Fill(key4, nCh, 18);
 
       Bool_t bWarn = warnings.wcodes != 0;
       Bool_t bErr = errors.codes != 0;
@@ -533,6 +555,15 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       Int_t nIdxVFAT = vfatStat->vfatPosition();
       Int_t nIdxVFATMod = nIdxVFAT;
 
+      auto missingVFATs = map_missingVFATs[key5Mod] & (1 << nIdxVFAT);
+      auto vfatMask = map_vfatMask[key5Mod] & (1 << nIdxVFAT);
+
+      if (vfatMask == 0) {
+        continue;
+      }
+
+      Bool_t bErr_masked = missingVFATs != 0;
+
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};
       if (warnings.basicOFW)
         mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 2);
@@ -548,9 +579,11 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
         mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 6);
       if (errors.BC)
         mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 7);
+      if (bErr_masked)
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 8);
 
       Bool_t bWarn = warnings.wcodes != 0;
-      Bool_t bErr = errors.codes != 0;
+      Bool_t bErr = errors.codes != 0 || bErr_masked;
       if (!bWarn && !bErr)
         mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 1);
       if (bWarn)
@@ -566,13 +599,6 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
   }
 
   if (nRunType_ == GEMDQM_RUNTYPE_ALLPLOTS || nRunType_ == GEMDQM_RUNTYPE_ONLINE) {
-    // Summarizing all presence of status of each chamber
-    for (auto const &[key5, bErr] : mapChamberAll) {
-      ME4IdsKey key4 = key5Tokey4(key5);
-      Int_t nChamber = keyToChamber(key5);
-      h2SummaryStatusAll->Fill(nChamber, mapStationToIdx_[key4]);
-    }
-
     // Summarizing all presence of status of each chamber
     FillStatusSummaryPlot(mapChamberAll, h2SummaryStatusAll);
     // Summarizing all the error and warning occupancy

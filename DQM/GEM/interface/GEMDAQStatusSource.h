@@ -114,8 +114,8 @@ private:
 
   int nBitAMC13_ = 10;
   int nBitAMC_ = 12;
-  int nBitOH_ = 17;
-  int nBitVFAT_ = 7;
+  int nBitOH_ = 18;
+  int nBitVFAT_ = 8;
 };
 
 #endif  // DQM_GEM_INTERFACE_GEMDAQStatusSource_h
