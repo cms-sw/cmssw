@@ -26,6 +26,10 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
+// 0: region, 1: station, 2: later, 3: module, 4: chamber or iEta
+typedef std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t> ME5IdsKey;
+typedef std::map<ME5IdsKey, dqm::impl::MonitorElement *> MEMap5Ids;
+
 class GEMDQMBase : public DQMEDAnalyzer {
 public:
   // Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
@@ -334,7 +338,7 @@ public:
       return mapHist[key];
     };
 
-    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1, Int_t nIdxStart = 1, Int_t nNumModules = 1) {
+    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1, Int_t nIdxStart = 1) {
       if (!bOperating_)
         return 0;
       if (nNumBin <= 0) {
@@ -349,13 +353,7 @@ public:
       if (histCurr == nullptr)
         return -999;
       for (Int_t i = 1; i <= nNumBin; i++) {
-        Int_t nIdxCh = (nIdxStart + i - 2) / nNumModules + 1;
-        Int_t nIdxMod = (nIdxStart + i - 2) % nNumModules + 1;
-        if (nNumModules > 1) {
-          histCurr->setBinLabel(i, Form("#splitline{%i}{M%i}", nIdxCh, nIdxMod), nAxis);
-        } else {
-          histCurr->setBinLabel(i, Form("%i", nIdxStart + i - 1), nAxis);
-        }
+        histCurr->setBinLabel(i, Form("%i", nIdxStart + i - 1), nAxis);
       }
       return 0;
     };
@@ -479,6 +477,7 @@ public:
   typedef MEMapInfT<MEMap2Ids, ME2IdsKey> MEMap2Inf;
   typedef MEMapInfT<MEMap3Ids, ME3IdsKey> MEMap3Inf;
   typedef MEMapInfT<MEMap4Ids, ME4IdsKey> MEMap4Inf;
+  typedef MEMapInfT<MEMap5Ids, ME5IdsKey> MEMap5Inf;
 
   class MEStationInfo {
   public:
@@ -561,19 +560,27 @@ protected:
   virtual int ProcessWithMEMap2AbsReWithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };  // must be overrided
   virtual int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) { return 0; };              // must be overrided
   virtual int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) { return 0; };              // must be overrided
-  virtual int ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };   // must be overrided
+  virtual int ProcessWithMEMap5(BookingHelper &bh, ME5IdsKey key) { return 0; };              // must be overrided
+  virtual int ProcessWithMEMap4WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };   // must be overrided
+  virtual int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) { return 0; };   // must be overrided
 
   int keyToRegion(ME2IdsKey key) { return std::get<0>(key); };
   int keyToRegion(ME3IdsKey key) { return std::get<0>(key); };
   int keyToRegion(ME4IdsKey key) { return std::get<0>(key); };
+  int keyToRegion(ME5IdsKey key) { return std::get<0>(key); };
   int keyToStation(ME2IdsKey key) { return std::get<1>(key); };
   int keyToStation(ME3IdsKey key) { return std::get<1>(key); };
   int keyToStation(ME4IdsKey key) { return std::get<1>(key); };
+  int keyToStation(ME5IdsKey key) { return std::get<1>(key); };
   int keyToLayer(ME3IdsKey key) { return std::get<2>(key); };
   int keyToLayer(ME4IdsKey key) { return std::get<2>(key); };
+  int keyToLayer(ME5IdsKey key) { return std::get<2>(key); };
+  int keyToModule(ME4IdsKey key) { return std::get<3>(key); };
+  int keyToModule(ME5IdsKey key) { return std::get<3>(key); };
   int keyToChamber(ME4IdsKey key) { return std::get<3>(key); };
-  int keyToIEta(ME3IdsKey key) { return std::get<2>(key); };
+  int keyToChamber(ME5IdsKey key) { return std::get<4>(key); };
   int keyToIEta(ME4IdsKey key) { return std::get<3>(key); };
+  int keyToIEta(ME5IdsKey key) { return std::get<4>(key); };
 
   ME2IdsKey key3Tokey2(ME3IdsKey key) {
     auto keyNew = ME2IdsKey{keyToRegion(key), keyToStation(key)};
@@ -585,7 +592,12 @@ protected:
     return keyNew;
   };
 
-  int SortingLayers(std::vector<ME3IdsKey> &listLayers);
+  ME4IdsKey key5Tokey4(ME5IdsKey key) {
+    auto keyNew = ME4IdsKey{keyToRegion(key), keyToStation(key), keyToLayer(key), keyToModule(key)};
+    return keyNew;
+  };
+
+  int SortingLayers(std::vector<ME4IdsKey> &listLayers);
   dqm::impl::MonitorElement *CreateSummaryHist(DQMStore::IBooker &ibooker, TString strName);
 
   template <typename T>
@@ -605,6 +617,7 @@ protected:
   inline int getDetOccXBin(const int, const int, const int);
   inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
   inline std::string getNameDirLayer(ME3IdsKey key3);
+  inline std::string getNameDirLayer(ME4IdsKey key4);
 
   const GEMGeometry *GEMGeometry_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
@@ -616,12 +629,14 @@ protected:
   std::map<ME3IdsKey, bool> MEMap2WithEtaCheck_;
   std::map<ME3IdsKey, bool> MEMap2AbsReWithEtaCheck_;
   std::map<ME3IdsKey, bool> MEMap3Check_;
-  std::map<ME4IdsKey, bool> MEMap3WithChCheck_;
   std::map<ME4IdsKey, bool> MEMap4Check_;
+  std::map<ME4IdsKey, bool> MEMap4WithChCheck_;
+  std::map<ME5IdsKey, bool> MEMap5WithChCheck_;
+  std::map<ME5IdsKey, bool> MEMap5Check_;
 
   int nMaxNumCh_;
-  std::map<ME3IdsKey, int> mapStationToIdx_;
   std::map<ME3IdsKey, MEStationInfo> mapStationInfo_;
+  std::map<ME4IdsKey, int> mapStationToIdx_;
 };
 
 // Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
@@ -719,6 +734,17 @@ inline std::string GEMDQMBase::getNameDirLayer(ME3IdsKey key3) {
   auto nStation = keyToStation(key3);
   char cRegion = (keyToRegion(key3) > 0 ? 'P' : 'M');
   auto nLayer = keyToLayer(key3);
+  return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));
+}
+
+inline std::string GEMDQMBase::getNameDirLayer(ME4IdsKey key4) {
+  auto nStation = keyToStation(key4);
+  char cRegion = (keyToRegion(key4) > 0 ? 'P' : 'M');
+  auto nLayer = keyToLayer(key4);
+  if (nStation == 2) {
+    auto nModule = keyToModule(key4);
+    return std::string(Form("GE%i1-%c-L%i-M%i", nStation, cRegion, nLayer, nModule));
+  }
   return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));
 }
 

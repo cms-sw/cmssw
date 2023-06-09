@@ -89,13 +89,13 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   float radS = -5.0 / 180 * M_PI;
   float radL = 355.0 / 180 * M_PI;
 
-  mapTotalDigi_layer_ = MEMap3Inf(this, "occ", "Digi Occupancy", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
+  mapTotalDigi_layer_ = MEMap4Inf(this, "occ", "Digi Occupancy", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapDigiWheel_layer_ = MEMap3Inf(
       this, "occ_rphi", "Digi R-Phi Occupancy", 360, radS, radL, 8, fRadiusMin_, fRadiusMax_, "#phi (rad)", "R [cm]");
-  mapDigiOcc_ieta_ = MEMap3Inf(this, "occ_ieta", "Digi iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of fired digis");
+  mapDigiOcc_ieta_ = MEMap4Inf(this, "occ_ieta", "Digi iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of fired digis");
   mapDigiOcc_phi_ =
-      MEMap3Inf(this, "occ_phi", "Digi Phi Occupancy", 72, -5, 355, "#phi (degree)", "Number of fired digis");
-  mapTotalDigiPerEvtLayer_ = MEMap3Inf(this,
+      MEMap4Inf(this, "occ_phi", "Digi Phi Occupancy", 72, -5, 355, "#phi (degree)", "Number of fired digis");
+  mapTotalDigiPerEvtLayer_ = MEMap4Inf(this,
                                        "digis_per_layer",
                                        "Total number of digis per event for each layers",
                                        50,
@@ -116,7 +116,7 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
 
   mapBX_ = MEMap2Inf(this, "bx", "Digi Bunch Crossing", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
 
-  mapDigiOccPerCh_ = MEMap4Inf(this, "occ", "Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Digi", "iEta");
+  mapDigiOccPerCh_ = MEMap5Inf(this, "occ", "Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Digi", "iEta");
 
   if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
     mapDigiWheel_layer_.TurnOff();
@@ -159,27 +159,32 @@ int GEMDigiSource::ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) {
 int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
-  Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
-  Int_t nNewMinIdxChamber = stationInfo.nNumModules_ * (stationInfo.nMinIdxChamber_ - 1) + 1;
-  Int_t nNewMaxIdxChamber = stationInfo.nNumModules_ * stationInfo.nMaxIdxChamber_;
-
-  nNewNumCh *= stationInfo.nNumModules_;
-
-  Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
-
   int nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
-
-  mapTotalDigi_layer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
-  mapTotalDigi_layer_.SetBinConfY(nNumVFATPerModule, -0.5);
-  mapTotalDigi_layer_.bookND(bh, key);
-  mapTotalDigi_layer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber, stationInfo.nNumModules_);
-  mapTotalDigi_layer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapDigiWheel_layer_.SetBinLowEdgeX(stationInfo.fMinPhi_);
   mapDigiWheel_layer_.SetBinHighEdgeX(stationInfo.fMinPhi_ + 2 * M_PI);
   mapDigiWheel_layer_.SetNbinsX(nNumVFATPerEta * stationInfo.nNumChambers_);
   mapDigiWheel_layer_.SetNbinsY(stationInfo.nNumEtaPartitions_);
   mapDigiWheel_layer_.bookND(bh, key);
+
+  return 0;
+}
+
+int GEMDigiSource::ProcessWithMEMap4(BookingHelper& bh, ME4IdsKey key) {
+  ME3IdsKey key3 = key4Tokey3(key);
+  MEStationInfo& stationInfo = mapStationInfo_[key3];
+
+  Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
+  Int_t nNewMinIdxChamber = (stationInfo.nMinIdxChamber_ - 1) + 1;
+  Int_t nNewMaxIdxChamber = stationInfo.nMaxIdxChamber_;
+
+  Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
+
+  mapTotalDigi_layer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
+  mapTotalDigi_layer_.SetBinConfY(nNumVFATPerModule, -0.5);
+  mapTotalDigi_layer_.bookND(bh, key);
+  mapTotalDigi_layer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber);
+  mapTotalDigi_layer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapDigiOcc_ieta_.SetBinConfX(stationInfo.nNumEtaPartitions_);
   mapDigiOcc_ieta_.bookND(bh, key);
@@ -193,17 +198,18 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   return 0;
 }
 
-int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) {
-  ME3IdsKey key3 = key4Tokey3(key);
+int GEMDigiSource::ProcessWithMEMap5WithChamber(BookingHelper& bh, ME5IdsKey key) {
+  ME4IdsKey key4 = key5Tokey4(key);
+  ME3IdsKey key3 = key4Tokey3(key4);
   MEStationInfo& stationInfo = mapStationInfo_[key3];
 
-  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/occupancy_" + getNameDirLayer(key3));
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/occupancy_" + getNameDirLayer(key4));
 
   int nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
   int nNumCh = stationInfo.nNumDigi_;
 
   mapDigiOccPerCh_.SetBinConfX(nNumCh * nNumVFATPerEta, stationInfo.nFirstStrip_ - 0.5);
-  mapDigiOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
+  mapDigiOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_ / stationInfo.nNumModules_);
   mapDigiOccPerCh_.bookND(bh, key);
   mapDigiOccPerCh_.SetLabelForIEta(key, 2);
 
@@ -218,7 +224,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
   edm::Handle<LumiScalersCollection> lumiScalers;
   event.getByToken(lumiScalers_, lumiScalers);
 
-  std::map<ME3IdsKey, Int_t> total_digi_layer;
+  std::map<ME4IdsKey, Int_t> total_digi_layer;
   std::map<ME3IdsKey, Int_t> total_digi_eta;
   for (auto gid : listChamberId_) {
     ME2IdsKey key2{gid.region(), gid.station()};
@@ -228,8 +234,6 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     bTagVFAT.clear();
     MEStationInfo& stationInfo = mapStationInfo_[key3];
     const BoundPlane& surface = GEMGeometry_->idToDet(gid)->surface();
-    if (total_digi_layer.find(key3) == total_digi_layer.end())
-      total_digi_layer[key3] = 0;
     for (auto iEta : mapEtaPartition_[gid]) {
       GEMDetId eId = iEta->id();
       ME3IdsKey key3IEta{gid.region(), gid.station(), eId.ieta()};
@@ -238,29 +242,36 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
       const auto& digis_in_det = gemDigis->get(eId);
       auto nChamberType = mapChamberType_[{gid.station(), gid.layer(), gid.chamber(), eId.ieta()}];
       Int_t nIdxModule = getIdxModule(gid.station(), nChamberType);
-      Int_t nCh = (gid.chamber() - 1) * stationInfo.nNumModules_ + nIdxModule;
+      ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), nIdxModule};
+      ME5IdsKey key5Ch{gid.region(), gid.station(), gid.layer(), nIdxModule, gid.chamber()};
+      if (total_digi_layer.find(key4) == total_digi_layer.end())
+        total_digi_layer[key4] = 0;
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
         Int_t nIdxVFAT = mapStripToVFAT_[{nChamberType, eId.ieta(), d->strip()}];
-        mapTotalDigi_layer_.Fill(key3, nCh, nIdxVFAT);
+        mapTotalDigi_layer_.Fill(key4, gid.chamber(), nIdxVFAT);
 
         // Filling of digi
-        mapDigiOcc_ieta_.Fill(key3, eId.ieta());  // Eta (partition)
+        mapDigiOcc_ieta_.Fill(key4, eId.ieta());  // Eta (partition)
 
         GlobalPoint digi_global_pos = surface.toGlobal(iEta->centreOfStrip(d->strip()));
         Float_t fPhi = (Float_t)digi_global_pos.phi();
         Float_t fPhiShift = restrictAngle(fPhi, stationInfo.fMinPhi_);
         Float_t fPhiDeg = fPhiShift * 180.0 / M_PI;
-        mapDigiOcc_phi_.Fill(key3, fPhiDeg);  // Phi
+        mapDigiOcc_phi_.Fill(key4, fPhiDeg);  // Phi
 
         // Filling of R-Phi occupancy
         Float_t fR = fRadiusMin_ + (fRadiusMax_ - fRadiusMin_) * (eId.ieta() - 0.5) / stationInfo.nNumEtaPartitions_;
         mapDigiWheel_layer_.Fill(key3, fPhiShift, fR);
 
-        mapDigiOccPerCh_.Fill(key4Ch, d->strip(), eId.ieta());  // Per chamber
+        Int_t nIEtaInMod = eId.ieta();
+        if (gid.station() == 2) {
+          nIEtaInMod = (eId.ieta() - 1) % stationInfo.nNumModules_ + 1;
+        }
+        mapDigiOccPerCh_.Fill(key5Ch, d->strip(), nIEtaInMod);  // Per chamber
 
         // For total digis
-        total_digi_layer[key3]++;
+        total_digi_layer[key4]++;
         total_digi_eta[key3IEta]++;
 
         // Filling of bx

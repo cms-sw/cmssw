@@ -48,21 +48,21 @@ protected:
     bErr = true;
   };
 
-  void FillStatusSummaryPlot(std::map<ME4IdsKey, bool> &mapChamber,
+  void FillStatusSummaryPlot(std::map<ME5IdsKey, bool> &mapChamber,
                              MonitorElement *h2Plot,
-                             std::map<ME4IdsKey, bool> *pmapSummary = nullptr) {
-    for (auto const &[key4, bFlag] : mapChamber) {  // bFlag is not used
-      ME3IdsKey key3 = key4Tokey3(key4);
-      Int_t nChamber = keyToChamber(key4);
-      h2Plot->Fill(nChamber, mapStationToIdx_[key3]);
+                             std::map<ME5IdsKey, bool> *pmapSummary = nullptr) {
+    for (auto const &[key5, bFlag] : mapChamber) {  // bFlag is not used
+      ME4IdsKey key4 = key5Tokey4(key5);
+      Int_t nChamber = keyToChamber(key5);
+      h2Plot->Fill(nChamber, mapStationToIdx_[key4]);
       if (pmapSummary != nullptr)
-        (*pmapSummary)[key4] = true;
+        (*pmapSummary)[key5] = true;
     }
   };
 
 private:
-  int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) override;
-  int ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) override;
+  int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) override;
+  int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) override;
 
   void SetLabelAMC13Status(MonitorElement *h2Status);
   void SetLabelAMCStatus(MonitorElement *h2Status);
@@ -80,12 +80,12 @@ private:
 
   MonitorElement *h2AMC13Status_;
 
-  MEMap3Inf mapStatusOH_;
-  MEMap3Inf mapStatusVFAT_;
+  MEMap4Inf mapStatusOH_;
+  MEMap4Inf mapStatusVFAT_;
 
-  MEMap3Inf mapStatusWarnVFATPerLayer_;
-  MEMap3Inf mapStatusErrVFATPerLayer_;
-  MEMap4Inf mapStatusVFATPerCh_;
+  MEMap4Inf mapStatusWarnVFATPerLayer_;
+  MEMap4Inf mapStatusErrVFATPerLayer_;
+  MEMap5Inf mapStatusVFATPerCh_;
 
   MonitorElement *h2SummaryStatusAll;
   MonitorElement *h2SummaryStatusWarning;

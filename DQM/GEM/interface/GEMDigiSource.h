@@ -46,7 +46,8 @@ private:
   int ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
-  int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
+  int ProcessWithMEMap4(BookingHelper& bh, ME4IdsKey key) override;
+  int ProcessWithMEMap5WithChamber(BookingHelper& bh, ME5IdsKey key) override;
 
   const static int nNumBitDigiOcc_ = 16384;
 
@@ -59,15 +60,16 @@ private:
   std::map<ME4IdsKey, Int_t> mapChamberType_;
   std::map<ME3IdsKey, Int_t> mapStripToVFAT_;
 
-  MEMap3Inf mapTotalDigi_layer_;
   MEMap3Inf mapDigiWheel_layer_;
-  MEMap3Inf mapDigiOcc_ieta_;
-  MEMap3Inf mapDigiOcc_phi_;
-  MEMap3Inf mapTotalDigiPerEvtLayer_;
+
+  MEMap4Inf mapTotalDigi_layer_;
+  MEMap4Inf mapDigiOcc_ieta_;
+  MEMap4Inf mapDigiOcc_phi_;
+  MEMap4Inf mapTotalDigiPerEvtLayer_;
   MEMap3Inf mapTotalDigiPerEvtIEta_;
   MEMap2Inf mapBX_;
 
-  MEMap4Inf mapDigiOccPerCh_;
+  MEMap5Inf mapDigiOccPerCh_;
 
   std::string strFolderMain_;
 

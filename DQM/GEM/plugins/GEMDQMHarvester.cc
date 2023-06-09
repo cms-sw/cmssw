@@ -150,7 +150,6 @@ protected:
   std::vector<std::string> listLayer_;
   std::map<std::string, int> mapIdxLayer_;  // All indices in the following objects start at 1
   std::map<int, int> mapNumChPerChamber_;
-  std::map<int, int> mapNumModule_;
   std::map<int, std::map<int, int>> mapIdxToChamberInOcc_;
   std::map<int, MonitorElement *> mapHistLumiFunc_;
   Bool_t bIsStatusChambersInit_;
@@ -232,7 +231,6 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
         continue;
       listOccPlots[nIdxLayer] = h2SrcVFATOcc;
       mapIdxToChamberInOcc_[nIdxLayer] = {};
-      Int_t nNumModule = mapNumModule_[nIdxLayer];  // FIXME: Is this way to obtain the module number fully general?
       // Obtaining the bin indices of chambers from their labels
       for (Int_t i = 1; i <= h2SrcVFATOcc->getNbinsX(); i++) {
         std::string strLabel = h2SrcVFATOcc->getTH2F()->GetXaxis()->GetBinLabel(i);
@@ -257,9 +255,6 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
 
         if (listNumExtract.empty()) {  // Errneous case; but the job should not be dead
           edm::LogError("GEMDQMHarvester") << "Error: Wrong label of GEM VFAT occupancy plot: " << strLabel;
-        } else if (listNumExtract.size() > 1 && nNumModule > 1) {
-          Int_t nCh = (listNumExtract[0] - 1) * nNumModule + listNumExtract[1];
-          mapIdxToChamberInOcc_[nIdxLayer][nCh] = i;
         } else {
           mapIdxToChamberInOcc_[nIdxLayer][listNumExtract[0]] = i;
         }
@@ -307,8 +302,7 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
     if (mapIdxLayer_.find(strSuffix) == mapIdxLayer_.end())
       continue;
     Int_t nIdxLayer = mapIdxLayer_[strSuffix];
-    auto nNumChamber = mapNumChPerChamber_[nIdxLayer] / mapNumModule_[nIdxLayer];
-    createInactiveChannelFracHist(store, strSuffix, nNumChamber);
+    createInactiveChannelFracHist(store, strSuffix, mapNumChPerChamber_[nIdxLayer]);
   }
 
   store->bookFloat("reportSummary")->Fill(fReportSummary);
@@ -364,7 +358,7 @@ void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElem
         if (strLayer.find("GE11") != std::string::npos) {
           nBinXActual = 36;
         } else if (strLayer.find("GE21") != std::string::npos) {
-          nBinXActual = 72;
+          nBinXActual = 18;
         } else if (strLayer.find("GE01") != std::string::npos) {
           nBinXActual = 36;
         }
@@ -372,7 +366,6 @@ void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElem
       listLayer_.push_back(strLayer);
       mapIdxLayer_[strLayer] = i;
       mapNumChPerChamber_[i] = nBinXActual;
-      mapNumModule_[i] = (strLayer.find("GE21") != std::string::npos ? 4 : 1);
     }
   } else {  // For others (validation and...?)
     listLayer_.push_back("");
@@ -629,15 +622,8 @@ void GEMDQMHarvester::createLumiFuncHist(edm::Service<DQMStore> &store,
 
     h2Summary->setXTitle("Luminosity block");
     h2Summary->setYTitle("Chamber");
-    Int_t nNumModule = mapNumModule_[nIdxLayer];
     for (Int_t i = 1; i <= nNumCh; i++) {
-      if (nNumModule <= 1) {
-        h2Summary->setBinLabel(i, Form("%i", i), 2);
-      } else {
-        Int_t nCh = (i - 1) / nNumModule + 1;
-        Int_t nModule = (i - 1) / nNumModule + 1;
-        h2Summary->setBinLabel(i, Form("%i M%i", nCh, nModule), 2);
-      }
+      h2Summary->setBinLabel(i, Form("%i", i), 2);
     }
   } else {
     h2Summary = mapHistLumiFunc_[nIdxLayer];
@@ -718,6 +704,7 @@ std::string getNameChamberOccGE21(std::string strSuffix, Int_t nIdxCh) {
   char cRegion;
   char cChType = (nIdxCh % 2 == 0 ? 'L' : 'S');
   Int_t nLayer;
+  Int_t nModule;
 
   if (strSuffix.find("-M-") != std::string::npos)
     cRegion = 'M';
@@ -733,8 +720,34 @@ std::string getNameChamberOccGE21(std::string strSuffix, Int_t nIdxCh) {
   else
     return "";
 
-  return Form(
-      "GEM/Digis/occupancy_GE21-%c-L%i/occ_GE21-%c-%02iL%i-%c", cRegion, nLayer, cRegion, nIdxCh, nLayer, cChType);
+  if (strSuffix.find("-M1") != std::string::npos)
+    nModule = 1;
+  else if (strSuffix.find("-M2") != std::string::npos)
+    nModule = 2;
+  else if (strSuffix.find("-M3") != std::string::npos)
+    nModule = 3;
+  else if (strSuffix.find("-M4") != std::string::npos)
+    nModule = 4;
+  else if (strSuffix.find("-M5") != std::string::npos)
+    nModule = 5;
+  else if (strSuffix.find("-M6") != std::string::npos)
+    nModule = 6;
+  else if (strSuffix.find("-M7") != std::string::npos)
+    nModule = 7;
+  else if (strSuffix.find("-M8") != std::string::npos)
+    nModule = 8;
+  else
+    return "";
+
+  return Form("GEM/Digis/occupancy_GE21-%c-L%i-M%i/occ_GE21-%c-%02iL%i-M%i-%c",
+              cRegion,
+              nLayer,
+              nModule,
+              cRegion,
+              nIdxCh,
+              nLayer,
+              nModule,
+              cChType);
 }
 
 std::string getNameChamberOccNull(std::string strSuffix, Int_t nIdxChamber) {
