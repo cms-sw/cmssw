@@ -1,6 +1,7 @@
 import math 
 import json
 import os
+from sys import version_info
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
@@ -26,7 +27,10 @@ valiMode = "StandAlone"
 # Read in AllInOne config in JSON format
 ###################################################################
 with open(options.config, "r") as configFile:
-    config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
+    if version_info.major == 2:
+        config = _byteify(json.load(configFile, object_hook=_byteify),ignore_dicts=True)
+    else:
+        config = json.load(configFile)
 
 ###################################################################
 # Read filenames from given TXT file
