@@ -28,6 +28,10 @@ validationHarvestingNoHLT = cms.Path(postValidation*postValidation_gen)
 validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_gen)
 #validationHarvestingNoHLT = cms.Sequence(postValidation*postValidation_gen)
 #validationHarvesting = cms.Sequence(postValidation*hltpostvalidation*postValidation_gen)
+validationHarvestingPhase2 = cms.Path(hltpostvalidation)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(validationHarvesting,validationHarvestingPhase2)
 
 _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
