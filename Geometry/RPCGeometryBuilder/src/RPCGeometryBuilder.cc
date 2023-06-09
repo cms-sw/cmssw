@@ -58,25 +58,25 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::build(const cms::DDCompactView*
 
 std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& fview,
                                                                const MuonGeometryConstants& muonConstants) {
-  LogDebug("RPCGeometryBuilder") << "Building the geometry service";
+  edm::LogVerbatim("RPCGeometryBuilder") << "Building the geometry service";
   std::unique_ptr<RPCGeometry> geometry = std::make_unique<RPCGeometry>();
-  LogDebug("RPCGeometryBuilder") << "About to run through the RPC structure\n"
+  edm::LogVerbatim("RPCGeometryBuilder") << "About to run through the RPC structure\n"
                                  << " First logical part " << fview.logicalPart().name().name();
   bool doSubDets = fview.firstChild();
-  LogDebug("RPCGeometryBuilder") << "doSubDets = " << doSubDets;
+  edm::LogVerbatim("RPCGeometryBuilder") << "doSubDets = " << doSubDets;
   while (doSubDets) {
-    LogDebug("RPCGeometryBuilder") << "start the loop";
+    edm::LogVerbatim("RPCGeometryBuilder") << "start the loop";
     MuonGeometryNumbering mdddnum(muonConstants);
-    LogDebug("RPCGeometryBuilder") << "Getting the Muon base Number";
+    edm::LogVerbatim("RPCGeometryBuilder") << "Getting the Muon base Number";
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
-    LogDebug("RPCGeometryBuilder") << "Start the Rpc Numbering Schema";
+//  edm::LogVerbatim("RPCGeometryBuilder") << "Start the Rpc Numbering Schema";
     RPCNumberingScheme rpcnum(muonConstants);
-    LogDebug("RPCGeometryBuilder") << "Getting the Unit Number";
+    edm::LogVerbatim("RPCGeometryBuilder") << "Getting the Unit Number";
     const int detid = rpcnum.baseNumberToUnitNumber(mbn);
-    LogDebug("RPCGeometryBuilder") << "Getting the RPC det Id " << detid;
+    edm::LogVerbatim("RPCGeometryBuilder") << "Getting the RPC det Id " << detid;
     RPCDetId rpcid(detid);
     RPCDetId chid(rpcid.region(), rpcid.ring(), rpcid.station(), rpcid.sector(), rpcid.layer(), rpcid.subsector(), 0);
-    LogDebug("RPCGeometryBuilder") << "The RPCDetid is " << rpcid;
+    edm::LogVerbatim("RPCGeometryBuilder") << "The RPCDetid is " << rpcid;
 
     DDValue numbOfStrips("nStrips");
 
@@ -88,7 +88,8 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
       }
     }
 
-    LogDebug("RPCGeometryBuilder") << ((nStrips == 0) ? ("No strip found!!") : (""));
+    if (nStrips == 0)
+      edm::LogVerbatim("RPCGeometryBuilder") << "No strip found!!";
 
     std::vector<double> dpar = fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
@@ -102,7 +103,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
     Surface::PositionType pos(geant_units::operators::convertMmToCm(tran.x()),
                               geant_units::operators::convertMmToCm(tran.y()),
                               geant_units::operators::convertMmToCm(tran.z()));
-    edm::LogVerbatim("RPCGeometryBuilder") << "(2), tran.x() " << geant_units::operators::convertMmToCm(tran.x())
+    edm::LogVerbatim("RPCGeometryBuilder") << "(2) tran.x(): " << geant_units::operators::convertMmToCm(tran.x())
                                            << " tran.y(): " << geant_units::operators::convertMmToCm(tran.y())
                                            << " tran.z(): " << geant_units::operators::convertMmToCm(tran.z());
 
@@ -128,7 +129,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
 
       // Barrel
       edm::LogVerbatim("RPCGeometryBuilder")
-          << "(3) dpar.size() == 3, width: " << width << " length: " << length << " thickness: " << thickness;
+          << "(3) Box, width: " << width << " length: " << length << " thickness: " << thickness;
 
       bounds = new RectangularPlaneBounds(width, length, thickness);
       const std::vector<float> pars = {width, length, float(numbOfStrips.doubles()[0])};
@@ -143,13 +144,11 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
 
       bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
 
-      const std::vector<float> pars = {float(geant_units::operators::convertMmToCm(dpar[4])),
-                                       float(geant_units::operators::convertMmToCm(dpar[8])),
-                                       float(geant_units::operators::convertMmToCm(dpar[0])),
+      const std::vector<float> pars = {be, te, ap,
                                        float(numbOfStrips.doubles()[0])};
       //Forward
       edm::LogVerbatim("RPCGeometryBuilder")
-          << "(4), else, dpar[4]: " << be << " dpar[8]: " << te << " dpar[0]: " << ap << " ti: " << ti;
+	<< "(4) be: " << be << " te: " << te << " ap: " << ap << " ti: " << ti << " strips " << numbOfStrips.doubles()[0];
 
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, name, pars);
 
@@ -159,7 +158,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
       Basic3DVector<float> newZ(0., 1., 0.);
       rot.rotateAxes(newX, newY, newZ);
     }
-    LogDebug("RPCGeometryBuilder") << "   Number of strips " << nStrips;
+    edm::LogVerbatim("RPCGeometryBuilder") << "   Number of strips " << nStrips;
 
     BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
@@ -250,13 +249,19 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(DDFilteredView& f
 
 std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredView& fview,
                                                                const MuonGeometryConstants& muonConstants) {
+  edm::LogVerbatim("RPCGeometryBuilder") << "Building the geometry service";
   std::unique_ptr<RPCGeometry> geometry = std::make_unique<RPCGeometry>();
 
   while (fview.firstChild()) {
+    edm::LogVerbatim("RPCGeometryBuilder") << "start the loop";
     MuonGeometryNumbering mdddnum(muonConstants);
+    edm::LogVerbatim("RPCGeometryBuilder") << "Getting the Muon base Number";
     RPCNumberingScheme rpcnum(muonConstants);
+    edm::LogVerbatim("RPCGeometryBuilder") << "Getting the Unit Number";
     int rawidCh = rpcnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fview.history()));
+    edm::LogVerbatim("RPCGeometryBuilder") << "Getting the RPC det Id " << rawidCh;
     RPCDetId rpcid = RPCDetId(rawidCh);
+    edm::LogVerbatim("RPCGeometryBuilder") << "The RPCDetid is " << rpcid;
 
     RPCDetId chid(rpcid.region(), rpcid.ring(), rpcid.station(), rpcid.sector(), rpcid.layer(), rpcid.subsector(), 0);
 
@@ -267,7 +272,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
     std::string_view name = fview.name();
 
     edm::LogVerbatim("RPCGeometryBuilder")
-        << "(1), detid: " << rawidCh << " name: " << std::string(name) << " number of Strips: " << nStrips;
+        << "(1) detid: " << rawidCh << " name: " << std::string(name) << " number of Strips: " << nStrips;
 
     const Double_t* tran = fview.trans();
 
@@ -276,7 +281,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
 
     Surface::PositionType pos(tran[0] / dd4hep::cm, tran[1] / dd4hep::cm, tran[2] / dd4hep::cm);
     edm::LogVerbatim("RPCGeometryBuilder")
-        << "(2), tran.x(): " << tran[0] / dd4hep::cm << " tran.y(): " << tran[1] / dd4hep::cm
+        << "(2) tran.x(): " << tran[0] / dd4hep::cm << " tran.y(): " << tran[1] / dd4hep::cm
         << " tran.z(): " << tran[2] / dd4hep::cm;
     DD3Vector x, y, z;
     rota.GetComponents(x, y, z);
@@ -298,7 +303,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
       const float length = dpar[1] / dd4hep::cm;
       const float thickness = dpar[2] / dd4hep::cm;
       edm::LogVerbatim("RPCGeometryBuilder")
-          << "(3), dd4hep::Box, width: " << dpar[0] / dd4hep::cm << " length: " << dpar[1] / dd4hep::cm
+          << "(3) Box, width: " << dpar[0] / dd4hep::cm << " length: " << dpar[1] / dd4hep::cm
           << " thickness: " << dpar[2] / dd4hep::cm;
       bounds = new RectangularPlaneBounds(width, length, thickness);
 
@@ -310,15 +315,12 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
       const float be = dpar[0] / dd4hep::cm;
       const float te = dpar[1] / dd4hep::cm;
       const float ap = dpar[3] / dd4hep::cm;
-      const float ti = 0.4 / dd4hep::cm;
+      const float ti = 0.4;
 
       bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
-      const std::vector<float> pars = {
-          float(dpar[0] / dd4hep::cm), float(dpar[1] / dd4hep::cm), float(dpar[3] / dd4hep::cm), float(nStrips)};
+      const std::vector<float> pars = {be, te, ap, float(nStrips)};
       edm::LogVerbatim("RPCGeometryBuilder")
-          << "(4), else, dpar[0] (i.e. dpar[4] for DD): " << dpar[0] / dd4hep::cm
-          << " dpar[1] (i.e. dpar[8] for DD): " << dpar[1] / dd4hep::cm
-          << " dpar[3] (i.e. dpar[0] for DD): " << dpar[3] / dd4hep::cm << " ti: " << ti / dd4hep::cm;
+	<< "(4) be: " << be << " te: " << te << " ap: " << ap << " ti: " << ti << " strips " << nStrips;
       rollspecs = new RPCRollSpecs(GeomDetEnumerators::RPCEndcap, std::string(name), pars);
 
       Basic3DVector<float> newX(1., 0., 0.);
@@ -327,6 +329,7 @@ std::unique_ptr<RPCGeometry> RPCGeometryBuilder::buildGeometry(cms::DDFilteredVi
       Basic3DVector<float> newZ(0., 1., 0.);
       rot.rotateAxes(newX, newY, newZ);
     }
+    edm::LogVerbatim("RPCGeometryBuilder") << "   Number of strips " << nStrips;
 
     BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
