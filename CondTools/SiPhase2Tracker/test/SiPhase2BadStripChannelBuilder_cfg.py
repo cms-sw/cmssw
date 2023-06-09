@@ -1,6 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ICALIB")
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+options = VarParsing.VarParsing('analysis')
+options.register('algorithm',
+                 2, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Algorithm to populate output sqlite file")
+options.parseArguments()
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.RandomNumberGeneratorService.prod = cms.PSet(
@@ -66,7 +75,8 @@ process.prod = cms.EDAnalyzer("SiPhase2BadStripChannelBuilder",
                               printDebug = cms.untracked.bool(False),
                               doStoreOnDB = cms.bool(True),
                               #popConAlgo = cms.uint32(1), #NAIVE
-                              popConAlgo = cms.uint32(2), #RANDOM
+                              #popConAlgo = cms.uint32(2), #RANDOM
+                              popConAlgo = cms.uint32(options.algorithm), 
                               badComponentsFraction = cms.double(0.01)  #1% of bad strips
                               #badComponentsFraction = cms.double(0.05)  #5% of bad strips
                               #badComponentsFraction = cms.double(0.1)   #10% of bad strips
