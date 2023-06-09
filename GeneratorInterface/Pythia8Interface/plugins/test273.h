@@ -46,7 +46,7 @@ class TopRecoilHook : public UserHooks {
     int showerModel  = settingsPtr->mode("PartonShowers:Model");
     // Switch off if not using simple showers or if recoilToColoured = on.
     bool recoilToColoured = settingsPtr->flag("TimeShower:recoilToColoured");
-    if (showerModel != 1 || recoilToColoured) doTopRecoil=false;
+    if (recoilToColoured) doTopRecoil=false;
     // Flag if W mass term is already accounted for (true) or not (false).
     recoilDeadCone = settingsPtr->flag("TimeShower:recoilDeadCone");
     // All ok.
