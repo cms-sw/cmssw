@@ -208,24 +208,16 @@ triggerObjectTable = triggerObjectTableProducer.clone(
         ),
         FatJet = cms.PSet(
             id = cms.int32(6),
-            sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected')"),
+            sel = cms.string("type(85) && pt > 120),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel(["hltAK8SingleCaloJet200"]), # 0
-                mksel(["hltAK8DoublePFJet250"]), # 1
-                mksel(["hltAK8DoublePFJet270"]), # 2
-                mksel(["hltAK8DoublePFJetSDModMass30"]), # 3
-                mksel(["hltAK8DoublePFJetSDModMass50"]), # 4
-                mksel(["hltAK8PFJetsCorrectedMatchedToCaloJets200"]), # 5
-                mksel(["hltSingleAK8PFJet220","hltSingleAK8PFJet230"]), # 6
-                mksel(["hltAK8PFSoftDropJets220","hltAK8PFSoftDropJets230"]), # 8
-                mksel(["hltAK8SinglePFJets220SoftDropMass40","hltAK8SinglePFJets230SoftDropMass40"]), # 9
-                mksel(["hltAK8PFJets220SoftDropMass40"]), # 10
-                mksel(["hltAK8SinglePFJets220SoftDropMass40PNetBBTag0p06"]), # 11
-                mksel(["hltAK8SinglePFJets230SoftDropMass40PNetTauTauTag0p03"]), # 12
-                
+                mksel("coll('hltAK8PFJetsCorrected')"),
+                mksel("coll('hltAK8PFSoftDropJets230')"),
+                mksel("filter('hltAK8SinglePFJets230SoftDropMass40BTagParticleNetBB0p35')","hltAK8SinglePFJets230SoftDropMass40BTagParticleNetBB0p35"),
+                mksel("filter('hltAK8SinglePFJets250SoftDropMass40BTagParticleNetBB0p35')","hltAK8SinglePFJets250SoftDropMass40BTagParticleNetBB0p35"),
+                mksel("filter('hltAK8SinglePFJets275SoftDropMass40BTagParticleNetBB0p35')","hltAK8SinglePFJets275SoftDropMass40BTagParticleNetBB0p35"),
                 )
         ),
         MET = cms.PSet(
