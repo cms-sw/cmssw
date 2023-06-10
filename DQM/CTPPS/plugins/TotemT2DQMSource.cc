@@ -1,9 +1,10 @@
 /****************************************************************************
  *
  * This is a part of TOTEM offline software.
- * Author:
+ * Authors:
  *   Laurent Forthomme
  *   Arkadiusz Cwikla
+ *   Fredrik Oljemark
  *
  ****************************************************************************/
 
@@ -106,10 +107,10 @@ TotemT2DQMSource::SectorPlots::SectorPlots(
 
   TotemT2DetId(id).armName(title, TotemT2DetId::nFull);
 
-  activePlanes = ibooker.book1D("active planes", title + " which planes are active;plane number", 8, -0.5, 7.5);
+  activePlanes = ibooker.book1D("active planes", title + " which planes are active (digi);plane number", 8, -0.5, 7.5);
 
   activePlanesCount = ibooker.book1D(
-      "number of active planes", title + " how many planes are active;number of active planes", 9, -0.5, 8.5);
+      "number of active planes (digi)", title + " how many planes are active;number of active planes", 9, -0.5, 8.5);
 
   triggerEmulator = ibooker.book2DD("trigger emulator",
                                     title + " trigger emulator;arbitrary unit;arbitrary unit",
@@ -223,6 +224,8 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
 void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // fill digis information
+  std::unordered_map<unsigned int, std::set<unsigned int>> planes;
+
   for (const auto& ds_digis : iEvent.get(digiToken_)) {
     if (!ds_digis.empty()) {
       const TotemT2DetId detid(ds_digis.detId());
@@ -232,9 +235,15 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         fillEdges(digi, detid);
         fillToT(digi, detid);
         fillFlags(digi, detid);
+        if (digi.hasLE() && digi.hasTE())  //good digi
+          fillActivePlanes(planes, detid);
       }
     }
   }
+
+  for (const auto& plt : sectorPlots_)
+    plt.second.activePlanesCount->Fill(planes[plt.first].size());
+
   // fill rechits information
 
   clearTriggerBitset();
