@@ -276,6 +276,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(RPFlatParams)
       FETCH_PAYLOAD_CASE(RecoIdealGeometry)
       FETCH_PAYLOAD_CASE(RunInfo)
+      FETCH_PAYLOAD_CASE(SimBeamSpotObjects)
       FETCH_PAYLOAD_CASE(SiPhase2OuterTrackerLorentzAngle)
       FETCH_PAYLOAD_CASE(SiPixelCalibConfiguration)
       FETCH_PAYLOAD_CASE(SiPixelCPEGenericErrorParm)
