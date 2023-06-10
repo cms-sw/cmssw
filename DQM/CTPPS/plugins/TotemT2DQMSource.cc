@@ -292,7 +292,7 @@ void TotemT2DQMSource::bookErrorFlagsHistogram(DQMStore::IBooker& ibooker) {
 void TotemT2DQMSource::fillErrorFlagsHistogram(const TotemT2Digi& digi, const TotemT2DetId& detid) {
   // readout flags histogram filling
   for (unsigned int i = 0; i < 4; i++) {
-    if (digi.getStatus() & (1 << i))
+    if (digi.status() & (1 << i))
       totemT2ErrorFlags_2D_->Fill(i + 0.0, detid.arm() + 0.0);
   }
 }
