@@ -459,6 +459,7 @@ int RawDataUnpacker::processOptoRxFrameSampic(const word *buf,
     // save frame to output
     frame.setPresenceFlags(1);
     if ((optoRxId >= FEDNumbering::MINTotemT2FEDID && optoRxId <= FEDNumbering::MAXTotemT2FEDID)) {
+      frame.setPresenceFlags(15);  // check three VFAT signature digits, CRC present
       if (verbosity > 0)
         edm::LogWarning("Totem") << "T2 Frame Positions created: " << fp2a << "/" << fp2b << std::endl;
 
