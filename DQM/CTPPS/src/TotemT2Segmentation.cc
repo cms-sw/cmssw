@@ -13,8 +13,7 @@
 
 #include "TH2D.h"
 
-TotemT2Segmentation::TotemT2Segmentation(const TotemGeometry& geom, size_t nbinsx, size_t nbinsy)
-    : geom_(geom), nbinsx_(nbinsx), nbinsy_(nbinsy) {
+TotemT2Segmentation::TotemT2Segmentation(size_t nbinsx, size_t nbinsy) : nbinsx_(nbinsx), nbinsy_(nbinsy) {
   for (unsigned short arm = 0; arm <= CTPPSDetId::maxArm; ++arm)
     for (unsigned short plane = 0; plane <= TotemT2DetId::maxPlane; ++plane)
       for (unsigned short id = 0; id <= TotemT2DetId::maxChannel; ++id) {
@@ -44,9 +43,13 @@ std::vector<std::pair<short, short> > TotemT2Segmentation::computeBins(const Tot
   const auto ax = ceil(nbinsx_ * 0.5), by = ceil(nbinsy_ * 0.5);
 
   const float max_half_angle_rad = 0.3;
-  // find the coordinates of the tile centre to extract its angle
-  const auto tile_centre = geom_.tile(detid).centre();
-  const auto tile_angle_rad = std::atan2(tile_centre.y(), tile_centre.x());
+
+  // Without use of the Totem Geometry, follow an octant-division of channels,
+  // with even and odd planes alternating around the circle. Starting at 9AM
+  // and going clockwise around in increments of 1h30min=45deg, we have
+  // Ch0 on even planes, Ch0+odd, Ch1+even, Ch1+odd, up to Ch3+odd at 7:30PM
+
+  const float tile_angle_rad = (180 - 45. / 2 - (detid.plane() % 2 ? 0 : 45) - (detid.channel() * 90)) * M_PI / 180.;
   // Geometric way of associating a DetId to a vector<ix, iy> of bins given the size (nx_, ny_) of
   // the TH2D('s) to be filled
   for (size_t ix = 0; ix < nbinsx_; ++ix)

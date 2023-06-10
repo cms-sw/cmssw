@@ -27,6 +27,7 @@
 #include "DQM/CTPPS/interface/TotemT2Segmentation.h"
 
 #include <string>
+#include <bitset>
 
 class TotemT2DQMSource : public DQMEDAnalyzer {
 public:
@@ -50,8 +51,9 @@ private:
   void fillToT(const TotemT2Digi&, const TotemT2DetId&);
   void fillFlags(const TotemT2Digi&, const TotemT2DetId&);
 
-  const edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
   const edm::EDGetTokenT<edmNew::DetSetVector<TotemT2Digi>> digiToken_;
+
+  std::unique_ptr<TotemT2Segmentation> segm_;
 
   static constexpr double T2_BIN_WIDTH_NS_ = 25. / 4;
   MonitorElement* totemT2ErrorFlags_2D_ = nullptr;
@@ -197,8 +199,7 @@ TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, unsigne
 }
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
-    : geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd, edm::Transition::BeginRun>()),
-      digiToken_(consumes<edmNew::DetSetVector<TotemT2Digi>>(iConfig.getParameter<edm::InputTag>("digisTag"))),
+    : digiToken_(consumes<edmNew::DetSetVector<TotemT2Digi>>(iConfig.getParameter<edm::InputTag>("digisTag"))),
       nbinsx_(iConfig.getParameter<unsigned int>("nbinsx")),
       nbinsy_(iConfig.getParameter<unsigned int>("nbinsy")),
       windowsNum_(iConfig.getParameter<unsigned int>("windowsNum")) {}
@@ -227,6 +228,7 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   // build a segmentation helper for the size of histograms previously booked
+  segm_ = std::make_unique<TotemT2Segmentation>(nbinsx_, nbinsy_);
 }
 
 void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -236,7 +238,9 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for (const auto& ds_digis : iEvent.get(digiToken_)) {
     if (!ds_digis.empty()) {
       const TotemT2DetId detid(ds_digis.detId());
+      const TotemT2DetId planeId(detid.planeId());
       for (const auto& digi : ds_digis) {
+        segm_->fill(planePlots_[planeId].digisMultiplicity->getTH2D(), detid);
         fillTriggerBitset(detid);
         fillErrorFlagsHistogram(digi, detid);
         fillEdges(digi, detid);
@@ -252,6 +256,16 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   for (const auto& plt : sectorPlots_)
     plt.second.activePlanesCount->Fill(planes[plt.first].size());
+
+  for (unsigned short arm = 0; arm <= CTPPSDetId::maxArm; ++arm)
+    for (unsigned short plane = 0; plane <= 1; ++plane)
+      for (unsigned short id = 0; id <= TotemT2DetId::maxChannel; ++id) {
+        const TotemT2DetId detid(arm, plane, id);
+        if (areChannelsTriggered(detid)) {
+          const TotemT2DetId secId(detid.armId());
+          segm_->fill(sectorPlots_[secId].triggerEmulator->getTH2D(), detid);
+        }
+      }
 
   // fill rechits information
 
