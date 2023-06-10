@@ -48,7 +48,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
   void endJob() override;
 
@@ -72,23 +71,13 @@ namespace {
   }
 
 }  // namespace
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 BeamProfile2DB::BeamProfile2DB(const edm::ParameterSet& iConfig) : beamSpot_(read(iConfig)) {}
 
-BeamProfile2DB::~BeamProfile2DB() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+BeamProfile2DB::~BeamProfile2DB() = default;
 
 //
 // member functions
@@ -96,9 +85,6 @@ BeamProfile2DB::~BeamProfile2DB() {
 
 // ------------ method called for each event  ------------
 void BeamProfile2DB::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {}
-
-// ------------ method called once each job just before starting event loop  ------------
-void BeamProfile2DB::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void BeamProfile2DB::endJob() {
@@ -117,9 +103,9 @@ void BeamProfile2DB::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("SigmaZ")->setComment("in cm");
   desc.add<double>("BetaStar")->setComment("in cm");
   desc.add<double>("Emittance")->setComment("in cm");
-  desc.add<double>("Alpha")->setComment("in radians");
-  desc.add<double>("Phi")->setComment("in radians");
-  desc.add<double>("TimeOffset")->setComment("in ns");
+  desc.add<double>("Alpha", 0.0)->setComment("in radians");
+  desc.add<double>("Phi", 0.0)->setComment("in radians");
+  desc.add<double>("TimeOffset", 0.0)->setComment("in ns");
   descriptions.addDefault(desc);
 }
 
