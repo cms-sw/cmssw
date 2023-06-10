@@ -49,7 +49,7 @@ std::vector<std::pair<short, short> > TotemT2Segmentation::computeBins(const Tot
   // and going clockwise around in increments of 1h30min=45deg, we have
   // Ch0 on even planes, Ch0+odd, Ch1+even, Ch1+odd, up to Ch3+odd at 7:30PM
 
-  const float tile_angle_rad = (180 - 45. / 2 - (detid.plane() % 2 ? 0 : 45) - (detid.channel() * 90)) * M_PI / 180.;
+  const float tile_angle_rad = (180 - 45. / 2 - (detid.plane() % 2 ? 45 : 0) - (detid.channel() * 90)) * M_PI / 180.;
   // Geometric way of associating a DetId to a vector<ix, iy> of bins given the size (nx_, ny_) of
   // the TH2D('s) to be filled
   for (size_t ix = 0; ix < nbinsx_; ++ix)

@@ -240,8 +240,10 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const TotemT2DetId detid(ds_digis.detId());
       const TotemT2DetId planeId(detid.planeId());
       for (const auto& digi : ds_digis) {
-        segm_->fill(planePlots_[planeId].digisMultiplicity->getTH2D(), detid);
-        fillTriggerBitset(detid);
+        if (digi.hasLE()) {
+          segm_->fill(planePlots_[planeId].digisMultiplicity->getTH2D(), detid);
+          fillTriggerBitset(detid);
+	}
         fillErrorFlagsHistogram(digi, detid);
         fillEdges(digi, detid);
         fillToT(digi, detid);
