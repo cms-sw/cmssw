@@ -58,15 +58,15 @@ private:
 namespace {
   SimBeamSpotObjects read(const edm::ParameterSet& p) {
     SimBeamSpotObjects ret;
-    ret.fX0 = p.getParameter<double>("X0") * cm;
-    ret.fY0 = p.getParameter<double>("Y0") * cm;
-    ret.fZ0 = p.getParameter<double>("Z0") * cm;
-    ret.fSigmaZ = p.getParameter<double>("SigmaZ") * cm;
-    ret.fAlpha = p.getParameter<double>("Alpha") * radian;
-    ret.fPhi = p.getParameter<double>("Phi") * radian;
-    ret.fbetastar = p.getParameter<double>("BetaStar") * cm;
-    ret.femittance = p.getParameter<double>("Emittance") * cm;              // this is not the normalized emittance
-    ret.fTimeOffset = p.getParameter<double>("TimeOffset") * ns * c_light;  // HepMC time units are mm
+    ret.setX(p.getParameter<double>("X0") * cm);
+    ret.setY(p.getParameter<double>("Y0") * cm);
+    ret.setZ(p.getParameter<double>("Z0") * cm);
+    ret.setSigmaZ(p.getParameter<double>("SigmaZ") * cm);
+    ret.setAlpha(p.getParameter<double>("Alpha") * radian);
+    ret.setPhi(p.getParameter<double>("Phi") * radian);
+    ret.setBetaStar(p.getParameter<double>("BetaStar") * cm);
+    ret.setEmittance(p.getParameter<double>("Emittance") * cm);              // this is not the normalized emittance
+    ret.setTimeOffset(p.getParameter<double>("TimeOffset") * ns * c_light);  // HepMC time units are mm
     return ret;
   }
 
