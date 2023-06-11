@@ -44,8 +44,8 @@ public:
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::EDGetTokenT<HitsOnHost> tokenSoAHitsHost_;    //these two are both on Host but originally they have been
-  const edm::EDGetTokenT<HitsOnHost> tokenSoAHitsDevice_;  //produced on Host or on Device
+  const edm::EDGetTokenT<HitsOnHost> tokenSoAHitsCPU_;  //these two are both on CPU but originally they have been
+  const edm::EDGetTokenT<HitsOnHost> tokenSoAHitsGPU_;  //produced on CPU or on GPU
   const std::string topFolderName_;
   const float mind2cut_;
   static constexpr uint32_t invalidHit_ = std::numeric_limits<uint32_t>::max();
@@ -83,8 +83,8 @@ template <typename T>
 SiPixelCompareRecHitsSoA<T>::SiPixelCompareRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-      tokenSoAHitsHost_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcCPU"))),
-      tokenSoAHitsDevice_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcGPU"))),
+      tokenSoAHitsCPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcCPU"))),
+      tokenSoAHitsGPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcGPU"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
       mind2cut_(iConfig.getParameter<double>("minD2cut")) {}
 //
@@ -101,41 +101,41 @@ void SiPixelCompareRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::E
 //
 template <typename T>
 void SiPixelCompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto& rhsoaHandleHost = iEvent.getHandle(tokenSoAHitsHost_);
-  const auto& rhsoaHandleDevice = iEvent.getHandle(tokenSoAHitsDevice_);
-  if (not rhsoaHandleHost or not rhsoaHandleDevice) {
+  const auto& rhsoaHandleCPU = iEvent.getHandle(tokenSoAHitsCPU_);
+  const auto& rhsoaHandleGPU = iEvent.getHandle(tokenSoAHitsGPU_);
+  if (not rhsoaHandleCPU or not rhsoaHandleGPU) {
     edm::LogWarning out("SiPixelCompareRecHitSoA");
-    if (not rhsoaHandleHost) {
-      out << "reference (Host) rechits not found; ";
+    if (not rhsoaHandleCPU) {
+      out << "reference (CPU) rechits not found; ";
     }
-    if (not rhsoaHandleDevice) {
-      out << "target (Device) rechits not found; ";
+    if (not rhsoaHandleGPU) {
+      out << "target (GPU) rechits not found; ";
     }
     out << "the comparison will not run.";
     return;
   }
 
-  auto const& rhsoaHost = *rhsoaHandleHost;
-  auto const& rhsoaDevice = *rhsoaHandleDevice;
+  auto const& rhsoaCPU = *rhsoaHandleCPU;
+  auto const& rhsoaGPU = *rhsoaHandleGPU;
 
-  auto const& soa2dHost = rhsoaHost.const_view();
-  auto const& soa2dDevice = rhsoaDevice.const_view();
+  auto const& soa2dCPU = rhsoaCPU.const_view();
+  auto const& soa2dGPU = rhsoaGPU.const_view();
 
-  uint32_t nHitsHost = soa2dHost.nHits();
-  uint32_t nHitsDevice = soa2dDevice.nHits();
+  uint32_t nHitsCPU = soa2dCPU.nHits();
+  uint32_t nHitsGPU = soa2dGPU.nHits();
 
-  hnHits_->Fill(nHitsHost, nHitsDevice);
+  hnHits_->Fill(nHitsCPU, nHitsGPU);
   auto detIds = tkGeom_->detUnitIds();
-  for (uint32_t i = 0; i < nHitsHost; i++) {
+  for (uint32_t i = 0; i < nHitsCPU; i++) {
     float minD = mind2cut_;
     uint32_t matchedHit = invalidHit_;
-    uint16_t indHost = soa2dHost[i].detectorIndex();
-    float xLocalHost = soa2dHost[i].xLocal();
-    float yLocalHost = soa2dHost[i].yLocal();
-    for (uint32_t j = 0; j < nHitsDevice; j++) {
-      if (soa2dDevice.detectorIndex(j) == indHost) {
-        float dx = xLocalHost - soa2dDevice[j].xLocal();
-        float dy = yLocalHost - soa2dDevice[j].yLocal();
+    uint16_t indCPU = soa2dCPU[i].detectorIndex();
+    float xLocalCPU = soa2dCPU[i].xLocal();
+    float yLocalCPU = soa2dCPU[i].yLocal();
+    for (uint32_t j = 0; j < nHitsGPU; j++) {
+      if (soa2dGPU.detectorIndex(j) == indCPU) {
+        float dx = xLocalCPU - soa2dGPU[j].xLocal();
+        float dy = yLocalCPU - soa2dGPU[j].yLocal();
         float distance = dx * dx + dy * dy;
         if (distance < minD) {
           minD = distance;
@@ -143,46 +143,46 @@ void SiPixelCompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::E
         }
       }
     }
-    DetId id = detIds[indHost];
-    uint32_t chargeHost = soa2dHost[i].chargeAndStatus().charge;
-    int16_t sizeXHost = std::ceil(float(std::abs(soa2dHost[i].clusterSizeX()) / 8.));
-    int16_t sizeYHost = std::ceil(float(std::abs(soa2dHost[i].clusterSizeY()) / 8.));
-    uint32_t chargeDevice = 0;
-    int16_t sizeXDevice = -99;
-    int16_t sizeYDevice = -99;
-    float xLocalDevice = -999.;
-    float yLocalDevice = -999.;
+    DetId id = detIds[indCPU];
+    uint32_t chargeCPU = soa2dCPU[i].chargeAndStatus().charge;
+    int16_t sizeXCPU = std::ceil(float(std::abs(soa2dCPU[i].clusterSizeX()) / 8.));
+    int16_t sizeYCPU = std::ceil(float(std::abs(soa2dCPU[i].clusterSizeY()) / 8.));
+    uint32_t chargeGPU = 0;
+    int16_t sizeXGPU = -99;
+    int16_t sizeYGPU = -99;
+    float xLocalGPU = -999.;
+    float yLocalGPU = -999.;
     if (matchedHit != invalidHit_) {
-      chargeDevice = soa2dDevice[matchedHit].chargeAndStatus().charge;
-      sizeXDevice = std::ceil(float(std::abs(soa2dDevice[matchedHit].clusterSizeX()) / 8.));
-      sizeYDevice = std::ceil(float(std::abs(soa2dDevice[matchedHit].clusterSizeY()) / 8.));
-      xLocalDevice = soa2dDevice[matchedHit].xLocal();
-      yLocalDevice = soa2dDevice[matchedHit].yLocal();
+      chargeGPU = soa2dGPU[matchedHit].chargeAndStatus().charge;
+      sizeXGPU = std::ceil(float(std::abs(soa2dGPU[matchedHit].clusterSizeX()) / 8.));
+      sizeYGPU = std::ceil(float(std::abs(soa2dGPU[matchedHit].clusterSizeY()) / 8.));
+      xLocalGPU = soa2dGPU[matchedHit].xLocal();
+      yLocalGPU = soa2dGPU[matchedHit].yLocal();
     }
     switch (id.subdetId()) {
       case PixelSubdetector::PixelBarrel:
-        hBchargeL_[tTopo_->pxbLayer(id) - 1]->Fill(chargeHost, chargeDevice);
-        hBsizexL_[tTopo_->pxbLayer(id) - 1]->Fill(sizeXHost, sizeXDevice);
-        hBsizeyL_[tTopo_->pxbLayer(id) - 1]->Fill(sizeYHost, sizeYDevice);
-        hBposxL_[tTopo_->pxbLayer(id) - 1]->Fill(xLocalHost, xLocalDevice);
-        hBposyL_[tTopo_->pxbLayer(id) - 1]->Fill(yLocalHost, yLocalDevice);
-        hBchargeDiff_->Fill(chargeHost - chargeDevice);
-        hBsizeXDiff_->Fill(sizeXHost - sizeXDevice);
-        hBsizeYDiff_->Fill(sizeYHost - sizeYDevice);
-        hBposXDiff_->Fill(micron_ * (xLocalHost - xLocalDevice));
-        hBposYDiff_->Fill(micron_ * (yLocalHost - yLocalDevice));
+        hBchargeL_[tTopo_->pxbLayer(id) - 1]->Fill(chargeCPU, chargeGPU);
+        hBsizexL_[tTopo_->pxbLayer(id) - 1]->Fill(sizeXCPU, sizeXGPU);
+        hBsizeyL_[tTopo_->pxbLayer(id) - 1]->Fill(sizeYCPU, sizeYGPU);
+        hBposxL_[tTopo_->pxbLayer(id) - 1]->Fill(xLocalCPU, xLocalGPU);
+        hBposyL_[tTopo_->pxbLayer(id) - 1]->Fill(yLocalCPU, yLocalGPU);
+        hBchargeDiff_->Fill(chargeCPU - chargeGPU);
+        hBsizeXDiff_->Fill(sizeXCPU - sizeXGPU);
+        hBsizeYDiff_->Fill(sizeYCPU - sizeYGPU);
+        hBposXDiff_->Fill(micron_ * (xLocalCPU - xLocalGPU));
+        hBposYDiff_->Fill(micron_ * (yLocalCPU - yLocalGPU));
         break;
       case PixelSubdetector::PixelEndcap:
-        hFchargeD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(chargeHost, chargeDevice);
-        hFsizexD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(sizeXHost, sizeXDevice);
-        hFsizeyD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(sizeYHost, sizeYDevice);
-        hFposxD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(xLocalHost, xLocalDevice);
-        hFposyD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(yLocalHost, yLocalDevice);
-        hFchargeDiff_->Fill(chargeHost - chargeDevice);
-        hFsizeXDiff_->Fill(sizeXHost - sizeXDevice);
-        hFsizeYDiff_->Fill(sizeYHost - sizeYDevice);
-        hFposXDiff_->Fill(micron_ * (xLocalHost - xLocalDevice));
-        hFposYDiff_->Fill(micron_ * (yLocalHost - yLocalDevice));
+        hFchargeD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(chargeCPU, chargeGPU);
+        hFsizexD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(sizeXCPU, sizeXGPU);
+        hFsizeyD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(sizeYCPU, sizeYGPU);
+        hFposxD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(xLocalCPU, xLocalGPU);
+        hFposyD_[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(yLocalCPU, yLocalGPU);
+        hFchargeDiff_->Fill(chargeCPU - chargeGPU);
+        hFsizeXDiff_->Fill(sizeXCPU - sizeXGPU);
+        hFsizeYDiff_->Fill(sizeYCPU - sizeYGPU);
+        hFposXDiff_->Fill(micron_ * (xLocalCPU - xLocalGPU));
+        hFposYDiff_->Fill(micron_ * (yLocalCPU - yLocalGPU));
         break;
     }
   }
@@ -200,38 +200,38 @@ void SiPixelCompareRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
   //Global
-  hnHits_ = iBook.book2I("nHits", "HostvsDevice RecHits per event;#Host RecHits;#Device RecHits", 200, 0, 5000,200, 0, 5000);
+  hnHits_ = iBook.book2I("nHits", "CPUvsGPU RecHits per event;#CPU RecHits;#GPU RecHits", 200, 0, 5000,200, 0, 5000);
   //Barrel Layer
   for(unsigned int il=0;il<tkGeom_->numberOfLayers(PixelSubdetector::PixelBarrel);il++){
-    hBchargeL_[il] = iBook.book2I(Form("recHitsBLay%dCharge",il+1), Form("HostvsDevice RecHits Charge Barrel Layer%d;Host Charge;Device Charge",il+1), 250, 0, 100000, 250, 0, 100000);
-    hBsizexL_[il] = iBook.book2I(Form("recHitsBLay%dSizex",il+1), Form("HostvsDevice RecHits SizeX Barrel Layer%d;Host SizeX;Device SizeX",il+1), 30, 0, 30, 30, 0, 30);
-    hBsizeyL_[il] = iBook.book2I(Form("recHitsBLay%dSizey",il+1), Form("HostvsDevice RecHits SizeY Barrel Layer%d;Host SizeY;Device SizeY",il+1), 30, 0, 30, 30, 0, 30);
-    hBposxL_[il] = iBook.book2D(Form("recHitsBLay%dPosx",il+1), Form("HostvsDevice RecHits x-pos in Barrel Layer%d;Host pos x;Device pos x",il+1), 200, -5, 5, 200,-5,5);
-    hBposyL_[il] = iBook.book2D(Form("recHitsBLay%dPosy",il+1), Form("HostvsDevice RecHits y-pos in Barrel Layer%d;Host pos y;Device pos y",il+1), 200, -5, 5, 200,-5,5);
+    hBchargeL_[il] = iBook.book2I(Form("recHitsBLay%dCharge",il+1), Form("CPUvsGPU RecHits Charge Barrel Layer%d;CPU Charge;GPU Charge",il+1), 250, 0, 100000, 250, 0, 100000);
+    hBsizexL_[il] = iBook.book2I(Form("recHitsBLay%dSizex",il+1), Form("CPUvsGPU RecHits SizeX Barrel Layer%d;CPU SizeX;GPU SizeX",il+1), 30, 0, 30, 30, 0, 30);
+    hBsizeyL_[il] = iBook.book2I(Form("recHitsBLay%dSizey",il+1), Form("CPUvsGPU RecHits SizeY Barrel Layer%d;CPU SizeY;GPU SizeY",il+1), 30, 0, 30, 30, 0, 30);
+    hBposxL_[il] = iBook.book2D(Form("recHitsBLay%dPosx",il+1), Form("CPUvsGPU RecHits x-pos in Barrel Layer%d;CPU pos x;GPU pos x",il+1), 200, -5, 5, 200,-5,5);
+    hBposyL_[il] = iBook.book2D(Form("recHitsBLay%dPosy",il+1), Form("CPUvsGPU RecHits y-pos in Barrel Layer%d;CPU pos y;GPU pos y",il+1), 200, -5, 5, 200,-5,5);
   }
   //Endcaps
   //Endcaps Disk
   for(int is=0;is<2;is++){
     int sign=is==0? -1:1;
     for(unsigned int id=0;id<tkGeom_->numberOfLayers(PixelSubdetector::PixelEndcap);id++){
-      hFchargeD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("HostvsDevice RecHits Charge Endcaps Disk%+d;Host Charge;Device Charge",id*sign+sign), 250, 0, 100000, 250, 0, 100000);
-      hFsizexD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("HostvsDevice RecHits SizeX Endcaps Disk%+d;Host SizeX;Device SizeX",id*sign+sign), 30, 0, 30, 30, 0, 30);
-      hFsizeyD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("HostvsDevice RecHits SizeY Endcaps Disk%+d;Host SizeY;Device SizeY",id*sign+sign), 30, 0, 30, 30, 0, 30);
-      hFposxD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosx",id*sign+sign), Form("HostvsDevice RecHits x-pos Endcaps Disk%+d;Host pos x;Device pos x",id*sign+sign), 200, -5, 5, 200, -5, 5);
-      hFposyD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosy",id*sign+sign), Form("HostvsDevice RecHits y-pos Endcaps Disk%+d;Host pos y;Device pos y",id*sign+sign), 200, -5, 5, 200, -5, 5);
+      hFchargeD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("CPUvsGPU RecHits Charge Endcaps Disk%+d;CPU Charge;GPU Charge",id*sign+sign), 250, 0, 100000, 250, 0, 100000);
+      hFsizexD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("CPUvsGPU RecHits SizeX Endcaps Disk%+d;CPU SizeX;GPU SizeX",id*sign+sign), 30, 0, 30, 30, 0, 30);
+      hFsizeyD_[is][id] = iBook.book2I(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("CPUvsGPU RecHits SizeY Endcaps Disk%+d;CPU SizeY;GPU SizeY",id*sign+sign), 30, 0, 30, 30, 0, 30);
+      hFposxD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosx",id*sign+sign), Form("CPUvsGPU RecHits x-pos Endcaps Disk%+d;CPU pos x;GPU pos x",id*sign+sign), 200, -5, 5, 200, -5, 5);
+      hFposyD_[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosy",id*sign+sign), Form("CPUvsGPU RecHits y-pos Endcaps Disk%+d;CPU pos y;GPU pos y",id*sign+sign), 200, -5, 5, 200, -5, 5);
     }
   }
   //1D differences
-  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge differnce of rechits in BPix; rechit charge difference (Host - Device)", 101, -50.5, 50.5);
-  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge differnce of rechits in FPix; rechit charge difference (Host - Device)", 101, -50.5, 50.5);
-  hBsizeXDiff_ = iBook.book1D("rechitsizeXDiffBpix","SizeX difference of rechits in BPix; rechit sizex difference (Host - Device)", 21, -10.5, 10.5);
-  hFsizeXDiff_ = iBook.book1D("rechitsizeXDiffFpix","SizeX difference of rechits in FPix; rechit sizex difference (Host - Device)", 21, -10.5, 10.5);
-  hBsizeYDiff_ = iBook.book1D("rechitsizeYDiffBpix","SizeY difference of rechits in BPix; rechit sizey difference (Host - Device)", 21, -10.5, 10.5);
-  hFsizeYDiff_ = iBook.book1D("rechitsizeYDiffFpix","SizeY difference of rechits in FPix; rechit sizey difference (Host - Device)", 21, -10.5, 10.5);
-  hBposXDiff_ = iBook.book1D("rechitsposXDiffBpix","x-position difference of rechits in BPix; rechit x-pos difference (Host - Device)", 1000, -10, 10);
-  hFposXDiff_ = iBook.book1D("rechitsposXDiffFpix","x-position difference of rechits in FPix; rechit x-pos difference (Host - Device)", 1000, -10, 10);
-  hBposYDiff_ = iBook.book1D("rechitsposYDiffBpix","y-position difference of rechits in BPix; rechit y-pos difference (Host - Device)", 1000, -10, 10);
-  hFposYDiff_ = iBook.book1D("rechitsposYDiffFpix","y-position difference of rechits in FPix; rechit y-pos difference (Host - Device)", 1000, -10, 10);
+  hBchargeDiff_ = iBook.book1D("rechitChargeDiffBpix","Charge differnce of rechits in BPix; rechit charge difference (CPU - GPU)", 101, -50.5, 50.5);
+  hFchargeDiff_ = iBook.book1D("rechitChargeDiffFpix","Charge differnce of rechits in FPix; rechit charge difference (CPU - GPU)", 101, -50.5, 50.5);
+  hBsizeXDiff_ = iBook.book1D("rechitsizeXDiffBpix","SizeX difference of rechits in BPix; rechit sizex difference (CPU - GPU)", 21, -10.5, 10.5);
+  hFsizeXDiff_ = iBook.book1D("rechitsizeXDiffFpix","SizeX difference of rechits in FPix; rechit sizex difference (CPU - GPU)", 21, -10.5, 10.5);
+  hBsizeYDiff_ = iBook.book1D("rechitsizeYDiffBpix","SizeY difference of rechits in BPix; rechit sizey difference (CPU - GPU)", 21, -10.5, 10.5);
+  hFsizeYDiff_ = iBook.book1D("rechitsizeYDiffFpix","SizeY difference of rechits in FPix; rechit sizey difference (CPU - GPU)", 21, -10.5, 10.5);
+  hBposXDiff_ = iBook.book1D("rechitsposXDiffBpix","x-position difference of rechits in BPix; rechit x-pos difference (CPU - GPU)", 1000, -10, 10);
+  hFposXDiff_ = iBook.book1D("rechitsposXDiffFpix","x-position difference of rechits in FPix; rechit x-pos difference (CPU - GPU)", 1000, -10, 10);
+  hBposYDiff_ = iBook.book1D("rechitsposYDiffBpix","y-position difference of rechits in BPix; rechit y-pos difference (CPU - GPU)", 1000, -10, 10);
+  hFposYDiff_ = iBook.book1D("rechitsposYDiffFpix","y-position difference of rechits in FPix; rechit y-pos difference (CPU - GPU)", 1000, -10, 10);
 }
 
 template<typename T>
@@ -240,7 +240,7 @@ void SiPixelCompareRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsSrcCPU", edm::InputTag("siPixelRecHitsPreSplittingSoA@cpu"));
   desc.add<edm::InputTag>("pixelHitsSrcGPU", edm::InputTag("siPixelRecHitsPreSplittingSoA@cuda"));
-  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelRecHitsCompareDevicevsHost");
+  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU");
   desc.add<double>("minD2cut", 0.0001);
   descriptions.addWithDefaultLabel(desc);
 }
