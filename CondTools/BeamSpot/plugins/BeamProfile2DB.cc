@@ -55,27 +55,20 @@ private:
   SimBeamSpotObjects beamSpot_;
 };
 
-namespace {
-  SimBeamSpotObjects read(const edm::ParameterSet& p) {
-    SimBeamSpotObjects ret;
-    ret.setX(p.getParameter<double>("X0") * cm);
-    ret.setY(p.getParameter<double>("Y0") * cm);
-    ret.setZ(p.getParameter<double>("Z0") * cm);
-    ret.setSigmaZ(p.getParameter<double>("SigmaZ") * cm);
-    ret.setAlpha(p.getParameter<double>("Alpha") * radian);
-    ret.setPhi(p.getParameter<double>("Phi") * radian);
-    ret.setBetaStar(p.getParameter<double>("BetaStar") * cm);
-    ret.setEmittance(p.getParameter<double>("Emittance") * cm);              // this is not the normalized emittance
-    ret.setTimeOffset(p.getParameter<double>("TimeOffset") * ns * c_light);  // HepMC time units are mm
-    return ret;
-  }
-
-}  // namespace
-
 //
 // constructors and destructor
 //
-BeamProfile2DB::BeamProfile2DB(const edm::ParameterSet& iConfig) : beamSpot_(read(iConfig)) {}
+BeamProfile2DB::BeamProfile2DB(const edm::ParameterSet& iConfig) {
+  beamSpot_.setX(iConfig.getParameter<double>("X0"));
+  beamSpot_.setY(iConfig.getParameter<double>("Y0"));
+  beamSpot_.setZ(iConfig.getParameter<double>("Z0"));
+  beamSpot_.setSigmaZ(iConfig.getParameter<double>("SigmaZ"));
+  beamSpot_.setAlpha(iConfig.getParameter<double>("Alpha"));
+  beamSpot_.setPhi(iConfig.getParameter<double>("Phi"));
+  beamSpot_.setBetaStar(iConfig.getParameter<double>("BetaStar"));
+  beamSpot_.setEmittance(iConfig.getParameter<double>("Emittance"));
+  beamSpot_.setTimeOffset(iConfig.getParameter<double>("TimeOffset"));
+}
 
 BeamProfile2DB::~BeamProfile2DB() = default;
 
