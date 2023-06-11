@@ -243,6 +243,8 @@ namespace dqm::impl {
       static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TH2I)
       static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
+    else if (kind() == Kind::TH2Poly)
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TPROFILE)
       static_cast<TProfile *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->Fill(x, yw, 1);
     else
@@ -329,6 +331,8 @@ namespace dqm::impl {
       static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
     else if (kind() == Kind::TH2I)
       static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
+    else if (kind() == Kind::TH2Poly)
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
     else if (kind() == Kind::TH3F)
       static_cast<TH3F *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw, 1);
     else if (kind() == Kind::TPROFILE)
@@ -688,6 +692,12 @@ namespace dqm::impl {
 
   /*** setter methods (wrapper around ROOT methods) ****/
   //
+  /// set polygon bin (TH2Poly)
+  void MonitorElement::addBin(TGraph *graph) {
+    auto access = this->accessMut();
+    static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(graph);
+  }
+
   /// set content of bin (1-D)
   void MonitorElement::setBinContent(int binx, double content) {
     auto access = this->accessMut();
@@ -1030,6 +1040,12 @@ namespace dqm::impl {
     auto access = this->accessMut();
     assert(kind() == Kind::TH2D);
     return static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
+  }
+
+  TH2Poly *MonitorElement::getTH2Poly() {
+    auto access = this->accessMut();
+    assert(kind() == Kind::TH2Poly);
+    return static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH3F *MonitorElement::getTH3F() {
