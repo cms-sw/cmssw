@@ -112,15 +112,20 @@ TotemT2DQMSource::SectorPlots::SectorPlots(
 
   TotemT2DetId(id).armName(title, TotemT2DetId::nFull);
 
-  activePlanes = ibooker.book1D("active planes", title + " which planes are active (digi);plane number", 8, -0.5, 7.5);
+  activePlanes =
+      ibooker.book1D("active planes", title + " which planes are active (LE+TE digis);plane number", 8, -0.5, 7.5);
 
-  activePlanesCount = ibooker.book1D(
-      "number of active planes (digi)", title + " how many planes are active;number of active planes", 9, -0.5, 8.5);
+  activePlanesCount = ibooker.book1D("number of active planes",
+                                     title + " how many planes are active (LE+TE digis);number of active planes",
+                                     9,
+                                     -0.5,
+                                     8.5);
 
-  activityPerBX = ibooker.book1D("activity per BX CMS", title + " Activity per BX;Event.BX", 3600, -1.5, 3598. + 0.5);
+  activityPerBX =
+      ibooker.book1D("activity per BX CMS", title + " Activity (=LE) per BX;Event.BX", 3600, -1.5, 3598. + 0.5);
 
   triggerEmulator = ibooker.book2DD("trigger emulator",
-                                    title + " trigger emulator;arbitrary unit;arbitrary unit",
+                                    title + " trigger emulator (LE+TE digis);arbitrary unit;arbitrary unit",
                                     nbinsx,
                                     -0.5,
                                     double(nbinsx) - 0.5,
@@ -128,12 +133,15 @@ TotemT2DQMSource::SectorPlots::SectorPlots(
                                     -0.5,
                                     double(nbinsy) - 0.5);
   leadingEdge = ibooker.book1D(
-      "leading edge", title + " leading edge (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+      "leading edge", title + " leading edge (all DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
   trailingEdge = ibooker.book1D(
-      "trailing edge", title + " trailing edge (DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+      "trailing edge", title + " trailing edge (all DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
 
-  timeOverTreshold = ibooker.book1D(
-      "time over threshold", title + " time over threshold (digi);time over threshold (ns)", 500, -50, 200);
+  timeOverTreshold = ibooker.book1D("time over threshold",
+                                    title + " time over threshold (digi, =0 if LE or TE=0);time over threshold (ns)",
+                                    500,
+                                    -50,
+                                    200);
 
   eventFlags = ibooker.book1D(
       "event flags", title + " event flags (digi);Event flags (TE/LE valid, TE/LE multiple)", 4, -0.5, 3.5);
@@ -152,7 +160,7 @@ TotemT2DQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(path);
 
   digisMultiplicity = ibooker.book2DD("digis multiplicity",
-                                      title + " digis multiplicity;arbitrary unit;arbitrary unit",
+                                      title + " digis multiplicity (=LE);arbitrary unit;arbitrary unit",
                                       nbinsx,
                                       -0.5,
                                       double(nbinsx) - 0.5,
@@ -182,17 +190,21 @@ TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, unsigne
   ibooker.setCurrentFolder(path);
 
   leadingEdgeCh = ibooker.book1D(
-      "leading edge", title + " leading edge (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+      "leading edge", title + " leading edge (all DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
   trailingEdgeCh = ibooker.book1D(
-      "trailing edge", title + " trailing edge (DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+      "trailing edge", title + " trailing edge (all DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
 
-  timeOverTresholdCh = ibooker.book1D(
-      "time over threshold", title + " time over threshold (digi);time over threshold (ns)", 500, -50, 200);
+  timeOverTresholdCh = ibooker.book1D("time over threshold",
+                                      title + " time over threshold (digi, =0 if LE or TE=0);time over threshold (ns)",
+                                      500,
+                                      -50,
+                                      200);
 
   eventFlagsCh = ibooker.book1D(
       "event flags", title + " event flags (digi);Event flags (TE/LE valid, TE/LE multiple)", 4, -0.5, 3.5);
 
-  activityPerBXCh = ibooker.book1D("activity per BX", title + " Activity per BX;Event.BX", 1000, -1.5, 998. + 0.5);
+  activityPerBXCh =
+      ibooker.book1D("activity per BX", title + " Activity (=LE) per BX;Event.BX", 1000, -1.5, 998. + 0.5);
 
   for (unsigned short flag_index = 1; flag_index <= 4; ++flag_index)
     eventFlagsCh->setBinLabel(flag_index, "Flag " + std::to_string(flag_index));
@@ -242,8 +254,9 @@ void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for (const auto& digi : ds_digis) {
         if (digi.hasLE()) {
           segm_->fill(planePlots_[planeId].digisMultiplicity->getTH2D(), detid);
-          fillTriggerBitset(detid);
-	}
+          if (digi.hasTE())
+            fillTriggerBitset(detid);
+        }
         fillErrorFlagsHistogram(digi, detid);
         fillEdges(digi, detid);
         fillToT(digi, detid);
