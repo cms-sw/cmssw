@@ -62,15 +62,15 @@ void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
 
-    fX0 = beamhandle->fX0;
-    fY0 = beamhandle->fY0;
-    fZ0 = beamhandle->fZ0;
-    //    falpha=beamhandle->fAlpha;
-    fSigmaZ = beamhandle->fSigmaZ;
-    fTimeOffset = beamhandle->fTimeOffset;
-    fbetastar = beamhandle->fbetastar;
-    femittance = beamhandle->femittance;
-    setBoost(beamhandle->fAlpha, beamhandle->fPhi);
+    fX0 = beamhandle->x();
+    fY0 = beamhandle->y();
+    fZ0 = beamhandle->z();
+    //    falpha=beamhandle->alpha();
+    fSigmaZ = beamhandle->sigmaZ();
+    fTimeOffset = beamhandle->timeOffset();
+    fbetastar = beamhandle->betaStar();
+    femittance = beamhandle->emittance();
+    setBoost(beamhandle->alpha(), beamhandle->phi());
   }
 }
 
