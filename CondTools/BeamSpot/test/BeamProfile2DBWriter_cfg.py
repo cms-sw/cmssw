@@ -42,12 +42,18 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.simbeamspotwriter = cms.EDAnalyzer("BeamProfile2DB",
-                                            X0       = cms.double(0.0458532),   # in cm
+                                            X0       = cms.double(0.0458532),   # in cm  # Early 2023
                                             Y0        = cms.double(-0.016966),  # in cm
                                             Z0        = cms.double(-0.074992),  # in cm
                                             SigmaZ    = cms.double(3.6),        # in cm
                                             BetaStar  = cms.double(30.0),       # in cm
                                             Emittance = cms.double(3.931e-8)    # in cm
+                                            #X0       = cms.double(0.1027975),   # in cm  # EOY 2022
+                                            #Y0        = cms.double(-0.016762),  # in cm
+                                            #Z0        = cms.double(0.101756),   # in cm
+                                            #SigmaZ    = cms.double(3.4),        # in cm
+                                            #BetaStar  = cms.double(30.0),       # in cm
+                                            #Emittance = cms.double(4.276e-8)    # in cm
                                           )
 
 process.p = cms.Path(process.simbeamspotwriter)

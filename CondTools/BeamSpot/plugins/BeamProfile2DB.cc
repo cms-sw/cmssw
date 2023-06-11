@@ -106,7 +106,7 @@ void BeamProfile2DB::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("Alpha", 0.0)->setComment("in radians");
   desc.add<double>("Phi", 0.0)->setComment("in radians");
   desc.add<double>("TimeOffset", 0.0)->setComment("in ns");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
