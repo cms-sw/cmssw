@@ -1,13 +1,12 @@
-#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/PayloadInspector.h"
-#include "CondCore/CondDB/interface/Time.h"
-
 #include "CondCore/BeamSpotPlugins/interface/BeamSpotPayloadInspectorHelper.h"
+#include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
 namespace {
 
-  using namespace SimBeamSpotPI;
+  using namespace simBeamSpotPI;
 
   /************************************************
     Display of Sim Beam Spot parameters
