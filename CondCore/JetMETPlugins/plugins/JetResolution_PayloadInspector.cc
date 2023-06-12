@@ -343,6 +343,230 @@ namespace JME {
     }  // fill
 
   };  // class
+  class JetResolutionCompare : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV, 2> {
+  public:
+    JetResolutionCompare()
+        : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV, 2>("Jet Resolution Compare") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Eta");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
+    }
+
+    bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+      double par_Rho = 20.;
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_Pt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Eta");
+      if (ip != paramValues.end()) {
+        par_Eta = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
+
+      TH1D* resol_eta1 = new TH1D("Jet Resolution vs #eta one", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D* resol_eta2 = new TH1D("Jet Resolution vs #eta two", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D* resol_pt1 = new TH1D("Jet Resolution vs p_T one", "", NBIN_PT, MIN_PT, MAX_PT);
+      TH1D* resol_pt2 = new TH1D("Jet Resolution vs p_T two", "", NBIN_PT, MIN_PT, MAX_PT);
+      TLegend* leg_eta = new TLegend(0.26, 0.73, 0.935, 0.90);
+      TLegend* leg_pt = new TLegend(0.26, 0.73, 0.935, 0.90);
+
+      leg_eta->SetBorderSize(0);
+      leg_eta->SetLineStyle(0);
+      leg_eta->SetFillStyle(0);
+
+      leg_eta->SetTextFont(42);
+      leg_pt->SetBorderSize(0);
+      leg_pt->SetLineStyle(0);
+      leg_pt->SetFillStyle(0);
+
+      auto tag1 = PlotBase::getTag<0>();
+      auto iov1 = tag1.iovs.front();
+      std::shared_ptr<JetResolutionObject> payload1 = fetchPayload(std::get<1>(iov1));
+      auto tag2 = PlotBase::getTag<1>();
+      auto iov2 = tag2.iovs.front();
+      std::shared_ptr<JetResolutionObject> payload2 = fetchPayload(std::get<1>(iov2));
+
+      std::stringstream ss_tagname1(tag1.name);
+      std::stringstream ss_tagname2(tag1.name);
+      std::string stmp;
+
+      std::string tag_ver1;
+      std::string tag_ver2;
+
+      getline(ss_tagname1, stmp, '_');  // drop first
+      getline(ss_tagname1, stmp);       // year
+      tag_ver1 = stmp;
+
+      getline(ss_tagname2, stmp, '_');  // drop first
+      getline(ss_tagname2, stmp);       // year
+      tag_ver2 = stmp;
+
+      if (payload1.get() && payload2.get()) {
+        if (!payload1->getRecords().empty() &&  // No formula for SF
+            payload1->getDefinition().getFormulaString().compare("") == 0)
+          return false;
+
+        for (const auto& record : payload1->getRecords()) {
+          // Check Pt & Rho
+          if (!record.getVariablesRange().empty() && payload1->getDefinition().getVariableName(0) == "JetPt" &&
+              record.getVariablesRange()[0].is_inside(par_Pt)) {
+            if (record.getBinsRange().size() > 1 && payload1->getDefinition().getBinName(1) == "Rho" &&
+                record.getBinsRange()[1].is_inside(par_Rho)) {
+              if (!record.getBinsRange().empty() && payload1->getDefinition().getBinName(0) == "JetEta") {
+                reco::FormulaEvaluator f(payload1->getDefinition().getFormulaString());
+
+                for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+                  double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+                  if (record.getBinsRange()[0].is_inside(x_axis)) {
+                    std::vector<double> var = {par_Pt};
+                    std::vector<double> param;
+                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
+                      double par = record.getParametersValues()[i];
+                      param.push_back(par);
+                    }
+                    float res = f.evaluate(var, param);
+                    resol_eta1->SetBinContent(idx + 1, res);
+                  }
+                }
+              }
+            }
+          }
+
+          if (!record.getBinsRange().empty() && payload1->getDefinition().getBinName(0) == "JetEta" &&
+              record.getBinsRange()[0].is_inside(par_Eta)) {
+            if (record.getBinsRange().size() > 1 && payload1->getDefinition().getBinName(1) == "Rho" &&
+                record.getBinsRange()[1].is_inside(par_Rho)) {
+              if (!record.getVariablesRange().empty() && payload1->getDefinition().getVariableName(0) == "JetPt") {
+                reco::FormulaEvaluator f(payload1->getDefinition().getFormulaString());
+
+                for (size_t idx = 0; idx <= NBIN_PT + 2; idx++) {
+                  double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+                  if (record.getVariablesRange()[0].is_inside(x_axis)) {
+                    std::vector<double> var = {x_axis};
+                    std::vector<double> param;
+                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
+                      double par = record.getParametersValues()[i];
+                      param.push_back(par);
+                    }
+                    float res = f.evaluate(var, param);
+                    resol_pt1->SetBinContent(idx + 1, res);
+                  }
+                }
+              }
+            }
+          }
+        }  // records
+
+        for (const auto& record : payload2->getRecords()) {
+          // Check Pt & Rho
+          if (!record.getVariablesRange().empty() && payload2->getDefinition().getVariableName(0) == "JetPt" &&
+              record.getVariablesRange()[0].is_inside(par_Pt)) {
+            if (record.getBinsRange().size() > 1 && payload2->getDefinition().getBinName(1) == "Rho" &&
+                record.getBinsRange()[1].is_inside(par_Rho)) {
+              if (!record.getBinsRange().empty() && payload2->getDefinition().getBinName(0) == "JetEta") {
+                reco::FormulaEvaluator f(payload2->getDefinition().getFormulaString());
+
+                for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+                  double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+                  if (record.getBinsRange()[0].is_inside(x_axis)) {
+                    std::vector<double> var = {par_Pt};
+                    std::vector<double> param;
+                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
+                      double par = record.getParametersValues()[i];
+                      param.push_back(par);
+                    }
+                    float res = f.evaluate(var, param);
+                    resol_eta2->SetBinContent(idx + 1, res);
+                  }
+                }
+              }
+            }
+          }
+
+          if (!record.getBinsRange().empty() && payload2->getDefinition().getBinName(0) == "JetEta" &&
+              record.getBinsRange()[0].is_inside(par_Eta)) {
+            if (record.getBinsRange().size() > 1 && payload2->getDefinition().getBinName(1) == "Rho" &&
+                record.getBinsRange()[1].is_inside(par_Rho)) {
+              if (!record.getVariablesRange().empty() && payload2->getDefinition().getVariableName(0) == "JetPt") {
+                reco::FormulaEvaluator f(payload2->getDefinition().getFormulaString());
+
+                for (size_t idx = 0; idx <= NBIN_PT + 2; idx++) {
+                  double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+                  if (record.getVariablesRange()[0].is_inside(x_axis)) {
+                    std::vector<double> var = {x_axis};
+                    std::vector<double> param;
+                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
+                      double par = record.getParametersValues()[i];
+                      param.push_back(par);
+                    }
+                    float res = f.evaluate(var, param);
+                    resol_pt2->SetBinContent(idx + 1, res);
+                  }
+                }
+              }
+            }
+          }
+        }  // records
+
+        gStyle->SetOptStat(0);
+        gStyle->SetLabelFont(42, "XYZ");
+        gStyle->SetLabelSize(0.05, "XYZ");
+        gStyle->SetFrameLineWidth(3);
+
+        std::string title = Form("Comparison between %s and %s", tag1.name.c_str(), tag2.name.c_str());
+        TCanvas canvas("Jet Resolution Comparison", title.c_str(), 800, 1200);
+        canvas.Divide(1, 2);
+
+        canvas.cd(1);
+        resol_eta1->SetTitle("Jet Resolution Comparison");
+        resol_eta1->SetXTitle("#eta");
+        resol_eta1->SetYTitle("Resolution");
+        resol_eta1->SetLineWidth(3);
+        resol_eta1->SetMaximum(resol_eta1->GetMaximum() * 1.25);
+        resol_eta1->Draw("][");
+
+        resol_eta2->SetLineColor(2);
+        resol_eta2->SetLineWidth(3);
+        resol_eta2->SetLineStyle(2);
+        resol_eta2->Draw("][same");
+
+        leg_eta->AddEntry(resol_eta1, tag_ver1.c_str(), "l");
+        leg_eta->AddEntry(resol_eta2, tag_ver2.c_str(), "l");
+        leg_eta->AddEntry((TObject*)nullptr, Form("JetPt=%.2f; JetRho=%.2f", par_Pt, par_Rho), "");
+        leg_eta->Draw();
+
+        canvas.cd(2);
+        resol_pt1->SetXTitle("p_{T} [GeV]");
+        resol_pt1->SetYTitle("Resolution");
+        resol_pt1->SetLineWidth(3);
+        resol_pt1->Draw("][");
+
+        resol_pt2->SetLineColor(2);
+        resol_pt2->SetLineWidth(3);
+        resol_pt2->SetLineStyle(2);
+        resol_pt2->Draw("][same");
+
+        leg_pt->AddEntry(resol_pt1, tag_ver1.c_str(), "l");
+        leg_pt->AddEntry(resol_pt2, tag_ver2.c_str(), "l");
+        leg_pt->AddEntry((TObject*)nullptr, Form("JetEta=%.2f; JetRho=%.2f", par_Eta, par_Rho), "");
+        leg_pt->Draw();
+
+        canvas.SaveAs(m_imageFileName.c_str());
+
+        return true;
+      } else  // no payload.get()
+        return false;
+    }  // fill
+
+  };  // class
 
   template <index ii>
   class JetScaleFactorVsEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
@@ -653,6 +877,199 @@ namespace JME {
 
   };  // class
 
+  class JetScaleFactorCompare : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV, 2> {
+  public:
+    JetScaleFactorCompare()
+        : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV, 2>("Jet ScaleFactor Summary") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Eta");
+    }
+
+    bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_Pt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Eta");
+      if (ip != paramValues.end()) {
+        par_Eta = std::stod(ip->second);
+      }
+
+      TH1D* sf_eta_one = new TH1D("Jet SF vs #eta one", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D* sf_eta_two = new TH1D("Jet SF vs #eta two", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D* sf_pt_one = new TH1D("Jet SF vs p_T one", "", NBIN_PT, MIN_PT, MAX_PT);
+      TH1D* sf_pt_two = new TH1D("Jet SF vs p_T two", "", NBIN_PT, MIN_PT, MAX_PT);
+
+      TLegend* leg_eta = new TLegend(0.26, 0.73, 0.935, 0.90);
+      TLegend* leg_pt = new TLegend(0.26, 0.73, 0.935, 0.90);
+
+      leg_eta->SetBorderSize(0);
+      leg_eta->SetLineStyle(0);
+      leg_eta->SetFillStyle(0);
+
+      leg_eta->SetTextFont(42);
+      leg_pt->SetBorderSize(0);
+      leg_pt->SetLineStyle(0);
+      leg_pt->SetFillStyle(0);
+
+      auto tag1 = PlotBase::getTag<0>();
+      auto iov1 = tag1.iovs.front();
+      std::shared_ptr<JetResolutionObject> payload1 = fetchPayload(std::get<1>(iov1));
+
+      auto tag2 = PlotBase::getTag<1>();
+      auto iov2 = tag2.iovs.front();
+      std::shared_ptr<JetResolutionObject> payload2 = fetchPayload(std::get<1>(iov2));
+
+      std::stringstream ss_tagname1(tag1.name);
+      std::stringstream ss_tagname2(tag2.name);
+      std::string stmp;
+
+      std::string tag_ver1;
+      std::string tag_ver2;
+
+      getline(ss_tagname1, stmp, '_');  // drop first
+      getline(ss_tagname1, stmp);       // year
+      tag_ver1 = stmp;
+
+      getline(ss_tagname2, stmp, '_');  // drop first
+      getline(ss_tagname2, stmp);       // year
+      tag_ver2 = stmp;
+
+      bool is_2bin = false;
+
+      if (payload1.get() && payload2.get()) {
+        if (!payload1->getRecords().empty() &&  // No formula for SF
+            payload1->getDefinition().getFormulaString().compare("") != 0)
+          return false;
+
+        is_2bin = false;
+        for (const auto& record : payload1->getRecords()) {
+          if (record.getBinsRange().size() > 1)
+            is_2bin = true;
+
+          if (!record.getBinsRange().empty() && payload1->getDefinition().getBinName(0) == "JetEta" &&
+              record.getParametersValues().size() == 3) {  // norm, down, up
+
+            for (size_t it = 0; it <= NBIN_ETA; it++) {
+              double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(par_Pt))) &&
+                  record.getBinsRange()[0].is_inside(x_axis)) {
+                sf_eta_one->SetBinContent(it + 1, record.getParametersValues()[0]);
+              }
+            }
+          }
+
+          if (record.getBinsRange().size() > 1 && payload1->getDefinition().getBinName(0) == "JetEta" &&
+              record.getBinsRange()[0].is_inside(par_Eta) &&  // take jeteta=2.5
+              payload1->getDefinition().getBinName(1) == "JetPt" &&
+              record.getParametersValues().size() == 3) {  // norm, down, up
+
+            is_2bin = true;
+
+            for (size_t it = 0; it <= NBIN_PT; it++) {
+              double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+              if (record.getBinsRange()[1].is_inside(x_axis)) {
+                sf_pt_one->SetBinContent(it + 1, record.getParametersValues()[0]);
+              }
+            }
+          }  // 2-bin
+        }    // records
+
+        is_2bin = false;
+        for (const auto& record : payload2->getRecords()) {
+          if (record.getBinsRange().size() > 1)
+            is_2bin = true;
+
+          if (!record.getBinsRange().empty() && payload2->getDefinition().getBinName(0) == "JetEta" &&
+              record.getParametersValues().size() == 3) {  // norm, down, up
+
+            for (size_t it = 0; it <= NBIN_ETA; it++) {
+              double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(par_Pt))) &&
+                  record.getBinsRange()[0].is_inside(x_axis)) {
+                sf_eta_two->SetBinContent(it + 1, record.getParametersValues()[0]);
+              }
+            }
+          }
+
+          if (record.getBinsRange().size() > 1 && payload2->getDefinition().getBinName(0) == "JetEta" &&
+              record.getBinsRange()[0].is_inside(par_Eta) &&  // take jeteta=2.5
+              payload2->getDefinition().getBinName(1) == "JetPt" &&
+              record.getParametersValues().size() == 3) {  // norm, down, up
+
+            is_2bin = true;
+
+            for (size_t it = 0; it <= NBIN_PT; it++) {
+              double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+              if (record.getBinsRange()[1].is_inside(x_axis)) {
+                sf_pt_two->SetBinContent(it + 1, record.getParametersValues()[0]);
+              }
+            }
+          }  // 2-bin
+        }    // records
+
+        gStyle->SetOptStat(0);
+        gStyle->SetLabelFont(42, "XYZ");
+        gStyle->SetLabelSize(0.05, "XYZ");
+        gStyle->SetFrameLineWidth(3);
+
+        std::string title = Form("Comparison");
+        TCanvas canvas("Jet ScaleFactor", title.c_str(), 800, 1200);
+        canvas.Divide(1, 2);
+
+        canvas.cd(1);
+        sf_eta_one->SetTitle("Jet ScaleFactor vs. #eta");
+        sf_eta_one->SetXTitle("#eta");
+        sf_eta_one->SetYTitle("Scale Factor");
+        sf_eta_one->SetLineWidth(3);
+        sf_eta_one->SetMaximum(sf_eta_one->GetMaximum() * 1.25);
+        sf_eta_one->SetMinimum(0.);
+        sf_eta_one->Draw("][");
+
+        sf_eta_two->SetLineColor(2);
+        sf_eta_two->SetLineWidth(3);
+        sf_eta_two->SetLineStyle(2);
+        sf_eta_two->Draw("][ same");
+
+        leg_eta->AddEntry(sf_eta_one, tag_ver1.c_str(), "l");
+        leg_eta->AddEntry(sf_eta_two, tag_ver2.c_str(), "l");
+        leg_eta->AddEntry((TObject*)nullptr, Form("JetPt=%.2f", par_Pt), "");
+        leg_eta->Draw();
+
+        if (is_2bin == true) {
+          canvas.cd(2);
+          sf_pt_one->SetTitle("Jet ScaleFactor vs. p_{T}");
+          sf_pt_one->SetXTitle("p_{T} [GeV]");
+          sf_pt_one->SetYTitle("Scale Factor");
+          sf_pt_one->SetLineWidth(3);
+          sf_pt_one->SetMaximum(sf_pt_one->GetMaximum() * 1.25);
+          sf_pt_one->SetMinimum(0.);
+          sf_pt_one->Draw("][");
+
+          sf_pt_two->SetLineColor(2);
+          sf_pt_two->SetLineWidth(3);
+          sf_pt_two->SetLineStyle(2);
+          sf_pt_two->Draw("][ same");
+
+          leg_pt->AddEntry(sf_pt_one, tag_ver1.c_str(), "l");
+          leg_pt->AddEntry(sf_pt_two, tag_ver2.c_str(), "l");
+          leg_pt->AddEntry((TObject*)nullptr, Form("JetEta=%.2f", par_Eta), "");
+          leg_pt->Draw();
+        }
+
+        canvas.SaveAs(m_imageFileName.c_str());
+
+        return true;
+      } else  // no payload.get()
+        return false;
+    }  // fill
+
+  };  // class
+
   // Register the classes as boost python plugin
   PAYLOAD_INSPECTOR_MODULE(JetResolutionObject) {
     PAYLOAD_INSPECTOR_CLASS(JetResolutionVsEta);
@@ -663,8 +1080,11 @@ namespace JME {
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsPtNORM);
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsPtDOWN);
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsPtUP);
+
     PAYLOAD_INSPECTOR_CLASS(JetResolutionSummary);
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorSummary);
+    PAYLOAD_INSPECTOR_CLASS(JetResolutionCompare);
+    PAYLOAD_INSPECTOR_CLASS(JetScaleFactorCompare);
   }
 
 }  // namespace JME
