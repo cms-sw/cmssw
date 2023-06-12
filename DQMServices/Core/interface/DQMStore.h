@@ -252,12 +252,12 @@ namespace dqm {
       }
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2DPoly(TString const& name,
-                             TString const& title,
-                             double lowX,
-                             double highX,
-                             double lowY,
-                             double highY,
-                             FUNC onbooking = NOOP()) {
+                                 TString const& title,
+                                 double lowX,
+                                 double highX,
+                                 double lowY,
+                                 double highY,
+                                 FUNC onbooking = NOOP()) {
         return bookME(name, MonitorElementData::Kind::TH2F, [=]() {
           auto th2poly = new TH2Poly(name, title, lowX, highX, lowY, highY);
           onbooking(th2poly);
