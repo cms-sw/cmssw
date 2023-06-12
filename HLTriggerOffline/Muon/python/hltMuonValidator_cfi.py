@@ -48,8 +48,8 @@ hltMuonValidator = DQMEDAnalyzer('HLTMuonValidator',
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(hltMuonValidator,
                        hltPathsToCheck = cms.vstring(
-                           "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon(_v[0-9]*)?$",
-                           "HLT_Mu37_Mu27_FromL1TkMuon(_v[0-9]*)?$",
-                           "HLT_Mu50_FromL1TkMuon(_v[0-9]*)?$"
+                           "HLT_Mu[0-9]+_TrkIso[A-Z]+_Mu[0-9]+_TrkIso[A-Z]+_DZ_FromL1TkMuon(_v[0-9]+)?$",
+                           "HLT_Mu[0-9]+_Mu[0-9]+_FromL1TkMuon(_v[0-9]+)?$",
+                           "HLT_Mu[0-9]+_FromL1TkMuon(_v[0-9]+)?$",
                        )
 )

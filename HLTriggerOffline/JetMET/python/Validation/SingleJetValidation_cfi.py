@@ -17,8 +17,8 @@ SingleJetMetPaths = DQMEDAnalyzer('HLTJetMETValidation',
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(SingleJetMetPaths,
-                       PatternJetTrg  = "HLT_(AK4)?PFPuppiJet([0-9])+(_v[0-9]+)?$",
-                       PatternMetTrg  = "HLT_PFPuppiMET+[TypeOne140_PFPuppiMHT140]+(_v[0-9]+)?$",
+                       PatternJetTrg  = "HLT_(AK4|AK8)?PF(Puppi)?Jet[0-9]+(_v[0-9]+)?$",
+                       PatternMetTrg  = "HLT_PF(Puppi)?MET(TypeOne)?[0-9]+(_PF(Puppi)?MHT[0-9]+)?(_v[0-9]+)?$",
                        PFJetAlgorithm = "hltAK4PFPuppiJetsCorrected"
                        )
 
