@@ -193,14 +193,14 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
 
   // Initialize arrays for event planes
   // nFlow: Number of flow components in the fit to particle flow condidate distribution
-  const int nFlow = lastFittedVn_ - firstFittedVn_ + 1;  
+  const int nFlow = lastFittedVn_ - firstFittedVn_ + 1;
   double eventPlane[nFlow];
   for (int iFlow = 0; iFlow < nFlow; iFlow++)
     eventPlane[iFlow] = -100;
 
   // Initialize the output vector with flow fit components
   // v_n and Psi_n for each fitted flow component, plus overall normalization factor, chi^2 and ndf for flow fit, and the first fitted flow component
-  const int nParamVals = nFlow * 2 + 4; 
+  const int nParamVals = nFlow * 2 + 4;
   auto rhoFlowFitParamsOut = std::make_unique<std::vector<double>>(nParamVals, 1e-6);
 
   // Set the parameters related to flow fit to zero
@@ -267,7 +267,7 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
           if (deltaPhiJetPf > TMath::Pi())
             deltaPhiJetPf = TMath::Pi() * 2 - deltaPhiJetPf;
           // Weight currently does not take into account overlapping jets
-          thisPfCandidateWeight += pfWeightFunction_->Eval(deltaPhiJetPf, TMath::Abs(jet.eta()));  
+          thisPfCandidateWeight += pfWeightFunction_->Eval(deltaPhiJetPf, TMath::Abs(jet.eta()));
         }
       }
       // Do not use this particle flow candidate in the manual event plane calculation
