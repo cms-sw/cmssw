@@ -16,29 +16,26 @@
 //
 
 // system include files
+#include <fstream>
 #include <memory>
+#include <sstream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
+#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
-#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
 // For ROOT
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <TTree.h>
-
-#include <sstream>
-#include <fstream>
 
 //
 // class declaration
@@ -55,7 +52,7 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  struct theBSfromDB {
+  struct TheBSfromDB {
     int run;
     int ls;
     double fX0, fY0, fZ0;
@@ -98,7 +95,7 @@ BeamProfile2DBReader::~BeamProfile2DBReader() = default;
 // member functions
 //
 
-void BeamProfile2DBReader::theBSfromDB::init() {
+void BeamProfile2DBReader::TheBSfromDB::init() {
   float dummy_double = 0.0;
   int dummy_int = 0;
 
