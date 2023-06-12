@@ -257,6 +257,8 @@ namespace edm {
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
+    /// This function is potentially costly as it might cause a disk
+    /// read (note that it does not cause the data to be cached locally)
     bool isAvailable() const;
 
     /// Checks if this ref is transient (i.e. not persistable).
@@ -404,6 +406,8 @@ namespace edm {
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
+    /// This function is potentially costly as it might cause a disk
+    /// read (note that it does not cause the data to be cached locally)
     bool isAvailable() const;
 
     /// Checks if this ref is transient (i.e. not persistable).
