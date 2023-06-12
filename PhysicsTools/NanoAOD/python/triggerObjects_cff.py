@@ -213,11 +213,14 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel("coll('hltAK8PFJetsCorrected')"),
-                mksel("coll('hltAK8PFSoftDropJets230')"),
-                mksel("filter('hltAK8SinglePFJets230SoftDropMass40BTagParticleNetBB0p35')","hltAK8SinglePFJets230SoftDropMass40BTagParticleNetBB0p35"),
-                mksel("filter('hltAK8SinglePFJets250SoftDropMass40BTagParticleNetBB0p35')","hltAK8SinglePFJets250SoftDropMass40BTagParticleNetBB0p35"),
-                mksel("filter('hltAK8SinglePFJets275SoftDropMass40BTagParticleNetBB0p35')","hltAK8SinglePFJets275SoftDropMass40BTagParticleNetBB0p35"),
+                mksel("coll('hltAK8PFJetsCorrected')"),    #1, always present
+                mksel(["hltAK8SingleCaloJet200"]),         #2, always present
+                mksel("coll('hltAK8PFSoftDropJets230')"),  #4, present if nothing else below is fired, otherwise 12, 20, 28, 52, 60
+                mksel(["hltAK8SinglePFJets230SoftDropMass40BTagParticleNetBB0p35",
+                       "hltAK8SinglePFJets250SoftDropMass40BTagParticleNetBB0p35",
+                       "hltAK8SinglePFJets275SoftDropMass40BTagParticleNetBB0p35"]), # 12 if nothing below is fired, #28 if also "hltAK8DoublePFJetSDModMass30", #60 if also "hltAK8DoublePFJetSDModMass50" 
+                mksel(["hltAK8DoublePFJetSDModMass30"]), # 16 if onthing else (except #1), 20 if also #4, 28 if also #12
+                mksel(["hltAK8DoublePFJetSDModMass50"]), # 48 if also (obviously) "hltAK8DoublePFJetSDModMass30", 52 if also #4, #60 if all above
                 )
         ),
         MET = cms.PSet(
