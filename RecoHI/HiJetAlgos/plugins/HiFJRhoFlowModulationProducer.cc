@@ -40,41 +40,50 @@
 namespace {
 
   double flowFunction(double* x, double* par) {
-    int nFlow = par[0];             // Number of fitted flow components is defined in the first parameter
-    double firstFittedVn = par[1];  // The first fitted flow component is defined in the second parameter
+    unsigned int nFlow = par[0];          // Number of fitted flow components is defined in the first parameter
+    unsigned int firstFittedVn = par[1];  // The first fitted flow component is defined in the second parameter
 
     // Add each component separately to the total fit value
     double flowModulation = par[2];
-    for (int iFlow = 0; iFlow < nFlow; iFlow++) {
+    for (unsigned int iFlow = 0; iFlow < nFlow; iFlow++) {
       flowModulation +=
           par[2] * 2.0 * par[2 * iFlow + 3] * std::cos((iFlow + firstFittedVn) * (x[0] - par[2 * iFlow + 4]));
     }
     return flowModulation;
   }
 
+  /*
+   * Weighing function for particle flow candidates in case jetty regions are exluded from the flow fit
+   *   x[0] = DeltaPhi between jet axis and particle flow candidate in range [0,2Pi]
+   *   x[1] = Absolute value of the jet eta
+   *   par[0] = Eta cut applied for the particle flow candidates
+   *   par[1] = Exclusion radius around the jet axis
+   *   
+   *   return: The weight to be used with this particle flow candidate is (1 + number provided by this function)
+   */
   double weightFunction(double* x, double* par) {
-    // If the particle flow candidate is farther than 0.4 from the jet axis, no need for weighting due to area where no particle flow candidates can be found
-    if (x[0] * x[0] > 0.16)
+    // If the particle flow candidate is farther than the exclusion radius from the jet axis, no need for weighting due to area where no particle flow candidates can be found
+    if (x[0] > par[1])
       return 0;
 
     // If the particle flow candidate is closer than 0.4 in phi from the jet axis, then there is part of phi acceptance from which no particle flow candidates can be found. Calculate the half of the size of that strip in eta
-    double exclusionArea = TMath::Sqrt(0.16 - x[0] * x[0]);
+    double exclusionArea = TMath::Sqrt(par[1] * par[1] - x[0] * x[0]);
 
-    // Particle flow caldidates are only considered until eta = par[0]. We should not exclude any area beyond that. Check that the exclusion are does not go beyond that
+    // Particle flow candidates are only considered until eta = par[0]. Check that the exclusion area does not go beyond that
 
     // First, check cases where the jet is found outside of the particle flow candidate acceptance in eta
-    if (TMath::Abs(x[1]) > par[0]) {
+    if (x[1] > par[0]) {
       // Check if the whole exclusion area is outside of the acceptance. If this is the case, we should not add anything to the weight for this particle flow candidate.
-      if (TMath::Abs(x[1]) - exclusionArea > par[0])
+      if (x[1] - exclusionArea > par[0])
         return 0;
 
       // Now we know that part of the exclusion area will be inside of the acceptance. Check how big this is.
-      exclusionArea = par[0] - (TMath::Abs(x[1]) - exclusionArea);
+      exclusionArea = par[0] - (x[1] - exclusionArea);
 
     } else {
       // In the next case, the jet is found inside of the particle flow candidate acceptance. In this case, we need to check if some of the exclusion area goes outside of the acceptance. If is does, we need to exclude that from the exclusion area
-      if (TMath::Abs(x[1]) + exclusionArea > par[0]) {
-        exclusionArea += par[0] - TMath::Abs(x[1]);
+      if (x[1] + exclusionArea > par[0]) {
+        exclusionArea += par[0] - x[1];
       } else {
         // If not, the the exclusion area is two times half of the nominal exclusion area
         exclusionArea *= 2;
@@ -100,6 +109,7 @@ private:
   const bool doEvtPlane_;
   const bool doFreePlaneFit_;
   const bool doJettyExclusion_;
+  const double exclusionRadius_;
   const int evtPlaneLevel_;
   const double pfCandidateEtaCut_;
   const double pfCandidateMinPtCut_;
@@ -118,6 +128,7 @@ HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::Paramete
       doEvtPlane_(iConfig.getParameter<bool>("doEvtPlane")),
       doFreePlaneFit_(iConfig.getParameter<bool>("doFreePlaneFit")),
       doJettyExclusion_(iConfig.getParameter<bool>("doJettyExclusion")),
+      exclusionRadius_(iConfig.getParameter<double>("exclusionRadius")),
       evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel")),
       pfCandidateEtaCut_(iConfig.getParameter<double>("pfCandidateEtaCut")),
       pfCandidateMinPtCut_(iConfig.getParameter<double>("pfCandidateMinPtCut")),
@@ -152,8 +163,9 @@ HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::Paramete
   flowFit_p_ = std::make_unique<TF1>("flowFit", flowFunction, -TMath::Pi(), TMath::Pi(), nFlow * 2 + 3);
   flowFit_p_->FixParameter(0, nFlow);           // The first parameter defines the number of fitted flow components
   flowFit_p_->FixParameter(1, firstFittedVn_);  // The second parameter defines the first fitted flow component
-  pfWeightFunction_ = std::make_unique<TF2>("weightFunction", weightFunction, 0, TMath::Pi(), -5, 5, 1);
+  pfWeightFunction_ = std::make_unique<TF2>("weightFunction", weightFunction, 0, TMath::Pi(), -5, 5, 2);
   pfWeightFunction_->SetParameter(0, pfCandidateEtaCut_);  // Set the allowed eta range for particle flow candidates
+  pfWeightFunction_->SetParameter(1, exclusionRadius_);    // Set the exclusion radius around the jets
 }
 
 // ------------ method called to produce the data  ------------
@@ -162,8 +174,7 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
   auto const& pfCands = iEvent.get(pfCandidateToken_);
 
   // If we are reading the event plane information for the forest, find the event planes
-  static constexpr int kMaxEvtPlane = 29;
-  std::array<float, kMaxEvtPlane> hiEvtPlane;
+  std::array<float, hi::NumEPNames> hiEvtPlane;
   if (doEvtPlane_) {
     auto const& evtPlanes = iEvent.get(evtPlaneToken_);
     assert(evtPlanes.size() == hi::NumEPNames);
@@ -181,16 +192,15 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
   int nFill = 0;
 
   // Initialize arrays for event planes
-  const int nFlow = lastFittedVn_ - firstFittedVn_ +
-                    1;  // Number of flow components in the fit to particle flow condidate distribution
+  // nFlow: Number of flow components in the fit to particle flow condidate distribution
+  const int nFlow = lastFittedVn_ - firstFittedVn_ + 1;  
   double eventPlane[nFlow];
   for (int iFlow = 0; iFlow < nFlow; iFlow++)
     eventPlane[iFlow] = -100;
 
   // Initialize the output vector with flow fit components
-  const int nParamVals =
-      nFlow * 2 +
-      4;  // v_n and Psi_n for each fitted flow component, plus overall normalization factor, chi^2 and ndf for flow fit, and the first fitted flow component
+  // v_n and Psi_n for each fitted flow component, plus overall normalization factor, chi^2 and ndf for flow fit, and the first fitted flow component
+  const int nParamVals = nFlow * 2 + 4; 
   auto rhoFlowFitParamsOut = std::make_unique<std::vector<double>>(nParamVals, 1e-6);
 
   // Set the parameters related to flow fit to zero
@@ -249,15 +259,15 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
     if (doJettyExclusion_) {
       bool isGood = true;
       for (auto const& jet : *jets) {
-        if (deltaR2(jet, pfCandidate) < 0.16) {
+        if (deltaR2(jet, pfCandidate) < exclusionRadius_) {
           isGood = false;
         } else {
           // If the particle flow candidates are not excluded from the fit, check if there are any jets in the same phi-slice as the particle flow candidate. If this is the case, add a weight for the particle flow candidate taking into account the lost acceptance for underlaying event particle flow candidates.
           deltaPhiJetPf = TMath::Abs(pfCandidate.phi() - jet.phi());
           if (deltaPhiJetPf > TMath::Pi())
             deltaPhiJetPf = TMath::Pi() * 2 - deltaPhiJetPf;
-          thisPfCandidateWeight += pfWeightFunction_->Eval(
-              deltaPhiJetPf, jet.eta());  // Weight currently does not take into account overlapping jets
+          // Weight currently does not take into account overlapping jets
+          thisPfCandidateWeight += pfWeightFunction_->Eval(deltaPhiJetPf, TMath::Abs(jet.eta()));  
         }
       }
       // Do not use this particle flow candidate in the manual event plane calculation
@@ -359,6 +369,7 @@ void HiFJRhoFlowModulationProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<bool>("doEvtPlane", false);
   desc.add<edm::InputTag>("EvtPlane", edm::InputTag("hiEvtPlane"));
   desc.add<bool>("doJettyExclusion", false);
+  desc.add<double>("exclusionRadius", 0.4);
   desc.add<bool>("doFreePlaneFit", false);
   desc.add<edm::InputTag>("jetTag", edm::InputTag("ak4PFJetsForFlow"));
   desc.add<edm::InputTag>("pfCandSource", edm::InputTag("packedPFCandidates"));
