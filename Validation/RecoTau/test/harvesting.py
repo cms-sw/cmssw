@@ -5,11 +5,11 @@
 # with command line options: step4 --mc --filetype DQM --conditions auto:phase1_2017_realistic -s HARVESTING:@allForPrompt --era Run2_2017 --scenario pp --filein file:RECO_RAW2DIGI_L1Reco_RECO_EI_PAT_VALIDATION_DQM_inDQM.root --python_filename=harvesting.py --no_exec
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
 
-process = cms.Process('HARVESTING',Run2_2017)
+process = cms.Process('HARVESTING',Run3_2023)
 
-process_name = 'QCD'
+process_name = 'ZTT'
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -76,7 +76,7 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '126X_mcRun3_2023_forPU65_v1', '')
 
 # Path and EndPath definitions
 process.alcaHarvesting = cms.Path()

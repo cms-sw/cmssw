@@ -5,9 +5,9 @@
 # with command line options: PAT -s VALIDATION:@miniAODValidation,DQM:@miniAODDQM --runUnscheduled --mc --era Run2_2017 --scenario pp --conditions auto:phase1_2017_realistic --eventcontent DQM --datatier DQMIO --filein /store/relval/CMSSW_10_6_1/RelValZTT_13UP17/MINIAODSIM/PUpmx25ns_106X_mc2017_realistic_v6_ul17hlt_premix_rsb-v1/20000/07F0AD9A-A1F3-8847-B95A-F4208E2EEE9F.root --geometry DB:Extended --python_filename=config.py -n 1000 --no_exec
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
 
-process = cms.Process('DQM',Run2_2017)
+process = cms.Process('DQM',Run3_2023)
 
 # import of standard configurations
 #process.load('Configuration.StandardSequences.Services_cff')
@@ -44,12 +44,12 @@ process.options = cms.untracked.PSet(
 	SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
-process_name='QCD'
+process_name='ZTT'
 
 process_dict = {
 'ZMM':'/store/relval/CMSSW_11_0_0_pre10/RelValZMM_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/2085AB00-3B9C-664F-A31A-32852CE6F284.root',
 'ZEE':'/store/relval/CMSSW_11_0_0_pre10/RelValZEE_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/639D8BE1-8DCC-9145-A38B-7B3CCEE0333A.root',
-'ZTT':'/store/relval/CMSSW_11_0_0_pre10/RelValZTT_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/E9D6A32A-6736-A448-90BC-E5455B3A9217.root',
+'ZTT':'/store/relval/CMSSW_13_1_0_pre1/RelValZTT_13p6/MINIAODSIM/130X_mcRun3_2022_realistic_withNewBSFromEOY2022Data_v2_RV186-v1/00000/8b30e3ad-da95-4256-894f-d5bc3a4e26af.root', # new
 'QCD':'/store/relval/CMSSW_11_0_0_pre10/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/110X_mcRun2_asymptotic_v2-v1/10000/91461CFA-8CEF-8C4E-864D-FFC1760FAC67.root'
 }
 
@@ -78,7 +78,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 )
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '126X_mcRun3_2023_forPU65_v1', '')
 
 # Path and EndPath definitions
 #process.prevalidation_step = cms.Path(process.prevalidationMiniAOD)
