@@ -53,17 +53,17 @@ DDHGCalPassiveFull::DDHGCalPassiveFull() {
 }
 
 void DDHGCalPassiveFull::initialize(const DDNumericArguments& nArgs,
-				    const DDVectorArguments& vArgs,
-				    const DDMapArguments&,
-				    const DDStringArguments& sArgs,
-				    const DDStringVectorArguments& vsArgs) {
+                                    const DDVectorArguments& vArgs,
+                                    const DDMapArguments&,
+                                    const DDStringArguments& sArgs,
+                                    const DDStringVectorArguments& vsArgs) {
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["ModuleThickness"];
   waferSize_ = nArgs["WaferSize"];
   waferSepar_ = nArgs["SensorSeparation"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: Module " << parent().name() << " made of " << material_
-                                << " T " << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: Module " << parent().name() << " made of " << material_ << " T "
+                                << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_;
 #endif
   layerNames_ = vsArgs["LayerNames"];
   materials_ = vsArgs["LayerMaterials"];
@@ -72,7 +72,8 @@ void DDHGCalPassiveFull::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: " << layerNames_.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i] << " filled with " << materials_[i];
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i]
+                                  << " filled with " << materials_[i];
 #endif
   layerType_ = dbl_to_int(vArgs["LayerType"]);
 #ifdef EDM_ML_DEBUG
@@ -104,7 +105,10 @@ void DDHGCalPassiveFull::execute(DDCompactView& cpv) {
   DDMaterial matter(matName);
   DDLogicalPart glogM = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: " << solid.name() << " extruded polygon made of " << matName << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size() << " edges";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: " << solid.name() << " extruded polygon made of " << matName
+                                << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                << " and " << xM.size() << " edges";
   for (unsigned int kk = 0; kk < xM.size(); ++kk)
     edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
@@ -123,9 +127,12 @@ void DDHGCalPassiveFull::execute(DDCompactView& cpv) {
       DDMaterial matter(matN);
       glogs[i] = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: Layer " << i << ":" << l << ":" << solid.name() << " extruded polygon made of " << matN << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1] << " and " << xM.size() << " edges";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: Layer " << i << ":" << l << ":" << solid.name()
+                                    << " extruded polygon made of " << matN << " z|x|y|s (0) " << zw[0] << ":" << zx[0]
+                                    << ":" << zy[0] << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1]
+                                    << ":" << zy[1] << ":" << scale[1] << " and " << xM.size() << " edges";
       for (unsigned int kk = 0; kk < xM.size(); ++kk)
-	edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
 #endif
     }
     DDTranslation tran0(0, 0, (zi + 0.5 * layerThick_[i]));
@@ -133,19 +140,19 @@ void DDHGCalPassiveFull::execute(DDCompactView& cpv) {
     cpv.position(glogs[i], glogM, copyNumber_[i], tran0, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: " << glogs[i].name() << " number " << copyNumber_[i]
-				  << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
+                                  << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
     ++copyNumber_[i];
     zi += layerThick_[i];
     thickTot += layerThick_[i];
   }
-  if ((std::abs(thickTot - thick_) >= tol) && (layerType_.size() > 0)) {
+  if ((std::abs(thickTot - thick_) >= tol) && (!layerType_.empty())) {
     if (thickTot > thick_) {
       edm::LogError("HGCalGeom") << "Thickness of the partition " << thick_ << " is smaller than " << thickTot
-				 << ": thickness of all its components **** ERROR ****";
+                                 << ": thickness of all its components **** ERROR ****";
     } else {
       edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick_ << " does not match with " << thickTot
-                                     << " of the components";
+                                   << " of the components";
     }
   }
 }
