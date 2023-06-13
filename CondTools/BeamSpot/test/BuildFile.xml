@@ -1,1 +1,1 @@
-<test name="testReadWriteOnlineBSFromDB" command="testReadWriteOnlineBSFromDB.sh"/>
+<test name="testReadWriteBeamSpotsFromDB" command="testReadWriteBeamSpotsFromDB.sh"/>
