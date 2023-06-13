@@ -1156,9 +1156,14 @@ namespace mkfit {
 
           // XXXX For now we DO NOT use chi2 as this was how things were done before the post-update
           // chi2 check. To use it we should retune scoring function (might be even simpler).
-          if (mkfndr->m_FailFlag[fi] == 0 && mkfndr->m_Chi2[fi] >= 0.0f && mkfndr->m_Chi2[fi] <= 60.0f) {
-            tc.addHitIdx(seed_cand_overlap_idx[ii].ovlp_idx, curr_layer, mkfndr->m_Chi2[fi]);
+          auto chi2Ovlp = mkfndr->m_Chi2[fi];
+          if (mkfndr->m_FailFlag[fi] == 0 && chi2Ovlp >= 0.0f && chi2Ovlp <= 60.0f) {
+            auto scoreCand = getScoreCand(tc, true /*penalizeTailMissHits*/, true /*inFindCandidates*/);
+            tc.addHitIdx(seed_cand_overlap_idx[ii].ovlp_idx, curr_layer, chi2Ovlp);
             tc.incOverlapCount();
+            auto scoreCandOvlp = getScoreCand(tc, true, true);
+            if (scoreCand > scoreCandOvlp)
+              tc.popOverlap();
           }
         }
 
