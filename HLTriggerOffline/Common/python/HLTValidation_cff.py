@@ -72,7 +72,7 @@ hltvalidationWithMC = cms.Sequence(
 )
 
 # Temporary Phase-2 config
-# Exclude everything except JetMET for now
+# Exclude everything except Muon and JetMET for now
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltvalidationWithMC, hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
                                                                                      HLTTauVal,
