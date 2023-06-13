@@ -29,15 +29,13 @@ process.dqmEnv.eventInfoFolder = "EventInfo"
 process.dqmSaver.path = ""
 process.dqmSaver.tag = "CTPPS"
 
-# raw data source
-#alignment run without T2, TimingDiamond and TrackingStrip not affected by PR changes
-process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring(
-    '/store/data/Run2023A/HLTPhysics/RAW/v1/000/366/192/00000/f277ee80-e88b-41e8-b1ba-6c18af119fbc.root'
-  )
+# raw data source, T2 + TrackingStrips test file in run 368593, not 368594 (wrong settings)
+process.source = cms.Source("NewEventStreamFileReader",
+    fileNames = cms.untracked.vstring(
+        '/store/t0streamer/Minidaq/A/000/368/593/run368593_ls0001_streamA_StorageManager.dat',
+#        '/store/t0streamer/Minidaq/A/000/368/594/run368594_ls0001_streamA_StorageManager.dat',
+    )
 )
-
-
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(8000)
 )
@@ -45,11 +43,9 @@ process.maxEvents = cms.untracked.PSet(
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
-# global tag - conditions for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_HLT_v2', '')
+#Latest PPS GT candidate
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_Prompt_Candidate_2023_06_06_21_34_08', '')
 
 # local RP reconstruction chain with standard settings
 process.load("RecoPPS.Configuration.recoCTPPS_cff")
