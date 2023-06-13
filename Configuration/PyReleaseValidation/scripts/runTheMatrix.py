@@ -99,7 +99,7 @@ if __name__ == '__main__':
                      12434.7, #2023 ttbar mkFit
                      24834.0, #2026D98 ttbar (Phase-2 baseline)
                      24834.911, #2026D98 ttbar DD4hep XML
-                     24834.999, #2026D98 ttbar premixing stage1+stage2, PU50
+                     25034.999, #2026D98 ttbar premixing stage1+stage2, PU50
                      24896.0, #CE_E_Front_120um D98
                      24900.0, #CE_H_Coarse_Scint D98
                      23234.0, #2026D94 ttbar (exercise with HFNose)
