@@ -258,29 +258,50 @@ int main(void) {
     }
   }
 
-  // Validation of range checking
-  try {
-    // Get a view like the default, except for range checking
-    SoAHostDeviceLayout::ViewTemplate<SoAHostDeviceView::restrictQualify, cms::soa::RangeChecking::enabled>
-        soa1viewRangeChecking(h_soahdLayout);
-    // This should throw an exception
-    [[maybe_unused]] auto si = soa1viewRangeChecking[soa1viewRangeChecking.metadata().size()];
-    std::cout << "Fail: expected range-check exception (operator[]) not caught on the host." << std::endl;
-    assert(false);
-  } catch (const std::out_of_range&) {
-    std::cout << "Pass: expected range-check exception (operator[]) successfully caught on the host." << std::endl;
+  {
+    // Get a view like the default, except for range checking (direct initialization from layout)
+    SoAHostDeviceRangeCheckingView soa1viewRangeChecking(h_soahdLayout);
+    try {
+      [[maybe_unused]] auto si = soa1viewRangeChecking[soa1viewRangeChecking.metadata().size()];
+      std::cout << "Fail: expected range-check exception (view-level index access) not caught on the host (overflow)."
+                << std::endl;
+      assert(false);
+    } catch (const std::out_of_range&) {
+    }
+    try {
+      [[maybe_unused]] auto si = soa1viewRangeChecking[-1];
+      std::cout << "Fail: expected range-check exception (view-level index access) not caught on the host (underflow)."
+                << std::endl;
+      assert(false);
+    } catch (const std::out_of_range&) {
+    }
+    [[maybe_unused]] auto si = soa1viewRangeChecking[soa1viewRangeChecking.metadata().size() - 1];
+    [[maybe_unused]] auto si2 = soa1viewRangeChecking[0];
+    std::cout << "Pass: expected range-check exceptions (view-level index access) successfully caught on the host "
+                 "(layout initialization)."
+              << std::endl;
   }
 
-  try {
-    // Get a view like the default, except for range checking
-    SoAHostDeviceLayout::ViewTemplate<SoAHostDeviceView::restrictQualify, cms::soa::RangeChecking::enabled>
-        soa1viewRangeChecking(h_soahdLayout);
-    // This should throw an exception
-    [[maybe_unused]] auto si = soa1viewRangeChecking[soa1viewRangeChecking.metadata().size()];
-    std::cout << "Fail: expected range-check exception (view-level index access) not caught on the host." << std::endl;
-    assert(false);
-  } catch (const std::out_of_range&) {
-    std::cout << "Pass: expected range-check exception (view-level index access) successfully caught on the host."
+  {
+    // Validation of view initialized range checking view initialization
+    try {
+      [[maybe_unused]] auto si = h_soahdrc3[h_soahdrc3.metadata().size()];
+      std::cout << "Fail: expected range-check exception (view-level index access) not caught on the host (overflow)."
+                << std::endl;
+      assert(false);
+    } catch (const std::out_of_range&) {
+    }
+    try {
+      [[maybe_unused]] auto si = h_soahdrc3[-1];
+      std::cout << "Fail: expected range-check exception (view-level index access) not caught on the host (underflow)."
+                << std::endl;
+      assert(false);
+    } catch (const std::out_of_range&) {
+    }
+    [[maybe_unused]] auto si = h_soahdrc3[h_soahdrc3.metadata().size() - 1];
+    [[maybe_unused]] auto si2 = h_soahdrc3[0];
+    std::cout << "Pass: expected range-check exceptions (view-level index access) successfully caught on the host "
+                 "(view initialization)."
               << std::endl;
   }
 
