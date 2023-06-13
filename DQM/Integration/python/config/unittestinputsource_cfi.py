@@ -102,7 +102,7 @@ for ls in range(options.minLumi, options.maxLumi+1):
     secFiles.extend(sec)
 
     # Get last eventsPerLumi of events in this file
-    command = "edmFileUtil --catalog file:/cvmfs/cms-ib.cern.ch/SITECONF/local/PhEDEx/storage.xml?protocol=ibeos --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
+    command = "edmFileUtil --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
     print(command)
     events = subprocess.check_output(command, shell=True)
     events = events.split(b'\n')
