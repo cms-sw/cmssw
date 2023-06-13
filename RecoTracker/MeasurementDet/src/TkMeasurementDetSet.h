@@ -233,8 +233,7 @@ private:
   void getDetSet(int i) const {
     const auto& det = detSet_[i];
     if (detIndex_[i] >= 0) {
-      // edmNew::DetSet<T>::set() internally does an atomic update
-      det.detSet_.set(*handle_, handle_->item(detIndex_[i]));
+      det.detSet_ = StripDetset(*handle_, handle_->item(detIndex_[i]), true);
       det.empty_ = false;  // better be false already
       incAct();
     } else {  // we should not be here
