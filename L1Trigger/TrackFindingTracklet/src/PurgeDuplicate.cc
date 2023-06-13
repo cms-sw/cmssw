@@ -207,8 +207,6 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
 
           // Count number of layers that share stubs, and the number of UR that each track hits
           unsigned int nShareLay = 0;
-          unsigned int nLayStubTrk1 = 0;
-          unsigned int nLayStubTrk2 = 0;
           if (settings_.mergeComparison() == "CompareAll") {
             bool layerArr[16];
             for (auto& i : layerArr) {
@@ -278,14 +276,6 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
               if (t1i != -1 && t2i != -1 && stubsTrk1[t1i].first == stubsTrk2[t2i].first &&
                   stubsTrk1[t1i].second == stubsTrk2[t2i].second)
                 nShareLay++;
-            }
-            // Calculate the number of layers hit by each track, so that this number can be used in calculating the number of independent
-            // stubs on a track (not enabled/used by default)
-            for (int i = 0; i < 16; i++) {
-              if (layStubidsTrk1[i] != -1)
-                nLayStubTrk1++;
-              if (layStubidsTrk2[i] != -1)
-                nLayStubTrk2++;
             }
           }
           // Fill duplicate map
