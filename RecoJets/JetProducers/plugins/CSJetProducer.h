@@ -34,7 +34,7 @@ namespace cms {
   protected:
     void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    double getModulatedRhoFactor(double phi, edm::Handle<std::vector<double>> flowParameters);
+    double getModulatedRhoFactor(const double phi, const edm::Handle<std::vector<double>>& flowParameters);
 
     double csRParam_;  /// for constituent subtraction : R parameter
     double csAlpha_;   /// for HI constituent subtraction : alpha (power of pt in metric)

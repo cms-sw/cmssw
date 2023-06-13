@@ -67,7 +67,7 @@ namespace {
       return 0;
 
     // If the particle flow candidate is closer than 0.4 in phi from the jet axis, then there is part of phi acceptance from which no particle flow candidates can be found. Calculate the half of the size of that strip in eta
-    double exclusionArea = TMath::Sqrt(par[1] * par[1] - x[0] * x[0]);
+    double exclusionArea = std::sqrt(par[1] * par[1] - x[0] * x[0]);
 
     // Particle flow candidates are only considered until eta = par[0]. Check that the exclusion area does not go beyond that
 
@@ -78,7 +78,7 @@ namespace {
         return 0;
 
       // Now we know that part of the exclusion area will be inside of the acceptance. Check how big this is.
-      exclusionArea = par[0] - (x[1] - exclusionArea);
+      exclusionArea += par[0] - x[1];
 
     } else {
       // In the next case, the jet is found inside of the particle flow candidate acceptance. In this case, we need to check if some of the exclusion area goes outside of the acceptance. If is does, we need to exclude that from the exclusion area
@@ -259,15 +259,16 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
     if (doJettyExclusion_) {
       bool isGood = true;
       for (auto const& jet : *jets) {
-        if (deltaR2(jet, pfCandidate) < exclusionRadius_) {
+        if (deltaR2(jet, pfCandidate) < exclusionRadius_ * exclusionRadius_) {
           isGood = false;
+          break;
         } else {
           // If the particle flow candidates are not excluded from the fit, check if there are any jets in the same phi-slice as the particle flow candidate. If this is the case, add a weight for the particle flow candidate taking into account the lost acceptance for underlaying event particle flow candidates.
-          deltaPhiJetPf = TMath::Abs(pfCandidate.phi() - jet.phi());
+          deltaPhiJetPf = std::abs(pfCandidate.phi() - jet.phi());
           if (deltaPhiJetPf > TMath::Pi())
             deltaPhiJetPf = TMath::Pi() * 2 - deltaPhiJetPf;
           // Weight currently does not take into account overlapping jets
-          thisPfCandidateWeight += pfWeightFunction_->Eval(deltaPhiJetPf, TMath::Abs(jet.eta()));
+          thisPfCandidateWeight += pfWeightFunction_->Eval(deltaPhiJetPf, std::abs(jet.eta()));
         }
       }
       // Do not use this particle flow candidate in the manual event plane calculation
@@ -311,10 +312,9 @@ void HiFJRhoFlowModulationProducer::produce(edm::Event& iEvent, const edm::Event
 
   // Do the flow fit provided that there are enough particle flow candidates in the event and that the event planes have been determined successfully
   int pfcuts_count = 0;
-  int nPhiBins = 10;
   if (nFill >= minPfCandidatesPerEvent_ && eventPlane[0] > -99) {
     // Create a particle flow candidate phi-histogram
-    nPhiBins = std::max(10, nFill / 30);
+    const int nPhiBins = std::max(10, nFill / 30);
     std::string name = "phiTestIEta4_" + std::to_string(iEvent.id().event()) + "_h";
     std::unique_ptr<TH1F> phi_h = std::make_unique<TH1F>(name.data(), "", nPhiBins, -TMath::Pi(), TMath::Pi());
     phi_h->SetDirectory(nullptr);

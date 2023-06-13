@@ -181,7 +181,7 @@ void CSJetProducer::fillDescriptionsFromCSJetProducer(edm::ParameterSetDescripti
   desc.add<edm::InputTag>("rhoFlowFitParams", {"hiFJRhoFlowModulationProducer", "rhoFlowFitParams"});
 }
 
-double CSJetProducer::getModulatedRhoFactor(const double phi, const edm::Handle<std::vector<double>> flowComponents) {
+double CSJetProducer::getModulatedRhoFactor(const double phi, const edm::Handle<std::vector<double>>& flowComponents) {
   // get the rho modulation as function of phi
   // flow modulation fit is done in RecoHI/HiJetAlgos/plugins/HiFJRhoFlowModulationProducer
   int nFlow = (flowComponents->size() - 4) / 2;
