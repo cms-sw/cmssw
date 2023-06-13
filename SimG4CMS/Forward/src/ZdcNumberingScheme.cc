@@ -28,14 +28,12 @@ void ZdcNumberingScheme::setVerbosity(const int iv) { verbosity = iv; }
 
 unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
   uint32_t index = 0;
-  int level = detectorLevel(aStep);
+
+  //Find number of levels
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  int level = (touch) ? ((touch->GetHistoryDepth()) + 1) : 0;
 
   if (level > 0) {
-    int* copyno = new int[level];
-    G4String* name = new G4String[level];
-
-    detectorLevel(aStep, level, copyno, name);
-
     int zside = 0;
     int channel = 0;
     int fiber = 0;
@@ -43,18 +41,20 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
     HcalZDCDetId::Section section = HcalZDCDetId::Unknown;
 
     for (int ich = 0; ich < level; ich++) {
-      if (name[ich] == "ZDC") {
-        if (copyno[ich] == 1)
+      int copyno = touch->GetReplicaNumber(level - ich - 1);
+      G4String name = ForwardName::getName(touch->GetVolume(level - ich - 1)->GetName());
+      if (name == "ZDC") {
+        if (copyno == 1)
           zside = 1;
-        if (copyno[ich] == 2)
+        if (copyno == 2)
           zside = -1;
-      } else if (name[ich] == "ZDC_EMLayer") {
+      } else if (name == "ZDC_EMLayer") {
         section = HcalZDCDetId::EM;
 #ifdef EDM_ML_DEBUG
-        layer = copyno[ich];
+        layer = copyno;
 #endif
-      } else if (name[ich] == "ZDC_EMFiber") {
-        fiber = copyno[ich];
+      } else if (name == "ZDC_EMFiber") {
+        fiber = copyno;
         if (fiber < 20)
           channel = 1;
         else if (fiber < 39)
@@ -65,13 +65,13 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
           channel = 4;
         else
           channel = 5;
-      } else if (name[ich] == "ZDC_LumLayer") {
+      } else if (name == "ZDC_LumLayer") {
         section = HcalZDCDetId::LUM;
-        layer = copyno[ich];
+        layer = copyno;
         channel = layer;
-      } else if (name[ich] == "ZDC_HadLayer") {
+      } else if (name == "ZDC_HadLayer") {
         section = HcalZDCDetId::HAD;
-        layer = copyno[ich];
+        layer = copyno;
         if (layer < 6)
           channel = 1;
         else if (layer < 12)
@@ -82,10 +82,10 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
           channel = 4;
       }
 #ifdef EDM_ML_DEBUG
-      else if (name[ich] == "ZDC_LumGas") {
+      else if (name == "ZDC_LumGas") {
         fiber = 1;
-      } else if (name[ich] == "ZDC_HadFiber") {
-        fiber = copyno[ich];
+      } else if (name == "ZDC_HadFiber") {
+        fiber = copyno;
       }
 #endif
     }
@@ -107,16 +107,16 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
 
     edm::LogVerbatim("ForwardSim") << "ZdcNumberingScheme:"
                                    << "  getUnitID - # of levels = " << level;
-    for (int ich = 0; ich < level; ich++)
-      edm::LogVerbatim("ForwardSim") << "  " << ich << ": copyno " << copyno[ich] << " name=" << name[ich]
-                                     << "  section " << section << " zside " << zside << " layer " << layer << " fiber "
-                                     << fiber << " channel " << channel << "packedIndex =" << intindex
+    for (int ich = 0; ich < level; ich++) {
+      int copyno = touch->GetReplicaNumber(level - ich - 1);
+      G4String name = ForwardName::getName(touch->GetVolume(level - ich - 1)->GetName());
+
+      edm::LogVerbatim("ForwardSim") << "  " << ich << ": copyno " << copyno << " name=" << name << "  section "
+                                     << section << " zside " << zside << " layer " << layer << " fiber " << fiber
+                                     << " channel " << channel << "packedIndex =" << intindex
                                      << " detId raw: " << std::hex << index << std::dec;
-
+    }
 #endif
-
-    delete[] copyno;
-    delete[] name;
   }
 
   return index;
@@ -151,25 +151,4 @@ void ZdcNumberingScheme::unpackZdcIndex(
   edm::LogVerbatim("ForwardSim") << "ZDC unpacking: idx:" << idx << " -> section " << section << " layer " << layer
                                  << " fiber " << fiber << " channel " << channel << " zside " << z;
 #endif
-}
-
-int ZdcNumberingScheme::detectorLevel(const G4Step* aStep) const {
-  //Find number of levels
-  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  int level = 0;
-  if (touch)
-    level = ((touch->GetHistoryDepth()) + 1);
-  return level;
-}
-
-void ZdcNumberingScheme::detectorLevel(const G4Step* aStep, int& level, int* copyno, G4String* name) const {
-  //Get name and copy numbers
-  if (level > 0) {
-    const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-    for (int ii = 0; ii < level; ii++) {
-      int i = level - ii - 1;
-      name[ii] = ForwardName::getName(touch->GetVolume(i)->GetName());
-      copyno[ii] = touch->GetReplicaNumber(i);
-    }
-  }
 }

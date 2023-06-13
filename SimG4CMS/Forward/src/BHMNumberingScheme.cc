@@ -6,43 +6,20 @@
 
 BHMNumberingScheme::BHMNumberingScheme() { LogDebug("BHMSim") << " Creating BHMNumberingScheme"; }
 
-int BHMNumberingScheme::detectorLevel(const G4Step* aStep) const {
-  //Find number of levels
-  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  return (touch) ? ((touch->GetHistoryDepth()) + 1) : 0;
-}
-
-void BHMNumberingScheme::detectorLevel(const G4Step* aStep, int& level, int* copyno, G4String* name) const {
-  //Get name and copy numbers
-  if (level > 0) {
-    const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-    for (int ii = 0; ii < level; ++ii) {
-      int i = level - ii - 1;
-      name[ii] = ForwardName::getName(touch->GetVolume(i)->GetName());
-      copyno[ii] = touch->GetReplicaNumber(i);
-    }
-  }
-}
-
 unsigned int BHMNumberingScheme::getUnitID(const G4Step* aStep) const {
   unsigned intindex = 0;
-  int level = detectorLevel(aStep);
+
+  //Find number of levels
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  int level = (touch) ? ((touch->GetHistoryDepth()) + 1) : 0;
 
   LogDebug("BHMSim") << "BHMNumberingScheme number of levels= " << level;
-  if (level > 0) {
-    int* copyno = new int[level];
-    G4String* name = new G4String[level];
-    detectorLevel(aStep, level, copyno, name);
-
-    if (level > 3) {
-      int subdet = copyno[0];
-      int zside = copyno[3];
-      int station = copyno[1];
-      intindex = packIndex(subdet, zside, station);
-      LogDebug("BHMSim") << "BHMNumberingScheme : subdet " << subdet << " zside " << zside << " station " << station;
-    }
-    delete[] copyno;
-    delete[] name;
+  if (level > 3) {
+    int subdet = touch->GetReplicaNumber(level - 1);
+    int zside = touch->GetReplicaNumber(level - 4);
+    int station = touch->GetReplicaNumber(level - 2);
+    intindex = packIndex(subdet, zside, station);
+    LogDebug("BHMSim") << "BHMNumberingScheme : subdet " << subdet << " zside " << zside << " station " << station;
   }
   LogDebug("BHMSim") << "BHMNumberingScheme : UnitID 0x" << std::hex << intindex << std::dec;
 

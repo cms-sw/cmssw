@@ -28,9 +28,6 @@ public:
   // unpacking Unit ID for Zdc (-z=1, +z=2)
   static void unpackZdcIndex(const unsigned int& idx, int& subDet, int& layer, int& fiber, int& channel, int& z);
 
-  int detectorLevel(const G4Step*) const;
-  void detectorLevel(const G4Step*, int&, int*, G4String*) const;
-
 private:
   int verbosity;
 };
