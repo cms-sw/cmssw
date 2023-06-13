@@ -39,7 +39,7 @@
 class BeamProfile2DBWriter : public edm::global::EDAnalyzer<> {
 public:
   explicit BeamProfile2DBWriter(const edm::ParameterSet&);
-  ~BeamProfile2DBWriter() override;
+  ~BeamProfile2DBWriter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -65,8 +65,6 @@ BeamProfile2DBWriter::BeamProfile2DBWriter(const edm::ParameterSet& iConfig) {
   beamSpot_.setEmittance(iConfig.getParameter<double>("Emittance"));
   beamSpot_.setTimeOffset(iConfig.getParameter<double>("TimeOffset"));
 }
-
-BeamProfile2DBWriter::~BeamProfile2DBWriter() = default;
 
 //
 // member functions
