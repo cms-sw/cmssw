@@ -48,6 +48,8 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : B
     }
   }
   if (readDB_) {
+    // NOTE: this is currently watching LS transitions, while it should watch Run transitions,
+    // even though in reality there is no Run Dependent MC (yet) in CMS
     beamToken_ = esConsumes<SimBeamSpotObjects, SimBeamSpotObjectsRcd, edm::Transition::BeginLuminosityBlock>();
   }
 }
@@ -62,15 +64,14 @@ void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
 
-    fX0 = beamhandle->fX0;
-    fY0 = beamhandle->fY0;
-    fZ0 = beamhandle->fZ0;
-    //    falpha=beamhandle->fAlpha;
-    fSigmaZ = beamhandle->fSigmaZ;
-    fTimeOffset = beamhandle->fTimeOffset;
-    fbetastar = beamhandle->fbetastar;
-    femittance = beamhandle->femittance;
-    setBoost(beamhandle->fAlpha, beamhandle->fPhi);
+    fX0 = beamhandle->x() * cm;
+    fY0 = beamhandle->y() * cm;
+    fZ0 = beamhandle->z() * cm;
+    fSigmaZ = beamhandle->sigmaZ() * cm;
+    fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC time units are mm
+    fbetastar = beamhandle->betaStar() * cm;
+    femittance = beamhandle->emittance() * cm;
+    setBoost(beamhandle->alpha() * radian, beamhandle->phi() * radian);
   }
 }
 

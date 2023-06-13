@@ -2,11 +2,11 @@
 #define CONDCORE_BEAMSPOTPLUGINS_BEAMSPOTPAYLOADINSPECTORHELPER_H
 
 // User includes
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // system includes
 #include <fmt/printf.h>
@@ -15,13 +15,13 @@
 
 // ROOT includes
 #include "TCanvas.h"
-#include "TStyle.h"
 #include "TH2F.h"
 #include "TLatex.h"
+#include "TStyle.h"
 
 //#define MMDEBUG  /* to make it verbose */
 
-namespace BeamSpotPI {
+namespace beamSpotPI {
 
   inline std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
     auto kLowMask = 0XFFFFFFFF;
@@ -396,7 +396,7 @@ namespace BeamSpotPI {
       }
       ltx.SetTextAlign(11);
 
-      auto runLS = BeamSpotPI::unpack(std::get<0>(iov));
+      auto runLS = beamSpotPI::unpack(std::get<0>(iov));
 
       ltx.DrawLatexNDC(
           gPad->GetLeftMargin(),
@@ -448,7 +448,7 @@ namespace BeamSpotPI {
     std::shared_ptr<PayloadType> m_payload;
 
     /**
-     * Can't use BeamSpotPI::getStringFromParamEnum becasue it needs to be overridden
+     * Can't use beamSpotPI::getStringFromParamEnum becasue it needs to be overridden
      * for the BeamSpotOnlineObjects case.
      */
     virtual std::string getStringFromTypeEnum(const parameters& parameter) const {
@@ -536,8 +536,8 @@ namespace BeamSpotPI {
       h2_BSParameters->SetMarkerSize(1.5);
 
       // prepare the arrays to fill the histogram
-      BeamSpotPI::BSParamsHelper fBS(f_payload);
-      BeamSpotPI::BSParamsHelper lBS(l_payload);
+      beamSpotPI::BSParamsHelper fBS(f_payload);
+      beamSpotPI::BSParamsHelper lBS(l_payload);
 
 #ifdef MM_DEBUG
       std::stringstream ss1, ss2;
@@ -557,7 +557,7 @@ namespace BeamSpotPI {
       unsigned int yBin = 8;
       for (int foo = parameters::X; foo <= parameters::dydz; foo++) {
         parameters param = static_cast<parameters>(foo);
-        std::string theLabel = BeamSpotPI::getStringFromParamEnum(param, true /*use units*/);
+        std::string theLabel = beamSpotPI::getStringFromParamEnum(param, true /*use units*/);
         h2_BSParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
         h2_BSParameters->SetBinContent(1, yBin, diffPars[foo]); /* profiting of the parameters enum indexing */
         h2_BSParameters->SetBinContent(2, yBin, diffErrors[foo]);
@@ -576,14 +576,14 @@ namespace BeamSpotPI {
       double val_white = 0.;
       double per_white = (max != min) ? ((val_white - min) / (max - min)) : 0.5;
 
-      const int Number = 3;
-      double Red[Number] = {0., 1., 1.};
-      double Green[Number] = {0., 1., 0.};
-      double Blue[Number] = {1., 1., 0.};
-      double Stops[Number] = {0., per_white, 1.};
+      const int number = 3;
+      double Red[number] = {0., 1., 1.};
+      double Green[number] = {0., 1., 0.};
+      double Blue[number] = {1., 1., 0.};
+      double Stops[number] = {0., per_white, 1.};
       int nb = 256;
       h2_BSShadow->SetContour(nb);
-      TColor::CreateGradientColorTable(Number, Stops, Red, Green, Blue, nb);
+      TColor::CreateGradientColorTable(number, Stops, Red, Green, Blue, nb);
 
       h2_BSShadow->Draw("colz");
       h2_BSParameters->Draw("TEXTsame");
@@ -594,9 +594,9 @@ namespace BeamSpotPI {
       ltx.SetTextAlign(11);
 
       // compute the (run,LS) pairs
-      auto l_runLS = BeamSpotPI::unpack(std::get<0>(lastiov));
+      auto l_runLS = beamSpotPI::unpack(std::get<0>(lastiov));
       std::string l_runLSs = "(" + std::to_string(l_runLS.first) + "," + std::to_string(l_runLS.second) + ")";
-      auto f_runLS = BeamSpotPI::unpack(std::get<0>(firstiov));
+      auto f_runLS = beamSpotPI::unpack(std::get<0>(firstiov));
       std::string f_runLSs = "(" + std::to_string(f_runLS.first) + "," + std::to_string(f_runLS.second) + ")";
 
       if (this->m_plotAnnotations.ntags == 2) {
@@ -630,6 +630,332 @@ namespace BeamSpotPI {
     std::shared_ptr<PayloadType> f_payload;
     std::shared_ptr<PayloadType> l_payload;
   };
-}  // namespace BeamSpotPI
+}  // namespace beamSpotPI
+
+// Similar namespace for SimBeamSpotObject
+namespace simBeamSpotPI {
+
+  enum parameters {
+    X = 0,           // 0  - Positions
+    Y = 1,           // 1
+    Z = 2,           // 2
+    sigmaZ = 3,      // 3  - Widths
+    betaStar = 4,    // 4
+    emittance = 5,   // 5
+    phi = 6,         // 6  - Additional parameters
+    alpha = 7,       // 7
+    timeOffset = 8,  // 8
+    END_OF_TYPES = 9,
+  };
+
+  /************************************************/
+  inline std::string getStringFromParamEnum(const parameters& parameter, const bool addUnits = false) {
+    switch (parameter) {
+      case X:
+        return (addUnits ? "X [cm]" : "X");
+      case Y:
+        return (addUnits ? "Y [cm]" : "Y");
+      case Z:
+        return (addUnits ? "Z [cm]" : "Z");
+      case sigmaZ:
+        return (addUnits ? "#sigma_{Z} [cm]" : "sigmaZ");
+      case betaStar:
+        return (addUnits ? "#beta* [cm]" : "BetaStar");
+      case emittance:
+        return (addUnits ? "Emittance [cm]" : "Emittance");
+      case phi:
+        return (addUnits ? "Phi [rad]" : "Phi");
+      case alpha:
+        return (addUnits ? "Alpha [rad]" : "Alpha");
+      case timeOffset:
+        return (addUnits ? "TimeOffset [ns]" : "TimeOffset");
+      default:
+        return "should never be here";
+    }
+  }
+
+  /**
+   * Helper class for operations on the Sim Beam Spot Parameters
+   * It's a simplified representation of the beamspot
+   * data used as the underlying type for data transfers and comparisons
+   */
+  template <class PayloadType>
+  class SimBSParamsHelper {
+    typedef std::array<double, 9> bshelpdata;
+
+  public:
+    SimBSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
+      // fill in the values
+      m_values[0] = bs->x(), m_values[1] = bs->y(), m_values[2] = bs->z();
+      m_values[3] = bs->sigmaZ(), m_values[4] = bs->betaStar(), m_values[5] = bs->emittance();
+      m_values[6] = bs->phi(), m_values[7] = bs->alpha(), m_values[8] = bs->timeOffset();
+    }
+
+    void printDebug(std::stringstream& ss) {
+      ss << "Dumping SimBeamSpot parameters Data:" << std::endl;
+      for (uint i = parameters::X; i <= parameters::timeOffset; i++) {
+        parameters par = static_cast<parameters>(i);
+        ss << getStringFromParamEnum(par) << " : " << m_values[i] << std::endl;
+        ss << std::endl;
+      }
+    }
+
+    inline const bshelpdata centralValues() const { return m_values; }
+
+    // get the difference in values
+    const bshelpdata diffCentralValues(const SimBSParamsHelper& bs2, const bool isPull = false) const {
+      bshelpdata ret;
+      for (uint i = parameters::X; i <= parameters::timeOffset; i++) {
+        ret[i] = this->centralValues()[i] - bs2.centralValues()[i];
+        if (isPull)
+          (this->centralValues()[i] != 0.) ? ret[i] /= this->centralValues()[i] : 0.;
+      }
+      return ret;
+    }
+
+  private:
+    bshelpdata m_values;
+  };
+
+  /************************************************
+    Display of Sim Beam Spot parameters
+  *************************************************/
+  template <class PayloadType>
+  class DisplayParameters : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
+  public:
+    DisplayParameters()
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
+              "Display of SimBeamSpot parameters") {}
+
+    bool fill() override {
+      auto tag = cond::payloadInspector::PlotBase::getTag<0>();
+      auto tagname = tag.name;
+      auto iov = tag.iovs.front();
+
+      gStyle->SetHistMinimumZero(kTRUE);
+
+      m_payload = this->fetchPayload(std::get<1>(iov));
+
+      TCanvas canvas("Sim Beam Spot Parameters Summary", "Sim BeamSpot Parameters summary", 1000, 1000);
+      canvas.cd(1);
+      canvas.cd(1)->SetTopMargin(0.05);
+      canvas.cd(1)->SetBottomMargin(0.06);
+      canvas.cd(1)->SetLeftMargin(0.25);
+      canvas.cd(1)->SetRightMargin(0.01);
+      canvas.cd(1)->Modified();
+      canvas.cd(1)->SetGrid();
+
+      auto h2_SimBSParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, 9, 0, 9.);
+      h2_SimBSParameters->SetStats(false);
+
+      std::function<double(parameters)> cutFunctor = [this](parameters my_param) {
+        double ret(-999.);
+        switch (my_param) {
+          case X:
+            return m_payload->x();
+          case Y:
+            return m_payload->y();
+          case Z:
+            return m_payload->z();
+          case sigmaZ:
+            return m_payload->sigmaZ();
+          case betaStar:
+            return m_payload->betaStar();
+          case emittance:
+            return m_payload->emittance();
+          case phi:
+            return m_payload->phi();
+          case alpha:
+            return m_payload->alpha();
+          case timeOffset:
+            return m_payload->timeOffset();
+          case END_OF_TYPES:
+            return ret;
+          default:
+            return ret;
+        }
+      };
+
+      h2_SimBSParameters->GetXaxis()->SetBinLabel(1, "Value");
+
+      unsigned int yBin = 9;
+      for (int foo = parameters::X; foo <= parameters::timeOffset; foo++) {
+        parameters param = static_cast<parameters>(foo);
+        std::string theLabel = getStringFromParamEnum(param, true);
+        h2_SimBSParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
+        h2_SimBSParameters->SetBinContent(1, yBin, cutFunctor(param));
+        yBin--;
+      }
+
+      h2_SimBSParameters->GetXaxis()->LabelsOption("h");
+      h2_SimBSParameters->GetYaxis()->SetLabelSize(0.05);
+      h2_SimBSParameters->GetXaxis()->SetLabelSize(0.05);
+      h2_SimBSParameters->SetMarkerSize(1.5);
+      h2_SimBSParameters->Draw("TEXT");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.025);
+      ltx.SetTextAlign(11);
+
+      auto runLS = beamSpotPI::unpack(std::get<0>(iov));
+
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin(),
+          1 - gPad->GetTopMargin() + 0.01,
+          (tagname + " IOV: #color[4]{" + std::to_string(runLS.first) + "," + std::to_string(runLS.second) + "}")
+              .c_str());
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  protected:
+    std::shared_ptr<PayloadType> m_payload;
+  };
+
+  /************************************************
+    Display of Sim Beam Spot parameters difference
+  *************************************************/
+  template <class PayloadType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class DisplayParametersDiff : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
+  public:
+    DisplayParametersDiff()
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>(
+              "Display of Sim BeamSpot parameters differences") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      l_payload = this->fetchPayload(std::get<1>(lastiov));
+      f_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      TCanvas canvas(
+          "Sim Beam Spot Parameters Difference Summary", "Sim Beam Spot Parameters Difference summary", 1000, 1000);
+      canvas.cd(1);
+      canvas.cd(1)->SetTopMargin(0.10);
+      canvas.cd(1)->SetBottomMargin(0.06);
+      canvas.cd(1)->SetLeftMargin(0.23);
+      canvas.cd(1)->SetRightMargin(0.16);
+      canvas.cd(1)->Modified();
+      canvas.cd(1)->SetGrid();
+
+      // for the "text"-filled histogram
+      auto h2_SimBSParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, 9, 0, 9.);
+      h2_SimBSParameters->SetStats(false);
+      h2_SimBSParameters->GetXaxis()->SetBinLabel(1, "Value");
+      h2_SimBSParameters->GetXaxis()->LabelsOption("h");
+      h2_SimBSParameters->GetYaxis()->SetLabelSize(0.05);
+      h2_SimBSParameters->GetXaxis()->SetLabelSize(0.05);
+      h2_SimBSParameters->SetMarkerSize(1.5);
+
+      // prepare the arrays to fill the histogram
+      simBeamSpotPI::SimBSParamsHelper fBS(f_payload);
+      simBeamSpotPI::SimBSParamsHelper lBS(l_payload);
+
+#ifdef MM_DEBUG
+      std::stringstream ss1, ss2;
+      edm::LogPrint("") << "**** first payload";
+      fBS.printDebug(ss1);
+      edm::LogPrint("") << ss1.str();
+      edm::LogPrint("") << "**** last payload";
+      lBS.printDebug(ss2);
+      edm::LogPrint("") << ss2.str();
+#endif
+
+      const auto diffPars = fBS.diffCentralValues(lBS);
+      //const auto pullPars = fBS.diffCentralValues(lBS,true /*normalize*/);
+
+      unsigned int yBin = 9;
+      for (int foo = parameters::X; foo <= parameters::timeOffset; foo++) {
+        parameters param = static_cast<parameters>(foo);
+        std::string theLabel = simBeamSpotPI::getStringFromParamEnum(param, true /*use units*/);
+        h2_SimBSParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
+        h2_SimBSParameters->SetBinContent(1, yBin, diffPars[foo]); /* profiting of the parameters enum indexing */
+        yBin--;
+      }
+
+      // for the "colz"-filled histogram (clonde from the text-based one)
+      auto h2_SimBSShadow = (TH2F*)(h2_SimBSParameters->Clone("shadow"));
+      h2_SimBSShadow->GetZaxis()->SetTitle("#Delta Parameter(payload A - payload B)");
+      h2_SimBSShadow->GetZaxis()->CenterTitle();
+      h2_SimBSShadow->GetZaxis()->SetTitleOffset(1.5);
+
+      // this is the fine gradient palette (blue to red)
+      double max = h2_SimBSShadow->GetMaximum();
+      double min = h2_SimBSShadow->GetMinimum();
+      double val_white = 0.;
+      double per_white = (max != min) ? ((val_white - min) / (max - min)) : 0.5;
+
+      const int number = 3;
+      double Red[number] = {0., 1., 1.};
+      double Green[number] = {0., 1., 0.};
+      double Blue[number] = {1., 1., 0.};
+      double Stops[number] = {0., per_white, 1.};
+      int nb = 256;
+      h2_SimBSShadow->SetContour(nb);
+      TColor::CreateGradientColorTable(number, Stops, Red, Green, Blue, nb);
+
+      h2_SimBSShadow->Draw("colz");
+      h2_SimBSParameters->Draw("TEXTsame");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.025);
+      ltx.SetTextAlign(11);
+
+      // compute the (run,LS) pairs
+      auto l_runLS = beamSpotPI::unpack(std::get<0>(lastiov));
+      std::string l_runLSs = "(" + std::to_string(l_runLS.first) + "," + std::to_string(l_runLS.second) + ")";
+      auto f_runLS = beamSpotPI::unpack(std::get<0>(firstiov));
+      std::string f_runLSs = "(" + std::to_string(f_runLS.first) + "," + std::to_string(f_runLS.second) + ")";
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin(),
+            1 - gPad->GetTopMargin() + 0.025,
+            (fmt::sprintf(
+                 "#splitline{A = #color[4]{%s}: %s}{B = #color[4]{%s}: %s}", f_tagname, f_runLSs, l_tagname, l_runLSs))
+                .c_str());
+      } else {
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin(),
+            1 - gPad->GetTopMargin() + 0.025,
+            (fmt::sprintf("#splitline{#color[4]{%s}}{A = %s | B = %s}", f_tagname, l_runLSs, f_runLSs)).c_str());
+      }
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  protected:
+    std::shared_ptr<PayloadType> f_payload;
+    std::shared_ptr<PayloadType> l_payload;
+  };
+
+}  // namespace simBeamSpotPI
 
 #endif
