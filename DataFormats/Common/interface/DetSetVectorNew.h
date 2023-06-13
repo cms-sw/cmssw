@@ -183,14 +183,10 @@ namespace edmNew {
       IterHelp() : m_v(nullptr), m_update(false) {}
       IterHelp(DetSetVector<T> const& iv, bool iup) : m_v(&iv), m_update(iup) {}
 
-      result_type& operator()(Item const& item) const {
-        m_detset.set(*m_v, item, m_update);
-        return m_detset;
-      }
+      result_type operator()(Item const& item) const { return result_type(*m_v, item, m_update); }
 
     private:
       DetSetVector<T> const* m_v;
-      mutable result_type m_detset;
       bool m_update;
     };
 
