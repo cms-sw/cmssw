@@ -258,7 +258,7 @@ namespace dqm {
                                  double lowY,
                                  double highY,
                                  FUNC onbooking = NOOP()) {
-        return bookME(name, MonitorElementData::Kind::TH2F, [=]() {
+        return bookME(name, MonitorElementData::Kind::TH2Poly, [=]() {
           auto th2poly = new TH2Poly(name, title, lowX, highX, lowY, highY);
           onbooking(th2poly);
           return th2poly;
