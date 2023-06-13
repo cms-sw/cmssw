@@ -138,10 +138,10 @@ struct MonitorElementData {
     TH2S = 0x21,
     TH2D = 0x22,
     TH2I = 0x23,
+    TH2Poly = 0x24,
     TH3F = 0x30,
     TPROFILE = 0x40,
-    TPROFILE2D = 0x41,
-    TH2Poly = 0x60
+    TPROFILE2D = 0x41
   };
 
   // Which window of time the ME is supposed to cover.

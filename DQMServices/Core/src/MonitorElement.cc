@@ -695,7 +695,11 @@ namespace dqm::impl {
   /// set polygon bin (TH2Poly)
   void MonitorElement::addBin(TGraph *graph) {
     auto access = this->accessMut();
-    static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(graph);
+    if (kind() == Kind::TH2Poly) {
+      static_cast<TH2Poly *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->AddBin(graph);
+    } else {
+      incompatible(__PRETTY_FUNCTION__);
+    }
   }
 
   /// set content of bin (1-D)
