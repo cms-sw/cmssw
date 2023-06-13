@@ -52,6 +52,8 @@
 #define _VALUE_TYPE_EIGEN_COLUMN 2
 
 /* The size type need to be "hardcoded" in the template parameters for classes serialized by ROOT */
+/* In practice, using a typedef as a template parameter to the Layout or its ViewTemplateFreeParams member
+ * declaration fails ROOT dictionary generation.  */
 #define CMS_SOA_BYTE_SIZE_TYPE std::size_t
 
 namespace cms::soa {
