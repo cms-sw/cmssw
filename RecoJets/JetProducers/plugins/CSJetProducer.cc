@@ -82,7 +82,8 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
   bool maxProb = false;
   if (useModulatedRho_) {
     if (!rhoFlowFitParams->empty()) {
-      double val = ROOT::Math::chisquared_cdf_c(rhoFlowFitParams->at(5), rhoFlowFitParams->at(6));
+      int chi2index = rhoFlowFitParams->size() - 3;
+      double val = ROOT::Math::chisquared_cdf_c(rhoFlowFitParams->at(chi2index), rhoFlowFitParams->at(chi2index + 1));
       minProb = val > minFlowChi2Prob_;
       maxProb = val < maxFlowChi2Prob_;
     }
@@ -107,11 +108,7 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
       if (useModulatedRho_) {
         if (!rhoFlowFitParams->empty()) {
           if (minProb && maxProb) {
-            rhoModulationFactor = getModulatedRhoFactor(ghostPhi,
-                                                        rhoFlowFitParams->at(2),
-                                                        rhoFlowFitParams->at(4),
-                                                        rhoFlowFitParams->at(1),
-                                                        rhoFlowFitParams->at(3));
+            rhoModulationFactor = getModulatedRhoFactor(ghostPhi, rhoFlowFitParams);
           }
         }
       }
@@ -153,7 +150,7 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
 
     //Create subtracted jets
     fastjet::PseudoJet subtracted_jet = join(subtracted_particles);
-    if (subtracted_jet.perp() > 0.)
+    if (subtracted_jet.perp() > jetPtMin_)
       fjJets_.push_back(subtracted_jet);
   }
   fjJets_ = fastjet::sorted_by_pt(fjJets_);
@@ -184,11 +181,17 @@ void CSJetProducer::fillDescriptionsFromCSJetProducer(edm::ParameterSetDescripti
   desc.add<edm::InputTag>("rhoFlowFitParams", {"hiFJRhoFlowModulationProducer", "rhoFlowFitParams"});
 }
 
-double CSJetProducer::getModulatedRhoFactor(
-    const double phi, const double eventPlane2, const double eventPlane3, const double par1, const double par2) {
+double CSJetProducer::getModulatedRhoFactor(const double phi, const edm::Handle<std::vector<double>>& flowComponents) {
   // get the rho modulation as function of phi
   // flow modulation fit is done in RecoHI/HiJetAlgos/plugins/HiFJRhoFlowModulationProducer
-  return 1. + 2. * par1 * cos(2. * (phi - eventPlane2)) + par2 * cos(3. * (phi - eventPlane3));
+  int nFlow = (flowComponents->size() - 4) / 2;
+  double modulationValue = 1;
+  double firstFlowComponent = flowComponents->at(nFlow * 2 + 3);
+  for (int iFlow = 0; iFlow < nFlow; iFlow++) {
+    modulationValue += 2.0 * flowComponents->at(2 * iFlow + 1) *
+                       cos((iFlow + firstFlowComponent) * (phi - flowComponents->at(2 * iFlow + 2)));
+  }
+  return modulationValue;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
