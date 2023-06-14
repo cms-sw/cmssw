@@ -1,3 +1,4 @@
+import copy
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelHeterogeneous.siPixelPhase1MonitorRecHitsSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase2MonitorRecHitsSoA_cfi import *
@@ -20,6 +21,27 @@ from DQM.SiPixelHeterogeneous.siPixelPhase2CompareRecHitsSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase1CompareTrackSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase2CompareTrackSoA_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelCompareVertexSoA_cfi import *
+from DQM.SiPixelHeterogeneous.siPixelPhase1RawDataErrorComparator_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
+
+# digi errors
+SiPixelPhase1RawDataConfForCPU = copy.deepcopy(SiPixelPhase1RawDataConf)
+for pset in SiPixelPhase1RawDataConfForCPU:
+    pset.topFolderName =  "SiPixelHeterogeneous/PixelErrorsCPU"
+
+siPixelPhase1MonitorRawDataACPU = SiPixelPhase1RawDataAnalyzer.clone(
+    src = "siPixelDigis@cpu",
+    histograms = SiPixelPhase1RawDataConfForCPU
+)
+
+SiPixelPhase1RawDataConfForGPU = copy.deepcopy(SiPixelPhase1RawDataConf)
+for pset in SiPixelPhase1RawDataConfForGPU:
+    pset.topFolderName =  "SiPixelHeterogeneous/PixelErrorsGPU"
+
+siPixelPhase1MonitorRawDataAGPU = SiPixelPhase1RawDataAnalyzer.clone(
+    src = "siPixelDigis@cuda",
+    histograms  =SiPixelPhase1RawDataConfForGPU
+)
 
 ## rechits
 siPixelPhase1MonitorRecHitsSoACPU = siPixelPhase1MonitorRecHitsSoA.clone(
@@ -75,7 +97,9 @@ siPixelMonitorVertexSoAGPU = siPixelMonitorVertexSoA.clone(
 )
 
 # Run-3 sequence
-monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorRecHitsSoACPU *
+monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorRawDataACPU *
+                                            siPixelPhase1MonitorRawDataAGPU *
+                                            siPixelPhase1MonitorRecHitsSoACPU *
                                             siPixelPhase1MonitorRecHitsSoAGPU *
                                             siPixelPhase1CompareRecHitsSoA *
                                             siPixelPhase1MonitorTrackSoAGPU *
@@ -83,7 +107,8 @@ monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorRecHitsSoACPU *
                                             siPixelPhase1CompareTrackSoA *
                                             siPixelMonitorVertexSoACPU *
                                             siPixelMonitorVertexSoAGPU *
-                                            siPixelCompareVertexSoA)
+                                            siPixelCompareVertexSoA *
+                                            siPixelPhase1RawDataErrorComparator)
 
 # Phase-2 sequence
 _monitorpixelSoACompareSource =  cms.Sequence(siPixelPhase2MonitorRecHitsSoACPU *
