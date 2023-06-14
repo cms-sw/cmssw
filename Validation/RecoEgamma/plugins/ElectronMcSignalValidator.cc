@@ -3433,6 +3433,10 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
             matchingMotherID = true;
           }
         }  // end of mother if test
+        if (mother != nullptr) {
+          std::cout << "Matching mc-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother Id : " << mother->pdgId() << "\n";
+          //std::cout << "Matching mc-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ;
+        }
       }
       if (matchingMotherID) {
         if (mcIter->pt() > maxPt_ || std::abs(mcIter->eta()) > maxAbsEta_) {
@@ -3659,8 +3663,8 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     h2_scl_EoEtrueVsrecOfflineVertices->Fill((*vertexCollectionHandle).size(),
                                              bestGsfElectron.ecalEnergy() / mcIter->p());
-    h2_scl_EoEtrueVsrecOfflineVertices_Extended->Fill((*vertexCollectionHandle).size(),
-                                                      bestGsfElectron.ecalEnergy() / mcIter->p());
+    //h2_scl_EoEtrueVsrecOfflineVertices_Extended->Fill((*vertexCollectionHandle).size(),
+    //                                                  bestGsfElectron.ecalEnergy() / mcIter->p());
     if (isEBflag)
       h2_scl_EoEtrueVsrecOfflineVertices_barrel->Fill((*vertexCollectionHandle).size(),
                                                       bestGsfElectron.ecalEnergy() / mcIter->p());
