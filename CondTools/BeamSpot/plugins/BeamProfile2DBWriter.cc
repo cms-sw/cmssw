@@ -48,13 +48,15 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+  const std::string recordName_;
   SimBeamSpotObjects beamSpot_;
 };
 
 //
 // constructors and destructor
 //
-BeamProfile2DBWriter::BeamProfile2DBWriter(const edm::ParameterSet& iConfig) {
+BeamProfile2DBWriter::BeamProfile2DBWriter(const edm::ParameterSet& iConfig)
+    : recordName_(iConfig.getParameter<std::string>("recordName")) {
   beamSpot_.setX(iConfig.getParameter<double>("X0"));
   beamSpot_.setY(iConfig.getParameter<double>("Y0"));
   beamSpot_.setZ(iConfig.getParameter<double>("Z0"));
@@ -76,7 +78,7 @@ void BeamProfile2DBWriter::analyze(edm::StreamID, const edm::Event& iEvent, cons
 // ------------ method called once each job just after ending the event loop  ------------
 void BeamProfile2DBWriter::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  poolDbService->createOneIOV<SimBeamSpotObjects>(beamSpot_, poolDbService->beginOfTime(), "SimBeamSpotObjectsRcd");
+  poolDbService->createOneIOV<SimBeamSpotObjects>(beamSpot_, poolDbService->beginOfTime(), recordName_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -84,6 +86,8 @@ void BeamProfile2DBWriter::fillDescriptions(edm::ConfigurationDescriptions& desc
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("recordName", "SimBeamSpotObjectsRcd")
+      ->setComment("name of the record to use for the PoolDBOutputService");
   desc.add<double>("X0")->setComment("in cm");
   desc.add<double>("Y0")->setComment("in cm");
   desc.add<double>("Z0")->setComment("in cm");
