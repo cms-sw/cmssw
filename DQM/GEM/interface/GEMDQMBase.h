@@ -428,9 +428,6 @@ public:
         else if (y >= dYH_)
           y = dYO_;
       }
-      if (w < 0.0) {  // TEST
-        std::cout << "???: " << x << " " << y << std::endl;
-      }  // TEST
       hist->Fill(x, y, w);
       return 1;
     };
