@@ -208,7 +208,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
         ),
         FatJet = cms.PSet(
             id = cms.int32(6),
-            sel = cms.string("type(85) && pt > 120),
+            sel = cms.string("type(85) && pt > 120"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
