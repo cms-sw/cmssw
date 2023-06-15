@@ -92,19 +92,22 @@ namespace beamSpotPI {
    */
   template <class PayloadType>
   class BSParamsHelper {
-    typedef std::array<double, 8> bshelpdata;
+    typedef std::array<double, parameters::lastLumi> bshelpdata;
 
   public:
     BSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
       // fill in the central values
-      m_values[0] = bs->x(), m_values[1] = bs->y(), m_values[2] = bs->z();
-      m_values[3] = bs->beamWidthX(), m_values[4] = bs->beamWidthY(), m_values[5] = bs->sigmaZ();
-      m_values[6] = bs->dxdz(), m_values[7] = bs->dydz();
+      m_values[parameters::X] = bs->x(), m_values[parameters::Y] = bs->y(), m_values[parameters::Z] = bs->z();
+      m_values[parameters::sigmaX] = bs->beamWidthX(), m_values[parameters::sigmaY] = bs->beamWidthY(),
+      m_values[parameters::sigmaZ] = bs->sigmaZ();
+      m_values[parameters::dxdz] = bs->dxdz(), m_values[parameters::dydz] = bs->dydz();
 
       // fill in the errors
-      m_errors[0] = bs->xError(), m_errors[1] = bs->yError(), m_errors[2] = bs->zError();
-      m_errors[3] = bs->beamWidthXError(), m_errors[4] = bs->beamWidthYError(), m_errors[5] = bs->sigmaZError();
-      m_errors[6] = bs->dxdzError(), m_errors[7] = bs->dydzError();
+      m_errors[parameters::X] = bs->xError(), m_errors[parameters::Y] = bs->yError(),
+      m_errors[parameters::Z] = bs->zError();
+      m_errors[parameters::sigmaX] = bs->beamWidthXError(), m_errors[parameters::sigmaY] = bs->beamWidthYError(),
+      m_errors[parameters::sigmaZ] = bs->sigmaZError();
+      m_errors[parameters::dxdz] = bs->dxdzError(), m_errors[parameters::dydz] = bs->dydzError();
     }
 
     void printDebug(std::stringstream& ss) {
@@ -685,15 +688,17 @@ namespace simBeamSpotPI {
    */
   template <class PayloadType>
   class SimBSParamsHelper {
-    typedef std::array<double, 10> bshelpdata;
+    typedef std::array<double, parameters::END_OF_TYPES> bshelpdata;
 
   public:
     SimBSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
       // fill in the values
-      m_values[0] = bs->x(), m_values[1] = bs->y(), m_values[2] = bs->z();
-      m_values[3] = bs->sigmaZ(), m_values[4] = bs->betaStar(), m_values[5] = bs->emittance();
-      m_values[6] = (1 / std::sqrt(2)) * std::sqrt(bs->emittance() * bs->betaStar()) * 10000.f;
-      m_values[7] = bs->phi(), m_values[8] = bs->alpha(), m_values[9] = bs->timeOffset();
+      m_values[parameters::X] = bs->x(), m_values[parameters::Y] = bs->y(), m_values[parameters::Z] = bs->z();
+      m_values[parameters::sigmaZ] = bs->sigmaZ(), m_values[parameters::betaStar] = bs->betaStar(),
+      m_values[parameters::emittance] = bs->emittance();
+      m_values[parameters::expTransWidth] = (1 / std::sqrt(2)) * std::sqrt(bs->emittance() * bs->betaStar()) * 10000.f;
+      m_values[parameters::phi] = bs->phi(), m_values[parameters::alpha] = bs->alpha(),
+      m_values[parameters::timeOffset] = bs->timeOffset();
     }
 
     void printDebug(std::stringstream& ss) {
