@@ -97,8 +97,6 @@ namespace edm {
     ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
     bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
 
-    ///\return true of TypeID corresponds to a type specified in a consumesMany call
-    bool registeredToConsumeMany(TypeID const&, BranchType) const;
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
@@ -188,19 +186,6 @@ namespace edm {
     template <BranchType B>
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
       return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), false)};
-    }
-
-    template <typename ProductType, BranchType B = InEvent>
-    void consumesMany() {
-      TypeToGet tid = TypeToGet::make<ProductType>();
-      consumesMany<B>(tid);
-    }
-
-    void consumesMany(const TypeToGet& id) { consumesMany<InEvent>(id); }
-
-    template <BranchType B>
-    void consumesMany(const TypeToGet& id) {
-      recordConsumes(B, id, edm::InputTag{}, true);
     }
 
     // For consuming event-setup products

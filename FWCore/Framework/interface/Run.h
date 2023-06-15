@@ -362,10 +362,7 @@ namespace edm {
 
   template <typename PROD>
   void Run::getManyByType(std::vector<Handle<PROD>>& results) const {
-    if (!provRecorder_.checkIfComplete<PROD>()) {
-      principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)));
-    }
-    return provRecorder_.getManyByType(results, moduleCallingContext_);
+    principal_get_adapter_detail::throwGetManyByType();
   }
 
   // Free functions to retrieve a collection from the Run.
