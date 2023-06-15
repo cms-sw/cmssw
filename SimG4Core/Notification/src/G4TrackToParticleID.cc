@@ -18,8 +18,7 @@ int G4TrackToParticleID::particleID(const G4Track* g4trk) {
 int G4TrackToParticleID::particleID(const G4PrimaryParticle* ptr, const int id) {
   int pdg = ptr->GetPDGcode();
   if (0 == pdg) {
-    edm::LogWarning("SimG4CoreNotification")
-        << "G4TrackToParticleID: unknown code 0 for trackId=" << id;
+    edm::LogWarning("SimG4CoreNotification") << "G4TrackToParticleID: unknown code 0 for trackId=" << id;
     pdg = -99;
   }
   return pdg;

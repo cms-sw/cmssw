@@ -47,8 +47,7 @@ TrackWithHistory::TrackWithHistory(const G4Track* g4trk, int pID) {
 #endif
 }
 
-TrackWithHistory::TrackWithHistory(const G4PrimaryParticle* ptr, int trackID,
-                                   const math::XYZVectorD& pos, double time) {
+TrackWithHistory::TrackWithHistory(const G4PrimaryParticle* ptr, int trackID, const math::XYZVectorD& pos, double time) {
   trackID_ = trackID;
   particleID_ = G4TrackToParticleID::particleID(ptr, trackID_);
   parentID_ = trackID;

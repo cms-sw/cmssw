@@ -19,7 +19,7 @@ public:
      *  when some of the information may not available yet.
      */
   TrackWithHistory(const G4Track *g4track, int pID);
-  TrackWithHistory(const G4PrimaryParticle*, int trackID, const math::XYZVectorD& pos, double time);
+  TrackWithHistory(const G4PrimaryParticle *, int trackID, const math::XYZVectorD &pos, double time);
   ~TrackWithHistory() = default;
 
   inline void *operator new(size_t);
@@ -48,8 +48,8 @@ public:
 
   // Boundary crossing variables
   void setCrossedBoundaryPosMom(int id,
-                                const math::XYZTLorentzVectorF& position,
-                                const math::XYZTLorentzVectorF& momentum) {
+                                const math::XYZTLorentzVectorF &position,
+                                const math::XYZTLorentzVectorF &momentum) {
     crossedBoundary_ = true;
     idAtBoundary_ = id;
     positionAtBoundary_ = position;
@@ -61,10 +61,9 @@ public:
   int getIDAtBoundary() const { return idAtBoundary_; }
 
   // tracker surface
-  const math::XYZVectorD& trackerSurfacePosition() const { return tkSurfacePosition_; }
-  const math::XYZTLorentzVectorD& trackerSurfaceMomentum() const { return tkSurfaceMomentum_; }
-  void setSurfacePosMom(const math::XYZVectorD& pos,
-                        const math::XYZTLorentzVectorD& mom) {
+  const math::XYZVectorD &trackerSurfacePosition() const { return tkSurfacePosition_; }
+  const math::XYZTLorentzVectorD &trackerSurfaceMomentum() const { return tkSurfaceMomentum_; }
+  void setSurfacePosMom(const math::XYZVectorD &pos, const math::XYZTLorentzVectorD &mom) {
     tkSurfacePosition_ = pos;
     tkSurfaceMomentum_ = mom;
   }

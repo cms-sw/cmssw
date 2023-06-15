@@ -29,11 +29,10 @@
 #include "G4SystemOfUnits.hh"
 
 //#define DebugLog
-namespace
-{
+namespace {
   const double invcm = 1.0 / CLHEP::cm;
-  const double r_limit2 = 1.e-6; // 10 micron in CMS units
-}
+  const double r_limit2 = 1.e-6;  // 10 micron in CMS units
+}  // namespace
 
 SimTrackManager::SimTrackManager(TmpSimEvent* ptr) : m_simEvent(ptr) {
   idsave.reserve(1000);

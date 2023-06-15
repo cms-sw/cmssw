@@ -163,7 +163,7 @@ void GeometryProducer::makeGeom(const edm::EventSetup &es) {
   if (m_pUseSensitiveDetectors) {
     edm::LogVerbatim("GeometryProducer") << " instantiating sensitive detectors ";
     // instantiate and attach the sensitive detectors
-    TmpSimEvent* ptr = nullptr;     
+    TmpSimEvent *ptr = nullptr;
     m_trackManager = std::make_unique<SimTrackManager>(ptr);
     {
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
@@ -174,7 +174,8 @@ void GeometryProducer::makeGeom(const edm::EventSetup &es) {
     }
 
     edm::LogVerbatim("GeometryProducer") << " Sensitive Detector building finished; found " << m_sensTkDets.size()
-                                     << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
+                                         << " Tk type Producers, and " << m_sensCaloDets.size()
+                                         << " Calo type producers ";
   }
 }
 
