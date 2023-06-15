@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.PyquenDefaultSettings_cff import *
 
 generator = cms.EDFilter("PyquenGeneratorFilter",
-                         collisionParameters5362,
+                         collisionParameters5362GeV,
                          qgpParameters,
                          pyquenParameters,
                          doQuench = cms.bool(True),
