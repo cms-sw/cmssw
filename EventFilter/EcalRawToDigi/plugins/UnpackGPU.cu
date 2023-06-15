@@ -283,6 +283,23 @@ namespace ecal {
           auto const wdata = current_tower_block[1 + i_to_access * 3];
           uint8_t const stripid = wdata & 0x7;
           uint8_t const xtalid = (wdata >> 4) & 0x7;
+
+          // check if the stripid and xtalid are in the allowed range and if not skip the rest of the block
+          if (stripid < ElectronicsIdGPU::MIN_STRIPID || stripid > ElectronicsIdGPU::MAX_STRIPID ||
+              xtalid < ElectronicsIdGPU::MIN_XTALID || xtalid > ElectronicsIdGPU::MAX_XTALID) {
+            break;
+          }
+          if (ich > 0 || threadIdx.x > 0) {
+            // check if the stripid has increased or that the xtalid has increased from the previous data word. If not something is wrong and the rest of the block is skipped.
+            auto const prev_i_to_access = ich + threadIdx.x - 1;
+            auto const prevwdata = current_tower_block[1 + prev_i_to_access * 3];
+            uint8_t const laststripid = prevwdata & 0x7;
+            uint8_t const lastxtalid = (prevwdata >> 4) & 0x7;
+            if ((stripid == laststripid && xtalid <= lastxtalid) || (stripid < laststripid)) {
+              break;
+            }
+          }
+
           ElectronicsIdGPU eid{fed2dcc(fed), ttid, stripid, xtalid};
           auto const didraw = isBarrel ? compute_ebdetid(eid) : eid2did[eid.linearIndex()];
           // FIXME: what kind of channels are these guys
