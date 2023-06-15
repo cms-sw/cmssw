@@ -50,6 +50,7 @@ private:
   bool _useLHEweights;
   double _weightCap;
   double _NLOSmearing;
+  bool _setIgnoreBeams;
   bool _skipMultiWeights;
   std::string _selectMultiWeights;
   std::string _deselectMultiWeights;

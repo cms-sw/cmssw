@@ -39,6 +39,7 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
 
   _weightCap = pset.getParameter<double>("weightCap");
   _NLOSmearing = pset.getParameter<double>("NLOSmearing");
+  _setIgnoreBeams = pset.getParameter<bool>("setIgnoreBeams");
   _skipMultiWeights = pset.getParameter<bool>("skipMultiWeights");
   _selectMultiWeights = pset.getParameter<std::string>("selectMultiWeights");
   _deselectMultiWeights = pset.getParameter<std::string>("deselectMultiWeights");
@@ -169,6 +170,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     _analysisHandler->addAnalyses(_analysisNames);
 
     /// Set analysis handler weight options
+    _analysisHandler->setIgnoreBeams(_setIgnoreBeams);
     _analysisHandler->skipMultiWeights(_skipMultiWeights);
     _analysisHandler->selectMultiWeights(_selectMultiWeights);
     _analysisHandler->deselectMultiWeights(_deselectMultiWeights);
