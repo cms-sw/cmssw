@@ -37,8 +37,8 @@
   <class name="l1tp2::DigitizedTowerCorrelatorCollection" />
   <class name="edm::Wrapper<l1tp2::DigitizedTowerCorrelatorCollection>" />
 
-  <class name="l1tp2::DigitizedClusterGT"  ClassVersion="4">
-       <version ClassVersion="4" checksum="3611926846"/>
+  <class name="l1tp2::DigitizedClusterGT"  ClassVersion="3">
+       <version ClassVersion="3" checksum="3611926846"/>
   </class>
   <class name="l1tp2::DigitizedClusterGTCollection" />
   <class name="edm::Wrapper<l1tp2::DigitizedClusterGTCollection>" /> 

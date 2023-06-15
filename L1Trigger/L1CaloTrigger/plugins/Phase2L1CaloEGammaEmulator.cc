@@ -60,7 +60,7 @@
 class Phase2L1CaloEGammaEmulator : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1CaloEGammaEmulator(const edm::ParameterSet&);
-  ~Phase2L1CaloEGammaEmulator() override;
+  ~Phase2L1CaloEGammaEmulator() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -102,8 +102,6 @@ Phase2L1CaloEGammaEmulator::Phase2L1CaloEGammaEmulator(const edm::ParameterSet& 
   produces<l1tp2::DigitizedTowerCorrelatorCollection>("GCTDigitizedTowerToCorrelator");
   produces<l1tp2::DigitizedClusterGTCollection>("GCTDigitizedClusterToGT");
 }
-
-Phase2L1CaloEGammaEmulator::~Phase2L1CaloEGammaEmulator() {}
 
 void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -744,9 +742,7 @@ void Phase2L1CaloEGammaEmulator::fillDescriptions(edm::ConfigurationDescriptions
                                   });
     desc.add<edm::ParameterSetDescription>("calib", psd0);
   }
-  descriptions.add("l1tPhase2L1CaloEGammaEmulator", desc);
-  // or use the following to generate the label from the module's C++ type
-  //descriptions.addWithDefaultLabel(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
