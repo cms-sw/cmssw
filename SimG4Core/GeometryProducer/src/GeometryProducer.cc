@@ -101,14 +101,14 @@ void GeometryProducer::updateMagneticField(edm::EventSetup const &es) {
     // setup the magnetic field
     auto const &pMF = &es.getData(tokMF_);
     const GlobalPoint g(0., 0., 0.);
-    edm::LogInfo("GeometryProducer") << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g);
+    edm::LogVerbatim("GeometryProducer") << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g);
 
     sim::FieldBuilder fieldBuilder(pMF, m_pField);
     CMSFieldManager *fieldManager = new CMSFieldManager();
     G4TransportationManager *tM = G4TransportationManager::GetTransportationManager();
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
-    edm::LogInfo("GeometryProducer") << "Magentic field is built";
+    edm::LogVerbatim("GeometryProducer") << "Magentic field is built";
   }
 }
 
@@ -161,9 +161,10 @@ void GeometryProducer::makeGeom(const edm::EventSetup &es) {
   updateMagneticField(es);
 
   if (m_pUseSensitiveDetectors) {
-    edm::LogInfo("GeometryProducer") << " instantiating sensitive detectors ";
+    edm::LogVerbatim("GeometryProducer") << " instantiating sensitive detectors ";
     // instantiate and attach the sensitive detectors
-    m_trackManager = std::make_unique<SimTrackManager>();
+    TmpSimEvent* ptr = nullptr;     
+    m_trackManager = std::make_unique<SimTrackManager>(ptr);
     {
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
           sim::attachSD(m_sdMakers, es, catalog, m_p, m_trackManager.get(), m_registry);
@@ -172,7 +173,7 @@ void GeometryProducer::makeGeom(const edm::EventSetup &es) {
       m_sensCaloDets.swap(sensDets.second);
     }
 
-    edm::LogInfo("GeometryProducer") << " Sensitive Detector building finished; found " << m_sensTkDets.size()
+    edm::LogVerbatim("GeometryProducer") << " Sensitive Detector building finished; found " << m_sensTkDets.size()
                                      << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
   }
 }

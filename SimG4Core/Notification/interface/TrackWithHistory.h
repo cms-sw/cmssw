@@ -8,27 +8,29 @@
 #include "G4Allocator.hh"
 
 class G4VProcess;
-class G4TrackToParticleID;
+class G4PrimaryParticle;
 /** The part of the information about a SimTrack that we need from
  *  a G4Track
  */
 
 class TrackWithHistory {
 public:
-  /** The constructor is called at PreUserTrackingAction time, 
-     *  when some of the information is not available yet.
+  /** The constructor is called at time, 
+     *  when some of the information may not available yet.
      */
-  TrackWithHistory(const G4Track *g4track);
+  TrackWithHistory(const G4Track *g4track, int pID);
+  TrackWithHistory(const G4PrimaryParticle*, int trackID, const math::XYZVectorD& pos, double time);
   ~TrackWithHistory() = default;
 
   inline void *operator new(size_t);
   inline void operator delete(void *TrackWithHistory);
 
   void setToBeSaved() { saved_ = true; }
-  unsigned int trackID() const { return trackID_; }
+  int trackID() const { return trackID_; }
   int particleID() const { return particleID_; }
   int parentID() const { return parentID_; }
   int genParticleID() const { return genParticleID_; }
+  int vertexID() const { return vertexID_; }
   const math::XYZVectorD &momentum() const { return momentum_; }
   double totalEnergy() const { return totalEnergy_; }
   const math::XYZVectorD &vertexPosition() const { return vertexPosition_; }
@@ -39,14 +41,15 @@ public:
   double weight() const { return weight_; }
   void setTrackID(int i) { trackID_ = i; }
   void setParentID(int i) { parentID_ = i; }
+  void setVertexID(int i) { vertexID_ = i; }
   void setGenParticleID(int i) { genParticleID_ = i; }
   bool storeTrack() const { return storeTrack_; }
   bool saved() const { return saved_; }
 
   // Boundary crossing variables
   void setCrossedBoundaryPosMom(int id,
-                                const math::XYZTLorentzVectorF position,
-                                const math::XYZTLorentzVectorF momentum) {
+                                const math::XYZTLorentzVectorF& position,
+                                const math::XYZTLorentzVectorF& momentum) {
     crossedBoundary_ = true;
     idAtBoundary_ = id;
     positionAtBoundary_ = position;
@@ -57,11 +60,21 @@ public:
   const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
 
+  // tracker surface
+  const math::XYZVectorD& trackerSurfacePosition() const { return tkSurfacePosition_; }
+  const math::XYZTLorentzVectorD& trackerSurfaceMomentum() const { return tkSurfaceMomentum_; }
+  void setSurfacePosMom(const math::XYZVectorD& pos,
+                        const math::XYZTLorentzVectorD& mom) {
+    tkSurfacePosition_ = pos;
+    tkSurfaceMomentum_ = mom;
+  }
+
 private:
-  unsigned int trackID_;
+  int trackID_;
   int particleID_;
   int parentID_;
   int genParticleID_{-1};
+  int vertexID_{-1};
   math::XYZVectorD momentum_;
   double totalEnergy_;
   math::XYZVectorD vertexPosition_;
@@ -77,6 +90,8 @@ private:
   int idAtBoundary_{-1};
   math::XYZTLorentzVectorF positionAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};
   math::XYZTLorentzVectorF momentumAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};
+  math::XYZVectorD tkSurfacePosition_{math::XYZVectorD(0., 0., 0.)};
+  math::XYZTLorentzVectorD tkSurfaceMomentum_{math::XYZTLorentzVectorD(0., 0., 0., 0.)};
 };
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;

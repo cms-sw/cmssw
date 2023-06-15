@@ -55,7 +55,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     return;
   }
 
-  m_trackManager->storeTracks(m_runInterface->simEvent());
+  m_trackManager->storeTracks();
 
   // dispatch now end of event
   EndOfEvent e(anEvent);

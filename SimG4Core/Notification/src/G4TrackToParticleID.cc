@@ -1,17 +1,28 @@
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
 #include "G4Track.hh"
+#include "G4PrimaryParticle.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 int G4TrackToParticleID::particleID(const G4Track* g4trk) {
-  int particleID_ = g4trk->GetDefinition()->GetPDGEncoding();
-  if (0 == particleID_) {
+  int pdg = g4trk->GetDefinition()->GetPDGEncoding();
+  if (0 == pdg) {
     edm::LogWarning("SimG4CoreNotification")
-        << "G4TrackToParticleID: unknown code 0 for track Id = " << g4trk->GetTrackID();
-    particleID_ = -99;
+        << "G4TrackToParticleID: unknown code 0 for trackId=" << g4trk->GetTrackID();
+    pdg = -99;
   }
-  return particleID_;
+  return pdg;
+}
+
+int G4TrackToParticleID::particleID(const G4PrimaryParticle* ptr, const int id) {
+  int pdg = ptr->GetPDGcode();
+  if (0 == pdg) {
+    edm::LogWarning("SimG4CoreNotification")
+        << "G4TrackToParticleID: unknown code 0 for trackId=" << id;
+    pdg = -99;
+  }
+  return pdg;
 }
 
 bool G4TrackToParticleID::isGammaElectronPositron(int pdgCode) {
