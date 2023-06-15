@@ -100,25 +100,20 @@ void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
   }
 }
 
-void RivetAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
-  edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
-  if (iLumi.getByToken(_genLumiInfoToken, genLumiInfoHandle)) {
-    _weightNames = genLumiInfoHandle->weightNames();
-  }
-
-  // need to reset the default weight name (or plotting will fail)
-  if (!_weightNames.empty()) {
-    _weightNames[0] = "";
-  } else {  // Summer16 samples have 1 weight stored in HepMC but no weightNames
-    _weightNames.push_back("");
-  }
-}
-
-void RivetAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) { return; }
-
 void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //finalize weight names on the first event
   if (_isFirstEvent) {
+    auto genLumiInfoHandle = iEvent.getLuminosityBlock().getHandle(_genLumiInfoToken);
+    if (genLumiInfoHandle.isValid()) {
+      _weightNames = genLumiInfoHandle->weightNames();
+    }
+
+    // need to reset the default weight name (or plotting will fail)
+    if (!_weightNames.empty()) {
+      _weightNames[0] = "";
+    } else {  // Summer16 samples have 1 weight stored in HepMC but no weightNames
+      _weightNames.push_back("");
+    }
     if (_useLHEweights) {
       // Some samples have weights but no weight names -> assign generic names lheN
       if (_lheWeightNames.size() == 0) {
