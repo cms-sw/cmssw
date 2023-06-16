@@ -38,7 +38,7 @@ l1tStage2uGTTiming = DQMEDAnalyzer('L1TStage2uGTTiming',
         "L1_SingleJet35_FWD2p5",
         "L1_ETMHF100",
         "L1_HTT120er",
-        "L1_ETT1200"
+        "L1_ETT1600"
     ),
     useAlgoDecision = cms.untracked.string("initial")
 )
