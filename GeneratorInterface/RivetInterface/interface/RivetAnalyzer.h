@@ -20,7 +20,7 @@
 #include <string>
 
 class RivetAnalyzer
-    : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+    : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   RivetAnalyzer(const edm::ParameterSet &);
 
