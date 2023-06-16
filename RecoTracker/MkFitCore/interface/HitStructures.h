@@ -82,8 +82,17 @@ namespace mkfit {
 
     bool isBinDead(bin_index_t pi, bin_index_t qi) const { return m_dead_bins[qi * m_ax_phi.size_of_N() + pi]; }
 
-    float hit_q(unsigned int i) const { return m_hit_qs[i]; }
-    float hit_phi(unsigned int i) const { return m_hit_phis[i]; }
+    struct HitInfo {
+      float phi;
+      float q;
+      float q_half_length;
+      float qbar;
+    };
+    const HitInfo& hit_info(unsigned int i) const { return m_hit_infos[i]; }
+    float hit_phi(unsigned int i) const { return m_hit_infos[i].phi; }
+    float hit_q(unsigned int i) const { return m_hit_infos[i].q; }
+    float hit_q_half_length(unsigned int i) const { return m_hit_infos[i].q_half_length; }
+    float hit_qbar(unsigned int i) const { return m_hit_infos[i].qbar; }
 
     // Use this to map original indices to sorted internal ones. m_ext_idcs needs to be initialized.
     unsigned int getHitIndexFromOriginal(unsigned int i) const { return m_ext_idcs[i - m_min_ext_idx]; }
@@ -146,19 +155,11 @@ namespace mkfit {
     // Bin information for dead regions
     std::vector<bool> m_dead_bins;
 
-    // Cached hit phi and q values to minimize Hit memory access
-    std::vector<float> m_hit_phis;
-    std::vector<float> m_hit_qs;
-
     // Geometry / q-binning constants - initialized in setupLayer()
     const LayerInfo* m_layer_info = nullptr;
     bool m_is_barrel;
 
-    // Data needed during setup
-    struct HitInfo {
-      float phi;
-      float q;
-    };
+    // Cached hit phi, q  and qbar values to minimize Hit memory access
     std::vector<HitInfo> m_hit_infos;
   };
 

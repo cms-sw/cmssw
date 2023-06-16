@@ -72,10 +72,10 @@ namespace mkfit {
     }
 #endif
 
+    std::vector<HitInfo> hinfos;
     if (Config::usePhiQArrays) {
-      m_hit_phis.resize(m_n_hits);
-      m_hit_qs.resize(m_n_hits);
-      m_hit_infos.resize(m_n_hits);
+      hinfos.reserve(m_n_hits);
+      m_hit_infos.reserve(m_n_hits);
     }
 
     m_binnor.reset_contents();
@@ -84,12 +84,22 @@ namespace mkfit {
     for (unsigned int i = 0; i < m_n_hits; ++i) {
       const Hit &h = hitv[i];
 
-      HitInfo hi = {h.phi(), m_is_barrel ? h.z() : h.r()};
+      float phi = h.phi();
+      float q =  m_is_barrel ? h.z() : h.r();
 
-      m_binnor.register_entry_safe(hi.phi, hi.q);
+      m_binnor.register_entry_safe(phi, q);
 
       if (Config::usePhiQArrays) {
-        m_hit_infos[i] = hi;
+        constexpr float sqrt3 = std::sqrt(3);
+        float half_length, qbar;
+        if (m_is_barrel) {
+          half_length = sqrt3 * std::sqrt(h.ezz());
+          qbar = h.r();
+        } else {
+          half_length = sqrt3 * std::sqrt(h.exx() + h.eyy());
+          qbar = h.z();
+        }
+        hinfos.emplace_back(HitInfo({ phi, q, half_length, qbar }));
       }
     }
 
@@ -101,8 +111,7 @@ namespace mkfit {
       memcpy(&m_hits[i], &hitv[j], sizeof(Hit));
 #endif
       if (Config::usePhiQArrays) {
-        m_hit_phis[i] = m_hit_infos[j].phi;
-        m_hit_qs[i] = m_hit_infos[j].q;
+        m_hit_infos.emplace_back(hinfos[j]);
       }
     }
   }
@@ -149,12 +158,22 @@ namespace mkfit {
     m_min_ext_idx = std::min(m_min_ext_idx, idx);
     m_max_ext_idx = std::max(m_max_ext_idx, idx);
 
-    HitInfo hi = {h.phi(), m_is_barrel ? h.z() : h.r()};
+    float phi = h.phi();
+    float q =  m_is_barrel ? h.z() : h.r();
 
-    m_binnor.register_entry_safe(hi.phi, hi.q);
+    m_binnor.register_entry_safe(phi, q);
 
     if (Config::usePhiQArrays) {
-      m_hit_infos.emplace_back(hi);
+      constexpr float sqrt3 = std::sqrt(3);
+      float half_length, qbar;
+      if (m_is_barrel) {
+        half_length = sqrt3 * std::sqrt(h.ezz());
+        qbar = h.r();
+      } else {
+        half_length = sqrt3 * std::sqrt(h.exx() + h.eyy());
+        qbar = h.z();
+      }
+      m_hit_infos.emplace_back(HitInfo({ phi, q, half_length, qbar }));
     }
   }
 
@@ -174,9 +193,10 @@ namespace mkfit {
     }
 #endif
 
+    std::vector<HitInfo> hinfos;
     if (Config::usePhiQArrays) {
-      m_hit_phis.resize(m_n_hits);
-      m_hit_qs.resize(m_n_hits);
+      hinfos.swap(m_hit_infos);
+      m_hit_infos.reserve(m_n_hits);
     }
 
     for (unsigned int i = 0; i < m_n_hits; ++i) {
@@ -188,8 +208,7 @@ namespace mkfit {
 #endif
 
       if (Config::usePhiQArrays) {
-        m_hit_phis[i] = m_hit_infos[j].phi;
-        m_hit_qs[i] = m_hit_infos[j].q;
+        m_hit_infos.emplace_back(hinfos[j]);
       }
 
       // Redirect m_binnor.m_ranks[i] to point to external/original index.
