@@ -39,10 +39,10 @@ namespace l1t {
             eighth_strip(-99),
             slope(-99),
             run3_pattern(-99),
-            // Run 3 HMT data
-            hmv(-99),
-            hmt_inTime(-99),
-            hmt_outOfTime(-99),
+            // Run 3 muon shower data
+            musv(-99),
+            mus_inTime(-99),
+            mus_outOfTime(-99),
             // metadata
             stub_num(-99),
             format_errors(0),
@@ -76,10 +76,10 @@ namespace l1t {
       void set_eighth_strip(int bits) { eighth_strip = bits; }
       void set_slope(int bits) { slope = bits; }
       void set_run3_pattern(int bits) { run3_pattern = bits; }
-      // Run 3 HMT
-      void set_hmv(int bits) { hmv = bits; }
-      void set_hmt_inTime(int bits) { hmt_inTime = bits; }
-      void set_hmt_outOfTime(int bits) { hmt_outOfTime = bits; }
+      // Run 3 muon shower
+      void set_musv(int bits) { musv = bits; }
+      void set_mus_inTime(int bits) { mus_inTime = bits; }
+      void set_mus_outOfTime(int bits) { mus_outOfTime = bits; }
       // meta data
       void set_stub_num(int bits) { stub_num = bits; }
       void add_format_error() { format_errors += 1; }
@@ -111,10 +111,10 @@ namespace l1t {
       int Eighth_strip() const { return eighth_strip; }
       int Slope() const { return slope; }
       int Run3_pattern() const { return run3_pattern; }
-      // Run 3 HMT
-      int HMV() const { return hmv; }
-      int HMT_inTime() const { return hmt_inTime; }
-      int HMT_outOfTime() const { return hmt_outOfTime; }
+      // Run 3 muon shower
+      int MUSV() const { return musv; }
+      int MUS_inTime() const { return mus_inTime; }
+      int MUS_outOfTime() const { return mus_outOfTime; }
       // metadata
       int Stub_num() const { return stub_num; }
       int Format_errors() const { return format_errors; }
@@ -147,10 +147,10 @@ namespace l1t {
       int eighth_strip;
       int slope;
       int run3_pattern;
-      // Run 3 HMT
-      int hmv;
-      int hmt_inTime;
-      int hmt_outOfTime;
+      // Run 3 muon shower
+      int musv;
+      int mus_inTime;
+      int mus_outOfTime;
       // metadata
       int stub_num;
       int format_errors;
