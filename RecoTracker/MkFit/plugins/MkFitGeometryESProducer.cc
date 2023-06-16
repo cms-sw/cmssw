@@ -198,7 +198,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   DetId detid = det->geographicalId();
 
   float xy[4][2];
-  float dz;
+  float half_length, dz;
   const Bounds *b = &((det->surface()).bounds());
 
   if (const TrapezoidalPlaneBounds *b2 = dynamic_cast<const TrapezoidalPlaneBounds *>(b)) {
@@ -212,6 +212,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     xy[2][1] = par[3];
     xy[3][0] = par[0];
     xy[3][1] = -par[3];
+    half_length = par[3];
     dz = par[2];
 
 #ifdef DUMP_MKF_GEO
@@ -229,6 +230,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     xy[2][1] = dy;
     xy[3][0] = dx;
     xy[3][1] = -dy;
+    half_length = dy;
     dz = b2->thickness() * 0.5;  // half thickness
 
 #ifdef DUMP_MKF_GEO
@@ -280,7 +282,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   const auto &p = det->position();
   auto z = det->rotation().z();
   auto x = det->rotation().x();
-  layer_info.register_module({{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, detid.rawId()});
+  layer_info.register_module({{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, half_length, detid.rawId()});
   // Set some layer parameters (repeatedly, would require hard-coding otherwise)
   layer_info.set_subdet(detid.subdetId());
   layer_info.set_is_pixel(detid.subdetId() <= 2);
