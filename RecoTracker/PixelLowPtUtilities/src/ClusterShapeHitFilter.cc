@@ -121,13 +121,14 @@ void ClusterShapeHitFilter::fillPixelData() {
   for (auto det : theTracker->detsPXB()) {
     // better not to fail..
     const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
-    assert(pixelDet);
-    PixelData& pd = pixelData[pixelDet->geographicalId()];
-    pd.det = pixelDet;
-    pd.part = 0;
-    pd.layer = theTkTopol->pxbLayer(pixelDet->geographicalId());
-    pd.cotangent = getCotangent(pixelDet);
-    pd.drift = getDrift(pixelDet);
+    if (pixelDet) {
+      PixelData& pd = pixelData[pixelDet->geographicalId()];
+      pd.det = pixelDet;
+      pd.part = 0;
+      pd.layer = theTkTopol->pxbLayer(pixelDet->geographicalId());
+      pd.cotangent = getCotangent(pixelDet);
+      pd.drift = getDrift(pixelDet);
+    }
   }
 
   //endcap
