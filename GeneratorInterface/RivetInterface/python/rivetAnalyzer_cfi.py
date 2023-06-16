@@ -18,6 +18,5 @@ rivetAnalyzer = cms.EDAnalyzer('RivetAnalyzer',
   LHECollection = cms.InputTag('externalLHEProducer'),
   CrossSection = cms.double(-1),
   DoFinalize = cms.bool(True),
-  ProduceDQMOutput = cms.bool(False),
   OutputFile = cms.string('out.yoda')
 )
