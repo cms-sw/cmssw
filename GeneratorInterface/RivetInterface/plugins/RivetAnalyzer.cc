@@ -25,7 +25,6 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
       _doFinalize(pset.getParameter<bool>("DoFinalize")),
       _lheLabel(pset.getParameter<edm::InputTag>("LHECollection")),
       _xsection(-1.) {
-
   _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
   _genLumiInfoToken = consumes<GenLumiInfoHeader, edm::InLumi>(pset.getParameter<edm::InputTag>("genLumiInfo"));
 
@@ -108,11 +107,11 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
     if (_useLHEweights) {
       // Some samples have weights but no weight names -> assign generic names lheN
-      if (_lheWeightNames.size() == 0) {
+      if (_lheWeightNames.empty()) {
         edm::Handle<LHEEventProduct> lheEventHandle;
         iEvent.getByToken(_LHECollection, lheEventHandle);
         for (unsigned int i = 0; i < lheEventHandle->weights().size(); i++) {
-          _lheWeightNames.push_back("lhe"+std::to_string(i+1)); // start with 1 to match LHE weight IDs
+          _lheWeightNames.push_back("lhe" + std::to_string(i + 1));  // start with 1 to match LHE weight IDs
         }
       }
       _weightNames.insert(_weightNames.end(), _lheWeightNames.begin(), _lheWeightNames.end());
