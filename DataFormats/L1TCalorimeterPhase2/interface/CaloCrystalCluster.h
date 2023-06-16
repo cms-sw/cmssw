@@ -1,6 +1,7 @@
 #ifndef DataFormats_L1TCalorimeterPhase2_CaloCrystalsCluster_h
 #define DataFormats_L1TCalorimeterPhase2_CaloCrystalsCluster_h
 
+#include <ap_int.h>
 #include <vector>
 #include <map>
 #include <string>
