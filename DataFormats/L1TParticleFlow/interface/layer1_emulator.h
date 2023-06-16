@@ -195,7 +195,6 @@ namespace l1ct {
     const l1t::PFTrack *srcTrack = nullptr;
     // we use an index to the standalone object needed to retrieve a Ref when putting
     int sta_idx;
-    float idScore;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -203,7 +202,6 @@ namespace l1ct {
       srcCluster = nullptr;
       srcTrack = nullptr;
       sta_idx = -1;
-      idScore = -999;
       clearIsoVars();
     }
 
@@ -335,7 +333,7 @@ namespace l1ct {
   };
 
   struct Event {
-    enum { VERSION = 12 };
+    enum { VERSION = 13 };
     uint32_t run, lumi;
     uint64_t event;
     RawInputs raw;

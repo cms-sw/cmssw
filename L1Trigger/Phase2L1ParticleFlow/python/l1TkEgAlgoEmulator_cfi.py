@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 tkEgAlgoParameters = cms.PSet(
+    # debug=cms.untracked.uint32(4),
     nTRACK=cms.uint32(50),  # very large numbers for first test
     nTRACK_EGIN=cms.uint32(50),  # very large numbers for first test
     nEMCALO_EGIN=cms.uint32(50),  # very large numbers for first test
@@ -53,9 +54,10 @@ tkEgAlgoParameters = cms.PSet(
     doCompositeTkEle=cms.bool(False),
     nCompCandPerCluster=cms.uint32(3),
     compositeParametersTkEle=cms.PSet(
-        # the working points are cuts on BDT output logits log(p/1-p)
-        loose_wp=cms.double(-0.732422),
-        tight_wp=cms.double(0.214844),
+        # NOTE: conifer BDT score is log(p/1-p)
+        # the working points are cuts on BDT output logits [log(p/1-p)]/4 (range -1 to 1 to match the FW dataformat)
+        loose_wp=cms.double(-0.181641),
+        tight_wp=cms.double(0.0527344),
         model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/compositeID.json")
     ),
 )

@@ -87,6 +87,7 @@ namespace l1ct {
     z0_t hwZ0;
     tkdeta_t hwDEta;  // relative to the region center, at calo
     tkdphi_t hwDPhi;  // relative to the region center, at calo
+    id_score_t hwIDScore;
     bool hwCharge;
 
     phi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
@@ -95,7 +96,7 @@ namespace l1ct {
     inline bool operator==(const EGIsoEleObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwQual == other.hwQual &&
              hwIso == other.hwIso && hwDEta == other.hwDEta && hwDPhi == other.hwDPhi && hwZ0 == other.hwZ0 &&
-             hwCharge == other.hwCharge;
+             hwIDScore == other.hwIDScore && hwCharge == other.hwCharge;
     }
 
     inline bool operator>(const EGIsoEleObj &other) const { return hwPt > other.hwPt; }
@@ -110,6 +111,7 @@ namespace l1ct {
       hwDEta = 0;
       hwDPhi = 0;
       hwZ0 = 0;
+      hwIDScore = 0;
       hwCharge = false;
     }
 
@@ -119,8 +121,10 @@ namespace l1ct {
     float floatVtxEta() const { return Scales::floatEta(hwVtxEta()); }
     float floatVtxPhi() const { return Scales::floatPhi(hwVtxPhi()); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
+    float floatIDScore() const { return Scales::floatIDScore(hwIDScore); }
 
-    static const int BITWIDTH = EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width + 1;
+    static const int BITWIDTH =
+        EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width + id_score_t::width + 1;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -133,6 +137,7 @@ namespace l1ct {
       pack_into_bits(ret, start, hwDPhi);
       pack_into_bits(ret, start, hwZ0);
       pack_bool_into_bits(ret, start, hwCharge);
+      pack_into_bits(ret, start, hwIDScore);
       return ret;
     }
     inline static EGIsoEleObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -152,6 +157,7 @@ namespace l1ct {
       unpack_from_bits(src, start, hwDPhi);
       unpack_from_bits(src, start, hwZ0);
       unpack_bool_from_bits(src, start, hwCharge);
+      unpack_from_bits(src, start, hwIDScore);
     }
 
     l1gt::Electron toGT() const {
