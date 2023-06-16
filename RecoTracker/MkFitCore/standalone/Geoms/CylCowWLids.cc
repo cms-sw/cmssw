@@ -108,7 +108,7 @@ namespace {
       // Actual coverage for tracks with z = 3cm is 2.4
       float full_eta = 2.5;
       float full_eta_pix_0 = 2.55;  // To account for BS z-spread
-      float full_eta_ec_in[] = {0, 2.525, 2.515};
+      float full_eta_ec_in[] = {0, 2.525, 2.515, 2.505};
 
       float pix_0 = 4, pix_sep = 6;
       float pix_z0 = 24, pix_zgrow = 6;

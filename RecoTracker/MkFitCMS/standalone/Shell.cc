@@ -200,6 +200,8 @@ namespace mkfit {
           s.sortHitsByLayer();  // sort seed hits for the matched hits (I hope it works here)
       }
 
+      m_event->setCurrentSeedTracks(seeds);
+
       builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
       builder.findTracksCloneEngine();
@@ -264,6 +266,8 @@ namespace mkfit {
       }
 
       printf("Shell::ProcessEvent post remove-duplicates: %d comb-cands\n", (int) out_tracks.size());
+
+      m_event->resetCurrentSeedTracks();
 
       builder.end_event();
     }

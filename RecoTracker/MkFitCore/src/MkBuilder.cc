@@ -268,7 +268,7 @@ namespace mkfit {
       int j = seeds_sorted ? i : ranks[i];
       int reg = part.m_region[j];
       const Track &seed = in_seeds[j];
-      insert_seed(seed, reg, seed_cursors[reg]++);
+      insert_seed(seed, j, reg, seed_cursors[reg]++);
 
       HitOnTrack hot = seed.getLastHitOnTrack();
       m_seedMinLastLayer[reg] = std::min(m_seedMinLastLayer[reg], hot.layer);
@@ -441,7 +441,7 @@ namespace mkfit {
     assert(!in_seeds.empty());
     m_tracks.resize(in_seeds.size());
 
-    import_seeds(in_seeds, seeds_sorted, [&](const Track &seed, int region, int pos) {
+    import_seeds(in_seeds, seeds_sorted, [&](const Track &seed, int seed_idx, int region, int pos) {
       m_tracks[pos] = seed;
       m_tracks[pos].setNSeedHits(seed.nTotalHits());
       m_tracks[pos].setEtaRegion(region);
@@ -515,10 +515,13 @@ namespace mkfit {
             prev_layer = curr_layer;
             curr_layer = layer_plan_it.layer();
             mkfndr->setup(prop_config,
+                          m_job->m_iter_config,
                           m_job->m_iter_config.m_params,
                           m_job->m_iter_config.m_layer_configs[curr_layer],
                           st_par,
                           m_job->get_mask_for_layer(curr_layer),
+                          m_event,
+                          region,
                           m_job->m_in_fwd);
 
             const LayerOfHits &layer_of_hits = m_job->m_event_of_hits[curr_layer];
@@ -610,8 +613,8 @@ namespace mkfit {
 
     m_event_of_comb_cands.reset((int)in_seeds.size(), m_job->max_max_cands());
 
-    import_seeds(in_seeds, seeds_sorted, [&](const Track &seed, int region, int pos) {
-      m_event_of_comb_cands.insertSeed(seed, m_job->steering_params(region).m_track_scorer, region, pos);
+    import_seeds(in_seeds, seeds_sorted, [&](const Track &seed, int seed_idx, int region, int pos) {
+      m_event_of_comb_cands.insertSeed(seed, seed_idx, m_job->steering_params(region).m_track_scorer, region, pos);
     });
   }
 
@@ -699,10 +702,7 @@ namespace mkfit {
       TrackCand &cand = m_event_of_comb_cands[seed_cand_idx[ti].first][seed_cand_idx[ti].second];
       WSR_Result &w = mkfndr->m_XWsrResult[ti - itrack];
 
-      // XXXX-4 Low pT tracks can miss a barrel layer ... and should be stopped
-      const float cand_r =
-          std::hypot(mkfndr->getPar(ti - itrack, MkBase::iP, 0), mkfndr->getPar(ti - itrack, MkBase::iP, 1));
-
+      // Low pT tracks can miss a barrel layer ... and should be stopped
       dprintf("WSR Check label %d, seed %d, cand %d score %f -> wsr %d, in_gap %d\n",
               cand.label(),
               seed_cand_idx[ti].first,
@@ -711,20 +711,25 @@ namespace mkfit {
               w.m_wsr,
               w.m_in_gap);
 
-      if (layer_info.is_barrel() && cand_r < layer_info.rin()) {
-        // Fake outside so it does not get processed in FindTracks Std/CE... and
-        // create a stopped replica in barrel and original copy if there is
-        // still chance to hit endcaps.
-        dprintf("Barrel cand propagated to r=%f ... layer is %f - %f\n", cand_r, layer_info.rin(), layer_info.rout());
-
-        mkfndr->m_XHitSize[ti - itrack] = 0;
+      if (w.m_wsr == WSR_Failed) {
+        // Fake outside so it does not get processed in FindTracks BH/Std/CE.
+        // [ Should add handling of WSR_Failed there, perhaps. ]
         w.m_wsr = WSR_Outside;
 
-        tmp_cands[seed_cand_idx[ti].first - start_seed].push_back(cand);
-        if (region == TrackerInfo::Reg_Barrel) {
-          dprintf(" creating extra stopped held back candidate\n");
-          tmp_cands[seed_cand_idx[ti].first - start_seed].back().addHitIdx(-2, layer_info.layer_id(), 0);
+        if (layer_info.is_barrel()) {
+          dprintf("Barrel cand propagation failed, got to r=%f ... layer is %f - %f\n",
+                  mkfndr->radius(ti - itrack, MkBase::iP),
+                  layer_info.rin(),
+                  layer_info.rout());
+          // In barrel region, create a stopped replica. In transition region keep the original copy
+          // as there is still a chance to hit endcaps.
+          tmp_cands[seed_cand_idx[ti].first - start_seed].push_back(cand);
+          if (region == TrackerInfo::Reg_Barrel) {
+            dprintf(" creating extra stopped held back candidate\n");
+            tmp_cands[seed_cand_idx[ti].first - start_seed].back().addHitIdx(-2, layer_info.layer_id(), 0);
+          }
         }
+        // Never happens for endcap / propToZ
       } else if (w.m_wsr == WSR_Outside) {
         dprintf(" creating extra held back candidate\n");
         tmp_cands[seed_cand_idx[ti].first - start_seed].push_back(cand);
@@ -801,17 +806,21 @@ namespace mkfit {
           prev_layer = curr_layer;
           curr_layer = layer_plan_it.layer();
           mkfndr->setup(prop_config,
+                        m_job->m_iter_config,
                         iter_params,
                         m_job->m_iter_config.m_layer_configs[curr_layer],
                         st_par,
                         m_job->get_mask_for_layer(curr_layer),
+                        m_event,
+                        region,
                         m_job->m_in_fwd);
-
-          dprintf("\n* Processing layer %d\n", curr_layer);
 
           const LayerOfHits &layer_of_hits = m_job->m_event_of_hits[curr_layer];
           const LayerInfo &layer_info = trk_info.layer(curr_layer);
           const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(layer_info.is_barrel());
+
+          dprintf("\n* Processing layer %d\n", curr_layer);
+          mkfndr->begin_layer(layer_of_hits);
 
           int theEndCand = find_tracks_unroll_candidates(seed_cand_idx,
                                                          start_seed,
@@ -902,7 +911,7 @@ namespace mkfit {
               tmp_cands[is].clear();
             }
           }
-
+          mkfndr->end_layer();
         }  // end of layer loop
         mkfndr->release();
 
@@ -1010,19 +1019,23 @@ namespace mkfit {
       prev_layer = curr_layer;
       curr_layer = layer_plan_it.layer();
       mkfndr->setup(prop_config,
+                    m_job->m_iter_config,
                     iter_params,
                     m_job->m_iter_config.m_layer_configs[curr_layer],
                     st_par,
                     m_job->get_mask_for_layer(curr_layer),
+                    m_event,
+                    region,
                     m_job->m_in_fwd);
 
       const bool pickup_only = layer_plan_it.is_pickup_only();
 
-      dprintf("\n\n* Processing layer %d, %s\n\n", curr_layer, pickup_only ? "pickup only" : "full finding");
-
       const LayerInfo &layer_info = trk_info.layer(curr_layer);
       const LayerOfHits &layer_of_hits = m_job->m_event_of_hits[curr_layer];
       const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(layer_info.is_barrel());
+
+      dprintf("\n\n* Processing layer %d, %s\n\n", curr_layer, pickup_only ? "pickup only" : "full finding");
+      mkfndr->begin_layer(layer_of_hits);
 
       const int theEndCand = find_tracks_unroll_candidates(
           seed_cand_idx, start_seed, end_seed, curr_layer, prev_layer, pickup_only, iteration_dir);
@@ -1073,10 +1086,6 @@ namespace mkfit {
             layer_info.propagate_to(), end - itrack, prop_config.finding_inter_layer_pflags);
 
         dprint("now get hit range");
-
-#ifdef DUMPHITWINDOW
-        mkfndr->m_event = m_event;
-#endif
 
         mkfndr->selectHitIndices(layer_of_hits, end - itrack);
 
@@ -1134,7 +1143,7 @@ namespace mkfit {
         }
       }
 #endif
-
+      mkfndr->end_layer();
     }  // end of layer loop
 
     cloner.end_eta_bin();
@@ -1184,6 +1193,7 @@ namespace mkfit {
   void MkBuilder::fit_cands_BH(MkFinder *mkfndr, int start_cand, int end_cand, int region) {
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = m_job->m_trk_info.prop_config();
+    mkfndr->setup_bkfit(prop_config, st_par, m_event);
 #ifdef DEBUG_FINAL_FIT
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     bool debug = true;
@@ -1280,7 +1290,7 @@ namespace mkfit {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = m_job->m_trk_info.prop_config();
-    mkfndr->setup_bkfit(prop_config, st_par);
+    mkfndr->setup_bkfit(prop_config, st_par, m_event);
 
     int step = NN;
     for (int icand = start_cand; icand < end_cand; icand += step) {
@@ -1304,7 +1314,6 @@ namespace mkfit {
             "sx_t/F:sy_t/F:sz_t/F:d_xy/F:d_z/F\n");
         first = false;
       }
-      mkfndr->m_event = m_event;
 #endif
 
       // input tracks

@@ -27,7 +27,7 @@ namespace mkfit {
 
   class MkBuilder {
   public:
-    using insert_seed_foo = void(const Track &, int, int);
+    using insert_seed_foo = void(const Track &, int, int, int);
 
     typedef std::vector<std::pair<int, int>> CandIdx_t;
 

@@ -22,7 +22,7 @@ namespace Matriplex {
   //------------------------------------------------------------------------------
 
   template <typename T, idx_t D, idx_t N>
-  class MatriplexSym {
+  class __attribute__((aligned(MPLEX_ALIGN))) MatriplexSym {
   public:
     typedef T value_type;
 
@@ -35,7 +35,7 @@ namespace Matriplex {
     /// size of the whole matriplex
     static constexpr int kTotSize = N * kSize;
 
-    T fArray[kTotSize] __attribute__((aligned(64)));
+    T fArray[kTotSize];
 
     MatriplexSym() {}
     MatriplexSym(T v) { setVal(v); }

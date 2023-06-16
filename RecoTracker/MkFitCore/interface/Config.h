@@ -10,7 +10,7 @@ namespace mkfit {
     constexpr float PIOver4 = Const::PI / 4.0f;
     constexpr float PI3Over4 = 3.0f * Const::PI / 4.0f;
     constexpr float InvPI = 1.0f / Const::PI;
-    constexpr float sol = 0.299792458;  // speed of light in nm/s
+    constexpr float sol = 0.299792458;  // speed of light in m/ns
 
     // NAN and silly track parameter tracking options
     constexpr bool nan_etc_sigs_enable = false;
