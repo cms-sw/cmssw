@@ -318,17 +318,31 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     trkPtCut    = cms.double(2.0),
     muonInputConversionAlgo = cms.string("Emulator"),
     muonInputConversionParameters = muonInputConversionParameters.clone(),
-    regionizerAlgo = cms.string("Ideal"),
-    pfAlgo = cms.string("PFAlgoDummy"),
-    puAlgo = cms.string("LinearizedPuppi"),
+    regionizerAlgo = cms.string("Multififo"),
     regionizerAlgoParameters = cms.PSet(
         useAlsoVtxCoords = cms.bool(True),
-    ),
+        nEndcaps = cms.uint32(2),
+        nClocks = cms.uint32(54),
+        nTkLinks = cms.uint32(0),
+        nCaloLinks = cms.uint32(3),
+        nTrack = cms.uint32(0),
+        nCalo = cms.uint32(12),
+        nEmCalo = cms.uint32(12),
+        nMu = cms.uint32(4),
+        egInterceptMode = cms.PSet(
+            afterFifo = cms.bool(True),
+            emIDMask = cms.uint32(0x1E),
+            nHADCALO_IN = cms.uint32(12),
+            nEMCALO_OUT = cms.uint32(12),
+            )
+        ),
+    pfAlgo = cms.string("PFAlgoDummy"),
     pfAlgoParameters = cms.PSet(
         nCalo = cms.uint32(12), 
         nMu = cms.uint32(4), # unused
         debug = cms.untracked.bool(False)
     ),
+    puAlgo = cms.string("LinearizedPuppi"),
     puAlgoParameters = cms.PSet(
         nTrack = cms.uint32(0),  # unused
         nIn = cms.uint32(12), 
