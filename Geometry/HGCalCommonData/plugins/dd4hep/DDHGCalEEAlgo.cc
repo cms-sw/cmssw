@@ -429,7 +429,7 @@ struct HGCalEEAlgo {
 };
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
-  HGCalEEAlgo eealgo(ctxt, e);
+  HGCalEEAlgo eeAlgo(ctxt, e);
   return cms::s_executed;
 }
 

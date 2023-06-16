@@ -424,7 +424,7 @@ struct HGCalSiliconModule {
 };
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
-  HGCalSiliconModule eealgo(ctxt, e);
+  HGCalSiliconModule eeSiliconModuleAlgo(ctxt, e);
   return cms::s_executed;
 }
 
