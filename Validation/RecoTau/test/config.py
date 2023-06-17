@@ -92,8 +92,8 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # End of customisation functions
 #do not add changes to your config after this point (unless you know what you are doing)
-from FWCore.ParameterSet.Utilities import convertToUnscheduled
-process=convertToUnscheduled(process)
+#from FWCore.ParameterSet.Utilities import convertToUnscheduled # test: will be deprecated soon
+#process=convertToUnscheduled(process) # test: will be deprecated soon
 
 
 # Customisation from command line
