@@ -10,8 +10,25 @@ process.options.numberOfThreads = 8
 ###################################################################
 # Messages
 ###################################################################
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+
+###################################################################
+# Messages
+###################################################################
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.GeoInfo=dict()
+process.MessageLogger.AlignmentStats=dict()
+process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
+    threshold = cms.untracked.string("INFO"),
+    default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
+                                   reportEvery = cms.untracked.int32(10)
+                                   ),
+    GeoInfo          = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    AlignmentStats    = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    enableStatistics = cms.untracked.bool(True)
+    )
 
 ####################################################################
 # Get the Magnetic Field
@@ -52,9 +69,11 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '
 # Get the BeamSpot
 ####################################################################
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-#process.myBeamSpot = RecoVertex.BeamSpotProducer.BeamSpot_cfi.offlineBeamSpot.clone()
+process.myBeamSpot = process.offlineBeamSpot.clone()
 
+####################################################################
 #1: first refit to the tracks, needed for getting the Traj
+####################################################################
 from TrackingTools.TrackFitters.RungeKuttaFitters_cff import *
 process.FittingSmootherCustomised = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(ComponentName = 'FittingSmootherCustomised',
                                                                                                                                        EstimateCut=18.0,
@@ -66,10 +85,12 @@ process.TrackRefitterCTF1 = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRef
     src='generalTracks',
     NavigationSchool = '',
     TTRHBuilder = 'WithAngleAndTemplate',
-    TrajectoryInEvent = True)
-    #beamSpot='MyBeamSpot')
+    TrajectoryInEvent = True,
+    beamSpot='myBeamSpot')
 
+####################################################################
 # 2b: apply NEW hit filter. Does not work with CosmicTF tracks !
+####################################################################
 from RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff import *
 process.AlignmentHitFilterCTF = RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff.TrackerTrackHitFilter.clone(
     src = 'TrackRefitterCTF1',
@@ -85,17 +106,21 @@ process.AlignmentHitFilterCTF = RecoTracker.FinalTrackSelectors.TrackerTrackHitF
     usePixelQualityFlag= True,
     PxlCorrClusterChargeCut=10000.0)
 
+####################################################################
 # 3: produce track after NEW track hit filter
+####################################################################
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 process.ctfProducerCustomisedCTF = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff.ctfWithMaterialTracks.clone(
     src = 'AlignmentHitFilterCTF',
-    #beamSpot='MyBeamSpot',
-    #  Fitter = 'FittingSmootherCustomised',
+    beamSpot='myBeamSpot',
+    # Fitter = 'FittingSmootherCustomised',
     TTRHBuilder = 'WithAngleAndTemplate',
     TrajectoryInEvent = True)
 
-process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
+####################################################################
 # 4: apply track selections on the refitted tracks
+####################################################################
+process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
 from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
 process.ALCARECOTkAlMinBiasSkimmed = AlignmentTrackSelector.clone(
     src= 'ctfProducerCustomisedCTF',
@@ -109,8 +134,8 @@ process.ALCARECOTkAlMinBiasSkimmed = AlignmentTrackSelector.clone(
     nHitMin2D=2,
     chi2nMax=6.0
     ### others which aren't used
-    #minHitsPerSubDet.inTIB = 0
-    #minHitsPerSubDet.inBPIX = 1
+    # minHitsPerSubDet.inTIB = 0
+    # minHitsPerSubDet.inBPIX = 1
     )
 
 process.TrackRefitterCTF2 = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone(
@@ -119,22 +144,27 @@ process.TrackRefitterCTF2 = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRef
     TTRHBuilder = 'WithAngleAndTemplate',
     TrajectoryInEvent = True,
     NavigationSchool = '',
-    #beamSpot='MyBeamSpot',
-    #    EstimateCut=15.0,
-    #    MinNumberOfHits=6
-    #    Fitter='FittingSmootherCustomised'
+    beamSpot='myBeamSpot',
+    # EstimateCut=15.0,
+    # MinNumberOfHits=6
+    # Fitter='FittingSmootherCustomised'
     ) 
 
-
+####################################################################
 # 5: Overlap tagger
+####################################################################
 from Alignment.TrackerAlignment.TkAlCaOverlapTagger_cff import *
 process.OverlapAssoMapCTF = OverlapTagger.clone(
-    #  src='ALCARECOTkAlCosmicsCTFSkimmed'
+    # src='ALCARECOTkAlCosmicsCTFSkimmed'
     src='TrackRefitterCTF2',
     #Clustersrc='ALCARECOTkAlCosmicsCTF0T'
     Clustersrc='ALCARECOTkAlMinBiasSkimmed'#the track selector produces a new collection of Clusters!
 )
 
+
+####################################################################
+# 6: counts
+####################################################################
 from Alignment.CommonAlignmentMonitor.AlignmentStats_cff import *
 process.NewStatsCTF = AlignmentStats.clone(
     #  src='OverlapAssoMap',
@@ -148,7 +178,7 @@ process.NewStatsCTF = AlignmentStats.clone(
     )
 
 ##________________________________Sequences____________________________________
-process.seqALCARECOTkAlMinBiasSkimmed = cms.Sequence(#process.myBeamSpot *
+process.seqALCARECOTkAlMinBiasSkimmed = cms.Sequence(process.myBeamSpot *
                                                      process.offlineBeamSpot *
                                                      process.MeasurementTrackerEvent *
                                                      process.TrackRefitterCTF1 *
