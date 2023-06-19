@@ -79,7 +79,7 @@ if not unitTest:
 
     m = re.search(r"\((\w+)\)", str(source.runNumber))
     runno = str(m.group(1))
-    outDir= '/fff/BU0/output/EvD/run'+runno+'/streamEvDOutput2'
+    outDir= options.outputBaseDir+'/EvD/run'+runno+'/streamEvDOutput2'
 else:
     runno = options.runNumber
     outDir = "./upload"
