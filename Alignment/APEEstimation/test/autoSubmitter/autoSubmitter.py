@@ -29,14 +29,6 @@ def save(name, object):
         lock.release()
 
 class Dataset:
-    name = ""
-    nFiles = 0
-    maxEvents = -1
-    baseDirectory = ""
-    sampleType = "data1"
-    fileList = []
-    conditions = []
-    
     def __init__(self, config, name):
         dsDict = dict(config.items("dataset:{}".format(name)))
         self.name = name
@@ -49,19 +41,18 @@ class Dataset:
             for fileName in parsedNames:
                 self.fileList.append(self.baseDirectory+"/"+fileName)
         self.nFiles = len(self.fileList)
-
+        
+        self.maxEvents = -1
         if "maxEvents" in dsDict:
             self.maxEvents = int(dsDict["maxEvents"])
-        if "isMC" in dsDict:
-            if dsDict["isMC"] == "True":
-                self.sampleType = "MC"
-            else:
-                self.sampleType ="data1"
-                
+        
+        self.sampleType ="data1"
+        if "isMC" in dsDict and dsDict["isMC"] == "True":
+            self.sampleType = "MC"
+        
+        self.isCosmics = False
         if "isCosmics" in dsDict:
             self.isCosmics = (dsDict["isCosmics"] == "True")
-        else:
-            self.isCosmics = False
         
         self.conditions, dummy, self.validConditions = loadConditions(dsDict)      
         
@@ -75,26 +66,22 @@ class Dataset:
         if not self.existingFiles:
             for fileName in missingFiles:
                 print("Invalid file name {} defined for dataset {}".format(fileName, self.name))
-        
-
-class Alignment:        
-    name = ""
-    alignmentName = None
-    baselineDir = "Design"
-    globalTag = "None"
-    isDesign = False
-    hasAlignmentCondition = False
-    conditions = []
     
+class Alignment:        
     def __init__(self, config, name):
         alDict = dict(config.items("alignment:{}".format(name)))
         self.name = name
+        
+        alignmentName = None
         if "alignmentName" in alDict:
             self.alignmentName = alDict["alignmentName"]
+        self.globalTag = "None"
         if "globalTag" in alDict:
             self.globalTag = alDict["globalTag"]
+        self.baselineDir = "Design"
         if "baselineDir" in alDict:
             self.baselineDir= alDict["baselineDir"]
+        self.isDesign = False
         if "isDesign" in alDict:
             self.isDesign= (alDict["isDesign"] == "True")
         
@@ -105,9 +92,9 @@ class Alignment:
         if not self.validConditions:
             print("Invalid conditions defined for alignment {}".format(self.name))
         
-        
         # check if at least one of the two ways to define the alignment was used
-        if self.alignmentName == None and not self.hasAlignmentCondition:
+        # for baseline (Design) measurements, this is not needed, as we usually take conditions from GT
+        if self.alignmentName == None and not self.hasAlignmentCondition and not self.isDesign:
             print("Error: No alignment object name or record was defined for alignment {}".format(self.name))
             sys.exit()
         
@@ -131,7 +118,7 @@ class ApeMeasurement:
         self.status = STATE_ITERATION_START
         self.runningJobs = []
         self.failedJobs = []
-        self.startTime = subprocess.check_output(["date"]).strip()
+        self.startTime = subprocess.check_output(["date"]).decode().strip()
         
         # load conditions from dictionary, overwrite defaults if defined
         for key, value in settings.items():
@@ -139,9 +126,6 @@ class ApeMeasurement:
                 setattr(self, key, value)
         
         # Replace names with actual Dataset and Alignment objects
-        # In principle, one could preload all these once so they are not
-        # redefined for each measurement, but right now this does not 
-        # seem necessary
         self.dataset = Dataset(config, settings["dataset"])
         self.alignment = Alignment(config, settings["alignment"])
         
@@ -160,11 +144,9 @@ class ApeMeasurement:
         
         # see if sanity checks passed
         if not self.alignment.validConditions or not self.dataset.validConditions or not self.dataset.existingFiles or not self.validConditions:
-            self.status = STATE_INVALID_CONDITIONS
-            self.print_status()
-            self.finishTime = subprocess.check_output(["date"]).strip()
+            self.set_status(STATE_INVALID_CONDITIONS)
+            self.finishTime = subprocess.check_output(["date"]).decode().strip()
             return
-        
             
         if self.alignment.isDesign and self.dataset.sampleType != "MC":
             # For now, this won't immediately shut down the program
@@ -173,20 +155,25 @@ class ApeMeasurement:
         if not self.alignment.isDesign:
             ensurePathExists('{}/hists/{}/apeObjects'.format(base, self.name))
         
-            
     def get_status(self):
         return status_map[self.status]
     
     def print_status(self):
         print("APE Measurement {} in iteration {} is now in status {}".format(self.name, self.curIteration, self.get_status()))
     
+    def set_status(self, status, terminal=False):
+        if self.status != status:
+            self.status = status
+            self.print_status()
+        if terminal:
+            self.finishTime = subprocess.check_output(["date"]).decode().strip()
+    
     # submit jobs for track refit and hit categorization
     def submit_jobs(self):
         toSubmit = []
         
         allConditions = self.alignment.conditions+self.dataset.conditions+self.conditions
-        allConditions = list({v['record']:v for v in allConditions}.values()) # should we clean for duplicate records? the record last defined (from dataset) 
-                                                                              # will be kept in case of overlap, which is the same as if there was no overlap removal
+        allConditions = list({v['record']:v for v in allConditions}.values()) # Removes double definitions of Records
         
         ensurePathExists("{}/test/autoSubmitter/workingArea".format(base))
         
@@ -202,7 +189,6 @@ class ApeMeasurement:
                 from autoSubmitterTemplates import conditionsTemplate
                 for condition in allConditions:
                     fi.write(conditionsTemplate.format(record=condition["record"], connect=condition["connect"], tag=condition["tag"]))
-                
                 
         alignmentNameToUse = self.alignment.alignmentName
         if self.alignment.hasAlignmentCondition:
@@ -227,7 +213,7 @@ class ApeMeasurement:
             arguments += condorArgumentTemplate.format(fileNumber=fileNumber, inputFile=inputFile)
             
         # build condor submit script
-        date = subprocess.check_output(["date", "+%m_%d_%H_%M_%S"]).strip()
+        date = subprocess.check_output(["date", "+%m_%d_%H_%M_%S"]).decode().strip()
         sub = "{}/test/autoSubmitter/workingArea/job_{}_iter{}".format(base, self.name, self.curIteration)
         
         errorFileTemp  = sub+"_error_{}.txt"
@@ -255,7 +241,7 @@ class ApeMeasurement:
         
         # submit batch
         from autoSubmitterTemplates import submitCondorTemplate
-        subOut = subprocess.check_output(submitCondorTemplate.format(subFile=submitFileName), shell=True).strip()
+        subOut = subprocess.check_output(submitCondorTemplate.format(subFile=submitFileName), shell=True).decode().strip()
     
         if len(subOut) == 0:
                 print("Running on environment that does not know bsub command or ssh session is timed out (ongoing for longer than 24h?), exiting")
@@ -266,12 +252,9 @@ class ApeMeasurement:
             # list contains condor log files from which to read when job is terminated to detect errors
             self.runningJobs.append((logFileTemp.format(i), errorFileTemp.format(i), "{}.{}".format(cluster, i)))
         
-        
-        self.status = STATE_BJOBS_WAITING
-        self.print_status()
+        self.set_status(STATE_BJOBS_WAITING)
     
     def check_jobs(self):
-        lastStatus = self.status
         stillRunningJobs = []
         # check all still running jobs
         for logName, errName, jobId in self.runningJobs:
@@ -313,10 +296,9 @@ class ApeMeasurement:
         
         # at least one job failed
         if len(self.failedJobs) > 0:
-            self.status = STATE_BJOBS_FAILED
-            self.finishTime = subprocess.check_output(["date"]).strip()
+            self.set_status(STATE_BJOBS_FAILED, True)
         elif len(self.runningJobs) == 0:
-            self.status = STATE_BJOBS_DONE
+            self.set_status(STATE_BJOBS_DONE)
             print("All condor jobs of APE measurement {} in iteration {} are done".format(self.name, self.curIteration))
             
             # remove files
@@ -334,13 +316,10 @@ class ApeMeasurement:
                     os.remove(errorFile)
                     os.remove(outputFile)
                     os.remove(logFile)
-                    
-        if lastStatus != self.status:
-            self.print_status() 
     
     # merges files from jobs
     def do_merge(self):
-        self.status = STATE_MERGE_WAITING
+        self.set_status(STATE_MERGE_WAITING)
         if self.alignment.isDesign:
             folderName = '{}/hists/{}/baseline'.format(base, self.name)
         else:
@@ -365,11 +344,9 @@ class ApeMeasurement:
             os.remove(name)
             
         if rootFileValid("{}/allData.root".format(folderName)) and merge_result == 0:
-            self.status = STATE_MERGE_DONE
+            self.set_status(STATE_MERGE_DONE)
         else:
-            self.status = STATE_MERGE_FAILED
-            self.finishTime = subprocess.check_output(["date"]).strip()
-        self.print_status()
+            self.set_status(STATE_MERGE_FAILED, True)
     
     # calculates APE
     def do_summary(self):
@@ -383,34 +360,29 @@ class ApeMeasurement:
         
         summary_result = subprocess.call(summaryTemplate.format(inputCommands=inputCommands), shell=True) # returns exit code (0 if no error occured)
         if summary_result == 0:
-            self.status = STATE_SUMMARY_DONE
+            self.set_status(STATE_SUMMARY_DONE)
         else:
-            self.status = STATE_SUMMARY_FAILED
-            self.finishTime = subprocess.check_output(["date"]).strip()
-        self.print_status()
+            self.set_status(STATE_SUMMARY_FAILED, True)
     
     # saves APE to .db file so it can be read out next iteration
     def do_local_setting(self):
-        self.status = STATE_LOCAL_WAITING       
+        self.set_status(STATE_LOCAL_WAITING)      
         from autoSubmitterTemplates import localSettingTemplate
         inputCommands = "iterNumber={} setBaseline={} measurementName={}".format(self.curIteration,self.alignment.isDesign,self.name)
 
         local_setting_result = subprocess.call(localSettingTemplate.format(inputCommands=inputCommands), shell=True) # returns exit code (0 if no error occured)
         if local_setting_result == 0:
-            self.status = STATE_LOCAL_DONE
+            self.set_status(STATE_LOCAL_DONE)
         else:
-            self.status = STATE_LOCAL_FAILED
-            self.finishTime = subprocess.check_output(["date"]).strip()
-        self.print_status()
+            self.set_status(STATE_LOCAL_FAILED, True)
         
     def finish_iteration(self):
         print("APE Measurement {} just finished iteration {}".format(self.name, self.curIteration))
         if self.curIteration < self.maxIterations:
             self.curIteration += 1
-            self.status = STATE_ITERATION_START
+            self.set_status(STATE_ITERATION_START)
         else:
-            self.status = STATE_FINISHED
-            self.finishTime = subprocess.check_output(["date"]).strip()
+            self.set_status(STATE_FINISHED, True)
             print("APE Measurement {}, which was started at {} was finished after {} iterations, at {}".format(self.name, self.startTime, self.curIteration, self.finishTime))
             
     def kill(self):
@@ -418,7 +390,7 @@ class ApeMeasurement:
         for log, err, jobId in self.runningJobs:
             subprocess.call(killJobTemplate.format(jobId=jobId), shell=True)
         self.runningJobs = []
-        self.status = STATE_NONE
+        self.set_status(STATE_NONE)
         
     def purge(self):
         self.kill()
@@ -434,7 +406,6 @@ class ApeMeasurement:
             if self.status == STATE_ITERATION_START:
                 # start bjobs
                 print("APE Measurement {} just started iteration {}".format(self.name, self.curIteration))
-
 
                 try:
                     self.submit_jobs()
@@ -460,7 +431,7 @@ class ApeMeasurement:
             if self.status == STATE_SUMMARY_DONE:
                 # start local setting (only if not a baseline measurement)
                 if self.alignment.isDesign:
-                    self.status = STATE_LOCAL_DONE
+                    self.set_status(STATE_LOCAL_DONE)
                 else:
                     self.do_local_setting()
                 save("measurements", measurements)
@@ -483,7 +454,7 @@ class ApeMeasurement:
                     else:
                         global failed_measurements
                         failed_measurements[self.name] = self
-                        self.status = STATE_NONE
+                        self.set_status(STATE_NONE)
                         save("failed", failed_measurements)
                     save("measurements", measurements)
             if self.status == STATE_ITERATION_START: # this ensures that jobs do not go into idle if many measurements are done simultaneously
@@ -493,7 +464,6 @@ class ApeMeasurement:
                 save("measurements", measurements)   
         finally:
             threadcounter.release()
-
 
 def main():    
     parser = argparse.ArgumentParser(description="Automatically run APE measurements")
@@ -523,7 +493,6 @@ def main():
     use_caf = args.caf
     enableCAF(use_caf)
     
-    
     threadcounter = threading.BoundedSemaphore(args.ncores)
     lock = threading.Lock()
     
@@ -535,9 +504,8 @@ def main():
         base = os.environ['CMSSW_BASE']+"/src/Alignment/APEEstimation"
     except KeyError:
         print("No CMSSW environment was set, exiting")
-        sys.exit()
-    
-    
+        sys.exit(1)
+
     killTargets = []
     purgeTargets = []
     for toConvert in args.kill:
@@ -580,7 +548,7 @@ def main():
                 
             except IOError:
                 print("Could not resume because {} could not be opened, exiting".format(shelve_name))
-                sys.exit()
+                sys.exit(2)
             
     # read out from config file
     if args.configs != []:
@@ -602,8 +570,6 @@ def main():
             if measurement.status >= STATE_ITERATION_START and measurement.status <= STATE_FINISHED:
                 measurements.append(measurement)
                 print("APE Measurement {} was started".format(measurement.name))
-        
-        
     
     while True:
         # remove finished and failed measurements
@@ -624,7 +590,7 @@ def main():
      
         if len(measurements) == 0:
             print("No APE measurements are active, exiting")
-            break        
+            sys.exit(0)      
         
         try: # so that interrupting does not give an error message and just ends the program
             time_remaining = clock_interval
@@ -640,6 +606,5 @@ def main():
         except KeyboardInterrupt:
             sys.exit(0)
         
-            
 if __name__ == "__main__":
     main()

@@ -95,8 +95,6 @@ def enableCAF(switch):
         module('load', 'lxbatch/tzero')
     else:
         module('load', 'lxbatch/share')
-    
-
 
 def ensurePathExists(path):
     try:
@@ -104,7 +102,6 @@ def ensurePathExists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-
 
 def replaceAllRanges(string):
     if "[" in string and "]" in string:
@@ -150,8 +147,6 @@ def allFilesExist(dataset):
             passed = False
             missingFiles.append(fileName)
     return passed, missingFiles
-    
-
 
 def hasValidSource(condition):
     if condition["connect"].startswith("frontier://FrontierProd/"):
