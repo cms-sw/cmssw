@@ -105,7 +105,6 @@ class ApeMeasurement:
     firstIteration = 0
     maxIterations = 15
     maxEvents = None
-    status = STATE_NONE
     dataset = None
     alignment = None
     runningJobs  = None
@@ -115,7 +114,7 @@ class ApeMeasurement:
     
     def __init__(self, name, config, settings):
         self.name = name        
-        self.status = STATE_ITERATION_START
+        self.status_ = STATE_ITERATION_START
         self.runningJobs = []
         self.failedJobs = []
         self.startTime = subprocess.check_output(["date"]).decode().strip()
@@ -144,7 +143,7 @@ class ApeMeasurement:
         
         # see if sanity checks passed
         if not self.alignment.validConditions or not self.dataset.validConditions or not self.dataset.existingFiles or not self.validConditions:
-            self.set_status(STATE_INVALID_CONDITIONS, True)
+            self.setStatus(STATE_INVALID_CONDITIONS, True)
             return
             
         if self.alignment.isDesign and self.dataset.sampleType != "MC":
@@ -154,21 +153,21 @@ class ApeMeasurement:
         if not self.alignment.isDesign:
             ensurePathExists('{}/hists/{}/apeObjects'.format(base, self.name))
         
-    def get_status(self):
-        return status_map[self.status]
+    def status(self):
+        return status_map[self.status_]
     
-    def print_status(self):
-        print("APE Measurement {} in iteration {} is now in status {}".format(self.name, self.curIteration, self.get_status()))
+    def printStatus(self):
+        print("APE Measurement {} in iteration {} is now in status {}".format(self.name, self.curIteration, self.status()))
     
-    def set_status(self, status, terminal=False):
-        if self.status != status:
-            self.status = status
-            self.print_status()
+    def setStatus(self, status, terminal=False):
+        if self.status_ != status:
+            self.status_ = status
+            self.printStatus()
         if terminal:
             self.finishTime = subprocess.check_output(["date"]).decode().strip()
     
     # submit jobs for track refit and hit categorization
-    def submit_jobs(self):
+    def submitJobs(self):
         toSubmit = []
         
         allConditions = self.alignment.conditions+self.dataset.conditions+self.conditions
@@ -251,9 +250,9 @@ class ApeMeasurement:
             # list contains condor log files from which to read when job is terminated to detect errors
             self.runningJobs.append((logFileTemp.format(i), errorFileTemp.format(i), "{}.{}".format(cluster, i)))
         
-        self.set_status(STATE_BJOBS_WAITING)
+        self.setStatus(STATE_BJOBS_WAITING)
     
-    def check_jobs(self):
+    def checkJobs(self):
         stillRunningJobs = []
         # check all still running jobs
         for logName, errName, jobId in self.runningJobs:
@@ -295,9 +294,9 @@ class ApeMeasurement:
         
         # at least one job failed
         if len(self.failedJobs) > 0:
-            self.set_status(STATE_BJOBS_FAILED, True)
+            self.setStatus(STATE_BJOBS_FAILED, True)
         elif len(self.runningJobs) == 0:
-            self.set_status(STATE_BJOBS_DONE)
+            self.setStatus(STATE_BJOBS_DONE)
             print("All condor jobs of APE measurement {} in iteration {} are done".format(self.name, self.curIteration))
             
             # remove files
@@ -317,8 +316,8 @@ class ApeMeasurement:
                     os.remove(logFile)
     
     # merges files from jobs
-    def do_merge(self):
-        self.set_status(STATE_MERGE_WAITING)
+    def mergeFiles(self):
+        self.setStatus(STATE_MERGE_WAITING)
         if self.alignment.isDesign:
             folderName = '{}/hists/{}/baseline'.format(base, self.name)
         else:
@@ -343,13 +342,13 @@ class ApeMeasurement:
             os.remove(name)
             
         if rootFileValid("{}/allData.root".format(folderName)) and merge_result == 0:
-            self.set_status(STATE_MERGE_DONE)
+            self.setStatus(STATE_MERGE_DONE)
         else:
-            self.set_status(STATE_MERGE_FAILED, True)
+            self.setStatus(STATE_MERGE_FAILED, True)
     
     # calculates APE
-    def do_summary(self):
-        self.status = STATE_SUMMARY_WAITING        
+    def calculateApe(self):
+        self.status_ = STATE_SUMMARY_WAITING        
         from autoSubmitterTemplates import summaryTemplate
         if self.alignment.isDesign:
             #use measurement name as baseline folder name in this case
@@ -359,29 +358,29 @@ class ApeMeasurement:
         
         summary_result = subprocess.call(summaryTemplate.format(inputCommands=inputCommands), shell=True) # returns exit code (0 if no error occured)
         if summary_result == 0:
-            self.set_status(STATE_SUMMARY_DONE)
+            self.setStatus(STATE_SUMMARY_DONE)
         else:
-            self.set_status(STATE_SUMMARY_FAILED, True)
+            self.setStatus(STATE_SUMMARY_FAILED, True)
     
     # saves APE to .db file so it can be read out next iteration
-    def do_local_setting(self):
-        self.set_status(STATE_LOCAL_WAITING)      
+    def writeApeToDb(self):
+        self.setStatus(STATE_LOCAL_WAITING)      
         from autoSubmitterTemplates import localSettingTemplate
         inputCommands = "iterNumber={} setBaseline={} measurementName={}".format(self.curIteration,self.alignment.isDesign,self.name)
 
         local_setting_result = subprocess.call(localSettingTemplate.format(inputCommands=inputCommands), shell=True) # returns exit code (0 if no error occured)
         if local_setting_result == 0:
-            self.set_status(STATE_LOCAL_DONE)
+            self.setStatus(STATE_LOCAL_DONE)
         else:
-            self.set_status(STATE_LOCAL_FAILED, True)
+            self.setStatus(STATE_LOCAL_FAILED, True)
         
-    def finish_iteration(self):
+    def finishIteration(self):
         print("APE Measurement {} just finished iteration {}".format(self.name, self.curIteration))
         if self.curIteration < self.maxIterations:
             self.curIteration += 1
-            self.set_status(STATE_ITERATION_START)
+            self.setStatus(STATE_ITERATION_START)
         else:
-            self.set_status(STATE_FINISHED, True)
+            self.setStatus(STATE_FINISHED, True)
             print("APE Measurement {}, which was started at {} was finished after {} iterations, at {}".format(self.name, self.startTime, self.curIteration, self.finishTime))
             
     def kill(self):
@@ -389,7 +388,7 @@ class ApeMeasurement:
         for log, err, jobId in self.runningJobs:
             subprocess.call(killJobTemplate.format(jobId=jobId), shell=True)
         self.runningJobs = []
-        self.set_status(STATE_NONE)
+        self.setStatus(STATE_NONE)
         
     def purge(self):
         self.kill()
@@ -397,17 +396,17 @@ class ApeMeasurement:
         shutil.rmtree(folderName)
         # remove log-files as well?
         
-    def run_iteration(self):
+    def runIteration(self):
         global threadcounter
         global measurements
         threadcounter.acquire()
         try:
-            if self.status == STATE_ITERATION_START:
+            if self.status_ == STATE_ITERATION_START:
                 # start bjobs
                 print("APE Measurement {} just started iteration {}".format(self.name, self.curIteration))
 
                 try:
-                    self.submit_jobs()
+                    self.submitJobs()
                     save("measurements", measurements)
                 except Exception as e:
                     # this is needed in case the scheduler goes down
@@ -415,51 +414,51 @@ class ApeMeasurement:
                     print(e)
                     return
                     
-            if self.status == STATE_BJOBS_WAITING:
+            if self.status_ == STATE_BJOBS_WAITING:
                 # check if bjobs are finished
-                self.check_jobs()
+                self.checkJobs()
                 save("measurements", measurements)
-            if self.status == STATE_BJOBS_DONE:
+            if self.status_ == STATE_BJOBS_DONE:
                 # merge files
-                self.do_merge()
+                self.mergeFiles()
                 save("measurements", measurements)
-            if self.status == STATE_MERGE_DONE:
+            if self.status_ == STATE_MERGE_DONE:
                 # start summary
-                self.do_summary()
+                self.calculateApe()
                 save("measurements", measurements)
-            if self.status == STATE_SUMMARY_DONE:
+            if self.status_ == STATE_SUMMARY_DONE:
                 # start local setting (only if not a baseline measurement)
                 if self.alignment.isDesign:
-                    self.set_status(STATE_LOCAL_DONE)
+                    self.setStatus(STATE_LOCAL_DONE)
                 else:
-                    self.do_local_setting()
+                    self.writeApeToDb()
                 save("measurements", measurements)
-            if self.status == STATE_LOCAL_DONE:
-                self.finish_iteration()
+            if self.status_ == STATE_LOCAL_DONE:
+                self.finishIteration()
                 save("measurements", measurements)
                 # go to next iteration or finish measurement
-            if self.status == STATE_BJOBS_FAILED or \
-                self.status == STATE_MERGE_FAILED or \
-                self.status == STATE_SUMMARY_FAILED or \
-                self.status == STATE_LOCAL_FAILED or \
-                self.status == STATE_INVALID_CONDITIONS or \
-                self.status == STATE_FINISHED:
+            if self.status_ == STATE_BJOBS_FAILED or \
+                self.status_ == STATE_MERGE_FAILED or \
+                self.status_ == STATE_SUMMARY_FAILED or \
+                self.status_ == STATE_LOCAL_FAILED or \
+                self.status_ == STATE_INVALID_CONDITIONS or \
+                self.status_ == STATE_FINISHED:
                     with open(history_file, "a") as fi:
-                        fi.write("APE measurement {name} which was started at {start} finished at {end} with state {state} in iteration {iteration}\n".format(name=self.name, start=self.startTime, end=self.finishTime, state=self.get_status(), iteration=self.curIteration))
-                    if self.status == STATE_FINISHED:
+                        fi.write("APE measurement {name} which was started at {start} finished at {end} with state {state} in iteration {iteration}\n".format(name=self.name, start=self.startTime, end=self.finishTime, state=self.status(), iteration=self.curIteration))
+                    if self.status_ == STATE_FINISHED:
                         global finished_measurements
                         finished_measurements[self.name] = self
                         save("finished", finished_measurements)
                     else:
                         global failed_measurements
                         failed_measurements[self.name] = self
-                        self.set_status(STATE_NONE)
+                        self.setStatus(STATE_NONE)
                         save("failed", failed_measurements)
                     save("measurements", measurements)
-            if self.status == STATE_ITERATION_START: # this ensures that jobs do not go into idle if many measurements are done simultaneously
+            if self.status_ == STATE_ITERATION_START: # this ensures that jobs do not go into idle if many measurements are done simultaneously
                 # start bjobs
                 print("APE Measurement {} just started iteration {}".format(self.name, self.curIteration))
-                self.submit_jobs()
+                self.submitJobs()
                 save("measurements", measurements)   
         finally:
             threadcounter.release()
@@ -532,7 +531,7 @@ def main():
                 
                 for res in resumed:
                     measurements.append(res)
-                    print("Measurement {} in state {} in iteration {} was resumed".format(res.name, res.get_status(), res.curIteration))
+                    print("Measurement {} in state {} in iteration {} was resumed".format(res.name, res.status(), res.curIteration))
                     # Killing and purging is done here, because it doesn't make 
                     # sense to kill or purge a measurement that was just started
                     for to_kill in args.kill:
@@ -566,20 +565,20 @@ def main():
             
             measurement = ApeMeasurement(name, config, settings)
             
-            if measurement.status >= STATE_ITERATION_START and measurement.status <= STATE_FINISHED:
+            if measurement.status_ >= STATE_ITERATION_START and measurement.status_ <= STATE_FINISHED:
                 measurements.append(measurement)
                 print("APE Measurement {} was started".format(measurement.name))
     
     while True:
         # remove finished and failed measurements
-        measurements = [measurement for measurement in measurements if not (measurement.status==STATE_NONE or measurement.status == STATE_FINISHED)]
+        measurements = [measurement for measurement in measurements if not (measurement.status_==STATE_NONE or measurement.status_ == STATE_FINISHED)]
         save("measurements", measurements)
         save("failed", failed_measurements)
         save("finished", finished_measurements)
         
         list_threads = []
         for measurement in measurements:
-            t = threading.Thread(target=measurement.run_iteration)
+            t = threading.Thread(target=measurement.runIteration)
             list_threads.append(t)
             t.start()
         
