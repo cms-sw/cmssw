@@ -46,7 +46,19 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   gsfElectronCalibEnergyErrSource = cms.InputTag(""),
   gsfElectronCalibEcalEnergySource = cms.InputTag(""),
   gsfElectronCalibEcalEnergyErrSource = cms.InputTag(""),
-  hcalHitSel = interestingEgammaIsoHCALSel
+  hcalHitSel = interestingEgammaIsoHCALSel,
+  trksForSCIso = cms.InputTag("generalTracks"),
+  superClustersToSlim = cms.VInputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel",
+                                      "particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
+  scTrkIsol = cms.PSet(
+      ptMin = cms.double(0.5),
+      coneSize = cms.double(0.4),
+      zspan = cms.double(99999.),
+      rspan = cms.double(99999.),
+      vetoConeSize = cms.double(0.06),
+      stripBarrel = cms.double(0.03),
+      stripEndcap = cms.double(0.03),
+  )
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common

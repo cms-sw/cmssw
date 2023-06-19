@@ -159,5 +159,19 @@
    <class name="std::vector<reco::SuperClusterRef>" />
    <class name="edm::ValueMap<reco::SuperClusterRef>" />
    <class name="edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> >" />
+   
+   <class name="reco::SlimmedSuperCluster" ClassVersion="10">
+    <version ClassVersion="10" checksum="3805996953"/>
+   </class>
+   <class name="std::vector<reco::SlimmedSuperCluster>"/>
+   <class name="edm::Wrapper<std::vector<reco::SlimmedSuperCluster> >"/>
+   <class name="edm::Ref<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster> >"/>
+   <class name="edm::RefProd<std::vector<reco::SlimmedSuperCluster> >"/>
+   <class name="edm::RefVector<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster> >"/>
+   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster> > >"/>
+   <class name="std::vector<edm::Ref<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster> > >"/>
+   <class name="edm::Wrapper<std::vector<edm::Ref<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SlimmedSuperCluster>,reco::SlimmedSuperCluster> > > >"/>
+
+
 </lcgdict>
 
