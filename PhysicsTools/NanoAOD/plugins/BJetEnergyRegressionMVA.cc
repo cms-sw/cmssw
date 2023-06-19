@@ -25,7 +25,7 @@
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 
-#include "PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.h"
+#include "PhysicsTools/PatAlgos/interface/BaseMVAValueMapProducer.h"
 #include <vector>
 
 class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {

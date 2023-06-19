@@ -2,7 +2,6 @@
 </export>
 <library   name="PhysicsToolsPatAlgos_plugins" file="*.cc">
   <use   name="PhysicsTools/PatAlgos"/>
-  <use   name="PhysicsTools/TensorFlow"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>
