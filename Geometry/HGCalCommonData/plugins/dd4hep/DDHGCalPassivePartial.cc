@@ -16,7 +16,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace angle_units::operators;
 
 struct HGCalPassivePartial {
@@ -38,7 +38,7 @@ struct HGCalPassivePartial {
 #endif
     std::vector<std::string> tags = args.value<std::vector<std::string>>("Tags");
     std::vector<int> partialTypes = args.value<std::vector<int>>("PartialTypes");
-    std::vector<int> placementIndex = args.value<std::vector<int>>("{lacementIndex");
+    std::vector<int> placementIndex = args.value<std::vector<int>>("PlacementIndex");
     std::vector<std::string> placementIndexTags = args.value<std::vector<std::string>>("PlacementIndexTags");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalPassivePartial: " << tags.size() << " variations of wafer types";
