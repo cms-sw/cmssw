@@ -119,8 +119,8 @@ namespace CaloL1Information {
     dqm::reco::MonitorElement *hcalOccFg1Discrepancy_;
     dqm::reco::MonitorElement *hcalOccFg2Discrepancy_;
     dqm::reco::MonitorElement *hcalOccFg3Discrepancy_;
-    dqm::reco::MonitorElement *hcalOccFg4Discrepancy_;
-    dqm::reco::MonitorElement *hcalOccFg5Discrepancy_;
+    //dqm::reco::MonitorElement *hcalOccFg4Discrepancy_;
+    //dqm::reco::MonitorElement *hcalOccFg5Discrepancy_;
     dqm::reco::MonitorElement *hcalOccRecdFg0_;
     dqm::reco::MonitorElement *hcalOccRecdFg1_;
     dqm::reco::MonitorElement *hcalOccRecdFg2_;
@@ -177,6 +177,8 @@ namespace CaloL1Information {
     dqm::reco::MonitorElement *ecalOccRecdBx3_;
     dqm::reco::MonitorElement *ecalOccRecdBx4_;
     dqm::reco::MonitorElement *ecalOccRecdBx5_;
+
+    dqm::reco::MonitorElement *slot7bit_;
 
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>> runMismatchList;
   };
