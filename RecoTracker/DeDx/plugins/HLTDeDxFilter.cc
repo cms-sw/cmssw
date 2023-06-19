@@ -114,7 +114,6 @@ bool HLTDeDxFilter::hltFilter(edm::Event& iEvent,
     iEvent.getByToken(caloTowersToken_, caloTowersHandle);
 
   bool accept = false;
-  int NTracks = 0;
 
   // early return
   if (trackCollection.empty())
@@ -131,7 +130,6 @@ bool HLTDeDxFilter::hltFilter(edm::Event& iEvent,
     reco::TrackRef track = reco::TrackRef(trackCollectionHandle, i);
     if (pt[i] > minPT_ && fabs(eta[i]) < maxETA_ && dEdxTrack[track].numberOfMeasurements() > minNOM_ &&
         dEdxTrack[track].dEdx() > minDEDx_) {
-      NTracks++;
       if (track->numberOfValidHits() < minNumValidHits_)
         continue;
       if (track->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) > maxNHitMissIn_)
@@ -194,10 +192,9 @@ bool HLTDeDxFilter::hltFilter(edm::Event& iEvent,
 
   // put filter object into the Event
   if (saveTags()) {
-    edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle =
-        iEvent.put(std::move(chargedCandidates));
-    for (int i = 0; i < NTracks; i++) {
-      filterproduct.addObject(TriggerMuon, RecoChargedCandidateRef(chargedCandidatesHandle, i));
+    auto const chargedCandidatesHandle = iEvent.put(std::move(chargedCandidates));
+    for (unsigned int i = 0; i < chargedCandidatesHandle->size(); ++i) {
+      filterproduct.addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(chargedCandidatesHandle, i));
     }
   }
 
