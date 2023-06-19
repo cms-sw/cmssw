@@ -144,8 +144,7 @@ class ApeMeasurement:
         
         # see if sanity checks passed
         if not self.alignment.validConditions or not self.dataset.validConditions or not self.dataset.existingFiles or not self.validConditions:
-            self.set_status(STATE_INVALID_CONDITIONS)
-            self.finishTime = subprocess.check_output(["date"]).decode().strip()
+            self.set_status(STATE_INVALID_CONDITIONS, True)
             return
             
         if self.alignment.isDesign and self.dataset.sampleType != "MC":
