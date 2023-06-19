@@ -704,7 +704,7 @@ void CaloSD::update(const EndOfTrack* trk) {
     auto trksForThisEvent = m_trackManager->trackContainer();
     if (!trksForThisEvent->empty()) {
       TrackWithHistory* trkH = trksForThisEvent->back();
-      if (trkH->trackID() == (unsigned int)(id)) {
+      if (trkH->trackID() == id) {
         tkMap[id] = trkH;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "

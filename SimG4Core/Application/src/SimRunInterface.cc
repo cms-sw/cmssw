@@ -15,11 +15,9 @@ SimRunInterface::SimRunInterface(RunManagerMT* runm, bool master)
 SimRunInterface::SimRunInterface(RunManagerMTWorker* runm, bool master)
     : m_runManagerMT(nullptr), m_runManagerMTWorker(runm), m_SimTrackManager(nullptr), m_isMaster(master) {
   if (m_runManagerMTWorker) {
-    m_SimTrackManager = m_runManagerMTWorker->GetSimTrackManager();
+    m_SimTrackManager = m_runManagerMTWorker->getSimTrackManager();
   }
 }
-
-SimRunInterface::~SimRunInterface() {}
 
 void SimRunInterface::setRunManagerMTWorker(RunManagerMTWorker* run) { m_runManagerMTWorker = run; }
 
