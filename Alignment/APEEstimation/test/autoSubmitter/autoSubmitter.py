@@ -32,7 +32,7 @@ class Dataset:
     def __init__(self, config, name):
         dsDict = dict(config.items("dataset:{}".format(name)))
         self.name = name
-        self.baseDirectory = dsDict["baseDirectory"]
+        self.baseDirectory = dsDict["baseDirectory"].replace("$CMSSW_BASE", os.environ['CMSSW_BASE'])
         
         self.fileList = []
         names = dsDict["fileNames"].split(" ")
@@ -54,7 +54,7 @@ class Dataset:
         if "isCosmics" in dsDict:
             self.isCosmics = (dsDict["isCosmics"] == "True")
         
-        self.conditions, dummy, self.validConditions = loadConditions(dsDict)      
+        self.conditions, self.validConditions = loadConditions(dsDict)      
         
         # check if any of the sources used for conditions is invalid
         if not self.validConditions:
@@ -72,9 +72,6 @@ class Alignment:
         alDict = dict(config.items("alignment:{}".format(name)))
         self.name = name
         
-        alignmentName = None
-        if "alignmentName" in alDict:
-            self.alignmentName = alDict["alignmentName"]
         self.globalTag = "None"
         if "globalTag" in alDict:
             self.globalTag = alDict["globalTag"]
@@ -85,18 +82,12 @@ class Alignment:
         if "isDesign" in alDict:
             self.isDesign= (alDict["isDesign"] == "True")
         
-        # If self.hasAlignmentCondition is true, no other Alignment-Object is loaded in apeEstimator_cfg.py using the alignmentName
-        self.conditions, self.hasAlignmentCondition, self.validConditions = loadConditions(alDict) 
+        # If self.hasAlignmentCondition is true, no other Alignment-Object is loaded in apeEstimator_cfg.py using the 
+        self.conditions, self.validConditions = loadConditions(alDict) 
         
         # check if any of the sources used for conditions is invalid
         if not self.validConditions:
             print("Invalid conditions defined for alignment {}".format(self.name))
-        
-        # check if at least one of the two ways to define the alignment was used
-        # for baseline (Design) measurements, this is not needed, as we usually take conditions from GT
-        if self.alignmentName == None and not self.hasAlignmentCondition and not self.isDesign:
-            print("Error: No alignment object name or record was defined for alignment {}".format(self.name))
-            sys.exit()
         
 
 class ApeMeasurement:
@@ -139,7 +130,7 @@ class ApeMeasurement:
         if self.alignment.isDesign:
             self.maxIterations = 0
         
-        self.conditions, dummy, self.validConditions = loadConditions(settings) 
+        self.conditions, self.validConditions = loadConditions(settings) 
         
         # see if sanity checks passed
         if not self.alignment.validConditions or not self.dataset.validConditions or not self.dataset.existingFiles or not self.validConditions:
@@ -188,9 +179,7 @@ class ApeMeasurement:
                 for condition in allConditions:
                     fi.write(conditionsTemplate.format(record=condition["record"], connect=condition["connect"], tag=condition["tag"]))
                 
-        alignmentNameToUse = self.alignment.alignmentName
-        if self.alignment.hasAlignmentCondition:
-                alignmentNameToUse = "fromConditions"
+        alignmentNameToUse = "fromConditions"
         
         lastIter = (self.curIteration==self.maxIterations) and not self.alignment.isDesign
         
@@ -437,6 +426,7 @@ class ApeMeasurement:
                 self.finishIteration()
                 save("measurements", measurements)
                 # go to next iteration or finish measurement
+            
             if self.status_ == STATE_BJOBS_FAILED or \
                 self.status_ == STATE_MERGE_FAILED or \
                 self.status_ == STATE_SUMMARY_FAILED or \
@@ -452,6 +442,7 @@ class ApeMeasurement:
                     else:
                         global failed_measurements
                         failed_measurements[self.name] = self
+                        
                         self.setStatus(STATE_NONE)
                         save("failed", failed_measurements)
                     save("measurements", measurements)
@@ -479,6 +470,8 @@ def main():
                           help='Number of threads running in parallel')
     parser.add_argument("-C", "--caf",action="store_true", dest="caf", default=False,
                                               help="Use CAF queue for condor jobs")
+    parser.add_argument("-u", "--unitTest", action="store_true", dest="unitTest", default=False,
+                          help='If this is used, as soon as a measurement fails, the program will exit and as exit code the status of the measurement, i.e., where it failed')
     args = parser.parse_args()
     
     global base
@@ -489,7 +482,7 @@ def main():
     global use_caf
     
     use_caf = args.caf
-    enableCAF(use_caf)
+    unitTest = args.unitTest
     
     threadcounter = threading.BoundedSemaphore(args.ncores)
     lock = threading.Lock()
@@ -565,9 +558,17 @@ def main():
             
             measurement = ApeMeasurement(name, config, settings)
             
-            if measurement.status_ >= STATE_ITERATION_START and measurement.status_ <= STATE_FINISHED:
+            if measurement.status_ >= STATE_ITERATION_START:
                 measurements.append(measurement)
                 print("APE Measurement {} was started".format(measurement.name))
+    
+    if unitTest:
+            # status is 0 if successful, 101 if wrongly configured
+            sys.exit(measurement.status_)
+    
+    initializeModuleLoading()
+    enableCAF(use_caf)
+    
     
     while True:
         # remove finished and failed measurements
@@ -603,6 +604,6 @@ def main():
             sys.stdout.write("\033[K")
         except KeyboardInterrupt:
             sys.exit(0)
-        
+
 if __name__ == "__main__":
     main()
