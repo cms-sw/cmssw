@@ -119,6 +119,8 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& iS
        iSubDet++) {
     iSubDet->second.totNClustersOnTrack = 0;
     iSubDet->second.totNClustersOffTrack = 0;
+    iSubDet->second.totNClustersOnTrackMono = 0;
+    iSubDet->second.totNClustersOnTrackStereo = 0;
   }
 
   trackerTopology_ = &iSetup.getData(trackerTopologyEventToken_);
