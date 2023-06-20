@@ -27,6 +27,11 @@ namespace l1t {
         _hit.set_slope(_ME.Slope());
         _hit.set_pattern_run3(_ME.Run3_pattern());
 
+        // Run 3 muon shower
+        _hit.set_muon_shower_inTime(_ME.MUS_inTime());
+        _hit.set_muon_shower_outOfTime(_ME.MUS_outOfTime());
+        _hit.set_muon_shower_valid(_ME.MUSV());
+
         _hit.set_ring(L1TMuonEndCap::calc_ring(_hit.Station(), _hit.CSC_ID(), _hit.Strip()));
         _hit.set_chamber(
             L1TMuonEndCap::calc_chamber(_hit.Station(), _hit.Sector(), _hit.Subsector(), _hit.Ring(), _hit.CSC_ID()));
