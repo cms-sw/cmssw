@@ -36,6 +36,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -78,6 +79,8 @@ private:
   void doPFMet(edm::Handle<reco::PFMETCollection> pfMet);
   void doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet, edm::Handle<reco::MuonCollection>);
   void doPUPPIMetNoMu(edm::Handle<reco::PFMETCollection> puppiMet, edm::Handle<reco::MuonCollection>);
+
+  void doZPt(edm::Handle<reco::MuonCollection>);
 
   bool pfJetID(const reco::PFJet& jet);
   bool puppiJetID(const pat::Jet& jet);
@@ -372,6 +375,16 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
     caloMetBEMissing_ = true;
   }
 
+  if (muons.isValid()) {
+    doZPt(muons);
+
+  } else {
+    if (!muonsMissing_) {
+      edm::LogWarning("MissingProduct") << "Muons not found.  ZPt branch will not be filled" << std::endl;
+    }
+    muonsMissing_ = true;
+  }
+
   tree_->Fill();
 }
 
@@ -648,6 +661,50 @@ void L1JetRecoTreeProducer::doCaloMetBE(edm::Handle<reco::CaloMETCollection> cal
   met_data->caloMetBE = theMet.et();
   met_data->caloMetPhiBE = theMet.phi();
   met_data->caloSumEtBE = theMet.sumEt();
+}
+
+void L1JetRecoTreeProducer::doZPt(edm::Handle<reco::MuonCollection> muons) {
+  if (muons->size() < 2) {
+    met_data->zPt = -999;
+    return;
+  }
+
+  reco::Muon muon1;
+  reco::Muon muon2;
+
+  float zMass = 91.2;
+  float diMuMass = 0;
+  float closestDiff = 999.;
+  bool found2PFMuons = false;
+
+  for (auto it1 = muons->begin(); it1 != muons->end(); ++it1) {
+    if (!it1->isPFMuon())
+      continue;
+    for (auto it2 = muons->begin(); it2 != muons->end(); ++it2) {
+      if (!it2->isPFMuon())
+        continue;
+      if (it1->charge() != (-1*it2->charge()))
+	continue;
+
+      found2PFMuons = true;
+      diMuMass = (it1->p4() + it2->p4()).M();
+      float diff = abs(diMuMass - zMass);
+      if (diff < closestDiff) {
+        closestDiff = diff;
+        muon1 = *it1;
+        muon2 = *it2;
+      }
+    }
+  }
+
+  diMuMass = (muon1.p4() + muon2.p4()).M();
+  if (abs(diMuMass - zMass) > 30 || !found2PFMuons) {
+    met_data->zPt = -999;
+    return;
+  }
+
+  float zPt = (muon1.p4() + muon2.p4()).pt();
+  met_data->zPt = zPt;
 }
 
 bool L1JetRecoTreeProducer::pfJetID(const reco::PFJet& jet) {
