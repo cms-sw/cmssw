@@ -42,7 +42,7 @@ options.register('dataset',
                  "Dataset name like '/ExpressCosmics/Commissioning2021-Express-v1/FEVT'")
 
 options.register('maxLumi',
-                 20,
+                 19,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Only lumisections up to maxLumi are processed.")
@@ -60,7 +60,7 @@ options.register('lumiPattern',
                  "Only lumisections with numbers matching lumiPattern are processed.")
 
 options.register('eventsPerLumi',
-                 100,
+                 1000,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "This number of last events in each lumisection will be processed.")
