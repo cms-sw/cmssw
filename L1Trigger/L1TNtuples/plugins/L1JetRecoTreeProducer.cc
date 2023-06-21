@@ -680,7 +680,7 @@ void L1JetRecoTreeProducer::doZPt(edm::Handle<reco::MuonCollection> muons) {
   for (auto it1 = muons->begin(); it1 != muons->end(); ++it1) {
     if (!it1->isPFMuon())
       continue;
-    for (auto it2 = muons->begin(); it2 != muons->end(); ++it2) {
+    for (auto it2 = std::next(it1); it2 != muons->end(); ++it2) {
       if (!it2->isPFMuon())
         continue;
       if (it1->charge() != (-1 * it2->charge()))
