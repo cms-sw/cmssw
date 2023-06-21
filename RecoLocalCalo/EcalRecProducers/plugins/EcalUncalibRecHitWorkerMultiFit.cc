@@ -745,7 +745,7 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("addPedestalUncertaintyEB", 0., true) and
               edm::ParameterDescription<double>("addPedestalUncertaintyEE", 0., true) and
               edm::ParameterDescription<bool>("simplifiedNoiseModelForGainSwitch", true, true) and
-              edm::ParameterDescription<std::string>("timealgo", "RatioMethod", true) and
+              edm::ParameterDescription<std::string>("timealgo", "crossCorrelationMethod", true) and
               edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters",
                                                              {-2.015452e+00,
                                                               3.130702e+00,
@@ -776,21 +776,21 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("EEtimeConstantTerm", 1.0, true) and
               edm::ParameterDescription<double>("EBtimeNconst", 28.5, true) and
               edm::ParameterDescription<double>("EEtimeNconst", 31.8, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 5, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 5, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 2.5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 2.5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 2.5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 2.5, true) and
               edm::ParameterDescription<double>("outOfTimeThresholdGain12pEE", 1000, true) and
               edm::ParameterDescription<double>("outOfTimeThresholdGain12mEE", 1000, true) and
               edm::ParameterDescription<double>("outOfTimeThresholdGain61pEE", 1000, true) and
               edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
-              edm::ParameterDescription<double>("crossCorrelationStartTime", -15.0, true) and
+              edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
               edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
               edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
               edm::ParameterDescription<double>("crossCorrelationTargetTimePrecisionForDelayedPulses", 0.05, true) and
-              edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 1., true) and
+              edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 0., true) and
               edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMin", 2., true) and
               edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMax", 5., true));
 
