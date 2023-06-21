@@ -48,9 +48,9 @@ private:
   double fTauSize_;
   int fMaxTaus_;
   int fNParticles_;
-  bool fHW;
-  bool fEMSeed;
-  bool fDebug;
+  const bool fHW;
+  const bool fEMSeed;
+  const bool fDebug;
   edm::EDGetTokenT<vector<l1t::PFCandidate>> fL1PFToken_;
 };
 

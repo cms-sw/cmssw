@@ -82,7 +82,7 @@ namespace l1t {
     l1gt::Tau getHWTauGT() const { return l1gt::Tau::unpack(encodedTau_); }
 
   private:
-    float NNValues_[80];
+    float NNValues_[80];  // Values for each of the 80 NN inputs
     float iso_;
     float fullIso_;
     int id_;
