@@ -27,7 +27,6 @@
 #include "TGraph.h"
 #include "TPaletteAxis.h"
 
-
 /**********************************************************
 Allocate all the modules in a map of TmModule
 The filling of the values for each module is done later
@@ -694,23 +693,24 @@ void TrackerMap::drawModule(TmModule *mod, int key, int mlay, bool print_total, 
 
   //Get value and name for TH2Poly bin
   float vals = mod->value;
-  if (std::isnan(vals)) vals = 0; //Avoid nan values
+  if (std::isnan(vals))
+    vals = 0;  //Avoid nan values
   std::string nams = mod->name;
 
   //Format TH2Poly bin name = short_name_(detId)_FED
   //Original name = TOB- Layer 5 Rod 61 Module 6 r-phi (436295608) connected to 0 413/48 1 413/49 2 413/50 (3)^C
   //Bin name = TOB-_L_5_R_61_M_6_(436295608)_413
   nams.erase(std::remove_if(nams.begin(), nams.end(), [](char c) { return std::islower(c); }), nams.end());
-  size_t found = nams.find("/");
+  size_t found = nams.find('/');
   if (found != std::string::npos) {
     nams.erase(found, nams.length() - found);
   } else {
-    found = nams.find(")");
-    nams.erase(found+1, nams.length() - found);
+    found = nams.find(')');
+    nams.erase(found + 1, nams.length() - found);
   }
   found = nams.find(")   ");
   while (found != std::string::npos) {
-    nams.erase(found+1, 4);
+    nams.erase(found + 1, 4);
     found = nams.find(")   ", found);
   }
   found = nams.find(" -");
@@ -728,7 +728,8 @@ void TrackerMap::drawModule(TmModule *mod, int key, int mlay, bool print_total, 
     nams.erase(found, 1);
     found = nams.find("  ", found);
   }
-  std::replace_if(nams.begin(), nams.end(), [](char c) { return c == ' '; }, '_');
+  std::replace_if(
+      nams.begin(), nams.end(), [](char c) { return c == ' '; }, '_');
 
   if (mod->red < 0) {  //use count to compute color
     int color = getcolor(mod->value, palette);
@@ -741,7 +742,7 @@ void TrackerMap::drawModule(TmModule *mod, int key, int mlay, bool print_total, 
 
     if (mod->count > 0)
       if (temporary_file)
-	//Add TH2Poly bin name and value to temporary .coor file
+        //Add TH2Poly bin name and value to temporary .coor file
         *svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
       else
         *svgfile
@@ -922,7 +923,7 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
           int key = layer * 100000 + ring * 1000 + module;
           TmModule *mod = smoduleMap[key];
           if (mod != nullptr && !mod->notInUse()) {
-	     drawModule(mod, key, layer, print_total, savefile);
+            drawModule(mod, key, layer, print_total, savefile);
           }
         }
       }
@@ -988,7 +989,7 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
         colindex = red + green * 1000 + blue * 1000000;
         pos = colorList.find(colindex);
         if (pos == colorList.end()) {
-	  colorList[colindex] = ncolor + 100;
+          colorList[colindex] = ncolor + 100;
           col = gROOT->GetColor(ncolor + 100);
           if (col)
             col->SetRGB((Double_t)(red / 255.), (Double_t)(green / 255.), (Double_t)(blue / 255.));
@@ -997,13 +998,13 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
           vc.push_back(c);
           ncolor++;
         }
-	for (int i = 0; i < npoints; i++) {
+        for (int i = 0; i < npoints; i++) {
           tempfile >> x[i] >> y[i];
         }
       }
 
       if (ncolor > 0 && ncolor < 10000) {
-	Int_t colors[10000];
+        Int_t colors[10000];
         for (int i = 0; i < ncolor; i++) {
           colors[i] = i + 100;
         }
@@ -1016,18 +1017,18 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
 
       //TH2Poly Tracker Map for Strip
       TH2Poly *StripMap = new TH2Poly("StripSummary", "", 775, 3600, 0, 1350);
-      StripMap->SetFloat(1);
+      StripMap->SetFloat(true);
       StripMap->GetXaxis()->SetTitle("");
       StripMap->GetYaxis()->SetTitle("");
-      StripMap->SetStats(0);
-      int siterator =0;
+      StripMap->SetStats(false);
+      int siterator = 0;
 
       while (!tempfile.eof()) {  //create polylines
         siterator++;
-	//Get TH2Poly bin name and content from temporary .coor file
+        //Get TH2Poly bin name and content from temporary .coor file
         tempfile >> named >> content >> red >> green >> blue >> npoints;
 
-	for (int i = 0; i < npoints; i++) {
+        for (int i = 0; i < npoints; i++) {
           tempfile >> x[i] >> y[i];
         }
         colindex = red + green * 1000 + blue * 1000000;
@@ -1038,14 +1039,15 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
           pline->SetFillColor(colorList[colindex]);
 
           TGraph *bin = new TGraph(npoints, y, x);
-	  //Fill only 15145 TH2Poly bins (Strip only), instead of 16588 bins (Pixel+Strip, old)
-	  if ( (siterator >= 1 && siterator <= 3608) || (siterator >= 4281 && siterator <= 7888) || (siterator >= 8657 && siterator <= 16588)){
-	    bin->SetName(named.c_str());
-	    StripMap->AddBin(bin);
-	    StripMap->Fill(named.c_str(), content);
-	  }
+          //Fill only 15145 TH2Poly bins (Strip only), instead of 16588 bins (Pixel+Strip, old)
+          if ((siterator >= 1 && siterator <= 3608) || (siterator >= 4281 && siterator <= 7888) ||
+              (siterator >= 8657 && siterator <= 16588)) {
+            bin->SetName(named.c_str());
+            StripMap->AddBin(bin);
+            StripMap->Fill(named.c_str(), content);
+          }
 
-	  pline->SetLineWidth(0);
+          pline->SetLineWidth(0);
           pline->Draw("f");
         }
       }
@@ -1176,7 +1178,7 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
 
       //Rainbow palette, fix pad margin and palette position
       gStyle->SetPalette(kRainBow);
-      TPaletteAxis *realPalette = (TPaletteAxis*)StripMap->GetListOfFunctions()->FindObject("palette");
+      TPaletteAxis *realPalette = (TPaletteAxis *)StripMap->GetListOfFunctions()->FindObject("palette");
       realPalette->SetX1NDC(0.92);
       realPalette->SetX2NDC(0.94);
       realPalette->SetY1NDC(0.02);
@@ -1191,8 +1193,10 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
       TLatex l2;
       l2.SetTextSize(0.06);
       std::string runnumber;
-      for (char c : title) if (std::isdigit(c)) runnumber.push_back(c);
-      std::string striptitle = "Run "+runnumber+": Strip "+outputfilename;
+      for (char c : title)
+        if (std::isdigit(c))
+          runnumber.push_back(c);
+      std::string striptitle = "Run " + runnumber + ": Strip " + outputfilename;
       l2.DrawLatex(800, 1380, striptitle.c_str());
       l2.SetTextSize(0.05);
       l2.DrawLatex(1200, 40, "-z");
@@ -1279,8 +1283,8 @@ void TrackerMap::drawApvPair(
   if (useApvPairValue) {
     if (apvPair->red < 0) {  //use count to compute color
       if (apvPair->count > 0) {
-	float vals = apvPair->value;
-	std::string nams = "nams_apv";
+        float vals = apvPair->value;
+        std::string nams = "nams_apv";
 
         color = getcolor(apvPair->value, palette);
         red = (color >> 16) & 0xFF;
@@ -1301,7 +1305,7 @@ void TrackerMap::drawApvPair(
               << " \" fill=\"rgb(" << red << "," << green << "," << blue << ")\" points=\"";
       } else {
         if (temporary_file)
-	  *svgfile << 0 << " " << 0 << " " << 255 << " " << 255 << " " << 255 << " ";
+          *svgfile << 0 << " " << 0 << " " << 255 << " " << 255 << " " << 255 << " ";
         else
           *svgfile
               << "<svg:polygon detid=\"" << apvPair->idex << "\" count=\"" << apvPair->count << "\" value=\""
@@ -1334,15 +1338,15 @@ void TrackerMap::drawApvPair(
   } else {
     if (apvPair->mod->red < 0) {  //use count to compute color
       if (apvPair->mod->count > 0) {
-	float vals = apvPair->mod->value;
-	std::string nams = "nams_apv2";
+        float vals = apvPair->mod->value;
+        std::string nams = "nams_apv2";
 
         color = getcolor(apvPair->mod->value, palette);
         red = (color >> 16) & 0xFF;
         green = (color >> 8) & 0xFF;
         blue = (color)&0xFF;
         if (temporary_file)
-	  *svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
+          *svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
         else
           *svgfile
               << "<svg:polygon detid=\"" << apvPair->idex << "\" count=\"" << apvPair->count << "\" value=\""
@@ -1354,7 +1358,7 @@ void TrackerMap::drawApvPair(
               << " \" fill=\"rgb(" << red << "," << green << "," << blue << ")\" points=\"";
       } else {
         if (temporary_file)
-	  *svgfile << 0 << " " << 0 << " " << 255 << " " << 255 << " " << 255 << " ";
+          *svgfile << 0 << " " << 0 << " " << 255 << " " << 255 << " " << 255 << " ";
         else
           *svgfile
               << "<svg:polygon detid=\"" << apvPair->idex << "\" count=\"" << apvPair->count << "\" value=\""
@@ -1373,7 +1377,8 @@ void TrackerMap::drawApvPair(
       if (apvPair->mod->blue > 255)
         apvPair->mod->blue = 255;
       if (temporary_file)
-	*svgfile << 0 << " " << 0 << " " << apvPair->mod->red << " " << apvPair->mod->green << " " << apvPair->mod->blue << " ";
+        *svgfile << 0 << " " << 0 << " " << apvPair->mod->red << " " << apvPair->mod->green << " " << apvPair->mod->blue
+                 << " ";
       else
         *svgfile
             << "<svg:polygon detid=\"" << apvPair->idex << "\" count=\"" << apvPair->count << "\" value=\""
@@ -1452,7 +1457,7 @@ void TrackerMap::drawCcu(
       if (!print_total)
         ccu->value = ccu->value * ccu->count;  //restore mod->value
       if (temporary_file)
-	*svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
+        *svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
       else
         *svgfile
             << "<svg:polygon detid=\"" << ccu->idex << "\" count=\"" << ccu->count << "\" value=\"" << ccu->value
@@ -1563,7 +1568,7 @@ void TrackerMap::drawPsu(
       if (!print_total)
         psu->value = psu->value * psu->count;  //restore mod->value
       if (temporary_file)
-	*svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
+        *svgfile << nams << " " << vals << " " << red << " " << green << " " << blue << " ";
       else
         *svgfile
             << "<svg:polygon detid=\"" << psu->idex << "\" count=\"" << psu->count << "\" value=\"" << psu->value
@@ -1667,7 +1672,7 @@ void TrackerMap::drawHV2(
       if (!print_total)
         psu->valueHV2 = psu->valueHV2 * psu->countHV2;  //restore mod->value
       if (temporary_file)
-	*svgfile << nams << " " << vals << " " << redHV2 << " " << greenHV2 << " " << blueHV2 << " ";
+        *svgfile << nams << " " << vals << " " << redHV2 << " " << greenHV2 << " " << blueHV2 << " ";
       else
         *svgfile
             << "<svg:polygon detid=\"" << psu->idex << "\" count=\"" << psu->countHV2 << "\" value=\"" << psu->valueHV2
@@ -1770,7 +1775,7 @@ void TrackerMap::drawHV3(
       if (!print_total)
         psu->valueHV3 = psu->valueHV3 * psu->countHV3;  //restore mod->value
       if (temporary_file)
-	*svgfile << nams << " " << vals << " " << redHV3 << " " << greenHV3 << " " << blueHV3 << " ";
+        *svgfile << nams << " " << vals << " " << redHV3 << " " << greenHV3 << " " << blueHV3 << " ";
       else
         *svgfile
             << "<svg:polygon detid=\"" << psu->idex << "\" count=\"" << psu->countHV3 << "\" value=\"" << psu->valueHV3
@@ -1781,7 +1786,7 @@ void TrackerMap::drawHV3(
             << "," << greenHV3 << "," << blueHV3 << ")\" points=\"";
     } else {
       if (temporary_file)
-	*svgfile << 0 << " " << 255 << " " << 255 << " " << 255 << " ";
+        *svgfile << 0 << " " << 255 << " " << 255 << " " << 255 << " ";
       else
         *svgfile
             << "<svg:polygon detid=\"" << psu->idex << "\" count=\"" << psu->countHV3 << "\" value=\"" << psu->valueHV3
@@ -2668,7 +2673,7 @@ void TrackerMap::save_as_psutrackermap(
           vc.push_back(c);
           ncolor++;
         }
-	for (int i = 0; i < npoints; i++) {
+        for (int i = 0; i < npoints; i++) {
           tempfile >> x[i] >> y[i];
         }
       }
@@ -3190,8 +3195,8 @@ void TrackerMap::drawPalette(std::ofstream *svgfile, int xoffset, int yoffset) {
       *svgfile << "<svg:rect  x=\"3610\" y=\"" << (1550 - 6 * i) << "\" width=\"50\" height=\"6\" fill=\"rgb(" << red
                << "," << green << "," << blue << ")\" />\n";
     else
-      *svgfile << 0 << " " << 0 << " " << red << " " << green << " " << blue << " 4 " << int(step * i) + 34 << " " << xoffset - width << ". "
-               <<                                                                   //
+      *svgfile << 0 << " " << 0 << " " << red << " " << green << " " << blue << " 4 " << int(step * i) + 34 << " "
+               << xoffset - width << ". " <<                                        //
           int(step * i) + 34 << " " << xoffset << ". " <<                           //
           int(step * (i - 1)) + 34 << " " << xoffset << ". " <<                     //
           int(step * (i - 1)) + 34 << " " << xoffset - width << ". " << std::endl;  //
@@ -4382,7 +4387,7 @@ void TrackerMap::printlayers(bool print_total, float minval, float maxval, std::
         int key = layer * 100000 + ring * 1000 + module;
         TmModule *mod = smoduleMap[key];
         if (mod != nullptr && !mod->notInUse()) {
-	  drawModule(mod, key, layer, print_total, xmlfile);
+          drawModule(mod, key, layer, print_total, xmlfile);
         }
       }
     }
