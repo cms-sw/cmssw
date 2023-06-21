@@ -683,8 +683,8 @@ void L1JetRecoTreeProducer::doZPt(edm::Handle<reco::MuonCollection> muons) {
     for (auto it2 = muons->begin(); it2 != muons->end(); ++it2) {
       if (!it2->isPFMuon())
         continue;
-      if (it1->charge() != (-1*it2->charge()))
-	continue;
+      if (it1->charge() != (-1 * it2->charge()))
+        continue;
 
       found2PFMuons = true;
       diMuMass = (it1->p4() + it2->p4()).M();
