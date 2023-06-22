@@ -219,6 +219,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                             'PostDQMOffline',
                             'dqmHarvesting'],
 
+            'standardDQMExpress': ['DQMOfflineExpress',
+                                   'PostDQMOffline',
+                                   'dqmHarvestingExpress'],
+
             'standardDQMFS': ['DQMOfflineFS',
                             'PostDQMOffline',
                             'dqmHarvesting'],

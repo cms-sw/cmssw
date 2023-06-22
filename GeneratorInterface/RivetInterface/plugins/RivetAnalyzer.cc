@@ -23,11 +23,8 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
       //decide whether to finalize the plots or not.
       //deciding not to finalize them can be useful for further harvesting of many jobs
       _doFinalize(pset.getParameter<bool>("DoFinalize")),
-      _produceDQM(pset.getParameter<bool>("ProduceDQMOutput")),
       _lheLabel(pset.getParameter<edm::InputTag>("LHECollection")),
       _xsection(-1.) {
-  usesResource("Rivet");
-
   _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
   _genLumiInfoToken = consumes<GenLumiInfoHeader, edm::InLumi>(pset.getParameter<edm::InputTag>("genLumiInfo"));
 
@@ -39,6 +36,7 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
 
   _weightCap = pset.getParameter<double>("weightCap");
   _NLOSmearing = pset.getParameter<double>("NLOSmearing");
+  _setIgnoreBeams = pset.getParameter<bool>("setIgnoreBeams");
   _skipMultiWeights = pset.getParameter<bool>("skipMultiWeights");
   _selectMultiWeights = pset.getParameter<std::string>("selectMultiWeights");
   _deselectMultiWeights = pset.getParameter<std::string>("deselectMultiWeights");
@@ -46,12 +44,6 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
 
   //set user cross section if needed
   _xsection = pset.getParameter<double>("CrossSection");
-
-  if (_produceDQM) {
-    // book stuff needed for DQM
-    dbe = nullptr;
-    dbe = edm::Service<DQMStore>().operator->();
-  }
 }
 
 RivetAnalyzer::~RivetAnalyzer() {}
@@ -99,26 +91,29 @@ void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
   }
 }
 
-void RivetAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
-  edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
-  if (iLumi.getByToken(_genLumiInfoToken, genLumiInfoHandle)) {
-    _weightNames = genLumiInfoHandle->weightNames();
-  }
-
-  // need to reset the default weight name (or plotting will fail)
-  if (!_weightNames.empty()) {
-    _weightNames[0] = "";
-  } else {  // Summer16 samples have 1 weight stored in HepMC but no weightNames
-    _weightNames.push_back("");
-  }
-}
-
-void RivetAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) { return; }
-
 void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //finalize weight names on the first event
   if (_isFirstEvent) {
+    auto genLumiInfoHandle = iEvent.getLuminosityBlock().getHandle(_genLumiInfoToken);
+    if (genLumiInfoHandle.isValid()) {
+      _weightNames = genLumiInfoHandle->weightNames();
+    }
+
+    // need to reset the default weight name (or plotting will fail)
+    if (!_weightNames.empty()) {
+      _weightNames[0] = "";
+    } else {  // Summer16 samples have 1 weight stored in HepMC but no weightNames
+      _weightNames.push_back("");
+    }
     if (_useLHEweights) {
+      // Some samples have weights but no weight names -> assign generic names lheN
+      if (_lheWeightNames.empty()) {
+        edm::Handle<LHEEventProduct> lheEventHandle;
+        iEvent.getByToken(_LHECollection, lheEventHandle);
+        for (unsigned int i = 0; i < lheEventHandle->weights().size(); i++) {
+          _lheWeightNames.push_back("lhe" + std::to_string(i + 1));  // start with 1 to match LHE weight IDs
+        }
+      }
       _weightNames.insert(_weightNames.end(), _lheWeightNames.begin(), _lheWeightNames.end());
     }
     // clean weight names to be accepted by Rivet plotting
@@ -169,6 +164,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     _analysisHandler->addAnalyses(_analysisNames);
 
     /// Set analysis handler weight options
+    _analysisHandler->setIgnoreBeams(_setIgnoreBeams);
     _analysisHandler->skipMultiWeights(_skipMultiWeights);
     _analysisHandler->selectMultiWeights(_selectMultiWeights);
     _analysisHandler->deselectMultiWeights(_deselectMultiWeights);
@@ -188,97 +184,11 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void RivetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   if (_doFinalize)
     _analysisHandler->finalize();
-  else {
-    //if we don't finalize we just want to do the transformation from histograms to DPS
-    ////normalizeTree(_analysisHandler->tree());
-    //normalizeTree();
-  }
   _analysisHandler->writeData(_outFileName);
 
   return;
 }
 
-//from Rivet 2.X: Analysis.hh (cls 18Feb2014)
-/// List of registered analysis data objects
-//const vector<AnalysisObjectPtr>& analysisObjects() const {
-//return _analysisobjects;
-//}
-
 void RivetAnalyzer::endJob() {}
-
-void RivetAnalyzer::normalizeTree() {
-  using namespace YODA;
-  std::vector<string> analyses = _analysisHandler->analysisNames();
-
-  //tree.ls(".", true);
-  const string tmpdir = "/RivetNormalizeTmp";
-  //tree.mkdir(tmpdir);
-  for (const string& analysis : analyses) {
-    if (_produceDQM) {
-      dbe->setCurrentFolder("Rivet/" + analysis);
-      //global variables that are always present
-      //sumOfWeights
-      TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);
-      nevent.SetBinContent(1, _analysisHandler->sumW());
-      _mes.push_back(dbe->book1D("nEvt", &nevent));
-    }
-    //cross section
-    //TH1F xsection("xSection", "Cross Section", 1, 0., 1.);
-    //xsection.SetBinContent(1,_analysisHandler->crossSection());
-    //_mes.push_back(dbe->book1D("xSection",&xsection));
-    //now loop over the histograms
-
-    /*
-    const vector<string> paths = tree.listObjectNames("/"+analysis, true); // args set recursive listing
-    std::cout << "Number of objects in YODA tree for analysis " << analysis << " = " << paths.size() << std::endl;
-    foreach (const string& path, paths) {
-      IManagedObject* hobj = tree.find(path);
-      if (hobj) {
-        // Weird seg fault on SLC4 when trying to dyn cast an IProfile ptr to a IHistogram
-        // Fix by attempting to cast to IProfile first, only try IHistogram if it fails.
-        IHistogram1D* histo = 0;
-        IProfile1D* prof = dynamic_cast<IProfile1D*>(hobj);
-        if (!prof) histo = dynamic_cast<IHistogram1D*>(hobj);
-
-        std::cout << "Converting histo " << path << " to DPS" << std::endl;
-        tree.mv(path, tmpdir);
-        const size_t lastslash = path.find_last_of("/");
-        const string basename = path.substr(lastslash+1, path.length() - (lastslash+1));
-        const string tmppath = tmpdir + "/" + basename;
-
-        // If it's a normal histo:
-        if (histo) {
-          IHistogram1D* tmphisto = dynamic_cast<IHistogram1D*>(tree.find(tmppath));
-          if (tmphisto) {
-            _analysisHandler->datapointsetFactory().create(path, *tmphisto);
-          }
-          //now convert to root and then ME
-    //need aida2flat (from Rivet 1.X) & flat2root here
-          TH1F* h = aida2root<IHistogram1D, TH1F>(histo, basename);
-          if (_produceDQM)
-            _mes.push_back(dbe->book1D(h->GetName(), h));
-          delete h;
-          tree.rm(tmppath);
-        }
-        // If it's a profile histo:
-        else if (prof) {
-          IProfile1D* tmpprof = dynamic_cast<IProfile1D*>(tree.find(tmppath));
-          if (tmpprof) {
-            _analysisHandler->datapointsetFactory().create(path, *tmpprof);
-          }
-          //now convert to root and then ME
-    //need aida2flat (from Rivet 1.X) & flat2root here
-          TProfile* p = aida2root<IProfile1D, TProfile>(prof, basename);
-          if (_produceDQM)
-            _mes.push_back(dbe->bookProfile(p->GetName(), p));
-          delete p;
-          tree.rm(tmppath);
-        }
-      }
-    }
-    */
-  }
-  //tree.rmdir(tmpdir);
-}
 
 DEFINE_FWK_MODULE(RivetAnalyzer);

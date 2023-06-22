@@ -108,13 +108,13 @@ namespace trklet {
     //Various manually pipelined variables
     //Each _ represents a layer of pipelining
     //e.g., good__ is set and one iteration later good___ is updated
-    VMStubME vmstub__, vmstub___;
-    bool isPSseed__, isPSseed___;
-    bool good__, good___;
-    int projfinerz__, projfinerz___;
-    int projfinephi__, projfinephi___;
-    int projrinv__, projrinv___;
-    Tracklet *proj__, *proj___;
+    VMStubME vmstub__, vmstub__t, vmstub___;
+    bool isPSseed__, isPSseed__t, isPSseed___;
+    bool good__, good__t, good___;
+    int projfinerz__, projfinerz__t, projfinerz___;
+    int projfinephi__, projfinephi__t, projfinephi___;
+    int projrinv__, projrinv__t, projrinv___;
+    Tracklet *proj__, *proj__t, *proj___;
 
     //save the candidate matches
     CircularBuffer<std::pair<Tracklet*, const Stub*>> candmatches_;

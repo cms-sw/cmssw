@@ -101,6 +101,16 @@ namespace l1t {
     // trknmb and bx0 are unused in the EMTF emulator code. mpclink = 0 (after bx) indicates unsorted.
   }
 
+  CSCShowerDigi EMTFHit::CreateCSCShowerDigi() const {
+    CSCShowerDigi shower = CSCShowerDigi(muon_shower_inTime == -99 ? 0 : muon_shower_inTime,
+                                         muon_shower_outOfTime == -99 ? 0 : muon_shower_outOfTime,
+                                         csc_ID,
+                                         bx + CSCConstants::LCT_CENTRAL_BX,
+                                         CSCShowerDigi::ShowerType::kEMTFShower);
+
+    return shower;
+  }
+
   // // Not yet implemented - AWB 15.03.17
   // RPCDigi EMTFHit::CreateRPCDigi() const {
   //   return RPCDigi( (strip_hi + strip_lo) / 2, bx + CSCConstants::LCT_CENTRAL_BX );

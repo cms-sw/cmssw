@@ -39,6 +39,16 @@ hltassociation = cms.Sequence(
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
+# Temporary Phase-2 config
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(hltassociation, hltassociation.copyAndExclude([hltMultiTrackValidation,
+                                                                           hltMultiPVValidation,
+                                                                           egammaSelectors,
+                                                                           ExoticaValidationProdSeq,
+                                                                           hltMultiTrackValidationGsfTracks,
+                                                                           hltMultiTrackValidationMuonTracks])
+)
+
 # hcal
 from DQMOffline.Trigger.HCALMonitoring_cff import *
 
@@ -60,6 +70,24 @@ hltvalidationWithMC = cms.Sequence(
     +hltbtagValidationSequence #too noisy for now
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
 )
+
+# Temporary Phase-2 config
+# Exclude everything except Muon and JetMET for now
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(hltvalidationWithMC, hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
+                                                                                     HLTTauVal,
+                                                                                     egammaValidationSequence,
+                                                                                     heavyFlavorValidationSequence,
+                                                                                     #HLTJetMETValSeq,
+                                                                                     HLTSusyExoValSeq,
+                                                                                     HiggsValidationSequence,
+                                                                                     ExoticaValidationSequence,
+                                                                                     b2gHLTriggerValidation,
+                                                                                     SMPValidationSequence,
+                                                                                     hltbtagValidationSequence,
+                                                                                     hltHCALdigisAnalyzer,
+                                                                                     hltHCALRecoAnalyzer,
+                                                                                     hltHCALNoiseRates]))
 
 hltvalidationWithData = cms.Sequence(
 )

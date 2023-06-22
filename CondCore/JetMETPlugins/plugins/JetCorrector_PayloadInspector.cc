@@ -82,6 +82,147 @@ namespace {
     N_LEVELS = 38
   };
 
+  const std::vector<std::string> labels_ = {
+      "L1Offset",
+      "L2Relative",
+      "L3Absolute",
+      "L4EMF",
+      "L5Flavor",
+      "L6UE",
+      "L7Parton",
+      "L1JPTOffset",
+      "L2L3Residual",
+      "Uncertainty",
+      "L1FastJet",
+      "UncertaintyAbsolute",
+      "UncertaintyHighPtExtra",
+      "UncertaintySinglePionECAL",
+      "UncertaintyFlavor",
+      "UncertaintyTime",
+      "UncertaintyRelativeJEREC1",
+      "UncertaintyRelativeJEREC2",
+      "UncertaintyRelativeJERHF",
+      "UncertaintyRelativeStatEC2",
+      "UncertaintyRelativeStatHF",
+      "UncertaintyRelativeFSR",
+      "UncertaintyPileUpDataMC",
+      "UncertaintyPileUpOOT",
+      "UncertaintyPileUpPtBB",
+      "UncertaintyPileUpBias",
+      "UncertaintyPileUpJetRate",
+      "UncertaintySinglePionHCAL",
+      "UncertaintyRelativePtEC1",
+      "UncertaintyRelativePtEC2",
+      "UncertaintyRelativePtHF",
+      "UncertaintyRelativeSample",
+      "UncertaintyPileUpPtEC",
+      "UncertaintyPileUpPtHF",
+      "L1RC",
+      "L1Residual",
+      "UncertaintyAux3",
+      "UncertaintyAux4",
+  };
+
+  bool fill_eta_hist(JetCorrectorParameters const& JCParam,
+                     TH1D* hist,
+                     const std::map<std::string, std::string>& paramValues) {
+    if (!(JCParam.isValid())) {
+      edm::LogWarning("JEC_PI") << "JetCorrectorParameter is not valid.";
+      return false;
+    }
+
+    std::vector<double> vars;
+    std::vector<float> bins;
+    std::vector<double> params;
+
+    double par_JetPt = 100.;
+    double par_JetEta = 0.;
+    double par_JetA = 0.5;
+    double par_Rho = 20.;
+    double par_JetPhi = 0.;
+    double par_JetE = 150.;
+
+    // Default values will be used if no input parameters
+    auto ip = paramValues.find("Jet_Pt");
+    if (ip != paramValues.end()) {
+      par_JetPt = std::stod(ip->second);
+    }
+    ip = paramValues.find("Jet_Rho");
+    if (ip != paramValues.end()) {
+      par_Rho = std::stod(ip->second);
+    }
+
+    int ir = -1;
+
+    for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+      par_JetEta = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+
+      if (JCParam.definitions().formula().compare("1") == 0) {  // unity
+        hist->SetBinContent(idx + 1, 1.);
+        continue;
+      } else if (JCParam.definitions().level().compare("Uncertainty") == 0 &&
+                 JCParam.definitions().formula().compare("\"\"") == 0) {
+        JetCorrectionUncertainty JCU(JCParam);
+        JCU.setJetEta(par_JetEta);
+        JCU.setJetPt(par_JetPt);
+        JCU.setJetPhi(par_JetPhi);
+        JCU.setJetE(par_JetE);
+
+        float unc = JCU.getUncertainty(true);
+        hist->SetBinContent(idx + 1, unc);
+
+        continue;
+      }
+
+      reco::FormulaEvaluator formula(JCParam.definitions().formula());
+
+      vars.clear();
+      bins.clear();
+      params.clear();
+
+      for (size_t i = 0; i < JCParam.definitions().nBinVar(); i++) {
+        // fill up the parameter variables
+        if (JCParam.definitions().binVar(i).compare("JetPt") == 0)
+          bins.push_back(par_JetPt);
+        if (JCParam.definitions().binVar(i).compare("JetEta") == 0)
+          bins.push_back(par_JetEta);
+        if (JCParam.definitions().binVar(i).compare("JetA") == 0)
+          bins.push_back(par_JetA);
+        if (JCParam.definitions().binVar(i).compare("Rho") == 0)
+          bins.push_back(par_Rho);
+      }
+
+      for (size_t i = 0; i < JCParam.definitions().nParVar(); i++) {
+        // fill up the parameter variables
+        if (JCParam.definitions().parVar(i).compare("JetPt") == 0)
+          vars.push_back(par_JetPt);
+        if (JCParam.definitions().parVar(i).compare("JetEta") == 0)
+          vars.push_back(par_JetEta);
+        if (JCParam.definitions().parVar(i).compare("JetA") == 0)
+          vars.push_back(par_JetA);
+        if (JCParam.definitions().parVar(i).compare("Rho") == 0)
+          vars.push_back(par_Rho);
+      }
+
+      ir = JCParam.binIndex(bins);
+
+      if (ir < 0 || ir > (int)JCParam.size())
+        continue;
+
+      // Extract JEC formula parameters from payload
+      for (size_t i = 2 * vars.size(); i < JCParam.record(ir).nParameters(); i++) {
+        double par = JCParam.record(ir).parameter(i);
+        params.push_back(par);
+      }
+
+      double jec = formula.evaluate(vars, params);
+      hist->SetBinContent(idx + 1, jec);
+
+    }  // x_axis
+    return true;
+
+  }  // fill_eta_hist()
+
   /*******************************************************
  *    
  *         1d histogram of JetCorectorParameters of 1 IOV 
@@ -102,9 +243,7 @@ namespace {
 
     bool fill() override {
       double par_JetPt = 100.;
-      double par_JetEta = 0.;
       double par_Rho = 20.;
-      double par_JetA = 0.5;
 
       // Default values will be used if no input parameters
       auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
@@ -118,6 +257,8 @@ namespace {
         par_Rho = std::stod(ip->second);
         edm::LogPrint("JEC_PI") << "Rho: " << par_Rho;
       }
+
+      TH1D* jec_hist = new TH1D("JEC vs. #eta", "", NBIN_ETA, MIN_ETA, MAX_ETA);
 
       auto tag = PlotBase::getTag<0>();
       for (auto const& iov : tag.iovs) {
@@ -140,87 +281,16 @@ namespace {
           edm::LogInfo("JEC_PI") << "JCParam size: " << JCParams.size();
           edm::LogInfo("JEC_PI") << "JCParam def: " << JCParams.definitions().formula();
 
+          fill_eta_hist(JCParams, jec_hist, paramValues);
+
           for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
-            double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+            fillWithBinAndValue(idx + 1, jec_hist->GetBinContent(idx + 1));
+          }  // for eta
 
-            if (ii == 9 &&  // Uncertainty
-                JCParams.definitions().formula().compare("\"\"") == 0) {
-              JetCorrectionUncertainty JCU(JCParams);
-              JCU.setJetEta(x_axis);
-              JCU.setJetPt(par_JetPt);
-              JCU.setJetPhi(0.);
-              JCU.setJetE(150.);
-
-              float unc = JCU.getUncertainty(true);
-              fillWithBinAndValue(idx + 1, unc);
-            } else if (JCParams.definitions().formula().compare("1") == 0) {
-              fillWithBinAndValue(idx + 1, 1.);
-            } else if (JCParams.definitions().nBinVar() > 0 &&
-                       JCParams.definitions().binVar(0).compare("JetEta") == 0) {
-              std::vector<double> vars;
-              std::vector<float> bins;
-              std::vector<double> params;
-
-              par_JetEta = x_axis;
-              int ir = -1;
-
-              vars.clear();
-              bins.clear();
-              params.clear();
-
-              for (size_t i = 0; i < JCParams.definitions().nBinVar(); i++) {
-                // fill up the parameter variables
-                if (JCParams.definitions().binVar(i).compare("JetPt") == 0)
-                  bins.push_back(par_JetPt);
-                if (JCParams.definitions().binVar(i).compare("JetEta") == 0)
-                  bins.push_back(par_JetEta);
-                if (JCParams.definitions().binVar(i).compare("JetA") == 0)
-                  bins.push_back(par_JetA);
-                if (JCParams.definitions().binVar(i).compare("Rho") == 0)
-                  bins.push_back(par_Rho);
-              }
-
-              for (size_t i = 0; i < JCParams.definitions().nParVar(); i++) {
-                // fill up the parameter variables
-                if (JCParams.definitions().parVar(i).compare("JetPt") == 0)
-                  vars.push_back(par_JetPt);
-                if (JCParams.definitions().parVar(i).compare("JetEta") == 0)
-                  vars.push_back(par_JetEta);
-                if (JCParams.definitions().parVar(i).compare("JetA") == 0)
-                  vars.push_back(par_JetA);
-                if (JCParams.definitions().parVar(i).compare("Rho") == 0)
-                  vars.push_back(par_Rho);
-              }
-
-              ir = JCParams.binIndex(bins);
-              edm::LogInfo("JEC_PI") << "Record index # " << ir;
-
-              // check if no matched bin
-              if (ir < 0 || ir > (int)JCParams.size())
-                continue;
-
-              reco::FormulaEvaluator formula(JCParams.definitions().formula());
-
-              if (vars.size() < JCParams.definitions().nParVar()) {
-                edm::LogWarning("JEC_PI") << "Only " << vars.size() << " variables filled, while "
-                                          << JCParams.definitions().nParVar() << " needed!";
-                return false;
-              }
-
-              for (size_t i = 2 * vars.size(); i < JCParams.record(ir).nParameters(); i++) {
-                double par = JCParams.record(ir).parameter(i);
-                params.push_back(par);
-              }
-
-              double jec = formula.evaluate(vars, params);
-              fillWithBinAndValue(idx + 1, jec);
-
-            }  // level
-          }    // x_axis
           return true;
         }
         return false;
-      }  // for
+      }  // for iovs
       return false;
     }  // fill
   };   // class
@@ -233,103 +303,6 @@ namespace {
       cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
       cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
     }
-
-    bool fill_eta_hist(JetCorrectorParameters const& JCParam, TH1D* hist) {
-      if (!(JCParam.isValid())) {
-        edm::LogWarning("JEC_PI") << "JetCorrectorParameter is not valid.";
-        return false;
-      }
-
-      std::vector<double> vars;
-      std::vector<float> bins;
-      std::vector<double> params;
-
-      double par_JetPt = 100.;
-      double par_JetEta = 0.;
-      double par_JetA = 0.5;
-      double par_Rho = 40.;
-
-      // Default values will be used if no input parameters
-      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
-      auto ip = paramValues.find("Jet_Pt");
-      if (ip != paramValues.end()) {
-        par_JetPt = std::stod(ip->second);
-      }
-      ip = paramValues.find("Jet_Rho");
-      if (ip != paramValues.end()) {
-        par_Rho = std::stod(ip->second);
-      }
-
-      int ir = -1;
-
-      for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
-        par_JetEta = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-
-        if (JCParam.definitions().formula().compare("1") == 0) {  // unity
-          hist->SetBinContent(idx + 1, 1.);
-          continue;
-        } else if (JCParam.definitions().level().compare("Uncertainty") == 0 &&
-                   JCParam.definitions().formula().compare("\"\"") == 0) {
-          JetCorrectionUncertainty JCU(JCParam);
-          JCU.setJetEta(par_JetEta);
-          JCU.setJetPt(par_JetPt);
-          JCU.setJetPhi(0.);
-          JCU.setJetE(150.);
-
-          float unc = JCU.getUncertainty(true);
-          hist->SetBinContent(idx + 1, unc);
-
-          continue;
-        }
-
-        reco::FormulaEvaluator formula(JCParam.definitions().formula());
-
-        vars.clear();
-        bins.clear();
-        params.clear();
-
-        for (size_t i = 0; i < JCParam.definitions().nBinVar(); i++) {
-          // fill up the parameter variables
-          if (JCParam.definitions().binVar(i).compare("JetPt") == 0)
-            bins.push_back(par_JetPt);
-          if (JCParam.definitions().binVar(i).compare("JetEta") == 0)
-            bins.push_back(par_JetEta);
-          if (JCParam.definitions().binVar(i).compare("JetA") == 0)
-            bins.push_back(par_JetA);
-          if (JCParam.definitions().binVar(i).compare("Rho") == 0)
-            bins.push_back(par_Rho);
-        }
-
-        for (size_t i = 0; i < JCParam.definitions().nParVar(); i++) {
-          // fill up the parameter variables
-          if (JCParam.definitions().parVar(i).compare("JetPt") == 0)
-            vars.push_back(par_JetPt);
-          if (JCParam.definitions().parVar(i).compare("JetEta") == 0)
-            vars.push_back(par_JetEta);
-          if (JCParam.definitions().parVar(i).compare("JetA") == 0)
-            vars.push_back(par_JetA);
-          if (JCParam.definitions().parVar(i).compare("Rho") == 0)
-            vars.push_back(par_Rho);
-        }
-
-        ir = JCParam.binIndex(bins);
-
-        if (ir < 0 || ir > (int)JCParam.size())
-          continue;
-
-        // Extract JEC formula parameters from payload
-        for (size_t i = 2 * vars.size(); i < JCParam.record(ir).nParameters(); i++) {
-          double par = JCParam.record(ir).parameter(i);
-          params.push_back(par);
-        }
-
-        double jec = formula.evaluate(vars, params);
-        hist->SetBinContent(idx + 1, jec);
-
-      }  // x_axis
-      return true;
-
-    }  // fill_eta_hist()
 
     bool fill() override {
       double par_JetPt = 100.;
@@ -376,40 +349,25 @@ namespace {
       std::string stmp;
 
       std::string tag_ver;
-      std::string tag_res;
-      std::string tag_jet;
 
       getline(ss_tagname, stmp, '_');  // drop first
-      getline(ss_tagname, stmp, '_');  // year
+      getline(ss_tagname, stmp);       // get the rest
       tag_ver = stmp;
-      getline(ss_tagname, stmp, '_');  // ver
-      tag_ver += '_' + stmp;
-      getline(ss_tagname, stmp, '_');  // cmssw
-      tag_ver += '_' + stmp;
-      getline(ss_tagname, stmp, '_');  // data/mc
-      tag_ver += '_' + stmp;
-      getline(ss_tagname, stmp, '_');  // bin
-      tag_res = stmp;
-      getline(ss_tagname, stmp, '_');  // jet algorithm
-      tag_jet = stmp;
 
       if (payload.get()) {
-        // JetCorrectorParametersCollection::key_type
-        std::vector<key_t> keys;
-        // Get valid keys in this payload
-        (*payload).validKeys(keys);
-
         auto JCParam_L1FJ = (*payload)[L1FastJet];
         auto JCParam_L2 = (*payload)[L2Relative];
         auto JCParam_L2L3 = (*payload)[L2L3Residual];
         auto JCParam_L1RC = (*payload)[L1RC];
         auto JCParam_Unc = (*payload)[Uncertainty];
 
-        fill_eta_hist(JCParam_L1FJ, jec_l1fj);
-        fill_eta_hist(JCParam_L2, jec_l2rel);
-        fill_eta_hist(JCParam_L2L3, jec_l2l3);
-        fill_eta_hist(JCParam_L1RC, jec_l1rc);
-        fill_eta_hist(JCParam_Unc, jec_uncert);
+        auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+
+        fill_eta_hist(JCParam_L1FJ, jec_l1fj, paramValues);
+        fill_eta_hist(JCParam_L2, jec_l2rel, paramValues);
+        fill_eta_hist(JCParam_L2L3, jec_l2l3, paramValues);
+        fill_eta_hist(JCParam_L1RC, jec_l1rc, paramValues);
+        fill_eta_hist(JCParam_Unc, jec_uncert, paramValues);
 
         gStyle->SetOptStat(0);
         gStyle->SetLabelFont(42, "XYZ");
@@ -421,7 +379,7 @@ namespace {
         canvas.Divide(1, 2);
 
         canvas.cd(1);
-        jec_l1fj->SetTitle((tag_ver + '_' + tag_jet).c_str());
+        jec_l1fj->SetTitle(tag_ver.c_str());
         jec_l1fj->SetXTitle("#eta");
         jec_l1fj->SetMaximum(1.6);
         jec_l1fj->SetMinimum(0.0);
@@ -448,7 +406,7 @@ namespace {
         leg_eta->Draw();
 
         canvas.cd(2);
-        jec_uncert->SetTitle((tag_ver + '_' + tag_jet).c_str());
+        jec_uncert->SetTitle(tag_ver.c_str());
         jec_uncert->SetXTitle("#eta");
         jec_uncert->SetMaximum(0.1);
         jec_uncert->SetMinimum(0.0);
@@ -460,6 +418,151 @@ namespace {
         leg_eta2->AddEntry(
             (TObject*)nullptr, Form("JetPt=%.2f; JetA=%.2f; Rho=%.2f", par_JetPt, par_JetA, par_Rho), "");
         leg_eta2->Draw();
+
+        canvas.SaveAs(m_imageFileName.c_str());
+
+        return true;
+      } else  // no payload.get()
+        return false;
+    }  // fill
+
+  };  // class
+
+  class JetCorrectorVsEtaCompare
+      : public cond::payloadInspector::PlotImage<JetCorrectorParametersCollection, SINGLE_IOV, 2> {
+  public:
+    JetCorrectorVsEtaCompare()
+        : cond::payloadInspector::PlotImage<JetCorrectorParametersCollection, SINGLE_IOV, 2>(
+              "Jet Correction Compare Two Tags") {
+      cond::payloadInspector::PlotBase::addInputParam("Corr_Level");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
+    }
+
+    bool fill() override {
+      double par_JetPt = 100.;
+      double par_JetA = 0.5;
+      double par_Rho = 40.;
+      key_t par_Level = L1FastJet;
+
+      // Default values will be used if no input parameters (legend)
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_JetPt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
+
+      TH1D* jec_one = new TH1D("JEC vs. #eta one", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D* jec_two = new TH1D("JEC vs. #eta two", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+
+      TLegend* leg_eta = new TLegend(0.50, 0.73, 0.935, 0.90);
+
+      leg_eta->SetBorderSize(0);
+      leg_eta->SetLineStyle(0);
+      leg_eta->SetFillStyle(0);
+      leg_eta->SetTextFont(42);
+
+      auto tag1 = PlotBase::getTag<0>();
+      auto iov1 = tag1.iovs.front();
+
+      auto tag2 = PlotBase::getTag<1>();
+      auto iov2 = tag2.iovs.front();
+
+      std::shared_ptr<JetCorrectorParametersCollection> payload1 = fetchPayload(std::get<1>(iov1));
+      std::string tagname1 = tag1.name;
+
+      std::shared_ptr<JetCorrectorParametersCollection> payload2 = fetchPayload(std::get<1>(iov2));
+      std::string tagname2 = tag2.name;
+
+      ip = paramValues.find("Corr_Level");
+      if (ip != paramValues.end()) {
+        // input level as index
+        if (ip->second.length() < 3) {
+          int ii = std::stoi(ip->second);
+          par_Level = static_cast<key_t>(ii);
+        } else {
+          // input level as text
+          std::vector<std::string>::const_iterator found3 = find(labels_.begin(), labels_.end(), ip->second);
+          if (found3 != labels_.end()) {
+            par_Level = static_cast<key_t>(found3 - labels_.begin());
+          }
+        }
+      }
+
+      std::string stmp;
+      std::stringstream ss_tagname(tag1.name);
+
+      std::string tag_ver1;
+      std::string tag_ver2;
+
+      getline(ss_tagname, stmp, '_');  // drop first
+      getline(ss_tagname, stmp);       // get the rest of the string
+      tag_ver1 = stmp;
+
+      std::stringstream ss_tagname2(tag2.name);
+
+      getline(ss_tagname2, stmp, '_');  // drop first
+      getline(ss_tagname2, stmp);       // get the rest
+      tag_ver2 = stmp;
+
+      if (payload1.get() && payload2.get()) {
+        // JetCorrectorParametersCollection::key_type
+        std::vector<key_t> keys;
+        // Get valid keys in this payload
+        (*payload1).validKeys(keys);
+
+        if (std::find(keys.begin(), keys.end(), par_Level) == keys.end()) {
+          edm::LogWarning("JEC_PI") << "Jet corrector level " << (*payload1).findLabel(par_Level)
+                                    << " is not available for tag one.";
+          return false;
+        }
+
+        keys.clear();
+        (*payload2).validKeys(keys);
+        if (std::find(keys.begin(), keys.end(), par_Level) == keys.end()) {
+          edm::LogWarning("JEC_PI") << "Jet corrector level " << (*payload2).findLabel(par_Level)
+                                    << " is not available for twg two.";
+          return false;
+        }
+
+        auto JCParam_one = (*payload1)[par_Level];
+        auto JCParam_two = (*payload2)[par_Level];
+
+        fill_eta_hist(JCParam_one, jec_one, paramValues);
+        fill_eta_hist(JCParam_two, jec_two, paramValues);
+
+        gStyle->SetOptStat(0);
+        gStyle->SetLabelFont(42, "XYZ");
+        gStyle->SetLabelSize(0.05, "XYZ");
+        gStyle->SetFrameLineWidth(3);
+
+        std::string title = Form("Comparison between %s and %s", tag1.name.c_str(), tag2.name.c_str());
+        TCanvas canvas("Jet Energy Correction", title.c_str(), 800, 600);
+
+        canvas.cd();
+        jec_one->SetTitle(("JetCorrector comparison for " + (*payload1).findLabel(par_Level)).c_str());
+        jec_one->SetXTitle("#eta");
+        jec_one->SetMaximum(1.6);
+        if (par_Level == Uncertainty) {
+          jec_one->SetMaximum(0.1);
+        }
+        jec_one->SetMinimum(0.0);
+        jec_one->SetLineWidth(3);
+        jec_one->Draw("][");
+
+        jec_two->SetLineColor(2);
+        jec_two->SetLineWidth(3);
+        jec_two->SetLineStyle(2);
+        jec_two->Draw("][same");
+
+        leg_eta->AddEntry(jec_one, tag_ver1.c_str(), "l");
+        leg_eta->AddEntry(jec_two, tag_ver2.c_str(), "l");
+        leg_eta->AddEntry((TObject*)nullptr, Form("JetPt=%.2f; JetA=%.2f; Rho=%.2f", par_JetPt, par_JetA, par_Rho), "");
+        leg_eta->Draw();
 
         canvas.SaveAs(m_imageFileName.c_str());
 
@@ -489,6 +592,7 @@ namespace {
     PAYLOAD_INSPECTOR_CLASS(JetCorrectorVsEtaL1RC);
 
     PAYLOAD_INSPECTOR_CLASS(JetCorrectorVsEtaSummary);
+    PAYLOAD_INSPECTOR_CLASS(JetCorrectorVsEtaCompare);
   }
 
 }  // namespace

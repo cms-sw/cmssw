@@ -6,6 +6,9 @@ from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
 from RecoMuon.MuonIdentification.MuonShowerDigiFiller_cfi import *
 from RecoMuon.MuonIdentification.TrackerKinkFinder_cfi import *
 from TrackingTools.TrackAssociator.default_cfi import *
+
+TrackAssociatorParameterBlock.TrackAssociatorParameters.preselectMuonTracks = True
+
 muons1stStep = cms.EDProducer("MuonIdProducer",
     # MuonCaloCompatibility
     MuonCaloCompatibilityBlock,

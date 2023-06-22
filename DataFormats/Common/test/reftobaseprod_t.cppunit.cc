@@ -93,11 +93,13 @@ void testRefToBaseProd::constructTest() {
   CPPUNIT_ASSERT(!nulled);
   CPPUNIT_ASSERT(nulled.isNull());
   CPPUNIT_ASSERT(!nulled.isNonnull());
+  CPPUNIT_ASSERT(!nulled.isAvailable());
 
   RefToBaseProd<Dummy> nulledP;
   CPPUNIT_ASSERT(!nulledP);
   CPPUNIT_ASSERT(nulledP.isNull());
   CPPUNIT_ASSERT(!nulledP.isNonnull());
+  CPPUNIT_ASSERT(!nulledP.isAvailable());
 
   ProductID const pid(1, 1);
 
@@ -110,6 +112,9 @@ void testRefToBaseProd::constructTest() {
     OrphanHandle<DummyCollection> handle(&dummyContainer, pid);
     RefToBaseProd<Dummy> dummyPtr(handle);
 
+    CPPUNIT_ASSERT(!dummyPtr.isNull());
+    CPPUNIT_ASSERT(dummyPtr.isNonnull());
+    CPPUNIT_ASSERT(dummyPtr.isAvailable());
     CPPUNIT_ASSERT(dummyPtr.id() == pid);
     compareTo(dummyPtr, dummyContainer);
   }
@@ -218,9 +223,15 @@ void testRefToBaseProd::getTest() {
 
     RefCore core(pid, nullptr, &tester, false);
     RefToBaseProd<IntValue>& prod = reinterpret_cast<RefToBaseProd<IntValue>&>(core);
+    CPPUNIT_ASSERT(!prod.isNull());
+    CPPUNIT_ASSERT(prod.isNonnull());
+    CPPUNIT_ASSERT(prod.isAvailable());
 
     //previously making a copy before reading back would cause seg fault
     RefToBaseProd<IntValue> prodCopy(prod);
+    CPPUNIT_ASSERT(!prodCopy.isNull());
+    CPPUNIT_ASSERT(prodCopy.isNonnull());
+    CPPUNIT_ASSERT(prodCopy.isAvailable());
 
     CPPUNIT_ASSERT(!prod.hasCache());
 

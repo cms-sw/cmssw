@@ -39,6 +39,9 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 
 // calorimeter and muon infos
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -591,7 +594,8 @@ DetIdAssociator::MapRange TrackDetectorAssociator::getMapRange(const std::pair<f
 }
 
 void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberMatch>& matches,
-                                                      const AssociatorParameters& parameters) {
+                                                      const AssociatorParameters& parameters,
+                                                      std::set<DetId> occupancy) {
   // Strategy:
   //    Propagate through the whole detector, estimate change in eta and phi
   //    along the trajectory, add this to dRMuon and find DetIds around this
@@ -621,6 +625,18 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 
   std::set<DetId> muonIdsInRegion = muonDetIdAssociator_->getDetIdsCloseToAPoint(trajectoryPoint.position(), mapRange);
   LogTrace("TrackAssociator") << "Number of chambers to check: " << muonIdsInRegion.size();
+
+  if (parameters.preselectMuonTracks) {
+    std::set<DetId> muonIdsInRegionOccupied;
+    std::set_intersection(muonIdsInRegion.begin(),
+                          muonIdsInRegion.end(),
+                          occupancy.begin(),
+                          occupancy.end(),
+                          std::inserter(muonIdsInRegionOccupied, muonIdsInRegionOccupied.begin()));
+    if (muonIdsInRegionOccupied.empty())
+      return;
+  }
+
   for (std::set<DetId>::const_iterator detId = muonIdsInRegion.begin(); detId != muonIdsInRegion.end(); detId++) {
     const GeomDet* geomDet = muonDetIdAssociator_->getGeomDet(*detId);
     TrajectoryStateOnSurface stateOnSurface = cachedTrajectory_.propagate(&geomDet->surface());
@@ -723,6 +739,55 @@ void TrackDetectorAssociator::fillMuon(const edm::Event& iEvent,
   if (parameters.useME0)
     iEvent.getByToken(parameters.me0SegmentsToken, me0Segments);
 
+  // Get the hits from the event only if track preselection is activated
+  // Get the chambers segments/hits in the events
+  std::set<DetId> occupancy_set;
+  if (parameters.preselectMuonTracks) {
+    edm::Handle<RPCRecHitCollection> rpcRecHits;
+    iEvent.getByToken(parameters.rpcHitsToken, rpcRecHits);
+    if (!rpcRecHits.isValid())
+      throw cms::Exception("FatalError") << "Unable to find RPCRecHitCollection in event!\n";
+
+    edm::Handle<GEMRecHitCollection> gemRecHits;
+    if (parameters.useGEM)
+      iEvent.getByToken(parameters.gemHitsToken, gemRecHits);
+
+    edm::Handle<ME0RecHitCollection> me0RecHits;
+    if (parameters.useME0)
+      iEvent.getByToken(parameters.me0HitsToken, me0RecHits);
+
+    for (const auto& dtSegment : *dtSegments) {
+      occupancy_set.insert(dtSegment.geographicalId());
+    }
+    for (const auto& cscSegment : *cscSegments) {
+      occupancy_set.insert(cscSegment.geographicalId());
+    }
+    for (const auto& rpcRecHit : *rpcRecHits) {
+      occupancy_set.insert(rpcRecHit.geographicalId());
+    }
+    if (parameters.useGEM) {
+      for (const auto& gemSegment : *gemSegments) {
+        occupancy_set.insert(gemSegment.geographicalId());
+      }
+      for (const auto& gemRecHit : *gemRecHits) {
+        occupancy_set.insert(gemRecHit.geographicalId());
+      }
+    }
+    if (parameters.useME0) {
+      for (const auto& me0Segment : *me0Segments) {
+        occupancy_set.insert(me0Segment.geographicalId());
+      }
+      for (const auto& me0RecHit : *me0RecHits) {
+        occupancy_set.insert(me0RecHit.geographicalId());
+      }
+    }
+    if (occupancy_set.empty()) {
+      LogTrace("TrackAssociator") << "No segments or hits were found in the event: aborting track extrapolation"
+                                  << std::endl;
+      return;
+    }
+  }
+
   ///// get a set of DetId's in a given direction
 
   // check the map of available segments
@@ -736,7 +801,7 @@ void TrackDetectorAssociator::fillMuon(const edm::Event& iEvent,
   // get a set of matches corresponding to muon chambers
   std::vector<TAMuonChamberMatch> matchedChambers;
   LogTrace("TrackAssociator") << "Trying to Get ChamberMatches" << std::endl;
-  getTAMuonChamberMatches(matchedChambers, parameters);
+  getTAMuonChamberMatches(matchedChambers, parameters, occupancy_set);
   LogTrace("TrackAssociator") << "Chambers matched: " << matchedChambers.size() << "\n";
 
   // Iterate over all chamber matches and fill segment matching

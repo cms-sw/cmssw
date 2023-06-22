@@ -16,6 +16,7 @@ MatchEngineUnit::MatchEngineUnit(const Settings& settings,
   barrel_ = barrel;
   layerdisk_ = layerdisk;
   good__ = false;
+  good__t = false;
   good___ = false;
 }
 
@@ -154,13 +155,21 @@ void MatchEngineUnit::processPipeline() {
     }
   }
 
-  proj___ = proj__;
-  projfinephi___ = projfinephi__;
-  projfinerz___ = projfinerz__;
-  projrinv___ = projrinv__;
-  isPSseed___ = isPSseed__;
-  good___ = good__;
-  vmstub___ = vmstub__;
+  proj___ = proj__t;
+  projfinephi___ = projfinephi__t;
+  projfinerz___ = projfinerz__t;
+  projrinv___ = projrinv__t;
+  isPSseed___ = isPSseed__t;
+  good___ = good__t;
+  vmstub___ = vmstub__t;
+
+  proj__t = proj__;
+  projfinephi__t = projfinephi__;
+  projfinerz__t = projfinerz__;
+  projrinv__t = projrinv__;
+  isPSseed__t = isPSseed__;
+  good__t = good__;
+  vmstub__t = vmstub__;
 }
 
 void MatchEngineUnit::reset() {
@@ -168,6 +177,7 @@ void MatchEngineUnit::reset() {
   idle_ = true;
   istub_ = 0;
   good__ = false;
+  good__t = false;
   good___ = false;
 }
 
@@ -178,6 +188,10 @@ int MatchEngineUnit::TCID() const {
 
   if (good___) {
     return proj___->TCID();
+  }
+
+  if (good__t) {
+    return proj__t->TCID();
   }
 
   if (good__) {
