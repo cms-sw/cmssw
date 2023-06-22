@@ -712,6 +712,7 @@ def keepMerged(dataTier="SELECT"):
     ret_vstring.append("keep *_generator_*_SIMembeddingHLT")
     ret_vstring.append("keep *_generator_*_SIMembedding")
     ret_vstring.append("keep *_selectedMuonsForEmbedding_*_*")
+    ret_vstring.append("keep *_unpackedPatTrigger_*_*")
     return ret_vstring
 
 
@@ -795,6 +796,8 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
 
     process.source.inputCommands = cms.untracked.vstring()
     process.source.inputCommands.append("keep *_*_*_*")
+    process.load("PhysicsTools.PatAlgos.slimming.unpackedPatTrigger_cfi")
+    process.unpackedPatTrigger.triggerResults = cms.InputTag("TriggerResults::SIMembeddingHLT")
 
     # process.source.inputCommands.append("drop *_*_*_SELECT")
     # process.source.inputCommands.append("drop *_*_*_SIMembedding")
@@ -963,10 +966,10 @@ def customiseNanoAOD(process):
     process.nanoAOD_step.insert(0, process.genParticleTable)
     process.nanoAOD_step.insert(0, process.finalGenParticles)
 
-    process.unpackedPatTrigger.triggerResults = cms.InputTag("TriggerResults::SIMembeddingHLT")
-    process.NANOAODoutput.outputCommands.append("keep edmTriggerResults_*_*_SIMembeddingHLT")
-    process.NANOAODoutput.outputCommands.append("keep edmTriggerResults_*_*_MERGE")
-    process.NANOAODoutput.outputCommands.remove("keep edmTriggerResults_*_*_*")
+    for outputModule in process.outputModules.values():
+       outputModule.outputCommands.append("keep edmTriggerResults_*_*_SIMembeddingHLT")
+       outputModule.outputCommands.append("keep edmTriggerResults_*_*_MERGE")
+       outputModule.outputCommands.remove("keep edmTriggerResults_*_*_*")
 
     process.embeddingTable = cms.EDProducer(
         "GlobalVariablesTableProducer",
