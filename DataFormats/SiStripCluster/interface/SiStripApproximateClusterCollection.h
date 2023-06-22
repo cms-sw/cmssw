@@ -12,7 +12,6 @@
  * (like all RAW data). Any modifications need to be made with care.
  * Please consult core software group if in doubt.
 **/
-using namespace std;
 class SiStripApproximateClusterCollection {
 public:
   // Helper classes to make creation and iteration easier
@@ -22,15 +21,15 @@ public:
 
   private:
     friend SiStripApproximateClusterCollection;
-    Filler(vector<SiStripApproximateCluster>& clusters) : clusters_(clusters) {}
+    Filler(std::vector<SiStripApproximateCluster>& clusters) : clusters_(clusters) {}
 
-    vector<SiStripApproximateCluster>& clusters_;
+    std::vector<SiStripApproximateCluster>& clusters_;
   };
 
   class const_iterator;
   class DetSet {
   public:
-    using const_iterator = vector<SiStripApproximateCluster>::const_iterator;
+    using const_iterator = std::vector<SiStripApproximateCluster>::const_iterator;
 
     unsigned int id() const { return coll_->detIds_[detIndex_]; }
 
@@ -100,9 +99,9 @@ private:
   // The detIds_ and beginIndices_ have one element for each Det. An
   // element of beginIndices_ points to the first cluster of the Det
   // in clusters_.
-  vector<unsigned int> detIds_;  // DetId for the Det
-  vector<unsigned int> beginIndices_;
-  vector<SiStripApproximateCluster> clusters_;
+  std::vector<unsigned int> detIds_;  // DetId for the Det
+  std::vector<unsigned int> beginIndices_;
+  std::vector<SiStripApproximateCluster> clusters_;
 };
 
 #endif
