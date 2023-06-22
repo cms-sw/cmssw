@@ -777,6 +777,15 @@ def customiseKeepPrunedGenParticles(process, reselect=False):
 
 
 def customiseMerging(process, changeProcessname=True, reselect=False):
+
+    print("**** Attention: overriding behaviour of 'removeMCMatching' ****")
+
+    def dontRemoveMCMatching(process, names, postfix, outputModules):
+        pass
+
+    import PhysicsTools.PatAlgos.tools.coreTools
+    PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = dontRemoveMCMatching
+
     if changeProcessname:
         process._Process__name = "MERGE"
     if reselect:
