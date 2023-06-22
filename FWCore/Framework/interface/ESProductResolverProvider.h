@@ -15,11 +15,11 @@
     In most cases, the methods in this class are used exclusively by the
     Framework. Usually, EventSetup modules producing data inherit from
     the ESProducer base class which inherits from this class. The ESProducer
-    base class takes care of overriding the registerProxies function
+    base class takes care of overriding the registerResolvers function
     and calling usingRecord or usingRecordWithKey.
 
     In cases where the ESProducer base class is not used (PoolDBESSource/
-    CondDBESSource is the main such class) then the registerProxies
+    CondDBESSource is the main such class) then the registerResolvers
     function must be overridden. For the same EventSetupRecordKey, the
     vector returned should contain the same DataKeys in the same order for
     all the different iovIndexes. DataProxies associated with the same
@@ -194,7 +194,7 @@ namespace edm {
       void usingRecordWithKey(const EventSetupRecordKey& key) { productResolverContainer_.usingRecordWithKey(key); }
 
       using KeyedResolversVector = std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>>;
-      virtual KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) = 0;
+      virtual KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int iovIndex) = 0;
 
     private:
       // ---------- member data --------------------------------

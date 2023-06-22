@@ -155,7 +155,7 @@ public:
   }
 
 protected:
-  KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+  KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
     KeyedResolversVector keyedResolversVector;
     keyedResolversVector.emplace_back(m_key, m_resolver);
     return keyedResolversVector;

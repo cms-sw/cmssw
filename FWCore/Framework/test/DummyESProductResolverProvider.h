@@ -49,7 +49,7 @@ namespace edm::eventsetup::test {
     void incrementData() { ++dummy_.value_; }
 
   protected:
-    KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       KeyedResolversVector keyedResolversVector;
       edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<DummyData>(), "");
       std::shared_ptr<WorkingDummyResolver> pResolver = std::make_shared<WorkingDummyResolver>(&dummy_);

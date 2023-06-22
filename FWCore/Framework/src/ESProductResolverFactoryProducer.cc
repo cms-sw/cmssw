@@ -31,7 +31,7 @@ namespace edm {
 
   ESProductResolverFactoryProducer::~ESProductResolverFactoryProducer() noexcept(false) {}
 
-  ESProductResolverProvider::KeyedResolversVector ESProductResolverFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
+  ESProductResolverProvider::KeyedResolversVector ESProductResolverFactoryProducer::registerResolvers(const EventSetupRecordKey& iRecord,
                                                                                 unsigned int iovIndex) {
     KeyedResolversVector keyedResolversVector;
     using Iterator = Record2Factories::iterator;

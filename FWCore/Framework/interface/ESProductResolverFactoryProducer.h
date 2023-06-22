@@ -85,7 +85,7 @@ namespace edm {
   protected:
     using EventSetupRecordKey = eventsetup::EventSetupRecordKey;
 
-    KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) override;
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
     /** \param iFactory unique_ptr holding a new instance of a Factory
          \param iLabel extra string label used to get data (optional)

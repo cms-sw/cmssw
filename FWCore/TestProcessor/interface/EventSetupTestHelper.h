@@ -44,7 +44,7 @@ namespace edm {
     protected:
       void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) final;
 
-      KeyedResolversVector registerProxies(const eventsetup::EventSetupRecordKey&, unsigned int iovIndex) final;
+      KeyedResolversVector registerResolvers(const eventsetup::EventSetupRecordKey&, unsigned int iovIndex) final;
 
     private:
       // ---------- member data --------------------------------

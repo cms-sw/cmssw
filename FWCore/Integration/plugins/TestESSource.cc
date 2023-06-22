@@ -72,7 +72,7 @@ namespace edmtest {
   private:
     bool isConcurrentFinder() const override { return true; }
     void setIntervalFor(EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval&) override;
-    KeyedResolversVector registerProxies(EventSetupRecordKey const&, unsigned int iovIndex) override;
+    KeyedResolversVector registerResolvers(EventSetupRecordKey const&, unsigned int iovIndex) override;
     void initConcurrentIOVs(EventSetupRecordKey const&, unsigned int nConcurrentIOVs) override;
 
     std::set<edm::IOVSyncValue> setOfIOV_;
@@ -194,10 +194,10 @@ namespace edmtest {
     --count_;
   }
 
-  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector TestESSource::registerProxies(EventSetupRecordKey const&,
+  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector TestESSource::registerResolvers(EventSetupRecordKey const&,
                                                                                        unsigned int iovIndex) {
     if (expectedNumberOfConcurrentIOVs_ != 0 && nConcurrentIOVs_ != expectedNumberOfConcurrentIOVs_) {
-      throw cms::Exception("TestFailure") << "TestESSource::registerProxies,"
+      throw cms::Exception("TestFailure") << "TestESSource::registerResolvers,"
                                           << " unexpected number of concurrent IOVs";
     }
     KeyedResolversVector keyedResolversVector;

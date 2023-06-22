@@ -125,7 +125,7 @@ namespace {
     DummyESProductResolverProvider() { usingRecord<DummyRecord>(); }
 
   protected:
-    KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       return KeyedResolversVector();
     }
   };
@@ -135,7 +135,7 @@ namespace {
     DepRecordResolverProvider() { usingRecord<DepRecord>(); }
 
   protected:
-    KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       return KeyedResolversVector();
     }
   };
@@ -160,7 +160,7 @@ namespace {
     }
 
   protected:
-    KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       KeyedResolversVector keyedResolversVector;
       std::shared_ptr<WorkingDepRecordResolver> pResolver = std::make_shared<WorkingDepRecordResolver>(&dummy_);
       edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<edm::eventsetup::test::DummyData>(), "");
@@ -177,7 +177,7 @@ namespace {
     DepOn2RecordResolverProvider() { usingRecord<DepOn2Record>(); }
 
   protected:
-    KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       return KeyedResolversVector();
     }
   };

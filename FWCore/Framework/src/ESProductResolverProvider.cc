@@ -195,7 +195,7 @@ namespace edm {
       if (keyedResolvers.unInitialized()) {
         //delayed registration
         std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>> keyedResolversVector =
-            registerProxies(iRecordKey, iovIndex);
+            registerResolvers(iRecordKey, iovIndex);
         keyedResolvers.insert(std::move(keyedResolversVector), appendToDataLabel_);
 
         bool mustChangeLabels = (!appendToDataLabel_.empty());

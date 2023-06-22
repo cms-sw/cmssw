@@ -56,7 +56,7 @@ namespace edm {
       oIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
     }
 
-    eventsetup::ESProductResolverProvider::KeyedResolversVector EventSetupTestHelper::registerProxies(
+    eventsetup::ESProductResolverProvider::KeyedResolversVector EventSetupTestHelper::registerResolvers(
         const eventsetup::EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
       KeyedResolversVector keyedResolversVector;
       for (auto const& p : proxies_) {

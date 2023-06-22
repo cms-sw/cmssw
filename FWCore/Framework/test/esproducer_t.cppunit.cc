@@ -609,7 +609,7 @@ namespace {
     std::shared_ptr<TestResolver> resolverDep_1_1_;
 
   private:
-    KeyedResolversVector registerProxies(const EventSetupRecordKey& recordKey, unsigned int iovIndex) override {
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey& recordKey, unsigned int iovIndex) override {
       KeyedResolversVector keyedResolversVector;
       if (recordKey == EventSetupRecordKey::makeKey<DummyRecord>()) {
         if (iovIndex == 0) {

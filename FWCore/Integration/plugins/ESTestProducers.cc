@@ -314,7 +314,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    KeyedResolversVector registerProxies(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
+    KeyedResolversVector registerResolvers(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
 
     std::vector<std::shared_ptr<TestESProductResolverTemplateJ>> proxies_;
     std::vector<unsigned> expectedCacheIds_;
@@ -332,7 +332,7 @@ namespace edmtest {
     descriptions.addDefault(desc);
   }
 
-  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector ESTestESProductResolverProviderJ::registerProxies(
+  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector ESTestESProductResolverProviderJ::registerResolvers(
       const edm::eventsetup::EventSetupRecordKey& iRecord, unsigned int iovIndex) {
     KeyedResolversVector keyedResolversVector;
     while (iovIndex >= proxies_.size()) {
