@@ -392,7 +392,7 @@ void StatisticsSenderService::fillUDP(const std::string &siteName,
   } else {
     os << "\"fallback\": false, ";
   }
-  os << "\"type\": ";
+  os << "\"read_type\": ";
   switch (fileinfo.m_type) {
     case edm::InputType::Primary: {
       os << "\"primary\", ";
