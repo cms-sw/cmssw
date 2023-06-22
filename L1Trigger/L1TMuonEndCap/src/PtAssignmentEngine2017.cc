@@ -23,9 +23,11 @@ float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
   // TRG       = (1.2 + 0.015*TRG) * XML
   // TRG       = 1.2*XML / (1 - 0.015*XML)
   // TRG / XML = 1.2 / (1 - 0.015*XML)
-
-  if (ptLUTVersion_ >= 8) {  // First "physics" LUTs for 2022, will be deployed in June 2022
-    pt_xml = fmin(20., pt);  // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~32 GeV)
+  if (ptLUTVersion_ >= 9) {  // LUTs with lower pT scale for 2023, deployed in May 2023
+    pt_xml = fmin(20., pt);  // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~31 GeV)
+    pt_scale = 1.07 / (1 - 0.015 * pt_xml);
+  } else if (ptLUTVersion_ == 8) {  // First "physics" LUTs for 2022, will be deployed in June 2022
+    pt_xml = fmin(20., pt);         // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~32 GeV)
     pt_scale = 1.13 / (1 - 0.015 * pt_xml);
   } else if (ptLUTVersion_ >= 6) {  // First "physics" LUTs for 2017, deployed June 7
     pt_xml = fmin(20., pt);         // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~35 GeV)
@@ -40,7 +42,10 @@ float PtAssignmentEngine2017::unscale_pt(const float pt, const int mode) const {
 
   float pt_unscale = -99;
 
-  if (ptLUTVersion_ >= 8) {  // First "physics" LUTs for 2022, will be deployed in June 2022
+  if (ptLUTVersion_ >= 9) {  // LUTs with lower pT scale for 2023, deployed in May 2023
+    pt_unscale = 1 / (1.07 + 0.015 * pt);
+    pt_unscale = fmax(pt_unscale, (1 - 0.015 * 20) / 1.07);
+  } else if (ptLUTVersion_ == 8) {  // First "physics" LUTs for 2022, will be deployed in June 2022
     pt_unscale = 1 / (1.13 + 0.015 * pt);
     pt_unscale = fmax(pt_unscale, (1 - 0.015 * 20) / 1.13);
   } else if (ptLUTVersion_ >= 6) {  // First "physics" LUTs for 2017, deployed June 7

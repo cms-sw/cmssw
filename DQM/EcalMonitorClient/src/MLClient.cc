@@ -59,7 +59,7 @@ namespace ecaldqm {
     double pu = sPU.getFloatValue();
 
     //Do not compute ML quality if PU is non existent.
-    if (pu < 0.) {
+    if (pu <= 0.) {
       return;
     }
     uint32_t mask(1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR |

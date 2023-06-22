@@ -57,8 +57,15 @@ namespace edm {
   }
 
   template <typename... Args>
-  inline ErrorObj& ErrorObj::format(std::string_view fmt, Args const&... args) {
-    auto str = fmt::format(fmt, args...);
+  inline ErrorObj& ErrorObj::format(fmt::format_string<Args...> format, Args&&... args) {
+    auto str = fmt::format(std::move(format), std::forward<Args>(args)...);
+    if (!str.empty())
+      emitToken(str);
+    return *this;
+  }
+
+  inline ErrorObj& ErrorObj::vformat(std::string_view format, fmt::format_args args) {
+    auto str = fmt::vformat(format, std::move(args));
     if (!str.empty())
       emitToken(str);
     return *this;

@@ -34,7 +34,7 @@ ZtoEEEventSelector::ZtoEEEventSelector(const edm::ParameterSet& ps)
       maxDeltaEtaInEE_(ps.getUntrackedParameter<double>("maxDeltaEtaInEE", .009)),
       maxHOEEE_(ps.getUntrackedParameter<double>("maxHOEEB_", .10)),
       maxSigmaiEiEEE_(ps.getUntrackedParameter<double>("maxSigmaiEiEEE", .03)),
-      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 10)),
+      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 1000)),
       maxD0_(ps.getUntrackedParameter<double>("maxD0", 0.02)),
       maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
       minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),

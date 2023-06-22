@@ -17,6 +17,11 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.RPCGeometry=dict()
+
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')

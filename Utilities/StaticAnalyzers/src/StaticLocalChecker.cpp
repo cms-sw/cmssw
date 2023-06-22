@@ -34,10 +34,15 @@ namespace clangcms {
 
       std::string buf;
       llvm::raw_string_ostream os(buf);
-      os << "Non-const variable '" << t.getAsString() << " " << *D
+      os << "Non-const variable '" << t.getAsString() << " " << D->getQualifiedNameAsString()
          << "' is static local or static member data and might be thread-unsafe";
-
-      BR.EmitBasicReport(D, this, "non-const static variable", "ThreadSafety", os.str(), DLoc);
+      if (!BT)
+        BT = std::make_unique<clang::ento::BugType>(this, "non-const static variable", "ThreadSafety");
+      std::unique_ptr<clang::ento::BasicBugReport> R =
+          std::make_unique<clang::ento::BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);
+      R->setDeclWithIssue(D);
+      R->addRange(D->getSourceRange());
+      BR.emitReport(std::move(R));
       return;
     }
   }
