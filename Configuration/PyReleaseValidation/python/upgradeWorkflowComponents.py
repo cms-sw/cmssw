@@ -772,7 +772,7 @@ upgradeWFs['photonDRN'].step3 = {
 #   - 2023 conditions, Z->mumu
 #   - 2026D88 conditions, TTbar
 class PatatrackWorkflow(UpgradeWorkflow):
-    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
+    def __init__(self, digi = {}, reco = {}, mini = {}, harvest = {}, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
         super(PatatrackWorkflow, self).__init__(
             steps = [
@@ -788,6 +788,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
                 'RecoNanoFakeHLT',
                 'HARVESTNano',
                 'HARVESTNanoFakeHLT',
+                'MiniAOD',
                 'Nano',
                 'ALCA',
                 'ALCAPhase2'
@@ -805,6 +806,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
                 'RecoNanoFakeHLT',
                 'HARVESTNano',
                 'HARVESTNanoFakeHLT',
+                'MiniAOD',
                 'Nano',
                 'ALCA',
                 'ALCAPhase2'
@@ -812,10 +814,12 @@ class PatatrackWorkflow(UpgradeWorkflow):
             **kwargs)
         self.__digi = digi
         self.__reco = reco
-        self.__reco.update({
-            '--datatier':     'GEN-SIM-RECO,DQMIO',
-            '--eventcontent': 'RECOSIM,DQM'
-        })
+        if 'DQM' in self.__reco:
+            self.__reco.update({
+                '--datatier':     'GEN-SIM-RECO,DQMIO',
+                '--eventcontent': 'RECOSIM,DQM'
+            })
+        self.__mini = mini
         self.__harvest = harvest
 
     def condition(self, fragment, stepList, key, hasHarvest):
@@ -847,6 +851,11 @@ class PatatrackWorkflow(UpgradeWorkflow):
               stepDict[stepName][k] = None
             else:
               stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
+        elif 'MiniAOD' in step:
+            if self.__mini is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__mini, stepDict[step][k]])
         elif 'HARVEST' in step:
             if self.__harvest is None:
               stepDict[stepName][k] = None
@@ -1390,6 +1399,25 @@ upgradeWFs['PatatrackFullRecoTripletsCPU'] = PatatrackWorkflow(
     suffix = 'Patatrack_FullRecoTripletsCPU',
     offset = 0.595,
 )
+#  - ProdLike
+upgradeWFs['PatatrackFullRecoTripletsCPUProdLike'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--datatier':'GEN-SIM-RAW',
+        '--eventcontent':'RAWSIM',
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM',
+        '--procModifiers': 'pixelNtupletFit',
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets',
+        '--datatier':'AODSIM',
+        '--eventcontent':'AODSIM',
+    },
+    harvest = None,
+    suffix = 'Patatrack_FullRecoTripletsCPUProdLike',
+    offset = 0.59521,
+)
 
 # Workflow running the Pixel triplets, ECAL and HCAL reconstruction on GPU (optional), together with the full offline reconstruction on CPU
 #  - HLT on GPU (optional)
@@ -1411,6 +1439,26 @@ upgradeWFs['PatatrackFullRecoTripletsGPU'] = PatatrackWorkflow(
     },
     suffix = 'Patatrack_FullRecoTripletsGPU',
     offset = 0.596,
+)
+#  - ProdLike
+upgradeWFs['PatatrackFullRecoTripletsGPUProdLike'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--procModifiers': 'gpu',
+        '--datatier':'GEN-SIM-RAW',
+        '--eventcontent':'RAWSIM',
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets',
+        '--datatier':'AODSIM',
+        '--eventcontent':'AODSIM',
+    },
+    harvest = None,
+    suffix = 'Patatrack_FullRecoTripletsGPUProdLike',
+    offset = 0.59621,
 )
 
 # Workflow running the Pixel triplets, ECAL and HCAL reconstruction on CPU and GPU, together with the full offline reconstruction on CPU
@@ -1436,7 +1484,6 @@ upgradeWFs['PatatrackFullRecoTripletsGPUValidation'] = PatatrackWorkflow(
     suffix = 'Patatrack_FullRecoTripletsGPU_Validation',
     offset = 0.597,
 )
-
 
 # end of Patatrack workflows
 
