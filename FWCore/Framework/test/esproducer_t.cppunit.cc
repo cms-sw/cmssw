@@ -15,7 +15,7 @@
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DepOn2Record.h"
 #include "FWCore/Framework/test/DepRecord.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/es_Label.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -96,7 +96,7 @@ class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST(labelTest);
   CPPUNIT_TEST_EXCEPTION(failMultipleRegistration, cms::Exception);
   CPPUNIT_TEST(forceCacheClearTest);
-  CPPUNIT_TEST(dataProxyProviderTest);
+  CPPUNIT_TEST(productResolverProviderTest);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -115,7 +115,7 @@ public:
   void labelTest();
   void failMultipleRegistration();
   void forceCacheClearTest();
-  void dataProxyProviderTest();
+  void productResolverProviderTest();
 
 private:
   edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
@@ -230,12 +230,12 @@ void testEsproducer::registerTest() {
   Test1Producer testProd;
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
   EventSetupRecordKey depRecordKey = EventSetupRecordKey::makeKey<DepRecord>();
-  testProd.createKeyedProxies(dummyRecordKey, 1);
+  testProd.createKeyedResolvers(dummyRecordKey, 1);
   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
   CPPUNIT_ASSERT(!testProd.isUsingRecord(depRecordKey));
-  const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
+  const ESProductResolverProvider::KeyedResolvers& keyedResolvers = testProd.keyedResolvers(dummyRecordKey);
 
-  CPPUNIT_ASSERT(keyedProxies.size() == 1);
+  CPPUNIT_ASSERT(keyedResolvers.size() == 1);
 }
 
 void testEsproducer::getFromTest() {
@@ -258,7 +258,7 @@ void testEsproducer::getFromTest() {
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     const edm::EventSetup eventSetup(provider.eventSetupImpl(),
                                      static_cast<unsigned int>(edm::Transition::Event),
@@ -286,7 +286,7 @@ void testEsproducer::getFromLambdaTest() {
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     const edm::EventSetup eventSetup(provider.eventSetupImpl(),
                                      static_cast<unsigned int>(edm::Transition::Event),
@@ -303,8 +303,8 @@ void testEsproducer::getfromShareTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<ShareProducer>();
-  provider.add(pProxyProv);
+  std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<ShareProducer>();
+  provider.add(pResolverProv);
 
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
@@ -315,7 +315,7 @@ void testEsproducer::getfromShareTest() {
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     const edm::EventSetup eventSetup(provider.eventSetupImpl(),
                                      static_cast<unsigned int>(edm::Transition::Event),
@@ -332,8 +332,8 @@ void testEsproducer::getfromUniqueTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<UniqueProducer>();
-  provider.add(pProxyProv);
+  std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<UniqueProducer>();
+  provider.add(pResolverProv);
 
   auto pFinder = std::make_shared<DummyFinder>();
   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
@@ -344,7 +344,7 @@ void testEsproducer::getfromUniqueTest() {
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     const edm::EventSetup eventSetup(provider.eventSetupImpl(),
                                      static_cast<unsigned int>(edm::Transition::Event),
@@ -372,7 +372,7 @@ void testEsproducer::getfromOptionalTest() {
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     const edm::EventSetup eventSetup(provider.eventSetupImpl(),
                                      static_cast<unsigned int>(edm::Transition::Event),
@@ -390,8 +390,8 @@ void testEsproducer::labelTest() {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<LabelledProducer>();
-    provider.add(pProxyProv);
+    std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<LabelledProducer>();
+    provider.add(pResolverProv);
 
     auto pFinder = std::make_shared<DummyFinder>();
     provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
@@ -402,7 +402,7 @@ void testEsproducer::labelTest() {
       pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
       controller.eventSetupForInstance(edm::IOVSyncValue(time));
       DummyDataConsumer2 consumer(edm::ESInputTag("", "foo"), edm::ESInputTag("", "fi"), edm::ESInputTag("", "fum"));
-      consumer.updateLookup(provider.recordsToProxyIndices());
+      consumer.updateLookup(provider.recordsToResolverIndices());
       consumer.prefetch(provider.eventSetupImpl());
       const edm::EventSetup eventSetup(provider.eventSetupImpl(),
                                        static_cast<unsigned int>(edm::Transition::Event),
@@ -467,7 +467,7 @@ void testEsproducer::decoratorTest() {
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
 
     CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
     CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_post);
@@ -517,7 +517,7 @@ void testEsproducer::dependsOnTest() {
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
     controller.eventSetupForInstance(edm::IOVSyncValue(time));
     DummyDataConsumer<DepRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     const edm::EventSetup eventSetup(provider.eventSetupImpl(),
                                      static_cast<unsigned int>(edm::Transition::Event),
@@ -546,7 +546,7 @@ void testEsproducer::forceCacheClearTest() {
   controller.eventSetupForInstance(edm::IOVSyncValue(time));
   {
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     edm::ESParentContext parentC;
     const edm::EventSetup eventSetup(provider.eventSetupImpl(),
@@ -561,7 +561,7 @@ void testEsproducer::forceCacheClearTest() {
   controller.eventSetupForInstance(edm::IOVSyncValue(time));
   {
     DummyDataConsumer<DummyRecord> consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     edm::ESParentContext parentC;
     const edm::EventSetup eventSetup2(provider.eventSetupImpl(),
@@ -575,11 +575,11 @@ void testEsproducer::forceCacheClearTest() {
 }
 
 namespace {
-  class TestDataProxyProvider : public DataProxyProvider {
+  class TestESProductResolverProvider : public ESProductResolverProvider {
   public:
-    TestDataProxyProvider();
+    TestESProductResolverProvider();
 
-    class TestProxy : public DataProxy {
+    class TestResolver : public ESProductResolver {
     public:
       void prefetchAsyncImpl(edm::WaitingTaskHolder,
                              EventSetupRecordImpl const&,
@@ -597,62 +597,62 @@ namespace {
     DataKey dataKeyDummy2_2_;
     DataKey dataKeyDep_0_;
     DataKey dataKeyDep_1_;
-    std::shared_ptr<TestProxy> proxyDummy_0_0_;
-    std::shared_ptr<TestProxy> proxyDummy_0_1_;
-    std::shared_ptr<TestProxy> proxyDummy_0_2_;
-    std::shared_ptr<TestProxy> proxyDummy2_0_0_;
-    std::shared_ptr<TestProxy> proxyDummy2_1_0_;
-    std::shared_ptr<TestProxy> proxyDummy2_2_0_;
-    std::shared_ptr<TestProxy> proxyDep_0_0_;
-    std::shared_ptr<TestProxy> proxyDep_0_1_;
-    std::shared_ptr<TestProxy> proxyDep_1_0_;
-    std::shared_ptr<TestProxy> proxyDep_1_1_;
+    std::shared_ptr<TestResolver> resolverDummy_0_0_;
+    std::shared_ptr<TestResolver> resolverDummy_0_1_;
+    std::shared_ptr<TestResolver> resolverDummy_0_2_;
+    std::shared_ptr<TestResolver> resolverDummy2_0_0_;
+    std::shared_ptr<TestResolver> resolverDummy2_1_0_;
+    std::shared_ptr<TestResolver> resolverDummy2_2_0_;
+    std::shared_ptr<TestResolver> resolverDep_0_0_;
+    std::shared_ptr<TestResolver> resolverDep_0_1_;
+    std::shared_ptr<TestResolver> resolverDep_1_0_;
+    std::shared_ptr<TestResolver> resolverDep_1_1_;
 
   private:
-    KeyedProxiesVector registerProxies(const EventSetupRecordKey& recordKey, unsigned int iovIndex) override {
-      KeyedProxiesVector keyedProxiesVector;
+    KeyedResolversVector registerProxies(const EventSetupRecordKey& recordKey, unsigned int iovIndex) override {
+      KeyedResolversVector keyedResolversVector;
       if (recordKey == EventSetupRecordKey::makeKey<DummyRecord>()) {
         if (iovIndex == 0) {
-          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_0_);
+          keyedResolversVector.emplace_back(dataKeyDummy_0_, resolverDummy_0_0_);
         } else if (iovIndex == 1) {
-          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_1_);
+          keyedResolversVector.emplace_back(dataKeyDummy_0_, resolverDummy_0_1_);
         } else if (iovIndex == 2) {
-          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_2_);
+          keyedResolversVector.emplace_back(dataKeyDummy_0_, resolverDummy_0_2_);
         }
       } else if (recordKey == EventSetupRecordKey::makeKey<Dummy2Record>()) {
-        keyedProxiesVector.emplace_back(dataKeyDummy2_0_, proxyDummy2_0_0_);
-        keyedProxiesVector.emplace_back(dataKeyDummy2_1_, proxyDummy2_1_0_);
-        keyedProxiesVector.emplace_back(dataKeyDummy2_2_, proxyDummy2_2_0_);
+        keyedResolversVector.emplace_back(dataKeyDummy2_0_, resolverDummy2_0_0_);
+        keyedResolversVector.emplace_back(dataKeyDummy2_1_, resolverDummy2_1_0_);
+        keyedResolversVector.emplace_back(dataKeyDummy2_2_, resolverDummy2_2_0_);
       } else if (recordKey == EventSetupRecordKey::makeKey<DepRecord>()) {
         if (iovIndex == 0) {
-          keyedProxiesVector.emplace_back(dataKeyDep_0_, proxyDep_0_0_);
-          keyedProxiesVector.emplace_back(dataKeyDep_1_, proxyDep_1_0_);
+          keyedResolversVector.emplace_back(dataKeyDep_0_, resolverDep_0_0_);
+          keyedResolversVector.emplace_back(dataKeyDep_1_, resolverDep_1_0_);
         } else if (iovIndex == 1) {
-          keyedProxiesVector.emplace_back(dataKeyDep_0_, proxyDep_0_1_);
-          keyedProxiesVector.emplace_back(dataKeyDep_1_, proxyDep_1_1_);
+          keyedResolversVector.emplace_back(dataKeyDep_0_, resolverDep_0_1_);
+          keyedResolversVector.emplace_back(dataKeyDep_1_, resolverDep_1_1_);
         }
       }
-      return keyedProxiesVector;
+      return keyedResolversVector;
     }
   };
 
-  TestDataProxyProvider::TestDataProxyProvider()
+  TestESProductResolverProvider::TestESProductResolverProvider()
       : dataKeyDummy_0_(DataKey::makeTypeTag<DummyData>(), "Dummy_0"),
         dataKeyDummy2_0_(DataKey::makeTypeTag<DummyData>(), "Dummy2_0"),
         dataKeyDummy2_1_(DataKey::makeTypeTag<DummyData>(), "Dummy2_1"),
         dataKeyDummy2_2_(DataKey::makeTypeTag<DummyData>(), "Dummy2_2"),
         dataKeyDep_0_(DataKey::makeTypeTag<DummyData>(), "Dep_0"),
         dataKeyDep_1_(DataKey::makeTypeTag<DummyData>(), "Dep_1"),
-        proxyDummy_0_0_(std::make_shared<TestProxy>()),
-        proxyDummy_0_1_(std::make_shared<TestProxy>()),
-        proxyDummy_0_2_(std::make_shared<TestProxy>()),
-        proxyDummy2_0_0_(std::make_shared<TestProxy>()),
-        proxyDummy2_1_0_(std::make_shared<TestProxy>()),
-        proxyDummy2_2_0_(std::make_shared<TestProxy>()),
-        proxyDep_0_0_(std::make_shared<TestProxy>()),
-        proxyDep_0_1_(std::make_shared<TestProxy>()),
-        proxyDep_1_0_(std::make_shared<TestProxy>()),
-        proxyDep_1_1_(std::make_shared<TestProxy>()) {
+        resolverDummy_0_0_(std::make_shared<TestResolver>()),
+        resolverDummy_0_1_(std::make_shared<TestResolver>()),
+        resolverDummy_0_2_(std::make_shared<TestResolver>()),
+        resolverDummy2_0_0_(std::make_shared<TestResolver>()),
+        resolverDummy2_1_0_(std::make_shared<TestResolver>()),
+        resolverDummy2_2_0_(std::make_shared<TestResolver>()),
+        resolverDep_0_0_(std::make_shared<TestResolver>()),
+        resolverDep_0_1_(std::make_shared<TestResolver>()),
+        resolverDep_1_0_(std::make_shared<TestResolver>()),
+        resolverDep_1_1_(std::make_shared<TestResolver>()) {
     usingRecord<DummyRecord>();
     usingRecord<Dummy2Record>();
     usingRecord<DepRecord>();
@@ -664,18 +664,18 @@ namespace {
   }
 }  // namespace
 
-void testEsproducer::dataProxyProviderTest() {
-  TestDataProxyProvider dataProxyProvider;
+void testEsproducer::productResolverProviderTest() {
+  TestESProductResolverProvider productResolverProvider;
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
   EventSetupRecordKey dummy2RecordKey = EventSetupRecordKey::makeKey<Dummy2Record>();
   EventSetupRecordKey depRecordKey = EventSetupRecordKey::makeKey<DepRecord>();
   EventSetupRecordKey depOn2RecordKey = EventSetupRecordKey::makeKey<DepOn2Record>();
   unsigned int nConcurrentIOVs = 3;
-  dataProxyProvider.createKeyedProxies(dummyRecordKey, nConcurrentIOVs);
-  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(dummyRecordKey));
-  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(dummy2RecordKey));
-  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(depRecordKey));
-  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(depOn2RecordKey));
+  productResolverProvider.createKeyedResolvers(dummyRecordKey, nConcurrentIOVs);
+  CPPUNIT_ASSERT(productResolverProvider.isUsingRecord(dummyRecordKey));
+  CPPUNIT_ASSERT(productResolverProvider.isUsingRecord(dummy2RecordKey));
+  CPPUNIT_ASSERT(productResolverProvider.isUsingRecord(depRecordKey));
+  CPPUNIT_ASSERT(productResolverProvider.isUsingRecord(depOn2RecordKey));
 
   std::set<EventSetupRecordKey> expectedKeys;
   expectedKeys.insert(dummyRecordKey);
@@ -683,148 +683,148 @@ void testEsproducer::dataProxyProviderTest() {
   expectedKeys.insert(depRecordKey);
   expectedKeys.insert(depOn2RecordKey);
 
-  auto keys = dataProxyProvider.usingRecords();
+  auto keys = productResolverProvider.usingRecords();
   CPPUNIT_ASSERT(keys == expectedKeys);
 
   keys.clear();
-  dataProxyProvider.fillRecordsNotAllowingConcurrentIOVs(keys);
+  productResolverProvider.fillRecordsNotAllowingConcurrentIOVs(keys);
   expectedKeys.clear();
   expectedKeys.insert(dummy2RecordKey);
   CPPUNIT_ASSERT(keys == expectedKeys);
 
   nConcurrentIOVs = 1;
-  dataProxyProvider.createKeyedProxies(dummy2RecordKey, nConcurrentIOVs);
+  productResolverProvider.createKeyedResolvers(dummy2RecordKey, nConcurrentIOVs);
   nConcurrentIOVs = 2;
-  dataProxyProvider.createKeyedProxies(depRecordKey, nConcurrentIOVs);
+  productResolverProvider.createKeyedResolvers(depRecordKey, nConcurrentIOVs);
   nConcurrentIOVs = 4;
-  dataProxyProvider.createKeyedProxies(depOn2RecordKey, nConcurrentIOVs);
+  productResolverProvider.createKeyedResolvers(depOn2RecordKey, nConcurrentIOVs);
 
-  DataProxyProvider::KeyedProxies& keyedProxies0 = dataProxyProvider.keyedProxies(dummyRecordKey, 0);
-  CPPUNIT_ASSERT(keyedProxies0.recordKey() == dummyRecordKey);
-  CPPUNIT_ASSERT(keyedProxies0.size() == 1);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers0 = productResolverProvider.keyedResolvers(dummyRecordKey, 0);
+  CPPUNIT_ASSERT(keyedResolvers0.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedResolvers0.size() == 1);
   {
-    auto it = keyedProxies0.begin();
-    auto itEnd = keyedProxies0.end();
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_0_.get());
+    auto it = keyedResolvers0.begin();
+    auto itEnd = keyedResolvers0.end();
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDummy_0_0_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies1 = dataProxyProvider.keyedProxies(dummyRecordKey, 1);
-  CPPUNIT_ASSERT(keyedProxies1.recordKey() == dummyRecordKey);
-  CPPUNIT_ASSERT(keyedProxies1.size() == 1);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers1 = productResolverProvider.keyedResolvers(dummyRecordKey, 1);
+  CPPUNIT_ASSERT(keyedResolvers1.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedResolvers1.size() == 1);
   {
-    auto it = keyedProxies1.begin();
-    auto itEnd = keyedProxies1.end();
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_1_.get());
+    auto it = keyedResolvers1.begin();
+    auto itEnd = keyedResolvers1.end();
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDummy_0_1_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies2 = dataProxyProvider.keyedProxies(dummyRecordKey, 2);
-  CPPUNIT_ASSERT(keyedProxies2.recordKey() == dummyRecordKey);
-  CPPUNIT_ASSERT(keyedProxies2.size() == 1);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers2 = productResolverProvider.keyedResolvers(dummyRecordKey, 2);
+  CPPUNIT_ASSERT(keyedResolvers2.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedResolvers2.size() == 1);
   {
-    auto it = keyedProxies2.begin();
-    auto itEnd = keyedProxies2.end();
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_2_.get());
+    auto it = keyedResolvers2.begin();
+    auto itEnd = keyedResolvers2.end();
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDummy_0_2_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies3 = dataProxyProvider.keyedProxies(dummy2RecordKey, 0);
-  CPPUNIT_ASSERT(keyedProxies3.recordKey() == dummy2RecordKey);
-  CPPUNIT_ASSERT(keyedProxies3.size() == 3);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers3 = productResolverProvider.keyedResolvers(dummy2RecordKey, 0);
+  CPPUNIT_ASSERT(keyedResolvers3.recordKey() == dummy2RecordKey);
+  CPPUNIT_ASSERT(keyedResolvers3.size() == 3);
   {
-    auto it = keyedProxies3.begin();
-    auto itEnd = keyedProxies3.end();
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_0_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_0_0_.get());
+    auto it = keyedResolvers3.begin();
+    auto itEnd = keyedResolvers3.end();
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDummy2_0_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDummy2_0_0_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_1_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_1_0_.get());
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDummy2_1_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDummy2_1_0_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_2_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_2_0_.get());
-    CPPUNIT_ASSERT(it != itEnd);
-    ++it;
-    CPPUNIT_ASSERT(!(it != itEnd));
-  }
-  DataProxyProvider::KeyedProxies& keyedProxies4 = dataProxyProvider.keyedProxies(depRecordKey, 0);
-  CPPUNIT_ASSERT(keyedProxies4.recordKey() == depRecordKey);
-  CPPUNIT_ASSERT(keyedProxies4.size() == 2);
-  {
-    auto it = keyedProxies4.begin();
-    auto itEnd = keyedProxies4.end();
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_0_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_0_0_.get());
-    CPPUNIT_ASSERT(it != itEnd);
-    ++it;
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_1_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_1_0_.get());
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDummy2_2_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDummy2_2_0_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies5 = dataProxyProvider.keyedProxies(depRecordKey, 1);
-  CPPUNIT_ASSERT(keyedProxies5.recordKey() == depRecordKey);
-  CPPUNIT_ASSERT(keyedProxies5.size() == 2);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers4 = productResolverProvider.keyedResolvers(depRecordKey, 0);
+  CPPUNIT_ASSERT(keyedResolvers4.recordKey() == depRecordKey);
+  CPPUNIT_ASSERT(keyedResolvers4.size() == 2);
   {
-    auto it = keyedProxies5.begin();
-    auto itEnd = keyedProxies5.end();
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_0_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_0_1_.get());
+    auto it = keyedResolvers4.begin();
+    auto itEnd = keyedResolvers4.end();
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDep_0_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDep_0_0_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
-    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_1_);
-    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_1_1_.get());
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDep_1_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDep_1_0_.get());
     CPPUNIT_ASSERT(it != itEnd);
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies6 = dataProxyProvider.keyedProxies(depOn2RecordKey, 0);
-  CPPUNIT_ASSERT(keyedProxies6.recordKey() == depOn2RecordKey);
-  CPPUNIT_ASSERT(keyedProxies6.size() == 0);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers5 = productResolverProvider.keyedResolvers(depRecordKey, 1);
+  CPPUNIT_ASSERT(keyedResolvers5.recordKey() == depRecordKey);
+  CPPUNIT_ASSERT(keyedResolvers5.size() == 2);
   {
-    auto it = keyedProxies6.begin();
-    auto itEnd = keyedProxies6.end();
+    auto it = keyedResolvers5.begin();
+    auto itEnd = keyedResolvers5.end();
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDep_0_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDep_0_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == productResolverProvider.dataKeyDep_1_);
+    CPPUNIT_ASSERT(it.productResolver() == productResolverProvider.resolverDep_1_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies7 = dataProxyProvider.keyedProxies(depOn2RecordKey, 1);
-  CPPUNIT_ASSERT(keyedProxies7.recordKey() == depOn2RecordKey);
-  CPPUNIT_ASSERT(keyedProxies7.size() == 0);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers6 = productResolverProvider.keyedResolvers(depOn2RecordKey, 0);
+  CPPUNIT_ASSERT(keyedResolvers6.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedResolvers6.size() == 0);
   {
-    auto it = keyedProxies7.begin();
-    auto itEnd = keyedProxies7.end();
+    auto it = keyedResolvers6.begin();
+    auto itEnd = keyedResolvers6.end();
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies8 = dataProxyProvider.keyedProxies(depOn2RecordKey, 2);
-  CPPUNIT_ASSERT(keyedProxies8.recordKey() == depOn2RecordKey);
-  CPPUNIT_ASSERT(keyedProxies8.size() == 0);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers7 = productResolverProvider.keyedResolvers(depOn2RecordKey, 1);
+  CPPUNIT_ASSERT(keyedResolvers7.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedResolvers7.size() == 0);
   {
-    auto it = keyedProxies8.begin();
-    auto itEnd = keyedProxies8.end();
+    auto it = keyedResolvers7.begin();
+    auto itEnd = keyedResolvers7.end();
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  DataProxyProvider::KeyedProxies& keyedProxies9 = dataProxyProvider.keyedProxies(depOn2RecordKey, 3);
-  CPPUNIT_ASSERT(keyedProxies9.recordKey() == depOn2RecordKey);
-  CPPUNIT_ASSERT(keyedProxies9.size() == 0);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers8 = productResolverProvider.keyedResolvers(depOn2RecordKey, 2);
+  CPPUNIT_ASSERT(keyedResolvers8.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedResolvers8.size() == 0);
   {
-    auto it = keyedProxies9.begin();
-    auto itEnd = keyedProxies9.end();
+    auto it = keyedResolvers8.begin();
+    auto itEnd = keyedResolvers8.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers9 = productResolverProvider.keyedResolvers(depOn2RecordKey, 3);
+  CPPUNIT_ASSERT(keyedResolvers9.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedResolvers9.size() == 0);
+  {
+    auto it = keyedResolvers9.begin();
+    auto itEnd = keyedResolvers9.end();
     CPPUNIT_ASSERT(!(it != itEnd));
   }
 
-  CPPUNIT_ASSERT(keyedProxies4.contains(dataProxyProvider.dataKeyDep_0_));
-  CPPUNIT_ASSERT(keyedProxies4.contains(dataProxyProvider.dataKeyDep_1_));
-  CPPUNIT_ASSERT(!keyedProxies4.contains(dataProxyProvider.dataKeyDummy_0_));
+  CPPUNIT_ASSERT(keyedResolvers4.contains(productResolverProvider.dataKeyDep_0_));
+  CPPUNIT_ASSERT(keyedResolvers4.contains(productResolverProvider.dataKeyDep_1_));
+  CPPUNIT_ASSERT(!keyedResolvers4.contains(productResolverProvider.dataKeyDummy_0_));
 
-  DataProxyProvider::KeyedProxies keyedProxies10(nullptr, 0);
-  CPPUNIT_ASSERT(keyedProxies10.unInitialized());
-  CPPUNIT_ASSERT(!keyedProxies0.unInitialized());
+  ESProductResolverProvider::KeyedResolvers keyedResolvers10(nullptr, 0);
+  CPPUNIT_ASSERT(keyedResolvers10.unInitialized());
+  CPPUNIT_ASSERT(!keyedResolvers0.unInitialized());
 }

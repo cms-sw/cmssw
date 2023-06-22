@@ -1,13 +1,13 @@
-#ifndef Framework_CallbackProxy_h
-#define Framework_CallbackProxy_h
+#ifndef Framework_CallbackProductResolver_h
+#define Framework_CallbackProductResolver_h
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     CallbackProxy
+// Class  :     CallbackProductResolver
 //
-/**\class CallbackProxy CallbackProxy.h FWCore/Framework/interface/CallbackProxy.h
+/**\class CallbackProductResolver CallbackProductResolver.h FWCore/Framework/interface/CallbackProductResolver.h
 
- Description: A DataProxy which performs a callback when data is requested
+ Description: A ESProductResolver which performs a callback when data is requested
 
  Usage:
     This class is primarily used by ESProducer to allow the EventSetup system
@@ -24,7 +24,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -36,20 +36,20 @@
 namespace edm::eventsetup {
 
   template <class CallbackT, class RecordT, class DataT>
-  class CallbackProxy final : public DataProxy {
+  class CallbackProductResolver final : public ESProductResolver {
   public:
     using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
     using ValueType = typename smart_pointer_traits::type;
     using RecordType = RecordT;
 
-    CallbackProxy(std::shared_ptr<CallbackT>& iCallback) : callback_{iCallback} {
+    CallbackProductResolver(std::shared_ptr<CallbackT>& iCallback) : callback_{iCallback} {
       //The callback fills the data directly.  This is done so that the callback does not have to
       //  hold onto a temporary copy of the result of the callback since the callback is allowed
-      //  to return multiple items where only one item is needed by this Proxy
+      //  to return multiple items where only one item is needed by this ProductResolver
       iCallback->holdOntoPointer(&data_);
     }
 
-    ~CallbackProxy() final {
+    ~CallbackProductResolver() final {
       DataT* dummy(nullptr);
       callback_->holdOntoPointer(dummy);
     }
@@ -72,8 +72,8 @@ namespace edm::eventsetup {
     }
 
     // Delete copy operations
-    CallbackProxy(const CallbackProxy&) = delete;
-    const CallbackProxy& operator=(const CallbackProxy&) = delete;
+    CallbackProductResolver(const CallbackProductResolver&) = delete;
+    const CallbackProductResolver& operator=(const CallbackProductResolver&) = delete;
 
   private:
     DataT data_{};

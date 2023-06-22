@@ -32,7 +32,7 @@ namespace edm {
   class ModuleTypeResolverMaker;
   class PreallocationConfiguration;
   namespace eventsetup {
-    class ESRecordsToProxyIndices;
+    class ESRecordsToProductResolverIndices;
   }
   class WorkerManager {
   public:
@@ -77,7 +77,7 @@ namespace edm {
     void setupOnDemandSystem(EventTransitionInfo const&);
 
     void beginJob(ProductRegistry const& iRegistry,
-                  eventsetup::ESRecordsToProxyIndices const&,
+                  eventsetup::ESRecordsToProductResolverIndices const&,
                   ProcessBlockHelperBase const&);
     void endJob();
     void endJob(ExceptionCollector& collector);

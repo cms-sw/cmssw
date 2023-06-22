@@ -11,7 +11,7 @@
 //
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
 
 namespace edm {
@@ -20,7 +20,7 @@ namespace edm {
 
   ESProducer::~ESProducer() noexcept(false) {}
 
-  void ESProducer::updateLookup(eventsetup::ESRecordsToProxyIndices const& iProxyToIndices) {
+  void ESProducer::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iResolverToIndices) {
     if (sharedResourceNames_) {
       auto instance = SharedResourcesRegistry::instance();
       acquirer_ = instance->createAcquirer(*sharedResourceNames_);
@@ -39,43 +39,43 @@ namespace edm {
       items.reserve(info->size());
       auto& records = recordsUsedDuringGet_.emplace_back();
       records.reserve(info->size());
-      for (auto& proxyInfo : *info) {
+      for (auto& resolverInfo : *info) {
         //check for mayConsumes
-        if (auto chooser = proxyInfo.chooser_.get()) {
+        if (auto chooser = resolverInfo.chooser_.get()) {
           hasMayConsumes_ = true;
-          auto tagGetter = iProxyToIndices.makeTagGetter(chooser->recordKey(), chooser->productType());
+          auto tagGetter = iResolverToIndices.makeTagGetter(chooser->recordKey(), chooser->productType());
           if (not tagGetter.hasNothingToGet()) {
-            records.push_back(iProxyToIndices.recordIndexFor(chooser->recordKey()));
+            records.push_back(iResolverToIndices.recordIndexFor(chooser->recordKey()));
           } else {
-            //The record is not actually missing but the proxy is
-            records.emplace_back(eventsetup::ESRecordsToProxyIndices::missingRecordIndex());
+            //The record is not actually missing but the resolver is
+            records.emplace_back(eventsetup::ESRecordsToProductResolverIndices::missingRecordIndex());
           }
           chooser->setTagGetter(std::move(tagGetter));
-          items.push_back(eventsetup::ESRecordsToProxyIndices::missingProxyIndex());
+          items.push_back(eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex());
         } else {
-          auto index = iProxyToIndices.indexInRecord(proxyInfo.recordKey_, proxyInfo.productKey_);
-          if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
-            if (not proxyInfo.moduleLabel_.empty()) {
-              auto component = iProxyToIndices.component(proxyInfo.recordKey_, proxyInfo.productKey_);
+          auto index = iResolverToIndices.indexInRecord(resolverInfo.recordKey_, resolverInfo.productKey_);
+          if (index != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
+            if (not resolverInfo.moduleLabel_.empty()) {
+              auto component = iResolverToIndices.component(resolverInfo.recordKey_, resolverInfo.productKey_);
               if (nullptr == component) {
-                index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+                index = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
               } else {
                 if (component->label_.empty()) {
-                  if (component->type_ != proxyInfo.moduleLabel_) {
-                    index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+                  if (component->type_ != resolverInfo.moduleLabel_) {
+                    index = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
                   }
-                } else if (component->label_ != proxyInfo.moduleLabel_) {
-                  index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+                } else if (component->label_ != resolverInfo.moduleLabel_) {
+                  index = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
                 }
               }
             }
           }
           items.push_back(index);
-          if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
-            records.push_back(iProxyToIndices.recordIndexFor(proxyInfo.recordKey_));
+          if (index != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
+            records.push_back(iResolverToIndices.recordIndexFor(resolverInfo.recordKey_));
           } else {
-            //The record is not actually missing but the proxy is
-            records.emplace_back(eventsetup::ESRecordsToProxyIndices::missingRecordIndex());
+            //The record is not actually missing but the resolver is
+            records.emplace_back(eventsetup::ESRecordsToProductResolverIndices::missingRecordIndex());
           }
           assert(items.size() == records.size());
         }

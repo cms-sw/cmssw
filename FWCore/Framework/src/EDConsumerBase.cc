@@ -21,7 +21,7 @@
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -144,7 +144,7 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
   }
 }
 
-void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iPI) {
   // temporarily unfreeze to allow late EventSetup consumes registration
   frozen_ = false;
   registerLateConsumes(iPI);
@@ -153,20 +153,20 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI
   unsigned int index = 0;
   for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
     auto indexInRecord = iPI.indexInRecord(it->m_record, it->m_key);
-    if (indexInRecord != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
+    if (indexInRecord != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
       const char* componentName = &(m_tokenLabels[it->m_startOfComponentName]);
       if (*componentName) {
         auto component = iPI.component(it->m_record, it->m_key);
         if (component->label_.empty()) {
           if (component->type_ != componentName) {
-            indexInRecord = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+            indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
           }
         } else if (component->label_ != componentName) {
-          indexInRecord = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+          indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
         }
       }
     }
-    m_esTokenInfo.get<kESProxyIndex>(index) = indexInRecord;
+    m_esTokenInfo.get<kESResolverIndex>(index) = indexInRecord;
 
     int negIndex = -1 * (index + 1);
     for (auto& items : esItemsToGetFromTransition_) {
@@ -208,10 +208,10 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
     }
   }
 
-  auto index = static_cast<ESProxyIndex::Value_t>(m_esTokenInfo.size());
+  auto index = static_cast<ESResolverIndex::Value_t>(m_esTokenInfo.size());
   m_esTokenInfo.emplace_back(
       ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType, iTag.data().c_str()}, startOfComponentName},
-      ESProxyIndex{-1});
+      ESResolverIndex{-1});
   if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
     throwESConsumesInProcessBlock();
   }

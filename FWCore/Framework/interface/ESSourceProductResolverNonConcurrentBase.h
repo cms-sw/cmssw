@@ -1,17 +1,17 @@
-#ifndef FWCore_Framework_ESSourceDataProxyNonConcurrentBase_h
-#define FWCore_Framework_ESSourceDataProxyNonConcurrentBase_h
+#ifndef FWCore_Framework_ESSourceProductResolverNonConcurrentBase_h
+#define FWCore_Framework_ESSourceProductResolverNonConcurrentBase_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     ESSourceDataProxyNonConcurrentBase
+// Class  :     ESSourceProductResolverNonConcurrentBase
 //
-/**\class ESSourceDataProxyNonConcurrentBase ESSourceDataProxyNonConcurrentBase.h "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
+/**\class ESSourceProductResolverNonConcurrentBase ESSourceProductResolverNonConcurrentBase.h "FWCore/Framework/interface/ESSourceProductResolverNonConcurrentBase.h"
 
  Description: Base class for DataProxies for ESSources that require synchronization
 
  Usage:
-    The ESSourceDataProxyNonConcurrentBase uses a SerialTaskQueue to serialize all DataProxies for the ESSource and a
-    std::mutex to protect from concurrent calls to a DataProxy and the ESSource itself. Such concurrent calls
+    The ESSourceProductResolverNonConcurrentBase uses a SerialTaskQueue to serialize all DataProxies for the ESSource and a
+    std::mutex to protect from concurrent calls to a ESProductResolver and the ESSource itself. Such concurrent calls
     can happen if concurrent LuminosityBlocks are being used.
 
     NOTE: if inheriting classes override `void invalidateCache()` they must be sure to call this classes
@@ -27,15 +27,15 @@
 #include <mutex>
 
 // user include files
-#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverBase.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 // forward declarations
 
 namespace edm::eventsetup {
-  class ESSourceDataProxyNonConcurrentBase : public ESSourceDataProxyBase {
+  class ESSourceProductResolverNonConcurrentBase : public ESSourceProductResolverBase {
   public:
-    ESSourceDataProxyNonConcurrentBase(edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
+    ESSourceProductResolverNonConcurrentBase(edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
         : m_queue(iQueue), m_mutex(iMutex) {}
 
     edm::SerialTaskQueue* queue() const { return m_queue; }

@@ -22,7 +22,7 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 #include "FWCore/TestProcessor/interface/ESProduceEntry.h"
@@ -31,20 +31,20 @@
 namespace edm {
   namespace test {
 
-    class EventSetupTestHelper : public eventsetup::DataProxyProvider, public EventSetupRecordIntervalFinder {
+    class EventSetupTestHelper : public eventsetup::ESProductResolverProvider, public EventSetupRecordIntervalFinder {
     public:
       EventSetupTestHelper(std::vector<ESProduceEntry>);
       EventSetupTestHelper(const EventSetupTestHelper&) = delete;
       const EventSetupTestHelper& operator=(const EventSetupTestHelper&) = delete;
 
-      std::shared_ptr<eventsetup::DataProxy> getProxy(unsigned int index);
+      std::shared_ptr<eventsetup::ESProductResolver> getResolver(unsigned int index);
 
       void resetAllProxies();
 
     protected:
       void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) final;
 
-      KeyedProxiesVector registerProxies(const eventsetup::EventSetupRecordKey&, unsigned int iovIndex) final;
+      KeyedResolversVector registerProxies(const eventsetup::EventSetupRecordKey&, unsigned int iovIndex) final;
 
     private:
       // ---------- member data --------------------------------

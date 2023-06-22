@@ -24,8 +24,8 @@
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -51,9 +51,9 @@ namespace edm {
 
     EventSetupRecordImpl const& EventSetupRecordProvider::firstRecordImpl() const { return recordImpls_[0]; }
 
-    void EventSetupRecordProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
+    void EventSetupRecordProvider::add(std::shared_ptr<ESProductResolverProvider> iProvider) {
       assert(iProvider->isUsingRecord(key_));
-      edm::propagate_const<std::shared_ptr<DataProxyProvider>> pProvider(iProvider);
+      edm::propagate_const<std::shared_ptr<ESProductResolverProvider>> pProvider(iProvider);
       assert(!search_all(providers_, pProvider));
       providers_.emplace_back(iProvider);
     }
@@ -113,24 +113,24 @@ namespace edm {
       multipleFinders_.reset(nullptr);
     }
 
-    void EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<DataProxyProvider> iProvider,
+    void EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<ESProductResolverProvider> iProvider,
                                                       const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
-      typedef DataProxyProvider::KeyedProxies ProxyList;
+      typedef ESProductResolverProvider::KeyedResolvers ResolverList;
       typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
 
       for (auto& record : recordImpls_) {
-        ProxyList& keyedProxies(iProvider->keyedProxies(this->key(), record.iovIndex()));
+        ResolverList& keyedResolvers(iProvider->keyedResolvers(this->key(), record.iovIndex()));
 
-        for (auto keyedProxy : keyedProxies) {
-          PreferredMap::const_iterator itFound = iMap.find(keyedProxy.dataKey_);
+        for (auto keyedResolver : keyedResolvers) {
+          PreferredMap::const_iterator itFound = iMap.find(keyedResolver.dataKey_);
           if (iMap.end() != itFound) {
-            if (itFound->second.type_ != keyedProxy.dataProxy_->providerDescription()->type_ ||
-                itFound->second.label_ != keyedProxy.dataProxy_->providerDescription()->label_) {
+            if (itFound->second.type_ != keyedResolver.productResolver_->providerDescription()->type_ ||
+                itFound->second.label_ != keyedResolver.productResolver_->providerDescription()->label_) {
               //this is not the preferred provider
               continue;
             }
           }
-          record.add(keyedProxy.dataKey_, keyedProxy.dataProxy_);
+          record.add(keyedResolver.dataKey_, keyedResolver.productResolver_);
         }
       }
     }
@@ -213,7 +213,7 @@ namespace edm {
     }
 
     void EventSetupRecordProvider::resetProxies() {
-      // Clear out all the DataProxy's
+      // Clear out all the ESProductResolver's
       for (auto& recordImplIter : recordImpls_) {
         recordImplIter.invalidateProxies();
         recordImplIter.resetIfTransientInProxies();
@@ -243,7 +243,7 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordProvider::resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap) {
+    void EventSetupRecordProvider::resetRecordToResolverPointers(DataToPreferredProviderMap const& iMap) {
       for (auto& recordImplIter : recordImpls_) {
         recordImplIter.clearProxies();
       }
@@ -253,43 +253,43 @@ namespace edm {
 
     std::set<EventSetupRecordKey> EventSetupRecordProvider::dependentRecords() const { return dependencies(key()); }
 
-    std::set<ComponentDescription> EventSetupRecordProvider::proxyProviderDescriptions() const {
+    std::set<ComponentDescription> EventSetupRecordProvider::resolverProviderDescriptions() const {
       using std::placeholders::_1;
       std::set<ComponentDescription> descriptions;
       std::transform(providers_.begin(),
                      providers_.end(),
                      std::inserter(descriptions, descriptions.end()),
-                     std::bind(&DataProxyProvider::description, _1));
+                     std::bind(&ESProductResolverProvider::description, _1));
       return descriptions;
     }
 
-    std::shared_ptr<DataProxyProvider> EventSetupRecordProvider::proxyProvider(ComponentDescription const& iDesc) {
+    std::shared_ptr<ESProductResolverProvider> EventSetupRecordProvider::resolverProvider(ComponentDescription const& iDesc) {
       using std::placeholders::_1;
       auto itFound = std::find_if(
           providers_.begin(),
           providers_.end(),
-          std::bind(std::equal_to<ComponentDescription>(), iDesc, std::bind(&DataProxyProvider::description, _1)));
+          std::bind(std::equal_to<ComponentDescription>(), iDesc, std::bind(&ESProductResolverProvider::description, _1)));
       if (itFound == providers_.end()) {
-        return std::shared_ptr<DataProxyProvider>();
+        return std::shared_ptr<ESProductResolverProvider>();
       }
       return get_underlying_safe(*itFound);
     }
 
-    std::shared_ptr<DataProxyProvider> EventSetupRecordProvider::proxyProvider(ParameterSetIDHolder const& psetID) {
-      for (auto& dataProxyProvider : providers_) {
-        if (dataProxyProvider->description().pid_ == psetID.psetID()) {
-          return get_underlying_safe(dataProxyProvider);
+    std::shared_ptr<ESProductResolverProvider> EventSetupRecordProvider::resolverProvider(ParameterSetIDHolder const& psetID) {
+      for (auto& productResolverProvider : providers_) {
+        if (productResolverProvider->description().pid_ == psetID.psetID()) {
+          return get_underlying_safe(productResolverProvider);
         }
       }
-      return std::shared_ptr<DataProxyProvider>();
+      return std::shared_ptr<ESProductResolverProvider>();
     }
 
-    void EventSetupRecordProvider::resetProxyProvider(
-        ParameterSetIDHolder const& psetID, std::shared_ptr<DataProxyProvider> const& sharedDataProxyProvider) {
-      for (auto& dataProxyProvider : providers_) {
-        if (dataProxyProvider->description().pid_ == psetID.psetID()) {
-          dataProxyProvider = sharedDataProxyProvider;
-          dataProxyProvider->createKeyedProxies(key_, nConcurrentIOVs_);
+    void EventSetupRecordProvider::resetProductResolverProvider(
+        ParameterSetIDHolder const& psetID, std::shared_ptr<ESProductResolverProvider> const& sharedESProductResolverProvider) {
+      for (auto& productResolverProvider : providers_) {
+        if (productResolverProvider->description().pid_ == psetID.psetID()) {
+          productResolverProvider = sharedESProductResolverProvider;
+          productResolverProvider->createKeyedResolvers(key_, nConcurrentIOVs_);
         }
       }
     }

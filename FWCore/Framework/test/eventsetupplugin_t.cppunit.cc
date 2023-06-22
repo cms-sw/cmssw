@@ -25,7 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "DummyFinder.h"
-#include "DummyProxyProvider.h"
+#include "DummyESProductResolverProvider.h"
 #include "TestTypeResolvers.h"
 
 using namespace edm::eventsetup;
@@ -43,20 +43,20 @@ namespace edm::test {
     };
     int LoadableDummyFinderA::count_ = 0;
 
-    class LoadableDummyProviderA : public edm::eventsetup::test::DummyProxyProvider {
+    class LoadableDummyProviderA : public edm::eventsetup::test::DummyESProductResolverProvider {
     public:
       LoadableDummyProviderA(const edm::ParameterSet& iPSet)
-          : DummyProxyProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
+          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
         ++count_;
       }
       static int count_;
     };
     int LoadableDummyProviderA::count_ = 0;
 
-    class LoadableDummyESSourceA : public edm::eventsetup::test::DummyProxyProvider, public DummyFinder {
+    class LoadableDummyESSourceA : public edm::eventsetup::test::DummyESProductResolverProvider, public DummyFinder {
     public:
       LoadableDummyESSourceA(const edm::ParameterSet& iPSet)
-          : DummyProxyProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
+          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
         setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 0, 0)), edm::IOVSyncValue::endOfTime()));
         ++count_;
       }
@@ -72,10 +72,10 @@ namespace edm::test {
     };
     int LoadableDummyFinderA::count_ = 0;
 
-    class LoadableDummyProviderA : public edm::eventsetup::test::DummyProxyProvider {
+    class LoadableDummyProviderA : public edm::eventsetup::test::DummyESProductResolverProvider {
     public:
       LoadableDummyProviderA(const edm::ParameterSet& iPSet)
-          : DummyProxyProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
+          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
         ++count_;
       }
       static int count_;
@@ -83,10 +83,10 @@ namespace edm::test {
     int LoadableDummyProviderA::count_ = 0;
     using LoadableDummyProviderB = LoadableDummyProviderA;
 
-    class LoadableDummyESSourceA : public edm::eventsetup::test::DummyProxyProvider, public DummyFinder {
+    class LoadableDummyESSourceA : public edm::eventsetup::test::DummyESProductResolverProvider, public DummyFinder {
     public:
       LoadableDummyESSourceA(const edm::ParameterSet& iPSet)
-          : DummyProxyProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
+          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
         setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 0, 0)), edm::IOVSyncValue::endOfTime()));
         ++count_;
       }
@@ -153,7 +153,7 @@ void testEventsetupplugin::finderTest()
   SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, resolverMaker);
 
   ComponentDescription descFinder("LoadableDummyFinder", "", ComponentDescription::unknownID(), true);
-  std::set<ComponentDescription> descriptions(provider.proxyProviderDescriptions());
+  std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
   //should not be found since not a provider
   CPPUNIT_ASSERT(descriptions.find(descFinder) == descriptions.end());
 
@@ -164,7 +164,7 @@ void testEventsetupplugin::finderTest()
   ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, resolverMaker);
 
   ComponentDescription desc("LoadableDummyProvider", "", ComponentDescription::unknownID(), false);
-  descriptions = provider.proxyProviderDescriptions();
+  descriptions = provider.resolverProviderDescriptions();
   CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
   CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
 
@@ -175,7 +175,7 @@ void testEventsetupplugin::finderTest()
   SourceFactory::get()->addTo(esController, provider, dummySourcePSet, resolverMaker);
 
   ComponentDescription descSource("LoadableDummyESSource", "", ComponentDescription::unknownID(), true);
-  descriptions = provider.proxyProviderDescriptions();
+  descriptions = provider.resolverProviderDescriptions();
   CPPUNIT_ASSERT(descriptions.find(descSource) != descriptions.end());
   CPPUNIT_ASSERT(*(descriptions.find(descSource)) == descSource);
 }
@@ -194,7 +194,7 @@ void testEventsetupplugin::simpleResolverTest() {
   SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, &resolverMaker);
 
   ComponentDescription descFinder("LoadableDummyFinder", "", ComponentDescription::unknownID(), true);
-  std::set<ComponentDescription> descriptions(provider.proxyProviderDescriptions());
+  std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
   //should not be found since not a provider
   CPPUNIT_ASSERT(descriptions.find(descFinder) == descriptions.end());
 
@@ -205,7 +205,7 @@ void testEventsetupplugin::simpleResolverTest() {
   ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
 
   ComponentDescription desc("LoadableDummyProvider", "", ComponentDescription::unknownID(), false);
-  descriptions = provider.proxyProviderDescriptions();
+  descriptions = provider.resolverProviderDescriptions();
   CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
   CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
 
@@ -216,7 +216,7 @@ void testEventsetupplugin::simpleResolverTest() {
   SourceFactory::get()->addTo(esController, provider, dummySourcePSet, &resolverMaker);
 
   ComponentDescription descSource("LoadableDummyESSource", "", ComponentDescription::unknownID(), true);
-  descriptions = provider.proxyProviderDescriptions();
+  descriptions = provider.resolverProviderDescriptions();
   CPPUNIT_ASSERT(descriptions.find(descSource) != descriptions.end());
   CPPUNIT_ASSERT(*(descriptions.find(descSource)) == descSource);
 }
@@ -235,7 +235,7 @@ void testEventsetupplugin::complexResolverTest() {
   SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, &resolverMaker);
 
   ComponentDescription descFinder("generic::LoadableDummyFinderA", "", ComponentDescription::unknownID(), true);
-  std::set<ComponentDescription> descriptions(provider.proxyProviderDescriptions());
+  std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
   //should not be found since not a provider
   CPPUNIT_ASSERT(descriptions.find(descFinder) == descriptions.end());
 
@@ -250,7 +250,7 @@ void testEventsetupplugin::complexResolverTest() {
     ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
-    descriptions = provider.proxyProviderDescriptions();
+    descriptions = provider.resolverProviderDescriptions();
     CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
     CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
     CPPUNIT_ASSERT(edm::test::cpu::LoadableDummyProviderA::count_ == 0);
@@ -268,7 +268,7 @@ void testEventsetupplugin::complexResolverTest() {
     ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderB", "", ComponentDescription::unknownID(), false);
-    descriptions = provider.proxyProviderDescriptions();
+    descriptions = provider.resolverProviderDescriptions();
     CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
     CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
     CPPUNIT_ASSERT(edm::test::cpu::LoadableDummyProviderB::count_ == 1);
@@ -286,7 +286,7 @@ void testEventsetupplugin::complexResolverTest() {
     SourceFactory::get()->addTo(esController, provider, dummySourcePSet, &resolverMaker);
 
     ComponentDescription descSource("generic::LoadableDummyESSourceA", "", ComponentDescription::unknownID(), true);
-    descriptions = provider.proxyProviderDescriptions();
+    descriptions = provider.resolverProviderDescriptions();
     CPPUNIT_ASSERT(descriptions.find(descSource) != descriptions.end());
     CPPUNIT_ASSERT(*(descriptions.find(descSource)) == descSource);
     CPPUNIT_ASSERT(edm::test::cpu::LoadableDummyESSourceA::count_ == 0);
@@ -304,7 +304,7 @@ void testEventsetupplugin::complexResolverTest() {
     SourceFactory::get()->addTo(esController, provider, dummySourcePSet, &resolverMaker);
 
     ComponentDescription descSource("generic::LoadableDummyESSourceB", "", ComponentDescription::unknownID(), true);
-    descriptions = provider.proxyProviderDescriptions();
+    descriptions = provider.resolverProviderDescriptions();
     CPPUNIT_ASSERT(descriptions.find(descSource) != descriptions.end());
     CPPUNIT_ASSERT(*(descriptions.find(descSource)) == descSource);
     CPPUNIT_ASSERT(edm::test::cpu::LoadableDummyESSourceB::count_ == 1);
@@ -327,7 +327,7 @@ void testEventsetupplugin::configurableResolverTest() {
   SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, &resolverMaker);
 
   ComponentDescription descFinder("generic::LoadableDummyFinderA", "", ComponentDescription::unknownID(), true);
-  std::set<ComponentDescription> descriptions(provider.proxyProviderDescriptions());
+  std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
   //should not be found since not a provider
   CPPUNIT_ASSERT(descriptions.find(descFinder) == descriptions.end());
 
@@ -343,7 +343,7 @@ void testEventsetupplugin::configurableResolverTest() {
     ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
-    descriptions = provider.proxyProviderDescriptions();
+    descriptions = provider.resolverProviderDescriptions();
     CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
     CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
     CPPUNIT_ASSERT(edm::test::cpu::LoadableDummyProviderA::count_ == 0);
@@ -363,7 +363,7 @@ void testEventsetupplugin::configurableResolverTest() {
     ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
-    descriptions = provider.proxyProviderDescriptions();
+    descriptions = provider.resolverProviderDescriptions();
     CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
     CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
     CPPUNIT_ASSERT(edm::test::cpu::LoadableDummyProviderA::count_ == 1);
@@ -383,7 +383,7 @@ void testEventsetupplugin::configurableResolverTest() {
     ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
-    descriptions = provider.proxyProviderDescriptions();
+    descriptions = provider.resolverProviderDescriptions();
     CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
     CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
     CPPUNIT_ASSERT(edm::test::cpu::LoadableDummyProviderA::count_ == 0);

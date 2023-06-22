@@ -97,7 +97,7 @@ namespace edm {
     class TriggerNamesService;
   }
   namespace evetnsetup {
-    class ESRecordsToProxyIndices;
+    class ESRecordsToProductResolverIndices;
   }
 
   class ActivityRegistry;
@@ -169,7 +169,7 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&, ProcessBlockHelperBase const&);
+    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProductResolverIndices const&, ProcessBlockHelperBase const&);
     void endJob(ExceptionCollector& collector);
 
     void beginStream(unsigned int);
@@ -282,7 +282,7 @@ namespace edm {
     bool changeModule(std::string const& iLabel,
                       ParameterSet const& iPSet,
                       const ProductRegistry& iRegistry,
-                      eventsetup::ESRecordsToProxyIndices const&);
+                      eventsetup::ESRecordsToProductResolverIndices const&);
 
     /// Deletes module with label iLabel
     void deleteModule(std::string const& iLabel, ActivityRegistry* areg);

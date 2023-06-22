@@ -25,18 +25,18 @@
 // forward declarations
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include <memory>
 namespace edm {
   namespace test {
     struct ESProduceEntry {
       ESProduceEntry(edm::eventsetup::EventSetupRecordKey const& iRecKey,
                      edm::eventsetup::DataKey const& iDataKey,
-                     std::shared_ptr<edm::eventsetup::DataProxy> iProxy)
-          : recordKey_(iRecKey), dataKey_(iDataKey), proxy_(std::move(iProxy)) {}
+                     std::shared_ptr<edm::eventsetup::ESProductResolver> iResolver)
+          : recordKey_(iRecKey), dataKey_(iDataKey), resolver_(std::move(iResolver)) {}
       edm::eventsetup::EventSetupRecordKey recordKey_;
       edm::eventsetup::DataKey dataKey_;
-      std::shared_ptr<edm::eventsetup::DataProxy> proxy_;
+      std::shared_ptr<edm::eventsetup::ESProductResolver> resolver_;
     };
   }  // namespace test
 }  // namespace edm

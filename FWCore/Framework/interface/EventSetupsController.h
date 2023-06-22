@@ -41,24 +41,24 @@ namespace edm {
 
   namespace eventsetup {
 
-    class DataProxyProvider;
+    class ESProductResolverProvider;
     class EventSetupProvider;
 
     class ESProducerInfo {
     public:
-      ESProducerInfo(ParameterSet* ps, std::shared_ptr<DataProxyProvider> const& pr)
+      ESProducerInfo(ParameterSet* ps, std::shared_ptr<ESProductResolverProvider> const& pr)
           : pset_(ps), provider_(pr), subProcessIndexes_() {}
 
       ParameterSet const* pset() const { return pset_.get(); }
       ParameterSet* pset() { return pset_.get(); }
-      std::shared_ptr<DataProxyProvider> const& provider() { return get_underlying(provider_); }
-      DataProxyProvider const* providerGet() const { return provider_.get(); }
+      std::shared_ptr<ESProductResolverProvider> const& provider() { return get_underlying(provider_); }
+      ESProductResolverProvider const* providerGet() const { return provider_.get(); }
       std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
       std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
 
     private:
       edm::propagate_const<ParameterSet*> pset_;
-      propagate_const<std::shared_ptr<DataProxyProvider>> provider_;
+      propagate_const<std::shared_ptr<ESProductResolverProvider>> provider_;
       std::vector<unsigned> subProcessIndexes_;
     };
 
@@ -130,10 +130,10 @@ namespace edm {
 
       void forceCacheClear();
 
-      std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset,
+      std::shared_ptr<ESProductResolverProvider> getESProducerAndRegisterProcess(ParameterSet const& pset,
                                                                          unsigned subProcessIndex);
       void putESProducer(ParameterSet& pset,
-                         std::shared_ptr<DataProxyProvider> const& component,
+                         std::shared_ptr<ESProductResolverProvider> const& component,
                          unsigned subProcessIndex);
 
       std::shared_ptr<EventSetupRecordIntervalFinder> getESSourceAndRegisterProcess(ParameterSet const& pset,

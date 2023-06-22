@@ -13,12 +13,12 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyFinder.h"
-#include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/Framework/test/DummyESProductResolverProvider.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -73,7 +73,7 @@ namespace {
 class testfullChain : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testfullChain);
 
-  CPPUNIT_TEST(getfromDataproxyproviderTest);
+  CPPUNIT_TEST(getfromproductresolverproviderTest);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -81,7 +81,7 @@ public:
   void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
   void tearDown() {}
 
-  void getfromDataproxyproviderTest();
+  void getfromproductresolverproviderTest();
 
 private:
   edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
@@ -90,7 +90,7 @@ private:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
 
-void testfullChain::getfromDataproxyproviderTest() {
+void testfullChain::getfromproductresolverproviderTest() {
   SynchronousEventSetupsController controller;
   ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
@@ -99,15 +99,15 @@ void testfullChain::getfromDataproxyproviderTest() {
   dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(1)), IOVSyncValue(Timestamp(5))));
   provider.add(dummyFinder);
 
-  auto proxyProvider = std::make_shared<DummyProxyProvider>();
-  provider.add(proxyProvider);
+  auto resolverProvider = std::make_shared<DummyESProductResolverProvider>();
+  provider.add(resolverProvider);
 
   edm::ESParentContext pc;
   for (unsigned int iTime = 1; iTime != 6; ++iTime) {
     const Timestamp time(iTime);
     controller.eventSetupForInstance(IOVSyncValue(time));
     DummyDataConsumer consumer;
-    consumer.updateLookup(provider.recordsToProxyIndices());
+    consumer.updateLookup(provider.recordsToResolverIndices());
     consumer.prefetch(provider.eventSetupImpl());
     EventSetup eventSetup(provider.eventSetupImpl(),
                           static_cast<unsigned int>(edm::Transition::Event),

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     ESProxyFactoryProducer
+// Class  :     ESProductResolverFactoryProducer
 //
 // Implementation:
 //     <Notes on implementation>
@@ -15,10 +15,10 @@
 #include <cassert>
 
 // user include files
-#include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
-#include "FWCore/Framework/interface/ProxyFactoryBase.h"
+#include "FWCore/Framework/interface/ESProductResolverFactoryProducer.h"
+#include "FWCore/Framework/interface/ESProductResolverFactoryBase.h"
 
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -27,26 +27,26 @@ namespace edm {
 
   using Record2Factories = std::multimap<EventSetupRecordKey, FactoryInfo>;
 
-  ESProxyFactoryProducer::ESProxyFactoryProducer() : record2Factories_() {}
+  ESProductResolverFactoryProducer::ESProductResolverFactoryProducer() : record2Factories_() {}
 
-  ESProxyFactoryProducer::~ESProxyFactoryProducer() noexcept(false) {}
+  ESProductResolverFactoryProducer::~ESProductResolverFactoryProducer() noexcept(false) {}
 
-  DataProxyProvider::KeyedProxiesVector ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
+  ESProductResolverProvider::KeyedResolversVector ESProductResolverFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
                                                                                 unsigned int iovIndex) {
-    KeyedProxiesVector keyedProxiesVector;
+    KeyedResolversVector keyedResolversVector;
     using Iterator = Record2Factories::iterator;
     std::pair<Iterator, Iterator> range = record2Factories_.equal_range(iRecord);
     for (Iterator it = range.first; it != range.second; ++it) {
-      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy(iovIndex).release());
-      if (nullptr != proxy.get()) {
-        keyedProxiesVector.emplace_back((*it).second.key_, proxy);
+      std::shared_ptr<ESProductResolver> resolver(it->second.factory_->makeResolver(iovIndex).release());
+      if (nullptr != resolver.get()) {
+        keyedResolversVector.emplace_back((*it).second.key_, resolver);
       }
     }
-    return keyedProxiesVector;
+    return keyedResolversVector;
   }
 
-  void ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord,
-                                                      std::unique_ptr<ProxyFactoryBase> iFactory,
+  void ESProductResolverFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord,
+                                                      std::unique_ptr<ESProductResolverFactoryBase> iFactory,
                                                       const std::string& iLabel) {
     if (nullptr == iFactory.get()) {
       assert(false && "Factor pointer was null");
@@ -55,7 +55,7 @@ namespace edm {
 
     usingRecordWithKey(iRecord);
 
-    std::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
+    std::shared_ptr<ESProductResolverFactoryBase> temp(iFactory.release());
     FactoryInfo info(temp->makeKey(iLabel), temp);
 
     //has this already been registered?

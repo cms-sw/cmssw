@@ -1,13 +1,13 @@
-#ifndef FWCore_Framework_NoProxyException_h
-#define FWCore_Framework_NoProxyException_h
+#ifndef FWCore_Framework_NoProductResolverException_h
+#define FWCore_Framework_NoProductResolverException_h
 // -*- C++ -*-
 //
 // Package:     Framework
-// Module:      NoProxyException
+// Module:      NoProductResolverException
 //
-/**\class NoProxyException NoProxyException.h FWCore/Framework/interface/NoProxyException.h
+/**\class NoProductResolverException NoProductResolverException.h FWCore/Framework/interface/NoProductResolverException.h
 
- Description: An exception that is thrown whenever proxy was not available
+ Description: An exception that is thrown whenever resolver was not available
               in the EventSetup, it is subset of NoDataException, see more details
               in that class
 
@@ -28,15 +28,15 @@
 namespace edm {
   namespace eventsetup {
     template <class T>
-    class NoProxyException : public NoDataException<T> {
+    class NoProductResolverException : public NoDataException<T> {
       // ---------- friend classes and functions ---------------
 
     public:
       // ---------- constants, enums and typedefs --------------
 
       // ---------- Constructors and destructor ----------------
-      NoProxyException(const EventSetupRecordKey& iKey, const DataKey& iDataKey)
-          : NoDataException<T>(iKey, iDataKey, "NoProxyException", NoDataExceptionBase::noProxyMessage()) {}
+      NoProductResolverException(const EventSetupRecordKey& iKey, const DataKey& iDataKey)
+          : NoDataException<T>(iKey, iDataKey, "NoProductResolverException", NoDataExceptionBase::noProviderMessage()) {}
 
       // ---------- member functions ---------------------------
 
@@ -46,9 +46,9 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- Constructors and destructor ----------------
-      //NoProxyException(const NoProxyException&) ; //allow default
+      //NoProductResolverException(const NoProductResolverException&) ; //allow default
 
-      //const NoProxyException& operator=(const NoProxyException&); // allow default
+      //const NoProductResolverException& operator=(const NoProductResolverException&); // allow default
 
       // ---------- data members -------------------------------
     };

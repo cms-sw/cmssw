@@ -53,10 +53,10 @@ namespace callbacktest {
 
   struct Base {
     template <typename A, typename B>
-    std::optional<std::vector<edm::ESProxyIndex>> updateFromMayConsumes(A const&, B const&) const {
+    std::optional<std::vector<edm::ESResolverIndex>> updateFromMayConsumes(A const&, B const&) const {
       return {};
     }
-    static constexpr edm::ESProxyIndex const* getTokenIndices(unsigned int) { return nullptr; }
+    static constexpr edm::ESResolverIndex const* getTokenIndices(unsigned int) { return nullptr; }
     static constexpr edm::ESRecordIndex const* getTokenRecordIndices(unsigned int) { return nullptr; }
     static constexpr size_t numberOfTokenIndices(unsigned int) { return 0; }
     static constexpr bool hasMayConsumes() { return false; }

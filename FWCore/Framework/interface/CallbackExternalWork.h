@@ -7,7 +7,7 @@
 //
 /**\class edm::eventsetup::CallbackExternalWork
 
- Description: Functional object used as the 'callback' for the CallbackProxy
+ Description: Functional object used as the 'callback' for the CallbackProductResolver
 
  Usage: Produces data objects for ESProducers in EventSetup system
 
@@ -173,8 +173,8 @@ namespace edm {
                           convertException::wrap([this, &holder, &serviceToken, &record, &eventSetupImpl] {
                             ESModuleCallingContext const& context = Base::callingContext();
                             auto proxies = Base::getTokenIndices();
-                            if (Base::postMayGetProxies()) {
-                              proxies = &((*Base::postMayGetProxies()).front());
+                            if (Base::postMayGetResolvers()) {
+                              proxies = &((*Base::postMayGetResolvers()).front());
                             }
                             TRecord rec;
                             edm::ESParentContext pc{&context};

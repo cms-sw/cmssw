@@ -13,8 +13,8 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverNonConcurrentBase.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -40,9 +40,9 @@ namespace edmtest {
 
   class TestESSource;
 
-  class TestESSourceTestProxy : public edm::eventsetup::ESSourceDataProxyNonConcurrentBase {
+  class TestESSourceTestResolver : public edm::eventsetup::ESSourceProductResolverNonConcurrentBase {
   public:
-    TestESSourceTestProxy(TestESSource* testESSource);
+    TestESSourceTestResolver(TestESSource* testESSource);
 
   private:
     void prefetch(edm::eventsetup::DataKey const&, edm::EventSetupRecordDetails) override;
@@ -53,7 +53,7 @@ namespace edmtest {
     TestESSource* testESSource_;
   };
 
-  class TestESSource : public edm::eventsetup::DataProxyProvider, public edm::EventSetupRecordIntervalFinder {
+  class TestESSource : public edm::eventsetup::ESProductResolverProvider, public edm::EventSetupRecordIntervalFinder {
   public:
     using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
     explicit TestESSource(edm::ParameterSet const&);
@@ -72,7 +72,7 @@ namespace edmtest {
   private:
     bool isConcurrentFinder() const override { return true; }
     void setIntervalFor(EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval&) override;
-    KeyedProxiesVector registerProxies(EventSetupRecordKey const&, unsigned int iovIndex) override;
+    KeyedResolversVector registerProxies(EventSetupRecordKey const&, unsigned int iovIndex) override;
     void initConcurrentIOVs(EventSetupRecordKey const&, unsigned int nConcurrentIOVs) override;
 
     std::set<edm::IOVSyncValue> setOfIOV_;
@@ -83,21 +83,21 @@ namespace edmtest {
     bool checkIOVInitialization_;
   };
 
-  TestESSourceTestProxy::TestESSourceTestProxy(TestESSource* testESSource)
-      : edm::eventsetup::ESSourceDataProxyNonConcurrentBase(&testESSource->queue_, &testESSource->mutex_),
+  TestESSourceTestResolver::TestESSourceTestResolver(TestESSource* testESSource)
+      : edm::eventsetup::ESSourceProductResolverNonConcurrentBase(&testESSource->queue_, &testESSource->mutex_),
         testESSource_(testESSource) {}
 
-  void TestESSourceTestProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
+  void TestESSourceTestResolver::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
     ++testESSource_->count_;
     if (testESSource_->count_.load() > 1) {
-      throw cms::Exception("TestFailure") << "TestESSourceTestProxy::getImpl,"
+      throw cms::Exception("TestFailure") << "TestESSourceTestResolver::getImpl,"
                                           << " functions in mutex should not run concurrently";
     }
     testESSource_->busyWait("getImpl");
 
     edm::ValidityInterval iov = iRecord.validityInterval();
-    edm::LogAbsolute("TestESSourceTestProxy")
-        << "TestESSoureTestProxy::getImpl startIOV = " << iov.first().luminosityBlockNumber()
+    edm::LogAbsolute("TestESSourceTestResolver")
+        << "TestESSoureTestResolver::getImpl startIOV = " << iov.first().luminosityBlockNumber()
         << " endIOV = " << iov.last().luminosityBlockNumber() << " IOV index = " << iRecord.iovIndex()
         << " cache identifier = " << iRecord.cacheIdentifier();
 
@@ -109,10 +109,10 @@ namespace edmtest {
     --testESSource_->count_;
   }
 
-  void const* TestESSourceTestProxy::getAfterPrefetchImpl() const { return &iovTestInfo_; }
+  void const* TestESSourceTestResolver::getAfterPrefetchImpl() const { return &iovTestInfo_; }
 
-  void TestESSourceTestProxy::initializeForNewIOV() {
-    edm::LogAbsolute("TestESSourceTestProxy::initializeForNewIOV") << "TestESSourceTestProxy::initializeForNewIOV";
+  void TestESSourceTestResolver::initializeForNewIOV() {
+    edm::LogAbsolute("TestESSourceTestResolver::initializeForNewIOV") << "TestESSourceTestResolver::initializeForNewIOV";
     ++testESSource_->count2_;
   }
 
@@ -194,18 +194,18 @@ namespace edmtest {
     --count_;
   }
 
-  edm::eventsetup::DataProxyProvider::KeyedProxiesVector TestESSource::registerProxies(EventSetupRecordKey const&,
+  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector TestESSource::registerProxies(EventSetupRecordKey const&,
                                                                                        unsigned int iovIndex) {
     if (expectedNumberOfConcurrentIOVs_ != 0 && nConcurrentIOVs_ != expectedNumberOfConcurrentIOVs_) {
       throw cms::Exception("TestFailure") << "TestESSource::registerProxies,"
                                           << " unexpected number of concurrent IOVs";
     }
-    KeyedProxiesVector keyedProxiesVector;
+    KeyedResolversVector keyedResolversVector;
 
     edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<IOVTestInfo>(), edm::eventsetup::IdTags(""));
-    keyedProxiesVector.emplace_back(dataKey, std::make_shared<TestESSourceTestProxy>(this));
+    keyedResolversVector.emplace_back(dataKey, std::make_shared<TestESSourceTestResolver>(this));
 
-    return keyedProxiesVector;
+    return keyedResolversVector;
   }
 
   void TestESSource::initConcurrentIOVs(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {

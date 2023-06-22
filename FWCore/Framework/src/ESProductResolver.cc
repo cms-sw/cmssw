@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     DataProxy
+// Class  :     ESProductResolver
 //
 // Implementation:
 //     <Notes on implementation>
@@ -10,7 +10,7 @@
 // Created:     Thu Mar 31 12:49:19 EST 2005
 //
 
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
@@ -24,28 +24,28 @@ namespace edm {
       return &s_desc;
     }
 
-    DataProxy::DataProxy()
+    ESProductResolver::ESProductResolver()
         : description_(dummyDescription()),
           cache_(nullptr),
           cacheIsValid_(false),
           nonTransientAccessRequested_(false) {}
 
-    DataProxy::~DataProxy() {}
+    ESProductResolver::~ESProductResolver() {}
 
-    void DataProxy::clearCacheIsValid() {
+    void ESProductResolver::clearCacheIsValid() {
       nonTransientAccessRequested_.store(false, std::memory_order_release);
       cache_ = nullptr;
       cacheIsValid_.store(false, std::memory_order_release);
     }
 
-    void DataProxy::resetIfTransient() {
+    void ESProductResolver::resetIfTransient() {
       if (!nonTransientAccessRequested_.load(std::memory_order_acquire)) {
         clearCacheIsValid();
         invalidateTransientCache();
       }
     }
 
-    void DataProxy::invalidateTransientCache() { invalidateCache(); }
+    void ESProductResolver::invalidateTransientCache() { invalidateCache(); }
 
     namespace {
       void throwMakeException(const EventSetupRecordImpl& iRecord, const DataKey& iKey) {
@@ -54,16 +54,16 @@ namespace edm {
 
     }  // namespace
 
-    void DataProxy::prefetchAsync(WaitingTaskHolder iTask,
+    void ESProductResolver::prefetchAsync(WaitingTaskHolder iTask,
                                   EventSetupRecordImpl const& iRecord,
                                   DataKey const& iKey,
                                   EventSetupImpl const* iEventSetupImpl,
                                   ServiceToken const& iToken,
                                   ESParentContext const& iParent) const {
-      const_cast<DataProxy*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl, iToken, iParent);
+      const_cast<ESProductResolver*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl, iToken, iParent);
     }
 
-    void const* DataProxy::getAfterPrefetch(const EventSetupRecordImpl& iRecord,
+    void const* ESProductResolver::getAfterPrefetch(const EventSetupRecordImpl& iRecord,
                                             const DataKey& iKey,
                                             bool iTransiently) const {
       //We need to set the AccessType for each request so this can't be called in an earlier function in the stack.

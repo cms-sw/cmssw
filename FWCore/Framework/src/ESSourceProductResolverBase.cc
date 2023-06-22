@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverBase.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -22,13 +22,13 @@
 // member functions
 //
 
-bool edm::eventsetup::ESSourceDataProxyBase::needToPrefetch(edm::WaitingTaskHolder iTask) {
+bool edm::eventsetup::ESSourceProductResolverBase::needToPrefetch(edm::WaitingTaskHolder iTask) {
   m_waitingList.add(std::move(iTask));
   bool expected = false;
   return m_prefetching.compare_exchange_strong(expected, true);
 }
 
-void edm::eventsetup::ESSourceDataProxyBase::doPrefetchAndSignals(edm::eventsetup::EventSetupRecordImpl const& iRecord,
+void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(edm::eventsetup::EventSetupRecordImpl const& iRecord,
                                                                   edm::eventsetup::DataKey const& iKey,
                                                                   edm::ESParentContext const& iParent) {
   edm::ESModuleCallingContext context(providerDescription(), ESModuleCallingContext::State::kRunning, iParent);

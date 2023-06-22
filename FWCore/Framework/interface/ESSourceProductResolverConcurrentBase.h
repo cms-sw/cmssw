@@ -1,16 +1,16 @@
-#ifndef FWCore_Framework_ESSourceDataProxyConcurrentBase_h
-#define FWCore_Framework_ESSourceDataProxyConcurrentBase_h
+#ifndef FWCore_Framework_ESSourceProductResolverConcurrentBase_h
+#define FWCore_Framework_ESSourceProductResolverConcurrentBase_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     ESSourceDataProxyConcurrentBase
+// Class  :     ESSourceProductResolverConcurrentBase
 //
-/**\class ESSourceDataProxyConcurrentBase ESSourceDataProxyConcurrentBase.h "FWCore/Framework/interface/ESSourceDataProxyConcurrentBase.h"
+/**\class ESSourceProductResolverConcurrentBase ESSourceProductResolverConcurrentBase.h "FWCore/Framework/interface/ESSourceProductResolverConcurrentBase.h"
 
  Description: Base class for DataProxies for ESSources that require no synchronization
 
  Usage:
-    The ESSourceDataProxyConcurrentBase allows DataProxies from the same ESSource to be called concurrently.
+    The ESSourceProductResolverConcurrentBase allows DataProxies from the same ESSource to be called concurrently.
 
     NOTE: if inheriting classes override `void invalidateCache()` they must be sure to call this classes
     implementation as part of the call.
@@ -24,14 +24,14 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverBase.h"
 
 // forward declarations
 
 namespace edm::eventsetup {
-  class ESSourceDataProxyConcurrentBase : public ESSourceDataProxyBase {
+  class ESSourceProductResolverConcurrentBase : public ESSourceProductResolverBase {
   public:
-    ESSourceDataProxyConcurrentBase() {}
+    ESSourceProductResolverConcurrentBase() {}
 
   private:
     void prefetchAsyncImpl(edm::WaitingTaskHolder iTask,

@@ -9,7 +9,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -22,8 +22,8 @@
 
 #include "FWCore/Framework/interface/HCTypeTag.h"
 
-#include "FWCore/Framework/interface/DataProxyTemplate.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverTemplate.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESValidHandle.h"
@@ -65,11 +65,11 @@ typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
 class testEventsetupRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEventsetupRecord);
 
-  CPPUNIT_TEST(proxyTest);
+  CPPUNIT_TEST(resolverTest);
   CPPUNIT_TEST(getHandleTest);
   CPPUNIT_TEST(getWithTokenTest);
   CPPUNIT_TEST(doGetTest);
-  CPPUNIT_TEST(proxyResetTest);
+  CPPUNIT_TEST(resolverResetTest);
   CPPUNIT_TEST(introspectionTest);
   CPPUNIT_TEST(transientTest);
 
@@ -83,11 +83,11 @@ public:
   void setUp();
   void tearDown() {}
 
-  void proxyTest();
+  void resolverTest();
   void getHandleTest();
   void getWithTokenTest();
   void doGetTest();
-  void proxyResetTest();
+  void resolverResetTest();
   void introspectionTest();
   void transientTest();
 
@@ -104,15 +104,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetupRecord);
 
 HCTYPETAG_HELPER_METHODS(Dummy)
 
-class FailingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
+class FailingDummyResolver : public eventsetup::ESProductResolverTemplate<DummyRecord, Dummy> {
 protected:
   const value_type* make(const record_type&, const DataKey&) final { return nullptr; }
   void const* getAfterPrefetchImpl() const final { return nullptr; }
 };
 
-class WorkingDummyProxy : public eventsetup::DataProxyTemplate<DummyRecord, Dummy> {
+class WorkingDummyResolver : public eventsetup::ESProductResolverTemplate<DummyRecord, Dummy> {
 public:
-  WorkingDummyProxy(const Dummy* iDummy) : data_(iDummy), invalidateCalled_(false), invalidateTransientCalled_(false) {}
+  WorkingDummyResolver(const Dummy* iDummy) : data_(iDummy), invalidateCalled_(false), invalidateTransientCalled_(false) {}
 
   bool invalidateCalled() const { return invalidateCalled_; }
 
@@ -128,13 +128,13 @@ protected:
   }
   void invalidateCache() final {
     invalidateCalled_ = true;
-    eventsetup::DataProxyTemplate<DummyRecord, Dummy>::invalidateCache();
+    eventsetup::ESProductResolverTemplate<DummyRecord, Dummy>::invalidateCache();
   }
 
   void invalidateTransientCache() override {
     invalidateTransientCalled_ = true;
     //check default behavior
-    eventsetup::DataProxyTemplate<DummyRecord, Dummy>::invalidateTransientCache();
+    eventsetup::ESProductResolverTemplate<DummyRecord, Dummy>::invalidateTransientCache();
   }
   void const* getAfterPrefetchImpl() const override { return data_; }
 
@@ -147,38 +147,38 @@ private:
 testEventsetupRecord::testEventsetupRecord() : taskArena_(1), eventSetupImpl_() {}
 void testEventsetupRecord::setUp() { dummyRecordKey_ = EventSetupRecordKey::makeKey<DummyRecord>(); }
 
-class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {
+class WorkingDummyProvider : public edm::eventsetup::ESProductResolverProvider {
 public:
-  WorkingDummyProvider(const edm::eventsetup::DataKey& iKey, std::shared_ptr<WorkingDummyProxy> iProxy)
-      : m_key(iKey), m_proxy(iProxy) {
+  WorkingDummyProvider(const edm::eventsetup::DataKey& iKey, std::shared_ptr<WorkingDummyResolver> iResolver)
+      : m_key(iKey), m_resolver(iResolver) {
     usingRecord<DummyRecord>();
   }
 
 protected:
-  KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
-    KeyedProxiesVector keyedProxiesVector;
-    keyedProxiesVector.emplace_back(m_key, m_proxy);
-    return keyedProxiesVector;
+  KeyedResolversVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+    KeyedResolversVector keyedResolversVector;
+    keyedResolversVector.emplace_back(m_key, m_resolver);
+    return keyedResolversVector;
   }
 
 private:
   edm::eventsetup::DataKey m_key;
-  std::shared_ptr<WorkingDummyProxy> m_proxy;
+  std::shared_ptr<WorkingDummyResolver> m_resolver;
 };
 
-void testEventsetupRecord::proxyTest() {
+void testEventsetupRecord::resolverTest() {
   eventsetup::EventSetupRecordImpl dummyRecord{dummyRecordKey_, &activityRegistry};
 
-  FailingDummyProxy dummyProxy;
+  FailingDummyResolver dummyResolver;
 
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
   CPPUNIT_ASSERT(nullptr == dummyRecord.find(dummyDataKey));
 
-  dummyRecord.add(dummyDataKey, &dummyProxy);
-  CPPUNIT_ASSERT(&dummyProxy == dummyRecord.find(dummyDataKey));
+  dummyRecord.add(dummyDataKey, &dummyResolver);
+  CPPUNIT_ASSERT(&dummyResolver == dummyRecord.find(dummyDataKey));
 
-  const DataKey dummyFredDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "fred");
+  const DataKey dummyFredDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "fred");
   CPPUNIT_ASSERT(nullptr == dummyRecord.find(dummyFredDataKey));
 }
 
@@ -227,7 +227,7 @@ namespace {
     edm::EventSetupImpl& eventSetupImpl_;
     CONSUMER& consumer;
     //we need the DataKeys to stick around since references are being kept to them
-    std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::DataProxy*>> proxies;
+    std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::ESProductResolver*>> proxies;
     // same for ESParentContext
     ESParentContext pc_;
 
@@ -235,7 +235,7 @@ namespace {
                  EventSetupRecordKey const& iKey,
                  EventSetupImpl& iEventSetup,
                  ActivityRegistry* iRegistry,
-                 std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::DataProxy*>> iProxies)
+                 std::vector<std::pair<edm::eventsetup::DataKey, edm::eventsetup::ESProductResolver*>> iProxies)
         : dummyRecordImpl(iKey, iRegistry),
           eventSetupImpl_(iEventSetup),
           consumer(iConsumer),
@@ -244,13 +244,13 @@ namespace {
         dummyRecordImpl.add(d.first, d.second);
       }
 
-      ESRecordsToProxyIndices proxyIndices({iKey});
+      ESRecordsToProductResolverIndices resolverIndices({iKey});
       std::vector<DataKey> dataKeys;
       dummyRecordImpl.fillRegisteredDataKeys(dataKeys);
 
-      (void)proxyIndices.dataKeysInRecord(0, iKey, dataKeys, dummyRecordImpl.componentsForRegisteredDataKeys());
+      (void)resolverIndices.dataKeysInRecord(0, iKey, dataKeys, dummyRecordImpl.componentsForRegisteredDataKeys());
 
-      iConsumer.updateLookup(proxyIndices);
+      iConsumer.updateLookup(resolverIndices);
       iConsumer.prefetch(dummyRecordImpl);
     }
 
@@ -265,9 +265,9 @@ namespace {
 }  // namespace
 
 void testEventsetupRecord::getHandleTest() {
-  FailingDummyProxy dummyProxy;
+  FailingDummyResolver dummyResolver;
 
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
   ESHandle<Dummy> dummyPtr;
   {
@@ -288,26 +288,26 @@ void testEventsetupRecord::getHandleTest() {
   {
     DummyDataConsumer consumer{edm::ESInputTag("", "")};
 
-    SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyProxy}}};
+    SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     CPPUNIT_ASSERT_THROW(dummyRecord.getHandle(consumer.m_token), ExceptionType);
   }
   Dummy myDummy;
-  WorkingDummyProxy workingProxy(&myDummy);
+  WorkingDummyResolver workingResolver(&myDummy);
   ComponentDescription cd;
   cd.label_ = "";
   cd.type_ = "DummyProd";
-  workingProxy.setProviderDescription(&cd);
+  workingResolver.setProviderDescription(&cd);
 
-  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "working");
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "working");
   {
     DummyDataConsumer consumer{edm::ESInputTag("", "working")};
     SetupRecord sr{consumer,
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
 
@@ -324,7 +324,7 @@ void testEventsetupRecord::getHandleTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
 
@@ -337,7 +337,7 @@ void testEventsetupRecord::getHandleTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
 
@@ -352,7 +352,7 @@ void testEventsetupRecord::getHandleTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
 
@@ -365,7 +365,7 @@ void testEventsetupRecord::getHandleTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
 
@@ -375,9 +375,9 @@ void testEventsetupRecord::getHandleTest() {
 }
 
 void testEventsetupRecord::getWithTokenTest() {
-  FailingDummyProxy dummyProxy;
+  FailingDummyResolver dummyResolver;
 
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
   {
     DummyDataConsumer consumer{edm::ESInputTag("", "")};
@@ -392,26 +392,26 @@ void testEventsetupRecord::getWithTokenTest() {
   {
     DummyDataConsumer consumer{edm::ESInputTag("", "")};
 
-    SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyProxy}}};
+    SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), ExceptionType);
   }
   Dummy myDummy;
-  WorkingDummyProxy workingProxy(&myDummy);
+  WorkingDummyResolver workingResolver(&myDummy);
   ComponentDescription cd;
   cd.label_ = "";
   cd.type_ = "DummyProd";
-  workingProxy.setProviderDescription(&cd);
+  workingResolver.setProviderDescription(&cd);
 
-  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "working");
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "working");
   {
     DummyDataConsumer consumer{edm::ESInputTag("", "working")};
     SetupRecord sr{consumer,
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     auto const& dummyData = dummyRecord.get(consumer.m_token);
@@ -424,7 +424,7 @@ void testEventsetupRecord::getWithTokenTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     auto const& dummyData = dummyRecord.get(consumer.m_token);
@@ -436,7 +436,7 @@ void testEventsetupRecord::getWithTokenTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), cms::Exception);
@@ -449,7 +449,7 @@ void testEventsetupRecord::getWithTokenTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     auto const& dummyData = dummyRecord.get(consumer.m_token);
@@ -461,7 +461,7 @@ void testEventsetupRecord::getWithTokenTest() {
                    dummyRecordKey_,
                    eventSetupImpl_,
                    &activityRegistry,
-                   {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                   {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     CPPUNIT_ASSERT_THROW(dummyRecord.get(consumer.m_token), cms::Exception);
@@ -469,25 +469,25 @@ void testEventsetupRecord::getWithTokenTest() {
 }
 
 void testEventsetupRecord::getNodataExpTest() {
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
   edm::ESConsumesInfo consumesInfo;
   edm::ESConsumesCollectorT<DummyRecord> cc(&consumesInfo, static_cast<unsigned int>(edm::Transition::Event));
   auto token = cc.consumes<Dummy>();
-  std::vector<edm::ESProxyIndex> getTokenIndices{eventsetup::ESRecordsToProxyIndices::missingProxyIndex()};
+  std::vector<edm::ESResolverIndex> getTokenIndices{eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()};
 
   EventSetupRecordImpl recImpl(DummyRecord::keyForClass(), &activityRegistry);
   DummyRecord dummyRecord;
   ESParentContext pc;
   dummyRecord.setImpl(&recImpl, 0, getTokenIndices.data(), &eventSetupImpl_, &pc);
-  FailingDummyProxy dummyProxy;
+  FailingDummyResolver dummyResolver;
 
   ESHandle<Dummy> dummyPtr = dummyRecord.getHandle(token);
   *dummyPtr;
 }
 
 void testEventsetupRecord::doGetTest() {
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
   {
     DummyDataConsumerGeneric consumer{dummyDataKey};
@@ -499,20 +499,20 @@ void testEventsetupRecord::doGetTest() {
     CPPUNIT_ASSERT(!dummyRecord.doGet(consumer.m_token));
   }
 
-  FailingDummyProxy dummyProxy;
+  FailingDummyResolver dummyResolver;
 
   {
     DummyDataConsumerGeneric consumer{dummyDataKey};
 
-    SetupGenericRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyProxy}}};
+    SetupGenericRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     CPPUNIT_ASSERT_THROW(dummyRecord.doGet(consumer.m_token), ExceptionType);
   }
   Dummy myDummy;
-  WorkingDummyProxy workingProxy(&myDummy);
+  WorkingDummyResolver workingResolver(&myDummy);
 
-  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "working");
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "working");
 
   {
     DummyDataConsumerGeneric consumer{workingDataKey};
@@ -521,7 +521,7 @@ void testEventsetupRecord::doGetTest() {
                           dummyRecordKey_,
                           eventSetupImpl_,
                           &activityRegistry,
-                          {{dummyDataKey, &dummyProxy}, {workingDataKey, &workingProxy}}};
+                          {{dummyDataKey, &dummyResolver}, {workingDataKey, &workingResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     CPPUNIT_ASSERT(dummyRecord.doGet(consumer.m_token));
@@ -538,16 +538,16 @@ namespace {
 
 void testEventsetupRecord::introspectionTest() {
   eventsetup::EventSetupRecordImpl dummyRecordImpl{dummyRecordKey_, &activityRegistry};
-  FailingDummyProxy dummyProxy;
+  FailingDummyResolver dummyResolver;
 
   ComponentDescription cd1;
   cd1.label_ = "foo1";
   cd1.type_ = "DummyProd1";
   cd1.isSource_ = false;
   cd1.isLooper_ = false;
-  dummyProxy.setProviderDescription(&cd1);
+  dummyResolver.setProviderDescription(&cd1);
 
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
   std::vector<edm::eventsetup::DataKey> keys;
   dummyRecordImpl.fillRegisteredDataKeys(keys);
@@ -567,7 +567,7 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(referencedDataKeys.empty());
   CPPUNIT_ASSERT(referencedComponents.empty());
 
-  dummyRecordImpl.add(dummyDataKey, &dummyProxy);
+  dummyRecordImpl.add(dummyDataKey, &dummyResolver);
 
   dummyRecord.fillRegisteredDataKeys(keys);
   CPPUNIT_ASSERT(1 == keys.size());
@@ -584,18 +584,18 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(find(referencedDataKeys, referencedComponents, dummyDataKey) == &cd1);
 
   Dummy myDummy;
-  WorkingDummyProxy workingProxy(&myDummy);
+  WorkingDummyResolver workingResolver(&myDummy);
 
   ComponentDescription cd2;
   cd2.label_ = "foo2";
   cd2.type_ = "DummyProd2";
   cd2.isSource_ = true;
   cd2.isLooper_ = false;
-  workingProxy.setProviderDescription(&cd2);
+  workingResolver.setProviderDescription(&cd2);
 
-  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "working");
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "working");
 
-  dummyRecordImpl.add(workingDataKey, &workingProxy);
+  dummyRecordImpl.add(workingDataKey, &workingResolver);
 
   dummyRecord.fillRegisteredDataKeys(keys);
   CPPUNIT_ASSERT(2 == keys.size());
@@ -610,18 +610,18 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(find(referencedDataKeys, referencedComponents, workingDataKey) == &cd2);
 
   Dummy myDummy3;
-  WorkingDummyProxy workingProxy3(&myDummy3);
+  WorkingDummyResolver workingResolver3(&myDummy3);
 
   ComponentDescription cd3;
   cd3.label_ = "foo3";
   cd3.type_ = "DummyProd3";
   cd3.isSource_ = false;
   cd3.isLooper_ = true;
-  workingProxy3.setProviderDescription(&cd3);
+  workingResolver3.setProviderDescription(&cd3);
 
-  const DataKey workingDataKey3(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "working3");
+  const DataKey workingDataKey3(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "working3");
 
-  dummyRecordImpl.add(workingDataKey3, &workingProxy3);
+  dummyRecordImpl.add(workingDataKey3, &workingResolver3);
 
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.size() == 1);
@@ -633,18 +633,18 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(find(referencedDataKeys, referencedComponents, workingDataKey3) == &cd3);
 
   Dummy myDummy4;
-  WorkingDummyProxy workingProxy4(&myDummy4);
+  WorkingDummyResolver workingResolver4(&myDummy4);
 
   ComponentDescription cd4;
   cd4.label_ = "foo4";
   cd4.type_ = "DummyProd4";
   cd4.isSource_ = false;
   cd4.isLooper_ = false;
-  workingProxy4.setProviderDescription(&cd4);
+  workingResolver4.setProviderDescription(&cd4);
 
-  const DataKey workingDataKey4(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "working4");
+  const DataKey workingDataKey4(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "working4");
 
-  dummyRecordImpl.add(workingDataKey4, &workingProxy4);
+  dummyRecordImpl.add(workingDataKey4, &workingResolver4);
 
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.size() == 2);
@@ -662,7 +662,7 @@ void testEventsetupRecord::introspectionTest() {
 }
 
 void testEventsetupRecord::doGetExepTest() {
-  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+  const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
   {
     DummyDataConsumerGeneric consumer{dummyDataKey};
 
@@ -674,13 +674,13 @@ void testEventsetupRecord::doGetExepTest() {
   }
 
   {
-    FailingDummyProxy dummyProxy;
+    FailingDummyResolver dummyResolver;
 
-    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
+    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
     DummyDataConsumerGeneric consumer{dummyDataKey};
 
-    SetupGenericRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyProxy}}};
+    SetupGenericRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
 
@@ -688,27 +688,27 @@ void testEventsetupRecord::doGetExepTest() {
   }
 }
 
-void testEventsetupRecord::proxyResetTest() {
+void testEventsetupRecord::resolverResetTest() {
   auto dummyProvider = std::make_unique<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
 
   Dummy myDummy;
-  std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
+  std::shared_ptr<WorkingDummyResolver> workingResolver = std::make_shared<WorkingDummyResolver>(&myDummy);
 
-  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "");
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "");
   DummyDataConsumer consumer{edm::ESInputTag("", "")};
-  SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingProxy.get()}}};
+  SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingResolver.get()}}};
   DummyRecord dummyRecord = sr.makeRecord();
 
   edm::ESConsumesInfo consumesInfo;
   edm::ESConsumesCollectorT<DummyRecord> cc(&consumesInfo, static_cast<unsigned int>(edm::Transition::Event));
   auto token = cc.consumes<Dummy>();
-  std::vector<edm::ESProxyIndex> getTokenIndices{edm::ESProxyIndex(0)};
+  std::vector<edm::ESResolverIndex> getTokenIndices{edm::ESResolverIndex(0)};
 
-  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
+  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingResolver);
   CPPUNIT_ASSERT(nullptr != wdProv.get());
   if (wdProv.get() == nullptr)
     return;  // To silence Coverity
-  wdProv->createKeyedProxies(DummyRecord::keyForClass(), 1);
+  wdProv->createKeyedResolvers(DummyRecord::keyForClass(), 1);
   dummyProvider->add(wdProv);
 
   //this causes the proxies to actually be placed in the Record
@@ -720,22 +720,22 @@ void testEventsetupRecord::proxyResetTest() {
   CPPUNIT_ASSERT(&myDummy == &(*hDummy));
 
   Dummy myDummy2;
-  workingProxy->set(&myDummy2);
+  workingResolver->set(&myDummy2);
 
   //should not change
   hDummy = dummyRecord.getHandle(token);
   CPPUNIT_ASSERT(&myDummy == &(*hDummy));
-  CPPUNIT_ASSERT(!workingProxy->invalidateCalled());
-  CPPUNIT_ASSERT(!workingProxy->invalidateTransientCalled());
+  CPPUNIT_ASSERT(!workingResolver->invalidateCalled());
+  CPPUNIT_ASSERT(!workingResolver->invalidateTransientCalled());
 
   dummyProvider->resetProxies();
-  CPPUNIT_ASSERT(workingProxy->invalidateCalled());
-  CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled());
+  CPPUNIT_ASSERT(workingResolver->invalidateCalled());
+  CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled());
   consumer.prefetch(sr.dummyRecordImpl);
   hDummy = dummyRecord.getHandle(token);
   CPPUNIT_ASSERT(&myDummy2 == &(*hDummy));
-  CPPUNIT_ASSERT(!workingProxy->invalidateCalled());
-  CPPUNIT_ASSERT(!workingProxy->invalidateTransientCalled());
+  CPPUNIT_ASSERT(!workingResolver->invalidateCalled());
+  CPPUNIT_ASSERT(!workingResolver->invalidateTransientCalled());
 }
 
 void testEventsetupRecord::transientTest() {
@@ -745,23 +745,23 @@ void testEventsetupRecord::transientTest() {
   auto dummyProvider = std::make_unique<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
 
   Dummy myDummy;
-  std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
+  std::shared_ptr<WorkingDummyResolver> workingResolver = std::make_shared<WorkingDummyResolver>(&myDummy);
 
-  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(), "");
+  const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "");
   DummyDataConsumer consumer{edm::ESInputTag("", "")};
-  SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingProxy.get()}}};
+  SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingResolver.get()}}};
   DummyRecord dummyRecordNoConst = sr.makeRecord();
   EventSetupRecord const& dummyRecord = dummyRecordNoConst;
 
   edm::ESConsumesInfo consumesInfo;
   edm::ESConsumesCollectorT<DummyRecord> cc(&consumesInfo, static_cast<unsigned int>(edm::Transition::Event));
   auto token = cc.consumes<Dummy>();
-  std::vector<edm::ESProxyIndex> getTokenIndices{edm::ESProxyIndex(0)};
+  std::vector<edm::ESResolverIndex> getTokenIndices{edm::ESResolverIndex(0)};
 
   eventsetup::EventSetupRecordImpl& nonConstDummyRecordImpl = *const_cast<EventSetupRecordImpl*>(dummyRecord.impl_);
 
-  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
-  wdProv->createKeyedProxies(DummyRecord::keyForClass(), 1);
+  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingResolver);
+  wdProv->createKeyedResolvers(DummyRecord::keyForClass(), 1);
   dummyProvider->add(wdProv);
 
   //this causes the proxies to actually be placed in the Record
@@ -774,15 +774,15 @@ void testEventsetupRecord::transientTest() {
   hTDummy = dummyRecord.getHandleImpl<edm::ESTransientHandle>(token);
 
   CPPUNIT_ASSERT(&myDummy == &(*hTDummy));
-  CPPUNIT_ASSERT(workingProxy->invalidateCalled() == false);
-  CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled() == false);
+  CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
+  CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
 
   nonConstDummyRecordImpl.resetIfTransientInProxies();
-  CPPUNIT_ASSERT(workingProxy->invalidateCalled());
-  CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled());
+  CPPUNIT_ASSERT(workingResolver->invalidateCalled());
+  CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled());
 
   Dummy myDummy2;
-  workingProxy->set(&myDummy2);
+  workingResolver->set(&myDummy2);
 
   //do non-transient access to make sure nothing resets now
   consumer.prefetch(sr.dummyRecordImpl);
@@ -791,8 +791,8 @@ void testEventsetupRecord::transientTest() {
   hDummy = dummyRecord.getHandleImpl<edm::ESHandle>(token);
   CPPUNIT_ASSERT(&myDummy2 == &(*hDummy));
   nonConstDummyRecordImpl.resetIfTransientInProxies();
-  CPPUNIT_ASSERT(workingProxy->invalidateCalled() == false);
-  CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled() == false);
+  CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
+  CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
 
   //do another transient access which should not do a reset since we have a non-transient access outstanding
   consumer.prefetch(sr.dummyRecordImpl);
@@ -800,14 +800,14 @@ void testEventsetupRecord::transientTest() {
   hTDummy = dummyRecord.getHandleImpl<edm::ESTransientHandle>(token);
 
   nonConstDummyRecordImpl.resetIfTransientInProxies();
-  CPPUNIT_ASSERT(workingProxy->invalidateCalled() == false);
-  CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled() == false);
+  CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
+  CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
 
   //Ask for a transient then a non transient to be sure we don't have an ordering problem
   {
     dummyProvider->resetProxies();
     Dummy myDummy3;
-    workingProxy->set(&myDummy3);
+    workingResolver->set(&myDummy3);
 
     consumer.prefetch(sr.dummyRecordImpl);
     hDummy = dummyRecord.getHandleImpl<edm::ESHandle>(token);
@@ -816,7 +816,7 @@ void testEventsetupRecord::transientTest() {
     CPPUNIT_ASSERT(&myDummy3 == &(*hDummy));
     CPPUNIT_ASSERT(&myDummy3 == &(*hTDummy));
     nonConstDummyRecordImpl.resetIfTransientInProxies();
-    CPPUNIT_ASSERT(workingProxy->invalidateCalled() == false);
-    CPPUNIT_ASSERT(workingProxy->invalidateTransientCalled() == false);
+    CPPUNIT_ASSERT(workingResolver->invalidateCalled() == false);
+    CPPUNIT_ASSERT(workingResolver->invalidateTransientCalled() == false);
   }
 }

@@ -66,7 +66,7 @@ namespace edm {
   class WillGetIfMatch;
 
   namespace eventsetup {
-    class ESRecordsToProxyIndices;
+    class ESRecordsToProductResolverIndices;
   }
 
   class EDConsumerBase {
@@ -101,7 +101,7 @@ namespace edm {
 
     // ---------- member functions ---------------------------
     void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
-    void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
+    void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
     void selectInputProcessBlocks(ProductRegistry const& productRegistry,
                                   ProcessBlockHelperBase const& processBlockHelperBase) {
       doSelectInputProcessBlocks(productRegistry, processBlockHelperBase);
@@ -121,7 +121,7 @@ namespace edm {
 
     std::vector<ConsumesInfo> consumesInfo() const;
 
-    ESProxyIndex const* esGetTokenIndices(edm::Transition iTrans) const {
+    ESResolverIndex const* esGetTokenIndices(edm::Transition iTrans) const {
       if (iTrans < edm::Transition::NumberOfEventSetupTransitions) {
         auto const& v = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
         if (v.empty()) {
@@ -132,7 +132,7 @@ namespace edm {
       return nullptr;
     }
 
-    std::vector<ESProxyIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const {
+    std::vector<ESResolverIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const {
       assert(iTrans < edm::Transition::NumberOfEventSetupTransitions);
       return esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
     }
@@ -229,7 +229,7 @@ namespace edm {
 
   private:
     virtual void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const&);
-    virtual void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) {}
+    virtual void registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const&) {}
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
     ESTokenIndex recordESConsumes(Transition,
                                   eventsetup::EventSetupRecordKey const&,
@@ -298,9 +298,9 @@ namespace edm {
     // esItemsToGetFromTransition_. This is something for future
     // development and might require a change to SoATuple to support
     // inserts in the middle of the data structure.
-    enum { kESLookupInfo, kESProxyIndex };
-    edm::SoATuple<ESTokenLookupInfo, ESProxyIndex> m_esTokenInfo;
-    std::array<std::vector<ESProxyIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
+    enum { kESLookupInfo, kESResolverIndex };
+    edm::SoATuple<ESTokenLookupInfo, ESResolverIndex> m_esTokenInfo;
+    std::array<std::vector<ESResolverIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
         esItemsToGetFromTransition_;
     std::array<std::vector<ESRecordIndex>, static_cast<unsigned int>(edm::Transition::NumberOfEventSetupTransitions)>
         esRecordsToGetFromTransition_;

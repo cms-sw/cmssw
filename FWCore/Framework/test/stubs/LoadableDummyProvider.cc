@@ -13,17 +13,17 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/Framework/test/DummyESProductResolverProvider.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 namespace edm {
   class ParameterSet;
 }
-class LoadableDummyProvider : public edm::eventsetup::test::DummyProxyProvider {
+class LoadableDummyProvider : public edm::eventsetup::test::DummyESProductResolverProvider {
 public:
   LoadableDummyProvider(const edm::ParameterSet& iPSet)
-      : DummyProxyProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {}
+      : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {}
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(LoadableDummyProvider);

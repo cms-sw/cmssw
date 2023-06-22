@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
-#include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverTemplate.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -281,9 +281,9 @@ namespace edmtest {
     return std::make_unique<ESTestDataZ>(valueZ_);
   }
 
-  class TestDataProxyTemplateJ : public edm::eventsetup::DataProxyTemplate<ESTestRecordJ, ESTestDataJ> {
+  class TestESProductResolverTemplateJ : public edm::eventsetup::ESProductResolverTemplate<ESTestRecordJ, ESTestDataJ> {
   public:
-    TestDataProxyTemplateJ(std::vector<unsigned int> const* expectedCacheIds)
+    TestESProductResolverTemplateJ(std::vector<unsigned int> const* expectedCacheIds)
         : testDataJ_(1), expectedCacheIds_(expectedCacheIds) {}
 
   private:
@@ -293,7 +293,7 @@ namespace edmtest {
       // single IOV at a time and a single stream. This test module
       // should not be configured with expected values in other cases.
       if (index_ < expectedCacheIds_->size() && recordK.cacheIdentifier() != expectedCacheIds_->at(index_)) {
-        throw cms::Exception("TestError") << "TestDataProxyTemplateJ::make, unexpected cacheIdentifier";
+        throw cms::Exception("TestError") << "TestESProductResolverTemplateJ::make, unexpected cacheIdentifier";
       }
       ++index_;
       return &testDataJ_;
@@ -307,40 +307,40 @@ namespace edmtest {
     unsigned int index_ = 0;
   };
 
-  class ESTestDataProxyProviderJ : public edm::eventsetup::DataProxyProvider {
+  class ESTestESProductResolverProviderJ : public edm::eventsetup::ESProductResolverProvider {
   public:
-    ESTestDataProxyProviderJ(edm::ParameterSet const&);
+    ESTestESProductResolverProviderJ(edm::ParameterSet const&);
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    KeyedProxiesVector registerProxies(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
+    KeyedResolversVector registerProxies(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
 
-    std::vector<std::shared_ptr<TestDataProxyTemplateJ>> proxies_;
+    std::vector<std::shared_ptr<TestESProductResolverTemplateJ>> proxies_;
     std::vector<unsigned> expectedCacheIds_;
   };
 
-  ESTestDataProxyProviderJ::ESTestDataProxyProviderJ(edm::ParameterSet const& pset)
+  ESTestESProductResolverProviderJ::ESTestESProductResolverProviderJ(edm::ParameterSet const& pset)
       : expectedCacheIds_(pset.getUntrackedParameter<std::vector<unsigned int>>("expectedCacheIds")) {
     usingRecord<ESTestRecordJ>();
   }
 
-  void ESTestDataProxyProviderJ::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  void ESTestESProductResolverProviderJ::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     std::vector<unsigned int> emptyDefaultVector;
     desc.addUntracked<std::vector<unsigned int>>("expectedCacheIds", emptyDefaultVector);
     descriptions.addDefault(desc);
   }
 
-  edm::eventsetup::DataProxyProvider::KeyedProxiesVector ESTestDataProxyProviderJ::registerProxies(
+  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector ESTestESProductResolverProviderJ::registerProxies(
       const edm::eventsetup::EventSetupRecordKey& iRecord, unsigned int iovIndex) {
-    KeyedProxiesVector keyedProxiesVector;
+    KeyedResolversVector keyedResolversVector;
     while (iovIndex >= proxies_.size()) {
-      proxies_.push_back(std::make_shared<TestDataProxyTemplateJ>(&expectedCacheIds_));
+      proxies_.push_back(std::make_shared<TestESProductResolverTemplateJ>(&expectedCacheIds_));
     }
     edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<ESTestDataJ>(), "");
-    keyedProxiesVector.emplace_back(dataKey, proxies_[iovIndex]);
-    return keyedProxiesVector;
+    keyedResolversVector.emplace_back(dataKey, proxies_[iovIndex]);
+    return keyedResolversVector;
   }
 }  // namespace edmtest
 
@@ -391,6 +391,6 @@ DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerI);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerJ);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerK);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerAZ);
-DEFINE_FWK_EVENTSETUP_MODULE(ESTestDataProxyProviderJ);
+DEFINE_FWK_EVENTSETUP_MODULE(ESTestESProductResolverProviderJ);
 DEFINE_FWK_EVENTSETUP_MODULE(edm::test::other::ESTestProducerA);
 DEFINE_FWK_EVENTSETUP_MODULE(edm::test::cpu::ESTestProducerA);
