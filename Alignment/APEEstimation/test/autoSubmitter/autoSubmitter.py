@@ -136,7 +136,10 @@ class ApeMeasurement:
         if not self.alignment.validConditions or not self.dataset.validConditions or not self.dataset.existingFiles or not self.validConditions:
             self.setStatus(STATE_INVALID_CONDITIONS, True)
             return
-            
+        
+        if unitTest:
+            return
+        
         if self.alignment.isDesign and self.dataset.sampleType != "MC":
             # For now, this won't immediately shut down the program
             print("APE Measurement {} is scheduled to to an APE baseline measurement with a dataset that is not marked as isMC=True. Is this intended?".format(self.name))
@@ -480,6 +483,7 @@ def main():
     global threadcounter
     global lock
     global use_caf
+    global unitTest 
     
     use_caf = args.caf
     unitTest = args.unitTest
