@@ -44,7 +44,6 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken;
 
   unsigned int maxNSat;
-  static constexpr float MeVperADCStrip = 9.5665E-4;
   static constexpr double subclusterWindow_ = .7;
   static constexpr double seedCutMIPs_ = .35;
   static constexpr double seedCutSN_ = 7.;
@@ -54,15 +53,15 @@ private:
   edm::InputTag beamSpot;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
 
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
 
   edm::FileInPath fileInPath;
   SiStripDetInfo detInfo;
 
-  std::string csfLabel_;
-  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> csfToken_;
+  std::string csfLabel;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> csfToken;
 
-  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> stripNoiseToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> stripNoiseToken;
   edm::ESHandle<SiStripNoises> theNoise;
 };
 
@@ -75,15 +74,15 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
   beamSpot = conf.getParameter<edm::InputTag>("beamSpot");
   beamSpotToken = consumes<reco::BeamSpot>(beamSpot);
 
-  tkGeomToken_ = esConsumes();
+  tkGeomToken = esConsumes();
 
   fileInPath = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
   detInfo = SiStripDetInfoFileReader::read(fileInPath.fullPath());
 
-  csfLabel_ = conf.getParameter<std::string>("clusterShapeHitFilterLabel");
-  csfToken_ = esConsumes(edm::ESInputTag("", csfLabel_));
+  csfLabel = conf.getParameter<std::string>("clusterShapeHitFilterLabel");
+  csfToken = esConsumes(edm::ESInputTag("", csfLabel));
 
-  stripNoiseToken_ = esConsumes();
+  stripNoiseToken = esConsumes();
 
   produces<edmNew::DetSetVector<SiStripApproximateCluster> >();
 }
@@ -103,9 +102,9 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
     bs = new reco::BeamSpot();
   }
 
-  const auto& tkGeom = &iSetup.getData(tkGeomToken_);
-  const auto& theFilter = &iSetup.getData(csfToken_);
-  const auto& theNoise = &iSetup.getData(stripNoiseToken_);
+  const auto& tkGeom = &iSetup.getData(tkGeomToken);
+  const auto& theFilter = &iSetup.getData(csfToken);
+  const auto& theNoise = &iSetup.getData(stripNoiseToken);
 
   for (const auto& detClusters : clusterCollection) {
     edmNew::DetSetVector<SiStripApproximateCluster>::FastFiller ff{*result, detClusters.id()};
@@ -117,7 +116,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
     double barycenter_ypos = 0.5 * stripLength;
 
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
-    float mip = 3.9 / (MeVperADCStrip / stripDet->surface().bounds().thickness());
+    float mip = 3.9 / (sistrip::MeVperADCStrip / stripDet->surface().bounds().thickness());
 
     for (const auto& cluster : detClusters) {
       const LocalPoint& lp = LocalPoint(((cluster.barycenter() * 10 / (sistrip::STRIPS_PER_APV * nApvs)) -
@@ -144,11 +143,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
                           seedCutSN_,
                           subclusterCutMIPs_,
                           subclusterCutSN_);
-      if (pf.apply(cluster.amplitudes(), test)) {
-        peakFilter = true;
-      } else {
-        peakFilter = false;
-      }
+      peakFilter = pf.apply(cluster.amplitudes(), test);
 
       ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, peakFilter));
     }

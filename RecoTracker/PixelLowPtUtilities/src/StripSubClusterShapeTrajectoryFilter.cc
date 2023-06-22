@@ -10,6 +10,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -152,7 +153,6 @@ StripSubClusterShapeFilterBase::StripSubClusterShapeFilterBase(const edm::Parame
 #ifdef StripSubClusterShapeFilterBase_COUNTERS
       ,
       called_(0),
-      saturated_(0),
       test_(0),
       passTrim_(0),
       failTooLarge_(0),
@@ -315,9 +315,8 @@ bool StripSubClusterShapeFilterBase::testLastHit(const TrackingRecHit *hit,
         return true;
       }
 
-      float MeVperADCStrip = 9.5665E-4;  // conversion constant from ADC counts to MeV for the SiStrip detector
       float mip =
-          3.9 / (MeVperADCStrip / stripDetUnit->surface().bounds().thickness());  // 3.9 MeV/cm = ionization in silicon
+          3.9 / (sistrip::MeVperADCStrip / stripDetUnit->surface().bounds().thickness());  // 3.9 MeV/cm = ionization in silicon
       float mipnorm = mip / std::abs(ldir.z());
       ::SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
       ::PeakFinderTest test(mipnorm,

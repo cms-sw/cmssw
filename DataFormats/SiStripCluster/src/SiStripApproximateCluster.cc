@@ -52,10 +52,6 @@ SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& clust
   } else if (hitStripsTrim <= std::ceil(std::abs(hitPredPos) + maxTrimmedSizeDiffPos_)) {
     filter_ = true;
   } else {
-    if (peakFilter_) {
-      filter_ = true;
-    } else {
-      filter_ = false;
-    }
+    filter_ = peakFilter_;
   }
 }

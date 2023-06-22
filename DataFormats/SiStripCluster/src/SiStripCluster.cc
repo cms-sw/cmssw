@@ -68,7 +68,5 @@ bool SiStripCluster::filter() const {
 }
 
 bool SiStripCluster::isFromApprox() const {
-  if (barycenter_ > 0)
-    return true;
-  return false;
+  return (barycenter_ > 0);
 }

@@ -80,5 +80,9 @@ rawPrimeDataRepacker = _EvFFEDExcluder.clone(
     fedsToExclude = [foo for foo in range(50, 490)]
 )
 
-DigiToApproxClusterRawTask = cms.Task(siStripDigisHLT,siStripZeroSuppressionHLT,siStripClustersHLT,hltSiStripClusters2ApproxClusters,rawPrimeDataRepacker)
+hltScalersRawToDigi =  cms.EDProducer( "ScalersRawToDigi",
+   scalersInputTag = cms.InputTag( "rawDataRepacker" )
+)
+
+DigiToApproxClusterRawTask = cms.Task(siStripDigisHLT,siStripZeroSuppressionHLT,hltScalersRawToDigi,hltBeamSpotProducer,siStripClustersHLT,hltSiStripClusters2ApproxClusters,rawPrimeDataRepacker)
 DigiToApproxClusterRaw = cms.Sequence(DigiToApproxClusterRawTask)
