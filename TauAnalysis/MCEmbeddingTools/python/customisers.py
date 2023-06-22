@@ -950,6 +950,15 @@ def customiseMerging_Reselect(process, changeProcessname=True):
 
 def customiseNanoAOD(process):
 
+    process.load("PhysicsTools.NanoAOD.genparticles_cff")
+    process.nanoAOD_step.insert(0, process.genParticleTable)
+    process.nanoAOD_step.insert(0, process.finalGenParticles)
+
+    process.unpackedPatTrigger.triggerResults = cms.InputTag("TriggerResults::SIMembeddingHLT")
+    process.NANOAODoutput.outputCommands.append("keep edmTriggerResults_*_*_SIMembeddingHLT")
+    process.NANOAODoutput.outputCommands.append("keep edmTriggerResults_*_*_MERGE")
+    process.NANOAODoutput.outputCommands.remove("keep edmTriggerResults_*_*_*")
+
     process.embeddingTable = cms.EDProducer(
         "GlobalVariablesTableProducer",
         name=cms.string("TauEmbedding"),
