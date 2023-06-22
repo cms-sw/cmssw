@@ -153,6 +153,7 @@ StripSubClusterShapeFilterBase::StripSubClusterShapeFilterBase(const edm::Parame
 #ifdef StripSubClusterShapeFilterBase_COUNTERS
       ,
       called_(0),
+      saturated_(0),
       test_(0),
       passTrim_(0),
       failTooLarge_(0),
