@@ -15,7 +15,7 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "GeneratorInterface/RivetInterface/interface/RivetAnalysis.h"
 
-class ParticleLevelProducer : public edm::one::EDProducer<> {
+class ParticleLevelProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   ParticleLevelProducer(const edm::ParameterSet& pset);
   ~ParticleLevelProducer() override {}

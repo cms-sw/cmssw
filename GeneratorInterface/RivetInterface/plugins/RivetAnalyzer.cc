@@ -25,6 +25,8 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
       _doFinalize(pset.getParameter<bool>("DoFinalize")),
       _lheLabel(pset.getParameter<edm::InputTag>("LHECollection")),
       _xsection(-1.) {
+  usesResource("Rivet");
+
   _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
   _genLumiInfoToken = consumes<GenLumiInfoHeader, edm::InLumi>(pset.getParameter<edm::InputTag>("genLumiInfo"));
 
