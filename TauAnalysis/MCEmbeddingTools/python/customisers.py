@@ -713,6 +713,27 @@ def keepMerged(dataTier="SELECT"):
     ret_vstring.append("keep *_generator_*_SIMembedding")
     ret_vstring.append("keep *_selectedMuonsForEmbedding_*_*")
     ret_vstring.append("keep *_unpackedPatTrigger_*_*")
+    ret_vstring.extend(cms.untracked.vstring(
+        'keep patPackedGenParticles_packedGenParticles_*_*',
+        'keep recoGenParticles_prunedGenParticles_*_*',
+        'keep *_packedPFCandidateToGenAssociation_*_*',
+        'keep *_lostTracksToGenAssociation_*_*',
+        'keep LHEEventProduct_*_*_*',
+        'keep GenFilterInfo_*_*_*',
+        'keep GenLumiInfoHeader_generator_*_*',
+        'keep GenLumiInfoProduct_*_*_*',
+        'keep GenEventInfoProduct_generator_*_*',
+        'keep recoGenParticles_genPUProtons_*_*',
+        'keep *_slimmedGenJetsFlavourInfos_*_*',
+        'keep *_slimmedGenJets__*',
+        'keep *_slimmedGenJetsAK8__*',
+        'keep *_slimmedGenJetsAK8SoftDropSubJets__*',
+        'keep *_genMetTrue_*_*',
+        # RUN
+        'keep LHERunInfoProduct_*_*_*',
+        'keep GenRunInfoProduct_*_*_*',
+        'keep *_genParticles_xyz0_*',
+        'keep *_genParticles_t0_*'))
     return ret_vstring
 
 
@@ -781,11 +802,12 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
 
     print("**** Attention: overriding behaviour of 'removeMCMatching' ****")
 
-    def dontRemoveMCMatching(process, names, postfix, outputModules):
-        pass
+    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeMC
+    def performMCMatching(process, names, postfix, outputModules):
+        miniAOD_customizeMC(process)
 
     import PhysicsTools.PatAlgos.tools.coreTools
-    PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = dontRemoveMCMatching
+    PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = performMCMatching
 
     if changeProcessname:
         process._Process__name = "MERGE"
@@ -962,9 +984,8 @@ def customiseMerging_Reselect(process, changeProcessname=True):
 
 def customiseNanoAOD(process):
 
-    process.load("PhysicsTools.NanoAOD.genparticles_cff")
-    process.nanoAOD_step.insert(0, process.genParticleTable)
-    process.nanoAOD_step.insert(0, process.finalGenParticles)
+    process.load("PhysicsTools.NanoAOD.nano_cff")
+    process.nanoAOD_step.insert(0, cms.Sequence(process.nanoTableTaskFS))
 
     for outputModule in process.outputModules.values():
        outputModule.outputCommands.append("keep edmTriggerResults_*_*_SIMembeddingHLT")
