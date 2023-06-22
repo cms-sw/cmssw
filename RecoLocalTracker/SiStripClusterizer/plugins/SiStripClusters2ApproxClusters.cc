@@ -91,17 +91,6 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
   auto result = std::make_unique<edmNew::DetSetVector<SiStripApproximateCluster> >();
   const auto& clusterCollection = event.get(clusterToken);
 
-  //  edm::Handle<reco::BeamSpot> beamSpotHandle;
-  //  event.getByToken(beamSpotToken, beamSpotHandle);  // retrive BeamSpot data
-  //  reco::BeamSpot const* bs = nullptr;
-  //  if (beamSpotHandle.isValid()) {
-  //    bs = &(*beamSpotHandle);
-  //  } else {
-  //    edm::LogError("SiStripClusters2ApproxClusters")
-  //        << "didn't find a valid beamspot with label " << beamSpot.label() << " using 0,0,0";
-  //    bs = new reco::BeamSpot();
-  //  }
-
   auto const beamSpotHandle = event.getHandle(beamSpotToken_);
   auto const& bs = beamSpotHandle.isValid() ? *beamSpotHandle : reco::BeamSpot();
   if (not beamSpotHandle.isValid()) {
