@@ -44,3 +44,12 @@ hltMuonValidator = DQMEDAnalyzer('HLTMuonValidator',
     genMuonCut  = cms.string("abs(pdgId) == 13 && status == 1"),
     recMuonCut  = cms.string("isGlobalMuon"),
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hltMuonValidator,
+                       hltPathsToCheck = [
+                           "HLT_Mu[0-9]+_TrkIso[A-Z]+_Mu[0-9]+_TrkIso[A-Z]+_DZ_FromL1TkMuon(_v[0-9]+)?$",
+                           "HLT_Mu[0-9]+_Mu[0-9]+_FromL1TkMuon(_v[0-9]+)?$",
+                           "HLT_Mu[0-9]+_FromL1TkMuon(_v[0-9]+)?$",
+                       ]
+)

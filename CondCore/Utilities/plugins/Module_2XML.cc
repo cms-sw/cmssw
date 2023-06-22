@@ -255,6 +255,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(RPFlatParams);
   PAYLOAD_2XML_CLASS(RecoIdealGeometry);
   PAYLOAD_2XML_CLASS(RunInfo);
+  PAYLOAD_2XML_CLASS(SimBeamSpotObjects);
   PAYLOAD_2XML_CLASS(SiPhase2OuterTrackerLorentzAngle);
   PAYLOAD_2XML_CLASS(SiPixel2DTemplateDBObject);
   PAYLOAD_2XML_CLASS(SiPixelCPEGenericErrorParm);

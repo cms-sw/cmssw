@@ -33,7 +33,7 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
 
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   g4Track_ = aTrack;
-  currentTrack_ = new TrackWithHistory(aTrack);
+  currentTrack_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
 
   BeginOfTrack bt(aTrack);
   m_beginOfTrackSignal(&bt);

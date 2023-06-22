@@ -82,7 +82,7 @@ if __name__ == '__main__':
                      158.01, #reMiniAOD of 2018 HI MC with pp-like reco
                      312.0, #2021/Run3 HI MC Pyquen_ZeemumuJets_pt10 with pp-like reco
                      1306.0, #SingleMu Pt1 UP15
-                     2500.601, #test NanoAOD from existing MINI
+                     2500.4, #test NanoAOD from existing MINI
                      1330, #Run2 2015/2016 MC Zmm
                      135.4, #Run 2 2015/2016 Zee ttbar fastsim
                      10042.0, #2017 ZMM

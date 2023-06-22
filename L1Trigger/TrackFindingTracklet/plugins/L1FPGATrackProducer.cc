@@ -88,6 +88,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Residual.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
+#include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 
 ////////////////
 // PHYSICS TOOLS
@@ -99,7 +100,6 @@
 
 #include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
 #include "L1Trigger/TrackTrigger/interface/L1TrackQuality.h"
-#include "L1Trigger/TrackTrigger/interface/HitPatternHelper.h"
 
 //////////////
 // STD HEADERS
@@ -129,12 +129,12 @@ public:
   bool operator()(const trklet::L1TStub& a, const trklet::L1TStub& b) const {
     if (a.x() != b.x())
       return (b.x() > a.x());
-    else {
-      if (a.y() != b.y())
-        return (b.y() > a.y());
-      else
-        return (a.z() > b.z());
-    }
+    else if (a.y() != b.y())
+      return (b.y() > a.y());
+    else if (a.z() != b.z())
+      return (a.z() > b.z());
+    else
+      return a.bend() > b.bend();
   }
 };
 
@@ -349,10 +349,10 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   settings_.setBfield(mMagneticFieldStrength);
 
   setup_ = &iSetup.getData(esGetToken_);
+
+  settings_.passSetup(setup_);
+
   setupHPH_ = &iSetup.getData(esGetTokenHPH_);
-  if (trackQuality_) {
-    trackQualityModel_->beginRun(setupHPH_);
-  }
   // Tracklet pattern reco output channel info.
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
   // initialize the tracklet event processing (this sets all the processing & memory modules, wiring, etc)
@@ -366,6 +366,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                    edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>,
                    L1TStubCompare>
       stubMapType;
+  typedef std::map<unsigned int,
+                   edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+      stubIndexMapType;
   typedef edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>
       TTClusterRef;
 
@@ -373,6 +376,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   auto L1TkTracksForOutput = std::make_unique<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>();
 
   stubMapType stubMap;
+  stubIndexMapType stubIndexMap;
 
   ////////////
   // GET BS //
@@ -454,6 +458,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   /////////////////////////////////
 
   // Process stubs in each region and channel within that tracking region
+  unsigned int theStubIndex = 0;
   for (const int& region : handleDTC->tfpRegions()) {
     for (const int& channel : handleDTC->tfpChannels()) {
       // Get the DTC name & ID from the channel
@@ -612,10 +617,13 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                    ttPos.z(),
                    stubbend,
                    stubRef->innerClusterPosition(),
-                   assocTPs);
+                   assocTPs,
+                   theStubIndex);
 
         const trklet::L1TStub& lastStub = ev.lastStub();
         stubMap[lastStub] = stubRef;
+        stubIndexMap[lastStub.uniqueIndex()] = stub.first;
+        theStubIndex++;
       }
     }
   }
@@ -686,11 +694,14 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       stubs.push_back(stubptr);
     }
 
+    int countStubs = 0;
     stubMapType::const_iterator it;
+    stubIndexMapType::const_iterator itIndex;
     for (const auto& itstubs : stubs) {
-      it = stubMap.find(itstubs);
-      if (it != stubMap.end()) {
-        aTrack.addStubRef(it->second);
+      itIndex = stubIndexMap.find(itstubs.uniqueIndex());
+      if (itIndex != stubIndexMap.end()) {
+        aTrack.addStubRef(itIndex->second);
+        countStubs = countStubs + 1;
       } else {
         // could not find stub in stub map
       }
@@ -706,6 +717,11 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if (trackQuality_) {
       trackQualityModel_->setL1TrackQuality(aTrack);
     }
+
+    //    hph::HitPatternHelper hph(setupHPH_, tmp_hit, tmp_tanL, tmp_z0);
+    //    if (trackQuality_) {
+    //      trackQualityModel_->setBonusFeatures(hph.bonusFeatures());
+    //    }
 
     // test track word
     //aTrack.testTrackWordBits();

@@ -278,6 +278,10 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
         return ModuleType::Ph2PXB;
       } else if (name.find("InnerPixel3DActive") != std::string::npos) {
         return ModuleType::Ph2PXB3D;
+      } else if (name.find("InnerPixel3DOneActive") != std::string::npos) {
+        return ModuleType::Ph2PXB3D;
+      } else if (name.find("InnerPixel3DTwoActive") != std::string::npos) {
+        return ModuleType::Ph2PXB3D;
       }
     }
     // forward
@@ -286,6 +290,10 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
         return ModuleType::Ph2PXF;
       } else if (name.find("InnerPixel3DActive") != std::string::npos) {
         return ModuleType::Ph2PXF3D;
+      } else if (name.find("InnerPixel3DOneActive") != std::string::npos) {
+        return ModuleType::Ph2PXB3D;
+      } else if (name.find("InnerPixel3DTwoActive") != std::string::npos) {
+        return ModuleType::Ph2PXB3D;
       }
     }
   }

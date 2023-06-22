@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="TotemT2Digi" ClassVersion="4">
+  <class name="TotemT2Digi" ClassVersion="5">
+    <version ClassVersion="5" checksum="1620670855"/>
     <version ClassVersion="4" checksum="708922079"/>
     <version ClassVersion="3" checksum="4024006040"/>
   </class>

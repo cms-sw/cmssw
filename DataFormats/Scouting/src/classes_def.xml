@@ -1,45 +1,6 @@
 <lcgdict>
-  <class name="ScoutingCaloJet" ClassVersion="3">
-      <version ClassVersion="2" checksum="2705685116"/>
-      <version ClassVersion="3" checksum="631496401"/>
-  </class>
-  <class name="ScoutingPFJet" ClassVersion="2">
-      <version ClassVersion="2" checksum="2507658732"/>
-  </class>
-  <class name="ScoutingParticle" ClassVersion="3">
-      <version ClassVersion="2" checksum="2803573918"/>
-      <version ClassVersion="3" checksum="3020184314"/>
-  </class>
-  <class name="ScoutingVertex" ClassVersion="3">
-      <version ClassVersion="2"  checksum="2969738609"/>
-      <version ClassVersion="3" checksum="4008726838"/>
-  </class>
-  <class name="ScoutingElectron" ClassVersion="2">
-      <version ClassVersion="2" checksum="1190461538"/>
-  </class>
-  <class name="ScoutingMuon" ClassVersion="3">
-     <version ClassVersion="2" checksum="9151"/>
-     <version ClassVersion="3" checksum="3167554832"/>
-  </class>
-  <class name="ScoutingPhoton" ClassVersion="2">
-      <version ClassVersion="2" checksum="2797410539"/>
-  </class>
-  <class name="ScoutingTrack" ClassVersion="2">
-      <version ClassVersion="2" checksum="1342928770"/>
-  </class>
   <class name="Run3ScoutingCaloJet" ClassVersion="3">
       <version ClassVersion="3" checksum="1173827345"/>
-   </class>
-  <class name="Run3ScoutingPFJet" ClassVersion="3">
-      <version ClassVersion="3" checksum="3819751468"/>
-  </class>
-  <class name="Run3ScoutingParticle" ClassVersion="5">
-      <version ClassVersion="3" checksum="1672617274"/>
-      <version ClassVersion="4" checksum="1541586682"/>
-      <version ClassVersion="5" checksum="2425016900"/>
-  </class>
-  <class name="Run3ScoutingVertex" ClassVersion="3">
-      <version ClassVersion="3" checksum="316446070"/>
   </class>
   <class name="Run3ScoutingElectron" ClassVersion="6">
       <version ClassVersion="3" checksum="1086011373"/>
@@ -74,9 +35,20 @@
 	     trkcharge_.push_back(onfile.charge_);]]>
   </ioread>
   
+  <class name="Run3ScoutingHitPatternPOD" ClassVersion="3">
+      <version ClassVersion="3" checksum="1448115564"/>
+  </class>
   <class name="Run3ScoutingMuon" ClassVersion="4">
       <version ClassVersion="3" checksum="3882497397"/>
       <version ClassVersion="4" checksum="4206297195"/>
+  </class>
+  <class name="Run3ScoutingParticle" ClassVersion="5">
+      <version ClassVersion="3" checksum="1672617274"/>
+      <version ClassVersion="4" checksum="1541586682"/>
+      <version ClassVersion="5" checksum="2425016900"/>
+  </class>
+  <class name="Run3ScoutingPFJet" ClassVersion="3">
+      <version ClassVersion="3" checksum="3819751468"/>
   </class>
   <class name="Run3ScoutingPhoton" ClassVersion="5">
       <version ClassVersion="3" checksum="1683146807"/>
@@ -86,39 +58,67 @@
   <class name="Run3ScoutingTrack" ClassVersion="3">
       <version ClassVersion="3" checksum="3352318277"/>
   </class>
-  <class name="Run3ScoutingHitPatternPOD" ClassVersion="3">
-   <version ClassVersion="3" checksum="1448115564"/>
+  <class name="Run3ScoutingVertex" ClassVersion="3">
+      <version ClassVersion="3" checksum="316446070"/>
   </class>
-  <class name="std::vector<ScoutingCaloJet>"/>
-  <class name="std::vector<ScoutingPFJet>"/>
-  <class name="std::vector<ScoutingParticle>"/>
-  <class name="std::vector<ScoutingVertex>"/>
-  <class name="std::vector<ScoutingElectron>"/>
-  <class name="std::vector<ScoutingMuon>"/>
-  <class name="std::vector<ScoutingPhoton>"/>
-  <class name="std::vector<ScoutingTrack>"/>
+  <class name="ScoutingCaloJet" ClassVersion="3">
+      <version ClassVersion="2" checksum="2705685116"/>
+      <version ClassVersion="3" checksum="631496401"/>
+  </class>
+  <class name="ScoutingElectron" ClassVersion="2">
+      <version ClassVersion="2" checksum="1190461538"/>
+  </class>
+  <class name="ScoutingMuon" ClassVersion="3">
+      <version ClassVersion="2" checksum="9151"/>
+      <version ClassVersion="3" checksum="3167554832"/>
+  </class>
+  <class name="ScoutingParticle" ClassVersion="3">
+      <version ClassVersion="2" checksum="2803573918"/>
+      <version ClassVersion="3" checksum="3020184314"/>
+  </class>
+  <class name="ScoutingPFJet" ClassVersion="2">
+      <version ClassVersion="2" checksum="2507658732"/>
+  </class>
+  <class name="ScoutingPhoton" ClassVersion="2">
+      <version ClassVersion="2" checksum="2797410539"/>
+  </class>
+  <class name="ScoutingTrack" ClassVersion="2">
+      <version ClassVersion="2" checksum="1342928770"/>
+  </class>
+  <class name="ScoutingVertex" ClassVersion="3">
+      <version ClassVersion="2"  checksum="2969738609"/>
+      <version ClassVersion="3" checksum="4008726838"/>
+  </class>
   <class name="std::vector<Run3ScoutingCaloJet>"/>
-  <class name="std::vector<Run3ScoutingPFJet>"/>
-  <class name="std::vector<Run3ScoutingParticle>"/>
-  <class name="std::vector<Run3ScoutingVertex>"/>
   <class name="std::vector<Run3ScoutingElectron>"/>
   <class name="std::vector<Run3ScoutingMuon>"/>
+  <class name="std::vector<Run3ScoutingParticle>"/>
+  <class name="std::vector<Run3ScoutingPFJet>"/>
   <class name="std::vector<Run3ScoutingPhoton>"/>
   <class name="std::vector<Run3ScoutingTrack>"/>
-  <class name="edm::Wrapper<std::vector<ScoutingCaloJet> >"/>
-  <class name="edm::Wrapper<std::vector<ScoutingPFJet> >"/>
-  <class name="edm::Wrapper<std::vector<ScoutingParticle> >"/>
-  <class name="edm::Wrapper<std::vector<ScoutingVertex> >"/>
-  <class name="edm::Wrapper<std::vector<ScoutingElectron> >"/>
-  <class name="edm::Wrapper<std::vector<ScoutingMuon> >"/>
-  <class name="edm::Wrapper<std::vector<ScoutingPhoton> >"/>
-  <class name="edm::Wrapper<std::vector<ScoutingTrack> >"/> 
+  <class name="std::vector<Run3ScoutingVertex>"/>
+  <class name="std::vector<ScoutingCaloJet>"/>
+  <class name="std::vector<ScoutingElectron>"/>
+  <class name="std::vector<ScoutingMuon>"/>
+  <class name="std::vector<ScoutingParticle>"/>
+  <class name="std::vector<ScoutingPFJet>"/>
+  <class name="std::vector<ScoutingPhoton>"/>
+  <class name="std::vector<ScoutingTrack>"/>
+  <class name="std::vector<ScoutingVertex>"/>
   <class name="edm::Wrapper<std::vector<Run3ScoutingCaloJet> >"/>
-  <class name="edm::Wrapper<std::vector<Run3ScoutingPFJet> >"/>
-  <class name="edm::Wrapper<std::vector<Run3ScoutingParticle> >"/>
-  <class name="edm::Wrapper<std::vector<Run3ScoutingVertex> >"/>
   <class name="edm::Wrapper<std::vector<Run3ScoutingElectron> >"/>
   <class name="edm::Wrapper<std::vector<Run3ScoutingMuon> >"/>
+  <class name="edm::Wrapper<std::vector<Run3ScoutingParticle> >"/>
+  <class name="edm::Wrapper<std::vector<Run3ScoutingPFJet> >"/>
   <class name="edm::Wrapper<std::vector<Run3ScoutingPhoton> >"/>
   <class name="edm::Wrapper<std::vector<Run3ScoutingTrack> >"/> 
+  <class name="edm::Wrapper<std::vector<Run3ScoutingVertex> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingCaloJet> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingElectron> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingMuon> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingParticle> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingPFJet> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingPhoton> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingTrack> >"/> 
+  <class name="edm::Wrapper<std::vector<ScoutingVertex> >"/>
 </lcgdict>

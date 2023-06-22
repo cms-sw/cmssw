@@ -35,6 +35,9 @@
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include <string>
 
 class TotemVFATRawToDigi : public edm::stream::EDProducer<> {
@@ -44,6 +47,7 @@ public:
 
   void produce(edm::Event &, const edm::EventSetup &) override;
   void endStream() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
   std::string subSystemName;
@@ -195,5 +199,50 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
 }
 
 void TotemVFATRawToDigi::endStream() { rawToDigiConverter.printSummaries(); }
+
+void TotemVFATRawToDigi::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  // totemVFATRawToDigi
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawDataTag", edm::InputTag(""));
+  desc.add<std::string>("subSystem", "")->setComment("options: RP");
+  desc.add<std::vector<unsigned int>>("fedIds", {})
+      ->setComment(
+          "IMPORTANT: leave empty to load the default configuration from "
+          "DataFormats/FEDRawData/interface/FEDNumbering.h");
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<unsigned int>("verbosity", 0);
+    desc.add<edm::ParameterSetDescription>("RawUnpacking", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<unsigned int>("verbosity", 0)
+        ->setComment(
+            "0-3: 1=one line/event with some corrupted VFAT frame, 2=list all corrupt VFAT frames/event, 3=all "
+            "problems with every corrupt frame");
+    psd0.add<unsigned int>("testFootprint", 2)->setComment("0=no test, 1=warn only, 2=warn and skip");
+    psd0.add<unsigned int>("testCRC", 2);
+    psd0.add<unsigned int>("testID", 2)->setComment("compare the ID from data and mapping");
+    psd0.add<unsigned int>("testECMostFrequent", 2)
+        ->setComment("compare frame EC with the most frequent value in the event");
+    psd0.add<unsigned int>("testBCMostFrequent", 2);
+    psd0.addUntracked<unsigned int>("EC_min", 10)
+        ->setComment("minimal number of frames to search for the most frequent counter value");
+    psd0.addUntracked<unsigned int>("BC_min", 10);
+    psd0.addUntracked<double>("EC_fraction", 0.6)
+        ->setComment(
+            "the most frequent counter value is accepted provided its relative occupancy is higher than this fraction");
+    psd0.addUntracked<double>("BC_fraction", 0.6);
+    psd0.add<bool>("useOlderT2TestFile", false)
+        ->setComment("treat hwID field as two separate 8-bit fields instead of one 16-bit");
+    psd0.addUntracked<bool>("printErrorSummary", false)->setComment("per-VFAT error summary at the end of the job");
+    psd0.addUntracked<bool>("printUnknownFrameSummary", false)
+        ->setComment("summary of frames found in data, but not in the mapping");
+    desc.add<edm::ParameterSetDescription>("RawToDigi", psd0);
+  }
+  descriptions.add("totemVFATRawToDigi", desc);
+  // or use the following to generate the label from the module's C++ type
+  //descriptions.addWithDefaultLabel(desc);
+}
 
 DEFINE_FWK_MODULE(TotemVFATRawToDigi);

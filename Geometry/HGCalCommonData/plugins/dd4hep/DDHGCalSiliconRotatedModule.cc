@@ -471,7 +471,7 @@ struct HGCalSiliconRotatedModule {
 };
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
-  HGCalSiliconRotatedModule eealgo(ctxt, e);
+  HGCalSiliconRotatedModule eeSiliconRotatedModuleAlgo(ctxt, e);
   return cms::s_executed;
 }
 

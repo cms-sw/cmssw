@@ -14,6 +14,7 @@
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
@@ -49,10 +50,13 @@ namespace l1t {
           strip(-99),
           strip_hi(-99),
           strip_low(-99),
-          strip_quart(-99),       // Run 3
-          strip_eighth(-99),      // Run 3
-          strip_quart_bit(-99),   // Run 3
-          strip_eighth_bit(-99),  // Run 3
+          strip_quart(-99),            // Run 3
+          strip_eighth(-99),           // Run 3
+          strip_quart_bit(-99),        // Run 3
+          strip_eighth_bit(-99),       // Run 3
+          muon_shower_valid(-99),      // Run 3 muon shower
+          muon_shower_inTime(-99),     // Run 3 muon shower
+          muon_shower_outOfTime(-99),  // Run 3 muon shower
           track_num(-99),
           quality(-99),
           pattern(-99),
@@ -95,6 +99,8 @@ namespace l1t {
 
     // void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
     CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi(const bool isRun3) const;
+    // Run 3 muon shower
+    CSCShowerDigi CreateCSCShowerDigi() const;
     // void ImportRPCDigi (const RPCDigi& _digi);
     // RPCDigi CreateRPCDigi() const;
     // void ImportCPPFDigi (const CPPFDigi& _digi);
@@ -154,10 +160,13 @@ namespace l1t {
     void set_strip(int bits) { strip = bits; }
     void set_strip_hi(int bits) { strip_hi = bits; }
     void set_strip_low(int bits) { strip_low = bits; }
-    void set_strip_quart(int bits) { strip_quart = bits; }            // Run 3
-    void set_strip_eighth(int bits) { strip_eighth = bits; }          // Run 3
-    void set_strip_quart_bit(int bits) { strip_quart_bit = bits; }    // Run 3
-    void set_strip_eighth_bit(int bits) { strip_eighth_bit = bits; }  // Run 3
+    void set_strip_quart(int bits) { strip_quart = bits; }                      // Run 3
+    void set_strip_eighth(int bits) { strip_eighth = bits; }                    // Run 3
+    void set_strip_quart_bit(int bits) { strip_quart_bit = bits; }              // Run 3
+    void set_strip_eighth_bit(int bits) { strip_eighth_bit = bits; }            // Run 3
+    void set_muon_shower_valid(int bits) { muon_shower_valid = bits; }          // Run 3 muon shower
+    void set_muon_shower_inTime(int bits) { muon_shower_inTime = bits; }        // Run 3 muon shower
+    void set_muon_shower_outOfTime(int bits) { muon_shower_outOfTime = bits; }  // Run 3 muon shower
     void set_track_num(int bits) { track_num = bits; }
     void set_quality(int bits) { quality = bits; }
     void set_pattern(int bits) { pattern = bits; }
@@ -222,10 +231,13 @@ namespace l1t {
     int Strip() const { return strip; }
     int Strip_hi() const { return strip_hi; }
     int Strip_low() const { return strip_low; }
-    int Strip_quart() const { return strip_quart; }            // Run 3
-    int Strip_eighth() const { return strip_eighth; }          // Run 3
-    int Strip_quart_bit() const { return strip_quart_bit; }    // Run 3
-    int Strip_eighth_bit() const { return strip_eighth_bit; }  // Run 3
+    int Strip_quart() const { return strip_quart; }                      // Run 3
+    int Strip_eighth() const { return strip_eighth; }                    // Run 3
+    int Strip_quart_bit() const { return strip_quart_bit; }              // Run 3
+    int Strip_eighth_bit() const { return strip_eighth_bit; }            // Run 3
+    int Muon_shower_valid() const { return muon_shower_valid; }          // Run 3 muon shower
+    int Muon_shower_inTime() const { return muon_shower_inTime; }        // Run 3 muon shower
+    int Muon_shower_outOfTime() const { return muon_shower_outOfTime; }  // Run 3 muon shower
     int Track_num() const { return track_num; }
     int Quality() const { return quality; }
     int Pattern() const { return pattern; }
@@ -313,26 +325,29 @@ namespace l1t {
     int roll;           ///<  1 -  3.  For RPCs only, sub-division of ring. (Range? - AWB 02.03.17)
     int neighbor;       ///<  0 or 1.  Filled in EMTFBlock(ME|GEM|RPC).cc
     int mpc_link;       ///<  1 -  3.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
-    int pc_sector;         ///<  1 -  6.  EMTF sector that received the LCT, even those sent from neighbor sectors.
-    int pc_station;        ///<  0 -  5.  0 for ME1 subsector 1, 5 for neighbor hits.
-    int pc_chamber;        ///<  0 -  8.
-    int pc_segment;        ///<  0 -  3.
-    int wire;              ///<  0 - 111  For CSCs only.
-    int strip;             ///<  0 - 158  For CSCs only.
-    int strip_hi;          ///<  ? -  ?.  For RPCs only, highest strip in a cluster.  (Range? - AWB 02.03.17)
-    int strip_low;         ///<  ? -  ?.  For RPCs only, lowest strip in a cluster.  (Range? - AWB 02.03.17)
-    int strip_quart;       ///< Run 3 CSC parameters
-    int strip_eighth;      ///< Run 3 CSC parameters
-    int strip_quart_bit;   ///< Run 3 CSC parameters
-    int strip_eighth_bit;  ///< Run 3 CSC parameters
-    int track_num;         ///<  ? -  ?.  For CSCs only.  (Range? - AWB 02.03.17)
-    int quality;           ///<  0 - 15.  For CSCs only.
-    int pattern;           ///<  0 - 10.  For CSCs only.
-    int pattern_run3;      ///< Run 3 For CSC only.
-    int bend;              ///<  0 or 1.  For CSCs only.
-    int slope;             ///<  Run 3 For CSC only.
-    int valid;             ///<  0 or 1.  For CSCs only (for now; could use to flag failing clusters? - AWB 02.03.17)
-    int sync_err;          ///<  0 or 1.  For CSCs only.
+    int pc_sector;              ///<  1 -  6.  EMTF sector that received the LCT, even those sent from neighbor sectors.
+    int pc_station;             ///<  0 -  5.  0 for ME1 subsector 1, 5 for neighbor hits.
+    int pc_chamber;             ///<  0 -  8.
+    int pc_segment;             ///<  0 -  3.
+    int wire;                   ///<  0 - 111  For CSCs only.
+    int strip;                  ///<  0 - 158  For CSCs only.
+    int strip_hi;               ///<  ? -  ?.  For RPCs only, highest strip in a cluster.  (Range? - AWB 02.03.17)
+    int strip_low;              ///<  ? -  ?.  For RPCs only, lowest strip in a cluster.  (Range? - AWB 02.03.17)
+    int strip_quart;            ///< Run 3 CSC parameters
+    int strip_eighth;           ///< Run 3 CSC parameters
+    int strip_quart_bit;        ///< Run 3 CSC parameters
+    int strip_eighth_bit;       ///< Run 3 CSC parameters
+    int muon_shower_valid;      ///< Run 3 muon shower
+    int muon_shower_inTime;     ///< Run 3 muon shower
+    int muon_shower_outOfTime;  ///< Run 3 muon shower
+    int track_num;              ///<  ? -  ?.  For CSCs only.  (Range? - AWB 02.03.17)
+    int quality;                ///<  0 - 15.  For CSCs only.
+    int pattern;                ///<  0 - 10.  For CSCs only.
+    int pattern_run3;           ///< Run 3 For CSC only.
+    int bend;                   ///<  0 or 1.  For CSCs only.
+    int slope;                  ///<  Run 3 For CSC only.
+    int valid;     ///<  0 or 1.  For CSCs only (for now; could use to flag failing clusters? - AWB 02.03.17)
+    int sync_err;  ///<  0 or 1.  For CSCs only.
     // GEM specific
     int layer;  ///<  0 -   1.  For GEMs only, superchamber detector layer (1 or 2).
     // END GEM specific

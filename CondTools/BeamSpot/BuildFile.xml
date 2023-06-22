@@ -1,6 +1,7 @@
 <use name="CondCore/PopCon"/>
 <use name="CondFormats/Common"/>
 <use name="CondFormats/BeamSpotObjects"/>
+<use name="clhep"/>
 <export>
   <lib name="1"/>
 </export>
