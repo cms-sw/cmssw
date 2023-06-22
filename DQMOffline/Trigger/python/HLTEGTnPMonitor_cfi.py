@@ -53,8 +53,8 @@ tagAndProbeConfigEleWPTight = cms.PSet(
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     tagColl = cms.InputTag("gedGsfElectrons"),
     probeColl = cms.InputTag("gedGsfElectrons"),
-    tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
-    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
+    tagVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"),
+    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"),
     sampleTrigRequirements = cms.PSet(
         hltInputTag = cms.InputTag("TriggerResults","","HLT"),
         hltPaths = cms.vstring("HLT_Ele30_WPTight_Gsf_v*","HLT_Ele32_WPTight_Gsf_v*","HLT_Ele35_WPTight_Gsf_v*"
@@ -83,13 +83,13 @@ tagAndProbeConfigEleWPTight = cms.PSet(
 
 tagAndProbeElePhoConfigEleWPTight = tagAndProbeConfigEleWPTight.clone(
     probeColl=cms.InputTag("gedPhotons"),
-    probeVIDCuts=cms.InputTag("cutBasedPhotonID-Spring16-V2p2-loose"),
+    probeVIDCuts=cms.InputTag("cutBasedPhotonID-RunIIIWinter22-122X-V1-loose"),
     minTagProbeDR=cms.double(0.1)
 )
 
 tagAndProbeElePhoHighEtaConfigEleWPTight = tagAndProbeConfigEleWPTight.clone(
     probeColl=cms.InputTag("gedPhotons"),
-    probeVIDCuts=cms.InputTag("cutBasedPhotonID-Spring16-V2p2-loose"),
+    probeVIDCuts=cms.InputTag("cutBasedPhotonID-RunIIIWinter22-122X-V1-loose"),
     probeRangeCuts = cms.VPSet(),
     minTagProbeDR=cms.double(0.1)
 )
@@ -99,7 +99,7 @@ tagAndProbeMuonEleConfigIsoMu = cms.PSet(
     tagColl = cms.InputTag("muons"),
     probeColl = cms.InputTag("gedGsfElectrons"),
     tagVIDCuts = cms.InputTag("egmDQMSelectedMuons"),
-    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-tight"),
+    probeVIDCuts = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"),
     sampleTrigRequirements = cms.PSet(
         hltInputTag = cms.InputTag("TriggerResults","","HLT"),
         hltPaths = cms.vstring("HLT_IsoMu27_v*")
@@ -121,7 +121,7 @@ tagAndProbeMuonEleConfigIsoMu = cms.PSet(
 
 tagAndProbeMuonPhoConfigIsoMu = tagAndProbeMuonEleConfigIsoMu.clone(
     probeColl=cms.InputTag("gedPhotons"),
-    probeVIDCuts=cms.InputTag("cutBasedPhotonID-Spring16-V2p2-loose"),
+    probeVIDCuts=cms.InputTag("cutBasedPhotonID-RunIIIWinter22-122X-V1-loose"),
 )
 
 egammaStdHistConfigs = cms.VPSet(
@@ -376,7 +376,7 @@ egammaStdFiltersToMonitor= cms.VPSet(
         tagExtraFilter = cms.string(""),
         ), 
     cms.PSet(
-        folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_CaloJet500"),
+        folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_CaloJet500_NoJetID"),
         rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("500:99999")),),
         filterName = cms.string("hltSingleCaloJet500"),
         histTitle = cms.string(""),
@@ -420,7 +420,7 @@ egammaStdFiltersToMonitor= cms.VPSet(
     cms.PSet(
         folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_DiEle27_WPTightCaloOnly_L1DoubleEG"),
         rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("30:99999")),),
-        filterName = cms.string("hltEle27L1DoubleEGWPTightEcalIsoFilter"),
+        filterName = cms.string("hltEle27L1DoubleEGWPTightHcalIsoFilter"),
         histTitle = cms.string(""),
         tagExtraFilter = cms.string(""),
         ), 
@@ -429,7 +429,21 @@ egammaStdFiltersToMonitor= cms.VPSet(
         rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("30:99999")),),
         filterName = cms.string("hltDiEle27L1DoubleEGWPTightEcalIsoFilter"),
         histTitle = cms.string(""),
-        tagExtraFilter = cms.string("hltEle27L1DoubleEGWPTightEcalIsoFilter"),
+        tagExtraFilter = cms.string("hltEle27L1DoubleEGWPTightHcalIsoFilter"),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_DoubleEle25_CaloIdL_MW"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("28:99999")),),
+        filterName = cms.string("hltEle25CaloIdLMWPMS2Filter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_DoubleEle25_CaloIdL_MW"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("28:99999")),),
+        filterName = cms.string("hltDiEle25CaloIdLMWPMS2UnseededFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltEle25CaloIdLMWPMS2Filter"),
         ),
     cms.PSet(
         folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_DoubleEle27_CaloIdL_MW"),
@@ -444,21 +458,7 @@ egammaStdFiltersToMonitor= cms.VPSet(
         filterName = cms.string("hltDiEle27CaloIdLMWPMS2UnseededFilter"),
         histTitle = cms.string(""),
         tagExtraFilter = cms.string("hltEle27CaloIdLMWPMS2Filter"),
-        ), 
-    cms.PSet(
-        folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_DoubleEle25_CaloIdL_MW"),
-        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("28:99999")),),
-        filterName = cms.string("hltEle25CaloIdLMWPMS2Filter"),
-        histTitle = cms.string(""),
-        tagExtraFilter = cms.string(""),
-        ), 
-    cms.PSet(
-        folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_DoubleEle25_CaloIdL_MW"),
-        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("28:99999")),),
-        filterName = cms.string("hltDiEle25CaloIdLMWPMS2UnseededFilter"),
-        histTitle = cms.string(""),
-        tagExtraFilter = cms.string("hltEle25CaloIdLMWPMS2Filter"),
-        ),  
+        ),   
     cms.PSet(
         folderName = cms.string("HLT/EGM/TagAndProbeEffs/HLT_Ele27_Ele37_CaloIdL_MW"),
         rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("30:99999")),),
