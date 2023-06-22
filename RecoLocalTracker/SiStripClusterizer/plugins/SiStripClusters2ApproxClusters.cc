@@ -50,19 +50,19 @@ private:
   static constexpr double subclusterCutMIPs_ = .45;
   static constexpr double subclusterCutSN_ = 12.;
 
-  edm::InputTag beamSpot;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+  edm::InputTag beamSpot_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 
-  edm::FileInPath fileInPath;
-  SiStripDetInfo detInfo;
+  edm::FileInPath fileInPath_;
+  SiStripDetInfo detInfo_;
 
-  std::string csfLabel;
-  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> csfToken;
+  std::string csfLabel_;
+  edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> csfToken_;
 
-  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> stripNoiseToken;
-  edm::ESHandle<SiStripNoises> theNoise;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> stripNoiseToken_;
+  edm::ESHandle<SiStripNoises> theNoise_;
 };
 
 SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::ParameterSet& conf) {
@@ -71,18 +71,18 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
 
   clusterToken = consumes<edmNew::DetSetVector<SiStripCluster> >(inputClusters);
 
-  beamSpot = conf.getParameter<edm::InputTag>("beamSpot");
-  beamSpotToken = consumes<reco::BeamSpot>(beamSpot);
+  beamSpot_ = conf.getParameter<edm::InputTag>("beamSpot");
+  beamSpotToken_ = consumes<reco::BeamSpot>(beamSpot_);
 
-  tkGeomToken = esConsumes();
+  tkGeomToken_ = esConsumes();
 
-  fileInPath = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
-  detInfo = SiStripDetInfoFileReader::read(fileInPath.fullPath());
+  fileInPath_ = edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile);
+  detInfo_ = SiStripDetInfoFileReader::read(fileInPath_.fullPath());
 
-  csfLabel = conf.getParameter<std::string>("clusterShapeHitFilterLabel");
-  csfToken = esConsumes(edm::ESInputTag("", csfLabel));
+  csfLabel_ = conf.getParameter<std::string>("clusterShapeHitFilterLabel");
+  csfToken_ = esConsumes(edm::ESInputTag("", csfLabel_));
 
-  stripNoiseToken = esConsumes();
+  stripNoiseToken_ = esConsumes();
 
   produces<edmNew::DetSetVector<SiStripApproximateCluster> >();
 }
@@ -91,28 +91,35 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
   auto result = std::make_unique<edmNew::DetSetVector<SiStripApproximateCluster> >();
   const auto& clusterCollection = event.get(clusterToken);
 
-  edm::Handle<reco::BeamSpot> beamSpotHandle;
-  event.getByToken(beamSpotToken, beamSpotHandle);  // retrive BeamSpot data
-  reco::BeamSpot const* bs = nullptr;
-  if (beamSpotHandle.isValid()) {
-    bs = &(*beamSpotHandle);
-  } else {
+  //  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  //  event.getByToken(beamSpotToken, beamSpotHandle);  // retrive BeamSpot data
+  //  reco::BeamSpot const* bs = nullptr;
+  //  if (beamSpotHandle.isValid()) {
+  //    bs = &(*beamSpotHandle);
+  //  } else {
+  //    edm::LogError("SiStripClusters2ApproxClusters")
+  //        << "didn't find a valid beamspot with label " << beamSpot.label() << " using 0,0,0";
+  //    bs = new reco::BeamSpot();
+  //  }
+
+  auto const beamSpotHandle = event.getHandle(beamSpotToken_);
+  auto const& bs = beamSpotHandle.isValid() ? *beamSpotHandle : reco::BeamSpot();
+  if (not beamSpotHandle.isValid()) {
     edm::LogError("SiStripClusters2ApproxClusters")
-        << "didn't find a valid beamspot with label " << beamSpot.label() << " using 0,0,0";
-    bs = new reco::BeamSpot();
+        << "didn't find a valid beamspot with label \"" << beamSpot_.encode() << "\" -> using (0,0,0)";
   }
 
-  const auto& tkGeom = &iSetup.getData(tkGeomToken);
-  const auto& theFilter = &iSetup.getData(csfToken);
-  const auto& theNoise = &iSetup.getData(stripNoiseToken);
+  const auto& tkGeom = &iSetup.getData(tkGeomToken_);
+  const auto& theFilter = &iSetup.getData(csfToken_);
+  const auto& theNoise_ = &iSetup.getData(stripNoiseToken_);
 
   for (const auto& detClusters : clusterCollection) {
     edmNew::DetSetVector<SiStripApproximateCluster>::FastFiller ff{*result, detClusters.id()};
 
     unsigned int detId = detClusters.id();
     const GeomDet* det = tkGeom->idToDet(detId);
-    double nApvs = detInfo.getNumberOfApvsAndStripLength(detId).first;
-    double stripLength = detInfo.getNumberOfApvsAndStripLength(detId).second;
+    double nApvs = detInfo_.getNumberOfApvsAndStripLength(detId).first;
+    double stripLength = detInfo_.getNumberOfApvsAndStripLength(detId).second;
     double barycenter_ypos = 0.5 * stripLength;
 
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
@@ -124,7 +131,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
                                         barycenter_ypos - (0.5f * stripLength),
                                         0.);
       const GlobalPoint& gpos = det->surface().toGlobal(lp);
-      GlobalPoint beamspot(bs->position().x(), bs->position().y(), bs->position().z());
+      GlobalPoint beamspot(bs.position().x(), bs.position().y(), bs.position().z());
       const GlobalVector& gdir = gpos - beamspot;
       const LocalVector& ldir = det->toLocal(gdir);
 
@@ -138,7 +145,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
       PeakFinderTest test(mipnorm,
                           detId,
                           cluster.firstStrip(),
-                          theNoise,
+                          theNoise_,
                           seedCutMIPs_,
                           seedCutSN_,
                           subclusterCutMIPs_,

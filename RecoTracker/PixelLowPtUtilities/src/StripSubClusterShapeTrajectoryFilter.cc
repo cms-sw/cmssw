@@ -316,8 +316,8 @@ bool StripSubClusterShapeFilterBase::testLastHit(const TrackingRecHit *hit,
         return true;
       }
 
-      float mip =
-          3.9 / (sistrip::MeVperADCStrip / stripDetUnit->surface().bounds().thickness());  // 3.9 MeV/cm = ionization in silicon
+      float mip = 3.9 / (sistrip::MeVperADCStrip /
+                         stripDetUnit->surface().bounds().thickness());  // 3.9 MeV/cm = ionization in silicon
       float mipnorm = mip / std::abs(ldir.z());
       ::SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
       ::PeakFinderTest test(mipnorm,
