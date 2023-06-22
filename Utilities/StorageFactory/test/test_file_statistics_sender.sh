@@ -11,7 +11,10 @@ function testJSON {
 import json
 with open('test.json') as f:
     for line in f:
-        json.loads(line)
+        d = json.loads(line)
+        for k in d.keys():
+            if k in ['producer', 'type', 'type_prefix', 'timestamp', 'host']:
+                raise RuntimeError("Found restricted keyword %s"%k)
 EOF
     RET=$?
     if [ "x$RET" != "x0" ]; then
