@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // system includes
+#include <ctime>
 #include <fmt/printf.h>
 #include <memory>
 #include <sstream>
@@ -59,6 +60,26 @@ namespace beamSpotPI {
     lumiRange = 24,       // 24
     END_OF_TYPES = 25,
   };
+
+  /************************************************/
+  // Function to convert cond::Time_t (in microseconds) to human-readable date string
+  std::string convertTimeToDateString(cond::Time_t timeValue, bool hasMicros = false, bool toUTC = true) {
+    // Convert microseconds to seconds
+    std::time_t unixTime = static_cast<std::time_t>(hasMicros ? timeValue / 1000000 : timeValue);
+
+    // Convert std::time_t to struct tm (to UTC, or not)
+    std::tm* timeInfo = toUTC ? std::gmtime(&unixTime) : std::localtime(&unixTime);
+
+    // Convert struct tm to human-readable string format
+    char buffer[80];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeInfo);
+
+    // Append microseconds to the string
+    std::string dateString(buffer);
+    //dateString += "." + std::to_string(timeValue % 1000000);
+
+    return dateString;
+  }
 
   /************************************************/
   inline std::string getStringFromParamEnum(const parameters& parameter,
@@ -432,6 +453,44 @@ namespace beamSpotPI {
             (tagname + " IOV: #color[4]{" + std::to_string(runLS.first) + "," + std::to_string(runLS.second) + "}")
                 .c_str());
 
+        if constexpr (std::is_same_v<PayloadType, BeamSpotOnlineObjects>) {
+          // protections needed against old payload that do not have these data members persisted
+          const auto& creationTime = test_<cond::Time_t, std::out_of_range>(
+              [&]() {
+                return m_payload->creationTime();
+              },  // Lambda function capturing m_payload and calling creationTime
+              better_error);
+
+          const auto& startTime = test_<cond::Time_t, std::out_of_range>(
+              [&]() {
+                return m_payload->startTimeStamp();
+              },  // Lambda function capturing m_payload and calling startTimeStamp
+              better_error);
+
+          const auto& endTime = test_<cond::Time_t, std::out_of_range>(
+              [&]() {
+                return m_payload->endTimeStamp();
+              },  // Lambda function capturing m_payload and calling endTimeStamp
+              better_error);
+          canvas.cd(2);
+          ltx.SetTextSize(0.025);
+          ltx.DrawLatexNDC(
+              gPad->GetLeftMargin() + 0.01,
+              gPad->GetBottomMargin() + 0.15,
+              ("#color[2]{(" + beamSpotPI::convertTimeToDateString(creationTime, /*has us*/ true) + ")}").c_str());
+
+          ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01,
+                           gPad->GetBottomMargin() + 0.085,
+                           ("#color[2]{(" + beamSpotPI::convertTimeToDateString(startTime) + ")}").c_str());
+
+          ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01,
+                           gPad->GetBottomMargin() + 0.025,
+                           ("#color[2]{(" + beamSpotPI::convertTimeToDateString(endTime) + ")}").c_str());
+
+          ltx.DrawLatexNDC(
+              gPad->GetLeftMargin(), gPad->GetBottomMargin() - 0.05, "#color[4]{N.B.} TimeStamps are in UTC");
+        }
+
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
 
@@ -475,6 +534,22 @@ namespace beamSpotPI {
           return "#frac{dY}{dZ} [rad]";
         default:
           return "should never be here";
+      }
+    }
+
+    // Slightly better error handler
+    static void better_error(const std::exception& e) { edm::LogError("DisplayParameters") << e.what() << '\n'; }
+
+    // Method to catch exceptions
+    template <typename T, class Except, class Func, class Response>
+    T test_(Func f, Response r) const {
+      try {
+        LogDebug("DisplayParameters") << "I have tried" << std::endl;
+        return f();
+      } catch (const Except& e) {
+        LogDebug("DisplayParameters") << "I have caught!" << std::endl;
+        r(e);
+        return static_cast<T>(1);
       }
     }
   };
