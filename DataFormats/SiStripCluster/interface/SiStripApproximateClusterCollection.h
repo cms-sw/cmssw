@@ -87,7 +87,7 @@ public:
   // Actual public interface
   SiStripApproximateClusterCollection() = default;
 
-  void reserve(size_t dets, size_t clusters);
+  void reserve(std::size_t dets, std::size_t clusters);
   Filler beginDet(unsigned int detId);
 
   const_iterator begin() const { return const_iterator(this); }
