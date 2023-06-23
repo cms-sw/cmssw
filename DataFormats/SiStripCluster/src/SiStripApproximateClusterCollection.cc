@@ -1,6 +1,6 @@
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
 
-void SiStripApproximateClusterCollection::reserve(size_t dets, size_t clusters) {
+void SiStripApproximateClusterCollection::reserve(std::size_t dets, std::size_t clusters) {
   detIds_.reserve(dets);
   beginIndices_.reserve(dets);
   clusters_.reserve(clusters);
