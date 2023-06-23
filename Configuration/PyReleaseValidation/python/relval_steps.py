@@ -2861,6 +2861,7 @@ steps['RECODR3_reHLT_HCALOnlyCPU']=merge([{'-s': 'RAW2DIGI:RawToDigi_hcalOnly,RE
 steps['RECODR3_reHLT_HCALOnlyGPU']=merge([step3_gpu, steps['RECODR3_reHLT_HCALOnlyCPU']])
 
 steps['RECONANORUN3_reHLT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['RECODR3_reHLT']])
+steps['RECONANORUN3_ZB_reHLT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['RECODR3_reHLT']])
 steps['RECOCOSMRUN3_reHLT']=merge([{'--scenario':'cosmics','-s':'RAW2DIGI,L1Reco,RECO,DQM','--datatier':'RECO,DQMIO','--eventcontent':'RECO,DQM'},steps['RECONANORUN3_reHLT']])
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
@@ -3485,6 +3486,7 @@ steps['HARVESTPROMPTRUN3']=merge([{'--data':'', '-s':'HARVESTING:@allForPrompt',
 
 
 steps['HARVESTRUN3']=merge([{'--data':'', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM','--era':'Run3'},steps['HARVESTDRUN3']])
+steps['HARVESTRUN3_ZB']=merge([{'--data':'', '-s':'HARVESTING:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM','--era':'Run3'},steps['HARVESTDRUN3']])
 steps['HARVESTRUN3_pixelTrackingOnly'] = merge([ {'-s':'HARVESTING:@pixelTrackingOnlyDQM'}, steps['HARVESTRUN3'] ])
 steps['HARVESTRUN3_ECALOnly'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVESTRUN3'] ])
 steps['HARVESTRUN3_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVESTRUN3'] ])
