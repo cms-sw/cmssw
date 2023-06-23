@@ -30,10 +30,11 @@ namespace edm::eventsetup {
     recordOffsets_.push_back(0);
   }
 
-  unsigned int ESRecordsToProductResolverIndices::dataKeysInRecord(unsigned int iRecordIndex,
-                                                         EventSetupRecordKey const& iRecord,
-                                                         std::vector<DataKey> const& iDataKeys,
-                                                         std::vector<ComponentDescription const*> const& iComponents) {
+  unsigned int ESRecordsToProductResolverIndices::dataKeysInRecord(
+      unsigned int iRecordIndex,
+      EventSetupRecordKey const& iRecord,
+      std::vector<DataKey> const& iDataKeys,
+      std::vector<ComponentDescription const*> const& iComponents) {
     assert(iRecord == recordKeys_[iRecordIndex]);
     assert(iDataKeys.size() == iComponents.size());
     assert(iRecordIndex + 1 == recordOffsets_.size());
@@ -48,7 +49,7 @@ namespace edm::eventsetup {
   // const member functions
   //
   ESResolverIndex ESRecordsToProductResolverIndices::indexInRecord(EventSetupRecordKey const& iRK,
-                                                      DataKey const& iDK) const noexcept {
+                                                                   DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
       return missingResolverIndex();
@@ -75,7 +76,7 @@ namespace edm::eventsetup {
   }
 
   ComponentDescription const* ESRecordsToProductResolverIndices::component(EventSetupRecordKey const& iRK,
-                                                                 DataKey const& iDK) const noexcept {
+                                                                           DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
       return nullptr;
@@ -92,7 +93,8 @@ namespace edm::eventsetup {
     return components_[std::distance(dataKeys_.begin(), itDK)];
   }
 
-  ESTagGetter ESRecordsToProductResolverIndices::makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const {
+  ESTagGetter ESRecordsToProductResolverIndices::makeTagGetter(EventSetupRecordKey const& iRK,
+                                                               TypeTag const& iTT) const {
     auto recIndex = recordIndexFor(iRK);
     if (recIndex == missingRecordIndex()) {
       return ESTagGetter();

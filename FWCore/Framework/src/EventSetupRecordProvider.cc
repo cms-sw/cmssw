@@ -263,19 +263,22 @@ namespace edm {
       return descriptions;
     }
 
-    std::shared_ptr<ESProductResolverProvider> EventSetupRecordProvider::resolverProvider(ComponentDescription const& iDesc) {
+    std::shared_ptr<ESProductResolverProvider> EventSetupRecordProvider::resolverProvider(
+        ComponentDescription const& iDesc) {
       using std::placeholders::_1;
       auto itFound = std::find_if(
           providers_.begin(),
           providers_.end(),
-          std::bind(std::equal_to<ComponentDescription>(), iDesc, std::bind(&ESProductResolverProvider::description, _1)));
+          std::bind(
+              std::equal_to<ComponentDescription>(), iDesc, std::bind(&ESProductResolverProvider::description, _1)));
       if (itFound == providers_.end()) {
         return std::shared_ptr<ESProductResolverProvider>();
       }
       return get_underlying_safe(*itFound);
     }
 
-    std::shared_ptr<ESProductResolverProvider> EventSetupRecordProvider::resolverProvider(ParameterSetIDHolder const& psetID) {
+    std::shared_ptr<ESProductResolverProvider> EventSetupRecordProvider::resolverProvider(
+        ParameterSetIDHolder const& psetID) {
       for (auto& productResolverProvider : providers_) {
         if (productResolverProvider->description().pid_ == psetID.psetID()) {
           return get_underlying_safe(productResolverProvider);
@@ -285,7 +288,8 @@ namespace edm {
     }
 
     void EventSetupRecordProvider::resetProductResolverProvider(
-        ParameterSetIDHolder const& psetID, std::shared_ptr<ESProductResolverProvider> const& sharedESProductResolverProvider) {
+        ParameterSetIDHolder const& psetID,
+        std::shared_ptr<ESProductResolverProvider> const& sharedESProductResolverProvider) {
       for (auto& productResolverProvider : providers_) {
         if (productResolverProvider->description().pid_ == psetID.psetID()) {
           productResolverProvider = sharedESProductResolverProvider;

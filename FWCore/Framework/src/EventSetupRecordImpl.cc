@@ -182,9 +182,9 @@ namespace edm {
     }
 
     void const* EventSetupRecordImpl::getFromResolverAfterPrefetch(ESResolverIndex iResolverIndex,
-                                                                bool iTransientAccessOnly,
-                                                                ComponentDescription const*& iDesc,
-                                                                DataKey const*& oGottenKey) const {
+                                                                   bool iTransientAccessOnly,
+                                                                   ComponentDescription const*& iDesc,
+                                                                   DataKey const*& oGottenKey) const {
       const ESProductResolver* resolver = proxies_[iResolverIndex.value()];
       assert(nullptr != resolver);
       iDesc = resolver->providerDescription();

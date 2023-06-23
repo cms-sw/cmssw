@@ -40,7 +40,9 @@ namespace edm {
 
     namespace looper {
       template <class T>
-      void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const ESProductResolverProvider*) {
+      void addProviderTo(EventSetupProvider& iProvider,
+                         std::shared_ptr<T> iComponent,
+                         const ESProductResolverProvider*) {
         std::shared_ptr<ESProductResolverProvider> pProvider(iComponent);
         ComponentDescription description = pProvider->description();
         description.isSource_ = true;

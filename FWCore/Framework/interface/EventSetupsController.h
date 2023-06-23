@@ -131,7 +131,7 @@ namespace edm {
       void forceCacheClear();
 
       std::shared_ptr<ESProductResolverProvider> getESProducerAndRegisterProcess(ParameterSet const& pset,
-                                                                         unsigned subProcessIndex);
+                                                                                 unsigned subProcessIndex);
       void putESProducer(ParameterSet& pset,
                          std::shared_ptr<ESProductResolverProvider> const& component,
                          unsigned subProcessIndex);

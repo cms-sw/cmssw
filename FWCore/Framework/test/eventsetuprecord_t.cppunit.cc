@@ -112,7 +112,8 @@ protected:
 
 class WorkingDummyResolver : public eventsetup::ESProductResolverTemplate<DummyRecord, Dummy> {
 public:
-  WorkingDummyResolver(const Dummy* iDummy) : data_(iDummy), invalidateCalled_(false), invalidateTransientCalled_(false) {}
+  WorkingDummyResolver(const Dummy* iDummy)
+      : data_(iDummy), invalidateCalled_(false), invalidateTransientCalled_(false) {}
 
   bool invalidateCalled() const { return invalidateCalled_; }
 
@@ -474,7 +475,8 @@ void testEventsetupRecord::getNodataExpTest() {
   edm::ESConsumesInfo consumesInfo;
   edm::ESConsumesCollectorT<DummyRecord> cc(&consumesInfo, static_cast<unsigned int>(edm::Transition::Event));
   auto token = cc.consumes<Dummy>();
-  std::vector<edm::ESResolverIndex> getTokenIndices{eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()};
+  std::vector<edm::ESResolverIndex> getTokenIndices{
+      eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()};
 
   EventSetupRecordImpl recImpl(DummyRecord::keyForClass(), &activityRegistry);
   DummyRecord dummyRecord;
@@ -504,7 +506,8 @@ void testEventsetupRecord::doGetTest() {
   {
     DummyDataConsumerGeneric consumer{dummyDataKey};
 
-    SetupGenericRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
+    SetupGenericRecord sr{
+        consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
     CPPUNIT_ASSERT_THROW(dummyRecord.doGet(consumer.m_token), ExceptionType);
@@ -680,7 +683,8 @@ void testEventsetupRecord::doGetExepTest() {
 
     DummyDataConsumerGeneric consumer{dummyDataKey};
 
-    SetupGenericRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
+    SetupGenericRecord sr{
+        consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{dummyDataKey, &dummyResolver}}};
 
     DummyRecord dummyRecord = sr.makeRecord();
 
@@ -696,7 +700,8 @@ void testEventsetupRecord::resolverResetTest() {
 
   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "");
   DummyDataConsumer consumer{edm::ESInputTag("", "")};
-  SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingResolver.get()}}};
+  SetupRecord sr{
+      consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingResolver.get()}}};
   DummyRecord dummyRecord = sr.makeRecord();
 
   edm::ESConsumesInfo consumesInfo;
@@ -704,7 +709,8 @@ void testEventsetupRecord::resolverResetTest() {
   auto token = cc.consumes<Dummy>();
   std::vector<edm::ESResolverIndex> getTokenIndices{edm::ESResolverIndex(0)};
 
-  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingResolver);
+  std::shared_ptr<WorkingDummyProvider> wdProv =
+      std::make_shared<WorkingDummyProvider>(workingDataKey, workingResolver);
   CPPUNIT_ASSERT(nullptr != wdProv.get());
   if (wdProv.get() == nullptr)
     return;  // To silence Coverity
@@ -749,7 +755,8 @@ void testEventsetupRecord::transientTest() {
 
   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyResolver::value_type>(), "");
   DummyDataConsumer consumer{edm::ESInputTag("", "")};
-  SetupRecord sr{consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingResolver.get()}}};
+  SetupRecord sr{
+      consumer, dummyRecordKey_, eventSetupImpl_, &activityRegistry, {{workingDataKey, workingResolver.get()}}};
   DummyRecord dummyRecordNoConst = sr.makeRecord();
   EventSetupRecord const& dummyRecord = dummyRecordNoConst;
 
@@ -760,7 +767,8 @@ void testEventsetupRecord::transientTest() {
 
   eventsetup::EventSetupRecordImpl& nonConstDummyRecordImpl = *const_cast<EventSetupRecordImpl*>(dummyRecord.impl_);
 
-  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingResolver);
+  std::shared_ptr<WorkingDummyProvider> wdProv =
+      std::make_shared<WorkingDummyProvider>(workingDataKey, workingResolver);
   wdProv->createKeyedResolvers(DummyRecord::keyForClass(), 1);
   dummyProvider->add(wdProv);
 

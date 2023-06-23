@@ -169,7 +169,9 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProductResolverIndices const&, ProcessBlockHelperBase const&);
+    void beginJob(ProductRegistry const&,
+                  eventsetup::ESRecordsToProductResolverIndices const&,
+                  ProcessBlockHelperBase const&);
     void endJob(ExceptionCollector& collector);
 
     void beginStream(unsigned int);

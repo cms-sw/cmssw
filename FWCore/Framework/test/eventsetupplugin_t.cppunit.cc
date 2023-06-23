@@ -46,7 +46,8 @@ namespace edm::test {
     class LoadableDummyProviderA : public edm::eventsetup::test::DummyESProductResolverProvider {
     public:
       LoadableDummyProviderA(const edm::ParameterSet& iPSet)
-          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
+          : DummyESProductResolverProvider(
+                edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
         ++count_;
       }
       static int count_;
@@ -56,7 +57,8 @@ namespace edm::test {
     class LoadableDummyESSourceA : public edm::eventsetup::test::DummyESProductResolverProvider, public DummyFinder {
     public:
       LoadableDummyESSourceA(const edm::ParameterSet& iPSet)
-          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
+          : DummyESProductResolverProvider(
+                edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
         setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 0, 0)), edm::IOVSyncValue::endOfTime()));
         ++count_;
       }
@@ -75,7 +77,8 @@ namespace edm::test {
     class LoadableDummyProviderA : public edm::eventsetup::test::DummyESProductResolverProvider {
     public:
       LoadableDummyProviderA(const edm::ParameterSet& iPSet)
-          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
+          : DummyESProductResolverProvider(
+                edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 1))) {
         ++count_;
       }
       static int count_;
@@ -86,7 +89,8 @@ namespace edm::test {
     class LoadableDummyESSourceA : public edm::eventsetup::test::DummyESProductResolverProvider, public DummyFinder {
     public:
       LoadableDummyESSourceA(const edm::ParameterSet& iPSet)
-          : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
+          : DummyESProductResolverProvider(
+                edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
         setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 0, 0)), edm::IOVSyncValue::endOfTime()));
         ++count_;
       }

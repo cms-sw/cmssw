@@ -140,7 +140,8 @@ namespace {
     }
   };
 
-  class WorkingDepRecordResolver : public edm::eventsetup::ESProductResolverTemplate<DepRecord, edm::eventsetup::test::DummyData> {
+  class WorkingDepRecordResolver
+      : public edm::eventsetup::ESProductResolverTemplate<DepRecord, edm::eventsetup::test::DummyData> {
   public:
     WorkingDepRecordResolver(const edm::eventsetup::test::DummyData* iDummy) : data_(iDummy) {}
 
@@ -593,7 +594,8 @@ void testdependentrecord::timeAndRunTest() {
     SynchronousEventSetupsController controller;
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv = std::make_shared<DummyESProductResolverProvider>();
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+        std::make_shared<DummyESProductResolverProvider>();
     provider.add(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
@@ -601,7 +603,8 @@ void testdependentrecord::timeAndRunTest() {
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 5))));
     provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
-    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepOn2RecordResolverProvider>();
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
+        std::make_shared<DepOn2RecordResolverProvider>();
     provider.add(depProv);
 
     std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
@@ -649,7 +652,8 @@ void testdependentrecord::timeAndRunTest() {
     SynchronousEventSetupsController controller;
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv = std::make_shared<DummyESProductResolverProvider>();
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+        std::make_shared<DummyESProductResolverProvider>();
     provider.add(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
@@ -657,7 +661,8 @@ void testdependentrecord::timeAndRunTest() {
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue::invalidIOVSyncValue()));
     provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
-    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepOn2RecordResolverProvider>();
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
+        std::make_shared<DepOn2RecordResolverProvider>();
     provider.add(depProv);
 
     std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
@@ -719,7 +724,8 @@ void testdependentrecord::getTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv = std::make_shared<DummyESProductResolverProvider>();
+  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+      std::make_shared<DummyESProductResolverProvider>();
   provider.add(dummyProv);
 
   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
@@ -1279,7 +1285,8 @@ void testdependentrecord::oneOfTwoRecordTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv = std::make_shared<DummyESProductResolverProvider>();
+  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+      std::make_shared<DummyESProductResolverProvider>();
   provider.add(dummyProv);
 
   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
@@ -1287,7 +1294,8 @@ void testdependentrecord::oneOfTwoRecordTest() {
       edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
-  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepOn2RecordResolverProvider>();
+  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
+      std::make_shared<DepOn2RecordResolverProvider>();
   provider.add(depProv);
   {
     edm::ESParentContext parentC;
@@ -1314,7 +1322,8 @@ void testdependentrecord::resetTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv = std::make_shared<DummyESProductResolverProvider>();
+  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+      std::make_shared<DummyESProductResolverProvider>();
   provider.add(dummyProv);
 
   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
@@ -1459,7 +1468,8 @@ void testdependentrecord::extendIOVTest() {
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv = std::make_shared<DummyESProductResolverProvider>();
+  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+      std::make_shared<DummyESProductResolverProvider>();
   provider.add(dummyProv);
 
   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
@@ -1468,7 +1478,8 @@ void testdependentrecord::extendIOVTest() {
   dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, edm::IOVSyncValue{edm::EventID{1, 1, 5}}});
   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
 
-  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepOn2RecordResolverProvider>();
+  std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
+      std::make_shared<DepOn2RecordResolverProvider>();
   provider.add(depProv);
 
   edm::ESParentContext parentC;

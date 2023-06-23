@@ -112,7 +112,8 @@ namespace edmtest {
   void const* TestESSourceTestResolver::getAfterPrefetchImpl() const { return &iovTestInfo_; }
 
   void TestESSourceTestResolver::initializeForNewIOV() {
-    edm::LogAbsolute("TestESSourceTestResolver::initializeForNewIOV") << "TestESSourceTestResolver::initializeForNewIOV";
+    edm::LogAbsolute("TestESSourceTestResolver::initializeForNewIOV")
+        << "TestESSourceTestResolver::initializeForNewIOV";
     ++testESSource_->count2_;
   }
 
@@ -194,8 +195,8 @@ namespace edmtest {
     --count_;
   }
 
-  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector TestESSource::registerResolvers(EventSetupRecordKey const&,
-                                                                                       unsigned int iovIndex) {
+  edm::eventsetup::ESProductResolverProvider::KeyedResolversVector TestESSource::registerResolvers(
+      EventSetupRecordKey const&, unsigned int iovIndex) {
     if (expectedNumberOfConcurrentIOVs_ != 0 && nConcurrentIOVs_ != expectedNumberOfConcurrentIOVs_) {
       throw cms::Exception("TestFailure") << "TestESSource::registerResolvers,"
                                           << " unexpected number of concurrent IOVs";

@@ -98,7 +98,8 @@ namespace edm {
           // The return type is nonstandard because the iteration is simultaneous over 2 containers.
           // This return type is used in "ranged-based for" loops.
           struct KeyedResolver {
-            KeyedResolver(DataKey& dataKey, ESProductResolver* productResolver) : dataKey_(dataKey), productResolver_(productResolver) {}
+            KeyedResolver(DataKey& dataKey, ESProductResolver* productResolver)
+                : dataKey_(dataKey), productResolver_(productResolver) {}
             DataKey& dataKey_;
             ESProductResolver* productResolver_;
           };

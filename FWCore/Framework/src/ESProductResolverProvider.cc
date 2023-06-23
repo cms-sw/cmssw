@@ -32,17 +32,23 @@ namespace edm {
 
     ESProductResolverProvider::~ESProductResolverProvider() noexcept(false) {}
 
-    ESProductResolverProvider::KeyedResolvers::KeyedResolvers(ESProductResolverContainer* productResolverContainer, unsigned int recordIndex)
-        : productResolverContainer_(productResolverContainer), recordIndex_(recordIndex), productResolversIndex_(kInvalidIndex) {}
+    ESProductResolverProvider::KeyedResolvers::KeyedResolvers(ESProductResolverContainer* productResolverContainer,
+                                                              unsigned int recordIndex)
+        : productResolverContainer_(productResolverContainer),
+          recordIndex_(recordIndex),
+          productResolversIndex_(kInvalidIndex) {}
 
-    bool ESProductResolverProvider::KeyedResolvers::unInitialized() const { return productResolversIndex_ == kInvalidIndex; }
+    bool ESProductResolverProvider::KeyedResolvers::unInitialized() const {
+      return productResolversIndex_ == kInvalidIndex;
+    }
 
     EventSetupRecordKey const& ESProductResolverProvider::KeyedResolvers::recordKey() const {
       return productResolverContainer_->perRecordInfos_[recordIndex_].recordKey_;
     }
 
-    void ESProductResolverProvider::KeyedResolvers::insert(std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>>&& proxies,
-                                                 std::string const& appendToDataLabel) {
+    void ESProductResolverProvider::KeyedResolvers::insert(
+        std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>>&& proxies,
+        std::string const& appendToDataLabel) {
       PerRecordInfo& perRecordInfo = productResolverContainer_->perRecordInfos_[recordIndex_];
       if (perRecordInfo.indexToDataKeys_ == kInvalidIndex) {
         perRecordInfo.nDataKeys_ = proxies.size();
@@ -57,11 +63,13 @@ namespace edm {
           if (appendToDataLabel.empty()) {
             assert(it.first == productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index]);
           } else {
-            assert(it.first.type() == productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].type());
+            assert(it.first.type() ==
+                   productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].type());
             auto lengthDataLabel = std::strlen(it.first.name().value());
-            assert(std::strncmp(it.first.name().value(),
-                                productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].name().value(),
-                                lengthDataLabel) == 0);
+            assert(std::strncmp(
+                       it.first.name().value(),
+                       productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].name().value(),
+                       lengthDataLabel) == 0);
           }
           ++index;
         }
@@ -89,7 +97,8 @@ namespace edm {
       return productResolverContainer_->perRecordInfos_[recordIndex_].nDataKeys_;
     }
 
-    ESProductResolverProvider::KeyedResolvers::Iterator& ESProductResolverProvider::KeyedResolvers::Iterator::operator++() {
+    ESProductResolverProvider::KeyedResolvers::Iterator&
+    ESProductResolverProvider::KeyedResolvers::Iterator::operator++() {
       ++dataKeysIter_;
       ++productResolversIter_;
       return *this;
@@ -101,9 +110,9 @@ namespace edm {
         : dataKeysIter_(dataKeysIter), productResolversIter_(productResolversIter) {}
 
     ESProductResolverProvider::KeyedResolvers::Iterator ESProductResolverProvider::KeyedResolvers::begin() {
-      return Iterator(
-          productResolverContainer_->dataKeys_.begin() + productResolverContainer_->perRecordInfos_[recordIndex_].indexToDataKeys_,
-          productResolverContainer_->productResolvers_.begin() + productResolversIndex_);
+      return Iterator(productResolverContainer_->dataKeys_.begin() +
+                          productResolverContainer_->perRecordInfos_[recordIndex_].indexToDataKeys_,
+                      productResolverContainer_->productResolvers_.begin() + productResolversIndex_);
     }
 
     ESProductResolverProvider::KeyedResolvers::Iterator ESProductResolverProvider::KeyedResolvers::end() {
@@ -150,7 +159,7 @@ namespace edm {
     }
 
     void ESProductResolverProvider::ESProductResolverContainer::createKeyedResolvers(EventSetupRecordKey const& key,
-                                                                   unsigned int nConcurrentIOVs) {
+                                                                                     unsigned int nConcurrentIOVs) {
       if (keyedResolversCollection_.empty()) {
         sortEventSetupRecordKeys();
       }
@@ -188,8 +197,8 @@ namespace edm {
       }
     }
 
-    ESProductResolverProvider::KeyedResolvers& ESProductResolverProvider::keyedResolvers(const EventSetupRecordKey& iRecordKey,
-                                                                     unsigned int iovIndex) {
+    ESProductResolverProvider::KeyedResolvers& ESProductResolverProvider::keyedResolvers(
+        const EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
       KeyedResolvers& keyedResolvers = productResolverContainer_.keyedResolvers(iRecordKey, iovIndex);
 
       if (keyedResolvers.unInitialized()) {

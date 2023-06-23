@@ -52,7 +52,8 @@ namespace edmtest {
     TestESConcurrentSource* testESConcurrentSource_;
   };
 
-  class TestESConcurrentSource : public edm::eventsetup::ESProductResolverProvider, public edm::EventSetupRecordIntervalFinder {
+  class TestESConcurrentSource : public edm::eventsetup::ESProductResolverProvider,
+                                 public edm::EventSetupRecordIntervalFinder {
   public:
     using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
     explicit TestESConcurrentSource(edm::ParameterSet const&);
@@ -92,7 +93,7 @@ namespace edmtest {
       : edm::eventsetup::ESSourceProductResolverConcurrentBase(), testESConcurrentSource_(testESConcurrentSource) {}
 
   void TestESConcurrentSourceTestResolver::prefetch(edm::eventsetup::DataKey const& iKey,
-                                                 edm::EventSetupRecordDetails iRecord) {
+                                                    edm::EventSetupRecordDetails iRecord) {
     testESConcurrentSource_->incrementCount();
     testESConcurrentSource_->busyWait((std::string("getImpl ") + iKey.name().value()).c_str());
 

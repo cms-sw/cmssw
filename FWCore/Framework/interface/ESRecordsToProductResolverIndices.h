@@ -45,7 +45,9 @@ namespace edm::eventsetup {
     ///Returns ESTagGetter for all products matching the type iTT for record iRK
     ESTagGetter makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const;
 
-    static constexpr ESResolverIndex missingResolverIndex() noexcept { return ESResolverIndex{std::numeric_limits<int>::max()}; }
+    static constexpr ESResolverIndex missingResolverIndex() noexcept {
+      return ESResolverIndex{std::numeric_limits<int>::max()};
+    }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {
       return ESRecordIndex{ESRecordIndex::invalidValue()};
     }

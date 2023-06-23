@@ -31,8 +31,8 @@ namespace edm {
 
   ESProductResolverFactoryProducer::~ESProductResolverFactoryProducer() noexcept(false) {}
 
-  ESProductResolverProvider::KeyedResolversVector ESProductResolverFactoryProducer::registerResolvers(const EventSetupRecordKey& iRecord,
-                                                                                unsigned int iovIndex) {
+  ESProductResolverProvider::KeyedResolversVector ESProductResolverFactoryProducer::registerResolvers(
+      const EventSetupRecordKey& iRecord, unsigned int iovIndex) {
     KeyedResolversVector keyedResolversVector;
     using Iterator = Record2Factories::iterator;
     std::pair<Iterator, Iterator> range = record2Factories_.equal_range(iRecord);
@@ -46,8 +46,8 @@ namespace edm {
   }
 
   void ESProductResolverFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord,
-                                                      std::unique_ptr<ESProductResolverFactoryBase> iFactory,
-                                                      const std::string& iLabel) {
+                                                                std::unique_ptr<ESProductResolverFactoryBase> iFactory,
+                                                                const std::string& iLabel) {
     if (nullptr == iFactory.get()) {
       assert(false && "Factor pointer was null");
       ::exit(1);

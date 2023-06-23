@@ -36,7 +36,8 @@ namespace edm {
 
       // ---------- Constructors and destructor ----------------
       NoProductResolverException(const EventSetupRecordKey& iKey, const DataKey& iDataKey)
-          : NoDataException<T>(iKey, iDataKey, "NoProductResolverException", NoDataExceptionBase::noProviderMessage()) {}
+          : NoDataException<T>(iKey, iDataKey, "NoProductResolverException", NoDataExceptionBase::noProviderMessage()) {
+      }
 
       // ---------- member functions ---------------------------
 

@@ -55,17 +55,17 @@ namespace edm {
     }  // namespace
 
     void ESProductResolver::prefetchAsync(WaitingTaskHolder iTask,
-                                  EventSetupRecordImpl const& iRecord,
-                                  DataKey const& iKey,
-                                  EventSetupImpl const* iEventSetupImpl,
-                                  ServiceToken const& iToken,
-                                  ESParentContext const& iParent) const {
+                                          EventSetupRecordImpl const& iRecord,
+                                          DataKey const& iKey,
+                                          EventSetupImpl const* iEventSetupImpl,
+                                          ServiceToken const& iToken,
+                                          ESParentContext const& iParent) const {
       const_cast<ESProductResolver*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl, iToken, iParent);
     }
 
     void const* ESProductResolver::getAfterPrefetch(const EventSetupRecordImpl& iRecord,
-                                            const DataKey& iKey,
-                                            bool iTransiently) const {
+                                                    const DataKey& iKey,
+                                                    bool iTransiently) const {
       //We need to set the AccessType for each request so this can't be called in an earlier function in the stack.
       //This also must be before the cache_ check since we want to setCacheIsValid before a possible
       // exception throw. If we don't, 'getImpl' will be called again on a second request for the data.

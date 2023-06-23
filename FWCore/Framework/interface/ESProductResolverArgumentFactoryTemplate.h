@@ -38,11 +38,13 @@ namespace edm {
     public:
       using RecordType = typename ResolverType::RecordType;
 
-      ESProductResolverArgumentFactoryTemplate(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackType>>> callback)
+      ESProductResolverArgumentFactoryTemplate(
+          std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackType>>> callback)
           : callback_(std::move(callback)) {}
 
       ESProductResolverArgumentFactoryTemplate(const ESProductResolverArgumentFactoryTemplate&) = delete;
-      const ESProductResolverArgumentFactoryTemplate& operator=(const ESProductResolverArgumentFactoryTemplate&) = delete;
+      const ESProductResolverArgumentFactoryTemplate& operator=(const ESProductResolverArgumentFactoryTemplate&) =
+          delete;
 
       std::unique_ptr<ESProductResolver> makeResolver(unsigned int iovIndex) override {
         if (iovIndex != callback_->first) {

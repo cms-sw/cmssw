@@ -268,7 +268,8 @@ This simulates a problem happening early in the job which causes processing not 
 
       template <typename T>
       void put(std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut) {
-        dynamic_cast<TestESProductResolver<T>*>(esHelper_->getResolver(iPut.first.index()).get())->setData(std::move(iPut.second));
+        dynamic_cast<TestESProductResolver<T>*>(esHelper_->getResolver(iPut.first.index()).get())
+            ->setData(std::move(iPut.second));
       }
 
       void put(unsigned int, std::unique_ptr<WrapperBase>);

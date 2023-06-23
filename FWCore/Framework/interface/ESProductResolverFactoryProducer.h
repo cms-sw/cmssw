@@ -67,7 +67,8 @@ namespace edm {
 
     struct FactoryInfo {
       FactoryInfo() : key_(), factory_() {}
-      FactoryInfo(const DataKey& iKey, std::shared_ptr<ESProductResolverFactoryBase> iFactory) : key_(iKey), factory_(iFactory) {}
+      FactoryInfo(const DataKey& iKey, std::shared_ptr<ESProductResolverFactoryBase> iFactory)
+          : key_(iKey), factory_(iFactory) {}
       DataKey key_;
       edm::propagate_const<std::shared_ptr<ESProductResolverFactoryBase>> factory_;
     };

@@ -135,7 +135,8 @@ namespace edm {
     bool hasMayConsumes() const noexcept { return hasMayConsumes_; }
 
     template <typename Record>
-    std::optional<std::vector<ESResolverIndex>> updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) const {
+    std::optional<std::vector<ESResolverIndex>> updateFromMayConsumes(unsigned int iIndex,
+                                                                      const Record& iRecord) const {
       if (not hasMayConsumes()) {
         return {};
       }

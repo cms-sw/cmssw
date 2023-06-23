@@ -699,7 +699,8 @@ void testEsproducer::productResolverProviderTest() {
   nConcurrentIOVs = 4;
   productResolverProvider.createKeyedResolvers(depOn2RecordKey, nConcurrentIOVs);
 
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers0 = productResolverProvider.keyedResolvers(dummyRecordKey, 0);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers0 =
+      productResolverProvider.keyedResolvers(dummyRecordKey, 0);
   CPPUNIT_ASSERT(keyedResolvers0.recordKey() == dummyRecordKey);
   CPPUNIT_ASSERT(keyedResolvers0.size() == 1);
   {
@@ -711,7 +712,8 @@ void testEsproducer::productResolverProviderTest() {
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers1 = productResolverProvider.keyedResolvers(dummyRecordKey, 1);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers1 =
+      productResolverProvider.keyedResolvers(dummyRecordKey, 1);
   CPPUNIT_ASSERT(keyedResolvers1.recordKey() == dummyRecordKey);
   CPPUNIT_ASSERT(keyedResolvers1.size() == 1);
   {
@@ -723,7 +725,8 @@ void testEsproducer::productResolverProviderTest() {
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers2 = productResolverProvider.keyedResolvers(dummyRecordKey, 2);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers2 =
+      productResolverProvider.keyedResolvers(dummyRecordKey, 2);
   CPPUNIT_ASSERT(keyedResolvers2.recordKey() == dummyRecordKey);
   CPPUNIT_ASSERT(keyedResolvers2.size() == 1);
   {
@@ -735,7 +738,8 @@ void testEsproducer::productResolverProviderTest() {
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers3 = productResolverProvider.keyedResolvers(dummy2RecordKey, 0);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers3 =
+      productResolverProvider.keyedResolvers(dummy2RecordKey, 0);
   CPPUNIT_ASSERT(keyedResolvers3.recordKey() == dummy2RecordKey);
   CPPUNIT_ASSERT(keyedResolvers3.size() == 3);
   {
@@ -787,7 +791,8 @@ void testEsproducer::productResolverProviderTest() {
     ++it;
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers6 = productResolverProvider.keyedResolvers(depOn2RecordKey, 0);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers6 =
+      productResolverProvider.keyedResolvers(depOn2RecordKey, 0);
   CPPUNIT_ASSERT(keyedResolvers6.recordKey() == depOn2RecordKey);
   CPPUNIT_ASSERT(keyedResolvers6.size() == 0);
   {
@@ -795,7 +800,8 @@ void testEsproducer::productResolverProviderTest() {
     auto itEnd = keyedResolvers6.end();
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers7 = productResolverProvider.keyedResolvers(depOn2RecordKey, 1);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers7 =
+      productResolverProvider.keyedResolvers(depOn2RecordKey, 1);
   CPPUNIT_ASSERT(keyedResolvers7.recordKey() == depOn2RecordKey);
   CPPUNIT_ASSERT(keyedResolvers7.size() == 0);
   {
@@ -803,7 +809,8 @@ void testEsproducer::productResolverProviderTest() {
     auto itEnd = keyedResolvers7.end();
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers8 = productResolverProvider.keyedResolvers(depOn2RecordKey, 2);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers8 =
+      productResolverProvider.keyedResolvers(depOn2RecordKey, 2);
   CPPUNIT_ASSERT(keyedResolvers8.recordKey() == depOn2RecordKey);
   CPPUNIT_ASSERT(keyedResolvers8.size() == 0);
   {
@@ -811,7 +818,8 @@ void testEsproducer::productResolverProviderTest() {
     auto itEnd = keyedResolvers8.end();
     CPPUNIT_ASSERT(!(it != itEnd));
   }
-  ESProductResolverProvider::KeyedResolvers& keyedResolvers9 = productResolverProvider.keyedResolvers(depOn2RecordKey, 3);
+  ESProductResolverProvider::KeyedResolvers& keyedResolvers9 =
+      productResolverProvider.keyedResolvers(depOn2RecordKey, 3);
   CPPUNIT_ASSERT(keyedResolvers9.recordKey() == depOn2RecordKey);
   CPPUNIT_ASSERT(keyedResolvers9.size() == 0);
   {

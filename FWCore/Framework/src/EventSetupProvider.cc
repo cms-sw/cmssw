@@ -119,13 +119,15 @@ namespace edm {
       for (auto const& recordProvider : iRecordProviders) {
         std::set<ComponentDescription> components = recordProvider->resolverProviderDescriptions();
         if (components.find(iComponent) != components.end()) {
-          std::shared_ptr<ESProductResolverProvider> resolverProv = recordProvider->resolverProvider(*(components.find(iComponent)));
+          std::shared_ptr<ESProductResolverProvider> resolverProv =
+              recordProvider->resolverProvider(*(components.find(iComponent)));
           assert(resolverProv.get());
 
           std::set<EventSetupRecordKey> records = resolverProv->usingRecords();
           for (auto const& recordKey : records) {
             unsigned int iovIndex = 0;  // Doesn't matter which index is picked, at least 1 should always exist
-            ESProductResolverProvider::KeyedResolvers& keyedResolvers = resolverProv->keyedResolvers(recordKey, iovIndex);
+            ESProductResolverProvider::KeyedResolvers& keyedResolvers =
+                resolverProv->keyedResolvers(recordKey, iovIndex);
             if (!keyedResolvers.unInitialized()) {
               //add them to our output
               EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap = iReturnValue[recordKey];
@@ -198,9 +200,11 @@ namespace edm {
               eventsetup::DataKey datumKey(datumType, itRecData.second.second.c_str());
 
               //Does the resolverprovider make this?
-              std::shared_ptr<ESProductResolverProvider> resolverProv = recordProviderForKey.resolverProvider(*itResolverProv);
+              std::shared_ptr<ESProductResolverProvider> resolverProv =
+                  recordProviderForKey.resolverProvider(*itResolverProv);
               unsigned int iovIndex = 0;  // Doesn't matter which index is picked, at least 1 should always exist
-              const ESProductResolverProvider::KeyedResolvers& keyedResolvers = resolverProv->keyedResolvers(recordKey, iovIndex);
+              const ESProductResolverProvider::KeyedResolvers& keyedResolvers =
+                  resolverProv->keyedResolvers(recordKey, iovIndex);
               if (!keyedResolvers.contains(datumKey)) {
                 throw cms::Exception("ESPreferWrongData")
                     << "The es_prefer statement for type=" << itInfo.first.type_ << " label=\"" << itInfo.first.label_

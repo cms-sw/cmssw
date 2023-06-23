@@ -28,9 +28,10 @@ bool edm::eventsetup::ESSourceProductResolverBase::needToPrefetch(edm::WaitingTa
   return m_prefetching.compare_exchange_strong(expected, true);
 }
 
-void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(edm::eventsetup::EventSetupRecordImpl const& iRecord,
-                                                                  edm::eventsetup::DataKey const& iKey,
-                                                                  edm::ESParentContext const& iParent) {
+void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(
+    edm::eventsetup::EventSetupRecordImpl const& iRecord,
+    edm::eventsetup::DataKey const& iKey,
+    edm::ESParentContext const& iParent) {
   edm::ESModuleCallingContext context(providerDescription(), ESModuleCallingContext::State::kRunning, iParent);
   iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
   struct EndGuard {

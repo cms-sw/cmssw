@@ -155,9 +155,9 @@ namespace edm {
 
     private:
       void const* getFromResolverAfterPrefetch(ESResolverIndex iResolverIndex,
-                                            bool iTransientAccessOnly,
-                                            ComponentDescription const*& iDesc,
-                                            DataKey const*& oGottenKey) const;
+                                               bool iTransientAccessOnly,
+                                               ComponentDescription const*& iDesc,
+                                               DataKey const*& oGottenKey) const;
 
       template <typename DataT>
       void getImplementation(DataT const*& iData,

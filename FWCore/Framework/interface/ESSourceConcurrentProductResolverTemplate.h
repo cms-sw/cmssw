@@ -38,7 +38,8 @@ namespace edm::eventsetup {
     ESSourceConcurrentESProductResolverTemplate() = default;
 
     ESSourceConcurrentESProductResolverTemplate(const ESSourceConcurrentESProductResolverTemplate&) = delete;
-    const ESSourceConcurrentESProductResolverTemplate& operator=(const ESSourceConcurrentESProductResolverTemplate&) = delete;
+    const ESSourceConcurrentESProductResolverTemplate& operator=(const ESSourceConcurrentESProductResolverTemplate&) =
+        delete;
 
     // ---------- const member functions ---------------------
 
