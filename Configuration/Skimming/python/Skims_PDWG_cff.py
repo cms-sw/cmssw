@@ -156,6 +156,19 @@ SKIMStreamHSCPSD = cms.FilteredStream(
 
 #####################
 
+from Configuration.Skimming.PDWG_ReserveDMu_SD_cff import *
+ReserveDMuPath = cms.Path(ReserveDMu)
+SKIMStreamReserveDMu = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'ReserveDMu',
+    paths = (ReserveDMuPath),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
+
+#####################
+
 from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
 CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
 R9IdPhotonPairsPath = cms.Path(R9IdPhotonPairsFilter)
