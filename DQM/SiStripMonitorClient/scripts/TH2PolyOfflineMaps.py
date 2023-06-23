@@ -191,9 +191,8 @@ class TH2PolyOfflineMaps:
 
     for line in geoFile:
       lineSpl = line.strip().split("\"")
-      
-      detId = lineSpl[0].split(" ")[0]
-      
+      #New TH2Poly bin ID = full_name_(detId)
+      detId = str(lineSpl[0].split(" ")[1])+"_("+str(lineSpl[0].split(" ")[0])+")"
       vertices = lineSpl[1]
       xy = vertices.split(" ")
       x, y = array('d'), array('d')
@@ -211,9 +210,6 @@ class TH2PolyOfflineMaps:
       x.append(x[0])
       y.append(y[0])
       
-      # print(detId, vertices)
-      # print(x)
-      # print(y)
       if applyModuleRotation:
         bin = TGraph(verNum, y, x)
       else:
@@ -431,14 +427,19 @@ class TH2PolyOfflineMaps:
 
         listOfVals = []
         onlineName = ""
+        nameId = ""
+
         for detId in self.internalData:
           val = (self.internalData[detId])[mv]
           onlineName = self.rawToOnlineDict[detId]
           listOfVals.append([val, detId, onlineName])
+          #New TH2Poly bin ID = full_name_(detId)
+          nameId = str(onlineName)+"_("+str(detId)+")"
+
           if applyAbsValue:
-             currentHist.Fill(str(detId), abs(val))
+             currentHist.Fill(str(nameId), abs(val))
           else:
-             currentHist.Fill(str(detId), val)
+             currentHist.Fill(str(nameId), val)
           
         listOfVals = sorted(listOfVals, key = lambda item: item[0])
         
@@ -452,23 +453,20 @@ class TH2PolyOfflineMaps:
         for i in range(extremeBinsNum):
           minMaxFile.write("\t" + str(listOfVals[-i - 1][1]) + " " + str(listOfVals[-i - 1][2]) + " " + str(listOfVals[-i - 1][0]) + "\n")
         
-        c1 = TCanvas(mv, mv, plotWidth , plotHeight)
+        #Canvas name = MyT for both Pixel and Strip Tracker Maps
+        c1 = TCanvas("MyT", "MyT", plotWidth , plotHeight)
         
         if applyLogScale:
           c1.SetLogz()
 
-
-          
         currentHist.Draw("AC COLZ L")        
-              
+
         gPad.Update()
         palette = currentHist.FindObject("palette");
         palette.SetX1NDC(0.89);
         palette.SetX2NDC(0.91);
         palette.SetLabelSize(0.05);
         gPad.Update()
-
-
 
         ### IMPORTANT - REALTIVE POSITIONING IS MESSY IN CURRENT VERION OF PYROOT
         ### IT CAN CHANGE FROM VERSION TO VERSION, SO YOU HAVE TO ADJUST IT FOR YOUR NEEDS
@@ -524,7 +522,58 @@ class TH2PolyOfflineMaps:
   
         #save to the png
         c1.Print(self.outputDirName + mv + ".png")
-      
+
+        #Clean canvas, change settings, save as root
+        c1.Clear()
+        c1.SetLogz(False)
+        currentHist.GetZaxis().UnZoom()
+        currentHist.SetLineColor(kBlack)
+        currentHist.Draw("AL COLZ")
+        currentHist.GetXaxis().SetRangeUser(-10,155)
+
+        palette.SetX1NDC(0.92);
+        palette.SetX2NDC(0.94);
+        palette.SetY1NDC(0.02);
+        palette.SetY2NDC(0.91);
+        gPad.SetRightMargin(0.08);
+        gPad.SetLeftMargin(0.01);
+        gPad.SetTopMargin(0.09);
+        gPad.SetBottomMargin(0.02);
+        gPad.Update()
+
+        zarrow = TArrow(0, 27, 0, -30, 0.02, "|>")
+        zarrow.SetLineWidth(3)
+        zarrow.Draw()
+        phiArrow.SetLineWidth(3)
+        phiArrow.Draw()
+        xArrow.SetLineWidth(3)
+        xArrow.Draw()
+        yArrow.SetLineWidth(3)
+        yArrow.Draw()
+
+        txt.Clear()
+        txt.SetTextAngle(0)
+        txt.SetTextSize(0.05)
+        PixelTitle = "Run " + self.runNumber + ": Pixel " + mv
+        txt.DrawLatex(0.5, 0.95, PixelTitle)
+
+        txt.SetTextSize(0.04)
+        txt.SetNDC(False)
+        txt.DrawLatex(75, -65, "-DISK")
+        txt.DrawLatex(75, 65, "+DISK")
+        txt.DrawLatex(50, -60, "NUMBER ->")
+
+        txt.DrawLatex(-5, -20, "+z")
+        txt.DrawLatex(35, 30, "+phi")
+        txt.DrawLatex(55, 45, "+x")
+        txt.DrawLatex(30, 65, "+y")
+
+        txt.SetTextAngle(90)
+        txt.DrawLatex(-5, 0, "BARREL")
+
+        c1.SaveAs(self.outputDirName + mv + ".root")
+        c1.Close()
+
   def __del__(self):
     if self.inputFile :
       if self.inputFile.IsOpen():
