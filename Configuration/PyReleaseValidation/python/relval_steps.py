@@ -584,6 +584,9 @@ steps['RunEGamma2023B']={'INPUT':InputInfo(dataSet='/EGamma1/Run2023B-v1/RAW',la
 steps['RunTau2023B']={'INPUT':InputInfo(dataSet='/Tau/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 steps['RunMuonEG2023B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 
+Run2023C_LS500={368489: [[46,546]]}
+steps['TestEnablesEcalHcal2023C']={'INPUT':InputInfo(dataSet='/TestEnablesEcalHcal/Run2023C-Express-v4/RAW',label='2023C',events=100000,location='STD', ls=Run2023C_LS500)}
+
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='2015DHS',events=100000,location='STD', ls=Run2015DHS)}
@@ -3931,6 +3934,24 @@ steps['NanoFullHEfail']={'-s':'NANO',
                          '--datatier':'NANOAODSIM',
                          '--eventcontent':'NANOEDMAODSIM',
                          '--filein':'file:step3_inMINIAODSIM.root'}
+
+steps['HcalNano']={'-s':'RAW2DIGI,RECO,USER:DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
+                         '--conditions':'auto:run3_data_prompt',
+                         '-n':'10',
+                         '--era' : 'Run3',
+                         '--geometry' : 'DB:Extended',
+                         '--datatier':'NANOAOD',
+                         '--eventcontent':'NANOAOD'}
+
+steps['HcalNanoCalibGap']={'-s':'RAW2DIGI,RECO,USER:DPGAnalysis/HcalNanoAOD/hcalNano_cff.hcalNanoTask',
+                         '--conditions':'auto:run3_data_prompt',
+                         '-n':'10',
+                         '--era' : 'Run3',
+                         '--geometry' : 'DB:Extended',
+                         '--datatier':'NANOAOD',
+                         '--eventcontent':'NANOAOD', 
+                         '--customise':'DPGAnalysis/HcalNanoAOD/hcalNano_cff.customiseHcalCalib', 
+                         '--processName': 'USER'}
                          
 #################################################################################
 ####From this line till the end of the file :
