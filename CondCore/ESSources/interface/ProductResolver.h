@@ -1,5 +1,5 @@
-#ifndef CondCore_ESSources_DataProxy_H
-#define CondCore_ESSources_DataProxy_H
+#ifndef CondCore_ESSources_ProductResolver_H
+#define CondCore_ESSources_ProductResolver_H
 
 #include <cassert>
 //#include <iostream>
@@ -8,7 +8,7 @@
 #include <mutex>
 
 // user include files
-#include "FWCore/Framework/interface/ESSourceDataProxyTemplate.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverTemplate.h"
 #include "FWCore/Framework/interface/DataKey.h"
 
 #include "CondCore/CondDB/interface/IOVProxy.h"
@@ -16,64 +16,61 @@
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/CondDB/interface/Types.h"
 
-// expose a cond::PayloadProxy as a eventsetup::DataProxy
+// expose a cond::PayloadProxy as a eventsetup::ESProductResolver
 namespace cond {
   template <typename DataT>
   struct DefaultInitializer {
     void operator()(DataT&) {}
   };
-}  // namespace cond
 
-template <class RecordT, class DataT, typename Initializer = cond::DefaultInitializer<DataT>>
-class DataProxy : public edm::eventsetup::ESSourceDataProxyTemplate<DataT> {
-public:
-  explicit DataProxy(std::shared_ptr<cond::persistency::PayloadProxy<DataT>> pdata,
-                     edm::SerialTaskQueue* iQueue,
-                     std::mutex* iMutex)
-      : edm::eventsetup::ESSourceDataProxyTemplate<DataT>(iQueue, iMutex), m_data{pdata} {}
-  //DataProxy(); // stop default
-  const DataProxy& operator=(const DataProxy&) = delete;  // stop default
+  template <class RecordT, class DataT, typename Initializer = cond::DefaultInitializer<DataT>>
+  class ProductResolver : public edm::eventsetup::ESSourceProductResolverTemplate<DataT> {
+  public:
+    explicit ProductResolver(std::shared_ptr<cond::persistency::PayloadProxy<DataT>> pdata,
+                             edm::SerialTaskQueue* iQueue,
+                             std::mutex* iMutex)
+        : edm::eventsetup::ESSourceProductResolverTemplate<DataT>(iQueue, iMutex), m_data{pdata} {}
+    //ProductResolver(); // stop default
+    const ProductResolver& operator=(const ProductResolver&) = delete;  // stop default
 
-  // ---------- const member functions ---------------------
+    // ---------- const member functions ---------------------
 
-  // ---------- static member functions --------------------
+    // ---------- static member functions --------------------
 
-  // ---------- member functions ---------------------------
-protected:
-  void prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails) final {
-    m_data->make();
-    m_initializer(const_cast<DataT&>((*m_data)()));
-  }
+    // ---------- member functions ---------------------------
+  protected:
+    void prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails) final {
+      m_data->make();
+      m_initializer(const_cast<DataT&>((*m_data)()));
+    }
 
-  DataT const* fetch() const final { return &(*m_data)(); }
+    DataT const* fetch() const final { return &(*m_data)(); }
 
-private:
-  void initializeForNewIOV() override { m_data->initializeForNewIOV(); }
+  private:
+    void initializeForNewIOV() override { m_data->initializeForNewIOV(); }
 
-  // ---------- member data --------------------------------
+    // ---------- member data --------------------------------
 
-  std::shared_ptr<cond::persistency::PayloadProxy<DataT>> m_data;
-  Initializer m_initializer;
-};
-
-namespace cond {
+    std::shared_ptr<cond::persistency::PayloadProxy<DataT>> m_data;
+    Initializer m_initializer;
+  };
 
   /* ABI bridging between the cond world and eventsetup world
    * keep them separated!
    */
-  class DataProxyWrapperBase {
+  class ProductResolverWrapperBase {
   public:
     typedef std::shared_ptr<cond::persistency::BasePayloadProxy> ProxyP;
-    typedef std::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
+    typedef std::shared_ptr<edm::eventsetup::ESProductResolver> esResolverP;
 
     // limitation of plugin manager...
     typedef std::pair<std::string, std::string> Args;
 
     virtual edm::eventsetup::TypeTag type() const = 0;
     virtual ProxyP proxy(unsigned int iovIndex) const = 0;
-    virtual edmProxyP edmProxy(unsigned int iovIndex) const = 0;
+    virtual esResolverP esResolver(unsigned int iovIndex) const = 0;
 
-    DataProxyWrapperBase();
+    ProductResolverWrapperBase();
     // late initialize (to allow to load ALL library first)
     virtual void lateInit(persistency::Session& session,
                           const std::string& tag,
@@ -87,7 +84,7 @@ namespace cond {
 
     void addInfo(std::string const& il, std::string const& cs, std::string const& tag);
 
-    virtual ~DataProxyWrapperBase();
+    virtual ~ProductResolverWrapperBase();
 
     std::string const& label() const { return m_label; }
     std::string const& connString() const { return m_connString; }
@@ -123,12 +120,12 @@ namespace cond {
  * keep them separated!
  */
 template <class RecordT, class DataT, typename Initializer = cond::DefaultInitializer<DataT>>
-class DataProxyWrapper : public cond::DataProxyWrapperBase {
+class ProductResolverWrapper : public cond::ProductResolverWrapperBase {
 public:
-  typedef ::DataProxy<RecordT, DataT, Initializer> DataProxy;
+  typedef ::cond::ProductResolver<RecordT, DataT, Initializer> ProductResolver;
 
   // constructor from plugin...
-  explicit DataProxyWrapper(const char* source = nullptr) : m_source(source ? source : "") {
+  explicit ProductResolverWrapper(const char* source = nullptr) : m_source(source ? source : "") {
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
@@ -149,7 +146,7 @@ public:
     // how many we will need.
     m_proxies.push_back(std::make_shared<cond::persistency::PayloadProxy<DataT>>(
         &currentIov(), &session(), &requests(), m_source.empty() ? (const char*)nullptr : m_source.c_str()));
-    m_edmProxies.push_back(std::make_shared<DataProxy>(m_proxies[0], queue, mutex));
+    m_esResolvers.push_back(std::make_shared<ProductResolver>(m_proxies[0], queue, mutex));
     addInfo(il, cs, tag);
   }
 
@@ -158,30 +155,30 @@ public:
     // multiple IOVs to run concurrently.
     if (m_proxies.size() != nConcurrentIOVs) {
       assert(m_proxies.size() == 1);
-      auto queue = m_edmProxies.front()->queue();
-      auto mutex = m_edmProxies.front()->mutex();
+      auto queue = m_esResolvers.front()->queue();
+      auto mutex = m_esResolvers.front()->mutex();
       for (unsigned int i = 1; i < nConcurrentIOVs; ++i) {
         m_proxies.push_back(std::make_shared<cond::persistency::PayloadProxy<DataT>>(
             &currentIov(), &session(), &requests(), m_source.empty() ? (const char*)nullptr : m_source.c_str()));
-        m_edmProxies.push_back(std::make_shared<DataProxy>(m_proxies[i], queue, mutex));
+        m_esResolvers.push_back(std::make_shared<ProductResolver>(m_proxies[i], queue, mutex));
         // This does nothing except in the special case of a KeyList PayloadProxy.
         // They all need to have copies of the same IOVProxy object.
         m_proxies[i]->initKeyList(*m_proxies[0]);
       }
       assert(m_proxies.size() == nConcurrentIOVs);
     }
-    assert(m_proxies.size() == m_edmProxies.size());
+    assert(m_proxies.size() == m_esResolvers.size());
   }
 
   edm::eventsetup::TypeTag type() const override { return m_type; }
   ProxyP proxy(unsigned int iovIndex) const override { return m_proxies.at(iovIndex); }
-  edmProxyP edmProxy(unsigned int iovIndex) const override { return m_edmProxies.at(iovIndex); }
+  esResolverP esResolver(unsigned int iovIndex) const override { return m_esResolvers.at(iovIndex); }
 
 private:
   std::string m_source;
   edm::eventsetup::TypeTag m_type;
   std::vector<std::shared_ptr<cond::persistency::PayloadProxy<DataT>>> m_proxies;
-  std::vector<std::shared_ptr<DataProxy>> m_edmProxies;
+  std::vector<std::shared_ptr<ProductResolver>> m_esResolvers;
 };
 
-#endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */
+#endif /* CondCore_ESSources_ProductResolver_H */

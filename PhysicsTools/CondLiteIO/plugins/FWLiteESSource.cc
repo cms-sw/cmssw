@@ -23,8 +23,8 @@
 #include <mutex>
 
 // user include files
-#include "FWCore/Framework/interface/DataProxyProvider.h"
-#include "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverNonConcurrentBase.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "DataFormats/FWLite/interface/EventSetup.h"
 #include "DataFormats/FWLite/interface/Record.h"
@@ -65,10 +65,13 @@ namespace {
     cms::Exception* m_exception;
   };
 
-  class FWLiteProxy : public edm::eventsetup::ESSourceDataProxyNonConcurrentBase {
+  class FWLiteProductResolver : public edm::eventsetup::ESSourceProductResolverNonConcurrentBase {
   public:
-    FWLiteProxy(const TypeID& iTypeID, const fwlite::Record* iRecord, edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
-        : edm::eventsetup::ESSourceDataProxyNonConcurrentBase(iQueue, iMutex),
+    FWLiteProductResolver(const TypeID& iTypeID,
+                          const fwlite::Record* iRecord,
+                          edm::SerialTaskQueue* iQueue,
+                          std::mutex* iMutex)
+        : edm::eventsetup::ESSourceProductResolverNonConcurrentBase(iQueue, iMutex),
           m_type(iTypeID),
           m_record(iRecord),
           m_data{nullptr} {}
@@ -86,7 +89,7 @@ namespace {
     }
 
     void invalidateCache() override {
-      edm::eventsetup::ESSourceDataProxyNonConcurrentBase::invalidateCache();
+      edm::eventsetup::ESSourceProductResolverNonConcurrentBase::invalidateCache();
       m_data = nullptr;
     }
 
@@ -99,7 +102,7 @@ namespace {
   };
 }  // namespace
 
-class FWLiteESSource : public edm::eventsetup::DataProxyProvider, public edm::EventSetupRecordIntervalFinder {
+class FWLiteESSource : public edm::eventsetup::ESProductResolverProvider, public edm::EventSetupRecordIntervalFinder {
 public:
   FWLiteESSource(edm::ParameterSet const& iPS);
   FWLiteESSource(const FWLiteESSource&) = delete;
@@ -109,7 +112,7 @@ public:
   using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
 
 private:
-  KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) override;
+  KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
   void setIntervalFor(const EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
@@ -128,9 +131,9 @@ FWLiteESSource::FWLiteESSource(edm::ParameterSet const& iPS)
 
 FWLiteESSource::~FWLiteESSource() {}
 
-edm::eventsetup::DataProxyProvider::KeyedProxiesVector FWLiteESSource::registerProxies(
+edm::eventsetup::ESProductResolverProvider::KeyedResolversVector FWLiteESSource::registerResolvers(
     const EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
-  KeyedProxiesVector keyedProxiesVector;
+  KeyedResolversVector keyedProxiesVector;
   using edm::eventsetup::heterocontainer::HCTypeTag;
 
   fwlite::RecordID recID = m_keyToID[iRecordKey];
@@ -144,7 +147,8 @@ edm::eventsetup::DataProxyProvider::KeyedProxiesVector FWLiteESSource::registerP
     HCTypeTag tt = HCTypeTag::findType(it->first);
     if (tt != HCTypeTag()) {
       edm::eventsetup::DataKey dk(tt, edm::eventsetup::IdTags(it->second.c_str()));
-      keyedProxiesVector.emplace_back(dk, std::make_shared<FWLiteProxy>(TypeID(tt.value()), &rec, &m_queue, &m_mutex));
+      keyedProxiesVector.emplace_back(
+          dk, std::make_shared<FWLiteProductResolver>(TypeID(tt.value()), &rec, &m_queue, &m_mutex));
     } else {
       LogDebug("UnknownESType") << "The type '" << it->first << "' is unknown in this job";
       std::cout << "    *****FAILED*****" << std::endl;

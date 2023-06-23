@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     ESSources
-// Class  :     ProxyFactory
+// Class  :     ProductResolverFactory
 //
 // Implementation:
 //     <Notes on implementation>
@@ -13,20 +13,20 @@
 // system include files
 
 // user include files
-#include "CondCore/ESSources/interface/ProxyFactory.h"
-#include "CondCore/ESSources/interface/DataProxy.h"
+#include "CondCore/ESSources/interface/ProductResolverFactory.h"
+#include "CondCore/ESSources/interface/ProductResolver.h"
 
-cond::DataProxyWrapperBase::DataProxyWrapperBase() {}
+cond::ProductResolverWrapperBase::ProductResolverWrapperBase() {}
 
-cond::DataProxyWrapperBase::~DataProxyWrapperBase() {}
+cond::ProductResolverWrapperBase::~ProductResolverWrapperBase() {}
 
-void cond::DataProxyWrapperBase::addInfo(std::string const& il, std::string const& cs, std::string const& tag) {
+void cond::ProductResolverWrapperBase::addInfo(std::string const& il, std::string const& cs, std::string const& tag) {
   m_label = il;
   m_connString = cs;
   m_tag = tag;
 }
 
-void cond::DataProxyWrapperBase::loadTag(std::string const& tag) {
+void cond::ProductResolverWrapperBase::loadTag(std::string const& tag) {
   m_session.transaction().start(true);
   m_iovProxy = m_session.readIov(tag);
   m_session.transaction().commit();
@@ -34,7 +34,7 @@ void cond::DataProxyWrapperBase::loadTag(std::string const& tag) {
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();
 }
 
-void cond::DataProxyWrapperBase::loadTag(std::string const& tag, boost::posix_time::ptime const& snapshotTime) {
+void cond::ProductResolverWrapperBase::loadTag(std::string const& tag, boost::posix_time::ptime const& snapshotTime) {
   m_session.transaction().start(true);
   m_iovProxy = m_session.readIov(tag, snapshotTime);
   m_session.transaction().commit();
@@ -42,13 +42,13 @@ void cond::DataProxyWrapperBase::loadTag(std::string const& tag, boost::posix_ti
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();
 }
 
-void cond::DataProxyWrapperBase::reload() {
+void cond::ProductResolverWrapperBase::reload() {
   std::string tag = m_iovProxy.tagInfo().name;
   if (!tag.empty())
     loadTag(tag);
 }
 
-cond::ValidityInterval cond::DataProxyWrapperBase::setIntervalFor(Time_t time) {
+cond::ValidityInterval cond::ProductResolverWrapperBase::setIntervalFor(Time_t time) {
   if (!m_currentIov.isValidFor(time)) {
     m_currentIov.clear();
     m_session.transaction().start(true);
@@ -58,8 +58,8 @@ cond::ValidityInterval cond::DataProxyWrapperBase::setIntervalFor(Time_t time) {
   return cond::ValidityInterval(m_currentIov.since, m_currentIov.till);
 }
 
-EDM_REGISTER_PLUGINFACTORY(cond::ProxyFactory, cond::pluginCategory());
+EDM_REGISTER_PLUGINFACTORY(cond::ProductResolverFactory, cond::pluginCategory());
 
 namespace cond {
-  const char* pluginCategory() { return "CondProxyFactory"; }
+  const char* pluginCategory() { return "CondProductResolverFactory"; }
 }  // namespace cond
