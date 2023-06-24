@@ -68,6 +68,17 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
   bool caloLayer1OutOfRun{true};
   bool FATevent{false};
   bool additionalFB{false};
+  bool card7flag1354{false};
+  bool card7flag1356{false};
+  bool card7flag1358{false};
+  std::vector<uint32_t> FED1354_slot7_bits;
+  std::vector<uint32_t> FED1356_slot7_bits;
+  std::vector<uint32_t> FED1358_slot7_bits;
+  for (int i = 0; i < 6; i++) {
+    FED1354_slot7_bits.push_back(0);
+    FED1356_slot7_bits.push_back(0);
+    FED1358_slot7_bits.push_back(0);
+  }
   if (fedRawDataCollection.isValid()) {
     caloLayer1OutOfRun = false;
     for (int iFed = 1354; iFed < 1360; iFed += 2) {
@@ -83,16 +94,52 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
         const uint32_t* amcPtr = amcData.dataPtr();
         FATevent = ((amcPtr[5] >> 16) & 0xf) == 5;
         additionalFB = (amcPtr[5] >> 15) & 0x1;
-        int lPhi = amcData.layer1Phi();
-        if (daqData.BXID() != amcData.BXID()) {
-          eventMonitors.bxidErrors_->Fill(lPhi);
+        if (((amcPtr[5] >> 14) & 0x1) == 0) {
+          int lPhi = amcData.layer1Phi();
+          if (daqData.BXID() != amcData.BXID()) {
+            eventMonitors.bxidErrors_->Fill(lPhi);
+          }
+          if (daqData.L1ID() != amcData.L1ID()) {
+            eventMonitors.l1idErrors_->Fill(lPhi);
+          }
+          // AMC payload header has 16 bit orbit number, AMC13 header is full 32
+          if ((daqData.orbitNumber() & 0xFFFF) != amcData.orbitNo()) {
+            eventMonitors.orbitErrors_->Fill(lPhi);
+          }
         }
-        if (daqData.L1ID() != amcData.L1ID()) {
-          eventMonitors.l1idErrors_->Fill(lPhi);
+        if (iFed == 1354 && daqData.nAMCs() == 7 && i == 3 && amcData.amcNo() == 7 && ((amcPtr[5] >> 14) & 0x1) == 1) {
+          card7flag1354 = true;
+          for (int j = 0; j < 6; j++) {
+            FED1354_slot7_bits[j] = amcPtr[j + 6] & 0xFFFFFFFF;
+          }
+        } else if (iFed == 1356 && daqData.nAMCs() == 7 && i == 3 && amcData.amcNo() == 7 &&
+                   ((amcPtr[5] >> 14) & 0x1) == 1) {
+          card7flag1356 = true;
+          for (int j = 0; j < 6; j++) {
+            FED1356_slot7_bits[j] = amcPtr[j + 6] & 0xFFFFFFFF;
+          }
+        } else if (iFed == 1358 && daqData.nAMCs() == 7 && i == 3 && amcData.amcNo() == 7 &&
+                   ((amcPtr[5] >> 14) & 0x1) == 1) {
+          card7flag1358 = true;
+          for (int j = 0; j < 6; j++) {
+            FED1358_slot7_bits[j] = amcPtr[j + 6] & 0xFFFFFFFF;
+          }
         }
-        // AMC payload header has 16 bit orbit number, AMC13 header is full 32
-        if ((daqData.orbitNumber() & 0xFFFF) != amcData.orbitNo()) {
-          eventMonitors.orbitErrors_->Fill(lPhi);
+      }
+    }
+  }
+
+  if (not caloLayer1OutOfRun) {
+    for (int iword = 0; iword < 6; iword++) {
+      for (int ibit = 0; ibit < 32; ibit++) {
+        if (card7flag1354 && ((FED1354_slot7_bits[iword] >> ibit) & 0x1) == 1) {
+          eventMonitors.slot7bit_->Fill(ibit, iword);
+        }
+        if (card7flag1356 && ((FED1356_slot7_bits[iword] >> ibit) & 0x1) == 1) {
+          eventMonitors.slot7bit_->Fill(ibit, iword + 7);
+        }
+        if (card7flag1358 && ((FED1358_slot7_bits[iword] >> ibit) & 0x1) == 1) {
+          eventMonitors.slot7bit_->Fill(ibit, iword + 14);
         }
       }
     }
@@ -411,8 +458,8 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     const bool Hfg1Agreement = (abs(ieta) < 29) ? (layer1fg1 == uHTRfg1) : true;
     const bool Hfg2Agreement = (abs(ieta) < 29) ? (layer1fg2 == uHTRfg2) : true;
     const bool Hfg3Agreement = (abs(ieta) < 29) ? (layer1fg3 == uHTRfg3) : true;
-    const bool Hfg4Agreement = (abs(ieta) < 29) ? (layer1fg4 == uHTRfg4) : true;
-    const bool Hfg5Agreement = (abs(ieta) < 29) ? (layer1fg5 == uHTRfg5) : true;
+    //const bool Hfg4Agreement = (abs(ieta) < 29) ? (layer1fg4 == uHTRfg4) : true;
+    //const bool Hfg5Agreement = (abs(ieta) < 29) ? (layer1fg5 == uHTRfg5) : true;
     // Mute fg4 and fg5 for now (reserved bits not used anyway)
     const bool HfgAgreement = (Hfg0Agreement && Hfg1Agreement && Hfg2Agreement && Hfg3Agreement);
 
@@ -476,12 +523,12 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       }
       // fg4-5 are reserved bits and not used
       // so compare here and not stream to mismatch list for now
-      if (not Hfg4Agreement) {
-        eventMonitors.hcalOccFg4Discrepancy_->Fill(ieta, iphi);
-      }
-      if (not Hfg5Agreement) {
-        eventMonitors.hcalOccFg5Discrepancy_->Fill(ieta, iphi);
-      }
+      //if (not Hfg4Agreement) {
+      //  eventMonitors.hcalOccFg4Discrepancy_->Fill(ieta, iphi);
+      //}
+      //if (not Hfg5Agreement) {
+      //  eventMonitors.hcalOccFg5Discrepancy_->Fill(ieta, iphi);
+      //}
       // Fill Fb Occ and compare between layer1 emulated and layer2 data readout
       // FAT events only!!
       if (LLPfb_Expd) {
@@ -643,6 +690,10 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   auto bookHcalOccupancy = [&ibooker](std::string name, std::string title) {
     return ibooker.book2D(name, title + ";iEta;iPhi", 83, -41.5, 41.5, 72, 0.5, 72.5);
   };
+  auto bookSlot7Occupancy = [&ibooker](std::string name, std::string title) {
+    return ibooker.book2D(
+        name, title + ";bit;slot-7 word in FED13(54[0-5],56[7-12],58[14-19])", 32, -0.5, 31.5, 20, -0.5, 19.5);
+  };
 
   ibooker.setCurrentFolder(histFolder_);
 
@@ -656,6 +707,7 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.hcalLinkError_ = bookHcalOccupancy("hcalLinkError", "HCAL Link Errors");
   eventMonitors.hcalOccupancy_ = bookHcalOccupancy("hcalOccupancy", "HCAL TP Occupancy at Layer1");
   eventMonitors.hcalOccRecdEtWgt_ = bookHcalOccupancy("hcalOccRecdEtWgt", "HCal TP ET-weighted Occupancy at Layer1");
+  eventMonitors.slot7bit_ = bookSlot7Occupancy("slot7bitOcc", "Bit Occupancy of the Three Slot-7 Cards");
 
   ibooker.setCurrentFolder(histFolder_ + "/ECalDetail");
 
@@ -706,10 +758,10 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
       bookHcalOccupancy("hcalOccFg2Discrepancy", "HCal Fine Grain 2 Discrepancy between uHTR and Layer1");
   eventMonitors.hcalOccFg3Discrepancy_ =
       bookHcalOccupancy("hcalOccFg3Discrepancy", "HCal Fine Grain 3 Discrepancy between uHTR and Layer1");
-  eventMonitors.hcalOccFg4Discrepancy_ =
-      bookHcalOccupancy("hcalOccFg4Discrepancy", "HCal Fine Grain 4 Discrepancy between uHTR and Layer1");
-  eventMonitors.hcalOccFg5Discrepancy_ =
-      bookHcalOccupancy("hcalOccFg5Discrepancy", "HCal Fine Grain 5 Discrepancy between uHTR and Layer1");
+  //eventMonitors.hcalOccFg4Discrepancy_ =
+  //    bookHcalOccupancy("hcalOccFg4Discrepancy", "HCal Fine Grain 4 Discrepancy between uHTR and Layer1");
+  //eventMonitors.hcalOccFg5Discrepancy_ =
+  //    bookHcalOccupancy("hcalOccFg5Discrepancy", "HCal Fine Grain 5 Discrepancy between uHTR and Layer1");
   eventMonitors.hcalOccSentFg0_ = bookHcalOccupancy("hcalOccSentFg0", "HCal Fine Grain 0 Occupancy at uHTR");
   eventMonitors.hcalOccSentFg1_ = bookHcalOccupancy("hcalOccSentFg1", "HCal Fine Grain 1 Occupancy at uHTR");
   eventMonitors.hcalOccSentFg2_ = bookHcalOccupancy("hcalOccSentFg2", "HCal Fine Grain 2 Occupancy at uHTR");
