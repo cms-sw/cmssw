@@ -226,6 +226,16 @@ def customizeHLTfor41495(process):
 
     return process
 
+def customizeHLTfor41815(process):
+    # use hlt online BeamSpot for SiStripClusters2ApproxClusters
+    for producer in producers_by_type(process, 'SiStripClusters2ApproxClusters'):
+        producer.beamSpot = cms.InputTag('hltOnlineBeamSpot')
+
+    if hasattr(process, 'HLT_HIRandom_v4'):
+        getattr(process,'HLT_HIRandom_v4').insert(2,process.HLTBeamSpot)
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -236,5 +246,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor41058(process)
     process = customizeHLTfor41495(process)
+    process = customizeHLTfor41815(process)
 
     return process
