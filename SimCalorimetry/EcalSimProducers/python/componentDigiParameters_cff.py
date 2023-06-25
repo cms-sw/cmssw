@@ -5,6 +5,9 @@ component_digi_parameters = cms.PSet(
     componentTimeTag = cms.string("Component"),
     componentSeparateDigi = cms.bool(False),
     componentAddToBarrel  = cms.bool(False),
-    componentTimePhase  = cms.double(0.),
-
+    componentTimePhase  = cms.double(0.)
 )
+
+from Configuration.Eras.Modifier_ecal_component_cff import ecal_component
+from Configuration.Eras.Modifier_ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
+(ecal_component | ecal_component_finely_sampled_waveforms).toModify(component_digi_parameters,componentSeparateDigi=True)

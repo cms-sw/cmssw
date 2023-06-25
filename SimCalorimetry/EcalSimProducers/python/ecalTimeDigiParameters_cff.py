@@ -8,4 +8,7 @@ ecal_time_digi_parameters = cms.PSet(
     timeLayerBarrel = cms.int32(7),
     timeLayerEndcap = cms.int32(3),
     componentWaveform = cms.bool(False)
-    )
+)
+
+from Configuration.Eras.Modifier_ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
+(ecal_component_finely_sampled_waveforms).toModify(ecal_time_digi_parameters,componentWaveform=True)

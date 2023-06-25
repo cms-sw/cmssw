@@ -70,6 +70,7 @@ class Eras (object):
                            'run3_HB', 'run3_HFSL', 'run3_common', 'run3_RPC',
                            'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
                            'run2_CSC_2018',
+                           'ecal_component','ecal_component_finely_sampled_waveforms',
                            'phase2_common', 'phase2_tracker',
                            'phase2_muon', 'phase2_GEM', 'phase2_GE0',
                            'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
