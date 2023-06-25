@@ -60,8 +60,8 @@ void DDHGCalPassiveFull::initialize(const DDNumericArguments& nArgs,
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["ModuleThickness"];
   waferSize_ = nArgs["WaferSize"];
-  waferSepar_ = nArgs["SensorSeparation"];
 #ifdef EDM_ML_DEBUG
+  waferSepar_ = nArgs["SensorSeparation"];
   edm::LogVerbatim("HGCalGeom") << "DDHGCalPassiveFull: Module " << parent().name() << " made of " << material_ << " T "
                                 << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_;
 #endif
@@ -91,7 +91,7 @@ void DDHGCalPassiveFull::execute(DDCompactView& cpv) {
 
   static constexpr double tol = 0.00001;
   static const double sqrt3 = std::sqrt(3.0);
-  double rM = 0.5 * (waferSize_ + waferSepar_);
+  double rM = 0.5 * waferSize_;
   double RM2 = rM / sqrt3;
 
   // First the mother
