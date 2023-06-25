@@ -13,7 +13,15 @@ namespace test {
     int test() {
       {
         // Phase0, only for testing
-        TrackerTopology::PixelBarrelValues ttopo_pxb{16, 8, 2, 0xF, 0xFF, 0x3F};
+        TrackerTopology::PixelBarrelValues ttopo_pxb{
+            16,
+            8,
+            2,
+            0,
+            0xF,
+            0xFF,
+            0x3F,
+            0x0};  //DoubleMask is not used in Phase0, so initializing the corresponding starting bit and mask to 0
         TrackerTopology::PixelEndcapValues ttopo_pxf{23, 16, 10, 8, 2, 0x3, 0xF, 0x3F, 0x3, 0x3F};
         TrackerTopology::TECValues ttopo_tec{18, 14, 12, 8, 5, 2, 0, 0x3, 0xF, 0x3, 0xF, 0x7, 0x7, 0x3};
         TrackerTopology::TIBValues ttopo_tib{14, 12, 10, 4, 2, 0, 0x7, 0x3, 0x3, 0x7F, 0x3, 0x3};

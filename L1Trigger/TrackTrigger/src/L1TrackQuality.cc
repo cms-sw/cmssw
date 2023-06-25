@@ -10,7 +10,7 @@ C.Brown & C.Savard 07/2020
 
 L1TrackQuality::L1TrackQuality() {}
 
-L1TrackQuality::L1TrackQuality(const edm::ParameterSet& qualityParams) : setupHPH_(), useHPH_(false) {
+L1TrackQuality::L1TrackQuality(const edm::ParameterSet& qualityParams) : useHPH_(false), bonusFeatures_() {
   std::string AlgorithmString = qualityParams.getParameter<std::string>("qualityAlgorithm");
   // Unpacks EDM parameter set itself to save unecessary processing within TrackProducers
   if (AlgorithmString == "Cut") {
@@ -66,14 +66,6 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   int tmp_trk_bendchi2_bin = aTrack.getBendChi2Bits();
   int tmp_trk_chi2rphi_bin = aTrack.getChi2RPhiBits();
   int tmp_trk_chi2rz_bin = aTrack.getChi2RZBits();
-
-  // Extra variables from HitPatternHelper don't improve performance, so commented out.
-  //if (useHPH_) {
-  //  hph::HitPatternHelper hph(setupHPH_, tmp_trk_hitpattern, tmp_trk_tanL, tmp_trk_z0);
-  //  hitpattern_expanded_binary = hph.binary();
-  //  tmp_trk_nlaymiss_PS = hph.numMissingPS();
-  //  tmp_trk_nlaymiss_2S = hph.numMissing2S();
-  //}
 
   // get the nstub
   std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>> stubRefs =
@@ -197,8 +189,7 @@ void L1TrackQuality::setONNXModel(std::string const& AlgorithmString,
   featureNames_ = featureNames;
 }
 
-void L1TrackQuality::beginRun(const hph::Setup* setupHPH) {
-  // Initialize helper for decoding hit patterns.
-  setupHPH_ = setupHPH;
+void L1TrackQuality::setBonusFeatures(std::vector<float> bonusFeatures) {
+  bonusFeatures_ = bonusFeatures;
   useHPH_ = true;
 }

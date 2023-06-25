@@ -67,6 +67,17 @@ options.register('runUniqueKey',
                  VarParsing.VarParsing.varType.string,
                  "Unique run key from RCMS for Frontier")
 
+# Parameter for output directory of the event display clients 
+# visualization-live and visualization-live-secondInstance
+
+options.register('outputBaseDir',
+                 '/fff/BU0/output',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Directory where the visualization output files will appear.")
+
+
+
 options.parseArguments()
 
 # Fix to allow scram to compile

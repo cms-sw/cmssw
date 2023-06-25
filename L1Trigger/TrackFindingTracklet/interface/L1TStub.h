@@ -81,8 +81,15 @@ namespace trklet {
     std::vector<int> tps() const { return tps_; }
 
     void setAllStubIndex(unsigned int index) { allstubindex_ = index; }
+    void setUniqueIndex(unsigned int index) { uniqueindex_ = index; }
+    void setCoords(double x, double y, double z) {
+      x_ = x;
+      y_ = y;
+      z_ = z;
+    }
 
     unsigned int allStubIndex() const { return allstubindex_; }
+    unsigned int uniqueIndex() const { return uniqueindex_; }
 
     unsigned int strip() const { return strip_; }
 
@@ -134,6 +141,7 @@ namespace trklet {
     double pt_;
     double bend_;
     unsigned int allstubindex_;
+    unsigned int uniqueindex_;
     unsigned int isPSmodule_;
     unsigned int isFlipped_;
     bool tiltedBarrel_;

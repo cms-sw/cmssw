@@ -147,6 +147,7 @@ public:
 
   void initialize(const std::string &iName, int iNParticles);
   void SetNNVectorVar();
+  input_t *NNVectorVar() { return NNvectorVar_.data(); }
   result_t EvaluateNN();
   result_t compute(const l1t::PFCandidate &iSeed, std::vector<l1t::PFCandidate> &iParts);
   //void print();

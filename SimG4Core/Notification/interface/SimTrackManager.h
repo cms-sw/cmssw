@@ -29,20 +29,19 @@ class SimTrackManager {
 public:
   class StrictWeakOrdering {
   public:
-    bool operator()(TrackWithHistory*& p, const unsigned int& i) const { return p->trackID() < i; }
+    bool operator()(TrackWithHistory*& p, const int& i) const { return p->trackID() < i; }
   };
 
   typedef std::pair<int, math::XYZVectorD> VertexPosition;
   typedef std::vector<std::pair<int, math::XYZVectorD> > VertexPositionVector;
   typedef std::map<int, VertexPositionVector> VertexMap;
 
-  SimTrackManager();
-  virtual ~SimTrackManager();
+  explicit SimTrackManager(TmpSimEvent*);
+  ~SimTrackManager();
 
   const std::vector<TrackWithHistory*>* trackContainer() const { return &m_trackContainer; }
 
-  void storeTracks(TmpSimEvent* simEvent);
-
+  void storeTracks();
   void reset();
   void deleteTracks();
   void cleanTracksWithHistory();
@@ -51,7 +50,7 @@ public:
 
   int giveMotherNeeded(int i) const {
     int theResult = 0;
-    for (auto& p : idsave) {
+    for (auto const& p : idsave) {
       if (p.first == i) {
         theResult = p.second;
         break;
@@ -60,9 +59,9 @@ public:
     return theResult;
   }
 
-  bool trackExists(unsigned int i) const {
+  bool trackExists(int i) const {
     bool flag = false;
-    for (auto& ptr : m_trackContainer) {
+    for (auto const& ptr : m_trackContainer) {
       if (ptr->trackID() == i) {
         flag = true;
         break;
@@ -71,9 +70,9 @@ public:
     return flag;
   }
 
-  TrackWithHistory* getTrackByID(unsigned int trackID, bool strict = false) const {
+  TrackWithHistory* getTrackByID(int trackID, bool strict = false) const {
     TrackWithHistory* track = nullptr;
-    for (auto& ptr : m_trackContainer) {
+    for (auto const& ptr : m_trackContainer) {
       if (ptr->trackID() == trackID) {
         track = ptr;
         break;
@@ -93,9 +92,9 @@ public:
 
 private:
   void saveTrackAndItsBranch(TrackWithHistory*);
-  int getOrCreateVertex(TrackWithHistory*, int, TmpSimEvent* simEvent);
+  int getOrCreateVertex(TrackWithHistory*, int);
   void cleanVertexMap();
-  void reallyStoreTracks(TmpSimEvent* simEvent);
+  void reallyStoreTracks();
   void fillMotherList();
   int idSavedTrack(int) const;
   void ReportException(unsigned int id) const;
@@ -109,6 +108,7 @@ private:
   unsigned int lastTrack{0};
   unsigned int lastHist{0};
 
+  TmpSimEvent* m_simEvent;
   const edm::LHCTransportLinkContainer* theLHCTlink{nullptr};
 
   VertexMap m_vertexMap;

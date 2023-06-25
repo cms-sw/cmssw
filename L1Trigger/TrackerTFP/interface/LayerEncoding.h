@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncodingRcd.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackTrigger/interface/SensorModule.h"
 
 #include <vector>
 
@@ -23,6 +24,9 @@ namespace trackerTFP {
     // Set of layers in each (zT,tanL) digi Bin of each eta sector numbered 0->N
     const std::vector<int>& layerEncoding(int binEta, int binZT, int binCot) const {
       return layerEncoding_.at(binEta).at(binZT).at(binCot);
+    }
+    const std::map<int, const tt::SensorModule*>& layerEncodingMap(int binEta, int binZT, int binCot) const {
+      return layerEncodingMap_.at(binEta).at(binZT).at(binCot);
     }
     // maybe layers for given ets sector, bin in zT and bin in cotThea
     const std::vector<int>& maybeLayer(int binEta, int binZT, int binCot) const {
@@ -44,6 +48,7 @@ namespace trackerTFP {
     const DataFormat* cot_;
     // outer to inner indices: eta sector, bin in zT, bin in cotTheta, layerId
     std::vector<std::vector<std::vector<std::vector<int>>>> layerEncoding_;
+    std::vector<std::vector<std::vector<std::map<int, const tt::SensorModule*>>>> layerEncodingMap_;
     // outer to inner indices: eta sector, bin in zT, bin in cotTheta, layerId of maybe layers
     std::vector<std::vector<std::vector<std::vector<int>>>> maybeLayer_;
   };

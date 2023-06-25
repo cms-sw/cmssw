@@ -45,6 +45,8 @@
   <class name="CastorElectronicsId" ClassVersion="10">
    <version ClassVersion="10" checksum="849697027"/>
   </class>
+  <class name="std::vector<HcalDetId>"/>
+  <class name="edm::Wrapper<std::vector<HcalDetId>>"/>
   <class name="std::vector<HcalElectronicsId>"/>
   <class name="std::vector<HcalFrontEndId>"/>
   <class name="std::vector<CastorElectronicsId>"/>

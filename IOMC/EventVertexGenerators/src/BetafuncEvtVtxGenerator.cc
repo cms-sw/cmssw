@@ -1,4 +1,3 @@
-
 /*
 ________________________________________________________________________
 
@@ -39,7 +38,7 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : B
     fSigmaZ = p.getParameter<double>("SigmaZ") * cm;
     fbetastar = p.getParameter<double>("BetaStar") * cm;
     femittance = p.getParameter<double>("Emittance") * cm;              // this is not the normalized emittance
-    fTimeOffset = p.getParameter<double>("TimeOffset") * ns * c_light;  // HepMC time units are mm
+    fTimeOffset = p.getParameter<double>("TimeOffset") * ns * c_light;  // HepMC distance units are mm
 
     setBoost(p.getParameter<double>("Alpha") * radian, p.getParameter<double>("Phi") * radian);
     if (fSigmaZ <= 0) {
@@ -63,12 +62,11 @@ void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, 
 void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
-
     fX0 = beamhandle->x() * cm;
     fY0 = beamhandle->y() * cm;
     fZ0 = beamhandle->z() * cm;
     fSigmaZ = beamhandle->sigmaZ() * cm;
-    fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC time units are mm
+    fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
     fbetastar = beamhandle->betaStar() * cm;
     femittance = beamhandle->emittance() * cm;
     setBoost(beamhandle->alpha() * radian, beamhandle->phi() * radian);

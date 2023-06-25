@@ -48,6 +48,7 @@ namespace trackerTFP {
     ss << header(numChannel + voidChannel);
     int nFrame(0);
     // create one packet per region
+    bool first = true;
     for (int region = 0; region < numRegions_; region++) {
       const int offset = region * numChannel;
       // start with emp 6 frame gap
@@ -57,11 +58,12 @@ namespace trackerTFP {
         ss << this->frame(nFrame);
         for (int channel = 0; channel < numChannel; channel++) {
           const vector<Frame>& bvs = bits[offset + channel];
-          ss << (frame < (int)bvs.size() ? hex(bvs[frame]) : hex(Frame()));
+          ss << (frame < (int)bvs.size() ? hex(bvs[frame], first) : hex(Frame(), first));
         }
         for (int channel = 0; channel < voidChannel; channel++)
-          ss << " 0v" << string(TTBV::S_ / 4, '0');
+          ss << "  0000 " << string(TTBV::S_ / 4, '0');
         ss << endl;
+        first = false;
       }
     }
   }
@@ -108,15 +110,13 @@ namespace trackerTFP {
   string Demonstrator::header(int numLinks) const {
     stringstream ss;
     // file header
-    ss << "Board CMSSW" << endl << " Quad/Chan :";
-    // quad header
-    for (int link = 0; link < numLinks; link++)
-      ss << "        q" << setfill('0') << setw(2) << link / 4 << "c" << link % 4 << "      ";
-    ss << endl;
+    ss << "Board CMSSW" << endl
+       << "Metadata: (strobe,) start of orbit, start of packet, end of packet, valid" << endl
+       << endl;
     // link header
     ss << "      Link :";
     for (int link = 0; link < numLinks; link++)
-      ss << "         " << setfill('0') << setw(3) << link << "       ";
+      ss << "            " << setfill('0') << setw(3) << link << "        ";
     ss << endl;
     return ss.str();
   }
@@ -127,7 +127,7 @@ namespace trackerTFP {
     for (int gap = 0; gap < numFramesInfra_; gap++) {
       ss << frame(nFrame);
       for (int link = 0; link < numLinks; link++)
-        ss << " 0v" << string(TTBV::S_ / 4, '0');
+        ss << "  0000 " << string(TTBV::S_ / 4, '0');
       ss << endl;
     }
     return ss.str();
@@ -141,9 +141,9 @@ namespace trackerTFP {
   }
 
   // converts bv into hex
-  string Demonstrator::hex(const Frame& bv) const {
+  string Demonstrator::hex(const Frame& bv, bool first) const {
     stringstream ss;
-    ss << " 1v" << setfill('0') << setw(TTBV::S_ / 4) << std::hex << bv.to_ullong();
+    ss << (first ? "  1001 " : "  0001 ") << setfill('0') << setw(TTBV::S_ / 4) << std::hex << bv.to_ullong();
     return ss.str();
   }
 

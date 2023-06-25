@@ -79,12 +79,11 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     ))
 )
 
-
 ####################################################################
 # Load and configure analyzer
 ####################################################################
-process.load("CondTools.BeamSpot.BeamProfile2DBRead_cfi")
-process.BeamProfile2DBRead.rawFileName = 'reference_SimBeamSpotObjects.txt'
+from CondTools.BeamSpot.beamProfile2DBReader_cfi import beamProfile2DBReader
+process.BeamProfile2DBRead = beamProfile2DBReader.clone(rawFileName = 'reference_SimBeamSpotObjects.txt')
 
 ####################################################################
 # Output file

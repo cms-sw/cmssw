@@ -36,6 +36,9 @@ public:
   bool isAncestor() const { return flagAncestor_; }
   void setAncestor() { flagAncestor_ = true; }
 
+  int mcTruthID() const { return mcTruthID_; }
+  void setMCTruthID(int id) { mcTruthID_ = id; }
+
   // Calo section
   int getIDonCaloSurface() const { return idOnCaloSurface_; }
   void setIDonCaloSurface(int id, int ical, int last, int pdgID, double p) {
@@ -113,6 +116,7 @@ private:
   int idCaloVolume_{-1};
   int idLastVolume_{-1};
   int genParticlePID_{-1};
+  int mcTruthID_{-1};
   int caloSurfaceParticlePID_{0};
   int castorHitPID_{0};
   int idAtBTLentrance_{0};

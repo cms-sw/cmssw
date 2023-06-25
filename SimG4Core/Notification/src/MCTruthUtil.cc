@@ -9,9 +9,9 @@ void MCTruthUtil::primary(G4Track *aTrack) {
   TrackInformation *trkInfo = new TrackInformation();
   trkInfo->setPrimary(true);
   trkInfo->setStoreTrack();
-  trkInfo->putInHistory();
   trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
   trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
+  trkInfo->setMCTruthID(aTrack->GetTrackID());
   aTrack->SetUserInformation(trkInfo);
 }
 
@@ -24,17 +24,20 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
   // Take care of cascade decays
   if (flag == 1) {
     trkInfo->setPrimary(true);
+    trkInfo->setStoreTrack();
     trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
     trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
+    trkInfo->setMCTruthID(aTrack->GetTrackID());
   } else {
+    // secondary
     trkInfo->setGenParticlePID(motherInfo->genParticlePID());
     trkInfo->setGenParticleP(motherInfo->genParticleP());
+    trkInfo->setMCTruthID(motherInfo->mcTruthID());
   }
 
   // Store if decay or conversion
   if (flag > 0) {
     trkInfo->setStoreTrack();
-    trkInfo->putInHistory();
     trkInfo->setIDonCaloSurface(aTrack->GetTrackID(),
                                 motherInfo->getIDCaloVolume(),
                                 motherInfo->getIDLastVolume(),
