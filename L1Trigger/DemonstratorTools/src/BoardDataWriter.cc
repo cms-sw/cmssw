@@ -9,13 +9,14 @@ namespace l1t::demo {
 
   BoardDataWriter::BoardDataWriter(FileFormat format,
                                    const std::string& path,
+                                   const std::string& fileExt,
                                    const size_t framesPerBX,
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
                                    const ChannelMap_t& channelSpecs)
       : fileFormat_(format),
         boardDataFileID_("CMSSW"),
-        filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + ".txt"; }),
+        filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + "." + fileExt; }),
         framesPerBX_(framesPerBX),
         boardTMUX_(tmux),
         maxFramesPerFile_(maxFramesPerFile),
@@ -51,12 +52,14 @@ namespace l1t::demo {
 
   BoardDataWriter::BoardDataWriter(FileFormat format,
                                    const std::string& path,
+                                   const std::string& fileExt,
                                    const size_t framesPerBX,
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
                                    const std::map<LinkId, std::vector<size_t>>& channelMap,
                                    const std::map<std::string, ChannelSpec>& channelSpecs)
-      : BoardDataWriter(format, path, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
+      : BoardDataWriter(
+            format, path, fileExt, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
 
   void BoardDataWriter::setBoardDataFileID(const std::string& aId) { boardDataFileID_ = aId; }
 

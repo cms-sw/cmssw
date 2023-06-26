@@ -24,6 +24,7 @@ namespace l1t::demo {
 
     BoardDataWriter(FileFormat,
                     const std::string& filePath,
+                    const std::string& fileExt,
                     const size_t framesPerBX,
                     const size_t tmux,
                     const size_t maxFramesPerFile,
@@ -31,6 +32,7 @@ namespace l1t::demo {
 
     BoardDataWriter(FileFormat,
                     const std::string& filePath,
+                    const std::string& fileExt,
                     const size_t framesPerBX,
                     const size_t tmux,
                     const size_t maxFramesPerFile,
