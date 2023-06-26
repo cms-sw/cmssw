@@ -28,7 +28,8 @@ HcalDDDRecConstants::~HcalDDDRecConstants() {
 #endif
 }
 
-int HcalDDDRecConstants::findDepth(const int& det, const int& eta, const int& phi, const int& zside, const int& lay) const {
+int HcalDDDRecConstants::findDepth(
+    const int& det, const int& eta, const int& phi, const int& zside, const int& lay) const {
   int depth = hcons.findDepth(det, eta, phi, zside, lay);
   if (depth < 0) {
     std::vector<int> depths = getDepth(eta, false);

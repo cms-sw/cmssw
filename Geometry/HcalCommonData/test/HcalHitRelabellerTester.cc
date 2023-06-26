@@ -40,7 +40,7 @@ class HcalHitRelabellerTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalHitRelabellerTester(const edm::ParameterSet&);
   ~HcalHitRelabellerTester() override = default;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
 
@@ -55,7 +55,7 @@ HcalHitRelabellerTester::HcalHitRelabellerTester(const edm::ParameterSet& ps)
   edm::LogVerbatim("HCalGeom") << "Construct HcalHitRelabellerTester with Neutral Density: " << nd_;
 }
 
-void HcalHitRelabellerTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void HcalHitRelabellerTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("neutralDensity", true);
   descriptions.add("hcalHitRelabellerTester", desc);
@@ -63,25 +63,27 @@ void HcalHitRelabellerTester::fillDescriptions(edm::ConfigurationDescriptions &d
 
 // ------------ method called to produce the data  ------------
 void HcalHitRelabellerTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const HcalDDDRecConstants *theRecNumber = &iSetup.getData(token_);
+  const HcalDDDRecConstants* theRecNumber = &iSetup.getData(token_);
   std::unique_ptr<HcalHitRelabeller> relabel = std::make_unique<HcalHitRelabeller>(nd_);
   relabel->setGeometry(theRecNumber);
   std::vector<int> etas = {-29, -26, -22, -19, -16, -13, -10, -7, -4, -1, 2, 5, 8, 11, 14, 17, 20, 23, 26, 29};
   std::vector<int> layers = {1, 2};
   const int iphi = 63;
-  edm::LogVerbatim("HCalGeom") << "HcalHitRelabellerTester:: Testing " << etas.size() << " eta, " << layers.size() << " layer values and iphi = " << iphi;
+  edm::LogVerbatim("HCalGeom") << "HcalHitRelabellerTester:: Testing " << etas.size() << " eta, " << layers.size()
+                               << " layer values and iphi = " << iphi;
   for (const auto& eta : etas) {
     int ieta = std::abs(eta);
     int det = (ieta <= 16) ? 1 : 2;
     int zside = (eta >= 0) ? 1 : -1;
     for (const auto& lay : layers) {
       if (ieta == 16)
-	det = (lay <= 3) ? 1 : 2;
+        det = (lay <= 3) ? 1 : 2;
       int depth = theRecNumber->findDepth(det, ieta, iphi, zside, lay);
       if (depth > 0) {
-	uint32_t id = HcalTestNumbering::packHcalIndex(det, zside, depth, ieta, iphi, lay);
-	double wt = relabel->energyWt(id);
-	edm::LogVerbatim("HCalGeom") << "Det " << det << " Z " << zside << " Eta" << ieta << "  Phi " << iphi << " Lay " << lay << " Depth " << depth << " Layer0Wt " << wt;
+        uint32_t id = HcalTestNumbering::packHcalIndex(det, zside, depth, ieta, iphi, lay);
+        double wt = relabel->energyWt(id);
+        edm::LogVerbatim("HCalGeom") << "Det " << det << " Z " << zside << " Eta" << ieta << "  Phi " << iphi << " Lay "
+                                     << lay << " Depth " << depth << " Layer0Wt " << wt;
       }
     }
   }
