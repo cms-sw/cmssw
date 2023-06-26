@@ -17,13 +17,13 @@ using namespace geant_units::operators;
 
 HcalNumberingFromDDD::HcalNumberingFromDDD(const HcalDDDSimConstants* hcons) : hcalConstants(hcons) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "Creating HcalNumberingFromDDD\n";
+  edm::LogInfo("HCalGeom") << "Creating HcalNumberingFromDDD\n";
 #endif
 }
 
 HcalNumberingFromDDD::~HcalNumberingFromDDD() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "Deleting HcalNumberingFromDDD\n";
+  edm::LogInfo("HCalGeom") << "Deleting HcalNumberingFromDDD\n";
 #endif
 }
 
