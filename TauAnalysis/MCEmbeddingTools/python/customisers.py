@@ -989,6 +989,7 @@ def customiseNanoAOD(process):
 
 
     for outputModule in process.outputModules.values():
+       outputModule.outputCommands.append("keep edmTriggerResults_*_*_SIMembeddingpreHLT")
        outputModule.outputCommands.append("keep edmTriggerResults_*_*_SIMembeddingHLT")
        outputModule.outputCommands.append("keep edmTriggerResults_*_*_SIMembedding")
        outputModule.outputCommands.append("keep edmTriggerResults_*_*_MERGE")
