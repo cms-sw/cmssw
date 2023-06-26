@@ -8,6 +8,6 @@ component_digi_parameters = cms.PSet(
     componentTimePhase  = cms.double(0.)
 )
 
-from Configuration.Eras.Modifier_ecal_component_cff import ecal_component
-from Configuration.Eras.Modifier_ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
+from Configuration.ProcessModifiers.ecal_component_cff import ecal_component
+from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
 (ecal_component | ecal_component_finely_sampled_waveforms).toModify(component_digi_parameters,componentSeparateDigi=True)

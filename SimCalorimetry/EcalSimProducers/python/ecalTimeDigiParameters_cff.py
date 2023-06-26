@@ -10,5 +10,5 @@ ecal_time_digi_parameters = cms.PSet(
     componentWaveform = cms.bool(False)
 )
 
-from Configuration.Eras.Modifier_ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
+from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
 (ecal_component_finely_sampled_waveforms).toModify(ecal_time_digi_parameters,componentWaveform=True)

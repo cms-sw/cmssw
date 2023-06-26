@@ -682,8 +682,8 @@ phase2_timing.toModify( g4SimHits, ECalSD = dict(
 ##
 ## For ECAL timing study
 ##
-from Configuration.Eras.Modifier_ecal_component_cff import ecal_component
-from Configuration.Eras.Modifier_ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
+from Configuration.ProcessModifiers.ecal_component_cff import ecal_component
+from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
 (ecal_component | ecal_component_finely_sampled_waveforms).toModify(g4SimHits,ECalSD = dict(StoreLayerTimeSim = True, SlopeLightYield = 0.0))
 
 ##

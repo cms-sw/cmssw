@@ -1794,6 +1794,68 @@ upgradeWFs['ecalDevelGPU'] = UpgradeWorkflow_ecalDevel(
     offset = 0.612,
 )
 
+class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
+    def __init__(self, sim = {}, digi = {}, **kwargs):
+        super(UpgradeWorkflow_ECalComponent, self).__init__(
+            steps = [
+                'GenSim',
+                'GenSimHLBeamSpot',
+                'GenSimHLBeamSpot14',
+                'GenSimHLBeamSpotHGCALCloseBy',
+                'Digi',
+                'DigiTrigger',
+                #'RecoLocal',
+                #'Reco',
+                #'RecoFakeHLT',
+                #'RecoGlobal',
+                #'RecoNano',
+                #'RecoNanoFakeHLT',
+            ],
+            PU = [
+                'GenSim',
+                'GenSimHLBeamSpot',
+                'GenSimHLBeamSpot14',
+                'GenSimHLBeamSpotHGCALCloseBy',
+                'Digi',
+                'DigiTrigger',
+                #'RecoLocal',
+                #'Reco',
+                #'RecoFakeHLT',
+                #'RecoGlobal',
+                #'RecoNano',
+                #'RecoNanoFakeHLT',
+            ],
+            **kwargs)
+        self.__sim  = sim
+        self.__digi = digi
+        
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Sim' in step:
+            if self.__sim is None:
+                stepDict[stepName][k] = None
+            else:
+                stepDict[stepName][k] = merge([self.__sim,stepDict[step][k]])
+        elif 'Digi' in step:
+            if self.__digi is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__digi, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return ('2026' in key and fragment == "TTbar_14TeV")
+
+upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
+    sim = {'--procModifiers': 'ecal_component'},
+    digi = {'--procModifiers': 'ecal_component'},
+    suffix = '_ecalComponent',
+    offset = 0.631,
+)
+
+#upgradeWFs['ECALComponentFSW'] = UpgradeWorkflow_ECalComponent(
+#    ecalera = 'ecal_component_finely_sampled_waveforms',
+#    suffix = '_ECALComponentFSW',
+#    offset = 0.632,
+#)
+
 class UpgradeWorkflow_0T(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         myGT=stepDict[step][k]['--conditions']
