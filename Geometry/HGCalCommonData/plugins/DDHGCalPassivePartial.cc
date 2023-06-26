@@ -54,8 +54,8 @@ void DDHGCalPassivePartial::initialize(const DDNumericArguments& nArgs,
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["ModuleThickness"];
   waferSize_ = nArgs["WaferSize"];
-  waferSepar_ = nArgs["SensorSeparation"];
 #ifdef EDM_ML_DEBUG
+  waferSepar_ = nArgs["SensorSeparation"];
   edm::LogVerbatim("HGCalGeom") << "DDHGCalPassivePartial: Module " << parent().name() << " made of " << material_
                                 << " T " << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_;
 #endif
@@ -104,7 +104,7 @@ void DDHGCalPassivePartial::execute(DDCompactView& cpv) {
       // First the mother
       std::string mother = parentName + placementIndexTags_[m] + tags_[k];
       std::vector<std::pair<double, double> > wxy =
-          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], (waferSize_ + waferSepar_), 0.0, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);

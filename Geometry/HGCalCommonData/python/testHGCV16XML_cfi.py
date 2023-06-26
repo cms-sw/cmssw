@@ -67,8 +67,6 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml',
     )+
     cms.vstring(
-        'Geometry/ForwardCommonData/data/brmrotations.xml',
-        'Geometry/ForwardCommonData/data/brm/2026/v1/brm.xml',
         'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
         'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
         'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',

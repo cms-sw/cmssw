@@ -10,7 +10,7 @@
 
 <PosPartSection label="hgcalPassive.xml" eval="true">
   <Algorithm name="hgcal:DDHGCalPassiveFull">
-    <rParent name="hgcalPassive:HGCalEEFullAbsorber1"/>
+    <rParent name="hgcalPassive:HGCalEEPassive1"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="3.67*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -26,7 +26,7 @@
       0, 1, 2, 3, 2, 1, 0</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassiveFull">
-    <rParent name="hgcalPassive:HGCalEEFullAbsorber2"/>
+    <rParent name="hgcalPassive:HGCalEEPassive2"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="5.87*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -42,7 +42,7 @@
       0, 1, 2, 3, 2, 1, 0</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassiveFull">
-    <rParent name="hgcalPassive:HGCalEEFullAbsorber3"/>
+    <rParent name="hgcalPassive:HGCalEEPassive3"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="9.12*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -58,7 +58,7 @@
       0, 1, 2, 3, 2, 1, 0</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassiveFull">
-    <rParent name="hgcalPassive:HGCalEEFullCoolingPlate"/>
+    <rParent name="hgcalPassive:HGCalEECoolingPlate"/>
     <String name="ModuleMaterial"    value="materials:Copper"/>
     <Numeric name="ModuleThickness"  value="6.05*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -73,7 +73,7 @@
     </Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassivePartial">
-    <rParent name="hgcalPassive:HGCalEEPartialAbsorber1"/>
+    <rParent name="hgcalPassive:HGCalEEPassive1"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="3.67*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -97,7 +97,7 @@
       0, 1, 2, 3, 2, 1, 0</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassivePartial">
-    <rParent name="hgcalPassive:HGCalEEPartialAbsorber2"/>
+    <rParent name="hgcalPassive:HGCalEEPassive2"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="5.87*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -121,7 +121,7 @@
       0, 1, 2, 3, 2, 1, 0</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassivePartial">
-    <rParent name="hgcalPassive:HGCalEEPartialAbsorber3"/>
+    <rParent name="hgcalPassive:HGCalEEPassive3"/>
     <String name="ModuleMaterial"    value="materials:Air"/>
     <Numeric name="ModuleThickness"  value="9.12*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -145,7 +145,7 @@
       0, 1, 2, 3, 2, 1, 0</Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassivePartial">
-    <rParent name="hgcalPassive:HGCalEEPartialCoolingPlate"/>
+    <rParent name="hgcalPassive:HGCalEECoolingPlate"/>
     <String name="ModuleMaterial"    value="materials:Copper"/>
     <Numeric name="ModuleThickness"  value="6.05*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -168,7 +168,7 @@
     </Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassiveFull">
-    <rParent name="hgcalPassive:HGCalHEFullSteelCover"/>
+    <rParent name="hgcalPassive:HGCalHEPassive"/>
     <String name="ModuleMaterial"    value="materials:StainlessSteel"/>
     <Numeric name="ModuleThickness"  value="4.00*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
@@ -183,7 +183,7 @@
     </Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassivePartial">
-    <rParent name="hgcalPassive:HGCalHEPartialSteelCover"/>
+    <rParent name="hgcalPassive:HGCalHEPassive"/>
     <String name="ModuleMaterial"    value="materials:StainlessSteel"/>
     <Numeric name="ModuleThickness"  value="4.00*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
