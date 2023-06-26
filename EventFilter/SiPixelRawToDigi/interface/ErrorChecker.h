@@ -22,6 +22,10 @@ public:
 
 protected:
   cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const override;
+  cms_uint32_t errorDetIdSimple(const SiPixelFrameConverter* converter,
+                                int errorType,
+                                unsigned int channel,
+                                unsigned int roc) const;
 };
 
 #endif  // EventFilter_SiPixelRawToDigi_interface_ErrorChecker_h
