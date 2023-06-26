@@ -2148,7 +2148,7 @@ steps['RAWPRIMESIMHI18']={ '--scenario':'pp',
                            '--era':'Run2_2018_pp_on_AA',
                            '-n':'10',
                            '--procModifiers':'approxSiStripClusters',
-                           '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\'\"',
+                           '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\';process.hltScalersRawToDigi.scalersInputTag=\'rawDataCollector\'\"',
                            '--process':'REHLT'
 }
 
@@ -2182,7 +2182,7 @@ steps['RAWPRIMEHI22']={ '--scenario':'pp',
                         '--eventcontent':'REPACKRAW',
                         '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
                         '-n':'10',
-                        '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\'\"',
+                        '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\';process.hltScalersRawToDigi.scalersInputTag=\'rawDataCollector\'\"',
                         '--process':'REHLT'
 }
 
