@@ -987,9 +987,12 @@ def customiseNanoAOD(process):
     process.load("PhysicsTools.NanoAOD.nano_cff")
     process.nanoAOD_step.insert(0, cms.Sequence(process.nanoTableTaskFS))
 
+
     for outputModule in process.outputModules.values():
        outputModule.outputCommands.append("keep edmTriggerResults_*_*_SIMembeddingHLT")
+       outputModule.outputCommands.append("keep edmTriggerResults_*_*_SIMembedding")
        outputModule.outputCommands.append("keep edmTriggerResults_*_*_MERGE")
+       outputModule.outputCommands.append("keep edmTriggerResults_*_*_NANO")
        outputModule.outputCommands.remove("keep edmTriggerResults_*_*_*")
 
     process.embeddingTable = cms.EDProducer(
