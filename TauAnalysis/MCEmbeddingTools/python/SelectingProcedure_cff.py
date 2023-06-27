@@ -10,7 +10,8 @@ doubleMuonHLTTrigger = cms.EDFilter("TriggerResultsFilter",
     hltResults = cms.InputTag("TriggerResults","","HLT"),
     l1tResults = cms.InputTag(""),
     throw = cms.bool(False),
-    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*")
+    triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v*") # from 2017 on (up to Run 3, it seems)
+    # triggerConditions = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v* OR HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*") # for 2016
 )
 
 
