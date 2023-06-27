@@ -181,6 +181,7 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
   std::map<reco::TrackRef , reco::TrackRef > simple_track_to_track_map; //I didn't find a more elegant way, so just build a good old fassion std::map
   for (unsigned abc =0;  abc < track_new_col->size();  ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
+    simple_track_to_track_map[trackRef] = trackRef; // catch the case, where a seed ctf track could already be updated, such that the update doesn't happen again
     simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
   }
 
@@ -318,6 +319,7 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(
       simple_track_to_track_map;  //I didn't find a more elegant way, so just build a good old fassion std::map
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
+    simple_track_to_track_map[trackRef] = trackRef; // catch the case, where a seed ctf track could already be updated, such that the update doesn't happen again
     simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
   }
 
@@ -411,6 +413,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
       simple_track_to_track_map;  //I didn't find a more elegant way, so just build a good old fassion std::map
   for (unsigned abc = 0; abc < track_new_col->size(); ++abc) {
     reco::TrackRef trackRef(track_new_col, abc);
+    simple_track_to_track_map[trackRef] = trackRef; // catch the case, where a seed ctf track could already be updated, such that the update doesn't happen again
     simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
   }
 
