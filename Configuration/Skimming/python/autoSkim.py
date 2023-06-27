@@ -17,6 +17,14 @@ autoSkim = {
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
  'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass0': 'ReserveDMu+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass1': 'ReserveDMu+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass2': 'ReserveDMu+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass3': 'ReserveDMu+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass4': 'ReserveDMu+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass5': 'ReserveDMu+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass6': 'ReserveDMu+LogError+LogErrorMonitor',
+ 'ParkingDoubleMuonLowMass7': 'ReserveDMu+LogError+LogErrorMonitor',
 
  # These should be uncommented when 2022 data reprocessing
  # Dedicated skim for 2022
