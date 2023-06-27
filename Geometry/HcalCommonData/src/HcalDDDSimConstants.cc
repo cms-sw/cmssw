@@ -76,7 +76,8 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(
       } else {
         ok = false;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: wrong eta " << etaR << " (" << ir << "/" << nR << ") Detector " << idet;
+        edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: wrong eta " << etaR << " (" << ir << "/" << nR
+                                     << ") Detector " << idet;
 #endif
       }
     } else if (etaR <= nEta) {
@@ -98,7 +99,8 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(
       drz = 0.5 * (d2 - d1);
     } else {
       ok = false;
-      edm::LogWarning("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth << " or etaR " << etaR << " for detector " << idet;
+      edm::LogWarning("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth << " or etaR " << etaR
+                                  << " for detector " << idet;
     }
   } else {
     ok = false;

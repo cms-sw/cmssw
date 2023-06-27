@@ -542,7 +542,8 @@ uint32_t HCalSD::setDetUnitId(const G4Step* aStep) {
   uint32_t idx = setDetUnitId(det, hitPoint, depth, lay);
 #ifdef EDM_ML_DEBUG
   if (depth == 1) {
-    edm::LogVerbatim("HcalSim") << "HCalSD: Check for " << det << ":" << depth << ":" << lay << " ID " << std::hex << idx << std::dec;
+    edm::LogVerbatim("HcalSim") << "HCalSD: Check for " << det << ":" << depth << ":" << lay << " ID " << std::hex
+                                << idx << std::dec;
     int det0, z0, depth0, eta0, phi0, lay0(-1);
     if (testNumber) {
       HcalTestNumbering::unpackHcalIndex(idx, det0, z0, depth0, eta0, phi0, lay0);
@@ -554,7 +555,8 @@ uint32_t HCalSD::setDetUnitId(const G4Step* aStep) {
       z0 = hcid0.zside();
       depth0 = hcid0.depth();
     }
-    edm::LogVerbatim("HcalSim") << "HCalSD: det|z|depth|eta|phi|lay " << det0 << ":" << z0 << ":" << depth0 << ":" << eta0 << ":" << phi0 << ":" << lay0;
+    edm::LogVerbatim("HcalSim") << "HCalSD: det|z|depth|eta|phi|lay " << det0 << ":" << z0 << ":" << depth0 << ":"
+                                << eta0 << ":" << phi0 << ":" << lay0;
     printVolume(touch);
   }
 #endif
