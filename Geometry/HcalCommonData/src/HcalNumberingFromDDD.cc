@@ -11,19 +11,19 @@
 
 #include <iostream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units;
 using namespace geant_units::operators;
 
 HcalNumberingFromDDD::HcalNumberingFromDDD(const HcalDDDSimConstants* hcons) : hcalConstants(hcons) {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "Creating HcalNumberingFromDDD\n";
+  edm::LogVerbatim("HCalGeom") << "Creating HcalNumberingFromDDD";
 #endif
 }
 
 HcalNumberingFromDDD::~HcalNumberingFromDDD() {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "Deleting HcalNumberingFromDDD\n";
+  edm::LogVerbatim("HCalGeom") << "Deleting HcalNumberingFromDDD";
 #endif
 }
 
@@ -86,7 +86,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, double etaR, 
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalNumberingFromDDD: etaR = " << etaR << " : " << zside << "/" << ieta << " phi "
-                               << hphi << " : " << iphi << std::endl;
+                               << hphi << " : " << iphi;
 #endif
   return unitID(det, zside, depth, ieta, iphi, lay);
 }
@@ -98,6 +98,9 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(
 
   int units = hcalConstants->unitPhi(det, etaR);
   int iphi_skip = hcalConstants->phiNumber(phi, units);
+
+  if ((lay == 1) && (etaR == 16))
+    etaR = 15;
 
   std::pair<int, int> etaDepth = hcalConstants->getEtaDepth(det, etaR, iphi_skip, zside, depth, lay);
 
