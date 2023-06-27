@@ -178,13 +178,14 @@ namespace l1t {
 
         // FW version is computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
         bool useNNBits_ = getAlgoVersion() >= 11098;   // FW versions >= 26.10.2021
-        bool useHMTBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
+        bool useMUSBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
         bool reducedDAQWindow =
             (getAlgoVersion() >=
              11656);  // Firmware from 08.12.22 which is used as a flag for new reduced readout window - EY 01.03.23
 
-        static constexpr int nominalShower_ = 1;
-        static constexpr int tightShower_ = 3;
+        static constexpr int looseShower_ = 1;
+        static constexpr int nominalShower_ = 2;
+        static constexpr int tightShower_ = 4;
 
         // Check Format of Payload
         l1t::emtf::SP SP_;
@@ -235,15 +236,15 @@ namespace l1t {
         SP_.set_phi_GMT(TwosCompl(8, GetHexBits(SP1b, 0, 7)));
         SP_.set_quality_GMT(GetHexBits(SP1b, 8, 11));
         SP_.set_bc0(GetHexBits(SP1b, 12, 12));
-        SP_.set_se(GetHexBits(SP1b, 13, 13));
         SP_.set_vc(GetHexBits(SP1b, 14, 14));
 
         SP_.set_eta_GMT(TwosCompl(9, GetHexBits(SP1c, 0, 8)));
         SP_.set_mode(GetHexBits(SP1c, 9, 12));
 
-        if (useHMTBits_) {
-          SP_.set_hmt(GetHexBits(SP1c, 13, 14));
+        if (useMUSBits_) {
+          SP_.set_mus(GetHexBits(SP1b, 13, 13, SP1c, 13, 14));
         } else {
+          SP_.set_se(GetHexBits(SP1b, 13, 13));
           SP_.set_bx(GetHexBits(SP1c, 13, 14));
         }
 
@@ -314,10 +315,11 @@ namespace l1t {
         // Track_.set_GMT(mu_);
 
         // Set Regional Muon Showers
-        if (useHMTBits_) {
+        if (useMUSBits_) {
           muShower_.setTFIdentifiers(Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg);
-          muShower_.setOneNominalInTime(SP_.HMT() == nominalShower_ ? true : false);
-          muShower_.setOneTightInTime(SP_.HMT() == tightShower_ ? true : false);
+          muShower_.setOneLooseInTime(SP_.MUS() >= looseShower_ ? true : false);
+          muShower_.setOneNominalInTime(SP_.MUS() >= nominalShower_ ? true : false);
+          muShower_.setOneTightInTime(SP_.MUS() >= tightShower_ ? true : false);
         }
 
         ///////////////////////
@@ -599,9 +601,11 @@ namespace l1t {
 
         res_track->push_back(Track_);
 
-        // TBIN_num can range from 0 through 7, i.e. BX = -3 through +4. - AWB 04.04.16
-        res_cand->setBXRange(-3, 4);
-        res_cand->push_back(SP_.TBIN() - 3, mu_);
+        if (Track_.Mode() != 0) {  // Mode == 0 means no track was found (only muon shower)
+          // TBIN_num can range from 0 through 7, i.e. BX = -3 through +4. - AWB 04.04.16
+          res_cand->setBXRange(-3, 4);
+          res_cand->push_back(SP_.TBIN() - 3, mu_);
+        }
 
         res_shower->setBXRange(-3, 4);
         res_shower->push_back(SP_.TBIN() - 3, muShower_);

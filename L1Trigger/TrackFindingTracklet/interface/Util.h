@@ -39,11 +39,28 @@ namespace trklet {
     return str;
   }
 
-  inline double bendstrip(double r, double rinv, double stripPitch) {
-    constexpr double dr = 0.18;
-    double delta = r * dr * 0.5 * rinv;
+  inline double bendstrip(double r, double rinv, double stripPitch, double sensorSpacing) {
+    double delta = r * sensorSpacing * 0.5 * rinv;
     double bend = delta / stripPitch;
     return bend;
+  }
+
+  inline double convertFEBend(
+      double FEbend, double sensorSep, double sensorSpacing, double CF, bool barrel, double r = 0) {
+    double bend = sensorSpacing * CF * FEbend / sensorSep;
+    return bend;
+  }
+
+  inline double tan_theta(double r, double z, double z0, bool z0_max) {
+    //Calculates tan(theta) = z_displaced/r
+    //measure tan theta at different points to account for displaced tracks
+    double tan;
+    if (z0_max)
+      tan = (z - z0) / r;
+    else
+      tan = (z + z0) / r;
+
+    return tan;
   }
 
   inline double rinv(double phi1, double phi2, double r1, double r2) {

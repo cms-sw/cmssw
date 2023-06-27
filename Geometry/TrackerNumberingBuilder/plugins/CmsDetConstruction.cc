@@ -43,6 +43,26 @@ void CmsDetConstruction<FilteredView>::buildSmallDetsforStack(FilteredView& fv,
   mother->addComponent(det);
 }
 
+template <class FilteredView>
+void CmsDetConstruction<FilteredView>::buildSmallDetsfor3D(FilteredView& fv,
+                                                           GeometricDet* mother,
+                                                           const std::string& attribute) {
+  GeometricDet* det = new GeometricDet(&fv,
+                                       CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                           ExtractStringFromDDD<FilteredView>::getString(attribute, &fv)));
+
+  if (det->isFirstSensor()) {
+    uint32_t temp = 1;
+    det->setGeographicalID(DetId(temp));
+  } else if (det->isSecondSensor()) {
+    uint32_t temp = 2;
+    det->setGeographicalID(DetId(temp));
+  } else {
+    edm::LogError("DetConstruction") << " module defined in a 3D module but not first or second sensor!? ";
+  }
+  mother->addComponent(det);
+}
+
 /*
  * OLD DD.
  * Module with 2 sensors: calculate the sensor local ID, and add the sensor to its mother volume (module).
@@ -63,9 +83,10 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
 
   const bool isPhase1ModuleWith2Sensors = (myTopologicalType == GeometricDet::mergedDet);
   const bool isPhase2ModuleWith2Sensors = (myTopologicalType == GeometricDet::OTPhase2Stack);
+  const bool isPhase2BarrelModuleWith2Sensors = (myTopologicalType == GeometricDet::ITPhase2Combined);
 
   // CASE A: MODULE HAS 2 SENSORS
-  if (isPhase1ModuleWith2Sensors || isPhase2ModuleWith2Sensors) {
+  if (isPhase1ModuleWith2Sensors || isPhase2ModuleWith2Sensors || isPhase2BarrelModuleWith2Sensors) {
     // Go down in hierarchy: from module to sensor
     bool dodets = fv.firstChild();  // very important
     while (dodets) {
@@ -76,6 +97,8 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
       // PHASE 2 (STACKDET)
       else if (isPhase2ModuleWith2Sensors) {
         buildSmallDetsforStack(fv, det, attribute);
+      } else if (isPhase2BarrelModuleWith2Sensors) {
+        buildSmallDetsfor3D(fv, det, attribute);
       }
 
       dodets = fv.nextSibling();
@@ -110,9 +133,10 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
 
   const bool isPhase1ModuleWith2Sensors = (myTopologicalType == GeometricDet::mergedDet);
   const bool isPhase2ModuleWith2Sensors = (myTopologicalType == GeometricDet::OTPhase2Stack);
+  const bool isPhase2BarrelModuleWith2Sensors = (myTopologicalType == GeometricDet::ITPhase2Combined);
 
   // CASE A: MODULE HAS 2 SENSORS
-  if (isPhase1ModuleWith2Sensors || isPhase2ModuleWith2Sensors) {
+  if (isPhase1ModuleWith2Sensors || isPhase2ModuleWith2Sensors || isPhase2BarrelModuleWith2Sensors) {
     // Go down in hierarchy: from module to sensor
     if (!fv.firstChild()) {  // very important
       edm::LogError("CmsDetConstruction::buildComponent. Cannot go down to sensor volume.");
@@ -131,6 +155,8 @@ void CmsDetConstruction<cms::DDFilteredView>::buildComponent(cms::DDFilteredView
       // PHASE 2 (STACKDET)
       else if (isPhase2ModuleWith2Sensors) {
         buildSmallDetsforStack(fv, det, attribute);
+      } else if (isPhase2BarrelModuleWith2Sensors) {
+        buildSmallDetsfor3D(fv, det, attribute);
       }
 
       // Go to the next volume in FilteredView.

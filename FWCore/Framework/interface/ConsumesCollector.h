@@ -80,18 +80,6 @@ namespace edm {
       return m_consumer->mayConsume<B>(id, tag);
     }
 
-    template <typename ProductType, BranchType B = InEvent>
-    void consumesMany() {
-      m_consumer->consumesMany<ProductType, B>();
-    }
-
-    void consumesMany(const TypeToGet& id) { m_consumer->consumesMany(id); }
-
-    template <BranchType B>
-    void consumesMany(const TypeToGet& id) {
-      m_consumer->consumesMany<B>(id);
-    }
-
     // For consuming event-setup products
     template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
     auto esConsumes() {

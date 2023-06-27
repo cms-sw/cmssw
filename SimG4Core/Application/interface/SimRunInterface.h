@@ -20,7 +20,7 @@ public:
 
   SimRunInterface(RunManagerMTWorker* run, bool master);
 
-  ~SimRunInterface();
+  ~SimRunInterface() = default;
 
   // Needed because for workers SumRunInterface sits in TLS, while
   // RunManagerMTWorkers are members of edm::stream OscarMTProducer

@@ -5,7 +5,6 @@
 #include <string>
 
 #include "toolbox.h"
-#include "FitWithRooFit.cc"
 #include "Options.h"
 
 #include "TAxis.h"
@@ -38,6 +37,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/range/adaptor/indexed.hpp>
+
+#include "Alignment/OfflineValidation/interface/FitWithRooFit.h"
 
 using namespace RooFit;
 using namespace std;

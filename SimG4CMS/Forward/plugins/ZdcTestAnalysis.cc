@@ -93,8 +93,6 @@ private:
 
   Float_t zdcsteparray[18];
   Float_t zdceventarray[16];
-
-  ZdcNumberingScheme* theZdcNumScheme;
 };
 
 enum ntzdcs_elements {
@@ -172,14 +170,12 @@ ZdcTestAnalysis::ZdcTestAnalysis(const edm::ParameterSet& p) {
                     "NTzdcevent",
                     "evt:ihit:fiberid:zside:subdet:layer:fiber:channel:enem:enhad:hitenergy:x:y:z:time:etot");
 
-  theZdcNumScheme = nullptr;
   //theZdcSD = new ZdcSD("ZDCHITSB", new ZdcNumberingScheme());
 }
 
 ZdcTestAnalysis::~ZdcTestAnalysis() {
   // destructor
   finish();
-  delete theZdcNumScheme;
 }
 
 void ZdcTestAnalysis::update(const BeginOfJob* job) {
@@ -352,10 +348,6 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
   CaloG4HitCollection* theZDCHC = (CaloG4HitCollection*)allHC->GetHC(theZDCHCid);
   edm::LogVerbatim("ZdcAnalysis") << " - theZDCHC = " << theZDCHC;
 
-  if (!theZdcNumScheme) {
-    theZdcNumScheme = new ZdcNumberingScheme(1);
-  }
-
   //float ETot = 0.;
   int maxTime = 0;
   int fiberID = 0;
@@ -392,9 +384,9 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
           maxTime = (int)time;
 
         int thesubdet, thelayer, thefiber, thechannel, thez;
-        theZdcNumScheme->unpackZdcIndex(fiberID, thesubdet, thelayer, thefiber, thechannel, thez);
+        ZdcNumberingScheme::unpackZdcIndex(fiberID, thesubdet, thelayer, thefiber, thechannel, thez);
         int unsignedsubdet, unsignedlayer, unsignedfiber, unsignedchannel, unsignedz;
-        theZdcNumScheme->unpackZdcIndex(
+        ZdcNumberingScheme::unpackZdcIndex(
             unsignedfiberID, unsignedsubdet, unsignedlayer, unsignedfiber, unsignedchannel, unsignedz);
 
         // unsigned int packidx1 = packZdcIndex(thesubdet, thelayer, thefiber, thechannel, thez);

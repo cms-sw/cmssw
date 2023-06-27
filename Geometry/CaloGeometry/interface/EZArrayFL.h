@@ -27,11 +27,11 @@ public:
   typedef typename MgrType::size_type size_type;
   typedef typename MgrType::value_type value_type;
 
-  EZArrayFL<T>() : m_begin(), m_mgr() {}
+  EZArrayFL() : m_begin(), m_mgr() {}
 
-  EZArrayFL<T>(MgrType* mgr) : m_begin(), m_mgr(mgr) {}
+  EZArrayFL(MgrType* mgr) : m_begin(), m_mgr(mgr) {}
 
-  EZArrayFL<T>(MgrType* mgr, const_iterator start, const_iterator finis)
+  EZArrayFL(MgrType* mgr, const_iterator start, const_iterator finis)
       : m_begin(0 == finis - start ? iterator() : mgr->assign()), m_mgr(mgr) {
     assert((finis - start) == m_mgr->subSize());
     iterator i(begin());
@@ -39,8 +39,6 @@ public:
       (*i) = (*ic);
     }
   }
-
-  virtual ~EZArrayFL<T>() {}
 
   void resize() { assign(); }
 

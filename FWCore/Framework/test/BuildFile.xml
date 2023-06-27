@@ -370,10 +370,7 @@ test name="TestFWCoreFrameworkDeleteEarly" command="test_deleteEarly.sh"/>
 <test name="testFWCoreFrameworkConditionalTask_testView" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView"/>
 <test name="testFWCoreFrameworkConditionalTask_testView_testAlias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView --testAlias"/>
 <test name="testFWCoreFrameworkConditionalTask_testView_testAlias_aliasWithStar" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView --testAlias --aliasWithStar"/>
-<test name="testFWCoreFrameworkConditionalTask_testConsumesMany" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testConsumesMany"/>
 <test name="testFWCoreFrameworkModuleSynchLumiBoundary" command="run_module_synch_lumiboundary.sh"/>
-<test name="testFWCoreFrameworkGetByType_consumesMany" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py -- --useConsumesMany"/>
-<test name="testFWCoreFrameworkGetByType_consumesMany_alias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py -- --useConsumesMany --useEDAlias"/>
 <test name="testFWCoreFrameworkGetByType_getterOfProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py"/>
 <test name="testFWCoreFrameworkGetByType_getterOfProduct_alias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py -- --useEDAlias"/>
 

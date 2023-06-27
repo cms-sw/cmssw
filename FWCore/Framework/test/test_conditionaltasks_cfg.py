@@ -10,7 +10,6 @@ parser.add_argument("--reverseDependencies", help="Switch the order of dependenc
 parser.add_argument("--testAlias", help="Get data from an alias", action="store_true")
 parser.add_argument("--testView", help="Get data via a view", action="store_true")
 parser.add_argument("--aliasWithStar", help="when using testAlias use '*' as type", action="store_true")
-parser.add_argument("--testConsumesMany", help="use ConsumesMany", action="store_true")
 
 argv = sys.argv[:]
 if '--' in argv:
@@ -33,9 +32,6 @@ process.d = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag(cms.InputTa
 process.e = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag(cms.InputTag("d")))
 
 process.prodOnPath = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag(cms.InputTag("d"), cms.InputTag("e")))
-
-if args.testConsumesMany:
-  process.prodOnPath = cms.EDProducer("AddAllIntsProducer")
 
 if args.filterSucceeds:
     threshold = 1
@@ -79,7 +75,7 @@ if args.testAlias:
 process.p = cms.Path(process.f1+process.prodOnPath+process.f2+process.f3, cms.ConditionalTask(process.a, process.b, process.c, process.d, process.e, process.f))
 
 process.tst = cms.EDAnalyzer("IntTestAnalyzer", moduleLabel = cms.untracked.InputTag("f"), valueMustMatch = cms.untracked.int32(3), 
-                                                       valueMustBeMissing = cms.untracked.bool(not args.filterSucceeds and not args.testConsumesMany))
+                                                       valueMustBeMissing = cms.untracked.bool(not args.filterSucceeds))
 
 process.endp = cms.EndPath(process.tst)
 

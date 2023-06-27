@@ -29,8 +29,12 @@
 #include "G4SystemOfUnits.hh"
 
 //#define DebugLog
+namespace {
+  const double invcm = 1.0 / CLHEP::cm;
+  const double r_limit2 = 1.e-6;  // 10 micron in CMS units
+}  // namespace
 
-SimTrackManager::SimTrackManager() {
+SimTrackManager::SimTrackManager(TmpSimEvent* ptr) : m_simEvent(ptr) {
   idsave.reserve(1000);
   ancestorList.reserve(1000);
   m_trackContainer.reserve(1000);
@@ -50,7 +54,7 @@ void SimTrackManager::reset() {
 
 void SimTrackManager::deleteTracks() {
   if (!m_trackContainer.empty()) {
-    for (auto& ptr : m_trackContainer) {
+    for (auto const& ptr : m_trackContainer) {
       delete ptr;
     }
     m_trackContainer.clear();
@@ -70,7 +74,6 @@ void SimTrackManager::addTrack(TrackWithHistory* iTrack, const G4Track* track, b
   if (inHistory) {
     m_trackContainer.push_back(iTrack);
     const auto& v = track->GetStep()->GetPostStepPoint()->GetPosition();
-    const double invcm = 1.0 / CLHEP::cm;
     std::pair<int, math::XYZVectorD> p(iTrack->trackID(),
                                        math::XYZVectorD(v.x() * invcm, v.y() * invcm, v.z() * invcm));
     m_endPoints.push_back(p);
@@ -89,7 +92,7 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory* trkWHist) {
     throw cms::Exception("SimTrackManager::saveTrackAndItsBranch") << " cannot handle hits for tracking";
   }
   trkH->setToBeSaved();
-  unsigned int parent = trkH->parentID();
+  int parent = trkH->parentID();
 
   auto tk_itr =
       std::lower_bound(m_trackContainer.begin(), m_trackContainer.end(), parent, SimTrackManager::StrictWeakOrdering());
@@ -99,7 +102,7 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory* trkWHist) {
   }
 }
 
-void SimTrackManager::storeTracks(TmpSimEvent* simEvent) {
+void SimTrackManager::storeTracks() {
   cleanTracksWithHistory();
 
   // fill the map with the final mother-daughter relationship
@@ -114,10 +117,10 @@ void SimTrackManager::storeTracks(TmpSimEvent* simEvent) {
   // to reset the GenParticle ID of a SimTrack to its pre-LHCTransport value
   resetGenID();
 
-  reallyStoreTracks(simEvent);
+  reallyStoreTracks();
 }
 
-void SimTrackManager::reallyStoreTracks(TmpSimEvent* simEvent) {
+void SimTrackManager::reallyStoreTracks() {
   // loop over the (now ordered) vector and really save the tracks
 #ifdef DebugLog
   edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer->size();
@@ -127,9 +130,9 @@ void SimTrackManager::reallyStoreTracks(TmpSimEvent* simEvent) {
   for (auto& trkH : m_trackContainer) {
     // at this stage there is one vertex per track,
     // so the vertex id of track N is also N
-    unsigned int iParentID = trkH->parentID();
+    int iParentID = trkH->parentID();
     int ig = trkH->genParticleID();
-    int ivertex = getOrCreateVertex(trkH, iParentID, simEvent);
+    int ivertex = getOrCreateVertex(trkH, iParentID);
 
     auto ptr = trkH;
     if (0 < iParentID) {
@@ -162,13 +165,13 @@ void SimTrackManager::reallyStoreTracks(TmpSimEvent* simEvent) {
     TmpSimTrack* g4simtrack =
         new TmpSimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
     g4simtrack->copyCrossedBoundaryVars(trkH);
-    simEvent->add(g4simtrack);
+    m_simEvent->add(g4simtrack);
   }
 }
 
-int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, TmpSimEvent* simEvent) {
+int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID) {
   int parent = -1;
-  for (auto& trk : m_trackContainer) {
+  for (auto const& trk : m_trackContainer) {
     int id = trk->trackID();
     if (id == iParentID) {
       parent = id;
@@ -179,8 +182,8 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, Tm
   VertexMap::const_iterator iterator = m_vertexMap.find(parent);
   if (iterator != m_vertexMap.end()) {
     // loop over saved vertices
-    for (auto& xx : m_vertexMap[parent]) {
-      if ((trkH->vertexPosition() - xx.second).Mag2() < 1.e-6) {
+    for (auto const& xx : m_vertexMap[parent]) {
+      if ((trkH->vertexPosition() - xx.second).Mag2() < r_limit2) {
         return xx.first;
       }
     }
@@ -191,7 +194,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, Tm
   if (nullptr != pr) {
     ptype = pr->GetProcessSubType();
   }
-  simEvent->add(new TmpSimVertex(trkH->vertexPosition(), trkH->globalTime(), parent, ptype));
+  m_simEvent->add(new TmpSimVertex(trkH->vertexPosition(), trkH->globalTime(), parent, ptype));
   m_vertexMap[parent].push_back(VertexPosition(m_nVertices, trkH->vertexPosition()));
   ++m_nVertices;
   return (m_nVertices - 1);
@@ -310,7 +313,7 @@ void SimTrackManager::cleanTracksWithHistory() {
   }
 #endif
 
-  for (auto& t : m_trackContainer) {
+  for (auto const& t : m_trackContainer) {
     if (t->saved()) {
       saveTrackAndItsBranch(t);
     }
@@ -356,12 +359,12 @@ void SimTrackManager::resetGenID() {
   if (theLHCTlink == nullptr)
     return;
 
-  for (auto& trkH : m_trackContainer) {
+  for (auto const& trkH : m_trackContainer) {
     int genParticleID = trkH->genParticleID();
     if (genParticleID == -1) {
       continue;
     } else {
-      for (auto& xx : *theLHCTlink) {
+      for (auto const& xx : *theLHCTlink) {
         if (xx.afterHector() == genParticleID) {
           trkH->setGenParticleID(xx.beforeHector());
           continue;

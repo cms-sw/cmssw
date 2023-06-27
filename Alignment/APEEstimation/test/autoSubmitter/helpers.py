@@ -70,17 +70,18 @@ def rootFileValid(path):
     result &= not file.IsZombie()
     return result
 
-if not 'MODULEPATH' in os.environ:
-    f = open(os.environ['MODULESHOME'] + "/init/.modulespath", "r")
-    path = []
-    for line in f.readlines():
-        line = re.sub("#.*$", '', line)
-        if line != '':
-            path.append(line)
-    os.environ['MODULEPATH'] = ':'.join(path)
+def initializeModuleLoading():
+    if not 'MODULEPATH' in os.environ:
+        f = open(os.environ['MODULESHOME'] + "/init/.modulespath", "r")
+        path = []
+        for line in f.readlines():
+            line = re.sub("#.*$", '', line)
+            if line != '':
+                path.append(line)
+        os.environ['MODULEPATH'] = ':'.join(path)
 
-if not 'LOADEDMODULES' in os.environ:
-    os.environ['LOADEDMODULES'] = ''
+    if not 'LOADEDMODULES' in os.environ:
+        os.environ['LOADEDMODULES'] = ''
     
 def module(*args):
     if type(args[0]) == type([]):
@@ -95,8 +96,6 @@ def enableCAF(switch):
         module('load', 'lxbatch/tzero')
     else:
         module('load', 'lxbatch/share')
-    
-
 
 def ensurePathExists(path):
     try:
@@ -104,7 +103,6 @@ def ensurePathExists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-
 
 def replaceAllRanges(string):
     if "[" in string and "]" in string:
@@ -150,8 +148,6 @@ def allFilesExist(dataset):
             passed = False
             missingFiles.append(fileName)
     return passed, missingFiles
-    
-
 
 def hasValidSource(condition):
     if condition["connect"].startswith("frontier://FrontierProd/"):
@@ -165,7 +161,6 @@ def hasValidSource(condition):
     return False
 
 def loadConditions(dictionary):
-    hasAlignmentCondition = False
     goodConditions = True
     conditions = []
     for key, value in dictionary.items():
@@ -176,8 +171,6 @@ def loadConditions(dictionary):
                 # structure is "condition rcd:source tag"
                 record = key.split(" ")[1]
                 connect, tag = value.split(" ")
-                if record == "TrackerAlignmentRcd":
-                    hasAlignmentCondition = True
                 conditions.append({"record":record, "connect":replaceShortcuts(connect), "tag":tag})
             elif len(value.split(" ")) == 1 and len(key.split(" ")) == 2:
                 # structure is "condition tag:source", so we have to guess rcd from the tag. might also be "condition tag1+tag2+...+tagN:source"
@@ -188,8 +181,6 @@ def loadConditions(dictionary):
                     for possibleTag, possibleRcd in records.items():
                         if tag.startswith(possibleTag):
                             conditions.append({"record":possibleRcd, "connect":replaceShortcuts(connect), "tag":tag})
-                            if possibleRcd == "TrackerAlignmentRcd":
-                                hasAlignmentCondition = True
                             foundTag = True
                             break
                     if not foundTag:
@@ -207,4 +198,4 @@ def loadConditions(dictionary):
         if not condition["record"].endswith("Rcd"):
             goodConditions = False
             print("'{}' is not a valid record name.".format(condition["record"]))
-    return conditions, hasAlignmentCondition, goodConditions
+    return conditions, goodConditions
