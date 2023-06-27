@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
