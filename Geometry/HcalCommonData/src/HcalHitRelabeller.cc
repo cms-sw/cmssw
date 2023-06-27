@@ -89,7 +89,9 @@ double HcalHitRelabeller::energyWt(const uint32_t testId) const {
   int det, z, depth, eta, phi, layer;
   HcalTestNumbering::unpackHcalIndex(testId, det, z, depth, eta, phi, layer);
   int zside = (z == 0) ? (-1) : (1);
-  double wt = ((((det == 1) && (layer <= 1)) || ((det == 2) && (layer <= 2)))  && (depth == 1)) ? theRecNumber->getLayer0Wt(det, phi, zside) : 1.0;
+  double wt = ((((det == 1) && (layer <= 1)) || ((det == 2) && (layer <= 2))) && (depth == 1))
+                  ? theRecNumber->getLayer0Wt(det, phi, zside)
+                  : 1.0;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "EnergyWT::det: " << det << " z: " << z << ":" << zside << " depth: " << depth
                               << " ieta: " << eta << " iphi: " << phi << " layer: " << layer << " wt " << wt;
