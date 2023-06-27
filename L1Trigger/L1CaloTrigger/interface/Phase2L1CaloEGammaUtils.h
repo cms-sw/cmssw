@@ -835,7 +835,7 @@ namespace p2eg {
             ap_uint<15> clusterEt5x5 = 0,
             ap_uint<15> clusterEt2x5 = 0,
             ap_uint<2> clusterBrems = 0,
-	    float clusterCalib = 1.0,
+            float clusterCalib = 1.0,
             bool cluster_is_ss = false,
             bool cluster_is_looseTkss = false,
             bool cluster_is_iso = false,
