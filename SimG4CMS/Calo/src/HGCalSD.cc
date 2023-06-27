@@ -48,6 +48,7 @@ HGCalSD::HGCalSD(const std::string& name,
       cos30deg_(std::cos(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
   guardRing_.reset(nullptr);
+  guardRingPartial_.reset(nullptr);
   mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
@@ -184,7 +185,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     if (fiducialCut_) {
       int layertype = hgcons_->layerType(layer);
       int frontBack = HGCalTypes::layerFrontBack(layertype);
-      if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
+      if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) || guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
         id = 0;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
@@ -266,6 +267,7 @@ void HGCalSD::update(const BeginOfJob* job) {
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
     if (fiducialCut_)
       guardRing_ = std::make_unique<HGCGuardRing>(*hgcons_);
+      guardRingPartial_ = std::make_unique<HGCGuardRingPartial>(*hgcons_);
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

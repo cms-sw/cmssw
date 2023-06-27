@@ -11,7 +11,7 @@
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HGCGuardRing.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
-
+#include "SimG4CMS/Calo/interface/HGCGuardRingPartial.h"
 #include <string>
 
 class HGCalDDDConstants;
@@ -43,6 +43,7 @@ private:
   const HGCalDDDConstants *hgcons_;
   std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
   std::unique_ptr<HGCGuardRing> guardRing_;
+  std::unique_ptr<HGCGuardRing> guardRingPartial_;
   std::unique_ptr<HGCMouseBite> mouseBite_;
   DetId::Detector mydet_;
   std::string nameX_;
