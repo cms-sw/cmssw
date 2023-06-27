@@ -77,7 +77,6 @@ private:
   std::string fName_;
   edm::ESHandle<MagneticField> theMF_;
 
-
   int verbosity_;
   int nEvt_;
   int nEntry_;

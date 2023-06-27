@@ -152,8 +152,6 @@ PhotonValidator::PhotonValidator(const edm::ParameterSet& pset)
   nRecConvAss_ = 0;
   nRecConvAssWithEcal_ = 0;
   nInvalidPCA_ = 0;
-
-
 }
 
 PhotonValidator::~PhotonValidator() {}
@@ -2037,12 +2035,12 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   h_dRPhoPFcand_NeuHad_Cleaned_[3] =
       iBooker.book1D(histname + "Barrel_1", "dR(pho,cand) Neutral Hadrons :  Barrel |eta| <=1", etBin, etMin, 0.7);
   h_dRPhoPFcand_NeuHad_Cleaned_[4] =
-      iBooker.book1D(histname + "Barrel_2", "dR(pho,cand) Neutral Hadrons :  Barrel |eta | > 1", etBin, etMin, 0.7); 
+      iBooker.book1D(histname + "Barrel_2", "dR(pho,cand) Neutral Hadrons :  Barrel |eta | > 1", etBin, etMin, 0.7);
   histname = "dRPhoPFcand_Pho_Cleaned";
   h_dRPhoPFcand_Pho_Cleaned_[0] =
-    iBooker.book1D(histname + "All", "dR(pho,cand) Photons : All Ecal", etBin, etMin, 0.7);
+      iBooker.book1D(histname + "All", "dR(pho,cand) Photons : All Ecal", etBin, etMin, 0.7);
   h_dRPhoPFcand_Pho_Cleaned_[1] =
-    iBooker.book1D(histname + "Barrel", "dR(pho,cand) Photons :  Barrel", etBin, etMin, 0.7);
+      iBooker.book1D(histname + "Barrel", "dR(pho,cand) Photons :  Barrel", etBin, etMin, 0.7);
   h_dRPhoPFcand_Pho_Cleaned_[2] =
       iBooker.book1D(histname + "Endcap", "dR(pho,cand) Photons :  Endcap", etBin, etMin, 0.7);
 
@@ -2087,7 +2085,6 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
       iBooker.book1D(histname + "Barrel_1", "dR(pho,cand) Neutral Hadrons :  Barrel |eta| <=1  ", etBin, etMin, 0.7);
   h_dRPhoPFcand_NeuHad_unCleaned_[4] =
       iBooker.book1D(histname + "Barrel_2", "dR(pho,cand) Neutral Hadrons :  Barrel |eta| > 1", etBin, etMin, 0.7);
-
 
   histname = "dRPhoPFcand_Pho_unCleaned";
   h_dRPhoPFcand_Pho_unCleaned_[0] =
@@ -3175,14 +3172,9 @@ void PhotonValidator::dqmBeginRun(edm::Run const& r, edm::EventSetup const& theE
   theMF_ = theEventSetup.getHandle(magneticFieldToken_);
 
   thePhotonMCTruthFinder_ = std::make_unique<PhotonMCTruthFinder>();
-
- 
-
 }
 
-void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const&) { 
-
-thePhotonMCTruthFinder_.reset(); }
+void PhotonValidator::dqmEndRun(edm::Run const& r, edm::EventSetup const&) { thePhotonMCTruthFinder_.reset(); }
 
 void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) {
   thePhotonMCTruthFinder_->clear();
@@ -3588,8 +3580,6 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   }
   // }
 
-
-
   for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
     if ((*mcPho).fourMomentum().et() < minPhoEtCut_)
       continue;
@@ -3611,7 +3601,6 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       mcPhi_ = phiNormalization(mcPhi);
       mcEta_ = (*mcPho).fourMomentum().pseudoRapidity();
       mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z());
-
 
       mcConvR_ = (*mcPho).vertex().perp();
       mcConvX_ = (*mcPho).vertex().x();
@@ -3746,9 +3735,9 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       if (!matched)
         continue;
 
-      bool phoIsInBarrel = false;  // full barrel
-      bool phoIsInBarrel1 = false; // |eta| <=1
-      bool phoIsInBarrel2 = false; // |eta| >1
+      bool phoIsInBarrel = false;   // full barrel
+      bool phoIsInBarrel1 = false;  // |eta| <=1
+      bool phoIsInBarrel2 = false;  // |eta| >1
       bool phoIsInEndcap = false;
       bool phoIsInEndcapP = false;
       bool phoIsInEndcapM = false;
@@ -3764,14 +3753,11 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         if (matchingPho->superCluster()->position().eta() < 0)
           phoIsInEndcapM = true;
       }
-      if ( fabs(matchingPho->superCluster()->position().eta()) <= 1) {
-	phoIsInBarrel1 = true;
-      }	else if ( fabs(matchingPho->superCluster()->position().eta()) > 1 ) {
-	phoIsInBarrel2 = true;
+      if (fabs(matchingPho->superCluster()->position().eta()) <= 1) {
+        phoIsInBarrel1 = true;
+      } else if (fabs(matchingPho->superCluster()->position().eta()) > 1) {
+        phoIsInBarrel2 = true;
       }
-
-  
-
 
       edm::Handle<EcalRecHitCollection> ecalRecHitHandle;
       if (phoIsInBarrel) {
@@ -4208,18 +4194,18 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
               h_dRPhoPFcand_NeuHad_unCleaned_[0]->Fill(dR);
               if (phoIsInBarrel) {
                 h_dRPhoPFcand_NeuHad_unCleaned_[1]->Fill(dR);
-		if (phoIsInBarrel1) {
-		  h_dRPhoPFcand_NeuHad_unCleaned_[3]->Fill(dR);
-		} 
-		if (phoIsInBarrel2) {
-		  h_dRPhoPFcand_NeuHad_unCleaned_[4]->Fill(dR);
-		}
-	      } else {
-		h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
-	      }
-	    }
+                if (phoIsInBarrel1) {
+                  h_dRPhoPFcand_NeuHad_unCleaned_[3]->Fill(dR);
+                }
+                if (phoIsInBarrel2) {
+                  h_dRPhoPFcand_NeuHad_unCleaned_[4]->Fill(dR);
+                }
+              } else {
+                h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+              }
+            }
 
-	    if (type == reco::PFCandidate::gamma) {
+            if (type == reco::PFCandidate::gamma) {
               SumPtIsoValPh += pfCandRef->pt();
               h_dRPhoPFcand_Pho_unCleaned_[0]->Fill(dR);
               if (phoIsInBarrel)
@@ -4228,7 +4214,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
                 h_dRPhoPFcand_Pho_unCleaned_[2]->Fill(dR);
             }
 
-	    ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
+            ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
             bool skip = false;
             for (std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[matchingPho].begin();
                  i != phoToParticleBasedIsoMap[matchingPho].end();
@@ -4237,7 +4223,6 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
                 skip = true;
               }
             }  // loop over the PFCandidates flagged as overlapping with the photon
-
 
             if (skip)
               continue;
@@ -4252,18 +4237,18 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
             if (type == reco::PFCandidate::h0) {
               SumPtIsoValCleanNh += pfCandRef->pt();
               h_dRPhoPFcand_NeuHad_Cleaned_[0]->Fill(dR);
-              if (phoIsInBarrel) { 
+              if (phoIsInBarrel) {
                 h_dRPhoPFcand_NeuHad_Cleaned_[1]->Fill(dR);
-		if (phoIsInBarrel1) {
-		  h_dRPhoPFcand_NeuHad_Cleaned_[3]->Fill(dR);
-		} 
-		if (phoIsInBarrel2) {
-		  h_dRPhoPFcand_NeuHad_Cleaned_[4]->Fill(dR);
-		}
-	      } else {
-		h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
-	      }
-	    }
+                if (phoIsInBarrel1) {
+                  h_dRPhoPFcand_NeuHad_Cleaned_[3]->Fill(dR);
+                }
+                if (phoIsInBarrel2) {
+                  h_dRPhoPFcand_NeuHad_Cleaned_[4]->Fill(dR);
+                }
+              } else {
+                h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+              }
+            }
             if (type == reco::PFCandidate::gamma) {
               SumPtIsoValCleanPh += pfCandRef->pt();
               h_dRPhoPFcand_Pho_Cleaned_[0]->Fill(dR);
@@ -4870,8 +4855,6 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       }  // if !fastSim
     }    // End loop over generated particles
   }      // End loop over simulated Photons
-
-  
 
   if (!isRunCentrally_) {
     h_nSimPho_[0]->Fill(float(nSimPho_[0]));
