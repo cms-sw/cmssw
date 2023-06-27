@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units;
 using namespace geant_units::operators;
 
