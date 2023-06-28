@@ -72,7 +72,7 @@ namespace trackerTFP {
   // read in and organize input product (fill vector input_)
   void KalmanFilter::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
     auto valid = [](const auto& frame) { return frame.first.isNonnull(); };
-    auto acc = [](int& sum, const auto& frame) { return sum += (frame.first.isNonnull() ? 1 : 0); };
+    auto acc = [](int sum, const auto& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     int nTracks(0);
     int nStubs(0);
     const int offset = region_ * dataFormats_->numChannel(Process::kf);
@@ -155,8 +155,8 @@ namespace trackerTFP {
           streamsStubs[offset + layer].emplace_back(FrameStub());
       }
     };
-    auto count = [this](int& sum, const State* state) {
-      return sum += state && state->hitPattern().count() >= setup_->kfMinLayers() ? 1 : 0;
+    auto count = [this](int sum, const State* state) {
+      return sum + ((state && state->hitPattern().count() >= setup_->kfMinLayers()) ? 1 : 0);
     };
     for (int channel = 0; channel < dataFormats_->numChannel(Process::kf); channel++) {
       deque<State*> stream;

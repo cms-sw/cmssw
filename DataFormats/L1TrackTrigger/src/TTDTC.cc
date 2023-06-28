@@ -65,13 +65,13 @@ const StreamStub& TTDTC::stream(int tfpRegion, int tfpChannel) const {
 
 // total number of frames
 int TTDTC::size() const {
-  auto all = [](int& sum, const StreamStub& stream) { return sum += stream.size(); };
+  auto all = [](int sum, const StreamStub& stream) { return sum + stream.size(); };
   return accumulate(streams_.begin(), streams_.end(), 0, all);
 }
 
 // total number of stubs
 int TTDTC::nStubs() const {
-  auto stubs = [](int& sum, const FrameStub& frame) { return sum += frame.first.isNonnull(); };
+  auto stubs = [](int sum, const FrameStub& frame) { return sum + frame.first.isNonnull(); };
   int n(0);
   for (const StreamStub& stream : streams_)
     n += accumulate(stream.begin(), stream.end(), 0, stubs);
@@ -80,7 +80,7 @@ int TTDTC::nStubs() const {
 
 // total number of gaps
 int TTDTC::nGaps() const {
-  auto gaps = [](int& sum, const FrameStub& frame) { return sum += frame.first.isNull(); };
+  auto gaps = [](int sum, const FrameStub& frame) { return sum + frame.first.isNull(); };
   int n(0);
   for (const StreamStub& stream : streams_)
     n += accumulate(stream.begin(), stream.end(), 0, gaps);

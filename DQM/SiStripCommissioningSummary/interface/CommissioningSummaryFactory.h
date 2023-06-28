@@ -11,9 +11,7 @@ class CommissioningAnalysis;
 template <>
 class SummaryPlotFactory<CommissioningAnalysis*> : public SummaryPlotFactoryBase {
 public:
-  SummaryPlotFactory<CommissioningAnalysis*>() { ; }
-
-  virtual ~SummaryPlotFactory<CommissioningAnalysis*>() { ; }
+  SummaryPlotFactory() { ; }
 
   typedef std::map<uint32_t, CommissioningAnalysis*>::const_iterator Iterator;
 
