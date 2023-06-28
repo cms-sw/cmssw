@@ -52,17 +52,24 @@ private:
   MonitorElement* emtfTrackBXVsCSCLCT[3];
   MonitorElement* emtfTrackBXVsRPCHit[3];
   MonitorElement* emtfTrackPt;
-  MonitorElement* emtfTrackPtHighQuality;  //Chad Freer May 8 2018
+  MonitorElement* emtfTrackUnconstrainedPt;             // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackdxy;                         // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackPtHighQuality;               //Chad Freer May 8 2018
+  MonitorElement* emtfTrackUnconstrainedPtHighQuality;  // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfTrackPtHighQualityHighPT;
+  MonitorElement* emtfTrackUnconstrainedPtHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackEtaHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackEtaHighQualityHighPT;
+  MonitorElement* emtfTrackEtaHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfTrackPhi;
   MonitorElement* emtfTrackPhiHighQuality;
   MonitorElement* emtfTrackPhiHighQualityHighPT;
+  MonitorElement* emtfTrackPhiHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfTrackOccupancy;
   MonitorElement* emtfTrackOccupancyHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackOccupancyHighQualityHighPT;
+  MonitorElement* emtfTrackOccupancyHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfTrackMode;
   MonitorElement* emtfTrackQuality;
   MonitorElement* emtfTrackQualityVsMode;
@@ -70,6 +77,8 @@ private:
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;
+  MonitorElement* emtfMuonhwPtUnconstrained;  // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfMuonhwDxy;              // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfMuonhwEta;
   MonitorElement* emtfMuonhwPhi;
   MonitorElement* emtfMuonhwQual;

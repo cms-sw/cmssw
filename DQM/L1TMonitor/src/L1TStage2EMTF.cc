@@ -176,6 +176,14 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackPt = ibooker.book1D("emtfTrackPt", "EMTF Track p_{T}", 256, 1, 257);
   emtfTrackPt->setAxisTitle("Track p_{T} [GeV]", 1);
 
+  //Lucas Faria de Sa Tucker June 28 2023
+  emtfTrackUnconstrainedPt = ibooker.book1D("emtfTrackUnconstrainedPt", "EMTF Track Unconstrained p_{T}", 256, 1, 257);
+  emtfTrackUnconstrainedPt->setAxisTitle("Track Unconstrained p_{T} [GeV]", 1);
+
+  emtfTrackdxy = ibooker.book1D("emtfTrackdxy", "EMTF Track d_{xy}", 3, 0, 3);
+  emtfTrackdxy->setAxisTitle("Track d_{xy}", 1);
+  // end new plots
+
   emtfTrackEta = ibooker.book1D("emtfTrackEta", "EMTF Track #eta", 100, -2.5, 2.5);
   emtfTrackEta->setAxisTitle("Track #eta", 1);
 
@@ -216,6 +224,11 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackPtHighQuality = ibooker.book1D("emtfTrackPtHighQuality", "EMTF High Quality Track p_{T}", 256, 1, 257);
   emtfTrackPtHighQuality->setAxisTitle("Track p_{T} [GeV] (Quality #geq 12)", 1);
 
+  //Lucas Faria de Sa Tucker June 28 2023 (Unconstrained Pt Plot)
+  emtfTrackUnconstrainedPtHighQuality =
+      ibooker.book1D("emtfTrackUnconstrainedPtHighQuality", "EMTF High Quality Track Unconstrained p_{T}", 256, 1, 257);
+  emtfTrackUnconstrainedPtHighQuality->setAxisTitle("Track Unconstrained p_{T} [GeV] (Quality #geq 12)", 1);
+
   emtfTrackEtaHighQuality = ibooker.book1D("emtfTrackEtaHighQuality", "EMTF High Quality Track #eta", 100, -2.5, 2.5);
   emtfTrackEtaHighQuality->setAxisTitle("Track #eta (Quality #geq 12)", 1);
 
@@ -251,6 +264,32 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackOccupancyHighQualityHighPT->setAxisTitle("#eta", 1);
   emtfTrackOccupancyHighQualityHighPT->setAxisTitle("#phi", 2);
   //Chad Freer May 8 2018 (END new plots)
+
+  //Lucas Faria de Sa Tucker June 28 2023 (High Quality and High UPT [10 GeV] Track Plots)
+  emtfTrackUnconstrainedPtHighQualityHighUPT = ibooker.book1D(
+      "emtfTrackUnconstrainedPtHighQualityHighUPT", "EMTF High Quality High UPT Track Unconstrained p_{T}", 256, 1, 257);
+  emtfTrackUnconstrainedPtHighQualityHighUPT->setAxisTitle(
+      "Track Unconstrained p_{T} [GeV] (Quality #geq 12 and UpT>10)", 1);
+
+  emtfTrackEtaHighQualityHighUPT =
+      ibooker.book1D("emtfTrackEtaHighQualityHighUPT", "EMTF High Quality High UPT Track #eta", 100, -2.5, 2.5);
+  emtfTrackEtaHighQualityHighUPT->setAxisTitle("Track #eta (Quality #geq 12 and UpT>10)", 1);
+
+  emtfTrackPhiHighQualityHighUPT =
+      ibooker.book1D("emtfTrackPhiHighQualityHighUPT", "EMTF High Quality High UPT #phi", 126, -3.15, 3.15);
+  emtfTrackPhiHighQualityHighUPT->setAxisTitle("Track #phi (Quality #geq 12 and UpT>10)", 1);
+
+  emtfTrackOccupancyHighQualityHighUPT = ibooker.book2D("emtfTrackOccupancyHighQualityHighUPT",
+                                                        "EMTF High Quality High UPT Track Occupancy",
+                                                        100,
+                                                        -2.5,
+                                                        2.5,
+                                                        126,
+                                                        -3.15,
+                                                        3.15);
+  emtfTrackOccupancyHighQualityHighUPT->setAxisTitle("#eta", 1);
+  emtfTrackOccupancyHighQualityHighUPT->setAxisTitle("#phi", 2);
+  // end new plots
 
   // CSC Input
   ibooker.setCurrentFolder(monitorDir + "/CSCInput");
@@ -732,6 +771,15 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfMuonhwPt = ibooker.book1D("emtfMuonhwPt", "EMTF Muon Cand p_{T}", 512, 0, 512);
   emtfMuonhwPt->setAxisTitle("Hardware p_{T}", 1);
 
+  //Lucas Faria de Sa Tucker June 28 2023 (Unconstrained and Dxy plots)
+  emtfMuonhwPtUnconstrained =
+      ibooker.book1D("emtfMuonhwPtUnconstrained", "EMTF Muon Cand Unconstrained p_{T}", 256, 0, 256);
+  emtfMuonhwPtUnconstrained->setAxisTitle("Hardware Unconstrained p_{T}", 1);
+
+  emtfMuonhwDxy = ibooker.book1D("emtfMuonhwDxy", "EMTF Muon Cand d_{xy}", 3, 0, 3);
+  emtfMuonhwDxy->setAxisTitle("Hardware d_{xy}", 1);
+  //end new plots
+
   emtfMuonhwEta = ibooker.book1D("emtfMuonhwEta", "EMTF Muon Cand #eta", 460, -230, 230);
   emtfMuonhwEta->setAxisTitle("Hardware #eta", 1);
 
@@ -999,6 +1047,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int modeRPC = Track->Mode_RPC();
     int singleMuQuality = 12;
     int singleMuPT = 22;
+    int singleMuUPT = 10;  //Lucas Faria de Sa Tucker June 28 2023
 
     // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
     if (modeNeighbor >= 2 && modeNeighbor != 4 && modeNeighbor != 8)
@@ -1007,6 +1056,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTracknHits->Fill(numHits);
     emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
     emtfTrackPt->Fill(Track->Pt());
+    emtfTrackdxy->Fill(Track->GMT_dxy());             //Lucas Faria de Sa Tucker June 28 2023
+    emtfTrackUnconstrainedPt->Fill(Track->Pt_dxy());  //Lucas Faria de Sa Tucker June 28 2023
     emtfTrackEta->Fill(eta);
 
     emtfTrackOccupancy->Fill(eta, phi_glob_rad);
@@ -1018,6 +1069,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     if (quality >= singleMuQuality) {
       emtfTrackPtHighQuality->Fill(Track->Pt());
+      emtfTrackUnconstrainedPtHighQuality->Fill(Track->Pt_dxy());  //Lucas Faria de Sa Tucker June 28 2023
       emtfTrackEtaHighQuality->Fill(eta);
       emtfTrackPhiHighQuality->Fill(phi_glob_rad);
       emtfTrackOccupancyHighQuality->Fill(eta, phi_glob_rad);
@@ -1026,6 +1078,12 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         emtfTrackEtaHighQualityHighPT->Fill(eta);
         emtfTrackPhiHighQualityHighPT->Fill(phi_glob_rad);
         emtfTrackOccupancyHighQualityHighPT->Fill(eta, phi_glob_rad);
+      }
+      if (Track->Pt_dxy() >= singleMuUPT) {  //High UPT plots by Lucas Faria de Sa Tucker
+        emtfTrackUnconstrainedPtHighQualityHighUPT->Fill(Track->Pt_dxy());
+        emtfTrackEtaHighQualityHighUPT->Fill(eta);
+        emtfTrackPhiHighQualityHighUPT->Fill(phi_glob_rad);
+        emtfTrackOccupancyHighQualityHighUPT->Fill(eta, phi_glob_rad);
       }
     }
 
@@ -1209,6 +1267,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
          ++Muon) {
       emtfMuonBX->Fill(itBX);
       emtfMuonhwPt->Fill(Muon->hwPt());
+      emtfMuonhwPtUnconstrained->Fill(Muon->hwPtUnconstrained());  //Lucas Faria de Sa Tucker June 28 2023
+      emtfMuonhwDxy->Fill(Muon->hwDXY());                          //Lucas Faria de Sa Tucker June 28 2023
       emtfMuonhwEta->Fill(Muon->hwEta());
       emtfMuonhwPhi->Fill(Muon->hwPhi());
       emtfMuonhwQual->Fill(Muon->hwQual());
