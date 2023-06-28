@@ -7,6 +7,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -25,6 +26,24 @@ HcalDDDRecConstants::~HcalDDDRecConstants() {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalDDDRecConstants::destructed!!!";
 #endif
+}
+
+int HcalDDDRecConstants::findDepth(
+    const int& det, const int& eta, const int& phi, const int& zside, const int& lay) const {
+  int depth = hcons.findDepth(det, eta, phi, zside, lay);
+  if (depth < 0) {
+    std::vector<int> depths = getDepth(eta, false);
+    if ((lay > 0) && (lay <= static_cast<int>(depths.size())))
+      depth = depths[lay - 1];
+#ifdef EDM_ML_DEBUG
+    std::ostringstream st1;
+    st1 << depths.size() << " depths ";
+    for (const auto& d : depths)
+      st1 << ": " << d;
+    edm::LogVerbatim("HCalGeom") << "HcalDDDRecConstants:: " << st1.str() << " for eta = " << eta << " Depth " << depth;
+#endif
+  }
+  return depth;
 }
 
 std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int& eta, const bool& extra) const {
