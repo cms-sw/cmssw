@@ -7,32 +7,26 @@
 //
 // Author: Marco Musich
 //
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-// DQM Histograming
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelRawData/interface/SiPixelErrorsSoA.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 // for string manipulations
 #include <fmt/printf.h>
 
@@ -84,8 +78,7 @@ namespace {
     k_FED31 = 31,  // 31 indicates an event number error (TBM and FED event number mismatch)
     k_FED32 = 32,  // 32 indicates an incorrectly formatted Slink Header
     k_FED33 = 33,  // 33 indicates an incorrectly formatted Slink Trailer
-    k_FED34 =
-        34,  // 34 indicates the event size encoded in the Slink Trailer is different than size found at raw2digi conversion
+    k_FED34 = 34,  // 34 indicates the evt size encoded in Slink Trailer is different than size found at raw2digi
     k_FED35 = 35,  // 35 indicates an invalid FED channel number
     k_FED36 = 36,  // 36 indicates an invalid ROC value
     k_FED37 = 37,  // 37 indicates an invalid dcol or pixel value
@@ -172,14 +165,24 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
     countsOnGPU[j] = 0.;
   }
 
+  // check upfront if the error collection is present
   edm::Handle<edm::DetSetVector<SiPixelRawDataError>> inputFromCPU;
   iEvent.getByToken(tokenErrorsCPU_, inputFromCPU);
   if (!inputFromCPU.isValid()) {
-    edm::LogWarning("SiPixelCompareTrackSoA") << "reference (cpu) SiPixelRawDataErrors not found; \n"
-                                              << "the comparison will not run.";
+    edm::LogError("SiPixelPhase1RawDataErrorComparator") << "reference (cpu) SiPixelRawDataErrors not found; \n"
+                                                         << "the comparison will not run.";
     return;
   }
 
+  edm::Handle<edm::DetSetVector<SiPixelRawDataError>> inputFromGPU;
+  iEvent.getByToken(tokenErrorsGPU_, inputFromGPU);
+  if (!inputFromGPU.isValid()) {
+    edm::LogError("SiPixelPhase1RawDataErrorComparator") << "target (gpu) SiPixelRawDataErrors not found; \n"
+                                                         << "the comparison will not run.";
+    return;
+  }
+
+  // fill the counters on host
   uint errorsOnCPU{0};
   for (auto it = inputFromCPU->begin(); it != inputFromCPU->end(); ++it) {
     for (auto& siPixelRawDataError : *it) {
@@ -191,20 +194,13 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
       countsOnCPU[type] += 1;
       countsMatrixOnCPU[fed - FEDNumbering::MINSiPixeluTCAFEDID][type - k_FED25] += 1;
 
-      edm::LogInfo("SiPixelPhase1RawDataErrorComparator")
-          << __PRETTY_FUNCTION__ << " on cpu: FED: " << fed << " detid: " << id.rawId() << " type:" << type;
+      LogDebug("SiPixelPhase1RawDataErrorComparator")
+          << " (on cpu) FED: " << fed << " detid: " << id.rawId() << " type:" << type;
       errorsOnCPU++;
     }
   }
 
-  edm::Handle<edm::DetSetVector<SiPixelRawDataError>> inputFromGPU;
-  iEvent.getByToken(tokenErrorsGPU_, inputFromGPU);
-  if (!inputFromGPU.isValid()) {
-    edm::LogWarning("SiPixelCompareTrackSoA") << "target (gpu) SiPixelRawDataErrors not found; \n"
-                                              << "the comparison will not run.";
-    return;
-  }
-
+  // fill the counters on device
   uint errorsOnGPU{0};
   for (auto it = inputFromGPU->begin(); it != inputFromGPU->end(); ++it) {
     for (auto& siPixelRawDataError : *it) {
@@ -216,28 +212,28 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
       countsOnGPU[type] += 1;
       countsMatrixOnGPU[fed - FEDNumbering::MINSiPixeluTCAFEDID][type - k_FED25] += 1;
 
-      edm::LogInfo("SiPixelPhase1RawDataErrorComparator")
-          << __PRETTY_FUNCTION__ << " on gpu: FED: " << fed << " detid: " << id.rawId() << " type:" << type;
+      LogDebug("SiPixelPhase1RawDataErrorComparator")
+          << " (on gpu) FED: " << fed << " detid: " << id.rawId() << " type:" << type;
       errorsOnGPU++;
     }
   }
 
-  edm::LogInfo("SiPixelPhase1RawDataErrorComparator")
-      << __PRETTY_FUNCTION__ << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU << std::endl;
+  edm::LogPrint("SiPixelPhase1RawDataErrorComparator")
+      << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU << std::endl;
 
   h_totFEDErrors_->Fill(errorsOnCPU, errorsOnGPU);
 
   // fill the correlations per error type
   for (unsigned int j = k_FED25; j <= k_FED31; j++) {
     SiPixelFEDErrorCodes code = static_cast<SiPixelFEDErrorCodes>(j);
-    h_nFEDErrors_[code]->Fill(countsOnCPU[j], countsOnGPU[j]);
+    h_nFEDErrors_[code]->Fill(std::min(1000, countsOnCPU[j]), std::min(1000, countsOnGPU[j]));
   }
 
   // fill the error unbalance per FEDid per error type
   for (int i = 0; i < nFEDs; i++) {
     for (int j = 0; j < nErrors; j++) {
       if (countsMatrixOnGPU[i][j] != 0 || countsMatrixOnCPU[i][j] != 0) {
-        edm::LogInfo("SiPixelPhase1RawDataErrorComparator")
+        edm::LogVerbatim("SiPixelPhase1RawDataErrorComparator")
             << "FED: " << i + FEDNumbering::MINSiPixeluTCAFEDID << " error: " << j + k_FED25
             << " | GPU counts: " << countsMatrixOnGPU[i][j] << " CPU counts:" << countsMatrixOnCPU[i][j] << std::endl;
         h_FEDerrorVsFEDIdUnbalance_->Fill(
@@ -258,7 +254,7 @@ void SiPixelPhase1RawDataErrorComparator::bookHistograms(DQMStore::IBooker& iBoo
 
   h_FEDerrorVsFEDIdUnbalance_ =
       iBook.book2I("FEErrorVsFEDIdUnbalance",
-                   "difference (GPU-CPE) of FED errors per FEDid per error type;;FED Id number;GPU counts - CPU counts",
+                   "difference (GPU-CPU) of FED errors per FEDid per error type;;FED Id number;GPU counts - CPU counts",
                    nErrors,
                    -0.5,
                    nErrors - 0.5,
@@ -277,26 +273,25 @@ void SiPixelPhase1RawDataErrorComparator::bookHistograms(DQMStore::IBooker& iBoo
                                 "n. of total Pixel FEDError per event; CPU; GPU",
                                 500,
                                 log10(0.5),
-                                log10(500.5),
+                                log10(5000.5),
                                 500,
                                 log10(0.5),
-                                log10(500.5));
+                                log10(5000.5));
 
   for (const auto& element : errorCodeToStringMap) {
     h_nFEDErrors_[element.first] = iBook.book2I(fmt::sprintf("nFED%i_Errors", element.first),
                                                 fmt::sprintf("n. of %ss per event; CPU; GPU", element.second),
-                                                501,
+                                                1000,
                                                 -0.5,
-                                                500.5,
-                                                501,
+                                                1000.5,
+                                                1000,
                                                 -0.5,
-                                                500.5);
+                                                1000.5);
   }
 }
 
 void SiPixelPhase1RawDataErrorComparator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  //desc.add<edm::InputTag>("pixelErrorSrcGPU", edm::InputTag("siPixelDigiErrors"));
   desc.add<edm::InputTag>("pixelErrorSrcGPU", edm::InputTag("siPixelDigis@cuda"))
       ->setComment("input GPU SiPixel FED errors");
   desc.add<edm::InputTag>("pixelErrorSrcCPU", edm::InputTag("siPixelDigis@cpu"))
