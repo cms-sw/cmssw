@@ -10,15 +10,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 options = VarParsing.VarParsing ('standard')
 options.register('sample', 'data1', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input sample")
-options.register('useTrackList', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Use list of preselected tracks")
-options.register('isTest', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Test run")
 
 # get and parse the command line arguments
 options.parseArguments()
 
 print("Input sample: ", options.sample)
-print("Use list of preselected tracks: ", options.useTrackList)
-print("Test run: ", options.isTest)
 
 
 ##
@@ -79,11 +75,6 @@ if options.sample == 'data1':
     outputName = 'MinBias.root'
     #outputPath = "workingArea"
     trackSelection = "MinBias"
-if options.sample == 'data2': 
-    process.load("Alignment.APEEstimation.samples.Data_TkAlMinBias_Run2018C_PromptReco_v3_cff")
-    outputName = 'MinBias1.root'
-    #outputPath = "workingArea"
-    trackSelection = "MinBias"
 if options.sample == 'data3':
     process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013C_v1_cff")
     outputName = 'Data_TkAlMuonIsolated_22Jan2013C.root'
@@ -104,22 +95,14 @@ if options.sample == 'wlnu':
     outputPath = '/eos/cms/store/caf/user/jschulz/Skims/MC/UL2016ReRecoRealistic'
     outputName = 'Mc_TkAlMuonIsolated_WJetsToLNu_2016.root'
     trackSelection = "SingleMu"
-if options.sample == 'zmumu': 
-    process.load("")
-    outputName = ''
-    trackSelection = "DoubleMu"
-if options.sample == 'zmumu10': 
-    process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu10_cff")
-    outputName = 'Mc_TkAlMuonIsolated_Summer12_zmumu10.root'
-    trackSelection = "DoubleMu"
-if options.sample == 'zmumu20': 
-    process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu20_cff")
-    outputName = 'Mc_TkAlMuonIsolated_Summer12_zmumu20.root'
-    trackSelection = "DoubleMu"
-if options.sample == 'zmumu50':
-    process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1_ALCARECO_cff")
-    outputName = 'Mc_DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1.root'
-    trackSelection = "DoubleMu"
+    
+# For unit tests
+if options.sample == 'UnitTest':
+    process.load("Alignment.APEEstimation.samples.MC_UnitTest_TkAlMuonIsolated_cff")
+    outputName = 'MC_UnitTest_TkAlMuonIsolated.root'
+    maxEvents = 1000
+    globalTag = "auto:phase1_2022_design"
+    trackSelection = "SingleMu"
 
 
 print("Using output name %s"%(outputName))
@@ -148,7 +131,6 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ## Number of Events (should be after input file)
 ##
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxEvents) )
-if options.isTest: process.maxEvents.input = 1001
 
 
 ##
@@ -176,13 +158,6 @@ else: # Extend list here with custom track selectors
     exit(1)
 
 process.MuSkim = trackSelector
-
-##
-## If preselected track list is used
-##
-if options.useTrackList:
-    process.MuSkim.src = 'TrackList'
-    process.TriggerSelectionSequence *= process.TrackList
 
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process, trackSelector.src.getModuleLabel())
@@ -224,10 +199,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 process.load("Alignment.APEEstimation.PrivateSkim_EventContent_cff")
 process.out.outputCommands.extend(process.ApeSkimEventContent.outputCommands)
-
-
-if options.isTest:
-  process.out.fileName = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_apeSkim.root'
 
 
 ##
