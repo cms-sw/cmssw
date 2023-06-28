@@ -115,8 +115,11 @@ namespace l1t {
         _track.set_phi_glob(L1TMuonEndCap::calc_phi_glob_deg(_track.Phi_loc(), _track.Sector()));
         _track.set_eta(L1TMuonEndCap::calc_eta(_SP.Eta_GMT()));
         _track.set_pt((_SP.Pt_GMT() - 1) * 0.5);
+        _track.set_pt_dxy((_SP.Pt_dxy_GMT() - 1));
 
         _track.set_gmt_pt(_SP.Pt_GMT());
+        _track.set_gmt_pt_dxy(_SP.Pt_dxy_GMT());
+        _track.set_gmt_dxy(_SP.Dxy_GMT());
         _track.set_gmt_phi(_SP.Phi_GMT());
         _track.set_gmt_eta(_SP.Eta_GMT());
         _track.set_gmt_quality(_SP.Quality_GMT());
