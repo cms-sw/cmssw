@@ -67,8 +67,11 @@ options.register('runUniqueKey',
                  VarParsing.VarParsing.varType.string,
                  "Unique run key from RCMS for Frontier")
 
-# Parameter for output directory of the event display clients 
+# Parameter for output directory of the event display clients
 # visualization-live and visualization-live-secondInstance
+# this additional input argument was added in the hltd framework
+# only for the visualization clients 
+# Note, the other clients do not use this input parameter
 
 options.register('outputBaseDir',
                  '/fff/BU0/output',
