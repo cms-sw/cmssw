@@ -425,7 +425,7 @@ void L1TrackJetEmulatorProducer::fillDescriptions(ConfigurationDescriptions &des
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
   desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
-  desc.add<edm::InputTag>("L1PVertexInputTag", edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
+  desc.add<edm::InputTag>("L1PVertexInputTag", edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
   desc.add<double>("MaxDzTrackPV", 1.0);
   desc.add<double>("trk_zMax", 15.0);
   desc.add<double>("trk_ptMax", 200.0);

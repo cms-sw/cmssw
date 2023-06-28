@@ -4,8 +4,8 @@ l1tTrackVertexAssociationProducer = cms.EDProducer('L1TrackVertexAssociationProd
   l1SelectedTracksInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"),
   l1SelectedTracksEmulationInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"),
   # If no vertex collection is provided, then the DeltaZ cuts will not be run
-  l1VerticesInputTag = cms.InputTag("l1tVertexFinder", "l1vertices"),
-  l1VerticesEmulationInputTag = cms.InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"),
+  l1VerticesInputTag = cms.InputTag("l1tVertexFinder", "L1Vertices"),
+  l1VerticesEmulationInputTag = cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
   outputCollectionName = cms.string("Level1TTTracksSelectedAssociated"),
   cutSet = cms.PSet(
                     #deltaZMaxEtaBounds = cms.vdouble(0.0, absEtaMax.value), # these values define the bin boundaries in |eta|

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 l1tVertexProducer = cms.EDProducer('VertexProducer',                                   
   l1TracksInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"),
                                    
-  l1VertexCollectionName = cms.string("l1vertices"), #Emulation postfix is appended when fastHistoEmulation is chosen as the algorithm
+  l1VertexCollectionName = cms.string("L1Vertices"), #Emulation postfix is appended when fastHistoEmulation is chosen as the algorithm
 
   # === Vertex Reconstruction configuration
   VertexReconstruction = cms.PSet(

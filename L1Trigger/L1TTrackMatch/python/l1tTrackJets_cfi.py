@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #prompt jet selection
 l1tTrackJets = cms.EDProducer('L1TrackJetProducer',
         L1TrackInputTag = cms.InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"),
-        L1PVertexInputTag = cms.InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"),
+        L1PVertexInputTag = cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
         MaxDzTrackPV = cms.double( 1.0 ), #max distance from PV;negative=no cut
 	trk_zMax = cms.double (15.) ,    # maximum track z
 	trk_ptMax = cms.double(200.),    # maximumum track pT before saturation [GeV]

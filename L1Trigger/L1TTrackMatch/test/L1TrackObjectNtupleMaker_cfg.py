@@ -245,8 +245,8 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackObjectNtupleMaker',
         TrackMHTEmuInputTag = cms.InputTag("l1tTrackerEmuHTMiss",process.l1tTrackerEmuHTMiss.L1MHTCollectionName.value()),
         TrackMHTEmuExtendedInputTag = cms.InputTag("l1tTrackerEmuHTMissExtended",process.l1tTrackerEmuHTMissExtended.L1MHTCollectionName.value()),
         GenParticleInputTag = cms.InputTag("genParticles",""),
-        RecoVertexInputTag=cms.InputTag("l1tVertexFinder", "l1vertices"),
-        RecoVertexEmuInputTag=cms.InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"),
+        RecoVertexInputTag=cms.InputTag("l1tVertexFinder", "L1Vertices"),
+        RecoVertexEmuInputTag=cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
 )
 
 process.ntuple = cms.Path(process.L1TrackNtuple)

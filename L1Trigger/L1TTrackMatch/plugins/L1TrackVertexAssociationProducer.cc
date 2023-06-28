@@ -421,9 +421,9 @@ void L1TrackVertexAssociationProducer::fillDescriptions(edm::ConfigurationDescri
                           edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"));
   desc.add<edm::InputTag>("l1SelectedTracksEmulationInputTag",
                           edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"));
-  desc.add<edm::InputTag>("l1VerticesInputTag", edm::InputTag("l1tVertexFinder", "l1vertices"));
+  desc.add<edm::InputTag>("l1VerticesInputTag", edm::InputTag("l1tVertexFinder", "L1Vertices"));
   desc.add<edm::InputTag>("l1VerticesEmulationInputTag",
-                          edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
+                          edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
   desc.add<std::string>("outputCollectionName", "Level1TTTracksSelectedAssociated");
   {
     edm::ParameterSetDescription descCutSet;

@@ -82,7 +82,7 @@ producerName = 'VertexProducer{0}'.format("fastHisto")
 producerName = producerName.replace(".","p") # legalize the name
 producer = process.l1tVertexProducer.clone()
 producer.VertexReconstruction.Algorithm = cms.string("fastHisto")
-process.l1tTrackerEtMiss.L1VertexInputTag = cms.InputTag(producerName,"l1vertices")
+process.l1tTrackerEtMiss.L1VertexInputTag = cms.InputTag(producerName,"L1Vertices")
 
 
 setattr(process, producerName, producer)
@@ -100,7 +100,7 @@ EmuproducerName = 'VertexProducer{0}'.format("fastHistoEmulation")
 EmuproducerName = EmuproducerName.replace(".","p") # legalize the name
 Emuproducer = process.l1tVertexProducer.clone()
 Emuproducer.VertexReconstruction.Algorithm = cms.string("fastHistoEmulation")
-process.l1tTrackerEmuEtMiss.L1VertexInputTag = cms.InputTag(EmuproducerName,"l1verticesEmulation")
+process.l1tTrackerEmuEtMiss.L1VertexInputTag = cms.InputTag(EmuproducerName,"L1VerticesEmulation")
 
 if GTTInput:
   Emuproducer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
