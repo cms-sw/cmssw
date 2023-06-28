@@ -28,12 +28,17 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     }
   }
 
+  auto bareBaseName = [&](std::string_view name) {
+    size_t ipos = name.rfind('_');
+    return (isDD4hepOK) ? name.substr(0, ipos) : name;
+  };
+
   if (nLevels == kBTLcrystalLevel || isDD4hepOK) {
-    LogDebug("MTDGeom") << baseNumber.getLevelName(0) << ", " << baseNumber.getLevelName(1) << ", "
-                        << baseNumber.getLevelName(2) << ", " << baseNumber.getLevelName(3) << ", "
-                        << baseNumber.getLevelName(4) << ", " << baseNumber.getLevelName(5) << ", "
-                        << baseNumber.getLevelName(6) << ", " << baseNumber.getLevelName(7) << ", "
-                        << baseNumber.getLevelName(8);
+    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(2)) << ", " << bareBaseName(baseNumber.getLevelName(3)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(4)) << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(6)) << ", " << bareBaseName(baseNumber.getLevelName(7)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(8));
 
     // barphiflat scenario
 
@@ -110,7 +115,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
         modCopy = negModCopy[modCopy - 1];
       }
 
-      modtyp = ::atoi(&baseNumber.getLevelName(2).back());
+      modtyp = ::atoi(&bareBaseName(baseNumber.getLevelName(2)).back());
 
       // error checking
 
@@ -123,7 +128,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       if (1 > modtyp || 3 < modtyp) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                   << "****************** Bad RU name, Volume Name = " << baseNumber.getLevelName(2);
+                                   << "****************** Bad RU name, Volume Name = " << bareBaseName(baseNumber.getLevelName(2));
         return 0;
       }
 
@@ -164,10 +169,10 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   } else if (nLevels == kBTLmoduleLevel && baseNumber.getLevelName(0).find("BTLModule") != std::string_view::npos) {
     // v2 scenario, geographicalId per module
     // for tracking navigation geometry
-    LogDebug("MTDGeom") << baseNumber.getLevelName(0) << ", " << baseNumber.getLevelName(1) << ", "
-                        << baseNumber.getLevelName(2) << ", " << baseNumber.getLevelName(3) << ", "
-                        << baseNumber.getLevelName(4) << ", " << baseNumber.getLevelName(5) << ", "
-                        << baseNumber.getLevelName(6) << ", " << baseNumber.getLevelName(7);
+    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(2)) << ", " << bareBaseName(baseNumber.getLevelName(3)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(4)) << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(6)) << ", " << bareBaseName(baseNumber.getLevelName(7));
 
     modCopy = baseNumber.getCopyNumber(0);
     runitCopy = baseNumber.getCopyNumber(1);
@@ -183,13 +188,13 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       modCopy = negModCopy[modCopy - 1];
     }
 
-    modtyp = ::atoi(&baseNumber.getLevelName(1).back());
+    modtyp = ::atoi(&bareBaseName(baseNumber.getLevelName(1)).back());
 
     // error checking
 
     if (1 > modtyp || 3 < modtyp) {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                 << "****************** Bad RU name, Volume Name = " << baseNumber.getLevelName(1);
+                                 << "****************** Bad RU name, Volume Name = " << bareBaseName(baseNumber.getLevelName(1));
       return 0;
     }
 

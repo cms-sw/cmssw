@@ -48,18 +48,8 @@ process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'))
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2026D95_cff")
-
-process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
-
-process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
-process.load("Geometry.MTDGeometryBuilder.mtdParameters_cff")
-
-process.load("Geometry.MTDGeometryBuilder.mtdGeometry_cfi")
-process.mtdGeometry.applyAlignment = cms.bool(False)
-
+process.load("Configuration.Geometry.GeometryExtended2026D98Reco_cff")
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
-process.load("RecoMTD.DetLayers.mtdDetLayerGeometry_cfi")
 
 process.Timing = cms.Service("Timing")
 
