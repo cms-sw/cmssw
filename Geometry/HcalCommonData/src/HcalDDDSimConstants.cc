@@ -9,19 +9,19 @@ using namespace geant_units::operators;
 
 HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants (const HcalParameters* hp) constructor\n";
+  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants (const HcalParameters* hp) constructor";
 #endif
 
   initialize();
 #ifdef EDM_ML_DEBUG
   std::vector<HcalCellType> cellTypes = HcalCellTypes();
-  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: " << cellTypes.size() << " cells of type HCal (All)\n";
+  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: " << cellTypes.size() << " cells of type HCal (All)";
 #endif
 }
 
 HcalDDDSimConstants::~HcalDDDSimConstants() {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::destructed!!!\n";
+  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants::destructed!!!";
 #endif
 }
 
@@ -76,8 +76,8 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(
       } else {
         ok = false;
 #ifdef EDM_ML_DEBUG
-        edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong eta " << etaR << " (" << ir << "/" << nR
-                                 << ") Detector " << idet << std::endl;
+        edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: wrong eta " << etaR << " (" << ir << "/" << nR
+                                     << ") Detector " << idet;
 #endif
       }
     } else if (etaR <= nEta) {
@@ -308,9 +308,8 @@ double HcalDDDSimConstants::getEtaHO(const double& etaR, const double& x, const 
     }
     eta = (z >= 0. ? eta : -eta);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "R " << r << " Z " << z << " eta " << etaR << ":" << eta;
-    if (eta != etaR)
-      edm::LogInfo("HCalGeom") << "**** Check *****";
+    std::string chk = (eta != etaR) ? " **** Check *****" : " ";
+    edm::LogVerbatim("HCalGeom") << "R " << r << " Z " << z << " eta " << etaR << ":" << eta << chk;
 #endif
     return eta;
   } else {
@@ -505,32 +504,32 @@ std::vector<std::pair<int, double> > HcalDDDSimConstants::getPhis(const int& sub
 std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes() const {
   std::vector<HcalCellType> cellTypes = HcalCellTypes(HcalBarrel);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: " << cellTypes.size() << " cells of type HCal Barrel\n";
+  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: " << cellTypes.size() << " cells of type HCal Barrel";
   for (unsigned int i = 0; i < cellTypes.size(); i++)
-    edm::LogInfo("HCalGeom") << "Cell " << i << " " << cellTypes[i] << "\n";
+    edm::LogVerbatim("HCalGeom") << "Cell " << i << " " << cellTypes[i];
 #endif
 
   std::vector<HcalCellType> hoCells = HcalCellTypes(HcalOuter);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: " << hoCells.size() << " cells of type HCal Outer\n";
+  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: " << hoCells.size() << " cells of type HCal Outer";
   for (unsigned int i = 0; i < hoCells.size(); i++)
-    edm::LogInfo("HCalGeom") << "Cell " << i << " " << hoCells[i] << "\n";
+    edm::LogVerbatim("HCalGeom") << "Cell " << i << " " << hoCells[i];
 #endif
   cellTypes.insert(cellTypes.end(), hoCells.begin(), hoCells.end());
 
   std::vector<HcalCellType> heCells = HcalCellTypes(HcalEndcap);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: " << heCells.size() << " cells of type HCal Endcap\n";
+  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: " << heCells.size() << " cells of type HCal Endcap";
   for (unsigned int i = 0; i < heCells.size(); i++)
-    edm::LogInfo("HCalGeom") << "Cell " << i << " " << heCells[i] << "\n";
+    edm::LogVerbatim("HCalGeom") << "Cell " << i << " " << heCells[i];
 #endif
   cellTypes.insert(cellTypes.end(), heCells.begin(), heCells.end());
 
   std::vector<HcalCellType> hfCells = HcalCellTypes(HcalForward);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: " << hfCells.size() << " cells of type HCal Forward\n";
+  edm::LogVerbatim("HCalGeom") << "HcalDDDSimConstants: " << hfCells.size() << " cells of type HCal Forward";
   for (unsigned int i = 0; i < hfCells.size(); i++)
-    edm::LogInfo("HCalGeom") << "Cell " << i << " " << hfCells[i] << "\n";
+    edm::LogVerbatim("HCalGeom") << "Cell " << i << " " << hfCells[i];
 #endif
   cellTypes.insert(cellTypes.end(), hfCells.begin(), hfCells.end());
 
@@ -698,8 +697,7 @@ void HcalDDDSimConstants::printTiles() const {
   int kphi = (detsp > 0) ? phis[0] : 1;
   int zside = (kphi > 0) ? 1 : -1;
   int iphi = (kphi > 0) ? kphi : -kphi;
-  edm::LogVerbatim("HCalGeom") << "Tile Information for HB from " << hpar->etaMin[0] << " to " << hpar->etaMax[0]
-                               << "\n";
+  edm::LogVerbatim("HCalGeom") << "Tile Information for HB from " << hpar->etaMin[0] << " to " << hpar->etaMax[0];
   for (int eta = hpar->etaMin[0]; eta <= hpar->etaMax[0]; eta++) {
     int dmax = getMaxDepth(1, eta, iphi, -zside, false);
     for (int depth = 1; depth <= dmax; depth++)
@@ -711,8 +709,7 @@ void HcalDDDSimConstants::printTiles() const {
     }
   }
 
-  edm::LogVerbatim("HCalGeom") << "\nTile Information for HE from " << hpar->etaMin[1] << " to " << hpar->etaMax[1]
-                               << "\n";
+  edm::LogVerbatim("HCalGeom") << "\nTile Information for HE from " << hpar->etaMin[1] << " to " << hpar->etaMax[1];
   for (int eta = hpar->etaMin[1]; eta <= hpar->etaMax[1]; eta++) {
     int dmin = (eta == hpar->etaMin[1]) ? getDepthEta16(2, iphi, -zside) : 1;
     int dmax = getMaxDepth(2, eta, iphi, -zside, false);
