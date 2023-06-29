@@ -42,7 +42,7 @@ class TopRecoilHook : public UserHooks {
   }
 
   // Initialise. Only use hook for simple showers with recoilToColoured = off.
-  virtual bool initAfterBeams() override {
+  bool initAfterBeams() override {
     int showerModel  = settingsPtr->mode("PartonShowers:Model");
     // Switch off if not using simple showers or if recoilToColoured = on.
     bool recoilToColoured = settingsPtr->flag("TimeShower:recoilToColoured");
@@ -54,10 +54,10 @@ class TopRecoilHook : public UserHooks {
   }
 
   // Allow a veto after an FSR emission
-  virtual bool canVetoFSREmission() override {return doTopRecoil;}
+  bool canVetoFSREmission() override {return doTopRecoil;}
   
   // Access the event after an FSR emission, specifically inside top decay.
-  virtual bool doVetoFSREmission( int sizeOld, const Event& event, int iSys,
+  bool doVetoFSREmission( int sizeOld, const Event& event, int iSys,
     bool inResonance) override {
     
     // Check that we are inside a resonance decay.
