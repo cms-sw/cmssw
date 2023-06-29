@@ -57,13 +57,12 @@ public:
   std::vector<double> absEtaMin_;            // low limit of the eta range
   std::vector<double> absEtaMax_;            // upper limit of the eta range
   std::vector<double> effectiveAreaValues_;  // effective area for this eta range
-  
+
   edm::ParameterSet phIDWP;
 
   vector<double> sigmaIEtaIEtaCut;
   vector<double> hOverECut;
   vector<double> relCombIso;
-
 };
 
 void IsoPhotonEBSelector::printEffectiveAreas() const {
@@ -128,8 +127,8 @@ bool IsoPhotonEBSelector::operator()(const reco::Photon& ph) const {
   const float rho = _rhoHandle.isValid() ? (float)(*_rhoHandle.product()) : 0;
   if ((ph.getPflowIsolationVariables().chargedHadronIso +
        std::max(float(0.0),
-                ph.getPflowIsolationVariables().neutralHadronIso + ph.getPflowIsolationVariables().photonIso - eA * rho)) >
-      relCombIso[ind] * pt_e)
+                ph.getPflowIsolationVariables().neutralHadronIso + ph.getPflowIsolationVariables().photonIso -
+                    eA * rho)) > relCombIso[ind] * pt_e)
     return false;
 
   return true;
