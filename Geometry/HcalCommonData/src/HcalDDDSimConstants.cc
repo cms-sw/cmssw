@@ -83,7 +83,8 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(
     } else if (etaR <= nEta) {
       int laymin(depth), laymax(depth);
       if (idet == static_cast<int>(HcalOuter)) {
-        laymin = (etaR > hpar->noff[2]) ? (static_cast<int>(hpar->zHE.size())) : (static_cast<int>(hpar->zHE.size())) - 1;
+        laymin =
+            (etaR > hpar->noff[2]) ? (static_cast<int>(hpar->zHE.size())) : (static_cast<int>(hpar->zHE.size())) - 1;
         laymax = (static_cast<int>(hpar->zHE.size()));
       }
       double d1 = 0, d2 = 0;
@@ -265,12 +266,12 @@ std::pair<int, int> HcalDDDSimConstants::getEtaDepth(
     if (lay >= 0) {
       depth = layerGroup(det, etaR, phi, zside, lay - 1);
       if (((det == 2) && (etaR == 18)) || ((det == 1) && (etaR == 15)))
-      if (etaR == hpar->noff[0] && lay > 1) {
-        int kphi = phi + static_cast<int>((hpar->phioff[3] + 0.1) / hpar->phibin[etaR - 1]);
-        kphi = (kphi - 1) % 4 + 1;
-        if (kphi == 2 || kphi == 3)
-          depth = layerGroup(det, etaR, phi, zside, lay - 2);
-      }
+        if (etaR == hpar->noff[0] && lay > 1) {
+          int kphi = phi + static_cast<int>((hpar->phioff[3] + 0.1) / hpar->phibin[etaR - 1]);
+          kphi = (kphi - 1) % 4 + 1;
+          if (kphi == 2 || kphi == 3)
+            depth = layerGroup(det, etaR, phi, zside, lay - 2);
+        }
     } else if (det == static_cast<int>(HcalBarrel)) {
       if (depth > getMaxDepth(det, etaR, phi, zside, false))
         depth = getMaxDepth(det, etaR, phi, zside, false);
@@ -398,7 +399,8 @@ int HcalDDDSimConstants::getLayerBack(
 }
 
 int HcalDDDSimConstants::getLayerMax(const int& eta, const int& depth) const {
-  int layermx = ((eta < hpar->etaMin[1]) && depth - 1 < maxDepth[0]) ? maxLayerHB_ + 1 : static_cast<int>(layerGroupSize(eta - 1));
+  int layermx = ((eta < hpar->etaMin[1]) && depth - 1 < maxDepth[0]) ? maxLayerHB_ + 1
+                                                                     : static_cast<int>(layerGroupSize(eta - 1));
   return layermx;
 }
 

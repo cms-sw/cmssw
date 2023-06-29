@@ -27,7 +27,7 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
       int det, z, depth, eta, phi, layer;
       HcalTestNumbering::unpackHcalIndex(hcalHit.id(), det, z, depth, eta, phi, layer);
       if ((det == 2) && (layer == 2) && (eta == 18))
-	depth = 2;
+        depth = 2;
       hid = HcalTestNumbering::packHcalIndex(det, z, depth, eta, phi, layer);
       double wt = (neutralDensity_) ? (energyWt(hid)) : 1.0;
       double energy = wt * (hcalHit.energy());
@@ -39,7 +39,10 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 #endif
       hcalHit.setID(newid);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalSim") << "Final Setting::subdet: " << HcalDetId(newid).subdet() << " z: " << HcalDetId(newid).zside() << " depth: " << HcalDetId(newid).depth() << " ieta: " << HcalDetId(newid).ietaAbs() << " iphi: " << HcalDetId(newid).iphi() << " wt " << wt;
+      edm::LogVerbatim("HcalSim") << "Final Setting::subdet: " << HcalDetId(newid).subdet()
+                                  << " z: " << HcalDetId(newid).zside() << " depth: " << HcalDetId(newid).depth()
+                                  << " ieta: " << HcalDetId(newid).ietaAbs() << " iphi: " << HcalDetId(newid).iphi()
+                                  << " wt " << wt;
       ++ii;
 #endif
     }
@@ -76,7 +79,15 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId, const HcalDDDRecConstant
     hid = HcalDetId(HcalForward, sign * id.eta, id.phi, depth0);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") << "Initial indices:" << "subdet: " << det << " " << "z: " << z << " "   << "depth: " << depth << " " << "ieta: " << eta << " "  << "iphi: " << phi << " " << "layer: " << layer << " new HcalDetId -> hex.RawID = " << std::hex << hid.rawId() << std::dec << " subdet, z, depth, eta, phi = " << det << " " << z << " " << id.depth << " " << id.eta << " " << id.phi << " ---> " << hid;
+  edm::LogVerbatim("HcalSim") << "Initial indices:"
+                              << "subdet: " << det << " "
+                              << "z: " << z << " "
+                              << "depth: " << depth << " "
+                              << "ieta: " << eta << " "
+                              << "iphi: " << phi << " "
+                              << "layer: " << layer << " new HcalDetId -> hex.RawID = " << std::hex << hid.rawId()
+                              << std::dec << " subdet, z, depth, eta, phi = " << det << " " << z << " " << id.depth
+                              << " " << id.eta << " " << id.phi << " ---> " << hid;
 #endif
   return hid;
 }
