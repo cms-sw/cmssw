@@ -1,4 +1,4 @@
-// TopRecoilHook  is a part of the PYTHIA event generator.
+// test273.cc is a part of the PYTHIA event generator.
 // Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -42,7 +42,7 @@ class TopRecoilHook : public UserHooks {
   }
 
   // Initialise. Only use hook for simple showers with recoilToColoured = off.
-  bool initAfterBeams() override {
+  virtual bool initAfterBeams() override {
     int showerModel  = settingsPtr->mode("PartonShowers:Model");
     // Switch off if not using simple showers or if recoilToColoured = on.
     bool recoilToColoured = settingsPtr->flag("TimeShower:recoilToColoured");
@@ -54,10 +54,10 @@ class TopRecoilHook : public UserHooks {
   }
 
   // Allow a veto after an FSR emission
-  bool canVetoFSREmission() override {return doTopRecoil;}
+  virtual bool canVetoFSREmission() override {return doTopRecoil;}
   
   // Access the event after an FSR emission, specifically inside top decay.
-  bool doVetoFSREmission( int sizeOld, const Event& event, int iSys,
+  virtual bool doVetoFSREmission( int sizeOld, const Event& event, int iSys,
     bool inResonance) override {
     
     // Check that we are inside a resonance decay.
