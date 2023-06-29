@@ -5,8 +5,12 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing ('standard')
 options.register('runOnly', '', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Run only specified analysis")
-options.register('yodafile', 'test.yoda', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Name of yoda output file")
+options.register('yodafile', 'test_toprecoil.yoda', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Name of yoda output file")
+options.register('recoiltoTop','on',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "TopRecoilHook setting")
+options.register('recoiltoBottom','off',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "RecoilToColor setting")
 options.setDefault('maxEvents', 1000)
+options.register('alphaSvalue', 0.1365,VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "AlphaS value setting")
+options.register('topmass', 172.5,VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Top mass setting")
 if(hasattr(sys, "argv")):
     options.parseArguments()
 print(options)
@@ -16,10 +20,15 @@ process = cms.Process("runRivetAnalysis")
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 from Configuration.Generator.Pythia8aMCatNLOSettings_cfi import *
-
+from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
+#randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
+#randSvc.populate()
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
+
+randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
+randSvc.populate()
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
@@ -47,8 +56,10 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
              'Tune:pp 14',      # Monash tune
              'Top:gg2ttbar    = on',
              'Top:qqbar2ttbar = on',
-             '6:m0 = 172.5',    # top mass'
-             'TopRecoilHook:doTopRecoilIn = on',
+             '6:m0 =  %s'%options.topmass,    # top mass'
+             'TopRecoilHook:doTopRecoilIn = %s'%options.recoiltoTop,
+             'TimeShower:recoilToColoured = %s'%options.recoiltoBottom,
+             'TimeShower:alphaSvalue = %s' %options.alphaSvalue
        ),
          parameterSets = cms.vstring('processParameters',)
      )
@@ -62,15 +73,15 @@ if options.runOnly:
     process.rivetAnalyzer.AnalysisNames = cms.vstring(options.runOnly)
 else:
     process.rivetAnalyzer.AnalysisNames = cms.vstring(
-        'CMS_2016_I1434354', # diff xs lepton+jets
-        'MC_TTBAR', # MC analysis for lepton+jets
+        'CMS_2018_I1663958', # diff xs lepton+jets
+        'CMS_2018_I1662081', # event variables lepton+jets
         'MC_TOPMASS_LJETS', # MC analysis for lepton+jets top mass
-        'CMS_LesHouches2015', # MC analysis for dilepton
-        'MC_GENERIC', # MC generic analysis
-        'MC_XS', # MC xs analysis
-        'CMS_2016_I1491950',  # diff xs lepton+jets (2015 paper)
-        'CMS_2018_I1620050',  # diff xs dilepton (2015 paper)
-        'CMS_2018_I1703993',  # diff xs dilepton (2016 paper)
+        'CMS_2018_I1690148',  # jet substructure
+        'MC_BFRAG_LJETS',  # b fragmentation
+        'CMS_2018_I1703993', # diff xs dilepton
+        'CMS_2019_I1764472', #boosted top mass
+        'MC_TOPMASS_LSMT', #dilepton invariant mass, soft muon +primary
+        'ATLAS_2019_I1724098', #missing momentum analysis
     )
 process.rivetAnalyzer.OutputFile      = options.yodafile
 process.rivetAnalyzer.HepMCCollection = cms.InputTag("generator:unsmeared")

@@ -105,11 +105,10 @@ namespace gen {
     fMasterGen->settings.addParm("PTFilter:quarkPt", -.1, true, true, -.1, 100.);
 
     //add settings for RecoilToTop tool
-    std::cout << "Here goes my change" << std::endl;
     fMasterGen->settings.addFlag("TopRecoilHook:doTopRecoilIn",false);
     fMasterGen->settings.addFlag("TopRecoilHook:useOldDipoleIn",false);
     fMasterGen->settings.addFlag("TopRecoilHook:doListIn",false);
-        
+
     //add settings for powheg resonance scale calculation
     fMasterGen->settings.addFlag("POWHEGres:calcScales", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l", false);
@@ -223,18 +222,18 @@ namespace gen {
 
   bool Py8InterfaceBase::declareSpecialSettings(const std::vector<std::string>& settings) {
     for (unsigned int iss = 0; iss < settings.size(); iss++) {
-     if (settings[iss].find("QED-brem-off") != std::string::npos) {
-      fMasterGen->readString("TimeShower:QEDshowerByL=off");
-    } else {
-      size_t fnd1 = settings[iss].find("Pythia8:");
-      if (fnd1 != std::string::npos) {
-        std::string value = settings[iss].substr(fnd1 + 8);
-        fDecayer->readString(value);
+      if (settings[iss].find("QED-brem-off") != std::string::npos) {
+        fMasterGen->readString("TimeShower:QEDshowerByL=off");
+      } else {
+        size_t fnd1 = settings[iss].find("Pythia8:");
+        if (fnd1 != std::string::npos) {
+          std::string value = settings[iss].substr(fnd1 + 8);
+          fDecayer->readString(value);
+        }
       }
     }
-   }
     return true;
-   }
+  }
 
   void Py8InterfaceBase::statistics() {
     fMasterGen->stat();
