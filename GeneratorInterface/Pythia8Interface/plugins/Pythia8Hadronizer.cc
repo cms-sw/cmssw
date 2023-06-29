@@ -20,6 +20,7 @@ using namespace Pythia8;
 #include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/TopRecoilHook.h"
+
 // PS matchning prototype
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
@@ -29,7 +30,6 @@ using namespace Pythia8;
 // Emission Veto Hooks
 //
 #include "Pythia8Plugins/PowhegHooks.h"
-#include "Pythia8Plugins/PowhegHooksVincia.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 // Resonance scale hook
@@ -133,7 +133,6 @@ private:
   // Emission Veto Hooks
   //
   std::shared_ptr<PowhegHooks> fEmissionVetoHook;
-  std::shared_ptr<PowhegHooksVincia> fEmissionVetoHookVincia;
   std::shared_ptr<EmissionVetoHook1> fEmissionVetoHook1;
 
   // Resonance scale hook
@@ -389,10 +388,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
   }
 
-  bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
-
-  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
-      !VinciaShower) {
+  if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
@@ -403,13 +399,6 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
-  }
-
-  if (fMasterGen->settings.mode("POWHEG:veto") > 0 && VinciaShower) {
-    edm::LogInfo("Pythia8Interface") << "Turning on Vincia Emission Veto Hook from pythia8 code";
-    if (!fEmissionVetoHookVincia.get())
-      fEmissionVetoHookVincia.reset(new PowhegHooksVincia());
-    (fUserHooksVector->hooks).push_back(fEmissionVetoHookVincia);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
@@ -566,10 +555,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     }
   }
 
-  bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
-
-  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
-      !VinciaShower) {
+  if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
@@ -580,13 +566,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
-  }
-
-  if (fMasterGen->settings.mode("POWHEG:veto") > 0 && VinciaShower) {
-    edm::LogInfo("Pythia8Interface") << "Turning on Vincia Emission Veto Hook from pythia8 code";
-    if (!fEmissionVetoHookVincia.get())
-      fEmissionVetoHookVincia.reset(new PowhegHooksVincia());
-    (fUserHooksVector->hooks).push_back(fEmissionVetoHookVincia);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
