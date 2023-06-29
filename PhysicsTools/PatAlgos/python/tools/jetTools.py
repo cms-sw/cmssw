@@ -11,6 +11,8 @@ from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFr
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiForwardTagInfos,pfParticleNetFromMiniAODAK4PuppiForwardJetTags,pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralTagInfos,pfParticleNetFromMiniAODAK4CHSCentralJetTags,pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSForwardTagInfos,pfParticleNetFromMiniAODAK4CHSForwardJetTags,pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos,pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfNegativeParticleNetFromMiniAODAK4CHSCentralTagInfos,pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import pfParticleNetFromMiniAODAK8TagInfos,pfParticleNetFromMiniAODAK8JetTags,pfParticleNetFromMiniAODAK8DiscriminatorsJetTags
 
 ## dictionary with supported jet clustering algorithms
@@ -831,16 +833,22 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
-        elif btagInfo == 'pfParticleNetFromMiniAODAK4PuppiCentralTagInfos':
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4PuppiCentralTagInfos' or btagInfo == 'pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos':
             # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if btagInfo == 'pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos':
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
+            else:
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = svSource, False, -1.
             if pfCandidates.value() != 'packedPFCandidates':
                 raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
             addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                 pfParticleNetFromMiniAODAK4PuppiCentralTagInfos.clone(
                                   jets = jetSource,
                                   vertices = pvSource,
-                                  secondary_vertices = svSource,
+                                  secondary_vertices = svUsed,
                                   pf_candidates = pfCandidates,
+                                  flip_ip_sign = flip_ip_sign,
+                                  max_sip3dsig_for_flip = max_sip3dsig_for_flip,
                                   ),
                                 process, task)
             acceptedTagInfos.append(btagInfo)
@@ -857,16 +865,22 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                   ),
                                 process, task)
             acceptedTagInfos.append(btagInfo)
-        elif btagInfo == 'pfParticleNetFromMiniAODAK4CHSCentralTagInfos':
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4CHSCentralTagInfos' or btagInfo == 'pfNegativeParticleNetFromMiniAODAK4PuppiForwardTagInfos':
             # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if btagInfo == 'pfNegativeParticleNetFromMiniAODAK4PuppiForwardTagInfos':
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
+            else:
+                svUsed, flip_ip_sign, max_sip3dsig_for_flip = svSource, False, -1.
             if pfCandidates.value() != 'packedPFCandidates':
                 raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
             addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                 pfParticleNetFromMiniAODAK4CHSCentralTagInfos.clone(
                                   jets = jetSource,
                                   vertices = pvSource,
-                                  secondary_vertices = svSource,
+                                  secondary_vertices = svUsed,
                                   pf_candidates = pfCandidates,
+                                  flip_ip_sign = flip_ip_sign,
+                                  max_sip3dsig_for_flip = max_sip3dsig_for_flip,
                                   ),
                                 process, task)
             acceptedTagInfos.append(btagInfo)
@@ -943,6 +957,18 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 task
             )
             acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
         elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiForwardJetTags':
             if hasattr(process, newDiscr):
                 pass
@@ -961,6 +987,18 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             addToProcessAndTask(
                 newDiscr,
                 pfParticleNetFromMiniAODAK4CHSCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags.clone(
                     src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
                 ),
                 process,
