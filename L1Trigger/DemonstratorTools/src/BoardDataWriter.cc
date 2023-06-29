@@ -26,6 +26,8 @@ namespace l1t::demo {
         channelMap_(channelSpecs) {
     if (channelMap_.empty())
       throw std::runtime_error("BoardDataWriter channel map cannnot be empty");
+    if (fileExt != "txt" && fileExt != "txt.gz" && fileExt != "txt.xz")
+      throw std::runtime_error("BoardDataWriter fileExt must be one of txt, txt.gz, txt.xz");
 
     for (const auto& [id, value] : channelMap_) {
       const auto& [spec, indices] = value;
