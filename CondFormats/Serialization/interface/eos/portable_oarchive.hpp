@@ -120,19 +120,8 @@
 #endif
 
 // endian and fpclassify
-#if BOOST_VERSION < 103600
-#include <boost/integer/endian.hpp>
-#include <boost/math/fpclassify.hpp>
-#elif BOOST_VERSION < 104800
-#include <boost/spirit/home/support/detail/integer/endian.hpp>
-#include <boost/spirit/home/support/detail/math/fpclassify.hpp>
-#elif BOOST_VERSION >= 106900
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/endian/conversion.hpp>
-#else
-#include <boost/spirit/home/support/detail/endian/endian.hpp>
-#include <boost/spirit/home/support/detail/math/fpclassify.hpp>
-#endif
 
 // namespace alias fp_classify
 #if BOOST_VERSION < 103800
@@ -141,15 +130,6 @@ namespace fp = boost::math;
 namespace fp = boost::math;
 #else
 namespace fp = boost::spirit::math;
-#endif
-
-// namespace alias endian
-#if BOOST_VERSION < 104800
-namespace endian = boost::detail;
-#elif BOOST_VERSION >= 106900
-namespace endian = boost::endian;
-#else
-namespace endian = boost::spirit::detail;
 #endif
 
 #if BOOST_VERSION >= 104500 && !defined BOOST_NO_STD_WSTRING
@@ -338,11 +318,7 @@ namespace eos {
 
 // we choose to use little endian because this way we just
 // save the first size bytes to the stream and skip the rest
-#if BOOST_VERSION >= 106900
-        temp = endian::native_to_little(t);
-#else
-        endian::store_little_endian<T, sizeof(T)>(&temp, t);
-#endif
+        temp = boost::endian::native_to_little(t);
         save_binary(&temp, size);
       }
       // zero optimization

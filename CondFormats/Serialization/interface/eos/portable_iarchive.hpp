@@ -112,19 +112,8 @@
 #endif
 
 // endian and fpclassify
-#if BOOST_VERSION < 103600
-#include <boost/integer/endian.hpp>
-#include <boost/math/fpclassify.hpp>
-#elif BOOST_VERSION < 104800
-#include <boost/spirit/home/support/detail/integer/endian.hpp>
-#include <boost/spirit/home/support/detail/math/fpclassify.hpp>
-#elif BOOST_VERSION >= 106900
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/endian/conversion.hpp>
-#else
-#include <boost/spirit/home/support/detail/endian/endian.hpp>
-#include <boost/spirit/home/support/detail/math/fpclassify.hpp>
-#endif
 
 // namespace alias
 #if BOOST_VERSION < 103800
@@ -133,15 +122,6 @@ namespace fp = boost::math;
 namespace fp = boost::math;
 #else
 namespace fp = boost::spirit::math;
-#endif
-
-// namespace alias endian
-#if BOOST_VERSION < 104800
-namespace endian = boost::detail;
-#elif BOOST_VERSION >= 106900
-namespace endian = boost::endian;
-#else
-namespace endian = boost::spirit::detail;
 #endif
 
 #if BOOST_VERSION >= 104500 && !defined BOOST_NO_STD_WSTRING
@@ -357,11 +337,7 @@ namespace eos {
 
 // load the value from little endian - it is then converted
 // to the target type T and fits it because size <= sizeof(T)
-#if BOOST_VERSION >= 106900
-        t = endian::little_to_native(temp);
-#else
-        t = endian::load_little_endian<T, sizeof(T)>(&temp);
-#endif
+        t = boost::endian::little_to_native(temp);
       }
 
       else
