@@ -7,12 +7,10 @@ from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.recoLayer0.bTagging_cff import *
 import sys
 from FWCore.ParameterSet.MassReplace import MassSearchReplaceAnyInputTagVisitor
-from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiCentralTagInfos,pfParticleNetFromMiniAODAK4PuppiCentralJetTags,pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiCentralTagInfos,pfParticleNetFromMiniAODAK4PuppiCentralJetTags,pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags,pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiForwardTagInfos,pfParticleNetFromMiniAODAK4PuppiForwardJetTags,pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags
-from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralTagInfos,pfParticleNetFromMiniAODAK4CHSCentralJetTags,pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralTagInfos,pfParticleNetFromMiniAODAK4CHSCentralJetTags,pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags,pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSForwardTagInfos,pfParticleNetFromMiniAODAK4CHSForwardJetTags,pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags
-from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfNegativeParticleNetFromMiniAODAK4PuppiCentralTagInfos,pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags
-from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfNegativeParticleNetFromMiniAODAK4CHSCentralTagInfos,pfNegativeParticleNetFromMiniAODAK4CHSCentralJetTags
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import pfParticleNetFromMiniAODAK8TagInfos,pfParticleNetFromMiniAODAK8JetTags,pfParticleNetFromMiniAODAK8DiscriminatorsJetTags
 
 ## dictionary with supported jet clustering algorithms
@@ -669,10 +667,9 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             if 'ParticleTransformerAK4TagInfos' in btagInfo:
                 svUsed = svSource
                 if btagInfo == 'pfNegativeParticleTransformerAK4TagInfos':
-                    svUsed = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)
-                    flip = True 
+                    svUsed, flip, max_sip3dsig_for_flip = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix), True, 10.
                 else:
-                    flip = False
+                    svUsed, flip, max_sip3dsig_for_flip = svSource, False, -1.
                 # use right input tags when running with RECO PF candidates, which actually
                 # depends of whether jets use "particleFlow"
                 if pfCandidates.value() == 'packedPFCandidates':
@@ -694,7 +691,8 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
                                       is_weighted_jet = is_weighted_jet,
-                                      flip = flip),
+                                      flip = flip,
+                                      max_sip3dsig_for_flip=max_sip3dsig_for_flip),
                                     process, task)
 
             if btagInfo == 'pfDeepDoubleXTagInfos':

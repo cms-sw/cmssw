@@ -28,7 +28,6 @@ from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from PhysicsTools.NanoAOD.fsrPhotons_cff import *
 from PhysicsTools.NanoAOD.softActivity_cff import *
 from PhysicsTools.NanoAOD.l1trig_cff import *
-from PhysicsTools.NanoAOD.custom_btv_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -231,7 +230,6 @@ def nanoAOD_customizeCommon(process):
         addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
         jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload
     )
-    process = PFnano_customizeMC(process)
 
     nanoAOD_tau_switch = cms.PSet(
         idsToAdd = cms.vstring(),
