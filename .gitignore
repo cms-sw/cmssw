@@ -5,10 +5,12 @@ __init__.py
 #*#
 *~
 *.pb
-RecoBTag
+
 # ignore partially applied patches and their backup
 *.rej
 *.orig
+
+
 
 
 
