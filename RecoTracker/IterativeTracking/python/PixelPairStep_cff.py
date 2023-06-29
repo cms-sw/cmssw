@@ -382,7 +382,7 @@ trackdnn.toReplaceWith(pixelPairStep, trackTfClassifier.clone(
 ))
 
 highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])
-pp_on_AA.toModify(pixelPairStep, qualityCuts = [-0.2, 0.0, 0.98])
+pp_on_AA.toModify(pixelPairStep, qualityCuts = [0.85, 0.95, 0.98])
 fastSim.toModify(pixelPairStep, vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 # For LowPU and Phase2PU140
