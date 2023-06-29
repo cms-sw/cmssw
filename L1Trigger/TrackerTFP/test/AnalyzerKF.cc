@@ -259,7 +259,7 @@ namespace trackerTFP {
         profChannel_->Fill(channel, accepted.size());
         TTTracks tracks;
         const int nTracks = accumulate(accepted.begin(), accepted.end(), 0, [](int sum, const FrameTrack& frame) {
-          return sum + frame.first.isNonnull() ? 1 : 0;
+          return sum + ( frame.first.isNonnull() ? 1 : 0 );
         });
         nTracksRegion += nTracks;
         tracks.reserve(nTracks);
@@ -271,7 +271,7 @@ namespace trackerTFP {
         });
         TTTracks tracksLost;
         const int nLost = accumulate(lost.begin(), lost.end(), 0, [](int sum, const FrameTrack& frame) {
-          return sum + frame.first.isNonnull() ? 1 : 0;
+          return sum + ( frame.first.isNonnull() ? 1 : 0 );
         });
         nLostRegion += nLost;
         tracksLost.reserve(nLost);

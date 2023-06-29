@@ -95,7 +95,7 @@ namespace trackerTFP {
       int nTracks(0);
       for (const StreamTrack& stream : streamsTracks)
         nTracks += accumulate(stream.begin(), stream.end(), 0, [](int sum, const FrameTrack& frame) {
-          return sum + frame.first.isNonnull() ? 1 : 0;
+          return sum + ( frame.first.isNonnull() ? 1 : 0 );
         });
       ttTracks.reserve(nTracks);
       for (int channel = 0; channel < dataFormats_->numStreamsTracks(Process::kf); channel++) {

@@ -24,7 +24,7 @@ namespace trackerTFP {
 
   // read in and organize input product (fill vector input_)
   void GeometricProcessor::consume(const TTDTC& ttDTC) {
-    auto validFrame = [](int sum, const FrameStub& frame) { return sum + frame.first.isNonnull() ? 1 : 0; };
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum + ( frame.first.isNonnull() ? 1 : 0 ); };
     int nStubsPP(0);
     for (int channel = 0; channel < dataFormats_->numChannel(Process::pp); channel++) {
       const StreamStub& stream = ttDTC.stream(region_, channel);
