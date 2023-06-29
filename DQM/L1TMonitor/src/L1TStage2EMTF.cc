@@ -180,8 +180,8 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackUnconstrainedPt = ibooker.book1D("emtfTrackUnconstrainedPt", "EMTF Track Unconstrained p_{T}", 256, 1, 257);
   emtfTrackUnconstrainedPt->setAxisTitle("Track Unconstrained p_{T} [GeV]", 1);
 
-  emtfTrackdxy = ibooker.book1D("emtfTrackdxy", "EMTF Track d_{xy}", 3, 0, 3);
-  emtfTrackdxy->setAxisTitle("Track d_{xy}", 1);
+  emtfTrackDxy = ibooker.book1D("emtfTrackDxy", "EMTF Track d_{xy}", 3, 0, 3);
+  emtfTrackDxy->setAxisTitle("Track d_{xy}", 1);
   // end new plots
 
   emtfTrackEta = ibooker.book1D("emtfTrackEta", "EMTF Track #eta", 100, -2.5, 2.5);
@@ -1056,7 +1056,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTracknHits->Fill(numHits);
     emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
     emtfTrackPt->Fill(Track->Pt());
-    emtfTrackdxy->Fill(Track->GMT_dxy());             //Lucas Faria de Sa Tucker June 28 2023
+    emtfTrackDxy->Fill(Track->GMT_dxy());             //Lucas Faria de Sa Tucker June 28 2023
     emtfTrackUnconstrainedPt->Fill(Track->Pt_dxy());  //Lucas Faria de Sa Tucker June 28 2023
     emtfTrackEta->Fill(eta);
 

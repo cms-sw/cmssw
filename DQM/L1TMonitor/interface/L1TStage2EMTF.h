@@ -53,7 +53,7 @@ private:
   MonitorElement* emtfTrackBXVsRPCHit[3];
   MonitorElement* emtfTrackPt;
   MonitorElement* emtfTrackUnconstrainedPt;             // Lucas Faria de Sa Tucker Jun 28 2023
-  MonitorElement* emtfTrackdxy;                         // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackDxy;                         // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfTrackPtHighQuality;               //Chad Freer May 8 2018
   MonitorElement* emtfTrackUnconstrainedPtHighQuality;  // Lucas Faria de Sa Tucker Jun 28 2023
   MonitorElement* emtfTrackPtHighQualityHighPT;
