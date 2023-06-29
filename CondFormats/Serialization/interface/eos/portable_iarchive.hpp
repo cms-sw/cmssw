@@ -335,8 +335,8 @@ namespace eos {
         T temp = size < 0 ? -1 : 0;
         load_binary(&temp, abs(size));
 
-// load the value from little endian - it is then converted
-// to the target type T and fits it because size <= sizeof(T)
+        // load the value from little endian - it is then converted
+        // to the target type T and fits it because size <= sizeof(T)
         t = boost::endian::little_to_native(temp);
       }
 

@@ -316,8 +316,8 @@ namespace eos {
         save_signed_char(t > 0 ? size : -size);
         BOOST_ASSERT(t > 0 || boost::is_signed<T>::value);
 
-// we choose to use little endian because this way we just
-// save the first size bytes to the stream and skip the rest
+        // we choose to use little endian because this way we just
+        // save the first size bytes to the stream and skip the rest
         temp = boost::endian::native_to_little(t);
         save_binary(&temp, size);
       }
