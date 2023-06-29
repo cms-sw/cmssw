@@ -10,9 +10,6 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
                             PFTauDiscriminators = cms.untracked.VInputTag(
                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
-                                    #cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
-                                    #cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"),
-                                    #cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection")
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
