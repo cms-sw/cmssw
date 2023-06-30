@@ -2,7 +2,8 @@
 # Way to use this:
 #   cmsRun grunPrintG4Solids_cfg.py geometry=D88 dd4hep=False
 #
-#   Options for geometry D88, D91, D92, D93, D94, D95, D96, D98, D99
+#   Options for geometry D88, D91, D92, D93, D94, D95, D96, D98, D99, D100,
+#                        D101
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +17,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D91, D92, D93, D94, D95, D96, D98, D99")
+                  "geometry of operations: D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101")
 options.register('dd4hep',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
