@@ -57,6 +57,7 @@ void PrintGeomSolids::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
 void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int solids(0);
+  std::map<std::string, int> shapes;
   if (fromDD4hep_) {
     const cms::DDCompactView* cpv = &iSetup.getData(cpvTokenDD4hep_);
     const cms::DDDetector* det = cpv->detector();
@@ -72,6 +73,11 @@ void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         edm::LogVerbatim("PrintGeom") << name << "   "
                                       << static_cast<std::string>(node->GetVolume()->GetShape()->GetTitle());
         names.emplace_back(name);
+	std::string shape = node->GetVolume()->GetShape()->GetTitle();
+	if (shapes.find(shape) == shapes.end())
+	  shapes.emplace(std::make_pair(shape, 1));
+	else
+	  ++shapes[shape];
         ++solids;
       }
     }
@@ -83,10 +89,18 @@ void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       const DDLogicalPart& ddLP = gra.nodeData(git);
       const DDSolid& solid = ddLP.solid();
       edm::LogVerbatim("PrintGeom") << solid.name() << "   " << DDSolidShapesName::name(solid.shape());
+      std::string shape = DDSolidShapesName::name(solid.shape());
+      if (shapes.find(shape) == shapes.end())
+	shapes.emplace(std::make_pair(shape, 1));
+      else
+	++shapes[shape];
       ++solids;
     }
   }
-  edm::LogVerbatim("PrintGeom") << "\n\nPrintGeomSolids finds " << solids << " solids";
+  edm::LogVerbatim("PrintGeom") << "\n\nPrintGeomSolids finds " << solids << " solids\n\n";
+  for (std::map<std::string, int>::iterator itr = shapes.begin(); itr != shapes.end(); ++itr) {
+    edm::LogVerbatim("PrintGeom") << "Shape:" << itr->first << " # " << itr->second;
+  }
 }
 
 //define this as a plug-in
