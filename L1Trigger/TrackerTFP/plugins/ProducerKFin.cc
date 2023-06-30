@@ -134,8 +134,8 @@ namespace trackerTFP {
         for (int channel = 0; channel < dataFormats_->numChannel(Process::zht); channel++) {
           const int index = region * dataFormats_->numChannel(Process::zht) + channel;
           const StreamStub& stream = streams[index];
-          nStubsZHR += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameStub& frame) {
-            return sum += frame.first.isNonnull() ? 1 : 0;
+          nStubsZHR += accumulate(stream.begin(), stream.end(), 0, [](int sum, const FrameStub& frame) {
+            return sum + (frame.first.isNonnull() ? 1 : 0);
           });
         }
         vector<StubZHT> stubsZHT;
