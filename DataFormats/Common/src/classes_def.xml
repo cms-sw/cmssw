@@ -206,4 +206,5 @@
  <class name="edm::Wrapper<std::map<edm::ParameterSetID,edm::ParameterSetBlob>>"/>
 
  <class name="edm::StdArray<short, 4>"/>
+ <class name="edm::StdArray<unsigned short, 11>"/>
 </lcgdict>
