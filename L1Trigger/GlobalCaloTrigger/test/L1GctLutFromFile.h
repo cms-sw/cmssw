@@ -11,12 +11,12 @@ template <int NAddressBits, int NDataBits>
 class L1GctLutFromFile : public L1GctLut<NAddressBits, NDataBits> {
 public:
   static L1GctLutFromFile<NAddressBits, NDataBits>* setupLut(const std::string filename);
-  virtual ~L1GctLutFromFile<NAddressBits, NDataBits>();
+  virtual ~L1GctLutFromFile();
 
   void readFromFile(const std::string filename);
 
 protected:
-  L1GctLutFromFile<NAddressBits, NDataBits>();
+  L1GctLutFromFile();
 
   virtual uint16_t value(const uint16_t lutAddress) const;
 
@@ -37,7 +37,7 @@ L1GctLutFromFile<NAddressBits, NDataBits>::L1GctLutFromFile()
     : L1GctLut<NAddressBits, NDataBits>(), m_lutContents(1 << NAddressBits) {}
 
 template <int NAddressBits, int NDataBits>
-L1GctLutFromFile<NAddressBits, NDataBits>::~L1GctLutFromFile<NAddressBits, NDataBits>() {}
+L1GctLutFromFile<NAddressBits, NDataBits>::~L1GctLutFromFile() {}
 
 template <int NAddressBits, int NDataBits>
 void L1GctLutFromFile<NAddressBits, NDataBits>::readFromFile(const std::string filename) {
