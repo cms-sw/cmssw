@@ -174,7 +174,7 @@ bool L1TCaloLayer1FetchLUTs(
   // Make ECal LUT
   for (uint32_t phiBin = 0; phiBin < numEcalPhiBins; phiBin++) {
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT;
-    eLUT.push_back(phiLUT);
+
     for (uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
       for (uint32_t fb = 0; fb < nCalSideBins; fb++) {
         for (uint32_t ecalInput = 0; ecalInput <= 0xFF; ecalInput++) {
@@ -216,16 +216,17 @@ bool L1TCaloLayer1FetchLUTs(
             value |= (et_log2 << 12);
           }
           value |= (fb << 10);
-          eLUT[phiBin][etaBin][fb][ecalInput] = value;
+          phiLUT[etaBin][fb][ecalInput] = value;
         }
       }
     }
+
+    eLUT.push_back(phiLUT);
   }
 
   // Make HCal LUT
   for (uint32_t phiBin = 0; phiBin < numHcalPhiBins; phiBin++) {
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT;
-    hLUT.push_back(phiLUT);
     for (uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
       int caloEta = etaBin + 1;
       int iPhi = 3;
@@ -280,16 +281,18 @@ bool L1TCaloLayer1FetchLUTs(
             value |= (et_log2 << 12);
           }
           value |= (fb << 10);
-          hLUT[phiBin][etaBin][fb][hcalInput] = value;
+          phiLUT[etaBin][fb][hcalInput] = value;
         }
       }
     }
+
+    hLUT.push_back(phiLUT);
   }
 
   // Make HF LUT
   for (uint32_t phiBin = 0; phiBin < numHFPhiBins; phiBin++) {
     std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> phiLUT;
-    hfLUT.push_back(phiLUT);
+
     for (uint32_t etaBin = 0; etaBin < nHfEtaBins; etaBin++) {
       int caloEta = etaBin + 30;
       int iPhi = 3;
@@ -348,9 +351,10 @@ bool L1TCaloLayer1FetchLUTs(
             }
           }
         }
-        hfLUT[phiBin][etaBin][etCode] = value;
+        phiLUT[etaBin][etCode] = value;
       }
     }
+    hfLUT.push_back(phiLUT);
   }
 
   // Make HCal FB LUT
