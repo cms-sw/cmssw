@@ -23,6 +23,7 @@
 //#include <signal.h>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/interface/EcnaAnalyzer.h"
+#include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
 
 //--------------------------------------
@@ -45,36 +46,19 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
     : verbosity_(pSet.getUntrackedParameter("verbosity", 1U)),
       nChannels_(0),
       iEvent_(0),
-      fBuildEventDistribBad(nullptr),
-      fBuildEventDistribGood(nullptr),
-      fSMFromFedTcc(nullptr),
-      fESFromFedTcc(nullptr),
-      fDeeFromFedTcc(nullptr),
-      fFedStatusOrder(nullptr),
-      fDeeNumberString(nullptr),
-      fStexDigiOK(nullptr),
-      fStexNbOfTreatedEvents(nullptr),
-      fStexStatus(nullptr),
-      fFedStatus(nullptr),
-      fFedDigiOK(nullptr),
-      fFedNbOfTreatedEvents(nullptr),
-      fNbOfTreatedFedsInDee(nullptr),
-      fNbOfTreatedFedsInStex(nullptr),
-      fTimeFirst(nullptr),
-      fTimeLast(nullptr),
-      fDateFirst(nullptr),
-      fDateLast(nullptr),
-      fMemoDateFirstEvent(nullptr),
+      // fDeeFromFedTcc(nullptr), - unused?
       fMyCnaEBSM(nullptr),
       fMyCnaEEDee(nullptr),
       fMyEBNumbering(nullptr),
       fMyEBEcal(nullptr),
       fMyEENumbering(nullptr),
       fMyEEEcal(nullptr),
-      fRunTypeCounter(nullptr),
-      fMgpaGainCounter(nullptr),
-      fFedIdCounter(nullptr),
-      fCounterQuad(nullptr) {
+      fMaxRunTypeCounter(26),
+      fRunTypeCounter(fMaxRunTypeCounter, 0),
+      fMaxMgpaGainCounter(4),  // Because chozen gain = 0,1,2,3
+      fMgpaGainCounter(fMaxMgpaGainCounter, 0),
+      fMaxFedIdCounter(54),
+      fFedIdCounter(fMaxFedIdCounter, 0) {
   // now do what ever initialization is needed
 
   fMyEcnaEBObjectManager = new TEcnaObject();
@@ -155,24 +139,6 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
     return;
   //===========================================================================================
 
-  fMaxRunTypeCounter = 26;
-  fRunTypeCounter = new Int_t[fMaxRunTypeCounter];
-  for (Int_t i = 0; i < fMaxRunTypeCounter; i++) {
-    fRunTypeCounter[i] = 0;
-  }
-
-  fMaxMgpaGainCounter = 4;  // Because chozen gain = 0,1,2,3
-  fMgpaGainCounter = new Int_t[fMaxMgpaGainCounter];
-  for (Int_t i = 0; i < fMaxMgpaGainCounter; i++) {
-    fMgpaGainCounter[i] = 0;
-  }
-
-  fMaxFedIdCounter = 54;
-  fFedIdCounter = new Int_t[fMaxFedIdCounter];
-  for (Int_t i = 0; i < fMaxFedIdCounter; i++) {
-    fFedIdCounter[i] = 0;
-  }
-
   fEvtNumber = 0;
   fEvtNumberMemo = -1;
   fRecNumber = 0;
@@ -195,50 +161,32 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
     fMaxFedUnitCounter = fMyEEEcal->MaxDSInEE();
   }  // EE: FED Unit = Data Sector
 
-  fFedDigiOK = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedDigiOK[i] = 0;
-  }
+  fFedDigiOK = std::vector<Int_t>(fMaxFedUnitCounter, 0);
+  fFedNbOfTreatedEvents = std::vector<Int_t>(fMaxFedUnitCounter, 0);
+  fFedStatus = std::vector<Int_t>(fMaxFedUnitCounter, 0);
+  fFedStatusOrder = std::vector<Int_t>(fMaxFedUnitCounter, 0);
 
-  fFedNbOfTreatedEvents = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedNbOfTreatedEvents[i] = 0;
-  }
-
-  fFedStatus = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedStatus[i] = 0;
-  }
-
-  fFedStatusOrder = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedStatusOrder[i] = 0;
-  }
-
-  fDeeNumberString = new TString[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fDeeNumberString[i] = "SM";
-  }
-
-  if (fStexName == "Dee") {
-    fDeeNumberString[0] = "Sector1 Dee4";
-    fDeeNumberString[1] = "Sector2 Dee4";
-    fDeeNumberString[2] = "Sector3 Dee4";
-    fDeeNumberString[3] = "Sector4 Dee4";
-    fDeeNumberString[4] = "Sector5 Dee4-Dee3";
-    fDeeNumberString[5] = "Sector6 Dee3";
-    fDeeNumberString[6] = "Sector7 Dee3";
-    fDeeNumberString[7] = "Sector8 Dee3";
-    fDeeNumberString[8] = "Sector9 Dee3";
-    fDeeNumberString[9] = "Sector1 Dee1";
-    fDeeNumberString[10] = "Sector2 Dee1";
-    fDeeNumberString[11] = "Sector3 Dee1";
-    fDeeNumberString[12] = "Sector4 Dee1";
-    fDeeNumberString[13] = "Sector5 Dee1-Dee2";
-    fDeeNumberString[14] = "Sector6 Dee2";
-    fDeeNumberString[15] = "Sector7 Dee2";
-    fDeeNumberString[16] = "Sector8 Dee2";
-    fDeeNumberString[17] = "Sector9 Dee2";
+  if (fStexName != "Dee") {
+    fDeeNumberString = std::vector<TString>(fMaxFedUnitCounter, "SM");
+  } else {
+    fDeeNumberString = {"Sector1 Dee4",
+                        "Sector2 Dee4",
+                        "Sector3 Dee4",
+                        "Sector4 Dee4",
+                        "Sector5 Dee4-Dee3",
+                        "Sector6 Dee3",
+                        "Sector7 Dee3",
+                        "Sector8 Dee3",
+                        "Sector9 Dee3",
+                        "Sector1 Dee1",
+                        "Sector2 Dee1",
+                        "Sector3 Dee1",
+                        "Sector4 Dee1",
+                        "Sector5 Dee1-Dee2",
+                        "Sector6 Dee2",
+                        "Sector7 Dee2",
+                        "Sector8 Dee2",
+                        "Sector9 Dee2"};
   }
   //............................... arrays fSMFromFedDcc and fESFromFedTcc
   //
@@ -265,11 +213,8 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
 
   Int_t MaxSMAndDS = fMyEBEcal->MaxSMInEB() + fMyEEEcal->MaxDSInEE();
 
-  fSMFromFedTcc = new Int_t[MaxSMAndDS];
-  fESFromFedTcc = new Int_t[MaxSMAndDS];
-  for (Int_t nFedTcc = 1; nFedTcc <= MaxSMAndDS; nFedTcc++) {
-    fESFromFedTcc[nFedTcc - 1] = -1;
-  }
+  fSMFromFedTcc = std::vector<Int_t>(MaxSMAndDS, -1);
+  fESFromFedTcc = std::vector<Int_t>(MaxSMAndDS, -1);
 
   for (Int_t nFedTcc = 1; nFedTcc <= 3; nFedTcc++) {
     fESFromFedTcc[nFedTcc - 1] = nFedTcc + 6;
@@ -302,70 +247,37 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
     fMaxTreatedStexCounter = fMyEEEcal->MaxDeeInEE();
   }  // EE: Stex = Dee
 
-  fStexNbOfTreatedEvents = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fStexNbOfTreatedEvents[i] = 0;
-  }
+  fStexNbOfTreatedEvents = std::vector<Int_t>(fMaxTreatedStexCounter, 0);
 
-  fTimeFirst = new time_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fTimeFirst[i] = 0;
-  }
-  fTimeLast = new time_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fTimeLast[i] = 0;
-  }
+  fTimeFirst = std::vector<time_t>(fMaxTreatedStexCounter, 0);
+  fTimeLast = std::vector<time_t>(fMaxTreatedStexCounter, 0);
 
-  fMemoDateFirstEvent = new Int_t[fMaxTreatedStexCounter];
-  ;
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fMemoDateFirstEvent[i] = 0;
-  }
+  fMemoDateFirstEvent = std::vector<Int_t>(fMaxTreatedStexCounter, 0);
 
   Int_t MaxCar = fgMaxCar;
-  fDateFirst = new TString[fMaxTreatedStexCounter];
+  fDateFirst = std::vector<TString>(fMaxTreatedStexCounter);
   for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
     fDateFirst[i].Resize(MaxCar);
     fDateFirst[i] = "*1st event date not found*";
   }
 
   MaxCar = fgMaxCar;
-  fDateLast = new TString[fMaxTreatedStexCounter];
+  fDateLast = std::vector<TString>(fMaxTreatedStexCounter);
   for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
     fDateLast[i].Resize(MaxCar);
     fDateLast[i] = "*last event date not found*";
   }
 
-  fStexStatus = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fStexStatus[i] = 0;
-  }
+  fStexStatus = std::vector(fMaxTreatedStexCounter, 0);
+  fStexDigiOK = std::vector(fMaxTreatedStexCounter, 0);
 
-  fStexDigiOK = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fStexDigiOK[i] = 0;
-  }
-
-  fNbOfTreatedFedsInDee = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fNbOfTreatedFedsInDee[i] = 0;
-  }
-
-  fNbOfTreatedFedsInStex = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fNbOfTreatedFedsInStex[i] = 0;
-  }
+  fNbOfTreatedFedsInDee = std::vector(fMaxTreatedStexCounter, 0);
+  fNbOfTreatedFedsInStex = std::vector(fMaxTreatedStexCounter, 0);
 
   //.......................... counters of events for GetSampleAdcValues
-  fBuildEventDistribBad = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fBuildEventDistribBad[i] = 0;
-  }
+  fBuildEventDistribBad = std::vector(fMaxTreatedStexCounter, 0);
 
-  fBuildEventDistribGood = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fBuildEventDistribGood[i] = 0;
-  }
+  fBuildEventDistribGood = std::vector(fMaxTreatedStexCounter, 0);
 
   //----------------------------------- Analysis name codes
   //------------------------------------------
@@ -672,39 +584,13 @@ EcnaAnalyzer::~EcnaAnalyzer() {
   Int_t n0 = 0;
   CheckMsg(n0);
 
-  delete fBuildEventDistribBad;
-  delete fBuildEventDistribGood;
-  delete fSMFromFedTcc;
-  delete fESFromFedTcc;
-  delete fDeeFromFedTcc;
-  delete fFedStatusOrder;
-  delete fDeeNumberString;
-
-  delete fStexDigiOK;
-  delete fStexNbOfTreatedEvents;
-  delete fStexStatus;
-  delete fFedStatus;
-  delete fFedDigiOK;
-  delete fFedNbOfTreatedEvents;
-  delete fNbOfTreatedFedsInDee;
-  delete fNbOfTreatedFedsInStex;
-
-  delete fTimeFirst;
-  delete fTimeLast;
-  delete fDateFirst;
-  delete fDateLast;
-  delete fMemoDateFirstEvent;
+  // delete fDeeFromFedTcc;
 
   delete fMyEBNumbering;
   delete fMyEENumbering;
 
   delete fMyEBEcal;
   delete fMyEEEcal;
-
-  delete fRunTypeCounter;
-  delete fMgpaGainCounter;
-  delete fFedIdCounter;
-  delete fCounterQuad;
 
   edm::LogVerbatim("ecnaAnal") << "*EcnaAnalyzer-destructor> End of execution.";
 }

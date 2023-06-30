@@ -177,8 +177,8 @@ private:
   Int_t fCurrentEventNumber;
   Int_t fNbOfSelectedEvents;
 
-  Int_t *fBuildEventDistribBad;
-  Int_t *fBuildEventDistribGood;
+  std::vector<Int_t> fBuildEventDistribBad;
+  std::vector<Int_t> fBuildEventDistribGood;
 
   TString fCfgAnalyzerParametersFilePath;  // absolute path for the analyzer
                                            // parameters files (/afs/etc...)
@@ -209,30 +209,30 @@ private:
   Int_t fStexIndexStop;
 
   Int_t fFedTcc;
-  Int_t *fSMFromFedTcc;
-  Int_t *fESFromFedTcc;
-  Int_t *fDeeFromFedTcc;
+  std::vector<Int_t> fSMFromFedTcc;
+  std::vector<Int_t> fESFromFedTcc;
+  // Int_t *fDeeFromFedTcc; - unused?
   Int_t fTreatedFedOrder;
-  Int_t *fFedStatusOrder;
+  std::vector<Int_t> fFedStatusOrder;
   Int_t fFedId;
-  TString *fDeeNumberString;
+  std::vector<TString> fDeeNumberString;
 
   Int_t fMaxTreatedStexCounter;
   Int_t fDeeDS5Memo1;
   Int_t fDeeDS5Memo2;
-  Int_t *fStexDigiOK;
-  Int_t *fStexNbOfTreatedEvents;
-  Int_t *fStexStatus;
+  std::vector<Int_t> fStexDigiOK;
+  std::vector<Int_t> fStexNbOfTreatedEvents;
+  std::vector<Int_t> fStexStatus;
 
   Int_t fMaxFedUnitCounter;
-  Int_t *fFedStatus;
-  Int_t *fFedDigiOK;
-  Int_t *fFedNbOfTreatedEvents;
+  std::vector<Int_t> fFedStatus;
+  std::vector<Int_t> fFedDigiOK;
+  std::vector<Int_t> fFedNbOfTreatedEvents;
 
   Int_t fMemoCutOK;
   Int_t fNbOfTreatedStexs;
-  Int_t *fNbOfTreatedFedsInDee;
-  Int_t *fNbOfTreatedFedsInStex;
+  std::vector<Int_t> fNbOfTreatedFedsInDee;
+  std::vector<Int_t> fNbOfTreatedFedsInStex;
 
   Int_t fANY_RUN;
   Int_t fPEDESTAL_STD;
@@ -241,12 +241,12 @@ private:
   Int_t fPHYSICS_GLOBAL;
   Int_t fPEDSIM;
 
-  time_t *fTimeFirst;
-  time_t *fTimeLast;
-  TString *fDateFirst;
-  TString *fDateLast;
+  std::vector<time_t> fTimeFirst;
+  std::vector<time_t> fTimeLast;
+  std::vector<TString> fDateFirst;
+  std::vector<TString> fDateLast;
 
-  Int_t *fMemoDateFirstEvent;
+  std::vector<Int_t> fMemoDateFirstEvent;
 
   TEcnaObject *fMyEcnaEBObjectManager;
   TEcnaObject *fMyEcnaEEObjectManager;
@@ -264,16 +264,16 @@ private:
   //  a given (channel,sample) Int_t*  fT1d_LastEvt;
 
   Int_t fMaxRunTypeCounter;
-  Int_t *fRunTypeCounter;
+  std::vector<Int_t> fRunTypeCounter;
 
   Int_t fMaxMgpaGainCounter;
-  Int_t *fMgpaGainCounter;
+  std::vector<Int_t> fMgpaGainCounter;
 
   Int_t fMaxFedIdCounter;
-  Int_t *fFedIdCounter;
+  std::vector<Int_t> fFedIdCounter;
 
   Int_t fMaxCounterQuad;
-  Int_t *fCounterQuad;
+  std::vector<Int_t> fCounterQuad;
 };
 
 #endif
