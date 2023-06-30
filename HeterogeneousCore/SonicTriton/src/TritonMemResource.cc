@@ -91,7 +91,7 @@ TritonCpuShmResource<IO>::TritonCpuShmResource(TritonData<IO>* data, const std::
 }
 
 template <typename IO>
-TritonCpuShmResource<IO>::~TritonCpuShmResource<IO>() {
+TritonCpuShmResource<IO>::~TritonCpuShmResource() {
   close();
 }
 
@@ -147,7 +147,7 @@ TritonGpuShmResource<IO>::TritonGpuShmResource(TritonData<IO>* data, const std::
 }
 
 template <typename IO>
-TritonGpuShmResource<IO>::~TritonGpuShmResource<IO>() {
+TritonGpuShmResource<IO>::~TritonGpuShmResource() {
   close();
 }
 
