@@ -1293,7 +1293,7 @@ upgradeWFs['PatatrackHCALOnlyGPUandAlpakaValidation'] = PatatrackWorkflow(
         '--procModifiers': 'alpaka', # alpaka modifier activates customiseHLTForAlpaka
     },
     reco = {
-        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnlyLegacy+reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation+pfClusterHBHEOnlyAlpakaComparisonSequence,DQM:@hcalOnly+@hcal2Only',
+        '-s' : 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnlyLegacy+reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation+pfClusterHBHEOnlyAlpakaComparisonSequence,DQM:@hcalOnly+@hcal2Only+hcalOnlyOfflineSourceSequenceAlpaka',
         '--procModifiers': 'alpaka'
     },
     harvest = {
