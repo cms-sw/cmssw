@@ -1033,6 +1033,9 @@ def customiseNanoAOD(process):
        outputModule.outputCommands.append("keep edmTriggerResults_*_*_NANO")
        outputModule.outputCommands.remove("keep edmTriggerResults_*_*_*")
 
+    process.load("PhysicsTools.NanoAOD.l1trig_cff")
+    process.nanoAOD_step.insert(0, cms.Sequence(process.l1TablesTask))
+
     process.embeddingTable = cms.EDProducer(
         "GlobalVariablesTableProducer",
         name=cms.string("TauEmbedding"),
