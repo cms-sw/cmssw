@@ -333,6 +333,20 @@ def keepCleaned(dataTier):
         "keep recoElectronSeeds_*_*_*",
         "drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*" ,
         "drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*",
+        "drop *_ctppsProtons_*_*",
+        "drop *_ctppsLocalTrackLiteProducer_*_*",
+        "drop *_ctppsDiamondLocalTracks_*_*",
+        "drop *_ctppsDiamondRecHits_*_*",
+        "drop *_ctppsDiamondRawToDigi_*_*",
+        "drop *_ctppsPixelLocalTracks_*_*",
+        "drop *_ctppsPixelRecHits_*_*",
+        "drop *_ctppsPixelClusters_*_*",
+        "drop *_ctppsPixelDigis_*_*",
+        "drop *_totemRPLocalTrackFitter_*_*",
+        "drop *_totemRPUVPatternFinder_*_*",
+        "drop *_totemRPRecHitProducer_*_*",
+        "drop *_totemRPClusterProducer_*_*",
+        "drop *_totemRPRawToDigi_*_*",
         "drop *_muonSimClassifier_*_*",
         # "keep recoPFClusters_*_*_*",
         # "keep recoPFRecHits_*_*_*"
@@ -478,6 +492,20 @@ def keepSimulated(process, processname="SIMembedding"):
     ret_vstring.append("keep recoElectronSeeds_*_*_*")
     ret_vstring.append("drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*")
     ret_vstring.append("drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*")
+    ret_vstring.append("drop *_ctppsProtons_*_*")
+    ret_vstring.append("drop *_ctppsLocalTrackLiteProducer_*_*")
+    ret_vstring.append("drop *_ctppsDiamondLocalTracks_*_*")
+    ret_vstring.append("drop *_ctppsDiamondRecHits_*_*")
+    ret_vstring.append("drop *_ctppsDiamondRawToDigi_*_*")
+    ret_vstring.append("drop *_ctppsPixelLocalTracks_*_*")
+    ret_vstring.append("drop *_ctppsPixelRecHits_*_*")
+    ret_vstring.append("drop *_ctppsPixelClusters_*_*")
+    ret_vstring.append("drop *_ctppsPixelDigis_*_*")
+    ret_vstring.append("drop *_totemRPLocalTrackFitter_*_*")
+    ret_vstring.append("drop *_totemRPUVPatternFinder_*_*")
+    ret_vstring.append("drop *_totemRPRecHitProducer_*_*")
+    ret_vstring.append("drop *_totemRPClusterProducer_*_*")
+    ret_vstring.append("drop *_totemRPRawToDigi_*_*")
     ret_vstring.append("drop *_muonSimClassifier_*_*")
 
     # for those two steps, the output has to be modified
@@ -830,6 +858,15 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     process.load('Configuration.StandardSequences.RawToDigi_cff')
     process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
     process.merge_step = cms.Path()
+    # produce local CT PPS reco
+    process.load("RecoPPS.Configuration.recoCTPPS_cff")
+    process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector", "", "LHC")
+    process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector", "", "LHC")
+    process.ctppsPixelDigis.inputLabel = cms.InputTag("rawDataCollector", "", "LHC")
+    process.merge_step += process.totemRPRawToDigi
+    process.merge_step += process.ctppsDiamondRawToDigi
+    process.merge_step += process.ctppsPixelDigis
+    process.merge_step += cms.Sequence(process.recoCTPPSTask)
     # produce local Calo
     process.load("RecoLocalCalo.Configuration.RecoLocalCalo_cff")
     process.merge_step += process.calolocalreco
