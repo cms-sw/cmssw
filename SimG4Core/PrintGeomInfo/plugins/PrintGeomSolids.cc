@@ -73,11 +73,11 @@ void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         edm::LogVerbatim("PrintGeom") << name << "   "
                                       << static_cast<std::string>(node->GetVolume()->GetShape()->GetTitle());
         names.emplace_back(name);
-	std::string shape = node->GetVolume()->GetShape()->GetTitle();
-	if (shapes.find(shape) == shapes.end())
-	  shapes.emplace(std::make_pair(shape, 1));
-	else
-	  ++shapes[shape];
+        std::string shape = node->GetVolume()->GetShape()->GetTitle();
+        if (shapes.find(shape) == shapes.end())
+          shapes.emplace(std::make_pair(shape, 1));
+        else
+          ++shapes[shape];
         ++solids;
       }
     }
@@ -91,9 +91,9 @@ void PrintGeomSolids::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       edm::LogVerbatim("PrintGeom") << solid.name() << "   " << DDSolidShapesName::name(solid.shape());
       std::string shape = DDSolidShapesName::name(solid.shape());
       if (shapes.find(shape) == shapes.end())
-	shapes.emplace(std::make_pair(shape, 1));
+        shapes.emplace(std::make_pair(shape, 1));
       else
-	++shapes[shape];
+        ++shapes[shape];
       ++solids;
     }
   }
