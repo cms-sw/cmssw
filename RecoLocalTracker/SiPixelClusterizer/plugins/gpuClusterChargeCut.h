@@ -25,6 +25,13 @@ namespace gpuClustering {
       uint32_t const* __restrict__ moduleId,     // module id of each module
       int32_t* __restrict__ clusterId,           // modified: cluster id of each pixel
       uint32_t numElements) {
+    constexpr int32_t maxNumClustersPerModules = TrackerTraits::maxNumClustersPerModules;
+
+    static_assert(
+        maxNumClustersPerModules <= 2048,
+        "\nclusterChargeCut is limited to 2048 clusters per module. \nHere maxNumClustersPerModules is set to be %d. "
+        "\nIf you need maxNumClustersPerModules to be higher \nyou will need to fix the blockPrefixScans.");
+
     __shared__ int32_t charge[maxNumClustersPerModules];
     __shared__ uint8_t ok[maxNumClustersPerModules];
     __shared__ uint16_t newclusId[maxNumClustersPerModules];
@@ -119,8 +126,21 @@ namespace gpuClustering {
 
       // renumber
       __shared__ uint16_t ws[32];
-      cms::cuda::blockPrefixScan(newclusId, nclus, ws);
+      constexpr auto maxThreads = 1024;
+      auto minClust = nclus > maxThreads ? maxThreads : nclus;
 
+      cms::cuda::blockPrefixScan(newclusId, newclusId, minClust, ws);
+      if constexpr (maxNumClustersPerModules > maxThreads)  //only if needed
+      {
+        //TODO: most probably there's a smarter implementation for this
+        if (nclus > maxThreads) {
+          cms::cuda::blockPrefixScan(newclusId + maxThreads, newclusId + maxThreads, nclus - maxThreads, ws);
+          for (auto i = threadIdx.x + maxThreads; i < nclus; i += blockDim.x) {
+            int prevBlockEnd = ((i / maxThreads) * maxThreads) - 1;
+            newclusId[i] += newclusId[prevBlockEnd];
+          }
+        }
+      }
       assert(nclus > newclusId[nclus - 1]);
 
       nClustersInModule[thisModuleId] = newclusId[nclus - 1];

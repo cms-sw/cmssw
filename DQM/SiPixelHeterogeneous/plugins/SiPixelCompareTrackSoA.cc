@@ -309,6 +309,9 @@ void SiPixelCompareTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions&
 
 using SiPixelPhase1CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::Phase1>;
 using SiPixelPhase2CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::Phase2>;
+using SiPixelHIonPhase1CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::HIonPhase1>;
 
 DEFINE_FWK_MODULE(SiPixelPhase1CompareTrackSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareTrackSoA);
+DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareTrackSoA);
+

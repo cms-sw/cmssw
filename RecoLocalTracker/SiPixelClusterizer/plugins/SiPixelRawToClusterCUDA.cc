@@ -41,12 +41,14 @@
 #include "SiPixelClusterThresholds.h"
 #include "SiPixelRawToClusterGPUKernel.h"
 
-class SiPixelRawToClusterCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
+template <typename TrackerTraits>
+class SiPixelRawToClusterCUDAT : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  explicit SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig);
-  ~SiPixelRawToClusterCUDA() override = default;
+  explicit SiPixelRawToClusterCUDAT(const edm::ParameterSet& iConfig);
+  ~SiPixelRawToClusterCUDAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  using GPUAlgo = pixelgpudetails::SiPixelRawToClusterGPUKernel<TrackerTraits>;
 
 private:
   void acquire(const edm::Event& iEvent,
@@ -72,7 +74,7 @@ private:
   const SiPixelFedCablingMap* cablingMap_ = nullptr;
   std::unique_ptr<PixelUnpackingRegions> regions_;
 
-  pixelgpudetails::SiPixelRawToClusterGPUKernel gpuAlgo_;
+  GPUAlgo gpuAlgo_;
   PixelDataFormatter::Errors errors_;
 
   const bool isRun2_;
@@ -82,7 +84,8 @@ private:
   const SiPixelClusterThresholds clusterThresholds_;
 };
 
-SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig)
+template <typename TrackerTraits>
+SiPixelRawToClusterCUDAT<TrackerTraits>::SiPixelRawToClusterCUDAT(const edm::ParameterSet& iConfig)
     : rawGetToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))),
       digiPutToken_(produces<cms::cuda::Product<SiPixelDigisCUDA>>()),
       clusterPutToken_(produces<cms::cuda::Product<SiPixelClustersCUDA>>()),
@@ -94,7 +97,11 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
-                         iConfig.getParameter<int32_t>("clusterThreshold_otherLayers")} {
+                         iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
+                         (float)iConfig.getParameter<double>("VCaltoElectronGain"),
+                         (float)iConfig.getParameter<double>("VCaltoElectronGain_L1"),
+                         (float)iConfig.getParameter<double>("VCaltoElectronOffset"),
+                         (float)iConfig.getParameter<double>("VCaltoElectronOffset_L1")} {
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
@@ -105,7 +112,8 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
   }
 }
 
-void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void SiPixelRawToClusterCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("isRun2", true);
   desc.add<bool>("IncludeErrors", true);
@@ -114,8 +122,13 @@ void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   // It is kept to avoid breaking older configurations, and will not be printed in the generated cfi.py file.
   desc.addOptionalNode(edm::ParameterDescription<uint32_t>("MaxFEDWords", 0, true), false)
       ->setComment("This parameter is obsolete and will be ignored.");
-  desc.add<int32_t>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
-  desc.add<int32_t>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
+  //Clustering Thresholds
+  desc.add<int32_t>("clusterThreshold_layer1", 2000);
+  desc.add<int32_t>("clusterThreshold_otherLayers", 4000);
+  desc.add<double>("VCaltoElectronGain", 47.f);
+  desc.add<double>("VCaltoElectronGain_L1", 50.f);
+  desc.add<double>("VCaltoElectronOffset", -60.f);
+  desc.add<double>("VCaltoElectronOffset_L1", -670.f);
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   {
     edm::ParameterSetDescription psd0;
@@ -130,9 +143,10 @@ void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.addWithDefaultLabel(desc);
 }
 
-void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
-                                      const edm::EventSetup& iSetup,
-                                      edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+template <typename TrackerTraits>
+void SiPixelRawToClusterCUDAT<TrackerTraits>::acquire(const edm::Event& iEvent,
+                                                      const edm::EventSetup& iSetup,
+                                                      edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   cms::cuda::ScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
   auto hgpuMap = iSetup.getHandle(gpuMapToken_);
@@ -249,27 +263,28 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
     return;
 
   // copy the FED data to a single cpu buffer
-  pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender wordFedAppender(nDigis_, ctx.stream());
+  typename GPUAlgo::WordFedAppender wordFedAppender(nDigis_, ctx.stream());
   for (uint32_t i = 0; i < fedIds_.size(); ++i) {
     wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
   }
 
-  gpuAlgo_.makeClustersAsync(isRun2_,
-                             clusterThresholds_,
-                             gpuMap,
-                             gpuModulesToUnpack,
-                             gpuGains,
-                             wordFedAppender,
-                             std::move(errors_),
-                             wordCounter,
-                             fedCounter,
-                             useQuality_,
-                             includeErrors_,
-                             edm::MessageDrop::instance()->debugEnabled,
-                             ctx.stream());
+  gpuAlgo_.makePhase1ClustersAsync(isRun2_,
+                                   clusterThresholds_,
+                                   gpuMap,
+                                   gpuModulesToUnpack,
+                                   gpuGains,
+                                   wordFedAppender,
+                                   std::move(errors_),
+                                   wordCounter,
+                                   fedCounter,
+                                   useQuality_,
+                                   includeErrors_,
+                                   edm::MessageDrop::instance()->debugEnabled,
+                                   ctx.stream());
 }
 
-void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <typename TrackerTraits>
+void SiPixelRawToClusterCUDAT<TrackerTraits>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   cms::cuda::ScopedContextProduce ctx{ctxState_};
 
   if (nDigis_ == 0) {
@@ -297,4 +312,9 @@ void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup&
 }
 
 // define as framework plugin
+using SiPixelRawToClusterCUDA = SiPixelRawToClusterCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SiPixelRawToClusterCUDA);
+using SiPixelRawToClusterCUDAPhase1 = SiPixelRawToClusterCUDAT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SiPixelRawToClusterCUDAPhase1);
+using SiPixelRawToClusterCUDAHIonPhase1 = SiPixelRawToClusterCUDAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(SiPixelRawToClusterCUDAHIonPhase1);

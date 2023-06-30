@@ -31,7 +31,7 @@ int main(void) {
   using pixelTopology::Phase1;
 
   constexpr int numElements = 256 * maxNumModules;
-  constexpr SiPixelClusterThresholds clusterThresholds(kSiPixelClusterThresholdsDefaultPhase1);
+  const SiPixelClusterThresholds clusterThresholds(2000, 4000, 0.f, 0.f, 0.f, 0.f);
 
   // these in reality are already on GPU
   auto h_raw = std::make_unique<uint32_t[]>(numElements);

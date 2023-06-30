@@ -93,8 +93,12 @@ from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
 from RecoTracker.PixelSeeding.caHitNtupletCUDAPhase1_cfi import caHitNtupletCUDAPhase1 as _pixelTracksCUDA
 from RecoTracker.PixelSeeding.caHitNtupletCUDAPhase2_cfi import caHitNtupletCUDAPhase2 as _pixelTracksCUDAPhase2
+from RecoTracker.PixelSeeding.caHitNtupletCUDAHIonPhase1_cfi import caHitNtupletCUDAHIonPhase1 as _pixelTracksCUDAHIonPhase1
 
+# Phase 2 modifier
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+# HIon modifiers
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 # SwitchProducer providing the pixel tracks in SoA format on the CPU
 pixelTracksSoA = SwitchProducerCUDA(
@@ -114,12 +118,17 @@ run3_common.toModify(pixelTracksSoA.cpu,
 # convert the pixel tracks from SoA to legacy format
 from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAPhase1_cfi import pixelTrackProducerFromSoAPhase1 as _pixelTrackProducerFromSoA
 from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAPhase2_cfi import pixelTrackProducerFromSoAPhase2 as _pixelTrackProducerFromSoAPhase2
+from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAHIonPhase1_cfi import pixelTrackProducerFromSoAHIonPhase1 as _pixelTrackProducerFromSoAHIonPhase1
 
 pixelNtupletFit.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoA.clone(
     pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
 ))
 
 (pixelNtupletFit & phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAPhase2.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+(pixelNtupletFit & pp_on_AA).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAHIonPhase1.clone(
     pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
 ))
 
@@ -148,6 +157,7 @@ run3_common.toModify(pixelTracksCUDA,
 # SwitchProducer providing the pixel tracks in SoA format on the CPU
 from RecoTracker.PixelTrackFitting.pixelTrackSoAFromCUDAPhase1_cfi import pixelTrackSoAFromCUDAPhase1 as _pixelTracksSoA
 from RecoTracker.PixelTrackFitting.pixelTrackSoAFromCUDAPhase2_cfi import pixelTrackSoAFromCUDAPhase2 as _pixelTracksSoAPhase2
+from RecoTracker.PixelTrackFitting.pixelTrackSoAFromCUDAHIonPhase1_cfi import pixelTrackSoAFromCUDAHIonPhase1 as _pixelTracksSoAHIonPhase1
 
 gpu.toModify(pixelTracksSoA,
     # transfer the pixel tracks in SoA format to the host
@@ -157,12 +167,25 @@ gpu.toModify(pixelTracksSoA,
 (gpu & phase2_tracker).toModify(pixelTracksSoA,cuda = _pixelTracksSoAPhase2.clone(
 ))
 
+(gpu & pp_on_AA).toModify(pixelTracksSoA,cuda = _pixelTracksSoAHIonPhase1.clone(
+))
+
 phase2_tracker.toModify(pixelTracksSoA,cpu = _pixelTracksCUDAPhase2.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
     onGPU = False
 ))
 
+pp_on_AA.toModify(pixelTracksSoA,cpu = _pixelTracksCUDAHIonPhase1.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+    onGPU = False
+))
+
 phase2_tracker.toReplaceWith(pixelTracksCUDA,_pixelTracksCUDAPhase2.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
+    onGPU = True,
+))
+
+pp_on_AA.toReplaceWith(pixelTracksCUDA,_pixelTracksCUDAHIonPhase1.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
     onGPU = True,
 ))

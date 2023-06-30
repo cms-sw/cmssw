@@ -247,6 +247,9 @@ void SiPixelCompareRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescription
 
 using SiPixelPhase1CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::Phase1>;
 using SiPixelPhase2CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::Phase2>;
+using SiPixelHIonPhase1CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::HIonPhase1>;
+using SiPixelHIonPhase1CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::HIonPhase1>;
 
 DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareRecHitsSoA);
+DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareRecHitsSoA);

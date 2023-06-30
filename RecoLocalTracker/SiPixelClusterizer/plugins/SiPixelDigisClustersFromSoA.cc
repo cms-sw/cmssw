@@ -50,8 +50,8 @@ SiPixelDigisClustersFromSoAT<TrackerTraits>::SiPixelDigisClustersFromSoAT(const 
     : topoToken_(esConsumes()),
       digiGetToken_(consumes<SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("src"))),
       clusterPutToken_(produces<SiPixelClusterCollectionNew>()),
-      clusterThresholds_{iConfig.getParameter<int>("clusterThreshold_layer1"),
-                         iConfig.getParameter<int>("clusterThreshold_otherLayers")},
+      clusterThresholds_(iConfig.getParameter<int>("clusterThreshold_layer1"),
+                         iConfig.getParameter<int>("clusterThreshold_otherLayers")),
       produceDigis_(iConfig.getParameter<bool>("produceDigis")),
       storeDigis_(iConfig.getParameter<bool>("produceDigis") && iConfig.getParameter<bool>("storeDigis")) {
   if (produceDigis_)
@@ -62,8 +62,8 @@ template <typename TrackerTraits>
 void SiPixelDigisClustersFromSoAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisSoA"));
-  desc.add<int>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
-  desc.add<int>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
+  desc.add<int>("clusterThreshold_layer1", 2000);  //TODO put these somewhere
+  desc.add<int>("clusterThreshold_otherLayers", 4000);
   desc.add<bool>("produceDigis", true);
   desc.add<bool>("storeDigis", true);
 
@@ -108,7 +108,7 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
   }
 
   int32_t nclus = -1;
-  PixelClusterizerBase::AccretionCluster aclusters[gpuClustering::maxNumClustersPerModules];
+  PixelClusterizerBase::AccretionCluster aclusters[TrackerTraits::maxNumClustersPerModules];
 #ifdef EDM_ML_DEBUG
   auto totClustersFilled = 0;
 #endif
@@ -183,7 +183,7 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
       // fill clusters
 #ifdef EDM_ML_DEBUG
     assert(digis.clus(i) >= 0);
-    assert(digis.clus(i) < gpuClustering::maxNumClustersPerModules);
+    assert(digis.clus(i) < TrackerTraits::maxNumClustersPerModules);
 #endif
     nclus = std::max(digis.clus(i), nclus);
     auto row = dig.row();
@@ -209,3 +209,5 @@ using SiPixelDigisClustersFromSoAPhase1 = SiPixelDigisClustersFromSoAT<pixelTopo
 DEFINE_FWK_MODULE(SiPixelDigisClustersFromSoAPhase1);
 using SiPixelDigisClustersFromSoAPhase2 = SiPixelDigisClustersFromSoAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelDigisClustersFromSoAPhase2);
+using SiPixelDigisClustersFromSoAHIonPhase1 = SiPixelDigisClustersFromSoAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(SiPixelDigisClustersFromSoAHIonPhase1);

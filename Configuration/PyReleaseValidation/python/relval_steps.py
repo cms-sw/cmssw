@@ -3013,6 +3013,18 @@ steps['RECOHI2023PPRECOMB']=merge([hiDefaults2023_ppReco,{'-s':'RAW2DIGI,L1Reco,
                                                           '--era':'Run3_pp_on_PbPb_2023',
                                                           '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
+steps['RECOHI2023PPRECOMB_PatatrackGPU']=merge([hiDefaults2023_ppReco,step3_pixel_ntuplet_gpu,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                          '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                                          '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--procModifiers':'genJetSubEvent',
+                                                        },step3Up2015Defaults])
+steps['RECOHI2023PPRECOMB_PatatrackCPU']=merge([hiDefaults2023_ppReco,step3_pixel_ntuplet_cpu,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                          '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                                          '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--procModifiers':'genJetSubEvent',
+                                                        },step3Up2015Defaults])
 steps['REMINIAODHI2023PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
                                          '--datatier':'MINIAODSIM,DQMIO',
                                          '--eventcontent':'MINIAODSIM,DQM',

@@ -77,5 +77,7 @@ private:
 //Classes definition for Phase1/Phase2, to make the classes_def lighter. Not actually used in the code.
 using TrackingRecHitSoADevicePhase1 = TrackingRecHitSoADevice<pixelTopology::Phase1>;
 using TrackingRecHitSoADevicePhase2 = TrackingRecHitSoADevice<pixelTopology::Phase2>;
+using TrackingRecHitSoADeviceHIonPhase1 = TrackingRecHitSoADevice<pixelTopology::HIonPhase1>;
+using TrackingRecHitSoADeviceHIonPhase1 = TrackingRecHitSoADevice<pixelTopology::HIonPhase1>;
 
 #endif  // CUDADataFormats_Track_TrackHeterogeneousT_H

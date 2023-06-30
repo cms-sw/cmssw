@@ -230,6 +230,7 @@ postProcessorTrack = DQMEDHarvester("DQMGenericClient",
     noFlowDists = cms.untracked.vstring(),
     outputFileName = cms.untracked.string("")
 )
+
 _addNoFlow(postProcessorTrack)
 
 postProcessorTrack2D = DQMEDHarvester("DQMGenericClient",
@@ -246,6 +247,7 @@ postProcessorTrack2D = DQMEDHarvester("DQMGenericClient",
     noFlowDists = cms.untracked.vstring(),
     outputFileName = cms.untracked.string("")
 )
+
 _addNoFlow(postProcessorTrack2D)
 
 # nrec/nsim makes sense only for
@@ -339,7 +341,6 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toReplaceWith(postProcessorTrack,postProcessorTrackPhase2)
 phase2_tracker.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryPhase2)
 
-
 from Configuration.ProcessModifiers.displacedTrackValidation_cff import displacedTrackValidation
 postProcessorTrackDisplaced = postProcessorTrack.clone()
 postProcessorTrackDisplaced.subDirs.extend(["Tracking/TrackDisplaced/*"])
@@ -348,11 +349,20 @@ postProcessorTrackSummaryDisplaced.subDirs.extend(["Tracking/TrackDisplaced/*"])
 displacedTrackValidation.toReplaceWith(postProcessorTrack,postProcessorTrackDisplaced)
 displacedTrackValidation.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryDisplaced)
 
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+
+_defaultSubdirsHIon =  _defaultSubdirs + ["Tracking/HIPixelTrack/*"]
+_defaultSubdirsSummaryHIon = [e.replace("/*","") for e in _defaultSubdirsHIon]
+
+pp_on_AA.toModify(postProcessorTrack,subDirs = _defaultSubdirsHIon)
+pp_on_AA.toModify(postProcessorTrack2D,subDirs = _defaultSubdirsHIon)
+pp_on_AA.toModify(postProcessorTrackSummary,subDirs = _defaultSubdirsHIon)
+
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
-postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*", "Tracking/TrackSeeding/*", "Tracking/PixelTrack/*", "Tracking/PixelTrackFromPV/*", "Tracking/PixelTrackFromPVAllTP/*", "Tracking/PixelTrackBHadron/*"])
+postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*", "Tracking/TrackSeeding/*", "Tracking/HIPixelTrack/*", "Tracking/PixelTrack/*", "Tracking/PixelTrackFromPV/*", "Tracking/PixelTrackFromPVAllTP/*", "Tracking/PixelTrackBHadron/*"])
 postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
-postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron", "Tracking/TrackSeeding", "Tracking/PixelTrack", "Tracking/PixelTrackFromPV", "Tracking/PixelTrackFromPVAllTP", "Tracking/PixelTrackBHadron"])
+postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron", "Tracking/TrackSeeding", "Tracking/HIPixelTrack", "Tracking/PixelTrack", "Tracking/PixelTrackFromPV", "Tracking/PixelTrackFromPVAllTP", "Tracking/PixelTrackBHadron"])
 
 postProcessorTrackSequenceTrackingOnly = cms.Sequence(
     postProcessorTrackTrackingOnly+
