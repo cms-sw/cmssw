@@ -34,11 +34,12 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   };
 
   if (nLevels == kBTLcrystalLevel || isDD4hepOK) {
-    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(2)) << ", " << bareBaseName(baseNumber.getLevelName(3)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(4)) << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(6)) << ", " << bareBaseName(baseNumber.getLevelName(7)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(8));
+    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1))
+                        << ", " << bareBaseName(baseNumber.getLevelName(2)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(3)) << ", " << bareBaseName(baseNumber.getLevelName(4))
+                        << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(6)) << ", " << bareBaseName(baseNumber.getLevelName(7))
+                        << ", " << bareBaseName(baseNumber.getLevelName(8));
 
     // barphiflat scenario
 
@@ -128,7 +129,8 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
       if (1 > modtyp || 3 < modtyp) {
         edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                   << "****************** Bad RU name, Volume Name = " << bareBaseName(baseNumber.getLevelName(2));
+                                   << "****************** Bad RU name, Volume Name = "
+                                   << bareBaseName(baseNumber.getLevelName(2));
         return 0;
       }
 
@@ -169,9 +171,10 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   } else if (nLevels == kBTLmoduleLevel && baseNumber.getLevelName(0).find("BTLModule") != std::string_view::npos) {
     // v2 scenario, geographicalId per module
     // for tracking navigation geometry
-    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(2)) << ", " << bareBaseName(baseNumber.getLevelName(3)) << ", "
-                        << bareBaseName(baseNumber.getLevelName(4)) << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
+    LogDebug("MTDGeom") << bareBaseName(baseNumber.getLevelName(0)) << ", " << bareBaseName(baseNumber.getLevelName(1))
+                        << ", " << bareBaseName(baseNumber.getLevelName(2)) << ", "
+                        << bareBaseName(baseNumber.getLevelName(3)) << ", " << bareBaseName(baseNumber.getLevelName(4))
+                        << ", " << bareBaseName(baseNumber.getLevelName(5)) << ", "
                         << bareBaseName(baseNumber.getLevelName(6)) << ", " << bareBaseName(baseNumber.getLevelName(7));
 
     modCopy = baseNumber.getCopyNumber(0);
@@ -194,7 +197,8 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
     if (1 > modtyp || 3 < modtyp) {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
-                                 << "****************** Bad RU name, Volume Name = " << bareBaseName(baseNumber.getLevelName(1));
+                                 << "****************** Bad RU name, Volume Name = "
+                                 << bareBaseName(baseNumber.getLevelName(1));
       return 0;
     }
 
