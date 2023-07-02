@@ -599,9 +599,9 @@ namespace l1t {
 
         (res->at(iOut)).push_SP(SP_);
 
-        res_track->push_back(Track_);
-
         if (Track_.Mode() != 0) {  // Mode == 0 means no track was found (only muon shower)
+          res_track->push_back(Track_);
+
           // TBIN_num can range from 0 through 7, i.e. BX = -3 through +4. - AWB 04.04.16
           res_cand->setBXRange(-3, 4);
           res_cand->push_back(SP_.TBIN() - 3, mu_);
