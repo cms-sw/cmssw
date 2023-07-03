@@ -31,19 +31,19 @@ namespace edm {
   class ParameterSet;
 
   namespace eventsetup {
-    class DataProxyProvider;
+    class ESProductResolverProvider;
     class EventSetupsController;
 
     struct ModuleMakerTraits {
-      typedef DataProxyProvider base_type;
+      typedef ESProductResolverProvider base_type;
 
       static std::string name();
       static std::string const& baseType();
       static void addTo(EventSetupProvider& iProvider,
-                        std::shared_ptr<DataProxyProvider> iComponent,
+                        std::shared_ptr<ESProductResolverProvider> iComponent,
                         ParameterSet const&,
                         bool);
-      static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<DataProxyProvider> iComponent);
+      static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<ESProductResolverProvider> iComponent);
       static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
                                                                        ParameterSet const& iConfiguration);
       static void putComponent(EventSetupsController& esController,

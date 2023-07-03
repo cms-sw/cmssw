@@ -25,14 +25,14 @@
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyData.h"
 
-#include "FWCore/Framework/interface/DataProxyTemplate.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverTemplate.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 
 // forward declarations
 namespace edm::eventsetup::test {
-  class WorkingDummyProxy : public edm::eventsetup::DataProxyTemplate<DummyRecord, DummyData> {
+  class WorkingDummyResolver : public edm::eventsetup::ESProductResolverTemplate<DummyRecord, DummyData> {
   public:
-    WorkingDummyProxy(const DummyData* iDummy) : data_(iDummy) {}
+    WorkingDummyResolver(const DummyData* iDummy) : data_(iDummy) {}
 
   protected:
     const value_type* make(const record_type&, const DataKey&) final { return data_; }
@@ -42,19 +42,19 @@ namespace edm::eventsetup::test {
     const DummyData* data_;
   };
 
-  class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
+  class DummyESProductResolverProvider : public edm::eventsetup::ESProductResolverProvider {
   public:
-    DummyProxyProvider(const DummyData& iData = DummyData()) : dummy_(iData) { usingRecord<DummyRecord>(); }
+    DummyESProductResolverProvider(const DummyData& iData = DummyData()) : dummy_(iData) { usingRecord<DummyRecord>(); }
 
     void incrementData() { ++dummy_.value_; }
 
   protected:
-    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
-      KeyedProxiesVector keyedProxiesVector;
+    KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
+      KeyedResolversVector keyedResolversVector;
       edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<DummyData>(), "");
-      std::shared_ptr<WorkingDummyProxy> pProxy = std::make_shared<WorkingDummyProxy>(&dummy_);
-      keyedProxiesVector.emplace_back(dataKey, pProxy);
-      return keyedProxiesVector;
+      std::shared_ptr<WorkingDummyResolver> pResolver = std::make_shared<WorkingDummyResolver>(&dummy_);
+      keyedResolversVector.emplace_back(dataKey, pResolver);
+      return keyedResolversVector;
     }
 
   private:

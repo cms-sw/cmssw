@@ -85,7 +85,7 @@ namespace edm {
 
     protected:
       static std::string providerButNoDataMessage(const EventSetupRecordKey& iKey);
-      static std::string noProxyMessage();
+      static std::string noProviderMessage();
       void constructMessage(const char* iClassName, const std::string& iExtraInfo);
 
     private:

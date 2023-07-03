@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     ESRecordsToProxyIndices
+// Class  :     ESRecordsToProductResolverIndices
 //
 // Implementation:
 //     <Notes on implementation>
@@ -15,7 +15,7 @@
 #include <algorithm>
 
 // user include files
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
 //
@@ -23,17 +23,18 @@
 //
 
 namespace edm::eventsetup {
-  ESRecordsToProxyIndices::ESRecordsToProxyIndices(std::vector<EventSetupRecordKey> iRecords)
+  ESRecordsToProductResolverIndices::ESRecordsToProductResolverIndices(std::vector<EventSetupRecordKey> iRecords)
       : recordKeys_{std::move(iRecords)} {
     assert(std::is_sorted(recordKeys_.begin(), recordKeys_.end()));
     recordOffsets_.reserve(recordKeys_.size() + 1);
     recordOffsets_.push_back(0);
   }
 
-  unsigned int ESRecordsToProxyIndices::dataKeysInRecord(unsigned int iRecordIndex,
-                                                         EventSetupRecordKey const& iRecord,
-                                                         std::vector<DataKey> const& iDataKeys,
-                                                         std::vector<ComponentDescription const*> const& iComponents) {
+  unsigned int ESRecordsToProductResolverIndices::dataKeysInRecord(
+      unsigned int iRecordIndex,
+      EventSetupRecordKey const& iRecord,
+      std::vector<DataKey> const& iDataKeys,
+      std::vector<ComponentDescription const*> const& iComponents) {
     assert(iRecord == recordKeys_[iRecordIndex]);
     assert(iDataKeys.size() == iComponents.size());
     assert(iRecordIndex + 1 == recordOffsets_.size());
@@ -47,11 +48,11 @@ namespace edm::eventsetup {
   //
   // const member functions
   //
-  ESProxyIndex ESRecordsToProxyIndices::indexInRecord(EventSetupRecordKey const& iRK,
-                                                      DataKey const& iDK) const noexcept {
+  ESResolverIndex ESRecordsToProductResolverIndices::indexInRecord(EventSetupRecordKey const& iRK,
+                                                                   DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
-      return missingProxyIndex();
+      return missingResolverIndex();
     }
 
     auto beginOffset = recordOffsets_[std::distance(recordKeys_.begin(), it)];
@@ -60,13 +61,13 @@ namespace edm::eventsetup {
 
     auto itDK = std::lower_bound(dataKeys_.begin() + beginOffset, dataKeys_.begin() + endOffset, iDK);
     if (itDK == dataKeys_.begin() + endOffset or *itDK != iDK) {
-      return missingProxyIndex();
+      return missingResolverIndex();
     }
 
-    return ESProxyIndex{static_cast<int>(std::distance(dataKeys_.begin() + beginOffset, itDK))};
+    return ESResolverIndex{static_cast<int>(std::distance(dataKeys_.begin() + beginOffset, itDK))};
   }
 
-  ESRecordIndex ESRecordsToProxyIndices::recordIndexFor(EventSetupRecordKey const& iRK) const noexcept {
+  ESRecordIndex ESRecordsToProductResolverIndices::recordIndexFor(EventSetupRecordKey const& iRK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
       return missingRecordIndex();
@@ -74,8 +75,8 @@ namespace edm::eventsetup {
     return ESRecordIndex{static_cast<ESRecordIndex::Value_t>(it - recordKeys_.begin())};
   }
 
-  ComponentDescription const* ESRecordsToProxyIndices::component(EventSetupRecordKey const& iRK,
-                                                                 DataKey const& iDK) const noexcept {
+  ComponentDescription const* ESRecordsToProductResolverIndices::component(EventSetupRecordKey const& iRK,
+                                                                           DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
       return nullptr;
@@ -92,7 +93,8 @@ namespace edm::eventsetup {
     return components_[std::distance(dataKeys_.begin(), itDK)];
   }
 
-  ESTagGetter ESRecordsToProxyIndices::makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const {
+  ESTagGetter ESRecordsToProductResolverIndices::makeTagGetter(EventSetupRecordKey const& iRK,
+                                                               TypeTag const& iTT) const {
     auto recIndex = recordIndexFor(iRK);
     if (recIndex == missingRecordIndex()) {
       return ESTagGetter();
@@ -124,7 +126,7 @@ namespace edm::eventsetup {
   }
 
   std::pair<std::vector<DataKey>::const_iterator, std::vector<DataKey>::const_iterator>
-  ESRecordsToProxyIndices::keysForRecord(EventSetupRecordKey const& iRK) const noexcept {
+  ESRecordsToProductResolverIndices::keysForRecord(EventSetupRecordKey const& iRK) const noexcept {
     auto recIndex = recordIndexFor(iRK);
     if (recIndex == missingRecordIndex()) {
       return std::make_pair(dataKeys_.end(), dataKeys_.end());

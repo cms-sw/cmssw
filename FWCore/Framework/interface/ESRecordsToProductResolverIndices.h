@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_ESRecordsToProxyIndices_h
-#define FWCore_Framework_ESRecordsToProxyIndices_h
+#ifndef FWCore_Framework_ESRecordsToProductResolverIndices_h
+#define FWCore_Framework_ESRecordsToProductResolverIndices_h
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     ESRecordsToProxyIndices
+// Class  :     ESRecordsToProductResolverIndices
 //
-/**\class ESRecordsToProxyIndices ESRecordsToProxyIndices.h FWCore/Framework/interface/ESRecordsToProxyIndices.h
+/**\class ESRecordsToProductResolverIndices ESRecordsToProductResolverIndices.h FWCore/Framework/interface/ESRecordsToProductResolverIndices.h
 
  Description: Key used to identify data within a EventSetupRecord
 
@@ -32,20 +32,22 @@
 namespace edm::eventsetup {
   struct ComponentDescription;
 
-  class ESRecordsToProxyIndices {
+  class ESRecordsToProductResolverIndices {
   public:
-    ESRecordsToProxyIndices(std::vector<EventSetupRecordKey> iRecords);
+    ESRecordsToProductResolverIndices(std::vector<EventSetupRecordKey> iRecords);
 
     // ---------- const member functions ---------------------
-    ///If the index is not found, returns missingProxyIndex()
-    ESProxyIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
+    ///If the index is not found, returns missingResolverIndex()
+    ESResolverIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ///Returns ESTagGetter for all products matching the type iTT for record iRK
     ESTagGetter makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const;
 
-    static constexpr ESProxyIndex missingProxyIndex() noexcept { return ESProxyIndex{std::numeric_limits<int>::max()}; }
+    static constexpr ESResolverIndex missingResolverIndex() noexcept {
+      return ESResolverIndex{std::numeric_limits<int>::max()};
+    }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {
       return ESRecordIndex{ESRecordIndex::invalidValue()};
     }

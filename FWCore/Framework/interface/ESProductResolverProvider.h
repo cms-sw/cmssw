@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_DataProxyProvider_h
-#define FWCore_Framework_DataProxyProvider_h
+#ifndef FWCore_Framework_ESProductResolverProvider_h
+#define FWCore_Framework_ESProductResolverProvider_h
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     DataProxyProvider
+// Class  :     ESProductResolverProvider
 //
-/**\class edm::eventsetup::DataProxyProvider
+/**\class edm::eventsetup::ESProductResolverProvider
 
  Description: Lowest level base class for modules which produce
               data for the EventSetup system.
@@ -15,11 +15,11 @@
     In most cases, the methods in this class are used exclusively by the
     Framework. Usually, EventSetup modules producing data inherit from
     the ESProducer base class which inherits from this class. The ESProducer
-    base class takes care of overriding the registerProxies function
+    base class takes care of overriding the registerResolvers function
     and calling usingRecord or usingRecordWithKey.
 
     In cases where the ESProducer base class is not used (PoolDBESSource/
-    CondDBESSource is the main such class) then the registerProxies
+    CondDBESSource is the main such class) then the registerResolvers
     function must be overridden. For the same EventSetupRecordKey, the
     vector returned should contain the same DataKeys in the same order for
     all the different iovIndexes. DataProxies associated with the same
@@ -31,7 +31,7 @@
     they provide data for.
 
     All other functions are intended for use by the Framework or tests
-    and should not be called in classes derived from DataProxyProvider.
+    and should not be called in classes derived from ESProductResolverProvider.
     They are primarily used when initializing the EventSetup system
     so the DataProxies are available for use when needed.
 */
@@ -58,27 +58,27 @@ namespace edm {
   class ParameterSet;
 
   namespace eventsetup {
-    class DataProxy;
-    class ESRecordsToProxyIndices;
+    class ESProductResolver;
+    class ESRecordsToProductResolverIndices;
 
-    class DataProxyProvider {
+    class ESProductResolverProvider {
     public:
-      DataProxyProvider();
-      DataProxyProvider(const DataProxyProvider&) = delete;
-      const DataProxyProvider& operator=(const DataProxyProvider&) = delete;
-      virtual ~DataProxyProvider() noexcept(false);
+      ESProductResolverProvider();
+      ESProductResolverProvider(const ESProductResolverProvider&) = delete;
+      const ESProductResolverProvider& operator=(const ESProductResolverProvider&) = delete;
+      virtual ~ESProductResolverProvider() noexcept(false);
 
-      class DataProxyContainer;
+      class ESProductResolverContainer;
 
-      class KeyedProxies {
+      class KeyedResolvers {
       public:
-        KeyedProxies(DataProxyContainer*, unsigned int recordIndex);
+        KeyedResolvers(ESProductResolverContainer*, unsigned int recordIndex);
 
         bool unInitialized() const;
 
         EventSetupRecordKey const& recordKey() const;
 
-        void insert(std::vector<std::pair<DataKey, std::shared_ptr<DataProxy>>>&&,
+        void insert(std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>>&&,
                     std::string const& appendToDataLabel);
 
         bool contains(DataKey const& dataKey) const;
@@ -89,7 +89,7 @@ namespace edm {
         class Iterator {
         public:
           DataKey& dataKey() { return *dataKeysIter_; }
-          DataProxy* dataProxy() { return dataProxiesIter_->get(); }
+          ESProductResolver* productResolver() { return productResolversIter_->get(); }
           Iterator& operator++();
 
           bool operator!=(Iterator const& right) const { return dataKeysIter_ != right.dataKeysIter_; }
@@ -97,29 +97,30 @@ namespace edm {
           // Warning: dereference operator does not return a reference to an element in a container.
           // The return type is nonstandard because the iteration is simultaneous over 2 containers.
           // This return type is used in "ranged-based for" loops.
-          struct KeyedProxy {
-            KeyedProxy(DataKey& dataKey, DataProxy* dataProxy) : dataKey_(dataKey), dataProxy_(dataProxy) {}
+          struct KeyedResolver {
+            KeyedResolver(DataKey& dataKey, ESProductResolver* productResolver)
+                : dataKey_(dataKey), productResolver_(productResolver) {}
             DataKey& dataKey_;
-            DataProxy* dataProxy_;
+            ESProductResolver* productResolver_;
           };
-          KeyedProxy operator*() { return KeyedProxy(dataKey(), dataProxy()); }
+          KeyedResolver operator*() { return KeyedResolver(dataKey(), productResolver()); }
 
         private:
-          friend KeyedProxies;
+          friend KeyedResolvers;
           Iterator(std::vector<DataKey>::iterator dataKeysIter,
-                   std::vector<edm::propagate_const<std::shared_ptr<DataProxy>>>::iterator dataProxiesIter);
+                   std::vector<edm::propagate_const<std::shared_ptr<ESProductResolver>>>::iterator productResolversIter);
 
           std::vector<DataKey>::iterator dataKeysIter_;
-          std::vector<edm::propagate_const<std::shared_ptr<DataProxy>>>::iterator dataProxiesIter_;
+          std::vector<edm::propagate_const<std::shared_ptr<ESProductResolver>>>::iterator productResolversIter_;
         };
 
         Iterator begin();
         Iterator end();
 
       private:
-        edm::propagate_const<DataProxyContainer*> dataProxyContainer_;
+        edm::propagate_const<ESProductResolverContainer*> productResolverContainer_;
         unsigned int recordIndex_;
-        unsigned int dataProxiesIndex_;
+        unsigned int productResolversIndex_;
       };
 
       struct PerRecordInfo {
@@ -131,10 +132,10 @@ namespace edm {
         unsigned int nDataKeys_ = 0;
         unsigned int indexToDataKeys_;
         unsigned int nIOVs_ = 0;
-        unsigned int indexToKeyedProxies_ = 0;
+        unsigned int indexToKeyedResolvers_ = 0;
       };
 
-      class DataProxyContainer {
+      class ESProductResolverContainer {
       public:
         void usingRecordWithKey(const EventSetupRecordKey&);
         bool isUsingRecord(const EventSetupRecordKey&) const;
@@ -142,35 +143,35 @@ namespace edm {
         void fillRecordsNotAllowingConcurrentIOVs(std::set<EventSetupRecordKey>& recordsNotAllowingConcurrentIOVs) const;
 
         void sortEventSetupRecordKeys();
-        void createKeyedProxies(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs);
+        void createKeyedResolvers(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs);
 
-        KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey, unsigned int iovIndex);
+        KeyedResolvers& keyedResolvers(const EventSetupRecordKey& iRecordKey, unsigned int iovIndex);
 
       private:
-        friend KeyedProxies;
+        friend KeyedResolvers;
 
         std::vector<PerRecordInfo> perRecordInfos_;
-        std::vector<KeyedProxies> keyedProxiesCollection_;
+        std::vector<KeyedResolvers> keyedResolversCollection_;
         std::vector<DataKey> dataKeys_;
-        std::vector<edm::propagate_const<std::shared_ptr<DataProxy>>> dataProxies_;
+        std::vector<edm::propagate_const<std::shared_ptr<ESProductResolver>>> productResolvers_;
       };
 
-      bool isUsingRecord(const EventSetupRecordKey& key) const { return dataProxyContainer_.isUsingRecord(key); }
-      std::set<EventSetupRecordKey> usingRecords() const { return dataProxyContainer_.usingRecords(); }
+      bool isUsingRecord(const EventSetupRecordKey& key) const { return productResolverContainer_.isUsingRecord(key); }
+      std::set<EventSetupRecordKey> usingRecords() const { return productResolverContainer_.usingRecords(); }
       void fillRecordsNotAllowingConcurrentIOVs(std::set<EventSetupRecordKey>& recordsNotAllowingConcurrentIOVs) const {
-        dataProxyContainer_.fillRecordsNotAllowingConcurrentIOVs(recordsNotAllowingConcurrentIOVs);
+        productResolverContainer_.fillRecordsNotAllowingConcurrentIOVs(recordsNotAllowingConcurrentIOVs);
       }
 
       virtual void initConcurrentIOVs(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {}
 
-      void createKeyedProxies(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {
-        dataProxyContainer_.createKeyedProxies(key, nConcurrentIOVs);
+      void createKeyedResolvers(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {
+        productResolverContainer_.createKeyedResolvers(key, nConcurrentIOVs);
         initConcurrentIOVs(key, nConcurrentIOVs);
       }
 
       const ComponentDescription& description() const { return description_; }
 
-      virtual void updateLookup(ESRecordsToProxyIndices const&);
+      virtual void updateLookup(ESRecordsToProductResolverIndices const&);
 
       void setDescription(const ComponentDescription& iDescription) { description_ = iDescription; }
 
@@ -179,7 +180,7 @@ namespace edm {
       **/
       void setAppendToDataLabel(const edm::ParameterSet&);
 
-      KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey, unsigned int iovIndex = 0);
+      KeyedResolvers& keyedResolvers(const EventSetupRecordKey& iRecordKey, unsigned int iovIndex = 0);
 
       /**Used to add parameters available to all inheriting classes
       */
@@ -191,14 +192,14 @@ namespace edm {
         usingRecordWithKey(EventSetupRecordKey::makeKey<T>());
       }
 
-      void usingRecordWithKey(const EventSetupRecordKey& key) { dataProxyContainer_.usingRecordWithKey(key); }
+      void usingRecordWithKey(const EventSetupRecordKey& key) { productResolverContainer_.usingRecordWithKey(key); }
 
-      using KeyedProxiesVector = std::vector<std::pair<DataKey, std::shared_ptr<DataProxy>>>;
-      virtual KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) = 0;
+      using KeyedResolversVector = std::vector<std::pair<DataKey, std::shared_ptr<ESProductResolver>>>;
+      virtual KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int iovIndex) = 0;
 
     private:
       // ---------- member data --------------------------------
-      DataProxyContainer dataProxyContainer_;
+      ESProductResolverContainer productResolverContainer_;
       ComponentDescription description_;
       std::string appendToDataLabel_;
     };

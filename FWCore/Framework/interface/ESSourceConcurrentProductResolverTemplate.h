@@ -1,13 +1,13 @@
-#ifndef FWCore_Framework_ESSourceDataProxyTemplate_h
-#define FWCore_Framework_ESSourceDataProxyTemplate_h
+#ifndef FWCore_Framework_ESSourceConcurrentESProductResolverTemplate_h
+#define FWCore_Framework_ESSourceConcurrentESProductResolverTemplate_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     ESSourceDataProxyTemplate
+// Class  :     ESSourceConcurrentESProductResolverTemplate
 //
-/**\class ESSourceDataProxyTemplate ESSourceDataProxyTemplate.h "FWCore/Framework/interface/ESSourceDataProxyTemplate.h"
+/**\class ESSourceConcurrentESProductResolverTemplate ESSourceConcurrentESProductResolverTemplate.h "FWCore/Framework/interface/ESSourceConcurrentESProductResolverTemplate.h"
 
- Description: An ESSource specific DataProxy which is type safe.
+ Description: An ESSource specific ESProductResolver which is type safe and can run concurrently with other DataProxies from the same ESSource.
 
  Usage:
     Inherit from this class and override
@@ -21,25 +21,25 @@
 */
 //
 // Original Author:  Chris Jones
-//         Created:  14/05/2020
+//         Created:  17/12/2021
 //
 
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverConcurrentBase.h"
 
 // forward declarations
 
 namespace edm::eventsetup {
   template <typename DataT>
-  class ESSourceDataProxyTemplate : public ESSourceDataProxyNonConcurrentBase {
+  class ESSourceConcurrentESProductResolverTemplate : public ESSourceProductResolverConcurrentBase {
   public:
-    ESSourceDataProxyTemplate(edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
-        : ESSourceDataProxyNonConcurrentBase(iQueue, iMutex) {}
+    ESSourceConcurrentESProductResolverTemplate() = default;
 
-    ESSourceDataProxyTemplate(const ESSourceDataProxyTemplate&) = delete;
-    const ESSourceDataProxyTemplate& operator=(const ESSourceDataProxyTemplate&) = delete;
+    ESSourceConcurrentESProductResolverTemplate(const ESSourceConcurrentESProductResolverTemplate&) = delete;
+    const ESSourceConcurrentESProductResolverTemplate& operator=(const ESSourceConcurrentESProductResolverTemplate&) =
+        delete;
 
     // ---------- const member functions ---------------------
 

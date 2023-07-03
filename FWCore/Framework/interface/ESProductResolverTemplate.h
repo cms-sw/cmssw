@@ -1,15 +1,15 @@
-#ifndef FWCore_Framework_DataProxyTemplate_h
-#define FWCore_Framework_DataProxyTemplate_h
+#ifndef FWCore_Framework_ESProductResolverTemplate_h
+#define FWCore_Framework_ESProductResolverTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     DataProxyTemplate
+// Class  :     ESProductResolverTemplate
 //
-/**\class DataProxyTemplate DataProxyTemplate.h FWCore/Framework/interface/DataProxyTemplate.h
+/**\class ESProductResolverTemplate ESProductResolverTemplate.h FWCore/Framework/interface/ESProductResolverTemplate.h
 
- Description: A DataProxy base class which allows one to write type-safe proxies
+ Description: A ESProductResolver base class which allows one to write type-safe proxies
 
-              Note that DataProxy types that inherit from this are not allowed
+              Note that ESProductResolver types that inherit from this are not allowed
               to get data from the EventSetup (they cannot consume anything).
               This is intended mainly for use with ESSources that are also
               not allowed to get data from the EventSetup. Currently (as of
@@ -18,7 +18,7 @@
 
               This is also not used with ESProducers that inherit from
               the ESProducer base class and use the setWhatProduced interface.
-              This class is used instead of CallProxy.
+              This class is used instead of CallbackProductResolver.
 
  Usage:
     <usage>
@@ -31,7 +31,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
@@ -50,12 +50,12 @@ namespace edm {
   namespace eventsetup {
 
     template <class RecordT, class DataT>
-    class DataProxyTemplate : public DataProxy {
+    class ESProductResolverTemplate : public ESProductResolver {
     public:
       typedef DataT value_type;
       typedef RecordT record_type;
 
-      DataProxyTemplate() {}
+      ESProductResolverTemplate() {}
 
       void prefetchAsyncImpl(WaitingTaskHolder iTask,
                              const EventSetupRecordImpl& iRecord,

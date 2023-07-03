@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_DataProxy_h
-#define FWCore_Framework_DataProxy_h
+#ifndef FWCore_Framework_ESProductResolver_h
+#define FWCore_Framework_ESProductResolver_h
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     DataProxy
+// Class  :     ESProductResolver
 //
-/**\class edm::eventsetup::DataProxy
+/**\class edm::eventsetup::ESProductResolver
 
  Description: Base class for data Proxies held by a EventSetupRecord
 
@@ -37,12 +37,12 @@ namespace edm {
     class DataKey;
     class EventSetupRecordImpl;
 
-    class DataProxy {
+    class ESProductResolver {
     public:
-      DataProxy();
-      DataProxy(DataProxy const&) = delete;
-      DataProxy const& operator=(DataProxy const&) = delete;
-      virtual ~DataProxy();
+      ESProductResolver();
+      ESProductResolver(ESProductResolver const&) = delete;
+      ESProductResolver const& operator=(ESProductResolver const&) = delete;
+      virtual ~ESProductResolver();
 
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
@@ -56,7 +56,7 @@ namespace edm {
 
       void const* getAfterPrefetch(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently) const;
 
-      ///returns the description of the DataProxyProvider which owns this Proxy
+      ///returns the description of the ESProductResolverProvider which owns this Resolver
       ComponentDescription const* providerDescription() const { return description_; }
 
       // ---------- member functions ---------------------------
@@ -85,12 +85,12 @@ namespace edm {
                                      ServiceToken const&,
                                      ESParentContext const&) = 0;
 
-      /** indicates that the Proxy should invalidate any cached information
+      /** indicates that the Resolver should invalidate any cached information
           as that information has 'expired' (i.e. we have moved to a new IOV)
           */
       virtual void invalidateCache() = 0;
 
-      /** indicates that the Proxy should invalidate any cached information
+      /** indicates that the Resolver should invalidate any cached information
           as that information was accessed transiently and therefore is not
           intended to be kept over the entire IOV.  Default is to call
           invalidateCache().
@@ -136,7 +136,7 @@ namespace edm {
       // One other thing to note is that the virtual invalidateTransientCache
       // function is defined in this class to just call invalidateCache.
       // Outside of unit tests, the only thing that overrides this definition
-      // is in CondCore/ESSources/interface/DataProxy.h. So in all other cases
+      // is in CondCore/ESSources/interface/ESProductResolver.h. So in all other cases
       // the behavior is that invalidateCache is called twice sometimes
       // instead of just once. Possibly it is important that invalidateTransientCache
       // is called in the CondCore code. I don't know.

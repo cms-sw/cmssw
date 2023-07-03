@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
@@ -128,7 +128,7 @@ namespace edm {
 
       if (not iConfig.esProduceEntries().empty()) {
         esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
-        esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
+        esp_->add(std::dynamic_pointer_cast<eventsetup::ESProductResolverProvider>(esHelper_));
         esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
       }
 
@@ -419,7 +419,7 @@ namespace edm {
 
       espController_->finishConfiguration();
 
-      schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
+      schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
       actReg_->postBeginJobSignal_();
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {

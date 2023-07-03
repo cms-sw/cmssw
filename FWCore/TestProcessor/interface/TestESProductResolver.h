@@ -1,11 +1,11 @@
-#ifndef FWCore_TestProcessor_TestDataProxy_h
-#define FWCore_TestProcessor_TestDataProxy_h
+#ifndef FWCore_TestProcessor_TestESProductResolver_h
+#define FWCore_TestProcessor_TestESProductResolver_h
 // -*- C++ -*-
 //
 // Package:     FWCore/TestProcessor
-// Class  :     TestDataProxy
+// Class  :     TestESProductResolver
 //
-/**\class TestDataProxy TestDataProxy.h "TestDataProxy.h"
+/**\class TestESProductResolver TestESProductResolver.h "TestESProductResolver.h"
 
  Description: [one line class summary]
 
@@ -22,7 +22,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
@@ -31,9 +31,9 @@ namespace edm {
   namespace test {
 
     template <typename T>
-    class TestDataProxy : public eventsetup::DataProxy {
+    class TestESProductResolver : public eventsetup::ESProductResolver {
     public:
-      TestDataProxy() {}
+      TestESProductResolver() {}
 
       void setData(std::unique_ptr<T> iData) { data_ = std::move(iData); }
 

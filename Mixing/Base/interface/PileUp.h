@@ -79,7 +79,7 @@ namespace edm {
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
       input_->dropUnwantedBranches(wantedBranches);
     }
-    void beginJob(eventsetup::ESRecordsToProxyIndices const&);
+    void beginJob(eventsetup::ESRecordsToProductResolverIndices const&);
     void beginStream(edm::StreamID);
     void endStream();
 

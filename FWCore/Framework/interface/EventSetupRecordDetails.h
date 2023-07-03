@@ -10,7 +10,7 @@
  Description: Provides access to meta data of an EventSetupRecord.
 
  Usage:
-      This is used in the ESSourceDataProxyBase user interface.
+      This is used in the ESSourceProductResolverBase user interface.
 
 */
 //

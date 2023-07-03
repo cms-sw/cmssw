@@ -1,16 +1,16 @@
-#ifndef FWCore_Framework_ESSourceDataProxyBase_h
-#define FWCore_Framework_ESSourceDataProxyBase_h
+#ifndef FWCore_Framework_ESSourceProductResolverBase_h
+#define FWCore_Framework_ESSourceProductResolverBase_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     ESSourceDataProxyBase
+// Class  :     ESSourceProductResolverBase
 //
-/**\class ESSourceDataProxyBase ESSourceDataProxyBase.h "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+/**\class ESSourceProductResolverBase ESSourceProductResolverBase.h "FWCore/Framework/interface/ESSourceProductResolverBase.h"
 
  Description: Base class for DataProxies for ESSources that can be specialized based on concurrency needs
 
  Usage:
-    The ESSourceDataProxyBase provides the bases for DataProxies needed for ESSources. It allows customization of synchronization needs via the use of template parameters.
+    The ESSourceProductResolverBase provides the bases for DataProxies needed for ESSources. It allows customization of synchronization needs via the use of template parameters.
 
     NOTE: if inheriting classes override `void invalidateCache()` they must be sure to call this classes
     implementation as part of the call.
@@ -25,7 +25,7 @@
 #include <atomic>
 
 // user include files
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetupRecordDetails.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
@@ -33,9 +33,9 @@
 // forward declarations
 
 namespace edm::eventsetup {
-  class ESSourceDataProxyBase : public DataProxy {
+  class ESSourceProductResolverBase : public ESProductResolver {
   public:
-    ESSourceDataProxyBase() : m_prefetching{false} {}
+    ESSourceProductResolverBase() : m_prefetching{false} {}
 
   protected:
     void invalidateCache() override {

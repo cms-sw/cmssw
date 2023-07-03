@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
 #include <memory>
@@ -35,7 +35,7 @@ TYPELOOKUP_DATA_REG(Data2);
 TYPELOOKUP_DATA_REG(Data3);
 
 using namespace edm::eventsetup;
-TEST_CASE("test ESRecordsToProxyIndices", "[ESRecordsToProxyIndices]") {
+TEST_CASE("test ESRecordsToProductResolverIndices", "[ESRecordsToProductResolverIndices]") {
   DataKey const data1Key{DataKey::makeTypeTag<Data1>(), ""};
   DataKey const data2Key{DataKey::makeTypeTag<Data2>(), "foo"};
   DataKey const data3Key{DataKey::makeTypeTag<Data3>(), ""};
@@ -44,10 +44,10 @@ TEST_CASE("test ESRecordsToProxyIndices", "[ESRecordsToProxyIndices]") {
   auto const rcd3Key = EventSetupRecordKey::makeKey<Rcd3>();
   auto const missingRcdKey = EventSetupRecordKey::makeKey<MissingRcd>();
 
-  auto constexpr kMissingKey = ESRecordsToProxyIndices::missingProxyIndex();
+  auto constexpr kMissingKey = ESRecordsToProductResolverIndices::missingResolverIndex();
 
   SECTION("test empty") {
-    ESRecordsToProxyIndices empty{{}};
+    ESRecordsToProductResolverIndices empty{{}};
 
     REQUIRE(kMissingKey == empty.indexInRecord(rcd1Key, data1Key));
     REQUIRE(nullptr == empty.component(rcd1Key, data1Key));
@@ -57,7 +57,7 @@ TEST_CASE("test ESRecordsToProxyIndices", "[ESRecordsToProxyIndices]") {
   SECTION(" test full") {
     std::vector<EventSetupRecordKey> records = {rcd1Key, rcd2Key, rcd3Key};
     std::sort(records.begin(), records.end());
-    ESRecordsToProxyIndices r2pi{records};
+    ESRecordsToProductResolverIndices r2pi{records};
 
     std::vector<DataKey> dataKeys = {data1Key, data2Key, data3Key};
     std::sort(dataKeys.begin(), dataKeys.end());
