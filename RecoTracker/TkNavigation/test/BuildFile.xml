@@ -10,3 +10,5 @@
 <library file="*.cc" name="RecoTrackerTkNavigationTest">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="test_NavigationSchool" command="testNavigationSchool.sh"/>
