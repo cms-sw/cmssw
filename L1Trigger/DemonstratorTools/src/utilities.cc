@@ -4,6 +4,9 @@
 #include <fstream>
 #include <regex>
 #include <unordered_map>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filter/lzma.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -93,12 +96,20 @@ namespace l1t::demo {
   BoardData readX2OFile(std::istream&);
 
   BoardData read(const std::string& filePath, const FileFormat format) {
-    std::ifstream file(filePath);
+    std::ifstream file(filePath, std::ios_base::in | std::ios_base::binary);
 
     if (not file.is_open())
       throw std::runtime_error("Could not open file '" + filePath + "'");
 
-    return read(file, format);
+    boost::iostreams::filtering_istream stream;
+    if (filePath.rfind(".gz") == filePath.length() - 3)
+      stream.push(boost::iostreams::gzip_decompressor());
+    else if (filePath.rfind(".xz") == filePath.length() - 3)
+      stream.push(boost::iostreams::lzma_decompressor());
+
+    stream.push(file);
+
+    return read(stream, format);
   }
 
   BoardData read(std::istream& file, const FileFormat format) {
@@ -368,12 +379,19 @@ namespace l1t::demo {
         << "Writing board data (" << std::distance(data.begin(), data.end()) << " channels, "
         << data.begin()->second.size() << " frames) to file '" << filePath << "' (format: " << format << ")"
         << std::endl;
-    std::ofstream file(filePath);
+
+    std::ofstream file(filePath, std::ios_base::out | std::ios_base::binary);
 
     if (not file.is_open())
       throw std::runtime_error("Could not open file '" + filePath + "'");
 
-    write(data, file, format);
+    boost::iostreams::filtering_ostream stream;
+    if (filePath.rfind(".gz") == filePath.length() - 3)
+      stream.push(boost::iostreams::gzip_compressor());
+    else if (filePath.rfind(".xz") == filePath.length() - 3)
+      stream.push(boost::iostreams::lzma_compressor());
+    stream.push(file);
+    write(data, stream, format);
   }
 
   void write(const BoardData& data, std::ostream& file, const FileFormat format) {
