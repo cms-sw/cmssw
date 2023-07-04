@@ -27,9 +27,6 @@
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 //
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -50,19 +47,18 @@ public:
   const float getEffectiveArea(float eta) const;
   void printEffectiveAreas() const;
 
-  edm::EDGetTokenT<double> theRhoToken;
-  edm::EDGetTokenT<reco::PhotonCollection> thePhotonToken;
-  edm::Handle<double> _rhoHandle;
+  const edm::EDGetTokenT<double> theRhoToken_;
+  edm::Handle<double> rhoHandle_;
 
-  std::vector<double> absEtaMin_;            // low limit of the eta range
-  std::vector<double> absEtaMax_;            // upper limit of the eta range
-  std::vector<double> effectiveAreaValues_;  // effective area for this eta range
+  const std::vector<double> absEtaMin_;            // low limit of the eta range
+  const std::vector<double> absEtaMax_;            // upper limit of the eta range
+  const std::vector<double> effectiveAreaValues_;  // effective area for this eta range
 
-  edm::ParameterSet phIDWP;
+  const edm::ParameterSet phIDWP_;
 
-  vector<double> sigmaIEtaIEtaCut;
-  vector<double> hOverECut;
-  vector<double> relCombIso;
+  const vector<double> sigmaIEtaIEtaCut_;
+  const vector<double> hOverECut_;
+  const vector<double> relCombIso_;
 };
 
 void IsoPhotonEBSelector::printEffectiveAreas() const {
@@ -86,20 +82,19 @@ const float IsoPhotonEBSelector::getEffectiveArea(float eta) const {
 }
 
 IsoPhotonEBSelector::IsoPhotonEBSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
-    : theRhoToken(iC.consumes<double>(cfg.getParameter<edm::InputTag>("rho"))) {
-  absEtaMin_ = cfg.getParameter<std::vector<double> >("absEtaMin");
-  absEtaMax_ = cfg.getParameter<std::vector<double> >("absEtaMax");
-  effectiveAreaValues_ = cfg.getParameter<std::vector<double> >("effectiveAreaValues");
+    : theRhoToken_(iC.consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
+      absEtaMin_(cfg.getParameter<std::vector<double> >("absEtaMin")),
+      absEtaMax_(cfg.getParameter<std::vector<double> >("absEtaMax")),
+      effectiveAreaValues_(cfg.getParameter<std::vector<double> >("effectiveAreaValues")),
+      phIDWP_(cfg.getParameter<edm::ParameterSet>("phID")),
+      sigmaIEtaIEtaCut_(phIDWP_.getParameter<std::vector<double> >("full5x5_sigmaIEtaIEtaCut")),
+      hOverECut_(phIDWP_.getParameter<std::vector<double> >("hOverECut")),
+      relCombIso_(phIDWP_.getParameter<std::vector<double> >("relCombIsolationWithEACut")) {
   //printEffectiveAreas();
-  phIDWP = cfg.getParameter<edm::ParameterSet>("phID");
-
-  sigmaIEtaIEtaCut = phIDWP.getParameter<std::vector<double> >("full5x5_sigmaIEtaIEtaCut");
-  hOverECut = phIDWP.getParameter<std::vector<double> >("hOverECut");
-  relCombIso = phIDWP.getParameter<std::vector<double> >("relCombIsolationWithEACut");
 }
 
 void IsoPhotonEBSelector::newEvent(const edm::Event& ev, const edm::EventSetup&) {
-  ev.getByToken(theRhoToken, _rhoHandle);
+  ev.getByToken(theRhoToken_, rhoHandle_);
 }
 
 bool IsoPhotonEBSelector::operator()(const reco::Photon& ph) const {
@@ -113,22 +108,20 @@ bool IsoPhotonEBSelector::operator()(const reco::Photon& ph) const {
   }
   if (ph.isEE()) {
     ind = 1;
-    if (abseta < 1.479)
-      return false;  // check if it is really needed
-    if (abseta >= 2.5)
+    if (abseta <= 1.479 || abseta >= 2.5)
       return false;  // check if it is really needed
   }
 
-  if (ph.full5x5_sigmaIetaIeta() > sigmaIEtaIEtaCut[ind])
+  if (ph.full5x5_sigmaIetaIeta() > sigmaIEtaIEtaCut_[ind])
     return false;
-  if (ph.hadronicOverEm() > hOverECut[ind])
+  if (ph.hadronicOverEm() > hOverECut_[ind])
     return false;
   const float eA = getEffectiveArea(abseta);
-  const float rho = _rhoHandle.isValid() ? (float)(*_rhoHandle.product()) : 0;
+  const float rho = rhoHandle_.isValid() ? (float)(*rhoHandle_.product()) : 0;
   if ((ph.getPflowIsolationVariables().chargedHadronIso +
        std::max(float(0.0),
                 ph.getPflowIsolationVariables().neutralHadronIso + ph.getPflowIsolationVariables().photonIso -
-                    eA * rho)) > relCombIso[ind] * pt_e)
+                    eA * rho)) > relCombIso_[ind] * pt_e)
     return false;
 
   return true;
