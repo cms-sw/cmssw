@@ -42,8 +42,7 @@ if (options.dd4hep):
         from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
         process = cms.Process('PrintG4Solids',Phase2C17I13M9,dd4hep)
 else:
-    process = cms.Process('PrintG4Solids',Phase2C17I13M9)
- + "Reco_cff"
+    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
     if (options.geometry == "D94"):
         from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
         process = cms.Process('PrintG4Solids',Phase2C20I13M9)
