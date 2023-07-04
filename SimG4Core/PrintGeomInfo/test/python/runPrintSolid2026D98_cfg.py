@@ -1,10 +1,9 @@
 #######################################################9########################
 # Way to use this:
-#   cmsRun runPrintSolid2026_cfg.py type=DDD geometry=D98
+#   cmsRun runPrintSolid2026D98_cfg.py type=DDD detector=Tracker
 #
 #   Options for type DDD, DD4hep
-#   Options for geometry D86, D88, D91, D92, D93, D95, D96, D97, D98, D99,
-#                        D100, D101
+#   Options for detector Tracker, Calo, MTD, Muon
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
@@ -19,11 +18,11 @@ options.register('type',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "type of operations: DDD, DD4hep")
-options.register('geometry',
-                 "D92",
+options.register('detector',
+                 "Tracker",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D86, D88, D91, D92, D93, D95, D96, D97, D98, D99, D100, D101")
+                  "detector of operations: Tracker, Calo, MTD, Muon")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -37,12 +36,12 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
 if (options.type == "DDD"):
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+    geomFile = "Geometry.CMSCommonData.GeometryExtended2026D98" + options.detector + "Reco_cff"
     process.load(geomFile)
 else:
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
+    geomFile = "Geometry.CMSCommonData.GeometryDD4hepExtended2026D98" + options.detector + "Reco_cff"
     process.load(geomFile)
 
 print("Geometry file Name: ", geomFile)
@@ -87,5 +86,14 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.LHCTransport = False
+
+if (options.detector == "Tracker"):
+    process.g4SimHits.OnlySDs = ['TkAccumulatingSensitiveDetector']
+elif (options.detector == "MTD"):
+    process.g4SimHits.OnlySDs = ['MtdSensitiveDetector']
+elif (options.detector == "Muon"):
+    process.g4SimHits.OnlySDs = ['MuonSensitiveDetector']
+else:
+    process.g4SimHits.OnlySDs = ['CaloTrkProcessing', 'EcalSensitiveDetector', 'HcalSensitiveDetector', 'HGCalSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'ZdcSensitiveDetector']
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.printGeomSolids)
