@@ -73,6 +73,8 @@ private:
 
   std::string strFolderMain_;
 
+  Bool_t useDBEMap_;
+
   Int_t nBXMin_, nBXMax_;
   Float_t fRadiusMin_;
   Float_t fRadiusMax_;

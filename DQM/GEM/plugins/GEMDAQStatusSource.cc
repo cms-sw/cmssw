@@ -9,6 +9,7 @@ GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg)
   tagOH_ = consumes<GEMOHStatusCollection>(cfg.getParameter<edm::InputTag>("OHInputLabel"));
   tagAMC_ = consumes<GEMAMCStatusCollection>(cfg.getParameter<edm::InputTag>("AMCInputLabel"));
   tagAMC13_ = consumes<GEMAMC13StatusCollection>(cfg.getParameter<edm::InputTag>("AMC13InputLabel"));
+  useDBEMap_ = cfg.getParameter<bool>("useDBEMap");
 
   nAMCSlots_ = cfg.getParameter<Int_t>("AMCSlots");
 
@@ -25,13 +26,13 @@ void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descri
   desc.add<Int_t>("AMCSlots", 13);
   desc.addUntracked<std::string>("runType", "relval");
   desc.addUntracked<std::string>("logCategory", "GEMDAQStatusSource");
+  desc.add<bool>("useDBEMap", true);
 
   descriptions.add("GEMDAQStatusSource", desc);
 }
 
 void GEMDAQStatusSource::LoadROMap(edm::EventSetup const &iSetup) {
-  //if (useDBEMap_)
-  if (true) {
+  if (useDBEMap_) {
     const auto &chMap = iSetup.getData(gemChMapToken_);
     auto gemChMap = std::make_unique<GEMChMap>(chMap);
 

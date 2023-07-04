@@ -10,6 +10,7 @@ GEMDigiSource::GEMDigiSource(const edm::ParameterSet& cfg)
       cfg.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
   nBXMin_ = cfg.getParameter<int>("bxMin");
   nBXMax_ = cfg.getParameter<int>("bxMax");
+  useDBEMap_ = cfg.getParameter<bool>("useDBEMap");
 }
 
 void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -19,12 +20,12 @@ void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<std::string>("logCategory", "GEMDigiSource");
   desc.add<int>("bxMin", -10);
   desc.add<int>("bxMax", 10);
+  desc.add<bool>("useDBEMap", true);
   descriptions.add("GEMDigiSource", desc);
 }
 
 void GEMDigiSource::LoadROMap(edm::EventSetup const& iSetup) {
-  //if (useDBEMap_)
-  if (true) {
+  if (useDBEMap_) {
     const auto& chMap = iSetup.getData(gemChMapToken_);
     auto gemChMap = std::make_unique<GEMChMap>(chMap);
 
@@ -60,15 +61,21 @@ void GEMDigiSource::LoadROMap(edm::EventSetup const& iSetup) {
       for (Int_t ieta = 1; ieta <= 24; ieta++) {
         if (!gemChMap->isValidStrip(dc.chamberType, ieta, 1))
           continue;
-        mapChamberType_[{gemChId.station(), gemChId.layer(), gemChId.chamber(), ieta}] = dc.chamberType;
-        if (mapCheckedType[dc.chamberType])
+        Int_t nChamberType = dc.chamberType;
+        if (gemChId.station() == 1) {
+          nChamberType = 13 - gemChId.layer();
+        } else if (gemChId.station() == 2) {
+          nChamberType = 24 - (ieta - 1) / 4;
+        }
+        mapChamberType_[{gemChId.station(), gemChId.layer(), gemChId.chamber(), ieta}] = nChamberType;
+        if (mapCheckedType[nChamberType])
           continue;
-        mapCheckedType[dc.chamberType] = true;
+        mapCheckedType[nChamberType] = true;
         for (Int_t strip = 0; strip <= 3 * 128; strip++) {
-          if (!gemChMap->isValidStrip(dc.chamberType, ieta, strip))
+          if (!gemChMap->isValidStrip(nChamberType, ieta, strip))
             continue;
-          auto& stripInfo = gemChMap->getChannel(dc.chamberType, ieta, strip);
-          mapStripToVFAT_[{dc.chamberType, ieta, strip}] = stripInfo.vfatAdd;
+          auto& stripInfo = gemChMap->getChannel(nChamberType, ieta, strip);
+          mapStripToVFAT_[{nChamberType, ieta, strip}] = stripInfo.vfatAdd;
         }
       }
     }

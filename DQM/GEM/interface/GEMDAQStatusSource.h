@@ -111,6 +111,7 @@ private:
   std::map<int, std::vector<GEMDetId>> mapAMC13ToListChamber_;
   std::map<std::tuple<int, int>, std::vector<GEMDetId>> mapAMCToListChamber_;
   Int_t nAMCSlots_;
+  Bool_t useDBEMap_;
 
   int nBitAMC13_ = 10;
   int nBitAMC_ = 12;
