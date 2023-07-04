@@ -18,9 +18,11 @@ private:
   const HGCalDDDConstants& hgcons_;
   const HGCalGeometryMode::GeometryMode modeUV_;
   const double waferSize_, guardRingOffset_;
-  static constexpr std::array<double, 12> tan_1 = {{-sqrt3_, sqrt3_, 0.0, -sqrt3_,  sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0}};
+  static constexpr std::array<double, 12> tan_1 = {
+      {-sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0}};
   static constexpr std::array<double, 12> cos_1 = {{0.5, -0.5, -1.0, -0.5, 0.5, 1.0, -0.5, 0.5, 1.0, 0.5, -0.5, -1.0}};
-  static constexpr std::array<double, 12> cot_1 = {{sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0}};
+  static constexpr std::array<double, 12> cot_1 = {
+      {sqrt3_, -sqrt3_, 0.0, sqrt3_, -sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0, -sqrt3_, sqrt3_, 0.0}};
   double offset_, xmax_, ymax_;
 };
 

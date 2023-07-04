@@ -27,7 +27,7 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
     int type = HGCalWaferType::getType(index, hgcons_.getParameter()->waferInfoMap_);
     if (partial == HGCalTypes::WaferFull) {
-      return(check);
+      return (check);
     } else {
       int orient = HGCalWaferType::getOrient(index, hgcons_.getParameter()->waferInfoMap_);
       int placement = HGCalCell::cellPlacementIndex(zside, frontBack, orient);
@@ -35,20 +35,28 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
       double delY = 2 * delX / sqrt3_;
       double dx = (zside > 0) ? -point.x() : point.x();
       double dy = point.y();
-      if(type>0){
-        check = (std::abs(dy - (dx*tan_1[placement])) < std::abs(offset_/cos_1[placement]) || check);
-        check = (std::abs(dy - (dx*tan_1[placement]) + ((HGCalTypes::c10 * delY * 0.5)/cos_1[placement])) < std::abs(offset_/cos_1[placement]) || check);
-        check = (std::abs(dy*cot_1[placement] - (dx)) < std::abs(offset_/cos_1[placement]) || check);
-      } else{
-        check = (std::abs((dy*cot_1[placement]) - dx + ((HGCalTypes::c22 * delX)/cos_1[placement])) < std::abs(offset_/cos_1[placement]) || check);
-        check = (std::abs(dy - (dx*tan_1[placement]) - ((HGCalTypes::c27 * delY)/cos_1[placement])) < std::abs(offset_/cos_1[placement]) || check);
-        check = (std::abs(dy - (dx*tan_1[placement]) + ((HGCalTypes::c27 * delY)/cos_1[placement])) < std::abs(offset_/cos_1[placement]) || check);
+      if (type > 0) {
+        check = (std::abs(dy - (dx * tan_1[placement])) < std::abs(offset_ / cos_1[placement]) || check);
+        check = (std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c10 * delY * 0.5) / cos_1[placement])) <
+                     std::abs(offset_ / cos_1[placement]) ||
+                 check);
+        check = (std::abs(dy * cot_1[placement] - (dx)) < std::abs(offset_ / cos_1[placement]) || check);
+      } else {
+        check = (std::abs((dy * cot_1[placement]) - dx + ((HGCalTypes::c22 * delX) / cos_1[placement])) <
+                     std::abs(offset_ / cos_1[placement]) ||
+                 check);
+        check = (std::abs(dy - (dx * tan_1[placement]) - ((HGCalTypes::c27 * delY) / cos_1[placement])) <
+                     std::abs(offset_ / cos_1[placement]) ||
+                 check);
+        check = (std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c27 * delY) / cos_1[placement])) <
+                     std::abs(offset_ / cos_1[placement]) ||
+                 check);
       }
     }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "HGCGuardRingPartial:: Point " << point << " zside " << zside << " layer " << layer
-                                 << " wafer " << waferU << ":" << waferV << " partial type " << partial << ":"
-                                 << " type " << type << " check " << check;
+    edm::LogVerbatim("HGCSim") << "HGCGuardRingPartial:: Point " << point << " zside " << zside << " layer " << layer
+                               << " wafer " << waferU << ":" << waferV << " partial type " << partial << ":"
+                               << " type " << type << " check " << check;
 #endif
   }
   return check;

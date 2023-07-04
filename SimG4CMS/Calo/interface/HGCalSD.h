@@ -43,7 +43,7 @@ private:
   const HGCalDDDConstants *hgcons_;
   std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
   std::unique_ptr<HGCGuardRing> guardRing_;
-  std::unique_ptr<HGCGuardRing> guardRingPartial_;
+  std::unique_ptr<HGCGuardRingPartial> guardRingPartial_;
   std::unique_ptr<HGCMouseBite> mouseBite_;
   DetId::Detector mydet_;
   std::string nameX_;
