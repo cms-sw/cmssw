@@ -104,8 +104,7 @@ namespace gen {
     fMasterGen->settings.addParm("PTFilter:quarkRapidity", 10.0, true, true, 0.0, 10.);
     fMasterGen->settings.addParm("PTFilter:quarkPt", -.1, true, true, -.1, 100.);
 
-    //add settings for RecoilToTop tool
-    std::cout << "Here goes my change" << std::endl;
+    //add settings for RecoilToTop tool    
     fMasterGen->settings.addFlag("TopRecoilHook:doTopRecoilIn", false);
     fMasterGen->settings.addFlag("TopRecoilHook:useOldDipoleIn", false);
     fMasterGen->settings.addFlag("TopRecoilHook:doListIn", false);
