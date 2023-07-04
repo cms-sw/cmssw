@@ -403,7 +403,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
             if (denom) {
               assert(num <= denom);  // can't have this happen
               const auto eff = num / denom;
-              const auto eff_up = (num <= denom) ? TEfficiency::Bayesian(denom, num, .99, 1, 1, true) : 1.f;
+              const auto eff_up = TEfficiency::Bayesian(denom, num, .99, 1, 1, true);
 
               if ((denom >= nModsMin_) && (eff_up < layer_min_eff)) {
                 //We have a bad module, put it in the list!
