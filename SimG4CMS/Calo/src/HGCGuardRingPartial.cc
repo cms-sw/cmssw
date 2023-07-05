@@ -15,8 +15,7 @@ HGCGuardRingPartial::HGCGuardRingPartial(const HGCalDDDConstants& hgc)
   offset_ = guardRingOffset_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCGuardRingPartial with wafer size " << waferSize_ << ", Offsets "
-                             << sensorSizeOffset_ << ":" << guardRingOffset_ << ":" << offset_ << ", and mode "
-                             << modeUV_;
+                             << ":" << guardRingOffset_ << ":" << offset_ << ", and mode " << modeUV_;
 #endif
 }
 
@@ -55,7 +54,7 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCGuardRingPartial:: Point " << point << " zside " << zside << " layer " << layer
-                               << " wafer " << waferU << ":" << waferV << " partial type " << partial << ":"
+                               << " wafer " << waferU << ":" << waferV << " partial type " << partial
                                << " type " << type << " check " << check;
 #endif
   }
