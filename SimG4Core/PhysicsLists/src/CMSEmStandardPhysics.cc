@@ -75,6 +75,15 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
   fG4HepEmActive = p.getParameter<bool>("G4HepEmActive");
+  if (fG4HepEmActive) {
+    // At the moment, G4HepEm supports only one configuration of MSC, so use
+    // the most generic parameters everywhere.
+    param->SetMscRangeFactor(fRangeFactor);
+    param->SetMscGeomFactor(fGeomFactor);
+    param->SetMscSafetyFactor(fSafetyFactor);
+    param->SetMscLambdaLimit(fLambdaLimit);
+    param->SetMscStepLimitType(fStepLimitType);
+  }
 }
 
 void CMSEmStandardPhysics::ConstructParticle() {
