@@ -82,7 +82,7 @@ namespace edmNew {
     DataContainer const &container() const { return *m_data; }
 
     data_type const *data() const {
-      if (m_offset | m_size)
+      if (isValid() || !empty())
         assert(m_data);
       return m_data ? (&((*m_data)[m_offset])) : nullptr;
     }
