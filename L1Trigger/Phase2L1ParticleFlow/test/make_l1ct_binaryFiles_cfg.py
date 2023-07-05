@@ -1,13 +1,14 @@
 import argparse
 import sys
 
-# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py -- --dumpFilesOFF
-# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py -- --dumpFilesOFF
+# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py -- --patternFilesOFF
+# example: cmsRun L1Trigger/Phase2L1ParticleFlow/test/make_l1ct_patternFiles_cfg.py -- --dumpFilesOFF --serenity
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Optional parameters')
 
 parser.add_argument("--dumpFilesOFF", help="switch on dump file production", action="store_true", default=False)
 parser.add_argument("--patternFilesOFF", help="switch on Layer-1 pattern file production", action="store_true", default=False)
+parser.add_argument("--serenity", help="use Serenity settigns as default everwhere, i.e. also for barrel", action="store_true", default=False)
 
 argv = sys.argv[:]
 if '--' in argv:
@@ -102,6 +103,11 @@ process.l1tLayer1BarrelSerenity.puAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelSerenity.puAlgoParameters.nIn = 27
 process.l1tLayer1BarrelSerenity.puAlgoParameters.nOut = 27
 process.l1tLayer1BarrelSerenity.puAlgoParameters.finalSortAlgo = "FoldedHybrid"
+
+if args.serenity:
+    process.l1tLayer1.pfProducers[0] = "l1tLayer1BarrelSerenity"
+    process.l1tLayer2EG.tkElectrons[1].pfProducer = "l1tLayer1BarrelSerenity:L1TkElePerBoard"
+    process.l1tLayer2EG.tkEms[2].pfProducer = "l1tLayer1BarrelSerenity:L1TkEmPerBoard"
 
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import _eventsPerFile
