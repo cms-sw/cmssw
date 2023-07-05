@@ -494,8 +494,8 @@ void DDHGCalSiliconRotatedCassette::positionSensitive(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: Layer "
                                   << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number "
-                                  << copy << " type:part:orien:ind " << type << ":" << part << ":" << orien << ":" << i
-                                  << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v;
+                                  << copy << " type:part:orien:place:ind " << type << ":" << part << ":" << orien << ":" << place << ":" << i
+                                  << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v << " pos " << xpos << ":" << ypos;
     if (iu > ium)
       ium = iu;
     if (iv > ivm)
@@ -557,6 +557,7 @@ void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
     int part = HGCalProperty::waferPartial(waferProperty_[k]);
     int orien = HGCalProperty::waferOrient(waferProperty_[k]);
     int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
+    int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
     auto cshift = cassette_.getShift(layer + 1, -1, cassette);
     double xpos = xyoff.first - cshift.first + nc * delx;
     double ypos = xyoff.second + cshift.second + nr * dy;
@@ -582,12 +583,13 @@ void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
                                     << passive;
 #endif
     } else {
-      int partoffset = (part >= HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : HGCalTypes::WaferPartLDOffset;
-      i = (part - partoffset) * orientationTypes_ + (absType - 1) * orientationTypes_ * partialTypes_ + orien;
+      int partoffset = (part >= HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : (HGCalTypes::WaferPartLDOffset - HGCalTypes::WaferTypeOffset[1]);
+      i = (part - partoffset) * facingTypes_ * orientationTypes_ +
+          (absType - 1) * facingTypes_ * orientationTypes_ * partialTypes_ + place - placeOffset_;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " layertype:abstype:part:orien:cassette:offsets:ind " << layertype << ":"
+      edm::LogVerbatim("HGCalGeom") << " layertype:abstype:part:orien:cassette:3Types:offset:ind " << layertype << ":"
                                     << absType << ":" << part << ":" << orien << ":" << cassette << ":" << partialTypes_
-                                    << ":" << orientationTypes_ << ":" << partoffset << ":" << i << ":"
+                                    << ":" << facingTypes_ << ":" << orientationTypes_ << ":" << partoffset << ":" << i << ":"
                                     << passivePart_.size();
 #endif
       passive = passivePart_[i];
@@ -596,8 +598,8 @@ void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: Layer "
                                   << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Passive " << passive << " number "
-                                  << copy << " type:part:orien:ind " << type << ":" << part << ":" << orien << ":" << i
-                                  << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v;
+                                  << copy << " type:part:orien:place:ind " << type << ":" << part << ":" << orien << ":" << place << ":" << i
+                                  << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v << " pos " << xpos << ":" << ypos;
     if (iu > ium)
       ium = iu;
     if (iv > ivm)
