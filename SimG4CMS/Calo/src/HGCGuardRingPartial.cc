@@ -54,8 +54,8 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCGuardRingPartial:: Point " << point << " zside " << zside << " layer " << layer
-                               << " wafer " << waferU << ":" << waferV << " partial type " << partial
-                               << " type " << type << " check " << check;
+                               << " wafer " << waferU << ":" << waferV << " partial type " << partial << " type "
+                               << type << " check " << check;
 #endif
   }
   return check;
