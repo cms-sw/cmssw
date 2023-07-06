@@ -43,7 +43,6 @@ produceDenominatorMiniAODQCD = cms.Sequence(
 
 
 from Validation.RecoTau.RecoTauValidationMiniAOD_cfi import *
-#tauValidationMiniAODZTT = tauValidationMiniAOD.clone()
 tauValidationMiniAODZTT = tauValidationMiniAOD.clone(RefCollection = "kinematicSelectedTauMiniAODValDenominatorZTT")
 discs_to_retain = ['decayModeFinding','decayModeFindingNewDMs',
                    'CombinedIsolationDeltaBetaCorr3HitsdR03',
@@ -52,36 +51,30 @@ discs_to_retain = ['decayModeFinding','decayModeFindingNewDMs',
                    'byLooseDeepTau2018v2p5VSmu','byTightDeepTau2018v2p5VSmu']
 
 tauValidationMiniAODZTT.discriminators = cms.VPSet([p for p in tauValidationMiniAODZTT.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
-#tauValidationMiniAODZTT.discriminators = cms.VPSet([cms.PSet(discriminator = cms.string(disc),selectionCut = cms.double(0.5)) for disc in discs_to_retain if any(p.discriminator.value() in discs_to_retain for p in tauValidationMiniAODZTT.discriminators)])
-
-
 
 tauValidationMiniAODZEE = tauValidationMiniAODZTT.clone(
-    #RefCollection = "kinematicSelectedTauValDenominatorZEE",
     RefCollection = "kinematicSelectedTauMiniAODValDenominatorZEE",
     ExtensionName = 'ZEE'
 )
 tauValidationMiniAODZMM = tauValidationMiniAODZTT.clone(
-    #RefCollection = "kinematicSelectedTauValDenominatorZMM",
     RefCollection = "kinematicSelectedTauMiniAODValDenominatorZMM",
     ExtensionName = 'ZMM'
 )
 tauValidationMiniAODQCD = tauValidationMiniAODZTT.clone(
-    #RefCollection = "kinematicSelectedTauValDenominatorQCD",
     RefCollection = "kinematicSelectedTauMiniAODValDenominatorQCD",
     ExtensionName = 'QCD'
 )
 tauValidationMiniAODRealData = tauValidationMiniAODZTT.clone(
-  RefCollection = "CleanedPFJets",
-  ExtensionName = 'JETHT'
+    RefCollection = "CleanedPFJets",
+    ExtensionName = 'JETHT'
 )
 tauValidationMiniAODRealElectronsData = tauValidationMiniAODZTT.clone(
-  RefCollection = "ElZLegs:theProbeLeg",
-  ExtensionName = 'DoubleElectron'
+    RefCollection = "ElZLegs:theProbeLeg",
+    ExtensionName = 'DoubleElectron'
 )
 tauValidationMiniAODRealMuonsData = tauValidationMiniAODZTT.clone(
-  RefCollection = "MuZLegs:theProbeLeg",
-  ExtensionName = 'DoubleMuon'
+    RefCollection = "MuZLegs:theProbeLeg",
+    ExtensionName = 'DoubleMuon'
 )
 
 
@@ -163,13 +156,6 @@ efficienciesTauValidationMiniAODRealMuonsData = cms.EDProducer("TauDQMHistEffPro
         ),
     )
 )
-
-#tauValidationSequenceMiniAOD = cms.Sequence(tauValidationMiniAODZTT*tauValidationMiniAODZEE*tauValidationMiniAODZMM*tauValidationMiniAODQCD*tauValidationMiniAODRealData*tauValidationMiniAODRealElectronsData*tauValidationMiniAODRealMuonsData)
-
-#from Configuration.Eras.Modifier_fastSim_cff import fastSim
-#fastSim.toReplaceWith(tauValidationSequenceMiniAOD,tauValidationSequenceMiniAOD.copyAndExclude([tauValidationMiniAODRealData,tauValidationMiniAODRealElectronsData,tauValidationMiniAODRealMuonsData]))
-
-#tauValidationSequenceMiniAOD = cms.Sequence(produceDenominatorZTT*tauValidationMiniAODZTT*produceDenominatorZEE*tauValidationMiniAODZEE*produceDenominatorZMM*tauValidationMiniAODZMM*produceDenominatorQCD*tauValidationMiniAODQCD*tauValidationMiniAODRealData*tauValidationMiniAODRealElectronsData*tauValidationMiniAODRealMuonsData)
 
 tauValidationSequenceMiniAOD = cms.Sequence(produceDenominatorMiniAODZTT*tauValidationMiniAODZTT
                                             *produceDenominatorMiniAODZEE*tauValidationMiniAODZEE

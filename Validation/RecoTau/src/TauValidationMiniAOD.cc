@@ -96,17 +96,11 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   mtau_dm1p2 = ibooker.book1D("mtau_dm1p2", "mtau_dm1+2", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm1p2Map.insert(std::make_pair("", mtau_dm1p2));
 
-  //mtau_dm2 = ibooker.book1D("mtau_dm2", "mtau_dm2", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
-  //mtau_dm2Map.insert(std::make_pair("", mtau_dm2));
-
   mtau_dm5 = ibooker.book1D("mtau_dm5", "mtau_dm5", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm5Map.insert(std::make_pair("", mtau_dm5));
 
   mtau_dm6 = ibooker.book1D("mtau_dm6", "mtau_dm6", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm6Map.insert(std::make_pair("", mtau_dm6));
-
-  //mtau_dm7 = ibooker.book1D("mtau_dm7", "mtau_dm7", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
-  //mtau_dm7Map.insert(std::make_pair("", mtau_dm7));
 
   mtau_dm10 = ibooker.book1D("mtau_dm10", "mtau_dm10", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm10Map.insert(std::make_pair("", mtau_dm10));
@@ -171,18 +165,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   pTOverProng_dm6->setYTitle("pT of lead charged cand");
   pTOverProng_dm6Map.insert(std::make_pair("", pTOverProng_dm6));
 
-  /*  pTOverProng_dm7 = ibooker.book2D("pTOverProng_dm7",
-                                   "pTOverProng_dm7",
-                                   pTOverProngHinfo.nbins,
-                                   pTOverProngHinfo.min,
-                                   pTOverProngHinfo.max,
-                                   pTOverProngHinfo.nbins,
-                                   pTOverProngHinfo.min,
-                                   pTOverProngHinfo.max);
-  pTOverProng_dm7->setXTitle("pT of reconstructed tau");
-  pTOverProng_dm7->setYTitle("pT of lead charged cand");
-  pTOverProng_dm7Map.insert(std::make_pair("", pTOverProng_dm7));*/
-
   pTOverProng_dm10 = ibooker.book2D("pTOverProng_dm10",
                                     "pTOverProng_dm10",
                                     pTOverProngHinfo.nbins,
@@ -244,7 +226,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                         : histoInfo(2, -0.5, 1.5);
   histoInfo decayModeHinfo = (histoSettings_.exists("decayMode"))
                                  ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("decayMode"))
-    : histoInfo(12, -0.5, 11.5); //new
+    : histoInfo(12, -0.5, 11.5);
 
   // raw distributions for deepTau (e, jet, mu)
   histoInfo byDeepTau2018v2p5VSerawHinfo =
@@ -619,64 +601,26 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       int nPis = 0;
       int nUnknowns = 0;
       if (gendRmin < 0.15) {
-	//std::cout<<"----------\n";
-	//std::cout<<"Matched gen particle: "<<genParticles->at(genmatchedTauIndex).pdgId()<<"\n";
-	//for (unsigned imtrTau = 0; imtrTau < genParticles->at(genmatchedTauIndex).numberOfMothers(); imtrTau++) 
-	//  std::cout<<"Mother "<<imtrTau<<": "<<genParticles->at(genmatchedTauIndex).mother(imtrTau)->pdgId()<<"\n";
-	//std::cout<<"Daughter of gen tau matched with the ref matched tau: PdgId, charge, status\n";
-	//std::vector<const reco::GenParticle*>dtr1Photons;
-	//std::vector<const reco::GenParticle*>dtr2Pi0s;
         for (unsigned idtrTau = 0; idtrTau < genParticles->at(genmatchedTauIndex).numberOfDaughters(); idtrTau++) {
 	  const reco::GenParticle* gpdtr = dynamic_cast<const reco::GenParticle*>((genParticles->at(genmatchedTauIndex)).daughter(idtrTau));
 	  int dtrpdgID  = std::abs(gpdtr->pdgId());
 	  int dtrstatus = gpdtr->status();
-	  //int dtrcharge = gpdtr->charge();
-	  //std::cout<<"dtrpdgID: "<<dtrpdgID<<", charge: "<<dtrcharge<<", status: "<<dtrstatus<<std::endl;
 	  if (dtrpdgID == 12 || dtrpdgID == 14 || dtrpdgID == 16) continue;
-          if (/*(*/dtrpdgID == 111 || dtrpdgID == 311/*) && dtrstatus == 2*/) nPi0s++;
-	  else if (/*(*/dtrpdgID == 211 || dtrpdgID == 321/*) && dtrstatus == 1*/) nPis++;
-	  else if (dtrpdgID == 22 /*&& dtrstatus == 1*/) {
-	    //std::cout<<"Found photon as decay product of tau: dig deep!\n";
-	    //dtr1Photons.push_back(gpdtr);
-	    //std::cout<<"Photon pt: "<<gpdtr->pt()<<"\n";
-	    /*
-	    std::cout<<"isPromptFinalState? "<<gpdtr->isPromptFinalState()
-		     <<", isPromptDecayed? "<<gpdtr->isPromptDecayed()
-		     <<", isDirectPromptTauDecayProductFinalState? "<<gpdtr->isDirectPromptTauDecayProductFinalState()
-		     <<", isHardProcess? "<<gpdtr->isHardProcess()
-		     <<", fromHardProcessFinalState? "<<gpdtr->fromHardProcessFinalState()
-		     <<std::endl;*/
+          if (dtrpdgID == 111 || dtrpdgID == 311) nPi0s++;
+	  else if (dtrpdgID == 211 || dtrpdgID == 321) nPis++;
+	  else if (dtrpdgID == 22) {
 	    if (gpdtr->isPromptFinalState() && gpdtr->pt() > 10) nPhotonsPrompt++; // because, in MiniAOD prompt photon pt > 10 GeV
 	    else if (gpdtr->isDirectPromptTauDecayProductFinalState()) nPhotonsFromTauDecay++;
 	    else std::cout<<"Warning: unknown source of photon \n";
-	    //numPhotons++;
 	  }
 	  else if (dtrpdgID == 15 && dtrstatus == 2 && gpdtr->isLastCopy()) {
-	    //std::cout<<"Daughter of tau is tau: dig deep!!!\n";
-	    //const reco::GenParticle* dtrtaudtr = dynamic_cast<const reco::GenParticle*>(gpdtr->daughter(idtrTau));
-	    //bool lastcopy = gp->isLastCopy();
-	    //bool lastcopybfrfsr = gp->isLastCopyBeforeFSR();
-	    //std::cout<<"Tau LastCopy?: "<<lastcopy<<"\t"<<"LastCopy before FSR?: "<<lastcopybfrfsr<<"\n";
 	    for (unsigned idtrTaudtr = 0; idtrTaudtr < gpdtr->numberOfDaughters(); idtrTaudtr++){ 
 	      const reco::GenParticle* gpdtr2 = dynamic_cast<const reco::GenParticle*>(gpdtr->daughter(idtrTaudtr));
 	      int dtr2pdgID = std::abs(gpdtr2->pdgId());
 	      if (dtr2pdgID == 12 || dtr2pdgID == 14 || dtr2pdgID == 16) continue;
-	      //int dtr2status = gpdtr2->status();
-	      //std::cout<<"dtr2pdgid: "<<dtr2pdgID<<", dtr2status: "<<dtr2status<<std::endl;
-	      if (/*(*/dtr2pdgID == 111 || dtr2pdgID == 311/*) && dtr2status == 2*/) nPi0s++;
-	      //dtr2Pi0s.push_back(gpdtr2);
-	      else if (/*(*/dtr2pdgID == 211 || dtr2pdgID == 321/*) && dtr2status == 1*/) nPis++;
-	      else if (dtr2pdgID == 22 /*&& dtr2status == 1*/) {
-		//std::cout<<"Found photon as decay product of tau from tau: dig deep!\n";
-		//dtr1Photons.push_back(gpdtr2);
-		//std::cout<<"Photon2 pt: "<<gpdtr2->pt()<<"\n";
-		/*
-		std::cout<<"isPromptFinalState? "<<gpdtr2->isPromptFinalState()
-			 <<", isPromptDecayed? "<<gpdtr2->isPromptDecayed()
-			 <<", isDirectPromptTauDecayProductFinalState? "<<gpdtr2->isDirectPromptTauDecayProductFinalState()
-			 <<", isHardProcess? "<<gpdtr2->isHardProcess()
-			 <<", fromHardProcessFinalState? "<<gpdtr2->fromHardProcessFinalState()
-			 <<std::endl;*/
+	      if (dtr2pdgID == 111 || dtr2pdgID == 311) nPi0s++;
+	      else if (dtr2pdgID == 211 || dtr2pdgID == 321) nPis++;
+	      else if (dtr2pdgID == 22) {
 		if (gpdtr2->isPromptFinalState() && gpdtr2->pt() > 10) nPhotonsPrompt++;
 		else if (gpdtr2->isDirectPromptTauDecayProductFinalState()) nPhotonsFromTauDecay++;
 		else std::cout<<"Warning: unknown source of photon \n";
@@ -685,16 +629,6 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
 	  }
 	  else nUnknowns++;
         }
-	//numPi0s += numPhotons/2;
-	//std::cout<<"dtr photon: \n";
-	//for (auto *p1: dtr1Photons) std::cout<<"eta: "<<p1->eta()<<", phi: "<<p1->phi()<<"\n";
-	//std::cout<<"dtr2 pi0: \n";
-	//for (auto *p2: dtr2Pi0s) std::cout<<"eta: "<<p2->eta()<<", phi: "<<p2->phi()<<"\n";
-
-	//std::cout<<"-------------\n";
-	//std::cout<<"numPis: "<<nPis<<", numPi0s: "<<nPi0s<<"\n";
-	//std::cout<<"numPhotonsPrompt: "<<nPhotonsPrompt<<", numPhotonsFromTauDecay: "<<nPhotonsFromTauDecay<<", numUnknowns: "<<nUnknowns<<"\n";
-	//std::cout<<"Decay Mode: "<<findDecayMode(nPis, nPi0s, nPhotonsFromTauDecay)<<"\n\n";
       }
 
       int genTau_dm = (nPhotonsPrompt > 0) ? -2 : findDecayMode(nPis, nPi0s, nPhotonsFromTauDecay);

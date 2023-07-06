@@ -94,9 +94,9 @@ private:
       puLoosevsMuoMap;
   std::map<std::string, MonitorElement *> decayModeFindingMap, decayModeMap, byDeepTau2018v2p5VSerawMap,
       byDeepTau2018v2p5VSjetrawMap, byDeepTau2018v2p5VSmurawMap, summaryMap;
-  std::map<std::string, MonitorElement *> mtau_dm0Map, mtau_dm1p2Map, /*mtau_dm2Map,*/ mtau_dm5Map, mtau_dm6Map, /*mtau_dm7Map,*/ mtau_dm10Map, mtau_dm11Map;
+  std::map<std::string, MonitorElement *> mtau_dm0Map, mtau_dm1p2Map, mtau_dm5Map, mtau_dm6Map, mtau_dm10Map, mtau_dm11Map;
   std::map<std::string, MonitorElement *> dmMigrationMap, ntau_vs_dmMap;
-  std::map<std::string, MonitorElement *> pTOverProng_dm0Map, pTOverProng_dm1p2Map, pTOverProng_dm5Map, pTOverProng_dm6Map, /*pTOverProng_dm7Map,*/ pTOverProng_dm10Map, pTOverProng_dm11Map;
+  std::map<std::string, MonitorElement *> pTOverProng_dm0Map, pTOverProng_dm1p2Map, pTOverProng_dm5Map, pTOverProng_dm6Map, pTOverProng_dm10Map, pTOverProng_dm11Map;
 
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
