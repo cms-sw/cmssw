@@ -63,7 +63,7 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Decay_Mode_Reconstruction
-  int findDecayMode(int Nc, int Np, int Ng) {return (Ng == 0) ? 5*(Nc-1)+Np : -1;};
+  int findDecayMode(int Nc, int Np, int Ng) { return (Ng == 0) ? 5 * (Nc - 1) + Np : -1; };
 
 private:
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
@@ -94,9 +94,11 @@ private:
       puLoosevsMuoMap;
   std::map<std::string, MonitorElement *> decayModeFindingMap, decayModeMap, byDeepTau2018v2p5VSerawMap,
       byDeepTau2018v2p5VSjetrawMap, byDeepTau2018v2p5VSmurawMap, summaryMap;
-  std::map<std::string, MonitorElement *> mtau_dm0Map, mtau_dm1p2Map, mtau_dm5Map, mtau_dm6Map, mtau_dm10Map, mtau_dm11Map;
+  std::map<std::string, MonitorElement *> mtau_dm0Map, mtau_dm1p2Map, mtau_dm5Map, mtau_dm6Map, mtau_dm10Map,
+      mtau_dm11Map;
   std::map<std::string, MonitorElement *> dmMigrationMap, ntau_vs_dmMap;
-  std::map<std::string, MonitorElement *> pTOverProng_dm0Map, pTOverProng_dm1p2Map, pTOverProng_dm5Map, pTOverProng_dm6Map, pTOverProng_dm10Map, pTOverProng_dm11Map;
+  std::map<std::string, MonitorElement *> pTOverProng_dm0Map, pTOverProng_dm1p2Map, pTOverProng_dm5Map,
+      pTOverProng_dm6Map, pTOverProng_dm10Map, pTOverProng_dm11Map;
 
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
