@@ -145,7 +145,7 @@ public:
   Bool_t AnalysisOutcome(const TString &);
 
 private:
-  Int_t fgMaxCar;  // Max nb of caracters for char*
+  constexpr static Int_t fgMaxCar = 512;  // Max nb of caracters for char*
   TString fTTBELL;
 
   // ----------member data ---------------------------
@@ -214,16 +214,16 @@ private:
   Int_t fTreatedFedOrder;
   std::vector<Int_t> fFedStatusOrder;
   Int_t fFedId;
-  std::vector<TString> fDeeNumberString;
+  std::vector<std::string> fDeeNumberString;
 
-  Int_t fMaxTreatedStexCounter;
+  Int_t fMaxTreatedStexCounter = 0;
   Int_t fDeeDS5Memo1;
   Int_t fDeeDS5Memo2;
   std::vector<Int_t> fStexDigiOK;
   std::vector<Int_t> fStexNbOfTreatedEvents;
   std::vector<Int_t> fStexStatus;
 
-  Int_t fMaxFedUnitCounter;
+  Int_t fMaxFedUnitCounter = 0;
   std::vector<Int_t> fFedStatus;
   std::vector<Int_t> fFedDigiOK;
   std::vector<Int_t> fFedNbOfTreatedEvents;
@@ -247,32 +247,29 @@ private:
 
   std::vector<Int_t> fMemoDateFirstEvent;
 
-  TEcnaObject *fMyEcnaEBObjectManager;
-  TEcnaObject *fMyEcnaEEObjectManager;
+  TEcnaObject fMyEcnaEBObjectManager;
+  TEcnaObject fMyEcnaEEObjectManager;
 
-  TEcnaRun **fMyCnaEBSM;
-  TEcnaRun **fMyCnaEEDee;
+  std::vector<std::unique_ptr<TEcnaRun>> fMyCnaEBSM;
+  std::vector<std::unique_ptr<TEcnaRun>> fMyCnaEEDee;
 
-  TEcnaNumbering *fMyEBNumbering;
-  TEcnaParEcal *fMyEBEcal;
+  TEcnaNumbering fMyEBNumbering;
+  TEcnaParEcal fMyEBEcal;
 
-  TEcnaNumbering *fMyEENumbering;
-  TEcnaParEcal *fMyEEEcal;
+  TEcnaNumbering fMyEENumbering;
+  TEcnaParEcal fMyEEEcal;
 
   //  Int_t** fT2d_LastEvt; // 2D array[channel][sample] max nb of evts read for
   //  a given (channel,sample) Int_t*  fT1d_LastEvt;
 
-  Int_t fMaxRunTypeCounter;
-  std::vector<Int_t> fRunTypeCounter;
+  constexpr static Int_t fMaxRunTypeCounter = 26;
+  std::array<Int_t, fMaxRunTypeCounter> fRunTypeCounter;
 
-  Int_t fMaxMgpaGainCounter;
-  std::vector<Int_t> fMgpaGainCounter;
+  constexpr static Int_t fMaxMgpaGainCounter = 4;  // Because chozen gain = 0,1,2,3
+  std::array<Int_t, fMaxMgpaGainCounter> fMgpaGainCounter;
 
-  Int_t fMaxFedIdCounter;
-  std::vector<Int_t> fFedIdCounter;
-
-  Int_t fMaxCounterQuad;
-  std::vector<Int_t> fCounterQuad;
+  constexpr static Int_t fMaxFedIdCounter = 54;
+  std::array<Int_t, fMaxFedIdCounter> fFedIdCounter;
 };
 
 #endif
