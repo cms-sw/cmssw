@@ -115,11 +115,33 @@ namespace JME {
 
   std::vector<float> JetParameters::createVector(const std::vector<Binning>& binning) const {
     std::vector<float> values;
+
     for (const auto& bin : binning) {
       const auto& it = m_values.find(bin);
       if (it == m_values.cend()) {
         throwException(edm::errors::NotFound,
                        "JER parametrisation depends on '" + JetParameters::binning_to_string.left.at(bin) +
+                           "' but no value for this parameter has been specified. Please call the appropriate 'set' "
+                           "function of the JME::JetParameters object");
+      }
+
+      values.push_back(it->second);
+    }
+
+    return values;
+  }
+
+  std::vector<float> JetParameters::createVector(const std::vector<std::string>& binname) const {
+    std::vector<float> values;
+
+    for (const auto& name : binname) {
+      Binning bi = binning_to_string.right.find(name)->second;
+
+      const auto& it = m_values.find(bi);
+      if (it == m_values.cend()) {
+        edm::LogPrint("JPM") << "Bin name " << name << " not found!";
+        throwException(edm::errors::NotFound,
+                       "JER parametrisation depends on '" + JetParameters::binning_to_string.left.at(bi) +
                            "' but no value for this parameter has been specified. Please call the appropriate 'set' "
                            "function of the JME::JetParameters object");
       }
@@ -367,7 +389,7 @@ namespace JME {
       return nullptr;
 
     // Create vector of bins value. Throw if some values are missing
-    std::vector<float> bins = bins_parameters.createVector(m_definition.getBins());
+    std::vector<float> bins = bins_parameters.createVector(m_definition.getBinsName());
 
     // Iterate over all records, and find the one for which all bins are valid
     const Record* good_record = nullptr;
@@ -376,8 +398,9 @@ namespace JME {
       size_t valid_bins = 0;
       size_t current_bin = 0;
       for (const auto& bin : record.getBinsRange()) {
-        if (bin.is_inside(bins[current_bin]))
+        if (bin.is_inside(bins[current_bin])) {
           valid_bins++;
+        }
 
         current_bin++;
       }
@@ -397,7 +420,10 @@ namespace JME {
       return 1;
 
 #ifndef STANDALONE
-    const auto* formula = m_definition.getFormula();
+    reco::FormulaEvaluator* Formula = new reco::FormulaEvaluator(m_definition.getFormulaString());
+    if (!Formula)
+      return 1;
+    auto formula = *Formula;
 #else
     // Set parameters
     auto const* pFormula = m_definition.getFormula();
@@ -406,20 +432,21 @@ namespace JME {
     auto formula = *pFormula;
 #endif
     // Create vector of variables value. Throw if some values are missing
-    std::vector<float> variables = variables_parameters.createVector(m_definition.getVariables());
+    std::vector<float> variables = variables_parameters.createVector(m_definition.getVariablesName());
 
     double variables_[4] = {0};
     for (size_t index = 0; index < m_definition.nVariables(); index++) {
       variables_[index] =
           clip(variables[index], record.getVariablesRange()[index].min, record.getVariablesRange()[index].max);
     }
+
     const std::vector<float>& parameters = record.getParametersValues();
 
 #ifndef STANDALONE
     //ArrayAdaptor only takes doubles
     std::vector<double> parametersD(parameters.begin(), parameters.end());
-    return formula->evaluate(reco::formula::ArrayAdaptor(variables_, m_definition.nVariables()),
-                             reco::formula::ArrayAdaptor(parametersD.data(), parametersD.size()));
+    return formula.evaluate(reco::formula::ArrayAdaptor(variables_, m_definition.nVariables()),
+                            reco::formula::ArrayAdaptor(parametersD.data(), parametersD.size()));
 #else
     for (size_t index = 0; index < parameters.size(); index++) {
       formula.SetParameter(index, parameters[index]);
