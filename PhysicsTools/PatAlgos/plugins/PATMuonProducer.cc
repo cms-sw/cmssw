@@ -349,7 +349,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
       geometryToken_{esConsumes()},
       transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
       patMuonPutToken_{produces<std::vector<Muon>>()} {
-  
   // Muon MVA ID wps
   mvaIDmediumCut_ = iConfig.getParameter<double>("mvaIDwpMedium");
   mvaIDtightCut_ = iConfig.getParameter<double>("mvaIDwpTight");
