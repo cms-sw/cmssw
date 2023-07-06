@@ -7,22 +7,69 @@ from Validation.RecoTau.dataTypes.ValidateTausOnZMM_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZTT_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnQCD_cff import *
 
+# Modifying the ref cols for miniAOD
+tauGenJetsForMiniAODVal = tauGenJetsForVal.clone(GenParticles = 'prunedGenParticles')
+objectTypeSelectedTauMiniAODValDenominatorModuleZTT = objectTypeSelectedTauValDenominatorModuleZTT.clone(src=cms.InputTag("tauGenJetsForMiniAODVal"))
+kinematicSelectedTauMiniAODValDenominatorZTT = kinematicSelectedTauValDenominatorZTT.clone(src=cms.InputTag("objectTypeSelectedTauMiniAODValDenominatorModuleZTT"))
+produceDenominatorMiniAODZTT = cms.Sequence(
+    tauGenJetsForMiniAODVal
+    +objectTypeSelectedTauMiniAODValDenominatorModuleZTT
+    +kinematicSelectedTauMiniAODValDenominatorZTT
+)
+
+selectMuonsMiniAOD = selectMuons.clone(src=cms.InputTag("prunedGenParticles"))
+selectStableMuonsMiniAOD = selectStableMuons.clone(src="selectMuonsMiniAOD")
+kinematicSelectedTauMiniAODValDenominatorZMM = kinematicSelectedTauValDenominatorZMM.clone(src=cms.InputTag("selectStableMuonsMiniAOD"))
+produceDenominatorMiniAODZMM = cms.Sequence(
+    selectMuonsMiniAOD
+    +selectStableMuonsMiniAOD
+    +kinematicSelectedTauMiniAODValDenominatorZMM
+)
+
+# change to + from *
+selectElectronsMiniAOD = selectElectrons.clone(src=cms.InputTag("prunedGenParticles"))
+selectStableElectronsMiniAOD = selectStableElectrons.clone(src="selectElectronsMiniAOD")
+kinematicSelectedTauMiniAODValDenominatorZEE = kinematicSelectedTauValDenominatorZEE.clone(src=cms.InputTag("selectStableElectronsMiniAOD"))
+produceDenominatorMiniAODZEE = cms.Sequence(
+    selectElectronsMiniAOD
+    +selectStableElectronsMiniAOD
+    +kinematicSelectedTauMiniAODValDenominatorZEE
+)
+
+kinematicSelectedTauMiniAODValDenominatorQCD = kinematicSelectedTauValDenominatorQCD.clone(src=cms.InputTag("slimmedGenJets"))
+produceDenominatorMiniAODQCD = cms.Sequence(
+    kinematicSelectedTauMiniAODValDenominatorQCD
+)
+
+
 from Validation.RecoTau.RecoTauValidationMiniAOD_cfi import *
-tauValidationMiniAODZTT = tauValidationMiniAOD.clone()
-discs_to_retain = ['decayModeFinding', 'CombinedIsolationDeltaBetaCorr3HitsdR03', 'IsolationMVArun2v1DBoldDMwLT', 'IsolationMVArun2v1DBnewDMwLT', 'againstMuon', 'againstElectron']
+#tauValidationMiniAODZTT = tauValidationMiniAOD.clone()
+tauValidationMiniAODZTT = tauValidationMiniAOD.clone(RefCollection = "kinematicSelectedTauMiniAODValDenominatorZTT")
+discs_to_retain = ['decayModeFinding','decayModeFindingNewDMs',
+                   'CombinedIsolationDeltaBetaCorr3HitsdR03',
+                   'byLooseDeepTau2018v2p5VSjet','byTightDeepTau2018v2p5VSjet',
+                   'byLooseDeepTau2018v2p5VSe','byTightDeepTau2018v2p5VSe',
+                   'byLooseDeepTau2018v2p5VSmu','byTightDeepTau2018v2p5VSmu']
+
 tauValidationMiniAODZTT.discriminators = cms.VPSet([p for p in tauValidationMiniAODZTT.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
+#tauValidationMiniAODZTT.discriminators = cms.VPSet([cms.PSet(discriminator = cms.string(disc),selectionCut = cms.double(0.5)) for disc in discs_to_retain if any(p.discriminator.value() in discs_to_retain for p in tauValidationMiniAODZTT.discriminators)])
+
+
 
 tauValidationMiniAODZEE = tauValidationMiniAODZTT.clone(
-  RefCollection = "kinematicSelectedTauValDenominatorZEE",
-  ExtensionName = 'ZEE'
+    #RefCollection = "kinematicSelectedTauValDenominatorZEE",
+    RefCollection = "kinematicSelectedTauMiniAODValDenominatorZEE",
+    ExtensionName = 'ZEE'
 )
 tauValidationMiniAODZMM = tauValidationMiniAODZTT.clone(
-  RefCollection = "kinematicSelectedTauValDenominatorZMM",
-  ExtensionName = 'ZMM'
+    #RefCollection = "kinematicSelectedTauValDenominatorZMM",
+    RefCollection = "kinematicSelectedTauMiniAODValDenominatorZMM",
+    ExtensionName = 'ZMM'
 )
 tauValidationMiniAODQCD = tauValidationMiniAODZTT.clone(
-  RefCollection = "kinematicSelectedTauValDenominatorQCD",
-  ExtensionName = 'QCD'
+    #RefCollection = "kinematicSelectedTauValDenominatorQCD",
+    RefCollection = "kinematicSelectedTauMiniAODValDenominatorQCD",
+    ExtensionName = 'QCD'
 )
 tauValidationMiniAODRealData = tauValidationMiniAODZTT.clone(
   RefCollection = "CleanedPFJets",
@@ -122,5 +169,14 @@ efficienciesTauValidationMiniAODRealMuonsData = cms.EDProducer("TauDQMHistEffPro
 #from Configuration.Eras.Modifier_fastSim_cff import fastSim
 #fastSim.toReplaceWith(tauValidationSequenceMiniAOD,tauValidationSequenceMiniAOD.copyAndExclude([tauValidationMiniAODRealData,tauValidationMiniAODRealElectronsData,tauValidationMiniAODRealMuonsData]))
 
-tauValidationSequenceMiniAOD = cms.Sequence(produceDenominatorZTT*tauValidationMiniAODZTT*produceDenominatorZEE*tauValidationMiniAODZEE*produceDenominatorZMM*tauValidationMiniAODZMM*produceDenominatorQCD*tauValidationMiniAODQCD*tauValidationMiniAODRealData*tauValidationMiniAODRealElectronsData*tauValidationMiniAODRealMuonsData)
+#tauValidationSequenceMiniAOD = cms.Sequence(produceDenominatorZTT*tauValidationMiniAODZTT*produceDenominatorZEE*tauValidationMiniAODZEE*produceDenominatorZMM*tauValidationMiniAODZMM*produceDenominatorQCD*tauValidationMiniAODQCD*tauValidationMiniAODRealData*tauValidationMiniAODRealElectronsData*tauValidationMiniAODRealMuonsData)
 
+tauValidationSequenceMiniAOD = cms.Sequence(produceDenominatorMiniAODZTT*tauValidationMiniAODZTT
+                                            *produceDenominatorMiniAODZEE*tauValidationMiniAODZEE
+                                            *produceDenominatorMiniAODZMM*tauValidationMiniAODZMM
+                                            *produceDenominatorMiniAODQCD*tauValidationMiniAODQCD
+                                            *tauValidationMiniAODRealData
+                                            *tauValidationMiniAODRealElectronsData
+                                            *tauValidationMiniAODRealMuonsData)
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(tauValidationSequenceMiniAOD,tauValidationSequenceMiniAOD.copyAndExclude([tauValidationMiniAODRealData,tauValidationMiniAODRealElectronsData,tauValidationMiniAODRealMuonsData]))

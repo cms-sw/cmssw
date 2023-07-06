@@ -11,7 +11,8 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 selectMuons = cms.EDProducer(
     "GenParticlePruner",
-    src = cms.InputTag("prunedGenParticles"),
+    #src = cms.InputTag("prunedGenParticles"),
+    src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
     "keep++ pdgId = 13",

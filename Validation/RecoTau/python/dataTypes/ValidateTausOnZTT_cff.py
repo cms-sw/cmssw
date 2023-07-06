@@ -5,7 +5,8 @@ from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
-tauGenJetsForVal = tauGenJets.clone(GenParticles = 'prunedGenParticles')
+#tauGenJetsForVal = tauGenJets.clone(GenParticles = 'prunedGenParticles')
+tauGenJetsForVal = tauGenJets.clone(GenParticles = 'genParticles')
 
 # require generated tau to decay hadronically
 objectTypeSelectedTauValDenominatorModuleZTT = cms.EDFilter("TauGenJetDecayModeSelector",

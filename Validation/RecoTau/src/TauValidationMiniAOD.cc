@@ -17,7 +17,8 @@
 // Updated By:       Ece Asilar
 //                   Gage DeZoort
 //       Date:       April 6th, 2020
-
+// Updated By:       Gourab Saha
+//       Date:       July 4th, 2023
 #include "Validation/RecoTau/interface/TauValidationMiniAOD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -60,11 +61,11 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   MonitorElement *ptLoosevsEle, *etaLoosevsEle, *phiLoosevsEle, *massLoosevsEle, *puLoosevsEle;
   MonitorElement *ptLoosevsMuo, *etaLoosevsMuo, *phiLoosevsMuo, *massLoosevsMuo, *puLoosevsMuo;
   MonitorElement *ptTemp, *etaTemp, *phiTemp, *massTemp, *puTemp;
-  MonitorElement *decayModeFindingTemp, *decayModeTemp, *byDeepTau2017v2p1VSerawTemp;
-  MonitorElement *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
-  MonitorElement *mtau_dm0, *mtau_dm1, *mtau_dm2, *mtau_dm10, *mtau_dm11;
+  MonitorElement *decayModeFindingTemp, *decayModeTemp, *byDeepTau2018v2p5VSerawTemp;
+  MonitorElement *byDeepTau2018v2p5VSjetrawTemp, *byDeepTau2018v2p5VSmurawTemp, *summaryTemp;
+  MonitorElement *mtau_dm0, *mtau_dm1p2, *mtau_dm5, *mtau_dm6, *mtau_dm10, *mtau_dm11;
   MonitorElement *dmMigration, *ntau_vs_dm;
-  MonitorElement *pTOverProng_dm0, *pTOverProng_dm1, *pTOverProng_dm2, *pTOverProng_dm10, *pTOverProng_dm11;
+  MonitorElement *pTOverProng_dm0, *pTOverProng_dm1p2, *pTOverProng_dm5, *pTOverProng_dm6, *pTOverProng_dm10, *pTOverProng_dm11;
 
   // temp:
 
@@ -75,15 +76,16 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("summary"))
                                : histoInfo(21, -0.5, 20.5);
 
-  summaryTemp =
-      ibooker.book1D("summaryPlotNum", "summaryPlotNum", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp = ibooker.book1D("summaryPlotNum", "summaryPlotNum", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp->setYTitle("nTaus/discriminator");
   summaryMap.insert(std::make_pair("Num", summaryTemp));
 
-  summaryTemp =
-      ibooker.book1D("summaryPlotDen", "summaryPlotDen", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp = ibooker.book1D("summaryPlotDen", "summaryPlotDen", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp->setYTitle("nTaus/discriminator");
   summaryMap.insert(std::make_pair("Den", summaryTemp));
 
   summaryTemp = ibooker.book1D("summaryPlot", "summaryPlot", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp->setYTitle("nTaus/discriminator");
   summaryMap.insert(std::make_pair("", summaryTemp));
 
   histoInfo mtauHinfo = histoInfo(20, 0.0, 2.0);
@@ -91,11 +93,20 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   mtau_dm0 = ibooker.book1D("mtau_dm0", "mtau_dm0", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm0Map.insert(std::make_pair("", mtau_dm0));
 
-  mtau_dm1 = ibooker.book1D("mtau_dm1", "mtau_dm1", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
-  mtau_dm1Map.insert(std::make_pair("", mtau_dm1));
+  mtau_dm1p2 = ibooker.book1D("mtau_dm1p2", "mtau_dm1+2", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm1p2Map.insert(std::make_pair("", mtau_dm1p2));
 
-  mtau_dm2 = ibooker.book1D("mtau_dm2", "mtau_dm2", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
-  mtau_dm2Map.insert(std::make_pair("", mtau_dm2));
+  //mtau_dm2 = ibooker.book1D("mtau_dm2", "mtau_dm2", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  //mtau_dm2Map.insert(std::make_pair("", mtau_dm2));
+
+  mtau_dm5 = ibooker.book1D("mtau_dm5", "mtau_dm5", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm5Map.insert(std::make_pair("", mtau_dm5));
+
+  mtau_dm6 = ibooker.book1D("mtau_dm6", "mtau_dm6", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm6Map.insert(std::make_pair("", mtau_dm6));
+
+  //mtau_dm7 = ibooker.book1D("mtau_dm7", "mtau_dm7", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  //mtau_dm7Map.insert(std::make_pair("", mtau_dm7));
 
   mtau_dm10 = ibooker.book1D("mtau_dm10", "mtau_dm10", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm10Map.insert(std::make_pair("", mtau_dm10));
@@ -103,7 +114,9 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   mtau_dm11 = ibooker.book1D("mtau_dm11", "mtau_dm11", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm11Map.insert(std::make_pair("", mtau_dm11));
 
-  dmMigration = ibooker.book2D("dmMigration", "dmMigration", 15, 0, 15, 15, 0, 15);
+  dmMigration = ibooker.book2D("dmMigration", "DM Migration: recoDM vs genDM", 15, 0, 15, 15, 0, 15);
+  dmMigration->setXTitle("Reconstructed tau DM");
+  dmMigration->setYTitle("Generated tau DM");
   dmMigrationMap.insert(std::make_pair("", dmMigration));
 
   histoInfo pTOverProngHinfo = (histoSettings_.exists("pTOverProng"))
@@ -118,27 +131,57 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                    pTOverProngHinfo.nbins,
                                    pTOverProngHinfo.min,
                                    pTOverProngHinfo.max);
+  pTOverProng_dm0->setXTitle("pT of reconstructed tau");
+  pTOverProng_dm0->setYTitle("pT of lead charged cand");
   pTOverProng_dm0Map.insert(std::make_pair("", pTOverProng_dm0));
 
-  pTOverProng_dm1 = ibooker.book2D("pTOverProng_dm1",
-                                   "pTOverProng_dm1",
-                                   pTOverProngHinfo.nbins,
-                                   pTOverProngHinfo.min,
-                                   pTOverProngHinfo.max,
-                                   pTOverProngHinfo.nbins,
-                                   pTOverProngHinfo.min,
-                                   pTOverProngHinfo.max);
-  pTOverProng_dm1Map.insert(std::make_pair("", pTOverProng_dm1));
+  pTOverProng_dm1p2 = ibooker.book2D("pTOverProng_dm1p2",
+				     "pTOverProng_dm1p2",
+				     pTOverProngHinfo.nbins,
+				     pTOverProngHinfo.min,
+				     pTOverProngHinfo.max,
+				     pTOverProngHinfo.nbins,
+				     pTOverProngHinfo.min,
+				     pTOverProngHinfo.max);
+  pTOverProng_dm1p2->setXTitle("pT of reconstructed tau");
+  pTOverProng_dm1p2->setYTitle("pT of lead charged cand");
+  pTOverProng_dm1p2Map.insert(std::make_pair("", pTOverProng_dm1p2));
 
-  pTOverProng_dm2 = ibooker.book2D("pTOverProng_dm2",
-                                   "pTOverProng_dm2",
+  pTOverProng_dm5 = ibooker.book2D("pTOverProng_dm5",
+                                   "pTOverProng_dm5",
                                    pTOverProngHinfo.nbins,
                                    pTOverProngHinfo.min,
                                    pTOverProngHinfo.max,
                                    pTOverProngHinfo.nbins,
                                    pTOverProngHinfo.min,
                                    pTOverProngHinfo.max);
-  pTOverProng_dm2Map.insert(std::make_pair("", pTOverProng_dm2));
+  pTOverProng_dm5->setXTitle("pT of reconstructed tau");
+  pTOverProng_dm5->setYTitle("pT of lead charged cand");
+  pTOverProng_dm5Map.insert(std::make_pair("", pTOverProng_dm5));
+
+  pTOverProng_dm6 = ibooker.book2D("pTOverProng_dm6",
+                                   "pTOverProng_dm6",
+                                   pTOverProngHinfo.nbins,
+                                   pTOverProngHinfo.min,
+                                   pTOverProngHinfo.max,
+                                   pTOverProngHinfo.nbins,
+                                   pTOverProngHinfo.min,
+                                   pTOverProngHinfo.max);
+  pTOverProng_dm6->setXTitle("pT of reconstructed tau");
+  pTOverProng_dm6->setYTitle("pT of lead charged cand");
+  pTOverProng_dm6Map.insert(std::make_pair("", pTOverProng_dm6));
+
+  /*  pTOverProng_dm7 = ibooker.book2D("pTOverProng_dm7",
+                                   "pTOverProng_dm7",
+                                   pTOverProngHinfo.nbins,
+                                   pTOverProngHinfo.min,
+                                   pTOverProngHinfo.max,
+                                   pTOverProngHinfo.nbins,
+                                   pTOverProngHinfo.min,
+                                   pTOverProngHinfo.max);
+  pTOverProng_dm7->setXTitle("pT of reconstructed tau");
+  pTOverProng_dm7->setYTitle("pT of lead charged cand");
+  pTOverProng_dm7Map.insert(std::make_pair("", pTOverProng_dm7));*/
 
   pTOverProng_dm10 = ibooker.book2D("pTOverProng_dm10",
                                     "pTOverProng_dm10",
@@ -148,6 +191,8 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                     pTOverProngHinfo.nbins,
                                     pTOverProngHinfo.min,
                                     pTOverProngHinfo.max);
+  pTOverProng_dm10->setXTitle("pT of reconstructed tau");
+  pTOverProng_dm10->setYTitle("pT of lead charged cand");
   pTOverProng_dm10Map.insert(std::make_pair("", pTOverProng_dm10));
 
   pTOverProng_dm11 = ibooker.book2D("pTOverProng_dm11",
@@ -158,9 +203,13 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                     pTOverProngHinfo.nbins,
                                     pTOverProngHinfo.min,
                                     pTOverProngHinfo.max);
+  pTOverProng_dm11->setXTitle("pT of reconstructed tau");
+  pTOverProng_dm11->setYTitle("pT of lead charged cand");
   pTOverProng_dm11Map.insert(std::make_pair("", pTOverProng_dm11));
 
-  ntau_vs_dm = ibooker.book2D("ntau_vs_dm", "ntau_vs_dm", 16, 0, 16, 11, 0, 11);
+  ntau_vs_dm = ibooker.book2D("ntau_vs_dm", "ntau_vs_dm", 15, 0, 15, 15, 0, 15);
+  ntau_vs_dm->setXTitle("nTau");
+  ntau_vs_dm->setYTitle("tau DM");
   ntau_vs_dmMap.insert(std::make_pair("", ntau_vs_dm));
 
   // add discriminator labels to summary plots
@@ -179,9 +228,9 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   histoInfo ptHinfo = (histoSettings_.exists("pt")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pt"))
                                                     : histoInfo(200, 0., 1000.);
   histoInfo etaHinfo = (histoSettings_.exists("eta")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("eta"))
-                                                      : histoInfo(200, -3, 3.);
+                                                      : histoInfo(60, -3, 3.);
   histoInfo phiHinfo = (histoSettings_.exists("phi")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("phi"))
-                                                      : histoInfo(200, -3, 3.);
+                                                      : histoInfo(60, -3, 3.);
   histoInfo massHinfo = (histoSettings_.exists("mass"))
                             ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("mass"))
                             : histoInfo(200, 0, 10.);
@@ -195,20 +244,20 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                         : histoInfo(2, -0.5, 1.5);
   histoInfo decayModeHinfo = (histoSettings_.exists("decayMode"))
                                  ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("decayMode"))
-                                 : histoInfo(11, -0.5, 10.5);
+    : histoInfo(12, -0.5, 11.5); //new
 
   // raw distributions for deepTau (e, jet, mu)
-  histoInfo byDeepTau2017v2p1VSerawHinfo =
-      (histoSettings_.exists("byDeepTau2017v2p1VSeraw"))
-          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSeraw"))
+  histoInfo byDeepTau2018v2p5VSerawHinfo =
+      (histoSettings_.exists("byDeepTau2018v2p5VSeraw"))
+          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2018v2p5VSeraw"))
           : histoInfo(200, 0., 1.);
-  histoInfo byDeepTau2017v2p1VSjetrawHinfo =
-      (histoSettings_.exists("byDeepTau2017v2p1VSjetraw"))
-          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSjetraw"))
+  histoInfo byDeepTau2018v2p5VSjetrawHinfo =
+      (histoSettings_.exists("byDeepTau2018v2p5VSjetraw"))
+          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2018v2p5VSjetraw"))
           : histoInfo(200, 0., 1.);
-  histoInfo byDeepTau2017v2p1VSmurawHinfo =
-      (histoSettings_.exists("byDeepTau2017v2p1VSmuraw"))
-          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSmuraw"))
+  histoInfo byDeepTau2018v2p5VSmurawHinfo =
+      (histoSettings_.exists("byDeepTau2018v2p5VSmuraw"))
+          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2018v2p5VSmuraw"))
           : histoInfo(200, 0., 1.);
 
   // book the temp histograms
@@ -218,32 +267,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   massTemp = ibooker.book1D("tau_mass", "tau_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
   puTemp = ibooker.book1D("tau_pu", "tau_pu", puHinfo.nbins, puHinfo.min, puHinfo.max);
 
-  // book decay mode histograms
-  decayModeFindingTemp = ibooker.book1D("tau_decayModeFinding",
-                                        "tau_decayModeFinding",
-                                        decayModeFindingHinfo.nbins,
-                                        decayModeFindingHinfo.min,
-                                        decayModeFindingHinfo.max);
-  decayModeTemp =
-      ibooker.book1D("tau_decayMode", "tau_decayMode", decayModeHinfo.nbins, decayModeHinfo.min, decayModeHinfo.max);
-
-  // book the deepTau histograms
-  byDeepTau2017v2p1VSerawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSeraw",
-                                               "tau_byDeepTau2017v2p1VSeraw",
-                                               byDeepTau2017v2p1VSerawHinfo.nbins,
-                                               byDeepTau2017v2p1VSerawHinfo.min,
-                                               byDeepTau2017v2p1VSerawHinfo.max);
-  byDeepTau2017v2p1VSjetrawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSjetraw",
-                                                 "tau_byDeepTau2017v2p1VSjetraw",
-                                                 byDeepTau2017v2p1VSjetrawHinfo.nbins,
-                                                 byDeepTau2017v2p1VSjetrawHinfo.min,
-                                                 byDeepTau2017v2p1VSjetrawHinfo.max);
-  byDeepTau2017v2p1VSmurawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSmuraw",
-                                                "tau_byDeepTau2017v2p1VSmuraw",
-                                                byDeepTau2017v2p1VSmurawHinfo.nbins,
-                                                byDeepTau2017v2p1VSmurawHinfo.min,
-                                                byDeepTau2017v2p1VSmurawHinfo.max);
-
   // map the histograms
   ptMap.insert(std::make_pair("", ptTemp));
   etaMap.insert(std::make_pair("", etaTemp));
@@ -251,14 +274,41 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   massMap.insert(std::make_pair("", massTemp));
   puMap.insert(std::make_pair("", puTemp));
 
-  // map the decayMode histograms
+  // book decay mode histograms
+  decayModeFindingTemp = ibooker.book1D("tau_decayModeFinding",
+                                        "tau_decayModeFinding",
+                                        decayModeFindingHinfo.nbins,
+                                        decayModeFindingHinfo.min,
+                                        decayModeFindingHinfo.max);
   decayModeFindingMap.insert(std::make_pair("", decayModeFindingTemp));
-  decayModeMap.insert(std::make_pair("", decayModeTemp));
+
+  decayModeTemp = ibooker.book1D("tau_decayMode_reco",  "DecayMode: Reconstructed tau", decayModeHinfo.nbins, decayModeHinfo.min, decayModeHinfo.max);
+  decayModeMap.insert(std::make_pair("pftau",  decayModeTemp));
+
+  decayModeTemp = ibooker.book1D("tau_decayMode_gen", "DecayMode: Generated tau", 14, -2.5, 11.5);
+  decayModeMap.insert(std::make_pair("gentau", decayModeTemp));
+
+  // book the deepTau histograms
+  byDeepTau2018v2p5VSerawTemp = ibooker.book1D("tau_byDeepTau2018v2p5VSeraw",
+                                               "tau_byDeepTau2018v2p5VSeraw",
+                                               byDeepTau2018v2p5VSerawHinfo.nbins,
+                                               byDeepTau2018v2p5VSerawHinfo.min,
+                                               byDeepTau2018v2p5VSerawHinfo.max);
+  byDeepTau2018v2p5VSjetrawTemp = ibooker.book1D("tau_byDeepTau2018v2p5VSjetraw",
+                                                 "tau_byDeepTau2018v2p5VSjetraw",
+                                                 byDeepTau2018v2p5VSjetrawHinfo.nbins,
+                                                 byDeepTau2018v2p5VSjetrawHinfo.min,
+                                                 byDeepTau2018v2p5VSjetrawHinfo.max);
+  byDeepTau2018v2p5VSmurawTemp = ibooker.book1D("tau_byDeepTau2018v2p5VSmuraw",
+                                                "tau_byDeepTau2018v2p5VSmuraw",
+                                                byDeepTau2018v2p5VSmurawHinfo.nbins,
+                                                byDeepTau2018v2p5VSmurawHinfo.min,
+                                                byDeepTau2018v2p5VSmurawHinfo.max);
 
   // map the deepTau histograms
-  byDeepTau2017v2p1VSerawMap.insert(std::make_pair("", byDeepTau2017v2p1VSerawTemp));
-  byDeepTau2017v2p1VSjetrawMap.insert(std::make_pair("", byDeepTau2017v2p1VSjetrawTemp));
-  byDeepTau2017v2p1VSmurawMap.insert(std::make_pair("", byDeepTau2017v2p1VSmurawTemp));
+  byDeepTau2018v2p5VSerawMap.insert(std::make_pair("", byDeepTau2018v2p5VSerawTemp));
+  byDeepTau2018v2p5VSjetrawMap.insert(std::make_pair("", byDeepTau2018v2p5VSjetrawTemp));
+  byDeepTau2018v2p5VSmurawMap.insert(std::make_pair("", byDeepTau2018v2p5VSmurawTemp));
 
   qcd = "QCD";
   real_data = "RealData";
@@ -441,11 +491,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
     puLoosevsMuoMap.insert(std::make_pair("", puLoosevsMuo));
   }
 }
-
 void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  // temp
-  std::cout << "******** Entering the Analyze Function ********\n";
-
   // create a handle to the tau collection
   edm::Handle<pat::TauCollection> taus;
   bool isTau = iEvent.getByToken(tauCollection_, taus);
@@ -463,7 +509,6 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
   edm::Handle<refCandidateCollection> ReferenceCollection;
   bool isRef = iEvent.getByToken(refCollectionInputTagToken_, ReferenceCollection);
   if (!isRef) {
-    //std::cerr << ReferenceCollection << std::endl;
     std::cerr << "ERROR: Reference collection not found while running TauValidationMiniAOD.cc \n " << std::endl;
     return;
   }
@@ -490,21 +535,18 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
     int matchedTauIndex = -99;
     float gendRmin = 0.15;
     int genmatchedTauIndex = -99;
+
+    // find best matched tau 
     for (unsigned iTau = 0; iTau < taus->size(); iTau++) {
       pat::TauRef tau(taus, iTau);
 
-      //for (pat::TauCollection::const_iterator tau = taus->begin(); tau != taus->end(); tau++) {
-      //pat::TauRef matchedTau(*tau);
-
       float dR = deltaR(tau->eta(), tau->phi(), RefJet->eta(), RefJet->phi());
-
       if (dR < dRmin) {
         dRmin = dR;
         matchedTauIndex = iTau;
       }
     }
     if (dRmin < 0.15) {
-      //temp
 
       pat::TauRef matchedTau(taus, matchedTauIndex);
 
@@ -514,40 +556,48 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       phiMap.find("")->second->Fill(matchedTau->phi());
       massMap.find("")->second->Fill(matchedTau->mass());
       puMap.find("")->second->Fill(pvHandle->size());
-      decayModeMap.find("")->second->Fill(matchedTau->decayMode());
+      decayModeMap.find("pftau")->second->Fill(matchedTau->decayMode());
 
       // fill select discriminators with matchedTau quantities
-      if (matchedTau->isTauIDAvailable("decayModeFinding"))
-        decayModeFindingMap.find("")->second->Fill(matchedTau->tauID("decayModeFinding"));
-      if (matchedTau->isTauIDAvailable("byDeepTau2017v2p1VSeraw"))
-        byDeepTau2017v2p1VSerawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSeraw"));
-      if (matchedTau->isTauIDAvailable("byDeepTau2017v2p1VSjetraw"))
-        byDeepTau2017v2p1VSjetrawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSjetraw"));
-      if (matchedTau->isTauIDAvailable("byDeepTau2017v2p1VSmuraw"))
-        byDeepTau2017v2p1VSmurawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSmuraw"));
+      if (matchedTau->isTauIDAvailable("decayModeFindingNewDMs"))
+        decayModeFindingMap.find("")->second->Fill(matchedTau->tauID("decayModeFindingNewDMs"));
+      if (matchedTau->isTauIDAvailable("byDeepTau2018v2p5VSeraw"))
+        byDeepTau2018v2p5VSerawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2018v2p5VSeraw"));
+      if (matchedTau->isTauIDAvailable("byDeepTau2018v2p5VSjetraw"))
+        byDeepTau2018v2p5VSjetrawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2018v2p5VSjetraw"));
+      if (matchedTau->isTauIDAvailable("byDeepTau2018v2p5VSmuraw"))
+        byDeepTau2018v2p5VSmurawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2018v2p5VSmuraw"));
 
-      // fill tau mass for decay modes 0 , 1, 2 , 10 ,11
+      // fill tau mass for decay modes 0,1+2,5,6,7,10,11
       if (matchedTau->decayMode() == 0) {
         mtau_dm0Map.find("")->second->Fill(matchedTau->mass());
         pTOverProng_dm0Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
-      } else if (matchedTau->decayMode() == 1) {
-        mtau_dm1Map.find("")->second->Fill(matchedTau->mass());
-        pTOverProng_dm1Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
-      } else if (matchedTau->decayMode() == 2) {
-        mtau_dm2Map.find("")->second->Fill(matchedTau->mass());
-        pTOverProng_dm2Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
-      } else if (matchedTau->decayMode() == 10) {
+      } 
+      else if (matchedTau->decayMode() == 1 || matchedTau->decayMode() == 2) {
+        mtau_dm1p2Map.find("")->second->Fill(matchedTau->mass());
+        pTOverProng_dm1p2Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
+      } 
+      else if (matchedTau->decayMode() == 5) {
+        mtau_dm5Map.find("")->second->Fill(matchedTau->mass());
+        pTOverProng_dm5Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
+      } 
+      else if (matchedTau->decayMode() == 6) {
+        mtau_dm6Map.find("")->second->Fill(matchedTau->mass());
+        pTOverProng_dm6Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
+      } 
+      else if (matchedTau->decayMode() == 10) {
         mtau_dm10Map.find("")->second->Fill(matchedTau->mass());
         pTOverProng_dm10Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
-      } else if (matchedTau->decayMode() == 11) {
+      } 
+      else if (matchedTau->decayMode() == 11) {
         mtau_dm11Map.find("")->second->Fill(matchedTau->mass());
         pTOverProng_dm11Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
       }
 
       // fill decay mode population plot
       ntau_vs_dmMap.find("")->second->Fill(taus->size(), matchedTau->decayMode());
-
-      //Fill decay mode migration 2D histograms
+    
+      //Fill decay mode migration 2D histogragms
       //First do a gen Matching
       unsigned genindex = 0;
       for (std::vector<reco::GenParticle>::const_iterator genParticle = genParticles->begin();
@@ -562,56 +612,93 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
         }
         genindex = genindex + 1;
       }
-      int dtrpdgID;  //pdgID for daughter
-      int numChargedHadrons = 0;
-      int numNeutralHadrons = 0;
-      int numPhotons = 0;
+
+      int nPhotonsPrompt = 0;
+      int nPhotonsFromTauDecay = 0;
+      int nPi0s = 0;
+      int nPis = 0;
+      int nUnknowns = 0;
       if (gendRmin < 0.15) {
+	//std::cout<<"----------\n";
+	//std::cout<<"Matched gen particle: "<<genParticles->at(genmatchedTauIndex).pdgId()<<"\n";
+	//for (unsigned imtrTau = 0; imtrTau < genParticles->at(genmatchedTauIndex).numberOfMothers(); imtrTau++) 
+	//  std::cout<<"Mother "<<imtrTau<<": "<<genParticles->at(genmatchedTauIndex).mother(imtrTau)->pdgId()<<"\n";
+	//std::cout<<"Daughter of gen tau matched with the ref matched tau: PdgId, charge, status\n";
+	//std::vector<const reco::GenParticle*>dtr1Photons;
+	//std::vector<const reco::GenParticle*>dtr2Pi0s;
         for (unsigned idtrTau = 0; idtrTau < genParticles->at(genmatchedTauIndex).numberOfDaughters(); idtrTau++) {
-          dtrpdgID = std::abs(genParticles->at(genmatchedTauIndex).daughter(idtrTau)->pdgId());
-          if (dtrpdgID == 22)
-            numPhotons++;
-          if (dtrpdgID != 22 && dtrpdgID != 11 && dtrpdgID != 13) {
-            if (genParticles->at(genmatchedTauIndex).daughter(idtrTau)->charge() != 0) {
-              numChargedHadrons++;
-            } else if (dtrpdgID != 12 && dtrpdgID != 14 && dtrpdgID != 16) {
-              numNeutralHadrons++;
-            }
-          }
+	  const reco::GenParticle* gpdtr = dynamic_cast<const reco::GenParticle*>((genParticles->at(genmatchedTauIndex)).daughter(idtrTau));
+	  int dtrpdgID  = std::abs(gpdtr->pdgId());
+	  int dtrstatus = gpdtr->status();
+	  //int dtrcharge = gpdtr->charge();
+	  //std::cout<<"dtrpdgID: "<<dtrpdgID<<", charge: "<<dtrcharge<<", status: "<<dtrstatus<<std::endl;
+	  if (dtrpdgID == 12 || dtrpdgID == 14 || dtrpdgID == 16) continue;
+          if (/*(*/dtrpdgID == 111 || dtrpdgID == 311/*) && dtrstatus == 2*/) nPi0s++;
+	  else if (/*(*/dtrpdgID == 211 || dtrpdgID == 321/*) && dtrstatus == 1*/) nPis++;
+	  else if (dtrpdgID == 22 /*&& dtrstatus == 1*/) {
+	    //std::cout<<"Found photon as decay product of tau: dig deep!\n";
+	    //dtr1Photons.push_back(gpdtr);
+	    //std::cout<<"Photon pt: "<<gpdtr->pt()<<"\n";
+	    /*
+	    std::cout<<"isPromptFinalState? "<<gpdtr->isPromptFinalState()
+		     <<", isPromptDecayed? "<<gpdtr->isPromptDecayed()
+		     <<", isDirectPromptTauDecayProductFinalState? "<<gpdtr->isDirectPromptTauDecayProductFinalState()
+		     <<", isHardProcess? "<<gpdtr->isHardProcess()
+		     <<", fromHardProcessFinalState? "<<gpdtr->fromHardProcessFinalState()
+		     <<std::endl;*/
+	    if (gpdtr->isPromptFinalState() && gpdtr->pt() > 10) nPhotonsPrompt++; // because, in MiniAOD prompt photon pt > 10 GeV
+	    else if (gpdtr->isDirectPromptTauDecayProductFinalState()) nPhotonsFromTauDecay++;
+	    else std::cout<<"Warning: unknown source of photon \n";
+	    //numPhotons++;
+	  }
+	  else if (dtrpdgID == 15 && dtrstatus == 2 && gpdtr->isLastCopy()) {
+	    //std::cout<<"Daughter of tau is tau: dig deep!!!\n";
+	    //const reco::GenParticle* dtrtaudtr = dynamic_cast<const reco::GenParticle*>(gpdtr->daughter(idtrTau));
+	    //bool lastcopy = gp->isLastCopy();
+	    //bool lastcopybfrfsr = gp->isLastCopyBeforeFSR();
+	    //std::cout<<"Tau LastCopy?: "<<lastcopy<<"\t"<<"LastCopy before FSR?: "<<lastcopybfrfsr<<"\n";
+	    for (unsigned idtrTaudtr = 0; idtrTaudtr < gpdtr->numberOfDaughters(); idtrTaudtr++){ 
+	      const reco::GenParticle* gpdtr2 = dynamic_cast<const reco::GenParticle*>(gpdtr->daughter(idtrTaudtr));
+	      int dtr2pdgID = std::abs(gpdtr2->pdgId());
+	      if (dtr2pdgID == 12 || dtr2pdgID == 14 || dtr2pdgID == 16) continue;
+	      //int dtr2status = gpdtr2->status();
+	      //std::cout<<"dtr2pdgid: "<<dtr2pdgID<<", dtr2status: "<<dtr2status<<std::endl;
+	      if (/*(*/dtr2pdgID == 111 || dtr2pdgID == 311/*) && dtr2status == 2*/) nPi0s++;
+	      //dtr2Pi0s.push_back(gpdtr2);
+	      else if (/*(*/dtr2pdgID == 211 || dtr2pdgID == 321/*) && dtr2status == 1*/) nPis++;
+	      else if (dtr2pdgID == 22 /*&& dtr2status == 1*/) {
+		//std::cout<<"Found photon as decay product of tau from tau: dig deep!\n";
+		//dtr1Photons.push_back(gpdtr2);
+		//std::cout<<"Photon2 pt: "<<gpdtr2->pt()<<"\n";
+		/*
+		std::cout<<"isPromptFinalState? "<<gpdtr2->isPromptFinalState()
+			 <<", isPromptDecayed? "<<gpdtr2->isPromptDecayed()
+			 <<", isDirectPromptTauDecayProductFinalState? "<<gpdtr2->isDirectPromptTauDecayProductFinalState()
+			 <<", isHardProcess? "<<gpdtr2->isHardProcess()
+			 <<", fromHardProcessFinalState? "<<gpdtr2->fromHardProcessFinalState()
+			 <<std::endl;*/
+		if (gpdtr2->isPromptFinalState() && gpdtr2->pt() > 10) nPhotonsPrompt++;
+		else if (gpdtr2->isDirectPromptTauDecayProductFinalState()) nPhotonsFromTauDecay++;
+		else std::cout<<"Warning: unknown source of photon \n";
+	      }
+	    }
+	  }
+	  else nUnknowns++;
         }
+	//numPi0s += numPhotons/2;
+	//std::cout<<"dtr photon: \n";
+	//for (auto *p1: dtr1Photons) std::cout<<"eta: "<<p1->eta()<<", phi: "<<p1->phi()<<"\n";
+	//std::cout<<"dtr2 pi0: \n";
+	//for (auto *p2: dtr2Pi0s) std::cout<<"eta: "<<p2->eta()<<", phi: "<<p2->phi()<<"\n";
+
+	//std::cout<<"-------------\n";
+	//std::cout<<"numPis: "<<nPis<<", numPi0s: "<<nPi0s<<"\n";
+	//std::cout<<"numPhotonsPrompt: "<<nPhotonsPrompt<<", numPhotonsFromTauDecay: "<<nPhotonsFromTauDecay<<", numUnknowns: "<<nUnknowns<<"\n";
+	//std::cout<<"Decay Mode: "<<findDecayMode(nPis, nPi0s, nPhotonsFromTauDecay)<<"\n\n";
       }
-      int genTau_dm = -999;
-      if (numChargedHadrons == 1) {
-        if (numNeutralHadrons != 0) {
-          genTau_dm = -999;  // 1 prong + Other
-        }
-        if (numPhotons == 0) {
-          genTau_dm = 0;  // 1 prong + 0 piZero
-        } else if (numPhotons == 2) {
-          genTau_dm = 1;  // 1 prong + 1 piZero ; remember pi Zero generally decays to 2 photons
-        } else if (numPhotons == 4) {
-          genTau_dm = 2;  // 1 prong + 2 piZero
-        } else if (numPhotons == 6) {
-          genTau_dm = 3;  // 1 prong + 3 piZero
-        } else {
-          genTau_dm = -999;  // 1 prong + N piZero
-        }
-      } else if (numChargedHadrons == 3) {
-        if (numNeutralHadrons != 0) {
-          genTau_dm = -999;  // 3 prong + Other
-        }
-        if (numPhotons == 0) {
-          genTau_dm = 10;  // 3 prong + 0 piZero
-        } else if (numPhotons == 2) {
-          genTau_dm = 11;  // 3 prong + 1 piZero
-        } else if (numPhotons == 4) {
-          genTau_dm = 12;  // 3 prong + 2 piZero
-        } else if (numPhotons == 6) {
-          genTau_dm = 13;  // 3 prong + 3 piZero
-        } else {
-          genTau_dm = -999;  // 3 prong + N piZero
-        }
-      }
+
+      int genTau_dm = (nPhotonsPrompt > 0) ? -2 : findDecayMode(nPis, nPi0s, nPhotonsFromTauDecay);
+      decayModeMap.find("gentau")->second->Fill(genTau_dm);
       dmMigrationMap.find("")->second->Fill(matchedTau->decayMode(), genTau_dm);
 
       // count number of taus passing each discriminator's selection cut
@@ -630,7 +717,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       if (extensionName_.compare(qcd) == 0 || extensionName_.compare(real_data) == 0 ||
           extensionName_.compare(ztt) == 0) {
         // vsJet/tight
-        if (matchedTau->tauID("byTightDeepTau2017v2p1VSjet") >= 0.5) {
+        if (matchedTau->tauID("byTightDeepTau2018v2p5VSjet") >= 0.5) {
           ptTightvsJetMap.find("")->second->Fill(matchedTau->pt());
           etaTightvsJetMap.find("")->second->Fill(matchedTau->eta());
           phiTightvsJetMap.find("")->second->Fill(matchedTau->phi());
@@ -638,7 +725,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puTightvsJetMap.find("")->second->Fill(pvHandle->size());
         }
         // vsJet/medium
-        if (matchedTau->tauID("byMediumDeepTau2017v2p1VSjet") >= 0.5) {
+        if (matchedTau->tauID("byMediumDeepTau2018v2p5VSjet") >= 0.5) {
           ptMediumvsJetMap.find("")->second->Fill(matchedTau->pt());
           etaMediumvsJetMap.find("")->second->Fill(matchedTau->eta());
           phiMediumvsJetMap.find("")->second->Fill(matchedTau->phi());
@@ -646,7 +733,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puMediumvsJetMap.find("")->second->Fill(pvHandle->size());
         }
         // vsJet/loose
-        if (matchedTau->tauID("byLooseDeepTau2017v2p1VSjet") >= 0.5) {
+        if (matchedTau->tauID("byLooseDeepTau2018v2p5VSjet") >= 0.5) {
           ptLoosevsJetMap.find("")->second->Fill(matchedTau->pt());
           etaLoosevsJetMap.find("")->second->Fill(matchedTau->eta());
           phiLoosevsJetMap.find("")->second->Fill(matchedTau->phi());
@@ -658,7 +745,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       if (extensionName_.compare(real_eledata) == 0 || extensionName_.compare(zee) == 0 ||
           extensionName_.compare(ztt) == 0) {
         // vsEle/tight
-        if (matchedTau->tauID("byTightDeepTau2017v2p1VSe") >= 0.5) {
+        if (matchedTau->tauID("byTightDeepTau2018v2p5VSe") >= 0.5) {
           ptTightvsEleMap.find("")->second->Fill(matchedTau->pt());
           etaTightvsEleMap.find("")->second->Fill(matchedTau->eta());
           phiTightvsEleMap.find("")->second->Fill(matchedTau->phi());
@@ -666,7 +753,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puTightvsEleMap.find("")->second->Fill(pvHandle->size());
         }
         // vsEle/medium
-        if (matchedTau->tauID("byMediumDeepTau2017v2p1VSe") >= 0.5) {
+        if (matchedTau->tauID("byMediumDeepTau2018v2p5VSe") >= 0.5) {
           ptMediumvsEleMap.find("")->second->Fill(matchedTau->pt());
           etaMediumvsEleMap.find("")->second->Fill(matchedTau->eta());
           phiMediumvsEleMap.find("")->second->Fill(matchedTau->phi());
@@ -674,7 +761,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puMediumvsEleMap.find("")->second->Fill(pvHandle->size());
         }
         // vsEle/loose
-        if (matchedTau->tauID("byLooseDeepTau2017v2p1VSe") >= 0.5) {
+        if (matchedTau->tauID("byLooseDeepTau2018v2p5VSe") >= 0.5) {
           ptLoosevsEleMap.find("")->second->Fill(matchedTau->pt());
           etaLoosevsEleMap.find("")->second->Fill(matchedTau->eta());
           phiLoosevsEleMap.find("")->second->Fill(matchedTau->phi());
@@ -686,7 +773,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       if (extensionName_.compare(real_mudata) == 0 || extensionName_.compare(zmm) == 0 ||
           extensionName_.compare(ztt) == 0) {
         // vsMuo/tight
-        if (matchedTau->tauID("byTightDeepTau2017v2p1VSmu") >= 0.5) {
+        if (matchedTau->tauID("byTightDeepTau2018v2p5VSmu") >= 0.5) {
           ptTightvsMuoMap.find("")->second->Fill(matchedTau->pt());
           etaTightvsMuoMap.find("")->second->Fill(matchedTau->eta());
           phiTightvsMuoMap.find("")->second->Fill(matchedTau->phi());
@@ -694,7 +781,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puTightvsMuoMap.find("")->second->Fill(pvHandle->size());
         }
         // vsMuo/medium
-        if (matchedTau->tauID("byMediumDeepTau2017v2p1VSmu") >= 0.5) {
+        if (matchedTau->tauID("byMediumDeepTau2018v2p5VSmu") >= 0.5) {
           ptMediumvsMuoMap.find("")->second->Fill(matchedTau->pt());
           etaMediumvsMuoMap.find("")->second->Fill(matchedTau->eta());
           phiMediumvsMuoMap.find("")->second->Fill(matchedTau->phi());
@@ -702,7 +789,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           puMediumvsMuoMap.find("")->second->Fill(pvHandle->size());
         }
         // vsMuo/loose
-        if (matchedTau->tauID("byLooseDeepTau2017v2p1VSmu") >= 0.5) {
+        if (matchedTau->tauID("byLooseDeepTau2018v2p5VSmu") >= 0.5) {
           ptLoosevsMuoMap.find("")->second->Fill(matchedTau->pt());
           etaLoosevsMuoMap.find("")->second->Fill(matchedTau->eta());
           phiLoosevsMuoMap.find("")->second->Fill(matchedTau->phi());
