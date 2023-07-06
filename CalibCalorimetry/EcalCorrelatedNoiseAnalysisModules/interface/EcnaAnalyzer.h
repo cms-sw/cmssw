@@ -211,7 +211,6 @@ private:
   Int_t fFedTcc;
   std::vector<Int_t> fSMFromFedTcc;
   std::vector<Int_t> fESFromFedTcc;
-  // Int_t *fDeeFromFedTcc; - unused?
   Int_t fTreatedFedOrder;
   std::vector<Int_t> fFedStatusOrder;
   Int_t fFedId;

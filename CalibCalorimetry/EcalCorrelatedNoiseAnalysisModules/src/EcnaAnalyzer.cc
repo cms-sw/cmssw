@@ -46,7 +46,6 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
     : verbosity_(pSet.getUntrackedParameter("verbosity", 1U)),
       nChannels_(0),
       iEvent_(0),
-      // fDeeFromFedTcc(nullptr), - unused?
       fMyCnaEBSM(nullptr),
       fMyCnaEEDee(nullptr),
       fMyEBNumbering(nullptr),
@@ -583,8 +582,6 @@ EcnaAnalyzer::~EcnaAnalyzer() {
 
   Int_t n0 = 0;
   CheckMsg(n0);
-
-  // delete fDeeFromFedTcc;
 
   delete fMyEBNumbering;
   delete fMyEENumbering;
