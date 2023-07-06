@@ -776,7 +776,7 @@ upgradeWFs['photonDRN'].step3 = {
 #   - 2022 conditions (labelled "2021"), Z->mumu
 #   - 2023 conditions, TTbar
 #   - 2023 conditions, Z->mumu
-#   - 2026D88 conditions, TTbar
+#   - 2026 conditions, TTbar
 class PatatrackWorkflow(UpgradeWorkflow):
     def __init__(self, digi = {}, reco = {}, mini = {}, harvest = {}, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
@@ -837,7 +837,7 @@ class PatatrackWorkflow(UpgradeWorkflow):
             ('2018' in key and fragment == "ZMM_13"),
             ('2021' in key and fragment == "ZMM_14" and 'FS' not in key),
             ('2023' in key and fragment == "ZMM_14" and 'FS' not in key),
-            ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix),
+            ('2026' in key and fragment == "TTbar_14TeV"),
             (('HI' in key) and 'Hydjet' in fragment and "PixelOnly" in self.suffix )
         ]
         result = any(selected) and hasHarvest
@@ -858,6 +858,13 @@ class PatatrackWorkflow(UpgradeWorkflow):
               stepDict[stepName][k] = None
             else:
               stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
+            if 'Phase2' in stepDict[stepName][k]['--era']:
+                if 'DQM:@standardDQM+@ExtraHLT' in stepDict[stepName][k]['-s']:
+                    stepDict[stepName][k]['-s'] = stepDict[stepName][k]['-s'].replace('DQM:@standardDQM+@ExtraHLT','DQM:@phase2')
+                if 'VALIDATION:@standardValidation' in stepDict[stepName][k]['-s']:
+                    stepDict[stepName][k]['-s'] = stepDict[stepName][k]['-s'].replace('VALIDATION:@standardValidation','VALIDATION:@phase2Validation')
+
+
         elif 'MiniAOD' in step:
             if self.__mini is None:
               stepDict[stepName][k] = None
