@@ -34,22 +34,15 @@ bool HGCGuardRingPartial::exclude(G4ThreeVector& point, int zside, int frontBack
       double delY = 2 * delX / sqrt3_;
       double dx = (zside > 0) ? -point.x() : point.x();
       double dy = point.y();
+      double tresh = std::abs(offset_ / cos_1[placement]);
       if (type > 0) {
-        check = (std::abs(dy - (dx * tan_1[placement])) < std::abs(offset_ / cos_1[placement]) || check);
-        check = (std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c10 * delY * 0.5) / cos_1[placement])) <
-                     std::abs(offset_ / cos_1[placement]) ||
-                 check);
-        check = (std::abs(dy * cot_1[placement] - (dx)) < std::abs(offset_ / cos_1[placement]) || check);
+        check |= std::abs(dy - (dx * tan_1[placement])) < tresh;
+        check |= std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c10 * delY * 0.5) / cos_1[placement])) < tresh;
+        check |= std::abs(dy * cot_1[placement] - (dx)) < tresh;
       } else {
-        check = (std::abs((dy * cot_1[placement]) - dx + ((HGCalTypes::c22 * delX) / cos_1[placement])) <
-                     std::abs(offset_ / cos_1[placement]) ||
-                 check);
-        check = (std::abs(dy - (dx * tan_1[placement]) - ((HGCalTypes::c27 * delY) / cos_1[placement])) <
-                     std::abs(offset_ / cos_1[placement]) ||
-                 check);
-        check = (std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c27 * delY) / cos_1[placement])) <
-                     std::abs(offset_ / cos_1[placement]) ||
-                 check);
+        check |= std::abs((dy * cot_1[placement]) - dx + ((HGCalTypes::c22 * delX) / cos_1[placement])) < tresh;
+        check |= std::abs(dy - (dx * tan_1[placement]) - ((HGCalTypes::c27 * delY) / cos_1[placement])) < tresh;
+        check |= std::abs(dy - (dx * tan_1[placement]) + ((HGCalTypes::c27 * delY) / cos_1[placement])) < tresh;
       }
     }
 #ifdef EDM_ML_DEBUG
