@@ -99,8 +99,7 @@ private:
   std::map<std::string, MonitorElement *> dmMigrationMap, ntau_vs_dmMap;
   std::map<std::string, MonitorElement *> pTOverProng_dm0Map, pTOverProng_dm1p2Map, pTOverProng_dm5Map,
       pTOverProng_dm6Map, pTOverProng_dm10Map, pTOverProng_dm11Map;
-  std::map<std::string, MonitorElement *> testmap; //test
-  
+
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
   std::vector<edm::ParameterSet> discriminators_;
