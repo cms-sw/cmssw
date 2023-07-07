@@ -76,6 +76,7 @@ namespace ecaldqm {
       std::vector<float> edges;
       std::vector<std::string> labels;
       std::string title;
+      AxisSpecs() : nbins(0), low(0.), high(0.), edges(0), labels(0), title("") { ; };
     };
 
     AxisSpecs getBinning(EcalElectronicsMapping const *, ObjectType, BinningType, bool, int, unsigned);
