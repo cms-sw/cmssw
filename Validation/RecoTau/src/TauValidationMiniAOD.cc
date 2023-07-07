@@ -600,7 +600,6 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       int nPhotonsFromTauDecay = 0;
       int nPi0s = 0;
       int nPis = 0;
-      int nUnknowns = 0;
       if (gendRmin < 0.15) {
         for (unsigned idtrTau = 0; idtrTau < genParticles->at(genmatchedTauIndex).numberOfDaughters(); idtrTau++) {
           const reco::GenParticle *gpdtr =
@@ -639,8 +638,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
                   std::cout << "Warning: unknown source of photon \n";
               }
             }
-          } else
-            nUnknowns++;
+          }
         }
       }
 
