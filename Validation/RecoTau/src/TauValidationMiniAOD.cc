@@ -67,7 +67,8 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   MonitorElement *dmMigration, *ntau_vs_dm;
   MonitorElement *pTOverProng_dm0, *pTOverProng_dm1p2, *pTOverProng_dm5, *pTOverProng_dm6, *pTOverProng_dm10,
       *pTOverProng_dm11;
-
+  MonitorElement *photonpt, *tauphotondr, *photonptvsdr, *dmvsnphoton, *statephoton, *statevsphotonpt, *statevsdr, *dmvsdr;
+  
   // temp:
 
   // ---------------------------- Book, Map Summary Histograms -------------------------------
@@ -479,6 +480,26 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
     massLoosevsMuoMap.insert(std::make_pair("", massLoosevsMuo));
     puLoosevsMuoMap.insert(std::make_pair("", puLoosevsMuo));
   }
+  // test
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/test");
+  photonpt = ibooker.book1D("photonpt", "pT of photons", 120, 0., 40.);
+  tauphotondr = ibooker.book1D("tauphotondr", "DeltaR (matched gen tau, photon)", 100, 0., 5.);
+  photonptvsdr = ibooker.book2D("photonptvsdr", "pT of photon Vs. DeltaR", 120, 0., 40., 100, 0., 5.);
+  dmvsnphoton = ibooker.book2D("dmvsnphoton", "DecayMode Vs. number of Photons", 15, -0.5, 14.5, 4, 1, 5);
+  statephoton = ibooker.book1D("statephoton", "from hard scattering or tau decay?", 2, 0, 2);
+  statevsphotonpt = ibooker.book2D("statevsphotonpt", "State Vs pt of photon", 2, 0, 2, 120, 0., 40.);
+  statevsdr = ibooker.book2D("statevsdr", "State Vs DeltaR", 2, 0, 2, 100, 0., 5.); 
+  dmvsdr = ibooker.book2D("dmvsdr", "DecayMode Vs tau-photon DR", 15, -0.5, 14.5, 100, 0., 5.);
+  
+  testmap.insert({"photonpt", photonpt});
+  testmap.insert({"tauphotondr", tauphotondr});
+  testmap.insert({"photonptvsdr", photonptvsdr});
+  testmap.insert({"dmvsnphoton", dmvsnphoton});
+  testmap.insert({"statephoton", statephoton});
+  testmap.insert({"statevsphotonpt", statevsphotonpt});
+  testmap.insert({"statevsdr", statevsdr});
+  testmap.insert({"dmvsdr", dmvsdr});
 }
 void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // create a handle to the tau collection
@@ -596,11 +617,14 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
         genindex = genindex + 1;
       }
 
-      int nPhotonsPrompt = 0;
-      int nPhotonsFromTauDecay = 0;
-      int nPi0s = 0;
-      int nPis = 0;
       if (gendRmin < 0.15) {
+	//int nPhotons = 0;
+	int nPhotonsPrompt = 0;
+	int nPhotonsFromTauDecay = 0;
+	int nPi0s = 0;
+	int nPis = 0;
+	std::vector<const reco::GenParticle*>photons;
+
         for (unsigned idtrTau = 0; idtrTau < genParticles->at(genmatchedTauIndex).numberOfDaughters(); idtrTau++) {
           const reco::GenParticle *gpdtr =
               dynamic_cast<const reco::GenParticle *>((genParticles->at(genmatchedTauIndex)).daughter(idtrTau));
@@ -613,12 +637,14 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           else if (dtrpdgID == 211 || dtrpdgID == 321)
             nPis++;
           else if (dtrpdgID == 22) {
+	    float tpdr = deltaR((genParticles->at(genmatchedTauIndex)).eta(), (genParticles->at(genmatchedTauIndex)).phi(), gpdtr->eta(), gpdtr->phi());
+	    photons.push_back(gpdtr);
             if (gpdtr->isPromptFinalState() && gpdtr->pt() > 10)
-              nPhotonsPrompt++;  // because, in MiniAOD prompt photon pt > 10 GeV
-            else if (gpdtr->isDirectPromptTauDecayProductFinalState())
-              nPhotonsFromTauDecay++;
-            else
-              std::cout << "Warning: unknown source of photon \n";
+              nPhotonsPrompt++;
+            //else if (gpdtr->isDirectPromptTauDecayProductFinalState() && dr < 0.3)
+            //  nPhotonsFromTauDecay++;
+	    else if (tpdr < 0.3 && gpdtr->pt() > 2)
+	      nPhotonsFromTauDecay++;
           } else if (dtrpdgID == 15 && dtrstatus == 2 && gpdtr->isLastCopy()) {
             for (unsigned idtrTaudtr = 0; idtrTaudtr < gpdtr->numberOfDaughters(); idtrTaudtr++) {
               const reco::GenParticle *gpdtr2 = dynamic_cast<const reco::GenParticle *>(gpdtr->daughter(idtrTaudtr));
@@ -630,22 +656,55 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
               else if (dtr2pdgID == 211 || dtr2pdgID == 321)
                 nPis++;
               else if (dtr2pdgID == 22) {
+		float tpdr = deltaR((genParticles->at(genmatchedTauIndex)).eta(), (genParticles->at(genmatchedTauIndex)).phi(), gpdtr2->eta(), gpdtr2->phi());
+		photons.push_back(gpdtr2);
                 if (gpdtr2->isPromptFinalState() && gpdtr2->pt() > 10)
                   nPhotonsPrompt++;
-                else if (gpdtr2->isDirectPromptTauDecayProductFinalState())
-                  nPhotonsFromTauDecay++;
-                else
-                  std::cout << "Warning: unknown source of photon \n";
+                //else if (gpdtr2->isDirectPromptTauDecayProductFinalState() && dr < 0.3 && gpdtr2->pt() > 2)
+                //  nPhotonsFromTauDecay++;
+		else if (tpdr < 0.3 && gpdtr2->pt() > 2)
+		  nPhotonsFromTauDecay++;
               }
             }
           }
         }
+	int dmtemp = findDecayMode(nPis, nPi0s);
+	auto gptau = genParticles->at(genmatchedTauIndex);
+	//const reco::GenParticle gptau = genParticles->at(genmatchedTauIndex);
+	//const reco::GenParticle& gptau = dynamic_cast<const reco::GenParticle>(genParticles->at(genmatchedTauIndex));
+	for (auto *gpgm: photons) {
+	  float gpgmpt = gpgm->pt();
+	  int state = -1;
+	  if (gpgm->isPromptFinalState() == 1)
+	    state = 0;
+	  else if (gpgm->isDirectPromptTauDecayProductFinalState() == 1)
+	    state = 1;
+	  float tgdr = deltaR(gptau.eta(), gptau.phi(), gpgm->eta(), gpgm->phi());
+	  testmap.find("photonpt")->second->Fill(gpgmpt);
+	  testmap.find("tauphotondr")->second->Fill(tgdr);
+	  testmap.find("statephoton")->second->Fill(state);
+	  testmap.find("photonptvsdr")->second->Fill(gpgmpt, tgdr);
+	  testmap.find("statevsphotonpt")->second->Fill(state, gpgmpt);
+	  testmap.find("statevsdr")->second->Fill(state,tgdr);
+	  testmap.find("dmvsdr")->second->Fill(dmtemp, tgdr);
+	}
+	if (photons.size() > 0)
+	  testmap.find("dmvsnphoton")->second->Fill(dmtemp, photons.size());
+	
+	int genTau_dm = -999;
+	// How many taus have hard prompt photons associated to their decay products?
+	if (nPhotonsPrompt > 0)
+	  genTau_dm = -2;
+	// How many taus have photons as their decay products which are not appeared from the hard process?
+	else if (nPhotonsFromTauDecay > 0)
+	  genTau_dm = -1;
+	else if (nPhotonsPrompt == 0 && nPhotonsFromTauDecay == 0)
+	  genTau_dm = findDecayMode(nPis, nPi0s);
+	
+	decayModeMap.find("gentau")->second->Fill(genTau_dm);
+	dmMigrationMap.find("")->second->Fill(matchedTau->decayMode(), genTau_dm);	
       }
-
-      int genTau_dm = (nPhotonsPrompt > 0) ? -2 : findDecayMode(nPis, nPi0s, nPhotonsFromTauDecay);
-      decayModeMap.find("gentau")->second->Fill(genTau_dm);
-      dmMigrationMap.find("")->second->Fill(matchedTau->decayMode(), genTau_dm);
-
+    
       // count number of taus passing each discriminator's selection cut
       unsigned j = 0;
       for (const auto &it : discriminators_) {
