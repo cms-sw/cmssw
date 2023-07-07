@@ -420,10 +420,7 @@ namespace JME {
       return 1;
 
 #ifndef STANDALONE
-    reco::FormulaEvaluator* Formula = new reco::FormulaEvaluator(m_definition.getFormulaString());
-    if (!Formula)
-      return 1;
-    auto formula = *Formula;
+    reco::FormulaEvaluator formula = reco::FormulaEvaluator(m_definition.getFormulaString());
 #else
     // Set parameters
     auto const* pFormula = m_definition.getFormula();
