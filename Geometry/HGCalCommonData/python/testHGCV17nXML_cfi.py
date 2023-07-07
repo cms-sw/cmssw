@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# This config was generated automatically using generate2026Geometry.py
-# If you notice a mistake, please update the generating script, not just this config
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
@@ -83,12 +80,12 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/ge0/TDR_Dev/v4/ge0.xml',
         'Geometry/MuonCommonData/data/ge0shield/2026/v1/ge0shield.xml',
         'Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml',
-        'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+        'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
         'Geometry/ForwardCommonData/data/lumimaterials.xml',
         'Geometry/ForwardCommonData/data/zdcrotations.xml',
         'Geometry/ForwardCommonData/data/lumirotations.xml',
-        'Geometry/ForwardCommonData/data/zdc.xml',
-        'Geometry/ForwardCommonData/data/zdclumi.xml',
+        'Geometry/ForwardCommonData/data/zdc/2026/v1/zdc.xml',
+        'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
         'Geometry/ForwardCommonData/data/cmszdc.xml',
         'Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml',
         'Geometry/MTDCommonData/data/btl/v1/btl.xml',

@@ -5,7 +5,7 @@
   <Algorithm name="hgcal:DDHGCalSiliconRotatedCassette">
     <rParent name="hgcal:HGCalHEsil"/>
     <Numeric name="WaferTypes"       value="1"/>
-    <Numeric name="PassiveTypes"     value="3"/>
+    <Numeric name="PassiveTypes"     value="1"/>
     <Numeric name="FacingTypes"      value="1"/>
     <Numeric name="OrientationTypes" value="6"/>
     <Numeric name="PartialTypes"     value="11"/>
@@ -84,39 +84,39 @@
     <Vector name="PassiveNamesFull" type="string" nEntries="1">
       hgcalPassive:HGCalHEPassive</Vector>
     <Vector name="PassiveNamesPartial" type="string" nEntries="66">
-      hgcalPassive:HGCalHEPassive00HD1, hgcalPassive:HGCalHEPassive01HD1,
-      hgcalPassive:HGCalHEPassive02HD1, hgcalPassive:HGCalHEPassive03HD1,
-      hgcalPassive:HGCalHEPassive04HD1, hgcalPassive:HGCalHEPassive05HD1,
-      hgcalPassive:HGCalHEPassive00HD2, hgcalPassive:HGCalHEPassive01HD2,
-      hgcalPassive:HGCalHEPassive02HD2, hgcalPassive:HGCalHEPassive03HD2,
-      hgcalPassive:HGCalHEPassive04HD2, hgcalPassive:HGCalHEPassive05HD2,
-      hgcalPassive:HGCalHEPassive00HD3, hgcalPassive:HGCalHEPassive01HD3,
-      hgcalPassive:HGCalHEPassive02HD3, hgcalPassive:HGCalHEPassive03HD3,
-      hgcalPassive:HGCalHEPassive04HD3, hgcalPassive:HGCalHEPassive05HD3,
-      hgcalPassive:HGCalHEPassive00HD4, hgcalPassive:HGCalHEPassive01HD4,
-      hgcalPassive:HGCalHEPassive02HD4, hgcalPassive:HGCalHEPassive03HD4,
-      hgcalPassive:HGCalHEPassive04HD4, hgcalPassive:HGCalHEPassive05HD4,
-      hgcalPassive:HGCalHEPassive00HD5, hgcalPassive:HGCalHEPassive01HD5,
-      hgcalPassive:HGCalHEPassive02HD5, hgcalPassive:HGCalHEPassive03HD5,
-      hgcalPassive:HGCalHEPassive04HD5, hgcalPassive:HGCalHEPassive05HD5,
-      hgcalPassive:HGCalHEPassive00LD1, hgcalPassive:HGCalHEPassive01LD1,
-      hgcalPassive:HGCalHEPassive02LD1, hgcalPassive:HGCalHEPassive03LD1,
-      hgcalPassive:HGCalHEPassive04LD1, hgcalPassive:HGCalHEPassive05LD1,
-      hgcalPassive:HGCalHEPassive00LD2, hgcalPassive:HGCalHEPassive01LD2,
-      hgcalPassive:HGCalHEPassive02LD2, hgcalPassive:HGCalHEPassive03LD2,
-      hgcalPassive:HGCalHEPassive04LD2, hgcalPassive:HGCalHEPassive05LD2,
-      hgcalPassive:HGCalHEPassive00LD3, hgcalPassive:HGCalHEPassive01LD3,
-      hgcalPassive:HGCalHEPassive02LD3, hgcalPassive:HGCalHEPassive03LD3,
-      hgcalPassive:HGCalHEPassive04LD3, hgcalPassive:HGCalHEPassive05LD3,
-      hgcalPassive:HGCalHEPassive00LD4, hgcalPassive:HGCalHEPassive01LD4,
-      hgcalPassive:HGCalHEPassive02LD4, hgcalPassive:HGCalHEPassive03LD4,
-      hgcalPassive:HGCalHEPassive04LD4, hgcalPassive:HGCalHEPassive05LD4,
-      hgcalPassive:HGCalHEPassive00LD5, hgcalPassive:HGCalHEPassive01LD5,
-      hgcalPassive:HGCalHEPassive02LD5, hgcalPassive:HGCalHEPassive03LD5,
-      hgcalPassive:HGCalHEPassive04LD5, hgcalPassive:HGCalHEPassive05LD5,
-      hgcalPassive:HGCalHEPassive00LD6, hgcalPassive:HGCalHEPassive01LD6,
-      hgcalPassive:HGCalHEPassive02LD6, hgcalPassive:HGCalHEPassive03LD6,
-      hgcalPassive:HGCalHEPassive04LD6, hgcalPassive:HGCalHEPassive05LD6</Vector>
+      hgcalPassive:HGCalHEPassive06HD1, hgcalPassive:HGCalHEPassive07HD1,
+      hgcalPassive:HGCalHEPassive08HD1, hgcalPassive:HGCalHEPassive09HD1,
+      hgcalPassive:HGCalHEPassive10HD1, hgcalPassive:HGCalHEPassive11HD1,
+      hgcalPassive:HGCalHEPassive06HD2, hgcalPassive:HGCalHEPassive07HD2,
+      hgcalPassive:HGCalHEPassive08HD2, hgcalPassive:HGCalHEPassive09HD2,
+      hgcalPassive:HGCalHEPassive10HD2, hgcalPassive:HGCalHEPassive11HD2,
+      hgcalPassive:HGCalHEPassive06HD3, hgcalPassive:HGCalHEPassive07HD3,
+      hgcalPassive:HGCalHEPassive08HD3, hgcalPassive:HGCalHEPassive09HD3,
+      hgcalPassive:HGCalHEPassive10HD3, hgcalPassive:HGCalHEPassive11HD3,
+      hgcalPassive:HGCalHEPassive06HD4, hgcalPassive:HGCalHEPassive07HD4,
+      hgcalPassive:HGCalHEPassive08HD4, hgcalPassive:HGCalHEPassive09HD4,
+      hgcalPassive:HGCalHEPassive10HD4, hgcalPassive:HGCalHEPassive11HD4,
+      hgcalPassive:HGCalHEPassive06HD5, hgcalPassive:HGCalHEPassive07HD5,
+      hgcalPassive:HGCalHEPassive08HD5, hgcalPassive:HGCalHEPassive09HD5,
+      hgcalPassive:HGCalHEPassive10HD5, hgcalPassive:HGCalHEPassive11HD5,
+      hgcalPassive:HGCalHEPassive06LD1, hgcalPassive:HGCalHEPassive07LD1,
+      hgcalPassive:HGCalHEPassive08LD1, hgcalPassive:HGCalHEPassive09LD1,
+      hgcalPassive:HGCalHEPassive10LD1, hgcalPassive:HGCalHEPassive11LD1,
+      hgcalPassive:HGCalHEPassive06LD2, hgcalPassive:HGCalHEPassive07LD2,
+      hgcalPassive:HGCalHEPassive08LD2, hgcalPassive:HGCalHEPassive09LD2,
+      hgcalPassive:HGCalHEPassive10LD2, hgcalPassive:HGCalHEPassive11LD2,
+      hgcalPassive:HGCalHEPassive06LD3, hgcalPassive:HGCalHEPassive07LD3,
+      hgcalPassive:HGCalHEPassive08LD3, hgcalPassive:HGCalHEPassive09LD3,
+      hgcalPassive:HGCalHEPassive10LD3, hgcalPassive:HGCalHEPassive11LD3,
+      hgcalPassive:HGCalHEPassive06LD4, hgcalPassive:HGCalHEPassive07LD4,
+      hgcalPassive:HGCalHEPassive08LD4, hgcalPassive:HGCalHEPassive09LD4,
+      hgcalPassive:HGCalHEPassive10LD4, hgcalPassive:HGCalHEPassive11LD4,
+      hgcalPassive:HGCalHEPassive06LD5, hgcalPassive:HGCalHEPassive07LD5,
+      hgcalPassive:HGCalHEPassive08LD5, hgcalPassive:HGCalHEPassive09LD5,
+      hgcalPassive:HGCalHEPassive10LD5, hgcalPassive:HGCalHEPassive11LD5,
+      hgcalPassive:HGCalHEPassive06LD6, hgcalPassive:HGCalHEPassive07LD6,
+      hgcalPassive:HGCalHEPassive08LD6, hgcalPassive:HGCalHEPassive09LD6,
+      hgcalPassive:HGCalHEPassive10LD6, hgcalPassive:HGCalHEPassive11LD6</Vector>
     <Vector name="MaterialNames" type="string" nEntries="7"> 
       materials:StainlessSteel, materials:StainlessSteel, materials:Air,
       materials:Air, materials:Air, materials:Copper, materials:Air</Vector>

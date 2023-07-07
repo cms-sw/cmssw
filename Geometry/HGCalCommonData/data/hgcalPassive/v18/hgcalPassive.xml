@@ -82,10 +82,10 @@
       HD1, HD2, HD3, HD4, HD5, LD1, LD2, LD3, LD4, LD5, LD6</Vector>
     <Vector name="PartialTypes" type="numeric" nEntries="11">
       21, 22, 23, 24, 25, 11, 12, 13, 14, 15, 16</Vector>
-    <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      0, 1, 2, 3, 4, 5</Vector>
-    <Vector name="PlacementIndexTags" type="string" nEntries="6">
-      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="12">
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="12">
+      00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="4">
       Copper, StainlessSteel, Epoxy, Lead</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="4">
@@ -106,10 +106,10 @@
       HD1, HD2, HD3, HD4, HD5, LD1, LD2, LD3, LD4, LD5, LD6</Vector>
     <Vector name="PartialTypes" type="numeric" nEntries="11">
       21, 22, 23, 24, 25, 11, 12, 13, 14, 15, 16</Vector>
-    <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      0, 1, 2, 3, 4, 5</Vector>
-    <Vector name="PlacementIndexTags" type="string" nEntries="6">
-      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="12">
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="12">
+      00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="4">
       Copper, StainlessSteel, Epoxy, Lead</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="4">
@@ -130,10 +130,10 @@
       HD1, HD2, HD3, HD4, HD5, LD1, LD2, LD3, LD4, LD5, LD6</Vector>
     <Vector name="PartialTypes" type="numeric" nEntries="11">
       21, 22, 23, 24, 25, 11, 12, 13, 14, 15, 16</Vector>
-    <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      0, 1, 2, 3, 4, 5</Vector>
-    <Vector name="PlacementIndexTags" type="string" nEntries="6">
-      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="12">
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="12">
+      00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="4">
       Copper, StainlessSteel, Epoxy, Lead</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="4">
@@ -154,10 +154,10 @@
       HD1, HD2, HD3, HD4, HD5, LD1, LD2, LD3, LD4, LD5, LD6</Vector>
     <Vector name="PartialTypes" type="numeric" nEntries="11">
       21, 22, 23, 24, 25, 11, 12, 13, 14, 15, 16</Vector>
-    <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      0, 1, 2, 3, 4, 5</Vector>
-    <Vector name="PlacementIndexTags" type="string" nEntries="6">
-      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="12">
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="12">
+      00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="1">
       Copper</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="1">
@@ -170,7 +170,7 @@
   <Algorithm name="hgcal:DDHGCalPassiveFull">
     <rParent name="hgcalPassive:HGCalHEPassive"/>
     <String name="ModuleMaterial"    value="materials:StainlessSteel"/>
-    <Numeric name="ModuleThickness"  value="4.00*mm"/>
+    <Numeric name="ModuleThickness"  value="2.50*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Vector name="LayerNames" type="string" nEntries="1">
@@ -178,30 +178,30 @@
     <Vector name="LayerMaterials" type="string" nEntries="1">
       materials:StainlessSteel</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="1">
-      4.00*mm</Vector>
+      2.50*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="0"> 
     </Vector>
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalPassivePartial">
     <rParent name="hgcalPassive:HGCalHEPassive"/>
     <String name="ModuleMaterial"    value="materials:StainlessSteel"/>
-    <Numeric name="ModuleThickness"  value="4.00*mm"/>
+    <Numeric name="ModuleThickness"  value="2.50*mm"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Vector name="Tags" type="string" nEntries="11">
       HD1, HD2, HD3, HD4, HD5, LD1, LD2, LD3, LD4, LD5, LD6</Vector>
     <Vector name="PartialTypes" type="numeric" nEntries="11">
       21, 22, 23, 24, 25, 11, 12, 13, 14, 15, 16</Vector>
-    <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      0, 1, 2, 3, 4, 5</Vector>
-    <Vector name="PlacementIndexTags" type="string" nEntries="6">
-      00, 01, 02, 03, 04, 05</Vector>
+    <Vector name="PlacementIndex" type="numeric" nEntries="12">
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="12">
+      00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="1">
       StainlessSteel</Vector>
     <Vector name="LayerMaterials" type="string" nEntries="1">
       materials:StainlessSteel</Vector>
     <Vector name="LayerThickness" type="numeric" nEntries="1">
-      4.00*mm</Vector>
+      2.50*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="0"> 
     </Vector>
   </Algorithm>
