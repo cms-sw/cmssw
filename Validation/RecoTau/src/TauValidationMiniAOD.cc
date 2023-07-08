@@ -596,16 +596,14 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       }
 
       if (gendRmin < 0.15) {
-        int genTau_dm = -999;
         int nPhotonsFromTauDecay = 0;
         int nPi0s = 0;
         int nPis = 0;
-
-        for (unsigned idtrTau = 0; idtrTau < genParticles->at(genmatchedTauIndex).numberOfDaughters(); idtrTau++) {
-          const reco::GenParticle *gpdtr =
-              dynamic_cast<const reco::GenParticle *>((genParticles->at(genmatchedTauIndex)).daughter(idtrTau));
-          int dtrpdgID = std::abs(gpdtr->pdgId());
-          int dtrstatus = gpdtr->status();
+        auto &gentau = genParticles->at(genmatchedTauIndex);
+        for (unsigned idtr = 0; idtr < gentau.numberOfDaughters(); idtr++) {
+          const reco::GenParticle *dtr = dynamic_cast<const reco::GenParticle *>(gentau.daughter(idtr));
+          int dtrpdgID = std::abs(dtr->pdgId());
+          int dtrstatus = dtr->status();
           if (dtrpdgID == 12 || dtrpdgID == 14 || dtrpdgID == 16)
             continue;
           if (dtrpdgID == 111 || dtrpdgID == 311)
@@ -613,16 +611,13 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           else if (dtrpdgID == 211 || dtrpdgID == 321)
             nPis++;
           else if (dtrpdgID == 22) {
-            float tpdr = deltaR((genParticles->at(genmatchedTauIndex)).eta(),
-                                (genParticles->at(genmatchedTauIndex)).phi(),
-                                gpdtr->eta(),
-                                gpdtr->phi());
-            if (tpdr < 0.3 && gpdtr->pt() > 2)
+            float dr_taugamma = deltaR(gentau.eta(), gentau.phi(), dtr->eta(), dtr->phi());
+            if (dr_taugamma < 0.3 && dtr->pt() > 2)
               nPhotonsFromTauDecay++;
-          } else if (dtrpdgID == 15 && dtrstatus == 2 && gpdtr->isLastCopy()) {
-            for (unsigned idtrTaudtr = 0; idtrTaudtr < gpdtr->numberOfDaughters(); idtrTaudtr++) {
-              const reco::GenParticle *gpdtr2 = dynamic_cast<const reco::GenParticle *>(gpdtr->daughter(idtrTaudtr));
-              int dtr2pdgID = std::abs(gpdtr2->pdgId());
+          } else if (dtrpdgID == 15 && dtrstatus == 2 /*&& dtr->isLastCopy()*/) {
+            for (unsigned idtr2 = 0; idtr2 < dtr->numberOfDaughters(); idtr2++) {
+              const reco::GenParticle *dtr2 = dynamic_cast<const reco::GenParticle *>(dtr->daughter(idtr2));
+              int dtr2pdgID = std::abs(dtr2->pdgId());
               if (dtr2pdgID == 12 || dtr2pdgID == 14 || dtr2pdgID == 16)
                 continue;
               if (dtr2pdgID == 111 || dtr2pdgID == 311)
@@ -630,21 +625,15 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
               else if (dtr2pdgID == 211 || dtr2pdgID == 321)
                 nPis++;
               else if (dtr2pdgID == 22) {
-                float tpdr = deltaR((genParticles->at(genmatchedTauIndex)).eta(),
-                                    (genParticles->at(genmatchedTauIndex)).phi(),
-                                    gpdtr2->eta(),
-                                    gpdtr2->phi());
-                if (tpdr < 0.3 && gpdtr2->pt() > 2)
+                float dr_taugamma = deltaR(gentau.eta(), gentau.phi(), dtr2->eta(), dtr2->phi());
+                if (dr_taugamma < 0.3 && dtr2->pt() > 2)
                   nPhotonsFromTauDecay++;
               }
             }
           }
         }
 
-        if (nPhotonsFromTauDecay > 0)
-          genTau_dm = -1;
-        else
-          genTau_dm = findDecayMode(nPis, nPi0s);
+        int genTau_dm = (nPhotonsFromTauDecay > 0) ? -1 : findDecayMode(nPis, nPi0s);
 
         decayModeMap.find("gentau")->second->Fill(genTau_dm);
         dmMigrationMap.find("")->second->Fill(matchedTau->decayMode(), genTau_dm);
