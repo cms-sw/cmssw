@@ -699,6 +699,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
         query->filterGT("start_time", targetTime);
       }
 
+      query->filterLT("start_time", m_endTime);
       if (m_endFill)
         query->filterNotNull("end_time");
       bool foundFill = query->execute();
