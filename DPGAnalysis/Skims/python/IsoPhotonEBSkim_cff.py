@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-IsoPhotonEBHLTFilter = copy.deepcopy(hltHighLevel)
-IsoPhotonEBHLTFilter.throw = cms.bool(False)
-IsoPhotonEBHLTFilter.HLTPaths = ["HLT_Photon110EB_TightID_TightIso_v*"]
+from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
+IsoPhotonEBHLTFilter = hltHighLevel.clone(
+     throw = False,
+     HLTPaths = ["HLT_Photon110EB_TightID_TightIso_v*"]
+)
 
 # run on MIONAOD
 RUN_ON_MINIAOD = False
