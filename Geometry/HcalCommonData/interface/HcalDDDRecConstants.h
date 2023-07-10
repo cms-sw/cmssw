@@ -61,6 +61,7 @@ public:
       return gcons;
     }
   }
+  int findDepth(const int& det, const int& eta, const int& phi, const int& zside, const int& lay) const;
   std::vector<int> getDepth(const int& det, const int& phi, const int& zside, const unsigned int& eta) const;
   std::vector<int> getDepth(const unsigned int& eta, const bool& extra) const;
   int getDepthEta16(const int& det, const int& iphi, const int& zside) const {

@@ -27,6 +27,11 @@ namespace l1t {
         _hit.set_slope(_ME.Slope());
         _hit.set_pattern_run3(_ME.Run3_pattern());
 
+        // Run 3 muon shower
+        _hit.set_muon_shower_inTime(_ME.MUS_inTime());
+        _hit.set_muon_shower_outOfTime(_ME.MUS_outOfTime());
+        _hit.set_muon_shower_valid(_ME.MUSV());
+
         _hit.set_ring(L1TMuonEndCap::calc_ring(_hit.Station(), _hit.CSC_ID(), _hit.Strip()));
         _hit.set_chamber(
             L1TMuonEndCap::calc_chamber(_hit.Station(), _hit.Sector(), _hit.Subsector(), _hit.Ring(), _hit.CSC_ID()));
@@ -110,8 +115,11 @@ namespace l1t {
         _track.set_phi_glob(L1TMuonEndCap::calc_phi_glob_deg(_track.Phi_loc(), _track.Sector()));
         _track.set_eta(L1TMuonEndCap::calc_eta(_SP.Eta_GMT()));
         _track.set_pt((_SP.Pt_GMT() - 1) * 0.5);
+        _track.set_pt_dxy((_SP.Pt_dxy_GMT() - 1));
 
         _track.set_gmt_pt(_SP.Pt_GMT());
+        _track.set_gmt_pt_dxy(_SP.Pt_dxy_GMT());
+        _track.set_gmt_dxy(_SP.Dxy_GMT());
         _track.set_gmt_phi(_SP.Phi_GMT());
         _track.set_gmt_eta(_SP.Eta_GMT());
         _track.set_gmt_quality(_SP.Quality_GMT());

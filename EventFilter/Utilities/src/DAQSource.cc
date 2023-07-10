@@ -358,7 +358,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextEventFromDataBlock() {
   if (verifyChecksum_ && !dataMode_->checksumValid()) {
     if (fms_)
       fms_->setExceptionDetected(currentLumiSection_);
-    throw cms::Exception("DAQSource::getNextEvent") << dataMode_->getChecksumError();
+    throw cms::Exception("DAQSource::getNextEventFromDataBlock") << dataMode_->getChecksumError();
   }
   setMonState(inCachedEvent);
 
@@ -385,7 +385,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       currentFile_.reset();
       return status;
     } else if (status == evf::EvFDaqDirector::runAbort) {
-      throw cms::Exception("DAQSource::getNextEvent") << "Run has been aborted by the input source reader thread";
+      throw cms::Exception("DAQSource::getNextDataBlock") << "Run has been aborted by the input source reader thread";
     } else if (status == evf::EvFDaqDirector::newLumi) {
       setMonState(inNewLumi);
       if (currentFile_->lumi_ > currentLumiSection_) {
@@ -423,7 +423,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
-      throw cms::Exception("DAQSource::getNextEvent")
+      throw cms::Exception("DAQSource::getNextDataBlock")
           << "Fully processed " << currentFile_->nProcessed_ << " from the file " << currentFile_->fileName_
           << " but according to BU JSON there should be " << currentFile_->nEvents_ << " events";
     }
@@ -445,7 +445,7 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   if (currentFile_->bufferPosition_ == 0 && currentFile_->rawHeaderSize_ > 0) {
     if (currentFile_->fileSize_ <= currentFile_->rawHeaderSize_) {
       if (currentFile_->fileSize_ < currentFile_->rawHeaderSize_)
-        throw cms::Exception("DAQSource::getNextEvent") << "Premature end of input file while reading file header";
+        throw cms::Exception("DAQSource::getNextDataBlock") << "Premature end of input file while reading file header";
 
       edm::LogWarning("DAQSource") << "File with only raw header and no events received in LS " << currentFile_->lumi_;
       if (currentFile_->lumi_ > currentLumiSection_) {
@@ -456,14 +456,14 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
     }
 
     //advance buffer position to skip file header (chunk will be acquired later)
-    currentFile_->chunkPosition_ += currentFile_->rawHeaderSize_;
-    currentFile_->bufferPosition_ += currentFile_->rawHeaderSize_;
+    currentFile_->advance(currentFile_->rawHeaderSize_);
   }
 
-  //file is too short
-  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < dataMode_->headerSize()) {
-    throw cms::Exception("DAQSource::getNextEvent") << "Premature end of input file while reading event header";
-  }
+  //file is too short to fit event header
+  if (currentFile_->fileSizeLeft() < dataMode_->headerSize())
+    throw cms::Exception("DAQSource::getNextDataBlock")
+        << "Premature end of input file while reading event header. Missing: "
+        << (dataMode_->headerSize() - currentFile_->fileSizeLeft()) << " bytes";
 
   //multibuffer mode
   //wait for the current chunk to become added to the vector
@@ -475,55 +475,62 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
   }
   setMonState(inChunkReceived);
 
-  //check if header is at the boundary of two chunks
   chunkIsFree_ = false;
+  bool chunkEnd;
   unsigned char* dataPosition;
 
   //read event header, copy it to a single chunk if necessary
-  bool chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize());
+  chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize());
 
   //get buffer size of current chunk (can be resized)
   uint64_t currentChunkSize = currentFile_->currentChunkSize();
 
+  //prepare view based on header that was read
   dataMode_->makeDataBlockView(dataPosition, currentChunkSize, currentFile_->fileSizes_, currentFile_->rawHeaderSize_);
 
+  //check that payload size is within the file
   const size_t msgSize = dataMode_->dataBlockSize() - dataMode_->headerSize();
 
-  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize) {
-    throw cms::Exception("DAQSource::getNextEvent") << "Premature end of input file while reading event data";
-  }
+  if (currentFile_->fileSizeLeft() < (int64_t)msgSize)
+    throw cms::Exception("DAQSource::getNextEventDataBlock")
+        << "Premature end of input file (missing:" << (msgSize - currentFile_->fileSizeLeft())
+        << ") while parsing block";
 
   //for cross-buffer models
   if (chunkEnd) {
-    //header was at the chunk boundary, we will have to move payload as well
+    //header was at the chunk boundary, move payload into the starting chunk as well. No need to update block view here
     currentFile_->moveToPreviousChunk(msgSize, dataMode_->headerSize());
+    //mark to release old chunk
     chunkIsFree_ = true;
+  } else if (currentChunkSize - currentFile_->chunkPosition_ < msgSize) {
+    //header was contiguous, but payload does not fit in the chunk
+    //rewind to header start position and then together with payload will be copied together to the old chunk
+    currentFile_->rewindChunk(dataMode_->headerSize());
+
+    setMonState(inWaitChunk);
+
+    //do the copy to the beginning of the starting chunk. move pointers for next event in the next chunk
+    chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize() + msgSize);
+    assert(chunkEnd);
+    //mark to release old chunk
+    chunkIsFree_ = true;
+
+    setMonState(inChunkReceived);
+    //header and payload is moved, update view
+    dataMode_->makeDataBlockView(
+        dataPosition, currentFile_->currentChunkSize(), currentFile_->fileSizes_, currentFile_->rawHeaderSize_);
   } else {
-    //header was contiguous, but check if payload fits the chunk
-    if (currentChunkSize - currentFile_->chunkPosition_ < msgSize) {
-      //rewind to header start position
-      currentFile_->rewindChunk(dataMode_->headerSize());
-      //copy event to a chunk start and move pointers
-
-      setMonState(inWaitChunk);
-
-      //can already move buffer
-      chunkEnd = currentFile_->advance(dataPosition, dataMode_->headerSize() + msgSize);
-
-      setMonState(inChunkReceived);
-
-      assert(chunkEnd);
-      chunkIsFree_ = true;
-      //header is moved
-      dataMode_->makeDataBlockView(
-          dataPosition, currentFile_->currentChunkSize(), currentFile_->fileSizes_, currentFile_->rawHeaderSize_);
-    } else {
-      //everything is in a single chunk, only move pointers forward
-      chunkEnd = currentFile_->advance(dataPosition, msgSize);
-      assert(!chunkEnd);
-      chunkIsFree_ = false;
-    }
+    //everything is in a single chunk, only move pointers forward
+    chunkEnd = currentFile_->advance(dataPosition, msgSize);
+    assert(!chunkEnd);
+    chunkIsFree_ = false;
   }
+
+  //sanity-check check that the buffer position has not exceeded file size after preparing event
+  if (currentFile_->fileSize_ < currentFile_->bufferPosition_)
+    throw cms::Exception("DAQSource::getNextEventDataBlock")
+        << "Exceeded file size by " << (currentFile_->bufferPosition_ - currentFile_->fileSize_);
+
   //prepare event
   return getNextEventFromDataBlock();
 }
@@ -618,7 +625,12 @@ void DAQSource::readSupervisor() {
       //sleep until woken up by condition or a timeout
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
-        //if (!(counter%50)) edm::LogInfo("DAQSource") << "No free chunks or threads...";
+        if (!(counter % 6000)) {
+          edm::LogWarning("FedRawDataInputSource")
+              << "No free chunks or threads. Worker pool empty:" << workerPool_.empty()
+              << ", free chunks empty:" << freeChunks_.empty() << ", number of files buffered:" << readingFilesCount_
+              << " / " << maxBufferedFiles_;
+        }
         LogDebug("DAQSource") << "No free chunks or threads...";
       } else {
         assert(!workerPool_.empty() || freeChunks_.empty());
@@ -1329,6 +1341,7 @@ bool RawInputFile::advance(unsigned char*& dataPosition, const size_t size) {
 
   if (currentLeft < size) {
     //we need next chunk
+    assert(chunks_.size() > currentChunk_ + 1);
     while (!waitForChunk(currentChunk_ + 1)) {
       sourceParent_->setMonState(inWaitChunk);
       usleep(100000);

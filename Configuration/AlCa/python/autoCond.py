@@ -31,12 +31,12 @@ autoCond = {
     'run2_data_promptlike_hi'      : '124X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              : '123X_dataRun2_HLT_relval_v3',
-    # GlobalTag for Run3 HLT: identical to the online GT (130X_dataRun3_HLT_v2) but with snapshot at 2023-05-10 09:00:00 (UTC)
-    'run3_hlt'                     : '130X_dataRun3_HLT_frozen_v2',
-    # GlobalTag for Run3 data relvals (express GT) - identical to 130X_dataRun3_Express_v2 but with snapshot at 2023-05-10 09:00:00 (UTC)
-    'run3_data_express'            : '130X_dataRun3_Express_frozen_v2',
-    # GlobalTag for Run3 data relvals (prompt GT) - identical to 130X_dataRun3_Prompt_v3 but with snapshot at 2023-05-10 09:00:00 (UTC)
-    'run3_data_prompt'             : '130X_dataRun3_Prompt_frozen_v2',
+    # GlobalTag for Run3 HLT: identical to the online GT (130X_dataRun3_HLT_v2) but with snapshot at 2023-06-14 12:00:00 (UTC)
+    'run3_hlt'                     : '130X_dataRun3_HLT_frozen_v3',
+    # GlobalTag for Run3 data relvals (express GT) - identical to 130X_dataRun3_Express_v3 but with snapshot at 2023-06-14 12:00:00 (UTC)
+    'run3_data_express'            : '130X_dataRun3_Express_frozen_v3',
+    # GlobalTag for Run3 data relvals (prompt GT) - identical to 130X_dataRun3_Prompt_v4 but with snapshot at 2023-06-14 12:00:00 (UTC)
+    'run3_data_prompt'             : '130X_dataRun3_Prompt_frozen_v3',
     # GlobalTag for Run3 offline data reprocessing - snapshot at 2023-05-09 15:38:20 (UTC)
     'run3_data'                    : '130X_dataRun3_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
@@ -74,19 +74,19 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2022 detector for Heavy Ion
     'phase1_2022_realistic_hi'     : '131X_mcRun3_2022_realistic_HI_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2023
-    'phase1_2023_design'           : '131X_mcRun3_2023_design_v5',
+    'phase1_2023_design'           : '131X_mcRun3_2023_design_v6',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
-    'phase1_2023_realistic'        : '131X_mcRun3_2023_realistic_v5',
+    'phase1_2023_realistic'        : '131X_mcRun3_2023_realistic_v6',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2023,  Strip tracker in DECO mode
-    'phase1_2023_cosmics'          : '131X_mcRun3_2023cosmics_realistic_deco_v5',
+    'phase1_2023_cosmics'          : '131X_mcRun3_2023cosmics_realistic_deco_v6',
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2023, Strip tracker in DECO mode
-    'phase1_2023_cosmics_design'   : '131X_mcRun3_2023cosmics_design_deco_v5',
+    'phase1_2023_cosmics_design'   : '131X_mcRun3_2023cosmics_design_deco_v6',
     # GlobalTag for MC production with realistic conditions for Phase1 2023 detector for Heavy Ion
     'phase1_2023_realistic_hi'     : '131X_mcRun3_2023_realistic_HI_v11',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'        : '131X_mcRun3_2024_realistic_v3',
+    'phase1_2024_realistic'        : '131X_mcRun3_2024_realistic_v4',
     # GlobalTag for MC production with realistic conditions for Phase2
-    'phase2_realistic'             : '131X_mcRun4_realistic_v5'
+    'phase2_realistic'             : '131X_mcRun4_realistic_v6'
 }
 
 aliases = {

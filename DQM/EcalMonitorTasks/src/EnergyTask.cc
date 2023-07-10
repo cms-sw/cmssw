@@ -39,13 +39,13 @@ namespace ecaldqm {
     MESet& meHit(MEs_.at("Hit"));
     MESet& meHitAll(MEs_.at("HitAll"));
 
-    uint32_t neitherGoodNorPoorCalib(~(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kPoorCalib));
-    uint32_t neitherGoodNorOOT(~(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kOutOfTime));
+    uint32_t goodORPoorCalibBits(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kPoorCalib);
+    uint32_t goodOROOTBits(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kOutOfTime);
 
     for (EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr) {
-      if (isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorPoorCalib))
+      if (isPhysicsRun_ && !hitItr->checkFlagMask(goodORPoorCalibBits))
         continue;
-      if (!isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorOOT))
+      if (!isPhysicsRun_ && !hitItr->checkFlagMask(goodOROOTBits))
         continue;
 
       float energy(hitItr->energy());
