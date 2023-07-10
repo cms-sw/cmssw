@@ -247,7 +247,7 @@ public:
 
 protected:
   Counters* counters_ = nullptr;
-  // CellCuts* cellCuts_ = nullptr;
+
   // workspace
   unique_ptr<unsigned char[]> cellStorage_;
   unique_ptr<CellNeighborsVector> device_theCellNeighbors_;
@@ -264,7 +264,7 @@ protected:
   unique_ptr<uint32_t[]> device_hitToTupleStorage_;
   typename HitToTuple::View hitToTupleView_;
 
-  unique_ptr<CellCuts> cellCuts_;
+  unique_ptr<CellCuts> device_cellCuts_;
 
   cms::cuda::AtomicPairCounter* device_hitToTuple_apc_ = nullptr;
 

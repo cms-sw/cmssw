@@ -62,8 +62,8 @@ template <typename TrackerTraits>
 void SiPixelDigisClustersFromSoAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisSoA"));
-  desc.add<int>("clusterThreshold_layer1", 2000);  //TODO put these somewhere
-  desc.add<int>("clusterThreshold_otherLayers", 4000);
+  desc.add<int>("clusterThreshold_layer1", gpuClustering::clusterThresholdLayerOne);
+  desc.add<int>("clusterThreshold_otherLayers", gpuClustering::clusterThresholdOtherLayers);
   desc.add<bool>("produceDigis", true);
   desc.add<bool>("storeDigis", true);
 

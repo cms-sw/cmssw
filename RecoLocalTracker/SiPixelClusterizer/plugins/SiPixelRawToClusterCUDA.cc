@@ -6,6 +6,7 @@
 // CMSSW includes
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
+#include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTGPURcd.h"
@@ -98,10 +99,10 @@ SiPixelRawToClusterCUDAT<TrackerTraits>::SiPixelRawToClusterCUDAT(const edm::Par
       useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                          iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
-                         (float)iConfig.getParameter<double>("VCaltoElectronGain"),
-                         (float)iConfig.getParameter<double>("VCaltoElectronGain_L1"),
-                         (float)iConfig.getParameter<double>("VCaltoElectronOffset"),
-                         (float)iConfig.getParameter<double>("VCaltoElectronOffset_L1")} {
+                         static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain")),
+                         static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain_L1")),
+                         static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset")),
+                         static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))} {
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
@@ -123,8 +124,8 @@ void SiPixelRawToClusterCUDAT<TrackerTraits>::fillDescriptions(edm::Configuratio
   desc.addOptionalNode(edm::ParameterDescription<uint32_t>("MaxFEDWords", 0, true), false)
       ->setComment("This parameter is obsolete and will be ignored.");
   //Clustering Thresholds
-  desc.add<int32_t>("clusterThreshold_layer1", 2000);
-  desc.add<int32_t>("clusterThreshold_otherLayers", 4000);
+  desc.add<int32_t>("clusterThreshold_layer1", gpuClustering::clusterThresholdLayerOne);
+  desc.add<int32_t>("clusterThreshold_otherLayers", gpuClustering::clusterThresholdOtherLayers);
   desc.add<double>("VCaltoElectronGain", 47.f);
   desc.add<double>("VCaltoElectronGain_L1", 50.f);
   desc.add<double>("VCaltoElectronOffset", -60.f);

@@ -41,15 +41,15 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::allocateOnGPU(int32_t nHits
   this->device_hitToTuple_apc_ = (cms::cuda::AtomicPairCounter*)this->device_storage_.get() + 1;
   this->device_nCells_ = (uint32_t*)(this->device_storage_.get() + 2);
 
-  this->cellCuts_ = Traits::template make_unique<CellCuts>(stream);
+  this->device_cellCuts_ = Traits::template make_unique<CellCuts>(stream);
   // FIXME: consider collapsing these 3 in one adhoc kernel
   if constexpr (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
     cudaCheck(cudaMemsetAsync(this->device_nCells_, 0, sizeof(uint32_t), stream));
     cudaCheck(cudaMemcpyAsync(
-        this->cellCuts_.get(), &(this->params_.cellCuts_), sizeof(CellCuts), cudaMemcpyDefault, stream));
+        this->device_cellCuts_.get(), &(this->params_.cellCuts_), sizeof(CellCuts), cudaMemcpyDefault, stream));
   } else {
     *(this->device_nCells_) = 0;
-    *(this->cellCuts_.get()) = this->params_.cellCuts_;
+    *(this->device_cellCuts_.get()) = this->params_.cellCuts_;
   }
   cms::cuda::launchZero(this->device_tupleMultiplicity_.get(), stream);
   cms::cuda::launchZero(this->hitToTupleView_, stream);  // we may wish to keep it in the edm

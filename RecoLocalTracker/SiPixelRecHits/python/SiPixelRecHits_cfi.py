@@ -27,7 +27,7 @@ from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacyPhase2_cfi import
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitSoAFromLegacyHIonPhase1_cfi import siPixelRecHitSoAFromLegacyHIonPhase1 as _siPixelRecHitsPreSplittingSoAHIonPhase1
 
 siPixelRecHitsPreSplittingCPU = _siPixelRecHitsPreSplittingSoA.clone(convertToLegacy=True)
-pp_on_AA.toReplaceWith(siPixelRecHitsPreSplittingCPU, _siPixelRecHitsPreSplittingSoAHIonPhase1.clone(convertToLegacy=True, CPE = cms.string('PixelCPEFastHIonPhase1')))
+(pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelRecHitsPreSplittingCPU, _siPixelRecHitsPreSplittingSoAHIonPhase1.clone(convertToLegacy=True, CPE = cms.string('PixelCPEFastHIonPhase1')))
 phase2_tracker.toReplaceWith(siPixelRecHitsPreSplittingCPU, _siPixelRecHitsPreSplittingSoAPhase2.clone(convertToLegacy=True, CPE = cms.string('PixelCPEFastPhase2')))
 
 # modifier used to prompt patatrack pixel tracks reconstruction on cpu
@@ -47,7 +47,6 @@ siPixelRecHitsPreSplittingTask = cms.Task(
 )
 
 # reconstruct the pixel rechits on the gpu
-
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDAPhase1_cfi import siPixelRecHitCUDAPhase1 as _siPixelRecHitCUDAPhase1
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDAPhase2_cfi import siPixelRecHitCUDAPhase2 as _siPixelRecHitCUDAPhase2
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDAHIonPhase1_cfi import siPixelRecHitCUDAHIonPhase1 as _siPixelRecHitCUDAHIonPhase1
@@ -55,7 +54,7 @@ from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDAHIonPhase1_cfi import siPi
 siPixelRecHitsPreSplittingCUDA = _siPixelRecHitCUDAPhase1.clone(
     beamSpot = "offlineBeamSpotToCUDA"
 )
-pp_on_AA.toReplaceWith(siPixelRecHitsPreSplittingCUDA,_siPixelRecHitCUDAHIonPhase1.clone(
+(pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelRecHitsPreSplittingCUDA,_siPixelRecHitCUDAHIonPhase1.clone(
     beamSpot = "offlineBeamSpotToCUDA"
 ))
 phase2_tracker.toReplaceWith(siPixelRecHitsPreSplittingCUDA,_siPixelRecHitCUDAPhase2.clone(
@@ -71,15 +70,15 @@ siPixelRecHitsPreSplittingSoA = SwitchProducerCUDA(
              )),
 )
 
-pp_on_AA.toModify(siPixelRecHitsPreSplittingSoA,
-cpu = cms.EDAlias(
+(pp_on_AA & ~phase2_tracker).toModify(siPixelRecHitsPreSplittingSoA,
+    cpu = cms.EDAlias(
         siPixelRecHitsPreSplittingCPU = cms.VPSet(
              cms.PSet(type = cms.string("pixelTopologyHIonPhase1TrackingRecHitSoAHost")),
              cms.PSet(type = cms.string("uintAsHostProduct"))
          )))
 
 phase2_tracker.toModify(siPixelRecHitsPreSplittingSoA,
-cpu = cms.EDAlias(
+    cpu = cms.EDAlias(
         siPixelRecHitsPreSplittingCPU = cms.VPSet(
              cms.PSet(type = cms.string("pixelTopologyPhase2TrackingRecHitSoAHost")),
              cms.PSet(type = cms.string("uintAsHostProduct"))

@@ -1490,37 +1490,6 @@ upgradeWFs['PatatrackFullRecoTripletsGPUValidation'] = PatatrackWorkflow(
     offset = 0.597,
 )
 
-
-class PatatrackWorkflowHI(PatatrackWorkflow):
-
-    def condition(self, fragment, stepList, key, hasHarvest):
-        # select only a subset of the workflows
-        selected = [
-            ('Hydjet_Quenched' in fragment and "PixelOnly" in self.suffix )
-        ]
-        result = any(selected) and hasHarvest
-
-        return result
-
-    def setup_(self, step, stepName, stepDict, k, properties):
-        # skip ALCA and Nano steps (but not RecoNano or HARVESTNano for Run3)
-        if 'ALCA' in step or 'Nano'==step:
-            stepDict[stepName][k] = None
-        elif 'Digi' in step:
-            if self.__digi is None:
-              stepDict[stepName][k] = None
-            else:
-              stepDict[stepName][k] = merge([self.__digi, stepDict[step][k]])
-        elif 'Reco' in step:
-            if self.__reco is None:
-              stepDict[stepName][k] = None
-            else:
-              stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
-        elif 'HARVEST' in step:
-            if self.__harvest is None:
-              stepDict[stepName][k] = None
-            else:
-              stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
 # end of Patatrack workflows
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
@@ -2439,10 +2408,10 @@ upgradeWFs['DD4hepDB'].allowReuse = False
 
 class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        theEra = stepDict[step][k]['--era']
-        if 'Run3' in stepDict[step][k]['--era']  and '2023' not in stepDict[step][k]['--era'] and 'Fast' not in theEra and "Pb" not in theEra:
+        the_era = stepDict[step][k]['--era']
+        if 'Run3' in the_era  and '2023' not in the_era and 'Fast' not in the_era and "Pb" not in the_era:
             # retain any other eras
-            tmp_eras = stepDict[step][k]['--era'].split(',')
+            tmp_eras = the_era.split(',')
             tmp_eras[tmp_eras.index("Run3")] = 'Run3_DDD'
             tmp_eras = ','.join(tmp_eras)
             stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2022_realistic_ddd', '--geometry': 'DB:Extended', '--era': tmp_eras}, stepDict[step][k]])

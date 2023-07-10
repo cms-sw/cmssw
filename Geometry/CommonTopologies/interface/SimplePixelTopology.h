@@ -287,6 +287,8 @@ namespace phase2PixelTopology {
 }  // namespace phase2PixelTopology
 
 namespace phase1HIonPixelTopology {
+  // Storing here the needed constants different w.r.t. pp Phase1 topology.
+  // All the other defined by inheritance in the HIon topology struct.
   using pixelTopology::phi0p09;
 
   constexpr uint32_t maxNumClustersPerModules = 2048;
@@ -540,6 +542,9 @@ namespace pixelTopology {
   };
 
   struct HIonPhase1 : public Phase1 {
+    // Storing here the needed constants different w.r.t. pp Phase1 topology.
+    // All the other defined by inheritance in the HIon topology struct.
+
     using tindex_type = uint32_t;  // for tuples
 
     static constexpr uint32_t maxCellNeighbors = 90;

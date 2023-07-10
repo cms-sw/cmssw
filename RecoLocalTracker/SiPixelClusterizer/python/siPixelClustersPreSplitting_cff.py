@@ -19,10 +19,12 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDAPhase1_cfi impor
 from RecoLocalTracker.SiPixelClusterizer.siPixelRawToClusterCUDAHIonPhase1_cfi import siPixelRawToClusterCUDAHIonPhase1 as _siPixelRawToClusterCUDAHIonPhase1
 siPixelClustersPreSplittingCUDA = _siPixelRawToClusterCUDA.clone()
 
-# HIon modifiers
+# HIon Modifiers
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+# Phase 2 Tracker Modifier
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
-pp_on_AA.toReplaceWith(siPixelClustersPreSplittingCUDA, _siPixelRawToClusterCUDAHIonPhase1.clone())
+(pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelClustersPreSplittingCUDA, _siPixelRawToClusterCUDAHIonPhase1.clone())
 
 run3_common.toModify(siPixelClustersPreSplittingCUDA,
                      # use the pixel channel calibrations scheme for Run 3
@@ -40,13 +42,11 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase2_cfi i
 siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoAPhase1.clone()
 
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAHIonPhase1_cfi import siPixelDigisClustersFromSoAHIonPhase1 as _siPixelDigisClustersFromSoAHIonPhase1
-pp_on_AA.toReplaceWith(siPixelDigisClustersPreSplitting, _siPixelDigisClustersFromSoAHIonPhase1.clone())
+(pp_on_AA & ~phase2_tracker).toReplaceWith(siPixelDigisClustersPreSplitting, _siPixelDigisClustersFromSoAHIonPhase1.clone())
 
 
 run3_common.toModify(siPixelDigisClustersPreSplitting,
                      clusterThreshold_layer1 = 4000)
-
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 gpu.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # conditions used *only* by the modules running on GPU

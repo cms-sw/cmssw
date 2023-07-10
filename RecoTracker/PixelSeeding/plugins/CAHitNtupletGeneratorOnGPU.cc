@@ -64,12 +64,12 @@ namespace {
       return CAParamsT<TrackerTraits>{{
           cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
           cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
-          (float)cfg.getParameter<double>("ptmin"),
-          (float)cfg.getParameter<double>("CAThetaCutBarrel"),
-          (float)cfg.getParameter<double>("CAThetaCutForward"),
-          (float)cfg.getParameter<double>("hardCurvCut"),
-          (float)cfg.getParameter<double>("dcaCutInnerTriplet"),
-          (float)cfg.getParameter<double>("dcaCutOuterTriplet"),
+          static_cast<float>(cfg.getParameter<double>("ptmin")),
+          static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrel")),
+          static_cast<float>(cfg.getParameter<double>("CAThetaCutForward")),
+          static_cast<float>(cfg.getParameter<double>("hardCurvCut")),
+          static_cast<float>(cfg.getParameter<double>("dcaCutInnerTriplet")),
+          static_cast<float>(cfg.getParameter<double>("dcaCutOuterTriplet")),
       }};
     };
 
@@ -100,21 +100,21 @@ namespace {
     static constexpr CAParamsT<TrackerTraits> makeCACuts(edm::ParameterSet const& cfg) {
       return CAParamsT<TrackerTraits>{{cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
                                        cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
-                                       (float)cfg.getParameter<double>("ptmin"),
-                                       (float)cfg.getParameter<double>("CAThetaCutBarrel"),
-                                       (float)cfg.getParameter<double>("CAThetaCutForward"),
-                                       (float)cfg.getParameter<double>("hardCurvCut"),
-                                       (float)cfg.getParameter<double>("dcaCutInnerTriplet"),
-                                       (float)cfg.getParameter<double>("dcaCutOuterTriplet")},
+                                       static_cast<float>(cfg.getParameter<double>("ptmin")),
+                                       static_cast<float>(cfg.getParameter<double>("CAThetaCutBarrel")),
+                                       static_cast<float>(cfg.getParameter<double>("CAThetaCutForward")),
+                                       static_cast<float>(cfg.getParameter<double>("hardCurvCut")),
+                                       static_cast<float>(cfg.getParameter<double>("dcaCutInnerTriplet")),
+                                       static_cast<float>(cfg.getParameter<double>("dcaCutOuterTriplet"))},
                                       {(bool)cfg.getParameter<bool>("includeFarForwards")}};
     }
 
     static constexpr pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
       return pixelTrack::QualityCutsT<TrackerTraits>{
-          (float)pset.getParameter<double>("maxChi2"),
-          (float)pset.getParameter<double>("minPt"),
-          (float)pset.getParameter<double>("maxTip"),
-          (float)pset.getParameter<double>("maxZip"),
+          static_cast<float>(pset.getParameter<double>("maxChi2")),
+          static_cast<float>(pset.getParameter<double>("minPt")),
+          static_cast<float>(pset.getParameter<double>("maxTip")),
+          static_cast<float>(pset.getParameter<double>("maxZip")),
       };
     }
   };
@@ -197,8 +197,8 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase1>::fillDescriptions(edm::Pa
   trackQualityCuts.add<double>("quadrupletMaxTip", 0.5)->setComment("Max |Tip| for quadruplets, in cm");
   trackQualityCuts.add<double>("quadrupletMaxZip", 12.)->setComment("Max |Zip| for quadruplets, in cm");
 
-  desc.add<std::vector<int>>("phiCuts",
-                             std::vector<int>(phase1PixelTopology::phicuts, std::end(phase1PixelTopology::phicuts)))
+  desc.add<std::vector<int>>(
+          "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
       ->setComment("Cuts in phi for cells");
 
   desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
@@ -230,8 +230,8 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::HIonPhase1>::fillDescriptions(edm
   trackQualityCuts.add<double>("quadrupletMaxTip", 0.5)->setComment("Max |Tip| for quadruplets, in cm");
   trackQualityCuts.add<double>("quadrupletMaxZip", 6.)->setComment("Max |Zip| for quadruplets, in cm");
 
-  desc.add<std::vector<int>>("phiCuts",
-                             std::vector<int>(phase1PixelTopology::phicuts, std::end(phase1PixelTopology::phicuts)))
+  desc.add<std::vector<int>>(
+          "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
       ->setComment("Cuts in phi for cells");
 
   desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
@@ -256,8 +256,8 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase2>::fillDescriptions(edm::Pa
   trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
   trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");
 
-  desc.add<std::vector<int>>("phiCuts",
-                             std::vector<int>(phase2PixelTopology::phicuts, std::end(phase2PixelTopology::phicuts)))
+  desc.add<std::vector<int>>(
+          "phiCuts", std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::end(phase2PixelTopology::phicuts)))
       ->setComment("Cuts in phi for cells");
 
   desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)

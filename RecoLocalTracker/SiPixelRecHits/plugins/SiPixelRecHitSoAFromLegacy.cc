@@ -117,7 +117,7 @@ void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
 
   std::vector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster>> clusterRef;
 
-  constexpr uint32_t maxHitsInModule = gpuClustering::maxHitsInModule();
+  constexpr uint32_t maxHitsInModule = TrackerTraits::maxNumClustersPerModules;
 
   cms::cuda::PortableHostCollection<SiPixelClustersCUDALayout<>> clusters_h(nModules + 1);
 

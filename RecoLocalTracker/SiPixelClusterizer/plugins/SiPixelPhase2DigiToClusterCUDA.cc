@@ -79,10 +79,10 @@ SiPixelPhase2DigiToClusterCUDA::SiPixelPhase2DigiToClusterCUDA(const edm::Parame
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                          iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
-                         (float)iConfig.getParameter<double>("ElectronPerADCGain"),
-                         (int8_t)iConfig.getParameter<int>("Phase2ReadoutMode"),
-                         (uint16_t)iConfig.getParameter<uint32_t>("Phase2DigiBaseline"),
-                         (uint8_t)iConfig.getParameter<uint32_t>("Phase2KinkADC")} {
+                         static_cast<float>(iConfig.getParameter<double>("ElectronPerADCGain")),
+                         static_cast<int8_t>(iConfig.getParameter<int>("Phase2ReadoutMode")),
+                         static_cast<uint16_t>(iConfig.getParameter<uint32_t>("Phase2DigiBaseline")),
+                         static_cast<uint8_t>(iConfig.getParameter<uint32_t>("Phase2KinkADC"))} {
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }

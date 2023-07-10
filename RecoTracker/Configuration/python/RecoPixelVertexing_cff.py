@@ -34,7 +34,7 @@ phase2_tracker.toModify(pixelVerticesSoA,cpu = _pixelVerticesCUDAPhase2.clone(
     PtMin = 2.0
 ))
 
-pp_on_AA.toModify(pixelVerticesSoA,cpu = _pixelVerticesCUDAHIonPhase1.clone(
+(pp_on_AA & ~phase2_tracker).toModify(pixelVerticesSoA,cpu = _pixelVerticesCUDAHIonPhase1.clone(
     pixelTrackSrc = "pixelTracksSoA",
     doSplitting = False,
     onGPU = False,
@@ -70,7 +70,7 @@ phase2_tracker.toReplaceWith(pixelVerticesCUDA,_pixelVerticesCUDAPhase2.clone(
     PtMin = 2.0
 ))
 
-pp_on_AA.toReplaceWith(pixelVerticesCUDA,_pixelVerticesCUDAHIonPhase1.clone(
+(pp_on_AA & ~phase2_tracker).toReplaceWith(pixelVerticesCUDA,_pixelVerticesCUDAHIonPhase1.clone(
     pixelTrackSrc = "pixelTracksCUDA",
     doSplitting = False,
     onGPU = True

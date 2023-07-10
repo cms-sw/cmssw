@@ -50,7 +50,7 @@ namespace gpuPixelDoublets {
                                 CellCutsT<TrackerTraits>* const cuts) {
 
     doubletsFromHisto<TrackerTraits>(
-        nActualPairs, maxNumOfDoublets, cells, nCells, cellNeighbors, cellTracks, hh, isOuterHitOfCell, cuts);
+        nActualPairs, maxNumOfDoublets, cells, nCells, cellNeighbors, cellTracks, hh, isOuterHitOfCell, *cuts);
   }
 
 }  // namespace gpuPixelDoublets

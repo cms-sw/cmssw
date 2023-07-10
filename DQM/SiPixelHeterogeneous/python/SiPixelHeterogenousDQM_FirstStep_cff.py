@@ -20,7 +20,7 @@ phase2_tracker.toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSourc
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 _monitorpixelSoARecHitsSourceHIon = cms.Sequence(siPixelHIonPhase1MonitorRecHitsSoA * siPixelHIonPhase1MonitorTrackSoA * siPixelMonitorVertexSoA)
-pp_on_AA.toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSourceHIon)
+(pp_on_AA & ~phase2_tracker).toReplaceWith(monitorpixelSoASource, _monitorpixelSoARecHitsSourceHIon)
 
 #Define the sequence for GPU vs CPU validation
 #This should run:- individual monitor for the 2 collections + comparison module

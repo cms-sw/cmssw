@@ -236,7 +236,7 @@ void CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::buildDoublets(const HitsCon
                                                                  this->isOuterHitOfCell_,
                                                                  nActualPairs,
                                                                  this->params_.caParams_.maxNumberOfDoublets_,
-                                                                 this->cellCuts_.get());
+                                                                 this->device_cellCuts_.get());
   cudaCheck(cudaGetLastError());
 
 #ifdef GPU_DEBUG

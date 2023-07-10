@@ -314,4 +314,3 @@ using SiPixelHIonPhase1CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::H
 DEFINE_FWK_MODULE(SiPixelPhase1CompareTrackSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareTrackSoA);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareTrackSoA);
-

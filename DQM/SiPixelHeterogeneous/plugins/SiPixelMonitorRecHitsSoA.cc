@@ -209,4 +209,3 @@ using SiPixelHIonPhase1MonitorRecHitsSoA = SiPixelMonitorRecHitsSoA<pixelTopolog
 DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2MonitorRecHitsSoA);
 DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorRecHitsSoA);
-

@@ -352,17 +352,25 @@ displacedTrackValidation.toReplaceWith(postProcessorTrackSummary,postProcessorTr
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 
 _defaultSubdirsHIon =  _defaultSubdirs + ["Tracking/HIPixelTrack/*"]
-_defaultSubdirsSummaryHIon = [e.replace("/*","") for e in _defaultSubdirsHIon]
 
-pp_on_AA.toModify(postProcessorTrack,subDirs = _defaultSubdirsHIon)
-pp_on_AA.toModify(postProcessorTrack2D,subDirs = _defaultSubdirsHIon)
-pp_on_AA.toModify(postProcessorTrackSummary,subDirs = _defaultSubdirsHIon)
+(pp_on_AA & ~phase2_tracker).toModify(postProcessorTrack,subDirs = _defaultSubdirsHIon)
+(pp_on_AA & ~phase2_tracker).toModify(postProcessorTrack2D,subDirs = _defaultSubdirsHIon)
+(pp_on_AA & ~phase2_tracker).toModify(postProcessorTrackSummary,subDirs = _defaultSubdirsHIon)
 
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
-postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*", "Tracking/TrackSeeding/*", "Tracking/HIPixelTrack/*", "Tracking/PixelTrack/*", "Tracking/PixelTrackFromPV/*", "Tracking/PixelTrackFromPVAllTP/*", "Tracking/PixelTrackBHadron/*"])
+postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*", "Tracking/TrackSeeding/*", "Tracking/PixelTrack/*", "Tracking/PixelTrackFromPV/*", "Tracking/PixelTrackFromPVAllTP/*", "Tracking/PixelTrackBHadron/*"])
 postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
-postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron", "Tracking/TrackSeeding", "Tracking/HIPixelTrack", "Tracking/PixelTrack", "Tracking/PixelTrackFromPV", "Tracking/PixelTrackFromPVAllTP", "Tracking/PixelTrackBHadron"])
+postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron", "Tracking/TrackSeeding", "Tracking/PixelTrack", "Tracking/PixelTrackFromPV", "Tracking/PixelTrackFromPVAllTP", "Tracking/PixelTrackBHadron"])
+
+postProcessorTrackTrackingOnlyHIon = postProcessorTrackTrackingOnly.clone()
+postProcessorTrackTrackingOnlyHIon.subDirs.extend(["Tracking/HIPixelTrack/*"])
+
+postProcessorTrackSummaryTrackingOnlyHIon = postProcessorTrackSummaryTrackingOnly.clone()
+postProcessorTrackSummaryTrackingOnlyHIon.subDirs.extend(["Tracking/HIPixelTrack"])
+
+(pp_on_AA & ~phase2_tracker).toReplaceWith(postProcessorTrackTrackingOnly,postProcessorTrackTrackingOnlyHIon)
+(pp_on_AA & ~phase2_tracker).toReplaceWith(postProcessorTrackSummaryTrackingOnly,postProcessorTrackSummaryTrackingOnlyHIon)
 
 postProcessorTrackSequenceTrackingOnly = cms.Sequence(
     postProcessorTrackTrackingOnly+

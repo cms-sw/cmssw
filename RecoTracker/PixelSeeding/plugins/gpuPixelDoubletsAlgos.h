@@ -40,6 +40,7 @@ namespace gpuPixelDoublets {
     using T = TrackerTraits;
 
     CellCutsT() = default;
+
     CellCutsT(const bool doClusterCut,
               const bool doZ0Cut,
               const bool doPtCut,
@@ -126,16 +127,16 @@ namespace gpuPixelDoublets {
                                                     CellTracksVector<TrackerTraits>* cellTracks,
                                                     HitsConstView<TrackerTraits> hh,
                                                     OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
-                                                    CellCutsT<TrackerTraits> const* cuts) {
+                                                    CellCutsT<TrackerTraits> const& cuts) {
     // ysize cuts (z in the barrel)  times 8
     // these are used if doClusterCut is true
 
-    const bool doClusterCut = cuts->doClusterCut_;
-    const bool doZ0Cut = cuts->doZ0Cut_;
-    const bool doPtCut = cuts->doPtCut_;
+    const bool doClusterCut = cuts.doClusterCut_;
+    const bool doZ0Cut = cuts.doZ0Cut_;
+    const bool doPtCut = cuts.doPtCut_;
 
-    const float z0cut = cuts->z0Cut_;      // cm
-    const float hardPtCut = cuts->ptCut_;  // GeV
+    const float z0cut = cuts.z0Cut_;      // cm
+    const float hardPtCut = cuts.ptCut_;  // GeV
     // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
     const float minRadius = hardPtCut * 87.78f;
     const float minRadius2T4 = 4.f * minRadius * minRadius;
@@ -206,7 +207,7 @@ namespace gpuPixelDoublets {
       if (mez < TrackerTraits::minz[pairLayerId] || mez > TrackerTraits::maxz[pairLayerId])
         continue;
 
-      if (doClusterCut && outer > pixelTopology::last_barrel_layer && cuts->clusterCut(hh, i))
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer && cuts.clusterCut(hh, i))
         continue;
 
       auto mep = hh[i].iphi();
@@ -226,7 +227,7 @@ namespace gpuPixelDoublets {
         return dr > TrackerTraits::maxr[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > z0cut * dr;
       };
 
-      auto iphicut = cuts->phiCuts[pairLayerId];
+      auto iphicut = cuts.phiCuts[pairLayerId];
 
       auto kl = PhiBinner::bin(int16_t(mep - iphicut));
       auto kh = PhiBinner::bin(int16_t(mep + iphicut));
@@ -264,7 +265,7 @@ namespace gpuPixelDoublets {
           if (idphi > iphicut)
             continue;
 
-          if (doClusterCut && cuts->zSizeCut(hh, i, oi))
+          if (doClusterCut && cuts.zSizeCut(hh, i, oi))
             continue;
           if (doPtCut && ptcut(oi, idphi))
             continue;
