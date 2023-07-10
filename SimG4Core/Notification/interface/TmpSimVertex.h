@@ -7,7 +7,7 @@
 
 class TmpSimVertex {
 public:
-  TmpSimVertex(const math::XYZVectorD& ip, double it, int iv, int typ=0)
+  TmpSimVertex(const math::XYZVectorD& ip, double it, int iv, int typ = 0)
       : ilv_(ip), itime_(it), itrack_(iv), ptype_(typ) {}
   ~TmpSimVertex() = default;
   /// index of the parent (-1 if no parent)

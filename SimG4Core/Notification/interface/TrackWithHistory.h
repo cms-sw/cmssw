@@ -17,8 +17,8 @@ public:
   /** The constructor is called at time, 
      *  when some of the information may not available yet.
      */
-  TrackWithHistory(const G4Track* g4track, int pID);
-  TrackWithHistory(const G4PrimaryParticle*, int trackID, const math::XYZVectorD &pos, const double time);
+  TrackWithHistory(const G4Track *g4track, int pID);
+  TrackWithHistory(const G4PrimaryParticle *, int trackID, const math::XYZVectorD &pos, const double time);
   ~TrackWithHistory() = default;
 
   inline void *operator new(std::size_t);
@@ -77,7 +77,7 @@ private:
   int idAtBoundary_{-1};
   int procType_{0};
   double totalEnergy_;
-  double time_; // lab system
+  double time_;  // lab system
   double weight_;
   math::XYZVectorD momentum_;
   math::XYZVectorD vertexPosition_;
