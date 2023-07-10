@@ -39,9 +39,9 @@ def testbeam2006(process):
     process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.testbeam)
 
     process.common_maximum_time.MaxTrackTime = cms.double(1000.0)
-    process.common_maximum_time.MaxTimeNames = cms.vstring()
-    process.common_maximum_time.MaxTrackTimes = cms.vdouble()
-    process.common_maximum_time.DeadRegions = cms.vstring()
+#    process.common_maximum_time.MaxTimeNames = cms.vstring()
+#    process.common_maximum_time.MaxTrackTimes = cms.vdouble()
+#    process.common_maximum_time.DeadRegions = cms.vstring()
 
     process.g4SimHits.NonBeamEvent = True
     process.g4SimHits.UseMagneticField = False
