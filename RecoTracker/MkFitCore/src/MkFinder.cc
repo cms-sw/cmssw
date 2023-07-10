@@ -124,7 +124,7 @@ namespace mkfit {
 
 #ifdef DUMPHITWINDOW
       m_SeedAlgo(imp, 0, 0) = tracks[idxs[i].seed_idx].seed_algo();
-      m_SeedLabel(imp, 0, 0) = tracks[idxs[i].seed_idx.seed_label();
+      m_SeedLabel(imp, 0, 0) = tracks[idxs[i].seed_idx].seed_label();
 #endif
 
       m_SeedIdx(imp, 0, 0) = idxs[i].seed_idx;
@@ -202,6 +202,9 @@ namespace mkfit {
       // dq hit selection window
       float this_dq = v[dq_sf] * (v[dq_0] * max_invpt + v[dq_1] * theta + v[dq_2]);
       // In case value is below 0 (bad window derivation or other reasons), leave original limits
+#ifdef DUMPHITWINDOW
+      this_dq = this_dq * 2;
+#endif
       if (this_dq > 0.f) {
         min_dq = this_dq;
         max_dq = 2.0f * min_dq;
@@ -210,6 +213,9 @@ namespace mkfit {
       // dphi hit selection window
       float this_dphi = v[dp_sf] * (v[dp_0] * max_invpt + v[dp_1] * theta + v[dp_2]);
       // In case value is too low (bad window derivation or other reasons), leave original limits
+#ifdef DUMPHITWINDOW
+      this_dphi = this_dphi * 2;
+#endif
       if (this_dphi > min_dphi) {
         min_dphi = this_dphi;
         max_dphi = 2.0f * min_dphi;
@@ -235,6 +241,9 @@ namespace mkfit {
     if (!v.empty()) {
       float this_c2 = v[c2_sf] * (v[c2_0] * max_invpt + v[c2_1] * theta + v[c2_2]);
       // In case value is too low (bad window derivation or other reasons), leave original limits
+#ifdef DUMPHITWINDOW
+      this_c2 = this_c2 * 2;
+#endif
       if (this_c2 > minChi2Cut)
         return this_c2;
     }
@@ -491,7 +500,7 @@ namespace mkfit {
 
 #if defined(DUMPHITWINDOW) && defined(MKFIT_STANDALONE)
               {
-                const MCHitInfo &mchinfo = m_event->simHitsInfo_[L.refHit(hi).mcHitID()];
+                const MCHitInfo &mchinfo = m_event->simHitsInfo_[L.refHit(hi_orig).mcHitID()];
                 int mchid = mchinfo.mcTrackID();
                 int st_isfindable = 0;
                 int st_label = -999999;
@@ -517,12 +526,13 @@ namespace mkfit {
                   st_z = simtrack.z();
                 }
 
-                const Hit &thishit = L.refHit(hi);
+                const Hit &thishit = L.refHit(hi_orig);
                 m_msErr.copyIn(itrack, thishit.errArray());
                 m_msPar.copyIn(itrack, thishit.posArray());
 
                 MPlexQF thisOutChi2;
                 MPlexLV tmpPropPar;
+                MPlexQI outFailFlag;
                 const FindingFoos &fnd_foos = FindingFoos::get_finding_foos(L.is_barrel());
                 (*fnd_foos.m_compute_chi2_foo)(m_Err[iI],
                                                m_Par[iI],
@@ -531,6 +541,7 @@ namespace mkfit {
                                                m_msPar,
                                                thisOutChi2,
                                                tmpPropPar,
+                                               outFailFlag,
                                                N_proc,
                                                m_prop_config->finding_intra_layer_pflags,
                                                m_prop_config->finding_requires_propagation_to_hit_pos);
@@ -588,7 +599,7 @@ namespace mkfit {
                 if (std::isnan(tephi))
                   tephi = -999.;
                 float ht_dxy = std::hypot(hx - tx, hy - ty);
-                float ht_dz = hz - tz;
+                float ht_dz = std::abs(hz - tz);
                 float ht_dphi = cdist(std::abs(hphi - tphi));
 
                 static bool first = true;
@@ -599,6 +610,7 @@ namespace mkfit {
                       "lyr_id/I:lyr_isbrl/I:hit_idx/I:"
                       "trk_cnt/I:trk_idx/I:trk_label/I:"
                       "trk_pt/F:trk_eta/F:trk_mphi/F:trk_chi2/F:"
+                      "trk_invpt/F:trk_theta/F:"
                       "nhits/I:"
                       "seed_idx/I:seed_label/I:seed_algo/I:seed_mcid/I:"
                       "hit_mcid/I:"
@@ -611,19 +623,22 @@ namespace mkfit {
                       "h_x/F:h_y/F:h_r/F:h_phi/F:h_z/F:"
                       "h_ex/F:h_ey/F:h_er/F:h_ephi/F:h_ez/F:"
                       "ht_dxy/F:ht_dz/F:ht_dphi/F:"
-                      "h_chi2/F"
+                      "h_chi2/F:bkwd/I"
                       "\n");
                   first = false;
                 }
 
-                if (!(std::isnan(phi)) && !(std::isnan(getEta(m_Par[iI].At(itrack, 5, 0))))) {
-                  //|| std::isnan(ter) || std::isnan(her) || std::isnan(m_Chi2(itrack, 0, 0)) || std::isnan(hchi2)))
+                if (!(std::isnan(phi)) && !(std::isnan(getEta(m_Par[iI].At(itrack, 5, 0)))) && !(std::isnan(ter)) &&
+                    !(std::isnan(her)) && !(std::isnan(m_Chi2(itrack, 0, 0))) && !(std::isnan(hchi2)) &&
+                    m_Label(itrack, 0, 0) >= 0 && m_Label(itrack, 0, 0) == mchid &&
+                    m_Label(itrack, 0, 0) == thisseedmcid) {
                   // clang-format off
                   printf("HITWINDOWSEL "
                          "%d "
                          "%d %d %d "
                          "%d %d %d "
                          "%6.3f %6.3f %6.3f %6.3f "
+			 "%6.3f %6.3f "
                          "%d "
                          "%d %d %d %d "
                          "%d "
@@ -636,12 +651,13 @@ namespace mkfit {
                          "%6.3f %6.3f %6.3f %6.3f %6.3f "
                          "%6.6f %6.6f %6.6f %6.6f %6.6f "
                          "%6.3f %6.3f %6.3f "
-                         "%6.3f"
+                         "%6.3f %d"
                          "\n",
                          m_event->evtID(),
                          L.layer_id(), L.is_barrel(), L.getOriginalHitIndex(hi),
                          itrack, m_CandIdx(itrack, 0, 0), m_Label(itrack, 0, 0),
                          1.0f / m_Par[iI].At(itrack, 3, 0), getEta(m_Par[iI].At(itrack, 5, 0)), m_Par[iI].At(itrack, 4, 0), m_Chi2(itrack, 0, 0),
+			 m_Par[iI].At(itrack, 3, 0),std::fabs(m_Par[iI].At(itrack, 5, 0) - Const::PIOver2),
                          m_NFoundHits(itrack, 0, 0),
                          m_SeedIdx(itrack, 0, 0), m_SeedLabel(itrack, 0, 0), m_SeedAlgo(itrack, 0, 0), thisseedmcid,
                          mchid,
@@ -654,10 +670,17 @@ namespace mkfit {
                          hx, hy, hr, hphi, hz,
                          hex, hey, her, hephi, hez,
                          ht_dxy, ht_dz, ht_dphi,
-                         hchi2);
+                         hchi2, m_in_fwd);
                   // clang-format on
                 }
               }
+#endif
+
+#if defined(DUMPHITWINDOW) && defined(MKFIT_STANDALONE)
+              //we choose to work with larger windows by a factor2 but remove hits that don't belong to the same simTrack
+              const MCHitInfo &mchinfo = m_event->simHitsInfo_[L.refHit(hi_orig).mcHitID()];
+	      if (mchinfo.mcTrackID() != m_Label(itrack, 0, 0))
+                continue;
 #endif
 
               if (ddq >= dq)
