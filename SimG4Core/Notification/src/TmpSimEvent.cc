@@ -56,13 +56,13 @@ void TmpSimEvent::load(edm::SimVertexContainer& c) const {
     TmpSimVertex* vtx = g4vertices_[i];
     auto pos = vtx->vertexPosition();
     math::XYZVectorD v3(pos.x() * invcm, pos.y() * invcm, pos.z() * invcm);
-    float t = vtx->vertexGlobalTime() / CLHEP::second;
+    float t = (float)(vtx->vertexGlobalTime() / CLHEP::second);
     int iv = vtx->parentIndex();
     // v3 = position in cm
     // t  = global time in second
     // iv = index of the parent in the SimEvent SimTrack container (-1 if no parent)
     SimVertex v = SimVertex(v3, t, iv, i);
-    v.setProcessType(vtx->processType());
+    v.setProcessType((unsigned int)vtx->processType());
     v.setEventId(EncodedEventId(0));
     c.push_back(v);
   }

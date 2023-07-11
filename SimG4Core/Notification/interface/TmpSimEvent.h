@@ -14,7 +14,7 @@
 class TmpSimEvent {
 public:
   TmpSimEvent();
-  virtual ~TmpSimEvent();
+  ~TmpSimEvent();
   void load(edm::SimTrackContainer& c) const;
   void load(edm::SimVertexContainer& c) const;
   unsigned int nTracks() const { return g4tracks_.size(); }
