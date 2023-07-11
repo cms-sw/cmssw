@@ -349,7 +349,7 @@ namespace ecaldqm {
             break;
           case kProjEta:
             specs.nbins = nEBEtaBins + 2 * nEEEtaBins;
-            specs.edges = new float[specs.nbins + 1];
+            specs.edges = std::vector(specs.nbins + 1, 0.f);
             for (int i(0); i <= nEEEtaBins; i++)
               specs.edges[i] = -3. + (3. - etaBound) / nEEEtaBins * i;
             for (int i(1); i <= nEBEtaBins; i++)
