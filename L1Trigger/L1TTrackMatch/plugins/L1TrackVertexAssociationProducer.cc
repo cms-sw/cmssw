@@ -150,6 +150,7 @@ private:
   };
 
   // ----------member data ---------------------------
+  const bool processSimulatedTracks_, processEmulatedTracks_;
   const edm::EDGetTokenT<l1t::VertexCollection> l1VerticesToken_;
   const edm::EDGetTokenT<TTTrackRefCollectionType> l1SelectedTracksToken_;
   const edm::EDGetTokenT<l1t::VertexWordCollection> l1VerticesEmulationToken_;
@@ -158,7 +159,6 @@ private:
   const edm::ParameterSet cutSet_;
   std::vector<double> deltaZMaxEtaBounds_, deltaZMax_;
   const double useDisplacedTracksDeltaZOverride_;
-  bool processSimulatedTracks_, processEmulatedTracks_, doDeltaZCutSim_, doDeltaZCutEmu_;
   int debug_;
 };
 
@@ -166,18 +166,20 @@ private:
 // constructors and destructor
 //
 L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::ParameterSet& iConfig)
-    : l1VerticesToken_(iConfig.getParameter<bool>("processSimulatedTracks")
+    : processSimulatedTracks_(iConfig.getParameter<bool>("processSimulatedTracks")),
+      processEmulatedTracks_(iConfig.getParameter<bool>("processEmulatedTracks")),
+      l1VerticesToken_(processSimulatedTracks_
                            ? consumes<l1t::VertexCollection>(iConfig.getParameter<edm::InputTag>("l1VerticesInputTag"))
                            : edm::EDGetTokenT<l1t::VertexCollection>()),
       l1SelectedTracksToken_(
-          iConfig.getParameter<bool>("processSimulatedTracks")
+          processSimulatedTracks_
               ? consumes<TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("l1SelectedTracksInputTag"))
               : edm::EDGetTokenT<TTTrackRefCollectionType>()),
       l1VerticesEmulationToken_(
-          iConfig.getParameter<bool>("processEmulatedTracks")
+          processEmulatedTracks_
               ? consumes<l1t::VertexWordCollection>(iConfig.getParameter<edm::InputTag>("l1VerticesEmulationInputTag"))
               : edm::EDGetTokenT<l1t::VertexWordCollection>()),
-      l1SelectedTracksEmulationToken_(iConfig.getParameter<bool>("processEmulatedTracks")
+      l1SelectedTracksEmulationToken_(processEmulatedTracks_
                                           ? consumes<TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>(
                                                 "l1SelectedTracksEmulationInputTag"))
                                           : edm::EDGetTokenT<TTTrackRefCollectionType>()),
@@ -187,8 +189,6 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
       deltaZMaxEtaBounds_(cutSet_.getParameter<std::vector<double>>("deltaZMaxEtaBounds")),
       deltaZMax_(cutSet_.getParameter<std::vector<double>>("deltaZMax")),
       useDisplacedTracksDeltaZOverride_(iConfig.getParameter<double>("useDisplacedTracksDeltaZOverride")),
-      processSimulatedTracks_(iConfig.getParameter<bool>("processSimulatedTracks")),
-      processEmulatedTracks_(iConfig.getParameter<bool>("processEmulatedTracks")),
       debug_(iConfig.getParameter<int>("debug")) {
   // Confirm the the configuration makes sense
   if (!processSimulatedTracks_ && !processEmulatedTracks_) {
@@ -204,26 +204,10 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
   }
 
   // Get additional input tags and define the EDM output based on the previous configuration parameters
-  doDeltaZCutSim_ = false;
-  doDeltaZCutEmu_ = false;
-  if (processSimulatedTracks_) {
-    if (iConfig.exists("l1VerticesInputTag")) {
-      // l1SelectedTracksToken_ = consumes<TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("l1SelectedTracksInputTag"));
-      // l1VerticesToken_ = consumes<l1t::VertexCollection>(iConfig.getParameter<edm::InputTag>("l1VerticesInputTag"));
-      doDeltaZCutSim_ = true;
-      produces<TTTrackRefCollectionType>(outputCollectionName_);
-    }
-  }
-  if (processEmulatedTracks_) {
-    if (iConfig.exists("l1VerticesEmulationInputTag")) {
-      // l1SelectedTracksEmulationToken_ =
-      // 	consumes<TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("l1SelectedTracksEmulationInputTag"));
-      // l1VerticesEmulationToken_ =
-      // 	consumes<l1t::VertexWordCollection>(iConfig.getParameter<edm::InputTag>("l1VerticesEmulationInputTag"));
-      doDeltaZCutEmu_ = true;
-      produces<TTTrackRefCollectionType>(outputCollectionName_ + "Emulation");
-    }
-  }
+  if (processSimulatedTracks_)
+    produces<TTTrackRefCollectionType>(outputCollectionName_);
+  if (processEmulatedTracks_)
+    produces<TTTrackRefCollectionType>(outputCollectionName_ + "Emulation");
 }
 
 L1TrackVertexAssociationProducer::~L1TrackVertexAssociationProducer() {}
@@ -369,7 +353,7 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
   TTTrackDeltaZMaxSelector deltaZSel(deltaZMaxEtaBounds_, deltaZMax_);
   TTTrackWordDeltaZMaxSelector deltaZSelEmu(deltaZMaxEtaBounds_, deltaZMax_);
 
-  if (processSimulatedTracks_ && doDeltaZCutSim_) {
+  if (processSimulatedTracks_) {
     iEvent.getByToken(l1SelectedTracksToken_, l1SelectedTracksHandle);
     iEvent.getByToken(l1VerticesToken_, l1VerticesHandle);
     size_t nOutputApproximate = l1SelectedTracksHandle->size();
@@ -387,7 +371,7 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
     }
     iEvent.put(std::move(vTTTrackAssociatedOutput), outputCollectionName_);
   }
-  if (processEmulatedTracks_ && doDeltaZCutEmu_) {
+  if (processEmulatedTracks_) {
     iEvent.getByToken(l1SelectedTracksEmulationToken_, l1SelectedTracksEmulationHandle);
     iEvent.getByToken(l1VerticesEmulationToken_, l1VerticesEmulationHandle);
     size_t nOutputApproximateEmulation = l1SelectedTracksEmulationHandle->size();
