@@ -720,8 +720,6 @@ HLT_PPSMaxTracksPerArm1_v* # CMSHLT-2179
 HLT_PPSMaxTracksPerRP4_v*  # CMSHLT-2179
 HLT_PPSRandom_v*           # CMSHLT-2606
 
-HLT_ExpressMuons_v*       # CMSHLT-2245
-
 DQM_EcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720
 DQM_HcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720
 DQM_PixelReconstruction_v* # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720
