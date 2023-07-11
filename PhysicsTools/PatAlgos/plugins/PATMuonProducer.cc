@@ -156,7 +156,9 @@ namespace pat {
     std::vector<double> effectiveAreaVec_;
     std::vector<double> miniIsoParams_;
     double relMiniIsoPUCorrected_;
-
+    /// working points of the muon MVA ID
+    double mvaIDtightCut_;
+    double mvaIDmediumCut_;
     /// embed the track from best muon measurement (global pflow)
     bool embedBestTrack_;
     /// embed the track from best muon measurement (muon only)
@@ -347,6 +349,10 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
       geometryToken_{esConsumes()},
       transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
       patMuonPutToken_{produces<std::vector<Muon>>()} {
+  // Muon MVA ID wps
+  mvaIDmediumCut_ = iConfig.getParameter<double>("mvaIDwpMedium");
+  mvaIDtightCut_ = iConfig.getParameter<double>("mvaIDwpTight");
+
   // input source
   muonToken_ = consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muonSource"));
   // embedding of tracks
@@ -990,19 +996,15 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // MVA ID
     float mvaID = 0.0;
     constexpr int MVAsentinelValue = -99;
-    constexpr float mvaIDmediumCut = 0.08;
-    constexpr float mvaIDtightCut = 0.12;
     if (computeMuonIDMVA_) {
-      const double dz = std::abs(muon.muonBestTrack()->dz(primaryVertex.position()));
-      const double dxy = std::abs(muon.muonBestTrack()->dxy(primaryVertex.position()));
       if (muon.isLooseMuon()) {
         mvaID = globalCache()->muonMvaIDEstimator().computeMVAID(muon)[1];
       } else {
         mvaID = MVAsentinelValue;
       }
       muon.setMvaIDValue(mvaID);
-      muon.setSelector(reco::Muon::MvaIDwpMedium, muon.mvaIDValue() > mvaIDmediumCut);
-      muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > mvaIDtightCut and dz < 0.5 and dxy < 0.2);
+      muon.setSelector(reco::Muon::MvaIDwpMedium, muon.mvaIDValue() > mvaIDmediumCut_);
+      muon.setSelector(reco::Muon::MvaIDwpTight, muon.mvaIDValue() > mvaIDtightCut_);
     }
 
     //SOFT MVA
