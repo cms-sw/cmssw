@@ -45,12 +45,12 @@ DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const tensorflow:
 	
   // Workaround for missing constructor TensorShape::TensorShape(absl::Slice<long>),
   // the constructor expects Slice<int64> or initializer_list<int64> and is marked explicit
-  const tensorflow::TensorShape shape;
+  tensorflow::TensorShape shape;
   shape.AddDim(1);
   shape.AddDim(max_n_pf_);
   shape.AddDim(8);
   
-  const tensorflow::TensorShape cat_shape;
+  tensorflow::TensorShape cat_shape;
   shape.AddDim(1);
   shape.AddDim(max_n_pf_);
   shape.AddDim(1);
