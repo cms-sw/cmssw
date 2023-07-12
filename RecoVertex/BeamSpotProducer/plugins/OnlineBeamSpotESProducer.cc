@@ -54,6 +54,14 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p)
   fakeBS_.setSigmaZ(15.);
   fakeBS_.setPosition(0.0001, 0.0001, 0.0001);
   fakeBS_.setType(-1);
+  // Set diagonal covariance, i.e. errors on the parameters
+  fakeBS_.setCovariance(0, 0, 5e-10);
+  fakeBS_.setCovariance(1, 1, 5e-10);
+  fakeBS_.setCovariance(2, 2, 0.002);
+  fakeBS_.setCovariance(3, 3, 0.002);
+  fakeBS_.setCovariance(4, 4, 5e-11);
+  fakeBS_.setCovariance(5, 5, 5e-11);
+  fakeBS_.setCovariance(6, 6, 1e-09);
 
   bsHLTToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>();
   bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
