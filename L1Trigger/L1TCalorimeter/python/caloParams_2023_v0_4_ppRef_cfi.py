@@ -5,11 +5,13 @@ import L1Trigger.L1TCalorimeter.caloParams_cfi
 caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
 
     # EG
+    egEtaCut                   = 24,
     egHcalThreshold            = 0.,
     egTrimmingLUTFile          = "L1Trigger/L1TCalorimeter/data/egTrimmingLUT_10_v16.01.19.txt",
     egHOverEcutBarrel          = 1,
     egHOverEcutEndcap          = 1,
     egBypassExtHOverE          = 1,
+    egBypassShape              = 1,
     egBypassECALFG             = 1,
     egMaxHOverELUTFile         = "L1Trigger/L1TCalorimeter/data/HoverEIdentification_0.995_v15.12.23.txt",
     egCompressShapesLUTFile    = "L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt",
