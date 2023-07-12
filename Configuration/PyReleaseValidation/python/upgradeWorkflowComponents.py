@@ -1841,6 +1841,48 @@ upgradeWFs['ecalDevelGPU'] = UpgradeWorkflow_ecalDevel(
     offset = 0.612,
 )
 
+# ECAL component
+class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
+    def __init__(self, suffix, offset, ecalMod,
+                 steps = [
+                     'GenSim',
+                     'GenSimHLBeamSpot',
+                     'GenSimHLBeamSpot14',
+                     'GenSimHLBeamSpotHGCALCloseBy',
+                     'Digi',
+                     'DigiTrigger',
+                 ],
+                 PU = [
+                     'GenSim',
+                     'GenSimHLBeamSpot',
+                     'GenSimHLBeamSpot14',
+                     'GenSimHLBeamSpotHGCALCloseBy',
+                     'Digi',
+                     'DigiTrigger',
+                 ]):
+        super(UpgradeWorkflow_ECalComponent, self).__init__(steps, PU, suffix, offset)
+        self.__ecalMod = ecalMod
+    
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Sim' in step or 'Digi' in step:
+            if self.__ecalMod is not None:
+                stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('2021' in key or '2023' in key or '2026' in key)
+
+upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalComponent',
+    offset = 0.631,
+    ecalMod = 'ecal_component',
+)
+
+upgradeWFs['ECALComponentFSW'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalComponentFSW',
+    offset = 0.632,
+    ecalMod = 'ecal_component_finely_sampled_waveforms',
+)
+
 class UpgradeWorkflow_0T(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         myGT=stepDict[step][k]['--conditions']
