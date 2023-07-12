@@ -82,10 +82,13 @@ unsigned int ConditionHelper::get_pc_lut_version() const {
   } else if (params_->firmwareVersion_ < 1537467271) {  // From the beginning of 2017
     return 1;                                           // Corresponding to FW timestamps before Sept. 20, 2018
   } else if (params_->firmwareVersion_ <
-             1664468309) {  // Corresponds to September 29, 2022. The firmware got deployed on October 6, 2022.
+             1664468309) {  // Corresponds to September 29, 2022. The firmware was deployed on October 6, 2022.
     return 2;               // Starting September 26, 2018 with run 323556 (data only, not in MC)
+  } else if (params_->firmwareVersion_ <
+             1687686338) {  // Corresponds to June 25, 2023. The firmware was deployed on June 26, 2023.
+    return 3;               // Starting October 6, 2022 with run 359924 (data only, not in MC)
   } else {
-    return 3;  // Starting October 6, 2022 with run 359924 (data only, not in MC)
+    return 4;  // Starting July 1, 2023 with run 369675 (data only, not in MC)
   }
 }
 
