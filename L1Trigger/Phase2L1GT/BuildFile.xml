@@ -1,0 +1,7 @@
+<use name="DataFormats/Common"/>
+<use name="FWCore/ParameterSet"/>
+<use name="py3-pybind11"/>
+<use name="python3"/>
+<export>
+  <lib name="1"/>
+</export>

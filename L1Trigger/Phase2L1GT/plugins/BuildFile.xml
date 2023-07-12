@@ -1,0 +1,14 @@
+<use name="root"/>
+<use name="boost"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="L1Trigger/L1TCommon"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="L1Trigger/DemonstratorTools"/>
+<use name="L1Trigger/Phase2L1GT"/>
+<use name="L1Trigger/L1TTrackMatch"/>
+<use name="DataFormats/L1TMuonPhase2"/>
+<use name="hls"/>
+<flags EDM_PLUGIN="1"/>
