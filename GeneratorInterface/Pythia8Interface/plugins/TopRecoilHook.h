@@ -35,7 +35,7 @@ namespace Pythia8 {
     // Destructor prints histogram.
     ~TopRecoilHook() override {
       if (doTopRecoil)
-        cout << *wtCorr;
+        ;
       delete wtCorr;
     }
 
@@ -95,7 +95,6 @@ namespace Pythia8 {
 
       // Recoiler should now be a W, else something is wrong.
       if (event[iRec].idAbs() != 24) {
-        cout << " ERROR: recoiler is " << event[iRec].id() << endl;
         return false;
       }
 
@@ -119,8 +118,6 @@ namespace Pythia8 {
 
       // List relevant properties.
       if (doList) {
-        cout << "\n now event with sizeOld = " << sizeOld << ", iSys = " << iSys << ", sizeOut = " << sizeOut
-             << scientific << setprecision(3) << ", weight with W = " << wtW << " and with t = " << wtT << endl;
         partonSystemsPtr->list();
         event.list();
       }
