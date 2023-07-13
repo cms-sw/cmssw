@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCGeometry_cfg.py geometry=D88
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D88, D92, D93, D99, D101
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D88, D92, D93, D99, D101")
 
 ### get and parse the command line arguments
 options.parseArguments()
