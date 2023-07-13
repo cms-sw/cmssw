@@ -23,10 +23,10 @@ namespace L1Analysis {
 
     //void Print(std::ostream &os = std::cout) const;
     void SetPhoton(const edm::Event& event,
-                     const edm::EventSetup& setup,
-                     const edm::Handle<reco::PhotonCollection> photons,
-                     const std::vector<edm::Handle<edm::ValueMap<bool> > > phoVIDDecisionHandles,
-                     const unsigned& maxPhoton);
+                   const edm::EventSetup& setup,
+                   const edm::Handle<reco::PhotonCollection> photons,
+                   const std::vector<edm::Handle<edm::ValueMap<bool> > > phoVIDDecisionHandles,
+                   const unsigned& maxPhoton);
 
     L1AnalysisRecoPhotonDataFormat* getData() { return &recoPhoton_; }
     void Reset() { recoPhoton_.Reset(); }

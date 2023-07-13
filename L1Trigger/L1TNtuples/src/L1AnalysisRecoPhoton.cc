@@ -6,12 +6,11 @@ L1Analysis::L1AnalysisRecoPhoton::L1AnalysisRecoPhoton() {}
 
 L1Analysis::L1AnalysisRecoPhoton::~L1AnalysisRecoPhoton() {}
 
-void L1Analysis::L1AnalysisRecoPhoton::SetPhoton(
-    const edm::Event& event,
-    const edm::EventSetup& setup,
-    edm::Handle<reco::PhotonCollection> photons,
-    std::vector<edm::Handle<edm::ValueMap<bool> > > phoVIDDecisionHandles,
-    const unsigned& maxPhoton)
+void L1Analysis::L1AnalysisRecoPhoton::SetPhoton(const edm::Event& event,
+                                                 const edm::EventSetup& setup,
+                                                 edm::Handle<reco::PhotonCollection> photons,
+                                                 std::vector<edm::Handle<edm::ValueMap<bool> > > phoVIDDecisionHandles,
+                                                 const unsigned& maxPhoton)
 
 {
   recoPhoton_.nPhotons = 0;

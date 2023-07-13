@@ -75,12 +75,13 @@ private:
 
 L1PhotonRecoTreeProducer::L1PhotonRecoTreeProducer(const edm::ParameterSet& iConfig) : photonsMissing_(false) {
   maxPhoton_ = iConfig.getParameter<unsigned int>("maxPhoton");
-  PhotonToken_ = consumes<reco::PhotonCollection>(iConfig.getUntrackedParameter("PhotonToken", edm::InputTag("photons")));
+  PhotonToken_ =
+      consumes<reco::PhotonCollection>(iConfig.getUntrackedParameter("PhotonToken", edm::InputTag("photons")));
 
-  PhotonWP80MapToken_ = consumes<edm::ValueMap<bool> >(iConfig.getUntrackedParameter(
-      "phoWP80MapToken", edm::InputTag("egmPhotonIDs:mvaPhoID-RunIIIWinter22-v1-wp80")));
-  PhotonWP90MapToken_ = consumes<edm::ValueMap<bool> >(iConfig.getUntrackedParameter(
-      "phoWP90MapToken", edm::InputTag("egmPhotonIDs:mvaPhoID-RunIIIWinter22-v1-wp90")));
+  PhotonWP80MapToken_ = consumes<edm::ValueMap<bool> >(
+      iConfig.getUntrackedParameter("phoWP80MapToken", edm::InputTag("egmPhotonIDs:mvaPhoID-RunIIIWinter22-v1-wp80")));
+  PhotonWP90MapToken_ = consumes<edm::ValueMap<bool> >(
+      iConfig.getUntrackedParameter("phoWP90MapToken", edm::InputTag("egmPhotonIDs:mvaPhoID-RunIIIWinter22-v1-wp90")));
 
   photon = new L1Analysis::L1AnalysisRecoPhoton();
   photon_data = photon->getData();
