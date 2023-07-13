@@ -685,7 +685,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
     auto it = filesToDelete_.begin();
     while (it != filesToDelete_.end()) {
       bool fileIsBeingProcessed = false;
-      for (unsigned int i = 0; i < nStreams_; i++) {
+      for (unsigned int i = 0; i < streamFileTracker_.size(); i++) {
         if (it->first == streamFileTracker_.at(i)) {
           fileIsBeingProcessed = true;
           break;
