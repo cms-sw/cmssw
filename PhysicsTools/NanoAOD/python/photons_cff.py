@@ -222,6 +222,7 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         ),
         electronVeto = Var("passElectronVeto()",bool,doc="pass electron veto"),
         pixelSeed = Var("hasPixelSeed()",bool,doc="has pixel seed"),
+        hasConversionTracks = Var("hasConversionTracks()",bool,doc="Variable specifying if photon has associated conversion tracks (one-legged or two-legged)"),
         mvaID = Var("userFloat('mvaID')",float,doc="MVA ID score, Winter22V1",precision=10),
         mvaID_WP90 = Var("userInt('mvaID_WP90')",bool,doc="MVA ID WP90, Winter22V1"),
         mvaID_WP80 = Var("userInt('mvaID_WP80')",bool,doc="MVA ID WP80, Winter22V1"),
