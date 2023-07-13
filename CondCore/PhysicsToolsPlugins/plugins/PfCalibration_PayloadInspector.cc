@@ -82,7 +82,11 @@ public:
     auto formula = payload->formulaPayload();
     auto formula_vec = formula.formulas();
     auto limits_vec = formula.limits();
-
+    if (pos < 0 || pos > (int)formula_vec.size()) {
+      edm::LogError("PfCalibration") << "Will not display image for " << functType[T]
+                                     << " as it's not contained in the payload!";
+      return false;
+    }
     TCanvas canvas("PfCalibration", "PfCalibration", 1500, 800);
     canvas.cd();
     auto formula_string = formula_vec[pos];
