@@ -251,6 +251,23 @@ TriggerPrimitive::TriggerPrimitive(const ME0DetId& detid, const ME0TriggerDigi& 
   _me0.bx = digi.getBX();
 }
 
+// Constructor from ME0 data
+TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid, const ME0TriggerDigi& digi)
+    : _id(detid), _subsystem(L1TMuon::kME0) {
+  calculateGlobalSector(detid, _globalsector, _subsector);
+  _eta = 0.;
+  _phi = 0.;
+  _rho = 0.;
+  _theta = 0.;
+  _me0.chamberid = digi.getChamberid();
+  _me0.quality = digi.getQuality();
+  _me0.phiposition = digi.getPhiposition();
+  _me0.partition = digi.getPartition();
+  _me0.deltaphi = digi.getDeltaphi();
+  _me0.bend = digi.getBend();
+  _me0.bx = digi.getBX();
+}
+
 // _____________________________________________________________________________
 // Copy constructor
 TriggerPrimitive::TriggerPrimitive(const TriggerPrimitive& tp)

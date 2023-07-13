@@ -151,21 +151,39 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
 // _____________________________________________________________________________
 // ME0
 GlobalPoint GeometryTranslator::getME0SpecificPoint(const TriggerPrimitive& tp) const {
-  const ME0DetId id(tp.detId<ME0DetId>());
-  const ME0Chamber* chamber = _geome0->chamber(id);
-  const ME0Layer* keylayer = chamber->layer(3);  // ME0 key layer is layer 3
-  int partition = tp.getME0Data().partition;     // 'partition' is in half-roll unit
-  int iroll = (partition >> 1) + 1;
-  const ME0EtaPartition* roll = keylayer->etaPartition(iroll);
-  assert(roll != nullptr);  // failed to get ME0 roll
-  // See L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.cc
-  int phiposition = tp.getME0Data().phiposition;  // 'phiposition' is in half-strip unit
-  int istrip = (phiposition >> 1);
-  int phiposition2 = (phiposition & 0x1);
-  float centreOfStrip = istrip + 0.25 + phiposition2 * 0.5;
-  const LocalPoint& lp = roll->centreOfStrip(centreOfStrip);
-  const GlobalPoint& gp = roll->surface().toGlobal(lp);
-  return gp;
+  if (tp.detId<DetId>().subdetId() == MuonSubdetId::GEM) { // GE0
+    const GEMDetId id(tp.detId<GEMDetId>());
+    const GEMSuperChamber* chamber = _geogem->superChamber(id);
+    const GEMChamber* keylayer = chamber->chamber(3);  // GEM key layer is layer 3
+    int partition = tp.getME0Data().partition;     // 'partition' is in half-roll unit
+    int iroll = (partition >> 1) + 1;
+    const GEMEtaPartition* roll = keylayer->etaPartition(iroll);
+    assert(roll != nullptr);  // failed to get GEM roll
+    // See L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.cc
+    int phiposition = tp.getME0Data().phiposition;  // 'phiposition' is in half-strip unit
+    int istrip = (phiposition >> 1);
+    int phiposition2 = (phiposition & 0x1);
+    float centreOfStrip = istrip + 0.25 + phiposition2 * 0.5;
+    const LocalPoint& lp = roll->centreOfStrip(centreOfStrip);
+    const GlobalPoint& gp = roll->surface().toGlobal(lp);
+    return gp;
+  } else { // ME0
+    const ME0DetId id(tp.detId<ME0DetId>());
+    const ME0Chamber* chamber = _geome0->chamber(id);
+    const ME0Layer* keylayer = chamber->layer(3);  // ME0 key layer is layer 3
+    int partition = tp.getME0Data().partition;     // 'partition' is in half-roll unit
+    int iroll = (partition >> 1) + 1;
+    const ME0EtaPartition* roll = keylayer->etaPartition(iroll);
+    assert(roll != nullptr);  // failed to get ME0 roll
+    // See L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.cc
+    int phiposition = tp.getME0Data().phiposition;  // 'phiposition' is in half-strip unit
+    int istrip = (phiposition >> 1);
+    int phiposition2 = (phiposition & 0x1);
+    float centreOfStrip = istrip + 0.25 + phiposition2 * 0.5;
+    const LocalPoint& lp = roll->centreOfStrip(centreOfStrip);
+    const GlobalPoint& gp = roll->surface().toGlobal(lp);
+    return gp;
+  }
 }
 
 double GeometryTranslator::calcME0SpecificEta(const TriggerPrimitive& tp) const {
