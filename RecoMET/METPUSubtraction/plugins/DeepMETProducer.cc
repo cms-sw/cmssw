@@ -51,9 +51,9 @@ DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const tensorflow:
   shape.AddDim(8);
 
   tensorflow::TensorShape cat_shape;
-  shape.AddDim(1);
-  shape.AddDim(max_n_pf_);
-  shape.AddDim(1);
+  cat_shape.AddDim(1);
+  cat_shape.AddDim(max_n_pf_);
+  cat_shape.AddDim(1);
 
   input_ = tensorflow::Tensor(tensorflow::DT_FLOAT, shape);
   input_cat0_ = tensorflow::Tensor(tensorflow::DT_FLOAT, cat_shape);
