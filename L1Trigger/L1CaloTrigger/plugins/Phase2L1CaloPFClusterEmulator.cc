@@ -88,14 +88,13 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
 
   edm::Handle<std::vector<l1tp2::CaloTower>> caloTowerCollection;
   if (!iEvent.getByToken(caloTowerToken_, caloTowerCollection))
-    edm::LogError("Phase2L1CaloPFClusterEmulator") << "Failed to get towers from caloTowerCollection!";
+    cms::Exception("Phase2L1CaloPFClusterEmulator") << "Failed to get towers from caloTowerCollection!";
 
   iEvent.getByToken(caloTowerToken_, caloTowerCollection);
   float GCTintTowers[nTowerEta][nTowerPhi];
   float realEta[nTowerEta][nTowerPhi];
   float realPhi[nTowerEta][nTowerPhi];
   for (const l1tp2::CaloTower& i : *caloTowerCollection) {
-
     int ieta = i.towerIEta();
     int iphi = i.towerIPhi();
     GCTintTowers[ieta][iphi] = i.ecalTowerEt();
@@ -179,11 +178,9 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void Phase2L1CaloPFClusterEmulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("gctFullTowers", edm::InputTag("l1tPhase2L1CaloEGammaEmulator", "GCTFullTowers"));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
