@@ -610,7 +610,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               meExtraEtaEtl2Mtd_->Fill(trackGen.eta());
             }
             if (accept.first && accept.second && !isBTL) {
-              edm::LogWarning("MtdTracksValidation")
+              edm::LogInfo("MtdTracksValidation")
                   << "MtdTracksValidation: extender fail in " << iEvent.id().run() << " " << iEvent.id().event()
                   << " pt= " << trackGen.pt() << " eta= " << trackGen.eta();
               meExtraBTLfailExtenderEta_->Fill(std::abs(trackGen.eta()));
