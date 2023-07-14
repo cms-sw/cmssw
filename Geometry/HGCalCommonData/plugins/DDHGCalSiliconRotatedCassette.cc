@@ -32,7 +32,7 @@
 #include <unordered_set>
 #include <vector>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace angle_units::operators;
 
 class DDHGCalSiliconRotatedCassette : public DDAlgorithm {
@@ -554,7 +554,6 @@ void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
 #endif
     int nr = 2 * v;
     int nc = -2 * u + v;
-    int type = HGCalProperty::waferThick(waferProperty_[k]);
     int part = HGCalProperty::waferPartial(waferProperty_[k]);
     int orien = HGCalProperty::waferOrient(waferProperty_[k]);
     int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
@@ -566,6 +565,7 @@ void DDHGCalSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
     double xorig = xyoff.first + nc * delx;
     double yorig = xyoff.second + nr * dy;
     double angle = std::atan2(yorig, xorig);
+    int type = HGCalProperty::waferThick(waferProperty_[k]);
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette::Passive: layer " << layer + 1 << " cassette "
                                   << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
                                   << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":"

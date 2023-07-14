@@ -42,7 +42,7 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalPassive/v18/hgcalPassive.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v18/hgcalEE.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalHEsil/v18/hgcalHEsil.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v17/hgcalHEmix.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v18/hgcalHEmix.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalCons/v18/hgcalCons.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalConsData/v17/hgcalConsData.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml"/>

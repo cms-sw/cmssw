@@ -31,7 +31,7 @@
 #include <unordered_set>
 #include <vector>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace angle_units::operators;
 
 class DDHGCalMixRotatedCassette : public DDAlgorithm {
