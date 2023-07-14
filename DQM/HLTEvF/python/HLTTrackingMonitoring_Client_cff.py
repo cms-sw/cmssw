@@ -29,7 +29,7 @@ trackingForElectronsMonitorClientHLT = cms.Sequence(
 )
 
 def _modifyForRun3Default(efffromhitpattern):
-    efffromhitpattern.subDirs = ["HLT/Tracking/pixelTracks/HitEffFromHitPattern*", "HLT/Tracking/tracks/HitEffFromHitPattern*"]
+    efffromhitpattern.subDirs = ["HLT/Tracking/pixelTracks/HitEffFromHitPattern*", "HLT/Tracking/tracks/HitEffFromHitPattern*", "HLT/Tracking/doubletRecoveryTracks/HitEffFromHitPattern*"] #, "HLT/Tracking/iter0HP/HitEffFromHitPattern*"
 
 def _modifyForRun3EGM(efffromhitpattern):
     efffromhitpattern.subDirs = ["HLT/EGM/Tracking/GSF/HitEffFromHitPattern*"]
