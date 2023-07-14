@@ -34,7 +34,7 @@ struct HGCalPassivePartial {
     double waferSepar = args.value<double>("SensorSeparation");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalPassivePartial: Module " << parentName << " made of " << material << " T "
-                                  << thick << " Wafer 2r " << waferSize << " Half Separation " << waferSepar;
+                                  << cms::convert2mm(thick) << " Wafer 2r " << cms::convert2mm(waferSize) << " Half Separation " << cms::convert2mm(waferSepar);
 #endif
     std::vector<std::string> tags = args.value<std::vector<std::string>>("Tags");
     std::vector<int> partialTypes = args.value<std::vector<int>>("PartialTypes");
@@ -55,7 +55,7 @@ struct HGCalPassivePartial {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalPassivePartial: " << layerNames.size() << " types of volumes";
     for (unsigned int i = 0; i < layerNames.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness " << layerThick[i]
+      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness " << cms::convert2mm(layerThick[i])
                                     << " filled with " << materials[i];
 #endif
     std::vector<int> layerType = args.value<std::vector<int>>("LayerType");
@@ -91,11 +91,11 @@ struct HGCalPassivePartial {
         ns.addVolumeNS(glogM);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalPassivePartial: " << solid.name() << " extruded polygon made of "
-                                      << matter.name() << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0]
-                                      << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1]
+                                      << matter.name() << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                      << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                       << ":" << scale[1] << " and " << xM.size() << " edges";
         for (unsigned int kk = 0; kk < xM.size(); ++kk)
-          edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
+          edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << cms::convert2mm(xM[kk]) << ":" << cms::convert2mm(yM[kk]);
 #endif
 
         // Then the layers
@@ -117,18 +117,18 @@ struct HGCalPassivePartial {
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom")
                 << "DDHGCalPassivePartial: Layer " << i << ":" << l << ":" << solid.name()
-                << " extruded polygon made of " << matter.name() << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":"
-                << zy[0] << ":" << scale[0] << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":"
+                << " extruded polygon made of " << matter.name() << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
+                << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1]) << ":"
                 << scale[1] << " and " << xM.size() << " edges";
             for (unsigned int kk = 0; kk < xM.size(); ++kk)
-              edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << xM[kk] << ":" << yM[kk];
+              edm::LogVerbatim("HGCalGeom") << "[" << kk << "] " << cms::convert2mm(xM[kk]) << ":" << cms::convert2mm(yM[kk]);
 #endif
           }
           dd4hep::Position tran(0, 0, (zi + 0.5 * layerThick[i]));
           glogM.placeVolume(glogs[i], copyNumber[i], tran);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalPassivePartial: " << glogs[i].name() << " number " << copyNumber[i]
-                                        << " positioned in " << glogM.name() << " at " << tran << " with no rotation";
+                                        << " positioned in " << glogM.name() << " at (0, 0, " << cms::convert2mm(zi + 0.5 * layerThick[i]) << " with no rotation";
 #endif
           ++copyNumber[i];
           zi += layerThick[i];
