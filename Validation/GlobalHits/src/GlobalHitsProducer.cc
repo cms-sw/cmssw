@@ -5,6 +5,7 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Validation/GlobalHits/interface/GlobalHitsProducer.h"
@@ -248,7 +249,12 @@ void GlobalHitsProducer::fillG4MC(edm::Event &iEvent) {
   /////////////////////
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   std::vector<edm::Handle<edm::HepMCProduct>> AllHepMCEvt;
-  iEvent.getManyByType(AllHepMCEvt);
+
+  //iEvent.getManyByType(AllHepMCEvt);
+  throw cms::Exception("UnsupportedFunction") << "GlobalHitsProducer::fillG4MC: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
 
   // loop through products and extract VtxSmearing if available. Any of them
   // should have the information needed

@@ -3,7 +3,6 @@
 #include "DQMOffline/Trigger/interface/EgHLTEleHLTFilterMon.h"
 #include "DQMOffline/Trigger/interface/EgHLTPhoHLTFilterMon.h"
 
-#include "DQMOffline/Trigger/interface/EgHLTDebugFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
