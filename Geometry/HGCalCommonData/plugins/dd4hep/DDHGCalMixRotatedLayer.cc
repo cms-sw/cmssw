@@ -403,8 +403,8 @@ struct HGCalMixRotatedLayer {
                                       << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
                                       << cms::convert2mm((2.0 * hthickl)) << " phi " << fimin << ":" << fimax << ":"
                                       << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
-                                      << cassette << ":" << cassette0 << " Shift " << cms::convert2mm(cshift.first) << ":"
-                                      << cms::convert2mm(cshift.second);
+                                      << cassette << ":" << cassette0 << " Shift " << cms::convert2mm(cshift.first)
+                                      << ":" << cms::convert2mm(cshift.second);
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;
@@ -491,8 +491,10 @@ struct HGCalMixRotatedLayer {
       double yorig = xyoff.second + nr * dy;
       double angle = std::atan2(yorig, xorig);
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer::Wafer: layer " << layer + 1 << " cassette " << cassette
-                                    << " Shift " << cms::convert2mm(cshift.first) << ":" << cms::convert2mm(cshift.second) << " Original " << cms::convert2mm(xorig) << ":"
-                                    << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final " << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos);
+                                    << " Shift " << cms::convert2mm(cshift.first) << ":"
+                                    << cms::convert2mm(cshift.second) << " Original " << cms::convert2mm(xorig) << ":"
+                                    << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final "
+                                    << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos);
 #endif
       std::string wafer;
       int i(999);

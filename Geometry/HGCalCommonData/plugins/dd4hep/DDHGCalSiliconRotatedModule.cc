@@ -368,10 +368,12 @@ struct HGCalSiliconRotatedModule {
       double yorig = xyoff.second + nr * dy;
       double angle = std::atan2(yorig, xorig);
       edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule::Wafer: layer " << layer + 1 << " cassette "
-                                    << cassette << " Shift " << cms::convert2mm(cshift.first) << ":" << cms::convert2mm(cshift.second) << " Original "
-                                    << cms::convert2mm(xorig) << ":" << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final " << cms::convert2mm(xpos)
-                                    << ":" << cms::convert2mm(ypos) << " u|v " << u << ":" << v << " type|part|orient|place " << type
-                                    << ":" << part << ":" << orien << ":" << place;
+                                    << cassette << " Shift " << cms::convert2mm(cshift.first) << ":"
+                                    << cms::convert2mm(cshift.second) << " Original " << cms::convert2mm(xorig) << ":"
+                                    << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final "
+                                    << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << " u|v " << u << ":" << v
+                                    << " type|part|orient|place " << type << ":" << part << ":" << orien << ":"
+                                    << place;
 #endif
       std::string wafer;
       int i(999);
