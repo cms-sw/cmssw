@@ -19,7 +19,7 @@ L1NtupleAOD = cms.Sequence(
   +l1MetFilterRecoTree
   +l1ElectronRecoTree
   +l1PhotonRecoTree
-#  +l1TauRecoTree
+  +l1TauRecoTree
   +l1MuonRecoTree
 )
 

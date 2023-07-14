@@ -55,6 +55,8 @@ public:
 
   L1Analysis::L1AnalysisRecoPhotonDataFormat* photon_data;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   // output file
   edm::Service<TFileService> fs_;
@@ -128,6 +130,12 @@ void L1PhotonRecoTreeProducer::beginJob(void) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void L1PhotonRecoTreeProducer::endJob() {}
+
+void L1PhotonRecoTreeProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("maxPhoton", 20);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1PhotonRecoTreeProducer);
