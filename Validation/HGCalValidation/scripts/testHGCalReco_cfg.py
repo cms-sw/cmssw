@@ -1,10 +1,11 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalDigi_cfg.py geometry=D92 type=mu tag=Def
+#   cmsRun testHGCalDigi_cfg.py geometry=D92 type=DDD data=mu tag=Def
 #
-#   Options for geometry D88, D92, D93, D92Shift
-#               type mu, tt
-#               tag Def, Thr, 0Noise
+#   Options for geometry: D88, D92, D93, V17Shift, V18
+#               type: DDD, DD4hep
+#               data: mu, tt
+#               tag: Def, Thr, 0Noise
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,12 +19,17 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93, D92Shift")
+                  "geometry of operations: D88, D92, D93, V17Shift, V18")
 options.register('type',
+                 "DDD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: DDD, DD4hep")
+options.register('data',
                  "mu",
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "type of operations: mu, tt")
+                 "data of operations: mu, tt")
 options.register('tag',
                  "Def",
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -37,16 +43,27 @@ print(options)
 ####################################################################
 # Use the options
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('TestReco',Phase2C17I13M9)
-
-if (options.geometry == "D92Shift"):
-    geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
+if (options.type == "DD4hep"):
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    process = cms.Process('SingleMuonSim',Phase2C17I13M9,dd4hep)
+    if (options.geometry == "V17Shift"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + options.geometry + "Reco_cff"
+    elif (options.geometry == "V18"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + options.geometry + "Reco_cff"
+    else:
+        geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+    process = cms.Process('SingleMuonSim',Phase2C17I13M9)
+    if (options.geometry == "V17Shift"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+    elif (options.geometry == "V18"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+    else:
+        geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
-inFile = "file:step2" + options.geometry + options.type + ".root"
-outFile = "file:step3" + options.geometry + options.type  + ".root"
-fileName = "missing" + options.geometry + options.type  + options.tag + ".root"
+inFile = "file:step2" + options.type + options.geometry + options.data + ".root"
+outFile = "file:step3" + options.type + options.geometry + options.data  + ".root"
+fileName = "missing" + options.type + options.geometry + options.data  + options.tag + ".root"
 
 print("Geometry file: ", geomFile)
 print("Global Tag:    ", globalTag)
