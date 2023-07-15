@@ -11,12 +11,18 @@
 //
 
 // system include files
+#include <fmt/format.h>
 
 // user include files
 #include "FWCore/Framework/interface/ESSourceProductResolverBase.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
+
+namespace edm {
+  void exceptionContext(cms::Exception&, ESModuleCallingContext const&);
+}
 
 //
 // member functions
@@ -41,7 +47,14 @@ void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(
     EventSetupRecordImpl const& record_;
     ESModuleCallingContext const& context_;
   } guardAR(iRecord, context);
-  prefetch(iKey, EventSetupRecordDetails(&iRecord));
+  try {
+    convertException::wrap([&] { prefetch(iKey, EventSetupRecordDetails(&iRecord)); });
+  } catch (cms::Exception& iException) {
+    iException.addContext(fmt::format(
+        "Retrieving data product {} '{}' in record {}", iKey.type().name(), iKey.name().value(), iRecord.key().name()));
+    exceptionContext(iException, context);
+    throw;
+  }
 }
 
 //
