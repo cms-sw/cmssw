@@ -17,9 +17,8 @@
 // Updated July, 2023 by Gourab Saha
 
 // user include files
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -71,7 +70,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex> > primaryVertexCollectionToken_;
   edm::EDGetTokenT<std::vector<reco::GenParticle> > prunedGenToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsToken_;
-  //edm::EDGetTokenT<std::vector<pat::PackedGenParticle> >packedGenToken_;
+
 
   std::map<std::string, MonitorElement *> ptMap, etaMap, phiMap, massMap, puMap;
   std::map<std::string, MonitorElement *> ptTightvsJetMap, phiTightvsJetMap, etaTightvsJetMap, massTightvsJetMap,

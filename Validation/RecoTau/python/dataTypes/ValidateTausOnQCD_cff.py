@@ -8,9 +8,8 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 kinematicSelectedTauValDenominatorQCD = cms.EDFilter(
-    "GenJetSelector", #"GenJetSelector"
-    #src = cms.InputTag('slimmedGenJets'),\
-    src = cms.InputTag('ak4GenJets'),
+    "GenJetSelector",
+    src = cms.InputTag('slimmedGenJets'),
     cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
     filter = cms.bool(False)
 )
@@ -50,10 +49,9 @@ newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.fi
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
-
 produceDenominatorQCD = cms.Sequence(
-    kinematicSelectedTauValDenominatorQCD
-    )
+    cms.ignore(kinematicSelectedTauValDenominatorQCD)
+)
 
 produceDenominator = cms.Sequence(produceDenominatorQCD)
 

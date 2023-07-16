@@ -7,6 +7,8 @@ tauValidationMiniAOD = DQMEDAnalyzer("TauValidationMiniAOD",
   tauCollection = cms.InputTag("slimmedTaus"),
   RefCollection = cms.InputTag("kinematicSelectedTauValDenominatorZTT"),
   ExtensionName = cms.string('ZTT'),
+  PVCollection  = cms.InputTag("offlineSlimmedPrimaryVertices"),
+  GenCollection = cms.InputTag("prunedGenParticles"),
   discriminators = cms.VPSet(
     cms.PSet(discriminator = cms.string("decayModeFinding"),selectionCut = cms.double(0.5)),
     cms.PSet(discriminator = cms.string("decayModeFindingNewDMs"),selectionCut = cms.double(0.5)),

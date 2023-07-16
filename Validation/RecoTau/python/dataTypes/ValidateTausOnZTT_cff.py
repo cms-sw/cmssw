@@ -5,8 +5,7 @@ from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
-#tauGenJetsForVal = tauGenJets.clone(GenParticles = 'prunedGenParticles')
-tauGenJetsForVal = tauGenJets.clone(GenParticles = 'genParticles')
+tauGenJetsForVal = tauGenJets.clone(GenParticles = 'prunedGenParticles')
 
 # require generated tau to decay hadronically
 objectTypeSelectedTauValDenominatorModuleZTT = cms.EDFilter("TauGenJetDecayModeSelector",
@@ -61,8 +60,8 @@ for newAttr in newProcAttributes:
 
 produceDenominatorZTT = cms.Sequence(
       tauGenJetsForVal
-      +objectTypeSelectedTauValDenominatorModuleZTT
-      +kinematicSelectedTauValDenominatorZTT
+      +cms.ignore(objectTypeSelectedTauValDenominatorModuleZTT)
+      +cms.ignore(kinematicSelectedTauValDenominatorZTT)
       )
 
 produceDenominator = cms.Sequence(produceDenominatorZTT)
@@ -76,4 +75,3 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode
       +TauEfficienciesZTT
       )
-

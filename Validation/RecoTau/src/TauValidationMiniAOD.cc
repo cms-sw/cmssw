@@ -36,14 +36,9 @@ TauValidationMiniAOD::TauValidationMiniAOD(const edm::ParameterSet &iConfig) {
   // List of discriminators and their cuts:
   discriminators_ = iConfig.getParameter<std::vector<edm::ParameterSet>>("discriminators");
   // Input primaryVertex collection:
-  edm::InputTag PrimaryVertexCollection_ = edm::InputTag("offlineSlimmedPrimaryVertices");
-  primaryVertexCollectionToken_ = consumes<std::vector<reco::Vertex>>(PrimaryVertexCollection_);
+  primaryVertexCollectionToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<InputTag>("PVCollection"));
   // Input genetated particle collection:
-  edm::InputTag prunedGenCollection_ = edm::InputTag("prunedGenParticles");
-  prunedGenToken_ = consumes<std::vector<reco::GenParticle>>(prunedGenCollection_);
-  //packedGenToken_ = consumes<std::vector<pat::PackedGenParticle> >(iConfig.getParameter<edm::InputTag>("packed"));
-  edm::InputTag genJetsCollection_ = edm::InputTag("slimmedGenJets");
-  genJetsToken_ = consumes<std::vector<reco::GenJet>>(genJetsCollection_);
+  prunedGenToken_ = consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<InputTag>("GenCollection"));
 }
 
 TauValidationMiniAOD::~TauValidationMiniAOD() {}
@@ -501,9 +496,6 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
     return;
   }
 
-  edm::Handle<std::vector<reco::GenJet>> genJets;
-  iEvent.getByToken(genJetsToken_, genJets);
-
   // create a handle to the primary vertex collection
   Handle<std::vector<reco::Vertex>> pvHandle;
   bool isPV = iEvent.getByToken(primaryVertexCollectionToken_, pvHandle);
@@ -512,10 +504,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
   }
   std::vector<const reco::GenParticle *> GenTaus;
 
-  // temp
-
   // dR match reference object to tau
-  //for(std::vector<reco::GenJet>::const_iterator   RefJet = genJets->begin(); RefJet != genJets->end(); RefJet++ ){
   for (refCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
        RefJet != ReferenceCollection->end();
        RefJet++) {
@@ -528,7 +517,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
     for (unsigned iTau = 0; iTau < taus->size(); iTau++) {
       pat::TauRef tau(taus, iTau);
 
-      float dR = deltaR(tau->eta(), tau->phi(), RefJet->eta(), RefJet->phi());
+      float dR = deltaR2(tau->eta(), tau->phi(), RefJet->eta(), RefJet->phi());
       if (dR < dRmin) {
         dRmin = dR;
         matchedTauIndex = iTau;
@@ -582,11 +571,9 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       //Fill decay mode migration 2D histogragms
       //First do a gen Matching
       unsigned genindex = 0;
-      for (std::vector<reco::GenParticle>::const_iterator genParticle = genParticles->begin();
-           genParticle != genParticles->end();
-           genParticle++) {
-        if (abs(genParticle->pdgId()) == 15) {
-          float gendR = deltaR(matchedTau->eta(), matchedTau->phi(), genParticle->eta(), genParticle->phi());
+      for (const auto &genParticle: *genParticles){
+        if (abs(genParticle.pdgId()) == 15) {
+          float gendR = deltaR2(matchedTau->eta(), matchedTau->phi(), genParticle.eta(), genParticle.phi());
           if (gendR < gendRmin) {
             gendRmin = gendR;
             genmatchedTauIndex = genindex;
@@ -611,9 +598,9 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           else if (dtrpdgID == 211 || dtrpdgID == 321)
             nPis++;
           else if (dtrpdgID == 22) {
-            float dr_taugamma = deltaR(gentau.eta(), gentau.phi(), dtr->eta(), dtr->phi());
+            float dr_taugamma = deltaR2(gentau.eta(), gentau.phi(), dtr->eta(), dtr->phi());
             if (dr_taugamma < 0.3 && dtr->pt() > 2)
-              nPhotonsFromTauDecay++;
+              nPhotonsFromTauDecay++; // need discussion
           } else if (dtrpdgID == 15 && dtrstatus == 2 /*&& dtr->isLastCopy()*/) {
             for (unsigned idtr2 = 0; idtr2 < dtr->numberOfDaughters(); idtr2++) {
               const reco::GenParticle *dtr2 = dynamic_cast<const reco::GenParticle *>(dtr->daughter(idtr2));
@@ -625,7 +612,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
               else if (dtr2pdgID == 211 || dtr2pdgID == 321)
                 nPis++;
               else if (dtr2pdgID == 22) {
-                float dr_taugamma = deltaR(gentau.eta(), gentau.phi(), dtr2->eta(), dtr2->phi());
+                float dr_taugamma = deltaR2(gentau.eta(), gentau.phi(), dtr2->eta(), dtr2->phi());
                 if (dr_taugamma < 0.3 && dtr2->pt() > 2)
                   nPhotonsFromTauDecay++;
               }

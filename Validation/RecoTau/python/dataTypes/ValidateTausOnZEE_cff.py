@@ -9,10 +9,10 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
+
 selectElectrons = cms.EDProducer(
     "GenParticlePruner",
-    #src = cms.InputTag("prunedGenParticles"),
-    src = cms.InputTag("genParticles"),
+    src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
     "keep++ pdgId = 11",
@@ -68,9 +68,9 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 produceDenominatorZEE = cms.Sequence(
-    selectElectrons*
-    selectStableElectrons*
-    kinematicSelectedTauValDenominatorZEE
+    selectElectrons
+    +cms.ignore(selectStableElectrons)
+    +cms.ignore(kinematicSelectedTauValDenominatorZEE)
     )
 
 produceDenominator = cms.Sequence(produceDenominatorZEE)
@@ -84,4 +84,3 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode*
       TauEfficienciesZEE
       )
-
