@@ -29,7 +29,7 @@
 //     inType   std::string   Name of the input data (Muon/MinBias)
 //     geometry std::string   Tag for the geometry (D98/D99)
 //     layer    int           Layer number (if 0; all layers combined)
-// 
+//
 //   where (common to both macros)
 //     ratio    bool          if the ratio to be plotted [true]
 //                            (works when both files are active)
@@ -252,11 +252,11 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
 }
 
 void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
-			  std::string inType = "Muon",
-			  std::string geometry = "D98",
-			  int layer = 0,
-			  bool ratio = true,
-			  bool save = false) {
+                          std::string inType = "Muon",
+                          std::string geometry = "D98",
+                          int layer = 0,
+                          bool ratio = true,
+                          bool save = false) {
   const int plots = 3;
   std::string types[2] = {"DDD", "DD4hep"};
   std::string plotf[plots] = {"L", "F", "P"};
@@ -288,14 +288,15 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
   char name[80], nameD[80], title[80];
   int rebin = (inType == "Muon") ? rebins[0] : rebins[1];
   double xmax = (inType == "Muon") ? xmaxs[0] : xmaxs[1];
-  sprintf (nameD, "hgcalHitCheck%s", dirnm.c_str());
-  sprintf (title, "%s vs %s for %s", types[0].c_str(), types[1].c_str(), inType.c_str());
-  std::cout << "Use " << nfile << " files from " << filex[0] << " and " << filex[1] << " and look for " << plots  << " plots in " << nameD << " with rebin " << rebin << " Max " << xmax;
+  sprintf(nameD, "hgcalHitCheck%s", dirnm.c_str());
+  sprintf(title, "%s vs %s for %s", types[0].c_str(), types[1].c_str(), inType.c_str());
+  std::cout << "Use " << nfile << " files from " << filex[0] << " and " << filex[1] << " and look for " << plots
+            << " plots in " << nameD << " with rebin " << rebin << " Max " << xmax;
   for (int i = 0; i < plots; ++i) {
     if (layer == 0)
-      sprintf (name, "Hits%s", plotf[i].c_str());
+      sprintf(name, "Hits%s", plotf[i].c_str());
     else
-      sprintf (name, "Hits%s%d", plotf[i].c_str(), layer);
+      sprintf(name, "Hits%s%d", plotf[i].c_str(), layer);
     double y1(0.90), dy(0.12);
     double y2 = y1 - dy * nfile - 0.01;
     TLegend* leg = (ratio) ? (new TLegend(0.40, 0.86, 0.90, 0.90)) : (new TLegend(0.65, y2 - nfile * 0.04, 0.90, y2));
@@ -306,7 +307,7 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
       TDirectory* dir = (TDirectory*)file[ifile]->FindObjectAny(nameD);
       hist0[ifile] = static_cast<TH1D*>(dir->FindObjectAny(name));
       if (debug)
-	std::cout << name << " read out at " << hist0[ifile] << " for " << tags[ifile] << std::endl;
+        std::cout << name << " read out at " << hist0[ifile] << " for " << tags[ifile] << std::endl;
     }
     char namec[160];
     if (!ratio) {
@@ -314,51 +315,51 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
       TCanvas* pad;
       int first(0);
       for (int ifile = 0; ifile < nfile; ++ifile) {
-	TH1D* hist(hist0[ifile]);
-	if (hist != nullptr) {
-	  if (rebin > 1)
-	    hist->Rebin(rebin);
-	  hist->SetTitle(title);
-	  hist->SetLineColor(first + 1);
-	  hist->SetLineStyle(first + 1);
-	  hist->GetYaxis()->SetTitleOffset(1.4);
-	  hist->GetXaxis()->SetRangeUser(0, xmax);
-	  hist->GetXaxis()->SetTitleSize(0.025);
-	  hist->GetXaxis()->SetTitleOffset(1.2);
-	  hist->SetMarkerStyle(first + 20);
-	  hist->SetMarkerColor(first + 1);
-	  hist->SetMarkerSize(0.7);
-	  if (first == 0) {
-	    pad = new TCanvas(namec, namec, 500, 500);
-	    pad->SetRightMargin(0.10);
-	    pad->SetTopMargin(0.10);
-	    pad->SetLogy();
-	    hist->Draw();
-	  } else {
-	    hist->Draw("sames");
-	  }
-	  leg->AddEntry(hist, tags[ifile].c_str(), "lp");
-	  pad->Update();
-	  ++first;
-	  TPaveStats* st = ((TPaveStats*)hist->GetListOfFunctions()->FindObject("stats"));
-	  if (st != NULL) {
-	    st->SetLineColor(first);
-	    st->SetTextColor(first);
-	    st->SetY1NDC(y1 - dy);
-	    st->SetY2NDC(y1);
-	    st->SetX1NDC(0.65);
-	    st->SetX2NDC(0.90);
-	    y1 -= dy;
-	  }
-	  pad->Modified();
-	  pad->Update();
-	  leg->Draw("same");
-	  pad->Update();
-	}
-	if (save) {
-	  sprintf(name, "%s.pdf", pad->GetName());
-	  pad->Print(name);
-	}
+        TH1D* hist(hist0[ifile]);
+        if (hist != nullptr) {
+          if (rebin > 1)
+            hist->Rebin(rebin);
+          hist->SetTitle(title);
+          hist->SetLineColor(first + 1);
+          hist->SetLineStyle(first + 1);
+          hist->GetYaxis()->SetTitleOffset(1.4);
+          hist->GetXaxis()->SetRangeUser(0, xmax);
+          hist->GetXaxis()->SetTitleSize(0.025);
+          hist->GetXaxis()->SetTitleOffset(1.2);
+          hist->SetMarkerStyle(first + 20);
+          hist->SetMarkerColor(first + 1);
+          hist->SetMarkerSize(0.7);
+          if (first == 0) {
+            pad = new TCanvas(namec, namec, 500, 500);
+            pad->SetRightMargin(0.10);
+            pad->SetTopMargin(0.10);
+            pad->SetLogy();
+            hist->Draw();
+          } else {
+            hist->Draw("sames");
+          }
+          leg->AddEntry(hist, tags[ifile].c_str(), "lp");
+          pad->Update();
+          ++first;
+          TPaveStats* st = ((TPaveStats*)hist->GetListOfFunctions()->FindObject("stats"));
+          if (st != NULL) {
+            st->SetLineColor(first);
+            st->SetTextColor(first);
+            st->SetY1NDC(y1 - dy);
+            st->SetY2NDC(y1);
+            st->SetX1NDC(0.65);
+            st->SetX2NDC(0.90);
+            y1 -= dy;
+          }
+          pad->Modified();
+          pad->Update();
+          leg->Draw("same");
+          pad->Update();
+        }
+        if (save) {
+          sprintf(name, "%s.pdf", pad->GetName());
+          pad->Print(name);
+        }
       }
     } else if (nfile == 2) {
       sprintf(namec, "cR_%s%s%s%s", geometry.c_str(), inType.c_str(), dirnm.c_str(), name);
@@ -370,9 +371,9 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
       TH1D* histr = new TH1D(name, hist0[0]->GetTitle(), nbinR, xlow, xhigh);
       histr->SetTitle(title);
       if (layer == 0)
-	sprintf(name, "Number of hits (%s)", plotp[i].c_str());
+        sprintf(name, "Number of hits (%s)", plotp[i].c_str());
       else
-	sprintf(name, "Number of hits in Layer %d (%s)", layer, plotp[i].c_str());
+        sprintf(name, "Number of hits in Layer %d (%s)", layer, plotp[i].c_str());
       histr->GetXaxis()->SetTitle(name);
       sprintf(name, "Ratio (%s/%s)", tags[0].c_str(), tags[1].c_str());
       histr->GetYaxis()->SetTitle(name);
@@ -388,32 +389,32 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
       histr->SetMarkerSize(0.7);
       double sumNum(0), sumDen(0), maxDev(0);
       for (int j = 0; j < nbinR; ++j) {
-	double tnum(0), tden(0), rnum(0), rden(0);
-	for (int i = 0; i < rebin; ++i) {
-	  int ib = j * rebin + i + 1;
-	  tnum += hist0[0]->GetBinContent(ib);
-	  tden += hist0[1]->GetBinContent(ib);
-	  rnum += ((hist0[0]->GetBinError(ib)) * (hist0[0]->GetBinError(ib)));
-	  rden += ((hist0[1]->GetBinError(ib)) * (hist0[1]->GetBinError(ib)));
-	}
-	if (tden > 0 && tnum > 0) {
-	  double rat = tnum / tden;
-	  double err = rat * sqrt((rnum / (tnum * tnum)) + (rden / (tden * tden)));
-	  histr->SetBinContent(j + 1, rat);
-	  histr->SetBinError(j + 1, err);
-	  double temp1 = (rat > 1.0) ? 1.0 / rat : rat;
-	  double temp2 = (rat > 1.0) ? err / (rat * rat) : err;
-	  sumNum += (fabs(1 - temp1) / (temp2 * temp2));
-	  sumDen += (1.0 / (temp2 * temp2));
-	  if (fabs(1 - temp1) > maxDev)
-	    maxDev = fabs(1 - temp1);
-	}
+        double tnum(0), tden(0), rnum(0), rden(0);
+        for (int i = 0; i < rebin; ++i) {
+          int ib = j * rebin + i + 1;
+          tnum += hist0[0]->GetBinContent(ib);
+          tden += hist0[1]->GetBinContent(ib);
+          rnum += ((hist0[0]->GetBinError(ib)) * (hist0[0]->GetBinError(ib)));
+          rden += ((hist0[1]->GetBinError(ib)) * (hist0[1]->GetBinError(ib)));
+        }
+        if (tden > 0 && tnum > 0) {
+          double rat = tnum / tden;
+          double err = rat * sqrt((rnum / (tnum * tnum)) + (rden / (tden * tden)));
+          histr->SetBinContent(j + 1, rat);
+          histr->SetBinError(j + 1, err);
+          double temp1 = (rat > 1.0) ? 1.0 / rat : rat;
+          double temp2 = (rat > 1.0) ? err / (rat * rat) : err;
+          sumNum += (fabs(1 - temp1) / (temp2 * temp2));
+          sumDen += (1.0 / (temp2 * temp2));
+          if (fabs(1 - temp1) > maxDev)
+            maxDev = fabs(1 - temp1);
+        }
       }
       histr->Draw();
       if (layer == 0)
-	sprintf(name, "%s %s", dirnm.c_str(), plotp[i].c_str());
+        sprintf(name, "%s %s", dirnm.c_str(), plotp[i].c_str());
       else
-	sprintf(name, "%s (Layer %d) %s", dirnm.c_str(), layer, plotp[i].c_str());
+        sprintf(name, "%s (Layer %d) %s", dirnm.c_str(), layer, plotp[i].c_str());
       leg->AddEntry(histr, name, "lp");
       leg->Draw("same");
       pad->Update();
@@ -427,12 +428,12 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
       sumNum = (sumDen > 0) ? (sumNum / sumDen) : 0;
       sumDen = (sumDen > 0) ? 1.0 / sqrt(sumDen) : 0;
       if (sumNum == 0)
-	sumDen = 0;
-      std::cout << tags[0] << " vs " << tags[1] << " " << hist0[0]->GetXaxis()->GetTitle() << " Mean deviation " << sumNum
-		<< " +- " << sumDen << " maximum " << maxDev << std::endl;
+        sumDen = 0;
+      std::cout << tags[0] << " vs " << tags[1] << " " << hist0[0]->GetXaxis()->GetTitle() << " Mean deviation "
+                << sumNum << " +- " << sumDen << " maximum " << maxDev << std::endl;
       if (save) {
-	sprintf(name, "%s.pdf", pad->GetName());
-	pad->Print(name);
+        sprintf(name, "%s.pdf", pad->GetName());
+        pad->Print(name);
       }
     }
   }

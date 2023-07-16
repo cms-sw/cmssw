@@ -45,7 +45,7 @@ private:
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
   bool histos_;
-  TH1D *h_hits_,  *h_hit1_, *h_hit2_;
+  TH1D *h_hits_, *h_hit1_, *h_hit2_;
   std::vector<TH1D*> h_hitL_, h_hitF_, h_hitP_;
 };
 
@@ -70,7 +70,7 @@ void HGcalHitCheck::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<std::string>("caloHitSource", "HGCHitsEE");
   desc.add<std::string>("nameSense", "HGCalEESensitive");
   desc.add<std::string>("nameDevice", "HGCal EE");
-  desc.add<std::string>("tag","DDD");
+  desc.add<std::string>("tag", "DDD");
   desc.add<int>("layers", 26);
   desc.add<int>("verbosity", 0);
   descriptions.add("hgcalHitCheckEE", desc);
@@ -83,39 +83,47 @@ void HGcalHitCheck::beginJob() {
   } else {
     histos_ = true;
     char name[100], title[200];
-    sprintf (name, "HitsL");
-    sprintf (title, "Number of hits in %s for %s", nameSense_.c_str(), tag_.c_str());
+    sprintf(name, "HitsL");
+    sprintf(title, "Number of hits in %s for %s", nameSense_.c_str(), tag_.c_str());
     h_hits_ = fs->make<TH1D>(name, title, 1000, 0, 5000.);
     h_hits_->GetXaxis()->SetTitle(title);
     h_hits_->GetYaxis()->SetTitle("Hits");
     h_hits_->Sumw2();
-    sprintf (name, "HitsF");
-    sprintf (title, "Number of hits in %s for %s in Full Wafers or SiPM 2", nameSense_.c_str(), tag_.c_str());
+    sprintf(name, "HitsF");
+    sprintf(title, "Number of hits in %s for %s in Full Wafers or SiPM 2", nameSense_.c_str(), tag_.c_str());
     h_hit1_ = fs->make<TH1D>(name, title, 1000, 0, 5000.);
     h_hit1_->GetXaxis()->SetTitle(title);
     h_hit1_->GetYaxis()->SetTitle("Hits");
     h_hit1_->Sumw2();
-    sprintf (name, "HitsP");
-    sprintf (title, "Number of hits in %s for %s in Partial Wafers or SiPM 4", nameSense_.c_str(), tag_.c_str());
+    sprintf(name, "HitsP");
+    sprintf(title, "Number of hits in %s for %s in Partial Wafers or SiPM 4", nameSense_.c_str(), tag_.c_str());
     h_hit2_ = fs->make<TH1D>(name, title, 1000, 0, 5000.);
     h_hit2_->GetXaxis()->SetTitle(title);
     h_hit2_->GetYaxis()->SetTitle("Hits");
     h_hit2_->Sumw2();
     for (int k = 0; k < layers_; ++k) {
-      sprintf (name, "HitsL%d", k + 1);
-      sprintf (title, "Number of hits in %s for %s in Layer %d", nameSense_.c_str(), tag_.c_str(), k + 1);
+      sprintf(name, "HitsL%d", k + 1);
+      sprintf(title, "Number of hits in %s for %s in Layer %d", nameSense_.c_str(), tag_.c_str(), k + 1);
       h_hitL_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 5000.));
       h_hitL_.back()->GetXaxis()->SetTitle(title);
       h_hitL_.back()->GetYaxis()->SetTitle("Hits");
       h_hitL_.back()->Sumw2();
-      sprintf (name, "HitsF%d", k + 1);
-      sprintf (title, "Number of hits in %s for %s in Full Wafers or SiPM 2 of Layer %d", nameSense_.c_str(), tag_.c_str(), k + 1);
+      sprintf(name, "HitsF%d", k + 1);
+      sprintf(title,
+              "Number of hits in %s for %s in Full Wafers or SiPM 2 of Layer %d",
+              nameSense_.c_str(),
+              tag_.c_str(),
+              k + 1);
       h_hitF_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 5000.));
       h_hitF_.back()->GetXaxis()->SetTitle(title);
       h_hitF_.back()->GetYaxis()->SetTitle("Hits");
       h_hitF_.back()->Sumw2();
-      sprintf (name, "HitsP%d", k + 1);
-      sprintf (title, "Number of hits in %s for %s in Partial Wafers or SiPM 4  of Layer %d", nameSense_.c_str(), tag_.c_str(), k + 1);
+      sprintf(name, "HitsP%d", k + 1);
+      sprintf(title,
+              "Number of hits in %s for %s in Partial Wafers or SiPM 4  of Layer %d",
+              nameSense_.c_str(),
+              tag_.c_str(),
+              k + 1);
       h_hitP_.emplace_back(fs->make<TH1D>(name, title, 1000, 0, 5000.));
       h_hitP_.back()->GetXaxis()->SetTitle(title);
       h_hitP_.back()->GetYaxis()->SetTitle("Hits");
@@ -148,33 +156,33 @@ void HGcalHitCheck::analyze(const edm::Event& e, const edm::EventSetup& iS) {
     hits.insert(hits.end(), hitsCalo->begin(), hitsCalo->end());
     if (!hits.empty()) {
       for (auto hit : hits) {
-	if (histos_) {
-	  if ((nameSense_ == "HGCalEESensitive") || (nameSense_ == "HGCalHESiliconSensitive")) {
-	    ++wafer;
-	    HGCSiliconDetId id(hit.id());
-	    int lay = id.layer();
-	    h_hitL_[lay-1]->Fill(nhits);
-	    HGCalParameters::waferInfo info = hgc.waferInfo(lay, id.waferU(), id.waferV());
-	    if (info.part == HGCalTypes::WaferFull) {
-	      h_hit1_->Fill(nhits);
-	      h_hitF_[lay-1]->Fill(nhits);
-	    } else {
-	      h_hit2_->Fill(nhits);
-	      h_hitP_[lay-1]->Fill(nhits);
-	    }
-	  } else {
-	    ++tiles;
-	    HGCScintillatorDetId id(hit.id());
-	    int lay = id.layer();
-	    h_hitL_[lay-1]->Fill(nhits);
-	    int sipm = id.sipm();
-	    if (sipm == 1) {
-	      h_hit2_->Fill(nhits);
-	      h_hitP_[lay-1]->Fill(nhits);
-	    } else {
-	      h_hit1_->Fill(nhits);
-	      h_hitF_[lay-1]->Fill(nhits);
-	    }
+        if (histos_) {
+          if ((nameSense_ == "HGCalEESensitive") || (nameSense_ == "HGCalHESiliconSensitive")) {
+            ++wafer;
+            HGCSiliconDetId id(hit.id());
+            int lay = id.layer();
+            h_hitL_[lay - 1]->Fill(nhits);
+            HGCalParameters::waferInfo info = hgc.waferInfo(lay, id.waferU(), id.waferV());
+            if (info.part == HGCalTypes::WaferFull) {
+              h_hit1_->Fill(nhits);
+              h_hitF_[lay - 1]->Fill(nhits);
+            } else {
+              h_hit2_->Fill(nhits);
+              h_hitP_[lay - 1]->Fill(nhits);
+            }
+          } else {
+            ++tiles;
+            HGCScintillatorDetId id(hit.id());
+            int lay = id.layer();
+            h_hitL_[lay - 1]->Fill(nhits);
+            int sipm = id.sipm();
+            if (sipm == 1) {
+              h_hit2_->Fill(nhits);
+              h_hitP_[lay - 1]->Fill(nhits);
+            } else {
+              h_hit1_->Fill(nhits);
+              h_hitF_[lay - 1]->Fill(nhits);
+            }
           }
         }
       }
