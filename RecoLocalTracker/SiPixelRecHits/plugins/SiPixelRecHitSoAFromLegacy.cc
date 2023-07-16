@@ -117,7 +117,7 @@ void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
 
   std::vector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster>> clusterRef;
 
-  constexpr uint32_t maxHitsInModule = gpuClustering::maxHitsInModule();
+  constexpr uint32_t maxHitsInModule = TrackerTraits::maxNumClustersPerModules;
 
   cms::cuda::PortableHostCollection<SiPixelClustersCUDALayout<>> clusters_h(nModules + 1);
 
@@ -291,3 +291,6 @@ DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacyPhase1);
 
 using SiPixelRecHitSoAFromLegacyPhase2 = SiPixelRecHitSoAFromLegacyT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacyPhase2);
+
+using SiPixelRecHitSoAFromLegacyHIonPhase1 = SiPixelRecHitSoAFromLegacyT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacyHIonPhase1);

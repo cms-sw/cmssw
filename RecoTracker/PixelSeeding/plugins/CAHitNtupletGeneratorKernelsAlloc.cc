@@ -2,7 +2,7 @@
 
 #include "CAHitNtupletGeneratorKernels.h"
 
-//#define GPU_DEBUG
+// #define GPU_DEBUG
 template <typename TrackerTraits>
 #ifdef __CUDACC__
 void CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::allocateOnGPU(int32_t nHits, cudaStream_t stream) {
@@ -11,6 +11,9 @@ void CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::allocateOnGPU(int32_t nHits
 void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::allocateOnGPU(int32_t nHits, cudaStream_t stream) {
   using Traits = cms::cudacompat::CPUTraits;
 #endif
+
+  using CellCuts = gpuPixelDoublets::CellCutsT<TrackerTraits>;
+
   //////////////////////////////////////////////////////////
   // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
   //////////////////////////////////////////////////////////
@@ -38,11 +41,15 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::allocateOnGPU(int32_t nHits
   this->device_hitToTuple_apc_ = (cms::cuda::AtomicPairCounter*)this->device_storage_.get() + 1;
   this->device_nCells_ = (uint32_t*)(this->device_storage_.get() + 2);
 
+  this->device_cellCuts_ = Traits::template make_unique<CellCuts>(stream);
   // FIXME: consider collapsing these 3 in one adhoc kernel
   if constexpr (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
     cudaCheck(cudaMemsetAsync(this->device_nCells_, 0, sizeof(uint32_t), stream));
+    cudaCheck(cudaMemcpyAsync(
+        this->device_cellCuts_.get(), &(this->params_.cellCuts_), sizeof(CellCuts), cudaMemcpyDefault, stream));
   } else {
     *(this->device_nCells_) = 0;
+    *(this->device_cellCuts_.get()) = this->params_.cellCuts_;
   }
   cms::cuda::launchZero(this->device_tupleMultiplicity_.get(), stream);
   cms::cuda::launchZero(this->hitToTupleView_, stream);  // we may wish to keep it in the edm
@@ -54,6 +61,8 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::allocateOnGPU(int32_t nHits
 
 template class CAHitNtupletGeneratorKernelsGPU<pixelTopology::Phase1>;
 template class CAHitNtupletGeneratorKernelsGPU<pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorKernelsGPU<pixelTopology::HIonPhase1>;
 
 template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase1>;
 template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::HIonPhase1>;
