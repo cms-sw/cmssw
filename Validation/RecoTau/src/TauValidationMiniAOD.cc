@@ -571,7 +571,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       //Fill decay mode migration 2D histogragms
       //First do a gen Matching
       unsigned genindex = 0;
-      for (const auto &genParticle: *genParticles){
+      for (const auto &genParticle : *genParticles) {
         if (abs(genParticle.pdgId()) == 15) {
           float gendR = deltaR2(matchedTau->eta(), matchedTau->phi(), genParticle.eta(), genParticle.phi());
           if (gendR < gendRmin) {
@@ -600,7 +600,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
           else if (dtrpdgID == 22) {
             float dr_taugamma = deltaR2(gentau.eta(), gentau.phi(), dtr->eta(), dtr->phi());
             if (dr_taugamma < 0.3 && dtr->pt() > 2)
-              nPhotonsFromTauDecay++; // need discussion
+              nPhotonsFromTauDecay++;  // need discussion
           } else if (dtrpdgID == 15 && dtrstatus == 2 /*&& dtr->isLastCopy()*/) {
             for (unsigned idtr2 = 0; idtr2 < dtr->numberOfDaughters(); idtr2++) {
               const reco::GenParticle *dtr2 = dynamic_cast<const reco::GenParticle *>(dtr->daughter(idtr2));
