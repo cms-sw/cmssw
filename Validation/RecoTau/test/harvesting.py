@@ -117,9 +117,10 @@ process.DQMCertTrigger_step = cms.Path(process.DQMCertTrigger)
 process.DQMHarvestBeam_step = cms.Path(process.DQMHarvestBeam)
 process.DQMHarvestFED_step = cms.Path(process.DQMHarvestFED)
 process.dqmsave_step = cms.Path(process.DQMSaver)
+process.effPlotting_step = cms.Path(process.effPlotting) # test
 
 # Schedule definition
-process.schedule = cms.Schedule(process.DQMHarvestMuon_step,process.DQMCertMuon_step,process.DQMHarvestL1T_step,process.DQMHarvestHcal_step,process.DQMHarvestJetMET_step,process.DQMCertJetMET_step,process.DQMHarvestEcal_step,process.DQMCertEcal_step,process.DQMHarvestEGamma_step,process.DQMCertEGamma_step,process.DQMNone_step,process.DQMMessageLoggerClientSeq_step,process.DQMHarvestTrackerStrip_step,process.DQMCertTrackerStrip_step,process.DQMHarvestTrackerPixel_step,process.DQMCertTrackerPixel_step,process.DQMHarvestTracking_step,process.DQMCertTracking_step,process.DQMHarvestTrigger_step,process.DQMCertTrigger_step,process.DQMHarvestBeam_step,process.DQMHarvestFED_step,process.dqmsave_step)
+process.schedule = cms.Schedule(process.DQMHarvestMuon_step,process.DQMCertMuon_step,process.DQMHarvestL1T_step,process.DQMHarvestHcal_step,process.DQMHarvestJetMET_step,process.DQMCertJetMET_step,process.DQMHarvestEcal_step,process.DQMCertEcal_step,process.DQMHarvestEGamma_step,process.DQMCertEGamma_step,process.DQMNone_step,process.DQMMessageLoggerClientSeq_step,process.DQMHarvestTrackerStrip_step,process.DQMCertTrackerStrip_step,process.DQMHarvestTrackerPixel_step,process.DQMCertTrackerPixel_step,process.DQMHarvestTracking_step,process.DQMCertTracking_step,process.DQMHarvestTrigger_step,process.DQMCertTrigger_step,process.DQMHarvestBeam_step,process.DQMHarvestFED_step,process.effPlotting_step,process.dqmsave_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 

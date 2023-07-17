@@ -71,42 +71,42 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                : histoInfo(15, -0.5, 14.5);
 
   summaryTemp =
-      ibooker.book1D("summaryPlotNum", "summaryPlotNum", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
-  summaryTemp->setYTitle("nTaus/discriminator");
+      ibooker.book1D("summaryPlotNum", "Summary Plot: Numerator", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp->setYTitle("nTaus passing discriminants");
   summaryMap.insert(std::make_pair("Num", summaryTemp));
 
   summaryTemp =
-      ibooker.book1D("summaryPlotDen", "summaryPlotDen", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
-  summaryTemp->setYTitle("nTaus/discriminator");
+      ibooker.book1D("summaryPlotDen", "Summary Plot: Denominator", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp->setYTitle("nTaus passing discriminants");
   summaryMap.insert(std::make_pair("Den", summaryTemp));
 
-  summaryTemp = ibooker.book1D("summaryPlot", "summaryPlot", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
-  summaryTemp->setYTitle("nTaus/discriminator");
+  summaryTemp = ibooker.book1D("summaryPlot", "Summary Plot: Efficiency", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp->setYTitle("Efficiency of discriminants");
   summaryMap.insert(std::make_pair("", summaryTemp));
 
   histoInfo mtauHinfo = histoInfo(20, 0.0, 2.0);
 
-  mtau_dm0 = ibooker.book1D("mtau_dm0", "mtau_dm0", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm0 = ibooker.book1D("mtau_dm0", "mtau: DM = 0", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm0Map.insert(std::make_pair("", mtau_dm0));
 
-  mtau_dm1p2 = ibooker.book1D("mtau_dm1p2", "mtau_dm1+2", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm1p2 = ibooker.book1D("mtau_dm1p2", "mtau: DM = 1+2", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm1p2Map.insert(std::make_pair("", mtau_dm1p2));
 
-  mtau_dm5 = ibooker.book1D("mtau_dm5", "mtau_dm5", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm5 = ibooker.book1D("mtau_dm5", "mtau: DM = 5", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm5Map.insert(std::make_pair("", mtau_dm5));
 
-  mtau_dm6 = ibooker.book1D("mtau_dm6", "mtau_dm6", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm6 = ibooker.book1D("mtau_dm6", "mtau: DM = 6", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm6Map.insert(std::make_pair("", mtau_dm6));
 
-  mtau_dm10 = ibooker.book1D("mtau_dm10", "mtau_dm10", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm10 = ibooker.book1D("mtau_dm10", "mtau: DM = 10", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm10Map.insert(std::make_pair("", mtau_dm10));
 
-  mtau_dm11 = ibooker.book1D("mtau_dm11", "mtau_dm11", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm11 = ibooker.book1D("mtau_dm11", "mtau: DM = 11", mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm11Map.insert(std::make_pair("", mtau_dm11));
 
-  dmMigration = ibooker.book2D("dmMigration", "DM Migration: recoDM vs genDM", 15, -0.5, 14.5, 15, -0.5, 14.5);
-  dmMigration->setXTitle("Reconstructed tau DM");
-  dmMigration->setYTitle("Generated tau DM");
+  dmMigration = ibooker.book2D("dmMigration", "DM Migration", 15, -0.5, 14.5, 15, -0.5, 14.5);
+  dmMigration->setXTitle("Generated tau DM");
+  dmMigration->setYTitle("Reconstructed tau DM");
   dmMigrationMap.insert(std::make_pair("", dmMigration));
 
   histoInfo pTOverProngHinfo = (histoSettings_.exists("pTOverProng"))
@@ -114,7 +114,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                    : histoInfo(50, 0, 1000);
 
   pTOverProng_dm0 = ibooker.book2D("pTOverProng_dm0",
-                                   "pTOverProng_dm0",
+                                   "pTOverProng: DM = 0",
                                    pTOverProngHinfo.nbins,
                                    pTOverProngHinfo.min,
                                    pTOverProngHinfo.max,
@@ -126,7 +126,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   pTOverProng_dm0Map.insert(std::make_pair("", pTOverProng_dm0));
 
   pTOverProng_dm1p2 = ibooker.book2D("pTOverProng_dm1p2",
-                                     "pTOverProng_dm1p2",
+                                     "pTOverProng: DM = 1+2",
                                      pTOverProngHinfo.nbins,
                                      pTOverProngHinfo.min,
                                      pTOverProngHinfo.max,
@@ -138,7 +138,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   pTOverProng_dm1p2Map.insert(std::make_pair("", pTOverProng_dm1p2));
 
   pTOverProng_dm5 = ibooker.book2D("pTOverProng_dm5",
-                                   "pTOverProng_dm5",
+                                   "pTOverProng: DM = 5",
                                    pTOverProngHinfo.nbins,
                                    pTOverProngHinfo.min,
                                    pTOverProngHinfo.max,
@@ -150,7 +150,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   pTOverProng_dm5Map.insert(std::make_pair("", pTOverProng_dm5));
 
   pTOverProng_dm6 = ibooker.book2D("pTOverProng_dm6",
-                                   "pTOverProng_dm6",
+                                   "pTOverProng: DM = 6",
                                    pTOverProngHinfo.nbins,
                                    pTOverProngHinfo.min,
                                    pTOverProngHinfo.max,
@@ -162,7 +162,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   pTOverProng_dm6Map.insert(std::make_pair("", pTOverProng_dm6));
 
   pTOverProng_dm10 = ibooker.book2D("pTOverProng_dm10",
-                                    "pTOverProng_dm10",
+                                    "pTOverProng: DM = 10",
                                     pTOverProngHinfo.nbins,
                                     pTOverProngHinfo.min,
                                     pTOverProngHinfo.max,
@@ -174,7 +174,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   pTOverProng_dm10Map.insert(std::make_pair("", pTOverProng_dm10));
 
   pTOverProng_dm11 = ibooker.book2D("pTOverProng_dm11",
-                                    "pTOverProng_dm11",
+                                    "pTOverProng: DM = 11",
                                     pTOverProngHinfo.nbins,
                                     pTOverProngHinfo.min,
                                     pTOverProngHinfo.max,
@@ -185,7 +185,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
   pTOverProng_dm11->setYTitle("pT of lead charged cand");
   pTOverProng_dm11Map.insert(std::make_pair("", pTOverProng_dm11));
 
-  ntau_vs_dm = ibooker.book2D("ntau_vs_dm", "ntau_vs_dm", 15, 0, 15, 15, 0, 15);
+  ntau_vs_dm = ibooker.book2D("ntau_vs_dm", "DM vs nTau", 15, 0, 15, 15, 0, 15);
   ntau_vs_dm->setXTitle("nTau");
   ntau_vs_dm->setYTitle("tau DM");
   ntau_vs_dmMap.insert(std::make_pair("", ntau_vs_dm));
@@ -239,11 +239,11 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
           : histoInfo(200, 0., 1.);
 
   // book the temp histograms
-  ptTemp = ibooker.book1D("tau_pt", "tau_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
-  etaTemp = ibooker.book1D("tau_eta", "tau_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
-  phiTemp = ibooker.book1D("tau_phi", "tau_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
-  massTemp = ibooker.book1D("tau_mass", "tau_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
-  puTemp = ibooker.book1D("tau_pu", "tau_pu", puHinfo.nbins, puHinfo.min, puHinfo.max);
+  ptTemp = ibooker.book1D("tau_pt", "tau pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaTemp = ibooker.book1D("tau_eta", "tau eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiTemp = ibooker.book1D("tau_phi", "tau phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massTemp = ibooker.book1D("tau_mass", "tau mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  puTemp = ibooker.book1D("tau_pu", "tau pileup", puHinfo.nbins, puHinfo.min, puHinfo.max);
 
   // map the histograms
   ptMap.insert(std::make_pair("", ptTemp));
@@ -254,7 +254,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
 
   // book decay mode histograms
   decayModeFindingTemp = ibooker.book1D("tau_decayModeFinding",
-                                        "tau_decayModeFinding",
+                                        "tau decayModeFinding",
                                         decayModeFindingHinfo.nbins,
                                         decayModeFindingHinfo.min,
                                         decayModeFindingHinfo.max);
@@ -273,17 +273,17 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
 
   // book the deepTau histograms
   byDeepTau2018v2p5VSerawTemp = ibooker.book1D("tau_byDeepTau2018v2p5VSeraw",
-                                               "tau_byDeepTau2018v2p5VSeraw",
+                                               "byDeepTau2018v2p5VSeraw",
                                                byDeepTau2018v2p5VSerawHinfo.nbins,
                                                byDeepTau2018v2p5VSerawHinfo.min,
                                                byDeepTau2018v2p5VSerawHinfo.max);
   byDeepTau2018v2p5VSjetrawTemp = ibooker.book1D("tau_byDeepTau2018v2p5VSjetraw",
-                                                 "tau_byDeepTau2018v2p5VSjetraw",
+                                                 "byDeepTau2018v2p5VSjetraw",
                                                  byDeepTau2018v2p5VSjetrawHinfo.nbins,
                                                  byDeepTau2018v2p5VSjetrawHinfo.min,
                                                  byDeepTau2018v2p5VSjetrawHinfo.max);
   byDeepTau2018v2p5VSmurawTemp = ibooker.book1D("tau_byDeepTau2018v2p5VSmuraw",
-                                                "tau_byDeepTau2018v2p5VSmuraw",
+                                                "byDeepTau2018v2p5VSmuraw",
                                                 byDeepTau2018v2p5VSmurawHinfo.nbins,
                                                 byDeepTau2018v2p5VSmurawHinfo.min,
                                                 byDeepTau2018v2p5VSmurawHinfo.max);
@@ -619,11 +619,9 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
             }
           }
         }
-
-        int genTau_dm = (nPhotonsFromTauDecay > 0) ? -1 : findDecayMode(nPis, nPi0s);
-
-        decayModeMap.find("gentau")->second->Fill(genTau_dm);
-        dmMigrationMap.find("")->second->Fill(matchedTau->decayMode(), genTau_dm);
+	int genTau_dm = findDecayMode(nPis, nPi0s);
+	decayModeMap.find("gentau")->second->Fill(genTau_dm);
+        dmMigrationMap.find("")->second->Fill(genTau_dm, matchedTau->decayMode());
       }
 
       // count number of taus passing each discriminator's selection cut
