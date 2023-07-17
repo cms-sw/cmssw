@@ -63,6 +63,7 @@ public:
   MonitorElement *Track_All_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
   MonitorElement *Track_All_Eta_ECStubs = nullptr;       // eta vs number of stubs in end caps
   MonitorElement *Track_All_Chi2_Probability = nullptr;  // chi2 probability
+  MonitorElement *Track_All_MVA1 = nullptr;              // MVA1 (prompt quality) distribution
 
   /// High-quality TTTracks; different depending on prompt vs displaced tracks
   // Quality cuts: chi2/dof<10, bendchi2<2.2 (Prompt), default in config
@@ -86,6 +87,7 @@ public:
   MonitorElement *Track_HQ_Eta_BarrelStubs = nullptr;   // eta vs number of stubs in barrel
   MonitorElement *Track_HQ_Eta_ECStubs = nullptr;       // eta vs number of stubs in end caps
   MonitorElement *Track_HQ_Chi2_Probability = nullptr;  // chi2 probability
+  MonitorElement *Track_HQ_MVA1 = nullptr;              // MVA1 (prompt quality) distribution
 
 private:
   edm::ParameterSet conf_;
@@ -142,6 +144,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     float track_chi2dof = tempTrackPtr->chi2Red();
     float track_chi2rz = tempTrackPtr->chi2Z();
     float track_chi2rphi = tempTrackPtr->chi2XY();
+    float track_MVA1 = tempTrackPtr->trkMVA1();
     int nLayersMissed = 0;
     unsigned int hitPattern_ = (unsigned int)tempTrackPtr->hitPattern();
 
@@ -194,6 +197,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
       Track_HQ_Eta_BarrelStubs->Fill(track_eta, nBarrelStubs);
       Track_HQ_Eta_ECStubs->Fill(track_eta, nECStubs);
       Track_HQ_Chi2_Probability->Fill(ChiSquaredProbability(track_chi2, nStubs));
+      Track_HQ_MVA1->Fill(track_MVA1);
     }
 
     // All tracks (including HQ tracks)
@@ -216,7 +220,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     Track_All_Eta_BarrelStubs->Fill(track_eta, nBarrelStubs);
     Track_All_Eta_ECStubs->Fill(track_eta, nECStubs);
     Track_All_Chi2_Probability->Fill(ChiSquaredProbability(track_chi2, nStubs));
-
+    Track_All_MVA1->Fill(track_MVA1);
   }  // End of loop over TTTracks
 
   Track_HQ_N->Fill(numHQTracks);
@@ -396,6 +400,17 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
                                               psTrack_Chi2_Probability.getParameter<double>("xmax"));
   Track_All_Chi2_Probability->setAxisTitle("#chi^{2} probability", 1);
   Track_All_Chi2_Probability->setAxisTitle("# L1 Tracks", 2);
+
+  // MVA1 (prompt quality)
+  edm::ParameterSet psTrack_MVA1 = conf_.getParameter<edm::ParameterSet>("TH1_Track_MVA1");
+  HistoName = "Track_All_MVA1";
+  Track_All_MVA1 = iBooker.book1D(HistoName,
+				  HistoName,
+				  psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
+				  psTrack_MVA1.getParameter<double>("xmin"),
+				  psTrack_MVA1.getParameter<double>("xmax"));
+  Track_All_MVA1->setAxisTitle("MVA1", 1);
+  Track_All_MVA1->setAxisTitle("# L1 Tracks", 2);
 
   // Reduced chi2 vs #stubs
   edm::ParameterSet psTrack_Chi2R_NStubs = conf_.getParameter<edm::ParameterSet>("TH2_Track_Chi2R_NStubs");
@@ -604,6 +619,16 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
                                              psTrack_Chi2_Probability.getParameter<double>("xmax"));
   Track_HQ_Chi2_Probability->setAxisTitle("#chi^{2} probability", 1);
   Track_HQ_Chi2_Probability->setAxisTitle("# L1 Tracks", 2);
+
+  // MVA1 (prompt quality)
+  HistoName = "Track_HQ_MVA1";
+  Track_HQ_MVA1 = iBooker.book1D(HistoName,
+				 HistoName,
+				 psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
+				 psTrack_MVA1.getParameter<double>("xmin"),
+				 psTrack_MVA1.getParameter<double>("xmax"));
+  Track_HQ_MVA1->setAxisTitle("MVA1", 1);
+  Track_HQ_MVA1->setAxisTitle("# L1 Tracks", 2);
 
   // Reduced chi2 vs #stubs
   HistoName = "Track_HQ_Chi2Red_NStubs";
