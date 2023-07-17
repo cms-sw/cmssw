@@ -405,10 +405,10 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   edm::ParameterSet psTrack_MVA1 = conf_.getParameter<edm::ParameterSet>("TH1_Track_MVA1");
   HistoName = "Track_All_MVA1";
   Track_All_MVA1 = iBooker.book1D(HistoName,
-				  HistoName,
-				  psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
-				  psTrack_MVA1.getParameter<double>("xmin"),
-				  psTrack_MVA1.getParameter<double>("xmax"));
+                                  HistoName,
+                                  psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
+                                  psTrack_MVA1.getParameter<double>("xmin"),
+                                  psTrack_MVA1.getParameter<double>("xmax"));
   Track_All_MVA1->setAxisTitle("MVA1", 1);
   Track_All_MVA1->setAxisTitle("# L1 Tracks", 2);
 
@@ -623,10 +623,10 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   // MVA1 (prompt quality)
   HistoName = "Track_HQ_MVA1";
   Track_HQ_MVA1 = iBooker.book1D(HistoName,
-				 HistoName,
-				 psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
-				 psTrack_MVA1.getParameter<double>("xmin"),
-				 psTrack_MVA1.getParameter<double>("xmax"));
+                                 HistoName,
+                                 psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
+                                 psTrack_MVA1.getParameter<double>("xmin"),
+                                 psTrack_MVA1.getParameter<double>("xmax"));
   Track_HQ_MVA1->setAxisTitle("MVA1", 1);
   Track_HQ_MVA1->setAxisTitle("# L1 Tracks", 2);
 
