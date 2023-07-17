@@ -70,17 +70,18 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker &ibooker,
                                ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("summary"))
                                : histoInfo(15, -0.5, 14.5);
 
-  summaryTemp =
-      ibooker.book1D("summaryPlotNum", "Summary Plot: Numerator", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp = ibooker.book1D(
+      "summaryPlotNum", "Summary Plot: Numerator", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryTemp->setYTitle("nTaus passing discriminants");
   summaryMap.insert(std::make_pair("Num", summaryTemp));
 
-  summaryTemp =
-      ibooker.book1D("summaryPlotDen", "Summary Plot: Denominator", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp = ibooker.book1D(
+      "summaryPlotDen", "Summary Plot: Denominator", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryTemp->setYTitle("nTaus passing discriminants");
   summaryMap.insert(std::make_pair("Den", summaryTemp));
 
-  summaryTemp = ibooker.book1D("summaryPlot", "Summary Plot: Efficiency", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryTemp =
+      ibooker.book1D("summaryPlot", "Summary Plot: Efficiency", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryTemp->setYTitle("Efficiency of discriminants");
   summaryMap.insert(std::make_pair("", summaryTemp));
 
@@ -583,7 +584,6 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
       }
 
       if (gendRmin < 0.15) {
-        int nPhotonsFromTauDecay = 0;
         int nPi0s = 0;
         int nPis = 0;
         auto &gentau = genParticles->at(genmatchedTauIndex);
@@ -597,11 +597,7 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
             nPi0s++;
           else if (dtrpdgID == 211 || dtrpdgID == 321)
             nPis++;
-          else if (dtrpdgID == 22) {
-            float dr_taugamma = deltaR2(gentau.eta(), gentau.phi(), dtr->eta(), dtr->phi());
-            if (dr_taugamma < 0.3 && dtr->pt() > 2)
-              nPhotonsFromTauDecay++;  // need discussion
-          } else if (dtrpdgID == 15 && dtrstatus == 2 /*&& dtr->isLastCopy()*/) {
+          else if (dtrpdgID == 15 && dtrstatus == 2 /*&& dtr->isLastCopy()*/) {
             for (unsigned idtr2 = 0; idtr2 < dtr->numberOfDaughters(); idtr2++) {
               const reco::GenParticle *dtr2 = dynamic_cast<const reco::GenParticle *>(dtr->daughter(idtr2));
               int dtr2pdgID = std::abs(dtr2->pdgId());
@@ -611,16 +607,11 @@ void TauValidationMiniAOD::analyze(const edm::Event &iEvent, const edm::EventSet
                 nPi0s++;
               else if (dtr2pdgID == 211 || dtr2pdgID == 321)
                 nPis++;
-              else if (dtr2pdgID == 22) {
-                float dr_taugamma = deltaR2(gentau.eta(), gentau.phi(), dtr2->eta(), dtr2->phi());
-                if (dr_taugamma < 0.3 && dtr2->pt() > 2)
-                  nPhotonsFromTauDecay++;
-              }
             }
           }
         }
-	int genTau_dm = findDecayMode(nPis, nPi0s);
-	decayModeMap.find("gentau")->second->Fill(genTau_dm);
+        int genTau_dm = findDecayMode(nPis, nPi0s);
+        decayModeMap.find("gentau")->second->Fill(genTau_dm);
         dmMigrationMap.find("")->second->Fill(genTau_dm, matchedTau->decayMode());
       }
 
