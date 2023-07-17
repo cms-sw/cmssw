@@ -7,6 +7,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/DoubleSensGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -33,6 +34,7 @@
 #include "TkPhase2OTMeasurementDet.h"
 #include "TkGluedMeasurementDet.h"
 #include "TkStackMeasurementDet.h"
+#include "TkDoubleSensMeasurementDet.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
@@ -172,6 +174,11 @@ void MeasurementTrackerImpl::initialize(const TrackerTopology* trackerTopology) 
   for (unsigned int i = 0; i != theStackDets.size(); ++i)
     initStackDet(theStackDets[i]);
 
+  // and then the double sensor dets
+  sortTKD(theDoubleSensGeomDets);
+  for (unsigned int i = 0; i != theDoubleSensGeomDets.size(); ++i)
+    initDoubleSensDet(theDoubleSensGeomDets[i]);
+
   if (!checkDets())
     throw MeasurementDetException("Number of dets in MeasurementTracker not consistent with TrackerGeometry!");
 }
@@ -235,14 +242,19 @@ void MeasurementTrackerImpl::addDets(const TrackingGeometry::DetContainer& dets,
       //Glued or Stack GeomDet
       const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
       const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(*gd);
+      const DoubleSensGeomDet* doubleSensGeomDet = dynamic_cast<const DoubleSensGeomDet*>(*gd);
 
-      if ((gluedDet == nullptr && stackDet == nullptr) || (gluedDet != nullptr && stackDet != nullptr)) {
-        throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet nor StackDet");
+      if ((gluedDet == nullptr && stackDet == nullptr && doubleSensGeomDet == nullptr) ||
+          (gluedDet != nullptr && stackDet != nullptr && doubleSensGeomDet != nullptr)) {
+        throw MeasurementDetException(
+            "MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet nor StackDet nor DoubleSensGeomDet");
       }
       if (gluedDet != nullptr)
         addGluedDet(gluedDet);
-      else
+      else if (stackDet != nullptr)
         addStackDet(stackDet);
+      else
+        addDoubleSensGeomDet(doubleSensGeomDet);
     }
   }
 }
@@ -287,6 +299,10 @@ void MeasurementTrackerImpl::addStackDet(const StackGeomDet* gd) {
   theStackDets.push_back(TkStackMeasurementDet(gd, thePxDetConditions.pixelCPE()));
 }
 
+void MeasurementTrackerImpl::addDoubleSensGeomDet(const DoubleSensGeomDet* gd) {
+  theDoubleSensGeomDets.push_back(TkDoubleSensMeasurementDet(gd, thePxDetConditions.pixelCPE()));
+}
+
 void MeasurementTrackerImpl::initGluedDet(TkGluedMeasurementDet& det, const TrackerTopology* trackerTopology) {
   const GluedGeomDet& gd = det.specificGeomDet();
   const MeasurementDet* monoDet = findDet(gd.monoDet()->geographicalId());
@@ -308,6 +324,19 @@ void MeasurementTrackerImpl::initStackDet(TkStackMeasurementDet& det) {
     throw MeasurementDetException("MeasurementTracker ERROR: StackDet components not found as MeasurementDets");
   }
   det.init(lowerDet, upperDet);
+  theDetMap[gd.geographicalId()] = &det;
+}
+
+void MeasurementTrackerImpl::initDoubleSensDet(TkDoubleSensMeasurementDet& det) {
+  const DoubleSensGeomDet& gd = det.specificGeomDet();
+  const MeasurementDet* firstDet = findDet(gd.firstDet()->geographicalId());
+  const MeasurementDet* secondDet = findDet(gd.secondDet()->geographicalId());
+  if (firstDet == nullptr || secondDet == nullptr) {
+    edm::LogError("MeasurementDet")
+        << "MeasurementTracker ERROR: DoubleSensDet components not found as MeasurementDets ";
+    throw MeasurementDetException("MeasurementTracker ERROR: DoubleSensDet components not found as MeasurementDets");
+  }
+  det.init(firstDet, secondDet);
   theDetMap[gd.geographicalId()] = &det;
 }
 

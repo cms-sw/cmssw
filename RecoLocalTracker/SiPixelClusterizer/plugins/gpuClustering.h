@@ -163,6 +163,9 @@ namespace gpuClustering {
           printf("too many pixels in module %d: %d > %d\n", thisModuleId, msize - firstPixel, maxPixInModule);
           msize = maxPixInModule + firstPixel;
         }
+#ifdef GPU_DEBUG
+        printf("pixelInModule > %d\n", msize - firstPixel);
+#endif
       }
 
       __syncthreads();

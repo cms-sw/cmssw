@@ -86,7 +86,7 @@ namespace edm {
     class CallImpl;
   }
   namespace eventsetup {
-    class ESRecordsToProxyIndices;
+    class ESRecordsToProductResolverIndices;
   }
 
   class Worker {
@@ -209,7 +209,7 @@ namespace edm {
 
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
-    virtual void updateLookup(eventsetup::ESRecordsToProxyIndices const&) = 0;
+    virtual void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) = 0;
     virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
     virtual void resolvePutIndicies(
         BranchType iBranchType,
@@ -306,7 +306,7 @@ namespace edm {
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const = 0;
 
-    virtual std::vector<ESProxyIndex> const& esItemsToGetFrom(Transition) const = 0;
+    virtual std::vector<ESResolverIndex> const& esItemsToGetFrom(Transition) const = 0;
     virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
 
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,

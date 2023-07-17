@@ -63,6 +63,7 @@ static constexpr int n_clusters_4link = 4 * 3;
 static constexpr int n_crystals_towerEta = 5;
 static constexpr int n_crystals_towerPhi = 5;
 static constexpr int n_crystals_3towers = 3 * 5;
+static constexpr int n_crystals_2towers = 2 * 5;
 static constexpr int n_towers_per_link = 17;
 static constexpr int n_clusters_per_link = 2;
 static constexpr int n_clusters_per_L1card = 8;
@@ -221,6 +222,45 @@ int getPhiMin_card(int card) {
   return phimin;
 }
 
+/* 
+ * Replace in-line region boundary arithmetic with function that accounts for region 0 in negative eta cards
+ * In the indexing convention of the old emulator,  region 0 is the region overlapping with the endcap, and is
+ * only two towers wide in eta.
+ */
+int getEtaMin_region(int card, int nregion) {
+  // Special handling for negative-eta cards
+  if (card % 2 == 0) {
+    if (nregion == 0) {
+      return getEtaMin_card(card);
+    } else {
+      return getEtaMin_card(card) + n_crystals_2towers + n_crystals_3towers * (nregion - 1);
+    }
+  }
+  // Positive-eta cards: same as original in-line arithmetic
+  else {
+    return getEtaMin_card(card) + n_crystals_3towers * nregion;
+  }
+}
+
+/* 
+ * Replace in-line region boundary arithmetic that accounts for region 0 in negative eta cards.
+ * Same as above but for max eta of the region. 
+ */
+int getEtaMax_region(int card, int nregion) {
+  // Special handling for negative-eta cards
+  if (card % 2 == 0) {
+    if (nregion == 0) {
+      return getEtaMin_card(card) + n_crystals_2towers;
+    } else {
+      return getEtaMin_card(card) + n_crystals_2towers + (n_crystals_3towers * nregion);
+    }
+  }
+  // Positive-eta cards: same as original in-line arithmetic
+  else {
+    return getEtaMin_card(card) + n_crystals_3towers * (nregion + 1);
+  }
+}
+
 class L1EGCrystalClusterEmulatorProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1EGCrystalClusterEmulatorProducer(const edm::ParameterSet&);
@@ -260,6 +300,7 @@ private:
     float cWeightedEta_;
     float cWeightedPhi_;
     float ciso_;      // pt of cluster divided by 7x7 ECAL towers
+    float crawIso_;   // raw isolation sum
     float chovere_;   // 5x5 HCAL towers divided by the ECAL cluster pt
     float craweta_;   // coordinates between -1.44 and 1.44
     float crawphi_;   // coordinates between -pi and pi
@@ -299,6 +340,26 @@ private:
     inline const GlobalVector& position() const { return position_; };
     inline const EBDetId& id() const { return id_; };
 
+    /*
+     * Check if it falls within the boundary of a card.
+     */
+    bool isInCard(int cc) const {
+      return (getCrystal_phiID(position().phi()) <= getPhiMax_card(cc) &&
+              getCrystal_phiID(position().phi()) >= getPhiMin_card(cc) &&
+              getCrystal_etaID(position().eta()) <= getEtaMax_card(cc) &&
+              getCrystal_etaID(position().eta()) >= getEtaMin_card(cc));
+    };
+
+    /* 
+     * Check if it falls within the boundary card AND a region in the card.
+     */
+    bool isInCardAndRegion(int cc, int nregion) const {
+      bool isInRegionEta = (getCrystal_etaID(position().eta()) < getEtaMax_region(cc, nregion) &&
+                            getCrystal_etaID(position().eta()) >= getEtaMin_region(cc, nregion));
+      return (isInCard(cc) && isInRegionEta);
+    }
+
+    // Comparison functions with other SimpleCaloHit instances
     inline float deta(SimpleCaloHit& other) const { return position_.eta() - other.position().eta(); };
     int dieta(SimpleCaloHit& other) const {
       if (isEndcapHit_ || other.isEndcapHit())
@@ -322,6 +383,14 @@ private:
         result += 2 * PI;
       return result;
     };
+    int dieta_byCrystalID(SimpleCaloHit& other) const {
+      return (getCrystal_etaID(position_.eta()) - getCrystal_etaID(other.position().eta()));
+    };
+    int diphi_byCrystalID(SimpleCaloHit& other) const {
+      return (getCrystal_phiID(position_.phi()) - getCrystal_phiID(other.position().phi()));
+    };
+    int id_iEta() { return id_.ieta(); }
+    int id_iPhi() { return id_.iphi(); }
     float distanceTo(SimpleCaloHit& other) const {
       // Treat position as a point, measure 3D distance
       // This is used for endcap hits, where we don't have a rectangular mapping
@@ -492,16 +561,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
         SimpleCaloHit centerhit;
 
         for (const auto& hit : ecalhits) {
-          if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
-              getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
-              getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
-              getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) &&
-              // Check that the hit is in the good card
-              getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-              getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
-              !hit.used() && hit.pt() >= 1.0 && hit.pt() > centerhit.pt())  // 3 towers x 5 crystals
-          {
-            // Highest hit in good region with pt>1 and not used in any other cluster
+          // Highest hit in good region with pt>1 and not used in any other cluster
+          if (hit.isInCardAndRegion(cc, nregion) && !hit.used() && hit.pt() >= 1.0 && hit.pt() > centerhit.pt()) {
             centerhit = hit;
             build_cluster = true;
           }
@@ -525,12 +586,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           float e2x2_3 = 0;
           float e2x2_4 = 0;
           for (auto& hit : ecalhits) {
-            if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
-                getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
-                getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
-                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && hit.pt() > 0 &&
-                getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {
+            if (hit.isInCardAndRegion(cc, nregion) && (hit.pt() > 0)) {
               if (abs(hit.dieta(centerhit)) <= 1 && hit.diphi(centerhit) > 2 && hit.diphi(centerhit) <= 7) {
                 rightlobe += hit.pt();
               }
@@ -563,13 +619,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                 e2x5_2 += hit.energy();
               }
             }
-            if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
-                getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
-                getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
-                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && !hit.used() && hit.pt() > 0 &&
-                abs(hit.dieta(centerhit)) <= 1 && abs(hit.diphi(centerhit)) <= 2 &&
-                getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion) {
+            if (hit.isInCardAndRegion(cc, nregion) && !hit.used() && hit.pt() > 0 && abs(hit.dieta(centerhit)) <= 1 &&
+                abs(hit.diphi(centerhit)) <= 2) {
               // clusters 3x5 in etaxphi using only the hits in the corresponding card and in the corresponding 3x4 region
               hit.setUsed(true);
               mc1.cpt += hit.pt();
@@ -579,13 +630,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           }
           if (do_brem && (rightlobe > 0.10 * mc1.cpt or leftlobe > 0.10 * mc1.cpt)) {
             for (auto& hit : ecalhits) {
-              if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
-                  getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
-                  getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
-                  getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && hit.pt() > 0 &&
-                  getCrystal_etaID(hit.position().eta()) < getEtaMin_card(cc) + n_crystals_3towers * (nregion + 1) &&
-                  getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) + n_crystals_3towers * nregion &&
-                  !hit.used()) {
+              if (hit.isInCardAndRegion(cc, nregion) && hit.pt() > 0 && !hit.used()) {
                 if (rightlobe > 0.10 * mc1.cpt && (leftlobe < 0.10 * mc1.cpt or rightlobe > leftlobe) &&
                     abs(hit.dieta(centerhit)) <= 1 && hit.diphi(centerhit) > 2 && hit.diphi(centerhit) <= 7) {
                   mc1.cpt += hit.pt();
@@ -626,7 +671,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
     for (unsigned int jj = 0; jj < unsigned(cluster_list[cc].size()); ++jj) {
       for (unsigned int kk = jj + 1; kk < unsigned(cluster_list[cc].size()); ++kk) {
         if (std::abs(cluster_list[cc][jj].ceta_ - cluster_list[cc][kk].ceta_) < 2 &&
-            std::abs(cluster_list[cc][jj].cphi_ - cluster_list[cc][kk].cphi_) < 2) {  //Diagonale + exact neighbors
+            std::abs(cluster_list[cc][jj].cphi_ - cluster_list[cc][kk].cphi_) < 2) {  // Diagonal + exact neighbors
           if (cluster_list[cc][kk].cpt > cluster_list[cc][jj].cpt) {
             cluster_list[cc][kk].cpt += cluster_list[cc][jj].cpt;
             cluster_list[cc][kk].c5x5_ += cluster_list[cc][jj].c5x5_;
@@ -685,19 +730,15 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
     // Loop over calo ecal hits to get the ECAL towers. Take only hits that have not been used to make clusters
     for (const auto& hit : ecalhits) {
-      if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
-          getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
-          getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
-          getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) &&
-          !hit.used()) {                             // Take all the hits inside the card that have not been used yet
-        for (int jj = 0; jj < n_links_card; ++jj) {  // loop over 4 links per card
+      if (hit.isInCard(cc) && !hit.used()) {
+        for (int jj = 0; jj < n_links_card; ++jj) {                                        // loop over 4 links per card
           if ((getCrystal_phiID(hit.position().phi()) / n_crystals_towerPhi) % 4 == jj) {  // Go to ID tower modulo 4
             for (int ii = 0; ii < n_towers_per_link; ++ii) {
-              //Apply Mark's calibration at the same time (row of the lowest pT, as a function of eta)
+              // Apply Mark's calibration at the same time (row of the lowest pT, as a function of eta)
               if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_per_link == ii) {
                 ECAL_tower_L1Card[jj][ii][cc] += hit.pt() * calib_(0, std::abs(hit.position().eta()));
-                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());  //hit.id().ieta();
-                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());  //hit.id().iphi();
+                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());
+                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());
               }
             }  // end of loop over eta towers
           }
@@ -713,23 +754,19 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(phi);
           }
         }
-
       }  // end of check if inside card
     }    // end of loop over hits to build towers
 
     // Loop over hcal hits to get the HCAL towers.
     for (const auto& hit : hcalhits) {
-      if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
-          getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
-          getCrystal_etaID(hit.position().eta()) <= getEtaMax_card(cc) &&
-          getCrystal_etaID(hit.position().eta()) >= getEtaMin_card(cc) && hit.pt() > 0) {
+      if (hit.isInCard(cc) && hit.pt() > 0) {
         for (int jj = 0; jj < n_links_card; ++jj) {
           if ((getCrystal_phiID(hit.position().phi()) / n_crystals_towerPhi) % n_links_card == jj) {
             for (int ii = 0; ii < n_towers_per_link; ++ii) {
               if ((getCrystal_etaID(hit.position().eta()) / n_crystals_towerEta) % n_towers_per_link == ii) {
                 HCAL_tower_L1Card[jj][ii][cc] += hit.pt();
-                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());  //hit.id().ieta();
-                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());  //hit.id().iphi();
+                iEta_tower_L1Card[jj][ii][cc] = getTower_absoluteEtaID(hit.position().eta());
+                iPhi_tower_L1Card[jj][ii][cc] = getTower_absolutePhiID(hit.position().phi());
               }
             }  // end of loop over eta towers
           }
@@ -958,6 +995,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
       float hcal_nrj = 0.0;
       float isolation = 0.0;
       int ntowers = 0;
+
       for (int iii = 0; iii < n_towers_halfPhi; ++iii) {  // The clusters have to be added to the isolation
         for (unsigned int jjj = 0; jjj < n_clusters_per_L1card && jjj < cluster_list_L2[iii].size(); ++jjj) {
           if (!(iii == ii && jjj == jj)) {
@@ -1002,7 +1040,10 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           }
         }
       }
-      cluster_list_L2[ii][jj].ciso_ = ((isolation) * (25.0 / ntowers)) / cluster_list_L2[ii][jj].cpt;
+      // If we summed over fewer than 5*5 = 25 towers (because the cluster was near the edge), scale up the isolation sum
+      int nTowersIn5x5Window = 5 * 5;
+      cluster_list_L2[ii][jj].ciso_ = ((isolation) * (nTowersIn5x5Window / ntowers)) / cluster_list_L2[ii][jj].cpt;
+      cluster_list_L2[ii][jj].crawIso_ = ((isolation) * (nTowersIn5x5Window / ntowers));
       cluster_list_L2[ii][jj].chovere_ = hcal_nrj / cluster_list_L2[ii][jj].cpt;
     }
   }

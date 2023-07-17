@@ -139,7 +139,7 @@ namespace trklet {
       channelId = 0;
       for (const Stream& streamTrack : *handleTracks) {
         const int nTracks = accumulate(
-            streamTrack.begin(), streamTrack.end(), 0, [](int& sum, const Frame& f) { return sum += f.any() ? 1 : 0; });
+            streamTrack.begin(), streamTrack.end(), 0, [](int sum, const Frame& f) { return sum + (f.any() ? 1 : 0); });
         StreamTrack& accepted = streamAcceptedTracks[channelId];
         StreamTrack& lost = streamLostTracks[channelId];
         auto limit = streamTrack.end();

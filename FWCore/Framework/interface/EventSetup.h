@@ -61,13 +61,13 @@ namespace edm {
     template <typename T>
     explicit EventSetup(T const& info,
                         unsigned int iTransitionID,
-                        ESProxyIndex const* iGetTokenIndices,
+                        ESResolverIndex const* iGetTokenIndices,
                         ESParentContext const& iContext)
         : EventSetup(info.eventSetupImpl(), iTransitionID, iGetTokenIndices, iContext) {}
 
     explicit EventSetup(EventSetupImpl const& iSetup,
                         unsigned int iTransitionID,
-                        ESProxyIndex const* iGetTokenIndices,
+                        ESResolverIndex const* iGetTokenIndices,
                         ESParentContext const& iContext)
         : m_setup{iSetup}, m_getTokenIndices{iGetTokenIndices}, m_context(&iContext), m_id{iTransitionID} {}
     EventSetup(EventSetup const&) = delete;
@@ -168,7 +168,7 @@ namespace edm {
 
     // ---------- member data --------------------------------
     edm::EventSetupImpl const& m_setup;
-    ESProxyIndex const* m_getTokenIndices;
+    ESResolverIndex const* m_getTokenIndices;
     ESParentContext const* m_context;
     unsigned int m_id;
   };

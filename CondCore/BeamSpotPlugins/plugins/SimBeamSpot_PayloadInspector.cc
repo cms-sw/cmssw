@@ -6,21 +6,19 @@
 
 namespace {
 
-  using namespace simBeamSpotPI;
-
   /************************************************
     Display of Sim Beam Spot parameters
   *************************************************/
 
-  typedef DisplayParameters<SimBeamSpotObjects> SimBeamSpotParameters;
+  typedef simBeamSpotPI::DisplayParameters<SimBeamSpotObjects> SimBeamSpotParameters;
 
   /************************************************
     Display of Sim Beam Spot parameters Differences
   *************************************************/
 
-  typedef DisplayParametersDiff<SimBeamSpotObjects, cond::payloadInspector::MULTI_IOV, 1>
+  typedef simBeamSpotPI::DisplayParametersDiff<SimBeamSpotObjects, cond::payloadInspector::MULTI_IOV, 1>
       SimBeamSpotParametersDiffSingleTag;
-  typedef DisplayParametersDiff<SimBeamSpotObjects, cond::payloadInspector::SINGLE_IOV, 2>
+  typedef simBeamSpotPI::DisplayParametersDiff<SimBeamSpotObjects, cond::payloadInspector::SINGLE_IOV, 2>
       SimBeamSpotParametersDiffTwoTags;
 
 }  // namespace

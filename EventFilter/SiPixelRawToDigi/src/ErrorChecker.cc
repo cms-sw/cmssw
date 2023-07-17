@@ -29,12 +29,15 @@ bool ErrorChecker::checkROC(bool& errorsInEvent,
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
   if LIKELY (errorType < 25)
     return true;
+  unsigned int channel = (errorWord >> LINK_shift) & LINK_mask;
+  unsigned int roc = 1;
 
   switch (errorType) {
     case (25): {
-      CablingPathToDetUnit cablingPath = {unsigned(fedId), (errorWord >> LINK_shift) & LINK_mask, 1};
-      if (!theCablingTree->findItem(cablingPath))
+      CablingPathToDetUnit cablingPath = {unsigned(fedId), channel, 1};
+      if (!theCablingTree->findItem(cablingPath)) {
         return false;
+      }
       LogDebug("") << "  invalid ROC=25 found (errorType=25)";
       errorsInEvent = true;
       break;
@@ -55,8 +58,8 @@ bool ErrorChecker::checkROC(bool& errorsInEvent,
     case (29): {
       LogDebug("") << "  timeout on a channel (errorType=29)";
       errorsInEvent = true;
-      if ((errorWord >> OMIT_ERR_shift) & OMIT_ERR_mask) {
-        LogDebug("") << "  ...first errorType=29 error, this gets masked out";
+      if (!((errorWord >> OMIT_ERR_shift) & OMIT_ERR_mask)) {  //exit on the 2nd TO word
+        LogDebug("") << "  ...2nd errorType=29 error, skip";
         return false;
       }
       break;
@@ -81,6 +84,11 @@ bool ErrorChecker::checkROC(bool& errorsInEvent,
       errorsInEvent = true;
       break;
     }
+    case (37):
+    case (38): {
+      roc = (errorWord >> ROC_shift) & ROC_mask;
+      break;
+    }
     default:
       return true;
   };
@@ -88,18 +96,40 @@ bool ErrorChecker::checkROC(bool& errorsInEvent,
   if (includeErrors_) {
     // store error
     SiPixelRawDataError error(errorWord, errorType, fedId);
-    cms_uint32_t detId;
-    detId = errorDetId(converter, errorType, errorWord);
+    cms_uint32_t detId = errorDetIdSimple(converter, errorType, channel, roc);
     errors[detId].push_back(error);
   }
   return false;
 }
 
+// new, simpler version
+cms_uint32_t ErrorChecker::errorDetIdSimple(const SiPixelFrameConverter* converter,
+                                            int errorType,
+                                            unsigned int channel,
+                                            unsigned int roc) const {
+  if (!converter) {
+    return dummyDetId;
+  }
+
+  ElectronicIndex cabling;
+  DetectorIndex detIdx;
+  cabling.dcol = 0;
+  cabling.pxid = 2;
+  cabling.roc = roc;
+  cabling.link = channel;
+  int status = converter->toDetector(cabling, detIdx);
+  if (!status) {
+    return detIdx.rawId;
+  }  // all OK return valid module id
+
+  return dummyDetId;  // failed, return dummy
+}
+
 // this function finds the detId for an error word that cannot be processed in word2digi
 cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const {
-  if (!converter)
+  if (!converter) {
     return dummyDetId;
-
+  }
   ElectronicIndex cabling;
 
   switch (errorType) {
@@ -116,8 +146,9 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter, in
 
       DetectorIndex detIdx;
       int status = converter->toDetector(cabling, detIdx);
-      if (!status)
+      if (!status) {
         return detIdx.rawId;
+      }
       break;
     }
     case 29: {
@@ -143,9 +174,10 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter, in
         chanNmbr = (BLOCK / 2) * 9 + localCH;
       else
         chanNmbr = ((BLOCK - 1) / 2) * 9 + 4 + localCH;
-      if ((chanNmbr < 1) || (chanNmbr > 36))
-        break;  // signifies unexpected result
 
+      if ((chanNmbr < 1) || (chanNmbr > 36)) {
+        break;  // signifies unexpected result  WRONG!
+      }
       // set dummy values for cabling just to get detId from link if in Barrel
       cabling.dcol = 0;
       cabling.pxid = 2;
@@ -153,8 +185,9 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter, in
       cabling.link = chanNmbr;
       DetectorIndex detIdx;
       int status = converter->toDetector(cabling, detIdx);
-      if (!status)
+      if (!status) {
         return detIdx.rawId;
+      }
       break;
     }
     case 37:
@@ -175,5 +208,6 @@ cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter, in
     default:
       break;
   };
+
   return dummyDetId;
 }

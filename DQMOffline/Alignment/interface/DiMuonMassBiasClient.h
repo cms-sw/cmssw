@@ -81,12 +81,14 @@ private:
   void bookMEs(DQMStore::IBooker& ibooker);
   void getMEsToHarvest(DQMStore::IGetter& igetter);
   diMuonMassBias::fitOutputs fitLineShape(TH1* hist, const bool& fitBackground = false) const;
+  diMuonMassBias::fitOutputs fitBWTimesCB(TH1* hist) const;
   void fitAndFillProfile(std::pair<std::string, MonitorElement*> toHarvest, DQMStore::IBooker& iBooker);
   void fitAndFillHisto(std::pair<std::string, MonitorElement*> toHarvest, DQMStore::IBooker& iBooker);
 
   // data members
   const std::string TopFolder_;
   const bool useTH1s_;
+  const bool useBWtimesCB_;
   const bool fitBackground_;
   const bool useRooCBShape_;
   const bool useRooCMSShape_;

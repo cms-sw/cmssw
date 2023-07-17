@@ -67,7 +67,8 @@ for numWF in numWFIB:
 # data 2023 Patatrack pixel-only triplets:   RunJetMET2022D on GPU (optional)
 #           Patatrack ECAL-only:             RunJetMET2022D on GPU (optional)
 #           Patatrack HCAL-only:             RunJetMET2022D on GPU (optional)
-
 workflows[141.008506] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU','HARVESTRUN3_pixelTrackingOnly']]
 workflows[141.008512] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_ECALOnlyGPU','HARVESTRUN3_ECALOnly']]
 workflows[141.008522] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_HCALOnlyGPU','HARVESTRUN3_HCALOnly']]
+#2023 HIon MC Patatrack pixel-only quadruplets on HydjetQ_MinBias_5362GeV_2023_ppReco on GPU (optional)
+workflows[160.502] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_PatatrackGPU','MINIHI2023PROD']]

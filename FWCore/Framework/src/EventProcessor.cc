@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/maker/InputSourceFactory.h"
@@ -726,7 +726,7 @@ namespace edm {
       throw;
     }
     espController_->finishConfiguration();
-    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
+    schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
     if (looper_) {
       constexpr bool mustPrefetchMayGet = true;
       auto const processBlockLookup = preg_->productLookup(InProcess);
@@ -737,7 +737,7 @@ namespace edm {
       looper_->updateLookup(InRun, *runLookup, mustPrefetchMayGet);
       looper_->updateLookup(InLumi, *lumiLookup, mustPrefetchMayGet);
       looper_->updateLookup(InEvent, *eventLookup, mustPrefetchMayGet);
-      looper_->updateLookup(esp_->recordsToProxyIndices());
+      looper_->updateLookup(esp_->recordsToResolverIndices());
     }
     // toerror.succeeded(); // should we add this?
     for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });
@@ -1026,7 +1026,7 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToProxyIndices());
+      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToResolverIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetupImpl());
       looper_->setModuleChanger(nullptr);

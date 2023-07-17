@@ -260,3 +260,6 @@ DEFINE_FWK_MODULE(PixelTrackProducerFromSoAPhase1);
 
 using PixelTrackProducerFromSoAPhase2 = PixelTrackProducerFromSoAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(PixelTrackProducerFromSoAPhase2);
+
+using PixelTrackProducerFromSoAHIonPhase1 = PixelTrackProducerFromSoAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(PixelTrackProducerFromSoAHIonPhase1);

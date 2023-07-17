@@ -19,3 +19,4 @@ void HelixFitOnGPU<TrackerTraits>::deallocateOnGPU() {}
 
 template class HelixFitOnGPU<pixelTopology::Phase1>;
 template class HelixFitOnGPU<pixelTopology::Phase2>;
+template class HelixFitOnGPU<pixelTopology::HIonPhase1>;

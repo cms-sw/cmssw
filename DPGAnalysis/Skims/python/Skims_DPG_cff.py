@@ -402,6 +402,20 @@ SKIMStreamZElectron = cms.FilteredStream(
 
 #####################
 
+from DPGAnalysis.Skims.IsoPhotonEBSkim_cff import *
+isoPhotonEBPath = cms.Path( isoPhotonEBSequence )
+
+SKIMStreamIsoPhotonEB = cms.FilteredStream(
+    responsible = 'L1 DPG',
+    name = 'IsoPhotonEB',
+    paths = ( isoPhotonEBPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################
+
 from DPGAnalysis.Skims.HighMETSkim_cff import *
 condPath = cms.Path(CondMETSelSeq)
 #pfPath = cms.Path(pfMETSelSeq)

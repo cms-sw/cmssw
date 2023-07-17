@@ -145,7 +145,7 @@ public:
   Bool_t AnalysisOutcome(const TString &);
 
 private:
-  Int_t fgMaxCar;  // Max nb of caracters for char*
+  constexpr static Int_t fgMaxCar = 512;  // Max nb of caracters for char*
   TString fTTBELL;
 
   // ----------member data ---------------------------
@@ -177,8 +177,8 @@ private:
   Int_t fCurrentEventNumber;
   Int_t fNbOfSelectedEvents;
 
-  Int_t *fBuildEventDistribBad;
-  Int_t *fBuildEventDistribGood;
+  std::vector<Int_t> fBuildEventDistribBad;
+  std::vector<Int_t> fBuildEventDistribGood;
 
   TString fCfgAnalyzerParametersFilePath;  // absolute path for the analyzer
                                            // parameters files (/afs/etc...)
@@ -209,30 +209,29 @@ private:
   Int_t fStexIndexStop;
 
   Int_t fFedTcc;
-  Int_t *fSMFromFedTcc;
-  Int_t *fESFromFedTcc;
-  Int_t *fDeeFromFedTcc;
+  std::vector<Int_t> fSMFromFedTcc;
+  std::vector<Int_t> fESFromFedTcc;
   Int_t fTreatedFedOrder;
-  Int_t *fFedStatusOrder;
+  std::vector<Int_t> fFedStatusOrder;
   Int_t fFedId;
-  TString *fDeeNumberString;
+  std::vector<std::string> fDeeNumberString;
 
-  Int_t fMaxTreatedStexCounter;
+  Int_t fMaxTreatedStexCounter = 0;
   Int_t fDeeDS5Memo1;
   Int_t fDeeDS5Memo2;
-  Int_t *fStexDigiOK;
-  Int_t *fStexNbOfTreatedEvents;
-  Int_t *fStexStatus;
+  std::vector<Int_t> fStexDigiOK;
+  std::vector<Int_t> fStexNbOfTreatedEvents;
+  std::vector<Int_t> fStexStatus;
 
-  Int_t fMaxFedUnitCounter;
-  Int_t *fFedStatus;
-  Int_t *fFedDigiOK;
-  Int_t *fFedNbOfTreatedEvents;
+  Int_t fMaxFedUnitCounter = 0;
+  std::vector<Int_t> fFedStatus;
+  std::vector<Int_t> fFedDigiOK;
+  std::vector<Int_t> fFedNbOfTreatedEvents;
 
   Int_t fMemoCutOK;
   Int_t fNbOfTreatedStexs;
-  Int_t *fNbOfTreatedFedsInDee;
-  Int_t *fNbOfTreatedFedsInStex;
+  std::vector<Int_t> fNbOfTreatedFedsInDee;
+  std::vector<Int_t> fNbOfTreatedFedsInStex;
 
   Int_t fANY_RUN;
   Int_t fPEDESTAL_STD;
@@ -241,39 +240,36 @@ private:
   Int_t fPHYSICS_GLOBAL;
   Int_t fPEDSIM;
 
-  time_t *fTimeFirst;
-  time_t *fTimeLast;
-  TString *fDateFirst;
-  TString *fDateLast;
+  std::vector<time_t> fTimeFirst;
+  std::vector<time_t> fTimeLast;
+  std::vector<TString> fDateFirst;
+  std::vector<TString> fDateLast;
 
-  Int_t *fMemoDateFirstEvent;
+  std::vector<Int_t> fMemoDateFirstEvent;
 
-  TEcnaObject *fMyEcnaEBObjectManager;
-  TEcnaObject *fMyEcnaEEObjectManager;
+  TEcnaObject fMyEcnaEBObjectManager;
+  TEcnaObject fMyEcnaEEObjectManager;
 
-  TEcnaRun **fMyCnaEBSM;
-  TEcnaRun **fMyCnaEEDee;
+  std::vector<std::unique_ptr<TEcnaRun>> fMyCnaEBSM;
+  std::vector<std::unique_ptr<TEcnaRun>> fMyCnaEEDee;
 
-  TEcnaNumbering *fMyEBNumbering;
-  TEcnaParEcal *fMyEBEcal;
+  TEcnaNumbering fMyEBNumbering;
+  TEcnaParEcal fMyEBEcal;
 
-  TEcnaNumbering *fMyEENumbering;
-  TEcnaParEcal *fMyEEEcal;
+  TEcnaNumbering fMyEENumbering;
+  TEcnaParEcal fMyEEEcal;
 
   //  Int_t** fT2d_LastEvt; // 2D array[channel][sample] max nb of evts read for
   //  a given (channel,sample) Int_t*  fT1d_LastEvt;
 
-  Int_t fMaxRunTypeCounter;
-  Int_t *fRunTypeCounter;
+  constexpr static Int_t fMaxRunTypeCounter = 26;
+  std::array<Int_t, fMaxRunTypeCounter> fRunTypeCounter;
 
-  Int_t fMaxMgpaGainCounter;
-  Int_t *fMgpaGainCounter;
+  constexpr static Int_t fMaxMgpaGainCounter = 4;  // Because chozen gain = 0,1,2,3
+  std::array<Int_t, fMaxMgpaGainCounter> fMgpaGainCounter;
 
-  Int_t fMaxFedIdCounter;
-  Int_t *fFedIdCounter;
-
-  Int_t fMaxCounterQuad;
-  Int_t *fCounterQuad;
+  constexpr static Int_t fMaxFedIdCounter = 54;
+  std::array<Int_t, fMaxFedIdCounter> fFedIdCounter;
 };
 
 #endif

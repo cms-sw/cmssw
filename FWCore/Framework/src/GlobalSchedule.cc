@@ -92,7 +92,7 @@ namespace edm {
   void GlobalSchedule::endJob(ExceptionCollector& collector) { workerManagers_[0].endJob(collector); }
 
   void GlobalSchedule::beginJob(ProductRegistry const& iRegistry,
-                                eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                                eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                                 ProcessBlockHelperBase const& processBlockHelperBase) {
     workerManagers_[0].beginJob(iRegistry, iESIndices, processBlockHelperBase);
   }

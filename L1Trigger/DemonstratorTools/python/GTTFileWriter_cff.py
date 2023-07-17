@@ -15,5 +15,6 @@ GTTFileWriter = cms.EDAnalyzer('GTTFileWriter',
   vertexAssociatedTracksFilename = cms.untracked.string("L1GTTVertexAssociatedTracksFile"),
   outputCorrelatorFilename = cms.untracked.string("L1GTTOutputToCorrelatorFile"),
   outputGlobalTriggerFilename = cms.untracked.string("L1GTTOutputToGlobalTriggerFile"),
+  FileExtension = cms.untracked.string("txt"),
   format = cms.untracked.string("APx")
 )

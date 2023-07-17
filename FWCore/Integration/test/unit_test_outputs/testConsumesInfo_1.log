@@ -127,7 +127,7 @@ For products only read from previous processes, 'skip current process' is added
   IntProducer/'intProducerE'
   ConsumingIntProducer/'testManyConsumingProducer' consumes:
     edm::TriggerResults 'TriggerResults' '' ''
-    edm::TriggerResults '' '' ''
+    edm::TriggerResults 'TriggerResults' '' 'PROD1'
   PoolOutputModule/'out' consumes:
     edm::TriggerResults 'TriggerResults' '' 'PROD1'
     edmtest::IntProduct 'aliasForInt' '' 'PROD1'
@@ -436,7 +436,9 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::IntProduct 'intProducerEndProcessBlock' '' 'COPY', processBlock
   ConsumingIntProducer/'testManyConsumingProducer' consumes:
     edm::TriggerResults 'TriggerResults' '' ''
-    edm::TriggerResults '' '' ''
+    edm::TriggerResults 'TriggerResults' '' 'COPY'
+    edm::TriggerResults 'TriggerResults' '' 'PROD1'
+    edm::TriggerResults 'TriggerResults' '' 'PROD2'
   TestOneOutput/'testOneOutput' consumes:
     edm::TriggerResults 'TriggerResults' '' 'COPY'
     edm::TriggerResults 'TriggerResults' '' 'PROD1'

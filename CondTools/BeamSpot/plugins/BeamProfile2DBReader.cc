@@ -44,7 +44,7 @@
 class BeamProfile2DBReader : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit BeamProfile2DBReader(const edm::ParameterSet&);
-  ~BeamProfile2DBReader() override;
+  ~BeamProfile2DBReader() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -88,8 +88,6 @@ BeamProfile2DBReader::BeamProfile2DBReader(const edm::ParameterSet& iConfig)
     }
   }
 }
-
-BeamProfile2DBReader::~BeamProfile2DBReader() = default;
 
 //
 // member functions
@@ -146,7 +144,7 @@ void BeamProfile2DBReader::analyze(const edm::Event& iEvent, const edm::EventSet
   if (output_.get())
     *output_ << output.str();
   else
-    edm::LogInfo("") << output.str();
+    edm::LogInfo("BeamProfile2DBReader") << output.str();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -169,11 +167,9 @@ void BeamProfile2DBReader::beginJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BeamProfile2DBReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::string>("rawFileName", {});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

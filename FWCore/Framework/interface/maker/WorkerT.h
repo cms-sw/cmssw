@@ -57,7 +57,7 @@ namespace edm {
     SerialTaskQueue* globalLuminosityBlocksQueue() final;
 
     void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) final;
-    void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
+    void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) final;
     void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) final;
 
     void resolvePutIndicies(
@@ -150,7 +150,7 @@ namespace edm {
       return module_->itemsToGetFrom(iType);
     }
 
-    std::vector<ESProxyIndex> const& esItemsToGetFrom(Transition iTransition) const override {
+    std::vector<ESResolverIndex> const& esItemsToGetFrom(Transition iTransition) const override {
       return module_->esGetTokenIndicesVector(iTransition);
     }
     std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition iTransition) const override {

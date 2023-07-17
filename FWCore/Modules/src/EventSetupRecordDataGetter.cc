@@ -29,7 +29,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,7 +56,7 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) final;
+    void registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const&) final;
 
     using RecordToTokens = std::map<eventsetup::EventSetupRecordKey, std::vector<ESGetTokenGeneric>>;
     void doGet(EventSetup const&, RecordToTokens const&) const;
@@ -138,7 +138,7 @@ namespace edm {
                                            edm::Event const& /*iEvent*/,
                                            edm::EventSetup const& iSetup) const {}
 
-  void EventSetupRecordDataGetter::registerLateConsumes(eventsetup::ESRecordsToProxyIndices const& iInfo) {
+  void EventSetupRecordDataGetter::registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const& iInfo) {
     auto const& toGet = pSet_.getParameterSetVector("toGet");
 
     for (auto const& iGet : toGet) {

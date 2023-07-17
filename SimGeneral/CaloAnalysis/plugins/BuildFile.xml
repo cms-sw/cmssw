@@ -1,12 +1,15 @@
 <use name="clhep"/>
+<use name="DataFormats/Math"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/CaloAnalysis"/>
 <use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/TrackingHit"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="SimGeneral/PreMixingModule"/>
@@ -14,9 +17,13 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="Geometry/Records"/>
+<use name="Geometry/MTDCommonData"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/HcalCommonData"/>
+<use name="Geometry/MTDGeometryBuilder"/>
+<use name="Geometry/MTDNumberingBuilder"/>
+
 <library file="*.cc" name="SimGeneralCaloAnalysisPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

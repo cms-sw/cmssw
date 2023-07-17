@@ -286,12 +286,12 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("Verbosity", 0);
-  desc.add<vector<int>>("tdc1", {8,  14, 15, 17, 8,  14, 15, 17, 8,  14, 14, 17, 8,  14, 14, 17, 8,  13, 14, 16, 8,  13,
-                                 14, 16, 8,  12, 14, 15, 8,  12, 14, 15, 7,  12, 13, 15, 7,  12, 13, 15, 7,  12, 13, 15,
-                                 7,  12, 13, 15, 7,  11, 12, 14, 7,  11, 12, 14, 7,  11, 12, 14, 7,  11, 12, 7});
-  desc.add<vector<int>>("tdc2", {10, 16, 17, 19, 10, 16, 17, 19, 10, 16, 16, 19, 10, 16, 16, 19, 10, 15, 16, 18, 10, 15,
-                                 16, 18, 10, 14, 16, 17, 10, 14, 16, 17, 9,  14, 15, 17, 9,  14, 15, 17, 9,  14, 15, 17,
-                                 9,  14, 15, 17, 9,  13, 14, 16, 9,  13, 14, 16, 9,  13, 14, 16, 9,  13, 14, 9});
+  desc.add<vector<int>>("tdc1", {12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+                                 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+                                 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12});
+  desc.add<vector<int>>("tdc2", {14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+                                 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+                                 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14});
   desc.add<bool>("packHBTDC", true);
   desc.add<std::string>("ElectronicsMap", "");
   desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));

@@ -68,6 +68,7 @@ Tracker:
 * T30: Phase2 tilted tracker. Exploratory geometry *only to be used in D91 for now*. Outer Tracker (v8.0.1): based on v8.0.0 with updated TB2S spacing. Inner Tracker (v6.4.0): based on v6.1.5 but TFPX with more realistic module positions.
 * T31: Phase2 tilted tracker. The tracker description is identical to T24/T21. The outer radius of the tracker volume is reduced to avoid a clash with the BTL geometry. The positions of the tracker components are not affected
 * T32: Phase2 tilted tracker. The tracker description is identical to T25. The outer radius of the tracker volume is reduced to avoid a clash with the BTL geometry (same as T31). The positions of the tracker components are not affected. This geometry is intended as a transition step towards a realistic configuration with 3D sensors in TBPX layer1.
+* T33: Phase2 tilted tracker. Identical to T32 apart from a more realistic description of the 3D sensors in TBPX layer1.
 
 Calorimeters:
 * C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables (used in 2026D49)
@@ -81,6 +82,7 @@ Calorimeters:
 * C18: HGCal (v17 version of HGCal geometry created for a new flat file for silicon having 47 layers, ideas of cassettes, new orientation indices for full and partial wafers) + Phase2 HCAL and EB (used in 2026D92)
 * C19: HGCal (v17 version of HGCal geometry as in C18 but without internal cells in the Geant4 geometry definition) + Phase2 HCAL and EB (used in 2026D93)
 * C20: HGCal (v17 version of HGCal geometry as in C18) + HFNose with corrected wafer size + Phase2 HCAL and EB (used in 2026D93)
+* C21: HGCal (v17 version of HGCal geometry as in C19 but turning off a;; dead areas and gaps) + Phase2 HCAL and EB (used in 2026D101)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -117,7 +119,7 @@ The script also handles the common and forward elements of the geometry:
 
 Several detector combinations have been generated:
 * D86 = T24+C17+M10+I14+O8+F6
-* D88 = T24+C17+M10+I15+O9+F6 (Current Phase-2 baseline)
+* D88 = T24+C17+M10+I15+O9+F6
 * D91 = T30+C17+M10+I15+O9+F6
 * D92 = T24+C18+M10+I15+O9+F6
 * D93 = T24+C19+M10+I15+O9+F6
@@ -125,6 +127,8 @@ Several detector combinations have been generated:
 * D95 = T31+C17+M10+I16+O9+F6
 * D96 = T31+C18+M10+I16+O9+F6
 * D97 = T25+C17+M10+I15+O9+F6
-* D98 = T32+C17+M10+I16+O9+F6
+* D98 = T32+C17+M10+I16+O9+F6 (Current Phase-2 baseline from CMSSW_13_2_0_pre2)
 * D99 = T32+C18+M10+I16+O9+F6
+* D100 = T33+C17+M10+I16+O9+F6
+* D101 = T32+C21+M10+I15+O9+F6
 

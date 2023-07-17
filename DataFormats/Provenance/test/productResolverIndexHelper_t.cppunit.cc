@@ -126,8 +126,6 @@ void TestProductResolverIndexHelper::testOneEntry() {
   CPPUNIT_ASSERT(matches.numberOfMatches() == 2);
   CPPUNIT_ASSERT(matches.index(0) == indexEmptyProcess);
   CPPUNIT_ASSERT(matches.index(1) == indexWithProcess);
-  CPPUNIT_ASSERT(matches.isFullyResolved(0) == false);
-  CPPUNIT_ASSERT(matches.isFullyResolved(1) == true);
 
   matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_EventID);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);

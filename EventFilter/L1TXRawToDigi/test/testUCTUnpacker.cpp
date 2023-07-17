@@ -13,8 +13,8 @@ using namespace std;
 
 int main(int argc, char** argv) {
   uint32_t index = 0;
-  uint64_t fedRawDataArray[694];
-  char line[256];
+  uint64_t fedRawDataArray[694] = {0};
+  char line[256] = {0};
   while (cin.getline(line, 256)) {
     char* saveptr;
     char* iToken = strtok_r(line, ":", &saveptr);
@@ -36,6 +36,11 @@ int main(int argc, char** argv) {
       cout << line << endl;
     }
   }
+  if (index == 0) {
+    cout << "error: failed to read input" << std::endl;
+    return 1;
+  }
+
   UCTDAQRawData daqData(fedRawDataArray);
   daqData.print();
   for (uint32_t i = 0; i < daqData.nAMCs(); i++) {

@@ -99,3 +99,6 @@ DEFINE_FWK_MODULE(PixelTrackDumpCUDAPhase1);
 
 using PixelTrackDumpCUDAPhase2 = PixelTrackDumpCUDAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(PixelTrackDumpCUDAPhase2);
+
+using PixelTrackDumpCUDAHIonPhase1 = PixelTrackDumpCUDAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(PixelTrackDumpCUDAHIonPhase1);

@@ -98,3 +98,6 @@ DEFINE_FWK_MODULE(SiPixelRecHitSoAFromCUDAPhase1);
 
 using SiPixelRecHitSoAFromCUDAPhase2 = SiPixelRecHitSoAFromCUDAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromCUDAPhase2);
+
+using SiPixelRecHitSoAFromCUDAHIonPhase1 = SiPixelRecHitSoAFromCUDAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitSoAFromCUDAHIonPhase1);

@@ -41,12 +41,12 @@ process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
-process.load("CondTools.BeamSpot.beamProfile2DBWriter_cfi")
-process.beamProfile2DBWriter.X0        = 0.0458532
-process.beamProfile2DBWriter.Y0        = -0.016966
-process.beamProfile2DBWriter.Z0        = -0.074992
-process.beamProfile2DBWriter.SigmaZ    = 3.6
-process.beamProfile2DBWriter.BetaStar  = 30.0
-process.beamProfile2DBWriter.Emittance = 3.931e-8
+from CondTools.BeamSpot.beamProfile2DBWriter_cfi import beamProfile2DBWriter
+process.BeamProfile2DBWriter = beamProfile2DBWriter.clone(X0        = 0.0458532,
+                                                          Y0        = -0.016966,
+                                                          Z0        = -0.074992,
+                                                          SigmaZ    = 3.6,
+                                                          BetaStar  = 30.0,
+                                                          Emittance = 3.931e-8,)
 
-process.p = cms.Path(process.beamProfile2DBWriter)
+process.p = cms.Path(process.BeamProfile2DBWriter)

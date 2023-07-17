@@ -26,7 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -37,7 +37,7 @@ namespace edm {
   namespace eventsetup {
     class EventSetupProvider;
     class EventSetupsController;
-    class DataProxyProvider;
+    class ESProductResolverProvider;
 
     class ComponentMakerBaseHelper {
     public:
@@ -75,13 +75,13 @@ namespace edm {
 
       // ---------- member functions ---------------------------
     private:
-      void setDescription(DataProxyProvider* iProv, const ComponentDescription& iDesc) const {
+      void setDescription(ESProductResolverProvider* iProv, const ComponentDescription& iDesc) const {
         iProv->setDescription(iDesc);
       }
       void setDescriptionForFinder(EventSetupRecordIntervalFinder* iFinder, const ComponentDescription& iDesc) const {
         iFinder->setDescriptionForFinder(iDesc);
       }
-      void setPostConstruction(DataProxyProvider* iProv, const edm::ParameterSet& iPSet) const {
+      void setPostConstruction(ESProductResolverProvider* iProv, const edm::ParameterSet& iPSet) const {
         //The 'appendToDataLabel' parameter was added very late in the development cycle and since
         // the ParameterSet is not sent to the base class we must set the value after construction
         iProv->setAppendToDataLabel(iPSet);

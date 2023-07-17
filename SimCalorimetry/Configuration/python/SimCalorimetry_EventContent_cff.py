@@ -74,13 +74,12 @@ phase2_hgcal.toModify( SimCalorimetryPREMIX.outputCommands, func=lambda outputCo
 
 # mods for HGCAL
 _phase2_hgc_extraCommands = cms.PSet( # using PSet in order to customize with Modifier
-    v = cms.vstring('keep *_simHGCalUnsuppressedDigis_EE_*', 'keep *_simHGCalUnsuppressedDigis_HEfront_*', 'keep *_simHGCalUnsuppressedDigis_HEback_*', 'keep *_mix_MergedCaloTruth_*'),
+    v = cms.vstring('keep *_simHGCalUnsuppressedDigis_EE_*', 'keep *_simHGCalUnsuppressedDigis_HEfront_*', 'keep *_simHGCalUnsuppressedDigis_HEback_*', 'keep *_mix_MergedCaloTruth_*', 'keep *_mix_MergedMtdTruth_*', 'keep *_mix_MergedMtdTruthLC_*', 'keep *_mix_MergedMtdTruthST_*'),
 )
 # For phase2 premixing switch the sim digi collections to the ones including pileup
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(_phase2_hgc_extraCommands,
-    v = ['keep *_mixData_HGCDigisEE_*', 'keep *_mixData_HGCDigisHEfront_*', 'keep *_mixData_HGCDigisHEback_*', 'keep *_mixData_MergedCaloTruth_*']
-)
+    v = ['keep *_mixData_HGCDigisEE_*', 'keep *_mixData_HGCDigisHEfront_*', 'keep *_mixData_HGCDigisHEback_*', 'keep *_mixData_MergedCaloTruth_*', 'keep *_mix_MergedMtdTruth_*', 'keep *_mix_MergedMtdTruthLC_*', 'keep *_mix_MergedMtdTruthST_*'])
 phase2_hgcal.toModify( SimCalorimetryRAW, outputCommands = SimCalorimetryRAW.outputCommands + _phase2_hgc_extraCommands.v )
 phase2_hgcal.toModify( SimCalorimetryFEVTDEBUG, outputCommands = SimCalorimetryFEVTDEBUG.outputCommands + _phase2_hgc_extraCommands.v )
 phase2_hgcal.toModify( SimCalorimetryRECO, outputCommands = SimCalorimetryRECO.outputCommands + _phase2_hgc_extraCommands.v )

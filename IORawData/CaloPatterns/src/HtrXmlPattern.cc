@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 class HtrXmlPattern : public edm::one::EDAnalyzer<> {
@@ -95,7 +96,12 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;
 
-  iEvent.getManyByType(hbhe);
+  //iEvent.getManyByType(hbhe);
+  throw cms::Exception("UnsupportedFunction") << "HtrXmlPattern::analyze: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
+
   if (hbhe.empty()) {
     edm::LogPrint("HtrXmlPattern") << "No HB/HE Digis.";
   } else {
@@ -119,7 +125,12 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  iEvent.getManyByType(hf);
+  //iEvent.getManyByType(hf);
+  throw cms::Exception("UnsupportedFunction") << "HtrXmlPattern::analyze: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
+
   if (hf.empty()) {
     edm::LogPrint("HtrXmlPattern") << "No HF Digis.";
   } else {
@@ -143,7 +154,12 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  iEvent.getManyByType(ho);
+  //iEvent.getManyByType(ho);
+  throw cms::Exception("UnsupportedFunction") << "HtrXmlPattern::analyze: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
+
   if (ho.empty()) {
     edm::LogPrint("HtrXmlPattern") << "No HO Digis.";
   } else {
