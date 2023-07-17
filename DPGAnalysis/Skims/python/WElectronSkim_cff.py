@@ -110,7 +110,6 @@ PassingHLT = cms.EDProducer("trgMatchGsfElectronProducer",
     l1GtReadoutRecordInputTag = cms.InputTag('gtDigis'),
 )
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-#stage2L1Trigger.toModify(PassingHLT, stageL1Trigger = 2)
 stage2L1Trigger.toModify(PassingHLT,
     stageL1Trigger = 2,
     # Stage-2 L1T inputs
