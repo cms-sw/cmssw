@@ -7,7 +7,7 @@ l1tBJetProducerPuppi = L1BJetProducer.clone(
     jets = ("l1tSCPFL1PuppiExtended", ""),
     maxJets = 6,
     minPt = 10,
-    vtx = ("l1tVertexFinderEmulator","l1verticesEmulation")
+    vtx = ("l1tVertexFinderEmulator","L1VerticesEmulation")
 )
 
 

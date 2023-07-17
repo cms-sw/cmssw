@@ -107,10 +107,10 @@ for algo in additionalProducerAlgorithms:
             producer.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
             producerSum = process.L1GTTInputProducer + producerSum
 
-        process.l1tVertexNTupler.emulationVertexInputTags.append( cms.InputTag(producerName, 'l1verticesEmulation') )
+        process.l1tVertexNTupler.emulationVertexInputTags.append( cms.InputTag(producerName, 'L1VerticesEmulation') )
         process.l1tVertexNTupler.emulationVertexBranchNames.append(algo)
     else:
-        process.l1tVertexNTupler.l1VertexInputTags.append( cms.InputTag(producerName, 'l1vertices') )
+        process.l1tVertexNTupler.l1VertexInputTags.append( cms.InputTag(producerName, 'L1Vertices') )
         process.l1tVertexNTupler.l1VertexBranchNames.append(algo)
         process.l1tVertexNTupler.l1VertexTrackInputs.append('hybrid')
 
@@ -146,7 +146,7 @@ if options.runVariations:
                     setattr(process, producerName, producer)
                     producerNames += [producerName]
                     process.l1tVertexNTupler.extraVertexDescriptions += ['DBSCAN(dist={0},minPt={1},minDensity={2},seedTrackPt{3})'.format(dist, minPt, minDensity, seedTrackPt)]
-                    process.l1tVertexNTupler.extraVertexInputTags.append( cms.InputTag(producerName, 'l1vertices'))
+                    process.l1tVertexNTupler.extraVertexInputTags.append( cms.InputTag(producerName, 'L1Vertices'))
                     producerSum += producer
 
 print "Total number of producers =", len(additionalProducerAlgorithms)+1
