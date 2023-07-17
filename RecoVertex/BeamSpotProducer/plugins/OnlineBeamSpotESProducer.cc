@@ -97,22 +97,23 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
   // 3. If both are newer than the limit threshold return the BS that
   //     passes isGoodBS and has larger sigmaZ
   if (diffBStime1 > limitTime && diffBStime2 > limitTime) {
-    edm::LogInfo("OnlineBeamSpotESProducer") << "Defaulting to fake because both payloads are too old.";
+    edm::LogWarning("OnlineBeamSpotESProducer")
+        << "Defaulting to fake (fallback to PCL) because both payloads are too old.";
     return nullptr;
   } else if (diffBStime2 > limitTime) {
     if (isGoodBS(bs1)) {
       return bs1;
     } else {
-      edm::LogInfo("OnlineBeamSpotESProducer")
-          << "Defaulting to fake because the legacy Beam Spot is not suitable and HLT one is too old.";
+      edm::LogWarning("OnlineBeamSpotESProducer") << "Defaulting to fake (fallback to PCL) because the legacy Beam "
+                                                     "Spot is not suitable and HLT one is too old.";
       return nullptr;
     }
   } else if (diffBStime1 > limitTime) {
     if (isGoodBS(bs2)) {
       return bs2;
     } else {
-      edm::LogInfo("OnlineBeamSpotESProducer")
-          << "Defaulting to fake because the HLT Beam Spot is not suitable and the legacy one too old.";
+      edm::LogWarning("OnlineBeamSpotESProducer") << "Defaulting to fake (fallback to PCL) because the HLT Beam Spot "
+                                                     "is not suitable and the legacy one too old.";
       return nullptr;
     }
   } else {
@@ -121,8 +122,8 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
     } else if (bs2->sigmaZ() >= bs1->sigmaZ() && isGoodBS(bs2)) {
       return bs2;
     } else {
-      edm::LogInfo("OnlineBeamSpotESProducer")
-          << "Defaulting to fake because despite both payloads are young enough, none has passed the fit sanity checks";
+      edm::LogWarning("OnlineBeamSpotESProducer") << "Defaulting to fake (fallback to PCL) because despite both "
+                                                     "payloads are young enough, none has passed the fit sanity checks";
       return nullptr;
     }
   }
@@ -161,7 +162,8 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
   auto legacyRec = iRecord.tryToGetRecord<BeamSpotOnlineLegacyObjectsRcd>();
   auto hltRec = iRecord.tryToGetRecord<BeamSpotOnlineHLTObjectsRcd>();
   if (not legacyRec and not hltRec) {
-    edm::LogInfo("OnlineBeamSpotESProducer") << "None of the Beam Spots in ES are available! \n returning a fake one.";
+    edm::LogWarning("OnlineBeamSpotESProducer")
+        << "None of the Beam Spots in ES are available! \n returning a fake one (fallback to PCL).";
     return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
   }
 
@@ -177,8 +179,8 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
     return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
   } else {
     return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
-    edm::LogInfo("OnlineBeamSpotESProducer")
-        << "None of the Online BeamSpots in the ES is suitable, \n returning a fake one. ";
+    edm::LogWarning("OnlineBeamSpotESProducer")
+        << "None of the Online BeamSpots in the ES is suitable, \n returning a fake one(fallback to PCL).";
   }
 };
 
