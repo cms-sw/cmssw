@@ -26,10 +26,6 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-// 0: region, 1: station, 2: later, 3: module, 4: chamber or iEta
-typedef std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t> ME5IdsKey;
-typedef std::map<ME5IdsKey, dqm::impl::MonitorElement *> MEMap5Ids;
-
 class GEMDQMBase : public DQMEDAnalyzer {
 public:
   // Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
