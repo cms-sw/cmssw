@@ -28,7 +28,7 @@ options.register('outputFileName',
                 VarParsing.VarParsing.varType.string,
                 "output ROOT file name")
 options.register('efficiencyFileName',
-                'DQM_V0001_R000999999__testCampaign__testWorkflow__testDataPeriod.root',
+                'DQM_V0001_R000999999__efficiencyAnalysis__999999__9999999999.root',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "efficiency ROOT file name - output of the EfficiencyTool_2018")

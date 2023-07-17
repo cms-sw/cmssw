@@ -61,7 +61,7 @@ options.register('injectionSchemeFileName',
                 VarParsing.VarParsing.varType.bool,
                 "Injection scheme file name")
 options.register('supplementaryPlots',
-                False,
+                True,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.bool,
                 "should add bin shifted hitTrackDistribution")

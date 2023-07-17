@@ -187,8 +187,8 @@ private:
   float mapXmin_;
   float mapXmax_;
   int mapYbins = 240 / binGroupingY_;
-  float mapYmin = -16.;
-  float mapYmax = 8.;
+  float mapYmin = -12.;
+  float mapYmax = 12.;
   float fitXmin = 45.;
   float fitXmax = 58.;
 
