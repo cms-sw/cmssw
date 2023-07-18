@@ -10,7 +10,7 @@ BTagAndProbeMonitoring = BTagAndProbeMonitoring.clone(
                         dz  = 9999.),
     
     electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
-    elecID    = "egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight", #Electron ID
+    elecID    = "egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight", #Electron ID
     muons     = "muons", # while pfIsolatedMuonsEI are reco::PFCandidate !
     vertices  = "offlinePrimaryVertices",
     
