@@ -6,7 +6,7 @@ BTagAndProbeMonitoring = cms.EDProducer('BTagAndProbe',
   vertices = cms.InputTag('offlinePrimaryVertices'),
   muons = cms.InputTag('muons'),
   electrons = cms.InputTag('gedGsfElectrons'),
-  elecID = cms.InputTag('egmGsfElectronIDsForDQM', 'cutBasedElectronID-Fall17-94X-V1-tight'),
+  elecID = cms.InputTag('egmGsfElectronIDsForDQM', 'cutBasedElectronID-RunIIIWinter22-V1-tight'),
   #jets = cms.InputTag('ak4PFJetsCHS'),
   btagAlgos = cms.VInputTag(
     'pfDeepCSVJetTags:probb',
