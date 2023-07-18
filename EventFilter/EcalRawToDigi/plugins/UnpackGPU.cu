@@ -272,32 +272,53 @@ namespace ecal {
         // get the next channel coordinates
         uint32_t nchannels = (block_length - 1) / 3;
 
+        bool bad_block = false;
+        __shared__ uint32_t ch_with_bad_block;
         // 1 threads per channel in this block
         for (uint32_t ich = 0; ich < nchannels; ich += NTHREADS) {
           auto const i_to_access = ich + threadIdx.x;
-          // threads outside of the range -> leave the loop
-          if (i_to_access >= nchannels)
-            break;
-
-          // inc the channel's counter and get the pos where to store
-          auto const wdata = current_tower_block[1 + i_to_access * 3];
-          uint8_t const stripid = wdata & 0x7;
-          uint8_t const xtalid = (wdata >> 4) & 0x7;
-
-          // check if the stripid and xtalid are in the allowed range and if not skip the rest of the block
-          if (stripid < ElectronicsIdGPU::MIN_STRIPID || stripid > ElectronicsIdGPU::MAX_STRIPID ||
-              xtalid < ElectronicsIdGPU::MIN_XTALID || xtalid > ElectronicsIdGPU::MAX_XTALID) {
-            break;
+          if (i_to_access == 0) {
+            ch_with_bad_block = 999999;
           }
-          if (ich > 0 || threadIdx.x > 0) {
-            // check if the stripid has increased or that the xtalid has increased from the previous data word. If not something is wrong and the rest of the block is skipped.
-            auto const prev_i_to_access = ich + threadIdx.x - 1;
-            auto const prevwdata = current_tower_block[1 + prev_i_to_access * 3];
-            uint8_t const laststripid = prevwdata & 0x7;
-            uint8_t const lastxtalid = (prevwdata >> 4) & 0x7;
-            if ((stripid == laststripid && xtalid <= lastxtalid) || (stripid < laststripid)) {
-              break;
+
+          uint64_t wdata;
+          uint8_t stripid;
+          uint8_t xtalid;
+
+          // threads must be inside the range (no break here because of __syncthreads() afterwards)
+          if (i_to_access < nchannels) {
+            // inc the channel's counter and get the pos where to store
+            wdata = current_tower_block[1 + i_to_access * 3];
+            stripid = wdata & 0x7;
+            xtalid = (wdata >> 4) & 0x7;
+
+            // check if the stripid and xtalid are in the allowed range and if not skip the rest of the block
+            if (stripid < ElectronicsIdGPU::MIN_STRIPID || stripid > ElectronicsIdGPU::MAX_STRIPID ||
+                xtalid < ElectronicsIdGPU::MIN_XTALID || xtalid > ElectronicsIdGPU::MAX_XTALID) {
+              bad_block = true;
             }
+            if (i_to_access > 0) {
+              // check if the stripid has increased or that the xtalid has increased from the previous data word. If not something is wrong and the rest of the block is skipped.
+              auto const prev_i_to_access = ich + threadIdx.x - 1;
+              auto const prevwdata = current_tower_block[1 + prev_i_to_access * 3];
+              uint8_t const laststripid = prevwdata & 0x7;
+              uint8_t const lastxtalid = (prevwdata >> 4) & 0x7;
+              if ((stripid == laststripid && xtalid <= lastxtalid) || (stripid < laststripid)) {
+                bad_block = true;
+              }
+            }
+          }
+
+          // check if this thread has the lowest bad block
+          if (bad_block) {
+            atomicMin(&ch_with_bad_block, i_to_access);
+          }
+
+          __syncthreads();
+
+          // threads outside of the range or bad block detected in this thread or one working on a lower block -> leave the loop
+          if (i_to_access >= nchannels || i_to_access >= ch_with_bad_block) {
+            break;
           }
 
           ElectronicsIdGPU eid{fed2dcc(fed), ttid, stripid, xtalid};
