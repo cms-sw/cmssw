@@ -116,11 +116,11 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
                "file.\n"
             << "The incorrect line is:" << line << std::endl;
       }
-      int subdet;
-      int layer;
-      int moduleU;
-      int moduleV;
-      int numTowers;
+      int subdet = 0;
+      int layer = 0;
+      int moduleU = 0;
+      int moduleV = 0;
+      int numTowers = 0;
       std::stringstream ss(line);
       ss >> subdet >> layer >> moduleU >> moduleV >> numTowers;
       if (numOfWordsInThisRow != (numTowers * numOfWordsPerTower + minNumOfWordsPerRow)) {
@@ -132,9 +132,9 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
       unsigned packed_modID = packLayerSubdetWaferId(subdet, layer, moduleU, moduleV);
       std::vector<unsigned> towers;
       for (int itr_tower = 0; itr_tower < numTowers; itr_tower++) {
-        int iEta_raw;
-        int iPhi_raw;
-        int towerShare;
+        int iEta_raw = 0;
+        int iPhi_raw = 0;
+        int towerShare = 0;
         ss >> iEta_raw >> iPhi_raw >> towerShare;
         int splitDivisor = (subdet == 2) ? splitDivisorScint_ : splitDivisorSilic_;
         if ((towerShare > splitDivisor) || (towerShare < 1)) {
