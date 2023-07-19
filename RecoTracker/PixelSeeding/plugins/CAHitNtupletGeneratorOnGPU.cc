@@ -270,7 +270,7 @@ template <typename TrackerTraits>
 void CAHitNtupletGeneratorOnGPU<TrackerTraits>::fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
   // 87 cm/GeV = 1/(3.8T * 0.3)
   // take less than radius given by the hardPtCut and reject everything below
-  // auto hardCurvCut = 1.f/(0.35 * 87.f); 
+  // auto hardCurvCut = 1.f/(0.35 * 87.f);
   desc.add<double>("ptmin", 0.9)->setComment("Cut on minimum pt");
   desc.add<double>("CAThetaCutBarrel", 0.002)->setComment("Cut on RZ alignement for Barrel");
   desc.add<double>("CAThetaCutForward", 0.003)->setComment("Cut on RZ alignment for Forward");
