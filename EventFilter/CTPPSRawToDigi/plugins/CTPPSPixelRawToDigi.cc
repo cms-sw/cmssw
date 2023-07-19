@@ -22,7 +22,8 @@
 using namespace std;
 
 CTPPSPixelRawToDigi::CTPPSPixelRawToDigi(const edm::ParameterSet& conf)
-    : config_(conf)
+    : config_(conf),
+      eSummary_("CTPPSPixelDataFormatter", "[ctppsPixelRawToDigi]", edm::isDebugEnabled())
 
 {
   FEDRawDataCollection_ = consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("inputLabel"));
@@ -76,7 +77,7 @@ void CTPPSPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
 
     fedIds_ = mapping->fedIds();
 
-    CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
+    CTPPSPixelDataFormatter formatter(mapping->ROCMapping, eSummary_);
     formatter.setErrorStatus(includeErrors_);
 
     bool errorsInEvent = false;
@@ -119,6 +120,10 @@ void CTPPSPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   if (includeErrors_) {
     ev.put(std::move(errorcollection));
   }
+}
+
+void CTPPSPixelRawToDigi::endStream() {
+  eSummary_.printSummary();
 }
 
 DEFINE_FWK_MODULE(CTPPSPixelRawToDigi);
