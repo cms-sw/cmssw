@@ -8,8 +8,6 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const EcalPedestals::Item* aped,
                                                     const EcalMGPAGainRatio* aGain,
                                                     const FullSampleVector& fullpulse,
-                                                    EcalUncalibratedRecHit& uncalibRecHit,
-                                                    float& errOnTime,
                                                     const float targetTimePrecision,
                                                     const bool correctForOOT) const {
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
@@ -100,12 +98,8 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   }
 
   float tM = (t3 + t0) / 2 - GLOBAL_TIME_SHIFT;
-  errOnTime = std::abs(t3 - t0) / ecalPh1::Samp_Period;
-
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
-    //Negative error means that there was a problem with the CC
-    errOnTime = -targetTimePrecision / ecalPh1::Samp_Period;
   }
   return -tM / ecalPh1::Samp_Period;
 }
