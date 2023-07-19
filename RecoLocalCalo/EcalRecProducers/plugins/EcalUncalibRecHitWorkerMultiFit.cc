@@ -638,17 +638,12 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
         float jitter =
-            computeCC_->computeTimeCC(
-                *itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true) +
+            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true) +
             CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
-        float noCorrectedJitter = computeCC_->computeTimeCC(*itdg,
-                                                            amplitudes,
-                                                            aped,
-                                                            aGain,
-                                                            fullpulse,
-                                                            CCtargetTimePrecisionForDelayedPulses_,
-                                                            false) +
-                                  CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
+        float noCorrectedJitter =
+            computeCC_->computeTimeCC(
+                *itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecisionForDelayedPulses_, false) +
+            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);
