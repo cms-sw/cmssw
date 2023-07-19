@@ -33,6 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -47,6 +48,7 @@ public:
   ~SiPixelPhase2DigiToClusterCUDA() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  using GPUAlgo = pixelgpudetails::SiPixelRawToClusterGPUKernel<pixelTopology::Phase2>;
 
 private:
   void acquire(const edm::Event& iEvent,
@@ -63,8 +65,7 @@ private:
 
   cms::cuda::ContextState ctxState_;
 
-  pixelgpudetails::SiPixelRawToClusterGPUKernel gpuAlgo_;
-  std::unique_ptr<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender> wordFedAppender_;
+  GPUAlgo gpuAlgo_;
 
   const bool includeErrors_;
   const SiPixelClusterThresholds clusterThresholds_;
@@ -77,7 +78,11 @@ SiPixelPhase2DigiToClusterCUDA::SiPixelPhase2DigiToClusterCUDA(const edm::Parame
       clusterPutToken_(produces<cms::cuda::Product<SiPixelClustersCUDA>>()),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
-                         iConfig.getParameter<int32_t>("clusterThreshold_otherLayers")} {
+                         iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
+                         static_cast<float>(iConfig.getParameter<double>("ElectronPerADCGain")),
+                         static_cast<int8_t>(iConfig.getParameter<int>("Phase2ReadoutMode")),
+                         static_cast<uint16_t>(iConfig.getParameter<uint32_t>("Phase2DigiBaseline")),
+                         static_cast<uint8_t>(iConfig.getParameter<uint32_t>("Phase2KinkADC"))} {
   if (includeErrors_) {
     digiErrorPutToken_ = produces<cms::cuda::Product<SiPixelDigiErrorsCUDA>>();
   }
@@ -87,8 +92,12 @@ void SiPixelPhase2DigiToClusterCUDA::fillDescriptions(edm::ConfigurationDescript
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("IncludeErrors", true);
-  desc.add<int32_t>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase2.layer1);
-  desc.add<int32_t>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase2.otherLayers);
+  desc.add<int32_t>("clusterThreshold_layer1", 4000);
+  desc.add<int32_t>("clusterThreshold_otherLayers", 4000);
+  desc.add<double>("ElectronPerADCGain", 1500.f);
+  desc.add<int32_t>("Phase2ReadoutMode", 3);
+  desc.add<uint32_t>("Phase2DigiBaseline", 1000);
+  desc.add<uint32_t>("Phase2KinkADC", 8);
   desc.add<edm::InputTag>("InputDigis", edm::InputTag("simSiPixelDigis:Pixel"));
   descriptions.addWithDefaultLabel(desc);
 }

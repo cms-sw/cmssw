@@ -204,6 +204,8 @@ void SiPixelMonitorRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescription
 
 using SiPixelPhase1MonitorRecHitsSoA = SiPixelMonitorRecHitsSoA<pixelTopology::Phase1>;
 using SiPixelPhase2MonitorRecHitsSoA = SiPixelMonitorRecHitsSoA<pixelTopology::Phase2>;
+using SiPixelHIonPhase1MonitorRecHitsSoA = SiPixelMonitorRecHitsSoA<pixelTopology::HIonPhase1>;
 
 DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2MonitorRecHitsSoA);
+DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorRecHitsSoA);

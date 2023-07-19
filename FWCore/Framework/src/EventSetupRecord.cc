@@ -43,14 +43,14 @@ namespace edm {
       if UNLIKELY (aToken.recordType() != key().type()) {
         throwWrongRecordType(aToken.recordType(), key());
       }
-      auto proxyIndex = getTokenIndices_[aToken.index().value()];
-      if UNLIKELY (proxyIndex.value() == std::numeric_limits<int>::max()) {
+      auto resolverIndex = getTokenIndices_[aToken.index().value()];
+      if UNLIKELY (resolverIndex.value() == std::numeric_limits<int>::max()) {
         return false;
       }
 
       const ComponentDescription* cd = nullptr;
       DataKey const* dk = nullptr;
-      return nullptr != impl_->getFromProxyAfterPrefetch(proxyIndex, aGetTransiently, cd, dk);
+      return nullptr != impl_->getFromResolverAfterPrefetch(resolverIndex, aGetTransiently, cd, dk);
     }
 
     bool EventSetupRecord::wasGotten(const DataKey& aKey) const { return impl_->wasGotten(aKey); }

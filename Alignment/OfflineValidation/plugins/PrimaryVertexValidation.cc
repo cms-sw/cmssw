@@ -2613,6 +2613,7 @@ void PrimaryVertexValidation::beginRun(edm::Run const& iRun, edm::EventSetup con
 
   } else if ((pDD->isThere(GeomDetEnumerators::P1PXB)) || (pDD->isThere(GeomDetEnumerators::P1PXEC))) {
     // switch on the phase-1
+    phase_ = PVValHelper::phase1;
     if (debug_) {
       edm::LogInfo("PrimaryVertexValidation")
           << " pixel phase1 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
@@ -2637,7 +2638,7 @@ void PrimaryVertexValidation::beginRun(edm::Run const& iRun, edm::EventSetup con
       etaOfProbe_ = std::min(etaOfProbe_, PVValHelper::max_eta_phase2);
       break;
     default:
-      edm::LogWarning("LogicError") << "Unknown detector phase: " << phase_;
+      throw cms::Exception("LogicError") << "Unknown detector phase: " << phase_;
   }
 
   if (h_etaMax->GetEntries() == 0.) {

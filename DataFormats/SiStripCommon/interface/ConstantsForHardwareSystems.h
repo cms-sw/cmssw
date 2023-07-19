@@ -44,6 +44,7 @@ namespace sistrip {
   static const uint16_t STRIPS_PER_FEDCH = STRIPS_PER_APV * APVS_PER_FEDCH;
   static const uint16_t STRIPS_PER_FEUNIT = STRIPS_PER_FEDCH * FEDCH_PER_FEUNIT;  // 3072
   static const uint16_t STRIPS_PER_FED = STRIPS_PER_FEUNIT * FEUNITS_PER_FED;     // 24576
+  static constexpr float MeVperADCStrip = 9.5665E-4;
 
   // -------------------- FED buffers --------------------
 

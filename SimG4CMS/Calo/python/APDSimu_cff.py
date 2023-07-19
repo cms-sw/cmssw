@@ -5,9 +5,9 @@ def customise(process):
 # add ECAL and HCAL specific Geant4 hits objects
 
     process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-        instanceLabel = cms.untracked.string('EcalValidInfo'),
-        type = cms.string('EcalSimHitsValidProducer'),
-        verbose = cms.untracked.bool(False)
+        instanceLabel = "EcalValidInfo",
+        type = "EcalSimHitsValidProducer",
+        verbose = False
     ))
 
 # use directly the generator output, no Hector

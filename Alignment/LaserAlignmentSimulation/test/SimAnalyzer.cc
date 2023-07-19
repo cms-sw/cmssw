@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -334,7 +335,12 @@ void SimAnalyzer::trackerStatistics(edm::Event const &theEvent, edm::EventSetup 
 
   // get the SimHitContainers
   std::vector<edm::Handle<edm::PSimHitContainer>> theSimHitContainers;
-  theEvent.getManyByType(theSimHitContainers);
+
+  //theEvent.getManyByType(theSimHitContainers);
+  throw cms::Exception("UnsupportedFunction") << "SimAnalyzer::trackerStatistics: "
+                                              << "getManyByType has not been supported by the Framework since 2015. "
+                                              << "This module has been broken since then. Maybe it should be deleted. "
+                                              << "Another possibility is to upgrade to use GetterOfProducts instead.";
 
   LogDebug("SimAnalyzer") << " Geometry node for TrackingGeometry is  " << theTracker << "\n I have "
                           << theTracker->dets().size() << " detectors "

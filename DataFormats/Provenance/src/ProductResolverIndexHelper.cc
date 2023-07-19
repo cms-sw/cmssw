@@ -137,14 +137,6 @@ namespace edm {
     return productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].index();
   }
 
-  bool ProductResolverIndexHelper::Matches::isFullyResolved(unsigned int i) const {
-    if (i >= numberOfMatches_) {
-      throw Exception(errors::LogicError)
-          << "ProductResolverIndexHelper::Matches::isFullyResolved - Argument is out of range.\n";
-    }
-    return (productResolverIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames() != 0U);
-  }
-
   char const* ProductResolverIndexHelper::Matches::processName(unsigned int i) const {
     if (i >= numberOfMatches_) {
       throw Exception(errors::LogicError)

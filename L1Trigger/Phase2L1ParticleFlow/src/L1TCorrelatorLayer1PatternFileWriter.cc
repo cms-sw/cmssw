@@ -61,6 +61,7 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
     inputFileWriter_ =
         std::make_unique<l1t::demo::BoardDataWriter>(l1t::demo::parseFileFormat(fileFormat_),
                                                      iConfig.getParameter<std::string>("inputFileName"),
+                                                     iConfig.getParameter<std::string>("inputFileExtension"),
                                                      nInputFramesPerBX_,
                                                      tmuxFactor_,
                                                      iConfig.getParameter<uint32_t>("maxLinesPerInputFile"),
@@ -93,6 +94,7 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
     outputFileWriter_ =
         std::make_unique<l1t::demo::BoardDataWriter>(l1t::demo::parseFileFormat(fileFormat_),
                                                      iConfig.getParameter<std::string>("outputFileName"),
+                                                     iConfig.getParameter<std::string>("outputFileExtension"),
                                                      nOutputFramesPerBX_,
                                                      tmuxFactor_,
                                                      iConfig.getParameter<uint32_t>("maxLinesPerOutputFile"),

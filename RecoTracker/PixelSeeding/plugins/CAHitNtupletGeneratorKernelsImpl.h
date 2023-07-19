@@ -108,7 +108,7 @@ namespace caHitNtupletGeneratorKernels {
     for (int idx = first, nt = tracks_view.hitIndices().nOnes(); idx < nt; idx += gridDim.x * blockDim.x) {
       if (tracks_view.hitIndices().size(idx) > TrackerTraits::maxHitsOnTrack)  // current real limit
         printf("ERROR %d, %d\n", idx, tracks_view.hitIndices().size(idx));
-      assert(ftracks_view.hitIndices().size(idx) <= TrackerTraits::maxHitsOnTrack);
+      assert(tracks_view.hitIndices().size(idx) <= TrackerTraits::maxHitsOnTrack);
       for (auto ih = tracks_view.hitIndices().begin(idx); ih != tracks_view.hitIndices().end(idx); ++ih)
         assert(int(*ih) < nHits);
     }
@@ -130,17 +130,7 @@ namespace caHitNtupletGeneratorKernels {
              cellNeighbors->size(),
              cellTracks->size(),
              hitToTuple->size());
-// printf("cellTracksSizes;");
-// for (int i = 0; i < cellTracks->size(); i++) {
-//   printf("%d;",cellTracks[i].size());
-// }
-//
-// printf("\n");
-// printf("cellNeighborsSizes;");
-// for (int i = 0; i < cellNeighbors->size(); i++) {
-//   printf("%d;",cellNeighbors[i].size());
-// }
-// printf("\n");
+
 #endif
     }
 

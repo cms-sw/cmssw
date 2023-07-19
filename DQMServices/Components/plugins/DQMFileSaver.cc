@@ -64,8 +64,6 @@ private:
   // needed only for the harvesting step when saving in the endJob
   int irun_;
 
-  // We want to consume all DQMTokens for runs and jobs. But consumesMany is
-  // confused by the labels, so we sue these getters.
   edm::GetterOfProducts<DQMToken> jobmegetter_;
   edm::GetterOfProducts<DQMToken> runmegetter_;
 };

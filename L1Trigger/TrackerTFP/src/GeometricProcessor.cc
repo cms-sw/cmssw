@@ -24,7 +24,7 @@ namespace trackerTFP {
 
   // read in and organize input product (fill vector input_)
   void GeometricProcessor::consume(const TTDTC& ttDTC) {
-    auto validFrame = [](int& sum, const FrameStub& frame) { return sum += frame.first.isNonnull() ? 1 : 0; };
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     int nStubsPP(0);
     for (int channel = 0; channel < dataFormats_->numChannel(Process::pp); channel++) {
       const StreamStub& stream = ttDTC.stream(region_, channel);
@@ -48,7 +48,7 @@ namespace trackerTFP {
       for (deque<StubPP*>& stubs : input)
         for (auto it = stubs.end(); it != stubs.begin();)
           it = (*--it) ? stubs.begin() : stubs.erase(it);
-    auto validStub = [](int& sum, StubPP* stub) { return sum += stub ? 1 : 0; };
+    auto validStub = [](int sum, StubPP* stub) { return sum + (stub ? 1 : 0); };
     int nStubsGP(0);
     for (const vector<deque<StubPP*>>& sector : input_)
       for (const deque<StubPP*>& channel : sector)
@@ -63,7 +63,7 @@ namespace trackerTFP {
       vector<deque<StubGP*>> stacks(dataFormats_->numChannel(Process::pp));
       const int sectorPhi = sector % setup_->numSectorsPhi();
       const int sectorEta = sector / setup_->numSectorsPhi();
-      auto size = [](int& sum, const deque<StubPP*>& stubs) { return sum += stubs.size(); };
+      auto size = [](int sum, const deque<StubPP*>& stubs) { return sum + stubs.size(); };
       const int nStubs = accumulate(inputs.begin(), inputs.end(), 0, size);
       vector<StubGP*> acceptedSector;
       vector<StubGP*> lostSector;

@@ -33,6 +33,7 @@ namespace caHitNtupletGenerator {
 
   //CAParams
   struct CACommon {
+    const uint32_t maxNumberOfDoublets_;
     const uint32_t minHitsPerNtuplet_;
     const float ptmin_;
     const float CAThetaCutBarrel_;
@@ -202,6 +203,7 @@ public:
   using QualityCuts = pixelTrack::QualityCutsT<TrackerTraits>;
   using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
   using CAParams = caHitNtupletGenerator::CAParamsT<TrackerTraits>;
+  using CellCuts = gpuPixelDoublets::CellCutsT<TrackerTraits>;
   using Counters = caHitNtupletGenerator::Counters;
 
   template <typename T>
@@ -226,7 +228,7 @@ public:
   using HitContainer = typename TrackSoA<TrackerTraits>::HitContainer;
 
   CAHitNtupletGeneratorKernels(Params const& params)
-      : params_(params), paramsMaxDoubletes3Quarters_(3 * params.cellCuts_.maxNumberOfDoublets_ / 4) {}
+      : params_(params), paramsMaxDoubletes3Quarters_(3 * params.caParams_.maxNumberOfDoublets_ / 4) {}
 
   ~CAHitNtupletGeneratorKernels() = default;
 
@@ -245,6 +247,7 @@ public:
 
 protected:
   Counters* counters_ = nullptr;
+
   // workspace
   unique_ptr<unsigned char[]> cellStorage_;
   unique_ptr<CellNeighborsVector> device_theCellNeighbors_;
@@ -260,6 +263,8 @@ protected:
   unique_ptr<HitToTuple> device_hitToTuple_;
   unique_ptr<uint32_t[]> device_hitToTupleStorage_;
   typename HitToTuple::View hitToTupleView_;
+
+  unique_ptr<CellCuts> device_cellCuts_;
 
   cms::cuda::AtomicPairCounter* device_hitToTuple_apc_ = nullptr;
 
@@ -303,6 +308,8 @@ class CAHitNtupletGeneratorKernelsGPU : public CAHitNtupletGeneratorKernels<cms:
   using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
   using TkSoAView = TrackSoAView<TrackerTraits>;
 
+  using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
+
 public:
   void launchKernels(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
   void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
@@ -327,6 +334,8 @@ class CAHitNtupletGeneratorKernelsCPU : public CAHitNtupletGeneratorKernels<cms:
 
   using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
   using TkSoAView = TrackSoAView<TrackerTraits>;
+
+  using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
 
 public:
   void launchKernels(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);

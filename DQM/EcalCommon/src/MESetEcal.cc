@@ -100,11 +100,10 @@ namespace ecaldqm {
 
         if (xaxis.nbins == 0) {  // uses preset
           binning::AxisSpecs xdef(binning::getBinning(electronicsMap, actualObject, btype_, isMap, 1, iME));
-          if (xaxis.labels || !xaxis.title.empty()) {  // PSet specifies title / label only
-            std::string *labels(xaxis.labels);
+          if (!xaxis.labels.empty() || !xaxis.title.empty()) {  // PSet specifies title / label only
+            std::vector<string> labels(xaxis.labels);
             std::string title(xaxis.title);
             xaxis = xdef;
-            delete[] xaxis.labels;
             xaxis.labels = labels;
             xaxis.title = title;
           } else
@@ -113,11 +112,10 @@ namespace ecaldqm {
 
         if (isMap && yaxis.nbins == 0) {
           binning::AxisSpecs ydef(binning::getBinning(electronicsMap, actualObject, btype_, isMap, 2, iME));
-          if (yaxis.labels || !yaxis.title.empty()) {  // PSet specifies title / label only
-            std::string *labels(yaxis.labels);
+          if (!yaxis.labels.empty() || !yaxis.title.empty()) {  // PSet specifies title / label only
+            std::vector<string> labels(yaxis.labels);
             std::string title(yaxis.title);
             yaxis = ydef;
-            delete[] yaxis.labels;
             yaxis.labels = labels;
             yaxis.title = title;
           } else
@@ -149,49 +147,51 @@ namespace ecaldqm {
           break;
 
         case MonitorElement::Kind::TH1F:
-          if (xaxis.edges)
-            me = _ibooker.book1D(name, name, xaxis.nbins, xaxis.edges);
-          else
+          if (xaxis.edges.empty())
             me = _ibooker.book1D(name, name, xaxis.nbins, xaxis.low, xaxis.high);
+          else
+            me = _ibooker.book1D(name, name, xaxis.nbins, &(xaxis.edges[0]));
 
           break;
 
         case MonitorElement::Kind::TPROFILE:
-          if (xaxis.edges) {
+          if (xaxis.edges.empty()) {
+            me = _ibooker.bookProfile(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
+          } else {
             // DQMStore bookProfile interface uses double* for bin edges
             double *edges(new double[xaxis.nbins + 1]);
-            std::copy(xaxis.edges, xaxis.edges + xaxis.nbins + 1, edges);
+            std::copy(xaxis.edges.begin(), xaxis.edges.end(), edges);
             me = _ibooker.bookProfile(name, name, xaxis.nbins, edges, yaxis.low, yaxis.high, "");
             delete[] edges;
-          } else
-            me = _ibooker.bookProfile(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
+          }
 
           break;
 
         case MonitorElement::Kind::TH2F:
-          if (xaxis.edges || yaxis.edges) {
+          if (xaxis.edges.empty() && yaxis.edges.empty()) {
+            me = _ibooker.book2D(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);
+          } else {
             binning::AxisSpecs *specs[] = {&xaxis, &yaxis};
             for (int iSpec(0); iSpec < 2; iSpec++) {
-              if (!specs[iSpec]->edges) {
-                specs[iSpec]->edges = new float[specs[iSpec]->nbins + 1];
+              if (!specs[iSpec]->edges.empty()) {
+                specs[iSpec]->edges = std::vector<float>(specs[iSpec]->nbins + 1);
                 int nbins(specs[iSpec]->nbins);
                 double low(specs[iSpec]->low), high(specs[iSpec]->high);
                 for (int i(0); i < nbins + 1; i++)
                   specs[iSpec]->edges[i] = low + (high - low) / nbins * i;
               }
             }
-            me = _ibooker.book2D(name, name, xaxis.nbins, xaxis.edges, yaxis.nbins, yaxis.edges);
-          } else
-            me = _ibooker.book2D(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);
+            me = _ibooker.book2D(name, name, xaxis.nbins, &(xaxis.edges[0]), yaxis.nbins, &(yaxis.edges[0]));
+          }
 
           break;
 
         case MonitorElement::Kind::TPROFILE2D:
-          if (zaxis.edges) {
+          if (!zaxis.edges.empty()) {
             zaxis.low = zaxis.edges[0];
             zaxis.high = zaxis.edges[zaxis.nbins];
           }
-          if (xaxis.edges || yaxis.edges)
+          if (!(xaxis.edges.empty() && yaxis.edges.empty()))
             throw_("Variable bin size for 2D profile not implemented");
           me = _ibooker.bookProfile2D(name,
                                       name,
@@ -220,15 +220,15 @@ namespace ecaldqm {
         if (isMap)
           me->setAxisTitle(zaxis.title, 3);
 
-        if (xaxis.labels) {
+        if (!xaxis.labels.empty()) {
           for (int iBin(1); iBin <= xaxis.nbins; ++iBin)
             me->setBinLabel(iBin, xaxis.labels[iBin - 1], 1);
         }
-        if (yaxis.labels) {
+        if (!yaxis.labels.empty()) {
           for (int iBin(1); iBin <= yaxis.nbins; ++iBin)
             me->setBinLabel(iBin, yaxis.labels[iBin - 1], 2);
         }
-        if (zaxis.labels) {
+        if (!zaxis.labels.empty()) {
           for (int iBin(1); iBin <= zaxis.nbins; ++iBin)
             me->setBinLabel(iBin, zaxis.labels[iBin - 1], 3);
         }
@@ -590,7 +590,8 @@ namespace ecaldqm {
   }
 
   bool MESetEcal::isVariableBinning() const {
-    return (xaxis_ && xaxis_->edges) || (yaxis_ && yaxis_->edges) || (zaxis_ && zaxis_->edges);
+    return (xaxis_ && !xaxis_->edges.empty()) || (yaxis_ && !yaxis_->edges.empty()) ||
+           (zaxis_ && !zaxis_->edges.empty());
   }
 
   std::vector<std::string> MESetEcal::generatePaths(EcalElectronicsMapping const *electronicsMap) const {

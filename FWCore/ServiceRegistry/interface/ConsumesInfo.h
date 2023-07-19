@@ -41,10 +41,6 @@ namespace edm {
     bool skipCurrentProcess() const { return skipCurrentProcess_; }
 
     // This provides information from EDConsumerBase
-    // There a couple cases that need explanation.
-    //
-    // consumesMany
-    //    The label, instance and process are all empty.
     //
     // process is empty - A get will search over processes in reverse
     //    time order (unknown which process the product will be gotten

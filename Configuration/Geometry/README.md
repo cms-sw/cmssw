@@ -119,7 +119,7 @@ The script also handles the common and forward elements of the geometry:
 
 Several detector combinations have been generated:
 * D86 = T24+C17+M10+I14+O8+F6
-* D88 = T24+C17+M10+I15+O9+F6 (Current Phase-2 baseline)
+* D88 = T24+C17+M10+I15+O9+F6
 * D91 = T30+C17+M10+I15+O9+F6
 * D92 = T24+C18+M10+I15+O9+F6
 * D93 = T24+C19+M10+I15+O9+F6
@@ -127,7 +127,7 @@ Several detector combinations have been generated:
 * D95 = T31+C17+M10+I16+O9+F6
 * D96 = T31+C18+M10+I16+O9+F6
 * D97 = T25+C17+M10+I15+O9+F6
-* D98 = T32+C17+M10+I16+O9+F6
+* D98 = T32+C17+M10+I16+O9+F6 (Current Phase-2 baseline from CMSSW_13_2_0_pre2)
 * D99 = T32+C18+M10+I16+O9+F6
 * D100 = T33+C17+M10+I16+O9+F6
 * D101 = T32+C21+M10+I15+O9+F6

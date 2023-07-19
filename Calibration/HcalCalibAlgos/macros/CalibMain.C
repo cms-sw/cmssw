@@ -289,10 +289,10 @@ int main(Int_t argc, Char_t* argv[]) {
       unsigned int k(0), kmax(maxIter);
       std::cout << "Proceed using CalibTree with dupFile:" << dupfile << " rcorFile:" << rcorfile
                 << " trunCate:" << truncate << " useIter:" << useiter << " useMean:" << usemean << " runRange:" << runlo
-                << ":" << runhi << " phiRange:" << phimin << ":" << phimax << "zSide:" << zside << " nvxRange:" << nvxlo
-                << ":" << nvxhi << " sysMode:" << sysmode << " rbxFile:" << rbxfile << " puCorr:" << pucorr
-                << " rcorForm:" << rcorform << " useGen:" << usegen << " exclude:" << exclude << " highEta:" << higheta
-                << " pRange:" << pmin << ":" << pmax << std::endl;
+                << ":" << runhi << " phiRange:" << phimin << ":" << phimax << " zSide:" << zside
+                << " nvxRange:" << nvxlo << ":" << nvxhi << " sysMode:" << sysmode << " rbxFile:" << rbxfile
+                << " puCorr:" << pucorr << " rcorForm:" << rcorform << " useGen:" << usegen << " exclude:" << exclude
+                << " highEta:" << higheta << " pRange:" << pmin << ":" << pmax << std::endl;
       CalibTree t(dupfile,
                   rcorfile,
                   truncate,

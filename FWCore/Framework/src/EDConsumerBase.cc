@@ -21,7 +21,7 @@
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -136,34 +136,6 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
     }
   }
 
-  //now add resolved requests to get many to the end of our list
-  // a get many will have an empty module label
-  for (size_t i = 0, iEnd = m_tokenInfo.size(); i != iEnd; ++i) {
-    //need to copy since pointer could be invalidated by emplace_back
-    auto const info = m_tokenInfo.get<kLookupInfo>(i);
-    if (info.m_branchType == iBranchType && info.m_index.productResolverIndex() == ProductResolverIndexInvalid &&
-        m_tokenLabels[m_tokenInfo.get<kLabels>(i).m_startOfModuleLabel] == '\0') {
-      //find all matching types
-      const auto kind = m_tokenInfo.get<kKind>(i);
-      auto matches = iHelper.relatedIndexes(kind, info.m_type);
-
-      //NOTE: This could be changed to contain the true labels for what is being
-      // requested but for now I want to remember these are part of a get many
-      const LabelPlacement labels = m_tokenInfo.get<kLabels>(i);
-      bool alwaysGet = m_tokenInfo.get<kAlwaysGets>(i);
-      for (unsigned int j = 0; j != matches.numberOfMatches(); ++j) {
-        //only keep the ones that are for a specific data item and not a collection
-        if (matches.isFullyResolved(j)) {
-          auto index = matches.index(j);
-          m_tokenInfo.emplace_back(
-              TokenLookupInfo{info.m_type, index, info.m_index.skipCurrentProcess(), info.m_branchType},
-              alwaysGet,
-              labels,
-              kind);
-        }
-      }
-    }
-  }
   m_tokenInfo.shrink_to_fit();
 
   itemsToGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
@@ -172,7 +144,7 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
   }
 }
 
-void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iPI) {
   // temporarily unfreeze to allow late EventSetup consumes registration
   frozen_ = false;
   registerLateConsumes(iPI);
@@ -181,20 +153,20 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI
   unsigned int index = 0;
   for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
     auto indexInRecord = iPI.indexInRecord(it->m_record, it->m_key);
-    if (indexInRecord != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
+    if (indexInRecord != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
       const char* componentName = &(m_tokenLabels[it->m_startOfComponentName]);
       if (*componentName) {
         auto component = iPI.component(it->m_record, it->m_key);
         if (component->label_.empty()) {
           if (component->type_ != componentName) {
-            indexInRecord = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+            indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
           }
         } else if (component->label_ != componentName) {
-          indexInRecord = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+          indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
         }
       }
     }
-    m_esTokenInfo.get<kESProxyIndex>(index) = indexInRecord;
+    m_esTokenInfo.get<kESResolverIndex>(index) = indexInRecord;
 
     int negIndex = -1 * (index + 1);
     for (auto& items : esItemsToGetFromTransition_) {
@@ -236,10 +208,10 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
     }
   }
 
-  auto index = static_cast<ESProxyIndex::Value_t>(m_esTokenInfo.size());
+  auto index = static_cast<ESResolverIndex::Value_t>(m_esTokenInfo.size());
   m_esTokenInfo.emplace_back(
       ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType, iTag.data().c_str()}, startOfComponentName},
-      ESProxyIndex{-1});
+      ESResolverIndex{-1});
   if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
     throwESConsumesInProcessBlock();
   }
@@ -353,17 +325,6 @@ bool EDConsumerBase::registeredToConsume(ProductResolverIndex iIndex,
                                          BranchType iBranch) const {
   for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd; ++it) {
     if (it->m_index.productResolverIndex() == iIndex and it->m_index.skipCurrentProcess() == skipCurrentProcess and
-        it->m_branchType == iBranch) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch) const {
-  for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd; ++it) {
-    //consumesMany entries do not have their index resolved
-    if (it->m_index.productResolverIndex() == ProductResolverIndexInvalid and it->m_type == iType and
         it->m_branchType == iBranch) {
       return true;
     }
@@ -506,67 +467,47 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(
     const char* const consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
 
     if (not itInfo->m_index.skipCurrentProcess()) {
-      if (*consumedModuleLabel != '\0') {    // not a consumesMany
-        if (*consumedProcessName != '\0') {  // process name is specified in consumes call
-          if (helper.index(
-                  *itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
-              ProductResolverIndexInvalid) {
-            if (processName == consumedProcessName) {
-              insertFoundModuleLabel(*itKind,
-                                     itInfo->m_type,
-                                     consumedModuleLabel,
-                                     consumedProductInstance,
-                                     modules,
-                                     alreadyFound,
-                                     labelsToDesc,
-                                     preg);
-            } else {
-              // Product explicitly from different process than the current process, so must refer to an earlier process (unless it ends up "not found")
-              modulesInPreviousProcessesEmplace(consumedModuleLabel, consumedProcessName);
-            }
-          }
-        } else {  // process name was empty
-          auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
-          for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
-            if (processName == matches.processName(j)) {
-              insertFoundModuleLabel(*itKind,
-                                     itInfo->m_type,
-                                     consumedModuleLabel,
-                                     consumedProductInstance,
-                                     modules,
-                                     alreadyFound,
-                                     labelsToDesc,
-                                     preg);
-            } else {
-              // Product did not match to current process, so must refer to an earlier process (unless it ends up "not found")
-              // Recall that empty process name means "in the latest process" that can change event-by-event
-              modulesInPreviousProcessesEmplace(consumedModuleLabel, matches.processName(j));
-            }
-          }
-        }
-        // consumesMany case
-      } else if (itInfo->m_index.productResolverIndex() == ProductResolverIndexInvalid) {
-        auto matches = helper.relatedIndexes(*itKind, itInfo->m_type);
-        for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
-          if (processName == matches.processName(j)) {
+      assert(*consumedModuleLabel != '\0');  // consumesMany used to create empty labels before we removed consumesMany
+      if (*consumedProcessName != '\0') {    // process name is specified in consumes call
+        if (helper.index(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
+            ProductResolverIndexInvalid) {
+          if (processName == consumedProcessName) {
             insertFoundModuleLabel(*itKind,
                                    itInfo->m_type,
-                                   matches.moduleLabel(j),
-                                   matches.productInstanceName(j),
+                                   consumedModuleLabel,
+                                   consumedProductInstance,
                                    modules,
                                    alreadyFound,
                                    labelsToDesc,
                                    preg);
           } else {
-            modulesInPreviousProcessesEmplace(matches.moduleLabel(j), matches.processName(j));
+            // Product explicitly from different process than the current process, so must refer to an earlier process (unless it ends up "not found")
+            modulesInPreviousProcessesEmplace(consumedModuleLabel, consumedProcessName);
+          }
+        }
+      } else {  // process name was empty
+        auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
+        for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
+          if (processName == matches.processName(j)) {
+            insertFoundModuleLabel(*itKind,
+                                   itInfo->m_type,
+                                   consumedModuleLabel,
+                                   consumedProductInstance,
+                                   modules,
+                                   alreadyFound,
+                                   labelsToDesc,
+                                   preg);
+          } else {
+            // Product did not match to current process, so must refer to an earlier process (unless it ends up "not found")
+            // Recall that empty process name means "in the latest process" that can change event-by-event
+            modulesInPreviousProcessesEmplace(consumedModuleLabel, matches.processName(j));
           }
         }
       }
     } else {
       // The skipCurrentProcess means the same as empty process name,
       // except the current process is skipped. Therefore need to do
-      // the same matching as above. There is no consumesMany branch
-      // in this case.
+      // the same matching as above.
       auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
       for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
         if (processName != matches.processName(j)) {
@@ -624,12 +565,6 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
 }
 
 std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
-  // Use this to eliminate duplicate entries related
-  // to consumesMany items where only the type was specified
-  // and the there are multiple matches. In these cases the
-  // label, instance, and process will be empty.
-  std::set<edm::TypeID> alreadySeenTypes;
-
   std::vector<ConsumesInfo> result;
   auto itAlways = m_tokenInfo.begin<kAlwaysGets>();
   auto itKind = m_tokenInfo.begin<kKind>();
@@ -641,12 +576,7 @@ std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
     const char* consumedInstance = consumedModuleLabel + itLabels->m_deltaToProductInstance;
     const char* consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
 
-    // consumesMany case
-    if (*consumedModuleLabel == '\0') {
-      if (!alreadySeenTypes.insert(itInfo->m_type).second) {
-        continue;
-      }
-    }
+    assert(*consumedModuleLabel != '\0');
 
     // Just copy the information into the ConsumesInfo data structure
     result.emplace_back(itInfo->m_type,

@@ -1,4 +1,4 @@
 <bin name="testUCTUnpacker" file="testUCTUnpacker.cpp">
-  <flags TEST_RUNNER_CMD="cat src/EventFilter/L1TXRawToDigi/test/event_test1.txt | testUCTUnpacker"/>
+  <flags TEST_RUNNER_CMD="cat ${LOCALTOP}/src/EventFilter/L1TXRawToDigi/test/event_test1.txt | testUCTUnpacker"/>
   <use name="EventFilter/L1TXRawToDigi"/>
 </bin>

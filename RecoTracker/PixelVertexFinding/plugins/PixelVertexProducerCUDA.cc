@@ -65,6 +65,7 @@ PixelVertexProducerCUDAT<TrackerTraits>::PixelVertexProducerCUDAT(const edm::Par
                conf.getParameter<bool>("useDensity"),
                conf.getParameter<bool>("useDBSCAN"),
                conf.getParameter<bool>("useIterative"),
+               conf.getParameter<bool>("doSplitting"),
                conf.getParameter<int>("minT"),
                conf.getParameter<double>("eps"),
                conf.getParameter<double>("errmax"),
@@ -92,6 +93,7 @@ void PixelVertexProducerCUDAT<TrackerTraits>::fillDescriptions(edm::Configuratio
   desc.add<bool>("useDensity", true);
   desc.add<bool>("useDBSCAN", false);
   desc.add<bool>("useIterative", false);
+  desc.add<bool>("doSplitting", true);
 
   desc.add<int>("minT", 2);          // min number of neighbours to be "core"
   desc.add<double>("eps", 0.07);     // max absolute distance to cluster
@@ -159,3 +161,6 @@ DEFINE_FWK_MODULE(PixelVertexProducerCUDAPhase1);
 
 using PixelVertexProducerCUDAPhase2 = PixelVertexProducerCUDAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(PixelVertexProducerCUDAPhase2);
+
+using PixelVertexProducerCUDAHIonPhase1 = PixelVertexProducerCUDAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(PixelVertexProducerCUDAHIonPhase1);

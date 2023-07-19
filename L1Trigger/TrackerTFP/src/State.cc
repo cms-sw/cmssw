@@ -105,13 +105,13 @@ namespace trackerTFP {
 
   // Determine quality of completed state
   void State::finish() {
-    auto consistent = [this](int& sum, const StubKF& stub) {
+    auto consistent = [this](int sum, const StubKF& stub) {
       static const DataFormat& phi = dataFormats_->format(Variable::phi, Process::kf);
       static const DataFormat& z = dataFormats_->format(Variable::z, Process::kf);
       // Check stub consistent with helix, allowing for stub uncertainty
       const bool inRange0 = 2. * abs(stub.phi()) - stub.dPhi() < phi.base();
       const bool inRange1 = 2. * abs(stub.z()) - stub.dZ() < z.base();
-      return sum += (inRange0 && inRange1 ? 1 : 0);
+      return sum + (inRange0 && inRange1 ? 1 : 0);
     };
     vector<StubKF> stubs;
     fill(stubs);

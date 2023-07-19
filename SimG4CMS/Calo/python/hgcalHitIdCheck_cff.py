@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from SimG4CMS.Calo.hgcalHitIdCheckEE_cfi import *
 
 hgcalHitIdCheckHEF = hgcalHitIdCheckEE.clone(
-    nameDevice = cms.string("HGCal HE Silicon"),
-    nameSense  = cms.string("HGCalHESiliconSensitive"),
-    caloHitSource = cms.string("HGCHitsHEfront"))
+    nameDevice = "HGCal HE Silicon",
+    nameSense  = "HGCalHESiliconSensitive",
+    caloHitSource = "HGCHitsHEfront")
 
 hgcalHitIdCheckHEB = hgcalHitIdCheckEE.clone(
-    nameDevice = cms.string("HGCal HE Scinitillator"),
-    nameSense  = cms.string("HGCalHEScintillatorSensitive"),
-    caloHitSource = cms.string("HGCHitsHEback"))
+    nameDevice = "HGCal HE Scinitillator",
+    nameSense  = "HGCalHEScintillatorSensitive",
+    caloHitSource = "HGCHitsHEback")

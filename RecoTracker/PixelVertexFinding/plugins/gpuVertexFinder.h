@@ -31,6 +31,7 @@ namespace gpuVertexFinder {
              bool useDensity,
              bool useDBSCAN,
              bool useIterative,
+             bool doSplitting,
              int iminT,      // min number of neighbours to be "core"
              float ieps,     // max absolute distance to cluster
              float ierrmax,  // max error to be "seed"
@@ -40,6 +41,7 @@ namespace gpuVertexFinder {
           useDensity_(useDensity),
           useDBSCAN_(useDBSCAN),
           useIterative_(useIterative),
+          doSplitting_(doSplitting),
           minT(iminT),
           eps(ieps),
           errmax(ierrmax),
@@ -55,6 +57,7 @@ namespace gpuVertexFinder {
     const bool useDensity_;
     const bool useDBSCAN_;
     const bool useIterative_;
+    const bool doSplitting_;
 
     int minT;       // min number of neighbours to be "core"
     float eps;      // max absolute distance to cluster

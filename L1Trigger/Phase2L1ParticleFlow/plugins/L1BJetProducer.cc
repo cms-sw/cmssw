@@ -106,7 +106,7 @@ void L1BJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<int>("nParticles", 10);
   desc.add<double>("minPt", 20);
   desc.add<double>("maxEta", 2.4);
-  desc.add<edm::InputTag>("vtx", edm::InputTag("L1VertexFinderEmulator", "l1verticesEmulation"));
+  desc.add<edm::InputTag>("vtx", edm::InputTag("L1VertexFinderEmulator", "L1VerticesEmulation"));
   descriptions.add("L1BJetProducer", desc);
 }
 

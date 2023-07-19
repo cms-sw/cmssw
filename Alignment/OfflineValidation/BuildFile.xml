@@ -26,6 +26,7 @@
 <use name="rootmath"/>
 <use name="roothistmatrix"/>
 <use name="rootgraphics"/>
+<use name="roofit"/>
 <lib name="MultiProc" />
 <export>
   <lib name="1"/>
