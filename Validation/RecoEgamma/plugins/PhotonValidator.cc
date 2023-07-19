@@ -3241,7 +3241,6 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     //// Get the In Out  CKF tracks from conversions
     e.getByToken(conversionIOTrackPr_Token_, inOutTrkHandle);
 
-
   }  // if !fastSim
 
   //////////////////// Get the MC truth
