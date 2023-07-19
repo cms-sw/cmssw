@@ -198,14 +198,14 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
-  StringCutObjectSelector<reco::MET, true> metSelection_;
-  StringCutObjectSelector<reco::PFJet, true> jetSelection_;
+  StringCutObjectSelector<reco::PFMET> metSelection_;
+  StringCutObjectSelector<reco::PFJet> jetSelection_;
   StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
-  StringCutObjectSelector<reco::Muon, true> muoSelection_;
-  StringCutObjectSelector<reco::Photon, true> phoSelection_;
-  StringCutObjectSelector<reco::PFJet, true> HTdefinition_;
+  StringCutObjectSelector<reco::Muon> muoSelection_;
+  StringCutObjectSelector<reco::Photon> phoSelection_;
+  StringCutObjectSelector<reco::PFJet> HTdefinition_;
 
-  StringCutObjectSelector<reco::Vertex, true> vtxSelection_;
+  StringCutObjectSelector<reco::Vertex> vtxSelection_;
 
   StringCutObjectSelector<reco::Jet, true> bjetSelection_;
 
@@ -228,7 +228,7 @@ private:
   double invMassUppercut_;
   double invMassLowercut_;
   bool opsign_;
-  StringCutObjectSelector<reco::PFJet, true> MHTdefinition_;
+  StringCutObjectSelector<reco::PFJet> MHTdefinition_;
   double MHTcut_;
 
   bool invMassCutInAllMuPairs_;
@@ -1181,7 +1181,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       for (const auto& i_jetTag : bTags) {
         const auto& jetRef = i_jetTag.first;
 
-        if (not bjetSelection_(*dynamic_cast<const reco::Jet*>(jetRef.get()))) {
+        if (not bjetSelection_(*(jetRef.get()))) {
           continue;
         }
 
