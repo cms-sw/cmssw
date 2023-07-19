@@ -687,97 +687,59 @@ namespace edm {
       if (not ci.skipCurrentProcess() and
           (ci.process().empty() or ci.process() == processConfiguration->processName())) {
         auto productModuleLabel = std::string(ci.label());
-        if (productModuleLabel.empty()) {
-          //this is a consumesMany request
-          for (auto const& branch : conditionalModuleBranches) {
-            //check that the conditional module has not been used
-            if (conditionalModules.find(branch.first) == conditionalModules.end()) {
+        bool productFromConditionalModule = false;
+        auto itFound = conditionalModules.find(productModuleLabel);
+        if (itFound == conditionalModules.end()) {
+          //Check to see if this was an alias
+          //note that aliasMap was previously filtered so only the conditional modules remain there
+          auto foundAlias = findBestMatchingAlias(conditionalModuleBranches, aliasMap, productModuleLabel, ci);
+          if (foundAlias) {
+            productModuleLabel = *foundAlias;
+            productFromConditionalModule = true;
+            itFound = conditionalModules.find(productModuleLabel);
+            //check that the alias-for conditional module has not been used
+            if (itFound == conditionalModules.end()) {
               continue;
             }
-            if (ci.kindOfType() == edm::PRODUCT_TYPE) {
-              if (branch.second->unwrappedTypeID() != ci.type()) {
-                continue;
-              }
-            } else {
-              if (not typeIsViewCompatible(
-                      ci.type(), TypeID(branch.second->wrappedType().typeInfo()), branch.second->className())) {
-                continue;
-              }
-            }
-
-            auto condWorker = getWorker(branch.first, proc_pset, workerManager_, preg, prealloc, processConfiguration);
-            assert(condWorker);
-
-            conditionalModules.erase(branch.first);
-
-            auto dependents = tryToPlaceConditionalModules(condWorker,
-                                                           conditionalModules,
-                                                           conditionalModuleBranches,
-                                                           aliasMap,
-                                                           proc_pset,
-                                                           preg,
-                                                           prealloc,
-                                                           processConfiguration);
-            returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
-            returnValue.push_back(condWorker);
           }
         } else {
-          //just a regular consumes
-          bool productFromConditionalModule = false;
-          auto itFound = conditionalModules.find(productModuleLabel);
-          if (itFound == conditionalModules.end()) {
-            //Check to see if this was an alias
-            //note that aliasMap was previously filtered so only the conditional modules remain there
-            auto foundAlias = findBestMatchingAlias(conditionalModuleBranches, aliasMap, productModuleLabel, ci);
-            if (foundAlias) {
-              productModuleLabel = *foundAlias;
-              productFromConditionalModule = true;
-              itFound = conditionalModules.find(productModuleLabel);
-              //check that the alias-for conditional module has not been used
-              if (itFound == conditionalModules.end()) {
-                continue;
-              }
-            }
-          } else {
-            //need to check the rest of the data product info
-            auto findBranches = conditionalModuleBranches.equal_range(productModuleLabel);
-            for (auto itBranch = findBranches.first; itBranch != findBranches.second; ++itBranch) {
-              if (itBranch->second->productInstanceName() == ci.instance()) {
-                if (ci.kindOfType() == PRODUCT_TYPE) {
-                  if (ci.type() == itBranch->second->unwrappedTypeID()) {
-                    productFromConditionalModule = true;
-                    break;
-                  }
-                } else {
-                  //this is a view
-                  if (typeIsViewCompatible(ci.type(),
-                                           TypeID(itBranch->second->wrappedType().typeInfo()),
-                                           itBranch->second->className())) {
-                    productFromConditionalModule = true;
-                    break;
-                  }
+          //need to check the rest of the data product info
+          auto findBranches = conditionalModuleBranches.equal_range(productModuleLabel);
+          for (auto itBranch = findBranches.first; itBranch != findBranches.second; ++itBranch) {
+            if (itBranch->second->productInstanceName() == ci.instance()) {
+              if (ci.kindOfType() == PRODUCT_TYPE) {
+                if (ci.type() == itBranch->second->unwrappedTypeID()) {
+                  productFromConditionalModule = true;
+                  break;
+                }
+              } else {
+                //this is a view
+                if (typeIsViewCompatible(
+                        ci.type(), TypeID(itBranch->second->wrappedType().typeInfo()), itBranch->second->className())) {
+                  productFromConditionalModule = true;
+                  break;
                 }
               }
             }
           }
-          if (productFromConditionalModule) {
-            auto condWorker =
-                getWorker(productModuleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
-            assert(condWorker);
+        }
+        if (productFromConditionalModule) {
+          auto condWorker =
+              getWorker(productModuleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+          assert(condWorker);
 
-            conditionalModules.erase(itFound);
+          conditionalModules.erase(itFound);
 
-            auto dependents = tryToPlaceConditionalModules(condWorker,
-                                                           conditionalModules,
-                                                           conditionalModuleBranches,
-                                                           aliasMap,
-                                                           proc_pset,
-                                                           preg,
-                                                           prealloc,
-                                                           processConfiguration);
-            returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
-            returnValue.push_back(condWorker);
-          }
+          auto dependents = tryToPlaceConditionalModules(condWorker,
+                                                         conditionalModules,
+                                                         conditionalModuleBranches,
+                                                         aliasMap,
+                                                         proc_pset,
+                                                         preg,
+                                                         prealloc,
+                                                         processConfiguration);
+          returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
+          returnValue.push_back(condWorker);
         }
       }
     }

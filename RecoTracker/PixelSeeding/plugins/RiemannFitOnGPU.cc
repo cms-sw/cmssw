@@ -117,3 +117,4 @@ void HelixFitOnGPU<TrackerTraits>::launchRiemannKernelsOnCPU(const TrackingRecHi
 
 template class HelixFitOnGPU<pixelTopology::Phase1>;
 template class HelixFitOnGPU<pixelTopology::Phase2>;
+template class HelixFitOnGPU<pixelTopology::HIonPhase1>;

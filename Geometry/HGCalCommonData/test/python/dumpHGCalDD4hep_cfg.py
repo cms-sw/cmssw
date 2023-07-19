@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun dumpHGCalDD4hep_cfg.py geometry=D92
+#   cmsRun dumpHGCalDD4hep_cfg.py type=V17
 #
-#   Options for geometry D88, D92, D93
+#   Options for type V16, V17, V17Shift, V17n, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -12,11 +12,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
-options.register('geometry',
-                 "D88",
+options.register('type',
+                 "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: V16, V17, V17Shift, V17n, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -31,15 +31,13 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
 process = cms.Process('DUMP',Phase2C17I13M9,dd4hep)
 
-geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
-fileName = "hgcal" + options.geometry + "DD4hep.root"
+geomFile = "Geometry/HGCalCommonData/data/dd4hep/testHGCal" + options.type + ".xml"
+outFile = "hgcal" + options.type + "DD4hep.root"
 
 print("Geometry file Name: ", geomFile)
-print("Dump file Name:     ", fileName)
+print("Dump file Name:     ", outFile)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load(geomFile)
-
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -49,13 +47,15 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
 
+process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
+                                            confGeomXMLFiles = cms.FileInPath(geomFile),
+                                            appendToDataLabel = cms.string('DDHGCal')
+                                            )
 
-process.add_(cms.ESProducer("TGeoMgrFromDdd",
-                            verbose = cms.untracked.bool(False),
-                            level = cms.untracked.int32(14)
-                            ))
+process.testDump = cms.EDAnalyzer("DDTestDumpFile",
+                                  outputFileName = cms.untracked.string(outFile),
+                                  DDDetector = cms.ESInputTag('','DDHGCal')
+                                  )
 
-process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string(fileName))
 
-process.p = cms.Path(process.dump)
+process.p = cms.Path(process.testDump)

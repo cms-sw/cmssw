@@ -42,9 +42,6 @@ namespace edmNew {
       set(icont, item, update);
     }
 
-    //FIXME (it may confuse users as size_type is same type as id_type...)
-    inline void set(Container const &icont, typename Container::Item const &item, bool update = true);
-
     bool isValid() const { return m_offset >= 0; }
 
     inline data_type &operator[](size_type i) { return data()[i]; }
@@ -79,10 +76,13 @@ namespace edmNew {
     unsigned int makeKeyOf(const_iterator ci) const { return ci - &(container().front()); }
 
   private:
+    //FIXME (it may confuse users as size_type is same type as id_type...)
+    inline void set(Container const &icont, typename Container::Item const &item, bool update = true);
+
     DataContainer const &container() const { return *m_data; }
 
     data_type const *data() const {
-      if (m_offset | m_size)
+      if (isValid() || !empty())
         assert(m_data);
       return m_data ? (&((*m_data)[m_offset])) : nullptr;
     }

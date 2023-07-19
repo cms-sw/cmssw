@@ -56,8 +56,7 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::buildDoublets(const HitsCon
                               this->device_theCellTracksContainer_);
 
   // no need to use the Traits allocations, since we know this is being compiled for the CPU
-  //this->device_theCells_ = Traits::template make_unique<GPUCACell[]>(this->params_.cellCuts_.maxNumberOfDoublets_, stream);
-  this->device_theCells_ = std::make_unique<GPUCACell[]>(this->params_.cellCuts_.maxNumberOfDoublets_);
+  this->device_theCells_ = std::make_unique<GPUCACell[]>(this->params_.caParams_.maxNumberOfDoublets_);
   if (0 == nhits)
     return;  // protect against empty events
 
@@ -73,7 +72,8 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::buildDoublets(const HitsCon
                                       hh,
                                       this->isOuterHitOfCell_,
                                       nActualPairs,
-                                      this->params_.cellCuts_);
+                                      this->params_.caParams_.maxNumberOfDoublets_,
+                                      this->device_cellCuts_.get());
 }
 
 template <typename TrackerTraits>
@@ -203,7 +203,7 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::classifyTuples(const HitsCo
                                          this->device_theCellTracks_.get(),
                                          this->isOuterHitOfCell_,
                                          nhits,
-                                         this->params_.cellCuts_.maxNumberOfDoublets_,
+                                         this->params_.caParams_.maxNumberOfDoublets_,
                                          this->counters_);
   }
 
@@ -227,3 +227,4 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::classifyTuples(const HitsCo
 
 template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase1>;
 template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::HIonPhase1>;

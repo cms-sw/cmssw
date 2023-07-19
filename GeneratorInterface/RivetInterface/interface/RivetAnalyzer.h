@@ -19,7 +19,7 @@
 #include <vector>
 #include <string>
 
-class RivetAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class RivetAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   RivetAnalyzer(const edm::ParameterSet &);
 

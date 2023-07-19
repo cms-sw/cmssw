@@ -1183,7 +1183,7 @@ namespace edm {
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry,
-                          eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                          eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase) {
     globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase);
   }
@@ -1209,7 +1209,7 @@ namespace edm {
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
                               const ProductRegistry& iRegistry,
-                              eventsetup::ESRecordsToProxyIndices const& iIndices) {
+                              eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
       if (worker->description()->moduleLabel() == iLabel) {

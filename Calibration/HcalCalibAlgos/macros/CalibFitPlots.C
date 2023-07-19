@@ -2575,7 +2575,7 @@ void PlotHistCorrFactors(char* infile1,
         }
         sprintf(name, "Depth %d (%s)", depths[k], texts[k1].c_str());
       } else {
-        sprintf(name, "Depth %d (%s Mean = %5.3f)", depths[k], texts[k1].c_str(), fitr[k]);
+        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depths[k], text1.c_str(), texts[k1].c_str(), fitr[k]);
       }
       if ((depths[k] == 1) || (k1 <= 1))
         legend->AddEntry(hists[k], name, "lp");

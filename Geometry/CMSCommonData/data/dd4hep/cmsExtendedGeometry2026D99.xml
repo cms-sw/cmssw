@@ -83,8 +83,6 @@
     <Include ref='Geometry/MuonCommonData/data/ge0/TDR_Dev/v4/ge0.xml'/>
     <Include ref='Geometry/MuonCommonData/data/ge0shield/2026/v1/ge0shield.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/brmrotations.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/brm/2026/v1/brm.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumimaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>
@@ -112,7 +110,6 @@
     <Include ref='Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml'/>
     <Include ref='Geometry/GEMGeometryBuilder/data/v12/GEMSpecsFilter.xml'/>
     <Include ref='Geometry/GEMGeometryBuilder/data/v12/GEMSpecs.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/brmsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
     <Include ref='Geometry/MTDSimData/data/v4/mtdsens.xml'/>
     <Include ref='Geometry/HcalSimData/data/HcalProdCuts/2026/v1/HcalProdCuts.xml'/>

@@ -27,7 +27,6 @@
 - EgHLTComCodes
 - EgHLTCutMasks
 - EgHLTDQMCut
-- EgHLTDebugFuncs
 - EgHLTEgCutCodes
 - EgHLTEgCutValues
 - EgHLTEleHLTFilterMon

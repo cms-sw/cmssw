@@ -9,4 +9,5 @@
 #include "DataFormats/HcalDetId/interface/HcalDcsDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDetId/interface/CastorElectronicsId.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>

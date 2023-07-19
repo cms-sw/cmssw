@@ -2,7 +2,8 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckCalo_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99
+#   Options for geometry 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99,
+#                        2026D101
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +17,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99")
+                  "geometry of operations: 2016, 2017, 2021, 2026D88, 2026D92, 2026D93, 2026D99, 2026D101")
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -52,6 +53,11 @@ elif (options.geometry == "2026D99"):
     process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
     baseName = 'Hcal2026D99'
+elif (options.geometry == "2026D101"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D101Reco_cff')
+    baseName = 'Hcal2026D101'
 elif (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)

@@ -42,6 +42,7 @@ namespace L1Analysis {
       puppi_mHt = -999.;
       puppi_mHtPhi = -999.;
       sumEt = -999.;
+      zPt = -999.;
       ecalFlag = 0;
       hcalFlag = 0;
     }
@@ -72,6 +73,7 @@ namespace L1Analysis {
     float puppi_Ht;
     float puppi_mHt;
     float puppi_mHtPhi;
+    float zPt;
     unsigned short ecalFlag;
     unsigned short hcalFlag;
   };

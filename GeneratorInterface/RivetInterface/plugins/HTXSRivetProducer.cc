@@ -29,11 +29,12 @@ using namespace Rivet;
 using namespace edm;
 using namespace std;
 
-class HTXSRivetProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
+class HTXSRivetProducer : public edm::one::EDProducer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HTXSRivetProducer(const edm::ParameterSet& cfg)
       : _hepmcCollection(consumes<HepMCProduct>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
         _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
+    usesResource("Rivet");
     _prodMode = cfg.getParameter<string>("ProductionMode");
     m_HiggsProdMode = HTXS::UNKNOWN;
     _HTXS = nullptr;

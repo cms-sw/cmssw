@@ -711,6 +711,29 @@ tracksValidationTruth = cms.Task(
     VertexAssociatorByPositionAndTracks,
     trackingParticleNumberOfLayersProducer
 )
+
+# HIon modifiers
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+
+trackingParticleHIPixelTrackAssociation = trackingParticleRecoTrackAsssociation.clone(
+    label_tr = "hiConformalPixelTracks",
+    associator = "quickTrackAssociatorByHits",
+)
+
+from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
+
+pixelNtupletFit.toModify(trackingParticleHIPixelTrackAssociation,
+        associator = "quickTrackAssociatorByHitsPreSplitting")
+
+HIPixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.clone(
+    trackAssociation = "trackingParticleHIPixelTrackAssociation"
+)
+
+pp_on_AA.toReplaceWith(tracksValidationTruth, cms.Task(
+    tracksValidationTruth.copy(),
+    trackingParticleHIPixelTrackAssociation,
+    HIPixelVertexAssociatorByPositionAndTracks
+))
 fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
 
 tracksPreValidation = cms.Task(
@@ -744,6 +767,29 @@ tracksValidation = cms.Sequence(
     trackValidatorGsfTracks,
     tracksPreValidation
 )
+
+trackValidatorHILowPtConformalValidator = trackValidator.clone(
+    dirName = "Tracking/HIPixelTrack/",
+    label = [
+        "hiConformalPixelTracks",
+    ],
+    doResolutionPlotsForLabels = ["hiConformalPixelTracks"],
+    trackCollectionForDrCalculation = "hiConformalPixelTracks",
+    associators = ["trackingParticleHIPixelTrackAssociation"],
+    vertexAssociator = "HIPixelVertexAssociatorByPositionAndTracks",
+    dodEdxPlots = False,
+    cores = cms.InputTag(""),
+)
+
+tracksValidationHIonTask = cms.Task(trackValidatorHILowPtConformalValidator) 
+
+tracksValidationHIon = cms.Sequence(
+    tracksValidation.copy(),
+    tracksValidationHIonTask    
+)
+
+pp_on_AA.toReplaceWith(tracksValidation,tracksValidationHIon)
+
 
 from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
 seedingDeepCore.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorJetCore))
@@ -977,6 +1023,15 @@ tracksValidationTrackingOnly = cms.Sequence(
     tracksValidationSeedSelectorsTrackingOnly
 )
 
+
+tracksValidationHIonTrackingOnly = cms.Sequence(
+    tracksValidation.copy(),
+    tracksValidationHIonTask    
+)
+
+pp_on_AA.toReplaceWith(tracksValidationTrackingOnly,tracksValidationHIonTrackingOnly)
+
+
 ####################################################################################################
 ### Pixel tracking only mode (placeholder for now)
 trackingParticlePixelTrackAsssociation = trackingParticleRecoTrackAsssociation.clone(
@@ -1035,8 +1090,9 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
     label_vertex = "pixelVertices",
     vertexAssociator = "PixelVertexAssociatorByPositionAndTracks",
     dodEdxPlots = False,
-    cores = cms.InputTag(""),
+    cores = cms.InputTag("")
 )
+
 trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dirName = "Tracking/PixelTrackFromPV/",
     label = [

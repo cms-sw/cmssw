@@ -108,3 +108,6 @@ DEFINE_FWK_MODULE(PixelTrackSoAFromCUDAPhase1);
 
 using PixelTrackSoAFromCUDAPhase2 = PixelTrackSoAFromCUDAT<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(PixelTrackSoAFromCUDAPhase2);
+
+using PixelTrackSoAFromCUDAHIonPhase1 = PixelTrackSoAFromCUDAT<pixelTopology::HIonPhase1>;
+DEFINE_FWK_MODULE(PixelTrackSoAFromCUDAHIonPhase1);

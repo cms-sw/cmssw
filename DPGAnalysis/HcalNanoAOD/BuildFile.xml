@@ -1,0 +1,9 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DQM/HcalCommon"/>
+<use name="boost"/>
+<export>
+  <lib name="1"/>
+</export>
+

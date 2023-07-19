@@ -2,6 +2,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Reflection"/>
 <use name="FWCore/Catalog"/>
 <use name="rootcore"/>
 <export>

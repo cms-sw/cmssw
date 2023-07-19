@@ -44,8 +44,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 #    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 #)
 
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
+from RecoTracker.PixelSeeding.PixelTripletHLTGenerator_cfi import *
+from RecoTracker.PixelSeeding.PixelTripletLargeTipGenerator_cfi import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
 process.triplets = cms.EDAnalyzer("HitTripletProducer",

@@ -3654,8 +3654,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     h2_scl_EoEtrueVsrecOfflineVertices->Fill((*vertexCollectionHandle).size(),
                                              bestGsfElectron.ecalEnergy() / mcIter->p());
-    h2_scl_EoEtrueVsrecOfflineVertices_Extended->Fill((*vertexCollectionHandle).size(),
-                                                      bestGsfElectron.ecalEnergy() / mcIter->p());
     if (isEBflag)
       h2_scl_EoEtrueVsrecOfflineVertices_barrel->Fill((*vertexCollectionHandle).size(),
                                                       bestGsfElectron.ecalEnergy() / mcIter->p());

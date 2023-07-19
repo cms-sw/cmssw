@@ -122,8 +122,8 @@ process.out_step = cms.EndPath(process.output)
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
-process.g4SimHits.HCalSD.TestNumberingScheme = False
-process.CaloSimHitStudy.TestNumbering = False
+#process.g4SimHits.HCalSD.TestNumberingScheme = False
+process.CaloSimHitStudy.TestNumbering = True
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,

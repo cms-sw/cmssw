@@ -111,6 +111,8 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # Don't forget to set flags properly in miniAOD_tools.py                      
     computeMuonIDMVA = cms.bool(False),
     mvaIDTrainingFile      = cms.FileInPath("RecoMuon/MuonIdentification/data/mvaID.onnx"),
+    mvaIDwpMedium = cms.double(0.08),
+    mvaIDwpTight = cms.double(0.20),
     recomputeBasicSelectors = cms.bool(True),
     useJec = cms.bool(True),
     mvaDrMax = cms.double(0.4),
