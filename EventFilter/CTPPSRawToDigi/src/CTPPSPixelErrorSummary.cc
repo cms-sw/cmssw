@@ -8,9 +8,9 @@ void CTPPSPixelErrorSummary::add(const std::string& message, const std::string& 
   if (eIt == m_errors.end()) {
     m_errors.emplace(message, 1);
     edm::LogError(m_category) << message << ": " << details
-                                << (m_debug ? ""
-                                            : "\nNote: further warnings of this type will be suppressed (this can be "
-                                              "changed by enabling debugging printout)");
+                              << (m_debug ? ""
+                                          : "\nNote: further warnings of this type will be suppressed (this can be "
+                                            "changed by enabling debugging printout)");
   } else {
     ++(eIt->second);
     if (m_debug) {
