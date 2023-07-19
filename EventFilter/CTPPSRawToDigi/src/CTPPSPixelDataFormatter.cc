@@ -41,7 +41,6 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
                                                  CTPPSPixelErrorSummary& eSummary)
     : m_WordCounter(0),
       m_Mapping(mapping),
-      //    m_ErrorSummary("CTPPSPixelDataFormatter", "[ctppsPixelRawToDigi]", edm::isDebugEnabled())
       m_ErrorSummary(eSummary)
 
 {
