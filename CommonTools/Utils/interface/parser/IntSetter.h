@@ -9,7 +9,7 @@
  * \version $Revision: 1.1 $
  *
  */
-#include "CommonTools/Utils/interface/IntStack.h"
+#include "CommonTools/Utils/interface/parser/IntStack.h"
 
 namespace reco {
   namespace parser {

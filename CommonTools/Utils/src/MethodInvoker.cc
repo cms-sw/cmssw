@@ -1,7 +1,7 @@
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 
 #include "CommonTools/Utils/src/ExpressionVar.h"
-#include "CommonTools/Utils/interface/MethodSetter.h"
+#include "CommonTools/Utils/interface/parser/MethodSetter.h"
 #include "CommonTools/Utils/src/findMethod.h"
 #include "CommonTools/Utils/interface/returnType.h"
 #include "FWCore/Utilities/interface/EDMException.h"

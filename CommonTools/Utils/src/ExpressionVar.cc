@@ -1,5 +1,5 @@
 #include "CommonTools/Utils/src/ExpressionVar.h"
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Reflection/interface/FunctionWithDict.h"

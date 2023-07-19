@@ -10,9 +10,9 @@
  * \version $Revision: 1.3 $
  *
  */
-#include "CommonTools/Utils/interface/ExpressionStack.h"
-#include "CommonTools/Utils/interface/MethodStack.h"
-#include "CommonTools/Utils/interface/TypeStack.h"
+#include "CommonTools/Utils/interface/parser/ExpressionStack.h"
+#include "CommonTools/Utils/interface/parser/MethodStack.h"
+#include "CommonTools/Utils/interface/parser/TypeStack.h"
 
 namespace reco {
   namespace parser {

@@ -9,7 +9,7 @@
  *
  */
 
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 #include <vector>
 
 namespace reco {

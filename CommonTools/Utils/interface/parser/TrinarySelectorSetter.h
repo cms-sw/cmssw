@@ -10,10 +10,10 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/SelectorStack.h"
-#include "CommonTools/Utils/interface/ComparisonStack.h"
-#include "CommonTools/Utils/interface/ExpressionStack.h"
-#include "CommonTools/Utils/interface/TrinarySelector.h"
+#include "CommonTools/Utils/interface/parser/SelectorStack.h"
+#include "CommonTools/Utils/interface/parser/ComparisonStack.h"
+#include "CommonTools/Utils/interface/parser/ExpressionStack.h"
+#include "CommonTools/Utils/interface/parser/TrinarySelector.h"
 
 namespace reco {
   namespace parser {

@@ -10,8 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/ComparisonStack.h"
-#include "CommonTools/Utils/interface/Comparison.h"
+#include "CommonTools/Utils/interface/parser/ComparisonStack.h"
+#include "CommonTools/Utils/interface/parser/Comparison.h"
 #ifdef BOOST_SPIRIT_DEBUG
 #include <iostream>
 #include <string>

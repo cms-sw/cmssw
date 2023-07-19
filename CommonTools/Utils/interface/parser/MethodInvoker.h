@@ -1,7 +1,7 @@
 #ifndef CommonTools_Utils_MethodInvoker_h
 #define CommonTools_Utils_MethodInvoker_h
 
-#include "CommonTools/Utils/interface/AnyMethodArgument.h"
+#include "CommonTools/Utils/interface/parser/AnyMethodArgument.h"
 #include "CommonTools/Utils/interface/TypeCode.h"
 #include "FWCore/Reflection/interface/FunctionWithDict.h"
 #include "FWCore/Reflection/interface/MemberWithDict.h"

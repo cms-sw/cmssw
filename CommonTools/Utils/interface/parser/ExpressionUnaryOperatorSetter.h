@@ -10,8 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/ExpressionUnaryOperator.h"
-#include "CommonTools/Utils/interface/ExpressionStack.h"
+#include "CommonTools/Utils/interface/parser/ExpressionUnaryOperator.h"
+#include "CommonTools/Utils/interface/parser/ExpressionStack.h"
 #ifdef BOOST_SPIRIT_DEBUG
 #include <string>
 #include <iostream>

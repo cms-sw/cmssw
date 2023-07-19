@@ -10,8 +10,8 @@
  *
  */
 
-#include "CommonTools/Utils/interface/ExpressionBase.h"
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/ExpressionBase.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 #include "CommonTools/Utils/interface/TypeCode.h"
 
 #include <vector>

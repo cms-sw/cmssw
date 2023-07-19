@@ -7,9 +7,9 @@
  *
  */
 
-#include "CommonTools/Utils/interface/MethodStack.h"
-#include "CommonTools/Utils/interface/TypeStack.h"
-#include "CommonTools/Utils/interface/MethodArgumentStack.h"
+#include "CommonTools/Utils/interface/parser/MethodStack.h"
+#include "CommonTools/Utils/interface/parser/TypeStack.h"
+#include "CommonTools/Utils/interface/parser/MethodArgumentStack.h"
 
 namespace reco {
   namespace parser {
