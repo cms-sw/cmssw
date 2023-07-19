@@ -9,6 +9,7 @@ GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg)
   tagOH_ = consumes<GEMOHStatusCollection>(cfg.getParameter<edm::InputTag>("OHInputLabel"));
   tagAMC_ = consumes<GEMAMCStatusCollection>(cfg.getParameter<edm::InputTag>("AMCInputLabel"));
   tagAMC13_ = consumes<GEMAMC13StatusCollection>(cfg.getParameter<edm::InputTag>("AMC13InputLabel"));
+  useDBEMap_ = cfg.getParameter<bool>("useDBEMap");
 
   nAMCSlots_ = cfg.getParameter<Int_t>("AMCSlots");
 
@@ -25,13 +26,13 @@ void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descri
   desc.add<Int_t>("AMCSlots", 13);
   desc.addUntracked<std::string>("runType", "relval");
   desc.addUntracked<std::string>("logCategory", "GEMDAQStatusSource");
+  desc.add<bool>("useDBEMap", true);
 
   descriptions.add("GEMDAQStatusSource", desc);
 }
 
 void GEMDAQStatusSource::LoadROMap(edm::EventSetup const &iSetup) {
-  //if (useDBEMap_)
-  if (true) {
+  if (useDBEMap_) {
     const auto &chMap = iSetup.getData(gemChMapToken_);
     auto gemChMap = std::make_unique<GEMChMap>(chMap);
 
@@ -128,6 +129,7 @@ void GEMDAQStatusSource::SetLabelOHStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "L1A FIFO near full", 2);
   h2Status->setBinLabel(unBinPos++, "Event size warn", 2);
   h2Status->setBinLabel(unBinPos++, "Invalid VFAT", 2);
+  h2Status->setBinLabel(unBinPos++, "missing VFATs", 2);
   h2Status->setBinLabel(unBinPos++, "Event FIFO full", 2);
   h2Status->setBinLabel(unBinPos++, "Input FIFO full", 2);
   h2Status->setBinLabel(unBinPos++, "L1A FIFO full", 2);
@@ -154,6 +156,7 @@ void GEMDAQStatusSource::SetLabelVFATStatus(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "Invalid header", 2);
   h2Status->setBinLabel(unBinPos++, "AMC EC mismatch", 2);
   h2Status->setBinLabel(unBinPos++, "AMC BC mismatch", 2);
+  h2Status->setBinLabel(unBinPos++, "missing VFAT", 2);
 }
 
 void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &iSetup) {
@@ -198,14 +201,14 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   }
 
   mapStatusOH_ =
-      MEMap3Inf(this, "oh_status", "OptoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
+      MEMap4Inf(this, "oh_status", "OptoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
 
-  mapStatusWarnVFATPerLayer_ = MEMap3Inf(
+  mapStatusWarnVFATPerLayer_ = MEMap4Inf(
       this, "vfat_statusWarnSum", "VFAT reporting warnings", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
-  mapStatusErrVFATPerLayer_ = MEMap3Inf(
+  mapStatusErrVFATPerLayer_ = MEMap4Inf(
       this, "vfat_statusErrSum", "VFAT reporting errors", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapStatusVFATPerCh_ =
-      MEMap4Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
+      MEMap5Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
   if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE || nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
     mapStatusOH_.TurnOff();
@@ -244,18 +247,17 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   }
 }
 
-int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
-  MEStationInfo &stationInfo = mapStationInfo_[key];
+int GEMDAQStatusSource::ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) {
+  ME3IdsKey key3 = key4Tokey3(key);
+  MEStationInfo &stationInfo = mapStationInfo_[key3];
 
   Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
-  Int_t nNewMinIdxChamber = stationInfo.nNumModules_ * (stationInfo.nMinIdxChamber_ - 1) + 1;
-  Int_t nNewMaxIdxChamber = stationInfo.nNumModules_ * stationInfo.nMaxIdxChamber_;
-
-  nNewNumCh *= stationInfo.nNumModules_;
+  Int_t nNewMinIdxChamber = (stationInfo.nMinIdxChamber_ - 1) + 1;
+  Int_t nNewMaxIdxChamber = stationInfo.nMaxIdxChamber_;
 
   mapStatusOH_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
   mapStatusOH_.bookND(bh, key);
-  mapStatusOH_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber, stationInfo.nNumModules_);
+  mapStatusOH_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber);
 
   if (mapStatusOH_.isOperating()) {
     SetLabelOHStatus(mapStatusOH_.FindHist(key));
@@ -266,25 +268,28 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   mapStatusWarnVFATPerLayer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
   mapStatusWarnVFATPerLayer_.SetBinConfY(nNumVFATPerModule, -0.5);
   mapStatusWarnVFATPerLayer_.bookND(bh, key);
-  mapStatusWarnVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber, stationInfo.nNumModules_);
+  mapStatusWarnVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber);
   mapStatusWarnVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapStatusErrVFATPerLayer_.SetBinConfX(nNewNumCh, nNewMinIdxChamber - 0.5, nNewMaxIdxChamber + 0.5);
   mapStatusErrVFATPerLayer_.SetBinConfY(nNumVFATPerModule, -0.5);
   mapStatusErrVFATPerLayer_.bookND(bh, key);
-  mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber, stationInfo.nNumModules_);
+  mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1, -1, nNewMinIdxChamber);
   mapStatusErrVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   return 0;
 }
 
-int GEMDAQStatusSource::ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) {
-  ME3IdsKey key3 = key4Tokey3(key);
+int GEMDAQStatusSource::ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) {
+  ME4IdsKey key4 = key5Tokey4(key);
+  ME3IdsKey key3 = key4Tokey3(key4);
   MEStationInfo &stationInfo = mapStationInfo_[key3];
 
-  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/VFATStatus_" + getNameDirLayer(key3));
+  Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
 
-  mapStatusVFATPerCh_.SetBinConfX(stationInfo.nMaxVFAT_, -0.5);
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/VFATStatus_" + getNameDirLayer(key4));
+
+  mapStatusVFATPerCh_.SetBinConfX(nNumVFATPerModule, -0.5);
   mapStatusVFATPerCh_.bookND(bh, key);
   mapStatusVFATPerCh_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 1);
   if (mapStatusVFATPerCh_.isOperating()) {
@@ -315,16 +320,16 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     return;
   }
 
-  std::map<ME4IdsKey, bool> mapChamberAll;
-  std::map<ME4IdsKey, bool> mapChamberWarning;
-  std::map<ME4IdsKey, bool> mapChamberError;
-  std::map<ME4IdsKey, bool> mapChamberVFATWarning;
-  std::map<ME4IdsKey, bool> mapChamberVFATError;
-  std::map<ME4IdsKey, bool> mapChamberOHWarning;
-  std::map<ME4IdsKey, bool> mapChamberOHError;
-  std::map<ME4IdsKey, bool> mapChamberAMCWarning;
-  std::map<ME4IdsKey, bool> mapChamberAMCError;
-  std::map<ME4IdsKey, bool> mapChamberAMC13Error;
+  std::map<ME5IdsKey, bool> mapChamberAll;
+  std::map<ME5IdsKey, bool> mapChamberWarning;
+  std::map<ME5IdsKey, bool> mapChamberError;
+  std::map<ME5IdsKey, bool> mapChamberVFATWarning;
+  std::map<ME5IdsKey, bool> mapChamberVFATError;
+  std::map<ME5IdsKey, bool> mapChamberOHWarning;
+  std::map<ME5IdsKey, bool> mapChamberOHError;
+  std::map<ME5IdsKey, bool> mapChamberAMCWarning;
+  std::map<ME5IdsKey, bool> mapChamberAMCError;
+  std::map<ME5IdsKey, bool> mapChamberAMC13Error;
 
   for (auto amc13It = gemAMC13->begin(); amc13It != gemAMC13->end(); ++amc13It) {
     int fedId = (*amc13It).first;
@@ -374,9 +379,13 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       } else {
         auto &listChamber = mapAMC13ToListChamber_[fedId];
         for (auto gid : listChamber) {
-          ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
-          if (bErr)
-            mapChamberAMC13Error[key4Ch] = false;
+          ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
+          MEStationInfo &stationInfo = mapStationInfo_[key3];
+          for (int nIdxModule = 1; nIdxModule <= stationInfo.nNumModules_; nIdxModule++) {
+            ME5IdsKey key5Ch{gid.region(), gid.station(), gid.layer(), nIdxModule, gid.chamber()};
+            if (bErr)
+              mapChamberAMC13Error[key5Ch] = false;
+          }
         }
       }
     }
@@ -438,136 +447,159 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       } else {
         auto &listChamber = mapAMCToListChamber_[{fedId, nAMCNum}];
         for (auto gid : listChamber) {
-          ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};
-          if (bErr)
-            mapChamberAMCError[key4Ch] = false;
-          if (bWarn)
-            mapChamberAMCWarning[key4Ch] = false;
+          ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
+          MEStationInfo &stationInfo = mapStationInfo_[key3];
+          for (int nIdxModule = 1; nIdxModule <= stationInfo.nNumModules_; nIdxModule++) {
+            ME5IdsKey key5Ch{gid.region(), gid.station(), gid.layer(), nIdxModule, gid.chamber()};
+            if (bErr)
+              mapChamberAMCError[key5Ch] = false;
+            if (bWarn)
+              mapChamberAMCWarning[key5Ch] = false;
+          }
         }
       }
     }
   }
 
+  std::map<ME5IdsKey, uint32_t> map_missingVFATs;
+  std::map<ME5IdsKey, uint32_t> map_vfatMask;
+
   for (auto ohIt = gemOH->begin(); ohIt != gemOH->end(); ++ohIt) {
     GEMDetId gid = (*ohIt).first;
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
-    ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), gid.chamber()};  // WARNING: Chamber, not iEta
     MEStationInfo &stationInfo = mapStationInfo_[key3];
+
+    Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
 
     const GEMOHStatusCollection::Range &range = (*ohIt).second;
     for (auto OHStatus = range.first; OHStatus != range.second; ++OHStatus) {
       Int_t nIdxModule = getIdxModule(gid.station(), OHStatus->chamberType());
-      Int_t nCh = (gid.chamber() - 1) * stationInfo.nNumModules_ + nIdxModule;
-      ME4IdsKey key4Mod{gid.region(), gid.station(), gid.layer(), nCh};  // WARNING: Chamber+Module, not iEta
+      Int_t nCh = gid.chamber();
+      ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), nIdxModule};
+      ME5IdsKey key5Mod{
+          gid.region(), gid.station(), gid.layer(), nIdxModule, nCh};  // WARNING: Chamber+Module, not iEta
+
+      auto vfatMask = OHStatus->vfatMask();
+      map_missingVFATs[key5Mod] = OHStatus->missingVFATs();
+      map_vfatMask[key5Mod] = vfatMask;
+
+      for (Int_t i = 0; i < nNumVFATPerModule; i++) {
+        if ((vfatMask & (1 << i)) == 0) {
+          // -16: A sufficient large number to avoid any effect from a buggy filling
+          mapStatusErrVFATPerLayer_.Fill(key4, nCh, i, -16);
+        }
+      }
 
       GEMOHStatus::Warnings warnings{OHStatus->warnings()};
       if (warnings.EvtNF)
-        mapStatusOH_.Fill(key3, nCh, 2);
+        mapStatusOH_.Fill(key4, nCh, 2);
       if (warnings.InNF)
-        mapStatusOH_.Fill(key3, nCh, 3);
+        mapStatusOH_.Fill(key4, nCh, 3);
       if (warnings.L1aNF)
-        mapStatusOH_.Fill(key3, nCh, 4);
+        mapStatusOH_.Fill(key4, nCh, 4);
       if (warnings.EvtSzW)
-        mapStatusOH_.Fill(key3, nCh, 5);
+        mapStatusOH_.Fill(key4, nCh, 5);
       if (warnings.InValidVFAT)
-        mapStatusOH_.Fill(key3, nCh, 6);
+        mapStatusOH_.Fill(key4, nCh, 6);
+      if (warnings.missingVFAT)
+        mapStatusOH_.Fill(key4, nCh, 7);
 
       GEMOHStatus::Errors errors{OHStatus->errors()};
       if (errors.EvtF)
-        mapStatusOH_.Fill(key3, nCh, 7);
+        mapStatusOH_.Fill(key4, nCh, 8);
       if (errors.InF)
-        mapStatusOH_.Fill(key3, nCh, 8);
+        mapStatusOH_.Fill(key4, nCh, 9);
       if (errors.L1aF)
-        mapStatusOH_.Fill(key3, nCh, 9);
+        mapStatusOH_.Fill(key4, nCh, 10);
       if (errors.EvtSzOFW)
-        mapStatusOH_.Fill(key3, nCh, 10);
+        mapStatusOH_.Fill(key4, nCh, 11);
       if (errors.Inv)
-        mapStatusOH_.Fill(key3, nCh, 11);
+        mapStatusOH_.Fill(key4, nCh, 12);
       if (errors.OOScAvV)
-        mapStatusOH_.Fill(key3, nCh, 12);
+        mapStatusOH_.Fill(key4, nCh, 13);
       if (errors.OOScVvV)
-        mapStatusOH_.Fill(key3, nCh, 13);
+        mapStatusOH_.Fill(key4, nCh, 14);
       if (errors.BxmAvV)
-        mapStatusOH_.Fill(key3, nCh, 14);
+        mapStatusOH_.Fill(key4, nCh, 15);
       if (errors.BxmVvV)
-        mapStatusOH_.Fill(key3, nCh, 15);
+        mapStatusOH_.Fill(key4, nCh, 16);
       if (errors.InUfw)
-        mapStatusOH_.Fill(key3, nCh, 16);
+        mapStatusOH_.Fill(key4, nCh, 17);
       if (errors.badVFatCount)
-        mapStatusOH_.Fill(key3, nCh, 17);
+        mapStatusOH_.Fill(key4, nCh, 18);
 
       Bool_t bWarn = warnings.wcodes != 0;
       Bool_t bErr = errors.codes != 0;
       if (!bWarn && !bErr)
-        mapStatusOH_.Fill(key3, nCh, 1);
+        mapStatusOH_.Fill(key4, nCh, 1);
       if (bWarn)
-        mapChamberOHWarning[key4Mod] = false;
+        mapChamberOHWarning[key5Mod] = false;
       if (bErr)
-        mapChamberOHError[key4Mod] = false;
-      mapChamberAll[key4Mod] = true;
+        mapChamberOHError[key5Mod] = false;
+      mapChamberAll[key5Mod] = true;
     }
   }
 
   for (auto vfatIt = gemVFAT->begin(); vfatIt != gemVFAT->end(); ++vfatIt) {
     GEMDetId gid = (*vfatIt).first;
     ME3IdsKey key3{gid.region(), gid.station(), gid.layer()};
-    ME4IdsKey key4Ch{gid.region(), gid.station(), gid.layer(), gid.chamber()};  // WARNING: Chamber, not iEta
-    MEStationInfo &stationInfo = mapStationInfo_[key3];
-    Int_t nNumVFATPerModule = stationInfo.nMaxVFAT_ / stationInfo.nNumModules_;
 
     const GEMVFATStatusCollection::Range &range = (*vfatIt).second;
 
     for (auto vfatStat = range.first; vfatStat != range.second; ++vfatStat) {
       Int_t nIdxModule = getIdxModule(gid.station(), vfatStat->chamberType());
-      Int_t nCh = (gid.chamber() - 1) * stationInfo.nNumModules_ + nIdxModule;
-      ME4IdsKey key4Mod{gid.region(), gid.station(), gid.layer(), nCh};  // WARNING: Chamber+Module, not iEta
+      Int_t nCh = gid.chamber();
+      ME4IdsKey key4{gid.region(), gid.station(), gid.layer(), nIdxModule};
+      ME5IdsKey key5Mod{
+          gid.region(), gid.station(), gid.layer(), nIdxModule, nCh};  // WARNING: Chamber+Module, not iEta
 
       Int_t nIdxVFAT = vfatStat->vfatPosition();
       Int_t nIdxVFATMod = nIdxVFAT;
-      if (stationInfo.nNumModules_ > 1) {
-        nIdxVFATMod = nIdxVFAT + nNumVFATPerModule * (nIdxModule - 1);
+
+      auto missingVFATs = map_missingVFATs[key5Mod] & (1 << nIdxVFAT);
+      auto vfatMask = map_vfatMask[key5Mod] & (1 << nIdxVFAT);
+
+      if (vfatMask == 0) {
+        continue;
       }
+
+      Bool_t bErr_masked = missingVFATs != 0;
 
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};
       if (warnings.basicOFW)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFATMod, 2);
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 2);
       if (warnings.zeroSupOFW)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFATMod, 3);
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 3);
 
       GEMVFATStatus::Errors errors{(uint8_t)vfatStat->errors()};
       if (errors.vc)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFATMod, 4);
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 4);
       if (errors.InValidHeader)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFATMod, 5);
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 5);
       if (errors.EC)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFATMod, 6);
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 6);
       if (errors.BC)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFATMod, 7);
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 7);
+      if (bErr_masked)
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 8);
 
       Bool_t bWarn = warnings.wcodes != 0;
-      Bool_t bErr = errors.codes != 0;
+      Bool_t bErr = errors.codes != 0 || bErr_masked;
       if (!bWarn && !bErr)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFATMod, 1);
+        mapStatusVFATPerCh_.Fill(key5Mod, nIdxVFATMod, 1);
       if (bWarn)
-        mapChamberVFATWarning[key4Mod] = false;
+        mapChamberVFATWarning[key5Mod] = false;
       if (bErr)
-        mapChamberVFATError[key4Mod] = false;
+        mapChamberVFATError[key5Mod] = false;
       if (bWarn)
-        mapStatusWarnVFATPerLayer_.Fill(key3, nCh, nIdxVFAT);
+        mapStatusWarnVFATPerLayer_.Fill(key4, nCh, nIdxVFAT);
       if (bErr)
-        mapStatusErrVFATPerLayer_.Fill(key3, nCh, nIdxVFAT);
-      mapChamberAll[key4Mod] = true;
+        mapStatusErrVFATPerLayer_.Fill(key4, nCh, nIdxVFAT);
+      mapChamberAll[key5Mod] = true;
     }
   }
 
   if (nRunType_ == GEMDQM_RUNTYPE_ALLPLOTS || nRunType_ == GEMDQM_RUNTYPE_ONLINE) {
-    // Summarizing all presence of status of each chamber
-    for (auto const &[key4, bErr] : mapChamberAll) {
-      ME3IdsKey key3 = key4Tokey3(key4);
-      Int_t nChamber = keyToChamber(key4);
-      h2SummaryStatusAll->Fill(nChamber, mapStationToIdx_[key3]);
-    }
-
     // Summarizing all presence of status of each chamber
     FillStatusSummaryPlot(mapChamberAll, h2SummaryStatusAll);
     // Summarizing all the error and warning occupancy
