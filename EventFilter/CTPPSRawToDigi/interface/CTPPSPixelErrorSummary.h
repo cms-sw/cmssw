@@ -6,8 +6,8 @@
 
 class CTPPSPixelErrorSummary {
 public:
-CTPPSPixelErrorSummary(const std::string& category, const std::string& name, bool debug = false)
-  : m_debug(debug), m_category(category), m_name(name) {}
+  CTPPSPixelErrorSummary(const std::string& category, const std::string& name, bool debug = false)
+      : m_debug(debug), m_category(category), m_name(name) {}
 
   void add(const std::string& message, const std::string& details = "");
   void printSummary() const;
@@ -18,4 +18,4 @@ private:
   std::string m_name;
   std::map<std::string, std::size_t> m_errors;
 };
-#endif 
+#endif

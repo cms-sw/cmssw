@@ -122,8 +122,6 @@ void CTPPSPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   }
 }
 
-void CTPPSPixelRawToDigi::endStream() {
-  eSummary_.printSummary();
-}
+void CTPPSPixelRawToDigi::endStream() { eSummary_.printSummary(); }
 
 DEFINE_FWK_MODULE(CTPPSPixelRawToDigi);
