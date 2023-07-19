@@ -1037,9 +1037,9 @@ void ParticleNetJetTagMonitor::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("tagElectronID",
-                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V2-tight"));
+                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"));
   desc.add<edm::InputTag>("vetoElectronID",
-                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V2-loose"));
+                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-loose"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("jetPNETScore", edm::InputTag("pfParticleNetAK4DiscriminatorsJetTags", "BvsAll"));
   desc.add<edm::InputTag>("jetPNETScoreHLT", edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"));
