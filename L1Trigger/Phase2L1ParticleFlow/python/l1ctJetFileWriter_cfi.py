@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1ctSeededConeJetFileWriter = cms.EDAnalyzer('L1CTJetFileWriter',
+l1tSeededConeJetFileWriter = cms.EDAnalyzer('L1CTJetFileWriter',
   collections = cms.untracked.VPSet([cms.PSet(jets = cms.InputTag("sc4PFL1PuppiCorrectedEmulator"),
                                               mht  = cms.InputTag("sc4PFL1PuppiCorrectedEmulatorMHT"))]),
   nJets = cms.uint32(12),
