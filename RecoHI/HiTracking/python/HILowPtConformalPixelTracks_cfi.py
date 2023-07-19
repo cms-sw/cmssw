@@ -139,17 +139,19 @@ from RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAHIonPhase1_cfi impor
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 hiPixelTracksCUDA = _pixelTracksCUDA.clone(pixelRecHitSrc="siPixelRecHitsPreSplittingCUDA", idealConditions = False,
-        ptmin = 0.25, hardCurvCut = 0.0756, doPtCut = False,
+        ptmin = 0.25, z0Cut = 8.0, hardCurvCut = 0.0756, doPtCut = False,
         onGPU = True,
+        dcaCutInnerTriplet = 0.05, dcaCutOuterTriplet = 0.10,
+        CAThetaCutForward = 0.002, CAThetaCutBarrel = 0.001,
         phiCuts = cms.vint32(19*[900]), #19 pairs
         trackQualityCuts = dict(
           chi2MaxPt = 10,
           chi2Coeff = [0.9,1.8],
-          chi2Scale = 8,
-          tripletMinPt = 0.5,
+          chi2Scale = 1.8,
+          tripletMinPt = 0.1,
           tripletMaxTip = 0.3,
           tripletMaxZip = 12,
-          quadrupletMinPt = 0.3,
+          quadrupletMinPt = 0.1,
           quadrupletMaxTip = 0.5,
           quadrupletMaxZip = 12
         ))

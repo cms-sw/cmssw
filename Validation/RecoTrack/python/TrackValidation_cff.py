@@ -778,7 +778,7 @@ trackValidatorHILowPtConformalValidator = trackValidator.clone(
     associators = ["trackingParticleHIPixelTrackAssociation"],
     vertexAssociator = "HIPixelVertexAssociatorByPositionAndTracks",
     dodEdxPlots = False,
-    cores = cms.InputTag(""),
+    cores = "" 
 )
 
 tracksValidationHIonTask = cms.Task(trackValidatorHILowPtConformalValidator) 
@@ -1090,7 +1090,7 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
     label_vertex = "pixelVertices",
     vertexAssociator = "PixelVertexAssociatorByPositionAndTracks",
     dodEdxPlots = False,
-    cores = cms.InputTag("")
+    cores = "" 
 )
 
 trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(

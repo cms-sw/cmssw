@@ -180,8 +180,8 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase1>::fillDescriptions(edm::Pa
 
   desc.add<bool>("idealConditions", true);
   desc.add<bool>("includeJumpingForwardDoublets", false);
-  desc.add<double>("z0Cut", 12.0f);
-  desc.add<double>("ptCut", 0.5f);
+  desc.add<double>("z0Cut", 12.0);
+  desc.add<double>("ptCut", 0.5);
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -213,8 +213,8 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::HIonPhase1>::fillDescriptions(edm
 
   desc.add<bool>("idealConditions", false);
   desc.add<bool>("includeJumpingForwardDoublets", false);
-  desc.add<double>("z0Cut", 10.0f);
-  desc.add<double>("ptCut", 0.0f);
+  desc.add<double>("z0Cut", 10.0);
+  desc.add<double>("ptCut", 0.0);
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -247,8 +247,8 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase2>::fillDescriptions(edm::Pa
   desc.add<bool>("idealConditions", false);
   desc.add<bool>("includeFarForwards", true);
   desc.add<bool>("includeJumpingForwardDoublets", true);
-  desc.add<double>("z0Cut", 7.5f);
-  desc.add<double>("ptCut", 0.85f);
+  desc.add<double>("z0Cut", 7.5);
+  desc.add<double>("ptCut", 0.85);
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
@@ -270,13 +270,13 @@ template <typename TrackerTraits>
 void CAHitNtupletGeneratorOnGPU<TrackerTraits>::fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
   // 87 cm/GeV = 1/(3.8T * 0.3)
   // take less than radius given by the hardPtCut and reject everything below
-  // auto hardCurvCut = 1.f/(0.35 * 87.f);
-  desc.add<double>("ptmin", 0.9f)->setComment("Cut on minimum pt");
-  desc.add<double>("CAThetaCutBarrel", 0.002f)->setComment("Cut on RZ alignement for Barrel");
-  desc.add<double>("CAThetaCutForward", 0.003f)->setComment("Cut on RZ alignment for Forward");
-  desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))->setComment("Cut on minimum curvature");
-  desc.add<double>("dcaCutInnerTriplet", 0.15f)->setComment("Cut on origin radius when the inner hit is on BPix1");
-  desc.add<double>("dcaCutOuterTriplet", 0.25f)->setComment("Cut on origin radius when the outer hit is on BPix1");
+  // auto hardCurvCut = 1.f/(0.35 * 87.f); 
+  desc.add<double>("ptmin", 0.9)->setComment("Cut on minimum pt");
+  desc.add<double>("CAThetaCutBarrel", 0.002)->setComment("Cut on RZ alignement for Barrel");
+  desc.add<double>("CAThetaCutForward", 0.003)->setComment("Cut on RZ alignment for Forward");
+  desc.add<double>("hardCurvCut", 1. / (0.35 * 87.))->setComment("Cut on minimum curvature");
+  desc.add<double>("dcaCutInnerTriplet", 0.15)->setComment("Cut on origin radius when the inner hit is on BPix1");
+  desc.add<double>("dcaCutOuterTriplet", 0.25)->setComment("Cut on origin radius when the outer hit is on BPix1");
   desc.add<bool>("earlyFishbone", true);
   desc.add<bool>("lateFishbone", false);
   desc.add<bool>("fillStatistics", false);
