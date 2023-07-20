@@ -40,8 +40,8 @@ private:
   void update(const BeginOfRun *run) override;
   void dumpSummary(std::ostream &out = G4cout);
   G4VPhysicalVolume *getTopPV();
-  bool select(const std::string& name, const std::string& shape) const;
-  std::string reducedName(const std::string& name);
+  bool select(const std::string &name, const std::string &shape) const;
+  std::string reducedName(const std::string &name);
 
 private:
   const bool dd4hep_;
@@ -50,8 +50,12 @@ private:
   G4VPhysicalVolume *theTopPV_;
 };
 
-PrintG4Solids::PrintG4Solids(const edm::ParameterSet &p) : dd4hep_(p.getUntrackedParameter<bool>("dd4hep")), solids_(p.getUntrackedParameter<std::vector<std::string> >("dumpVolumes")), types_(p.getUntrackedParameter<std::vector<std::string> >("dumpShapes")) {
-  G4cout << "PrintG4Solids:: initialised for printing information about G4VSolids for version dd4heP:" << dd4hep_ << G4endl;
+PrintG4Solids::PrintG4Solids(const edm::ParameterSet &p)
+    : dd4hep_(p.getUntrackedParameter<bool>("dd4hep")),
+      solids_(p.getUntrackedParameter<std::vector<std::string> >("dumpVolumes")),
+      types_(p.getUntrackedParameter<std::vector<std::string> >("dumpShapes")) {
+  G4cout << "PrintG4Solids:: initialised for printing information about G4VSolids for version dd4heP:" << dd4hep_
+         << G4endl;
 }
 
 void PrintG4Solids::update(const BeginOfRun *run) {
@@ -74,7 +78,7 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   std::set<G4VSolid *> theSolids;
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-    G4VSolid* solid = (*lvcite)->GetSolid();
+    G4VSolid *solid = (*lvcite)->GetSolid();
     std::string name = static_cast<std::string>(solid->GetName());
     if (dd4hep_)
       name = reducedName(name);
@@ -146,25 +150,24 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
     out << G4endl;
   }
 }
-    
+
 G4VPhysicalVolume *PrintG4Solids::getTopPV() {
   return G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
 }
 
-std::string PrintG4Solids::reducedName(const std::string& name) {
+std::string PrintG4Solids::reducedName(const std::string &name) {
   std::string nam(name);
-  uint32_t first = ((name.find(":") == std::string::npos) ? 0 : (name.find(":") 
-								 + 1));
+  uint32_t first = ((name.find(':') == std::string::npos) ? 0 : (name.find(':') + 1));
   uint32_t last(name.size() + 1);
   uint32_t loc(first);
-  while (1) {
-    if (name.find("_", loc) == std::string::npos)
+  while (true) {
+    if (name.find('_', loc) == std::string::npos)
       break;
     if (((loc + 5) < name.size()) && (name.substr(loc, 5) == "shape")) {
       last = loc;
       break;
     }
-    loc = name.find("_", loc) + 1;
+    loc = name.find('_', loc) + 1;
     if (loc > name.size())
       break;
   }
@@ -174,9 +177,9 @@ std::string PrintG4Solids::reducedName(const std::string& name) {
   return nam;
 }
 
-bool PrintG4Solids::select(const std::string& name, const std::string& type) const {
+bool PrintG4Solids::select(const std::string &name, const std::string &type) const {
   bool flag(true);
-  if (!solids_.empty()) 
+  if (!solids_.empty())
     flag = (flag && (std::find(solids_.begin(), solids_.end(), name) != solids_.end()));
   if (!types_.empty())
     flag = (flag && (std::find(types_.begin(), types_.end(), type) != types_.end()));
