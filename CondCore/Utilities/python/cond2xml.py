@@ -86,6 +86,10 @@ class CondXmlProcessor(object):
         devCheckout = (releaseBase != '')
         if not devCheckout:
             logging.debug('Looks like the current working environment is a read-only release')
+            if not os.path.exists( libPath ):
+                if "CMSSW_FULL_RELEASE_BASE" in os.environ:
+                    libDir = os.path.join( os.environ["CMSSW_FULL_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+                    libPath = os.path.join( libDir, libName )
         if not os.path.exists( libPath ) and devCheckout:
             # main release ( for dev checkouts )
             libDir = os.path.join( releaseBase, 'lib', os.environ["SCRAM_ARCH"] )
