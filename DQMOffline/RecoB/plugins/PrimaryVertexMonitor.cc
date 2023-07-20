@@ -9,6 +9,8 @@
 
 #include "TMath.h"
 
+#include <fmt/format.h>
+
 using namespace reco;
 using namespace edm;
 
@@ -34,27 +36,11 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
       weight(nullptr),
       chi2ndf(nullptr),
       chi2prob(nullptr),
-      dxy(nullptr),
-      dxy2(nullptr),
-      dz(nullptr),
-      dxyErr(nullptr),
-      dzErr(nullptr),
       phi_pt1(nullptr),
       eta_pt1(nullptr),
       phi_pt10(nullptr),
       eta_pt10(nullptr),
-      dxyVsPhi_pt1(nullptr),
-      dzVsPhi_pt1(nullptr),
-      dxyVsEta_pt1(nullptr),
-      dzVsEta_pt1(nullptr),
-      dxyVsEtaVsPhi_pt1(nullptr),
-      dzVsEtaVsPhi_pt1(nullptr),
-      dxyVsPhi_pt10(nullptr),
-      dzVsPhi_pt10(nullptr),
-      dxyVsEta_pt10(nullptr),
-      dzVsEta_pt10(nullptr),
-      dxyVsEtaVsPhi_pt10(nullptr),
-      dzVsEtaVsPhi_pt10(nullptr) {
+      dxy2(nullptr) {
   vertexInputTag_ = pSet.getParameter<InputTag>("vertexLabel");
   beamSpotInputTag_ = pSet.getParameter<InputTag>("beamSpotLabel");
   vertexToken_ = consumes<reco::VertexCollection>(vertexInputTag_);
@@ -178,17 +164,11 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   double DxyMin = conf_.getParameter<double>("DxyMin");
   double DxyMax = conf_.getParameter<double>("DxyMax");
 
-  int DzBin = conf_.getParameter<int>("DzBin");
-  double DzMin = conf_.getParameter<double>("DzMin");
-  double DzMax = conf_.getParameter<double>("DzMax");
-
   int PhiBin = conf_.getParameter<int>("PhiBin");
-  int PhiBin2D = conf_.getParameter<int>("PhiBin2D");
   double PhiMin = conf_.getParameter<double>("PhiMin");
   double PhiMax = conf_.getParameter<double>("PhiMax");
 
   int EtaBin = conf_.getParameter<int>("EtaBin");
-  int EtaBin2D = conf_.getParameter<int>("EtaBin2D");
   double EtaMin = conf_.getParameter<double>("EtaMin");
   double EtaMax = conf_.getParameter<double>("EtaMax");
 
@@ -204,11 +184,7 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   chi2ndf = iBooker.book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof", 100, 0., 20.);
   chi2prob = iBooker.book1D("chi2prob", "PV tracks (p_{T} > 1 GeV) #chi^{2} probability", 100, 0., 1.);
 
-  dxy = iBooker.book1D("dxy", "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum)", DxyBin, DxyMin, DxyMax);
   dxy2 = iBooker.book1D("dxyzoom", "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum)", DxyBin, DxyMin / 5., DxyMax / 5.);
-  dxyErr = iBooker.book1D("dxyErr", "PV tracks (p_{T} > 1 GeV) d_{xy} error (#mum)", 100, 0., 2000.);
-  dz = iBooker.book1D("dz", "PV tracks (p_{T} > 1 GeV) d_{z} (#mum)", DzBin, DzMin, DzMax);
-  dzErr = iBooker.book1D("dzErr", "PV tracks (p_{T} > 1 GeV) d_{z} error(#mum)", 100, 0., 10000.);
 
   phi_pt1 = iBooker.book1D("phi_pt1", "PV tracks (p_{T} > 1 GeV) #phi; PV tracks #phi;#tracks", PhiBin, PhiMin, PhiMax);
   eta_pt1 = iBooker.book1D("eta_pt1", "PV tracks (p_{T} > 1 GeV) #eta; PV tracks #eta;#tracks", EtaBin, EtaMin, EtaMax);
@@ -217,165 +193,135 @@ void PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
   eta_pt10 =
       iBooker.book1D("eta_pt10", "PV tracks (p_{T} > 10 GeV) #phi; PV tracks #eta;#tracks", EtaBin, EtaMin, EtaMax);
 
-  dxyVsPhi_pt1 = iBooker.bookProfile("dxyVsPhi_pt1",
-                                     "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #phi",
-                                     PhiBin,
-                                     PhiMin,
-                                     PhiMax,
-                                     DxyBin,
-                                     DxyMin,
-                                     DxyMax,
-                                     "");
-  dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
-  dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)", 2);
+  // initialize and book the monitors;
+  dxy_pt1.varname_ = "xy";
+  dxy_pt1.pTcut_ = 1.f;
+  dxy_pt1.bookIPMonitor(iBooker, conf_);
 
-  dzVsPhi_pt1 = iBooker.bookProfile("dzVsPhi_pt1",
-                                    "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #phi",
-                                    PhiBin,
-                                    PhiMin,
-                                    PhiMax,
-                                    DzBin,
-                                    DzMin,
-                                    DzMax,
-                                    "");
-  dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
-  dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)", 2);
+  dxy_pt10.varname_ = "xy";
+  dxy_pt10.pTcut_ = 10.f;
+  dxy_pt10.bookIPMonitor(iBooker, conf_);
 
-  dxyVsEta_pt1 = iBooker.bookProfile("dxyVsEta_pt1",
-                                     "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #eta",
-                                     EtaBin,
-                                     EtaMin,
-                                     EtaMax,
-                                     DxyBin,
-                                     DxyMin,
-                                     DxyMax,
-                                     "");
-  dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
-  dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)", 2);
+  dz_pt1.varname_ = "z";
+  dz_pt1.pTcut_ = 1.f;
+  dz_pt1.bookIPMonitor(iBooker, conf_);
 
-  dzVsEta_pt1 = iBooker.bookProfile("dzVsEta_pt1",
-                                    "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #eta",
-                                    EtaBin,
-                                    EtaMin,
-                                    EtaMax,
-                                    DzBin,
-                                    DzMin,
-                                    DzMax,
-                                    "");
-  dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
-  dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)", 2);
+  dz_pt10.varname_ = "z";
+  dz_pt10.pTcut_ = 10.f;
+  dz_pt10.bookIPMonitor(iBooker, conf_);
+}
 
-  dxyVsEtaVsPhi_pt1 = iBooker.bookProfile2D("dxyVsEtaVsPhi_pt1",
-                                            "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
-                                            EtaBin2D,
-                                            EtaMin,
-                                            EtaMax,
-                                            PhiBin2D,
-                                            PhiMin,
-                                            PhiMax,
-                                            DxyBin,
-                                            DxyMin,
-                                            DxyMax,
-                                            "");
-  dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
-  dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
-  dxyVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)", 3);
+void PrimaryVertexMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooker, const edm::ParameterSet& config) {
+  int VarBin = config.getParameter<int>(fmt::format("D{}Bin", varname_));
+  double VarMin = config.getParameter<double>(fmt::format("D{}Min", varname_));
+  double VarMax = config.getParameter<double>(fmt::format("D{}Max", varname_));
 
-  dzVsEtaVsPhi_pt1 = iBooker.bookProfile2D("dzVsEtaVsPhi_pt1",
-                                           "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #eta VS track #phi",
-                                           EtaBin2D,
-                                           EtaMin,
-                                           EtaMax,
-                                           PhiBin2D,
-                                           PhiMin,
-                                           PhiMax,
-                                           DzBin,
-                                           DzMin,
-                                           DzMax,
-                                           "");
-  dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
-  dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
-  dzVsEtaVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)", 3);
+  int PhiBin = config.getParameter<int>("PhiBin");
+  int PhiBin2D = config.getParameter<int>("PhiBin2D");
+  double PhiMin = config.getParameter<double>("PhiMin");
+  double PhiMax = config.getParameter<double>("PhiMax");
 
-  dxyVsPhi_pt10 = iBooker.bookProfile("dxyVsPhi_pt10",
-                                      "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #phi",
-                                      PhiBin,
-                                      PhiMin,
-                                      PhiMax,
-                                      DxyBin,
-                                      DxyMin,
-                                      DxyMax,
-                                      "");
-  dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 1);
-  dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)", 2);
+  int EtaBin = config.getParameter<int>("EtaBin");
+  int EtaBin2D = config.getParameter<int>("EtaBin2D");
+  double EtaMin = config.getParameter<double>("EtaMin");
+  double EtaMax = config.getParameter<double>("EtaMax");
 
-  dzVsPhi_pt10 = iBooker.bookProfile("dzVsPhi_pt10",
-                                     "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #phi",
-                                     PhiBin,
-                                     PhiMin,
-                                     PhiMax,
-                                     DzBin,
-                                     DzMin,
-                                     DzMax,
-                                     "");
-  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 1);
-  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 2);
+  IP_ = iBooker.book1D(fmt::format("d{}", varname_),
+                       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_),
+                       VarBin,
+                       VarMin,
+                       VarMax);
 
-  dxyVsEta_pt10 = iBooker.bookProfile("dxyVsEta_pt10",
-                                      "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #eta",
-                                      EtaBin,
-                                      EtaMin,
-                                      EtaMax,
-                                      DxyBin,
-                                      DxyMin,
-                                      DxyMax,
-                                      "");
-  dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
-  dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)", 2);
+  IPErr_ = iBooker.book1D(fmt::format("d{}Err", varname_),
+                          fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
+                          100,
+                          0.,
+                          2000.);
 
-  dzVsEta_pt10 = iBooker.bookProfile("dzVsEta_pt10",
-                                     "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #eta",
-                                     EtaBin,
-                                     EtaMin,
-                                     EtaMax,
-                                     DzBin,
-                                     DzMin,
-                                     DzMax,
-                                     "");
-  dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
-  dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 2);
+  IPVsPhi_ = iBooker.bookProfile(fmt::format("d{}VsPhi_pt{}", varname_, pTcut_),
+                                 fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #phi", pTcut_, varname_),
+                                 PhiBin,
+                                 PhiMin,
+                                 PhiMax,
+                                 VarBin,
+                                 VarMin,
+                                 VarMax,
+                                 "");
+  IPVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
+  IPVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
 
-  dxyVsEtaVsPhi_pt10 = iBooker.bookProfile2D("dxyVsEtaVsPhi_pt10",
-                                             "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #eta VS track #phi",
-                                             EtaBin2D,
-                                             EtaMin,
-                                             EtaMax,
-                                             PhiBin2D,
-                                             PhiMin,
-                                             PhiMax,
-                                             DxyBin,
-                                             DxyMin,
-                                             DxyMax,
-                                             "");
-  dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
-  dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 2);
-  dxyVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)", 3);
+  IPVsEta_ = iBooker.bookProfile(fmt::format("d{}VsEta_pt{}", varname_, pTcut_),
+                                 fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #eta", pTcut_, varname_),
+                                 EtaBin,
+                                 EtaMin,
+                                 EtaMax,
+                                 VarBin,
+                                 VarMin,
+                                 VarMax,
+                                 "");
+  IPVsEta_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPVsEta_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
 
-  dzVsEtaVsPhi_pt10 = iBooker.bookProfile2D("dzVsEtaVsPhi_pt10",
-                                            "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #eta VS track #phi",
-                                            EtaBin2D,
-                                            EtaMin,
-                                            EtaMax,
-                                            PhiBin2D,
-                                            PhiMin,
-                                            PhiMax,
-                                            DzBin,
-                                            DzMin,
-                                            DzMax,
-                                            "");
-  dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
-  dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 2);
-  dzVsEtaVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)", 3);
+  IPErrVsPhi_ =
+      iBooker.bookProfile(fmt::format("d{}ErrVsPhi_pt{}", varname_, pTcut_),
+                          fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #phi", pTcut_, varname_),
+                          PhiBin,
+                          PhiMin,
+                          PhiMax,
+                          VarBin,
+                          0.,
+                          100.,
+                          "");
+  IPErrVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
+  IPErrVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
+
+  IPErrVsEta_ =
+      iBooker.bookProfile(fmt::format("d{}ErrVsEta_pt{}", varname_, pTcut_),
+                          fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #eta", pTcut_, varname_),
+                          EtaBin,
+                          EtaMin,
+                          EtaMax,
+                          VarBin,
+                          0.,
+                          100.,
+                          "");
+  IPErrVsEta_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPErrVsEta_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
+
+  IPVsEtaVsPhi_ = iBooker.bookProfile2D(
+      fmt::format("d{}VsEtaVsPhi_pt{}", varname_, pTcut_),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #eta VS track #phi", pTcut_, varname_),
+      EtaBin2D,
+      EtaMin,
+      EtaMax,
+      PhiBin2D,
+      PhiMin,
+      PhiMax,
+      VarBin,
+      VarMin,
+      VarMax,
+      "");
+  IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  IPVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 3);
+
+  IPErrVsEtaVsPhi_ = iBooker.bookProfile2D(
+      fmt::format("d{}ErrVsEtaVsPhi_pt{}", varname_, pTcut_),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #eta VS track #phi", pTcut_, varname_),
+      EtaBin2D,
+      EtaMin,
+      EtaMax,
+      PhiBin2D,
+      PhiMin,
+      PhiMax,
+      VarBin,
+      0.,
+      100.,
+      "");
+  IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  IPErrVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
+                                 3);
 }
 
 void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -498,35 +444,59 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     sumPT += pt * pt;
 
     // fill MEs
-    weight->Fill(w);
-    chi2ndf->Fill(chi2NDF);
-    chi2prob->Fill(chi2Prob);
-    dxy->Fill(Dxy);
-    dxy2->Fill(Dxy);
-    dz->Fill(Dz);
-    dxyErr->Fill(DxyErr);
-    dzErr->Fill(DzErr);
     phi_pt1->Fill(phi);
     eta_pt1->Fill(eta);
 
-    dxyVsPhi_pt1->Fill(phi, Dxy);
-    dzVsPhi_pt1->Fill(phi, Dz);
-    dxyVsEta_pt1->Fill(eta, Dxy);
-    dzVsEta_pt1->Fill(eta, Dz);
-    dxyVsEtaVsPhi_pt1->Fill(eta, phi, Dxy);
-    dzVsEtaVsPhi_pt1->Fill(eta, phi, Dz);
+    weight->Fill(w);
+    chi2ndf->Fill(chi2NDF);
+    chi2prob->Fill(chi2Prob);
+    dxy2->Fill(Dxy);
+
+    dxy_pt1.IP_->Fill(Dxy);
+    dxy_pt1.IPVsPhi_->Fill(phi, Dxy);
+    dxy_pt1.IPVsEta_->Fill(eta, Dxy);
+    dxy_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
+
+    dxy_pt1.IPErr_->Fill(DxyErr);
+    dxy_pt1.IPErrVsPhi_->Fill(phi, DxyErr);
+    dxy_pt1.IPErrVsEta_->Fill(eta, DxyErr);
+    dxy_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
+
+    dz_pt1.IP_->Fill(Dz);
+    dz_pt1.IPVsPhi_->Fill(phi, Dz);
+    dz_pt1.IPVsEta_->Fill(eta, Dz);
+    dz_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
+
+    dz_pt1.IPErr_->Fill(DzErr);
+    dz_pt1.IPErrVsPhi_->Fill(phi, DzErr);
+    dz_pt1.IPErrVsEta_->Fill(eta, DzErr);
+    dz_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
 
     if (pt < 10.)
       continue;
 
     phi_pt10->Fill(phi);
     eta_pt10->Fill(eta);
-    dxyVsPhi_pt10->Fill(phi, Dxy);
-    dzVsPhi_pt10->Fill(phi, Dz);
-    dxyVsEta_pt10->Fill(eta, Dxy);
-    dzVsEta_pt10->Fill(eta, Dz);
-    dxyVsEtaVsPhi_pt10->Fill(eta, phi, Dxy);
-    dzVsEtaVsPhi_pt10->Fill(eta, phi, Dz);
+
+    dxy_pt10.IP_->Fill(Dxy);
+    dxy_pt10.IPVsPhi_->Fill(phi, Dxy);
+    dxy_pt10.IPVsEta_->Fill(eta, Dxy);
+    dxy_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
+
+    dxy_pt10.IPErr_->Fill(DxyErr);
+    dxy_pt10.IPErrVsPhi_->Fill(phi, DxyErr);
+    dxy_pt10.IPErrVsEta_->Fill(eta, DxyErr);
+    dxy_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
+
+    dz_pt10.IP_->Fill(Dz);
+    dz_pt10.IPVsPhi_->Fill(phi, Dz);
+    dz_pt10.IPVsEta_->Fill(eta, Dz);
+    dz_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
+
+    dz_pt10.IPErr_->Fill(DzErr);
+    dz_pt10.IPErrVsPhi_->Fill(phi, DzErr);
+    dz_pt10.IPErrVsEta_->Fill(eta, DzErr);
+    dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
   }
   ntracks->Fill(float(nTracks));
   sumpt->Fill(sumPT);
