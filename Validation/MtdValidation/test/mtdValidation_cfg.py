@@ -10,7 +10,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
-process.load("Configuration.Geometry.GeometryExtended2026D95Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D98Reco_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -21,8 +21,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 #Setup FWK for multithreaded
-process.options.numberOfThreads = 4 # original
-#process.options.numberOfThreads = 1
+process.options.numberOfThreads = 4
 process.options.numberOfStreams = 0
 process.options.numberOfConcurrentLuminosityBlocks = 0
 process.options.eventSetup.numberOfConcurrentIOVs = 1
@@ -31,17 +30,9 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(10),
 )
 
-# process.source = cms.Source("PoolSource",
-#     fileNames = cms.untracked.vstring(
-#         'file:step3.root'
-#     )
-# )
-
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'/store/relval/CMSSW_12_3_1/RelValZEE_14/GEN-SIM-RECO/PU_123X_mcRun4_realistic_v10_2026D88PU200-v1/2580000/004d34e5-d815-439e-b5b5-7bf4197bd02b.root'
-        '/store/relval/CMSSW_13_1_0_pre3/RelValZEE_14/GEN-SIM-RECO/PU_131X_mcRun4_realistic_v2_2026D95PU200-v1/00000/02e1c1df-11e7-4ba3-a827-3b5867a1d85a.root'
-        # '/store/relval/CMSSW_12_3_1/RelValZEE_14/GEN-SIM-RECO/PU_123X_mcRun4_realistic_v10_2026D88PU200-v1/2580000/7206d4e3-1b30-44a0-8835-596834030974.root'
+        'file:step3.root'
     )
 )
 
