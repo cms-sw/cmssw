@@ -54,12 +54,11 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
   // Mimic Phase-1 EMTF input calculations
   // 6 delta Phis: S1-S2, S1-S3, S1-S4, S2-S3, S2-S4, S3-S4
   // 6 delta Thetas: S1-S2, S1-S3, S1-S4, S2-S3, S2-S4, S3-S4
-  // 4 bends : set to zero if no CSC hit and thus RPC hit is used
-  // 1 FR bit: for ME1 only
-  // 1 Ring bit: for ME1 only
+  // 6 delta Phi signs: S1-S2, S1-S3, S1-S4, S2-S3, S2-S4, S3-S4
+  // 6 delta Theta signs: S1-S2, S1-S3, S1-S4, S2-S3, S2-S4, S3-S4
   // 1 track Theta taken from stub coordinate in ME2, ME3, ME4 (in this priority)
-  // 4 RPC bits indicating if ME or RE hit was used in each station (S1, S2, S3, S4)
-  // Total: 23 variables
+  // 4 CSC pattern values (Run 2 convention): S1, S2, S3, S4
+  // Total: 29 variables
   std::array<float, 6> x_dphi;
   std::array<float, 6> x_dphi_sign;
   std::array<float, 6> x_dtheta;
@@ -67,13 +66,7 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
   std::array<float, 1> x_trk_theta;
   std::array<float, 4> x_csc_pattern;
 
-  // Initialize to zeros
-  x_dphi.fill(0);
-  x_dphi_sign.fill(0);
-  x_dtheta.fill(0);
-  x_dtheta_sign.fill(0);
-  //
-  x_trk_theta.fill(0);
+  // Initialize x_csc_pattern to zeros
   x_csc_pattern.fill(0);
 
   EMTFPtLUT data = track.PtLUT();
@@ -82,10 +75,10 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
   const int invalid_dphi = 8191;
 
   // // Which stations have hits
-  int st1 = (track.Mode() >= 8);
-  int st2 = ((track.Mode() % 8) >= 4);
-  int st3 = ((track.Mode() % 4) >= 2);
-  int st4 = ((track.Mode() % 2) == 1);
+  bool st1 = (track.Mode() >= 8);
+  bool st2 = ((track.Mode() % 8) >= 4);
+  bool st3 = ((track.Mode() % 4) >= 2);
+  bool st4 = ((track.Mode() % 2) == 1);
 
   // Get valid pattern values
   if (st1)
@@ -97,36 +90,17 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
   if (st4)
     x_csc_pattern[3] = data.cpattern[3];
 
-  // Calculate delta phi
-  x_dphi[0] = (data.delta_ph[0] != invalid_dphi) ? data.delta_ph[0] : 0;
-  x_dphi[1] = (data.delta_ph[1] != invalid_dphi) ? data.delta_ph[1] : 0;
-  x_dphi[2] = (data.delta_ph[2] != invalid_dphi) ? data.delta_ph[2] : 0;
-  x_dphi[3] = (data.delta_ph[3] != invalid_dphi) ? data.delta_ph[3] : 0;
-  x_dphi[4] = (data.delta_ph[4] != invalid_dphi) ? data.delta_ph[4] : 0;
-  x_dphi[5] = (data.delta_ph[5] != invalid_dphi) ? data.delta_ph[5] : 0;
+  for (int i = 0; i < 6; ++i) {  // There are 6 deltas between 4 stations.
+    // Calculate delta phi
+    x_dphi[i] = (data.delta_ph[i] != invalid_dphi) ? data.delta_ph[i] : 0;
 
-  // Calculate delta theta
-  x_dtheta[0] = (data.delta_th[0] != invalid_dtheta) ? data.delta_th[0] : 0;
-  x_dtheta[1] = (data.delta_th[1] != invalid_dtheta) ? data.delta_th[1] : 0;
-  x_dtheta[2] = (data.delta_th[2] != invalid_dtheta) ? data.delta_th[2] : 0;
-  x_dtheta[3] = (data.delta_th[3] != invalid_dtheta) ? data.delta_th[3] : 0;
-  x_dtheta[4] = (data.delta_th[4] != invalid_dtheta) ? data.delta_th[4] : 0;
-  x_dtheta[5] = (data.delta_th[5] != invalid_dtheta) ? data.delta_th[5] : 0;
+    // Calculate delta theta
+    x_dtheta[i] = (data.delta_th[i] != invalid_dtheta) ? data.delta_th[i] : 0;
 
-  // Get delta phi and theta signs
-  x_dphi_sign[0] = data.sign_ph[0];
-  x_dphi_sign[1] = data.sign_ph[1];
-  x_dphi_sign[2] = data.sign_ph[2];
-  x_dphi_sign[3] = data.sign_ph[3];
-  x_dphi_sign[4] = data.sign_ph[4];
-  x_dphi_sign[5] = data.sign_ph[5];
-
-  x_dtheta_sign[0] = data.sign_th[0];
-  x_dtheta_sign[1] = data.sign_th[1];
-  x_dtheta_sign[2] = data.sign_th[2];
-  x_dtheta_sign[3] = data.sign_th[3];
-  x_dtheta_sign[4] = data.sign_th[4];
-  x_dtheta_sign[5] = data.sign_th[5];
+    // Get delta phi and theta signs
+    x_dphi_sign[i] = data.sign_ph[i];
+    x_dtheta_sign[i] = data.sign_th[i];
+  }
 
   // Set dPhi and dTheta values to 0 if there was no hit in the station
   if (!st1) {
