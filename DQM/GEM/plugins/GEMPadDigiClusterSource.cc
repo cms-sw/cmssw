@@ -36,43 +36,32 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
   
-  mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Pad difference over time difference",81, -40 - 0.5, 40 + 0.5,21,  -10 - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
+  mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Pad and BX Difference of closed Pads ",81, -40 - 0.5, 40 + 0.5,21,  -10 - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
   mapBXCLSPerCh_ = MEMap4Inf(this, "bx", "Pad Bunch Crossing Per Cluster", 14 , -0.5, 13.5, "Bunch crossing");
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
-  mapPadBxPerCh_ = MEMap4Inf(this, "bx", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
-  mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster size of Pad Digi", 9, 0.5, 9 + 0.5, 1, 0.5, 1.5, "Cluster size", "iEta");
+  mapPadBxPerCh_ = MEMap4Inf(this, "pad", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
+  mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster size of Pad Digi", 9, 0.5, 9 + 0.5, 1, 0.5, 1.5, "Cluster Size", "iEta");
   
-
   ibooker.cd();
   ibooker.setCurrentFolder(strFolderMain_);
   GenerateMEPerChamber(ibooker);
 }
 
 int GEMPadDigiClusterSource::ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) {
- 
-
- 
-
   return 0;
 }
 
 int GEMPadDigiClusterSource::ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) {
- 
   return 0;
 }
 
 int GEMPadDigiClusterSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
-  
-
   return 0;
 }
 int GEMPadDigiClusterSource::ProcessWithMEMap2WithChamber(BookingHelper& bh, ME3IdsKey key) {
-  
-  
-  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/Pad_BX_Difference_");
+    
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/pad_bx_difference_");
   mapPadBXDiffPerCh_.bookND(bh,key);
-  
-  
   bh.getBooker()->setCurrentFolder(strFolderMain_);
    
   return 0;
@@ -92,7 +81,7 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4
   mapPadDigiOccPerCh_.bookND(bh, key);
   mapPadDigiOccPerCh_.SetLabelForIEta(key, 2);
 
-  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/bx_" + getNameDirLayer(key3));
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/pads in time_" + getNameDirLayer(key3));
   mapPadBxPerCh_.SetBinConfX(nNumCh * nNumVFATPerEta * stationInfo.nNumEtaPartitions_/ 2, -0.5);
   mapPadBxPerCh_.bookND(bh, key);
   
@@ -102,7 +91,7 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4
   mapPadCLSPerCh_.bookND(bh, key);
   mapPadCLSPerCh_.SetLabelForIEta(key, 2);
 
-  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/BX_cluster" + getNameDirLayer(key3));
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/bx_cluster" + getNameDirLayer(key3));
   mapBXCLSPerCh_ .bookND(bh,key);
   bh.getBooker()->setCurrentFolder(strFolderMain_);
   return 0;
@@ -114,11 +103,9 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
   edm::Handle<LumiScalersCollection> lumiScalers;
   event.getByToken(lumiScalers_, lumiScalers);
 
- 
   for (auto it = gemPadDigiClusters->begin(); it != gemPadDigiClusters->end(); it++) {
     auto range = gemPadDigiClusters->get((*it).first);
-    
-    
+      
     for (auto cluster = range.first; cluster != range.second; cluster++) {
       if (cluster->isValid()) {
 
@@ -130,9 +117,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
           mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
-        
-     
-
+      
           for (auto it2 = gemPadDigiClusters->begin(); it2 != gemPadDigiClusters->end(); it2++) {
             auto range2 = gemPadDigiClusters->get((*it2).first);
             for (auto cluster2 = range2.first; cluster2 != range2.second; cluster2++) {
@@ -152,18 +137,16 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
               }
             }
           }
-        //Plot the size of clusters for each chamber and layer 
-        Int_t nCLS = cluster->pads().size();
-        Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
-        mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
+          //Plot the size of clusters for each chamber and layer 
+          Int_t nCLS = cluster->pads().size();
+          Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
+          mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
         
-      }
+        }
       }  
     }
-
   }
 }
-
 
 DEFINE_FWK_MODULE(GEMPadDigiClusterSource);
 
