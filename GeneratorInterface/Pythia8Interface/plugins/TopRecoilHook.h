@@ -34,8 +34,6 @@ namespace Pythia8 {
 
     // Destructor prints histogram.
     ~TopRecoilHook() override {
-      if (doTopRecoil)
-        ;
       delete wtCorr;
     }
 
