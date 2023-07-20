@@ -199,6 +199,7 @@ void SiPixelClusterProducer::run(const T& input,
   }  // end of DetUnit loop
 }
 
+#include "PixelThresholdClusterizer.icc"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
