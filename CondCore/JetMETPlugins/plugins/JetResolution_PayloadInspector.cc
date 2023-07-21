@@ -80,36 +80,26 @@ namespace JME {
               payload->getDefinition().getFormulaString().compare("") == 0)
             return false;
 
-          for (const auto& record : payload->getRecords()) {
-            // Check Pt & Rho
-            if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt" &&
-                record.getVariablesRange()[0].is_inside(par_Pt)) {
-              if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                  record.getBinsRange()[1].is_inside(par_Rho)) {
-                if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta") {
-                  reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+          for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+            par_Eta = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
 
-                  for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
-                    par_Eta = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-                    if (record.getBinsRange()[0].is_inside(par_Eta)) {
-                      std::vector<double> var = {par_Pt};
-                      std::vector<double> param;
-                      for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                        double par = record.getParametersValues()[i];
-                        param.push_back(par);
-                      }
-                      float res = f.evaluate(var, param);
-                      fillWithBinAndValue(idx + 1, res);
-                    }
-                  }
-                }
-              }
+            JetParameters j_param;
+            j_param.setJetPt(par_Pt);
+            j_param.setRho(par_Rho);
+            j_param.setJetEta(par_Eta);
+
+            if (payload->getRecord(j_param) == nullptr) {
+              continue;
             }
-          }  // records
-          return true;
-        }
+
+            const JetResolutionObject::Record record = *(payload->getRecord(j_param));
+            float res = payload->evaluateFormula(record, j_param);
+            fillWithBinAndValue(idx, res);
+          }  // x-axis
+        } else
+          return false;
       }
-      return false;
+      return true;
     }
   };  // class
 
@@ -147,37 +137,27 @@ namespace JME {
               payload->getDefinition().getFormulaString().compare("") == 0)
             return false;
 
-          for (const auto& record : payload->getRecords()) {
-            // Check Eta & Rho
-            if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
-                record.getBinsRange()[0].is_inside(par_Eta)) {
-              if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                  record.getBinsRange()[1].is_inside(par_Rho)) {
-                if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt") {
-                  reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+          for (size_t idx = 0; idx <= NBIN_PT; idx++) {
+            par_Pt = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
 
-                  for (size_t idx = 0; idx <= NBIN_PT; idx++) {
-                    par_Pt = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-                    if (record.getVariablesRange()[0].is_inside(par_Pt)) {
-                      std::vector<double> var = {par_Pt};
-                      std::vector<double> param;
-                      for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                        double par = record.getParametersValues()[i];
-                        param.push_back(par);
-                      }
-                      float res = f.evaluate(var, param);
-                      fillWithBinAndValue(idx + 1, res);
-                    }
-                  }
-                }
-              }
+            JetParameters j_param;
+            j_param.setJetEta(par_Eta);
+            j_param.setRho(par_Rho);
+            j_param.setJetPt(par_Pt);
+
+            if (payload->getRecord(j_param) == nullptr) {
+              continue;
             }
-          }
-          return true;
-        }
+
+            const JetResolutionObject::Record record = *(payload->getRecord(j_param));
+            float res = payload->evaluateFormula(record, j_param);
+            fillWithBinAndValue(idx + 1, res);
+          }  // x-axis
+        } else
+          return false;
       }
-      return false;
-    }
+      return true;
+    }  // fill
   };
 
   class JetResolutionSummary : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV> {
@@ -253,56 +233,39 @@ namespace JME {
             payload->getDefinition().getFormulaString().compare("") == 0)
           return false;
 
-        for (const auto& record : payload->getRecords()) {
-          // Check Pt & Rho
-          if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt" &&
-              record.getVariablesRange()[0].is_inside(par_Pt)) {
-            if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(par_Rho)) {
-              if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta") {
-                reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+        for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
 
-                for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
-                  double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-                  if (record.getBinsRange()[0].is_inside(x_axis)) {
-                    std::vector<double> var = {par_Pt};
-                    std::vector<double> param;
-                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                      double par = record.getParametersValues()[i];
-                      param.push_back(par);
-                    }
-                    float res = f.evaluate(var, param);
-                    resol_eta->SetBinContent(idx + 1, res);
-                  }
-                }
-              }
-            }
+          JetParameters j_param;
+          j_param.setJetPt(par_Pt);
+          j_param.setRho(par_Rho);
+          j_param.setJetEta(x_axis);
+
+          if (payload->getRecord(j_param) == nullptr) {
+            continue;
           }
 
-          if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(par_Eta)) {
-            if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(par_Rho)) {
-              if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt") {
-                reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+          const JetResolutionObject::Record record = *(payload->getRecord(j_param));
+          float res = payload->evaluateFormula(record, j_param);
+          resol_eta->SetBinContent(idx + 1, res);
+        }  // x-axis
 
-                for (size_t idx = 0; idx <= NBIN_PT + 2; idx++) {
-                  double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-                  if (record.getVariablesRange()[0].is_inside(x_axis)) {
-                    std::vector<double> var = {x_axis};
-                    std::vector<double> param;
-                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                      double par = record.getParametersValues()[i];
-                      param.push_back(par);
-                    }
-                    float res = f.evaluate(var, param);
-                    resol_pt->SetBinContent(idx + 1, res);
-                  }
-                }
-              }
-            }
+        for (size_t idx = 0; idx <= NBIN_PT; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+
+          JetParameters j_param;
+          j_param.setJetEta(par_Eta);
+          j_param.setRho(par_Rho);
+          j_param.setJetPt(x_axis);
+
+          if (payload->getRecord(j_param) == nullptr) {
+            continue;
           }
-        }  // records
+
+          const JetResolutionObject::Record record = *(payload->getRecord(j_param));
+          float res = payload->evaluateFormula(record, j_param);
+          resol_pt->SetBinContent(idx + 1, res);
+        }  // x-axis
 
         gStyle->SetOptStat(0);
         gStyle->SetLabelFont(42, "XYZ");
@@ -314,7 +277,7 @@ namespace JME {
         canvas.Divide(1, 2);
 
         canvas.cd(1);
-        resol_eta->SetTitle(tag_res.c_str());
+        resol_eta->SetTitle("Jet Resolution vs. #eta");
         resol_eta->SetXTitle("#eta");
         resol_eta->SetYTitle("Resolution");
         resol_eta->SetLineWidth(3);
@@ -326,6 +289,7 @@ namespace JME {
         leg_eta->Draw();
 
         canvas.cd(2);
+        resol_pt->SetTitle("Jet Resolution vs. p_{T}");
         resol_pt->SetXTitle("p_{T} [GeV]");
         resol_pt->SetYTitle("Resolution");
         resol_pt->SetLineWidth(3);
@@ -343,6 +307,7 @@ namespace JME {
     }  // fill
 
   };  // class
+
   class JetResolutionCompare : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV, 2> {
   public:
     JetResolutionCompare()
@@ -395,7 +360,7 @@ namespace JME {
       std::shared_ptr<JetResolutionObject> payload2 = fetchPayload(std::get<1>(iov2));
 
       std::stringstream ss_tagname1(tag1.name);
-      std::stringstream ss_tagname2(tag1.name);
+      std::stringstream ss_tagname2(tag2.name);
       std::string stmp;
 
       std::string tag_ver1;
@@ -414,107 +379,45 @@ namespace JME {
             payload1->getDefinition().getFormulaString().compare("") == 0)
           return false;
 
-        for (const auto& record : payload1->getRecords()) {
-          // Check Pt & Rho
-          if (!record.getVariablesRange().empty() && payload1->getDefinition().getVariableName(0) == "JetPt" &&
-              record.getVariablesRange()[0].is_inside(par_Pt)) {
-            if (record.getBinsRange().size() > 1 && payload1->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(par_Rho)) {
-              if (!record.getBinsRange().empty() && payload1->getDefinition().getBinName(0) == "JetEta") {
-                reco::FormulaEvaluator f(payload1->getDefinition().getFormulaString());
+        for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
 
-                for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
-                  double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-                  if (record.getBinsRange()[0].is_inside(x_axis)) {
-                    std::vector<double> var = {par_Pt};
-                    std::vector<double> param;
-                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                      double par = record.getParametersValues()[i];
-                      param.push_back(par);
-                    }
-                    float res = f.evaluate(var, param);
-                    resol_eta1->SetBinContent(idx + 1, res);
-                  }
-                }
-              }
-            }
+          JetParameters j_param;
+          j_param.setJetPt(par_Pt);
+          j_param.setRho(par_Rho);
+          j_param.setJetEta(x_axis);
+
+          if (payload1->getRecord(j_param) == nullptr || payload2->getRecord(j_param) == nullptr) {
+            continue;
           }
 
-          if (!record.getBinsRange().empty() && payload1->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(par_Eta)) {
-            if (record.getBinsRange().size() > 1 && payload1->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(par_Rho)) {
-              if (!record.getVariablesRange().empty() && payload1->getDefinition().getVariableName(0) == "JetPt") {
-                reco::FormulaEvaluator f(payload1->getDefinition().getFormulaString());
+          const JetResolutionObject::Record record1 = *(payload1->getRecord(j_param));
+          const JetResolutionObject::Record record2 = *(payload2->getRecord(j_param));
+          float res1 = payload1->evaluateFormula(record1, j_param);
+          resol_eta1->SetBinContent(idx + 1, res1);
+          float res2 = payload2->evaluateFormula(record2, j_param);
+          resol_eta2->SetBinContent(idx + 1, res2);
+        }  // x-axis
 
-                for (size_t idx = 0; idx <= NBIN_PT + 2; idx++) {
-                  double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-                  if (record.getVariablesRange()[0].is_inside(x_axis)) {
-                    std::vector<double> var = {x_axis};
-                    std::vector<double> param;
-                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                      double par = record.getParametersValues()[i];
-                      param.push_back(par);
-                    }
-                    float res = f.evaluate(var, param);
-                    resol_pt1->SetBinContent(idx + 1, res);
-                  }
-                }
-              }
-            }
-          }
-        }  // records
+        for (size_t idx = 0; idx <= NBIN_PT; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
 
-        for (const auto& record : payload2->getRecords()) {
-          // Check Pt & Rho
-          if (!record.getVariablesRange().empty() && payload2->getDefinition().getVariableName(0) == "JetPt" &&
-              record.getVariablesRange()[0].is_inside(par_Pt)) {
-            if (record.getBinsRange().size() > 1 && payload2->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(par_Rho)) {
-              if (!record.getBinsRange().empty() && payload2->getDefinition().getBinName(0) == "JetEta") {
-                reco::FormulaEvaluator f(payload2->getDefinition().getFormulaString());
+          JetParameters j_param;
+          j_param.setJetEta(par_Eta);
+          j_param.setRho(par_Rho);
+          j_param.setJetPt(x_axis);
 
-                for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
-                  double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-                  if (record.getBinsRange()[0].is_inside(x_axis)) {
-                    std::vector<double> var = {par_Pt};
-                    std::vector<double> param;
-                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                      double par = record.getParametersValues()[i];
-                      param.push_back(par);
-                    }
-                    float res = f.evaluate(var, param);
-                    resol_eta2->SetBinContent(idx + 1, res);
-                  }
-                }
-              }
-            }
+          if (payload1->getRecord(j_param) == nullptr || payload2->getRecord(j_param) == nullptr) {
+            continue;
           }
 
-          if (!record.getBinsRange().empty() && payload2->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(par_Eta)) {
-            if (record.getBinsRange().size() > 1 && payload2->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(par_Rho)) {
-              if (!record.getVariablesRange().empty() && payload2->getDefinition().getVariableName(0) == "JetPt") {
-                reco::FormulaEvaluator f(payload2->getDefinition().getFormulaString());
-
-                for (size_t idx = 0; idx <= NBIN_PT + 2; idx++) {
-                  double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-                  if (record.getVariablesRange()[0].is_inside(x_axis)) {
-                    std::vector<double> var = {x_axis};
-                    std::vector<double> param;
-                    for (size_t i = 0; i < record.getParametersValues().size(); i++) {
-                      double par = record.getParametersValues()[i];
-                      param.push_back(par);
-                    }
-                    float res = f.evaluate(var, param);
-                    resol_pt2->SetBinContent(idx + 1, res);
-                  }
-                }
-              }
-            }
-          }
-        }  // records
+          const JetResolutionObject::Record record1 = *(payload1->getRecord(j_param));
+          const JetResolutionObject::Record record2 = *(payload2->getRecord(j_param));
+          float res1 = payload1->evaluateFormula(record1, j_param);
+          resol_pt1->SetBinContent(idx + 1, res1);
+          float res2 = payload2->evaluateFormula(record2, j_param);
+          resol_pt2->SetBinContent(idx + 1, res2);
+        }  // x-axis
 
         gStyle->SetOptStat(0);
         gStyle->SetLabelFont(42, "XYZ");
@@ -526,7 +429,7 @@ namespace JME {
         canvas.Divide(1, 2);
 
         canvas.cd(1);
-        resol_eta1->SetTitle("Jet Resolution Comparison");
+        resol_eta1->SetTitle("Jet Resolution Comparison vs. #eta");
         resol_eta1->SetXTitle("#eta");
         resol_eta1->SetYTitle("Resolution");
         resol_eta1->SetLineWidth(3);
@@ -544,6 +447,7 @@ namespace JME {
         leg_eta->Draw();
 
         canvas.cd(2);
+        resol_pt1->SetTitle("Jet Resolution Comparison vs. p_{T}");
         resol_pt1->SetXTitle("p_{T} [GeV]");
         resol_pt1->SetYTitle("Resolution");
         resol_pt1->SetLineWidth(3);
@@ -602,29 +506,27 @@ namespace JME {
               payload->getDefinition().getFormulaString().compare("") != 0)
             return false;
 
-          for (const auto& record : payload->getRecords()) {
-            if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
-                record.getParametersValues().size() == 3) {  // norm, down, up
+          for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+            par_Eta = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
 
-              if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "JetPt" &&
-                  !record.getBinsRange()[1].is_inside(par_Pt))
-                continue;  // for 2-bin payload, take jetpt=500
+            JetParameters j_param;
+            j_param.setJetPt(par_Pt);
+            j_param.setJetEta(par_Eta);
 
-              for (size_t it = 0; it <= NBIN_ETA; it++) {
-                par_Eta = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-                if (record.getBinsRange()[0].is_inside(par_Eta)) {
-                  double sf = 0.;
-                  sf = record.getParametersValues()[ii];
-                  fillWithBinAndValue(it, sf);
-                }
-              }
+            if (payload->getRecord(j_param) == nullptr) {
+              continue;
             }
-          }  // records
-          return true;
+
+            const JetResolutionObject::Record record = *(payload->getRecord(j_param));
+            if (record.getParametersValues().size() == 3) {  // norm, down, up
+              double sf = record.getParametersValues()[ii];
+              fillWithBinAndValue(idx + 1, sf);
+            }
+          }  // x-axis
         } else
           return false;
       }  // for
-      return false;
+      return true;
     }  // fill
   };   // class
 
@@ -666,27 +568,27 @@ namespace JME {
               payload->getDefinition().getFormulaString().compare("") != 0)
             return false;
 
-          for (const auto& record : payload->getRecords()) {
-            if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(0) == "JetEta" &&
-                record.getBinsRange()[0].is_inside(par_Eta) &&        // take jeteta=2.5
-                payload->getDefinition().getBinName(1) == "JetPt" &&  // 2-bin
-                record.getParametersValues().size() == 3) {           // norm, down, up
+          for (size_t idx = 0; idx <= NBIN_PT; idx++) {
+            par_Pt = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
 
-              for (size_t it = 0; it <= NBIN_PT; it++) {
-                par_Pt = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-                if (record.getBinsRange()[1].is_inside(par_Pt)) {
-                  double sf = 0.;
-                  sf = record.getParametersValues()[ii];
-                  fillWithBinAndValue(it, sf);
-                }
-              }
+            JetParameters j_param;
+            j_param.setJetEta(par_Eta);
+            j_param.setJetPt(par_Pt);
+
+            if (payload->getRecord(j_param) == nullptr) {
+              continue;
             }
-          }  // records
-          return true;
+
+            const JetResolutionObject::Record record = *(payload->getRecord(j_param));
+            if (record.getParametersValues().size() == 3) {  // norm, down, up
+              double sf = record.getParametersValues()[ii];
+              fillWithBinAndValue(idx + 1, sf);
+            }
+          }  // x-axis
         } else
           return false;
       }  // for
-      return false;
+      return true;
     }  // fill
   };   // class
 
@@ -769,41 +671,46 @@ namespace JME {
           return false;
 
         is_2bin = false;
-        for (const auto& record : payload->getRecords()) {
+        for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+
+          JetParameters j_param;
+          j_param.setJetPt(par_Pt);
+          j_param.setJetEta(x_axis);
+
+          if (payload->getRecord(j_param) == nullptr) {
+            continue;
+          }
+
+          const JetResolutionObject::Record record = *(payload->getRecord(j_param));
           if (record.getBinsRange().size() > 1)
             is_2bin = true;
 
-          if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
-              record.getParametersValues().size() == 3) {  // norm, down, up
+          if (record.getParametersValues().size() == 3) {  // norm, down, up
+            sf_eta_norm->SetBinContent(idx + 1, record.getParametersValues()[0]);
+            sf_eta_down->SetBinContent(idx + 1, record.getParametersValues()[1]);
+            sf_eta_up->SetBinContent(idx + 1, record.getParametersValues()[2]);
+          }
+        }  // x-axis
 
-            for (size_t it = 0; it <= NBIN_ETA; it++) {
-              double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(par_Pt))) &&
-                  record.getBinsRange()[0].is_inside(x_axis)) {
-                sf_eta_norm->SetBinContent(it + 1, record.getParametersValues()[0]);
-                sf_eta_down->SetBinContent(it + 1, record.getParametersValues()[1]);
-                sf_eta_up->SetBinContent(it + 1, record.getParametersValues()[2]);
-              }
-            }
+        for (size_t idx = 0; idx <= NBIN_PT; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+
+          JetParameters j_param;
+          j_param.setJetEta(par_Eta);
+          j_param.setJetPt(x_axis);
+
+          if (payload->getRecord(j_param) == nullptr) {
+            continue;
           }
 
-          if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(par_Eta) &&  // take jeteta=2.5
-              payload->getDefinition().getBinName(1) == "JetPt" &&
-              record.getParametersValues().size() == 3) {  // norm, down, up
-
-            is_2bin = true;
-
-            for (size_t it = 0; it <= NBIN_PT; it++) {
-              double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-              if (record.getBinsRange()[1].is_inside(x_axis)) {
-                sf_pt_norm->SetBinContent(it + 1, record.getParametersValues()[0]);
-                sf_pt_down->SetBinContent(it + 1, record.getParametersValues()[1]);
-                sf_pt_up->SetBinContent(it + 1, record.getParametersValues()[2]);
-              }
-            }
-          }  // 2-bin
-        }    // records
+          const JetResolutionObject::Record record = *(payload->getRecord(j_param));
+          if (record.getParametersValues().size() == 3) {  // norm, down, up
+            sf_pt_norm->SetBinContent(idx + 1, record.getParametersValues()[0]);
+            sf_pt_down->SetBinContent(idx + 1, record.getParametersValues()[1]);
+            sf_pt_up->SetBinContent(idx + 1, record.getParametersValues()[2]);
+          }
+        }  // x-axis
 
         gStyle->SetOptStat(0);
         gStyle->SetLabelFont(42, "XYZ");
@@ -947,70 +854,56 @@ namespace JME {
           return false;
 
         is_2bin = false;
-        for (const auto& record : payload1->getRecords()) {
-          if (record.getBinsRange().size() > 1)
-            is_2bin = true;
+        for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
 
-          if (!record.getBinsRange().empty() && payload1->getDefinition().getBinName(0) == "JetEta" &&
-              record.getParametersValues().size() == 3) {  // norm, down, up
+          JetParameters j_param;
+          j_param.setJetPt(par_Pt);
+          j_param.setJetEta(x_axis);
 
-            for (size_t it = 0; it <= NBIN_ETA; it++) {
-              double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(par_Pt))) &&
-                  record.getBinsRange()[0].is_inside(x_axis)) {
-                sf_eta_one->SetBinContent(it + 1, record.getParametersValues()[0]);
-              }
-            }
+          const JetResolutionObject::Record* rcd_p1 = payload1->getRecord(j_param);
+          const JetResolutionObject::Record* rcd_p2 = payload2->getRecord(j_param);
+          if (rcd_p1 == nullptr || rcd_p2 == nullptr) {
+            continue;
           }
 
-          if (record.getBinsRange().size() > 1 && payload1->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(par_Eta) &&  // take jeteta=2.5
-              payload1->getDefinition().getBinName(1) == "JetPt" &&
-              record.getParametersValues().size() == 3) {  // norm, down, up
+          const JetResolutionObject::Record record1 = *(rcd_p1);
+          const JetResolutionObject::Record record2 = *(rcd_p2);
 
+          if (record1.getBinsRange().size() > 1 && record2.getBinsRange().size() > 1)
             is_2bin = true;
 
-            for (size_t it = 0; it <= NBIN_PT; it++) {
-              double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-              if (record.getBinsRange()[1].is_inside(x_axis)) {
-                sf_pt_one->SetBinContent(it + 1, record.getParametersValues()[0]);
-              }
-            }
-          }  // 2-bin
-        }    // records
+          if (record1.getParametersValues().size() == 3) {  // norm, down, up
+            sf_eta_one->SetBinContent(idx + 1, record1.getParametersValues()[0]);
+          }
+          if (record2.getParametersValues().size() == 3) {  // norm, down, up
+            sf_eta_two->SetBinContent(idx + 1, record2.getParametersValues()[0]);
+          }
+        }  // x-axis
 
-        is_2bin = false;
-        for (const auto& record : payload2->getRecords()) {
-          if (record.getBinsRange().size() > 1)
-            is_2bin = true;
+        for (size_t idx = 0; idx <= NBIN_PT; idx++) {
+          double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
 
-          if (!record.getBinsRange().empty() && payload2->getDefinition().getBinName(0) == "JetEta" &&
-              record.getParametersValues().size() == 3) {  // norm, down, up
+          JetParameters j_param;
+          j_param.setJetEta(par_Eta);
+          j_param.setJetPt(x_axis);
 
-            for (size_t it = 0; it <= NBIN_ETA; it++) {
-              double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(par_Pt))) &&
-                  record.getBinsRange()[0].is_inside(x_axis)) {
-                sf_eta_two->SetBinContent(it + 1, record.getParametersValues()[0]);
-              }
-            }
+          const JetResolutionObject::Record* rcd_p1 = payload1->getRecord(j_param);
+          const JetResolutionObject::Record* rcd_p2 = payload2->getRecord(j_param);
+          if (rcd_p1 == nullptr || rcd_p2 == nullptr) {
+            continue;
           }
 
-          if (record.getBinsRange().size() > 1 && payload2->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(par_Eta) &&  // take jeteta=2.5
-              payload2->getDefinition().getBinName(1) == "JetPt" &&
-              record.getParametersValues().size() == 3) {  // norm, down, up
+          const JetResolutionObject::Record record1 = *(rcd_p1);
+          const JetResolutionObject::Record record2 = *(rcd_p2);
 
-            is_2bin = true;
-
-            for (size_t it = 0; it <= NBIN_PT; it++) {
-              double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-              if (record.getBinsRange()[1].is_inside(x_axis)) {
-                sf_pt_two->SetBinContent(it + 1, record.getParametersValues()[0]);
-              }
-            }
-          }  // 2-bin
-        }    // records
+          if (record1.getParametersValues().size() == 3) {  // norm, down, up
+            sf_pt_one->SetBinContent(idx + 1, record1.getParametersValues()[0]);
+          }
+          if (record2.getParametersValues().size() == 3) {  // norm, down, up
+            sf_pt_two->SetBinContent(idx + 1, record2.getParametersValues()[0]);
+          }
+        }  // x-axis
 
         gStyle->SetOptStat(0);
         gStyle->SetLabelFont(42, "XYZ");
@@ -1022,7 +915,7 @@ namespace JME {
         canvas.Divide(1, 2);
 
         canvas.cd(1);
-        sf_eta_one->SetTitle("Jet ScaleFactor vs. #eta");
+        sf_eta_one->SetTitle("Jet ScaleFactor Comparison vs. #eta");
         sf_eta_one->SetXTitle("#eta");
         sf_eta_one->SetYTitle("Scale Factor");
         sf_eta_one->SetLineWidth(3);
@@ -1042,7 +935,7 @@ namespace JME {
 
         if (is_2bin == true) {
           canvas.cd(2);
-          sf_pt_one->SetTitle("Jet ScaleFactor vs. p_{T}");
+          sf_pt_one->SetTitle("Jet ScaleFactor Comparison vs. p_{T}");
           sf_pt_one->SetXTitle("p_{T} [GeV]");
           sf_pt_one->SetYTitle("Scale Factor");
           sf_pt_one->SetLineWidth(3);
