@@ -56,8 +56,6 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 class MuonServiceProxy;
 
@@ -383,9 +381,13 @@ void MuCSCTnPFlatTableProducer::fillTable(edm::Event& ev) {
         m_chamberEndcap.push_back(endcapCSC * 1);
 
         Int_t iiStationFail = 0;
+        Int_t iiStation0Pass = 0;
         for (int iiStationZ = 0; iiStationZ < 6; iiStationZ++) {
           UChar_t stationCSC = iiStationZ > 2 ? iiStationZ - 2 : 0;
           UChar_t ringCSC = 0;
+          // Could monitor this problem here if necessary;
+          if (stationCSC == 0 && iiStation0Pass > 0)
+            continue;
           TrajectoryStateOnSurface tsos = surfExtrapTrkSam(track, ec ? MEZ[iiStationZ] : -MEZ[iiStationZ]);
 
           if (tsos.isValid()) {
@@ -407,6 +409,8 @@ void MuCSCTnPFlatTableProducer::fillTable(edm::Event& ev) {
               tsos = surfExtrapTrkSam(track, Layer3Surface.position().z());
 
               if (tsos.isValid()) {
+                if (stationCSC == 0)
+                  iiStation0Pass++;
                 // Fill track intersection denominator information
                 LocalPoint localTTIntPoint = Layer3Surface.toLocal(tsos.freeState()->position());
                 const CSCLayerGeometry* layerGeoma = m_cscGeometry->chamber(Layer0Id)->layer(3)->geometry();

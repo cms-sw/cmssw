@@ -21,6 +21,9 @@ typedef SimpleFlatTableProducer<CTPPSLocalTrackLite> SimpleLocalTrackFlatTablePr
 #include "DataFormats/Math/interface/Point3D.h"
 typedef EventSingletonSimpleFlatTableProducer<math::XYZPointF> SimpleXYZPointFlatTableProducer;
 
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
+typedef EventSingletonSimpleFlatTableProducer<OnlineLuminosityRecord> SimpleOnlineLuminosityFlatTableProducer;
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 typedef EventSingletonSimpleFlatTableProducer<reco::BeamSpot> SimpleBeamspotFlatTableProducer;
 
@@ -62,6 +65,7 @@ DEFINE_FWK_MODULE(SimpleHTXSFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleProtonTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleOnlineLuminosityFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleBeamspotFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1EGFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1JetFlatTableProducer);

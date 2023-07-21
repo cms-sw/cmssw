@@ -213,9 +213,8 @@ void MuGEMMuonExtTableProducer::fillTable(edm::Event& ev) {
           continue;
         }
 
-        const auto&& start_state =
-            is_insideout ? transient_track.outermostMeasurementState() : transient_track.innermostMeasurementState();
-        auto& propagator = is_incoming ? propagator_along : propagator_opposite;
+        const auto&& start_state = transient_track.innermostMeasurementState();
+        auto& propagator = propagator_any;
 
         auto recHitMu = outerTrackRef->recHitsBegin();
         auto recHitMuEnd = outerTrackRef->recHitsEnd();
