@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "oneapi/tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_queue.h"
 
 namespace edm {
   struct TypeIDHasher {
@@ -56,6 +57,30 @@ namespace reco {
       edm::ObjectWithDict invoke(const edm::ObjectWithDict& obj, edm::ObjectWithDict& retstore) const;
     };
 
+    struct SingleInvoker;
+
+    //Handles temporary object storage
+    struct StorageManager {
+    private:
+      edm::ObjectWithDict object_;
+      SingleInvoker const* invoker_;
+      bool needsDestructor_;
+
+    public:
+      StorageManager(edm::ObjectWithDict const& iObj, SingleInvoker const* iInvoker, bool iNeedsDestructor_)
+          : object_(iObj), invoker_(iInvoker), needsDestructor_(iNeedsDestructor_) {}
+
+      StorageManager(const StorageManager&) = delete;
+      StorageManager(StorageManager&& iOther)
+          : object_(iOther.object_), invoker_(iOther.invoker_), needsDestructor_(iOther.needsDestructor_) {
+        iOther.needsDestructor_ = false;
+        iOther.invoker_ = nullptr;
+      }
+      StorageManager& operator=(const StorageManager&) = delete;
+      StorageManager& operator=(StorageManager&&) = delete;
+
+      ~StorageManager();
+    };
     /// A bigger brother of the MethodInvoker:
     /// - it owns also the object in which to store the result
     /// - it handles by itself the popping out of Refs and Ptrs
@@ -64,10 +89,14 @@ namespace reco {
     private:  // Private Data Members
       method::TypeCode retType_;
       std::vector<MethodInvoker> invokers_;
-      mutable edm::ObjectWithDict storage_;
+      mutable oneapi::tbb::concurrent_queue<edm::ObjectWithDict> storage_;
       bool storageNeedsDestructor_;
       /// true if this invoker just pops out a ref and returns (ref.get(), false)
       bool isRefGet_;
+
+      edm::ObjectWithDict borrowStorage() const;
+
+      edm::ObjectWithDict createStorage(bool& needsDestructor) const;
 
     public:
       SingleInvoker(const SingleInvoker&) = delete;
@@ -83,13 +112,14 @@ namespace reco {
       /// the actual edm::ObjectWithDict where the result is stored
       /// will be pushed in vector so that, if needed, its destructor
       /// can be called
-      std::pair<edm::ObjectWithDict, bool> invoke(const edm::ObjectWithDict& o,
-                                                  std::vector<edm::ObjectWithDict>& v) const;
+      std::pair<edm::ObjectWithDict, bool> invoke(const edm::ObjectWithDict& o, std::vector<StorageManager>& v) const;
 
       /// convert the output of invoke to a double, if possible
       double retToDouble(const edm::ObjectWithDict&) const;
 
       void throwFailedConversion(const edm::ObjectWithDict&) const;
+
+      void returnStorage(edm::ObjectWithDict&&) const;
     };
 
     /// Keeps different SingleInvokers for each dynamic type of the objects passed to invoke()
@@ -118,10 +148,10 @@ namespace reco {
       /// the actual edm::ObjectWithDict where the result is
       /// stored will be pushed in vector
       /// so that, if needed, its destructor can be called
-      edm::ObjectWithDict invoke(const edm::ObjectWithDict& o, std::vector<edm::ObjectWithDict>& v) const;
+      edm::ObjectWithDict invoke(const edm::ObjectWithDict& o, std::vector<StorageManager>& v) const;
 
       /// invoke and coerce result to double
-      double invokeLast(const edm::ObjectWithDict& o, std::vector<edm::ObjectWithDict>& v) const;
+      double invokeLast(const edm::ObjectWithDict& o, std::vector<StorageManager>& v) const;
     };
 
   }  // namespace parser
