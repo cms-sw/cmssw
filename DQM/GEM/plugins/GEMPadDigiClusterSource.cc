@@ -37,6 +37,9 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   fRadiusMax_ = 250.0;
   
   mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Pad and BX Difference of closed Pads ",81, -40 - 0.5, 40 + 0.5,21,  -10 - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
+  mapPadDiffPerCh_ = MEMap3Inf(this,"delta_pad","Pad Difference of closed Pads ",81, -40 - 0.5, 40 + 0.5, "Delta Pads");
+  mapBXDiffPerCh_ = MEMap3Inf(this,"delta_bx","BX Difference of closed Pads ",21,  -10 - 0.5, 10 + 0.5, "Delta BX");
+
   mapBXCLSPerCh_ = MEMap4Inf(this, "bx", "Pad Bunch Crossing Per Cluster", 14 , -0.5, 13.5, "Bunch crossing");
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
   mapPadBxPerCh_ = MEMap4Inf(this, "pad", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
@@ -60,10 +63,18 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key)
 }
 int GEMPadDigiClusterSource::ProcessWithMEMap2WithChamber(BookingHelper& bh, ME3IdsKey key) {
     
-  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/pad_bx_difference_");
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/pad_bx_difference");
   mapPadBXDiffPerCh_.bookND(bh,key);
   bh.getBooker()->setCurrentFolder(strFolderMain_);
    
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/pad_difference");
+  mapPadDiffPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_);
+
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/bx_difference");
+  mapBXDiffPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_);
+     
   return 0;
 }
 
@@ -91,7 +102,7 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4
   mapPadCLSPerCh_.bookND(bh, key);
   mapPadCLSPerCh_.SetLabelForIEta(key, 2);
 
-  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/bx_cluster" + getNameDirLayer(key3));
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/bx_cluster_" + getNameDirLayer(key3));
   mapBXCLSPerCh_ .bookND(bh,key);
   bh.getBooker()->setCurrentFolder(strFolderMain_);
   return 0;
@@ -128,8 +139,10 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
                     
                   for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
                     for (auto pad2=cluster2->pads().front(); pad2 < (cluster2->pads().front() + cluster2->pads().size()); pad2++  ){
-                      if (abs(pad - pad2) < 40 && abs(((*it).first).roll() - ((*it2).first).roll())<=1){
-                          mapPadBXDiffPerCh_.Fill(key3Ch, pad2-pad,  cluster2->bx()-cluster->bx() );
+                      if (abs(pad - pad2) < 20 && abs(((*it).first).roll() - ((*it2).first).roll())<=1){
+                          mapPadBXDiffPerCh_.Fill(key3Ch, pad2-pad,  cluster2->bx() - cluster->bx() );
+                          mapPadDiffPerCh_.Fill(key3Ch, pad2-pad );
+                          mapBXDiffPerCh_.Fill(key3Ch, cluster2->bx() - cluster->bx() );
                       }
                     }
                   }

@@ -57,20 +57,10 @@ private:
 
   edm::EDGetTokenT<LumiScalersCollection> lumiScalers_;
 
-  //MEMap3Inf mapTotalDigi_layer_;
-  //MEMap3Inf mapDigiWheel_layer_;
-  //MEMap3Inf mapDigiOcc_ieta_;
-  //MEMap3Inf mapDigiOcc_phi_;
-  //MEMap3Inf mapTotalDigiPerEvtLayer_;
-  //MEMap3Inf mapTotalDigiPerEvtIEta_;
   MEMap3Inf mapPadDiffPerCh_;
   MEMap3Inf mapBXDiffPerCh_;
   MEMap3Inf mapPadBXDiffPerCh_;
-  //MEMap3Inf mapBXDiffMaxPerCh_;
-  //MEMap3Inf mapBXDiffMinPerCh_;
-  //MEMap3Inf mapBXDiffMedPerCh_;
-  //MEMap2Inf mapBX_;
-
+  
   MEMap4Inf mapPadBXDiffPerEtaCh_;
   MEMap4Inf mapPadDigiOccPerCh_;
   MEMap4Inf mapPadBxPerCh_ ;
