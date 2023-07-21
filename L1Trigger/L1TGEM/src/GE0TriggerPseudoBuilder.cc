@@ -17,7 +17,7 @@ GE0TriggerPseudoBuilder::GE0TriggerPseudoBuilder(const edm::ParameterSet& conf) 
 
 GE0TriggerPseudoBuilder::~GE0TriggerPseudoBuilder() {}
 
-void GE0TriggerPseudoBuilder::build(const GEMSegmentCollection* me0Segments, ME0TriggerDigiCollection& oc_trig) {
+void GE0TriggerPseudoBuilder::build(const GEMSegmentCollection* me0Segments, GE0TriggerDigiCollection& oc_trig) {
   if (info_ > 2)
     dumpAllME0Segments(*me0Segments);
 
@@ -27,7 +27,7 @@ void GE0TriggerPseudoBuilder::build(const GEMSegmentCollection* me0Segments, ME0
       // chamber counts from 1 to 18 in ME0ID
       const int region(endc == 0 ? -1 : 1);
       //  constexpr GEMDetId(int region, int ring, int station, int layer, int chamber, int ieta)
-      GEMDetId detid(region, 0, 0, 0, cham + 1, 0);
+      GEMDetId detid(region, 1, 0, 0, cham + 1, 0);
 
       const auto& drange = me0Segments->get(detid);
       std::vector<ME0TriggerDigi> trigV;

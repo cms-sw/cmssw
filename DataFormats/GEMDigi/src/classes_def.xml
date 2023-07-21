@@ -132,4 +132,9 @@
 <class name="MuonDigiCollection<ME0DetId,ME0TriggerDigi>"/>
 <class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0TriggerDigi> >" splitLevel="0"/>
 
+<class name="std::map<GEMDetId,std::vector<ME0TriggerDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<ME0TriggerDigi> >"/>
+<class name="MuonDigiCollection<GEMDetId,ME0TriggerDigi>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,ME0TriggerDigi> >" splitLevel="0"/>
+
 </lcgdict>
