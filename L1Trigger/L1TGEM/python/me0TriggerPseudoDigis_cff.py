@@ -37,3 +37,16 @@ me0TriggerPseudoDigiTask = cms.Task(
     me0Segments,
     me0TriggerConvertedPseudoDigis
 )
+
+from RecoLocalMuon.GEMRecHit.gemRecHits_cfi import *
+from RecoLocalMuon.GEMSegment.gemSegments_cfi import *
+
+ge0TriggerPseudoDigiTask = cms.Task(
+    simMuonME0PseudoReDigisCoarse,
+    me0RecHitsCoarse,
+    me0TriggerPseudoDigis,
+    ## need to run the standard ME0 RECO sequence for converted triggers
+    gemRecHits,
+    gemSegments,
+    ge0TriggerConvertedPseudoDigis
+)

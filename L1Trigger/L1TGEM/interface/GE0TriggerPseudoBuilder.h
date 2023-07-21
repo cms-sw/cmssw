@@ -28,7 +28,7 @@ public:
   ~GE0TriggerPseudoBuilder();
 
   /** Build Triggers from ME0 segment in each chamber and fill them into output collections. */
-  void build(const GEMSegmentCollection* me0segments, ME0TriggerDigiCollection& oc_trig);
+  void build(const GEMSegmentCollection* me0segments, GE0TriggerDigiCollection& oc_trig);
 
   /** set geometry for the matching needs */
   void setME0Geometry(const GEMGeometry* g) { me0_g = g; }

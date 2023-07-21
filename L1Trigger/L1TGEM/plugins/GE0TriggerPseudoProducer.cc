@@ -47,7 +47,7 @@ GE0TriggerPseudoProducer::GE0TriggerPseudoProducer(const edm::ParameterSet& conf
   config_ = conf;
 
   // register what this produces
-  produces<ME0TriggerDigiCollection>();
+  produces<GE0TriggerDigiCollection>();
 }
 
 GE0TriggerPseudoProducer::~GE0TriggerPseudoProducer() {}
@@ -60,7 +60,7 @@ void GE0TriggerPseudoProducer::produce(edm::StreamID, edm::Event& ev, const edm:
   const GEMSegmentCollection* me0segments = me0Segmentcoll.product();
 
   // Create empty collection
-  auto oc_trig = std::make_unique<ME0TriggerDigiCollection>();
+  auto oc_trig = std::make_unique<GE0TriggerDigiCollection>();
 
   auto trigBuilder = std::make_unique<GE0TriggerPseudoBuilder>(config_);
   trigBuilder->setME0Geometry(&*h_me0);
