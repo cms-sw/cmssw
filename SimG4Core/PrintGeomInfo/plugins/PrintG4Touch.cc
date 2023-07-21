@@ -56,8 +56,7 @@ private:
 PrintG4Touch::PrintG4Touch(const edm::ParameterSet &p) {
   dd4hep_ = p.getUntrackedParameter<bool>("DD4hep", false);
   verbosity_ = p.getUntrackedParameter<bool>("Verbosity", false);
-  G4cout << "PrintG4Touch:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
-         << verbosity_ << G4endl;
+  G4cout << "PrintG4Touch:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:" << verbosity_ << G4endl;
 }
 
 void PrintG4Touch::update(const BeginOfRun *run) {
@@ -84,7 +83,8 @@ void PrintG4Touch::dumpSummary(std::ostream &out) {
     out << " No volume created " << G4endl;
     return;
   }
-  out << " @@@ Geometry built inside world volume: " << DD4hep2DDDName::namePV(static_cast<std::string>(theTopPV_->GetName()), dd4hep_) << G4endl;
+  out << " @@@ Geometry built inside world volume: "
+      << DD4hep2DDDName::namePV(static_cast<std::string>(theTopPV_->GetName()), dd4hep_) << G4endl;
   // Get number of solids (< # LV if several LV share a solid)
   const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
@@ -124,9 +124,14 @@ void PrintG4Touch::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, std:
   G4LogicalVolume *lv = pv->GetLogicalVolume();
 
   G4ThreeVector globalpoint = fHistory_.GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0, 0, 0));
-  std::string mother = (pv->GetMotherLogical()) ? (DD4hep2DDDName::nameSolid(static_cast<std::string>(pv->GetMotherLogical()->GetSolid()->GetName()), dd4hep_)) : "World";
+  std::string mother = (pv->GetMotherLogical())
+                           ? (DD4hep2DDDName::nameSolid(
+                                 static_cast<std::string>(pv->GetMotherLogical()->GetSolid()->GetName()), dd4hep_))
+                           : "World";
   std::string lvname = DD4hep2DDDName::nameSolid(static_cast<std::string>(lv->GetName()), dd4hep_);
-  out << leafDepth << "### VOLUME = " << lvname << " Copy No " << pv->GetCopyNo() << " in " << mother << " global position of centre " << globalpoint << " (r = " << globalpoint.perp() << ", phi = " << convertRadToDeg(globalpoint.phi()) << ")" << G4endl;
+  out << leafDepth << "### VOLUME = " << lvname << " Copy No " << pv->GetCopyNo() << " in " << mother
+      << " global position of centre " << globalpoint << " (r = " << globalpoint.perp()
+      << ", phi = " << convertRadToDeg(globalpoint.phi()) << ")" << G4endl;
 
   int NoDaughters = lv->GetNoDaughters();
   while ((NoDaughters--) > 0) {
@@ -140,15 +145,18 @@ void PrintG4Touch::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, std:
 }
 
 void PrintG4Touch::getTouch(G4VPhysicalVolume *pv,
-			    unsigned int leafDepth,
-			    unsigned int copym,
-			    std::vector<std::string> &touches) {
+                            unsigned int leafDepth,
+                            unsigned int copym,
+                            std::vector<std::string> &touches) {
   if (leafDepth == 0)
     fHistory_.SetFirstEntry(pv);
   else
     fHistory_.NewLevel(pv, kNormal, pv->GetCopyNo());
 
-  std::string mother = (pv->GetMotherLogical()) ? (DD4hep2DDDName::nameSolid(static_cast<std::string>(pv->GetMotherLogical()->GetSolid()->GetName()), dd4hep_)) : "World";
+  std::string mother = (pv->GetMotherLogical())
+                           ? (DD4hep2DDDName::nameSolid(
+                                 static_cast<std::string>(pv->GetMotherLogical()->GetSolid()->GetName()), dd4hep_))
+                           : "World";
 
   G4LogicalVolume *lv = pv->GetLogicalVolume();
   std::string lvname = DD4hep2DDDName::nameSolid(static_cast<std::string>(lv->GetName()), dd4hep_);
