@@ -291,7 +291,7 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
   sprintf(nameD, "hgcalHitCheck%s", dirnm.c_str());
   sprintf(title, "%s vs %s for %s", types[0].c_str(), types[1].c_str(), inType.c_str());
   std::cout << "Use " << nfile << " files from " << filex[0] << " and " << filex[1] << " and look for " << plots
-            << " plots in " << nameD << " with rebin " << rebin << " Max " << xmax;
+            << " plots in " << nameD << " with rebin " << rebin << " Max " << xmax << std::endl;
   for (int i = 0; i < plots; ++i) {
     if (layer == 0)
       sprintf(name, "Hits%s", plotf[i].c_str());

@@ -60,7 +60,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('SingleMuPt100_pythia8_cfi.py nevts:100'),
+    annotation = cms.untracked.string('SingleMuE100_cfi.py nevts:10000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
