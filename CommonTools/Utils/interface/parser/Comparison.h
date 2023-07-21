@@ -10,7 +10,7 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/ComparisonBase.h"
+#include "CommonTools/Utils/interface/parser/ComparisonBase.h"
 
 namespace reco {
   namespace parser {

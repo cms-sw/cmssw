@@ -10,7 +10,7 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/ExpressionBase.h"
+#include "CommonTools/Utils/interface/parser/ExpressionBase.h"
 
 namespace reco {
   namespace parser {

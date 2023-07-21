@@ -10,8 +10,8 @@
  * \version $Revision: 1.3 $
  *
  */
-#include "CommonTools/Utils/interface/SelectorPtr.h"
-#include "CommonTools/Utils/interface/SelectorStack.h"
+#include "CommonTools/Utils/interface/parser/SelectorPtr.h"
+#include "CommonTools/Utils/interface/parser/SelectorStack.h"
 #include <cassert>
 
 namespace reco {

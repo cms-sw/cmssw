@@ -10,8 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/ExpressionPtr.h"
-#include "CommonTools/Utils/interface/ExpressionStack.h"
+#include "CommonTools/Utils/interface/parser/ExpressionPtr.h"
+#include "CommonTools/Utils/interface/parser/ExpressionStack.h"
 
 namespace reco {
   namespace parser {

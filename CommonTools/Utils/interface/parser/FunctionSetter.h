@@ -9,8 +9,8 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/Function.h"
-#include "CommonTools/Utils/interface/FunctionStack.h"
+#include "CommonTools/Utils/interface/parser/Function.h"
+#include "CommonTools/Utils/interface/parser/FunctionStack.h"
 
 namespace reco {
   namespace parser {

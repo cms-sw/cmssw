@@ -3,7 +3,7 @@
 
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "CommonTools/Utils/interface/Exception.h"
+#include "CommonTools/Utils/interface/parser/Exception.h"
 
 #include <algorithm>
 #include <cstdint>

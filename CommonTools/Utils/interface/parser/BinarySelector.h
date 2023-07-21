@@ -10,9 +10,9 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "CommonTools/Utils/interface/SelectorBase.h"
-#include "CommonTools/Utils/interface/ExpressionBase.h"
-#include "CommonTools/Utils/interface/ComparisonBase.h"
+#include "CommonTools/Utils/interface/parser/SelectorBase.h"
+#include "CommonTools/Utils/interface/parser/ExpressionBase.h"
+#include "CommonTools/Utils/interface/parser/ComparisonBase.h"
 
 namespace reco {
   namespace parser {

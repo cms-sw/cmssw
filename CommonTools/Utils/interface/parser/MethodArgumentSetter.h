@@ -9,7 +9,7 @@
  * \version $Revision: 1.1 $
  *
  */
-#include "CommonTools/Utils/interface/MethodArgumentStack.h"
+#include "CommonTools/Utils/interface/parser/MethodArgumentStack.h"
 #include <cassert>
 
 namespace reco {

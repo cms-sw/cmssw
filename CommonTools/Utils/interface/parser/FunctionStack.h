@@ -9,7 +9,7 @@
  * \version $Revision: 1.1 $
  *
  */
-#include "CommonTools/Utils/interface/Function.h"
+#include "CommonTools/Utils/interface/parser/Function.h"
 #include <vector>
 
 namespace reco {

@@ -9,8 +9,8 @@
  * \version $Revision: 1.1 $
  *
  */
-#include "CommonTools/Utils/interface/ExpressionStack.h"
-#include "CommonTools/Utils/interface/SelectorStack.h"
+#include "CommonTools/Utils/interface/parser/ExpressionStack.h"
+#include "CommonTools/Utils/interface/parser/SelectorStack.h"
 
 namespace reco {
   namespace parser {
