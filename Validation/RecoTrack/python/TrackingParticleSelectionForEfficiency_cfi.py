@@ -16,6 +16,7 @@ TrackingParticleSelectionForEfficiency = cms.PSet(
     invertRapidityCutTP = cms.bool(False),
     maxPhi = cms.double(3.2),
     minPhi = cms.double(-3.2),
+    applyTPSelToSimMatch = cms.bool(False)
 )
 
 def _modifyForPhase1(pset):
