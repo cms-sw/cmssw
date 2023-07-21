@@ -1,32 +1,12 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/ParameterSet"/>
-<use name="CommonTools/Utils"/>
-<use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/NanoAOD"/>
 <use name="PhysicsTools/NanoAOD"/>
-<use name="CalibMuon/DTDigiSync"/>
+<use name="Geometry/DTGeometry"/>
 <use name="Geometry/Records"/>
-<use name="Utilities/General"/>
-<use name="TrackingTools/GeomPropagators"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/DTDigi"/>
 <use name="DataFormats/DTRecHit"/>
 <use name="DataFormats/L1DTTrackFinder"/>
-<use name="Geometry/GEMGeometry"/>
-<use name="Geometry/RPCGeometry"/>
-<use name="DataFormats/GEMDigi"/>
-<use name="DataFormats/GEMRecHit"/>
-<use name="DataFormats/CSCRecHit"/>
-<use name="DataFormats/CSCDigi"/>
-<use name="HLTrigger/HLTcore"/>
-<use name="DataFormats/MuonReco"/>
-<use name="TrackingTools/TransientTrack"/>
-<use name="TrackingTools/Records"/>
-<use name="RecoMuon/TrackingTools"/>
-<use name="DataFormats/RPCDigi"/>
-<use name="DataFormats/RPCRecHit"/>
 <use name="boost"/>
 
 <export>

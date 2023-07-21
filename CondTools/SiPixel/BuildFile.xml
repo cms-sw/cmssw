@@ -1,9 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/SiPixelObjects"/>
-<use name="CondCore/SiPixelPlugins"/>
 <use name="CondCore/PopCon"/>
-<use name="DataFormats/Luminosity"/>
 <export>
   <lib name="1"/>
 </export>

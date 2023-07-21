@@ -1,4 +1,3 @@
-<use name="FWCore/Utilities"/>
 <use name="roothistmatrix"/>
 <use name="protobuf"/>
 <use name="cppunit"/>

@@ -1,2 +1,1 @@
-<use name="FWCore/Utilities"/>
 <test name="TestConfigDP" command="run_CfgTest.sh"/>
