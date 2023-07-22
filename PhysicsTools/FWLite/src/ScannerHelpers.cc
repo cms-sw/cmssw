@@ -1,7 +1,7 @@
 #include <PhysicsTools/FWLite/interface/ScannerHelpers.h>
 
-#include "CommonTools/Utils/interface/ExpressionPtr.h"
-#include "CommonTools/Utils/interface/Grammar.h"
+#include "CommonTools/Utils/interface/parser/ExpressionPtr.h"
+#include "CommonTools/Utils/interface/parser/Grammar.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
 
