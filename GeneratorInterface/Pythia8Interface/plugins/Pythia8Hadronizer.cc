@@ -19,6 +19,7 @@ using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/TopRecoilHook.h"
 
 // PS matchning prototype
 //
@@ -151,6 +152,9 @@ private:
 
   //Generic customized hooks vector
   std::shared_ptr<UserHooksVector> fCustomHooksVector;
+
+  //RecoilToTop userhook
+  std::shared_ptr<TopRecoilHook> fTopRecoilHook;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -425,6 +429,14 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
   }
 
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook.reset(new TopRecoilHook());
+    (fUserHooksVector->hooks).push_back(fTopRecoilHook);
+  }
+
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
   bool internalMerging = !(fMasterGen->settings.word("Merging:Process") == "void");
@@ -594,6 +606,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     (fUserHooksVector->hooks).push_back(fPowhegHooksBB4L);
   }
 
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook.reset(new TopRecoilHook());
+    (fUserHooksVector->hooks).push_back(fTopRecoilHook);
+  }
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
   bool internalMerging = !(fMasterGen->settings.word("Merging:Process") == "void");
