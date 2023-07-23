@@ -77,8 +77,8 @@ namespace gen {
       printBanner = fParameters.getUntrackedParameter<bool>("printBanner");
     }
     if (!fMasterGen.get())
-      fMasterGen = std::make_unique<Pythia>(xmlDir, printBanner);
-    fDecayer = std::make_unique<Pythia>(xmlDir, printBanner);
+      fMasterGen = std::make_unique<Pythia>();
+    fDecayer = std::make_unique<Pythia>();
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);
