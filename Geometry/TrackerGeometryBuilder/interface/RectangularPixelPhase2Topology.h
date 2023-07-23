@@ -1,25 +1,12 @@
-#ifndef Geometry_TrackerGeometryBuilder_RectangularPixelTopology_H
-#define Geometry_TrackerGeometryBuilder_RectangularPixelTopology_H
+#ifndef Geometry_TrackerGeometryBuilder_RectangularPixelPhase2Topology_H
+#define Geometry_TrackerGeometryBuilder_RectangularPixelPhase2Topology_H
 
 /**
    * Topology for rectangular pixel detector with BIG pixels.
    */
-// Modified for the large pixels. Should work for barrel and forward.
-// Danek Kotlinski & Michele Pioppi, 3/06.
+// Re-written for phase-2 pixels.
+// E. Migliore INFN/Universita Torino 2023/11
 // The bigger pixels are on the ROC boundries.
-// For columns (Y direction, longer direction):
-//  the normal pixel are 150um long, big pixels are 300um long,
-//  the pixel index goes from 0 to 416 (or less for smaller modules)
-//  the big pixel are in 0, 52,104,156,208,260,312,363
-//                      51,103,155,207,259,311,363,415 .
-// For rows (X direction, shorter direction):
-//  the normal pixel are 100um wide, big pixels are 200um wide,
-//  the pixel index goes from 0 to 159 (or less for smaller modules)
-//  the big pixel are in 79,80.
-// The ROC has rows=80, cols=52.
-// There are a lot of hardwired constants, sorry but this is a very
-// specific class. For any other sensor design it has to be rewritten.
-
 // G. Giurgiu 11/27/06 ---------------------------------------------
 // Check whether the pixel is at the edge of the module by adding the
 // following functions (ixbin and iybin are the pixel row and column
@@ -36,17 +23,17 @@
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class RectangularPixelTopology final : public PixelTopology {
+class RectangularPixelPhase2Topology final : public PixelTopology {
 public:
   // Constructor, initilize
-  RectangularPixelTopology(int nrows,
+  RectangularPixelPhase2Topology(int nrows,
                            int ncols,
                            float pitchx,
                            float pitchy,
                            int ROWS_PER_ROC,       // Num of Rows per ROC
                            int COLS_PER_ROC,       // Num of Cols per ROC
-                           int BIG_PIX_PER_ROC_X,  // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-                           int BIG_PIX_PER_ROC_Y,  // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+                           int BIG_PIX_PER_ROC_X,  // in x direction, rows
+                           int BIG_PIX_PER_ROC_Y,  // in y direction, cols
                            int ROCS_X,
                            int ROCS_Y)
       : m_pitchx(pitchx),
@@ -55,8 +42,8 @@ public:
         m_ncols(ncols),
         m_ROWS_PER_ROC(ROWS_PER_ROC),  // Num of Rows per ROC
         m_COLS_PER_ROC(COLS_PER_ROC),  // Num of Cols per ROC
-        m_ROCS_X(ROCS_X),              // 2 for SLHC
-        m_ROCS_Y(ROCS_Y)               // 8 for SLHC
+        m_ROCS_X(ROCS_X),              // 
+        m_ROCS_Y(ROCS_Y)               // 
         {
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.
@@ -64,13 +51,16 @@ public:
     m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X * m_nrows / ROWS_PER_ROC) / 2. * m_pitchx;
     m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y * m_ncols / COLS_PER_ROC) / 2. * m_pitchy;
 
-    LogDebug("RectangularPixelTopology") << "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx " << m_pitchx
+    std::cout << "RectangularPixelPhase2Topology"
+      //   LogDebug("RectangularPixelPhase2Topology")
+	      << "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx " << m_pitchx
                                          << ", pitchy " << m_pitchy << ", xoffset " << m_xoffset << ", yoffset "
                                          << m_yoffset << ", BIG_PIX_PER_ROC_X " << BIG_PIX_PER_ROC_X
                                          << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", ROWS_PER_ROC "
                                          << ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X
                                          << ", ROCS_Y " << ROCS_Y << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X
-                                         << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y;
+                                         << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y
+	      << std::endl;
   }
 
   // Topology interface, go from Masurement to Local corrdinates
@@ -111,24 +101,21 @@ public:
   // Return the BIG pixel information for a given pixel
   //
   bool isItBigPixelInX(const int ixbin) const override {
-    return ((ixbin == 79) | (ixbin == 80));
+    return false;
   }
 
   bool isItBigPixelInY(const int iybin) const override {
-    int iybin0 = iybin % 52;
-    return ((iybin0 == 0) | (iybin0 == 51));
-    // constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
-    // return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
+      return false;
   }
 
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
   //
   bool containsBigPixelInX(int ixmin, int ixmax) const override {
-    return ((ixmin <= 80) & (ixmax >= 79));
+    return false;
   }
   bool containsBigPixelInY(int iymin, int iymax) const override {
-    return (isItBigPixelInY(iymin) || isItBigPixelInY(iymax) || (iymin / 52) != (iymax / 52));
+    return false;
   }
 
   // @EM this is a dummy implementation ... 
@@ -137,7 +124,6 @@ public:
   // fare anche per MTD ???
   bool bigpixelsX() const override { return false; }
   bool bigpixelsY() const override { return false; }
-
 
   //-------------------------------------------------------------
   // Check whether the pixel is at the edge of the module

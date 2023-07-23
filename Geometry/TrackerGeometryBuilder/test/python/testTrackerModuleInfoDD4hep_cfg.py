@@ -6,7 +6,7 @@ process = cms.Process("GeometryTest", Run3_dd4hep)
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
-process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
+process.load('Configuration.Geometry.GeometryDD4hepExtended2026D100Reco_cff')
 
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
                                                       fromDDD = cms.bool( False ),

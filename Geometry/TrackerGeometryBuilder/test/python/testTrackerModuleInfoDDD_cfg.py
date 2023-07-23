@@ -5,7 +5,7 @@ process = cms.Process("GeometryTest")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
-process.load('Configuration.Geometry.GeometryExtended_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D100_cff')
 process.load('Geometry.CommonTopologies.globalTrackingGeometry_cfi')
 process.load('Geometry.TrackerGeometryBuilder.trackerParameters_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerTopology_cfi')

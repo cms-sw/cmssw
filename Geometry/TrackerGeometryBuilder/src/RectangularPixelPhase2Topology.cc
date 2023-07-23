@@ -1,4 +1,4 @@
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelPhase2Topology.h"
 
 /**
    * Topology for rectangular pixel detector with BIG pixels.
@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------
 // PixelTopology interface.
 // Transform LocalPoint in cm to measurement in pitch units.
-std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) const {
+std::pair<float, float> RectangularPixelPhase2Topology::pixel(const LocalPoint& p) const {
   // check limits
   float py = p.y();
   float px = p.x();
@@ -45,7 +45,7 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
   }
 
   if (!debugstr.str().empty())
-    LogDebug("RectangularPixelTopology") << debugstr.str();
+    LogDebug("RectangularPixelPhase2Topology") << debugstr.str();
 #endif  // EDM_ML_DEBUG
 
   float newybin = (py - m_yoffset) / m_pitchy;
@@ -57,32 +57,25 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
   int numROC = 0;
   float mpY = 0.;
 
-  iybin0 = (iybin % 54);  // 0-53
-  numROC = iybin / 54;    // 0-7
+
+  iybin0 = (iybin % m_COLS_PER_ROC);  // 0-51
+  numROC = iybin / m_COLS_PER_ROC;    // 0-7
+  mpY = float(numROC * m_COLS_PER_ROC + iybin0) + fractionY;
   
-  if (iybin0 == 53) {  // inside big pixel
-    iybin0 = 51;
-    fractionY = (fractionY + 1.) / 2.;
-  } else if (iybin0 == 52) {  // inside big pixel
-    iybin0 = 51;
-    fractionY = fractionY / 2.;
-  } else if (iybin0 > 1) {  // inside normal pixel
-    iybin0 = iybin0 - 1;
-  } else if (iybin0 == 1) {  // inside big pixel
-    iybin0 = 0;
-    fractionY = (fractionY + 1.) / 2.;
-  } else if (iybin0 == 0) {  // inside big pixel
-    iybin0 = 0;
-    fractionY = fractionY / 2.;
+#ifdef EDM_ML_DEBUG
+
+  if (iybin0 > m_COLS_PER_ROC) {
+    LogDebug("RectangularPixelPhase2Topology") << " very bad, newbiny " << iybin0 << "\n"
+					       << py << " " << m_yoffset << " " << m_pitchy << " " << newybin << " "
+					       << iybin << " " << fractionY << " " << iybin0 << " " << numROC;
   }
-  
-  mpY = float(numROC * 52. + iybin0) + fractionY;
+#endif  // EDM_ML_DEBUG
 
 
 #ifdef EDM_ML_DEBUG
 
   if (mpY < 0. || mpY >= 416.) {
-    LogDebug("RectangularPixelTopology") << " bad pix y " << mpY << "\n"
+    LogDebug("RectangularPixelPhase2Topology") << " bad pix y " << mpY << "\n"
                                          << py << " " << m_yoffset << " " << m_pitchy << " " << newybin << " " << iybin
                                          << " " << fractionY << " " << iybin0 << " " << numROC;
   }
@@ -97,36 +90,18 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
 
   if (ixbin > 161 || ixbin < 0)  //  ixbin < 0 outside range
   {
-    LogDebug("RectangularPixelTopology") << " very bad, newbinx " << ixbin << "\n"
+    LogDebug("RectangularPixelPhase2Topology") << " very bad, newbinx " << ixbin << "\n"
                                          << px << " " << m_xoffset << " " << m_pitchx << " " << newxbin << " " << ixbin
                                          << " " << fractionX;
   }
 #endif  // EDM_ML_DEBUG
-
-
-  if (ixbin > 82) {  // inside normal pixel, ROC 1
-    ixbin = ixbin - 2;
-  } else if (ixbin == 82) {  // inside bin pixel
-    ixbin = 80;
-    fractionX = (fractionX + 1.) / 2.;
-  } else if (ixbin == 81) {  // inside big pixel
-    ixbin = 80;
-    fractionX = fractionX / 2.;
-  } else if (ixbin == 80) {  // inside bin pixel, ROC 0
-    ixbin = 79;
-    fractionX = (fractionX + 1.) / 2.;
-  } else if (ixbin == 79) {  // inside big pixel
-    ixbin = 79;
-    fractionX = fractionX / 2.;
-  }
-  
 
   float mpX = float(ixbin) + fractionX;
 
 #ifdef EDM_ML_DEBUG
 
   if (mpX < 0. || mpX >= 160.) {
-    LogDebug("RectangularPixelTopology") << " bad pix x " << mpX << "\n"
+    LogDebug("RectangularPixelPhase2Topology") << " bad pix x " << mpX << "\n"
                                          << px << " " << m_xoffset << " " << m_pitchx << " " << newxbin << " " << ixbin
                                          << " " << fractionX;
   }
@@ -138,7 +113,7 @@ std::pair<float, float> RectangularPixelTopology::pixel(const LocalPoint& p) con
 //----------------------------------------------------------------------
 // Topology interface, go from Masurement to Local corrdinates
 // pixel coordinates (mp) -> cm (LocalPoint)
-LocalPoint RectangularPixelTopology::localPosition(const MeasurementPoint& mp) const {
+LocalPoint RectangularPixelPhase2Topology::localPosition(const MeasurementPoint& mp) const {
   float mpy = mp.y();  // measurements
   float mpx = mp.x();
 
@@ -164,7 +139,7 @@ LocalPoint RectangularPixelTopology::localPosition(const MeasurementPoint& mp) c
     mpx = float(m_nrows) - EPS;  // EPS is a small number
   }
   if (!debugstr.str().empty())
-    LogDebug("RectangularPixelTopology") << debugstr.str();
+    LogDebug("RectangularPixelPhase2Topology") << debugstr.str();
 #endif  // EDM_ML_DEBUG
 
   float lpY = localY(mpy);
@@ -178,38 +153,29 @@ LocalPoint RectangularPixelTopology::localPosition(const MeasurementPoint& mp) c
 //
 // measuremet to local transformation for X coordinate
 // X coordinate is in the ROC row number direction
-float RectangularPixelTopology::localX(const float mpx) const {
+float RectangularPixelPhase2Topology::localX(const float mpx) const {
   int binoffx = int(mpx);                  // truncate to int
   float fractionX = mpx - float(binoffx);  // find the fraction
   float local_pitchx = m_pitchx;           // defaultpitch
 
-  if (binoffx > 80) {  // ROC 1 - handles x on edge cluster
-    binoffx = binoffx + 2;
-  } else if (binoffx == 80) {  // ROC 1
-    binoffx = binoffx + 1;
-    local_pitchx *= 2;
-  } else if (binoffx == 79) {  // ROC 0
-    binoffx = binoffx + 0;
-    local_pitchx *= 2;
-  }
-  // else if (binoffx>=0) {       // ROC 0
-  //  binoffx=binoffx+0;
-  // }
-  
-#ifdef EDM_ML_DEBUG
-  if (binoffx < 0)  // too small
-    LogDebug("RectangularPixelTopology")
-      << " very bad, binx " << binoffx << "\n"
-      << mpx << " " << binoffx << " " << fractionX << " " << local_pitchx << " " << m_xoffset;
-#endif
 
+#ifdef EDM_ML_DEBUG
+  if (binoffx > m_ROWS_PER_ROC * m_ROCS_X)  // too large
+    {
+      LogDebug("RectangularPixelPhase2Topology")
+	<< " very bad, binx " << binoffx << "\n"
+	<< mpx << " " << binoffx << " " << fractionX << " " << local_pitchx << " " << m_xoffset << "\n";
+    }
+#endif
+  
+  
   // The final position in local coordinates
   float lpX = float(binoffx * m_pitchx) + fractionX * local_pitchx + m_xoffset;
 
 #ifdef EDM_ML_DEBUG
 
   if (lpX < m_xoffset || lpX > (-m_xoffset)) {
-    LogDebug("RectangularPixelTopology") << " bad lp x " << lpX << "\n"
+    LogDebug("RectangularPixelPhase2Topology") << " bad lp x " << lpX << "\n"
                                          << mpx << " " << binoffx << " " << fractionX << " " << local_pitchx << " "
                                          << m_xoffset;
   }
@@ -220,25 +186,27 @@ float RectangularPixelTopology::localX(const float mpx) const {
 
 // measuremet to local transformation for Y coordinate
 // Y is in the ROC column number direction
-float RectangularPixelTopology::localY(const float mpy) const {
+float RectangularPixelPhase2Topology::localY(const float mpy) const {
   int binoffy = int(mpy);                  // truncate to int
   float fractionY = mpy - float(binoffy);  // find the fraction
   float local_pitchy = m_pitchy;           // defaultpitch
 
-  constexpr int bigYIndeces[]{0, 51, 52, 103, 104, 155, 156, 207, 208, 259, 260, 311, 312, 363, 364, 415, 416, 511};
-  auto const j = std::lower_bound(std::begin(bigYIndeces), std::end(bigYIndeces), binoffy);
-  if (*j == binoffy)
-    local_pitchy *= 2;
-  binoffy += (j - bigYIndeces);
-  
-  
+#ifdef EDM_ML_DEBUG
+  if (binoffy > m_ROCS_Y * m_COLS_PER_ROC)  // too large
+    {
+      LogDebug("RectangularPixelPhase2Topology")
+	<< " very bad, biny " << binoffy << "\n"
+	<< mpy << " " << binoffy << " " << fractionY << " " << local_pitchy << " " << m_yoffset;
+    }
+#endif
+
   // The final position in local coordinates
   float lpY = float(binoffy * m_pitchy) + fractionY * local_pitchy + m_yoffset;
 
 #ifdef EDM_ML_DEBUG
 
   if (lpY < m_yoffset || lpY > (-m_yoffset)) {
-    LogDebug("RectangularPixelTopology") << " bad lp y " << lpY << "\n"
+    LogDebug("RectangularPixelPhase2Topology") << " bad lp y " << lpY << "\n"
                                          << mpy << " " << binoffy << " " << fractionY << " " << local_pitchy << " "
                                          << m_yoffset;
   }
@@ -249,7 +217,7 @@ float RectangularPixelTopology::localY(const float mpy) const {
 
 ///////////////////////////////////////////////////////////////////
 // Get hit errors in LocalPoint coordinates (cm)
-LocalError RectangularPixelTopology::localError(const MeasurementPoint& mp, const MeasurementError& me) const {
+LocalError RectangularPixelPhase2Topology::localError(const MeasurementPoint& mp, const MeasurementError& me) const {
   float pitchy = m_pitchy;
   int binoffy = int(mp.y());
   if (isItBigPixelInY(binoffy))
@@ -265,20 +233,9 @@ LocalError RectangularPixelTopology::localError(const MeasurementPoint& mp, cons
 
 /////////////////////////////////////////////////////////////////////
 // Get errors in pixel pitch units.
-MeasurementError RectangularPixelTopology::measurementError(const LocalPoint& lp, const LocalError& le) const {
+MeasurementError RectangularPixelPhase2Topology::measurementError(const LocalPoint& lp, const LocalError& le) const {
   float pitchy = m_pitchy;
   float pitchx = m_pitchx;
 
-  int iybin = int((lp.y() - m_yoffset) / m_pitchy);  //get bin for equal picth
-  int iybin0 = iybin % 54;                           //This is just to avoid many ifs by using the periodicy
-  //quasi bins 0,1,52,53 fall into larger pixels
-  if ((iybin0 <= 1) | (iybin0 >= 52))
-    pitchy = 2.f * m_pitchy;
-  
-  int ixbin = int((lp.x() - m_xoffset) / m_pitchx);  //get bin for equal pitch
-  //quasi bins 79,80,81,82 fall into the 2 larger pixels
-  if ((ixbin >= 79) & (ixbin <= 82))
-    pitchx = 2.f * m_pitchx;
-  
   return MeasurementError(le.xx() / float(pitchx * pitchx), 0, le.yy() / float(pitchy * pitchy));
 }

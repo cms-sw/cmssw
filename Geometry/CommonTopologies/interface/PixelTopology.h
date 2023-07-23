@@ -33,6 +33,8 @@ public:
   virtual int rocsX() const = 0;
   virtual int rowsperroc() const = 0;
   virtual int colsperroc() const = 0;
+  virtual bool bigpixelsX() const = 0;
+  virtual bool bigpixelsY() const = 0;
 
   virtual float localX(float mpX) const = 0;
   virtual float localY(float mpY) const = 0;

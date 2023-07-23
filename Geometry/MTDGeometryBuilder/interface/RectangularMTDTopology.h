@@ -163,6 +163,8 @@ public:
   int rowsperroc() const override { return m_ROWS_PER_ROC; }
   // mlw Return number of cols per roc
   int colsperroc() const override { return m_COLS_PER_ROC; }
+  bool bigpixelsX() const override { return false; }
+  bool bigpixelsY() const override { return false; }
   float xoffset() const { return m_xoffset; }
   float yoffset() const { return m_yoffset; }
   float gapxInterpad() const { return m_GAPxInterpad; }  // Value returned in cm

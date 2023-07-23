@@ -63,6 +63,8 @@ public:
   int rocsX() const override { return specificTopology().rocsX(); }
   int rowsperroc() const override { return specificTopology().rowsperroc(); }
   int colsperroc() const override { return specificTopology().colsperroc(); }
+  bool bigpixelsX() const override { return specificTopology().bigpixelsX(); }
+  bool bigpixelsY() const override { return specificTopology().bigpixelsY(); }
   float localX(const float mpX) const override;
   float localX(const float mpX, const Topology::LocalTrackPred &trkPred) const override;
   float localY(const float mpY) const override;
