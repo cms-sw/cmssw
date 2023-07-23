@@ -69,13 +69,7 @@ namespace gen {
     }
   }
 
-  bool Py8InterfaceBase::readSettings(int) {
-    //Pythia 8's default value for first argument to constructor
-    const string xmlDir = "../share/Pythia8/xmldoc";
-    bool printBanner = true;
-    if (fParameters.exists("printBanner")) {
-      printBanner = fParameters.getUntrackedParameter<bool>("printBanner");
-    }
+  bool Py8InterfaceBase::readSettings(int) {   
     if (!fMasterGen.get())
       fMasterGen = std::make_unique<Pythia>();
     fDecayer = std::make_unique<Pythia>();
