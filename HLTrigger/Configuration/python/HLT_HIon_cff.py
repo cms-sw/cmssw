@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_13_0_0/HIon/V140 (CMSSW_13_0_2)
+# /dev/CMSSW_13_0_0/HIon/V152 (CMSSW_13_0_2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_0_0/HIon/V140')
+  tableName = cms.string('/dev/CMSSW_13_0_0/HIon/V152')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -58,7 +58,7 @@ fragment.HLTIter0GroupedCkfTrajectoryBuilderIT = cms.PSet(
   lostHitPenalty = cms.double( 30.0 ),
   requireSeedHitsInRebuild = cms.bool( True ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  maxPtForLooperReconstruction = cms.double( 0.0 ),
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   alwaysUseInvalidHits = cms.bool( False ),
@@ -161,7 +161,7 @@ fragment.HLTIter2GroupedCkfTrajectoryBuilderIT = cms.PSet(
   lostHitPenalty = cms.double( 30.0 ),
   requireSeedHitsInRebuild = cms.bool( True ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  maxPtForLooperReconstruction = cms.double( 0.0 ),
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   alwaysUseInvalidHits = cms.bool( False ),
@@ -3954,19 +3954,6 @@ fragment.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 fragment.siPixelGainCalibrationForHLTGPU = cms.ESProducer( "SiPixelGainCalibrationForHLTGPUESProducer",
   appendToDataLabel = cms.string( "" )
 )
-fragment.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
-  siPixelQualityLabel = cms.string( "" ),
-  siPixelQualityLabel_RawToDigi = cms.string( "" ),
-  ListOfRecordToMerge = cms.VPSet( 
-    cms.PSet(  record = cms.string( "SiPixelQualityFromDbRcd" ),
-      tag = cms.string( "" )
-    ),
-    cms.PSet(  record = cms.string( "SiPixelDetVOffRcd" ),
-      tag = cms.string( "" )
-    )
-  ),
-  appendToDataLabel = cms.string( "" )
-)
 fragment.siPixelROCsStatusAndMappingWrapperESProducer = cms.ESProducer( "SiPixelROCsStatusAndMappingWrapperESProducer",
   ComponentName = cms.string( "" ),
   CablingMapLabel = cms.string( "" ),
@@ -4143,9 +4130,9 @@ fragment.hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProd
     eeSrFlagCollection = cms.InputTag( "hltEcalDigis" )
 )
 fragment.hltEcalUncalibRecHitLegacy = cms.EDProducer( "EcalUncalibRecHitProducer",
-    EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
+    EBdigiCollection = cms.InputTag( 'hltEcalDigisLegacy','ebDigis' ),
     EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
-    EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
+    EEdigiCollection = cms.InputTag( 'hltEcalDigisLegacy','eeDigis' ),
     EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
     algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
     algoPSet = cms.PSet( 
@@ -5100,7 +5087,7 @@ fragment.hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
 fragment.hltMuonGEMDigis = cms.EDProducer( "GEMRawToDigiModule",
     InputLabel = cms.InputTag( "rawDataCollector" ),
     useDBEMap = cms.bool( True ),
-    keepDAQStatus = cms.bool( True ),
+    keepDAQStatus = cms.bool( False ),
     readMultiBX = cms.bool( False ),
     ge21Off = cms.bool( True ),
     fedIdStart = cms.uint32( 1467 ),
@@ -5147,6 +5134,10 @@ fragment.hltGemSegments = cms.EDProducer( "GEMSegmentProducer",
 fragment.hltFEDSelectorTCDS = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1024, 1025 )
+)
+fragment.hltFEDSelectorGEM = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "rawDataCollector" ),
+    fedList = cms.vuint32( 1467, 1468, 1469, 1470, 1471, 1472, 1473, 1474, 1475, 1476, 1477, 1478 )
 )
 fragment.hltRandomEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 3 )
@@ -5285,6 +5276,16 @@ fragment.hltL1sDQMHIPixelReconstruction = cms.EDFilter( "HLTL1TSeed",
 fragment.hltPreDQMHIPixelReconstruction = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltSiPixelClustersCacheCPUOnly = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
+    src = cms.InputTag( "hltSiPixelClustersLegacy" ),
+    onDemand = cms.bool( False )
+)
+fragment.hltSiPixelRecHitsFromLegacyCPUOnly = cms.EDProducer( "SiPixelRecHitSoAFromLegacyPhase1",
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    src = cms.InputTag( "hltSiPixelClustersLegacy" ),
+    CPE = cms.string( "hltESPPixelCPEFast" ),
+    convertToLegacy = cms.bool( True )
 )
 fragment.hltPixelTracksFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer",
     scaleErrorsForBPix1 = cms.bool( False ),
@@ -5433,8 +5434,78 @@ fragment.hltTrimmedPixelVertices = cms.EDProducer( "PixelVertexCollectionTrimmer
     minSumPt2 = cms.double( 0.0 ),
     PVcomparer = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPvClusterComparerForIT" ) )
 )
+fragment.hltPixelTracksCPUOnly = cms.EDProducer( "CAHitNtupletCUDAPhase1",
+    onGPU = cms.bool( False ),
+    pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsFromLegacyCPUOnly" ),
+    ptmin = cms.double( 0.899999976158 ),
+    CAThetaCutBarrel = cms.double( 0.00200000009499 ),
+    CAThetaCutForward = cms.double( 0.00300000002608 ),
+    hardCurvCut = cms.double( 0.0328407224959 ),
+    dcaCutInnerTriplet = cms.double( 0.15000000596 ),
+    dcaCutOuterTriplet = cms.double( 0.25 ),
+    earlyFishbone = cms.bool( True ),
+    lateFishbone = cms.bool( False ),
+    fillStatistics = cms.bool( False ),
+    minHitsPerNtuplet = cms.uint32( 3 ),
+    maxNumberOfDoublets = cms.uint32( 524288 ),
+    minHitsForSharingCut = cms.uint32( 10 ),
+    fitNas4 = cms.bool( False ),
+    doClusterCut = cms.bool( True ),
+    doZ0Cut = cms.bool( True ),
+    doPtCut = cms.bool( True ),
+    useRiemannFit = cms.bool( False ),
+    doSharedHitCut = cms.bool( True ),
+    dupPassThrough = cms.bool( False ),
+    useSimpleTripletCleaner = cms.bool( True ),
+    idealConditions = cms.bool( False ),
+    includeJumpingForwardDoublets = cms.bool( True ),
+    trackQualityCuts = cms.PSet( 
+      chi2MaxPt = cms.double( 10.0 ),
+      tripletMaxTip = cms.double( 0.3 ),
+      chi2Scale = cms.double( 8.0 ),
+      quadrupletMaxTip = cms.double( 0.5 ),
+      quadrupletMinPt = cms.double( 0.3 ),
+      quadrupletMaxZip = cms.double( 12.0 ),
+      tripletMaxZip = cms.double( 12.0 ),
+      tripletMinPt = cms.double( 0.5 ),
+      chi2Coeff = cms.vdouble( 0.9, 1.8 )
+    )
+)
+fragment.hltPixelTracksFromSoACPUOnly = cms.EDProducer( "PixelTrackProducerFromSoAPhase1",
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    trackSrc = cms.InputTag( "hltPixelTracksCPUOnly" ),
+    pixelRecHitLegacySrc = cms.InputTag( "hltSiPixelRecHitsFromLegacyCPUOnly" ),
+    minNumberOfHits = cms.int32( 0 ),
+    minQuality = cms.string( "loose" )
+)
+fragment.hltPixelVerticesCPUOnly = cms.EDProducer( "PixelVertexProducerCUDAPhase1",
+    onGPU = cms.bool( False ),
+    oneKernel = cms.bool( True ),
+    useDensity = cms.bool( True ),
+    useDBSCAN = cms.bool( False ),
+    useIterative = cms.bool( False ),
+    minT = cms.int32( 2 ),
+    eps = cms.double( 0.07 ),
+    errmax = cms.double( 0.01 ),
+    chi2max = cms.double( 9.0 ),
+    PtMin = cms.double( 0.5 ),
+    PtMax = cms.double( 75.0 ),
+    pixelTrackSrc = cms.InputTag( "hltPixelTracksCPUOnly" )
+)
+fragment.hltPixelVerticesFromSoACPUOnly = cms.EDProducer( "PixelVertexProducerFromSoA",
+    TrackCollection = cms.InputTag( "hltPixelTracksFromSoACPUOnly" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    src = cms.InputTag( "hltPixelVerticesCPUOnly" )
+)
+fragment.hltTrimmedPixelVerticesCPUOnly = cms.EDProducer( "PixelVertexCollectionTrimmer",
+    src = cms.InputTag( "hltPixelVerticesFromSoACPUOnly" ),
+    maxVtx = cms.uint32( 100 ),
+    fractionSumPt2 = cms.double( 0.3 ),
+    minSumPt2 = cms.double( 0.0 ),
+    PVcomparer = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPvClusterComparerForIT" ) )
+)
 fragment.hltPixelConsumerCPU = cms.EDAnalyzer( "GenericConsumer",
-    eventProducts = cms.untracked.vstring( 'hltSiPixelDigis@cpu' ),
+    eventProducts = cms.untracked.vstring( 'hltSiPixelDigisLegacy' ),
     lumiProducts = cms.untracked.vstring(  ),
     runProducts = cms.untracked.vstring(  ),
     processProducts = cms.untracked.vstring(  )
@@ -5452,7 +5523,7 @@ fragment.hltPixelConsumerTrimmedVertices = cms.EDAnalyzer( "GenericConsumer",
     processProducts = cms.untracked.vstring(  )
 )
 fragment.hltSiPixelRecHitsSoAMonitorCPU = cms.EDProducer( "SiPixelPhase1MonitorRecHitsSoA",
-    pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsSoA@cpu" ),
+    pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsFromLegacyCPUOnly" ),
     TopFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsCPU" )
 )
 fragment.hltSiPixelRecHitsSoAMonitorGPU = cms.EDProducer( "SiPixelPhase1MonitorRecHitsSoA",
@@ -5460,13 +5531,13 @@ fragment.hltSiPixelRecHitsSoAMonitorGPU = cms.EDProducer( "SiPixelPhase1MonitorR
     TopFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsGPU" )
 )
 fragment.hltSiPixelRecHitsSoACompareGPUvsCPU = cms.EDProducer( "SiPixelPhase1CompareRecHitsSoA",
-    pixelHitsSrcCPU = cms.InputTag( "hltSiPixelRecHitsSoA@cpu" ),
+    pixelHitsSrcCPU = cms.InputTag( "hltSiPixelRecHitsFromLegacyCPUOnly" ),
     pixelHitsSrcGPU = cms.InputTag( "hltSiPixelRecHitsSoA@cuda" ),
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelRecHitsCompareGPUvsCPU" ),
     minD2cut = cms.double( 1.0E-4 )
 )
 fragment.hltPixelTracksSoAMonitorCPU = cms.EDProducer( "SiPixelPhase1MonitorTrackSoA",
-    pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA@cpu" ),
+    pixelTrackSrc = cms.InputTag( "hltPixelTracksCPUOnly" ),
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelTracksCPU" ),
     useQualityCut = cms.bool( True ),
     minQuality = cms.string( "loose" )
@@ -5478,7 +5549,7 @@ fragment.hltPixelTracksSoAMonitorGPU = cms.EDProducer( "SiPixelPhase1MonitorTrac
     minQuality = cms.string( "loose" )
 )
 fragment.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer( "SiPixelPhase1CompareTrackSoA",
-    pixelTrackSrcCPU = cms.InputTag( "hltPixelTracksSoA@cpu" ),
+    pixelTrackSrcCPU = cms.InputTag( "hltPixelTracksCPUOnly" ),
     pixelTrackSrcGPU = cms.InputTag( "hltPixelTracksSoA@cuda" ),
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelTracksGPUvsCPU" ),
     useQualityCut = cms.bool( True ),
@@ -5486,7 +5557,7 @@ fragment.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer( "SiPixelPhase1Compar
     deltaR2cut = cms.double( 0.04 )
 )
 fragment.hltPixelVertexSoAMonitorCPU = cms.EDProducer( "SiPixelMonitorVertexSoA",
-    pixelVertexSrc = cms.InputTag( "hltPixelVerticesSoA@cpu" ),
+    pixelVertexSrc = cms.InputTag( "hltPixelVerticesCPUOnly" ),
     beamSpotSrc = cms.InputTag( "hltOnlineBeamSpot" ),
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelVerticesCPU" )
 )
@@ -5496,7 +5567,7 @@ fragment.hltPixelVertexSoAMonitorGPU = cms.EDProducer( "SiPixelMonitorVertexSoA"
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelVerticesGPU" )
 )
 fragment.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer( "SiPixelCompareVertexSoA",
-    pixelVertexSrcCPU = cms.InputTag( "hltPixelVerticesSoA@cpu" ),
+    pixelVertexSrcCPU = cms.InputTag( "hltPixelVerticesCPUOnly" ),
     pixelVertexSrcGPU = cms.InputTag( "hltPixelVerticesSoA@cuda" ),
     beamSpotSrc = cms.InputTag( "hltOnlineBeamSpot" ),
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelVerticesGPUvsCPU" ),
@@ -24497,8 +24568,11 @@ fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.ConditionalTask(
 fragment.HLTPreshowerTask = cms.ConditionalTask( fragment.hltEcalPreshowerDigis , fragment.hltEcalPreshowerRecHit )
 fragment.HLTDoFullUnpackingEgammaEcalTask = cms.ConditionalTask( fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask , fragment.HLTPreshowerTask )
 fragment.HLTDoLocalPixelTask = cms.ConditionalTask( fragment.hltOnlineBeamSpotToGPU , fragment.hltSiPixelDigiErrorsSoA , fragment.hltSiPixelDigisLegacy , fragment.hltSiPixelDigisSoA , fragment.hltSiPixelDigisFromSoA , fragment.hltSiPixelDigis , fragment.hltSiPixelClustersLegacy , fragment.hltSiPixelClustersGPU , fragment.hltSiPixelClustersFromSoA , fragment.hltSiPixelClusters , fragment.hltSiPixelClustersCache , fragment.hltSiPixelRecHitsFromLegacy , fragment.hltSiPixelRecHitsGPU , fragment.hltSiPixelRecHitsFromGPU , fragment.hltSiPixelRecHits , fragment.hltSiPixelRecHitsSoAFromGPU , fragment.hltSiPixelRecHitsSoA )
+fragment.HLTDoLocalPixelCPUOnlyTask = cms.ConditionalTask( fragment.hltSiPixelDigisLegacy , fragment.hltSiPixelClustersLegacy , fragment.hltSiPixelClustersCacheCPUOnly , fragment.hltSiPixelRecHitsFromLegacyCPUOnly )
 fragment.HLTRecoPixelTracksTask = cms.ConditionalTask( fragment.hltPixelTracksCPU , fragment.hltPixelTracksGPU , fragment.hltPixelTracksFromGPU , fragment.hltPixelTracksSoA , fragment.hltPixelTracks , fragment.hltPixelTracksTrackingRegions )
 fragment.HLTRecopixelvertexingTask = cms.ConditionalTask( fragment.HLTRecoPixelTracksTask , fragment.hltPixelVerticesCPU , fragment.hltPixelVerticesGPU , fragment.hltPixelVerticesFromGPU , fragment.hltPixelVerticesSoA , fragment.hltPixelVertices , fragment.hltTrimmedPixelVertices )
+fragment.HLTRecoPixelTracksCPUOnlyTask = cms.ConditionalTask( fragment.hltPixelTracksCPUOnly , fragment.hltPixelTracksFromSoACPUOnly , fragment.hltPixelTracksTrackingRegions )
+fragment.HLTRecopixelvertexingCPUOnlyTask = cms.ConditionalTask( fragment.HLTRecoPixelTracksCPUOnlyTask , fragment.hltPixelVerticesCPUOnly , fragment.hltPixelVerticesFromSoACPUOnly , fragment.hltTrimmedPixelVerticesCPUOnly )
 fragment.HLTDoLocalHcalTask = cms.ConditionalTask( fragment.hltHcalDigis , fragment.hltHcalDigisGPU , fragment.hltHbherecoLegacy , fragment.hltHbherecoGPU , fragment.hltHbherecoFromGPU , fragment.hltHbhereco , fragment.hltHfprereco , fragment.hltHfreco , fragment.hltHoreco )
 
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
@@ -24509,7 +24583,9 @@ fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
 fragment.HLTMuonLocalRecoSequence = cms.Sequence( fragment.hltMuonDTDigis + fragment.hltDt1DRecHits + fragment.hltDt4DSegments + fragment.hltMuonCSCDigis + fragment.hltCsc2DRecHits + fragment.hltCscSegments + fragment.hltMuonRPCDigis + fragment.hltRpcRecHits + fragment.hltMuonGEMDigis + fragment.hltGemRecHits + fragment.hltGemSegments )
 fragment.HLTBeginSequenceRandom = cms.Sequence( fragment.hltRandomEventsFilter + fragment.hltGtStage2Digis )
 fragment.HLTDoLocalPixelSequence = cms.Sequence( fragment.HLTDoLocalPixelTask )
+fragment.HLTDoLocalPixelCPUOnlySequence = cms.Sequence( fragment.HLTDoLocalPixelCPUOnlyTask )
 fragment.HLTRecopixelvertexingSequence = cms.Sequence( fragment.hltPixelTracksFitter + fragment.hltPixelTracksFilter,fragment.HLTRecopixelvertexingTask )
+fragment.HLTRecopixelvertexingCPUOnlySequence = cms.Sequence( fragment.hltPixelTracksFitter + fragment.hltPixelTracksFilter,fragment.HLTRecopixelvertexingCPUOnlyTask )
 fragment.HLTDQMPixelReconstruction = cms.Sequence( fragment.hltSiPixelRecHitsSoAMonitorCPU + fragment.hltSiPixelRecHitsSoAMonitorGPU + fragment.hltSiPixelRecHitsSoACompareGPUvsCPU + fragment.hltPixelTracksSoAMonitorCPU + fragment.hltPixelTracksSoAMonitorGPU + fragment.hltPixelTracksSoACompareGPUvsCPU + fragment.hltPixelVertexSoAMonitorCPU + fragment.hltPixelVertexSoAMonitorGPU + fragment.hltPixelVertexSoACompareGPUvsCPU )
 fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask )
 fragment.HLTDoLocalHcalSequence = cms.Sequence( fragment.HLTDoLocalHcalTask )
@@ -24650,10 +24726,10 @@ fragment.AlCa_EcalEtaEBonlyForHI_v5 = cms.Path( fragment.HLTBeginSequence + frag
 fragment.AlCa_EcalEtaEEonlyForHI_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sAlCaEcalPi0EtaForHI + fragment.hltPreAlCaEcalEtaEEonlyForHI + fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.hltSimple3x3Clusters + fragment.hltAlCaEtaRecHitsFilterEEonlyRegional + fragment.hltAlCaEtaEEUncalibrator + fragment.hltAlCaEtaEERechitsToDigis + fragment.HLTEndSequence )
 fragment.AlCa_EcalPi0EBonlyForHI_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sAlCaEcalPi0EtaForHI + fragment.hltPreAlCaEcalPi0EBonlyForHI + fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.hltSimple3x3Clusters + fragment.hltAlCaPi0RecHitsFilterEBonlyRegional + fragment.hltAlCaPi0EBUncalibrator + fragment.hltAlCaPi0EBRechitsToDigis + fragment.HLTEndSequence )
 fragment.AlCa_EcalPi0EEonlyForHI_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sAlCaEcalPi0EtaForHI + fragment.hltPreAlCaEcalPi0EEonlyForHI + fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.hltSimple3x3Clusters + fragment.hltAlCaPi0RecHitsFilterEEonlyRegional + fragment.hltAlCaPi0EEUncalibrator + fragment.hltAlCaPi0EERechitsToDigis + fragment.HLTEndSequence )
-fragment.AlCa_RPCMuonNormalisationForHI_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sRPCMuonNormalisationForHI + fragment.hltPreAlCaRPCMuonNormalisationForHI + fragment.hltRPCMuonNormaL1Filtered0ForHI + fragment.HLTMuonLocalRecoSequence + fragment.hltFEDSelectorTCDS + fragment.HLTEndSequence )
+fragment.AlCa_RPCMuonNormalisationForHI_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sRPCMuonNormalisationForHI + fragment.hltPreAlCaRPCMuonNormalisationForHI + fragment.hltRPCMuonNormaL1Filtered0ForHI + fragment.HLTMuonLocalRecoSequence + fragment.hltFEDSelectorTCDS + fragment.hltFEDSelectorGEM + fragment.HLTEndSequence )
 fragment.AlCa_LumiPixelsCounts_Random_v6 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltPreAlCaLumiPixelsCountsRandom + fragment.HLTBeamSpot + fragment.hltPixelTrackerHVOn + fragment.HLTDoLocalPixelSequence + fragment.hltAlcaPixelClusterCounts + fragment.HLTEndSequence )
 fragment.AlCa_LumiPixelsCounts_ZeroBias_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBias + fragment.hltPreAlCaLumiPixelsCountsZeroBias + fragment.hltPixelTrackerHVOn + fragment.HLTDoLocalPixelSequence + fragment.hltAlcaPixelClusterCounts + fragment.HLTEndSequence )
-fragment.DQM_HIPixelReconstruction_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDQMHIPixelReconstruction + fragment.hltPreDQMHIPixelReconstruction + fragment.statusOnGPU + fragment.statusOnGPUFilter + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingSequence + fragment.hltPixelConsumerCPU + fragment.hltPixelConsumerGPU + fragment.hltPixelConsumerTrimmedVertices + fragment.HLTDQMPixelReconstruction + fragment.HLTEndSequence )
+fragment.DQM_HIPixelReconstruction_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDQMHIPixelReconstruction + fragment.hltPreDQMHIPixelReconstruction + fragment.statusOnGPU + fragment.statusOnGPUFilter + fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalPixelCPUOnlySequence + fragment.HLTRecopixelvertexingSequence + fragment.HLTRecopixelvertexingCPUOnlySequence + fragment.hltPixelConsumerCPU + fragment.hltPixelConsumerGPU + fragment.hltPixelConsumerTrimmedVertices + fragment.HLTDQMPixelReconstruction + fragment.HLTEndSequence )
 fragment.DQM_HIEcalReconstruction_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDQMHIEcalReconstruction + fragment.hltPreDQMHIEcalReconstruction + fragment.statusOnGPU + fragment.statusOnGPUFilter + fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + fragment.hltEcalConsumerCPU + fragment.hltEcalConsumerGPU + fragment.HLTEndSequence )
 fragment.DQM_HIHcalReconstruction_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDQMHIHcalReconstruction + fragment.hltPreDQMHIHcalReconstruction + fragment.statusOnGPU + fragment.statusOnGPUFilter + fragment.HLTDoLocalHcalSequence + fragment.hltHcalConsumerCPU + fragment.hltHcalConsumerGPU + fragment.HLTEndSequence )
 fragment.DST_Physics_v9 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreDSTPhysics + fragment.HLTEndSequence )
