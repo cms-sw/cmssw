@@ -178,9 +178,6 @@ namespace edm {
     bool getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const;
 
     template <typename PROD>
-    void getManyByType(std::vector<Handle<PROD>>& results) const;
-
-    template <typename PROD>
     bool getByToken(EDGetToken token, Handle<PROD>& result) const;
 
     template <typename PROD>
@@ -525,11 +522,6 @@ namespace edm {
   template <typename PROD>
   bool Event::getByLabel(std::string const& label, Handle<PROD>& result) const {
     return getByLabel(label, emptyString_, result);
-  }
-
-  template <typename PROD>
-  void Event::getManyByType(std::vector<Handle<PROD>>& results) const {
-    principal_get_adapter_detail::throwGetManyByType();
   }
 
   template <typename PROD>
