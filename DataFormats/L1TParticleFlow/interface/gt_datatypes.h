@@ -154,7 +154,7 @@ namespace l1gt {
 
     static const int BITWIDTH = 64;
     inline ap_uint<BITWIDTH> pack() const {
-      ap_uint<BITWIDTH> ret;
+      ap_uint<BITWIDTH> ret(0);
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, vector_pt);
@@ -191,7 +191,7 @@ namespace l1gt {
 
     static const int BITWIDTH = 128;
     inline ap_uint<BITWIDTH> pack_ap() const {
-      ap_uint<BITWIDTH> ret;
+      ap_uint<BITWIDTH> ret(0);
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
@@ -330,7 +330,7 @@ namespace l1gt {
     }
 
     inline static Photon unpack(const std::array<uint64_t, 2> &src, int parity) {
-      ap_uint<BITWIDTH> bits;
+      ap_uint<BITWIDTH> bits(0);
       if (parity == 0) {
         bits(63, 0) = src[0];
         bits(95, 64) = src[1];
