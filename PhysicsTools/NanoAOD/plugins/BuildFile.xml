@@ -24,6 +24,7 @@
 <use name="PhysicsTools/PatAlgos"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="RecoVertex/KalmanVertexFit"/>
 <library file="*.cc" name="PhysicsToolsNanoAODPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
