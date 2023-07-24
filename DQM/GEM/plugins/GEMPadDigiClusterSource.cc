@@ -36,14 +36,14 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
   
-  mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Pad and BX Difference of closed Pads ",81, -40 - 0.5, 40 + 0.5,21,  -10 - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
-  mapPadDiffPerCh_ = MEMap3Inf(this,"delta_pad","Pad Difference of closed Pads ",81, -40 - 0.5, 40 + 0.5, "Delta Pads");
-  mapBXDiffPerCh_ = MEMap3Inf(this,"delta_bx","BX Difference of closed Pads ",21,  -10 - 0.5, 10 + 0.5, "Delta BX");
+  mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Pad and BX Difference of Closed Pads ",81, -40 - 0.5, 40 + 0.5,21,  -10 - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
+  mapPadDiffPerCh_ = MEMap3Inf(this,"delta_pad","Pad Difference of Closed Pads ",81, -40 - 0.5, 40 + 0.5, "Delta Pads");
+  mapBXDiffPerCh_ = MEMap3Inf(this,"delta_bx","BX Difference of Closed Pads ",21,  -10 - 0.5, 10 + 0.5, "Delta BX");
 
   mapBXCLSPerCh_ = MEMap4Inf(this, "bx", "Pad Bunch Crossing Per Cluster", 14 , -0.5, 13.5, "Bunch crossing");
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
   mapPadBxPerCh_ = MEMap4Inf(this, "pad", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
-  mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster size of Pad Digi", 9, 0.5, 9 + 0.5, 1, 0.5, 1.5, "Cluster Size", "iEta");
+  mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster Size of Pad Digi", 9, 0.5, 9 + 0.5, 1, 0.5, 1.5, "Cluster Size", "iEta");
   
   ibooker.cd();
   ibooker.setCurrentFolder(strFolderMain_);
@@ -139,7 +139,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
                     
                   for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
                     for (auto pad2=cluster2->pads().front(); pad2 < (cluster2->pads().front() + cluster2->pads().size()); pad2++  ){
-                      if (abs(pad - pad2) < 20 && abs(((*it).first).roll() - ((*it2).first).roll())<=1){
+                      if (abs(pad - pad2) < 40 && abs(((*it).first).roll() - ((*it2).first).roll())<=1){
                           mapPadBXDiffPerCh_.Fill(key3Ch, pad2-pad,  cluster2->bx() - cluster->bx() );
                           mapPadDiffPerCh_.Fill(key3Ch, pad2-pad );
                           mapBXDiffPerCh_.Fill(key3Ch, cluster2->bx() - cluster->bx() );
