@@ -4,7 +4,7 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondFormats/RunInfo/interface/LHCInfoPerLS.h"
-#include "CondTools/RunInfo/interface/OMSAccess.h"
+#include "CondTools/RunInfo/interface/LumiSectionFilter.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -34,75 +34,12 @@ typedef popcon::PopConAnalyzer<LHCInfoPerLSPopConSourceHandler> LHCInfoPerLSPopC
 DEFINE_FWK_MODULE(LHCInfoPerLSPopConAnalyzer);
 
 namespace theLHCInfoPerLSImpl {
-
-  struct LumiSectionFilter {
-    LumiSectionFilter(const std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>& samples)
-        : currLow(samples.begin()), currUp(samples.begin()), end(samples.end()) {
-      currUp++;
-    }
-
-    void reset(const std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>& samples) {
-      currLow = samples.begin();
-      currUp = samples.begin();
-      currUp++;
-      end = samples.end();
-      currentDipTime = 0;
-    }
-
-    bool process(cond::Time_t dipTime) {
-      if (currLow == end)
-        return false;
-      bool search = false;
-      if (currentDipTime == 0) {
-        search = true;
-      } else {
-        if (dipTime == currentDipTime)
-          return true;
-        else {
-          cond::Time_t upper = cond::time::MAX_VAL;
-          if (currUp != end)
-            upper = currUp->first;
-          if (dipTime < upper && currentDipTime >= currLow->first)
-            return false;
-          else {
-            search = true;
-          }
-        }
-      }
-      if (search) {
-        while (currUp != end and currUp->first < dipTime) {
-          currLow++;
-          currUp++;
-        }
-        currentDipTime = dipTime;
-        return currLow != end;
-      }
-      return false;
-    }
-
-    cond::Time_t currentSince() { return currLow->first; }
-    LHCInfoPerLS& currentPayload() { return *currLow->second; }
-
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>::const_iterator current() { return currLow; }
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>::const_iterator currLow;
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>::const_iterator currUp;
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>::const_iterator end;
-    cond::Time_t currentDipTime = 0;
-  };
-
   bool comparePayloads(const LHCInfoPerLS& rhs, const LHCInfoPerLS& lhs) {
-    if (rhs.fillNumber() != lhs.fillNumber())
+    if (rhs.fillNumber() != lhs.fillNumber() || rhs.runNumber() != lhs.runNumber() ||
+        rhs.crossingAngleX() != lhs.crossingAngleX() || rhs.crossingAngleY() != lhs.crossingAngleY() ||
+        rhs.betaStarX() != lhs.betaStarX() || rhs.betaStarY() != lhs.betaStarY()) {
       return false;
-    if (rhs.runNumber() != lhs.runNumber())
-      return false;
-    if (rhs.crossingAngleX() != lhs.crossingAngleX())
-      return false;
-    if (rhs.crossingAngleY() != lhs.crossingAngleY())
-      return false;
-    if (rhs.betaStarX() != lhs.betaStarX())
-      return false;
-    if (rhs.betaStarY() != lhs.betaStarY())
-      return false;
+    }
     return true;
   }
 
@@ -479,7 +416,7 @@ private:
     float crossingAngleY = 0., betaStarY = 0.;
 
     bool ret = false;
-    theLHCInfoPerLSImpl::LumiSectionFilter filter(m_tmpBuffer);
+    LumiSectionFilter<LHCInfoPerLS> filter(m_tmpBuffer);
     while (CTPPSDataCursor.next()) {
       if (m_debug) {
         std::ostringstream CTPPS;
