@@ -99,7 +99,6 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       cellU = HGCalTypes::getUnpackedCellU(cell);
       cellV = HGCalTypes::getUnpackedCellV(cell);
     } else if (mode_ != HGCalGeometryMode::Hexagon8) {
-      debug = true;
       int zside = (pos.z() > 0) ? 1 : -1;
       double xx = zside * pos.x();
       int wU = HGCalTypes::getUnpackedU(module);
