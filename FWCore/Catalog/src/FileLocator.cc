@@ -1,5 +1,6 @@
 #include "FWCore/Catalog/interface/FileLocator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -295,6 +296,15 @@ namespace edm {
     m_prefix = found_protocol->second.get("prefix", kEmptyString);
     if (m_prefix == kEmptyString) {
       //get rules
+      if (found_protocol->second.find("rules") == found_protocol->second.not_found()) {
+        cms::Exception ex("FileCatalog");
+        ex << "protocol must contain either a prefix or rules, "
+           << "neither found for protocol \"" << aCatalog.protocol << "\" for the storage site \""
+           << aCatalog.storageSite << "\" and volume \"" << aCatalog.volume
+           << "\" in storage.json. Check site-local-config.xml <data-access> and storage.json";
+        ex.addContext("edm::FileLocator:init()");
+        throw ex;
+      }
       const pt::ptree& rules = found_protocol->second.find("rules")->second;
       //loop over rules
       for (pt::ptree::value_type const& storageRule : rules) {

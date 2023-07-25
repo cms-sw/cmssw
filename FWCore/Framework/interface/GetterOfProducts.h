@@ -22,9 +22,6 @@ the configuration to get all of them each time a
 different HLT trigger table was used. This class
 handles that and similar cases.
 
-This class is preferred over using getManyByType
-where it is possible to use it.
-
 This method can select by type and branch type.
 There exists a predicate (in ProcessMatch.h)
 to also select on process name.  It is possible

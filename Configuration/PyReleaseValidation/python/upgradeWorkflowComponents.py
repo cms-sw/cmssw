@@ -2625,7 +2625,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
         'Era' : 'Run3_2023_FastSim',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2023Collision',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
     '2022HI' : {

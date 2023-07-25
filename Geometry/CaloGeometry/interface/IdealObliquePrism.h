@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_IDEALOBLIQUEPRISM_H 1
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include <cstdint>
 
 /** \class IdealObliquePrism
     
