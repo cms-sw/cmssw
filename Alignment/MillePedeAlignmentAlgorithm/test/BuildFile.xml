@@ -13,5 +13,4 @@
 <test name="testPedeCampaign" command="test_pede.sh"/>
 <test name="testPayloadSanity" command="test_payload_sanity.sh">
   <flags PRE_TEST="testPedeCampaign"/>
-  <use name="FWCore/Utilities"/>
 </test>
