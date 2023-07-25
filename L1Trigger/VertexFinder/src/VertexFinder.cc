@@ -866,12 +866,11 @@ namespace l1tVertexFinder {
     // Replace with https://stackoverflow.com/questions/13313980/populate-an-array-using-constexpr-at-compile-time ?
     auto init_inversion_table = [&]() -> std::vector<inverse_t> {
       std::vector<inverse_t> table_out(kTableSize, 0.);
-      for (unsigned int ii = 1; ii < (kTableSize - 1); ii++) {
-        // Compute lookup table function, table_out.at(0) = 0.0 by default
-        table_out.at(ii) = (1.0 / ii);
+      for (unsigned int ii = 0; ii < kTableSize; ii++) {
+        // Compute lookup table function. This matches the format of the GTT HLS code.
+        // Biased generation f(x) = 1 / (x + 1) is inverted by g(y) = inversion(x - 1) = 1 / (x - 1 + 1) = 1 / y
+        table_out.at(ii) = (1.0 / (ii + 1));
       }
-      //explicitly set boundary to ensure weighted position doesn't exceed window, consistent with previous implementation of 1/(ii+1)
-      table_out.at(kTableSize - 1) = 1.0 / (kTableSize);
       return table_out;
     };
 
@@ -935,7 +934,9 @@ namespace l1tVertexFinder {
       }
 
       if (maximums != 0) {
-        inv = inversion(maximums);
+        //match F/W inversion_lut offset (inversion[x] = 1 / (x + 1); inversion[x - 1] = 1 / x;), for consistency
+        slidingsum_t offsetmaximums = maximums - 1;
+        inv = inversion(offsetmaximums);
         zvtx_sliding = zvtx_sliding_sum * inv;
       } else {
         zvtx_sliding = (settings_->vx_windowSize() / 2.0) + (((int(settings_->vx_windowSize()) % 2) != 0) ? 0.5 : 0.0);
@@ -999,7 +1000,7 @@ namespace l1tVertexFinder {
                                          << ")\ttkpt = " << tkpt.to_double() << "(" << tkpt.to_string(2)
                                          << ")\tbin = " << bin.first.to_int() << "\n"
                                          << "pt sum in bin " << bin.first.to_int()
-                                         << " BEFORE adding track = " << hist.at(bin.first).to_double();
+                                         << " BEFORE adding track = " << hist_untruncated.at(bin.first).to_double();
         }
         if (bin.second) {
           hist_untruncated.at(bin.first) = hist_untruncated.at(bin.first) + tkpt;
