@@ -27,7 +27,7 @@ private:
   // Disable constructor - only static access is allowed.
   ETLDetLayerGeometryBuilder() {}
 
-  static MTDSectorForwardDoubleLayer* buildLayerNew(
+  static MTDSectorForwardDoubleLayer* buildLayer(
       int endcap, int layer, std::vector<unsigned>& sectors, const MTDGeometry& geo, const MTDTopology& topo);
 
   static bool isFront(int layer, int ring, int module);

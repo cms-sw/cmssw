@@ -43,7 +43,7 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
       for (unsigned sector = 1; sector <= nSector; ++sector) {
         sectors.push_back(sector);
       }
-      MTDSectorForwardDoubleLayer* thelayer = buildLayerNew(endcap, layer, sectors, geo, topo);
+      MTDSectorForwardDoubleLayer* thelayer = buildLayer(endcap, layer, sectors, geo, topo);
       if (thelayer)
         result[endcap].push_back(thelayer);
     }
@@ -57,7 +57,7 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
 
 bool ETLDetLayerGeometryBuilder::isFront(int layer, int ring, int module) { return (module + 1) % 2; }
 
-MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayerNew(
+MTDSectorForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(
     int endcap, int layer, vector<unsigned>& sectors, const MTDGeometry& geo, const MTDTopology& topo) {
   MTDSectorForwardDoubleLayer* result = nullptr;
 
