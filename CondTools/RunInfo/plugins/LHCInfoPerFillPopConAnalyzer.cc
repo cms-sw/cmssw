@@ -164,8 +164,8 @@ namespace theLHCInfoPerFillImpl {
   bool comparePayloads(const LHCInfoPerFill& rhs, const LHCInfoPerFill& lhs) {
     if (rhs.fillNumber() != lhs.fillNumber() || rhs.delivLumi() != lhs.delivLumi() || rhs.recLumi() != lhs.recLumi() ||
         rhs.instLumi() != lhs.instLumi() || rhs.instLumiError() != lhs.instLumiError() ||
-        rhs.lhcState() != rhs.lhcState() || rhs.lhcComment() != rhs.lhcComment() ||
-        rhs.ctppsStatus() != rhs.ctppsStatus()) {
+        rhs.lhcState() != lhs.lhcState() || rhs.lhcComment() != lhs.lhcComment() ||
+        rhs.ctppsStatus() != lhs.ctppsStatus()) {
       return false;
     }
     return true;

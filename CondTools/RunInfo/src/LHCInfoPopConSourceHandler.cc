@@ -562,15 +562,15 @@ namespace LHCInfoImpl {
       return false;
     if (rhs.instLumiError() != lhs.instLumiError())
       return false;
-    if (rhs.crossingAngle() != rhs.crossingAngle())
+    if (rhs.crossingAngle() != lhs.crossingAngle())
       return false;
-    if (rhs.betaStar() != rhs.betaStar())
+    if (rhs.betaStar() != lhs.betaStar())
       return false;
-    if (rhs.lhcState() != rhs.lhcState())
+    if (rhs.lhcState() != lhs.lhcState())
       return false;
-    if (rhs.lhcComment() != rhs.lhcComment())
+    if (rhs.lhcComment() != lhs.lhcComment())
       return false;
-    if (rhs.ctppsStatus() != rhs.ctppsStatus())
+    if (rhs.ctppsStatus() != lhs.ctppsStatus())
       return false;
     return true;
   }
