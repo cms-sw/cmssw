@@ -13,8 +13,6 @@
 #include <vector>
 
 class DetLayer;
-class MTDRingForwardDoubleLayer;
-class MTDDetRing;
 class MTDSectorForwardDoubleLayer;
 class MTDDetSector;
 
@@ -29,15 +27,9 @@ private:
   // Disable constructor - only static access is allowed.
   ETLDetLayerGeometryBuilder() {}
 
-  static MTDRingForwardDoubleLayer* buildLayer(int endcap,
-                                               int layer,
-                                               std::vector<unsigned>& rings,
-                                               const MTDGeometry& geo);
-
   static MTDSectorForwardDoubleLayer* buildLayerNew(
       int endcap, int layer, std::vector<unsigned>& sectors, const MTDGeometry& geo, const MTDTopology& topo);
 
-  static MTDDetRing* makeDetRing(std::vector<const GeomDet*>& geomDets);
   static bool isFront(int layer, int ring, int module);
   static MTDDetSector* makeDetSector(std::vector<const GeomDet*>& geomDets, const MTDTopology& topo);
 };
