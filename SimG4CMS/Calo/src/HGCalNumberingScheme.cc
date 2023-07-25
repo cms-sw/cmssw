@@ -143,9 +143,12 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       }
       index = HGCSiliconDetId(det_, iz, waferType, layer, waferU, waferV, cellU, cellV).rawId();
       if (debug) {
-	int zside = (pos.z() > 0) ? 1 : -1;
-	double xx = zside * pos.x();
-	edm::LogVerbatim("HGCSim") << "OK Input " << det_ << ":" << zside << ":" << layer << ":" << xx << ":" << pos.y() << ":" << module << ":" << cell << " WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV << " wt " << wt << " Mode " << mode_;
+        int zside = (pos.z() > 0) ? 1 : -1;
+        double xx = zside * pos.x();
+        edm::LogVerbatim("HGCSim") << "OK Input " << det_ << ":" << zside << ":" << layer << ":" << xx << ":" << pos.y()
+                                   << ":" << module << ":" << cell << " WaferType " << waferType << " Wafer " << waferU
+                                   << ":" << waferV << " Cell " << cellU << ":" << cellV << " wt " << wt << " Mode "
+                                   << mode_;
       }
 #ifdef EDM_ML_DEBUG
     } else {

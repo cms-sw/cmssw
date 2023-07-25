@@ -67,7 +67,8 @@ HGCalPartialIDTester::HGCalPartialIDTester(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
       debug_(iC.getParameter<bool>("debug")),
-      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})) {
+      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})) {
   edm::LogVerbatim("HGCGeom") << "Test DetId from position for " << nameDetector_ << " with inputs from " << fileName_;
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/HGCalCommonData/data/" + fileName_);
@@ -82,13 +83,13 @@ HGCalPartialIDTester::HGCalPartialIDTester(const edm::ParameterSet &iC)
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
         if (items.size() == 5) {
           DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
-	  if (det == dets) {
+          if (det == dets) {
             if ((det == DetId::HGCalEE) || (det == DetId::HGCalHSi)) {
               zside_.emplace_back(std::atoi(items[1].c_str()));
               layer_.emplace_back(std::atoi(items[2].c_str()));
-	      xpos_.emplace_back(std::atof(items[3].c_str()));
+              xpos_.emplace_back(std::atof(items[3].c_str()));
               ypos_.emplace_back(std::atof(items[4].c_str()));
-	    }
+            }
           }
         }
       }
@@ -97,7 +98,8 @@ HGCalPartialIDTester::HGCalPartialIDTester(const edm::ParameterSet &iC)
   }
   edm::LogVerbatim("HGCalGeom") << "Reads " << layer_.size() << " positions from " << fileName_;
   for (unsigned int k = 0; k < layer_.size(); ++k) {
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] zside " << zside_[k] << " Layer " << layer_[k] << " position " << xpos_[k] << ":" << ypos_[k];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] zside " << zside_[k] << " Layer " << layer_[k] << " position "
+                                  << xpos_[k] << ":" << ypos_[k];
   }
 }
 
@@ -114,20 +116,28 @@ void HGCalPartialIDTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
   //initiating hgc Geometry
   const edm::ESHandle<HGCalDDDConstants> &hgcCons = iSetup.getHandle(tok_hgcal_);
   if (!hgcCons.isValid()) {
-      edm::LogWarning("HGCGeom") << "Cannot initiate HGCalDDDConstants for " << nameDetector_;
+    edm::LogWarning("HGCGeom") << "Cannot initiate HGCalDDDConstants for " << nameDetector_;
   } else {
     hgcCons_ = hgcCons.product();
     const DetId::Detector dets = (nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi;
     for (uint32_t i = 0; i < layer_.size(); i++) {
       int waferU, waferV, cellU, cellV, waferType;
       double wt;
-      hgcCons_->waferFromPosition(xpos_[i], ypos_[i], zside_[i], layer_[i], waferU, waferV, cellU, cellV, waferType, wt, false, debug_);
+      hgcCons_->waferFromPosition(
+          xpos_[i], ypos_[i], zside_[i], layer_[i], waferU, waferV, cellU, cellV, waferType, wt, false, debug_);
       HGCalParameters::waferInfo info = hgcCons_->waferInfo(layer_[i], waferU, waferV);
-      edm::LogVerbatim("HGCalGeom") << "Input " << dets << ":" << zside_[i] << ":"  << layer_[i] << ":" << xpos_[i] << ":" << ypos_[i] << " WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV << " wt " << wt << " part:orien:cass " << info.part << ":" << info.orient << ":" << info.cassette;
+      edm::LogVerbatim("HGCalGeom") << "Input " << dets << ":" << zside_[i] << ":" << layer_[i] << ":" << xpos_[i]
+                                    << ":" << ypos_[i] << " WaferType " << waferType << " Wafer " << waferU << ":"
+                                    << waferV << " Cell " << cellU << ":" << cellV << " wt " << wt
+                                    << " part:orien:cass " << info.part << ":" << info.orient << ":" << info.cassette;
       if (zside_[i] == -1) {
-	hgcCons_->waferFromPosition(-xpos_[i], ypos_[i], zside_[i], layer_[i], waferU, waferV, cellU, cellV, waferType, wt, false, debug_);
-	info = hgcCons_->waferInfo(layer_[i], waferU, waferV);
-	edm::LogVerbatim("HGCalGeom") << "Input " << dets << ":" << zside_[i] << ":"  << layer_[i] << ":" << -xpos_[i] << ":" << ypos_[i] << " WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV << " wt " << wt << " part:orien:cass " << info.part << ":" << info.orient << ":" << info.cassette;
+        hgcCons_->waferFromPosition(
+            -xpos_[i], ypos_[i], zside_[i], layer_[i], waferU, waferV, cellU, cellV, waferType, wt, false, debug_);
+        info = hgcCons_->waferInfo(layer_[i], waferU, waferV);
+        edm::LogVerbatim("HGCalGeom") << "Input " << dets << ":" << zside_[i] << ":" << layer_[i] << ":" << -xpos_[i]
+                                      << ":" << ypos_[i] << " WaferType " << waferType << " Wafer " << waferU << ":"
+                                      << waferV << " Cell " << cellU << ":" << cellV << " wt " << wt
+                                      << " part:orien:cass " << info.part << ":" << info.orient << ":" << info.cassette;
       }
     }
   }
