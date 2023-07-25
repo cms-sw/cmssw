@@ -17,8 +17,6 @@ from ..modules.hltDt1DRecHits_cfi import *
 from ..modules.hltDt4DSegments_cfi import *
 from ..modules.hltEcalDetIdToBeRecovered_cfi import *
 from ..modules.hltEcalDigis_cfi import *
-from ..modules.hltEcalPreshowerDigis_cfi import *
-from ..modules.hltEcalPreshowerRecHit_cfi import *
 from ..modules.hltEcalRecHit_cfi import *
 from ..modules.hltEcalUncalibRecHit_cfi import *
 from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
@@ -58,10 +56,8 @@ from ..modules.hltParticleFlowClusterECALUncorrectedUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterHBHE_cfi import *
 from ..modules.hltParticleFlowClusterHCAL_cfi import *
-from ..modules.hltParticleFlowClusterPSUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitHBHE_cfi import *
-from ..modules.hltParticleFlowRecHitPSUnseeded_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelLayerQuadruplets_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelTracks_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelTracksHitDoublets_cfi import *
@@ -146,8 +142,6 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltDt4DSegments,
         hltEcalDetIdToBeRecovered,
         hltEcalDigis,
-        hltEcalPreshowerDigis,
-        hltEcalPreshowerRecHit,
         hltEcalRecHit,
         hltEcalUncalibRecHit,
         hltFixedGridRhoFastjetAllCaloForEGamma,
@@ -187,10 +181,8 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltParticleFlowClusterECALUnseeded,
         hltParticleFlowClusterHBHE,
         hltParticleFlowClusterHCAL,
-        hltParticleFlowClusterPSUnseeded,
         hltParticleFlowRecHitECALUnseeded,
         hltParticleFlowRecHitHBHE,
-        hltParticleFlowRecHitPSUnseeded,
         hltPhase2L3FromL1TkMuonPixelLayerQuadruplets,
         hltPhase2L3FromL1TkMuonPixelTracks,
         hltPhase2L3FromL1TkMuonPixelTracksHitDoublets,
