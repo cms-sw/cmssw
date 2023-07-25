@@ -15,7 +15,6 @@ hltParticleFlowClusterECALUnseeded = cms.EDProducer("CorrectedECALPFClusterProdu
         srfAwareCorrection = cms.bool(True)
     ),
     inputECAL = cms.InputTag("hltParticleFlowClusterECALUncorrectedUnseeded"),
-    inputPS = cms.InputTag("hltParticleFlowClusterPSUnseeded"),
     mightGet = cms.optional.untracked.vstring,
     minimumPSEnergy = cms.double(0)
 )
