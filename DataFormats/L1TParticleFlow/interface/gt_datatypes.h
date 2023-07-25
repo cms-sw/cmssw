@@ -169,6 +169,10 @@ namespace l1gt {
       return ret;
     }
 
+    inline static Sum unpack(const uint64_t &src){
+      return unpack_ap(src);
+    }
+
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
       unpack_from_bits(src, start, valid);
