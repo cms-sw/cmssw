@@ -91,6 +91,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
 #endif
   if (hgcons_.waferHexagon8()) {
     int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
+    bool debug(false);
     if (cell >= 0) {
       waferType = HGCalTypes::getUnpackedType(module);
       waferU = HGCalTypes::getUnpackedU(module);
@@ -98,11 +99,11 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       cellU = HGCalTypes::getUnpackedCellU(cell);
       cellV = HGCalTypes::getUnpackedCellV(cell);
     } else if (mode_ != HGCalGeometryMode::Hexagon8) {
+      debug = true;
       int zside = (pos.z() > 0) ? 1 : -1;
       double xx = zside * pos.x();
       int wU = HGCalTypes::getUnpackedU(module);
       int wV = HGCalTypes::getUnpackedV(module);
-      bool debug(false);
       if (!indices_.empty()) {
         int indx = HGCalWaferIndex::waferIndex(firstLayer_ + layer, wU, wV, false);
         if (std::find(indices_.begin(), indices_.end(), indx) != indices_.end())
@@ -141,9 +142,12 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
         }
       }
       index = HGCSiliconDetId(det_, iz, waferType, layer, waferU, waferV, cellU, cellV).rawId();
+      if (debug) {
+	int zside = (pos.z() > 0) ? 1 : -1;
+	double xx = zside * pos.x();
+	edm::LogVerbatim("HGCSim") << "OK Input " << det_ << ":" << zside << ":" << layer << ":" << xx << ":" << pos.y() << ":" << module << ":" << cell << " WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell " << cellU << ":" << cellV << " wt " << wt << " Mode " << mode_;
+      }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "OK WaferType " << waferType << " Wafer " << waferU << ":" << waferV << " Cell "
-                                 << cellU << ":" << cellV << " input " << cell << " wt " << wt << " Mode " << mode_;
     } else {
       edm::LogVerbatim("HGCSim") << "Bad WaferType " << waferType << " for Layer:u:v " << layer << ":" << waferU << ":"
                                  << waferV;
