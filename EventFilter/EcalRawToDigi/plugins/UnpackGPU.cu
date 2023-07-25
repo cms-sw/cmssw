@@ -278,7 +278,7 @@ namespace ecal {
         for (uint32_t ich = 0; ich < nchannels; ich += NTHREADS) {
           auto const i_to_access = ich + threadIdx.x;
           if (i_to_access == 0) {
-            ch_with_bad_block = 999999;
+            ch_with_bad_block = std::numeric_limits<uint32_t>::max();
           }
 
           uint64_t wdata;
@@ -286,7 +286,7 @@ namespace ecal {
           uint8_t xtalid;
 
           // threads must be inside the range (no break here because of __syncthreads() afterwards)
-          if (i_to_access < nchannels) {
+          if (i_to_access < nchannels && i_to_access < ch_with_bad_block) {
             // inc the channel's counter and get the pos where to store
             wdata = current_tower_block[1 + i_to_access * 3];
             stripid = wdata & 0x7;
@@ -299,7 +299,7 @@ namespace ecal {
             }
             if (i_to_access > 0) {
               // check if the stripid has increased or that the xtalid has increased from the previous data word. If not something is wrong and the rest of the block is skipped.
-              auto const prev_i_to_access = ich + threadIdx.x - 1;
+              auto const prev_i_to_access = i_to_access - 1;
               auto const prevwdata = current_tower_block[1 + prev_i_to_access * 3];
               uint8_t const laststripid = prevwdata & 0x7;
               uint8_t const lastxtalid = (prevwdata >> 4) & 0x7;
@@ -309,16 +309,18 @@ namespace ecal {
             }
           }
 
+          __syncthreads();
+
           // check if this thread has the lowest bad block
-          if (bad_block) {
+          if (bad_block && i_to_access < ch_with_bad_block) {
             atomicMin(&ch_with_bad_block, i_to_access);
           }
 
           __syncthreads();
 
-          // threads outside of the range or bad block detected in this thread or one working on a lower block -> leave the loop
+          // threads outside of the range or bad block detected in this thread or one working on a lower block -> stop this loop iteration here
           if (i_to_access >= nchannels || i_to_access >= ch_with_bad_block) {
-            break;
+            continue;
           }
 
           ElectronicsIdGPU eid{fed2dcc(fed), ttid, stripid, xtalid};
