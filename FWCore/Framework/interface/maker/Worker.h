@@ -321,7 +321,7 @@ namespace edm {
 
     virtual TaskQueueAdaptor serializeRunModule() = 0;
 
-    bool shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent) const;
+    bool shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent, bool isCatch) const;
 
     template <bool IS_EVENT>
     bool setPassed() {
@@ -1062,7 +1062,8 @@ namespace edm {
                                                          typename T::Context const* context) {
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
-      if (shouldRethrowException(iEPtr, parentContext, T::isEvent_)) {
+        //TODO have to deal with 'cms.catch'
+      if (shouldRethrowException(iEPtr, parentContext, T::isEvent_, false)) {
         exceptionPtr = iEPtr;
         setException<T::isEvent_>(exceptionPtr);
       } else {
@@ -1166,7 +1167,7 @@ namespace edm {
       });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
-      if (shouldRethrowException(std::current_exception(), parentContext, T::isEvent_)) {
+      if (shouldRethrowException(std::current_exception(), parentContext, T::isEvent_, false)) {
         assert(not cached_exception_);
         setException<T::isEvent_>(std::current_exception());
         std::rethrow_exception(cached_exception_);

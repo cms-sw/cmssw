@@ -258,8 +258,7 @@ class Process(object):
                               deleteNonConsumedUnscheduledModules = untracked.bool(True),
                               sizeOfStackForThreadsInKB = optional.untracked.uint32,
                               Rethrow = untracked.vstring(),
-                              SkipEvent = untracked.vstring(),
-                              FailPath = untracked.vstring(),
+                              TryToContinue = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
                               holdsReferencesToDeleteEarly = untracked.VPSet(),
@@ -2454,10 +2453,9 @@ process.maxLuminosityBlocks = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
@@ -4647,10 +4645,9 @@ process.maxLuminosityBlocks = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+    TryToContinue = cms.untracked.vstring(),
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),

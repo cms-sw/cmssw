@@ -13,6 +13,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <algorithm>
+#include <sstream>
 
 namespace edm {
   Path::Path(int bitpos,
@@ -22,7 +23,6 @@ namespace edm {
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              StreamContext const* streamContext,
-             std::atomic<bool>* stopProcessingEvent,
              PathContext::PathType pathType)
       : timesRun_(),
         timesPassed_(),
@@ -36,7 +36,6 @@ namespace edm {
         act_table_(&actions),
         workers_(workers),
         pathContext_(path_name, streamContext, bitpos, pathType),
-        stopProcessingEvent_(stopProcessingEvent),
         pathStatusInserter_(nullptr),
         pathStatusInserterWorker_(nullptr) {
     for (auto& workerInPath : workers_) {
@@ -58,7 +57,6 @@ namespace edm {
         act_table_(r.act_table_),
         workers_(r.workers_),
         pathContext_(r.pathContext_),
-        stopProcessingEvent_(r.stopProcessingEvent_),
         pathStatusInserter_(r.pathStatusInserter_),
         pathStatusInserterWorker_(r.pathStatusInserterWorker_) {
     for (auto& workerInPath : workers_) {
@@ -73,7 +71,7 @@ namespace edm {
                                  bool begin,
                                  BranchType branchType,
                                  ModuleDescription const& desc,
-                                 std::string const& id) const {
+                                 std::string const& id) {
     if (e.context().empty()) {
       exceptionContext(e, isEvent, begin, branchType, desc, id, pathContext_);
     }
@@ -85,15 +83,13 @@ namespace edm {
     // If not processing an event, always rethrow.
     exception_actions::ActionCodes action = (isEvent ? act_table_->find(e.category()) : exception_actions::Rethrow);
     switch (action) {
-      case exception_actions::FailPath: {
+      case exception_actions::TryToContinue: {
         should_continue = false;
-        edm::printCmsExceptionWarning("FailPath", e);
-        break;
-      }
-      case exception_actions::SkipEvent: {
-        //Need the other Paths to stop as soon as possible
-        if (stopProcessingEvent_) {
-          *stopProcessingEvent_ = true;
+        bool expected = false;
+        if (printedException_.compare_exchange_strong(expected, true)) {
+          std::ostringstream s;
+          s << "Path " << name() << " applying TryToContinue on";
+          edm::printCmsExceptionWarning(s.str().c_str(), e);
         }
         break;
       }
@@ -103,7 +99,7 @@ namespace edm {
           if (e.category() == pNF) {
             std::ostringstream ost;
             ost << "If you wish to continue processing events after a " << pNF << " exception,\n"
-                << "add \"SkipEvent = cms.untracked.vstring('ProductNotFound')\" to the \"options\" PSet in the "
+                << "add \"TryToContinue = cms.untracked.vstring('ProductNotFound')\" to the \"options\" PSet in the "
                    "configuration.\n";
             e.addAdditionalInfo(ost.str());
           }
@@ -224,6 +220,7 @@ namespace edm {
     modulesToRun_ = workers_.size();
     ++timesRun_;
     waitingTasks_.add(iTask);
+    printedException_ = false;
     if (actReg_) {
       ServiceRegistry::Operate guard(iToken);
       actReg_->prePathEventSignal_(*iStreamContext, pathContext_);
@@ -292,9 +289,6 @@ namespace edm {
         // Paths exception to be the one that gets reported.
         waitingTasks_.presetTaskAsFailed(finalException);
       }
-    }
-    if (stopProcessingEvent_ and *stopProcessingEvent_) {
-      shouldContinue = false;
     }
     auto const nextIndex = iModuleIndex + 1;
     if (shouldContinue and nextIndex < workers_.size()) {

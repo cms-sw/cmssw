@@ -84,8 +84,7 @@ namespace edm {
     std::vector<std::string> emptyVector;
 
     description.addUntracked<std::vector<std::string>>("Rethrow", emptyVector);
-    description.addUntracked<std::vector<std::string>>("SkipEvent", emptyVector);
-    description.addUntracked<std::vector<std::string>>("FailPath", emptyVector);
+    description.addUntracked<std::vector<std::string>>("TryToContinue", emptyVector);
     description.addUntracked<std::vector<std::string>>("IgnoreCompletely", emptyVector);
 
     description.addUntracked<std::vector<std::string>>("canDeleteEarly", emptyVector)

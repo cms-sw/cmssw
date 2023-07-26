@@ -370,8 +370,7 @@ namespace edm {
         total_passed_(),
         number_of_unscheduled_modules_(0),
         streamID_(streamID),
-        streamContext_(streamID_, processContext),
-        skippingEvent_(false) {
+        streamContext_(streamID_, processContext) {
     bool hasPath = false;
     std::vector<std::string> const& pathNames = tns.getTrigPaths();
     std::vector<std::string> const& endPathNames = tns.getEndPaths();
@@ -871,7 +870,6 @@ namespace edm {
                                actionTable(),
                                actReg_,
                                &streamContext_,
-                               &skippingEvent_,
                                PathContext::PathType::kPath);
     } else {
       empty_trig_paths_.push_back(bitpos);
@@ -894,7 +892,6 @@ namespace edm {
         proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, endPathNames, conditionalTaskHelper);
 
     if (!tmpworkers.empty()) {
-      //EndPaths are not supposed to stop if SkipEvent type exception happens
       end_paths_.emplace_back(bitpos,
                               name,
                               tmpworkers,
@@ -902,7 +899,6 @@ namespace edm {
                               actionTable(),
                               actReg_,
                               &streamContext_,
-                              nullptr,
                               PathContext::PathType::kEndPath);
     } else {
       empty_end_paths_.push_back(bitpos);
@@ -1059,9 +1055,8 @@ namespace edm {
       CMS_SA_ALLOW try { std::rethrow_exception(*(iExcept.load())); } catch (cms::Exception& e) {
         exception_actions::ActionCodes action = actionTable().find(e.category());
         assert(action != exception_actions::IgnoreCompletely);
-        assert(action != exception_actions::FailPath);
-        if (action == exception_actions::SkipEvent) {
-          edm::printCmsExceptionWarning("SkipEvent", e);
+        if (action == exception_actions::TryToContinue) {
+          edm::printCmsExceptionWarning("TryToContinue", e);
           *(iExcept.load()) = std::exception_ptr();
         } else {
           *(iExcept.load()) = std::current_exception();
@@ -1282,7 +1277,6 @@ namespace edm {
   }
 
   void StreamSchedule::resetAll() {
-    skippingEvent_ = false;
     results_->reset();
   }
 

@@ -112,6 +112,8 @@
   <test name="TestFWCoreIntegrationDelayedReaderTest" command="delayedreader_throw_test.sh"/>
 
   <test name="TestFrameworkExceptionHandling" command="run_TestFrameworkExceptionHandling.sh ${value}" for="1,9"/>
+  <test name="TestFWCoreIntegrationTryToContinuePath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py"/>
+  <test name="TestFWCoreIntegrationTryToContinueTask" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --useTask"/>
 
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>
