@@ -226,17 +226,17 @@ void PrimaryVertexMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
   double EtaMin = config.getParameter<double>("EtaMin");
   double EtaMax = config.getParameter<double>("EtaMax");
 
-  IP_ = iBooker.book1D(fmt::format("d{}", varname_),
+  IP_ = iBooker.book1D(fmt::format("d{}_pt{}", varname_, pTcut_),
                        fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_),
                        VarBin,
                        VarMin,
                        VarMax);
 
-  IPErr_ = iBooker.book1D(fmt::format("d{}Err", varname_),
+  IPErr_ = iBooker.book1D(fmt::format("d{}Err_pt{}", varname_, pTcut_),
                           fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
                           100,
                           0.,
-                          2000.);
+                          (varname_.find("xy") != std::string::npos) ? 2000. : 10000.);
 
   IPVsPhi_ = iBooker.bookProfile(fmt::format("d{}VsPhi_pt{}", varname_, pTcut_),
                                  fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #phi", pTcut_, varname_),
@@ -270,7 +270,7 @@ void PrimaryVertexMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
                           PhiMax,
                           VarBin,
                           0.,
-                          100.,
+                          (varname_.find("xy") != std::string::npos) ? 100. : 200.,
                           "");
   IPErrVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
   IPErrVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
@@ -283,7 +283,7 @@ void PrimaryVertexMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
                           EtaMax,
                           VarBin,
                           0.,
-                          100.,
+                          (varname_.find("xy") != std::string::npos) ? 100. : 200.,
                           "");
   IPErrVsEta_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   IPErrVsEta_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
@@ -316,7 +316,7 @@ void PrimaryVertexMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
       PhiMax,
       VarBin,
       0.,
-      100.,
+      (varname_.find("xy") != std::string::npos) ? 100. : 200.,
       "");
   IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
