@@ -10,6 +10,7 @@
 #define CondFormats_PPSObjects_TotemSymbId
 
 #include <iostream>
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /**
  *\brief Symbolic ID describing an entity of a TOTEM subdetector.
@@ -24,6 +25,8 @@ public:
   bool operator==(const TotemSymbID &sid) const { return (symbolicID == sid.symbolicID); }
 
   friend std::ostream &operator<<(std::ostream &s, const TotemSymbID &sid);
+
+  COND_SERIALIZABLE;
 };
 
 #endif

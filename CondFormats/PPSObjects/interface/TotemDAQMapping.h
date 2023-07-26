@@ -10,6 +10,7 @@
 #ifndef CondFormats_PPSObjects_TotemDAQMapping
 #define CondFormats_PPSObjects_TotemDAQMapping
 
+#include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
 #include "CondFormats/PPSObjects/interface/TotemT2FramePosition.h"
 
@@ -31,6 +32,8 @@ public:
   unsigned int hwID;
 
   friend std::ostream& operator<<(std::ostream& s, const TotemVFATInfo& fp);
+
+  COND_SERIALIZABLE;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -48,6 +51,7 @@ public:
     int channel;
 
     TotemTimingPlaneChannelPair(const int& plane = -1, const int& channel = -1) : plane(plane), channel(channel){};
+    COND_SERIALIZABLE;
   };
   std::map<uint8_t, TotemTimingPlaneChannelPair> totemTimingChannelMap;
 
@@ -56,6 +60,8 @@ public:
 
   /// Given the hardware ID, returns the corresponding Plane, Channel pair (TotemTimingPlaneChannelPair)
   const TotemTimingPlaneChannelPair getTimingChannel(const uint8_t hwId) const;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

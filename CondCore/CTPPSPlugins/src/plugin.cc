@@ -27,6 +27,10 @@
 #include "CondFormats/DataRecord/interface/PPSAlignmentConfigurationRcd.h"
 #include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/DataRecord/interface/TotemAnalysisMaskRcd.h"
 
 namespace {
   struct InitAssociationCuts {
@@ -48,5 +52,7 @@ REGISTER_PLUGIN(PPSDirectSimulationDataRcd, PPSDirectSimulationData);
 REGISTER_PLUGIN(PPSPixelTopologyRcd, PPSPixelTopology);
 REGISTER_PLUGIN(PPSAlignmentConfigRcd, PPSAlignmentConfig);
 REGISTER_PLUGIN(PPSAlignmentConfigurationRcd, PPSAlignmentConfiguration);
+REGISTER_PLUGIN(TotemReadoutRcd, TotemDAQMapping);
+REGISTER_PLUGIN(TotemAnalysisMaskRcd, TotemAnalysisMask);
 
 REGISTER_PLUGIN_INIT(PPSAssociationCutsRcd, PPSAssociationCuts, InitAssociationCuts);

@@ -20,5 +20,10 @@ namespace CondFormats_CTPPSPixelObjects {
     LHCInterpolatedOpticalFunctionsSet lhc_iofs;
     LHCInterpolatedOpticalFunctionsSetCollection lhc_iofsc;
     PPSPixelTopology pps_pt;
+
+    std::map<TotemFramePosition, TotemVFATInfo> VFATMapping;
+    std::map<uint8_t, TotemTimingPlaneChannelPair> totemTimingChannelMap;
+    std::set<unsigned char> maskedChannels;
+    std::map<TotemSymbID, TotemVFATAnalysisMask> analysisMask;
   };
 }  // namespace CondFormats_CTPPSPixelObjects

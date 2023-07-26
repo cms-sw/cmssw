@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <string>
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /**
  * Uniquely identifies the DAQ channel through which a VFAT frame has been received.
@@ -130,6 +131,8 @@ public:
 
 protected:
   unsigned int rawPosition;
+
+  COND_SERIALIZABLE;
 };
 
 #endif
