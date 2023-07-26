@@ -281,6 +281,9 @@ namespace ecal {
             ch_with_bad_block = std::numeric_limits<uint32_t>::max();
           }
 
+          // make sure the shared memory is initialised for all threads
+          __syncthreads();
+
           uint64_t wdata;
           uint8_t stripid;
           uint8_t xtalid;
@@ -309,13 +312,12 @@ namespace ecal {
             }
           }
 
-          __syncthreads();
-
           // check if this thread has the lowest bad block
           if (bad_block && i_to_access < ch_with_bad_block) {
             atomicMin(&ch_with_bad_block, i_to_access);
           }
 
+          // make sure that all threads that have to have set the ch_with_bad_block shared memory
           __syncthreads();
 
           // threads outside of the range or bad block detected in this thread or one working on a lower block -> stop this loop iteration here
