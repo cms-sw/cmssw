@@ -26,7 +26,7 @@ class L1CTJetFileWriter : public edm::one::EDAnalyzer<edm::one::SharedResources>
 public:
   explicit L1CTJetFileWriter(const edm::ParameterSet&);
 
-  //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // ----------constants, enums and typedefs ---------
@@ -163,25 +163,15 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::Et
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-/*void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription vpsd1;
-    vpsd1.add<edm::InputTag>("jets", edm::InputTag("sc4PFL1PuppiCorrectedEmulator"));
-    vpsd1.add<edm::InputTag>("mht", edm::InputTag("sc4PFL1PuppiCorrectedEmulatorMHT"));
-    std::vector<edm::ParameterSet> temp1;
-    temp1.reserve(1);
-    {
-      edm::ParameterSet temp2;
-      temp2.addParameter<edm::InputTag>("jets", edm::InputTag("sc4PFL1PuppiCorrectedEmulator"));
-      temp2.addParameter<edm::InputTag>("mht", edm::InputTag("sc4PFL1PuppiCorrectedEmulatorMHT"));
-      temp1.push_back(temp2);
-    }
-    desc.addVPSetUntracked("collections", vpsd1, temp1);
+    vpsd1.addOptional<edm::InputTag>("jets");
+    vpsd1.addOptional<edm::InputTag>("mht");
+    desc.addVPSetUntracked("collections", vpsd1);
   }
-  //desc.add<std::vector<edm::ParameterSet>>("collections");
   desc.add<std::string>("outputFilename");
   desc.add<std::string>("outputFileExtension", "txt");
   desc.add<uint32_t>("nJets", 12);
@@ -190,7 +180,7 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::Et
   desc.add<uint32_t>("maxLinesPerFile", 1024);
   desc.add<std::string>("format", "EMPv2");
   descriptions.addDefault(desc);
-}*/
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1CTJetFileWriter);
