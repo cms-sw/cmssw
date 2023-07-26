@@ -2,8 +2,6 @@
 
 #include "RecoMTD/DetLayers/interface/ETLDetLayerGeometryBuilder.h"
 
-#include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
-#include <RecoMTD/DetLayers/interface/MTDDetRing.h>
 #include <RecoMTD/DetLayers/interface/MTDSectorForwardDoubleLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetSector.h>
 #include <DataFormats/ForwardDetId/interface/ETLDetId.h>

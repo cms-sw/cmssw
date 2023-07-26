@@ -49,11 +49,19 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   modtyp = (baseNumber.getLevelName(2).find("_Left") != std::string::npos) ? 1 : 2;
 
-  int nSide(8);
+  int nSide(7);
   const std::string_view& sideName(baseNumber.getLevelName(nSide));
-  // Side choice: from scenario D41 is given by level 8 (HGCal v10)
-  if (sideName.find("CALOECTSFront") == std::string::npos) {
-    edm::LogError("MTDGeom") << "ETLNumberingScheme: incorrect volume stack found!";
+  if (sideName.find("CALOECTSFront") != std::string::npos) {
+    nSide = 8;
+  } else {
+    edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): incorrect volume stack: \n"
+                               << baseNumber.getLevelName(0) << ", " << baseNumber.getLevelName(1) << ", "
+                               << baseNumber.getLevelName(2) << ", " << baseNumber.getLevelName(3) << ", "
+                               << baseNumber.getLevelName(4) << ", " << baseNumber.getLevelName(5) << ", "
+                               << baseNumber.getLevelName(6) << ", " << baseNumber.getLevelName(7) << ", "
+                               << baseNumber.getLevelName(8) << ", " << baseNumber.getLevelName(9) << ", "
+                               << baseNumber.getLevelName(10) << ", " << baseNumber.getLevelName(11) << "\nReturning 0";
+    return 0;
   }
   const uint32_t sideCopy(baseNumber.getCopyNumber(nSide));
   const uint32_t zside(sideCopy == 1 ? 1 : 0);

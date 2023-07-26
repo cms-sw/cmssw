@@ -34,9 +34,11 @@
 #include <sstream>
 
 #include "CLHEP/Random/RandFlat.h"
+#include "DataFormats/Math/interface/angle.h"
 
 using namespace std;
 using namespace edm;
+using namespace angle_units;
 
 class MTDRecoGeometryAnalyzer : public global::EDAnalyzer<> {
 public:
@@ -179,6 +181,34 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
     } else {
       LogVerbatim("MTDLayerDump") << " ERROR : no compatible det found";
     }
+
+    // scan in phi at the given z
+    LogVerbatim("MTDLayerDump") << "\nBTL phi scan at Z = " << aZ << "\n";
+    aPhi = (int)(-piRadians * 1000) / 1000.;
+    double dPhi = 0.005;
+    uint32_t nTot(0);
+    uint32_t nComp(0);
+    while (aPhi <= piRadians) {
+      nTot++;
+      GlobalPoint gp(GlobalPoint::Cylindrical(cyl.radius(), aPhi, aZ));
+      GlobalVector gv(GlobalVector::Spherical(gp.theta(), aPhi, 10.));
+      GlobalTrajectoryParameters gtp(gp, gv, charge, field);
+      TrajectoryStateOnSurface tsos(gtp, cyl);
+      SteppingHelixPropagator prop(field, anyDirection);
+      vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
+      std::stringstream ss;
+      if (!compDets.empty()) {
+        nComp++;
+        for (const auto& dets : compDets) {
+          ss << " " << BTLDetId(dets.first->geographicalId().rawId()).rawId();
+        }
+      }
+      LogVerbatim("MTDLayerDump") << "BTL scan at phi = " << std::fixed << std::setw(5) << aPhi
+                                  << " compatible dets = " << std::setw(14) << compDets.size() << ss.str();
+      aPhi += dPhi;
+    }
+    LogVerbatim("MTDLayerDump") << "\nBTL scan total points = " << nTot << " compatible = " << nComp
+                                << " fraction = " << double(nComp) / double(nTot);
   }
 }
 

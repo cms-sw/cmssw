@@ -159,41 +159,19 @@ void CmsMTDConstruction<DDFilteredView>::buildETLModule(DDFilteredView& fv, Geom
   GeometricTimingDet* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
-  if (isETLtdr(fv)) {
-    //
-    // For the TDR ETL geometry
-    // in principle this method works also for the new geometry, if the main loop points to "Timingactive"
-    // but backward compatibility is kept in order to avoid change in volume name and number of siblings
-    //
+  auto& gh = fv.geoHistory();
 
-    auto& gh = fv.geoHistory();
+  baseNumber_.reset();
+  baseNumber_.setSize(gh.size());
 
-    baseNumber_.reset();
-    baseNumber_.setSize(gh.size());
-
-    for (uint i = gh.size(); i-- > 0;) {
-      baseNumber_.addLevel(gh[i].logicalPart().name().name(), gh[i].copyno());
+  for (uint i = gh.size(); i-- > 0;) {
+    baseNumber_.addLevel(gh[i].logicalPart().name().name(), gh[i].copyno());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("CmsMTDConstruction") << gh[i].logicalPart().name().name() << " " << gh[i].copyno();
+    edm::LogVerbatim("CmsMTDConstruction") << gh[i].logicalPart().name().name() << " " << gh[i].copyno();
 #endif
-    }
-
-    det->setGeographicalID(ETLDetId(etlScheme_.getUnitID(baseNumber_)));
-
-  } else {
-    const auto& copyNumbers = fv.copyNumbers();
-    auto module_number = copyNumbers[copyNumbers.size() - 2];
-
-    size_t delim_ring = det->name().find("EModule");
-    size_t delim_disc = det->name().find("Disc");
-
-    std::string ringN = det->name().substr(delim_ring + CmsMTDStringToEnum::kModStrLen, delim_disc);
-
-    const uint32_t side = det->translation().z() > 0 ? 1 : 0;
-
-    // label geographic detid is front or back (even though it is one module per entry here)
-    det->setGeographicalID(ETLDetId(side, atoi(ringN.c_str()), module_number, 0));
   }
+
+  det->setGeographicalID(ETLDetId(etlScheme_.getUnitID(baseNumber_)));
 
   mother->addComponent(det);
 }
@@ -270,11 +248,6 @@ GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildLayer(FilteredView& f
 template <class FilteredView>
 bool CmsMTDConstruction<FilteredView>::isBTLV2(FilteredView& fv) {
   return (fv.name().substr(0, 9) == "BTLModule");
-}
-
-template <class FilteredView>
-bool CmsMTDConstruction<FilteredView>::isETLtdr(FilteredView& fv) {
-  return (fv.name() == "EModule_Timingactive");
 }
 
 template class CmsMTDConstruction<DDFilteredView>;
