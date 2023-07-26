@@ -114,9 +114,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
   edm::Handle<LumiScalersCollection> lumiScalers;
   event.getByToken(lumiScalers_, lumiScalers);
 
-  std::vector<std::vector<int>> pad_bx_layer1;
-  std::vector<std::vector<int>> pad_bx_layer2;
-  int med_pad;
+  int med_pad1,med_pad2;
 
   for (auto it = gemPadDigiClusters->begin(); it != gemPadDigiClusters->end(); it++) {
     auto range = gemPadDigiClusters->get((*it).first);
@@ -125,70 +123,50 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
       if (cluster->isValid()) {
 
         ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
+        ME3IdsKey key3Ch{((*it).first).region(), ((*it).first).station(),((*it).first).chamber()};  
+
         //Plot the bx of each cluster.  
         mapBXCLSPerCh_.Fill(key4Ch,cluster->bx());
-      }
-    } 
-  }    
 
-    for (auto it = gemPadDigiClusters->begin(); it != gemPadDigiClusters->end(); it++) {
-      auto range = gemPadDigiClusters->get((*it).first);
       
-        for (auto cluster = range.first; cluster != range.second; cluster++) {
-          if (cluster->isValid()) { 
-            ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
-    
-            for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
-              //Plot of pad and bx for each chamber and layer
-              mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
-              mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
 
-              //Plot the size of clusters for each chamber and layer 
-              Int_t nCLS = cluster->pads().size();
-              Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
-              mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
+
+        //Plot of pad and bx diff of two layers per chamer. 
+        med_pad1 =floor((cluster->pads().front() + cluster->pads().front() + cluster->pads().size() -1 )/2);
+
+        for (auto it2 = gemPadDigiClusters->begin(); it2 != gemPadDigiClusters->end(); it2++) {
+          auto range2 = gemPadDigiClusters->get((*it).first);
+    
+          for (auto cluster2 = range2.first; cluster2 != range2.second; cluster2++) {
+            if (cluster2->isValid()) {    
+              med_pad2 =floor((cluster2->pads().front() + cluster2->pads().front() + cluster2->pads().size() -1 )/2);
+                
+              if (((*it).first).chamber()==((*it2).first).chamber() && ((*it).first).station()==((*it2).first).station() && ((*it).first).region()==((*it2).first).region() && ((*it).first).layer()==1 &&((*it2).first).layer()==2 ){
+
+                if (abs(med_pad1 - med_pad2) <= 40 && abs(((*it).first).roll() - ((*it2).first).roll())<=1){
+                      mapPadBXDiffPerCh_.Fill(key3Ch, med_pad1 - med_pad2,  cluster->bx() - cluster2->bx() );
+                      mapPadDiffPerCh_.Fill(key3Ch, med_pad1 - med_pad2);
+                      mapBXDiffPerCh_.Fill(key3Ch, cluster->bx() - cluster2->bx());
+                }
+              }  
             }
           }
         }
-    }  
 
+        for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
+          //Plot of pad and bx for each chamber and layer
+          mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
+          mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
 
-  for (auto it = gemPadDigiClusters->begin(); it != gemPadDigiClusters->end(); it++) {
-    auto range = gemPadDigiClusters->get((*it).first);
-    
-    for (auto cluster = range.first; cluster != range.second; cluster++) {
-      if (cluster->isValid()) {    
-        med_pad = cluster->pads().front() + floor(cluster->pads().size()/2);
-        //push_back the pad and bx information for different layers.
-        if(((*it).first).layer() == 1){
-          pad_bx_layer1.push_back({med_pad , cluster->bx(), ((*it).first).region(), ((*it).first).station(), 1, ((*it).first).chamber(), ((*it).first).roll()});
-        }  
-        if(((*it).first).layer() == 2){
-          pad_bx_layer2.push_back({med_pad, cluster->bx(),((*it).first).region(), ((*it).first).station(), 2,((*it).first).chamber(), ((*it).first).roll()});
+          //Plot the size of clusters for each chamber and layer 
+          Int_t nCLS = cluster->pads().size();
+          Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
+          mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
         }
-      }
-    }
-  }   
-
-  for (unsigned i = 0; i < pad_bx_layer1.size(); i++){  
-
-    ME3IdsKey key3Ch{pad_bx_layer1[i][2], pad_bx_layer1[i][3],pad_bx_layer1[i][5]}; 
-
-    for (unsigned j = 0; j < pad_bx_layer2.size(); j++){
-      if(pad_bx_layer1[i][2]==pad_bx_layer2[j][2] && pad_bx_layer1[i][3]==pad_bx_layer2[j][3] && pad_bx_layer1[i][5]==pad_bx_layer2[j][5]){
-             
-        //Plot the pad differnce and bx difference for closed pads per chamber.
-        if (abs(pad_bx_layer1[i][0] - pad_bx_layer2[j][0]) <= 40 && abs(pad_bx_layer1[i][6] - pad_bx_layer2[j][6])<=1){
-          mapPadBXDiffPerCh_.Fill(key3Ch, pad_bx_layer1[i][0] - pad_bx_layer2[j][0],  pad_bx_layer1[i][1] - pad_bx_layer2[j][1] );
-          mapPadDiffPerCh_.Fill(key3Ch, pad_bx_layer1[i][0] - pad_bx_layer2[j][0] );
-          mapBXDiffPerCh_.Fill(key3Ch, pad_bx_layer1[i][1] - pad_bx_layer2[j][1] );
-        }
-      }
+      }   
     }
   }
-  pad_bx_layer1.clear();
-  pad_bx_layer2.clear(); 
-}
+} 
           
         
         
