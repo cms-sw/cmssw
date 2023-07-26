@@ -42,7 +42,7 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 
   mapBXCLSPerCh_ = MEMap4Inf(this, "bx", "Cluster Bunch Crossing ", 14 , -0.5, 13.5, "Bunch crossing");
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pad number", "i#eta");
-  mapPadBxPerCh_ = MEMap4Inf(this, "pad", "Cluster BX and Pad number for ", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pad number", "Cluster BX");
+  mapPadBxPerCh_ = MEMap4Inf(this, "pad", "Cluster BX and Pad Number for ", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pad number", "Cluster BX");
   mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster Size of Pad ", 9, 0.5, 9 + 0.5, 1, 0.5, 1.5, "Cluster Size", "i#eta");
   
   ibooker.cd();
@@ -128,40 +128,41 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         //Plot the bx of each cluster.  
         mapBXCLSPerCh_.Fill(key4Ch,cluster->bx());
 
-      
+        //Plot the size of clusters for each chamber and layer 
+        Int_t nCLS = cluster->pads().size();
+        Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
+        mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
 
 
         //Plot of pad and bx diff of two layers per chamer. 
         med_pad1 =floor((cluster->pads().front() + cluster->pads().front() + cluster->pads().size() -1 )/2);
-
         for (auto it2 = gemPadDigiClusters->begin(); it2 != gemPadDigiClusters->end(); it2++) {
-          auto range2 = gemPadDigiClusters->get((*it).first);
-    
+          auto range2 = gemPadDigiClusters->get((*it2).first);
+
           for (auto cluster2 = range2.first; cluster2 != range2.second; cluster2++) {
             if (cluster2->isValid()) {    
               med_pad2 =floor((cluster2->pads().front() + cluster2->pads().front() + cluster2->pads().size() -1 )/2);
-                
+  
               if (((*it).first).chamber()==((*it2).first).chamber() && ((*it).first).station()==((*it2).first).station() && ((*it).first).region()==((*it2).first).region() && ((*it).first).layer()==1 &&((*it2).first).layer()==2 ){
-
+                
                 if (abs(med_pad1 - med_pad2) <= 40 && abs(((*it).first).roll() - ((*it2).first).roll())<=1){
-                      mapPadBXDiffPerCh_.Fill(key3Ch, med_pad1 - med_pad2,  cluster->bx() - cluster2->bx() );
-                      mapPadDiffPerCh_.Fill(key3Ch, med_pad1 - med_pad2);
-                      mapBXDiffPerCh_.Fill(key3Ch, cluster->bx() - cluster2->bx());
+                  
+                  mapPadBXDiffPerCh_.Fill(key3Ch, med_pad1 - med_pad2,  cluster->bx() - cluster2->bx() );
+                  mapPadDiffPerCh_.Fill(key3Ch, med_pad1 - med_pad2);
+                  mapBXDiffPerCh_.Fill(key3Ch, cluster->bx() - cluster2->bx());
                 }
               }  
             }
           }
         }
 
+        
         for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
           //Plot of pad and bx for each chamber and layer
           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
           mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
 
-          //Plot the size of clusters for each chamber and layer 
-          Int_t nCLS = cluster->pads().size();
-          Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
-          mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
+         
         }
       }   
     }
