@@ -63,7 +63,7 @@ class PostProcessor:
         tmpdir = os.environ['TMPDIR'] if 'TMPDIR' in os.environ else "/tmp"
         if not fname.startswith("root://"):
             return fname, False
-        rndchars = "".join([hex(ord(i))[2:] for i in os.urandom(
+        rndchars = "".join([hex(i)[2:] for i in os.urandom(
             8)]) if not self.longTermCache else "long_cache-id%d-%s" \
             % (os.getuid(), hashlib.sha1(fname.encode('utf-8')).hexdigest())
         localfile = "%s/%s-%s.root" \
@@ -154,7 +154,7 @@ class PostProcessor:
 
             # open input file
             if self.prefetch:
-                ftoread, toBeDeleted = self.prefetchFile(fname)
+                ftoread, toBeDeleted = self.prefetchFile(fname.strip())
                 inFile = ROOT.TFile.Open(ftoread)
             else:
                 inFile = ROOT.TFile.Open(fname)
