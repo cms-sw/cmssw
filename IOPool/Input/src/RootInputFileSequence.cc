@@ -252,14 +252,15 @@ namespace edm {
       }
       for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
         try {
+          usedFallback_ = (it != fNames.begin());
           std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
           filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
-          usedFallback_ = (it != fNames.begin());
           break;
         } catch (cms::Exception const& e) {
           if (!skipBadFiles && std::next(it) == fNames.end()) {
             InputFile::reportSkippedFile((*it), logicalFileName());
-            Exception ex(errors::FileOpenError, "", e);
+            errors::ErrorCodes errorCode = usedFallback_ ? errors::FallbackFileOpenError : errors::FileOpenError;
+            Exception ex(errorCode, "", e);
             ex.addContext("Calling RootInputFileSequence::initTheFile()");
             std::ostringstream out;
             out << "Input file " << (*it) << " could not be opened.";
