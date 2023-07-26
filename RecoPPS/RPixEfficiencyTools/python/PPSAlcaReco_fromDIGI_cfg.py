@@ -63,7 +63,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 #CONFIGURE PROCESS
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 if options.useJsonFile == True:
     import FWCore.PythonUtilities.LumiList as LumiList
