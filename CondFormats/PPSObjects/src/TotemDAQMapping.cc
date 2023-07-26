@@ -61,4 +61,23 @@ const TotemDAQMapping::TotemTimingPlaneChannelPair TotemDAQMapping::getTimingCha
 
 //----------------------------------------------------------------------------------------------------
 
+void TotemDAQMapping::print(std::ostream &os) const {
+  os << "TotemDQMMapping VFAT mapping" << endl;
+  for (const auto &p : VFATMapping) {
+    os << "    " << p.first << " -> " << p.second << endl;
+  }
+
+  os << "TotemDQMMapping channel mapping" << endl;
+  for (const auto &p : totemTimingChannelMap) {
+    os << "    " << p.first << " plane " << p.second.plane << " channel " << p.second.channel << endl;
+  }
+}
+
+std::ostream &operator<<(std::ostream &os, TotemDAQMapping mapping) {
+  mapping.print(os);
+  return os;
+}
+
+//----------------------------------------------------------------------------------------------------
+
 TYPELOOKUP_DATA_REG(TotemDAQMapping);

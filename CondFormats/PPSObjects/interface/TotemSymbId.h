@@ -9,6 +9,7 @@
 #ifndef CondFormats_PPSObjects_TotemSymbId
 #define CondFormats_PPSObjects_TotemSymbId
 
+#include "CondFormats/Serialization/interface/Serializable.h"
 #include <iostream>
 
 /**
@@ -24,6 +25,8 @@ public:
   bool operator==(const TotemSymbID &sid) const { return (symbolicID == sid.symbolicID); }
 
   friend std::ostream &operator<<(std::ostream &s, const TotemSymbID &sid);
+
+  COND_SERIALIZABLE;
 };
 
 #endif
