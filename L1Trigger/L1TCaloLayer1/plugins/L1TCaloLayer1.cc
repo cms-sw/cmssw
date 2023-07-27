@@ -309,9 +309,26 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                               useHCALFBLUT,
                               fwVersion)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
-    std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> eCalLayer1EtaSideEtArray;
-    std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> hCalLayer1EtaSideEtArray;
-    std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> hfLayer1EtaEtArray;
+    // Andrew's note: Sets these to empty arrays initially, then fills all elements with 32 bits of 1's
+    // to represent a bit-wise unity, and get around initialization complaints on the (now) created null array.
+    // I'm not crazy about how this is structured, but c++ appears to not offer a lot of utilities 
+    // for filling std::array's (especially nested ones) without listing out every value by hand, or creating them nulled.
+    std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> eCalLayer1EtaSideEtArray = {};
+    std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> hCalLayer1EtaSideEtArray = {};
+    std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> hfLayer1EtaEtArray = {};
+    for (uint32_t i = 0; i < nCalEtaBins; i++) {
+      for (uint32_t j = 0; j < nCalSideBins; j++) {
+        for (uint32_t k = 0; k < nEtBins; k++) {
+          eCalLayer1EtaSideEtArray[i][j][k] = 0xFFFFFFFF;
+          hCalLayer1EtaSideEtArray[i][j][k] = 0xFFFFFFFF;
+        }
+      }
+    }
+    for (uint32_t i = 0; i < nHfEtaBins; i++) {
+      for (uint32_t j = 0; j < nEtBins; j++) {
+        hfLayer1EtaEtArray[i][j] = 0xFFFFFFFF;
+      }
+    }
     ecalLUT.push_back(eCalLayer1EtaSideEtArray);
     hcalLUT.push_back(hCalLayer1EtaSideEtArray);
     hfLUT.push_back(hfLayer1EtaEtArray);
