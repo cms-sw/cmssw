@@ -24,6 +24,9 @@
   <class name="hgcal::TracksterToSimTracksterAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::TracksterToSimTracksterAssociator>" persistent="false"/>
 
+  <class name="hgcal::TracksterToSimTracksterHitLCAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::TracksterToSimTracksterHitLCAssociator>" persistent="false"/>
+
   <class name="hgcal::LayerClusterToSimTracksterAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::LayerClusterToSimTracksterAssociator>" persistent="false"/>
 

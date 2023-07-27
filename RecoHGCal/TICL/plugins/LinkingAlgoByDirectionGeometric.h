@@ -20,6 +20,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
 
 namespace ticl {
   class LinkingAlgoByDirectionGeometric final : public LinkingAlgoBase {
@@ -44,14 +45,14 @@ namespace ticl {
     static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
-    typedef math::XYZVector Vector;
+    using Vector = ticl::Trackster::Vector;
 
     void buildLayers();
 
-    math::XYZVector propagateTrackster(const Trackster &t,
-                                       const unsigned idx,
-                                       float zVal,
-                                       std::array<TICLLayerTile, 2> &tracksterTiles);
+    Vector propagateTrackster(const Trackster &t,
+                              const unsigned idx,
+                              float zVal,
+                              std::array<TICLLayerTile, 2> &tracksterTiles);
 
     void findTrackstersInWindow(const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
                                 const std::array<TICLLayerTile, 2> &tracksterTiles,

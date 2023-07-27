@@ -27,6 +27,7 @@ SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet
       _trackingParticleSrc(
           consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))) {
   produces<SimHitTPAssociationList>();
+  produces<SimTrackToTPMap>("simTrackToTP");
   std::vector<edm::InputTag> tags = cfg.getParameter<std::vector<edm::InputTag>>("simHitSrc");
   _simHitSrc.reserve(tags.size());
   for (auto const &tag : tags) {
@@ -44,7 +45,7 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
   iEvent.getByToken(_trackingParticleSrc, TPCollectionH);
 
   // prepare temporary map between SimTrackId and TrackingParticle index
-  std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash> mapping;
+  auto simTrackToTPMap = std::make_unique<SimTrackToTPMap>();
   auto const &tpColl = *TPCollectionH.product();
   for (TrackingParticleCollection::size_type itp = 0, size = tpColl.size(); itp < size; ++itp) {
     auto const &trackingParticle = tpColl[itp];
@@ -53,7 +54,7 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
     EncodedEventId eid(trackingParticle.eventId());
     for (auto const &trk : trackingParticle.g4Tracks()) {
       UniqueSimTrackId trkid(trk.trackId(), eid);
-      mapping.insert(std::make_pair(trkid, trackingParticleRef));
+      simTrackToTPMap->mapping.insert(std::make_pair(trkid, trackingParticleRef));
     }
   }
 
@@ -66,8 +67,8 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
       TrackPSimHitRef pSimHitRef(PSimHitCollectionH, psimHitI);
       auto const &pSimHit = pSimHitCollection[psimHitI];
       UniqueSimTrackId simTkIds(pSimHit.trackId(), pSimHit.eventId());
-      auto ipos = mapping.find(simTkIds);
-      if (ipos != mapping.end()) {
+      auto ipos = simTrackToTPMap->mapping.find(simTkIds);
+      if (ipos != simTrackToTPMap->mapping.end()) {
         simHitTPList->emplace_back(ipos->second, pSimHitRef);
       }
     }
@@ -75,6 +76,7 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
 
   std::sort(simHitTPList->begin(), simHitTPList->end(), simHitTPAssociationListGreater);
   iEvent.put(std::move(simHitTPList));
+  iEvent.put(std::move(simTrackToTPMap), "simTrackToTP");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

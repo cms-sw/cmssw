@@ -128,7 +128,7 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
           tssInSimTrackster[st.clusterId].tracksterIdToEnergyAndScore[tsId].first +=
               lcFractionInTs * st.fraction * layerClusters[lcId].energy();
           //TS_i -> ST_j, ST_k, ...
-          stsInTrackster[tsId].emplace_back(st.clusterId, 0.f);
+          stsInTrackster[tsId].emplace_back(st.clusterId, std::make_pair(0.f, 0.f));
         }
       }
     }  // End loop over LayerClusters in Trackster
@@ -294,9 +294,10 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
     // SimTrackster, assigned score 1
     if (tracksters[tsId].raw_energy() == 0. && !stsInTrackster[tsId].empty()) {
       for (auto& stPair : stsInTrackster[tsId]) {
-        stPair.second = 1.;
+        stPair.second.second = 1.;
         LogDebug("TSToSimTSAssociatorByEnergyScoreImpl")
-            << "TracksterId:\t " << tsId << "\tST id:\t" << stPair.first << "\tscore\t " << stPair.second << "\n";
+            << "TracksterId:\t " << tsId << "\tST id:\t" << stPair.first << "\tenergy" << stPair.second.first
+            << "\tscore\t " << stPair.second.second << "\n";
       }
       continue;
     }
@@ -332,13 +333,13 @@ hgcal::association TSToSimTSAssociatorByEnergyScoreImpl::makeConnections(
             stFraction = findLCIt->fraction;
           }
         }
-        stPair.second +=
+        stPair.second.second +=
             (lcFractionInTs - stFraction) * (lcFractionInTs - stFraction) * lcEnergyWeight * invTracksterEnergyWeight;
 #ifdef EDM_ML_DEBUG
         LogDebug("TSToSimTSAssociatorByEnergyScoreImpl")
             << "lcId:\t" << (uint32_t)lcId << "\ttracksterId:\t" << tsId << "\ttsFraction,stFraction:\t"
             << lcFractionInTs << ", " << stFraction << "\tlcEnergyWeight:\t" << lcEnergyWeight << "\tcurrent score:\t"
-            << stPair.second << "\tinvTracksterEnergyWeight:\t" << invTracksterEnergyWeight << "\n";
+            << stPair.second.second << "\tinvTracksterEnergyWeight:\t" << invTracksterEnergyWeight << "\n";
 #endif
       }
     }  // End of loop over LayerClusters in Trackster
@@ -446,9 +447,10 @@ hgcal::RecoToSimCollectionSimTracksters TSToSimTSAssociatorByEnergyScoreImpl::as
       LogDebug("TSToSimTSAssociatorByEnergyScoreImpl") << "Trackster Id:\t" << tsId << "\tSimTrackster id:\t"
                                                        << stPair.first << "\tscore:\t" << stPair.second << "\n";
       // Fill AssociationMap
-      returnValue.insert(edm::Ref<ticl::TracksterCollection>(tCH, tsId),  // Ref to TS
-                         std::make_pair(edm::Ref<ticl::TracksterCollection>(sTCH, stPair.first),
-                                        stPair.second)  // Pair <Ref to ST, score>
+      returnValue.insert(
+          edm::Ref<ticl::TracksterCollection>(tCH, tsId),                            // Ref to TS
+          std::make_pair(edm::Ref<ticl::TracksterCollection>(sTCH, stPair.first),    //Pair <Refo to TS>
+                         std::make_pair(stPair.second.first, stPair.second.second))  // Pair <energy, score>
       );
     }
   }

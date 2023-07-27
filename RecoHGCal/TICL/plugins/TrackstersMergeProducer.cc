@@ -280,9 +280,9 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     auto track_ptr = cand.trackPtr();
     auto trackster_ptrs = cand.tracksters();
 
-#ifdef EDM_ML_DEBUG
     auto track_idx = track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
     track_idx = (track_ptr.isNull()) ? -1 : track_idx;
+#ifdef EDM_ML_DEBUG
     LogDebug("TrackstersMergeProducer") << "PDG ID " << cand.pdgId() << " charge " << cand.charge() << " p " << cand.p()
                                         << std::endl;
     LogDebug("TrackstersMergeProducer") << "track id (p) : " << track_idx << " ("
@@ -292,6 +292,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
     // Merge included tracksters
     ticl::Trackster outTrackster;
+    outTrackster.setTrackIdx(track_idx);
     auto updated_size = 0;
     for (const auto &ts_ptr : trackster_ptrs) {
 #ifdef EDM_ML_DEBUG
@@ -335,8 +336,6 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     }
 
     outTrackster.zeroProbabilities();
-    if (!track_ptr.isNull())
-      outTrackster.setSeed(track_h.id(), track_ptr.get() - (edm::Ptr<reco::Track>(track_h, 0)).get());
     if (!outTrackster.vertices().empty()) {
       resultTrackstersMerged->push_back(outTrackster);
     }
@@ -534,19 +533,17 @@ void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> 
   for (auto &cand : resultCandidates) {
     if (cand.tracksters().size() > 1) {  // For single-trackster candidates the timing is already set
       float time = 0.f;
-      float timeErr = 0.f;
+      float invTimeErr = 0.f;
       for (const auto &tr : cand.tracksters()) {
         if (tr->timeError() > 0) {
           auto invTimeESq = pow(tr->timeError(), -2);
           time += tr->time() * invTimeESq;
-          timeErr += invTimeESq;
+          invTimeErr += invTimeESq;
         }
       }
-      if (timeErr > 0) {
-        timeErr = 1. / timeErr;
-
-        cand.setTime(time * timeErr);
-        cand.setTimeError(sqrt(timeErr));
+      if (invTimeErr > 0) {
+        cand.setTime(time / invTimeErr);
+        cand.setTimeError(sqrt(1.f / invTimeErr));
       }
     }
   }

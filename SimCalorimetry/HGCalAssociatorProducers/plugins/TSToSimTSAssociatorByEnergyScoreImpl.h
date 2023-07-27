@@ -56,7 +56,7 @@ namespace hgcal {
   // the SimTracksters (via their ids (stIds)) that share at least one LayerCluster. In that pair
   // it stores the score (tsId->(stId,score)). Keep in mind that the association is not unique, since there could be
   // several instances of the same SimTrackster from several related SimClusters that each contributed to the same Trackster.
-  typedef std::vector<std::vector<std::pair<unsigned int, float>>> tracksterToSimTrackster;
+  typedef std::vector<std::vector<std::pair<unsigned int, std::pair<float, float>>>> tracksterToSimTrackster;
   // This is used to save the simTracksterOnLayer structure for all simTracksters.
   // It is not exactly what is returned outside, but out of its entries, the output object is build.
   typedef std::vector<hgcal::simTracksterOnLayer> simTracksterToTrackster;

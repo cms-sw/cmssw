@@ -29,6 +29,8 @@
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TrajectoryState"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="fastjet"/>
 <library file="*.cc" name="RecoHGCalTICLPlugins">
   <flags EDM_PLUGIN="1"/>

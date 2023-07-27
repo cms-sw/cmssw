@@ -1,3 +1,4 @@
+<use name="hepmc"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
 <use name="SimDataFormats/EncodedEventId"/>
