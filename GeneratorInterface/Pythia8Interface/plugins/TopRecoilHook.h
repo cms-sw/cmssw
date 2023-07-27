@@ -33,11 +33,7 @@ namespace Pythia8 {
     }
 
     // Destructor prints histogram.
-    ~TopRecoilHook() override {
-      if (doTopRecoil)
-        cout << *wtCorr;
-      delete wtCorr;
-    }
+     ~TopRecoilHook() override { delete wtCorr; }
 
     // Initialise. Only use hook for simple showers with recoilToColoured = off.
     bool initAfterBeams() override {
