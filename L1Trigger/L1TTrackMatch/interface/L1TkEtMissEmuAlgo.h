@@ -28,6 +28,9 @@ namespace l1tmetemu {
   const unsigned int kGlobalPhiExtra{4};
   const unsigned int kCosLUTSize{10};
   const unsigned int kCosLUTMagSize{1};
+  const unsigned int kCosLUTTableSize{10};
+  const unsigned int kCosLUTBins{1 << kCosLUTTableSize};
+  const unsigned int kCosLUTShift{TTTrack_TrackWord::TrackBitWidths::kPhiSize - kCosLUTTableSize};
   const unsigned int kAtanLUTSize{64};
   const unsigned int kAtanLUTMagSize{2};
 
@@ -61,7 +64,7 @@ namespace l1tmetemu {
     METWordphi_t Phi;
   };
 
-  std::vector<cos_lut_fixed_t> generateCosLUT(unsigned int size);
+  std::vector<cos_lut_fixed_t> generateCosLUT();
 
   global_phi_t localToGlobalPhi(TTTrack_TrackWord::phi_t local_phi, global_phi_t sector_shift);
 
