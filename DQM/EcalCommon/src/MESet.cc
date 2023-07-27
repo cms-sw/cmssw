@@ -146,7 +146,7 @@ namespace ecaldqm {
       }
       if (entries == 0.)
         entries = _entries;
-      h->SetEntries(_entries);
+      h->SetEntries(entries);
     }
   }
 
