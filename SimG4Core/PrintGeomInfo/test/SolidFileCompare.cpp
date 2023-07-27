@@ -19,6 +19,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 std::pair<std::string, std::string> splitInto2(const std::string& list) {
   std::string list1, list2;

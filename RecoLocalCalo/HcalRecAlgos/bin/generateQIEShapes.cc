@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <cstdint>
 
 //
 // Pregenerate QIE Shapes using hardcoded arrays
