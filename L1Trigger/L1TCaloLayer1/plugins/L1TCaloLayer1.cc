@@ -311,7 +311,7 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
     // Andrew's note: Sets these to empty arrays initially, then fills all elements with 32 bits of 1's
     // to represent a bit-wise unity, and get around initialization complaints on the (now) created null array.
-    // I'm not crazy about how this is structured, but c++ appears to not offer a lot of utilities 
+    // I'm not crazy about how this is structured, but c++ appears to not offer a lot of utilities
     // for filling std::array's (especially nested ones) without listing out every value by hand, or creating them nulled.
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> eCalLayer1EtaSideEtArray = {};
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> hCalLayer1EtaSideEtArray = {};
