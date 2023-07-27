@@ -36,11 +36,11 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
   
-  mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Difference of Cluster Pad Number and BX for ",81, -40 - 0.5, 40 + 0.5,21,  -10 - 0.5, 10 + 0.5, "Lay2 - Lay1 cluster central pad","Lay2 - Lay1 cluster BX");
-  mapPadDiffPerCh_ = MEMap3Inf(this,"delta_pad","Difference of Cluster Pad Number for ",81, -40 - 0.5, 40 + 0.5, "Lay2 - Lay1 cluster central pad");
-  mapBXDiffPerCh_ = MEMap3Inf(this,"delta_bx","Difference of Cluster BX for",21,  -10 - 0.5, 10 + 0.5, "Lay2 - Lay1 cluster BX");
+  mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Difference of Trigger Primitive Pad Number and BX ",81, -40 - 0.5, 40 + 0.5,21,  -10 - 0.5, 10 + 0.5, "Lay1 - Lay2 cluster central pad","Lay1 - Lay2 cluster BX");
+  mapPadDiffPerCh_ = MEMap3Inf(this,"delta_pad","Difference of Trigger Primitive Pad Number ",81, -40 - 0.5, 40 + 0.5, "Lay1 - Lay2 cluster central pad");
+  mapBXDiffPerCh_ = MEMap3Inf(this,"delta_bx","Difference of Trigger Primitive BX ",21,  -10 - 0.5, 10 + 0.5, "Lay1 - Lay2 cluster BX");
 
-  mapBXCLSPerCh_ = MEMap4Inf(this, "bx", "Cluster Bunch Crossing ", 14 , -0.5, 13.5, "Bunch crossing");
+  mapBXCLSPerCh_ = MEMap4Inf(this, "bx", " Trigger Primitive Cluster BX ", 14 , -0.5, 13.5, "Bunch crossing");
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pad number", "i#eta");
   mapPadBxPerCh_ = MEMap4Inf(this, "pad", "Cluster BX and Pad Number for ", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pad number", "Cluster BX");
   mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster Size of Pad ", 9, 0.5, 9 + 0.5, 1, 0.5, 1.5, "Cluster Size", "i#eta");
