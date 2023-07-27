@@ -1,3 +1,4 @@
+#define EDM_ML_DEBUG
 
 #include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -18,8 +19,6 @@ void MCTruthUtil::primary(G4Track *aTrack) {
 void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
   auto motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());
   auto trkInfo = new TrackInformation();
-  LogDebug("SimG4CoreApplication") << "MCTruthUtil called for " << aTrack->GetTrackID() << " mother "
-                                   << motherInfo->isPrimary() << " flag " << flag;
 
   // Take care of cascade decays
   if (flag == 1) {
@@ -59,15 +58,23 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
 
   // manage ID of tracks in BTL to map them to SimTracks to be stored
   if (isInBTL(aTrack)) {
-    if ((motherInfo->storeTrack() && motherInfo->isFromTtoBTL()) || motherInfo->isBTLdaughter()) {
-      trkInfo->setBTLdaughter();
-      trkInfo->setIdAtBTLentrance(motherInfo->idAtBTLentrance());
-      LogDebug("SimG4CoreApplication") << "NewTrackAction: secondary in BTL " << trkInfo->isBTLdaughter()
-                                       << " from mother ID " << trkInfo->idAtBTLentrance();
+    trkInfo->setBTLdaughter();
+    if (motherInfo->isFromTtoBTL() || motherInfo->isBTLdaughter()) {
+      trkInfo->setIdAtBTLentrance(motherInfo->mcTruthID());
     }
+    LogDebug("SimG4CoreApplication") << "MCTruthUtil: secondary in BTL " << trkInfo->isBTLdaughter()
+                                     << " from mother ID " << trkInfo->idAtBTLentrance();
+  }
+  if (motherInfo->isInTrkFromBackscattering()) {
+    trkInfo->setInTrkFromBackscattering();
   }
 
   aTrack->SetUserInformation(trkInfo);
+#ifdef EDM_ML_DEBUG
+  LogTrace("SimG4CoreApplication") << "MCTruthUtil called for " << aTrack->GetTrackID() << " mother "
+                                   << motherInfo->isPrimary() << " flag " << flag;
+  trkInfo->Print();
+#endif
 }
 
 bool MCTruthUtil::isInBTL(const G4Track *aTrack) {

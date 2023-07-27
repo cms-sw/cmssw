@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -26,6 +28,7 @@ void TrackInformation::Print() const {
                                << "                    hasHits = " << hasHits_ << "\n"
                                << "                    isPrimary = " << isPrimary_ << "\n"
                                << "                    isGeneratedSecondary = " << isGeneratedSecondary_ << "\n"
+                               << "                    mcTruthID = " << mcTruthID_ << "\n"
                                << "                    isInHistory = " << isInHistory_ << "\n"
                                << "                    idOnCaloSurface = " << getIDonCaloSurface() << "\n"
                                << "                    caloIDChecked = " << caloIDChecked() << "\n"
@@ -35,5 +38,7 @@ void TrackInformation::Print() const {
                                << "                    isFromBTLtoT = " << isFromBTLtoT() << "\n"
                                << "                    isBTLdaughter = " << isBTLdaughter() << "\n"
                                << "                    isBTLlooper = " << isBTLlooper() << "\n"
+                               << "                    isInTrkFromBackscattering = " << isInTrkFromBackscattering()
+                               << "\n"
                                << "                    idAtBTLentrance = " << idAtBTLentrance_;
 }

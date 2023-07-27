@@ -94,6 +94,8 @@ public:
   bool isBTLdaughter() const { return (mtdStatus_ >> 2) & 1; }
   void setBTLlooper() { mtdStatus_ |= 1 << 3; }  // 4th bit
   bool isBTLlooper() const { return (mtdStatus_ >> 3) & 1; }
+  void setInTrkFromBackscattering() { mtdStatus_ |= 1 << 4; }  // 5th bit
+  bool isInTrkFromBackscattering() const { return (mtdStatus_ >> 4) & 1; }
 
   int idAtBTLentrance() const { return idAtBTLentrance_; }
   void setIdAtBTLentrance(int id) { idAtBTLentrance_ = id; }

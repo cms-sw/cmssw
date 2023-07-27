@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -13,7 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-//#define DebugLog
+#define DebugLog
 
 Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
     : steppingVerbose(sv), hasWatcher(hasW) {
@@ -168,14 +170,14 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromTtoBTL() && !trkinfo->isFromBTLtoT()) {
         trkinfo->setFromTtoBTL();
-        trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
+        trkinfo->setIdAtBTLentrance(trkinfo->mcTruthID());
 #ifdef DebugLog
         LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
                                          << " IdAtBTLentrance = " << trkinfo->idAtBTLentrance();
 #endif
       } else {
         trkinfo->setBTLlooper();
-        trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
+        trkinfo->setIdAtBTLentrance(trkinfo->mcTruthID());
 #ifdef DebugLog
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
         trkinfo->Print();
@@ -195,6 +197,16 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
+      }
+    } else if (preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() == cmse) {
+      // store transition calo -> cmse to tag backscattering
+      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+      if (!trkinfo->isInTrkFromBackscattering()) {
+        trkinfo->setInTrkFromBackscattering();
+#ifdef DebugLog
+        LogDebug("SimG4CoreApplication") << "Setting flag for backscattering from CALO "
+                                         << trkinfo->isInTrkFromBackscattering();
+#endif
       }
     }
   } else {
@@ -236,8 +248,10 @@ bool Phase2SteppingAction::initPointer() {
       calo = pvcite;
     } else if (pvname == "BarrelTimingLayer" || pvname == "btl:BarrelTimingLayer_1") {
       btl = pvcite;
+    } else if (pvname == "CMSE" || pvname == "cms:CMSE_1") {
+      cmse = pvcite;
     }
-    if (tracker && calo && btl)
+    if (tracker && calo && btl && cmse)
       break;
   }
   edm::LogVerbatim("SimG4CoreApplication")

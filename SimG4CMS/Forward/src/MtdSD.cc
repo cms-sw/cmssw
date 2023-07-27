@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "SimG4CMS/Forward/interface/MtdSD.h"
 
@@ -106,12 +106,37 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
     trkInfo->Print();
 #endif
     if (rname == "FastTimerRegionSensBTL") {
-      if (trkInfo->isBTLdaughter()) {
-        theID = trkInfo->idAtBTLentrance();
-      }
+      if (trkInfo->isInTrkFromBackscattering()) {
+        theID = trkInfo->mcTruthID() + k_idFromCaloOffset;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MtdSim") << "BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
+        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
+                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
 #endif
+        return theID;
+      }
+      if (trkInfo->isBTLlooper()) {
+        theID = trkInfo->mcTruthID() + k_idloopOffset;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
+                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
+#endif
+        return theID;
+      }
+      if (!trkInfo->isBTLdaughter() && trkInfo->mcTruthID() != aTrack->GetTrackID()) {
+        theID = trkInfo->mcTruthID() + k_idsecOffset;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
+                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
+#endif
+        return theID;
+      }
+      if (trkInfo->isBTLdaughter()) {
+        theID = trkInfo->mcTruthID();
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
+                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
+#endif
+      }
     } else if (rname == "FastTimerRegionSensETL") {
       theID = trkInfo->getIDonCaloSurface();
 #ifdef EDM_ML_DEBUG

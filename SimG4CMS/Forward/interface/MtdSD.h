@@ -28,6 +28,10 @@ protected:
   int getTrackID(const G4Track *) override;
 
 private:
+  static constexpr unsigned int k_idsecOffset = 100000000;
+  static constexpr unsigned int k_idloopOffset = 200000000;
+  static constexpr unsigned int k_idFromCaloOffset = 300000000;
+
   double energyCut;
   double energyHistoryCut;
 
