@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/Likely.h"
 
 #include <algorithm>
+#include <cstdlib>
 
 using namespace std;
 
@@ -28,6 +29,26 @@ namespace {
                              const GeomDet& det,
                              const DetLayer& layer) {
     result.emplace_back(ts, std::make_shared<InvalidTrackingRecHit>(det, TrackingRecHit::missing), 0.F, &layer);
+  }
+
+  // layerIsCompatibleWithTSOS:
+  //  - enforce minimum requirements of compatibility between DetLayer and TrajectoryStateOnSurface
+  //    (e.g. global position of TSOS within detector volume)
+  //  - current implementation does not make use of layer argument,
+  //    see below for an example of how to use it
+  //      #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+  //       [..]
+  //      using namespace GeomDetEnumerators;
+  //      auto const& det = layer.subDetector();
+  //      if (det == PixelBarrel or det == PixelEndcap) {
+  //        return xa < 2e1 and ya < 2e1 and za < 6e1;
+  //      }
+  bool layerIsCompatibleWithTSOS(DetLayer const& /* layer */, TrajectoryStateOnSurface const& tsos) {
+    auto const& gp = tsos.globalPosition();
+    auto const xa = std::abs(gp.x());
+    auto const ya = std::abs(gp.y());
+    auto const za = std::abs(gp.z());
+    return xa < 1e3 and ya < 1e3 and za < 12e2;
   }
 
   /** The std::vector<DetWithState> passed to this method should not be empty.
@@ -50,6 +71,9 @@ namespace {
     tracking::TempMeasurements tmps;
 
     for (auto const& ds : compatDets) {
+      if (not layerIsCompatibleWithTSOS(layer, ds.second))
+        continue;
+
       MeasurementDetWithData mdet = detSystem.idToDet(ds.first->geographicalId(), data);
       if UNLIKELY (mdet.isNull()) {
         throw MeasurementDetException("MeasurementDet not found");
@@ -114,6 +138,9 @@ std::vector<BaseTrackerRecHit*> LayerMeasurements::recHits(const DetLayer& layer
   if (compatDets.empty())
     return result;
   for (auto const& ds : compatDets) {
+    if (not layerIsCompatibleWithTSOS(layer, ds.second))
+      continue;
+
     auto mdet = detSystem_.idToDet(ds.first->geographicalId(), data_);
     mdet.recHits(result, ds.second, est);
   }
@@ -134,7 +161,7 @@ vector<TrajectoryMeasurement> LayerMeasurements::measurements(const DetLayer& la
   vector<TrajectoryMeasurement> result;
   pair<bool, TrajectoryStateOnSurface> compat = layer.compatible(startingState, prop, est);
 
-  if (compat.first) {
+  if (compat.first and layerIsCompatibleWithTSOS(layer, compat.second)) {
     result.push_back(
         TrajectoryMeasurement(compat.second,
                               std::make_shared<InvalidTrackingRecHitNoDet>(layer.surface(), TrackingRecHit::inactive),
@@ -163,13 +190,18 @@ vector<TrajectoryMeasurementGroup> LayerMeasurements::groupedMeasurements(const 
 
     vector<TrajectoryMeasurement> tmpVec;
     for (auto const& det : grp) {
+      auto const& detTS = det.trajectoryState();
+
+      if (not layerIsCompatibleWithTSOS(layer, detTS))
+        continue;
+
       MeasurementDetWithData mdet = detSystem_.idToDet(det.det()->geographicalId(), data_);
       if (mdet.isNull()) {
         throw MeasurementDetException("MeasurementDet not found");
       }
-      if (mdet.measurements(det.trajectoryState(), est, tmps))
+      if (mdet.measurements(detTS, est, tmps))
         for (std::size_t i = 0; i != tmps.size(); ++i)
-          tmpVec.emplace_back(det.trajectoryState(), std::move(tmps.hits[i]), tmps.distances[i], &layer);
+          tmpVec.emplace_back(detTS, std::move(tmps.hits[i]), tmps.distances[i], &layer);
       tmps.clear();
     }
 
@@ -183,7 +215,7 @@ vector<TrajectoryMeasurementGroup> LayerMeasurements::groupedMeasurements(const 
   // if the result is empty check if the layer is compatible (for invalid measurement)
   if (result.empty()) {
     pair<bool, TrajectoryStateOnSurface> compat = layer.compatible(startingState, prop, est);
-    if (compat.first) {
+    if (compat.first and layerIsCompatibleWithTSOS(layer, compat.second)) {
       vector<TrajectoryMeasurement> tmVec;
       tmVec.emplace_back(compat.second,
                          std::make_shared<InvalidTrackingRecHitNoDet>(layer.surface(), TrackingRecHit::inactive),
