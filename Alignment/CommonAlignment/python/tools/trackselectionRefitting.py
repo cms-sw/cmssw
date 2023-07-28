@@ -147,7 +147,8 @@ def getSequence(process, collection,
 
     if collection in ("ALCARECOTkAlMinBias", "generalTracks",
                       "ALCARECOTkAlMinBiasHI", "hiGeneralTracks",
-                      "ALCARECOTkAlJetHT", "ALCARECOTkAlDiMuonVertexTracks"):
+                      "ALCARECOTkAlJetHT", "ALCARECOTkAlDiMuonVertexTracks",
+                      "hltMergedTracks"):
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 1.0,
                 "pMin": 8.,
