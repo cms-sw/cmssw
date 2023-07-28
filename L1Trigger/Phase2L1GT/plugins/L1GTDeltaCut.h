@@ -106,13 +106,13 @@ namespace l1t {
       res &= os_ ? obj1.hwCharge() != obj2.hwCharge() : true;
       res &= ss_ ? obj1.hwCharge() == obj2.hwCharge() : true;
 
-      int32_t lutCoshDEta;
+      int32_t lutCoshDEta = 0;
       if (dEta) {
         lutCoshDEta = dEta < DETA_LUT_SPLIT ? coshEtaLUT_[dEta.value()] : coshEtaLUT2_[dEta.value() - DETA_LUT_SPLIT];
       }
 
       // Optimization: (cos(x + pi) = -cos(x), x in [0, pi))
-      int32_t lutCosDPhi;
+      int32_t lutCosDPhi = 0;
       if (dPhi) {
         lutCosDPhi = dPhi >= HW_PI ? -cosPhiLUT_[dPhi.value()] : cosPhiLUT_[dPhi.value()];
       }
