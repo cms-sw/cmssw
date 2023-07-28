@@ -5,7 +5,7 @@ process = cms.Process('writeTotemDAQMappingMask')
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
     firstValue = cms.uint64(1),
-    lastValue = cms.uint64(362920),
+    lastValue = cms.uint64(1),
     interval = cms.uint64(1)
 )
 
@@ -26,12 +26,6 @@ process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
     mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2022.xml"),
     maskFileNames = cms.vstring()
   )
-  ,
-  cms.PSet(
-      validityRange = cms.EventRange("362920:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2023.xml"),
-      maskFileNames = cms.vstring()
-    )
 )
 
 #Database output service
@@ -57,24 +51,16 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 # print the mapping and write it to DB
 process.writeCTPPSTotemDAQMappingMask = cms.EDAnalyzer("WriteCTPPSTotemDAQMappingMask",
-    toWrite = cms.VPSet(
     cms.PSet(
         daqmappingiov = cms.uint64(1),
         record_map = cms.string('TotemReadoutRcd'),
         record_mask = cms.string('TotemAnalysisMaskRcd'),
         label = cms.string("TimingDiamond"),
     )
-    ,
-    cms.PSet(
-        daqmappingiov = cms.uint64(362920),
-        record_map = cms.string('TotemReadoutRcd'),
-        record_mask = cms.string('TotemAnalysisMaskRcd'),
-        label = cms.string("TimingDiamond"),
-    )
-    )
 )
+
 process.content = cms.EDAnalyzer("EventContentAnalyzer") 
+
 process.path = cms.Path(
-  process.content*
   process.writeCTPPSTotemDAQMappingMask
 )
