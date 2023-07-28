@@ -122,11 +122,8 @@ namespace edm {
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    bool handleWorkerFailure(cms::Exception& e,
+    void handleWorkerFailure(cms::Exception& e,
                              int nwrwue,
-                             bool isEvent,
-                             bool begin,
-                             BranchType branchType,
                              ModuleDescription const&,
                              std::string const& id);
     static void exceptionContext(cms::Exception& ex,
@@ -136,7 +133,7 @@ namespace edm {
                                  ModuleDescription const&,
                                  std::string const& id,
                                  PathContext const&);
-    void threadsafe_setFailedModuleInfo(int nwrwue, std::exception_ptr);
+    void threadsafe_setFailedModuleInfo(int nwrwue, bool iExceptionHappened);
     void recordStatus(int nwrwue, hlt::HLTState state);
     void updateCounters(hlt::HLTState state);
 

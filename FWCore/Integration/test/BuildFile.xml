@@ -116,6 +116,7 @@
   <test name="TestFWCoreIntegrationTryToContinueTask" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --useTask"/>
   <test name="TestFWCoreIntegrationShouldTryToContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py"/>
   <test name="TestFWCoreIntegrationShouldTryToContinueIndirect" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --indirect"/>
+  <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_exception_output_cfg.py"/>
 
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>

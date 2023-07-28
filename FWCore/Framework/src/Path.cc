@@ -65,26 +65,20 @@ namespace edm {
     modulesToRun_ = workers_.size();
   }
 
-  bool Path::handleWorkerFailure(cms::Exception& e,
+  void Path::handleWorkerFailure(cms::Exception& e,
                                  int nwrwue,
-                                 bool isEvent,
-                                 bool begin,
-                                 BranchType branchType,
                                  ModuleDescription const& desc,
                                  std::string const& id) {
     if (e.context().empty()) {
-      exceptionContext(e, isEvent, begin, branchType, desc, id, pathContext_);
+      exceptionContext(e, true /*isEvent*/, true /*begin*/, InEvent /*branchType*/, desc, id, pathContext_);
     }
-    bool should_continue = true;
-
     // there is no support as of yet for specific paths having
     // different exception behavior
 
     // If not processing an event, always rethrow.
-    exception_actions::ActionCodes action = (isEvent ? act_table_->find(e.category()) : exception_actions::Rethrow);
+    exception_actions::ActionCodes action = act_table_->find(e.category());
     switch (action) {
       case exception_actions::TryToContinue: {
-        should_continue = false;
         bool expected = false;
         if (printedException_.compare_exchange_strong(expected, true)) {
           std::ostringstream s;
@@ -108,8 +102,6 @@ namespace edm {
         e.raise();
       }
     }
-
-    return should_continue;
   }
 
   void Path::exceptionContext(cms::Exception& ex,
@@ -142,7 +134,7 @@ namespace edm {
     ex.addContext(ost.str());
   }
 
-  void Path::threadsafe_setFailedModuleInfo(int nwrwue, std::exception_ptr iExcept) {
+  void Path::threadsafe_setFailedModuleInfo(int nwrwue, bool iExcept) {
     bool expected = false;
     while (stateLock_.compare_exchange_strong(expected, true)) {
       expected = false;
@@ -254,6 +246,7 @@ namespace edm {
     bool shouldContinue = worker.checkResultsOfRunWorker(true);
     std::exception_ptr finalException;
     if (iException) {
+      shouldContinue = false;
       std::unique_ptr<cms::Exception> pEx;
       try {
         std::rethrow_exception(*iException);
@@ -270,18 +263,13 @@ namespace edm {
         ost << iEP.id();
         ModuleDescription const* desc = worker.getWorker()->description();
         assert(desc != nullptr);
-        shouldContinue = handleWorkerFailure(*pEx,
-                                             iModuleIndex,
-                                             /*isEvent*/ true,
-                                             /*isBegin*/ true,
-                                             InEvent,
-                                             *desc,
-                                             ost.str());
+        handleWorkerFailure(*pEx,
+                            iModuleIndex,
+                            *desc,
+                            ost.str());
         //If we didn't rethrow, then we effectively skipped
         worker.skipWorker(iEP);
-        finalException = std::exception_ptr();
       } catch (...) {
-        shouldContinue = false;
         finalException = std::current_exception();
         //set the exception early to avoid case where another Path is waiting
         // on a module in this Path and not running the module will lead to a
@@ -300,7 +288,7 @@ namespace edm {
     }
 
     if (not shouldContinue) {
-      threadsafe_setFailedModuleInfo(iModuleIndex, finalException);
+      threadsafe_setFailedModuleInfo(iModuleIndex, iException != nullptr);
     }
     if (not shouldContinue and not worker.runConcurrently()) {
       //we are leaving the path early
