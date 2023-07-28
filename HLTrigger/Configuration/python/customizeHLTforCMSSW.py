@@ -256,6 +256,18 @@ def customizeHLTfor41632(process):
 
     return process
 
+def customizeHLTfor42410(process):
+    for producerType in [
+        'SiPixelRawToClusterCUDA',
+        'SiPixelRawToClusterCUDAPhase1',
+        'SiPixelRawToClusterCUDAHIonPhase1',
+    ]:
+        for producer in producers_by_type(process, producerType):
+            if hasattr(producer, 'isRun2'):
+                del producer.isRun2
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -268,5 +280,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor41495(process)
     process = customizeHLTfor41815(process)
     process = customizeHLTfor41632(process)
+    process = customizeHLTfor42410(process)
 
     return process

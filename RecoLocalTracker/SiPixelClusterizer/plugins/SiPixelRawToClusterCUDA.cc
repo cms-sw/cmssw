@@ -78,7 +78,6 @@ private:
   GPUAlgo gpuAlgo_;
   PixelDataFormatter::Errors errors_;
 
-  const bool isRun2_;
   const bool includeErrors_;
   const bool useQuality_;
   uint32_t nDigis_;
@@ -94,7 +93,6 @@ SiPixelRawToClusterCUDAT<TrackerTraits>::SiPixelRawToClusterCUDAT(const edm::Par
       gainsToken_(esConsumes<SiPixelGainCalibrationForHLTGPU, SiPixelGainCalibrationForHLTGPURcd>()),
       cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
           edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
-      isRun2_(iConfig.getParameter<bool>("isRun2")),
       includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
       useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
       clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
@@ -116,7 +114,6 @@ SiPixelRawToClusterCUDAT<TrackerTraits>::SiPixelRawToClusterCUDAT(const edm::Par
 template <typename TrackerTraits>
 void SiPixelRawToClusterCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("isRun2", true);
   desc.add<bool>("IncludeErrors", true);
   desc.add<bool>("UseQualityInfo", false);
   // Note: this parameter is obsolete: it is ignored and will have no effect.
@@ -269,8 +266,7 @@ void SiPixelRawToClusterCUDAT<TrackerTraits>::acquire(const edm::Event& iEvent,
     wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
   }
 
-  gpuAlgo_.makePhase1ClustersAsync(isRun2_,
-                                   clusterThresholds_,
+  gpuAlgo_.makePhase1ClustersAsync(clusterThresholds_,
                                    gpuMap,
                                    gpuModulesToUnpack,
                                    gpuGains,
