@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -801,6 +802,7 @@ namespace reco {
           //check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
           const std::type_info &type = typeid(*therechit);
           const SiStripCluster *cluster;
+          std::optional<const SiStripCluster *> stereo_cluster;
           if (type == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *hit = dynamic_cast<const SiStripRecHit2D *>(therechit);
             if (hit != nullptr)
@@ -821,26 +823,64 @@ namespace reco {
                   << "(detID=" << id.rawId() << ")\n ";
               keepthishit = false;
             }
-          }
-          //the following two cases should not happen anymore since CMSSW > 2_0_X because of hit splitting in stereo modules
-          //const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
-          //const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
-          else {
+          } else if (type == typeid(SiStripMatchedRecHit2D)) {
+            const SiStripMatchedRecHit2D *hit = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
+            if (hit != nullptr) {
+              cluster = &(hit->monoCluster());
+              stereo_cluster = &(hit->stereoCluster());
+            } else {
+              edm::LogError("TrackerTrackHitFilter")
+                  << "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()
+                  << "(detID=" << id.rawId() << ")\n ";
+              keepthishit = false;
+            }
+          } else if (type == typeid(ProjectedSiStripRecHit2D)) {
+            const ProjectedSiStripRecHit2D *hit = dynamic_cast<const ProjectedSiStripRecHit2D *>(therechit);
+            if (hit != nullptr)
+              cluster = &*(hit->cluster());
+            else {
+              edm::LogError("TrackerTrackHitFilter")
+                  << "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()
+                  << "(detID=" << id.rawId() << ")\n ";
+              keepthishit = false;
+            }
+          } else {
             throw cms::Exception("Unknown RecHit Type")
-                << "RecHit of type " << type.name() << " not supported. (use c++filt to demangle the name)";
+                << "RecHit of type " << edm::typeDemangle(type.name()) << " not supported.";
           }
 
           if (keepthishit) {
-            siStripClusterInfo_->setCluster(*cluster, id.rawId());
-            if ((subdetStoNlowcut_[subdet_cnt - 1] > 0) &&
-                (siStripClusterInfo_->signalOverNoise() < subdetStoNlowcut_[subdet_cnt - 1]))
+            double sToNlowCut = subdetStoNlowcut_[subdet_cnt - 1];
+            double sToNhighCut = subdetStoNhighcut_[subdet_cnt - 1];
+
+            float sOverN{-1.f};
+
+            if UNLIKELY (stereo_cluster.has_value()) {
+              const auto &matched = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
+              if (!matched) {
+                throw cms::Exception("LogicError")
+                    << "expected a SiStripMatchedRecHit2D but could not cast!" << std::endl;
+              }
+              siStripClusterInfo_->setCluster(*cluster, matched->monoId());
+              sOverN = siStripClusterInfo_->signalOverNoise();
+              // if it's matched rechit, use the average of stereo and mono clusters
+              siStripClusterInfo_->setCluster(**stereo_cluster, matched->stereoId());
+              sOverN += siStripClusterInfo_->signalOverNoise();
+              sOverN *= 0.5f;
+            } else {
+              siStripClusterInfo_->setCluster(*cluster, id.rawId());
+              sOverN = siStripClusterInfo_->signalOverNoise();
+            }
+
+            if ((sToNlowCut > 0) && (sOverN < sToNlowCut)) {
               keepthishit = false;
-            if ((subdetStoNhighcut_[subdet_cnt - 1] > 0) &&
-                (siStripClusterInfo_->signalOverNoise() > subdetStoNhighcut_[subdet_cnt - 1]))
+            }
+
+            if ((sToNhighCut > 0) && (sOverN > sToNhighCut)) {
               keepthishit = false;
+            }
             //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<siStripClusterInfo_->signalOverNoise()<<std::endl;
           }
-
         }  //end if  subdetStoN_[subdet_cnt]&&...
 
       }  //end if subdet_cnt >2
