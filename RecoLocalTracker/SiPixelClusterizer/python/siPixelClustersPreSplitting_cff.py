@@ -28,7 +28,6 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 run3_common.toModify(siPixelClustersPreSplittingCUDA,
                      # use the pixel channel calibrations scheme for Run 3
-                     isRun2 = False,
                      clusterThreshold_layer1 = 4000,
                      VCaltoElectronGain      = 1,  # all gains=1, pedestals=0
                      VCaltoElectronGain_L1   = 1,
