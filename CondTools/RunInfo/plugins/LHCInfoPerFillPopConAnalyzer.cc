@@ -3,6 +3,7 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
+#include "CondTools/RunInfo/interface/LumiSectionFilter.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -12,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "LumiSectionFilter.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"
@@ -164,8 +164,8 @@ namespace theLHCInfoPerFillImpl {
   bool comparePayloads(const LHCInfoPerFill& rhs, const LHCInfoPerFill& lhs) {
     if (rhs.fillNumber() != lhs.fillNumber() || rhs.delivLumi() != lhs.delivLumi() || rhs.recLumi() != lhs.recLumi() ||
         rhs.instLumi() != lhs.instLumi() || rhs.instLumiError() != lhs.instLumiError() ||
-        rhs.lhcState() != rhs.lhcState() || rhs.lhcComment() != rhs.lhcComment() ||
-        rhs.ctppsStatus() != rhs.ctppsStatus()) {
+        rhs.lhcState() != lhs.lhcState() || rhs.lhcComment() != lhs.lhcComment() ||
+        rhs.ctppsStatus() != lhs.ctppsStatus()) {
       return false;
     }
     return true;

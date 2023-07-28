@@ -1,4 +1,8 @@
+#ifndef CondTools_RunInfo_LumiSectionFilter_h
+#define CondTools_RunInfo_LumiSectionFilter_h
+
 #include "CondFormats/Common/interface/TimeConversions.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include <vector>
 #include <memory>
 
@@ -57,3 +61,5 @@ struct LumiSectionFilter {
   typename std::vector<std::pair<cond::Time_t, std::shared_ptr<T>>>::const_iterator end;
   cond::Time_t currentDipTime = 0;
 };
+
+#endif
