@@ -41,8 +41,8 @@
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
 #include "RecoMTD/DetLayers/interface/MTDDetTray.h"
-#include "RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h"
-#include "RecoMTD/DetLayers/interface/MTDDetRing.h"
+#include "RecoMTD/DetLayers/interface/MTDSectorForwardDoubleLayer.h"
+#include "RecoMTD/DetLayers/interface/MTDDetSector.h"
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
@@ -786,7 +786,7 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
   const std::vector<const DetLayer*>& layersETL = layerGeo->allETLLayers();
   for (const DetLayer* ilay : layersETL) {
     size_t hcount(0);
-    const BoundDisk& disk = static_cast<const MTDRingForwardDoubleLayer*>(ilay)->specificSurface();
+    const BoundDisk& disk = static_cast<const MTDSectorForwardDoubleLayer*>(ilay)->specificSurface();
     const double diskZ = disk.position().z();
     if (tsos.globalPosition().z() * diskZ < 0)
       continue;  // only propagate to the disk that's on the same side
