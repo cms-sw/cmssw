@@ -19,6 +19,8 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
   // reset
   std::vector<CSCShowerDigi> selected_showers;
 
+  int bx = 0;
+
   // shower selection
   auto chamber = in_showers.begin();
   auto chend = in_showers.end();
@@ -36,6 +38,7 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
 
         // shower is valid
         if (digi->isValid()) {
+          bx = digi->getBX() - CSCConstants::LCT_CENTRAL_BX;
           selected_showers.emplace_back(*digi);
         }
       }
@@ -71,7 +74,7 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
         hasOneNominalInTime, false, hasTwoLooseInTime, false, hasOneLooseInTime, hasOneTightInTime, false);
     l1t::tftype tftype = (endcap_ == 1) ? l1t::tftype::emtf_pos : l1t::tftype::emtf_neg;
     out_shower.setTFIdentifiers(sector_ - 1, tftype);
-    out_showers.push_back(0, out_shower);
+    out_showers.push_back(bx, out_shower);
   }
 }
 

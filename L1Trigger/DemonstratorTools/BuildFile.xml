@@ -5,6 +5,7 @@
 <use name="hls"/>
 <use   name="root"/>
 <use   name="rootrflx"/>
+<use   name="boost_iostreams"/>
 <export>
   <lib   name="1"/>
 </export>

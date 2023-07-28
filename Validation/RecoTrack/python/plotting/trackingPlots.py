@@ -1378,7 +1378,7 @@ _appendPixelTrackingPlots("PixelTrack", "pixel")
 _appendPixelTrackingPlots("PixelTrackFromPV", "pixelFromPV")
 _appendPixelTrackingPlots("PixelTrackFromPVAllTP", "pixelFromPVAllTP")
 _appendPixelTrackingPlots("PixelTrackBHadron", "pixelbhadron")
-
+_appendPixelTrackingPlots("HIPixelTrack", "hiPixel")
 
 # MiniAOD
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),

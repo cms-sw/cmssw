@@ -66,7 +66,7 @@ public:
   void Connect(SteppingAction*);
   void Connect(Phase2SteppingAction*);
 
-  SimTrackManager* GetSimTrackManager();
+  SimTrackManager* getSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
   std::vector<std::shared_ptr<SimProducer>>& producers();

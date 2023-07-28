@@ -401,6 +401,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
             const auto num = h_module_found->getValue(det);
             const auto denom = h_module_total->getValue(det);
             if (denom) {
+              assert(num <= denom);  // can't have this happen
               const auto eff = num / denom;
               const auto eff_up = TEfficiency::Bayesian(denom, num, .99, 1, 1, true);
 
@@ -465,7 +466,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
     LOGPRINT << "Number of strips module " << det << " is " << nStrips;
     badStripList.push_back(pQuality.encode(0, nStrips, 0));
     //Now compact into a single bad module
-    LOGPRINT << "ID1 shoudl match list of modules above " << det;
+    LOGPRINT << "ID1 should match list of modules above " << det;
     pQuality.compact(det, badStripList);
     pQuality.put(det, SiStripQuality::Range(badStripList.begin(), badStripList.end()));
   }

@@ -1,4 +1,4 @@
-#include "CommonTools/Utils/interface/ComparisonSetter.h"
+#include "CommonTools/Utils/interface/parser/ComparisonSetter.h"
 
 #ifdef BOOST_SPIRIT_DEBUG
 namespace reco {

@@ -5,7 +5,7 @@
 // Package:     Framework
 // Class  :     ESIndices
 //
-/**\class ESProxyIndex ESIndices.h FWCore/Utilities/interface/ESIndices.h
+/**\class ESResolverIndex ESIndices.h FWCore/Utilities/interface/ESIndices.h
    \class ESTokenIndex ESIndices.h FWCore/Utilities/interface/ESIndices.h
    \class ESRecordIndex ESIndices.h FWCore/Utilities/interface/ESIndices.h
 
@@ -27,19 +27,19 @@
 // user include files
 
 namespace edm {
-  class ESProxyIndex {
+  class ESResolverIndex {
   public:
     using Value_t = int;
-    constexpr ESProxyIndex() noexcept = default;
-    constexpr explicit ESProxyIndex(Value_t iValue) noexcept : index_{iValue} {}
-    constexpr ESProxyIndex(ESProxyIndex const&) noexcept = default;
-    constexpr ESProxyIndex(ESProxyIndex&&) noexcept = default;
+    constexpr ESResolverIndex() noexcept = default;
+    constexpr explicit ESResolverIndex(Value_t iValue) noexcept : index_{iValue} {}
+    constexpr ESResolverIndex(ESResolverIndex const&) noexcept = default;
+    constexpr ESResolverIndex(ESResolverIndex&&) noexcept = default;
 
-    constexpr ESProxyIndex& operator=(ESProxyIndex const&) noexcept = default;
-    constexpr ESProxyIndex& operator=(ESProxyIndex&&) noexcept = default;
+    constexpr ESResolverIndex& operator=(ESResolverIndex const&) noexcept = default;
+    constexpr ESResolverIndex& operator=(ESResolverIndex&&) noexcept = default;
 
-    constexpr bool operator==(ESProxyIndex iOther) const noexcept { return iOther.index_ == index_; }
-    constexpr bool operator!=(ESProxyIndex iOther) const noexcept { return iOther.index_ != index_; }
+    constexpr bool operator==(ESResolverIndex iOther) const noexcept { return iOther.index_ == index_; }
+    constexpr bool operator!=(ESResolverIndex iOther) const noexcept { return iOther.index_ != index_; }
 
     constexpr Value_t value() const noexcept { return index_; }
 
@@ -47,7 +47,7 @@ namespace edm {
     Value_t index_ = std::numeric_limits<int>::max();
   };
 
-  inline std::ostream& operator<<(std::ostream& iOS, ESProxyIndex const& iIndex) {
+  inline std::ostream& operator<<(std::ostream& iOS, ESResolverIndex const& iIndex) {
     iOS << iIndex.value();
     return iOS;
   }

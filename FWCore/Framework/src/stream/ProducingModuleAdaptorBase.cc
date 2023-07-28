@@ -115,7 +115,7 @@ namespace edm {
     }
 
     template <typename T>
-    std::vector<ESProxyIndex> const& ProducingModuleAdaptorBase<T>::esGetTokenIndicesVector(
+    std::vector<ESResolverIndex> const& ProducingModuleAdaptorBase<T>::esGetTokenIndicesVector(
         edm::Transition iTrans) const {
       assert(not m_streamModules.empty());
       return m_streamModules[0]->esGetTokenIndicesVector(iTrans);
@@ -162,7 +162,7 @@ namespace edm {
       }
     }
     template <typename T>
-    void ProducingModuleAdaptorBase<T>::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+    void ProducingModuleAdaptorBase<T>::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iPI) {
       for (auto mod : m_streamModules) {
         mod->updateLookup(iPI);
       }

@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/HGCDigi"/>
 <use name="DataFormats/HGCalDigi"/>

@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
@@ -308,7 +308,7 @@ namespace edm {
     }
     ServiceRegistry::Operate operate(serviceToken_);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
-    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
+    schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
     for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });
   }
 

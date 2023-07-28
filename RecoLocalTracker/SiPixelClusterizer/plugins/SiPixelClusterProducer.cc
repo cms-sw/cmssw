@@ -124,7 +124,7 @@ void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   output->shrink_to_fit();
 
   // set sequential identifier
-  for (auto& clusters : *output) {
+  for (auto clusters : *output) {
     uint16_t id = 0;
     for (auto& cluster : clusters) {
       cluster.setOriginalId(id++);
@@ -199,6 +199,7 @@ void SiPixelClusterProducer::run(const T& input,
   }  // end of DetUnit loop
 }
 
+#include "PixelThresholdClusterizer.icc"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

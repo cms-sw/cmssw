@@ -5,6 +5,7 @@
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="FWCore/Concurrency"/>
+<use name="FWCore/MessageLogger"/>
 <use name="hls"/>
 <export>
   <lib name="1"/>

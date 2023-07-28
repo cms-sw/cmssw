@@ -30,6 +30,7 @@ namespace pixelTrack {
 
   using TrackSoADevicePhase1 = TrackSoAHeterogeneousDevice<pixelTopology::Phase1>;
   using TrackSoADevicePhase2 = TrackSoAHeterogeneousDevice<pixelTopology::Phase2>;
+  using TrackSoADeviceHIonPhase1 = TrackSoAHeterogeneousDevice<pixelTopology::HIonPhase1>;
 
 }  // namespace pixelTrack
 

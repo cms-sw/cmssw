@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="rootmath"/>
 <use name="DQM/HcalCommon"/>
+<use name="PhysicsTools/ONNXRuntime"/>
 <export>
   <lib name="DQMHcalTasks"/>
 </export>

@@ -72,8 +72,9 @@ l1tLayer2EG = cms.EDProducer(
     writeOutPattern=cms.bool(False),
     inPatternFile=cms.PSet(
         nFramesPerBX=cms.uint32(9),  # 360 MHz clock or 25 Gb/s link
-        format=cms.string("EMP"),
+        format=cms.string("EMPv2"),
         outputFilename=cms.string("L1TCTL2EG_InPattern"),
+        outputFileExtension=cms.string("txt.gz"),
         TMUX=cms.uint32(6),
         maxLinesPerFile=cms.uint32(1024),
         channels=cms.VPSet(
@@ -117,14 +118,15 @@ l1tLayer2EG = cms.EDProducer(
     ),
     outPatternFile=cms.PSet(
         nFramesPerBX=cms.uint32(9),  # 360 MHz clock or 25 Gb/s link
-        format=cms.string("EMP"),
+        format=cms.string("EMPv2"),
         outputFilename=cms.string("L1TCTL2EG_OutPattern"),
+        outputFileExtension=cms.string("txt.gz"),
         TMUX=cms.uint32(6),
         maxLinesPerFile=cms.uint32(1024),
         channels=cms.VPSet(
             cms.PSet(
                 TMUX=cms.uint32(6),
-                nWords=cms.uint32(36),  # 36 = 12*3/2words ele + 12*3/2words phhotons
+                nWords=cms.uint32(36),  # 36 = 12*3/2words ele + 12*3/2words photons
                 interface=cms.string("eglayer2"),
                 id=cms.uint32(0),
                 channels=cms.vuint32(0)
@@ -134,8 +136,9 @@ l1tLayer2EG = cms.EDProducer(
     # NOTE: to write out the GT input from 6TS 
     # outPatternFile=cms.PSet(
     #     nFramesPerBX=cms.uint32(9),  # 360 MHz clock or 25 Gb/s link
-    #     format=cms.string("EMP"),
+    #     format=cms.string("EMPv2"),
     #     outputFilename=cms.string("L1TCTL2EG_ToGTPattern"),
+    #     outputFileExtension=cms.string("txt.gz"),
     #     TMUX=cms.uint32(1),
     #     maxLinesPerFile=cms.uint32(1024),
     #     channels=cms.VPSet(

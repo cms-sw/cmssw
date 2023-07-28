@@ -1,17 +1,18 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondTools/RunInfo/interface/LHCInfoPopConSourceHandler.h"
+#include "CondTools/RunInfo/interface/LumiSectionFilter.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
-#include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/IQuery.h"
-#include "RelationalAccess/ICursor.h"
-#include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
+#include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/TimeStamp.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RelationalAccess/ICursor.h"
+#include "RelationalAccess/IQuery.h"
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -91,7 +92,7 @@ LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler(edm::ParameterSet const& 
 //L2: try with different m_name
 LHCInfoPopConSourceHandler::~LHCInfoPopConSourceHandler() {}
 
-namespace LHCInfoImpl {
+namespace theLHCInfoImpl {
 
   struct IOVComp {
     bool operator()(const cond::Time_t& x, const std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>& y) {
@@ -148,7 +149,7 @@ namespace LHCInfoImpl {
     return ret;
   }
 
-}  // namespace LHCInfoImpl
+}  // namespace theLHCInfoImpl
 
 size_t LHCInfoPopConSourceHandler::getLumiData(const cond::OMSService& oms,
                                                unsigned short fillId,
@@ -176,63 +177,6 @@ size_t LHCInfoPopConSourceHandler::getLumiData(const cond::OMSService& oms,
   }
   return nlumi;
 }
-
-namespace LHCInfoImpl {
-  struct LumiSectionFilter {
-    LumiSectionFilter(const std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>>& samples)
-        : currLow(samples.begin()), currUp(samples.begin()), end(samples.end()) {
-      currUp++;
-    }
-
-    void reset(const std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>>& samples) {
-      currLow = samples.begin();
-      currUp = samples.begin();
-      currUp++;
-      end = samples.end();
-      currentDipTime = 0;
-    }
-
-    bool process(cond::Time_t dipTime) {
-      if (currLow == end)
-        return false;
-      bool search = false;
-      if (currentDipTime == 0) {
-        search = true;
-      } else {
-        if (dipTime == currentDipTime)
-          return true;
-        else {
-          cond::Time_t upper = cond::time::MAX_VAL;
-          if (currUp != end)
-            upper = currUp->first;
-          if (dipTime < upper)
-            return false;
-          else {
-            search = true;
-          }
-        }
-      }
-      if (search) {
-        while (currUp != end and currUp->first < dipTime) {
-          currLow++;
-          currUp++;
-        }
-        currentDipTime = dipTime;
-        return currLow != end;
-      }
-      return false;
-    }
-
-    cond::Time_t currentSince() { return currLow->first; }
-    LHCInfo& currentPayload() { return *currLow->second; }
-
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>>::const_iterator current() { return currLow; }
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>>::const_iterator currLow;
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>>::const_iterator currUp;
-    std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo>>>::const_iterator end;
-    cond::Time_t currentDipTime = 0;
-  };
-}  // namespace LHCInfoImpl
 
 void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
                                             const boost::posix_time::ptime& beginFillTime,
@@ -340,7 +284,7 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
   float crossingAngle = 0., betastar = 0.;
 
   bool ret = false;
-  LHCInfoImpl::LumiSectionFilter filter(m_tmpBuffer);
+  LumiSectionFilter<LHCInfo> filter(m_tmpBuffer);
   while (CTPPSDataCursor.next()) {
     if (m_debug) {
       std::ostringstream CTPPS;
@@ -388,7 +332,7 @@ bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& sessio
   return ret;
 }
 
-namespace LHCInfoImpl {
+namespace theLHCInfoImpl {
   static const std::map<std::string, int> vecMap = {
       {"Beam1/beamPhaseMean", 1}, {"Beam2/beamPhaseMean", 2}, {"Beam1/cavPhaseMean", 3}, {"Beam2/cavPhaseMean", 4}};
   void setElementData(cond::Time_t since,
@@ -424,7 +368,7 @@ namespace LHCInfoImpl {
       }
     }
   }
-}  // namespace LHCInfoImpl
+}  // namespace theLHCInfoImpl
 
 bool LHCInfoPopConSourceHandler::getEcalData(cond::persistency::Session& session,
                                              const boost::posix_time::ptime& lowerTime,
@@ -474,7 +418,7 @@ bool LHCInfoPopConSourceHandler::getEcalData(cond::persistency::Session& session
   unsigned int elementNr = 0;
   float value = 0.;
   std::set<cond::Time_t> initializedVectors;
-  LHCInfoImpl::LumiSectionFilter filter(m_tmpBuffer);
+  LumiSectionFilter<LHCInfo> filter(m_tmpBuffer);
   bool ret = false;
   if (m_prevPayload.get()) {
     for (auto& lumiSlot : m_tmpBuffer) {
@@ -516,7 +460,7 @@ bool LHCInfoPopConSourceHandler::getEcalData(cond::persistency::Session& session
           iovMap.insert(std::make_pair(changeTime, filter.current()->first));
           for (auto it = filter.current(); it != m_tmpBuffer.end(); it++) {
             LHCInfo& payload = *(it->second);
-            LHCInfoImpl::setElementData(it->first, dipVal, elementNr, value, payload, initializedVectors);
+            theLHCInfoImpl::setElementData(it->first, dipVal, elementNr, value, payload, initializedVectors);
           }
         }
         //}
@@ -550,28 +494,15 @@ void LHCInfoPopConSourceHandler::addEmptyPayload(cond::Time_t iov) {
   }
 }
 
-namespace LHCInfoImpl {
+namespace theLHCInfoImpl {
   bool comparePayloads(const LHCInfo& rhs, const LHCInfo& lhs) {
-    if (rhs.fillNumber() != lhs.fillNumber())
+    if (rhs.fillNumber() != lhs.fillNumber() || rhs.delivLumi() != lhs.delivLumi() || rhs.recLumi() != lhs.recLumi() ||
+        rhs.instLumi() != lhs.instLumi() || rhs.instLumiError() != lhs.instLumiError() ||
+        rhs.crossingAngle() != lhs.crossingAngle() || rhs.betaStar() != lhs.betaStar() ||
+        rhs.lhcState() != lhs.lhcState() || rhs.lhcComment() != lhs.lhcComment() ||
+        rhs.ctppsStatus() != lhs.ctppsStatus()) {
       return false;
-    if (rhs.delivLumi() != lhs.delivLumi())
-      return false;
-    if (rhs.recLumi() != lhs.recLumi())
-      return false;
-    if (rhs.instLumi() != lhs.instLumi())
-      return false;
-    if (rhs.instLumiError() != lhs.instLumiError())
-      return false;
-    if (rhs.crossingAngle() != rhs.crossingAngle())
-      return false;
-    if (rhs.betaStar() != rhs.betaStar())
-      return false;
-    if (rhs.lhcState() != rhs.lhcState())
-      return false;
-    if (rhs.lhcComment() != rhs.lhcComment())
-      return false;
-    if (rhs.ctppsStatus() != rhs.ctppsStatus())
-      return false;
+    }
     return true;
   }
 
@@ -600,7 +531,7 @@ namespace LHCInfoImpl {
     return niovs;
   }
 
-}  // namespace LHCInfoImpl
+}  // namespace theLHCInfoImpl
 
 void LHCInfoPopConSourceHandler::getNewObjects() {
   //reference to the last payload in the tag
@@ -683,7 +614,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
       query->filterEQ("fill_number", m_prevPayload->fillNumber());
       bool foundFill = query->execute();
       if (foundFill)
-        foundFill = LHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
+        foundFill = theLHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
       if (!foundFill) {
         edm::LogError(m_name) << "Could not find fill #" << m_prevPayload->fillNumber();
         break;
@@ -699,11 +630,12 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
         query->filterGT("start_time", targetTime);
       }
 
+      query->filterLT("start_time", m_endTime);
       if (m_endFill)
         query->filterNotNull("end_time");
       bool foundFill = query->execute();
       if (foundFill)
-        foundFill = LHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
+        foundFill = theLHCInfoImpl::makeFillPayload(m_fillPayload, query->result());
       if (!foundFill) {
         edm::LogInfo(m_name) << "No fill found - END of job.";
         if (iovAdded)
@@ -739,7 +671,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     getEcalData(session2, startSampleTime, endSampleTime, updateEcal);
     session2.transaction().commit();
     //
-    size_t niovs = LHCInfoImpl::transferPayloads(m_tmpBuffer, m_iovs, m_prevPayload);
+    size_t niovs = theLHCInfoImpl::transferPayloads(m_tmpBuffer, m_iovs, m_prevPayload);
     edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
     m_tmpBuffer.clear();
     iovAdded = true;

@@ -1,5 +1,5 @@
 <lcgdict>
-  <class name="CaloParticle"  ClassVersion="4">
+   <class name="CaloParticle"  ClassVersion="4">
    <version ClassVersion="4" checksum="1423471036"/>
   </class>
   <class name="CaloParticleCollection"/>
@@ -8,9 +8,18 @@
   <class name="CaloParticleRefVector"/>
   <class name="CaloParticleRefProd"/>
   <class name="CaloParticleContainer"/>
+
+  <class name="MtdCaloParticle"/>
+  <class name="MtdCaloParticleCollection"/>
+  <class name="edm::Wrapper<MtdCaloParticleCollection>"/>
+  <class name="MtdCaloParticleRef"/>
+  <class name="MtdCaloParticleRefVector"/>
+  <class name="MtdCaloParticleRefProd"/>
+  <class name="MtdCaloParticleContainer"/>
+
   <class name="SimCluster"  ClassVersion="4">
-    <version ClassVersion="4" checksum="3868743425"/>
-    <version ClassVersion="3" checksum="1773780587"/>
+   <version ClassVersion="4" checksum="3868743425"/>
+   <version ClassVersion="3" checksum="1773780587"/>
   </class>
   <class name="SimClusterCollection"/>
   <class name="edm::Wrapper<SimClusterCollection>"/>
@@ -18,4 +27,32 @@
   <class name="SimClusterRefVector"/>
   <class name="SimClusterRefProd"/>
   <class name="SimClusterContainer"/>
+
+  <class name="MtdSimCluster"/>
+  <class name="MtdSimClusterCollection"/>
+  <class name="edm::Wrapper<MtdSimClusterCollection>"/>
+  <class name="MtdSimClusterRef"/>
+  <class name="MtdSimClusterRefVector"/>
+  <class name="MtdSimClusterRefProd"/>
+  <class name="MtdSimClusterContainer"/>
+
+  <class name="MtdSimLayerCluster"/>
+  <class name="MtdSimLayerClusterCollection"/>
+  <class name="edm::Wrapper<MtdSimLayerClusterCollection>"/>
+  <class name="MtdSimLayerClusterRef"/>
+  <class name="MtdSimLayerClusterRefVector"/>
+  <class name="MtdSimLayerClusterRefProd"/>
+  <class name="MtdSimLayerClusterContainer"/>
+
+  <class name="MtdSimTrackster"/>
+  <class name="MtdSimTracksterCollection"/>
+  <class name="edm::Wrapper<MtdSimTracksterCollection>"/>
+  <class name="MtdSimTracksterRef"/>
+  <class name="MtdSimTracksterRefVector"/>
+  <class name="MtdSimTracksterRefProd"/>
+  <class name="MtdSimTracksterContainer"/>
+
+  <class name="std::pair<uint64_t,float>"/>
+  <class name="std::vector<std::pair<uint64_t,float>>"/>
+  <class name="edm::Wrapper<std::vector<std::pair<uint64_t,float>> >"/>
 </lcgdict>

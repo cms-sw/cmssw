@@ -642,6 +642,8 @@ approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*'
                               ])
+phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + ['keep recoMuons_muons1stStep_*_*'])
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 

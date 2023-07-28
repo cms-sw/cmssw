@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/Framework/test/DummyESProductResolverProvider.h"
 
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -22,10 +22,10 @@ namespace edm {
   class ParameterSet;
 }
 
-class LoadableDummyESSource : public edm::eventsetup::test::DummyProxyProvider, public DummyFinder {
+class LoadableDummyESSource : public edm::eventsetup::test::DummyESProductResolverProvider, public DummyFinder {
 public:
   LoadableDummyESSource(const edm::ParameterSet& iPSet)
-      : DummyProxyProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
+      : DummyESProductResolverProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
     unsigned int startRun = iPSet.getUntrackedParameter<unsigned int>("startRunForIOV", 0);
     if (0 == startRun) {
       setInterval(edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()));

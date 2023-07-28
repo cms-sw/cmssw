@@ -62,6 +62,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
       doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots")),
       doSeedPlots_(pset.getUntrackedParameter<bool>("doSeedPlots")),
       doMVAPlots_(pset.getUntrackedParameter<bool>("doMVAPlots")),
+      applyTPSelToSimMatch_(pset.getParameter<bool>("applyTPSelToSimMatch")),
       simPVMaxZ_(pset.getUntrackedParameter<double>("simPVMaxZ")) {
   if (not(pset.getParameter<edm::InputTag>("cores").label().empty())) {
     cores_ = consumes<edm::View<reco::Candidate>>(pset.getParameter<edm::InputTag>("cores"));
@@ -172,7 +173,9 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
                                         pset.getParameter<bool>("chargedOnlyTP"),
                                         pset.getParameter<bool>("stableOnlyTP"),
                                         pset.getParameter<std::vector<int>>("pdgIdTP"),
-                                        pset.getParameter<bool>("invertRapidityCutTP"));
+                                        pset.getParameter<bool>("invertRapidityCutTP"),
+                                        pset.getParameter<double>("minPhi"),
+                                        pset.getParameter<double>("maxPhi"));
 
   cosmictpSelector = CosmicTrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
                                                     pset.getParameter<double>("minRapidityTP"),
@@ -196,7 +199,9 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
                                           psetVsPhi.getParameter<bool>("chargedOnly"),
                                           psetVsPhi.getParameter<bool>("stableOnly"),
                                           psetVsPhi.getParameter<std::vector<int>>("pdgId"),
-                                          psetVsPhi.getParameter<bool>("invertRapidityCut"));
+                                          psetVsPhi.getParameter<bool>("invertRapidityCut"),
+                                          psetVsPhi.getParameter<double>("minPhi"),
+                                          psetVsPhi.getParameter<double>("maxPhi"));
 
   dRTrackSelector = MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(psetVsPhi);
 
@@ -1062,6 +1067,8 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
 
         auto tpFound = recSimColl.find(track);
         isSimMatched = tpFound != recSimColl.end();
+        if (applyTPSelToSimMatch_ && isSimMatched)
+          isSimMatched = tpSelector(*tpFound->val[0].first);
         if (isSimMatched) {
           const auto& tp = tpFound->val;
           nSimHits = tp[0].first->numberOfTrackerHits();

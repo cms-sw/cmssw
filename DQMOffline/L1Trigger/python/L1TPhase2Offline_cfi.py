@@ -6,7 +6,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerTkMET = DQMEDAnalyzer('L1TPhase2OuterTrackerTkMET',
     TopFolderName  = cms.string('L1T/L1TPhase2/'),
     TTTracksTag    = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"),
-    L1VertexInputTag = cms.InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"),
+    L1VertexInputTag = cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
     maxZ0 = cms.double ( 15. ) ,    # in cm
     maxEta = cms.double ( 2.4 ) ,
     chi2dofMax = cms.double( 10. ),

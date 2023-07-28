@@ -299,7 +299,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   tM->SetWorldForTracking(worldPV);
 
   // we need the track manager now
-  m_tls->trackManager = std::make_unique<SimTrackManager>();
+  m_tls->trackManager = std::make_unique<SimTrackManager>(&m_simEvent);
 
   // setup the magnetic field
   if (m_pUseMagneticField) {
@@ -329,7 +329,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->sensTkDets.swap(sensDets.first);
   m_tls->sensCaloDets.swap(sensDets.second);
 
-  edm::LogWarning("SimG4CoreApplication")
+  edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: Sensitive Detectors are built in thread " << thisID << " found "
       << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
 
@@ -466,7 +466,7 @@ void RunManagerMTWorker::Connect(Phase2SteppingAction* steppingAction) {
   steppingAction->m_g4StepSignal.connect(m_tls->registry->g4StepSignal_);
 }
 
-SimTrackManager* RunManagerMTWorker::GetSimTrackManager() {
+SimTrackManager* RunManagerMTWorker::getSimTrackManager() {
   initializeTLS();
   return m_tls->trackManager.get();
 }
@@ -548,7 +548,6 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
     initializeRun();
     m_tls->currentRunNumber = inpevt.id().run();
   }
-  m_tls->runInterface->setRunManagerMTWorker(this);  // For UserActions
 
   m_tls->currentEvent.reset(generateEvent(inpevt));
 
@@ -629,8 +628,7 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   m_generator.setGenEvent(HepMCEvt->GetEvent());
 
   // required to reset the GenParticle Id for particles transported
-  // along the beam pipe
-  // to their original value for SimTrack creation
+  // along the beam pipe to their original value for SimTrack creation
   resetGenParticleId(inpevt);
 
   if (!m_nonBeam) {

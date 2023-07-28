@@ -2,8 +2,6 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
-#include "CommonTools/Utils/interface/Exception.h"
-
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"

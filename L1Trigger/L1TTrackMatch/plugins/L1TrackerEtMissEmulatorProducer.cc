@@ -82,7 +82,6 @@ L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::Para
   // Get Emulator config parameters
   cordicSteps_ = (int)iConfig.getParameter<int>("nCordicSteps");
   debug_ = (int)iConfig.getParameter<int>("debug");
-
   // Name of output ED Product
   L1MetCollectionName_ = (std::string)iConfig.getParameter<std::string>("L1MetCollectionName");
 
@@ -90,12 +89,8 @@ L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::Para
     cordicDebug_ = true;
   }
 
-  // To have same bin spacing between 0 and pi/2 as between original phi
-  // granularity
-  int cosLUTbins = std::floor(l1tmetemu::kMaxCosLUTPhi / TTTrack_TrackWord::stepPhi0);
-
   // Compute LUTs
-  cosLUT_ = l1tmetemu::generateCosLUT(cosLUTbins);
+  cosLUT_ = l1tmetemu::generateCosLUT();
 
   // Print LUTs
   if (debug_ == 1) {
@@ -185,45 +180,52 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
       // through cosLUT_ gives sin Sum sector Et -ve when cos or sin phi are -ve
       sector_totals[track->phiSector()] += 1;
       if (globalPhi >= phiQuadrants_[0] && globalPhi < phiQuadrants_[1]) {
-        temppx = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi]);
-        temppy = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[1] - 1 - globalPhi]);
+        temppx = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[(globalPhi) >> l1tmetemu::kCosLUTShift]);
+        temppy =
+            ((l1tmetemu::Et_t)ptEmulation * cosLUT_[(phiQuadrants_[1] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
               << "Sector: " << track->phiSector() << " Quadrant: " << 1 << "\n"
-              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): " << cosLUT_[globalPhi]
-              << " Emu Sin(Phi): " << cosLUT_[phiQuadrants_[1] - 1 - globalPhi] << "\n";
+              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): " << cosLUT_[(globalPhi) >> l1tmetemu::kCosLUTShift]
+              << " Emu Sin(Phi): " << cosLUT_[(phiQuadrants_[1] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift] << "\n";
         }
       } else if (globalPhi >= phiQuadrants_[1] && globalPhi < phiQuadrants_[2]) {
-        temppx = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[2] - 1 - globalPhi]);
-        temppy = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi - phiQuadrants_[1]]);
+        temppx =
+            -((l1tmetemu::Et_t)ptEmulation * cosLUT_[(phiQuadrants_[2] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift]);
+        temppy = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[(globalPhi - phiQuadrants_[1]) >> l1tmetemu::kCosLUTShift]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
               << "Sector: " << track->phiSector() << " Quadrant: " << 2 << "\n"
-              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): -" << cosLUT_[phiQuadrants_[2] - 1 - globalPhi]
-              << " Emu Sin(Phi): " << cosLUT_[globalPhi - phiQuadrants_[1]] << "\n";
+              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): -"
+              << cosLUT_[(phiQuadrants_[2] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift]
+              << " Emu Sin(Phi): " << cosLUT_[(globalPhi - phiQuadrants_[1]) >> l1tmetemu::kCosLUTShift] << "\n";
         }
       } else if (globalPhi >= phiQuadrants_[2] && globalPhi < phiQuadrants_[3]) {
-        temppx = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi - phiQuadrants_[2]]);
-        temppy = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[3] - 1 - globalPhi]);
+        temppx = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[(globalPhi - phiQuadrants_[2]) >> l1tmetemu::kCosLUTShift]);
+        temppy =
+            -((l1tmetemu::Et_t)ptEmulation * cosLUT_[(phiQuadrants_[3] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
               << "Sector: " << track->phiSector() << " Quadrant: " << 3 << "\n"
-              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): -" << cosLUT_[globalPhi - phiQuadrants_[2]]
-              << " Emu Sin(Phi): -" << cosLUT_[phiQuadrants_[3] - 1 - globalPhi] << "\n";
+              << "Emu Phi: " << globalPhi << " Emu Cos(Phi): -"
+              << cosLUT_[(globalPhi - phiQuadrants_[2]) >> l1tmetemu::kCosLUTShift] << " Emu Sin(Phi): -"
+              << cosLUT_[(phiQuadrants_[3] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift] << "\n";
         }
 
       } else if (globalPhi >= phiQuadrants_[3] && globalPhi < phiQuadrants_[4]) {
-        temppx = ((l1tmetemu::Et_t)ptEmulation * cosLUT_[phiQuadrants_[4] - 1 - globalPhi]);
-        temppy = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[globalPhi - phiQuadrants_[3]]);
+        temppx =
+            ((l1tmetemu::Et_t)ptEmulation * cosLUT_[(phiQuadrants_[4] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift]);
+        temppy = -((l1tmetemu::Et_t)ptEmulation * cosLUT_[(globalPhi - phiQuadrants_[3]) >> l1tmetemu::kCosLUTShift]);
 
         if (debug_ == 2) {
           edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
               << "Sector: " << track->phiSector() << " Quadrant: " << 4 << "\n"
-              << " Emu Phi: " << globalPhi << " Emu Cos(Phi): " << cosLUT_[phiQuadrants_[4] - 1 - globalPhi]
-              << " Emu Sin(Phi): -" << cosLUT_[globalPhi - phiQuadrants_[3]] << "\n";
+              << " Emu Phi: " << globalPhi
+              << " Emu Cos(Phi): " << cosLUT_[(phiQuadrants_[4] - 1 - globalPhi) >> l1tmetemu::kCosLUTShift]
+              << " Emu Sin(Phi): -" << cosLUT_[(globalPhi - phiQuadrants_[3]) >> l1tmetemu::kCosLUTShift] << "\n";
         }
       } else {
         temppx = 0;

@@ -9,9 +9,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // system includes
+#include <ctime>
 #include <fmt/printf.h>
 #include <memory>
 #include <sstream>
+#include <regex>
 
 // ROOT includes
 #include "TCanvas.h"
@@ -60,6 +62,26 @@ namespace beamSpotPI {
   };
 
   /************************************************/
+  // Function to convert cond::Time_t (in microseconds) to human-readable date string
+  std::string convertTimeToDateString(cond::Time_t timeValue, bool hasMicros = false, bool toUTC = true) {
+    // Convert microseconds to seconds
+    std::time_t unixTime = static_cast<std::time_t>(hasMicros ? timeValue / 1000000 : timeValue);
+
+    // Convert std::time_t to struct tm (to UTC, or not)
+    std::tm* timeInfo = toUTC ? std::gmtime(&unixTime) : std::localtime(&unixTime);
+
+    // Convert struct tm to human-readable string format
+    char buffer[80];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeInfo);
+
+    // Append microseconds to the string
+    std::string dateString(buffer);
+    //dateString += "." + std::to_string(timeValue % 1000000);
+
+    return dateString;
+  }
+
+  /************************************************/
   inline std::string getStringFromParamEnum(const parameters& parameter,
                                             const bool addUnits = false /*not used by default*/) {
     switch (parameter) {
@@ -91,19 +113,22 @@ namespace beamSpotPI {
    */
   template <class PayloadType>
   class BSParamsHelper {
-    typedef std::array<double, 8> bshelpdata;
+    typedef std::array<double, parameters::lastLumi> bshelpdata;
 
   public:
     BSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
       // fill in the central values
-      m_values[0] = bs->x(), m_values[1] = bs->y(), m_values[2] = bs->z();
-      m_values[3] = bs->beamWidthX(), m_values[4] = bs->beamWidthY(), m_values[5] = bs->sigmaZ();
-      m_values[6] = bs->dxdz(), m_values[7] = bs->dydz();
+      m_values[parameters::X] = bs->x(), m_values[parameters::Y] = bs->y(), m_values[parameters::Z] = bs->z();
+      m_values[parameters::sigmaX] = bs->beamWidthX(), m_values[parameters::sigmaY] = bs->beamWidthY(),
+      m_values[parameters::sigmaZ] = bs->sigmaZ();
+      m_values[parameters::dxdz] = bs->dxdz(), m_values[parameters::dydz] = bs->dydz();
 
       // fill in the errors
-      m_errors[0] = bs->xError(), m_errors[1] = bs->yError(), m_errors[2] = bs->zError();
-      m_errors[3] = bs->beamWidthXError(), m_errors[4] = bs->beamWidthYError(), m_errors[5] = bs->sigmaZError();
-      m_errors[6] = bs->dxdzError(), m_errors[7] = bs->dydzError();
+      m_errors[parameters::X] = bs->xError(), m_errors[parameters::Y] = bs->yError(),
+      m_errors[parameters::Z] = bs->zError();
+      m_errors[parameters::sigmaX] = bs->beamWidthXError(), m_errors[parameters::sigmaY] = bs->beamWidthYError(),
+      m_errors[parameters::sigmaZ] = bs->sigmaZError();
+      m_errors[parameters::dxdz] = bs->dxdzError(), m_errors[parameters::dydz] = bs->dydzError();
     }
 
     void printDebug(std::stringstream& ss) {
@@ -428,6 +453,44 @@ namespace beamSpotPI {
             (tagname + " IOV: #color[4]{" + std::to_string(runLS.first) + "," + std::to_string(runLS.second) + "}")
                 .c_str());
 
+        if constexpr (std::is_same_v<PayloadType, BeamSpotOnlineObjects>) {
+          // protections needed against old payload that do not have these data members persisted
+          const auto& creationTime = test_<cond::Time_t, std::out_of_range>(
+              [&]() {
+                return m_payload->creationTime();
+              },  // Lambda function capturing m_payload and calling creationTime
+              better_error);
+
+          const auto& startTime = test_<cond::Time_t, std::out_of_range>(
+              [&]() {
+                return m_payload->startTimeStamp();
+              },  // Lambda function capturing m_payload and calling startTimeStamp
+              better_error);
+
+          const auto& endTime = test_<cond::Time_t, std::out_of_range>(
+              [&]() {
+                return m_payload->endTimeStamp();
+              },  // Lambda function capturing m_payload and calling endTimeStamp
+              better_error);
+          canvas.cd(2);
+          ltx.SetTextSize(0.025);
+          ltx.DrawLatexNDC(
+              gPad->GetLeftMargin() + 0.01,
+              gPad->GetBottomMargin() + 0.15,
+              ("#color[2]{(" + beamSpotPI::convertTimeToDateString(creationTime, /*has us*/ true) + ")}").c_str());
+
+          ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01,
+                           gPad->GetBottomMargin() + 0.085,
+                           ("#color[2]{(" + beamSpotPI::convertTimeToDateString(startTime) + ")}").c_str());
+
+          ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01,
+                           gPad->GetBottomMargin() + 0.025,
+                           ("#color[2]{(" + beamSpotPI::convertTimeToDateString(endTime) + ")}").c_str());
+
+          ltx.DrawLatexNDC(
+              gPad->GetLeftMargin(), gPad->GetBottomMargin() - 0.05, "#color[4]{N.B.} TimeStamps are in UTC");
+        }
+
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
 
@@ -471,6 +534,22 @@ namespace beamSpotPI {
           return "#frac{dY}{dZ} [rad]";
         default:
           return "should never be here";
+      }
+    }
+
+    // Slightly better error handler
+    static void better_error(const std::exception& e) { edm::LogError("DisplayParameters") << e.what() << '\n'; }
+
+    // Method to catch exceptions
+    template <typename T, class Except, class Func, class Response>
+    T test_(Func f, Response r) const {
+      try {
+        LogDebug("DisplayParameters") << "I have tried" << std::endl;
+        return f();
+      } catch (const Except& e) {
+        LogDebug("DisplayParameters") << "I have caught!" << std::endl;
+        r(e);
+        return static_cast<T>(1);
       }
     }
   };
@@ -636,16 +715,17 @@ namespace beamSpotPI {
 namespace simBeamSpotPI {
 
   enum parameters {
-    X = 0,           // 0  - Positions
-    Y = 1,           // 1
-    Z = 2,           // 2
-    sigmaZ = 3,      // 3  - Widths
-    betaStar = 4,    // 4
-    emittance = 5,   // 5
-    phi = 6,         // 6  - Additional parameters
-    alpha = 7,       // 7
-    timeOffset = 8,  // 8
-    END_OF_TYPES = 9,
+    X = 0,              // 0  - Positions
+    Y = 1,              // 1
+    Z = 2,              // 2
+    sigmaZ = 3,         // 3  - Widths
+    betaStar = 4,       // 4
+    emittance = 5,      // 5
+    expTransWidth = 6,  // 6  - from LPC-like calculation
+    phi = 7,            // 7  - Additional parameters
+    alpha = 8,          // 8
+    timeOffset = 9,     // 9
+    END_OF_TYPES = 10,
   };
 
   /************************************************/
@@ -663,6 +743,8 @@ namespace simBeamSpotPI {
         return (addUnits ? "#beta* [cm]" : "BetaStar");
       case emittance:
         return (addUnits ? "Emittance [cm]" : "Emittance");
+      case expTransWidth:
+        return (addUnits ? "#sigma^{trans}_{xy} [#mum]" : "Exp. trans width");
       case phi:
         return (addUnits ? "Phi [rad]" : "Phi");
       case alpha:
@@ -681,14 +763,17 @@ namespace simBeamSpotPI {
    */
   template <class PayloadType>
   class SimBSParamsHelper {
-    typedef std::array<double, 9> bshelpdata;
+    typedef std::array<double, parameters::END_OF_TYPES> bshelpdata;
 
   public:
     SimBSParamsHelper(const std::shared_ptr<PayloadType>& bs) {
       // fill in the values
-      m_values[0] = bs->x(), m_values[1] = bs->y(), m_values[2] = bs->z();
-      m_values[3] = bs->sigmaZ(), m_values[4] = bs->betaStar(), m_values[5] = bs->emittance();
-      m_values[6] = bs->phi(), m_values[7] = bs->alpha(), m_values[8] = bs->timeOffset();
+      m_values[parameters::X] = bs->x(), m_values[parameters::Y] = bs->y(), m_values[parameters::Z] = bs->z();
+      m_values[parameters::sigmaZ] = bs->sigmaZ(), m_values[parameters::betaStar] = bs->betaStar(),
+      m_values[parameters::emittance] = bs->emittance();
+      m_values[parameters::expTransWidth] = (1 / std::sqrt(2)) * std::sqrt(bs->emittance() * bs->betaStar()) * 10000.f;
+      m_values[parameters::phi] = bs->phi(), m_values[parameters::alpha] = bs->alpha(),
+      m_values[parameters::timeOffset] = bs->timeOffset();
     }
 
     void printDebug(std::stringstream& ss) {
@@ -745,7 +830,7 @@ namespace simBeamSpotPI {
       canvas.cd(1)->Modified();
       canvas.cd(1)->SetGrid();
 
-      auto h2_SimBSParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, 9, 0, 9.);
+      auto h2_SimBSParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, END_OF_TYPES, 0, END_OF_TYPES);
       h2_SimBSParameters->SetStats(false);
 
       std::function<double(parameters)> cutFunctor = [this](parameters my_param) {
@@ -769,6 +854,8 @@ namespace simBeamSpotPI {
             return m_payload->alpha();
           case timeOffset:
             return m_payload->timeOffset();
+          case expTransWidth:
+            return (1 / std::sqrt(2)) * std::sqrt(m_payload->emittance() * m_payload->betaStar()) * cmToUm;
           case END_OF_TYPES:
             return ret;
           default:
@@ -778,7 +865,7 @@ namespace simBeamSpotPI {
 
       h2_SimBSParameters->GetXaxis()->SetBinLabel(1, "Value");
 
-      unsigned int yBin = 9;
+      unsigned int yBin = END_OF_TYPES;
       for (int foo = parameters::X; foo <= parameters::timeOffset; foo++) {
         parameters param = static_cast<parameters>(foo);
         std::string theLabel = getStringFromParamEnum(param, true);
@@ -796,15 +883,16 @@ namespace simBeamSpotPI {
       auto ltx = TLatex();
       ltx.SetTextFont(62);
       ltx.SetTextSize(0.025);
-      ltx.SetTextAlign(11);
+      //ltx.SetTextAlign(11);
 
       auto runLS = beamSpotPI::unpack(std::get<0>(iov));
 
-      ltx.DrawLatexNDC(
-          gPad->GetLeftMargin(),
-          1 - gPad->GetTopMargin() + 0.01,
-          (tagname + " IOV: #color[4]{" + std::to_string(runLS.first) + "," + std::to_string(runLS.second) + "}")
-              .c_str());
+      ltx.SetTextAlign(32);  // Set text alignment to left (left-aligned)
+      ltx.DrawLatexNDC(1 - gPad->GetRightMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       ("#color[2]{" + tagname + "} IOV: #color[4]{" + std::to_string(runLS.first) + "," +
+                        std::to_string(runLS.second) + "}")
+                           .c_str());
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -814,6 +902,9 @@ namespace simBeamSpotPI {
 
   protected:
     std::shared_ptr<PayloadType> m_payload;
+
+  private:
+    static constexpr double cmToUm = 10000.f;
   };
 
   /************************************************
@@ -862,7 +953,7 @@ namespace simBeamSpotPI {
       canvas.cd(1)->SetGrid();
 
       // for the "text"-filled histogram
-      auto h2_SimBSParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, 9, 0, 9.);
+      auto h2_SimBSParameters = std::make_unique<TH2F>("Parameters", "", 1, 0.0, 1.0, END_OF_TYPES, 0, END_OF_TYPES);
       h2_SimBSParameters->SetStats(false);
       h2_SimBSParameters->GetXaxis()->SetBinLabel(1, "Value");
       h2_SimBSParameters->GetXaxis()->LabelsOption("h");
@@ -887,7 +978,7 @@ namespace simBeamSpotPI {
       const auto diffPars = fBS.diffCentralValues(lBS);
       //const auto pullPars = fBS.diffCentralValues(lBS,true /*normalize*/);
 
-      unsigned int yBin = 9;
+      unsigned int yBin = END_OF_TYPES;
       for (int foo = parameters::X; foo <= parameters::timeOffset; foo++) {
         parameters param = static_cast<parameters>(foo);
         std::string theLabel = simBeamSpotPI::getStringFromParamEnum(param, true /*use units*/);

@@ -169,11 +169,13 @@ namespace gpuVertexFinder {
       cudaCheck(cudaGetLastError());
       fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), maxChi2ForFirstFit);
       cudaCheck(cudaGetLastError());
-      // one block per vertex...
-      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.view(), maxChi2ForSplit);
-      cudaCheck(cudaGetLastError());
-      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), maxChi2ForFinalFit);
-      cudaCheck(cudaGetLastError());
+      if (doSplitting_) {
+        // one block per vertex...
+        splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.view(), maxChi2ForSplit);
+        cudaCheck(cudaGetLastError());
+        fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), maxChi2ForFinalFit);
+        cudaCheck(cudaGetLastError());
+      }
       sortByPt2Kernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view());
     }
     cudaCheck(cudaGetLastError());
@@ -190,8 +192,10 @@ namespace gpuVertexFinder {
 #endif  // PIXVERTEX_DEBUG_PRODUCE
     fitVertices(soa, ws_d.view(), maxChi2ForFirstFit);
     // one block per vertex!
-    splitVertices(soa, ws_d.view(), maxChi2ForSplit);
-    fitVertices(soa, ws_d.view(), maxChi2ForFinalFit);
+    if (doSplitting_) {
+      splitVertices(soa, ws_d.view(), maxChi2ForSplit);
+      fitVertices(soa, ws_d.view(), maxChi2ForFinalFit);
+    }
     sortByPt2(soa, ws_d.view());
 #endif
 
@@ -200,4 +204,5 @@ namespace gpuVertexFinder {
 
   template class Producer<pixelTopology::Phase1>;
   template class Producer<pixelTopology::Phase2>;
+  template class Producer<pixelTopology::HIonPhase1>;
 }  // namespace gpuVertexFinder

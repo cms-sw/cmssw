@@ -42,10 +42,19 @@ print("Output file:   ", outFile)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load(geomFile)
+process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff')
+process.load('SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff')
+process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
+process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
+process.load('Geometry.MuonNumbering.muonGeometryConstants_cff')
+process.load('Geometry.MuonNumbering.muonOffsetESProducer_cff')
+process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff')
 
-#if hasattr(process,'MessageLogger'):
+if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.SimG4CoreGeometry=dict()
-#    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)

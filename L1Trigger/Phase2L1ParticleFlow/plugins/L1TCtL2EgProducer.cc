@@ -97,6 +97,7 @@ private:
       dataWriter_ = std::make_unique<l1t::demo::BoardDataWriter>(
           l1t::demo::parseFileFormat(conf.getParameter<std::string>("format")),
           conf.getParameter<std::string>("outputFilename"),
+          conf.getParameter<std::string>("outputFileExtension"),
           nFramesPerBX,
           conf.getParameter<uint32_t>("TMUX"),
           conf.getParameter<uint32_t>("maxLinesPerFile"),

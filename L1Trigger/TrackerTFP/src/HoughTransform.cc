@@ -30,7 +30,7 @@ namespace trackerTFP {
   // read in and organize input product (fill vector input_)
   void HoughTransform::consume(const StreamsStub& streams) {
     const int offset = region_ * dataFormats_->numChannel(Process::gp);
-    auto validFrame = [](int& sum, const FrameStub& frame) { return sum += frame.first.isNonnull() ? 1 : 0; };
+    auto validFrame = [](int sum, const FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     int nStubsGP(0);
     for (int sector = 0; sector < dataFormats_->numChannel(Process::gp); sector++) {
       const StreamStub& stream = streams[offset + sector];
@@ -56,7 +56,7 @@ namespace trackerTFP {
       for (deque<StubGP*>& stubs : input)
         for (auto it = stubs.end(); it != stubs.begin();)
           it = (*--it) ? stubs.begin() : stubs.erase(it);
-    auto validStub = [](int& sum, StubGP* stub) { return sum += stub ? 1 : 0; };
+    auto validStub = [](int sum, StubGP* stub) { return sum + (stub ? 1 : 0); };
     int nStubsHT(0);
     for (const vector<deque<StubGP*>>& binInv2R : input_)
       for (const deque<StubGP*>& sector : binInv2R)
@@ -163,7 +163,7 @@ namespace trackerTFP {
     vector<vector<StubHT*>> tracks(setup_->htNumBinsPhiT());
     for (int binPhiT = 0; binPhiT < setup_->htNumBinsPhiT(); binPhiT++) {
       const int phiT = phiT_.toSigned(binPhiT);
-      auto samePhiT = [phiT](int& sum, StubHT* stub) { return sum += stub->phiT() == phiT; };
+      auto samePhiT = [phiT](int sum, StubHT* stub) { return sum + (stub->phiT() == phiT); };
       const int numAccepted = accumulate(acceptedSector.begin(), acceptedSector.end(), 0, samePhiT);
       const int numLost = accumulate(lostSector.begin(), lostSector.end(), 0, samePhiT);
       tracks[binPhiT].reserve(numAccepted + numLost);

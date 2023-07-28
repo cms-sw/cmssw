@@ -113,7 +113,7 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
 
     pt_assign_engine_dxy_->calculate_pt_dxy(track, feature, prediction);
 
-    pt_dxy = std::abs(1.0 / prediction.at(0));
+    pt_dxy = std::abs(prediction.at(0));
     dxy = prediction.at(1);
 
     gmt_pt_dxy = aux().getGMTPtDxy(pt_dxy);

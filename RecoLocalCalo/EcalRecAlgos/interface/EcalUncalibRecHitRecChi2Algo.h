@@ -24,19 +24,19 @@ template <class C>
 class EcalUncalibRecHitRecChi2Algo {
 public:
   // destructor
-  virtual ~EcalUncalibRecHitRecChi2Algo<C>(){};
+  virtual ~EcalUncalibRecHitRecChi2Algo(){};
 
-  EcalUncalibRecHitRecChi2Algo<C>(){};
-  EcalUncalibRecHitRecChi2Algo<C>(const C& dataFrame,
-                                  const double amplitude,
-                                  const EcalTimeCalibConstant& timeIC,
-                                  const double amplitudeOutOfTime,
-                                  const double jitter,
-                                  const double* pedestals,
-                                  const double* pedestalsRMS,
-                                  const double* gainRatios,
-                                  const EcalShapeBase& testbeamPulseShape,
-                                  const std::vector<double>& chi2Parameters);
+  EcalUncalibRecHitRecChi2Algo(){};
+  EcalUncalibRecHitRecChi2Algo(const C& dataFrame,
+                               const double amplitude,
+                               const EcalTimeCalibConstant& timeIC,
+                               const double amplitudeOutOfTime,
+                               const double jitter,
+                               const double* pedestals,
+                               const double* pedestalsRMS,
+                               const double* gainRatios,
+                               const EcalShapeBase& testbeamPulseShape,
+                               const std::vector<double>& chi2Parameters);
 
   virtual double chi2() { return chi2_; }
   virtual double chi2OutOfTime() { return chi2OutOfTime_; }
