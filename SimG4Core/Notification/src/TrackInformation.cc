@@ -36,9 +36,8 @@ void TrackInformation::Print() const {
                                << "                    idLastVolume = " << idLastVolume_ << "\n"
                                << "                    isFromTtoBTL = " << isFromTtoBTL() << "\n"
                                << "                    isFromBTLtoT = " << isFromBTLtoT() << "\n"
-                               << "                    isBTLdaughter = " << isBTLdaughter() << "\n"
                                << "                    isBTLlooper = " << isBTLlooper() << "\n"
                                << "                    isInTrkFromBackscattering = " << isInTrkFromBackscattering()
                                << "\n"
-                               << "                    idAtBTLentrance = " << idAtBTLentrance_;
+                               << "                    isExtSecondary = " << isExtSecondary();
 }

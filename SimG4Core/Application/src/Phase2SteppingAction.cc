@@ -170,17 +170,14 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromTtoBTL() && !trkinfo->isFromBTLtoT()) {
         trkinfo->setFromTtoBTL();
-        trkinfo->setIdAtBTLentrance(trkinfo->mcTruthID());
 #ifdef DebugLog
         LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
-                                         << " IdAtBTLentrance = " << trkinfo->idAtBTLentrance();
+                                         << " IdAtBTLentrance = " << trkinfo->mcTruthID();
 #endif
       } else {
         trkinfo->setBTLlooper();
-        trkinfo->setIdAtBTLentrance(trkinfo->mcTruthID());
 #ifdef DebugLog
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
-        trkinfo->Print();
 #endif
       }
     } else if (preStep->GetPhysicalVolume() == btl && postStep->GetPhysicalVolume() == tracker) {

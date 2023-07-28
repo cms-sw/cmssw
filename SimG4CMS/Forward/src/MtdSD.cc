@@ -106,41 +106,23 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
     trkInfo->Print();
 #endif
     if (rname == "FastTimerRegionSensBTL") {
-      if (trkInfo->isInTrkFromBackscattering()) {
-        theID = trkInfo->mcTruthID() + k_idFromCaloOffset;
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
-                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
-#endif
-        return theID;
+      theID = trkInfo->mcTruthID();
+      if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
+        theID += k_idsecOffset;
+      } else if (trkInfo->isInTrkFromBackscattering()) {
+        theID += k_idFromCaloOffset;
+      } else if (trkInfo->isBTLlooper()) {
+        theID += k_idloopOffset;
       }
-      if (trkInfo->isBTLlooper()) {
-        theID = trkInfo->mcTruthID() + k_idloopOffset;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
-                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
+      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
+                                 << " BTL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
-        return theID;
-      }
-      if (!trkInfo->isBTLdaughter() && trkInfo->mcTruthID() != aTrack->GetTrackID()) {
-        theID = trkInfo->mcTruthID() + k_idsecOffset;
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
-                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
-#endif
-        return theID;
-      }
-      if (trkInfo->isBTLdaughter()) {
-        theID = trkInfo->mcTruthID();
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("MtdSim") << "Track ID: " << aTrack->GetTrackID()
-                                   << " BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
-#endif
-      }
     } else if (rname == "FastTimerRegionSensETL") {
       theID = trkInfo->getIDonCaloSurface();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MtdSim") << "ETL Track ID: " << trkInfo->getIDonCaloSurface() << ":" << theID;
+      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
+                                 << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
     } else {
       throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;

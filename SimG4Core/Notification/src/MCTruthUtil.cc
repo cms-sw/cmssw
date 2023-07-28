@@ -56,14 +56,15 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
     trkInfo->setCastorHitPID(motherInfo->getCastorHitPID());
   }
 
-  // manage ID of tracks in BTL to map them to SimTracks to be stored
-  if (isInBTL(aTrack)) {
-    trkInfo->setBTLdaughter();
-    if (motherInfo->isFromTtoBTL() || motherInfo->isBTLdaughter()) {
-      trkInfo->setIdAtBTLentrance(motherInfo->mcTruthID());
-    }
-    LogDebug("SimG4CoreApplication") << "MCTruthUtil: secondary in BTL " << trkInfo->isBTLdaughter()
-                                     << " from mother ID " << trkInfo->idAtBTLentrance();
+  // for MTD
+  if (!trkInfo->isPrimary() && !isInBTL(aTrack)) {
+    trkInfo->setExtSecondary();
+  }
+  if (motherInfo->isExtSecondary()) {
+    trkInfo->setExtSecondary();
+  }
+  if (motherInfo->isBTLlooper()) {
+    trkInfo->setBTLlooper();
   }
   if (motherInfo->isInTrkFromBackscattering()) {
     trkInfo->setInTrkFromBackscattering();
