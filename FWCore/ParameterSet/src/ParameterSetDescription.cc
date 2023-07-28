@@ -110,6 +110,12 @@ namespace edm {
         validatedLabels.insert(service_type);
       }
 
+      {
+        std::string tryToContinue("@shouldTryToContinue");
+        if (pset.exists(tryToContinue)) {
+          validatedLabels.insert(tryToContinue);
+        }
+      }
       // Try again
       if (validatedLabels.size() != parameterNames.size()) {
         if (IllegalParameters::throwAnException() && !anythingAllowed()) {

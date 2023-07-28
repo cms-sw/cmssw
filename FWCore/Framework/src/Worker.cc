@@ -13,6 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
   namespace {
@@ -101,13 +102,22 @@ namespace edm {
         actReg_(),
         earlyDeleteHelper_(nullptr),
         workStarted_(false),
-        ranAcquireWithoutException_(false) {}
+        ranAcquireWithoutException_(false) {
+          checkForShouldTryToContinue(iMD);
+        }
 
   Worker::~Worker() {}
 
   void Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) { actReg_ = areg; }
 
-  bool Worker::shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent, bool isCatch) const {
+  void Worker::checkForShouldTryToContinue(ModuleDescription const& iDesc) {
+    auto pset = edm::pset::Registry::instance()->getMapped(iDesc.parameterSetID());
+    if (pset and pset->exists("@shouldTryToContinue")) {
+      shouldTryToContinue_ = true;
+    }
+  }
+
+  bool Worker::shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent, bool shouldTryToContinue) const {
     // NOTE: the warning printed as a result of ignoring or failing
     // a module will only be printed during the full true processing
     // pass of this module
@@ -126,7 +136,10 @@ namespace edm {
         return true;
       }
       if (action == exception_actions::TryToContinue) {
-        return not isCatch;
+        if (shouldTryToContinue) {
+          edm::printCmsExceptionWarning("TryToContinue", ex);
+        }
+        return not shouldTryToContinue;
       }
       if (action == exception_actions::IgnoreCompletely) {
         edm::printCmsExceptionWarning("IgnoreCompletely", ex);
@@ -257,6 +270,8 @@ namespace edm {
                               moduleCallingContext_.parent(),
                               moduleCallingContext_.previousModuleOnThread());
     moduleCallingContext_ = temp;
+    assert(iDesc);
+    checkForShouldTryToContinue(*iDesc);
   }
 
   void Worker::beginJob() {
@@ -372,7 +387,7 @@ namespace edm {
       convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, holder); });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
-      if (shouldRethrowException(std::current_exception(), parentContext, true, false)) {
+      if (shouldRethrowException(std::current_exception(), parentContext, true, shouldTryToContinue_)) {
         timesRun_.fetch_add(1, std::memory_order_relaxed);
         throw;
       }
@@ -387,7 +402,7 @@ namespace edm {
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
       //TODO should deal with cms.catch
-      if (shouldRethrowException(iEPtr, parentContext, true, false)) {
+      if (shouldRethrowException(iEPtr, parentContext, true, shouldTryToContinue_)) {
         exceptionPtr = iEPtr;
       }
       moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);

@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+import sys
 import argparse
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test TryToContinue exception handling.')
