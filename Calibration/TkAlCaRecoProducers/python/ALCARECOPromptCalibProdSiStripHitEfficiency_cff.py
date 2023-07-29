@@ -67,10 +67,16 @@ ALCARECOSiStripHitEff =  siStripHitEfficiencyWorker.clone(
     useFirstMeas = False,
     useLastMeas = False,
     useAllHitsFromTracksWithMissingHits = False,
+    doMissingHitsRecovery = False,
     ## non-default settings
     ClusterMatchingMethod = 4,  # default 0  case0,1,2,3,4
     ClusterTrajDist       = 15, # default 64
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(ALCARECOSiStripHitEff,
+                     useAllHitsFromTracksWithMissingHits = True,
+                     doMissingHitsRecovery = True)
 
 # ----------------------------------------------------------------------------
 MEtoEDMConvertSiStripHitEff = cms.EDProducer("MEtoEDMConverter",

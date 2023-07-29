@@ -13,6 +13,7 @@ from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
 
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
+dqmHarvestingExpress = cms.Path(DQMOffline_SecondStep_Express)
 dqmHarvestingExtraHLT = cms.Path(DQMOffline_SecondStep_ExtraHLT*DQMOffline_Certification)
 dqmHarvestingFakeHLT = cms.Path(DQMOffline_SecondStep_FakeHLT*DQMOffline_Certification)
 #dqmHarvesting = cms.Sequence(DQMOffline_SecondStep*DQMOffline_Certification)

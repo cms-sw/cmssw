@@ -1098,7 +1098,8 @@ void BTagAndProbe::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
-  desc.add<edm::InputTag>("elecID", edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight"));
+  desc.add<edm::InputTag>("elecID",
+                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"));
   desc.add<std::vector<edm::InputTag> >(
       "btagAlgos", {edm::InputTag("pfDeepCSVJetTags:probb"), edm::InputTag("pfDeepCSVJetTags:probbb")});
 

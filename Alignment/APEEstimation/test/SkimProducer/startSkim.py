@@ -61,7 +61,7 @@ def condorSubmitSkim(sample, caf=False):
 def localStartSkim(sample):
     base = os.environ['CMSSW_BASE']    
     
-    execString = "cmsRun {base}/src/Alignment/APEEstimation/test/SkimProducer/skimProducer_cfg.py isTest=False useTrackList=False sample={sample}".format(sample=sample, base=base)
+    execString = "cmsRun {base}/src/Alignment/APEEstimation/test/SkimProducer/skimProducer_cfg.py sample={sample}".format(sample=sample, base=base)
     print(execString)
     toExec = execString.split(" ")
     
@@ -73,7 +73,7 @@ def localStartSkim(sample):
     
     def get_output(proc):
         while True:
-            line = proc.stdout.readline().rstrip()
+            line = proc.stdout.readline().rstrip().decode()
             if not line:
                 break
             yield line
@@ -153,7 +153,7 @@ def main(argv):
     
     if len(args.samples) == 0:
         print("Usage: python startSkim.py -s <sample>")
-        sys.exit()
+        sys.exit(1)
     
     finalSamples = []
     for sample in args.samples:

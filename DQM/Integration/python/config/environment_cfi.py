@@ -58,7 +58,7 @@ if dqmFileConfig.has_option("host", "collectorHost"):
 # now start the actual configuration
 print("dqmRunConfig:", dqmRunConfig)
 
-from DQMServices.Core.DQMStore_cfi import *
+from DQMServices.Core.DQMStore_Online_cfi import *
 
 DQM = cms.Service("DQM",
                   debug = cms.untracked.bool(False),

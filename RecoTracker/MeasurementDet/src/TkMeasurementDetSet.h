@@ -20,6 +20,9 @@ class Phase2StripCPE;
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
+#include <atomic>
 #include <unordered_map>
 
 // #define VISTAT
@@ -142,11 +145,9 @@ public:
 
   StMeasurementDetSet(const StMeasurementConditionSet& cond)
       : conditionSet_(&cond),
-        empty_(cond.nDet(), true),
         activeThisEvent_(cond.nDet(), true),
         detSet_(cond.nDet()),
         detIndex_(cond.nDet(), -1),
-        ready_(cond.nDet(), true),
         theRawInactiveStripDetIds_(),
         stripDefined_(0),
         stripUpdated_(0),
@@ -157,16 +158,16 @@ public:
   const StMeasurementConditionSet& conditions() const { return *conditionSet_; }
 
   void update(int i, const StripDetset& detSet) {
-    detSet_[i] = detSet;
-    empty_[i] = false;
+    detSet_[i].detSet_ = detSet;
+    detSet_[i].empty_ = false;
   }
 
   void update(int i, int j) {
     assert(j >= 0);
-    assert(empty_[i]);
-    assert(ready_[i]);
+    assert(detSet_[i].empty_);
+    assert(detSet_[i].ready_ == ReadyState::kUnset);
     detIndex_[i] = j;
-    empty_[i] = false;
+    detSet_[i].empty_ = false;
     incReady();
   }
 
@@ -175,19 +176,21 @@ public:
   unsigned int id(int i) const { return conditions().id(i); }
   int find(unsigned int jd, int i = 0) const { return conditions().find(jd, i); }
 
-  bool empty(int i) const { return empty_[i]; }
+  bool empty(int i) const { return detSet_[i].empty_.load(std::memory_order_relaxed); }
   bool isActive(int i) const { return activeThisEvent_[i] && conditions().isActiveThisPeriod(i); }
 
   void setEmpty(int i) {
-    empty_[i] = true;
+    detSet_[i].empty_ = true;
     activeThisEvent_[i] = true;
   }
   void setUpdated(int i) { stripUpdated_[i] = true; }
 
   void setEmpty() {
     printStat();
-    std::fill(empty_.begin(), empty_.end(), true);
-    std::fill(ready_.begin(), ready_.end(), true);
+    for (auto& d : detSet_) {
+      d.empty_ = true;
+      d.ready_ = ReadyState::kUnset;
+    }
     std::fill(detIndex_.begin(), detIndex_.end(), -1);
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(), true);
     incTot(size());
@@ -198,16 +201,16 @@ public:
   void setActiveThisEvent(int i, bool active) {
     activeThisEvent_[i] = active;
     if (!active)
-      empty_[i] = true;
+      detSet_[i].empty_ = true;
   }
 
   edm::Handle<edmNew::DetSetVector<SiStripCluster>>& handle() { return handle_; }
   const edm::Handle<edmNew::DetSetVector<SiStripCluster>>& handle() const { return handle_; }
   // StripDetset & detSet(int i) { return detSet_[i]; }
   const StripDetset& detSet(int i) const {
-    if (ready_[i])
-      const_cast<StMeasurementDetSet*>(this)->getDetSet(i);
-    return detSet_[i];
+    if (detSet_[i].ready_.load(std::memory_order_acquire) != ReadyState::kSet)
+      getDetSet(i);
+    return detSet_[i].detSet_;
   }
 
   //// ------- pieces for on-demand unpacking --------
@@ -227,17 +230,26 @@ public:
   }
 
 private:
-  void getDetSet(int i) {
-    if (detIndex_[i] >= 0) {
-      detSet_[i].set(*handle_, handle_->item(detIndex_[i]));
-      empty_[i] = false;  // better be false already
-      incAct();
-    } else {  // we should not be here
-      detSet_[i] = StripDetset();
-      empty_[i] = true;
+  void getDetSet(int i) const {
+    const auto& det = detSet_[i];
+
+    ReadyState expected = ReadyState::kUnset;
+    if (det.ready_.compare_exchange_strong(expected, ReadyState::kSetting, std::memory_order_acq_rel)) {
+      if (detIndex_[i] >= 0) {
+        det.detSet_ = StripDetset(*handle_, handle_->item(detIndex_[i]), true);
+        det.empty_.store(false, std::memory_order_relaxed);  // better be false already
+        incAct();
+      } else {  // we should not be here
+        det.detSet_ = StripDetset();
+        det.empty_.store(true, std::memory_order_relaxed);
+      }
+      det.ready_.store(ReadyState::kSet, std::memory_order_release);
+      incSet();
+    } else {
+      // need to wait
+      while (ReadyState::kSet != det.ready_.load(std::memory_order_acquire)) {
+      }
     }
-    ready_[i] = false;
-    incSet();
   }
 
   friend class MeasurementTrackerImpl;
@@ -247,13 +259,22 @@ private:
   // Globals, per-event
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> handle_;
 
-  std::vector<bool> empty_;
+  enum class ReadyState : char { kUnset, kSetting, kSet };
+
+  // Helper struct to define only the vector elements as mutable and
+  // to have a vector of atomics without an explicit loop over
+  // elements to set their values
+  struct DetSetHelper {
+    mutable std::atomic<bool> empty_ = true;
+    mutable std::atomic<ReadyState> ready_ = ReadyState::kUnset;  // to be cleaned
+    CMS_THREAD_GUARD(ready_) mutable StripDetset detSet_;
+  };
+
   std::vector<bool> activeThisEvent_;
 
   // full reco
-  std::vector<StripDetset> detSet_;
+  std::vector<DetSetHelper> detSet_;
   std::vector<int> detIndex_;
-  std::vector<bool> ready_;  // to be cleaned
 
   // note: not aligned to the index
   std::vector<uint32_t> theRawInactiveStripDetIds_;

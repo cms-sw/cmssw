@@ -20,13 +20,15 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 
 hltBtagTopMuEGSelection = cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v*', # new (2022) MuEG trigger paths (used at DQM)
-                           'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5_v*'), # new (2022) MuEG trigger paths (used at DQM)
+     HLTPaths = cms.vstring(
+    'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepJet_1p5_v*',  # DeepCSV paths not available anymore. See https://its.cern.ch/jira/browse/CMSHLT-2592 
+    'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PNet2BTagMean0p50_v*',  # Taken from HLTrigger/Configuration/python/HLTrigger_Datasets_GRun_cff.py
+     ), 
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True), # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
      throw = cms.bool(False), # throw exception on unknown path names
 #     saveTags = cms.bool(False)
- )
+)
 
 
 #####################################

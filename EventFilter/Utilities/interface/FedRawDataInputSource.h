@@ -168,7 +168,6 @@ private:
   std::list<std::pair<int, std::string>> fileNamesToDelete_;
   std::mutex fileDeleteLock_;
   std::vector<int> streamFileTracker_;
-  unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 
   //supervisor thread wakeup
@@ -312,6 +311,7 @@ public:
     std::shuffle(std::begin(fileOrder_), std::end(fileOrder_), rng);
   }
   uint64_t currentChunkSize() const { return chunks_[currentChunk_]->size_; }
+  int64_t fileSizeLeft() const { return (int64_t)fileSize_ - (int64_t)bufferPosition_; }
 };
 
 #endif  // EventFilter_Utilities_FedRawDataInputSource_h

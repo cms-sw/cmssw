@@ -21,13 +21,12 @@ Output = {outputFile}
 Error  = {errorFile}
 Log  = {logFile}
 request_memory = 2000M
-request_disk = 400M
+request_disk = 500M
 batch_name = {jobName}
 +JobFlavour = "workday"
 Queue Arguments from (
 {arguments})
 """
-
 
 condorSubTemplateCAF="""
 Executable = {jobFile}
@@ -36,7 +35,7 @@ Output = {outputFile}
 Error  = {errorFile}
 Log  = {logFile}
 request_memory = 2000M
-request_disk = 400M
+request_disk = 500M
 batch_name = {jobName}
 +JobFlavour = "workday"
 +AccountingGroup = "group_u_CMS.CAF.ALCA" 

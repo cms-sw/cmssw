@@ -14,10 +14,9 @@ public:
   void setGeometry(const HcalDDDRecConstants*&);
   DetId relabel(const uint32_t testId) const;
   static DetId relabel(const uint32_t testId, const HcalDDDRecConstants* theRecNumber);
-
-private:
   double energyWt(const uint32_t testId) const;
 
+private:
   const HcalDDDRecConstants* theRecNumber;
   bool neutralDensity_;
 };
