@@ -217,7 +217,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
   //Extract model output
   //Would be good to be able to configure the precision of the result
-  ap_fixed<11, 5> modelResult[1];
+  ap_fixed<11, 5> modelResult[1] = {ap_fixed<11, 5>("0.0", 10)};
   model->prepare_input(modelInput);
   model->predict();
   model->read_result(modelResult);
