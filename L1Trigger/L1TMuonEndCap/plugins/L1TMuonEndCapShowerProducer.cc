@@ -15,7 +15,7 @@ void L1TMuonEndCapShowerProducer::produce(edm::Event& iEvent, const edm::EventSe
   // Create pointers to output products
   auto out_showers = std::make_unique<l1t::RegionalMuonShowerBxCollection>();
   out_showers->clear();
-  out_showers->setBXRange(0, 0);
+  out_showers->setBXRange(-2, 2);
 
   edm::Handle<CSCShowerDigiCollection> showersH;
   iEvent.getByToken(tokenCSCShower_, showersH);
