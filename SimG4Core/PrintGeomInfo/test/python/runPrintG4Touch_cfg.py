@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun grunPrintG4Touch_cfg.py geometry=D98 dd4hep=False
+#   cmsRun grunPrintG4Touch_cfg.py geometry=D98 type=DDD
 #
 #   Options for geometry D88, D91, D92, D93, D94, D95, D96, D98, D99, D100,
 #                        D101
