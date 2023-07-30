@@ -83,6 +83,8 @@ process.maxEvents = cms.untracked.PSet(
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.HitStudy=dict()
+    process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.SensitiveDetector=dict()
 
 process.Timing = cms.Service("Timing")
 
