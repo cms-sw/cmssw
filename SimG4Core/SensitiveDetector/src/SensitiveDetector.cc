@@ -32,7 +32,8 @@ SensitiveDetector::SensitiveDetector(const std::string& iname, const SensitiveDe
     this->AssignSD({lvname.data(), lvname.size()});
     ss << " " << lvname << "\n";
   }
-  edm::LogVerbatim("SensitiveDetector") << " <" << iname << "> : Assigns SD to " << lvNames.size() << " LVs " << ss.str();
+  edm::LogVerbatim("SensitiveDetector") << " <" << iname << "> : Assigns SD to " << lvNames.size() << " LVs "
+                                        << ss.str();
 }
 
 SensitiveDetector::~SensitiveDetector() {}
