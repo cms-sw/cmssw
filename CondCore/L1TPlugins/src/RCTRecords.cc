@@ -22,5 +22,4 @@ REGISTER_PLUGIN(L1CaloEcalScaleRcd, L1CaloEcalScale);
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 
-//L1CaloHcalScale is same as L1RCTParameters
-REGISTER_PLUGIN_NO_SERIAL(L1CaloHcalScaleRcd, L1CaloHcalScale);
+REGISTER_PLUGIN(L1CaloHcalScaleRcd, L1CaloHcalScale);

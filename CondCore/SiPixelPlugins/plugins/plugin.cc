@@ -87,4 +87,4 @@ REGISTER_PLUGIN(PixelCaenChannelIsOnRcd, PixelDCSObject<bool>);
 REGISTER_PLUGIN(PixelCaenChannelIMonRcd, PixelDCSObject<float>);
 REGISTER_PLUGIN(PixelCaenChannelRcd, PixelDCSObject<CaenChannel>);
 
-REGISTER_PLUGIN(SiPixelDetVOffRcd, SiStripDetVOff);
+REGISTER_PLUGIN_NO_SERIAL(SiPixelDetVOffRcd, SiStripDetVOff);

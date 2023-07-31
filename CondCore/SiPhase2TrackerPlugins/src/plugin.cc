@@ -9,4 +9,4 @@
 REGISTER_PLUGIN(TrackerDetToDTCELinkCablingMapRcd, TrackerDetToDTCELinkCablingMap);
 REGISTER_PLUGIN(SiPhase2OuterTrackerLorentzAngleRcd, SiPhase2OuterTrackerLorentzAngle);
 REGISTER_PLUGIN_NO_SERIAL(SiPhase2OuterTrackerLorentzAngleSimRcd, SiPhase2OuterTrackerLorentzAngle);
-REGISTER_PLUGIN(SiPhase2OuterTrackerBadStripRcd, SiStripBadStrip);
+REGISTER_PLUGIN_NO_SERIAL(SiPhase2OuterTrackerBadStripRcd, SiStripBadStrip);
