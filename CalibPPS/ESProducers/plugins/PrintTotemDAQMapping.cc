@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
+#include "CondFormats/DataRecord/interface/TotemAnalysisMaskRcd.h"
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
@@ -30,33 +31,45 @@ public:
 private:
   /// label of the CTPPS sub-system
   std::string subSystemName;
-  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken_;
-  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> maskToken_;
+  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken;
+  edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken;
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
     : subSystemName(ps.getUntrackedParameter<std::string>("subSystem")),
-      mappingToken_(esConsumes(edm::ESInputTag("", subSystemName))),
-      maskToken_(esConsumes(edm::ESInputTag("", subSystemName))) {}
+      mappingToken(esConsumes(edm::ESInputTag("", subSystemName))),
+      maskToken(esConsumes(edm::ESInputTag("", subSystemName))) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get mapping
-  auto const &mapping = es.getData(mappingToken_);
+  if (auto mappingHandle = es.getHandle(mappingToken)) {
+    auto const &mapping = *mappingHandle;
+    // print mapping
+    for (const auto &p : mapping.VFATMapping)
+      edm::LogInfo("PrintTotemDAQMapping mapping") << "    " << p.first << " -> " << p.second;
+
+    for (const auto &p : mapping.totemTimingChannelMap)
+      edm::LogInfo("PrintTotemDAQMapping channel mapping") << "    " << p.first << " plane " << p.second.plane << " channel " << p.second.channel;
+
+  } else {
+    edm::LogError("PrintTotemDAQMapping mapping") << "No mapping found";
+  }
 
   // get analysis mask to mask channels
-  auto const &analysisMask = es.getData(maskToken_);
+  if (auto analysisMaskHandle = es.getHandle(maskToken)){
+    auto const &analysisMask = *analysisMaskHandle;
 
-  // print mapping
-  for (const auto &p : mapping.VFATMapping)
-    edm::LogInfo("PrintTotemDAQMapping mapping") << "    " << p.first << " -> " << p.second;
+    // print mapping
+    for (const auto &p : analysisMask.analysisMask)
+      edm::LogInfo("PrintTotemDAQMapping mask") << "    " << p.first << ": fullMask=" << p.second.fullMask
+                                                << ", number of masked channels " << p.second.maskedChannels.size();
 
-  // print mapping
-  for (const auto &p : analysisMask.analysisMask)
-    edm::LogInfo("PrintTotemDAQMapping mask") << "    " << p.first << ": fullMask=" << p.second.fullMask
-                                              << ", number of masked channels " << p.second.maskedChannels.size();
+  } else {
+    edm::LogError("PrintTotemDAQMapping mask") << "No analysis mask found";
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
