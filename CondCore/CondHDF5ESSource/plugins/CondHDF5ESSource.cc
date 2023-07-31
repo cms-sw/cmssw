@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 #include "CondFormats/SerializationHelper/interface/SerializationHelperFactory.h"
 
@@ -58,8 +59,11 @@ private:
   void setIntervalFor(EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval&) final;
   KeyedProxiesVector registerProxies(EventSetupRecordKey const&, unsigned int iovIndex) final;
 
+  edm::SerialTaskQueue queue_;
+  std::mutex mutex_;
   std::vector<Record> records_;
   std::string filename_;
+  H5::H5File file_;
 };
 
 //
@@ -74,13 +78,11 @@ private:
 // constructors and destructor
 //
 CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
-    : filename_(iPSet.getUntrackedParameter<std::string>("filename")) {
-  H5::H5File file(filename_, H5F_ACC_RDONLY);
-
-  const auto globalTagsGroup = file.openGroup("GlobalTags");
+    : filename_(iPSet.getUntrackedParameter<std::string>("filename")), file_(filename_, H5F_ACC_RDONLY) {
+  const auto globalTagsGroup = file_.openGroup("GlobalTags");
   const auto chosenTag = globalTagsGroup.openGroup(iPSet.getParameter<std::string>("globalTag"));
   const auto tagsDataSet = chosenTag.openDataSet("Tags");
-  const auto recordsGroup = file.openGroup("Records");
+  const auto recordsGroup = file_.openGroup("Records");
 
   std::vector<hobj_ref_t> tags;
   {
@@ -94,27 +96,36 @@ CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
 
   tagsDataSet.read(&tags[0], H5::PredType::STD_REF_OBJ);
 
+  std::set<std::string> recordsToExclude;
+  {
+    auto exclude = iPSet.getParameter<std::vector<std::string>>("excludeRecords");
+    recordsToExclude = std::set(exclude.begin(), exclude.end());
+  }
+
   for (auto t : tags) {
-    assert(file.getRefObjType(&t) == H5O_TYPE_GROUP);
-    H5::Group tagGroup(file, &t);
+    assert(file_.getRefObjType(&t) == H5O_TYPE_GROUP);
+    H5::Group tagGroup(file_, &t);
     std::string n = tagGroup.getObjName();
-    std::cout << n << std::endl;
-    std::cout << "prefix: '" << n.substr(0, 9) << "'" << std::endl;
     Record record;
 
     assert(n.substr(0, 9) == "/Records/");
     auto index = n.find('/', 10);
     record.name_ = n.substr(9, index - 9);
-    std::cout << record.name_ << std::endl;
+    //std::cout << record.name_ << std::endl;
+
+    if (recordsToExclude.end() != recordsToExclude.find(record.name_)) {
+      std::cout << "excluding " << record.name_ << std::endl;
+      continue;
+    }
 
     H5::Group recordGroup = recordsGroup.openGroup(record.name_);
-    std::cout << "found record group" << std::endl;
+    //std::cout << "found record group" << std::endl;
     H5::Group dataProductsGroup = recordGroup.openGroup("DataProducts");
-    std::cout << "found DataProducts group" << std::endl;
+    //std::cout << "found DataProducts group" << std::endl;
 
     for (size_t i = 0; i < dataProductsGroup.getNumObjs(); ++i) {
       std::string productGroupName = dataProductsGroup.getObjnameByIdx(i);
-      std::cout << "looking for " << productGroupName << std::endl;
+      //std::cout << "looking for " << productGroupName << std::endl;
       H5::Group dataProductGroup = dataProductsGroup.openGroup(productGroupName);
 
       auto const typeAttr = dataProductGroup.openAttribute("type");
@@ -202,6 +213,8 @@ void CondHDF5ESSource::fillDescriptions(edm::ConfigurationDescriptions& descript
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("filename")->setComment("HDF5 file containing the conditions");
   desc.add<std::string>("globalTag")->setComment("Which global tag to use from the file");
+  desc.add<std::vector<std::string>>("excludeRecords", std::vector<std::string>())
+      ->setComment("List of Records that should not be read from the file");
 
   descriptions.addDefault(desc);
 }
@@ -221,6 +234,7 @@ void CondHDF5ESSource::setIntervalFor(EventSetupRecordKey const& iRecordKey,
   auto sync = convertSyncValue(iSync, record.iovIsRunLumi_);
   auto itFound = findMatchingFirst(record.iovFirsts_, sync);
   if (itFound == record.iovFirsts_.end()) {
+    std::cout << "BAD SYNC for record " << iRecordKey.name() << std::endl;
     iIOV = edm::ValidityInterval::invalidInterval();
     return;
   }
@@ -233,7 +247,7 @@ CondHDF5ESSource::KeyedProxiesVector CondHDF5ESSource::registerProxies(EventSetu
                                                                        unsigned int iovIndex) {
   CondHDF5ESSource::KeyedProxiesVector returnValue;
 
-  std::cout << "Register proxies called " << iRecordKey.name() << std::endl;
+  //std::cout << "Register proxies called " << iRecordKey.name() << std::endl;
   auto const itRecord =
       std::lower_bound(records_.begin(), records_.end(), iRecordKey.name(), [](auto const& iE, auto const& iV) {
         return iE.name_ < iV;
@@ -242,13 +256,13 @@ CondHDF5ESSource::KeyedProxiesVector CondHDF5ESSource::registerProxies(EventSetu
   auto const& record = *itRecord;
   assert(record.name_ == iRecordKey.name());
   for (auto const& dataProduct : record.dataProducts_) {
-    std::cout << "Making DataProduct " << dataProduct.type_ << " '" << dataProduct.name_ << "' for Record "
-              << record.name_ << std::endl;
+    //std::cout << "Making DataProduct " << dataProduct.type_ << " '" << dataProduct.name_ << "' for Record "
+    //          << record.name_ << std::endl;
     auto helper = cond::serialization::SerializationHelperFactory::get()->create(dataProduct.type_);
     returnValue.emplace_back(
         edm::eventsetup::DataKey(edm::eventsetup::heterocontainer::HCTypeTag::findType(dataProduct.type_),
                                  dataProduct.name_.c_str()),
-        std::make_shared<HDF5DataProxy>(std::move(helper), filename_, &record, &dataProduct));
+        std::make_shared<HDF5DataProxy>(&queue_, &mutex_, std::move(helper), &file_, &record, &dataProduct));
   }
   return returnValue;
 }
