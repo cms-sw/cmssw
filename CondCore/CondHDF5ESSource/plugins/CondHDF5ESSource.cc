@@ -97,12 +97,8 @@ CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
 
   for (auto t : tags) {
     auto tagGroup = file_.derefGroup(t);
-    std::string n = tagGroup->name();
     Record record;
-
-    assert(n.substr(0, 9) == "/Records/");
-    auto index = n.find('/', 10);
-    record.name_ = n.substr(9, index - 9);
+    record.name_ = tagGroup->findAttribute("record")->readString();
     //std::cout << record.name_ << std::endl;
 
     if (recordsToExclude.end() != recordsToExclude.find(record.name_)) {

@@ -316,10 +316,11 @@ def mergeIOVs(previousIOV, newIOV):
     _checkMerge(previousIOV, newIOV, debugCopy, nExistingDataProducts)
     return previousIOV
 
-def writeTagImpl(tagsGroup, name, time_type, IOV_payloads, payloadToRefs, originalTagNames):
+def writeTagImpl(tagsGroup, name, recName, time_type, IOV_payloads, payloadToRefs, originalTagNames):
     tagGroup = tagsGroup.create_group(name)
     tagGroup.attrs["time_type"] = timeTypeName(time_type).encode("ascii")
-    tagGroup.attrs["db_tags"] = originalTagNames
+    tagGroup.attrs["db_tags"] = [x.encode("ascii") for x in originalTagNames]
+    tagGroup.attrs["record"] = recName.encode("ascii")
     firstValues, lastValues = sinceToIOV( (x[0] for x in IOV_payloads), time_type)
     syncValueType = np.dtype([("high", np.uint32),("low", np.uint32)])
     first_np = np.empty(shape=(len(firstValues),), dtype=syncValueType)
@@ -340,11 +341,11 @@ def writeTagImpl(tagsGroup, name, time_type, IOV_payloads, payloadToRefs, origin
     return tagGroup.ref
 
     
-def writeTag(tagsGroup, time_type, IOV_payloads, payloadToRefs, originalTagNames):
+def writeTag(tagsGroup, time_type, IOV_payloads, payloadToRefs, originalTagNames, recName):
     name = originalTagNames[0]
     if len(originalTagNames) != 1:
         name = name+"@joined"
-    return writeTagImpl(tagsGroup, name, time_type, IOV_payloads, payloadToRefs, originalTagNames)
+    return writeTagImpl(tagsGroup, name, recName, time_type, IOV_payloads, payloadToRefs, originalTagNames)
     
 
 def recordToType(record):
@@ -449,7 +450,7 @@ def main():
                     if lastRcd is not None:
                         #print("  data products: %s"%(",".join(dataProductsInRecord)))
                         #print("  IOV ",lastIOV)
-                        tagGroupRefs.append(writeTag(tagsGroup, time_type, lastIOV, payloadToRefs, originalTagNames))
+                        tagGroupRefs.append(writeTag(tagsGroup, time_type, lastIOV, payloadToRefs, originalTagNames, lastRcd))
                     #print("NEW RECORD")
                     recordGroup = recordsGroup.create_group(rcd)
                     tagsGroup = recordGroup.create_group("Tags")
@@ -523,7 +524,7 @@ def main():
                 #if count > 5: #TEMP
                 #    break
             print(" total size:",recordDataSize)
-            tagGroupRefs.append(writeTag(tagsGroup, time_type, lastIOV, payloadToRefs, originalTagNames))
+            tagGroupRefs.append(writeTag(tagsGroup, time_type, lastIOV, payloadToRefs, originalTagNames, lastRcd))
             globalTagGroup = globalTagsGroup.create_group(name)
             globalTagGroup.create_dataset("Tags", data=tagGroupRefs, dtype=h5py.ref_dtype)
 if __name__ == '__main__':
