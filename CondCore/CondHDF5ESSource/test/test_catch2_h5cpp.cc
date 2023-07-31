@@ -28,13 +28,11 @@ namespace {
 
 TEST_CASE("test cms::h5 code", "[cms::h5]") {
   SECTION("File") {
-    SECTION("good file") {
-      REQUIRE_NOTHROW(cms::h5::File(findFile("CondCore/CondHDF5ESSource/test/test.h5"), cms::h5::File::kReadOnly));
-    }
+    SECTION("good file") { REQUIRE_NOTHROW(cms::h5::File(findFile("test.h5"), cms::h5::File::kReadOnly)); }
     SECTION("missing file") { REQUIRE_THROWS_AS(cms::h5::File("missing", cms::h5::File::kReadOnly), cms::Exception); }
   }
   SECTION("Group") {
-    cms::h5::File h5file(findFile("CondCore/CondHDF5ESSource/test/test.h5"), cms::h5::File::kReadOnly);
+    cms::h5::File h5file(findFile("test.h5"), cms::h5::File::kReadOnly);
 
     SECTION("present") {
       std::shared_ptr<cms::h5::Group> g;
@@ -51,7 +49,7 @@ TEST_CASE("test cms::h5 code", "[cms::h5]") {
   }
 
   SECTION("DataSet") {
-    cms::h5::File h5file(findFile("CondCore/CondHDF5ESSource/test/test.h5"), cms::h5::File::kReadOnly);
+    cms::h5::File h5file(findFile("test.h5"), cms::h5::File::kReadOnly);
     {
       auto g = h5file.findGroup("Agroup");
       SECTION("missing") { REQUIRE_THROWS_AS(g->findDataSet("missing"), cms::Exception); }
@@ -80,7 +78,7 @@ TEST_CASE("test cms::h5 code", "[cms::h5]") {
     }
   }
   SECTION("refs") {
-    cms::h5::File h5file(findFile("CondCore/CondHDF5ESSource/test/test.h5"), cms::h5::File::kReadOnly);
+    cms::h5::File h5file(findFile("test.h5"), cms::h5::File::kReadOnly);
 
     std::shared_ptr<cms::h5::DataSet> ds;
     auto g = h5file.findGroup("RefGroup");
@@ -130,7 +128,7 @@ TEST_CASE("test cms::h5 code", "[cms::h5]") {
   }
 
   SECTION("Attribute") {
-    cms::h5::File h5file(findFile("CondCore/CondHDF5ESSource/test/test.h5"), cms::h5::File::kReadOnly);
+    cms::h5::File h5file(findFile("test.h5"), cms::h5::File::kReadOnly);
     SECTION("missing") { REQUIRE_THROWS_AS(h5file.findAttribute("missing"), cms::Exception); }
     SECTION("in file") {
       auto at = h5file.findAttribute("at");

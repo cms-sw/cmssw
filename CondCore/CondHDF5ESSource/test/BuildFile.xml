@@ -1,5 +1,7 @@
+<test name="CondCoreCondHDF5SourceTestFile" command="make_test_file.py"/>
 <bin file="test_catch2_*.cc" name="testCondCoreCondHDF5ESSource">
   <use name="FWCore/Framework"/>
   <use name="catch2"/>
   <use name="hdf5"/>
+  <flags PRE_TEST="CondCoreCondHDF5SourceTestFile"/>
 </bin>
