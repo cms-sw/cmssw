@@ -6,6 +6,7 @@ import sqlalchemy
 import copy
 import h5py
 import numpy as np
+import multiprocessing as mp
 from collections import OrderedDict
 
 import CondCore.Utilities.conddblib as conddb
@@ -127,6 +128,10 @@ def get_payloads_objtype_data(session, payloads):
         filter(Payload.hash.in_(payloads)).order_by(Payload.hash).all()
     return table
 
+def external_process_get_payloads_objtype_data(queue, args, payloads):
+    connection = connect(args)
+    session = connection.session()
+    queue.put(get_payloads_objtype_data(session, payloads))
 #local
 
 def timeTypeName(time_type):
@@ -346,6 +351,7 @@ def main():
     parser.add_argument('--snapshot', '-T', default=None, help="Snapshot time. If provided, the output will represent the state of the IOVs inserted into database up to the given time. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
     parser.add_argument('--exclude', '-e', nargs='*', help = 'list of records to exclude from the file (can not be used with --include)')
     parser.add_argument('--include', '-i', nargs='*', help = 'lost of the only records that should be included in the file (can not be used with --exclude')
+    parser.add_argument('--output', '-o', default='test.h5cond', help='name of hdf5 output file to write')
     args = parser.parse_args()
 
     if args.exclude and args.include:
@@ -376,7 +382,7 @@ def main():
     if args.include:
         includeRecords = set(args.include)
     
-    with h5py.File("test.h5cond", 'w') as h5file:
+    with h5py.File(args.output, 'w') as h5file:
         recordsGroup = h5file.create_group("Records")
         globalTagsGroup = h5file.create_group("GlobalTags")
         null_dataset = h5file.create_dataset("null_payload", data=np.array([], dtype='b') )
@@ -434,7 +440,8 @@ def main():
                 #print(payloadHashs)
                 payloadCache = {}
                 payloadHashsIndex = 0
-                cacheChunking = 10
+                cacheChunking = 1
+                safeChunkingSize = 1
                 print(" IOVs: %i"%len(iovAndPayload))
                 for index,i_p in enumerate(iovAndPayload):
                     #print("seenPayloads:",seenPayloads)
@@ -448,7 +455,13 @@ def main():
                         if not payloadCache:
                             #retrieve more info
                             #print("retrieving:",payloadHashs[payloadHashsIndex:payloadHashsIndex+10])
-                            table = get_payloads_objtype_data(session, payloadHashs[payloadHashsIndex:payloadHashsIndex+cacheChunking])
+                            cacheChunking = safeChunkingSize
+                            queue = mp.Queue()
+                            p=mp.Process(target=external_process_get_payloads_objtype_data, args=(queue, args, payloadHashs[payloadHashsIndex:payloadHashsIndex+cacheChunking]))
+                            p.start()
+                            table = queue.get()
+                            p.join()
+                            #table = get_payloads_objtype_data(session, payloadHashs[payloadHashsIndex:payloadHashsIndex+cacheChunking])
                             #print(table)
                             payloadHashsIndex +=cacheChunking
                             for r in table:
@@ -456,6 +469,8 @@ def main():
                         objtype,data = payloadCache[i_p[1]]
                         print("  %i payload: %s size: %i"%(index,i_p[1],len(data)))
                         recordDataSize += len(data)
+                        if len(data) < 1000000:
+                            safeChunkingSize = 10
                         del payloadCache[i_p[1]]
                         ##print("  cacheSize:",len(payloadCache))
                         #pl = payloadsGroup.create_dataset(i_p[1], data=np.array([1],dtype='b'), compression='gzip')
