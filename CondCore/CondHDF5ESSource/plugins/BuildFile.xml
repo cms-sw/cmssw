@@ -1,0 +1,11 @@
+<environment>
+  <library file="*.cc" name = "CondCoreCondHDF5ESSource">
+    <flags EDM_PLUGIN="1"/>
+    <use name="boost"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="CondFormats/SerializationHelper"/>
+    <use name="hdf5-cpp"/>
+  </library>
+
+</environment>
