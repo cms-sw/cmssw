@@ -26,6 +26,7 @@
 #include "Record.h"
 #include "DataProduct.h"
 #include "h5_File.h"
+#include "Compression.h"
 
 // forward declarations
 namespace edm {
@@ -38,6 +39,7 @@ public:
                       std::unique_ptr<cond::serialization::SerializationHelperBase>,
                       cms::h5::File const* iFile,
                       std::string const& iFileName,
+                      cond::hdf5::Compression iCompression,
                       cond::hdf5::Record const* iRecord,
                       cond::hdf5::DataProduct const* iDataProduct);
   ~HDF5ProductResolver() final;
@@ -66,7 +68,8 @@ private:
                               std::size_t iMemSize,
                               const std::string& iType);
 
-  std::vector<char> decompress(std::vector<char>, std::size_t iMemSize) const;
+  std::vector<char> decompress_zlib(std::vector<char>, std::size_t iMemSize) const;
+  std::vector<char> decompress_lzma(std::vector<char>, std::size_t iMemSize) const;
   // ---------- member data --------------------------------
   edm::SerialTaskQueue* queue_;
   cond::serialization::unique_void_ptr data_;
@@ -75,6 +78,7 @@ private:
   std::string fileName_;
   cond::hdf5::Record const* record_;
   cond::hdf5::DataProduct const* dataProduct_;
+  cond::hdf5::Compression compression_;
 
   //temporaries
   uint64_t fileOffset_;

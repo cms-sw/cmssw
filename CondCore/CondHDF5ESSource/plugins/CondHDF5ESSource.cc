@@ -37,6 +37,7 @@
 #include "h5_Group.h"
 #include "h5_DataSet.h"
 #include "h5_Attribute.h"
+#include "Compression.h"
 
 using namespace cond::hdf5;
 
@@ -57,6 +58,7 @@ private:
   std::vector<Record> records_;
   std::string filename_;
   cms::h5::File file_;
+  Compression compression_ = Compression::kNone;
 };
 
 //
@@ -66,12 +68,28 @@ private:
 //
 // static data member definitions
 //
+namespace {
+  cond::hdf5::Compression nameToEnum(std::string const& iName) {
+    if (iName == "zlib") {
+      return Compression::kZLIB;
+    } else if (iName == "lzma") {
+      return Compression::kLZMA;
+    } else if (iName == "none") {
+      return Compression::kNone;
+    } else {
+      throw cms::Exception("BadCompressionType") << "unknown compression type used in file '" << iName << "'";
+    }
+    return Compression::kNone;
+  }
+}  // namespace
 
 //
 // constructors and destructor
 //
 CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
-    : filename_(iPSet.getUntrackedParameter<std::string>("filename")), file_(filename_, cms::h5::File::kReadOnly) {
+    : filename_(iPSet.getUntrackedParameter<std::string>("filename")),
+      file_(filename_, cms::h5::File::kReadOnly),
+      compression_(nameToEnum(file_.findAttribute("default_payload_compressor")->readString())) {
   const auto globalTagsGroup = file_.findGroup("GlobalTags");
   const auto chosenTag = globalTagsGroup->findGroup(iPSet.getParameter<std::string>("globalTag"));
   const auto tagsDataSet = chosenTag->findDataSet("Tags");
@@ -212,7 +230,8 @@ CondHDF5ESSource::KeyedResolversVector CondHDF5ESSource::registerResolvers(Event
     returnValue.emplace_back(
         edm::eventsetup::DataKey(edm::eventsetup::heterocontainer::HCTypeTag::findType(dataProduct.type_),
                                  dataProduct.name_.c_str()),
-        std::make_shared<HDF5ProductResolver>(&queue_, std::move(helper), &file_, filename_, &record, &dataProduct));
+        std::make_shared<HDF5ProductResolver>(
+            &queue_, std::move(helper), &file_, filename_, compression_, &record, &dataProduct));
   }
   return returnValue;
 }

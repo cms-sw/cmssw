@@ -9,6 +9,7 @@ import numpy as np
 import multiprocessing as mp
 from collections import OrderedDict
 
+from CondCore.CondHDF5ESSource.hdf5Writer import writeH5File
 import CondCore.Utilities.conddblib as conddb
 
 #Global tags hold a list of Tags
@@ -550,77 +551,24 @@ def main():
     parser.add_argument('--exclude', '-e', nargs='*', help = 'list of records to exclude from the file (can not be used with --include)')
     parser.add_argument('--include', '-i', nargs='*', help = 'lost of the only records that should be included in the file (can not be used with --exclude')
     parser.add_argument('--output', '-o', default='test.h5cond', help='name of hdf5 output file to write')
+    parser.add_argument('--compressor', '-c', default='zlib', choices =['zlib','lzma','none'], help="compress data using 'zlib', 'lzma' or 'none'")    
     args = parser.parse_args()
 
     if args.exclude and args.include:
         print("Can not use --exclude and --include at the same time")
         exit(-1)
 
-    #build using
-    #git grep --cached 'REGISTER_PLUGIN[^F]' | grep -v '\/scripts\/' | grep -v 'registration_macros.h' | grep -v 'HelperMacros.h' | awk -F '(' '{print $2}' | awk -F ')' '{print $1}' > record_to_type
-    #recordToType = {}
-    #with open("record_to_type", "r") as rtFile:
-    #    for l in rtFile:
-    #        values = l.split(',')
-    #        r =values[0]
-    #        t =values[1][1:].strip()
-    #        recordToType[r] = t
-
-    #what are key lists??? They seem to hold objects of type 'cond::persistency::KeyList'
-    # and have their own proxy type
-    keyListRecords = set(["ExDwarfListRcd", "DTKeyedConfigListRcd", "DTKeyedConfigContainerRcd"])
     connection = connect(args)
     session = connection.session()
 
-#    excludeRecords = {"BeamSpotObjectsRcd", "SimBeamSpotObjectsRcd", "BeamSpotOnlineHLTObjectsRcd", "BeamSpotOnlineLegacyObjectsRcd", "DTHVStatusRcd", "EcalLaserAPDPNRatiosRcd"}
     excludeRecords = set()
     if args.exclude:
         excludeRecords = set(args.exclude)
     includeRecords = set()
     if args.include:
         includeRecords = set(args.include)
-    
-    with h5py.File(args.output, 'w') as h5file:
-        recordsGroup = h5file.create_group("Records")
-        globalTagsGroup = h5file.create_group("GlobalTags")
-        null_dataset = h5file.create_dataset("null_payload", data=np.array([], dtype='b') )
-        tagGroupRefs = []
-        
-        for name in args.name:
-            gt = DBGlobalTag(args, session, name)
-            for tag in gt.tags():
-                rcd = tag.record()
-                if rcd in keyListRecords:
-                    continue
-                if rcd in excludeRecords:
-                    continue
-                if includeRecords and (not rcd in includeRecords):
-                    continue
-                recordDataSize = 0
-                
-                payloadToRefs = { None: null_dataset.ref}
-                
-                recordGroup = recordsGroup.create_group(rcd)
-                tagsGroup = recordGroup.create_group("Tags")
-                dataProductsGroup = recordGroup.create_group("DataProducts")
-                print("record: %s"%rcd)
-                for dataProduct in tag.dataProducts():
-                    dataProductGroup = dataProductsGroup.create_group(dataProduct.name())
-                    dataProductGroup.attrs["type"] = dataProduct.objtype().encode("ascii")
-                    payloadsGroup = dataProductGroup.create_group("Payloads")
-                    print(" product: %s"%dataProduct.name())
-                    for p_index, payload in enumerate(dataProduct.payloads()):
-                        print("  %i payload: %s size: %i"%(p_index,payload.name(),len(payload.data())))
-                        recordDataSize +=len(payload.data())
-                        pl = payloadsGroup.create_dataset(payload.name(), data=np.frombuffer(payload.data(),dtype='b'), compression='gzip')
-                        pl.attrs["type"] = canonicalProductName(payload.actualType())
-                        payloadToRefs[payload.name()] = pl.ref
-                        
-                tagGroupRefs.append(writeTag(tagsGroup, tag.time_type(), tag.iovsNPayloadNames(), payloadToRefs, tag.originalTagNames(), rcd))
-                print(" total size:",recordDataSize)
-                recordDataSize = 0
 
-            globalTagGroup = globalTagsGroup.create_group(name)
-            globalTagGroup.create_dataset("Tags", data=tagGroupRefs, dtype=h5py.ref_dtype)
+    writeH5File(args.output, args.name, excludeRecords, includeRecords, lambda x: DBGlobalTag(args, session,  x), args.compressor )
+    
 if __name__ == '__main__':
     main()

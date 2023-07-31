@@ -15,11 +15,14 @@
 #include <fstream>
 #include <cassert>
 #include "zlib.h"
+#include "lzma.h"
 
 // user include files
 #include "HDF5ProductResolver.h"
 #include "convertSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -41,6 +44,7 @@ HDF5ProductResolver::HDF5ProductResolver(edm::SerialTaskQueue* iQueue,
                                          std::unique_ptr<cond::serialization::SerializationHelperBase> iHelper,
                                          cms::h5::File const* iFile,
                                          std::string const& iFileName,
+                                         cond::hdf5::Compression iCompression,
                                          cond::hdf5::Record const* iRecord,
                                          cond::hdf5::DataProduct const* iDataProduct)
     : edm::eventsetup::ESSourceProductResolverBase(),
@@ -49,7 +53,8 @@ HDF5ProductResolver::HDF5ProductResolver(edm::SerialTaskQueue* iQueue,
       file_(iFile),
       fileName_(iFileName),
       record_(iRecord),
-      dataProduct_(iDataProduct) {}
+      dataProduct_(iDataProduct),
+      compression_(iCompression) {}
 
 // HDF5ProductResolver::HDF5ProductResolver(const HDF5ProductResolver& rhs)
 // {
@@ -69,9 +74,21 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
                                             edm::ServiceToken const&,
                                             edm::ESParentContext const& iParent) {
   prefetchAsyncImplTemplate(
-      [this, iov = iRecord.validityInterval()](auto& iGroup, auto iActivity) {
-        queue_->push(iGroup, [this, &iGroup, act = std::move(iActivity), iov] {
+      [this, iov = iRecord.validityInterval(), iParent, &iRecord](auto& iGroup, auto iActivity) {
+        queue_->push(iGroup, [this, &iGroup, act = std::move(iActivity), iov, iParent, &iRecord] {
           try {
+            edm::ESModuleCallingContext context(
+                providerDescription(), edm::ESModuleCallingContext::State::kRunning, iParent);
+            iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
+            struct EndGuard {
+              EndGuard(edm::eventsetup::EventSetupRecordImpl const& iRecord,
+                       edm::ESModuleCallingContext const& iContext)
+                  : record_{iRecord}, context_{iContext} {}
+              ~EndGuard() { record_.activityRegistry()->postESModuleSignal_.emit(record_.key(), context_); }
+              edm::eventsetup::EventSetupRecordImpl const& record_;
+              edm::ESModuleCallingContext const& context_;
+            } guardAR(iRecord, context);
+
             auto index = indexForInterval(iov);
 
             readFromHDF5api(index);
@@ -122,7 +139,7 @@ void HDF5ProductResolver::prefetch(edm::eventsetup::DataKey const& iKey, edm::Ev
   threadFriendlyPrefetch(fileOffset_, storageSize_, memSize_, type_);
 }
 
-std::vector<char> HDF5ProductResolver::decompress(std::vector<char> compressedBuffer, std::size_t iMemSize) const {
+std::vector<char> HDF5ProductResolver::decompress_zlib(std::vector<char> compressedBuffer, std::size_t iMemSize) const {
   std::vector<char> buffer;
   if (iMemSize == compressedBuffer.size()) {
     //memory was not compressed
@@ -155,6 +172,38 @@ std::vector<char> HDF5ProductResolver::decompress(std::vector<char> compressedBu
   return buffer;
 }
 
+std::vector<char> HDF5ProductResolver::decompress_lzma(std::vector<char> compressedBuffer, std::size_t iMemSize) const {
+  std::vector<char> buffer;
+  if (iMemSize == compressedBuffer.size()) {
+    //memory was not compressed
+    //std::cout <<"NOT COMPRESSED"<<std::endl;
+    buffer = std::move(compressedBuffer);
+  } else {
+    // code 'cribbed' from ROOT
+    lzma_stream stream = LZMA_STREAM_INIT;
+
+    auto returnStatus = lzma_stream_decoder(&stream, UINT64_MAX, 0U);
+    if (returnStatus != LZMA_OK) {
+      throw cms::Exception("H5CondFailedDecompress") << "failed to setup lzma";
+    }
+
+    stream.next_in = reinterpret_cast<uint8_t*>(compressedBuffer.data());
+    stream.avail_in = compressedBuffer.size();
+
+    buffer = std::vector<char>(iMemSize);
+    stream.next_out = reinterpret_cast<uint8_t*>(buffer.data());
+    stream.avail_out = buffer.size();
+
+    returnStatus = lzma_code(&stream, LZMA_FINISH);
+    lzma_end(&stream);
+    if (returnStatus != LZMA_STREAM_END) {
+      throw cms::Exception("H5CondFailedDecompress") << "failed to decompress buffer using lzma";
+    }
+    lzma_end(&stream);
+  }
+  return buffer;
+}
+
 void HDF5ProductResolver::threadFriendlyPrefetch(uint64_t iFileOffset,
                                                  std::size_t iStorageSize,
                                                  std::size_t iMemSize,
@@ -167,7 +216,14 @@ void HDF5ProductResolver::threadFriendlyPrefetch(uint64_t iFileOffset,
   file.seekg(iFileOffset);
   file.read(compressedBuffer.data(), compressedBuffer.size());
 
-  std::vector<char> buffer = decompress(std::move(compressedBuffer), iMemSize);
+  std::vector<char> buffer;
+  if (compression_ == cond::hdf5::Compression::kZLIB) {
+    buffer = decompress_zlib(std::move(compressedBuffer), iMemSize);
+  } else if (compression_ == cond::hdf5::Compression::kLZMA) {
+    buffer = decompress_lzma(std::move(compressedBuffer), iMemSize);
+  } else {
+    buffer = std::move(compressedBuffer);
+  }
 
   std::stringbuf sBuffer;
   sBuffer.pubsetbuf(&buffer[0], buffer.size());
