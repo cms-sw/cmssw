@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalEE.xml" eval="true">
+  <Constant name="Sep"      value="10.0*mm"/>
+  <Constant name="Zpos1"    value="([hgcal:zHGCalEE1]+[hgcal:ModuleThicknessEE]/2)"/>
+  <Constant name="Zpos2"    value="([Zpos1]+[Sep]+[hgcal:ModuleThicknessEE])"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalEE.xml" eval="true">
+  <Tubs name="HGCalEELayer" rMin="[hgcal:rHGCalEE1]" rMax="[hgcal:rHGCalEE2]" dz="0.5*[hgcal:ModuleThicknessEE]" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="hgcalEE.xml">
+  <LogicalPart name="HGCalEELayerF1" category="unspecified">
+    <rSolid name="HGCalEELayer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEELayerF2" category="unspecified">
+    <rSolid name="HGCalEELayer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalEE.xml">
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEELayerF1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[Zpos1]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEELayerF2"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[Zpos2]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcalEE:HGCalEELayerF1"/>
+   <rChild name="hgcalwafer:HGCalEEWafer06Coarse2"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcalEE:HGCalEELayerF2"/>
+   <rChild name="hgcalwafer:HGCalEEWafer06Coarse2"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

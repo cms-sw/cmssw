@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck_cfg.py type=V17 tol=0.01
+#   cmsRun g4OverlapCheck_cfg.py type=TB230FEB tol=0.01
 #
-#   Options for type V16, V17, V17ng, V18, Wafer, WaferFR, WaferPR
+#   Options for type TB230FEB, TB230Jul
 #               tol 1.0, 0.1, 0.01, 0.0
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('type',
-                 "V17",
+                 "TB230FEB",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V7ng, V18, Wafer, WaferFR, WaferPR")
+                  "type of operations: TB230FEB, TB230Jul")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -34,7 +34,7 @@ process = cms.Process("OverlapCheck",Phase2C17I13M9)
 
 ####################################################################
 # Use the options
-geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
+geomFile = "Geometry.HGCalTBCommonData.test" + options.type + "XML_cfi"
 outFile = "hgcal" + options.type + str(options.tol)
 
 print("Geometry file: ", geomFile)
@@ -42,19 +42,13 @@ print("Output file:   ", outFile)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load(geomFile)
-process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff')
-process.load('SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff')
-process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
-process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
-process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
-process.load('Geometry.MuonNumbering.muonGeometryConstants_cff')
-process.load('Geometry.MuonNumbering.muonOffsetESProducer_cff')
-process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff')
+process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
+process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')
 
 if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.SimG4CoreGeometry=dict()
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.DDCompactViewImpl=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
@@ -84,3 +78,4 @@ process.g4SimHits.FileNameField   = ''
 process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
+process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector']
