@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTowerMakerForAll = cms.EDProducer("CaloTowersCreator",
+hltPhase2TowerMakerForAll = cms.EDProducer("CaloTowersCreator",
     AllowMissingInputs = cms.bool(False),
     EBGrid = cms.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     EBSumThreshold = cms.double(0.2),
