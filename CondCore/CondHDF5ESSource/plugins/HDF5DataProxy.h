@@ -48,6 +48,14 @@ private:
   void prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails) final;
   void const* getAfterPrefetchImpl() const final;
 
+  std::ptrdiff_t indexForInterval(edm::ValidityInterval const& iIOV) const;
+
+  void threadFriendlyPrefetch(uint64_t iFileOffset,
+                              std::size_t iStorageSize,
+                              std::size_t iMemSize,
+                              const std::string& iType);
+
+  std::vector<char> decompress(std::vector<char>, std::size_t iMemSize) const;
   // ---------- member data --------------------------------
   cond::serialization::unique_void_ptr data_;
   std::unique_ptr<cond::serialization::SerializationHelperBase> helper_;

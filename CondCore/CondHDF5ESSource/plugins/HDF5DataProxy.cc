@@ -60,15 +60,18 @@ HDF5DataProxy::~HDF5DataProxy() {}
 //
 // member functions
 //
-void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
+std::ptrdiff_t HDF5DataProxy::indexForInterval(edm::ValidityInterval const& iIOV) const {
   using namespace cond::hdf5;
-  auto iov = iRecord.validityInterval();
-  auto firstSync = convertSyncValue(iov.first(), record_->iovIsRunLumi_);
+  auto firstSync = convertSyncValue(iIOV.first(), record_->iovIsRunLumi_);
 
   auto itFound = findMatchingFirst(record_->iovFirsts_, firstSync);
   assert(itFound != record_->iovFirsts_.end());
 
-  auto index = itFound - record_->iovFirsts_.begin();
+  return itFound - record_->iovFirsts_.begin();
+}
+
+void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
+  auto index = indexForInterval(iRecord.validityInterval());
 
   auto payloadRef = dataProduct_->payloadForIOVs_[index];
 
@@ -82,16 +85,12 @@ void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSet
   auto memSize = ds->findAttribute("memsize")->readUInt32();
   auto typeName = ds->findAttribute("type")->readString();
 
-  //Done interacting with the hdf5 API
+  threadFriendlyPrefetch(fileOffset, storageSize, memSize, typeName);
+}
 
-  //std::cout <<" prefetch "<<dataProduct_->fileOffsets_[index]<<" "<<dataProduct_->storageSizes_[index]<<" "<<memSize<<std::endl;
-  std::vector<char> compressedBuffer(storageSize);
-  std::fstream file(fileName_.c_str());
-  file.seekg(fileOffset);
-  file.read(compressedBuffer.data(), compressedBuffer.size());
-
+std::vector<char> HDF5DataProxy::decompress(std::vector<char> compressedBuffer, std::size_t iMemSize) const {
   std::vector<char> buffer;
-  if (memSize == compressedBuffer.size()) {
+  if (iMemSize == compressedBuffer.size()) {
     //memory was not compressed
     //std::cout <<"NOT COMPRESSED"<<std::endl;
     buffer = std::move(compressedBuffer);
@@ -109,7 +108,7 @@ void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSet
     strm.avail_in = compressedBuffer.size();
     strm.next_in = reinterpret_cast<unsigned char*>(compressedBuffer.data());
 
-    buffer = std::vector<char>(memSize);
+    buffer = std::vector<char>(iMemSize);
     strm.avail_out = buffer.size();
     strm.next_out = reinterpret_cast<unsigned char*>(buffer.data());
     ret = inflate(&strm, Z_FINISH);
@@ -119,15 +118,29 @@ void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSet
 
     (void)inflateEnd(&strm);
   }
+  return buffer;
+}
+
+void HDF5DataProxy::threadFriendlyPrefetch(uint64_t iFileOffset,
+                                           std::size_t iStorageSize,
+                                           std::size_t iMemSize,
+                                           const std::string& iTypeName) {
+  //Done interacting with the hdf5 API
+
+  //std::cout <<" prefetch "<<dataProduct_->fileOffsets_[index]<<" "<<dataProduct_->storageSizes_[index]<<" "<<memSize<<std::endl;
+  std::vector<char> compressedBuffer(iStorageSize);
+  std::fstream file(fileName_.c_str());
+  file.seekg(iFileOffset);
+  file.read(compressedBuffer.data(), compressedBuffer.size());
+
+  std::vector<char> buffer = decompress(std::move(compressedBuffer), iMemSize);
 
   std::stringbuf sBuffer;
   sBuffer.pubsetbuf(&buffer[0], buffer.size());
-  data_ = helper_->deserialize(sBuffer, typeName);
+  data_ = helper_->deserialize(sBuffer, iTypeName);
   if (data_.get() == nullptr) {
     throw cms::Exception("H5CondFailedDeserialization")
-        << "failed to deserialize " << iKey.type().name() << " buffer size:" << buffer.size() << " type: '" << typeName
-        << "'"
-        << " in " << iRecord.key().name() << std::endl;
+        << "failed to deserialize: buffer size:" << buffer.size() << " type: '" << iTypeName << "'";
   }
 }
 
