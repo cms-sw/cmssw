@@ -62,16 +62,16 @@ REGISTER_PLUGIN_INIT(SiPixelGainCalibrationForHLTRcd,
 REGISTER_PLUGIN_INIT(SiPixelGainCalibrationOfflineRcd,
                      SiPixelGainCalibrationOffline,
                      InitGains<SiPixelGainCalibrationOffline>);
-REGISTER_PLUGIN_INIT(SiPixelGainCalibrationForHLTSimRcd,
-                     SiPixelGainCalibrationForHLT,
-                     InitGains<SiPixelGainCalibrationForHLT>);
-REGISTER_PLUGIN_INIT(SiPixelGainCalibrationOfflineSimRcd,
-                     SiPixelGainCalibrationOffline,
-                     InitGains<SiPixelGainCalibrationOffline>);
+REGISTER_PLUGIN_NO_SERIAL_INIT(SiPixelGainCalibrationForHLTSimRcd,
+                               SiPixelGainCalibrationForHLT,
+                               InitGains<SiPixelGainCalibrationForHLT>);
+REGISTER_PLUGIN_NO_SERIAL_INIT(SiPixelGainCalibrationOfflineSimRcd,
+                               SiPixelGainCalibrationOffline,
+                               InitGains<SiPixelGainCalibrationOffline>);
 REGISTER_PLUGIN(SiPixelLorentzAngleRcd, SiPixelLorentzAngle);
-REGISTER_PLUGIN(SiPixelLorentzAngleSimRcd, SiPixelLorentzAngle);
+REGISTER_PLUGIN_NO_SERIAL(SiPixelLorentzAngleSimRcd, SiPixelLorentzAngle);
 REGISTER_PLUGIN(SiPixelVCalRcd, SiPixelVCal);
-REGISTER_PLUGIN(SiPixelVCalSimRcd, SiPixelVCal);
+REGISTER_PLUGIN_NO_SERIAL(SiPixelVCalSimRcd, SiPixelVCal);
 REGISTER_PLUGIN(SiPixelDynamicInefficiencyRcd, SiPixelDynamicInefficiency);
 REGISTER_PLUGIN(SiPixelCalibConfigurationRcd, SiPixelCalibConfiguration);
 REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd, SiPixelPerformanceSummary);

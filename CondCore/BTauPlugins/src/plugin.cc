@@ -17,7 +17,7 @@ using namespace PhysicsTools::Calibration;
 
 REGISTER_PLUGIN(CombinedTauTagRcd, CombinedTauTagCalibration);
 REGISTER_PLUGIN(BTauGenericMVAJetTagComputerRcd, MVAComputerContainer);
-REGISTER_PLUGIN(TauTagMVAComputerRcd, MVAComputerContainer);
+REGISTER_PLUGIN_NO_SERIAL(TauTagMVAComputerRcd, MVAComputerContainer);
 REGISTER_PLUGIN(BTagTrackProbability2DRcd, TrackProbabilityCalibration);
-REGISTER_PLUGIN(BTagTrackProbability3DRcd, TrackProbabilityCalibration);
+REGISTER_PLUGIN_NO_SERIAL(BTagTrackProbability3DRcd, TrackProbabilityCalibration);
 REGISTER_PLUGIN(BTagCalibrationRcd, BTagCalibration);

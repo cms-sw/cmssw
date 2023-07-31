@@ -126,7 +126,7 @@ namespace {
 
 REGISTER_PLUGIN(DTReadOutMappingRcd, DTReadOutMapping);
 REGISTER_PLUGIN(DTT0Rcd, DTT0);
-REGISTER_PLUGIN(DTT0RefRcd, DTT0);
+REGISTER_PLUGIN_NO_SERIAL(DTT0RefRcd, DTT0);
 REGISTER_PLUGIN_INIT(DTRangeT0Rcd, DTRangeT0, InitDTRangeT0);
 REGISTER_PLUGIN_INIT(DTTtrigRcd, DTTtrig, InitDTTtrig);
 REGISTER_PLUGIN_INIT(DTMtimeRcd, DTMtime, InitDTMtime);
@@ -142,5 +142,5 @@ REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd, cond::persistency::KeyList, DTKeye
 REGISTER_PLUGIN(DTRecoUncertaintiesRcd, DTRecoUncertainties);
 //New flexyble payloads for ttrig, vdrift, uncertainty
 REGISTER_PLUGIN(DTRecoConditionsTtrigRcd, DTRecoConditions);
-REGISTER_PLUGIN(DTRecoConditionsVdriftRcd, DTRecoConditions);
-REGISTER_PLUGIN(DTRecoConditionsUncertRcd, DTRecoConditions);
+REGISTER_PLUGIN_NO_SERIAL(DTRecoConditionsVdriftRcd, DTRecoConditions);
+REGISTER_PLUGIN_NO_SERIAL(DTRecoConditionsUncertRcd, DTRecoConditions);

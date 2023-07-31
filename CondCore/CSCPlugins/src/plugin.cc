@@ -80,6 +80,22 @@ namespace cond {
   }
 }  // namespace cond
 
+namespace cond::serialization {
+  template <>
+  struct BaseClassInfo<CSCReadoutMapping> {
+    constexpr static bool kAbstract = true;
+    using inheriting_classes_t = edm::mpl::Vector<CSCReadoutMappingFromFile>;
+  };
+
+  template <>
+  struct BaseClassInfo<CSCReadoutMappingForSliceTest> {
+    constexpr static bool kAbstract = true;
+    using inheriting_classes_t = edm::mpl::Vector<CSCReadoutMappingFromFile>;
+  };
+}  // namespace cond::serialization
+
+DEFINE_COND_CLASSNAME(CSCReadoutMappingFromFile)
+
 REGISTER_PLUGIN(CSCPedestalsRcd, CSCPedestals);
 REGISTER_PLUGIN(CSCDBPedestalsRcd, CSCDBPedestals);
 REGISTER_PLUGIN(CSCGainsRcd, CSCGains);

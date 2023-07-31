@@ -39,14 +39,14 @@ REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd, CTPPSPixelDAQMapping);
 REGISTER_PLUGIN(CTPPSPixelAnalysisMaskRcd, CTPPSPixelAnalysisMask);
 REGISTER_PLUGIN(CTPPSPixelGainCalibrationsRcd, CTPPSPixelGainCalibrations);
 REGISTER_PLUGIN(CTPPSRPAlignmentCorrectionsDataRcd, CTPPSRPAlignmentCorrectionsData);
-REGISTER_PLUGIN(RPRealAlignmentRecord, CTPPSRPAlignmentCorrectionsData);
-REGISTER_PLUGIN(RPMisalignedAlignmentRecord, CTPPSRPAlignmentCorrectionsData);
+REGISTER_PLUGIN_NO_SERIAL(RPRealAlignmentRecord, CTPPSRPAlignmentCorrectionsData);
+REGISTER_PLUGIN_NO_SERIAL(RPMisalignedAlignmentRecord, CTPPSRPAlignmentCorrectionsData);
 REGISTER_PLUGIN(PPSTimingCalibrationRcd, PPSTimingCalibration);
 REGISTER_PLUGIN(PPSTimingCalibrationLUTRcd, PPSTimingCalibrationLUT);
 REGISTER_PLUGIN(CTPPSOpticsRcd, LHCOpticalFunctionsSetCollection);
 REGISTER_PLUGIN(PPSDirectSimulationDataRcd, PPSDirectSimulationData);
 REGISTER_PLUGIN(PPSPixelTopologyRcd, PPSPixelTopology);
 REGISTER_PLUGIN(PPSAlignmentConfigRcd, PPSAlignmentConfig);
-REGISTER_PLUGIN(PPSAlignmentConfigurationRcd, PPSAlignmentConfiguration);
+REGISTER_PLUGIN_NO_SERIAL(PPSAlignmentConfigurationRcd, PPSAlignmentConfiguration);
 
 REGISTER_PLUGIN_INIT(PPSAssociationCutsRcd, PPSAssociationCuts, InitAssociationCuts);

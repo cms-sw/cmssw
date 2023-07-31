@@ -42,6 +42,13 @@ namespace cond {
 
 }  // namespace cond
 
+namespace cond::serialization {
+  template <>
+  std::unique_ptr<HcalCalibrationQIEData> makeClass<HcalCalibrationQIEData>() {
+    return std::make_unique<HcalCalibrationQIEData>(nullptr);
+  }
+}  // namespace cond::serialization
+
 namespace {
   struct InitHcalElectronicsMap {
     void operator()(HcalElectronicsMap& e) { e.initialize(); }

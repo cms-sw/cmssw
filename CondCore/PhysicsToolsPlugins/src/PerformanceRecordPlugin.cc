@@ -33,6 +33,19 @@ namespace {
   };
 }  // namespace
 
+namespace cond::serialization {
+  template <>
+  struct BaseClassInfo<PerformancePayload> {
+    constexpr static bool kAbstract = true;
+    using inheriting_classes_t = edm::mpl::
+        Vector<PerformancePayloadFromTFormula, PerformancePayloadFromBinnedTFormula, PerformancePayloadFromTable>;
+  };
+}  // namespace cond::serialization
+
+DEFINE_COND_CLASSNAME(PerformancePayloadFromTFormula)
+DEFINE_COND_CLASSNAME(PerformancePayloadFromBinnedTFormula)
+DEFINE_COND_CLASSNAME(PerformancePayloadFromTable)
+
 REGISTER_PLUGIN_INIT(PerformancePayloadRecord, PerformancePayload, InitPerformancePayload);
 REGISTER_PLUGIN(PerformanceWPRecord, PerformanceWorkingPoint);
-REGISTER_PLUGIN_INIT(PFCalibrationRcd, PerformancePayload, InitPerformancePayload);
+REGISTER_PLUGIN_NO_SERIAL_INIT(PFCalibrationRcd, PerformancePayload, InitPerformancePayload);
