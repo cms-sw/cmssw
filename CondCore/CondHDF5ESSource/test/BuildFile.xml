@@ -1,4 +1,5 @@
 <bin file="test_catch2_*.cc" name="testCondCoreCondHDF5ESSource">
   <use name="FWCore/Framework"/>
   <use name="catch2"/>
+  <use name="hdf5"/>
 </bin>
