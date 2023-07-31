@@ -17,7 +17,7 @@ from ..modules.initialStepTrackCandidates_cfi import *
 from ..modules.initialStepTrackCutClassifier_cfi import *
 from ..modules.initialStepTrackSelectionHighPurity_cfi import *
 from ..modules.initialStepTracks_cfi import *
-from ..modules.pixelFitterByHelixProjections_cfi import *
+from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.pixelTrackFilterByKinematics_cfi import *
 from ..modules.pixelTracksHitDoublets_cfi import *
 from ..modules.pixelTracksHitSeeds_cfi import *
@@ -51,7 +51,7 @@ HLTTrackingV61Task = cms.Task(
     initialStepTrackCutClassifier,
     initialStepTrackSelectionHighPurity,
     initialStepTracks,
-    pixelFitterByHelixProjections,
+    hltPhase2PixelFitterByHelixProjections,
     pixelTrackFilterByKinematics,
     pixelTracks,
     pixelTracksHitDoublets,
