@@ -51,6 +51,11 @@ namespace cms::h5 {
     std::vector<char> readBytes() const;
     std::vector<cond::hdf5::IOVSyncValue> readSyncValues() const;
 
+    std::size_t storageSize() const;
+    std::size_t memorySize() const;
+    uint64_t fileOffset() const;
+    uint32_t layout() const;
+
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------

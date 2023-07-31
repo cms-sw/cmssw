@@ -96,6 +96,17 @@ namespace cms::h5 {
     return num_elements;
   }
 
+  std::size_t DataSet::storageSize() const { return H5Dget_storage_size(id_); }
+  std::size_t DataSet::memorySize() const { return size(); }
+  uint64_t DataSet::fileOffset() const { return H5Dget_offset(id_); }
+
+  uint32_t DataSet::layout() const {
+    auto pl = H5Dget_create_plist(id_);
+    auto ret = H5Pget_layout(pl);
+    H5Pclose(pl);
+    return ret;
+  }
+
   std::vector<hobj_ref_t> DataSet::readRefs() const {
     Type type_id{H5Dget_type(id_)};
     auto class_type = H5Tget_class(type_id.id_);

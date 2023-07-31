@@ -38,6 +38,7 @@ namespace cms::h5 {
 
     // ---------- const member functions ---------------------
     std::string readString() const;
+    uint32_t readUInt32() const;
 
     // ---------- static member functions --------------------
 

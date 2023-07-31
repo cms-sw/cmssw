@@ -83,6 +83,17 @@ namespace cms::h5 {
     return strg;
   }
 
+  uint32_t Attribute::readUInt32() const {
+    unsigned int ret;
+    // Read attribute, no allocation for variable-len string; C library will
+    herr_t ret_value = H5Aread(id_, H5T_NATIVE_UINT, &ret);
+
+    if (ret_value < 0) {
+      throw cms::Exception("H5AttributeReadStrinFailed") << " failed to read unsigned int from attribute";
+    }
+    return ret;
+  }
+
   //
   // static member functions
   //
