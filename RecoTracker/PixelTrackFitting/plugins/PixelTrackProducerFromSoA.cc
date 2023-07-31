@@ -175,8 +175,12 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
   //sort index by pt
   std::vector<int32_t> sortIdxs(nTracks);
   std::iota(sortIdxs.begin(), sortIdxs.end(), 0);
+  //sort good-quality tracks by pt, keep bad-quality tracks in the bottom
   std::sort(sortIdxs.begin(), sortIdxs.end(), [&](int32_t const i1, int32_t const i2) {
-    return tsoa.view()[i1].pt() > tsoa.view()[i2].pt();
+    if (quality[i1] >= minQuality_ && quality[i2] >= minQuality_)
+      return tsoa.view()[i1].pt() > tsoa.view()[i2].pt();
+    else
+      return quality[i1] > quality[i2];
   });
 
   //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
