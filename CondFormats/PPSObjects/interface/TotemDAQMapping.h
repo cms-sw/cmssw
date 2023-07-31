@@ -16,6 +16,7 @@
 #include "CondFormats/PPSObjects/interface/TotemSymbId.h"
 
 #include <map>
+#include <cstdint>
 
 //----------------------------------------------------------------------------------------------------
 
