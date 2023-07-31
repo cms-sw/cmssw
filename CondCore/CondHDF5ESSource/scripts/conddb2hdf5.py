@@ -147,7 +147,7 @@ def parseSince(time_type, since):
     if time_type == conddb.TimeType.Time.value:
         return (_high(since), _low(since))
     if time_type == conddb.TimeType.Run.value:
-        return (int(since), 0)
+        return (_high(since), 0)
     if time_type == conddb.TimeType.Lumi.value:
         return (_high(since), _low(since))
 
@@ -205,7 +205,15 @@ def tagInfo(session, name, snapshot):
             if lastSince == since:
                 continue
             lastSince = since
+            if time_type == conddb.TimeType.Run.value:
+                #need to make Run and RunLumi directly comparable since some records
+                # use a mix of the two for their IOVs
+                since = int(since) << 32
             filteredTagInfo.append((since,payload))
+
+        if time_type == conddb.TimeType.Run.value:
+            time_type = conddb.TimeType.Lumi.value
+
         return time_type, filteredTagInfo
 #                     [sinceLabel, 'Insertion Time', 'Payload', 'Object Type'],
 #                     filters = [_since_filter(time_type), None, None, None],
@@ -219,6 +227,7 @@ def _checkMerge(previousIOV, newIOV, debugCopy, nExistingDataProducts):
         if len(e[1]) != nExistingDataProducts+1:
             raise RuntimeError("entry %i has wrong number of elements %i instead of %i"%(i,len(e[1]),nExistingDataProducts+1))
         if previousSince >= e[0]:
+            #print(previousIOV,newIOV)
             raise RuntimeError("IOV not in order for index %i"%i)
         previousSince = e[0]
 
@@ -341,6 +350,34 @@ def writeTag(tagsGroup, time_type, IOV_payloads, payloadToRefs, originalTagNames
 def recordToType(record):
     import subprocess
     return subprocess.run(["condRecordToDataProduct",record], capture_output = True, check=True, text=True).stdout
+
+__typedefs = {b"ESCondObjectContainer<ESPedestal>":"ESPedestals",
+              b"ESCondObjectContainer<float>":"ESFloatCondObjectContainer",
+              b"ESCondObjectContainer<ESChannelStatusCode>":"ESChannelStatus",
+              b"EcalCondObjectContainer<EcalPedestal>":"EcalPedestals",
+              b"EcalCondObjectContainer<EcalXtalGroupId>":"EcalWeightXtalGroups",
+              b"EcalCondObjectContainer<EcalMGPAGainRatio>":"EcalGainRatios",
+              b"EcalCondObjectContainer<float>":"EcalFloatCondObjectContainer",
+              b"EcalCondObjectContainer<EcalChannelStatusCode>":"EcalChannelStatus",
+              b"EcalCondObjectContainer<EcalMappingElement>":"EcalMappingElectronics",
+              b"EcalCondObjectContainer<EcalTPGPedestal>":"EcalTPGPedestals",
+              b"EcalCondObjectContainer<EcalTPGLinearizationConstant>":"EcalTPGLinearizationConst",
+              b"EcalCondObjectContainer<EcalTPGCrystalStatusCode>":"EcalTPGCrystalStatus",
+              b"EcalCondTowerObjectContainer<EcalChannelStatusCode>":"EcalDCSTowerStatus",
+              b"EcalCondTowerObjectContainer<EcalDAQStatusCode>":"EcalDAQTowerStatus",
+              b"EcalCondObjectContainer<EcalDQMStatusCode>":"EcalDQMChannelStatus",
+              b"EcalCondTowerObjectContainer<EcalDQMStatusCode>":"EcalDQMTowerStatus",
+              b"EcalCondObjectContainer<EcalPulseShape>":"EcalPulseShapes",
+              b"EcalCondObjectContainer<EcalPulseCovariance>":"EcalPulseCovariances",
+              b"EcalCondObjectContainer<EcalPulseSymmCovariance>":"EcalPulseSymmCovariances",
+              b"HcalItemCollById<HFPhase1PMTData>": "HFPhase1PMTParams",
+              b"l1t::CaloParams":"CaloParams",
+              b"StorableDoubleMap<AbsOOTPileupCorrection>":"OOTPileupCorrectionMapColl",
+              b"PhysicsTools::Calibration::Histogram3D<double,double,double,double>":"PhysicsTools::Calibration::HistogramD3D",
+              b"PhysicsTools::Calibration::MVAComputerContainer":"MVAComputerContainer"
+}
+def canonicalProductName(product):
+    return __typedefs.get(product,product)
 
 def main():
     parser = argparse.ArgumentParser(description='Read from CMS Condition DB and write to HDF5 file')
@@ -475,7 +512,7 @@ def main():
                         ##print("  cacheSize:",len(payloadCache))
                         #pl = payloadsGroup.create_dataset(i_p[1], data=np.array([1],dtype='b'), compression='gzip')
                         pl = payloadsGroup.create_dataset(i_p[1], data=np.frombuffer(data,dtype='b'), compression='gzip')
-                        pl.attrs["type"] = objtype.encode("ascii")
+                        pl.attrs["type"] = canonicalProductName(objtype.encode("ascii"))
                         payloadToRefs[i_p[1]] = pl.ref
                 
                 if not lastIOV:
