@@ -178,12 +178,12 @@
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 #include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
 
-REGISTER_PLUGIN(EcalPedestalsRcd, EcalPedestals); //is EcalCondObjectContainer<EcalPedestal>
-REGISTER_PLUGIN(EcalWeightXtalGroupsRcd, EcalWeightXtalGroups); // is EcalCondObjectContainer<EcalXtalGroupId>
+REGISTER_PLUGIN(EcalPedestalsRcd, EcalPedestals);                //is EcalCondObjectContainer<EcalPedestal>
+REGISTER_PLUGIN(EcalWeightXtalGroupsRcd, EcalWeightXtalGroups);  // is EcalCondObjectContainer<EcalXtalGroupId>
 REGISTER_PLUGIN(EcalTBWeightsRcd, EcalTBWeights);
-REGISTER_PLUGIN(EcalGainRatiosRcd, EcalGainRatios); // is EcalCondObjectContainer<EcalMGPAGainRatio>
+REGISTER_PLUGIN(EcalGainRatiosRcd, EcalGainRatios);  // is EcalCondObjectContainer<EcalMGPAGainRatio>
 REGISTER_PLUGIN(EcalLinearCorrectionsRcd, EcalTimeDependentCorrections);
-REGISTER_PLUGIN(EcalIntercalibConstantsRcd, EcalFloatCondObjectContainer); //is EcalCondObjectContainer<float>
+REGISTER_PLUGIN(EcalIntercalibConstantsRcd, EcalFloatCondObjectContainer);  //is EcalCondObjectContainer<float>
 REGISTER_PLUGIN_NO_SERIAL(EcalIntercalibConstantsMCRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN_NO_SERIAL(EcalTimeCalibConstantsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN_NO_SERIAL(EcalTimeCalibErrorsRcd, EcalCondObjectContainer<float>);
@@ -194,7 +194,7 @@ REGISTER_PLUGIN_NO_SERIAL(EcalLaserAlphasRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd, EcalLaserAPDPNRatios);
 REGISTER_PLUGIN_NO_SERIAL(EcalLaserAPDPNRatiosMCRcd, EcalLaserAPDPNRatios);
 REGISTER_PLUGIN_NO_SERIAL(EcalLaserAPDPNRatiosRefRcd, EcalCondObjectContainer<float>);
-REGISTER_PLUGIN(EcalChannelStatusRcd, EcalChannelStatus); //is EcalCondObjectContainer<EcalChannelStatusCode>
+REGISTER_PLUGIN(EcalChannelStatusRcd, EcalChannelStatus);  //is EcalCondObjectContainer<EcalChannelStatusCode>
 REGISTER_PLUGIN_NO_SERIAL(EcalPFRecHitThresholdsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN_NO_SERIAL(EcalPFSeedingThresholdsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalClusterCrackCorrParametersRcd, EcalFunParams);
@@ -206,14 +206,15 @@ REGISTER_PLUGIN_NO_SERIAL(EcalClusterEnergyCorrectionObjectSpecificParametersRcd
 REGISTER_PLUGIN(EcalSimPulseShapeRcd, EcalSimPulseShape);
 REGISTER_PLUGIN(EcalSimComponentShapeRcd, EcalSimComponentShape);
 
-REGISTER_PLUGIN(EcalMappingElectronicsRcd, EcalMappingElectronics); //is EcalCondObjectContainer<EcalMappingElement>
+REGISTER_PLUGIN(EcalMappingElectronicsRcd, EcalMappingElectronics);  //is EcalCondObjectContainer<EcalMappingElement>
 
-REGISTER_PLUGIN(EcalTPGPedestalsRcd, EcalTPGPedestals); //is EcalCondObjectContainer<EcalTPGPedestal>
+REGISTER_PLUGIN(EcalTPGPedestalsRcd, EcalTPGPedestals);  //is EcalCondObjectContainer<EcalTPGPedestal>
 REGISTER_PLUGIN(EcalTPGFineGrainEBGroupRcd, EcalTPGFineGrainEBGroup);
 REGISTER_PLUGIN(EcalTPGFineGrainEBIdMapRcd, EcalTPGFineGrainEBIdMap);
 REGISTER_PLUGIN(EcalTPGFineGrainStripEERcd, EcalTPGFineGrainStripEE);
 REGISTER_PLUGIN(EcalTPGFineGrainTowerEERcd, EcalTPGFineGrainTowerEE);
-REGISTER_PLUGIN(EcalTPGLinearizationConstRcd, EcalTPGLinearizationConst);// is EcalCondObjectContainer<EcalTPGLinearizationConstant>
+REGISTER_PLUGIN(EcalTPGLinearizationConstRcd,
+                EcalTPGLinearizationConst);  // is EcalCondObjectContainer<EcalTPGLinearizationConstant>
 REGISTER_PLUGIN(EcalTPGLutGroupRcd, EcalTPGLutGroup);
 REGISTER_PLUGIN(EcalTPGLutIdMapRcd, EcalTPGLutIdMap);
 REGISTER_PLUGIN(EcalTPGPhysicsConstRcd, EcalTPGPhysicsConst);
@@ -225,16 +226,16 @@ REGISTER_PLUGIN(EcalTPGOddWeightIdMapRcd, EcalTPGOddWeightIdMap);
 
 REGISTER_PLUGIN(EcalTPGTPModeRcd, EcalTPGTPMode);
 
-REGISTER_PLUGIN(EcalTPGCrystalStatusRcd, EcalTPGCrystalStatus); // is EcalCondObjectContainer<EcalTPGCrystalStatusCode>
+REGISTER_PLUGIN(EcalTPGCrystalStatusRcd, EcalTPGCrystalStatus);  // is EcalCondObjectContainer<EcalTPGCrystalStatusCode>
 REGISTER_PLUGIN(EcalTPGTowerStatusRcd, EcalTPGTowerStatus);
 REGISTER_PLUGIN(EcalTPGStripStatusRcd, EcalTPGStripStatus);
 REGISTER_PLUGIN(EcalTPGSpikeRcd, EcalTPGSpike);
 
-REGISTER_PLUGIN(EcalDCSTowerStatusRcd,EcalDCSTowerStatus); // is EcalCondTowerObjectContainer<EcalChannelStatusCode>
-REGISTER_PLUGIN(EcalDAQTowerStatusRcd, EcalDAQTowerStatus); // is EcalCondTowerObjectContainer<EcalDAQStatusCode>
+REGISTER_PLUGIN(EcalDCSTowerStatusRcd, EcalDCSTowerStatus);  // is EcalCondTowerObjectContainer<EcalChannelStatusCode>
+REGISTER_PLUGIN(EcalDAQTowerStatusRcd, EcalDAQTowerStatus);  // is EcalCondTowerObjectContainer<EcalDAQStatusCode>
 
-REGISTER_PLUGIN(EcalDQMChannelStatusRcd, EcalDQMChannelStatus); // is EcalCondObjectContainer<EcalDQMStatusCode>
-REGISTER_PLUGIN(EcalDQMTowerStatusRcd, EcalDQMTowerStatus); // is EcalCondTowerObjectContainer<EcalDQMStatusCode>
+REGISTER_PLUGIN(EcalDQMChannelStatusRcd, EcalDQMChannelStatus);  // is EcalCondObjectContainer<EcalDQMStatusCode>
+REGISTER_PLUGIN(EcalDQMTowerStatusRcd, EcalDQMTowerStatus);      // is EcalCondTowerObjectContainer<EcalDQMStatusCode>
 
 REGISTER_PLUGIN(EcalSRSettingsRcd, EcalSRSettings);
 REGISTER_PLUGIN(EcalSampleMaskRcd, EcalSampleMask);
@@ -242,9 +243,10 @@ REGISTER_PLUGIN(EcalSampleMaskRcd, EcalSampleMask);
 REGISTER_PLUGIN(EcalTimeBiasCorrectionsRcd, EcalTimeBiasCorrections);
 
 REGISTER_PLUGIN(EcalSamplesCorrelationRcd, EcalSamplesCorrelation);
-REGISTER_PLUGIN(EcalPulseShapesRcd, EcalPulseShapes); //is EcalCondObjectContainer<EcalPulseShape>
-REGISTER_PLUGIN(EcalPulseCovariancesRcd, EcalPulseCovariances); //is EcalCondObjectContainer<EcalPulseCovariance>
-REGISTER_PLUGIN(EcalPulseSymmCovariancesRcd, EcalPulseSymmCovariances); //is EcalCondObjectContainer<EcalPulseSymmCovariance>
+REGISTER_PLUGIN(EcalPulseShapesRcd, EcalPulseShapes);            //is EcalCondObjectContainer<EcalPulseShape>
+REGISTER_PLUGIN(EcalPulseCovariancesRcd, EcalPulseCovariances);  //is EcalCondObjectContainer<EcalPulseCovariance>
+REGISTER_PLUGIN(EcalPulseSymmCovariancesRcd,
+                EcalPulseSymmCovariances);  //is EcalCondObjectContainer<EcalPulseSymmCovariance>
 
 REGISTER_PLUGIN(EcalMustacheSCParametersRcd, EcalMustacheSCParameters);
 REGISTER_PLUGIN(EcalSCDynamicDPhiParametersRcd, EcalSCDynamicDPhiParameters);

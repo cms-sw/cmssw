@@ -46,9 +46,13 @@
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 
 REGISTER_PLUGIN(ESGainRcd, ESGain);
-REGISTER_PLUGIN(ESPedestalsRcd, ESPedestals); //is ESCondObjectContainer<ESPedestal> but needs to match name registered with EventSetup system
+REGISTER_PLUGIN(
+    ESPedestalsRcd,
+    ESPedestals);  //is ESCondObjectContainer<ESPedestal> but needs to match name registered with EventSetup system
 REGISTER_PLUGIN(ESTimeSampleWeightsRcd, ESTimeSampleWeights);
-REGISTER_PLUGIN(ESIntercalibConstantsRcd, ESFloatCondObjectContainer); //is ESCondObjectContainer<float> but needs to match name registered with EventSetup system
+REGISTER_PLUGIN(
+    ESIntercalibConstantsRcd,
+    ESFloatCondObjectContainer);  //is ESCondObjectContainer<float> but needs to match name registered with EventSetup system
 REGISTER_PLUGIN_NO_SERIAL(ESAngleCorrectionFactorsRcd, ESCondObjectContainer<float>);
 REGISTER_PLUGIN(ESADCToGeVConstantRcd, ESADCToGeVConstant);
 REGISTER_PLUGIN(ESMIPToGeVConstantRcd, ESMIPToGeVConstant);
@@ -56,4 +60,6 @@ REGISTER_PLUGIN(ESThresholdsRcd, ESThresholds);
 REGISTER_PLUGIN(ESEEIntercalibConstantsRcd, ESEEIntercalibConstants);
 REGISTER_PLUGIN(ESMissingEnergyCalibrationRcd, ESMissingEnergyCalibration);
 REGISTER_PLUGIN(ESRecHitRatioCutsRcd, ESRecHitRatioCuts);
-REGISTER_PLUGIN(ESChannelStatusRcd, ESChannelStatus); //is ESCondObjectContainer<ESChannelStatusCode> but needs to match name registered with EventSetup system
+REGISTER_PLUGIN(
+    ESChannelStatusRcd,
+    ESChannelStatus);  //is ESCondObjectContainer<ESChannelStatusCode> but needs to match name registered with EventSetup system
