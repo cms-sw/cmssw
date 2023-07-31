@@ -2,6 +2,9 @@ import re
 import subprocess
 import FWCore.ParameterSet.Config as cms
 
+# Script which reads data from DB/XML and writes them to file
+# Run with python3
+
 diamonds = {
   "dbConnect": "sqlite_file:CTPPSDiamondsScript_DAQMapping.db",
   "outputFileName": "all_diamonds",
@@ -122,8 +125,8 @@ totem_timing = {
 
 #-----------------------------------------------------------------
 
-files_to_read = [totem_timing]  
-from_db = True
+files_to_read = [diamonds]  
+from_db = False
 
 
 for file_content in files_to_read:

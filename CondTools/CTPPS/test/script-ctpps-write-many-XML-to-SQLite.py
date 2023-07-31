@@ -2,6 +2,9 @@ import re
 import subprocess
 import FWCore.ParameterSet.Config as cms
 
+# Script which reads data from XML and drops objects to SQLite
+# Run with python3
+
 diamonds = {
   "dbConnect": "sqlite_file:CTPPSDiamondsScript_DAQMapping.db",
   "subSystemName" : "TimingDiamond",

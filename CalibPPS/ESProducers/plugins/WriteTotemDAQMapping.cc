@@ -53,7 +53,7 @@ void WriteTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es
     for (const auto &p : mapping.VFATMapping)
       outStream << p.first << " -> " << p.second;
     for (const auto &p : mapping.totemTimingChannelMap)
-      outStream << p.first << " plane " << p.second.plane << " channel " << p.second.channel << endl;
+      outStream << p.first << " plane " << p.second.plane << " channel " << p.second.channel << std::endl;
 
   } else {
     edm::LogError("WriteTotemDAQMapping mapping") << "No mapping found";
@@ -65,7 +65,7 @@ void WriteTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es
 
     for (const auto &p : analysisMask.analysisMask)
       outStream << p.first << ": fullMask=" << p.second.fullMask
-                                                << ", number of masked channels " << p.second.maskedChannels.size() << endl;
+                                                << ", number of masked channels " << p.second.maskedChannels.size() << std::endl;
   } else {
     edm::LogError("WriteTotemDAQMapping mask") << "No analysis mask found";
   }
