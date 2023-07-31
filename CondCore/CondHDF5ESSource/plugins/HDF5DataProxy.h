@@ -19,13 +19,13 @@
 //
 
 // system include files
-#include <H5Cpp.h>
 
 // user include files
 #include "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
 #include "CondFormats/SerializationHelper/interface/SerializationHelperBase.h"
 #include "Record.h"
 #include "DataProduct.h"
+#include "h5_File.h"
 
 // forward declarations
 
@@ -34,7 +34,7 @@ public:
   HDF5DataProxy(edm::SerialTaskQueue* iQueue,
                 std::mutex* iMutex,
                 std::unique_ptr<cond::serialization::SerializationHelperBase>,
-                H5::H5File* iFile,
+                cms::h5::File* iFile,
                 cond::hdf5::Record const* iRecord,
                 cond::hdf5::DataProduct const* iDataProduct);
   ~HDF5DataProxy() final;
@@ -50,7 +50,7 @@ private:
   // ---------- member data --------------------------------
   cond::serialization::unique_void_ptr data_;
   std::unique_ptr<cond::serialization::SerializationHelperBase> helper_;
-  H5::H5File* file_;
+  cms::h5::File* file_;
   cond::hdf5::Record const* record_;
   cond::hdf5::DataProduct const* dataProduct_;
 };

@@ -5,7 +5,7 @@
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="CondFormats/SerializationHelper"/>
-    <use name="hdf5-cpp"/>
+    <use name="hdf5"/>
   </library>
 
 </environment>

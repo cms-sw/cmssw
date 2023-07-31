@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include <H5Cpp.h>
 #include <cassert>
 #include <iostream>
 
@@ -34,6 +33,10 @@
 #include "Record.h"
 #include "HDF5DataProxy.h"
 #include "convertSyncValue.h"
+#include "h5_File.h"
+#include "h5_Group.h"
+#include "h5_DataSet.h"
+#include "h5_Attribute.h"
 
 namespace {
   inline hid_t string_type() {
@@ -63,7 +66,7 @@ private:
   std::mutex mutex_;
   std::vector<Record> records_;
   std::string filename_;
-  H5::H5File file_;
+  cms::h5::File file_;
 };
 
 //
@@ -78,23 +81,13 @@ private:
 // constructors and destructor
 //
 CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
-    : filename_(iPSet.getUntrackedParameter<std::string>("filename")), file_(filename_, H5F_ACC_RDONLY) {
-  const auto globalTagsGroup = file_.openGroup("GlobalTags");
-  const auto chosenTag = globalTagsGroup.openGroup(iPSet.getParameter<std::string>("globalTag"));
-  const auto tagsDataSet = chosenTag.openDataSet("Tags");
-  const auto recordsGroup = file_.openGroup("Records");
+    : filename_(iPSet.getUntrackedParameter<std::string>("filename")), file_(filename_, cms::h5::File::kReadOnly) {
+  const auto globalTagsGroup = file_.findGroup("GlobalTags");
+  const auto chosenTag = globalTagsGroup->findGroup(iPSet.getParameter<std::string>("globalTag"));
+  const auto tagsDataSet = chosenTag->findDataSet("Tags");
+  const auto recordsGroup = file_.findGroup("Records");
 
-  std::vector<hobj_ref_t> tags;
-  {
-    const auto tagsDataSpace = tagsDataSet.getSpace();
-    assert(tagsDataSpace.isSimple());
-    assert(tagsDataSpace.getSimpleExtentNdims() == 1);
-    hsize_t size[1];
-    tagsDataSpace.getSimpleExtentDims(size);
-    tags.resize(size[0]);
-  }
-
-  tagsDataSet.read(&tags[0], H5::PredType::STD_REF_OBJ);
+  std::vector<hobj_ref_t> tags = tagsDataSet->readRefs();
 
   std::set<std::string> recordsToExclude;
   {
@@ -103,9 +96,8 @@ CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
   }
 
   for (auto t : tags) {
-    assert(file_.getRefObjType(&t) == H5O_TYPE_GROUP);
-    H5::Group tagGroup(file_, &t);
-    std::string n = tagGroup.getObjName();
+    auto tagGroup = file_.derefGroup(t);
+    std::string n = tagGroup->name();
     Record record;
 
     assert(n.substr(0, 9) == "/Records/");
@@ -118,20 +110,18 @@ CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
       continue;
     }
 
-    H5::Group recordGroup = recordsGroup.openGroup(record.name_);
+    auto recordGroup = recordsGroup->findGroup(record.name_);
     //std::cout << "found record group" << std::endl;
-    H5::Group dataProductsGroup = recordGroup.openGroup("DataProducts");
+    auto dataProductsGroup = recordGroup->findGroup("DataProducts");
     //std::cout << "found DataProducts group" << std::endl;
 
-    for (size_t i = 0; i < dataProductsGroup.getNumObjs(); ++i) {
-      std::string productGroupName = dataProductsGroup.getObjnameByIdx(i);
+    for (size_t i = 0; i < dataProductsGroup->getNumObjs(); ++i) {
+      std::string productGroupName = dataProductsGroup->getObjnameByIdx(i);
       //std::cout << "looking for " << productGroupName << std::endl;
-      H5::Group dataProductGroup = dataProductsGroup.openGroup(productGroupName);
+      auto dataProductGroup = dataProductsGroup->findGroup(productGroupName);
 
-      auto const typeAttr = dataProductGroup.openAttribute("type");
-      H5::StrType str_type(H5::PredType::C_S1, H5T_VARIABLE);
-      std::string typeName;
-      typeAttr.read(str_type, typeName);
+      auto const typeAttr = dataProductGroup->findAttribute("type");
+      std::string typeName = typeAttr->readString();
       //loading the factory should also trigger registering the Record and DataProduct keys
       cond::serialization::SerializationHelperFactory::get()->create(typeName);
       std::string name = productGroupName.substr(typeName.size() + 1, productGroupName.size());
@@ -142,49 +132,23 @@ CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
     }
 
     {
-      auto const typeAttr = tagGroup.openAttribute("time_type");
-      H5::StrType str_type(H5::PredType::C_S1, H5T_VARIABLE);
-      std::string typeName;
-      typeAttr.read(str_type, typeName);
+      auto const typeAttr = tagGroup->findAttribute("time_type");
+      std::string typeName = typeAttr->readString();
       record.iovIsRunLumi_ = (typeName == "run_lumi");
     }
 
     std::vector<hobj_ref_t> payloadRefForIOVs;
     {
-      auto const firstDataSet = tagGroup.openDataSet("first");
-      auto const lastDataSet = tagGroup.openDataSet("last");
-      assert(firstDataSet.getSpace().isSimple());
-      assert(lastDataSet.getSpace().isSimple());
-      assert(firstDataSet.getSpace().getSimpleExtentNdims() == 1);
-      assert(lastDataSet.getSpace().getSimpleExtentNdims() == 1);
+      auto const firstDataSet = tagGroup->findDataSet("first");
+      auto const lastDataSet = tagGroup->findDataSet("last");
 
-      hsize_t size[1];
-      firstDataSet.getSpace().getSimpleExtentDims(size);
-      {
-        hsize_t sizeL[1];
-        lastDataSet.getSpace().getSimpleExtentDims(sizeL);
-        assert(sizeL[0] == size[0]);
-      }
-
-      H5::CompType syncValueType(sizeof(IOVSyncValue));
-      syncValueType.insertMember("high", HOFFSET(IOVSyncValue, high_), H5::PredType::NATIVE_UINT32);
-      syncValueType.insertMember("low", HOFFSET(IOVSyncValue, low_), H5::PredType::NATIVE_UINT32);
-
-      record.iovFirsts_.resize(size[0]);
-      record.iovLasts_.resize(size[0]);
-
-      firstDataSet.read(&record.iovFirsts_[0], syncValueType);
-      lastDataSet.read(&record.iovLasts_[0], syncValueType);
+      record.iovFirsts_ = firstDataSet->readSyncValues();
+      record.iovLasts_ = lastDataSet->readSyncValues();
 
       {
-        hsize_t refSize[2];
-        auto const payloadDataSet = tagGroup.openDataSet("payload");
-        payloadDataSet.getSpace().getSimpleExtentDims(refSize);
-        assert(refSize[0] == record.iovFirsts_.size());
-        assert(refSize[1] == record.dataProducts_.size());
-        payloadRefForIOVs.resize(refSize[0] * refSize[1]);
-
-        payloadDataSet.read(&payloadRefForIOVs[0], H5::PredType::STD_REF_OBJ);
+        auto const payloadDataSet = tagGroup->findDataSet("payload");
+        payloadRefForIOVs = payloadDataSet->readRefs();
+        assert(payloadRefForIOVs.size() == record.iovFirsts_.size() * record.dataProducts_.size());
       }
     }
     size_t dataProductIndex = 0;
@@ -234,7 +198,7 @@ void CondHDF5ESSource::setIntervalFor(EventSetupRecordKey const& iRecordKey,
   auto sync = convertSyncValue(iSync, record.iovIsRunLumi_);
   auto itFound = findMatchingFirst(record.iovFirsts_, sync);
   if (itFound == record.iovFirsts_.end()) {
-    std::cout << "BAD SYNC for record " << iRecordKey.name() << std::endl;
+    //std::cout << "BAD SYNC for record " << iRecordKey.name() << std::endl;
     iIOV = edm::ValidityInterval::invalidInterval();
     return;
   }

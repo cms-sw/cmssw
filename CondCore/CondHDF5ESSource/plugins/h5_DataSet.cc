@@ -15,6 +15,7 @@
 
 // user include files
 #include "h5_DataSet.h"
+#include "h5_Attribute.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 //
@@ -82,6 +83,10 @@ namespace cms::h5 {
   //
   // const member functions
   //
+  std::shared_ptr<Attribute> DataSet::findAttribute(std::string const& iName) const {
+    return std::make_shared<Attribute>(id_, iName);
+  }
+
   std::size_t DataSet::size() const {
     DataSpace space_id{H5Dget_space(id_)};
 

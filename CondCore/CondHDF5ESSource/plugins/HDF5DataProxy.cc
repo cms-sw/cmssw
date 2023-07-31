@@ -12,13 +12,16 @@
 
 // system include files
 #include <iostream>
-#include <H5Cpp.h>
 #include <cassert>
 
 // user include files
 #include "HDF5DataProxy.h"
 #include "convertSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "h5_DataSet.h"
+#include "h5_Attribute.h"
 
 //
 // constants, enums and typedefs
@@ -34,7 +37,7 @@
 HDF5DataProxy::HDF5DataProxy(edm::SerialTaskQueue* iQueue,
                              std::mutex* iMutex,
                              std::unique_ptr<cond::serialization::SerializationHelperBase> iHelper,
-                             H5::H5File* iFile,
+                             cms::h5::File* iFile,
                              cond::hdf5::Record const* iRecord,
                              cond::hdf5::DataProduct const* iDataProduct)
     : edm::eventsetup::ESSourceDataProxyNonConcurrentBase(iQueue, iMutex),
@@ -62,40 +65,25 @@ void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSet
   assert(itFound != record_->iovFirsts_.end());
 
   auto payloadRef = dataProduct_->payloadForIOVs_[itFound - record_->iovFirsts_.begin()];
-  assert(file_->getRefObjType(&payloadRef) == H5O_TYPE_DATASET);
-  H5::DataSet dataset(*file_, &payloadRef);
-  std::vector<char> buffer;
-  {
-    const auto dataSpace = dataset.getSpace();
-    assert(dataSpace.isSimple());
-    assert(dataSpace.getSimpleExtentNdims() == 1);
-    hsize_t size[1];
-    dataSpace.getSimpleExtentDims(size);
-    buffer.resize(size[0]);
-  }
+  auto dataset = file_->derefDataSet(payloadRef);
+  std::vector<char> buffer = dataset->readBytes();
   if (buffer.empty()) {
-    std::cout << "buffer empty for " << iKey.type().name() << std::endl;
     return;
   }
-
-  dataset.read(&buffer[0], H5::PredType::STD_I8LE);
 
   std::stringbuf sBuffer;
   sBuffer.pubsetbuf(&buffer[0], buffer.size());
   std::string typeName;
   {
-    auto const typeAttr = dataset.openAttribute("type");
-    H5::StrType str_type(H5::PredType::C_S1, H5T_VARIABLE);
-    typeAttr.read(str_type, typeName);
+    auto const typeAttr = dataset->findAttribute("type");
+    typeName = typeAttr->readString();
   }
   data_ = helper_->deserialize(sBuffer, typeName);
   if (data_.get() == nullptr) {
-    std::cout << "failed to deserialize " << iKey.type().name() << " buffer size:" << buffer.size() << " type: '"
-              << typeName << "'"
-              << " in " << iRecord.key().name() << std::endl;
-  } else {
-    std::cout << "good " << iKey.type().name() << " '" << iKey.name().value() << "' firstSync:" << firstSync.high_
-              << " " << firstSync.low_ << std::endl;
+    throw cms::Exception("H5CondFailedDeserialization")
+        << "failed to deserialize " << iKey.type().name() << " buffer size:" << buffer.size() << " type: '" << typeName
+        << "'"
+        << " in " << iRecord.key().name() << std::endl;
   }
 }
 

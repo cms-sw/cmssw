@@ -45,7 +45,7 @@ TEST_CASE("test cms::h5 code", "[cms::h5]") {
     SECTION("sub group") {
       auto a = h5file.findGroup("Agroup");
       REQUIRE_NOTHROW(a->findGroup("Bgroup"));
-      REQUIRE(a->getNumObjs() == 2);  //group and dataset
+      REQUIRE(a->getNumObjs() == 5);  //group and 4 datasets
       REQUIRE(a->getObjnameByIdx(0) == "Bgroup");
     }
   }
@@ -100,16 +100,32 @@ TEST_CASE("test cms::h5 code", "[cms::h5]") {
       }
     }
     SECTION("DataSet") {
-      REQUIRE_NOTHROW(ds = g->findDataSet("dsetRefs"));
-      std::vector<hobj_ref_t> r;
-      REQUIRE_NOTHROW(r = ds->readRefs());
-      REQUIRE(r.size() == 1);
-
-      auto ds = h5file.derefDataSet(r[0]);
-      std::vector<char> b;
-      REQUIRE_NOTHROW(b = ds->readBytes());
-      REQUIRE(b.size() == 1);
-      REQUIRE(b[0] == 1);
+      SECTION("refs") {
+        REQUIRE_NOTHROW(ds = g->findDataSet("dsetRefs"));
+        std::vector<hobj_ref_t> r;
+        REQUIRE_NOTHROW(r = ds->readRefs());
+        REQUIRE(r.size() == 1);
+        auto ds = h5file.derefDataSet(r[0]);
+        std::vector<char> b;
+        REQUIRE_NOTHROW(b = ds->readBytes());
+        REQUIRE(b.size() == 1);
+        REQUIRE(b[0] == 1);
+      }
+      SECTION("refs 2D") {
+        REQUIRE_NOTHROW(ds = g->findDataSet("dset2DRefs"));
+        std::vector<hobj_ref_t> r;
+        REQUIRE_NOTHROW(r = ds->readRefs());
+        REQUIRE(r.size() == 4);
+        for (size_t i = 0; i < r.size(); ++i) {
+          auto ds = h5file.derefDataSet(r[i]);
+          std::vector<char> b;
+          REQUIRE_NOTHROW(b = ds->readBytes());
+          REQUIRE(b.size() == i + 1);
+          for (auto v : b) {
+            REQUIRE(v == static_cast<char>(i + 1));
+          }
+        }
+      }
     }
   }
 

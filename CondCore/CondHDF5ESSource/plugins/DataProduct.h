@@ -21,7 +21,7 @@
 // system include files
 #include <string>
 #include <vector>
-#include <H5Cpp.h>
+#include "hdf5.h"
 
 // user include files
 
