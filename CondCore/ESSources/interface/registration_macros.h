@@ -35,12 +35,12 @@
   DEFINE_EDM_PLUGIN2(cond::ProductResolverFactory, EDM_PLUGIN_SYM(ProductResolver, __LINE__), #record_ "@NewProxy")
 
 #define REGISTER_PLUGIN(record_, type_)      \
-  INSTANTIATE_RESOLVER(record_, type_)          \
+  INSTANTIATE_RESOLVER(record_, type_)       \
   DEFINE_COND_SERIAL_REGISTER_PLUGIN(type_); \
   ONLY_REGISTER_PLUGIN(record_, type_)
 
 #define REGISTER_PLUGIN_NO_SERIAL(record_, type_) \
-  INSTANTIATE_RESOLVER(record_, type_)               \
+  INSTANTIATE_RESOLVER(record_, type_)            \
   ONLY_REGISTER_PLUGIN(record_, type_)
 
 #define INSTANTIATE_RESOLVER_INIT(record_, type_, initializer_) \
@@ -50,13 +50,13 @@
   typedef ProductResolverWrapper<record_, type_, initializer_> EDM_PLUGIN_SYM(ProductResolver, __LINE__); \
   DEFINE_EDM_PLUGIN2(cond::ProductResolverFactory, EDM_PLUGIN_SYM(ProductResolver, __LINE__), #record_ "@NewProxy")
 
-#define REGISTER_PLUGIN_INIT(record_, type_, initializer_) \
-  INSTANTIATE_RESOLVER_INIT(record_, type_, initializer_)  \
+#define REGISTER_PLUGIN_INIT(record_, type_, initializer_)      \
+  INSTANTIATE_RESOLVER_INIT(record_, type_, initializer_)       \
   DEFINE_COND_SERIAL_REGISTER_PLUGIN_INIT(type_, initializer_); \
   ONLY_REGISTER_PLUGIN_INIT(record_, type_, initializer_)
 
 #define REGISTER_PLUGIN_NO_SERIAL_INIT(record_, type_, initializer_) \
-  INSTANTIATE_RESOLVER_INIT(record_, type_, initializer_)               \
+  INSTANTIATE_RESOLVER_INIT(record_, type_, initializer_)            \
   ONLY_REGISTER_PLUGIN_INIT(record_, type_, initializer_)
 
 // source_ is the record name of the keyed objects

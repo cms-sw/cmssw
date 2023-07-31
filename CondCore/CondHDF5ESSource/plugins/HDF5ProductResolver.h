@@ -1,11 +1,11 @@
-#ifndef CondCore_HDF5ESSource_HDF5DataProxy_h
-#define CondCore_HDF5ESSource_HDF5DataProxy_h
+#ifndef CondCore_HDF5ESSource_HDF5ProductResolver_h
+#define CondCore_HDF5ESSource_HDF5ProductResolver_h
 // -*- C++ -*-
 //
 // Package:     CondCore/HDF5ESSource
-// Class  :     HDF5DataProxy
+// Class  :     HDF5ProductResolver
 //
-/**\class HDF5DataProxy HDF5DataProxy.h "HDF5DataProxy.h"
+/**\class HDF5ProductResolver HDF5ProductResolver.h "HDF5ProductResolver.h"
 
  Description: [one line class summary]
 
@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+#include "FWCore/Framework/interface/ESSourceProductResolverBase.h"
 #include "CondFormats/SerializationHelper/interface/SerializationHelperBase.h"
 #include "Record.h"
 #include "DataProduct.h"
@@ -32,18 +32,18 @@ namespace edm {
   class SerialTaskQueue;
 }
 
-class HDF5DataProxy : public edm::eventsetup::ESSourceDataProxyBase {
+class HDF5ProductResolver : public edm::eventsetup::ESSourceProductResolverBase {
 public:
-  HDF5DataProxy(edm::SerialTaskQueue* iQueue,
-                std::unique_ptr<cond::serialization::SerializationHelperBase>,
-                cms::h5::File const* iFile,
-                std::string const& iFileName,
-                cond::hdf5::Record const* iRecord,
-                cond::hdf5::DataProduct const* iDataProduct);
-  ~HDF5DataProxy() final;
+  HDF5ProductResolver(edm::SerialTaskQueue* iQueue,
+                      std::unique_ptr<cond::serialization::SerializationHelperBase>,
+                      cms::h5::File const* iFile,
+                      std::string const& iFileName,
+                      cond::hdf5::Record const* iRecord,
+                      cond::hdf5::DataProduct const* iDataProduct);
+  ~HDF5ProductResolver() final;
 
-  HDF5DataProxy(const HDF5DataProxy&) = delete;                   // stop default
-  const HDF5DataProxy& operator=(const HDF5DataProxy&) = delete;  // stop default
+  HDF5ProductResolver(const HDF5ProductResolver&) = delete;                   // stop default
+  const HDF5ProductResolver& operator=(const HDF5ProductResolver&) = delete;  // stop default
 
 private:
 private:

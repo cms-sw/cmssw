@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     CondCore/HDF5ESSource
-// Class  :     HDF5DataProxy
+// Class  :     HDF5ProductResolver
 //
 // Implementation:
 //     [Notes on implementation]
@@ -17,7 +17,7 @@
 #include "zlib.h"
 
 // user include files
-#include "HDF5DataProxy.h"
+#include "HDF5ProductResolver.h"
 #include "convertSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
@@ -37,13 +37,13 @@
 //
 // constructors and destructor
 //
-HDF5DataProxy::HDF5DataProxy(edm::SerialTaskQueue* iQueue,
-                             std::unique_ptr<cond::serialization::SerializationHelperBase> iHelper,
-                             cms::h5::File const* iFile,
-                             std::string const& iFileName,
-                             cond::hdf5::Record const* iRecord,
-                             cond::hdf5::DataProduct const* iDataProduct)
-    : edm::eventsetup::ESSourceDataProxyBase(),
+HDF5ProductResolver::HDF5ProductResolver(edm::SerialTaskQueue* iQueue,
+                                         std::unique_ptr<cond::serialization::SerializationHelperBase> iHelper,
+                                         cms::h5::File const* iFile,
+                                         std::string const& iFileName,
+                                         cond::hdf5::Record const* iRecord,
+                                         cond::hdf5::DataProduct const* iDataProduct)
+    : edm::eventsetup::ESSourceProductResolverBase(),
       queue_(iQueue),
       helper_(std::move(iHelper)),
       file_(iFile),
@@ -51,23 +51,23 @@ HDF5DataProxy::HDF5DataProxy(edm::SerialTaskQueue* iQueue,
       record_(iRecord),
       dataProduct_(iDataProduct) {}
 
-// HDF5DataProxy::HDF5DataProxy(const HDF5DataProxy& rhs)
+// HDF5ProductResolver::HDF5ProductResolver(const HDF5ProductResolver& rhs)
 // {
 //    // do actual copying here;
 // }
 
-HDF5DataProxy::~HDF5DataProxy() {}
+HDF5ProductResolver::~HDF5ProductResolver() {}
 
 //
 // member functions
 //
 
-void HDF5DataProxy::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
-                                      edm::eventsetup::EventSetupRecordImpl const& iRecord,
-                                      edm::eventsetup::DataKey const& iKey,
-                                      edm::EventSetupImpl const*,
-                                      edm::ServiceToken const&,
-                                      edm::ESParentContext const& iParent) {
+void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
+                                            edm::eventsetup::EventSetupRecordImpl const& iRecord,
+                                            edm::eventsetup::DataKey const& iKey,
+                                            edm::EventSetupImpl const*,
+                                            edm::ServiceToken const&,
+                                            edm::ESParentContext const& iParent) {
   prefetchAsyncImplTemplate(
       [this, iov = iRecord.validityInterval()](auto& iGroup, auto iActivity) {
         queue_->push(iGroup, [this, &iGroup, act = std::move(iActivity), iov] {
@@ -89,7 +89,7 @@ void HDF5DataProxy::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
       iParent);
 }
 
-std::ptrdiff_t HDF5DataProxy::indexForInterval(edm::ValidityInterval const& iIOV) const {
+std::ptrdiff_t HDF5ProductResolver::indexForInterval(edm::ValidityInterval const& iIOV) const {
   using namespace cond::hdf5;
   auto firstSync = convertSyncValue(iIOV.first(), record_->iovIsRunLumi_);
 
@@ -99,7 +99,7 @@ std::ptrdiff_t HDF5DataProxy::indexForInterval(edm::ValidityInterval const& iIOV
   return itFound - record_->iovFirsts_.begin();
 }
 
-void HDF5DataProxy::readFromHDF5api(std::ptrdiff_t iIndex) {
+void HDF5ProductResolver::readFromHDF5api(std::ptrdiff_t iIndex) {
   auto payloadRef = dataProduct_->payloadForIOVs_[iIndex];
   auto ds = file_->derefDataSet(payloadRef);
   storageSize_ = ds->storageSize();
@@ -112,7 +112,7 @@ void HDF5DataProxy::readFromHDF5api(std::ptrdiff_t iIndex) {
   type_ = ds->findAttribute("type")->readString();
 }
 
-void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
+void HDF5ProductResolver::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
   if (exceptPtr_) {
     rethrow_exception(exceptPtr_);
   }
@@ -122,7 +122,7 @@ void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSet
   threadFriendlyPrefetch(fileOffset_, storageSize_, memSize_, type_);
 }
 
-std::vector<char> HDF5DataProxy::decompress(std::vector<char> compressedBuffer, std::size_t iMemSize) const {
+std::vector<char> HDF5ProductResolver::decompress(std::vector<char> compressedBuffer, std::size_t iMemSize) const {
   std::vector<char> buffer;
   if (iMemSize == compressedBuffer.size()) {
     //memory was not compressed
@@ -155,10 +155,10 @@ std::vector<char> HDF5DataProxy::decompress(std::vector<char> compressedBuffer, 
   return buffer;
 }
 
-void HDF5DataProxy::threadFriendlyPrefetch(uint64_t iFileOffset,
-                                           std::size_t iStorageSize,
-                                           std::size_t iMemSize,
-                                           const std::string& iTypeName) {
+void HDF5ProductResolver::threadFriendlyPrefetch(uint64_t iFileOffset,
+                                                 std::size_t iStorageSize,
+                                                 std::size_t iMemSize,
+                                                 const std::string& iTypeName) {
   //Done interacting with the hdf5 API
 
   //std::cout <<" prefetch "<<dataProduct_->fileOffsets_[index]<<" "<<dataProduct_->storageSizes_[index]<<" "<<memSize<<std::endl;
@@ -178,15 +178,15 @@ void HDF5DataProxy::threadFriendlyPrefetch(uint64_t iFileOffset,
   }
 }
 
-void HDF5DataProxy::invalidateCache() {
-  ESSourceDataProxyBase::invalidateCache();
+void HDF5ProductResolver::invalidateCache() {
+  ESSourceProductResolverBase::invalidateCache();
   data_ = cond::serialization::unique_void_ptr();
 }
 
 //
 // const member functions
 //
-void const* HDF5DataProxy::getAfterPrefetchImpl() const { return data_.get(); }
+void const* HDF5ProductResolver::getAfterPrefetchImpl() const { return data_.get(); }
 
 //
 // static member functions

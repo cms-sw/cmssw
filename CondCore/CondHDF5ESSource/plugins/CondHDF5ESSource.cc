@@ -16,7 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
@@ -31,7 +31,7 @@
 #include "IOVSyncValue.h"
 #include "DataProduct.h"
 #include "Record.h"
-#include "HDF5DataProxy.h"
+#include "HDF5ProductResolver.h"
 #include "convertSyncValue.h"
 #include "h5_File.h"
 #include "h5_Group.h"
@@ -40,7 +40,7 @@
 
 using namespace cond::hdf5;
 
-class CondHDF5ESSource : public edm::EventSetupRecordIntervalFinder, public edm::eventsetup::DataProxyProvider {
+class CondHDF5ESSource : public edm::EventSetupRecordIntervalFinder, public edm::eventsetup::ESProductResolverProvider {
 public:
   using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
   explicit CondHDF5ESSource(edm::ParameterSet const&);
@@ -50,7 +50,7 @@ public:
 private:
   bool isConcurrentFinder() const final { return true; }
   void setIntervalFor(EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval&) final;
-  KeyedProxiesVector registerProxies(EventSetupRecordKey const&, unsigned int iovIndex) final;
+  KeyedResolversVector registerResolvers(EventSetupRecordKey const&, unsigned int iovIndex) final;
 
   edm::SerialTaskQueue queue_;
   std::mutex mutex_;
@@ -193,9 +193,9 @@ void CondHDF5ESSource::setIntervalFor(EventSetupRecordKey const& iRecordKey,
       convertSyncValue(record.iovLasts_[itFound - record.iovFirsts_.begin()], record.iovIsRunLumi_)};
 }
 
-CondHDF5ESSource::KeyedProxiesVector CondHDF5ESSource::registerProxies(EventSetupRecordKey const& iRecordKey,
-                                                                       unsigned int iovIndex) {
-  CondHDF5ESSource::KeyedProxiesVector returnValue;
+CondHDF5ESSource::KeyedResolversVector CondHDF5ESSource::registerResolvers(EventSetupRecordKey const& iRecordKey,
+                                                                           unsigned int iovIndex) {
+  CondHDF5ESSource::KeyedResolversVector returnValue;
 
   //std::cout << "Register proxies called " << iRecordKey.name() << std::endl;
   auto const itRecord =
@@ -212,7 +212,7 @@ CondHDF5ESSource::KeyedProxiesVector CondHDF5ESSource::registerProxies(EventSetu
     returnValue.emplace_back(
         edm::eventsetup::DataKey(edm::eventsetup::heterocontainer::HCTypeTag::findType(dataProduct.type_),
                                  dataProduct.name_.c_str()),
-        std::make_shared<HDF5DataProxy>(&queue_, std::move(helper), &file_, filename_, &record, &dataProduct));
+        std::make_shared<HDF5ProductResolver>(&queue_, std::move(helper), &file_, filename_, &record, &dataProduct));
   }
   return returnValue;
 }
