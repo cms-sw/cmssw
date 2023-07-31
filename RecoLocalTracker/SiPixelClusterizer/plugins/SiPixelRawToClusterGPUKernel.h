@@ -104,8 +104,7 @@ namespace pixelgpudetails {
     SiPixelRawToClusterGPUKernel& operator=(const SiPixelRawToClusterGPUKernel&) = delete;
     SiPixelRawToClusterGPUKernel& operator=(SiPixelRawToClusterGPUKernel&&) = delete;
 
-    void makePhase1ClustersAsync(bool isRun2,
-                                 const SiPixelClusterThresholds clusterThresholds,
+    void makePhase1ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
                                  const SiPixelROCsStatusAndMapping* cablingMap,
                                  const unsigned char* modToUnp,
                                  const SiPixelGainForHLTonGPU* gains,
