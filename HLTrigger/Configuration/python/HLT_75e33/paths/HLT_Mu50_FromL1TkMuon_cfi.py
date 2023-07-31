@@ -43,7 +43,7 @@ from ..modules.hltPhase2L3FromL1TkMuonTrimmedPixelVertices_cfi import *
 from ..modules.hltPhase2L3GlbMuon_cfi import *
 from ..modules.hltPhase2L3MuonCandidates_cfi import *
 from ..modules.hltPhase2L3MuonMerged_cfi import *
-from ..modules.pixelTrackFilterByKinematics_cfi import *
+from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2L3Muons_cfi import *
 from ..modules.hltPhase2L3MuonsNoID_cfi import *
@@ -113,7 +113,7 @@ HLT_Mu50_FromL1TkMuon = cms.Path(
         hltPhase2L3GlbMuon,
         hltPhase2L3MuonCandidates,
         hltPhase2L3MuonMerged,
-        pixelTrackFilterByKinematics,
+        hltPhase2PixelTrackFilterByKinematics,
         hltPhase2PixelFitterByHelixProjections,
         hltPhase2L3MuonTracks,
         hltPhase2L3Muons,
