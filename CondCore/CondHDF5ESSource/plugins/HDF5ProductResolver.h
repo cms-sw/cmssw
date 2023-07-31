@@ -42,7 +42,7 @@ public:
                       cond::hdf5::Compression iCompression,
                       cond::hdf5::Record const* iRecord,
                       cond::hdf5::DataProduct const* iDataProduct);
-  ~HDF5ProductResolver() final;
+  ~HDF5ProductResolver() override;
 
   HDF5ProductResolver(const HDF5ProductResolver&) = delete;                   // stop default
   const HDF5ProductResolver& operator=(const HDF5ProductResolver&) = delete;  // stop default

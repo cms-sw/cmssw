@@ -44,7 +44,7 @@ namespace {
   };
 
   struct TestInheritance : public TestBase {
-    ~TestInheritance() noexcept final = default;
+    ~TestInheritance() noexcept override = default;
 
     int value() const final { return value_; }
 
@@ -64,7 +64,7 @@ namespace cond::serialization {
   };
   template <>
   struct ClassName<TestBase> {
-    constexpr static std::string_view kName = "TestBase";
+    [[maybe_unused]] constexpr static std::string_view kName = "TestBase";
   };
   template <>
   struct ClassName<TestInheritance> {
