@@ -1,5 +1,5 @@
-#ifndef _TrackerMap_h_
-#define _TrackerMap_h_
+#ifndef _CommonTools_TrackerMap_TrackerMap_h_
+#define _CommonTools_TrackerMap_TrackerMap_h_
 #include <utility>
 #include <string>
 #include <iostream>
@@ -8,7 +8,6 @@
 #include <cmath>
 #include <map>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "TColor.h"
 #include <cassert>
@@ -196,42 +195,34 @@ public:
   bool enableLVProcessing;
   bool enableHVProcessing;
   bool tkMapLog;
-  int ndet;   //number of detectors
-  int npart;  //number of detectors parts
   std::string title;
   std::string jsfilename, infilename;
   std::string jsPath;
   bool psetAvailable;
+
   double phival(double x, double y) {
     double phi;
-    double phi1 = atan(y / x);
-    phi = phi1;
-    if (y < 0. && x > 0)
-      phi = phi1 + 2. * M_PI;
-    if (x < 0.)
-      phi = phi1 + M_PI;
-    if (fabs(y) < 0.000001 && x > 0)
-      phi = 0;
-    if (fabs(y) < 0.000001 && x < 0)
-      phi = M_PI;
-    if (fabs(x) < 0.000001 && y > 0)
-      phi = M_PI / 2.;
-    if (fabs(x) < 0.000001 && y < 0)
-      phi = 3. * M_PI / 2.;
-
+    if (fabs(x) >= 0.000001 && fabs(y) >= 0.000001) {
+      phi = atan(y / x);
+      if (y < 0. && x > 0)
+        phi += 2. * M_PI;
+      else if (x < 0.)
+        phi += M_PI;
+    } else if (fabs(y) < 0.000001)
+      phi = x > 0 ? 0 : M_PI;
+    else  // if (fabs(x) < 0.000001)
+      phi = y > 0 ? M_PI / 2. : 3. * M_PI / 2.;
     return phi;
   }
 
   int find_layer(int ix, int iy) {
-    int add;
     int layer = 0;
     if (iy <= xsize) {  //endcap+z
-      add = 15;
+      const int add = 15;
       layer = ix / ysize;
       layer = layer + add + 1;
-    }
-    if (iy > xsize && iy < 3 * xsize) {  //barrel
-      add = 30;
+    } else if (iy < 3 * xsize) {  //barrel
+      const int add = 30;
       if (ix < 2 * ysize) {
         layer = 1;
       } else {
@@ -242,8 +233,7 @@ public:
           layer = layer * 2;
       }
       layer = layer + add;
-    }
-    if (iy >= 3 * xsize) {  //endcap-z
+    } else if (iy >= 3 * xsize) {  //endcap-z
       layer = ix / ysize;
       layer = 15 - layer;
     }
@@ -275,6 +265,7 @@ public:
     }
     return (ncomponent);
   }
+
   double xdpixel(double x) {
     double res;
     if (saveAsSingleLayer)
@@ -506,47 +497,42 @@ public:
 
   int getringCount(int subdet, int partdet, int layer) {
     int ncomponent = 0;
-    if (subdet == 1) {                     //1=pixel
-      if (partdet == 1 || partdet == 3) {  //end-cap
+    if (subdet == 1) {                   //1=pixel
+      if (partdet == 1 || partdet == 3)  //end-cap
         ncomponent = 7;
-      } else {
+      else  //barrel
         ncomponent = 8;
-      }  //barrel
-    }
-    if (subdet == 2) {                     //inner-silicon
-      if (partdet == 1 || partdet == 3) {  //end-cap
+    } else if (subdet == 2) {            //inner-silicon
+      if (partdet == 1 || partdet == 3)  //end-cap
         ncomponent = 3;
-      } else {
+      else  //barrel
         ncomponent = 12;
-      }  //barrel
-    }
-    if (subdet == 3) {     //outer-silicon
-      if (partdet == 1) {  //end-cap-z
+    } else if (subdet == 3) {  //outer-silicon
+      if (partdet == 1) {      //end-cap-z
         if (layer == 1)
           ncomponent = 4;
-        if (layer == 2 || layer == 3)
+        else if (layer == 2 || layer == 3)
           ncomponent = 5;
-        if (layer == 4 || layer == 5 || layer == 6)
+        else if (layer == 4 || layer == 5 || layer == 6)
           ncomponent = 6;
-        if (layer == 7 || layer == 8 || layer == 9)
+        else if (layer == 7 || layer == 8 || layer == 9)
           ncomponent = 7;
-      }
-      if (partdet == 3) {  //endcap+z
+      } else if (partdet == 3) {  //endcap+z
         if (layer == 9)
           ncomponent = 4;
-        if (layer == 8 || layer == 7)
+        else if (layer == 8 || layer == 7)
           ncomponent = 5;
-        if (layer == 6 || layer == 5 || layer == 4)
+        else if (layer == 6 || layer == 5 || layer == 4)
           ncomponent = 6;
-        if (layer == 3 || layer == 2 || layer == 1)
+        else if (layer == 3 || layer == 2 || layer == 1)
           ncomponent = 7;
-      }
-      if (partdet == 2) {  //barrel
+      } else if (partdet == 2) {  //barrel
         ncomponent = 12;
       }
     }
     return (ncomponent);
   }
+
   int getmoduleCount(int subdet, int partdet, int layer, int ring) {
     int ncomponent = 0;
     int spicchif[] = {24, 24, 40, 56, 40, 56, 80};
@@ -571,6 +557,7 @@ public:
     }
     return (ncomponent);
   }
+
   static int layerno(int subdet, int leftright, int layer) {
     if (subdet == 6 && leftright == 1)
       return (10 - layer);
@@ -604,6 +591,7 @@ public:
         return true;
     return false;
   }
+
   int nlayer(int det, int part, int lay) {
     if (det == 3 && part == 1)
       return lay;
@@ -623,7 +611,7 @@ public:
       return lay + 33;
     if (det == 3 && part == 2)
       return lay + 37;
-    return -1;
+    return -1;  // This can never happen: det and part are comprised between 1 and 3
   }
 
   std::string layername(int layer) {
@@ -651,6 +639,7 @@ public:
     s = ons.str();
     return s;
   }
+
   int ntotRing[43];
   int firstRing[43];
 

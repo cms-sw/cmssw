@@ -484,8 +484,8 @@ void TrackerMap::init() {
   gminvalue = 0.;
   gmaxvalue = 0.;  //default global range for online rendering
 
-  ndet = 3;   // number of detectors: pixel, inner silicon, outer silicon
-  npart = 3;  // number of detector parts: endcap -z, barrel, endcap +z
+  int constexpr ndet = 3;   // number of detectors: pixel, inner silicon, outer silicon
+  int constexpr npart = 3;  // number of detector parts: endcap -z, barrel, endcap +z
 
   //allocate module map
   for (int subdet = 1; subdet < ndet + 1; subdet++) {        //loop on subdetectors
