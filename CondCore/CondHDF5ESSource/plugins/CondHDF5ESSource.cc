@@ -38,16 +38,6 @@
 #include "h5_DataSet.h"
 #include "h5_Attribute.h"
 
-namespace {
-  inline hid_t string_type() {
-    auto atype = H5Tcopy(H5T_C_S1);
-    H5Tset_size(atype, H5T_VARIABLE);
-    H5Tset_cset(atype, H5T_CSET_UTF8);
-    H5Tset_strpad(atype, H5T_STR_NULLTERM);
-    return atype;
-  }
-}  // namespace
-
 using namespace cond::hdf5;
 
 class CondHDF5ESSource : public edm::EventSetupRecordIntervalFinder, public edm::eventsetup::DataProxyProvider {
@@ -222,7 +212,7 @@ CondHDF5ESSource::KeyedProxiesVector CondHDF5ESSource::registerProxies(EventSetu
     returnValue.emplace_back(
         edm::eventsetup::DataKey(edm::eventsetup::heterocontainer::HCTypeTag::findType(dataProduct.type_),
                                  dataProduct.name_.c_str()),
-        std::make_shared<HDF5DataProxy>(&queue_, &mutex_, std::move(helper), &file_, &record, &dataProduct));
+        std::make_shared<HDF5DataProxy>(&queue_, &mutex_, std::move(helper), &file_, filename_, &record, &dataProduct));
   }
   return returnValue;
 }

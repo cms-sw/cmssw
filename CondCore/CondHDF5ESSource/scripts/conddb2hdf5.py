@@ -11,6 +11,20 @@ from collections import OrderedDict
 
 import CondCore.Utilities.conddblib as conddb
 
+#Global tags hold a list of Tags
+# Tags give the
+#      record name,
+#      list of data products
+#      list of IOVs
+#      list of payloads per IOV
+# Payloads give
+#      a payload name and
+#      the serialized data for a data product
+#      the type of data for the data product
+#
+
+
+
 #from conddb
 def _inserted_before(_IOV,timestamp):
     '''To be used inside filter().
@@ -134,6 +148,151 @@ def external_process_get_payloads_objtype_data(queue, args, payloads):
     queue.put(get_payloads_objtype_data(session, payloads))
 #local
 
+class IOVSyncValue(object):
+    def __init__(self, high, low):
+        self.high = high
+        self.low = low
+
+class DBPayloadIterator(object):
+    def __init__(self, args, payloads):
+        self._args = args
+        self._payloadHashs = payloads
+        self._payloadCache = {}
+        self._payloadHashsIndex = 0
+        self._cacheChunking = 1
+        self._safeChunkingSize = 1
+        self._nextIndex = 0
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self._nextIndex >= len(self._payloadHashs):
+            raise StopIteration()
+        payloadHash = self._payloadHashs[self._nextIndex]
+        if not self._payloadCache:
+            self._cacheChunking = self._safeChunkingSize
+            queue = mp.Queue()
+            p=mp.Process(target=external_process_get_payloads_objtype_data, args=(queue, self._args, self._payloadHashs[self._payloadHashsIndex:self._payloadHashsIndex+self._cacheChunking]))
+            p.start()
+            table = queue.get()
+            p.join()
+            #table = get_payloads_objtype_data(session, payloadHashs[payloadHashsIndex:payloadHashsIndex+cacheChunking])
+            #print(table)
+            self._payloadHashsIndex +=self._cacheChunking
+            for r in table:
+                self._payloadCache[r[0]] = (r[1],r[2])
+        objtype,data = self._payloadCache[payloadHash]
+        if len(data) < 1000000:
+            self._safeChunkingSize = 10
+        del self._payloadCache[payloadHash]
+        self._nextIndex +=1
+        return DBPayload(payloadHash, canonicalProductName(objtype.encode("ascii")), data)
+
+
+class DBPayload(object):
+    def __init__(self,hash_, type_, data):
+        self._hash = hash_
+        self._type = type_
+        self._data = data
+    def name(self):
+        return self._hash
+    def actualType(self):
+        return self._type
+    def data(self):
+        return self._data
+
+class DBDataProduct(object):
+    def __init__(self, ctype, label, payloadHashes, args):
+        self._type = ctype
+        self._label = label
+        self._payloadHashs = payloadHashes
+        self._args = args
+
+    def name(self):
+        return self._type +"@"+self._label
+    def objtype(self):
+        return self._type
+    def payloads(self):
+        return DBPayloadIterator(self._args, self._payloadHashs)
+
+class DBTag(object):
+    def __init__(self, session, args, record, productNtags):
+        self._session = session
+        self._args = args
+        self._snapshot = args.snapshot
+        self._record = record
+        self._productLabels = [x[0] for x in productNtags]
+        self._dbtags = [x[1] for x in productNtags]
+        self._type = None
+        self._iovsNPayloads = None
+        self._time_type = None
+    def record(self):
+        return self._record
+    def name(self):
+        if len(self._dbtags) == 1:
+            return self._dbtags[0]
+        return self._dbtags[0]+"@joined"
+    def __type(self):
+        if self._type is None:
+            self._type = recordToType(self._record)
+        return self._type
+    def time_type(self):
+        if self._time_type is None:
+            self.iovsNPayloadNames()
+        return timeTypeName(self._time_type)
+    def originalTagNames(self):
+        return self._dbtags
+    def iovsNPayloadNames(self):
+        if self._iovsNPayloads is None:
+            finalIOV = []
+            for tag in self._dbtags:
+                time_type, iovAndPayload = tagInfo(self._session, tag, self._snapshot)
+                self._time_type = time_type
+                if not finalIOV:
+                    finalIOV = [ [i[0],[i[1]]] for i in iovAndPayload]
+                else:
+                    finalIOV = mergeIOVs(finalIOV, iovAndPayload)
+
+            firstValues, lastValues = sinceToIOV( (x[0] for x in finalIOV), time_type)
+
+            self._iovsNPayloads = list(zip((IOVSyncValue(x[0],x[1]) for x in firstValues), (IOVSyncValue(x[0], x[1]) for x in lastValues), (x[1] for x in finalIOV)))
+            self._session.flush()
+            self._session.commit()
+        return self._iovsNPayloads
+
+    def dataProducts(self):
+        t = self.__type()
+        iovs = self.iovsNPayloadNames()
+        payloadForProducts = []
+        for p in self._productLabels:
+            payloadForProducts.append(OrderedDict())
+        for first,last,payloads in iovs:
+            for i,p in enumerate(payloads):
+                if p is not None:
+                    payloadForProducts[i][p]=None
+        return [DBDataProduct(t,v,list(payloadForProducts[i]), self._args) for i,v in enumerate(self._productLabels)]
+
+class DBGlobalTag(object):
+    def __init__(self, args, session, name):
+        self._session = session
+        self._args = args
+        self._snapshot = args.snapshot
+        self._name = name
+        self._tags = []
+        gt = globalTagInfo(session,name)
+        lastRcd = None
+        tags = []
+        for rcd, label, tag in gt:
+            if rcd != lastRcd:
+                if lastRcd is not None:
+                    self._tags.append(DBTag(session,args, lastRcd,tags))
+                lastRcd = rcd
+                tags = []
+            tags.append((label,tag))
+        if lastRcd is not None:
+            self._tags.append(DBTag(session,args, lastRcd, tags))
+    def tags(self):
+        return self._tags
+            
 def timeTypeName(time_type):
     if time_type == conddb.TimeType.Time.value:
         return 'time'
@@ -318,20 +477,21 @@ def mergeIOVs(previousIOV, newIOV):
 
 def writeTagImpl(tagsGroup, name, recName, time_type, IOV_payloads, payloadToRefs, originalTagNames):
     tagGroup = tagsGroup.create_group(name)
-    tagGroup.attrs["time_type"] = timeTypeName(time_type).encode("ascii")
+    tagGroup.attrs["time_type"] = time_type.encode("ascii") #timeTypeName(time_type).encode("ascii")
     tagGroup.attrs["db_tags"] = [x.encode("ascii") for x in originalTagNames]
     tagGroup.attrs["record"] = recName.encode("ascii")
-    firstValues, lastValues = sinceToIOV( (x[0] for x in IOV_payloads), time_type)
+    firstValues = [x[0] for x in IOV_payloads]
+    lastValues = [x[1] for x in IOV_payloads]
     syncValueType = np.dtype([("high", np.uint32),("low", np.uint32)])
-    first_np = np.empty(shape=(len(firstValues),), dtype=syncValueType)
-    first_np['high'] = [ x[0] for x in firstValues]
-    first_np['low'] = [ x[1] for x in firstValues]
+    first_np = np.empty(shape=(len(IOV_payloads),), dtype=syncValueType)
+    first_np['high'] = [ x.high for x in firstValues]
+    first_np['low'] = [ x.low for x in firstValues]
     last_np = np.empty(shape=(len(lastValues),), dtype=syncValueType)
-    last_np['high'] = [ x[0] for x in lastValues]
-    last_np['low'] = [ x[1] for x in lastValues]
+    last_np['high'] = [ x.high for x in lastValues]
+    last_np['low'] = [ x.low for x in lastValues]
     #tagGroup.create_dataset("first",data=np.array(firstValues), dtype=syncValueType)
     #tagGroup.create_dataset("last", data=np.array(lastValues),dtype=syncValueType)
-    payloads = [ [ payloadToRefs[y] for y in x[1]] for x in IOV_payloads]
+    payloads = [ [ payloadToRefs[y] for y in x[2]] for x in IOV_payloads]
     compressor = None
     if len(first_np) > 100:
         compressor = 'gzip'
@@ -427,104 +587,39 @@ def main():
         tagGroupRefs = []
         
         for name in args.name:
-            gt = globalTagInfo(session,name)
-            lastRcd = None
-            lastIOV = []
-            dataProductsInRecord = []
-            count = 0 #TEMP
-            recordDataSize = 0
-            for rcd, label, tag in gt:
+            gt = DBGlobalTag(args, session, name)
+            for tag in gt.tags():
+                rcd = tag.record()
                 if rcd in keyListRecords:
                     continue
                 if rcd in excludeRecords:
                     continue
                 if includeRecords and (not rcd in includeRecords):
                     continue
-                #print("%s %s %s"%(rcd, label, tag))
-                #print("value type %s"%(recordToType[rcd],))
-                if rcd != lastRcd:
-                    if lastRcd is not None:
-                        print(" total size:",recordDataSize)
-                    recordDataSize = 0
-                    print("starting record: ",rcd)
-                    if lastRcd is not None:
-                        #print("  data products: %s"%(",".join(dataProductsInRecord)))
-                        #print("  IOV ",lastIOV)
-                        tagGroupRefs.append(writeTag(tagsGroup, time_type, lastIOV, payloadToRefs, originalTagNames, lastRcd))
-                    #print("NEW RECORD")
-                    recordGroup = recordsGroup.create_group(rcd)
-                    tagsGroup = recordGroup.create_group("Tags")
-                    dataProductsGroup = recordGroup.create_group("DataProducts")
-                    seenPayloads = set()
-                    lastRcd = rcd
-                    lastIOV = []
-                    dataProductsInRecord = []
-                    payloadToRefs = { None: null_dataset.ref}
-                    originalTagNames = []
-                    count +=1 #TEMP
-
-                originalTagNames.append(tag)
-                dataProductGroup = dataProductsGroup.create_group(recordToType(rcd)+"@"+label)
-                dataProductGroup.attrs["type"] = recordToType(rcd).encode("ascii")
-                payloadsGroup = dataProductGroup.create_group("Payloads")
-                dataProductsInRecord.append(recordToType(rcd)+"@"+label)
-                time_type, iovAndPayload = tagInfo(session, tag, args.snapshot)
-                #handle payloads
-                # this removes all repeated payloads and preserves the order
-                payloadHashs = list(OrderedDict.fromkeys([v[1] for v in iovAndPayload]))
-                # also need to remove any already seen
-                payloadHashs = [v for v in payloadHashs if v not in seenPayloads]
-                #print([v[1] for v in iovAndPayload])
-                #print(payloadHashs)
-                payloadCache = {}
-                payloadHashsIndex = 0
-                cacheChunking = 1
-                safeChunkingSize = 1
-                print(" IOVs: %i"%len(iovAndPayload))
-                for index,i_p in enumerate(iovAndPayload):
-                    #print("seenPayloads:",seenPayloads)
-                    if index % 100 == 0:
-                        session.flush()
-                        session.commit()
-                    if not i_p[1] in seenPayloads:
-                        seenPayloads.add(i_p[1])
-                        sys.stdout.flush()
-                        #print("   %i payload: %s"%(index, i_p[1]))
-                        if not payloadCache:
-                            #retrieve more info
-                            #print("retrieving:",payloadHashs[payloadHashsIndex:payloadHashsIndex+10])
-                            cacheChunking = safeChunkingSize
-                            queue = mp.Queue()
-                            p=mp.Process(target=external_process_get_payloads_objtype_data, args=(queue, args, payloadHashs[payloadHashsIndex:payloadHashsIndex+cacheChunking]))
-                            p.start()
-                            table = queue.get()
-                            p.join()
-                            #table = get_payloads_objtype_data(session, payloadHashs[payloadHashsIndex:payloadHashsIndex+cacheChunking])
-                            #print(table)
-                            payloadHashsIndex +=cacheChunking
-                            for r in table:
-                                payloadCache[r[0]] = (r[1],r[2])
-                        objtype,data = payloadCache[i_p[1]]
-                        print("  %i payload: %s size: %i"%(index,i_p[1],len(data)))
-                        recordDataSize += len(data)
-                        if len(data) < 1000000:
-                            safeChunkingSize = 10
-                        del payloadCache[i_p[1]]
-                        ##print("  cacheSize:",len(payloadCache))
-                        #pl = payloadsGroup.create_dataset(i_p[1], data=np.array([1],dtype='b'), compression='gzip')
-                        pl = payloadsGroup.create_dataset(i_p[1], data=np.frombuffer(data,dtype='b'), compression='gzip')
-                        pl.attrs["type"] = canonicalProductName(objtype.encode("ascii"))
-                        payloadToRefs[i_p[1]] = pl.ref
+                recordDataSize = 0
                 
-                if not lastIOV:
-                    lastIOV = [ [i[0],[i[1]]] for i in iovAndPayload]
-                else:
-                    lastIOV = mergeIOVs(lastIOV, iovAndPayload)
-                #print(lenti[1]))
-                #if count > 5: #TEMP
-                #    break
-            print(" total size:",recordDataSize)
-            tagGroupRefs.append(writeTag(tagsGroup, time_type, lastIOV, payloadToRefs, originalTagNames, lastRcd))
+                payloadToRefs = { None: null_dataset.ref}
+                
+                recordGroup = recordsGroup.create_group(rcd)
+                tagsGroup = recordGroup.create_group("Tags")
+                dataProductsGroup = recordGroup.create_group("DataProducts")
+                print("record: %s"%rcd)
+                for dataProduct in tag.dataProducts():
+                    dataProductGroup = dataProductsGroup.create_group(dataProduct.name())
+                    dataProductGroup.attrs["type"] = dataProduct.objtype().encode("ascii")
+                    payloadsGroup = dataProductGroup.create_group("Payloads")
+                    print(" product: %s"%dataProduct.name())
+                    for p_index, payload in enumerate(dataProduct.payloads()):
+                        print("  %i payload: %s size: %i"%(p_index,payload.name(),len(payload.data())))
+                        recordDataSize +=len(payload.data())
+                        pl = payloadsGroup.create_dataset(payload.name(), data=np.frombuffer(payload.data(),dtype='b'), compression='gzip')
+                        pl.attrs["type"] = canonicalProductName(payload.actualType())
+                        payloadToRefs[payload.name()] = pl.ref
+                        
+                tagGroupRefs.append(writeTag(tagsGroup, tag.time_type(), tag.iovsNPayloadNames(), payloadToRefs, tag.originalTagNames(), rcd))
+                print(" total size:",recordDataSize)
+                recordDataSize = 0
+
             globalTagGroup = globalTagsGroup.create_group(name)
             globalTagGroup.create_dataset("Tags", data=tagGroupRefs, dtype=h5py.ref_dtype)
 if __name__ == '__main__':

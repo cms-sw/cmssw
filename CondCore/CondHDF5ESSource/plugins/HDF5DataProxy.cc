@@ -12,7 +12,9 @@
 
 // system include files
 #include <iostream>
+#include <fstream>
 #include <cassert>
+#include "zlib.h"
 
 // user include files
 #include "HDF5DataProxy.h"
@@ -37,12 +39,14 @@
 HDF5DataProxy::HDF5DataProxy(edm::SerialTaskQueue* iQueue,
                              std::mutex* iMutex,
                              std::unique_ptr<cond::serialization::SerializationHelperBase> iHelper,
-                             cms::h5::File* iFile,
+                             cms::h5::File const* iFile,
+                             std::string const& iFileName,
                              cond::hdf5::Record const* iRecord,
                              cond::hdf5::DataProduct const* iDataProduct)
     : edm::eventsetup::ESSourceDataProxyNonConcurrentBase(iQueue, iMutex),
       helper_(std::move(iHelper)),
       file_(iFile),
+      fileName_(iFileName),
       record_(iRecord),
       dataProduct_(iDataProduct) {}
 
@@ -64,20 +68,60 @@ void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSet
   auto itFound = findMatchingFirst(record_->iovFirsts_, firstSync);
   assert(itFound != record_->iovFirsts_.end());
 
-  auto payloadRef = dataProduct_->payloadForIOVs_[itFound - record_->iovFirsts_.begin()];
-  auto dataset = file_->derefDataSet(payloadRef);
-  std::vector<char> buffer = dataset->readBytes();
-  if (buffer.empty()) {
+  auto index = itFound - record_->iovFirsts_.begin();
+
+  auto payloadRef = dataProduct_->payloadForIOVs_[index];
+
+  auto ds = file_->derefDataSet(payloadRef);
+  auto storageSize = ds->storageSize();
+  if (storageSize == 0) {
     return;
+  }
+
+  auto fileOffset = ds->fileOffset();
+  auto memSize = ds->findAttribute("memsize")->readUInt32();
+  auto typeName = ds->findAttribute("type")->readString();
+
+  //Done interacting with the hdf5 API
+
+  //std::cout <<" prefetch "<<dataProduct_->fileOffsets_[index]<<" "<<dataProduct_->storageSizes_[index]<<" "<<memSize<<std::endl;
+  std::vector<char> compressedBuffer(storageSize);
+  std::fstream file(fileName_.c_str());
+  file.seekg(fileOffset);
+  file.read(compressedBuffer.data(), compressedBuffer.size());
+
+  std::vector<char> buffer;
+  if (memSize == compressedBuffer.size()) {
+    //memory was not compressed
+    //std::cout <<"NOT COMPRESSED"<<std::endl;
+    buffer = std::move(compressedBuffer);
+  } else {
+    //zlib compression was used
+    z_stream strm;
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+    auto ret = inflateInit(&strm);
+    assert(ret == Z_OK);
+
+    strm.avail_in = compressedBuffer.size();
+    strm.next_in = reinterpret_cast<unsigned char*>(compressedBuffer.data());
+
+    buffer = std::vector<char>(memSize);
+    strm.avail_out = buffer.size();
+    strm.next_out = reinterpret_cast<unsigned char*>(buffer.data());
+    ret = inflate(&strm, Z_FINISH);
+    assert(ret != Z_STREAM_ERROR);
+    //if(ret != Z_STREAM_END) {std::cout <<"mem "<<memSize<<" "<<ret<<" out "<<strm.avail_out<<std::endl;}
+    assert(ret == Z_STREAM_END);
+
+    (void)inflateEnd(&strm);
   }
 
   std::stringbuf sBuffer;
   sBuffer.pubsetbuf(&buffer[0], buffer.size());
-  std::string typeName;
-  {
-    auto const typeAttr = dataset->findAttribute("type");
-    typeName = typeAttr->readString();
-  }
   data_ = helper_->deserialize(sBuffer, typeName);
   if (data_.get() == nullptr) {
     throw cms::Exception("H5CondFailedDeserialization")

@@ -34,7 +34,8 @@ public:
   HDF5DataProxy(edm::SerialTaskQueue* iQueue,
                 std::mutex* iMutex,
                 std::unique_ptr<cond::serialization::SerializationHelperBase>,
-                cms::h5::File* iFile,
+                cms::h5::File const* iFile,
+                std::string const& iFileName,
                 cond::hdf5::Record const* iRecord,
                 cond::hdf5::DataProduct const* iDataProduct);
   ~HDF5DataProxy() final;
@@ -50,7 +51,8 @@ private:
   // ---------- member data --------------------------------
   cond::serialization::unique_void_ptr data_;
   std::unique_ptr<cond::serialization::SerializationHelperBase> helper_;
-  cms::h5::File* file_;
+  cms::h5::File const* file_;
+  std::string fileName_;
   cond::hdf5::Record const* record_;
   cond::hdf5::DataProduct const* dataProduct_;
 };

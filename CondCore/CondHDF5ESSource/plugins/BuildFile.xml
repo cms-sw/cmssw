@@ -6,6 +6,7 @@
     <use name="FWCore/ParameterSet"/>
     <use name="CondFormats/SerializationHelper"/>
     <use name="hdf5"/>
+    <use name="zlib"/>
   </library>
 
 </environment>
