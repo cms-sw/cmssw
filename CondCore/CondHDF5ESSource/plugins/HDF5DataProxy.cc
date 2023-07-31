@@ -20,6 +20,7 @@
 #include "HDF5DataProxy.h"
 #include "convertSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "h5_DataSet.h"
@@ -37,13 +38,13 @@
 // constructors and destructor
 //
 HDF5DataProxy::HDF5DataProxy(edm::SerialTaskQueue* iQueue,
-                             std::mutex* iMutex,
                              std::unique_ptr<cond::serialization::SerializationHelperBase> iHelper,
                              cms::h5::File const* iFile,
                              std::string const& iFileName,
                              cond::hdf5::Record const* iRecord,
                              cond::hdf5::DataProduct const* iDataProduct)
-    : edm::eventsetup::ESSourceDataProxyNonConcurrentBase(iQueue, iMutex),
+    : edm::eventsetup::ESSourceDataProxyBase(),
+      queue_(iQueue),
       helper_(std::move(iHelper)),
       file_(iFile),
       fileName_(iFileName),
@@ -60,6 +61,34 @@ HDF5DataProxy::~HDF5DataProxy() {}
 //
 // member functions
 //
+
+void HDF5DataProxy::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
+                                      edm::eventsetup::EventSetupRecordImpl const& iRecord,
+                                      edm::eventsetup::DataKey const& iKey,
+                                      edm::EventSetupImpl const*,
+                                      edm::ServiceToken const&,
+                                      edm::ESParentContext const& iParent) {
+  prefetchAsyncImplTemplate(
+      [this, iov = iRecord.validityInterval()](auto& iGroup, auto iActivity) {
+        queue_->push(iGroup, [this, &iGroup, act = std::move(iActivity), iov] {
+          try {
+            auto index = indexForInterval(iov);
+
+            readFromHDF5api(index);
+            iGroup.run(std::move(act));
+            exceptPtr_ = {};
+          } catch (...) {
+            exceptPtr_ = std::current_exception();
+          }
+        });
+      },
+      []() { return true; },
+      std::move(iTask),
+      iRecord,
+      iKey,
+      iParent);
+}
+
 std::ptrdiff_t HDF5DataProxy::indexForInterval(edm::ValidityInterval const& iIOV) const {
   using namespace cond::hdf5;
   auto firstSync = convertSyncValue(iIOV.first(), record_->iovIsRunLumi_);
@@ -70,22 +99,27 @@ std::ptrdiff_t HDF5DataProxy::indexForInterval(edm::ValidityInterval const& iIOV
   return itFound - record_->iovFirsts_.begin();
 }
 
-void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
-  auto index = indexForInterval(iRecord.validityInterval());
-
-  auto payloadRef = dataProduct_->payloadForIOVs_[index];
-
+void HDF5DataProxy::readFromHDF5api(std::ptrdiff_t iIndex) {
+  auto payloadRef = dataProduct_->payloadForIOVs_[iIndex];
   auto ds = file_->derefDataSet(payloadRef);
-  auto storageSize = ds->storageSize();
-  if (storageSize == 0) {
+  storageSize_ = ds->storageSize();
+  if (storageSize_ == 0) {
     return;
   }
 
-  auto fileOffset = ds->fileOffset();
-  auto memSize = ds->findAttribute("memsize")->readUInt32();
-  auto typeName = ds->findAttribute("type")->readString();
+  fileOffset_ = ds->fileOffset();
+  memSize_ = ds->findAttribute("memsize")->readUInt32();
+  type_ = ds->findAttribute("type")->readString();
+}
 
-  threadFriendlyPrefetch(fileOffset, storageSize, memSize, typeName);
+void HDF5DataProxy::prefetch(edm::eventsetup::DataKey const& iKey, edm::EventSetupRecordDetails iRecord) {
+  if (exceptPtr_) {
+    rethrow_exception(exceptPtr_);
+  }
+  if (storageSize_ == 0) {
+    return;
+  }
+  threadFriendlyPrefetch(fileOffset_, storageSize_, memSize_, type_);
 }
 
 std::vector<char> HDF5DataProxy::decompress(std::vector<char> compressedBuffer, std::size_t iMemSize) const {

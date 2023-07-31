@@ -212,7 +212,7 @@ CondHDF5ESSource::KeyedProxiesVector CondHDF5ESSource::registerProxies(EventSetu
     returnValue.emplace_back(
         edm::eventsetup::DataKey(edm::eventsetup::heterocontainer::HCTypeTag::findType(dataProduct.type_),
                                  dataProduct.name_.c_str()),
-        std::make_shared<HDF5DataProxy>(&queue_, &mutex_, std::move(helper), &file_, filename_, &record, &dataProduct));
+        std::make_shared<HDF5DataProxy>(&queue_, std::move(helper), &file_, filename_, &record, &dataProduct));
   }
   return returnValue;
 }
