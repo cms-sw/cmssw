@@ -54,8 +54,8 @@ private:
 };
 
 PrintG4Touch::PrintG4Touch(const edm::ParameterSet &p) {
-  dd4hep_ = p.getUntrackedParameter<bool>("DD4hep", false);
-  verbosity_ = p.getUntrackedParameter<bool>("Verbosity", false);
+  dd4hep_ = p.getUntrackedParameter<bool>("dd4hep", false);
+  verbosity_ = p.getUntrackedParameter<bool>("verbosity", false);
   G4cout << "PrintG4Touch:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:" << verbosity_ << G4endl;
 }
 
@@ -159,12 +159,12 @@ void PrintG4Touch::getTouch(G4VPhysicalVolume *pv,
                            : "World";
 
   G4LogicalVolume *lv = pv->GetLogicalVolume();
-  std::string lvname = DD4hep2DDDName::nameSolid(static_cast<std::string>(lv->GetName()), dd4hep_);
+  std::string lvname = DD4hep2DDDName::nameSolid(static_cast<std::string>(lv->GetSolid()->GetName()), dd4hep_);
   unsigned int copy = static_cast<unsigned int>(pv->GetCopyNo());
 
   std::string type = static_cast<std::string>(lv->GetSolid()->GetEntityType());
 
-  std::string name = lvname + ":" + std::to_string(copy) + "_" + mother + ":" + std::to_string(copym) + ":" + type;
+  std::string name = lvname + " " + std::to_string(copy) + " " + mother + " " + std::to_string(copym) + " " + type;
   touches.emplace_back(name);
 
   int NoDaughters = lv->GetNoDaughters();

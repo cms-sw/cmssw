@@ -2,4 +2,5 @@
 <flags EDM_PLUGIN="1"/>
 <bin name="SimFileCompare" file="SimFileCompare.cpp"> </bin>
 <bin name="SolidFileCompare" file="SolidFileCompare.cpp"> </bin>
+<bin name="TouchFileCompare" file="TouchFileCompare.cpp"> </bin>
 

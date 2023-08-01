@@ -123,7 +123,7 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int debug) {
 
 int main(int argc, char* argv[]) {
   if (argc <= 3) {
-    std::cout << "Please give a minimum of 2 arguments \n"
+    std::cout << "Please give a minimum of 3 arguments \n"
               << "name of the first input file (dd4hep) \n"
               << "name of the second input file (ddd) \n"
               << "debug flag (0 for minimum printout)\n"
