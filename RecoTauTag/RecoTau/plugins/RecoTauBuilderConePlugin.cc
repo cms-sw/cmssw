@@ -76,7 +76,8 @@ namespace reco {
     // ctor - initialize all of our variables
     RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
         : RecoTauBuilderPlugin(pset, std::move(iC)),
-          qcuts_(new RecoTauQualityCuts(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
+          qcuts_(std::make_unique<RecoTauQualityCuts>(
+              pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
           usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
           leadObjecPtThreshold_(pset.getParameter<double>("leadObjectPt")),
           matchingCone_(pset.getParameter<std::string>("matchingCone")),

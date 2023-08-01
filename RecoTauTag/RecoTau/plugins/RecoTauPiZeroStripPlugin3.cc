@@ -95,7 +95,7 @@ namespace reco {
       std::unique_ptr<TFormula> makeFunction(const std::string& functionName, const edm::ParameterSet& pset) {
         TString formula = pset.getParameter<std::string>("function");
         formula = formula.ReplaceAll("pT", "x");
-        std::unique_ptr<TFormula> function(new TFormula(functionName.data(), formula.Data()));
+        auto function = std::make_unique<TFormula>(functionName.data(), formula.Data());
         int numParameter = function->GetNpar();
         for (int idxParameter = 0; idxParameter < numParameter; ++idxParameter) {
           std::string parameterName = Form("par%i", idxParameter);
@@ -133,9 +133,6 @@ namespace reco {
       }
       //-------------------------------------------------------------------------------
       qcuts_pset.addParameter<double>("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
-      //qcuts_ = new RecoTauQualityCuts(qcuts_pset);
-      //std::unique_ptr<RecoTauQualityCuts> qcuts_(new RecoTauQualityCuts(qcuts_pset));
-
       qcuts_ = std::make_unique<RecoTauQualityCuts>(qcuts_pset);
 
       inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
@@ -285,7 +282,7 @@ namespace reco {
         seedCandIdsCurrentStrip.clear();
         addCandIdsCurrentStrip.clear();
 
-        std::unique_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seedCands[idxSeed], RecoTauPiZero::kStrips));
+        auto strip = std::make_unique<RecoTauPiZero>(*seedCands[idxSeed], RecoTauPiZero::kStrips);
         strip->addDaughter(seedCands[idxSeed]);
         seedCandIdsCurrentStrip.insert(idxSeed);
 

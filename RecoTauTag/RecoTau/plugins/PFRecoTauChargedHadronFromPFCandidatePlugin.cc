@@ -54,7 +54,7 @@ namespace reco {
 
       RecoTauVertexAssociator vertexAssociator_;
 
-      RecoTauQualityCuts* qcuts_;
+      std::unique_ptr<RecoTauQualityCuts> qcuts_;
 
       std::vector<int> inputParticleIds_;  // type of candidates to clusterize
 
@@ -87,7 +87,7 @@ namespace reco {
           qcuts_(nullptr),
           bFieldToken_(iC.esConsumes()) {
       edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
-      qcuts_ = new RecoTauQualityCuts(qcuts_pset);
+      qcuts_ = std::make_unique<RecoTauQualityCuts>(qcuts_pset);
 
       inputParticleIds_ = pset.getParameter<std::vector<int> >("chargedHadronCandidatesParticleIds");
 
@@ -110,7 +110,7 @@ namespace reco {
       verbosity_ = pset.getParameter<int>("verbosity");
     }
 
-    PFRecoTauChargedHadronFromPFCandidatePlugin::~PFRecoTauChargedHadronFromPFCandidatePlugin() { delete qcuts_; }
+    PFRecoTauChargedHadronFromPFCandidatePlugin::~PFRecoTauChargedHadronFromPFCandidatePlugin() {}
 
     // Update the primary vertex
     void PFRecoTauChargedHadronFromPFCandidatePlugin::beginEvent() {

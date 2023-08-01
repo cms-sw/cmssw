@@ -172,10 +172,10 @@ namespace reco {
 
       if (pset.exists("vxAssocQualityCuts")) {
         //std::cout << " reading 'vxAssocQualityCuts'" << std::endl;
-        qcuts_ = new RecoTauQualityCuts(pset.getParameterSet("vxAssocQualityCuts"));
+        qcuts_ = std::make_unique<RecoTauQualityCuts>(pset.getParameterSet("vxAssocQualityCuts"));
       } else {
         //std::cout << " reading 'signalQualityCuts'" << std::endl;
-        qcuts_ = new RecoTauQualityCuts(pset.getParameterSet("signalQualityCuts"));
+        qcuts_ = std::make_unique<RecoTauQualityCuts>(pset.getParameterSet("signalQualityCuts"));
       }
       assert(qcuts_);
 
@@ -191,7 +191,7 @@ namespace reco {
       if (pset.exists("vertexSelection")) {
         std::string vertexSelection = pset.getParameter<std::string>("vertexSelection");
         if (!vertexSelection.empty()) {
-          vertexSelector_ = new StringCutObjectSelector<reco::Vertex>(vertexSelection);
+          vertexSelector_ = std::make_unique<StringCutObjectSelector<reco::Vertex>>(vertexSelection);
         }
       }
 
@@ -233,11 +233,7 @@ namespace reco {
       verbosity_ = (pset.exists("verbosity")) ? pset.getParameter<int>("verbosity") : 0;
     }
 
-    RecoTauVertexAssociator::~RecoTauVertexAssociator() {
-      delete vertexSelector_;
-      delete qcuts_;
-      delete jetToVertexAssociation_;
-    }
+    RecoTauVertexAssociator::~RecoTauVertexAssociator() {}
 
     void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
       edm::Handle<reco::VertexCollection> vertices;
@@ -256,7 +252,7 @@ namespace reco {
       edm::EventNumber_t currentEvent = evt.id().event();
       if (currentEvent != lastEvent_ || !jetToVertexAssociation_) {
         if (!jetToVertexAssociation_)
-          jetToVertexAssociation_ = new std::map<const reco::Jet*, reco::VertexRef>;
+          jetToVertexAssociation_ = std::make_unique<JetToVtxAssoc>();
         else
           jetToVertexAssociation_->clear();
         lastEvent_ = currentEvent;
@@ -390,7 +386,7 @@ namespace reco {
       const Jet* jetPtr = &jet;
 
       // check if jet-vertex association has been determined for this jet before
-      std::map<const reco::Jet*, reco::VertexRef>::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
+      JetToVtxAssoc::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
       if (vertexPtr != jetToVertexAssociation_->end()) {
         jetVertex = vertexPtr->second;
       } else {
@@ -426,7 +422,7 @@ namespace reco {
           }
         }
 
-        jetToVertexAssociation_->insert(std::pair<const Jet*, reco::VertexRef>(jetPtr, jetVertex));
+        jetToVertexAssociation_->insert(std::make_pair(jetPtr, jetVertex));
       }
 
       if (verbosity_ >= 1) {

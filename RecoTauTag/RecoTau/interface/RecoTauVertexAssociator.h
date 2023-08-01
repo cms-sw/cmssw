@@ -72,18 +72,19 @@ namespace reco {
     private:
       edm::InputTag vertexTag_;
       bool vxTrkFiltering_;
-      StringCutObjectSelector<reco::Vertex>* vertexSelector_;
+      std::unique_ptr<StringCutObjectSelector<reco::Vertex>> vertexSelector_;
       std::vector<reco::VertexRef> selectedVertices_;
       std::string algorithm_;
       Algorithm algo_;
       //PJ adding quality cuts
-      RecoTauQualityCuts* qcuts_;
+      std::unique_ptr<RecoTauQualityCuts> qcuts_;
       bool recoverLeadingTrk_;
       enum { kLeadTrack, kLeadPFCand, kMinLeadTrackOrPFCand, kFirstTrack };
       int leadingTrkOrPFCandOption_;
       edm::EDGetTokenT<reco::VertexCollection> vxToken_;
       // containers for holding vertices associated to jets
-      std::map<const reco::Jet*, reco::VertexRef>* jetToVertexAssociation_;
+      typedef std::map<const reco::Jet*, reco::VertexRef> JetToVtxAssoc;
+      std::unique_ptr<JetToVtxAssoc> jetToVertexAssociation_;
       edm::EventNumber_t lastEvent_;
       int verbosity_;
     };
