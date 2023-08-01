@@ -14,6 +14,8 @@ from L1Trigger.L1TNtuples.l1HOTree_cfi import *
 l1UpgradeTfMuonTree.omtfMuonToken = cms.untracked.InputTag("gmtStage2Digis","OMTF")
 # we don't have emtfDigis yet, use unpacked input payloads of GMT
 l1UpgradeTfMuonTree.emtfMuonToken = cms.untracked.InputTag("gmtStage2Digis","EMTF")
+# We have only output of the ZDC emulator available, no info from unpacker
+l1UpgradeTree.sumZDCToken = cms.untracked.InputTag("etSumZdcProducer")
 
 L1NtupleRAW = cms.Sequence(
   l1EventTree

@@ -52,6 +52,8 @@ namespace l1t {
       kAsymHt,
       kAsymEtHF,
       kAsymHtHF,
+      kZDCP,
+      kZDCM,
       kUninitialized
     };
 
