@@ -359,9 +359,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meTPullvsE_->Fill(m_btlSimHits[detId.rawId()].energy, time_res / recHit.timeError());
     } else if (m_btlSimHits.count(detId.rawId()) == 0) {
       n_reco_btl_nosimhit++;
-      edm::LogWarning("BtlLocalRecoValidation")
-          << "BTL rec hit with no corresponding sim hit in crystal, DetId= " << detId.rawId()
-          << " geoId= " << geoId.rawId() << " ene= " << recHit.energy() << " time= " << recHit.time();
+      LogDebug("BtlLocalRecoValidation") << "BTL rec hit with no corresponding sim hit in crystal, DetId= "
+                                         << detId.rawId() << " geoId= " << geoId.rawId() << " ene= " << recHit.energy()
+                                         << " time= " << recHit.time();
     }
 
     n_reco_btl++;
