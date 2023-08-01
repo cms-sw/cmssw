@@ -433,7 +433,7 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
   if (iSys != 0) return false;
 
   // only use for outside resonance vetos in combination with bb4l:FSREmission:veto
-  if (!inResonance && settingsPtr->flag("POWHEG:bb4l:FSREmission:veto")==1) return false;
+  if (inResonance && settingsPtr->flag("POWHEG:bb4l:FSREmission:veto")==1) return false;
 
   // If we already have accepted 'vetoCount' emissions in a row, do nothing
   if (vetoOn && nAcceptSeq >= vetoCount) return false;
