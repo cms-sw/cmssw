@@ -82,9 +82,7 @@ namespace cms::alpakatools {
    *    - the `Queue` type can be either `Sync` _or_ `Async` on any allocation.
    */
 
-  template <typename TDev,
-            typename TQueue,
-            typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
+  template <typename TDev, typename TQueue>
   class CachingAllocator {
   public:
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
@@ -106,6 +104,8 @@ namespace cms::alpakatools {
     using Buffer = alpaka::Buf<Device, std::byte, alpaka::DimInt<1u>, size_t>;
 
     // The "memory device" type can either be the same as the "synchronisation device" type, or be the host CPU.
+    static_assert(alpaka::isDevice<Device>, "TDev should be an alpaka Device type.");
+    static_assert(alpaka::isQueue<Queue>, "TQueue should be an alpaka Queue type.");
     static_assert(std::is_same_v<Device, alpaka::Dev<Queue>> or std::is_same_v<Device, alpaka::DevCpu>,
                   "The \"memory device\" type can either be the same as the \"synchronisation device\" type, or be the "
                   "host CPU.");
