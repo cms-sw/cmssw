@@ -103,8 +103,8 @@ namespace edm {
         earlyDeleteHelper_(nullptr),
         workStarted_(false),
         ranAcquireWithoutException_(false) {
-          checkForShouldTryToContinue(iMD);
-        }
+    checkForShouldTryToContinue(iMD);
+  }
 
   Worker::~Worker() {}
 
@@ -117,7 +117,10 @@ namespace edm {
     }
   }
 
-  bool Worker::shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent, bool shouldTryToContinue) const {
+  bool Worker::shouldRethrowException(std::exception_ptr iPtr,
+                                      ParentContext const& parentContext,
+                                      bool isEvent,
+                                      bool shouldTryToContinue) const {
     // NOTE: the warning printed as a result of ignoring or failing
     // a module will only be printed during the full true processing
     // pass of this module

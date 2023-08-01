@@ -52,7 +52,7 @@ namespace edmtest {
       explicit StreamIntAnalyzer(edm::ParameterSet const& p) : trans_(p.getParameter<int>("transitions")) {
         bool verbose = p.getUntrackedParameter<bool>("verbose", true);
         callWhenNewProductsRegistered([verbose](edm::BranchDescription const& desc) {
-          if ( verbose ) {
+          if (verbose) {
             std::cout << "global::StreamIntAnalyzer " << desc.moduleLabel() << std::endl;
           }
         });
@@ -119,7 +119,7 @@ namespace edmtest {
         }
       }
 
-      void endJob () override {
+      void endJob() override {
         if (m_count != trans_) {
           throw cms::Exception("transitions")
               << "StreamIntAnalyzer transitions " << m_count << " but it was supposed to be " << trans_;

@@ -122,10 +122,7 @@ namespace edm {
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    void handleWorkerFailure(cms::Exception& e,
-                             int nwrwue,
-                             ModuleDescription const&,
-                             std::string const& id);
+    void handleWorkerFailure(cms::Exception& e, int nwrwue, ModuleDescription const&, std::string const& id);
     static void exceptionContext(cms::Exception& ex,
                                  bool isEvent,
                                  bool begin,

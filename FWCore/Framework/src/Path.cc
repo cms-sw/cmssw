@@ -65,10 +65,7 @@ namespace edm {
     modulesToRun_ = workers_.size();
   }
 
-  void Path::handleWorkerFailure(cms::Exception& e,
-                                 int nwrwue,
-                                 ModuleDescription const& desc,
-                                 std::string const& id) {
+  void Path::handleWorkerFailure(cms::Exception& e, int nwrwue, ModuleDescription const& desc, std::string const& id) {
     if (e.context().empty()) {
       exceptionContext(e, true /*isEvent*/, true /*begin*/, InEvent /*branchType*/, desc, id, pathContext_);
     }
@@ -263,10 +260,7 @@ namespace edm {
         ost << iEP.id();
         ModuleDescription const* desc = worker.getWorker()->description();
         assert(desc != nullptr);
-        handleWorkerFailure(*pEx,
-                            iModuleIndex,
-                            *desc,
-                            ost.str());
+        handleWorkerFailure(*pEx, iModuleIndex, *desc, ost.str());
         //If we didn't rethrow, then we effectively skipped
         worker.skipWorker(iEP);
       } catch (...) {

@@ -863,14 +863,8 @@ namespace edm {
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
-      trig_paths_.emplace_back(bitpos,
-                               name,
-                               tmpworkers,
-                               trptr,
-                               actionTable(),
-                               actReg_,
-                               &streamContext_,
-                               PathContext::PathType::kPath);
+      trig_paths_.emplace_back(
+          bitpos, name, tmpworkers, trptr, actionTable(), actReg_, &streamContext_, PathContext::PathType::kPath);
     } else {
       empty_trig_paths_.push_back(bitpos);
     }
@@ -1276,9 +1270,7 @@ namespace edm {
     for_all(allWorkers(), std::bind(&Worker::clearCounters, _1));
   }
 
-  void StreamSchedule::resetAll() {
-    results_->reset();
-  }
+  void StreamSchedule::resetAll() { results_->reset(); }
 
   void StreamSchedule::addToAllWorkers(Worker* w) { workerManager_.addToAllWorkers(w); }
 
