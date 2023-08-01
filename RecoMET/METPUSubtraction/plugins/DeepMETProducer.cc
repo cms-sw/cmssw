@@ -43,8 +43,17 @@ DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const tensorflow:
       session_(cache->getSession()) {
   produces<pat::METCollection>();
 
-  const tensorflow::TensorShape shape({1, max_n_pf_, 8});
-  const tensorflow::TensorShape cat_shape({1, max_n_pf_, 1});
+  // Workaround for missing constructor TensorShape::TensorShape(absl::Slice<long>),
+  // the constructor expects Slice<int64> or initializer_list<int64> and is marked explicit
+  tensorflow::TensorShape shape;
+  shape.AddDim(1);
+  shape.AddDim(max_n_pf_);
+  shape.AddDim(8);
+
+  tensorflow::TensorShape cat_shape;
+  cat_shape.AddDim(1);
+  cat_shape.AddDim(max_n_pf_);
+  cat_shape.AddDim(1);
 
   input_ = tensorflow::Tensor(tensorflow::DT_FLOAT, shape);
   input_cat0_ = tensorflow::Tensor(tensorflow::DT_FLOAT, cat_shape);
