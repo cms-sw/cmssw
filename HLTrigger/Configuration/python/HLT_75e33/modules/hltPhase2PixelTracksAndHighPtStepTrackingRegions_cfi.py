@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixelTracksTrackingRegions = cms.EDProducer("GlobalTrackingRegionFromBeamSpotEDProducer",
+hltPhase2PixelTracksAndHighPtStepTrackingRegions = cms.EDProducer("GlobalTrackingRegionFromBeamSpotEDProducer",
     RegionPSet = cms.PSet(
         beamSpot = cms.InputTag("hltOnlineBeamSpot"),
         nSigmaZ = cms.double(4.0),
