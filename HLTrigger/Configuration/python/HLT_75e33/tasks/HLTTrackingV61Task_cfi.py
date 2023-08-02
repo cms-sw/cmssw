@@ -10,7 +10,7 @@ from ..modules.highPtTripletStepSeeds_cfi import *
 from ..modules.highPtTripletStepTrackCandidates_cfi import *
 from ..modules.highPtTripletStepTrackCutClassifier_cfi import *
 from ..modules.highPtTripletStepTrackSelectionHighPurity_cfi import *
-from ..modules.highPtTripletStepTrackingRegions_cfi import *
+from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import *
 from ..modules.highPtTripletStepTracks_cfi import *
 from ..modules.initialStepSeeds_cfi import *
 from ..modules.initialStepTrackCandidates_cfi import *
@@ -22,7 +22,6 @@ from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..modules.pixelTracksHitDoublets_cfi import *
 from ..modules.pixelTracksHitSeeds_cfi import *
 from ..modules.pixelTracksSeedLayers_cfi import *
-from ..modules.pixelTracksTrackingRegions_cfi import *
 from ..modules.pixelTracks_cfi import *
 from ..modules.pixelVertices_cfi import *
 from ..modules.siPhase2Clusters_cfi import *
@@ -44,7 +43,7 @@ HLTTrackingV61Task = cms.Task(
     highPtTripletStepTrackCandidates,
     highPtTripletStepTrackCutClassifier,
     highPtTripletStepTrackSelectionHighPurity,
-    highPtTripletStepTrackingRegions,
+    hltPhase2PixelTracksAndHighPtStepTrackingRegions,
     highPtTripletStepTracks,
     initialStepSeeds,
     initialStepTrackCandidates,
@@ -57,7 +56,6 @@ HLTTrackingV61Task = cms.Task(
     pixelTracksHitDoublets,
     pixelTracksHitSeeds,
     pixelTracksSeedLayers,
-    pixelTracksTrackingRegions,
     pixelVertices,
     siPhase2Clusters,
     siPixelClusterShapeCache,
