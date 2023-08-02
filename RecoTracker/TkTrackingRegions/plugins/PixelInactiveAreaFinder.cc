@@ -559,6 +559,10 @@ PixelInactiveAreaFinder::InactiveAreas PixelInactiveAreaFinder::inactiveAreas(co
 
   // assign data to instance variables
   updatePixelDets(iSetup);
+
+  // clear the list of bad pixel modules at each event!
+  badPixelDetsBarrel_.clear();
+  badPixelDetsEndcap_.clear();
   getBadPixelDets(iEvent, iSetup);
 
   //write files for plotting
