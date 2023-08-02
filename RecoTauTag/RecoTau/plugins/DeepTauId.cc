@@ -1242,6 +1242,10 @@ public:
   void produce(edm::Event& event, const edm::EventSetup& es) override {
     edm::Handle<TauCollection> taus;
     event.getByToken(tausToken_, taus);
+    // do nothing if tau collection is empty
+    if (taus->empty())
+      return;
+
     edm::ProductID tauProductID = taus.id();
 
     // load prediscriminators
