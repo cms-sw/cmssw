@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixelVertices = cms.EDProducer("PixelVertexProducer",
+hltPhase2PixelVertices = cms.EDProducer("PixelVertexProducer",
     Finder = cms.string('DivisiveVertexFinder'),
     Method2 = cms.bool(True),
     NTrkMin = cms.int32(2),
