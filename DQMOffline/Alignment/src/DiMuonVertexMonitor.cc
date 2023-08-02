@@ -91,6 +91,8 @@ void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
   hCosPhi3D_ = iBooker.book1D("CosPhi3D", fmt::sprintf("%s;cos(#phi_{3D});%s", histTit, ps), 50, -1., 1.);
   hCosPhiInv_ = iBooker.book1D("CosPhiInv", fmt::sprintf("%s;inverted cos(#phi_{xy});%s", histTit, ps), 50, -1., 1.);
   hCosPhiInv3D_ = iBooker.book1D("CosPhiInv3D", fmt::sprintf("%s;inverted cos(#phi_{3D});%s", histTit, ps), 50, -1., 1.);
+  hCosPhiUnbalance_ = iBooker.book1D("CosPhiUnbalance", fmt::sprintf("%s;cos(#phi_{xy}) unbalance;#Delta%s", histTit, ps), 50, -1.,1.);
+  hCosPhi3DUnbalance_ = iBooker.book1D("CosPhi3DUnbalance", fmt::sprintf("%s;cos(#phi_{3D}) unbalance;#Delta%s", histTit, ps), 50, -1., 1.);
 
   hdxy_ = iBooker.book1D("dxy", fmt::sprintf("%s;muon track d_{xy}(PV) [#mum];muon tracks", histTit), 150, -300, 300);
   hdz_ = iBooker.book1D("dz", fmt::sprintf("%s;muon track d_{z}(PV) [#mum];muon tracks", histTit), 150, -300, 300);
@@ -252,6 +254,12 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
       // inverted
       hCosPhiInv_->Fill(-cosphi);
       hCosPhiInv3D_->Fill(-cosphi3D);
+
+      // unbalance
+      hCosPhiUnbalance_->Fill(cosphi, 1.);
+      hCosPhiUnbalance_->Fill(-cosphi, -1.);
+      hCosPhi3DUnbalance_->Fill(cosphi3D, 1.);
+      hCosPhi3DUnbalance_->Fill(-cosphi3D, -1.);
     }
   } else {
     edm::LogWarning("DiMuonVertexMonitor") << "hardest primary vertex in the event is not valid!";
