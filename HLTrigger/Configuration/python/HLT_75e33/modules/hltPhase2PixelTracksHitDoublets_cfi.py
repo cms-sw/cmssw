@@ -7,7 +7,7 @@ hltPhase2PixelTracksHitDoublets = cms.EDProducer("HitPairEDProducer",
     maxElementTotal = cms.uint32(50000000),
     produceIntermediateHitDoublets = cms.bool(True),
     produceSeedingHitSets = cms.bool(False),
-    seedingLayers = cms.InputTag("pixelTracksSeedLayers"),
+    seedingLayers = cms.InputTag("hltPhase2PixelTracksSeedLayers"),
     trackingRegions = cms.InputTag("hltPhase2PixelTracksAndHighPtStepTrackingRegions"),
     trackingRegionsSeedingLayers = cms.InputTag("")
 )
