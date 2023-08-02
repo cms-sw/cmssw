@@ -25,42 +25,51 @@ int main(int argc, char** argv) {
   cond::Time_t start = static_cast<unsigned long long>(294034);
   cond::Time_t end = static_cast<unsigned long long>(305898);
 
-  std::cout << "## Alignment Histos" << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << "## Alignment Histos";
 
   TrackerAlignmentCompareX histo1;
   histo1.process(connectionString, PI::mk_input(tag, start, end));
-  std::cout << histo1.data() << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo1.data();
 
   TrackerAlignmentSummaryBPix histo2;
   histo2.process(connectionString, PI::mk_input(tag, start, end));
-  std::cout << histo2.data() << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo2.data();
 
   X_BPixBarycenterHistory histo3;
   histo3.process(connectionString, PI::mk_input(tag, start, end));
-  std::cout << histo3.data() << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo3.data();
 
-  std::cout << "## Testing Two Tag Histos" << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << "## Testing Two Tag Histos";
 
   TrackerAlignmentBarycentersCompareTwoTags histo4;
   histo4.process(
       connectionString,
       PI::mk_input("TrackerAlignment_2017_ultralegacymc_v2", 1, 1, "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1));
-  std::cout << histo4.data() << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo4.data();
 
   TrackerAlignmentCompareXTwoTags histo5;
   histo5.process(
       connectionString,
       PI::mk_input("TrackerAlignment_2017_ultralegacymc_v2", 1, 1, "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1));
-  std::cout << histo5.data() << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo5.data();
 
-  std::cout << "## Testing Barycenter Histos" << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << "## Testing Barycenter Histos";
 
   TrackerAlignmentBarycentersCompare histo6;
   histo6.process(connectionString, PI::mk_input(tag, start, end));
-  std::cout << histo6.data() << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo6.data();
 
   PixelBarycentersCompare histo7;
   histo7.process(connectionString, PI::mk_input(tag, start, end));
-  std::cout << histo7.data() << std::endl;
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo7.data();
+
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << "## Testing Comparator Histos";
+
+  PixelAlignmentComparatorTwoTags histo8;
+  histo8.process(
+      connectionString,
+      PI::mk_input("TrackerAlignment_2017_ultralegacymc_v2", 1, 1, "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1));
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo8.data();
+
   Py_Finalize();
 }
