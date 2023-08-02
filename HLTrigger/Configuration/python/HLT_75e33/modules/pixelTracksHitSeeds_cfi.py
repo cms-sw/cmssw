@@ -9,7 +9,7 @@ pixelTracksHitSeeds = cms.EDProducer("CAHitQuadrupletEDProducer",
         clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
         clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
     ),
-    doublets = cms.InputTag("pixelTracksHitDoublets"),
+    doublets = cms.InputTag("hltPhase2PixelTracksHitDoublets"),
     extraHitRPhitolerance = cms.double(0.032),
     fitFastCircle = cms.bool(True),
     fitFastCircleChi2Cut = cms.bool(True),
