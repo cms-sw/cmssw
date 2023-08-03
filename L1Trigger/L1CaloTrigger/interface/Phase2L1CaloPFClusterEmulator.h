@@ -54,14 +54,14 @@ namespace gctpf {
     gctEtaStrip_t s[nTowerEtaSLR];
   } region_t;
 
-  GCTint_t bestOf2(const GCTint_t& t0, const GCTint_t& t1) {
+  inline GCTint_t bestOf2(const GCTint_t& t0, const GCTint_t& t1) {
     GCTint_t x;
     x = (t0.et > t1.et) ? t0 : t1;
 
     return x;
   }
 
-  GCTint_t getPeakOfStrip(const gctEtaStrip_t& etaStrip) {
+  inline GCTint_t getPeakOfStrip(const gctEtaStrip_t& etaStrip) {
     GCTint_t best12 = bestOf2(etaStrip.t[1], etaStrip.t[2]);
     GCTint_t best34 = bestOf2(etaStrip.t[3], etaStrip.t[4]);
     GCTint_t best56 = bestOf2(etaStrip.t[5], etaStrip.t[6]);
@@ -71,7 +71,7 @@ namespace gctpf {
     return bestAll;
   }
 
-  GCTint_t getPeakBin(const gctEtaStripPeak_t& etaStripPeak) {
+  inline GCTint_t getPeakBin(const gctEtaStripPeak_t& etaStripPeak) {
     GCTint_t best01 = bestOf2(etaStripPeak.p[0], etaStripPeak.p[1]);
     GCTint_t best23 = bestOf2(etaStripPeak.p[2], etaStripPeak.p[3]);
     GCTint_t best45 = bestOf2(etaStripPeak.p[4], etaStripPeak.p[5]);
@@ -94,7 +94,7 @@ namespace gctpf {
     return bestAll;
   }
 
-  GCTint_t getPeakPosition(const region_t& region) {
+  inline GCTint_t getPeakPosition(const region_t& region) {
     gctEtaStripPeak_t etaPeak;
     for (int i = 0; i < 19; i++) {
       etaPeak.p[i] = getPeakOfStrip(region.s[i + 1]);
@@ -104,7 +104,7 @@ namespace gctpf {
     return max;
   }
 
-  region_t initStructure(float temp[nTowerEtaSLR][nTowerPhiSLR]) {
+  inline region_t initStructure(float temp[nTowerEtaSLR][nTowerPhiSLR]) {
     region_t r;
 
     for (int i = 0; i < nTowerPhiSLR; i++) {
@@ -118,7 +118,7 @@ namespace gctpf {
     return r;
   }
 
-  float getEt(float temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
+  inline float getEt(float temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
     float et_sumEta[3];
 
     for (int i = 0; i < (nTowerEtaSLR - 2); i++) {
@@ -136,7 +136,7 @@ namespace gctpf {
     return pfcluster_et;
   }
 
-  void RemoveTmp(float temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
+  inline void RemoveTmp(float temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
     for (int i = 0; i < nTowerEtaSLR; i++) {
       if (i + 1 >= eta && i <= eta + 1) {
         for (int j = 0; j < nTowerPhiSLR; j++) {
@@ -150,7 +150,7 @@ namespace gctpf {
     return;
   }
 
-  GCTpfcluster_t recoPfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
+  inline GCTpfcluster_t recoPfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
     GCTpfcluster_t pfclusterReturn;
 
     region_t region;
@@ -174,7 +174,7 @@ namespace gctpf {
     return pfclusterReturn;
   }
 
-  GCTPfcluster_t pfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
+  inline GCTPfcluster_t pfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
     GCTpfcluster_t pfcluster[nPFClusterSLR];
 
     for (int i = 0; i < nPFClusterSLR; i++) {

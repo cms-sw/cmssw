@@ -38,7 +38,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloPFClusterEmulator.h"
 
 //
@@ -48,7 +48,7 @@
 class Phase2L1CaloPFClusterEmulator : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1CaloPFClusterEmulator(const edm::ParameterSet&);
-  ~Phase2L1CaloPFClusterEmulator();
+  ~Phase2L1CaloPFClusterEmulator() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
