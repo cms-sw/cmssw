@@ -682,7 +682,7 @@ void L1JetRecoTreeProducer::doZPt(edm::Handle<reco::MuonCollection> muons,
       passPuppiJetPtCut = true;
   }
 
-  if (!passPuppiJetPtCut) {
+  if (!passPuppiJetPtCut || muons->size() < 2) {
     met_data->zPt = -999;
     return;
   }
