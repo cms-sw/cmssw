@@ -1242,9 +1242,13 @@ public:
   void produce(edm::Event& event, const edm::EventSetup& es) override {
     edm::Handle<TauCollection> taus;
     event.getByToken(tausToken_, taus);
-    // do nothing if tau collection is empty
-    if (taus->empty())
+
+    // store empty output collection(s) if tau collection is empty
+    if (taus->empty()) {
+      const tensorflow::Tensor emptyPrediction(tensorflow::DT_FLOAT, {0, deep_tau::NumberOfOutputs});
+      createOutputs(event, emptyPrediction, taus);
       return;
+    }
 
     edm::ProductID tauProductID = taus.id();
 

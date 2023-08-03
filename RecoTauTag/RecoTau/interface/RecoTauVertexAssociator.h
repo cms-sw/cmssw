@@ -52,7 +52,7 @@ namespace reco {
       enum Algorithm { kHighestPtInEvent, kClosestDeltaZ, kHighestWeigtForLeadTrack, kCombined };
 
       RecoTauVertexAssociator(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC);
-      virtual ~RecoTauVertexAssociator();
+      virtual ~RecoTauVertexAssociator(){};
       /// Get the primary vertex associated to a given jet.
       /// Returns a null Ref if no vertex is found.
       reco::VertexRef associatedVertex(const Jet& jet) const;

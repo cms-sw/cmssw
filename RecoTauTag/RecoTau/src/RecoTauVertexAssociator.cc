@@ -233,8 +233,6 @@ namespace reco {
       verbosity_ = (pset.exists("verbosity")) ? pset.getParameter<int>("verbosity") : 0;
     }
 
-    RecoTauVertexAssociator::~RecoTauVertexAssociator() {}
-
     void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
       edm::Handle<reco::VertexCollection> vertices;
       evt.getByToken(vxToken_, vertices);
@@ -386,7 +384,7 @@ namespace reco {
       const Jet* jetPtr = &jet;
 
       // check if jet-vertex association has been determined for this jet before
-      JetToVtxAssoc::iterator vertexPtr = jetToVertexAssociation_->find(jetPtr);
+      auto vertexPtr = jetToVertexAssociation_->find(jetPtr);
       if (vertexPtr != jetToVertexAssociation_->end()) {
         jetVertex = vertexPtr->second;
       } else {
@@ -422,7 +420,7 @@ namespace reco {
           }
         }
 
-        jetToVertexAssociation_->insert(std::make_pair(jetPtr, jetVertex));
+        jetToVertexAssociation_->insert({jetPtr, jetVertex});
       }
 
       if (verbosity_ >= 1) {
