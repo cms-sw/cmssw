@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -15,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#define DebugLog
+//#define DebugLog
 
 Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
     : steppingVerbose(sv), hasWatcher(hasW) {

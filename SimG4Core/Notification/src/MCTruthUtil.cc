@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
