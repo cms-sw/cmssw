@@ -80,7 +80,7 @@ private:
   void doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet, edm::Handle<reco::MuonCollection>);
   void doPUPPIMetNoMu(edm::Handle<reco::PFMETCollection> puppiMet, edm::Handle<reco::MuonCollection>);
 
-  void doZPt(edm::Handle<reco::MuonCollection>);
+  void doZPt(edm::Handle<reco::MuonCollection> muons, edm::Handle<std::vector<pat::Jet> > corrPuppiJets);
 
   bool pfJetID(const reco::PFJet& jet);
   bool puppiJetID(const pat::Jet& jet);
@@ -129,7 +129,6 @@ private:
   bool puppiMetMissing_;
   bool caloMetMissing_;
   bool caloMetBEMissing_;
-
   bool muonsMissing_;
 };
 
@@ -376,8 +375,15 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   if (muons.isValid()) {
-    doZPt(muons);
+    if (puppiJets.isValid()) {
+      doZPt(muons, corrPuppiJets);
 
+    } else {
+      if (!puppiJetsMissing_) {
+        edm::LogWarning("MissingProduct") << "PUPPIJets not found.  Branch will not be filled" << std::endl;
+      }
+      puppiJetsMissing_ = true;
+    }
   } else {
     if (!muonsMissing_) {
       edm::LogWarning("MissingProduct") << "Muons not found.  ZPt branch will not be filled" << std::endl;
@@ -663,8 +669,20 @@ void L1JetRecoTreeProducer::doCaloMetBE(edm::Handle<reco::CaloMETCollection> cal
   met_data->caloSumEtBE = theMet.sumEt();
 }
 
-void L1JetRecoTreeProducer::doZPt(edm::Handle<reco::MuonCollection> muons) {
-  if (muons->size() < 2) {
+void L1JetRecoTreeProducer::doZPt(edm::Handle<reco::MuonCollection> muons,
+                                  edm::Handle<std::vector<pat::Jet> > corrPuppiJets) {
+  bool passPuppiJetPtCut = false;
+
+  for (auto it = corrPuppiJets->begin(); it != corrPuppiJets->end(); ++it) {
+    if (!puppiJetID(*it))
+      continue;
+    if (it->muonEnergyFraction() > 0.5 || it->chargedEmEnergyFraction() > 0.5)
+      continue;
+    if (it->pt() > 30)
+      passPuppiJetPtCut = true;
+  }
+
+  if (!passPuppiJetPtCut) {
     met_data->zPt = -999;
     return;
   }
