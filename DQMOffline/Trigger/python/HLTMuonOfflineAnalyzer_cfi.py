@@ -90,8 +90,11 @@ hltMuonOfflineAnalyzer = DQMEDAnalyzer('HLTMuonOfflineAnalyzer',
         d0Cut = cms.untracked.double(2.0),
         z0Cut = cms.untracked.double(25.0),
         ## cuts
-        recoCuts = cms.untracked.string("isGlobalMuon && abs(eta) < 2.4"),
-        hltCuts  = cms.untracked.string("abs(eta) < 2.4"),
+        recoMaxEtaCut = cms.untracked.double(2.4),
+        recoMinEtaCut = cms.untracked.double(0.0),
+        recoGlbMuCut = cms.untracked.bool(True),
+        hltMaxEtaCut  = cms.untracked.double(2.4),
+        hltMinEtaCut  = cms.untracked.double(0.0),
     ),
 
     ## If this PSet is empty, then no "tag and probe" plots are produced;
@@ -102,8 +105,11 @@ hltMuonOfflineAnalyzer = DQMEDAnalyzer('HLTMuonOfflineAnalyzer',
         d0Cut = cms.untracked.double(2.0),
         z0Cut = cms.untracked.double(25.0),
         ## cuts
-        recoCuts = cms.untracked.string("isGlobalMuon && abs(eta) < 2.4"),
-        hltCuts  = cms.untracked.string("abs(eta) < 2.4"),
+        recoMaxEtaCut = cms.untracked.double(2.4),
+        recoMinEtaCut = cms.untracked.double(0.0),
+        recoGlbMuCut = cms.untracked.bool(True),        
+        hltMaxEtaCut  = cms.untracked.double(2.4),
+        hltMinEtaCut  = cms.untracked.double(0.0),
     ),
 
 )
