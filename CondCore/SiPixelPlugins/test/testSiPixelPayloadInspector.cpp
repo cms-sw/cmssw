@@ -94,6 +94,10 @@ int main(int argc, char** argv) {
   histo9.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo9.data() << std::endl;
 
+  SiPixelQualityBadFractionMap histo9bis;
+  histo9bis.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo9bis.data() << std::endl;
+
   // SiPixelGainCalibrationOffline
 
   tag = "SiPixelGainCalibration_2009runs_express";
