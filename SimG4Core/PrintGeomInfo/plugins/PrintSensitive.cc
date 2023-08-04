@@ -73,8 +73,8 @@ int PrintSensitive::dumpTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, boo
   if (lv->GetSensitiveDetector() && printIt) {
     ++nsens;
     lvname = DD4hep2DDDName::nameSolid(static_cast<std::string>(lv->GetName()), dd4hep_);
-    out << nsens << ":" << leafDepth << " ### VOLUME = " << lvname << " Copy No " << pv->GetCopyNo() << " in "
-        << mother << " global position of centre " << globalpoint << " (r=" << globalpoint.perp()
+    out << nsens << ":" << leafDepth << " ### VOLUME = " << lvname << " Copy No " << pv->GetCopyNo() << " in " << mother
+        << " global position of centre " << globalpoint << " (r=" << globalpoint.perp()
         << ", phi=" << globalpoint.phi() / CLHEP::deg << ")\n";
   }
 
