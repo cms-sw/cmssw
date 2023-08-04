@@ -7,7 +7,7 @@ TrackQualityParams = cms.PSet(qualityAlgorithm = cms.string("GBDT_cpp"), #None, 
                               # git clone https://github.com/cms-data/L1Trigger-TrackTrigger.git L1Trigger/TrackTrigger/data
                               ONNXInputName = cms.string("feature_input"),
                               #Vector of strings of training features, in the order that the model was trained with
-                              featureNames = cms.vstring(["eta", "z0", "bendchi2_bin", "nstub", 
+                              featureNames = cms.vstring(["tanl", "z0_scaled", "bendchi2_bin", "nstub",
                                                           "nlaymiss_interior", "chi2rphi_bin", "chi2rz_bin"]),
                               # Parameters for cut based classifier, optimized for L1 Track MET
                               # (Table 3.7  The Phase-2 Upgrade of the CMS Level-1 Trigger http://cds.cern.ch/record/2714892) 
