@@ -8,7 +8,7 @@ from ..modules.hltPhase2PixelTracksHitSeeds_cfi import *
 from ..modules.hltPhase2PixelTracksSeedLayers_cfi import *
 from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import *
 
-pixelTracksTask = cms.Task(
+hltPhase2PixelTracksTask = cms.Task(
     hltPhase2PixelFitterByHelixProjections,
     hltPhase2PixelTrackFilterByKinematics,
     hltPhase2PixelTracks,

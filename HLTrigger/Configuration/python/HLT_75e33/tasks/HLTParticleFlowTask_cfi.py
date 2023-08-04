@@ -17,7 +17,7 @@ from ..tasks.iterTICLTask_cfi import *
 from ..tasks.localrecoTask_cfi import *
 from ..tasks.otLocalRecoTask_cfi import *
 from ..tasks.particleFlowClusterTask_cfi import *
-from ..tasks.pixelTracksTask_cfi import *
+from ..tasks.hltPhase2PixelTracksTask_cfi import *
 from ..tasks.vertexRecoTask_cfi import *
 
 HLTParticleFlowTask = cms.Task(
@@ -37,7 +37,7 @@ HLTParticleFlowTask = cms.Task(
     localrecoTask,
     otLocalRecoTask,
     particleFlowClusterTask,
-    pixelTracksTask,
+    hltPhase2PixelTracksTask,
     hltPhase2PixelVertices,
     trackerClusterCheck,
     vertexRecoTask
