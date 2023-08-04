@@ -74,19 +74,23 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
 
   // get other variables directly from TTTrack
   float tmp_trk_z0 = aTrack.z0();
+  float tmp_trk_z0_scaled = tmp_trk_z0 / abs(aTrack.minZ0);
   float tmp_trk_phi = aTrack.phi();
   float tmp_trk_eta = aTrack.eta();
+  float tmp_trk_tanl = aTrack.tanL();
 
   // -------- fill the feature map ---------
 
   feature_map["nstub"] = float(tmp_trk_nstub);
   feature_map["z0"] = tmp_trk_z0;
+  feature_map["z0_scaled"] = tmp_trk_z0_scaled;
   feature_map["phi"] = tmp_trk_phi;
   feature_map["eta"] = tmp_trk_eta;
   feature_map["nlaymiss_interior"] = float(tmp_trk_nlaymiss_interior);
   feature_map["bendchi2_bin"] = tmp_trk_bendchi2_bin;
   feature_map["chi2rphi_bin"] = tmp_trk_chi2rphi_bin;
   feature_map["chi2rz_bin"] = tmp_trk_chi2rz_bin;
+  feature_map["tanl"] = tmp_trk_tanl;
 
   // fill tensor with track params
   transformedFeatures.reserve(featureNames.size());
