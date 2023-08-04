@@ -54,6 +54,7 @@ private:
   bool storeAllG4Hits_;
   bool fiducialCut_, rejectMB_, waferRot_, checkID_;
   int useSimWt_, verbose_;
+  bool dd4hep_;
   const double tan30deg_, cos30deg_;
   std::vector<double> angles_;
   std::string missingFile_;
