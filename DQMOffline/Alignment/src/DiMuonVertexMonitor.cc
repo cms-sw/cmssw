@@ -33,7 +33,12 @@ DiMuonVertexMonitor::DiMuonVertexMonitor(const edm::ParameterSet& iConfig)
       motherName_(iConfig.getParameter<std::string>("decayMotherName")),
       MEFolderName_(iConfig.getParameter<std::string>("FolderName")),
       useClosestVertex_(iConfig.getParameter<bool>("useClosestVertex")),
-      maxSVdist_(iConfig.getParameter<double>("maxSVdist")) {
+      maxSVdist_(iConfig.getParameter<double>("maxSVdist")),
+      CosPhi3DConfiguration_(iConfig.getParameter<edm::ParameterSet>("CosPhi3DConfig")),
+      SVDistConfiguration_(iConfig.getParameter<edm::ParameterSet>("SVDistConfig")),
+      SVDistSigConfiguration_(iConfig.getParameter<edm::ParameterSet>("SVDistSigConfig")),
+      SVDist3DConfiguration_(iConfig.getParameter<edm::ParameterSet>("SVDist3DConfig")),
+      SVDist3DSigConfiguration_(iConfig.getParameter<edm::ParameterSet>("SVDist3DSigConfig")) {
   if (motherName_.find('Z') != std::string::npos) {
     massLimits_ = std::make_pair(50., 120);
   } else if (motherName_.find("J/#psi") != std::string::npos) {
@@ -103,6 +108,26 @@ void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
   hIP2dsig_ = iBooker.book1D("IP2Dsig", fmt::sprintf("%s;muon track IP_{2D} significance;muon tracks", histTit), 100, 0., 5.);
   hIP3dsig_ = iBooker.book1D("IP3Dsig", fmt::sprintf("%s;muon track IP_{3D} significance;muon tracks", histTit), 100, 0., 5.);
   // clang-format on
+
+  // now book the cosphi3D plots vs kinematics
+  iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor/CosPhi3DPlots");
+  CosPhi3DPlots_.bookFromPSet(iBooker, CosPhi3DConfiguration_);
+
+  // now book the PV-SV distance plots vs kinematics
+  iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor/SVDistPlots");
+  SVDistPlots_.bookFromPSet(iBooker, SVDistConfiguration_);
+
+  // now book the PV-SV distance significance plots vs kinematics
+  iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor/SVDistSigPlots");
+  SVDistSigPlots_.bookFromPSet(iBooker, SVDistSigConfiguration_);
+
+  // now book the PV-SV 3D distance plots vs kinematics
+  iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor/SVDist3DPlots");
+  SVDist3DPlots_.bookFromPSet(iBooker, SVDist3DConfiguration_);
+
+  // now book the PV-SV 3D distance significance plots vs kinematics
+  iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor/SVDist3DSigPlots");
+  SVDist3DSigPlots_.bookFromPSet(iBooker, SVDist3DSigConfiguration_);
 }
 
 void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -175,9 +200,10 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   reco::Vertex theMainVtx;
   if (!useClosestVertex_ || theClosestVertex == nullptr) {
-    theMainVtx = *theClosestVertex;
-  } else {
+    // if the closest vertex is not available, or explicitly not chosen
     theMainVtx = vertexHandle.product()->front();
+  } else {
+    theMainVtx = *theClosestVertex;
   }
 
   const math::XYZPoint theMainVtxPos(theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
@@ -239,6 +265,14 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
     hSVDist3DErr_->Fill(dist3D_err * cmToum);
     hSVDist3DSig_->Fill(distance3D / dist3D_err);
 
+    // creat the pair of TLorentVectors used to make the plos
+    std::pair<TLorentzVector, TLorentzVector> tktk_p4 = std::make_pair(p4_tplus, p4_tminus);
+
+    SVDistPlots_.fillPlots(distance * cmToum, tktk_p4);
+    SVDistSigPlots_.fillPlots(distance / dist_err, tktk_p4);
+    SVDist3DPlots_.fillPlots(distance3D * cmToum, tktk_p4);
+    SVDist3DSigPlots_.fillPlots(distance3D / dist3D_err, tktk_p4);
+
     // cut on the PV - SV distance
     if (distance * cmToum < maxSVdist_) {
       double cosphi = (ZpT.x() * deltaVtx.x() + ZpT.y() * deltaVtx.y()) /
@@ -260,6 +294,9 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
       hCosPhiUnbalance_->Fill(-cosphi, -1.);
       hCosPhi3DUnbalance_->Fill(cosphi3D, 1.);
       hCosPhi3DUnbalance_->Fill(-cosphi3D, -1.);
+
+      // fill the cos(phi3D) plots
+      CosPhi3DPlots_.fillPlots(cosphi3D, tktk_p4);
     }
   } else {
     edm::LogWarning("DiMuonVertexMonitor") << "hardest primary vertex in the event is not valid!";
@@ -303,6 +340,72 @@ void DiMuonVertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::string>("decayMotherName", "Z");
   desc.add<bool>("useClosestVertex", true);
   desc.add<double>("maxSVdist", 50.);
+
+  {
+    edm::ParameterSetDescription psCosPhi3D;
+    psCosPhi3D.add<std::string>("name", "CosPhi3D");
+    psCosPhi3D.add<std::string>("title", "cos(#phi_{3D})");
+    psCosPhi3D.add<std::string>("yUnits", "");
+    psCosPhi3D.add<int>("NxBins", 24);
+    psCosPhi3D.add<int>("NyBins", 50);
+    psCosPhi3D.add<double>("ymin", -1.);
+    psCosPhi3D.add<double>("ymax", 1.);
+    psCosPhi3D.add<double>("maxDeltaEta", 3.7);
+    desc.add<edm::ParameterSetDescription>("CosPhi3DConfig", psCosPhi3D);
+  }
+
+  {
+    edm::ParameterSetDescription psSVDist;
+    psSVDist.add<std::string>("name", "SVDist");
+    psSVDist.add<std::string>("title", "PV-SV distance");
+    psSVDist.add<std::string>("yUnits", "[#mum]");
+    psSVDist.add<int>("NxBins", 24);
+    psSVDist.add<int>("NyBins", 100);
+    psSVDist.add<double>("ymin", 0.);
+    psSVDist.add<double>("ymax", 300.);
+    psSVDist.add<double>("maxDeltaEta", 3.7);
+    desc.add<edm::ParameterSetDescription>("SVDistConfig", psSVDist);
+  }
+
+  {
+    edm::ParameterSetDescription psSVDistSig;
+    psSVDistSig.add<std::string>("name", "SVDistSig");
+    psSVDistSig.add<std::string>("title", "PV-SV distance significance");
+    psSVDistSig.add<std::string>("yUnits", "[#mum]");
+    psSVDistSig.add<int>("NxBins", 24);
+    psSVDistSig.add<int>("NyBins", 100);
+    psSVDistSig.add<double>("ymin", 0.);
+    psSVDistSig.add<double>("ymax", 5.);
+    psSVDistSig.add<double>("maxDeltaEta", 3.7);
+    desc.add<edm::ParameterSetDescription>("SVDistSigConfig", psSVDistSig);
+  }
+
+  {
+    edm::ParameterSetDescription psSVDist3D;
+    psSVDist3D.add<std::string>("name", "SVDist3D");
+    psSVDist3D.add<std::string>("title", "PV-SV 3D distance");
+    psSVDist3D.add<std::string>("yUnits", "[#mum]");
+    psSVDist3D.add<int>("NxBins", 24);
+    psSVDist3D.add<int>("NyBins", 100);
+    psSVDist3D.add<double>("ymin", 0.);
+    psSVDist3D.add<double>("ymax", 300.);
+    psSVDist3D.add<double>("maxDeltaEta", 3.7);
+    desc.add<edm::ParameterSetDescription>("SVDist3DConfig", psSVDist3D);
+  }
+
+  {
+    edm::ParameterSetDescription psSVDist3DSig;
+    psSVDist3DSig.add<std::string>("name", "SVDist3DSig");
+    psSVDist3DSig.add<std::string>("title", "PV-SV 3D distance significance");
+    psSVDist3DSig.add<std::string>("yUnits", "[#mum]");
+    psSVDist3DSig.add<int>("NxBins", 24);
+    psSVDist3DSig.add<int>("NyBins", 100);
+    psSVDist3DSig.add<double>("ymin", 0.);
+    psSVDist3DSig.add<double>("ymax", 5.);
+    psSVDist3DSig.add<double>("maxDeltaEta", 3.7);
+    desc.add<edm::ParameterSetDescription>("SVDist3DSigConfig", psSVDist3DSig);
+  }
+
   descriptions.addWithDefaultLabel(desc);
 }
 
