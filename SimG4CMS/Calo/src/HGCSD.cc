@@ -56,6 +56,7 @@ HGCSD::HGCSD(const std::string& name,
   double waferSize = m_HGC.getUntrackedParameter<double>("WaferSize") * CLHEP::mm;
   double mouseBite = m_HGC.getUntrackedParameter<double>("MouseBite") * CLHEP::mm;
   mouseBiteCut_ = waferSize * tan(30.0 * CLHEP::deg) - mouseBite;
+  dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -206,6 +207,8 @@ void HGCSD::update(const BeginOfJob* job) {
     geom_mode_ = hgcons_->geomMode();
     slopeMin_ = hgcons_->minSlope();
     levelT_ = hgcons_->levelTop();
+    if (dd4hep_)
+      ++levelT_;
     numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons_, nameX_);
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
@@ -215,7 +218,7 @@ void HGCSD::update(const BeginOfJob* job) {
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
-                             << " top Level " << levelT_;
+                             << " top Level " << levelT_ << " dd4hep " << dd4hep_;
 #endif
 }
 

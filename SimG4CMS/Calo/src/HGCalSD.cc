@@ -62,6 +62,7 @@ HGCalSD::HGCalSD(const std::string& name,
   missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
   checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
   verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
+  dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -247,6 +248,10 @@ void HGCalSD::update(const BeginOfJob* job) {
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);
     levelT2_ = hgcons_->levelTop(1);
+    if (dd4hep_) {
+      ++levelT1_;
+      ++levelT2_;
+    }
     useSimWt_ = hgcons_->getParameter()->useSimWt_;
     int useOffset = hgcons_->getParameter()->useOffset_;
     double waferSize = hgcons_->waferSize(false);
@@ -263,7 +268,8 @@ void HGCalSD::update(const BeginOfJob* job) {
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
                                << waferSize << ":" << mouseBite << ":" << guardRingOffset << ":" << sensorSizeOffset
-                               << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset;
+                               << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset
+                               << " dd4hep " << dd4hep_;
 #endif
 
     numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, missingFile_);

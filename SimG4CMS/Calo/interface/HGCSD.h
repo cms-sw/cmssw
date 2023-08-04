@@ -54,6 +54,7 @@ private:
   int levelT_;
   bool storeAllG4Hits_, rejectMB_, waferRot_;
   double mouseBiteCut_;
+  bool dd4hep_;
   std::vector<double> angles_;
 
   TTree *tree_;
