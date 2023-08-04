@@ -404,7 +404,6 @@ namespace edm {
     ranAcquireWithoutException_ = false;
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
-      //TODO should deal with cms.catch
       if (shouldRethrowException(iEPtr, parentContext, true, shouldTryToContinue_)) {
         exceptionPtr = iEPtr;
       }

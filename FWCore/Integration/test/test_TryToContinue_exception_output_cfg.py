@@ -17,6 +17,7 @@ process.dependentAnalyzer = cms.EDAnalyzer("TestFindProduct",
 
 process.p = cms.Path(process.dependentAnalyzer, cms.Task(process.fail,process.intProd))
 
+#no direct or indirect dependency on the failed data product means no need for shouldTryToContinue
 process.out = cms.OutputModule("SewerModule",
     name=cms.string("out"),
     shouldPass = cms.int32(3),
@@ -24,6 +25,20 @@ process.out = cms.OutputModule("SewerModule",
     outputCommands = cms.untracked.vstring("drop *", "keep *_intProd_*_*")
 )
 
-process.out.shouldTryToContinue()
+process.outContinueDirect = cms.OutputModule("SewerModule",
+    name=cms.string("outNoContinueDirect"),
+    shouldPass = cms.int32(3),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("exception@p")),
+    outputCommands = cms.untracked.vstring("drop *", "keep *_fail_*_*")
+)
+process.outContinueDirect.shouldTryToContinue()
 
-#process.add_(cms.Service("Tracer"))
+process.outNoContinueDirect = cms.OutputModule("SewerModule",
+    name=cms.string("outNoContinueDirect"),
+    shouldPass = cms.int32(0),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("exception@p")),
+    outputCommands = cms.untracked.vstring("drop *", "keep *_fail_*_*")
+)
+
+process.e = cms.EndPath(process.out+process.outContinueDirect+process.outNoContinueDirect)
+

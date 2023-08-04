@@ -13,8 +13,6 @@ process.t = cms.Task(process.failing)
 process.o = cms.EndPath(process.out, process.t)
 process.p = cms.Path(process.i)
 
-#process.options = cms.untracked.PSet()
-
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(10)
         )

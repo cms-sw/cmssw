@@ -1068,7 +1068,6 @@ namespace edm {
     std::exception_ptr exceptionPtr;
     bool shouldRun = true;
     if (iEPtr) {
-      //TODO have to deal with 'cms.catch'
       if (shouldRethrowException(iEPtr, parentContext, T::isEvent_, shouldTryToContinue_)) {
         exceptionPtr = iEPtr;
         setException<T::isEvent_>(exceptionPtr);

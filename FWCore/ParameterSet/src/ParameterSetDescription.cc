@@ -85,7 +85,7 @@ namespace edm {
 
     std::vector<std::string> parameterNames = pset.getParameterNames();
     if (validatedLabels.size() != parameterNames.size()) {
-      // Three labels will be magically inserted into the top level
+      // These labels will be magically inserted into the top level
       // of a module ParameterSet even though they are not in the
       // python configuration files.  If these are present, then
       // assume they are OK and count them as validated.
