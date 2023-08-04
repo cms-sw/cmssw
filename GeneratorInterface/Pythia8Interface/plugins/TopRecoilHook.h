@@ -117,7 +117,6 @@ namespace Pythia8 {
         partonSystemsPtr->list();
         event.list();
       }
-      //std::cout << "BEGIN TOP TEST: "  << (wtT / wtW) << " | END TOP TEST" << endl;
       
       // Accept/reject emission. Smooth suppression or step function.
       return (wtT < wtW * rndmPtr->flat());
