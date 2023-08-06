@@ -1407,8 +1407,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   }
 
   php.calibCellRHD_ = php.calibCellRLD_ = 0;
-  php.calibCellFullHD_.clear(); php.calibCellPartHD_.clear();
-  php.calibCellFullLD_.clear(); php.calibCellPartLD_.clear();
+  php.calibCellFullHD_.clear();
+  php.calibCellPartHD_.clear();
+  php.calibCellFullLD_.clear();
+  php.calibCellPartLD_.clear();
   for (auto const& it : vmap) {
     if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
@@ -1489,7 +1491,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
               layerType.emplace_back(std::round(i));
           }
         }
-      } else if ((php.waferMaskMode_ == siliconFileHE)  || (php.waferMaskMode_ == siliconCassetteHE)) {
+      } else if ((php.waferMaskMode_ == siliconFileHE) || (php.waferMaskMode_ == siliconCassetteHE)) {
         for (auto const& it : vmap) {
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesHE")) {
             for (const auto& i : it.second)
