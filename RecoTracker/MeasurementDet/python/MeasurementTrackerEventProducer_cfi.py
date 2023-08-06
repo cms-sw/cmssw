@@ -10,7 +10,7 @@ MeasurementTrackerEvent = _measurementTrackerEventDefault.clone(
 # take the list of inactive strip labels directly from RAW data
 from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
 approxSiStripClusters.toModify(MeasurementTrackerEvent,
-                               inactiveStripDetectorLabels = ["siStripDigisHLT"]) 
+                               inactiveStripDetectorLabels = ["hltSiStripRawToDigi"])
 
 # This customization will be removed once we have phase2 pixel digis
 # Need this line to stop error about missing siPixelDigis
@@ -42,4 +42,4 @@ MeasurementTrackerEventPreSplitting = MeasurementTrackerEvent.clone(
 # in case of RAW' (approximated SiStrip clusters) 
 # take the list of inactive strip labels directly from RAW data 
 approxSiStripClusters.toModify(MeasurementTrackerEventPreSplitting,
-                               inactiveStripDetectorLabels = ["siStripDigisHLT"])
+                               inactiveStripDetectorLabels = ["hltSiStripRawToDigi"])
