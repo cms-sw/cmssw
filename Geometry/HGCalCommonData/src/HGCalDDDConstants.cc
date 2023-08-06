@@ -19,7 +19,7 @@
 #include <functional>
 #include <numeric>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
