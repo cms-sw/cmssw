@@ -41,10 +41,9 @@ process.independent = cms.EDAnalyzer("TestFindProduct",
 process.f = cms.EDFilter("IntProductFilter", label = cms.InputTag("intProd"))
 
 if args.indirect:
-    process.dependentAnalyzer.shouldTryToContinue()
-    process.dependent2.shouldTryToContinue()
+    process.options.modulesToCallForTryToContinue = [process.dependentAnalyzer.label_(), process.dependent2.label_()]
 else:
-    process.fail.shouldTryToContinue()
+    process.options.modulesToCallForTryToContinue = [process.fail.label_()]
 
 process.p = cms.Path(process.dependentAnalyzer, cms.Task(process.fail,process.intProd))
 process.p2 = cms.Path(cms.wait(process.dependent2)+process.f+process.independent)

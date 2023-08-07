@@ -151,13 +151,6 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf
     def setPrerequisites(self, *libs):
         self.__dict__["libraries_"] = libs
 
-    def shouldTryToContinue(self):
-        """C++ exceptions thrown from this module will be ignored by the framework.
-           If a dependent module throws an exception in the 'TryToContinue' handler list
-          this module will still be run."""
-        from .Types import untracked
-        setattr(self, "@shouldTryToContinue", untracked.bool(True))
-    
     def insertInto(self, parameterSet, myname):
         if "libraries_" in self.__dict__:
             from ctypes import LibraryLoader, CDLL

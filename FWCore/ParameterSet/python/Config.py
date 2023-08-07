@@ -260,6 +260,7 @@ class Process(object):
                               Rethrow = untracked.vstring(),
                               TryToContinue = untracked.vstring(),
                               IgnoreCompletely = untracked.vstring(),
+                              modulesToCallForTryToContinue = untracked.vstring(),
                               canDeleteEarly = untracked.vstring(),
                               holdsReferencesToDeleteEarly = untracked.VPSet(),
                               modulesToIgnoreForDeleteEarly = untracked.vstring(),
@@ -1464,6 +1465,14 @@ class Process(object):
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
+        if hasattr(self.options,"modulesToCallForTryToContinue") :
+            shouldTryToContinue = set(self.options.modulesToCallForTryToContinue)
+            for m in all_modules:
+                if m in shouldTryToContinue:
+                    setattr(getattr(self,m),"@shouldTryToContinue",untracked.bool(True))
+            missing = shouldTryToContinue.difference(all_modules)
+            if missing:
+                print("Warning: The following modules appear in options.modulesToCallForTryToContinue but are not in the Process: {} ".format(",".join(missing)))
         adaptor = TopLevelPSetAcessorAdaptor(processPSet,self)
         self._insertInto(adaptor, self.psets_())
         self._insertInto(adaptor, self.vpsets_())
@@ -2472,6 +2481,7 @@ process.options = cms.untracked.PSet(
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
+    modulesToCallForTryToContinue = cms.untracked.vstring(),
     modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
@@ -4664,6 +4674,7 @@ process.options = cms.untracked.PSet(
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
+    modulesToCallForTryToContinue = cms.untracked.vstring(),
     modulesToIgnoreForDeleteEarly = cms.untracked.vstring(),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(0),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
