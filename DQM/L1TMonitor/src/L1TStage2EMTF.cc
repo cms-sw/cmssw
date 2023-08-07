@@ -1035,6 +1035,10 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   emtfnTracks->Fill(std::min(nTracks, emtfnTracks->getTH1F()->GetNbinsX() - 1));
 
+  constexpr int singleMuQuality = 12;
+  constexpr int singleMuPT = 22;
+  constexpr int  singleMuUPT = 10;
+
   for (auto Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
     int endcap = Track->Endcap();
     int sector = Track->Sector();
@@ -1045,9 +1049,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int numHits = Track->NumHits();
     int modeNeighbor = Track->Mode_neighbor();
     int modeRPC = Track->Mode_RPC();
-    int singleMuQuality = 12;
-    int singleMuPT = 22;
-    int singleMuUPT = 10;  //Lucas Faria de Sa Tucker June 28 2023
 
     // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
     if (modeNeighbor >= 2 && modeNeighbor != 4 && modeNeighbor != 8)
