@@ -4,7 +4,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 #include "CondFormats/RunInfo/interface/LHCInfoPerLS.h"
-#include "CondTools/RunInfo/interface/LumiSectionFilter.h"
 #include "CondTools/RunInfo/interface/OMSAccess.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -20,12 +19,16 @@
 #include "RelationalAccess/ISessionProxy.h"
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
+
+using std::make_pair;
+using std::pair;
 
 class LHCInfoPerLSPopConSourceHandler;
 
@@ -43,11 +46,18 @@ namespace theLHCInfoPerLSImpl {
     return true;
   }
 
-  size_t transferPayloads(const std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>& buffer,
+  size_t transferPayloads(const std::vector<pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>& buffer,
                           std::map<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>& iovsToTransfer,
-                          std::shared_ptr<LHCInfoPerLS>& prevPayload) {
+                          std::shared_ptr<LHCInfoPerLS>& prevPayload,
+                          const std::map<pair<cond::Time_t, unsigned int>, pair<cond::Time_t, unsigned int>>& lsIdMap,
+                          cond::Time_t startStableBeamTime,
+                          cond::Time_t endStableBeamTime) {
+    int lsMissingInPPS = 0;
+    int xAngleBothZero = 0, xAngleBothNonZero = 0, xAngleNegative = 0;
+    int betaNegative = 0;
     size_t niovs = 0;
     std::stringstream condIovs;
+    std::stringstream missingLsList;
     for (auto& iov : buffer) {
       bool add = false;
       auto payload = iov.second;
@@ -60,13 +70,58 @@ namespace theLHCInfoPerLSImpl {
           add = true;
         }
       }
-      if (add) {
+      auto id = make_pair(payload->runNumber(), payload->lumiSection());
+      bool stableBeam = since >= startStableBeamTime && since <= endStableBeamTime;
+      bool isMissing = lsIdMap.find(id) != lsIdMap.end() && id != lsIdMap.at(id);
+      if (stableBeam && isMissing) {
+        missingLsList << id.first << "_" << id.second << " ";
+        lsMissingInPPS += isMissing;
+      }
+      if (add && !isMissing) {
         niovs++;
+        if (stableBeam) {
+          if (payload->crossingAngleX() == 0 && payload->crossingAngleY() == 0)
+            xAngleBothZero++;
+          if (payload->crossingAngleX() != 0 && payload->crossingAngleY() != 0)
+            xAngleBothNonZero++;
+          if (payload->crossingAngleX() < 0 || payload->crossingAngleY() < 0)
+            xAngleNegative++;
+          if (payload->betaStarX() < 0 || payload->betaStarY() < 0)
+            betaNegative++;
+        }
+
         condIovs << since << " ";
-        iovsToTransfer.insert(std::make_pair(since, payload));
+        iovsToTransfer.insert(make_pair(since, payload));
         prevPayload = iov.second;
       }
     }
+    unsigned short fillNumber = (!buffer.empty()) ? buffer.front().second->fillNumber() : 0;
+    if (lsMissingInPPS > 0) {
+      edm::LogWarning("transferPayloads")
+          << "Number of stable beam LS in OMS without corresponding record in PPS DB for fill " << fillNumber << ": "
+          << lsMissingInPPS;
+      edm::LogWarning("transferPayloads")
+          << "Stable beam LS in OMS without corresponding record in PPS DB (run_LS):  " << missingLsList.str();
+    }
+    if (xAngleBothZero > 0) {
+      edm::LogWarning("transferPayloads")
+          << "Number of payloads written with crossingAngle == 0 for both X and Y for fill " << fillNumber << ": "
+          << xAngleBothZero;
+    }
+    if (xAngleBothNonZero > 0) {
+      edm::LogWarning("transferPayloads")
+          << "Number of payloads written with crossingAngle != 0 for both X and Y for fill " << fillNumber << ": "
+          << xAngleBothNonZero;
+    }
+    if (xAngleNegative > 0) {
+      edm::LogWarning("transferPayloads")
+          << "Number of payloads written with negative crossingAngle for fill " << fillNumber << ": " << xAngleNegative;
+    }
+    if (betaNegative > 0) {
+      edm::LogWarning("transferPayloads")
+          << "Number of payloads written with negative betaSta for fill " << fillNumber << ": " << betaNegative;
+    }
+
     edm::LogInfo("transferPayloads") << "TRANSFERED COND IOVS: " << condIovs.str();
     return niovs;
   }
@@ -256,18 +311,20 @@ public:
           edm::LogInfo(m_name) << "First buffered lumi starts at " << flumiStart << " last lumi starts at "
                                << flumiStop;
           session.transaction().start(true);
-          getCTTPSData(session, startSampleTime, endSampleTime);
+          getCTPPSData(session, startSampleTime, endSampleTime);
           session.transaction().commit();
         }
       }
 
-      size_t niovs = theLHCInfoPerLSImpl::transferPayloads(m_tmpBuffer, m_iovs, m_prevPayload);
+      size_t niovs = theLHCInfoPerLSImpl::transferPayloads(
+          m_tmpBuffer, m_iovs, m_prevPayload, m_lsIdMap, m_startStableBeamTime, m_endStableBeamTime);
       edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
       if (niovs) {
         m_prevEndFillTime = m_endFillTime;
         m_prevStartFillTime = m_startFillTime;
       }
       m_tmpBuffer.clear();
+      m_lsIdMap.clear();
       if (m_prevPayload->fillNumber() and !ongoingFill)
         addEmptyPayload(m_endFillTime);
     }
@@ -290,7 +347,7 @@ private:
     }
     if (add) {
       auto newPayload = std::make_shared<LHCInfoPerLS>();
-      m_iovs.insert(std::make_pair(iov, newPayload));
+      m_iovs.insert(make_pair(iov, newPayload));
       m_prevPayload = newPayload;
       m_prevEndFillTime = 0;
       m_prevStartFillTime = 0;
@@ -306,6 +363,8 @@ private:
       auto currentFill = row.get<unsigned short>("fill_number");
       m_startFillTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_time"));
       m_endFillTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
+      m_startStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_stable_beam"));
+      m_endStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("end_stable_beam"));
       targetPayload = std::make_unique<LHCInfoPerLS>();
       targetPayload->setFillNumber(currentFill);
       ret = true;
@@ -316,7 +375,10 @@ private:
   void addPayloadToBuffer(cond::OMSServiceResultRef& row) {
     auto lumiTime = row.get<boost::posix_time::ptime>("start_time");
     LHCInfoPerLS* thisLumiSectionInfo = new LHCInfoPerLS(*m_fillPayload);
-    m_tmpBuffer.emplace_back(std::make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
+    thisLumiSectionInfo->setLumiSection(std::stoul(row.get<std::string>("lumisection_number")));
+    thisLumiSectionInfo->setRunNumber(std::stoull(row.get<std::string>("run_number")));
+    m_lsIdMap[make_pair(thisLumiSectionInfo->runNumber(), thisLumiSectionInfo->lumiSection())] = make_pair(-1, -1);
+    m_tmpBuffer.emplace_back(make_pair(cond::time::from_boost(lumiTime), thisLumiSectionInfo));
   }
 
   size_t bufferAllLS(const cond::OMSServiceResult& queryResult) {
@@ -369,7 +431,7 @@ private:
     }
     return nlumi;
   }
-  bool getCTTPSData(cond::persistency::Session& session,
+  bool getCTPPSData(cond::persistency::Session& session,
                     const boost::posix_time::ptime& beginFillTime,
                     const boost::posix_time::ptime& endFillTime) {
     //run the fifth query against the CTPPS schema
@@ -383,6 +445,7 @@ private:
     CTPPSDataQuery->addToOutputList(std::string("DIP_UPDATE_TIME"));
     CTPPSDataQuery->addToOutputList(std::string("LUMI_SECTION"));
     CTPPSDataQuery->addToOutputList(std::string("RUN_NUMBER"));
+    CTPPSDataQuery->addToOutputList(std::string("FILL_NUMBER"));
     CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_P5_X_URAD"));
     CTPPSDataQuery->addToOutputList(std::string("XING_ANGLE_P5_Y_URAD"));
     CTPPSDataQuery->addToOutputList(std::string("BETA_STAR_P5_X_M"));
@@ -402,6 +465,7 @@ private:
     CTPPSDataOutput.extend<coral::TimeStamp>(std::string("DIP_UPDATE_TIME"));
     CTPPSDataOutput.extend<int>(std::string("LUMI_SECTION"));
     CTPPSDataOutput.extend<int>(std::string("RUN_NUMBER"));
+    CTPPSDataOutput.extend<int>(std::string("FILL_NUMBER"));
     CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_P5_X_URAD"));
     CTPPSDataOutput.extend<float>(std::string("XING_ANGLE_P5_Y_URAD"));
     CTPPSDataOutput.extend<float>(std::string("BETA_STAR_P5_X_M"));
@@ -409,14 +473,16 @@ private:
     CTPPSDataQuery->defineOutput(CTPPSDataOutput);
     //execute the query
     coral::ICursor& CTPPSDataCursor = CTPPSDataQuery->execute();
-    cond::Time_t dipTime = 0;
     unsigned int lumiSection = 0;
     cond::Time_t runNumber = 0;
+    int fillNumber = 0;
     float crossingAngleX = 0., betaStarX = 0.;
     float crossingAngleY = 0., betaStarY = 0.;
 
     bool ret = false;
-    LumiSectionFilter<LHCInfoPerLS> filter(m_tmpBuffer);
+    int wrongFillNumbers = 0;
+    std::stringstream wrongFills;
+    std::vector<pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>>::iterator current = m_tmpBuffer.begin();
     while (CTPPSDataCursor.next()) {
       if (m_debug) {
         std::ostringstream CTPPS;
@@ -424,47 +490,63 @@ private:
       }
       coral::Attribute const& dipTimeAttribute = CTPPSDataCursor.currentRow()[std::string("DIP_UPDATE_TIME")];
       if (!dipTimeAttribute.isNull()) {
-        dipTime = cond::time::from_boost(dipTimeAttribute.data<coral::TimeStamp>().time());
-        if (filter.process(dipTime)) {
-          ret = true;
-          coral::Attribute const& lumiSectionAttribute = CTPPSDataCursor.currentRow()[std::string("LUMI_SECTION")];
-          if (!lumiSectionAttribute.isNull()) {
-            lumiSection = lumiSectionAttribute.data<int>();
-          }
-          coral::Attribute const& runNumberAttribute = CTPPSDataCursor.currentRow()[std::string("RUN_NUMBER")];
-          if (!runNumberAttribute.isNull()) {
-            runNumber = runNumberAttribute.data<int>();
-          }
-          coral::Attribute const& crossingAngleXAttribute =
-              CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_X_URAD")];
-          if (!crossingAngleXAttribute.isNull()) {
-            crossingAngleX = crossingAngleXAttribute.data<float>();
-          }
-          coral::Attribute const& crossingAngleYAttribute =
-              CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_Y_URAD")];
-          if (!crossingAngleYAttribute.isNull()) {
-            crossingAngleY = crossingAngleYAttribute.data<float>();
-          }
-          coral::Attribute const& betaStarXAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_X_M")];
-          if (!betaStarXAttribute.isNull()) {
-            betaStarX = betaStarXAttribute.data<float>();
-          }
-          coral::Attribute const& betaStarYAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_Y_M")];
-          if (!betaStarYAttribute.isNull()) {
-            betaStarY = betaStarYAttribute.data<float>();
-          }
-          for (auto it = filter.current(); it != m_tmpBuffer.end(); it++) {
-            // set the current values to all of the payloads of the lumi section samples after the current since
-            LHCInfoPerLS& payload = *(it->second);
-            payload.setCrossingAngleX(crossingAngleX);
-            payload.setCrossingAngleY(crossingAngleY);
-            payload.setBetaStarX(betaStarX);
-            payload.setBetaStarY(betaStarY);
-            payload.setLumiSection(lumiSection);
-            payload.setRunNumber(runNumber);
+        ret = true;
+        coral::Attribute const& lumiSectionAttribute = CTPPSDataCursor.currentRow()[std::string("LUMI_SECTION")];
+        if (!lumiSectionAttribute.isNull()) {
+          lumiSection = lumiSectionAttribute.data<int>();
+        }
+        coral::Attribute const& runNumberAttribute = CTPPSDataCursor.currentRow()[std::string("RUN_NUMBER")];
+        if (!runNumberAttribute.isNull()) {
+          runNumber = runNumberAttribute.data<int>();
+        }
+        coral::Attribute const& fillNumberAttribute = CTPPSDataCursor.currentRow()[std::string("FILL_NUMBER")];
+        if (!fillNumberAttribute.isNull()) {
+          fillNumber = fillNumberAttribute.data<int>();
+        }
+        coral::Attribute const& crossingAngleXAttribute =
+            CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_X_URAD")];
+        if (!crossingAngleXAttribute.isNull()) {
+          crossingAngleX = crossingAngleXAttribute.data<float>();
+        }
+        coral::Attribute const& crossingAngleYAttribute =
+            CTPPSDataCursor.currentRow()[std::string("XING_ANGLE_P5_Y_URAD")];
+        if (!crossingAngleYAttribute.isNull()) {
+          crossingAngleY = crossingAngleYAttribute.data<float>();
+        }
+        coral::Attribute const& betaStarXAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_X_M")];
+        if (!betaStarXAttribute.isNull()) {
+          betaStarX = betaStarXAttribute.data<float>();
+        }
+        coral::Attribute const& betaStarYAttribute = CTPPSDataCursor.currentRow()[std::string("BETA_STAR_P5_Y_M")];
+        if (!betaStarYAttribute.isNull()) {
+          betaStarY = betaStarYAttribute.data<float>();
+        }
+        if (current != m_tmpBuffer.end() && current->second->fillNumber() != fillNumber) {
+          wrongFills << "( " << runNumber << "_" << lumiSection << " fill: OMS: " << current->second->fillNumber()
+                     << " PPSdb: " << fillNumber << " ) ";
+          wrongFillNumbers++;
+        }
+        for (;
+             current != m_tmpBuffer.end() && make_pair(current->second->runNumber(), current->second->lumiSection()) <=
+                                                 make_pair(runNumber, lumiSection);
+             current++) {
+          LHCInfoPerLS& payload = *(current->second);
+          payload.setCrossingAngleX(crossingAngleX);
+          payload.setCrossingAngleY(crossingAngleY);
+          payload.setBetaStarX(betaStarX);
+          payload.setBetaStarY(betaStarY);
+          payload.setLumiSection(lumiSection);
+          payload.setRunNumber(runNumber);
+          if (m_lsIdMap.find(make_pair(payload.runNumber(), payload.lumiSection())) != m_lsIdMap.end()) {
+            m_lsIdMap[make_pair(payload.runNumber(), payload.lumiSection())] = make_pair(runNumber, lumiSection);
           }
         }
       }
+    }
+    if (wrongFillNumbers) {
+      edm::LogWarning("getCTPPSData") << "Number of records from PPS DB with fillNumber different from OMS: "
+                                      << wrongFillNumbers;
+      edm::LogWarning("getCTPPSData") << "Records from PPS DB with fillNumber different from OMS: " << wrongFills.str();
     }
     return ret;
   }
@@ -488,6 +570,11 @@ private:
   cond::Time_t m_endFillTime;
   cond::Time_t m_prevEndFillTime;
   cond::Time_t m_prevStartFillTime;
-  std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>> m_tmpBuffer;
+  cond::Time_t m_startStableBeamTime;
+  cond::Time_t m_endStableBeamTime;
+  std::vector<pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>> m_tmpBuffer;
   bool m_lastPayloadEmpty = false;
+  //mapping of lumisections IDs (pairs of runnumber an LS number) found in OMS to the IDs they've been assignd from PPS DB
+  //value pair(-1, -1) means lumisection corresponding to the key exists in OMS but no lumisection was matched from PPS
+  std::map<pair<cond::Time_t, unsigned int>, pair<cond::Time_t, unsigned int>> m_lsIdMap;
 };
