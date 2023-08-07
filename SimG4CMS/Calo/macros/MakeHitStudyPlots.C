@@ -67,10 +67,9 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
                        bool save = false,
                        std::string dirnm = "CaloSimHitStudy") {
   const int plots = 20;
-  std::string names[plots] = {"Etot",       "Hit",  "EtotG",  "Time", "EdepTk",
-			      "Edep",   "HitHigh", "HitLow", "HitMu",  "HitTk",
-			      "TimeAll", "TimeTk",    "eta",   "phi", "EdepEM",
-                              "EdepHad", "EneInc", "EtaInc", "PhiInc", "PtInc"};
+  std::string names[plots] = {"Etot",   "Hit",     "EtotG",  "Time",    "EdepTk", "Edep", "HitHigh",
+                              "HitLow", "HitMu",   "HitTk",  "TimeAll", "TimeTk", "eta",  "phi",
+                              "EdepEM", "EdepHad", "EneInc", "EtaInc",  "PhiInc", "PtInc"};
   int numb[plots] = {9, 9, 9, 9, 16, 9, 1, 1, 1, 16, 9, 16, 9, 9, 9, 9, 1, 1, 1, 1};
   int rebin[plots] = {10, 10, 10, 10, 1, 10, 10, 10, 10, 10, 10, 10, 2, 4, 10, 10, 1, 1, 1, 1};
   bool debug(false);
