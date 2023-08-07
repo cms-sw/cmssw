@@ -126,22 +126,28 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
 
       int hitStrips;
       float hitPredPos;
-      theFilter->getSizes(detId, cluster, lp, ldir, hitStrips, hitPredPos);
+      bool usable = theFilter->getSizes(detId, cluster, lp, ldir, hitStrips, hitPredPos);
+      // (almost) same logic as in StripSubClusterShapeTrajectoryFilter
+      bool isTrivial = (std::abs(hitPredPos) < 2.f && hitStrips <= 2);
 
-      bool peakFilter = false;
-      SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
-      float mipnorm = mip / std::abs(ldir.z());
-      PeakFinderTest test(mipnorm,
-                          detId,
-                          cluster.firstStrip(),
-                          theNoise_,
-                          seedCutMIPs_,
-                          seedCutSN_,
-                          subclusterCutMIPs_,
-                          subclusterCutSN_);
-      peakFilter = pf.apply(cluster.amplitudes(), test);
+      if (!usable || isTrivial) {
+        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, true));
+      } else {
+        bool peakFilter = false;
+        SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
+        float mipnorm = mip / std::abs(ldir.z());
+        PeakFinderTest test(mipnorm,
+                            detId,
+                            cluster.firstStrip(),
+                            theNoise_,
+                            seedCutMIPs_,
+                            seedCutSN_,
+                            subclusterCutMIPs_,
+                            subclusterCutSN_);
+        peakFilter = pf.apply(cluster.amplitudes(), test);
 
-      ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, peakFilter));
+        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, peakFilter));
+      }
     }
   }
 
