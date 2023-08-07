@@ -87,7 +87,7 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
   produces<SiStripApproximateClusterCollection>();
 }
 
-void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup const&) {
+void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup const& iSetup) {
   const auto& clusterCollection = event.get(clusterToken);
   auto result = std::make_unique<SiStripApproximateClusterCollection>();
   result->reserve(clusterCollection.size(), clusterCollection.dataSize());
