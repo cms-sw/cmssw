@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from ..modules.generalTracks_cfi import *
-from ..modules.pixelVertices_cfi import *
+from ..modules.hltPhase2PixelVertices_cfi import *
 from ..modules.trackerClusterCheck_cfi import *
 from ..tasks.HLTBeamSpotTask_cfi import *
 from ..tasks.RawToDigiTask_cfi import *
@@ -17,7 +17,7 @@ from ..tasks.iterTICLTask_cfi import *
 from ..tasks.localrecoTask_cfi import *
 from ..tasks.otLocalRecoTask_cfi import *
 from ..tasks.particleFlowClusterTask_cfi import *
-from ..tasks.pixelTracksTask_cfi import *
+from ..tasks.hltPhase2PixelTracksTask_cfi import *
 from ..tasks.vertexRecoTask_cfi import *
 
 HLTParticleFlowTask = cms.Task(
@@ -37,8 +37,8 @@ HLTParticleFlowTask = cms.Task(
     localrecoTask,
     otLocalRecoTask,
     particleFlowClusterTask,
-    pixelTracksTask,
-    pixelVertices,
+    hltPhase2PixelTracksTask,
+    hltPhase2PixelVertices,
     trackerClusterCheck,
     vertexRecoTask
 )

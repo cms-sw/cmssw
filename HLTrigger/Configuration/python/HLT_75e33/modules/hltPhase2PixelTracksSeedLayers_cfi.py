@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixelTracksSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
+hltPhase2PixelTracksSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
         TTRHBuilder = cms.string('WithTrackAngle')
