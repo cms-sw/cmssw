@@ -3,6 +3,19 @@ import ROOT
 import math
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
+statusflags = { # GenPart_statusFlags, stored bitwise (powers of 2):
+  # https://github.com/cms-sw/cmssw/edit/master/PhysicsTools/NanoAOD/python/genparticles_cff.py
+  # https://cms-nanoaod-integration.web.cern.ch/integration/master-106X/mc106Xul18_doc.html#GenPart
+  'isPrompt':                      (1 << 0),   'fromHardProcess':                    (1 <<  8),
+  'isDecayedLeptonHadron':         (1 << 1),   'isHardProcessTauDecayProduct':       (1 <<  9),
+  'isTauDecayProduct':             (1 << 2),   'isDirectHardProcessTauDecayProduct': (1 << 10),
+  'isPromptTauDecayProduct':       (1 << 3),   'fromHardProcessBeforeFSR':           (1 << 11),
+  'isDirectTauDecayProduct':       (1 << 4),   'isFirstCopy':                        (1 << 12),
+  'isDirectPromptTauDecayProduct': (1 << 5),   'isLastCopy':                         (1 << 13),
+  'isDirectHadronDecayProduct':    (1 << 6),   'isLastCopyBeforeFSR':                (1 << 14),
+  'isHardProcess':                 (1 << 7),
+}
+
 
 class Event:
     """Class that allows seeing an entry of a PyROOT TTree as an Event"""
@@ -78,6 +91,7 @@ class Object:
         return self.__getattr__(attr)
 
     def p4(self, corr_pt=None):
+        """Create TLorentzVector for this particle."""
         ret = ROOT.TLorentzVector()
         if corr_pt == None:
             ret.SetPtEtaPhiM(self.pt, self.eta, self.phi, self.mass)
@@ -95,6 +109,10 @@ class Object:
         while dphi > math.pi:
             dphi = abs(dphi - 2 * math.pi)
         return math.sqrt(dphi**2 + deta**2)
+
+    def statusflag(self, flag):
+        """Find if bit for statusflag is set (for GenPart only)."""
+        return (self.statusFlags & statusflags[flag])==statusflags[flag]
 
     def subObj(self, prefix):
         return Object(self._event, self._prefix + prefix)
