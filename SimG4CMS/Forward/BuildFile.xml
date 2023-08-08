@@ -8,6 +8,7 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/Math"/>
 <use name="SimDataFormats/SimHitMaker"/>
+<use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="Geometry/MTDCommonData"/>
 <use name="boost"/>
