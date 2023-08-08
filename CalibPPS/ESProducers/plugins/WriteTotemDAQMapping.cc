@@ -29,8 +29,8 @@ private:
   /// label of the CTPPS sub-system
   std::string subSystemName;
   std::ofstream outStream;
-  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken;
-  edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken;
+  const edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken;
+  const edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken;
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 

@@ -1,5 +1,5 @@
-#ifndef TotemAnalysisMaskRcd_TotemAnalysisMaskRcd_h
-#define TotemAnalysisMaskRcd_TotemAnalysisMaskRcd_h
+#ifndef CondFormats_DataRecord_TotemAnalysisMaskRcd_h
+#define CondFormats_DataRecord_TotemAnalysisMaskRcd_h
 // -*- C++ -*-
 //
 // Package:     Subsystem/Package
