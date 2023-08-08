@@ -289,16 +289,19 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
 if (triggerFilter == "nothing" or triggerFilter == ""):
     process.p = cms.Path(process.offlineBeamSpot                        + 
                          process.TrackRefitter                          + 
                          process.offlinePrimaryVerticesFromRefittedTrks +
-                         process.jetHTAnalyzer)
+                         process.jetHTAnalyzer,
+                         cms.Task(process.SiPixelTemplateStoreESProducer))
 else:
     process.p = cms.Path(process.HLTFilter                              +
                          process.offlineBeamSpot                        + 
                          process.TrackRefitter                          + 
                          process.offlinePrimaryVerticesFromRefittedTrks +
-                         process.jetHTAnalyzer)
+                         process.jetHTAnalyzer,
+                         cms.Task(process.SiPixelTemplateStoreESProducer))
 
 

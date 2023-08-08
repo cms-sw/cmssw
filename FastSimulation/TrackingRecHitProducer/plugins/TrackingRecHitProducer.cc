@@ -48,8 +48,9 @@ private:
   unsigned long long _trackerTopologyCacheID = 0;
   std::map<unsigned int, TrackingRecHitPipe> _detIdPipes;
   void setupDetIdPipes(const edm::EventSetup& eventSetup);
-  std::vector<SiPixelTemplateStore> _pixelTempStore;  // pixel template storage
   const edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> siPixelTemplateDBObjectESToken_;
+  const edm::ESGetToken<std::vector<SiPixelTemplateStore>, SiPixelTemplateDBObjectESProducerRcd>
+      siPixelTemplateStoreESToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryESToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyESToken_;
 
@@ -69,6 +70,7 @@ public:
 
 TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
     : siPixelTemplateDBObjectESToken_(esConsumes<edm::Transition::BeginRun>()),
+      siPixelTemplateStoreESToken_(esConsumes<edm::Transition::BeginRun>()),
       trackerGeometryESToken_(esConsumes()),
       trackerTopologyESToken_(esConsumes()) {
   edm::ConsumesCollector consumeCollector = consumesCollector();
@@ -115,17 +117,10 @@ void TrackingRecHitProducer::beginRun(edm::Run const& run, const edm::EventSetup
   //    to a no-op.
 
   const SiPixelTemplateDBObject& pixelTemplateDBObject = eventSetup.getData(siPixelTemplateDBObjectESToken_);
-
-  //--- Now that we have the DB object, load the correct templates from the DB.
-  //    (They are needed for data and full sim MC, so in a production FastSim
-  //    run, everything should already be in the DB.)
-  if (!SiPixelTemplate::pushfile(pixelTemplateDBObject, _pixelTempStore)) {
-    throw cms::Exception("TrackingRecHitProducer:")
-        << "SiPixel Templates not loaded correctly from the DB object!" << std::endl;
-  }
+  const auto& pixelTemplateStore = eventSetup.getData(siPixelTemplateStoreESToken_);
 
   for (auto& algo : _recHitAlgorithms) {
-    algo->beginRun(run, eventSetup, &pixelTemplateDBObject, _pixelTempStore);
+    algo->beginRun(run, eventSetup, &pixelTemplateDBObject, pixelTemplateStore);
   }
 }
 

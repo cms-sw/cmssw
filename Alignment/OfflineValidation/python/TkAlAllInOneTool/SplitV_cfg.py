@@ -196,10 +196,13 @@ process.TFileService = cms.Service("TFileService",
                                    )
 print("Saving the output at %s" % process.TFileService.fileName.value())
 
+
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
 process.theValidSequence = cms.Sequence(process.offlineBeamSpot                        +
                                         process.TrackRefitter                          +
                                         process.offlinePrimaryVerticesFromRefittedTrks +
-                                        process.PrimaryVertexResolution)
+                                        process.PrimaryVertexResolution,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
 
 HLTSel = config["validation"].get("HLTselection", False)
 
