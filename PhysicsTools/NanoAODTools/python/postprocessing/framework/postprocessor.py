@@ -63,8 +63,8 @@ class PostProcessor:
         tmpdir = os.environ['TMPDIR'] if 'TMPDIR' in os.environ else "/tmp"
         if not fname.startswith("root://"):
             return fname, False
-        rndchars = "".join([hex(i)[2:] for i in os.urandom(
-            8)]) if not self.longTermCache else "long_cache-id%d-%s" \
+        rndchars = "".join([hex(i)[2:] for i in bytearray(os.urandom(8))]) \
+            if not self.longTermCache else "long_cache-id%d-%s" \
             % (os.getuid(), hashlib.sha1(fname.encode('utf-8')).hexdigest())
         localfile = "%s/%s-%s.root" \
             % (tmpdir, os.path.basename(fname).replace(".root", ""), rndchars)
