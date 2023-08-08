@@ -49,7 +49,8 @@ private:
   double theTrkMVA2_;
   double theTrkMVA3_;
   int theTrackSeedType_;
-  double theBField_;  // needed for unpacking
+  double theBField_;     // needed for unpacking
+  int theGTTLinkIndex_;  // stores the position within a fiber link inside GTT
   static constexpr unsigned int Npars4 = 4;
   static constexpr unsigned int Npars5 = 5;
   static constexpr float MagConstant =
@@ -139,6 +140,11 @@ public:
   unsigned int etaSector() const { return theEtaSector_; }
   void setEtaSector(unsigned int aSector) { theEtaSector_ = aSector; }
 
+  /// GTT Link Information
+  unsigned int gttLinkID() const { return (eta() >= 0 ? 1 : 0) + (2 * phiSector()); }
+  int gttLinkIndex() const { return theGTTLinkIndex_; }
+  void setGTTLinkIndex(int idx) { theGTTLinkIndex_ = idx; }
+
   /// Track seeding (for debugging)
   unsigned int trackSeedType() const { return theTrackSeedType_; }
   void setTrackSeedType(int aSeed) { theTrackSeedType_ = aSeed; }
@@ -201,6 +207,7 @@ TTTrack<T>::TTTrack() {
   thePhiSector_ = 0;
   theEtaSector_ = 0;
   theTrackSeedType_ = 0;
+  theGTTLinkIndex_ = -1;
   theChi2_ = 0.0;
   theChi2_XY_ = 0.0;
   theChi2_Z_ = 0.0;
@@ -234,6 +241,7 @@ TTTrack<T>::TTTrack(double aRinv,
   thePhiSector_ = 0;      // must be set externally
   theEtaSector_ = 0;      // must be set externally
   theTrackSeedType_ = 0;  // must be set externally
+  theGTTLinkIndex_ = -1;  // must be set externally
   theChi2_ = aChi2;
   theTrkMVA1_ = trkMVA1;
   theTrkMVA2_ = trkMVA2;
