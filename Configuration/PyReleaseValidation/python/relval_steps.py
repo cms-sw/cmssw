@@ -2192,27 +2192,6 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '-n':'100'
 }
 
-steps['RAWPRIMEHI22']={ '--scenario':'pp',
-                        '--conditions':'auto:run3_data_prompt',
-                        '-s':'REPACK:DigiToApproxClusterRaw',
-                        '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG',
-                        '--eventcontent':'REPACKRAW',
-                        '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
-                        '-n':'10',
-                        '--customise_commands':'\"process.hltSiStripRawToDigi.ProductLabel=\'rawDataCollector\';process.hltScalersRawToDigi.scalersInputTag=\'rawDataCollector\'\"',
-                        '--process':'REHLT'
-}
-
-steps['RECOHID22APPROXCLUSTERS']=merge([{ '--scenario':'pp',
-                                          '--conditions':'auto:run3_data_prompt',
-                                          '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT',
-                                          '--datatier':'AOD,DQMIO',
-                                          '--eventcontent':'AOD,DQM',
-                                          '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
-                                          '--repacked':'',
-                                          '-n':'100'
-                                      },steps['RECOHID15']])
-
 steps['RECOHID22']=merge([{ '--scenario':'pp',
                             '--conditions':'auto:run3_data_prompt',
                             '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT',
