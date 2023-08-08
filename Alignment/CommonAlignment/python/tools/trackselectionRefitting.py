@@ -391,6 +391,10 @@ def getSequence(process, collection,
         modules.append(getattr(process, src))
 
     moduleSum = process.offlineBeamSpot        # first element of the sequence
+    tasks = []
+    if usePixelQualityFlag:
+        process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+        tasks =[process.SiPixelTemplateStoreESProducer]
     if g4Refitting:
         # g4Refitter needs measurements
         moduleSum += getattr(process,"MeasurementTrackerEvent")
@@ -421,6 +425,8 @@ def getSequence(process, collection,
 
         moduleSum += module # append the other modules
 
+    if tasks:
+        return cms.Sequence(moduleSum, cms.Task(*tasks))
     return cms.Sequence(moduleSum)
 
 ###############################
