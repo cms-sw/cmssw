@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 #HLTsiStripClusters.SiStripRefGetter  = cms.InputTag("hltSiStripClusters")
 
 # SiStripCluster monitoring
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone(
     ClusterProducerStrip = "hltSiStripRawToClustersFacility",
