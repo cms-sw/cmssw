@@ -83,6 +83,8 @@ private:
     kEtaSize = TTTrack_TrackWord::TrackBitWidths::kTanlSize,     // Width of eta
     kEtaMagSize = 3,                                             // Width of eta magnitude (signed)
   };
+  // corresponds to N_TRACK_SETS_TVA in LibHLS https://gitlab.cern.ch/GTT/LibHLS/-/blob/master/DataFormats/Track/interface/TrackConstants.h
+  static const int kNTrackSetsTVA = 94;
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> TTTrackType;
   typedef std::vector<TTTrackType> TTTrackCollectionType;
@@ -97,7 +99,9 @@ private:
                       const TTTrackRefCollectionUPtr& vTTTrackAssociatedEmulationOutput) const;
   void printTrackInfo(edm::LogInfo& log, const TTTrackType& track, bool printEmulation = false) const;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-
+  bool trackLinkSelect(const TTTrackType& t) const {
+    return ((t.gttLinkIndex() < kNTrackSetsTVA) && (t.gttLinkIndex() >= 0));
+  }
   // ----------selectors -----------------------------
   // Based on recommendations from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideGenericSelectors
   struct TTTrackDeltaZMaxSelector {
@@ -365,7 +369,7 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
     for (const auto& trackword : *l1SelectedTracksHandle) {
       auto track = l1tVertexFinder::L1Track(edm::refToPtr(trackword));
       // Select tracks based on the floating point TTTrack
-      if (deltaZSel(*trackword, leadingVertex)) {
+      if (trackLinkSelect(*trackword) && deltaZSel(*trackword, leadingVertex)) {
         vTTTrackAssociatedOutput->push_back(trackword);
       }
     }
@@ -383,7 +387,7 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
     vTTTrackAssociatedEmulationOutput->reserve(nOutputApproximateEmulation);
     for (const auto& trackword : *l1SelectedTracksEmulationHandle) {
       // Select tracks based on the bitwise accurate TTTrack_TrackWord
-      if (deltaZSelEmu(*trackword, leadingEmulationVertex)) {
+      if (trackLinkSelect(*trackword) && deltaZSelEmu(*trackword, leadingEmulationVertex)) {
         vTTTrackAssociatedEmulationOutput->push_back(trackword);
       }
     }
