@@ -518,6 +518,16 @@ void L1GTTInputProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
                                         << " pt/eta mismatches detected!!!";
   }
 
+  // Set the GTTLinkIndex for downstream modules
+  std::vector<int> index_counters(18, 0);
+  for (auto& track : *vTTTrackOutput) {
+    // Get the GTT Link ID (0-17) for the track
+    unsigned int gtt_link_id = track.gttLinkID();
+    // Assign the GTTLinkIndex to the converted tracks
+    track.setGTTLinkIndex(index_counters[gtt_link_id]);
+    index_counters[gtt_link_id]++;
+  }
+
   // Put the outputs into the event
   iEvent.put(std::move(vTTTrackOutput), outputCollectionName_);
   iEvent.put(std::move(vPtOutput), "L1GTTInputTrackPtExpected");
