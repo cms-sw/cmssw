@@ -75,7 +75,8 @@ process.myRefittedTracks = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefi
 )
                                          
 # Path and EndPath definitions
-process.reconstruction_step = cms.Path(process.tracksFromMuons*process.myRefittedTracks)
+process.reconstruction_step = cms.Path(process.tracksFromMuons*process.myRefittedTracks, 
+    cms.Task(process.TTRHBuilderAngleAndTemplate, process.templates, process.SiPixelTemplateStoreESProducer))
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 

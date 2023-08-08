@@ -118,5 +118,4 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('EopTree.root')
 )
 
-process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter*process.energyOverMomentumTree)
-#process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter*process.energyOverMomentumTree)
+process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter*process.energyOverMomentumTree,cms.Task(process.SiPixelTemplateStoreESProducer))

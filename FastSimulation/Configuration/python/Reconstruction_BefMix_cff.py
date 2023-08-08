@@ -41,6 +41,7 @@ from RecoTracker.TkNavigation.NavigationSchoolESProducer_cfi import navigationSc
 
 from FastSimulation.Tracking.iterativeTk_cff import *
 from TrackingTools.TrackFitters.TrackFitters_cff import *
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
 
 reconstruction_befmix = cms.Sequence(
     offlineBeamSpot
@@ -48,5 +49,6 @@ reconstruction_befmix = cms.Sequence(
     * fastMatchedTrackerRecHits
     * fastMatchedTrackerRecHitCombinations
     * MeasurementTrackerEvent
-    * iterTracking
+    * iterTracking,
+    cms.Task(SiPixelTemplateStoreESProducer)
     )

@@ -52,5 +52,6 @@ cosmicDCTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWith
 )
 
 # Final Sequence
-cosmicDCTracksSeqTask = cms.Task( cosmicDCSeeds , cosmicDCCkfTrackCandidates , cosmicDCTracks )
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
+cosmicDCTracksSeqTask = cms.Task( cosmicDCSeeds , cosmicDCCkfTrackCandidates , cosmicDCTracks , SiPixelTemplateStoreESProducer )
 cosmicDCTracksSeq = cms.Sequence(cosmicDCTracksSeqTask)
