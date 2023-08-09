@@ -67,8 +67,8 @@ HBHEDarkeningEP::ReturnType HBHEDarkeningEP::produce(const HBHEDarkeningRecord& 
   return std::make_unique<HBHEDarkening>(pset_.getParameter<int>("ieta_shift"),
                                          pset_.getParameter<double>("drdA"),
                                          pset_.getParameter<double>("drdB"),
-                                         dosemaps,
-                                         years);
+                                         std::move(dosemaps),
+                                         std::move(years));
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(HBHEDarkeningEP);
