@@ -64,11 +64,9 @@ from ..modules.hltPhase2L3MuonInitialStepTrackCutClassifier_cfi import *
 from ..modules.hltPhase2L3MuonInitialStepTracks_cfi import *
 from ..modules.hltPhase2L3MuonInitialStepTracksSelectionHighPurity_cfi import *
 from ..modules.hltPhase2L3MuonMerged_cfi import *
-from ..modules.hltPhase2L3MuonPixelFitterByHelixProjections_cfi import *
-from ..modules.hltPhase2L3MuonPixelTrackFilterByKinematics_cfi import *
+from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracks_cfi import *
-from ..modules.hltPhase2L3MuonPixelTracksFilter_cfi import *
-from ..modules.hltPhase2L3MuonPixelTracksFitter_cfi import *
+from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksHitDoublets_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksHitQuadruplets_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksSeedLayers_cfi import *
@@ -165,11 +163,9 @@ HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon = cms.Path(
         hltPhase2L3MuonInitialStepTracks,
         hltPhase2L3MuonInitialStepTracksSelectionHighPurity,
         hltPhase2L3MuonMerged,
-        hltPhase2L3MuonPixelFitterByHelixProjections,
-        hltPhase2L3MuonPixelTrackFilterByKinematics,
+        hltPhase2PixelFitterByHelixProjections,
+        hltPhase2PixelTrackFilterByKinematics,
         hltPhase2L3MuonPixelTracks,
-        hltPhase2L3MuonPixelTracksFilter,
-        hltPhase2L3MuonPixelTracksFitter,
         hltPhase2L3MuonPixelTracksHitDoublets,
         hltPhase2L3MuonPixelTracksHitQuadruplets,
         hltPhase2L3MuonPixelTracksSeedLayers,
