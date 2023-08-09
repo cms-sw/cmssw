@@ -34,7 +34,7 @@ namespace gctpf {
 
   typedef struct {
     GCTpfcluster_t GCTpfclusters[nPFClusterSLR];
-  } GCTPfcluster_t;
+  } PFcluster_t;
 
   typedef struct {
     float et;
@@ -96,7 +96,7 @@ namespace gctpf {
 
   inline GCTint_t getPeakPosition(const region_t& region) {
     gctEtaStripPeak_t etaPeak;
-    for (int i = 0; i < 19; i++) {
+    for (int i = 0; i < nTowerEtaSLR - 2; i++) {
       etaPeak.p[i] = getPeakOfStrip(region.s[i + 1]);
     }
     GCTint_t max = getPeakBin(etaPeak);
@@ -174,14 +174,14 @@ namespace gctpf {
     return pfclusterReturn;
   }
 
-  inline GCTPfcluster_t pfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
+  inline PFcluster_t pfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
     GCTpfcluster_t pfcluster[nPFClusterSLR];
 
     for (int i = 0; i < nPFClusterSLR; i++) {
       pfcluster[i] = recoPfcluster(temporary, etaoffset, phioffset);
     }
 
-    GCTPfcluster_t GCTPfclusters;
+    PFcluster_t GCTPfclusters;
 
     for (int i = 0; i < nPFClusterSLR; i++) {
       GCTPfclusters.GCTpfclusters[i].et = pfcluster[i].et;

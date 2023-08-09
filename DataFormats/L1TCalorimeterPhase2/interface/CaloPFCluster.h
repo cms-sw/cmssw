@@ -6,7 +6,6 @@
 #include <string>
 #include <algorithm>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace l1tp2 {
 

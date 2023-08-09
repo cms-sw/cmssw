@@ -48,7 +48,7 @@
 class Phase2L1CaloPFClusterEmulator : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1CaloPFClusterEmulator(const edm::ParameterSet&);
-  ~Phase2L1CaloPFClusterEmulator() override;
+  ~Phase2L1CaloPFClusterEmulator() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -56,16 +56,8 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<l1tp2::CaloTowerCollection> caloTowerToken_;
+  const edm::EDGetTokenT<l1tp2::CaloTowerCollection> caloTowerToken_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -74,8 +66,6 @@ Phase2L1CaloPFClusterEmulator::Phase2L1CaloPFClusterEmulator(const edm::Paramete
     : caloTowerToken_(consumes<l1tp2::CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("gctFullTowers"))) {
   produces<l1tp2::CaloPFClusterCollection>("GCTPFCluster");
 }
-
-Phase2L1CaloPFClusterEmulator::~Phase2L1CaloPFClusterEmulator() {}
 
 //
 // member functions
@@ -87,10 +77,10 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
   std::unique_ptr<l1tp2::CaloPFClusterCollection> pfclusterCands(make_unique<l1tp2::CaloPFClusterCollection>());
 
   edm::Handle<std::vector<l1tp2::CaloTower>> caloTowerCollection;
-  if (!iEvent.getByToken(caloTowerToken_, caloTowerCollection))
+  iEvent.getByToken(caloTowerToken_, caloTowerCollection);
+  if (!caloTowerCollection.isValid())
     cms::Exception("Phase2L1CaloPFClusterEmulator") << "Failed to get towers from caloTowerCollection!";
 
-  iEvent.getByToken(caloTowerToken_, caloTowerCollection);
   float GCTintTowers[nTowerEta][nTowerPhi];
   float realEta[nTowerEta][nTowerPhi];
   float realPhi[nTowerEta][nTowerPhi];
@@ -155,7 +145,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
     if (k > 1 && k % 2 == 0)
       phioffset = phioffset + 4;
 
-    gctpf::GCTPfcluster_t tempPfclusters;
+    gctpf::PFcluster_t tempPfclusters;
     tempPfclusters = gctpf::pfcluster(temporary, etaoffset, phioffset);
 
     for (int i = 0; i < nPFClusterSLR; i++) {
