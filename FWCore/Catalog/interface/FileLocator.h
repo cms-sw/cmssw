@@ -42,6 +42,8 @@ namespace edm {
     typedef std::map<std::string, Rules> ProtocolRules;
 
     void init_trivialCatalog(std::string const& catUrl, unsigned iCatalog);
+
+    //void ruleBuilder(std::string prefix, Rule& rule);
     void parseRuleTrivialCatalog(tinyxml2::XMLElement* ruleNode, ProtocolRules& rules);
     //using data-access
     void init(edm::CatalogAttributes const& input_dataCatalog,
@@ -68,9 +70,9 @@ namespace edm {
 
     std::string m_fileType;
     std::string m_filename;
-    std::vector<std::string> m_protocols;
+    std::vector<std::string>
+        m_protocols;  //not sure why a vector is used while it seems this vector has only one element?
     std::string m_destination;
-    std::string m_prefix;
   };
 }  // namespace edm
 
