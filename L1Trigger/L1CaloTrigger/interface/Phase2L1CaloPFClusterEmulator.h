@@ -44,15 +44,15 @@ namespace gctpf {
 
   typedef struct {
     GCTint_t t[nTowerPhiSLR];
-  } gctEtaStrip_t;
+  } GCTEtaStrip_t;
 
   typedef struct {
     GCTint_t p[nTowerEtaSLR - 2];
-  } gctEtaStripPeak_t;
+  } GCTEtaStripPeak_t;
 
   typedef struct {
-    gctEtaStrip_t s[nTowerEtaSLR];
-  } region_t;
+    GCTEtaStrip_t s[nTowerEtaSLR];
+  } Region_t;
 
   inline GCTint_t bestOf2(const GCTint_t& t0, const GCTint_t& t1) {
     GCTint_t x;
@@ -61,7 +61,7 @@ namespace gctpf {
     return x;
   }
 
-  inline GCTint_t getPeakOfStrip(const gctEtaStrip_t& etaStrip) {
+  inline GCTint_t getPeakOfStrip(const GCTEtaStrip_t& etaStrip) {
     GCTint_t best12 = bestOf2(etaStrip.t[1], etaStrip.t[2]);
     GCTint_t best34 = bestOf2(etaStrip.t[3], etaStrip.t[4]);
     GCTint_t best56 = bestOf2(etaStrip.t[5], etaStrip.t[6]);
@@ -71,7 +71,7 @@ namespace gctpf {
     return bestAll;
   }
 
-  inline GCTint_t getPeakBin(const gctEtaStripPeak_t& etaStripPeak) {
+  inline GCTint_t getPeakBin(const GCTEtaStripPeak_t& etaStripPeak) {
     GCTint_t best01 = bestOf2(etaStripPeak.p[0], etaStripPeak.p[1]);
     GCTint_t best23 = bestOf2(etaStripPeak.p[2], etaStripPeak.p[3]);
     GCTint_t best45 = bestOf2(etaStripPeak.p[4], etaStripPeak.p[5]);
@@ -94,8 +94,8 @@ namespace gctpf {
     return bestAll;
   }
 
-  inline GCTint_t getPeakPosition(const region_t& region) {
-    gctEtaStripPeak_t etaPeak;
+  inline GCTint_t getPeakPosition(const Region_t& region) {
+    GCTEtaStripPeak_t etaPeak;
     for (int i = 0; i < nTowerEtaSLR - 2; i++) {
       etaPeak.p[i] = getPeakOfStrip(region.s[i + 1]);
     }
@@ -104,8 +104,8 @@ namespace gctpf {
     return max;
   }
 
-  inline region_t initStructure(float temp[nTowerEtaSLR][nTowerPhiSLR]) {
-    region_t r;
+  inline Region_t initStructure(float temp[nTowerEtaSLR][nTowerPhiSLR]) {
+    Region_t r;
 
     for (int i = 0; i < nTowerPhiSLR; i++) {
       for (int j = 0; j < nTowerEtaSLR; j++) {
@@ -153,7 +153,7 @@ namespace gctpf {
   inline GCTpfcluster_t recoPfcluster(float temporary[nTowerEtaSLR][nTowerPhiSLR], int etaoffset, int phioffset) {
     GCTpfcluster_t pfclusterReturn;
 
-    region_t region;
+    Region_t region;
 
     region = initStructure(temporary);
 
