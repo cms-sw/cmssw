@@ -20,14 +20,18 @@ void MaterialBudgetMtdHistos::book() {
   static constexpr double maxPhi = 3.1416;
   static constexpr int nbinEta = 250;
   static constexpr int nbinPhi = 180;
-#ifdef MTD_DETAIL
-  static constexpr double minEtaZoom = 0.;
-  static constexpr double maxEtaZoom = 0.087;
-  static constexpr double minPhiZoom = 0.;
-  static constexpr double maxPhiZoom = 0.35;
-  static constexpr int nbinEtaZoom = 64;
-  static constexpr int nbinPhiZoom = 20;
-#endif
+
+  static constexpr double minEtaBTLZoom = 0.;
+  static constexpr double maxEtaBTLZoom = 0.087;
+  static constexpr double minPhiBTLZoom = 0.;
+  static constexpr double maxPhiBTLZoom = 0.35;
+  static constexpr int nbinEtaBTLZoom = 64;
+  static constexpr int nbinPhiBTLZoom = 20;
+
+  static constexpr double minMB = 0.;
+  static constexpr double maxMBetl = 0.025;
+  static constexpr double maxMBbtl = 0.5;
+  static constexpr int nbinMB = 25;
 
   // Material budget: radiation length
   // total X0
@@ -55,16 +59,22 @@ void MaterialBudgetMtdHistos::book() {
   hmgr->addHisto1(new TH1F("221", "Phi [Sensitive]", nbinPhi, minPhi, maxPhi));
   hmgr->addHistoProf2(new TProfile2D(
       "230", "MB prof Eta  Phi [Sensitive];#eta;#varphi;x/X_{0}", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
-#ifdef MTD_DETAIL
+
   hmgr->addHistoProf2(new TProfile2D("10230",
                                      "MB prof Eta  Phi [Sensitive];#eta;#varphi;x/X_{0}",
-                                     nbinEtaZoom,
-                                     minEtaZoom,
-                                     maxEtaZoom,
-                                     nbinPhiZoom,
-                                     minPhiZoom,
-                                     maxPhiZoom));
-#endif
+                                     nbinEtaBTLZoom,
+                                     minEtaBTLZoom,
+                                     maxEtaBTLZoom,
+                                     nbinPhiBTLZoom,
+                                     minPhiBTLZoom,
+                                     maxPhiBTLZoom));
+  hmgr->addHisto2(
+      new TH2F("10234", "MB vs Eta [Sensitive];#eta;x/X_{0}", nbinEta, minEta, maxEta, nbinMB, minMB, maxMBetl));
+  hmgr->addHisto2(new TH2F(
+      "20234", "MB along z vs Eta [Sensitive];#eta;x/X_{0}", nbinEta, minEta, maxEta, nbinMB, minMB, maxMBetl));
+  hmgr->addHisto2(
+      new TH2F("10235", "MB vs Eta [Sensitive];#eta;x/X_{0}", nbinEta, minEta, maxEta, nbinMB, minMB, maxMBbtl));
+
   hmgr->addHisto2(new TH2F("231", "Eta vs Phi [Sensitive]", nbinEta, minEta, maxEta, nbinPhi, minPhi, maxPhi));
 
   // Cables
@@ -252,9 +262,15 @@ void MaterialBudgetMtdHistos::fillEndTrack() {
   hmgr->getHistoProf1(210)->Fill(theData->getEta(), theData->getSensitiveMB());
   hmgr->getHistoProf1(220)->Fill(theData->getPhi(), theData->getSensitiveMB());
   hmgr->getHistoProf2(230)->Fill(theData->getEta(), theData->getPhi(), theData->getSensitiveMB());
-#ifdef MTD_DETAIL
-  hmgr->getHistoProf2(10230)->Fill(theData->getEta(), theData->getPhi(), theData->getSensitiveMB());
-#endif
+
+  if (std::abs(theData->getEta()) > 1.55) {
+    hmgr->getHisto2(10234)->Fill(theData->getEta(), theData->getSensitiveMB());
+    double norma = std::tanh(std::abs(theData->getEta()));
+    hmgr->getHisto2(20234)->Fill(theData->getEta(), theData->getSensitiveMB() * norma);
+  } else {
+    hmgr->getHistoProf2(10230)->Fill(theData->getEta(), theData->getPhi(), theData->getSensitiveMB());
+    hmgr->getHisto2(10235)->Fill(theData->getEta(), theData->getSensitiveMB());
+  }
 
   // Cables
   hmgr->getHisto1(311)->Fill(theData->getEta());
