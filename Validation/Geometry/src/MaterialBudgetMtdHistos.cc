@@ -263,7 +263,9 @@ void MaterialBudgetMtdHistos::fillEndTrack() {
   hmgr->getHistoProf1(220)->Fill(theData->getPhi(), theData->getSensitiveMB());
   hmgr->getHistoProf2(230)->Fill(theData->getEta(), theData->getPhi(), theData->getSensitiveMB());
 
-  if (std::abs(theData->getEta()) > 1.55) {
+  static constexpr double bfTransitionEta = 1.55;
+
+  if (std::abs(theData->getEta()) > bfTransitionEta) {
     hmgr->getHisto2(10234)->Fill(theData->getEta(), theData->getSensitiveMB());
     double norma = std::tanh(std::abs(theData->getEta()));
     hmgr->getHisto2(20234)->Fill(theData->getEta(), theData->getSensitiveMB() * norma);
