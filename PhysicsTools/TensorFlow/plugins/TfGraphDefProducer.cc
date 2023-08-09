@@ -54,7 +54,7 @@ TfGraphDefProducer::ReturnType TfGraphDefProducer::produce(const TfGraphRecord& 
 void TfGraphDefProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ComponentName", "tfGraphDef");
-  desc.add<edm::FileInPath>("FileName");
+  desc.add<edm::FileInPath>("FileName", edm::FileInPath());
   descriptions.add("tfGraphDefProducer", desc);
 }
 
