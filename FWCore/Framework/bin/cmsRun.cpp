@@ -27,6 +27,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "TError.h"
 
@@ -208,6 +209,9 @@ int main(int argc, char* argv[]) {
         return edm::errors::ConfigFileNotFound;
       }
       std::string fileName(vm[kParameterSetOpt].as<std::string>());
+      //convert to char*[]
+      std::vector<char*> pythonArgs = edm::vector_transform(vm[kPythonOpt].as<std::vector<std::string>>(), [](const auto& arg){ return const_cast<char*>(arg.c_str()); });
+      pythonArgs.insert(pythonArgs.begin(),const_cast<char*>(fileName.c_str()));
 
       if (vm.count(kStrictOpt)) {
         //edm::setStrictParsing(true);
@@ -235,7 +239,7 @@ int main(int argc, char* argv[]) {
       context += fileName;
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        std::unique_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
+        std::unique_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, pythonArgs.size(), pythonArgs.data());
         processDesc.reset(new edm::ProcessDesc(std::move(parameterSet)));
       } catch (edm::Exception const&) {
         throw;
