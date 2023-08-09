@@ -17,7 +17,6 @@ public:
   simromanpot::energy_path_distribution divide(const PSimHit& hit);
 
 private:
-  const edm::ParameterSet& params_;
   CLHEP::HepRandomEngine& rndEngine_;
   RPDetId det_id_;
 

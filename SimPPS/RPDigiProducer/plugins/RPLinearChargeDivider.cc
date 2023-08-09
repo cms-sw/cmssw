@@ -7,7 +7,7 @@
 RPLinearChargeDivider::RPLinearChargeDivider(const edm::ParameterSet& params,
                                              CLHEP::HepRandomEngine& eng,
                                              RPDetId det_id)
-    : params_(params), rndEngine_(eng), det_id_(det_id) {
+    : rndEngine_(eng), det_id_(det_id) {
   verbosity_ = params.getParameter<int>("RPVerbosity");
 
   fluctuate_ = std::make_unique<SiG4UniversalFluctuation>();
