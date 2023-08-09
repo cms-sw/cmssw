@@ -44,7 +44,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 //Command line parameters
 static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kPythonOpt = "pythonOptions";
-static char const* const kParameterSetCommandOpt = "parameter-set,p";
 static char const* const kJobreportCommandOpt = "jobreport,j";
 static char const* const kJobreportOpt = "jobreport";
 static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
@@ -146,14 +145,11 @@ int main(int argc, char* argv[]) {
 
       context = "Processing command line arguments";
       std::string descString(argv[0]);
-      descString += " [options] [--";
-      descString += kParameterSetOpt;
-      descString += "] config_file \nAllowed options";
+      descString += " [options] config_file \nAllowed options";
       boost::program_options::options_description desc(descString);
 
       // clang-format off
       desc.add_options()(kHelpCommandOpt, "produce help message")(
-          kParameterSetCommandOpt, boost::program_options::value<std::string>(), "configuration file")(
           kJobreportCommandOpt,
           boost::program_options::value<std::string>(),
           "file name to use for a job report file: default extension is .xml")(
@@ -179,6 +175,7 @@ int main(int argc, char* argv[]) {
       // state machine code.
       boost::program_options::options_description hidden("hidden options");
       hidden.add_options()("fwk", "For use only by Framework Developers")(
+          kParameterSetOpt, boost::program_options::value<std::string>(), "configuration file")(
           kPythonOpt,
           boost::program_options::value<std::vector<std::string> >(),
           "options at the end to be passed to python");
