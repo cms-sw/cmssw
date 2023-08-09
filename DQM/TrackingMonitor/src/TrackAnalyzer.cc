@@ -362,6 +362,9 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker& ibooker) {
   double VZMin = conf_->getParameter<double>("VZMin");
   double VZMax = conf_->getParameter<double>("VZMax");
 
+  double VZ_PVMin = conf_->getParameter<double>("VZ_PVMin");
+  double VZ_PVMax = conf_->getParameter<double>("VZ_PVMax");
+
   ibooker.setCurrentFolder(TopFolder_);
 
   // book the Hit Property histograms
@@ -682,7 +685,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker& ibooker) {
 
       histname = "zPointOfClosestApproachToPV_";
       zPointOfClosestApproachToPV =
-          ibooker.book1D(histname + CategoryName, histname + CategoryName, VZBin, VZMin, VZMax);
+          ibooker.book1D(histname + CategoryName, histname + CategoryName, VZBin, VZ_PVMin, VZ_PVMax);
       zPointOfClosestApproachToPV->setAxisTitle("z component of Track PCA to pv line (cm)", 1);
       zPointOfClosestApproachToPV->setAxisTitle("Number of Tracks", 2);
     }
