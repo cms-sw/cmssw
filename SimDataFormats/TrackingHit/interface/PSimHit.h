@@ -110,9 +110,9 @@ public:
   /** In case te SimTrack ID is incremented by the k_tidOffset for hit category definition, this
    * methods returns the original theTrackId value directly.
    */
-  unsigned int originalTrackId() const { return (theTrackId > k_tidOffset) ? theTrackId % k_tidOffset : theTrackId; }
+  unsigned int originalTrackId() const { return theTrackId % k_tidOffset; }
 
-  unsigned int offsetTrackId() const { return (theTrackId > k_tidOffset) ? theTrackId / k_tidOffset : theTrackId; }
+  unsigned int offsetTrackId() const { return theTrackId / k_tidOffset; }
 
   static unsigned int addTrackIdOffset(unsigned int tId, unsigned int offset) { return offset * k_tidOffset + tId; }
 
