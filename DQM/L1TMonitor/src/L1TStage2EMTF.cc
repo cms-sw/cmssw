@@ -1037,7 +1037,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   constexpr int singleMuQuality = 12;
   constexpr int singleMuPT = 22;
-  constexpr int  singleMuUPT = 10;
+  constexpr int singleMuUPT = 10;
 
   for (auto Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
     int endcap = Track->Endcap();
