@@ -266,6 +266,13 @@ int main(int argc, char* argv[]) {
       } catch (edm::Exception const&) {
         throw;
       } catch (cms::Exception& iException) {
+        //check for "SystemExit: 0" on second line
+        const std::string& sysexit0("SystemExit: 0");
+        const auto& msg = iException.message();
+        size_t pos2 = msg.find('\n');
+        if(pos2!=std::string::npos and (msg.size()-(pos2+1))>sysexit0.size() and msg.compare(pos2+1, sysexit0.size(), sysexit0)==0)
+          return 0;
+
         edm::Exception e(edm::errors::ConfigFileReadError, "", iException);
         throw e;
       }
