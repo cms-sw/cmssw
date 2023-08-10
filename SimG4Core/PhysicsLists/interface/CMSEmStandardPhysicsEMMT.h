@@ -6,6 +6,7 @@
 #include "G4MscStepLimitType.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsTrackingManagerParams.h"
 
 class CMSEmStandardPhysicsEMMT : public G4VPhysicsConstructor {
 public:
@@ -16,7 +17,7 @@ public:
   void ConstructProcess() override;
 
 private:
-  const edm::ParameterSet& fParameterSet;
+  CMSEmStandardPhysicsTrackingManagerParams trackingManagerParams_;
 };
 
 #endif

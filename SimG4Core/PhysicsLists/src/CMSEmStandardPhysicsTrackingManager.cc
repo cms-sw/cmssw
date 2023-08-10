@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsTrackingManager.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsTrackingManagerParams.h"
 #include "TrackingManagerHelper.h"
 
 #include "G4CoulombScattering.hh"
@@ -48,12 +49,14 @@
 
 CMSEmStandardPhysicsTrackingManager *CMSEmStandardPhysicsTrackingManager::masterTrackingManager = nullptr;
 
-CMSEmStandardPhysicsTrackingManager::CMSEmStandardPhysicsTrackingManager(const edm::ParameterSet &p) {
-  fRangeFactor = p.getParameter<double>("G4MscRangeFactor");
-  fGeomFactor = p.getParameter<double>("G4MscGeomFactor");
-  fSafetyFactor = p.getParameter<double>("G4MscSafetyFactor");
-  fLambdaLimit = p.getParameter<double>("G4MscLambdaLimit") * CLHEP::mm;
-  std::string msc = p.getParameter<std::string>("G4MscStepLimit");
+CMSEmStandardPhysicsTrackingManager::CMSEmStandardPhysicsTrackingManager(
+    const CMSEmStandardPhysicsTrackingManagerParams &trackingManagerParams) {
+  fRangeFactor = trackingManagerParams.rangeFactor_;
+  fGeomFactor = trackingManagerParams.geomFactor_;
+  fSafetyFactor = trackingManagerParams.safetyFactor_;
+  fLambdaLimit = trackingManagerParams.lambdaLimit_;
+  std::string msc = trackingManagerParams.stepLimit_;
+
   fStepLimitType = fUseSafety;
   if (msc == "UseSafetyPlus") {
     fStepLimitType = fUseSafetyPlus;

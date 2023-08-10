@@ -5,8 +5,6 @@
 #include "globals.hh"
 #include "G4MscStepLimitType.hh"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 class G4eMultipleScattering;
 class G4CoulombScattering;
 class G4eIonisation;
@@ -16,10 +14,11 @@ class G4ElectronNuclearProcess;
 class G4PositronNuclearProcess;
 
 class G4GammaGeneralProcess;
+struct CMSEmStandardPhysicsTrackingManagerParams;
 
 class CMSEmStandardPhysicsTrackingManager : public G4VTrackingManager {
 public:
-  CMSEmStandardPhysicsTrackingManager(const edm::ParameterSet &p);
+  CMSEmStandardPhysicsTrackingManager(const CMSEmStandardPhysicsTrackingManagerParams &);
   ~CMSEmStandardPhysicsTrackingManager() override;
 
   void BuildPhysicsTable(const G4ParticleDefinition &) override;

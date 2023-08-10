@@ -24,8 +24,10 @@
 #include "G4PhysicsListHelper.hh"
 #include "G4BuilderType.hh"
 
+#include <string>
+
 CMSEmStandardPhysicsEMMT::CMSEmStandardPhysicsEMMT(G4int ver, const edm::ParameterSet& p)
-    : G4VPhysicsConstructor("CMSEmStandard_emmt"), fParameterSet(p) {
+    : G4VPhysicsConstructor("CMSEmStandard_emmt") {
   SetVerboseLevel(ver);
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
@@ -39,6 +41,12 @@ CMSEmStandardPhysicsEMMT::CMSEmStandardPhysicsEMMT(G4int ver, const edm::Paramet
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
+
+  trackingManagerParams_.rangeFactor_ = p.getParameter<double>("G4MscRangeFactor");
+  trackingManagerParams_.geomFactor_ = p.getParameter<double>("G4MscGeomFactor");
+  trackingManagerParams_.safetyFactor_ = p.getParameter<double>("G4MscSafetyFactor");
+  trackingManagerParams_.lambdaLimit_ = p.getParameter<double>("G4MscLambdaLimit") * CLHEP::mm;
+  trackingManagerParams_.stepLimit_ = p.getParameter<std::string>("G4MscStepLimit");
 }
 
 CMSEmStandardPhysicsEMMT::~CMSEmStandardPhysicsEMMT() {}
@@ -61,7 +69,7 @@ void CMSEmStandardPhysicsEMMT::ConstructProcess() {
   G4NuclearStopping* pnuc(nullptr);
 
   // register specialized tracking for e-/e+ and gammas
-  auto* trackingManager = new CMSEmStandardPhysicsTrackingManager(fParameterSet);
+  auto* trackingManager = new CMSEmStandardPhysicsTrackingManager(trackingManagerParams_);
   G4Electron::Electron()->SetTrackingManager(trackingManager);
   G4Positron::Positron()->SetTrackingManager(trackingManager);
   G4Gamma::Gamma()->SetTrackingManager(trackingManager);
