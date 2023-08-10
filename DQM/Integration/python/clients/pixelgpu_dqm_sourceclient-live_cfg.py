@@ -104,7 +104,10 @@ process.tasksPath = cms.Path(process.siPixelPhase1RawDataErrorComparator)
 #-------------------------------------
 process.dqmPath = cms.EndPath(process.dqmEnv)
 process.dqmPath1 = cms.EndPath(process.dqmSaver*process.dqmSaverPB)
-process.schedule = cms.Schedule(process.tasksPath,process.dumpPath,process.dqmPath,process.dqmPath1)
+process.schedule = cms.Schedule(process.tasksPath,
+                                #process.dumpPath,  # for debug
+                                process.dqmPath,
+                                process.dqmPath1)
 
 #-------------------------------------
 #	Scheduling and Process Customizations
