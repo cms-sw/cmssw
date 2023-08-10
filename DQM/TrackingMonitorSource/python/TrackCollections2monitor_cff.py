@@ -303,8 +303,8 @@ vertexfolderName['highPurityPV0p1'] = 'Tracking/PrimaryVertices/highPurityTracks
 trackPtN        ['highPurityPV0p1'] = cms.int32(100)
 trackPtMin      ['highPurityPV0p1'] = cms.double(0.)
 trackPtMax      ['highPurityPV0p1'] = cms.double(100.)
-pcaZtoPVMax     ['highPurityPV0p1'] = cms.double(0.2)
-pcaZtoPVMin     ['highPurityPV0p1'] = cms.double(-0.2)
+pcaZtoPVMax     ['highPurityPV0p1'] = cms.double(0.15)
+pcaZtoPVMin     ['highPurityPV0p1'] = cms.double(-0.15)
 doPlotsPCA      ['highPurityPV0p1'] = cms.bool(True)
 numCutString    ['highPurityPV0p1'] = cms.string("quality('highPurity')") # num := den + quality('highPurity')
 denCutString    ['highPurityPV0p1'] = cms.string("") # den := kinematic cuts
