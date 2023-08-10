@@ -118,6 +118,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  const edm::InputTag pixelErrorSrcGPU_;
+  const edm::InputTag pixelErrorSrcCPU_;
   const edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError>> tokenErrorsGPU_;
   const edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError>> tokenErrorsCPU_;
   const std::string topFolderName_;
@@ -125,6 +127,9 @@ private:
   MonitorElement* h_totFEDErrors_;
   MonitorElement* h_FEDerrorVsFEDIdUnbalance_;
   std::unordered_map<SiPixelFEDErrorCodes, MonitorElement*> h_nFEDErrors_;
+
+  // name of the plugins
+  static constexpr const char* kName = "SiPixelPhase1RawDataErrorComparator";
 
   // Define the dimensions of the 2D array
   static constexpr int nFEDs = FEDNumbering::MAXSiPixeluTCAFEDID - FEDNumbering::MINSiPixeluTCAFEDID;
@@ -135,10 +140,10 @@ private:
 // constructors
 //
 SiPixelPhase1RawDataErrorComparator::SiPixelPhase1RawDataErrorComparator(const edm::ParameterSet& iConfig)
-    : tokenErrorsGPU_(
-          consumes<edm::DetSetVector<SiPixelRawDataError>>(iConfig.getParameter<edm::InputTag>("pixelErrorSrcGPU"))),
-      tokenErrorsCPU_(
-          consumes<edm::DetSetVector<SiPixelRawDataError>>(iConfig.getParameter<edm::InputTag>("pixelErrorSrcCPU"))),
+    : pixelErrorSrcGPU_(iConfig.getParameter<edm::InputTag>("pixelErrorSrcGPU")),
+      pixelErrorSrcCPU_(iConfig.getParameter<edm::InputTag>("pixelErrorSrcCPU")),
+      tokenErrorsGPU_(consumes<edm::DetSetVector<SiPixelRawDataError>>(pixelErrorSrcGPU_)),
+      tokenErrorsCPU_(consumes<edm::DetSetVector<SiPixelRawDataError>>(pixelErrorSrcCPU_)),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")) {}
 
 //
@@ -169,16 +174,18 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
   edm::Handle<edm::DetSetVector<SiPixelRawDataError>> inputFromCPU;
   iEvent.getByToken(tokenErrorsCPU_, inputFromCPU);
   if (!inputFromCPU.isValid()) {
-    edm::LogError("SiPixelPhase1RawDataErrorComparator") << "reference (cpu) SiPixelRawDataErrors not found; \n"
-                                                         << "the comparison will not run.";
+    edm::LogError(kName) << "reference (cpu) SiPixelRawDataErrors collection (" << pixelErrorSrcCPU_.encode()
+                         << ") not found; \n"
+                         << "the comparison will not run.";
     return;
   }
 
   edm::Handle<edm::DetSetVector<SiPixelRawDataError>> inputFromGPU;
   iEvent.getByToken(tokenErrorsGPU_, inputFromGPU);
   if (!inputFromGPU.isValid()) {
-    edm::LogError("SiPixelPhase1RawDataErrorComparator") << "target (gpu) SiPixelRawDataErrors not found; \n"
-                                                         << "the comparison will not run.";
+    edm::LogError(kName) << "target (gpu) SiPixelRawDataErrors collection (" << pixelErrorSrcGPU_.encode()
+                         << ") not found; \n"
+                         << "the comparison will not run.";
     return;
   }
 
@@ -194,8 +201,7 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
       countsOnCPU[type] += 1;
       countsMatrixOnCPU[fed - FEDNumbering::MINSiPixeluTCAFEDID][type - k_FED25] += 1;
 
-      LogDebug("SiPixelPhase1RawDataErrorComparator")
-          << " (on cpu) FED: " << fed << " detid: " << id.rawId() << " type:" << type;
+      LogDebug(kName) << " (on cpu) FED: " << fed << " detid: " << id.rawId() << " type:" << type;
       errorsOnCPU++;
     }
   }
@@ -212,14 +218,12 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
       countsOnGPU[type] += 1;
       countsMatrixOnGPU[fed - FEDNumbering::MINSiPixeluTCAFEDID][type - k_FED25] += 1;
 
-      LogDebug("SiPixelPhase1RawDataErrorComparator")
-          << " (on gpu) FED: " << fed << " detid: " << id.rawId() << " type:" << type;
+      LogDebug(kName) << " (on gpu) FED: " << fed << " detid: " << id.rawId() << " type:" << type;
       errorsOnGPU++;
     }
   }
 
-  edm::LogPrint("SiPixelPhase1RawDataErrorComparator")
-      << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU << std::endl;
+  edm::LogPrint(kName) << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU << std::endl;
 
   h_totFEDErrors_->Fill(errorsOnCPU, errorsOnGPU);
 
@@ -233,9 +237,9 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
   for (int i = 0; i < nFEDs; i++) {
     for (int j = 0; j < nErrors; j++) {
       if (countsMatrixOnGPU[i][j] != 0 || countsMatrixOnCPU[i][j] != 0) {
-        edm::LogVerbatim("SiPixelPhase1RawDataErrorComparator")
-            << "FED: " << i + FEDNumbering::MINSiPixeluTCAFEDID << " error: " << j + k_FED25
-            << " | GPU counts: " << countsMatrixOnGPU[i][j] << " CPU counts:" << countsMatrixOnCPU[i][j] << std::endl;
+        edm::LogVerbatim(kName) << "FED: " << i + FEDNumbering::MINSiPixeluTCAFEDID << " error: " << j + k_FED25
+                                << " | GPU counts: " << countsMatrixOnGPU[i][j]
+                                << " CPU counts:" << countsMatrixOnCPU[i][j] << std::endl;
         h_FEDerrorVsFEDIdUnbalance_->Fill(
             j, i + FEDNumbering::MINSiPixeluTCAFEDID, countsMatrixOnGPU[i][j] - countsMatrixOnCPU[i][j]);
       }
