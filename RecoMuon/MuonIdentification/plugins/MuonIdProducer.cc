@@ -237,7 +237,8 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       iEvent.getByToken(outerTrackSecondaryCollectionToken_, outerTrackSecondaryCollectionHandle_);
       if (!outerTrackSecondaryCollectionHandle_.isValid())
         throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputLabel;
-      LogTrace("MuonIdentification") << "Number of input outer secondary tracks: " << outerTrackSecondaryCollectionHandle_->size();
+      LogTrace("MuonIdentification") << "Number of input outer secondary tracks: "
+                                     << outerTrackSecondaryCollectionHandle_->size();
     } else if (inputType == ICTypes::LINKS) {
       iEvent.getByToken(linkCollectionToken_, linkCollectionHandle_);
       if (!linkCollectionHandle_.isValid())
@@ -638,10 +639,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   if (outerTrackCollectionHandle_.isValid()) {
     LogTrace("MuonIdentification") << "Looking for new muons among stand alone muon tracks";
     const unsigned int nouter = outerTrackCollectionHandle_->size();
-    const unsigned int nsecond = (outerTrackSecondaryCollectionHandle_.isValid()) ? outerTrackSecondaryCollectionHandle_->size() : 0;
+    const unsigned int nsecond =
+        (outerTrackSecondaryCollectionHandle_.isValid()) ? outerTrackSecondaryCollectionHandle_->size() : 0;
     for (unsigned int i = 0; i < nouter + nsecond; ++i) {
-      const auto& outerTrack = (i < nouter) ? outerTrackCollectionHandle_->at(i) : outerTrackSecondaryCollectionHandle_->at(i - nouter);
-      reco::TrackRef refToTrack = (i < nouter) ? reco::TrackRef(outerTrackCollectionHandle_, i) : reco::TrackRef(outerTrackSecondaryCollectionHandle_, i - nouter);
+      const auto& outerTrack =
+          (i < nouter) ? outerTrackCollectionHandle_->at(i) : outerTrackSecondaryCollectionHandle_->at(i - nouter);
+      reco::TrackRef refToTrack = (i < nouter) ? reco::TrackRef(outerTrackCollectionHandle_, i)
+                                               : reco::TrackRef(outerTrackSecondaryCollectionHandle_, i - nouter);
 
       // check if this muon is already in the list of global muons
       bool newMuon = true;
@@ -673,8 +677,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       }
       if (newMuon) {
         LogTrace("MuonIdentification") << "No associated stand alone track is found. Making a muon";
-        outputMuons->push_back(
-            makeMuon(iEvent, iSetup, refToTrack, reco::Muon::OuterTrack));
+        outputMuons->push_back(makeMuon(iEvent, iSetup, refToTrack, reco::Muon::OuterTrack));
         outputMuons->back().setType(reco::Muon::StandAloneMuon);
       }
     }
