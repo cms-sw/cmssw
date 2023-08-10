@@ -18,7 +18,8 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 	"drop  pdgId == 21 && pt < 5",                                     # remove pythia8 garbage
         "drop   status == 2 && abs(pdgId) == 21",                          # but remove again gluons in the inheritance chain
         "keep abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25 || abs(pdgId) == 6 || abs(pdgId) == 37 ",   # keep VIP(articles)s
-        "keep abs(pdgId) == 310 && abs(eta) < 2.5 && pt > 1 ",                                                     # keep K0
+        "keep++ abs(pdgId) == 310 || abs(pdgId) == 3122",                  # Keep Kshort, Lambda0 and their daughters
+        "keep+ abs(pdgId) == 310 || abs(pdgId) == 3122",                   # but keep first daughter, to allow lifetime determinations
         "+keep abs(pdgId) == 13 && status == 1", # keep muon parents
 # keep heavy flavour quarks for parton-based jet flavour
 	"keep (4 <= abs(pdgId) <= 5)",
