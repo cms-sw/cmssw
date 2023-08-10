@@ -1787,7 +1787,8 @@ void FastTimerService::on_scheduler_entry(bool worker) {
     //   - not accounted:       thread().measure()
     //   - considered as idle:  thread().measure_and_accumulate(job_summary_.idle)
     //   - considered as other: thread().measure_and_accumulate(job_summary_.overhead)
-    thread().measure_and_accumulate(job_summary_.overhead);
+    // FIXME "considered as other" has been seen to produce unreliable results; revert to "not accounted" for the time being.
+    thread().measure();
   }
 }
 
