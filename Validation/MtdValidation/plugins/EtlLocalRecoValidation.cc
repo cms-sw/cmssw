@@ -61,7 +61,6 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
-  const float hitMinEnergy1Dis_;
   const float hitMinEnergy2Dis_;
   const bool optionalPlots_;
   const bool uncalibRecHitsPlots_;
@@ -153,7 +152,6 @@ bool EtlLocalRecoValidation::isSameCluster(const FTLCluster& clu1, const FTLClus
 // ------------ constructor and destructor --------------
 EtlLocalRecoValidation::EtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      hitMinEnergy1Dis_(iConfig.getParameter<double>("hitMinimumEnergy1Dis")),
       hitMinEnergy2Dis_(iConfig.getParameter<double>("hitMinimumEnergy2Dis")),
       optionalPlots_(iConfig.getParameter<bool>("optionalPlots")),
       uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
@@ -181,18 +179,10 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  const MTDTopology* topology = topologyHandle.product();
+  //auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
+  //const MTDTopology* topology = topologyHandle.product();
 
   auto const& cpe = iSetup.getData(cpeToken_);
-
-  bool topo1Dis = false;
-  bool topo2Dis = false;
-  if (MTDTopologyMode::etlLayoutFromTopoMode(topology->getMTDTopologyMode()) == ETLDetId::EtlLayout::tp) {
-    topo1Dis = true;
-  } else {
-    topo2Dis = true;
-  }
 
   auto etlRecHitsHandle = makeValid(iEvent.getHandle(etlRecHitsToken_));
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
@@ -225,16 +215,18 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     int idet = -1;
 
-    if ((id.zside() == -1) && (id.nDisc() == 1))
+    if ((id.zside() == -1) && (id.nDisc() == 1)) {
       idet = 0;
-    else if ((id.zside() == -1) && (id.nDisc() == 2))
+    } else if ((id.zside() == -1) && (id.nDisc() == 2)) {
       idet = 1;
-    else if ((id.zside() == 1) && (id.nDisc() == 1))
+    } else if ((id.zside() == 1) && (id.nDisc() == 1)) {
       idet = 2;
-    else if ((id.zside() == 1) && (id.nDisc() == 2))
+    } else if ((id.zside() == 1) && (id.nDisc() == 2)) {
       idet = 3;
-    else
+    } else {
+      edm::LogWarning("EtlLocalRecoValidation") << "Unknown ETL DetId configuration: " << id;
       continue;
+    }
 
     auto simHitIt = m_etlSimHits[idet].emplace(id.rawId(), MTDHit()).first;
 
@@ -271,31 +263,20 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     int idet = 999;
 
-    if (topo1Dis) {
-      if (detId.zside() == -1) {
-        idet = 0;
-      } else if (detId.zside() == 1) {
-        idet = 2;
-      } else {
-        continue;
-      }
+    if (detId.discSide() == 1) {
+      weight = -weight;
     }
-
-    if (topo2Dis) {
-      if (detId.discSide() == 1) {
-        weight = -weight;
-      }
-      if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
-        idet = 0;
-      } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
-        idet = 1;
-      } else if ((detId.zside() == 1) && (detId.nDisc() == 1)) {
-        idet = 2;
-      } else if ((detId.zside() == 1) && (detId.nDisc() == 2)) {
-        idet = 3;
-      } else {
-        continue;
-      }
+    if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
+      idet = 0;
+    } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
+      idet = 1;
+    } else if ((detId.zside() == 1) && (detId.nDisc() == 1)) {
+      idet = 2;
+    } else if ((detId.zside() == 1) && (detId.nDisc() == 2)) {
+      idet = 3;
+    } else {
+      edm::LogWarning("EtlLocalRecoValidation") << "Unknown ETL DetId configuration: " << detId;
+      continue;
     }
 
     // --- Fill the histograms
@@ -335,8 +316,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     // Resolution histograms
     if (m_etlSimHits[idet].count(detId.rawId()) == 1) {
-      if ((topo1Dis && m_etlSimHits[idet][detId.rawId()].energy > hitMinEnergy1Dis_) ||
-          (topo2Dis && m_etlSimHits[idet][detId.rawId()].energy > hitMinEnergy2Dis_)) {
+      if (m_etlSimHits[idet][detId.rawId()].energy > hitMinEnergy2Dis_) {
         float time_res = recHit.time() - m_etlSimHits[idet][detId.rawId()].time;
         float energy_res = recHit.energy() - m_etlSimHits[idet][detId.rawId()].energy;
 
@@ -351,28 +331,16 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     n_reco_etl[idet]++;
   }  // recHit loop
 
-  if (topo1Dis) {
-    meNhits_[0]->Fill(std::log10(n_reco_etl[0]));
-    meNhits_[2]->Fill(std::log10(n_reco_etl[2]));
-  }
-
-  if (topo2Dis) {
-    for (int i = 0; i < 4; i++) {
-      meNhits_[i]->Fill(std::log10(n_reco_etl[i]));
-    }
+  for (int i = 0; i < 4; i++) {
+    meNhits_[i]->Fill(std::log10(n_reco_etl[i]));
   }
 
   // --- Loop over the ETL RECO clusters ---
   for (const auto& DetSetClu : *etlRecCluHandle) {
     for (const auto& cluster : DetSetClu) {
       double weight = 1.0;
-      if (topo1Dis) {
-        if (cluster.energy() < hitMinEnergy1Dis_)
-          continue;
-      }
-      if (topo2Dis) {
-        if (cluster.energy() < hitMinEnergy2Dis_)
-          continue;
+      if (cluster.energy() < hitMinEnergy2Dis_) {
+        continue;
       }
       ETLDetId cluId = cluster.id();
       DetId detIdObject(cluId);
@@ -390,31 +358,20 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       int idet = 999;
 
-      if (topo1Dis) {
-        if (cluId.zside() == -1) {
-          idet = 0;
-        } else if (cluId.zside() == 1) {
-          idet = 2;
-        } else {
-          continue;
-        }
+      if (cluId.discSide() == 1) {
+        weight = -weight;
       }
-
-      if (topo2Dis) {
-        if (cluId.discSide() == 1) {
-          weight = -weight;
-        }
-        if ((cluId.zside() == -1) && (cluId.nDisc() == 1)) {
-          idet = 0;
-        } else if ((cluId.zside() == -1) && (cluId.nDisc() == 2)) {
-          idet = 1;
-        } else if ((cluId.zside() == 1) && (cluId.nDisc() == 1)) {
-          idet = 2;
-        } else if ((cluId.zside() == 1) && (cluId.nDisc() == 2)) {
-          idet = 3;
-        } else {
-          continue;
-        }
+      if ((cluId.zside() == -1) && (cluId.nDisc() == 1)) {
+        idet = 0;
+      } else if ((cluId.zside() == -1) && (cluId.nDisc() == 2)) {
+        idet = 1;
+      } else if ((cluId.zside() == 1) && (cluId.nDisc() == 1)) {
+        idet = 2;
+      } else if ((cluId.zside() == 1) && (cluId.nDisc() == 2)) {
+        idet = 3;
+      } else {
+        edm::LogWarning("EtlLocalRecoValidation") << "Unknown ETL DetId configuration: " << cluId;
+        continue;
       }
 
       meCluEnergy_[idet]->Fill(cluster.energy());
@@ -1117,7 +1074,6 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLEndcap"));
   desc.add<edm::InputTag>("trkHitTag", edm::InputTag("mtdTrackingRecHits"));
-  desc.add<double>("hitMinimumEnergy1Dis", 1.);     // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
   desc.add<bool>("optionalPlots", false);
   desc.add<bool>("UncalibRecHitsPlots", false);

@@ -100,16 +100,8 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  const MTDTopology* topology = topologyHandle.product();
-
-  bool topo1Dis = false;
-  bool topo2Dis = false;
-  if (MTDTopologyMode::etlLayoutFromTopoMode(topology->getMTDTopologyMode()) == ETLDetId::EtlLayout::tp) {
-    topo1Dis = true;
-  } else {
-    topo2Dis = true;
-  }
+  //auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
+  //const MTDTopology* topology = topologyHandle.product();
 
   auto etlDigiHitsHandle = makeValid(iEvent.getHandle(etlDigiHitsToken_));
 
@@ -140,32 +132,20 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     // --- Fill the histograms
 
     int idet = 999;
-
-    if (topo1Dis) {
-      if (detId.zside() == -1) {
-        idet = 0;
-      } else if (detId.zside() == 1) {
-        idet = 2;
-      } else {
-        continue;
-      }
+    if (detId.discSide() == 1) {
+      weight = -weight;
     }
-
-    if (topo2Dis) {
-      if (detId.discSide() == 1) {
-        weight = -weight;
-      }
-      if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
-        idet = 0;
-      } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
-        idet = 1;
-      } else if ((detId.zside() == 1) && (detId.nDisc() == 1)) {
-        idet = 2;
-      } else if ((detId.zside() == 1) && (detId.nDisc() == 2)) {
-        idet = 3;
-      } else {
-        continue;
-      }
+    if ((detId.zside() == -1) && (detId.nDisc() == 1)) {
+      idet = 0;
+    } else if ((detId.zside() == -1) && (detId.nDisc() == 2)) {
+      idet = 1;
+    } else if ((detId.zside() == 1) && (detId.nDisc() == 1)) {
+      idet = 2;
+    } else if ((detId.zside() == 1) && (detId.nDisc() == 2)) {
+      idet = 3;
+    } else {
+      edm::LogWarning("EtlDigiHitsValidation") << "Unknown ETL DetId configuration: " << detId;
+      continue;
     }
 
     meHitCharge_[idet]->Fill(sample.data());
@@ -204,23 +184,10 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   }  // dataFrame loop
 
-  if (topo1Dis) {
-    meNhits_[0]->Fill(log10(n_digi_etl[0]));
-    meNhits_[2]->Fill(log10(n_digi_etl[2]));
-    for (const auto& thisNdigi : ndigiPerLGAD_[0]) {
-      meNhitsPerLGAD_[0]->Fill(thisNdigi.second);
-    }
-    for (const auto& thisNdigi : ndigiPerLGAD_[2]) {
-      meNhitsPerLGAD_[2]->Fill(thisNdigi.second);
-    }
-  }
-
-  if (topo2Dis) {
-    for (int i = 0; i < 4; i++) {
-      meNhits_[i]->Fill(log10(n_digi_etl[i]));
-      for (const auto& thisNdigi : ndigiPerLGAD_[i]) {
-        meNhitsPerLGAD_[i]->Fill(thisNdigi.second);
-      }
+  for (int i = 0; i < 4; i++) {
+    meNhits_[i]->Fill(log10(n_digi_etl[i]));
+    for (const auto& thisNdigi : ndigiPerLGAD_[i]) {
+      meNhitsPerLGAD_[i]->Fill(thisNdigi.second);
     }
   }
 }
