@@ -23,7 +23,6 @@ parser.add_argument("configArgs",
 
 options = parser.parse_args()
 sys.argv = [options.filename]+options.configArgs
-handle = open(options.filename, 'r')
 loader=SourceFileLoader("pycfg", options.filename)
 mod=types.ModuleType(loader.name)
 loader.exec_module(mod)

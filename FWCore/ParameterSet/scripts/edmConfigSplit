@@ -2,15 +2,16 @@
 
 import sys
 import os
-import imp
 import argparse
+import types
+from importlib.machinery import SourceFileLoader
 
 from FWCore.ParameterSet.Mixins import PrintOptions
 
 parser = argparse.ArgumentParser(
   description = '%(prog)s splits the given CMSSW configuration file into one file per top-level object, and outputs the configuration for the main process object.',
 )
-parser.add_argument('file', metavar = 'FILE', type = argparse.FileType('r'))
+parser.add_argument('file', metavar = 'FILE')
 parser.add_argument("configArgs",
   nargs=argparse.REMAINDER, help="arguments that will be passed to Python configuration file")
 
@@ -32,14 +33,16 @@ parser.add_argument('-s', '--subdirectories',
 args = parser.parse_args()
 
 # delete all arguments, so they are not "seen" by the confguration file being split
-sys.argv = [args.file.name]+args.configArgs
+sys.argv = [args.file]+args.configArgs
 
 # make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
 sys.path.append(os.getcwd())
 
-cfo = imp.load_source("pycfg", args.file.name, args.file)
-process = cfo.process
-args.file.close()
+#handle = open(args.file, 'r')
+loader=SourceFileLoader("pycfg", args.file)
+mod=types.ModuleType(loader.name)
+loader.exec_module(mod)
+process = mod.process
 
 options = PrintOptions()
 options.useSubdirectories = args.subdirectories
