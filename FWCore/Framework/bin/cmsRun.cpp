@@ -44,6 +44,8 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 
 //Command line parameters
 static char const* const kParameterSetOpt = "parameter-set";
+static char const* const kParameterSetSuffix = ".py";
+static const size_t kParameterSetSuffixLen = std::strlen(kParameterSetSuffix);
 static char const* const kPythonOpt = "pythonOptions";
 static char const* const kJobreportCommandOpt = "jobreport,j";
 static char const* const kJobreportOpt = "jobreport";
@@ -102,6 +104,24 @@ namespace {
     edm::EventProcessor* ep_;
   };
 
+  std::vector<boost::program_options::option> final_opts_parser(std::vector<std::string>& args){
+    std::vector<boost::program_options::option> result;
+    if(!args.empty() and args[0].size()>=kParameterSetSuffixLen and args[0].compare(args[0].size()-kParameterSetSuffixLen,kParameterSetSuffixLen,kParameterSetSuffix)==0){
+      result.emplace_back(kParameterSetOpt, std::vector<std::string>(1,args[0]));
+      args.erase(args.begin());
+      result.emplace_back();
+      auto& pythonOpts = result.back();
+      pythonOpts.string_key = kPythonOpt;
+      pythonOpts.value.reserve(args.size());
+      pythonOpts.original_tokens.reserve(args.size());
+      for(const auto& arg : args){
+          pythonOpts.value.push_back(arg);
+          pythonOpts.original_tokens.push_back(arg);
+      }
+      args.clear();
+    }
+    return result;
+  }
 }  // namespace
 
 int main(int argc, char* argv[]) {
@@ -146,7 +166,9 @@ int main(int argc, char* argv[]) {
 
       context = "Processing command line arguments";
       std::string descString(argv[0]);
-      descString += " [options] config_file \nAllowed options";
+      descString += " [options] config_file";
+      descString += kParameterSetSuffix;
+      descString += " [python options]\nAllowed options";
       boost::program_options::options_description desc(descString);
 
       // clang-format off
@@ -186,7 +208,7 @@ int main(int argc, char* argv[]) {
 
       boost::program_options::variables_map vm;
       try {
-        store(boost::program_options::command_line_parser(argc, argv).options(all_options).positional(p).run(), vm);
+        store(boost::program_options::command_line_parser(argc, argv).extra_style_parser(final_opts_parser).options(all_options).positional(p).run(), vm);
         notify(vm);
       } catch (boost::program_options::error const& iException) {
         edm::LogAbsolute("CommandLineProcessing")
