@@ -104,19 +104,20 @@ namespace {
     edm::EventProcessor* ep_;
   };
 
-  std::vector<boost::program_options::option> final_opts_parser(std::vector<std::string>& args){
+  std::vector<boost::program_options::option> final_opts_parser(std::vector<std::string>& args) {
     std::vector<boost::program_options::option> result;
-    if(!args.empty() and args[0].size()>=kParameterSetSuffixLen and args[0].compare(args[0].size()-kParameterSetSuffixLen,kParameterSetSuffixLen,kParameterSetSuffix)==0){
-      result.emplace_back(kParameterSetOpt, std::vector<std::string>(1,args[0]));
+    if (!args.empty() and args[0].size() >= kParameterSetSuffixLen and
+        args[0].compare(args[0].size() - kParameterSetSuffixLen, kParameterSetSuffixLen, kParameterSetSuffix) == 0) {
+      result.emplace_back(kParameterSetOpt, std::vector<std::string>(1, args[0]));
       args.erase(args.begin());
       result.emplace_back();
       auto& pythonOpts = result.back();
       pythonOpts.string_key = kPythonOpt;
       pythonOpts.value.reserve(args.size());
       pythonOpts.original_tokens.reserve(args.size());
-      for(const auto& arg : args){
-          pythonOpts.value.push_back(arg);
-          pythonOpts.original_tokens.push_back(arg);
+      for (const auto& arg : args) {
+        pythonOpts.value.push_back(arg);
+        pythonOpts.original_tokens.push_back(arg);
       }
       args.clear();
     }
@@ -136,7 +137,7 @@ int main(int argc, char* argv[]) {
                                                          edm::s_defaultSizeOfStackForThreadsInKB * 1024);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
-  std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
+  std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport>> jobRep;
   EventProcessorWithSentry proc;
 
   try {
@@ -200,7 +201,7 @@ int main(int argc, char* argv[]) {
       hidden.add_options()("fwk", "For use only by Framework Developers")(
           kParameterSetOpt, boost::program_options::value<std::string>(), "configuration file")(
           kPythonOpt,
-          boost::program_options::value<std::vector<std::string> >(),
+          boost::program_options::value<std::vector<std::string>>(),
           "options at the end to be passed to python");
 
       boost::program_options::options_description all_options("All Options");
@@ -208,7 +209,12 @@ int main(int argc, char* argv[]) {
 
       boost::program_options::variables_map vm;
       try {
-        store(boost::program_options::command_line_parser(argc, argv).extra_style_parser(final_opts_parser).options(all_options).positional(p).run(), vm);
+        store(boost::program_options::command_line_parser(argc, argv)
+                  .extra_style_parser(final_opts_parser)
+                  .options(all_options)
+                  .positional(p)
+                  .run(),
+              vm);
         notify(vm);
       } catch (boost::program_options::error const& iException) {
         edm::LogAbsolute("CommandLineProcessing")
@@ -232,8 +238,10 @@ int main(int argc, char* argv[]) {
       }
       std::string fileName(vm[kParameterSetOpt].as<std::string>());
       //convert to char*[]
-      std::vector<char*> pythonArgs = edm::vector_transform(vm[kPythonOpt].as<std::vector<std::string>>(), [](const auto& arg){ return const_cast<char*>(arg.c_str()); });
-      pythonArgs.insert(pythonArgs.begin(),const_cast<char*>(fileName.c_str()));
+      std::vector<char*> pythonArgs =
+          edm::vector_transform(vm[kPythonOpt].as<std::vector<std::string>>(),
+                                [](const auto& arg) { return const_cast<char*>(arg.c_str()); });
+      pythonArgs.insert(pythonArgs.begin(), const_cast<char*>(fileName.c_str()));
 
       if (vm.count(kStrictOpt)) {
         //edm::setStrictParsing(true);
@@ -261,7 +269,8 @@ int main(int argc, char* argv[]) {
       context += fileName;
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        std::unique_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, pythonArgs.size(), pythonArgs.data());
+        std::unique_ptr<edm::ParameterSet> parameterSet =
+            edm::readConfig(fileName, pythonArgs.size(), pythonArgs.data());
         processDesc.reset(new edm::ProcessDesc(std::move(parameterSet)));
       } catch (edm::Exception const&) {
         throw;
@@ -270,7 +279,8 @@ int main(int argc, char* argv[]) {
         const std::string& sysexit0("SystemExit: 0");
         const auto& msg = iException.message();
         size_t pos2 = msg.find('\n');
-        if(pos2!=std::string::npos and (msg.size()-(pos2+1))>sysexit0.size() and msg.compare(pos2+1, sysexit0.size(), sysexit0)==0)
+        if (pos2 != std::string::npos and (msg.size() - (pos2 + 1)) > sysexit0.size() and
+            msg.compare(pos2 + 1, sysexit0.size(), sysexit0) == 0)
           return 0;
 
         edm::Exception e(edm::errors::ConfigFileReadError, "", iException);
