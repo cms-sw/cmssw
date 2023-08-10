@@ -8,6 +8,7 @@
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
 #include "Geometry/MTDCommonData/interface/ETLNumberingScheme.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "G4Track.hh"
 #include "G4Step.hh"
@@ -108,11 +109,11 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
     if (rname == "FastTimerRegionSensBTL") {
       theID = trkInfo->mcTruthID();
       if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
-        theID += k_idsecOffset;
+        theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
       } else if (trkInfo->isInTrkFromBackscattering()) {
-        theID += k_idFromCaloOffset;
+        theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
       } else if (trkInfo->isBTLlooper()) {
-        theID += k_idloopOffset;
+        theID = PSimHit::addTrackIdOffset(theID, k_idloopOffset);
       }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
