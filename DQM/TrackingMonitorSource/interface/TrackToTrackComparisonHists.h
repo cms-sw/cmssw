@@ -72,8 +72,14 @@ protected:
   void book_generic_tracks_histos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir);
   void book_matching_tracks_histos(DQMStore::IBooker& ibooker, matchingME& mes, TString label, std::string& dir);
 
-  void fill_generic_tracks_histos(
-      generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv, unsigned int ls, double onlinelumi, double PU, bool requirePlateau = true);
+  void fill_generic_tracks_histos(generalME& mes,
+                                  reco::Track* trk,
+                                  reco::BeamSpot* bs,
+                                  reco::Vertex* pv,
+                                  unsigned int ls,
+                                  double onlinelumi,
+                                  double PU,
+                                  bool requirePlateau = true);
   void fill_matching_tracks_histos(
       matchingME& mes, reco::Track* mon, reco::Track* ref, reco::BeamSpot* bs, reco::Vertex* pv);
 

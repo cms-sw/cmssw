@@ -37,7 +37,8 @@ TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet
   monitoredPVToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("monitoredPrimaryVertices"));
   referencePVToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("referencePrimaryVertices"));
   lumiScalersToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scalers"));
-  onlineMetaDataDigisToken_ = consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"));
+  onlineMetaDataDigisToken_ =
+      consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"));
 
   referenceTracksMEs_.label = referenceTrackInputTag_.label();
   matchedReferenceTracksMEs_.label = referenceTrackInputTag_.label() + "_matched";
@@ -71,7 +72,6 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
     return;
   }
 
-
   //
   //  Get Lumi/LS Info
   //
@@ -87,7 +87,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   if (onlineMetaDataDigisHandle.isValid()) {
     onlinelumi = onlineMetaDataDigisHandle->instLumi();
     PU = onlineMetaDataDigisHandle->avgPileUp();
-  } else if ( lumiScalersHandle.isValid() and not lumiScalersHandle->empty() ){
+  } else if (lumiScalersHandle.isValid() and not lumiScalersHandle->empty()) {
     edm::LogError("TrackToTrackComparisonHists") << "onlineMetaDataDigisHandle not found, trying SCAL";
     auto const scalit = lumiScalersHandle->begin();
     onlinelumi = scalit->instantLumi();
@@ -257,7 +257,8 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
     if (!matched) {
       nUnmatchedMonitoredTracks++;
-      fill_generic_tracks_histos(*&unMatchedMonitoredTracksMEs_, &track, &monitoredBS, &monitoredPV, ls, onlinelumi, PU);
+      fill_generic_tracks_histos(
+          *&unMatchedMonitoredTracksMEs_, &track, &monitoredBS, &monitoredPV, ls, onlinelumi, PU);
       (unMatchedMonitoredTracksMEs_.h_dRmin)->Fill(dRmin);
       (unMatchedMonitoredTracksMEs_.h_dRmin_l)->Fill(dRmin);
     }
@@ -269,7 +270,6 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
       << "Total matched reference tracks: " << nMatchedReferenceTracks << "\n"
       << "Total monitored tracks: " << nMonitoredTracks << "\n"
       << "Total unMatched monitored tracks: " << nUnmatchedMonitoredTracks << "\n";
-
 }
 
 void TrackToTrackComparisonHists::bookHistograms(DQMStore::IBooker& ibooker,
@@ -297,7 +297,6 @@ void TrackToTrackComparisonHists::bookHistograms(DQMStore::IBooker& ibooker,
   bookHistos(ibooker, unMatchedMonitoredTracksMEs_, "mon_unMatched", dir);
 
   book_matching_tracks_histos(ibooker, matchTracksMEs_, "matches", dir);
-
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -330,7 +329,6 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription histoPSet;
   fillHistoPSetDescription(histoPSet);
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
-
 
   descriptions.add("trackToTrackComparisonHists", desc);
 }
@@ -414,14 +412,17 @@ void TrackToTrackComparisonHists::book_generic_tracks_histos(DQMStore::IBooker& 
                                      Pt_nbin,
                                      Pt_rangeMin,
                                      Pt_rangeMax);
-                        
+
   // counts of tracks vs lumi
   // for this moment, xmin,xmax and binning are hardcoded, maybe in future in a config file!
   // have to add (declare) this in the .h file as well
-  (mes.h_onlinelumi) = ibooker.book1D(label + "_onlinelumi", "number of tracks vs onlinelumi", onlinelumi_nbin, onlinelumi_rangeMin, onlinelumi_rangeMax);
+  (mes.h_onlinelumi) = ibooker.book1D(label + "_onlinelumi",
+                                      "number of tracks vs onlinelumi",
+                                      onlinelumi_nbin,
+                                      onlinelumi_rangeMin,
+                                      onlinelumi_rangeMax);
   (mes.h_ls) = ibooker.book1D(label + "_ls", "number of tracks vs ls", ls_nbin, ls_rangeMin, ls_rangeMax);
   (mes.h_PU) = ibooker.book1D(label + "_PU", "number of tracks vs PU", PU_nbin, PU_rangeMin, PU_rangeMax);
-
 }
 
 void TrackToTrackComparisonHists::book_matching_tracks_histos(DQMStore::IBooker& ibooker,
@@ -479,8 +480,14 @@ void TrackToTrackComparisonHists::book_matching_tracks_histos(DQMStore::IBooker&
   (mes.h_dHits) = ibooker.book1D(label + "_dHits", "#Delta track number of hits", 39, -19.5, 19.5);
 }
 
-void TrackToTrackComparisonHists::fill_generic_tracks_histos(
-    generalME& mes, reco::Track* trk, reco::BeamSpot* bs, reco::Vertex* pv, unsigned int ls, double onlinelumi, double PU, bool requirePlateau) {
+void TrackToTrackComparisonHists::fill_generic_tracks_histos(generalME& mes,
+                                                             reco::Track* trk,
+                                                             reco::BeamSpot* bs,
+                                                             reco::Vertex* pv,
+                                                             unsigned int ls,
+                                                             double onlinelumi,
+                                                             double PU,
+                                                             bool requirePlateau) {
   float pt = trk->pt();
   float eta = trk->eta();
   float phi = trk->phi();
@@ -508,7 +515,6 @@ void TrackToTrackComparisonHists::fill_generic_tracks_histos(
     (mes.h_onlinelumi)->Fill(onlinelumi);
     (mes.h_ls)->Fill(ls);
     (mes.h_PU)->Fill(PU);
-
   }
 
   if (pTOnPlateau || !requirePlateau) {
@@ -654,15 +660,15 @@ void TrackToTrackComparisonHists::fillHistoPSetDescription(edm::ParameterSetDesc
   pset.add<double>("dzRes_rangeMax", 0.05);
   pset.add<unsigned int>("dzRes_nbin", 150);
 
-  pset.add<unsigned int>("ls_rangeMin",0);
-  pset.add<unsigned int>("ls_rangeMax",3000);
-  pset.add<unsigned int>("ls_nbin",300);
+  pset.add<unsigned int>("ls_rangeMin", 0);
+  pset.add<unsigned int>("ls_rangeMax", 3000);
+  pset.add<unsigned int>("ls_nbin", 300);
 
-  pset.add<double>("onlinelumi_rangeMin",0.0);
-  pset.add<double>("onlinelumi_rangeMax",20000.0);
-  pset.add<unsigned int>("onlinelumi_nbin",200);
+  pset.add<double>("onlinelumi_rangeMin", 0.0);
+  pset.add<double>("onlinelumi_rangeMax", 20000.0);
+  pset.add<unsigned int>("onlinelumi_nbin", 200);
 
-  pset.add<double>("PU_rangeMin",0.0);
-  pset.add<double>("PU_rangeMax",120.0);
-  pset.add<unsigned int>("PU_nbin",120);
+  pset.add<double>("PU_rangeMin", 0.0);
+  pset.add<double>("PU_rangeMax", 120.0);
+  pset.add<unsigned int>("PU_nbin", 120);
 }
