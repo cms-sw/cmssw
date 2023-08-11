@@ -57,6 +57,8 @@ for tracks in selectedTracks :
     locals()[label].TrackPBin        = trackPtN[tracks]
     locals()[label].TrackPMin        = trackPtMin[tracks]
     locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].VZ_PVMax         = pcaZtoPVMax[tracks]
+    locals()[label].VZ_PVMin         = pcaZtoPVMin[tracks]
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
     locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
     locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
@@ -98,6 +100,8 @@ for tracks in selectedTracks :
     locals()[label].TrackPBin        = trackPtN[tracks]
     locals()[label].TrackPMin        = trackPtMin[tracks]
     locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].VZ_PVMax         = pcaZtoPVMax[tracks]
+    locals()[label].VZ_PVMin         = pcaZtoPVMin[tracks]
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
     locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
     locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
@@ -138,6 +142,8 @@ for tracks in selectedTracks :
     locals()[label].TrackPBin        = trackPtN[tracks]
     locals()[label].TrackPMin        = trackPtMin[tracks]
     locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].VZ_PVMax         = pcaZtoPVMax[tracks]
+    locals()[label].VZ_PVMin         = pcaZtoPVMin[tracks]
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
     locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
     locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
@@ -178,6 +184,8 @@ for tracks in selectedTracks :
     locals()[label].TrackPBin        = trackPtN[tracks]
     locals()[label].TrackPMin        = trackPtMin[tracks]
     locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].VZ_PVMax         = pcaZtoPVMax[tracks]
+    locals()[label].VZ_PVMin         = pcaZtoPVMin[tracks]
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
     locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
     locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
@@ -219,6 +227,8 @@ for tracks in selectedTracks :
     locals()[label].TrackPBin        = trackPtN[tracks]
     locals()[label].TrackPMin        = trackPtMin[tracks]
     locals()[label].TrackPMax        = trackPtMax[tracks]
+    locals()[label].VZ_PVMax         = pcaZtoPVMax[tracks]
+    locals()[label].VZ_PVMin         = pcaZtoPVMin[tracks]
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
     locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
     locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
@@ -450,4 +460,3 @@ TrackingDQMSourceTier0MinBias += voWcutMonitoringZBHIPOOTSequence
 TrackingDQMSourceTier0MinBias += primaryVertexResolution
 
 TrackingDQMSourceTier0MinBias += dqmInfoTracking
-
