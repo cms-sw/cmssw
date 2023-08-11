@@ -2,9 +2,8 @@
 
 import sys
 import os 
-from importlib.machinery import SourceFileLoader
-import types
 import argparse
+from FWCore.ParameterSet.processFromFile import processFromFile
 
 # make the behaviour of 'cmsRun file.py' and 'edmConfigDump file.py' more consistent
 sys.path.append(os.getcwd())
@@ -22,11 +21,7 @@ parser.add_argument("configArgs",
                     nargs=argparse.REMAINDER, help="arguments that will be passed to Python configuration file")
 
 options = parser.parse_args()
-sys.argv = [options.filename]+options.configArgs
-loader=SourceFileLoader("pycfg", options.filename)
-mod=types.ModuleType(loader.name)
-loader.exec_module(mod)
-cmsProcess= mod.process
+cmsProcess = processFromFile(options.filename, options.configArgs)
 
 if options.prune:
     cmsProcess.prune(options.pruneVerbose)

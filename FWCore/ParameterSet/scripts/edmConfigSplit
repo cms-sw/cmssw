@@ -3,9 +3,8 @@
 import sys
 import os
 import argparse
-import types
-from importlib.machinery import SourceFileLoader
 
+from FWCore.ParameterSet.processFromFile import processFromFile
 from FWCore.ParameterSet.Mixins import PrintOptions
 
 parser = argparse.ArgumentParser(
@@ -32,17 +31,10 @@ parser.add_argument('-s', '--subdirectories',
 
 args = parser.parse_args()
 
-# delete all arguments, so they are not "seen" by the confguration file being split
-sys.argv = [args.file]+args.configArgs
-
 # make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
 sys.path.append(os.getcwd())
 
-#handle = open(args.file, 'r')
-loader=SourceFileLoader("pycfg", args.file)
-mod=types.ModuleType(loader.name)
-loader.exec_module(mod)
-process = mod.process
+process = processFromFile(args.file, args.configArgs)
 
 options = PrintOptions()
 options.useSubdirectories = args.subdirectories
