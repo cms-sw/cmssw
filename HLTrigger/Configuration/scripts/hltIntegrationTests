@@ -403,8 +403,8 @@ from hlt import *
 process.hltOutput = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "${TRIGGER}.root" ),
     fastCloning = cms.untracked.bool( False ),
-    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
-    compressionLevel = cms.untracked.int32( 1 ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
     outputCommands = cms.untracked.vstring(
       'drop *',
       'keep edmTriggerResults_*_*_*',
