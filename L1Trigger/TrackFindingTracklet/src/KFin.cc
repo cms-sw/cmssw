@@ -36,11 +36,11 @@ namespace trklet {
     for (int channel = 0; channel < channelAssignment_->numNodesDR(); channel++) {
       const int streamTrackId = offsetTrack + channel;
       const int offsetStub = streamTrackId * setup_->numLayers();
-      const StreamTrack streamTrack = streamsTrack[streamTrackId];
+      const StreamTrack& streamTrack = streamsTrack[streamTrackId];
       input_[channel].reserve(streamTrack.size());
       sizeTracks += accumulate(streamTrack.begin(), streamTrack.end(), 0, nonNullTrack);
       for (int layer = 0; layer < setup_->numLayers(); layer++) {
-        const StreamStub streamStub = streamsStub[offsetStub + layer];
+        const StreamStub& streamStub = streamsStub[offsetStub + layer];
         sizeStubs += accumulate(streamStub.begin(), streamStub.end(), 0, nonNullStub);
       }
     }
@@ -51,7 +51,7 @@ namespace trklet {
       vector<Track*>& input = input_[channel];
       const int streamTrackId = offsetTrack + channel;
       const int offsetStub = streamTrackId * setup_->numLayers();
-      const StreamTrack streamTrack = streamsTrack[streamTrackId];
+      const StreamTrack& streamTrack = streamsTrack[streamTrackId];
       for (int frame = 0; frame < (int)streamTrack.size(); frame++) {
         const FrameTrack& frameTrack = streamTrack[frame];
         if (frameTrack.first.isNull()) {
