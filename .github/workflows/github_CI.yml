@@ -1,0 +1,80 @@
+#####################################################################
+# This triggers git Continuous Integration tests when a PR to       #
+# any branch is made. Or if a code-commit is made to any            #
+# test branch (temporarily) specified below.                        #
+#                                                                   #
+# The tests themselves are delegated to a gitlab CI runner          #
+# controlled by the .gitlab-ci.yml file at                          #
+# https://gitlab.cern.ch/cms-l1tk/cmssw_CI .                        #
+# N.B. .gitlab-ci.yml must be update if the CMSSW version changes.  #
+#                                                                   # 
+# Communication between the github & gitlab CIs is done via scripts #
+# at https://github.com/cms-L1TK/gitlab-mirror-and-ci-action        #
+#####################################################################
+
+name: PR validation with GitLab CI
+ 
+on: # Controls when the action will run.
+  workflow_dispatch:
+  push: # Please specify your branch down here if you want CI to run for each push to it.
+    branches: [L1TK-dev-13_3_0_pre1]
+    # branches: [myBranchUnderTest]
+  pull_request: # Run CI if someone makes a PR to any branch
+    # branches: [L1TK-dev-13_3_0_pre1] # Optionally only run CI if PR is to this branch.
+    
+env:
+  mirror_repo: "https://gitlab.cern.ch/cms-l1tk/cmssw_CI" # gitlab mirror
+  current_branch: "unitialized"
+
+jobs:
+  trigger_gitlab_CI: # https://github.com/marketplace/actions/mirror-to-gitlab-and-run-gitlab-ci
+    name: trigger_gitlab_CI
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: DebugPrint
+      run: |
+        echo "github.ref = ${{ github.ref }}"
+        env
+
+    - name: Redefine branch on pull_request
+      if: github.event_name == 'pull_request'
+      run: |
+        # Sets env. variable $current_branch
+        echo "current_branch=$(echo ${{ github.head_ref }})" >> $GITHUB_ENV
+
+    - name: Redefine branch on push
+      if: github.event_name == 'push'
+      run: |
+        # Sets env. variable $current_branch
+        echo "current_branch=$(echo ${{ github.ref }} | sed -E 's|refs/[a-zA-Z]+/||')" >> $GITHUB_ENV
+
+    - name: Print generic gitlab CI location
+      run: |
+        echo "In general, gitlab CI jobs run in https://gitlab.cern.ch/cms-l1tk/cmssw_CI/-/jobs"      
+
+    - name: Trigger gitlab CI run
+      # Communicate between gitlab & github, and trigger gitlab CI run.
+      # (Forked from https://github.com/SvanBoxel/gitlab-mirror-and-ci-action).
+      uses: cms-L1TK/gitlab-mirror-and-ci-action@master
+      env:
+        GITLAB_HOSTNAME: "gitlab.cern.ch"
+        GITLAB_USERNAME: "cms-l1tk"   
+        GITLAB_PASSWORD: ${{ secrets.GITLAB_L1TK_CMSSW_CI_TOKEN }} # Generate token here: https://gitlab.cern.ch/cms-l1tk/cmssw_CI/-/settings/access_tokens and add it to GitHub secrets https://github.com/cms-L1TK/cmssw/settings/secrets/actions   
+        GITLAB_PROJECT_ID: "124851" # ID visible at https://gitlab.cern.ch/cms-l1tk/cmssw_CI
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # https://help.github.com/en/articles/virtual-environments-for-github-actions#github_token-secret
+        MIRROR_REPO: ${{ env.mirror_repo }} # gitlab mirror.
+        IS_CMSSW: "true" # Is repo CMSSW or something else (e.g. HLS)?
+        CHECKOUT_BRANCH: ${{ env.current_branch }} # Needed so push to gitlab can work
+        REMOVE_BRANCH: "true" # Refreshes branch on mirror, which triggers CI run there.
+        REBASE_MASTER: "false" # If true would rebase to "master", which isn't used in cms-L1TK.
+        RETURN_FILE: "pipeline_url.txt" # Output file with gitlab pipeline url
+
+    - name: print summary
+      if: always()
+      run: |
+        echo ""
+        echo "==========================================================="
+        echo "DETAILED OUTPUT FROM CMSSW COMPILATION & RUN AVAILABLE "
+        echo "AT FOLLOWING GITLAB CI URL:"
+        cat pipeline_url.txt
