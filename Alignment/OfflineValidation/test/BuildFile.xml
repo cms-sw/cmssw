@@ -28,6 +28,7 @@
     <use name="Alignment/OfflineValidation"/>
   </bin>
   <test name="DiMuonVertex" command="testingScripts/test_unitDiMuonVertex.sh"/>
+  <test name="DiElectronVertex" command="testingScripts/test_unitDiElectronVertex.sh"/>
   <test name="SubmitPVrbr" command="testingScripts/test_unitSubmitPVrbr.sh"/>
   <test name="SubmitPVsplit" command="testingScripts/test_unitSubmitPVsplit.sh"/>
   <test name="EoP" command="testingScripts/test_unitEoP.sh"/>
