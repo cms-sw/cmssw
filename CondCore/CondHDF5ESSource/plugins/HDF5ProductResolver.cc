@@ -25,6 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "h5_DataSet.h"
 #include "h5_Attribute.h"
@@ -76,7 +77,7 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
   prefetchAsyncImplTemplate(
       [this, iov = iRecord.validityInterval(), iParent, &iRecord](auto& iGroup, auto iActivity) {
         queue_->push(iGroup, [this, &iGroup, act = std::move(iActivity), iov, iParent, &iRecord] {
-          try {
+          CMS_SA_ALLOW try {
             edm::ESModuleCallingContext context(
                 providerDescription(), edm::ESModuleCallingContext::State::kRunning, iParent);
             iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
