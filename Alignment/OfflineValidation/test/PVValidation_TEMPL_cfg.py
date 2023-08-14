@@ -193,6 +193,11 @@ process.TrackRefitter.NavigationSchool = ''
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ####################################################################
+# Load .SiPixelTemplateStoreESProducer
+####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+
+####################################################################
 # Output file
 ####################################################################
 process.TFileService = cms.Service("TFileService",
@@ -249,9 +254,15 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                       )
 
 ####################################################################
+# Refitting Sequence
+####################################################################
+process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                        process.TrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
+
+####################################################################
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
-                     process.TrackRefitter*
+                     process.seqTrackselRefit*
                      process.PVValidation)
