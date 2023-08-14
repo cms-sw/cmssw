@@ -15,7 +15,7 @@ particleFlowClusterECAL = cms.EDProducer("CorrectedECALPFClusterProducer",
         srfAwareCorrection = cms.bool(True)
     ),
     inputECAL = cms.InputTag("particleFlowTimeAssignerECAL"),
-    inputPS = cms.InputTag("particleFlowClusterPS"),
     mightGet = cms.optional.untracked.vstring,
+    skipPS = cms.bool(True),
     minimumPSEnergy = cms.double(0)
 )
