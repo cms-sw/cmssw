@@ -55,7 +55,15 @@ void FWCaloClusterProxyBuilder::build(const FWEventItem *iItem, TEveElementList 
     timeUpperBound = std::max(item()->getConfig()->value<double>("TimeLowerBound(ns)"),
                               item()->getConfig()->value<double>("TimeUpperBound(ns)"));
   } else {
-    std::cerr << "Warning: couldn't locate 'timeLayerCluster' ValueMap in root file." << std::endl;
+    iItem->getEvent()->getByLabel(edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"), TimeValueMapHandle);
+    std::cerr << __FILE__ << ":" << __LINE__
+              << " couldn't locate 'hgcalLayerClusters:timeLayerCluster' ValueMap in input file. Trying to access "
+                 "'hgcalMergeLayerClusters:timeLayerClusters' ValueMap"
+              << std::endl;
+    if (!TimeValueMapHandle.isValid()) {
+      std::cerr << __FILE__ << ":" << __LINE__
+                << " couldn't locate 'hgcalMergeLayerClusters:timeLayerCluster' ValueMap in input file." << std::endl;
+    }
   }
 
   layer = item()->getConfig()->value<long>("Layer");
