@@ -7,7 +7,6 @@ from ..sequences.HLTPFClusterJMEReconstruction_cfi import *
 from ..sequences.HLTPFJetsCHSReconstruction_cfi import *
 from ..sequences.HLTPFMETsReconstruction_cfi import *
 from ..sequences.HLTPFPuppiJMEReconstruction_cfi import *
-from ..sequences.HLTPFSoftKillerMETReconstruction_cfi import *
 
 HLTJMESequence = cms.Sequence(
     HLTCaloMETReconstruction +
@@ -16,6 +15,5 @@ HLTJMESequence = cms.Sequence(
     HLTAK8PFJetsReconstruction +
     HLTPFJetsCHSReconstruction +
     HLTPFMETsReconstruction +
-    HLTPFSoftKillerMETReconstruction +
     HLTPFPuppiJMEReconstruction
 )
