@@ -3212,7 +3212,7 @@ steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptC
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
-steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip+PromptCalibProdSiPixelLAMCS',
+steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip+PromptCalibProdSiPixelLAMCS+PromptCalibProdSiStripLA',
                              '-n':1000,
                              '--scenario':'cosmics',
                              '--era':'Run3',
@@ -3324,6 +3324,12 @@ steps['ALCAHARVD3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripGains
                      '--scenario':'pp',
                      '--data':'',
                      '--filein':'file:PromptCalibProdSiStripGains.root'}
+
+steps['ALCAHARVD3COS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripLA']),
+                     '--conditions':'auto:run3_data_express',
+                     '--scenario':'cosmics',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiStripLA.root'}
 
 steps['ALCAHARVD3HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD3']])
 

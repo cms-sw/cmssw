@@ -13,7 +13,7 @@ AlCaRecoMatrix = {
                   "EGamma"                      : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkProducerFilter+HcalCalIterativePhiSym",
                   "Express"                     : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias",
                   "ExpressAlignment"            : "TkAlMinBias",
-                  "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias+SiPixelCalCosmics",
+                  "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias+SiPixelCalCosmics+SiStripCalCosmics",
                   "HcalNZS"                     : "HcalCalMinBias",
                   "HLTPhysics"                  : "TkAlMinBias",
                   "JetHT"                       : "HcalCalIsoTrkProducerFilter+TkAlJetHT",
