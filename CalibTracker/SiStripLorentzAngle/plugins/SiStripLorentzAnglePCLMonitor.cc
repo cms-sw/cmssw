@@ -18,13 +18,17 @@
 
 // system includes
 #include <string>
+#include <fmt/format.h>
+#include <fmt/printf.h>
 
 // user include files
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
+#include "CalibTracker/SiStripLorentzAngle/interface/SiStripLorentzAngleCalibrationHelpers.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripLorentzAngleCalibrationStruct.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -73,12 +77,18 @@ private:
   SiStripLorentzAngleCalibrationHistograms iHists_;
   SiStripHashedDetId m_hash;
 
+  // for magnetic field conversion
+  static constexpr float teslaToInverseGeV_ = 2.99792458e-3f;
+
+  bool mismatchedBField_;
+  bool mismatchedLatency_;
   const std::string folder_;
   const bool saveHistosMods_;
   const edm::EDGetTokenT<edm::View<reco::Track>> m_tracks_token;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> m_association_token;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_tkGeomToken;
 
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> m_latencyTokenBR;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoEsTokenBR;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> m_tkGeomTokenBR;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_magFieldTokenBR;
@@ -101,11 +111,14 @@ private:
 
 SiStripLorentzAnglePCLMonitor::SiStripLorentzAnglePCLMonitor(const edm::ParameterSet& iConfig)
     : m_clusterInfo(consumesCollector()),
+      mismatchedBField_{false},
+      mismatchedLatency_{false},
       folder_(iConfig.getParameter<std::string>("folder")),
       saveHistosMods_(iConfig.getParameter<bool>("saveHistoMods")),
       m_tracks_token(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       m_association_token(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("Tracks"))),
       m_tkGeomToken{esConsumes<>()},
+      m_latencyTokenBR{esConsumes<edm::Transition::BeginRun>()},
       m_topoEsTokenBR{esConsumes<edm::Transition::BeginRun>()},
       m_tkGeomTokenBR{esConsumes<edm::Transition::BeginRun>()},
       m_magFieldTokenBR{esConsumes<edm::Transition::BeginRun>()},
@@ -119,6 +132,26 @@ void SiStripLorentzAnglePCLMonitor::dqmBeginRun(edm::Run const& run, edm::EventS
   const auto& magField = iSetup.getData(m_magFieldTokenBR);
   const auto& lorentzAngle = iSetup.getData(m_lorentzAngleTokenBR);
   const TrackerTopology* tTopo = &iSetup.getData(m_topoEsTokenBR);
+
+  // fast cachecd access
+  const auto& theMagField = 1.f / (magField.inverseBzAtOriginInGeV() * teslaToInverseGeV_);
+
+  if (iHists_.bfield_.empty()) {
+    iHists_.bfield_ = siStripLACalibration::fieldAsString(theMagField);
+  } else {
+    if (iHists_.bfield_ != siStripLACalibration::fieldAsString(theMagField)) {
+      mismatchedBField_ = true;
+    }
+  }
+
+  const SiStripLatency* apvlat = &iSetup.getData(m_latencyTokenBR);
+  if (iHists_.apvmode_.empty()) {
+    iHists_.apvmode_ = siStripLACalibration::apvModeAsString(apvlat);
+  } else {
+    if (iHists_.apvmode_ != siStripLACalibration::apvModeAsString(apvlat)) {
+      mismatchedLatency_ = true;
+    }
+  }
 
   std::vector<uint32_t> c_rawid;
   std::vector<float> c_globalZofunitlocalY, c_localB, c_BdotY, c_driftx, c_drifty, c_driftz, c_lorentzAngle;
@@ -189,6 +222,13 @@ std::string SiStripLorentzAnglePCLMonitor::moduleLocationType(const uint32_t& mo
 // ------------ method called for each event  ------------
 void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+
+  // return immediately if the field is not consistent!
+  if (mismatchedBField_)
+    return;
+
+  if (mismatchedLatency_)
+    return;
 
   edm::Handle<edm::View<reco::Track>> tracks;
   iEvent.getByToken(m_tracks_token, tracks);
@@ -318,8 +358,11 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
 void SiStripLorentzAnglePCLMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                                    edm::Run const& run,
                                                    edm::EventSetup const& iSetup) {
-  ibook.setCurrentFolder(folder_);
-  LogDebug(moduleDescription().moduleName()) << "booking in " << folder_ << std::endl;
+  std::string bvalue = (iHists_.bfield_ == "3.8") ? "B-ON" : "B-OFF";
+  std::string folderToBook = fmt::format("{}/{}_{}", folder_, bvalue, iHists_.apvmode_);
+
+  ibook.setCurrentFolder(folderToBook);
+  edm::LogPrint(moduleDescription().moduleName()) << "booking in " << folderToBook;
 
   // prepare track histograms
   // clang-format off
@@ -358,7 +401,7 @@ void SiStripLorentzAnglePCLMonitor::bookHistograms(DQMStore::IBooker& ibook,
   for (auto& layers : iHists_.nlayers_) {
     std::string subdet = layers.first;
     for (int l = 1; l <= layers.second; ++l) {
-      ibook.setCurrentFolder(folder_ + Form("/%s/L%d", subdet.c_str(), l));
+      ibook.setCurrentFolder(folderToBook + Form("/%s/L%d", subdet.c_str(), l));
       for (auto& t : iHists_.modtypes_) {
         // do not fill stereo where there aren't
         if (l > 2 && t == "s")
@@ -405,7 +448,7 @@ void SiStripLorentzAnglePCLMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   // prepare module histograms
   if (saveHistosMods_) {
-    ibook.setCurrentFolder(folder_ + "/modules");
+    ibook.setCurrentFolder(folderToBook + "/modules");
     for (const auto& [mod, locationType] : iHists_.moduleLocationType_) {
       // histograms for each module
       iHists_.h1_[Form("%s_%d_nstrips", locationType.c_str(), mod)] =

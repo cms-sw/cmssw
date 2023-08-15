@@ -42,24 +42,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-// for ROOT fits
-#include "TFitResult.h"
-#include "TF1.h"
-
-namespace siStripLACalibration {
-  double fitFunction(double* x, double* par) {
-    double a = par[0];
-    double thetaL = par[1];
-    double b = par[2];
-
-    double tanThetaL = std::tan(thetaL);
-    double value = a * std::abs(std::tan(x[0]) - tanThetaL) + b;
-
-    //TF1::RejectPoint();  // Reject points outside the fit range
-    return value;
-  }
-}  // namespace siStripLACalibration
-
 //------------------------------------------------------------------------------
 class SiStripLorentzAnglePCLHarvester : public DQMEDHarvester {
 public:
@@ -77,11 +59,16 @@ private:
   // es tokens
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomEsToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoEsTokenBR_, topoEsTokenER_;
+  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
   const edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleDepRcd> siStripLAEsToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 
   // member data
-  bool debug_;
+
+  bool mismatchedBField_;
+  bool mismatchedLatency_;
+
+  const bool debug_;
   SiStripLorentzAngleCalibrationHistograms iHists_;
 
   const std::string dqmDir_;
@@ -102,8 +89,11 @@ SiStripLorentzAnglePCLHarvester::SiStripLorentzAnglePCLHarvester(const edm::Para
     : geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       topoEsTokenBR_(esConsumes<edm::Transition::BeginRun>()),
       topoEsTokenER_(esConsumes<edm::Transition::EndRun>()),
+      latencyToken_(esConsumes<edm::Transition::BeginRun>()),
       siStripLAEsToken_(esConsumes<edm::Transition::BeginRun>()),
       magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      mismatchedBField_{false},
+      mismatchedLatency_{false},
       debug_(iConfig.getParameter<bool>("debugMode")),
       dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
       fitRange_(iConfig.getParameter<std::vector<double>>("fitRange")),
@@ -139,6 +129,23 @@ void SiStripLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 
   theMagField_ = 1.f / (magField->inverseBzAtOriginInGeV() * teslaToInverseGeV_);
 
+  if (iHists_.bfield_.empty()) {
+    iHists_.bfield_ = siStripLACalibration::fieldAsString(theMagField_);
+  } else {
+    if (iHists_.bfield_ != siStripLACalibration::fieldAsString(theMagField_)) {
+      mismatchedBField_ = true;
+    }
+  }
+
+  const SiStripLatency* apvlat = &iSetup.getData(latencyToken_);
+  if (iHists_.apvmode_.empty()) {
+    iHists_.apvmode_ = siStripLACalibration::apvModeAsString(apvlat);
+  } else {
+    if (iHists_.apvmode_ != siStripLACalibration::apvModeAsString(apvlat)) {
+      mismatchedLatency_ = true;
+    }
+  }
+
   auto dets = geom->detsTIB();
   dets.insert(dets.end(), geom->detsTID().begin(), geom->detsTID().end());
   dets.insert(dets.end(), geom->detsTOB().begin(), geom->detsTOB().end());
@@ -163,9 +170,20 @@ void SiStripLorentzAnglePCLHarvester::endRun(edm::Run const& run, edm::EventSetu
 
 //------------------------------------------------------------------------------
 void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
+  if (mismatchedBField_) {
+    throw cms::Exception("SiStripLorentzAnglePCLHarvester") << "Trying to harvest runs with different B-field values!";
+  }
+
+  if (mismatchedLatency_) {
+    throw cms::Exception("SiStripLorentzAnglePCLHarvester") << "Trying to harvest runs with diffent APV modes!";
+  }
+
   // go in the right directory
   iGetter.cd();
-  iGetter.setCurrentFolder(dqmDir_);
+  std::string bvalue = (iHists_.bfield_ == "3.8") ? "B-ON" : "B-OFF";
+  std::string folderToHarvest = fmt::format("{}/{}_{}", dqmDir_, bvalue, iHists_.apvmode_);
+  edm::LogPrint(moduleDescription().moduleName()) << "Harvesting in " << folderToHarvest;
+  iGetter.setCurrentFolder(folderToHarvest);
 
   // fill in the module types
   iHists_.nlayers_["TIB"] = 4;
@@ -190,8 +208,8 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
           continue;
         std::string locationtype = Form("%s_L%d%s", subdet.c_str(), l, t.c_str());
         for (const auto& toHarvest : MEtoHarvest) {
-          const char* address =
-              Form("%s/%s/L%d/%s_%s", dqmDir_.c_str(), subdet.c_str(), l, locationtype.c_str(), toHarvest.c_str());
+          const char* address = Form(
+              "%s/%s/L%d/%s_%s", folderToHarvest.c_str(), subdet.c_str(), l, locationtype.c_str(), toHarvest.c_str());
 
           LogDebug(moduleDescription().moduleName()) << "harvesting at: " << address << std::endl;
 
@@ -208,7 +226,7 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   // prepare the profiles
   for (const auto& ME : iHists_.h2_) {
     TProfile* hp = (TProfile*)ME.second->getTH2F()->ProfileX();
-    iBooker.setCurrentFolder(dqmDir_ + "/" + getStem(ME.first, /* isFolder = */ true));
+    iBooker.setCurrentFolder(folderToHarvest + "/" + getStem(ME.first, /* isFolder = */ true));
     iHists_.p_[hp->GetName()] = iBooker.bookProfile(hp->GetName(), hp);
     iHists_.p_[hp->GetName()]->setAxisTitle(ME.second->getAxisTitle(2), 2);
     delete hp;
@@ -230,7 +248,7 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
         high = theFitRange_.second;
       }
 
-      TF1* fitFunc = new TF1("fitFunc", siStripLACalibration ::fitFunction, low, high, 3);
+      TF1* fitFunc = new TF1("fitFunc", siStripLACalibration::fitFunction, low, high, 3);
 
       // Fit the function to the data
       prof.second->getTProfile()->Fit(fitFunc, "F");  // "F" option performs a least-squares fit
