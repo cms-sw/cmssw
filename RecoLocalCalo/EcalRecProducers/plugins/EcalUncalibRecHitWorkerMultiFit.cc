@@ -730,7 +730,7 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<bool>("dynamicPedestalsEE", false, true) and
               edm::ParameterDescription<bool>("mitigateBadSamplesEB", false, true) and
               edm::ParameterDescription<bool>("mitigateBadSamplesEE", false, true) and
-              edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEB", false, true) and
+              edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEB", true, true) and
               edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEE", false, true) and
               edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEB", false, true) and
               edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEE", false, true) and
