@@ -35,6 +35,7 @@ private:
   bool isLowEnergy(const G4LogicalVolume*, const G4Track*) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
 
+  const G4VPhysicalVolume* cmse{nullptr};
   const G4VPhysicalVolume* tracker{nullptr};
   const G4VPhysicalVolume* calo{nullptr};
   const G4VPhysicalVolume* btl{nullptr};

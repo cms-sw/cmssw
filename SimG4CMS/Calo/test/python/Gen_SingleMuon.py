@@ -1,4 +1,38 @@
+###############################################################################
+# Way to use this:
+#   cmsRun Gen_SingleMuon.py etamin=1.5 etamax=3.1 maxevt=10000
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re, random
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('etamin',
+                 "1.5",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string)
+options.register('etamax',
+                 "3.1",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string)
+options.register('maxevt',
+                 "10000",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string)
+
+### get and parse the command line arguments
+options.parseArguments()
+
+etamin = float(options.etamin)
+etamax = float(options.etamax)
+maxevt = int(options.maxevt)
+print(options)
+print("etamin: ", etamin)
+print("etamax: ", etamax)
+print("maxevt: ", maxevt)
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
@@ -19,7 +53,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(10000),
+        input = cms.untracked.int32(maxevt),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -60,7 +94,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('SingleMuPt100_pythia8_cfi.py nevts:100'),
+    annotation = cms.untracked.string('SingleMuE100_cfi.py nevts:10000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -89,8 +123,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', ''
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        MinEta = cms.double(1.50),
-        MaxEta = cms.double(3.1),
+        MinEta = cms.double(etamin),
+        MaxEta = cms.double(etamax),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
         MinE   = cms.double(100.00),

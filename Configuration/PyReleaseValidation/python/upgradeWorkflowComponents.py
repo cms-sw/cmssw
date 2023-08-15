@@ -3,6 +3,8 @@ from collections import OrderedDict
 from .MatrixUtil import merge, Kby, Mby
 import re
 
+U2000by1={'--relval': '2000,1'}
+
 # DON'T CHANGE THE ORDER, only append new keys. Otherwise the numbering for the runTheMatrix tests will change.
 
 upgradeKeys = {}
@@ -374,7 +376,7 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         elif 'ALCA' in step: stepDict[stepName][k] = None
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return ('2017' in key or '2018' in key or '2021' in key or '2026' in key or 'HI' in key) and ('FS' not in key)
+        return ('2022' in key or '2023' in key or '2024' in key or '2026' in key or 'HI' in key) and ('FS' not in key)
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
         'Reco',
@@ -1511,7 +1513,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
         elif 'Nano'==step:
             stepDict[stepName][k] = merge([{'--filein':'file:step4.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
+        return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key or '2023' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     steps = [
         'GenSimHLBeamSpot14',
@@ -2624,8 +2626,8 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
-        'Era' : 'Run3_FastSim',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'Era' : 'Run3_2023_FastSim',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2023Collision',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
     '2022HI' : {
@@ -2938,6 +2940,6 @@ upgradeFragments = OrderedDict([
     ('LbToJpsiLambda_JMM_Filter_DGamma0_TuneCP5_13p6TeV-pythia8-evtgen_cfi',UpgradeFragment(Mby(66,660000),'LbToJpsiLambda_DGamma0_13p6TeV')), #0.3%
     ('LbToJpsiXiK0sPi_JMM_Filter_DGamma0_TuneCP5_13p6TeV-pythia8-evtgen_cfi',UpgradeFragment(Mby(50,500000),'LbToJpsiXiK0sPr_DGamma0_13p6TeV')), #0.6%
     ('OmegaMinus_13p6TeV_SoftQCDInel_TuneCP5_cfi',UpgradeFragment(Mby(100,1000000),'OmegaMinus_13p6TeV')), #0.1%
-    ('Hydjet_Quenched_MinBias_5020GeV_cfi', UpgradeFragment(Kby(9,100),'HydjetQMinBias_5020GeV')),
-    ('Hydjet_Quenched_MinBias_5362GeV_cfi', UpgradeFragment(Kby(9,100),'HydjetQMinBias_5362GeV'))
+    ('Hydjet_Quenched_MinBias_5020GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5020GeV')),
+    ('Hydjet_Quenched_MinBias_5362GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5362GeV'))
 ])

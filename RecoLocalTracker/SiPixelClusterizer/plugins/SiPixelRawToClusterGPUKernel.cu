@@ -527,7 +527,6 @@ namespace pixelgpudetails {
   // Interface to outside
   template <typename TrackerTraits>
   void SiPixelRawToClusterGPUKernel<TrackerTraits>::makePhase1ClustersAsync(
-      bool isRun2,
       const SiPixelClusterThresholds clusterThresholds,
       const SiPixelROCsStatusAndMapping *cablingMap,
       const unsigned char *modToUnp,

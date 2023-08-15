@@ -16,8 +16,8 @@
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
-#include "CommonTools/Utils/interface/Grammar.h"
-#include "CommonTools/Utils/interface/Exception.h"
+#include "CommonTools/Utils/interface/parser/Grammar.h"
+#include "CommonTools/Utils/interface/parser/Exception.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"

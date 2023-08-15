@@ -169,7 +169,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         glogs[i].placeVolume(glog, copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: " << glog.name() << " number " << copy << " positioned in "
-                                      << glogs[i].name() << " at (0, 0," << cms::convert2mm(zpos)
+                                      << glogs[i].name() << " at (0,0," << cms::convert2mm(zpos)
                                       << ") with no rotation";
 #endif
       }

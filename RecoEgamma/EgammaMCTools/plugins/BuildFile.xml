@@ -7,5 +7,6 @@
   <use name="DataFormats/Math"/>
   <use name="DataFormats/ParticleFlowReco"/>
   <use name="DataFormats/HepMCCandidate"/>
+  <use name="RecoEcal/EgammaCoreTools"/>
   <use name="SimDataFormats/TrackingAnalysis"/>
 </library>

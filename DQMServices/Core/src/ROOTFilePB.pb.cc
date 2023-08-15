@@ -16,68 +16,78 @@
 #include <google/protobuf/port_def.inc>
 
 PROTOBUF_PRAGMA_INIT_SEG
+
+namespace _pb = ::PROTOBUF_NAMESPACE_ID;
+namespace _pbi = _pb::internal;
+
 namespace dqmstorepb {
-  constexpr ROOTFilePB_Histo::ROOTFilePB_Histo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-      : full_pathname_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string),
-        streamed_histo_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string),
-        size_(0u),
-        flags_(0u) {}
+  PROTOBUF_CONSTEXPR ROOTFilePB_Histo::ROOTFilePB_Histo(::_pbi::ConstantInitialized)
+      : _impl_{
+            /*decltype(_impl_._has_bits_)*/ {},
+            /*decltype(_impl_._cached_size_)*/ {},
+            /*decltype(_impl_.full_pathname_)*/ {&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}},
+            /*decltype(_impl_.streamed_histo_)*/ {&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}},
+            /*decltype(_impl_.size_)*/ 0u,
+            /*decltype(_impl_.flags_)*/ 0u} {}
   struct ROOTFilePB_HistoDefaultTypeInternal {
-    constexpr ROOTFilePB_HistoDefaultTypeInternal()
-        : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+    PROTOBUF_CONSTEXPR ROOTFilePB_HistoDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
     ~ROOTFilePB_HistoDefaultTypeInternal() {}
     union {
       ROOTFilePB_Histo _instance;
     };
   };
-  PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ROOTFilePB_HistoDefaultTypeInternal
+  PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ROOTFilePB_HistoDefaultTypeInternal
       _ROOTFilePB_Histo_default_instance_;
-  constexpr ROOTFilePB::ROOTFilePB(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized) : histo_() {}
+  PROTOBUF_CONSTEXPR ROOTFilePB::ROOTFilePB(::_pbi::ConstantInitialized)
+      : _impl_{/*decltype(_impl_.histo_)*/ {}, /*decltype(_impl_._cached_size_)*/ {}} {}
   struct ROOTFilePBDefaultTypeInternal {
-    constexpr ROOTFilePBDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+    PROTOBUF_CONSTEXPR ROOTFilePBDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
     ~ROOTFilePBDefaultTypeInternal() {}
     union {
       ROOTFilePB _instance;
     };
   };
-  PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ROOTFilePBDefaultTypeInternal _ROOTFilePB_default_instance_;
+  PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ROOTFilePBDefaultTypeInternal
+      _ROOTFilePB_default_instance_;
 }  // namespace dqmstorepb
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto[2];
-static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const**
+static ::_pb::Metadata file_level_metadata_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto[2];
+static constexpr ::_pb::EnumDescriptor const**
     file_level_enum_descriptors_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto = nullptr;
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const**
+static constexpr ::_pb::ServiceDescriptor const**
     file_level_service_descriptors_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto = nullptr;
 
-const ::PROTOBUF_NAMESPACE_ID::uint32
-    TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _has_bits_),
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, full_pathname_),
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, size_),
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, streamed_histo_),
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, flags_),
-        0,
-        2,
-        1,
-        3,
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB, histo_),
+const uint32_t TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
+    protodesc_cold) = {
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _impl_.full_pathname_),
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _impl_.size_),
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _impl_.streamed_histo_),
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB_Histo, _impl_.flags_),
+    0,
+    2,
+    1,
+    3,
+    ~0u,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    PROTOBUF_FIELD_OFFSET(::dqmstorepb::ROOTFilePB, _impl_.histo_),
 };
-static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-    {0, 9, sizeof(::dqmstorepb::ROOTFilePB_Histo)},
-    {13, -1, sizeof(::dqmstorepb::ROOTFilePB)},
+static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+    {0, 10, -1, sizeof(::dqmstorepb::ROOTFilePB_Histo)},
+    {14, -1, -1, sizeof(::dqmstorepb::ROOTFilePB)},
 };
 
-static ::PROTOBUF_NAMESPACE_ID::Message const* const file_default_instances[] = {
-    reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::dqmstorepb::_ROOTFilePB_Histo_default_instance_),
-    reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::dqmstorepb::_ROOTFilePB_default_instance_),
+static const ::_pb::Message* const file_default_instances[] = {
+    &::dqmstorepb::_ROOTFilePB_Histo_default_instance_._instance,
+    &::dqmstorepb::_ROOTFilePB_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto[] PROTOBUF_SECTION_VARIABLE(
@@ -87,33 +97,31 @@ const char descriptor_table_protodef_DQMServices_2fCore_2fsrc_2fROOTFilePB_2epro
     "\0132\034.dqmstorepb.ROOTFilePB.Histo\032S\n\005Histo"
     "\022\025\n\rfull_pathname\030\001 \002(\t\022\014\n\004size\030\002 \002(\r\022\026\n"
     "\016streamed_histo\030\003 \002(\014\022\r\n\005flags\030\004 \002(\r";
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
-    descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto = {
-        false,
-        false,
-        196,
-        descriptor_table_protodef_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
-        "DQMServices/Core/src/ROOTFilePB.proto",
-        &descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_once,
-        nullptr,
-        0,
-        2,
-        schemas,
-        file_default_instances,
-        TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::offsets,
-        file_level_metadata_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
-        file_level_enum_descriptors_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
-        file_level_service_descriptors_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
+static ::_pbi::once_flag descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_once;
+const ::_pbi::DescriptorTable descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto = {
+    false,
+    false,
+    196,
+    descriptor_table_protodef_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
+    "DQMServices/Core/src/ROOTFilePB.proto",
+    &descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_once,
+    nullptr,
+    0,
+    2,
+    schemas,
+    file_default_instances,
+    TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::offsets,
+    file_level_metadata_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
+    file_level_enum_descriptors_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
+    file_level_service_descriptors_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto,
 };
-PROTOBUF_ATTRIBUTE_WEAK ::PROTOBUF_NAMESPACE_ID::Metadata
-descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_metadata_getter(int index) {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto);
-  return descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto.file_level_metadata[index];
+PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable*
+descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_getter() {
+  return &descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto;
 }
 
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner
     dynamic_init_dummy_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto(
         &descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto);
 namespace dqmstorepb {
@@ -122,7 +130,7 @@ namespace dqmstorepb {
 
   class ROOTFilePB_Histo::_Internal {
   public:
-    using HasBits = decltype(std::declval<ROOTFilePB_Histo>()._has_bits_);
+    using HasBits = decltype(std::declval<ROOTFilePB_Histo>()._impl_._has_bits_);
     static void set_has_full_pathname(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
     static void set_has_size(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
     static void set_has_streamed_histo(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
@@ -132,163 +140,181 @@ namespace dqmstorepb {
     }
   };
 
-  ROOTFilePB_Histo::ROOTFilePB_Histo(::PROTOBUF_NAMESPACE_ID::Arena* arena) : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
-    SharedCtor();
-    RegisterArenaDtor(arena);
+  ROOTFilePB_Histo::ROOTFilePB_Histo(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned)
+      : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+    SharedCtor(arena, is_message_owned);
     // @@protoc_insertion_point(arena_constructor:dqmstorepb.ROOTFilePB.Histo)
   }
-  ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from)
-      : ::PROTOBUF_NAMESPACE_ID::Message(), _has_bits_(from._has_bits_) {
+  ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from) : ::PROTOBUF_NAMESPACE_ID::Message() {
+    ROOTFilePB_Histo* const _this = this;
+    (void)_this;
+    new (&_impl_) Impl_{decltype(_impl_._has_bits_){from._impl_._has_bits_},
+                        /*decltype(_impl_._cached_size_)*/ {},
+                        decltype(_impl_.full_pathname_){},
+                        decltype(_impl_.streamed_histo_){},
+                        decltype(_impl_.size_){},
+                        decltype(_impl_.flags_){}};
+
     _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-    full_pathname_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    _impl_.full_pathname_.InitDefault();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.full_pathname_.Set("", GetArenaForAllocation());
+#endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
     if (from._internal_has_full_pathname()) {
-      full_pathname_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
-                         from._internal_full_pathname(),
-                         GetArena());
+      _this->_impl_.full_pathname_.Set(from._internal_full_pathname(), _this->GetArenaForAllocation());
     }
-    streamed_histo_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    _impl_.streamed_histo_.InitDefault();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.streamed_histo_.Set("", GetArenaForAllocation());
+#endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
     if (from._internal_has_streamed_histo()) {
-      streamed_histo_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
-                          from._internal_streamed_histo(),
-                          GetArena());
+      _this->_impl_.streamed_histo_.Set(from._internal_streamed_histo(), _this->GetArenaForAllocation());
     }
-    ::memcpy(&size_,
-             &from.size_,
-             static_cast<size_t>(reinterpret_cast<char*>(&flags_) - reinterpret_cast<char*>(&size_)) + sizeof(flags_));
+    ::memcpy(&_impl_.size_,
+             &from._impl_.size_,
+             static_cast<size_t>(reinterpret_cast<char*>(&_impl_.flags_) - reinterpret_cast<char*>(&_impl_.size_)) +
+                 sizeof(_impl_.flags_));
     // @@protoc_insertion_point(copy_constructor:dqmstorepb.ROOTFilePB.Histo)
   }
 
-  void ROOTFilePB_Histo::SharedCtor() {
-    full_pathname_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-    streamed_histo_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-    ::memset(reinterpret_cast<char*>(this) +
-                 static_cast<size_t>(reinterpret_cast<char*>(&size_) - reinterpret_cast<char*>(this)),
-             0,
-             static_cast<size_t>(reinterpret_cast<char*>(&flags_) - reinterpret_cast<char*>(&size_)) + sizeof(flags_));
+  inline void ROOTFilePB_Histo::SharedCtor(::_pb::Arena* arena, bool is_message_owned) {
+    (void)arena;
+    (void)is_message_owned;
+    new (&_impl_) Impl_{decltype(_impl_._has_bits_){},
+                        /*decltype(_impl_._cached_size_)*/ {},
+                        decltype(_impl_.full_pathname_){},
+                        decltype(_impl_.streamed_histo_){},
+                        decltype(_impl_.size_){0u},
+                        decltype(_impl_.flags_){0u}};
+    _impl_.full_pathname_.InitDefault();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.full_pathname_.Set("", GetArenaForAllocation());
+#endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.streamed_histo_.InitDefault();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.streamed_histo_.Set("", GetArenaForAllocation());
+#endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   }
 
   ROOTFilePB_Histo::~ROOTFilePB_Histo() {
     // @@protoc_insertion_point(destructor:dqmstorepb.ROOTFilePB.Histo)
+    if (auto* arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+      (void)arena;
+      return;
+    }
     SharedDtor();
-    _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
   }
 
-  void ROOTFilePB_Histo::SharedDtor() {
-    GOOGLE_DCHECK(GetArena() == nullptr);
-    full_pathname_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-    streamed_histo_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  inline void ROOTFilePB_Histo::SharedDtor() {
+    GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+    _impl_.full_pathname_.Destroy();
+    _impl_.streamed_histo_.Destroy();
   }
 
-  void ROOTFilePB_Histo::ArenaDtor(void* object) {
-    ROOTFilePB_Histo* _this = reinterpret_cast<ROOTFilePB_Histo*>(object);
-    (void)_this;
-  }
-  void ROOTFilePB_Histo::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
-  void ROOTFilePB_Histo::SetCachedSize(int size) const { _cached_size_.Set(size); }
+  void ROOTFilePB_Histo::SetCachedSize(int size) const { _impl_._cached_size_.Set(size); }
 
   void ROOTFilePB_Histo::Clear() {
     // @@protoc_insertion_point(message_clear_start:dqmstorepb.ROOTFilePB.Histo)
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    uint32_t cached_has_bits = 0;
     // Prevent compiler warnings about cached_has_bits being unused
     (void)cached_has_bits;
 
-    cached_has_bits = _has_bits_[0];
+    cached_has_bits = _impl_._has_bits_[0];
     if (cached_has_bits & 0x00000003u) {
       if (cached_has_bits & 0x00000001u) {
-        full_pathname_.ClearNonDefaultToEmpty();
+        _impl_.full_pathname_.ClearNonDefaultToEmpty();
       }
       if (cached_has_bits & 0x00000002u) {
-        streamed_histo_.ClearNonDefaultToEmpty();
+        _impl_.streamed_histo_.ClearNonDefaultToEmpty();
       }
     }
     if (cached_has_bits & 0x0000000cu) {
-      ::memset(
-          &size_,
-          0,
-          static_cast<size_t>(reinterpret_cast<char*>(&flags_) - reinterpret_cast<char*>(&size_)) + sizeof(flags_));
+      ::memset(&_impl_.size_,
+               0,
+               static_cast<size_t>(reinterpret_cast<char*>(&_impl_.flags_) - reinterpret_cast<char*>(&_impl_.size_)) +
+                   sizeof(_impl_.flags_));
     }
-    _has_bits_.Clear();
+    _impl_._has_bits_.Clear();
     _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
   }
 
-  const char* ROOTFilePB_Histo::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+  const char* ROOTFilePB_Histo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x)                     \
   if (PROTOBUF_PREDICT_FALSE(!(x))) \
   goto failure
     _Internal::HasBits has_bits{};
     while (!ctx->Done(&ptr)) {
-      ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-      ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-      CHK_(ptr);
+      uint32_t tag;
+      ptr = ::_pbi::ReadTag(ptr, &tag);
       switch (tag >> 3) {
         // required string full_pathname = 1;
         case 1:
-          if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
             auto str = _internal_mutable_full_pathname();
-            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-#ifndef NDEBUG
-            ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "dqmstorepb.ROOTFilePB.Histo.full_pathname");
-#endif  // !NDEBUG
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
+#ifndef NDEBUG
+            ::_pbi::VerifyUTF8(str, "dqmstorepb.ROOTFilePB.Histo.full_pathname");
+#endif  // !NDEBUG
           } else
             goto handle_unusual;
           continue;
         // required uint32 size = 2;
         case 2:
-          if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
             _Internal::set_has_size(&has_bits);
-            size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+            _impl_.size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
             CHK_(ptr);
           } else
             goto handle_unusual;
           continue;
         // required bytes streamed_histo = 3;
         case 3:
-          if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
             auto str = _internal_mutable_streamed_histo();
-            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
           } else
             goto handle_unusual;
           continue;
         // required uint32 flags = 4;
         case 4:
-          if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
             _Internal::set_has_flags(&has_bits);
-            flags_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+            _impl_.flags_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
             CHK_(ptr);
           } else
             goto handle_unusual;
           continue;
-        default: {
-        handle_unusual:
-          if ((tag & 7) == 4 || tag == 0) {
-            ctx->SetLastTag(tag);
-            goto success;
-          }
-          ptr = UnknownFieldParse(
-              tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
-          CHK_(ptr != nullptr);
-          continue;
-        }
+        default:
+          goto handle_unusual;
       }  // switch
-    }    // while
-  success:
-    _has_bits_.Or(has_bits);
+    handle_unusual:
+      if ((tag == 0) || ((tag & 7) == 4)) {
+        CHK_(ptr);
+        ctx->SetLastTag(tag);
+        goto message_done;
+      }
+      ptr = UnknownFieldParse(
+          tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
+      CHK_(ptr != nullptr);
+    }  // while
+  message_done:
+    _impl_._has_bits_.Or(has_bits);
     return ptr;
   failure:
     ptr = nullptr;
-    goto success;
+    goto message_done;
 #undef CHK_
   }
 
-  ::PROTOBUF_NAMESPACE_ID::uint8* ROOTFilePB_Histo::_InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  uint8_t* ROOTFilePB_Histo::_InternalSerialize(uint8_t* target,
+                                                ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
     // @@protoc_insertion_point(serialize_to_array_start:dqmstorepb.ROOTFilePB.Histo)
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    uint32_t cached_has_bits = 0;
     (void)cached_has_bits;
 
-    cached_has_bits = _has_bits_[0];
+    cached_has_bits = _impl_._has_bits_[0];
     // required string full_pathname = 1;
     if (cached_has_bits & 0x00000001u) {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
@@ -302,7 +328,7 @@ namespace dqmstorepb {
     // required uint32 size = 2;
     if (cached_has_bits & 0x00000004u) {
       target = stream->EnsureSpace(target);
-      target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_size(), target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(2, this->_internal_size(), target);
     }
 
     // required bytes streamed_histo = 3;
@@ -313,12 +339,11 @@ namespace dqmstorepb {
     // required uint32 flags = 4;
     if (cached_has_bits & 0x00000008u) {
       target = stream->EnsureSpace(target);
-      target =
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_flags(), target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(4, this->_internal_flags(), target);
     }
 
     if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-      target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+      target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
           _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(
               ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance),
           target,
@@ -344,12 +369,12 @@ namespace dqmstorepb {
 
     if (_internal_has_size()) {
       // required uint32 size = 2;
-      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_size());
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_size());
     }
 
     if (_internal_has_flags()) {
       // required uint32 flags = 4;
-      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_flags());
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_flags());
     }
 
     return total_size;
@@ -358,7 +383,7 @@ namespace dqmstorepb {
     // @@protoc_insertion_point(message_byte_size_start:dqmstorepb.ROOTFilePB.Histo)
     size_t total_size = 0;
 
-    if (((_has_bits_[0] & 0x0000000f) ^ 0x0000000f) == 0) {  // All required fields are present.
+    if (((_impl_._has_bits_[0] & 0x0000000f) ^ 0x0000000f) == 0) {  // All required fields are present.
       // required string full_pathname = 1;
       total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(this->_internal_full_pathname());
 
@@ -366,71 +391,51 @@ namespace dqmstorepb {
       total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(this->_internal_streamed_histo());
 
       // required uint32 size = 2;
-      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_size());
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_size());
 
       // required uint32 flags = 4;
-      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->_internal_flags());
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_flags());
 
     } else {
       total_size += RequiredFieldsByteSizeFallback();
     }
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    uint32_t cached_has_bits = 0;
     // Prevent compiler warnings about cached_has_bits being unused
     (void)cached_has_bits;
 
-    if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-      return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-          _internal_metadata_, total_size, &_cached_size_);
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-    SetCachedSize(cached_size);
-    return total_size;
+    return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
   }
 
-  void ROOTFilePB_Histo::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-    // @@protoc_insertion_point(generalized_merge_from_start:dqmstorepb.ROOTFilePB.Histo)
-    GOOGLE_DCHECK_NE(&from, this);
-    const ROOTFilePB_Histo* source = ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ROOTFilePB_Histo>(&from);
-    if (source == nullptr) {
-      // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB.Histo)
-      ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-    } else {
-      // @@protoc_insertion_point(generalized_merge_from_cast_success:dqmstorepb.ROOTFilePB.Histo)
-      MergeFrom(*source);
-    }
-  }
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ROOTFilePB_Histo::_class_data_ = {
+      ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck, ROOTFilePB_Histo::MergeImpl};
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData* ROOTFilePB_Histo::GetClassData() const { return &_class_data_; }
 
-  void ROOTFilePB_Histo::MergeFrom(const ROOTFilePB_Histo& from) {
+  void ROOTFilePB_Histo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg,
+                                   const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+    auto* const _this = static_cast<ROOTFilePB_Histo*>(&to_msg);
+    auto& from = static_cast<const ROOTFilePB_Histo&>(from_msg);
     // @@protoc_insertion_point(class_specific_merge_from_start:dqmstorepb.ROOTFilePB.Histo)
-    GOOGLE_DCHECK_NE(&from, this);
-    _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    GOOGLE_DCHECK_NE(&from, _this);
+    uint32_t cached_has_bits = 0;
     (void)cached_has_bits;
 
-    cached_has_bits = from._has_bits_[0];
+    cached_has_bits = from._impl_._has_bits_[0];
     if (cached_has_bits & 0x0000000fu) {
       if (cached_has_bits & 0x00000001u) {
-        _internal_set_full_pathname(from._internal_full_pathname());
+        _this->_internal_set_full_pathname(from._internal_full_pathname());
       }
       if (cached_has_bits & 0x00000002u) {
-        _internal_set_streamed_histo(from._internal_streamed_histo());
+        _this->_internal_set_streamed_histo(from._internal_streamed_histo());
       }
       if (cached_has_bits & 0x00000004u) {
-        size_ = from.size_;
+        _this->_impl_.size_ = from._impl_.size_;
       }
       if (cached_has_bits & 0x00000008u) {
-        flags_ = from.flags_;
+        _this->_impl_.flags_ = from._impl_.flags_;
       }
-      _has_bits_[0] |= cached_has_bits;
+      _this->_impl_._has_bits_[0] |= cached_has_bits;
     }
-  }
-
-  void ROOTFilePB_Histo::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-    // @@protoc_insertion_point(generalized_copy_from_start:dqmstorepb.ROOTFilePB.Histo)
-    if (&from == this)
-      return;
-    Clear();
-    MergeFrom(from);
+    _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   }
 
   void ROOTFilePB_Histo::CopyFrom(const ROOTFilePB_Histo& from) {
@@ -442,26 +447,32 @@ namespace dqmstorepb {
   }
 
   bool ROOTFilePB_Histo::IsInitialized() const {
-    if (_Internal::MissingRequiredFields(_has_bits_))
+    if (_Internal::MissingRequiredFields(_impl_._has_bits_))
       return false;
     return true;
   }
 
   void ROOTFilePB_Histo::InternalSwap(ROOTFilePB_Histo* other) {
     using std::swap;
-    _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-    swap(_has_bits_[0], other->_has_bits_[0]);
-    full_pathname_.Swap(
-        &other->full_pathname_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-    streamed_histo_.Swap(
-        &other->streamed_histo_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-    ::PROTOBUF_NAMESPACE_ID::internal::memswap<PROTOBUF_FIELD_OFFSET(ROOTFilePB_Histo, flags_) +
-                                               sizeof(ROOTFilePB_Histo::flags_) -
-                                               PROTOBUF_FIELD_OFFSET(ROOTFilePB_Histo, size_)>(
-        reinterpret_cast<char*>(&size_), reinterpret_cast<char*>(&other->size_));
+    auto* lhs_arena = GetArenaForAllocation();
+    auto* rhs_arena = other->GetArenaForAllocation();
+    _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+    swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+        &_impl_.full_pathname_, lhs_arena, &other->_impl_.full_pathname_, rhs_arena);
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+        &_impl_.streamed_histo_, lhs_arena, &other->_impl_.streamed_histo_, rhs_arena);
+    ::PROTOBUF_NAMESPACE_ID::internal::memswap<PROTOBUF_FIELD_OFFSET(ROOTFilePB_Histo, _impl_.flags_) +
+                                               sizeof(ROOTFilePB_Histo::_impl_.flags_) -
+                                               PROTOBUF_FIELD_OFFSET(ROOTFilePB_Histo, _impl_.size_)>(
+        reinterpret_cast<char*>(&_impl_.size_), reinterpret_cast<char*>(&other->_impl_.size_));
   }
 
-  ::PROTOBUF_NAMESPACE_ID::Metadata ROOTFilePB_Histo::GetMetadata() const { return GetMetadataStatic(); }
+  ::PROTOBUF_NAMESPACE_ID::Metadata ROOTFilePB_Histo::GetMetadata() const {
+    return ::_pbi::AssignDescriptors(&descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_getter,
+                                     &descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_once,
+                                     file_level_metadata_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto[0]);
+  }
 
   // ===================================================================
 
@@ -469,56 +480,63 @@ namespace dqmstorepb {
   public:
   };
 
-  ROOTFilePB::ROOTFilePB(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-      : ::PROTOBUF_NAMESPACE_ID::Message(arena), histo_(arena) {
-    SharedCtor();
-    RegisterArenaDtor(arena);
+  ROOTFilePB::ROOTFilePB(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned)
+      : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+    SharedCtor(arena, is_message_owned);
     // @@protoc_insertion_point(arena_constructor:dqmstorepb.ROOTFilePB)
   }
-  ROOTFilePB::ROOTFilePB(const ROOTFilePB& from) : ::PROTOBUF_NAMESPACE_ID::Message(), histo_(from.histo_) {
+  ROOTFilePB::ROOTFilePB(const ROOTFilePB& from) : ::PROTOBUF_NAMESPACE_ID::Message() {
+    ROOTFilePB* const _this = this;
+    (void)_this;
+    new (&_impl_) Impl_{decltype(_impl_.histo_){from._impl_.histo_}, /*decltype(_impl_._cached_size_)*/ {}};
+
     _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
     // @@protoc_insertion_point(copy_constructor:dqmstorepb.ROOTFilePB)
   }
 
-  void ROOTFilePB::SharedCtor() {}
+  inline void ROOTFilePB::SharedCtor(::_pb::Arena* arena, bool is_message_owned) {
+    (void)arena;
+    (void)is_message_owned;
+    new (&_impl_) Impl_{decltype(_impl_.histo_){arena}, /*decltype(_impl_._cached_size_)*/ {}};
+  }
 
   ROOTFilePB::~ROOTFilePB() {
     // @@protoc_insertion_point(destructor:dqmstorepb.ROOTFilePB)
+    if (auto* arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+      (void)arena;
+      return;
+    }
     SharedDtor();
-    _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
   }
 
-  void ROOTFilePB::SharedDtor() { GOOGLE_DCHECK(GetArena() == nullptr); }
-
-  void ROOTFilePB::ArenaDtor(void* object) {
-    ROOTFilePB* _this = reinterpret_cast<ROOTFilePB*>(object);
-    (void)_this;
+  inline void ROOTFilePB::SharedDtor() {
+    GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+    _impl_.histo_.~RepeatedPtrField();
   }
-  void ROOTFilePB::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
-  void ROOTFilePB::SetCachedSize(int size) const { _cached_size_.Set(size); }
+
+  void ROOTFilePB::SetCachedSize(int size) const { _impl_._cached_size_.Set(size); }
 
   void ROOTFilePB::Clear() {
     // @@protoc_insertion_point(message_clear_start:dqmstorepb.ROOTFilePB)
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    uint32_t cached_has_bits = 0;
     // Prevent compiler warnings about cached_has_bits being unused
     (void)cached_has_bits;
 
-    histo_.Clear();
+    _impl_.histo_.Clear();
     _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
   }
 
-  const char* ROOTFilePB::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+  const char* ROOTFilePB::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x)                     \
   if (PROTOBUF_PREDICT_FALSE(!(x))) \
   goto failure
     while (!ctx->Done(&ptr)) {
-      ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-      ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-      CHK_(ptr);
+      uint32_t tag;
+      ptr = ::_pbi::ReadTag(ptr, &tag);
       switch (tag >> 3) {
         // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
         case 1:
-          if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
             ptr -= 1;
             do {
               ptr += 1;
@@ -530,42 +548,42 @@ namespace dqmstorepb {
           } else
             goto handle_unusual;
           continue;
-        default: {
-        handle_unusual:
-          if ((tag & 7) == 4 || tag == 0) {
-            ctx->SetLastTag(tag);
-            goto success;
-          }
-          ptr = UnknownFieldParse(
-              tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
-          CHK_(ptr != nullptr);
-          continue;
-        }
+        default:
+          goto handle_unusual;
       }  // switch
-    }    // while
-  success:
+    handle_unusual:
+      if ((tag == 0) || ((tag & 7) == 4)) {
+        CHK_(ptr);
+        ctx->SetLastTag(tag);
+        goto message_done;
+      }
+      ptr = UnknownFieldParse(
+          tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
+      CHK_(ptr != nullptr);
+    }  // while
+  message_done:
     return ptr;
   failure:
     ptr = nullptr;
-    goto success;
+    goto message_done;
 #undef CHK_
   }
 
-  ::PROTOBUF_NAMESPACE_ID::uint8* ROOTFilePB::_InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  uint8_t* ROOTFilePB::_InternalSerialize(uint8_t* target,
+                                          ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
     // @@protoc_insertion_point(serialize_to_array_start:dqmstorepb.ROOTFilePB)
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    uint32_t cached_has_bits = 0;
     (void)cached_has_bits;
 
     // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
-    for (unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_histo_size()); i < n; i++) {
-      target = stream->EnsureSpace(target);
+    for (unsigned i = 0, n = static_cast<unsigned>(this->_internal_histo_size()); i < n; i++) {
+      const auto& repfield = this->_internal_histo(i);
       target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(
-          1, this->_internal_histo(i), target, stream);
+          1, repfield, repfield.GetCachedSize(), target, stream);
     }
 
     if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-      target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+      target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
           _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(
               ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance),
           target,
@@ -579,54 +597,34 @@ namespace dqmstorepb {
     // @@protoc_insertion_point(message_byte_size_start:dqmstorepb.ROOTFilePB)
     size_t total_size = 0;
 
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    uint32_t cached_has_bits = 0;
     // Prevent compiler warnings about cached_has_bits being unused
     (void)cached_has_bits;
 
     // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
     total_size += 1UL * this->_internal_histo_size();
-    for (const auto& msg : this->histo_) {
+    for (const auto& msg : this->_impl_.histo_) {
       total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
     }
 
-    if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-      return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-          _internal_metadata_, total_size, &_cached_size_);
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-    SetCachedSize(cached_size);
-    return total_size;
+    return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
   }
 
-  void ROOTFilePB::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-    // @@protoc_insertion_point(generalized_merge_from_start:dqmstorepb.ROOTFilePB)
-    GOOGLE_DCHECK_NE(&from, this);
-    const ROOTFilePB* source = ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ROOTFilePB>(&from);
-    if (source == nullptr) {
-      // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB)
-      ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-    } else {
-      // @@protoc_insertion_point(generalized_merge_from_cast_success:dqmstorepb.ROOTFilePB)
-      MergeFrom(*source);
-    }
-  }
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ROOTFilePB::_class_data_ = {
+      ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck, ROOTFilePB::MergeImpl};
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData* ROOTFilePB::GetClassData() const { return &_class_data_; }
 
-  void ROOTFilePB::MergeFrom(const ROOTFilePB& from) {
+  void ROOTFilePB::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg,
+                             const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+    auto* const _this = static_cast<ROOTFilePB*>(&to_msg);
+    auto& from = static_cast<const ROOTFilePB&>(from_msg);
     // @@protoc_insertion_point(class_specific_merge_from_start:dqmstorepb.ROOTFilePB)
-    GOOGLE_DCHECK_NE(&from, this);
-    _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-    ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+    GOOGLE_DCHECK_NE(&from, _this);
+    uint32_t cached_has_bits = 0;
     (void)cached_has_bits;
 
-    histo_.MergeFrom(from.histo_);
-  }
-
-  void ROOTFilePB::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-    // @@protoc_insertion_point(generalized_copy_from_start:dqmstorepb.ROOTFilePB)
-    if (&from == this)
-      return;
-    Clear();
-    MergeFrom(from);
+    _this->_impl_.histo_.MergeFrom(from._impl_.histo_);
+    _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   }
 
   void ROOTFilePB::CopyFrom(const ROOTFilePB& from) {
@@ -638,18 +636,22 @@ namespace dqmstorepb {
   }
 
   bool ROOTFilePB::IsInitialized() const {
-    if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(histo_))
+    if (!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(_impl_.histo_))
       return false;
     return true;
   }
 
   void ROOTFilePB::InternalSwap(ROOTFilePB* other) {
     using std::swap;
-    _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-    histo_.InternalSwap(&other->histo_);
+    _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+    _impl_.histo_.InternalSwap(&other->_impl_.histo_);
   }
 
-  ::PROTOBUF_NAMESPACE_ID::Metadata ROOTFilePB::GetMetadata() const { return GetMetadataStatic(); }
+  ::PROTOBUF_NAMESPACE_ID::Metadata ROOTFilePB::GetMetadata() const {
+    return ::_pbi::AssignDescriptors(&descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_getter,
+                                     &descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto_once,
+                                     file_level_metadata_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto[1]);
+  }
 
   // @@protoc_insertion_point(namespace_scope)
 }  // namespace dqmstorepb

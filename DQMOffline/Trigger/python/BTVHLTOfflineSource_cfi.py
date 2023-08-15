@@ -44,14 +44,14 @@ BTVHLTOfflineSource = DQMEDAnalyzer("BTVHLTOfflineSource",
 #
 #  Relative Online-Offline Track Monitoring
 #
-from DQM.TrackingMonitorSource.trackToTrackComparisonHists_cfi import trackToTrackComparisonHists
+from DQM.TrackingMonitorSource.TrackToTrackComparisonHists_cfi import TrackToTrackComparisonHists
 
 referenceTracksForHLTBTag = cms.EDFilter('TrackSelector',
     src = cms.InputTag('generalTracks'),
     cut = cms.string("quality('highPurity')")
 )
 
-bTagHLTTrackMonitoring_muPF1 = trackToTrackComparisonHists.clone(
+bTagHLTTrackMonitoring_muPF1 = TrackToTrackComparisonHists.clone(
     dzWRTPvCut               = 0.1,
     monitoredTrack           = "hltMergedTracks",
     referenceTrack           = "referenceTracksForHLTBTag",

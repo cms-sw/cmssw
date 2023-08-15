@@ -67,7 +67,7 @@ namespace {
   // one at a time
   //******************************************//
 
-  template <int ntags, IOVMultiplicity nIOVs>
+  template <int ntags, IOVMultiplicity nIOVs, bool doOnlyPixel>
   class TrackerAlignmentCompareAll : public PlotImage<Alignments, nIOVs, ntags> {
   public:
     TrackerAlignmentCompareAll()
@@ -103,6 +103,24 @@ namespace {
       std::vector<AlignTransform> ref_ali = first_payload->m_align;
       std::vector<AlignTransform> target_ali = last_payload->m_align;
 
+      // Use remove_if along with a lambda expression to remove elements based on the condition (subid > 2)
+      if (doOnlyPixel) {
+        ref_ali.erase(std::remove_if(ref_ali.begin(),
+                                     ref_ali.end(),
+                                     [](const AlignTransform &transform) {
+                                       int subid = DetId(transform.rawId()).subdetId();
+                                       return subid > 2;
+                                     }),
+                      ref_ali.end());
+
+        target_ali.erase(std::remove_if(target_ali.begin(),
+                                        target_ali.end(),
+                                        [](const AlignTransform &transform) {
+                                          int subid = DetId(transform.rawId()).subdetId();
+                                          return subid > 2;
+                                        }),
+                         target_ali.end());
+      }
       TCanvas canvas("Alignment Comparison", "Alignment Comparison", 2000, 1200);
       canvas.Divide(3, 2);
 
@@ -114,10 +132,18 @@ namespace {
         return false;
       }
 
+      const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
+
       // check that the geomtery is a tracker one
-      const char *path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      const char *path_toTopologyXML = nullptr;
+      if (ph2) {
+        path_toTopologyXML = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+      } else {
+        path_toTopologyXML = (ref_ali.size() == AlignmentPI::phase0size)
+                                 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                 : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      }
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
@@ -210,7 +236,7 @@ namespace {
         tSubdet[i].SetTextColor(kRed);
         tSubdet[i].SetNDC();
         tSubdet[i].SetTextAlign(21);
-        tSubdet[i].SetTextSize(0.03);
+        tSubdet[i].SetTextSize(doOnlyPixel ? 0.05 : 0.03);
         tSubdet[i].SetTextAngle(90);
       }
 
@@ -231,7 +257,6 @@ namespace {
           l[subpad][index].Draw("same");
         }
 
-        const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
         for (const auto &elem : boundaries | boost::adaptors::indexed(0)) {
           const auto &lm = canvas.cd(subpad + 1)->GetLeftMargin();
           const auto &rm = 1 - canvas.cd(subpad + 1)->GetRightMargin();
@@ -240,7 +265,7 @@ namespace {
           LogDebug("TrackerAlignmentCompareAll")
               << __PRETTY_FUNCTION__ << " left margin:  " << lm << " right margin: " << rm << " fraction: " << frac;
 
-          float theX_ = lm + (rm - lm) * frac + (elem.index() > 0 ? 0.025 : 0.01);
+          float theX_ = lm + (rm - lm) * frac + ((elem.index() > 0 || doOnlyPixel) ? 0.025 : 0.01);
 
           tSubdet[subpad].DrawLatex(
               theX_, 0.23, Form("%s", AlignmentPI::getStringFromPart(elem.value().second, /*is phase2?*/ ph2).c_str()));
@@ -265,8 +290,11 @@ namespace {
     }
   };
 
-  typedef TrackerAlignmentCompareAll<1, MULTI_IOV> TrackerAlignmentComparatorSingleTag;
-  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV> TrackerAlignmentComparatorTwoTags;
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, false> TrackerAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, false> TrackerAlignmentComparatorTwoTags;
+
+  typedef TrackerAlignmentCompareAll<1, MULTI_IOV, true> PixelAlignmentComparatorSingleTag;
+  typedef TrackerAlignmentCompareAll<2, SINGLE_IOV, true> PixelAlignmentComparatorTwoTags;
 
   //*******************************************//
   // Size of the movement over all partitions,
@@ -1178,6 +1206,8 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentComparatorSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentComparatorTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorSingleTag);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentComparatorTwoTags);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentCompareX);

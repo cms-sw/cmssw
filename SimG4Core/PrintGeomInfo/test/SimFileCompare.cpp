@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cstdint>
 #include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 
 struct materials {

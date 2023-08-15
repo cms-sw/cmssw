@@ -9,9 +9,10 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
+
 selectElectrons = cms.EDProducer(
     "GenParticlePruner",
-    src = cms.InputTag("genParticles"),
+    src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
     "keep++ pdgId = 11",
@@ -19,7 +20,7 @@ selectElectrons = cms.EDProducer(
     )
 )
 
-selectStableElectrons = genParticlesForJets.clone(src = cms.InputTag("selectElectrons"))
+selectStableElectrons = genParticlesForJets.clone(src = "selectElectrons")
 
 #objectTypeSelectedTauValDenominatorModule = copy.deepcopy(iterativeCone5GenJets)
 #objectTypeSelectedTauValDenominatorModule.src = cms.InputTag("selectElectronsForGenJets")
@@ -50,9 +51,9 @@ proc.efficienciesZEE.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenomi
 proc.efficienciesZEESummary = cms.EDProducer("TauDQMHistEffProducer",
     plots = cms.PSet(
         Summary = cms.PSet(
-            denominator = cms.string('RecoTauV/hpsPFTauProducerZEE_Summary/#PAR#PlotDen'),
-            efficiency = cms.string('RecoTauV/hpsPFTauProducerZEE_Summary/#PAR#Plot'),
-            numerator = cms.string('RecoTauV/hpsPFTauProducerZEE_Summary/#PAR#PlotNum'),
+            denominator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZEE_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZEE_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/standardValidation/hpsPFTauProducerZEE_Summary/#PAR#PlotNum'),
             parameter = cms.vstring('summary'),
             stepByStep = cms.bool(True)
         ),
@@ -67,9 +68,9 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 produceDenominatorZEE = cms.Sequence(
-    selectElectrons*
-    selectStableElectrons*
-    kinematicSelectedTauValDenominatorZEE
+    selectElectrons
+    +cms.ignore(selectStableElectrons)
+    +cms.ignore(kinematicSelectedTauValDenominatorZEE)
     )
 
 produceDenominator = cms.Sequence(produceDenominatorZEE)
@@ -83,4 +84,3 @@ runTauValidation = cms.Sequence(
       runTauValidationBatchMode*
       TauEfficienciesZEE
       )
-

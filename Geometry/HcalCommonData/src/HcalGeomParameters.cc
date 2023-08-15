@@ -49,10 +49,18 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
     int nsiz = static_cast<int>(copy.size());
     if (nsiz > 0)
       lay = copy[nsiz - 1] / 10;
-    if (nsiz > 1)
+    if (nsiz > 6)
+      idet = copy[nsiz - 2] / 1000;
+    else if (nsiz > 4)
+      idet = copy[nsiz - 3] / 1000;
+    else if (nsiz > 1)
       idet = copy[nsiz - 2] / 1000;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "Name " << fv.logicalPart().solid().name() << " Copy " << copy.size();
+    std::ostringstream st1;
+    for (unsigned int k = 0; k < copy.size(); ++k)
+      st1 << " " << copy[k];
+    edm::LogVerbatim("HCalGeom") << "Name " << fv.logicalPart().solid().name() << " Copy " << copy.size() << ":"
+                                 << st1.str();
 #endif
     double dx = 0, dy = 0, dz = 0, dx1 = 0, dx2 = 0;
     double alp(0);
@@ -221,7 +229,14 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv, HcalParameters&
         } else if (sol.shape() == DDSolidShape::ddtubs || sol.shape() == DDSolidShape::ddcons) {
           dzVcal_ = HcalGeomParameters::k_ScaleFromDDDToG4 * paras[0];
           hf = true;
+        } else if (sol.shape() == DDSolidShape::ddtrap) {
+          dzVcal_ = HcalGeomParameters::k_ScaleFromDDDToG4 * paras[0];
+          hf = true;
         }
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HCalGeom") << "Sets for Detector " << idet << " for " << sol.name() << " Flag " << hf
+                                     << " DZ " << dzVcal_;
+#endif
       }
 #ifdef EDM_ML_DEBUG
     } else {
@@ -248,10 +263,17 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView& cpv, HcalParamet
     int nsiz = static_cast<int>(copy.size());
     if (nsiz > 0)
       lay = copy[0] / 10;
-    if (nsiz > 1)
+    if (nsiz > 6)
+      idet = copy[1] / 1000;
+    else if (nsiz > 4)
+      idet = copy[2] / 1000;
+    else if (nsiz > 1)
       idet = copy[1] / 1000;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "Name " << fv.name() << " Copy " << copy.size();
+    std::ostringstream st1;
+    for (unsigned int k = 0; k < copy.size(); ++k)
+      st1 << " " << copy[k];
+    edm::LogVerbatim("HCalGeom") << "Name " << fv.name() << " Copy " << copy.size() << ":" << st1.str();
     for (unsigned int n = 0; n < copy.size(); ++n)
       edm::LogVerbatim("HCalGeom") << "[" << n << "] " << copy[n];
     edm::LogVerbatim("HCalGeom") << "Detector " << idet << " Layer " << lay << " parameters: " << paras.size();
@@ -423,7 +445,14 @@ void HcalGeomParameters::loadGeometry(const cms::DDCompactView& cpv, HcalParamet
         } else if (dd4hep::isA<dd4hep::Tube>(fv.solid()) || dd4hep::isA<dd4hep::ConeSegment>(fv.solid())) {
           dzVcal_ = HcalGeomParameters::k_ScaleFromDD4hepToG4 * paras[2];
           hf = true;
+        } else if (dd4hep::isA<dd4hep::Trap>(fv.solid())) {
+          dzVcal_ = HcalGeomParameters::k_ScaleFromDD4hepToG4 * paras[0];
+          hf = true;
         }
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HCalGeom") << "Sets for Detector " << idet << " for " << fv.name() << " Flag " << hf << " DZ "
+                                     << dzVcal_;
+#endif
       }
 #ifdef EDM_ML_DEBUG
     } else {

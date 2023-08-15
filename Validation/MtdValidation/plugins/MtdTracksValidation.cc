@@ -41,8 +41,8 @@
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
 #include "RecoMTD/DetLayers/interface/MTDDetTray.h"
-#include "RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h"
-#include "RecoMTD/DetLayers/interface/MTDDetRing.h"
+#include "RecoMTD/DetLayers/interface/MTDSectorForwardDoubleLayer.h"
+#include "RecoMTD/DetLayers/interface/MTDDetSector.h"
 #include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
@@ -226,6 +226,8 @@ private:
   MonitorElement* meExtraPhiAtBTL_;
   MonitorElement* meExtraPhiAtBTLmatched_;
   MonitorElement* meExtraBTLeneInCone_;
+  MonitorElement* meExtraBTLfailExtenderEta_;
+  MonitorElement* meExtraBTLfailExtenderPt_;
 };
 
 // ------------ constructor and destructor --------------
@@ -442,9 +444,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
         meTrackNumHits_->Fill(numMTDBtlvalidhits);
-        if (isBTL && Sigmat0Safe[trackref] < 0.) {
-          meTrackNumHitsNT_->Fill(numMTDBtlvalidhits);
-        }
 
         // --- keeping only tracks with last hit in MTD ---
         if (MTDBtl == true) {
@@ -454,6 +453,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           meBTLTrackEffPtMtd_->Fill(track.pt());
           meBTLTrackRPTime_->Fill(track.t0());
           meBTLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
+        }
+        if (isBTL && Sigmat0Safe[trackref] < 0.) {
+          meTrackNumHitsNT_->Fill(numMTDBtlvalidhits);
         }
       }  //loop over (geometrical) BTL tracks
 
@@ -607,6 +609,15 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             if (nlayers == 2) {
               meExtraEtaEtl2Mtd_->Fill(trackGen.eta());
             }
+            if (accept.first && accept.second && !isBTL) {
+              edm::LogInfo("MtdTracksValidation")
+                  << "MtdTracksValidation: extender fail in " << iEvent.id().run() << " " << iEvent.id().event()
+                  << " pt= " << trackGen.pt() << " eta= " << trackGen.eta();
+              meExtraBTLfailExtenderEta_->Fill(std::abs(trackGen.eta()));
+              if (noCrack) {
+                meExtraBTLfailExtenderPt_->Fill(trackGen.pt());
+              }
+            }
           }
         }
 
@@ -700,7 +711,8 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
   auto btlRecHitsHandle = makeValid(iEvent.getHandle(btlRecHitsToken_));
   auto etlRecHitsHandle = makeValid(iEvent.getHandle(etlRecHitsToken_));
 
-  edm::LogVerbatim("MtdTracksValidation") << "New Track, pt= " << track.pt() << " eta= " << track.eta();
+  edm::LogVerbatim("MtdTracksValidation")
+      << "MtdTracksValidation: extrapolating track, pt= " << track.pt() << " eta= " << track.eta();
 
   //try BTL
   bool inBTL = false;
@@ -715,8 +727,8 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
       extrho = comp.second.globalPosition().perp();
       exteta = comp.second.globalPosition().eta();
       extphi = comp.second.globalPosition().phi();
-      edm::LogVerbatim("MtdTracksValidation")
-          << "Extrapolation at BTL surface, rho= " << extrho << " eta= " << exteta << " phi= " << extphi;
+      edm::LogVerbatim("MtdTracksValidation") << "MtdTracksValidation: extrapolation at BTL surface, rho= " << extrho
+                                              << " eta= " << exteta << " phi= " << extphi;
     }
     std::vector<DetLayer::DetWithState> compDets = ilay->compatibleDets(tsos, prop, *theEstimator);
     for (const auto& detWithState : compDets) {
@@ -725,9 +737,9 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
       // loop on compatible rechits and check energy in a fixed size cone around the extrapolation point
 
       edm::LogVerbatim("MtdTracksValidation")
-          << "DetId= " << det->geographicalId().rawId() << " gp= " << detWithState.second.globalPosition().x() << " "
-          << detWithState.second.globalPosition().y() << " " << detWithState.second.globalPosition().z()
-          << " rho= " << detWithState.second.globalPosition().perp()
+          << "MtdTracksValidation: DetId= " << det->geographicalId().rawId()
+          << " gp= " << detWithState.second.globalPosition().x() << " " << detWithState.second.globalPosition().y()
+          << " " << detWithState.second.globalPosition().z() << " rho= " << detWithState.second.globalPosition().perp()
           << " eta= " << detWithState.second.globalPosition().eta()
           << " phi= " << detWithState.second.globalPosition().phi();
 
@@ -746,7 +758,7 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
           local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
           const auto& global_point = thedet->toGlobal(local_point);
           edm::LogVerbatim("MtdTracksValidation")
-              << "Hit id= " << detId.rawId() << " ene= " << recHit.energy()
+              << "MtdTracksValidation: Hit id= " << detId.rawId() << " ene= " << recHit.energy()
               << " dr= " << reco::deltaR(global_point, detWithState.second.globalPosition());
           if (reco::deltaR(global_point, detWithState.second.globalPosition()) < cluDRradius_) {
             eneSum += recHit.energy();
@@ -761,7 +773,8 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
       nlayers++;
       selvar = eneSum;
       isMatched = true;
-      edm::LogVerbatim("MtdTracksValidation") << "BTL matched, energy= " << eneSum << " #layers= " << nlayers;
+      edm::LogVerbatim("MtdTracksValidation")
+          << "MtdTracksValidation: BTL matched, energy= " << eneSum << " #layers= " << nlayers;
     }
   }
   if (inBTL) {
@@ -773,7 +786,7 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
   const std::vector<const DetLayer*>& layersETL = layerGeo->allETLLayers();
   for (const DetLayer* ilay : layersETL) {
     size_t hcount(0);
-    const BoundDisk& disk = static_cast<const MTDRingForwardDoubleLayer*>(ilay)->specificSurface();
+    const BoundDisk& disk = static_cast<const MTDSectorForwardDoubleLayer*>(ilay)->specificSurface();
     const double diskZ = disk.position().z();
     if (tsos.globalPosition().z() * diskZ < 0)
       continue;  // only propagate to the disk that's on the same side
@@ -786,8 +799,8 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
       exteta = comp.second.globalPosition().eta();
       extphi = comp.second.globalPosition().phi();
     }
-    edm::LogVerbatim("MtdTracksValidation")
-        << "Extrapolation at ETL surface, rho= " << extrho << " eta= " << exteta << " phi= " << extphi;
+    edm::LogVerbatim("MtdTracksValidation") << "MtdTracksValidation: extrapolation at ETL surface, rho= " << extrho
+                                            << " eta= " << exteta << " phi= " << extphi;
     std::vector<DetLayer::DetWithState> compDets = ilay->compatibleDets(tsos, prop, *theEstimator);
     for (const auto& detWithState : compDets) {
       const auto& det = detWithState.first;
@@ -795,9 +808,9 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
       // loop on compatible rechits and check hits in a fixed size cone around the extrapolation point
 
       edm::LogVerbatim("MtdTracksValidation")
-          << "DetId= " << det->geographicalId().rawId() << " gp= " << detWithState.second.globalPosition().x() << " "
-          << detWithState.second.globalPosition().y() << " " << detWithState.second.globalPosition().z()
-          << " rho= " << detWithState.second.globalPosition().perp()
+          << "MtdTracksValidation: DetId= " << det->geographicalId().rawId()
+          << " gp= " << detWithState.second.globalPosition().x() << " " << detWithState.second.globalPosition().y()
+          << " " << detWithState.second.globalPosition().z() << " rho= " << detWithState.second.globalPosition().perp()
           << " eta= " << detWithState.second.globalPosition().eta()
           << " phi= " << detWithState.second.globalPosition().phi();
 
@@ -815,7 +828,7 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
           Local3DPoint local_point(topo.localX(recHit.row()), topo.localY(recHit.column()), 0.);
           const auto& global_point = thedet->toGlobal(local_point);
           edm::LogVerbatim("MtdTracksValidation")
-              << "Hit id= " << detId.rawId() << " time= " << recHit.time()
+              << "MtdTracksValidation: Hit id= " << detId.rawId() << " time= " << recHit.time()
               << " dr= " << reco::deltaR(global_point, detWithState.second.globalPosition());
           if (reco::deltaR(global_point, detWithState.second.globalPosition()) < cluDRradius_) {
             hcount++;
@@ -832,14 +845,16 @@ const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Tra
       nlayers++;
       selvar = (float)hcount;
       isMatched = true;
-      edm::LogVerbatim("MtdTracksValidation") << "ETL matched, counts= " << hcount << " #layers= " << nlayers;
+      edm::LogVerbatim("MtdTracksValidation")
+          << "MtdTracksValidation: ETL matched, counts= " << hcount << " #layers= " << nlayers;
     }
   }
 
   if (!inBTL && !inETL) {
     edm::LogVerbatim("MtdTracksValidation")
-        << "Track not extrapolating to MTD: pt= " << track.pt() << " eta= " << track.eta() << " phi= " << track.phi()
-        << " vz= " << track.vz() << " vxy= " << std::sqrt(track.vx() * track.vx() + track.vy() * track.vy());
+        << "MtdTracksValidation: track not extrapolating to MTD: pt= " << track.pt() << " eta= " << track.eta()
+        << " phi= " << track.phi() << " vz= " << track.vz()
+        << " vxy= " << std::sqrt(track.vx() * track.vx() + track.vy() * track.vy());
   }
   return std::make_pair(inETL, isMatched);
 }
@@ -986,6 +1001,19 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                      180.);
     meExtraBTLeneInCone_ = ibook.book1D(
         "ExtraBTLeneInCone", "BTL reconstructed energy in cone arounnd extrapolated track; E [MeV]", 100, 0., 50.);
+    meExtraBTLfailExtenderEta_ =
+        ibook.book1D("ExtraBTLfailExtenderEta",
+                     "Eta of tracks extrapolated to BTL with no track extender match to hits; track eta",
+                     66,
+                     0.,
+                     3.3);
+    ;
+    meExtraBTLfailExtenderPt_ =
+        ibook.book1D("ExtraBTLfailExtenderPt",
+                     "Pt of tracks extrapolated to BTL with no track extender match to hits; track pt [GeV] ",
+                     110,
+                     0.,
+                     11.);
   }
 }
 

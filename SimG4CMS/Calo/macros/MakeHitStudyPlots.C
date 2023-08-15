@@ -67,11 +67,11 @@ void makeHitStudyPlots(std::string file1 = "uncorr/analRun3.root",
                        bool save = false,
                        std::string dirnm = "CaloSimHitStudy") {
   const int plots = 20;
-  std::string names[plots] = {"Etot",    "Hit",    "EtotG",  "Time",    "eta",    "phi",   "EdepEM",
-                              "EdepHad", "EdepTk", "Edep",   "HitHigh", "HitLow", "HitMu", "HitTk",
-                              "TimeAll", "TimeTk", "EneInc", "EtaInc",  "PhiInc", "PtInc"};
-  int numb[plots] = {9, 9, 9, 9, 9, 9, 9, 9, 16, 9, 1, 1, 1, 16, 9, 16, 1, 1, 1, 1};
-  int rebin[plots] = {10, 10, 10, 10, 2, 4, 10, 10, 1, 10, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1};
+  std::string names[plots] = {"Etot",   "Hit",     "EtotG",  "Time",    "EdepTk", "Edep", "HitHigh",
+                              "HitLow", "HitMu",   "HitTk",  "TimeAll", "TimeTk", "eta",  "phi",
+                              "EdepEM", "EdepHad", "EneInc", "EtaInc",  "PhiInc", "PtInc"};
+  int numb[plots] = {9, 9, 9, 9, 16, 9, 1, 1, 1, 16, 9, 16, 9, 9, 9, 9, 1, 1, 1, 1};
+  int rebin[plots] = {10, 10, 10, 10, 1, 10, 10, 10, 10, 10, 10, 10, 2, 4, 10, 10, 1, 1, 1, 1};
   bool debug(false);
 
   gStyle->SetCanvasBorderMode(0);
@@ -291,7 +291,7 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
   sprintf(nameD, "hgcalHitCheck%s", dirnm.c_str());
   sprintf(title, "%s vs %s for %s", types[0].c_str(), types[1].c_str(), inType.c_str());
   std::cout << "Use " << nfile << " files from " << filex[0] << " and " << filex[1] << " and look for " << plots
-            << " plots in " << nameD << " with rebin " << rebin << " Max " << xmax;
+            << " plots in " << nameD << " with rebin " << rebin << " Max " << xmax << std::endl;
   for (int i = 0; i < plots; ++i) {
     if (layer == 0)
       sprintf(name, "Hits%s", plotf[i].c_str());

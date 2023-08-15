@@ -149,7 +149,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         << " extruded polygon made of " << materials[i] << " z|x|y|s (0) "
                                         << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
                                         << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) "
-                                        << cms::convert2mm(zw[1]) << ": " << cms::convert2mm(zx[1]) << ":"
+                                        << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":"
                                         << cms::convert2mm(zy[1]) << ":" << scale[1] << " partial " << partialTypes[k]
                                         << " placement index " << placementIndex[m] << " and " << xM.size() << " edges";
           for (unsigned int j = 0; j < xL.size(); ++j)
@@ -184,7 +184,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           glogs[i].placeVolume(glog, copy, tran);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: " << glog.name() << " number " << copy
-                                        << " positioned in " << glogs[i].name() << " at (0, 0," << cms::convert2mm(zpos)
+                                        << " positioned in " << glogs[i].name() << " at (0,0," << cms::convert2mm(zpos)
                                         << ") with no rotation";
 #endif
         }

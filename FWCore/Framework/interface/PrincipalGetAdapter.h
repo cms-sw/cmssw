@@ -126,7 +126,6 @@ namespace edm {
                               std::string const& productInstanceName);
 
     void throwOnPrematureRead(char const* principalType, TypeID const& productType, EDGetToken);
-    void throwGetManyByType();
 
   }  // namespace principal_get_adapter_detail
   class PrincipalGetAdapter {

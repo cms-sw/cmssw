@@ -83,6 +83,8 @@ process.maxEvents = cms.untracked.PSet(
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.HitStudy=dict()
+    process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.SensitiveDetector=dict()
 
 process.Timing = cms.Service("Timing")
 
@@ -110,6 +112,7 @@ process.analysis_step2 = cms.EndPath(process.hgcalHitCheckHEF)
 process.analysis_step3 = cms.EndPath(process.hgcalHitCheckHEB)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
+process.g4SimHits.HGCSD.Verbosity = 0
 
 # Schedule definition
 process.schedule = cms.Schedule(process.simulation_step,

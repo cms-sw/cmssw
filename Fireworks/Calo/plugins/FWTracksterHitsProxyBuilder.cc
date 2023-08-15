@@ -70,11 +70,28 @@ void FWTracksterHitsProxyBuilder::build(const FWEventItem *iItem, TEveElementLis
           << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
     }
   } else {
-    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
+    iItem->getEvent()->getByLabel(edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"), TimeValueMapHandle_);
+    edm::LogWarning("DataNotFound|InvalidData")
+        << __FILE__ << ":" << __LINE__
+        << " couldn't locate 'hgcalLayerClusters:timeLayerCluster' ValueMap in input file. Trying to access "
+           "'hgcalMergeLayerClusters:timeLayerClusters' ValueMap";
+    if (!TimeValueMapHandle_.isValid()) {
+      edm::LogWarning("DataNotFound|InvalidData")
+          << __FILE__ << ":" << __LINE__
+          << " couldn't locate 'hgcalMergeLayerClusters:timeLayerCluster' ValueMap in input file.";
+    }
   }
 
   if (!layerClustersHandle_.isValid()) {
-    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
+    iItem->getEvent()->getByLabel(edm::InputTag("hgcalMergeLayerClusters"), layerClustersHandle_);
+    edm::LogWarning("DataNotFound|InvalidData")
+        << __FILE__ << ":" << __LINE__
+        << " couldn't locate 'hgcalLayerClusters' collection "
+           "in input file. Trying to access 'hgcalMergeLayerClusters' collection.";
+    if (!layerClustersHandle_.isValid()) {
+      edm::LogWarning("DataNotFound|InvalidData")
+          << __FILE__ << ":" << __LINE__ << " couldn't locate 'hgcalMergeLayerClusters' collection in input file.";
+    }
   }
 
   layer_ = item()->getConfig()->value<long>("Layer");

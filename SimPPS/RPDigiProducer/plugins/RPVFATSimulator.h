@@ -18,7 +18,6 @@ public:
 
 private:
   typedef std::set<unsigned short, std::less<unsigned short> > dead_strip_set;
-  const edm::ParameterSet &params_;
   RPDetId det_id_;
   double dead_strip_probability_;
   bool dead_strips_simulation_on_;

@@ -1476,7 +1476,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   }
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
-                                  << ":" << xx << " Y " << y << ":" << yy;
+                                  << ":" << xx << " Y " << y << ":" << yy << " side " << zside << " extend " << extend;
   double rmax = extend ? rmaxT_ : rmax_;
   double hexside = extend ? hexsideT_ : hexside_;
   for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {

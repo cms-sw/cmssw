@@ -877,6 +877,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-ZdcGeometryFromDBEP" )
       self.options['esmodules'].append( "-XMLFromDBSource" )
       self.options['esmodules'].append( "-sistripconn" )
+      self.options['esmodules'].append( "-siPixelQualityESProducer" )
 
       self.options['services'].append( "-MessageLogger" )
 

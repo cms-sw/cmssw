@@ -183,7 +183,7 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
       // fill clusters
 #ifdef EDM_ML_DEBUG
     assert(digis.clus(i) >= 0);
-    assert(digis.clus(i) < TrackerTraits::maxNumClustersPerModules);
+    assert(digis.clus(i) < static_cast<int32_t>(TrackerTraits::maxNumClustersPerModules));
 #endif
     nclus = std::max(digis.clus(i), nclus);
     auto row = dig.row();

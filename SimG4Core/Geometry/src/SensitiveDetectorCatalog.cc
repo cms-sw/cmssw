@@ -1,15 +1,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
-#define DEBUG
+#define EDM_ML_DEBUG
 
 #include <iostream>
 
 void SensitiveDetectorCatalog::insert(const std::string &cN, const std::string &rN, const std::string &lvN) {
   theClassNameMap[cN].insert(rN);
   theROUNameMap[rN].insert(lvN);
-#ifdef DEBUG
-  edm::LogVerbatim("SimG4CoreGeometry") << "SenstiveDetectorCatalog: insert (" << cN << "," << rN << "," << lvN << ")\n"
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("SensitiveDetector") << "SenstiveDetectorCatalog: insert (" << cN << "," << rN << "," << lvN << ")\n"
                                         << "                         has     " << readoutNames().size() << " ROUs "
                                         << readoutNames().front() << "\n"
                                         << "                         has     " << classNames().size() << " classes "
@@ -60,8 +60,8 @@ std::vector<std::string_view> SensitiveDetectorCatalog::classNames() const {
 }
 
 void SensitiveDetectorCatalog::printMe() const {
-  edm::LogVerbatim("SimG4CoreGeometry") << "Class names map size is: " << theClassNameMap.size() << "\n";
-  edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
+  edm::LogVerbatim("SensitiveDetector") << "Class names map size is: " << theClassNameMap.size() << "\n";
+  edm::LogVerbatim("SensitiveDetector").log([&](auto &log) {
     int i(0);
     for (const auto &cn : theClassNameMap) {
       log << "#" << ++i << ": " << cn.first << " has " << cn.second.size() << " class names:\n";
@@ -71,20 +71,20 @@ void SensitiveDetectorCatalog::printMe() const {
     }
     log << "\n";
   });
-  edm::LogVerbatim("SimG4CoreGeometry") << "\nROU names map: " << theROUNameMap.size() << "\n";
-  edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
+  edm::LogVerbatim("SensitiveDetector") << "\nROU names map: " << theROUNameMap.size() << "\n";
+  edm::LogVerbatim("SensitiveDetector").log([&](auto &log) {
     int i(0);
     for (const auto &rn : theROUNameMap) {
       log << "#" << ++i << ": " << rn.first << " has " << rn.second.size() << " ROU names:\n";
       for (const auto &rnv : rn.second)
-        log << rnv << ", ";
+        log << rnv << "\n ";
       log << "\n";
     }
     log << "\n";
   });
 
-  edm::LogVerbatim("SimG4CoreGeometry") << "\n========== Here are the accessors =================\n";
-  edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
+  edm::LogVerbatim("SensitiveDetector") << "\n========== Here are the accessors =================\n";
+  edm::LogVerbatim("SensitiveDetector").log([&](auto &log) {
     for (auto c : classNames()) {
       log << "ClassName:" << c << "\n";
       for (auto r : readoutNames({c.data(), c.size()})) {

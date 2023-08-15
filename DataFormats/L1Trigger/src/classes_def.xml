@@ -14,6 +14,24 @@
   <class name="l1t::L1CandidateVectorRef"/>
   <class name="edm::Wrapper<l1t::L1CandidateVectorRef>"/>
 
+
+  <class name="l1t::P2GTCandidate::Optional<int>"/>
+  <class name="l1t::P2GTCandidate::Optional<double>"/>
+  <class name="l1t::P2GTCandidate"/>
+  <class name="l1t::P2GTCandidateCollection"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateCollection>"/>
+  <class name="l1t::P2GTCandidateRef"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateRef>"/>
+  <class name="l1t::P2GTCandidateRefVector"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateRefVector>"/>
+  <class name="l1t::P2GTCandidateVectorRef"/>
+  <class name="edm::Wrapper<l1t::P2GTCandidateVectorRef>"/>
+
+  <class name="l1t::P2GTAlgoBlock"/>
+  <class name="l1t::P2GTAlgoBlockCollection"/>
+  <class name="edm::Wrapper<l1t::P2GTAlgoBlockCollection>"/>
+
+
   <class name="l1t::Jet" ClassVersion="13">
    <version ClassVersion="13" checksum="3915457337"/>
    <version ClassVersion="12" checksum="380555501"/>

@@ -30,6 +30,7 @@
 <class name="L1Analysis::L1AnalysisRecoTauDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoMuon2DataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoElectronDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoPhotonDataFormat"/>
 
 <class name="L1Analysis::L1AnalysisL1Upgrade" persistent="false"/>
 
