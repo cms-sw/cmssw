@@ -110,7 +110,7 @@ CondHDF5ESSource::CondHDF5ESSource(edm::ParameterSet const& iPSet)
     //std::cout << record.name_ << std::endl;
 
     if (recordsToExclude.end() != recordsToExclude.find(record.name_)) {
-      std::cout << "excluding " << record.name_ << std::endl;
+      //std::cout << "excluding " << record.name_ << std::endl;
       continue;
     }
 

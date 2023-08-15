@@ -200,7 +200,6 @@ std::vector<char> HDF5ProductResolver::decompress_lzma(std::vector<char> compres
     if (returnStatus != LZMA_STREAM_END) {
       throw cms::Exception("H5CondFailedDecompress") << "failed to decompress buffer using lzma";
     }
-    lzma_end(&stream);
   }
   return buffer;
 }

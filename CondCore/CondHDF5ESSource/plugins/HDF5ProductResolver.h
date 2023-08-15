@@ -48,7 +48,6 @@ public:
   const HDF5ProductResolver& operator=(const HDF5ProductResolver&) = delete;  // stop default
 
 private:
-private:
   void prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
                          edm::eventsetup::EventSetupRecordImpl const& iES,
                          edm::eventsetup::DataKey const& iKey,

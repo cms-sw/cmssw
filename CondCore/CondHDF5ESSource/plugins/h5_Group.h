@@ -40,8 +40,10 @@ namespace cms::h5 {
 
     ~Group();
 
-    Group(const Group&) = delete;                   // stop default
-    const Group& operator=(const Group&) = delete;  // stop default
+    Group(const Group&) = delete;             // stop default
+    Group& operator=(const Group&) = delete;  // stop default
+    Group(Group&&) = delete;                  // stop default
+    Group& operator=(Group&&) = delete;       // stop default
 
     // ---------- const member functions ---------------------
     std::shared_ptr<Group> findGroup(std::string const& iName) const;

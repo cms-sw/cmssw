@@ -33,8 +33,10 @@ namespace cms::h5 {
     Attribute(hid_t, std::string const&);
     ~Attribute();
 
-    Attribute(const Attribute&) = delete;                   // stop default
-    const Attribute& operator=(const Attribute&) = delete;  // stop default
+    Attribute(const Attribute&) = delete;             // stop default
+    Attribute& operator=(const Attribute&) = delete;  // stop default
+    Attribute(Attribute&&) = delete;                  // stop default
+    Attribute& operator=(Attribute&&) = delete;       // stop default
 
     // ---------- const member functions ---------------------
     std::string readString() const;

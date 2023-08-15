@@ -41,8 +41,10 @@ namespace cms::h5 {
     DataSet(hid_t iParentID, const void* iRef);
     ~DataSet();
 
-    DataSet(const DataSet&) = delete;                   // stop default
-    const DataSet& operator=(const DataSet&) = delete;  // stop default
+    DataSet(const DataSet&) = delete;             // stop default
+    DataSet& operator=(const DataSet&) = delete;  // stop default
+    DataSet(DataSet&&) = delete;                  // stop default
+    DataSet& operator=(DataSet&&) = delete;       // stop default
 
     // ---------- const member functions ---------------------
     std::shared_ptr<Attribute> findAttribute(std::string const& iName) const;
