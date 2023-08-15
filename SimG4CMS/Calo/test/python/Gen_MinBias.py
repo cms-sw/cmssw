@@ -1,9 +1,26 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: MinBias_13TeV_pythia8_TuneCUETP8M1_cfi.py -s GEN -n 1000 --conditions auto:phase2_realistic_T25 --beamspot HLLHC --datatier GEN-SIM --eventcontent FEVTDEBUG --geometry Extended2026D98 --era Phase2C17I13M9 --python Gen_MinBias.py --no_exec --fileout file:step0MinBias.root --nThreads 8
+###############################################################################
+# Way to use this:
+#   cmsRun MinBias.py maxevt=1000
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re, random
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('maxevt',
+                 "1000",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string)
+
+### get and parse the command line arguments
+options.parseArguments()
+
+maxevt = int(options.maxevt)
+print(options)
+print("maxevt: ", maxevt)
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
@@ -24,7 +41,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(1000),
+        input = cms.untracked.int32(maxevt),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
