@@ -32,7 +32,15 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  const edm::ParameterSet& pset_;
+  struct Dosemap {
+    edm::FileInPath fp;
+    int file_energy;
+  };
+  std::vector<Dosemap> dosemaps_;
+  std::vector<HBHEDarkening::LumiYear> years_;
+  const double drdA_;
+  const double drdB_;
+  const int ieta_shift_;
 };
 
 #endif
