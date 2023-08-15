@@ -1,9 +1,12 @@
 #ifndef CalibTracker_SiStripLorentzAngle_SiStripLorentzAngleCalibrationStruct_h
 #define CalibTracker_SiStripLorentzAngle_SiStripLorentzAngleCalibrationStruct_h
 
-#include "DQMServices/Core/interface/DQMStore.h"
+// system includes
 #include <map>
 #include <vector>
+
+// user includes
+#include "DQMServices/Core/interface/DQMStore.h"
 
 struct SiStripLorentzAngleCalibrationHistograms {
 public:
@@ -11,6 +14,9 @@ public:
 
   // B field
   std::string bfield_;
+
+  // APV mode
+  std::string apvmode_;
 
   std::map<uint32_t, int> orientation_;
   std::map<uint32_t, float> la_db_;
