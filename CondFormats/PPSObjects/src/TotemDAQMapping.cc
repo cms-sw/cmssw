@@ -6,12 +6,20 @@
 *
 ****************************************************************************/
 
-#include "FWCore/Utilities/interface/typelookup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 using namespace std;
+
+void TotemVFATInfo::print(ostream &os, string subSystemName) const {
+  symbolicID.print(os, subSystemName);
+  if (subSystemName != "TotemTiming") {
+    os << ", hw id=0x" << hex << hwID << dec;
+  }
+  os << endl;
+}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -61,20 +69,25 @@ const TotemDAQMapping::TotemTimingPlaneChannelPair TotemDAQMapping::getTimingCha
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemDAQMapping::print(std::ostream &os) const {
-  os << "TotemDQMMapping VFAT mapping" << endl;
-  for (const auto &p : VFATMapping) {
-    os << "    " << p.first << " -> " << p.second << endl;
+void TotemDAQMapping::print(std::ostream &os, std::string subSystemName) const {
+  os << "TotemDAQMapping VFAT mapping" << endl;
+  for (auto &p : VFATMapping) {
+    os << "    " << p.first << " -> ";
+    p.second.print(os, subSystemName);
   }
 
-  os << "TotemDQMMapping channel mapping" << endl;
-  for (const auto &p : totemTimingChannelMap) {
-    os << "    " << p.first << " plane " << p.second.plane << " channel " << p.second.channel << endl;
+  if (subSystemName == "TotemTiming" || subSystemName.empty()) {
+    os << "TotemDAQMapping channel mapping" << endl;
+    for (const auto &p : totemTimingChannelMap) {
+      os << "    "
+         << " hw id=0x" << hex << (int)p.first << dec << " plane=" << p.second.plane << " channel=" << p.second.channel
+         << endl;
+    }
   }
 }
 
 std::ostream &operator<<(std::ostream &os, TotemDAQMapping mapping) {
-  mapping.print(os);
+  mapping.print(os, "");
   return os;
 }
 

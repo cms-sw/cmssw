@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-minIov = 362920
+minIov = 1
 maxIov = 999999999
-subSystemName = "TimingDiamond"
+subSystemName = "TotemT2"
 
 
 process = cms.Process('writeTotemDAQMappingMask')
@@ -24,18 +24,19 @@ process.MessageLogger = cms.Service("MessageLogger",
 # load a mapping from XML file, set dummy validity range
 process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
 process.totemDAQMappingESSourceXML.subSystem = subSystemName
-process.totemDAQMappingESSourceXML.sampicSubDetId = cms.uint32(6)
+process.totemDAQMappingESSourceXML.sampicSubDetId = cms.uint32(7)
+process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = True
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
     validityRange = cms.EventRange(f"{minIov}:min - {maxIov}:max"),
-    mappingFileNames = cms.vstring('CondFormats/PPSObjects/xml/mapping_timing_diamond_2023.xml'),
+    mappingFileNames = cms.vstring('CondFormats/PPSObjects/xml/mapping_totem_nt2_2023_final.xml'),
     maskFileNames = cms.vstring(),
   )
 )
 
 #Database output service
 process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = "sqlite_file:CTPPSDiamondsScript_DAQMapping.db"
+process.CondDB.connect = "sqlite_file:CTPPST2_DAQMapping.db"
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,
     timetype = cms.untracked.string('runnumber'),

@@ -29,34 +29,35 @@ public:
 
 private:
   /// label of the CTPPS sub-system
-  std::string subSystemName;
-  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken;
-  edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken;
+  const std::string subSystemName_;
+  const edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken_;
+  const edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken_;
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
-    : subSystemName(ps.getUntrackedParameter<std::string>("subSystem")),
-      mappingToken(esConsumes(edm::ESInputTag("", subSystemName))),
-      maskToken(esConsumes(edm::ESInputTag("", subSystemName))) {}
+    : subSystemName_(ps.getUntrackedParameter<std::string>("subSystem")),
+      mappingToken_(esConsumes(edm::ESInputTag("", subSystemName_))),
+      maskToken_(esConsumes(edm::ESInputTag("", subSystemName_))) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get mapping
-  if (auto mappingHandle = es.getHandle(mappingToken)) {
+  if (auto mappingHandle = es.getHandle(mappingToken_)) {
     auto const &mapping = *mappingHandle;
-    edm::LogPrint("PrintTotemDAQMapping") << mapping;
+    edm::LogInfo("PrintTotemDAQMapping mapping");
+    mapping.print(std::cout, subSystemName_);
   } else {
-    edm::LogError("PrintTotemDAQMapping mapping") << "No mapping found";
+    edm::LogError("PrintTotemDAQMapping mapping") << "PrintTotemDAQMapping: No mapping found";
   }
 
   // get analysis mask to mask channels
-  if (auto analysisMaskHandle = es.getHandle(maskToken)) {
+  if (auto analysisMaskHandle = es.getHandle(maskToken_)) {
     auto const &analysisMask = *analysisMaskHandle;
     edm::LogPrint("PrintTotemDAQMapping") << analysisMask;
   } else {
-    edm::LogError("PrintTotemDAQMapping mask") << "No analysis mask found";
+    edm::LogError("PrintTotemDAQMapping mask") << "PrintTotemDAQMapping: No analysis mask found";
   }
 }
 

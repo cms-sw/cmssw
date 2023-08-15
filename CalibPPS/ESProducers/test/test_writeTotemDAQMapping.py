@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-minIov = 362920
+minIov = 368023
 maxIov = 999999999
-subSystemName = "TimingDiamond"
+subSystemName = "TotemT2"
 
 process = cms.Process('test')
 
@@ -24,18 +24,19 @@ process.source = cms.Source("EmptyIOVSource",
 # load a mapping from XML
 process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
 process.totemDAQMappingESSourceXML.subSystem = subSystemName
-process.totemDAQMappingESSourceXML.sampicSubDetId = cms.uint32(6)
+process.totemDAQMappingESSourceXML.sampicSubDetId = cms.uint32(7)
+process.totemDAQMappingESSourceXML.multipleChannelsPerPayload = True
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
     validityRange = cms.EventRange(f"{minIov}:min - {maxIov}:max"),
-    mappingFileNames = cms.vstring('CondFormats/PPSObjects/xml/mapping_timing_diamond_2023.xml'),
+    mappingFileNames = cms.vstring('CondFormats/PPSObjects/xml/mapping_totem_nt2_2023_final.xml'),
     maskFileNames = cms.vstring(),
   )
 )
 
 # load a mapping from DB
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = "sqlite_file:CTPPSDiamondsScript_DAQMapping.db"
+process.CondDB.connect = "sqlite_file:CTPPST2_DAQMapping.db"
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
     toGet = cms.VPSet(
@@ -53,12 +54,12 @@ process.PoolDBESSource = cms.ESSource('PoolDBESSource',
 )
 
 # prefer to read mapping from DB than from XML or otherwise
-process.es_prefer_totemTimingMapping = cms.ESPrefer("PoolDBESSource", "",                 TotemReadoutRcd=cms.vstring(f"TotemDAQMapping/TimingDiamond"))
+process.es_prefer_totemTimingMapping = cms.ESPrefer("PoolDBESSource", "",                 TotemReadoutRcd=cms.vstring(f"TotemDAQMapping/TotemT2"))
 
 # print the mapping
 process.writeTotemDAQMapping = cms.EDAnalyzer("WriteTotemDAQMapping",
   subSystem = cms.untracked.string(subSystemName),
-  fileName = cms.untracked.string("all_diamonds_db.txt")
+  fileName = cms.untracked.string("all_t2_db.txt")
 )
 
 process.path = cms.Path(

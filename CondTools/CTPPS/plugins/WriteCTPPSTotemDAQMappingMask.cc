@@ -61,16 +61,18 @@ void WriteCTPPSTotemDAQMappingMask::analyze(const edm::Event &, edm::EventSetup 
 
   if (auto mappingHandle = es.getHandle(tokenMapping)) {
     const auto &mapping = es.getData(tokenMapping);
-    edm::LogInfo("WriteCTPPSTotemDAQMappingMask mapping") << mapping;
+    edm::LogInfo("WriteCTPPSTotemDAQMappingMask mapping");
+    mapping.print(std::cout, label);
 
     if (poolDbService.isAvailable()) {
       poolDbService->writeOneIOV(mapping, daqMappingIov, recordMap);
     } else {
-      edm::LogError("WriteCTPPSTotemDAQMappingMask mask") << "PoolDBService not availible. Data not written.";
+      edm::LogError("WriteCTPPSTotemDAQMappingMask mask")
+          << "WriteCTPPSTotemDAQMappingMask: PoolDBService not availible. Data not written.";
     }
 
   } else {
-    edm::LogError("WriteCTPPSTotemDAQMappingMask mapping") << "No mapping found";
+    edm::LogError("WriteCTPPSTotemDAQMappingMask mapping") << "WriteCTPPSTotemDAQMappingMask: No mapping found";
   }
 
   if (auto maskHandle = es.getHandle(tokenAnalysisMask)) {
@@ -80,10 +82,11 @@ void WriteCTPPSTotemDAQMappingMask::analyze(const edm::Event &, edm::EventSetup 
     if (poolDbService.isAvailable()) {
       poolDbService->writeOneIOV(analysisMask, daqMappingIov, recordMask);
     } else {
-      edm::LogError("WriteCTPPSTotemDAQMappingMask mask") << "PoolDBService not availible. Data not written.";
+      edm::LogError("WriteCTPPSTotemDAQMappingMask mask")
+          << "WriteCTPPSTotemDAQMappingMask: PoolDBService not availible. Data not written.";
     }
   } else {
-    edm::LogError("WriteCTPPSTotemDAQMappingMask mask") << "No analysis mask found";
+    edm::LogError("WriteCTPPSTotemDAQMappingMask mask") << "WriteCTPPSTotemDAQMappingMask: No analysis mask found";
   }
 }
 

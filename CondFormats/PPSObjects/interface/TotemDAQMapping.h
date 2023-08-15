@@ -31,6 +31,8 @@ public:
 
   friend std::ostream& operator<<(std::ostream& s, const TotemVFATInfo& fp);
 
+  void print(std::ostream& os, std::string subSystemName) const;
+
   COND_SERIALIZABLE;
 };
 
@@ -55,7 +57,7 @@ public:
 
   void insert(const TotemFramePosition& fp, const TotemVFATInfo& vi);
   void insert(const TotemT2FramePosition& fp2, const TotemVFATInfo& vi);
-  void print(std::ostream& os) const;
+  void print(std::ostream& os, std::string subSystemName) const;
 
   /// Given the hardware ID, returns the corresponding Plane, Channel pair (TotemTimingPlaneChannelPair)
   const TotemTimingPlaneChannelPair getTimingChannel(const uint8_t hwId) const;

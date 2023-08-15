@@ -1,7 +1,3 @@
-/****************************************************************************
- *
- ****************************************************************************/
-
 #include "CondFormats/DataRecord/interface/TotemAnalysisMaskRcd.h"
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
@@ -27,39 +23,39 @@ public:
 
 private:
   /// label of the CTPPS sub-system
-  std::string subSystemName;
-  std::ofstream outStream;
-  const edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken;
-  const edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken;
+  const std::string subSystemName_;
+  std::ofstream outStream_;
+  const edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken_;
+  const edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken_;
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 WriteTotemDAQMapping::WriteTotemDAQMapping(const edm::ParameterSet &ps)
-    : subSystemName(ps.getUntrackedParameter<std::string>("subSystem")),
-      outStream(ps.getUntrackedParameter<std::string>("fileName"), std::ios_base::app),
-      mappingToken(esConsumes(edm::ESInputTag("", subSystemName))),
-      maskToken(esConsumes(edm::ESInputTag("", subSystemName))) {}
+    : subSystemName_(ps.getUntrackedParameter<std::string>("subSystem")),
+      outStream_(ps.getUntrackedParameter<std::string>("fileName"), std::ios_base::app),
+      mappingToken_(esConsumes(edm::ESInputTag("", subSystemName_))),
+      maskToken_(esConsumes(edm::ESInputTag("", subSystemName_))) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void WriteTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get mapping
-  if (auto mappingHandle = es.getHandle(mappingToken)) {
+  if (auto mappingHandle = es.getHandle(mappingToken_)) {
     auto const &mapping = *mappingHandle;
-    outStream << mapping;
+    mapping.print(outStream_, subSystemName_);
   } else {
-    edm::LogError("WriteTotemDAQMapping mapping") << "No mapping found";
+    edm::LogError("WriteTotemDAQMapping mapping") << "WriteTotemDAQMapping: No mapping found";
   }
 
   // get analysis mask to mask channels
-  if (auto analysisMaskHandle = es.getHandle(maskToken)) {
+  if (auto analysisMaskHandle = es.getHandle(maskToken_)) {
     auto const &analysisMask = *analysisMaskHandle;
-    outStream << analysisMask;
+    outStream_ << analysisMask;
   } else {
-    edm::LogError("WriteTotemDAQMapping mask") << "No analysis mask found";
+    edm::LogError("WriteTotemDAQMapping mask") << "WriteTotemDAQMapping: No analysis mask found";
   }
 
-  outStream.close();
+  outStream_.close();
 }
 
 //----------------------------------------------------------------------------------------------------

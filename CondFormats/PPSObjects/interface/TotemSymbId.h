@@ -20,6 +20,8 @@ public:
   /// chip ID, raw integer representation of DetId class
   unsigned int symbolicID;
 
+  void print(std::ostream &os, std::string subSystemName) const;
+
   bool operator<(const TotemSymbID &sid) const { return (symbolicID < sid.symbolicID); }
 
   bool operator==(const TotemSymbID &sid) const { return (symbolicID == sid.symbolicID); }
