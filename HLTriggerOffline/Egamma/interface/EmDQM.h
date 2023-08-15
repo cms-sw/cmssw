@@ -92,8 +92,6 @@ private:
 
   // run in automatic configuration generation mode
   bool autoConfMode_;
-  // parameter set from config file
-  const edm::ParameterSet &pset;
   // global parameters
   edm::InputTag triggerObject_;
   unsigned int verbosity_;
