@@ -1,5 +1,5 @@
 #-------------------------------------
-#	Hcal DQM Application using New DQM Sources/Clients
+#	Pixel DQM Application using New DQM Sources/Clients
 #-------------------------------------
 
 #-------------------------------------
@@ -12,12 +12,12 @@ import os, sys, socket, string
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_cff import Run3
-process      = cms.Process('HCALDQM', Run3)
-subsystem    = 'Hcal'
+process      = cms.Process('PIXELDQMLIVE', Run3)
+subsystem    = 'Pixel'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
-debugstr     = "### HcalDQM::cfg::DEBUG: "
-warnstr      = "### HcalDQM::cfg::WARN: "
-errorstr     = "### HcalDQM::cfg::ERROR:"
+debugstr     = "### PixelDQM::cfg::DEBUG: "
+warnstr      = "### PixelDQM::cfg::WARN: "
+errorstr     = "### PixelDQM::cfg::ERROR:"
 useOfflineGT = False
 useFileInput = False
 useMap       = False
@@ -32,13 +32,13 @@ if 'unitTest=True' in sys.argv:
 #-------------------------------------
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
-	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-	process.GlobalTag.globaltag = autoCond['run3_data_prompt'] 
+        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+        process.GlobalTag.globaltag = autoCond['run3_data_prompt'] 
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if unitTest:
-        process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
-        from DQM.Integration.config.unitteststreamerinputsource_cfi import options
+	process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+	from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 elif useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
 	from DQM.Integration.config.fileinputsource_cfi import options
@@ -52,9 +52,9 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 process.source.streamLabel = cms.untracked.string("streamDQMGPUvsCPU")
 process.dqmEnv.subSystemFolder = subsystem
-process.dqmSaver.tag = 'HcalGPU'
+process.dqmSaver.tag = 'PixelGPU'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HcalGPU'
+process.dqmSaverPB.tag = 'PixelGPU'
 process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
@@ -63,24 +63,13 @@ if not unitTest and not useFileInput :
     process.source.minEventsPerLumi = 100
 
 #-------------------------------------
-#	CMSSW/Hcal non-DQM Related Module import
+#	CMSSW/Pixel non-DQM Related Module import
 #-------------------------------------
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
-process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
-process.load('EventFilter.CastorRawToDigi.CastorRawToDigi_cff')
-process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
 #-------------------------------------
-#	CMSSW/Hcal non-DQM Related Module Settings
-#	-> runType
-#	-> Generic Input tag for the Raw Collection
-#	-> cmssw version
-#	-> Turn off default blocking of dead channels from rechit collection
-#	-> Drop Channel Status Bits (had benn 'HcalCellOff', "HcalCellDead")
-#	-> For Trigger Primitives Emulation
-#	-> L1 GT setting
-#	-> Rename the hbheprereco to hbhereco
+#	CMSSW non-DQM Related Module Settings
 #-------------------------------------
 runType			= process.runType.getRunType()
 runTypeName		= process.runType.getRunTypeName()
@@ -88,48 +77,37 @@ isCosmicRun		= runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
 isHeavyIon		= runTypeName=="hi_run"
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 
-
 #-------------------------------------
-#	Hcal DQM Tasks and Harvesters import
-#	New Style
+#	Pixel DQM Tasks and Harvesters import
 #-------------------------------------
-process.load('DQM.HcalTasks.hcalGPUComparisonTask_cfi')
-process.load('DQM.HcalTasks.HcalOnlineHarvesting')
-process.load('DQM.HcalTasks.HcalQualityTests')
+process.load('DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff')
 
 #-------------------------------------
 #	Some Settings before Finishing up
-#	New Style Modules
 #-------------------------------------
-oldsubsystem = subsystem
-process.hcalGPUComparisonTask.tagHBHE_ref = "hltHbherecoLegacy"
-process.hcalGPUComparisonTask.tagHBHE_target = "hltHbherecoFromGPU"
-process.hcalGPUComparisonTask.runkeyVal = runType
-process.hcalGPUComparisonTask.runkeyName = runTypeName
+process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcGPU = cms.InputTag('hltSiPixelDigisFromSoA')
+process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcCPU = cms.InputTag('hltSiPixelDigisLegacy')
+
+#-------------------------------------
+#       Some Debug
+#-------------------------------------
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
+process.dumpPath = cms.Path(process.dump)
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
 #-------------------------------------
-process.tasksPath = cms.Path(
-		process.hcalGPUComparisonTask
-)
+process.tasksPath = cms.Path(process.siPixelPhase1RawDataErrorComparator)
 
 #-------------------------------------
 #	Paths/Sequences Definitions
 #-------------------------------------
-
-process.dqmPath = cms.EndPath(
-		process.dqmEnv)
-process.dqmPath1 = cms.EndPath(
-		process.dqmSaver
-		*process.dqmSaverPB
-)
-
-process.schedule = cms.Schedule(
-	process.tasksPath,
-	process.dqmPath,
-	process.dqmPath1
-)
+process.dqmPath = cms.EndPath(process.dqmEnv)
+process.dqmPath1 = cms.EndPath(process.dqmSaver*process.dqmSaverPB)
+process.schedule = cms.Schedule(process.tasksPath,
+                                #process.dumpPath,  # for debug
+                                process.dqmPath,
+                                process.dqmPath1)
 
 #-------------------------------------
 #	Scheduling and Process Customizations

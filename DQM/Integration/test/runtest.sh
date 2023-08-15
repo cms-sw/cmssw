@@ -16,4 +16,10 @@ if [[ -z ${CLIENTS_DIR} ]]; then
 fi
 
 mkdir -p $LOCAL_TEST_DIR/upload
-cmsRun $CLIENTS_DIR/$1 unitTest=True
+
+if [[ $# -eq 1 ]]; then
+    cmsRun $CLIENTS_DIR/$1 unitTest=True
+else
+    echo "Will use streamers files for run $2"
+    cmsRun $CLIENTS_DIR/$1 unitTest=True runNumber=$2
+fi
