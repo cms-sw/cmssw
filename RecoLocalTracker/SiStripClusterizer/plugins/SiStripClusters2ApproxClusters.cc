@@ -9,10 +9,11 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -83,13 +84,13 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
   csfToken_ = esConsumes(edm::ESInputTag("", csfLabel_));
 
   stripNoiseToken_ = esConsumes();
-
-  produces<edmNew::DetSetVector<SiStripApproximateCluster> >();
+  produces<SiStripApproximateClusterCollection>();
 }
 
 void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup const& iSetup) {
-  auto result = std::make_unique<edmNew::DetSetVector<SiStripApproximateCluster> >();
   const auto& clusterCollection = event.get(clusterToken);
+  auto result = std::make_unique<SiStripApproximateClusterCollection>();
+  result->reserve(clusterCollection.size(), clusterCollection.dataSize());
 
   auto const beamSpotHandle = event.getHandle(beamSpotToken_);
   auto const& bs = beamSpotHandle.isValid() ? *beamSpotHandle : reco::BeamSpot();
@@ -103,7 +104,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
   const auto& theNoise_ = &iSetup.getData(stripNoiseToken_);
 
   for (const auto& detClusters : clusterCollection) {
-    edmNew::DetSetVector<SiStripApproximateCluster>::FastFiller ff{*result, detClusters.id()};
+    auto ff = result->beginDet(detClusters.id());
 
     unsigned int detId = detClusters.id();
     const GeomDet* det = tkGeom->idToDet(detId);
