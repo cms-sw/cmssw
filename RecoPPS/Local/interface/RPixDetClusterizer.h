@@ -54,7 +54,6 @@ public:
 private:
   std::set<CTPPSPixelDigi> rpix_digi_set_;
   std::map<unsigned int, RPixCalibDigi> calib_rpix_digi_map_;
-  const edm::ParameterSet &params_;
   int verbosity_;
   unsigned short SeedADCThreshold_;
   unsigned short ADCThreshold_;
