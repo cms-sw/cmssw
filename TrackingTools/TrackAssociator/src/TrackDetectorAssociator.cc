@@ -49,6 +49,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include <stack>
@@ -666,31 +667,15 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       float halfWidthAtYPrime = 0.5f * narrowWidth + yPrime * tangent;
       distanceX = std::abs(localPoint.x()) - halfWidthAtYPrime;
       distanceY = std::abs(localPoint.y() - yCOWPOffset) - 0.5f * length;
-    } else if (const GEMEtaPartition* gemetapartition = dynamic_cast<const GEMEtaPartition*>(geomDet)) {
-      
-      const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
-
-      float wideWidth = bounds->width();
-      float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
-      //float length = bounds->length();
-      const GEMEtaPartitionSpecs* gemetapartitionspecs = gemetapartition->specs();
-      std::vector<float> _p = gemetapartitionspecs->parameters();
-      float length = 2.f * _p[2];
-      float tangent = (wideWidth - narrowWidth) / (2.f * length);
-      float halfWidthAtY = tangent * localPoint.y() + 0.5f * narrowWidth;
-      
-      distanceX = std::abs(localPoint.x()) - halfWidthAtY;
-      distanceY = std::abs(localPoint.y() - 0.5f * length) - 0.5f * length;
-    } else if (const GEMSuperChamber* gemsuperchamber = dynamic_cast<const GEMSuperChamber*>(geomDet)) {
-      
+    } else if (dynamic_cast<const GEMChamber*>(geomDet) || dynamic_cast<const GEMSuperChamber*>(geomDet)) {
       const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
 
       float wideWidth = bounds->width();
       float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
       float length = bounds->length();
       float tangent = (wideWidth - narrowWidth) / (2.f * length);
-      float halfWidthAtY = tangent * localPoint.y() + 0.5f * narrowWidth;
-      
+      float halfWidthAtY = tangent * localPoint.y() + 0.25f * (narrowWidth+wideWidth);
+
       distanceX = std::abs(localPoint.x()) - halfWidthAtY;
       distanceY = std::abs(localPoint.y()) - 0.5f * length;
     } else {
