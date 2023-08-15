@@ -11,6 +11,7 @@
 #include "TPaveStats.h"
 #include "TStyle.h"
 #include "TList.h"
+#include "TLatex.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -32,8 +33,27 @@ namespace AlignmentPI {
   // size of the phase-I Tracker APE payload (including both SS + DS modules)
   static const unsigned int phase0size = 19876;
   static const unsigned int phase1size = 20292;
+  static const unsigned int mismatched = 99999;
   static const float cmToUm = 10000.f;
   static const float tomRad = 1000.f;
+
+  /*--------------------------------------------------------------------*/
+  inline void displayNotSupported(TCanvas& canv, const unsigned int size)
+  /*--------------------------------------------------------------------*/
+  {
+    std::string phase = (size < AlignmentPI::phase1size) ? "Phase-0" : "Phase-2";
+    canv.cd();
+    TLatex t2;
+    t2.SetTextAlign(21);
+    t2.SetTextSize(0.1);
+    t2.SetTextAngle(45);
+    t2.SetTextColor(kRed);
+    if (size != AlignmentPI::mismatched) {
+      t2.DrawLatexNDC(0.6, 0.50, Form("%s  NOT SUPPORTED!", phase.c_str()));
+    } else {
+      t2.DrawLatexNDC(0.6, 0.50, "MISMATCHED PAYLOAD SIZE!");
+    }
+  }
 
   // method to zero all elements whose difference from 2Pi
   // is less than the tolerance (2*10e-7)
