@@ -14,9 +14,16 @@ particleTableTask = cms.Task(particleScoutingTable)
 ak4JetTableTask = cms.Task(ak4ScoutingJets,ak4ScoutingJetParticleNetJetTagInfos,ak4ScoutingJetParticleNetJetTags,ak4ScoutingJetTable)
 ak8JetTableTask = cms.Task(ak8ScoutingJets,ak8ScoutingJetsSoftDrop,ak8ScoutingJetsSoftDropMass,ak8ScoutingJetEcfNbeta1,ak8ScoutingJetNjettiness,ak8ScoutingJetParticleNetJetTagInfos,ak8ScoutingJetParticleNetJetTags,ak8ScoutingJetParticleNetMassRegressionJetTags,ak8ScoutingJetTable)
 
-gtStage2Digis.InputLabel = cms.InputTag("hltFEDSelectorL1")
-triggerTask = cms.Task(unpackedPatTrigger,triggerObjectTable,l1bits)
-triggerSequence = cms.Sequence(L1TRawToDigi+patTrigger+selectedPatTrigger+slimmedPatTrigger+cms.Sequence(triggerTask))
+gtStage2DigisScouting = gtStage2Digis.clone(InputLabel="hltFEDSelectorL1")
+l1bitsScouting = l1bits.clone(src="gtStage2DigisScouting")
+patTriggerScouting = patTrigger.clone(l1tAlgBlkInputTag="gtStage2DigisScouting",l1tExtBlkInputTag="gtStage2DigisScouting")
+selectedPatTriggerScouting = selectedPatTrigger.clone(src="patTriggerScouting")
+slimmedPatTriggerScouting = slimmedPatTrigger.clone(src="selectedPatTriggerScouting")
+unpackedPatTriggerScouting = unpackedPatTrigger.clone(patTriggerObjectsStandAlone="slimmedPatTriggerScouting")
+triggerObjectTableScouting = triggerObjectTable.clone(src="unpackedPatTriggerScouting")
+
+triggerTask = cms.Task(gtStage2DigisScouting,unpackedPatTriggerScouting,triggerObjectTableScouting,l1bitsScouting)
+triggerSequence = cms.Sequence(L1TRawToDigi+patTriggerScouting+selectedPatTriggerScouting+slimmedPatTriggerScouting+cms.Sequence(triggerTask))
 
 # MC tasks
 genJetTask = cms.Task(ak4ScoutingJetMatchGen,ak4ScoutingJetExtTable,ak8ScoutingJetMatchGen,ak8ScoutingJetExtTable)
