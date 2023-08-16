@@ -13,7 +13,9 @@
   <use name="CondFormats/Alignment"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="Alignment/CommonAlignment"/>
+  <use name="CalibTracker/SiPixelESProducers"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
 </library>
 
 <library file="TrackerSurfaceDeformations_PayloadInspector.cc" name="TrackerSurfaceDeformations_PayloadInspector">
