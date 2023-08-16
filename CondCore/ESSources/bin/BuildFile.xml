@@ -1,0 +1,3 @@
+<bin file="condRecordToDataProduct.cc" name="condRecordToDataProduct">
+  <use name="CondCore/ESSources"/>
+</bin>

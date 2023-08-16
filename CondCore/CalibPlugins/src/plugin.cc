@@ -54,8 +54,26 @@ namespace {
   };
 }  // namespace
 
+namespace cond::serialization {
+  template <>
+  struct BaseClassInfo<condex::Efficiency> {
+    constexpr static bool kAbstract = true;
+    using inheriting_classes_t = edm::mpl::Vector<condex::ParametricEfficiencyInPt, condex::ParametricEfficiencyInEta>;
+  };
+
+  template <>
+  struct BaseClassInfo<BaseKeyed> {
+    constexpr static bool kAbstract = false;
+    using inheriting_classes_t = edm::mpl::Vector<condex::ConfI>;
+  };
+}  // namespace cond::serialization
+
+DEFINE_COND_CLASSNAME(condex::ParametricEfficiencyInPt)
+DEFINE_COND_CLASSNAME(condex::ParametricEfficiencyInEta)
+DEFINE_COND_CLASSNAME(condex::ConfI)
+
 REGISTER_PLUGIN(PedestalsRcd, Pedestals);
-REGISTER_PLUGIN(anotherPedestalsRcd, Pedestals);
+REGISTER_PLUGIN_NO_SERIAL(anotherPedestalsRcd, Pedestals);
 REGISTER_PLUGIN(mySiStripNoisesRcd, mySiStripNoises);
 REGISTER_PLUGIN_INIT(ExEfficiencyRcd, condex::Efficiency, InitEfficiency);
 REGISTER_PLUGIN(ExDwarfRcd, cond::BaseKeyed);
