@@ -233,7 +233,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2021/v2/hcalSimNumbering.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2021/v1/hcalSimNumbering.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2021/v1/hcalRecNumbering.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml'/>
@@ -353,8 +353,8 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_123.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/RP_Dist_Beam_Cent/Simu/v1/RP_Dist_Beam_Cent.xml'/>
     <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v1/hcalsenspmf.xml'/>
-    <Include ref='Geometry/HcalSimData/data/hf/v1/hf.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v2/hcalsenspmf.xml'/>
+    <Include ref='Geometry/HcalSimData/data/hf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>
     <Include ref='Geometry/HcalSimData/data/CaloUtil/2021/v1/CaloUtil.xml'/>
