@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixelTracksHitSeeds = cms.EDProducer("CAHitQuadrupletEDProducer",
+hltPhase2PixelTracksHitSeeds = cms.EDProducer("CAHitQuadrupletEDProducer",
     CAHardPtCut = cms.double(0.0),
     CAPhiCut = cms.double(0.2),
     CAThetaCut = cms.double(0.0012),
@@ -9,7 +9,7 @@ pixelTracksHitSeeds = cms.EDProducer("CAHitQuadrupletEDProducer",
         clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
         clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
     ),
-    doublets = cms.InputTag("pixelTracksHitDoublets"),
+    doublets = cms.InputTag("hltPhase2PixelTracksHitDoublets"),
     extraHitRPhitolerance = cms.double(0.032),
     fitFastCircle = cms.bool(True),
     fitFastCircleChi2Cut = cms.bool(True),

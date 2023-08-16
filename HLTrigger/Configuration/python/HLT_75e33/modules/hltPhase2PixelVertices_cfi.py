@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixelVertices = cms.EDProducer("PixelVertexProducer",
+hltPhase2PixelVertices = cms.EDProducer("PixelVertexProducer",
     Finder = cms.string('DivisiveVertexFinder'),
     Method2 = cms.bool(True),
     NTrkMin = cms.int32(2),
@@ -8,7 +8,7 @@ pixelVertices = cms.EDProducer("PixelVertexProducer",
         refToPSet_ = cms.string('pSetPvClusterComparerForIT')
     ),
     PtMin = cms.double(1.0),
-    TrackCollection = cms.InputTag("pixelTracks"),
+    TrackCollection = cms.InputTag("hltPhase2PixelTracks"),
     UseError = cms.bool(True),
     Verbosity = cms.int32(0),
     WtAverage = cms.bool(True),
