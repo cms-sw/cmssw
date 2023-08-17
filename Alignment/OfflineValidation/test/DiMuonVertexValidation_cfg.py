@@ -228,12 +228,10 @@ process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 ####################################################################
 # Sequence
 ####################################################################
-process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
 process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
                                         # in case NavigatioSchool is set !=''
                                         #process.MeasurementTrackerEvent*
-                                        process.TrackRefitter,
-                                        cms.Task(process.SiPixelTemplateStoreESProducer))
+                                        process.TrackRefitter)
 
 ####################################################################
 # Re-do vertices

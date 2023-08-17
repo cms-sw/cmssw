@@ -150,10 +150,8 @@ process.TFileService = cms.Service("TFileService",
 ####################################################################
 # Path
 ####################################################################
-process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
 process.p = cms.Path(process.MeasurementTrackerEvent*
                      process.offlineBeamSpot*
                      process.AlignmentTrackSelector*
                      process.TrackRefitter*
-                     process.energyOverMomentumTree,
-                     cms.Task(process.SiPixelTemplateStoreESProducer))
+                     process.energyOverMomentumTree)

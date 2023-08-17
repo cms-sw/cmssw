@@ -78,8 +78,7 @@ closebyPixelClusters = NearbyPixelClusters.NearbyPixelClustersProducer.clone(clu
 ##################################################################
 from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
 ALCARECOSiPixelCalSingleMuonTightOffTrackClusters = cms.Sequence(ALCARECOSiPixelCalSingleMuonTightTracksRefit +
-                                                                 closebyPixelClusters ,
-                                                                 cms.Task(SiPixelTemplateStoreESProducer))
+                                                                 closebyPixelClusters)
 
 ##################################################################
 # Producer of distances value map

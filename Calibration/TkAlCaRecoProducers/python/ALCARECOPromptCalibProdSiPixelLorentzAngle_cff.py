@@ -67,6 +67,5 @@ seqALCARECOPromptCalibProdSiPixelLorentzAngle = cms.Sequence(
     ALCARECOCalSignleMuonFilterForSiPixelLorentzAngle *
     ALCARECOPixelLATrackFilterRefit *
     ALCARECOSiPixelLACalib *
-    MEtoEDMConvertSiPixelLorentzAngle,
-    cms.Task(SiPixelTemplateStoreESProducer)
+    MEtoEDMConvertSiPixelLorentzAngle
    )
