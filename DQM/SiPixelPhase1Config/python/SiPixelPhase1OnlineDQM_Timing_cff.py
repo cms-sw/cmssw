@@ -115,8 +115,7 @@ siPixelPhase1OnlineDQM_source = cms.Sequence(
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer
- + SiPixelPhase1TrackResidualsAnalyzer,
- cms.Task(SiPixelTemplateStoreESProducer)   
+ + SiPixelPhase1TrackResidualsAnalyzer
 )
 
 siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
@@ -150,8 +149,7 @@ siPixelPhase1OnlineDQM_source_cosmics = cms.Sequence(
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer_cosmics
- + SiPixelPhase1TrackResidualsAnalyzer_cosmics,
- cms.Task(SiPixelTemplateStoreESProducer)
+ + SiPixelPhase1TrackResidualsAnalyzer_cosmics
 )
 
 ## Additional settings for pp_run (Phase 0 test)
@@ -179,7 +177,6 @@ siPixelPhase1OnlineDQM_source_pprun = cms.Sequence(
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer_pprun
  + SiPixelPhase1TrackResidualsAnalyzer_pprun
- + SiPixelPhase1TrackEfficiencyAnalyzer_pprun,
- cms.Task(SiPixelTemplateStoreESProducer)
+ + SiPixelPhase1TrackEfficiencyAnalyzer_pprun
 )
 
