@@ -5,7 +5,9 @@ import argparse
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test TryToContinue exception handling.')
 
-parser.add_argument("--useTask", help="Have filter succeed", action="store_true")
+parser.add_argument("--useTask", help="Put failing module in a Task", action="store_true")
+parser.add_argument("--inRun", help="throw exception in begin run", action="store_true")
+parser.add_argument("--inLumi", help="throw exception in begin lumi", action="store_true")
 
 argv = sys.argv[:]
 if '--' in argv:
@@ -19,7 +21,12 @@ process.source = cms.Source("EmptySource")
 process.options.TryToContinue = ['NotFound']
 process.maxEvents.input = 3
 
-process.fail = cms.EDProducer("FailingProducer")
+if args.inRun:
+    process.fail = cms.EDProducer("edmtest::FailingInRunProducer")
+elif args.inLumi:
+    process.fail = cms.EDProducer("edmtest::FailingInLumiProducer")
+else:
+    process.fail = cms.EDProducer("FailingProducer")
 
 process.shouldRun1 = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(6+3), verbose = cms.untracked.bool(False))
 process.shouldRun2 = cms.EDAnalyzer("edmtest::global::StreamIntAnalyzer", transitions = cms.int32(6+3), verbose = cms.untracked.bool(False))
@@ -43,6 +50,17 @@ process.independentAnalyzer = cms.EDAnalyzer("TestFindProduct",
   expectedSum = cms.untracked.int32(30)
 )
 
+if args.inRun:
+    process.independentAnalyzer.expectedSum = 0
+    process.shouldRun1.transitions=2
+    process.shouldRun2.transitions=2
+    process.shouldNotRun.transitions=2
+
+if args.inLumi:
+    process.independentAnalyzer.expectedSum = 0
+    process.shouldRun1.transitions=4
+    process.shouldRun2.transitions=4
+    process.shouldNotRun.transitions=4
 
 process.seq = cms.Sequence()
 process.t = cms.Task(process.intProd,process.addInts)
