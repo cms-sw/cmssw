@@ -3,7 +3,6 @@
 
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -64,7 +63,6 @@ public:
 
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> siPixelBadModuleToken_;
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleSimRcd> siPixelLorentzAngleToken_;
-  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> fedCablingMapToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 };
 #endif
