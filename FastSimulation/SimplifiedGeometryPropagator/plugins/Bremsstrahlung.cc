@@ -146,6 +146,7 @@ void fastsim::Bremsstrahlung::interact(fastsim::Particle & particle, const Simpl
     // Needed to rotate photons to the lab frame
     double theta = particle.momentum().Theta();
     double phi = particle.momentum().Phi();
+    double m2dontchange = particle.momentum().mass()*particle.momentum().mass();
     
     // Calculate energy of these photons and add them to the event
     for(unsigned int i=0; i<nPhotons; ++i) 
@@ -164,6 +165,9 @@ void fastsim::Bremsstrahlung::interact(fastsim::Particle & particle, const Simpl
         
         // Update the original e+/-
         particle.momentum() -= photonMom;
+        
+        // Reset mass to original, since the above codes for decay e->e+gamma, ignoring proton
+        particle.momentum().SetXYZT(particle.momentum().px(),particle.momentum().py(), particle.momentum().pz(),sqrt(pow(particle.momentum().P(),2)+m2dontchange));
     }
 }   
 
