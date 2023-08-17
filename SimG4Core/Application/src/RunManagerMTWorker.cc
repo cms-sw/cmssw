@@ -148,7 +148,8 @@ struct RunManagerMTWorker::TLSData {
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::ConsumesCollector&& iC)
     : m_generator(p.getParameter<edm::ParameterSet>("Generator")),
-      m_InToken(iC.consumes<edm::HepMCProduct>(p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
+      m_InToken(iC.consumes<edm::HepMCProduct>(
+          p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
       m_theLHCTlinkToken(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(p.getParameter<bool>("NonBeamEvent")),
       m_UseG4EventManager(p.getParameter<bool>("UseG4EventManager")),
@@ -205,7 +206,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker is constructed for the thread " << id;
   unsigned int k = 0;
   for (std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>>::const_iterator itr =
-	 m_sdMakers.begin(); itr != m_sdMakers.end(); ++itr, ++k) {
+           m_sdMakers.begin();
+       itr != m_sdMakers.end();
+       ++itr, ++k) {
     edm::LogVerbatim("SimG4CoreApplication") << "SD[" << k << "] " << itr->first;
   }
 }
@@ -217,8 +220,7 @@ RunManagerMTWorker::~RunManagerMTWorker() {
 
 void RunManagerMTWorker::beginRun(edm::EventSetup const& es) {
   int id = getThreadIndex();
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMTWorker::beginRun for the thread " << id;
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::beginRun for the thread " << id;
   for (auto& maker : m_sdMakers) {
     maker.second->beginRun(es);
   }

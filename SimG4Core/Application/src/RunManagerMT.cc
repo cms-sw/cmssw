@@ -70,7 +70,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_Init(p.getParameter<edm::ParameterSet>("Init")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")) {
-
   m_physicsList.reset(nullptr);
   m_world.reset(nullptr);
   m_runInterface.reset(nullptr);
@@ -342,7 +341,7 @@ void RunManagerMT::setupVoxels() {
 
 void RunManagerMT::runForPhase2() {
   const G4RegionStore* regStore = G4RegionStore::GetInstance();
-  for (auto const & r : *regStore) {
+  for (auto const& r : *regStore) {
     const G4String& name = r->GetName();
     if (name == "HGCalRegion" || name == "FastTimerRegionETL" || name == "FastTimerRegionBTL") {
       m_isPhase2 = true;
