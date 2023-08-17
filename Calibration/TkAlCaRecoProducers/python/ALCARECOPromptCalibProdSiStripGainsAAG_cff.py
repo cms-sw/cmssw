@@ -67,8 +67,7 @@ ALCARECOCalibrationTracksRefitAAG = TrackRefitter.clone(src = cms.InputTag("ALCA
 from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
 ALCARECOTrackFilterRefitAAG = cms.Sequence(ALCARECOCalibrationTracksAAG +
                                            offlineBeamSpot +
-                                           ALCARECOCalibrationTracksRefitAAG,
-                                           cms.Task(SiPixelTemplateStoreESProducer) )
+                                           ALCARECOCalibrationTracksRefitAAG )
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
