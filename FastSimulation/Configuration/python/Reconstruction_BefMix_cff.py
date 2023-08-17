@@ -49,6 +49,5 @@ reconstruction_befmix = cms.Sequence(
     * fastMatchedTrackerRecHits
     * fastMatchedTrackerRecHitCombinations
     * MeasurementTrackerEvent
-    * iterTracking,
-    cms.Task(SiPixelTemplateStoreESProducer)
+    * iterTracking
     )
