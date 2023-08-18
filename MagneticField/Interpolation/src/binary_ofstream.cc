@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <cstdint>
 
 struct binary_ofstream_error {};
 

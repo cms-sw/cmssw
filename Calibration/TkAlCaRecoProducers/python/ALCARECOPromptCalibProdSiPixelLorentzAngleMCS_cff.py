@@ -26,6 +26,7 @@ from RecoTracker.IterativeTracking.InitialStep_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
 
 ALCARECOPixelLACalibrationTracksRefitMCS = TrackRefitter.clone(src = "ALCARECOPixelLACalibrationTracksMCS",
                                                                TrajectoryInEvent = True,
@@ -65,5 +66,6 @@ seqALCARECOPromptCalibProdSiPixelLorentzAngleMCS = cms.Sequence(
     ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS *
     ALCARECOPixelLATrackFilterRefitMCS *
     ALCARECOSiPixelLACalibMCS *
-    MEtoEDMConvertSiPixelLorentzAngleMCS 
+    MEtoEDMConvertSiPixelLorentzAngleMCS,
+    cms.Task(SiPixelTemplateStoreESProducer)
    )

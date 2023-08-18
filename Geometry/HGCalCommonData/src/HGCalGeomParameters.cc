@@ -1312,6 +1312,12 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
     php.calibCellRLD_ = HGCalParameters::k_ScaleFromDDD * dummy3[1];
     php.calibCellFullLD_ = dbl_to_int(fv.vector("CalibCellFullLD"));
     php.calibCellPartLD_ = dbl_to_int(fv.vector("CalibCellPartLD"));
+  } else {
+    php.calibCellRHD_ = php.calibCellRLD_ = 0;
+    php.calibCellFullHD_.clear();
+    php.calibCellPartHD_.clear();
+    php.calibCellFullLD_.clear();
+    php.calibCellPartLD_.clear();
   }
 
   loadSpecParsHexagon8(php);
@@ -1400,6 +1406,11 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     php.layerOffset_ = 0;
   }
 
+  php.calibCellRHD_ = php.calibCellRLD_ = 0;
+  php.calibCellFullHD_.clear();
+  php.calibCellPartHD_.clear();
+  php.calibCellFullLD_.clear();
+  php.calibCellPartLD_.clear();
   for (auto const& it : vmap) {
     if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "RadiusMixBoundary")) {
       for (const auto& i : it.second)
@@ -1473,14 +1484,14 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     }
     if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
         (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
-      if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconFileHE)) {
+      if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconCassetteEE)) {
         for (auto const& it : vmap) {
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesEE")) {
             for (const auto& i : it.second)
               layerType.emplace_back(std::round(i));
           }
         }
-      } else if (php.waferMaskMode_ == siliconFileHE) {
+      } else if ((php.waferMaskMode_ == siliconFileHE) || (php.waferMaskMode_ == siliconCassetteHE)) {
         for (auto const& it : vmap) {
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesHE")) {
             for (const auto& i : it.second)
@@ -1550,7 +1561,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
   for (unsigned int k = 0; k < layerType.size(); ++k) {
     php.layerType_.emplace_back(HGCalTypes::layerType(layerType[k]));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_[k];
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back();
 #endif
   }
   for (unsigned int k = 0; k < php.layerType_.size(); ++k) {
@@ -1559,7 +1570,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
     php.layerRotV_.emplace_back(std::make_pair(cth, sth));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
-                                  << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second;
+                                  << php.layerRotV_.back().first << ":" << php.layerRotV_.back().second;
 #endif
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {

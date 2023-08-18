@@ -19,9 +19,14 @@ public:
 // propagate from glued to mono/stereo
 inline TrajectoryStateOnSurface fastProp(const TrajectoryStateOnSurface& ts, const Plane& oPlane, const Plane& tPlane) {
   GlobalVector gdir = ts.globalMomentum();
+  LocalVector ldir = tPlane.toLocal(gdir);  // fast prop!
+
+  // if ldir.z() == 0, return an invalid TrajectoryStateOnSurface
+  if (ldir.z() == 0) {
+    return TrajectoryStateOnSurface();
+  }
 
   double delta = tPlane.localZ(oPlane.position());
-  LocalVector ldir = tPlane.toLocal(gdir);  // fast prop!
   LocalPoint lPos = tPlane.toLocal(ts.globalPosition());
   LocalPoint projectedPos = lPos - ldir * delta / ldir.z();
   // we can also patch it up as only the position-errors are used...

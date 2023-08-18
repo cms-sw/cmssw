@@ -19,8 +19,6 @@ from ..modules.hltDt1DRecHits_cfi import *
 from ..modules.hltDt4DSegments_cfi import *
 from ..modules.hltEcalDetIdToBeRecovered_cfi import *
 from ..modules.hltEcalDigis_cfi import *
-from ..modules.hltEcalPreshowerDigis_cfi import *
-from ..modules.hltEcalPreshowerRecHit_cfi import *
 from ..modules.hltEcalRecHit_cfi import *
 from ..modules.hltEcalUncalibRecHit_cfi import *
 from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
@@ -60,10 +58,8 @@ from ..modules.hltParticleFlowClusterECALUncorrectedUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterHBHE_cfi import *
 from ..modules.hltParticleFlowClusterHCAL_cfi import *
-from ..modules.hltParticleFlowClusterPSUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitHBHE_cfi import *
-from ..modules.hltParticleFlowRecHitPSUnseeded_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelLayerQuadruplets_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelTracks_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelTracksHitDoublets_cfi import *
@@ -90,11 +86,9 @@ from ..modules.hltPhase2L3MuonInitialStepTrackCutClassifier_cfi import *
 from ..modules.hltPhase2L3MuonInitialStepTracks_cfi import *
 from ..modules.hltPhase2L3MuonInitialStepTracksSelectionHighPurity_cfi import *
 from ..modules.hltPhase2L3MuonMerged_cfi import *
-from ..modules.hltPhase2L3MuonPixelFitterByHelixProjections_cfi import *
-from ..modules.hltPhase2L3MuonPixelTrackFilterByKinematics_cfi import *
+from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
+from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracks_cfi import *
-from ..modules.hltPhase2L3MuonPixelTracksFilter_cfi import *
-from ..modules.hltPhase2L3MuonPixelTracksFitter_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksHitDoublets_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksHitQuadruplets_cfi import *
 from ..modules.hltPhase2L3MuonPixelTracksSeedLayers_cfi import *
@@ -116,7 +110,7 @@ from ..modules.hltPhase2L3OIMuonTrackSelectionHighPurity_cfi import *
 from ..modules.hltPhase2L3OISeedsFromL2Muons_cfi import *
 from ..modules.hltPhase2L3OITrackCandidates_cfi import *
 from ..modules.hltRpcRecHits_cfi import *
-from ..modules.hltTowerMakerForAll_cfi import *
+from ..modules.hltPhase2TowerMakerForAll_cfi import *
 from ..modules.MeasurementTrackerEvent_cfi import *
 from ..modules.siPhase2Clusters_cfi import *
 from ..modules.siPixelClusters_cfi import *
@@ -153,8 +147,6 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltDt4DSegments,
         hltEcalDetIdToBeRecovered,
         hltEcalDigis,
-        hltEcalPreshowerDigis,
-        hltEcalPreshowerRecHit,
         hltEcalRecHit,
         hltEcalUncalibRecHit,
         hltFixedGridRhoFastjetAllCaloForEGamma,
@@ -194,10 +186,8 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltParticleFlowClusterECALUnseeded,
         hltParticleFlowClusterHBHE,
         hltParticleFlowClusterHCAL,
-        hltParticleFlowClusterPSUnseeded,
         hltParticleFlowRecHitECALUnseeded,
         hltParticleFlowRecHitHBHE,
-        hltParticleFlowRecHitPSUnseeded,
         hltPhase2L3FromL1TkMuonPixelLayerQuadruplets,
         hltPhase2L3FromL1TkMuonPixelTracks,
         hltPhase2L3FromL1TkMuonPixelTracksHitDoublets,
@@ -224,11 +214,9 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltPhase2L3MuonInitialStepTracks,
         hltPhase2L3MuonInitialStepTracksSelectionHighPurity,
         hltPhase2L3MuonMerged,
-        hltPhase2L3MuonPixelFitterByHelixProjections,
-        hltPhase2L3MuonPixelTrackFilterByKinematics,
+        hltPhase2PixelFitterByHelixProjections,
+        hltPhase2PixelTrackFilterByKinematics,
         hltPhase2L3MuonPixelTracks,
-        hltPhase2L3MuonPixelTracksFilter,
-        hltPhase2L3MuonPixelTracksFitter,
         hltPhase2L3MuonPixelTracksHitDoublets,
         hltPhase2L3MuonPixelTracksHitQuadruplets,
         hltPhase2L3MuonPixelTracksSeedLayers,
@@ -250,7 +238,7 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltPhase2L3OISeedsFromL2Muons,
         hltPhase2L3OITrackCandidates,
         hltRpcRecHits,
-        hltTowerMakerForAll,
+        hltPhase2TowerMakerForAll,
         siPhase2Clusters,
         siPixelClusterShapeCache,
         siPixelClusters,

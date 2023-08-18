@@ -118,6 +118,10 @@ def customisePixelGainForRun2Input(process):
         producer.VCaltoElectronOffset_L1 = -670
 
     for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
+        producer.VCaltoElectronGain = cms.double(1.)
+        producer.VCaltoElectronGain_L1 = cms.double(1.)
+        producer.VCaltoElectronOffset = cms.double(0.)
+        producer.VCaltoElectronOffset_L1 = cms.double(0.)
         producer.isRun2 = True
 
     return process
@@ -236,6 +240,41 @@ def customizeHLTfor41815(process):
 
     return process
 
+def customizeHLTfor41632(process):
+    for producerType in [
+        'SiPixelRawToClusterCUDA',
+        'SiPixelRawToClusterCUDAPhase1',
+        'SiPixelRawToClusterCUDAHIonPhase1',
+    ]:
+        for producer in producers_by_type(process, producerType):
+            # use explicit cms.double as parameters may not already be present, and
+            # set values to the correct Run-3 values (even when the parameters are already defined)
+            producer.VCaltoElectronGain = cms.double(1.)
+            producer.VCaltoElectronGain_L1 = cms.double(1.)
+            producer.VCaltoElectronOffset = cms.double(0.)
+            producer.VCaltoElectronOffset_L1 = cms.double(0.)
+
+    return process
+
+def customizeHLTfor42410(process):
+    for producerType in [
+        'SiPixelRawToClusterCUDA',
+        'SiPixelRawToClusterCUDAPhase1',
+        'SiPixelRawToClusterCUDAHIonPhase1',
+    ]:
+        for producer in producers_by_type(process, producerType):
+            if hasattr(producer, 'isRun2'):
+                del producer.isRun2
+
+    return process
+
+def customizeHLTfor42514(process):
+    for p in esproducers_by_type(process, 'SiPixelTemplateDBObjectESProducer'):
+        process.load('RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi')
+        break
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -247,5 +286,8 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor41058(process)
     process = customizeHLTfor41495(process)
     process = customizeHLTfor41815(process)
+    process = customizeHLTfor41632(process)
+    process = customizeHLTfor42410(process)
+    process = customizeHLTfor42514(process)
 
     return process

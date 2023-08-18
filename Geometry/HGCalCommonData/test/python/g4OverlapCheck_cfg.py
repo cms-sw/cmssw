@@ -61,7 +61,6 @@ process = checkOverlap(process)
 
 # enable Geant4 overlap check 
 process.g4SimHits.CheckGeometry = True
-process.g4SimHits.OnlySDs = ['DreamSensitiveDetector']
 
 # Geant4 geometry check 
 process.g4SimHits.G4CheckOverlap.OutputBaseName = outFile

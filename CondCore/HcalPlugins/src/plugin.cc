@@ -42,6 +42,13 @@ namespace cond {
 
 }  // namespace cond
 
+namespace cond::serialization {
+  template <>
+  std::unique_ptr<HcalCalibrationQIEData> makeClass<HcalCalibrationQIEData>() {
+    return std::make_unique<HcalCalibrationQIEData>(nullptr);
+  }
+}  // namespace cond::serialization
+
 namespace {
   struct InitHcalElectronicsMap {
     void operator()(HcalElectronicsMap& e) { e.initialize(); }
@@ -99,4 +106,4 @@ REGISTER_PLUGIN(HcalSiPMParametersRcd, HcalSiPMParameters);
 REGISTER_PLUGIN_INIT(HcalSiPMCharacteristicsRcd, HcalSiPMCharacteristics, InitHcalSiPMCharacteristics);
 REGISTER_PLUGIN(HcalTPParametersRcd, HcalTPParameters);
 REGISTER_PLUGIN(HcalTPChannelParametersRcd, HcalTPChannelParameters);
-REGISTER_PLUGIN(HFPhase1PMTParamsRcd, HcalItemCollById<HFPhase1PMTData>);
+REGISTER_PLUGIN(HFPhase1PMTParamsRcd, HFPhase1PMTParams);  // is HcalItemCollById<HFPhase1PMTData>

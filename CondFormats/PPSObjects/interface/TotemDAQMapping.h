@@ -15,6 +15,7 @@
 #include "CondFormats/PPSObjects/interface/TotemT2FramePosition.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <map>
+#include <cstdint>
 
 //----------------------------------------------------------------------------------------------------
 

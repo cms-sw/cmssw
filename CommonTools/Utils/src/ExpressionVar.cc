@@ -1,5 +1,5 @@
 #include "CommonTools/Utils/src/ExpressionVar.h"
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Reflection/interface/FunctionWithDict.h"
@@ -12,34 +12,48 @@
 using namespace reco::parser;
 using namespace std;
 
-void ExpressionVar::initObjects_() {
-  objects_.resize(methods_.size());
-  std::vector<edm::ObjectWithDict>::iterator IO = objects_.begin();
-  for (std::vector<MethodInvoker>::const_iterator I = methods_.begin(), E = methods_.end(); I != E; ++IO, ++I) {
-    if (I->isFunction()) {
-      edm::TypeWithDict retType = I->method().finalReturnType();
-      needsDestructor_.push_back(makeStorage(*IO, retType));
+ExpressionVar::Objects ExpressionVar::initObjects_() const {
+  Objects objects(methods_.size(), {edm::ObjectWithDict(), false});
+  assert(objects.size() == methods_.size());
+  auto IO = objects.begin();
+  for (auto const& method : methods_) {
+    if (method.isFunction()) {
+      edm::TypeWithDict retType = method.method().finalReturnType();
+      IO->second = makeStorage(IO->first, retType);
     } else {
-      *IO = edm::ObjectWithDict();
-      needsDestructor_.push_back(false);
+      *IO = {edm::ObjectWithDict(), false};
     }
+    ++IO;
   }
+  return objects;
 }
 
 ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods, method::TypeCode retType)
     : methods_(methods), retType_(retType) {
-  initObjects_();
+  returnObjects(initObjects_());
 }
 
 ExpressionVar::ExpressionVar(const ExpressionVar& rhs) : methods_(rhs.methods_), retType_(rhs.retType_) {
-  initObjects_();
+  returnObjects(initObjects_());
 }
 
-ExpressionVar::~ExpressionVar() {
-  for (std::vector<edm::ObjectWithDict>::iterator I = objects_.begin(), E = objects_.end(); I != E; ++I) {
-    delStorage(*I);
+ExpressionVar::Objects ExpressionVar::borrowObjects() const {
+  Objects objects;
+  if (objectsCache_.try_pop(objects)) {
+    return objects;
   }
-  objects_.clear();
+  return initObjects_();
+}
+
+void ExpressionVar::returnObjects(Objects&& iOb) const { objectsCache_.push(std::move(iOb)); }
+
+ExpressionVar::~ExpressionVar() {
+  Objects objects;
+  while (objectsCache_.try_pop(objects)) {
+    for (auto& o : objects) {
+      delStorage(o.first);
+    }
+  }
 }
 
 void ExpressionVar::delStorage(edm::ObjectWithDict& obj) {
@@ -124,18 +138,19 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType) {
 
 double ExpressionVar::value(const edm::ObjectWithDict& obj) const {
   edm::ObjectWithDict val(obj);
-  std::vector<edm::ObjectWithDict>::iterator IO = objects_.begin();
-  for (std::vector<MethodInvoker>::const_iterator I = methods_.begin(), E = methods_.end(); I != E; ++I, ++IO) {
-    val = I->invoke(val, *IO);
+  auto objects = borrowObjects();
+  auto IO = objects.begin();
+  for (auto& m : methods_) {
+    val = m.invoke(val, IO->first);
+    ++IO;
   }
   double ret = objToDouble(val, retType_);
-  std::vector<bool>::const_reverse_iterator RIB = needsDestructor_.rbegin();
-  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE;
-       ++RIB, ++RI) {
-    if (*RIB) {
-      RI->destruct(false);
+  for (auto RI = objects.rbegin(), RE = objects.rend(); RI != RE; ++RI) {
+    if (RI->second) {
+      RI->first.destruct(false);
     }
   }
+  returnObjects(std::move(objects));
   return ret;
 }
 
@@ -194,16 +209,17 @@ ExpressionLazyVar::~ExpressionLazyVar() {}
 
 double ExpressionLazyVar::value(const edm::ObjectWithDict& o) const {
   edm::ObjectWithDict val = o;
+  std::vector<StorageManager> storage;
+  storage.reserve(methods_.size());
+
   std::vector<LazyInvoker>::const_iterator I = methods_.begin();
   std::vector<LazyInvoker>::const_iterator E = methods_.end() - 1;
   for (; I < E; ++I) {
-    val = I->invoke(val, objects_);
+    val = I->invoke(val, storage);
   }
-  double ret = I->invokeLast(val, objects_);
-  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE;
-       ++RI) {
-    RI->destruct(false);
+  double ret = I->invokeLast(val, storage);
+  while (not storage.empty()) {
+    storage.pop_back();
   }
-  objects_.clear();
   return ret;
 }

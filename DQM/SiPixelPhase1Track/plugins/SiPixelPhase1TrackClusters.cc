@@ -88,8 +88,8 @@ namespace {
 
   private:
     const bool applyVertexCut_;
-    const SiPixelTemplateDBObject* templateDBobject_;
-    std::vector<SiPixelTemplateStore> thePixelTemp_;
+    const SiPixelTemplateDBObject* templateDBobject_ = nullptr;
+    const std::vector<SiPixelTemplateStore>* thePixelTemp_ = nullptr;
     const TrackerTopology* tkTpl = nullptr;
 
     edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
@@ -101,6 +101,7 @@ namespace {
     edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clusterShapeHitFilterToken_;
 
     edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> templateDBobjectToken_;
+    edm::ESGetToken<std::vector<SiPixelTemplateStore>, SiPixelTemplateDBObjectESProducerRcd> templateStoreToken_;
   };
 
   SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& iConfig)
@@ -118,6 +119,7 @@ namespace {
     trackerGeomToken_ = esConsumes<edm::Transition::BeginRun>();
     clusterShapeHitFilterToken_ =
         esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"));
+    templateStoreToken_ = esConsumes<edm::Transition::BeginRun>();
     templateDBobjectToken_ = esConsumes<edm::Transition::BeginRun>();
   }
 
@@ -127,10 +129,7 @@ namespace {
 
     // Initialize 1D templates
     templateDBobject_ = &iSetup.getData(templateDBobjectToken_);
-    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
-      edm::LogError("SiPixelPhase1TrackClusters")
-          << "Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-          << (*templateDBobject_).version() << std::endl;
+    thePixelTemp_ = &iSetup.getData(templateStoreToken_);
   }
 
   void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -162,7 +161,7 @@ namespace {
       return;
     }
 
-    SiPixelTemplate templ(thePixelTemp_);
+    SiPixelTemplate templ(*thePixelTemp_);
 
     edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCacheH;
     iEvent.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCacheH);

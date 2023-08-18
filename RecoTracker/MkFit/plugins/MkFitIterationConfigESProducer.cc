@@ -31,8 +31,9 @@ MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::Parame
 
 void MkFitIterationConfigESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName")->setComment("Product label");
-  desc.add<edm::FileInPath>("config")->setComment("Path to the JSON file for the mkFit configuration parameters");
+  desc.add<std::string>("ComponentName", "")->setComment("Product label");
+  desc.add<edm::FileInPath>("config", edm::FileInPath())
+      ->setComment("Path to the JSON file for the mkFit configuration parameters");
   desc.add<double>("minPt", 0.0)->setComment("min pT cut applied during track building");
   desc.add<unsigned int>("maxClusterSize", 8)->setComment("Max cluster size of SiStrip hits");
   descriptions.addWithDefaultLabel(desc);

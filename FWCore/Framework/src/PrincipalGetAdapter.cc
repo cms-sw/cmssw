@@ -72,12 +72,6 @@ namespace edm {
                                         << "The index of the token was " << token.index() << ".\n";
   }
 
-  void principal_get_adapter_detail::throwGetManyByType() {
-    throw Exception(errors::LogicError)
-        << "The getManyByType function is no longer supported. "
-        << "Consider upgrading to use GetterOfProducts instead or delete this function call.\n";
-  }
-
   size_t PrincipalGetAdapter::numberOfProductsConsumed() const { return consumer_->itemsToGetFrom(InEvent).size(); }
 
   void PrincipalGetAdapter::labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const {

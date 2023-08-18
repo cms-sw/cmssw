@@ -97,11 +97,11 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1Digis_cfi import *
 
 # Cluster (track-independent) monitoring
 from DQM.SiPixelPhase1Common.SiPixelPhase1Clusters_cfi import *
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
 
 # Track cluster 
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackResiduals_cfi import *
-
 
 # Raw data errors
 from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
@@ -115,7 +115,8 @@ siPixelPhase1OnlineDQM_source = cms.Sequence(
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer
- + SiPixelPhase1TrackResidualsAnalyzer
+ + SiPixelPhase1TrackResidualsAnalyzer,
+ cms.Task(SiPixelTemplateStoreESProducer)   
 )
 
 siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
@@ -149,7 +150,8 @@ siPixelPhase1OnlineDQM_source_cosmics = cms.Sequence(
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer_cosmics
- + SiPixelPhase1TrackResidualsAnalyzer_cosmics
+ + SiPixelPhase1TrackResidualsAnalyzer_cosmics,
+ cms.Task(SiPixelTemplateStoreESProducer)
 )
 
 ## Additional settings for pp_run (Phase 0 test)
@@ -177,6 +179,7 @@ siPixelPhase1OnlineDQM_source_pprun = cms.Sequence(
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer_pprun
  + SiPixelPhase1TrackResidualsAnalyzer_pprun
- + SiPixelPhase1TrackEfficiencyAnalyzer_pprun
+ + SiPixelPhase1TrackEfficiencyAnalyzer_pprun,
+ cms.Task(SiPixelTemplateStoreESProducer)
 )
 

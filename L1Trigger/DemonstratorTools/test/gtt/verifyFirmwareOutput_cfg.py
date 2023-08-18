@@ -38,11 +38,11 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(inpu
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
-process.load('L1Trigger.DemonstratorTools.GTTFileReader_cff')
-process.GTTFileReader.files = cms.vstring("test/gtt/example_vertex_apx.txt")
-process.GTTFileReader.format = cms.untracked.string(options.format)
+process.load('L1Trigger.DemonstratorTools.l1tGTTFileReader_cfi')
+process.l1tGTTFileReader.files = cms.vstring("test/gtt/example_vertex_apx.txt")
+process.l1tGTTFileReader.format = cms.untracked.string(options.format)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
-process.p = cms.Path(process.L1HybridTracks * process.GTTFileReader) # vertex emulator & FW-emulator comparsion module need to be added here
+process.p = cms.Path(process.L1HybridTracks * process.l1tGTTFileReader) # vertex emulator & FW-emulator comparsion module need to be added here

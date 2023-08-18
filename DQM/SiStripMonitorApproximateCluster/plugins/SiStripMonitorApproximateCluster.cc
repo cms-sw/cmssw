@@ -21,6 +21,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -102,7 +103,7 @@ private:
   MonitorElement* h_deltaEndStrip_{nullptr};
 
   // Event Data
-  edm::EDGetTokenT<edmNew::DetSetVector<SiStripApproximateCluster>> approxClustersToken_;
+  edm::EDGetTokenT<SiStripApproximateClusterCollection> approxClustersToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClustersToken_;
   const edmNew::DetSetVector<SiStripCluster>* stripClusterCollection_;
 
@@ -117,7 +118,7 @@ SiStripMonitorApproximateCluster::SiStripMonitorApproximateCluster(const edm::Pa
     : folder_(iConfig.getParameter<std::string>("folder")),
       compareClusters_(iConfig.getParameter<bool>("compareClusters")),
       // Poducer name of input StripClusterCollection
-      approxClustersToken_(consumes<edmNew::DetSetVector<SiStripApproximateCluster>>(
+      approxClustersToken_(consumes<SiStripApproximateClusterCollection>(
           iConfig.getParameter<edm::InputTag>("ApproxClustersProducer"))) {
   tkGeomToken_ = esConsumes();
   if (compareClusters_) {
@@ -139,7 +140,7 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
   const auto tkDets = tkGeom->dets();
 
   // get collection of DetSetVector of clusters from Event
-  edm::Handle<edmNew::DetSetVector<SiStripApproximateCluster>> approx_cluster_detsetvector;
+  edm::Handle<SiStripApproximateClusterCollection> approx_cluster_detsetvector;
   iEvent.getByToken(approxClustersToken_, approx_cluster_detsetvector);
   if (!approx_cluster_detsetvector.isValid()) {
     edm::LogError("SiStripMonitorApproximateCluster")
@@ -164,11 +165,11 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
   }
 
   int nApproxClusters{0};
-  const edmNew::DetSetVector<SiStripApproximateCluster>* clusterCollection = approx_cluster_detsetvector.product();
+  const SiStripApproximateClusterCollection* clusterCollection = approx_cluster_detsetvector.product();
 
   for (const auto& detClusters : *clusterCollection) {
     edmNew::DetSet<SiStripCluster> strip_clusters_detset;
-    const auto& detid = detClusters.detId();  // get the detid of the current detset
+    const auto& detid = detClusters.id();  // get the detid of the current detset
 
     // starts here comaparison with regular clusters
     if (compareClusters_) {
@@ -233,6 +234,7 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
 
     }  // loop on clusters in a detset
   }    // loop on the detset vector
+
   h_nclusters_->Fill(nApproxClusters);
 }
 

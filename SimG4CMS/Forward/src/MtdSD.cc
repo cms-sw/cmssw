@@ -8,6 +8,7 @@
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
 #include "Geometry/MTDCommonData/interface/ETLNumberingScheme.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "G4Track.hh"
 #include "G4Step.hh"
@@ -106,16 +107,23 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
     trkInfo->Print();
 #endif
     if (rname == "FastTimerRegionSensBTL") {
-      if (trkInfo->isBTLdaughter()) {
-        theID = trkInfo->idAtBTLentrance();
+      theID = trkInfo->mcTruthID();
+      if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
+      } else if (trkInfo->isInTrkFromBackscattering()) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
+      } else if (trkInfo->isBTLlooper()) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idloopOffset);
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MtdSim") << "BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
+      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
+                                 << " BTL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
     } else if (rname == "FastTimerRegionSensETL") {
       theID = trkInfo->getIDonCaloSurface();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("MtdSim") << "ETL Track ID: " << trkInfo->getIDonCaloSurface() << ":" << theID;
+      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
+                                 << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
     } else {
       throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;

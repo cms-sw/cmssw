@@ -8,9 +8,28 @@
 #include <vector>
 #include <map>
 
-HBHEDarkeningEP::HBHEDarkeningEP(const edm::ParameterSet& pset) : pset_(pset) {
+HBHEDarkeningEP::HBHEDarkeningEP(const edm::ParameterSet& pset)
+    : drdA_(pset.getParameter<double>("drdA")),
+      drdB_(pset.getParameter<double>("drdB")),
+      ieta_shift_(pset.getParameter<int>("ieta_shift")) {
   setWhatProduced(this);
   findingRecord<HBHEDarkeningRecord>();
+
+  const std::vector<edm::ParameterSet>& p_dosemaps = pset.getParameter<std::vector<edm::ParameterSet>>("dosemaps");
+  dosemaps_.reserve(p_dosemaps.size());
+  for (const auto& p_dosemap : p_dosemaps) {
+    dosemaps_.push_back({p_dosemap.getParameter<edm::FileInPath>("file"), p_dosemap.getParameter<int>("energy")});
+  }
+
+  //initialize years
+  const std::vector<edm::ParameterSet>& p_years = pset.getParameter<std::vector<edm::ParameterSet>>("years");
+  years_.reserve(p_years.size());
+  for (const auto& p_year : p_years) {
+    years_.emplace_back(p_year.getParameter<std::string>("year"),
+                        p_year.getParameter<double>("intlumi"),
+                        p_year.getParameter<double>("lumirate"),
+                        p_year.getParameter<int>("energy"));
+  }
 }
 
 HBHEDarkeningEP::~HBHEDarkeningEP() {}
@@ -45,30 +64,12 @@ void HBHEDarkeningEP::fillDescriptions(edm::ConfigurationDescriptions& descripti
 // ------------ method called to produce the data  ------------
 HBHEDarkeningEP::ReturnType HBHEDarkeningEP::produce(const HBHEDarkeningRecord& iRecord) {
   //initialize dose maps
-  std::vector<edm::ParameterSet> p_dosemaps = pset_.getParameter<std::vector<edm::ParameterSet>>("dosemaps");
   std::map<int, std::vector<std::vector<float>>> dosemaps;
-  for (const auto& p_dosemap : p_dosemaps) {
-    edm::FileInPath fp = p_dosemap.getParameter<edm::FileInPath>("file");
-    int file_energy = p_dosemap.getParameter<int>("energy");
-    dosemaps.emplace(file_energy, HBHEDarkening::readDoseMap(fp.fullPath()));
+  for (const auto& p_dosemap : dosemaps_) {
+    dosemaps.emplace(p_dosemap.file_energy, HBHEDarkening::readDoseMap(p_dosemap.fp.fullPath()));
   }
 
-  //initialize years
-  std::vector<edm::ParameterSet> p_years = pset_.getParameter<std::vector<edm::ParameterSet>>("years");
-  std::vector<HBHEDarkening::LumiYear> years;
-  years.reserve(p_years.size());
-  for (const auto& p_year : p_years) {
-    years.emplace_back(p_year.getParameter<std::string>("year"),
-                       p_year.getParameter<double>("intlumi"),
-                       p_year.getParameter<double>("lumirate"),
-                       p_year.getParameter<int>("energy"));
-  }
-
-  return std::make_unique<HBHEDarkening>(pset_.getParameter<int>("ieta_shift"),
-                                         pset_.getParameter<double>("drdA"),
-                                         pset_.getParameter<double>("drdB"),
-                                         dosemaps,
-                                         years);
+  return std::make_unique<HBHEDarkening>(ieta_shift_, drdA_, drdB_, std::move(dosemaps), years_);
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(HBHEDarkeningEP);

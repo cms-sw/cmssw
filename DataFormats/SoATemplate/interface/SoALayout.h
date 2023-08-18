@@ -493,10 +493,17 @@
       _ITERATE_ON_ALL(_DEFINE_METADATA_MEMBERS, ~, __VA_ARGS__)                                                        \
                                                                                                                        \
       struct value_element {                                                                                           \
-        SOA_HOST_DEVICE SOA_INLINE value_element(                                                                      \
-          _ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)                                              \
-        ) :                                                                                                            \
-          _ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_INITIALIZERS, ~, __VA_ARGS__)                                           \
+        SOA_HOST_DEVICE SOA_INLINE value_element                                                                       \
+          BOOST_PP_IF(                                                                                                 \
+            BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__) ),                             \
+            (_ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)):,                                        \
+            ())                                                                                                        \
+          BOOST_PP_TUPLE_ENUM(BOOST_PP_IF(                                                                             \
+            BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)),                              \
+            BOOST_PP_SEQ_TO_TUPLE(_ITERATE_ON_ALL(_VALUE_ELEMENT_INITIALIZERS, ~, __VA_ARGS__)),                       \
+            ()                                                                                                         \
+          )                                                                                                            \
+        )                                                                                                              \
         {}                                                                                                             \
                                                                                                                        \
         _ITERATE_ON_ALL(_DEFINE_VALUE_ELEMENT_MEMBERS, ~, __VA_ARGS__)                                                 \

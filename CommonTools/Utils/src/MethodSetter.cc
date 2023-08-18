@@ -1,8 +1,8 @@
-#include "CommonTools/Utils/interface/MethodSetter.h"
+#include "CommonTools/Utils/interface/parser/MethodSetter.h"
 
-#include "CommonTools/Utils/interface/Exception.h"
+#include "CommonTools/Utils/interface/parser/Exception.h"
 #include "CommonTools/Utils/src/ErrorCodes.h"
-#include "CommonTools/Utils/interface/MethodInvoker.h"
+#include "CommonTools/Utils/interface/parser/MethodInvoker.h"
 #include "CommonTools/Utils/src/findDataMember.h"
 #include "CommonTools/Utils/src/findMethod.h"
 #include "CommonTools/Utils/interface/returnType.h"

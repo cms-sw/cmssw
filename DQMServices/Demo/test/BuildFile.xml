@@ -1,7 +1,6 @@
 <use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
 <library file="*.cc" name="DQMServicesDemoTestPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

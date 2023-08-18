@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQM_cfg import *
 DQMStore.collateHistograms =cms.untracked.bool(True)
-from DQM.TrackingMonitorSource.trackToTrackComparisonHists_cfi import trackToTrackComparisonHists
+from DQM.TrackingMonitorSource.TrackToTrackComparisonHists_cfi import TrackToTrackComparisonHists
 
 trackSelector = cms.EDFilter('TrackSelector',
     src = cms.InputTag('generalTracks'),
@@ -12,7 +12,7 @@ highPurityTracks = trackSelector.clone(
     cut = "quality('highPurity')"
 )
 
-hltMerged2highPurity = trackToTrackComparisonHists.clone(
+hltMerged2highPurity = TrackToTrackComparisonHists.clone(
     monitoredTrack           = "hltMergedTracks",
     referenceTrack           = "highPurityTracks",
     monitoredBeamSpot        = "hltOnlineBeamSpot",
@@ -22,7 +22,7 @@ hltMerged2highPurity = trackToTrackComparisonHists.clone(
     monitoredPrimaryVertices = "hltVerticesPFSelector"
 )
 
-hltMerged2highPurityPV = trackToTrackComparisonHists.clone(
+hltMerged2highPurityPV = TrackToTrackComparisonHists.clone(
     dzWRTPvCut               = 0.1,
     monitoredTrack           = "hltMergedTracks",
     referenceTrack           = "highPurityTracks",
