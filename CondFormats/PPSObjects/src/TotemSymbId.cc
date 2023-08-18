@@ -28,7 +28,8 @@ void TotemSymbID::print(std::ostream& os, std::string subSystemName) const {
     const auto timingId = TotemTimingDetId(symbolicID);
     os << "subDet=" << ctppsDetId.subdetId() << " " << timingId;
     if (timingId.channel() == TotemTimingDetId::ID_NOT_SET || timingId.plane() == 0) {
-      os << ") (default plane value:" << 0 << ", detector id not set value: " << TotemTimingDetId::ID_NOT_SET;
+      os << ") - (plane/channel det ids not applicable to SAMPIC; initialized with def values " << 0 << "/"
+         << TotemTimingDetId::ID_NOT_SET << " now";
     }
   } else {
     os << ctppsDetId;

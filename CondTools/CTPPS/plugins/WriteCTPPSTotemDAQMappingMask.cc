@@ -33,12 +33,12 @@ public:
   ~WriteCTPPSTotemDAQMappingMask() override {}
 
 private:
-  cond::Time_t daqMappingIov;
-  std::string recordMap;
-  std::string recordMask;
-  std::string label;
-  edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> tokenMapping;
-  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask;
+  const cond::Time_t daqMappingIov_;
+  const std::string recordMap_;
+  const std::string recordMask_;
+  const std::string label_;
+  const edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> tokenMapping_;
+  const edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask_;
 
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
@@ -49,25 +49,26 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 WriteCTPPSTotemDAQMappingMask::WriteCTPPSTotemDAQMappingMask(const edm::ParameterSet &ps)
-    : daqMappingIov(ps.getParameter<unsigned long long>("daqMappingIov")),
-      recordMap(ps.getParameter<string>("recordMap")),
-      recordMask(ps.getParameter<string>("recordMask")),
-      label(ps.getParameter<string>("label")),
-      tokenMapping(esConsumes<TotemDAQMapping, TotemReadoutRcd>(edm::ESInputTag("", label))),
-      tokenAnalysisMask(esConsumes<TotemAnalysisMask, TotemReadoutRcd>(edm::ESInputTag("", label))) {}
+    : daqMappingIov_(ps.getParameter<unsigned long long>("daqMappingIov")),
+      recordMap_(ps.getParameter<string>("recordMap")),
+      recordMask_(ps.getParameter<string>("recordMask")),
+      label_(ps.getParameter<string>("label")),
+      tokenMapping_(esConsumes<TotemDAQMapping, TotemReadoutRcd>(edm::ESInputTag("", label_))),
+      tokenAnalysisMask_(esConsumes<TotemAnalysisMask, TotemReadoutRcd>(edm::ESInputTag("", label_))) {}
 
 void WriteCTPPSTotemDAQMappingMask::analyze(const edm::Event &, edm::EventSetup const &es) {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-  if (auto mappingHandle = es.getHandle(tokenMapping)) {
-    const auto &mapping = es.getData(tokenMapping);
-    edm::LogInfo("WriteCTPPSTotemDAQMappingMask mapping");
-    mapping.print(std::cout, label);
+  if (auto mappingHandle = es.getHandle(tokenMapping_)) {
+    const auto &mapping = es.getData(tokenMapping_);
+    std::stringstream output;
+    mapping.print(output, label_);
+    edm::LogInfo("WriteCTPPSTotemDAQMappingMask mapping") << output.str();
 
     if (poolDbService.isAvailable()) {
-      poolDbService->writeOneIOV(mapping, daqMappingIov, recordMap);
+      poolDbService->writeOneIOV(mapping, daqMappingIov_, recordMap_);
     } else {
-      edm::LogError("WriteCTPPSTotemDAQMappingMask mask")
+      edm::LogError("WriteCTPPSTotemDAQMappingMask mapping")
           << "WriteCTPPSTotemDAQMappingMask: PoolDBService not availible. Data not written.";
     }
 
@@ -75,12 +76,12 @@ void WriteCTPPSTotemDAQMappingMask::analyze(const edm::Event &, edm::EventSetup 
     edm::LogError("WriteCTPPSTotemDAQMappingMask mapping") << "WriteCTPPSTotemDAQMappingMask: No mapping found";
   }
 
-  if (auto maskHandle = es.getHandle(tokenAnalysisMask)) {
-    const auto &analysisMask = es.getData(tokenAnalysisMask);
+  if (auto maskHandle = es.getHandle(tokenAnalysisMask_)) {
+    const auto &analysisMask = es.getData(tokenAnalysisMask_);
     edm::LogInfo("WriteCTPPSTotemDAQMappingMask mask") << analysisMask;
 
     if (poolDbService.isAvailable()) {
-      poolDbService->writeOneIOV(analysisMask, daqMappingIov, recordMask);
+      poolDbService->writeOneIOV(analysisMask, daqMappingIov_, recordMask_);
     } else {
       edm::LogError("WriteCTPPSTotemDAQMappingMask mask")
           << "WriteCTPPSTotemDAQMappingMask: PoolDBService not availible. Data not written.";

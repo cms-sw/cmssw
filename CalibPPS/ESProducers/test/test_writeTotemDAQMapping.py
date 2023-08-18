@@ -10,7 +10,7 @@ process = cms.Process('test')
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+        threshold = cms.untracked.string('ERROR')
     )
 )
 
@@ -36,7 +36,7 @@ process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
 
 # load a mapping from DB
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = "sqlite_file:CTPPST2_DAQMapping.db"
+process.CondDB.connect = "sqlite_file:CTPPSTotemT2_DAQMapping.db"
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
     toGet = cms.VPSet(
@@ -54,12 +54,12 @@ process.PoolDBESSource = cms.ESSource('PoolDBESSource',
 )
 
 # prefer to read mapping from DB than from XML or otherwise
-process.es_prefer_totemTimingMapping = cms.ESPrefer("PoolDBESSource", "",                 TotemReadoutRcd=cms.vstring(f"TotemDAQMapping/TotemT2"))
+process.es_prefer_totemTimingMapping = cms.ESPrefer("TotemDAQMappingESSourceXML",                 "totemDAQMappingESSourceXML", TotemReadoutRcd=cms.vstring("TotemDAQMapping/TotemT2"))
 
 # print the mapping
 process.writeTotemDAQMapping = cms.EDAnalyzer("WriteTotemDAQMapping",
   subSystem = cms.untracked.string(subSystemName),
-  fileName = cms.untracked.string("all_t2_db.txt")
+  fileName = cms.untracked.string("all_TotemT2_xml.txt")
 )
 
 process.path = cms.Path(

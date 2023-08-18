@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-minIov = 1
+minIov = 368023
 maxIov = 999999999
 subSystemName = "TotemT2"
 
@@ -17,7 +17,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.MessageLogger = cms.Service("MessageLogger",
   destinations = cms.untracked.vstring('cout'),
   cout = cms.untracked.PSet(
-      threshold = cms.untracked.string('INFO'),    
+      threshold = cms.untracked.string('ERROR'),    
   )
 )
 
@@ -36,7 +36,7 @@ process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
 
 #Database output service
 process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = "sqlite_file:CTPPST2_DAQMapping.db"
+process.CondDB.connect = "sqlite_file:CTPPSTotemT2_DAQMapping.db"
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,
     timetype = cms.untracked.string('runnumber'),
