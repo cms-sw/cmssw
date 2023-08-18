@@ -61,7 +61,8 @@ namespace reco {
     RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset,
                                                                        edm::ConsumesCollector&& iC)
         : RecoTauBuilderPlugin(pset, std::move(iC)),
-          qcuts_(new RecoTauQualityCuts(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
+          qcuts_(std::make_unique<RecoTauQualityCuts>(
+              pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
           isolationConeSize_(pset.getParameter<double>("isolationConeSize")),
           signalConeSize_(pset.getParameter<std::string>("signalConeSize")),
           minAbsPhotonSumPt_insideSignalCone_(pset.getParameter<double>("minAbsPhotonSumPt_insideSignalCone")),

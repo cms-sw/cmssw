@@ -69,7 +69,7 @@ namespace reco {
 
       RecoTauVertexAssociator vertexAssociator_;
 
-      RecoTauQualityCuts* qcuts_;
+      std::unique_ptr<RecoTauQualityCuts> qcuts_;
 
       edm::InputTag srcTracks_;
       edm::EDGetTokenT<std::vector<TrackClass> > Tracks_token;
@@ -99,7 +99,7 @@ namespace reco {
           qcuts_(nullptr),
           magneticFieldToken_(iC.esConsumes()) {
       edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
-      qcuts_ = new RecoTauQualityCuts(qcuts_pset);
+      qcuts_ = std::make_unique<RecoTauQualityCuts>(qcuts_pset);
 
       srcTracks_ = pset.getParameter<edm::InputTag>("srcTracks");
       Tracks_token = iC.consumes<std::vector<TrackClass> >(srcTracks_);
@@ -113,9 +113,7 @@ namespace reco {
     }
 
     template <class TrackClass>
-    PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::~PFRecoTauChargedHadronFromGenericTrackPlugin() {
-      delete qcuts_;
-    }
+    PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::~PFRecoTauChargedHadronFromGenericTrackPlugin() {}
 
     // Update the primary vertex
     template <class TrackClass>
@@ -261,8 +259,8 @@ namespace reco {
         if (vertexAssociator_.associatedVertex(jet).isNonnull())
           vtx = vertexAssociator_.associatedVertex(jet)->position();
 
-        std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(
-            new PFRecoTauChargedHadron(trackCharge_int, chargedPionP4, vtx, 0, true, PFRecoTauChargedHadron::kTrack));
+        auto chargedHadron = std::make_unique<PFRecoTauChargedHadron>(
+            trackCharge_int, chargedPionP4, vtx, 0, true, PFRecoTauChargedHadron::kTrack);
 
         setChargedHadronTrack(*chargedHadron, edm::Ptr<TrackClass>(tracks, iTrack));
 
