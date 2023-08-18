@@ -233,7 +233,7 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   setattr(proc, tightJetId, proc.tightJetId.clone(
       src = jetSrc,
       filterParams = proc.tightJetId.filterParams.clone(
-        version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
+        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
       ),
     )
   )
@@ -242,9 +242,21 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   setattr(proc, tightJetIdLepVeto, proc.tightJetIdLepVeto.clone(
       src = jetSrc,
       filterParams = proc.tightJetIdLepVeto.filterParams.clone(
-        version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
+        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
       ),
     )
+  )
+
+  run3_jme_Winter22runsBCDEprompt.toModify(
+    getattr(proc, tightJetId).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
+  )
+
+  (run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    getattr(proc, tightJetId).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
   )
 
   run2_jme_2016.toModify(
@@ -654,7 +666,7 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.corrT1METJetPuppiTable.cut = "pt>=8 && pt<15 && abs(eta)<9.9"
 
   #
-  # Jet table 
+  # Jet table
   #
   # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
   run2_nanoAOD_ANY.toModify(
@@ -665,7 +677,7 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
     name = "JetPuppi",
     src = cms.InputTag("finalJetsPuppi")
   )
-  
+
   #
   # Jet table documentation
   #
@@ -934,7 +946,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
 
   #
   # Since AK4 Puppi jet is the main AK4 jet collection for Run-3, disable
-  # b-jets/c-jets NN-based mass regression for AK4 CHS.  
+  # b-jets/c-jets NN-based mass regression for AK4 CHS.
   #
   (~run2_nanoAOD_ANY).toReplaceWith(
     proc.jetUserDataTask,
@@ -1337,7 +1349,7 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     jmeNano_addAK4CHS_switch = False,
     jmeNano_addAK4Puppi_switch = True
   )
-  process = addAK4JetTasks(process, 
+  process = addAK4JetTasks(process,
     addAK4CHSJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4CHS_switch,
     addAK4PuppiJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4Puppi_switch,
   )
