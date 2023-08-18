@@ -121,6 +121,8 @@ jetPuppiTable = simpleCandidateFlatTableProducer.clone(
         hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"),
         hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable)"),
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
+        chMultiplicity = Var("chargedMultiplicity()","uint8",doc="(Puppi-weighted) Number of charged particles in the jet"),
+        neMultiplicity = Var("neutralMultiplicity()","uint8",doc="(Puppi-weighted) Number of neutral particles in the jet"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
         chHEF = Var("chargedHadronEnergyFraction()", float, doc="charged Hadron Energy Fraction", precision= 6),
         neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision= 6),
@@ -139,8 +141,8 @@ run2_nanoAOD_ANY.toModify(
 )
 
 (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     jetPuppiTable.variables,
+    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
     btagPNetB = None,
     btagPNetCvL = None,
     btagPNetCvB = None,
@@ -148,7 +150,9 @@ run2_nanoAOD_ANY.toModify(
     btagPNetTauVJet = None,
     PNetRegPtRawCorr = None,
     PNetRegPtRawCorrNeutrino = None,
-    PNetRegPtRawRes = None
+    PNetRegPtRawRes = None,
+    chMultiplicity = None,
+    neMultiplicity = None
 )
 
 #jets are not as precise as muons
