@@ -58,10 +58,10 @@
 #include <memory>
 
 RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
-    : m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
-      m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
-      m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
-      m_check(p.getParameter<bool>("CheckGeometry")),
+    : m_PhysicsTablesDir(p.getUntrackedParameter<std::string>("PhysicsTablesDirectory", "")),
+      m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
+      m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
+      m_check(p.getUntrackedParameter<bool>("CheckGeometry")),
       m_geoFromDD4hep(p.getParameter<bool>("g4GeometryDD4hepSource")),
       m_score(p.getParameter<bool>("UseCommandBaseScorer")),
       m_stepverb(p.getUntrackedParameter<int>("SteppingVerbosity", 0)),
@@ -80,7 +80,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   bool tr = p.getParameter<bool>("TraceExceptions");
   m_stateManager->SetExceptionHandler(new ExceptionHandler(th, tr));
   if (m_check) {
-    m_CheckOverlap = p.getParameter<edm::ParameterSet>("CheckOverlap");
+    m_CheckOverlap = p.getUntrackedParameter<edm::ParameterSet>("CheckOverlap");
   }
   m_UIsession = new CustomUIsession();
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
