@@ -30,7 +30,7 @@ _Electron_Run2_plots.extend([
     Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
 ])
 run2_egamma.toModify(
-     nanoDQM.vplots.Electron, 
+     nanoDQM.vplots.Electron,
      plots = _Electron_Run2_plots
 )
 
@@ -53,7 +53,7 @@ _Photon_Run2_plots.extend([
     Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
 ])
 run2_egamma.toModify(
-     nanoDQM.vplots.Photon, 
+     nanoDQM.vplots.Photon,
      plots = _Photon_Run2_plots
 )
 
@@ -87,12 +87,14 @@ _FatJet_Run2_plots.extend([
 
 _FatJet_EarlyRun3_plots = cms.VPSet()
 for plot in _FatJet_Run2_plots:
-    if 'particleNet_' not in plot.name.value() and 'btagCSVV2' not in plot.name.value():
+    if 'particleNet_' not in plot.name.value() and 'btagCSVV2' not in plot.name.value() and 'Multiplicity' not in plot.name.value():
         _FatJet_EarlyRun3_plots.append(plot)
 
 _Jet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
     _Jet_Run2_plots.append(plot)
+    if 'Multiplicity' not in plot.name.value():
+        _Jet_Run2_plots.append(plot)
 _Jet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
     Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
@@ -104,7 +106,7 @@ _Jet_Run2_plots.extend([
 
 _Jet_EarlyRun3_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
-    if 'PNet' not in plot.name.value():
+    if 'PNet' not in plot.name.value() and 'Multiplicity' not in plot.name.value():
         _Jet_EarlyRun3_plots.append(plot)
 
 _SubJet_Run2_plots = cms.VPSet()
@@ -113,6 +115,10 @@ for plot in nanoDQM.vplots.SubJet.plots:
 _SubJet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
 ])
+_SubJet_EarlyRun3_plots = cms.VPSet()
+for plot in nanoDQM.vplots.SubJet.plots:
+    if 'area' not in plot.name.value():
+        _SubJet_EarlyRun3_plots.append(plot)
 
 run2_nanoAOD_ANY.toModify(
     nanoDQM.vplots.FatJet,
@@ -131,6 +137,9 @@ run2_nanoAOD_ANY.toModify(
 ).toModify(
     nanoDQM.vplots.Jet,
     plots = _Jet_EarlyRun3_plots
+).toModify(
+    nanoDQM.vplots.SubJet,
+    plots = _SubJet_EarlyRun3_plots
 )
 
 ## MC
