@@ -121,6 +121,10 @@ private:
   DiLeptonHelp::PlotsVsKinematics VtxDist3DSigPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
   DiLeptonHelp::PlotsVsKinematics ZMassPlots = DiLeptonHelp::PlotsVsKinematics(DiLeptonHelp::MM);
 
+  // plots vs region
+  DiLeptonHelp::PlotsVsDiLeptonRegion CosPhi3DInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
+  DiLeptonHelp::PlotsVsDiLeptonRegion InvMassInEtaBins = DiLeptonHelp::PlotsVsDiLeptonRegion(1.5);
+
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
 
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;   //used to select what tracks to read from configuration file
@@ -160,12 +164,12 @@ DiMuonVertexValidation::DiMuonVertexValidation(const edm::ParameterSet& iConfig)
       VtxDist3DSigConfiguration_(iConfig.getParameter<edm::ParameterSet>("VtxDist3DSigConfig")),
       DiMuMassConfiguration_(iConfig.getParameter<edm::ParameterSet>("DiMuMassConfig")),
       ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
-      tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
       vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))) {
   if (useReco_) {
-    muonsToken_ = mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
+    tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+    muonsToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
   } else {
-    alcaRecoToken_ = mayConsume<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
+    alcaRecoToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"));
   }
 
   usesResource(TFileService::kSharedResource);
@@ -319,6 +323,7 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   // fill the z->mm mass plots
   ZMassPlots.fillPlots(track_invMass, tktk_p4);
+  InvMassInEtaBins.fillTH1Plots(track_invMass, tktk_p4);
 
   math::XYZPoint ZpT(ditrack.x(), ditrack.y(), 0);
   math::XYZPoint Zp(ditrack.x(), ditrack.y(), ditrack.z());
@@ -437,8 +442,11 @@ void DiMuonVertexValidation::analyze(const edm::Event& iEvent, const edm::EventS
       // fill the cosphi plots
       CosPhiPlots.fillPlots(cosphi, tktk_p4);
 
-      // fill the VtxDisSig plots
+      // fill the cosphi3D plots
       CosPhi3DPlots.fillPlots(cosphi3D, tktk_p4);
+
+      // fill the cosphi3D plots in eta bins
+      CosPhi3DInEtaBins.fillTH1Plots(cosphi3D, tktk_p4);
     }
   }
 }
@@ -449,13 +457,13 @@ void DiMuonVertexValidation::beginJob() {
 
   // clang-format off
   TH1F::SetDefaultSumw2(kTRUE);
-  hSVProb_ = fs->make<TH1F>("VtxProb", ";ZV vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
+  hSVProb_ = fs->make<TH1F>("VtxProb", ";#mu^{+}#mu^{-} vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
 
-  hSVDist_ = fs->make<TH1F>("VtxDist", ";PV-ZV xy distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-ZV xy distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  hSVDist_ = fs->make<TH1F>("VtxDist", ";PV-#mu^{+}#mu^{-} vertex xy distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
+  hSVDistSig_ = fs->make<TH1F>("VtxDistSig", ";PV-#mu^{+}#mu^{-} vertex xy distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
 
-  hSVDist3D_ = fs->make<TH1F>("VtxDist3D", ";PV-ZV 3D distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
-  hSVDist3DSig_ = fs->make<TH1F>("VtxDist3DSig", ";PV-ZV 3D distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
+  hSVDist3D_ = fs->make<TH1F>("VtxDist3D", ";PV-#mu^{+}#mu^{-} vertex 3D distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
+  hSVDist3DSig_ = fs->make<TH1F>("VtxDist3DSig", ";PV-#mu^{+}#mu^{-} vertex 3D distance signficance;N(#mu#mu pairs)", 100, 0., 5.);
 
   hInvMass_ = fs->make<TH1F>("InvMass", ";M(#mu#mu) [GeV];N(#mu#mu pairs)", 70., 50., 120.);
   hTrackInvMass_ = fs->make<TH1F>("TkTkInvMass", ";M(tk,tk) [GeV];N(tk tk pairs)", 70., 50., 120.);
@@ -492,6 +500,14 @@ void DiMuonVertexValidation::beginJob() {
 
   TFileDirectory dirInvariantMass = fs->mkdir("InvariantMassPlots");
   ZMassPlots.bookFromPSet(dirInvariantMass, DiMuMassConfiguration_);
+
+  // CosPhi3D in eta bins
+  TFileDirectory dirCosphi3DEta = fs->mkdir("CosPhi3DInEtaBins");
+  CosPhi3DInEtaBins.bookSet(dirCosphi3DEta, hCosPhi3D_);
+
+  // Z-> mm mass in eta bins
+  TFileDirectory dirResMassEta = fs->mkdir("TkTkMassInEtaBins");
+  InvMassInEtaBins.bookSet(dirResMassEta, hTrackInvMass_);
 
   // cut flow
 
