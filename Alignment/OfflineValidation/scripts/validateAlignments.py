@@ -214,6 +214,7 @@ def main():
             raise Exception("Unknown config extension '{}'. Please use json/yaml format!".format(args.config.split(".")[-1])) 
 
     ##Check for all paths in configuration and attempt to "digest" them
+    ##As a bonus, all ROOT colors are turned to the integer value
     for path in fnc.find_and_change(list(), config):
         if args.verbose and ("." in str(path) or "/" in str(path)):
             print("Digesting path: "+str(path))
