@@ -338,7 +338,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (0 < m_verbose) {
     edm::LogVerbatim("SimG4CoreApplication")
         << "Event is produced event " << e.id() << " streamID=" << e.streamID() << " threadID=" << id;
-    edm::LogWarning("SimG4CoreApplication") << "EventID=" << e.id() << " rand=" << G4UniformRand();
+    //edm::LogWarning("SimG4CoreApplication") << "EventID=" << e.id() << " rand=" << G4UniformRand();
   }
 }
 

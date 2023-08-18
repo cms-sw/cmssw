@@ -117,7 +117,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     G4Commands = cms.vstring(),
     G4CommandsEndRun = cms.vstring(),
-    SteppingVerbosity = cms.int32(0),
+    SteppingVerbosity = cms.untracked.int32(0),
     StepVerboseThreshold = cms.double(0.1), # in GeV
     VerboseEvents = cms.vint32(),
     VertexNumber  = cms.vint32(),
@@ -129,10 +129,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     HepMCProductLabel = cms.InputTag("generatorSmeared"),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
     LHCTransport = cms.bool(False),
-    CustomUIsession = cms.PSet(
-        Type = cms.string("MessageLogger"), # alternatives: MessageLoggerThreadPrefix, FilePerThread
-        ThreadPrefix = cms.string("W"),     # for MessageLoggerThreadPrefix
-        ThreadFile = cms.string("sim_output_thread"), # for FilePerThread
+    CustomUIsession = cms.untracked.PSet(
+        Type = cms.untracked.string("MessageLogger"), # alternatives: MessageLoggerThreadPrefix, FilePerThread
+        ThreadPrefix = cms.untracked.string("W"),     # for MessageLoggerThreadPrefix
+        ThreadFile = cms.untracked.string("sim_output_thread"), # for FilePerThread
     ),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),

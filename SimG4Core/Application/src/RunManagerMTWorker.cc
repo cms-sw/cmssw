@@ -62,6 +62,7 @@
 #include "G4GDMLParser.hh"
 
 #include <atomic>
+#include <memory>
 #include <thread>
 #include <sstream>
 #include <vector>
@@ -171,14 +172,14 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
   // Initialize per-thread output
   G4Threading::G4SetThreadId(id);
   G4UImanager::GetUIpointer()->SetUpForAThread(id);
-  auto iPset = p.getParameter<edm::ParameterSet>("CustomUIsession");
-  const std::string& uitype = iPset.getParameter<std::string>("Type");
+  auto iPset = p.getUntrackedParameter<edm::ParameterSet>("CustomUIsession");
+  const std::string& uitype = iPset.getUntrackedParameter<std::string>("Type");
   if (uitype == "MessageLogger") {
     m_UIsession = new CustomUIsession();
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    m_UIsession = new CustomUIsessionThreadPrefix(iPset.getParameter<std::string>("ThreadPrefix"), id);
+    m_UIsession = new CustomUIsessionThreadPrefix(iPset.getUntrackedParameter<std::string>("ThreadPrefix"), id);
   } else if (uitype == "FilePerThread") {
-    m_UIsession = new CustomUIsessionToFile(iPset.getParameter<std::string>("ThreadFile"), id);
+    m_UIsession = new CustomUIsessionToFile(iPset.getUntrackedParameter<std::string>("ThreadFile"), id);
   } else {
     throw cms::Exception("Configuration")
         << "RunManagerMTWorker::initializeG4: Invalid value of CustomUIsession.Type '" << uitype
@@ -383,7 +384,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   BeginOfJob aBeginOfJob(&es);
   m_tls->registry->beginOfJobSignal_(&aBeginOfJob);
 
-  G4int sv = m_p.getParameter<int>("SteppingVerbosity");
+  G4int sv = m_p.getUntrackedParameter<int>("SteppingVerbosity");
   G4double elim = m_p.getParameter<double>("StepVerboseThreshold") * CLHEP::GeV;
   std::vector<int> ve = m_p.getParameter<std::vector<int>>("VerboseEvents");
   std::vector<int> vn = m_p.getParameter<std::vector<int>>("VertexNumber");
