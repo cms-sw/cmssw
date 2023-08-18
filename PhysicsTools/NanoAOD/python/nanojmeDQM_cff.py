@@ -51,8 +51,6 @@ _ak4puppiplots.extend([
     Plot1D('particleNetAK4_QvsG','particleNetAK4_QvsG',20, -1, 1,"ParticleNetAK4 tagger uds vs g discriminator"),
     Plot1D('particleNetAK4_G','particleNetAK4_G',20, -1, 1, "ParticleNetAK4 tagger g raw score"),
     Plot1D('particleNetAK4_puIdDisc','particleNetAK4_puIdDisc',20, -1, 1,"ParticleNetAK4 tagger pileup jet discriminator"),
-    Plot1D('hfEmEF','hfEmEF', 20, 0, 1,'electromagnetic energy fraction in HF'),
-    Plot1D('hfHEF','hfHEF', 20, 0, 1,'hadronic energy fraction in HF'),
 ])
 
 #============================================
@@ -150,23 +148,6 @@ nanojmeDQM.vplots.FatJetForJEC = cms.PSet(
 
 #============================================
 #
-# Setup for AK8 CHS jets
-#
-#============================================
-_ak8chsplots = cms.VPSet(
-    Count1D('_size', 20, -0.5, 19.5, 'AK8 CHS jets with JECs applied.')
-)
-for plot in nanojmeDQM.vplots.FatJetForJEC.plots:
-    if plot.name.value()=="_size": continue
-    _ak8chsplots.append(plot)
-
-nanojmeDQM.vplots.FatJetCHS = cms.PSet(
-    sels = nanojmeDQM.vplots.FatJetForJEC.sels,
-    plots = _ak8chsplots,
-)
-
-#============================================
-#
 # Setup for AK4 Calo jets
 #
 #============================================
@@ -209,10 +190,10 @@ nanojmeDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavo
 # Run 3
 #
 (~run2_nanoAOD_ANY).toModify(
-    nanojmeDQM.vplots.Jet, 
+    nanojmeDQM.vplots.Jet,
     plots = _ak4puppiplots,
 ).toModify(
-    nanojmeDQM.vplots, 
+    nanojmeDQM.vplots,
     JetPuppi = None # Remove "JetPuppi" from DQM
 )
 (~run2_nanoAOD_ANY).toModify(
@@ -224,14 +205,14 @@ nanojmeDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavo
 # Run 2
 #
 run2_nanoAOD_ANY.toModify(
-    nanojmeDQM.vplots.Jet, 
+    nanojmeDQM.vplots.Jet,
     plots = _ak4chsplots, #
 ).toModify(
-    nanojmeDQM.vplots, 
+    nanojmeDQM.vplots,
     JetCHS = None # Remove "JetCHS" from DQM
 )
 run2_nanoAOD_ANY.toModify(
-    nanojmeDQMMC.vplots.JetPuppi.sels, 
+    nanojmeDQMMC.vplots.JetPuppi.sels,
     Prompt = nanojmeDQMMC.vplots.Jet.sels.Prompt,
     PromptB = nanojmeDQMMC.vplots.Jet.sels.PromptB
 )
@@ -239,7 +220,7 @@ run2_nanoAOD_ANY.toModify(
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
 nanoDQMQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('PhysicsTools/NanoAOD/test/dqmQualityTests.xml'),
-    prescaleFactor = cms.untracked.int32(1),                               
+    prescaleFactor = cms.untracked.int32(1),
     testInEventloop = cms.untracked.bool(False),
     qtestOnEndLumi = cms.untracked.bool(False),
     verboseQT =  cms.untracked.bool(True)
