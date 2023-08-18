@@ -93,7 +93,7 @@ for plot in _FatJet_Run2_plots:
 _Jet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
     _Jet_Run2_plots.append(plot)
-    if 'Multiplicity' not in plot.name.value():
+    if 'Multiplicity' not in plot.name.value() and 'hfHEF' not in plot.name.value() and 'hfEmEF' not in plot.name.value():
         _Jet_Run2_plots.append(plot)
 _Jet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
@@ -106,7 +106,8 @@ _Jet_Run2_plots.extend([
 
 _Jet_EarlyRun3_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
-    if 'PNet' not in plot.name.value() and 'Multiplicity' not in plot.name.value():
+    if 'PNet' not in plot.name.value() and 'Multiplicity' not in plot.name.value() \
+    and 'hfHEF' not in plot.name.value() and 'hfEmEF' not in plot.name.value():
         _Jet_EarlyRun3_plots.append(plot)
 
 _SubJet_Run2_plots = cms.VPSet()
