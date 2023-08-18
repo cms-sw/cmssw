@@ -84,5 +84,10 @@ hltScalersRawToDigi =  cms.EDProducer( "ScalersRawToDigi",
    scalersInputTag = cms.InputTag( "rawDataRepacker" )
 )
 
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
+    timeThreshold = 999999 # to allow using old runs in tests
+)
+
 DigiToApproxClusterRawTask = cms.Task(hltSiStripRawToDigi,siStripZeroSuppressionHLT,hltScalersRawToDigi,hltBeamSpotProducer,siStripClustersHLT,hltSiStripClusters2ApproxClusters,rawPrimeDataRepacker)
 DigiToApproxClusterRaw = cms.Sequence(DigiToApproxClusterRawTask)
