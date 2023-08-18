@@ -4,7 +4,6 @@ from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 
 from CommonTools.ParticleFlow.pfCHS_cff import pfCHS
 
-from CommonTools.PileupAlgos.Puppi_cff      import puppi
 from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 
 from RecoJets.JetProducers.PFJetParameters_cfi         import PFJetParameters
@@ -13,14 +12,15 @@ from RecoJets.JetProducers.GenJetParameters_cfi        import GenJetParameters
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import AnomalousCellParameters
 
 from RecoJets.JetProducers.ak4GenJets_cfi  import ak4GenJets
-from RecoJets.JetProducers.ak4PFJets_cfi   import ak4PFJets, ak4PFJetsCHS, ak4PFJetsPuppi, ak4PFJetsSK, ak4PFJetsCS 
-from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets 
+from RecoJets.JetProducers.ak4PFJets_cfi   import ak4PFJets, ak4PFJetsCHS, ak4PFJetsPuppi, ak4PFJetsSK, ak4PFJetsCS
+from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import updatedPatJets
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi  import patJetCorrFactors
 from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetFlavourAssociation
 
 from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos, addJetCollection, updateJetCollection
+from PhysicsTools.PatAlgos.tools.jetTools import setupPuppiForPackedPF
 from PhysicsTools.PatAlgos.tools.helpers  import getPatAlgosToolsTask, addToProcessAndTask
 
 import re
@@ -92,7 +92,7 @@ class GenJetAdder(object):
 
     #=======================================================
     #
-    # If genJet collection in MiniAOD is not 
+    # If genJet collection in MiniAOD is not
     # specified, build the genjet collection.
     #
     #========================================================
@@ -108,7 +108,7 @@ class GenJetAdder(object):
             cut = cms.string("abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16"),
           )
         )
-        self.prerequisites.append(packedGenPartNoNu)    
+        self.prerequisites.append(packedGenPartNoNu)
       #
       # Create the GenJet collection
       #
@@ -171,7 +171,7 @@ class RecoJetInfo(object):
 
     self.doCS   = self.jetPUMethod == "cs"
     self.skipUserData = self.doCalo or (self.jetPUMethod in [ "puppi", "sk" ] and inputCollection == "")
-    
+
     self.jetCorrPayload = "{}{}{}".format(
       self.jetAlgo.upper(), self.jetSize, "Calo" if self.doCalo else self.jetReco.upper()
     )
@@ -184,7 +184,7 @@ class RecoJetInfo(object):
       self.jetCorrPayload += self.jetPUMethod.lower()
 
     self.patJetFinalCollection = ""
-      
+
 #============================================
 #
 # RecoJetAdder
@@ -194,7 +194,7 @@ class RecoJetAdder(object):
   """
   Tool to schedule modules for building a patJet collection from MiniAODs
   """
-  def __init__(self,runOnMC=True):    
+  def __init__(self,runOnMC=True):
     self.prerequisites = []
     self.main = []
     self.pfLabel = "packedPFCandidates"
@@ -209,7 +209,7 @@ class RecoJetAdder(object):
   def addProcessAndTask(self, proc, label, module):
     task = getPatAlgosToolsTask(proc)
     addToProcessAndTask(label, module, proc, task)
-  
+
   def addRecoJetCollection(self,
     proc,
     jet,
@@ -225,7 +225,7 @@ class RecoJetAdder(object):
 
     if inputCollection and inputCollection not in self.patJetsInMiniAOD:
       raise RuntimeError("Invalid input collection: %s" % inputCollection)
-    
+
     #=======================================================
     #
     # Figure out which jet collection we're dealing with
@@ -244,10 +244,10 @@ class RecoJetAdder(object):
       assert(jetLower == "ak4pfpuppi")
     elif inputCollection == "slimmedCaloJets":
       assert(jetLower == "ak4calo")
-    
+
     #=======================================================
     #
-    # If the patJet collection in MiniAOD is not specified, 
+    # If the patJet collection in MiniAOD is not specified,
     # we have to build the patJet collection from scratch.
     #
     #========================================================
@@ -265,13 +265,13 @@ class RecoJetAdder(object):
       pfCand = self.pfLabel
       #
       # Setup PU method for PF candidates
-      # 
+      #
       if recoJetInfo.jetPUMethod not in [ "", "cs" ]:
         pfCand += recoJetInfo.jetPUMethod
 
-      
+
       #
-      # Setup modules to perform PU mitigation for 
+      # Setup modules to perform PU mitigation for
       # PF candidates
       #
       if pfCand not in self.prerequisites:
@@ -293,14 +293,8 @@ class RecoJetAdder(object):
         # PUPPI
         #
         elif recoJetInfo.jetPUMethod == "puppi":
-          self.addProcessAndTask(proc, pfCand, puppi.clone(
-              candName = self.pfLabel,
-              vertexName = self.pvLabel,
-              clonePackedCands = True,
-              useExistingWeights = True,
-            )
-          )
-          self.prerequisites.append(pfCand)
+          pfCandWeight = setupPuppiForPackedPF(process)[0]
+          self.prerequisites.append(pfCandWeight)
         #
         # Softkiller
         #
@@ -313,7 +307,7 @@ class RecoJetAdder(object):
           self.prerequisites.append(pfCand)
         else:
           raise RuntimeError("Currently unsupported PU method: '%s'" % recoJetInfo.jetPUMethod)
-      
+
       #============================================
       #
       # Create the recojet collection
@@ -335,7 +329,7 @@ class RecoJetAdder(object):
         elif recoJetInfo.jetPUMethod == "puppi":
           self.addProcessAndTask(proc, jetCollection, ak4PFJetsPuppi.clone(
               src = self.pfLabel,
-              srcWeights = pfCand
+              srcWeights = pfCandWeight
             )
           )
         elif recoJetInfo.jetPUMethod == "sk":
@@ -363,7 +357,7 @@ class RecoJetAdder(object):
         currentTasks.append(jetCollection)
       else:
         jetCollection = inputCollection
-      
+
 
       #=============================================
       #
@@ -371,7 +365,7 @@ class RecoJetAdder(object):
       #
       #=============================================
       #
-      # Jet correction 
+      # Jet correction
       #
       if recoJetInfo.jetPUMethod == "puppi":
         jetCorrLabel = "Puppi"
@@ -413,23 +407,23 @@ class RecoJetAdder(object):
       # Need to set this explicitly for PUPPI jets
       #
       if recoJetInfo.jetPUMethod == "puppi":
-        getattr(proc, "patJetFlavourAssociation{}{}".format(jetUpper,postfix)).weights = cms.InputTag(pfCand)
+        getattr(proc, "patJetFlavourAssociation{}{}".format(jetUpper,postfix)).weights = cms.InputTag(pfCandWeight)
 
       getJetMCFlavour = not recoJetInfo.doCalo and recoJetInfo.jetPUMethod != "cs"
       if not self.runOnMC: #Remove modules for Gen-level object matching
         delattr(proc, 'patJetGenJetMatch{}{}'.format(jetUpper,postfix))
         delattr(proc, 'patJetPartonMatch{}{}'.format(jetUpper,postfix))
-        getJetMCFlavour = False 
+        getJetMCFlavour = False
       setattr(getattr(proc, "patJets{}{}".format(jetUpper,postfix)), "getJetMCFlavour", cms.bool(getJetMCFlavour))
 
       selectedPatJets = "selectedPatJets{}{}".format(jetUpper,postfix)
       #=============================================
       #
-      # Update the patJet collection. 
-      # This is where we setup 
+      # Update the patJet collection.
+      # This is where we setup
       # -  JEC
-      # -  b-tagging discriminators  
-      # 
+      # -  b-tagging discriminators
+      #
       #=============================================
       updateJetCollection(
         proc,
