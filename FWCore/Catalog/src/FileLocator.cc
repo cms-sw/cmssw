@@ -70,14 +70,6 @@ namespace edm {
     //check if input is an authentic LFN
     if (input.compare(0, 7, kLFNPrefix) != 0)
       return out;
-    //use prefix in the protocol
-    if (!m_prefix.empty()) {
-      out = m_prefix + "/" + input;
-      if (input[0] == '/')
-        out = m_prefix + input;
-      return out;
-    }
-    //no prefix in the protocol, use rule
     for (size_t pi = 0, pe = m_protocols.size(); pi != pe; ++pi) {
       out = applyRules(rules, m_protocols[pi], m_destination, direct, input);
       if (!out.empty()) {
@@ -118,11 +110,12 @@ namespace edm {
     }
     auto const pathMatchRegexp = storageRule.second.get<std::string>("lfn");
     auto const result = storageRule.second.get<std::string>("pfn");
+    auto const chain = storageRule.second.get("chain", kEmptyString);
     Rule rule;
     rule.pathMatch.assign(pathMatchRegexp);
     rule.destinationMatch.assign(".*");
     rule.result = result;
-    rule.chain = "";
+    rule.chain = chain;
     rules[protocol].emplace_back(std::move(rule));
   }
 
@@ -293,22 +286,27 @@ namespace edm {
 
     std::string protName = found_protocol->second.get("protocol", kEmptyString);
     m_protocols.push_back(protName);
-    m_prefix = found_protocol->second.get("prefix", kEmptyString);
-    if (m_prefix == kEmptyString) {
-      //get rules
-      if (found_protocol->second.find("rules") == found_protocol->second.not_found()) {
-        cms::Exception ex("FileCatalog");
-        ex << "protocol must contain either a prefix or rules, "
-           << "neither found for protocol \"" << aCatalog.protocol << "\" for the storage site \""
-           << aCatalog.storageSite << "\" and volume \"" << aCatalog.volume
-           << "\" in storage.json. Check site-local-config.xml <data-access> and storage.json";
-        ex.addContext("edm::FileLocator:init()");
-        throw ex;
-      }
-      const pt::ptree& rules = found_protocol->second.find("rules")->second;
+
+    //store all prefixes and rules to m_directRules. We need to do this so that "applyRules" can find the rule in case chaining is used
+    //loop over protocols
+    for (pt::ptree::value_type const& protocol : protocols) {
+      std::string protName = protocol.second.get("protocol", kEmptyString);
       //loop over rules
-      for (pt::ptree::value_type const& storageRule : rules) {
-        parseRule(storageRule, protName, m_directRules);
+      std::string prefixTmp = protocol.second.get("prefix", kEmptyString);
+      if (prefixTmp == kEmptyString) {
+        const pt::ptree& rules = protocol.second.find("rules")->second;
+        for (pt::ptree::value_type const& storageRule : rules) {
+          parseRule(storageRule, protName, m_directRules);
+        }
+      }
+      //now convert prefix to a rule and save it
+      else {
+        Rule rule;
+        rule.pathMatch.assign("/?(.*)");
+        rule.destinationMatch.assign(".*");
+        rule.result = prefixTmp + "/$1";
+        rule.chain = kEmptyString;
+        m_directRules[protName].emplace_back(std::move(rule));
       }
     }
   }
