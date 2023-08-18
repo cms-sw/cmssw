@@ -46,14 +46,13 @@ private:
 
   l1t::demo::BoardDataWriter fileWriterOutputToGT_;
   std::vector<std::pair<edm::EDGetTokenT<edm::View<l1t::PFJet>>, edm::EDGetTokenT<edm::View<l1t::EtSum>>>> tokens_;
-  std::vector<std::pair<bool,bool>> tokensToWrite_;
+  std::vector<std::pair<bool, bool>> tokensToWrite_;
   //std::vector<edm::EDGetTokenT<edm::View<l1t::PFJet>>> jetsTokens_;
   //std::vector<edm::EDGetTokenT<edm::View<l1t::EtSum>>> mhtTokens_;
 };
 
 L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
-    : 
-      collections_(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet>>("collections",
+    : collections_(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet>>("collections",
                                                                                  std::vector<edm::ParameterSet>())),
       nJets_(iConfig.getParameter<unsigned>("nJets")),
       nFramesPerBX_(iConfig.getParameter<unsigned>("nFramesPerBX")),
@@ -68,31 +67,31 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
                             ctl2BoardTMUX_,
                             maxLinesPerFile_,
                             channelSpecsOutputToGT_) {
-        for(const auto &pset : collections_){
-          edm::EDGetTokenT<edm::View<l1t::PFJet>> jetToken;
-          edm::EDGetTokenT<edm::View<l1t::EtSum>> mhtToken;
-          bool writeJetToken(false), writeMhtToken(false);
-          if(pset.exists("jets")){
-            jetToken = consumes<edm::View<l1t::PFJet>>(pset.getParameter<edm::InputTag>("jets"));
-            writeJetToken = true;
-          }
-          if(pset.exists("mht")){
-            mhtToken = consumes<edm::View<l1t::EtSum>>(pset.getParameter<edm::InputTag>("mht"));
-            writeMhtToken = true;
-          }
-          tokens_.push_back(std::make_pair(jetToken, mhtToken));
-          tokensToWrite_.push_back(std::make_pair(writeJetToken, writeMhtToken));
-        }
-      }
+  for (const auto& pset : collections_) {
+    edm::EDGetTokenT<edm::View<l1t::PFJet>> jetToken;
+    edm::EDGetTokenT<edm::View<l1t::EtSum>> mhtToken;
+    bool writeJetToken(false), writeMhtToken(false);
+    if (pset.exists("jets")) {
+      jetToken = consumes<edm::View<l1t::PFJet>>(pset.getParameter<edm::InputTag>("jets"));
+      writeJetToken = true;
+    }
+    if (pset.exists("mht")) {
+      mhtToken = consumes<edm::View<l1t::EtSum>>(pset.getParameter<edm::InputTag>("mht"));
+      writeMhtToken = true;
+    }
+    tokens_.push_back(std::make_pair(jetToken, mhtToken));
+    tokensToWrite_.push_back(std::make_pair(writeJetToken, writeMhtToken));
+  }
+}
 
 void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // 1) Pack collections in the order they're specified. jets then sums within collection
   std::vector<ap_uint<64>> link_words;
-  for(unsigned iCollection = 0; iCollection < collections_.size(); iCollection++){
-    if(tokensToWrite_.at(iCollection).first){
-      const auto &jetToken = tokens_.at(iCollection).first;
+  for (unsigned iCollection = 0; iCollection < collections_.size(); iCollection++) {
+    if (tokensToWrite_.at(iCollection).first) {
+      const auto& jetToken = tokens_.at(iCollection).first;
       // 2) Encode jet information onto vectors containing link data
       // TODO remove the sort here and sort the input collection where it's created
       const edm::View<l1t::PFJet>& jets = iEvent.get(jetToken);
@@ -106,9 +105,9 @@ void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
       link_words.insert(link_words.end(), outputJets.begin(), outputJets.end());
     }
 
-    if(tokensToWrite_.at(iCollection).second){
+    if (tokensToWrite_.at(iCollection).second) {
       // 3) Encode sums onto vectors containing link data
-      const auto &mhtToken = tokens_.at(iCollection).second;
+      const auto& mhtToken = tokens_.at(iCollection).second;
       const edm::View<l1t::EtSum>& mht = iEvent.get(mhtToken);
       std::vector<l1t::EtSum> orderedSums;
       std::copy(mht.begin(), mht.end(), std::back_inserter(orderedSums));
@@ -164,7 +163,6 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::Et
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription vpsd1;
