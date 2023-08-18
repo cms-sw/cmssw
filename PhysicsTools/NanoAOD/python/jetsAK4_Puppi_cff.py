@@ -160,11 +160,12 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4=False):
         jetSource = cms.InputTag('slimmedJetsPuppi'),
         jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
         btagDiscriminators = _btagDiscriminators,
+        labelName = "Puppi",
         postfix = 'WithDeepInfo',
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.jetPuppiCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
+    process.jetPuppiCorrFactorsNano.src="selectedUpdatedPatJetsPuppiWithDeepInfo"
+    process.updatedJetsPuppi.jetSource="selectedUpdatedPatJetsPuppiWithDeepInfo"
     return process
 
 nanoAOD_addDeepInfoAK4_switch = cms.PSet(
