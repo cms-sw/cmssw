@@ -128,6 +128,8 @@ jetPuppiTable = simpleCandidateFlatTableProducer.clone(
         neHEF = Var("neutralHadronEnergyFraction()", float, doc="neutral Hadron Energy Fraction", precision= 6),
         chEmEF = Var("chargedEmEnergyFraction()", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
         neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
+        hfHEF = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision= 6),
+        hfEmEF = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision= 6),
         muEF = Var("muonEnergyFraction()", float, doc="muon Energy Fraction", precision= 6),
     )
 )
@@ -151,8 +153,11 @@ run2_nanoAOD_ANY.toModify(
     PNetRegPtRawCorr = None,
     PNetRegPtRawCorrNeutrino = None,
     PNetRegPtRawRes = None,
+    # Remove for V11 and earlier Run3 versions
     chMultiplicity = None,
-    neMultiplicity = None
+    neMultiplicity = None,
+    hfHEF = None,
+    hfEmEF = None
 )
 
 #jets are not as precise as muons
