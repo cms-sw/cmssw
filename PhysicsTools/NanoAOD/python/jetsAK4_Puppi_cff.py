@@ -41,6 +41,24 @@ tightJetPuppiIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
     src = cms.InputTag("updatedJetsPuppi")
 )
 
+run2_jme_2016.toModify(
+    tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
+)
+
+(run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    tightJetPuppiId.filterParams, version = "RUN2ULPUPPI"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN2ULPUPPI"
+)
+
+run3_jme_Winter22runsBCDEprompt.toModify(
+    tightJetPuppiId.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
+).toModify(
+    tightJetPuppiIdLepVeto.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
+)
+
 #HF shower shape recomputation
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 hfJetPuppiShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJetsPuppi",vertices="offlineSlimmedPrimaryVertices")
@@ -178,7 +196,7 @@ nanoAOD_addDeepInfoAK4_switch = cms.PSet(
 #################################################
 
 ################################################################################
-# JETS FOR MET type1 
+# JETS FOR MET type1
 ################################################################################
 basicJetsPuppiForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
     src = updatedJetsPuppiWithUserData.src,
