@@ -214,59 +214,6 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor41058(process):
-    for prod in esproducers_by_type(process, 'ClusterShapeHitFilterESProducer'):
-        prod.PixelShapeFile = "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par"
-        prod.PixelShapeFileL1 = "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par"
-
-    return process
-
-def customizeHLTfor41495(process):
-    for producer in filters_by_type(process, 'HLTPixelIsolTrackL1TFilter'):
-        if hasattr(producer, 'L1GTSeedLabel'):
-            del producer.L1GTSeedLabel
-        if hasattr(producer, 'MinDeltaPtL1Jet'):
-            del producer.MinDeltaPtL1Jet
-
-    return process
-
-def customizeHLTfor41815(process):
-    # use hlt online BeamSpot for SiStripClusters2ApproxClusters
-    for producer in producers_by_type(process, 'SiStripClusters2ApproxClusters'):
-        producer.beamSpot = cms.InputTag('hltOnlineBeamSpot')
-
-    if hasattr(process, 'HLT_HIRandom_v4'):
-        getattr(process,'HLT_HIRandom_v4').insert(2,process.HLTBeamSpot)
-
-    return process
-
-def customizeHLTfor41632(process):
-    for producerType in [
-        'SiPixelRawToClusterCUDA',
-        'SiPixelRawToClusterCUDAPhase1',
-        'SiPixelRawToClusterCUDAHIonPhase1',
-    ]:
-        for producer in producers_by_type(process, producerType):
-            # use explicit cms.double as parameters may not already be present, and
-            # set values to the correct Run-3 values (even when the parameters are already defined)
-            producer.VCaltoElectronGain = cms.double(1.)
-            producer.VCaltoElectronGain_L1 = cms.double(1.)
-            producer.VCaltoElectronOffset = cms.double(0.)
-            producer.VCaltoElectronOffset_L1 = cms.double(0.)
-
-    return process
-
-def customizeHLTfor42410(process):
-    for producerType in [
-        'SiPixelRawToClusterCUDA',
-        'SiPixelRawToClusterCUDAPhase1',
-        'SiPixelRawToClusterCUDAHIonPhase1',
-    ]:
-        for producer in producers_by_type(process, producerType):
-            if hasattr(producer, 'isRun2'):
-                del producer.isRun2
-
-    return process
 
 def customizeHLTfor42514(process):
     for p in esproducers_by_type(process, 'SiPixelTemplateDBObjectESProducer'):
@@ -274,6 +221,7 @@ def customizeHLTfor42514(process):
         break
 
     return process
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -283,11 +231,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customizeHLTfor41058(process)
-    process = customizeHLTfor41495(process)
-    process = customizeHLTfor41815(process)
-    process = customizeHLTfor41632(process)
-    process = customizeHLTfor42410(process)
     process = customizeHLTfor42514(process)
 
     return process
