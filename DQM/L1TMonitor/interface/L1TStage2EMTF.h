@@ -54,7 +54,7 @@ private:
   MonitorElement* emtfTrackPt;
   MonitorElement* emtfTrackUnconstrainedPt;
   MonitorElement* emtfTrackDxy;
-  MonitorElement* emtfTrackPtHighQuality;               //Chad Freer May 8 2018
+  MonitorElement* emtfTrackPtHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackUnconstrainedPtHighQuality;
   MonitorElement* emtfTrackPtHighQualityHighPT;
   MonitorElement* emtfTrackUnconstrainedPtHighQualityHighUPT;
