@@ -52,24 +52,24 @@ private:
   MonitorElement* emtfTrackBXVsCSCLCT[3];
   MonitorElement* emtfTrackBXVsRPCHit[3];
   MonitorElement* emtfTrackPt;
-  MonitorElement* emtfTrackUnconstrainedPt;             // Lucas Faria de Sa Tucker Jun 28 2023
-  MonitorElement* emtfTrackDxy;                         // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackUnconstrainedPt;
+  MonitorElement* emtfTrackDxy;
   MonitorElement* emtfTrackPtHighQuality;               //Chad Freer May 8 2018
-  MonitorElement* emtfTrackUnconstrainedPtHighQuality;  // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackUnconstrainedPtHighQuality;
   MonitorElement* emtfTrackPtHighQualityHighPT;
-  MonitorElement* emtfTrackUnconstrainedPtHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackUnconstrainedPtHighQualityHighUPT;
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackEtaHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackEtaHighQualityHighPT;
-  MonitorElement* emtfTrackEtaHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackEtaHighQualityHighUPT;
   MonitorElement* emtfTrackPhi;
   MonitorElement* emtfTrackPhiHighQuality;
   MonitorElement* emtfTrackPhiHighQualityHighPT;
-  MonitorElement* emtfTrackPhiHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackPhiHighQualityHighUPT;
   MonitorElement* emtfTrackOccupancy;
   MonitorElement* emtfTrackOccupancyHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackOccupancyHighQualityHighPT;
-  MonitorElement* emtfTrackOccupancyHighQualityHighUPT;  // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfTrackOccupancyHighQualityHighUPT;
   MonitorElement* emtfTrackMode;
   MonitorElement* emtfTrackQuality;
   MonitorElement* emtfTrackQualityVsMode;
@@ -77,8 +77,8 @@ private:
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;
-  MonitorElement* emtfMuonhwPtUnconstrained;  // Lucas Faria de Sa Tucker Jun 28 2023
-  MonitorElement* emtfMuonhwDxy;              // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfMuonhwPtUnconstrained;
+  MonitorElement* emtfMuonhwDxy;
   MonitorElement* emtfMuonhwEta;
   MonitorElement* emtfMuonhwPhi;
   MonitorElement* emtfMuonhwQual;
