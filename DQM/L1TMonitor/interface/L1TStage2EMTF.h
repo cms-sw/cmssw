@@ -77,8 +77,8 @@ private:
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;
-  MonitorElement* emtfMuonhwPtUnconstrained;  // Lucas Faria de Sa Tucker Jun 28 2023
-  MonitorElement* emtfMuonhwDxy;              // Lucas Faria de Sa Tucker Jun 28 2023
+  MonitorElement* emtfMuonhwPtUnconstrained;
+  MonitorElement* emtfMuonhwDxy;
   MonitorElement* emtfMuonhwEta;
   MonitorElement* emtfMuonhwPhi;
   MonitorElement* emtfMuonhwQual;
