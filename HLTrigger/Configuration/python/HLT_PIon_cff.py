@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_13_0_0/PIon --cff --data --type PIon
+# hltGetConfiguration /dev/CMSSW_13_2_0/PIon --cff --data --type PIon
 
-# /dev/CMSSW_13_0_0/PIon/V153 (CMSSW_13_0_2)
+# /dev/CMSSW_13_2_0/PIon/V12 (CMSSW_13_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_0_0/PIon/V153')
+  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V12')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -1641,8 +1641,8 @@ fragment.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
   appendToDataLabel = cms.string( "" )
 )
 fragment.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
-  PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
-  PixelShapeFileL1 = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
+  PixelShapeFile = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
+  PixelShapeFileL1 = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
   ComponentName = cms.string( "ClusterShapeHitFilter" ),
   isPhase2 = cms.bool( False ),
   doPixelShapeCut = cms.bool( True ),
@@ -1815,6 +1815,7 @@ fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 )
 fragment.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" ),
+  PluginName = cms.string( "" ),
   SimpleMagneticField = cms.string( "" )
 )
 fragment.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
@@ -2994,8 +2995,8 @@ fragment.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProduce
   appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPMixedStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
-  PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
-  PixelShapeFileL1 = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
+  PixelShapeFile = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
+  PixelShapeFileL1 = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
   ComponentName = cms.string( "hltESPMixedStepClusterShapeHitFilter" ),
   isPhase2 = cms.bool( False ),
   doPixelShapeCut = cms.bool( True ),
@@ -3138,8 +3139,8 @@ fragment.hltESPPixelLessStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "
   appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPPixelLessStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
-  PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
-  PixelShapeFileL1 = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
+  PixelShapeFile = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
+  PixelShapeFileL1 = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
   ComponentName = cms.string( "hltESPPixelLessStepClusterShapeHitFilter" ),
   isPhase2 = cms.bool( False ),
   doPixelShapeCut = cms.bool( True ),
@@ -3345,8 +3346,8 @@ fragment.hltESPTobTecStepChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi
   appendToDataLabel = cms.string( "" )
 )
 fragment.hltESPTobTecStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
-  PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
-  PixelShapeFileL1 = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
+  PixelShapeFile = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" ),
+  PixelShapeFileL1 = cms.string( "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
   ComponentName = cms.string( "hltESPTobTecStepClusterShapeHitFilter" ),
   isPhase2 = cms.bool( False ),
   doPixelShapeCut = cms.bool( True ),
@@ -3522,6 +3523,7 @@ fragment.muonSeededTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCl
 )
 fragment.navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "SimpleNavigationSchool" ),
+  PluginName = cms.string( "" ),
   SimpleMagneticField = cms.string( "ParabolicMf" )
 )
 fragment.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
