@@ -4,7 +4,8 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials/2021/v2/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2021/v3/materials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v3/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
@@ -24,14 +25,7 @@
     <Include ref='Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/trackermaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/pixfwdMaterials.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v1/pixbarmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tibtidcommonmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tibmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tidmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/v2/tobmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/FlatPlus05Percent/2021/tecmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v3/pixfwdMaterials.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/pixfwdCommon.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdCylinder.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdDisks.xml'/>
@@ -45,6 +39,7 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeInnerZminus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZplus.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZminus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v3/pixbarmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull1.xml'/>
@@ -58,6 +53,8 @@
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tibtidcommonmaterial/2021/v2/tibtidcommonmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tibmaterial/2021/v2/tibmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0a.xml'/>
@@ -90,6 +87,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tiblayer2.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tiblayer3.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tib.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tidmaterial/2021/v2/tidmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0r.xml'/>
@@ -112,6 +110,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tibtidservices.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesf.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesb.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tobmaterial/2021/v2/tobmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule2.xml'/>
@@ -139,6 +138,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tobrod5h.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobrod5.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tob/v3/tob.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tecmaterial/2021/v1/tecmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0r.xml'/>
@@ -234,7 +234,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2021/v1/hcalSimNumbering.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2021/v1/hcalRecNumbering.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2021/hcalRecNumbering.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb2/2021/v1/mb2.xml'/>
@@ -246,7 +246,7 @@
     <Include ref='Geometry/MuonCommonData/data/rpcf/2021/v2/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/gem21/2023/v1/gem21.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/gem21/2021/v1/gem21.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2021/v3/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/2021/v5/muonNumbering.xml'/>
@@ -353,7 +353,7 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_123.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/RP_Dist_Beam_Cent/Simu/v1/RP_Dist_Beam_Cent.xml'/>
     <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v2/hcalsenspmf.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v1/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>
