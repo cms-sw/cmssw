@@ -209,12 +209,11 @@ namespace pixelgpudetails {
       case (29): {
         if constexpr (debug)
           printf("Timeout on a channel (errorType = 29)\n");
-        errorFound = true;
         if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
           if constexpr (debug)
             printf("...2nd errorType=29 error, skip\n");
-          errorFound = false;
         }
+        errorFound = true;
         break;
       }
       case (30): {
