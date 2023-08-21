@@ -309,8 +309,6 @@ void SiPixelRawToClusterCUDAT<TrackerTraits>::produce(edm::Event& iEvent, const 
 }
 
 // define as framework plugin
-using SiPixelRawToClusterCUDA = SiPixelRawToClusterCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(SiPixelRawToClusterCUDA);
 using SiPixelRawToClusterCUDAPhase1 = SiPixelRawToClusterCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SiPixelRawToClusterCUDAPhase1);
 using SiPixelRawToClusterCUDAHIonPhase1 = SiPixelRawToClusterCUDAT<pixelTopology::HIonPhase1>;
