@@ -289,12 +289,149 @@ namespace {
     std::string m_condDbCabling;
   };
 
-  using SiPixelBPixFEDChannelContainerMap = SiPixelFEDChannelContainerMap<SiPixelPI::t_barrel>;
-  using SiPixelFPixFEDChannelContainerMap = SiPixelFEDChannelContainerMap<SiPixelPI::t_forward>;
-  using SiPixelFullFEDChannelContainerMap = SiPixelFEDChannelContainerMap<SiPixelPI::t_all>;
-
   /************************************************
   1d histogram of SiPixelFEDChannelContainer of 1 IOV
+  *************************************************/
+
+  template <SiPixelPI::DetType myType>
+  class SiPixelFEDChannelContainerMapSimple : public PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV> {
+  public:
+    SiPixelFEDChannelContainerMapSimple()
+        : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>("SiPixelFEDChannelContainer scenarios count") {
+      // for inputs
+      PlotBase::addInputParam("Scenarios");
+    }
+
+    bool fill() override {
+      std::vector<std::string> the_scenarios = {};
+
+      auto paramValues = PlotBase::inputParamValues();
+      auto ip = paramValues.find("Scenarios");
+      if (ip != paramValues.end()) {
+        auto input = ip->second;
+        typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+        boost::char_separator<char> sep{","};
+        tokenizer tok{input, sep};
+        for (const auto& t : tok) {
+          the_scenarios.push_back(t);
+        }
+      } else {
+        edm::LogWarning(k_ClassName)
+            << "\n WARNING!!!! \n The needed parameter Scenarios has not been passed. Will use all the scenarios in "
+               "the file!"
+            << "\n Buckle your seatbelts... this might take a while... \n\n";
+        the_scenarios.push_back("all");
+      }
+
+      Phase1PixelROCMaps theROCMap("");
+
+      auto tag = PlotBase::getTag<0>();
+      auto tagname = tag.name;
+      auto iov = tag.iovs.front();
+
+      std::shared_ptr<SiPixelFEDChannelContainer> payload = fetchPayload(std::get<1>(iov));
+      const auto& scenarioMap = payload->getScenarioMap();
+
+      for (const auto& scenario : scenarioMap) {
+        std::string scenName = scenario.first;
+
+        if (std::find_if(the_scenarios.begin(), the_scenarios.end(), compareKeys(scenName)) != the_scenarios.end() ||
+            the_scenarios[0] == "all") {
+          edm::LogPrint(k_ClassName) << "\t Found Scenario: " << scenName << " ==> dumping it";
+        } else {
+          continue;
+        }
+
+        const auto& theDetSetBadPixelFedChannels = payload->getDetSetBadPixelFedChannels(scenName);
+        for (const auto& disabledChannels : *theDetSetBadPixelFedChannels) {
+          const auto t_detid = disabledChannels.detId();
+          int subid = DetId(t_detid).subdetId();
+          LogDebug(k_ClassName) << fmt::sprintf("DetId : %i \n", t_detid) << std::endl;
+
+          std::bitset<16> badRocsFromFEDChannels;
+
+          for (const auto& ch : disabledChannels) {
+            std::string toOut_ = fmt::sprintf("fed : %i | link : %2i | roc_first : %2i | roc_last: %2i \n",
+                                              ch.fed,
+                                              ch.link,
+                                              ch.roc_first,
+                                              ch.roc_last);
+
+            LogDebug(k_ClassName) << toOut_ << std::endl;
+            for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc) {
+              badRocsFromFEDChannels.set(i_roc);
+            }
+          }
+
+          LogDebug(k_ClassName) << badRocsFromFEDChannels << std::endl;
+
+          const auto& myDetId = DetId(t_detid);
+
+          if (subid == PixelSubdetector::PixelBarrel) {
+            theROCMap.fillSelectedRocs(myDetId, badRocsFromFEDChannels, 1.);
+          }  // if it's barrel
+          else if (subid == PixelSubdetector::PixelEndcap) {
+            theROCMap.fillSelectedRocs(myDetId, badRocsFromFEDChannels, 1.);
+          }  // if it's endcap
+          else {
+            throw cms::Exception("LogicError") << "Unknown Pixel SubDet ID " << std::endl;
+          }  // else nonsense
+        }    // loop on the channels
+      }      // loop on the scenarios
+
+      gStyle->SetOptStat(0);
+      //=========================
+      TCanvas canvas("Summary", "Summary", 1200, k_height[myType]);
+      canvas.cd();
+
+      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+
+      std::string IOVstring = (unpacked.first == 0)
+                                  ? std::to_string(unpacked.second)
+                                  : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second));
+
+      const auto headerText = fmt::sprintf("#color[4]{%s},  IOV: #color[4]{%s}", tagname, IOVstring);
+
+      switch (myType) {
+        case SiPixelPI::t_barrel:
+          theROCMap.drawBarrelMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_forward:
+          theROCMap.drawForwardMaps(canvas, headerText);
+          break;
+        case SiPixelPI::t_all:
+          theROCMap.drawMaps(canvas, headerText);
+          break;
+        default:
+          throw cms::Exception("LogicError") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      return true;
+    }
+
+  public:
+    // auxilliary check
+    struct compareKeys {
+      std::string key;
+      compareKeys(std::string const& i) : key(i) {}
+
+      bool operator()(std::string const& i) { return (key == i); }
+    };
+
+  private:
+    // graphics
+    static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
+    static constexpr const char* k_ClassName = "SiPixelFEDChannelContainerMapSimple"; 
+  };
+
+  using SiPixelBPixFEDChannelContainerMap = SiPixelFEDChannelContainerMapSimple<SiPixelPI::t_barrel>;
+  using SiPixelFPixFEDChannelContainerMap = SiPixelFEDChannelContainerMapSimple<SiPixelPI::t_forward>;
+  using SiPixelFullFEDChannelContainerMap = SiPixelFEDChannelContainerMapSimple<SiPixelPI::t_all>;
+
+  /************************************************
+  1d histogram of number of SiPixelFEDChannelContainer scenarios
   *************************************************/
 
   class SiPixelFEDChannelContainerScenarios : public PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV> {
