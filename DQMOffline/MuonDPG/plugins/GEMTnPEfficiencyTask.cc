@@ -83,9 +83,9 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   MonitorElement* me_GE11_fail_chamber_1D =
       iBooker.book1D("GE11_nFailingProbe_chamber_1D", "GE11_nFailingProbe_chamber_1D", 36, 1, 37);
    MonitorElement* me_GE21_pass_Ch_ieta =
-      iBooker.book2D("GE21_nPassingProbe_Ch_ieta", "GE21_nPassingProbe_Ch_ieta", 12, 1, 13, 18, 1, 19);
+      iBooker.book2D("GE21_nPassingProbe_Ch_ieta", "GE21_nPassingProbe_Ch_ieta", 16, 1, 17, 18, 1, 19);
   MonitorElement* me_GE21_fail_Ch_ieta =
-      iBooker.book2D("GE21_nFailingProbe_Ch_ieta", "GE21_nFailingProbe_Ch_ieta", 12, 1, 13, 18, 1, 19);
+      iBooker.book2D("GE21_nFailingProbe_Ch_ieta", "GE21_nFailingProbe_Ch_ieta", 16, 1, 17, 18, 1, 19);
   MonitorElement* me_GE21_pass_Ch_phi =
       iBooker.book2D("GE21_nPassingProbe_Ch_phi", "GE21_nPassingProbe_Ch_phi", 20, -TMath::Pi(), TMath::Pi(), 18, 1, 19);
   MonitorElement* me_GE21_fail_Ch_phi =
@@ -410,7 +410,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   for (int i = 1; i < 19; ++i) {
     me_GE21_fail_Ch_ieta->setBinLabel(i, std::to_string(i), 2);
   }
-  for (int i = 1; i < 13; ++i) {
+  for (int i = 1; i < 17; ++i) {
     me_GE21_fail_Ch_ieta->setBinLabel(i, std::to_string(i), 1);
   }
   me_GE21_fail_Ch_ieta->setAxisTitle("#ieta", 1);
@@ -420,7 +420,7 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   for (int i = 1; i < 19; ++i) {
     me_GE21_pass_Ch_ieta->setBinLabel(i, std::to_string(i), 2);
   }
-  for (int i = 1; i < 13; ++i) {
+  for (int i = 1; i < 17; ++i) {
     me_GE21_pass_Ch_ieta->setBinLabel(i, std::to_string(i), 1);
   }
   me_GE21_pass_Ch_ieta->setAxisTitle("#ieta", 1);
