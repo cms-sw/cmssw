@@ -312,7 +312,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
 
-    std::string fieldFile = m_p.getParameter<std::string>("FileNameField");
+    std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField","");
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, [this]() { m_dumpMF = true; });
       if (m_dumpMF) {
@@ -335,7 +335,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
       << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
 
   // geometry dump
-  auto writeFile = m_p.getParameter<std::string>("FileNameGDML");
+  auto writeFile = m_p.getUntrackedParameter<std::string>("FileNameGDML");
   if (!writeFile.empty()) {
     std::call_once(applyOnceGDML, [this]() { m_dumpGDML = true; });
     if (m_dumpGDML) {
