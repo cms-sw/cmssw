@@ -5,10 +5,16 @@
 L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const edm::ParameterSet& iConfig,
                                                                            const l1ct::Event& eventTemplate)
     : partition_(parsePartition(iConfig.getParameter<std::string>("partition"))),
+      tmuxFactor_(iConfig.getParameter<uint32_t>("tmuxFactor")),
       writeInputs_(iConfig.existsAs<std::string>("inputFileName") &&
                    !iConfig.getParameter<std::string>("inputFileName").empty()),
       writeOutputs_(iConfig.existsAs<std::string>("outputFileName") &&
                     !iConfig.getParameter<std::string>("outputFileName").empty()),
+      tfTimeslices_(std::max(1u, tfTmuxFactor_ / tmuxFactor_)),
+      hgcTimeslices_(std::max(1u, hgcTmuxFactor_ / tmuxFactor_)),
+      gctTimeslices_(std::max(1u, gctTmuxFactor_ / tmuxFactor_)),
+      gmtTimeslices_(std::max(1u, gmtTmuxFactor_ / tmuxFactor_)),
+      gttTimeslices_(std::max(1u, gttTmuxFactor_ / tmuxFactor_)),
       outputBoard_(-1),
       outputLinkEgamma_(-1),
       fileFormat_(iConfig.getParameter<std::string>("fileFormat")),
@@ -19,7 +25,7 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
 
     if (partition_ == Partition::Barrel || partition_ == Partition::HGCal) {
       configTimeSlices(iConfig, "tf", eventTemplate.raw.track.size(), tfTimeslices_, tfLinksFactor_);
-      channelSpecsInput_["tf"] = {tmuxFactor_ * tfTimeslices_, tfTimeslices_};
+      channelSpecsInput_["tf"] = {tfTmuxFactor_, tfTimeslices_};
     }
     if (partition_ == Partition::Barrel) {
       auto sectorConfig = iConfig.getParameter<std::vector<edm::ParameterSet>>("gctSectors");
@@ -56,7 +62,7 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
       configTimeSlices(iConfig, "gtt", 1, gttTimeslices_, gttLinksFactor_);
       gttLatency_ = iConfig.getParameter<uint32_t>("gttLatency");
       gttNumberOfPVs_ = iConfig.getParameter<uint32_t>("gttNumberOfPVs");
-      channelSpecsInput_["gtt"] = l1t::demo::ChannelSpec{tmuxFactor_, gttTimeslices_, gttLatency_};
+      channelSpecsInput_["gtt"] = l1t::demo::ChannelSpec{tmuxFactor_ * gttTimeslices_, 1, gttLatency_};
     }
     inputFileWriter_ =
         std::make_unique<l1t::demo::BoardDataWriter>(l1t::demo::parseFileFormat(fileFormat_),
@@ -80,16 +86,18 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
     channelSpecsOutput_["puppi"] = {tmuxFactor_, 0};
     nPuppiFramesPerRegion_ = (nOutputFramesPerBX_ * tmuxFactor_) / outputRegions_.size();
     if (partition_ == Partition::Barrel || partition_ == Partition::HGCal) {
-      outputBoard_ = iConfig.getParameter<int32_t>("outputBoard");
       outputLinkEgamma_ = iConfig.getParameter<int32_t>("outputLinkEgamma");
       nEgammaObjectsOut_ = iConfig.getParameter<uint32_t>("nEgammaObjectsOut");
       if (outputLinkEgamma_ != -1) {
         channelIdsOutput_[l1t::demo::LinkId{"egamma", 0}].push_back(outputLinkEgamma_);
-        channelSpecsOutput_["egamma"] = {tmuxFactor_, nOutputFramesPerBX_ * tmuxFactor_ - 3 * nEgammaObjectsOut_};
+        if (partition_ == Partition::HGCal && tmuxFactor_ == 18) {
+          // the format is different, as we put together both endcaps
+          channelSpecsOutput_["egamma"] = {tmuxFactor_, nOutputFramesPerBX_ * tmuxFactor_ / 2 - 3 * nEgammaObjectsOut_};
+        } else {
+          outputBoard_ = iConfig.getParameter<int32_t>("outputBoard");
+          channelSpecsOutput_["egamma"] = {tmuxFactor_, nOutputFramesPerBX_ * tmuxFactor_ - 3 * nEgammaObjectsOut_};
+        }
       }
-    }
-    if ((outputBoard_ == -1) != (outputLinkEgamma_ == -1)) {
-      throw cms::Exception("Configuration", "Inconsistent configuration of outputLinkEgamma, outputBoard");
     }
     outputFileWriter_ =
         std::make_unique<l1t::demo::BoardDataWriter>(l1t::demo::parseFileFormat(fileFormat_),
@@ -247,12 +255,12 @@ void L1TCorrelatorLayer1PatternFileWriter::writeHGC(const l1ct::Event& event, l1
       // put header word and (dummy) towers
       ret[il].resize(31);
       ap_uint<64>& head64 = ret[il][0];
-      head64(63, 48) = 0xABC0;                 // Magic
-      head64(47, 38) = 0;                      // Opaque
-      head64(39, 32) = (eventIndex_ % 3) * 6;  // TM slice
-      head64(31, 24) = iS;                     // Sector
-      head64(23, 16) = il;                     // link
-      head64(15, 0) = eventIndex_ % 3564;      // BX
+      head64(63, 48) = 0xABC0;                                        // Magic
+      head64(47, 38) = 0;                                             // Opaque
+      head64(39, 32) = (eventIndex_ % hgcTimeslices_) * tmuxFactor_;  // TM slice
+      head64(31, 24) = iS;                                            // Sector
+      head64(23, 16) = il;                                            // link
+      head64(15, 0) = eventIndex_ % 3564;                             // BX
       for (unsigned int j = 0; j < 30; ++j) {
         ret[il][j + 1] = 4 * j + il;
       }
@@ -331,21 +339,34 @@ void L1TCorrelatorLayer1PatternFileWriter::writePuppi(const l1ct::Event& event, 
   }
 }
 
-void L1TCorrelatorLayer1PatternFileWriter::writeEgamma(const l1ct::Event& event, l1t::demo::EventData& out) {
-  std::vector<ap_uint<64>> ret;
-  const auto& pho = event.board_out[outputBoard_].egphoton;
-  const auto& ele = event.board_out[outputBoard_].egelectron;
-  ret.reserve(3 * nEgammaObjectsOut_);
+void L1TCorrelatorLayer1PatternFileWriter::writeEgamma(const l1ct::OutputBoard& egboard,
+                                                       std::vector<ap_uint<64>>& ret) {
+  unsigned int s0 = ret.size();
+  const auto& pho = egboard.egphoton;
+  const auto& ele = egboard.egelectron;
+  ret.reserve(s0 + 3 * nEgammaObjectsOut_);
   for (const auto& p : pho) {
     ret.emplace_back(p.pack());
   }
-  ret.resize(nEgammaObjectsOut_, ap_uint<64>(0));
+  ret.resize(s0 + nEgammaObjectsOut_, ap_uint<64>(0));
   for (const auto& p : ele) {
     ap_uint<128> dword = p.pack();
     ret.push_back(dword(63, 0));
     ret.push_back(dword(127, 64));
   }
-  ret.resize(3 * nEgammaObjectsOut_, ap_uint<64>(0));
+  ret.resize(s0 + 3 * nEgammaObjectsOut_, ap_uint<64>(0));
+}
+
+void L1TCorrelatorLayer1PatternFileWriter::writeEgamma(const l1ct::Event& event, l1t::demo::EventData& out) {
+  std::vector<ap_uint<64>> ret;
+  if (partition_ == Partition::HGCal && tmuxFactor_ == 18) {
+    // the format is different, as we put together both endcaps
+    writeEgamma(event.board_out[0], ret);
+    ret.resize(nOutputFramesPerBX_ * tmuxFactor_ / 2, ap_uint<64>(0));
+    writeEgamma(event.board_out[1], ret);
+  } else {
+    writeEgamma(event.board_out[outputBoard_], ret);
+  }
   out.add(l1t::demo::LinkId{"egamma", 0}, ret);
 }
 

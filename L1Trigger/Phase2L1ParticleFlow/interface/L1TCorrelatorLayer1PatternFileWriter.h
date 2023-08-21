@@ -19,17 +19,18 @@ private:
   enum class Partition { Barrel, HGCal, HGCalNoTk, HF };
 
   Partition partition_;
-  const unsigned int tmuxFactor_ = 6;  // not really configurable in current architecture
+  const unsigned int tmuxFactor_;
   bool writeInputs_, writeOutputs_;
   std::map<l1t::demo::LinkId, std::vector<size_t>> channelIdsInput_, channelIdsOutput_;
   std::map<std::string, l1t::demo::ChannelSpec> channelSpecsInput_, channelSpecsOutput_;
 
-  const unsigned int tfTimeslices_ = 3, tfLinksFactor_ = 1;    // not really configurable in current architecture
-  const unsigned int hgcTimeslices_ = 3, hgcLinksFactor_ = 4;  // not really configurable in current architecture
-  const unsigned int gctTimeslices_ = 1, gctSectors_ = 3;      // not really configurable in current architecture
-  const unsigned int gctLinksEcal_ = 1, gctLinksHad_ = 2;      // could be made configurable later
-  const unsigned int gmtTimeslices_ = 3, gmtLinksFactor_ = 1;  // not really configurable in current architecture
-  const unsigned int gttTimeslices_ = 1, gttLinksFactor_ = 1;  // not really configurable in current architecture
+  const unsigned int tfTmuxFactor_ = 18, tfLinksFactor_ = 1;  // numbers not really configurable in current architecture
+  const unsigned int hgcTmuxFactor_ = 18, hgcLinksFactor_ = 4;  // not really configurable in current architecture
+  const unsigned int gctTmuxFactor_ = 1, gctSectors_ = 3;       // not really configurable in current architecture
+  const unsigned int gctLinksEcal_ = 1, gctLinksHad_ = 2;       // could be made configurable later
+  const unsigned int gmtTmuxFactor_ = 18, gmtLinksFactor_ = 1;  // not really configurable in current architecture
+  const unsigned int gttTmuxFactor_ = 6, gttLinksFactor_ = 1;   // not really configurable in current architecture
+  const unsigned int tfTimeslices_, hgcTimeslices_, gctTimeslices_, gmtTimeslices_, gttTimeslices_;
   uint32_t gmtNumberOfMuons_;
   uint32_t gttNumberOfPVs_;
   uint32_t gttLatency_;
@@ -70,6 +71,7 @@ private:
   void writeGMT(const l1ct::Event& event, l1t::demo::EventData& out);
   void writeGTT(const l1ct::Event& event, l1t::demo::EventData& out);
   void writePuppi(const l1ct::Event& event, l1t::demo::EventData& out);
+  void writeEgamma(const l1ct::OutputBoard& egboard, std::vector<ap_uint<64>>& out);
   void writeEgamma(const l1ct::Event& event, l1t::demo::EventData& out);
 };
 

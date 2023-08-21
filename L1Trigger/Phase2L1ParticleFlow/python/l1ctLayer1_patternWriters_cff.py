@@ -8,6 +8,7 @@ _gttNumberOfPVs = 10
 ## Barrel configurations: 54 regions, 6 puppi output links, only write out the layer 1 outputs for now
 _barrelWriterOutputOnly = cms.PSet(
     partition = cms.string("Barrel"),
+    tmuxFactor = cms.uint32(6),
     outputLinksPuppi = cms.vuint32(*range(6)),
     outputLinkEgamma = cms.int32(6),
     nEgammaObjectsOut = cms.uint32(16),
@@ -72,6 +73,7 @@ barrelWriterConfigs =  barrelWriterOutputOnlyPhiConfigs
 ## HGcal configuration: write out both inputs and outputs
 _hgcalWriterConfig = cms.PSet(
     partition = cms.string("HGCal"),
+    tmuxFactor = cms.uint32(6),
     nEgammaObjectsOut = cms.uint32(16),
     nInputFramesPerBX = cms.uint32(9),
     nOutputFramesPerBX = cms.uint32(9),
@@ -162,6 +164,7 @@ hgcalWriterConfigs = [
 ## Forward HGCal configuration: only outputs for now, 18 regions, 12 candidates x region, 4 output fibers
 _hgcalNoTKWriterConfig = cms.PSet(
     partition = cms.string("HGCalNoTk"),
+    tmuxFactor = cms.uint32(6),
     outputRegions = cms.vuint32(*range(18)),
     nInputFramesPerBX = cms.uint32(9),
     nOutputFramesPerBX = cms.uint32(9),
@@ -196,11 +199,62 @@ hgcalNoTKWriterConfigs = [
 ]
 
 #####################################################################################################################
+## HGCal TM18 configuration
+_hgcalWriterTM18 = _hgcalWriterConfig.clone(
+    tmuxFactor = cms.uint32(18),
+    tfTimeSlices = None,
+    tfSectors = cms.VPSet(*[cms.PSet(tfLink = cms.int32(-1)) for i in range(18)]),
+    hgcTimeSlices = None,
+    hgcSectors = cms.VPSet(*[cms.PSet() for i in range(6)]),
+    gmtTimeSlices = None,
+    gmtLink = cms.int32(4*27+0),
+    gttLink = 4*27+3,
+    eventsPerFile = 6,
+)
+hgcalWriterOutputTM18WriterConfig = _hgcalWriterTM18.clone(
+   outputFileName = cms.string("l1HGCalTM18-outputs"),
+   outputRegions = cms.vuint32(*range(18)),
+   outputLinksPuppi = cms.vuint32(*range(2)),
+   outputLinkEgamma = cms.int32(2),
+)
+hgcalWriterVU9PTM18WriterConfig = _hgcalWriterTM18.clone(
+   inputFileName = cms.string("l1HGCalTM18-inputs-vu9p"),
+   gttLatency = cms.uint32(167), # shorter, to fit 6 events in 1024 lines
+   maxLinesPerInputFile = cms.uint32(1024+167), # anything beyond 986 will be nulls
+)
+hgcalWriterVU13PTM18WriterConfig = hgcalWriterVU9PTM18WriterConfig.clone(
+   inputFileName = cms.string("l1HGCalTM18-inputs-vu13p"),
+)
+for ie in range(2):
+    for iphi in range(9):
+        isec, ilink = 9*ie+iphi, 2*iphi+ie
+        hgcalWriterVU9PTM18WriterConfig.tfSectors[isec].tfLink = (ilink if ilink < 12 else (4*28+(ilink-12)))
+        hgcalWriterVU13PTM18WriterConfig.tfSectors[isec].tfLink = (ilink if ilink < 12 else (4*30+(ilink-12)))
+    for iphi in range(3):
+        isec, ilink = 3*ie+iphi, 2*iphi+ie
+        hgcalWriterVU9PTM18WriterConfig.hgcSectors[isec].hgcLinks = cms.vint32(*range(4*(12+ilink),4*(12+ilink)+4))
+        hgcalWriterVU13PTM18WriterConfig.hgcSectors[isec].hgcLinks = cms.vint32(*range(4*(13+ilink),4*(13+ilink)+4))
+
+hgcalTM18WriterConfigs = [
+    hgcalWriterOutputTM18WriterConfig,
+    hgcalWriterVU9PTM18WriterConfig,
+    hgcalWriterVU13PTM18WriterConfig
+]
+hgcalNoTKOutputTM18WriterConfig = _hgcalWriterTM18.clone(
+   outputFileName = cms.string("l1HGCalTM18-outputs-fwd"),
+   outputRegions = cms.vuint32(*range(18)),
+   outputBoard = cms.int32(-1),#0,1),
+   outputLinksPuppi = cms.vuint32(*range(2)),
+   outputLinkEgamma = cms.int32(-1),
+)
+
+#####################################################################################################################
 ## HF configuration (to be better defined later)
 #####################################################################################################################
 ## HF configuration not realistic, 3 links per endcap, write out the layer 1 outputs for now
 _hfWriterOutputOnly = cms.PSet(
     partition = cms.string("HF"),
+    tmuxFactor = cms.uint32(6),
     outputLinksPuppi = cms.vuint32(*range(3)),
     nOutputFramesPerBX = cms.uint32(9),
     fileFormat = cms.string("EMPv2"),

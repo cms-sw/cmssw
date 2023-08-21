@@ -23,6 +23,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/muonGmtToL1ct_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/buffered_folded_multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo2hgc_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo3_ref.h"
@@ -207,6 +208,9 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
         std::make_unique<l1ct::RegionizerEmulator>(iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else if (regalgo == "Multififo") {
     regionizer_ = std::make_unique<l1ct::MultififoRegionizerEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
+  } else if (regalgo == "BufferedFoldedMultififo") {
+    regionizer_ = std::make_unique<l1ct::BufferedFoldedMultififoRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else if (regalgo == "MultififoBarrel") {
     const auto &pset = iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters");

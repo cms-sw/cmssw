@@ -2,6 +2,7 @@
 #define multififo_regionizer_ref_h
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pfeginput_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_elements_ref.h"
 #include <memory>
 

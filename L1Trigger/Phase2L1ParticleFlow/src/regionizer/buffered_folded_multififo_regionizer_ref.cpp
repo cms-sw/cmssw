@@ -3,6 +3,28 @@
 #include <iostream>
 #include <memory>
 
+#ifdef CMSSW_GIT_HASH
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+l1ct::BufferedFoldedMultififoRegionizerEmulator::BufferedFoldedMultififoRegionizerEmulator(
+    const edm::ParameterSet& iConfig)
+    : BufferedFoldedMultififoRegionizerEmulator(iConfig.getParameter<uint32_t>("nClocks"),
+                                                iConfig.getParameter<uint32_t>("nTrack"),
+                                                iConfig.getParameter<uint32_t>("nCalo"),
+                                                iConfig.getParameter<uint32_t>("nEmCalo"),
+                                                iConfig.getParameter<uint32_t>("nMu"),
+                                                /*streaming=*/true,
+                                                /*outii=*/6,
+                                                /*pauseii=*/3,
+                                                iConfig.getParameter<bool>("useAlsoVtxCoords")) {
+  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
+  if (iConfig.existsAs<edm::ParameterSet>("egInterceptMode")) {
+    const auto& emSelCfg = iConfig.getParameter<edm::ParameterSet>("egInterceptMode");
+    setEgInterceptMode(emSelCfg.getParameter<bool>("afterFifo"), emSelCfg);
+  }
+}
+#endif
+
 l1ct::BufferedFoldedMultififoRegionizerEmulator::BufferedFoldedMultififoRegionizerEmulator(unsigned int nclocks,
                                                                                            unsigned int ntk,
                                                                                            unsigned int ncalo,
