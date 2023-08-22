@@ -1,0 +1,11 @@
+<use name="DataFormats/EcalDigi"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/EcalObjects"/>
+<use name="FWCore/Framework"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/EcalMapping"/>
+<export>
+  <lib name="1"/>
+</export>

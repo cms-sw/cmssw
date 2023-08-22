@@ -2,6 +2,7 @@
 #define DIGIECAL_ECALDIGICOLLECTION_H
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame_Ph2.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"

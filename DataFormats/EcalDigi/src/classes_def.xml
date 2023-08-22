@@ -11,13 +11,17 @@
    <class name="EcalDataFrame" ClassVersion="10">
     <version ClassVersion="10" checksum="259364627"/>
    </class>
+   <class name="EcalDataFrame_Ph2" ClassVersion="-1">
+    <version ClassVersion="-1" checksum="4122679522"/>
+   </class>
    <class name="ESDataFrame" ClassVersion="10">
     <version ClassVersion="10" checksum="2345603108"/>
    </class>
    <class name="EcalTriggerPrimitiveSample" ClassVersion="10">
     <version ClassVersion="10" checksum="251958438"/>
    </class>
-   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="13">
+   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="14">
+    <version ClassVersion="14" checksum="4281210940"/>
     <version ClassVersion="13" checksum="4171161153"/>
    </class>
    <class name="EcalTriggerPrimitiveDigi" ClassVersion="12">

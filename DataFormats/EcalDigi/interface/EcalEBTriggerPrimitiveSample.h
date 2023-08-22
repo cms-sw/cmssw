@@ -12,36 +12,36 @@
 class EcalEBTriggerPrimitiveSample {
 public:
   EcalEBTriggerPrimitiveSample();
-  EcalEBTriggerPrimitiveSample(uint16_t data);
+  EcalEBTriggerPrimitiveSample(uint32_t data);
   EcalEBTriggerPrimitiveSample(int encodedEt);
   EcalEBTriggerPrimitiveSample(int encodedEt, bool isASpike);
   EcalEBTriggerPrimitiveSample(int encodedEt, bool isASpike, int timing);
 
   ///Set data
-  void setValue(uint16_t data) { theSample = data; }
-  // The sample is a 16 bit word defined as:
+  void setValue(uint32_t data) { theSample = data; }
+  // The sample is a 18 bit word defined as:
   //
-  //     o o o o o    o     o o o o o o o o o o
-  //     |________|        |____________________|
+  //     o o o o o    o     o o o o o o o o o o o o
+  //     |________|        |_______________________|
   //      ~60ps res  spike         Et
   //      time info  flag
   //
 
   /// get the raw word
-  uint16_t raw() const { return theSample; }
+  uint32_t raw() const { return theSample & 0x3ffff ; }
 
-  /// get the encoded Et (10 bits)
-  int encodedEt() const { return theSample & 0x3FF; }
+  /// get the encoded Et (12 bits)
+  int encodedEt() const { return (theSample & 0x3ffff) &  0xFFF; }
 
-  bool l1aSpike() const { return (theSample & 0x400) != 0; }
+  bool l1aSpike() const { return (theSample & 0x3ffff  & 0x1000) != 0; }
 
-  int time() const { return theSample >> 11; }
+  int time() const { return (theSample & 0x3ffff )>> 13; }
 
   /// for streaming
-  uint16_t operator()() { return theSample; }
+  uint32_t operator()() { return theSample & 0x3ffff ; }
 
 private:
-  uint16_t theSample;
+  uint32_t theSample ;
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalEBTriggerPrimitiveSample& samp);

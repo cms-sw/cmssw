@@ -112,6 +112,18 @@
    <field name = "ee_" mapping = "blob"/>
 </class>
 
+
+<!-- base class -->
+<class name="EcalEBPhase2TPGLinearizationConstant"/>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalEBPhase2TPGLinearizationConstant>"/>
+<class name="EcalContainer<EBDetId,EcalEBPhase2TPGLinearizationConstant>"/>
+<class name="EcalCondObjectContainer<EcalEBPhase2TPGLinearizationConstant>">
+   <field name = "eb_" mapping = "blob"/>
+</class>
+
+
+
 <!-- base class -->
 <class name="EcalTPGPedestal"/>
 <!-- templates for EcalCondObjectContainer having the class as template parameter -->
@@ -122,6 +134,19 @@
    <field name = "eb_" mapping = "blob"/>
    <field name = "ee_" mapping = "blob"/>
 </class>
+
+<!-- base class -->
+<class name="EcalEBPhase2TPGPedestal"/>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalEBPhase2TPGPedestal>"/>
+<class name="EcalContainer<EBDetId,EcalEBPhase2TPGPedestal>"/>
+<class name="EcalCondObjectContainer<EcalEBPhase2TPGPedestal>">
+   <field name = "eb_" mapping = "blob"/>
+</class>
+
+
+
+
 
 <!-- base class -->
 <class name="EcalXtalGroupId"/>
@@ -223,6 +248,12 @@
 <class name="std::pair<const uint32_t, EcalTPGWeights>"/>
 <class name="EcalTPGStripStatus"/>
 <class name="EcalTPGSpike"/>
+
+<class name="EcalEBPhase2TPGAmplWeightIdMap"/>
+<class name="EcalEBPhase2TPGTimeWeightIdMap"/>
+<class name="EcalEBPhase2TPGAmplWeights"/>
+<class name="std::map<uint32_t, EcalEBPhase2TPGAmplWeights>"/>
+<class name="std::pair<const uint32_t, EcalEBPhase2TPGAmplWeights>"/>
 
 <class name="EcalTPGFineGrainEBGroup"/>
 <class name="EcalTPGLutGroup"/>

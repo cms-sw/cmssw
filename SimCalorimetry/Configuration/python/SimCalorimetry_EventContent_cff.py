@@ -7,6 +7,7 @@ SimCalorimetryFEVTDEBUG = cms.PSet(
         'keep *_simEcalPreshowerDigis_*_*', 
         'keep *_simEcalTriggerPrimitiveDigis_*_*', 
         'keep *_simEcalEBTriggerPrimitiveDigis_*_*',
+        'keep *_simEcalEBTriggerPrimitivePhase2Digis_*_*',
         'keep *_simHcalDigis_*_*', 
         'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
         'drop ZDCDataFramesSorted_mix_simHcalUnsuppressedDigis*_*',
