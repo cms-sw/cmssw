@@ -65,7 +65,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_geoFromDD4hep(p.getParameter<bool>("g4GeometryDD4hepSource")),
       m_score(p.getParameter<bool>("UseCommandBaseScorer")),
       m_stepverb(p.getUntrackedParameter<int>("SteppingVerbosity", 0)),
-      m_regionFile(p.getUntrackedParameter<std::string>("FileNameRegions","")),
+      m_regionFile(p.getUntrackedParameter<std::string>("FileNameRegions", "")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_Init(p.getParameter<edm::ParameterSet>("Init")),

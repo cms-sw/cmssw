@@ -312,7 +312,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
 
-    std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField","");
+    std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField", "");
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, [this]() { m_dumpMF = true; });
       if (m_dumpMF) {
