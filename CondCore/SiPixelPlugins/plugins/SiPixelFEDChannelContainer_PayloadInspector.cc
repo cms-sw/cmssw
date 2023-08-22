@@ -62,7 +62,8 @@ namespace {
   class SiPixelFEDChannelContainerMap : public PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV> {
   public:
     SiPixelFEDChannelContainerMap()
-        : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>("SiPixelFEDChannelContainer scenarios count"),
+        : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>(
+              "SiPixelFEDChannelContainer Pixel Track Map of one (or more scenarios"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
       // for inputs
@@ -90,7 +91,7 @@ namespace {
           the_scenarios.push_back(t);
         }
       } else {
-        edm::LogWarning("SiPixelFEDChannelContainerTest")
+        edm::LogWarning(k_ClassName)
             << "\n WARNING!!!! \n The needed parameter Scenarios has not been passed. Will use all the scenarios in "
                "the file!"
             << "\n Buckle your seatbelts... this might take a while... \n\n";
@@ -104,15 +105,15 @@ namespace {
       auto iov = tag.iovs.front();
 
       // open db session for the cabling map
-      edm::LogPrint("SiPixelFEDChannelContainerTest") << "[SiPixelFEDChannelContainerTest::" << __func__ << "] "
-                                                      << "Query the condition database " << m_condDbCabling;
+      edm::LogPrint(k_ClassName) << "[SiPixelFEDChannelContainerTest::" << __func__ << "] "
+                                 << "Query the condition database " << m_condDbCabling;
 
       cond::persistency::Session condDbSession = m_connectionPool.createSession(m_condDbCabling);
       condDbSession.transaction().start(true);
 
       // query the database
-      edm::LogPrint("SiPixelFEDChannelContainerTest") << "[SiPixelFEDChannelContainerTest::" << __func__ << "] "
-                                                      << "Reading IOVs from tag " << m_CablingTagName;
+      edm::LogPrint(k_ClassName) << "[SiPixelFEDChannelContainerTest::" << __func__ << "] "
+                                 << "Reading IOVs from tag " << m_CablingTagName;
 
       const auto MIN_VAL = cond::timeTypeSpecs[cond::runnumber].beginValue;
       const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
@@ -127,15 +128,15 @@ namespace {
                      std::back_inserter(listOfCablingIOVs),
                      [](std::tuple<cond::Time_t, cond::Hash> myIOV2) -> unsigned int { return std::get<0>(myIOV2); });
 
-      edm::LogPrint("SiPixelFEDChannelContainerTest")
-          << " Number of SiPixelFedCablngMap payloads: " << listOfCablingIOVs.size() << std::endl;
+      edm::LogPrint(k_ClassName) << " Number of SiPixelFedCablngMap payloads: " << listOfCablingIOVs.size()
+                                 << std::endl;
 
       auto it = std::find(
           listOfCablingIOVs.begin(), listOfCablingIOVs.end(), closest_from_below(listOfCablingIOVs, std::get<0>(iov)));
       int index = std::distance(listOfCablingIOVs.begin(), it);
 
-      edm::LogPrint("SiPixelFEDChannelContainerTest")
-          << " using the SiPixelFedCablingMap with hash: " << std::get<1>(m_cabling_iovs.at(index)) << std::endl;
+      edm::LogPrint(k_ClassName) << " using the SiPixelFedCablingMap with hash: "
+                                 << std::get<1>(m_cabling_iovs.at(index)) << std::endl;
 
       auto theCablingMap = condDbSession.fetchPayload<SiPixelFedCablingMap>(std::get<1>(m_cabling_iovs.at(index)));
       theCablingMap->initializeRocs();
@@ -156,7 +157,7 @@ namespace {
 
         if (std::find_if(the_scenarios.begin(), the_scenarios.end(), compareKeys(scenName)) != the_scenarios.end() ||
             the_scenarios[0] == "all") {
-          edm::LogPrint("SiPixelFEDChannelContainerTest") << "\t Found Scenario: " << scenName << " ==> dumping it";
+          edm::LogPrint(k_ClassName) << "\t Found Scenario: " << scenName << " ==> dumping it";
         } else {
           continue;
         }
@@ -167,7 +168,7 @@ namespace {
         for (const auto& disabledChannels : *theDetSetBadPixelFedChannels) {
           const auto t_detid = disabledChannels.detId();
           int subid = DetId(t_detid).subdetId();
-          LogDebug("SiPixelFEDChannelContainerTest") << fmt::sprintf("DetId : %i \n", t_detid) << std::endl;
+          LogDebug(k_ClassName) << fmt::sprintf("DetId : %i \n", t_detid) << std::endl;
 
           std::bitset<16> badRocsFromFEDChannels;
 
@@ -178,7 +179,7 @@ namespace {
                                               ch.roc_first,
                                               ch.roc_last);
 
-            LogDebug("SiPixelFEDChannelContainerTest") << toOut_ << std::endl;
+            LogDebug(k_ClassName) << toOut_ << std::endl;
             const std::vector<sipixelobjects::CablingPathToDetUnit>& path =
                 theCablingMap->pathToDetUnit(disabledChannels.detId());
             for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc) {
@@ -191,9 +192,8 @@ namespace {
 
                   pIndexConverter.transformToROC(global.col, global.row, chipIndex, colROC, rowROC);
 
-                  LogDebug("SiPixelFEDChannelContainerTest")
-                      << " => i_roc:" << i_roc << "  " << global.col << "-" << global.row << " | => " << chipIndex
-                      << " : (" << colROC << "," << rowROC << ")" << std::endl;
+                  LogDebug(k_ClassName) << " => i_roc:" << i_roc << "  " << global.col << "-" << global.row << " | => "
+                                        << chipIndex << " : (" << colROC << "," << rowROC << ")" << std::endl;
 
                   badRocsFromFEDChannels[chipIndex] = true;
                 }
@@ -201,7 +201,7 @@ namespace {
             }
           }
 
-          LogDebug("SiPixelFEDChannelContainerTest") << badRocsFromFEDChannels << std::endl;
+          LogDebug(k_ClassName) << badRocsFromFEDChannels << std::endl;
 
           auto myDetId = DetId(t_detid);
 
@@ -241,7 +241,7 @@ namespace {
           theROCMap.drawMaps(canvas, headerText);
           break;
         default:
-          throw cms::Exception("SiPixelQualityMap") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
+          throw cms::Exception("LogicError") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
       }
 
       std::string fileName(m_imageFileName);
@@ -281,6 +281,7 @@ namespace {
 
     // graphics
     static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
+    static constexpr const char* k_ClassName = "SiPixelFEDChannelContainerMap";
 
     TrackerTopology m_trackerTopo;
     edm::ParameterSet m_connectionPset;
@@ -297,7 +298,8 @@ namespace {
   class SiPixelFEDChannelContainerMapSimple : public PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV> {
   public:
     SiPixelFEDChannelContainerMapSimple()
-        : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>("SiPixelFEDChannelContainer scenarios count") {
+        : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>(
+              "SiPixelFEDChannelContainer Pixel Track Map of one (or more scenarios)") {
       // for inputs
       PlotBase::addInputParam("Scenarios");
     }
@@ -406,6 +408,23 @@ namespace {
           throw cms::Exception("LogicError") << "\nERROR: unrecognized Pixel Detector part " << std::endl;
       }
 
+      // add list of scenarios watermark
+      canvas.cd();
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kMagenta);
+      ltx.SetTextSize(0.023);
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin() - 0.09,
+          gPad->GetBottomMargin() - 0.09,
+          ("scenarios: #color[4]{" +
+           std::accumulate(the_scenarios.begin(),
+                           the_scenarios.end(),
+                           std::string(),
+                           [](const std::string& acc, const std::string& str) { return acc + " " + str; }) +
+           "}")
+              .c_str());
+
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
@@ -423,7 +442,7 @@ namespace {
   private:
     // graphics
     static constexpr std::array<int, 3> k_height = {{1200, 600, 1600}};
-    static constexpr const char* k_ClassName = "SiPixelFEDChannelContainerMapSimple"; 
+    static constexpr const char* k_ClassName = "SiPixelFEDChannelContainerMapSimple";
   };
 
   using SiPixelBPixFEDChannelContainerMap = SiPixelFEDChannelContainerMapSimple<SiPixelPI::t_barrel>;
