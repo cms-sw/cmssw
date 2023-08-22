@@ -1,5 +1,6 @@
 import os
 from FWCore.ParameterSet.pfnInPath import pfnInPath
+import ROOT
 
 ##############################################
 def digest_path(path):
@@ -16,40 +17,37 @@ def digest_path(path):
     if not isinstance(path, str):
         return path
 
+    path_expanded = os.path.expandvars(path)
+
     # split path in folders
     protocol = ""
-    if "://" in path:
-        protocol = path.split("://")[0]+"://"
-        path_s = path.split("://")[1].split(os.sep)
+    if "://" in path_expanded:
+        protocol = path_expanded.split("://")[0]+"://"
+        path_d = path_expanded.split("://")[1]
+    elif ":" in path_expanded:
+        protocol = path_expanded.split(":")[0]+':'
+        path_d = ":".join(path_expanded.split(":")[1:])
+        # Similar to just `split(':')[1]`, but handles the case in which the rest of the path contains one or more ':'
     else:
-        path_s = path.split(os.sep)    
+        path_d = path_expanded
 
-    path_d_s = []
+    path_s = path_d.split(os.sep)
+
     placeholderIdx = []
     for ipart,part in enumerate(path_s):
-        # Look for environment variables such as $CMSSW_BASE
-        if part.startswith('$'):
-            env_var = part[1:].replace('{', '').replace('}', '')
-            path_d_s.append(os.environ[env_var])
         # Look for {} placeholder to be replaced internally 
-        elif "{}" in part:
+        if "{}" in part:
             placeholderIdx.append(ipart)
-            path_d_s.append(part)
-        else:
-            path_d_s.append(part)
 
     # re-join folders into full path 
     # only check path up to first placeholder occurence
-    path_d = os.path.join(*path_d_s)
     if len(placeholderIdx) > 0:
-        path_to_check = os.path.join(*path_d_s[:placeholderIdx[0]])
+        path_to_check = os.path.join(*path_s[:placeholderIdx[0]])
+        # re add front / if needed
+        if path_d.startswith(os.sep):
+            path_to_check = os.sep + path_to_check
     else:
         path_to_check = path_d
-
-    # re add front / if needed
-    if path.startswith(os.sep):
-        path_d = os.sep + path_d
-        path_to_check = os.sep + path_to_check
 
     # check for path to exist
     if not os.path.exists(path_to_check) and "." in os.path.splitext(path_to_check)[-1]:
@@ -65,13 +63,36 @@ def digest_path(path):
     return path_d
 
 #########################################
+def get_root_color(value):
+#########################################
+    """
+       Returns an integer correspondig to the ROOT color
+    """
+    if(isinstance(value, str)):
+        if(value.isdigit()):
+            return int(value)
+        elif('-' in value):
+            pre, op, post = value.partition('-')
+            return get_root_color(pre.strip()) - get_root_color(post.strip())
+        elif('+' in value):
+            pre, op, post = value.partition('+')
+            return get_root_color(pre.strip()) + get_root_color(post.strip())
+        else:
+            return getattr(ROOT.EColor, value)
+    else:
+        return int(value)
+
+#########################################
 def get_all_keys(var):
 #########################################
     """
        Generate all keys for nested dictionary
+       - reserved keywords are not picked up
     """
+    reserved_keys = ["customrighttitle","title"]
     if hasattr(var,'items'):
         for k, v in var.items():
+            if k in reserved_keys: continue
             if isinstance(v, dict):
                 for result in get_all_keys(v):
                     yield result
@@ -97,10 +118,16 @@ def find_and_change(keys, var, alt=digest_path):
         for key in keys:
             for k, v in var.items():
                 if k == key:
-                    if isinstance(v,list):
-                        var[k] = [alt(_v) for _v in v]
-                    else:
-                        var[k] = alt(v)
+                    if "color" in key:
+                        if isinstance(v,list):
+                            var[k] = [get_root_color(_v) for _v in v]
+                        else:
+                            var[k] = get_root_color(v)
+                    else:    
+                        if isinstance(v,list):
+                            var[k] = [alt(_v) for _v in v]
+                        else:
+                            var[k] = alt(v)
                     yield alt(v)
                 if isinstance(v, dict):
                     for result in find_and_change([key], v):
