@@ -73,10 +73,10 @@ def get_root_color(value):
             return int(value)
         elif('-' in value):
             pre, op, post = value.partition('-')
-            return get_root_color(pre) - get_root_color(post)
+            return get_root_color(pre.strip()) - get_root_color(post.strip())
         elif('+' in value):
             pre, op, post = value.partition('+')
-            return get_root_color(pre) + get_root_color(post)
+            return get_root_color(pre.strip()) + get_root_color(post.strip())
         else:
             return getattr(ROOT.EColor, value)
     else:
