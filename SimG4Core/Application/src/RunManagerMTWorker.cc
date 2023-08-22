@@ -385,12 +385,12 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->registry->beginOfJobSignal_(&aBeginOfJob);
 
   G4int sv = m_p.getUntrackedParameter<int>("SteppingVerbosity");
-  G4double elim = m_p.getParameter<double>("StepVerboseThreshold") * CLHEP::GeV;
-  std::vector<int> ve = m_p.getParameter<std::vector<int>>("VerboseEvents");
-  std::vector<int> vn = m_p.getParameter<std::vector<int>>("VertexNumber");
-  std::vector<int> vt = m_p.getParameter<std::vector<int>>("VerboseTracks");
 
   if (sv > 0) {
+    G4double elim = m_p.getUntrackedParameter<double>("StepVerboseThreshold", 0.1) * CLHEP::GeV;
+    std::vector<int> ve = m_p.getUntrackedParameter<std::vector<int>>("VerboseEvents");
+    std::vector<int> vn = m_p.getUntrackedParameter<std::vector<int>>("VertexNumber");
+    std::vector<int> vt = m_p.getUntrackedParameter<std::vector<int>>("VerboseTracks");
     m_sVerbose = std::make_unique<CMSSteppingVerbose>(sv, elim, ve, vn, vt);
   }
   if (!m_UseG4EventManager)
