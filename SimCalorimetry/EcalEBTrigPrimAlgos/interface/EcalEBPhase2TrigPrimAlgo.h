@@ -161,7 +161,7 @@ void EcalEBPhase2TrigPrimAlgo::clean(std::vector<std::vector<std::pair<int, std:
   return;
 }
 
-void EcalEBPhase2TrigPrimAlgo::fillMap(
+inline void EcalEBPhase2TrigPrimAlgo::fillMap(
     EBDigiCollectionPh2 const *col, std::vector<std::vector<std::pair<int, std::vector<EBDataFrame_Ph2> > > > &towerMap)
 
 {
