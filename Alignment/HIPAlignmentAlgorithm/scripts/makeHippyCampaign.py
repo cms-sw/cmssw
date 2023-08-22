@@ -11,8 +11,6 @@ import stat
 import subprocess
 import sys
 
-basedir = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy"
-
 thisfile = os.path.abspath(__file__)
 
 def main():
@@ -20,11 +18,19 @@ def main():
   parser.add_argument("foldername", help="folder name for the campaign.  Example: CRUZET20xy")
   parser.add_argument("--cmssw", default=os.environ["CMSSW_VERSION"])
   parser.add_argument("--scram-arch", default=os.environ["SCRAM_ARCH"])
-  parser.add_argument("--subfolder", default="", help="subfolder within "+basedir+" to make 'foldername' in.")
+  parser.add_argument("--subfolder", default="", help="subfolder within to make 'foldername' in.")
   parser.add_argument("--merge-topic", action="append", help="things to cms-merge-topic within the CMSSW release created", default=[])
   parser.add_argument("--print-sys-path", action="store_true", help=argparse.SUPPRESS) #internal, don't use this
+  parser.add_argument('--basedir', default="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy")
   args = parser.parse_args()
 
+  basedir = args.basedir
+  if not os.path.exists(basedir):
+    raise FileExistsError("Base Directory does not exist!")
+
+  if basedir[-1] == '/':
+    basedir = basedir[:-1] #No trailing slashed allowed
+  
   if args.print_sys_path:
     print(repr(sys.path))
     return
@@ -106,6 +112,8 @@ def main():
         os.chmod("submit_script.sh", os.stat("submit_script.sh").st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         subprocess.check_call(["git", "add", "submit_script.sh"])
 
+      print("Dumped files into", folder)
+      
       try:
         subprocess.check_output(["git", "diff", "--staged", "--quiet"])
       except subprocess.CalledProcessError:
