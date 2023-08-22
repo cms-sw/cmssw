@@ -176,7 +176,7 @@ for sra in SelectorRigidAlignables:
    if not tmpstrsrafound:
       tmprigidalignables.append(sra)
    else:
-      print "{} is already in the non-rigid alignables list. Omitting it in the rigid structures to align.".format(tmpstrsra)
+      print("{} is already in the non-rigid alignables list. Omitting it in the rigid structures to align.").format(tmpstrsra)
 SelectorRigidAlignables = tmprigidalignables
 
 process.AlignmentProducer.ParameterBuilder.SelectorBowed = cms.PSet(
