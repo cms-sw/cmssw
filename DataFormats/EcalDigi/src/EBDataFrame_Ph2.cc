@@ -8,4 +8,3 @@ std::ostream& operator<<(std::ostream& s, const EBDataFrame_Ph2& digi) {
     s << "  " << digi[i] << std::endl;
   return s;
 }
-

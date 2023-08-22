@@ -15,7 +15,6 @@
 #include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
 //#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
-
 #include "CondFormats/DataRecord/interface/EcalEBPhase2TPGLinearizationConstRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalEBPhase2TPGAmplWeightIdMapRcd.h"
@@ -34,21 +33,18 @@
 
 #include "zlib.h"
 
-
 /** \class EcalEBTrigPrimPhase2ESProducer
 \author L. Lutton, N. Marinelli - Univ. of Notre Dame
  Description: forPhase II 
 */
-
-
 
 class EcalEBTrigPrimPhase2ESProducer : public edm::ESProducer {
 public:
   EcalEBTrigPrimPhase2ESProducer(const edm::ParameterSet &);
   ~EcalEBTrigPrimPhase2ESProducer() override;
 
-  
-  std::unique_ptr<EcalEBPhase2TPGLinearizationConst> produceLinearizationConst(const EcalEBPhase2TPGLinearizationConstRcd &);
+  std::unique_ptr<EcalEBPhase2TPGLinearizationConst> produceLinearizationConst(
+      const EcalEBPhase2TPGLinearizationConstRcd &);
   std::unique_ptr<EcalEBPhase2TPGPedestalsMap> producePedestals(const EcalEBPhase2TPGPedestalsRcd &);
   std::unique_ptr<EcalEBPhase2TPGAmplWeightIdMap> produceAmpWeight(const EcalEBPhase2TPGAmplWeightIdMapRcd &);
   std::unique_ptr<EcalEBPhase2TPGTimeWeightIdMap> produceTimeWeight(const EcalEBPhase2TPGTimeWeightIdMapRcd &);
@@ -65,7 +61,6 @@ private:
   void parseTextFile();
   std::vector<int> getRange(int subdet, int smNb, int towerNbInSm, int stripNbInTower = 0, int xtalNbInStrip = 0);
   void parseWeightsFile();
-
 
   // ----------member data ---------------------------
   std::string dbFilename_;

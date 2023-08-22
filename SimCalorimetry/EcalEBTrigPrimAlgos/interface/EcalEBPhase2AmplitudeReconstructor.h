@@ -14,11 +14,8 @@ class EcalTPGWeightGroup;
  and measures the amplitude on xTals basis
 */
 
-
 class EcalEBPhase2AmplitudeReconstructor {
-
-
- private:
+private:
   bool debug_;
   int inputsAlreadyIn_;
   int buffer_[12];
@@ -26,16 +23,16 @@ class EcalEBPhase2AmplitudeReconstructor {
   int shift_;
   int setInput(int input);
   void process();
-  
+
   int processedOutput_;
 
- public:
+public:
   EcalEBPhase2AmplitudeReconstructor(bool debug);
   virtual ~EcalEBPhase2AmplitudeReconstructor();
-  virtual void process(std::vector<int> & addout, std::vector<int> & output);
-  void setParameters(uint32_t raw,const EcalEBPhase2TPGAmplWeightIdMap * ecaltpgWeightMap, const EcalTPGWeightGroup *ecaltpgWeightGroup );
-  
+  virtual void process(std::vector<int> &addout, std::vector<int> &output);
+  void setParameters(uint32_t raw,
+                     const EcalEBPhase2TPGAmplWeightIdMap *ecaltpgWeightMap,
+                     const EcalTPGWeightGroup *ecaltpgWeightGroup);
 };
 
 #endif
-

@@ -7,126 +7,130 @@
 #include <iostream>
 
 EcalEBPhase2AmplitudeReconstructor::EcalEBPhase2AmplitudeReconstructor(bool debug)
-  :debug_(debug),inputsAlreadyIn_(0), shift_(13)  {
+    : debug_(debug), inputsAlreadyIn_(0), shift_(13) {}
+
+EcalEBPhase2AmplitudeReconstructor::~EcalEBPhase2AmplitudeReconstructor() {}
+
+int EcalEBPhase2AmplitudeReconstructor::setInput(int input) {
+  if (input > 0X3FFF) {
+    std::cout << "ERROR IN INPUT OF AMPLITUDE FILTER" << std::endl;
+    return -1;
   }
-
-EcalEBPhase2AmplitudeReconstructor::~EcalEBPhase2AmplitudeReconstructor(){}
-
-int EcalEBPhase2AmplitudeReconstructor::setInput(int input)
-{
-
- 
-
-  if(input>0X3FFF)
-    {
-      std::cout<<"ERROR IN INPUT OF AMPLITUDE FILTER"<<std::endl;
-      return -1;
+  if (inputsAlreadyIn_ < 12) {
+    if (debug_)
+      std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn_<5 input " << input << std::endl;
+    buffer_[inputsAlreadyIn_] = input;
+    inputsAlreadyIn_++;
+  } else {
+    for (int i = 0; i < 11; i++) {
+      buffer_[i] = buffer_[i + 1];
+      if (debug_)
+        std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl;
     }
-  if(inputsAlreadyIn_<12)
-    {
-      if (debug_) std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn_<5 input " << input << std::endl;
-      buffer_[inputsAlreadyIn_]=input;
-      inputsAlreadyIn_++;
-    }
-  else
-    {
-      for(int i=0; i<11; i++)
-      {
-         buffer_[i]=buffer_[i+1];
-	 if (debug_) std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl; 
-      }
-      buffer_[11]=input;
-    }
+    buffer_[11] = input;
+  }
   return 1;
 }
 
-void EcalEBPhase2AmplitudeReconstructor::process(std::vector<int> &linout,std::vector<int> &output)
-{
-
-
-  inputsAlreadyIn_=0;
-  for (unsigned int i =0;i<12;i++){
-     buffer_[i]=0;
+void EcalEBPhase2AmplitudeReconstructor::process(std::vector<int> &linout, std::vector<int> &output) {
+  inputsAlreadyIn_ = 0;
+  for (unsigned int i = 0; i < 12; i++) {
+    buffer_[i] = 0;
   }
-  
-  
-  for (unsigned int i =0;i<linout.size();i++){
-    
+
+  for (unsigned int i = 0; i < linout.size(); i++) {
     setInput(linout[i]);
     if (debug_) {
-      for (unsigned int j =0;j<12;j++){
-	std::cout << " buffer_ " << buffer_[j];
+      for (unsigned int j = 0; j < 12; j++) {
+        std::cout << " buffer_ " << buffer_[j];
       }
       std::cout << "  " << std::endl;
     }
 
     if (i == 11) {
-        process();
-	output[0] = processedOutput_  ;
-    }
-    else if (i == 15){
-        process();
-	output[1] = processedOutput_  ;
+      process();
+      output[0] = processedOutput_;
+    } else if (i == 15) {
+      process();
+      output[1] = processedOutput_;
     }
   }
   return;
 }
 
-void EcalEBPhase2AmplitudeReconstructor::process()
-{
-
+void EcalEBPhase2AmplitudeReconstructor::process() {
   processedOutput_ = 0;
-  if(inputsAlreadyIn_<12) return;
-  int64_t tmpIntOutput=0;
-  for(int i=0; i<12; i++)
-  {
-    tmpIntOutput+=(weights_[i]*buffer_[i]);
-    if (debug_)  std::cout << " AmplitudeFilter buffer " << buffer_[i] << " weight " << weights_[i] << std::endl;
+  if (inputsAlreadyIn_ < 12)
+    return;
+  int64_t tmpIntOutput = 0;
+  for (int i = 0; i < 12; i++) {
+    tmpIntOutput += (weights_[i] * buffer_[i]);
+    if (debug_)
+      std::cout << " AmplitudeFilter buffer " << buffer_[i] << " weight " << weights_[i] << std::endl;
   }
-  if(tmpIntOutput<0) tmpIntOutput=0;
+  if (tmpIntOutput < 0)
+    tmpIntOutput = 0;
   tmpIntOutput = tmpIntOutput >> shift_;
-  if (debug_)std::cout << " AmplitudeFilter tmpIntOutput "<< tmpIntOutput << " shift_ " << shift_ << std::endl;
-  if(tmpIntOutput>0X1FFF)  tmpIntOutput=0X1FFF;
-  uint output = tmpIntOutput; // should be 13 bit uint at this point
+  if (debug_)
+    std::cout << " AmplitudeFilter tmpIntOutput " << tmpIntOutput << " shift_ " << shift_ << std::endl;
+  if (tmpIntOutput > 0X1FFF)
+    tmpIntOutput = 0X1FFF;
+  uint output = tmpIntOutput;  // should be 13 bit uint at this point
   processedOutput_ = output;
-  if ( debug_) std::cout << " AmplitudeFilter  processedOutput_ " <<  processedOutput_  << std::endl;
-
+  if (debug_)
+    std::cout << " AmplitudeFilter  processedOutput_ " << processedOutput_ << std::endl;
 }
 
-void EcalEBPhase2AmplitudeReconstructor::setParameters(uint32_t raw,const EcalEBPhase2TPGAmplWeightIdMap * ecaltpgWeightMap, const EcalTPGWeightGroup 
-*ecaltpgWeightGroup )
-{
+void EcalEBPhase2AmplitudeReconstructor::setParameters(uint32_t raw,
+                                                       const EcalEBPhase2TPGAmplWeightIdMap *ecaltpgWeightMap,
+                                                       const EcalTPGWeightGroup *ecaltpgWeightGroup) {
   uint32_t params_[12];
-  const EcalTPGGroups::EcalTPGGroupsMap & groupmap = ecaltpgWeightGroup -> getMap();
-  if (debug_) std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters groupmap size " << groupmap.size() << "  channel ID " << raw <<  std::endl;
+  const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
+  if (debug_)
+    std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters groupmap size " << groupmap.size()
+              << "  channel ID " << raw << std::endl;
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
-  if (it!=groupmap.end()) {
-    uint32_t weightid =(*it).second;
-    
-    const EcalEBPhase2TPGAmplWeightIdMap::EcalEBPhase2TPGAmplWeightMap & weightmap = ecaltpgWeightMap -> getMap();
+  if (it != groupmap.end()) {
+    uint32_t weightid = (*it).second;
+
+    const EcalEBPhase2TPGAmplWeightIdMap::EcalEBPhase2TPGAmplWeightMap &weightmap = ecaltpgWeightMap->getMap();
     EcalEBPhase2TPGAmplWeightIdMap::EcalEBPhase2TPGAmplWeightMapItr itw = weightmap.find(weightid);
-    
-    (*itw).second.getValues(params_[0],params_[1],params_[2],params_[3],params_[4],params_[5],params_[6],params_[7],params_[8],params_[9],params_[10],params_[11]);
 
-    if (debug_) std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters weights after the map  " << params_[0] << " " << params_[1] << " " << params_[2] << " " << params_[3] << " " << params_[4] << " " << params_[5] << " " << params_[6] << " " << params_[7] << " " << params_[8] << " " << params_[9] << " " << params_[10] << " " << params_[11] <<  std::endl;
+    (*itw).second.getValues(params_[0],
+                            params_[1],
+                            params_[2],
+                            params_[3],
+                            params_[4],
+                            params_[5],
+                            params_[6],
+                            params_[7],
+                            params_[8],
+                            params_[9],
+                            params_[10],
+                            params_[11]);
 
-    // we have to transform negative coded in 13 bits into negative coded in 32 bits                                                                                                                 
-    // maybe this should go into the getValue method??                                                                                                                                  
+    if (debug_)
+      std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters weights after the map  " << params_[0] << " "
+                << params_[1] << " " << params_[2] << " " << params_[3] << " " << params_[4] << " " << params_[5] << " "
+                << params_[6] << " " << params_[7] << " " << params_[8] << " " << params_[9] << " " << params_[10]
+                << " " << params_[11] << std::endl;
 
-    for (int i=0;i<12;++i){
-      weights_[i] = (params_[i] & 0x1000) ?    (int)( params_[i] | 0xfffff000) : (int)(params_[i]);
+    // we have to transform negative coded in 13 bits into negative coded in 32 bits
+    // maybe this should go into the getValue method??
+
+    for (int i = 0; i < 12; ++i) {
+      weights_[i] = (params_[i] & 0x1000) ? (int)(params_[i] | 0xfffff000) : (int)(params_[i]);
     }
-    
-    if ( debug_) {
-      for (int i=0;i<12;++i){
-	std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters weights after the cooking " << weights_[i] << std::endl;
+
+    if (debug_) {
+      for (int i = 0; i < 12; ++i) {
+        std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters weights after the cooking " << weights_[i]
+                  << std::endl;
       }
-      std::cout << std::endl;                                                                                                                                             }
-    
-                       
-  }
-  else edm::LogWarning("EcalTPG")<<" EcalEBPhase2AmplitudeReconstructor::setParameters could not find EcalTPGGroupsMap entry for "<<raw;
+      std::cout << std::endl;
+    }
+
+  } else
+    edm::LogWarning("EcalTPG")
+        << " EcalEBPhase2AmplitudeReconstructor::setParameters could not find EcalTPGGroupsMap entry for " << raw;
 }
-
-
-

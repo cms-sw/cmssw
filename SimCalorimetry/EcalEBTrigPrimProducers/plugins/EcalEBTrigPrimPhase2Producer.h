@@ -9,7 +9,6 @@
  It produces the EcalEBTrigPrimDigiCollection
 */
 
-
 #include <memory>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -40,7 +39,6 @@
 #include "CondFormats/EcalObjects/interface/EcalEBPhase2TPGPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 
-
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
@@ -50,15 +48,13 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-
-
 class EcalEBPhase2TrigPrimAlgo;
 
 class EcalEBTrigPrimPhase2Producer : public edm::stream::EDProducer<> {
 public:
   explicit EcalEBTrigPrimPhase2Producer(const edm::ParameterSet& conf);
 
-  ~EcalEBTrigPrimPhase2Producer()  override;
+  ~EcalEBTrigPrimPhase2Producer() override;
 
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -72,11 +68,11 @@ private:
   int nEvent_;
 
   edm::EDGetTokenT<EBDigiCollectionPh2> tokenEBdigi_;
-  edm::ESGetToken<EcalEBPhase2TPGLinearizationConst, EcalEBPhase2TPGLinearizationConstRcd> theEcalEBPhase2TPGLinearization_Token_;
+  edm::ESGetToken<EcalEBPhase2TPGLinearizationConst, EcalEBPhase2TPGLinearizationConstRcd>
+      theEcalEBPhase2TPGLinearization_Token_;
   edm::ESGetToken<EcalEBPhase2TPGPedestalsMap, EcalEBPhase2TPGPedestalsRcd> theEcalEBPhase2TPGPedestals_Token_;
 
-  edm::ESGetToken<EcalLiteDTUPedestalsMap,EcalLiteDTUPedestalsRcd> theEcalTPGPedestals_Token_;
-
+  edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> theEcalTPGPedestals_Token_;
 
   edm::ESGetToken<EcalTPGCrystalStatus, EcalTPGCrystalStatusRcd> theEcalTPGCrystalStatus_Token_;
   edm::ESGetToken<EcalEBPhase2TPGAmplWeightIdMap, EcalEBPhase2TPGAmplWeightIdMapRcd> theEcalEBTPGAmplWeightIdMap_Token_;

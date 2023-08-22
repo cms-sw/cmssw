@@ -13,11 +13,9 @@
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
 
-
 //#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 //#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
 //#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
-
 
 #include "EcalEBTrigPrimPhase2Producer.h"
 
@@ -30,37 +28,34 @@ EcalEBTrigPrimPhase2Producer::EcalEBTrigPrimPhase2Producer(const edm::ParameterS
       debug_(iConfig.getParameter<bool>("Debug")),
       famos_(iConfig.getParameter<bool>("Famos")),
       binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")) {
-
-  
-
   tokenEBdigi_ = consumes<EBDigiCollectionPh2>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
- 
+
   eTTmapToken_ = esConsumes<edm::Transition::BeginRun>();
   theGeometryToken_ = esConsumes<edm::Transition::BeginRun>();
-  
-  theEcalTPGPedestals_Token_ = esConsumes<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd, edm::Transition::BeginRun>();
-  theEcalEBPhase2TPGPedestals_Token_ = esConsumes<EcalEBPhase2TPGPedestalsMap, EcalEBPhase2TPGPedestalsRcd, edm::Transition::BeginRun>();
 
-  theEcalTPGCrystalStatus_Token_ = esConsumes<EcalTPGCrystalStatus, EcalTPGCrystalStatusRcd, edm::Transition::BeginRun>();
-  theEcalEBPhase2TPGLinearization_Token_ =  esConsumes<EcalEBPhase2TPGLinearizationConst, EcalEBPhase2TPGLinearizationConstRcd, edm::Transition::BeginRun>();
-  theEcalEBTPGAmplWeightIdMap_Token_ = esConsumes<EcalEBPhase2TPGAmplWeightIdMap, EcalEBPhase2TPGAmplWeightIdMapRcd, edm::Transition::BeginRun>();
-  theEcalEBTPGTimeWeightIdMap_Token_ = esConsumes<EcalEBPhase2TPGTimeWeightIdMap, EcalEBPhase2TPGTimeWeightIdMapRcd, edm::Transition::BeginRun>();
+  theEcalTPGPedestals_Token_ =
+      esConsumes<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd, edm::Transition::BeginRun>();
+  theEcalEBPhase2TPGPedestals_Token_ =
+      esConsumes<EcalEBPhase2TPGPedestalsMap, EcalEBPhase2TPGPedestalsRcd, edm::Transition::BeginRun>();
+
+  theEcalTPGCrystalStatus_Token_ =
+      esConsumes<EcalTPGCrystalStatus, EcalTPGCrystalStatusRcd, edm::Transition::BeginRun>();
+  theEcalEBPhase2TPGLinearization_Token_ =
+      esConsumes<EcalEBPhase2TPGLinearizationConst, EcalEBPhase2TPGLinearizationConstRcd, edm::Transition::BeginRun>();
+  theEcalEBTPGAmplWeightIdMap_Token_ =
+      esConsumes<EcalEBPhase2TPGAmplWeightIdMap, EcalEBPhase2TPGAmplWeightIdMapRcd, edm::Transition::BeginRun>();
+  theEcalEBTPGTimeWeightIdMap_Token_ =
+      esConsumes<EcalEBPhase2TPGTimeWeightIdMap, EcalEBPhase2TPGTimeWeightIdMapRcd, edm::Transition::BeginRun>();
   theEcalTPGWeightGroup_Token_ = esConsumes<EcalTPGWeightGroup, EcalTPGWeightGroupRcd, edm::Transition::BeginRun>();
 
   //register your products
   produces<EcalEBTrigPrimDigiCollection>();
-
-
-
 }
 
 void EcalEBTrigPrimPhase2Producer::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
- 
-
   auto const& theGeometry = setup.getData(theGeometryToken_);
   auto const& eTTmap = setup.getData(eTTmapToken_);
 
-  
   algo_ = std::make_unique<EcalEBPhase2TrigPrimAlgo>(&eTTmap, &theGeometry, binOfMaximum_, debug_);
 
   // get a first version of the records
@@ -69,9 +64,7 @@ void EcalEBTrigPrimPhase2Producer::beginRun(edm::Run const& run, edm::EventSetup
   nEvent_ = 0;
 }
 
-
 unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup const& setup) {
-
   // get parameter records for xtals
   auto theEcalEBPhase2TPGLinearization_handle = setup.getHandle(theEcalEBPhase2TPGLinearization_Token_);
   const EcalEBPhase2TPGLinearizationConst* ecaltpLin = theEcalEBPhase2TPGLinearization_handle.product();
@@ -85,12 +78,14 @@ unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup cons
   edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle = setup.getHandle(theEcalTPGCrystalStatus_Token_);
   const EcalTPGCrystalStatus* ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();
   //
-  edm::ESHandle<EcalEBPhase2TPGAmplWeightIdMap> theEcalEBTPGAmplWeightIdMap_handle = setup.getHandle(theEcalEBTPGAmplWeightIdMap_Token_);
+  edm::ESHandle<EcalEBPhase2TPGAmplWeightIdMap> theEcalEBTPGAmplWeightIdMap_handle =
+      setup.getHandle(theEcalEBTPGAmplWeightIdMap_Token_);
   const EcalEBPhase2TPGAmplWeightIdMap* ecaltpgAmplWeightMap = theEcalEBTPGAmplWeightIdMap_handle.product();
   //
-  edm::ESHandle<EcalEBPhase2TPGTimeWeightIdMap> theEcalEBTPGTimeWeightIdMap_handle = setup.getHandle(theEcalEBTPGTimeWeightIdMap_Token_);
+  edm::ESHandle<EcalEBPhase2TPGTimeWeightIdMap> theEcalEBTPGTimeWeightIdMap_handle =
+      setup.getHandle(theEcalEBTPGTimeWeightIdMap_Token_);
   const EcalEBPhase2TPGTimeWeightIdMap* ecaltpgTimeWeightMap = theEcalEBTPGTimeWeightIdMap_handle.product();
- //
+  //
   edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWeightGroup_handle = setup.getHandle(theEcalTPGWeightGroup_Token_);
   const EcalTPGWeightGroup* ecaltpgWeightGroup = theEcalTPGWeightGroup_handle.product();
   //
@@ -101,16 +96,10 @@ unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup cons
   //const EcalTPGSpike* ecaltpgSpike = theEcalTPGSpike_handle.product();
 
   ////////////////
-  algo_->setPointers(ecaltpPed,
-                     ecaltpLin,
-                     ecaltpgBadX,
-		     ecaltpgAmplWeightMap,
-		     ecaltpgTimeWeightMap,
-		     ecaltpgWeightGroup);
+  algo_->setPointers(ecaltpPed, ecaltpLin, ecaltpgBadX, ecaltpgAmplWeightMap, ecaltpgTimeWeightMap, ecaltpgWeightGroup);
 
   return setup.get<EcalEBPhase2TPGLinearizationConstRcd>().cacheIdentifier();
   //  return setup.get<EcalLiteDTUPedestalsRcd>().cacheIdentifier();
-
 }
 
 void EcalEBTrigPrimPhase2Producer::endRun(edm::Run const& run, edm::EventSetup const& setup) { algo_.reset(); }
@@ -139,8 +128,6 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
   auto pOut = std::make_unique<EcalEBTrigPrimDigiCollection>();
   auto pOutTcp = std::make_unique<EcalEBTrigPrimDigiCollection>();
 
-
-
   //std::cout << " Event number " << e.id().event() << std::endl;
 
   // invoke algorithm
@@ -154,58 +141,54 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
               << " For Barrel  " << pOut->size() << " TP  Digis were produced" << std::endl;
   }
 
-
-    std::cout << "produce"<< " For Barrel  " << pOut->size() << " TP  Digis were produced" << std::endl;
-
-
+  std::cout << "produce"
+            << " For Barrel  " << pOut->size() << " TP  Digis were produced" << std::endl;
 
   //  debug prints if TP >0
   int nonZeroTP = 0;
 
-  if (debug_) std::cout << "EcalTPG Printing only non zero TP " << std::endl;
+  if (debug_)
+    std::cout << "EcalTPG Printing only non zero TP " << std::endl;
   //std::cout << "EcalTPG Printing only non zero TP " << std::endl;
 
-
-  int nXstal=0;  
+  int nXstal = 0;
   for (unsigned int i = 0; i < pOut->size(); ++i) {
-    nXstal ++;
-    // temporay cout to be removed 
+    nXstal++;
+    // temporay cout to be removed
     for (int isam = 0; isam < (*pOut)[i].size(); ++isam) {
       if ((*pOut)[i][isam].encodedEt() > 0) {
-	nonZeroTP++;
-	std::cout << " For xStal n " << nXstal << " xTsal Id " <<  (((*pOut)[i])).id() << std::endl; 
-	
- 	std::cout << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
-		  << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " <<  (*pOut)[i][isam].time() << std::endl;
-	std::cout << " --------------------------------------------" << std::endl;
-	std::cout << " " << std::endl; 
-       }
+        nonZeroTP++;
+        std::cout << " For xStal n " << nXstal << " xTsal Id " << (((*pOut)[i])).id() << std::endl;
+
+        std::cout << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
+                  << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " << (*pOut)[i][isam].time()
+                  << std::endl;
+        std::cout << " --------------------------------------------" << std::endl;
+        std::cout << " " << std::endl;
+      }
     }
-
-
 
     if (debug_) {
       for (int isam = 0; isam < (*pOut)[i].size(); ++isam) {
         if ((*pOut)[i][isam].encodedEt() > 0) {
           nonZeroTP++;
-          std::cout << " For xStal n " << nXstal << " xTsal Id " <<  (((*pOut)[i])).id() << ", TP is " << (*pOut)[i] << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
-                    << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " <<  (*pOut)[i][isam].time() << std::endl;
+          std::cout << " For xStal n " << nXstal << " xTsal Id " << (((*pOut)[i])).id() << ", TP is " << (*pOut)[i]
+                    << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
+                    << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " << (*pOut)[i][isam].time()
+                    << std::endl;
         }
       }
-    }   // end debug
-
+    }  // end debug
 
     for (int isam = 0; isam < (*pOut)[i].size(); ++isam) {
       if ((*pOut)[i][isam].encodedEt() > 0) {
-	nonZeroTP++;
-	std::cout << " For xStal n " << nXstal << " xTsal Id " <<  (((*pOut)[i])).id() << ", TP is " << (*pOut)[i] << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
-		  << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " <<  (*pOut)[i][isam].time() << std::endl;
+        nonZeroTP++;
+        std::cout << " For xStal n " << nXstal << " xTsal Id " << (((*pOut)[i])).id() << ", TP is " << (*pOut)[i]
+                  << " (*pOut)[i][isam].raw() " << (*pOut)[i][isam].raw() << "  (*pOut)[i][isam].encodedEt() "
+                  << (*pOut)[i][isam].encodedEt() << "  (*pOut)[i][isam].time() " << (*pOut)[i][isam].time()
+                  << std::endl;
       }
     }
-    
-
-
-
   }
   if (debug_) {
     std::cout << "EcalTPG"
@@ -214,19 +197,10 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
               << " Non zero primitives were " << nonZeroTP << std::endl;
   }
 
-
-
-
-
   std::cout << "EcalTPG"
-	    << "\n =================> For Barrel , " << pOut->size()
-	    << " TP  Digis were produced (including zero ones)"
-	    << " Non zero primitives were " << nonZeroTP << std::endl;
-  
-
-
+            << "\n =================> For Barrel , " << pOut->size() << " TP  Digis were produced (including zero ones)"
+            << " Non zero primitives were " << nonZeroTP << std::endl;
 
   // put result into the Event
   e.put(std::move(pOut));
-
 }

@@ -28,20 +28,20 @@ public:
   //
 
   /// get the raw word
-  uint32_t raw() const { return theSample & 0x3ffff ; }
+  uint32_t raw() const { return theSample & 0x3ffff; }
 
   /// get the encoded Et (12 bits)
-  int encodedEt() const { return (theSample & 0x3ffff) &  0xFFF; }
+  int encodedEt() const { return (theSample & 0x3ffff) & 0xFFF; }
 
-  bool l1aSpike() const { return (theSample & 0x3ffff  & 0x1000) != 0; }
+  bool l1aSpike() const { return (theSample & 0x3ffff & 0x1000) != 0; }
 
-  int time() const { return (theSample & 0x3ffff )>> 13; }
+  int time() const { return (theSample & 0x3ffff) >> 13; }
 
   /// for streaming
-  uint32_t operator()() { return theSample & 0x3ffff ; }
+  uint32_t operator()() { return theSample & 0x3ffff; }
 
 private:
-  uint32_t theSample ;
+  uint32_t theSample;
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalEBTriggerPrimitiveSample& samp);

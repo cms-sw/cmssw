@@ -10,7 +10,7 @@
 */
 class EBDataFrame_Ph2 : public EcalDataFrame_Ph2 {
 public:
-  typedef EBDetId key_type;  
+  typedef EBDetId key_type;
   typedef EcalDataFrame_Ph2 Base;
 
   EBDataFrame_Ph2() {}

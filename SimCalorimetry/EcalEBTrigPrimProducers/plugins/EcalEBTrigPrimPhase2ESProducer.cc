@@ -23,7 +23,7 @@ struct GzInputStream {
     std::cout << " New weight file " << file << std::endl;
     if (gzf == Z_NULL) {
       eof = true;
-      
+
       edm::LogWarning("EcalTPG") << "Database file " << file << " not found!!!";
     } else
       readLine();
@@ -56,7 +56,6 @@ EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::Parame
     : dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile", "")),
       configFilename_(iConfig.getUntrackedParameter<std::string>("WeightTextFile", "")),
       flagPrint_(iConfig.getParameter<bool>("WriteInFile")) {
-
   parseWeightsFile();
 
   // the following lines are needed to tell the framework what
@@ -71,11 +70,11 @@ EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::Parame
   //setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceBadStrip);
   //setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceBadTT);
   //setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceSpike);
-
-
 }
 
-EcalEBTrigPrimPhase2ESProducer::~EcalEBTrigPrimPhase2ESProducer() { std::cout << " EcalEBTrigPrimPhase2ESProducer DTOR " << std::endl;}
+EcalEBTrigPrimPhase2ESProducer::~EcalEBTrigPrimPhase2ESProducer() {
+  std::cout << " EcalEBTrigPrimPhase2ESProducer DTOR " << std::endl;
+}
 
 //
 // member functions
@@ -83,42 +82,31 @@ EcalEBTrigPrimPhase2ESProducer::~EcalEBTrigPrimPhase2ESProducer() { std::cout <<
 
 // ------------ method called to produce the data  ------------
 
-
-
-
-std::unique_ptr<EcalEBPhase2TPGPedestalsMap> EcalEBTrigPrimPhase2ESProducer::producePedestals(const EcalEBPhase2TPGPedestalsRcd &iRecord) {
+std::unique_ptr<EcalEBPhase2TPGPedestalsMap> EcalEBTrigPrimPhase2ESProducer::producePedestals(
+    const EcalEBPhase2TPGPedestalsRcd &iRecord) {
   auto prod = std::make_unique<EcalEBPhase2TPGPedestalsMap>();
-  
+
   std::map<int, std::vector<unsigned int>>::const_iterator it;
-  for (it = mapXtalToLin_.begin(); it != mapXtalToLin_.end(); it++) {  
+  for (it = mapXtalToLin_.begin(); it != mapXtalToLin_.end(); it++) {
     EBDetId myEBDetId = EBDetId(it->first);
     EcalEBPhase2TPGPedestal ped;
-    
+
     ped.mean_x10 = (it->second)[0];
     ped.mean_x1 = (it->second)[3];
     prod->insert(std::make_pair(myEBDetId, ped));
-
   }
 
- 
   return prod;
 }
-
-
-
-
-
-
-
 
 std::unique_ptr<EcalEBPhase2TPGLinearizationConst> EcalEBTrigPrimPhase2ESProducer::produceLinearizationConst(
     const EcalEBPhase2TPGLinearizationConstRcd &iRecord) {
   auto prod = std::make_unique<EcalEBPhase2TPGLinearizationConst>();
- 
+
   std::map<int, std::vector<unsigned int>>::const_iterator it;
-  for (it = mapXtalToLin_.begin(); it != mapXtalToLin_.end(); it++) {  
+  for (it = mapXtalToLin_.begin(); it != mapXtalToLin_.end(); it++) {
     EcalEBPhase2TPGLinearizationConstant param;
-    
+
     param.mult_x10 = (it->second)[1];
     param.mult_x1 = (it->second)[5];
     param.shift_x10 = (it->second)[2];
@@ -128,16 +116,10 @@ std::unique_ptr<EcalEBPhase2TPGLinearizationConst> EcalEBTrigPrimPhase2ESProduce
     prod->setValue(it->first, param);
 
     //    std::cout << " EcalEBTrigPrimPhase2ESProducer::produceLinearizationConst " <<  param.mult_x10  << " " <<  param.mult_x1 << " " <<  param.shift_x10 << " " <<  param.shift_x1 << std::endl ;
-
   }
 
   return prod;
 }
-
-
-
-
-
 
 /*
 std::unique_ptr<EcalTPGSlidingWindow> EcalEBTrigPrimPhase2ESProducer::produceSlidingWindow(
@@ -216,58 +198,71 @@ std::unique_ptr<EcalTPGLutIdMap> EcalEBTrigPrimPhase2ESProducer::produceLUT(cons
 
 */
 
-
-std::unique_ptr<EcalEBPhase2TPGAmplWeightIdMap> EcalEBTrigPrimPhase2ESProducer::produceAmpWeight(const EcalEBPhase2TPGAmplWeightIdMapRcd &iRecord) {
+std::unique_ptr<EcalEBPhase2TPGAmplWeightIdMap> EcalEBTrigPrimPhase2ESProducer::produceAmpWeight(
+    const EcalEBPhase2TPGAmplWeightIdMapRcd &iRecord) {
   auto prod = std::make_unique<EcalEBPhase2TPGAmplWeightIdMap>();
- 
+
   EcalEBPhase2TPGAmplWeights weights;
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapWeight_.begin(); it != mapWeight_.end(); it++) {
-    weights.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4], (it->second)[5], (it->second)[6], (it->second)[7], (it->second)[8], (it->second)[9], (it->second)[10], (it->second)[11]);
+    weights.setValues((it->second)[0],
+                      (it->second)[1],
+                      (it->second)[2],
+                      (it->second)[3],
+                      (it->second)[4],
+                      (it->second)[5],
+                      (it->second)[6],
+                      (it->second)[7],
+                      (it->second)[8],
+                      (it->second)[9],
+                      (it->second)[10],
+                      (it->second)[11]);
     prod->setValue(it->first, weights);
   }
 
-  
   return prod;
 }
 
-
-std::unique_ptr<EcalEBPhase2TPGTimeWeightIdMap> EcalEBTrigPrimPhase2ESProducer::produceTimeWeight(const EcalEBPhase2TPGTimeWeightIdMapRcd &iRecord) {
-
-
+std::unique_ptr<EcalEBPhase2TPGTimeWeightIdMap> EcalEBTrigPrimPhase2ESProducer::produceTimeWeight(
+    const EcalEBPhase2TPGTimeWeightIdMapRcd &iRecord) {
   auto prod = std::make_unique<EcalEBPhase2TPGTimeWeightIdMap>();
-  
+
   EcalEBPhase2TPGTimeWeights weights_time;
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapTimeWeight_.begin(); it != mapTimeWeight_.end(); it++) {
-    weights_time.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4], (it->second)[5], (it->second)[6], (it->second)[7], (it->second)[8], (it->second)[9], (it->second)[10], (it->second)[11]);
+    weights_time.setValues((it->second)[0],
+                           (it->second)[1],
+                           (it->second)[2],
+                           (it->second)[3],
+                           (it->second)[4],
+                           (it->second)[5],
+                           (it->second)[6],
+                           (it->second)[7],
+                           (it->second)[8],
+                           (it->second)[9],
+                           (it->second)[10],
+                           (it->second)[11]);
     prod->setValue(it->first, weights_time);
   }
 
   return prod;
 }
 
-
-
-std::unique_ptr<EcalTPGWeightGroup> EcalEBTrigPrimPhase2ESProducer::produceWeightGroup(const EcalTPGWeightGroupRcd &iRecord) {
+std::unique_ptr<EcalTPGWeightGroup> EcalEBTrigPrimPhase2ESProducer::produceWeightGroup(
+    const EcalTPGWeightGroupRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGWeightGroup>();
-  
-  const int NGROUPS = 61200;  
-    
+
+  const int NGROUPS = 61200;
+
   for (int iGroup = 0; iGroup < NGROUPS; iGroup++) {
     std::map<int, std::vector<unsigned int>>::const_iterator it;
     for (it = mapXtalToGroup_.begin(); it != mapXtalToGroup_.end(); it++) {
       prod->setValue(it->first, it->second[0]);
-
-  
     }
   }
 
   return prod;
-
 }
-
-
 
 /*
 std::unique_ptr<EcalTPGWeightGroup> EcalEBTrigPrimPhase2ESProducer::produceWeightGroup(const EcalTPGWeightGroupRcd &iRecord) {
@@ -285,7 +280,6 @@ std::unique_ptr<EcalTPGWeightGroup> EcalEBTrigPrimPhase2ESProducer::produceWeigh
   return prod;
 }
 */
-
 
 /*
 std::unique_ptr<EcalTPGLutGroup> EcalEBTrigPrimPhase2ESProducer::produceLutGroup(const EcalTPGLutGroupRcd &iRecord) {
@@ -314,11 +308,12 @@ std::unique_ptr<EcalTPGFineGrainEBGroup> EcalEBTrigPrimPhase2ESProducer::produce
 
 */
 
-std::unique_ptr<EcalTPGPhysicsConst> EcalEBTrigPrimPhase2ESProducer::producePhysicsConst(const EcalTPGPhysicsConstRcd &iRecord) {
+std::unique_ptr<EcalTPGPhysicsConst> EcalEBTrigPrimPhase2ESProducer::producePhysicsConst(
+    const EcalTPGPhysicsConstRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGPhysicsConst>();
-  std::cout << " EcalEBTrigPrimPhase2ESProducer::producePhysicsConst Needs updating if we want to keep it " << std::endl;
+  std::cout << " EcalEBTrigPrimPhase2ESProducer::producePhysicsConst Needs updating if we want to keep it "
+            << std::endl;
 
-  
   parseTextFile();
   std::map<uint32_t, std::vector<float>>::const_iterator it;
   for (it = mapPhys_.begin(); it != mapPhys_.end(); it++) {
@@ -332,12 +327,12 @@ std::unique_ptr<EcalTPGPhysicsConst> EcalEBTrigPrimPhase2ESProducer::producePhys
     item.FG_highRatio = (it->second)[6];
     prod->setValue(it->first, item);
   }
-  
 
   return prod;
 }
 
-std::unique_ptr<EcalTPGCrystalStatus> EcalEBTrigPrimPhase2ESProducer::produceBadX(const EcalTPGCrystalStatusRcd &iRecord) {
+std::unique_ptr<EcalTPGCrystalStatus> EcalEBTrigPrimPhase2ESProducer::produceBadX(
+    const EcalTPGCrystalStatusRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGCrystalStatus>();
 
   //std::cout << " EcalEBTrigPrimPhase2ESProducer::produceBadX This Needs to be updated, i.e. the channel status must be written out by the new ParamBuilder" << std::endl;
@@ -390,34 +385,29 @@ std::unique_ptr<EcalTPGSpike> EcalEBTrigPrimPhase2ESProducer::produceSpike(const
 */
 
 void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
-
   uint32_t id;
   std::string dataCard;
   std::vector<unsigned int> param;
-  
+
   int data;
-  std::string filename =  configFilename_;
+  std::string filename = configFilename_;
   std::string finalFileName;
   size_t slash = configFilename_.find('/');
   if (slash != 0) {
     edm::FileInPath fileInPath(filename);
     finalFileName = fileInPath.fullPath();
   } else {
-    finalFileName=configFilename_;
+    finalFileName = configFilename_;
     std::cout << "Couldnt find database file via fileinpath trying with pathname directly!!" << std::endl;
   }
 
-
-
   GzInputStream gis(finalFileName.c_str());
   while (gis >> dataCard) {
-    
     if (dataCard == "WEIGHTAMP") {
-
       gis >> std::dec >> id;
 
       if (flagPrint_) {
-	std::cout << dataCard << " " << std::dec << id << std::endl;
+        std::cout << dataCard << " " << std::dec << id << std::endl;
       }
 
       param.clear();
@@ -425,39 +415,36 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
       std::string st6;
       for (int i = 0; i < 12; i++) {
         gis >> std::hex >> data;
-	//	std::cout << " Parse ampl weight filling data " << data;
+        //	std::cout << " Parse ampl weight filling data " << data;
         param.push_back(data);
-	/// debug
+        /// debug
 
-	if (flagPrint_) {
-	  std::ostringstream oss;
-	  oss << std::hex << data;
-	  std::string result4 = oss.str();
-	  
-	  st6.append("0x");
-	  st6.append(result4);
-	  st6.append(" ");
-	}
+        if (flagPrint_) {
+          std::ostringstream oss;
+          oss << std::hex << data;
+          std::string result4 = oss.str();
+
+          st6.append("0x");
+          st6.append(result4);
+          st6.append(" ");
+        }
       }
 
       // debug
       if (flagPrint_) {
-	std::cout << st6 << std::endl;
-	std::cout << std::endl;
+        std::cout << st6 << std::endl;
+        std::cout << std::endl;
       }
 
       // std::cout << " WEIGHTAMP id " << id << std::endl;
       mapWeight_[id] = param;
     }
 
-
-
     if (dataCard == "WEIGHTTIME") {
-      
       gis >> std::dec >> id;
 
       if (flagPrint_) {
-	std::cout << dataCard << " " << std::dec << id << std::endl;
+        std::cout << dataCard << " " << std::dec << id << std::endl;
       }
 
       param.clear();
@@ -465,106 +452,96 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
       std::string st6;
       for (int i = 0; i < 12; i++) {
         gis >> std::hex >> data;
-	//std::cout << " Parse time weight filling data " << data;
+        //std::cout << " Parse time weight filling data " << data;
         param.push_back(data);
-	/// debug
+        /// debug
 
-	if (flagPrint_) {
-	  std::ostringstream oss;
-	  oss << std::hex << data;
-	  std::string result4 = oss.str();
-	  
-	  st6.append("0x");
-	  st6.append(result4);
-	  st6.append(" ");
-	}
+        if (flagPrint_) {
+          std::ostringstream oss;
+          oss << std::hex << data;
+          std::string result4 = oss.str();
+
+          st6.append("0x");
+          st6.append(result4);
+          st6.append(" ");
+        }
       }
 
       // debug
       if (flagPrint_) {
-	std::cout << st6 << std::endl;
-	std::cout << std::endl;
+        std::cout << st6 << std::endl;
+        std::cout << std::endl;
       }
       mapTimeWeight_[id] = param;
     }
 
-
     if (dataCard == "CRYSTAL") {
       gis >> std::dec >> id;
-      
+
       if (flagPrint_) {
-	std::cout << dataCard << " " << std::dec << id << std::endl;
+        std::cout << dataCard << " " << std::dec << id << std::endl;
       }
-      
+
       param.clear();
       std::string st6;
       gis >> std::dec >> data;
       param.push_back(data);
-      
+
       if (flagPrint_) {
-	std::ostringstream oss;
-	oss << std::dec << data;
-	std::string result4 = oss.str();
-	st6.append(result4);
-	st6.append(" ");
-	std::cout << st6 << std::endl;
-	std::cout << std::endl;
-	
+        std::ostringstream oss;
+        oss << std::dec << data;
+        std::string result4 = oss.str();
+        st6.append(result4);
+        st6.append(" ");
+        std::cout << st6 << std::endl;
+        std::cout << std::endl;
       }
-      mapXtalToGroup_[id]=param;
+      mapXtalToGroup_[id] = param;
     }
 
     if (dataCard == "LINCONST") {
       gis >> std::dec >> id;
-      
+
       if (flagPrint_) {
-	std::cout << dataCard << " " << std::dec << id << std::endl;
+        std::cout << dataCard << " " << std::dec << id << std::endl;
       }
-      
+
       param.clear();
       std::string st6;
       std::string st7;
-      
-      for ( int i=0; i<8; i++) {
-	
-	gis >> std::hex >> data;
-	param.push_back(data);
-	
-	if (flagPrint_) {
 
+      for (int i = 0; i < 8; i++) {
+        gis >> std::hex >> data;
+        param.push_back(data);
+
+        if (flagPrint_) {
           if (i < 4) {
-	  std::ostringstream oss;
-	  oss << std::hex << data;
-	  std::string result6 = oss.str();
-	  st6.append("0x");
-	  st6.append(result6);
-	  if (i != 3)
-	  st6.append(" ");
-	  } else if ( i>=4 && i < 8) {
-	    std::ostringstream oss;
-	    oss << std::hex << data;
-	    std::string result7 = oss.str();
-	    st7.append("0x");
-	    st7.append(result7);
-	    if (i != 7)
-	      st7.append(" ");
-	  }
-	}
+            std::ostringstream oss;
+            oss << std::hex << data;
+            std::string result6 = oss.str();
+            st6.append("0x");
+            st6.append(result6);
+            if (i != 3)
+              st6.append(" ");
+          } else if (i >= 4 && i < 8) {
+            std::ostringstream oss;
+            oss << std::hex << data;
+            std::string result7 = oss.str();
+            st7.append("0x");
+            st7.append(result7);
+            if (i != 7)
+              st7.append(" ");
+          }
+        }
       }
       if (flagPrint_) {
-	std::cout << st6<< std::endl;
-	std::cout << st7 <<std::endl;
- 
+        std::cout << st6 << std::endl;
+        std::cout << st7 << std::endl;
       }
-      mapXtalToLin_[id]=param;
+      mapXtalToLin_[id] = param;
     }
-    
-
   }
-
 }
-
-
 
 void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
   if (!mapXtal_.empty())
@@ -578,7 +555,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
   std::vector<float> paramF;
   int NBstripparams[2] = {4, 4};
   unsigned int data;
-  
 
   std::string bufString;
   std::string iString;
@@ -599,8 +575,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
 
   GzInputStream gis(finalFileName.c_str());
   while (gis >> dataCard) {
-
-
     if (dataCard == "CRYSTAL") {
       gis >> std::dec >> id;
       // std::cout<<dataCard<<" "<<std::dec<<id;
@@ -798,8 +772,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
       mapTower_[0][id] = param;
     }
   }
-
-
 }
 
 std::vector<int> EcalEBTrigPrimPhase2ESProducer::getRange(
