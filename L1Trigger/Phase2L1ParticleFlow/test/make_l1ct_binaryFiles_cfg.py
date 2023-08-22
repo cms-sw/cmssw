@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Optional paramet
 parser.add_argument("--dumpFilesOFF", help="switch on dump file production", action="store_true", default=False)
 parser.add_argument("--patternFilesOFF", help="switch on Layer-1 pattern file production", action="store_true", default=False)
 parser.add_argument("--serenity", help="use Serenity settigns as default everwhere, i.e. also for barrel", action="store_true", default=False)
+parser.add_argument("--tm18", help="Add TM18 emulators for the endcaps", action="store_true", default=False)
 
 argv = sys.argv[:]
 if '--' in argv:
@@ -54,10 +55,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '125X_mcRun4_realistic_v2', '')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer2EG_cff')
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
+process.load('L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi')
+process.l1tTrackSelectionProducer.processSimulatedTracks = False # these would need stubs, and are not used anyway
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
-process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
-process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "fastHistoEmulation"
-process.l1tVertexFinderEmulator.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer", "Level1TTTracksConverted")
 from L1Trigger.Phase2L1GMT.gmt_cfi import l1tStandaloneMuons
 process.l1tSAMuonsGmt = l1tStandaloneMuons.clone()
 
@@ -122,6 +122,7 @@ if not args.patternFilesOFF:
 process.runPF = cms.Path( 
         process.l1tSAMuonsGmt +
         process.l1tGTTInputProducer +
+        process.l1tTrackSelectionProducer +
         process.l1tVertexFinderEmulator +
         process.l1tLayer1Barrel +
         process.l1tLayer1BarrelTDR +
@@ -159,5 +160,24 @@ if not args.dumpFilesOFF:
         l1pf = getattr(process, 'l1tLayer1'+det)
         l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
 
+
+if args.tm18:
+    process.l1tLayer1HGCalTM18 = process.l1tLayer1HGCal.clone()
+    process.l1tLayer1HGCalTM18.regionizerAlgo = "BufferedFoldedMultififo"
+    process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nClocks = 162
+    process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nTkLinks = 1
+    process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nCaloLinks = 1
+    process.l1tLayer1HGCalNoTKTM18 = process.l1tLayer1HGCalNoTK.clone()
+    process.l1tLayer1HGCalNoTKTM18.regionizerAlgo = "BufferedFoldedMultififo"
+    process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nClocks = 162
+    process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nCaloLinks = 1
+    process.runPF.insert(process.runPF.index(process.l1tLayer1HGCal)+1, process.l1tLayer1HGCalTM18)
+    process.runPF.insert(process.runPF.index(process.l1tLayer1HGCalNoTK)+1, process.l1tLayer1HGCalNoTKTM18)
+    if not args.patternFilesOFF:
+        process.l1tLayer1HGCalTM18.patternWriters = cms.untracked.VPSet(*hgcalTM18WriterConfigs)
+        process.l1tLayer1HGCalNoTKTM18.patternWriters = cms.untracked.VPSet(hgcalNoTKOutputTM18WriterConfig)
+    if not args.dumpFilesOFF:
+        for det in "HGCalTM18", "HGCalNoTKTM18":
+                getattr(process, 'l1tLayer1'+det).dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/12_5_X/NewInputs125X/150223/TTbar_PU200/inputs125X_1.root' ]
