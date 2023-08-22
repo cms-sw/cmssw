@@ -27,9 +27,6 @@
 #include "CondFormats/DataRecord/interface/DTPerformanceRcd.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
-#include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
-#include "CondFormats/DataRecord/interface/DTKeyedConfigContainerRcd.h"
-#include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 #include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 #include "CondFormats/DTObjects/interface/DTHVStatus.h"
@@ -50,19 +47,6 @@
 #include "CondFormats/External/interface/DetID.h"
 
 #include <memory>
-
-namespace cond {
-  template <>
-  std::unique_ptr<BaseKeyed> deserialize<BaseKeyed>(const std::string& payloadType,
-                                                    const Binary& payloadData,
-                                                    const Binary& streamerInfoData) {
-    DESERIALIZE_BASE_CASE(BaseKeyed);
-    DESERIALIZE_POLIMORPHIC_CASE(BaseKeyed, DTKeyedConfig);
-
-    // here we come if none of the deserializations above match the payload type:
-    throwException(std::string("Type mismatch, target object is type \"") + payloadType + "\"", "deserialize<>");
-  }
-}  // namespace cond
 
 namespace {
   struct InitDTCCBConfig {
@@ -137,8 +121,6 @@ REGISTER_PLUGIN_INIT(DTCCBConfigRcd, DTCCBConfig, InitDTCCBConfig);
 REGISTER_PLUGIN_INIT(DTTPGParametersRcd, DTTPGParameters, InitDTTPGParameters);
 REGISTER_PLUGIN_INIT(DTHVStatusRcd, DTHVStatus, InitDTHVStatus);
 REGISTER_PLUGIN_INIT(DTLVStatusRcd, DTLVStatus, InitDTLVStatus);
-REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
-REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd, cond::persistency::KeyList, DTKeyedConfigContainerRcd);
 REGISTER_PLUGIN(DTRecoUncertaintiesRcd, DTRecoUncertainties);
 //New flexyble payloads for ttrig, vdrift, uncertainty
 REGISTER_PLUGIN(DTRecoConditionsTtrigRcd, DTRecoConditions);
