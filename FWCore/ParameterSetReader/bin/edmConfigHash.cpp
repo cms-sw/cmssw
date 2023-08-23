@@ -28,10 +28,10 @@ int main(int argc, char** argv) try {
     }
   } else {
     config = std::string(argv[1]);
-    pythonArgs.reserve(argc-1);
-    for(int iarg = 1; iarg < argc; ++iarg){
-	  pythonArgs.push_back(argv[iarg]);
-	}
+    pythonArgs.reserve(argc - 1);
+    for (int iarg = 1; iarg < argc; ++iarg) {
+      pythonArgs.push_back(argv[iarg]);
+    }
   }
 
   std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config, pythonArgs.size(), pythonArgs.data());

@@ -47,6 +47,7 @@ static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kParameterSetSuffix = ".py";
 static const size_t kParameterSetSuffixLen = std::strlen(kParameterSetSuffix);
 static char const* const kPythonOpt = "pythonOptions";
+static std::string const kPythonOptDefault = "CMSRUN_PYTHONOPT_DEFAULT";
 static char const* const kJobreportCommandOpt = "jobreport,j";
 static char const* const kJobreportOpt = "jobreport";
 static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
@@ -118,6 +119,11 @@ namespace {
       for (const auto& arg : args) {
         pythonOpts.value.push_back(arg);
         pythonOpts.original_tokens.push_back(arg);
+      }
+      //default value to avoid "is missing" error
+      if (pythonOpts.value.empty()) {
+        pythonOpts.value.push_back(kPythonOptDefault);
+        pythonOpts.original_tokens.push_back("");
       }
       args.clear();
     }
@@ -238,9 +244,12 @@ int main(int argc, char* argv[]) {
       }
       std::string fileName(vm[kParameterSetOpt].as<std::string>());
       //convert to char*[]
-      std::vector<char*> pythonArgs =
-          edm::vector_transform(vm[kPythonOpt].as<std::vector<std::string>>(),
-                                [](const auto& arg) { return const_cast<char*>(arg.c_str()); });
+      const std::vector<std::string>& pythonOptValues(vm[kPythonOpt].as<std::vector<std::string>>());
+      std::vector<char*> pythonArgs;
+      //omit default arg
+      if (!(pythonOptValues.size() == 1 and pythonOptValues[0] == kPythonOptDefault))
+        pythonArgs =
+            edm::vector_transform(pythonOptValues, [](const auto& arg) { return const_cast<char*>(arg.c_str()); });
       pythonArgs.insert(pythonArgs.begin(), const_cast<char*>(fileName.c_str()));
 
       if (vm.count(kStrictOpt)) {
