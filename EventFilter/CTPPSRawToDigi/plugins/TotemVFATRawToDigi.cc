@@ -25,6 +25,7 @@
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
+#include "CondFormats/DataRecord/interface/TotemAnalysisMaskRcd.h"
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
@@ -58,7 +59,7 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
   edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> totemMappingToken;
-  edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> analysisMaskToken;
+  edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> analysisMaskToken;
 
   pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
@@ -145,7 +146,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
   produces<DetSetVector<TotemVFATStatus>>(subSystemName);
 
   totemMappingToken = esConsumes<TotemDAQMapping, TotemReadoutRcd>(ESInputTag("", subSystemName));
-  analysisMaskToken = esConsumes<TotemAnalysisMask, TotemReadoutRcd>(ESInputTag("", subSystemName));
+  analysisMaskToken = esConsumes<TotemAnalysisMask, TotemAnalysisMaskRcd>(ESInputTag("", subSystemName));
 }
 
 TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
@@ -168,9 +169,19 @@ template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   // get DAQ mapping
   ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
+  if (!mapping) {
+    LogError("TotemVFATRawToDigi") << "TotemVFATRawToDigi: no mapping found for " << subSystemName;
+  }
 
   // get analysis mask to mask channels
-  ESHandle<TotemAnalysisMask> analysisMask = es.getHandle(analysisMaskToken);
+  TotemAnalysisMask analysisMask;
+  ESHandle<TotemAnalysisMask> analysisMaskHandle = es.getHandle(analysisMaskToken);
+  if (analysisMaskHandle) {
+    analysisMask = *analysisMaskHandle;
+  } else {
+    LogWarning("TotemVFATRawToDigi") << "TotemVFATRawToDigi: no mask found for " << subSystemName;
+    analysisMask = TotemAnalysisMask();
+  }
 
   // raw data handle
   edm::Handle<FEDRawDataCollection> rawData;
@@ -190,7 +201,7 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   }
 
   // raw-to-digi conversion
-  rawToDigiConverter.run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
+  rawToDigiConverter.run(vfatCollection, *mapping, analysisMask, digi, conversionStatus);
 
   // commit products to event
   event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystemName);
