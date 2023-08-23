@@ -243,22 +243,26 @@ def setupPuppiForPackedPF(process, useExistingWeights=True, postfix=''):
     """
     Setup puppi weights
     Two instances of PuppiProducer:
-    - puppi (for jet reclustering)
-    - puppiNoLep (for MET reclustering)
+    - packedpuppi (for jet reclustering)
+    - packedpuppiNoLep (for MET reclustering)
     """
     from CommonTools.PileupAlgos.Puppi_cff import puppi
     task = getPatAlgosToolsTask(process)
 
-    puppiLabel = 'puppi'+postfix
-    if not hasattr(process,puppiLabel):
+    puppiLabel = 'packedpuppi'+postfix
+
+    ## Instantiate PuppiProducer with "puppiLabel"
+    ## if it does not exist.
+    if not hasattr(process, puppiLabel):
         addToProcessAndTask(puppiLabel, puppi.clone(
             useExistingWeights = useExistingWeights,
             candName = 'packedPFCandidates',
             vertexName = 'offlineSlimmedPrimaryVertices'), process, task)
 
-    puppiNoLepLabel = 'puppi'+postfix+'NoLep'
-    if hasattr(process,puppiLabel) and not hasattr(process,puppiNoLepLabel):
-        addToProcessAndTask(puppiNoLepLabel, getattr(process,puppiLabel).clone(
+    puppiNoLepLabel = puppiLabel+'NoLep'
+
+    if hasattr(process, puppiLabel) and not hasattr(process, puppiNoLepLabel):
+        addToProcessAndTask(puppiNoLepLabel, getattr(process, puppiLabel).clone(
             puppiNoLep = True), process, task)
 
     return puppiLabel, puppiNoLepLabel
@@ -637,8 +641,8 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             if 'pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo:
               _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
               if pfCandidates.value() == 'packedPFCandidates':
-                puppiForPackedPFLabel = setupPuppiForPackedPF(process)[0]
-                _btagInfo.weights = cms.InputTag(puppiForPackedPFLabel)
+                packedPFPuppiLabel = setupPuppiForPackedPF(process)[0]
+                _btagInfo.weights = cms.InputTag(packedPFPuppiLabel)
               else:
                 _btagInfo.weights = cms.InputTag("puppi")
 
@@ -707,13 +711,12 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       is_weighted_jet = is_weighted_jet,
                                       flip = flip),
                                     process, task)
-            
             if btagInfo == 'pfDeepDoubleXTagInfos':
                 # can only run on PAT jets, so the updater needs to be used
                 if 'updated' not in jetSource.value().lower():
                     raise ValueError("Invalid jet collection: %s. pfDeepDoubleXTagInfos only supports running via updateJetCollection." % jetSource.value())
-                puppiForPackedPFLabel = setupPuppiForPackedPF(process)[0]
-                puppi_value_map = cms.InputTag(puppiForPackedPFLabel)
+                packedPFPuppiLabel = setupPuppiForPackedPF(process)[0]
+                puppi_value_map = cms.InputTag(packedPFPuppiLabel)
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepDoubleXTagInfos.clone(
                                       jets = jetSource,
@@ -723,10 +726,9 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       puppi_value_map = puppi_value_map,
                                       ),
                                     process, task)
-
             if btagInfo == 'pfHiggsInteractionNetTagInfos':
-                puppi_value_map = cms.InputTag(packedPuppiName)
-                puppiForPackedPFLabel = setupPuppiForPackedPF(process)[0]
+                packedPFPuppiLabel = setupPuppiForPackedPF(process)[0]
+                puppi_value_map = cms.InputTag(packedPFPuppiLabel)
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfHiggsInteractionNetTagInfos.clone(
                                       jets = jetSource,
