@@ -503,10 +503,8 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
 
     std::map<Int_t, Float_t>::iterator n_it = (aveHitE[iEta]).begin();
 
-    Float_t sumRawE = 0;
     for (; n_it != (aveHitE[iEta]).end(); ++n_it) {
       (n_it->second) *= norm;
-      sumRawE += (n_it->second);
     }
 
   }  // end of scaling by number of entries

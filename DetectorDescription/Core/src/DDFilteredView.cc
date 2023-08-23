@@ -66,9 +66,7 @@ void DDFilteredView::clearScope() {
 
 bool DDFilteredView::next() {
   bool result = false;
-  int i = 0;
   while (epv_.next()) {
-    ++i;
     if (filter()) {
       result = true;
       break;

@@ -1,10 +1,8 @@
 <use name="DataFormats/ForwardDetId"/>
-<use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/L1THGCal"/>
 <use name="DetectorDescription/Core"/>
-<use name="DetectorDescription/DDCMS"/>
 <use name="DQMServices/Core"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/Framework"/>

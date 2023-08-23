@@ -23,7 +23,7 @@ HFShower::HFShower(const std::string &name,
                    const HcalSimulationParameters *hps,
                    edm::ParameterSet const &p,
                    int chk)
-    : hcalConstant_(hcons), chkFibre_(chk) {
+    : cherenkov_(p.getParameter<edm::ParameterSet>("HFShower")), fibre_(hcons, hps, p), chkFibre_(chk) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");
   edm::ParameterSet m_HF2 = m_HF.getParameter<edm::ParameterSet>("HFShowerBlock");
@@ -33,21 +33,16 @@ HFShower::HFShower(const std::string &name,
   edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_
                                << " EqualizeTimeShift " << equalizeTimeShift_;
 
-  cherenkov_ = std::make_unique<HFCherenkov>(m_HF);
-  fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
-
   //Special Geometry parameters
-  gpar_ = hcalConstant_->getGparHF();
+  gpar_ = hcons->getGparHF();
 }
-
-HFShower::~HFShower() {}
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight) {
   std::vector<HFShower::Hit> hits;
-  int nHit = 0;
 
   double edep = weight * (aStep->GetTotalEnergyDeposit());
 #ifdef EDM_ML_DEBUG
+  int nHit = 0;
   edm::LogVerbatim("HFShower") << "HFShower::getHits: energy " << aStep->GetTotalEnergyDeposit() << " weight " << weight
                                << " edep " << edep;
 #endif
@@ -115,7 +110,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
   double time =
-      (equalizeTimeShift_) ? (fibre_->tShift(localPos, depth, -1)) : (fibre_->tShift(localPos, depth, chkFibre_));
+      (equalizeTimeShift_) ? (fibre_.tShift(localPos, depth, -1)) : (fibre_.tShift(localPos, depth, chkFibre_));
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -128,15 +123,15 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   std::vector<double> momz;
   if (!applyFidCut_) {  // _____ Tmp close of the cherenkov function
     if (ok)
-      npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-    wavelength = cherenkov_->getWL();
-    momz = cherenkov_->getMom();
+      npe = cherenkov_.computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+    wavelength = cherenkov_.getWL();
+    momz = cherenkov_.getMom();
   }  // ^^^^^ End of Tmp close of the cherenkov function
   if (ok && npe > 0) {
     for (int i = 0; i < npe; ++i) {
       double p = 1.;
       if (!applyFidCut_)
-        p = fibre_->attLength(wavelength[i]);
+        p = fibre_.attLength(wavelength[i]);
       double r1 = G4UniformRand();
       double r2 = G4UniformRand();
 #ifdef EDM_ML_DEBUG
@@ -157,7 +152,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
         }
         hit.position = globalPos;
         hits.push_back(hit);
+#ifdef EDM_ML_DEBUG
         nHit++;
+#endif
       }
     }
   }
@@ -174,8 +171,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibraryProducer, double zoffset) {
   std::vector<HFShower::Hit> hits;
+#ifdef EDM_ML_DEBUG
   int nHit = 0;
-
+#endif
   double edep = aStep->GetTotalEnergyDeposit();
   double stepl = 0.;
 
@@ -222,7 +220,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
 
 #ifdef EDM_ML_DEBUG
-  double time = (equalizeTimeShift_) ? 0 : fibre_->tShift(localPos, depth, chkFibre_);
+  double time = (equalizeTimeShift_) ? 0 : fibre_.tShift(localPos, depth, chkFibre_);
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
                                << zFibre << " Trans " << translation << " Time " << tSlice << " " << time
                                << "\n                  Direction " << momentumDir << " Local " << localMom;
@@ -232,9 +230,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   std::vector<double> wavelength;
   std::vector<double> momz;
   if (ok)
-    npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-  wavelength = cherenkov_->getWL();
-  momz = cherenkov_->getMom();
+    npe = cherenkov_.computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+  wavelength = cherenkov_.getWL();
+  momz = cherenkov_.getMom();
   if (ok && npe > 0) {
     for (int i = 0; i < npe; ++i) {
       hit.depth = depth;
@@ -244,7 +242,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
       hit.momentum = momz[i];
       hit.position = globalPos;
       hits.push_back(hit);
+#ifdef EDM_ML_DEBUG
       nHit++;
+#endif
     }
   }
 
@@ -260,8 +260,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrary) {
   std::vector<HFShower::Hit> hits;
+#ifdef EDM_ML_DEBUG
   int nHit = 0;
-
+#endif
   double edep = aStep->GetTotalEnergyDeposit();
   double stepl = 0.;
 
@@ -326,7 +327,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   double zCoor = localPos.z();
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = (equalizeTimeShift_) ? 0 : fibre_->tShift(localPos, depth, chkFibre_);
+  double time = (equalizeTimeShift_) ? 0 : fibre_.tShift(localPos, depth, chkFibre_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits(SL): in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -336,9 +337,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   // npe should be 0
   int npe = 0;
   if (ok)
-    npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-  std::vector<double> wavelength = cherenkov_->getWL();
-  std::vector<double> momz = cherenkov_->getMom();
+    npe = cherenkov_.computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+  std::vector<double> wavelength = cherenkov_.getWL();
+  std::vector<double> momz = cherenkov_.getMom();
 
   for (int i = 0; i < npe; ++i) {
     hit.depth = depth;
@@ -347,7 +348,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
     hit.momentum = momz[i];
     hit.position = globalPos;
     hits.push_back(hit);
+#ifdef EDM_ML_DEBUG
     nHit++;
+#endif
   }
 
   return hits;

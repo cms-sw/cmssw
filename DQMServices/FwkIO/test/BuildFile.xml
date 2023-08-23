@@ -2,12 +2,9 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
-<use name="FWCore/Utilities"/>
 <use name="roothistmatrix"/>
 <library file="*.cc" name="DQMServicesFwkIOTestPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="TestIntegration.cpp" name="TestDQMServicesFwkIOScripts">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DQMServices/FwkIO/test run_tests.sh"/>
-</bin>
+<test name="TestDQMServicesFwkIOScripts" command="run_tests.sh"/>

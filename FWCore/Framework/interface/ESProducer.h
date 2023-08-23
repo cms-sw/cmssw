@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESProducer_h
 #define FWCore_Framework_ESProducer_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESProducer
@@ -13,7 +13,7 @@
     Inheriting from this class is the simplest way to create an algorithm which gets called when a new
   data item is needed for the EventSetup.  This class is designed to call a member method of inheriting
   classes each time the algorithm needs to be run.  (A more flexible system in which the algorithms can be
-  set at run-time instead of compile time can be obtained by inheriting from ESProxyFactoryProducer instead.)
+  set at run-time instead of compile time can be obtained by inheriting from ESProductResolverFactoryProducer instead.)
 
     If only one algorithm is being encapsulated then the user needs to
       1) add a method name 'produce' to the class.  The 'produce' takes as its argument a const reference
@@ -77,10 +77,10 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/Framework/interface/es_impl/MayConsumeChooserBase.h"
 #include "FWCore/Framework/interface/es_impl/ReturnArgumentTypes.h"
-#include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
-#include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
+#include "FWCore/Framework/interface/ESProductResolverFactoryProducer.h"
+#include "FWCore/Framework/interface/ESProductResolverArgumentFactoryTemplate.h"
 
-#include "FWCore/Framework/interface/CallbackProxy.h"
+#include "FWCore/Framework/interface/CallbackProductResolver.h"
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Framework/interface/eventsetup_dependsOn.h"
@@ -91,7 +91,7 @@ Example: two algorithms each creating only one objects
 // forward declarations
 namespace edm {
   namespace eventsetup {
-    class ESRecordsToProxyIndices;
+    class ESRecordsToProductResolverIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
     //  the argument as the decorator itself
@@ -101,19 +101,21 @@ namespace edm {
     }
   }  // namespace eventsetup
 
-  class ESProducer : public ESProxyFactoryProducer {
+  class ESProducer : public ESProductResolverFactoryProducer {
   public:
     ESProducer();
     ~ESProducer() noexcept(false) override;
-    ESProducer(const ESProducer&) = delete;                   // stop default
-    ESProducer const& operator=(const ESProducer&) = delete;  // stop default
+    ESProducer(const ESProducer&) = delete;
+    ESProducer& operator=(const ESProducer&) = delete;
+    ESProducer(ESProducer&&) = delete;
+    ESProducer& operator=(ESProducer&&) = delete;
 
-    void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
-    ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
+    void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) final;
+    ESResolverIndex const* getTokenIndices(unsigned int iIndex) const {
       if (itemsToGetFromRecords_.empty()) {
         return nullptr;
       }
-      return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr)
+      return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESResolverIndex const*>(nullptr)
                                                       : &(itemsToGetFromRecords_[iIndex].front());
     }
     ESRecordIndex const* getTokenRecordIndices(unsigned int iIndex) const {
@@ -133,11 +135,12 @@ namespace edm {
     bool hasMayConsumes() const noexcept { return hasMayConsumes_; }
 
     template <typename Record>
-    std::optional<std::vector<ESProxyIndex>> updateFromMayConsumes(unsigned int iIndex, const Record& iRecord) const {
+    std::optional<std::vector<ESResolverIndex>> updateFromMayConsumes(unsigned int iIndex,
+                                                                      const Record& iRecord) const {
       if (not hasMayConsumes()) {
         return {};
       }
-      std::vector<ESProxyIndex> ret = itemsToGetFromRecords_[iIndex];
+      std::vector<ESResolverIndex> ret = itemsToGetFromRecords_[iIndex];
       auto const info = consumesInfos_[iIndex].get();
       for (size_t i = 0; i < info->size(); ++i) {
         auto chooserBase = (*info)[i].chooser_.get();
@@ -168,6 +171,7 @@ namespace edm {
     auto setWhatProduced(T* iThis, const char* iLabel) {
       return setWhatProduced(iThis, es::Label(iLabel));
     }
+
     template <typename T>
     auto setWhatProduced(T* iThis, const std::string& iLabel) {
       return setWhatProduced(iThis, es::Label(iLabel));
@@ -178,24 +182,22 @@ namespace edm {
       return setWhatProduced(iThis, &T::produce, iDec, iLabel);
     }
     /** \param iThis the 'this' pointer to an inheriting class instance
-        \param iMethod a member method of then inheriting class
-        The method determines the Record argument and return value of the iMethod argument
-        method in order to do the registration with the EventSetup
+        \param iMethod a member method of the inheriting class
+        The TRecord and TReturn template parameters can be deduced
+        from iMethod in order to do the registration with the EventSetup
     */
     template <typename T, typename TReturn, typename TRecord>
-    auto setWhatProduced(T* iThis, TReturn (T ::*iMethod)(const TRecord&), const es::Label& iLabel = {}) {
+    auto setWhatProduced(T* iThis, TReturn (T::*iMethod)(const TRecord&), const es::Label& iLabel = {}) {
       return setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(), iLabel);
     }
-    /** \param iThis the 'this' pointer to an inheriting class instance
-        \param iMethod a member method of then inheriting class
-        \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
-        The method determines the Record argument and return value of the iMethod argument
-        method in order to do the registration with the EventSetup
+    /** \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
+        This function has the same template parameters and arguments as the previous function
+        except for the addition of the decorator.
     */
-    template <typename T, typename TReturn, typename TRecord, typename TArg>
+    template <typename T, typename TReturn, typename TRecord, typename TDecorator>
     auto setWhatProduced(T* iThis,
                          TReturn (T ::*iMethod)(const TRecord&),
-                         const TArg& iDec,
+                         const TDecorator& iDec,
                          const es::Label& iLabel = {}) {
       return setWhatProduced<TReturn, TRecord>(
           [iThis, iMethod](TRecord const& iRecord) { return (iThis->*iMethod)(iRecord); },
@@ -208,13 +210,10 @@ namespace edm {
      * production function. As of now it is not intended for wide use
      * (we are thinking for a better API for users)
      *
-     * The decorator functionality is not implemented yet. In
-     * principle the lambda provides the ability for pre(Record
-     * const&) and post(Record const&) functions (in addition to much
-     * more). The main use case of dependsOn() also in practice became
-     * unused with the concurrent IOVs, so it is not clear if the
-     * decorator functionality would really be needed. In principle it
-     * should be straightforward to add.
+     * The main use case of the decorator functionality was
+     * dependsOn(), but in practice that became unused with
+     * concurrent IOVs, so it is not clear if the
+     * decorator functionality is still needed.
      */
     template <typename TFunc>
     auto setWhatProduced(TFunc&& func, const es::Label& iLabel = {}) {
@@ -227,7 +226,7 @@ namespace edm {
 
     template <typename TReturn, typename TRecord, typename TFunc, typename TDecorator>
     ESConsumesCollectorT<TRecord> setWhatProduced(TFunc&& func, TDecorator&& iDec, const es::Label& iLabel = {}) {
-      const auto id = consumesInfos_.size();
+      const auto id = consumesInfoSize();
       using DecoratorType = std::decay_t<TDecorator>;
       using CallbackType = eventsetup::Callback<ESProducer, TFunc, TReturn, TRecord, DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
@@ -238,11 +237,19 @@ namespace edm {
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
-      return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(), id);
+      return ESConsumesCollectorT<TRecord>(consumesInfoPushBackNew(), id);
     }
 
-  private:
+    // These next four functions are intended for use in this class and
+    // class ESProducerExternalWork only. They should not be used in
+    // other classes derived from them.
+    unsigned int consumesInfoSize() const { return consumesInfos_.size(); }
+
+    ESConsumesInfo* consumesInfoPushBackNew() {
+      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
+      return consumesInfos_.back().get();
+    }
+
     template <typename CallbackT, typename TList, typename TRecord>
     void registerProducts(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                           const TList*,
@@ -260,13 +267,14 @@ namespace edm {
       //do nothing
     }
 
+  private:
     template <typename CallbackT, typename TProduct, typename TRecord>
     void registerProduct(std::shared_ptr<std::pair<unsigned int, std::shared_ptr<CallbackT>>> iCallback,
                          const TProduct*,
                          const TRecord*,
                          const es::Label& iLabel) {
-      using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, TProduct>;
-      using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
+      using ResolverType = eventsetup::CallbackProductResolver<CallbackT, TRecord, TProduct>;
+      using FactoryType = eventsetup::ESProductResolverArgumentFactoryTemplate<ResolverType, CallbackT>;
       registerFactory(std::make_unique<FactoryType>(std::move(iCallback)), iLabel.default_);
     }
 
@@ -281,13 +289,13 @@ namespace edm {
                              IIndex,
                              " was never assigned a name in the 'setWhatProduced' method");
       }
-      using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, es::L<TProduct, IIndex>>;
-      using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
+      using ResolverType = eventsetup::CallbackProductResolver<CallbackT, TRecord, es::L<TProduct, IIndex>>;
+      using FactoryType = eventsetup::ESProductResolverArgumentFactoryTemplate<ResolverType, CallbackT>;
       registerFactory(std::make_unique<FactoryType>(std::move(iCallback)), iLabel.labels_[IIndex]);
     }
 
     std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
-    std::vector<std::vector<ESProxyIndex>> itemsToGetFromRecords_;
+    std::vector<std::vector<ESResolverIndex>> itemsToGetFromRecords_;
     //need another structure to say which record to get the data from in
     // order to make prefetching work
     std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;

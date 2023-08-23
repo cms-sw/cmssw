@@ -361,11 +361,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
             << trackProducer.instance()
             << ": " << trackCollection->size() << "\n";
 */
-  int rT = 0;
   for (View<reco::Track>::size_type i = 0; i < trackCollection->size(); ++i) {
-    ++rT;
     RefToBase<reco::Track> track(trackCollection, i);
-    //      std::cout << " num of hits for track " << rT << " = " << track->recHitsSize() << std::endl;
     for (trackingRecHit_iterator ih = track->recHitsBegin(); ih != track->recHitsEnd(); ++ih) {
       TrackingRecHit* hit = (*ih)->clone();
       const DetId& detId = hit->geographicalId();

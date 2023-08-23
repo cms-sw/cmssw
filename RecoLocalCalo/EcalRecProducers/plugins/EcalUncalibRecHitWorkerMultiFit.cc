@@ -163,6 +163,11 @@ private:
 
   //Timing Cross Correlation Algo
   std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCC_;
+  double CCminTimeToBeLateMin_;
+  double CCminTimeToBeLateMax_;
+  double CCTimeShiftWrtRations_;
+  double CCtargetTimePrecision_;
+  double CCtargetTimePrecisionForDelayedPulses_;
 };
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
@@ -224,8 +229,13 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = crossCorrelationMethod;
     double startTime = ps.getParameter<double>("crossCorrelationStartTime");
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
-    double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
-    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
+    CCtargetTimePrecision_ = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
+    CCtargetTimePrecisionForDelayedPulses_ =
+        ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
+    CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalcctiming::clockToNS;
+    CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalcctiming::clockToNS;
+    CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
+    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime);
   } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
@@ -627,11 +637,69 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
-        float jitterError = 0.;
-        float jitter = computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
+        float jitter =
+            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true) +
+            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
+        float noCorrectedJitter =
+            computeCC_->computeTimeCC(
+                *itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecisionForDelayedPulses_, false) +
+            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
 
         uncalibRecHit.setJitter(jitter);
-        uncalibRecHit.setJitterError(jitterError);
+        uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);
+
+        float retreivedNonCorrectedTime = uncalibRecHit.nonCorrectedTime();
+        float noCorrectedTime = ecalcctiming::clockToNS * noCorrectedJitter;
+        if (retreivedNonCorrectedTime > -29.0 && std::abs(retreivedNonCorrectedTime - noCorrectedTime) > 0.05) {
+          edm::LogError("EcalUncalibRecHitError") << "Problem with noCorrectedJitter: true value:" << noCorrectedTime
+                                                  << "\t received: " << retreivedNonCorrectedTime << std::endl;
+        }  //<<>>if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1);
+
+        // consider flagging as kOutOfTime only if above noise
+        float threshold, cterm, timeNconst;
+        float timeThrP = 0.;
+        float timeThrM = 0.;
+        if (barrel) {
+          threshold = pedRMSVec[0] * amplitudeThreshEB_;
+          cterm = EBtimeConstantTerm_;
+          timeNconst = EBtimeNconst_;
+          timeThrP = outOfTimeThreshG12pEB_;
+          timeThrM = outOfTimeThreshG12mEB_;
+          if (uncalibRecHit.amplitude() > 3000.) {  // Gain switch
+            for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES; iSample++) {
+              int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+              if (GainId != 1) {
+                timeThrP = outOfTimeThreshG61pEB_;
+                timeThrM = outOfTimeThreshG61mEB_;
+                break;
+              }
+            }
+          }
+        } else {  //EndCap
+          threshold = pedRMSVec[0] * amplitudeThreshEE_;
+          cterm = EEtimeConstantTerm_;
+          timeNconst = EEtimeNconst_;
+          timeThrP = outOfTimeThreshG12pEE_;
+          timeThrM = outOfTimeThreshG12mEE_;
+          if (uncalibRecHit.amplitude() > 3000.) {  // Gain switch
+            for (int iSample = 0; iSample < EEDataFrame::MAXSAMPLES; iSample++) {
+              int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+              if (GainId != 1) {
+                timeThrP = outOfTimeThreshG61pEE_;
+                timeThrM = outOfTimeThreshG61mEE_;
+                break;
+              }
+            }
+          }
+        }
+        if (uncalibRecHit.amplitude() > threshold) {
+          float correctedTime = noCorrectedJitter * ecalcctiming::clockToNS + itimeconst + offsetTime;
+          float sigmaped = pedRMSVec[0];  // approx for lower gains
+          float nterm = timeNconst * sigmaped / uncalibRecHit.amplitude();
+          float sigmat = std::sqrt(nterm * nterm + cterm * cterm);
+          if ((correctedTime > sigmat * timeThrP) || (correctedTime < -sigmat * timeThrM))
+            uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kOutOfTime);
+        }
 
       } else {  // no time method;
         uncalibRecHit.setJitter(0.);
@@ -662,14 +730,14 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<bool>("dynamicPedestalsEE", false, true) and
               edm::ParameterDescription<bool>("mitigateBadSamplesEB", false, true) and
               edm::ParameterDescription<bool>("mitigateBadSamplesEE", false, true) and
-              edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEB", false, true) and
+              edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEB", true, true) and
               edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEE", false, true) and
               edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEB", false, true) and
               edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEE", false, true) and
               edm::ParameterDescription<double>("addPedestalUncertaintyEB", 0., true) and
               edm::ParameterDescription<double>("addPedestalUncertaintyEE", 0., true) and
               edm::ParameterDescription<bool>("simplifiedNoiseModelForGainSwitch", true, true) and
-              edm::ParameterDescription<std::string>("timealgo", "RatioMethod", true) and
+              edm::ParameterDescription<std::string>("timealgo", "crossCorrelationMethod", true) and
               edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters",
                                                              {-2.015452e+00,
                                                               3.130702e+00,
@@ -700,10 +768,10 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("EEtimeConstantTerm", 1.0, true) and
               edm::ParameterDescription<double>("EBtimeNconst", 28.5, true) and
               edm::ParameterDescription<double>("EEtimeNconst", 31.8, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 5, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 5, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5, true) and
-              edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 2.5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 2.5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 2.5, true) and
+              edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 2.5, true) and
               edm::ParameterDescription<double>("outOfTimeThresholdGain12pEE", 1000, true) and
               edm::ParameterDescription<double>("outOfTimeThresholdGain12mEE", 1000, true) and
               edm::ParameterDescription<double>("outOfTimeThresholdGain61pEE", 1000, true) and
@@ -712,7 +780,11 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
               edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
               edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
-              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true));
+              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
+              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecisionForDelayedPulses", 0.05, true) and
+              edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 0., true) and
+              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMin", 2., true) and
+              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMax", 5., true));
 
   return psd;
 }

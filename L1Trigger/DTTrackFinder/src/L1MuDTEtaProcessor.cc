@@ -60,7 +60,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id, edm::ConsumesCollector&& iC)
+L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id, edm::ConsumesCollector iC)
     : m_tf(tf),
       m_epid(id),
       m_foundPattern(0),

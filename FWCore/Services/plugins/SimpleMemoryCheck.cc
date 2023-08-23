@@ -480,7 +480,16 @@ namespace edm {
             << eventR2_ << "\n"
             << eventT3_ << "\n"
             << eventT2_ << "\n"
-            << eventT1_;
+            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss
+            << " Mbytes"
+               "\n Key events increasing rss:\n"
+            << eventRssT3_ << "\n"
+            << eventRssT2_ << "\n"
+            << eventRssT1_ << "\n"
+            << eventDeltaRssT3_ << "\n"
+            << eventDeltaRssT2_ << "\n"
+            << eventDeltaRssT1_;
+        ;
       }
       if (moduleSummaryRequested_ and not jobReportOutputOnly_) {  // changelog 1
         LogAbsolute mmr("ModuleMemoryReport");                     // at end of if block, mmr
@@ -749,10 +758,14 @@ namespace edm {
     }
 
     void SimpleMemoryCheck::updateMax() {
-      if ((*current_ > max_) || oncePerEventMode_) {
-        if (count_ >= num_to_skip_) {
+      auto v = *current_;
+      if ((v > max_) || oncePerEventMode_) {
+        if (max_.vsize < v.vsize) {
+          max_.vsize = v.vsize;
         }
-        max_ = *current_;
+        if (max_.rss < v.rss) {
+          max_.rss = v.rss;
+        }
       }
     }
 

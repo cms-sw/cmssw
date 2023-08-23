@@ -41,6 +41,7 @@ public:
     theOriginRScaling = regionPSet.getParameter<bool>("originRScaling4BigEvts");
     thePtMinScaling = regionPSet.getParameter<bool>("ptMinScaling4BigEvts");
     theHalfLengthScaling = regionPSet.getParameter<bool>("halfLengthScaling4BigEvts");
+    theAllowEmpty = regionPSet.getParameter<bool>("allowEmpty");
     theMinOriginR = regionPSet.getParameter<double>("minOriginR");
     theMaxPtMin = regionPSet.getParameter<double>("maxPtMin");
     theMinHalfLength = regionPSet.getParameter<double>("minHalfLength");
@@ -77,6 +78,7 @@ public:
     desc.add<bool>("originRScaling4BigEvts", false);
     desc.add<bool>("ptMinScaling4BigEvts", false);
     desc.add<bool>("halfLengthScaling4BigEvts", false);
+    desc.add<bool>("allowEmpty", false);
     desc.add<double>("minOriginR", 0);
     desc.add<double>("maxPtMin", 1000);
     desc.add<double>("minHalfLength", 0);
@@ -175,7 +177,7 @@ public:
         }
       }
 
-      if (result.empty() && !(theOriginRScaling || thePtMinScaling || theHalfLengthScaling)) {
+      if (result.empty() && !(theOriginRScaling || thePtMinScaling || theHalfLengthScaling || theAllowEmpty)) {
         result.push_back(std::make_unique<GlobalTrackingRegion>(
             thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise, theUseMS, msmaker));
       }
@@ -210,6 +212,7 @@ private:
   bool theOriginRScaling;
   bool thePtMinScaling;
   bool theHalfLengthScaling;
+  bool theAllowEmpty;
   double theMinOriginR;
   double theMaxPtMin;
   double theMinHalfLength;

@@ -1,5 +1,5 @@
-#ifndef FIRMWARE_PFTKEGSORTER_REF_H
-#define FIRMWARE_PFTKEGSORTER_REF_H
+#ifndef L1Trigger_Phase2L1ParticleFlow_egamma_pftkegsorter_ref_h
+#define L1Trigger_Phase2L1ParticleFlow_egamma_pftkegsorter_ref_h
 
 #include <cstdio>
 #include <vector>
@@ -10,10 +10,6 @@
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #endif
-
-namespace edm {
-  class ParameterSet;
-}
 
 namespace l1ct {
   class PFTkEGSorterEmulator {
@@ -28,9 +24,22 @@ namespace l1ct {
 
 #endif
 
-    ~PFTkEGSorterEmulator(){};
+    virtual ~PFTkEGSorterEmulator() {}
 
     void setDebug(bool debug = true) { debug_ = debug; };
+
+    virtual void runPho(const std::vector<l1ct::PFInputRegion>& pfregions,
+                        const std::vector<l1ct::OutputRegion>& outregions,
+                        const std::vector<unsigned int>& region_index,
+                        std::vector<l1ct::EGIsoObjEmu>& eg_sorted_inBoard) {
+      run<l1ct::EGIsoObjEmu>(pfregions, outregions, region_index, eg_sorted_inBoard);
+    }
+    virtual void runEle(const std::vector<l1ct::PFInputRegion>& pfregions,
+                        const std::vector<l1ct::OutputRegion>& outregions,
+                        const std::vector<unsigned int>& region_index,
+                        std::vector<l1ct::EGIsoEleObjEmu>& eg_sorted_inBoard) {
+      run<l1ct::EGIsoEleObjEmu>(pfregions, outregions, region_index, eg_sorted_inBoard);
+    }
 
     template <typename T>
     void run(const std::vector<l1ct::PFInputRegion>& pfregions,
@@ -40,16 +49,16 @@ namespace l1ct {
       std::vector<T> eg_unsorted_inBoard = eg_sorted_inBoard;
       mergeEGObjFromRegions<T>(pfregions, outregions, region_index, eg_unsorted_inBoard);
 
-      if (debug_) {
-        dbgCout() << "\nUNSORTED\n";
+      if (debug_ && !eg_unsorted_inBoard.empty()) {
+        dbgCout() << "\nUNSORTED " << typeid(T).name() << "\n";
         for (int j = 0, nj = eg_unsorted_inBoard.size(); j < nj; j++)
           dbgCout() << "EG[" << j << "]: pt = " << eg_unsorted_inBoard[j].hwPt
                     << ",\t eta = " << eg_unsorted_inBoard[j].hwEta << ",\t phi = " << eg_unsorted_inBoard[j].hwPhi
                     << "\n";
       }
 
-      if (debug_)
-        dbgCout() << "\nSORTED\n";
+      if (debug_ && !eg_unsorted_inBoard.empty())
+        dbgCout() << "\nSORTED " << typeid(T).name() << "\n";
 
       eg_sorted_inBoard = eg_unsorted_inBoard;
       std::reverse(eg_sorted_inBoard.begin(), eg_sorted_inBoard.end());
@@ -57,14 +66,14 @@ namespace l1ct {
       if (eg_sorted_inBoard.size() > nObjSorted_)
         eg_sorted_inBoard.resize(nObjSorted_);
 
-      if (debug_) {
+      if (debug_ && !eg_unsorted_inBoard.empty()) {
         for (int j = 0, nj = eg_sorted_inBoard.size(); j < nj; j++)
           dbgCout() << "EG[" << j << "]: pt = " << eg_sorted_inBoard[j].hwPt
                     << ",\t eta = " << eg_sorted_inBoard[j].hwEta << ",\t phi = " << eg_sorted_inBoard[j].hwPhi << "\n";
       }
     }
 
-  private:
+  protected:
     unsigned int nObjToSort_, nObjSorted_;
     bool debug_;
 
@@ -103,19 +112,19 @@ namespace l1ct {
       for (unsigned int i : region_index) {
         const auto& region = pfregions[i].region;
 
-        if (debug_)
+        std::vector<T> eg_tmp;
+        extractEGObjEmu(region, outregions[i], eg_tmp);
+        if (debug_ && !eg_tmp.empty())
           dbgCout() << "\nOutput Region " << i << ": eta = " << region.floatEtaCenter()
                     << " and phi = " << region.floatPhiCenter() << " \n";
 
-        std::vector<T> eg_tmp;
-        extractEGObjEmu(region, outregions[i], eg_tmp);
-        for (int j = 0, nj = (eg_tmp.size() > nObjToSort_ ? nObjToSort_ : eg_tmp.size()); j < nj; j++) {
+        for (int j = 0, nj = std::min<int>(eg_tmp.size(), nObjToSort_); j < nj; j++) {
           if (debug_)
             dbgCout() << "EG[" << j << "] pt = " << eg_tmp[j].hwPt << ",\t eta = " << eg_tmp[j].hwEta
                       << ",\t phi = " << eg_tmp[j].hwPhi << "\n";
           eg_unsorted_inBoard.push_back(eg_tmp[j]);
         }
-        if (debug_)
+        if (debug_ && !eg_tmp.empty())
           dbgCout() << "\n";
       }
     }

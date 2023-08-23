@@ -230,23 +230,13 @@ void TrackletProcessorDisplaced::addInput(MemoryBase* memory, string input) {
 }
 
 void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, double phimax) {
-  unsigned int countall = 0;
-  unsigned int countall_ = 0;
-  unsigned int countsel = 0;
-  unsigned int countpass = 0;
-  unsigned int countpass_ = 0;
   // unsigned int nThirdStubs = 0;
-  unsigned int nInnerStubs = 0;
   // unsigned int nOuterStubs = 0;
   count_ = 0;
 
   phimin_ = phimin;
   phimax_ = phimax;
   iSector_ = iSector;
-
-  for (unsigned int iInnerMem = 0; iInnerMem < middleallstubs_.size();
-       nInnerStubs += middleallstubs_.at(iInnerMem)->nStubs(), iInnerMem++)
-    ;
 
   assert(!innerallstubs_.empty());
   assert(!middleallstubs_.empty());
@@ -368,8 +358,6 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                 continue;
               }
 
-              countpass++;
-
               if ((layer2_ == 4 && layer3_ == 2) || (layer2_ == 6 && layer3_ == 4)) {
                 constexpr int vmbitshift = 10;
                 constexpr int andlookupbits_ = 1023;
@@ -397,11 +385,7 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet") << "In " << getName() << " have third stub\n";
                       }
 
-                      countall_++;
-
                       const VMStubTE& thirdvmstub = innervmstubs_.at(k)->getVMStubTEBinned(ibin_, l);
-
-                      countpass_++;
 
                       const Stub* innerFPGAStub = firstallstub;
                       const Stub* middleFPGAStub = secondvmstub.stub();
@@ -424,15 +408,8 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                             << "TrackletCalculatorDisplaced execute " << getName() << "[" << iSector_ << "]";
                       }
 
-                      if (innerFPGAStub->layerdisk() < N_LAYER && middleFPGAStub->layerdisk() < N_LAYER &&
-                          outerFPGAStub->layerdisk() < N_LAYER) {
-                        bool accept =
-                            LLLSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub, middleFPGAStub, middleStub);
-
-                        if (accept)
-                          countsel++;
-                      } else if (innerFPGAStub->layerdisk() >= N_LAYER && middleFPGAStub->layerdisk() >= N_LAYER &&
-                                 outerFPGAStub->layerdisk() >= N_LAYER) {
+                      if (innerFPGAStub->layerdisk() >= N_LAYER && middleFPGAStub->layerdisk() >= N_LAYER &&
+                          outerFPGAStub->layerdisk() >= N_LAYER) {
                         throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
                       }
 
@@ -484,7 +461,6 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                 edm::LogVerbatim("Tracklet") << "In " << getName() << " have second stub(1) " << ibin << " " << j;
               }
 
-              countall++;
               const VMStubTE& secondvmstub = outervmstubs_.at(m)->getVMStubTEBinned(ibin, j);
 
               int zbin = (secondvmstub.vmbits().value() & 7);
@@ -519,11 +495,7 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet") << "In " << getName() << " have third stub";
                       }
 
-                      countall_++;
-
                       const VMStubTE& thirdvmstub = innervmstubs_.at(k)->getVMStubTEBinned(ibin_, l);
-
-                      countpass_++;
 
                       const Stub* innerFPGAStub = firstallstub;
                       const Stub* middleFPGAStub = secondvmstub.stub();
@@ -545,12 +517,6 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet")
                             << "TrackletCalculatorDisplaced execute " << getName() << "[" << iSector_ << "]";
                       }
-
-                      bool accept =
-                          LLDSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub, middleFPGAStub, middleStub);
-
-                      if (accept)
-                        countsel++;
 
                       if (settings_.debugTracklet()) {
                         edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced execute done";
@@ -599,8 +565,6 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
             }
 
             for (unsigned int j = 0; j < outervmstubs_.at(m)->nVMStubsBinned(ibin); j++) {
-              countall++;
-
               const VMStubTE& secondvmstub = outervmstubs_.at(m)->getVMStubTEBinned(ibin, j);
               int rbin = (secondvmstub.vmbits().value() & 7);
               if (start != ibin)
@@ -637,11 +601,7 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet") << "In " << getName() << " have third stub";
                       }
 
-                      countall_++;
-
                       const VMStubTE& thirdvmstub = innervmstubs_.at(k)->getVMStubTEBinned(ibin_, l);
-
-                      countpass_++;
 
                       const Stub* innerFPGAStub = firstallstub;
                       const Stub* middleFPGAStub = secondvmstub.stub();
@@ -663,12 +623,6 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                         edm::LogVerbatim("Tracklet")
                             << "TrackletCalculatorDisplaced execute " << getName() << "[" << iSector_ << "]";
                       }
-
-                      bool accept =
-                          DDLSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub, middleFPGAStub, middleStub);
-
-                      if (accept)
-                        countsel++;
 
                       if (settings_.debugTracklet()) {
                         edm::LogVerbatim("Tracklet") << "TrackletCalculatorDisplaced execute done";

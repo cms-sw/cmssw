@@ -1,10 +1,23 @@
 #!/bin/bash
 
-# ConfDB configurations to use
-MASTER="/dev/CMSSW_12_5_0/HLT"      # no explicit version, take the most recent
-TARGET="/dev/CMSSW_12_5_0/\$TABLE"  # no explicit version, take the most recent
+# ConfDB directory hosting the HLT configurations
+CONFDBDIR="/dev/CMSSW_13_2_0"
 
-TABLES="GRun HIon PIon PRef"        # $TABLE in the above variable will be expanded to these TABLES
+# ConfDB configurations to use
+#  - if no explicit version, the most recent one is taken
+#  - to use explicit version, specify it in the entries below
+#  - to skip a given configuration, remove or comment the corresponding entry in the array TABLES
+#  - new configurations can be added by expanding the array TABLES
+#  - for new configurations, ensure that the corresponding "auto" GTs are defined in
+#     Configuration/HLT/python/autoCondHLT.py , and
+#     HLTrigger/Configuration/python/Tools/options.py
+declare -A TABLES=(
+  ["FULL"]="${CONFDBDIR}/HLT"
+  ["GRun"]="${CONFDBDIR}/GRun"
+  ["HIon"]="${CONFDBDIR}/HIon"
+  ["PIon"]="${CONFDBDIR}/PIon"
+  ["PRef"]="${CONFDBDIR}/PRef"
+)
 
 # command-line arguments
 VERBOSE=false # print extra messages to stdout
@@ -51,26 +64,21 @@ INITDIR="${PWD}"
 cd "${CMSSW_BASE}"/src/HLTrigger/Configuration/test
 
 # create cff fragments and cfg configs
-for TABLE in FULL ${TABLES}; do
-  if [ "${TABLE}" = "FULL" ]; then
-    CONFIG="${MASTER}"
-  else
-    CONFIG=$(eval echo ${TARGET})
-  fi
-
+for TABLE in "${!TABLES[@]}"; do
+  CONFIG="${TABLES[${TABLE}]}"
   echo "${TABLE} (config: ${CONFIG})"
 
   # cff fragment of each HLT menu (do not use any conditions or L1T override)
   log "  creating cff fragment of HLT menu..."
   hltGetConfiguration "${CONFIG}" --cff --data --type "${TABLE}" ${DBPROXYOPTS} > ../python/HLT_"${TABLE}"_cff.py
 
-  # cff fragment of EventContents (only for MASTER config)
+  # cff fragment of EventContents (only for FULL config)
   if [ "${TABLE}" = "FULL" ]; then
     log "  creating cff fragment of EventContents..."
-    ./getEventContent.py "${MASTER}" ${DBPROXYOPTS} > ../python/HLTrigger_EventContent_cff.py
+    ./getEventContent.py "${CONFIG}" ${DBPROXYOPTS} > ../python/HLTrigger_EventContent_cff.py
   fi
 
-  # cff fragment of PrimaryDatasets of each HLT menu (except for MASTER config)
+  # cff fragment of PrimaryDatasets of each HLT menu (except for FULL config)
   if [ "${TABLE}" != "FULL" ]; then
     log "  creating cff fragment of Primary Datasets..."
     ./getDatasets.py "${CONFIG}" ${DBPROXYOPTS} > ../python/HLTrigger_Datasets_"${TABLE}"_cff.py
@@ -84,7 +92,7 @@ for TABLE in FULL ${TABLES}; do
     AUTOGT="auto:run1_hlt_${TABLE}"
   fi
 
-  # standalone cfg file of each HLT menu (incl. MASTER config)
+  # standalone cfg file of each HLT menu (incl. FULL config)
   log "  creating full cfg of HLT menu..."
   hltGetConfiguration "${CONFIG}" --full --data --type "${TABLE}" --unprescale --process "HLT${TABLE}" --globaltag "${AUTOGT}" \
     --input "file:RelVal_Raw_${TABLE}_DATA.root" ${DBPROXYOPTS} > OnLine_HLT_"${TABLE}".py

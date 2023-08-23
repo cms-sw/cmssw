@@ -23,6 +23,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetType.h"
 
+#include <memory>
+
 class Plane;
 
 class ProxyMTDTopology final : public PixelTopology {
@@ -65,7 +67,6 @@ public:
   float localX(const float mpX, const Topology::LocalTrackPred &trkPred) const override;
   float localY(const float mpY) const override;
   float localY(const float mpY, const Topology::LocalTrackPred &trkPred) const override;
-  bool isBricked() const override { return false; }
 
   bool isItBigPixelInX(const int ixbin) const override { return specificTopology().isItBigPixelInX(ixbin); }
   bool isItBigPixelInY(const int iybin) const override { return specificTopology().isItBigPixelInY(iybin); }

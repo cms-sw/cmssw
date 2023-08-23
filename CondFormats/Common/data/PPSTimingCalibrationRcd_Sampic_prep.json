@@ -1,7 +1,7 @@
 {
     "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
     "destinationTags": {
-        "CTPPPSTimingCalibration_SAMPIC_byPCL_v1_prompt": {}
+        "CTPPPSTimingCalibration_SAMPIC_byPCL_prep_prompt": {}
     }, 
     "inputTag": "PPSDiamondSampicCalibration_pcl", 
     "since": null, 

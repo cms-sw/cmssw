@@ -92,7 +92,9 @@ PFCandidateRecalibrator::PFCandidateRecalibrator(const edm::ParameterSet& iConfi
 }
 
 void PFCandidateRecalibrator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  if (hcalDbWatcher_.check(iSetup) || hcalRCWatcher_.check(iSetup)) {
+  auto newDb = hcalDbWatcher_.check(iSetup);
+  auto newRC = hcalRCWatcher_.check(iSetup);
+  if (newDb || newRC) {
     //Get Calib Constants from current GT
     HcalDbService const& gtCond = iSetup.getData(gtCondToken_);
 

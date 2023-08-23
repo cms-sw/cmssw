@@ -209,40 +209,83 @@ Example:
 ```
 matrix> showWorkflow
 Available workflows:
-relval_gpu
-relval_production
-relval_identity
-relval_ged
-relval_highstats
-relval_generator
-relval_standard
-relval_extendedgen
-relval_premix
-relval_2026
-relval_machine
-relval_pileup
-relval_2017
-relval_upgrade
-matrix> showWorkflow relval_gpu
-136.885502 RunHLTPhy2018D RunHLTPhy2018D+HLTDR2_2018+RECODR2_2018reHLT_Patatrack_PixelOnlyGPU+HARVEST2018_pixelTrackingOnly
-136.885512 RunHLTPhy2018D RunHLTPhy2018D+HLTDR2_2018+RECODR2_2018reHLT_ECALOnlyGPU+HARVEST2018_ECALOnly
-136.885522 RunHLTPhy2018D RunHLTPhy2018D+HLTDR2_2018+RECODR2_2018reHLT_HCALOnlyGPU+HARVEST2018_HCALOnly
-136.888502 RunJetHT2018D RunJetHT2018D+HLTDR2_2018+RECODR2_2018reHLT_Patatrack_PixelOnlyGPU+HARVEST2018_pixelTrackingOnly
-136.888512 RunJetHT2018D RunJetHT2018D+HLTDR2_2018+RECODR2_2018reHLT_ECALOnlyGPU+HARVEST2018_ECALOnly
-136.888522 RunJetHT2018D RunJetHT2018D+HLTDR2_2018+RECODR2_2018reHLT_HCALOnlyGPU+HARVEST2018_HCALOnly
-10824.502 TTbar_13 2018_Patatrack_PixelOnlyGPU+TTbar_13TeV_TuneCUETP8M1_GenSim+Digi+RecoFakeHLT+HARVESTFakeHLT
-10824.512 TTbar_13 2018_Patatrack_ECALOnlyGPU+TTbar_13TeV_TuneCUETP8M1_GenSim+Digi+RecoFakeHLT+HARVESTFakeHLT
-10824.522 TTbar_13 2018_Patatrack_HCALOnlyGPU+TTbar_13TeV_TuneCUETP8M1_GenSim+Digi+RecoFakeHLT+HARVESTFakeHLT
-10842.502 ZMM_13 2018_Patatrack_PixelOnlyGPU+ZMM_13TeV_TuneCUETP8M1_GenSim+Digi+RecoFakeHLT+HARVESTFakeHLT
-11634.502 TTbar_14TeV 2021_Patatrack_PixelOnlyGPU+TTbar_14TeV_TuneCP5_GenSim+Digi+Reco+HARVEST
-11634.512 TTbar_14TeV 2021_Patatrack_ECALOnlyGPU+TTbar_14TeV_TuneCP5_GenSim+Digi+Reco+HARVEST
-11634.522 TTbar_14TeV 2021_Patatrack_HCALOnlyGPU+TTbar_14TeV_TuneCP5_GenSim+Digi+Reco+HARVEST
-11650.502 ZMM_14 2021_Patatrack_PixelOnlyGPU+ZMM_14TeV_TuneCP5_GenSim+Digi+Reco+HARVEST
-relval_gpu contains 14 workflows
+standard
+highstats
+pileup
+generator
+extendedgen
+production
+ged
+upgrade
+cleanedupgrade
+gpu
+2017
+2026
+identity
+machine
+premix
+nano
+
+matrix> showWorkflow gpu
+140.065506 Run3-2023_JetMET2022D_RecoPixelOnlyTripletsGPU
+140.065512 Run3-2023_JetMET2022D_RecoECALOnlyGPU
+140.065522 Run3-2023_JetMET2022D_RecoHCALOnlyGPU
+11634.502 TTbar_14TeV+2021_Patatrack_PixelOnlyGPU
+11634.503 TTbar_14TeV+2021_Patatrack_PixelOnlyGPU_Validation
+11634.504 TTbar_14TeV+2021_Patatrack_PixelOnlyGPU_Profiling
+11634.506 TTbar_14TeV+2021_Patatrack_PixelOnlyTripletsGPU
+11634.507 TTbar_14TeV+2021_Patatrack_PixelOnlyTripletsGPU_Validation
+11634.508 TTbar_14TeV+2021_Patatrack_PixelOnlyTripletsGPU_Profiling
+11634.512 TTbar_14TeV+2021_Patatrack_ECALOnlyGPU
+11634.513 TTbar_14TeV+2021_Patatrack_ECALOnlyGPU_Validation
+11634.514 TTbar_14TeV+2021_Patatrack_ECALOnlyGPU_Profiling
+11634.522 TTbar_14TeV+2021_Patatrack_HCALOnlyGPU
+11634.523 TTbar_14TeV+2021_Patatrack_HCALOnlyGPU_Validation
+11634.524 TTbar_14TeV+2021_Patatrack_HCALOnlyGPU_Profiling
+11634.582 TTbar_14TeV+2021_Patatrack_AllGPU
+11634.583 TTbar_14TeV+2021_Patatrack_AllGPU_Validation
+11634.586 TTbar_14TeV+2021_Patatrack_AllTripletsGPU
+11634.587 TTbar_14TeV+2021_Patatrack_AllTripletsGPU_Validation
+11634.592 TTbar_14TeV+2021_Patatrack_FullRecoGPU
+11634.593 TTbar_14TeV+2021_Patatrack_FullRecoGPU_Validation
+11634.596 TTbar_14TeV+2021_Patatrack_FullRecoTripletsGPU
+11634.597 TTbar_14TeV+2021_Patatrack_FullRecoTripletsGPU_Validation
+11650.502 ZMM_14+2021_Patatrack_PixelOnlyGPU
+11650.503 ZMM_14+2021_Patatrack_PixelOnlyGPU_Validation
+11650.504 ZMM_14+2021_Patatrack_PixelOnlyGPU_Profiling
+11650.506 ZMM_14+2021_Patatrack_PixelOnlyTripletsGPU
+11650.507 ZMM_14+2021_Patatrack_PixelOnlyTripletsGPU_Validation
+11650.508 ZMM_14+2021_Patatrack_PixelOnlyTripletsGPU_Profiling
+12434.502 TTbar_14TeV+2023_Patatrack_PixelOnlyGPU
+12434.503 TTbar_14TeV+2023_Patatrack_PixelOnlyGPU_Validation
+12434.504 TTbar_14TeV+2023_Patatrack_PixelOnlyGPU_Profiling
+12434.506 TTbar_14TeV+2023_Patatrack_PixelOnlyTripletsGPU
+12434.507 TTbar_14TeV+2023_Patatrack_PixelOnlyTripletsGPU_Validation
+12434.508 TTbar_14TeV+2023_Patatrack_PixelOnlyTripletsGPU_Profiling
+12434.512 TTbar_14TeV+2023_Patatrack_ECALOnlyGPU
+12434.513 TTbar_14TeV+2023_Patatrack_ECALOnlyGPU_Validation
+12434.514 TTbar_14TeV+2023_Patatrack_ECALOnlyGPU_Profiling
+12434.522 TTbar_14TeV+2023_Patatrack_HCALOnlyGPU
+12434.523 TTbar_14TeV+2023_Patatrack_HCALOnlyGPU_Validation
+12434.524 TTbar_14TeV+2023_Patatrack_HCALOnlyGPU_Profiling
+12434.582 TTbar_14TeV+2023_Patatrack_AllGPU
+12434.583 TTbar_14TeV+2023_Patatrack_AllGPU_Validation
+12434.586 TTbar_14TeV+2023_Patatrack_AllTripletsGPU
+12434.587 TTbar_14TeV+2023_Patatrack_AllTripletsGPU_Validation
+12434.592 TTbar_14TeV+2023_Patatrack_FullRecoGPU
+12434.593 TTbar_14TeV+2023_Patatrack_FullRecoGPU_Validation
+12434.596 TTbar_14TeV+2023_Patatrack_FullRecoTripletsGPU
+12434.597 TTbar_14TeV+2023_Patatrack_FullRecoTripletsGPU_Validation
+12450.502 ZMM_14+2023_Patatrack_PixelOnlyGPU
+12450.503 ZMM_14+2023_Patatrack_PixelOnlyGPU_Validation
+12450.504 ZMM_14+2023_Patatrack_PixelOnlyGPU_Profiling
+12450.506 ZMM_14+2023_Patatrack_PixelOnlyTripletsGPU
+12450.507 ZMM_14+2023_Patatrack_PixelOnlyTripletsGPU_Validation
+12450.508 ZMM_14+2023_Patatrack_PixelOnlyTripletsGPU_Profiling
+gpu contains 55 workflows
 matrix>
 ```
 
 All commands come with dynamic TAB-completion. There's also a transient history
-of the commands issues within a single session. Transient means that, after a
+of the commands issued within a single session. Transient means that, after a
 session is closed, the history is lost.
-

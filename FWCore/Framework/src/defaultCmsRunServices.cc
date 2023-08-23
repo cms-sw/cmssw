@@ -23,6 +23,8 @@ namespace edm {
                                             "AdaptorConfig",
                                             "SiteLocalConfigService",
                                             "StatisticsSenderService",
+                                            "ResourceInformationService",
+                                            "CPU",
                                             "CondorStatusService",
                                             "XrdStatisticsService"};
 

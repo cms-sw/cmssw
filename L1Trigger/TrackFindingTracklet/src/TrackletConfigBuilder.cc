@@ -926,8 +926,6 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
     //Next write AS memories used by TrackletProcessor
     for (unsigned int ilayer = 0; ilayer < N_LAYER + N_DISK; ilayer++) {
       for (int iReg = 0; iReg < (int)NRegions_[ilayer]; iReg++) {
-        unsigned int nmem = 1;
-
         for (unsigned int iSeed = 0; iSeed < N_SEED_PROMPT; iSeed++) {
           unsigned int l1 = seedLayers(iSeed).first;
           unsigned int l2 = seedLayers(iSeed).second;
@@ -1018,7 +1016,6 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
               ext = "_D" + ext;
             }
 
-            nmem++;
             if (inner) {
               memories << "AllInnerStubs: ";
             } else {

@@ -12,19 +12,19 @@ namespace l1t {
       GMTObjectMap bmtfObjMap;
       GMTObjectMap omtfObjMap;
       GMTObjectMap emtfObjMap;
-      auto bmtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenBMTF();
-      auto omtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenOMTF();
-      auto emtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenEMTF();
+      auto const bmtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenBMTF();
+      auto const omtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenOMTF();
+      auto const emtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenEMTF();
 
       // First we put the muons in our object map.
-      std::pair<int, int> bmtfMuonBx = getMuons(bmtfObjMap, event, bmtfToken);
-      std::pair<int, int> omtfMuonBx = getMuons(omtfObjMap, event, omtfToken);
-      std::pair<int, int> emtfMuonBx = getMuons(emtfObjMap, event, emtfToken);
+      std::pair<int, int> const bmtfMuonBx = getMuons(bmtfObjMap, event, bmtfToken);
+      std::pair<int, int> const omtfMuonBx = getMuons(omtfObjMap, event, omtfToken);
+      std::pair<int, int> const emtfMuonBx = getMuons(emtfObjMap, event, emtfToken);
 
       // Then the showers (We don't expect to have shower data from BMTF and OMTF -- at the moment, at least)
       std::pair<int, int> emtfMuonShowerBx{0, 0};
-      if (useEmtfShowers_) {
-        auto emtfShowerToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonShowerTokenEMTF();
+      if (useEmtfNominalTightShowers_ || useEmtfLooseShowers_) {
+        auto const emtfShowerToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonShowerTokenEMTF();
         emtfMuonShowerBx = getMuonShowers(emtfObjMap, event, emtfShowerToken);
       }
 
@@ -114,7 +114,8 @@ namespace l1t {
               buf.at(frameIdx++) = msw;
             }
             // Add shower bits to the payload buffer.
-            RegionalMuonRawDigiTranslator::generatePackedShowerPayload(gmtObjects.shower, buf, useEmtfShowers_);
+            RegionalMuonRawDigiTranslator::generatePackedShowerPayload(
+                gmtObjects.shower, buf, useEmtfNominalTightShowers_, useEmtfLooseShowers_);
 
             payloadMap[linkTimes2].insert(
                 payloadMap[linkTimes2].end(), std::move_iterator(buf.begin()), std::move_iterator(buf.end()));

@@ -103,7 +103,7 @@ private:
   void preModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
-  // these signal pairs are guaranteed to be called within the same thread
+  // these signal pairs are guaranteed to be called from the same thread
 
   //void preOpenFile(std::string const&, bool);
   //void postOpenFile(std::string const&, bool);
@@ -312,6 +312,7 @@ private:
     Resources total;
     AtomicResources overhead;
     AtomicResources eventsetup;
+    AtomicResources idle;
     Resources event;  // total time etc. spent between preSourceEvent and postEvent
     Measurement event_measurement;
     std::vector<Resources> highlight;
@@ -344,14 +345,14 @@ private:
 
   private:
     // resources spent in the module
-    dqm::reco::MonitorElement* time_thread_;       // TH1F
-    dqm::reco::MonitorElement* time_thread_byls_;  // TProfile
-    dqm::reco::MonitorElement* time_real_;         // TH1F
-    dqm::reco::MonitorElement* time_real_byls_;    // TProfile
-    dqm::reco::MonitorElement* allocated_;         // TH1F
-    dqm::reco::MonitorElement* allocated_byls_;    // TProfile
-    dqm::reco::MonitorElement* deallocated_;       // TH1F
-    dqm::reco::MonitorElement* deallocated_byls_;  // TProfile
+    dqm::reco::MonitorElement* time_thread_ = nullptr;       // TH1F
+    dqm::reco::MonitorElement* time_thread_byls_ = nullptr;  // TProfile
+    dqm::reco::MonitorElement* time_real_ = nullptr;         // TH1F
+    dqm::reco::MonitorElement* time_real_byls_ = nullptr;    // TProfile
+    dqm::reco::MonitorElement* allocated_ = nullptr;         // TH1F
+    dqm::reco::MonitorElement* allocated_byls_ = nullptr;    // TProfile
+    dqm::reco::MonitorElement* deallocated_ = nullptr;       // TH1F
+    dqm::reco::MonitorElement* deallocated_byls_ = nullptr;  // TProfile
   };
 
   // plots associated to each path or endpath
@@ -380,12 +381,12 @@ private:
     //   be better suited than a double, but there is no "TH1L" in ROOT.
 
     // how many times each module and their dependencies has run
-    dqm::reco::MonitorElement* module_counter_;  // TH1D
+    dqm::reco::MonitorElement* module_counter_ = nullptr;  // TH1D
     // resources spent in each module and their dependencies
-    dqm::reco::MonitorElement* module_time_thread_total_;  // TH1D
-    dqm::reco::MonitorElement* module_time_real_total_;    // TH1D
-    dqm::reco::MonitorElement* module_allocated_total_;    // TH1D
-    dqm::reco::MonitorElement* module_deallocated_total_;  // TH1D
+    dqm::reco::MonitorElement* module_time_thread_total_ = nullptr;  // TH1D
+    dqm::reco::MonitorElement* module_time_real_total_ = nullptr;    // TH1D
+    dqm::reco::MonitorElement* module_allocated_total_ = nullptr;    // TH1D
+    dqm::reco::MonitorElement* module_deallocated_total_ = nullptr;  // TH1D
   };
 
   class PlotsPerProcess {
@@ -432,6 +433,7 @@ private:
     PlotsPerElement event_;
     PlotsPerElement event_ex_;
     PlotsPerElement overhead_;
+    PlotsPerElement idle_;
     // resources spent in the modules' lumi and run transitions
     PlotsPerElement lumi_;
     PlotsPerElement run_;
@@ -455,7 +457,6 @@ private:
   // per-lumi and per-run information
   std::vector<AtomicResources> lumi_transition_;  // resources spent in the modules' global and stream lumi transitions
   std::vector<AtomicResources> run_transition_;   // resources spent in the modules' global and stream run transitions
-  AtomicResources overhead_;                      // resources spent outside of the modules' transitions
 
   // summary data
   ResourcesPerJob job_summary_;               // whole event time accounting per-job

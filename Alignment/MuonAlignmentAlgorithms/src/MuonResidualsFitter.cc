@@ -164,7 +164,7 @@ MuonResidualsFitter::MuonResidualsFitter(int residualsModel, int minHits, int us
 
 MuonResidualsFitter::~MuonResidualsFitter() {
   for (std::vector<double *>::const_iterator residual = residuals_begin(); residual != residuals_end(); ++residual) {
-    delete[](*residual);
+    delete[] (*residual);
   }
 }
 

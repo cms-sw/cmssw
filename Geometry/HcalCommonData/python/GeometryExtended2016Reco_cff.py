@@ -9,6 +9,7 @@ from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *
 from Geometry.MuonNumbering.muonGeometryConstants_cff import *
+from Geometry.MuonNumbering.muonOffsetESProducer_cff import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
@@ -17,7 +18,6 @@ from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon

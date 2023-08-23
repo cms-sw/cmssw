@@ -3,6 +3,7 @@ from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
 from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
+from Configuration.Eras.Modifier_run2_jme_2018_cff import run2_jme_2018
 from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
 from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
 
@@ -15,7 +16,10 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 
 from Configuration.Eras.Modifier_run3_nanoAOD_122_cff import run3_nanoAOD_122
 from Configuration.Eras.Modifier_run3_nanoAOD_124_cff import run3_nanoAOD_124
+from Configuration.Eras.Modifier_run3_jme_Winter22runsBCDEprompt_cff import run3_jme_Winter22runsBCDEprompt
 
 run2_nanoAOD_ANY = (
     run2_nanoAOD_106Xv2
 )
+
+run2_egamma = (run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018)

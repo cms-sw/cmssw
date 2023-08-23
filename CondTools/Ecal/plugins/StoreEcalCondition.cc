@@ -1109,7 +1109,6 @@ std::shared_ptr<EcalChannelStatus> StoreEcalCondition::readEcalChannelStatusFrom
   edm::LogVerbatim("StoreEcalCondition") << "IOV END " << iovRunEnd << "\n";
   //if -1 end of time
 
-  int ii = 0;
   while (fgets(line, 255, ifile)) {
     std::string EBorEE;
     int hashedIndex(0);
@@ -1117,7 +1116,6 @@ std::shared_ptr<EcalChannelStatus> StoreEcalCondition::readEcalChannelStatusFrom
     std::stringstream aStrStream;
     aStrStream << line;
     aStrStream >> EBorEE >> hashedIndex >> chStatus;
-    //	    if(ii==0)
     edm::LogVerbatim("StoreEcalCondition")
         << EBorEE << " hashedIndex " << hashedIndex << " status " << chStatus << "\n";
 
@@ -1147,8 +1145,6 @@ std::shared_ptr<EcalChannelStatus> StoreEcalCondition::readEcalChannelStatusFrom
         }
       }
     }
-
-    ii++;
   }
 
   fclose(ifile);

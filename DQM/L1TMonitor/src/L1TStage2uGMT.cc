@@ -243,7 +243,7 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       ibooker.setCurrentFolder(monitorDir_ + "/EMTFInput/Muon showers");
 
       ugmtEMTFShowerTypeOccupancyPerSector = ibooker.book2D(
-          "ugmtEMTFShowerTypeOccupancyPerSector", "Shower type occupancy per sector", 12, 1, 13, 2, 1, 3);
+          "ugmtEMTFShowerTypeOccupancyPerSector", "Shower type occupancy per sector", 12, 1, 13, 3, 1, 4);
       ugmtEMTFShowerTypeOccupancyPerSector->setAxisTitle("Processor", 1);
       ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(12, "+6", 1);
       ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(11, "+5", 1);
@@ -258,8 +258,9 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(2, "-2", 1);
       ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(1, "-1", 1);
       ugmtEMTFShowerTypeOccupancyPerSector->setAxisTitle("Shower type", 2);
-      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_LOOSE_SHOWER, "OneLoose", 2);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+      ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
     }
 
     // inter-TF muon correlations
@@ -510,11 +511,12 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   if (hadronicShowers_) {
     ugmtMuonShowerTypeOccupancyPerBx =
-        ibooker.book2D("ugmtMuonShowerTypeOccupancyPerBx", "Shower type occupancy per BX", 7, -3.5, 3.5, 2, 1, 3);
+        ibooker.book2D("ugmtMuonShowerTypeOccupancyPerBx", "Shower type occupancy per BX", 7, -3.5, 3.5, 3, 1, 4);
     ugmtMuonShowerTypeOccupancyPerBx->setAxisTitle("BX", 1);
     ugmtMuonShowerTypeOccupancyPerBx->setAxisTitle("Shower type", 2);
-    ugmtMuonShowerTypeOccupancyPerBx->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-    ugmtMuonShowerTypeOccupancyPerBx->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+    ugmtMuonShowerTypeOccupancyPerBx->setBinLabel(IDX_LOOSE_SHOWER, "TwoLoose", 2);
+    ugmtMuonShowerTypeOccupancyPerBx->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+    ugmtMuonShowerTypeOccupancyPerBx->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
   }
 
   ugmtMuonBXvshwPt =
@@ -859,6 +861,11 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0),
                 IDX_TIGHT_SHOWER);
           }
+          if (shower->isOneLooseInTime()) {
+            ugmtEMTFShowerTypeOccupancyPerSector->Fill(
+                shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0),
+                IDX_LOOSE_SHOWER);
+          }
         }
       }
     }
@@ -1095,6 +1102,9 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         }
         if (shower->isOneTightInTime()) {
           ugmtMuonShowerTypeOccupancyPerBx->Fill(itBX, IDX_TIGHT_SHOWER);
+        }
+        if (shower->isTwoLooseDiffSectorsInTime()) {
+          ugmtMuonShowerTypeOccupancyPerBx->Fill(itBX, IDX_LOOSE_SHOWER);
         }
       }
     }

@@ -1,5 +1,6 @@
 #include "DQM/Physics/src/SingleTopTChannelLeptonDQM.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -13,6 +14,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 using namespace std;
 namespace SingleTopTChannelLepton {
 
@@ -107,7 +110,8 @@ namespace SingleTopTChannelLepton {
       // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
       if (jetExtras.existsAs<std::string>("jetCorrector")) {
-        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
+        jetCorrector_ =
+            iC.consumes<reco::JetCorrector>(edm::InputTag(jetExtras.getParameter<std::string>("jetCorrector")));
       }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
@@ -507,28 +511,19 @@ namespace SingleTopTChannelLepton {
 
     // load jet
     // corrector if configured such
-    const JetCorrector* corrector = nullptr;
-    if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
-      // check whether a jet correcto is in the event setup or not
-      if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
-        corrector = &setup.getData(jetCorrector_);
-        ;
+    const reco::JetCorrector* corrector = nullptr;
+    if (!jetCorrector_.isUninitialized()) {
+      // check whether a jet corrector is in the event or not
+      edm::Handle<reco::JetCorrector> correctorHandle = event.getHandle(jetCorrector_);
+      if (correctorHandle.isValid()) {
+        corrector = correctorHandle.product();
       } else {
         edm::LogVerbatim("SingleTopTChannelLeptonDQM")
             << "\n"
             << "-----------------------------------------------------------------"
                "-------------------- \n"
-            << " No JetCorrectionsRecord available from EventSetup:\n"
+            << " No JetCorrector available from Event:\n"
             << "  - Jets will not be corrected.\n"
-            << "  - If you want to change this add the following lines to your "
-               "cfg file:\n"
-            << "\n"
-            << "  ## load jet corrections\n"
-            << "  "
-               "process.load(\"JetMETCorrections.Configuration."
-               "JetCorrectionServicesAllAlgos_cff\") \n"
-            << "  process.prefer(\"ak5CaloL2L3\")\n"
-            << "\n"
             << "-----------------------------------------------------------------"
                "-------------------- \n";
       }
@@ -785,7 +780,6 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
       return;
   }
   // apply selection steps
-  unsigned int passed = 0;
   unsigned int nJetSteps = -1;
   unsigned int nPFJetSteps = -1;
   unsigned int nCaloJetSteps = -1;
@@ -801,15 +795,12 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
       }
       if (type == "elecs" && ElectronStep != nullptr) {
         if (ElectronStep->select(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
       if (type == "elecs/pf" && PFElectronStep != nullptr) {
         if (PFElectronStep->select(event, "electron")) {
-          ++passed;
-
           selection_[key].second->fill(event, setup);
 
         } else
@@ -817,14 +808,12 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
       }
       if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
       if (type == "muons/pf" && PFMuonStep != nullptr) {
         if (PFMuonStep->select(event, "muon")) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
@@ -833,7 +822,6 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
         nJetSteps++;
         if (JetSteps[nJetSteps]) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -843,7 +831,6 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
         nPFJetSteps++;
         if (PFJetSteps[nPFJetSteps]) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -853,7 +840,6 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
         nCaloJetSteps++;
         if (CaloJetSteps[nCaloJetSteps]) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -861,7 +847,6 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
       }
       if (type == "met" && METStep != nullptr) {
         if (METStep->select(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;

@@ -1068,16 +1068,11 @@ bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
     float zDistance = fabs(zOuter - zInner);
 
     // loop over hits
-    int nDTHits = 0;
     int nCSCHits = 0;
     for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
       const DetId detId((*hit)->geographicalId());
       if (detId.det() == DetId::Muon) {
-        if (detId.subdetId() == MuonSubdetId::DT) {
-          //DTChamberId dtId(detId.rawId());
-          //int chamberId = dtId.sector();
-          nDTHits++;
-        } else if (detId.subdetId() == MuonSubdetId::CSC) {
+        if (detId.subdetId() == MuonSubdetId::CSC) {
           //CSCDetId cscId(detId.rawId());
           //int chamberId = cscId.chamber();
           nCSCHits++;
@@ -1153,16 +1148,11 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
     }
     float rExt = sqrt(xExt * xExt + yExt * yExt);
 
-    int kHit = 0;
-    int nDTHits = 0;
     int nCSCHits = 0;
     for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
-      ++kHit;
       const DetId detId((*hit)->geographicalId());
       if (detId.det() == DetId::Muon) {
-        if (detId.subdetId() == MuonSubdetId::DT) {
-          nDTHits++;
-        } else if (detId.subdetId() == MuonSubdetId::CSC) {
+        if (detId.subdetId() == MuonSubdetId::CSC) {
           nCSCHits++;
         }
       }
@@ -1252,16 +1242,13 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
       // int nPixelHits   = hp.numberOfValidPixelHits();
       // int nStripHits   = hp.numberOfValidStripHits();
 
-      int nDTHits = 0;
       int nCSCHits = 0;
       for (trackingRecHit_iterator hit = (global->globalTrack())->recHitsBegin();
            hit != (global->globalTrack())->recHitsEnd();
            ++hit) {
         const DetId detId((*hit)->geographicalId());
         if (detId.det() == DetId::Muon) {
-          if (detId.subdetId() == MuonSubdetId::DT) {
-            nDTHits++;
-          } else if (detId.subdetId() == MuonSubdetId::CSC) {
+          if (detId.subdetId() == MuonSubdetId::CSC) {
             nCSCHits++;
           }
         }

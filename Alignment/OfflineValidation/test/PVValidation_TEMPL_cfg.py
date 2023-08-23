@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
  
@@ -45,7 +44,7 @@ def customiseKinksAndBows(process):
 # Event source and run selection
 ###################################################################
 if (useFileList):
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading local input files list")
+     print("############ testPVValidation_cfg.py: msg%-i: Reading local input files list")
      readFiles = cms.untracked.vstring()
      readFiles.extend(FILESOURCETEMPLATE)
      process.source = cms.Source("PoolSource",
@@ -53,7 +52,7 @@ if (useFileList):
                                  duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                                  )
 else:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Reading from configuration fragment")
+     print("############ testPVValidation_cfg.py: msg%-i: Reading from configuration fragment")
      process.load("Alignment.OfflineValidation.DATASETTEMPLATE")
 
 ###################################################################
@@ -67,12 +66,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEM
 # JSON Filtering
 ###################################################################
 if isMC:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!")
+     print("############ testPVValidation_cfg.py: msg%-i: This is simulation!")
      runboundary = 1
 else:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!")
+     print("############ testPVValidation_cfg.py: msg%-i: This is real DATA!")
      if ('LUMILISTTEMPLATE'):
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: LUMILISTTEMPLATE")
+          print("############ testPVValidation_cfg.py: msg%-i: JSON filtering with: LUMILISTTEMPLATE")
           import FWCore.PythonUtilities.LumiList as LumiList
           process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
 
@@ -110,7 +109,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAGTEMPLATE', '')
 
 if allFromGT:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT")
+     print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
      ####################################################################
      # Get Alignment and APE constants
@@ -121,16 +120,16 @@ else:
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
+          print("############ testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
           process=customiseKinksAndBows(process)
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
+          print("############ testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
           ####################################################################
           # Extra corrections not included in the GT
           ####################################################################
           if applyExtraConditions:
-               print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying extra calibration constants!")
+               print("############ testPVValidation_cfg.py: msg%-i: Applying extra calibration constants!")
 
                import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 
@@ -138,7 +137,7 @@ else:
                ##### END OF EXTRA CONDITIONS
                
           else:
-               print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
+               print("############ testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
                
      
 ####################################################################
@@ -194,6 +193,11 @@ process.TrackRefitter.NavigationSchool = ''
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ####################################################################
+# Load .SiPixelTemplateStoreESProducer
+####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+
+####################################################################
 # Output file
 ####################################################################
 process.TFileService = cms.Service("TFileService",
@@ -224,10 +228,10 @@ GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),
 ####################################################################
 def switchClusterizerParameters(da):
      if da:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
+          print("############ testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
           return DAClusterizationParams
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
+          print("############ testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
           return GapClusterizationParams
 
 ####################################################################
@@ -250,9 +254,15 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                       )
 
 ####################################################################
+# Refitting Sequence
+####################################################################
+process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                        process.TrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
+
+####################################################################
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
-                     process.TrackRefitter*
+                     process.seqTrackselRefit*
                      process.PVValidation)

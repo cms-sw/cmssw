@@ -725,6 +725,9 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     const Trajectory& trajs = *trjtrk.key;
     const reco::TrackRef& track = trjtrk.val;
 
+    LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: extrapolating track " << itrack
+                                     << " p/pT = " << track->p() << " " << track->pt() << " eta = " << track->eta();
+
     float trackVtxTime = 0.f;
     if (useVertex_) {
       float dz;
@@ -806,8 +809,8 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     for (const auto& trj : trajwithmtd) {
       const auto& thetrj = (updateTraj_ ? trj : trajs);
       float pathLength = 0.f, tmtd = 0.f, sigmatmtd = -1.f, tofpi = 0.f, tofk = 0.f, tofp = 0.f;
-      LogTrace("TrackExtenderWithMTD") << "Refit track " << itrack << " p/pT = " << track->p() << " " << track->pt()
-                                       << " eta = " << track->eta();
+      LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: refit track " << itrack << " p/pT = " << track->p()
+                                       << " " << track->pt() << " eta = " << track->eta();
       reco::Track result = buildTrack(track,
                                       thetrj,
                                       trj,
@@ -860,9 +863,9 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
         }
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
-        LogTrace("TrackExtenderWithMTD") << "tmtd " << tmtdMap << " +/- " << sigmatmtdMap << " t0 " << t0Map << " +/- "
-                                         << sigmat0Map << " tof pi/K/p " << tofpiMap << " " << tofkMap << " "
-                                         << tofpMap;
+        LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: tmtd " << tmtdMap << " +/- " << sigmatmtdMap
+                                         << " t0 " << t0Map << " +/- " << sigmat0Map << " tof pi/K/p " << tofpiMap
+                                         << " " << tofkMap << " " << tofpMap;
       } else {
         LogTrace("TrackExtenderWithMTD") << "Error in the MTD track refitting. This should not happen";
       }
@@ -935,15 +938,22 @@ namespace {
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *estimator);
     if (comp.first) {
       const vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, *prop, *estimator);
+      LogTrace("TrackExtenderWithMTD") << "Hit search: Compatible dets " << compDets.size();
       if (!compDets.empty()) {
         for (const auto& detWithState : compDets) {
           auto range = hits.equal_range(detWithState.first->geographicalId(), cmp_for_detset);
-          if (range.first == range.second)
+          if (range.first == range.second) {
+            LogTrace("TrackExtenderWithMTD")
+                << "Hit search: no hit in DetId " << detWithState.first->geographicalId().rawId();
             continue;
+          }
 
           auto pl = prop->propagateWithPath(tsos, detWithState.second.surface());
-          if (pl.second == 0.)
+          if (pl.second == 0.) {
+            LogTrace("TrackExtenderWithMTD")
+                << "Hit search: no propagation to DetId " << detWithState.first->geographicalId().rawId();
             continue;
+          }
 
           const float t_vtx = useVtxConstraint ? vtxTime : 0.f;
 
@@ -955,8 +965,23 @@ namespace {
           for (auto detitr = range.first; detitr != range.second; ++detitr) {
             for (const auto& hit : *detitr) {
               auto est = estimator->estimate(detWithState.second, hit);
-              if (!est.first)
+              if (!est.first) {
+                LogTrace("TrackExtenderWithMTD")
+                    << "Hit search: no compatible estimate in DetId " << detWithState.first->geographicalId().rawId()
+                    << " for hit at pos (" << std::fixed << std::setw(14) << hit.globalPosition().x() << ","
+                    << std::fixed << std::setw(14) << hit.globalPosition().y() << "," << std::fixed << std::setw(14)
+                    << hit.globalPosition().z() << ")";
                 continue;
+              }
+
+              LogTrace("TrackExtenderWithMTD")
+                  << "Hit search: spatial compatibility DetId " << detWithState.first->geographicalId().rawId()
+                  << " TSOS dx/dy " << std::fixed << std::setw(14)
+                  << std::sqrt(detWithState.second.localError().positionError().xx()) << " " << std::fixed
+                  << std::setw(14) << std::sqrt(detWithState.second.localError().positionError().yy()) << " hit dx/dy "
+                  << std::fixed << std::setw(14) << std::sqrt(hit.localPositionError().xx()) << " " << std::fixed
+                  << std::setw(14) << std::sqrt(hit.localPositionError().yy()) << " chi2 " << std::fixed
+                  << std::setw(14) << est.second;
 
               TrackTofPidInfo tof = computeTrackTofPidInfo(lastpmag2,
                                                            std::abs(pl.second),
@@ -1090,6 +1115,8 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
   if (!hitsInLayer.empty()) {
     //check hits to pass minimum quality matching requirements
     auto const& firstHit = *hitsInLayer.begin();
+    LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: estChi2= " << firstHit.estChi2
+                                     << " timeChi2= " << firstHit.timeChi2;
     if (firstHit.estChi2 < spaceChi2Cut && firstHit.timeChi2 < timeChi2Cut) {
       hitMatched = true;
       output.push_back(hitbuilder_->build(firstHit.hit));
@@ -1104,6 +1131,8 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
     find_hits(0, false);
     if (!hitsInLayer.empty()) {
       auto const& firstHit = *hitsInLayer.begin();
+      LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: estChi2= " << firstHit.estChi2
+                                       << " timeChi2= " << firstHit.timeChi2;
       if (firstHit.timeChi2 < timeChi2Cut) {
         if (firstHit.estChi2 < spaceChi2Cut) {
           hitMatched = true;
@@ -1232,10 +1261,11 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
             thiterror = 1.f / (err1 + err2);
             thit = (tofInfo.dt * err1 + mtdhit2->time() * err2) * thiterror;
             thiterror = std::sqrt(thiterror);
-            LogDebug("TrackExtenderWithMTD") << "p trk = " << p.mag() << " ETL hits times/errors: " << mtdhit1->time()
-                                             << " +/- " << mtdhit1->timeError() << " , " << mtdhit2->time() << " +/- "
-                                             << mtdhit2->timeError() << " extrapolated time1: " << tofInfo.dt << " +/- "
-                                             << tofInfo.dterror << " average = " << thit << " +/- " << thiterror;
+            LogDebug("TrackExtenderWithMTD")
+                << "TrackExtenderWithMTD: p trk = " << p.mag() << " ETL hits times/errors: " << mtdhit1->time()
+                << " +/- " << mtdhit1->timeError() << " , " << mtdhit2->time() << " +/- " << mtdhit2->timeError()
+                << " extrapolated time1: " << tofInfo.dt << " +/- " << tofInfo.dterror << " average = " << thit
+                << " +/- " << thiterror;
             validmtd = true;
           }
         }

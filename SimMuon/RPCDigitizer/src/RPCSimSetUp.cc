@@ -203,7 +203,9 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 #endif
   // ### NoiseItem #############################################################
   unsigned int count_strips = 1;
+#ifdef EDM_ML_DEBUG
   unsigned int count_all = 1;
+#endif
   std::vector<float> vveff, vvnoise;
 
   // DetId to start with needs to be a DetId inside the Geometry used
@@ -281,10 +283,11 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       sslognoiseitem << "First Value :: [" << std::setw(6) << count_all << "][" << std::setw(3) << count_strips
                      << "] :: this_detId = " << this_detId << " aka " << this_rpcId;
       sslognoiseitem << " Strip " << std::setw(3) << count_strips << " Noise = " << it->noise << " Hz/cm2" << std::endl;
-#endif
-      // update counter
-      ++count_strips;
+      // update one counter
       ++count_all;
+#endif
+      // update the other counter
+      ++count_strips;
     }
     // Case 2 :: 2ND ENTRY --> LAST-1 ENTRY
     // ------------------------------------
@@ -294,13 +297,14 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       sslognoiseitem << "Inside Loop :: [" << std::setw(6) << count_all << "][" << std::setw(3) << count_strips
                      << "] :: this_detId = " << this_detId << " aka " << this_rpcId;
       sslognoiseitem << " Strip " << std::setw(3) << count_strips << " Noise = " << it->noise << " Hz/cm2" << std::endl;
+      // update one counter
+      ++count_all;
 #endif
       // fill the vectors
       vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
-      // update counter
+      // update the other counter
       ++count_strips;
-      ++count_all;
     }
 
     // Case 3 :: LAST ENTRY
@@ -311,13 +315,14 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       sslognoiseitem << "Last Value ::  [" << std::setw(6) << count_all << "][" << std::setw(3) << count_strips
                      << "] :: this_detId = " << this_detId << " aka " << this_rpcId;
       sslognoiseitem << " Strip " << std::setw(3) << count_strips << " Noise = " << it->noise << " Hz/cm2" << std::endl;
+      // update one counter
+      ++count_all;
 #endif
       // fill last value in the vector
       vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
-      // update counter
+      // update the other counter
       ++count_strips;
-      ++count_all;
       // fill vectors into map
       _mapDetIdNoise[current_detId] = vvnoise;
       _mapDetIdEff[current_detId] = vveff;
@@ -360,9 +365,9 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
         sslognoiseitem << "Inside While:: [" << std::setw(6) << count_all << "][" << std::setw(3) << count_strips
                        << "] :: this_detId = " << this_detId << " aka " << this_rpcId << " Noise = " << it->noise
                        << " Hz/cm2" << std::endl;
+//	++count_all;
 #endif
         ++count_strips;
-        // ++count_all;
         if (this_detId != current_detId) {
 #ifdef EDM_ML_DEBUG
           sslognoiseitem << "Different detId is found ::                  " << this_detId << " aka " << this_rpcId
@@ -404,7 +409,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 }
 
 const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id) {
-  map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdNoise.find(id);
+  std::map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdNoise.find(id);
   if (iter == _mapDetIdNoise.end()) {
     throw cms::Exception("DataCorrupt") << "Exception from RPCSimSetUp - no noise information for DetId\t" << id
                                         << std::endl;
@@ -414,7 +419,7 @@ const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id) {
 }
 
 const std::vector<float>& RPCSimSetUp::getEff(uint32_t id) {
-  map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdEff.find(id);
+  std::map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdEff.find(id);
   if (iter == _mapDetIdEff.end()) {
     throw cms::Exception("DataCorrupt") << "Exception from RPCSimSetUp - no efficiency information for DetId\t" << id
                                         << std::endl;
@@ -458,7 +463,7 @@ const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)  //legacy member fun
 {
   LogDebug("RPCSimSetupChecks") << "RPCSimSetUp::getCls" << std::endl;
 
-  map<uint32_t, std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
+  std::map<uint32_t, std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
   if (iter == _mapDetClsMapLegacy.end()) {
     throw cms::Exception("DataCorrupt") << "Exception from RPCSimSetUp - no cluster size information for DetId\t" << id
                                         << std::endl;
@@ -476,7 +481,7 @@ const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)  //legacy member fun
 const std::vector<double>& RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id, uint32_t slice) {
   LogDebug("RPCSimSetupChecks") << "RPCSimSetUp::getAsymmetricClsDistribution" << std::endl;
 
-  map<uint32_t, std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
+  std::map<uint32_t, std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
   if (iter == _mapDetClsMap.end()) {
     throw cms::Exception("DataCorrupt")
         << "Exception from RPCSimSetUp - _mapDetClsMap - no cluster size information for DetId\t" << id << std::endl;
@@ -495,9 +500,9 @@ const std::vector<double>& RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id
 
   _DetClsAsymmetric.clear();
 
-  vector<double> clsFewStripsDistribution;
-  vector<double> clsDistribution;
-  vector<double> clsAccumulativeDistribution;
+  std::vector<double> clsFewStripsDistribution;
+  std::vector<double> clsDistribution;
+  std::vector<double> clsAccumulativeDistribution;
 
   std::map<int, std::vector<double> > mapSliceVsDistribution;
 
@@ -509,18 +514,6 @@ const std::vector<double>& RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id
   for (int j = 0; j < distributionFewStrips; j++) {
     for (int i = 0; i < slices; i++) {
       sliceVsFewStripsDistribution[i][j] = dataForAsymmCls[j * slices + i];
-    }
-  }
-
-  double control = 0;
-  for (int j = 0; j < distributionFewStrips; j++) {
-    control += sliceVsFewStripsDistribution[0][j];
-  }
-
-  double control1 = 0;
-  for (int j = 0; j < distributionFewStrips; j++) {
-    for (int i = 0; i < slices; i++) {
-      control1 += dataForAsymmCls[j * slices + i];
     }
   }
 
@@ -540,7 +533,7 @@ const std::vector<double>& RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id
 const std::vector<double>& RPCSimSetUp::getAsymmetryForCls(uint32_t id, uint32_t slice, uint32_t cls) {
   LogDebug("RPCSimSetupChecks") << "RPCSimSetUp::getAsymmetryForCls" << std::endl;
 
-  map<uint32_t, std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
+  std::map<uint32_t, std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
   if (iter == _mapDetClsMap.end()) {
     throw cms::Exception("DataCorrupt")
         << "Exception from RPCSimSetUp - _mapDetClsMap - no cluster size information for DetId\t" << id << std::endl;
@@ -559,10 +552,10 @@ const std::vector<double>& RPCSimSetUp::getAsymmetryForCls(uint32_t id, uint32_t
 
   _DetAsymmetryForCls.clear();
 
-  vector<double> clsFewStripsDistribution;
-  vector<double> clsDistribution;
-  vector<double> clsAccumulativeDistribution;
-  vector<double> clsDetAsymmetryForCls;
+  std::vector<double> clsFewStripsDistribution;
+  std::vector<double> clsDistribution;
+  std::vector<double> clsAccumulativeDistribution;
+  std::vector<double> clsDetAsymmetryForCls;
   clsDetAsymmetryForCls.clear();
 
   std::map<int, std::vector<double> > mapSliceVsDistribution;

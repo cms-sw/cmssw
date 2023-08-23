@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/Rounding.h"
 
@@ -55,19 +56,19 @@ DTGeometryAnalyzer::~DTGeometryAnalyzer() {}
 void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& pDD = iSetup.getData(tokDT_);
 
-  cout << myName() << ": Analyzer..." << endl;
-  cout << "start " << dashedLine_ << endl;
+  edm::LogVerbatim("DTGeometry") << myName() << ": Analyzer...";
+  edm::LogVerbatim("DTGeometry") << "start " << dashedLine_;
 
-  cout << " Geometry node for DTGeom is  " << &pDD << endl;
-  cout << " I have " << pDD.detTypes().size() << " detTypes" << endl;
-  cout << " I have " << pDD.detUnits().size() << " detUnits" << endl;
-  cout << " I have " << pDD.dets().size() << " dets" << endl;
-  cout << " I have " << pDD.layers().size() << " layers" << endl;
-  cout << " I have " << pDD.superLayers().size() << " superlayers" << endl;
-  cout << " I have " << pDD.chambers().size() << " chambers" << endl;
+  edm::LogVerbatim("DTGeometry") << " Geometry node for DTGeom is  " << &pDD;
+  edm::LogVerbatim("DTGeometry") << " I have " << pDD.detTypes().size() << " detTypes";
+  edm::LogVerbatim("DTGeometry") << " I have " << pDD.detUnits().size() << " detUnits";
+  edm::LogVerbatim("DTGeometry") << " I have " << pDD.dets().size() << " dets";
+  edm::LogVerbatim("DTGeometry") << " I have " << pDD.layers().size() << " layers";
+  edm::LogVerbatim("DTGeometry") << " I have " << pDD.superLayers().size() << " superlayers";
+  edm::LogVerbatim("DTGeometry") << " I have " << pDD.chambers().size() << " chambers";
 
-  cout << myName() << ": Begin iteration over geometry..." << endl;
-  cout << "iter " << dashedLine_ << endl;
+  edm::LogVerbatim("DTGeometry") << myName() << ": Begin iteration over geometry...";
+  edm::LogVerbatim("DTGeometry") << "iter " << dashedLine_;
 
   // check detUnits
   for (const auto& det : pDD.detUnits()) {
@@ -76,46 +77,50 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     const GeomDet* gdet_ = pDD.idToDet(detId);
     const GeomDetUnit* gdet = pDD.idToDetUnit(detId);
     const DTLayer* lay = dynamic_cast<const DTLayer*>(gdet);
-    cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << endl;
+    edm::LogVerbatim("DTGeometry") << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id;
     assert(det == gdet);
     assert(gdet_ == gdet);
     assert(gdet_ == lay);
   }
 
   // check layers
-  cout << "LAYERS " << dashedLine_ << endl;
+  edm::LogVerbatim("DTGeometry") << "LAYERS " << dashedLine_;
   for (auto det : pDD.layers()) {
     const DTTopology& topo = det->specificTopology();
     const BoundPlane& surf = det->surface();
-    cout << "Layer " << det->id() << " SL " << det->superLayer()->id() << " chamber " << det->chamber()->id()
-         << " Topology W/H/L: " << topo.cellWidth() << "/" << topo.cellHeight() << "/" << topo.cellLenght()
-         << " first/last/# wire " << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
-         << " Position " << surf.position() << " normVect " << roundVecIfNear0(surf.normalVector(), tolerance_)
-         << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
-         << surf.bounds().length() << endl;
+    edm::LogVerbatim("DTGeometry") << "Layer " << det->id() << " SL " << det->superLayer()->id() << " chamber "
+                                   << det->chamber()->id() << " Topology W/H/L: " << topo.cellWidth() << "/"
+                                   << topo.cellHeight() << "/" << topo.cellLenght() << " first/last/# wire "
+                                   << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
+                                   << " Position " << surf.position() << " normVect "
+                                   << roundVecIfNear0(surf.normalVector(), tolerance_)
+                                   << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness()
+                                   << "/" << surf.bounds().length();
   }
 
   // check superlayers
-  cout << "SUPERLAYERS " << dashedLine_ << endl;
+  edm::LogVerbatim("DTGeometry") << "SUPERLAYERS " << dashedLine_;
   for (auto det : pDD.superLayers()) {
     const BoundPlane& surf = det->surface();
-    cout << "SuperLayer " << det->id() << " chamber " << det->chamber()->id() << " Position " << surf.position()
-         << " normVect " << roundVecIfNear0(surf.normalVector(), tolerance_)
-         << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness() << "/"
-         << surf.bounds().length() << endl;
+    edm::LogVerbatim("DTGeometry") << "SuperLayer " << det->id() << " chamber " << det->chamber()->id() << " Position "
+                                   << surf.position() << " normVect "
+                                   << roundVecIfNear0(surf.normalVector(), tolerance_)
+                                   << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness()
+                                   << "/" << surf.bounds().length();
   }
 
   // check chamber
-  cout << "CHAMBERS " << dashedLine_ << endl;
+  edm::LogVerbatim("DTGeometry") << "CHAMBERS " << dashedLine_;
   for (auto det : pDD.chambers()) {
-    //cout << "Chamber " << (*det)->geographicalId().det() << endl;
+    //edm::LogVerbatim("DTGeometry") << "Chamber " << (*det)->geographicalId().det();
     const BoundPlane& surf = det->surface();
-    //cout << "surf " << &surf <<  endl;
-    cout << "Chamber " << det->id() << " Position " << surf.position() << " normVect "
-         << roundVecIfNear0(surf.normalVector(), tolerance_) << " bounds W/H/L: " << surf.bounds().width() << "/"
-         << surf.bounds().thickness() << "/" << surf.bounds().length() << endl;
+    //edm::LogVerbatim("DTGeometry") << "surf " << &surf;
+    edm::LogVerbatim("DTGeometry") << "Chamber " << det->id() << " Position " << surf.position() << " normVect "
+                                   << roundVecIfNear0(surf.normalVector(), tolerance_)
+                                   << " bounds W/H/L: " << surf.bounds().width() << "/" << surf.bounds().thickness()
+                                   << "/" << surf.bounds().length();
   }
-  cout << "END " << dashedLine_ << endl;
+  edm::LogVerbatim("DTGeometry") << "END " << dashedLine_;
 
   // Check chamber(), layer(), superlayer(), idToDet()
   for (int w = -2; w <= 2; ++w) {
@@ -124,10 +129,11 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         DTChamberId id(w, st, se);
         const DTChamber* ch = pDD.chamber(id);
         if (!ch)
-          cout << "ERROR ch not found " << id << endl;
+          edm::LogVerbatim("DTGeometry") << "ERROR ch not found " << id;
         else {
           if (id != ch->id())
-            cout << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id() << endl;
+            edm::LogVerbatim("DTGeometry")
+                << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id();
           // test idToDet for chamber
           const GeomDet* gdetc = pDD.idToDet(id);
           assert(gdetc == ch);
@@ -138,10 +144,10 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             DTSuperLayerId slid(id, sl);
             const DTSuperLayer* dtsl = pDD.superLayer(slid);
             if (!dtsl)
-              cout << "ERROR sl not found " << slid << endl;
+              edm::LogVerbatim("DTGeometry") << "ERROR sl not found " << slid;
             else {
               if (slid != dtsl->id())
-                cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << dtsl->id() << endl;
+                edm::LogVerbatim("DTGeometry") << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << dtsl->id();
               // test idToDet for superLayer
               const GeomDet* gdets = pDD.idToDet(slid);
               assert(gdets == dtsl);
@@ -150,9 +156,10 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
                 DTLayerId lid(slid, l);
                 const DTLayer* lay = pDD.layer(lid);
                 if (!lay)
-                  cout << "ERROR lay not found " << lid << endl;
+                  edm::LogVerbatim("DTGeometry") << "ERROR lay not found " << lid;
                 if (lid != lay->id())
-                  cout << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id() << endl;
+                  edm::LogVerbatim("DTGeometry")
+                      << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id();
                 // test idToDet for layer
                 const GeomDet* gdetl = pDD.idToDet(lid);
                 assert(gdetl == lay);
@@ -163,7 +170,7 @@ void DTGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
     }
   }
-  cout << "END " << dashedLine_ << endl;
+  edm::LogVerbatim("DTGeometry") << "END " << dashedLine_;
 }
 
 //define this as a plug-in

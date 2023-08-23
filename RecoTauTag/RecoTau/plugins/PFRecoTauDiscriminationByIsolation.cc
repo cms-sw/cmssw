@@ -113,7 +113,7 @@ public:
            ++cfgFootprintCorrection) {
         std::string selection = cfgFootprintCorrection->getParameter<std::string>("selection");
         std::string offset = cfgFootprintCorrection->getParameter<std::string>("offset");
-        std::unique_ptr<FootprintCorrection> footprintCorrection(new FootprintCorrection(selection, offset));
+        auto footprintCorrection(std::make_unique<FootprintCorrection>(selection, offset));
         footprintCorrections_.push_back(std::move(footprintCorrection));
       }
     }

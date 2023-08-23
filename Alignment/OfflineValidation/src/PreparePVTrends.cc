@@ -663,6 +663,12 @@ pv::biases PreparePVTrends::getBiases(TH1F *hist)
 /*--------------------------------------------------------------------*/
 {
   int nbins = hist->GetNbinsX();
+  // if there are no bins in the histogram then return default constructed object
+  // shouldn't really ever happen
+  if (nbins <= 0) {
+    logError << "No bins in the input histogram";
+    return pv::biases();
+  }
 
   //extract median from histogram
   double *y = new double[nbins];
@@ -712,6 +718,8 @@ pv::biases PreparePVTrends::getBiases(TH1F *hist)
 
   delete theZero;
   delete displaced;
+  delete[] y;
+  delete[] err;
   return result;
 }
 

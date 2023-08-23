@@ -105,11 +105,14 @@ void HGCalPartialWaferTester::analyze(const edm::Event&, const edm::EventSetup& 
           if ((ui < 2 * nCells) && (vi < 2 * nCells) && ((vi - ui) < nCells) && ((ui - vi) <= nCells) &&
               HGCalWaferMask::goodCell(ui, vi, partialType)) {
             ++alltry;
-            auto xy = hgdc.locateCell(layer, waferU, waferV, ui, vi, reco, all, norot, debug1);
+            double zpos = hgdc.waferZ(layer, reco);
+            int zside = (zpos > 0) ? 1 : -1;
+            auto xy = hgdc.locateCell(zside, layer, waferU, waferV, ui, vi, reco, all, norot, debug1);
             int lay(layer), cU(0), cV(0), wType(-1), wU(0), wV(0);
             double wt(0);
             hgdc.waferFromPosition(HGCalParameters::k_ScaleToDDD * xy.first,
                                    HGCalParameters::k_ScaleToDDD * xy.second,
+                                   zside,
                                    lay,
                                    wU,
                                    wV,

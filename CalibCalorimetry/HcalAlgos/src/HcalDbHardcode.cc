@@ -29,7 +29,9 @@ HcalDbHardcode::HcalDbHardcode()
                             105,                   //Reco shape
                             0.0,                   //photoelectronsToAnalog
                             {0.0},                 //dark current
-                            {0.0}                  //noise correlation
+                            {0.0},                 //noise correlation
+                            0.0,                   //PF noise threshold
+                            0.1                    //PF seed threshold
                             ),
       setHB_(false),
       setHE_(false),
@@ -173,6 +175,13 @@ HcalGain HcalDbHardcode::makeGain(HcalGenericDetId fId, bool fSmear) const {  //
 HcalGainWidth HcalDbHardcode::makeGainWidth(HcalGenericDetId fId) const {  // GeV/fC
   float value = getParameters(fId).gainWidth(getGainIndex(fId));
   HcalGainWidth result(fId.rawId(), value, value, value, value);
+  return result;
+}
+
+HcalPFCut HcalDbHardcode::makePFCut(HcalGenericDetId fId) const {  // GeV
+  float value0 = getParameters(fId).noiseThreshold();
+  float value1 = getParameters(fId).seedThreshold();
+  HcalPFCut result(fId.rawId(), value0, value1);
   return result;
 }
 

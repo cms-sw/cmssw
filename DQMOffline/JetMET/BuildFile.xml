@@ -37,6 +37,5 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CommonTools/TriggerUtils"/>
 <use name="RecoMuon/TrackingTools"/>
-<use name="JetMETCorrections/Objects"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <flags EDM_PLUGIN="1"/>

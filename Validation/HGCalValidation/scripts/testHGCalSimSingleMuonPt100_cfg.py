@@ -1,8 +1,9 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D92
+#   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D92 type=DDD
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry: D88, D92, D93, V17Shift, V18
+#               type: DDD, DD4hep
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +17,12 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D88, D92, D93, V17Shift, V18")
+options.register('type',
+                 "DDD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: DDD, DD4hep")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -27,11 +33,26 @@ print(options)
 # Use the options
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('SingleMuonSim',Phase2C17I13M9)
+if (options.type == "DD4hep"):
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    process = cms.Process('SingleMuonSim',Phase2C17I13M9,dd4hep)
+    if (options.geometry == "V17Shift"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + options.geometry + "Reco_cff"
+    elif (options.geometry == "V18"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + options.geometry + "Reco_cff"
+    else:
+        geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
+else:
+    process = cms.Process('SingleMuonSim',Phase2C17I13M9)
+    if (options.geometry == "V17Shift"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+    elif (options.geometry == "V18"):
+        geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
+    else:
+        geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
-outFile = "file:step1" + options.geometry + "mu.root"
+outFile = "file:step1" + options.type + options.geometry + "mu.root"
 
 print("Geometry file: ", geomFile)
 print("Global Tag:    ", globalTag)
@@ -60,14 +81,14 @@ process.RandomNumberGeneratorService.generator.initialSeed = rndm
 print("Processing with random number seed: ", rndm)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(5000)
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.ValidHGCal=dict()
-#    process.MessageLogger.HGCalGeom=dict()
-#    process.MessageLogger.HGCalSim=dict()
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalError=dict()
+#   process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.HGCalSim=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -131,12 +152,15 @@ process.generator = cms.EDFilter("Pythia8PtGun",
 #Modified to produce hgceedigis
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
+process.g4SimHits.HGCSD.CheckID = True
+process.g4SimHits.HGCScintSD.CheckID = True
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-process.analysis_step = cms.Path(process.hgcalHitPartialEE+process.hgcalHitPartialHE)
+process.analysis_step = cms.Path(process.hgcalHitPartialEE+process.hgcalHitPartialHE+process.hgcalHitPartialHEB)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition

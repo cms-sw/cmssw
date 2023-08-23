@@ -771,7 +771,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       if (!((*recVtxs)[ind].isFake())) {
         reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
         for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack != (*recVtxs)[ind].tracks_end(); vtxTrack++) {
-          const edm::RefToBase<reco::Track> pvtxTrack = (*vtxTrack);
+          const edm::RefToBase<reco::Track> &pvtxTrack = (*vtxTrack);
           if (pTrack == pvtxTrack.get()) {
             pVtxTkId = ind;
             break;

@@ -78,6 +78,13 @@ OuterTrackerMonitorTTTrack = DQMEDAnalyzer('OuterTrackerMonitorTTTrack',
         xmin = cms.double(0)
         ),
 
+#MVA1 (prompt quality) of the track
+    TH1_Track_MVA1 = cms.PSet(
+        Nbinsx = cms.int32(100),
+        xmax = cms.double(1),
+        xmin = cms.double(0)
+        ),
+
 #Chi2R of the track vs Nb of stubs
     TH2_Track_Chi2R_NStubs = cms.PSet(
         Nbinsx = cms.int32(5),

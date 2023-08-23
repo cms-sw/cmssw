@@ -11,8 +11,8 @@ if 'unitTest=True' in sys.argv:
 ### Load cfis ###
 
 if unitTest:
-    process.load("DQM.Integration.config.unittestinputsource_cfi")
-    from DQM.Integration.config.unittestinputsource_cfi import options
+    process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+    from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 else:
     process.load("DQM.Integration.config.inputsource_cfi")
     from DQM.Integration.config.inputsource_cfi import options

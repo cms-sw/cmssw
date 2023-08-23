@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 highPtTripletStepTrackCutClassifier = cms.EDProducer("TrackCutClassifier",
-    beamspot = cms.InputTag("offlineBeamSpot"),
+    beamspot = cms.InputTag("hltOnlineBeamSpot"),
     ignoreVertices = cms.bool(False),
     mva = cms.PSet(
         dr_par = cms.PSet(
@@ -30,5 +30,5 @@ highPtTripletStepTrackCutClassifier = cms.EDProducer("TrackCutClassifier",
     ),
     qualityCuts = cms.vdouble(-0.7, 0.1, 0.7),
     src = cms.InputTag("highPtTripletStepTracks"),
-    vertices = cms.InputTag("pixelVertices")
+    vertices = cms.InputTag("hltPhase2PixelVertices")
 )

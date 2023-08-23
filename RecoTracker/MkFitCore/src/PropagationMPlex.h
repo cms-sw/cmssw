@@ -5,6 +5,8 @@
 
 namespace mkfit {
 
+  class PropagationFlags;
+
   inline void squashPhiMPlex(MPlexLV& par, const int N_proc) {
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
@@ -36,8 +38,9 @@ namespace mkfit {
                               const MPlexQF& msRad,
                               MPlexLS& outErr,
                               MPlexLV& outPar,
+                              MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags& pflags,
                               const MPlexQI* noMatEffPtr = nullptr);
 
   void helixAtRFromIterativeCCSFullJac(const MPlexLV& inPar,
@@ -45,6 +48,7 @@ namespace mkfit {
                                        const MPlexQF& msRad,
                                        MPlexLV& outPar,
                                        MPlexLL& errorProp,
+                                       MPlexQI& outFailFlag,
                                        const int N_proc);
 
   void helixAtRFromIterativeCCS(const MPlexLV& inPar,
@@ -54,7 +58,7 @@ namespace mkfit {
                                 MPlexLL& errorProp,
                                 MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags pflags);
+                                const PropagationFlags& pflags);
 
   void propagateHelixToZMPlex(const MPlexLS& inErr,
                               const MPlexLV& inPar,
@@ -62,8 +66,9 @@ namespace mkfit {
                               const MPlexQF& msZ,
                               MPlexLS& outErr,
                               MPlexLV& outPar,
+                              MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags& pflags,
                               const MPlexQI* noMatEffPtr = nullptr);
 
   void helixAtZ(const MPlexLV& inPar,
@@ -71,8 +76,9 @@ namespace mkfit {
                 const MPlexQF& msZ,
                 MPlexLV& outPar,
                 MPlexLL& errorProp,
+                MPlexQI& outFailFlag,
                 const int N_proc,
-                const PropagationFlags pflags);
+                const PropagationFlags& pflags);
 
   void applyMaterialEffects(const MPlexQF& hitsRl,
                             const MPlexQF& hitsXi,

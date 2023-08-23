@@ -16,11 +16,11 @@ TrapezoidalPlaneBounds::TrapezoidalPlaneBounds(float be, float te, float a, floa
 int TrapezoidalPlaneBounds::yAxisOrientation() const { return (hbotedge > htopedge) ? -1 : 1; }
 
 bool TrapezoidalPlaneBounds::inside(const Local2DPoint& p) const {
-  return (std::abs(p.y()) < hapothem) & (std::abs(p.x()) < tan_a * std::abs(p.y() + offset));
+  return (std::abs(p.y()) < hapothem) && (std::abs(p.x()) < tan_a * std::abs(p.y() + offset));
 }
 
 bool TrapezoidalPlaneBounds::inside(const Local3DPoint& p) const {
-  return ((std::abs(p.y()) < hapothem) & (std::abs(p.z()) < hthickness)) &&
+  return ((std::abs(p.y()) < hapothem) && (std::abs(p.z()) < hthickness)) &&
          std::abs(p.x()) < tan_a * std::abs(p.y() + offset);
 }
 

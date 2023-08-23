@@ -45,21 +45,13 @@ void DTGeometryParserFromDDD::parseGeometry(DDFilteredView& fv,
   bool doChamber = fv.firstChild();
 
   // Loop on chambers
-  int ChamCounter = 0;
   while (doChamber) {
-    ChamCounter++;
-
     // Loop on SLs
     bool doSL = fv.firstChild();
-    int SLCounter = 0;
     while (doSL) {
-      SLCounter++;
-
       bool doL = fv.firstChild();
-      int LCounter = 0;
       // Loop on SLs
       while (doL) {
-        LCounter++;
         //DTLayer* layer =
         buildLayer(fv, muonConstants, theLayerIdWiresMap);
 

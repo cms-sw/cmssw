@@ -115,7 +115,7 @@ namespace dqmoffline {
           continue;
         }
         const std::vector<std::string> &modules(hltConfig.moduleLabels(trigger));
-        std::string module(modules[moduleIndex]);
+        const std::string &module(modules[moduleIndex]);
         edm::InputTag filterInputTag = edm::InputTag(module, "", triggerProcess);
         results.push_back(filterInputTag);
       }

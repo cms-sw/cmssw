@@ -34,12 +34,16 @@ class Eras (object):
                  'Run2_2018_highBetaStar',
                  'Run2_2018_noMkFit',
                  'Run3',
+                 'Run3_2023',
                  'Run3_noMkFit',
                  'Run3_pp_on_PbPb',
                  'Run3_pp_on_PbPb_approxSiStripClusters',
+                 'Run3_pp_on_PbPb_2023',
+                 'Run3_pp_on_PbPb_approxSiStripClusters_2023',
                  'Run3_dd4hep',
                  'Run3_DDD',
                  'Run3_FastSim',
+                 'Run3_2023_FastSim',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
@@ -55,7 +59,7 @@ class Eras (object):
                  'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9',
                  'Phase2C17I13M9',
-                 'Phase2C18I13M9'
+                 'Phase2C20I13M9'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
@@ -80,6 +84,7 @@ class Eras (object):
                            'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17',
                            'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_122', 'run3_nanoAOD_124',
+                           'run3_ecal_devel',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']

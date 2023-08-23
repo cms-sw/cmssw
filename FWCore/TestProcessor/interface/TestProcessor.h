@@ -49,7 +49,7 @@
 #include "FWCore/TestProcessor/interface/LuminosityBlock.h"
 #include "FWCore/TestProcessor/interface/ProcessBlock.h"
 #include "FWCore/TestProcessor/interface/Run.h"
-#include "FWCore/TestProcessor/interface/TestDataProxy.h"
+#include "FWCore/TestProcessor/interface/TestESProductResolver.h"
 #include "FWCore/TestProcessor/interface/ESPutTokenT.h"
 #include "FWCore/TestProcessor/interface/ESProduceEntry.h"
 #include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
@@ -62,6 +62,7 @@ namespace edm {
   class ThinnedAssociationsHelper;
   class ExceptionToActionTable;
   class HistoryAppender;
+  class ModuleTypeResolverMaker;
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -119,7 +120,7 @@ namespace edm {
       edm::test::ESPutTokenT<T> esProduces(std::string iLabel = std::string()) {
         auto rk = eventsetup::EventSetupRecordKey::makeKey<REC>();
         eventsetup::DataKey dk(eventsetup::DataKey::makeTypeTag<T>(), iLabel.c_str());
-        esProduceEntries_.emplace_back(rk, dk, std::make_shared<TestDataProxy<T>>());
+        esProduceEntries_.emplace_back(rk, dk, std::make_shared<TestESProductResolver<T>>());
         return edm::test::ESPutTokenT<T>(esProduceEntries_.size() - 1);
       }
 
@@ -267,7 +268,8 @@ This simulates a problem happening early in the job which causes processing not 
 
       template <typename T>
       void put(std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>>&& iPut) {
-        dynamic_cast<TestDataProxy<T>*>(esHelper_->getProxy(iPut.first.index()).get())->setData(std::move(iPut.second));
+        dynamic_cast<TestESProductResolver<T>*>(esHelper_->getResolver(iPut.first.index()).get())
+            ->setData(std::move(iPut.second));
       }
 
       void put(unsigned int, std::unique_ptr<WrapperBase>);
@@ -335,6 +337,7 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
       std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
       ServiceToken serviceToken_;
+      std::unique_ptr<ModuleTypeResolverMaker const> moduleTypeResolverMaker_;
       std::unique_ptr<eventsetup::EventSetupsController> espController_;
       std::shared_ptr<eventsetup::EventSetupProvider> esp_;
       std::shared_ptr<EventSetupTestHelper> esHelper_;

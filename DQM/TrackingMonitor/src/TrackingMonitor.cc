@@ -514,7 +514,9 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfStripClustersVsGoodPVtx->setAxisTitle("Mean number of strip clusters", 2);
   }
 
-  if (doPlotsVsLUMI_ || doAllPlots) {
+  bool isMC = ((iRun.runAuxiliary().run() == 1) && (iRun.runAuxiliary().beginTime().value() == 1));
+
+  if ((doPlotsVsLUMI_ || doAllPlots) && !isMC) {
     ibooker.setCurrentFolder(MEFolderName + "/LUMIanalysis");
     int LUMIBin = conf->getParameter<int>("LUMIBin");
     float LUMIMin = conf->getParameter<double>("LUMIMin");
@@ -522,25 +524,25 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     histname = "NumberEventsVsLUMI";
     NumberEventsOfVsLUMI = ibooker.book1D(histname, histname, LUMIBin, LUMIMin, LUMIMax);
-    NumberEventsOfVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+    NumberEventsOfVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberEventsOfVsLUMI->setAxisTitle("Number of events", 2);
 
     histname = "NumberOfTracksVsLUMI";
     NumberOfTracksVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, TKNoMin, TKNoMax * 3, "");
-    NumberOfTracksVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfTracksVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfTracksVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     if (doFractionPlot_) {
       histname = "GoodTracksFractionVsLUMI";
       GoodTracksFractionVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, 0., 1.1, "");
-      GoodTracksFractionVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+      GoodTracksFractionVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
       GoodTracksFractionVsLUMI->setAxisTitle("Mean number of vertices", 2);
     }
 
     histname = "NumberOfRecHitsPerTrackVsLUMI";
     NumberOfRecHitsPerTrackVsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, RecHitMin, RecHitMax * 5, "");
-    NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     double PVMin = conf->getParameter<double>("PVMin");
@@ -548,13 +550,13 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     histname = "NumberOfGoodPVtxVsLUMI";
     NumberOfGoodPVtxVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, PVMin, 3. * PVMax, "");
-    NumberOfGoodPVtxVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfGoodPVtxVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfGoodPVtxVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     histname = "NumberOfGoodPVtxWO0VsLUMI";
     NumberOfGoodPVtxWO0VsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, PVMin, 3. * PVMax, "");
-    NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices", 2);
 
     double NClusPxMin = conf->getParameter<double>("NClusPxMin");
@@ -562,7 +564,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     histname = "NumberOfPixelClustersVsGoodPVtx";
     NumberOfPixelClustersVsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, NClusPxMin, 3. * NClusPxMax, "");
-    NumberOfPixelClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfPixelClustersVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfPixelClustersVsLUMI->setAxisTitle("Mean number of pixel clusters", 2);
 
     double NClusStrMin = conf->getParameter<double>("NClusStrMin");
@@ -570,7 +572,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     histname = "NumberOfStripClustersVsLUMI";
     NumberOfStripClustersVsLUMI =
         ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, NClusStrMin, 3. * NClusStrMax, "");
-    NumberOfStripClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
+    NumberOfStripClustersVsLUMI->setAxisTitle("online lumi [1e30 Hz cm^{-2}]", 1);
     NumberOfStripClustersVsLUMI->setAxisTitle("Mean number of strip clusters", 2);
   }
 
@@ -758,7 +760,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       lumi = metaData->instLumi();
   }
 
-  if (doPlotsVsLUMI_ || doAllPlots)
+  if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
     NumberEventsOfVsLUMI->Fill(lumi);
 
   //  Analyse the tracks
@@ -820,7 +822,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),
                                           track->numberOfValidHits());
 
-      if (doPlotsVsLUMI_ || doAllPlots)
+      if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
         NumberOfRecHitsPerTrackVsLUMI->Fill(lumi, track->numberOfValidHits());
 
       totalRecHits += track->numberOfValidHits();
@@ -847,7 +849,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       if (doPlotsVsBX_ || doAllPlots)
         NumberOfTracksVsBX->Fill(bx, numberOfTracks);
-      if (doPlotsVsLUMI_ || doAllPlots)
+      if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
         NumberOfTracksVsLUMI->Fill(lumi, numberOfTracks);
       if (doFractionPlot_) {
         FractionOfGoodTracks->Fill(frac);
@@ -855,7 +857,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (doFractionPlot_) {
           if (doPlotsVsBX_ || doAllPlots)
             GoodTracksFractionVsBX->Fill(bx, frac);
-          if (doPlotsVsLUMI_ || doAllPlots)
+          if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
             GoodTracksFractionVsLUMI->Fill(lumi, frac);
         }
       }
@@ -1057,7 +1059,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (doFractionPlot_)
           GoodTracksFractionVsGoodPVtx->Fill(float(totalNumGoodPV), frac);
 
-        if (doPlotsVsLUMI_ || doAllPlots)
+        if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
           NumberOfGoodPVtxVsLUMI->Fill(lumi, float(totalNumGoodPV));
       }
 
@@ -1067,7 +1069,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       ss << "VI stat " << totalNumGoodPV << ' ' << numberOfTracks;
       for (uint i = 0; i < ClusterLabels.size(); i++) {
         ss << ' ' << NClus[i];
-        if (doPlotsVsLUMI_ || doAllPlots) {
+        if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData()) {
           if (ClusterLabels[i] == "Pix")
             NumberOfPixelClustersVsLUMI->Fill(lumi, NClus[i]);
           if (ClusterLabels[i] == "Strip")
@@ -1090,7 +1092,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if (doPlotsVsBX_ || doAllPlots)
         if (totalNumGoodPV != 0)
           NumberOfGoodPVtxWO0VsBX->Fill(bx, float(totalNumGoodPV));
-      if (doPlotsVsLUMI_ || doAllPlots)
+      if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
         if (totalNumGoodPV != 0)
           NumberOfGoodPVtxWO0VsLUMI->Fill(lumi, float(totalNumGoodPV));
 

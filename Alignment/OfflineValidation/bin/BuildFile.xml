@@ -1,18 +1,21 @@
-<flags CXXFLAGS="-g -Wall -DDEBUG -O3 -Wall -std=c++17 -lASImage -lMultiProc" />
-
-<use name="rootcore" />
-<use name="root" />
+<flags CXXFLAGS="-g -Wall  -O3 -Wall -std=c++17 -lASImage -lMultiProc" />
+<use name="Alignment/OfflineValidation"/>
 <use name="boost" />
+<use name="boost_filesystem"/>
 <use name="boost_program_options"/>
 <use name="boost_system"/>
-<use name="boost_filesystem"/>
-<use name="Alignment/OfflineValidation"/>
+<use name="roofit"/>
+<use name="rootcore"/>
+<use name="rootgraphics"/>
+<use name="rootmath"/>
 <lib name="stdc++fs" />
 <bin name="DMRmerge" file="DMRmerge.cc,Options.cc" />
-<bin name="PVmerge" file="PVmerge.cc,Options.cc" />
 <bin name="DMRtrends" file="DMRtrends.cc,Options.cc" />
+<bin name="GCP" file="GCP.cc,Options.cc" />
+<bin name="GCPtrends" file="GCPtrends.cc" />
+<bin name="PVmerge" file="PVmerge.cc,Options.cc" />
 <bin name="PVtrends" file="PVtrends.cc,Options.cc" />
 <bin name="SplitVmerge" file="SplitVmerge.cc,Options.cc" />
-<bin name="GCP" file="GCP.cc,Options.cc" />
-<bin name="jetHtPlotter" file="jetHtPlotter.cc,JetHtPlotConfiguration.cc,Options.cc" />
+<bin name="Zmumumerge" file="Zmumumerge.cc,Options.cc" />
 <bin name="haddws" file="haddws.C" />
+<bin name="jetHtPlotter" file="jetHtPlotter.cc,JetHtPlotConfiguration.cc,Options.cc" />

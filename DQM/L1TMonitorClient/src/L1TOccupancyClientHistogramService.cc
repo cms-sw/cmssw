@@ -69,7 +69,7 @@ void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, const v
   }
 
   for (unsigned int i = 0; i < iMaskedAreas.size(); i++) {
-    ParameterSet iMA = iMaskedAreas[i];
+    const ParameterSet& iMA = iMaskedAreas[i];
     int iTypeUnits = iMA.getParameter<int>("kind");
 
     //get boundaries from python

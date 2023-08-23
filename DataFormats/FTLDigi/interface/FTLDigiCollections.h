@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/FTLDigi/interface/FTLDataFrameT.h"
-#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
+#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/FTLDigi/interface/FTLSample.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
@@ -28,7 +28,7 @@ namespace mtdhelpers {
   };
 }  // namespace mtdhelpers
 
-typedef FTLDataFrameT<FastTimeDetId, FTLSample, mtdhelpers::FTLRowColDecode> FTLDataFrame;
+typedef FTLDataFrameT<MTDDetId, FTLSample, mtdhelpers::FTLRowColDecode> FTLDataFrame;
 typedef edm::SortedCollection<FTLDataFrame> FTLDigiCollection;
 
 typedef FTLDataFrameT<BTLDetId, BTLSample, mtdhelpers::BTLRowColDecode> BTLDataFrame;

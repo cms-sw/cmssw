@@ -232,7 +232,6 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   // Decode Matacq Information
   // ===========================
 
-  int iCh = 0;
   double max = 0;
 
   for (EcalMatacqDigiCollection::const_iterator it = matacqDigi->begin(); it != matacqDigi->end();
@@ -241,7 +240,6 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
     //
     const EcalMatacqDigi& digis = *it;
 
-    //if(digis.size()==0 || iCh>=N_channels) continue;
     if (_debug == 1) {
       edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- Inside digis -- digi size=" << digis.size();
     }
@@ -267,8 +265,6 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
       edm::LogVerbatim("EcalMatacqAnalyzzer")
           << "-- debug test -- Inside digis -- nsamples=" << nsamples << ", max=" << max;
     }
-
-    iCh++;
   }
 
   if (_debug == 1)
@@ -361,15 +357,13 @@ void EcalMatacqAnalyzer::endJob() {
   // loop over the entries of the tree
   TChain* fChain = (TChain*)tree;
   Long64_t nentries = fChain->GetEntriesFast();
-  Long64_t nbytes = 0, nb = 0;
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     // load the event
     Long64_t ientry = fChain->LoadTree(jentry);
     if (ientry < 0)
       break;
-    nb = fChain->GetEntry(jentry);
-    nbytes += nb;
+    fChain->GetEntry(jentry);
 
     status = 0;
     peak = -1;

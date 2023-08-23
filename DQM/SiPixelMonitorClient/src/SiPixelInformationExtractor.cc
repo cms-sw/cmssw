@@ -430,7 +430,6 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
     std::map<uint32_t, int> myfedmap;
     std::map<uint32_t, std::string> mynamemap;
     int realfedID = -1;
-    int counter = 0;
     int n_noisyrocs_all = 0;
     int n_noisyrocs_barrel = 0;
     int n_noisyrocs_endcap = 0;
@@ -483,7 +482,6 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
             float Noise_frac = (*pxl).second;
             int offlineColumn = offlineaddress.first;
             int offlineRow = offlineaddress.second;
-            counter++;
 
             sipixelobjects::ElectronicIndex cabling;
             SiPixelFrameConverter formatter(theCablingMap, realfedID);

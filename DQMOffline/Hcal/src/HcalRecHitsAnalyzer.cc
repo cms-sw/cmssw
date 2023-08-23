@@ -550,16 +550,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
   // cuts for each subdet_ector mimiking  "Scheme B"
   //  double cutHB = 0.9, cutHE = 1.4, cutHO = 1.1, cutHFL = 1.2, cutHFS = 1.8;
 
-  // energy in HCAL
-  double eHcal = 0.;
-  // Total numbet of RecHits in HCAL, in the cone, above 1 GeV theshold
-  int nrechits = 0;
-  int nrechitsThresh = 0;
-
   // energy in ECAL
-  double eEcal = 0.;
-  double eEcalB = 0.;
-  double eEcalE = 0.;
   double eEcalCone = 0.;
 
   // HCAL energy around MC eta-phi at all depths;
@@ -609,31 +600,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
       sevLvl_HF->Fill(hcalHFSevLvlVec[iv]);
     }
   }
-
-  //===========================================================================
-  // IN ALL other CASES : ieta-iphi maps
-  //===========================================================================
-
-  // ECAL
-  if (ecalselector_ == "yes" && (subdet_ == 1 || subdet_ == 2 || subdet_ == 5)) {
-    Handle<EBRecHitCollection> rhitEB;
-    if (ev.getByToken(tok_EB_, rhitEB)) {
-      for (const auto &recHit : *(rhitEB.product())) {
-        double en = recHit.energy();
-        eEcal += en;
-        eEcalB += en;
-      }
-    }
-
-    Handle<EERecHitCollection> rhitEE;
-    if (ev.getByToken(tok_EE_, rhitEE)) {
-      for (const auto &recHit : *(rhitEE.product())) {
-        double en = recHit.energy();
-        eEcal += en;
-        eEcalE += en;
-      }
-    }
-  }  // end of ECAL selection
 
   // Counting, including ZS items
   // Filling HCAL maps  ----------------------------------------------------
@@ -766,7 +732,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
 
     // 32-bit status word
     uint32_t statadd;
-    unsigned int isw67 = 0;
 
     // Statusword correlation
     unsigned int sw27 = 27;
@@ -800,10 +765,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
           RecHit_StatusWord_HO->Fill(isw);
         else if (sub == 4) {
           RecHit_StatusWord_HF->Fill(isw);
-          if (isw == 6)
-            isw67 += 1;
-          if (isw == 7)
-            isw67 += 2;
         }
       }
     }
@@ -880,12 +841,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
         clusPhi = phi12(clusPhi, clusEn, phi, en);
         clusEn += en;
       }
-
-      nrechits++;
-      eHcal += en;
-
-      if (en > 1.)
-        nrechitsThresh++;
 
       // The energy and overall timing histos are drawn while
       // the ones split by depth are not

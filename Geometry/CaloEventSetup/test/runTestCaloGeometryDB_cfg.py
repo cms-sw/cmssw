@@ -11,6 +11,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.CaloGeom=dict()
 
 process.etta = cms.EDAnalyzer("DumpEcalTrigTowerMapping")
 

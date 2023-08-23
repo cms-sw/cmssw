@@ -89,7 +89,6 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
   if (type_ == DetUnit) {
     radLength_ = getDouble("TrackerRadLength", *fv);
     xi_ = getDouble("TrackerXi", *fv);
-    isBricked_ = (getString("isBricked", *fv) == strue);
     pixROCRows_ = getDouble("PixelROCRows", *fv);
     pixROCCols_ = getDouble("PixelROCCols", *fv);
     pixROCx_ = getDouble("PixelROC_X", *fv);
@@ -97,6 +96,8 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
     stereo_ = (getString("TrackerStereoDetectors", *fv) == strue);
     isLowerSensor_ = (getString("TrackerLowerDetectors", *fv) == strue);
     isUpperSensor_ = (getString("TrackerUpperDetectors", *fv) == strue);
+    isFirstSensor_ = (getString("TrackerFirstDetectors", *fv) == strue);
+    isSecondSensor_ = (getString("TrackerSecondDetectors", *fv) == strue);
     siliconAPVNum_ = getDouble("SiliconAPVNumber", *fv);
   }
 }
@@ -124,7 +125,6 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
   // Only look for sensor-related info on sensor volumes!
   if (type_ == DetUnit) {
     // IT sensors only (NB: hence could add a branch here, but not a critical part on perf)
-    isBricked_ = (fv->get<std::string_view>("isBricked") == strue);
     pixROCRows_ = fv->get<double>("PixelROCRows");
     pixROCCols_ = fv->get<double>("PixelROCCols");
     pixROCx_ = fv->get<double>("PixelROC_X");
@@ -137,6 +137,8 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     // Phase 2 OT sensors only (NB: hence could add a branch here, but not a critical part on perf)
     isLowerSensor_ = (fv->get<std::string_view>("TrackerLowerDetectors") == strue);
     isUpperSensor_ = (fv->get<std::string_view>("TrackerUpperDetectors") == strue);
+    isFirstSensor_ = (fv->get<std::string_view>("TrackerFirstDetectors") == strue);
+    isSecondSensor_ = (fv->get<std::string_view>("TrackerSecondDetectors") == strue);
 
     // All sensors: IT or OT, Phase 1 or Phase 2 (NB: critical part on perf)
     fv->findSpecPar("TrackerRadLength", "TrackerXi");

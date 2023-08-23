@@ -27,8 +27,8 @@ namespace PhysicsTools {
   }
 
   template <class Base_t, class CalibBase_t, class Parent_t>
-  tbb::concurrent_unordered_map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t> *>
-      *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry() {
+  tbb::concurrent_unordered_map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t> *> *
+  ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry() {
     CMS_THREAD_SAFE static struct Sentinel {
       Sentinel() : instance(new RegistryMap) {}
       ~Sentinel() {

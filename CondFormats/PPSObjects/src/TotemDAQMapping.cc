@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "FWCore/Utilities/interface/typelookup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 
@@ -25,13 +26,27 @@ std::ostream &operator<<(std::ostream &s, const TotemVFATInfo &vi) {
 void TotemDAQMapping::insert(const TotemFramePosition &fp, const TotemVFATInfo &vi) {
   auto it = VFATMapping.find(fp);
   if (it != VFATMapping.end()) {
-    cerr << "WARNING in DAQMapping::insert > Overwriting entry at " << fp << ". Previous: " << endl
-         << "    " << VFATMapping[fp] << "," << endl
-         << "  new: " << endl
-         << "    " << vi << ". " << endl;
+    edm::LogWarning("Totem") << "WARNING in DAQMapping::insert > Overwriting entry at " << fp << ". Previous: "
+                             << "    " << VFATMapping[fp] << ","
+                             << "  new: "
+                             << "    " << vi << ". " << endl;
   }
 
   VFATMapping[fp] = vi;
+}
+
+//----------------------------------------------------------------------------------------------------
+void TotemDAQMapping::insert(const TotemT2FramePosition &fp2, const TotemVFATInfo &vi) {
+  const TotemFramePosition fp1(fp2.getRawPosition());
+  auto it = VFATMapping.find(fp1);
+  if (it != VFATMapping.end()) {
+    edm::LogWarning("Totem") << "WARNING in DAQMapping::insert > Overwriting T2 entry at " << fp2 << ". Previous: "
+                             << "    " << VFATMapping[fp1] << ","
+                             << "  new: "
+                             << "    " << vi << ". " << endl;
+  }
+
+  VFATMapping[fp1] = vi;
 }
 
 //----------------------------------------------------------------------------------------------------

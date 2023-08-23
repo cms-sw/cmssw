@@ -1,35 +1,28 @@
-#include <typeinfo>
-#include <iostream>
 #include <cmath>
-
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
-
-#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
-#include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
+#include <iostream>
+#include <typeinfo>
 
 #include "CLHEP/Random/RandGaussQ.h"
-
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
-
-// Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
+#include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
 using namespace edm;
 
@@ -41,6 +34,7 @@ namespace ph2tkdigialgo {
   constexpr double m_muon = 105.658;
   constexpr double m_proton = 938.272;
 }  // namespace ph2tkdigialgo
+
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common,
                                                                  const edm::ParameterSet& conf_specific,
                                                                  edm::ConsumesCollector iC)
@@ -140,6 +134,10 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       pseudoRadDamageRadius_(conf_specific.exists("PseudoRadDamageRadius")
                                  ? conf_specific.getParameter<double>("PseudoRadDamageRadius")
                                  : double(0.0)),
+      // Add pixel radiation damage
+      useChargeReweighting_(conf_specific.getParameter<bool>("UseReweighting")),
+      theSiPixelChargeReweightingAlgorithm_(
+          useChargeReweighting_ ? std::make_unique<SiPixelChargeReweightingAlgorithm>(conf_specific, iC) : nullptr),
 
       // delta cutoff in MeV, has to be same as in OSCAR(0.030/cmsim=1.0 MeV
       // tMax(0.030), // In MeV.
@@ -171,6 +169,7 @@ Phase2TrackerDigitizerAlgorithm::SubdetEfficiencies::SubdetEfficiencies(const ed
   barrel_efficiencies = conf.getParameter<std::vector<double> >("EfficiencyFactors_Barrel");
   endcap_efficiencies = conf.getParameter<std::vector<double> >("EfficiencyFactors_Endcap");
 }
+
 void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
                                                         std::vector<PSimHit>::const_iterator inputEnd,
                                                         const size_t inputBeginGlobalIndex,
@@ -202,7 +201,8 @@ void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::co
 
       // compute induced signal on readout elements and add to _signal
       // hit needed only for SimHit<-->Digi link
-      induce_signal(hit, simHitGlobalIndex, tofBin, pixdet, collection_points);
+      induce_signal(inputBegin, hit, simHitGlobalIndex, inputBeginGlobalIndex, tofBin, pixdet, collection_points);
+      LogDebug("Phase2DigitizerAlgorithm") << "Induced signal was computed";
     }
     ++simHitGlobalIndex;
   }
@@ -213,7 +213,7 @@ void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::co
 // Divide the track into small sub-segments
 //
 // =================================================================
-std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm::primary_ionization(
+std::vector<digitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm::primary_ionization(
     const PSimHit& hit) const {
   // Straight line approximation for trajectory inside active media
   constexpr float SegmentLength = 0.0010;  // in cm (10 microns)
@@ -241,7 +241,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm
     elossVector.resize(NumberOfSegments, averageEloss);
   }
 
-  std::vector<DigitizerUtility::EnergyDepositUnit> ionization_points;
+  std::vector<digitizerUtility::EnergyDepositUnit> ionization_points;
   ionization_points.reserve(NumberOfSegments);  // set size
   // loop over segments
   for (size_t i = 0; i < elossVector.size(); ++i) {
@@ -249,10 +249,11 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm
     Local3DPoint point = hit.entryPoint() + ((i + 0.5) / NumberOfSegments) * direction;
     float energy = elossVector[i] / GeVperElectron_;  // Convert charge to elec.
 
-    DigitizerUtility::EnergyDepositUnit edu(energy, point);  // define position,energy point
+    digitizerUtility::EnergyDepositUnit edu(energy, point);  // define position,energy point
     ionization_points.push_back(edu);                        // save
     LogDebug("Phase2TrackerDigitizerAlgorithm")
-        << i << " " << edu.x() << " " << edu.y() << " " << edu.z() << " " << edu.energy();
+        << "For index = " << i << " EnergyDepositUnit-x = " << edu.x() << " EnergyDepositUnit-y = " << edu.y()
+        << " EnergyDepositUnit-z = " << edu.z() << " EnergyDepositUnit-energy = " << edu.energy();
   }
   return ionization_points;
 }
@@ -319,16 +320,16 @@ std::vector<float> Phase2TrackerDigitizerAlgorithm::fluctuateEloss(
 // Include the effect of E-field and B-field
 //
 // =====================================================================
-std::vector<DigitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drift(
+std::vector<digitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drift(
     const PSimHit& hit,
     const Phase2TrackerGeomDetUnit* pixdet,
     const GlobalVector& bfield,
-    const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const {
-  LogDebug("Phase2TrackerDigitizerAlgorithm") << "enter drift ";
+    const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const {
+  LogDebug("Phase2TrackerDigitizerAlgorithm") << "Enter drift ";
 
-  std::vector<DigitizerUtility::SignalPoint> collection_points;
+  std::vector<digitizerUtility::SignalPoint> collection_points;
   collection_points.reserve(ionization_points.size());                     // set size
-  LocalVector driftDir = DriftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
+  LocalVector driftDir = driftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
   if (driftDir.z() == 0.) {
     LogWarning("Phase2TrackerDigitizerAlgorithm") << " pxlx: drift in z is zero ";
     return collection_points;
@@ -348,8 +349,9 @@ std::vector<DigitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drif
   float stripPitch = pixdet->specificTopology().pitch().first;
 
   LogDebug("Phase2TrackerDigitizerAlgorithm")
-      << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY << " " << CosLorenzAngleX << " "
-      << CosLorenzAngleY << " " << moduleThickness * TanLorenzAngleX << " " << driftDir;
+      << " Lorentz Tan-X " << TanLorenzAngleX << "  Lorentz Tan-Y " << TanLorenzAngleY << " Lorentz Cos-X "
+      << CosLorenzAngleX << " Lorentz Cos-Y " << CosLorenzAngleY
+      << " ticknes * Lorentz Tan-X = " << moduleThickness * TanLorenzAngleX << " drift direction " << driftDir;
 
   for (auto const& val : ionization_points) {
     // position
@@ -406,7 +408,7 @@ std::vector<DigitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drif
     LogDebug("Phase2TrackerDigitizerAlgorithm")
         << "Dift DistanceZ = " << driftDistance << " module thickness = " << moduleThickness
         << " Start Energy = " << val.energy() << " Energy after loss= " << energyOnCollector;
-    DigitizerUtility::SignalPoint sp(CloudCenterX, CloudCenterY, Sigma_x, Sigma_y, hit.tof(), energyOnCollector);
+    digitizerUtility::SignalPoint sp(CloudCenterX, CloudCenterY, Sigma_x, Sigma_y, hit.tof(), energyOnCollector);
 
     // Load the Charge distribution parameters
     collection_points.push_back(sp);
@@ -418,11 +420,13 @@ std::vector<DigitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drif
 //
 // Induce the signal on the collection plane of the active sensor area.
 void Phase2TrackerDigitizerAlgorithm::induce_signal(
+    std::vector<PSimHit>::const_iterator inputBegin,
     const PSimHit& hit,
     const size_t hitIndex,
+    const size_t firstHitIndex,
     const uint32_t tofBin,
     const Phase2TrackerGeomDetUnit* pixdet,
-    const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
+    const std::vector<digitizerUtility::SignalPoint>& collection_points) {
   // X  - Rows, Left-Right, 160, (1.6cm)   for barrel
   // Y  - Columns, Down-Up, 416, (6.4cm)
   const Phase2TrackerTopology* topol = &pixdet->specificTopology();
@@ -430,7 +434,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
   signal_map_type& theSignal = _signal[detID];
 
   LogDebug("Phase2TrackerDigitizerAlgorithm")
-      << " enter induce_signal, " << topol->pitch().first << " " << topol->pitch().second;
+      << "Enter induce_signal, Pitch size is " << topol->pitch().first << " cm vs " << topol->pitch().second << " cm";
 
   // local map to store pixels hit by 1 Hit.
   using hit_map_type = std::map<int, float, std::less<int> >;
@@ -563,14 +567,51 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
     }
   }
   // Fill the global map with all hit pixels from this event
-  float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
-  for (auto const& hit_s : hit_signal) {
-    int chan = hit_s.first;
-    theSignal[chan] +=
-        (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
-                           : DigitizerUtility::Amplitude(hit_s.second, nullptr, hit_s.second));
+  bool reweighted = false;
+  size_t referenceIndex4CR = 0;
+
+  if (useChargeReweighting_) {
+    if (hit.processType() == 0) {
+      referenceIndex4CR = hitIndex;
+      reweighted =
+          theSiPixelChargeReweightingAlgorithm_->hitSignalReweight<digitizerUtility::Ph2Amplitude>(hit,
+                                                                                                   hit_signal,
+                                                                                                   hitIndex,
+                                                                                                   referenceIndex4CR,
+                                                                                                   tofBin,
+                                                                                                   topol,
+                                                                                                   detID,
+                                                                                                   theSignal,
+                                                                                                   hit.processType(),
+                                                                                                   makeDigiSimLinks_);
+    } else {
+      // If it's not the primary particle, use the first hit in the collection as SimHit, which should be the corresponding primary.
+      referenceIndex4CR = firstHitIndex;
+      reweighted =
+          theSiPixelChargeReweightingAlgorithm_->hitSignalReweight<digitizerUtility::Ph2Amplitude>((*inputBegin),
+                                                                                                   hit_signal,
+                                                                                                   hitIndex,
+                                                                                                   referenceIndex4CR,
+                                                                                                   tofBin,
+                                                                                                   topol,
+                                                                                                   detID,
+                                                                                                   theSignal,
+                                                                                                   hit.processType(),
+                                                                                                   makeDigiSimLinks_);
+    }
   }
-}
+
+  float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
+  if (!reweighted) {
+    for (auto const& hit_s : hit_signal) {
+      int chan = hit_s.first;
+      theSignal[chan] += (makeDigiSimLinks_ ? digitizerUtility::Ph2Amplitude(
+                                                  hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
+                                            : digitizerUtility::Ph2Amplitude(hit_s.second, nullptr, hit_s.second));
+    }
+  }
+}  // end of induce_signal function
+
 // ======================================================================
 //
 //  Add electronic noise to pixel charge
@@ -587,6 +628,7 @@ void Phase2TrackerDigitizerAlgorithm::add_noise(const Phase2TrackerGeomDetUnit* 
       s.second += noise;
   }
 }
+
 // ======================================================================
 //
 //  Add  Cross-talk contribution
@@ -616,13 +658,13 @@ void Phase2TrackerDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetU
       auto XtalkPrev = std::make_pair(hitChan.first - 1, hitChan.second);
       int chanXtalkPrev = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
-      signalNew.emplace(chanXtalkPrev, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
+      signalNew.emplace(chanXtalkPrev, digitizerUtility::Ph2Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
     }
     if (hitChan.first < numRows - 1) {
       auto XtalkNext = std::make_pair(hitChan.first + 1, hitChan.second);
       int chanXtalkNext = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
-      signalNew.emplace(chanXtalkNext, DigitizerUtility::Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
+      signalNew.emplace(chanXtalkNext, digitizerUtility::Ph2Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
     }
   }
   for (auto const& l : signalNew) {
@@ -631,7 +673,7 @@ void Phase2TrackerDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetU
     if (iter != theSignal.end()) {
       theSignal[chan] += l.second.ampl();
     } else {
-      theSignal.emplace(chan, DigitizerUtility::Amplitude(l.second.ampl(), nullptr, -1.0));
+      theSignal.emplace(chan, digitizerUtility::Ph2Amplitude(l.second.ampl(), nullptr, -1.0));
     }
   }
 }
@@ -679,7 +721,7 @@ void Phase2TrackerDigitizerAlgorithm::add_noisy_cells(const Phase2TrackerGeomDet
         << " Storing noise = " << el.first << " " << el.second << " " << ix << " " << iy << " " << chan;
 
     if (theSignal[chan] == 0)
-      theSignal[chan] = DigitizerUtility::Amplitude(el.second, nullptr, -1.);
+      theSignal[chan] = digitizerUtility::Ph2Amplitude(el.second, nullptr, -1.);
   }
 }
 // ============================================================================
@@ -719,6 +761,7 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
     }
   }
 }
+
 void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& eng) {
   if (addNoise_ || addPixelInefficiency_ || fluctuateCharge_ || addThresholdSmearing_) {
     gaussDistribution_ = std::make_unique<CLHEP::RandGaussQ>(eng, 0., theNoiseInElectrons_);
@@ -742,7 +785,7 @@ void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& en
 // Configurations for barrel and foward pixels possess different tanLorentzAngleperTesla
 // parameter value
 
-LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerGeomDetUnit* pixdet,
+LocalVector Phase2TrackerDigitizerAlgorithm::driftDirection(const Phase2TrackerGeomDetUnit* pixdet,
                                                             const GlobalVector& bfield,
                                                             const DetId& detId) const {
   Frame detFrame(pixdet->surface().position(), pixdet->surface().rotation());
@@ -759,6 +802,11 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
   // Read Lorentz angle from DB:
   if (use_LorentzAngle_DB_) {
     bool isPixel = (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == PixelSubdetector::PixelEndcap);
+    if (isPixel) {
+      LogDebug("Phase2TrackerDigitizerAlgorithm") << "Read Lorentz angle from DB for Phase-2 IT";
+    } else {
+      LogDebug("Phase2TrackerDigitizerAlgorithm") << "Read Lorentz angle from DB for Phase-2 OT";
+    }
 
     float lorentzAngle =
         isPixel ? siPixelLorentzAngle_->getLorentzAngle(detId) : siPhase2OTLorentzAngle_->getLorentzAngle(detId);
@@ -770,6 +818,7 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
     scale = (1 + alpha2 * std::pow(Bfield.z(), 2));
   } else {
     // Read Lorentz angle from cfg file:
+    LogDebug("Phase2TrackerDigitizerAlgorithm") << "Read Lorentz angle from cfg file";
     float alpha2_Endcap = 0.0;
     float alpha2_Barrel = 0.0;
     if (alpha2Order_) {
@@ -854,7 +903,7 @@ void Phase2TrackerDigitizerAlgorithm::loadAccumulator(uint32_t detId, const std:
   // the input channel is always with PixelDigi definition
   // if needed, that has to be converted to Phase2TrackerDigi convention
   for (const auto& elem : accumulator) {
-    auto inserted = theSignal.emplace(elem.first, DigitizerUtility::Amplitude(elem.second, nullptr));
+    auto inserted = theSignal.emplace(elem.first, digitizerUtility::Ph2Amplitude(elem.second, nullptr));
     if (!inserted.second) {
       throw cms::Exception("LogicError") << "Signal was already set for DetId " << detId;
     }
@@ -862,7 +911,7 @@ void Phase2TrackerDigitizerAlgorithm::loadAccumulator(uint32_t detId, const std:
 }
 
 void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* pixdet,
-                                               std::map<int, DigitizerUtility::DigiSimInfo>& digi_map,
+                                               std::map<int, digitizerUtility::DigiSimInfo>& digi_map,
                                                const TrackerTopology* tTopo) {
   uint32_t detID = pixdet->geographicalId().rawId();
   auto it = _signal.find(detID);
@@ -914,16 +963,16 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
 
   // Digitize if the signal is greater than threshold
   for (auto const& s : theSignal) {
-    const DigitizerUtility::Amplitude& sig_data = s.second;
+    const digitizerUtility::Ph2Amplitude& sig_data = s.second;
     float signalInElectrons = sig_data.ampl();
 
     const auto& info_list = sig_data.simInfoList();
-    const DigitizerUtility::SimHitInfo* hitInfo = nullptr;
+    const digitizerUtility::SimHitInfo* hitInfo = nullptr;
     if (!info_list.empty())
       hitInfo = std::max_element(info_list.begin(), info_list.end())->second.get();
 
     if (isAboveThreshold(hitInfo, signalInElectrons, theThresholdInE)) {  // check threshold
-      DigitizerUtility::DigiSimInfo info;
+      digitizerUtility::DigiSimInfo info;
       info.sig_tot = convertSignalToAdc(detID, signalInElectrons, theThresholdInE);  // adc
       info.ot_bit = signalInElectrons > theHIPThresholdInE ? true : false;
       if (makeDigiSimLinks_) {
@@ -967,6 +1016,7 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
   }
   return signal_in_adc;
 }
+
 float Phase2TrackerDigitizerAlgorithm::calcQ(float x) {
   constexpr float p1 = 12.5f;
   constexpr float p2 = 0.2733f;

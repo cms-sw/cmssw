@@ -48,13 +48,16 @@ process.source = cms.Source("EmptyIOVSource",
 # Input data
 ###################################################################
 if(options.fromESSource): 
-    process.load("Configuration.Geometry.GeometryExtended2026D49_cff")
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+    process.load("Configuration.Geometry.GeometryExtended2026D88_cff")
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+    from Configuration.AlCa.GlobalTag import GlobalTag
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
     #process.load("SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff") # already included
     #process.SiPhase2OTFakeBadStripsESSource.printDebug = cms.untracked.bool(True)    # this makes it verbose 
     process.SiPhase2OTFakeBadStripsESSource.badComponentsFraction = cms.double(0.05)   # bad components fraction is 5%
 else:
-    tag = 'SiStripBadStripPhase2_T15'
+    tag = 'SiStripBadStripPhase2_T21'
     suffix = 'v0'
     inFile = tag+'_'+suffix+'.db'
     inDB = 'sqlite_file:'+inFile

@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
@@ -60,7 +60,8 @@ namespace edm {
                          ServiceToken const& token,
                          serviceregistry::ServiceLegacy iLegacy,
                          PreallocationConfiguration const& preallocConfig,
-                         ProcessContext const* parentProcessContext)
+                         ProcessContext const* parentProcessContext,
+                         ModuleTypeResolverMaker const* typeResolverMaker)
       : EDConsumerBase(),
         serviceToken_(),
         parentPreg_(parentProductRegistry),
@@ -122,7 +123,7 @@ namespace edm {
 
     // If there are subprocesses, pop the subprocess parameter sets out of the process parameter set
     auto subProcessVParameterSet = popSubProcessVParameterSet(*processParameterSet_);
-    bool hasSubProcesses = subProcessVParameterSet.size() != 0ull;
+    bool hasSubProcesses = !subProcessVParameterSet.empty();
 
     // Validates the parameters in the 'options', 'maxEvents', and 'maxLuminosityBlocks'
     // top level parameter sets. Default values are also set in here if the
@@ -161,8 +162,12 @@ namespace edm {
         parentThinnedAssociationsHelper, keepAssociation, droppedBranchIDToKeptBranchID_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(
-        *processParameterSet_, hasSubProcesses, preallocConfig, &processContext_, *processBlockHelper_);
+    schedule_ = items.initSchedule(*processParameterSet_,
+                                   hasSubProcesses,
+                                   preallocConfig,
+                                   &processContext_,
+                                   typeResolverMaker,
+                                   *processBlockHelper_);
 
     // set the items
     act_table_ = std::move(items.act_table_);
@@ -225,7 +230,8 @@ namespace edm {
                                  newToken,
                                  iLegacy,
                                  preallocConfig,
-                                 &processContext_);
+                                 &processContext_,
+                                 typeResolverMaker);
     }
   }
 
@@ -302,7 +308,7 @@ namespace edm {
     }
     ServiceRegistry::Operate operate(serviceToken_);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
-    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
+    schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
     for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });
   }
 

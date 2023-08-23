@@ -22,8 +22,8 @@
 
 #include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
-#include "CommonTools/Utils/interface/Grammar.h"
-#include "CommonTools/Utils/interface/Exception.h"
+#include "CommonTools/Utils/interface/parser/Grammar.h"
+#include "CommonTools/Utils/interface/parser/Exception.h"
 
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
 
@@ -65,11 +65,16 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
     addEntry("chamberId().wheel()", 0, "wh");
     addEntry("chamberId().station()", 0, "st");
     addEntry("chamberId().sector()", 0, "sc");
-
   } else if (iPurpose == "CSC-segments") {
     addEntry("cscDetId().endcap()", 0, "ec");
     addEntry("cscDetId().station()", 0, "st");
     addEntry("cscDetId().ring()", 0, "rn");
+  } else if (iPurpose == "BTLclusters" || iPurpose == "BTLrechits") {
+    addEntry("energy()", 2, "E", "MeV");
+    addEntry("time()", 2, "T", "ns");
+  } else if (iPurpose == "ETLclusters" || iPurpose == "ETLrechits") {
+    addEntry("energy()", 3, "E", "MeV");
+    addEntry("time()", 2, "T", "ns");
   } else if (iPurpose == "HGCal Trigger Cell" || iPurpose == "HGCal Trigger Cluster") {
     addEntry("detId", 0);
   } else if (iPurpose == "CaloParticle") {

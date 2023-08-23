@@ -92,6 +92,7 @@ HitEff::HitEff(const edm::ParameterSet& conf)
       chi2MeasurementEstimatorToken_(esConsumes(edm::ESInputTag("", "Chi2"))),
       propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),
       conf_(conf) {
+  usesResource(TFileService::kSharedResource);
   compSettings = conf_.getUntrackedParameter<int>("CompressionSettings", -1);
   layers = conf_.getParameter<int>("Layer");
   DEBUG = conf_.getParameter<bool>("Debug");
@@ -103,6 +104,10 @@ HitEff::HitEff(const edm::ParameterSet& conf)
   useLastMeas_ = conf_.getUntrackedParameter<bool>("useLastMeas", false);
   useAllHitsFromTracksWithMissingHits_ =
       conf_.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
+  doMissingHitsRecovery_ = conf_.getUntrackedParameter<bool>("doMissingHitsRecovery", false);
+
+  hitRecoveryCounters.resize(k_END_OF_LAYERS, 0);
+  hitTotalCounters.resize(k_END_OF_LAYERS, 0);
 }
 
 void HitEff::beginJob() {
@@ -162,6 +167,9 @@ void HitEff::beginJob() {
 
   events = 0;
   EventTrackCKF = 0;
+
+  totalNbHits = 0;
+  missHitPerLayer.resize(k_END_OF_LAYERS, 0);
 }
 
 void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -243,7 +251,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //e.getByLabel("siStripDigis", fedErrorIds );
   e.getByToken(digis_token_, fedErrorIds);
 
-  ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTkToken_);
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTkToken_);
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   //e.getByLabel("MeasurementTrackerEvent", measurementTrackerEvent);
@@ -298,7 +306,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
 #ifdef ExtendedCALIBTree
     //get dEdx info if available
-    Handle<ValueMap<DeDxData> > dEdxUncalibHandle;
+    edm::Handle<ValueMap<DeDxData> > dEdxUncalibHandle;
     if (e.getByLabel("dedxMedianCTF", dEdxUncalibHandle)) {
       const ValueMap<DeDxData> dEdxTrackUncalib = *dEdxUncalibHandle.product();
 
@@ -311,7 +319,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
     }
 
     //get muon and ecal timing info if available
-    Handle<MuonCollection> muH;
+    edm::Handle<MuonCollection> muH;
     if (e.getByLabel("muonsWitht0Correction", muH)) {
       const MuonCollection& muonsT0 = *muH.product();
       if (!muonsT0.empty()) {
@@ -357,6 +365,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
       highPurity = itrack->quality(reco::TrackBase::TrackQuality::highPurity);
 
       std::vector<TrajectoryMeasurement> TMeas = itraj->measurements();
+      totalNbHits += int(TMeas.size());
       vector<TrajectoryMeasurement>::iterator itm;
       double xloc = 0.;
       double yloc = 0.;
@@ -368,15 +377,54 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
       // Check whether the trajectory has some missing hits
       bool hasMissingHits = false;
-      for (itm = TMeas.begin(); itm != TMeas.end(); itm++) {
-        auto theHit = (*itm).recHit();
+      int previous_layer = 999;
+      vector<unsigned int> missedLayers;
+      for (const auto& itm : TMeas) {
+        auto theHit = itm.recHit();
+        unsigned int iidd = theHit->geographicalId().rawId();
+        int layer = ::checkLayer(iidd, tTopo);
+        int missedLayer = (layer + 1);
+        int diffPreviousLayer = (layer - previous_layer);
+        if (doMissingHitsRecovery_) {
+          //Layers from TIB + TOB
+          if (diffPreviousLayer == -2 && missedLayer > k_LayersStart && missedLayer < k_LayersAtTOBEnd) {
+            missHitPerLayer[missedLayer] += 1;
+            hasMissingHits = true;
+          }
+          //Layers from TID
+          else if (diffPreviousLayer == -2 && (missedLayer > k_LayersAtTOBEnd + 1 && missedLayer <= k_LayersAtTIDEnd)) {
+            missHitPerLayer[missedLayer] += 1;
+            hasMissingHits = true;
+          }
+          //Layers from TEC
+          else if (diffPreviousLayer == -2 && missedLayer > k_LayersAtTIDEnd && missedLayer <= k_LayersAtTECEnd) {
+            missHitPerLayer[missedLayer] += 1;
+            hasMissingHits = true;
+          }
+
+          //##### TID Layer 11 in transition TID -> TIB : layer is in TIB, previous layer  = 12
+          if ((layer > k_LayersStart && layer <= k_LayersAtTIBEnd) && (previous_layer == 12)) {
+            missHitPerLayer[11] += 1;
+            hasMissingHits = true;
+          }
+
+          //##### TEC Layer 14 in transition TEC -> TOB : layer is in TOB, previous layer =  15
+          if ((layer > k_LayersAtTIBEnd && layer <= k_LayersAtTOBEnd) && (previous_layer == 15)) {
+            missHitPerLayer[14] += 1;
+            hasMissingHits = true;
+          }
+        }
         if (theHit->getType() == TrackingRecHit::Type::missing)
           hasMissingHits = true;
+
+        if (hasMissingHits)
+          missedLayers.push_back(layer);
+        previous_layer = layer;
       }
 
       // Loop on each measurement and take it into consideration
       //--------------------------------------------------------
-
+      unsigned int prev_TKlayers = 0;
       for (itm = TMeas.begin(); itm != TMeas.end(); itm++) {
         auto theInHit = (*itm).recHit();
 
@@ -429,12 +477,141 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           // the matched layer should be added to the study as well
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 2));
-          LogDebug("SiStripHitEfficiency:HitEff") << " found a hit with a missing partner" << endl;
+          LogDebug("SiStripHitEfficiency:HitEff") << " found a hit with a missing partner";
         } else {
           //only add one TM for the single surface and the other will be added in the next iteration
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator));
         }
+        bool missingHitAdded = false;
 
+        vector<TrajectoryMeasurement> tmpTmeas;
+        unsigned int misLayer = TKlayers + 1;
+        //Use bool doMissingHitsRecovery to add possible missing hits based on actual/previous hit
+        if (doMissingHitsRecovery_) {
+          if (int(TKlayers) - int(prev_TKlayers) == -2) {
+            const DetLayer* detlayer = itm->layer();
+            const LayerMeasurements layerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
+            const TrajectoryStateOnSurface tsos = itm->updatedState();
+            std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, *thePropagator, *estimator);
+
+            if (misLayer > k_LayersAtTIDEnd && misLayer < k_LayersAtTECEnd) {  //TEC
+              std::vector<ForwardDetLayer const*> negTECLayers =
+                  measurementTrackerHandle->geometricSearchTracker()->negTecLayers();
+              std::vector<ForwardDetLayer const*> posTECLayers =
+                  measurementTrackerHandle->geometricSearchTracker()->posTecLayers();
+              const DetLayer* tecLayerneg = negTECLayers[misLayer - k_LayersAtTIDEnd - 1];
+              const DetLayer* tecLayerpos = posTECLayers[misLayer - k_LayersAtTIDEnd - 1];
+              if (tTopo->tecSide(iidd) == 1) {
+                tmpTmeas = layerMeasurements.measurements(*tecLayerneg, tsos, *thePropagator, *estimator);
+              } else if (tTopo->tecSide(iidd) == 2) {
+                tmpTmeas = layerMeasurements.measurements(*tecLayerpos, tsos, *thePropagator, *estimator);
+              }
+            }
+
+            else if (misLayer == (k_LayersAtTIDEnd - 1) ||
+                     misLayer == k_LayersAtTIDEnd) {  // This is for TID layers 12 and 13
+
+              std::vector<ForwardDetLayer const*> negTIDLayers =
+                  measurementTrackerHandle->geometricSearchTracker()->negTidLayers();
+              std::vector<ForwardDetLayer const*> posTIDLayers =
+                  measurementTrackerHandle->geometricSearchTracker()->posTidLayers();
+              const DetLayer* tidLayerneg = negTIDLayers[misLayer - k_LayersAtTOBEnd - 1];
+              const DetLayer* tidLayerpos = posTIDLayers[misLayer - k_LayersAtTOBEnd - 1];
+
+              if (tTopo->tidSide(iidd) == 1) {
+                tmpTmeas = layerMeasurements.measurements(*tidLayerneg, tsos, *thePropagator, *estimator);
+              } else if (tTopo->tidSide(iidd) == 2) {
+                tmpTmeas = layerMeasurements.measurements(*tidLayerpos, tsos, *thePropagator, *estimator);
+              }
+            }
+
+            if (misLayer > k_LayersStart && misLayer < k_LayersAtTOBEnd) {  // Barrel
+
+              std::vector<BarrelDetLayer const*> barrelTIBLayers =
+                  measurementTrackerHandle->geometricSearchTracker()->tibLayers();
+              std::vector<BarrelDetLayer const*> barrelTOBLayers =
+                  measurementTrackerHandle->geometricSearchTracker()->tobLayers();
+
+              if (misLayer > k_LayersStart && misLayer <= k_LayersAtTIBEnd) {
+                const DetLayer* tibLayer = barrelTIBLayers[misLayer - k_LayersStart - 1];
+                tmpTmeas = layerMeasurements.measurements(*tibLayer, tsos, *thePropagator, *estimator);
+              } else if (misLayer > k_LayersAtTIBEnd && misLayer < k_LayersAtTOBEnd) {
+                const DetLayer* tobLayer = barrelTOBLayers[misLayer - k_LayersAtTIBEnd - 1];
+                tmpTmeas = layerMeasurements.measurements(*tobLayer, tsos, *thePropagator, *estimator);
+              }
+            }
+          }
+          if ((int(TKlayers) > k_LayersStart && int(TKlayers) <= k_LayersAtTIBEnd) && int(prev_TKlayers) == 12) {
+            const DetLayer* detlayer = itm->layer();
+            const LayerMeasurements layerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
+            const TrajectoryStateOnSurface tsos = itm->updatedState();
+            std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, *thePropagator, *estimator);
+            std::vector<ForwardDetLayer const*> negTIDLayers =
+                measurementTrackerHandle->geometricSearchTracker()->negTidLayers();
+            std::vector<ForwardDetLayer const*> posTIDLayers =
+                measurementTrackerHandle->geometricSearchTracker()->posTidLayers();
+
+            const DetLayer* tidLayerneg = negTIDLayers[k_LayersStart];
+            const DetLayer* tidLayerpos = posTIDLayers[k_LayersStart];
+            if (tTopo->tidSide(iidd) == 1) {
+              tmpTmeas = layerMeasurements.measurements(*tidLayerneg, tsos, *thePropagator, *estimator);
+            } else if (tTopo->tidSide(iidd) == 2) {
+              tmpTmeas = layerMeasurements.measurements(*tidLayerpos, tsos, *thePropagator, *estimator);
+            }
+          }
+
+          if ((int(TKlayers) > k_LayersAtTIBEnd && int(TKlayers) <= k_LayersAtTOBEnd) && int(prev_TKlayers) == 15) {
+            const DetLayer* detlayer = itm->layer();
+            const LayerMeasurements layerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
+            const TrajectoryStateOnSurface tsos = itm->updatedState();
+            std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, *thePropagator, *estimator);
+
+            std::vector<ForwardDetLayer const*> negTECLayers =
+                measurementTrackerHandle->geometricSearchTracker()->negTecLayers();
+            std::vector<ForwardDetLayer const*> posTECLayers =
+                measurementTrackerHandle->geometricSearchTracker()->posTecLayers();
+
+            const DetLayer* tecLayerneg = negTECLayers[k_LayersStart];
+            const DetLayer* tecLayerpos = posTECLayers[k_LayersStart];
+            if (tTopo->tecSide(iidd) == 1) {
+              tmpTmeas = layerMeasurements.measurements(*tecLayerneg, tsos, *thePropagator, *estimator);
+            } else if (tTopo->tecSide(iidd) == 2) {
+              tmpTmeas = layerMeasurements.measurements(*tecLayerpos, tsos, *thePropagator, *estimator);
+            }
+          }
+
+          if (!tmpTmeas.empty()) {
+            TrajectoryMeasurement TM_tmp(tmpTmeas.back());
+            unsigned int iidd_tmp = TM_tmp.recHit()->geographicalId().rawId();
+            if (iidd_tmp != 0) {
+              LogDebug("SiStripHitEfficiency:HitEff") << " hit actually being added to TM vector";
+              if ((!useAllHitsFromTracksWithMissingHits_ || (!useFirstMeas_ && isFirstMeas)))
+                TMs.clear();
+              if (::isDoubleSided(iidd_tmp, tTopo)) {
+                TMs.push_back(TrajectoryAtInvalidHit(TM_tmp, tTopo, tkgeom, propagator, 1));
+                TMs.push_back(TrajectoryAtInvalidHit(TM_tmp, tTopo, tkgeom, propagator, 2));
+              } else
+                TMs.push_back(TrajectoryAtInvalidHit(TM_tmp, tTopo, tkgeom, propagator));
+              missingHitAdded = true;
+              hitRecoveryCounters[misLayer] += 1;
+            }
+          }
+        }
+
+        prev_TKlayers = TKlayers;
+        if (!useFirstMeas_ && isFirstMeas && !missingHitAdded)
+          continue;
+        if (!useLastMeas_ && isLastMeas)
+          continue;
+        bool hitsWithBias = false;
+        for (auto ilayer : missedLayers) {
+          if (ilayer < TKlayers)
+            hitsWithBias = true;
+        }
+        if (hasMissingHits && theInHit->getType() != TrackingRecHit::Type::missing && !missingHitAdded &&
+            hitsWithBias && !useAllHitsFromTracksWithMissingHits_) {
+          continue;
+        }
         //////////////////////////////////////////////
         //Now check for tracks at TOB6 and TEC9
 
@@ -536,6 +713,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
             }
           }  //else LOGPRINT << "tec9 tmp empty" << endl;
         }
+        hitTotalCounters[TKlayers] += 1;
 
         ////////////////////////////////////////////////////////
 
@@ -871,6 +1049,93 @@ void HitEff::endJob() {
 
   LogDebug("SiStripHitEfficiency:HitEff") << " Events Analysed             " << events << endl;
   LogDebug("SiStripHitEfficiency:HitEff") << " Number Of Tracked events    " << EventTrackCKF << endl;
+
+  if (doMissingHitsRecovery_) {
+    float totTIB = 0.0;
+    float totTOB = 0.0;
+    float totTID = 0.0;
+    float totTEC = 0.0;
+
+    float totTIBrepro = 0.0;
+    float totTOBrepro = 0.0;
+    float totTIDrepro = 0.0;
+    float totTECrepro = 0.0;
+
+    edm::LogInfo("SiStripHitEfficiency:HitEff") << "Within TIB :";
+    for (int i = 0; i <= k_LayersAtTIBEnd; i++) {
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Layer " << i << " has : " << missHitPerLayer[i] << "/" << totalNbHits << " = "
+          << (missHitPerLayer[i] * 1.0 / totalNbHits) * 100 << " % of missing hit";
+      totTIB += missHitPerLayer[i];
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Removing recovered hits : layer " << i << " has : " << missHitPerLayer[i] - hitRecoveryCounters[i] << "/"
+          << totalNbHits << " = " << ((missHitPerLayer[i] - hitRecoveryCounters[i]) * 1.0 / totalNbHits) * 100
+          << " % of missing hit";
+      totTIBrepro += (missHitPerLayer[i] - hitRecoveryCounters[i]);
+    }
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "TOTAL % of missing hits within TIB :" << (totTIB * 1.0 / totalNbHits) * 100 << "%";
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "AFTER repropagation :" << (totTIBrepro * 1.0 / totalNbHits) * 100 << "%";
+
+    edm::LogInfo("SiStripHitEfficiency:HitEff") << "Within TOB :";
+    for (int i = k_LayersAtTIBEnd + 1; i <= k_LayersAtTOBEnd; i++) {
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Layer " << i << " has : " << missHitPerLayer[i] << "/" << totalNbHits << " = "
+          << (missHitPerLayer[i] * 1.0 / totalNbHits) * 100 << " % of missing hit";
+      totTOB += missHitPerLayer[i];
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Removing recovered hits : layer " << i << " has : " << missHitPerLayer[i] - hitRecoveryCounters[i] << "/"
+          << totalNbHits << " = " << ((missHitPerLayer[i] - hitRecoveryCounters[i]) * 1.0 / totalNbHits) * 100
+          << " % of missing hit";
+      totTOBrepro += (missHitPerLayer[i] - hitRecoveryCounters[i]);
+    }
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "TOTAL % of missing hits within TOB :" << (totTOB * 1.0 / totalNbHits) * 100 << "%";
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "AFTER repropagation :" << (totTOBrepro * 1.0 / totalNbHits) * 100 << "%";
+
+    edm::LogInfo("SiStripHitEfficiency:HitEff") << "Within TID :";
+    for (int i = k_LayersAtTOBEnd + 1; i <= k_LayersAtTIDEnd; i++) {
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Layer " << i << " has : " << missHitPerLayer[i] << "/" << totalNbHits << " = "
+          << (missHitPerLayer[i] * 1.0 / totalNbHits) * 100 << " % of missing hit";
+      totTID += missHitPerLayer[i];
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Removing recovered hits : layer " << i << " has : " << missHitPerLayer[i] - hitRecoveryCounters[i] << "/"
+          << totalNbHits << " = " << ((missHitPerLayer[i] - hitRecoveryCounters[i]) * 1.0 / totalNbHits) * 100
+          << " % of missing hit";
+      totTIDrepro += (missHitPerLayer[i] - hitRecoveryCounters[i]);
+    }
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "TOTAL % of missing hits within TID :" << (totTID * 1.0 / totalNbHits) * 100 << "%";
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "AFTER repropagation :" << (totTIDrepro * 1.0 / totalNbHits) * 100 << "%";
+
+    edm::LogInfo("SiStripHitEfficiency:HitEff") << "Within TEC :";
+    for (int i = k_LayersAtTIDEnd + 1; i < k_END_OF_LAYERS; i++) {
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Layer " << i << " has : " << missHitPerLayer[i] << "/" << totalNbHits << " = "
+          << (missHitPerLayer[i] * 1.0 / totalNbHits) * 100 << " % of missing hit";
+      totTEC += missHitPerLayer[i];
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << "Removing recovered hits : layer " << i << " has : " << missHitPerLayer[i] - hitRecoveryCounters[i] << "/"
+          << totalNbHits << " = " << ((missHitPerLayer[i] - hitRecoveryCounters[i]) * 1.0 / totalNbHits) * 100
+          << " % of missing hit";
+      totTECrepro += (missHitPerLayer[i] - hitRecoveryCounters[i]);
+    }
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "TOTAL % of missing hits within TEC :" << (totTEC * 1.0 / totalNbHits) * 100 << "%";
+    edm::LogInfo("SiStripHitEfficiency:HitEff")
+        << "AFTER repropagation :" << (totTECrepro * 1.0 / totalNbHits) * 100 << "%";
+
+    edm::LogInfo("SiStripHitEfficiency:HitEff") << " Hit recovery summary:";
+
+    for (int ilayer = 0; ilayer < k_END_OF_LAYERS; ilayer++) {
+      edm::LogInfo("SiStripHitEfficiency:HitEff")
+          << " layer " << ilayer << ": " << hitRecoveryCounters[ilayer] << " / " << hitTotalCounters[ilayer];
+    }
+  }
 }
 
 //define this as a plug-in

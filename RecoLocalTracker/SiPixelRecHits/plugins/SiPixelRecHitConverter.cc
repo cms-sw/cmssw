@@ -5,7 +5,7 @@
  * History: Feb 27, 2006 -  initial version
  *          May 30, 2006 -  edm::DetSetVector and edm::Ref
  *          Aug 30, 2007 -  edmNew::DetSetVector
-*			Jan 31, 2008 -  change to use Lorentz angle from DB (Lotte Wilke)
+ *          Jan 31, 2008 -  change to use Lorentz angle from DB (Lotte Wilke)
  * ------------------------------------------------------
  */
 
@@ -54,7 +54,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -109,7 +108,7 @@ namespace cms {
 
     //--- Execute the position estimator algorithm(s).
     void run(edm::Event& e,
-             edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+             edm::Handle<SiPixelClusterCollectionNew> inputhandle,
              SiPixelRecHitCollectionNew& output,
              TrackerGeometry const& geom);
 
@@ -117,10 +116,10 @@ namespace cms {
     using HMSstorage = HostProduct<uint32_t[]>;
 
     // TO DO: maybe allow a map of pointers?
-    /// const PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
     PixelCPEBase const* cpe_ = nullptr;  // What we got (for now, one ptr to base class)
     edm::InputTag const src_;
-    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> const tPixelCluster_;
+    std::string const cpeName_;
+    edm::EDGetTokenT<SiPixelClusterCollectionNew> const tPixelCluster_;
     edm::EDPutTokenT<SiPixelRecHitCollection> const tPut_;
     edm::EDPutTokenT<HMSstorage> const tHost_;
     edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
@@ -133,12 +132,12 @@ namespace cms {
   //---------------------------------------------------------------------------
   SiPixelRecHitConverter::SiPixelRecHitConverter(edm::ParameterSet const& conf)
       : src_(conf.getParameter<edm::InputTag>("src")),
-        tPixelCluster_(consumes<edmNew::DetSetVector<SiPixelCluster>>(src_)),
+        cpeName_(conf.getParameter<std::string>("CPE")),
+        tPixelCluster_(consumes<SiPixelClusterCollectionNew>(src_)),
         tPut_(produces<SiPixelRecHitCollection>()),
         tHost_(produces<HMSstorage>()),
         tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-        tCPE_(esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(
-            edm::ESInputTag("", conf.getParameter<std::string>("CPE")))) {}
+        tCPE_(esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", cpeName_))) {}
 
   // Destructor
   SiPixelRecHitConverter::~SiPixelRecHitConverter() {}
@@ -148,7 +147,7 @@ namespace cms {
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) {
     // Step A.1: get input data
-    edm::Handle<edmNew::DetSetVector<SiPixelCluster>> input;
+    edm::Handle<SiPixelClusterCollectionNew> input;
     e.getByToken(tPixelCluster_, input);
 
     // Step A.2: get event setup
@@ -175,7 +174,7 @@ namespace cms {
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::run(edm::Event& iEvent,
-                                   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+                                   edm::Handle<SiPixelClusterCollectionNew> inputhandle,
                                    SiPixelRecHitCollectionNew& output,
                                    TrackerGeometry const& geom) {
     if (!cpe_) {
@@ -188,7 +187,7 @@ namespace cms {
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
 
-    const edmNew::DetSetVector<SiPixelCluster>& input = *inputhandle;
+    const SiPixelClusterCollectionNew& input = *inputhandle;
 
     // allocate a buffer for the indices of the clusters
     auto hmsp = std::make_unique<uint32_t[]>(gpuClustering::maxNumModules + 1);
@@ -238,32 +237,22 @@ namespace cms {
         LocalError le(std::get<1>(tuple));
         SiPixelRecHitQuality::QualWordType rqw(std::get<2>(tuple));
         // Create a persistent edm::Ref to the cluster
-        edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> cluster =
-            edmNew::makeRefTo(inputhandle, clustIt);
+        SiPixelClusterRefNew cluster = edmNew::makeRefTo(inputhandle, clustIt);
         // Make a RecHit and add it to the DetSet
-        // old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
         SiPixelRecHit hit(lp, le, rqw, *genericDet, cluster);
-        //
-        // Now save it =================
         recHitsOnDetUnit.push_back(hit);
-        // =============================
 
-        // std::cout << "SiPixelRecHitConverterVI " << numberOfClusters << ' '<< lp << " " << le << std::endl;
+        LogDebug("SiPixelRecHitConverter") << "RecHit " << (numberOfClusters - 1)  //
+                                           << " with local position " << lp << " and local error " << le;
       }  //  <-- End loop on Clusters
 
-      //  LogDebug("SiPixelRecHitConverter")
-      //std::cout << "SiPixelRecHitConverterVI "
-      //	<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
-      //	<< std::endl;
+      LogDebug("SiPixelRecHitConverter") << "Found " << recHitsOnDetUnit.size() << " RecHits on " << detid;
 
     }  //    <-- End loop on DetUnits
 
-    //    LogDebug ("SiPixelRecHitConverter")
-    //  std::cout << "SiPixelRecHitConverterVI "
-    //  << cpeName_ << " converted " << numberOfClusters
-    //  << " SiPixelClusters into SiPixelRecHits, in "
-    //  << numberOfDetUnits << " DetUnits." //;
-    //  << std::endl;
+    LogDebug("SiPixelRecHitConverter") << cpeName_ << " converted " << numberOfClusters
+                                       << " SiPixelClusters into SiPixelRecHits, in " << numberOfDetUnits
+                                       << " DetUnits.";
   }
 }  // end of namespace cms
 

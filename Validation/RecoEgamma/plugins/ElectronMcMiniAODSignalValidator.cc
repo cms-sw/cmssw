@@ -445,14 +445,11 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   // get a vector with EB  & EE
   //===============================================
   std::vector<pat::Electron> localCollection;
-  int iBarrels = 0;
-  int iEndcaps = 0;
 
   // looking for EB
   for (el1 = electrons->begin(); el1 != electrons->end(); el1++) {
     if (el1->isEB()) {
       localCollection.push_back(*el1);
-      iBarrels += 1;
     }
   }
 
@@ -460,7 +457,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   for (el1 = electrons_endcaps->begin(); el1 != electrons_endcaps->end(); el1++) {
     if (el1->isEE()) {
       localCollection.push_back(*el1);
-      iEndcaps += 1;
     }
   }
 
@@ -479,7 +475,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   // charge mis-ID
   //===============================================
 
-  int mcNum = 0, gamNum = 0, eleNum = 0;
   bool matchingMotherID;
 
   //===============================================
@@ -487,14 +482,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   //===============================================
 
   for (size_t i = 0; i < genParticles->size(); i++) {
-    // number of mc particles
-    mcNum++;
-
-    // counts photons
-    if ((*genParticles)[i].pdgId() == 22) {
-      gamNum++;
-    }
-
     // select requested mother matching gen particle
     // always include single particle with no mother
     const Candidate* mother = (*genParticles)[i].mother(0);
@@ -517,7 +504,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     if ((*genParticles)[i].pt() > maxPt_ || std::abs((*genParticles)[i].eta()) > maxAbsEta_) {
       continue;
     }
-    eleNum++;
 
     // find best matched electron
     bool okGsfFound = false;

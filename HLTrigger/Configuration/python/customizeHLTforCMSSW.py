@@ -118,6 +118,10 @@ def customisePixelGainForRun2Input(process):
         producer.VCaltoElectronOffset_L1 = -670
 
     for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
+        producer.VCaltoElectronGain = cms.double(1.)
+        producer.VCaltoElectronGain_L1 = cms.double(1.)
+        producer.VCaltoElectronOffset = cms.double(0.)
+        producer.VCaltoElectronOffset_L1 = cms.double(0.)
         producer.isRun2 = True
 
     return process
@@ -211,6 +215,14 @@ def customiseForOffline(process):
     return process
 
 
+def customizeHLTfor42514(process):
+    for p in esproducers_by_type(process, 'SiPixelTemplateDBObjectESProducer'):
+        process.load('RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi')
+        break
+
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -218,5 +230,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customizeHLTfor42514(process)
 
     return process

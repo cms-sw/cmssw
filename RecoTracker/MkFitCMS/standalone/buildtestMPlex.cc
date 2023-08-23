@@ -392,6 +392,10 @@ namespace mkfit {
   // And if we care about doing too muich work for seeds that will never get processed.
   //==============================================================================
 
+  namespace {
+    constexpr unsigned int algorithms[] = {4, 22, 23, 5, 24, 7, 8, 9, 10, 6};  //9 iterations
+  }
+
   std::vector<double> runBtpCe_MultiIter(Event &ev, const EventOfHits &eoh, MkBuilder &builder, int n) {
     std::vector<double> timevec;
     if (n <= 0)
@@ -402,8 +406,6 @@ namespace mkfit {
 
     TrackVec seeds_used;
     TrackVec seeds1;
-
-    unsigned int algorithms[] = {4, 22, 23, 5, 24, 7, 8, 9, 10, 6};  //9 iterations
 
     if (validation_on) {
       for (auto const &s : ev.seedTracks_) {
@@ -472,9 +474,18 @@ namespace mkfit {
       if (validation_on)
         seeds_used.insert(seeds_used.end(), seeds.begin(), seeds.end());  //cleaned seeds need to be stored somehow
 
-      if (itconf.m_pre_bkfit_filter) {
-        builder.filter_comb_cands(itconf.m_pre_bkfit_filter);
-      }
+      // Pre backward-fit filtering.
+      // Note -- slightly different logic than run_OneIteration as we always do nan filters for
+      // export for validation.
+      filter_candidates_func pre_filter;
+      if (itconf.m_pre_bkfit_filter)
+        pre_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+          return itconf.m_pre_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+        };
+      else
+        pre_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+      // pre_filter is always at least doing nan_n_silly filter.
+      builder.filter_comb_cands(pre_filter, true);
 
       builder.select_best_comb_cands();
 
@@ -502,23 +513,31 @@ namespace mkfit {
         // before reaching seeding region. Ideally, we wouldn't add them in the first place but
         // if we want to export full tracks above we need to hold on to them (alternatively, we could
         // have a pointer to seed track in CombCandidate and copy them from there).
-        if (do_backward_search) {
+        if (do_backward_search)
           builder.compactifyHitStorageForBestCand(itconf.m_backward_drop_seed_hits, itconf.m_backward_fit_min_hits);
-        }
 
         builder.backwardFit();
 
         if (do_backward_search) {
           builder.beginBkwSearch();
           builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
+        }
+
+        // Post backward-fit filtering.
+        // Note -- slightly different logic than run_OneIteration as we export both pre and post
+        // backward-fit tracks.
+        filter_candidates_func post_filter;
+        if (itconf.m_post_bkfit_filter)
+          post_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+            return itconf.m_post_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+          };
+        else
+          post_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+        // post_filter is always at least doing nan_n_silly filter.
+        builder.filter_comb_cands(post_filter, true);
+
+        if (do_backward_search)
           builder.endBkwSearch();
-        }
-
-        if (itconf.m_post_bkfit_filter) {
-          builder.filter_comb_cands(itconf.m_post_bkfit_filter);
-        }
-
-        builder.filter_comb_cands(StdSeq::qfilter_nan_n_silly<TrackCand>);
 
         builder.select_best_comb_cands(true);  // true -> clear m_tracks as they were already filled once above
 

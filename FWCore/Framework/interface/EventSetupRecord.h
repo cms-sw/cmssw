@@ -41,23 +41,19 @@
 // user include files
 #include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/NoProxyException.h"
+#include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESGetTokenGeneric.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 // system include files
 #include <exception>
-#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <atomic>
 #include <cassert>
 #include <limits>
 
@@ -70,15 +66,12 @@ class testEventsetup;
 class testEventsetupRecord;
 
 namespace edm {
-  template <typename T>
-  class ESHandle;
   class ESHandleExceptionFactory;
-  class ESInputTag;
+  class ESParentContext;
   class EventSetupImpl;
 
   namespace eventsetup {
     struct ComponentDescription;
-    class DataProxy;
     class EventSetupRecordKey;
 
     class EventSetupRecord {
@@ -96,7 +89,7 @@ namespace edm {
 
       void setImpl(EventSetupRecordImpl const* iImpl,
                    unsigned int transitionID,
-                   ESProxyIndex const* getTokenIndices,
+                   ESResolverIndex const* getTokenIndices,
                    EventSetupImpl const* iEventSetupImpl,
                    ESParentContext const* iContext) {
         impl_ = iImpl;
@@ -104,27 +97,6 @@ namespace edm {
         getTokenIndices_ = getTokenIndices;
         eventSetupImpl_ = iEventSetupImpl;
         context_ = iContext;
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(HolderT& iHolder) const {
-        return deprecated_get("", iHolder);
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
-        return deprecated_get(iName, iHolder);
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(std::string const& iName, HolderT& iHolder) const {
-        return deprecated_get(iName.c_str(), iHolder);
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(ESInputTag const& iTag, HolderT& iHolder) const {
-        throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iTag.data().c_str());
-        return false;
       }
 
       ///returns false if no data available for key
@@ -190,16 +162,16 @@ namespace edm {
           return invalidTokenHandle<H>(iToken);
         }
 
-        auto proxyIndex = getTokenIndices_[iToken.index().value()];
-        if UNLIKELY (proxyIndex.value() == std::numeric_limits<int>::max()) {
-          return noProxyHandle<H>(iToken);
+        auto resolverIndex = getTokenIndices_[iToken.index().value()];
+        if UNLIKELY (resolverIndex.value() == std::numeric_limits<int>::max()) {
+          return noResolverHandle<H>(iToken);
         }
 
         T const* value = nullptr;
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
 
-        impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory, eventSetupImpl_);
+        impl_->getImplementation(value, resolverIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
 
         if UNLIKELY (not value) {
           return H<T>(std::move(whyFailedFactory));
@@ -209,11 +181,9 @@ namespace edm {
 
       EventSetupImpl const& eventSetup() const noexcept { return *eventSetupImpl_; }
 
-      ESProxyIndex const* getTokenIndices() const noexcept { return getTokenIndices_; }
+      ESResolverIndex const* getTokenIndices() const noexcept { return getTokenIndices_; }
 
       ESParentContext const* esParentContext() const noexcept { return context_; }
-
-      void validate(ComponentDescription const*, ESInputTag const&) const;
 
       void addTraceInfoToCmsException(cms::Exception& iException,
                                       char const* iName,
@@ -225,12 +195,6 @@ namespace edm {
       unsigned int transitionID() const { return transitionID_; }
 
     private:
-      template <typename HolderT>
-      bool deprecated_get(char const* iName, HolderT& iHolder) const {
-        throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iName);
-        return false;
-      }
-
       template <template <typename> typename H, typename T, typename R>
       H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
         auto const key = this->key();
@@ -240,27 +204,23 @@ namespace edm {
       }
 
       template <template <typename> typename H, typename T, typename R>
-      H<T> noProxyHandle(ESGetToken<T, R> const& iToken) const {
+      H<T> noResolverHandle(ESGetToken<T, R> const& iToken) const {
         auto const key = this->key();
         auto name = iToken.name();
         return H<T>{makeESHandleExceptionFactory([key, name] {
-          NoProxyException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
+          NoProductResolverException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
           return std::make_exception_ptr(ex);
         })};
       }
 
-      void const* getFromProxy(DataKey const& iKey,
-                               ComponentDescription const*& iDesc,
-                               bool iTransientAccessOnly) const;
-
       static std::exception_ptr makeUninitializedTokenException(EventSetupRecordKey const&, TypeTag const&);
       static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&, unsigned int);
       void throwWrongTransitionID() const;
-      static void throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel);
+
       // ---------- member data --------------------------------
       EventSetupRecordImpl const* impl_ = nullptr;
       EventSetupImpl const* eventSetupImpl_ = nullptr;
-      ESProxyIndex const* getTokenIndices_ = nullptr;
+      ESResolverIndex const* getTokenIndices_ = nullptr;
       ESParentContext const* context_ = nullptr;
       unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
     };
@@ -269,7 +229,7 @@ namespace edm {
     public:
       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl,
                               unsigned int iTransitionID,
-                              ESProxyIndex const* getTokenIndices,
+                              ESResolverIndex const* getTokenIndices,
                               EventSetupImpl const* eventSetupImpl,
                               ESParentContext const* context) {
         setImpl(iImpl, iTransitionID, getTokenIndices, eventSetupImpl, context);

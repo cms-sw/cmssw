@@ -1,4 +1,4 @@
-# /dev/CMSSW_12_5_0/PIon
+# /dev/CMSSW_13_2_0/PIon
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v8')
+streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v9')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetZeroBias_selector
 streamPhysicsCommissioning_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -17,6 +17,6 @@ streamPhysicsCommissioning_datasetZeroBias_selector.l1tResults = cms.InputTag(''
 streamPhysicsCommissioning_datasetZeroBias_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstring(
     'HLT_Random_v3',
-    'HLT_ZeroBias_v7'
+    'HLT_ZeroBias_v8'
 )
 

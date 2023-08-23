@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -73,16 +73,23 @@ namespace {
 
 }  // namespace
 
-class TestAlpakaAnalyzer : public edm::stream::EDAnalyzer<> {
+class TestAlpakaAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   TestAlpakaAnalyzer(edm::ParameterSet const& config)
-      : source_{config.getParameter<edm::InputTag>("source")}, token_{consumes(source_)} {}
+      : source_{config.getParameter<edm::InputTag>("source")},
+        token_{consumes(source_)},
+        expectSize_(config.getParameter<int>("expectSize")) {}
 
-  void analyze(edm::Event const& event, edm::EventSetup const&) override {
+  void analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const override {
     portabletest::TestHostCollection const& product = event.get(token_);
     auto const& view = product.const_view();
     auto& mview = product.view();
     auto const& cmview = product.view();
+
+    if (expectSize_ >= 0 and expectSize_ != view.metadata().size()) {
+      throw cms::Exception("Assert") << "Expected input collection size " << expectSize_ << ", got "
+                                     << view.metadata().size();
+    }
 
     {
       edm::LogInfo msg("TestAlpakaAnalyzer");
@@ -94,7 +101,7 @@ public:
           << "  id   @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size())
           << ",\n"
           << "  r    @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
-          << "  m    @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::all)
+          << "  m    @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::indexing::all)
           << " } ... } \n";
       msg << std::hex << "  [y - x] = 0x"
           << reinterpret_cast<intptr_t>(view.metadata().addressOf_y()) -
@@ -132,12 +139,15 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("source");
+    desc.add<int>("expectSize", -1)
+        ->setComment("Expected size of the input collection. Values < 0 mean the check is not performed. Default: -1");
     descriptions.addWithDefaultLabel(desc);
   }
 
 private:
   const edm::InputTag source_;
   const edm::EDGetTokenT<portabletest::TestHostCollection> token_;
+  const int expectSize_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

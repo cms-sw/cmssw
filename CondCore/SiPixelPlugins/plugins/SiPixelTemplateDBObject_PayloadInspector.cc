@@ -137,6 +137,7 @@ namespace {
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      const auto& tagname = tag.name;
       std::vector<SiPixelTemplateStore> thePixelTemp_;
       std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
 
@@ -244,6 +245,17 @@ namespace {
         }
 
         canvas.cd();
+        TPaveText ksPt(0, 0, 0.88, 0.04, "NDC");
+        ksPt.SetBorderSize(0);
+        ksPt.SetFillColor(0);
+        const char* textToAdd = Form("Template Tag: #color[2]{%s}, IOV: #color[2]{%s}. Payload hash: #color[2]{%s}",
+                                     tagname.c_str(),
+                                     std::to_string(std::get<0>(iov)).c_str(),
+                                     (std::get<1>(iov)).c_str());
+        ksPt.AddText(textToAdd);
+        ksPt.Draw();
+
+        canvas.cd();
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
       }
@@ -281,6 +293,43 @@ namespace {
   using SiPixelTemplateIDsFPixMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_forward>;
   using SiPixelTemplateIDsMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_all>;
 
+  //************************************************
+  // TH2Poly Map of qScale
+  //***********************************************/
+  using SiPixelTemplateQScaleBPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                 SiPixelTemplateStore,
+                                                                 SiPixelTemplate,
+                                                                 SiPixelPI::t_barrel,
+                                                                 headerParam::k_qscale>;
+  using SiPixelTemplateQScaleFPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                 SiPixelTemplateStore,
+                                                                 SiPixelTemplate,
+                                                                 SiPixelPI::t_forward,
+                                                                 headerParam::k_qscale>;
+  using SiPixelTemplateQScaleMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                             SiPixelTemplateStore,
+                                                             SiPixelTemplate,
+                                                             SiPixelPI::t_all,
+                                                             headerParam::k_qscale>;
+
+  //************************************************
+  // TH2Poly Map of Vbias
+  //***********************************************/
+  using SiPixelTemplateVbiasBPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                SiPixelTemplateStore,
+                                                                SiPixelTemplate,
+                                                                SiPixelPI::t_barrel,
+                                                                headerParam::k_Vbias>;
+  using SiPixelTemplateVbiasFPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                SiPixelTemplateStore,
+                                                                SiPixelTemplate,
+                                                                SiPixelPI::t_forward,
+                                                                headerParam::k_Vbias>;
+  using SiPixelTemplateVbiasMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                            SiPixelTemplateStore,
+                                                            SiPixelTemplate,
+                                                            SiPixelPI::t_all,
+                                                            headerParam::k_Vbias>;
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -295,4 +344,10 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLABPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateQScaleBPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateQScaleFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateQScaleMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateVbiasBPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateVbiasFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateVbiasMap);
 }

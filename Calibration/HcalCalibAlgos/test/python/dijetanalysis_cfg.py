@@ -20,6 +20,9 @@ process.towerMakerWithHO.hbheInput = cms.InputTag("HitsReCalibration","DiJetsHBH
 process.towerMakerWithHO.hoInput = cms.InputTag("HitsReCalibration","DiJetsHOReRecHitCollection")
 process.towerMakerWithHO.hfInput = cms.InputTag("HitsReCalibration","DiJetsHFReRecHitCollection")
 
+# The file imported by this line was deleted from CMSSW in 2017.
+# This is the first thing that fails if you try to run this.
+# This is not even parseable by Python.
 process.load("RecoJets.JetProducers.ic5CaloJets_cfi")
 
 process.iterativeCone5CaloJets.doPVCorrection = cms.bool(False)
@@ -49,6 +52,17 @@ process.HitsReCalibration = cms.EDProducer("HitReCalibrator",
     hoInput = cms.InputTag("DiJProd","DiJetsHORecHitCollection")
 )
 
+# I did not add the parameter "JetCorrections" when I upgraded to use the
+# new reco::JetCorrector because the pre-existing version already did not
+# have the "pfJetCorrName" parameter to identify which corrections to use
+# for the deprecated JetCorrector class.
+# This means the configuration using the old JetCorrectors was already broken.
+# There was no information available to identify which corrections are desired.
+# So at least that will need to be fixed before this
+# configuration will run. This configuration also looks like it
+# has not been run since ~2010 and there are many other broken things that
+# will also need fixing before it will run. For example, there are several other
+# configuration parameters missing just for this module.
 process.DiJetAnalysis = cms.EDAnalyzer("DiJetAnalyzer",
     hbheInput = cms.InputTag("HitsReCalibration","DiJetsHBHEReRecHitCollection"),
     HistOutFile = cms.untracked.string('hi.root'),

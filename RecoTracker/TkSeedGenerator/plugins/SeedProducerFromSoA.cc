@@ -1,4 +1,4 @@
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -22,7 +22,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/FitUtils.h"
+#include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -33,10 +33,11 @@
 /*
   produces seeds directly from cuda produced tuples
 */
-class SeedProducerFromSoA : public edm::global::EDProducer<> {
+template <typename TrackerTraits>
+class SeedProducerFromSoAT : public edm::global::EDProducer<> {
 public:
-  explicit SeedProducerFromSoA(const edm::ParameterSet& iConfig);
-  ~SeedProducerFromSoA() override = default;
+  explicit SeedProducerFromSoAT(const edm::ParameterSet& iConfig);
+  ~SeedProducerFromSoAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -45,7 +46,7 @@ private:
 
   // Event data tokens
   const edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
-  const edm::EDGetTokenT<PixelTrackHeterogeneous> tokenTrack_;
+  const edm::EDGetTokenT<TrackSoAHeterogeneousHost<TrackerTraits>> tokenTrack_;
   // Event setup tokens
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerDigiGeometryToken_;
@@ -53,9 +54,10 @@ private:
   int32_t minNumberOfHits_;
 };
 
-SeedProducerFromSoA::SeedProducerFromSoA(const edm::ParameterSet& iConfig)
+template <typename TrackerTraits>
+SeedProducerFromSoAT<TrackerTraits>::SeedProducerFromSoAT(const edm::ParameterSet& iConfig)
     : tBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
-      tokenTrack_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("src"))),
+      tokenTrack_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
       idealMagneticFieldToken_(esConsumes()),
       trackerDigiGeometryToken_(esConsumes()),
       trackerPropagatorToken_(esConsumes(edm::ESInputTag("PropagatorWithMaterial"))),
@@ -65,7 +67,8 @@ SeedProducerFromSoA::SeedProducerFromSoA(const edm::ParameterSet& iConfig)
   produces<TrajectorySeedCollection>();
 }
 
-void SeedProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void SeedProducerFromSoAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("src", edm::InputTag("pixelTrackSoA"));
@@ -74,9 +77,14 @@ void SeedProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.addWithDefaultLabel(desc);
 }
 
-void SeedProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+template <typename TrackerTraits>
+void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
+                                                  edm::Event& iEvent,
+                                                  const edm::EventSetup& iSetup) const {
   // std::cout << "Converting gpu helix to trajectory seed" << std::endl;
   auto result = std::make_unique<TrajectorySeedCollection>();
+
+  using trackHelper = TracksUtilities<TrackerTraits>;
 
   auto const& fieldESH = iSetup.getHandle(idealMagneticFieldToken_);
   auto const& tracker = iSetup.getHandle(trackerDigiGeometryToken_);
@@ -89,16 +97,14 @@ void SeedProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEvent, co
   // std::cout << "beamspot " << bsh.x0() << ' ' << bsh.y0() << ' ' << bsh.z0() << std::endl;
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
 
-  const auto& tsoa = *(iEvent.get(tokenTrack_));
+  auto const& tsoa = iEvent.get(tokenTrack_);
 
-  auto const* quality = tsoa.qualityData();
-  auto const& fit = tsoa.stateAtBS;
-  auto const& detIndices = tsoa.detIndices;
-  auto maxTracks = tsoa.stride();
+  auto const* quality = tsoa.view().quality();
+  auto const& detIndices = tsoa.view().detIndices();
+  auto maxTracks = tsoa.view().metadata().size();
 
-  int32_t nt = 0;
   for (int32_t it = 0; it < maxTracks; ++it) {
-    auto nHits = tsoa.nHits(it);
+    auto nHits = trackHelper::nHits(tsoa.view(), it);
     if (nHits == 0)
       break;  // this is a guard: maybe we need to move to nTracks...
 
@@ -107,7 +113,6 @@ void SeedProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEvent, co
       continue;  // FIXME
     if (nHits < minNumberOfHits_)
       continue;
-    ++nt;
 
     // fill hits with invalid just to hold the detId
     auto b = detIndices.begin(it);
@@ -120,11 +125,11 @@ void SeedProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEvent, co
 
     // mind: this values are respect the beamspot!
 
-    float phi = tsoa.phi(it);
+    float phi = trackHelper::nHits(tsoa.view(), it);
 
     riemannFit::Vector5d ipar, opar;
     riemannFit::Matrix5d icov, ocov;
-    fit.copyToDense(ipar, icov, it);
+    trackHelper::copyToDense(tsoa.view(), ipar, icov, it);
     riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
 
     LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
@@ -167,4 +172,8 @@ void SeedProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEvent, co
   iEvent.put(std::move(result));
 }
 
-DEFINE_FWK_MODULE(SeedProducerFromSoA);
+using SeedProducerFromSoAPhase1 = SeedProducerFromSoAT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SeedProducerFromSoAPhase1);
+
+using SeedProducerFromSoAPhase2 = SeedProducerFromSoAT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(SeedProducerFromSoAPhase2);

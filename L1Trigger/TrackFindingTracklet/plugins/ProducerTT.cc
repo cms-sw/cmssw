@@ -95,8 +95,8 @@ namespace trklet {
       // count number of kf tracks
       int nTracks(0);
       for (const StreamTrack& stream : streamsTracks)
-        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int& sum, const FrameTrack& frame) {
-          return sum += frame.first.isNonnull() ? 1 : 0;
+        nTracks += accumulate(stream.begin(), stream.end(), 0, [](int sum, const FrameTrack& frame) {
+          return sum + (frame.first.isNonnull() ? 1 : 0);
         });
       ttTracks.reserve(nTracks);
       // convert kf track frames per channel and stub frames per channel and layer to TTTracks
@@ -123,7 +123,7 @@ namespace trklet {
       }
     }
     // store products
-    iEvent.emplace(edPutToken_, move(ttTracks));
+    iEvent.emplace(edPutToken_, std::move(ttTracks));
   }
 
 }  // namespace trklet

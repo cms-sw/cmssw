@@ -1,6 +1,13 @@
+<use name="catch2"/>
+<use name="fmt"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+
 <iftool name="cuda">
-  <bin file="testCUDAService.cpp test_main.cpp" name="testCUDAService">
-    <use name="catch2"/>
+  <bin file="test_main.cpp testCUDAService.cpp" name="testCUDAService">
     <use name="cuda"/>
     <use name="HeterogeneousCore/CUDAServices"/>
   </bin>

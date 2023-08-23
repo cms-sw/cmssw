@@ -31,9 +31,9 @@ REGISTER_PLUGIN(DropBoxMetadataRcd, DropBoxMetadata);
 
 REGISTER_PLUGIN(SiStripDeDxMipRcd, PhysicsTools::Calibration::HistogramD2D);
 REGISTER_PLUGIN(SiStripDeDxMip_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
-REGISTER_PLUGIN(SiStripDeDxProton_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
-REGISTER_PLUGIN(SiStripDeDxPion_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
-REGISTER_PLUGIN(SiStripDeDxKaon_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
-REGISTER_PLUGIN(SiStripDeDxElectron_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+REGISTER_PLUGIN_NO_SERIAL(SiStripDeDxProton_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+REGISTER_PLUGIN_NO_SERIAL(SiStripDeDxPion_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+REGISTER_PLUGIN_NO_SERIAL(SiStripDeDxKaon_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
+REGISTER_PLUGIN_NO_SERIAL(SiStripDeDxElectron_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
 REGISTER_PLUGIN(PhysicsTFormulaPayloadRcd, PhysicsTFormulaPayload);
 REGISTER_PLUGIN(PhysicsTGraphPayloadRcd, PhysicsTGraphPayload);

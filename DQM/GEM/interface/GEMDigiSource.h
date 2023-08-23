@@ -17,6 +17,8 @@
 
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
+#include "CondFormats/DataRecord/interface/GEMChMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMChMap.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
@@ -34,6 +36,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
+  void LoadROMap(edm::EventSetup const& iSetup);
+
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override{};
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
@@ -42,25 +46,34 @@ private:
   int ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
-  int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
+  int ProcessWithMEMap4(BookingHelper& bh, ME4IdsKey key) override;
+  int ProcessWithMEMap5WithChamber(BookingHelper& bh, ME5IdsKey key) override;
 
   const static int nNumBitDigiOcc_ = 16384;
+
+  const edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
 
   edm::EDGetToken tagDigi_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiScalers_;
 
-  MEMap3Inf mapTotalDigi_layer_;
+  std::map<ME4IdsKey, Int_t> mapChamberType_;
+  std::map<ME3IdsKey, Int_t> mapStripToVFAT_;
+
   MEMap3Inf mapDigiWheel_layer_;
-  MEMap3Inf mapDigiOcc_ieta_;
-  MEMap3Inf mapDigiOcc_phi_;
-  MEMap3Inf mapTotalDigiPerEvtLayer_;
+
+  MEMap4Inf mapTotalDigi_layer_;
+  MEMap4Inf mapDigiOcc_ieta_;
+  MEMap4Inf mapDigiOcc_phi_;
+  MEMap4Inf mapTotalDigiPerEvtLayer_;
   MEMap3Inf mapTotalDigiPerEvtIEta_;
   MEMap2Inf mapBX_;
 
-  MEMap4Inf mapDigiOccPerCh_;
+  MEMap5Inf mapDigiOccPerCh_;
 
   std::string strFolderMain_;
+
+  Bool_t useDBEMap_;
 
   Int_t nBXMin_, nBXMax_;
   Float_t fRadiusMin_;

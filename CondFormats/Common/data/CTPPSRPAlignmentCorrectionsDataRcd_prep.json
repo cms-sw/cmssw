@@ -1,7 +1,7 @@
 {
     "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
     "destinationTags": {
-        "CTPPSRPAlignment_byPCL_v1_prompt": {}
+        "CTPPSRPAlignment_byPCL_prep_prompt": {}
     }, 
     "inputTag": "CTPPSRPAlignment_real_pcl", 
     "since": null, 

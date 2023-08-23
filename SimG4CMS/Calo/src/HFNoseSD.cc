@@ -39,8 +39,10 @@ HFNoseSD::HFNoseSD(const std::string& name,
       slopeMin_(0),
       levelT1_(99),
       levelT2_(99),
+      useSimWt_(0),
       tan30deg_(std::tan(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
+  guardRing_.reset(nullptr);
   mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HFN = p.getParameter<edm::ParameterSet>("HFNoseSD");
@@ -118,27 +120,22 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step* aStep) {
   float globalZ = touch->GetTranslation(0).z();
   int iz(globalZ > 0 ? 1 : -1);
 
-  int layer, module, cell;
-  if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
+  int layer(-1), moduleLev(-1), cell(-1);
+  if (useSimWt_ > 0) {
+    layer = touch->GetReplicaNumber(2);
+    moduleLev = 1;
+  } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
-    module = -1;
-    cell = -1;
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFNSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
-                               << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"
-                               << module << ":" << cell;
-#endif
   } else {
     layer = touch->GetReplicaNumber(3);
-    module = touch->GetReplicaNumber(2);
     cell = touch->GetReplicaNumber(1);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFNSim") << "DepthsInside: " << touch->GetHistoryDepth() << " name "
-                               << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":" << module
-                               << ":" << cell;
-#endif
+    moduleLev = 2;
   }
+  int module = (moduleLev >= 0) ? touch->GetReplicaNumber(moduleLev) : -1;
 #ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HFNSim") << "DepthsInside: " << touch->GetHistoryDepth() << " name "
+                             << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":" << moduleLev
+                             << ":" << module << ":" << cell;
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
   edm::LogVerbatim("HFNSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
                              << ":" << touch->GetReplicaNumber(0) << "   " << touch->GetVolume(1)->GetName() << ":"
@@ -154,15 +151,15 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step* aStep) {
     return 0;
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
-  if (rejectMB_ && id != 0) {
+  if ((rejectMB_ || fiducialCut_) && id != 0) {
     auto uv = HFNoseDetId(id).waferUV();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFNSim") << "ID " << std::hex << id << std::dec << " " << HFNoseDetId(id);
 #endif
-    if (mouseBite_->exclude(hitPoint, iz, uv.first, uv.second)) {
+    if ((rejectMB_) && (mouseBite_->exclude(hitPoint, iz, layer, uv.first, uv.second))) {
       id = 0;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HFNSim") << "Rejected by mousebite cutoff *****";
+      edm::LogVerbatim("HFNSim") << "Rejected by MouseBite cutoff *****";
 #endif
     }
   }
@@ -175,13 +172,18 @@ void HFNoseSD::update(const BeginOfJob* job) {
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);
     levelT2_ = hgcons_->levelTop(1);
+    int useOffset = hgcons_->getParameter()->useOffset_;
     double waferSize = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
     mouseBiteCut_ = waferSize * tan30deg_ - mouseBite;
+    if (useOffset > 0) {
+      rejectMB_ = true;
+      fiducialCut_ = true;
+    }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFNSim") << "HFNoseSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " wafer " << waferSize << ":"
-                               << mouseBite;
+                               << mouseBite << " useOffset " << useOffset;
 #endif
 
     numberingScheme_ = std::make_unique<HFNoseNumberingScheme>(*hgcons_);

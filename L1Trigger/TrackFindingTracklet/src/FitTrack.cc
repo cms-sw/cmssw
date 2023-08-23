@@ -543,7 +543,6 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   double tseedexact = tracklet->t();
   double z0seedexact = tracklet->z0();
 
-  double chisqseed = 0.0;
   double chisqseedexact = 0.0;
 
   double delta[2 * N_FITSTUB];
@@ -579,7 +578,6 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     delta[j] = zresid[i];
     deltaexact[j++] = zresidexact[i];
 
-    chisqseed += (delta[j - 2] * delta[j - 2] + delta[j - 1] * delta[j - 1]);
     chisqseedexact += (deltaexact[j - 2] * deltaexact[j - 2] + deltaexact[j - 1] * deltaexact[j - 1]);
   }
   assert(j <= 12);
@@ -1038,7 +1036,7 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
 
     // store bit and clock accurate TB output
     if (settings_.storeTrackBuilderOutput() && bestTracklet) {
-      // add gap if enough layer to form track
+      // add gap if TrackBuilder rejected track (due to too few stub layers).
       if (!bestTracklet->fit()) {
         static const string invalid = "0";
         streamTrackRaw.emplace_back(invalid);
@@ -1074,7 +1072,7 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
           streamsStubRaw[ihit++].emplace_back(seedType, *stub, valid + r + phi + rz);
         }
       }
-      // fill all layer with no stubs with gaps
+      // fill all layers that have no stubs with gaps
       while (ihit < streamsStubRaw.size()) {
         streamsStubRaw[ihit++].emplace_back();
       }

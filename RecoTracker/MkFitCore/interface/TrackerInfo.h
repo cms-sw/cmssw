@@ -2,12 +2,17 @@
 #define RecoTracker_MkFitCore_interface_TrackerInfo_h
 
 #include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
+#include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
+#include "RecoTracker/MkFitCore/interface/Config.h"
 #include <string>
 #include <vector>
 
 namespace mkfit {
 
-  enum WithinSensitiveRegion_e { WSR_Undef = -1, WSR_Inside = 0, WSR_Edge, WSR_Outside };
+  //==============================================================================
+  // WSR -- WithinSensitiveRegion state
+
+  enum WithinSensitiveRegion_e { WSR_Undef = -1, WSR_Inside = 0, WSR_Edge, WSR_Outside, WSR_Failed };
 
   struct WSR_Result {
     // Could also store XHitSize count equivalent here : 16;
@@ -139,6 +144,35 @@ namespace mkfit {
 
   //==============================================================================
 
+  template <typename T>
+  class rectvec {
+  public:
+    rectvec(int n1 = 0, int n2 = 0) : m_n1(n1), m_n2(n2), m_vec(n1 * n2) {}
+
+    void rerect(int n1, int n2) {
+      m_n1 = n1;
+      m_n2 = n2;
+      m_vec.resize(n1 * n2);
+    }
+
+    const T& operator()(int i1, int i2) const { return m_vec[i1 * m_n2 + i2]; }
+    T& operator()(int i1, int i2) { return m_vec[i1 * m_n2 + i2]; }
+
+    const T* operator[](int i1) const { return &m_vec[i1 * m_n2]; }
+    T* operator[](int i1) { return &m_vec[i1 * m_n2]; }
+
+    const std::vector<T>& vector() const { return m_vec; }
+    std::vector<T>& vector() { return m_vec; }
+
+    int n1() const { return m_n1; }
+    int n2() const { return m_n2; }
+    bool check_idcs(int i1, int i2) const { return i1 >= 0 && i1 < m_n1 && i2 >= 0 && i2 < m_n2; }
+
+  private:
+    int m_n1, m_n2;
+    std::vector<T> m_vec;
+  };
+
   class TrackerInfo {
   public:
     enum EtaRegion {
@@ -150,6 +184,9 @@ namespace mkfit {
       Reg_Endcap_Pos,
       Reg_End,
       Reg_Count = Reg_End
+    };
+    struct Material {
+      float bbxi{0}, radl{0};
     };
 
     void reserve_layers(int n_brl, int n_ec_pos, int n_ec_neg);
@@ -172,9 +209,31 @@ namespace mkfit {
     const std::vector<int>& endcap_pos_layers() const { return m_ecap_pos; }
     const std::vector<int>& endcap_neg_layers() const { return m_ecap_neg; }
 
+    const PropagationConfig& prop_config() const { return m_prop_config; }
+    PropagationConfig& prop_config_nc() { return m_prop_config; }
+
     void write_bin_file(const std::string& fname) const;
     void read_bin_file(const std::string& fname);
     void print_tracker(int level) const;
+
+    void create_material(int nBinZ, float rngZ, int nBinR, float rngR);
+    int mat_nbins_z() const { return m_mat_vec.n1(); }
+    int mat_nbins_r() const { return m_mat_vec.n2(); }
+    float mat_range_z() const { return m_mat_range_z; }
+    float mat_range_r() const { return m_mat_range_r; }
+    int mat_bin_z(float z) const { return z * m_mat_fac_z; }
+    int mat_bin_r(float r) const { return r * m_mat_fac_r; }
+    bool check_bins(int bz, int br) const { return m_mat_vec.check_idcs(bz, br); }
+
+    float material_bbxi(int binZ, int binR) const { return m_mat_vec(binZ, binR).bbxi; }
+    float material_radl(int binZ, int binR) const { return m_mat_vec(binZ, binR).radl; }
+    float& material_bbxi(int binZ, int binR) { return m_mat_vec(binZ, binR).bbxi; }
+    float& material_radl(int binZ, int binR) { return m_mat_vec(binZ, binR).radl; }
+
+    Material material_checked(float z, float r) const {
+      const int zbin = mat_bin_z(z), rbin = mat_bin_r(r);
+      return check_bins(zbin, rbin) ? m_mat_vec(zbin, rbin) : Material();
+    }
 
   private:
     int new_layer(LayerInfo::LayerType_e type);
@@ -184,6 +243,12 @@ namespace mkfit {
     std::vector<int> m_barrel;
     std::vector<int> m_ecap_pos;
     std::vector<int> m_ecap_neg;
+
+    float m_mat_range_z, m_mat_range_r;
+    float m_mat_fac_z, m_mat_fac_r;
+    rectvec<Material> m_mat_vec;
+
+    PropagationConfig m_prop_config;
   };
 
 }  // end namespace mkfit

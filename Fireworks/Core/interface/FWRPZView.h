@@ -95,6 +95,8 @@ private:
   FWBoolParameter m_showRpcEndcap;
   FWBoolParameter m_showGEM;
   FWBoolParameter m_showME0;
+  FWBoolParameter m_showMtdBarrel;
+  FWBoolParameter m_showMtdEndcap;
 
   FWBoolParameter m_shiftOrigin;
   FWDoubleParameter m_fishEyeDistortion;

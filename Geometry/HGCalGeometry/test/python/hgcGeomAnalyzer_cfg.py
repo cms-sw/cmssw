@@ -1,8 +1,7 @@
-#run with: cmsRun hgcGeomAnalyzer_cfg.py geom=v10
-
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
 options = VarParsing()
 options.register ("geom", "",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
@@ -10,17 +9,13 @@ options.parseArguments()
 
 fileName = "geom_output_"+options.geom
 
-process = cms.Process("demo",eras.Phase2C11)
+process = cms.Process("demo",eras.Phase2C17I13M9)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-if options.geom == 'v11':
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-elif options.geom == 'v12':
-    process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
-elif options.geom == 'v13':
-    process.load('Configuration.Geometry.GeometryExtended202670Reco_cff')
-elif options.geom == 'v14':
-    process.load('Configuration.Geometry.GeometryExtended2026D71Reco_cff')
+if options.geom == 'v16':
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+elif options.geom == 'v17':
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
 else:
     raise Exception('UNKNOWN GEOMETRY!')
 

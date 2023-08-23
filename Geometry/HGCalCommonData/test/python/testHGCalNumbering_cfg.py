@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalNumbering_cfg.py type=V17
 #
-#   Options for type V16, V17, V17n
+#   Options for type V16, V17, V17n, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,13 +16,13 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n")
+                  "type of operations: V16, V17, V17n, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
 print(options)
 
-from Configuration.Eras.Era_Phase2C17I13M91_cff import Phase2C17I13M9
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process("HGCalNumberingTest",Phase2C17I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
@@ -30,7 +30,7 @@ print("Geometry file: ", geomFile)
 
 process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")

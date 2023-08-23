@@ -2,7 +2,7 @@
 """
 _ppEra_Run3_pp_on_PbPb_
 
-Scenario supporting proton collisions
+Scenario supporting heavy ions collisions
 
 """
 

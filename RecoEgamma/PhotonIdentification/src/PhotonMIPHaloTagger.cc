@@ -122,7 +122,6 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
   int iphicell = 0;
   int kArray = 0;
 
-  double energy_total = 0.;
   int delt_ieta = 0;
   int delt_iphi = 0;
 
@@ -154,7 +153,6 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
         ieta_cell.push_back(delt_ieta);
         iphi_cell.push_back(delt_iphi);
         energy_cell.push_back(it->energy());
-        energy_total += it->energy();
         kArray++;
       }
 
@@ -307,8 +305,6 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
   seedEnergy = -999.;
 
   std::vector<std::pair<DetId, float> > PhotonHit_DetIds = photon->superCluster()->hitsAndFractions();
-  int ncrys = 0;
-
   std::vector<std::pair<DetId, float> >::const_iterator detitr;
   for (detitr = PhotonHit_DetIds.begin(); detitr != PhotonHit_DetIds.end(); ++detitr) {
     if (((*detitr).first).det() == DetId::Ecal && ((*detitr).first).subdetId() == EcalBarrel) {
@@ -335,8 +331,6 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
           std::cout << "Current max Seed = " << SeedE << "   seedIphi = " << seedIphi << "  ieta= " << seedIeta
                     << std::endl;
       }
-
-      ncrys++;
 
     }  //check if in Barrel
 

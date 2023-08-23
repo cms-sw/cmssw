@@ -14,7 +14,7 @@
 
 namespace gpuClustering {
 
-  template <bool isPhase2>
+  template <typename TrackerTraits>
   __global__ void clusterChargeCut(
       SiPixelClusterThresholds
           clusterThresholds,             // charge cut on cluster in electrons (for layer 1 and for other layers)
@@ -25,13 +25,14 @@ namespace gpuClustering {
       uint32_t const* __restrict__ moduleId,     // module id of each module
       int32_t* __restrict__ clusterId,           // modified: cluster id of each pixel
       uint32_t numElements) {
+    constexpr int32_t maxNumClustersPerModules = TrackerTraits::maxNumClustersPerModules;
+
     __shared__ int32_t charge[maxNumClustersPerModules];
     __shared__ uint8_t ok[maxNumClustersPerModules];
     __shared__ uint16_t newclusId[maxNumClustersPerModules];
 
-    constexpr int startBPIX2 = isPhase2 ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
-    [[maybe_unused]] constexpr int nMaxModules =
-        isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    constexpr int startBPIX2 = TrackerTraits::layerStart[1];
+    [[maybe_unused]] constexpr int nMaxModules = TrackerTraits::numberOfModules;
 
     assert(nMaxModules < maxNumModules);
     assert(startBPIX2 < nMaxModules);
@@ -120,8 +121,23 @@ namespace gpuClustering {
 
       // renumber
       __shared__ uint16_t ws[32];
-      cms::cuda::blockPrefixScan(newclusId, nclus, ws);
+      constexpr auto maxThreads = 1024;
+      auto minClust = nclus > maxThreads ? maxThreads : nclus;
 
+      cms::cuda::blockPrefixScan(newclusId, newclusId, minClust, ws);
+      if constexpr (maxNumClustersPerModules > maxThreads)  //only if needed
+      {
+        for (uint32_t offset = maxThreads; offset < nclus; offset += maxThreads) {
+          cms::cuda::blockPrefixScan(newclusId + offset, newclusId + offset, nclus - offset, ws);
+
+          for (uint32_t i = threadIdx.x + offset; i < nclus; i += blockDim.x) {
+            uint32_t prevBlockEnd = ((i / maxThreads) * maxThreads) - 1;
+            newclusId[i] += newclusId[prevBlockEnd];
+          }
+
+          __syncthreads();
+        }
+      }
       assert(nclus > newclusId[nclus - 1]);
 
       nClustersInModule[thisModuleId] = newclusId[nclus - 1];

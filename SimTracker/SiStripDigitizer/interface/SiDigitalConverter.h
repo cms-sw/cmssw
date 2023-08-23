@@ -14,8 +14,8 @@ public:
   typedef std::vector<SiStripRawDigi> DigitalRawVecType;
 
   virtual ~SiDigitalConverter() {}
-  virtual DigitalVecType convert(const std::vector<float>&, const SiStripGain*, unsigned int detid) = 0;
-  virtual DigitalRawVecType convertRaw(const std::vector<float>&, const SiStripGain*, unsigned int detid) = 0;
+  virtual DigitalVecType const& convert(const std::vector<float>&, const SiStripGain*, unsigned int detid) = 0;
+  virtual DigitalRawVecType const& convertRaw(const std::vector<float>&, const SiStripGain*, unsigned int detid) = 0;
 };
 
 #endif

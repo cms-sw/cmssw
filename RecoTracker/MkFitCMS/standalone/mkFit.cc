@@ -14,17 +14,17 @@
 
 #include "RecoTracker/MkFitCore/standalone/Event.h"
 
-#include "RecoTracker/MkFitCore/src/MaterialEffects.h"
-
 #ifndef NO_ROOT
 #include "RecoTracker/MkFitCore/standalone/Validation.h"
 #endif
 
 //#define DEBUG
 #include "RecoTracker/MkFitCore/src/Debug.h"
+#include "RecoTracker/MkFitCMS/standalone/Shell.h"
 
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/parallel_for.h"
+#include <oneapi/tbb/global_control.h>
 
 #if defined(USE_VTUNE_PAUSE)
 #include "ittnotify.h"
@@ -39,6 +39,13 @@
 using namespace mkfit;
 
 //==============================================================================
+
+std::vector<DeadVec> deadvectors;
+
+void init_deadvectors() {
+  deadvectors.resize(Config::TrkInfo.n_layers());
+#include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
+}
 
 void initGeom() {
   std::cout << "Constructing geometry '" << Config::geomPlugin << "'\n";
@@ -106,6 +113,10 @@ void initGeom() {
 
   Config::ItrInfo.setupStandardFunctionsFromNames();
 
+  // We always initialize the dead modules. Actual loading into each event is
+  // controlled via Config::useDeadModules.
+  init_deadvectors();
+
   // Test functions for ConfigJsonPatcher
   // cj.test_Direct (Config::ItrInfo[0]);
   // cj.test_Patcher(Config::ItrInfo[0]);
@@ -155,13 +166,6 @@ namespace {
 
   const char* b2a(bool b) { return b ? "true" : "false"; }
 
-  std::vector<DeadVec> deadvectors;
-
-  void init_deadvectors() {
-    deadvectors.resize(Config::TrkInfo.n_layers());
-#include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
-  }
-
 }  // namespace
 
 //==============================================================================
@@ -200,26 +204,14 @@ void listOpts(const U& g_opt_map) {
 //==============================================================================
 
 void test_standard() {
-  printf("Running test_standard(), operation=\"%s\"\n", g_operation.c_str());
-  printf("  vusize=%d, num_th_sim=%d, num_th_finder=%d\n",
-         MPT_SIZE,
-         Config::numThreadsSimulation,
-         Config::numThreadsFinder);
-  printf(
-      "  sizeof(Track)=%zu, sizeof(Hit)=%zu, sizeof(SVector3)=%zu, sizeof(SMatrixSym33)=%zu, sizeof(MCHitInfo)=%zu\n",
-      sizeof(Track),
-      sizeof(Hit),
-      sizeof(SVector3),
-      sizeof(SMatrixSym33),
-      sizeof(MCHitInfo));
+  printf("Running test_standard(), operation=\"%s\", best_out_of=%d\n",
+         g_operation.c_str(),
+         Config::finderReportBestOutOfN);
 
   if (Config::seedInput == cmsswSeeds)
     printf("- reading seeds from file\n");
 
   initGeom();
-  if (Config::useDeadModules) {
-    init_deadvectors();
-  }
 
   if (Config::nEvents <= 0) {
     return;
@@ -503,6 +495,7 @@ int main(int argc, const char* argv[]) {
   for (int i = 1; i < argc; ++i) {
     mArgs.push_back(argv[i]);
   }
+  bool run_shell = false;
 
   lStr_i i = mArgs.begin();
   while (i != mArgs.end()) {
@@ -524,10 +517,11 @@ int main(int argc, const char* argv[]) {
           "  --read-cmssw-tracks      read external cmssw reco tracks if available (def: %s)\n"
           "  --read-simtrack-states   read in simTrackStates for pulls in validation (def: %s)\n"
           "  --num-events     <int>   number of events to run over or simulate (def: %d)\n"
-          "                             if using --input-file, must be enabled AFTER on command line\n"
+          "                           if using --input-file, must be enabled AFTER on command line\n"
           "  --start-event    <int>   event number to start at when reading from a file (def: %d)\n"
           "  --loop-over-file         after reaching the end of the file, start over from the beginning until "
-          "<num-events> events have been processed\n"
+          "                           <num-events> events have been processed\n"
+          "  --shell                  start interactive shell instead of running test_standard()\n"
           "\n"
           "If no --input-file is specified, will trigger simulation\n"
           "  --num-tracks     <int>   number of tracks to generate for each event (def: %d)\n"
@@ -820,6 +814,8 @@ int main(int argc, const char* argv[]) {
       g_start_event = atoi(i->c_str());
     } else if (*i == "--loop-over-file") {
       Config::loopOverFile = true;
+    } else if (*i == "--shell") {
+      run_shell = true;
     } else if (*i == "--num-tracks") {
       next_arg_or_die(mArgs, i);
       Config::nTracks = atoi(i->c_str());
@@ -1020,24 +1016,38 @@ int main(int argc, const char* argv[]) {
     mArgs.erase(start, ++i);
   }
 
+  // clang-format off
+
   // Do some checking of options before going...
   if (Config::seedCleaning != cleanSeedsPure &&
       (Config::cmsswMatchingFW == labelBased || Config::cmsswMatchingBK == labelBased)) {
-    std::cerr << "What have you done?!? Can't mix cmssw label matching without pure seeds! Exiting..." << std::endl;
+    std::cerr << "What have you done?!? Can't mix cmssw label matching without pure seeds! Exiting...\n";
     exit(1);
   } else if (Config::mtvLikeValidation && Config::inclusiveShorts) {
-    std::cerr
-        << "What have you done?!? Short reco tracks are already accounted for in the MTV-Like Validation! Inclusive "
-           "shorts is only an option for the standard simval, and will break the MTV-Like simval! Exiting..."
-        << std::endl;
+    std::cerr << "What have you done?!? Short reco tracks are already accounted for in the MTV-Like Validation! Inclusive "
+                 "shorts is only an option for the standard simval, and will break the MTV-Like simval! Exiting...\n";
     exit(1);
   }
 
   Config::recalculateDependentConstants();
 
-  printf("Running with n_threads=%d, best_out_of=%d\n", Config::numThreadsFinder, Config::finderReportBestOutOfN);
+  printf("mkFit configuration complete.\n"
+         "  vusize=%d, num_thr_events=%d, num_thr_finder=%d\n"
+         "  sizeof(Track)=%zu, sizeof(Hit)=%zu, sizeof(SVector3)=%zu, sizeof(SMatrixSym33)=%zu, sizeof(MCHitInfo)=%zu\n",
+         MPT_SIZE, Config::numThreadsEvents, Config::numThreadsFinder,
+         sizeof(Track), sizeof(Hit), sizeof(SVector3), sizeof(SMatrixSym33), sizeof(MCHitInfo));
 
-  test_standard();
+  if (run_shell) {
+    tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, Config::numThreadsFinder);
+
+    initGeom();
+    Shell s(deadvectors, g_input_file, g_start_event);
+    s.Run();
+  } else {
+    test_standard();
+  }
+
+  // clang-format on
 
   return 0;
 }

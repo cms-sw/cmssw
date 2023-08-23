@@ -112,23 +112,9 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
 
   seeds.sort(ParticlePtGreater());
 
-  //  std::cout<<" Number of seeds "<<seeds.size()<<" ProccessID "<<myGenEvent->signal_process_id()<<std::endl;
-  //  std::cout<<" ParticleId 7= "<<myGenEvent->particle(7)->pdg_id()
-  //  <<" pT "<<myGenEvent->particle(7)->momentum().perp()
-  //  <<" Eta "<<myGenEvent->particle(7)->momentum().eta()
-  //  <<" Phi "<<myGenEvent->particle(7)->momentum().phi()<<std::endl;
-  //  std::cout<<" ParticleId 8= "<<myGenEvent->particle(8)->pdg_id()<<" pT "<<myGenEvent->particle(8)->momentum().perp()<<" Eta "<<myGenEvent->particle(8)->momentum().eta()<<" Phi "<<myGenEvent->particle(8)->momentum().phi()<<std::endl;
-
   for (std::list<const HepMC::GenParticle*>::const_iterator is = seeds.begin(); is != seeds.end(); is++) {
     double etaPhoton = (*is)->momentum().eta();
     double phiPhoton = (*is)->momentum().phi();
-
-    /*
-    double dphi7=std::abs(deltaPhi(phiPhoton,
-			       myGenEvent->particle(7)->momentum().phi()));
-    double dphi=std::abs(deltaPhi(phiPhoton,
-			      myGenEvent->particle(8)->momentum().phi()));
-    */
 
     HepMC::GenEvent::particle_const_iterator ppp = myGenEvent->particles_begin();
     for (int i = 0; i < 6; ++i)
@@ -138,26 +124,9 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
     HepMC::GenParticle* particle8 = (*ppp);
 
     double dphi7 = std::abs(deltaPhi(phiPhoton, particle7->momentum().phi()));
-    double dphi = std::abs(deltaPhi(phiPhoton, particle8->momentum().phi()));
+    double dphi8 = std::abs(deltaPhi(phiPhoton, particle8->momentum().phi()));
 
-    int jetline = 8;
-    if (dphi7 > dphi) {
-      dphi = dphi7;
-      jetline = 7;
-    }
-
-    //    std::cout<<" Dphi "<<dphi<<" "<<dphiMin<<std::endl;
-    //    if(dphi<dphiMin) {
-    //      std::cout<<"Reject dphi"<<std::endl;
-    //      continue;
-    //    }
-
-    //    double etaJet= myGenEvent->particle(jetline)->momentum().eta();
-    double etaJet = 0.0;
-    if (jetline == 8)
-      etaJet = particle8->momentum().eta();
-    else
-      etaJet = particle7->momentum().eta();
+    double etaJet = dphi7 > dphi8 ? particle7->momentum().eta() : particle8->momentum().eta();
 
     double eta1 = etaJet - detaMax;
     double eta2 = etaJet + detaMax;
@@ -166,10 +135,7 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
     if (eta2 < -etaPhotonCut2)
       eta2 = -etaPhotonCut2;
 
-    //    std::cout<<" Etaphoton "<<etaPhoton<<" "<<eta1<<" "<<eta2<<std::endl;
-
     if (etaPhoton < eta1 || etaPhoton > eta2) {
-      //       std::cout<<"Reject eta"<<std::endl;
       continue;
     }
     bool inEB(false);
@@ -183,17 +149,13 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
     }
 
     double etPhoton = 0;
-    double etPhotonCharged = 0;
-    double etCone = 0;
-    double etConeCharged = 0;
     double ptMaxHadron = 0;
 
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p) {
       if ((*p)->status() != 1)
         continue;
-      int pid = (*p)->pdg_id();
-      int apid = std::abs(pid);
+      int apid = std::abs((*p)->pdg_id());
       if (apid > 11 && apid < 21)
         continue;  //get rid of muons and neutrinos
       double eta = (*p)->momentum().eta();
@@ -201,19 +163,6 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
       if (deltaR2(etaPhoton, phiPhoton, eta, phi) > cone * cone)
         continue;
       double pt = (*p)->momentum().perp();
-
-      //       double charge=(*p)->particledata().charge();
-      //      int charge3=(*p)->particleID().threeCharge();
-
-      //***
-      ParticleDataTable const& pdt = iSetup.getData(particleDataTableToken_);
-
-      int charge3 = ((pdt.particle((*p)->pdg_id()))->ID().threeCharge());
-      //***
-
-      etCone += pt;
-      if (charge3 && pt < 2)
-        etConeCharged += pt;
 
       //select particles matching a crystal array centered on photon
       if (inEB) {
@@ -224,37 +173,13 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
         continue;
 
       etPhoton += pt;
-      if (charge3 && pt < 2)
-        etPhotonCharged += pt;
       if (apid > 100 && apid != 310 && pt > ptMaxHadron)
         ptMaxHadron = pt;
     }
-    //    std::cout<<" etPhoton "<<etPhoton<<" "<<ptMin<<" "<<ptMax<<std::endl;
+
     if (etPhoton < ptMin || etPhoton > ptMax) {
-      //     std::cout<<" Reject etPhoton "<<std::endl;
       continue;
     }
-    //isolation cuts
-
-    //    double isocut1 = 5+etPhoton/20-etPhoton*etPhoton/1e4;
-    //    double isocut2 = 3+etPhoton/20-etPhoton*etPhoton*etPhoton/1e6;
-    //    double isocut3 = 4.5+etPhoton/40;
-    //    if (etPhoton>165.)
-    //    {
-    //      isocut1 = 5.+165./20.-165.*165./1e4;
-    //      isocut2 = 3.+165./20.-165.*165.*165./1e6;
-    //      isocut3 = 4.5+165./40.;
-    //    }
-    //    std::cout<<" etCone "<<etCone<<" "<<etPhoton<<" "<<etCone-etPhoton<<" "<<isocut1<<std::endl;
-    //    std::cout<<"Second cut on iso "<<etCone-etPhoton-(etConeCharged-etPhotonCharged)<<" cut value "<<isocut2<<" etPhoton "<<etPhoton<<std::endl;
-    //    std::cout<<" PtHadron "<<ptMaxHadron<<" "<<4.5+etPhoton/40<<std::endl;
-    //    if(etCone-etPhoton> 5+etPhoton/20-etPhoton*etPhoton/1e4) continue;
-    //    std::cout<<" Accept 1"<<std::endl;
-    //    if(etCone-etPhoton-(etConeCharged-etPhotonCharged) >
-    //       isocut2) continue;
-    //     std::cout<<" Accept 2"<<std::endl;
-    //    if(ptMaxHadron > isocut3) continue;
-    //    std::cout<<"Accept event "<<std::endl;
 
     accepted = true;
     break;

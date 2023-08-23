@@ -70,16 +70,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
 
   static constexpr double tol = 0.00001 * dd4hep::mm;
-  static const double sqrt3 = std::sqrt(3.0);
-  double r = 0.5 * waferSize;
-  double R = 2.0 * r / sqrt3;
 
   // Loop over all types
   for (unsigned int k = 0; k < tags.size(); ++k) {
     // First the mother
     std::string mother = parentName + tags[k];
     std::vector<std::pair<double, double>> wxy =
-        HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, r, R, 0.0, 0.0);
+        HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, waferSize, 0.0, 0.0, 0.0);
     std::vector<double> xM, yM;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xM.emplace_back(wxy[i].first);
@@ -106,7 +103,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
     // Then the layers
     dd4hep::Rotation3D rotation;
-    wxy = HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, r, R, 0.0, 0.0);
+    wxy = HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, waferSize, 0.0, 0.0, 0.0);
     std::vector<double> xL, yL;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xL.emplace_back(wxy[i].first);
@@ -172,7 +169,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         glogs[i].placeVolume(glog, copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: " << glog.name() << " number " << copy << " positioned in "
-                                      << glogs[i].name() << " at (0, 0," << cms::convert2mm(zpos)
+                                      << glogs[i].name() << " at (0,0," << cms::convert2mm(zpos)
                                       << ") with no rotation";
 #endif
       }

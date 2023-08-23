@@ -110,7 +110,6 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_Output_cff import *
 # HCAL calibration with isolated bunch
-from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchFilter_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchSelector_Output_cff import *
 # HCAL calibration with muons (HB/HE)
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonFilter_Output_cff import *
@@ -165,7 +164,9 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_Output_cff i
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripHitEfficiency_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripLorentzAngle_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngle_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngleMCS_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHG_Output_cff import *

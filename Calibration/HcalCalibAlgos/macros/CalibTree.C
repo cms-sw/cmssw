@@ -5,8 +5,8 @@
 //      rcorFileName, useIter, useweight, useMean, nMin, inverse, ratMin,
 //      ratMax, ietaMax, ietaTrack, sysmode, puCorr, applyL1Cut, l1Cut,
 //      truncateFlag, maxIter, corForm, useGen, runlo, runhi, phimin, phimax,
-//      zside, nvxlo, nvxhi, rbx, exclude, higheta, fraction, writeDebugHisto,
-//      debug, nmax);
+//      zside, nvxlo, nvxhi, rbxFile, exclude, higheta, fraction,
+//      writeDebugHisto, pmin, pmax, debug, nmax);
 //
 //  where:
 //
@@ -24,8 +24,8 @@
 //                              numbers of duplicate entry ("events_DXS2.txt")
 //  rcorFileName (const char*)= name of the text file having the correction
 //                              factors as a function of run numbers or depth
-//                              to be used for raddam/depth dependent
-//                              correction  (default="", no corr.)
+//                              to be used for raddam/depth/pileup/phisym
+//                              dependent correction  (default="", no corr.)
 //  useIter         (bool)    = Flag to use iterative process or minimization
 //                              (true)
 //  useweight       (bool)    = Flag to use event weight (true)
@@ -58,10 +58,20 @@
 //                              in HB and HE with values > 1 as depth 2 (5)
 //                              (Default 0)
 //  maxIter         (int)     = number of iterations (30)
-//  rcorForm        (int)     = type of rcorFileName: (0) for Raddam correction,
+//  drForm          (int)     = type of threshold/dupFileName/rcorFileName (hdr)
+//                              For rccorFileName r: (0) for Raddam correction,
 //                              (1) for depth dependent corrections; (2) for
 //                              RespCorr corrections; (3) use machine learning
-//                              method for pileup correction. (Default 0)
+//                              method for pileup correction; (4) use results
+//                              from phi-symmetry.
+//                              For dupFileName d: (0) contains list of
+//                              duplicate entries; (1) depth dependent weights;
+//                              (2) list of  (ieta, iphi) of channels to be
+//                              selected.
+//                              For threshold h: the format for threshold
+//                              application, 0: no threshold; 1: 2022 prompt
+//                              data; 2: 2022 reco data; 3: 2023 prompt data.
+//                              (Default 0)
 //  useGen          (bool)    = use generator level momentum information (false)
 //  runlo           (int)     = lower value of run number to be included (+ve)
 //                              or excluded (-ve) (default 0)
@@ -73,16 +83,22 @@
 //                              (if 0 no selection on zside will be made)
 //  nvxlo           (int)     = minimum # of vertex in event to be used (0)
 //  nvxhi           (int)     = maximum # of vertex in event to be used (1000)
-//  rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
-//                              HEP17 should correspond to 217
-//  exclude         (bool)    = RBX specified by *rbx* to be exluded or only
-//                              considered (false)
+//  rbxFile         (char *)  = Name of the file containing a list of RBX's
+//                              to be consdered (default = ""). RBX's are
+//                              specified by zside*(Subdet*100+RBX #).
+//                              For HEP17 it will be 217
+//  exclude         (bool)    = RBX specified by the contents in *rbxFile* to
+//                              be exluded or only considered (false)
 //  higheta         (int)     = take correction factors for |ieta| > ietamax
 //                              as 1 (0) or of ieta = ietamax with same sign
 //                              and depth 1 (1) (default 1)
 //  fraction        (double)  = fraction of events to be done (1.0)
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (false)
+//  pmin            (double)  = minimum momentum of tracks to be used in
+//                              estimating the correction factor
+//  pmax            (double)  = maximum momentum of tracks to be used in
+//                              estimating the correction factor
 //  debug           (bool)    = To produce more debug printing on screen
 //                              (false)
 //  nmax            (Long64_t)= maximum number of entries to be processed,
@@ -136,7 +152,7 @@ void Run(const char *inFileName = "Silver.root",
          double l1Cut = 0.5,
          int truncateFlag = 0,
          int maxIter = 30,
-         int rcorForm = 0,
+         int drForm = 0,
          bool useGen = false,
          int runlo = 0,
          int runhi = 99999999,
@@ -145,11 +161,13 @@ void Run(const char *inFileName = "Silver.root",
          int zside = 0,
          int nvxlo = 0,
          int nvxhi = 1000,
-         int rbx = 0,
+         const char *rbxFile = "",
          bool exclude = true,
          int higheta = 1,
          double fraction = 1.0,
          bool writeDebugHisto = false,
+         double pmin = 40.0,
+         double pmax = 60.0,
          bool debug = false,
          Long64_t nmax = -1);
 
@@ -181,18 +199,20 @@ public:
             int nvxlo,
             int nvxhi,
             int sysmode,
-            int rbx,
+            const char *rbxFile,
             int puCorr,
-            int rcorForm,
+            int drForm,
             bool useGen,
             bool exclude,
             int higheta,
+            double pmin,
+            double pmax,
             TChain *tree);
   virtual ~CalibTree();
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void Init(TChain *tree, const char *dupFileName);
+  virtual void Init(TChain *tree);
   virtual Double_t Loop(int k,
                         TFile *fout,
                         bool useweight,
@@ -310,19 +330,23 @@ private:
 
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
+  CalibDuplicate *cDuplicate_;
   const int truncateFlag_;
   const bool useIter_;
   const bool useMean_;
   int runlo_, runhi_;
   const int phimin_, phimax_;
   const int zside_, nvxlo_, nvxhi_;
-  const int sysmode_, rbx_, puCorr_;
-  int rcorForm_;
+  const int sysmode_;
+  const char *rbxFile_;
+  const int puCorr_, drForm_;
+  int rcorForm_, duplicate_;
   const bool useGen_, exclude_;
   const int higheta_;
+  const double pmin_, pmax_;
   bool includeRun_;
   double log2by18_, eHcalDelta_;
-  std::vector<Long64_t> entries;
+  int thrForm_;
   std::vector<unsigned int> detIds_;
   std::map<unsigned int, TH1D *> histos_;
   std::map<unsigned int, std::pair<double, double> > Cprev;
@@ -365,12 +389,15 @@ void doIt(const char *infile, const char *dup) {
         1,
         72,
         0,
-        1000,
         0,
+        1000,
+        "",
         true,
         1,
         lumi,
         false,
+        40.0,
+        60.0,
         false,
         -1);
   }
@@ -398,7 +425,7 @@ void Run(const char *inFileName,
          double l1Cut,
          int truncateFlag,
          int maxIter,
-         int rcorForm,
+         int drForm,
          bool useGen,
          int runlo,
          int runhi,
@@ -407,11 +434,13 @@ void Run(const char *inFileName,
          int zside,
          int nvxlo,
          int nvxhi,
-         int rbx,
+         const char *rbxFile,
          bool exclude,
          int higheta,
          double fraction,
          bool writeHisto,
+         double pmin,
+         double pmax,
          bool debug,
          Long64_t nmax) {
   char name[500];
@@ -445,12 +474,14 @@ void Run(const char *inFileName,
                 nvxlo,
                 nvxhi,
                 sysmode,
-                rbx,
+                rbxFile,
                 puCorr,
-                rcorForm,
+                drForm,
                 useGen,
                 exclude,
                 higheta,
+                pmin,
+                pmax,
                 chain);
     t.h_pbyE = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
     t.h_Ebyp_bfr = new TProfile("Ebyp_bfr", "Ebyp_bfr", 60, -30, 30, 0, 10);
@@ -518,16 +549,19 @@ CalibTree::CalibTree(const char *dupFileName,
                      int nvxlo,
                      int nvxhi,
                      int mode,
-                     int rbx,
+                     const char *rbxFile,
                      int pu,
-                     int rForm,
+                     int drForm,
                      bool gen,
                      bool excl,
                      int heta,
+                     double pmin,
+                     double pmax,
                      TChain *tree)
     : fChain(nullptr),
       cFactor_(nullptr),
       cSelect_(nullptr),
+      cDuplicate_(nullptr),
       truncateFlag_(flag),
       useIter_(useIter),
       useMean_(useMean),
@@ -539,12 +573,14 @@ CalibTree::CalibTree(const char *dupFileName,
       nvxlo_(nvxlo),
       nvxhi_(nvxhi),
       sysmode_(mode),
-      rbx_(rbx),
+      rbxFile_(rbxFile),
       puCorr_(pu),
-      rcorForm_(rForm),
+      drForm_(drForm),
       useGen_(gen),
       exclude_(excl),
       higheta_(heta),
+      pmin_(pmin),
+      pmax_(pmax),
       includeRun_(true) {
   if (runlo_ < 0 || runhi_ < 0) {
     runlo_ = std::abs(runlo_);
@@ -552,26 +588,35 @@ CalibTree::CalibTree(const char *dupFileName,
     includeRun_ = false;
   }
   log2by18_ = std::log(2.5) / 18.0;
+  duplicate_ = (drForm_ / 10) % 10;
+  rcorForm_ = (drForm_ % 10);
+  thrForm_ = (drForm_ / 100);
   eHcalDelta_ = 0;
   std::cout << "Initialize CalibTree with TruncateFlag " << truncateFlag_ << " UseMean " << useMean_ << " Run Range "
             << runlo_ << ":" << runhi_ << " Phi Range " << phimin_ << ":" << phimax_ << ":" << zside_
-            << " Vertex Range " << nvxlo_ << ":" << nvxhi_ << " Mode " << sysmode_ << " PU " << puCorr_
-            << " rcorFormat " << rcorForm_ << " Gen " << useGen_ << " High Eta " << higheta_ << std::endl;
-  std::cout << "Duplicate events read from " << dupFileName << " RadDam Corrections read from " << rcorFileName
-            << " Treat RBX " << rbx_ << " with exclusion mode " << exclude_ << std::endl;
-  Init(tree, dupFileName);
+            << " Vertex Range " << nvxlo_ << ":" << nvxhi_ << " Mode " << sysmode_ << " PU " << puCorr_ << " Gen "
+            << useGen_ << " High Eta " << higheta_ << " Threshold Flag " << thrForm_ << std::endl;
+  std::cout << "Duplicate events read from " << dupFileName << " duplicateFormat " << duplicate_
+            << " RadDam Corrections read from " << rcorFileName << " rcorFormat " << rcorForm_ << " Treat RBX "
+            << rbxFile_ << " with exclusion mode " << exclude_ << std::endl;
+  Init(tree);
+  if (std::string(dupFileName) != "")
+    cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
   if (std::string(rcorFileName) != "") {
     cFactor_ = new CalibCorr(rcorFileName, rcorForm_, false);
+    if (cFactor_->absent())
+      rcorForm_ = -1;
   } else {
-    rcorForm_ = 0;
+    rcorForm_ = -1;
   }
-  if (rbx != 0)
-    cSelect_ = new CalibSelectRBX(rbx);
+  if (std::string(rbxFile) != "")
+    cSelect_ = new CalibSelectRBX(rbxFile, false);
 }
 
 CalibTree::~CalibTree() {
   delete cFactor_;
   delete cSelect_;
+  delete cDuplicate_;
   if (!fChain)
     return;
   delete fChain->GetCurrentFile();
@@ -598,7 +643,7 @@ Long64_t CalibTree::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibTree::Init(TChain *tree, const char *dupFileName) {
+void CalibTree::Init(TChain *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -661,25 +706,6 @@ void CalibTree::Init(TChain *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1, &b_t_HitEnergies1);
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
-
-  if (std::string(dupFileName) != "") {
-    std::ifstream infil1(dupFileName);
-    if (!infil1.is_open()) {
-      std::cout << "Cannot open " << dupFileName << std::endl;
-    } else {
-      while (1) {
-        Long64_t jentry;
-        infil1 >> jentry;
-        if (!infil1.good())
-          break;
-        entries.push_back(jentry);
-      }
-      infil1.close();
-      std::cout << "Reads a list of " << entries.size() << " events from " << dupFileName << std::endl;
-    }
-  } else {
-    std::cout << "No duplicate events in the input file" << std::endl;
-  }
 }
 
 Bool_t CalibTree::Notify() {
@@ -742,7 +768,8 @@ Double_t CalibTree::Loop(int loop,
     nbytes += nb;
     if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
-    if (std::find(entries.begin(), entries.end(), jentry) != entries.end())
+    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    if (!select)
       continue;
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) : ((t_Run < runlo_) || (t_Run > runhi_)));
     if (!selRun)
@@ -757,6 +784,10 @@ Double_t CalibTree::Loop(int loop,
         if (!(cSelect_->isItRBX(t_ieta, t_iphi)))
           continue;
       }
+    }
+    if (cDuplicate_ != nullptr) {
+      if (cDuplicate_->select(t_ieta, t_iphi))
+        continue;
     }
     bool selTrack = ((ietaTrack <= 0) || (abs(t_ieta) <= ietaTrack));
     if (!selTrack)
@@ -792,7 +823,9 @@ Double_t CalibTree::Loop(int loop,
           l1c = ((t_mindR1 >= l1Cut) || ((applyL1Cut == 1) && (t_DataType == 1)));
         if ((rmin >= 0 && ratio > rmin) && (rmax >= 0 && ratio < rmax) && l1c) {
           for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
-            if (selectPhi((*t_DetIds)[idet])) {
+            // Apply thresholds if necessary
+            bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > threshold((*t_DetIds)[idet], thrForm_));
+            if (okcell && selectPhi((*t_DetIds)[idet])) {
               unsigned int id = (*t_DetIds)[idet];
               unsigned int detid = truncateId(id, truncateFlag_, false);
               double hitEn = 0.0;
@@ -804,8 +837,10 @@ Double_t CalibTree::Loop(int loop,
                 hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
               else
                 hitEn = (*t_HitEnergies)[idet];
-              if (cFactor_)
+              if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
                 hitEn *= cFactor_->getCorr(t_Run, id);
+              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+                hitEn *= cDuplicate_->getWeight(id);
               double Wi = evWt * hitEn / en.Etot;
               double Fac = (inverse) ? (en.ehcal / (pmom - t_eMipDR)) : ((pmom - t_eMipDR) / en.ehcal);
               double Fac2 = Wi * Fac * Fac;
@@ -1027,6 +1062,9 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
       nbytes += nb;
       if (jentry % 1000000 == 0)
         std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
+      bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+      if (!select)
+        continue;
       // Find DetIds contributing to the track
       bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) : ((t_Run < runlo_) || (t_Run > runhi_)));
       bool selTrack = ((ietaTrack <= 0) || (abs(t_ieta) <= ietaTrack));
@@ -1039,6 +1077,8 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
           else
             isItRBX = !(temp);
         }
+        if ((cDuplicate_ != nullptr) && (!isItRBX))
+          isItRBX = (cDuplicate_->select(t_ieta, t_iphi));
         ++kprint;
         if (!(isItRBX)) {
           for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
@@ -1117,26 +1157,26 @@ bool CalibTree::goodTrack() {
   double cut(2.0);
   double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
   if (sysmode_ == 1) {
-    ok =
-        ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) && (pmom < 60.0));
+    ok = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > pmin_) &&
+          (pmom < pmax_));
   } else if (sysmode_ == 2) {
     ok = ((t_qltyFlag) && (t_qltyPVFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) &&
-          (pmom > 40.0) && (pmom < 60.0));
+          (pmom > pmin_) && (pmom < pmax_));
   } else if (sysmode_ == 3) {
-    ok =
-        ((t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) && (pmom < 60.0));
+    ok = ((t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > pmin_) &&
+          (pmom < pmax_));
   } else if (sysmode_ == 4) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 0.0) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) &&
-          (pmom > 40.0) && (pmom < 60.0));
+          (pmom > pmin_) && (pmom < pmax_));
   } else if (sysmode_ == 5) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 0.5) && (t_mindR1 > 1.0) &&
-          (pmom > 40.0) && (pmom < 60.0));
+          (pmom > pmin_) && (pmom < pmax_));
   } else if (sysmode_ == 6) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 2.0) && (t_mindR1 > 1.0) &&
-          (pmom > 40.0) && (pmom < 60.0));
+          (pmom > pmin_) && (pmom < pmax_));
   } else if (sysmode_ == 7) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 0.5) &&
-          (pmom > 40.0) && (pmom < 60.0));
+          (pmom > pmin_) && (pmom < pmax_));
   } else {
     if (sysmode_ < 0) {
       double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
@@ -1146,7 +1186,7 @@ bool CalibTree::goodTrack() {
         cut = 10.0;
     }
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) &&
-          (pmom > 40.0) && (pmom < 60.0));
+          (pmom > pmin_) && (pmom < pmax_));
   }
   return ok;
 }
@@ -1265,12 +1305,18 @@ void CalibTree::makeplots(
   Long64_t nbytes(0), nb(0);
   for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0)
-      break;
-    if (std::find(entries.begin(), entries.end(), jentry) != entries.end())
-      break;
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
+    if (ientry < 0)
+      break;
+    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    if (!select)
+      continue;
+    if (cDuplicate_ != nullptr) {
+      select = !(cDuplicate_->select(t_ieta, t_iphi));
+      if (!select)
+        continue;
+    }
     if (goodTrack()) {
       double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
       CalibTree::energyCalor en1 = energyHcal(pmom, jentry, false);
@@ -1389,7 +1435,9 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
   if (final) {
     etot = etot2 = 0;
     for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
-      if (selectPhi((*t_DetIds)[idet])) {
+      // Apply thresholds if necessary
+      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > threshold((*t_DetIds)[idet], thrForm_));
+      if (okcell && selectPhi((*t_DetIds)[idet])) {
         unsigned int id = (*t_DetIds)[idet];
         double hitEn(0);
         unsigned int detid = truncateId(id, truncateFlag_, false);
@@ -1397,8 +1445,10 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
           hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
         else
           hitEn = (*t_HitEnergies)[idet];
-        if (cFactor_)
+        if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
           hitEn *= cFactor_->getCorr(t_Run, id);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          hitEn *= cDuplicate_->getWeight(id);
         etot += hitEn;
         etot2 += ((*t_HitEnergies)[idet]);
       }
@@ -1407,7 +1457,9 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
     double etot1(0), etot3(0);
     if (t_DetIds1 != 0 && t_DetIds3 != 0) {
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
-        if (selectPhi((*t_DetIds1)[idet])) {
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > threshold((*t_DetIds1)[idet], thrForm_));
+        if (okcell && selectPhi((*t_DetIds1)[idet])) {
           unsigned int id = (*t_DetIds1)[idet];
           unsigned int detid = truncateId(id, truncateFlag_, false);
           double hitEn(0);
@@ -1415,13 +1467,17 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = Cprev[detid].first * (*t_HitEnergies1)[idet];
           else
             hitEn = (*t_HitEnergies1)[idet];
-          if (cFactor_)
+          if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            hitEn *= cDuplicate_->getWeight(id);
           etot1 += hitEn;
         }
       }
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
-        if (selectPhi((*t_DetIds3)[idet])) {
+        // Apply thresholds if necessary
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > threshold((*t_DetIds3)[idet], thrForm_));
+        if (okcell && selectPhi((*t_DetIds3)[idet])) {
           unsigned int id = (*t_DetIds3)[idet];
           unsigned int detid = truncateId(id, truncateFlag_, false);
           double hitEn(0);
@@ -1429,8 +1485,10 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = Cprev[detid].first * (*t_HitEnergies3)[idet];
           else
             hitEn = (*t_HitEnergies3)[idet];
-          if (cFactor_)
+          if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+            hitEn *= cDuplicate_->getWeight(id);
           etot3 += hitEn;
         }
       }

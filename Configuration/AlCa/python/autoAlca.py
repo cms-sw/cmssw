@@ -1,23 +1,30 @@
 AlCaRecoMatrix = {
-                  "ALCALumiPixelsCountsExpress" : "AlCaPCCRandom",
+                  "AlCaLumiPixelsCountsExpress" : "AlCaPCCRandom",
                   "AlCaLumiPixelsCountsPrompt"  : "AlCaPCCZeroBias+RawPCCProducer",
                   # These two (AlCaPhiSym, AlCaP0) cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
                   "AlCaPhiSym"                  : "",
                   "AlCaP0"                      : "",
-                  "ALCAPPSExpress"              : "PPSCalMaxTracks", # Express producer
+                  "AlCaPPSExpress"              : "PPSCalMaxTracks", # Express producer
                   "AlCaPPSPrompt"               : "PPSCalMaxTracks", # Prompt  producer
-                  "Commissioning"               : "HcalCalIsoTrk+TkAlMinBias+SiStripCalMinBias",
+                  "Commissioning"               : "HcalCalIsoTrk+TkAlMinBias+SiStripCalMinBias+HcalCalIsolatedBunchSelector",
                   "Cosmics"                     : "SiPixelCalCosmics+SiStripCalCosmics+TkAlCosmics0T+MuAlGlobalCosmics",
+                  "DoubleMuon"                  : "TkAlZMuMu+TkAlDiMuonAndVertex+MuAlCalIsolatedMu",
+                  "DoubleMuonLowMass"           : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
                   "EGamma"                      : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkProducerFilter+HcalCalIterativePhiSym",
                   "Express"                     : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias",
                   "ExpressAlignment"            : "TkAlMinBias",
-                  "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias",
+                  "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias+SiPixelCalCosmics+SiStripCalCosmics",
                   "HcalNZS"                     : "HcalCalMinBias",
                   "HLTPhysics"                  : "TkAlMinBias",
+                  "JetHT"                       : "HcalCalIsoTrkProducerFilter+TkAlJetHT",
                   "JetMET"                      : "HcalCalIsoTrkProducerFilter+TkAlJetHT+HcalCalNoise",
+                  "MinimumBias"                 : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
+                  "MET"                         : "HcalCalNoise",
                   "Muon"                        : "TkAlZMuMu+TkAlDiMuonAndVertex+MuAlCalIsolatedMu+SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter",
                   "NoBPTX"                      : "TkAlCosmicsInCollisions",
                   "ParkingDoubleMuonLowMass"    : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
+                  "SingleMuon"                  : "SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+MuAlCalIsolatedMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter",
+                  "SpecialHLTPhysics"           : "LumiPixelsMinBias",
                   "StreamExpress"               : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias+SiPixelCalSingleMuon",
                   "StreamExpressHI"             : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias",
                   # These (TestEnablesTracker, TestEnablesEcalHcal) are in the AlCaRecoMatrix, but no RelVals are produced

@@ -16,8 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInterface& geo)
-    : iConfig(iconfig),
-      geometryInterface(geo),
+    : geometryInterface(geo),
       enabled(iconfig.getParameter<bool>("enabled")),
       perLumiHarvesting(iconfig.getParameter<bool>("perLumiHarvesting")),
       bookUndefined(iconfig.getParameter<bool>("bookUndefined")),

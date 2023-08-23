@@ -129,6 +129,8 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
   for (unsigned int k = 0; k < positionX_.size(); ++k) {
     float localx(positionX_[k]), localy(positionY_[k]);
     for (unsigned int i = 0; i < hgdc.layers(reco_); ++i) {
+      double zpos = hgdc.waferZ(i + loff, reco_);
+      int zside = (zpos > 0) ? 1 : -1;
       if (detType_ == 1) {
         std::pair<int, int> kxy, lxy;
         kxy = hgdc.assignCell(localx, localy, i + loff, subsec, reco_);
@@ -149,9 +151,8 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
                                       << lxy.first << ", " << lxy.second << ")" << flg;
       } else if (detType_ == 0) {
         std::array<int, 3> kxy, lxy;
-        double zpos = hgdc.waferZ(i + loff, reco_);
         kxy = hgdc.assignCellTrap(localx, localy, zpos, i + loff, reco_);
-        xy = hgdc.locateCellTrap(i + loff, kxy[0], kxy[1], reco_);
+        xy = hgdc.locateCellTrap(zside, i + loff, kxy[0], kxy[1], reco_, false);
         lxy = hgdc.assignCellTrap(xy.first, xy.second, zpos, i + loff, reco_);
         flg = (kxy == lxy) ? " " : " ***** Error *****";
         edm::LogVerbatim("HGCalGeom") << "Input: (" << localx << "," << localy << "," << zpos << ", " << i + loff
@@ -160,7 +161,7 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
                                       << ":" << lxy[1] << ":" << lxy[2] << ") Dist "
                                       << hgdc.distFromEdgeTrap(scl * localx, scl * localy, scl * zpos) << " " << flg;
         kxy = hgdc.assignCellTrap(-localx, -localy, zpos, i + loff, reco_);
-        xy = hgdc.locateCellTrap(i + loff, kxy[0], kxy[1], reco_);
+        xy = hgdc.locateCellTrap(zside, i + loff, kxy[0], kxy[1], reco_, false);
         lxy = hgdc.assignCellTrap(xy.first, xy.second, zpos, i + loff, reco_);
         flg = (kxy == lxy) ? " " : " ***** Error *****";
         edm::LogVerbatim("HGCalGeom") << "Input: (" << -localx << "," << -localy << "," << zpos << ", " << i + loff
@@ -170,20 +171,19 @@ void HGCalNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSet
                                       << hgdc.distFromEdgeTrap(scl * localx, scl * localy, scl * zpos) << " " << flg;
       } else {
         std::array<int, 5> kxy, lxy;
-        kxy = hgdc.assignCellHex(localx, localy, i + loff, reco_);
-        xy = hgdc.locateCell(i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true);
-        lxy = hgdc.assignCellHex(xy.first, xy.second, i + loff, reco_);
+        kxy = hgdc.assignCellHex(localx, localy, zside, i + loff, reco_, false, false);
+        xy = hgdc.locateCell(zside, i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true, false, false);
+        lxy = hgdc.assignCellHex(xy.first, xy.second, zside, i + loff, reco_, false, false);
         flg = (kxy == lxy) ? " " : " ***** Error *****";
-        double zpos = hgdc.waferZ(i + loff, reco_);
         edm::LogVerbatim("HGCalGeom") << "Input: (" << localx << "," << localy << ", " << i + loff
                                       << "), assignCell o/p (" << kxy[0] << ":" << kxy[1] << ":" << kxy[2] << ":"
                                       << kxy[3] << ":" << kxy[4] << ") locateCell o/p (" << xy.first << ", "
                                       << xy.second << "), final (" << lxy[0] << ":" << lxy[1] << ":" << lxy[2] << ":"
                                       << lxy[3] << ":" << lxy[4] << ") Dist "
                                       << hgdc.distFromEdgeHex(scl * localx, scl * localy, scl * zpos) << " " << flg;
-        kxy = hgdc.assignCellHex(-localx, -localy, i + loff, reco_);
-        xy = hgdc.locateCell(i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true);
-        lxy = hgdc.assignCellHex(xy.first, xy.second, i + loff, reco_);
+        kxy = hgdc.assignCellHex(-localx, -localy, zside, i + loff, reco_, false, false);
+        xy = hgdc.locateCell(zside, i + loff, kxy[0], kxy[1], kxy[3], kxy[4], reco_, true, false, false);
+        lxy = hgdc.assignCellHex(xy.first, xy.second, zside, i + loff, reco_, false, false);
         flg = (kxy == lxy) ? " " : " ***** Error *****";
         edm::LogVerbatim("HGCalGeom") << "Input: (" << -localx << "," << -localy << ", " << i + loff
                                       << "), assignCell o/p (" << kxy[0] << ":" << kxy[1] << ":" << kxy[2] << ":"

@@ -31,6 +31,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <TH1F.h>
@@ -388,9 +389,9 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const& set) {
 
 void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   int nHit = hits.size();
-  int nHB(0), nHE(0), nHO(0), nHF(0), nEB(0), nEBAPD(0), nEBATJ(0), nEE(0), nES(0);
+  int nHB(0), nHE(0), nHO(0), nHF(0), nEB(0), nEBAPD(0), nEBATJ(0);
 #ifdef EDM_ML_DEBUG
-  int nBad(0);
+  int nBad(0), nEE(0), nES(0);
 #endif
   std::map<unsigned int, double> hitMap;
   std::vector<double> etot(nCalo_, 0), etotG(nCalo_, 0);
@@ -406,6 +407,22 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
         id |= 0x20000;
       else if (dep == 2)
         id |= 0x40000;
+    } else if (indx == 3) {
+      if (testNumber_) {
+        int subdet(0), ieta(0), iphi(0), z(0), lay(0), depth(0);
+        HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, ieta, iphi, lay);
+        HcalDDDRecConstants::HcalID hid1 =
+            hcalGeom_->topology().dddConstants()->getHCID(subdet, ieta, iphi, lay, depth);
+        int zside = 2 * z - 1;
+        HcalDetId hid2(static_cast<HcalSubdetector>(hid1.subdet), (zside * hid1.eta), hid1.phi, hid1.depth);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HitStudy") << "From SIM step subdet:z:depth:eta:phi:lay " << subdet << ":" << z << ":"
+                                     << depth << ":" << ieta << ":" << iphi << ":" << lay
+                                     << " After getHCID subdet:zside:eta:phi:depth " << hid1.subdet << ":" << zside
+                                     << ":" << hid1.eta << ":" << hid1.phi << ":" << hid1.depth << " ID " << hid2;
+#endif
+        id = hid2.rawId();
+      }
     }
     std::map<unsigned int, double>::const_iterator it = hitMap.find(id);
     if (it == hitMap.end()) {
@@ -430,11 +447,11 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
         nEBAPD++;
       else if (idx == 2)
         nEBATJ++;
+#ifdef EDM_ML_DEBUG
       else if (idx == 3)
         nEE++;
       else if (idx == 4)
         nES++;
-#ifdef EDM_ML_DEBUG
       else
         nBad++;
 #endif
@@ -444,23 +461,17 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
           etotG[idx] += edep;
       }
     } else {
-      int subdet(0);
-      if (testNumber_) {
-        int ieta(0), phi(0), z(0), lay(0), depth(0);
-        HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, ieta, phi, lay);
-      } else {
-        subdet = HcalDetId(id).subdet();
-      }
-      if (subdet == static_cast<int>(HcalBarrel)) {
+      HcalSubdetector subdet = HcalDetId(id).subdet();
+      if (subdet == HcalSubdetector::HcalBarrel) {
         idx = indx + 2;
         nHB++;
-      } else if (subdet == static_cast<int>(HcalEndcap)) {
+      } else if (subdet == HcalSubdetector::HcalEndcap) {
         idx = indx + 3;
         nHE++;
-      } else if (subdet == static_cast<int>(HcalOuter)) {
+      } else if (subdet == HcalSubdetector::HcalOuter) {
         idx = indx + 4;
         nHO++;
-      } else if (subdet == static_cast<int>(HcalForward)) {
+      } else if (subdet == HcalSubdetector::HcalForward) {
         idx = indx + 5;
         nHF++;
       }

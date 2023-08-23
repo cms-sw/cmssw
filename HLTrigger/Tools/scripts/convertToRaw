@@ -74,16 +74,17 @@ class LuminosityBlockRange:
 # default values
 events_per_file = 100
 events_per_lumi = 11655
-output_directory = ''
+output_directory = os.getcwd()
 
 parser = argparse.ArgumentParser(description='Convert RAW data from .root format to .raw format.', formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('files', type=str, metavar='FILES', nargs='+', help='input files in .root format')
-parser.add_argument('-o', '--output', type=str, dest='output_directory', metavar='PATH', default='', help='base path to store the output files; subdirectories based on the run number are automatically created')
+parser.add_argument('-s', '--source', type=str, dest='raw_data_collection', metavar='TAG', default='rawDataCollector', help='name of the FEDRawDataCollection to be repacked into RAW format')
+parser.add_argument('-o', '--output', type=str, dest='output_directory', metavar='PATH', default=os.getcwd(), help='base path to store the output files; subdirectories based on the run number are automatically created')
 parser.add_argument('-f', '--events_per_file', type=int, dest='events_per_file', metavar='EVENTS', default=events_per_file, help='split the output into files with at most EVENTS events')
 parser.add_argument('-l', '--events_per_lumi', type=int, dest='events_per_lumi', metavar='EVENTS', default=events_per_lumi, help='process at most EVENTS events in each lumisection')
 parser.add_argument('-r', '--range', type=LuminosityBlockRange, dest='range', metavar='[RUN:LUMI-RUN:LUMI]', default='all', help='process only the runs and lumisections in the given range')
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False, help='print additional information while processing the input files')
-parser.add_argument('--one-file-per-lumi', action='store_true', dest='one_file_per_lumi', default=False, help='assume that lumisections are not split across files (and disable --events_per_lumi)')
+parser.add_argument('-1', '--one-file-per-lumi', action='store_true', dest='one_file_per_lumi', default=False, help='assume that lumisections are not split across files (and disable --events_per_lumi)')
 
 # parse the command line arguments and options
 args = parser.parse_args()
@@ -107,10 +108,9 @@ for f in files:
 
     # run edmFileUtil --eventsInLumis ...
     print(f'preprocessing input file {f}')
+    output = subprocess.run(['edmFileUtil', '--eventsInLumis', f], capture_output=True, text=True)
     if args.verbose:
-        output = subprocess.run(['edmFileUtil', '--eventsInLumis', f], stdout=None, stderr=None)
-    else:
-        output = subprocess.run(['edmFileUtil', '--eventsInLumis', f], capture_output=True, text=True)
+        print(output.stdout)
 
     # handle error conditions
     if output.returncode < 0:
@@ -195,7 +195,7 @@ for run in sorted(content):
         # process the whole run
         lumis = sorted(content[run])
         print('found run %d, lumis %d-%d, with %d events' % (run, min(lumis), max(lumis), sum(content[run][lumi].events for lumi in lumis)))
-        cmsRun(config_py, args.verbose, inputFiles = ','.join(files), runNumber = run, eventsPerFile = args.events_per_file, outputPath = args.output_directory)
+        cmsRun(config_py, args.verbose, inputFiles = ','.join(files), runNumber = run, eventsPerFile = args.events_per_file, rawDataCollection = args.raw_data_collection, outputPath = args.output_directory)
         converted_files = glob.glob(run_path + f'/run{run:06d}_ls{lumi:04d}_*.raw')
 
     else:
@@ -213,7 +213,7 @@ for run in sorted(content):
             lumi_path = args.output_directory + f'/run{run:06d}_ls{lumi:04d}'
             shutil.rmtree(lumi_path, ignore_errors=True)
             os.makedirs(lumi_path)
-            cmsRun(config_py, args.verbose, inputFiles = ','.join(content[run][lumi].files), runNumber = run, lumiNumber = lumi, eventsPerLumi = args.events_per_lumi, eventsPerFile = args.events_per_file, outputPath = lumi_path)
+            cmsRun(config_py, args.verbose, inputFiles = ','.join(content[run][lumi].files), runNumber = run, lumiNumber = lumi, eventsPerLumi = args.events_per_lumi, eventsPerFile = args.events_per_file, rawDataCollection = args.raw_data_collection, outputPath = lumi_path)
 
             # merge all lumisetions data
 

@@ -98,7 +98,7 @@ namespace trklet {
           streamStubs.emplace_back(handleTTDTC->stream(tfpRegion, tfpChannel));
     }
     // store products
-    iEvent.emplace(edPutTokenStubs_, move(streamStubs));
+    iEvent.emplace(edPutTokenStubs_, std::move(streamStubs));
   }
 
 }  // namespace trklet

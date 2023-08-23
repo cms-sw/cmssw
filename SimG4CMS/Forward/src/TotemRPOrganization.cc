@@ -35,15 +35,15 @@ uint32_t TotemRPOrganization ::getUnitID(const G4Step* aStep) const {
   G4VPhysicalVolume* physVol;
   int32_t UNITA = 0;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  int ii = 0;
-  for (ii = 0; ii < touch->GetHistoryDepth(); ii++) {
-    physVol = touch->GetVolume(ii);
 
 #ifdef SCRIVI
+  for (int ii = 0; ii < touch->GetHistoryDepth(); ii++) {
+    physVol = touch->GetVolume(ii);
     LogDebug("ForwardSim") << "physVol=" << physVol->GetName() << ", level=" << ii
                            << ", physVol->GetCopyNo()=" << physVol->GetCopyNo();
-#endif
   }
+#endif
+
   physVol = touch->GetVolume(0);  //aStep->GetPreStepPoint()->GetPhysicalVolume();
 
   if (physVol->GetName() == "myRP")

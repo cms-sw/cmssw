@@ -180,7 +180,7 @@ struct HGCalSiliconRotatedModule {
       std::ostringstream st1;
       unsigned int j2 = std::min((j1 + 6), j1max);
       for (unsigned int j = j1; j < j2; ++j)
-        st1 << " [" << j << "] " << std::setw(9) << cassetteShift_[j];
+        st1 << " [" << j << "] " << std::setw(9) << cms::convert2mm(cassetteShift_[j]);
       edm::LogVerbatim("HGCalGeom") << st1.str();
     }
 
@@ -343,7 +343,8 @@ struct HGCalSiliconRotatedModule {
                                   << " R " << cms::convert2mm(dely) << " dy " << cms::convert2mm(dy) << " Shift "
                                   << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second)
                                   << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_)) << " index "
-                                  << firstWafer << ":" << (lastWafer - 1);
+                                  << firstWafer << ":" << (lastWafer - 1) << " Layer Center " << layercenter << ":"
+                                  << layertype;
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -359,14 +360,32 @@ struct HGCalSiliconRotatedModule {
       int orien = HGCalProperty::waferOrient(waferProperty_[k]);
       int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
       int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
-      auto cshift = cassette_.getShift(layer + 1, 1, cassette);
-      double xpos = xyoff.first + cshift.first + nc * delx;
+      auto cshift = cassette_.getShift(layer + 1, -1, cassette);
+      double xpos = xyoff.first - cshift.first + nc * delx;
       double ypos = xyoff.second + cshift.second + nr * dy;
+#ifdef EDM_ML_DEBUG
+      double xorig = xyoff.first + nc * delx;
+      double yorig = xyoff.second + nr * dy;
+      double angle = std::atan2(yorig, xorig);
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule::Wafer: layer " << layer + 1 << " cassette "
+                                    << cassette << " Shift " << cms::convert2mm(cshift.first) << ":"
+                                    << cms::convert2mm(cshift.second) << " Original " << cms::convert2mm(xorig) << ":"
+                                    << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final "
+                                    << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << " u|v " << u << ":" << v
+                                    << " type|part|orient|place " << type << ":" << part << ":" << orien << ":"
+                                    << place;
+#endif
       std::string wafer;
       int i(999);
       if (part == HGCalTypes::WaferFull) {
         i = type * facingTypes_ * orientationTypes_ + place - placeOffset_;
         wafer = waferFull_[i];
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":"
+                                      << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":"
+                                      << placeOffset_ << ":" << facingTypes_ << ":" << orientationTypes_ << " wafer "
+                                      << i << ":" << wafer;
+#endif
       } else {
         int partoffset =
             (part >= HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : HGCalTypes::WaferPartLDOffset;
@@ -454,7 +473,7 @@ struct HGCalSiliconRotatedModule {
 };
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
-  HGCalSiliconRotatedModule eealgo(ctxt, e);
+  HGCalSiliconRotatedModule eeSiliconRotatedModuleAlgo(ctxt, e);
   return cms::s_executed;
 }
 

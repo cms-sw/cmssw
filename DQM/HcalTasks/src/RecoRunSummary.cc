@@ -135,7 +135,6 @@ namespace hcaldqm {
 
     //	summary flags
     std::vector<flag::Flag> sumflags;
-    int icrate = 0;
     for (std::vector<uint32_t>::const_iterator it = _vhashCrates.begin(); it != _vhashCrates.end(); ++it) {
       flag::Flag fSum("RECO");
       HcalElectronicsId eid(*it);
@@ -164,7 +163,6 @@ namespace hcaldqm {
         ft->reset();
       }
       sumflags.push_back(fSum);
-      icrate++;
     }
 
     return sumflags;

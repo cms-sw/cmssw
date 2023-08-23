@@ -77,7 +77,7 @@ void SiStripBadChannelPatcher::fillDescriptions(edm::ConfigurationDescriptions& 
 unsigned int SiStripBadChannelPatcher::fedFromDetId(const uint32_t& detid) {
   // For the cabled det_id retrieve the FEDid
   const std::vector<const FedChannelConnection*>& conns = detCabling_->getConnections(detid);
-  if (!(conns.size())) {
+  if (conns.empty()) {
     edm::LogWarning("SiStripBadChannelPatcher")
         << " DetId " << detid << " appears to be uncabled, returning NOT_A_FEDID !";
     return sistrip::NOT_A_FEDID;

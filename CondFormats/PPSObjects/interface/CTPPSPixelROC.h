@@ -26,6 +26,12 @@ public:
   /// ROC number in Link (given by token passage),
   CTPPSPixelROC(uint32_t du, int idInDU, int idLk);
 
+  void setParameters(uint32_t du, int idInDU, int idLk) {
+    theDetUnit = du;
+    theIdDU = idInDU;
+    theIdLk = idLk;
+  }
+
   /// return the DetUnit to which this ROC belongs to.
   uint32_t rawId() const { return theDetUnit; }
 

@@ -54,6 +54,7 @@
 #include "Randomize.hh"
 #include <iostream>
 #include "G4ParticleTable.hh"
+#include "G4Poisson.hh"
 
 using namespace CLHEP;
 
@@ -86,8 +87,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
     return false;
 
   G4ParticleDefinition *aPiMinus = G4PionMinus::PionMinus();
-  // G4ParticleDefinition *anAntiProton = G4AntiProton::AntiProton();
-  // G4ParticleDefinition *anAntiNeutron = G4AntiNeutron::AntiNeutron();
   G4ParticleDefinition *aProton = G4Proton::Proton();
   G4ParticleDefinition *aNeutron = G4Neutron::Neutron();
   G4ParticleDefinition *aPiPlus = G4PionPlus::PionPlus();
@@ -98,7 +97,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
   G4ParticleDefinition *aKaonZeroL = G4KaonZeroLong::KaonZeroLong();
 
   G4int i, l;
-  //    G4double forVeryForward = 0.;
   G4bool veryForward = false;
 
   const G4double ekOriginal = modifiedOriginal.GetKineticEnergy() / GeV;
@@ -162,8 +160,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
                                 0.312 + 0.200 * std::log(std::log(centerofmassEnergy * centerofmassEnergy)) +
                                     std::pow(centerofmassEnergy * centerofmassEnergy, 1.5) / 6000.0);
 
-  // PROBLEMET ER HER!!!
-
   G4double freeEnergy = centerofmassEnergy - currentMass - targetMass;
 
   if (freeEnergy < 0) {
@@ -215,11 +211,10 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
     xtarg = afc * (std::pow(atomicWeight, 0.33) - 1.0) * (2.0 * backwardCount);
   if (xtarg <= 0.0)
     xtarg = 0.01;
-  G4int nuclearExcitationCount = Poisson(xtarg);
+  G4int nuclearExcitationCount = G4Poisson(xtarg);
   if (atomicWeight < 1.0001)
     nuclearExcitationCount = 0;
   G4int extraNucleonCount = 0;
-  G4double extraNucleonMass = 0.0;
   if (nuclearExcitationCount > 0) {
     const G4double nucsup[] = {1.00, 0.7, 0.5, 0.4, 0.35, 0.3};
     const G4double psup[] = {3., 6., 20., 50., 100., 1000.};
@@ -241,7 +236,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
         pVec->SetSide(-2);  // -2 means backside nucleon
         ++extraNucleonCount;
         backwardEnergy += pVec->GetMass() / GeV;
-        extraNucleonMass += pVec->GetMass() / GeV;
       } else {
         G4double ran = G4UniformRand();
         if (ran < 0.3181)
@@ -315,7 +309,7 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
         {
           if (vec[i]->GetSide() == -2) {
             --extraNucleonCount;
-            extraNucleonMass -= vec[i]->GetMass() / GeV;
+            //extraNucleonMass -= vec[i]->GetMass() / GeV;
             backwardEnergy -= vec[i]->GetTotalEnergy() / GeV;
           }
           backwardEnergy += vec[i]->GetTotalEnergy() / GeV;
@@ -606,7 +600,6 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
       } else {
         if (vec[i]->GetSide() == -2) {
           --extraNucleonCount;
-          extraNucleonMass -= vecMass;
           backwardEnergy -= vecMass;
         }
         --backwardCount;
@@ -855,8 +848,8 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
     const G4double gpar[] = {2.6, 2.6, 1.80, 1.30, 1.20};
     // Replaced the following min function to get correct behaviour on DEC.
     G4int tempCount = std::max(1, std::min(5, backwardNucleonCount)) - 1;
-    //cout << "backwardNucleonCount " << backwardNucleonCount << G4endl;
-    //cout << "tempCount " << tempCount << G4endl;
+    //G4cout << "backwardNucleonCount " << backwardNucleonCount << G4endl;
+    //G4cout << "tempCount " << tempCount << G4endl;
     G4double rmb0 = 0.0;
     if (targetParticle.GetSide() == -3)
       rmb0 += targetParticle.GetMass() / GeV;
@@ -889,14 +882,14 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
         tempV.SetElement(tempLen++, vec[i]);
     }
     if (tempLen != backwardNucleonCount) {
-      G4cerr << "tempLen is not the same as backwardNucleonCount" << G4endl;
-      G4cerr << "tempLen = " << tempLen;
-      G4cerr << ", backwardNucleonCount = " << backwardNucleonCount << G4endl;
-      G4cerr << "targetParticle side = " << targetParticle.GetSide() << G4endl;
-      G4cerr << "currentParticle side = " << currentParticle.GetSide() << G4endl;
+      G4ExceptionDescription ed;
+      ed << "tempLen is not the same as backwardNucleonCount" << G4endl;
+      ed << "tempLen = " << tempLen << ", backwardNucleonCount = " << backwardNucleonCount << G4endl;
+      ed << "targetParticle side = " << targetParticle.GetSide() << G4endl;
+      ed << "currentParticle side = " << currentParticle.GetSide() << G4endl;
       for (i = 0; i < vecLen; ++i)
-        G4cerr << "particle #" << i << " side = " << vec[i]->GetSide() << G4endl;
-      exit(EXIT_FAILURE);
+        ed << "particle #" << i << " side = " << vec[i]->GetSide() << G4endl;
+      G4Exception("FullModelReactionDynamics::GenerateXandPt", "had064", FatalException, ed);
     }
     constantCrossSection = true;
     // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
@@ -924,71 +917,13 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
     return false;  // all the secondaries have been eliminated
   // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
 
-  G4int numberofFinalStateNucleons = 0;
-  if (currentParticle.GetDefinition() == aProton || currentParticle.GetDefinition() == aNeutron ||
-      currentParticle.GetDefinition() == G4SigmaMinus::SigmaMinus() ||
-      currentParticle.GetDefinition() == G4SigmaPlus::SigmaPlus() ||
-      currentParticle.GetDefinition() == G4SigmaZero::SigmaZero() ||
-      currentParticle.GetDefinition() == G4XiZero::XiZero() ||
-      currentParticle.GetDefinition() == G4XiMinus::XiMinus() ||
-      currentParticle.GetDefinition() == G4OmegaMinus::OmegaMinus() ||
-      currentParticle.GetDefinition() == G4Lambda::Lambda())
-    ++numberofFinalStateNucleons;
+  G4int numberofFinalStateNucleons =
+      currentParticle.GetDefinition()->GetBaryonNumber() + targetParticle.GetDefinition()->GetBaryonNumber();
   currentParticle.Lorentz(currentParticle, pseudoParticle[1]);
-
-  if (targetParticle.GetDefinition() == aProton || targetParticle.GetDefinition() == aNeutron ||
-      targetParticle.GetDefinition() == G4Lambda::Lambda() || targetParticle.GetDefinition() == G4XiZero::XiZero() ||
-      targetParticle.GetDefinition() == G4XiMinus::XiMinus() ||
-      targetParticle.GetDefinition() == G4OmegaMinus::OmegaMinus() ||
-      targetParticle.GetDefinition() == G4SigmaZero::SigmaZero() ||
-      targetParticle.GetDefinition() == G4SigmaPlus::SigmaPlus() ||
-      targetParticle.GetDefinition() == G4SigmaMinus::SigmaMinus())
-    ++numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiProton::AntiProton())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiNeutron::AntiNeutron())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiSigmaMinus::AntiSigmaMinus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiSigmaPlus::AntiSigmaPlus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiSigmaZero::AntiSigmaZero())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiXiZero::AntiXiZero())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiXiMinus::AntiXiMinus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiOmegaMinus::AntiOmegaMinus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiLambda::AntiLambda())
-    --numberofFinalStateNucleons;
   targetParticle.Lorentz(targetParticle, pseudoParticle[1]);
 
   for (i = 0; i < vecLen; ++i) {
-    if (vec[i]->GetDefinition() == aProton || vec[i]->GetDefinition() == aNeutron ||
-        vec[i]->GetDefinition() == G4Lambda::Lambda() || vec[i]->GetDefinition() == G4XiZero::XiZero() ||
-        vec[i]->GetDefinition() == G4XiMinus::XiMinus() || vec[i]->GetDefinition() == G4OmegaMinus::OmegaMinus() ||
-        vec[i]->GetDefinition() == G4SigmaPlus::SigmaPlus() || vec[i]->GetDefinition() == G4SigmaZero::SigmaZero() ||
-        vec[i]->GetDefinition() == G4SigmaMinus::SigmaMinus())
-      ++numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiProton::AntiProton())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiNeutron::AntiNeutron())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiSigmaMinus::AntiSigmaMinus())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiSigmaPlus::AntiSigmaPlus())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiSigmaZero::AntiSigmaZero())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiLambda::AntiLambda())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiXiZero::AntiXiZero())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiXiMinus::AntiXiMinus())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiOmegaMinus::AntiOmegaMinus())
-      --numberofFinalStateNucleons;
+    numberofFinalStateNucleons += vec[i]->GetDefinition()->GetBaryonNumber();
     vec[i]->Lorentz(*vec[i], pseudoParticle[1]);
   }
   // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
@@ -1191,13 +1126,13 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
     if (ekIncident >= 5.0)
       sprob = std::min(1.0, 0.6 * std::log(ekIncident - 4.0));
     if (epnb >= pnCutOff) {
-      npnb = Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * epnb / (epnb + edta));
+      npnb = G4Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * epnb / (epnb + edta));
       if (numberofFinalStateNucleons + npnb > atomicWeight)
         npnb = G4int(atomicWeight + 0.00001 - numberofFinalStateNucleons);
       npnb = std::min(npnb, 127 - vecLen);
     }
     if (edta >= dtaCutOff) {
-      ndta = Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * edta / (epnb + edta));
+      ndta = G4Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * edta / (epnb + edta));
       ndta = std::min(ndta, 127 - vecLen);
     }
     G4double spall = numberofFinalStateNucleons;
@@ -1245,7 +1180,6 @@ void FullModelReactionDynamics::SuppressChargedPions(G4FastVector<G4ReactionProd
   const G4double atomicNumber = targetNucleus.GetZ_asInt();
   const G4double pOriginal = modifiedOriginal.GetTotalMomentum() / GeV;
 
-  // G4ParticleDefinition *aGamma = G4Gamma::Gamma();
   G4ParticleDefinition *aProton = G4Proton::Proton();
   G4ParticleDefinition *anAntiProton = G4AntiProton::AntiProton();
   G4ParticleDefinition *aNeutron = G4Neutron::Neutron();
@@ -1255,10 +1189,7 @@ void FullModelReactionDynamics::SuppressChargedPions(G4FastVector<G4ReactionProd
 
   const G4bool antiTest =
       modifiedOriginal.GetDefinition() != anAntiProton && modifiedOriginal.GetDefinition() != anAntiNeutron;
-  if (antiTest &&
-      (
-          // currentParticle.GetDefinition() == aGamma ||
-          currentParticle.GetDefinition() == aPiPlus || currentParticle.GetDefinition() == aPiMinus) &&
+  if (antiTest && (currentParticle.GetDefinition() == aPiPlus || currentParticle.GetDefinition() == aPiMinus) &&
       (G4UniformRand() <= (10.0 - pOriginal) / 6.0) && (G4UniformRand() <= atomicWeight / 300.0)) {
     if (G4UniformRand() > atomicNumber / atomicWeight)
       currentParticle.SetDefinitionAndUpdateE(aNeutron);
@@ -1267,10 +1198,7 @@ void FullModelReactionDynamics::SuppressChargedPions(G4FastVector<G4ReactionProd
     incidentHasChanged = true;
   }
   for (G4int i = 0; i < vecLen; ++i) {
-    if (antiTest &&
-        (
-            // vec[i]->GetDefinition() == aGamma ||
-            vec[i]->GetDefinition() == aPiPlus || vec[i]->GetDefinition() == aPiMinus) &&
+    if (antiTest && (vec[i]->GetDefinition() == aPiPlus || vec[i]->GetDefinition() == aPiMinus) &&
         (G4UniformRand() <= (10.0 - pOriginal) / 6.0) && (G4UniformRand() <= atomicWeight / 300.0)) {
       if (G4UniformRand() > atomicNumber / atomicWeight)
         vec[i]->SetDefinitionAndUpdateE(aNeutron);
@@ -1313,7 +1241,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
   G4ParticleDefinition *aNeutron = G4Neutron::Neutron();
   G4ParticleDefinition *aPiPlus = G4PionPlus::PionPlus();
   G4ParticleDefinition *aPiZero = G4PionZero::PionZero();
-  G4ParticleDefinition *aSigmaMinus = G4SigmaMinus::SigmaMinus();
   const G4double protonMass = aProton->GetPDGMass() / MeV;
   const G4double ekOriginal = modifiedOriginal.GetKineticEnergy() / GeV;
   const G4double etOriginal = modifiedOriginal.GetTotalEnergy() / GeV;
@@ -1358,14 +1285,13 @@ G4bool FullModelReactionDynamics::TwoCluster(
   G4int forwardCount = 1;  // number of particles in forward hemisphere
   currentParticle.SetSide(1);
   G4double forwardMass = currentParticle.GetMass() / GeV;
-  G4double cMass = forwardMass;
+  //G4double cMass = forwardMass;
 
   // target is always in backward hemisphere
-  G4int backwardCount = 1;         // number of particles in backward hemisphere
-  G4int backwardNucleonCount = 1;  // number of nucleons in backward hemisphere
+  G4int backwardCount = 1;  // number of particles in backward hemisphere
   targetParticle.SetSide(-1);
   G4double backwardMass = targetParticle.GetMass() / GeV;
-  G4double bMass = backwardMass;
+  //G4double bMass = backwardMass;
 
   for (i = 0; i < vecLen; ++i) {
     if (vec[i]->GetSide() < 0)
@@ -1394,12 +1320,9 @@ G4bool FullModelReactionDynamics::TwoCluster(
     xtarg = afc * (std::pow(atomicWeight, 0.33) - 1.0) * (2 * backwardCount);
   if (xtarg <= 0.0)
     xtarg = 0.01;
-  G4int nuclearExcitationCount = Poisson(xtarg);
+  G4int nuclearExcitationCount = G4Poisson(xtarg);
   if (atomicWeight < 1.0001)
     nuclearExcitationCount = 0;
-  G4int extraNucleonCount = 0;
-  G4double extraMass = 0.0;
-  G4double extraNucleonMass = 0.0;
   if (nuclearExcitationCount > 0) {
     G4int momentumBin = std::min(4, G4int(pOriginal / 3.0));
     const G4double nucsup[] = {1.0, 0.8, 0.6, 0.5, 0.4};
@@ -1416,9 +1339,6 @@ G4bool FullModelReactionDynamics::TwoCluster(
           pVec->SetDefinition(aProton);
         else
           pVec->SetDefinition(aNeutron);
-        ++backwardNucleonCount;
-        ++extraNucleonCount;
-        extraNucleonMass += pVec->GetMass() / GeV;
       } else {  // add a pion
         G4double ran = G4UniformRand();
         if (ran < 0.3181)
@@ -1429,15 +1349,12 @@ G4bool FullModelReactionDynamics::TwoCluster(
           pVec->SetDefinition(aPiMinus);
       }
       pVec->SetSide(-2);  // backside particle
-      extraMass += pVec->GetMass() / GeV;
       pVec->SetNewlyAdded(true);
       vec.SetElement(vecLen++, pVec);
       // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
     }
   }
   // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
-  G4double forwardEnergy = (centerofmassEnergy - cMass - bMass) / 2.0 + cMass - forwardMass;
-  G4double backwardEnergy = (centerofmassEnergy - cMass - bMass) / 2.0 + bMass - backwardMass;
   G4double eAvailable = centerofmassEnergy - (forwardMass + backwardMass);
   G4bool secondaryDeleted;
   G4double pMass;
@@ -1450,7 +1367,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
         for (G4int j = i; j < (vecLen - 1); ++j)
           *vec[j] = *vec[j + 1];  // shift up
         --forwardCount;
-        forwardEnergy += pMass;
+        //forwardEnergy += pMass;
         forwardMass -= pMass;
         secondaryDeleted = true;
         break;
@@ -1459,7 +1376,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
         for (G4int j = i; j < (vecLen - 1); ++j)
           *vec[j] = *vec[j + 1];  // shift up
         --backwardCount;
-        backwardEnergy += pMass;
+        //backwardEnergy += pMass;
         backwardMass -= pMass;
         secondaryDeleted = true;
         break;
@@ -1480,7 +1397,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
         for (G4int j = 0; j < (vecLen - 1); ++j)
           *vec[j] = *vec[j + 1];  // shift up
         --backwardCount;
-        backwardEnergy += pMass;
+        //backwardEnergy += pMass;
         backwardMass -= pMass;
         secondaryDeleted = true;
       } else if (targetParticle.GetSide() == 1) {
@@ -1489,7 +1406,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
         for (G4int j = 0; j < (vecLen - 1); ++j)
           *vec[j] = *vec[j + 1];  // shift up
         --forwardCount;
-        forwardEnergy += pMass;
+        //forwardEnergy += pMass;
         forwardMass -= pMass;
         secondaryDeleted = true;
       }
@@ -1505,7 +1422,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
           for (G4int j = 0; j < (vecLen - 1); ++j)
             *vec[j] = *vec[j + 1];  // shift up
           --backwardCount;
-          backwardEnergy += pMass;
+          //backwardEnergy += pMass;
           backwardMass -= pMass;
           secondaryDeleted = true;
         } else if (currentParticle.GetSide() == 1) {
@@ -1514,7 +1431,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
           for (G4int j = 0; j < (vecLen - 1); ++j)
             *vec[j] = *vec[j + 1];  // shift up
           --forwardCount;           //This line can cause infinite loop
-          forwardEnergy += pMass;
+          //forwardEnergy += pMass;
           forwardMass -= pMass;
           secondaryDeleted = true;
         }
@@ -1745,67 +1662,13 @@ G4bool FullModelReactionDynamics::TwoCluster(
   //
   // Lorentz transformation in lab system
   //
-  G4int numberofFinalStateNucleons = 0;
-  if (currentParticle.GetDefinition() == aProton || currentParticle.GetDefinition() == aNeutron ||
-      currentParticle.GetDefinition() == aSigmaMinus || currentParticle.GetDefinition() == G4SigmaPlus::SigmaPlus() ||
-      currentParticle.GetDefinition() == G4SigmaZero::SigmaZero() ||
-      currentParticle.GetDefinition() == G4XiZero::XiZero() ||
-      currentParticle.GetDefinition() == G4XiMinus::XiMinus() ||
-      currentParticle.GetDefinition() == G4OmegaMinus::OmegaMinus() ||
-      currentParticle.GetDefinition() == G4Lambda::Lambda())
-    ++numberofFinalStateNucleons;
+  G4int numberofFinalStateNucleons =
+      currentParticle.GetDefinition()->GetBaryonNumber() + targetParticle.GetDefinition()->GetBaryonNumber();
   currentParticle.Lorentz(currentParticle, pseudoParticle[2]);
-  if (targetParticle.GetDefinition() == aProton || targetParticle.GetDefinition() == aNeutron ||
-      targetParticle.GetDefinition() == G4Lambda::Lambda() || targetParticle.GetDefinition() == G4XiZero::XiZero() ||
-      targetParticle.GetDefinition() == G4XiMinus::XiMinus() ||
-      targetParticle.GetDefinition() == G4OmegaMinus::OmegaMinus() ||
-      targetParticle.GetDefinition() == G4SigmaZero::SigmaZero() ||
-      targetParticle.GetDefinition() == G4SigmaPlus::SigmaPlus() || targetParticle.GetDefinition() == aSigmaMinus)
-    ++numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiProton::AntiProton())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiNeutron::AntiNeutron())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiSigmaMinus::AntiSigmaMinus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiSigmaPlus::AntiSigmaPlus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiSigmaZero::AntiSigmaZero())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiXiZero::AntiXiZero())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiXiMinus::AntiXiMinus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiOmegaMinus::AntiOmegaMinus())
-    --numberofFinalStateNucleons;
-  if (targetParticle.GetDefinition() == G4AntiLambda::AntiLambda())
-    --numberofFinalStateNucleons;
   targetParticle.Lorentz(targetParticle, pseudoParticle[2]);
+
   for (i = 0; i < vecLen; ++i) {
-    if (vec[i]->GetDefinition() == aProton || vec[i]->GetDefinition() == aNeutron ||
-        vec[i]->GetDefinition() == G4Lambda::Lambda() || vec[i]->GetDefinition() == G4XiZero::XiZero() ||
-        vec[i]->GetDefinition() == G4XiMinus::XiMinus() || vec[i]->GetDefinition() == G4OmegaMinus::OmegaMinus() ||
-        vec[i]->GetDefinition() == G4SigmaPlus::SigmaPlus() || vec[i]->GetDefinition() == G4SigmaZero::SigmaZero() ||
-        vec[i]->GetDefinition() == aSigmaMinus)
-      ++numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiProton::AntiProton())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiNeutron::AntiNeutron())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiSigmaMinus::AntiSigmaMinus())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiSigmaPlus::AntiSigmaPlus())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiSigmaZero::AntiSigmaZero())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiLambda::AntiLambda())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiXiZero::AntiXiZero())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiXiMinus::AntiXiMinus())
-      --numberofFinalStateNucleons;
-    if (vec[i]->GetDefinition() == G4AntiOmegaMinus::AntiOmegaMinus())
-      --numberofFinalStateNucleons;
+    numberofFinalStateNucleons += vec[i]->GetDefinition()->GetBaryonNumber();
     vec[i]->Lorentz(*vec[i], pseudoParticle[2]);
   }
   // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
@@ -2023,13 +1886,13 @@ G4bool FullModelReactionDynamics::TwoCluster(
       sprob = std::min(1.0, 0.6 * std::log(ekIncident - 4.0));
 
     if (epnb >= pnCutOff) {
-      npnb = Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * epnb / (epnb + edta));
+      npnb = G4Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * epnb / (epnb + edta));
       if (numberofFinalStateNucleons + npnb > atomicWeight)
         npnb = G4int(atomicWeight - numberofFinalStateNucleons);
       npnb = std::min(npnb, 127 - vecLen);
     }
     if (edta >= dtaCutOff) {
-      ndta = Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * edta / (epnb + edta));
+      ndta = G4Poisson((1.5 + 1.25 * numberofFinalStateNucleons) * edta / (epnb + edta));
       ndta = std::min(ndta, 127 - vecLen);
     }
     G4double spall = numberofFinalStateNucleons;
@@ -2116,35 +1979,6 @@ void FullModelReactionDynamics::TwoBody(G4FastVector<G4ReactionProduct, MYGHADLI
   {
     targetParticle.SetMass(0.0);  // flag that the target particle doesn't exist
   } else {
-    // moved this if-block to a later stage, i.e. to the assignment of the scattering angle
-    // @@@@@ double-check.
-    //      if( targetParticle.GetDefinition() == aKaonMinus ||
-    //          targetParticle.GetDefinition() == aKaonZeroL ||
-    //          targetParticle.GetDefinition() == aKaonZeroS ||
-    //          targetParticle.GetDefinition() == aKaonPlus ||
-    //          targetParticle.GetDefinition() == aPiMinus ||
-    //          targetParticle.GetDefinition() == aPiZero ||
-    //          targetParticle.GetDefinition() == aPiPlus )
-    //      {
-    //        if( G4UniformRand() < 0.5 )
-    //          targetParticle.SetDefinitionAndUpdateE( aNeutron );
-    //        else
-    //          targetParticle.SetDefinitionAndUpdateE( aProton );
-    //        targetHasChanged = true;
-    //        targetMass = targetParticle.GetMass()/GeV;
-    //      }
-    //
-    // Set masses and momenta for final state particles
-    //
-    /*
-      G4cout<<"Check 0"<<G4endl;
-      G4cout<<"target E_kin: "<<targetParticle.GetKineticEnergy()/GeV<<G4endl;
-      G4cout<<"target mass: "<<targetParticle.GetMass()/GeV<<G4endl;
-      G4cout<<targetParticle.GetDefinition()->GetParticleName()<<G4endl;
-      G4cout<<"current E_kin: "<<currentParticle.GetKineticEnergy()/GeV<<G4endl;
-      G4cout<<"current mass: "<<currentParticle.GetMass()/GeV<<G4endl;
-      G4cout<<currentParticle.GetDefinition()->GetParticleName()<<G4endl;
-      */
     G4double pf = cmEnergy * cmEnergy + targetMass * targetMass - currentMass * currentMass;
     pf = pf * pf - 4 * cmEnergy * cmEnergy * targetMass * targetMass;
     //      G4cout << "pf: " << pf<< G4endl;
@@ -2190,7 +2024,6 @@ void FullModelReactionDynamics::TwoBody(G4FastVector<G4ReactionProduct, MYGHADLI
     // Calculate slope b for elastic scattering on proton/neutron
     //
     G4double b = std::max(cb, b1 + b2 * std::log(pOriginal));
-    //      G4double b = std::max( cb, b1+b2*std::log(ptemp) );
     G4double btrang = b * 4.0 * pf * pseudoParticle[0].GetMomentum().mag() / GeV;
 
     G4double exindt = -1.0;
@@ -2275,10 +2108,10 @@ void FullModelReactionDynamics::TwoBody(G4FastVector<G4ReactionProduct, MYGHADLI
     const G4double kineticFactor = -0.010;
     G4double sprob = 0.0;  // sprob = probability of self-absorption in heavy molecules
     if (epnb >= pnCutOff) {
-      npnb = Poisson(epnb / 0.02);
+      npnb = G4Poisson(epnb / 0.02);
       /*
-	G4cout<<"A couple of Poisson numbers:"<<G4endl;
-	for (int n=0;n!=10;n++) G4cout<<Poisson(epnb/0.02)<<", ";
+	G4cout<<"A couple of G4Poisson numbers:"<<G4endl;
+	for (int n=0;n!=10;n++) G4cout<<G4Poisson(epnb/0.02)<<", ";
 	G4cout<<G4endl;
 	*/
       if (npnb > atomicWeight)
@@ -2356,13 +2189,13 @@ G4double FullModelReactionDynamics::GenerateNBodyEvent(const G4double totalEnerg
   G4double energy[18];  // total energy of each particle
   G4double pcm[3][18];  // pcm is an array with 3 rows and vecLen columns
   G4double totalMass = 0.0;
-  G4double extraMass = 0;
+  //G4double extraMass = 0;
   G4double sm[18];
 
   for (i = 0; i < vecLen; ++i) {
     mass[i] = vec[i]->GetMass() / GeV;
-    if (vec[i]->GetSide() == -2)
-      extraMass += vec[i]->GetMass() / GeV;
+    //if (vec[i]->GetSide() == -2)
+    //  extraMass += vec[i]->GetMass() / GeV;
     vec[i]->SetMomentum(0.0, 0.0, 0.0);
     pcm[0][i] = 0.0;      // x-momentum of i-th particle
     pcm[1][i] = 0.0;      // y-momentum of i-th particle
@@ -2525,52 +2358,6 @@ G4double FullModelReactionDynamics::normal() {
   for (G4int i = 0; i < 12; ++i)
     ran += G4UniformRand();
   return ran;
-}
-
-G4int FullModelReactionDynamics::Poisson(G4double x)  // generation of poisson distribution
-{
-  G4int iran;
-  G4double ran;
-
-  if (x > 9.9)  // use normal distribution with sigma^2 = <x>
-    iran = static_cast<G4int>(std::max(0.0, x + normal() * std::sqrt(x)));
-  else {
-    G4int mm = G4int(5.0 * x);
-    if (mm <= 0)  // for very small x try iran=1,2,3
-    {
-      G4double p1 = x * std::exp(-x);
-      G4double p2 = x * p1 / 2.0;
-      G4double p3 = x * p2 / 3.0;
-      ran = G4UniformRand();
-      if (ran < p3)
-        iran = 3;
-      else if (ran < p2)  // this is original Geisha, it should be ran < p2+p3
-        iran = 2;
-      else if (ran < p1)  // should be ran < p1+p2+p3
-        iran = 1;
-      else
-        iran = 0;
-    } else {
-      iran = 0;
-      G4double r = std::exp(-x);
-      ran = G4UniformRand();
-      if (ran > r) {
-        G4double rrr;
-        G4double rr = r;
-        for (G4int i = 1; i <= mm; ++i) {
-          iran++;
-          if (i > 5)  // Stirling's formula for large numbers
-            rrr = std::exp(i * std::log(x) - (i + 0.5) * std::log((G4double)i) + i - 0.9189385);
-          else
-            rrr = std::pow(x, i) / Factorial(i);
-          rr += r * rrr;
-          if (ran <= rr)
-            break;
-        }
-      }
-    }
-  }
-  return iran;
 }
 
 G4int FullModelReactionDynamics::Factorial(G4int n) {  // calculates factorial( n ) = n*(n-1)*(n-2)*...*1
@@ -2883,7 +2670,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(const G4double epnb,  // 
   G4int i;
   G4double pp;
   // G4double totalQ = 0;
-  G4double kinCreated = 0;
+  //G4double kinCreated = 0;
   G4double cfa = 0.025 * ((atomicWeight - 1.0) / 120.0) * std::exp(-(atomicWeight - 1.0) / 120.0);
   if (npnb > 0)  // first add protons and neutrons
   {
@@ -2918,7 +2705,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(const G4double epnb,  // 
       G4double phi = twopi * G4UniformRand();
       vec[vecLen]->SetNewlyAdded(true);
       vec[vecLen]->SetKineticEnergy(kinetic * GeV);
-      kinCreated += kinetic;
+      //kinCreated += kinetic;
       pp = vec[vecLen]->GetTotalMomentum() / MeV;
       vec[vecLen]->SetMomentum(pp * sint * std::sin(phi) * MeV, pp * sint * std::cos(phi) * MeV, pp * cost * MeV);
       vecLen++;
@@ -2984,7 +2771,7 @@ void FullModelReactionDynamics::AddBlackTrackParticles(const G4double epnb,  // 
       vec.SetElement(vecLen, p2);
       vec[vecLen]->SetNewlyAdded(true);
       vec[vecLen]->SetKineticEnergy(kinetic * GeV);
-      kinCreated += kinetic;
+      //kinCreated += kinetic;
       pp = vec[vecLen]->GetTotalMomentum() / MeV;
       vec[vecLen++]->SetMomentum(pp * sint * std::sin(phi) * MeV, pp * sint * std::cos(phi) * MeV, pp * cost * MeV);
       // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
@@ -3261,11 +3048,6 @@ void FullModelReactionDynamics::ProduceStrangeParticlePairs(G4FastVector<G4React
     if (i == 12)
       return;
     if ((currentMass < protonMass) || (G4UniformRand() < 0.5)) {
-      // ipaky[] = { 18,10, 18,11, 18,12, 20,10, 20,11, 20,12,
-      //             0  +   0  0   0  0   +  +   +  0   +  0
-      //
-      //             21,10, 21,11, 21,12, 22,10, 22,11, 22,12 }
-      //             0  +   0  0   0  0   -  +   -  0   -  0
       switch (ipaky1[i]) {
         case 18:
           targetParticle.SetDefinition(aLambda);

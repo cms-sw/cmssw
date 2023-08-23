@@ -257,13 +257,12 @@ std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Ca
   if (verbose)
     print2DVector(sorted_energies);
 
-  unsigned int row = 0, col = 0;
+  unsigned int row = 0;
   std::vector<l1t::L1Candidate> energy_feeder(cols, dummyJet);
   std::vector<l1t::L1Candidate> energy_result(cols, dummyJet);
   for (int r = 0; r < rows; r++) {
     for (int c = 0; c < cols; c++) {
       row = (r % row_block_length) * cols + c;  //row goes up to 19 and we pad with zeros
-      //cout << "row, col = " << row << ", " << col << endl;
 
       if (row < input_egamma.size()) {
         energy_feeder[c] = input_egamma[row];
@@ -276,10 +275,6 @@ std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Ca
     energy_result = sort_array(energy_feeder);  //sort!
 
     sorted_energies[r] = energy_result;
-
-    if (r % row_block_length == row_block_length - 1)
-      col++;
-
   }  //r
   if (verbose)
     print2DVector(sorted_energies);

@@ -348,8 +348,8 @@ public:
       dqm::impl::MonitorElement *histCurr = FindHist(key);
       if (histCurr == nullptr)
         return -999;
-      for (Int_t i = nIdxStart; i <= nNumBin; i++) {
-        histCurr->setBinLabel(i, Form("%i", i), nAxis);
+      for (Int_t i = 1; i <= nNumBin; i++) {
+        histCurr->setBinLabel(i, Form("%i", nIdxStart + i - 1), nAxis);
       }
       return 0;
     };
@@ -370,9 +370,24 @@ public:
       dqm::impl::MonitorElement *histCurr = FindHist(key);
       if (histCurr == nullptr)
         return -999;
-      for (Int_t i = 0; i < nNumBin; i++) {
-        Int_t nIEta = pDQMBase_->getIEtaFromVFAT(std::get<1>(key), i);
-        histCurr->setBinLabel(i + 1, Form("%i (%i)", i, nIEta), nAxis);
+      if (std::get<1>(key) == 2) {
+        Int_t nNumVFATPerModule = 12;  // FIXME: A better way to get this?
+        if (nNumBin > nNumVFATPerModule) {
+          for (Int_t i = 0; i < nNumBin; i++) {
+            Int_t nIModule = i / nNumVFATPerModule + 1;
+            histCurr->setBinLabel(
+                i + 1, Form((nAxis == 1 ? "#splitline{%i}{M%i}" : "%i (M%i)"), i % nNumVFATPerModule, nIModule), nAxis);
+          }
+        } else {
+          for (Int_t i = 0; i < nNumBin; i++) {
+            histCurr->setBinLabel(i + 1, Form("%i", i), nAxis);
+          }
+        }
+      } else {
+        for (Int_t i = 0; i < nNumBin; i++) {
+          Int_t nIEta = pDQMBase_->getIEtaFromVFAT(std::get<1>(key), i);
+          histCurr->setBinLabel(i + 1, Form("%i (%i)", i, nIEta), nAxis);
+        }
       }
       return 0;
     };
@@ -458,6 +473,7 @@ public:
   typedef MEMapInfT<MEMap2Ids, ME2IdsKey> MEMap2Inf;
   typedef MEMapInfT<MEMap3Ids, ME3IdsKey> MEMap3Inf;
   typedef MEMapInfT<MEMap4Ids, ME4IdsKey> MEMap4Inf;
+  typedef MEMapInfT<MEMap5Ids, ME5IdsKey> MEMap5Inf;
 
   class MEStationInfo {
   public:
@@ -466,8 +482,10 @@ public:
                   Int_t nStation,
                   Int_t nLayer,
                   Int_t nNumChambers,
+                  Int_t nNumModules,
                   Int_t nNumEtaPartitions,
                   Int_t nMaxVFAT,
+                  Int_t nFirstStrip,
                   Int_t nNumDigi,
                   Int_t nMinIdxChamber,
                   Int_t nMaxIdxChamber)
@@ -475,8 +493,10 @@ public:
           nStation_(nStation),
           nLayer_(nLayer),
           nNumChambers_(nNumChambers),
+          nNumModules_(nNumModules),
           nNumEtaPartitions_(nNumEtaPartitions),
           nMaxVFAT_(nMaxVFAT),
+          nFirstStrip_(nFirstStrip),
           nNumDigi_(nNumDigi),
           nMinIdxChamber_(nMinIdxChamber),
           nMaxIdxChamber_(nMaxIdxChamber),
@@ -484,17 +504,20 @@ public:
 
     bool operator==(const MEStationInfo &other) const {
       return (nRegion_ == other.nRegion_ && nStation_ == other.nStation_ && nLayer_ == other.nLayer_ &&
-              nNumChambers_ == other.nNumChambers_ && nNumEtaPartitions_ == other.nNumEtaPartitions_ &&
-              nMaxVFAT_ == other.nMaxVFAT_ && nNumDigi_ == other.nNumDigi_);
+              nNumChambers_ == other.nNumChambers_ && nNumModules_ == other.nNumModules_ &&
+              nNumEtaPartitions_ == other.nNumEtaPartitions_ && nMaxVFAT_ == other.nMaxVFAT_ &&
+              nFirstStrip_ == other.nFirstStrip_ && nNumDigi_ == other.nNumDigi_);
     };
 
     Int_t nRegion_;            // the region index
     Int_t nStation_;           // the station index
     Int_t nLayer_;             // the layer
     Int_t nNumChambers_;       // the number of chambers in the current station
+    Int_t nNumModules_;        // the number of modules in each chamber
     Int_t nNumEtaPartitions_;  // the number of eta partitions of the chambers
-    Int_t nMaxVFAT_;  // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
-    Int_t nNumDigi_;  // the number of digis of each VFAT
+    Int_t nMaxVFAT_;     // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
+    Int_t nFirstStrip_;  // the index of the first strip
+    Int_t nNumDigi_;     // the number of digis of each VFAT
 
     Int_t nMinIdxChamber_;
     Int_t nMaxIdxChamber_;
@@ -533,19 +556,27 @@ protected:
   virtual int ProcessWithMEMap2AbsReWithEta(BookingHelper &bh, ME3IdsKey key) { return 0; };  // must be overrided
   virtual int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) { return 0; };              // must be overrided
   virtual int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) { return 0; };              // must be overrided
-  virtual int ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };   // must be overrided
+  virtual int ProcessWithMEMap5(BookingHelper &bh, ME5IdsKey key) { return 0; };              // must be overrided
+  virtual int ProcessWithMEMap4WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };   // must be overrided
+  virtual int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) { return 0; };   // must be overrided
 
   int keyToRegion(ME2IdsKey key) { return std::get<0>(key); };
   int keyToRegion(ME3IdsKey key) { return std::get<0>(key); };
   int keyToRegion(ME4IdsKey key) { return std::get<0>(key); };
+  int keyToRegion(ME5IdsKey key) { return std::get<0>(key); };
   int keyToStation(ME2IdsKey key) { return std::get<1>(key); };
   int keyToStation(ME3IdsKey key) { return std::get<1>(key); };
   int keyToStation(ME4IdsKey key) { return std::get<1>(key); };
+  int keyToStation(ME5IdsKey key) { return std::get<1>(key); };
   int keyToLayer(ME3IdsKey key) { return std::get<2>(key); };
   int keyToLayer(ME4IdsKey key) { return std::get<2>(key); };
+  int keyToLayer(ME5IdsKey key) { return std::get<2>(key); };
+  int keyToModule(ME4IdsKey key) { return std::get<3>(key); };
+  int keyToModule(ME5IdsKey key) { return std::get<3>(key); };
   int keyToChamber(ME4IdsKey key) { return std::get<3>(key); };
-  int keyToIEta(ME3IdsKey key) { return std::get<2>(key); };
+  int keyToChamber(ME5IdsKey key) { return std::get<4>(key); };
   int keyToIEta(ME4IdsKey key) { return std::get<3>(key); };
+  int keyToIEta(ME5IdsKey key) { return std::get<4>(key); };
 
   ME2IdsKey key3Tokey2(ME3IdsKey key) {
     auto keyNew = ME2IdsKey{keyToRegion(key), keyToStation(key)};
@@ -557,7 +588,12 @@ protected:
     return keyNew;
   };
 
-  int SortingLayers(std::vector<ME3IdsKey> &listLayers);
+  ME4IdsKey key5Tokey4(ME5IdsKey key) {
+    auto keyNew = ME4IdsKey{keyToRegion(key), keyToStation(key), keyToLayer(key), keyToModule(key)};
+    return keyNew;
+  };
+
+  int SortingLayers(std::vector<ME4IdsKey> &listLayers);
   dqm::impl::MonitorElement *CreateSummaryHist(DQMStore::IBooker &ibooker, TString strName);
 
   template <typename T>
@@ -572,9 +608,12 @@ protected:
   inline int getIEtaFromVFATGE11(const int vfat);
   inline int getIEtaFromVFATGE21(const int vfat);
   inline int getMaxVFAT(const int);
+  inline int getNumModule(const int);
+  inline int getIdxModule(const int, const int);
   inline int getDetOccXBin(const int, const int, const int);
   inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
   inline std::string getNameDirLayer(ME3IdsKey key3);
+  inline std::string getNameDirLayer(ME4IdsKey key4);
 
   const GEMGeometry *GEMGeometry_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
@@ -586,12 +625,14 @@ protected:
   std::map<ME3IdsKey, bool> MEMap2WithEtaCheck_;
   std::map<ME3IdsKey, bool> MEMap2AbsReWithEtaCheck_;
   std::map<ME3IdsKey, bool> MEMap3Check_;
-  std::map<ME4IdsKey, bool> MEMap3WithChCheck_;
   std::map<ME4IdsKey, bool> MEMap4Check_;
+  std::map<ME4IdsKey, bool> MEMap4WithChCheck_;
+  std::map<ME5IdsKey, bool> MEMap5WithChCheck_;
+  std::map<ME5IdsKey, bool> MEMap5Check_;
 
   int nMaxNumCh_;
-  std::map<ME3IdsKey, int> mapStationToIdx_;
   std::map<ME3IdsKey, MEStationInfo> mapStationInfo_;
+  std::map<ME4IdsKey, int> mapStationToIdx_;
 };
 
 // Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
@@ -611,7 +652,29 @@ inline int GEMDQMBase::getMaxVFAT(const int station) {
   if (station == 1)
     return GEMeMap::maxVFatGE11_;
   else if (station == 2)
-    return GEMeMap::maxVFatGE21_;
+    return GEMeMap::maxVFatGE21_ / 2;
+  else
+    return -1;
+}
+
+inline int GEMDQMBase::getNumModule(const int station) {
+  if (station == 0)
+    return 1;
+  if (station == 1)
+    return 1;
+  else if (station == 2)
+    return 4;
+  else
+    return -1;
+}
+
+inline int GEMDQMBase::getIdxModule(const int station, const int chamberType) {
+  if (station == 0)
+    return 1;
+  if (station == 1)
+    return 1;
+  else if (station == 2)
+    return chamberType - 20;
   else
     return -1;
 }
@@ -667,6 +730,17 @@ inline std::string GEMDQMBase::getNameDirLayer(ME3IdsKey key3) {
   auto nStation = keyToStation(key3);
   char cRegion = (keyToRegion(key3) > 0 ? 'P' : 'M');
   auto nLayer = keyToLayer(key3);
+  return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));
+}
+
+inline std::string GEMDQMBase::getNameDirLayer(ME4IdsKey key4) {
+  auto nStation = keyToStation(key4);
+  char cRegion = (keyToRegion(key4) > 0 ? 'P' : 'M');
+  auto nLayer = keyToLayer(key4);
+  if (nStation == 2) {
+    auto nModule = keyToModule(key4);
+    return std::string(Form("GE%i1-%c-L%i-M%i", nStation, cRegion, nLayer, nModule));
+  }
   return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));
 }
 

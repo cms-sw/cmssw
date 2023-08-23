@@ -8,7 +8,7 @@
 // These vertices are clusterized and fitted only along the beam line (z)
 // to obtain their global coordinate the beam spot position shall be added (eventually correcting for the beam angle as well)
 struct ZVertexSoA {
-  static constexpr uint32_t MAXTRACKS = 32 * 1024;
+  static constexpr uint32_t MAXTRACKS = 128 * 1024;
   static constexpr uint32_t MAXVTX = 1024;
 
   int16_t idv[MAXTRACKS];    // vertex index for each associated (original) track  (-1 == not associate)

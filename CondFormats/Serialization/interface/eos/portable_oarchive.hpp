@@ -120,19 +120,8 @@
 #endif
 
 // endian and fpclassify
-#if BOOST_VERSION < 103600
-#include <boost/integer/endian.hpp>
-#include <boost/math/fpclassify.hpp>
-#elif BOOST_VERSION < 104800
-#include <boost/spirit/home/support/detail/integer/endian.hpp>
-#include <boost/spirit/home/support/detail/math/fpclassify.hpp>
-#elif BOOST_VERSION >= 106900
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/endian/conversion.hpp>
-#else
-#include <boost/spirit/home/support/detail/endian/endian.hpp>
-#include <boost/spirit/home/support/detail/math/fpclassify.hpp>
-#endif
 
 // namespace alias fp_classify
 #if BOOST_VERSION < 103800
@@ -141,15 +130,6 @@ namespace fp = boost::math;
 namespace fp = boost::math;
 #else
 namespace fp = boost::spirit::math;
-#endif
-
-// namespace alias endian
-#if BOOST_VERSION < 104800
-namespace endian = boost::detail;
-#elif BOOST_VERSION >= 106900
-namespace endian = boost::endian;
-#else
-namespace endian = boost::spirit::detail;
 #endif
 
 #if BOOST_VERSION >= 104500 && !defined BOOST_NO_STD_WSTRING
@@ -336,13 +316,9 @@ namespace eos {
         save_signed_char(t > 0 ? size : -size);
         BOOST_ASSERT(t > 0 || boost::is_signed<T>::value);
 
-// we choose to use little endian because this way we just
-// save the first size bytes to the stream and skip the rest
-#if BOOST_VERSION >= 106900
-        temp = endian::native_to_little(t);
-#else
-        endian::store_little_endian<T, sizeof(T)>(&temp, t);
-#endif
+        // we choose to use little endian because this way we just
+        // save the first size bytes to the stream and skip the rest
+        temp = boost::endian::native_to_little(t);
         save_binary(&temp, size);
       }
       // zero optimization
@@ -353,13 +329,13 @@ namespace eos {
     /**
 		 * \brief Save floating point types.
 		 * 
-		 * We simply rely on fp_traits to extract the bit pattern into an (unsigned)
+		 * We simply rely on fp_traits_non_native to extract the bit pattern into an (unsigned)
 		 * integral type and store that into the stream. Francois Mauger provided
 		 * standardized behaviour for special values like inf and NaN, that need to
 		 * be serialized in his application.
 		 *
 		 * \note by Johan Rade (author of the floating point utilities library):
-		 * Be warned that the math::detail::fp_traits<T>::type::get_bits() function 
+		 * Be warned that the math::detail::fp_traits_non_native<T,U>::get_bits() function 
 		 * is *not* guaranteed to give you all bits of the floating point number. It
 		 * will give you all bits if and only if there is an integer type that has
 		 * the same size as the floating point you are copying from. It will not
@@ -379,7 +355,8 @@ namespace eos {
 		 */
     template <typename T>
     typename boost::enable_if<boost::is_floating_point<T> >::type save(const T& t, dummy<3> = 0) {
-      typedef typename fp::detail::fp_traits<T>::type traits;
+      typedef typename fp::detail::size_to_precision<sizeof(T), ::std::is_floating_point<T>::value>::type precision;
+      typedef typename fp::detail::fp_traits_non_native<T, precision> traits;
 
       // if the no_infnan flag is set we must throw here
       if (get_flags() & no_infnan && !fp::isfinite(t))

@@ -76,10 +76,10 @@ void SiPixelPhase1ResidualsExtra::bookMEs(DQMStore::IBooker& iBooker) {
   iBooker.setCurrentFolder(topFolderName_ + "/PXBarrel");
 
   for (std::string layer : {"1", "2", "3", "4"}) {
-    float mean_range = 100.;
+    float mean_range = 20.;
     float rms_range = 200.;
     if (layer == "1") {
-      mean_range = 200.;
+      mean_range = 50.;
       rms_range = 1000.;
     }
     residuals_["residual_mean_x_Inner_PXLayer_" + layer] =
@@ -136,64 +136,64 @@ void SiPixelPhase1ResidualsExtra::bookMEs(DQMStore::IBooker& iBooker) {
         "NormRes_mean_x_Inner_PXLayer_" + layer,
         "Mean of Normalized Track Residuals X Inner Modules for Layer " + layer + ";mean((x_rec-x_pred)/x_err)",
         100,
-        -1 * 5,
-        5);
+        -1 * 1,
+        1);
     DRnR_["NormRes_mean_x_Outer_PXLayer_" + layer] = iBooker.book1D(
         "NormRes_mean_x_Outer_PXLayer_" + layer,
         "Mean of Normalized Track Residuals X Outer Modules for Layer " + layer + ";mean((x_rec-x_pred)/x_err)",
         100,
-        -1 * 5,
-        5);
+        -1 * 1,
+        1);
     DRnR_["NormRes_mean_y_Inner_PXLayer_" + layer] = iBooker.book1D(
         "NormRes_mean_y_Inner_PXLayer_" + layer,
         "Mean of Normalized Track Residuals Y Inner Modules for Layer " + layer + ";mean((y_rec-y_pred)/y_err)",
         100,
-        -1 * 5,
-        5);
+        -1 * 1,
+        1);
     DRnR_["NormRes_mean_y_Outer_PXLayer_" + layer] = iBooker.book1D(
         "NormRes_mean_y_Outer_PXLayer_" + layer,
         "Mean of Normalized Track Residuals Y Outer Modules for Layer " + layer + ";mean((y_rec-y_pred)/y_err)",
         100,
-        -1 * 5,
-        5);
+        -1 * 1,
+        1);
 
     DRnR_["DRnR_x_Inner_PXLayer_" + layer] = iBooker.book1D(
         "DRnR_x_Inner_PXLayer_" + layer,
         "RMS of Normalized Track Residuals X Inner Modules for Layer " + layer + ";rms((x_rec-x_pred)/x_err)",
         100,
         0.,
-        5);
+        2);
     DRnR_["DRnR_x_Outer_PXLayer_" + layer] = iBooker.book1D(
         "DRnR_x_Outer_PXLayer_" + layer,
         "RMS of Normalized Track Residuals X Outer Modules for Layer " + layer + ";rms((x_rec-x_pred)/x_err)",
         100,
         0.,
-        5);
+        2);
     DRnR_["DRnR_y_Inner_PXLayer_" + layer] = iBooker.book1D(
         "DRnR_y_Inner_PXLayer_" + layer,
         "RMS of Normalized Track Residuals Y Inner Modules for Layer " + layer + ";rms((y_rec-y_pred)/y_err)",
         100,
         0.,
-        5);
+        2);
     DRnR_["DRnR_y_Outer_PXLayer_" + layer] = iBooker.book1D(
         "DRnR_y_Outer_PXLayer_" + layer,
         "RMS of Normalized Track Residuals Y Outer Modules for Layer " + layer + ";rms((y_rec-y_pred)/y_err)",
         100,
         0.,
-        5);
+        2);
   }
 
   //New residual plots for the PXForward separated by inner and outer modules
   iBooker.setCurrentFolder(topFolderName_ + "/PXForward");
 
   residuals_["residual_mean_x_Inner"] = iBooker.book1D(
-      "residual_mean_x_Inner", "Mean of Track Residuals X Inner Modules;mean(x_rec-x_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_x_Inner", "Mean of Track Residuals X Inner Modules;mean(x_rec-x_pred)[#mum]", 100, -20., 20.);
   residuals_["residual_mean_x_Outer"] = iBooker.book1D(
-      "residual_mean_x_Outer", "Mean of Track Residuals X Outer Modules;mean(x_rec-x_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_x_Outer", "Mean of Track Residuals X Outer Modules;mean(x_rec-x_pred)[#mum]", 100, -20., 20.);
   residuals_["residual_mean_y_Inner"] = iBooker.book1D(
-      "residual_mean_y_Inner", "Mean of Track Residuals Y Inner Modules;mean(y_rec-y_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_y_Inner", "Mean of Track Residuals Y Inner Modules;mean(y_rec-y_pred)[#mum]", 100, -20., 20.);
   residuals_["residual_mean_y_Outer"] = iBooker.book1D(
-      "residual_mean_y_Outer", "Mean of Track Residuals Y Outer Modules;mean(y_rec-y_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_y_Outer", "Mean of Track Residuals Y Outer Modules;mean(y_rec-y_pred)[#mum]", 100, -20., 20.);
 
   residuals_["residual_rms_x_Inner"] = iBooker.book1D(
       "residual_rms_x_Inner", "RMS of Track Residuals X Inner Modules;rms(x_rec-x_pred)[#mum]", 100, 0., 200.);
@@ -208,47 +208,47 @@ void SiPixelPhase1ResidualsExtra::bookMEs(DQMStore::IBooker& iBooker) {
       iBooker.book1D("NormRes_mean_x_Inner",
                      "Mean of Normalized Track Residuals X Inner Modules;mean((x_rec-x_pred)/x_err)",
                      100,
-                     -5.,
-                     5.);
+                     -1.,
+                     1.);
   DRnR_["NormRes_mean_x_Outer"] =
       iBooker.book1D("NormRes_mean_x_Outer",
                      "Mean of Normalized Track Residuals X Outer Modules;mean((x_rec-x_pred)/x_err)",
                      100,
-                     -5.,
-                     5.);
+                     -1.,
+                     1.);
   DRnR_["NormRes_mean_y_Inner"] =
       iBooker.book1D("NormRes_mean_y_Inner",
                      "Mean of Normalized Track Residuals Y Inner Modules;mean((y_rec-y_pred)/y_err)",
                      100,
-                     -5.,
-                     5.);
+                     -1.,
+                     1.);
   DRnR_["NormRes_mean_y_Outer"] =
       iBooker.book1D("NormRes_mean_y_Outer",
                      "Mean of Normalized Track Residuals Y Outer Modules;mean((y_rec-y_pred)/y_err)",
                      100,
-                     -5.,
-                     5.);
+                     -1.,
+                     1.);
 
   DRnR_["DRnR_x_Inner"] = iBooker.book1D(
-      "DRnR_x_Inner", "RMS of Normalized Track Residuals X Inner Modules;rms((x_rec-x_pred)/x_err)", 100, 0., 5.);
+      "DRnR_x_Inner", "RMS of Normalized Track Residuals X Inner Modules;rms((x_rec-x_pred)/x_err)", 100, 0., 2.);
   DRnR_["DRnR_x_Outer"] = iBooker.book1D(
-      "DRnR_x_Outer", "RMS of Normalized Track Residuals X Outer Modules;rms((x_rec-x_pred)/x_err)", 100, 0., 5.);
+      "DRnR_x_Outer", "RMS of Normalized Track Residuals X Outer Modules;rms((x_rec-x_pred)/x_err)", 100, 0., 2.);
   DRnR_["DRnR_y_Inner"] = iBooker.book1D(
-      "DRnR_y_Inner", "RMS of Normalized Track Residuals Y Inner Modules;rms((y_rec-y_pred)/y_err)", 100, 0., 5.);
+      "DRnR_y_Inner", "RMS of Normalized Track Residuals Y Inner Modules;rms((y_rec-y_pred)/y_err)", 100, 0., 2.);
   DRnR_["DRnR_y_Outer"] = iBooker.book1D(
-      "DRnR_y_Outer", "RMS of Normalized Track Residuals Y Outer Modules;rms((y_rec-y_pred)/y_err)", 100, 0., 5.);
+      "DRnR_y_Outer", "RMS of Normalized Track Residuals Y Outer Modules;rms((y_rec-y_pred)/y_err)", 100, 0., 2.);
 
   //New residual plots for the PXForward separated by positive and negative side
   iBooker.setCurrentFolder(topFolderName_ + "/PXForward");
 
   residuals_["residual_mean_x_pos"] = iBooker.book1D(
-      "residual_mean_x_pos", "Mean of Track Residuals X pos. Side;mean(x_rec-x_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_x_pos", "Mean of Track Residuals X pos. Side;mean(x_rec-x_pred)[#mum]", 100, -20., 20.);
   residuals_["residual_mean_x_neg"] = iBooker.book1D(
-      "residual_mean_x_neg", "Mean of Track Residuals X neg. Side;mean(x_rec-x_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_x_neg", "Mean of Track Residuals X neg. Side;mean(x_rec-x_pred)[#mum]", 100, -20., 20.);
   residuals_["residual_mean_y_pos"] = iBooker.book1D(
-      "residual_mean_y_pos", "Mean of Track Residuals Y pos. Side;mean(y_rec-y_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_y_pos", "Mean of Track Residuals Y pos. Side;mean(y_rec-y_pred)[#mum]", 100, -20., 20.);
   residuals_["residual_mean_y_neg"] = iBooker.book1D(
-      "residual_mean_y_neg", "Mean of Track Residuals Y neg. Side;mean(y_rec-y_pred)[#mum]", 100, -100., 100.);
+      "residual_mean_y_neg", "Mean of Track Residuals Y neg. Side;mean(y_rec-y_pred)[#mum]", 100, -20., 20.);
 
   residuals_["residual_rms_x_pos"] =
       iBooker.book1D("residual_rms_x_pos", "RMS of Track Residuals X pos. Side;rms(x_rec-x_pred)[#mum]", 100, 0., 200.);
@@ -260,22 +260,22 @@ void SiPixelPhase1ResidualsExtra::bookMEs(DQMStore::IBooker& iBooker) {
       iBooker.book1D("residual_rms_y_neg", "RMS of Track Residuals Y neg. Side;rms(y_rec-y_pred)[#mum]", 100, 0., 200.);
   //Normalized Residuals pos/neg
   DRnR_["NormRes_mean_x_pos"] = iBooker.book1D(
-      "NormRes_mean_x_pos", "Mean of Normalized Track Residuals X pos. Side;mean((x_rec-x_pred)/x_err)", 100, -5., 5.);
+      "NormRes_mean_x_pos", "Mean of Normalized Track Residuals X pos. Side;mean((x_rec-x_pred)/x_err)", 100, -1., 1.);
   DRnR_["NormRes_mean_x_neg"] = iBooker.book1D(
-      "NormRes_mean_x_neg", "Mean of Normalized Track Residuals X neg. Side;mean((x_rec-x_pred)/x_err)", 100, -5., 5.);
+      "NormRes_mean_x_neg", "Mean of Normalized Track Residuals X neg. Side;mean((x_rec-x_pred)/x_err)", 100, -1., 1.);
   DRnR_["NormRes_mean_y_pos"] = iBooker.book1D(
-      "NormRes_mean_y_pos", "Mean of Normalized Track Residuals Y pos. Side;mean((y_rec-y_pred)/y_err)", 100, -5., 5.);
+      "NormRes_mean_y_pos", "Mean of Normalized Track Residuals Y pos. Side;mean((y_rec-y_pred)/y_err)", 100, -1., 1.);
   DRnR_["NormRes_mean_y_neg"] = iBooker.book1D(
-      "NormRes_mean_y_neg", "Mean of Normalized Track Residuals Y neg. Side;mean((y_rec-y_pred)/y_err)", 100, -5., 5.);
+      "NormRes_mean_y_neg", "Mean of Normalized Track Residuals Y neg. Side;mean((y_rec-y_pred)/y_err)", 100, -1., 1.);
 
   DRnR_["DRnR_x_pos"] = iBooker.book1D(
-      "DRnR_x_pos", "RMS of Normalized Track Residuals X pos. Side;rms((x_rec-x_pred)/x_err)", 100, 0., 5.);
+      "DRnR_x_pos", "RMS of Normalized Track Residuals X pos. Side;rms((x_rec-x_pred)/x_err)", 100, 0., 2.);
   DRnR_["DRnR_x_neg"] = iBooker.book1D(
-      "DRnR_x_neg", "RMS of Normalized Track Residuals X neg. Side;rms((x_rec-x_pred)/x_err)", 100, 0., 5.);
+      "DRnR_x_neg", "RMS of Normalized Track Residuals X neg. Side;rms((x_rec-x_pred)/x_err)", 100, 0., 2.);
   DRnR_["DRnR_y_pos"] = iBooker.book1D(
-      "DRnR_y_pos", "RMS of Normalized Track Residuals Y pos. Side;rms((y_rec-y_pred)/y_err)", 100, 0., 5.);
+      "DRnR_y_pos", "RMS of Normalized Track Residuals Y pos. Side;rms((y_rec-y_pred)/y_err)", 100, 0., 2.);
   DRnR_["DRnR_y_neg"] = iBooker.book1D(
-      "DRnR_y_neg", "RMS of Normalized Track Residuals Y neg. Side;rms((y_rec-y_pred)/y_err)", 100, 0., 5.);
+      "DRnR_y_neg", "RMS of Normalized Track Residuals Y neg. Side;rms((y_rec-y_pred)/y_err)", 100, 0., 2.);
 
   //Reset the iBooker
   iBooker.setCurrentFolder("PixelPhase1/");

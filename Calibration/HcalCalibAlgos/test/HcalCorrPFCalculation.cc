@@ -250,7 +250,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   // MC particle with highest pt is taken as a direction reference
   double maxPt = -99999.;
-  int npart = 0;
 
   GlobalPoint initpos(0, 0, 0);
 
@@ -261,7 +260,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     double pt = (*p)->momentum().perp();
     mom_MC = (*p)->momentum().rho();
     if (pt > maxPt) {
-      npart++;
       maxPt = pt; /*phi_MC = phiParticle; eta_MC = etaParticle;*/
     }
     GlobalVector mom((*p)->momentum().x(), (*p)->momentum().y(), (*p)->momentum().z());

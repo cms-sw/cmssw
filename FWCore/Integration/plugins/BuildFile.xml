@@ -1,0 +1,134 @@
+<environment>
+  <library file="TestPSetAnalyzer.cc,ProducerWithPSetDesc.cc,TestDescriptionComments.cc" name="FWCoreIntegrationTestPSet">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/Utilities"/>
+  </library>
+
+  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,ThingSource.cc,ThingExtSource.cc,ThingWithMergeProducer.cc,TestGetterOfProducts.cc,PutOrMergeTestSource.cc,TestGetByLabelAnalyzer.cc,ThingAnalyzer.cc,TestOutputWithGetterOfProducts.cc,TestOutputWithGetterOfProductsGlobal.cc,TestOutputWithGetterOfProductsLimited.cc"
+      name="FWCoreIntegrationTestWithThing">
+      <flags EDM_PLUGIN="1"/>
+      <use name="FWCore/Framework"/>
+      <use name="FWCore/Sources"/>
+      <use name="DataFormats/Common"/>
+      <use name="DataFormats/TestObjects"/>
+</library>
+  
+  <library file="ThinningThingProducer.cc,SlimmingThingProducer.cc,WhatsIt.cc,GadgetRcd.cc,Doodad.cc,WhatsItESProducer.cc,WhatsItAnalyzer.cc,WhatsItWatcherAnalyzer.cc,DoodadESProducer.cc,DoodadEDLooper.cc,DoodadESSource.cc" name="FWCoreIntegrationTestWithWhatsItDoodad">
+      <flags EDM_PLUGIN="1"/>
+      <use name="FWCore/Framework"/>
+      <use name="DataFormats/TestObjects"/>
+</library>
+
+  <library file="AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc, TableTestModules.cc, TestGlobalOutput.cc, TestLimitedOutput.cc, TestOneOutput.cc, PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc,ExceptionThrowingProducer.cc,ProdigalAnalyzer.cc,IntSource.cc,ViewAnalyzer.cc,TestFindProduct.cc,ManyProductProducer.cc,TestParentage.cc,HierarchicalEDProducer.cc,ThrowingSource.cc, DelayedReaderThrowingSource.cc,TestHistoryKeeping.cc,PathAnalyzer.cc" name="FWCoreIntegrationSomeTestModules">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Sources"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="DataFormats/TestObjects"/>
+  </library>
+
+  <library file="HistProducer.cc" name="TestHistProducer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="root"/>
+  </library>
+
+  <library file="OtherThingProducer.cc,OtherThingAlgorithm.cc,OtherThingAnalyzer.cc,OtherThingRefComparer.cc" name="FWCoreIntegrationOtherThing">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/Common"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/MessageLogger"/>
+  </library>
+
+  <library file="ValueExample.cc" name="FWCoreIntegrationValueExample">
+    <use name="FWCore/ParameterSet"/>
+    <flags EDM_PLUGIN="0"/>
+  </library>
+
+  <library file="ValueExamplePlugin.cc" name="FWCoreIntegrationValueExamplePlugin">
+    <flags EDM_PLUGIN="1"/>
+    <lib name="FWCoreIntegrationValueExample"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+  </library>
+
+  <library file="UseValueExampleAnalyzer.cc" name="UseValueExampleAnalyzer">
+    <lib name="FWCoreIntegrationValueExample"/>
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Framework"/>
+  </library>
+
+  <library file="AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, WaitingService.cc, WaitingServer.cc,AcquireIntESProducer.cc" name="FWCoreIntegrationWaitingServiceModules">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="DataFormats/TestObjects"/>
+    <use name="FWCore/Concurrency"/>
+    <use name="FWCore/Integration"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+  </library>
+
+
+  <library file="PathsAndConsumesOfModulesTestService.cc" name="FWCoreIntegrationPathsAndConsumesOfModulesTestService">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+  </library>
+
+  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc,TestESConcurrentSource.cc" name="ConcurrentIOVESSource">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Integration"/>
+    <use name="FWCore/Framework"/>
+  </library>
+
+  <library file="ESTestProducers.cc,ESTestAnalyzers.cc" name="ESTestModules">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/Integration"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="FWCore/ParameterSet"/>
+  </library>
+
+  <library file="TestInterProcessProd.cc" name="TestInterProcessProd">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Sources"/>
+    <use name="FWCore/SharedMemory"/>
+    <use name="boost"/>
+  </library>
+
+  <library file="TestInterProcessRandomProd.cc,RandomIntProducer.cc" name="TestInterProcessRandomProd">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Sources"/>
+    <use name="FWCore/SharedMemory"/>
+    <use name="FWCore/Utilities"/>
+    <use name="DataFormats/TestObjects"/>
+    <use name="boost"/>
+    <use name="clhep"/>
+  </library>
+  <library file="TestServicesOnNonFrameworkThreadsAnalyzer.cc" name = "TestServicesOnNonFrameworkThreadsAnalyzer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="clhep"/>
+  </library>
+
+  <library file="TransformIntProducer.cc, TransformIntStreamProducer.cc, TransformAsyncIntProducer.cc, TransformAsyncIntStreamProducer.cc" name = "FWCoreIntegrationTransformIntProducer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+  </library>
+  
+</environment>

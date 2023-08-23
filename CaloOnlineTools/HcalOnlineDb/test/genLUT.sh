@@ -181,6 +181,7 @@ then
     mkdir -p $CondDir/$Tag/Debug
     hcalLUT merge storePrepend="$flist" outputFile=$CondDir/$Tag/${Tag}.xml
     sed -i 's:UTF-8:ISO-8859-1:g' $CondDir/$Tag/${Tag}.xml
+    sed -i 's:"no" :'\''no'\'':g' $CondDir/$Tag/${Tag}.xml
     sed -i '/^$/d' $CondDir/$Tag/${Tag}.xml
     mv *$Tag*.{xml,dat} $CondDir/$Tag/Debug
 

@@ -74,13 +74,10 @@ void reco::isodeposit::OtherJetConstituentsDeltaRVeto::initialize() {
   }
   if (matchedJet.isNonnull()) {
     edm::RefVector<reco::PFCandidateCollection> pfCandsMappedToJet = (*jetToPFCandMap)[matchedJet];
-    int idx = 0;
     for (edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCand = pfCandsMappedToJet.begin();
          pfCand != pfCandsMappedToJet.end();
          ++pfCand) {
-      //std::cout << "pfCand #" << idx << ": Pt = " << (*pfCand)->pt() << ", eta = " << (*pfCand)->eta() << ", phi = " << (*pfCand)->phi() << std::endl;
       items_.push_back(Direction((*pfCand)->eta(), (*pfCand)->phi()));
-      ++idx;
     }
   }
 }

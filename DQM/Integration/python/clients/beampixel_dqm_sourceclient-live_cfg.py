@@ -4,10 +4,10 @@ import FWCore.ParameterSet.Config as cms
 import sys
 if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
-  process = cms.Process("BeamMonitor", Run3_pp_on_PbPb_approxSiStripClusters)
+  process = cms.Process("BeamPixel", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
   from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("BeamMonitor", Run3)
+  process = cms.Process("BeamPixel", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -90,10 +90,10 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 #----------------------------
 # Pixel-Tracks&Vertices Config
 #----------------------------
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoTracker.Configuration.RecoPixelVertexing_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
     TkFilterParameters = dict(

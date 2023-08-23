@@ -170,7 +170,6 @@ SRes LzmaFile::DecodeBuffer() {
   const char *strBuf = (const char *)outBuf;
 
   int countC = 0;
-  int countNum = 0;
   do {
     if (countC >= int(outProcessed)) {
       // cout << " countC=" << countC
@@ -198,7 +197,6 @@ SRes LzmaFile::DecodeBuffer() {
       //cout << " number=" << number << endl;
 
       fStorage.push(number);
-      countNum++;
 
       fStartNumber = false;
 

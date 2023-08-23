@@ -17,7 +17,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/src/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -39,7 +39,8 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupsController::EventSetupsController() {}
-    EventSetupsController::EventSetupsController(ModuleTypeResolverBase const* resolver) : typeResolver_(resolver) {}
+    EventSetupsController::EventSetupsController(ModuleTypeResolverMaker const* resolverMaker)
+        : typeResolverMaker_(resolverMaker) {}
 
     void EventSetupsController::endIOVsAsync(edm::WaitingTaskHolder iEndTask) {
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
@@ -61,7 +62,7 @@ namespace edm {
       // Construct the ESProducers and ESSources
       // shared_ptrs to them are temporarily stored in this
       // EventSetupsController and in the EventSetupProvider
-      fillEventSetupProvider(typeResolver_, *this, *returnValue, iPSet);
+      fillEventSetupProvider(typeResolverMaker_, *this, *returnValue, iPSet);
 
       numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
@@ -113,8 +114,15 @@ namespace edm {
                 forceCacheClear();
               }
               SendSourceTerminationSignalIfException sentry(actReg);
-              actReg->preESSyncIOVSignal_.emit(iSync);
-              eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpls);
+              {
+                //all EventSetupRecordIntervalFinders are sequentially set to the
+                // new SyncValue in the call. The async part is just waiting for
+                // the Records to be available which is done after the SyncValue setup.
+                actReg->preESSyncIOVSignal_.emit(iSync);
+                auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
+                std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
+                eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpls);
+              }
               sentry.completedSuccessfully();
             } catch (...) {
               task.doneWaiting(std::current_exception());
@@ -193,25 +201,25 @@ namespace edm {
       }
     }
 
-    std::shared_ptr<DataProxyProvider> EventSetupsController::getESProducerAndRegisterProcess(
+    std::shared_ptr<ESProductResolverProvider> EventSetupsController::getESProducerAndRegisterProcess(
         ParameterSet const& pset, unsigned subProcessIndex) {
-      // Try to find a DataProxyProvider with a matching ParameterSet
+      // Try to find a ESProductResolverProvider with a matching ParameterSet
       auto elements = esproducers_.equal_range(pset.id());
       for (auto it = elements.first; it != elements.second; ++it) {
         // Untracked parameters must also match, do complete comparison if IDs match
         if (isTransientEqual(pset, *it->second.pset())) {
           // Register processes with an exact match
           it->second.subProcessIndexes().push_back(subProcessIndex);
-          // Return the DataProxyProvider
+          // Return the ESProductResolverProvider
           return it->second.provider();
         }
       }
       // Could not find it
-      return std::shared_ptr<DataProxyProvider>();
+      return std::shared_ptr<ESProductResolverProvider>();
     }
 
     void EventSetupsController::putESProducer(ParameterSet& pset,
-                                              std::shared_ptr<DataProxyProvider> const& component,
+                                              std::shared_ptr<ESProductResolverProvider> const& component,
                                               unsigned subProcessIndex) {
       auto newElement =
           esproducers_.insert(std::pair<ParameterSetID, ESProducerInfo>(pset.id(), ESProducerInfo(&pset, component)));
@@ -416,9 +424,9 @@ namespace edm {
         // will be the one selected if there is more than one.
         std::set<ParameterSetIDHolder> sharingCheckDone;
 
-        // This will hold an entry for DataProxy's that are
+        // This will hold an entry for ESProductResolver's that are
         // referenced by an EventSetupRecord in this SubProcess.
-        // But only for DataProxy's that are associated with
+        // But only for ESProductResolver's that are associated with
         // an ESProducer (not the ones associated with ESSource's
         // or EDLooper's)
         std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>> referencedESProducers;
@@ -430,10 +438,10 @@ namespace edm {
         for (auto precedingESProvider = providers_.begin(); precedingESProvider != esProvider; ++precedingESProvider) {
           (*esProvider)
               ->checkESProducerSharing(
-                  typeResolver_, **precedingESProvider, sharingCheckDone, referencedESProducers, *this);
+                  typeResolverMaker_, **precedingESProvider, sharingCheckDone, referencedESProducers, *this);
         }
 
-        (*esProvider)->resetRecordToProxyPointers();
+        (*esProvider)->resetRecordToResolverPointers();
       }
       for (auto& eventSetupProvider : providers_) {
         eventSetupProvider->clearInitializationData();

@@ -156,6 +156,19 @@ SKIMStreamHSCPSD = cms.FilteredStream(
 
 #####################
 
+from Configuration.Skimming.PDWG_ReserveDMu_SD_cff import *
+ReserveDMuPath = cms.Path(ReserveDMu)
+SKIMStreamReserveDMu = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'ReserveDMu',
+    paths = (ReserveDMuPath),
+    content = skimRawContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
+
+#####################
+
 from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
 CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
 R9IdPhotonPairsPath = cms.Path(R9IdPhotonPairsFilter)
@@ -293,6 +306,17 @@ SKIMStreamEXODelayedJetMET = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
+from Configuration.Skimming.PDWG_EXOLLPJetHCAL_cff import *
+EXOLLPJetHCALPath = cms.Path(EXOLLPJetHCALSkimSequence)
+SKIMStreamEXOLLPJetHCAL = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOLLPJetHCAL',
+    paths = (EXOLLPJetHCALPath),
+    content = skimRawAODContent.outputCommands+['keep *_hbhereco__*'],
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
 from Configuration.Skimming.PDWG_EXODTCluster_cff import *
 EXODTClusterPath = cms.Path(EXODTClusterSkimSequence)
 SKIMStreamEXODTCluster = cms.FilteredStream(
@@ -325,6 +349,17 @@ SKIMStreamEXODisappTrk = cms.FilteredStream(
     content = EXODisappTrkSkimContent.outputCommands, 
     selectEvents = cms.untracked.PSet(), 
     dataTier = cms.untracked.string('AOD')
+    )
+
+from Configuration.Skimming.PDWG_EXODisappMuon_cff import *
+EXODisappMuonPath = cms.Path(EXODisappMuonSkimSequence)
+SKIMStreamEXODisappMuon = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODisappMuon',
+    paths = (EXODisappMuonPath),
+    content = EXODisappMuonSkimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
     )
 
 #####################

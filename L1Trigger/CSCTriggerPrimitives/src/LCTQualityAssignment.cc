@@ -5,7 +5,7 @@ LCTQualityAssignment::LCTQualityAssignment(unsigned endcap,
                                            unsigned sector,
                                            unsigned subsector,
                                            unsigned chamber,
-                                           const edm::ParameterSet& conf)
+                                           CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
   // at least one integrated local trigger is running
   runILT_ = (isME11_ and runME11ILT_) or (isME21_ and runME21ILT_);

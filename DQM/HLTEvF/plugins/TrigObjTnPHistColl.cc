@@ -328,6 +328,7 @@ TrigObjTnPHistColl::HistDefs::bookHists(DQMStore::IBooker& iBooker,
                                         const std::string& name,
                                         const std::string& title) const {
   std::vector<std::pair<HistFiller, dqm::reco::MonitorElement*>> hists;
+  hists.reserve(histData_.size());
   for (const auto& data : histData_) {
     hists.push_back({data.filler(), data.book(iBooker, name, title, massBins_)});
   }

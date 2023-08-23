@@ -1,7 +1,5 @@
 <use name="DataFormats/CTPPSDetId"/>
-<use name="DataFormats/TotemReco"/>
 <use name="FWCore/Utilities"/>
-<use name="Geometry/ForwardGeometry"/>
 <use name="dd4hep"/>
 <use name="root"/>
 <export>

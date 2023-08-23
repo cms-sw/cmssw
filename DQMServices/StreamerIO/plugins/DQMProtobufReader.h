@@ -1,18 +1,11 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Sources/interface/ProducerSourceBase.h"
-#include "FWCore/Sources/interface/PuttableSourceBase.h"
+#ifndef DQMServices_StreamerIO_DQMProtobufReader_h
+#define DQMServices_StreamerIO_DQMProtobufReader_h
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Sources/interface/PuttableSourceBase.h"
 
 #include "DQMFileIterator.h"
-#include "DQMMonitoringService.h"
 
 namespace dqmservices {
 
@@ -22,7 +15,8 @@ namespace dqmservices {
     typedef dqm::legacy::DQMStore DQMStore;
 
     explicit DQMProtobufReader(edm::ParameterSet const&, edm::InputSourceDescription const&);
-    ~DQMProtobufReader() override;
+    ~DQMProtobufReader() override = default;
+
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
@@ -40,16 +34,15 @@ namespace dqmservices {
     void logFileAction(char const* msg, char const* fileName) const;
     bool prepareNextFile();
 
-    bool flagSkipFirstLumis_;
-    bool flagEndOfRunKills_;
-    bool flagDeleteDatFiles_;
-    bool flagLoadFiles_;
-
-    std::unique_ptr<double> streamReader_;
     DQMFileIterator fiterator_;
     DQMFileIterator::LumiEntry currentLumi_;
 
-    InputSource::ItemType nextItemType;
+    bool const flagSkipFirstLumis_;
+    bool const flagEndOfRunKills_;
+    bool const flagDeleteDatFiles_;
+    bool const flagLoadFiles_;
   };
 
 }  // namespace dqmservices
+
+#endif  // DQMServices_StreamerIO_DQMProtobufReader_h

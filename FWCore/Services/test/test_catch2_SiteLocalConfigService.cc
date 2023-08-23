@@ -19,9 +19,10 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     }
   }
   REQUIRE(not dirString.empty());
-  SECTION("full-site-local-config.testfile") {
+  SECTION("sitelocalconfig/full/site-local-config.xml") {
     edm::ParameterSet pset;
-    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl", dirString + "/full-site-local-config.testfile");
+    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
+                                            dirString + "/sitelocalconfig/full/site-local-config.xml");
 
     edm::service::SiteLocalConfigService slc(pset);
 
@@ -62,7 +63,8 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
 
   SECTION("overrides") {
     edm::ParameterSet pset;
-    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl", dirString + "/full-site-local-config.testfile");
+    pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
+                                            dirString + "/sitelocalconfig/full/site-local-config.xml");
 
     pset.addUntrackedParameter<std::string>("overrideSourceCacheTempDir", "/a/d");
     pset.addUntrackedParameter<double>("overrideSourceCacheMinFree", 10.);
@@ -117,10 +119,10 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     REQUIRE(slc.localConnectSuffix() == "OverrideSuffix");
   }
 
-  SECTION("throwtest-site-local-config.testfile") {
+  SECTION("sitelocalconfig/throw/site-local-config.xml") {
     edm::ParameterSet pset;
     pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl",
-                                            dirString + "/throwtest-site-local-config.testfile");
+                                            dirString + "/sitelocalconfig/throw/site-local-config.xml");
 
     REQUIRE_THROWS_AS(edm::service::SiteLocalConfigService(pset), cms::Exception);
   }

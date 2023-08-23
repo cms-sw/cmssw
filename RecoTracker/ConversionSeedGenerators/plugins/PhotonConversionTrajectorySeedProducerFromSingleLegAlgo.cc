@@ -106,10 +106,11 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::loopOnTracks() {
     return;
   }
 
-  size_t idx = 0, sel = 0;
+  size_t idx = 0;
   _countSeedTracks = 0;
 
 #ifdef debugTSPFSLA
+  size_t sel = 0;
   ss.str("");
 #endif
 
@@ -124,8 +125,9 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::loopOnTracks() {
       if (!selectPriVtxCompatibleWithTrack(*tr, selectedPriVtxCompatibleWithTrack))
         continue;
     }
-
+#ifdef debugTSPFSLA
     sel++;
+#endif
     loopOnPriVtx(*tr, selectedPriVtxCompatibleWithTrack);
   }
 #ifdef debugTSPFSLA

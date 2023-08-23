@@ -53,11 +53,7 @@ using namespace std;
 
 L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC) {
   // set configuration parameters
-  if (not m_config) {
-    auto temp = std::make_shared<L1MuDTTFConfig>(ps);
-    std::shared_ptr<L1MuDTTFConfig> empty;
-    std::atomic_compare_exchange_strong(&m_config, &empty, temp);
-  }
+  m_config = std::make_unique<L1MuDTTFConfig>(ps);
 
   if (m_config->Debug(1))
     cout << endl;
@@ -66,10 +62,9 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
   if (m_config->Debug(1))
     cout << endl;
 
-  m_spmap = new L1MuDTSecProcMap();
+  m_spmap = std::make_unique<L1MuDTSecProcMap>();
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
-  m_ms = nullptr;
 
   _cache.reserve(4 * 17);
   _cache0.reserve(144 * 17);
@@ -81,25 +76,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
 // Destructor --
 //--------------
 
-L1MuDTTrackFinder::~L1MuDTTrackFinder() {
-  delete m_spmap;
-
-  vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
-  while (it_ep != m_epvec.end()) {
-    delete (*it_ep);
-    it_ep++;
-  }
-  m_epvec.clear();
-
-  vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-  while (it_ws != m_wsvec.end()) {
-    delete (*it_ws);
-    it_ws++;
-  }
-  m_wsvec.clear();
-
-  delete m_ms;
-}
+L1MuDTTrackFinder::~L1MuDTTrackFinder() = default;
 
 //--------------
 // Operations --
@@ -124,29 +101,29 @@ void L1MuDTTrackFinder::setup(edm::ConsumesCollector&& iC) {
       continue;
     for (int sc = 0; sc < 12; sc++) {
       L1MuDTSecProcId tmpspid(wh, sc);
-      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this, tmpspid, std::move(iC));
+      auto sp = std::make_unique<L1MuDTSectorProcessor>(*this, tmpspid, iC);
       if (m_config->Debug(2))
         cout << "creating " << tmpspid << endl;
-      m_spmap->insert(tmpspid, sp);
+      m_spmap->insert(tmpspid, std::move(sp));
     }
   }
 
   // create new eta processors and wedge sorters
   for (int sc = 0; sc < 12; sc++) {
-    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this, sc, std::move(iC));
+    auto ep = std::make_unique<L1MuDTEtaProcessor>(*this, sc, iC);
     if (m_config->Debug(2))
       cout << "creating Eta Processor " << sc << endl;
-    m_epvec.push_back(ep);
-    L1MuDTWedgeSorter* ws = new L1MuDTWedgeSorter(*this, sc);
+    m_epvec.push_back(std::move(ep));
+    auto ws = std::make_unique<L1MuDTWedgeSorter>(*this, sc);
     if (m_config->Debug(2))
       cout << "creating Wedge Sorter " << sc << endl;
-    m_wsvec.push_back(ws);
+    m_wsvec.push_back(std::move(ws));
   }
 
   // create new muon sorter
   if (m_config->Debug(2))
     cout << "creating DT Muon Sorter " << endl;
-  m_ms = new L1MuDTMuonSorter(*this);
+  m_ms = std::make_unique<L1MuDTMuonSorter>(*this);
 }
 
 //
@@ -181,36 +158,31 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     reset();
 
     // run sector processors
-    L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-    while (it_sp != m_spmap->end()) {
+    for (auto& sp : *m_spmap) {
       if (m_config->Debug(2))
-        cout << "running " << (*it_sp).second->id() << endl;
-      if ((*it_sp).second)
-        (*it_sp).second->run(bx, e, c);
-      if (m_config->Debug(2) && (*it_sp).second)
-        (*it_sp).second->print();
-      it_sp++;
+        cout << "running " << sp.second->id() << endl;
+      if (sp.second)
+        sp.second->run(bx, e, c);
+      if (m_config->Debug(2) && sp.second)
+        sp.second->print();
     }
 
     // run eta processors
-    vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
-    while (it_ep != m_epvec.end()) {
+    for (auto& ep : m_epvec) {
       if (m_config->Debug(2))
-        cout << "running Eta Processor " << (*it_ep)->id() << endl;
-      if (*it_ep)
-        (*it_ep)->run(bx, e, c);
-      if (m_config->Debug(2) && *it_ep)
-        (*it_ep)->print();
-      it_ep++;
+        cout << "running Eta Processor " << ep->id() << endl;
+      if (ep)
+        ep->run(bx, e, c);
+      if (m_config->Debug(2) && ep)
+        ep->print();
     }
 
     // read sector processors
-    it_sp = m_spmap->begin();
-    while (it_sp != m_spmap->end()) {
+    for (auto& sp : *m_spmap) {
       if (m_config->Debug(2))
-        cout << "reading " << (*it_sp).second->id() << endl;
+        cout << "reading " << sp.second->id() << endl;
       for (int number = 0; number < 2; number++) {
-        const L1MuDTTrack* cand = (*it_sp).second->tracK(number);
+        const L1MuDTTrack* cand = sp.second->tracK(number);
         if (cand && !cand->empty())
           _cache0.push_back(L1MuDTTrackCand(cand->getDataWord(),
                                             cand->bx(),
@@ -223,19 +195,16 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
                                             cand->address(4),
                                             cand->tc()));
       }
-      it_sp++;
     }
 
     // run wedge sorters
-    vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-    while (it_ws != m_wsvec.end()) {
+    for (auto& ws : m_wsvec) {
       if (m_config->Debug(2))
-        cout << "running Wedge Sorter " << (*it_ws)->id() << endl;
-      if (*it_ws)
-        (*it_ws)->run();
-      if (m_config->Debug(2) && *it_ws)
-        (*it_ws)->print();
-      it_ws++;
+        cout << "running Wedge Sorter " << ws->id() << endl;
+      if (ws)
+        ws->run();
+      if (m_config->Debug(2) && ws)
+        ws->print();
     }
 
     // run muon sorter
@@ -248,11 +217,9 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
     // store found track candidates in container (cache)
     if (m_ms->numberOfTracks() > 0) {
-      const vector<const L1MuDTTrack*>& mttf_cont = m_ms->tracks();
-      vector<const L1MuDTTrack*>::const_iterator iter;
-      for (iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++) {
-        if (*iter)
-          _cache.push_back(L1MuRegionalCand((*iter)->getDataWord(), (*iter)->bx()));
+      for (auto const& mttf : m_ms->tracks()) {
+        if (mttf)
+          _cache.push_back(L1MuRegionalCand(mttf->getDataWord(), mttf->bx()));
       }
     }
   }
@@ -262,25 +229,19 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 // reset MTTF
 //
 void L1MuDTTrackFinder::reset() {
-  L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-  while (it_sp != m_spmap->end()) {
-    if ((*it_sp).second)
-      (*it_sp).second->reset();
-    it_sp++;
+  for (auto& sp : *m_spmap) {
+    if (sp.second)
+      sp.second->reset();
   }
 
-  vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
-  while (it_ep != m_epvec.end()) {
-    if (*it_ep)
-      (*it_ep)->reset();
-    it_ep++;
+  for (auto& ep : m_epvec) {
+    if (ep)
+      ep->reset();
   }
 
-  vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-  while (it_ws != m_wsvec.end()) {
-    if (*it_ws)
-      (*it_ws)->reset();
-    it_ws++;
+  for (auto& ws : m_wsvec) {
+    if (ws)
+      ws->reset();
   }
 
   if (m_ms)
@@ -311,14 +272,10 @@ void L1MuDTTrackFinder::clear() {
 //
 int L1MuDTTrackFinder::numberOfTracks(int bx) {
   int number = 0;
-  for (TFtracks_const_iter it = _cache.begin(); it != _cache.end(); it++) {
-    if ((*it).bx() == bx)
+  for (auto const& elem : _cache) {
+    if (elem.bx() == bx)
       number++;
   }
 
   return number;
 }
-
-// static data members
-
-std::shared_ptr<L1MuDTTFConfig> L1MuDTTrackFinder::m_config;

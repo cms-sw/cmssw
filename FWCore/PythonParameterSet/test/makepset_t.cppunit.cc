@@ -232,7 +232,7 @@ void testmakepset::fileinpathAux() {
 
     CPPUNIT_ASSERT(!fullpath.empty());
 
-    tmpout = fullpath.substr(0, fullpath.find("FWCore/PythonParameterSet/test/fip.txt")) + "tmp.py";
+    tmpout = fullpath.substr(0, fullpath.find("src/FWCore/PythonParameterSet/test/fip.txt")) + "tmp/tmp.py";
 
     edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
     // if the file is local, then just disable this check as then it is expected to fail

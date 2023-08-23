@@ -96,3 +96,32 @@ def autoCond2017ppRef5TeV(autoCond):
                                          L1Menu_2017ppRef5TeV)
     autoCond.update(GlobalTag2017ppRef5TeV)
     return autoCond
+
+def autoCondRelValForRun2(autoCond):
+
+    GlobalTagRelValForRun2 = {}
+    L1GtTriggerMenuForRelValForRun2 =    ','.join( ['L1Menu_Collisions2015_25nsStage1_v5' , "L1GtTriggerMenuRcd",             connectionString, "", "2023-01-28 12:00:00.000"] )
+    L1TUtmTriggerMenuForRelValForRun2 =  ','.join( ['L1Menu_Collisions2018_v2_1_0-d1_xml' , "L1TUtmTriggerMenuRcd",           connectionString, "", "2023-01-28 12:00:00.000"] )
+
+    for key,val in autoCond.items():
+        if 'run2_data' in key or 'run2_hlt' in key:
+            GlobalTagRelValForRun2[key+'_relval'] = (autoCond[key],
+                                         L1GtTriggerMenuForRelValForRun2,
+                                         L1TUtmTriggerMenuForRelValForRun2)
+    autoCond.update(GlobalTagRelValForRun2)
+    return autoCond
+
+def autoCondRelValForRun3(autoCond):
+
+    GlobalTagRelValForRun3 = {}
+    L1GtTriggerMenuForRelValForRun3 =    ','.join( ['L1Menu_Collisions2015_25nsStage1_v5' , "L1GtTriggerMenuRcd",             connectionString, "", "2023-01-28 12:00:00.000"] )
+    L1TUtmTriggerMenuForRelValForRun3 =  ','.join( ['L1Menu_Collisions2023_v1_2_0_xml'    , "L1TUtmTriggerMenuRcd",           connectionString, "", "2023-06-13 14:12:00.000"] )
+
+    for key,val in autoCond.items():
+        if 'run3_data' in key or 'run3_hlt' in key :
+            GlobalTagRelValForRun3[key+'_relval'] = (autoCond[key],
+                                         L1GtTriggerMenuForRelValForRun3,
+                                         L1TUtmTriggerMenuForRelValForRun3)
+    autoCond.update(GlobalTagRelValForRun3)
+    return autoCond
+

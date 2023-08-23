@@ -230,7 +230,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("maxSeedChargedPFCandEta", 2.4);
   desc.add<bool>("applyPreselection", false);
   desc.add<double>("isolationConeSize", 0.4);
-  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
+  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
   desc.add<double>("maxChargedIso", 1000.0);
   {
     edm::ParameterSetDescription psd0;
@@ -269,7 +269,7 @@ void HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("maxSeedJetEta", 2.4);
   desc.add<std::string>("signalConeSize", "2.8/max(1., pt)");
   desc.add<edm::InputTag>("srcL1Jets",
-                          edm::InputTag("l1tPhase1JetProducer", "UncalibratedPhase1L1TJetFromPfCandidates"));
+                          edm::InputTag("l1tPhase1JetCalibrator9x9trimmed", "Phase1L1TJetFromPfCandidates"));
   desc.addUntracked<bool>("debug", false);
   desc.add<double>("maxPFTauEta", 2.4);
   desc.add<double>("maxSignalConeSize", 0.1);

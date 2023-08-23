@@ -179,7 +179,7 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     'One:',
     ':Two'
   ),
-  fileInPath = cms.FileInPath('FWCore/Integration/test/ProducerWithPSetDesc.cc'),
+  fileInPath = cms.FileInPath('FWCore/Integration/plugins/ProducerWithPSetDesc.cc'),
   bar = cms.PSet(
     Drinks = cms.uint32(5),
     uDrinks = cms.untracked.uint32(5),

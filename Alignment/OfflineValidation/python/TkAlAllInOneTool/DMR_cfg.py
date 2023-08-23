@@ -142,91 +142,69 @@ process.noScraping= cms.EDFilter("FilterOutScraping",
 )
 
 ##Offline validation analyzer
-process.TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
-    useInDqmMode              = cms.bool(False), 
-    moduleDirectoryInOutput   = cms.string(""), 
-    Tracks                    = cms.InputTag("FinalTrackRefitter"),
-    trajectoryInput           = cms.string('FinalTrackRefitter'),  # Only needed in DQM mode
-    localCoorHistosOn         = cms.bool(False),
-    moduleLevelHistsTransient = config["validation"].get("moduleLevelHistsTransient", cms.bool(False)), 
-    moduleLevelProfiles       = config["validation"].get("moduleLevelProfiles", cms.bool(True)),
-    localCoorProfilesOn       = cms.bool(False),
-    stripYResiduals           = cms.bool(config["validation"].get("stripYResiduals", False)),
-    useFwhm                   = cms.bool(True),
-    useFit                    = cms.bool(False),
-    useCombinedTrajectory     = cms.bool(False),
-    useOverflowForRMS         = cms.bool(False),
-    maxTracks                 = cms.uint64(config["validation"].get("maxtracks", 1)),
-    chargeCut                 = cms.int32(config["validation"].get("chargecut", 0)),
+from Alignment.OfflineValidation.trackerOfflineValidation_cfi import trackerOfflineValidation as _trackerOfflineValidation
+process.TrackerOfflineValidation = _trackerOfflineValidation.clone(
+    useInDqmMode              = False,
+    moduleDirectoryInOutput   = "",
+    Tracks                    = "FinalTrackRefitter",
+    trajectoryInput           = "FinalTrackRefitter",  # Only needed in DQM mode
+    localCoorHistosOn         = False,
+    moduleLevelHistsTransient = config["validation"].get("moduleLevelHistsTransient", False),
+    moduleLevelProfiles       = config["validation"].get("moduleLevelProfiles", True),
+    stripYResiduals           = config["validation"].get("stripYResiduals", False),
+    useFwhm                   = True,
+    useFit                    = False,
+    useOverflowForRMS         = False,
+    maxTracks                 = config["validation"].get("maxtracks", 1),
+    chargeCut                 = config["validation"].get("chargecut", 0),
+
     # Normalized X Residuals, normal local coordinates (Strip)
-    TH1NormXResStripModules = cms.PSet(
-        Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
-    ),
+    TH1NormXResStripModules = dict(Nbinx = 100, xmin = -5.0, xmax = 5.0),
 
     # X Residuals, normal local coordinates (Strip)
-    TH1XResStripModules = cms.PSet(
-        Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-    ),
+    TH1XResStripModules = dict(Nbinx = 100, xmin = -0.5, xmax = 0.5),
 
     # Normalized X Residuals, native coordinates (Strip)
-    TH1NormXprimeResStripModules = cms.PSet(
-        Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-    ),
+    TH1NormXprimeResStripModules = dict(Nbinx = 120, xmin = -3.0, xmax = 3.0),
 
     # X Residuals, native coordinates (Strip)
-    TH1XprimeResStripModules = cms.PSet(
-        Nbinx = cms.int32(5000), xmin = cms.double(-0.05), xmax = cms.double(0.05)
-    ),
+    TH1XprimeResStripModules = dict(Nbinx = 5000, xmin = -0.05, xmax = 0.05),
 
     # Normalized Y Residuals, native coordinates (Strip -> hardly defined)
-    TH1NormYResStripModules = cms.PSet(
-        Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-    ),
+    TH1NormYResStripModules = dict(Nbinx = 120, xmin = -3.0, xmax = 3.0),
+
     # -> very broad distributions expected
-    TH1YResStripModules = cms.PSet(
-        Nbinx = cms.int32(5000), xmin = cms.double(-11.0), xmax = cms.double(11.0)
-    ),
+    TH1YResStripModules = dict(Nbinx = 5000, xmin = -11.0, xmax = 11.0),
 
     # Normalized X residuals normal local coordinates (Pixel)
-    TH1NormXResPixelModules = cms.PSet(
-        Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
-    ),
+    TH1NormXResPixelModules = dict(Nbinx = 100, xmin = -5.0, xmax = 5.0),
+
     # X residuals normal local coordinates (Pixel)
-    TH1XResPixelModules = cms.PSet(
-        Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
-    ),
+    TH1XResPixelModules = dict(Nbinx = 100, xmin = -0.5, xmax = 0.5),
+
     # Normalized X residuals native coordinates (Pixel)
-    TH1NormXprimeResPixelModules = cms.PSet(
-        Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-    ),
+    TH1NormXprimeResPixelModules = dict(Nbinx = 120, xmin = -3.0, xmax = 3.0),
+
     # X residuals native coordinates (Pixel)
-    TH1XprimeResPixelModules = cms.PSet(
-        Nbinx = cms.int32(5000), xmin = cms.double(-0.05), xmax = cms.double(0.05)
-    ),
+    TH1XprimeResPixelModules = dict(Nbinx = 5000, xmin = -0.05, xmax = 0.05),
+
     # Normalized Y residuals native coordinates (Pixel)
-    TH1NormYResPixelModules = cms.PSet(
-        Nbinx = cms.int32(120), xmin = cms.double(-3.0), xmax = cms.double(3.0)
-    ),
+    TH1NormYResPixelModules = dict(Nbinx = 120, xmin = -3.0, xmax = 3.0),
+
     # Y residuals native coordinates (Pixel)
-    TH1YResPixelModules = cms.PSet(
-        Nbinx = cms.int32(5000), xmin = cms.double(-0.05), xmax = cms.double(0.05)
-    ),
+    TH1YResPixelModules = dict(Nbinx = 5000, xmin = -0.05, xmax = 0.05),
+
     # X Residuals vs reduced local coordinates (Strip)
-    TProfileXResStripModules = cms.PSet(
-        Nbinx = cms.int32(34), xmin = cms.double(-1.02), xmax = cms.double(1.02)
-    ),
+    TProfileXResStripModules = dict(Nbinx = 34, xmin = -1.02, xmax = 1.02),
+
     # X Residuals vs reduced local coordinates (Strip)
-    TProfileYResStripModules = cms.PSet(
-        Nbinx = cms.int32(34), xmin = cms.double(-1.02), xmax = cms.double(1.02)
-    ),
+    TProfileYResStripModules = dict(Nbinx = 34, xmin = -1.02, xmax = 1.02),
+
     # X Residuals vs reduced local coordinates (Pixel)
-    TProfileXResPixelModules = cms.PSet(
-        Nbinx = cms.int32(17), xmin = cms.double(-1.02), xmax = cms.double(1.02)
-    ),
+    TProfileXResPixelModules = dict(Nbinx = 17, xmin = -1.02, xmax = 1.02),
+
     # X Residuals vs reduced local coordinates (Pixel)
-    TProfileYResPixelModules = cms.PSet(
-        Nbinx = cms.int32(17), xmin = cms.double(-1.02), xmax = cms.double(1.02)
-    ),
+    TProfileYResPixelModules = dict(Nbinx = 17, xmin = -1.02, xmax = 1.02)
 )
 
 ##Output file

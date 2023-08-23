@@ -16,6 +16,7 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuonShower::SetTfMuonShower(const l1t::Reg
         l1upgradetfmuonshower_.tfMuonShowerSector.push_back(it->processor() + 1);
         l1upgradetfmuonshower_.tfMuonShowerOneNominal.push_back(it->isOneNominalInTime());
         l1upgradetfmuonshower_.tfMuonShowerOneTight.push_back(it->isOneTightInTime());
+        l1upgradetfmuonshower_.tfMuonShowerOneLoose.push_back(it->isOneLooseInTime());
         l1upgradetfmuonshower_.tfMuonShowerTwoLoose.push_back(it->isTwoLooseInTime());
         l1upgradetfmuonshower_.nTfMuonShowers++;
       }

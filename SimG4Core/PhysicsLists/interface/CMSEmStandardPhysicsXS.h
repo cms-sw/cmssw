@@ -19,7 +19,7 @@
 class CMSEmStandardPhysicsXS : public G4VPhysicsConstructor {
 public:
   CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p);
-  ~CMSEmStandardPhysicsXS() override;
+  ~CMSEmStandardPhysicsXS() override = default;
 
   void ConstructParticle() override;
   void ConstructProcess() override;

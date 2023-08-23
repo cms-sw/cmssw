@@ -61,7 +61,7 @@ void GenJetFlavourTableProducer::produce(edm::Event& iEvent, const edm::EventSet
   const auto& jetFlavourInfosProd = iEvent.get(jetFlavourInfosToken_);
 
   unsigned int ncand = 0;
-  std::vector<int> partonFlavour;
+  std::vector<int16_t> partonFlavour;
   std::vector<uint8_t> hadronFlavour;
 
   for (const reco::GenJet& jet : jetsProd) {
@@ -84,7 +84,7 @@ void GenJetFlavourTableProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
 
   auto tab = std::make_unique<nanoaod::FlatTable>(ncand, name_, false, true);
-  tab->addColumn<int>("partonFlavour", partonFlavour, "flavour from parton matching");
+  tab->addColumn<int16_t>("partonFlavour", partonFlavour, "flavour from parton matching");
   tab->addColumn<uint8_t>("hadronFlavour", hadronFlavour, "flavour from hadron ghost clustering");
 
   iEvent.put(std::move(tab));

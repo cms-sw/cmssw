@@ -57,12 +57,6 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-  struct JetRefCompare {
-    inline bool operator()(const edm::RefToBase<reco::Jet>& j1, const edm::RefToBase<reco::Jet>& j2) const {
-      return (j1.id() < j2.id()) || ((j1.id() == j2.id()) && (j1.key() < j2.key()));
-    }
-  };
-
 private:
   // folder for output histograms
   const std::string folderName_;
@@ -843,6 +837,14 @@ void ParticleNetJetTagMonitor::analyze(edm::Event const& iEvent, edm::EventSetup
 
     std::vector<float> jetPNETScoreValuesHLT;
     std::vector<reco::JetBaseRef> jetHLTRefs;
+
+    // protect for wrong event content
+    if (not jetPNETScoreHLTHandle->keyProduct().isAvailable()) {
+      edm::LogWarning("ParticleNetJetTagMonitor")
+          << "Collection used as a key by HLT Jet tags collection is not available, will skip event";
+      return;
+    }
+
     for (const auto& jtag : *jetPNETScoreHLTHandle) {
       jetPNETScoreValuesHLT.push_back(jtag.second);
       jetHLTRefs.push_back(jtag.first);
@@ -1035,9 +1037,9 @@ void ParticleNetJetTagMonitor::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("tagElectronID",
-                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V2-tight"));
+                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-tight"));
   desc.add<edm::InputTag>("vetoElectronID",
-                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V2-loose"));
+                          edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-RunIIIWinter22-V1-loose"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("jetPNETScore", edm::InputTag("pfParticleNetAK4DiscriminatorsJetTags", "BvsAll"));
   desc.add<edm::InputTag>("jetPNETScoreHLT", edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"));

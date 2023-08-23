@@ -52,8 +52,8 @@ totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 # various error/warning/info output may be enabled with these flags
 #  totemRPRawToDigi.RawUnpacking.verbosity = 1
 #  totemRPRawToDigi.RawToDigi.verbosity = 1 # or higher number for more output
-#  totemRPRawToDigi.RawToDigi.printErrorSummary = 1
-#  totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
+#  totemRPRawToDigi.RawToDigi.printErrorSummary = True
+#  totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = True
 
 # ---------- diamonds ----------
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
@@ -87,8 +87,14 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
     ),
     # 2022
     cms.PSet(
-      validityRange = cms.EventRange("340000:min - 999999999:max"),
+      validityRange = cms.EventRange("340000:min - 362919:max"),
       mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2022.xml"),
+      maskFileNames = cms.vstring()
+    ),
+    # 2023
+    cms.PSet(
+      validityRange = cms.EventRange("362920:min - 999999999:max"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2023.xml"),
       maskFileNames = cms.vstring()
     )
 
@@ -96,7 +102,7 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
 )
 
 from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
-ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+ctppsDiamondRawToDigi.rawDataTag = "rawDataCollector"
 
 # ---------- Totem Timing ----------
 totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXML",
@@ -126,16 +132,16 @@ totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXM
 )
 
 from EventFilter.CTPPSRawToDigi.totemTimingRawToDigi_cfi import totemTimingRawToDigi
-totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+totemTimingRawToDigi.rawDataTag = "rawDataCollector"
 
 # ---------- Totem nT2 ----------
 from CalibPPS.ESProducers.totemT2DAQMapping_cff import totemDAQMappingESSourceXML as totemDAQMappingESSourceXML_TotemT2
 from EventFilter.CTPPSRawToDigi.totemT2Digis_cfi import totemT2Digis
-totemT2Digis.rawDataTag = cms.InputTag("rawDataCollector")
+totemT2Digis.rawDataTag = "rawDataCollector"
 
 # ---------- pixels ----------
 from EventFilter.CTPPSRawToDigi.ctppsPixelDigis_cfi import ctppsPixelDigis
-ctppsPixelDigis.inputLabel = cms.InputTag("rawDataCollector")
+ctppsPixelDigis.inputLabel = "rawDataCollector"
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017

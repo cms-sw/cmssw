@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -52,8 +53,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //
@@ -98,7 +98,6 @@ private:
 
   // parameters
   const std::string pfJetCollName_;     // label for the PF jet collection
-  const std::string pfJetCorrName_;     // label for the PF jet correction service
   const std::string hbheRecHitName_;    // label for HBHERecHits collection
   const std::string hfRecHitName_;      // label for HFRecHit collection
   const std::string hoRecHitName_;      // label for HORecHit collection
@@ -117,6 +116,7 @@ private:
   const edm::EDGetTokenT<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> tok_HF_;
   const edm::EDGetTokenT<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> tok_HO_;
   const edm::EDGetTokenT<reco::VertexCollection> tok_Vertex_;
+  const edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
@@ -186,7 +186,6 @@ private:
 
 DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig)
     : pfJetCollName_(iConfig.getParameter<std::string>("pfJetCollName")),
-      pfJetCorrName_(iConfig.getParameter<std::string>("pfJetCorrName")),
       hbheRecHitName_(iConfig.getParameter<std::string>("hbheRecHitName")),
       hfRecHitName_(iConfig.getParameter<std::string>("hfRecHitName")),
       hoRecHitName_(iConfig.getParameter<std::string>("hoRecHitName")),
@@ -204,6 +203,7 @@ DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig)
       tok_HF_(consumes<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>>(hfRecHitName_)),
       tok_HO_(consumes<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>(hoRecHitName_)),
       tok_Vertex_(consumes<reco::VertexCollection>(pvCollName_)),
+      jetCorrectorToken_(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("JetCorrections"))),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource(TFileService::kSharedResource);
 }
@@ -258,25 +258,6 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   const CaloSubdetectorGeometry* HOGeom = geo->getSubdetectorGeometry(DetId::Hcal, 3);
   const CaloSubdetectorGeometry* HFGeom = geo->getSubdetectorGeometry(DetId::Hcal, 4);
 
-  int HBHE_n = 0;
-  for (edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith = hbhereco->begin();
-       ith != hbhereco->end();
-       ++ith) {
-    HBHE_n++;
-  }
-  int HF_n = 0;
-  for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith = hfreco->begin();
-       ith != hfreco->end();
-       ++ith) {
-    HF_n++;
-  }
-  int HO_n = 0;
-  for (edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>::const_iterator ith = horeco->begin();
-       ith != horeco->end();
-       ++ith) {
-    HO_n++;
-  }
-
   // Get primary vertices
   const edm::Handle<std::vector<reco::Vertex>> pv = iEvent.getHandle(tok_Vertex_);
   if (!pv.isValid()) {
@@ -289,8 +270,7 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
       ++pf_NPV_;
   }
 
-  // Get jet corrections
-  const JetCorrector* correctorPF = JetCorrector::getJetCorrector(pfJetCorrName_, evSetup);
+  reco::JetCorrector const& correctorPF = iEvent.get(jetCorrectorToken_);
 
   //////////////////////////////
   // Event Selection
@@ -303,7 +283,7 @@ void DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evS
   std::set<JetCorretPair, JetCorretPairComp> pfjetcorretpairset;
   for (reco::PFJetCollection::const_iterator it = pfjets->begin(); it != pfjets->end(); ++it) {
     const reco::PFJet* jet = &(*it);
-    double jec = correctorPF->correction(*it, iEvent, evSetup);
+    double jec = correctorPF.correction(*it);
     pfjetcorretpairset.insert(JetCorretPair(jet, jec));
   }
 

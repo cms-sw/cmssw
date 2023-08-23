@@ -374,6 +374,7 @@ isolationTauChargedHadronCandidates_.reset();
    <version ClassVersion="10" checksum="465425628"/>
   </class>
   <class name="std::vector<reco::RecoTauPiZero>"/>
+  <class name="edm::AtomicPtrCache<std::vector<reco::RecoTauPiZero> >"/>
      <class name="std::vector<std::vector<reco::RecoTauPiZero> >"/>
   <class name="edm::Wrapper<std::vector<reco::RecoTauPiZero> >"/>
   <class name="edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
@@ -390,6 +391,7 @@ isolationTauChargedHadronCandidates_.reset();
    <version ClassVersion="10" checksum="4027987990"/>
   </class>
   <class name="std::vector<reco::PFRecoTauChargedHadron>"/>
+  <class name="edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron> >"/>
      <class name="std::vector<std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>

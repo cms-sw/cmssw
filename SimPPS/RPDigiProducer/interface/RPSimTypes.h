@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <cstdint>
 
 #include "SimPPS/RPDigiProducer/interface/RPEnergyDepositUnit.h"
 #include "SimPPS/RPDigiProducer/interface/RPSignalPoint.h"

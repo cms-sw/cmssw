@@ -2,3 +2,12 @@
   <flags TEST_RUNNER_ARGS=" 200000000 y"/>
   <use name="DataFormats/HGCalDigi"/>
 </bin>
+
+<bin file="HGCalElectronicsIdTest.cc" name="HGCalElectronicsId">
+  <flags TEST_RUNNER_ARGS=" 200000000"/>
+  <use name="DataFormats/HGCalDigi"/>
+</bin>
+
+<bin file="HGCalRawDataEmulatorInfoTest.cc" name="HGCalRawDataEmulatorInfoTest">
+  <use name="DataFormats/HGCalDigi"/>
+</bin>

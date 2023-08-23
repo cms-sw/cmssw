@@ -32,7 +32,7 @@ namespace L1TauEmu {
   //etaphi_base maps physical eta phi units onto bits
   //This way, the least significant bit of etaphi_t is exactly 0.01
   //Even though 0.01 is not a power of 2
-  static float etaphi_base = 100. / 64;
+  static constexpr float etaphi_base = 100. / 64;
   typedef ap_ufixed<16, 14> pt_t;        // 1 unit = 0.25 GeV;
   typedef ap_fixed<10, 4> etaphi_t;      // 1 unit = 0.01;
   typedef ap_fixed<12, 6> detaphi_t;     // type for the difference between etas or phis
@@ -147,6 +147,7 @@ public:
 
   void initialize(const std::string &iName, int iNParticles);
   void SetNNVectorVar();
+  input_t *NNVectorVar() { return NNvectorVar_.data(); }
   result_t EvaluateNN();
   result_t compute(const l1t::PFCandidate &iSeed, std::vector<l1t::PFCandidate> &iParts);
   //void print();

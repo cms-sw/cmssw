@@ -184,7 +184,7 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
               : std::floor(cell.thickness * myFEelectronics_->getADCThreshold() / myFEelectronics_->getADClsb());
     }
 
-    //loop over time samples and add noise
+    //loop over time samples, compute toa and add noise
     for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
 

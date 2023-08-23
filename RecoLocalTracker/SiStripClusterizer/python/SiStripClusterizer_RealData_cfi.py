@@ -16,13 +16,3 @@ from RecoLocalTracker.SiStripClusterizer.SiStripApprox2Clusters_cfi import SiStr
 SiStripApprox2Clusters.inputApproxClusters = 'SiStripClusters2ApproxClusters'
 approxSiStripClusters.toModify(SiStripApprox2Clusters, inputApproxClusters = 'hltSiStripClusters2ApproxClusters')
 approxSiStripClusters.toReplaceWith(siStripClusters,SiStripApprox2Clusters)
-
-# The SiStripClusters are not used anymore in phase2 tracking
-# This part has to be clean up when they will be officially removed from the entire flow
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(siStripClusters, # FIXME
-  DigiProducersList = [ 'simSiStripDigis:ZeroSuppressed',
-                        'siStripZeroSuppression:VirginRaw',
-                        'siStripZeroSuppression:ProcessedRaw',
-                        'siStripZeroSuppression:ScopeMode']
-)

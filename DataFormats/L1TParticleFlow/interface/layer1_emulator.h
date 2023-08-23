@@ -19,7 +19,7 @@ namespace l1t {
 namespace l1ct {
 
   struct HadCaloObjEmu : public HadCaloObj {
-    const l1t::PFCluster *src;
+    const l1t::PFCluster *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -29,7 +29,7 @@ namespace l1ct {
   };
 
   struct EmCaloObjEmu : public EmCaloObj {
-    const l1t::PFCluster *src;
+    const l1t::PFCluster *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -39,16 +39,15 @@ namespace l1ct {
   };
 
   struct TkObjEmu : public TkObj {
-    uint16_t hwChi2, hwStubs;
+    uint16_t hwChi2;
     float simPt, simCaloEta, simCaloPhi, simVtxEta, simVtxPhi, simZ0, simD0;
-    const l1t::PFTrack *src;
+    const l1t::PFTrack *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
       TkObj::clear();
       src = nullptr;
       hwChi2 = 0;
-      hwStubs = 0;
       simPt = 0;
       simCaloEta = 0;
       simCaloPhi = 0;
@@ -60,7 +59,7 @@ namespace l1ct {
   };
 
   struct MuObjEmu : public MuObj {
-    const l1t::SAMuon *src;
+    const l1t::SAMuon *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -70,10 +69,10 @@ namespace l1ct {
   };
 
   struct PFChargedObjEmu : public PFChargedObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFTrack *srcTrack;
-    const l1t::SAMuon *srcMu;
-    const l1t::PFCandidate *srcCand;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFTrack *srcTrack = nullptr;
+    const l1t::SAMuon *srcMu = nullptr;
+    const l1t::PFCandidate *srcCand = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -86,8 +85,8 @@ namespace l1ct {
   };
 
   struct PFNeutralObjEmu : public PFNeutralObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFCandidate *srcCand;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFCandidate *srcCand = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -113,10 +112,10 @@ namespace l1ct {
   };
 
   struct PuppiObjEmu : public PuppiObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFTrack *srcTrack;
-    const l1t::SAMuon *srcMu;
-    const l1t::PFCandidate *srcCand;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFTrack *srcTrack = nullptr;
+    const l1t::SAMuon *srcMu = nullptr;
+    const l1t::PFCandidate *srcCand = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -150,7 +149,7 @@ namespace l1ct {
   };
 
   struct EGObjEmu : public EGIsoObj {
-    const l1t::PFCluster *srcCluster;
+    const l1t::PFCluster *srcCluster = nullptr;
     void clear() {
       srcCluster = nullptr;
       EGIsoObj::clear();
@@ -175,25 +174,28 @@ namespace l1ct {
       hwIsoVars[1] = 0;
       hwIsoVars[2] = 0;
       hwIsoVars[3] = 0;
+      hwIsoVars[4] = 0;
+      hwIsoVars[5] = 0;
     }
 
     using EGIsoObj::floatIso;
 
-    enum IsoType { TkIso = 0, PfIso = 1, TkIsoPV = 2, PfIsoPV = 3 };
+    enum IsoType { TkIso = 0, PfIso = 1, TkIsoPV = 2, PfIsoPV = 3, PuppiIso = 4, PuppiIsoPV = 5 };
 
     float floatIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
     float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]) / floatPt(); }
     float hwIsoVar(IsoType type) const { return hwIsoVars[type]; }
     void setHwIso(IsoType type, iso_t value) { hwIsoVars[type] = value; }
 
-    iso_t hwIsoVars[4];
+    iso_t hwIsoVars[6];
   };
 
   struct EGIsoEleObjEmu : public EGIsoEleObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFTrack *srcTrack;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFTrack *srcTrack = nullptr;
     // we use an index to the standalone object needed to retrieve a Ref when putting
     int sta_idx;
+    float idScore;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -201,24 +203,26 @@ namespace l1ct {
       srcCluster = nullptr;
       srcTrack = nullptr;
       sta_idx = -1;
+      idScore = -999;
       clearIsoVars();
     }
 
     void clearIsoVars() {
       hwIsoVars[0] = 0;
       hwIsoVars[1] = 0;
+      hwIsoVars[2] = 0;
     }
 
     using EGIsoEleObj::floatIso;
 
-    enum IsoType { TkIso = 0, PfIso = 1 };
+    enum IsoType { TkIso = 0, PfIso = 1, PuppiIso = 2 };
 
     float floatIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
     float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]) / floatPt(); }
     float hwIsoVar(IsoType type) const { return hwIsoVars[type]; }
     void setHwIso(IsoType type, iso_t value) { hwIsoVars[type] = value; }
 
-    iso_t hwIsoVars[2];
+    iso_t hwIsoVars[3];
   };
 
   struct PVObjEmu : public PVObj {
@@ -331,7 +335,7 @@ namespace l1ct {
   };
 
   struct Event {
-    enum { VERSION = 11 };
+    enum { VERSION = 12 };
     uint32_t run, lumi;
     uint64_t event;
     RawInputs raw;

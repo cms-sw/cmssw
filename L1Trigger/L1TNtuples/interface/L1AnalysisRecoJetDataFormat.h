@@ -25,6 +25,15 @@ namespace L1Analysis {
       eta.clear();
       phi.clear();
 
+      puppi_nJets = 0;
+      puppi_nUncorrJets = 0;
+
+      puppi_e.clear();
+      puppi_et.clear();
+      puppi_etCorr.clear();
+      puppi_eta.clear();
+      puppi_phi.clear();
+
       nCaloJets = 0;
 
       caloE.clear();
@@ -74,6 +83,28 @@ namespace L1Analysis {
       nemef.clear();
       cMult.clear();
       nMult.clear();
+
+      // PUPPI quantities
+      puppi_chef.clear();
+      puppi_nhef.clear();
+      puppi_pef.clear();
+      puppi_eef.clear();
+      puppi_mef.clear();
+      puppi_hfhef.clear();
+      puppi_hfemef.clear();
+      puppi_chMult.clear();
+      puppi_nhMult.clear();
+      puppi_phMult.clear();
+      puppi_elMult.clear();
+      puppi_muMult.clear();
+      puppi_hfhMult.clear();
+      puppi_hfemMult.clear();
+
+      puppi_cemef.clear();
+      puppi_cmef.clear();
+      puppi_nemef.clear();
+      puppi_cMult.clear();
+      puppi_nMult.clear();
     }
 
     unsigned short nJets;
@@ -83,6 +114,14 @@ namespace L1Analysis {
     std::vector<float> corrFactor;
     std::vector<float> eta;
     std::vector<float> phi;
+
+    unsigned short puppi_nJets;
+    unsigned short puppi_nUncorrJets;
+    std::vector<float> puppi_e;
+    std::vector<float> puppi_et;
+    std::vector<float> puppi_etCorr;
+    std::vector<float> puppi_eta;
+    std::vector<float> puppi_phi;
 
     unsigned short nCaloJets;
     std::vector<float> caloE;
@@ -131,6 +170,27 @@ namespace L1Analysis {
     std::vector<float> nemef;
     std::vector<int> cMult;
     std::vector<int> nMult;
+
+    std::vector<float> puppi_chef;
+    std::vector<float> puppi_nhef;
+    std::vector<float> puppi_pef;
+    std::vector<float> puppi_eef;
+    std::vector<float> puppi_mef;
+    std::vector<float> puppi_hfhef;
+    std::vector<float> puppi_hfemef;
+    std::vector<short> puppi_chMult;
+    std::vector<short> puppi_nhMult;
+    std::vector<short> puppi_phMult;
+    std::vector<short> puppi_elMult;
+    std::vector<short> puppi_muMult;
+    std::vector<short> puppi_hfhMult;
+    std::vector<short> puppi_hfemMult;
+
+    std::vector<float> puppi_cemef;
+    std::vector<float> puppi_cmef;
+    std::vector<float> puppi_nemef;
+    std::vector<int> puppi_cMult;
+    std::vector<int> puppi_nMult;
   };
 }  // namespace L1Analysis
 #endif

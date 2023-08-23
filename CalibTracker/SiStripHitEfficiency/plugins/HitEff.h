@@ -49,7 +49,7 @@
 
 class TrackerTopology;
 
-class HitEff : public edm::one::EDAnalyzer<> {
+class HitEff : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HitEff(const edm::ParameterSet& conf);
   ~HitEff() override = default;
@@ -74,6 +74,7 @@ private:
   bool useFirstMeas_;
   bool useLastMeas_;
   bool useAllHitsFromTracksWithMissingHits_;
+  bool doMissingHitsRecovery_;
 
   const edm::EDGetTokenT<reco::TrackCollection> combinatorialTracks_token_;
   const edm::EDGetTokenT<std::vector<Trajectory> > trajectories_token_;
@@ -103,6 +104,8 @@ private:
   bool DEBUG;
   unsigned int whatlayer;
 
+  std::vector<unsigned int> hitRecoveryCounters;
+  std::vector<unsigned int> hitTotalCounters;
 // Tree declarations
 // Trajectory positions for modules included in the study
 #ifdef ExtendedCALIBTree
@@ -113,6 +116,8 @@ private:
   int nLostHits;
   float p, chi2;
 #endif
+  int totalNbHits;
+  std::vector<int> missHitPerLayer;
   float TrajGlbX, TrajGlbY, TrajGlbZ;
   float TrajLocX, TrajLocY, TrajLocAngleX, TrajLocAngleY;
   float TrajLocErrX, TrajLocErrY;

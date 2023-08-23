@@ -51,7 +51,6 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
       ttopoToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       geomDetToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       ptpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
-      ptitpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       dtGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
       cscGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
       gemGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
@@ -432,9 +431,8 @@ void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, cons
   if (doTracker_) {
     const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
     const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
-    const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(geometricDet, ptitp, *ptp, tTopo));
+    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(geometricDet, *ptp, tTopo));
   }
 
   if (doMuon_) {

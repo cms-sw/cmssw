@@ -43,7 +43,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
         ),
         cms.PSet(
             importerName = cms.string('GenericClusterImporter'),
-            source = cms.InputTag("particleFlowClusterHCAL")
+            source = cms.InputTag("hltParticleFlowClusterHCAL")
         ),
         cms.PSet(
             importerName = cms.string('GenericClusterImporter'),
@@ -56,23 +56,9 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
         cms.PSet(
             importerName = cms.string('GenericClusterImporter'),
             source = cms.InputTag("particleFlowClusterHF")
-        ),
-        cms.PSet(
-            importerName = cms.string('GenericClusterImporter'),
-            source = cms.InputTag("particleFlowClusterPS")
         )
     ),
     linkDefinitions = cms.VPSet(
-        cms.PSet(
-            linkType = cms.string('PS1:ECAL'),
-            linkerName = cms.string('PreshowerAndECALLinker'),
-            useKDTree = cms.bool(True)
-        ),
-        cms.PSet(
-            linkType = cms.string('PS2:ECAL'),
-            linkerName = cms.string('PreshowerAndECALLinker'),
-            useKDTree = cms.bool(True)
-        ),
         cms.PSet(
             linkType = cms.string('TRACK:ECAL'),
             linkerName = cms.string('TrackAndECALLinker'),

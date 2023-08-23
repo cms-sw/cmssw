@@ -99,14 +99,11 @@ void RPCConeBuilder::buildCones(RPCGeometry const* rpcGeom,
   // fetch geometrical data
   auto uncompressedCons = std::make_shared<L1RPCConeBuilder::TConMap>();
 
-  int rolls = 0;
   for (auto const& it : rpcGeom->dets()) {
     RPCRoll const* roll = dynamic_cast<RPCRoll const*>(it);
     if (roll == nullptr) {
       continue;
     }
-
-    ++rolls;
 
     int ringId = RPCStripsRing::getRingId(roll);
     auto found = ringsMap.find(ringId);

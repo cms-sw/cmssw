@@ -1,43 +1,43 @@
 #ifndef SimG4Core_TrackInformation_H
 #define SimG4Core_TrackInformation_H
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "G4VUserTrackInformation.hh"
 #include "G4Allocator.hh"
 #include "G4Track.hh"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
-  ~TrackInformation() override {}
+  TrackInformation(){};
+  ~TrackInformation() override = default;
   inline void *operator new(size_t);
   inline void operator delete(void *TrackInformation);
 
   bool storeTrack() const { return storeTrack_; }
   /// can only be set to true, cannot be reset to false!
-  void storeTrack(bool v) {
-    if (v)
-      storeTrack_ = v;
-    if (v == true)
-      putInHistory();
+  void setStoreTrack() {
+    storeTrack_ = true;
+    isInHistory_ = true;
   }
 
   bool isPrimary() const { return isPrimary_; }
-  void isPrimary(bool v) { isPrimary_ = v; }
+  void setPrimary(bool v) { isPrimary_ = v; }
 
   bool hasHits() const { return hasHits_; }
-  void hasHits(bool v) { hasHits_ = v; }
+  void setHasHits(bool v) { hasHits_ = v; }
 
   bool isGeneratedSecondary() const { return isGeneratedSecondary_; }
-  void isGeneratedSecondary(bool v) { isGeneratedSecondary_ = v; }
+  void setGeneratedSecondary(bool v) { isGeneratedSecondary_ = v; }
 
   bool isInHistory() const { return isInHistory_; }
   void putInHistory() { isInHistory_ = true; }
 
   bool isAncestor() const { return flagAncestor_; }
   void setAncestor() { flagAncestor_ = true; }
+
+  int mcTruthID() const { return mcTruthID_; }
+  void setMCTruthID(int id) { mcTruthID_ = id; }
 
   // Calo section
   int getIDonCaloSurface() const { return idOnCaloSurface_; }
@@ -58,17 +58,7 @@ public:
   void setCaloSurfaceParticleP(double p) { caloSurfaceParticleP_ = p; }
 
   // Boundary crossing variables
-  void setCrossedBoundary(const G4Track *track) {
-    crossedBoundary_ = true;
-    positionAtBoundary_ = math::XYZTLorentzVectorF(track->GetPosition().x() / CLHEP::cm,
-                                                   track->GetPosition().y() / CLHEP::cm,
-                                                   track->GetPosition().z() / CLHEP::cm,
-                                                   track->GetGlobalTime());
-    momentumAtBoundary_ = math::XYZTLorentzVectorF(track->GetMomentum().x() / CLHEP::GeV,
-                                                   track->GetMomentum().y() / CLHEP::GeV,
-                                                   track->GetMomentum().z() / CLHEP::GeV,
-                                                   track->GetTotalEnergy() / CLHEP::GeV);
-  }
+  void setCrossedBoundary(const G4Track *track);
   bool crossedBoundary() const { return crossedBoundary_; }
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
   const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
@@ -94,54 +84,45 @@ public:
   }
   int getCastorHitPID() const { return castorHitPID_; }
 
+  // methods for MTD info management
+  //
+  void setFromTtoBTL() { mtdStatus_ |= 1 << 0; }  // 1st bit
+  bool isFromTtoBTL() const { return (mtdStatus_ >> 0) & 1; }
+  void setFromBTLtoT() { mtdStatus_ |= 1 << 1; }  // 2nd bit
+  bool isFromBTLtoT() const { return (mtdStatus_ >> 1) & 1; }
+  void setBTLlooper() { mtdStatus_ |= 1 << 2; }  // 3th bit
+  bool isBTLlooper() const { return (mtdStatus_ >> 2) & 1; }
+  void setInTrkFromBackscattering() { mtdStatus_ |= 1 << 3; }  // 4th bit
+  bool isInTrkFromBackscattering() const { return (mtdStatus_ >> 3) & 1; }
+  void setExtSecondary() { mtdStatus_ |= 1 << 4; }  //5th bit
+  bool isExtSecondary() const { return (mtdStatus_ >> 4) & 1; }
+
   void Print() const override;
 
 private:
-  bool storeTrack_;
-  bool isPrimary_;
-  bool hasHits_;
-  bool isGeneratedSecondary_;
-  bool isInHistory_;
-  bool flagAncestor_;
-  int idOnCaloSurface_;
-  int idCaloVolume_;
-  int idLastVolume_;
-  bool caloIDChecked_;
-  bool crossedBoundary_;
+  bool storeTrack_{false};
+  bool isPrimary_{false};
+  bool hasHits_{false};
+  bool isGeneratedSecondary_{false};
+  bool isInHistory_{false};
+  bool flagAncestor_{false};
+  bool caloIDChecked_{false};
+  bool crossedBoundary_{false};
+  bool startedInFineVolume_{false};
+  bool startedInFineVolumeIsSet_{false};
+  bool hasCastorHit_{false};
+  int idOnCaloSurface_{0};
+  int idCaloVolume_{-1};
+  int idLastVolume_{-1};
+  int genParticlePID_{-1};
+  int mcTruthID_{-1};
+  int caloSurfaceParticlePID_{0};
+  int castorHitPID_{0};
+  uint8_t mtdStatus_{0};
+  double genParticleP_{0.};
+  double caloSurfaceParticleP_{0.};
   math::XYZTLorentzVectorF positionAtBoundary_;
   math::XYZTLorentzVectorF momentumAtBoundary_;
-  bool startedInFineVolume_;
-  bool startedInFineVolumeIsSet_;
-
-  int genParticlePID_, caloSurfaceParticlePID_;
-  double genParticleP_, caloSurfaceParticleP_;
-
-  bool hasCastorHit_;
-  int castorHitPID_;
-
-  // Restrict construction to friends
-  TrackInformation()
-      : G4VUserTrackInformation(),
-        storeTrack_(false),
-        isPrimary_(false),
-        hasHits_(false),
-        isGeneratedSecondary_(false),
-        isInHistory_(false),
-        flagAncestor_(false),
-        idOnCaloSurface_(0),
-        idCaloVolume_(-1),
-        idLastVolume_(-1),
-        caloIDChecked_(false),
-        crossedBoundary_(false),
-        startedInFineVolume_(false),
-        startedInFineVolumeIsSet_(false),
-        genParticlePID_(-1),
-        caloSurfaceParticlePID_(0),
-        genParticleP_(0),
-        caloSurfaceParticleP_(0),
-        hasCastorHit_(false),
-        castorHitPID_(0) {}
-  friend class NewTrackAction;
 };
 
 extern G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator;

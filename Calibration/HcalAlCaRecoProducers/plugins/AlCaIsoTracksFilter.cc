@@ -357,7 +357,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
         edm::LogVerbatim("HcalIsoTrack") << "AlCaIsoTracksFilter:: Has " << trkCaloDirections.size()
                                          << " propagated tracks from a total of " << trkCollection->size();
 #endif
-      unsigned int nTracks(0), nselTracks(0), ntrin(0), ntrout(0), ntrH(0);
+      unsigned int nTracks(0), ntrin(0), ntrout(0), ntrH(0);
       for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
            trkDetItr++, nTracks++) {
         const reco::Track* pTrack = &(*(trkDetItr->trkItr));
@@ -382,7 +382,6 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 #endif
         if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
           double t_p = pTrack->p();
-          nselTracks++;
           int nNearTRKs(0);
           std::vector<DetId> eIds;
           std::vector<double> eHit;
@@ -544,9 +543,9 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow", 20.0);
   desc.add<double>("momentumRangeHigh", 40.0);
-  desc.add<int>("preScaleFactor", 1);
+  desc.add<int>("preScaleFactor", 10);
   desc.add<double>("momentumHigh", 60.0);
-  desc.add<int>("preScaleHigh", 1);
+  desc.add<int>("preScaleHigh", 5);
   std::vector<int> events;
   desc.add<std::vector<int>>("debugEvents", events);
   desc.add<bool>("usePFThreshold", true);

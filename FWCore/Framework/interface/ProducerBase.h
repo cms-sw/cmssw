@@ -29,7 +29,6 @@ namespace edm {
   class Run;
 
   class EDProducer;
-  class EDFilter;
   namespace one {
     class EDProducerBase;
     class EDFilterBase;
@@ -108,8 +107,6 @@ namespace edm {
     using ProductRegistryHelper::produces;
 
   private:
-    friend class EDProducer;
-    friend class EDFilter;
     friend class one::EDProducerBase;
     friend class one::EDFilterBase;
     friend class global::EDProducerBase;

@@ -1395,8 +1395,8 @@ private:
     edm::LogPrint("DMRChecker") << "n. tracks: " << itrks << std::endl;
     edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
 
-    int nFiringTriggers = triggerMap_.size();
-    edm::LogPrint("DMRChecker") << "firing triggers: " << nFiringTriggers << std::endl;
+    int nFiringTriggers = !triggerMap_.empty() ? triggerMap_.size() : 1;
+    edm::LogPrint("DMRChecker") << "firing triggers: " << triggerMap_.size() << std::endl;
     edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
 
     tksByTrigger_ =
@@ -1436,6 +1436,7 @@ private:
       return;
 
     vector<int> theRuns_;
+    theRuns_.reserve(conditionsMap_.size());
     for (const auto &it : conditionsMap_) {
       theRuns_.push_back(it.first);
     }
@@ -2101,7 +2102,7 @@ void DMRChecker::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
-  descriptions.add("DMRChecker", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(DMRChecker);

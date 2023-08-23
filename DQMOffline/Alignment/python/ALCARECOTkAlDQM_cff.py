@@ -83,7 +83,8 @@ ALCARECOTkAlDiMuonAndVertexVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi
 
 ALCARECOTkAlDiMuonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
     muonTracks = 'ALCARECO'+__trackCollName,
-    FolderName = "AlCaReco/"+__selectionName
+    FolderName = "AlCaReco/"+__selectionName,
+    DiMuMassConfig = dict(maxDeltaEta = 3.5)
 )
 
 ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM)
@@ -163,7 +164,12 @@ ALCARECOTkAlJpsiMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuon
     decayMotherName = "J/#psi",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
-    maxSVdist = 50
+    maxSVdist = 50,
+    CosPhi3DConfig = dict(maxDeltaEta = 1.3),
+    SVDistConfig = dict(maxDeltaEta = 1.3),
+    SVDistSigConfig = dict(maxDeltaEta = 1.3),
+    SVDist3DConfig = dict(maxDeltaEta = 1.3),
+    SVDist3DSigConfig = dict(maxDeltaEta = 1.3)
 )
 
 ALCARECOTkAlJpsiMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
@@ -233,7 +239,12 @@ ALCARECOTkAlUpsilonMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiM
     decayMotherName = "#Upsilon",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
-    maxSVdist = 50
+    maxSVdist = 50,
+    CosPhi3DConfig = dict(maxDeltaEta = 1.6),
+    SVDistConfig = dict(maxDeltaEta = 1.6),
+    SVDistSigConfig = dict(maxDeltaEta = 1.6),
+    SVDist3DConfig = dict(maxDeltaEta = 1.6),
+    SVDist3DSigConfig = dict(maxDeltaEta = 1.6)
 )
 
 ALCARECOTkAlUpsilonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
@@ -607,24 +618,24 @@ ALCARECOTkAlCosmicsRegional0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 
 ALCARECOTkAlCosmicsRegional0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRegional0TTrackingDQM + ALCARECOTkAlCosmicsRegional0TTkAlDQM )
 
-#############################
-### TkAlCosmicsInCollisions0T ###
-#############################
-__selectionName = 'TkAlCosmicsInCollisions0T'
-ALCARECOTkAlCosmicsInCollisions0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
+#####################################
+### TkAlCosmicsDuringCollisions0T ###
+#####################################
+__selectionName = 'TkAlCosmicsDuringCollisions0T'
+ALCARECOTkAlCosmicsDuringCollisions0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 )
-ALCARECOTkAlCosmicsInCollisions0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
+ALCARECOTkAlCosmicsDuringCollisions0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = 'cosmictrackfinderP5',
     AlgoName = 'ALCARECO'+__selectionName
 )
 
-ALCARECOTkAlCosmicsInCollisions0TDQM = cms.Sequence( ALCARECOTkAlCosmicsInCollisions0TTrackingDQM + ALCARECOTkAlCosmicsInCollisions0TTkAlDQM )
+ALCARECOTkAlCosmicsDuringCollisions0TDQM = cms.Sequence( ALCARECOTkAlCosmicsDuringCollisions0TTrackingDQM + ALCARECOTkAlCosmicsDuringCollisions0TTkAlDQM )
 
 ##########################################################################
 ###### DQM modules for cosmic data taking with momentum measurement ######

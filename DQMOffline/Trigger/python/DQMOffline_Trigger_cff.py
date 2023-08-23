@@ -4,13 +4,13 @@ import FWCore.ParameterSet.Config as cms
 from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
 
 # monitoring of efficiencies of HLT paths and filters
-from DQMOffline.Trigger.hltFiltersDQMonitor_cfi import *
-hltFiltersDQM = hltFiltersDQMonitor.clone(
-  folderName = 'HLT/Filters',
-  efficPlotNamePrefix = 'effic_',
-  triggerResults = 'TriggerResults::HLT',
-  triggerSummaryAOD = 'hltTriggerSummaryAOD::HLT',
-  triggerSummaryRAW = 'hltTriggerSummaryRAW::HLT',
+from DQMOffline.Trigger.dqmHLTFiltersDQMonitor_cfi import dqmHLTFiltersDQMonitor as _dqmHLTFiltersDQMonitor
+dqmHLTFiltersDQMonitor = _dqmHLTFiltersDQMonitor.clone(
+    folderName = 'HLT/Filters',
+    efficPlotNamePrefix = 'effic_',
+    triggerResults = 'TriggerResults::HLT',
+    triggerEvent = 'hltTriggerSummaryAOD::HLT',
+    triggerEventWithRefs = 'hltTriggerSummaryRAW::HLT'
 )
 
 # Lumi
@@ -121,7 +121,7 @@ offlineHLTSourceOnMiniAOD = cms.Sequence(
 ## ADD here sequences/modules which rely ONLY on collections stored in the AOD format
 offlineHLTSourceOnAOD = cms.Sequence(
       dqmEnvHLT
-    * hltFiltersDQM
+    * dqmHLTFiltersDQMonitor
     * lumiMonitorHLTsequence
     * muonFullOfflineDQM
     * HLTTauDQMOffline
@@ -145,7 +145,7 @@ offlineHLTSourceOnAOD = cms.Sequence(
 
 ## w/ the RECO step on-the-fly (to be added to offlineHLTSourceOnAOD which should run anyhow)
 offlineHLTSourceWithRECO = cms.Sequence(
-      hltFiltersDQM
+      dqmHLTFiltersDQMonitor
     * egHLTOffDQMSource       ## NEEDED in VALIDATION, not really in MONITORING
     * egHLTOffDQMSource_HEP17 ## NEEDED in VALIDATION, not really in MONITORING
     * jetMETHLTOfflineAnalyzer

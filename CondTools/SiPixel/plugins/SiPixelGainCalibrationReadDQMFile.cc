@@ -124,7 +124,6 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
   //   TH1F *gainPerDetid;
   //   TH1F *pedPerDetid;
 
-  size_t ntimes = 0;
   edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "now filling record " << record_ << std::endl;
   if (record_ != "SiPixelGainCalibrationForHLTRcd" && record_ != "SiPixelGainCalibrationOfflineRcd") {
     edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
@@ -180,20 +179,16 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
   const TrackerGeometry *pDD = &iSetup.getData(pddToken_);
   edm::LogInfo("SiPixelCondObjOfflineBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
 
-  int NDetid = 0;
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     detid = 0;
     if (dynamic_cast<PixelGeomDetUnit const *>((*it)) != nullptr)
       detid = ((*it)->geographicalId()).rawId();
     if (detid == 0)
       continue;
-    NDetid++;
-    //if(NDetid>=2) continue;
     //if(detid!=344076812) continue;
     int badDetId = 0;
     //if(detid==302123296||detid==302126596) badDetId=1;;
     //if(detid!=302058516) continue;
-    ntimes = 0;
     useddefaultfortree = 0;
     edm::LogPrint("SiPixelGainCalibrationReadDQMFile")
         << "now creating database object for detid " << detid
@@ -297,7 +292,6 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
     float pedforthiscol[2];
     float gainforthiscol[2];
     int nusedrows[2];
-    size_t nemptypixels = 0;
     //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << pedlow_<<"  "<<pedhi_<<"  "<<gainlow_<<"  "<<gainhi_<< std::endl;
     for (size_t icol = 1; icol <= ncols; icol++) {
       nusedrows[0] = nusedrows[1] = 0;
@@ -316,9 +310,6 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
         float fitresult = tempfitresult->GetBinContent(icol, jrow);
 
         if (ped > pedlow_ && gain > gainlow_ && ped < pedhi_ && gain < gainhi_ && (fitresult > 0)) {
-          ntimes++;
-          //	  if(ntimes<=10)
-          //        edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << detid << " " << jrow << " " << icol << " " << ped << " " << ped << " " << chi2 << " " << fitresult << std::endl;
           VCAL_endpoint->Fill((255 - ped) / gain);
           peds[jrow] = ped;
           gains[jrow] = gain;
@@ -335,22 +326,12 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
           chi2fortree = chi2;
           tree->Fill();
         } else {
-          nemptypixels++;
-          // 	  if(nemptypixels<0.01*nrows*ncols )
-          // 	    edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "ped,gain="<< ped << ","<< gain << " row, col " << jrow <<","<< icol << ", detid " << detid <<  std::endl;
           if (usemeanwhenempty_) {
-            //ntimes++;
-            //if(nemptypixels<=50)
-            //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << "USING DEFAULT MEAN GAIN & PED (" << meangain << ","<< meanped << ")!, observed values are gain,ped : "<< gain << "," << ped <<", chi2 " << chi2  << ", fitresult "<< fitresult<<  std::endl;
-            // edm::LogPrint("SiPixelGainCalibrationReadDQMFile") <<jrow<<"  "<<icol<<std::endl;
-            // }
             peds[jrow] = meanped;
             gains[jrow] = meangain;
             std::pair<TString, int> tempval(tempgainstring, 1);
             badresults[detid] = tempval;
           } else {
-            //if(ntimes<=100)
-            // edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempgainstring << " bad/dead Pixel, observed values are gain,ped : "<< gain << "," << ped <<", chi2 " << chi2 << ", fitresult "<< fitresult<< std::endl;
             std::pair<TString, int> tempval(tempgainstring, 2);
             badresults[detid] = tempval;
             // if everything else fails: set the gain & ped now to dead
@@ -398,8 +379,6 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
               std::pair<TString, int> tempval(tempgainstring, 3);
               badresults[detid] = tempval;
             } else {  //make dead
-              //if(ntimes<=100)
-              //edm::LogPrint("SiPixelGainCalibrationReadDQMFile") << tempgainstring << "dead Column, observed values are gain,ped : "<< gainforthiscol[iglobalrow] << "," << pedforthiscol[iglobalrow] << std::endl;
               pedforthiscol[iglobalrow] = badpedval;
               gainforthiscol[iglobalrow] = badgainval;
               std::pair<TString, int> tempval(tempgainstring, 4);

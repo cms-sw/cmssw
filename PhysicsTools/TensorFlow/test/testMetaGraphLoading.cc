@@ -1,6 +1,5 @@
 /*
  * Tests for loading meta graphs via the SavedModel interface.
- * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -15,36 +14,39 @@
 
 class testMetaGraphLoading : public testBase {
   CPPUNIT_TEST_SUITE(testMetaGraphLoading);
-  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void checkAll() override;
+  void test() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testMetaGraphLoading);
 
 std::string testMetaGraphLoading::pyScript() const { return "creategraph.py"; }
 
-void testMetaGraphLoading::checkAll() {
+void testMetaGraphLoading::test() {
   std::string exportDir = dataPath_ + "/simplegraph";
 
+  std::cout << "Testing CPU backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cpu;
+
   // load the graph
-  tensorflow::setLogging();
+  tensorflow::Options options{backend};
   tensorflow::MetaGraphDef* metaGraphDef = tensorflow::loadMetaGraphDef(exportDir);
   CPPUNIT_ASSERT(metaGraphDef != nullptr);
 
   // create a new, empty session
-  tensorflow::Session* session1 = tensorflow::createSession();
+  tensorflow::Session* session1 = tensorflow::createSession(options);
   CPPUNIT_ASSERT(session1 != nullptr);
 
   // create a new session, using the meta graph
-  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir);
+  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir, options);
   CPPUNIT_ASSERT(session2 != nullptr);
 
   // check for exception
-  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir), cms::Exception);
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir, options), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});

@@ -1,6 +1,3 @@
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1100
-
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsTrackingManager.h"
 #include "TrackingManagerHelper.h"
 
@@ -726,5 +723,3 @@ void CMSEmStandardPhysicsTrackingManager::HandOverOneTrack(G4Track *aTrack) {
   aTrack->SetTrackStatus(fStopAndKill);
   delete aTrack;
 }
-
-#endif

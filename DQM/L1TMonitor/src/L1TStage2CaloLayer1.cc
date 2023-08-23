@@ -19,6 +19,8 @@
 #include "EventFilter/L1TXRawToDigi/interface/UCTDAQRawData.h"
 #include "EventFilter/L1TXRawToDigi/interface/UCTAMCRawData.h"
 
+using namespace l1t;
+
 L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
     : ecalTPSourceRecd_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecd"))),
       ecalTPSourceRecdLabel_(ps.getParameter<edm::InputTag>("ecalTPSourceRecd").label()),
@@ -38,6 +40,9 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
       ecalTPSourceSentLabel_(ps.getParameter<edm::InputTag>("ecalTPSourceSent").label()),
       hcalTPSourceSent_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalTPSourceSent"))),
       hcalTPSourceSentLabel_(ps.getParameter<edm::InputTag>("hcalTPSourceSent").label()),
+      CaloTowerCollectionData_(
+          consumes<l1t::CaloTowerBxCollection>(ps.getParameter<edm::InputTag>("CaloTowerCollectionData"))),
+      CaloTowerCollectionDataLabel_(ps.getParameter<edm::InputTag>("CaloTowerCollectionData").label()),
       fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
       histFolder_(ps.getParameter<std::string>("histFolder")),
       tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0)),
@@ -61,6 +66,19 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
   edm::Handle<FEDRawDataCollection> fedRawDataCollection;
   event.getByToken(fedRawData_, fedRawDataCollection);
   bool caloLayer1OutOfRun{true};
+  bool FATevent{false};
+  bool additionalFB{false};
+  bool card7flag1354{false};
+  bool card7flag1356{false};
+  bool card7flag1358{false};
+  std::vector<uint32_t> FED1354_slot7_bits;
+  std::vector<uint32_t> FED1356_slot7_bits;
+  std::vector<uint32_t> FED1358_slot7_bits;
+  for (int i = 0; i < 6; i++) {
+    FED1354_slot7_bits.push_back(0);
+    FED1356_slot7_bits.push_back(0);
+    FED1358_slot7_bits.push_back(0);
+  }
   if (fedRawDataCollection.isValid()) {
     caloLayer1OutOfRun = false;
     for (int iFed = 1354; iFed < 1360; iFed += 2) {
@@ -73,16 +91,55 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       UCTDAQRawData daqData(fedRawDataArray);
       for (uint32_t i = 0; i < daqData.nAMCs(); i++) {
         UCTAMCRawData amcData(daqData.amcPayload(i));
-        int lPhi = amcData.layer1Phi();
-        if (daqData.BXID() != amcData.BXID()) {
-          eventMonitors.bxidErrors_->Fill(lPhi);
+        const uint32_t* amcPtr = amcData.dataPtr();
+        FATevent = ((amcPtr[5] >> 16) & 0xf) == 5;
+        additionalFB = (amcPtr[5] >> 15) & 0x1;
+        if (((amcPtr[5] >> 14) & 0x1) == 0) {
+          int lPhi = amcData.layer1Phi();
+          if (daqData.BXID() != amcData.BXID()) {
+            eventMonitors.bxidErrors_->Fill(lPhi);
+          }
+          if (daqData.L1ID() != amcData.L1ID()) {
+            eventMonitors.l1idErrors_->Fill(lPhi);
+          }
+          // AMC payload header has 16 bit orbit number, AMC13 header is full 32
+          if ((daqData.orbitNumber() & 0xFFFF) != amcData.orbitNo()) {
+            eventMonitors.orbitErrors_->Fill(lPhi);
+          }
         }
-        if (daqData.L1ID() != amcData.L1ID()) {
-          eventMonitors.l1idErrors_->Fill(lPhi);
+        if (iFed == 1354 && daqData.nAMCs() == 7 && i == 3 && amcData.amcNo() == 7 && ((amcPtr[5] >> 14) & 0x1) == 1) {
+          card7flag1354 = true;
+          for (int j = 0; j < 6; j++) {
+            FED1354_slot7_bits[j] = amcPtr[j + 6] & 0xFFFFFFFF;
+          }
+        } else if (iFed == 1356 && daqData.nAMCs() == 7 && i == 3 && amcData.amcNo() == 7 &&
+                   ((amcPtr[5] >> 14) & 0x1) == 1) {
+          card7flag1356 = true;
+          for (int j = 0; j < 6; j++) {
+            FED1356_slot7_bits[j] = amcPtr[j + 6] & 0xFFFFFFFF;
+          }
+        } else if (iFed == 1358 && daqData.nAMCs() == 7 && i == 3 && amcData.amcNo() == 7 &&
+                   ((amcPtr[5] >> 14) & 0x1) == 1) {
+          card7flag1358 = true;
+          for (int j = 0; j < 6; j++) {
+            FED1358_slot7_bits[j] = amcPtr[j + 6] & 0xFFFFFFFF;
+          }
         }
-        // AMC payload header has 16 bit orbit number, AMC13 header is full 32
-        if ((daqData.orbitNumber() & 0xFFFF) != amcData.orbitNo()) {
-          eventMonitors.orbitErrors_->Fill(lPhi);
+      }
+    }
+  }
+
+  if (not caloLayer1OutOfRun) {
+    for (int iword = 0; iword < 6; iword++) {
+      for (int ibit = 0; ibit < 32; ibit++) {
+        if (card7flag1354 && ((FED1354_slot7_bits[iword] >> ibit) & 0x1) == 1) {
+          eventMonitors.slot7bit_->Fill(ibit, iword);
+        }
+        if (card7flag1356 && ((FED1356_slot7_bits[iword] >> ibit) & 0x1) == 1) {
+          eventMonitors.slot7bit_->Fill(ibit, iword + 7);
+        }
+        if (card7flag1358 && ((FED1358_slot7_bits[iword] >> ibit) & 0x1) == 1) {
+          eventMonitors.slot7bit_->Fill(ibit, iword + 14);
         }
       }
     }
@@ -292,6 +349,8 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
   event.getByToken(hcalTPSourceSent_, hcalTPsSent);
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsRecd;
   event.getByToken(hcalTPSourceRecd_, hcalTPsRecd);
+  edm::Handle<l1t::CaloTowerBxCollection> caloTowerDataCol;
+  event.getByToken(CaloTowerCollectionData_, caloTowerDataCol);
 
   hcalTPSentRecd_.clear();
 
@@ -327,11 +386,32 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       eventMonitors.hcalTPRawEtSent_->Fill(sentTp.SOI_compressedEt());
       eventMonitors.hcalOccSent_->Fill(ieta, iphi);
     }
-    if (sentTp.SOI_fineGrain() == 1) {
-      eventMonitors.hcalOccSentFb_->Fill(ieta, iphi);
+
+    // 6 HCAL fine grain bits from uHTR readout
+    bool uHTRfg0 = sentTp.SOI_fineGrain(0);
+    bool uHTRfg1 = sentTp.SOI_fineGrain(1);
+    bool uHTRfg2 = sentTp.SOI_fineGrain(2);
+    bool uHTRfg3 = sentTp.SOI_fineGrain(3);
+    bool uHTRfg4 = sentTp.SOI_fineGrain(4);
+    bool uHTRfg5 = sentTp.SOI_fineGrain(5);
+
+    if (uHTRfg0) {
+      eventMonitors.hcalOccSentFg0_->Fill(ieta, iphi);
     }
-    if (sentTp.t0().fineGrain(1) == 1) {
-      eventMonitors.hcalOccSentFb2_->Fill(ieta, iphi);
+    if (uHTRfg1) {
+      eventMonitors.hcalOccSentFg1_->Fill(ieta, iphi);
+    }
+    if (uHTRfg2) {
+      eventMonitors.hcalOccSentFg2_->Fill(ieta, iphi);
+    }
+    if (uHTRfg3) {
+      eventMonitors.hcalOccSentFg3_->Fill(ieta, iphi);
+    }
+    if (uHTRfg4) {
+      eventMonitors.hcalOccSentFg4_->Fill(ieta, iphi);
+    }
+    if (uHTRfg5) {
+      eventMonitors.hcalOccSentFg5_->Fill(ieta, iphi);
     }
 
     if (towerMasked || caloLayer1OutOfRun) {
@@ -347,16 +427,122 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       continue;
     }
 
+    // 6 HCAL fine grain bits from Layer1 readout
+    // Fg 0 is always there in ctp7 payload, set as bit 8 after Et bits in unpacked towerDatum
+    // When additionalFB flag is set:
+    // Fg 1-5 are unpacked and set as bits 0-5 in another unpacked towerDatum2 and packed in HCALTP sample(1)
+    // since standard sample size is 16bit and there is no room in sample(0) which contains already Et and link status
+    // Otherwise:
+    // Fg 1-5 are all zero
+    bool layer1fg0 = recdTp.SOI_fineGrain(0);
+    bool layer1fg1 = false;
+    bool layer1fg2 = false;
+    bool layer1fg3 = false;
+    bool layer1fg4 = false;
+    bool layer1fg5 = false;
+    if (additionalFB && (abs(ieta) < 29)) {
+      for (const auto& tp : (*hcalTPsRecd)) {
+        if (not(tp.id().ieta() == ieta && tp.id().iphi() == iphi)) {
+          continue;
+        }
+        layer1fg1 = tp.sample(1).raw() & (1 << 0);
+        layer1fg2 = tp.sample(1).raw() & (1 << 1);
+        layer1fg3 = tp.sample(1).raw() & (1 << 2);
+        layer1fg4 = tp.sample(1).raw() & (1 << 3);
+        layer1fg5 = tp.sample(1).raw() & (1 << 4);
+      }
+    }
+
+    // Check mismatches only for HBHE
+    const bool Hfg0Agreement = (abs(ieta) < 29) ? (layer1fg0 == uHTRfg0) : true;
+    const bool Hfg1Agreement = (abs(ieta) < 29) ? (layer1fg1 == uHTRfg1) : true;
+    const bool Hfg2Agreement = (abs(ieta) < 29) ? (layer1fg2 == uHTRfg2) : true;
+    const bool Hfg3Agreement = (abs(ieta) < 29) ? (layer1fg3 == uHTRfg3) : true;
+    //const bool Hfg4Agreement = (abs(ieta) < 29) ? (layer1fg4 == uHTRfg4) : true;
+    //const bool Hfg5Agreement = (abs(ieta) < 29) ? (layer1fg5 == uHTRfg5) : true;
+    // Mute fg4 and fg5 for now (reserved bits not used anyway)
+    const bool HfgAgreement = (Hfg0Agreement && Hfg1Agreement && Hfg2Agreement && Hfg3Agreement);
+
+    // Construct an 6-bit integer from the layer1 fine grain readout (input to 6:1 logic emulation)
+    uint64_t fg_bits = 0;
+    if (layer1fg0) {
+      fg_bits |= 0x1;
+    }
+    if (layer1fg1) {
+      fg_bits |= 0x1 << 1;
+    }
+    if (layer1fg2) {
+      fg_bits |= 0x1 << 2;
+    }
+    if (layer1fg3) {
+      fg_bits |= 0x1 << 3;
+    }
+    if (layer1fg4) {
+      fg_bits |= 0x1 << 4;
+    }
+    if (layer1fg5) {
+      fg_bits |= 0x1 << 5;
+    }
+
+    // Current 6:1 LUT in fw
+    const uint64_t HCalFbLUT = 0xBBBABBBABBBABBBA;
+    // Expected LLP bit output (mute emulation for normal events, since layer2 only reads out FAT events)
+    const bool LLPfb_Expd = (FATevent == 1) ? ((HCalFbLUT >> fg_bits) & 1) : false;
+    // Actual LLP bit output in layer2 data collection
+    uint32_t tower_hwqual = 0;
+    for (auto tower = caloTowerDataCol->begin(0); tower != caloTowerDataCol->end(0); ++tower) {
+      if (not(tower->hwEta() == ieta && tower->hwPhi() == iphi)) {
+        continue;
+      }
+      tower_hwqual = tower->hwQual();
+    }
+    // CaloTower hwQual is 4-bit long, LLP output bit is set at the 2nd bit (counting from 0)
+    const bool LLPfb_Data = ((tower_hwqual & 0b0100) >> 2) & 1;
+
+    const bool LLPfbAgreement = (abs(ieta) < 29) ? (LLPfb_Expd == LLPfb_Data) : true;
+
+    // Fill feature bits Occ for HBHE only
+    if (abs(ieta) < 29) {
+      if (layer1fg0) {
+        eventMonitors.hcalOccRecdFg0_->Fill(ieta, iphi);
+      }
+      if (layer1fg1) {
+        eventMonitors.hcalOccRecdFg1_->Fill(ieta, iphi);
+      }
+      if (layer1fg2) {
+        eventMonitors.hcalOccRecdFg2_->Fill(ieta, iphi);
+      }
+      if (layer1fg3) {
+        eventMonitors.hcalOccRecdFg3_->Fill(ieta, iphi);
+      }
+      if (layer1fg4) {
+        eventMonitors.hcalOccRecdFg4_->Fill(ieta, iphi);
+      }
+      if (layer1fg5) {
+        eventMonitors.hcalOccRecdFg5_->Fill(ieta, iphi);
+      }
+      // fg4-5 are reserved bits and not used
+      // so compare here and not stream to mismatch list for now
+      //if (not Hfg4Agreement) {
+      //  eventMonitors.hcalOccFg4Discrepancy_->Fill(ieta, iphi);
+      //}
+      //if (not Hfg5Agreement) {
+      //  eventMonitors.hcalOccFg5Discrepancy_->Fill(ieta, iphi);
+      //}
+      // Fill Fb Occ and compare between layer1 emulated and layer2 data readout
+      // FAT events only!!
+      if (LLPfb_Expd) {
+        eventMonitors.hcalOccLLPFbExpd_->Fill(ieta, iphi);
+      }
+      if (LLPfb_Data) {
+        eventMonitors.hcalOccLLPFbData_->Fill(ieta, iphi);
+      }
+    }
+
     if (recdTp.SOI_compressedEt() > tpFillThreshold_) {
       eventMonitors.hcalTPRawEtRecd_->Fill(recdTp.SOI_compressedEt());
       eventMonitors.hcalOccupancy_->Fill(ieta, iphi);
       eventMonitors.hcalOccRecdEtWgt_->Fill(ieta, iphi, recdTp.SOI_compressedEt());
-    }
-    if (recdTp.SOI_fineGrain()) {
-      eventMonitors.hcalOccRecdFb_->Fill(ieta, iphi);
-    }
-    if (recdTp.t0().fineGrain(1)) {
-      eventMonitors.hcalOccRecdFb2_->Fill(ieta, iphi);
     }
 
     if (abs(ieta) > 29) {
@@ -366,15 +552,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     }
 
     const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
-    const bool Hfb1Agreement = (abs(ieta) < 29) ? true
-                                                : (recdTp.SOI_compressedEt() == 0 ||
-                                                   (sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain()) || ignoreHFfbs_);
-    // Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
-    const bool Hfb2Agreement =
-        (abs(ieta) < 29)
-            ? true
-            : (recdTp.SOI_compressedEt() == 0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)) || ignoreHFfbs_);
-    if (HetAgreement && Hfb1Agreement && Hfb2Agreement) {
+    if (HetAgreement && HfgAgreement && LLPfbAgreement) {
       // Full match
       if (sentTp.SOI_compressedEt() > tpFillThreshold_) {
         eventMonitors.hcalOccSentAndRecd_->Fill(ieta, iphi);
@@ -404,14 +582,22 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
         else
           eventMonitors.hcalOccNoMatch_->Fill(ieta, iphi);
       }
-      if (not Hfb1Agreement) {
-        // Handle fine grain discrepancies
-        eventMonitors.hcalOccFbDiscrepancy_->Fill(ieta, iphi);
-        updateMismatch(event, 3, streamCache(event.streamID())->streamMismatchList);
-      }
-      if (not Hfb2Agreement) {
-        // Handle fine grain discrepancies
-        eventMonitors.hcalOccFb2Discrepancy_->Fill(ieta, iphi);
+      if (not(HfgAgreement && LLPfbAgreement)) {
+        if (not Hfg0Agreement) {
+          eventMonitors.hcalOccFg0Discrepancy_->Fill(ieta, iphi);
+        }
+        if (not Hfg1Agreement) {
+          eventMonitors.hcalOccFg1Discrepancy_->Fill(ieta, iphi);
+        }
+        if (not Hfg2Agreement) {
+          eventMonitors.hcalOccFg2Discrepancy_->Fill(ieta, iphi);
+        }
+        if (not Hfg3Agreement) {
+          eventMonitors.hcalOccFg3Discrepancy_->Fill(ieta, iphi);
+        }
+        if (not LLPfbAgreement) {
+          eventMonitors.hcalOccLLPFbDiscrepancy_->Fill(ieta, iphi);
+        }
         updateMismatch(event, 3, streamCache(event.streamID())->streamMismatchList);
       }
     }
@@ -504,6 +690,10 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   auto bookHcalOccupancy = [&ibooker](std::string name, std::string title) {
     return ibooker.book2D(name, title + ";iEta;iPhi", 83, -41.5, 41.5, 72, 0.5, 72.5);
   };
+  auto bookSlot7Occupancy = [&ibooker](std::string name, std::string title) {
+    return ibooker.book2D(
+        name, title + ";bit;slot-7 word in FED13(54[0-5],56[7-12],58[14-19])", 32, -0.5, 31.5, 20, -0.5, 19.5);
+  };
 
   ibooker.setCurrentFolder(histFolder_);
 
@@ -517,6 +707,7 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.hcalLinkError_ = bookHcalOccupancy("hcalLinkError", "HCAL Link Errors");
   eventMonitors.hcalOccupancy_ = bookHcalOccupancy("hcalOccupancy", "HCAL TP Occupancy at Layer1");
   eventMonitors.hcalOccRecdEtWgt_ = bookHcalOccupancy("hcalOccRecdEtWgt", "HCal TP ET-weighted Occupancy at Layer1");
+  eventMonitors.slot7bit_ = bookSlot7Occupancy("slot7bitOcc", "Bit Occupancy of the Three Slot-7 Cards");
 
   ibooker.setCurrentFolder(histFolder_ + "/ECalDetail");
 
@@ -555,16 +746,36 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(histFolder_ + "/HCalDetail");
 
   eventMonitors.hcalOccEtDiscrepancy_ = bookHcalOccupancy("hcalOccEtDiscrepancy", "HCal Et Discrepancy Occupancy");
-  eventMonitors.hcalOccFbDiscrepancy_ =
-      bookHcalOccupancy("hcalOccFbDiscrepancy", "HCal Feature Bit Discrepancy Occupancy");
-  eventMonitors.hcalOccFb2Discrepancy_ =
-      bookHcalOccupancy("hcalOccFb2Discrepancy", "HCal Second Feature Bit Discrepancy Occupancy");
+  eventMonitors.hcalOccLLPFbDiscrepancy_ =
+      bookHcalOccupancy("hcalOccLLPFbDiscrepancy", "HCal LLP Feature Bit Discrepancy between Expected and Data");
+  eventMonitors.hcalOccLLPFbExpd_ = bookHcalOccupancy("hcalOccLLPFbExpd", "HCal LLP Feature Bit Occupancy Expected");
+  eventMonitors.hcalOccLLPFbData_ = bookHcalOccupancy("hcalOccLLPFbData", "HCal LLP Feature Bit Occupancy in Data");
+  eventMonitors.hcalOccFg0Discrepancy_ =
+      bookHcalOccupancy("hcalOccFg0Discrepancy", "HCal Fine Grain 0 Discrepancy between uHTR and Layer1");
+  eventMonitors.hcalOccFg1Discrepancy_ =
+      bookHcalOccupancy("hcalOccFg1Discrepancy", "HCal Fine Grain 1 Discrepancy between uHTR and Layer1");
+  eventMonitors.hcalOccFg2Discrepancy_ =
+      bookHcalOccupancy("hcalOccFg2Discrepancy", "HCal Fine Grain 2 Discrepancy between uHTR and Layer1");
+  eventMonitors.hcalOccFg3Discrepancy_ =
+      bookHcalOccupancy("hcalOccFg3Discrepancy", "HCal Fine Grain 3 Discrepancy between uHTR and Layer1");
+  //eventMonitors.hcalOccFg4Discrepancy_ =
+  //    bookHcalOccupancy("hcalOccFg4Discrepancy", "HCal Fine Grain 4 Discrepancy between uHTR and Layer1");
+  //eventMonitors.hcalOccFg5Discrepancy_ =
+  //    bookHcalOccupancy("hcalOccFg5Discrepancy", "HCal Fine Grain 5 Discrepancy between uHTR and Layer1");
+  eventMonitors.hcalOccSentFg0_ = bookHcalOccupancy("hcalOccSentFg0", "HCal Fine Grain 0 Occupancy at uHTR");
+  eventMonitors.hcalOccSentFg1_ = bookHcalOccupancy("hcalOccSentFg1", "HCal Fine Grain 1 Occupancy at uHTR");
+  eventMonitors.hcalOccSentFg2_ = bookHcalOccupancy("hcalOccSentFg2", "HCal Fine Grain 2 Occupancy at uHTR");
+  eventMonitors.hcalOccSentFg3_ = bookHcalOccupancy("hcalOccSentFg3", "HCal Fine Grain 3 Occupancy at uHTR");
+  eventMonitors.hcalOccSentFg4_ = bookHcalOccupancy("hcalOccSentFg4", "HCal Fine Grain 4 Occupancy at uHTR");
+  eventMonitors.hcalOccSentFg5_ = bookHcalOccupancy("hcalOccSentFg5", "HCal Fine Grain 5 Occupancy at uHTR");
+  eventMonitors.hcalOccRecdFg0_ = bookHcalOccupancy("hcalOccRecdFg0", "HCal Fine Grain 0 Occupancy at Layer1");
+  eventMonitors.hcalOccRecdFg1_ = bookHcalOccupancy("hcalOccRecdFg1", "HCal Fine Grain 1 Occupancy at Layer1");
+  eventMonitors.hcalOccRecdFg2_ = bookHcalOccupancy("hcalOccRecdFg2", "HCal Fine Grain 2 Occupancy at Layer1");
+  eventMonitors.hcalOccRecdFg3_ = bookHcalOccupancy("hcalOccRecdFg3", "HCal Fine Grain 3 Occupancy at Layer1");
+  eventMonitors.hcalOccRecdFg4_ = bookHcalOccupancy("hcalOccRecdFg4", "HCal Fine Grain 4 Occupancy at Layer1");
+  eventMonitors.hcalOccRecdFg5_ = bookHcalOccupancy("hcalOccRecdFg5", "HCal Fine Grain 5 Occupancy at Layer1");
   eventMonitors.hcalOccLinkMasked_ = bookHcalOccupancy("hcalOccLinkMasked", "HCal Masked Links");
-  eventMonitors.hcalOccRecdFb_ = bookHcalOccupancy("hcalOccRecdFb", "HCal Feature Bit Occupancy at Layer1");
-  eventMonitors.hcalOccRecdFb2_ = bookHcalOccupancy("hcalOccRecdFb2", "HF Second Feature Bit Occupancy at Layer1");
   eventMonitors.hcalOccSentAndRecd_ = bookHcalOccupancy("hcalOccSentAndRecd", "HCal TP Occupancy FULL MATCH");
-  eventMonitors.hcalOccSentFb_ = bookHcalOccupancy("hcalOccSentFb", "HCal Feature Bit Occupancy at uHTR");
-  eventMonitors.hcalOccSentFb2_ = bookHcalOccupancy("hcalOccSentFb2", "HF Second Feature Bit Occupancy at uHTR");
   eventMonitors.hcalOccSent_ = bookHcalOccupancy("hcalOccSent", "HCal TP Occupancy at uHTR");
   eventMonitors.hcalOccTowerMasked_ = bookHcalOccupancy("hcalOccTowerMasked", "HCal Masked towers");
   eventMonitors.hcalTPRawEtCorrelationHBHE_ =

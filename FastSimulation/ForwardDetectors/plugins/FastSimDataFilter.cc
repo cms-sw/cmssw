@@ -38,9 +38,6 @@ namespace cms {
     int nminusP = 0;
     int nplusR = 0;
     int nminusR = 0;
-    double metx = 0.;
-    double mety = 0.;
-    double sumEt = 0.;
 
     for (cal = towers->begin(); cal != towers->end(); ++cal) {
       //    double eE   = cal->emEnergy();
@@ -50,7 +47,6 @@ namespace cms {
 
       double eta = cal->eta();
       double en = cal->energy();
-      double et = cal->et();
 
       // cylindrical
       math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
@@ -62,10 +58,6 @@ namespace cms {
     if(ieta > 0) ieta -= 1;
     int iphi = idT.iphi();
     */
-
-      metx += mom.x();
-      mety += mom.y();
-      sumEt += et;
 
       // Towers approx. in the region of BSC Paddles and Rings
       if (en > towercut && eta > 3.1 && eta < 3.5)

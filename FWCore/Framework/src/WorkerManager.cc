@@ -14,8 +14,10 @@ static const std::string kProducerType("EDProducer");
 namespace edm {
   // -----------------------------
 
-  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions)
-      : workerReg_(areg),
+  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg,
+                               ExceptionToActionTable const& actions,
+                               ModuleTypeResolverMaker const* typeResolverMaker)
+      : workerReg_(areg, typeResolverMaker),
         actionTable_(&actions),
         allWorkers_(),
         unscheduled_(*areg),
@@ -89,7 +91,7 @@ namespace edm {
   }
 
   void WorkerManager::beginJob(ProductRegistry const& iRegistry,
-                               eventsetup::ESRecordsToProxyIndices const& iESIndices,
+                               eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                                ProcessBlockHelperBase const& processBlockHelperBase) {
     auto const processBlockLookup = iRegistry.productLookup(InProcess);
     auto const runLookup = iRegistry.productLookup(InRun);

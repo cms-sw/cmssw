@@ -1,0 +1,40 @@
+#ifndef RecoTracker_PixelSeeding_CosmicHitTripletGeneratorFromLayerTriplet_h
+#define RecoTracker_PixelSeeding_CosmicHitTripletGeneratorFromLayerTriplet_h
+
+#include "RecoTracker/PixelSeeding/interface/OrderedHitTriplets.h"
+#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+class DetLayer;
+class TrackingRegion;
+class LayerWithHits;
+
+class CosmicHitTripletGeneratorFromLayerTriplet {
+public:
+  CosmicHitTripletGeneratorFromLayerTriplet(const LayerWithHits* inner,
+                                            const LayerWithHits* middle,
+                                            const LayerWithHits* outer,
+                                            const TrackerGeometry& trackGeom);
+  ~CosmicHitTripletGeneratorFromLayerTriplet() {}
+
+  void hitTriplets(const TrackingRegion& ar, OrderedHitTriplets& ap);
+
+  const LayerWithHits* innerLayer() const { return theInnerLayer; }
+  const LayerWithHits* middleLayer() const { return theMiddleLayer; }
+  const LayerWithHits* outerLayer() const { return theOuterLayer; }
+
+private:
+  const TrackerGeometry* trackerGeometry;
+  const LayerWithHits* theOuterLayer;
+  const LayerWithHits* theMiddleLayer;
+  const LayerWithHits* theInnerLayer;
+  const DetLayer* innerlay;
+  const DetLayer* outerlay;
+  const DetLayer* middlelay;
+};
+
+#endif

@@ -21,7 +21,7 @@ void FWPFPatJet3DProxyBuilder<T>::build(const T& iData,
          ic != consts.end();
          ic++)  // and so no segmentation fault should occur
     {
-      const reco::PFCandidatePtr pfCandPtr = *ic;
+      const reco::PFCandidatePtr& pfCandPtr = *ic;
 
       TEveRecTrack t;
       t.fBeta = 1;

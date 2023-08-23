@@ -13,12 +13,14 @@ MODELS=()
 FORCE=""
 CLEANUP=true
 TMPDIR=""
+INSTANCES=0
+LOCALMODELREPO=""
 DRYRUN=""
 PARENTPID=""
 BASEPORT=8000
 AUTOPORT=""
 NPORTS=3
-IMAGE=fastml/triton-torchgeo:21.06-py3-geometric
+IMAGE=fastml/triton-torchgeo:22.07-py3-geometric
 SANDBOX=""
 COMPAT_USR=""
 
@@ -38,17 +40,18 @@ usage() {
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
 	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
-	$ECHO "-d          \t use Docker instead of Singularity"
+	$ECHO "-d          \t use Docker instead of Apptainer"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
 	$ECHO "-g          \t use GPU instead of CPU"
 	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
+	$ECHO "-I [num]    \t number of model instances (default: ${INSTANCES} -> means no local editing of config files)"
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
 	$ECHO "-m [dir]    \t specific model directory (can be given more than once)"
 	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
 	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
 	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
-	$ECHO "-s [dir]    \t Singularity sandbox directory (default: $(get_sandbox))"
+	$ECHO "-s [dir]    \t Apptainer sandbox directory (default: $(get_sandbox))"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
 	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
@@ -67,7 +70,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cC:Ddfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
+while getopts "cC:Ddfgi:I:M:m:n:P:p:r:s:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -82,6 +85,8 @@ while getopts "cC:Ddfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
 		g) GPU=true
 		;;
 		i) IMAGE="$OPTARG"
+		;;
+		I) INSTANCES="$OPTARG"
 		;;
 		M) REPOS+=("$OPTARG")
 		;;
@@ -126,9 +131,27 @@ else
 	TMPDIR=$(readlink -f $TMPDIR)
 fi
 
+# find executables
+if [ -n "$USEDOCKER" ]; then
+	if [ -z "$DOCKER" ]; then
+		DOCKER="sudo docker"
+	fi
+else
+	if [ -z "$APPTAINER" ]; then
+		if type apptainer >& /dev/null; then
+			APPTAINER=apptainer
+		elif type singularity >& /dev/null; then
+			APPTAINER=singularity
+		else
+			echo "Missing apptainer and singularity"
+			exit 1
+		fi
+	fi
+fi
+
+
 SANDBOX=$(get_sandbox)
 SANDBOX=$(readlink -f ${SANDBOX})
-DOCKER="sudo docker"
 LOG="log_${SERVER}.log"
 STOPLOG="log_stop_${SERVER}.log"
 LIB=lib
@@ -204,7 +227,7 @@ start_docker(){
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
-start_singularity(){
+start_apptainer(){
 	# triton server image may need to modify contents of opt/tritonserver/lib/
 	# but cvmfs is read-only
 	# -> make a writable local directory with the same contents
@@ -241,7 +264,7 @@ start_singularity(){
 
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
-	$DRYRUN singularity instance start \
+	$DRYRUN $APPTAINER instance start \
 		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
@@ -257,7 +280,7 @@ start_singularity(){
 	else
 		REDIR=/dev/stdout
 	fi
-	$DRYRUN singularity run instance://${SERVER} \
+	$DRYRUN $APPTAINER run instance://${SERVER} \
 		tritonserver $PORTARGS $REPOARGS $VERBOSE >& ${REDIR} &
 	[ -z "$DRYRUN" ] || wait
 }
@@ -272,8 +295,8 @@ stop_docker(){
 	$DRYRUN $DOCKER rm ${SERVER}
 }
 
-stop_singularity(){
-	$DRYRUN singularity instance stop ${SERVER}
+stop_apptainer(){
+	$DRYRUN $APPTAINER instance stop ${SERVER}
 }
 
 test_docker(){
@@ -281,7 +304,7 @@ test_docker(){
 	${DOCKER} logs ${SERVER} |& grep "$1"
 }
 
-test_singularity(){
+test_apptainer(){
 	grep "$1" $LOG
 }
 
@@ -315,21 +338,93 @@ wait_server(){
 	echo "server is ready!"
 }
 
+edit_model(){
+	MODELNAME=$1
+	NUMINSTANCES=$2
+	
+	cp -r $MODELNAME $TMPDIR/$LOCALMODELREPO/
+	COPY_EXIT=$?
+	if [ "$COPY_EXIT" -ne 0 ]; then
+		echo "Could not copy $MODELNAME into $TMPDIR/$LOCALMODELREPO/"
+		exit "$COPY_EXIT"
+	fi
+	IFS='/' read -ra ADDR <<< "$MODELNAME"
+	CONFIG=$TMPDIR/$LOCALMODELREPO/${ADDR[-1]}/config.pbtxt
+
+	PLATFORM=$(grep -m 1 "^platform:" "$CONFIG")
+
+	if [[ $PLATFORM == *"ensemble"* ]]; then
+		#recurse over submodels of ensemble model
+		MODELLOC=$(echo ""${ADDR[@]:0:${#ADDR[@]}-1} | sed "s/ /\//g")
+		SUBNAME=$(grep "model_name:" "$CONFIG" | sed 's/model_name://; s/"//g')
+		for SUBMODEL in ${SUBNAME}; do
+			SUBMODEL=${MODELLOC}/${SUBMODEL}
+			edit_model $SUBMODEL "$INSTANCES"
+		done
+	else
+		#This is not an ensemble model, so we should edit the config file
+		cat <<EOF >> $CONFIG
+instance_group [
+  {
+    count: $NUMINSTANCES
+    kind: KIND_CPU
+  }
+]
+
+EOF
+		if [[ $PLATFORM == *"onnx"* ]]; then
+			cat <<EOF >> $CONFIG
+parameters { key: "intra_op_thread_count" value: { string_value: "1" } }
+parameters { key: "inter_op_thread_count" value: { string_value: "1" } }
+EOF
+		elif [[ $PLATFORM == *"tensorflow"* ]]; then
+			cat <<EOF >> $CONFIG
+parameters { key: "TF_NUM_INTRA_THREADS" value: { string_value: "1" } }
+parameters { key: "TF_NUM_INTER_THREADS" value: { string_value: "1" } }
+parameters { key: "TF_USE_PER_SESSION_THREADS" value: { string_value: "1" } }
+EOF
+		else
+			echo "Warning: thread (instance) control not implemented for $PLATFORM"
+		fi
+	fi
+}
+
 list_models(){
 	# make list of model repositories
+	LOCALMODELREPO="local_model_repo"
+	if [ "$INSTANCES" -gt 0 ]; then
+		if [ -d "$TMPDIR/$LOCALMODELREPO" ]; then
+			#Want to start with a fresh copy of model files in case this directory already exists with local edits
+			rm -rf $TMPDIR/$LOCALMODELREPO
+		fi
+		$DRYRUN mkdir $TMPDIR/$LOCALMODELREPO
+		MKMODELDIR_EXIT=$?
+		if [ "$MKMODELDIR_EXIT" -ne 0 ]; then
+			echo "Could not create local_model_repo dir: $TMPDIR/$LOCALMODELREPO"
+			exit "$MKMODELDIR_EXIT"
+		fi
+	fi
+
 	for MODEL in ${MODELS[@]}; do
 		# check if file was provided rather than directory
 		if [ -f "$MODEL" ]; then
 			MODEL="$(dirname "$MODEL")"
 		fi
-		REPOS+=("$(dirname "$MODEL")")
+		if [ "$INSTANCES" -gt 0 ]; then
+			edit_model $MODEL "$INSTANCES"
+		else
+			REPOS+=("$(dirname "$MODEL")")
+		fi
 	done
-	for ((r=0; r < ${#REPOS[@]}; r++)); do
-		# avoid issues w/ multiple levels of symlinks
-		REPOS[$r]=$(readlink -f ${REPOS[$r]})
-	done
-	# make unique list
-	read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+	if [ "$INSTANCES" -gt 0 ]; then
+		REPOS=$TMPDIR/$LOCALMODELREPO
+	else
+		for ((r=0; r < ${#REPOS[@]}; r++)); do
+			# avoid issues w/ multiple levels of symlinks
+			REPOS[$r]=$(readlink -f ${REPOS[$r]})
+		done
+		read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+	fi
 }
 
 auto_stop(){
@@ -401,18 +496,21 @@ scram_tag(){
 }
 
 driver_docker(){
-	docker run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+	$DOCKER run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
 }
 
-driver_singularity(){
-	source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION
+driver_apptainer(){
+	D2S=${SANDBOX}/.singularity.d/env/10-docker2singularity.sh
+	if [ -f "$D2S" ]; then
+		source $D2S && echo $CUDA_DRIVER_VERSION
+	fi
 }
 
 compat_docker(){
-	docker cp $(docker create --rm ${IMAGE}):${COMPAT_SCRIPT} .
+	$DOCKER cp $($DOCKER create --rm ${IMAGE}):${COMPAT_SCRIPT} .
 }
 
-compat_singularity(){
+compat_apptainer(){
 	cp ${SANDBOX}/${COMPAT_SCRIPT} .
 }
 
@@ -457,8 +555,12 @@ check_drivers(){
 		if [ "$PWD" == "$TMPDIR" ]; then
 			$DRYRUN $COMPAT_FN
 			COMPAT_SCRIPT_BASE=$(basename $COMPAT_SCRIPT)
-			$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
-			COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_BASE:$COMPAT_SCRIPT"
+			# newer containers already include this fix, no need to do it twice
+			if ! grep -Fq 'LD_PRELOAD=""' $COMPAT_SCRIPT_BASE; then
+				$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
+				COMPAT_SCRIPT_PATH=$(readlink -f $TMPDIR/$COMPAT_SCRIPT_BASE)
+				COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_PATH:$COMPAT_SCRIPT"
+			fi
 		fi
 		return 0
 	else
@@ -480,12 +582,12 @@ else
 	if [ -n "$GPU" ]; then
 		EXTRA="--nv"
 	fi
-	START_FN=start_singularity
-	TEST_FN=test_singularity
-	STOP_FN=stop_singularity
-	DRIVER_FN=driver_singularity
-	COMPAT_FN=compat_singularity
-	PROG_NAME=Singularity
+	START_FN=start_apptainer
+	TEST_FN=test_apptainer
+	STOP_FN=stop_apptainer
+	DRIVER_FN=driver_apptainer
+	COMPAT_FN=compat_apptainer
+	PROG_NAME=Apptainer
 fi
 
 if [ "$OP" == check ]; then
@@ -504,15 +606,6 @@ elif [ "$OP" == start ]; then
 	PORT_EXIT=$?
 	if [ "$PORT_EXIT" -ne 0 ]; then exit $PORT_EXIT; fi
 
-	list_models
-
-	make_tmp
-
-	# after make_tmp because this may create file in tmp dir
-	check_drivers
-	DRIVER_EXIT=$?
-	if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
-
 	# if parent PID is provided, automatically stop server when finished
 	# do this before actually trying to start the server in case of ctrl+c
 	if [ -n "$PARENTPID" ]; then
@@ -521,7 +614,12 @@ elif [ "$OP" == start ]; then
 
 	START_EXIT=0
 	for ((counter=0; counter < ${RETRIES}; counter++)); do
-		if [ "$START_EXIT" -ne 0 ]; then make_tmp; fi
+		make_tmp
+		#If we plan on editing model configs, must repull files into /tmp/local_model_repo, which is deleted upon retry
+		if [ "$counter" -eq 0 ] || [ "$INSTANCES" -gt 0 ]; then list_models; fi
+		check_drivers
+		DRIVER_EXIT=$?
+		if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi
 
 		$START_FN
 		START_EXIT=$?

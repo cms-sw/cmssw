@@ -1,4 +1,5 @@
 <library file="*.cc" name="TrackerDTCTests">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="L1Trigger/TrackerDTC"/>
   <flags EDM_PLUGIN="1"/>
 </library>

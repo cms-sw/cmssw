@@ -254,7 +254,7 @@ void AlCaHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("triggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("muonLabel", edm::InputTag("muons"));
   desc.add<std::vector<std::string> >("triggers", triggers);
-  desc.add<double>("muonPtCut", 20.0);
+  desc.add<double>("muonPtCut", 5.0);
   desc.add<double>("muonEtaCut", 1.305);
   desc.add<bool>("pfCut", true);
   desc.add<double>("pfIsolationCut", 0.15);

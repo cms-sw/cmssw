@@ -13,6 +13,8 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 namespace reco {
   class SuperCluster : public CaloCluster {
@@ -144,6 +146,32 @@ namespace reco {
         2 : only second plane working
         3 : both planes dead */
     const int getPreshowerPlanesStatus() const { return (flags_ >> flagsOffset_); }
+
+    const int seedCrysIEtaOrIx() const {
+      auto detid = seed_->seed();
+      int ietaorix = 0;
+      if (detid.subdetId() == EcalBarrel) {
+        EBDetId ebdetid(detid);
+        ietaorix = ebdetid.ieta();
+      } else if (detid.subdetId() == EcalEndcap) {
+        EEDetId eedetid(detid);
+        ietaorix = eedetid.ix();
+      }
+      return ietaorix;
+    }
+
+    const int seedCrysIPhiOrIy() const {
+      auto detid = seed_->seed();
+      int iphioriy = 0;
+      if (detid.subdetId() == EcalBarrel) {
+        EBDetId ebdetid(detid);
+        iphioriy = ebdetid.iphi();
+      } else if (detid.subdetId() == EcalEndcap) {
+        EEDetId eedetid(detid);
+        iphioriy = eedetid.iy();
+      }
+      return iphioriy;
+    }
 
   private:
     void computeRawEnergy();

@@ -36,13 +36,11 @@ float GSUtilities::quantile(const float q) const {
   double dx = y1 > 0. ? -theErrors[iwMax] : theErrors[iwMax];
   double x2(x1 + dx);
   double y2(cdf(x2) - qq);
-  int cnt = 0;
   while (y1 * y2 > 0.) {
     x1 = x2;
     y1 = y2;
     x2 += dx;
     y2 = cdf(x2) - qq;
-    cnt++;
   }
   //   std::cout << "(" << x1 << "," << y1 << ") / ("
   //        << x2 << "," << y2 << ")" << std::endl;

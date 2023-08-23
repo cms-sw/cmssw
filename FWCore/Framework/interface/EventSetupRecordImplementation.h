@@ -68,8 +68,6 @@ namespace edm {
         return getHandleImpl<ESTransientHandle>(iToken);
       }
 
-      using EventSetupRecord::get;
-
       template <typename PRODUCT>
       PRODUCT const& get(ESGetToken<PRODUCT, T> const& iToken) const {
         return *getHandleImpl<ESHandle>(iToken);

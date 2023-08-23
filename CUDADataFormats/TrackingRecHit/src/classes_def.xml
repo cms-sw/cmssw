@@ -1,10 +1,21 @@
 <lcgdict>
-  <class name="TrackingRecHit2DCPU" persistent="false"/>
-  <class name="edm::Wrapper<TrackingRecHit2DCPU>" persistent="false"/>
-  <class name="TrackingRecHit2DHost" persistent="false"/>
-  <class name="edm::Wrapper<TrackingRecHit2DHost>" persistent="false"/>
-  <class name="cms::cuda::Product<TrackingRecHit2DGPU>" persistent="false"/>
-  <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHit2DGPU>>" persistent="false"/>
-  <class name="TrackingRecHit2DReduced" persistent="false"/>
-  <class name="edm::Wrapper<TrackingRecHit2DReduced>" persistent="false"/>
+
+  <class name="TrackingRecHitSoAHostPhase1" persistent="false"/>
+  <class name="edm::Wrapper<TrackingRecHitSoAHostPhase1>" persistent="false"/>
+
+  <class name="TrackingRecHitSoAHostHIonPhase1" persistent="false"/>
+  <class name="edm::Wrapper<TrackingRecHitSoAHostHIonPhase1>" persistent="false"/>
+
+  <class name="TrackingRecHitSoAHostPhase2" persistent="false"/>
+  <class name="edm::Wrapper<TrackingRecHitSoAHostPhase2>" persistent="false"/>
+
+  <class name="cms::cuda::Product<TrackingRecHitSoADevicePhase1>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHitSoADevicePhase1>>" persistent="false"/>
+
+  <class name="cms::cuda::Product<TrackingRecHitSoADevicePhase2>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHitSoADevicePhase2>>" persistent="false"/>
+
+  <class name="cms::cuda::Product<TrackingRecHitSoADeviceHIonPhase1>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHitSoADeviceHIonPhase1>>" persistent="false"/>
+
 </lcgdict>

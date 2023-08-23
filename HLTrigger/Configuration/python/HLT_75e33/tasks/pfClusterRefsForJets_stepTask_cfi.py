@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from ..modules.particleFlowClusterECAL_cfi import *
 from ..modules.particleFlowClusterECALUncorrected_cfi import *
-from ..modules.particleFlowClusterHBHE_cfi import *
-from ..modules.particleFlowClusterHCAL_cfi import *
+from ..modules.hltParticleFlowClusterHBHE_cfi import *
+from ..modules.hltParticleFlowClusterHCAL_cfi import *
 from ..modules.particleFlowClusterHF_cfi import *
 from ..modules.particleFlowClusterHO_cfi import *
 from ..modules.particleFlowRecHitECAL_cfi import *
-from ..modules.particleFlowRecHitHBHE_cfi import *
+from ..modules.hltParticleFlowRecHitHBHE_cfi import *
 from ..modules.particleFlowRecHitHF_cfi import *
 from ..modules.particleFlowRecHitHO_cfi import *
 from ..modules.pfClusterRefsForJets_cfi import *
@@ -20,12 +20,12 @@ from ..modules.pfClusterRefsForJetsHO_cfi import *
 pfClusterRefsForJets_stepTask = cms.Task(
     particleFlowClusterECAL,
     particleFlowClusterECALUncorrected,
-    particleFlowClusterHBHE,
-    particleFlowClusterHCAL,
+    hltParticleFlowClusterHBHE,
+    hltParticleFlowClusterHCAL,
     particleFlowClusterHF,
     particleFlowClusterHO,
     particleFlowRecHitECAL,
-    particleFlowRecHitHBHE,
+    hltParticleFlowRecHitHBHE,
     particleFlowRecHitHF,
     particleFlowRecHitHO,
     pfClusterRefsForJets,

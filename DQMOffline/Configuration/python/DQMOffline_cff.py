@@ -18,7 +18,7 @@ from DQM.GEM.gem_dqm_offline_source_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
-from DQM.SiPixelPhase1Heterogeneous.SiPixelPhase1HeterogenousDQM_FirstStep_cff import *
+from DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -67,6 +67,11 @@ DQMOfflineMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
                                   cscSources )
 
+
+DQMOfflineMuonDPGExpress = cms.Sequence(rpcTier0Source *
+                                        cscSources *
+                                        gemSources)
+
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 _run3_GEM_DQMOfflineMuonDPG = DQMOfflineMuonDPG.copy()
 _run3_GEM_DQMOfflineMuonDPG += gemSources
@@ -87,8 +92,23 @@ DQMOfflinePreDPG = cms.Sequence( DQMOfflineDCS *
                                  DQMOfflineCASTOR *
                                  DQMOfflineCTPPS )
 
+
+DQMOfflinePreDPGExpress = cms.Sequence( DQMOfflineDCS *
+                                        #DQMOfflineL1T *
+                                        DQMOfflineEcal *
+                                        #DQMOfflineHcal *
+                                        #DQMOfflineHcal2 *
+                                        DQMOfflineTrackerStrip *
+                                        DQMOfflineTrackerPixel *
+                                        DQMOfflineMuonDPGExpress *
+                                        DQMOfflineCASTOR *
+                                        DQMOfflineCTPPS )
+
 DQMOfflineDPG = cms.Sequence( DQMOfflinePreDPG *
                               DQMMessageLogger )
+
+DQMOfflineDPGExpress = cms.Sequence( DQMOfflinePreDPGExpress *
+                                     DQMMessageLogger )
 
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
@@ -137,8 +157,23 @@ DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflinePhysics )
 
 
+DQMOfflinePrePOGExpress = cms.Sequence( DQMOfflineTracking *
+                                 DQMOfflineMUO *
+                                 #DQMOfflineJetMET *
+                                 #DQMOfflineEGamma *
+                                 DQMOfflineTrigger *
+                                 DQMOfflineBTag *
+                                 DQMOfflineBeam 
+                                 #DQMOfflinePhysics 
+)
+
+
 DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
                               DQMMessageLogger )
+
+DQMOfflinePOGExpress = cms.Sequence( DQMOfflinePrePOGExpress *
+                                     DQMMessageLogger )
+
 
 HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
 HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
@@ -148,6 +183,12 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
                            HLTMonitoring *
                            DQMMessageLogger )
+
+DQMOfflineExpress = cms.Sequence( DQMOfflinePreDPGExpress *
+                                  DQMOfflinePrePOGExpress *
+                                  HLTMonitoring *
+                                  DQMMessageLogger )
+
 
 DQMOfflineExtraHLT = cms.Sequence( offlineValidationHLTSource )
 
@@ -275,3 +316,5 @@ DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 #PostDQMOfflineNanoAOD = cms.Sequence(nanoDQM)
 from PhysicsTools.NanoAOD.nanogenDQM_cff import nanogenDQM
 DQMOfflineNanoGen = cms.Sequence(nanogenDQM)
+from PhysicsTools.NanoAOD.nanojmeDQM_cff import nanojmeDQM
+DQMOfflineNanoJME = cms.Sequence(nanojmeDQM)

@@ -77,8 +77,6 @@ namespace edm {
 
       std::string workerType() const { return "WorkerT<edm::limited::OutputModuleBase>"; }
 
-      void registerProductsAndCallbacks(OutputModuleBase const*, ProductRegistry const*) {}
-
       virtual void preallocStreams(unsigned int) {}
       virtual void preallocate(PreallocationConfiguration const&) {}
       virtual void doBeginStream_(StreamID) {}

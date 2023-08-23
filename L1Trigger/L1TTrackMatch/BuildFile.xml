@@ -2,12 +2,7 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/L1TrackTrigger"/>
-<use   name="DataFormats/L1TCorrelator"/>
-<use   name="DataFormats/L1TMuon"/>
-<use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Math"/>
-<use   name="L1Trigger/L1TMuon"/>
-<use   name="L1Trigger/L1TMuonEndCap"/>
 <use   name="boost"/>
 <use   name="xerces-c"/>
 <use   name="clhep"/>

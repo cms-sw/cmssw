@@ -14,6 +14,7 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.findAndChange as fnc
 
 import Alignment.OfflineValidation.TkAlAllInOneTool.GCP as GCP
 import Alignment.OfflineValidation.TkAlAllInOneTool.DMR as DMR
+import Alignment.OfflineValidation.TkAlAllInOneTool.Zmumu as Zmumu
 import Alignment.OfflineValidation.TkAlAllInOneTool.PV as PV
 import Alignment.OfflineValidation.TkAlAllInOneTool.SplitV as SplitV
 import Alignment.OfflineValidation.TkAlAllInOneTool.JetHT as JetHT
@@ -213,6 +214,7 @@ def main():
             raise Exception("Unknown config extension '{}'. Please use json/yaml format!".format(args.config.split(".")[-1])) 
 
     ##Check for all paths in configuration and attempt to "digest" them
+    ##As a bonus, all ROOT colors are turned to the integer value
     for path in fnc.find_and_change(list(), config):
         if args.verbose and ("." in str(path) or "/" in str(path)):
             print("Digesting path: "+str(path))
@@ -248,6 +250,9 @@ def main():
 
         elif validation == "DMR":
             jobs.extend(DMR.DMR(config, validationDir))
+
+        elif validation == "Zmumu":
+            jobs.extend(Zmumu.Zmumu(config, validationDir))
 
         elif validation == "PV":
             jobs.extend(PV.PV(config, validationDir))

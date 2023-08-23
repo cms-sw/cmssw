@@ -82,7 +82,8 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
     if LIKELY (!emptyMono) {
       // mono does require "projection" for precise estimate
       TrajectoryStateOnSurface mts = fastProp(ts, geomDet().surface(), theMonoDet->geomDet().surface());
-      theMonoDet->simpleRecHits(mts, collector.estimator(), data, monoHits);
+      if LIKELY (mts.isValid())
+        theMonoDet->simpleRecHits(mts, collector.estimator(), data, monoHits);
     }
     // print("mono", mts,ts);
     mf = monoHits.size();
@@ -96,7 +97,8 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
     emptyStereo = theStereoDet->empty(data);
     if LIKELY (!emptyStereo) {
       TrajectoryStateOnSurface pts = fastProp(ts, geomDet().surface(), theStereoDet->geomDet().surface());
-      theStereoDet->simpleRecHits(pts, collector.estimator(), data, stereoHits);
+      if LIKELY (pts.isValid())
+        theStereoDet->simpleRecHits(pts, collector.estimator(), data, stereoHits);
       // print("stereo", pts,ts);
     }
     sf = stereoHits.size();
@@ -126,7 +128,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
     return;
   }
 
-  if ((!monoHits.empty()) & (!stereoHits.empty())) {
+  if ((!monoHits.empty()) && (!stereoHits.empty())) {
     const GluedGeomDet* gluedDet = &specificGeomDet();
     LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal(position() - GlobalPoint(0, 0, 0)));
 

@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -46,17 +47,17 @@ void DDFilteredViewAnalyzer::analyze(const edm::Event&, const edm::EventSetup& i
                      m_comp);
   DDFilteredView fv(*cpv, filter);
   if (fv.firstChild()) {
-    std::cout << "Found attribute " << m_attribute.c_str() << " with value " << m_value.c_str() << std::endl;
+    edm::LogVerbatim("CMSGeom") << "Found attribute " << m_attribute.c_str() << " with value " << m_value.c_str();
     bool dodet = true;
     int i = 0;
     while (dodet) {
       dodet = fv.next();
       if (m_shouldPrint) {
-        std::cout << i++ << ": " << fv.logicalPart().name() << std::endl;
+        edm::LogVerbatim("CMSGeom") << i++ << ": " << fv.logicalPart().name();
       }
     }
   } else
-    std::cout << "No luck..." << std::endl;
+    edm::LogVerbatim("CMSGeom") << "No luck...";
 }
 
 DEFINE_FWK_MODULE(DDFilteredViewAnalyzer);

@@ -123,6 +123,7 @@ protected:
   const Int_t nCodeError_ = 2;
   const Int_t nCodeWarning_ = 3;
   const Int_t nCodeLowError_ = 4;
+  const Int_t nCodeMasked_ = 5;
 
   const Int_t nBitWarnVFAT_ = 7;
   const Int_t nBitErrVFAT_ = 6;
@@ -150,6 +151,7 @@ protected:
   std::vector<std::string> listLayer_;
   std::map<std::string, int> mapIdxLayer_;  // All indices in the following objects start at 1
   std::map<int, int> mapNumChPerChamber_;
+  std::map<int, std::map<int, int>> mapIdxToChamberInOcc_;
   std::map<int, MonitorElement *> mapHistLumiFunc_;
   Bool_t bIsStatusChambersInit_;
 };
@@ -229,6 +231,35 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
       if (h2SrcVFATOcc == nullptr)
         continue;
       listOccPlots[nIdxLayer] = h2SrcVFATOcc;
+      mapIdxToChamberInOcc_[nIdxLayer] = {};
+      // Obtaining the bin indices of chambers from their labels
+      for (Int_t i = 1; i <= h2SrcVFATOcc->getNbinsX(); i++) {
+        std::string strLabel = h2SrcVFATOcc->getTH2F()->GetXaxis()->GetBinLabel(i);
+        std::string strSrc = strLabel;
+        std::vector<int> listNumExtract;
+
+        while (!strSrc.empty()) {
+          auto nPosDigit = strSrc.find_first_of("0123456789");
+          if (nPosDigit == std::string::npos)
+            break;
+          std::stringstream ss;
+          ss << strSrc.substr(nPosDigit);
+          Int_t nExtract;
+          ss >> nExtract;
+          if (!ss.eof()) {
+            ss >> strSrc;
+          } else {
+            strSrc = "";
+          }
+          listNumExtract.push_back(nExtract);
+        }
+
+        if (listNumExtract.empty()) {  // Errneous case; but the job should not be dead
+          edm::LogError("GEMDQMHarvester") << "Error: Wrong label of GEM VFAT occupancy plot: " << strLabel;
+        } else {
+          mapIdxToChamberInOcc_[nIdxLayer][listNumExtract[0]] = i;
+        }
+      }
     }
 
     fReportSummary = refineSummaryHistogram(strTitleSummary,
@@ -271,9 +302,8 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
   for (const auto &strSuffix : listLayer_) {
     if (mapIdxLayer_.find(strSuffix) == mapIdxLayer_.end())
       continue;
-    //auto nNumChamber = mapNumChPerChamber_[mapIdxLayer_[strSuffix]];
-    Int_t nNumChamber = 36;
-    createInactiveChannelFracHist(store, strSuffix, nNumChamber);
+    Int_t nIdxLayer = mapIdxLayer_[strSuffix];
+    createInactiveChannelFracHist(store, strSuffix, mapNumChPerChamber_[nIdxLayer]);
   }
 
   store->bookFloat("reportSummary")->Fill(fReportSummary);
@@ -387,6 +417,8 @@ void GEMDQMHarvester::createSummaryVFAT(edm::Service<DQMStore> &store,
 
 Int_t GEMDQMHarvester::assessOneBin(
     std::string strName, Int_t nIdxX, Int_t nIdxY, Float_t fAll, Float_t fNumOcc, Float_t fNumErr, Float_t fNumWarn) {
+  if (fNumErr < 0)
+    return nCodeMasked_;
   if (fNumErr > fCutErr_ * fAll)  // The error status criterion
     return nCodeError_;
   else if (fNumErr > fCutLowErr_ * fAll)  // The low-error status criterion
@@ -417,8 +449,9 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
   Int_t nBinY = h2Sum->getNbinsY();
   Int_t nAllBin = 0, nFineBin = 0;
   for (Int_t j = 1; j <= nBinY; j++) {
-    Int_t nBinX = (Int_t)(h2SrcStatusE->getBinContent(0, j) + 0.5);
+    Int_t nBinX = mapNumChPerChamber_[j];
     auto h2SrcOcc = listOccPlots[j];
+    auto &mapIdxOccChamber = mapIdxToChamberInOcc_[j];
     Int_t nBinYOcc = 0;
     if (h2SrcOcc != nullptr) {
       nBinYOcc = h2SrcOcc->getNbinsY();
@@ -427,8 +460,9 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
     h2Sum->setBinContent(0, j, nBinX);
     for (Int_t i = 1; i <= nBinX; i++) {
       Float_t fOcc = 0;
+      Int_t nIdxChOcc = mapIdxOccChamber[i];
       for (Int_t r = 1; r <= nBinYOcc; r++) {
-        fOcc += h2SrcOcc->getBinContent(i, r);
+        fOcc += h2SrcOcc->getBinContent(nIdxChOcc, r);
       }
 
       Float_t fStatusAll = h2SrcStatusA->getBinContent(i, j);
@@ -673,6 +707,7 @@ std::string getNameChamberOccGE21(std::string strSuffix, Int_t nIdxCh) {
   char cRegion;
   char cChType = (nIdxCh % 2 == 0 ? 'L' : 'S');
   Int_t nLayer;
+  Int_t nModule;
 
   if (strSuffix.find("-M-") != std::string::npos)
     cRegion = 'M';
@@ -688,8 +723,34 @@ std::string getNameChamberOccGE21(std::string strSuffix, Int_t nIdxCh) {
   else
     return "";
 
-  return Form(
-      "GEM/Digis/occupancy_GE21-%c-L%i/occ_GE21-%c-%02iL%i-%c", cRegion, nLayer, cRegion, nIdxCh, nLayer, cChType);
+  if (strSuffix.find("-M1") != std::string::npos)
+    nModule = 1;
+  else if (strSuffix.find("-M2") != std::string::npos)
+    nModule = 2;
+  else if (strSuffix.find("-M3") != std::string::npos)
+    nModule = 3;
+  else if (strSuffix.find("-M4") != std::string::npos)
+    nModule = 4;
+  else if (strSuffix.find("-M5") != std::string::npos)
+    nModule = 5;
+  else if (strSuffix.find("-M6") != std::string::npos)
+    nModule = 6;
+  else if (strSuffix.find("-M7") != std::string::npos)
+    nModule = 7;
+  else if (strSuffix.find("-M8") != std::string::npos)
+    nModule = 8;
+  else
+    return "";
+
+  return Form("GEM/Digis/occupancy_GE21-%c-L%i-M%i/occ_GE21-%c-%02iL%i-M%i-%c",
+              cRegion,
+              nLayer,
+              nModule,
+              cRegion,
+              nIdxCh,
+              nLayer,
+              nModule,
+              cChType);
 }
 
 std::string getNameChamberOccNull(std::string strSuffix, Int_t nIdxChamber) {

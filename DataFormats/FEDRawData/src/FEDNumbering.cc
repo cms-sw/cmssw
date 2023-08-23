@@ -10,11 +10,11 @@ using namespace std;
 namespace {
 
   constexpr std::array<bool, FEDNumbering::FEDNumbering::MAXFEDID + 1> initIn() {
-    std::array<bool, FEDNumbering::MAXFEDID + 1> in = {{false}};
-
+    std::array<bool, FEDNumbering::MAXFEDID + 1> in = {};
     int i = 0;
-    for (i = 0; i < FEDNumbering::lastFEDId(); i++)
+    for (i = 0; i <= FEDNumbering::MAXFEDID; i++) {
       in[i] = false;
+    }
     for (i = FEDNumbering::MINSiPixelFEDID; i <= FEDNumbering::MAXSiPixelFEDID; i++) {
       in[i] = true;
     }

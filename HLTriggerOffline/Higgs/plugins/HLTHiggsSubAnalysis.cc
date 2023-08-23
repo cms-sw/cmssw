@@ -219,7 +219,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& 
   for (std::set<std::string>::iterator iPath = _hltPaths.begin(); iPath != _hltPaths.end(); ++iPath) {
     // Avoiding the dependence of the version number for
     // the trigger paths
-    std::string path = *iPath;
+    const std::string& path = *iPath;
     std::string shortpath = path;
     if (path.rfind("_v") < path.length()) {
       shortpath = path.substr(0, path.rfind("_v"));

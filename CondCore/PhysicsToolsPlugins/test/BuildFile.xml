@@ -2,3 +2,5 @@
 <use name="FWCore/PluginManager"/>
 <bin file="test_DropBoxMetadata_PayloadInspector.cpp" name="test_DropBoxMetadata_PayloadInspector">
 </bin>
+<bin file="test_PfCalibration_PayloadInspector.cpp" name="test_PfCalibration_PayloadInspector">
+</bin>

@@ -22,6 +22,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "CommonTools/RecoAlgos/interface/ClusterStorer.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
@@ -71,6 +72,7 @@ namespace helper {
     std::unique_ptr<TrackingRecHitCollection> selHits_;
     std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > selStripClusters_;
     std::unique_ptr<edmNew::DetSetVector<SiPixelCluster> > selPixelClusters_;
+    std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D> > selPhase2OTClusters_;
 
     //--- References to products (i.e. to collections):
     reco::TrackRefProd rTracks_;
@@ -107,6 +109,8 @@ namespace helper {
         evt.template getRefBeforePut<edmNew::DetSetVector<SiPixelCluster> >();
     edm::RefProd<edmNew::DetSetVector<SiStripCluster> > rStripClusters =
         evt.template getRefBeforePut<edmNew::DetSetVector<SiStripCluster> >();
+    edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> > rPhase2OTClusters =
+        evt.template getRefBeforePut<edmNew::DetSetVector<Phase2TrackerCluster1D> >();
 
     //--- Indices into collections handled with RefProd
     idx_ = 0;   //!<  index to track extra coll
@@ -121,7 +125,12 @@ namespace helper {
       processTrack(trk);
     }
     //--- Clone the clusters and fixup refs
-    clusterStorer_.processAllClusters(*selPixelClusters_, rPixelClusters, *selStripClusters_, rStripClusters);
+    clusterStorer_.processAllClusters(*selPixelClusters_,
+                                      rPixelClusters,
+                                      *selStripClusters_,
+                                      rStripClusters,
+                                      *selPhase2OTClusters_,
+                                      rPhase2OTClusters);
   }
 
   //----------------------------------------------------------------------
@@ -135,6 +144,7 @@ namespace helper {
       //--- New: save clusters too
       produces<edmNew::DetSetVector<SiPixelCluster> >().setBranchAlias(alias + "PixelClusters");
       produces<edmNew::DetSetVector<SiStripCluster> >().setBranchAlias(alias + "StripClusters");
+      produces<edmNew::DetSetVector<Phase2TrackerCluster1D> >().setBranchAlias(alias + "Phase2OTClusters");
     }
   };  // (end of class TrackSelectorBase)
 

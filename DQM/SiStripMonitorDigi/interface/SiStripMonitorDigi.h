@@ -70,18 +70,18 @@ public:
   };
 
   struct SubDetMEs {
-    int totNDigis;
-    MonitorElement* SubDetTotDigiProf;
-    MonitorElement* SubDetDigiApvProf;
-    MonitorElement* SubDetDigiApvTH2;
+    int totNDigis = 0;
+    MonitorElement* SubDetTotDigiProf = nullptr;
+    MonitorElement* SubDetDigiApvProf = nullptr;
+    MonitorElement* SubDetDigiApvTH2 = nullptr;
 
     //int totApvShots;
     std::vector<APVShot> SubDetApvShots;
-    MonitorElement* SubDetNApvShotsTH1;
-    MonitorElement* SubDetChargeMedianApvShotsTH1;
-    MonitorElement* SubDetNStripsApvShotsTH1;
-    MonitorElement* SubDetNApvShotsProf;
-    MonitorElement* SubDetNApvShotsNApvTH1;
+    MonitorElement* SubDetNApvShotsTH1 = nullptr;
+    MonitorElement* SubDetChargeMedianApvShotsTH1 = nullptr;
+    MonitorElement* SubDetNStripsApvShotsTH1 = nullptr;
+    MonitorElement* SubDetNApvShotsProf = nullptr;
+    MonitorElement* SubDetNApvShotsNApvTH1 = nullptr;
   };
 
   struct DigiFailureMEs {

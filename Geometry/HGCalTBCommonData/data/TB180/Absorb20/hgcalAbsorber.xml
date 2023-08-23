@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalAbsorber.xml" eval="true">
+  <Constant name="zminAbs"    value="120.3*cm"/>
+  <Constant name="zmaxAbs"    value="122.3*cm"/>
+  <Constant name="thickAbs"   value="([zmaxAbs]-[zminAbs])"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalAbsorber.xml">
+  <Polyhedra name="HGCalAbsorber" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[thickAbs]/2" rMin="0*fm" rMax="[hgcal:WaferW]/2"/>
+    <ZSection z= "[thickAbs]/2" rMin="0*fm" rMax="[hgcal:WaferW]/2"/>
+  </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hgcalAbsorber.xml">
+  <LogicalPart name="HGCalAbsorber" category="unspecified">
+    <rSolid name="HGCalAbsorber"/>
+    <rMaterial name="materials:Tungsten"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalAbsorber.xml">
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalAbsorber:HGCalAbsorber"/>
+    <rRotation name="rotations:R090"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

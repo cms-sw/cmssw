@@ -178,16 +178,17 @@ compressionSettings = 207
 ###################################################################
 # The PV resolution module
 ###################################################################
-process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
-                                                 compressionSettings = cms.untracked.int32(compressionSettings),
-                                                 storeNtuple         = cms.bool(False),
-                                                 vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
-                                                 trackCollection     = cms.InputTag("TrackRefitter"),		
-                                                 minVertexNdf        = cms.untracked.double(10.),
-                                                 minVertexMeanWeight = cms.untracked.double(0.5),
-                                                 runControl          = cms.untracked.bool(config["validation"].get("runControl", False)),
-                                                 runControlNumber = cms.untracked.vuint32(runboundary)
-                                                 )
+from Alignment.OfflineValidation.splitVertexResolution_cfi import splitVertexResolution as _splitVertexResolution
+process.PrimaryVertexResolution = _splitVertexResolution.clone(
+    compressionSettings = compressionSettings,
+    storeNtuple         = False,
+    vtxCollection       = "offlinePrimaryVerticesFromRefittedTrks",
+    trackCollection     = "TrackRefitter",
+    minVertexNdf        = 10.,
+    minVertexMeanWeight = 0.5,
+    runControl          = config["validation"].get("runControl", False),
+    runControlNumber    = [runboundary]
+)
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("{}/SplitV.root".format(config.get("output", os.getcwd()))),
@@ -195,7 +196,8 @@ process.TFileService = cms.Service("TFileService",
                                    )
 print("Saving the output at %s" % process.TFileService.fileName.value())
 
-process.theValidSequence =cms.Sequence(process.offlineBeamSpot                        +
+
+process.theValidSequence = cms.Sequence(process.offlineBeamSpot                        +
                                         process.TrackRefitter                          +
                                         process.offlinePrimaryVerticesFromRefittedTrks +
                                         process.PrimaryVertexResolution)

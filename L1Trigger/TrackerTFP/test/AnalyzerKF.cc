@@ -258,20 +258,20 @@ namespace trackerTFP {
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
         TTTracks tracks;
-        const int nTracks = accumulate(accepted.begin(), accepted.end(), 0, [](int& sum, const FrameTrack& frame) {
-          return sum += frame.first.isNonnull() ? 1 : 0;
+        const int nTracks = accumulate(accepted.begin(), accepted.end(), 0, [](int sum, const FrameTrack& frame) {
+          return sum + (frame.first.isNonnull() ? 1 : 0);
         });
         nTracksRegion += nTracks;
         tracks.reserve(nTracks);
         consume(accepted, acceptedStubs, index, tracks);
         for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : tracks)
           hisPhi_->Fill(ttTrack.momentum().phi());
-        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const auto& ttTrack) {
-          return sum += (int)ttTrack.getStubRefs().size();
+        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const auto& ttTrack) {
+          return sum + (int)ttTrack.getStubRefs().size();
         });
         TTTracks tracksLost;
-        const int nLost = accumulate(lost.begin(), lost.end(), 0, [](int& sum, const FrameTrack& frame) {
-          return sum += frame.first.isNonnull() ? 1 : 0;
+        const int nLost = accumulate(lost.begin(), lost.end(), 0, [](int sum, const FrameTrack& frame) {
+          return sum + (frame.first.isNonnull() ? 1 : 0);
         });
         nLostRegion += nLost;
         tracksLost.reserve(nLost);

@@ -135,7 +135,11 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapRecHitXY_layer_.SetBinHighEdgeY(fRangeRadius);
   mapRecHitXY_layer_.bookND(bh, key);
 
-  mapRecHitOcc_ieta_.SetBinConfX(stationInfo.nNumEtaPartitions_);
+  Int_t nNumEta = stationInfo.nNumEtaPartitions_;
+  if (stationInfo.nNumModules_ > 1) {
+    nNumEta = stationInfo.nNumModules_;
+  }
+  mapRecHitOcc_ieta_.SetBinConfX(nNumEta);
   mapRecHitOcc_ieta_.bookND(bh, key);
   mapRecHitOcc_ieta_.SetLabelForIEta(key, 1);
 
@@ -148,27 +152,64 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
 
   mapCLSAverage_.SetBinConfX(nNewNumCh, stationInfo.nMinIdxChamber_ - 0.5, stationInfo.nMaxIdxChamber_ + 0.5);
+  mapCLSAverage_.SetBinConfY(nNumEta, 0.5);
   mapCLSAverage_.bookND(bh, key);
   mapCLSAverage_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
   mapCLSAverage_.SetLabelForIEta(key, 2);
 
   mapCLSOver5_.SetBinConfX(nNewNumCh, stationInfo.nMinIdxChamber_ - 0.5, stationInfo.nMaxIdxChamber_ + 0.5);
+  mapCLSOver5_.SetBinConfY(nNumEta, 0.5);
   mapCLSOver5_.bookND(bh, key);
   mapCLSOver5_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
   mapCLSOver5_.SetLabelForIEta(key, 2);
 
+  if (keyToStation(key) == 2) {
+    if (mapCLSAverage_.isOperating()) {
+      mapCLSAverage_.FindHist(key)->setYTitle("Module");
+    }
+    if (mapCLSOver5_.isOperating()) {
+      mapCLSOver5_.FindHist(key)->setYTitle("Module");
+    }
+    for (Int_t i = 1; i <= stationInfo.nNumModules_; i++) {
+      std::string strLabel = std::string(Form("M%i", i));
+      if (mapCLSAverage_.isOperating()) {
+        mapCLSAverage_.FindHist(key)->setBinLabel(i, strLabel, 2);
+      }
+      if (mapCLSOver5_.isOperating()) {
+        mapCLSOver5_.FindHist(key)->setBinLabel(i, strLabel, 2);
+      }
+    }
+  }
+
   return 0;
 }
 
-int GEMRecHitSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) {
+int GEMRecHitSource::ProcessWithMEMap4WithChamber(BookingHelper& bh, ME4IdsKey key) {
   ME3IdsKey key3 = key4Tokey3(key);
   MEStationInfo& stationInfo = mapStationInfo_[key3];
 
   bh.getBooker()->setCurrentFolder(strFolderMain_ + "/clusterSize_" + getNameDirLayer(key3));
 
-  mapCLSPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
+  Int_t nNumEta = stationInfo.nNumEtaPartitions_;
+  if (stationInfo.nNumModules_ > 1) {
+    nNumEta = stationInfo.nNumModules_;
+  }
+
+  mapCLSPerCh_.SetBinConfY(nNumEta, 0.5);
   mapCLSPerCh_.bookND(bh, key);
   mapCLSPerCh_.SetLabelForIEta(key, 2);
+
+  if (keyToStation(key) == 2) {
+    if (mapCLSPerCh_.isOperating()) {
+      mapCLSPerCh_.FindHist(key)->setYTitle("Module");
+    }
+    for (Int_t i = 1; i <= stationInfo.nNumModules_; i++) {
+      std::string strLabel = std::string(Form("M%i", i));
+      if (mapCLSPerCh_.isOperating()) {
+        mapCLSPerCh_.FindHist(key)->setBinLabel(i, strLabel, 2);
+      }
+    }
+  }
 
   bh.getBooker()->setCurrentFolder(strFolderMain_);
 
@@ -198,6 +239,12 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
       ME3IdsKey key3AbsReIEta{std::abs(gid.region()), gid.station(), eId.ieta()};
       ME4IdsKey key4IEta{gid.region(), gid.station(), gid.layer(), eId.ieta()};
 
+      Int_t nEtaModule = eId.ieta();
+      if (gid.station() == 2) {
+        nEtaModule = getIdxModule(2, 24 - (nEtaModule - 1) / 4);
+      }
+      ME4IdsKey key4IEtaMod{gid.region(), gid.station(), gid.layer(), nEtaModule};
+
       if (total_rechit_layer.find(key3) == total_rechit_layer.end())
         total_rechit_layer[key3] = 0;
 
@@ -211,7 +258,7 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
         mapRecHitXY_layer_.Fill(key3, recHitGP.x(), recHitGP.y());
 
         // Filling of RecHit (iEta)
-        mapRecHitOcc_ieta_.Fill(key3, eId.ieta());
+        mapRecHitOcc_ieta_.Fill(key3, nEtaModule);
 
         // Filling of RecHit (phi)
         Float_t fPhi = recHitGP.phi();
@@ -227,10 +274,10 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
         Int_t nCLS = hit->clusterSize();
         Int_t nCLSCutOff = std::min(nCLS, nCLSMax_);  // For overflow
         mapCLSRecHit_ieta_.Fill(key3AbsReIEta, nCLSCutOff);
-        mapCLSPerCh_.Fill(key4Ch, nCLSCutOff, eId.ieta());
-        mapCLSAverage_.Fill(key3, (Double_t)chamber, (Double_t)eId.ieta(), nCLS);
+        mapCLSPerCh_.Fill(key4Ch, nCLSCutOff, nEtaModule);
+        mapCLSAverage_.Fill(key3, (Double_t)chamber, (Double_t)nEtaModule, nCLS);
         if (nCLS > 5)
-          mapCLSOver5[key4IEta][chamber] = true;
+          mapCLSOver5[key4IEtaMod][chamber] = true;
       }
     }
   }

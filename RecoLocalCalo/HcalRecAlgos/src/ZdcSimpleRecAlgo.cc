@@ -48,7 +48,6 @@ namespace ZdcSimpleRecAlgoImpl {
     double ta = 0;
     double fc_ampl = 0;
     double lowGEnergy = 0;
-    double lowGfc_ampl = 0;
     double TempLGAmp = 0;
     // TS increment for regular energy to lowGainEnergy
     // Signal in higher TS (effective "low Gain") has a fraction of the whole signal
@@ -78,9 +77,8 @@ namespace ZdcSimpleRecAlgoImpl {
     for (int iLG = (ifirst + lowGainOffset); iLG < tool.size() && iLG < topLowGain; iLG++) {
       int capid = digi[iLG].capid();
       TempLGAmp = (tool[iLG] - calibs.pedestal(capid));  // pedestal subtraction
-      lowGfc_ampl += TempLGAmp;
-      TempLGAmp *= calibs.respcorrgain(capid);  // fC --> GeV
-      TempLGAmp *= lowGainFrac;                 // TS (signalRegion) --> TS (lowGainRegion)
+      TempLGAmp *= calibs.respcorrgain(capid);           // fC --> GeV
+      TempLGAmp *= lowGainFrac;                          // TS (signalRegion) --> TS (lowGainRegion)
       lowGEnergy += TempLGAmp;
     }
     double time = -9999;
@@ -154,7 +152,6 @@ namespace ZdcSimpleRecAlgoImpl {
     double ta = 0;
     double fc_ampl = 0;
     double lowGEnergy = 0;
-    double lowGfc_ampl = 0;
     double TempLGAmp = 0;
     //  TS increment for regular energy to lowGainEnergy
     // Signal in higher TS (effective "low Gain") has a fraction of the whole signal
@@ -205,7 +202,6 @@ namespace ZdcSimpleRecAlgoImpl {
         continue;
       int capid = digi[CurrentTS].capid();
       TempLGAmp = tool[CurrentTS] - noise;
-      lowGfc_ampl += TempLGAmp;
       TempLGAmp *= calibs.respcorrgain(capid);  // fC --> GeV
       TempLGAmp *= lowGainFrac;                 // TS (signalRegion) --> TS (lowGainRegion)
       lowGEnergy += TempLGAmp;

@@ -73,7 +73,7 @@ void HcalCalibFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm:
   // Copying:
   const FEDRawDataCollection* rdc = rawIn.product();
 
-  for (int j = 0; j < FEDNumbering::lastFEDId(); ++j) {
+  for (int j = 0; j <= FEDNumbering::lastFEDId(); ++j) {
     bool rightFED = false;
     for (uint32_t k = 0; k < selFEDs.size(); k++) {
       if (j == selFEDs[k]) {

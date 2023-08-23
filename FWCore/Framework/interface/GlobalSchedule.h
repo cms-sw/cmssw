@@ -105,7 +105,9 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&, ProcessBlockHelperBase const&);
+    void beginJob(ProductRegistry const&,
+                  eventsetup::ESRecordsToProductResolverIndices const&,
+                  ProcessBlockHelperBase const&);
     void endJob(ExceptionCollector& collector);
 
     /// Return a vector allowing const access to all the

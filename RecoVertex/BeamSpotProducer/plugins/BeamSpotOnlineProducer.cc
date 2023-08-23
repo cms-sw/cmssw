@@ -62,7 +62,8 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
       theMaxZ(iconf.getParameter<double>("maxZ")),
       theSetSigmaZ(iconf.getParameter<double>("setSigmaZ")),
       useTransientRecord_(iconf.getParameter<bool>("useTransientRecord")),
-      scalerToken_(consumes<BeamSpotOnlineCollection>(iconf.getParameter<InputTag>("src"))),
+      scalerToken_(useTransientRecord_ ? edm::EDGetTokenT<BeamSpotOnlineCollection>()
+                                       : consumes<BeamSpotOnlineCollection>(iconf.getParameter<InputTag>("src"))),
       l1GtEvmReadoutRecordToken_(consumes<L1GlobalTriggerEvmReadoutRecord>(iconf.getParameter<InputTag>("gtEvmLabel"))),
       beamToken_(esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>()),
       beamTransientToken_(esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>()),
@@ -79,7 +80,7 @@ void BeamSpotOnlineProducer::fillDescriptions(edm::ConfigurationDescriptions& iD
   ps.add<double>("maxZ", 40.);
   ps.add<double>("setSigmaZ", -1.);
   ps.addUntracked<unsigned int>("beamMode", 11);
-  ps.add<InputTag>("src", InputTag("hltScalersRawToDigi"));
+  ps.addOptional<InputTag>("src", InputTag("hltScalersRawToDigi"))->setComment("SCAL decommissioned after Run 2");
   ps.add<InputTag>("gtEvmLabel", InputTag(""));
   ps.add<double>("maxRadius", 2.0);
   ps.add<bool>("useTransientRecord", false);

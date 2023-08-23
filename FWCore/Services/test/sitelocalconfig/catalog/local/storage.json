@@ -1,0 +1,19 @@
+[
+   {  "site": "DUMMY",
+      "volume": "LocalVolume",
+      "protocols": [
+         {  "protocol": "XRootD",
+            "access": "global-rw",
+            "comment": "xrootd write to dCache/EOS endpoint directly",
+            "rules": [
+               {  "lfn": "/+store/temp/user/(.*)",
+                  "pfn": "root://cmseos.fnal.gov//eos/uscms/store/temp/user/$1"
+               },
+               {  "lfn": "/+store/(.*)",
+                  "pfn": "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/$1"
+               }
+            ]
+         }
+      ]
+   }
+]

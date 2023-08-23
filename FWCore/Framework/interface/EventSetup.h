@@ -22,7 +22,6 @@
 #include <cassert>
 #include <map>
 #include <optional>
-#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -38,13 +37,11 @@
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
-#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 // forward declarations
 
 namespace edm {
 
-  class ESInputTag;
   template <class T, class R>
   class ESGetToken;
   class PileUp;
@@ -64,13 +61,13 @@ namespace edm {
     template <typename T>
     explicit EventSetup(T const& info,
                         unsigned int iTransitionID,
-                        ESProxyIndex const* iGetTokenIndices,
+                        ESResolverIndex const* iGetTokenIndices,
                         ESParentContext const& iContext)
         : EventSetup(info.eventSetupImpl(), iTransitionID, iGetTokenIndices, iContext) {}
 
     explicit EventSetup(EventSetupImpl const& iSetup,
                         unsigned int iTransitionID,
-                        ESProxyIndex const* iGetTokenIndices,
+                        ESResolverIndex const* iGetTokenIndices,
                         ESParentContext const& iContext)
         : m_setup{iSetup}, m_getTokenIndices{iGetTokenIndices}, m_context(&iContext), m_id{iTransitionID} {}
     EventSetup(EventSetup const&) = delete;
@@ -118,24 +115,6 @@ namespace edm {
     }
 
     /** can directly access data if data_default_record_trait<> is defined for this data type **/
-    template <typename T>
-    CMS_DEPRECATED bool getData(T& iHolder) const {
-      auto const& rec = this->get<eventsetup::default_record_t<T>>();
-      return rec.get(std::string{}, iHolder);
-    }
-
-    template <typename T>
-    CMS_DEPRECATED bool getData(const std::string& iLabel, T& iHolder) const {
-      auto const& rec = this->get<eventsetup::default_record_t<T>>();
-      return rec.get(iLabel, iHolder);
-    }
-
-    template <typename T>
-    CMS_DEPRECATED bool getData(const ESInputTag& iTag, T& iHolder) const {
-      auto const& rec = this->get<eventsetup::default_record_t<T>>();
-      return rec.get(iTag, iHolder);
-    }
-
     template <typename T, typename R>
     T const& getData(const ESGetToken<T, R>& iToken) const noexcept(false) {
       return this
@@ -189,34 +168,10 @@ namespace edm {
 
     // ---------- member data --------------------------------
     edm::EventSetupImpl const& m_setup;
-    ESProxyIndex const* m_getTokenIndices;
+    ESResolverIndex const* m_getTokenIndices;
     ESParentContext const* m_context;
     unsigned int m_id;
   };
-
-  // Free functions to retrieve an object from the EventSetup.
-  // Will throw an exception if the record or  object are not found.
-
-  template <typename T, typename R = typename eventsetup::data_default_record_trait<typename T::value_type>::type>
-  T const& get(EventSetup const& setup) {
-    ESHandle<T> handle;
-    // throw if the record is not available
-    setup.get<R>().get(handle);
-    // throw if the handle is not valid
-    return *handle.product();
-  }
-
-  template <typename T,
-            typename R = typename eventsetup::data_default_record_trait<typename T::value_type>::type,
-            typename L>
-  T const& get(EventSetup const& setup, L&& label) {
-    ESHandle<T> handle;
-    // throw if the record is not available
-    setup.get<R>().get(std::forward(label), handle);
-    // throw if the handle is not valid
-    return *handle.product();
-  }
-
 }  // namespace edm
 
 #endif  // FWCore_Framework_EventSetup_h

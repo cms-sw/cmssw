@@ -1,4 +1,3 @@
-
 #!/bin/bash
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -14,21 +13,15 @@ if [ ! -z $1 ]; then
   fi
 fi
 
-if [ -z  $LOCAL_TEST_DIR ]; then
-LOCAL_TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -z  ${SCRAM_TEST_PATH} ]; then
+SCRAM_TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
-echo "LOCAL_TEST_DIR = $LOCAL_TEST_DIR"
-
-if [ -z  $LOCAL_TMP_DIR ]; then
-LOCAL_TMP_DIR="/tmp"
-fi
-
-cd $LOCAL_TEST_DIR
+echo "SCRAM_TEST_PATH = ${SCRAM_TEST_PATH}"
 
 RC=0
 P=$$
 PREFIX=results_${USER}${P}
-OUTDIR=${LOCAL_TMP_DIR}/${PREFIX}
+OUTDIR=${PWD}/${PREFIX}
 
 echo "OUT_TMP_DIR = $OUTDIR"
 
@@ -36,13 +29,14 @@ mkdir ${OUTDIR}
 cp ${SCRIPTDIR}/startBU.py ${OUTDIR}
 cp ${SCRIPTDIR}/startFU.py ${OUTDIR}
 cp ${SCRIPTDIR}/unittest_FU.py ${OUTDIR}
+cp ${SCRIPTDIR}/unittest_FU_daqsource.py ${OUTDIR}
 cp ${SCRIPTDIR}/test_dqmstream.py ${OUTDIR}
 cd ${OUTDIR}
 
 rm -rf $OUTDIR/{ramdisk,data,dqmdisk,*.log}
 
 runnumber="100101"
-echo "Running test with FRD file header (no index JSONs)"
+echo "Running test with FRD file header v1 (no index JSONs)"
 CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=1"
 #CMDLINE_STARTFU="cmsRun startFU.py runNumber=${runnumber} fffBaseDir=${OUTDIR}"
 CMDLINE_STARTFU="cmsRun ${FUSCRIPT} runNumber=${runnumber} fffBaseDir=${OUTDIR}"
@@ -58,6 +52,37 @@ echo '{"data": [12950, 1620, 0, "run'${runnumber}'_ls0001_streamDQM_test.dat", 4
 
 CMDLINE_STARTDQM="cmsRun test_dqmstream.py runInputDir=./dqmdisk runNumber=100101"
 ${CMDLINE_STARTDQM} > out_2_dqm.log 2>&1 || diedqm "${CMDLINE_STARTDQM}" $? $OUTDIR
+
+rm -rf $OUTDIR/{ramdisk,data,*.log}
+
+echo "Running test with FRD file header v2"
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2"
+CMDLINE_STARTFU="cmsRun unittest_FU.py runNumber=${runnumber} fffBaseDir=${OUTDIR}"
+${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
+${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR
+
+rm -rf $OUTDIR/{ramdisk,data,*.log}
+
+echo "running DAQSource test with full event FRD"
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=1"
+CMDLINE_STARTFU="cmsRun unittest_FU_daqsource.py daqSourceMode=FRD runNumber=${runnumber} fffBaseDir=${OUTDIR}"
+${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
+${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR out_2_fu.log
+
+#no failures, clean up everything including logs if there are no errors
+rm -rf $OUTDIR/{ramdisk,data,*.log}
+
+echo "running DAQSource test with striped FRD"
+CMDLINE_STARTBU="cmsRun startBU.py runNumber=${runnumber} fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=20 eventsPerLS=35 frdFileVersion=2"
+CMDLINE_STARTFU="cmsRun unittest_FU_daqsource.py daqSourceMode=FRDStriped runNumber=${runnumber} fffBaseDir=${OUTDIR}"
+${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || diebu "${CMDLINE_STARTBU}" $? $OUTDIR
+#duplicate files
+cp ramdisk/run${runnumber}/run${runnumber}_ls0001_index000000.raw ramdisk/run${runnumber}/run${runnumber}_ls0001_index000000.raw_1
+cp ramdisk/run${runnumber}/run${runnumber}_ls0001_index000001.raw ramdisk/run${runnumber}/run${runnumber}_ls0001_index000001.raw_1
+cp ramdisk/run${runnumber}/run${runnumber}_ls0002_index000000.raw ramdisk/run${runnumber}/run${runnumber}_ls0002_index000000.raw_1
+cp ramdisk/run${runnumber}/run${runnumber}_ls0002_index000001.raw ramdisk/run${runnumber}/run${runnumber}_ls0002_index000001.raw_1
+#run reader
+${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || diefu "${CMDLINE_STARTFU}" $? $OUTDIR out_2_fu.log
 
 #no failures, clean up everything including logs if there are no errors
 echo "Completed sucessfully"

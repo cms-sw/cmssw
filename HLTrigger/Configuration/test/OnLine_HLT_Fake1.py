@@ -1,6 +1,6 @@
-# hltGetConfiguration --full --data /dev/CMSSW_12_5_0/Fake1 --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
+# hltGetConfiguration /dev/CMSSW_13_2_0/Fake1 --full --data --type Fake1 --unprescale --process HLTFake1 --globaltag auto:run2_hlt_Fake1 --input file:RelVal_Raw_Fake1_DATA.root
 
-# /dev/CMSSW_12_5_0/Fake1/V11 (CMSSW_12_5_2)
+# /dev/CMSSW_13_2_0/Fake1/V5 (CMSSW_13_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +8,7 @@ process = cms.Process( "HLTFake1" )
 
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_5_0/Fake1/V11')
+  tableName = cms.string('/dev/CMSSW_13_2_0/Fake1/V5')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -301,8 +301,8 @@ process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
-    compressionLevel = cms.untracked.int32( 1 ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),

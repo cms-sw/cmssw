@@ -290,7 +290,7 @@ void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(
   auto const& l1CaloGeom = eventSetup.getData(l1CaloGeometryToken_);
 
   for (unsigned int candItr = 0; candItr < theCandidateCollection.size(); candItr++) {
-    l1extra::L1EmParticle emItr = theCandidateCollection.at(candItr);
+    const l1extra::L1EmParticle& emItr = theCandidateCollection.at(candItr);
 
     if (!isolatedCase) {
       if (doIsolated_ and (emItr.et() < l1LowerThrIgnoreIsolation_))
@@ -324,7 +324,7 @@ void HLTRechitInRegionsProducer<T1>::getEtaPhiRegions(std::vector<RectangularEta
                                                       edm::EventSetup const&,
                                                       bool const) {
   for (unsigned int candItr = 0; candItr < theCandidateCollection.size(); candItr++) {
-    T1 emItr = theCandidateCollection.at(candItr);
+    const T1& emItr = theCandidateCollection.at(candItr);
     if ((emItr.et() > l1LowerThr_) and (emItr.et() < l1UpperThr_)) {
       double etaLow = emItr.eta() - regionEtaMargin_;
       double etaHigh = emItr.eta() + regionEtaMargin_;

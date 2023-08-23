@@ -1309,7 +1309,7 @@ std::set<unsigned int> PixelCalibConfiguration::getTKFECCrates(
     const std::set<std::string> portCards = portcardmap->portcards(*imodule);
     for (std::set<std::string>::const_iterator portCards_itr = portCards.begin(); portCards_itr != portCards.end();
          ++portCards_itr) {
-      const std::string portcardname = *portCards_itr;
+      const std::string& portcardname = *portCards_itr;
       std::map<std::string, PixelPortCardConfig*>::const_iterator portcardconfig_itr =
           mapNamePortCard.find(portcardname);
       assert(portcardconfig_itr != mapNamePortCard.end());

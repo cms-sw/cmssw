@@ -37,8 +37,13 @@ namespace {
 
 }  // namespace
 
-CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const& mapping)
-    : m_WordCounter(0), m_Mapping(mapping) {
+CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const& mapping,
+                                                 CTPPSPixelErrorSummary& eSummary)
+    : m_WordCounter(0),
+      m_Mapping(mapping),
+      m_ErrorSummary(eSummary)
+
+{
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);
   int s8 = sizeof(char);
@@ -124,55 +129,66 @@ void CTPPSPixelDataFormatter::interpretRawData(
     ew--;
     m_WordCounter--;
   }
+
   for (auto word = bw; word < ew; ++word) {
     LogTrace("") << "DATA: " << print(*word);
-
     auto ww = *word;
     if UNLIKELY (ww == 0) {
       m_WordCounter--;
       continue;
     }
+
     int nlink = (ww >> m_LINK_shift) & m_LINK_mask;
     int nroc = (ww >> m_ROC_shift) & m_ROC_mask;
     int FMC = 0;
     uint32_t iD = RPixErrorChecker::dummyDetId;  //0xFFFFFFFF; //dummyDetId
     int convroc = nroc - 1;
-    CTPPSPixelFramePosition fPos(fedId, FMC, nlink, convroc);
 
+    CTPPSPixelROC rocp;
+    CTPPSPixelFramePosition fPos(fedId, FMC, nlink, convroc);
     std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>::const_iterator mit;
     mit = m_Mapping.find(fPos);
-
-    if (mit == m_Mapping.end()) {
-      if (nlink >= maxLinkIndex) {
-        m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
-        edm::LogError("CTPPSPixelDataFormatter") << " Invalid linkId ";
-      } else if ((nroc - 1) >= maxRocIndex) {
-        // if RocId wrong try to recover at least plane id
-        CTPPSPixelFramePosition fPosDummyROC(fedId, FMC, nlink, 0);
-        mit = m_Mapping.find(fPosDummyROC);
-        if (mit != m_Mapping.end())
-          iD = (*mit).second.iD;
-        m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
-        edm::LogError("CTPPSPixelDataFormatter")
-            << " Invalid ROC Id " << convroc << " in nlink " << nlink << " of FED " << fedId << " in DetId " << iD;
-      } else {
-        m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
-        edm::LogError("CTPPSPixelDataFormatter") << " Error unknown ";
-      }
-      continue;  //skip word
+    if (mit != m_Mapping.end()) {
+      CTPPSPixelROCInfo rocInfo = (*mit).second;
+      iD = rocInfo.iD;
+      rocp.setParameters(iD, rocInfo.roc, convroc);
     }
-
-    CTPPSPixelROCInfo rocInfo = (*mit).second;
-    iD = rocInfo.iD;
-    CTPPSPixelROC rocp(iD, rocInfo.roc, convroc);
 
     if ((nlink != link) | (nroc != roc)) {  // new roc
       link = nlink;
       roc = nroc;
 
-      skipROC = LIKELY((roc - 1) < maxRocIndex) ? false : !m_ErrorCheck.checkROC(errorsInEvent, fedId, iD, ww, errors);
+      if ((roc - 1) < maxRocIndex) {
+        skipROC = false;
+      } else {
+        // using dummy detId - recovering of FED channel foreseen in DQM
+        iD = RPixErrorChecker::dummyDetId;
+        skipROC = !m_ErrorCheck.checkROC(errorsInEvent, fedId, iD, ww, errors);
+      }
       if (skipROC)
         continue;
+
+      if (mit == m_Mapping.end()) {
+        if (nlink >= maxLinkIndex) {
+          m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
+
+          m_ErrorSummary.add("Invalid linkId", "");
+        } else if ((nroc - 1) >= maxRocIndex) {
+          m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
+          m_ErrorSummary.add("Invalid ROC",
+                             fmt::format("Id {0}, in link {1}, of FED {2} in DetId {3}", convroc, nlink, fedId, iD));
+
+        } else {
+          m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
+          m_ErrorSummary.add("Error unknown");
+        }
+        skipROC = true;  // skipping roc due to mapping errors
+        continue;
+      }
+      if (rocp.rawId() == 0) {
+        skipROC = true;
+        continue;
+      }
 
       auto rawId = rocp.rawId();
 
@@ -180,6 +196,9 @@ void CTPPSPixelDataFormatter::interpretRawData(
       if ((*detDigis).empty())
         (*detDigis).data.reserve(32);  // avoid the first relocations
     }
+
+    if (skipROC || rocp.rawId() == 0)
+      continue;
 
     int adc = (ww >> m_ADC_shift) & m_ADC_mask;
 
@@ -189,19 +208,32 @@ void CTPPSPixelDataFormatter::interpretRawData(
     int row = (ww >> m_ROW_shift) & m_ROW_mask;
 
     if (!isRun3 && (dcol < min_Dcol || dcol > max_Dcol || pxid < min_Pixid || pxid > max_Pixid)) {
-      edm::LogError("CTPPSPixelDataFormatter")
-          << " unphysical dcol and/or pxid "
-          << "fedId=" << fedId << " nllink=" << nlink << " convroc=" << convroc << " adc=" << adc << " dcol=" << dcol
-          << " pxid=" << pxid << " detId=" << iD;
+      m_ErrorSummary.add(
+          "unphysical dcol and/or pxid",
+          fmt::format("fedId= {0}, nllink= {1}, convroc= {2}, adc= {3}, dcol= {4}, pxid= {5}, detId= {6}",
+                      fedId,
+                      nlink,
+                      convroc,
+                      adc,
+                      dcol,
+                      pxid,
+                      iD));
 
       m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
 
       continue;
     }
     if (isRun3 && (col < min_COL || col > max_COL || row < min_ROW || row > max_ROW)) {
-      edm::LogError("CTPPSPixelDataFormatter") << " unphysical col and/or row "
-                                               << "fedId=" << fedId << " nllink=" << nlink << " convroc=" << convroc
-                                               << " adc=" << adc << " col=" << col << " row=" << row << " detId=" << iD;
+      m_ErrorSummary.add("unphysical col and/or row",
+                         fmt::format("fedId= {0}, nllink= {1}, convroc= {2}, adc= {3}, col= {4}, row= {5}, detId= {6}",
+                                     fedId,
+                                     nlink,
+                                     convroc,
+                                     adc,
+                                     col,
+                                     row,
+                                     iD));
+
       m_ErrorCheck.conversionError(fedId, iD, InvalidPixelId, ww, errors);
 
       continue;

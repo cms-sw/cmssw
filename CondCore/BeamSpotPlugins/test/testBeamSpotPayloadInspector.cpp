@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/BeamSpotPlugins/plugins/SimBeamSpot_PayloadInspector.cc"
 #include "CondCore/BeamSpotPlugins/plugins/BeamSpot_PayloadInspector.cc"
 #include "CondCore/BeamSpotPlugins/plugins/BeamSpotOnline_PayloadInspector.cc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -49,6 +50,7 @@ int main(int argc, char** argv) {
 
   edm::LogPrint("testBeamSpotPayloadInspector") << "## Exercising BeamSpotOnline plots " << std::endl;
 
+  // BeamSpotOnline
   tag = "BeamSpotOnlineTestLegacy";
   start = static_cast<unsigned long long>(1443392479297557);
   end = static_cast<unsigned long long>(1470910334763033);
@@ -78,6 +80,31 @@ int main(int argc, char** argv) {
   BeamSpotOnlineParametersDiffTwoTags histoOnlineParametersDiffTwoTags;
   histoOnlineParametersDiffTwoTags.process(connectionString, PI::mk_input(tag1, start, start, tag2, start, start));
   edm::LogPrint("testBeamSpotPayloadInspector") << histoOnlineParametersDiffTwoTags.data() << std::endl;
+
+  // SimBeamSpot
+  std::string prepConnectionString("frontier://FrontierPrep/CMS_CONDITIONS");
+
+  tag = "SimBeamSpotObjects_Realistic25ns13p6TeVEOY2022Collision_v0_mc";
+  start = static_cast<unsigned long long>(1);
+  end = static_cast<unsigned long long>(1);
+
+  edm::LogPrint("testBeamSpotPayloadInspector") << "## Exercising SimBeamSpot plots " << std::endl;
+
+  SimBeamSpotParameters histoSimParameters;
+  histoSimParameters.process(prepConnectionString, PI::mk_input(tag, start, start));
+  edm::LogPrint("testBeamSpotPayloadInspector") << histoSimParameters.data() << std::endl;
+
+  SimBeamSpotParametersDiffSingleTag histoSimParametersDiff;
+  histoSimParametersDiff.process(prepConnectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testBeamSpotPayloadInspector") << histoSimParametersDiff.data() << std::endl;
+
+  tag1 = "SimBeamSpotObjects_Realistic25ns13p6TeVEOY2022Collision_v0_mc";
+  tag2 = "SimBeamSpotObjects_Realistic25ns13p6TeVEarly2023Collision_v0_mc";
+  start = static_cast<unsigned long long>(1);
+
+  SimBeamSpotParametersDiffTwoTags histoSimParametersDiffTwoTags;
+  histoSimParametersDiffTwoTags.process(prepConnectionString, PI::mk_input(tag1, start, start, tag2, start, start));
+  edm::LogPrint("testBeamSpotPayloadInspector") << histoSimParametersDiffTwoTags.data() << std::endl;
 
   Py_Finalize();
 }

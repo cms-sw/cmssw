@@ -84,10 +84,21 @@ namespace l1t {
           shower = muonShowerCollection_->at(bx, 0);
           muonShowerCollection_->erase(bx, 0);
         }
-        if (linkID == 0) {  // OneNominal shower
+        if (linkID == 0) {  // OneNominal shower is embedded in the first muon of the first link
           shower.setOneNominalInTime(l1t::MuonRawDigiTranslator::showerFired(payload[i + 1], fed_, getAlgoVersion()));
-        } else if (linkID == 1) {  // OneTight shower
+          // The intial 2023 uGMT firmware put the TwoLoose shower on the wrong link, so we have to do it there.
+          if (fed_ == 1402 && getAlgoVersion() == l1t::MuonRawDigiTranslator::kUgmtFwVersionShowersFrom2023) {
+            shower.setTwoLooseDiffSectorsInTime(
+                l1t::MuonRawDigiTranslator::showerFired(payload[i + 3], fed_, getAlgoVersion()));
+          }
+        } else if (linkID ==
+                   1) {  // OneTight and TwoLoose showers are embedded in the first and second muons of the second link
           shower.setOneTightInTime(l1t::MuonRawDigiTranslator::showerFired(payload[i + 1], fed_, getAlgoVersion()));
+          // Set the two loose showers from this link in all cases except if we're using the faulty uGMT bitfile
+          if (!(fed_ == 1402 && getAlgoVersion() == l1t::MuonRawDigiTranslator::kUgmtFwVersionShowersFrom2023)) {
+            shower.setTwoLooseDiffSectorsInTime(
+                l1t::MuonRawDigiTranslator::showerFired(payload[i + 3], fed_, getAlgoVersion()));
+          }
         }
 
         if (shower.isValid()) {

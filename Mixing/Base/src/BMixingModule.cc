@@ -201,6 +201,13 @@ namespace edm {
   // Virtual destructor needed.
   BMixingModule::~BMixingModule() { ; }
 
+  void BMixingModule::registerLateConsumes(eventsetup::ESRecordsToProductResolverIndices const& iES) {
+    for (size_t endIdx = 0; endIdx < maxNbSources_; ++endIdx) {
+      if (inputSources_[endIdx])
+        inputSources_[endIdx]->beginJob(iES);
+    }
+  }
+
   namespace MixingCache {
     Config::Config(edm::ParameterSet const& pset, unsigned int maxNbSources)
         : bunchSpace_(pset.getParameter<int>("bunchspace")),

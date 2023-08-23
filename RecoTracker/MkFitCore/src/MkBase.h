@@ -7,6 +7,8 @@
 
 namespace mkfit {
 
+  class PropagationFlags;
+
   //==============================================================================
   // MkBase
   //==============================================================================
@@ -26,55 +28,57 @@ namespace mkfit {
 
     //----------------------------------------------------------------------------
 
-    void propagateTracksToR(float r, const int N_proc, const PropagationFlags pf) {
+    void propagateTracksToR(float r, const int N_proc, const PropagationFlags &pf) {
       MPlexQF msRad;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         msRad.At(n, 0, 0) = r;
       }
 
-      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf);
+      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], m_FailFlag, N_proc, pf);
     }
 
-    void propagateTracksToHitR(const MPlexHV& par,
+    void propagateTracksToHitR(const MPlexHV &par,
                                const int N_proc,
-                               const PropagationFlags pf,
-                               const MPlexQI* noMatEffPtr = nullptr) {
+                               const PropagationFlags &pf,
+                               const MPlexQI *noMatEffPtr = nullptr) {
       MPlexQF msRad;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         msRad.At(n, 0, 0) = std::hypot(par.constAt(n, 0, 0), par.constAt(n, 1, 0));
       }
 
-      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf, noMatEffPtr);
+      propagateHelixToRMPlex(
+          m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], m_FailFlag, N_proc, pf, noMatEffPtr);
     }
 
     //----------------------------------------------------------------------------
 
-    void propagateTracksToZ(float z, const int N_proc, const PropagationFlags pf) {
+    void propagateTracksToZ(float z, const int N_proc, const PropagationFlags &pf) {
       MPlexQF msZ;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         msZ.At(n, 0, 0) = z;
       }
 
-      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf);
+      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], m_FailFlag, N_proc, pf);
     }
 
-    void propagateTracksToHitZ(const MPlexHV& par,
+    void propagateTracksToHitZ(const MPlexHV &par,
                                const int N_proc,
-                               const PropagationFlags pf,
-                               const MPlexQI* noMatEffPtr = nullptr) {
+                               const PropagationFlags &pf,
+                               const MPlexQI *noMatEffPtr = nullptr) {
       MPlexQF msZ;
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         msZ.At(n, 0, 0) = par.constAt(n, 2, 0);
       }
 
-      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf, noMatEffPtr);
+      propagateHelixToZMPlex(
+          m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], m_FailFlag, N_proc, pf, noMatEffPtr);
     }
 
-    void propagateTracksToPCAZ(const int N_proc, const PropagationFlags pf) {
+    void propagateTracksToPCAZ(const int N_proc, const PropagationFlags &pf) {
       MPlexQF msZ;  // PCA z-coordinate
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
@@ -85,8 +89,10 @@ namespace mkfit {
                           (1 + slope * slope);  // PCA to origin
       }
 
-      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf);
+      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], m_FailFlag, N_proc, pf);
     }
+
+    void clearFailFlag() { m_FailFlag.setVal(0); }
 
     //----------------------------------------------------------------------------
 
@@ -94,6 +100,7 @@ namespace mkfit {
     MPlexLS m_Err[2];
     MPlexLV m_Par[2];
     MPlexQI m_Chg;
+    MPlexQI m_FailFlag;
   };
 
 }  // end namespace mkfit

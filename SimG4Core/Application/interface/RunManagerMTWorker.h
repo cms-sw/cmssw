@@ -9,7 +9,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
 
 #include <memory>
 #include <unordered_map>
@@ -35,7 +35,9 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
+class Phase2SteppingAction;
 class CMSSteppingVerbose;
+class CMSSimEventManager;
 class G4Field;
 
 class SensitiveTkDetector;
@@ -53,7 +55,7 @@ public:
   void beginRun(const edm::EventSetup&);
   void endRun();
 
-  G4SimEvent* produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
+  TmpSimEvent* produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
 
   void abortEvent();
   void abortRun(bool softAbort = false);
@@ -62,15 +64,16 @@ public:
   void Connect(EventAction*);
   void Connect(TrackingAction*);
   void Connect(SteppingAction*);
+  void Connect(Phase2SteppingAction*);
 
-  SimTrackManager* GetSimTrackManager();
+  SimTrackManager* getSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
   std::vector<std::shared_ptr<SimProducer>>& producers();
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
-  inline G4SimEvent* simEvent() { return &m_simEvent; }
+  inline TmpSimEvent* simEvent() { return &m_simEvent; }
   inline int getThreadIndex() const { return m_thread_index; }
 
 private:
@@ -92,11 +95,13 @@ private:
   const MagneticField* m_pMagField{nullptr};
 
   bool m_nonBeam{false};
+  bool m_UseG4EventManager{true};
   bool m_pUseMagneticField{true};
   bool m_hasWatchers{false};
   bool m_LHCTransport{false};
   bool m_dumpMF{false};
   bool m_endOfRun{false};
+  bool m_isPhase2{false};
 
   const int m_thread_index{-1};
 
@@ -114,7 +119,8 @@ private:
   TLSData* m_tls{nullptr};
 
   CustomUIsession* m_UIsession{nullptr};
-  G4SimEvent m_simEvent;
+  TmpSimEvent m_simEvent;
+  std::unique_ptr<CMSSimEventManager> m_evtManager;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
 };

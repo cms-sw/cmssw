@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="cms::cuda::Product<ZVertexHeterogeneous>" persistent="false"/>
-  <class name="edm::Wrapper<ZVertexCUDAProduct>" persistent="false"/>
-  <class name="ZVertexHeterogeneous" persistent="false"/>
-  <class name="edm::Wrapper<ZVertexHeterogeneous>" persistent="false"/>
+  <class name="ZVertexSoAHost" persistent="false"/>
+  <class name="edm::Wrapper<ZVertexSoAHost>" persistent="false"/>
+  <class name="ZVertexSoADevice" persistent="false"/>
+  <class name="cms::cuda::Product<ZVertexSoADevice>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<ZVertexSoADevice>>" persistent="false"/>
 </lcgdict>

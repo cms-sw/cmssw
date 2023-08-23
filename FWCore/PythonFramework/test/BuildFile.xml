@@ -1,7 +1,4 @@
-<bin file="TestFWCorePythonFrameworkDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/PythonFramework/test runPythonTests.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCorePythonFrameworkDriver" command="runPythonTests.sh"/>
 
 <library file="PythonTestProducer.cc" name="PythonTestProducer">
   <flags EDM_PLUGIN="1"/>

@@ -5,5 +5,5 @@ l1t4PFPuppiJet25OnlineMaxEta2p4 = cms.EDFilter("L1TJetFilter",
     MinEta = cms.double(-2.4),
     MinN = cms.int32(4),
     MinPt = cms.double(25.0),
-    inputTag = cms.InputTag("l1tPhase1JetCalibrator9x9","Phase1L1TJetFromPfCandidates")
+    inputTag = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed","Phase1L1TJetFromPfCandidates")
 )

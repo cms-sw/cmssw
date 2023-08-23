@@ -5,13 +5,17 @@ cfg to produce pv resolution plots
 here doing refit of tracks and vertices using latest alignment 
 '''
 
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from fnmatch import fnmatch
 import FWCore.ParameterSet.VarParsing as VarParsing
 from pdb import set_trace
 
 process = cms.Process("PrimaryVertexResolution")
+
+###################################################################
+# Set the process to run multi-threaded
+###################################################################
+process.options.numberOfThreads = 8
 
 ###################################################################
 def best_match(rcd):
@@ -125,7 +129,17 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.src = 'ALCARECOTkAlMinBias'
 process.TrackRefitter.NavigationSchool = ''
 
+####################################################################
+# Refitting Sequence
+####################################################################
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi")
+process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
+                                        process.TrackRefitter,
+                                        cms.Task(process.SiPixelTemplateStoreESProducer))
+
+####################################################################
 ## PV refit
+####################################################################
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices 
@@ -160,8 +174,9 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(False)
                                    )
 
-process.p = cms.Path(process.offlineBeamSpot                        + 
-                     process.TrackRefitter                          + 
+process.p = cms.Path(process.seqTrackselRefit                       +
+                     #process.offlineBeamSpot                       +
+                     #process.TrackRefitter                         +
                      process.offlinePrimaryVerticesFromRefittedTrks +
                      process.PrimaryVertexResolution)
 

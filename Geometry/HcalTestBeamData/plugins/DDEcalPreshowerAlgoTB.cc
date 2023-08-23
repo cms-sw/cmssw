@@ -138,7 +138,7 @@ void DDEcalPreshowerAlgoTB::doLayers(DDCompactView& cpv) {
 
 void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
   LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB::debug : doWedges()";
-  int nx(0), ny(0), icopy(0), icopyt(0);
+  int icopy(0), icopyt(0);
   double xpos(0), ypos(0), zpos(0);  // zposY(0);
   int sz = int(quadMax_.size());
 
@@ -151,7 +151,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
   for (int I = 1; I <= sz; ++I) {
     for (int J = int(quadMax_[I - 1]); J >= int(quadMin_[I - 1]); --J) {
       //LogDebug("HCalGeom") <<"DDEcalPreshowerAlgoTB::I=" << I << " J="  << J;
-      nx += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesx)
@@ -184,7 +183,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
     }
 
     for (int J = int(quadMin_[I - 1]); J <= int(quadMax_[I - 1]); ++J) {
-      nx += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesx)
@@ -221,7 +219,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
   rot2 = DDRotation("rotations:RM1302");
   for (int I = sz; I >= 1; --I) {
     for (int J = int(quadMax_[I - 1]); J >= int(quadMin_[I - 1]); --J) {
-      nx += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesx)
@@ -254,7 +251,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
     }
 
     for (int J = int(quadMin_[I - 1]); J <= int(quadMax_[I - 1]); ++J) {
-      nx += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesx)
@@ -295,7 +291,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
   rot2 = DDRotation(DDName("RM1300B", idNameSpace));
   for (int I = 1; I <= sz; ++I) {
     for (int J = int(quadMax_[I - 1]); J >= int(quadMin_[I - 1]); --J) {
-      ny += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesy)
@@ -328,7 +323,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
     }
 
     for (int J = int(quadMin_[I - 1]); J <= int(quadMax_[I - 1]); ++J) {
-      ny += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesy)
@@ -366,7 +360,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
   rot2 = DDRotation(DDName("RM1304B", idNameSpace));
   for (int I = sz; I >= 1; --I) {
     for (int J = int(quadMax_[I - 1]); J >= int(quadMin_[I - 1]); --J) {
-      ny += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesy)
@@ -399,7 +392,6 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
     }
 
     for (int J = int(quadMin_[I - 1]); J <= int(quadMax_[I - 1]); ++J) {
-      ny += 1;
       icopy += 1;
       go = 0;
       for (double m : micromodulesy)

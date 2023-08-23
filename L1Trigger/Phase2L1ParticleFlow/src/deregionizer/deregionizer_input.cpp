@@ -1,87 +1,77 @@
-#include <fstream>
-#include <cmath>
 #include <vector>
 #include "L1Trigger/Phase2L1ParticleFlow/interface/deregionizer/deregionizer_input.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
-l1ct::DeregionizerInput::DeregionizerInput(std::vector<float> &regionEtaCenter,
-                                           std::vector<float> &regionPhiCenter,
-                                           const std::vector<l1ct::OutputRegion> &inputRegions)
-    : regionEtaCenter_(regionEtaCenter), regionPhiCenter_(regionPhiCenter) {
-  orderedInRegionsPuppis_ = std::vector<std::vector<std::vector<l1ct::PuppiObjEmu> > >(nEtaRegions);
-  for (int i = 0, n = nEtaRegions; i < n; i++)
-    orderedInRegionsPuppis_[i].resize(nPhiRegions);
-  initRegions(inputRegions);
-}
-
-// +pi read first & account for 2 small eta regions per phi slice
-unsigned int l1ct::DeregionizerInput::orderRegionsInPhi(const float eta, const float phi, const float etaComp) const {
-  unsigned int y;
-  if (fabs(phi) < 0.35)
-    y = (eta < etaComp ? 0 : 1);
-  else if (fabs(phi) < 1.05)
-    y = (phi > 0 ? (eta < etaComp ? 2 : 3) : (eta < etaComp ? 16 : 17));
-  else if (fabs(phi) < 1.75)
-    y = (phi > 0 ? (eta < etaComp ? 4 : 5) : (eta < etaComp ? 14 : 15));
-  else if (fabs(phi) < 2.45)
-    y = (phi > 0 ? (eta < etaComp ? 6 : 7) : (eta < etaComp ? 12 : 13));
-  else
-    y = (phi > 0 ? (eta < etaComp ? 8 : 9) : (eta < etaComp ? 10 : 11));
-  return y;
-}
-
-void l1ct::DeregionizerInput::initRegions(const std::vector<l1ct::OutputRegion> &inputRegions) {
-  for (int i = 0, n = inputRegions.size(); i < n; i++) {
-    unsigned int x, y;
-    float eta = regionEtaCenter_[i];
-    float phi = regionPhiCenter_[i];
-
-    if (fabs(eta) < 0.5) {
-      x = 0;
-      y = orderRegionsInPhi(eta, phi, 0.0);
-    } else if (fabs(eta) < 1.5) {
-      x = (eta < 0.0 ? 1 : 2);
-      y = (eta < 0.0 ? orderRegionsInPhi(eta, phi, -1.0) : orderRegionsInPhi(eta, phi, 1.0));
-    } else if (fabs(eta) < 2.5) {
-      x = (eta < 0.0 ? 3 : 4);
-      y = orderRegionsInPhi(eta, phi, 999.0);  // Send all candidates in 3 clks, then wait 3 clks for the barrel
-    } else /*if ( fabs(eta) < 3.0 )*/ {
-      x = 5;
-      y = orderRegionsInPhi(eta, phi, 0.0);  // Send eta<0 in 3 clks, eta>0 in the next 3 clks
-    }
-    /*else x = 6;*/  // HF
-
-    orderedInRegionsPuppis_[x][y].insert(orderedInRegionsPuppis_[x][y].end(),
-                                         inputRegions[i].puppi.begin(),
-                                         inputRegions[i].puppi.end());  // For now, merging HF with forward HGCal
-
-    while (!orderedInRegionsPuppis_[x][y].empty() && orderedInRegionsPuppis_[x][y].back().hwPt == 0)
-      orderedInRegionsPuppis_[x][y].pop_back();  // Zero suppression
+#ifdef CMSSW_GIT_HASH
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+l1ct::DeregionizerInput::DeregionizerInput(const std::vector<edm::ParameterSet> linkConfigs) {
+  for (const auto &pset : linkConfigs) {
+    DeregionizerInput::BoardInfo boardInfo;
+    boardInfo.nOutputFramesPerBX_ = pset.getParameter<uint32_t>("nOutputFramesPerBX");
+    boardInfo.nLinksPuppi_ = pset.getParameter<uint32_t>("nLinksPuppi");
+    boardInfo.nPuppiPerRegion_ = pset.getParameter<uint32_t>("nPuppiPerRegion");
+    boardInfo.order_ = pset.getParameter<int32_t>("outputBoard");
+    boardInfo.regions_ = pset.getParameter<std::vector<uint32_t>>("outputRegions");
+    boardInfo.nPuppiFramesPerRegion_ = (boardInfo.nOutputFramesPerBX_ * tmuxFactor_) / boardInfo.regions_.size();
+    boardInfos_.push_back(boardInfo);
   }
 }
+#endif
 
-void l1ct::DeregionizerInput::orderRegions(int order[nEtaRegions]) {
-  std::vector<std::vector<std::vector<l1ct::PuppiObjEmu> > > tmpOrderedInRegionsPuppis;
-  for (int i = 0, n = nEtaRegions; i < n; i++)
-    tmpOrderedInRegionsPuppis.push_back(orderedInRegionsPuppis_[order[i]]);
-  orderedInRegionsPuppis_ = tmpOrderedInRegionsPuppis;
-
-  if (debug_) {
-    for (int i = 0, nx = orderedInRegionsPuppis_.size(); i < nx; i++) {
-      dbgCout() << "\n";
-      dbgCout() << "Eta region index : " << i << "\n";
-      for (int j = 0, ny = orderedInRegionsPuppis_[i].size(); j < ny; j++) {
-        dbgCout() << " ---> Phi region index : " << j << "\n";
-        for (int iPup = 0, nPup = orderedInRegionsPuppis_[i][j].size(); iPup < nPup; iPup++) {
-          dbgCout() << "      > puppi[" << iPup << "]"
-                    << " pt = " << orderedInRegionsPuppis_[i][j][iPup].hwPt << "\n";
+std::vector<l1ct::DeregionizerInput::PlacedPuppi> l1ct::DeregionizerInput::inputOrderInfo(
+    const std::vector<l1ct::OutputRegion> &inputRegions) const {
+  // Vector of all puppis in event paired with LinkPlacementInfo
+  std::vector<PlacedPuppi> linkPlacedPuppis;
+  for (BoardInfo boardInfo : boardInfos_) {
+    for (uint iRegion = 0; iRegion < boardInfo.regions_.size(); iRegion++) {
+      uint iRegionEvent = boardInfo.regions_.at(iRegion);
+      auto puppi = inputRegions.at(iRegionEvent).puppi;
+      unsigned int npuppi = puppi.size();
+      for (unsigned int i = 0; i < boardInfo.nLinksPuppi_ * boardInfo.nPuppiFramesPerRegion_; ++i) {
+        if (i < npuppi) {
+          uint iClock =
+              iRegion * boardInfo.nPuppiPerRegion_ / boardInfo.nLinksPuppi_ + i % boardInfo.nPuppiFramesPerRegion_;
+          uint iLink = i / boardInfo.nPuppiFramesPerRegion_;
+          LPI lpi = {boardInfo.order_, iLink, iClock};
+          linkPlacedPuppis.push_back(std::make_pair(puppi.at(i), lpi));
         }
       }
-      dbgCout() << " ----------------- "
-                << "\n";
     }
-    dbgCout() << "Regions ordered!"
-              << "\n";
-    dbgCout() << "\n";
   }
+  return linkPlacedPuppis;
+}
+
+std::vector<std::vector<std::vector<l1ct::PuppiObjEmu>>> l1ct::DeregionizerInput::orderInputs(
+    const std::vector<l1ct::OutputRegion> &inputRegions) const {
+  std::vector<PlacedPuppi> linkPlacedPuppis = inputOrderInfo(inputRegions);
+  std::vector<std::vector<std::vector<l1ct::PuppiObjEmu>>> layer2inReshape(nInputFramesPerBX_ * tmuxFactor_);
+  for (uint iClock = 0; iClock < nInputFramesPerBX_ * tmuxFactor_; iClock++) {
+    std::vector<std::vector<l1ct::PuppiObjEmu>> orderedPupsOnClock(boardInfos_.size());
+    // Find all the puppis on this clock cycle
+    for (BoardInfo boardInfo : boardInfos_) {
+      // find all puppis on this clock cycle, from this board
+      std::vector<l1ct::PuppiObjEmu> orderedPupsOnClockOnBoard;
+      for (uint iLink = 0; iLink < boardInfo.nLinksPuppi_; iLink++) {
+        // find all puppis from this clock cycle, from this board, from this link
+        auto onClockOnBoardOnLink = [&](PlacedPuppi p) {
+          return (p.second.clock_cycle_ == iClock) && (p.second.board_ == boardInfo.order_) &&
+                 (p.second.link_ == iLink);
+        };
+        std::vector<PlacedPuppi> allPupsOnClockOnBoardOnLink;
+        std::copy_if(std::begin(linkPlacedPuppis),
+                     std::end(linkPlacedPuppis),
+                     std::back_inserter(allPupsOnClockOnBoardOnLink),
+                     onClockOnBoardOnLink);
+        linkPlacedPuppis.erase(
+            std::remove_if(std::begin(linkPlacedPuppis), std::end(linkPlacedPuppis), onClockOnBoardOnLink),
+            std::end(linkPlacedPuppis));  // erase already placed pups
+        if (!allPupsOnClockOnBoardOnLink.empty()) {
+          orderedPupsOnClockOnBoard.push_back(allPupsOnClockOnBoardOnLink.at(0).first);
+        }
+      }
+      orderedPupsOnClock.at(boardInfo.order_) = orderedPupsOnClockOnBoard;
+    }
+    layer2inReshape.at(iClock) = orderedPupsOnClock;
+  }
+  return layer2inReshape;
 }

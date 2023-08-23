@@ -175,8 +175,8 @@ namespace trackerTFP {
         const StreamStub& accepted = handleAccepted->at(index);
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
-        nStubs += accumulate(accepted.begin(), accepted.end(), 0, [](int& sum, const FrameStub& frame) {
-          return sum += frame.first.isNonnull() ? 1 : 0;
+        nStubs += accumulate(accepted.begin(), accepted.end(), 0, [](int sum, const FrameStub& frame) {
+          return sum + (frame.first.isNonnull() ? 1 : 0);
         });
         vector<vector<TTStubRef>> tracks;
         vector<vector<TTStubRef>> lost;

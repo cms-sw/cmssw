@@ -85,7 +85,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-    edm::test::SimpleTestTypeResolver resolver;
+    edm::test::SimpleTestTypeResolverMaker resolver;
     using Catch::Matchers::Contains;
     CHECK_THROWS_WITH(
         factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
@@ -96,12 +96,44 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "generic::DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-    edm::test::ComplexTestTypeResolver resolver;
+    edm::test::ComplexTestTypeResolverMaker resolver;
     using Catch::Matchers::Contains;
     CHECK_THROWS_WITH(
         factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
         Contains("generic::DoesNotExistModule") && Contains("edm::test::other::DoesNotExistModule") &&
             Contains("edm::test::cpu::DoesNotExistModule"));
+  }
+  SECTION("test missing plugin with configurable resolver") {
+    auto factory = Factory::get();
+    ParameterSet pset;
+    pset.addParameter<std::string>("@module_type", "generic::DoesNotExistModule");
+    pset.addParameter<std::string>("@module_edm_type", "EDProducer");
+    SECTION("default behavior") {
+      edm::test::ConfigurableTestTypeResolverMaker resolver;
+      using Catch::Matchers::Contains;
+      CHECK_THROWS_WITH(
+          factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
+          Contains("generic::DoesNotExistModule") && Contains("edm::test::other::DoesNotExistModule") &&
+              Contains("edm::test::cpu::DoesNotExistModule"));
+    }
+    SECTION("set variant to other") {
+      pset.addUntrackedParameter<std::string>("variant", "other");
+      edm::test::ConfigurableTestTypeResolverMaker resolver;
+      using Catch::Matchers::Contains;
+      CHECK_THROWS_WITH(
+          factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
+          Contains("generic::DoesNotExistModule") && Contains("edm::test::other::DoesNotExistModule") &&
+              not Contains("edm::test::cpu::DoesNotExistModule"));
+    }
+    SECTION("set variant to cpu") {
+      pset.addUntrackedParameter<std::string>("variant", "cpu");
+      edm::test::ConfigurableTestTypeResolverMaker resolver;
+      using Catch::Matchers::Contains;
+      CHECK_THROWS_WITH(
+          factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
+          Contains("generic::DoesNotExistModule") && not Contains("edm::test::other::DoesNotExistModule") &&
+              Contains("edm::test::cpu::DoesNotExistModule"));
+    }
   }
 
   SECTION("test found plugin") {
@@ -122,7 +154,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     pset.addParameter<std::string>("@module_type", "edm::test::FactoryTestBProd");
     pset.addParameter<std::string>("@module_label", "b");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-    edm::test::SimpleTestTypeResolver resolver;
+    edm::test::SimpleTestTypeResolverMaker resolver;
     REQUIRE(edm::test::FactoryTestBProd::count_ == 0);
     REQUIRE(factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post));
     REQUIRE(edm::test::FactoryTestBProd::count_ == 1);
@@ -135,7 +167,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
       pset.addParameter<std::string>("@module_type", "generic::FactoryTestAProd");
       pset.addParameter<std::string>("@module_label", "gen");
       pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-      edm::test::ComplexTestTypeResolver resolver;
+      edm::test::ComplexTestTypeResolverMaker resolver;
       REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 0);
       REQUIRE(edm::test::other::FactoryTestAProd::count_ == 0);
       REQUIRE(factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post));
@@ -149,11 +181,47 @@ TEST_CASE("test edm::Factory", "[Factory]") {
       pset.addParameter<std::string>("@module_type", "generic::FactoryTestCProd");
       pset.addParameter<std::string>("@module_label", "cgen");
       pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-      edm::test::ComplexTestTypeResolver resolver;
+      edm::test::ComplexTestTypeResolverMaker resolver;
       REQUIRE(edm::test::cpu::FactoryTestCProd::count_ == 0);
       REQUIRE(factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post));
       REQUIRE(edm::test::cpu::FactoryTestCProd::count_ == 1);
       edm::test::cpu::FactoryTestCProd::count_ = 0;
+    }
+  }
+  SECTION("test found plugin with configurable resolver") {
+    auto factory = Factory::get();
+    ParameterSet pset;
+    pset.addParameter<std::string>("@module_type", "generic::FactoryTestAProd");
+    pset.addParameter<std::string>("@module_label", "gen");
+    pset.addParameter<std::string>("@module_edm_type", "EDProducer");
+    SECTION("default behavior") {
+      edm::test::ConfigurableTestTypeResolverMaker resolver;
+      REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 0);
+      REQUIRE(edm::test::other::FactoryTestAProd::count_ == 0);
+      REQUIRE(factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post));
+      REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 0);
+      REQUIRE(edm::test::other::FactoryTestAProd::count_ == 1);
+      edm::test::other::FactoryTestAProd::count_ = 0;
+    }
+    SECTION("set variant to cpu") {
+      pset.addUntrackedParameter<std::string>("variant", "cpu");
+      edm::test::ConfigurableTestTypeResolverMaker resolver;
+      REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 0);
+      REQUIRE(edm::test::other::FactoryTestAProd::count_ == 0);
+      REQUIRE(factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post));
+      REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 1);
+      REQUIRE(edm::test::other::FactoryTestAProd::count_ == 0);
+      edm::test::cpu::FactoryTestAProd::count_ = 0;
+    }
+    SECTION("set variant to other") {
+      pset.addUntrackedParameter<std::string>("variant", "other");
+      edm::test::ConfigurableTestTypeResolverMaker resolver;
+      REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 0);
+      REQUIRE(edm::test::other::FactoryTestAProd::count_ == 0);
+      REQUIRE(factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post));
+      REQUIRE(edm::test::cpu::FactoryTestAProd::count_ == 0);
+      REQUIRE(edm::test::other::FactoryTestAProd::count_ == 1);
+      edm::test::other::FactoryTestAProd::count_ = 0;
     }
   }
 }

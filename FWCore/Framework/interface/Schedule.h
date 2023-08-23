@@ -97,7 +97,7 @@ namespace edm {
     class TriggerNamesService;
   }
   namespace evetnsetup {
-    class ESRecordsToProxyIndices;
+    class ESRecordsToProductResolverIndices;
   }
 
   class ActivityRegistry;
@@ -113,6 +113,7 @@ namespace edm {
   class GlobalSchedule;
   struct TriggerTimingReport;
   class ModuleRegistry;
+  class ModuleTypeResolverMaker;
   class ThinnedAssociationsHelper;
   class SubProcessParentageHelper;
   class TriggerResultInserter;
@@ -135,7 +136,8 @@ namespace edm {
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration const> processConfiguration,
              PreallocationConfiguration const& config,
-             ProcessContext const* processContext);
+             ProcessContext const* processContext,
+             ModuleTypeResolverMaker const* resolverMaker);
     void finishSetup(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
                      ProductRegistry& preg,
@@ -167,7 +169,9 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&, ProcessBlockHelperBase const&);
+    void beginJob(ProductRegistry const&,
+                  eventsetup::ESRecordsToProductResolverIndices const&,
+                  ProcessBlockHelperBase const&);
     void endJob(ExceptionCollector& collector);
 
     void beginStream(unsigned int);
@@ -280,7 +284,7 @@ namespace edm {
     bool changeModule(std::string const& iLabel,
                       ParameterSet const& iPSet,
                       const ProductRegistry& iRegistry,
-                      eventsetup::ESRecordsToProxyIndices const&);
+                      eventsetup::ESRecordsToProductResolverIndices const&);
 
     /// Deletes module with label iLabel
     void deleteModule(std::string const& iLabel, ActivityRegistry* areg);

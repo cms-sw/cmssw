@@ -383,6 +383,8 @@ namespace edm {
     ModuleCallingContext moduleCallingContext(&moduleDescription());
     ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
+    setupPileUpEvent(setup);
+
     for (auto const& adjuster : adjusters_) {
       adjuster->doOffset(bunchSpace_, bunchCrossing, eventPrincipal, &moduleCallingContext, eventId, vertexOffset);
     }

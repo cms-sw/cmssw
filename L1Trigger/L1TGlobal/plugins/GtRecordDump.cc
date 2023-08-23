@@ -861,6 +861,7 @@ namespace l1t {
     packedVal |= ((cms_uint64_t)(mu->hwCharge() & 0x1) << 34);            // & 0x1)   <<29);
     packedVal |= ((cms_uint64_t)(mu->hwQual() & 0xf) << 19);              // & 0xf)   <<30);
     packedVal |= ((cms_uint64_t)(mu->hwIso() & 0x3) << 32);               // & 0x3)   <<34);
+    packedVal |= ((cms_uint64_t)(mu->tfMuonIndex() & 0x7f) << 36);
 
     //    if (false) {  // for debugging purposes
     //      std::cout << "----------------------" << std::endl;

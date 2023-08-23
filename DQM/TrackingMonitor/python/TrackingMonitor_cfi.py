@@ -315,7 +315,11 @@ TrackMon = DQMEDAnalyzer('TrackingMonitor',
     VZBin = cms.int32(100),
     VZMax = cms.double(30.0),                        
     VZMin = cms.double(-30.0),
-    
+
+    # PCA z position (to PV)
+    VZ_PVMax = cms.double(30.0),
+    VZ_PVMin = cms.double(-30.0),
+
     # PCA z position for profile
     VZBinProf = cms.int32(100),
     VZMaxProf = cms.double(0.2),                        
@@ -471,6 +475,7 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 phase1Pixel.toModify(TrackMon, EtaBin=31, EtaMin=-3., EtaMax=3.)
 phase1Pixel.toModify(TrackMon, LUMIBin=300, LUMIMin=200., LUMIMax=20000.)
 run3_common.toModify(TrackMon, forceSCAL = False)
+run3_common.toModify(TrackMon, LUMIBin=375, LUMIMin=200., LUMIMax=25000.)
 phase2_tracker.toModify(TrackMon, EtaBin=46, EtaMin=-4.5, EtaMax=4.5)
 phase2_tracker.toModify(TrackMon, PVBin=125, PVMin=-0.5, PVMax=249.5)
 phase2_tracker.toModify(TrackMon, LUMIBin=700, LUMIMin=200., LUMIMax=70000.)

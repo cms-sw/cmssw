@@ -8,7 +8,6 @@ PixelTopologyBuilder::PixelTopologyBuilder(void) {}
 PixelTopology* PixelTopologyBuilder::build(
     const Bounds* bs,
     bool upgradeGeometry,
-    bool isBricked,
     int pixelROCRows,       // Num of Rows per ROC
     int pixelROCCols,       // Num of Cols per ROC
     int BIG_PIX_PER_ROC_X,  // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
@@ -33,7 +32,6 @@ PixelTopology* PixelTopologyBuilder::build(
                                        pitchX,
                                        pitchY,
                                        upgradeGeometry,
-                                       isBricked,
                                        pixelROCRows,  // (int)rocRow
                                        pixelROCCols,  // (int)rocCol
                                        BIG_PIX_PER_ROC_X,

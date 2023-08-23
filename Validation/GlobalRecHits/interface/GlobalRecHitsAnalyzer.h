@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -177,6 +179,10 @@ private:
 
   MonitorElement *mehEcaln[3];
   MonitorElement *mehEcalRes[3];
+
+  edm::GetterOfProducts<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>> HBHERecHitgetter_;
+  edm::GetterOfProducts<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>> HFRecHitgetter_;
+  edm::GetterOfProducts<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>> HORecHitgetter_;
 
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalUncalEBSrc_;

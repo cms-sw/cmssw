@@ -76,6 +76,7 @@ closebyPixelClusters = NearbyPixelClusters.NearbyPixelClustersProducer.clone(clu
 ##################################################################
 # Sequence: track refit + close-by-pixel producer
 ##################################################################
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
 ALCARECOSiPixelCalSingleMuonTightOffTrackClusters = cms.Sequence(ALCARECOSiPixelCalSingleMuonTightTracksRefit +
                                                                  closebyPixelClusters)
 

@@ -17,7 +17,7 @@ namespace l1t {
     for (std::vector<l1t::Jet>::const_iterator uncalibjet = uncalibjets->begin(); uncalibjet != uncalibjets->end();
          ++uncalibjet) {
       if (jetCalibrationType == "None") {
-        l1t::Jet corrjets = *uncalibjet;
+        const l1t::Jet& corrjets = *uncalibjet;
         jets->push_back(corrjets);
         continue;
       }

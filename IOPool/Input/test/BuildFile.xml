@@ -1,8 +1,5 @@
 <environment>
-  <bin file="TestPoolInput.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash IOPool/Input/test TestPoolInput.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="TestPoolInput" command="TestPoolInput.sh"/>
 
   <library file="IOExerciser.cc" name="IOExerciser">
     <flags EDM_PLUGIN="1"/>
@@ -12,4 +9,5 @@
  
  <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
  <test name="TestIOPoolInputNoParentDictionary" command="testNoParentDictionary.sh"/>
+ <test name="TestFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
 </environment>

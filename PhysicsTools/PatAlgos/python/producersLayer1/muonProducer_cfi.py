@@ -77,7 +77,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # mc matching
     addGenMatch   = cms.bool(True),
     embedGenMatch = cms.bool(True),
-    genParticleMatch = cms.InputTag("muonMatch"), ## particles source to be used for the matching
+    genParticleMatch = cms.required.allowed(cms.InputTag, cms.VInputTag, default = cms.InputTag("muonMatch")), ## particles source to be used for the matching
 
     # efficiencies
     addEfficiencies = cms.bool(False),
@@ -109,13 +109,12 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # Standard Muon Selectors and Jet-related observables
     # Depends on MiniIsolation, so only works in miniaod
     # Don't forget to set flags properly in miniAOD_tools.py                      
-    computeMuonMVA = cms.bool(False),
     computeMuonIDMVA = cms.bool(False),
-    mvaTrainingFile      = cms.FileInPath("RecoMuon/MuonIdentification/data/mu_2017_BDTG.weights.xml"),
     mvaIDTrainingFile      = cms.FileInPath("RecoMuon/MuonIdentification/data/mvaID.onnx"),
-    lowPtmvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/mu_lowpt_BDTG.weights.xml"),
+    mvaIDwpMedium = cms.double(0.08),
+    mvaIDwpTight = cms.double(0.20),
     recomputeBasicSelectors = cms.bool(True),
-    mvaUseJec = cms.bool(True),
+    useJec = cms.bool(True),
     mvaDrMax = cms.double(0.4),
     mvaJetTag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     mvaL1Corrector = cms.InputTag("ak4PFCHSL1FastjetCorrector"),
@@ -135,14 +134,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     hltCollectionFilters = cms.vstring('*')
 )
 
-
-
-
-
-
-
-
-
-
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(patMuons,
+                     mvaJetTag = cms.InputTag("pfDeepCSVJetTags:probb"),
+)
 
 

@@ -201,11 +201,8 @@ void EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es
 
   //  Loop over raw clusters and make corrected ones
   reco::SuperClusterCollection::const_iterator aClus;
-  int i = 0;
   for (aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++) {
     reco::SuperCluster enecorrClus, crackcorrClus, localContCorrClus;
-
-    i++;
 
     if (applyEnergyCorrection_)
       enecorrClus = energyCorrector_->applyCorrection(*aClus,

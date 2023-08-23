@@ -48,7 +48,13 @@ TrackerValidationVariables::TrackerValidationVariables(const edm::ParameterSet& 
   tracksToken_ = iC.consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("Tracks"));
 }
 
-TrackerValidationVariables::~TrackerValidationVariables() {}
+TrackerValidationVariables::~TrackerValidationVariables() = default;
+
+void TrackerValidationVariables::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.setComment("auxilliary class to store information about track-hit residuals");
+  desc.add<std::string>("trajectoryInput", "generalTracks");
+  desc.add<edm::InputTag>("Tracks", edm::InputTag("generalTracks"));
+}
 
 void TrackerValidationVariables::fillHitQuantities(reco::Track const& track, std::vector<AVHitStruct>& v_avhitout) {
   auto const& trajParams = track.extra()->trajParams();

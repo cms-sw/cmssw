@@ -14,7 +14,7 @@
 #define MVA_COMPUTER_CONTAINER_RECORD_DEFINE(T) MVA_COMPUTER_RECORD_DEFINE(T)
 
 #define MVA_COMPUTER_RECORD_PLUGIN(T)                                  \
-  INSTANTIATE_PROXY(T, ::PhysicsTools::Calibration::MVAComputer)       \
+  INSTANTIATE_RESOLVER(T, ::PhysicsTools::Calibration::MVAComputer)    \
   namespace {                                                          \
     namespace mva1 {                                                   \
       ONLY_REGISTER_PLUGIN(T, PhysicsTools::Calibration::MVAComputer); \
@@ -27,7 +27,7 @@
   MVA_COMPUTER_RECORD_PLUGIN(T)
 
 #define MVA_COMPUTER_CONTAINER_RECORD_PLUGIN(T)                                 \
-  INSTANTIATE_PROXY(T, ::PhysicsTools::Calibration::MVAComputerContainer)       \
+  INSTANTIATE_RESOLVER(T, ::PhysicsTools::Calibration::MVAComputerContainer)    \
   namespace {                                                                   \
     namespace mva2 {                                                            \
       ONLY_REGISTER_PLUGIN(T, PhysicsTools::Calibration::MVAComputerContainer); \

@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalWaferInFileTest_cfg.py geometry=V17
 #
-#   Options for geometry V14, V15, V16, V17
+#   Options for geometry V16, V17
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V14, V15, V16, V17")
+                  "geometry of operations: V16, V17")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,30 +26,20 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "V15"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCWaferInFileTest',Phase2C11M9)
-    process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
-    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
-elif (options.geometry == "V16"):
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('HGCWaferInFileTest',Phase2C11)
-    process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
-    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
-elif (options.geometry == "V14"):
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('HGCWaferInFileTest',Phase2C11)
+if (options.geometry == "V16"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCWaferInFileTest',Phase2C17I13M9)
     process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
     process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
 else:
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('HGCWaferInFileTest',Phase2C11)
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCWaferInFileTest',Phase2C17I13M9)
     process.load("Geometry.HGCalCommonData.testHGCalV17XML_cfi")
     process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
+process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load("Geometry.HGCalGeometry.hgcalEEWaferInFileTest_cfi")
 

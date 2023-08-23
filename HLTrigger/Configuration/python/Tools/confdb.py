@@ -50,7 +50,7 @@ class HLTProcess(object):
 
     # get the configuration from ConfdB
     from .confdbOfflineConverter import OfflineConverter
-    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database, proxy = self.config.proxy, proxyHost = self.config.proxy_host, proxyPort = self.config.proxy_port)
+    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database, proxy = self.config.proxy, proxyHost = self.config.proxy_host, proxyPort = self.config.proxy_port, tunnel = self.config.tunnel, tunnelPort = self.config.tunnel_port)
     self.buildPathList()
     self.buildOptions()
     self.getSetupConfigurationFromDB()
@@ -243,12 +243,6 @@ modifyHLTforEras(%(process)s)
     # adapt the source to the current scenario
     if not self.config.fragment:
       self.build_source()
-
-    # manual override some parameters
-    if self.config.type in ('HIon', ):
-      if self.config.data:
-        if not self.config.fragment:
-          self._fix_parameter( type = 'InputTag', value = 'rawDataCollector',  replace = 'rawDataRepacker')
 
     # if requested, remove the HLT prescales
     self.fixPrescales()
@@ -883,6 +877,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-ZdcGeometryFromDBEP" )
       self.options['esmodules'].append( "-XMLFromDBSource" )
       self.options['esmodules'].append( "-sistripconn" )
+      self.options['esmodules'].append( "-siPixelQualityESProducer" )
 
       self.options['services'].append( "-MessageLogger" )
 

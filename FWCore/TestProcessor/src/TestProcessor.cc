@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/streamTransitionAsync.h"
@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
+#include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -84,7 +85,6 @@ namespace edm {
     TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
         : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1),
           arena_(1),
-          espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),
           moduleRegistry_(std::make_shared<ModuleRegistry>()) {
       //Setup various singletons
@@ -93,6 +93,8 @@ namespace edm {
       ProcessDescImpl desc(iConfig.pythonConfiguration());
 
       auto psetPtr = desc.parameterSet();
+      moduleTypeResolverMaker_ = makeModuleTypeResolverMaker(*psetPtr);
+      espController_ = std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get());
 
       validateTopLevelParameterSets(psetPtr.get());
 
@@ -126,7 +128,7 @@ namespace edm {
 
       if (not iConfig.esProduceEntries().empty()) {
         esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
-        esp_->add(std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
+        esp_->add(std::dynamic_pointer_cast<eventsetup::ESProductResolverProvider>(esHelper_));
         esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
       }
 
@@ -168,7 +170,8 @@ namespace edm {
 
       processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
 
-      schedule_ = items.initSchedule(*psetPtr, false, preallocations_, &processContext_, *processBlockHelper_);
+      schedule_ = items.initSchedule(
+          *psetPtr, false, preallocations_, &processContext_, moduleTypeResolverMaker_.get(), *processBlockHelper_);
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
@@ -416,7 +419,7 @@ namespace edm {
 
       espController_->finishConfiguration();
 
-      schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
+      schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
       actReg_->postBeginJobSignal_();
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {

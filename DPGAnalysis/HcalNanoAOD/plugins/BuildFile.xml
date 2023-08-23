@@ -1,0 +1,20 @@
+<use name="CommonTools/Utils"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="EventFilter/HcalRawToDigi"/>
+<use name="PhysicsTools/PatAlgos"/>
+<use name="roothistmatrix"/>
+<use name="IOPool/Provenance"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="CondFormats/RunInfo"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DPGAnalysis/HcalNanoAOD"/>
+<library file="*.cc" name="DPGAnalysisHcalNanoAOD_plugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

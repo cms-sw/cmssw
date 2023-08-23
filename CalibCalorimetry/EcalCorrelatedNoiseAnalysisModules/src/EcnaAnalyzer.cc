@@ -23,6 +23,7 @@
 //#include <signal.h>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/interface/EcnaAnalyzer.h"
+#include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
 
 //--------------------------------------
@@ -45,43 +46,14 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
     : verbosity_(pSet.getUntrackedParameter("verbosity", 1U)),
       nChannels_(0),
       iEvent_(0),
-      fBuildEventDistribBad(nullptr),
-      fBuildEventDistribGood(nullptr),
-      fSMFromFedTcc(nullptr),
-      fESFromFedTcc(nullptr),
-      fDeeFromFedTcc(nullptr),
-      fFedStatusOrder(nullptr),
-      fDeeNumberString(nullptr),
-      fStexDigiOK(nullptr),
-      fStexNbOfTreatedEvents(nullptr),
-      fStexStatus(nullptr),
-      fFedStatus(nullptr),
-      fFedDigiOK(nullptr),
-      fFedNbOfTreatedEvents(nullptr),
-      fNbOfTreatedFedsInDee(nullptr),
-      fNbOfTreatedFedsInStex(nullptr),
-      fTimeFirst(nullptr),
-      fTimeLast(nullptr),
-      fDateFirst(nullptr),
-      fDateLast(nullptr),
-      fMemoDateFirstEvent(nullptr),
-      fMyCnaEBSM(nullptr),
-      fMyCnaEEDee(nullptr),
-      fMyEBNumbering(nullptr),
-      fMyEBEcal(nullptr),
-      fMyEENumbering(nullptr),
-      fMyEEEcal(nullptr),
-      fRunTypeCounter(nullptr),
-      fMgpaGainCounter(nullptr),
-      fFedIdCounter(nullptr),
-      fCounterQuad(nullptr) {
+      fMyEBNumbering(&fMyEcnaEBObjectManager, "EB"),
+      fMyEBEcal(&fMyEcnaEBObjectManager, "EB"),
+      fMyEENumbering(&fMyEcnaEEObjectManager, "EE"),
+      fMyEEEcal(&fMyEcnaEEObjectManager, "EE") {
   // now do what ever initialization is needed
 
-  fMyEcnaEBObjectManager = new TEcnaObject();
-  fMyEcnaEEObjectManager = new TEcnaObject();
-
-  std::unique_ptr<TEcnaParPaths> myPathEB = std::make_unique<TEcnaParPaths>(fMyEcnaEBObjectManager);
-  std::unique_ptr<TEcnaParPaths> myPathEE = std::make_unique<TEcnaParPaths>(fMyEcnaEEObjectManager);
+  std::unique_ptr<TEcnaParPaths> myPathEB = std::make_unique<TEcnaParPaths>(&fMyEcnaEBObjectManager);
+  std::unique_ptr<TEcnaParPaths> myPathEE = std::make_unique<TEcnaParPaths>(&fMyEcnaEEObjectManager);
 
   edm::LogVerbatim("ecnaAnal") << "*EcnaAnalyzer-constructor> Check path for resultsq Root files.";
 
@@ -103,15 +75,8 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
 
   edm::LogVerbatim("ecnaAnal") << "*EcnaAnalyzer-constructor> Parameter initialization.";
 
-  fgMaxCar = (Int_t)512;
   fTTBELL = '\007';
   fOutcomeError = kFALSE;
-
-  fMyEBEcal = new TEcnaParEcal(fMyEcnaEBObjectManager, "EB");
-  fMyEBNumbering = new TEcnaNumbering(fMyEcnaEBObjectManager, "EB");
-
-  fMyEEEcal = new TEcnaParEcal(fMyEcnaEEObjectManager, "EE");
-  fMyEENumbering = new TEcnaNumbering(fMyEcnaEEObjectManager, "EE");
 
   //==========================================================================================
   //.................................. Get parameter values from python file
@@ -155,23 +120,9 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
     return;
   //===========================================================================================
 
-  fMaxRunTypeCounter = 26;
-  fRunTypeCounter = new Int_t[fMaxRunTypeCounter];
-  for (Int_t i = 0; i < fMaxRunTypeCounter; i++) {
-    fRunTypeCounter[i] = 0;
-  }
-
-  fMaxMgpaGainCounter = 4;  // Because chozen gain = 0,1,2,3
-  fMgpaGainCounter = new Int_t[fMaxMgpaGainCounter];
-  for (Int_t i = 0; i < fMaxMgpaGainCounter; i++) {
-    fMgpaGainCounter[i] = 0;
-  }
-
-  fMaxFedIdCounter = 54;
-  fFedIdCounter = new Int_t[fMaxFedIdCounter];
-  for (Int_t i = 0; i < fMaxFedIdCounter; i++) {
-    fFedIdCounter[i] = 0;
-  }
+  std::fill(fRunTypeCounter.begin(), fRunTypeCounter.end(), 0);
+  std::fill(fMgpaGainCounter.begin(), fMgpaGainCounter.end(), 0);
+  std::fill(fFedIdCounter.begin(), fFedIdCounter.end(), 0);
 
   fEvtNumber = 0;
   fEvtNumberMemo = -1;
@@ -189,56 +140,38 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
 
   //-------------- Fed
   if (fStexName == "SM") {
-    fMaxFedUnitCounter = fMyEBEcal->MaxSMInEB();
+    fMaxFedUnitCounter = fMyEBEcal.MaxSMInEB();
   }  // EB: FED Unit = SM
   if (fStexName == "Dee") {
-    fMaxFedUnitCounter = fMyEEEcal->MaxDSInEE();
+    fMaxFedUnitCounter = fMyEEEcal.MaxDSInEE();
   }  // EE: FED Unit = Data Sector
 
-  fFedDigiOK = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedDigiOK[i] = 0;
-  }
+  fFedDigiOK = std::vector<Int_t>(fMaxFedUnitCounter, 0);
+  fFedNbOfTreatedEvents = std::vector<Int_t>(fMaxFedUnitCounter, 0);
+  fFedStatus = std::vector<Int_t>(fMaxFedUnitCounter, 0);
+  fFedStatusOrder = std::vector<Int_t>(fMaxFedUnitCounter, 0);
 
-  fFedNbOfTreatedEvents = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedNbOfTreatedEvents[i] = 0;
-  }
-
-  fFedStatus = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedStatus[i] = 0;
-  }
-
-  fFedStatusOrder = new Int_t[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fFedStatusOrder[i] = 0;
-  }
-
-  fDeeNumberString = new TString[fMaxFedUnitCounter];
-  for (Int_t i = 0; i < fMaxFedUnitCounter; i++) {
-    fDeeNumberString[i] = "SM";
-  }
-
-  if (fStexName == "Dee") {
-    fDeeNumberString[0] = "Sector1 Dee4";
-    fDeeNumberString[1] = "Sector2 Dee4";
-    fDeeNumberString[2] = "Sector3 Dee4";
-    fDeeNumberString[3] = "Sector4 Dee4";
-    fDeeNumberString[4] = "Sector5 Dee4-Dee3";
-    fDeeNumberString[5] = "Sector6 Dee3";
-    fDeeNumberString[6] = "Sector7 Dee3";
-    fDeeNumberString[7] = "Sector8 Dee3";
-    fDeeNumberString[8] = "Sector9 Dee3";
-    fDeeNumberString[9] = "Sector1 Dee1";
-    fDeeNumberString[10] = "Sector2 Dee1";
-    fDeeNumberString[11] = "Sector3 Dee1";
-    fDeeNumberString[12] = "Sector4 Dee1";
-    fDeeNumberString[13] = "Sector5 Dee1-Dee2";
-    fDeeNumberString[14] = "Sector6 Dee2";
-    fDeeNumberString[15] = "Sector7 Dee2";
-    fDeeNumberString[16] = "Sector8 Dee2";
-    fDeeNumberString[17] = "Sector9 Dee2";
+  if (fStexName != "Dee") {
+    fDeeNumberString = std::vector<std::string>(fMaxFedUnitCounter, "SM");
+  } else {
+    fDeeNumberString = {"Sector1 Dee4",
+                        "Sector2 Dee4",
+                        "Sector3 Dee4",
+                        "Sector4 Dee4",
+                        "Sector5 Dee4-Dee3",
+                        "Sector6 Dee3",
+                        "Sector7 Dee3",
+                        "Sector8 Dee3",
+                        "Sector9 Dee3",
+                        "Sector1 Dee1",
+                        "Sector2 Dee1",
+                        "Sector3 Dee1",
+                        "Sector4 Dee1",
+                        "Sector5 Dee1-Dee2",
+                        "Sector6 Dee2",
+                        "Sector7 Dee2",
+                        "Sector8 Dee2",
+                        "Sector9 Dee2"};
   }
   //............................... arrays fSMFromFedDcc and fESFromFedTcc
   //
@@ -263,13 +196,10 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
   //       DS:   7   8   9   1   2   3   4   5   6
   //       ES:  16  17  18  10  11  12  13  14  15  (ES = DS + 9)
 
-  Int_t MaxSMAndDS = fMyEBEcal->MaxSMInEB() + fMyEEEcal->MaxDSInEE();
+  const Int_t MaxSMAndDS = fMyEBEcal.MaxSMInEB() + fMyEEEcal.MaxDSInEE();
 
-  fSMFromFedTcc = new Int_t[MaxSMAndDS];
-  fESFromFedTcc = new Int_t[MaxSMAndDS];
-  for (Int_t nFedTcc = 1; nFedTcc <= MaxSMAndDS; nFedTcc++) {
-    fESFromFedTcc[nFedTcc - 1] = -1;
-  }
+  fSMFromFedTcc = std::vector<Int_t>(MaxSMAndDS, -1);
+  fESFromFedTcc = std::vector<Int_t>(MaxSMAndDS, -1);
 
   for (Int_t nFedTcc = 1; nFedTcc <= 3; nFedTcc++) {
     fESFromFedTcc[nFedTcc - 1] = nFedTcc + 6;
@@ -296,76 +226,43 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
   //"AdcSPeg12" analysis
   //-------------- Stex
   if (fStexName == "SM") {
-    fMaxTreatedStexCounter = fMyEBEcal->MaxSMInEB();
+    fMaxTreatedStexCounter = fMyEBEcal.MaxSMInEB();
   }  // EB: Stex = SM
   if (fStexName == "Dee") {
-    fMaxTreatedStexCounter = fMyEEEcal->MaxDeeInEE();
+    fMaxTreatedStexCounter = fMyEEEcal.MaxDeeInEE();
   }  // EE: Stex = Dee
 
-  fStexNbOfTreatedEvents = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fStexNbOfTreatedEvents[i] = 0;
-  }
+  fStexNbOfTreatedEvents = std::vector<Int_t>(fMaxTreatedStexCounter, 0);
 
-  fTimeFirst = new time_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fTimeFirst[i] = 0;
-  }
-  fTimeLast = new time_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fTimeLast[i] = 0;
-  }
+  fTimeFirst = std::vector<time_t>(fMaxTreatedStexCounter, 0);
+  fTimeLast = std::vector<time_t>(fMaxTreatedStexCounter, 0);
 
-  fMemoDateFirstEvent = new Int_t[fMaxTreatedStexCounter];
-  ;
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fMemoDateFirstEvent[i] = 0;
-  }
+  fMemoDateFirstEvent = std::vector<Int_t>(fMaxTreatedStexCounter, 0);
 
   Int_t MaxCar = fgMaxCar;
-  fDateFirst = new TString[fMaxTreatedStexCounter];
+  fDateFirst = std::vector<TString>(fMaxTreatedStexCounter);
   for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
     fDateFirst[i].Resize(MaxCar);
     fDateFirst[i] = "*1st event date not found*";
   }
 
   MaxCar = fgMaxCar;
-  fDateLast = new TString[fMaxTreatedStexCounter];
+  fDateLast = std::vector<TString>(fMaxTreatedStexCounter);
   for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
     fDateLast[i].Resize(MaxCar);
     fDateLast[i] = "*last event date not found*";
   }
 
-  fStexStatus = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fStexStatus[i] = 0;
-  }
+  fStexStatus = std::vector(fMaxTreatedStexCounter, 0);
+  fStexDigiOK = std::vector(fMaxTreatedStexCounter, 0);
 
-  fStexDigiOK = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fStexDigiOK[i] = 0;
-  }
-
-  fNbOfTreatedFedsInDee = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fNbOfTreatedFedsInDee[i] = 0;
-  }
-
-  fNbOfTreatedFedsInStex = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fNbOfTreatedFedsInStex[i] = 0;
-  }
+  fNbOfTreatedFedsInDee = std::vector(fMaxTreatedStexCounter, 0);
+  fNbOfTreatedFedsInStex = std::vector(fMaxTreatedStexCounter, 0);
 
   //.......................... counters of events for GetSampleAdcValues
-  fBuildEventDistribBad = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fBuildEventDistribBad[i] = 0;
-  }
+  fBuildEventDistribBad = std::vector(fMaxTreatedStexCounter, 0);
 
-  fBuildEventDistribGood = new Int_t[fMaxTreatedStexCounter];
-  for (Int_t i = 0; i < fMaxTreatedStexCounter; i++) {
-    fBuildEventDistribGood[i] = 0;
-  }
+  fBuildEventDistribGood = std::vector(fMaxTreatedStexCounter, 0);
 
   //----------------------------------- Analysis name codes
   //------------------------------------------
@@ -475,7 +372,7 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
   if (fStexNumber == 0) {
     if (fStexName == "SM") {
       fSMIndexBegin = 0;
-      fSMIndexStop = fMyEBEcal->MaxSMInEB();
+      fSMIndexStop = fMyEBEcal.MaxSMInEB();
       fStexIndexBegin = fSMIndexBegin;
       fStexIndexStop = fSMIndexStop;
       fDeeIndexBegin = 0;
@@ -485,7 +382,7 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
       fSMIndexBegin = 0;
       fSMIndexStop = 0;
       fDeeIndexBegin = 0;
-      fDeeIndexStop = fMyEEEcal->MaxDeeInEE();
+      fDeeIndexStop = fMyEEEcal.MaxDeeInEE();
       fStexIndexBegin = fDeeIndexBegin;
       fStexIndexStop = fDeeIndexStop;
     }
@@ -510,9 +407,6 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet &pSet)
 
   //......... DATA DEPENDENT PARAMETERS
   fRunNumber = 0;
-
-  fMyCnaEBSM = nullptr;
-  fMyCnaEEDee = nullptr;
 
   fRunTypeNumber = -1;
   fMgpaGainNumber = -1;
@@ -543,17 +437,14 @@ EcnaAnalyzer::~EcnaAnalyzer() {
   //..................................... format numerical values
   edm::LogVerbatim("ecnaAnal") << "EcnaAnalyzer::~EcnaAnalyzer()> destructor is going to be executed." << std::endl;
 
-  delete fMyEcnaEBObjectManager;
-  delete fMyEcnaEEObjectManager;
-
   if (fOutcomeError == kTRUE)
     return;
 
   //-------------------------------------------------------------------------------
 
   //....................................................... EB (SM)
-  if (fMyCnaEBSM == nullptr && fStexName == "SM") {
-    edm::LogVerbatim("ecnaAnal") << "\n!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEBSM = " << fMyCnaEBSM
+  if (fMyCnaEBSM.empty() && fStexName == "SM") {
+    edm::LogVerbatim("ecnaAnal") << "\n!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEBSM is empty"
                                  << ". !===> ECNA HAS NOT BEEN INITIALIZED."
                                  << "\n  Last event run type = " << runtype(fRunTypeNumber)
                                  << ", fRunTypeNumber = " << fRunTypeNumber
@@ -562,7 +453,7 @@ EcnaAnalyzer::~EcnaAnalyzer() {
                                  << ", last event fFedId(+601) = " << fFedId + 601 << std::endl;
   } else {
     for (Int_t iSM = fSMIndexBegin; iSM < fSMIndexStop; iSM++) {
-      if (fMyCnaEBSM[iSM] != nullptr) {
+      if (fMyCnaEBSM[iSM].get() != nullptr) {
         //........................................ register dates 1 and 2
         fMyCnaEBSM[iSM]->StartStopDate(fDateFirst[iSM], fDateLast[iSM]);
         fMyCnaEBSM[iSM]->StartStopTime(fTimeFirst[iSM], fTimeLast[iSM]);
@@ -582,12 +473,11 @@ EcnaAnalyzer::~EcnaAnalyzer() {
             << "*EcnaAnalyzer-destructor> Calculations and writing on file already done for SM " << iSM + 1;
       }
     }
-    delete fMyCnaEBSM;
   }
   //....................................................... EE (Dee)
 
-  if (fMyCnaEEDee == nullptr && fStexName == "Dee") {
-    edm::LogVerbatim("ecnaAnal") << "\n!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEEDee = " << fMyCnaEEDee
+  if (fMyCnaEEDee.empty() && fStexName == "Dee") {
+    edm::LogVerbatim("ecnaAnal") << "\n!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEEDee is empty"
                                  << ". !===> ECNA HAS NOT BEEN INITIALIZED."
                                  << "\n  Last event run type = " << runtype(fRunTypeNumber)
                                  << ", fRunTypeNumber = " << fRunTypeNumber
@@ -596,7 +486,7 @@ EcnaAnalyzer::~EcnaAnalyzer() {
                                  << ", last event fFedId(+601) = " << fFedId + 601 << std::endl;
   } else {
     for (Int_t iDee = fDeeIndexBegin; iDee < fDeeIndexStop; iDee++) {
-      if (fMyCnaEEDee[iDee] != nullptr) {
+      if (fMyCnaEEDee[iDee].get() != nullptr) {
         //........................................ register dates 1 and 2
         fMyCnaEEDee[iDee]->StartStopDate(fDateFirst[iDee], fDateLast[iDee]);
         fMyCnaEEDee[iDee]->StartStopTime(fTimeFirst[iDee], fTimeLast[iDee]);
@@ -616,7 +506,6 @@ EcnaAnalyzer::~EcnaAnalyzer() {
             << "*EcnaAnalyzer-destructor> Calculations and writing on file already done for Dee " << iDee + 1;
       }
     }
-    delete fMyCnaEEDee;
   }
   edm::LogVerbatim("ecnaAnal") << std::endl;
 
@@ -672,40 +561,6 @@ EcnaAnalyzer::~EcnaAnalyzer() {
   Int_t n0 = 0;
   CheckMsg(n0);
 
-  delete fBuildEventDistribBad;
-  delete fBuildEventDistribGood;
-  delete fSMFromFedTcc;
-  delete fESFromFedTcc;
-  delete fDeeFromFedTcc;
-  delete fFedStatusOrder;
-  delete fDeeNumberString;
-
-  delete fStexDigiOK;
-  delete fStexNbOfTreatedEvents;
-  delete fStexStatus;
-  delete fFedStatus;
-  delete fFedDigiOK;
-  delete fFedNbOfTreatedEvents;
-  delete fNbOfTreatedFedsInDee;
-  delete fNbOfTreatedFedsInStex;
-
-  delete fTimeFirst;
-  delete fTimeLast;
-  delete fDateFirst;
-  delete fDateLast;
-  delete fMemoDateFirstEvent;
-
-  delete fMyEBNumbering;
-  delete fMyEENumbering;
-
-  delete fMyEBEcal;
-  delete fMyEEEcal;
-
-  delete fRunTypeCounter;
-  delete fMgpaGainCounter;
-  delete fFedIdCounter;
-  delete fCounterQuad;
-
   edm::LogVerbatim("ecnaAnal") << "*EcnaAnalyzer-destructor> End of execution.";
 }
 // end of destructor
@@ -731,7 +586,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
     iFreq = 10000;
   }
 
-  Int_t MaxSMAndDS = fMyEBEcal->MaxSMInEB() + fMyEEEcal->MaxDSInEE();
+  Int_t MaxSMAndDS = fMyEBEcal.MaxSMInEB() + fMyEEEcal.MaxDSInEE();
 
   //********************************************* EVENT TREATMENT
   //********************************
@@ -818,7 +673,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
           if (fFedTcc < 10 || fFedTcc > 45)
             return;
 
-          if (fSMFromFedTcc[fFedTcc - 1] >= 1 && fSMFromFedTcc[fFedTcc - 1] <= fMyEBEcal->MaxSMInEB() &&
+          if (fSMFromFedTcc[fFedTcc - 1] >= 1 && fSMFromFedTcc[fFedTcc - 1] <= fMyEBEcal.MaxSMInEB() &&
               fStexNbOfTreatedEvents[fSMFromFedTcc[fFedTcc - 1] - 1] >= fReqNbOfEvts)
             return;
         }
@@ -827,7 +682,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
           if (fFedTcc >= 10 && fFedTcc <= 45)
             return;
 
-          if (fESFromFedTcc[fFedTcc - 1] >= 1 && fESFromFedTcc[fFedTcc - 1] <= fMyEEEcal->MaxDSInEE() &&
+          if (fESFromFedTcc[fFedTcc - 1] >= 1 && fESFromFedTcc[fFedTcc - 1] <= fMyEEEcal.MaxDSInEE() &&
               fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc - 1] - 1] >= fReqNbOfEvts)
             return;
         }
@@ -857,27 +712,21 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
   //============================ Ecna init for the pointers array
   //=================================
   //.................................................................. EB (SM)
-  if (fMyCnaEBSM == nullptr && fStexName == "SM") {
-    fMyCnaEBSM = new TEcnaRun *[fMyEBEcal->MaxSMInEB()];
-    for (Int_t i0SM = 0; i0SM < fMyEBEcal->MaxSMInEB(); i0SM++) {
-      fMyCnaEBSM[i0SM] = nullptr;
-    }
+  if (fMyCnaEBSM.empty() && fStexName == "SM") {
+    fMyCnaEBSM.resize(fMyEBEcal.MaxSMInEB());
   }
   //.................................................................. EE (Dee)
-  if (fMyCnaEEDee == nullptr && fStexName == "Dee") {
-    fMyCnaEEDee = new TEcnaRun *[fMyEEEcal->MaxDeeInEE()];
-    for (Int_t iDee = 0; iDee < fMyEEEcal->MaxDeeInEE(); iDee++) {
-      fMyCnaEEDee[iDee] = nullptr;
-    }
+  if (fMyCnaEEDee.empty() && fStexName == "Dee") {
+    fMyCnaEEDee.resize(fMyEEEcal.MaxDeeInEE());
   }
 
   //============================ EVENT TREATMENT ==============================
   Int_t MaxNbOfStex = 0;
   if (fStexName == "SM") {
-    MaxNbOfStex = fMyEBEcal->MaxSMInEB();
+    MaxNbOfStex = fMyEBEcal.MaxSMInEB();
   }
   if (fStexName == "Dee") {
-    MaxNbOfStex = fMyEEEcal->MaxDeeInEE();
+    MaxNbOfStex = fMyEEEcal.MaxDeeInEE();
   }
 
   if ((fStexNumber > 0 && fNbOfTreatedStexs == 0) || (fStexNumber == 0 && fNbOfTreatedStexs < MaxNbOfStex)) {
@@ -915,10 +764,10 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
           Int_t i0SM = id_crystal.ism() - 1;  //   <============== GET the SM number - 1 here
 
           if (i0SM >= 0 && i0SM < fMaxTreatedStexCounter) {
-            if (fMyCnaEBSM[i0SM] == nullptr && fStexStatus[i0SM] != 2) {
+            if (fMyCnaEBSM[i0SM].get() == nullptr && fStexStatus[i0SM] != 2) {
               //=============================== Init Ecna EB
               //===============================
-              fMyCnaEBSM[i0SM] = new TEcnaRun(fMyEcnaEBObjectManager, "EB", fNbOfSamples);
+              fMyCnaEBSM[i0SM] = std::make_unique<TEcnaRun>(&fMyEcnaEBObjectManager, "EB", fNbOfSamples);
               fMyCnaEBSM[i0SM]->GetReadyToReadData(
                   fAnalysisName, fRunNumber, fFirstReqEvent, fLastReqEvent, fReqNbOfEvts, i0SM + 1, fRunTypeNumber);
 
@@ -975,16 +824,16 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                   Int_t iEta = id_crystal.ietaSM();  // ietaSM() : range = [1,85]
                   Int_t iPhi = id_crystal.iphiSM();  // iphiSM() : range = [1,20]
 
-                  Int_t n1SMCrys = (iEta - 1) * (fMyEBEcal->MaxTowPhiInSM() * fMyEBEcal->MaxCrysPhiInTow()) +
-                                   iPhi;                                               // range = [1,1700]
-                  Int_t n1SMTow = fMyEBNumbering->Get1SMTowFrom1SMCrys(n1SMCrys);      // range = [1,68]
-                  Int_t i0TowEcha = fMyEBNumbering->Get0TowEchaFrom1SMCrys(n1SMCrys);  // range = [0,24]
+                  Int_t n1SMCrys = (iEta - 1) * (fMyEBEcal.MaxTowPhiInSM() * fMyEBEcal.MaxCrysPhiInTow()) +
+                                   iPhi;                                              // range = [1,1700]
+                  Int_t n1SMTow = fMyEBNumbering.Get1SMTowFrom1SMCrys(n1SMCrys);      // range = [1,68]
+                  Int_t i0TowEcha = fMyEBNumbering.Get0TowEchaFrom1SMCrys(n1SMCrys);  // range = [0,24]
 
                   Int_t NbOfSamplesFromDigis = digiItr->size();
 
                   EBDataFrame df(*digiItr);
 
-                  if (NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEBEcal->MaxSampADC()) {
+                  if (NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEBEcal.MaxSampADC()) {
                     Double_t adcDBLS = (Double_t)0;
                     // Three 1st samples mean value for Dynamic Base Line
                     // Substraction (DBLS)
@@ -1076,7 +925,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
           }  // iX_data : range = [50,1],   iX : range = [1,50]
 
           Int_t n1DeeCrys =
-              (iX - 1) * (fMyEEEcal->MaxSCIYInDee() * fMyEEEcal->MaxCrysIYInSC()) + iY;  // n1DeeCrys: range = [1,5000]
+              (iX - 1) * (fMyEEEcal.MaxSCIYInDee() * fMyEEEcal.MaxCrysIYInSC()) + iY;  // n1DeeCrys: range = [1,5000]
 
           Int_t n1DeeNumber = 0;
           if (i_quad == 1 && i_sgnZ == 1) {
@@ -1107,10 +956,10 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
           Int_t i0Dee = n1DeeNumber - 1;  //   <============== GET the Dee number - 1 here
 
           if (i0Dee >= 0 && i0Dee < fMaxTreatedStexCounter) {
-            if (fMyCnaEEDee[i0Dee] == nullptr && fStexStatus[i0Dee] != 2) {
+            if (fMyCnaEEDee[i0Dee].get() == nullptr && fStexStatus[i0Dee] != 2) {
               //=============================== Init Ecna EE
               //===============================
-              fMyCnaEEDee[i0Dee] = new TEcnaRun(fMyEcnaEEObjectManager, "EE", fNbOfSamples);
+              fMyCnaEEDee[i0Dee] = std::make_unique<TEcnaRun>(&fMyEcnaEEObjectManager, "EE", fNbOfSamples);
               fMyCnaEEDee[i0Dee]->GetReadyToReadData(
                   fAnalysisName, fRunNumber, fFirstReqEvent, fLastReqEvent, fReqNbOfEvts, i0Dee + 1, fRunTypeNumber);
 
@@ -1216,15 +1065,15 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 //=============================================> cut on i0Dee
                 // value
                 if ((fStexNumber > 0 && i0Dee == fStexNumber - 1) || (fStexNumber == 0)) {
-                  TString sDir = fMyEENumbering->GetDeeDirViewedFromIP(n1DeeNumber);
-                  Int_t n1DeeSCEcna = fMyEENumbering->Get1DeeSCEcnaFrom1DeeCrys(n1DeeCrys, sDir);
-                  Int_t i0SCEcha = fMyEENumbering->Get1SCEchaFrom1DeeCrys(n1DeeCrys, sDir) - 1;
+                  TString sDir = fMyEENumbering.GetDeeDirViewedFromIP(n1DeeNumber);
+                  Int_t n1DeeSCEcna = fMyEENumbering.Get1DeeSCEcnaFrom1DeeCrys(n1DeeCrys, sDir);
+                  Int_t i0SCEcha = fMyEENumbering.Get1SCEchaFrom1DeeCrys(n1DeeCrys, sDir) - 1;
 
                   Int_t NbOfSamplesFromDigis = digiItr->size();
 
                   EEDataFrame df(*digiItr);
 
-                  if (NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEEEcal->MaxSampADC()) {
+                  if (NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEEEcal.MaxSampADC()) {
                     Double_t adcDBLS = (Double_t)0;
                     // Three 1st samples mean value for Dynamic Base Line
                     // Substraction (DBLS)
@@ -1427,7 +1276,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
 
       //================================= WRITE RESULTS FILE
       if (fStexName == "SM") {
-        if (fMyCnaEBSM[i0Stex] != nullptr) {
+        if (fMyCnaEBSM[i0Stex].get() != nullptr) {
           //........................................ register dates 1 and 2
           fMyCnaEBSM[i0Stex]->StartStopDate(fDateFirst[i0Stex], fDateLast[i0Stex]);
           fMyCnaEBSM[i0Stex]->StartStopTime(fTimeFirst[i0Stex], fTimeLast[i0Stex]);
@@ -1445,13 +1294,12 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         }
         // set pointer to zero in order to avoid recalculation and rewriting at
         // the destructor level
-        delete fMyCnaEBSM[i0Stex];
-        fMyCnaEBSM[i0Stex] = nullptr;
+        fMyCnaEBSM[i0Stex].reset();
         edm::LogVerbatim("ecnaAnal") << "!EcnaAnalyzer::analyze> Set memory free: delete done for SM " << i0Stex + 1;
       }
 
       if (fStexName == "Dee") {
-        if (fMyCnaEEDee[i0Stex] != nullptr) {
+        if (fMyCnaEEDee[i0Stex].get() != nullptr) {
           //........................................ register dates 1 and 2
           fMyCnaEEDee[i0Stex]->StartStopDate(fDateFirst[i0Stex], fDateLast[i0Stex]);
           fMyCnaEEDee[i0Stex]->StartStopTime(fTimeFirst[i0Stex], fTimeLast[i0Stex]);
@@ -1469,8 +1317,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         }
         // set pointer to zero in order to avoid recalculation and rewriting at
         // the destructor level
-        delete fMyCnaEEDee[i0Stex];
-        fMyCnaEEDee[i0Stex] = nullptr;
+        fMyCnaEEDee[i0Stex].reset();
         edm::LogVerbatim("ecnaAnal") << "!EcnaAnalyzer::analyze> Set memory free: delete done for Dee " << i0Stex + 1;
       }
 
@@ -1490,10 +1337,10 @@ Bool_t EcnaAnalyzer::AnalysisOutcome(const TString &s_opt) {
   if (s_opt == "EVT") {
     Int_t MaxNbOfStex = 0;
     if (fStexName == "SM") {
-      MaxNbOfStex = fMyEBEcal->MaxSMInEB();
+      MaxNbOfStex = fMyEBEcal.MaxSMInEB();
     }
     if (fStexName == "Dee") {
-      MaxNbOfStex = fMyEEEcal->MaxDeeInEE();
+      MaxNbOfStex = fMyEEEcal.MaxDeeInEE();
     }
 
     if (((fStexNumber > 0 && fNbOfTreatedStexs == 1) || (fStexNumber == 0 && fNbOfTreatedStexs == MaxNbOfStex)) &&

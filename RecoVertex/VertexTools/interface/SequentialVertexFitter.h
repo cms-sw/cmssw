@@ -164,6 +164,22 @@ public:
 
   const AbstractLTSFactory<N>* linearizedTrackStateFactory() const { return theLTrackFactory; }
 
+  /**
+  * Method checking whether a point is within the "tracker" bounds.
+  * The default values are set to the CMS inner tracker and vertices
+  * outsides these bounds will be rejected.
+  * To reconstruct vertices within the full detector including the 
+  * muon system, set the tracker bounds to larger values.
+  */
+  const bool insideTrackerBounds(const GlobalPoint& point) const {
+    return ((point.transverse() < trackerBoundsRadius) && (abs(point.z()) < trackerBoundsHalfLength));
+  }
+
+  void setTrackerBounds(float radius, float halfLength) {
+    trackerBoundsRadius = radius;
+    trackerBoundsHalfLength = halfLength;
+  }
+
 protected:
   /**
    *   Default constructor. Is here, as we do not want anybody to use it.
@@ -225,6 +241,10 @@ private:
 
   float theMaxShift;
   int theMaxStep;
+
+  // FIXME using hard-coded tracker bounds as default instead of taking them from geometry service
+  float trackerBoundsRadius{112.};
+  float trackerBoundsHalfLength{273.5};
 
   edm::ParameterSet thePSet;
   LinearizationPointFinder* theLinP;

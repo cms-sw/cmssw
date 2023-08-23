@@ -473,10 +473,14 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
     }
 
   } else {
+#ifdef EDM_ML_DEBUG
     int rT = 0;
+#endif
     const TrajTrackAssociationCollection ttac = *(hTTAC.product());
     for (TrajTrackAssociationCollection::const_iterator it = ttac.begin(); it != ttac.end(); ++it) {
+#ifdef EDM_ML_DEBUG
       ++rT;
+#endif
       const edm::Ref<std::vector<Trajectory>> refTraj = it->key;
       auto track = it->val;
       trkIsHighPurity_ = track->quality(reco::TrackBase::highPurity);
@@ -485,7 +489,6 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
       trkTheta_ = track->theta();
       trkPhi_ = track->phi();
 
-      int iT = 0;
 #ifdef EDM_ML_DEBUG
       std::cout << " num of hits for track " << rT << " = " << track->recHitsSize() << std::endl;
 #endif
@@ -503,7 +506,6 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es) 
           continue;
         if (!pixhit->isValid())
           continue;
-        ++iT;
         TrajectoryStateOnSurface tsos = tsoscomb(tmeasIt.forwardPredictedState(), tmeasIt.backwardPredictedState());
         const DetId& detId = hit->geographicalId();
         const GeomDet* geomDet(theGeometry->idToDet(detId));

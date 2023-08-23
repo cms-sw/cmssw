@@ -137,15 +137,12 @@ void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &
   MapTypeSim myMap;
   MapTypeSeg myMapSeg;
 
-  int countST = 0;
-
   edm::SimTrackContainer::const_iterator simTrack;
   for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     edm::PSimHitContainer selectedME0Hits;
 
     if (!isSimTrackGood(simTrack))
       continue;
-    int count = 0;
 
     for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit) {
       int particleType_sh = itHit->particleType();
@@ -156,7 +153,6 @@ void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &
         continue;
 
       if (isSimMatched(simTrack, itHit)) {
-        ++count;
         selectedME0Hits.push_back(*itHit);
         ;
       }
@@ -168,7 +164,6 @@ void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &
       me0_simsegment_eta->Fill(std::abs((*simTrack).momentum().eta()));
       me0_simsegment_pt->Fill((*simTrack).momentum().pt());
       me0_simsegment_phi->Fill((*simTrack).momentum().phi());
-      ++countST;
     }
   }
 

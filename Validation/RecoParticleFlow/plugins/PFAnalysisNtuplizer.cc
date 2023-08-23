@@ -1176,17 +1176,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
   for (const auto& detids : detids_elements) {
     int isimcluster = 0;
     if (!detids.empty()) {
-      double sum_e_tot = 0.0;
-      for (const auto& c : detids) {
-        sum_e_tot += c.second;
-      }
-
       for (const auto& simcluster_detids : simcluster_detids_) {
-        double sum_e_tot_sc = 0.0;
-        for (const auto& c : simcluster_detids) {
-          sum_e_tot_sc += c.second;
-        }
-
         //get the energy of the simcluster hits that matches detids of the rechits
         double cmp = detid_compare(detids, simcluster_detids);
         if (cmp > 0) {

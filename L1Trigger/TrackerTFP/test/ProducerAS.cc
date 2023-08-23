@@ -89,7 +89,7 @@ namespace trackerTFP {
             ttTrackMap.emplace(TTTrackRef(handleTT, i++), frame.first);
     }
     // store products
-    iEvent.emplace(edPutToken_, move(ttTrackMap));
+    iEvent.emplace(edPutToken_, std::move(ttTrackMap));
   }
 
 }  // namespace trackerTFP

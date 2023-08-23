@@ -16,6 +16,8 @@
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
@@ -23,16 +25,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-
-//#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-//#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-//#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-//#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
 class TrackerTopology;
 
@@ -260,6 +254,7 @@ public:
 
   explicit ResidualRefitting(const edm::ParameterSet&);
   ~ResidualRefitting() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
@@ -278,8 +273,8 @@ public:
                         ResidualRefitting::storage_trackExtrap& trackExtrap,
                         const edm::EventSetup& eventSetup);
   void StoreTrackerRecHits(DetId detid, const TrackerTopology* tTopo, int iTrack, int iRec);
-  void NewTrackMeasurements(edm::Handle<reco::TrackCollection> trackCollOrig,
-                            edm::Handle<reco::TrackCollection> trackColl,
+  void NewTrackMeasurements(const edm::Handle<reco::TrackCollection>& trackCollOrig,
+                            const edm::Handle<reco::TrackCollection>& trackColl,
                             ResidualRefitting::storage_trackExtrap& trackExtrap);
   int MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt, edm::Handle<reco::TrackCollection> ref);
 
@@ -332,14 +327,16 @@ public:
   std::string PropagatorSource_;
 
   // names of product labels
-  edm::InputTag tracks_, muons_, muonsRemake_, muonsNoStation1_, muonsNoStation2_, muonsNoStation3_,
-      muonsNoStation4_,  //Global Muon Collections
-      muonsNoPXBLayer1_, muonsNoPXBLayer2_, muonsNoPXBLayer3_, muonsNoPXF_, muonsNoTIBLayer1_, muonsNoTIBLayer2_,
-      muonsNoTIBLayer3_, muonsNoTIBLayer4_, muonsNoTID_, muonsNoTOBLayer1_, muonsNoTOBLayer2_, muonsNoTOBLayer3_,
-      muonsNoTOBLayer4_, muonsNoTOBLayer5_, muonsNoTOBLayer6_, muonsNoTEC_;
-  //	   tjTag;
+  const edm::InputTag tracks_, muons_, muonsRemake_, muonsNoStation1_, muonsNoStation2_, muonsNoStation3_,
+      muonsNoStation4_;  //Global Muon Collections
 
-  bool debug_;
+  const bool debug_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonsToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> muonTracksToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> muonsNoSt1Token_;
+  const edm::EDGetTokenT<reco::TrackCollection> muonsNoSt2Token_;
+  const edm::EDGetTokenT<reco::TrackCollection> muonsNoSt3Token_;
+  const edm::EDGetTokenT<reco::TrackCollection> muonsNoSt4Token_;
 
   // output ROOT file
   TFile* outputFile_;

@@ -64,7 +64,7 @@ public:
   L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC);
 
   /// destructor
-  virtual ~L1MuDTTrackFinder();
+  ~L1MuDTTrackFinder();
 
   /// build the structure of the barrel MTTF
   void setup(edm::ConsumesCollector&& iC);
@@ -79,13 +79,13 @@ public:
   const L1MuDTSectorProcessor* sp(const L1MuDTSecProcId&) const;
 
   /// get a pointer to an Eta Processor, index [0-11]
-  inline const L1MuDTEtaProcessor* ep(int id) const { return m_epvec[id]; }
+  inline const L1MuDTEtaProcessor* ep(int id) const { return m_epvec[id].get(); }
 
   /// get a pointer to a Wedge Sorter, index [0-11]
-  inline const L1MuDTWedgeSorter* ws(int id) const { return m_wsvec[id]; }
+  inline const L1MuDTWedgeSorter* ws(int id) const { return m_wsvec[id].get(); }
 
   /// get a pointer to the DT Muon Sorter
-  inline const L1MuDTMuonSorter* ms() const { return m_ms; }
+  inline const L1MuDTMuonSorter* ms() const { return m_ms.get(); }
 
   /// get number of muon candidates found by the barrel MTTF
   int numberOfTracks();
@@ -100,29 +100,22 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  static L1MuDTTFConfig* config() { return m_config.get(); }
+  const L1MuDTTFConfig* config() const { return m_config.get(); }
 
   std::vector<L1MuDTTrackCand>& getcache0() { return _cache0; }
 
   std::vector<L1MuRegionalCand>& getcache() { return _cache; }
 
 private:
-  /// run Track Finder and store candidates in cache
-  virtual void reconstruct(const edm::Event& e, const edm::EventSetup& c) {
-    reset();
-    run(e, c);
-  }
-
-private:
   std::vector<L1MuDTTrackCand> _cache0;
   std::vector<L1MuRegionalCand> _cache;
-  L1MuDTSecProcMap* m_spmap;                 ///< Sector Processors
-  std::vector<L1MuDTEtaProcessor*> m_epvec;  ///< Eta Processors
-  std::vector<L1MuDTWedgeSorter*> m_wsvec;   ///< Wedge Sorters
-  L1MuDTMuonSorter* m_ms;                    ///< DT Muon Sorter
+  std::unique_ptr<L1MuDTSecProcMap> m_spmap;                 ///< Sector Processors
+  std::vector<std::unique_ptr<L1MuDTEtaProcessor>> m_epvec;  ///< Eta Processors
+  std::vector<std::unique_ptr<L1MuDTWedgeSorter>> m_wsvec;   ///< Wedge Sorters
+  std::unique_ptr<L1MuDTMuonSorter> m_ms;                    ///< DT Muon Sorter
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 
-  static std::shared_ptr<L1MuDTTFConfig> m_config;  ///< Track Finder configuration
+  std::unique_ptr<L1MuDTTFConfig> m_config;  ///< Track Finder configuration
 };
 
 #endif

@@ -56,6 +56,7 @@ HGCSD::HGCSD(const std::string& name,
   double waferSize = m_HGC.getUntrackedParameter<double>("WaferSize") * CLHEP::mm;
   double mouseBite = m_HGC.getUntrackedParameter<double>("MouseBite") * CLHEP::mm;
   mouseBiteCut_ = waferSize * tan(30.0 * CLHEP::deg) - mouseBite;
+  dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -121,13 +122,13 @@ double HGCSD::getEnergyDeposit(const G4Step* aStep) {
 #ifdef plotDebug
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   G4double tmptrackE = aStep->GetTrack()->GetKineticEnergy();
-  G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4int parCodex = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
   G4double angle = (aStep->GetTrack()->GetMomentumDirection().theta()) / CLHEP::deg;
   G4int layer = ((touch->GetHistoryDepth() == levelT_) ? touch->GetReplicaNumber(0) : touch->GetReplicaNumber(2));
   G4int ilayer = (layer - 1) / 3;
   if (aStep->GetTotalEnergyDeposit() > 0) {
     t_Layer_.emplace_back(ilayer);
-    t_Parcode_.emplace_back(parCode);
+    t_Parcode_.emplace_back(parCodex);
     t_dEStep1_.emplace_back(aStep->GetTotalEnergyDeposit());
     t_dEStep2_.emplace_back(destep);
     t_TrackE_.emplace_back(tmptrackE);
@@ -153,29 +154,30 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
   //get the det unit id with
   ForwardSubdetector subdet = myFwdSubdet_;
 
-  int layer, module, cell;
+  int layer(-1), moduleLev(-1), module(-1), cell(-1);
   if (touch->GetHistoryDepth() == levelT_) {
     layer = touch->GetReplicaNumber(0);
-    module = -1;
-    cell = -1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
-                               << " layer:module:cell " << layer << ":" << module << ":" << cell;
+                               << " layer:module:cell " << layer << ":" << moduleLev << ":" << module << ":" << cell;
 #endif
   } else {
     layer = touch->GetReplicaNumber(2);
     module = touch->GetReplicaNumber(1);
     cell = touch->GetReplicaNumber(0);
+    moduleLev = 1;
   }
 #ifdef EDM_ML_DEBUG
   const G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
   edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
                              << ":" << touch->GetReplicaNumber(0) << "   " << touch->GetVolume(1)->GetName() << ":"
                              << touch->GetReplicaNumber(1) << "   " << touch->GetVolume(2)->GetName() << ":"
-                             << touch->GetReplicaNumber(2) << "    layer:module:cell " << layer << ":" << module << ":"
-                             << cell << " Material " << mat->GetName() << ":" << mat->GetRadlen();
-//for (int k = 0; k< touch->GetHistoryDepth(); ++k)
-//  edm::LogVerbatim("HGCSim") << "Level [" << k << "] " << touch->GetVolume(k)->GetName() << ":" << touch->GetReplicaNumber(k);
+                             << touch->GetReplicaNumber(2) << "    layer:module:cell " << layer << ":" << moduleLev
+                             << ":" << module << ":" << cell << " Material " << mat->GetName() << ":"
+                             << mat->GetRadlen();
+  for (int k = 0; k < touch->GetHistoryDepth(); ++k)
+    edm::LogVerbatim("HGCSim") << "Level [" << k << "] " << touch->GetVolume(k)->GetName() << ":"
+                               << touch->GetReplicaNumber(k);
 #endif
   // The following statement should be examined later before elimination
   // VI: this is likely a check if media is vacuum - not needed
@@ -192,7 +194,9 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
                                << " Decode " << det << ":" << z << ":" << lay << ":" << wafer << ":" << type << ":"
                                << ic;
 #endif
-    if (mouseBite_->exclude(hitPoint, z, wafer, 0))
+    G4ThreeVector local =
+        ((moduleLev >= 0) ? (touch->GetHistory()->GetTransform(moduleLev).TransformPoint(hitPoint)) : G4ThreeVector());
+    if (mouseBite_->exclude(local, z, layer, wafer, 0))
       id = 0;
   }
   return id;
@@ -203,6 +207,8 @@ void HGCSD::update(const BeginOfJob* job) {
     geom_mode_ = hgcons_->geomMode();
     slopeMin_ = hgcons_->minSlope();
     levelT_ = hgcons_->levelTop();
+    if (dd4hep_)
+      ++levelT_;
     numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons_, nameX_);
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
@@ -212,7 +218,7 @@ void HGCSD::update(const BeginOfJob* job) {
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
-                             << " top Level " << levelT_;
+                             << " top Level " << levelT_ << " dd4hep " << dd4hep_;
 #endif
 }
 

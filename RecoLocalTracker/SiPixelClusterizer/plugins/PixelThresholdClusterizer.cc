@@ -120,80 +120,8 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit* pixDet) {
 
   return true;
 }
-//----------------------------------------------------------------------------
-//!  \brief Cluster pixels.
-//!  This method operates on a matrix of pixels
-//!  and finds the largest contiguous cluster around
-//!  each seed pixel.
-//!  Input and output data stored in DetSet
-//----------------------------------------------------------------------------
-template <typename T>
-void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
-                                                   const PixelGeomDetUnit* pixDet,
-                                                   const TrackerTopology* tTopo,
-                                                   const std::vector<short>& badChannels,
-                                                   edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
-  typename T::const_iterator begin = input.begin();
-  typename T::const_iterator end = input.end();
 
-  // this should never happen and the raw2digi does not create empty detsets
-  if (begin == end) {
-    edm::LogError("PixelThresholdClusterizer") << "@SUB=PixelThresholdClusterizer::clusterizeDetUnitT()"
-                                               << " No digis to clusterize";
-  }
-
-  //  Set up the clusterization on this DetId.
-  if (!setup(pixDet))
-    return;
-
-  theDetid = input.detId();
-
-  // Set separate cluster threshold for L1 (needed for phase1)
-  auto clusterThreshold = theClusterThreshold;
-  theLayer = (DetId(theDetid).subdetId() == 1) ? tTopo->pxbLayer(theDetid) : 0;
-  if (theLayer == 1)
-    clusterThreshold = theClusterThreshold_L1;
-
-  //  Copy PixelDigis to the buffer array; select the seed pixels
-  //  on the way, and store them in theSeeds.
-  if (end > begin)
-    copy_to_buffer(begin, end);
-
-  assert(output.empty());
-  //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
-  for (unsigned int i = 0; i < theSeeds.size(); i++) {
-    // Gavril : The charge of seeds that were already inlcuded in clusters is set to 1 electron
-    // so we don't want to call "make_cluster" for these cases
-    if (theBuffer(theSeeds[i]) >= theSeedThreshold) {  // Is this seed still valid?
-      //  Make a cluster around this seed
-      SiPixelCluster&& cluster = make_cluster(theSeeds[i], output);
-
-      //  Check if the cluster is above threshold
-      // (TO DO: one is signed, other unsigned, gcc warns...)
-      if (cluster.charge() >= clusterThreshold) {
-        // sort by row (x)
-        output.push_back(std::move(cluster));
-        std::push_heap(output.begin(), output.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
-          return cl1.minPixelRow() < cl2.minPixelRow();
-        });
-      }
-    }
-  }
-  // sort by row (x)   maybe sorting the seed would suffice....
-  std::sort_heap(output.begin(), output.end(), [](SiPixelCluster const& cl1, SiPixelCluster const& cl2) {
-    return cl1.minPixelRow() < cl2.minPixelRow();
-  });
-
-  // Erase the seeds.
-  theSeeds.clear();
-
-  //  Need to clean unused pixels from the buffer array.
-  clear_buffer(begin, end);
-
-  theFakePixels.clear();
-
-  thePixelOccurrence.clear();
-}
+#include "PixelThresholdClusterizer.icc"
 
 //----------------------------------------------------------------------------
 //!  \brief Clear the internal buffer array.
@@ -294,7 +222,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
 
     if (adc < 100)
       adc = 100;  // put all negative pixel charges into the 100 elec bin
-    /* This is semi-random good number. The exact number (in place of 100) is irrelevant from the point 
+    /* This is semi-random good number. The exact number (in place of 100) is irrelevant from the point
        of view of the final cluster charge since these are typically >= 20000.
     */
 
@@ -444,7 +372,7 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   /*  this is not possible as dead and noisy pixel cannot make it into a seed...
   if ( doMissCalibrate &&
-       (theSiPixelGainCalibrationService_->isDead(theDetid,pix.col(),pix.row()) || 
+       (theSiPixelGainCalibrationService_->isDead(theDetid,pix.col(),pix.row()) ||
 	theSiPixelGainCalibrationService_->isNoisy(theDetid,pix.col(),pix.row())) )
     {
       std::cout << "IMPOSSIBLE" << std::endl;
@@ -489,15 +417,15 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
         }
 
         /* //Commenting out the addition of dead pixels to the cluster until further testing -- dfehling 06/09
-	      //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors 
-	      else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){ 
+	      //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors
+	      else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){
 	      //Check for dead/noisy pixels check that the buffer is not -1 (already considered).  Check whether we want to split clusters separated by dead pixels or not.
 	      if((theSiPixelGainCalibrationService_->isDead(theDetid,c,r) || theSiPixelGainCalibrationService_->isNoisy(theDetid,c,r)) && theBuffer(r,c) != 1){
-	      
-	      //If a pixel is dead or noisy, check to see if we want to split the clusters or not.  
+
+	      //If a pixel is dead or noisy, check to see if we want to split the clusters or not.
 	      //Push it into a dead pixel stack in case we want to split the clusters.  Otherwise add it to the cluster.
    	      //If we are splitting the clusters, we will iterate over the dead pixel stack later.
-	      
+
 	      SiPixelCluster::PixelPos newpix(r,c);
 	      if(!doSplitClusters){
 
@@ -505,10 +433,10 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 	      else if(doSplitClusters){
 	      dead_pixel_stack.push(newpix);
 	      dead_flag = true;}
-	      
+
 	      theBuffer.set_adc(newpix, 1);
-	      } 
-	      
+	      }
+
 	      }
 	      */
       }

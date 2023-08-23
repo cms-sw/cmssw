@@ -10,9 +10,32 @@
 #include <map>
 #include <iostream>
 
-HcalTimeSlewEP::HcalTimeSlewEP(const edm::ParameterSet& pset) : pset_(pset) {
+HcalTimeSlewEP::HcalTimeSlewEP(const edm::ParameterSet& pset) {
   setWhatProduced(this);
   findingRecord<HcalTimeSlewRecord>();
+
+  //Two pset sets for M2/Simulation and M3
+  std::vector<edm::ParameterSet> p_TimeSlewM2 =
+      pset.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM2");
+  std::vector<edm::ParameterSet> p_TimeSlewM3 =
+      pset.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM3");
+
+  //loop over the VPSets
+  for (const auto& p_timeslew : p_TimeSlewM2) {
+    m2parameters_.push_back({static_cast<float>(p_timeslew.getParameter<double>("tzero")),
+                             static_cast<float>(p_timeslew.getParameter<double>("slope")),
+                             static_cast<float>(p_timeslew.getParameter<double>("tmax"))});
+  }
+
+  for (const auto& p_timeslew : p_TimeSlewM3) {
+    m3parameters_.push_back({p_timeslew.getParameter<double>("cap"),
+                             p_timeslew.getParameter<double>("tspar0"),
+                             p_timeslew.getParameter<double>("tspar1"),
+                             p_timeslew.getParameter<double>("tspar2"),
+                             p_timeslew.getParameter<double>("tspar0_siPM"),
+                             p_timeslew.getParameter<double>("tspar1_siPM"),
+                             p_timeslew.getParameter<double>("tspar2_siPM")});
+  }
 }
 
 HcalTimeSlewEP::~HcalTimeSlewEP() {}
@@ -49,31 +72,15 @@ void HcalTimeSlewEP::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
 // ------------ method called to produce the data  ------------
 HcalTimeSlewEP::ReturnType HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord) {
-  //Two pset sets for M2/Simulation and M3
-  std::vector<edm::ParameterSet> p_TimeSlewM2 =
-      pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM2");
-  std::vector<edm::ParameterSet> p_TimeSlewM3 =
-      pset_.getParameter<std::vector<edm::ParameterSet>>("timeSlewParametersM3");
-
   ReturnType hcalTimeSlew = std::make_unique<HcalTimeSlew>();
 
   //loop over the VPSets
-  for (const auto& p_timeslew : p_TimeSlewM2) {
-    float t0 = p_timeslew.getParameter<double>("tzero");
-    float m = p_timeslew.getParameter<double>("slope");
-    float tmaximum = p_timeslew.getParameter<double>("tmax");
-    hcalTimeSlew->addM2ParameterSet(t0, m, tmaximum);
+  for (const auto& p : m2parameters_) {
+    hcalTimeSlew->addM2ParameterSet(p.t0, p.m, p.tmaximum);
   }
 
-  for (const auto& p_timeslew : p_TimeSlewM3) {
-    double cap_ = p_timeslew.getParameter<double>("cap");
-    double tspar0_ = p_timeslew.getParameter<double>("tspar0");
-    double tspar1_ = p_timeslew.getParameter<double>("tspar1");
-    double tspar2_ = p_timeslew.getParameter<double>("tspar2");
-    double tspar0_siPM_ = p_timeslew.getParameter<double>("tspar0_siPM");
-    double tspar1_siPM_ = p_timeslew.getParameter<double>("tspar1_siPM");
-    double tspar2_siPM_ = p_timeslew.getParameter<double>("tspar2_siPM");
-    hcalTimeSlew->addM3ParameterSet(cap_, tspar0_, tspar1_, tspar2_, tspar0_siPM_, tspar1_siPM_, tspar2_siPM_);
+  for (const auto& p : m3parameters_) {
+    hcalTimeSlew->addM3ParameterSet(p.cap, p.tspar0, p.tspar1, p.tspar2, p.tspar0_siPM, p.tspar1_siPM, p.tspar2_siPM);
   }
 
   return hcalTimeSlew;

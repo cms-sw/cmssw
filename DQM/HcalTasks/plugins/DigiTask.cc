@@ -790,7 +790,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       lumiCache->EvtCntLS == 1) {  // Reset the bin for _cCapid_BadvsFEDvsLSmod60 at the beginning of each new LS
     for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
       HcalElectronicsId eid = HcalElectronicsId(*it);
-      _cCapid_BadvsFEDvsLSmod60.setBinContent(eid, _currentLS % 50, 0);
+      _cCapid_BadvsFEDvsLSmod60.setBinContent(eid, _currentLS % 60, 0);
     }
   }
 

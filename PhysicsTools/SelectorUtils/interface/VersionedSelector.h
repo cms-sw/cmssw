@@ -59,7 +59,7 @@ public:
     unsigned int md_len = 0;
     std::string tracked(conf.trackedPart().dump());
 
-    EVP_DigestInit_ex(mdctx, md, NULL);
+    EVP_DigestInit_ex(mdctx, md, nullptr);
     EVP_DigestUpdate(mdctx, tracked.c_str(), tracked.size());
     EVP_DigestFinal_ex(mdctx, id_md5_, &md_len);
     EVP_MD_CTX_free(mdctx);

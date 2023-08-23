@@ -20,6 +20,7 @@ namespace ecaldqm {
       MEs_.erase(std::string("TrendEventsperLumi"));
       MEs_.erase(std::string("TrendPUperLumi"));
       MEs_.erase(std::string("AELoss"));
+      MEs_.erase(std::string("AEReco"));
     }
   }
 
@@ -124,9 +125,11 @@ namespace ecaldqm {
     MESet& meDigi1D(MEs_.at("Digi1D"));
     MESet& meTrendNDigi(MEs_.at("TrendNDigi"));
     MESet* meAELoss = nullptr;
-    if (onlineMode_)
+    MESet* meAEReco = nullptr;
+    if (onlineMode_) {
       meAELoss = &MEs_.at("AELoss");
-
+      meAEReco = &MEs_.at("AEReco");
+    }
     std::for_each(_digis.begin(), _digis.end(), [&](typename DigiCollection::Digi const& digi) {
       DetId id(digi.id());
       meDigi.fill(getEcalDQMSetupObjects(), id);
@@ -135,8 +138,10 @@ namespace ecaldqm {
       meDigiAll.fill(getEcalDQMSetupObjects(), id);
       meDigiAllByLumi.fill(getEcalDQMSetupObjects(), id);
       meDigiDCC.fill(getEcalDQMSetupObjects(), id);
-      if (onlineMode_)
+      if (onlineMode_) {
         meAELoss->fill(getEcalDQMSetupObjects(), id);
+        meAEReco->fill(getEcalDQMSetupObjects(), id);
+      }
     });
 
     int iSubdet(_collection == kEBDigi ? EcalBarrel : EcalEndcap);
@@ -193,7 +198,7 @@ namespace ecaldqm {
     MESet& meRecHitThr1D(MEs_.at("RecHitThr1D"));
     MESet& meTrendNRecHitThr(MEs_.at("TrendNRecHitThr"));
 
-    uint32_t mask(~(0x1 << EcalRecHit::kGood));
+    uint32_t goodBits(0x1 << EcalRecHit::kGood);
     double nFiltered(0.);
 
     float nRHThrp(0), nRHThrm(0);
@@ -205,7 +210,7 @@ namespace ecaldqm {
       meRecHitProjEta.fill(getEcalDQMSetupObjects(), id);
       meRecHitProjPhi.fill(getEcalDQMSetupObjects(), id);
 
-      if (!hit.checkFlagMask(mask) && hit.energy() > recHitThreshold_) {
+      if (hit.checkFlagMask(goodBits) && hit.energy() > recHitThreshold_) {
         meRecHitThrProjEta.fill(getEcalDQMSetupObjects(), id);
         meRecHitThrProjPhi.fill(getEcalDQMSetupObjects(), id);
         meRecHitThrAll.fill(getEcalDQMSetupObjects(), id);

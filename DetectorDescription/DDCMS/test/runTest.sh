@@ -4,11 +4,11 @@ function die { echo $1: status $2 ; exit $2; }
 
 echo " testing DetectorDescription/DDCMS"
 
-export tmpdir=${LOCAL_TMP_DIR:-/tmp}
+export tmpdir=${PWD}
 echo "===== Test \"python UnitsCheck.py testUnits.xml\" ===="
-python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/testUnits.xml
+python ${SCRAM_TEST_PATH}/python/UnitsCheck.py ${SCRAM_TEST_PATH}/data/testUnits.xml
 
-for entry in "${LOCAL_TEST_DIR}/python"/test*
+for entry in "${SCRAM_TEST_PATH}/python"/test*
 do
   # Skip local DB test
   if ! expr $entry : '.*TGeoIteratorLocalDB.*' > /dev/null ; then

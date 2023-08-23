@@ -70,9 +70,15 @@ namespace gen {
   }
 
   bool Py8InterfaceBase::readSettings(int) {
+    //Pythia 8's default value for first argument to constructor
+    const string xmlDir = "../share/Pythia8/xmldoc";
+    bool printBanner = true;
+    if (fParameters.exists("printBanner")) {
+      printBanner = fParameters.getUntrackedParameter<bool>("printBanner");
+    }
     if (!fMasterGen.get())
-      fMasterGen = std::make_unique<Pythia>();
-    fDecayer = std::make_unique<Pythia>();
+      fMasterGen = std::make_unique<Pythia>(xmlDir, printBanner);
+    fDecayer = std::make_unique<Pythia>(xmlDir, printBanner);
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);
@@ -97,6 +103,11 @@ namespace gen {
     fMasterGen->settings.addParm("PTFilter:scaleToFilter", 0.4, true, true, 0.0, 10.);
     fMasterGen->settings.addParm("PTFilter:quarkRapidity", 10.0, true, true, 0.0, 10.);
     fMasterGen->settings.addParm("PTFilter:quarkPt", -.1, true, true, -.1, 100.);
+
+    //add settings for RecoilToTop tool
+    fMasterGen->settings.addFlag("TopRecoilHook:doTopRecoilIn", false);
+    fMasterGen->settings.addFlag("TopRecoilHook:useOldDipoleIn", false);
+    fMasterGen->settings.addFlag("TopRecoilHook:doListIn", false);
 
     //add settings for powheg resonance scale calculation
     fMasterGen->settings.addFlag("POWHEGres:calcScales", false);

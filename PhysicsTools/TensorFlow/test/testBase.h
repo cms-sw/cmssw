@@ -20,7 +20,8 @@ public:
   void tearDown();
   std::string cmsswPath(std::string path);
 
-  virtual void checkAll() = 0;
+  virtual void test() = 0;
+
   virtual std::string pyScript() const = 0;
 };
 
@@ -30,7 +31,7 @@ void testBase::setUp() {
 
   // create the graph
   std::string testPath = cmsswPath("/src/PhysicsTools/TensorFlow/test");
-  std::string cmd = "python3 " + testPath + "/" + pyScript() + " " + dataPath_;
+  std::string cmd = "python3 -W ignore " + testPath + "/" + pyScript() + " " + dataPath_;
   std::array<char, 128> buffer;
   std::string result;
   std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);

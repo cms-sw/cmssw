@@ -1,8 +1,6 @@
-<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DQMServices/Core"/>
 <export>
-  <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <lib name="1"/>
 </export>

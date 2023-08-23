@@ -1,5 +1,5 @@
-#ifndef SiPixelDigitizerAlgorithm_h
-#define SiPixelDigitizerAlgorithm_h
+#ifndef SimTracker_SiPixelDigitizer_SiPixelDigitizerAlgorithm_h
+#define SimTracker_SiPixelDigitizer_SiPixelDigitizerAlgorithm_h
 
 #include <map>
 #include <memory>
@@ -9,7 +9,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimTracker/Common/interface/SimHitInfoForLinks.h"
+#include "SimTracker/Common/interface/DigitizerUtility.h"
 #include "SimTracker/SiPixelDigitizer/plugins/PixelDigiAddTempInfo.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelSimHitExtraInfo.h"
 #include "DataFormats/Math/interface/approx_exp.h"
@@ -102,59 +102,6 @@ public:
   bool killBadFEDChannels() const;
   typedef std::unordered_map<std::string, PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
   const PixelFEDChannelCollectionMap* quality_map;
-
-  class Amplitude {
-  public:
-    Amplitude() : _amp(0.0) {}
-    Amplitude(float amp, float frac) : _amp(amp), _frac(1, frac) {
-      //in case of digi from noisypixels
-      //the MC information are removed
-      if (_frac[0] < -0.5) {
-        _frac.pop_back();
-      }
-    }
-
-    Amplitude(float amp, const PSimHit* hitp, size_t hitIndex, size_t hitInd4CR, unsigned int tofBin, float frac)
-        : _amp(amp), _frac(1, frac) {
-      //in case of digi from noisypixels
-      //the MC information are removed
-      if (_frac[0] < -0.5) {
-        _frac.pop_back();
-      } else {
-        _hitInfos.emplace_back(hitp, hitIndex, tofBin, hitInd4CR, amp);
-      }
-    }
-
-    // can be used as a float by convers.
-    operator float() const { return _amp; }
-    float ampl() const { return _amp; }
-    const std::vector<float>& individualampl() const { return _frac; }
-    const std::vector<SimHitInfoForLinks>& hitInfos() const { return _hitInfos; }
-
-    void operator+=(const Amplitude& other) {
-      _amp += other._amp;
-      //in case of contribution of noise to the digi
-      //the MC information are removed
-      if (other._frac[0] > -0.5) {
-        if (!other._hitInfos.empty()) {
-          _hitInfos.insert(_hitInfos.end(), other._hitInfos.begin(), other._hitInfos.end());
-        }
-        _frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
-      }
-    }
-    void operator+=(const float& amp) { _amp += amp; }
-
-    void set(const float amplitude) {  // Used to reset the amplitude
-      _amp = amplitude;
-    }
-    /*     void setind (const float indamplitude) {  // Used to reset the amplitude */
-    /*       _frac = idamplitude; */
-    /*     } */
-  private:
-    float _amp;
-    std::vector<float> _frac;
-    std::vector<SimHitInfoForLinks> _hitInfos;
-  };  // end class Amplitude
 
 private:
   //Accessing Lorentz angle from DB:
@@ -311,9 +258,9 @@ private:
 
 private:
   // Internal typedefs
-  typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
-  typedef signal_map_type::iterator signal_map_iterator;              // from Digi.Skel.
-  typedef signal_map_type::const_iterator signal_map_const_iterator;  // from Digi.Skel.
+  typedef std::map<int, digitizerUtility::Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
+  typedef signal_map_type::iterator signal_map_iterator;                                // from Digi.Skel.
+  typedef signal_map_type::const_iterator signal_map_const_iterator;                    // from Digi.Skel.
   typedef std::map<uint32_t, signal_map_type> signalMaps;
   typedef GloballyPositioned<double> Frame;
   typedef std::vector<edm::ParameterSet> Parameters;

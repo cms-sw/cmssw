@@ -50,7 +50,7 @@ namespace mkfit {
   // CombCandidate
   //==============================================================================
 
-  void CombCandidate::importSeed(const Track &seed, int region) {
+  void CombCandidate::importSeed(const Track &seed, const track_score_func &score_func, int region) {
     m_trk_cands.emplace_back(TrackCand(seed, this));
 
     m_state = CombCandidate::Dormant;
@@ -71,18 +71,21 @@ namespace mkfit {
       cand.addHitIdx(hp->index, hp->layer, 0.0f);
     }
 
-    cand.setScore(getScoreCand(cand));
+    cand.setScore(getScoreCand(score_func, cand));
   }
 
-  void CombCandidate::mergeCandsAndBestShortOne(const IterationParams &params, bool update_score, bool sort_cands) {
+  void CombCandidate::mergeCandsAndBestShortOne(const IterationParams &params,
+                                                const track_score_func &score_func,
+                                                bool update_score,
+                                                bool sort_cands) {
     TrackCand *best_short = m_best_short_cand.combCandidate() ? &m_best_short_cand : nullptr;
 
     if (!empty()) {
       if (update_score) {
         for (auto &c : m_trk_cands)
-          c.setScore(getScoreCand(c));
+          c.setScore(getScoreCand(score_func, c));
         if (best_short)
-          best_short->setScore(getScoreCand(*best_short));
+          best_short->setScore(getScoreCand(score_func, *best_short));
       }
       if (sort_cands) {
         std::sort(m_trk_cands.begin(), m_trk_cands.end(), sortByScoreTrackCand);
@@ -223,11 +226,15 @@ namespace mkfit {
     tc.setNTailMinusOneHits(0);
   }
 
-  void CombCandidate::endBkwSearch() {
+  void CombCandidate::repackCandPostBkwSearch(int i) {
+    // Called during filtering following backward search when a TrackCand's
+    // front hits need to be reindexed.
     // mergeCandsAndBestShortOne() has already been called (from MkBuilder::FindXxx()).
-    // We have to fixup the best candidate.
+    // NOTES:
+    // 1. Should only be called once for each i (flag/bit to allow multiple calls can be added).
+    // 2. Alternatively, CombCand could provide hit iterator/exporter that would handle this correctly.
 
-    TrackCand &tc = m_trk_cands[0];
+    TrackCand &tc = m_trk_cands[i];
 
     int curr_idx = tc.lastCcIndex();
     if (curr_idx != 0) {
@@ -245,9 +252,6 @@ namespace mkfit {
     tc.setLastCcIndex(m_lastHitIdx_before_bkwsearch);
     tc.setNInsideMinusOneHits(m_nInsideMinusOneHits_before_bkwsearch + tc.nInsideMinusOneHits());
     tc.setNTailMinusOneHits(m_nTailMinusOneHits_before_bkwsearch + tc.nTailMinusOneHits());
-    m_lastHitIdx_before_bkwsearch = -1;
-    m_nInsideMinusOneHits_before_bkwsearch = -1;
-    m_nTailMinusOneHits_before_bkwsearch = -1;
   }
 
 }  // namespace mkfit

@@ -17,11 +17,11 @@ process.source = cms.Source("EmptySource",
                             )
 
 # process.PoolDBOutputService.DBParameters.messageLevel = 3
-import json
+import json, os
 
 def encodeJsonInString(filename):
     """This function open the json file and encodes it in a string replacing probelamtic characters"""
-    thefile = open("../data/"+filename)
+    thefile = open(os.path.join(os.path.dirname(__file__), "..", "data", filename))
     thejson = json.load(thefile)
     thefile.close()
     return json.JSONEncoder().encode(thejson).replace('"',"&quot;")
@@ -90,6 +90,12 @@ SiPixelLorentzAngleRcd_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_pr
 SiPixelLorentzAngleRcd_multirun_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_multirun_prod.json")
 SiPixelLorentzAngleRcd_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_prep.json")
 SiPixelLorentzAngleRcd_multirun_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_multirun_prep.json")
+
+#SiPixelLorenzAngle, FPix 
+SiPixelLorentzAngleRcd_MCS_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_MCS_prod.json")
+SiPixelLorentzAngleRcd_MCS_multirun_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_MCS_multirun_prod.json")
+SiPixelLorentzAngleRcd_MCS_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_MCS_prep.json")
+SiPixelLorentzAngleRcd_MCS_multirun_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_MCS_multirun_prep.json")
 
 #CT-PPS alignment and timing
 CTPPSRPAlignmentCorrectionsDataRcd_prod_str =  encodeJsonInString("CTPPSRPAlignmentCorrectionsDataRcd_prod.json")
@@ -208,7 +214,15 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prodMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_multirun_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_prep_str),
                                                                prepMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_multirun_prep_str),
-                                                               ),
+                                                           ),
+                                                      cms.PSet(record              = cms.untracked.string('SiPixelLorentzAngleRcdMCS'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_prod_str),
+                                                               prodMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_multirun_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_prep_str),
+                                                               prepMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_multirun_prep_str),
+                                                           ),
                                                       cms.PSet(record              = cms.untracked.string('CTPPSRPAlignmentCorrectionsDataRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),

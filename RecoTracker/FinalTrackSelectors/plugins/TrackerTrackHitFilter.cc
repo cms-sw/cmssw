@@ -2,9 +2,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
@@ -48,6 +51,7 @@
 
 #include <boost/regex.hpp>
 #include <map>
+#include <optional>
 //#include <math>
 
 /**
@@ -83,6 +87,8 @@ namespace reco {
                                  const Trajectory *itt,
                                  std::vector<TrackingRecHit *> &hits);
       void produceFromTrack(const edm::EventSetup &iSetup, const Track *itt, std::vector<TrackingRecHit *> &hits);
+
+      static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     private:
       class Rule {
@@ -124,6 +130,7 @@ namespace reco {
       bool stripBackInvalidHits_;
       bool stripAllInvalidHits_;
 
+      bool isPhase2_;
       bool rejectBadStoNHits_;
       std::string CMNSubtractionMode_;
       std::vector<bool> subdetStoN_;           //(6); //,std::bool(false));
@@ -156,7 +163,7 @@ namespace reco {
       edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMagField;
       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokenTrackerTopo;
 
-      SiStripClusterInfo siStripClusterInfo_;
+      std::optional<SiStripClusterInfo> siStripClusterInfo_;
 
       bool tagOverlaps_;
       int nOverlaps;
@@ -298,6 +305,7 @@ namespace reco {
           stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
           stripBackInvalidHits_(iConfig.getParameter<bool>("stripBackInvalidHits")),
           stripAllInvalidHits_(iConfig.getParameter<bool>("stripAllInvalidHits")),
+          isPhase2_(iConfig.getParameter<bool>("isPhase2")),
           rejectBadStoNHits_(iConfig.getParameter<bool>("rejectBadStoNHits")),
           CMNSubtractionMode_(iConfig.getParameter<std::string>("CMNSubtractionMode")),
           detsToIgnore_(iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore")),
@@ -309,8 +317,13 @@ namespace reco {
           pxlTPLProbXYQ_(iConfig.getParameter<double>("PxlTemplateProbXYChargeCut")),
           pxlTPLqBin_(iConfig.getParameter<std::vector<int32_t> >("PxlTemplateqBinCut")),
           PXLcorrClusChargeCut_(iConfig.getParameter<double>("PxlCorrClusterChargeCut")),
-          siStripClusterInfo_(consumesCollector()),
           tagOverlaps_(iConfig.getParameter<bool>("tagOverlaps")) {
+      // construct the SiStripClusterInfo object only for Phase-0 / Phase-1
+      // no Strip modules in Phase-2
+      if (!isPhase2_) {
+        siStripClusterInfo_ = consumesCollector();
+      }
+
       tokenGeometry = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
       tokenMagField = esConsumes<MagneticField, IdealMagneticFieldRecord>();
       tokenTrackerTopo = esConsumes<TrackerTopology, TrackerTopologyRcd>();
@@ -399,7 +412,8 @@ namespace reco {
       // read from EventSetup
       theGeometry = iSetup.getHandle(tokenGeometry);
       theMagField = iSetup.getHandle(tokenMagField);
-      siStripClusterInfo_.initEvent(iSetup);
+      if (!isPhase2_)
+        siStripClusterInfo_->initEvent(iSetup);
 
       // prepare output collection
       size_t candcollsize;
@@ -635,15 +649,12 @@ namespace reco {
       //int previousLayer(-1);
       ///---OverlapEnd
 
-      int constrhits = 0;
-
       for (std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas != tmColl.end();
            itTrajMeas++) {
         TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
 
         //check that the hit is a real hit and not a constraint
         if (hitpointer->isValid() && hitpointer->hit() == nullptr) {
-          constrhits++;
           continue;
         }
 
@@ -731,7 +742,6 @@ namespace reco {
       }  // loop on hits
 
       std::reverse(hits.begin(), hits.end());
-      //  std::cout<<"Finished producefromTrajecotries. Nhits in final coll"<<hits.size() <<"   Nconstraints="<<constrhits<<std::endl;
     }  //end TrackerTrackHitFilter::produceFromTrajectories
 
     int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup, const DetId &detid, const TrackingRecHit *hit) {
@@ -781,11 +791,18 @@ namespace reco {
 
       //  if( subdetStoN_[subdet_cnt-1]&& (id.subdetId()==subdet_cnt)  ){//check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
 
+      // for phase-2 OT placehold, do nothing
+      if (GeomDetEnumerators::isOuterTracker(theGeometry->geomDetSubDetector(id.subdetId())) &&
+          !GeomDetEnumerators::isTrackerStrip(theGeometry->geomDetSubDetector(id.subdetId()))) {
+        return true;
+      }
+
       if (GeomDetEnumerators::isTrackerStrip(theGeometry->geomDetSubDetector(id.subdetId()))) {
         if (subdetStoN_[subdet_cnt - 1]) {
           //check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
           const std::type_info &type = typeid(*therechit);
           const SiStripCluster *cluster;
+          std::optional<const SiStripCluster *> stereo_cluster;
           if (type == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *hit = dynamic_cast<const SiStripRecHit2D *>(therechit);
             if (hit != nullptr)
@@ -806,26 +823,64 @@ namespace reco {
                   << "(detID=" << id.rawId() << ")\n ";
               keepthishit = false;
             }
-          }
-          //the following two cases should not happen anymore since CMSSW > 2_0_X because of hit splitting in stereo modules
-          //const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
-          //const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
-          else {
+          } else if (type == typeid(SiStripMatchedRecHit2D)) {
+            const SiStripMatchedRecHit2D *hit = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
+            if (hit != nullptr) {
+              cluster = &(hit->monoCluster());
+              stereo_cluster = &(hit->stereoCluster());
+            } else {
+              edm::LogError("TrackerTrackHitFilter")
+                  << "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()
+                  << "(detID=" << id.rawId() << ")\n ";
+              keepthishit = false;
+            }
+          } else if (type == typeid(ProjectedSiStripRecHit2D)) {
+            const ProjectedSiStripRecHit2D *hit = dynamic_cast<const ProjectedSiStripRecHit2D *>(therechit);
+            if (hit != nullptr)
+              cluster = &*(hit->cluster());
+            else {
+              edm::LogError("TrackerTrackHitFilter")
+                  << "TrackerTrackHitFilter::checkStoN : Unknown valid tracker hit in subdet " << id.subdetId()
+                  << "(detID=" << id.rawId() << ")\n ";
+              keepthishit = false;
+            }
+          } else {
             throw cms::Exception("Unknown RecHit Type")
-                << "RecHit of type " << type.name() << " not supported. (use c++filt to demangle the name)";
+                << "RecHit of type " << edm::typeDemangle(type.name()) << " not supported.";
           }
 
           if (keepthishit) {
-            siStripClusterInfo_.setCluster(*cluster, id.rawId());
-            if ((subdetStoNlowcut_[subdet_cnt - 1] > 0) &&
-                (siStripClusterInfo_.signalOverNoise() < subdetStoNlowcut_[subdet_cnt - 1]))
-              keepthishit = false;
-            if ((subdetStoNhighcut_[subdet_cnt - 1] > 0) &&
-                (siStripClusterInfo_.signalOverNoise() > subdetStoNhighcut_[subdet_cnt - 1]))
-              keepthishit = false;
-            //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<siStripClusterInfo_.signalOverNoise()<<std::endl;
-          }
+            double sToNlowCut = subdetStoNlowcut_[subdet_cnt - 1];
+            double sToNhighCut = subdetStoNhighcut_[subdet_cnt - 1];
 
+            float sOverN{-1.f};
+
+            if UNLIKELY (stereo_cluster.has_value()) {
+              const auto &matched = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
+              if (!matched) {
+                throw cms::Exception("LogicError")
+                    << "expected a SiStripMatchedRecHit2D but could not cast!" << std::endl;
+              }
+              siStripClusterInfo_->setCluster(*cluster, matched->monoId());
+              sOverN = siStripClusterInfo_->signalOverNoise();
+              // if it's matched rechit, use the average of stereo and mono clusters
+              siStripClusterInfo_->setCluster(**stereo_cluster, matched->stereoId());
+              sOverN += siStripClusterInfo_->signalOverNoise();
+              sOverN *= 0.5f;
+            } else {
+              siStripClusterInfo_->setCluster(*cluster, id.rawId());
+              sOverN = siStripClusterInfo_->signalOverNoise();
+            }
+
+            if ((sToNlowCut > 0) && (sOverN < sToNlowCut)) {
+              keepthishit = false;
+            }
+
+            if ((sToNhighCut > 0) && (sOverN > sToNhighCut)) {
+              keepthishit = false;
+            }
+            //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<siStripClusterInfo_->signalOverNoise()<<std::endl;
+          }
         }  //end if  subdetStoN_[subdet_cnt]&&...
 
       }  //end if subdet_cnt >2
@@ -973,6 +1028,39 @@ namespace reco {
 
     int TrackerTrackHitFilter::sideFromId(const DetId &id, const TrackerTopology *tTopo) const {
       return tTopo->side(id);
+    }
+
+    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+    void TrackerTrackHitFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.setComment("");
+      desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+      desc.add<uint32_t>("minimumHits", 3)->setComment("number of hits for refit");
+      desc.add<bool>("replaceWithInactiveHits", false)
+          ->setComment(
+              " instead of removing hits replace them with inactive hits, so you still consider the multiple "
+              "scattering");
+      desc.add<bool>("stripFrontInvalidHits", false)
+          ->setComment("strip invalid & inactive hits from any end of the track");
+      desc.add<bool>("stripBackInvalidHits", false)
+          ->setComment("strip invalid & inactive hits from any end of the track");
+      desc.add<bool>("stripAllInvalidHits", false)->setComment("dangerous to turn on, you might forget about MS");
+      desc.add<bool>("isPhase2", false);
+      desc.add<bool>("rejectBadStoNHits", false);
+      desc.add<std::string>("CMNSubtractionMode", std::string("Median"))->setComment("TT6");
+      desc.add<std::vector<uint32_t> >("detsToIgnore", {});
+      desc.add<bool>("useTrajectories", false);
+      desc.add<bool>("rejectLowAngleHits", false);
+      desc.add<double>("TrackAngleCut", 0.25)->setComment("rad");
+      desc.add<bool>("usePixelQualityFlag", false);
+      desc.add<double>("PxlTemplateProbXYCut", 0.000125);
+      desc.add<double>("PxlTemplateProbXYChargeCut", -99.);
+      desc.add<std::vector<int32_t> >("PxlTemplateqBinCut", {0, 3});
+      desc.add<double>("PxlCorrClusterChargeCut", -999.0);
+      desc.add<bool>("tagOverlaps", false);
+      desc.add<std::vector<std::string> >("commands", {})->setComment("layers to remove");
+      desc.add<std::vector<std::string> >("StoNcommands", {})->setComment("S/N cut per layer");
+      descriptions.addWithDefaultLabel(desc);
     }
 
   }  // namespace modules

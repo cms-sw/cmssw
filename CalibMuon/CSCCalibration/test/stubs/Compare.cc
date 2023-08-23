@@ -243,8 +243,6 @@ Compare::Compare(const edm::ParameterSet &iConfig) {
 
   counter = 0;
   counter1 = 0;
-  int old_nrlines = 0;
-  int new_nrlines = 0;
 
   std::ifstream olddata2;
   olddata2.open("old_dbgains.dat", std::ios::in);
@@ -257,7 +255,6 @@ Compare::Compare(const edm::ParameterSet &iConfig) {
     olddata2 >> old_index >> old_slope;
     old_index_id.push_back(old_index);
     old_gains.push_back(old_slope);
-    old_nrlines++;
   }
   olddata2.close();
 
@@ -275,7 +272,6 @@ Compare::Compare(const edm::ParameterSet &iConfig) {
     new_gains.push_back(new_slope);
     new_intercept.push_back(new_int);
     new_chi.push_back(new_chi2);
-    new_nrlines++;
   }
   newdata2.close();
   diffGains.resize(MAX_SIZE);

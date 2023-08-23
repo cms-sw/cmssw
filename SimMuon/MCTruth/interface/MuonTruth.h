@@ -29,7 +29,6 @@ public:
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
-  MuonTruth(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &, edm::ConsumesCollector &);
   MuonTruth(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
 
   void initEvent(const edm::Event &, const edm::EventSetup &);

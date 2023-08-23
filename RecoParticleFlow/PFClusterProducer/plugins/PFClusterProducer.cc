@@ -19,7 +19,7 @@ public:
   PFClusterProducer(const edm::ParameterSet&);
   ~PFClusterProducer() override = default;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -106,7 +106,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
   produces<reco::PFClusterCollection>();
 }
 
-void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
+void PFClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   _initialClustering->update(es);
   if (_pfClusterBuilder)
     _pfClusterBuilder->update(es);

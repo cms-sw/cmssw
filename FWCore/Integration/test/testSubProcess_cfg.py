@@ -34,7 +34,6 @@ process.DoodadESSource = cms.ESSource("DoodadESSource"
                                       , test2 = cms.untracked.string('z')
 )
 
-process.CPU = cms.Service("CPU")
 process.ZombieKillerService = cms.Service("ZombieKillerService")
 process.JobReportService = cms.Service("JobReportService")
 
@@ -68,6 +67,12 @@ copyProcess.SiteLocalConfigService = cms.Service("SiteLocalConfigService",
     intentionallyIllegalParameter = cms.bool(True)
 )
 copyProcess.AdaptorConfig = cms.Service("AdaptorConfig",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.ResourceInformationService = cms.Service("ResourceInformationService",
+    intentionallyIllegalParameter = cms.bool(True)
+)
+copyProcess.CondorStatusService = cms.Service("CondorStatusService",
     intentionallyIllegalParameter = cms.bool(True)
 )
 
@@ -144,7 +149,7 @@ copy2Process.DoodadESSource = cms.ESSource("DoodadESSource"
 prod2Process = cms.Process("PROD2")
 copy2Process.addSubProcess(cms.SubProcess(prod2Process,
     outputCommands = cms.untracked.vstring(
-        "keep *", 
+        "keep *",
         "drop *_putInt_*_*"),
 ))
 prod2Process.DoodadESSource = cms.ESSource("DoodadESSource"
@@ -269,7 +274,7 @@ prod2Process.endPath1 = cms.EndPath(prod2Process.out)
 prod2ProcessAlt = cms.Process("PROD2ALT")
 copy2Process.addSubProcess(cms.SubProcess(prod2ProcessAlt,
     outputCommands = cms.untracked.vstring(
-        "keep *", 
+        "keep *",
         "drop *_putInt_*_*"),
 ))
 prod2ProcessAlt.DoodadESSource = cms.ESSource("DoodadESSource"

@@ -39,13 +39,13 @@ public:
 
   double derivative(double time) const;  // appears to not be used anywhere
 
-  void m_shape_print(const char* fileName);
-  void setEventSetup(const edm::EventSetup& evtSetup);
+  void m_shape_print(const char* fileName) const;
+  void setEventSetup(const edm::EventSetup& evtSetup, bool normalize = true);
 
 protected:
   unsigned int timeIndex(double aTime) const;
 
-  void buildMe(const edm::EventSetup* = nullptr);
+  void buildMe(const edm::EventSetup* = nullptr, bool normalize = true);
 
   virtual void fillShape(float& time_interval,
                          double& m_thresh,

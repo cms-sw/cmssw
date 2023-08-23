@@ -35,13 +35,15 @@ namespace edm {
 
   namespace eventsetup {
 
-    class DataProxyProvider;
+    class ESProductResolverProvider;
     class EventSetupsController;
 
     namespace looper {
       template <class T>
-      void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const DataProxyProvider*) {
-        std::shared_ptr<DataProxyProvider> pProvider(iComponent);
+      void addProviderTo(EventSetupProvider& iProvider,
+                         std::shared_ptr<T> iComponent,
+                         const ESProductResolverProvider*) {
+        std::shared_ptr<ESProductResolverProvider> pProvider(iComponent);
         ComponentDescription description = pProvider->description();
         description.isSource_ = true;
         description.isLooper_ = true;

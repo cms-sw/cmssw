@@ -107,7 +107,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     critical = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR')
     ),
-    debugModules = cms.untracked.vstring('hltFiltersDQMonitor'),
+    debugModules = cms.untracked.vstring('dqmHLTFiltersDQMonitor'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet(
@@ -132,7 +132,7 @@ process.triggerCosmicOfflineDQMSource.remove(process.l1tmonitor)
 process.allPath = cms.Path( process.triggerCosmicOfflineDQMSource * process.triggerOfflineDQMClient * process.hltOfflineDQMClient * process.dqmStoreStats )
 #process.allPath = cms.Path( process.triggerCosmicOfflineDQMSource*process.hltOfflineDQMClient)
 #process.allPath = cms.Path( process.DQMOfflineCosmics)
-#process.psource = cms.Path(process.hltFiltersDQMonitor)
+#process.psource = cms.Path(process.dqmHLTFiltersDQMonitor)
 
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0

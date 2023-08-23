@@ -77,7 +77,7 @@ namespace edm {
     ModuleDescription const& description() const override;
 
     static std::unique_ptr<edm::OutputModuleCommunicator> createIfNeeded(T* iMod) {
-      return std::move(impl::createCommunicatorIfNeeded(iMod));
+      return impl::createCommunicatorIfNeeded(iMod);
     }
 
   private:

@@ -44,7 +44,6 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 #include "CondFormats/Common/interface/Time.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -60,7 +59,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -256,7 +254,6 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
-  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
   const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;

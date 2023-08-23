@@ -12,7 +12,8 @@ barrelWriterOutputOnly_ = cms.PSet(
     outputLinkEgamma = cms.int32(6),
     nEgammaObjectsOut = cms.uint32(16),
     nOutputFramesPerBX = cms.uint32(9),
-    fileFormat = cms.string("EMP"),
+    fileFormat = cms.string("EMPv2"),
+    outputFileExtension = cms.string("txt.gz"),
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(eventsPerFile_),
 )
@@ -55,7 +56,9 @@ hgcalWriterConfig_ = cms.PSet(
     nEgammaObjectsOut = cms.uint32(16),
     nInputFramesPerBX = cms.uint32(9),
     nOutputFramesPerBX = cms.uint32(9),
-    fileFormat = cms.string("EMP"),
+    fileFormat = cms.string("EMPv2"),
+    inputFileExtension = cms.string("txt.gz"),
+    outputFileExtension = cms.string("txt.gz"),
     maxLinesPerInputFile = cms.uint32(1024),
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(eventsPerFile_),
@@ -115,7 +118,20 @@ hgcalPosVU13PWriterConfig.outputLinksPuppi = cms.vuint32(0,1,2)
 hgcalPosVU13PWriterConfig.outputLinkEgamma = cms.int32(3)
 hgcalPosVU13PWriterConfig.inputFileName = cms.string("l1HGCalPos-inputs-vu13p") 
 hgcalPosVU13PWriterConfig.outputFileName = cms.string("l1HGCalPos-outputs-vu13p")
-## Enable both
+hgcalNegVU13PWriterConfig = hgcalWriterConfig_.clone()
+for t in range(3):
+    hgcalNegVU13PWriterConfig.tfTimeSlices[t].tfSectors += [ cms.PSet(tfLink = cms.int32(3*i+t+4*0)) for i in range(5) ] # neg, left quads
+    hgcalNegVU13PWriterConfig.tfTimeSlices[t].tfSectors += [ cms.PSet(tfLink = cms.int32(3*i+t+4*28)) for i in range(4) ] # neg, right quads
+    hgcalNegVU13PWriterConfig.tfTimeSlices[t].tfSectors += [ cms.PSet(tfLink = cms.int32(-1))    for i in range(9) ] # pos
+    for isec,q0 in (0,12),(1,17),(2,20):
+        hgcalNegVU13PWriterConfig.hgcTimeSlices[t].hgcSectors += [ cms.PSet(hgcLinks = cms.vint32(*[4*q0+4*t+j for j in range(4)])) ] # neg
+    hgcalNegVU13PWriterConfig.hgcTimeSlices[t].hgcSectors += [ cms.PSet(hgcLinks = cms.vint32(-1,-1,-1,-1)) for i in range(3) ] # pos
+    hgcalNegVU13PWriterConfig.gmtTimeSlices[t].gmtLink = cms.int32(4*27+t)
+hgcalNegVU13PWriterConfig.gttLink = 4*27+3
+hgcalNegVU13PWriterConfig.outputLinksPuppi = cms.vuint32(0,1,2)
+hgcalNegVU13PWriterConfig.outputLinkEgamma = cms.int32(3)
+hgcalNegVU13PWriterConfig.inputFileName = cms.string("l1HGCalNeg-inputs-vu13p") 
+hgcalNegVU13PWriterConfig.outputFileName = cms.string("l1HGCalNeg-outputs-vu13p")
 
 ## Enable both
 
@@ -123,7 +139,8 @@ hgcalWriterConfigs = [
     hgcalPosIdealWriterConfig, 
     hgcalNegIdealWriterConfig, 
     hgcalPosVU9PB904egWriterConfig,
-    hgcalPosVU13PWriterConfig
+    hgcalPosVU13PWriterConfig,
+    hgcalNegVU13PWriterConfig
 ]
 
 #####################################################################################################################
@@ -132,7 +149,9 @@ hgcalNoTKWriterOutputOnlyConfig = cms.PSet(
     partition = cms.string("HGCalNoTk"),
     outputRegions = cms.vuint32(*range(18)),
     nOutputFramesPerBX = cms.uint32(9),
-    fileFormat = cms.string("EMP"),
+    fileFormat = cms.string("EMPv2"),
+    inputFileExtension = cms.string("txt.gz"),
+    outputFileExtension = cms.string("txt.gz"),
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(eventsPerFile_),
     outputLinksPuppi = cms.vuint32(0,1,2,4),
@@ -151,7 +170,8 @@ hfWriterOutputOnly_ = cms.PSet(
     partition = cms.string("HF"),
     outputLinksPuppi = cms.vuint32(*range(3)),
     nOutputFramesPerBX = cms.uint32(9),
-    fileFormat = cms.string("EMP"),
+    fileFormat = cms.string("EMPv2"),
+    outputFileExtension = cms.string("txt.gz"),
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(eventsPerFile_),
 )

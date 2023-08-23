@@ -2327,7 +2327,7 @@ namespace edm {
               << "The parentage ID index value " << prov.parentageIDIndex_
               << " is out of bounds.  The maximum value is " << parentageIDLookup_.size() - 1 << ".\n"
               << "This should never happen.\n"
-              << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
+              << "Please report this to the framework developers.";
         }
         retValue.emplace(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]);
       }

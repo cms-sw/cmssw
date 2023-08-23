@@ -12,7 +12,7 @@
 // NOTE: look for "TO DO" as a keyword to now what should be upgraded in later versions....
 
 // modes
-#define TALKATIVE  // get some comments while processing
+//#define TALKATIVE  // get some comments while processing
 //#define DEBUG     // get a lot of comments while processing + canvases -> resource-consuming!
 
 // MACROS
@@ -154,8 +154,6 @@ GeometryComparisonPlotter::GeometryComparisonPlotter(TString tree_file_name,
 #endif
 
   // style
-  gROOT->Reset();
-
   data->SetMarkerSize(0.5);
   data->SetMarkerStyle(6);
 

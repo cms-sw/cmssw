@@ -179,7 +179,7 @@ namespace edm {
 
   void StreamerInputFile::readStartMessage() {
     using namespace edm::storage;
-    IOSize nWant = sizeof(HeaderView);
+    IOSize nWant = sizeof(InitHeader);
     IOSize nGot = readBytes(&headerBuf_[0], nWant, false).first;
     if (nGot != nWant) {
       throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
@@ -202,9 +202,9 @@ namespace edm {
     if (headerBuf_.size() < headerSize)
       headerBuf_.resize(headerSize);
 
-    if (headerSize > sizeof(HeaderView)) {
-      nWant = headerSize - sizeof(HeaderView);
-      auto res = readBytes(&headerBuf_[sizeof(HeaderView)], nWant, true, sizeof(HeaderView));
+    if (headerSize > sizeof(InitHeader)) {
+      nWant = headerSize - sizeof(InitHeader);
+      auto res = readBytes(&headerBuf_[sizeof(InitHeader)], nWant, true, sizeof(InitHeader));
       if (res.first != nWant) {
         throw Exception(errors::FileReadError, "StreamerInputFile::readStartMessage")
             << "Failed reading streamer file, second read in readStartMessage\n";
@@ -270,18 +270,47 @@ namespace edm {
 
     using namespace edm::storage;
     bool eventRead = false;
+    unsigned hdrSkipped = 0;
     while (!eventRead) {
       IOSize nWant = sizeof(EventHeader);
-      IOSize nGot = readBytes(&eventBuf_[0], nWant, false).first;
+      IOSize nGot = readBytes(&eventBuf_[hdrSkipped], nWant - hdrSkipped, false).first + hdrSkipped;
+      while (nGot == nWant) {
+        //allow padding before next event or end of file.
+        //event header starts with code 0 - 17, so 0xff (Header:PADDING) uniquely represents padding
+        bool headerFetched = false;
+        for (size_t i = 0; i < nGot; i++) {
+          if ((unsigned char)eventBuf_[i] != Header::PADDING) {
+            //no padding 0xff
+            if (i != 0) {
+              memmove(&eventBuf_[0], &eventBuf_[i], nGot - i);
+              //read remainder of the header
+              nGot = nGot - i + readBytes(&eventBuf_[nGot - i], i, false).first;
+            }
+            headerFetched = true;
+            break;
+          }
+        }
+        if (headerFetched)
+          break;
+        //read another block
+        nGot = readBytes(&eventBuf_[0], nWant, false).first;
+      }
       if (nGot == 0) {
         // no more data available
         endOfFile_ = true;
         return 0;
       }
       if (nGot != nWant) {
-        throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
-            << "Failed reading streamer file, first read in readEventMessage\n"
-            << "Requested " << nWant << " bytes, read function returned " << nGot << " bytes\n";
+        for (size_t i = 0; i < nGot; i++) {
+          if ((unsigned char)eventBuf_[i] != Header::PADDING)
+            throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
+                << "Failed reading streamer file, first read in readEventMessage\n"
+                << "Requested " << nWant << " bytes, read function returned " << nGot
+                << " bytes, non-padding at offset " << i;
+        }
+        //padded 0xff only
+        endOfFile_ = true;
+        return 0;
       }
       uint32 eventSize;
       {
@@ -289,12 +318,27 @@ namespace edm {
         uint32 code = head.code();
 
         // If it is not an event then something is wrong.
+        eventSize = head.size();
         if (code != Header::EVENT) {
+          if (code == Header::INIT) {
+            edm::LogWarning("StreamerInputFile") << "Found another INIT header in the file. It will be skipped";
+            if (eventSize < sizeof(EventHeader)) {
+              //very unlikely case that EventHeader is larger than total INIT size inserted in the middle of the file
+              hdrSkipped = nGot - eventSize;
+              memmove(&eventBuf_[0], &eventBuf_[eventSize], hdrSkipped);
+              continue;
+            }
+            if (headerBuf_.size() < eventSize)
+              headerBuf_.resize(eventSize);
+            memcpy(&headerBuf_[0], &eventBuf_[0], nGot);
+            readBytes(&headerBuf_[nGot], eventSize, true, nGot);
+            //do not parse this header and proceed to the next event
+            continue;
+          }
           throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
               << "Failed reading streamer file, unknown code in event header\n"
               << "code = " << code << "\n";
         }
-        eventSize = head.size();
       }
       if (eventSize <= sizeof(EventHeader)) {
         throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")

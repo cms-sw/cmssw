@@ -22,10 +22,6 @@ namespace mkfit {
   class Event;
 
   //==============================================================================
-  // MkJob
-  //==============================================================================
-
-  //==============================================================================
   // MkBuilder
   //==============================================================================
 
@@ -55,7 +51,7 @@ namespace mkfit {
     void import_seeds(const TrackVec &in_seeds, const bool seeds_sorted, std::function<insert_seed_foo> insert_seed);
 
     // filter for rearranging cands that will / will not do backward search.
-    int filter_comb_cands(IterationConfig::filter_candidates_func filter);
+    int filter_comb_cands(filter_candidates_func filter, bool attempt_all_cands);
 
     void find_min_max_hots_size();
 
@@ -73,6 +69,8 @@ namespace mkfit {
     // MIMI hack to export tracks for BH
     const TrackVec &ref_tracks() const { return m_tracks; }
     TrackVec &ref_tracks_nc() { return m_tracks; }
+
+    const EventOfCombCandidates &ref_eocc() const { return m_event_of_comb_cands; }
 
     // --------
 

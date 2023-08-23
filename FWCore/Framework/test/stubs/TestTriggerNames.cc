@@ -7,8 +7,10 @@
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/interface/TypeMatch.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -48,6 +50,7 @@ namespace edmtest {
     bool dumpPSetRegistry_;
     std::vector<unsigned int> expectedTriggerResultsHLT_;
     std::vector<unsigned int> expectedTriggerResultsPROD_;
+    edm::GetterOfProducts<edm::TriggerResults> getterOfTriggerResults_;
   };
 
   // -----------------------------------------------------------------
@@ -62,9 +65,10 @@ namespace edmtest {
         expectedTriggerResultsHLT_(ps.getUntrackedParameter<std::vector<unsigned int> >("expectedTriggerResultsHLT",
                                                                                         std::vector<unsigned int>())),
         expectedTriggerResultsPROD_(ps.getUntrackedParameter<std::vector<unsigned int> >("expectedTriggerResultsPROD",
-                                                                                         std::vector<unsigned int>())) {
+                                                                                         std::vector<unsigned int>())),
+        getterOfTriggerResults_(edm::TypeMatch(), this) {
     if (not expected_trigger_previous_.empty()) {
-      consumesMany<edm::TriggerResults>();
+      callWhenNewProductsRegistered(getterOfTriggerResults_);
     }
     if (not expectedTriggerResultsHLT_.empty()) {
       consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
@@ -122,7 +126,7 @@ namespace edmtest {
     if (expected_trigger_previous_.size() > 0) {
       typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
       Trig prod;
-      e.getManyByType(prod);
+      getterOfTriggerResults_.fillHandles(e, prod);
 
       if (prod.size() == 0) {
         throw cms::Exception("Test Failure")
@@ -132,10 +136,32 @@ namespace edmtest {
 
       Strings triggernames;
       edm::Service<edm::service::TriggerNamesService> tns;
+      std::string previousProcessName;
+      bool failFindingPreviousTriggerResults = false;
+      auto processHistoryIter = e.processHistory().rbegin();
+      if (processHistoryIter == e.processHistory().rend()) {
+        failFindingPreviousTriggerResults = true;
+      } else {
+        ++processHistoryIter;
+        if (processHistoryIter == e.processHistory().rend()) {
+          failFindingPreviousTriggerResults = true;
+        } else {
+          previousProcessName = processHistoryIter->processName();
+        }
+      }
+
       auto index = 0U;
-      while ((index < prod.size()) and (moduleDescription().processName() == prod[index].provenance()->processName())) {
+      while (index < prod.size() && previousProcessName != prod[index].provenance()->processName()) {
         ++index;
       }
+      if (index == prod.size()) {
+        failFindingPreviousTriggerResults = true;
+      }
+      if (failFindingPreviousTriggerResults) {
+        throw cms::Exception("Test Failure") << "TestTriggerNames: "
+                                             << "Failed finding previous process TriggerResults" << std::endl;
+      }
+
       if (tns->getTrigPaths(*prod[index], triggernames)) {
         if (triggernames.size() != expected_trigger_previous_.size()) {
           std::string et;
@@ -239,6 +265,11 @@ namespace edmtest {
 
     if (expectedTriggerResultsHLT_.size() > 0) {
       if (e.getByLabel(tag, hTriggerResults)) {
+        if (hTriggerResults->size() == 0) {
+          throw cms::Exception("Test Failure") << "TestTriggerNames: TriggerResults object from the Event "
+                                                  "(InputTag = \"TriggerResults::HLT\") is empty (size == 0)";
+        }
+
         edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName(*hTriggerResults);
 
         if (hTriggerResults->parameterSetID() != resultsByNameHLT.parameterSetID() ||
@@ -263,9 +294,8 @@ namespace edmtest {
             hTriggerResults->error(0) != resultsByNameHLT.error(0) ||
             hTriggerResults->state(0) != resultsByNameHLT.state(0) ||
             hTriggerResults->index(0) != resultsByNameHLT.index(0)) {
-          throw cms::Exception("Test Failure")
-              << "TestTriggerNames: While testing TriggerResultsByName class\n"
-              << "TriggerResults values do not match TriggerResultsByName values" << std::endl;
+          throw cms::Exception("Test Failure") << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                                               << "TriggerResults values do not match TriggerResultsByName values";
         }
         edm::TriggerNames const& names = e.triggerNames(*hTriggerResults);
         if (names.triggerNames() != resultsByNameHLT.triggerNames() || names.size() != resultsByNameHLT.size() ||

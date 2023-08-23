@@ -47,6 +47,7 @@ public:
   struct ObjectParameter {
     bool MuonShower0;
     bool MuonShower1;
+    bool MuonShower2;
     bool MuonShowerOutOfTime0;
     bool MuonShowerOutOfTime1;
   };

@@ -193,11 +193,18 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
         if (cscid != -1) {
           const uint16_t* pos = (const uint16_t*)csc_itr->second;
 
+          if (pos == nullptr) {
+            if (debug)
+              LogTrace("CSCDDUEventData|CSCRawToDigi")
+                  << "skip unpacking of CSC " << cscid << " due to format errors (NULL pointer to chamber data)";
+            continue;
+          }
+
           ExaminerStatusType errors = examiner->errorsForChamber(cscid);
           if ((errors & examiner->getMask()) > 0) {
             if (debug)
               LogTrace("CSCDDUEventData|CSCRawToDigi")
-                  << "skip unpacking of CSC " << cscid << " due format errors: 0x" << std::hex << errors << std::dec;
+                  << "skip unpacking of CSC " << cscid << " due to format errors: 0x" << std::hex << errors << std::dec;
             continue;
           }
 

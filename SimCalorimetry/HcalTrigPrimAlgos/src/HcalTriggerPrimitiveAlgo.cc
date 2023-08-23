@@ -479,8 +479,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       int sampleTSminus1 = samples[ibin];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + 1))
-        check_sat = (sample_saturation[ibin + 1] | (sampleTS >= QIE11_MAX_LINEARIZATION_ET) | sample_saturation[ibin] |
-                     (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
+        check_sat = (sample_saturation[ibin + 1] || (sampleTS >= QIE11_MAX_LINEARIZATION_ET) ||
+                     sample_saturation[ibin] || (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
 
       if (sampleTS > QIE11_MAX_LINEARIZATION_ET)
         sampleTS = QIE11_MAX_LINEARIZATION_ET;

@@ -3,7 +3,7 @@
 // Package:    Tracker_OldtoNewConverter.cc
 // Class:      Tracker_OldtoNewConverter
 //
-/**\class MuonGeometryIntoNtuples MuonGeometryIntoNtuples.cc Alignment/MuonGeometryIntoNtuples/src/MuonGeometryIntoNtuples.cc
+/**\class Tracker_OldtoNewConverter Tracker_OldtoNewConverter.cc Alignment/OfflineValidation/plugins/Tracker_OldtoNewConverter.cc
 
  Description: <one line class summary>
 
@@ -38,7 +38,9 @@
 class Tracker_OldtoNewConverter : public edm::one::EDAnalyzer<> {
 public:
   explicit Tracker_OldtoNewConverter(const edm::ParameterSet&);
-  ~Tracker_OldtoNewConverter() override;
+  ~Tracker_OldtoNewConverter() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob() override;
@@ -106,11 +108,20 @@ Tracker_OldtoNewConverter::Tracker_OldtoNewConverter(const edm::ParameterSet& iC
   m_treeName = iConfig.getUntrackedParameter<std::string>("treeName");
 }
 
-Tracker_OldtoNewConverter::~Tracker_OldtoNewConverter() {}
-
 //
 // member functions
 //
+
+void Tracker_OldtoNewConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Converts tracker geometry comparison trees");
+  desc.addUntracked<std::string>("conversionType", {});
+  desc.addUntracked<std::string>("inputFile", {});
+  desc.addUntracked<std::string>("outputFile", {});
+  desc.addUntracked<std::string>("textFile", {});
+  desc.addUntracked<std::string>("treeName", {});
+  descriptions.addWithDefaultLabel(desc);
+}
 
 // ------------ method called to for each event  ------------
 void Tracker_OldtoNewConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
