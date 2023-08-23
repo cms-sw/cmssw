@@ -165,12 +165,15 @@ if args.tm18:
     process.l1tLayer1HGCalTM18 = process.l1tLayer1HGCal.clone()
     process.l1tLayer1HGCalTM18.regionizerAlgo = "BufferedFoldedMultififo"
     process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nClocks = 162
-    process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nTkLinks = 1
-    process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nCaloLinks = 1
+    del process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nEndcaps 
+    del process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nTkLinks
+    del process.l1tLayer1HGCalTM18.regionizerAlgoParameters.nCaloLinks
     process.l1tLayer1HGCalNoTKTM18 = process.l1tLayer1HGCalNoTK.clone()
     process.l1tLayer1HGCalNoTKTM18.regionizerAlgo = "BufferedFoldedMultififo"
     process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nClocks = 162
-    process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nCaloLinks = 1
+    del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nEndcaps 
+    del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nTkLinks
+    del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nCaloLinks
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCal)+1, process.l1tLayer1HGCalTM18)
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCalNoTK)+1, process.l1tLayer1HGCalNoTKTM18)
     if not args.patternFilesOFF:

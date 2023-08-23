@@ -7,7 +7,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -15,6 +16,8 @@ namespace l1ct {
     EGInputSelectorEmuConfig(const edm::ParameterSet &iConfig);
     EGInputSelectorEmuConfig(unsigned int emIdMask, unsigned int nHADCALO_IN, unsigned int nEMCALO_OUT, int debug)
         : idMask(emIdMask), nHADCALO_IN(nHADCALO_IN), nEMCALO_OUT(nEMCALO_OUT), debug(debug) {}
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     emid_t idMask;
     unsigned int nHADCALO_IN;

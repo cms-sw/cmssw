@@ -20,6 +20,13 @@ _barrelWriterOutputOnly = cms.PSet(
     maxLinesPerInputFile = cms.uint32(1024),
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(_eventsPerFile),
+    tfTimeSlices = cms.VPSet(),
+    gctSectors = cms.VPSet(),
+    gmtTimeSlices = cms.VPSet(),
+    gmtNumberOfMuons = cms.uint32(12),
+    gttLink = cms.int32(-1),
+    gttLatency = cms.uint32(156+10),
+    gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
 )
 ## Barrel (54) split in 3 phi slices
 barrelWriterOutputOnlyPhiConfigs = [
@@ -37,11 +44,6 @@ barrelSerenityPhi1Config = barrelWriterOutputOnlyPhiConfigs[0].clone(
         gctLinksEcal = cms.vint32(-1),
         ) for s in range(3)]),
     gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(4*17+t)) for t in range(3)]),
-    gmtNumberOfMuons = cms.uint32(12),
-    gttLatency = cms.uint32(156+10),
-    gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
-    inputFileName = cms.string("l1BarrelPhi1Serenity-inputs-vu9p"),
-    outputFileName = cms.string("l1BarrelPhi1Serenity-outputs")
 )
 barrelSerenityVU9PPhi1Config = barrelSerenityPhi1Config.clone(
     gttLink = cms.int32(4*28+3),
@@ -85,7 +87,7 @@ _hgcalWriterConfig = cms.PSet(
     eventsPerFile = cms.uint32(_eventsPerFile),
     tfTimeSlices = cms.VPSet(*[cms.PSet(tfSectors = cms.VPSet()) for i in range(3)]),
     hgcTimeSlices = cms.VPSet(*[cms.PSet(hgcSectors = cms.VPSet()) for i in range(3)]),
-    gmtTimeSlices = cms.VPSet(cms.PSet(),cms.PSet(),cms.PSet()),
+    gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(-1)) for i in range(3)]),
     gmtNumberOfMuons = cms.uint32(12),
     gttLink = cms.int32(-1),
     gttLatency = cms.uint32(_gttLatency),
@@ -174,19 +176,18 @@ _hgcalNoTKWriterConfig = cms.PSet(
     maxLinesPerInputFile = cms.uint32(1024),
     maxLinesPerOutputFile = cms.uint32(1024),
     eventsPerFile = cms.uint32(_eventsPerFile),
+    hgcTimeSlices = cms.VPSet(*[cms.PSet(hgcSectors = cms.VPSet()) for i in range(3)]),
+    gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(-1)) for  i in range(3)]),
+    gmtNumberOfMuons = cms.uint32(12),
+    #gttLink = cms.int32(-1),
+    #gttLatency = cms.uint32(_gttLatency),
+    #gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
 )
 hgcalNoTKOutputWriterConfig = _hgcalNoTKWriterConfig.clone(
     outputLinksPuppi = cms.vuint32(*range(4)),
     outputFileName = cms.string("l1HGCalNoTK-outputs")
 )
-hgcalNoTKVU13PWriterConfig = _hgcalNoTKWriterConfig.clone(
-    hgcTimeSlices = cms.VPSet(*[cms.PSet(hgcSectors = cms.VPSet()) for i in range(3)]),
-    gmtTimeSlices = cms.VPSet(*[cms.PSet(gmtLink = cms.int32(-1)) for  i in range(3)]),
-    gmtNumberOfMuons = cms.uint32(12),
-    gttLink = cms.int32(-1),
-    gttLatency = cms.uint32(_gttLatency),
-    gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
-)
+hgcalNoTKVU13PWriterConfig = _hgcalNoTKWriterConfig.clone()
 for t in range(3):
     for isec in range(6):
         q0 = 3*isec + 6
@@ -205,7 +206,7 @@ _hgcalWriterTM18 = _hgcalWriterConfig.clone(
     tfTimeSlices = None,
     tfSectors = cms.VPSet(*[cms.PSet(tfLink = cms.int32(-1)) for i in range(18)]),
     hgcTimeSlices = None,
-    hgcSectors = cms.VPSet(*[cms.PSet() for i in range(6)]),
+    hgcSectors = cms.VPSet(*[cms.PSet(hgcLinks = cms.vint32()) for i in range(6)]),
     gmtTimeSlices = None,
     gmtLink = cms.int32(4*27+0),
     gttLink = 4*27+3,
@@ -232,8 +233,8 @@ for ie in range(2):
         hgcalWriterVU13PTM18WriterConfig.tfSectors[isec].tfLink = (ilink if ilink < 12 else (4*30+(ilink-12)))
     for iphi in range(3):
         isec, ilink = 3*ie+iphi, 2*iphi+ie
-        hgcalWriterVU9PTM18WriterConfig.hgcSectors[isec].hgcLinks = cms.vint32(*range(4*(12+ilink),4*(12+ilink)+4))
-        hgcalWriterVU13PTM18WriterConfig.hgcSectors[isec].hgcLinks = cms.vint32(*range(4*(13+ilink),4*(13+ilink)+4))
+        hgcalWriterVU9PTM18WriterConfig.hgcSectors[isec].hgcLinks += range(4*(12+ilink),4*(12+ilink)+4)
+        hgcalWriterVU13PTM18WriterConfig.hgcSectors[isec].hgcLinks += range(4*(13+ilink),4*(13+ilink)+4)
 
 hgcalTM18WriterConfigs = [
     hgcalWriterOutputTM18WriterConfig,

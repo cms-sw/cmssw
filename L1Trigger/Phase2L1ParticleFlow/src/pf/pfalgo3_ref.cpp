@@ -9,6 +9,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::PFAlgo3Emulator::PFAlgo3Emulator(const edm::ParameterSet& iConfig)
     : PFAlgoEmulatorBase(iConfig.getParameter<uint32_t>("nTrack"),
@@ -27,6 +28,27 @@ l1ct::PFAlgo3Emulator::PFAlgo3Emulator(const edm::ParameterSet& iConfig)
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
   loadPtErrBins(iConfig);
 }
+
+edm::ParameterSetDescription l1ct::PFAlgo3Emulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<unsigned int>("nTrack", 25);
+  description.add<unsigned int>("nCalo", 18);
+  description.add<unsigned int>("nMu", 2);
+  description.add<unsigned int>("nSelCalo", 18);
+  description.add<unsigned int>("nEmCalo", 12);
+  description.add<unsigned int>("nPhoton", 12);
+  description.add<unsigned int>("nAllNeutral", 25);
+  description.add<double>("trackMuDR", 0.2);
+  description.add<double>("trackEmDR", 0.04);
+  description.add<double>("emCaloDR", 0.1);
+  description.add<double>("trackCaloDR", 0.15);
+  description.add<double>("maxInvisiblePt", 10.0);
+  description.add<double>("tightTrackMaxInvisiblePt", 20);
+  addCaloResolutionParameterSetDescription(description);
+  description.addUntracked<bool>("debug", false);
+  return description;
+}
+
 #endif
 
 void l1ct::PFAlgo3Emulator::toFirmware(const PFInputRegion& in,

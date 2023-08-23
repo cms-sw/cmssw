@@ -5,6 +5,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::BufferedFoldedMultififoRegionizerEmulator::BufferedFoldedMultififoRegionizerEmulator(
     const edm::ParameterSet& iConfig)
@@ -17,11 +18,26 @@ l1ct::BufferedFoldedMultififoRegionizerEmulator::BufferedFoldedMultififoRegioniz
                                                 /*outii=*/6,
                                                 /*pauseii=*/3,
                                                 iConfig.getParameter<bool>("useAlsoVtxCoords")) {
-  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
+  debug_ = iConfig.getUntrackedParameter<bool>("debug");
   if (iConfig.existsAs<edm::ParameterSet>("egInterceptMode")) {
     const auto& emSelCfg = iConfig.getParameter<edm::ParameterSet>("egInterceptMode");
     setEgInterceptMode(emSelCfg.getParameter<bool>("afterFifo"), emSelCfg);
   }
+}
+
+edm::ParameterSetDescription l1ct::BufferedFoldedMultififoRegionizerEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<uint32_t>("nClocks", 162);
+  description.add<uint32_t>("nTrack", 30);
+  description.add<uint32_t>("nCalo", 20);
+  description.add<uint32_t>("nEmCalo", 10);
+  description.add<uint32_t>("nMu", 4);
+  edm::ParameterSetDescription egIntercept = l1ct::EGInputSelectorEmuConfig::getParameterSetDescription();
+  egIntercept.add<bool>("afterFifo", true);
+  description.addOptional<edm::ParameterSetDescription>("egInterceptMode", egIntercept);
+  description.add<bool>("useAlsoVtxCoords", true);
+  description.addUntracked<bool>("debug", false);
+  return description;
 }
 #endif
 

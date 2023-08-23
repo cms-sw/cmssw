@@ -1,15 +1,14 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TCorrelatorLayer1PatternFileWriter.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include <iostream>
 
 L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const edm::ParameterSet& iConfig,
                                                                            const l1ct::Event& eventTemplate)
     : partition_(parsePartition(iConfig.getParameter<std::string>("partition"))),
       tmuxFactor_(iConfig.getParameter<uint32_t>("tmuxFactor")),
-      writeInputs_(iConfig.existsAs<std::string>("inputFileName") &&
-                   !iConfig.getParameter<std::string>("inputFileName").empty()),
-      writeOutputs_(iConfig.existsAs<std::string>("outputFileName") &&
-                    !iConfig.getParameter<std::string>("outputFileName").empty()),
+      writeInputs_(!iConfig.getParameter<std::string>("inputFileName").empty()),
+      writeOutputs_(!iConfig.getParameter<std::string>("outputFileName").empty()),
       tfTimeslices_(std::max(1u, tfTmuxFactor_ / tmuxFactor_)),
       hgcTimeslices_(std::max(1u, hgcTmuxFactor_ / tmuxFactor_)),
       gctTimeslices_(std::max(1u, gctTmuxFactor_ / tmuxFactor_)),
@@ -113,6 +112,60 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
 
 L1TCorrelatorLayer1PatternFileWriter::~L1TCorrelatorLayer1PatternFileWriter() {}
 
+edm::ParameterSetDescription L1TCorrelatorLayer1PatternFileWriter::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<std::string>("inputFileName", "");
+  description.add<std::string>("inputFileExtension", "txt.gz");
+  description.add<uint32_t>("maxLinesPerInputFile", 1024u);
+  description.add<uint32_t>("nInputFramesPerBX", 9u);
+  description.add<std::string>("outputFileName", "");
+  description.add<std::string>("outputFileExtension", "txt.gz");
+  description.add<uint32_t>("maxLinesPerOutputFile", 1024u);
+  description.add<uint32_t>("nOutputFramesPerBX", 9u);
+  description.add<uint32_t>("tmuxFactor", 6u);
+  description.add<uint32_t>("eventsPerFile", 12u);
+  description.add<std::string>("fileFormat");
+
+  description.ifValue(edm::ParameterDescription<std::string>("partition", "Barrel", true),
+                      "Barrel" >> (describeTF() and describeGCT() and describeGTT() and describeGMT() and
+                                   describePuppi() and describeEG()) or
+                          "HGCal" >> (describeTF() and describeHGC() and describeGTT() and describeGMT() and
+                                      describePuppi() and describeEG()) or
+                          "HGCalNoTk" >> (describeHGC() and describeGMT() and describePuppi()) or
+                          "HF" >> (describePuppi()));
+  return description;
+}
+
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeTF() {
+  return describeTimeSlices("tf");
+}
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeGCT() {
+  edm::ParameterSetDescription gctSectorPSD;
+  gctSectorPSD.add<std::vector<int32_t>>("gctLinksEcal");
+  gctSectorPSD.add<std::vector<int32_t>>("gctLinksHad");
+  return std::make_unique<edm::ParameterDescription<std::vector<edm::ParameterSet>>>("gctSectors", gctSectorPSD, true);
+}
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeHGC() {
+  return describeTimeSlices("hgc");
+}
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeGMT() {
+  return describeTimeSlices("gmt") and edm::ParameterDescription<uint32_t>("gmtNumberOfMuons", 12, true);
+}
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeGTT() {
+  return describeTimeSlices("gtt") and
+         edm::ParameterDescription<uint32_t>("gttLatency", 162, true) and  // minimal latency is 18 BX
+         edm::ParameterDescription<uint32_t>("gttNumberOfPVs", 10, true);
+}
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describePuppi() {
+  return edm::ParameterDescription<std::vector<uint32_t>>("outputRegions", std::vector<uint32_t>(), true) and
+         edm::ParameterDescription<std::vector<uint32_t>>("outputLinksPuppi", std::vector<uint32_t>(), true);
+}
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeEG() {
+  return edm::ParameterDescription<int32_t>("outputLinkEgamma", -1, true) and
+         edm::ParameterDescription<uint32_t>("nEgammaObjectsOut", 16, true) and
+         edm::ParameterDescription<int32_t>("outputBoard", -1, true);
+}
+
 void L1TCorrelatorLayer1PatternFileWriter::write(const l1ct::Event& event) {
   if (writeInputs_) {
     l1t::demo::EventData inputs;
@@ -182,6 +235,14 @@ void L1TCorrelatorLayer1PatternFileWriter::configTimeSlices(const edm::Parameter
   }
 }
 
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeTimeSlices(
+    const std::string& prefix) {
+  edm::ParameterSetDescription timeslicesPSD;
+  timeslicesPSD.addNode(describeSectors(prefix));
+  return edm::ParameterDescription<std::vector<edm::ParameterSet>>(prefix + "TimeSlices", timeslicesPSD, true) xor
+         describeSectors(prefix);
+}
+
 void L1TCorrelatorLayer1PatternFileWriter::configSectors(const edm::ParameterSet& iConfig,
                                                          const std::string& prefix,
                                                          unsigned int nSectors,
@@ -198,6 +259,15 @@ void L1TCorrelatorLayer1PatternFileWriter::configSectors(const edm::ParameterSet
     configLinks(iConfig, prefix, linksFactor, 0);
   }
 }
+
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeSectors(
+    const std::string& prefix) {
+  edm::ParameterSetDescription sectorsPSD;
+  sectorsPSD.addNode(describeLinks(prefix));
+  return edm::ParameterDescription<std::vector<edm::ParameterSet>>(prefix + "Sectors", sectorsPSD, true) xor
+         describeLinks(prefix);
+}
+
 void L1TCorrelatorLayer1PatternFileWriter::configLinks(const edm::ParameterSet& iConfig,
                                                        const std::string& prefix,
                                                        unsigned int linksFactor,
@@ -218,6 +288,12 @@ void L1TCorrelatorLayer1PatternFileWriter::configLinks(const edm::ParameterSet& 
       channelIdsInput_[l1t::demo::LinkId{prefix, offset}].push_back(link);
     }
   }
+}
+
+std::unique_ptr<edm::ParameterDescriptionNode> L1TCorrelatorLayer1PatternFileWriter::describeLinks(
+    const std::string& prefix) {
+  return edm::ParameterDescription<int32_t>(prefix + "Link", true) xor
+         edm::ParameterDescription<std::vector<int32_t>>(prefix + "Links", true);
 }
 
 void L1TCorrelatorLayer1PatternFileWriter::writeTF(const l1ct::Event& event, l1t::demo::EventData& out) {

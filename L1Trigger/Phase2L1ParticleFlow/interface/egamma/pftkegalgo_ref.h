@@ -9,7 +9,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -47,6 +48,7 @@ namespace l1ct {
       ap_int<z0_t::width + 1> dZ;
       int dRMin2;
       int dRMax2;
+      static edm::ParameterSetDescription getParameterSetDescription();
     };
 
     IsoParameters tkIsoParams_tkEle;
@@ -65,6 +67,7 @@ namespace l1ct {
       const double bdtScore_loose_wp;  // XGBOOST score
       const double bdtScore_tight_wp;  // XGBOOST score
       const std::string conifer_model;
+      static edm::ParameterSetDescription getParameterSetDescription();
     };
 
     CompIDParameters compIDparams;
@@ -131,6 +134,8 @@ namespace l1ct {
           hwIsoTypeTkEm(hwIsoTypeTkEm),
           compIDparams(compIDparams),
           debug(debug) {}
+
+    static edm::ParameterSetDescription getParameterSetDescription();
   };
 
   class PFTkEGAlgoEmulator {

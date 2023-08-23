@@ -5,7 +5,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
   class HgcalClusterDecoderEmulator {
@@ -16,6 +17,9 @@ namespace l1ct {
     HgcalClusterDecoderEmulator(const edm::ParameterSet &pset);
 
     ~HgcalClusterDecoderEmulator();
+
+    static edm::ParameterSetDescription getParameterSetDescription();
+
     l1ct::HadCaloObjEmu decode(const ap_uint<256> &in) const;
   };
 }  // namespace l1ct

@@ -2,9 +2,16 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 l1ct::HgcalClusterDecoderEmulator::HgcalClusterDecoderEmulator(const edm::ParameterSet &pset)
     : slim_(pset.getParameter<bool>("slim")) {}
 
+edm::ParameterSetDescription l1ct::HgcalClusterDecoderEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<bool>("slim", false);
+  return description;
+}
 #endif
 
 l1ct::HgcalClusterDecoderEmulator::~HgcalClusterDecoderEmulator() {}

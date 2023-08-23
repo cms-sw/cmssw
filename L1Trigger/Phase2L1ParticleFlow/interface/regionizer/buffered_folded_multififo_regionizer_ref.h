@@ -57,6 +57,8 @@ namespace l1ct {
 
     ~BufferedFoldedMultififoRegionizerEmulator() override;
 
+    static edm::ParameterSetDescription getParameterSetDescription();
+
     void initSectorsAndRegions(const RegionizerDecodedInputs& in, const std::vector<PFInputRegion>& out) override;
 
     void run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) override;

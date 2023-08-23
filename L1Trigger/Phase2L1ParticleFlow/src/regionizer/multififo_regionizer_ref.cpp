@@ -8,6 +8,8 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 
 l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const edm::ParameterSet& iConfig)
     : MultififoRegionizerEmulator(iConfig.getParameter<uint32_t>("nEndcaps"),
@@ -43,7 +45,41 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const std::string
                                   /*outii=*/1,
                                   /*pauseii=*/0,
                                   iConfig.getParameter<bool>("useAlsoVtxCoords")) {
-  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
+  debug_ = iConfig.getUntrackedParameter<bool>("debug");
+}
+
+edm::ParameterSetDescription l1ct::MultififoRegionizerEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<uint32_t>("nEndcaps", 2);
+  description.add<uint32_t>("nClocks", 54);
+  description.add<uint32_t>("nTkLinks", 2);
+  description.add<uint32_t>("nCaloLinks", 3);
+  description.add<uint32_t>("nTrack", 30);
+  description.add<uint32_t>("nCalo", 20);
+  description.add<uint32_t>("nEmCalo", 10);
+  description.add<uint32_t>("nMu", 4);
+  edm::ParameterSetDescription egIntercept = l1ct::EGInputSelectorEmuConfig::getParameterSetDescription();
+  egIntercept.add<bool>("afterFifo", true);
+  description.addOptional<edm::ParameterSetDescription>("egInterceptMode", egIntercept);
+  description.add<bool>("useAlsoVtxCoords", true);
+  description.addUntracked<bool>("debug", false);
+  return description;
+}
+
+edm::ParameterSetDescription l1ct::MultififoRegionizerEmulator::getParameterSetDescriptionBarrel() {
+  edm::ParameterSetDescription description;
+  description.ifValue(edm::ParameterDescription<std::string>("barrelSetup", "Full54", true),
+                      edm::allowedValues<std::string>("Full54", "Full27"));
+  description.add<uint32_t>("nClocks", 54);
+  description.add<uint32_t>("nHCalLinks", 2);
+  description.add<uint32_t>("nECalLinks", 1);
+  description.add<uint32_t>("nTrack", 22);
+  description.add<uint32_t>("nCalo", 15);
+  description.add<uint32_t>("nEmCalo", 12);
+  description.add<uint32_t>("nMu", 2);
+  description.add<bool>("useAlsoVtxCoords", true);
+  description.addUntracked<bool>("debug", false);
+  return description;
 }
 #endif
 
