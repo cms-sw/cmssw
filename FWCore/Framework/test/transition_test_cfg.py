@@ -371,7 +371,7 @@ def chooseTrans(index):
     print('****************************************')
     return d[index][1]
 
-trans = chooseTrans(int(sys.argv[2]))
+trans = chooseTrans(int(sys.argv[1]))
 
 process = cms.Process("TEST")
 process.source = cms.Source("TestSource", 
