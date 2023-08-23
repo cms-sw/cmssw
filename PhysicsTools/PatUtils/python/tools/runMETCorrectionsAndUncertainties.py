@@ -108,6 +108,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # technical parameters
         self.addParameter(self._defaultParameters, 'Puppi', False,
                           "Puppi algorithm (private)", Type=bool)
+        self.addParameter(self._defaultParameters, 'puppiProducerLabel', 'puppiNoLep',
+                          "PuppiProducer module label name", Type=str)
         self.addParameter(self._defaultParameters, 'addToPatDefaultSequence', False,
                           "Flag to enable/disable that metUncertaintySequence is inserted into patDefaultSequence", Type=bool)
         self.addParameter(self._defaultParameters, 'postfix', '',
@@ -154,6 +156,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  reclusterJets           =None,
                  computeMETSignificance  =None,
                  CHS                     =None,
+                 puppiProducerLabel      =None,
                  runOnData               =None,
                  onMiniAOD               =None,
                  fixEE2017               =None,
@@ -220,6 +223,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             computeMETSignificance = self._defaultParameters['computeMETSignificance'].value
         if CHS is None :
             CHS = self._defaultParameters['CHS'].value
+        if puppiProducerLabel is None:
+            puppiProducerLabel = self._defaultParameters['puppiProducerLabel'].value
         if runOnData is None :
             runOnData = self._defaultParameters['runOnData'].value
         if onMiniAOD is None :
@@ -262,6 +267,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('computeMETSignificance',computeMETSignificance),
         self.setParameter('reapplyJEC',reapplyJEC),
         self.setParameter('CHS',CHS),
+        self.setParameter('puppiProducerLabel',puppiProducerLabel),
         self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
         self.setParameter('postfix',postfix),
@@ -564,7 +570,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
             # account for possibility of Puppi
             if self.getvalue("Puppi"):
-                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
+                getattr(process, _myPatMet).srcWeights = self._parameters['puppiProducerLabel'].value
         # set considered electrons, muons, and photons depending on data tier
         if metType == "PF":
             getattr(process, _myPatMet).srcLeptons = \
@@ -686,7 +692,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.tuneTxyParameters(process, correctionScheme, postfix, datamc, self.getvalue("campaign"), self.getvalue("era"))
             getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = self._parameters["pfCandCollection"].value
             if self.getvalue("Puppi"):
-                getattr(process, "patPFMetTxyCorr"+postfix).srcWeights = "puppiNoLep"
+                getattr(process, "patPFMetTxyCorr"+postfix).srcWeights = self._parameters['puppiProducerLabel'].value
 
 
         # Enable MET significance if the type1 MET is computed
@@ -706,7 +712,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams_Data
                 getattr(process, _myPatMet).parameters = METSignificanceParams_Data
             if self.getvalue("Puppi"):
-                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
+                getattr(process, _myPatMet).srcWeights = self._parameters['puppiProducerLabel'].value
                 getattr(process, _myPatMet).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                 getattr(process, _myPatMet).srcJetSF = 'AK4PFPuppi'
                 getattr(process, _myPatMet).srcJetResPt = 'AK4PFPuppi_pt'
@@ -724,7 +730,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","photons"))
             if self.getvalue("Puppi"):
-                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
+                getattr(process, _myPatMet).srcWeights = self._parameters['puppiProducerLabel'].value
 
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
@@ -1215,7 +1221,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         for mod in shiftedCollModules.keys():
             modName = "shiftedPat"+preId+identifier+varType+mod+postfix
             if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
-                shiftedCollModules[mod].srcWeights = "puppiNoLep"
+                shiftedCollModules[mod].srcWeights = self._parameters['puppiProducerLabel'].value
             if not hasattr(process, modName):
                 addToProcessAndTask(modName, shiftedCollModules[mod], process, createShiftedModules_task)
 
@@ -1227,7 +1233,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 #create the MET shifts and add them to the sequence
                 shiftedMETCorrModule = self.createShiftedMETModule(process, objectCollection, modName)
                 if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
-                   shiftedMETCorrModule.srcWeights = "puppiNoLep"
+                   shiftedMETCorrModule.srcWeights = self._parameters['puppiProducerLabel'].value
                 modMETShiftName = "shiftedPatMETCorr"+preId+identifier+varType+mod+postfix
                 if not hasattr(process, modMETShiftName):
                     addToProcessAndTask(modMETShiftName, shiftedMETCorrModule, process, createShiftedModules_task)
@@ -1335,7 +1341,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             # if Puppi MET is requested, apply the Puppi weights
             if self.getvalue("Puppi"):
                 getattr(process, "pfMet"+postfix).applyWeight = True
-                getattr(process, "pfMet"+postfix).srcWeights = "puppiNoLep"
+                getattr(process, "pfMet"+postfix).srcWeights = self._parameters['puppiProducerLabel'].value
 
         # PAT MET
         if not hasattr(process, "patMETs"+postfix) and self._parameters["metType"].value == "PF":
@@ -1363,7 +1369,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     getattr(process, _myPatMet).computeMETSignificance = cms.bool(False)
 
                 if self.getvalue("Puppi"):
-                    getattr(process, _myPatMet).srcWeights = "puppiNoLep"
+                    getattr(process, _myPatMet).srcWeights = self._parameters['puppiProducerLabel'].value
                     getattr(process, _myPatMet).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                     getattr(process, _myPatMet).srcJetSF = cms.string('AK4PFPuppi')
                     getattr(process, _myPatMet).srcJetResPt = cms.string('AK4PFPuppi_pt')
@@ -1952,6 +1958,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                jetCorLabelRes="ak4PFCHSL1FastL2L3ResidualCorrector",
 ##                               jecUncFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
                                CHS=False,
+                               puppiProducerLabel="puppiNoLep",
                                reapplyJEC=True,
                                jecUncFile="",
                                computeMETSignificance=True,
@@ -1990,6 +1997,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jecUncertaintyFile=jecUncFile,
                                       computeMETSignificance=computeMETSignificance,
                                       CHS=CHS,
+                                      puppiProducerLabel=puppiProducerLabel,
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
@@ -2024,6 +2032,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jecUncertaintyFile=jecUncFile,
                                       computeMETSignificance=computeMETSignificance,
                                       CHS=CHS,
+                                      puppiProducerLabel=puppiProducerLabel,
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
@@ -2057,6 +2066,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jecUncertaintyFile=jecUncFile,
                                       computeMETSignificance=computeMETSignificance,
                                       CHS=CHS,
+                                      puppiProducerLabel=puppiProducerLabel,
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
                                       fixEE2017Params=fixEE2017Params,
