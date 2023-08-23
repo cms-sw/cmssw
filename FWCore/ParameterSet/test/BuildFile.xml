@@ -17,3 +17,8 @@
   <use name="cppunit"/>
   <use name="FWCore/ParameterSet"/>
 </bin>
+
+<test name="testFWCoreParameterSetVarparsingDump" command="edmConfigDump -o dump_varparsing.py ${LOCALTOP}/src/FWCore/ParameterSet/test/test_varparsing.py output=foo intprod=2"/>
+<test name="testFWCoreParameterSetVarparsingSplit" command="edmConfigSplit ${LOCALTOP}/src/FWCore/ParameterSet/test/test_varparsing.py output=foo intprod=2"/>
+<test name="testFWCoreParameterSetArgparseDump" command="edmConfigDump -o dump_argparse.py ${LOCALTOP}/src/FWCore/ParameterSet/test/test_argparse.py -o foo -i 2"/>
+<test name="testFWCoreParameterSetArgparseSplit" command="edmConfigSplit ${LOCALTOP}/src/FWCore/ParameterSet/test/test_argparse.py -o foo -i 2"/>
