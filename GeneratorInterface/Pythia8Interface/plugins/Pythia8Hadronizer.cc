@@ -18,9 +18,9 @@ using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
-#include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
+#include "ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
-#include "GeneratorInterface/Pythia8Interface/plugins/TopRecoilHook.h"
+#include "TopRecoilHook.h"
 
 // PS matchning prototype
 //
