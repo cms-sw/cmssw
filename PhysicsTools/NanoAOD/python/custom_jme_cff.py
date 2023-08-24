@@ -132,8 +132,8 @@ PFJETVARS = cms.PSet(P4Vars,
   chEmEF        = jetPuppiTable.variables.chEmEF,
   neEmEF        = jetPuppiTable.variables.neEmEF,
   muEF          = jetPuppiTable.variables.muEF,
-  hfHEF         = jetPuppiTable.variables.hfHEF,
-  hfEmEF        = jetPuppiTable.variables.hfEmEF,
+  hfHEF         = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision= 6),
+  hfEmEF        = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision= 6),
   nMuons        = jetPuppiTable.variables.nMuons,
   nElectrons    = jetPuppiTable.variables.nElectrons,
   nConstituents = jetPuppiTable.variables.nConstituents,
@@ -294,7 +294,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName
       vertexes  = "offlineSlimmedPrimaryVertices",
       inputIsCorrected = True,
       applyJec  = False,
-      srcConstituentWeights = "puppi" if "PUPPI" in jetName.upper() else ""
+      srcConstituentWeights = "packedpuppi" if "PUPPI" in jetName.upper() else ""
     )
   )
   getattr(proc,jetTaskName).add(getattr(proc, puJetIdVarsCalculator))
@@ -364,7 +364,7 @@ def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName="
       )
     )
     if isPUPPIJet:
-      getattr(proc,QGLTagger).srcConstituentWeights = cms.InputTag("puppi")
+      getattr(proc,QGLTagger).srcConstituentWeights = cms.InputTag("packedpuppi")
 
   #
   # Save variables as userFloats and userInts for each jet
@@ -689,13 +689,13 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   #
   # Add variables
   #
-  proc.jetPuppiTable.variables.nConstChHads  = PFJETVARS.nConstChHads
-  proc.jetPuppiTable.variables.nConstNeuHads = PFJETVARS.nConstNeuHads
-  proc.jetPuppiTable.variables.nConstHFHads  = PFJETVARS.nConstHFHads
-  proc.jetPuppiTable.variables.nConstHFEMs   = PFJETVARS.nConstHFEMs
-  proc.jetPuppiTable.variables.nConstMuons   = PFJETVARS.nConstMuons
-  proc.jetPuppiTable.variables.nConstElecs   = PFJETVARS.nConstElecs
-  proc.jetPuppiTable.variables.nConstPhotons = PFJETVARS.nConstPhotons
+  proc.jetPuppiTable.variables.chHadMultiplicity = PFJETVARS.chHadMultiplicity
+  proc.jetPuppiTable.variables.neHadMultiplicity = PFJETVARS.neHadMultiplicity
+  proc.jetPuppiTable.variables.hfHadMultiplicity = PFJETVARS.hfHadMultiplicity
+  proc.jetPuppiTable.variables.hfEMMultiplicity  = PFJETVARS.hfEMMultiplicity
+  proc.jetPuppiTable.variables.muMultiplicity    = PFJETVARS.muMultiplicity
+  proc.jetPuppiTable.variables.elMultiplicity    = PFJETVARS.elMultiplicity
+  proc.jetPuppiTable.variables.phoMultiplicity   = PFJETVARS.phoMultiplicity
 
   #
   # Add variables for pileup jet ID studies.
@@ -855,13 +855,13 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   # Add variables
   #
-  proc.jetTable.variables.nConstChHads  = PFJETVARS.nConstChHads
-  proc.jetTable.variables.nConstNeuHads = PFJETVARS.nConstNeuHads
-  proc.jetTable.variables.nConstHFHads  = PFJETVARS.nConstHFHads
-  proc.jetTable.variables.nConstHFEMs   = PFJETVARS.nConstHFEMs
-  proc.jetTable.variables.nConstMuons   = PFJETVARS.nConstMuons
-  proc.jetTable.variables.nConstElecs   = PFJETVARS.nConstElecs
-  proc.jetTable.variables.nConstPhotons = PFJETVARS.nConstPhotons
+  proc.jetTable.variables.chHadMultiplicity = PFJETVARS.chHadMultiplicity
+  proc.jetTable.variables.neHadMultiplicity = PFJETVARS.neHadMultiplicity
+  proc.jetTable.variables.hfHadMultiplicity = PFJETVARS.hfHadMultiplicity
+  proc.jetTable.variables.hfEMMultiplicity  = PFJETVARS.hfEMMultiplicity
+  proc.jetTable.variables.muMultiplicity    = PFJETVARS.muMultiplicity
+  proc.jetTable.variables.elMultiplicity    = PFJETVARS.elMultiplicity
+  proc.jetTable.variables.phoMultiplicity   = PFJETVARS.phoMultiplicity
 
   #
   # Add charged energy fraction from other primary vertices
