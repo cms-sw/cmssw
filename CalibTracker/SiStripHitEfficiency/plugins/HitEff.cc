@@ -81,7 +81,7 @@ HitEff::HitEff(const edm::ParameterSet& conf)
       trajTrackAsso_token_(consumes<TrajTrackAssociationCollection>(conf.getParameter<edm::InputTag>("trajectories"))),
       clusters_token_(
           consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("siStripClusters"))),
-      digis_token_(consumes<DetIdCollection>(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digis_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
       trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       topoToken_(esConsumes()),
       geomToken_(esConsumes()),
@@ -247,7 +247,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   const MagneticField* magField_ = &es.getData(magFieldToken_);
 
   // get the list of module IDs with FED-detected errors
-  edm::Handle<DetIdCollection> fedErrorIds;
+  edm::Handle<DetIdVector> fedErrorIds;
   //e.getByLabel("siStripDigis", fedErrorIds );
   e.getByToken(digis_token_, fedErrorIds);
 
