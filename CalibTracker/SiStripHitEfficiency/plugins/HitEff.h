@@ -7,7 +7,7 @@
 // user includes
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -80,7 +80,7 @@ private:
   const edm::EDGetTokenT<std::vector<Trajectory> > trajectories_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_token_;
-  const edm::EDGetTokenT<DetIdCollection> digis_token_;
+  const edm::EDGetTokenT<DetIdVector> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
   // ES tokens

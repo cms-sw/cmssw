@@ -17,7 +17,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -73,7 +73,7 @@ private:
                    const TrackerGeometry* tkgeom,
                    const StripClusterParameterEstimator& stripCPE,
                    const SiStripQuality& stripQuality,
-                   const DetIdCollection& fedErrorIds,
+                   const DetIdVector& fedErrorIds,
                    const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                    const edmNew::DetSetVector<SiStripCluster>& theClusters,
                    int bunchCrossing,
@@ -92,7 +92,7 @@ private:
   const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clusters_token_;
-  const edm::EDGetTokenT<DetIdCollection> digis_token_;
+  const edm::EDGetTokenT<DetIdVector> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
   // event setup tokens
@@ -202,7 +202,7 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       trajTrackAsso_token_(consumes<TrajTrackAssociationCollection>(conf.getParameter<edm::InputTag>("trajectories"))),
       clusters_token_(
           consumes<edmNew::DetSetVector<SiStripCluster>>(conf.getParameter<edm::InputTag>("siStripClusters"))),
-      digis_token_(consumes<DetIdCollection>(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digis_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
       trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       tTopoToken_(esConsumes()),
       tkGeomToken_(esConsumes()),
@@ -445,7 +445,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> theClusters;
   e.getByToken(clusters_token_, theClusters);
 
-  edm::Handle<DetIdCollection> fedErrorIds;
+  edm::Handle<DetIdVector> fedErrorIds;
   e.getByToken(digis_token_, fedErrorIds);
 
   // fill the calibData with the FEDErrors
@@ -847,7 +847,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
                                              const TrackerGeometry* tkgeom,
                                              const StripClusterParameterEstimator& stripCPE,
                                              const SiStripQuality& stripQuality,
-                                             const DetIdCollection& fedErrorIds,
+                                             const DetIdVector& fedErrorIds,
                                              const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                                              const edmNew::DetSetVector<SiStripCluster>& theClusters,
                                              int bunchCrossing,

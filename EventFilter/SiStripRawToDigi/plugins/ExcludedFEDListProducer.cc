@@ -23,7 +23,7 @@ namespace sistrip {
         cabling_(nullptr),
         token_(consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"))),
         cablingToken_(esConsumes<SiStripFedCabling, SiStripFedCablingRcd, edm::Transition::BeginRun>()) {
-    produces<DetIdCollection>();
+    produces<DetIdVector>();
   }
 
   ExcludedFEDListProducer::~ExcludedFEDListProducer() {}
@@ -49,8 +49,8 @@ namespace sistrip {
     if (runNumber_ != event.run()) {
       runNumber_ = event.run();
 
-      DetIdCollection emptyDetIdCollection;
-      detids_.swap(emptyDetIdCollection);
+      DetIdVector emptyDetIdVector;
+      detids_.swap(emptyDetIdVector);
       // Reserve space in bad module list
       detids_.reserve(100);
 
@@ -85,6 +85,6 @@ namespace sistrip {
     //   std::cout << "detId = " << (*detids)[it]() << std::endl;
     // }
 
-    event.put(std::make_unique<DetIdCollection>(detids_));
+    event.put(std::make_unique<DetIdVector>(detids_));
   }
 }  // namespace sistrip
