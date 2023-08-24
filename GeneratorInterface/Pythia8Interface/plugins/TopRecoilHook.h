@@ -114,8 +114,6 @@ namespace Pythia8 {
 
       // List relevant properties.
       if (doList) {
-        cout << "\n now event with sizeOld = " << sizeOld << ", iSys = " << iSys << ", sizeOut = " << sizeOut
-             << scientific << setprecision(3) << ", weight with W = " << wtW << " and with t = " << wtT << endl;
         partonSystemsPtr->list();
         event.list();
       }
