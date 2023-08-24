@@ -811,8 +811,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
   //Loop over probes
   for (unsigned i = 0; i < probe_indices.size(); ++i) {
-    uint8_t GEM_matchPatt = probe_coll_GEM_staMatch.at(i);  // ME0 to 0b0001, GE11 to 0b0010, GE21 to 0b0100
-    //uint8_t ME0_matchPatt = probe_coll_ME0_staMatch.at(i);
+    //uint8_t GEM_matchPatt = probe_coll_GEM_staMatch.at(i);  // ME0 to 0b0001, GE11 to 0b0010, GE21 to 0b0100
 
     //Loop over ME0 matches
     unsigned nME0_matches = probe_coll_ME0_region.at(i).size();
@@ -978,13 +977,10 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
     for (unsigned j = 0; j < nGE21_matches; ++j) {
       //GEM variables
       int GEM_region = probe_coll_GE21_region.at(i).at(j);
-      int GEM_sta = probe_coll_GE21_sta.at(i).at(j);
       int GEM_lay = probe_coll_GE21_lay.at(i).at(j);
       int GEM_chamber = probe_coll_GE21_chamber.at(i).at(j);
       float GEM_ieta = probe_coll_GE21_ieta.at(i).at(j);
-      float GEM_pt = probe_coll_GE21_pt.at(i).at(j);
       float GEM_dx = probe_coll_GE21_dx.at(i).at(j);
-      float GEM_eta = probe_coll_GE21_eta.at(i).at(j);
       float GEM_phi = probe_coll_GE21_phi.at(i).at(j);
 
       //Fill GEM plots
