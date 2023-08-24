@@ -583,7 +583,8 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
   if (TopRecoilHook1) {
     edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
-    fTopRecoilHook.reset(new TopRecoilHook());
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook.reset(new TopRecoilHook());
     fMultiUserHook->addHook(fTopRecoilHook.get());
   }
 
