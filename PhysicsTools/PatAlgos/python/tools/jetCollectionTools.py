@@ -293,7 +293,7 @@ class RecoJetAdder(object):
         # PUPPI
         #
         elif recoJetInfo.jetPUMethod == "puppi":
-          pfCandWeight = setupPuppiForPackedPF(process)[0]
+          pfCandWeight = setupPuppiForPackedPF(proc)[0]
           self.prerequisites.append(pfCandWeight)
         #
         # Softkiller
