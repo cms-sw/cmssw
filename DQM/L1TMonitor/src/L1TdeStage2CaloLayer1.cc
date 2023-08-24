@@ -4,6 +4,7 @@
  * N. Smith <nick.smith@cern.ch>
  */
 //Modified by Bhawna Gomber <bhawna.gomber@cern.ch>
+//Modified by Ho-Fung Tsoi <ho.fung.tsoi@cern.ch>
 
 #include "DQM/L1TMonitor/interface/L1TdeStage2CaloLayer1.h"
 
@@ -115,10 +116,12 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event& event, const edm::EventSet
 
       etCorrelation_->Fill(dataTower.et(), emulTower.et());
 
+      const uint32_t data_fb = dataTower.fb() & 0b1011;
+      const uint32_t emul_fb = emulTower.fb() & 0b1011;
       if (abs(dataTower.ieta_) >= 30) {
-        fbCorrelationHF_->Fill(dataTower.fb(), emulTower.fb());
+        fbCorrelationHF_->Fill(data_fb, emul_fb);
       } else {
-        fbCorrelation_->Fill(dataTower.fb(), emulTower.fb());
+        fbCorrelation_->Fill(data_fb, emul_fb);
       }
 
       if (dataTower.data_ == emulTower.data_) {
@@ -149,7 +152,7 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event& event, const edm::EventSet
           erMsmThisEvent = true;
           updateMismatch(event, 1);
         }
-        if (dataTower.fb() != emulTower.fb()) {
+        if (data_fb != emul_fb) {
           failureOccFbMismatch_->Fill(dataTower.ieta_, dataTower.iphi_);
           fbMismatchByLumi_->Fill(event.id().luminosityBlock());
           fbMismatchesPerBx_->Fill(event.bunchCrossing());
