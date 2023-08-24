@@ -382,7 +382,6 @@ namespace edm {
 
     StreamID streamID_;
     StreamContext streamContext_;
-    std::atomic<bool> skippingEvent_;
   };
 
   void inline StreamSchedule::reportSkipped(EventPrincipal const& ep) const {
