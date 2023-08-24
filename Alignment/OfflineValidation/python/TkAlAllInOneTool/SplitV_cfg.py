@@ -196,7 +196,6 @@ process.TFileService = cms.Service("TFileService",
                                    )
 print("Saving the output at %s" % process.TFileService.fileName.value())
 
-
 process.theValidSequence = cms.Sequence(process.offlineBeamSpot                        +
                                         process.TrackRefitter                          +
                                         process.offlinePrimaryVerticesFromRefittedTrks +
