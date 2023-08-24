@@ -62,7 +62,6 @@ MEtoEDMConvertSiPixelLorentzAngle = cms.EDProducer("MEtoEDMConverter",
                                                    )
 
 # The actual sequence
-from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
 seqALCARECOPromptCalibProdSiPixelLorentzAngle = cms.Sequence(
     ALCARECOCalSignleMuonFilterForSiPixelLorentzAngle *
     ALCARECOPixelLATrackFilterRefit *
