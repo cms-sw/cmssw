@@ -91,7 +91,6 @@ namespace Pythia8 {
 
       // Recoiler should now be a W, else something is wrong.
       if (event[iRec].idAbs() != 24) {
-        cout << " ERROR: recoiler is " << event[iRec].id() << endl;
         return false;
       }
 
