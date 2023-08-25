@@ -344,7 +344,7 @@ L1TCorrelatorLayer1Producer::~L1TCorrelatorLayer1Producer() {}
 void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   // Inputs and cuts
-  desc.add<edm::InputTag>("tracks", edm::InputTag("l1tPFTracksFromL1Tracks"));
+  desc.add<edm::InputTag>("tracks", edm::InputTag(""));
   desc.add<edm::InputTag>("muons", edm::InputTag("l1tSAMuonsGmt", "promptSAMuons"));
   desc.add<std::vector<edm::InputTag>>("emClusters", std::vector<edm::InputTag>());
   desc.add<std::vector<edm::InputTag>>("hadClusters", std::vector<edm::InputTag>());
