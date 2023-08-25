@@ -54,6 +54,7 @@ namespace trklet {
 
     unsigned int phiregionaddress() const;
     std::string phiregionaddressstr() const;
+    std::string phiregionstr() const;
 
     void setAllStubIndex(int nstub);  //should migrate away from using this method
 
