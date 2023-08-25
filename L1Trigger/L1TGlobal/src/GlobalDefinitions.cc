@@ -67,6 +67,8 @@ namespace {
       {"l1t::TypeMinBiasHFM0", l1t::TypeMinBiasHFM0},
       {"l1t::TypeMinBiasHFP1", l1t::TypeMinBiasHFP1},
       {"l1t::TypeMinBiasHFM1", l1t::TypeMinBiasHFM1},
+      {"l1t::TypeZDCP", l1t::TypeZDCP},
+      {"l1t::TypeZDCM", l1t::TypeZDCM},
       {"l1t::TypeExternal", l1t::TypeExternal},
       {nullptr, (l1t::GtConditionType)-1},
       {"l1t::Type2corWithOverlapRemoval", l1t::Type2corWithOverlapRemoval},

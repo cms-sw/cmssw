@@ -22,6 +22,8 @@
  * \new features: Bernhard Arnold, Elisa Fontanesi
  *                - extended for muon track finder index feature (used for Run 3 muon monitoring seeds)
  *                - checkRangeEta function allows to use up to five eta cuts in L1 algorithms
+ * \new features: Elisa Fontanesi
+ *                - extended for Zero Degree Calorimeter triggers (used for Run 3 HI data-taking)
  *
  * $Date$
  * $Revision$
@@ -134,6 +136,11 @@ void l1t::TriggerMenuParser::setVecEnergySumTemplate(
   m_vecEnergySumTemplate = vecEnergySumTempl;
 }
 
+void l1t::TriggerMenuParser::setVecZdcEnergySumTemplate(
+    const std::vector<std::vector<ZdcEnergySumTemplate> >& vecZdcEnergySumTempl) {
+  m_vecZdcEnergySumTemplate = vecZdcEnergySumTempl;
+}
+
 void l1t::TriggerMenuParser::setVecExternalTemplate(
     const std::vector<std::vector<ExternalTemplate> >& vecExternalTempl) {
   m_vecExternalTemplate = vecExternalTempl;
@@ -212,6 +219,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   m_vecMuonShowerTemplate.resize(m_numberConditionChips);
   m_vecCaloTemplate.resize(m_numberConditionChips);
   m_vecEnergySumTemplate.resize(m_numberConditionChips);
+  m_vecZdcEnergySumTemplate.resize(m_numberConditionChips);
   m_vecExternalTemplate.resize(m_numberConditionChips);
 
   m_vecCorrelationTemplate.resize(m_numberConditionChips);
@@ -275,7 +283,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
             condition.getType() == esConditionType::QuadJet) {
           parseCalo(condition, chipNr, false);
 
-          // parse Energy Sums
+          // parse Energy Sums (and HI trigger objects, treated as energy sums or counters)
         } else if (condition.getType() == esConditionType::TotalEt ||
                    condition.getType() == esConditionType::TotalEtEM ||
                    condition.getType() == esConditionType::TotalHt ||
@@ -300,6 +308,11 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::Centrality6 ||
                    condition.getType() == esConditionType::Centrality7) {
           parseEnergySum(condition, chipNr, false);
+
+          // parse ZDC Energy Sums (NOTE: HI trigger objects are treated as energy sums or counters)
+        } else if (condition.getType() == esConditionType::ZDCPlus ||
+                   condition.getType() == esConditionType::ZDCMinus) {
+          parseZdcEnergySum(condition, chipNr, false);
 
           //parse Muons
         } else if (condition.getType() == esConditionType::SingleMuon ||
@@ -555,6 +568,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   GlobalScales::ScaleParameters etmHfScales;
   GlobalScales::ScaleParameters httScales;
   GlobalScales::ScaleParameters htmScales;
+  GlobalScales::ScaleParameters zdcScales;
 
   // Start by parsing the Scale Map
   for (std::map<std::string, tmeventsetup::esScale>::const_iterator cit = scaleMap.begin(); cit != scaleMap.end();
@@ -582,6 +596,8 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
       scaleParam = &httScales;
     else if (scale.getObjectType() == esObjectType::HTM)
       scaleParam = &htmScales;
+    else if (scale.getObjectType() == esObjectType::ZDCP || scale.getObjectType() == esObjectType::ZDCM)
+      scaleParam = &zdcScales;
     else
       scaleParam = nullptr;
 
@@ -676,6 +692,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   m_gtScales.setETMHfScales(etmHfScales);
   m_gtScales.setHTTScales(httScales);
   m_gtScales.setHTMScales(htmScales);
+  m_gtScales.setHTMScales(zdcScales);
 
   // Setup the LUT for the Scale Conversions
   bool hasPrecision = false;
@@ -2371,7 +2388,146 @@ bool l1t::TriggerMenuParser::parseEnergySum(L1TUtmCondition condEnergySum, unsig
 }
 
 /**
- * parseEnergySum Parse an "energy sum" condition and insert an entry to the conditions map
+ * parseZdcEnergySum Parse an "energy sum" condition from the ZDC subsystem and insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool l1t::TriggerMenuParser::parseZdcEnergySum(L1TUtmCondition condEnergySum,
+                                               unsigned int chipNr,
+                                               const bool corrFlag) {
+  //    XERCES_CPP_NAMESPACE_USE
+  using namespace tmeventsetup;
+
+  // get condition, particle name and type name
+
+  std::string condition = "calo";
+  std::string type = l1t2string(condEnergySum.getType());
+  std::string name = l1t2string(condEnergySum.getName());
+
+  LogDebug("TriggerMenuParser") << "\n ****************************************** "
+                                << "\n      (in parseZdcEnergySum) "
+                                << "\n condition = " << condition << "\n type      = " << type
+                                << "\n name      = " << name << std::endl;
+
+  // determine object type
+  GlobalObject energySumObjType;
+  GtConditionType cType;
+
+  if (condEnergySum.getType() == esConditionType::ZDCPlus) {
+    LogDebug("TriggerMenuParser") << "ZDC signals: esConditionType::ZDCPlus " << std::endl;
+    energySumObjType = GlobalObject::gtZDCP;
+    cType = TypeZDCP;
+  } else if (condEnergySum.getType() == esConditionType::ZDCMinus) {
+    LogDebug("TriggerMenuParser") << "ZDC signals: esConditionType::ZDCMinus " << std::endl;
+    energySumObjType = GlobalObject::gtZDCM;
+    cType = TypeZDCM;
+  } else {
+    edm::LogError("TriggerMenuParser") << "Wrong type for ZDC energy-sum condition (" << type << ")" << std::endl;
+    return false;
+  }
+
+  // global object
+  int nrObj = 1;
+
+  // temporary storage of the parameters
+  std::vector<ZdcEnergySumTemplate::ObjectParameter> objParameter(nrObj);
+
+  //  Loop over the cuts for this object
+  int lowerThresholdInd = 0;
+  int upperThresholdInd = -1;
+
+  int cnt = 0;
+
+  // BLW TO DO: These needs to the added to the object rather than the whole condition.
+  int relativeBx = 0;
+  bool gEq = false;
+
+  //    l1t::EnergySumsObjectRequirement objPar = condEnergySum.objectRequirement();
+
+  // Loop over objects and extract the cuts on the objects
+  const std::vector<L1TUtmObject>& objects = condEnergySum.getObjects();
+  for (size_t jj = 0; jj < objects.size(); jj++) {
+    const L1TUtmObject& object = objects.at(jj);
+    gEq = (object.getComparisonOperator() == esComparisonOperator::GE);
+
+    //  BLW TO DO: This needs to be added to the Object Parameters
+    relativeBx = object.getBxOffset();
+
+    //  Loop over the cuts for this object
+    const std::vector<L1TUtmCut>& cuts = object.getCuts();
+    for (size_t kk = 0; kk < cuts.size(); kk++) {
+      const L1TUtmCut& cut = cuts.at(kk);
+
+      switch (cut.getCutType()) {
+        case esCutType::Threshold:
+          lowerThresholdInd = cut.getMinimum().index;
+          upperThresholdInd = cut.getMaximum().index;
+          break;
+
+        case esCutType::Count:
+          lowerThresholdInd = cut.getMinimum().index;
+          upperThresholdInd = 0xffffff;
+          break;
+
+        default:
+          break;
+      }  //end switch
+
+    }  //end loop over cuts
+
+    // Fill the object parameters
+    objParameter[cnt].etLowThreshold = lowerThresholdInd;
+    objParameter[cnt].etHighThreshold = upperThresholdInd;
+
+    // Output for debugging
+    LogDebug("TriggerMenuParser") << "\n      ZdcEnergySum ET high threshold (hex) for energy sum object " << cnt
+                                  << " = " << std::hex << objParameter[cnt].etLowThreshold << " - "
+                                  << objParameter[cnt].etHighThreshold << std::dec << std::endl;
+
+    cnt++;
+  }  //end loop over objects
+
+  // object types - all same energySumObjType
+  std::vector<GlobalObject> objType(nrObj, energySumObjType);
+
+  // now create a new energySum condition
+
+  ZdcEnergySumTemplate energySumCond(name);
+
+  energySumCond.setCondType(cType);
+  energySumCond.setObjectType(objType);
+  energySumCond.setCondGEq(gEq);
+  energySumCond.setCondChipNr(chipNr);
+  energySumCond.setCondRelativeBx(relativeBx);
+
+  energySumCond.setConditionParameter(objParameter);
+
+  if (edm::isDebugEnabled()) {
+    std::ostringstream myCoutStream;
+    energySumCond.print(myCoutStream);
+    LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n" << std::endl;
+  }
+
+  // insert condition into the map
+  if (!insertConditionIntoMap(energySumCond, chipNr)) {
+    edm::LogError("TriggerMenuParser") << "    Error: duplicate condition (" << name << ")" << std::endl;
+
+    return false;
+  } else {
+    (m_vecZdcEnergySumTemplate[chipNr]).push_back(energySumCond);
+  }
+  //
+  return true;
+}
+
+/**
+ * parseEnergySumCorr Parse an "energy sum" correlation condition and insert an entry to the conditions map
  *
  * @param node The corresponding node.
  * @param name The name of the condition.

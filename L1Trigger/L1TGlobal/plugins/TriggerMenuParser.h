@@ -36,6 +36,7 @@
 #include "L1Trigger/L1TGlobal/interface/MuonShowerTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/ZdcEnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
@@ -143,6 +144,13 @@ namespace l1t {
     }
 
     void setVecEnergySumTemplate(const std::vector<std::vector<EnergySumTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<ZdcEnergySumTemplate> >& vecZdcEnergySumTemplate() const {
+      return m_vecZdcEnergySumTemplate;
+    }
+
+    void setVecZdcEnergySumTemplate(const std::vector<std::vector<ZdcEnergySumTemplate> >&);
 
     //
     inline const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplate() const {
@@ -292,6 +300,8 @@ namespace l1t {
 
     bool parseEnergySum(L1TUtmCondition condEnergySums, unsigned int chipNr = 0, const bool corrFlag = false);
 
+    bool parseZdcEnergySum(L1TUtmCondition condEnergySums, unsigned int chipNr = 0, const bool corrFlag = false);
+
     bool parseEnergySumCorr(const L1TUtmObject* corrESum, unsigned int chipNr = 0);
 
     bool parseExternal(L1TUtmCondition condExt, unsigned int chipNr = 0);
@@ -397,6 +407,7 @@ namespace l1t {
     std::vector<std::vector<MuonShowerTemplate> > m_vecMuonShowerTemplate;
     std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
+    std::vector<std::vector<ZdcEnergySumTemplate> > m_vecZdcEnergySumTemplate;
     std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;

@@ -64,6 +64,8 @@ namespace l1t {
     TypeMinBiasHFM0,
     TypeMinBiasHFP1,
     TypeMinBiasHFM1,
+    TypeZDCP,
+    TypeZDCM,
     TypeETTem,
     TypeExternal,
     Type2corWithOverlapRemoval,

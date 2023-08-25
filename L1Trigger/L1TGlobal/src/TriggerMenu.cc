@@ -44,6 +44,7 @@ TriggerMenu::TriggerMenu(
     const std::vector<std::vector<MuonShowerTemplate> >& vecMuonShowerTemplateVal,
     const std::vector<std::vector<CaloTemplate> >& vecCaloTemplateVal,
     const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTemplateVal,
+    const std::vector<std::vector<ZdcEnergySumTemplate> >& vecZdcEnergySumTemplateVal,
     const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplateVal,
     const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTemplateVal,
     const std::vector<std::vector<CorrelationThreeBodyTemplate> >& vecCorrelationThreeBodyTemplateVal,
@@ -61,6 +62,7 @@ TriggerMenu::TriggerMenu(
       m_vecMuonShowerTemplate(vecMuonShowerTemplateVal),
       m_vecCaloTemplate(vecCaloTemplateVal),
       m_vecEnergySumTemplate(vecEnergySumTemplateVal),
+      m_vecZdcEnergySumTemplate(vecZdcEnergySumTemplateVal),
       m_vecExternalTemplate(vecExternalTemplateVal),
       m_vecCorrelationTemplate(vecCorrelationTemplateVal),
       m_vecCorrelationThreeBodyTemplate(vecCorrelationThreeBodyTemplateVal),
@@ -86,6 +88,7 @@ TriggerMenu::TriggerMenu(const TriggerMenu& rhs) {
   m_vecMuonShowerTemplate = rhs.m_vecMuonShowerTemplate;
   m_vecCaloTemplate = rhs.m_vecCaloTemplate;
   m_vecEnergySumTemplate = rhs.m_vecEnergySumTemplate;
+  m_vecZdcEnergySumTemplate = rhs.m_vecZdcEnergySumTemplate;
   m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
   m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
@@ -134,6 +137,7 @@ TriggerMenu& TriggerMenu::operator=(const TriggerMenu& rhs) {
     m_vecMuonShowerTemplate = rhs.m_vecMuonShowerTemplate;
     m_vecCaloTemplate = rhs.m_vecCaloTemplate;
     m_vecEnergySumTemplate = rhs.m_vecEnergySumTemplate;
+    m_vecZdcEnergySumTemplate = rhs.m_vecZdcEnergySumTemplate;
     m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
     m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
@@ -245,6 +249,25 @@ void TriggerMenu::buildGtConditionMap() {
     chipNr++;
 
     for (std::vector<EnergySumTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
+         itCond++) {
+      (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
+    }
+  }
+
+  //
+  size_t vecZdcEnergySumSize = m_vecZdcEnergySumTemplate.size();
+  if (condMapSize < vecZdcEnergySumSize) {
+    m_conditionMap.resize(vecZdcEnergySumSize);
+    condMapSize = m_conditionMap.size();
+  }
+
+  chipNr = -1;
+  for (std::vector<std::vector<ZdcEnergySumTemplate> >::iterator itCondOnChip = m_vecZdcEnergySumTemplate.begin();
+       itCondOnChip != m_vecZdcEnergySumTemplate.end();
+       itCondOnChip++) {
+    chipNr++;
+
+    for (std::vector<ZdcEnergySumTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
          itCond++) {
       (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
     }
@@ -363,6 +386,11 @@ void TriggerMenu::setVecCaloTemplate(const std::vector<std::vector<CaloTemplate>
 
 void TriggerMenu::setVecEnergySumTemplate(const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTempl) {
   m_vecEnergySumTemplate = vecEnergySumTempl;
+}
+
+void TriggerMenu::setVecZdcEnergySumTemplate(
+    const std::vector<std::vector<ZdcEnergySumTemplate> >& vecZdcEnergySumTempl) {
+  m_vecZdcEnergySumTemplate = vecZdcEnergySumTempl;
 }
 
 void TriggerMenu::setVecExternalTemplate(const std::vector<std::vector<ExternalTemplate> >& vecExternalTempl) {
