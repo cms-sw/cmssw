@@ -91,6 +91,10 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 # No Strips in the Phase-2 tracker
 phase2_tracker.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([siPixelDigis,siStripDigis])) # FIXME
 
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+approxSiStripClusters.toReplaceWith(RawToDigiTask,
+                                    RawToDigiTask.copyAndExclude([siStripDigis])) # in case of the approximate cluster wf don't run the strip unpacker
+
 # add CTPPS 2016 raw-to-digi modules
 from Configuration.Eras.Modifier_ctpps_cff import ctpps
 
