@@ -97,7 +97,6 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1Digis_cfi import *
 
 # Cluster (track-independent) monitoring
 from DQM.SiPixelPhase1Common.SiPixelPhase1Clusters_cfi import *
-from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
 
 # Track cluster 
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
