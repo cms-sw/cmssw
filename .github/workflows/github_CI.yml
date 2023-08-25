@@ -17,10 +17,10 @@ name: PR validation with GitLab CI
 on: # Controls when the action will run.
   workflow_dispatch:
   push: # Please specify your branch down here if you want CI to run for each push to it.
-    branches: [L1TK-dev-13_3_0_pre1]
+    branches: [L1TK-dev-13_3_0_pre2]
     # branches: [myBranchUnderTest]
   pull_request: # Run CI if someone makes a PR to any branch
-    # branches: [L1TK-dev-13_3_0_pre1] # Optionally only run CI if PR is to this branch.
+    # branches: [L1TK-dev-13_3_0_pre2] # Optionally only run CI if PR is to this branch.
     
 env:
   mirror_repo: "https://gitlab.cern.ch/cms-l1tk/cmssw_CI" # gitlab mirror
