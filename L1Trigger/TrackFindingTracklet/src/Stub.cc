@@ -122,6 +122,12 @@ std::string Stub::phiregionaddressstr() const {
   return phiregion.str() + stubindex_.str();
 }
 
+std::string Stub::phiregionstr() const {
+  int iphi = (phicorr_.value() >> (phicorr_.nbits() - settings_.nbitsallstubs(layerdisk())));
+  FPGAWord phiregion(iphi, 3, true, __LINE__, __FILE__);
+  return phiregion.str();
+}
+
 void Stub::setAllStubIndex(int nstub) {
   if (nstub >= (1 << N_BITSMEMADDRESS)) {
     if (settings_.debugTracklet())

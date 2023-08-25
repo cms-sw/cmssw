@@ -194,7 +194,15 @@ std::string Tracklet::trackletparstr() {
                       std::to_string(fpgapars_.t().value() * settings_.ktpars());
     return oss;
   } else {
-    std::string str = innerFPGAStub_->stubindex().str() + "|";
+    std::string str = "";
+    if (settings_.combined()) {
+      if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
+        str += outerFPGAStub_->phiregionstr() + "|";
+      } else {
+        str += innerFPGAStub_->phiregionstr() + "|";
+      }
+    }
+    str += innerFPGAStub_->stubindex().str() + "|";
     if (middleFPGAStub_) {
       str += middleFPGAStub_->stubindex().str() + "|";
     }
