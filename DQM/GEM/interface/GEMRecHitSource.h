@@ -26,7 +26,7 @@ private:
   int ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap2AbsReWithEta(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
-  int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
+  int ProcessWithMEMap4WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
   edm::EDGetToken tagRecHit_;
 
