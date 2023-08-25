@@ -35,10 +35,6 @@ RawToDigiTask = cms.Task(
     castorDigis,
     scalersRawToDigi)
 
-from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
-approxSiStripClusters.toModify(RawToDigiTask, 
-                               RawToDigiTask.copyAndExclude(siStripDigis)) # in case of the approximate cluster wf don't run the 
-
 RawToDigi = cms.Sequence(RawToDigiTask)
 
 RawToDigiTask_woGCT = RawToDigiTask.copyAndExclude([gctDigis])
