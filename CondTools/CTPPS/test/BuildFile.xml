@@ -1,1 +1,2 @@
 <test name="test_CondToolsCTPPS" command="test_CondToolsCTPPS.sh"/>
+<test name="test_XMLToSQLiteMapping" command="test_XML_to_SQLite_mapping.sh"/>

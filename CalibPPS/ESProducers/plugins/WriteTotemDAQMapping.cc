@@ -1,11 +1,3 @@
-/****************************************************************************
- *
- * This is a part of TOTEM offline software.
- * Authors: 
- *  Jan Kašpar (jan.kaspar@gmail.com) 
- *
- ****************************************************************************/
-
 #include "CondFormats/DataRecord/interface/TotemAnalysisMaskRcd.h"
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
@@ -16,51 +8,56 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <fstream>
+#include <iostream>
 
 //----------------------------------------------------------------------------------------------------
 
 /**
- *\brief Prints the DAQ mapping loaded by TotemDAQMappingESSourceXML.
+ *\brief Writes to file the DAQ mapping loaded by TotemDAQMappingESSourceXML.
  **/
-class PrintTotemDAQMapping : public edm::one::EDAnalyzer<> {
+class WriteTotemDAQMapping : public edm::one::EDAnalyzer<> {
 public:
-  PrintTotemDAQMapping(const edm::ParameterSet &ps);
-  ~PrintTotemDAQMapping() override {}
+  WriteTotemDAQMapping(const edm::ParameterSet &ps);
+  ~WriteTotemDAQMapping() override {}
 
 private:
   /// label of the CTPPS sub-system
   const std::string subSystemName_;
+  std::ofstream outStream_;
   const edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> mappingToken_;
   const edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> maskToken_;
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
-PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
+WriteTotemDAQMapping::WriteTotemDAQMapping(const edm::ParameterSet &ps)
     : subSystemName_(ps.getUntrackedParameter<std::string>("subSystem")),
+      outStream_(ps.getUntrackedParameter<std::string>("fileName"), std::ios_base::app),
       mappingToken_(esConsumes(edm::ESInputTag("", subSystemName_))),
       maskToken_(esConsumes(edm::ESInputTag("", subSystemName_))) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
+void WriteTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
   // get mapping
   if (auto mappingHandle = es.getHandle(mappingToken_)) {
     auto const &mapping = *mappingHandle;
-    edm::LogInfo("PrintTotemDAQMapping mapping");
-    mapping.print(std::cout, subSystemName_);
+    mapping.print(outStream_, subSystemName_);
   } else {
-    edm::LogError("PrintTotemDAQMapping mapping") << "PrintTotemDAQMapping: No mapping found";
+    edm::LogError("WriteTotemDAQMapping mapping") << "WriteTotemDAQMapping: No mapping found";
   }
 
   // get analysis mask to mask channels
   if (auto analysisMaskHandle = es.getHandle(maskToken_)) {
     auto const &analysisMask = *analysisMaskHandle;
-    edm::LogPrint("PrintTotemDAQMapping") << analysisMask;
+    outStream_ << analysisMask;
   } else {
-    edm::LogError("PrintTotemDAQMapping mask") << "PrintTotemDAQMapping: No analysis mask found";
+    edm::LogError("WriteTotemDAQMapping mask") << "WriteTotemDAQMapping: No analysis mask found";
   }
+
+  outStream_.close();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE(PrintTotemDAQMapping);
+DEFINE_FWK_MODULE(WriteTotemDAQMapping);
