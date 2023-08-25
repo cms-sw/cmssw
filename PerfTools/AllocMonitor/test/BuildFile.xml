@@ -1,0 +1,10 @@
+<bin file="test_catch2_*.cc" name="testPerfToolsAllocMonitorCatch2">
+  <use name="PerfTools/AllocMonitor"/>
+  <use name="catch2"/>
+</bin>
+
+<bin file="test_proxies.cc" name="testAllocMonitorPreload">
+  <use name="PerfTools/AllocMonitor"/>
+  <use name="PerfTools/AllocMonitorPreload"/>
+  <flags CXXFLAGS="-O0"/>
+</bin>
