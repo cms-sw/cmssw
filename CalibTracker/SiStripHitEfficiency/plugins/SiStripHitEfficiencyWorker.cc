@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
@@ -41,6 +42,7 @@
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -92,7 +94,8 @@ private:
   const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clusters_token_;
-  const edm::EDGetTokenT<DetIdVector> digis_token_;
+  const edm::EDGetTokenT<DetIdCollection> digisCol_token_;
+  const edm::EDGetTokenT<DetIdVector> digisVec_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
   // event setup tokens
@@ -202,7 +205,8 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       trajTrackAsso_token_(consumes<TrajTrackAssociationCollection>(conf.getParameter<edm::InputTag>("trajectories"))),
       clusters_token_(
           consumes<edmNew::DetSetVector<SiStripCluster>>(conf.getParameter<edm::InputTag>("siStripClusters"))),
-      digis_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digisCol_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digisVec_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
       trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       tTopoToken_(esConsumes()),
       tkGeomToken_(esConsumes()),
@@ -445,11 +449,23 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> theClusters;
   e.getByToken(clusters_token_, theClusters);
 
-  edm::Handle<DetIdVector> fedErrorIds;
-  e.getByToken(digis_token_, fedErrorIds);
+  // get the list of module IDs with FED-detected errors
+  //  - In Aug-2023, the data format was changed from DetIdCollection to DetIdVector.
+  //  - To provide some level of backward-compatibility,
+  //    the plugin checks for both types giving preference to the new format.
+  //  - If only the old format is available, the collection is
+  //    converted to the new format, then used downstream.
+  auto const& fedErrorIdsCol_h = e.getHandle(digisCol_token_);
+  auto const& fedErrorIdsVec_h = e.getHandle(digisVec_token_);
+  if (not fedErrorIdsCol_h.isValid() and not fedErrorIdsVec_h.isValid()) {
+    throw cms::Exception("InvalidProductSiStripDetIdsWithFEDErrors")
+        << "no valid product for SiStrip DetIds with FED errors (see parameter \"siStripDigis\"), "
+           "neither for new format (DetIdVector) nor old format (DetIdCollection)";
+  }
+  auto const& fedErrorIds = fedErrorIdsVec_h.isValid() ? *fedErrorIdsVec_h : fedErrorIdsCol_h->as_vector();
 
   // fill the calibData with the FEDErrors
-  for (const auto& fedErr : *fedErrorIds) {
+  for (const auto& fedErr : fedErrorIds) {
     // fill the TkHistoMap occupancy map
     calibData_.FEDErrorOccupancy->fill(fedErr.rawId(), 1.);
 
@@ -826,7 +842,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                       tkgeom,
                       stripcpe,
                       stripQuality,
-                      *fedErrorIds,
+                      fedErrorIds,
                       commonModeDigis,
                       *theClusters,
                       e.bunchCrossing(),
