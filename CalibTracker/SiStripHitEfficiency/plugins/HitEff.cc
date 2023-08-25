@@ -43,6 +43,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
@@ -81,7 +82,8 @@ HitEff::HitEff(const edm::ParameterSet& conf)
       trajTrackAsso_token_(consumes<TrajTrackAssociationCollection>(conf.getParameter<edm::InputTag>("trajectories"))),
       clusters_token_(
           consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("siStripClusters"))),
-      digis_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digisCol_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digisVec_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
       trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       topoToken_(esConsumes()),
       geomToken_(esConsumes()),
@@ -247,9 +249,19 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   const MagneticField* magField_ = &es.getData(magFieldToken_);
 
   // get the list of module IDs with FED-detected errors
-  edm::Handle<DetIdVector> fedErrorIds;
-  //e.getByLabel("siStripDigis", fedErrorIds );
-  e.getByToken(digis_token_, fedErrorIds);
+  //  - In Aug-2023, the data format was changed from DetIdCollection to DetIdVector.
+  //  - To provide some level of backward-compatibility,
+  //    the plugin checks for both types giving preference to the new format.
+  //  - If only the old format is available, the collection is
+  //    converted to the new format, then used downstream.
+  auto const& fedErrorIdsCol_h = e.getHandle(digisCol_token_);
+  auto const& fedErrorIdsVec_h = e.getHandle(digisVec_token_);
+  if (not fedErrorIdsCol_h.isValid() and not fedErrorIdsVec_h.isValid()) {
+    throw cms::Exception("InvalidProductSiStripDetIdsWithFEDErrors")
+        << "no valid product for SiStrip DetIds with FED errors (see parameter \"siStripDigis\"), "
+           "neither for new format (DetIdVector) nor old format (DetIdCollection)";
+  }
+  auto const& fedErrorIds = fedErrorIdsVec_h.isValid() ? *fedErrorIdsVec_h : fedErrorIdsCol_h->as_vector();
 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTkToken_);
 
@@ -976,8 +988,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
               }
 
               //check for FED-detected errors and include those in SiStripQualBad
-              for (unsigned int ii = 0; ii < fedErrorIds->size(); ii++) {
-                if (iidd == (*fedErrorIds)[ii].rawId())
+              for (unsigned int ii = 0; ii < fedErrorIds.size(); ii++) {
+                if (iidd == fedErrorIds[ii].rawId())
                   SiStripQualBad = 1;
               }
 
