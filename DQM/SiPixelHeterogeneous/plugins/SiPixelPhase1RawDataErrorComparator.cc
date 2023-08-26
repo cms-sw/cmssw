@@ -15,7 +15,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"

@@ -23,7 +23,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
