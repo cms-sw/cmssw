@@ -112,7 +112,7 @@ def main():
         os.chmod("submit_script.sh", os.stat("submit_script.sh").st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         subprocess.check_call(["git", "add", "submit_script.sh"])
 
-      print("Dumped files into", folder)
+      print("Dumped files into ", folder)
       
       try:
         subprocess.check_output(["git", "diff", "--staged", "--quiet"])
