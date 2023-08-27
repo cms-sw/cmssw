@@ -6,7 +6,7 @@ set -euo pipefail
 
 voms-proxy-info | grep timeleft | grep -v -q 00:00:00 || (echo 'no proxy'; exit 1)
 
-(echo $STY > /dev/null) || (echo "run this on a screen"; exit 1)
+(echo $TMUX > /dev/null) || (echo "run this on a screen"; exit 1)
 
 #hpnumber=
 hptype=hp   #or sm
