@@ -4,7 +4,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "FWCore/Utilities/interface/Visibility.h"
@@ -59,7 +59,7 @@ namespace sistrip {
                      RawDigis& virgin_raw,
                      RawDigis& proc_raw,
                      Digis& zero_suppr,
-                     DetIdCollection&,
+                     DetIdVector&,
                      RawDigis& common_mode);
 
     /// trigger info

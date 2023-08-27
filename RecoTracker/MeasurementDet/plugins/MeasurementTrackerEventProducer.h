@@ -10,6 +10,7 @@
 #include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
@@ -51,7 +52,7 @@ protected:
   std::vector<edm::EDGetTokenT<DetIdCollection>> theInactivePixelDetectorLabels;
   std::vector<edm::EDGetTokenT<PixelFEDChannelCollection>> theBadPixelFEDChannelsLabels;
   edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> pixelCablingMapToken_;
-  std::vector<edm::EDGetTokenT<DetIdCollection>> theInactiveStripDetectorLabels;
+  std::vector<edm::EDGetTokenT<DetIdVector>> theInactiveStripDetectorLabels;
 
   bool selfUpdateSkipClusters_;
   bool switchOffPixelsIfEmpty_;
