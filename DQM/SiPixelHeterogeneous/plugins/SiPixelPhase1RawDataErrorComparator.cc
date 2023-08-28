@@ -84,28 +84,30 @@ namespace {
     k_FED38 = 38   // 38 indicates the pixels on a ROC weren't read out from lowest to highest row and dcol value
   };
 
-  std::map<SiPixelFEDErrorCodes, std::string> errorCodeToStringMap = {{k_FED25, "FED25 error"},
-                                                                      {k_FED26, "FED26 error"},
-                                                                      {k_FED27, "FED27 error"},
-                                                                      {k_FED28, "FED28 error"},
-                                                                      {k_FED29, "FED29 error"},
-                                                                      {k_FED30, "FED30 error"},
-                                                                      {k_FED31, "FED31 error"}};
+  using MapToCodes = std::map<SiPixelFEDErrorCodes, std::string>;
 
-  std::map<SiPixelFEDErrorCodes, std::string> errorCodeToTypeMap = {{k_FED25, "ROC of 25"},
-                                                                    {k_FED26, "Gap word"},
-                                                                    {k_FED27, "Dummy word"},
-                                                                    {k_FED28, "FIFO full"},
-                                                                    {k_FED29, "Timeout"},
-                                                                    {k_FED30, "TBM error trailer"},
-                                                                    {k_FED31, "Event number"},
-                                                                    {k_FED32, "Slink header"},
-                                                                    {k_FED33, "Slink trailer"},
-                                                                    {k_FED34, "Event size"},
-                                                                    {k_FED35, "Invalid channel#"},
-                                                                    {k_FED36, "ROC value"},
-                                                                    {k_FED37, "Dcol or pixel value"},
-                                                                    {k_FED38, "Readout order"}};
+  const MapToCodes errorCodeToStringMap = {{k_FED25, "FED25 error"},
+                                           {k_FED26, "FED26 error"},
+                                           {k_FED27, "FED27 error"},
+                                           {k_FED28, "FED28 error"},
+                                           {k_FED29, "FED29 error"},
+                                           {k_FED30, "FED30 error"},
+                                           {k_FED31, "FED31 error"}};
+
+  const MapToCodes errorCodeToTypeMap = {{k_FED25, "ROC of 25"},
+                                         {k_FED26, "Gap word"},
+                                         {k_FED27, "Dummy word"},
+                                         {k_FED28, "FIFO full"},
+                                         {k_FED29, "Timeout"},
+                                         {k_FED30, "TBM error trailer"},
+                                         {k_FED31, "Event number"},
+                                         {k_FED32, "Slink header"},
+                                         {k_FED33, "Slink trailer"},
+                                         {k_FED34, "Event size"},
+                                         {k_FED35, "Invalid channel#"},
+                                         {k_FED36, "ROC value"},
+                                         {k_FED37, "Dcol or pixel value"},
+                                         {k_FED38, "Readout order"}};
 }  // namespace
 
 class SiPixelPhase1RawDataErrorComparator : public DQMEDAnalyzer {
@@ -222,13 +224,13 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
     }
   }
 
-  edm::LogPrint(kName) << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU << std::endl;
+  edm::LogPrint(kName) << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU;
 
   h_totFEDErrors_->Fill(errorsOnCPU, errorsOnGPU);
 
   // fill the correlations per error type
   for (unsigned int j = k_FED25; j <= k_FED31; j++) {
-    SiPixelFEDErrorCodes code = static_cast<SiPixelFEDErrorCodes>(j);
+    const SiPixelFEDErrorCodes code = static_cast<SiPixelFEDErrorCodes>(j);
     h_nFEDErrors_[code]->Fill(std::min(1000, countsOnCPU[j]), std::min(1000, countsOnGPU[j]));
   }
 
@@ -238,7 +240,7 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
       if (countsMatrixOnGPU[i][j] != 0 || countsMatrixOnCPU[i][j] != 0) {
         edm::LogVerbatim(kName) << "FED: " << i + FEDNumbering::MINSiPixeluTCAFEDID << " error: " << j + k_FED25
                                 << " | GPU counts: " << countsMatrixOnGPU[i][j]
-                                << " CPU counts:" << countsMatrixOnCPU[i][j] << std::endl;
+                                << " CPU counts:" << countsMatrixOnCPU[i][j];
         h_FEDerrorVsFEDIdUnbalance_->Fill(
             j, i + FEDNumbering::MINSiPixeluTCAFEDID, countsMatrixOnGPU[i][j] - countsMatrixOnCPU[i][j]);
       }
@@ -266,7 +268,7 @@ void SiPixelPhase1RawDataErrorComparator::bookHistograms(DQMStore::IBooker& iBoo
                    FEDNumbering::MAXSiPixeluTCAFEDID - 0.5);
   for (int j = 0; j < nErrors; j++) {
     const auto& errorCode = static_cast<SiPixelFEDErrorCodes>(j + k_FED25);
-    h_FEDerrorVsFEDIdUnbalance_->setBinLabel(j + 1, errorCodeToTypeMap[errorCode]);
+    h_FEDerrorVsFEDIdUnbalance_->setBinLabel(j + 1, errorCodeToTypeMap.at(errorCode));
   }
 
   h_totFEDErrors_ = make2DIfLog(iBook,
