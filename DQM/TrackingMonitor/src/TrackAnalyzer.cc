@@ -715,7 +715,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker& ibooker) {
       oriAlgo->setBinLabel(ibin + 1, reco::TrackBase::algoNames[ibin]);
     }
 
-    size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName) / sizeof(std::string);
+    size_t StopReasonNameSize = static_cast<size_t>(StopReason::SIZE);
     histname = "stoppingSource_";
     stoppingSource = ibooker.book1D(
         histname + CategoryName, histname + CategoryName, StopReasonNameSize, 0., double(StopReasonNameSize));
