@@ -92,14 +92,10 @@ if __name__ == '__main__':
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
                      11634.914, #2021 DDD ttbar reading geometry from the DB
                      11634.0, #2021 ttbar (switching to DD4hep by default)
-                     11834.0, #2021 ttbar PU
                      13234.0, #2021 ttbar fastsim
-                     13434.0, #2021 ttbar PU fastsim
                      12434.0, #2023 ttbar
-                     12634.0, #2023 ttbar PU
                      12434.7, #2023 ttbar mkFit
                      14034.0, #2023 ttbar fastsim
-                     14234.0, #2023 ttbar PU fastsim
                      24834.0, #2026D98 ttbar (Phase-2 baseline)
                      24834.911, #2026D98 ttbar DD4hep XML
                      25034.999, #2026D98 ttbar premixing stage1+stage2, PU50
@@ -108,6 +104,7 @@ if __name__ == '__main__':
                      23234.0, #2026D94 ttbar (exercise with HFNose)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
+                     141.044 # 2023D JetMET PD
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
