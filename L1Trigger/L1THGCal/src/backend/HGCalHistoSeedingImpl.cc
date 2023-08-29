@@ -67,11 +67,15 @@ HGCalHistoSeedingImpl::HGCalHistoSeedingImpl(const edm::ParameterSet& conf)
   }
 
   // compute quantities for non-normalised-by-area histoMax
-  // The 0.1 factor in bin1_10pct is an attempt to keep the same rough scale for seeds. The exact value is arbitrary.
-  int bin1_10pct = (int)0.1 * nBins1_;
+  int bin1_10pct = 0;
+  // FIXME: Originally was supposed to be:
+  // int bin1_10pct = (int) (0.1 * nBins1_);
+  // The 0.1 factor in bin1_10pct was an attempt to keep the same rough scale for seeds. The exact value is arbitrary.
+  // But due to a typo, things were optimised and validated with bin1_10pct=0
+  // So keep this value until updated optimizations are done
   float R1_10pct = kROverZMin_ + bin1_10pct * (kROverZMax_ - kROverZMin_) / nBins1_;
-  float R2_10pct = R1_10pct + ((kROverZMax_ - kROverZMin_) / nBins1_);
-  area_10pct_ = ((M_PI * (pow(R2_10pct, 2) - pow(R1_10pct, 2))) / nBins2_);
+  float R2_10pct = R1_10pct + (kROverZMax_ - kROverZMin_) / nBins1_;
+  area_10pct_ = M_PI * (pow(R2_10pct, 2) - pow(R1_10pct, 2)) / nBins2_;
 }
 
 HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillHistoClusters(
@@ -174,17 +178,13 @@ HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillSmoothPhiHistoCluste
   for (int z_side : {-1, 1}) {
     for (unsigned bin1 = 0; bin1 < nBins1_; bin1++) {
       int nBinsSide = (binSums[bin1] - 1) / 2;
-      double area =
-          (1 +
-           2.0 *
-               (1 -
-                pow(0.5,
-                    nBinsSide)));  // Takes into account different area of bins in different R-rings + sum of quadratic weights used
+      // Takes into account different area of bins in different R-rings + sum of quadratic weights used
+      double area = (1 + 2.0 * (1 - pow(0.5, nBinsSide)));
 
       if (seeds_norm_by_area_) {
         float R1 = kROverZMin_ + bin1 * (kROverZMax_ - kROverZMin_) / nBins1_;
-        float R2 = R1 + ((kROverZMax_ - kROverZMin_) / nBins1_);
-        area = area * ((M_PI * (pow(R2, 2) - pow(R1, 2))) / nBins2_);
+        float R2 = R1 + (kROverZMax_ - kROverZMin_) / nBins1_;
+        area = area * M_PI * (pow(R2, 2) - pow(R1, 2)) / nBins2_;
       } else {
         area = area * area_10pct_;
       }

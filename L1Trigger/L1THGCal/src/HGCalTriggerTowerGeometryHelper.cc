@@ -274,7 +274,7 @@ std::unordered_map<unsigned short, float> HGCalTriggerTowerGeometryHelper::getTr
     int sector = detid.sector();
     int zside = detid.zside();
     int subdet = 0;
-    int splitDivisor = splitDivisorSilic_;
+    int splitDivisor;
     if (detid.isHScintillator()) {
       subdet = 2;
       splitDivisor = splitDivisorScint_;
