@@ -240,7 +240,7 @@ void LHCInfoPopConSourceHandler::getDipData(const cond::OMSService& oms,
   }
 }
 
-bool LHCInfoPopConSourceHandler::getCTTPSData(cond::persistency::Session& session,
+bool LHCInfoPopConSourceHandler::getCTPPSData(cond::persistency::Session& session,
                                               const boost::posix_time::ptime& beginFillTime,
                                               const boost::posix_time::ptime& endFillTime) {
   //run the fifth query against the CTPPS schema
@@ -665,7 +665,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     boost::posix_time::ptime flumiStop = cond::time::to_boost(m_tmpBuffer.back().first);
     edm::LogInfo(m_name) << "First lumi starts at " << flumiStart << " last lumi starts at " << flumiStop;
     session.transaction().start(true);
-    getCTTPSData(session, startSampleTime, endSampleTime);
+    getCTPPSData(session, startSampleTime, endSampleTime);
     session.transaction().commit();
     session2.transaction().start(true);
     getEcalData(session2, startSampleTime, endSampleTime, updateEcal);
