@@ -30,7 +30,7 @@
   <use name="tbb"/>
   <use name="boost"/>
   <use name="boost_program_options"/>
-  <use name="tcmalloc_minimal"/>
+  <use name="jemalloc"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/PluginManager"/>
