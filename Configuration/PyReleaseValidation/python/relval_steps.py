@@ -2934,6 +2934,17 @@ steps['RECONANORUN3_ZB_reHLT_2023B']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO
 steps['RECONANORUN3_ZB_reHLT_2023']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['RECONANORUN3_reHLT_2023']])
 steps['RECOCOSMRUN3_reHLT_2023']=merge([{'--scenario':'cosmics','-s':'RAW2DIGI,L1Reco,RECO,DQM','--datatier':'RECO,DQMIO','--eventcontent':'RECO,DQM'},steps['RECONANORUN3_reHLT_2023']])
 
+# patatrack validation in data
+steps['RecoData_Patatrack_AllGPU_Validation_2023'] = merge([{'-s':'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+                                                             '--conditions':'auto:run3_data_prompt',
+                                                             '--datatier':'RECO,MINIAOD,DQMIO',
+                                                             '-n':'100',
+                                                             '--eventcontent':'RECO,MINIAOD,DQM',
+                                                             '--geometry':'DB:Extended',
+                                                             '--era':'Run3',
+                                                             '--accelerators': 'gpu-nvidia',
+                                                             '--procModifiers':'pixelNtupletFit,gpuValidation'},dataReco])
+
 # Run-3 2022 skim
 for s in autoSkim.keys():
 
@@ -3609,6 +3620,14 @@ steps['HARVESTRUN3_ECALOnly'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVES
 steps['HARVESTRUN3_ECALOnlyGPUValidation'] = merge([ {'--procModifiers':'gpuValidation'}, steps['HARVESTRUN3_ECALOnly']])
 steps['HARVESTRUN3_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVESTRUN3_2023']])
 steps['HARVESTRUN3_HCALOnlyGPUValidation'] = merge([ {'--procModifiers':'gpuValidation'}, steps['HARVESTRUN3_HCALOnly']])
+
+steps['HARVESTData_Patatrack_AllGPU_Validation_2023'] = merge([{'--data':'',
+                                                                '-s':'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only',
+                                                                '--conditions':'auto:run3_data_prompt',
+                                                                '--geometry':'DB:Extended',
+                                                                '--scenario': 'pp',
+                                                                '--era': 'Run3',
+                                                                '--procModifiers': 'gpuValidation'},steps['HARVESTDRUN3']])
 
 
 #MC
