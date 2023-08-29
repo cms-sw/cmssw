@@ -30,9 +30,4 @@ using namespace cms::perftools;
 //
 AllocMonitorBase::AllocMonitorBase() {}
 
-// AllocMonitorBase::AllocMonitorBase(const AllocMonitorBase& rhs)
-// {
-//    // do actual copying here;
-// }
-
 AllocMonitorBase::~AllocMonitorBase() {}

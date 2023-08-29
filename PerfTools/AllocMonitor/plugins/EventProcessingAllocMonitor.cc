@@ -34,8 +34,9 @@ namespace {
 
       edm::LogSystem("EventProcessingAllocMonitor")
           << "Event Processing Memory Report"
-          << "\n  total memory requested: " << finalRequested << "\n  max memory used: " << maxActual
-          << "\n  total memory not deallocated: " << present << "\n  # allocations calls:   " << allocs
+          << "\n  total additional memory requested: " << finalRequested
+          << "\n  max additional memory used: " << maxActual
+          << "\n  total additional memory not deallocated: " << present << "\n  # allocations calls:   " << allocs
           << "\n  # deallocations calls: " << deallocs;
     }
 
@@ -86,7 +87,7 @@ class EventProcessingAllocMonitor {
 public:
   EventProcessingAllocMonitor(edm::ParameterSet const& iPS, edm::ActivityRegistry& iAR) {
     auto adaptor = cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
-    ;
+
     iAR.postBeginJobSignal_.connect([adaptor]() { adaptor->start(); });
     iAR.preEndJobSignal_.connect([adaptor]() {
       adaptor->performanceReport();

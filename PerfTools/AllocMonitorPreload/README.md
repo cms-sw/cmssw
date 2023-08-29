@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This package works with the PerfTools/AllocMonitor package to provide a general facility to watch allocations and deallocations. See the README.md in that package for details on how to use the facility.
+This package works with the [PerfTools/AllocMonitor](../AllocMonitor/README.md) package to provide a general facility to watch allocations and deallocations. See the README.md in that package for details on how to use the facility.
 
 ## Technical Details
 

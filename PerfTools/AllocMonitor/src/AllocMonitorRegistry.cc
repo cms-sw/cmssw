@@ -16,6 +16,7 @@
 // user include files
 #include "PerfTools/AllocMonitor/interface/AllocMonitorRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 //
 // constants, enums and typedefs
@@ -61,6 +62,10 @@ AllocMonitorRegistry::~AllocMonitorRegistry() {
 //
 // member functions
 //
+bool AllocMonitorRegistry::necessaryLibraryWasPreloaded() {
+  return dlsym(RTLD_DEFAULT, "alloc_monitor_start") != nullptr;
+}
+
 void AllocMonitorRegistry::start() {
   if (monitors_.empty()) {
     void* start = dlsym(RTLD_DEFAULT, "alloc_monitor_start");
@@ -103,6 +108,7 @@ void AllocMonitorRegistry::deallocCalled_(size_t iActual) {
 // static member functions
 //
 AllocMonitorRegistry& AllocMonitorRegistry::instance() {
-  static AllocMonitorRegistry s_registry;
+  //The thread unsafe methods are marked as unsafe
+  CMS_SA_ALLOW static AllocMonitorRegistry s_registry;
   return s_registry;
 }

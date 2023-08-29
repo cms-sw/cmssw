@@ -24,6 +24,7 @@ When the application ends, the monitor will report the following to standard err
 - The amount of _used_ memory allocated during the job that has yet to be reclaimed by calling deallocation.
 - Number of calls made to allocation functions.
 - Number of calls made to deallocation functions.
+
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
 
 If a job forks processes, the forked processes will also report the above information.

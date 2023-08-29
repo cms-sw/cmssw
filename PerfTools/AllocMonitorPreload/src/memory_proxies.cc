@@ -5,6 +5,7 @@
 #include <malloc.h>
 
 #include "PerfTools/AllocMonitor/interface/AllocMonitorRegistry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <dlfcn.h>  // dlsym
 
@@ -29,6 +30,8 @@ namespace {
   // this is a very simple-minded allocator used for any allocations
   // before we've finished our setup.  In particular, this avoids a
   // chicken/egg problem if dlsym() allocates any memory.
+  // Size was chosen to be 2x what ARM64 uses as an emergency buffer
+  // for libstdc++ exception handling.
   constexpr auto max_align = alignof(std::max_align_t);
   alignas(max_align) char tmpbuff[131072];
   unsigned long tmppos = 0;
@@ -47,6 +50,7 @@ namespace {
     }
   }
 
+  //can use local_malloc since static memory buffers are guaranteed to be zero initialized
   void* local_calloc(size_t nitems, size_t item_size) noexcept { return local_malloc(nitems * item_size); }
 
   inline bool is_local_alloc(void* ptr) noexcept { return ptr >= (void*)tmpbuff && ptr <= (void*)(tmpbuff + tmppos); }
@@ -54,7 +58,7 @@ namespace {
   // the pointers in this struct should only be modified during
   // global construction at program startup, so thread safety
   // should not be an issue.
-  struct originals {
+  struct Originals {
     inline static void init() noexcept {
       if (not set) {
         set = true;  // must be first to avoid recursion
@@ -62,14 +66,14 @@ namespace {
         calloc = get<decltype(&::calloc)>("calloc");
       }
     }
-    static decltype(&::malloc) malloc;
-    static decltype(&::calloc) calloc;
-    static bool set;
+    CMS_SA_ALLOW static decltype(&::malloc) malloc;
+    CMS_SA_ALLOW static decltype(&::calloc) calloc;
+    CMS_SA_ALLOW static bool set;
   };
 
-  decltype(&::malloc) originals::malloc = local_malloc;
-  decltype(&::calloc) originals::calloc = local_calloc;
-  bool originals::set = false;
+  decltype(&::malloc) Originals::malloc = local_malloc;
+  decltype(&::calloc) Originals::calloc = local_calloc;
+  bool Originals::set = false;
 #else
   constexpr inline bool is_local_alloc(void* ptr) noexcept { return false; }
 #endif
@@ -86,8 +90,8 @@ void alloc_monitor_stop() { alloc_monitor_running_state() = false; }
 
 #ifdef USE_LOCAL_MALLOC
 void* malloc(size_t size) noexcept {
-  const auto original = originals::malloc;
-  originals::init();
+  const auto original = Originals::malloc;
+  Originals::init();
   if (not alloc_monitor_running_state()) {
     return original(size);
   }
@@ -97,8 +101,8 @@ void* malloc(size_t size) noexcept {
 }
 
 void* calloc(size_t nitems, size_t item_size) noexcept {
-  const auto original = originals::calloc;
-  originals::init();
+  const auto original = Originals::calloc;
+  Originals::init();
   if (not alloc_monitor_running_state()) {
     return original(nitems, item_size);
   }
@@ -110,7 +114,7 @@ void* calloc(size_t nitems, size_t item_size) noexcept {
 }
 #else
 void* malloc(size_t size) noexcept {
-  static const auto original = get<decltype(&::malloc)>("malloc");
+  CMS_SA_ALLOW static const auto original = get<decltype(&::malloc)>("malloc");
   if (not alloc_monitor_running_state()) {
     return original(size);
   }
@@ -120,7 +124,7 @@ void* malloc(size_t size) noexcept {
 }
 
 void* calloc(size_t nitems, size_t item_size) noexcept {
-  static const auto original = get<decltype(&::calloc)>("calloc");
+  CMS_SA_ALLOW static const auto original = get<decltype(&::calloc)>("calloc");
   if (not alloc_monitor_running_state()) {
     return original(nitems, item_size);
   }
@@ -133,7 +137,7 @@ void* calloc(size_t nitems, size_t item_size) noexcept {
 #endif
 
 void* realloc(void* ptr, size_t size) noexcept {
-  static auto original = get<decltype(&::realloc)>("realloc");
+  CMS_SA_ALLOW static const auto original = get<decltype(&::realloc)>("realloc");
   if (not alloc_monitor_running_state()) {
     return original(ptr, size);
   }
@@ -155,7 +159,7 @@ void* realloc(void* ptr, size_t size) noexcept {
 }
 
 void* aligned_alloc(size_t alignment, size_t size) noexcept {
-  static auto original = get<decltype(&::aligned_alloc)>("aligned_alloc");
+  CMS_SA_ALLOW static const auto original = get<decltype(&::aligned_alloc)>("aligned_alloc");
   if (not alloc_monitor_running_state()) {
     return original(alignment, size);
   }
@@ -168,7 +172,7 @@ void* aligned_alloc(size_t alignment, size_t size) noexcept {
 }
 
 void free(void* ptr) noexcept {
-  static auto original = get<decltype(&::free)>("free");
+  CMS_SA_ALLOW static const auto original = get<decltype(&::free)>("free");
   // ignore memory allocated from our static array at startup
   if (not is_local_alloc(ptr)) {
     if (not alloc_monitor_running_state()) {
@@ -191,7 +195,7 @@ void free(void* ptr) noexcept {
 #include <new>
 
 void* operator new(std::size_t size) {
-  static auto original = get<void* (*)(std::size_t)>("_Znwm");
+  CMS_SA_ALLOW static const auto original = get<void* (*)(std::size_t)>("_Znwm");
   if (not alloc_monitor_running_state()) {
     return original(size);
   }
@@ -202,7 +206,7 @@ void* operator new(std::size_t size) {
 }  //_Znwm
 
 void operator delete(void* ptr) noexcept {
-  static auto original = get<void (*)(void*)>("_ZdlPv");
+  CMS_SA_ALLOW static const auto original = get<void (*)(void*)>("_ZdlPv");
   if (not alloc_monitor_running_state()) {
     original(ptr);
     return;
@@ -213,7 +217,7 @@ void operator delete(void* ptr) noexcept {
 }  //_ZdlPv
 
 void* operator new[](std::size_t size) {
-  static auto original = get<void* (*)(std::size_t)>("_Znam");
+  CMS_SA_ALLOW static const auto original = get<void* (*)(std::size_t)>("_Znam");
   if (not alloc_monitor_running_state()) {
     return original(size);
   }
@@ -224,7 +228,7 @@ void* operator new[](std::size_t size) {
 }  //_Znam
 
 void operator delete[](void* ptr) noexcept {
-  static auto original = get<void (*)(void*)>("_ZdaPv");
+  CMS_SA_ALLOW static const auto original = get<void (*)(void*)>("_ZdaPv");
 
   if (not alloc_monitor_running_state()) {
     original(ptr);
@@ -235,7 +239,7 @@ void operator delete[](void* ptr) noexcept {
 }  //_ZdaPv
 
 void* operator new(std::size_t size, std::align_val_t al) {
-  static auto original = get<void* (*)(std::size_t, std::align_val_t)>("_ZnwmSt11align_val_t");
+  CMS_SA_ALLOW static const auto original = get<void* (*)(std::size_t, std::align_val_t)>("_ZnwmSt11align_val_t");
   if (not alloc_monitor_running_state()) {
     return original(size, al);
   }
@@ -246,7 +250,7 @@ void* operator new(std::size_t size, std::align_val_t al) {
 }  //_ZnwmSt11align_val_t
 
 void* operator new[](std::size_t size, std::align_val_t al) {
-  static auto original = get<void* (*)(std::size_t, std::align_val_t)>("_ZnamSt11align_val_t");
+  CMS_SA_ALLOW static const auto original = get<void* (*)(std::size_t, std::align_val_t)>("_ZnamSt11align_val_t");
 
   if (not alloc_monitor_running_state()) {
     return original(size, al);
@@ -258,7 +262,8 @@ void* operator new[](std::size_t size, std::align_val_t al) {
 }  //_ZnamSt11align_val_t
 
 void* operator new(std::size_t size, const std::nothrow_t& tag) noexcept {
-  static auto original = get<void* (*)(std::size_t, const std::nothrow_t&) noexcept>("_ZnwmRKSt9nothrow_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void* (*)(std::size_t, const std::nothrow_t&) noexcept>("_ZnwmRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {
     return original(size, tag);
@@ -270,7 +275,8 @@ void* operator new(std::size_t size, const std::nothrow_t& tag) noexcept {
 }  //_ZnwmRKSt9nothrow_t
 
 void* operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {
-  static auto original = get<void* (*)(std::size_t, const std::nothrow_t&) noexcept>("_ZnamRKSt9nothrow_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void* (*)(std::size_t, const std::nothrow_t&) noexcept>("_ZnamRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {
     return original(size, tag);
@@ -282,8 +288,9 @@ void* operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {
 }  //_ZnamRKSt9nothrow_t
 
 void* operator new(std::size_t size, std::align_val_t al, const std::nothrow_t& tag) noexcept {
-  static auto original = get<void* (*)(std::size_t, std::align_val_t, const std::nothrow_t&) noexcept>(
-      "_ZnwmSt11align_val_tRKSt9nothrow_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void* (*)(std::size_t, std::align_val_t, const std::nothrow_t&) noexcept>(
+          "_ZnwmSt11align_val_tRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {
     return original(size, al, tag);
@@ -295,8 +302,9 @@ void* operator new(std::size_t size, std::align_val_t al, const std::nothrow_t& 
 }  //_ZnwmSt11align_val_tRKSt9nothrow_t
 
 void* operator new[](std::size_t size, std::align_val_t al, const std::nothrow_t& tag) noexcept {
-  static auto original = get<void* (*)(std::size_t, std::align_val_t, const std::nothrow_t&) noexcept>(
-      "_ZnamSt11align_val_tRKSt9nothrow_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void* (*)(std::size_t, std::align_val_t, const std::nothrow_t&) noexcept>(
+          "_ZnamSt11align_val_tRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {
     return original(size, al, tag);
@@ -308,7 +316,7 @@ void* operator new[](std::size_t size, std::align_val_t al, const std::nothrow_t
 }  //_ZnamSt11align_val_tRKSt9nothrow_t
 
 void operator delete(void* ptr, std::align_val_t al) noexcept {
-  static auto original = get<void (*)(void*, std::align_val_t) noexcept>("_ZdlPvSt11align_val_t");
+  CMS_SA_ALLOW static const auto original = get<void (*)(void*, std::align_val_t) noexcept>("_ZdlPvSt11align_val_t");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, al);
@@ -319,7 +327,7 @@ void operator delete(void* ptr, std::align_val_t al) noexcept {
 }  //_ZdlPvSt11align_val_t
 
 void operator delete[](void* ptr, std::align_val_t al) noexcept {
-  static auto original = get<void (*)(void*, std::align_val_t) noexcept>("_ZdaPvSt11align_val_t");
+  CMS_SA_ALLOW static const auto original = get<void (*)(void*, std::align_val_t) noexcept>("_ZdaPvSt11align_val_t");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, al);
@@ -330,7 +338,7 @@ void operator delete[](void* ptr, std::align_val_t al) noexcept {
 }  //_ZdaPvSt11align_val_t
 
 void operator delete(void* ptr, std::size_t sz) noexcept {
-  static auto original = get<void (*)(void*, std::size_t) noexcept>("_ZdlPvm");
+  CMS_SA_ALLOW static const auto original = get<void (*)(void*, std::size_t) noexcept>("_ZdlPvm");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, sz);
@@ -341,7 +349,7 @@ void operator delete(void* ptr, std::size_t sz) noexcept {
 }  //_ZdlPvm
 
 void operator delete[](void* ptr, std::size_t sz) noexcept {
-  static auto original = get<void (*)(void*, std::size_t) noexcept>("_ZdaPvm");
+  CMS_SA_ALLOW static const auto original = get<void (*)(void*, std::size_t) noexcept>("_ZdaPvm");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, sz);
@@ -352,7 +360,8 @@ void operator delete[](void* ptr, std::size_t sz) noexcept {
 }  //_ZdaPvm
 
 void operator delete(void* ptr, std::size_t sz, std::align_val_t al) noexcept {
-  static auto original = get<void (*)(void*, std::size_t, std::align_val_t) noexcept>("_ZdlPvmSt11align_val_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void (*)(void*, std::size_t, std::align_val_t) noexcept>("_ZdlPvmSt11align_val_t");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, sz, al);
@@ -361,8 +370,10 @@ void operator delete(void* ptr, std::size_t sz, std::align_val_t al) noexcept {
   auto& reg = AllocMonitorRegistry::instance();
   reg.deallocCalled([ptr, sz, al]() { original(ptr, sz, al); }, [ptr]() { return malloc_usable_size(ptr); });
 }  //_ZdlPvmSt11align_val_t
+
 void operator delete[](void* ptr, std::size_t sz, std::align_val_t al) noexcept {
-  static auto original = get<void (*)(void*, std::size_t, std::align_val_t) noexcept>("_ZdaPvmSt11align_val_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void (*)(void*, std::size_t, std::align_val_t) noexcept>("_ZdaPvmSt11align_val_t");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, sz, al);
@@ -373,7 +384,8 @@ void operator delete[](void* ptr, std::size_t sz, std::align_val_t al) noexcept 
 }  //_ZdaPvmSt11align_val_t
 
 void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {
-  static auto original = get<void (*)(void*, const std::nothrow_t&) noexcept>("_ZdlPvRKSt9nothrow_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void (*)(void*, const std::nothrow_t&) noexcept>("_ZdlPvRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, tag);
@@ -382,8 +394,10 @@ void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {
   auto& reg = AllocMonitorRegistry::instance();
   reg.deallocCalled([ptr, &tag]() { original(ptr, tag); }, [ptr]() { return malloc_usable_size(ptr); });
 }  //_ZdlPvRKSt9nothrow_t
+
 void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {
-  static auto original = get<void (*)(void*, const std::nothrow_t&) noexcept>("_ZdaPvRKSt9nothrow_t");
+  CMS_SA_ALLOW static const auto original =
+      get<void (*)(void*, const std::nothrow_t&) noexcept>("_ZdaPvRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {
     original(ptr, tag);
@@ -394,7 +408,7 @@ void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {
 }  //_ZdaPvRKSt9nothrow_t
 
 void operator delete(void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept {
-  static auto original =
+  CMS_SA_ALLOW static const auto original =
       get<void (*)(void*, std::align_val_t, const std::nothrow_t&) noexcept>("_ZdlPvSt11align_val_tRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {
@@ -404,8 +418,9 @@ void operator delete(void* ptr, std::align_val_t al, const std::nothrow_t& tag) 
   auto& reg = AllocMonitorRegistry::instance();
   reg.deallocCalled([ptr, al, &tag]() { original(ptr, al, tag); }, [ptr]() { return malloc_usable_size(ptr); });
 }  //_ZdlPvSt11align_val_tRKSt9nothrow_t
+
 void operator delete[](void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept {
-  static auto original =
+  CMS_SA_ALLOW static const auto original =
       get<void (*)(void*, std::align_val_t, const std::nothrow_t&) noexcept>("_ZdaPvSt11align_val_tRKSt9nothrow_t");
 
   if (not alloc_monitor_running_state()) {

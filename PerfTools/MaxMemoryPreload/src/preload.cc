@@ -76,6 +76,6 @@ namespace {
     std::atomic<size_t> nDeallocations_ = 0;
   };
 
-  [[maybe_unused]] auto s_instance =
+  [[maybe_unused]] auto const* const s_instance =
       cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
 }  // namespace

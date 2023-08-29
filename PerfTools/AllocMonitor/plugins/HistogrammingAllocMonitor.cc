@@ -38,8 +38,8 @@ namespace {
     void performanceReport() const {
       auto log = edm::LogSystem("HistogrammingAllocMonitor");
       log << "Memory Histogram"
-          << "\n   size                 allocated           deallocated"
-          << "\n                  requested      used          used";
+          << "\n   size     |           allocated     |     deallocated"
+          << "\n            |     requested      used |        used";
       size_t size = 0;
       for (unsigned int i = 0; i < allocRequested_.size(); ++i) {
         log << "\n"

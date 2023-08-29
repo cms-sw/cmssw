@@ -53,8 +53,10 @@ namespace {
 
       edm::LogSystem("SimpleAllocMonitor")
           << "Memory Report"
-          << "\n  total memory requested: " << finalRequested << "\n  max memory used: " << maxActual
-          << "\n  # allocations calls:   " << allocs << "\n  # deallocations calls: " << deallocs;
+          << "\n  [monitoring spans the lifetime of Services (first plugins made and last to be deleted)]"
+          << "\n  total additional memory requested: " << finalRequested
+          << "\n  max additional memory used: " << maxActual << "\n  # allocations calls:   " << allocs
+          << "\n  # deallocations calls: " << deallocs;
     }
 
   private:

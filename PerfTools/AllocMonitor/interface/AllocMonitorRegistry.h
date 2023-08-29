@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 // user include files
-#include "AllocMonitorBase.h"
+#include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
 
 // forward declarations
 
@@ -43,8 +43,11 @@ namespace cms::perftools {
 
     // ---------- static member functions --------------------
     static AllocMonitorRegistry& instance();
+    static bool necessaryLibraryWasPreloaded();
 
     // ---------- member functions ---------------------------
+
+    //The functions are not thread safe
     template <typename T, typename... ARGS>
     T* createAndRegisterMonitor(ARGS&&... iArgs);
     void deregisterMonitor(AllocMonitorBase*);
@@ -95,6 +98,7 @@ namespace cms::perftools {
       Guard& operator=(Guard const&) = delete;
       Guard& operator=(Guard&&) = delete;
 
+    private:
       bool* address_;
       bool original_;
     };

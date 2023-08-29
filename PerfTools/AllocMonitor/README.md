@@ -41,7 +41,7 @@ by loading a Service which setups a monitor. If one fails to do the LD_PRELOAD, 
 facility will throw an exception.
 
 It is also possible to use LD_PRELOAD to load another library which auto registers a monitor even before the program
-begins. See PerfTools/MaxMemoryPreload for an example.
+begins. See [PerfTools/MaxMemoryPreload](../MaxMemoryPreload/README.md) for an example.
 
 ## Services
 
@@ -53,6 +53,7 @@ last plugins to be destroyed by cmsRun). The monitor reports
 - The maximum amount of _used_ (i.e actual size) allocated memory that was in use by the job at one time.
 - Number of calls made to allocation functions while the monitor was running.
 - Number of calls made to deallocation functions while the monitor was running.
+
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
 
 
@@ -63,6 +64,7 @@ This service registers a monitor at the end of beginJob (after all modules have 
 - The amount of _used_ memory allocated during the loop that has yet to be reclaimed by calling deallocation.
 - Number of calls made to allocation functions during the event loop.
 - Number of calls made to deallocation functions during the event loop.
+
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
 
 ### HistogrammingAllocMonitor
@@ -73,4 +75,5 @@ bin is a power of 2 larger than the previous. The histograms made are
 - Amount of bytes requested by all allocation calls
 - Amount of bytes actually used by all allocation calls
 - Amount of bytes actually returned by all deallocation calls
+
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
