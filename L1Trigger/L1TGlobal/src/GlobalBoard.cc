@@ -623,6 +623,16 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
 
           cMapResults[itCond->first] = eSumCondition;
 
+          if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            eSumCondition->print(myCout);
+
+            LogTrace("L1TGlobal") << myCout.str();
+          }
+          //                    delete eSumCondition;
+
+        } break;
+        case CondZdcEnergySum: {
           ZdcEnergySumCondition* ZDCeSumCondition = new ZdcEnergySumCondition(itCond->second, this);
 
           ZDCeSumCondition->setVerbosity(m_verbosity);
@@ -632,12 +642,11 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            eSumCondition->print(myCout);
             ZDCeSumCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-          //                    delete eSumCondition;
+          //                    delete ZDCeSumCondition;
 
         } break;
 

@@ -91,6 +91,7 @@ namespace {
       {"l1t::CondMuon", l1t::CondMuon},
       {"l1t::CondCalo", l1t::CondCalo},
       {"l1t::CondEnergySum", l1t::CondEnergySum},
+      {"l1t::CondZdcEnergySum", l1t::CondZdcEnergySum},
       {"l1t::CondCorrelation", l1t::CondCorrelation},
       {"l1t::CondCorrelationThreeBody", l1t::CondCorrelationThreeBody},
       {"l1t::CondCorrelationWithOverlapRemoval", l1t::CondCorrelationWithOverlapRemoval},

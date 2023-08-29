@@ -2398,7 +2398,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(L1TUtmCondition condEnergySum, unsig
  *
  */
 
-bool l1t::TriggerMenuParser::parseZdcEnergySum(L1TUtmCondition condEnergySum,
+bool l1t::TriggerMenuParser::parseZdcEnergySum(L1TUtmCondition condZdcEnergySum,
                                                unsigned int chipNr,
                                                const bool corrFlag) {
   //    XERCES_CPP_NAMESPACE_USE
@@ -2407,8 +2407,8 @@ bool l1t::TriggerMenuParser::parseZdcEnergySum(L1TUtmCondition condEnergySum,
   // get condition, particle name and type name
 
   std::string condition = "calo";
-  std::string type = l1t2string(condEnergySum.getType());
-  std::string name = l1t2string(condEnergySum.getName());
+  std::string type = l1t2string(condZdcEnergySum.getType());
+  std::string name = l1t2string(condZdcEnergySum.getName());
 
   LogDebug("TriggerMenuParser") << "\n ****************************************** "
                                 << "\n      (in parseZdcEnergySum) "
@@ -2419,11 +2419,11 @@ bool l1t::TriggerMenuParser::parseZdcEnergySum(L1TUtmCondition condEnergySum,
   GlobalObject energySumObjType;
   GtConditionType cType;
 
-  if (condEnergySum.getType() == esConditionType::ZDCPlus) {
+  if (condZdcEnergySum.getType() == esConditionType::ZDCPlus) {
     LogDebug("TriggerMenuParser") << "ZDC signals: esConditionType::ZDCPlus " << std::endl;
     energySumObjType = GlobalObject::gtZDCP;
     cType = TypeZDCP;
-  } else if (condEnergySum.getType() == esConditionType::ZDCMinus) {
+  } else if (condZdcEnergySum.getType() == esConditionType::ZDCMinus) {
     LogDebug("TriggerMenuParser") << "ZDC signals: esConditionType::ZDCMinus " << std::endl;
     energySumObjType = GlobalObject::gtZDCM;
     cType = TypeZDCM;
@@ -2448,10 +2448,10 @@ bool l1t::TriggerMenuParser::parseZdcEnergySum(L1TUtmCondition condEnergySum,
   int relativeBx = 0;
   bool gEq = false;
 
-  //    l1t::EnergySumsObjectRequirement objPar = condEnergySum.objectRequirement();
+  //    l1t::EnergySumsObjectRequirement objPar = condZdcEnergySum.objectRequirement();
 
   // Loop over objects and extract the cuts on the objects
-  const std::vector<L1TUtmObject>& objects = condEnergySum.getObjects();
+  const std::vector<L1TUtmObject>& objects = condZdcEnergySum.getObjects();
   for (size_t jj = 0; jj < objects.size(); jj++) {
     const L1TUtmObject& object = objects.at(jj);
     gEq = (object.getComparisonOperator() == esComparisonOperator::GE);
@@ -2487,6 +2487,7 @@ bool l1t::TriggerMenuParser::parseZdcEnergySum(L1TUtmCondition condEnergySum,
 
     // Output for debugging
     LogDebug("TriggerMenuParser") << "\n      ZdcEnergySum ET high threshold (hex) for energy sum object " << cnt
+                                  << "\n      ZdcEnergySum ET high threshold (hex) for energy sum object " << cnt
                                   << " = " << std::hex << objParameter[cnt].etLowThreshold << " - "
                                   << objParameter[cnt].etHighThreshold << std::dec << std::endl;
 

@@ -29,15 +29,15 @@
 // forward declarations
 
 // constructors
-ZdcEnergySumTemplate::ZdcEnergySumTemplate() : GlobalCondition() { m_condCategory = l1t::CondEnergySum; }
+ZdcEnergySumTemplate::ZdcEnergySumTemplate() : GlobalCondition() { m_condCategory = l1t::CondZdcEnergySum; }
 
 ZdcEnergySumTemplate::ZdcEnergySumTemplate(const std::string& cName) : GlobalCondition(cName) {
-  m_condCategory = l1t::CondEnergySum;
+  m_condCategory = l1t::CondZdcEnergySum;
 }
 
 ZdcEnergySumTemplate::ZdcEnergySumTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-    : GlobalCondition(cName, l1t::CondEnergySum, cType) {
-  m_condCategory = l1t::CondEnergySum;
+    : GlobalCondition(cName, l1t::CondZdcEnergySum, cType) {
+  m_condCategory = l1t::CondZdcEnergySum;
 
   // should be always 1 - they are global quantities...
   int nObjects = nrObjects();
