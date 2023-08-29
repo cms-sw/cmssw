@@ -8,3 +8,16 @@
   <use name="PerfTools/AllocMonitorPreload"/>
   <flags CXXFLAGS="-O0"/>
 </bin>
+
+<bin file="test_proxies.cc" name="testAllocMonitorPreloadTC">
+  <use name="PerfTools/AllocMonitor"/>
+  <use name="PerfTools/AllocMonitorPreload"/>
+  <use name="tcmalloc_minimal"/>
+  <flags CXXFLAGS="-O0"/>
+</bin>
+<bin file="test_proxies.cc" name="testAllocMonitorPreloadJE">
+  <use name="PerfTools/AllocMonitor"/>
+  <use name="PerfTools/AllocMonitorPreload"/>
+  <use name="jemalloc"/>
+  <flags CXXFLAGS="-O0"/>
+</bin>
