@@ -2,6 +2,7 @@
 <use name="CondFormats/PPSObjects"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/DataRecord"/>
+<use name="CondTools/RunInfo"/>
 <use name="DataFormats/CTPPSDetId"/>
 <use name="rootcore"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>

@@ -4,7 +4,7 @@ from Configuration.Eras.Era_$ERA_cff import *
 process = cms.Process('CTPPSTest', $ERA)
 
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('Validation.CTPPS.ctppsLHCInfoPlotter_cfi')
+process.load('Validation.CTPPS.ctppsLHCInfoPlotter_cff')
 process.load('Configuration.Generator.randomXiThetaGunProducer_cfi')
 process.load("CondCore.CondDB.CondDB_cfi")
 
@@ -32,8 +32,14 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDB,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CTPPSPixelAnalysisMaskRcd'),
-        tag = cms.string("CTPPSPixelAnalysisMask_Run3_v1_hlt")
-    ))
+        tag = cms.string("CTPPSPixelAnalysisMask_Run3_v1_hlt")),
+        cms.PSet(
+        record = cms.string('LHCInfoPerLSRcd'),
+        tag = cms.string("LHCInfoPerLS_endFill_Run3_mc_v1")),
+        cms.PSet(
+        record = cms.string('LHCInfoPerFillRcd'),
+        tag = cms.string("LHCInfoPerFill_endFill_Run3_mc_v1")),
+        )
 )
 
 # random seeds

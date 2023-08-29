@@ -22,4 +22,5 @@
   <use name="Utilities/Xerces"/>
 
   <use name="clhep"/>
+  <use name="CondTools/RunInfo"/>
 </library>
