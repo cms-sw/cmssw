@@ -166,6 +166,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngleM
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHG_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHGDiMuon_cff import *
 
 from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_cff import *
 
@@ -290,6 +291,8 @@ pathALCARECOPromptCalibProdSiPixelLorentzAngle = cms.Path(seqALCARECOPromptCalib
 pathALCARECOPromptCalibProdSiPixelLorentzAngleMCS = cms.Path(seqALCARECOPromptCalibProdSiPixelLorentzAngleMCS)
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOPromptCalibProdSiPixelAliHG = cms.Path(seqALCARECOPromptCalibProdSiPixelAliHG)
+pathALCARECOPromptCalibProdSiPixelAliHGMinBias = cms.Path(seqALCARECOPromptCalibProdSiPixelAliHG)
+pathALCARECOPromptCalibProdSiPixelAliHGDiMu = cms.Path(seqALCARECOPromptCalibProdSiPixelAliHGDiMu)
 pathALCARECOPromptCalibProdSiPixel = cms.Path(seqALCARECOPromptCalibProdSiPixel)
 pathALCARECOPromptCalibProdEcalPedestals = cms.Path(seqALCARECOPromptCalibProdEcalPedestals)
 pathALCARECOPromptCalibProdLumiPCC = cms.Path(seqALCARECOPromptCalibProdLumiPCC)
@@ -1064,6 +1067,15 @@ ALCARECOStreamPromptCalibProdSiPixelAliHG = cms.FilteredStream(
 	paths  = (pathALCARECOPromptCalibProdSiPixelAliHG),
 	content = OutALCARECOPromptCalibProdSiPixelAliHG.outputCommands,
 	selectEvents = OutALCARECOPromptCalibProdSiPixelAliHG.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamPromptCalibProdSiPixelAliHGComb = cms.FilteredStream(
+	responsible = 'Marco Musich',
+	name = 'PromptCalibProdSiPixelAliHGComb',
+	paths  = (pathALCARECOPromptCalibProdSiPixelAliHGMinBias,pathALCARECOPromptCalibProdSiPixelAliHGDiMu),
+	content = OutALCARECOPromptCalibProdSiPixelAliHGComb.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdSiPixelAliHGComb.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

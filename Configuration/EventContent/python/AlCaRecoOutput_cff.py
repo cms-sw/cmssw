@@ -170,6 +170,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngleM
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHG_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHGCombined_Output_cff import *
 
 from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_Output_cff import *
 
@@ -200,7 +201,5 @@ ALCARECOEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
-
-
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')

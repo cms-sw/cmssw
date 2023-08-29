@@ -11,7 +11,7 @@ AlCaRecoMatrix = {
                   "DoubleMuon"                  : "TkAlZMuMu+TkAlDiMuonAndVertex+MuAlCalIsolatedMu",
                   "DoubleMuonLowMass"           : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
                   "EGamma"                      : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkProducerFilter+HcalCalIterativePhiSym",
-                  "Express"                     : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias",
+                  "Express"                     : "SiStripCalZeroBias+TkAlMinBias+TkAlZMuMu+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias",
                   "ExpressAlignment"            : "TkAlMinBias",
                   "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias+SiPixelCalCosmics+SiStripCalCosmics",
                   "HcalNZS"                     : "HcalCalMinBias",
@@ -25,7 +25,7 @@ AlCaRecoMatrix = {
                   "ParkingDoubleMuonLowMass"    : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
                   "SingleMuon"                  : "SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+MuAlCalIsolatedMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter",
                   "SpecialHLTPhysics"           : "LumiPixelsMinBias",
-                  "StreamExpress"               : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias+SiPixelCalSingleMuon",
+                  "StreamExpress"               : "SiStripCalZeroBias+TkAlMinBias+TkAlZMuMu+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias+SiPixelCalSingleMuon",
                   "StreamExpressHI"             : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias",
                   # These (TestEnablesTracker, TestEnablesEcalHcal) are in the AlCaRecoMatrix, but no RelVals are produced
                   # 'TestEnablesTracker'        : 'TkAlLAS'
@@ -61,6 +61,8 @@ autoAlca.update(AlCaRecoMatrix)
 AlCaNoConcurrentLumis = [
     'PromptCalibProd',                 # AlcaBeamSpotProducer
     'PromptCalibProdSiPixelAli',       # AlignmentProducerAsAnalyzer, MillePedeFileConverter
+    'PromptCalibProdSiPixelAliHG',     # AlignmentProducerAsAnalyzer, MillePedeFileConverter
+    'PromptCalibProdSiPixelAliHGComb', # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdBeamSpotHP',       # AlcaBeamSpotProducer
     'PromptCalibProdBeamSpotHPLowPU',  # AlcaBeamSpotProducer
 ]
