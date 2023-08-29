@@ -18,8 +18,9 @@ using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
-#include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
+#include "ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
+#include "TopRecoilHook.h"
 
 // PS matchning prototype
 //
@@ -154,6 +155,9 @@ private:
 
   //Generic customized hooks vector
   std::unique_ptr<MultiUserHook> fCustomHooksVector;
+
+  //RecoilToTop userhook
+  std::shared_ptr<TopRecoilHook> fTopRecoilHook;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -323,7 +327,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
         params.getParameter<std::vector<edm::ParameterSet>>("UserCustomization");
     for (const auto &pluginParams : userParams) {
       fCustomHooksVector->addHook(
-              CustomHookFactory::get()->create(pluginParams.getParameter<std::string>("pluginName"), pluginParams));
+          CustomHookFactory::get()->create(pluginParams.getParameter<std::string>("pluginName"), pluginParams));
     }
   }
 
@@ -407,6 +411,14 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
     fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
     fMultiUserHook->addHook(fPowhegHooksBB4L.get());
+  }
+
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook.reset(new TopRecoilHook());
+    fMultiUserHook->addHook(fTopRecoilHook.get());
   }
 
   //adapted from main89.cc in pythia8 examples
@@ -566,6 +578,14 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     edm::LogInfo("Pythia8Interface") << "Turning on BB4l hook from CMSSW Pythia8Interface";
     fPowhegHooksBB4L.reset(new PowhegHooksBB4L());
     fMultiUserHook->addHook(fPowhegHooksBB4L.get());
+  }
+
+  bool TopRecoilHook1 = fMasterGen->settings.flag("TopRecoilHook:doTopRecoilIn");
+  if (TopRecoilHook1) {
+    edm::LogInfo("Pythia8Interface") << "Turning on RecoilToTop hook from Pythia8Interface";
+    if (!fTopRecoilHook.get())
+      fTopRecoilHook.reset(new TopRecoilHook());
+    fMultiUserHook->addHook(fTopRecoilHook.get());
   }
 
   //adapted from main89.cc in pythia8 examples
