@@ -80,7 +80,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   bool tr = p.getParameter<bool>("TraceExceptions");
   m_stateManager->SetExceptionHandler(new ExceptionHandler(th, tr));
   if (m_check) {
-    m_CheckOverlap = p.getUntrackedParameter<edm::ParameterSet>("CheckOverlap");
+    m_CheckOverlap = p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap");
   }
   m_UIsession = new CustomUIsession();
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
