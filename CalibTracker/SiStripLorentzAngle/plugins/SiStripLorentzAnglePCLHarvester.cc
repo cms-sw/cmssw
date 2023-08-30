@@ -225,11 +225,18 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
   // prepare the profiles
   for (const auto& ME : iHists_.h2_) {
+    if (!ME.second)
+      continue;
     TProfile* hp = (TProfile*)ME.second->getTH2F()->ProfileX();
     iBooker.setCurrentFolder(folderToHarvest + "/" + getStem(ME.first, /* isFolder = */ true));
     iHists_.p_[hp->GetName()] = iBooker.bookProfile(hp->GetName(), hp);
     iHists_.p_[hp->GetName()]->setAxisTitle(ME.second->getAxisTitle(2), 2);
     delete hp;
+  }
+
+  if (iHists_.p_.empty()) {
+    edm::LogError(moduleDescription().moduleName()) << "None of the input histograms could be retrieved. Aborting";
+    return;
   }
 
   std::map<std::string, std::pair<double, double>> LAMap_;

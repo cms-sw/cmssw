@@ -105,6 +105,11 @@ PPSTimingCalibrationRcd_prep_str = encodeJsonInString("PPSTimingCalibrationRcd_p
 PPSTimingCalibrationRcd_Sampic_prod_str = encodeJsonInString("PPSTimingCalibrationRcd_Sampic_prod.json")
 PPSTimingCalibrationRcd_Sampic_prep_str = encodeJsonInString("PPSTimingCalibrationRcd_Sampic_prep.json")
 
+#SiStripLorenzAngle
+SiStripLorentzAngleRcd_prod_str =  encodeJsonInString("SiStripLorentzAngleRcd_prod.json")
+SiStripLorentzAngleRcd_multirun_prod_str =  encodeJsonInString("SiStripLorentzAngleRcd_multirun_prod.json")
+SiStripLorentzAngleRcd_prep_str = encodeJsonInString("SiStripLorentzAngleRcd_prep.json")
+SiStripLorentzAngleRcd_multirun_prep_str = encodeJsonInString("SiStripLorentzAngleRcd_multirun_prep.json")
 
 # given a set of .json files in the current dir, ProduceDropBoxMetadata produces a sqlite containign the payload with the prod/and/prep metadata
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
@@ -240,7 +245,15 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prod_str),
                                                                prepMetaData        = cms.untracked.string(PPSTimingCalibrationRcd_Sampic_prep_str),
-                                                               )
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('SiStripLorentzAngleRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiStripLorentzAngleRcd_prod_str),
+                                                               prodMetaDataMultiRun = cms.untracked.string(SiStripLorentzAngleRcd_multirun_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiStripLorentzAngleRcd_prep_str),
+                                                               prepMetaDataMultiRun = cms.untracked.string(SiStripLorentzAngleRcd_multirun_prep_str),
+                                                               ),
                                                       ),
                                   # this boolean will read the content of whichever payload is available and print its content to stoutput
                                   # set this to false if you write out a sqlite.db translating the json's into a payload
