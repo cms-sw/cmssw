@@ -17,7 +17,7 @@ namespace edm {
     std::unique_ptr<ParameterSet> readConfig(std::string const& config);
 
     /// same, but with arguments
-    std::unique_ptr<ParameterSet> readConfig(std::string const& config, int argc, char* argv[]);
+    std::unique_ptr<ParameterSet> readConfig(std::string const& config, const std::vector<std::string>& args);
 
     /// essentially the same as the previous method
     void makeParameterSets(std::string const& configtext, std::unique_ptr<ParameterSet>& main);

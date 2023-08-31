@@ -17,7 +17,7 @@
 int main(int argc, char** argv) try {
   // config can either be a name or a string
   std::string config;
-  std::vector<char*> pythonArgs;
+  std::vector<std::string> pythonArgs;
 
   if (argc == 1) {
     // Read input from cin into configstring..
@@ -34,7 +34,7 @@ int main(int argc, char** argv) try {
     }
   }
 
-  std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config, pythonArgs.size(), pythonArgs.data());
+  std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config, pythonArgs);
   parameterSet->registerIt();
   std::cout << parameterSet->id() << std::endl;
   return 0;

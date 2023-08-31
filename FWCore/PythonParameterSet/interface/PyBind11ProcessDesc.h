@@ -35,7 +35,7 @@ public:
   */
   PyBind11ProcessDesc(std::string const& config, bool isFile);
 
-  PyBind11ProcessDesc(std::string const& config, bool isFile, int argc, char* argv[]);
+  PyBind11ProcessDesc(std::string const& config, bool isFile, const std::vector<std::string>& args);
 
   ~PyBind11ProcessDesc();
 

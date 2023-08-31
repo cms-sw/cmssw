@@ -31,31 +31,26 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile)
   read(config, isFile);
 }
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile, int argc, char* argv[])
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile, const std::vector<std::string>& args)
     : theProcessPSet(),
       theInterpreter(true)
-
 {
   edm::python::initializePyBind11Module();
   prepareToRead();
   {
-#if PY_MAJOR_VERSION >= 3
     typedef std::unique_ptr<wchar_t[], decltype(&PyMem_RawFree)> WArgUPtr;
     std::vector<WArgUPtr> v_argv;
     std::vector<wchar_t*> vp_argv;
-    v_argv.reserve(argc);
-    vp_argv.reserve(argc);
-    for (int i = 0; i < argc; i++) {
-      v_argv.emplace_back(Py_DecodeLocale(argv[i], nullptr), &PyMem_RawFree);
+    v_argv.reserve(args.size());
+    vp_argv.reserve(args.size());
+    for (size_t i = 0; i < args.size(); i++) {
+      v_argv.emplace_back(Py_DecodeLocale(args[i].c_str(), nullptr), &PyMem_RawFree);
       vp_argv.emplace_back(v_argv.back().get());
     }
 
     wchar_t** argvt = vp_argv.data();
-#else
-    char** argvt = argv;
-#endif
 
-    PySys_SetArgv(argc, argvt);
+    PySys_SetArgv(args.size(), argvt);
   }
   read(config, isFile);
 }
