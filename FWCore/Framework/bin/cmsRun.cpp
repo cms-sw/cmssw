@@ -102,6 +102,14 @@ namespace {
     edm::EventProcessor* ep_;
   };
 
+  //additional_parser is documented at https://www.boost.org/doc/libs/1_83_0/doc/html/program_options/howto.html#id-1.3.30.6.3
+  //extra_style_parser was added in https://www.boost.org/users/history/version_1_33_0.html
+  //it allows performing a fully custom processing on whatever arguments have not yet been processed
+  //the function is responsible for removing processed arguments from the input vector
+  //and assembling the return value, which is a vector of boost's option type
+  //some usage examples: https://stackoverflow.com/a/5481228, https://stackoverflow.com/a/37993517
+  //internally, when cmdline::run() is called, the function given to extra_style_parser is added to the beginning of list of parsers
+  //all parsers are called in order until args is empty (validity of non-empty output is checked after each parser)
   std::vector<boost::program_options::option> final_opts_parser(std::vector<std::string>& args) {
     std::vector<boost::program_options::option> result;
     std::string configName;
