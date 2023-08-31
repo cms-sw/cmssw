@@ -379,6 +379,8 @@ test name="TestFWCoreFrameworkDeleteEarly" command="test_deleteEarly.sh"/>
 <test name="testFWCoreFrameworkWrongOptionsNumberOfStreamsType" command="run_wrongOptionsType.sh numberOfStreams 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionssizeOfStackForThreadsInKBType" command="run_wrongOptionsType.sh sizeOfStackForThreadsInKB 'cms.untracked.int32(1024)'"/>
 
+<test name="testFWCoreFrameworkConfigSuffix" command="cp ${LOCALTOP}/src/FWCore/Framework/test/test_argparse.py test_argparse.notpy; cmsRun -n 1 test_argparse.notpy"/>
+<test name="testFWCoreFrameworkConfigDash" command="cp -- ${LOCALTOP}/src/FWCore/Framework/test/test_argparse.py -test_argparse.py; cmsRun -n 1 -- -test_argparse.py"/>
 <test name="testFWCoreFrameworkVarparsing" command="cmsRun -n 1 ${LOCALTOP}/src/FWCore/Framework/test/test_varparsing.py threads=2"/>
 <test name="testFWCoreFrameworkVarparsingHelp" command="cmsRun -n 1 ${LOCALTOP}/src/FWCore/Framework/test/test_varparsing.py --help"/>
 <test name="testFWCoreFrameworkArgparse" command="cmsRun -n 1 ${LOCALTOP}/src/FWCore/Framework/test/test_argparse.py -n 2"/>

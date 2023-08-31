@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   }
 
   // get the python configuration
-  ProcessDescImpl builder(argv[1]);
+  ProcessDescImpl builder(argv[1], true);
   const edm::ParameterSet& fwliteParameters =
       builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("FWLiteParams");
 

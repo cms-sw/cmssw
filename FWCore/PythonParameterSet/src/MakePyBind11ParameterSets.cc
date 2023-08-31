@@ -24,17 +24,17 @@ static void makePSetsFromString(std::string const& module) {
 namespace edm {
   namespace cmspybind11 {
     std::unique_ptr<ParameterSet> readConfig(std::string const& config) {
-      PyBind11ProcessDesc pythonProcessDesc(config);
+      PyBind11ProcessDesc pythonProcessDesc(config, true);
       return pythonProcessDesc.parameterSet();
     }
 
     std::unique_ptr<ParameterSet> readConfig(std::string const& config, int argc, char* argv[]) {
-      PyBind11ProcessDesc pythonProcessDesc(config, argc, argv);
+      PyBind11ProcessDesc pythonProcessDesc(config, true, argc, argv);
       return pythonProcessDesc.parameterSet();
     }
 
     void makeParameterSets(std::string const& configtext, std::unique_ptr<ParameterSet>& main) {
-      PyBind11ProcessDesc pythonProcessDesc(configtext);
+      PyBind11ProcessDesc pythonProcessDesc(configtext, false);
       main = pythonProcessDesc.parameterSet();
     }
 

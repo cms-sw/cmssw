@@ -25,13 +25,13 @@ PyBind11InterpreterSentry::~PyBind11InterpreterSentry() {
 
 PyBind11ProcessDesc::PyBind11ProcessDesc() : theProcessPSet(), theInterpreter(false) {}
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config) : theProcessPSet(), theInterpreter(true) {
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile) : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
-  read(config);
+  read(config, isFile);
 }
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, char* argv[])
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile, int argc, char* argv[])
     : theProcessPSet(),
       theInterpreter(true)
 
@@ -57,7 +57,7 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, ch
 
     PySys_SetArgv(argc, argvt);
   }
-  read(config);
+  read(config, isFile);
 }
 
 PyBind11ProcessDesc::~PyBind11ProcessDesc() = default;
@@ -69,14 +69,12 @@ void PyBind11ProcessDesc::prepareToRead() {
   theInterpreter.mainModule.attr("processPSet") = &theProcessPSet;
 }
 
-void PyBind11ProcessDesc::read(std::string const& config) {
+void PyBind11ProcessDesc::read(std::string const& config, bool isFile) {
   try {
-    // if it ends with py, it's a file
-    if (config.substr(config.size() - 3) == ".py") {
+    if (isFile)
       readFile(config);
-    } else {
-      readString(config);
-    }
+    else
+     readString(config);
   } catch (pybind11::error_already_set const& e) {
     edm::pythonToCppException("Configuration", e.what());
   }

@@ -44,8 +44,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 
 //Command line parameters
 static char const* const kParameterSetOpt = "parameter-set";
-static char const* const kParameterSetSuffix = ".py";
-static const size_t kParameterSetSuffixLen = std::strlen(kParameterSetSuffix);
 static char const* const kPythonOpt = "pythonOptions";
 static std::string const kPythonOptDefault = "CMSRUN_PYTHONOPT_DEFAULT";
 static char const* const kJobreportCommandOpt = "jobreport,j";
@@ -107,10 +105,19 @@ namespace {
 
   std::vector<boost::program_options::option> final_opts_parser(std::vector<std::string>& args) {
     std::vector<boost::program_options::option> result;
-    if (!args.empty() and args[0].size() >= kParameterSetSuffixLen and
-        args[0].compare(args[0].size() - kParameterSetSuffixLen, kParameterSetSuffixLen, kParameterSetSuffix) == 0) {
-      result.emplace_back(kParameterSetOpt, std::vector<std::string>(1, args[0]));
-      args.erase(args.begin());
+    std::string configName;
+    if (!args.empty() and !args[0].empty()) {
+      if(args[0][0]!='-'){ // name is first positional arg -> doesn't start with '-'
+        configName = args[0];
+        args.erase(args.begin());
+      }
+      else if(args[0]=="--" and args.size()>1){ // name can start with '-' if separator comes first
+        configName = args[1];
+        args.erase(args.begin(),args.begin()+2);
+      }
+    }
+    if (!configName.empty()) {
+      result.emplace_back(kParameterSetOpt, std::vector<std::string>(1, configName));
       result.emplace_back();
       auto& pythonOpts = result.back();
       pythonOpts.string_key = kPythonOpt;
@@ -173,9 +180,7 @@ int main(int argc, char* argv[]) {
 
       context = "Processing command line arguments";
       std::string descString(argv[0]);
-      descString += " [options] config_file";
-      descString += kParameterSetSuffix;
-      descString += " [python options]\nAllowed options";
+      descString += " [options] config_file [python options]\nAllowed options";
       boost::program_options::options_description desc(descString);
 
       // clang-format off

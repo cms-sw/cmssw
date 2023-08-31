@@ -33,9 +33,9 @@ public:
     It decides whether it's a file or string by seeing if
     it ends in '.py'
   */
-  PyBind11ProcessDesc(std::string const& config);
+  PyBind11ProcessDesc(std::string const& config, bool isFile);
 
-  PyBind11ProcessDesc(std::string const& config, int argc, char* argv[]);
+  PyBind11ProcessDesc(std::string const& config, bool isFile, int argc, char* argv[]);
 
   ~PyBind11ProcessDesc();
 
@@ -54,7 +54,7 @@ public:
 
 private:
   void prepareToRead();
-  void read(std::string const& config);
+  void read(std::string const& config, bool isFile);
   void readFile(std::string const& fileName);
   void readString(std::string const& pyConfig);
 
