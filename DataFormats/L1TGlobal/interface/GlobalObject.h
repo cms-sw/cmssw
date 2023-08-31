@@ -43,6 +43,8 @@ namespace l1t {
     gtCentrality6,
     gtCentrality7,
     gtExternal,
+    gtZDCP,
+    gtZDCM,
     ObjNull
   };
 

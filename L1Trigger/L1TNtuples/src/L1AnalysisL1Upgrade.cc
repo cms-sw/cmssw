@@ -156,3 +156,20 @@ void L1Analysis::L1AnalysisL1Upgrade::SetSum(const l1t::EtSumBxCollection& sums,
     }
   }
 }
+
+void L1Analysis::L1AnalysisL1Upgrade::SetSumZDC(const l1t::EtSumBxCollection& sumsZDC, unsigned maxL1Upgrade) {
+  for (int ibx = sumsZDC.getFirstBX(); ibx <= sumsZDC.getLastBX(); ++ibx) {
+    for (l1t::EtSumBxCollection::const_iterator it = sumsZDC.begin(ibx);
+         it != sumsZDC.end(ibx) && l1upgrade_.nSumsZDC < maxL1Upgrade;
+         it++) {
+      int type = static_cast<int>(it->getType());
+      l1upgrade_.sumZDCType.push_back(type);
+      l1upgrade_.sumZDCEt.push_back(it->et());
+      l1upgrade_.sumZDCPhi.push_back(it->phi());
+      l1upgrade_.sumZDCIEt.push_back(it->hwPt());
+      l1upgrade_.sumZDCIPhi.push_back(it->hwPhi());
+      l1upgrade_.sumZDCBx.push_back(ibx);
+      l1upgrade_.nSumsZDC++;
+    }
+  }
+}

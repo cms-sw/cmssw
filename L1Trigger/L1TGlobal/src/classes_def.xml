@@ -26,6 +26,7 @@
     <field name="m_vecCorrelationThreeBodyTemplate" mapping="blob" />
     <field name="m_vecCorrelationWithOverlapRemovalTemplate" mapping="blob" />
     <field name="m_vecEnergySumTemplate" mapping="blob" />
+    <field name="m_vecEnergySumZdcTemplate" mapping="blob" />
     <field name="m_vecExternalTemplate" mapping="blob" />
     <field name="m_vecHfBitCountsTemplate" mapping="blob" />
     <field name="m_vecHfRingEtSumsTemplate" mapping="blob" />
