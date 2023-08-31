@@ -31,7 +31,7 @@
 class MillePedeFileExtractor : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit MillePedeFileExtractor(const edm::ParameterSet&);
-  ~MillePedeFileExtractor() override;
+  ~MillePedeFileExtractor() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -47,6 +47,7 @@ private:
   const std::string outputDir_;
   const std::string outputFileName_;
 
+  edm::InputTag fileBlobInputTag_;
   edm::EDGetTokenT<FileBlobCollection> fileBlobToken_;
 
   const int maxNumberOfBinaries_;

@@ -18,9 +18,10 @@ MillePedeFileConverter::MillePedeFileConverter(const edm::ParameterSet& iConfig)
   produces<FileBlobCollection, edm::Transition::EndLuminosityBlock>(fileBlobLabel_);
 }
 
-MillePedeFileConverter::~MillePedeFileConverter() {}
-
 void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
+  auto const& moduleType = moduleDescription().moduleName();
+  auto const& moduleLabel = moduleDescription().moduleLabel();
+
   edm::LogInfo("MillePedeFileActions") << "Inserting all data from file " << inputDir_ + inputFileName_
                                        << " as a FileBlob to the lumi, using label \"" << fileBlobLabel_ << "\".";
   // Preparing the FileBlobCollection:
@@ -33,7 +34,12 @@ void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLu
   if (fileBlob.size() > 0) {  // skip if no data or FileBlob file not found
     // Adding the FileBlob to the lumi:
     fileBlobCollection->addFileBlob(fileBlob);
+    edm::LogInfo(moduleType) << "[" << moduleLabel << "] fileBlob size was not empty, putting file blob with size "
+                             << fileBlob.size() << std::endl;
   }
+
+  edm::LogInfo(moduleType) << "[" << moduleLabel << "]"
+                           << " Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
   iLumi.put(std::move(fileBlobCollection), fileBlobLabel_);
 }
 
