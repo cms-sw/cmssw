@@ -4,8 +4,8 @@
 <ConstantsSection label="cms.xml" eval="true">
  <Constant name="Rmin"         value="0.0*mm"/>
  <Constant name="Rmax"         value="1.2*m"/>
- <Constant name="Zmin"         value="0.0*m"/>
- <Constant name="Zmax"         value="8.0*m"/>
+ <Constant name="Zmin"         value="-1.2*m"/>
+ <Constant name="Zmax"         value="1.2*m"/>
 </ConstantsSection>
 
 <SolidSection label="cms.xml">

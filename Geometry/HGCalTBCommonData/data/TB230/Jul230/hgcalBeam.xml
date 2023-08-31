@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalBeam.xml" eval="true">
+  <Constant name="upstreamDxby2" value="50.0*cm"/>
+  <Constant name="upstreamDyby2" value="50.0*cm"/>
+  <Constant name="upstreamDzby2" value="60.0*cm"/>
+  <Constant name="upstreamZ" value="-[upstreamDzby2]"/>
+  <Constant name="backDz" value="51.5*cm"/>
+  <Constant name="s4Dxby2" value="7.0*cm"/>
+  <Constant name="s4Dzby2" value="5.0*mm"/>
+  <Constant name="s4Z" value="(-[upstreamDzby2]+[backDz]+[s4Dzby2])"/>
+  <Constant name="s3Dxby2" value="1.0*cm"/>
+  <Constant name="s3Dzby2" value="5.0*mm"/>
+  <Constant name="s3Dzby2" value="5.0*mm"/>
+  <Constant name="s3Z" value="([s4Z]+[s4Dzby2]+[s3Dzby2])"/>
+  <Constant name="s2Dxby2" value="2.0*cm"/>
+  <Constant name="s2Dyby2" value="2.0*mm"/>
+  <Constant name="s2Dzby2" value="5.0*mm"/>
+  <Constant name="s2Z" value="([s3Z]+[s3Dzby2]+[s2Dzby2])"/>
+  <Constant name="s1Dxby2" value="7.0*cm"/>
+  <Constant name="s1Dzby2" value="5.0*mm"/>
+  <Constant name="s1Dzby2" value="5.0*mm"/>
+  <Constant name="s1Z" value="([s2Z]+[s2Dzby2]+[s1Dzby2])"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalBeam.xml">
+  <Box name="HGCalBeam" dx="[upstreamDxby2]" dy="[upstreamDyby2]" dz="[upstreamDzby2]"/>
+  <Box name="HGCalBeamS1" dx="[s1Dxby2]" dy="[s1Dxby2]" dz="[s1Dzby2]"/>
+  <Box name="HGCalBeamS2" dx="[s2Dxby2]" dy="[s2Dxby2]" dz="[s2Dzby2]"/>
+  <Box name="HGCalBeamS3" dx="[s3Dxby2]" dy="[s3Dxby2]" dz="[s3Dzby2]"/>
+  <Box name="HGCalBeamS4" dx="[s4Dxby2]" dy="[s4Dxby2]" dz="[s4Dzby2]"/>
+</SolidSection>
+
+<LogicalPartSection label="hgcalBeam.xml">
+  <LogicalPart name="HGCalBeam" category="unspecified">
+    <rSolid name="HGCalBeam"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamS1" category="unspecified">
+    <rSolid name="HGCalBeamS1"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamS2" category="unspecified">
+    <rSolid name="HGCalBeamS2"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamS3" category="unspecified">
+    <rSolid name="HGCalBeamS3"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBeamS4" category="unspecified">
+    <rSolid name="HGCalBeamS4"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<RotationSection label="hgcalBeam.xml">
+  <Rotation name="R1" phiX="90*deg" thetaX="90*deg" phiY="180*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+</RotationSection>
+
+<PosPartSection label="hgcalBeam.xml">
+  <PosPart copyNumber="1">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamS1"/>
+    <Translation x="0*fm" y="0*fm" z="[s1Z]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamS2"/>
+    <Translation x="0*fm" y="0*fm" z="[s2Z]"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamS3"/>
+    <Translation x="0*fm" y="0*fm" z="[s3Z]"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcalBeam:HGCalBeam"/>
+    <rChild name="hgcalBeam:HGCalBeamS4"/>
+    <Translation x="0*fm" y="0*fm" z="[s4Z]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CALOECRear"/>
+    <rChild name="hgcalBeam:HGCalBeam"/>
+    <Translation x="0*fm" y="0*fm" z="[upstreamZ]"/>
+  </PosPart>
+</PosPartSection>
+
+<SpecParSection label="hgcalBeam.xml" eval="true">
+  <SpecPar name="hgcalbeam">
+    <PartSelector path="//HGCalBeamS.*"/>
+    <Parameter name="SensitiveDetector" value="HcalTB06BeamDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalTB06BeamHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcProdCutsBeam">
+    <PartSelector path="//HGCalBeam"/>
+    <Parameter name="CMSCutsRegion" value="HGCalBeamRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+<Parameter name="ProdCutsForProtons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForGamma"     value="1.0*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>
