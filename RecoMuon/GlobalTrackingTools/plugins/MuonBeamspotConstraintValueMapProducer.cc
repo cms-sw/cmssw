@@ -88,7 +88,6 @@ private:
 
           SingleTrackVertexConstraint::BTFtuple btft = stvc.constrain(ttkb->build(muon.muonBestTrack()), pvs);
           if (std::get<0>(btft)) {
-            // chi2 = std::get<2>(btft)); // should apply a cut, or store this as well?
             const reco::Track& trkBS = std::get<1>(btft).track();
             pts.push_back(trkBS.pt());
             ptErrs.push_back(trkBS.ptError());
