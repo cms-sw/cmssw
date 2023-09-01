@@ -7,7 +7,7 @@ status=0
   
 rm -f  u6_warnings.log  
 
-cmsRun -p ${SCRAM_TEST_PATH}/u6_cfg.py  || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u6_cfg.py  || exit $?
  
 for file in u6_warnings.log    
 do

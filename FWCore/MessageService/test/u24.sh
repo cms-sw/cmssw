@@ -7,7 +7,7 @@ status=0
   
 rm -f u24.log  
 
-cmsRun -p ${SCRAM_TEST_PATH}/u24_cfg.py && exit 1
+cmsRun ${SCRAM_TEST_PATH}/u24_cfg.py && exit 1
  
 for file in u24.log
 do

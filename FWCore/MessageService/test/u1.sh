@@ -7,7 +7,7 @@ status=0
   
 rm -f u1_errors.log u1_warnings.log u1_infos.log u1_debugs.log u1_default.log u1_job_report.mxml 
 
-cmsRun -j u1_job_report.mxml -p ${SCRAM_TEST_PATH}/u1_cfg.py || exit $?
+cmsRun -j u1_job_report.mxml ${SCRAM_TEST_PATH}/u1_cfg.py || exit $?
 
 for file in u1_errors.log u1_warnings.log u1_infos.log u1_debugs.log u1_default.log u1_job_report.mxml
 do
