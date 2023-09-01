@@ -128,12 +128,14 @@ TEST_CASE("Configuration with SwitchProducer", s_tag) {
   const std::string baseConfigTest2Disabled_test2 = makeSwitchConfig(false, test1, test2, "test2");
 
   SECTION("Configuration hash is not changed") {
-    auto pset_auto = edm::readConfig(baseConfig_auto);
-    auto pset_test1 = edm::readConfig(baseConfig_test1);
-    auto pset_test2 = edm::readConfig(baseConfig_test2);
-    auto psetTest2Disabled_auto = edm::readConfig(baseConfigTest2Disabled_auto);
-    auto psetTest2Disabled_test1 = edm::readConfig(baseConfigTest2Disabled_test1);
-    auto psetTest2Disabled_test2 = edm::readConfig(baseConfigTest2Disabled_test2);
+    std::unique_ptr<edm::ParameterSet> pset_auto, pset_test1, pset_test2;
+    std::unique_ptr<edm::ParameterSet> psetTest2Disabled_auto, psetTest2Disabled_test1, psetTest2Disabled_test2;
+    edm::makeParameterSets(baseConfig_auto, pset_auto);
+    edm::makeParameterSets(baseConfig_test1, pset_test1);
+    edm::makeParameterSets(baseConfig_test2, pset_test2);
+    edm::makeParameterSets(baseConfigTest2Disabled_auto, psetTest2Disabled_auto);
+    edm::makeParameterSets(baseConfigTest2Disabled_test1, psetTest2Disabled_test1);
+    edm::makeParameterSets(baseConfigTest2Disabled_test2, psetTest2Disabled_test2);
     pset_auto->registerIt();
     pset_test1->registerIt();
     pset_test2->registerIt();
@@ -224,14 +226,16 @@ TEST_CASE("Configuration with ModuleTypeResolver", s_tag) {
   const std::string baseConfigOtherDisabled_other = makeResolverConfig(false, "other", "");
 
   SECTION("Configuration hash is not changed") {
-    auto pset_auto = edm::readConfig(baseConfig_auto);
-    auto pset_cpu = edm::readConfig(baseConfig_cpu);
-    auto pset_other = edm::readConfig(baseConfig_other);
-    auto pset_cpuExplicit = edm::readConfig(baseConfig_cpuExplicit);
-    auto pset_otherExplicit = edm::readConfig(baseConfig_otherExplicit);
-    auto psetOtherDisabled_auto = edm::readConfig(baseConfigOtherDisabled_auto);
-    auto psetOtherDisabled_cpu = edm::readConfig(baseConfigOtherDisabled_cpu);
-    REQUIRE_THROWS_WITH(edm::readConfig(baseConfigOtherDisabled_other), Catch::Contains("UnavailableAccelerator"));
+    std::unique_ptr<edm::ParameterSet> pset_auto, pset_cpu, pset_other, pset_cpuExplicit;
+    std::unique_ptr<edm::ParameterSet> pset_otherExplicit, psetOtherDisabled_auto, psetOtherDisabled_cpu, psetOtherDisabled_other;
+    edm::makeParameterSets(baseConfig_auto, pset_auto);
+    edm::makeParameterSets(baseConfig_cpu, pset_cpu);
+    edm::makeParameterSets(baseConfig_other, pset_other);
+    edm::makeParameterSets(baseConfig_cpuExplicit, pset_cpuExplicit);
+    edm::makeParameterSets(baseConfig_otherExplicit, pset_otherExplicit);
+    edm::makeParameterSets(baseConfigOtherDisabled_auto, psetOtherDisabled_auto);
+    edm::makeParameterSets(baseConfigOtherDisabled_cpu, psetOtherDisabled_cpu);
+    REQUIRE_THROWS_WITH(edm::makeParameterSets(baseConfigOtherDisabled_other, psetOtherDisabled_other), Catch::Contains("UnavailableAccelerator"));
     pset_auto->registerIt();
     pset_cpu->registerIt();
     pset_other->registerIt();
