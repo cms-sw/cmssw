@@ -7,13 +7,13 @@
 //#define EDM_ML_DEBUG
 
 HGCMouseBite::HGCMouseBite(const HGCalDDDConstants& hgc, const std::vector<double>& angle, double maxL, bool rot)
-  : hgcons_(&hgc), hgTBcons_(nullptr), ifTB_(false), cut_(maxL), rot_(rot) {
+    : hgcons_(&hgc), hgTBcons_(nullptr), ifTB_(false), cut_(maxL), rot_(rot) {
   modeUV_ = hgcons_->waferHexagon8();
   init(angle);
 }
 
 HGCMouseBite::HGCMouseBite(const HGCalTBDDDConstants& hgc, const std::vector<double>& angle, double maxL, bool rot)
-  : hgcons_(nullptr), hgTBcons_(&hgc), ifTB_(true), cut_(maxL), rot_(rot) {
+    : hgcons_(nullptr), hgTBcons_(&hgc), ifTB_(true), cut_(maxL), rot_(rot) {
   modeUV_ = false;
   init(angle);
 }
@@ -36,10 +36,11 @@ bool HGCMouseBite::exclude(G4ThreeVector& point, int zside, int lay, int waferU,
   double dx(0), dy(0);
   if (point == G4ThreeVector()) {
     std::pair<double, double> xy;
-    if (ifTB_) 
+    if (ifTB_)
       xy = hgTBcons_->waferPosition(waferU, false);
     else
-      xy = (modeUV_ ? hgcons_->waferPosition(lay, waferU, waferV, false, false) : hgcons_->waferPosition(waferU, false));
+      xy =
+          (modeUV_ ? hgcons_->waferPosition(lay, waferU, waferV, false, false) : hgcons_->waferPosition(waferU, false));
     double xx = (zside > 0) ? xy.first : -xy.first;
     if (rot_) {
       dx = std::abs(point.y() - xy.second);
