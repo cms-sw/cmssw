@@ -45,6 +45,8 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kPythonOpt = "pythonOptions";
 static std::string const kPythonOptDefault = "CMSRUN_PYTHONOPT_DEFAULT";
+static char const* const kCmdCommandOpt = "command,c";
+static char const* const kCmdOpt = "command";
 static char const* const kJobreportCommandOpt = "jobreport,j";
 static char const* const kJobreportOpt = "jobreport";
 static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
@@ -204,7 +206,8 @@ int main(int argc, char* argv[]) {
           "Number of threads to use in job (0 is use all CPUs)")(
           kSizeOfStackForThreadCommandOpt,
           boost::program_options::value<unsigned int>(),
-          "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing");
+          "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing")(
+          kCmdCommandOpt, boost::program_options::value<std::string>(), "config passed in as string (config_file [python options] will be ignored)");
       // clang-format on
 
       // anything at the end will be ignored, and sent to python
@@ -248,18 +251,25 @@ int main(int argc, char* argv[]) {
         return 0;
       }
 
-      if (!vm.count(kParameterSetOpt)) {
+      std::string cmdString;
+      std::string fileName;
+      if (vm.count(kCmdOpt))
+        cmdString = vm[kCmdOpt].as<std::string>();
+      else if (!vm.count(kParameterSetOpt)) {
         edm::LogAbsolute("ConfigFileNotFound") << "cmsRun: No configuration file given.\n"
                                                << "For usage and an options list, please do 'cmsRun --help'.";
         edm::HaltMessageLogging();
         return edm::errors::ConfigFileNotFound;
       }
-      std::string fileName(vm[kParameterSetOpt].as<std::string>());
-      //convert to char*[]
-      std::vector<std::string> pythonOptValues(vm[kPythonOpt].as<std::vector<std::string>>());
-      //omit default arg
-      if (pythonOptValues.size() == 1 and pythonOptValues[0] == kPythonOptDefault)
-        pythonOptValues.clear();
+      else
+        fileName = vm[kParameterSetOpt].as<std::string>();
+      std::vector<std::string> pythonOptValues;
+      if (vm.count(kPythonOpt)) {
+        pythonOptValues = vm[kPythonOpt].as<std::vector<std::string>>();
+        //omit default arg
+        if (pythonOptValues.size() == 1 and pythonOptValues[0] == kPythonOptDefault)
+          pythonOptValues.clear();
+      }
       pythonOptValues.insert(pythonOptValues.begin(), fileName);
 
       if (vm.count(kStrictOpt)) {
@@ -285,12 +295,15 @@ int main(int argc, char* argv[]) {
       edm::ServiceToken jobReportToken = edm::ServiceRegistry::createContaining(jobRep);
 
       context = "Processing the python configuration file named ";
-      context += fileName;
+      context += !fileName.empty() ? fileName : cmdString;
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        std::unique_ptr<edm::ParameterSet> parameterSet =
-            edm::readConfig(fileName, pythonOptValues);
-        processDesc.reset(new edm::ProcessDesc(std::move(parameterSet)));
+        std::unique_ptr<edm::ParameterSet> parameterSet;
+        if (!fileName.empty())
+          parameterSet = edm::readConfig(fileName, pythonOptValues);
+        else
+          edm::makeParameterSets(cmdString, parameterSet);
+        processDesc = std::make_shared<edm::ProcessDesc>(std::move(parameterSet));
       } catch (edm::Exception const&) {
         throw;
       } catch (cms::Exception& iException) {
