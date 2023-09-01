@@ -25,16 +25,15 @@ PyBind11InterpreterSentry::~PyBind11InterpreterSentry() {
 
 PyBind11ProcessDesc::PyBind11ProcessDesc() : theProcessPSet(), theInterpreter(false) {}
 
-PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile) : theProcessPSet(), theInterpreter(true) {
+PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile)
+    : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
   read(config, isFile);
 }
 
 PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile, const std::vector<std::string>& args)
-    : theProcessPSet(),
-      theInterpreter(true)
-{
+    : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
   {
@@ -69,7 +68,7 @@ void PyBind11ProcessDesc::read(std::string const& config, bool isFile) {
     if (isFile)
       readFile(config);
     else
-     readString(config);
+      readString(config);
   } catch (pybind11::error_already_set const& e) {
     edm::pythonToCppException("Configuration", e.what());
   }

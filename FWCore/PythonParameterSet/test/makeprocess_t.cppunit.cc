@@ -54,7 +54,7 @@ private:
   typedef std::shared_ptr<edm::ParameterSet> ParameterSetPtr;
   ParameterSetPtr pSet(char const* c) {
     //ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );
-    ParameterSetPtr result = PyBind11ProcessDesc(std::string(c),false).parameterSet();
+    ParameterSetPtr result = PyBind11ProcessDesc(std::string(c), false).parameterSet();
     CPPUNIT_ASSERT(result->getParameter<std::string>("@process_name") == "test");
     return result;
   }

@@ -227,7 +227,8 @@ TEST_CASE("Configuration with ModuleTypeResolver", s_tag) {
 
   SECTION("Configuration hash is not changed") {
     std::unique_ptr<edm::ParameterSet> pset_auto, pset_cpu, pset_other, pset_cpuExplicit;
-    std::unique_ptr<edm::ParameterSet> pset_otherExplicit, psetOtherDisabled_auto, psetOtherDisabled_cpu, psetOtherDisabled_other;
+    std::unique_ptr<edm::ParameterSet> pset_otherExplicit, psetOtherDisabled_auto, psetOtherDisabled_cpu,
+        psetOtherDisabled_other;
     edm::makeParameterSets(baseConfig_auto, pset_auto);
     edm::makeParameterSets(baseConfig_cpu, pset_cpu);
     edm::makeParameterSets(baseConfig_other, pset_other);
@@ -235,7 +236,8 @@ TEST_CASE("Configuration with ModuleTypeResolver", s_tag) {
     edm::makeParameterSets(baseConfig_otherExplicit, pset_otherExplicit);
     edm::makeParameterSets(baseConfigOtherDisabled_auto, psetOtherDisabled_auto);
     edm::makeParameterSets(baseConfigOtherDisabled_cpu, psetOtherDisabled_cpu);
-    REQUIRE_THROWS_WITH(edm::makeParameterSets(baseConfigOtherDisabled_other, psetOtherDisabled_other), Catch::Contains("UnavailableAccelerator"));
+    REQUIRE_THROWS_WITH(edm::makeParameterSets(baseConfigOtherDisabled_other, psetOtherDisabled_other),
+                        Catch::Contains("UnavailableAccelerator"));
     pset_auto->registerIt();
     pset_cpu->registerIt();
     pset_other->registerIt();

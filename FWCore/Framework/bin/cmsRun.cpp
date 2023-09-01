@@ -116,13 +116,12 @@ namespace {
     std::vector<boost::program_options::option> result;
     std::string configName;
     if (!args.empty() and !args[0].empty()) {
-      if(args[0][0]!='-'){ // name is first positional arg -> doesn't start with '-'
+      if (args[0][0] != '-') {  // name is first positional arg -> doesn't start with '-'
         configName = args[0];
         args.erase(args.begin());
-      }
-      else if(args[0]=="--" and args.size()>1){ // name can start with '-' if separator comes first
+      } else if (args[0] == "--" and args.size() > 1) {  // name can start with '-' if separator comes first
         configName = args[1];
-        args.erase(args.begin(),args.begin()+2);
+        args.erase(args.begin(), args.begin() + 2);
       }
     }
     if (!configName.empty()) {
@@ -260,8 +259,7 @@ int main(int argc, char* argv[]) {
                                                << "For usage and an options list, please do 'cmsRun --help'.";
         edm::HaltMessageLogging();
         return edm::errors::ConfigFileNotFound;
-      }
-      else
+      } else
         fileName = vm[kParameterSetOpt].as<std::string>();
       std::vector<std::string> pythonOptValues;
       if (vm.count(kPythonOpt)) {
