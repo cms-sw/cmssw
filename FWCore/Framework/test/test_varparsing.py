@@ -6,8 +6,9 @@ options.register("maxEvents", 1, VarParsing.multiplicity.singleton, VarParsing.v
 options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "number of threads")
 options.parseArguments()
 
+print(options)
+
 process = cms.Process("TEST")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents.input = options.maxEvents
-process.options.numberOfThreads = options.threads
