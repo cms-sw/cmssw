@@ -118,6 +118,8 @@ const int GlobalCondition::nrObjects() const {
     case l1t::TypeMinBiasHFM0:
     case l1t::TypeMinBiasHFP1:
     case l1t::TypeMinBiasHFM1:
+    case l1t::TypeZDCP:
+    case l1t::TypeZDCM:
     case l1t::TypeAsymEt:
     case l1t::TypeAsymHt:
     case l1t::TypeAsymEtHF:
@@ -195,6 +197,12 @@ void GlobalCondition::print(std::ostream& myCout) const {
     case l1t::CondEnergySum: {
       myCout << "  Condition category: "
              << "CondEnergySum" << std::endl;
+    }
+
+    break;
+    case l1t::CondEnergySumZdc: {
+      myCout << "  Condition category: "
+             << "CondEnergySumZdc" << std::endl;
     }
 
     break;

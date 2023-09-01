@@ -344,6 +344,12 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   std::shared_ptr<LUT> q2LUT(new LUT(q2LUTStream));
   m_params_helper.setQ2LUT(*q2LUT);
 
+  // HI ZDC calibration LUT for trigger
+  edm::FileInPath zdcLUTFile = conf.getParameter<edm::FileInPath>("zdcLUTFile");
+  std::ifstream zdcLUTStream(zdcLUTFile.fullPath());
+  std::shared_ptr<LUT> zdcLUT(new LUT(zdcLUTStream));
+  m_params_helper.setZDCLUT(*zdcLUT);
+
   // Layer 1 LUT specification
   m_params_helper.setLayer1ECalScaleFactors(conf.getParameter<std::vector<double>>("layer1ECalScaleFactors"));
   m_params_helper.setLayer1HCalScaleFactors(conf.getParameter<std::vector<double>>("layer1HCalScaleFactors"));
