@@ -16,7 +16,7 @@
 #include "Geometry/HGCalTBCommonData/interface/HGCalTBDDDConstants.h"
 
 #include <string>
-#ifdef plotDebug 
+#ifdef plotDebug
 #include <TTree.h>
 #endif
 class G4LogicalVolume;
@@ -61,7 +61,7 @@ private:
   bool dd4hep_;
   std::vector<double> angles_;
 
-#ifdef plotDebug 
+#ifdef plotDebug
   TTree *tree_;
 #endif
   uint32_t t_EventID_;
