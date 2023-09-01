@@ -300,5 +300,3 @@ else:
                          process.TrackRefitter                          + 
                          process.offlinePrimaryVerticesFromRefittedTrks +
                          process.jetHTAnalyzer)
-
-
