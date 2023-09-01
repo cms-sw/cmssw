@@ -16,6 +16,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/traits.h"
 #include <string>
+#include <string_view>
 #include <vector>
 #include <cassert>
 
@@ -109,10 +110,10 @@ namespace trigger {
       return edm::InputTag(triggerFilters_.at(index).filterTag_);
     }
     const std::string& filterTagEncoded(trigger::size_type index) const { return triggerFilters_.at(index).filterTag_; }
-    std::string filterLabel(trigger::size_type index) const {
-      const std::string& tag = triggerFilters_.at(index).filterTag_;
-      std::string::size_type idx = tag.find(':');
-      return (idx == std::string::npos ? tag : tag.substr(0, idx));
+    std::string_view filterLabel(trigger::size_type index) const {
+      std::string_view tag = triggerFilters_.at(index).filterTag_;
+      auto const idx = tag.find(':');
+      return (idx == tag.npos ? tag : tag.substr(0, idx));
     }
     const Vids& filterIds(trigger::size_type index) const { return triggerFilters_.at(index).filterIds_; }
     const Keys& filterKeys(trigger::size_type index) const { return triggerFilters_.at(index).filterKeys_; }

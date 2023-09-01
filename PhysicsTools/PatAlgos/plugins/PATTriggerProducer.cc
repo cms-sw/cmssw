@@ -743,7 +743,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       auto triggerFilters = std::make_unique<TriggerFilterCollection>();
       triggerFilters->reserve(sizeFilters);
       for (size_t iF = 0; iF < sizeFilters; ++iF) {
-        const std::string nameFilter(handleTriggerEvent->filterTag(iF).label());
+        const std::string nameFilter(handleTriggerEvent->filterLabel(iF));
         const trigger::Keys& keys = handleTriggerEvent->filterKeys(iF);  // not cached
         const trigger::Vids& types = handleTriggerEvent->filterIds(iF);  // not cached
         TriggerFilter triggerFilter(nameFilter);
