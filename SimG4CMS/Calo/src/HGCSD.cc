@@ -27,7 +27,6 @@
 #include <memory>
 
 //#define EDM_ML_DEBUG
-//#define plotDebug
 
 HGCSD::HGCSD(const std::string& name,
              const HGCalTBDDDConstants* hgc,
@@ -42,8 +41,10 @@ HGCSD::HGCSD(const std::string& name,
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
       hgcons_(hgc),
       slopeMin_(0),
-      levelT_(99),
-      tree_(nullptr) {
+      levelT_(99) {
+#ifdef plotDebug
+  tree_ = nullptr;
+#endif
   numberingScheme_.reset(nullptr);
   mouseBite_.reset(nullptr);
 

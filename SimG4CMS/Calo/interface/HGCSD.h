@@ -6,6 +6,8 @@
 //              appropriate container
 ///////////////////////////////////////////////////////////////////////////////
 
+//#define plotDebug
+
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
@@ -14,8 +16,9 @@
 #include "Geometry/HGCalTBCommonData/interface/HGCalTBDDDConstants.h"
 
 #include <string>
+#ifdef plotDebug 
 #include <TTree.h>
-
+#endif
 class G4LogicalVolume;
 class G4Material;
 class G4Step;
@@ -58,7 +61,9 @@ private:
   bool dd4hep_;
   std::vector<double> angles_;
 
+#ifdef plotDebug 
   TTree *tree_;
+#endif
   uint32_t t_EventID_;
   std::vector<int> t_Layer_, t_Parcode_;
   std::vector<double> t_dEStep1_, t_dEStep2_, t_TrackE_;
