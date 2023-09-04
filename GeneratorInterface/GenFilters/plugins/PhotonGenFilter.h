@@ -23,6 +23,7 @@ public:
     ~PhotonGenFilter() override;
     
     bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 private:
     // Private member variables and functions
 
