@@ -97,4 +97,17 @@ bool PhotonGenFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::Event
     return false; // Return true if event passes the filter, false otherwise
 }
 
+void PhotonGenFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+{
+    edm::ParameterSetDescription desc;
+    desc.addUntracked<double>("MaxEta", 2.4);
+    desc.addUntracked<double>("MinEta", -2.4);
+    desc.addUntracked<double>("MinPt", 20.);
+    desc.addUntracked<int>("Status", 1);
+    desc.addUntracked<int>("ParticleID", 22);
+    desc.addUntracked<double>("drMin", 0.1);
+
+    descriptions.add("PhotonGenFilter", desc);
+}
+
 DEFINE_FWK_MODULE(PhotonGenFilter);
