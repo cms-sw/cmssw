@@ -13,17 +13,6 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 
 # mc WFs to run in IB:
 
-# mc 2022   Patatrack pixel-only quadruplets:                   ZMM - on GPU (optional), GPU-vs-CPU validation, profiling
-#           Patatrack pixel-only triplets:                      ZMM - on GPU (optional), GPU-vs-CPU validation, profiling
-#           Patatrack pixel-only quadruplets:                   TTbar - on GPU (optional), GPU-vs-CPU validation, profiling
-#           Patatrack pixel-only triplets:                      TTbar - on GPU (optional), GPU-vs-CPU validation, profiling
-#           Patatrack ECAL-only:                                TTbar - on GPU (optional), GPU-vs-CPU validation, profiling
-#           Patatrack HCAL-only:                                TTbar - on GPU (optional), GPU-vs-CPU validation, profiling
-#           Patatrack pixel-only quadruplets, ECAL, HCAL:       TTbar - on GPU (optional), GPU-vs-CPU validation
-#           Patatrack pixel-only triplets, ECAL, HCAL:          TTbar - on GPU (optional), GPU-vs-CPU validation
-#           full reco with Patatrack pixel-only quadruplets:    TTbar - on GPU (optional), GPU-vs-CPU validation
-#           full reco with Patatrack pixel-only triplets:       TTbar - on GPU (optional), GPU-vs-CPU validation
-
 # mc 2023   Patatrack pixel-only quadruplets:                   ZMM - on GPU (optional), GPU-vs-CPU validation, profiling
 #           Patatrack pixel-only triplets:                      ZMM - on GPU (optional), GPU-vs-CPU validation, profiling
 #           Patatrack pixel-only quadruplets:                   TTbar - on GPU (optional), GPU-vs-CPU validation, profiling
@@ -35,18 +24,6 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #           full reco with Patatrack pixel-only quadruplets:    TTbar - on GPU (optional), GPU-vs-CPU validation
 #           full reco with Patatrack pixel-only triplets:       TTbar - on GPU (optional), GPU-vs-CPU validation
 numWFIB = [
-           # 2022
-           11650.502, 11650.503, 11650.504,
-           11650.506, 11650.507, 11650.508,
-           11634.502, 11634.503, 11634.504,
-           11634.506, 11634.507, 11634.508,
-           11634.512, 11634.513, 11634.514,
-           11634.522, 11634.523, 11634.524,
-           11634.582, 11634.583,
-           11634.586, 11634.587,
-           11634.592, 11634.593,
-           11634.596, 11634.597,
-
            # 2023
            12450.502, 12450.503, 12450.504,
            12450.506, 12450.507, 12450.508,
