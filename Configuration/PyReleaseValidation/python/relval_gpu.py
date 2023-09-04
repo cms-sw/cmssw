@@ -45,12 +45,62 @@ for numWF in numWFIB:
 
 # data WFs to run in IB:
 
-# data 2023 Patatrack pixel-only triplets:   RunJetMET2022D on GPU (optional)
-#           Patatrack ECAL-only:             RunJetMET2022D on GPU (optional)
-#           Patatrack HCAL-only:             RunJetMET2022D on GPU (optional)
-workflows[141.008506] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU','HARVESTRUN3_pixelTrackingOnly']]
-workflows[141.008512] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_ECALOnlyGPU','HARVESTRUN3_ECALOnly']]
-workflows[141.008522] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_HCALOnlyGPU','HARVESTRUN3_HCALOnly']]
+# data 2023 Patatrack pixel-only triplets:   RunJetMET2022D on GPU (optional), RunJetMET2022D GPU-vs-CPU validation, RunJetMET2022D profiling
+#           Patatrack ECAL-only:             RunJetMET2022D on GPU (optional), RunJetMET2022D GPU-vs-CPU validation, RunJetMET2022D profiling
+#           Patatrack HCAL-only:             RunJetMET2022D on GPU (optional), RunJetMET2022D GPU-vs-CPU validation, RunJetMET2022D profiling
+workflows[141.008506] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPU',
+                            'HARVESTRUN3_pixelTrackingOnly'
+                        ]]
+workflows[141.008507] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU_Validation',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPUValidation',
+                            'HARVESTRUN3_pixelTrackingOnlyGPUValidation'
+                        ]]
+workflows[141.008508] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsGPU_Profiling',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_Patatrack_PixelOnlyTripletsGPUProfiling'
+                        ]]
+
+workflows[141.008512] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_ECALOnlyGPU',
+                            'HARVESTRUN3_ECALOnly'
+                        ]]
+workflows[141.008513] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU_Validation',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_ECALOnlyGPUValidation',
+                            'HARVESTRUN3_ECALOnlyGPUValidation'
+                        ]]
+workflows[141.008514] = ['Run3-2023_JetMET2023B_RecoECALOnlyGPU_Profiling',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_ECALOnlyGPUProfiling'
+                        ]]
+
+workflows[141.008522] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_HCALOnlyGPU',
+                            'HARVESTRUN3_HCALOnly'
+                        ]]
+workflows[141.008523] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU_Validation',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_HCALOnlyGPUValidation',
+                            'HARVESTRUN3_HCALOnlyGPUValidation'
+                        ]]
+workflows[141.008524] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU_Profiling',[
+                            'RunJetMET2023B',
+                            'HLTDR3_2023',
+                            'RECODR3_reHLT_HCALOnlyGPUProfiling'
+                        ]]
 
 # 2023 HIon MC Patatrack pixel-only quadruplets on HydjetQ_MinBias_5362GeV_2023_ppReco on GPU (optional)
 workflows[160.502] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_PatatrackGPU','MINIHI2023PROD']]
