@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltZMMPbPb = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltZMMPbPb.HLTPaths = ["HLT_HIL1DoubleMu10_v*"]
+hltZMMPbPb.HLTPaths = ["HLT_HIL3SingleMu*_Open_v*"]
 hltZMMPbPb.throw = False
 hltZMMPbPb.andOr = True
 
@@ -17,7 +17,7 @@ primaryVertexFilterForZMM = cms.EDFilter("VertexSelector",
 # selection of dimuons with mass in Z range
 muonSelectorForZMM = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("(isTrackerMuon && isGlobalMuon) && pt > 25."),
+    cut = cms.string("(isPFMuon && isGlobalMuon) && pt > 20."),
     filter = cms.bool(True)
     )
 
@@ -28,7 +28,7 @@ muonFilterForZMM = cms.EDFilter("MuonCountFilter",
 
 dimuonMassCutForZMM = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    cut = cms.string(' 80 < mass < 110'),
+    cut = cms.string('mass > 60'),
     decay = cms.string("muonSelectorForZMM@+ muonSelectorForZMM@-")
     )
 
