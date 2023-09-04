@@ -205,20 +205,10 @@ photonTable = simpleCandidateFlatTableProducer.clone(
             "uint8",
             doc="cut-based ID bitmap, RunIIIWinter22V1, (0:fail, 1:loose, 2:medium, 3:tight)",
         ),
-        cutBased_Fall17V2 = Var(
-            "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
-            "uint8",
-            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
-        ),
         vidNestedWPBitmap = Var(
             "userInt('VIDNestedWPBitmap')",
             int,
             doc="RunIIIWinter22V1 " + _bitmapVIDForPho_docstring
-        ),
-        vidNestedWPBitmap_Fall17V2 = Var(
-            "userInt('VIDNestedWPBitmapFall17V2')",
-            int,
-            doc="Fall17V2 " + _bitmapVIDForPhoRun2_docstring
         ),
         electronVeto = Var("passElectronVeto()",bool,doc="pass electron veto"),
         pixelSeed = Var("hasPixelSeed()",bool,doc="has pixel seed"),
@@ -226,17 +216,16 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         mvaID = Var("userFloat('mvaID')",float,doc="MVA ID score, Winter22V1",precision=10),
         mvaID_WP90 = Var("userInt('mvaID_WP90')",bool,doc="MVA ID WP90, Winter22V1"),
         mvaID_WP80 = Var("userInt('mvaID_WP80')",bool,doc="MVA ID WP80, Winter22V1"),
-        mvaID_Fall17V2 = Var("userFloat('mvaID_Fall17V2')",float,doc="MVA ID score, Fall17V2",precision=10),
-        mvaID_Fall17V2_WP90 = Var("userInt('mvaID_Fall17V2_WP90')",bool,doc="MVA ID WP90, Fall17V2"),
-        mvaID_Fall17V2_WP80 = Var("userInt('mvaID_Fall17V2_WP80')",bool,doc="MVA ID WP80, Fall17V2"),
         trkSumPtHollowConeDR03 = Var("trkSumPtHollowConeDR03()",float,doc="Sum of track pT in a hollow cone of outer radius, inner radius", precision=8),
+        trkSumPtSolidConeDR04 = Var("trkSumPtSolidConeDR04()",float,doc="Sum of track pT in a cone of dR=0.4", precision=8),                 
+        ecalPFClusterIso = Var("ecalPFClusterIso()",float,doc="sum pt of ecal clusters, vetoing clusters part of photon", precision=8),
+        hcalPFClusterIso = Var("hcalPFClusterIso()",float,doc="sum pt of hcal clusters, vetoing clusters part of photon", precision=8), 
         pfPhoIso03 = Var("photonIso()",float,doc="PF absolute isolation dR=0.3, photon component (uncorrected)"),
+        pfChargedIso = Var("chargedHadronIso()",float,doc="PF absolute isolation dR=0.3, charged component with dxy,dz match to PV", precision=8),        
         pfChargedIsoPFPV = Var("chargedHadronPFPVIso()",float,doc="PF absolute isolation dR=0.3, charged component (PF PV only)"),
         pfChargedIsoWorstVtx = Var("chargedHadronWorstVtxIso()",float,doc="PF absolute isolation dR=0.3, charged component (Vertex with largest isolation)"),
         pfRelIso03_chg_quadratic = Var("userFloat('PFIsoChgQuadratic')/pt",float,doc="PF relative isolation dR=0.3, charged hadron component (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
         pfRelIso03_all_quadratic = Var("userFloat('PFIsoAllQuadratic')/pt",float,doc="PF relative isolation dR=0.3, total (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
-        pfRelIso03_chg_Fall17V2 = Var("userFloat('PFIsoChgFall17V2')/pt",float,doc="PF relative isolation dR=0.3, charged component (with Fall17V2 rho*EA PU corrections)"),
-        pfRelIso03_all_Fall17V2 = Var("userFloat('PFIsoAllFall17V2')/pt",float,doc="PF relative isolation dR=0.3, total (with Fall17V2 rho*EA PU corrections)"),
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
         hoe_PUcorr = Var("userFloat('HoverEQuadratic')",float,doc="PU corrected H/E (cone-based with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)",precision=8),
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
@@ -255,33 +244,32 @@ photonTable = simpleCandidateFlatTableProducer.clone(
     )
 )
 
-# switch default IDs back to Fall17V2 in Run2, remove Winter22V1 and quadratic iso
-run2_egamma.toModify(photonTable.variables,
-                     cutBased = photonTable.variables.cutBased_Fall17V2,
-                     cutBased_Fall17V2 = None,
-                     vidNestedWPBitmap = photonTable.variables.vidNestedWPBitmap_Fall17V2,
-                     vidNestedWPBitmap_Fall17V2 = None,
-                     mvaID = photonTable.variables.mvaID_Fall17V2,
-                     mvaID_Fall17V2 = None,
-                     mvaID_WP90 = photonTable.variables.mvaID_Fall17V2_WP90,
-                     mvaID_Fall17V2_WP90 = None,
-                     mvaID_WP80 = photonTable.variables.mvaID_Fall17V2_WP80,
-                     mvaID_Fall17V2_WP80 = None,
-                     pfRelIso03_chg = photonTable.variables.pfRelIso03_chg_Fall17V2,
-                     pfRelIso03_chg_Fall17V2 = None,
-                     pfRelIso03_all = photonTable.variables.pfRelIso03_all_Fall17V2,
-                     pfRelIso03_all_Fall17V2 = None,
-                     pfRelIso03_chg_quadratic=None,
-                     pfRelIso03_all_quadratic=None,
-                     hoe_PUcorr=None)
 
-#these eras need to make the energy correction, hence the "New"
+#these eras need to make the energy correction, hence the "New". Also save only Fall17V2 IDS in Run2, No Run3 Winter22V1 and quadratic iso in Run2 
 run2_egamma.toModify(
     photonTable.variables,
     pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
     energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
     eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
     hoe = Var("hadTowOverEm()",float,doc="H over E (Run2)",precision=8),
+    cutBased = Var(
+            "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
+            "uint8",
+            doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
+        ),
+    vidNestedWPBitmap = Var(
+            "userInt('VIDNestedWPBitmapFall17V2')",
+            int,
+            doc="Fall17V2 " + _bitmapVIDForPhoRun2_docstring
+        ),
+    mvaID = Var("userFloat('mvaID_Fall17V2')",float,doc="MVA ID score, Fall17V2",precision=10),
+    mvaID_WP90 = Var("userInt('mvaID_Fall17V2_WP90')",bool,doc="MVA ID WP90, Fall17V2"),
+    mvaID_WP80 = Var("userInt('mvaID_Fall17V2_WP80')",bool,doc="MVA ID WP80, Fall17V2"),
+    pfRelIso03_chg = Var("userFloat('PFIsoChgFall17V2')/pt",float,doc="PF relative isolation dR=0.3, charged component (with Fall17V2rho*EA PU corrections)"),
+    pfRelIso03_all = Var("userFloat('PFIsoAllFall17V2')/pt",float,doc="PF relative isolation dR=0.3, total (with Fall17V2 rho*EA PU corrections)"),
+    pfRelIso03_chg_quadratic=None,
+    pfRelIso03_all_quadratic=None,
+    hoe_PUcorr=None
 )
 
 photonsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
