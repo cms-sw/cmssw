@@ -59,7 +59,8 @@ run2_egamma.toModify(
 
 _FatJet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.FatJet.plots:
-    _FatJet_Run2_plots.append(plot)
+    if 'EF' not in plot.name.value():
+        _FatJet_Run2_plots.append(plot)
 _FatJet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
     Plot1D('deepTagMD_H4qvsQCD', 'deepTagMD_H4qvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger H->4q vs QCD discriminator'),
@@ -87,7 +88,8 @@ _FatJet_Run2_plots.extend([
 
 _FatJet_EarlyRun3_plots = cms.VPSet()
 for plot in _FatJet_Run2_plots:
-    if 'particleNet_' not in plot.name.value() and 'btagCSVV2' not in plot.name.value() and 'Multiplicity' not in plot.name.value():
+    if 'particleNet_' not in plot.name.value() and 'btagCSVV2' not in plot.name.value() \
+    and 'Multiplicity' not in plot.name.value() and 'EF' not in plot.name.value():
         _FatJet_EarlyRun3_plots.append(plot)
 
 _Jet_Run2_plots = cms.VPSet()

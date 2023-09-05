@@ -132,8 +132,13 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
         subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", "int16",
             doc="index of second subjet"),
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
-        chMultiplicity = Var("?isPFJet()?chargedMultiplicity():0","uint8",doc="(Puppi-weighted) Number of charged particles in the jet"),
-        neMultiplicity = Var("?isPFJet()?neutralMultiplicity():0","uint8",doc="(Puppi-weighted) Number of neutral particles in the jet"),
+        chMultiplicity = Var("?isPFJet()?chargedMultiplicity():-1","int16",doc="(Puppi-weighted) Number of charged particles in the jet"),
+        neMultiplicity = Var("?isPFJet()?neutralMultiplicity():-1","int16",doc="(Puppi-weighted) Number of neutral particles in the jet"),
+        chHEF = Var("?isPFJet()?chargedHadronEnergyFraction():-1", float, doc="charged Hadron Energy Fraction", precision=6),
+        neHEF = Var("?isPFJet()?neutralHadronEnergyFraction():-1", float, doc="neutral Hadron Energy Fraction", precision=6),
+        chEmEF = Var("?isPFJet()?chargedEmEnergyFraction():-1", float, doc="charged Electromagnetic Energy Fraction", precision=6),
+        neEmEF = Var("?isPFJet()?neutralEmEnergyFraction():-1", float, doc="neutral Electromagnetic Energy Fraction", precision=6),
+        muEF = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision=6),
     ),
     externalVariables = cms.PSet(
         lsf3 = ExtVar(cms.InputTag("lepInAK8JetVars:lsf3"),float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
@@ -147,7 +152,14 @@ run2_nanoAOD_ANY.toModify(
     btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
     # Remove for V9
     chMultiplicity = None,
-    neMultiplicity = None
+    neMultiplicity = None,
+    chHEF = None,
+    neHEF = None,
+    chEmEF = None,
+    neEmEF = None,
+    hfHEF = None,
+    hfEmEF = None,
+    muEF = None
 )
 (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
     fatJetTable.variables,
@@ -166,7 +178,14 @@ run2_nanoAOD_ANY.toModify(
     particleNet_XteVsQCD = None,
     # Remove for V11 and earlier versions
     chMultiplicity = None,
-    neMultiplicity = None
+    neMultiplicity = None,
+    chHEF = None,
+    neHEF = None,
+    chEmEF = None,
+    neEmEF = None,
+    hfHEF = None,
+    hfEmEF = None,
+    muEF = None
 )
 
 (run2_nanoAOD_106Xv2 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
