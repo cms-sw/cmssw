@@ -13,6 +13,8 @@ process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct1XML_cfi')
 process.load('Geometry.HGCalTBCommonData.hgcalTBNumberingInitialization_cfi')
 process.load('Geometry.HGCalTBCommonData.hgcalTBParametersInitialization_cfi')
 process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
+process.load('Geometry.CaloEventSetup.HGCalTBTopology_cfi')
+process.load('Geometry.HGCalGeometry.HGCalTBGeometryESProducer_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
@@ -137,7 +139,7 @@ process.schedule = cms.Schedule(process.generation_step,
 				process.genfiltersummary_step,
 				process.simulation_step,
 				process.gunfilter_step,
-#         			process.analysis_step,
+         			process.analysis_step,
 				process.endjob_step,
                                 process.FEVTDEBUGoutput_step
 				)

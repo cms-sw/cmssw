@@ -197,10 +197,8 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
 #endif
     G4ThreeVector local =
         ((moduleLev >= 0) ? (touch->GetHistory()->GetTransform(moduleLev).TransformPoint(hitPoint)) : G4ThreeVector());
-    /*
     if (mouseBite_->exclude(local, z, layer, wafer, 0))
       id = 0;
-    */
   }
   return id;
 }
@@ -213,10 +211,8 @@ void HGCSD::update(const BeginOfJob* job) {
     if (dd4hep_)
       ++levelT_;
     numberingScheme_ = std::make_unique<HGCNumberingScheme>(*hgcons_, nameX_);
-    /*
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
-    */
   } else {
     edm::LogError("HGCSim") << "HGCSD : Cannot find HGCalTBDDDConstants for " << nameX_;
     throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalTBDDDConstants for " << nameX_ << "\n";
