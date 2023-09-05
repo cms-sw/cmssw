@@ -40,8 +40,8 @@ namespace l1t {
         // ZDC -
         int iFrame = (bx - firstBX) * demux::nOutputFramePerBX;
 
-        uint32_t raw_data = block.payload().at(iFrame);
-        raw_data = block.payload()[iFrame + 1];
+        uint32_t raw_data = block.payload().at(iFrame +1); // ZDC - info is found on frame 1 of each bx
+        
         l1t::EtSum zdcm{l1t::EtSum::kZDCM};
         zdcm.setHwPt(raw_data & 0xFFFF);
         zdcm.setP4(l1t::CaloTools::p4Demux(&zdcm));
@@ -51,7 +51,7 @@ namespace l1t {
         res_->push_back(bx, zdcm);
         
         // ZDC +
-        raw_data = block.payload()[iFrame + 2];
+        raw_data = block.payload().at(iFrame +2); // ZDC + info is found on frame 2 of each bx
 
         l1t::EtSum zdcp{l1t::EtSum::kZDCP};
         zdcp.setHwPt(raw_data & 0xFFFF);
