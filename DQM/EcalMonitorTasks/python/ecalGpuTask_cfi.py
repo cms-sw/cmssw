@@ -5,12 +5,13 @@ uncalibOOTAmps_ = [4,6]
 
 ecalGpuTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
+        # ecalGpuTask must be explicitly turned on when using
         runGpuTask = cms.untracked.bool(False),
-
-        # Default plots for each object are 1D CPU distributions and 1D GPU-CPU diff
         enableDigi = cms.untracked.bool(True),
         enableUncalib = cms.untracked.bool(True),
-        enableRecHit = cms.untracked.bool(True),
+
+        # GPU rechits currently unavailable; last edited Sep 2023
+        enableRecHit = cms.untracked.bool(False),
 
         # 1D flags enable distributions of GPU values
         # 2D flags enable 2D comparison maps
