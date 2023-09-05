@@ -1,80 +1,151 @@
 # "PRef" menu
 
-HLTriggerFirstPath	#	menu structure
-HLTriggerFinalPath	#	menu structure
-Status_OnCPU		#	CMSHLT-2206
-Status_OnGPU		#	CMSHLT-2206
-HLT_ZeroBias_v*	#	trigger studies
-HLT_Physics_v*	#	CMSHLT-892
-DST_Physics_v*	#	trigger studies
-HLT_EcalCalibration_v*	#	CMSHLT-1231
-HLT_HcalCalibration_v*	#	CMSHLT-1231
-HLT_Random_v*	#	CMSHLT-1231
-AlCa_EcalPhiSym_v*	#	CMSHLT-1245
-HLT_ZeroBias_FirstCollisionAfterAbortGap_v*	#	CMSHLT-1264
-AlCa_LumiPixelsCounts_Random_v*			#	CMSHLT-2114
-AlCa_LumiPixelsCounts_ZeroBias_v*		#	CMSHLT-2114
-HLT_ZeroBias_Beamspot_v*	#	CMSHLT-1572
-HLT_HIL1UnpairedBunchBptxPlusForPPRef_v*	#	CMSHLT-1673
-HLT_HIL1UnpairedBunchBptxMinusForPPRef_v*	#	CMSHLT-1673
-HLT_HIL1NotBptxORForPPRef_v*	#	CMSHLT-1673
-HLT_HIHT80_Beamspot_ppRef5TeV_v*	#	CMSHLT-1676
-HLT_HIZeroBias_part0_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part1_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part2_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part3_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part4_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part5_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part6_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part7_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part8_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part9_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part10_v*	#	CMSHLT-1674
-HLT_HIZeroBias_part11_v*	#	CMSHLT-1674
-AlCa_HIRPCMuonNormalisation_v*	#	CMSHLT-1678
-AlCa_HIEcalPi0EBonly_v*	#	CMSHLT-1680
-AlCa_HIEcalPi0EEonly_v*	#	CMSHLT-1680
-AlCa_HIEcalEtaEBonly_v*	#	CMSHLT-1680
-AlCa_HIEcalEtaEEonly_v*	#	CMSHLT-1680
+HLTriggerFirstPath                          # menu structure
+HLTriggerFinalPath                          # menu structure
+Status_OnCPU                                # CMSHLT-2206
+Status_OnGPU                                # CMSHLT-2206
+AlCa_EcalPhiSym_v*                          # CMSHLT-1245
+AlCa_HIEcalPi0EBonly_v*                     # CMSHLT-1680
+AlCa_HIEcalPi0EEonly_v*                     # CMSHLT-1680
+AlCa_HIEcalEtaEBonly_v*                     # CMSHLT-1680
+AlCa_HIEcalEtaEEonly_v*                     # CMSHLT-1680
+AlCa_HIRPCMuonNormalisation_v*              # CMSHLT-1678
+AlCa_LumiPixelsCounts_Random_v*             # CMSHLT-2114
+AlCa_LumiPixelsCounts_ZeroBias_v*           # CMSHLT-2114
+DQM_PixelReconstruction_v*                  # CMSHLT-2287, CMSHLT-2316, CMSHLT-2696, CMSHLT-2720, CMSHLT-2846, CMSHLT-2862
+DQM_EcalReconstruction_v*                   # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720, CMSHLT-2862
+DQM_HcalReconstruction_v*                   # CMSHLT-2287, CMSHLT-2696, CMSHLT-2720
+DST_Physics_v*                              # trigger studies
+HLT_EcalCalibration_v*                      # CMSHLT-1231
+HLT_HcalCalibration_v*                      # CMSHLT-1231
+HLT_Random_v*                               # CMSHLT-1231
+HLT_Physics_v*                              # CMSHLT-892
+HLT_ZeroBias_v*                             # trigger studies
+HLT_ZeroBias_FirstCollisionAfterAbortGap_v* # CMSHLT-1264
+HLT_ZeroBias_Beamspot_v*                    # CMSHLT-1572
+HLT_CDC_L2cosmic_5p5_er1p0_v*               # CMSHLT-1896, CMSHLT-2892
+HLT_CDC_L2cosmic_10_er1p0_v*                # CMSHLT-1967, CMSHLT-2892
+HLT_HcalNZS_v*                              # CMSHLT-1342, CMSHLT-2892
+HLT_HcalPhiSym_v*                           # CMSHLT-1332, CMSHLT-2892
+HLT_IsoTrackHB_v*                           # CMSHLT-1340, CMSHLT-2892
+HLT_IsoTrackHE_v*                           # CMSHLT-1340, CMSHLT-2892
 
-DQM_HIEcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
-DQM_HIHcalReconstruction_v*  # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
-DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
+HLT_HIL1UnpairedBunchBptxPlusForPPRef_v*    # CMSHLT-1673
+HLT_HIL1UnpairedBunchBptxMinusForPPRef_v*   # CMSHLT-1673
+HLT_HIL1NotBptxORForPPRef_v*                # CMSHLT-1673
+HLT_HIHT80_Beamspot_ppRef5TeV_v*            # CMSHLT-1676
+
+HLT_PPRefZeroBias_v*             # CMSHLT-2883
+HLT_ZDCCommissioning_v*          # CMSHLT-2883
+
+HLT_AK4CaloJet40_v*              # CMSHLT-2883
+HLT_AK4CaloJet60_v*              # CMSHLT-2883
+HLT_AK4CaloJet70_v*              # CMSHLT-2883
+HLT_AK4CaloJet80_v*              # CMSHLT-2883
+HLT_AK4CaloJet100_v*             # CMSHLT-2883
+HLT_AK4CaloJet120_v*             # CMSHLT-2883
+HLT_AK4CaloJetFwd40_v*           # CMSHLT-2883
+HLT_AK4CaloJetFwd60_v*           # CMSHLT-2883
+HLT_AK4CaloJetFwd70_v*           # CMSHLT-2883
+HLT_AK4CaloJetFwd80_v*           # CMSHLT-2883
+HLT_AK4CaloJetFwd100_v*          # CMSHLT-2883
+HLT_AK4CaloJetFwd120_v*          # CMSHLT-2883
+HLT_AK4PFJet40_v*                # CMSHLT-2883
+HLT_AK4PFJet60_v*                # CMSHLT-2883
+HLT_AK4PFJet80_v*                # CMSHLT-2883
+HLT_AK4PFJet100_v*               # CMSHLT-2883
+HLT_AK4PFJet120_v*               # CMSHLT-2883
+HLT_AK4PFJetFwd40_v*             # CMSHLT-2883
+HLT_AK4PFJetFwd60_v*             # CMSHLT-2883
+HLT_AK4PFJetFwd80_v*             # CMSHLT-2883
+HLT_AK4PFJetFwd100_v*            # CMSHLT-2883
+HLT_AK4PFJetFwd120_v*            # CMSHLT-2883
+
+HLT_PPRefDoubleEle10Gsf_v*       # CMSHLT-2883
+HLT_PPRefDoubleEle10GsfMass50_v* # CMSHLT-2883
+HLT_PPRefDoubleEle15Gsf_v*       # CMSHLT-2883
+HLT_PPRefDoubleEle15GsfMass50_v* # CMSHLT-2883
+HLT_PPRefEle15Ele10Gsf_v*        # CMSHLT-2883
+HLT_PPRefEle15Ele10GsfMass50_v*  # CMSHLT-2883
+HLT_PPRefEle10Gsf_v*             # CMSHLT-2883
+HLT_PPRefEle15Gsf_v*             # CMSHLT-2883
+HLT_PPRefEle20Gsf_v*             # CMSHLT-2883
+HLT_PPRefEle30Gsf_v*             # CMSHLT-2883
+HLT_PPRefEle40Gsf_v*             # CMSHLT-2883
+HLT_PPRefEle50Gsf_v*             # CMSHLT-2883
+HLT_PPRefGEDPhoton10_v*          # CMSHLT-2883
+HLT_PPRefGEDPhoton10_EB_v*       # CMSHLT-2883
+HLT_PPRefGEDPhoton20_v*          # CMSHLT-2883
+HLT_PPRefGEDPhoton20_EB_v*       # CMSHLT-2883
+HLT_PPRefGEDPhoton30_v*          # CMSHLT-2883
+HLT_PPRefGEDPhoton30_EB_v*       # CMSHLT-2883
+HLT_PPRefGEDPhoton40_v*          # CMSHLT-2883
+HLT_PPRefGEDPhoton40_EB_v*       # CMSHLT-2883
+HLT_PPRefGEDPhoton50_v*          # CMSHLT-2883
+HLT_PPRefGEDPhoton50_EB_v*       # CMSHLT-2883
+HLT_PPRefGEDPhoton60_v*          # CMSHLT-2883
+HLT_PPRefGEDPhoton60_EB_v*       # CMSHLT-2883
+
+HLT_PPRefL1DoubleMu0_v*          # CMSHLT-2883
+HLT_PPRefL1DoubleMu0_Open_v*     # CMSHLT-2883
+HLT_PPRefL1SingleMu0_Cosmics_v*  # CMSHLT-2883
+HLT_PPRefL1SingleMu7_v*          # CMSHLT-2883
+HLT_PPRefL1SingleMu12_v*         # CMSHLT-2883
+HLT_PPRefL2DoubleMu0_v*          # CMSHLT-2883
+HLT_PPRefL2DoubleMu0_Open_v*     # CMSHLT-2883
+HLT_PPRefL2SingleMu7_v*          # CMSHLT-2883
+HLT_PPRefL2SingleMu12_v*         # CMSHLT-2883
+HLT_PPRefL2SingleMu15_v*         # CMSHLT-2883
+HLT_PPRefL2SingleMu20_v*         # CMSHLT-2883
+HLT_PPRefL3DoubleMu0_v*          # CMSHLT-2883
+HLT_PPRefL3DoubleMu0_Open_v*     # CMSHLT-2883
+HLT_PPRefL3SingleMu3_v*          # CMSHLT-2883
+HLT_PPRefL3SingleMu5_v*          # CMSHLT-2883
+HLT_PPRefL3SingleMu7_v*          # CMSHLT-2883
+HLT_PPRefL3SingleMu12_v*         # CMSHLT-2883
+HLT_PPRefL3SingleMu15_v*         # CMSHLT-2883
+HLT_PPRefL3SingleMu20_v*         # CMSHLT-2883
+
+HLT_PPRefCscCluster_Loose_v*     # CMSHLT-2883
+HLT_PPRefCscCluster_Medium_v*    # CMSHLT-2883
+HLT_PPRefCscCluster_Tight_v*     # CMSHLT-2883
+
+HLT_PPRefDmesonTrackingGlobal_Dpt25_v* # CMSHLT-2897
+HLT_PPRefDmesonTrackingGlobal_Dpt35_v* # CMSHLT-2897
+HLT_PPRefDmesonTrackingGlobal_Dpt45_v* # CMSHLT-2897
+HLT_PPRefDmesonTrackingGlobal_Dpt60_v* # CMSHLT-2897
 
 ## EndPaths / FinalPaths ##
 
-PhysicsCommissioningOutput
-PhysicsDispJetBTagMuEGTauOutput # CMSHLT-2431
-PhysicsEGamma0Output            # CMSHLT-2596
-PhysicsEGamma1Output            # CMSHLT-2596
-PhysicsJetMET0Output            # CMSHLT-2431, CMSHLT-2596
-PhysicsJetMET1Output            # CMSHLT-2431, CMSHLT-2596
-PhysicsMuon0Output              # CMSHLT-2431, CMSHLT-2596
-PhysicsMuon1Output              # CMSHLT-2431, CMSHLT-2596
-
-PhysicsHIZeroBias1Output
-PhysicsHIZeroBias2Output
-PhysicsHIZeroBias3Output
-PhysicsHIZeroBias4Output
-PhysicsHIZeroBias5Output
-PhysicsHIZeroBias6Output
-
-DQMOutput
-DQMEventDisplayOutput
-DQMOnlineBeamspotOutput
-DQMCalibrationOutput
-DQMGPUvsCPUOutput          # CMSHLT-2287, CMSHLT-2343
-HLTMonitorOutput
-CalibrationOutput
-EcalCalibrationOutput
-RPCMONOutput
 ALCAP0Output
 ALCAPHISYMOutput
 ALCALumiPixelsCountsExpressOutput # CMSHLT-2114, CMSHLT-2324
 ALCALumiPixelsCountsPromptOutput  # CMSHLT-2114, CMSHLT-2324
+CalibrationOutput
+DQMOutput
+DQMCalibrationOutput
+DQMEventDisplayOutput
+DQMGPUvsCPUOutput                 # CMSHLT-2287, CMSHLT-2343
+DQMOnlineBeamspotOutput
+EcalCalibrationOutput
 ExpressOutput
 ExpressAlignmentOutput
+HLTMonitorOutput
+PhysicsCommissioningOutput
+PhysicsPPRefHardProbesOutput      # CMSHLT-2883
+PhysicsPPRefMuonsOutput           # CMSHLT-2883
+PhysicsPPRefZeroBias0Output       # CMSHLT-2883
+PhysicsPPRefZeroBias1Output       # CMSHLT-2883
+PhysicsPPRefZeroBias2Output       # CMSHLT-2883
+PhysicsPPRefZeroBias3Output       # CMSHLT-2883
+PhysicsPPRefZeroBias4Output       # CMSHLT-2883
+PhysicsPPRefZeroBias5Output       # CMSHLT-2883
+PhysicsPPRefZeroBias6Output       # CMSHLT-2883
+PhysicsPPRefZeroBias7Output       # CMSHLT-2883
+PhysicsPPRefZeroBias8Output       # CMSHLT-2883
+PhysicsPPRefZeroBias9Output       # CMSHLT-2883
 NanoDSTOutput
+RPCMONOutput
 
 ######## paths that are different between PRef and online_pref ################################
 
