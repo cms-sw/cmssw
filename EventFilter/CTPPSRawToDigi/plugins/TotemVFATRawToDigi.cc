@@ -169,14 +169,14 @@ template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   // get DAQ mapping
   ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
-  if (!mapping) {
+  if (!mapping.isValid() || mapping.failedToGet()) {
     LogError("TotemVFATRawToDigi") << "TotemVFATRawToDigi: no mapping found for " << subSystemName;
   }
 
   // get analysis mask to mask channels
   TotemAnalysisMask analysisMask;
   ESHandle<TotemAnalysisMask> analysisMaskHandle = es.getHandle(analysisMaskToken);
-  if (analysisMaskHandle) {
+  if (analysisMaskHandle.isValid() && !analysisMaskHandle.failedToGet()) {
     analysisMask = *analysisMaskHandle;
   } else {
     LogWarning("TotemVFATRawToDigi") << "TotemVFATRawToDigi: no mask found for " << subSystemName;
