@@ -72,8 +72,7 @@ EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::Parame
   //setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceSpike);
 }
 
-EcalEBTrigPrimPhase2ESProducer::~EcalEBTrigPrimPhase2ESProducer() {
-}
+EcalEBTrigPrimPhase2ESProducer::~EcalEBTrigPrimPhase2ESProducer() {}
 
 //
 // member functions
@@ -113,13 +112,10 @@ std::unique_ptr<EcalEBPhase2TPGLinearizationConst> EcalEBTrigPrimPhase2ESProduce
     param.i2cSub_x10 = (it->second)[3];
     param.i2cSub_x1 = (it->second)[7];
     prod->setValue(it->first, param);
-
- 
   }
 
   return prod;
 }
-
 
 std::unique_ptr<EcalEBPhase2TPGAmplWeightIdMap> EcalEBTrigPrimPhase2ESProducer::produceAmpWeight(
     const EcalEBPhase2TPGAmplWeightIdMapRcd &iRecord) {
@@ -187,12 +183,10 @@ std::unique_ptr<EcalTPGWeightGroup> EcalEBTrigPrimPhase2ESProducer::produceWeigh
   return prod;
 }
 
-
 std::unique_ptr<EcalTPGPhysicsConst> EcalEBTrigPrimPhase2ESProducer::producePhysicsConst(
     const EcalTPGPhysicsConstRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGPhysicsConst>();
-  // EcalEBTrigPrimPhase2ESProducer::producePhysicsConst Needs updating if we want to keep it 
-           
+  // EcalEBTrigPrimPhase2ESProducer::producePhysicsConst Needs updating if we want to keep it
 
   parseTextFile();
   std::map<uint32_t, std::vector<float>>::const_iterator it;
@@ -215,7 +209,6 @@ std::unique_ptr<EcalTPGCrystalStatus> EcalEBTrigPrimPhase2ESProducer::produceBad
     const EcalTPGCrystalStatusRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGCrystalStatus>();
 
-
   parseTextFile();
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapXtal_.begin(); it != mapXtal_.end(); it++) {
@@ -225,8 +218,6 @@ std::unique_ptr<EcalTPGCrystalStatus> EcalEBTrigPrimPhase2ESProducer::produceBad
   }
   return prod;
 }
-
-
 
 void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
   uint32_t id;
@@ -242,7 +233,8 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
     finalFileName = fileInPath.fullPath();
   } else {
     finalFileName = configFilename_;
-    edm::LogWarning("EcalEBTPGESProducer")  << "Couldnt find database file via fileinpath trying with pathname directly!!";
+    edm::LogWarning("EcalEBTPGESProducer")
+        << "Couldnt find database file via fileinpath trying with pathname directly!!";
   }
 
   GzInputStream gis(finalFileName.c_str());
@@ -259,7 +251,7 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
       std::string st6;
       for (int i = 0; i < 12; i++) {
         gis >> std::hex >> data;
-	param.push_back(data);
+        param.push_back(data);
         /// debug
 
         if (flagPrint_) {
@@ -484,7 +476,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
         std::cout << " " << st5 << std::endl;
       }
 
-      
       mapXtal_[id] = param;
     }
 

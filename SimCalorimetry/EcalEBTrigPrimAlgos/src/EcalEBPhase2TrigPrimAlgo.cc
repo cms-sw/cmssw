@@ -86,7 +86,6 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBTrigPr
     std::cout << "  EcalEBPhase2TrigPrimAlgo: digi size " << digi->size() << std::endl;
   }
 
-  
   EcalEBTriggerPrimitiveDigi tp;
   int firstSample = binOfMaximum_ - 1 - nrSamples_ / 2;
   int lastSample = binOfMaximum_ - 1 + nrSamples_ / 2;
@@ -124,7 +123,7 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBTrigPr
         std::cout << " Number of xTals " << nxstals << std::endl;
 
       const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(dataFrames[0].id());
-      
+
       // loop over the xstals in a strip
 
       for (int iXstal = 0; iXstal < nxstals; iXstal++) {

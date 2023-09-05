@@ -47,8 +47,6 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
 
   ampIn_[0] = ampRecoOutput[0] >> 4;
   ampIn_[1] = ampRecoOutput[1] >> 4;
-  
-
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     setInput(addout[i]);
@@ -108,11 +106,10 @@ void EcalEBPhase2TimeReconstructor::process() {
   if (debug_)
     std::cout << " Begininning Final TimeFilter Calculation" << std::endl;
 
- 
   int64_t tmpOutput = output * invAmpAr_[ampIn_[ampInd]];
   if (debug_)
     std::cout << " output*tmpInvAmpAr " << tmpOutput << std::endl;
- 
+
   output = tmpOutput >> 20;
   if (debug_)
     std::cout << " output after bit shift " << output << std::endl;
