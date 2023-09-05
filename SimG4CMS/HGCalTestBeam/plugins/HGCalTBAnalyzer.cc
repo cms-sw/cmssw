@@ -211,12 +211,12 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
       tok_hgcPHBeam_(consumes<edm::PassiveHitContainer>(labelPassiveBeam_)),
       tokDDDEE_(esConsumes<HGCalTBDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", detectorEE_))),
-      tokGeomEE_(
-          esConsumes<HGCalTBGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))),
+      tokGeomEE_(esConsumes<HGCalTBGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorEE_))),
       tokDDDFH_(esConsumes<HGCalTBDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", detectorFH_))),
-      tokGeomFH_(
-          esConsumes<HGCalTBGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_))) {
+      tokGeomFH_(esConsumes<HGCalTBGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorFH_))) {
   usesResource("TFileService");
   ahcalGeom_ = std::make_unique<AHCalGeometry>(iConfig);
 
