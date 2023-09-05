@@ -72,8 +72,8 @@ unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup cons
   edm::ESHandle<EcalLiteDTUPedestalsMap> theEcalTPGPedestals_handle = setup.getHandle(theEcalTPGPedestals_Token_);
   const EcalLiteDTUPedestalsMap* ecaltpPed = theEcalTPGPedestals_handle.product();
   //
-  auto theEcalEBPhase2TPGPedestals_handle = setup.getHandle(theEcalEBPhase2TPGPedestals_Token_);
-  const EcalEBPhase2TPGPedestalsMap* ebTPPedestals = theEcalEBPhase2TPGPedestals_handle.product();
+  // auto theEcalEBPhase2TPGPedestals_handle = setup.getHandle(theEcalEBPhase2TPGPedestals_Token_);
+  //const EcalEBPhase2TPGPedestalsMap* ebTPPedestals = theEcalEBPhase2TPGPedestals_handle.product();
   //
   edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle = setup.getHandle(theEcalTPGCrystalStatus_Token_);
   const EcalTPGCrystalStatus* ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();

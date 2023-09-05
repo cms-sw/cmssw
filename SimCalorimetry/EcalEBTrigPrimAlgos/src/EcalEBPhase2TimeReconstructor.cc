@@ -43,28 +43,12 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
 
   //Taking in the results of the amplitude reconstruction
   //Bit shifting them for use as index of invAmpAr_ lookup table
-  //if amplitude less than 4096, bit shift by 3 to go from 12 to 9
-  //if great than 4095, bit shift by 6 to go from 15 to 9 (later bit shift the numerator by 3 to cancel out the extra 3)
-  if (ampRecoOutput[0] > 4095) {
-    extraShift_[0] = true;
-  } else {
-    extraShift_[0] = false;
-  }
-  if (ampRecoOutput[1] > 4095) {
-    extraShift_[1] = true;
-  } else {
-    extraShift_[1] = false;
-  }
-  if (extraShift_[0]) {
-    ampIn_[0] = ampRecoOutput[0] >> 6;
-  } else {
-    ampIn_[0] = ampRecoOutput[0] >> 3;
-  }
-  if (extraShift_[1]) {
-    ampIn_[1] = ampRecoOutput[1] >> 6;
-  } else {
-    ampIn_[1] = ampRecoOutput[1] >> 3;
-  }
+  // move input amplitude (13 bits) to 9 bits to use as array index
+
+  ampIn_[0] = ampRecoOutput[0] >> 4;
+  ampIn_[1] = ampRecoOutput[1] >> 4;
+  
+
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     setInput(addout[i]);
@@ -124,22 +108,19 @@ void EcalEBPhase2TimeReconstructor::process() {
   if (debug_)
     std::cout << " Begininning Final TimeFilter Calculation" << std::endl;
 
-  if (extraShift_[ampInd]) {
-    output = output >> 3;
-  }
-
+ 
   int64_t tmpOutput = output * invAmpAr_[ampIn_[ampInd]];
   if (debug_)
     std::cout << " output*tmpInvAmpAr " << tmpOutput << std::endl;
-  //output = tmpOutput >> 18;
+ 
   output = tmpOutput >> 20;
   if (debug_)
     std::cout << " output after bit shift " << output << std::endl;
 
-  if (output < -1000)
-    output = -1000;
-  else if (output > 1000)
-    output = 1000;
+  if (output < -1024)
+    output = -1023;
+  else if (output > 1024)
+    output = 1023;
   if (debug_)
     std::cout << " output after if/else " << output << std::endl;
   processedOutput_ = output;

@@ -1,5 +1,5 @@
 #ifndef ECAL_EBPHASE2_SPIKETAGGER_H
-#define ECAL_EBPHASE2_SPIKETAGGE_H
+#define ECAL_EBPHASE2_SPIKETAGGER_H
 
 #include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
