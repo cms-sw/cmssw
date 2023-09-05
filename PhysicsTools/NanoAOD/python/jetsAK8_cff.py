@@ -157,8 +157,6 @@ run2_nanoAOD_ANY.toModify(
     neHEF = None,
     chEmEF = None,
     neEmEF = None,
-    hfHEF = None,
-    hfEmEF = None,
     muEF = None
 )
 (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
@@ -183,8 +181,6 @@ run2_nanoAOD_ANY.toModify(
     neHEF = None,
     chEmEF = None,
     neEmEF = None,
-    hfHEF = None,
-    hfEmEF = None,
     muEF = None
 )
 
