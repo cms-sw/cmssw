@@ -171,13 +171,24 @@ if args.tm18:
     del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nEndcaps 
     del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nTkLinks
     del process.l1tLayer1HGCalNoTKTM18.regionizerAlgoParameters.nCaloLinks
+    process.l1tLayer1BarrelSerenityTM18 = process.l1tLayer1BarrelSerenity.clone()
+    process.l1tLayer1BarrelSerenityTM18.regionizerAlgo = "MiddleBufferMultififo"
+    process.l1tLayer1BarrelSerenityTM18.regionizerAlgoParameters = cms.PSet(
+        nTrack = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nTrack,
+        nCalo = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nCalo,
+        nEmCalo = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nEmCalo,
+        nMu = process.l1tLayer1BarrelSerenity.regionizerAlgoParameters.nMu,
+    )
+    process.l1tLayer1BarrelSerenityTM18.boards = cms.VPSet(*[cms.PSet(regions = cms.vuint32(*range(18*i,18*i+18))) for i in range(3)])
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCal)+1, process.l1tLayer1HGCalTM18)
     process.runPF.insert(process.runPF.index(process.l1tLayer1HGCalNoTK)+1, process.l1tLayer1HGCalNoTKTM18)
+    process.runPF.insert(process.runPF.index(process.l1tLayer1BarrelSerenity)+1, process.l1tLayer1BarrelSerenityTM18)
     if not args.patternFilesOFF:
         process.l1tLayer1HGCalTM18.patternWriters = cms.untracked.VPSet(*hgcalTM18WriterConfigs)
         process.l1tLayer1HGCalNoTKTM18.patternWriters = cms.untracked.VPSet(hgcalNoTKOutputTM18WriterConfig)
+        process.l1tLayer1BarrelSerenityTM18.patternWriters = cms.untracked.VPSet()
     if not args.dumpFilesOFF:
-        for det in "HGCalTM18", "HGCalNoTKTM18":
+        for det in "HGCalTM18", "HGCalNoTKTM18", "BarrelSerenityTM18":
                 getattr(process, 'l1tLayer1'+det).dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/12_5_X/NewInputs125X/150223/TTbar_PU200/inputs125X_1.root' ]

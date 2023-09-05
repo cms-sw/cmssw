@@ -7,38 +7,6 @@
 #include <deque>
 
 namespace l1ct {
-  namespace multififo_regionizer {
-    template <typename T>
-    inline bool local_eta_window(const T& t, const l1ct::glbeta_t& etaMin, const l1ct::glbeta_t& etaMax);
-    template <>
-    inline bool local_eta_window<l1ct::TkObjEmu>(const l1ct::TkObjEmu& t,
-                                                 const l1ct::glbeta_t& etaMin,
-                                                 const l1ct::glbeta_t& etaMax);
-
-    template <typename T>
-    class EtaBuffer {
-    public:
-      EtaBuffer() {}
-      EtaBuffer(unsigned int maxitems, const l1ct::glbeta_t& etaMin = 0, const l1ct::glbeta_t& etaMax = 0)
-          : size_(maxitems), iwrite_(0), iread_(0), etaMin_(etaMin), etaMax_(etaMax) {}
-      void maybe_push(const T& t);
-      void writeNewEvent() {
-        iwrite_ = 1 - iwrite_;
-        items_[iwrite_].clear();
-      }
-      void readNewEvent() { iread_ = 1 - iread_; }
-      T pop();
-      unsigned int writeSize() const { return items_[iwrite_].size(); }
-      unsigned int readSize() const { return items_[iread_].size(); }
-
-    private:
-      unsigned int size_, iwrite_, iread_;
-      l1ct::glbeta_t etaMin_, etaMax_;
-      std::deque<T> items_[2];
-    };
-  }  // namespace multififo_regionizer
-}  // namespace l1ct
-namespace l1ct {
   class BufferedFoldedMultififoRegionizerEmulator : public FoldedMultififoRegionizerEmulator {
   public:
     enum class FoldMode { EndcapEta2 };
@@ -88,9 +56,9 @@ namespace l1ct {
     }
 
   protected:
-    std::vector<l1ct::multififo_regionizer::EtaBuffer<l1ct::TkObjEmu>> tkBuffers_;
-    std::vector<l1ct::multififo_regionizer::EtaBuffer<l1ct::HadCaloObjEmu>> caloBuffers_;
-    std::vector<l1ct::multififo_regionizer::EtaBuffer<l1ct::MuObjEmu>> muBuffers_;
+    std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::TkObjEmu>> tkBuffers_;
+    std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>> caloBuffers_;
+    std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>> muBuffers_;
 
     void findEtaBounds_(const l1ct::PFRegionEmu& sec,
                         const std::vector<PFInputRegion>& reg,
@@ -105,42 +73,5 @@ namespace l1ct {
                           std::vector<bool>& valid);
   };
 }  // namespace l1ct
-
-template <typename T>
-inline bool l1ct::multififo_regionizer::local_eta_window(const T& t,
-                                                         const l1ct::glbeta_t& etaMin,
-                                                         const l1ct::glbeta_t& etaMax) {
-  return (etaMin == etaMax) || (etaMin <= t.hwEta && t.hwEta <= etaMax);
-}
-template <>
-inline bool l1ct::multififo_regionizer::local_eta_window<l1ct::TkObjEmu>(const l1ct::TkObjEmu& t,
-                                                                         const l1ct::glbeta_t& etaMin,
-                                                                         const l1ct::glbeta_t& etaMax) {
-  return (etaMin == etaMax) || (etaMin <= t.hwEta && t.hwEta <= etaMax) ||
-         (etaMin <= t.hwVtxEta() && t.hwVtxEta() <= etaMax);
-}
-template <typename T>
-void l1ct::multififo_regionizer::EtaBuffer<T>::maybe_push(const T& t) {
-  if ((t.hwPt != 0) && local_eta_window(t, etaMin_, etaMax_)) {
-    if (items_[iwrite_].size() < size_) {
-      items_[iwrite_].push_back(t);
-    } else {
-      // uncommenting the message below may be useful for debugging
-      //dbgCout() << "WARNING: sector buffer is full for " << typeid(T).name() << ", pt = " << t.intPt()
-      //          << ", eta = " << t.intEta() << ", phi = " << t.intPhi() << "\n";
-    }
-  }
-}
-
-template <typename T>
-T l1ct::multififo_regionizer::EtaBuffer<T>::pop() {
-  T ret;
-  ret.clear();
-  if (!items_[iread_].empty()) {
-    ret = items_[iread_].front();
-    items_[iread_].pop_front();
-  }
-  return ret;
-}
 
 #endif
