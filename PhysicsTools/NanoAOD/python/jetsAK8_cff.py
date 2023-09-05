@@ -132,8 +132,8 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
         subJetIdx2 = Var("?nSubjetCollections()>0 && subjets('SoftDropPuppi').size()>1?subjets('SoftDropPuppi')[1].key():-1", "int16",
             doc="index of second subjet"),
         nConstituents = Var("numberOfDaughters()","uint8",doc="Number of particles in the jet"),
-        chMultiplicity = Var("chargedMultiplicity()","uint8",doc="(Puppi-weighted) Number of charged particles in the jet"),
-        neMultiplicity = Var("neutralMultiplicity()","uint8",doc="(Puppi-weighted) Number of neutral particles in the jet"),
+        chMultiplicity = Var("?isPFJet()?chargedMultiplicity():0","uint8",doc="(Puppi-weighted) Number of charged particles in the jet"),
+        neMultiplicity = Var("?isPFJet()?neutralMultiplicity():0","uint8",doc="(Puppi-weighted) Number of neutral particles in the jet"),
     ),
     externalVariables = cms.PSet(
         lsf3 = ExtVar(cms.InputTag("lepInAK8JetVars:lsf3"),float, doc="Lepton Subjet Fraction (3 subjets)",precision=10),
