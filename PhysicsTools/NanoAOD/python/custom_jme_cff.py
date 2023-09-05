@@ -137,13 +137,13 @@ PFJETVARS = cms.PSet(P4Vars,
   nMuons        = jetPuppiTable.variables.nMuons,
   nElectrons    = jetPuppiTable.variables.nElectrons,
   nConstituents = jetPuppiTable.variables.nConstituents,
-  chHadMultiplicity = Var("chargedHadronMultiplicity()",int,doc="(Puppi-weighted) number of charged hadrons in the jet"),
-  neHadMultiplicity = Var("neutralHadronMultiplicity()",int,doc="(Puppi-weighted) number of neutral hadrons in the jet"),
-  hfHadMultiplicity = Var("HFHadronMultiplicity()", int,doc="(Puppi-weighted) number of HF hadrons in the jet"),
-  hfEMMultiplicity  = Var("HFEMMultiplicity()",int,doc="(Puppi-weighted) number of HF EMs in the jet"),
-  muMultiplicity    = Var("muonMultiplicity()",int,doc="(Puppi-weighted) number of muons in the jet"),
-  elMultiplicity    = Var("electronMultiplicity()",int,doc="(Puppi-weighted) number of electrons in the jet"),
-  phoMultiplicity   = Var("photonMultiplicity()",int,doc="(Puppi-weighted) number of photons in the jet"),
+  chHadMultiplicity = Var("chargedHadronMultiplicity()","int16",doc="(Puppi-weighted) number of charged hadrons in the jet"),
+  neHadMultiplicity = Var("neutralHadronMultiplicity()","int16",doc="(Puppi-weighted) number of neutral hadrons in the jet"),
+  hfHadMultiplicity = Var("HFHadronMultiplicity()", "int16",doc="(Puppi-weighted) number of HF hadrons in the jet"),
+  hfEMMultiplicity  = Var("HFEMMultiplicity()","int16",doc="(Puppi-weighted) number of HF EMs in the jet"),
+  muMultiplicity    = Var("muonMultiplicity()","int16",doc="(Puppi-weighted) number of muons in the jet"),
+  elMultiplicity    = Var("electronMultiplicity()","int16",doc="(Puppi-weighted) number of electrons in the jet"),
+  phoMultiplicity   = Var("photonMultiplicity()","int16",doc="(Puppi-weighted) number of photons in the jet"),
 )
 PUIDVARS = cms.PSet(
   puId_dR2Mean    = Var("?(pt>=10)?userFloat('puId_dR2Mean'):-1",float,doc="pT^2-weighted average square distance of jet constituents from the jet axis (PileUp ID BDT input variable)", precision=14),
@@ -158,12 +158,12 @@ PUIDVARS = cms.PSet(
   puId_pull       = Var("?(pt>=10)?userFloat('puId_pull'):-1",float,doc="magnitude of pull vector (PileUp ID BDT input variable)", precision=14),
   puId_jetR       = Var("?(pt>=10)?userFloat('puId_jetR'):-1",float,doc="fraction of jet pT carried by the leading constituent (PileUp ID BDT input variable)", precision=14),
   puId_jetRchg    = Var("?(pt>=10)?userFloat('puId_jetRchg'):-1",float,doc="fraction of jet pT carried by the leading charged constituent (PileUp ID BDT input variable)", precision=14),
-  puId_nCharged   = Var("?(pt>=10)?userInt('puId_nCharged'):-1",int,doc="number of charged constituents (PileUp ID BDT input variable)"),
+  puId_nCharged   = Var("?(pt>=10)?userInt('puId_nCharged'):-1","int16",doc="number of charged constituents (PileUp ID BDT input variable)"),
 )
 QGLVARS = cms.PSet(
   qgl_axis2       =  Var("?(pt>=10)?userFloat('qgl_axis2'):-1",float,doc="ellipse minor jet axis (Quark vs Gluon likelihood input variable)", precision=14),
   qgl_ptD         =  Var("?(pt>=10)?userFloat('qgl_ptD'):-1",float,doc="pT-weighted average pT of constituents (Quark vs Gluon likelihood input variable)", precision=14),
-  qgl_mult        =  Var("?(pt>=10)?userInt('qgl_mult'):-1", int,doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)"),
+  qgl_mult        =  Var("?(pt>=10)?userInt('qgl_mult'):-1", "int16",doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)"),
 )
 BTAGVARS = cms.PSet(
   btagDeepB = Var("?(pt>=15)&&((bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0)?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
@@ -1040,13 +1040,13 @@ def AddVariablesForAK8PuppiJets(proc):
   proc.fatJetTable.variables.muEF   = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision = 6)
   proc.fatJetTable.variables.hfHEF  = Var("?isPFJet()?HFHadronEnergyFraction():-1", float, doc="energy fraction in forward hadronic calorimeter", precision = 6)
   proc.fatJetTable.variables.hfEmEF = Var("?isPFJet()?HFEMEnergyFraction():-1", float, doc="energy fraction in forward EM calorimeter", precision = 6)
-  proc.fatJetTable.variables.chHadMultiplicity = Var("?isPFJet()?chargedHadronMultiplicity():-1",int, doc="(Puppi-weighted) number of charged hadrons in the jet")
-  proc.fatJetTable.variables.neHadMultiplicity = Var("?isPFJet()?neutralHadronMultiplicity():-1",int, doc="(Puppi-weighted) number of neutral hadrons in the jet")
-  proc.fatJetTable.variables.hfHadMultiplicity = Var("?isPFJet()?HFHadronMultiplicity():-1", int, doc="(Puppi-weighted) number of HF Hadrons in the jet")
-  proc.fatJetTable.variables.hfEMMultiplicity  = Var("?isPFJet()?HFEMMultiplicity():-1", int, doc="(Puppi-weighted) number of HF EMs in the jet")
-  proc.fatJetTable.variables.muMultiplicity    = Var("?isPFJet()?muonMultiplicity():-1", int, doc="(Puppi-weighted) number of muons in the jet")
-  proc.fatJetTable.variables.elMultiplicity    = Var("?isPFJet()?electronMultiplicity():-1", int, doc="(Puppi-weighted) number of electrons in the jet")
-  proc.fatJetTable.variables.phoMultiplicity   = Var("?isPFJet()?photonMultiplicity():-1", int, doc="(Puppi-weighted) number of photons in the jet")
+  proc.fatJetTable.variables.chHadMultiplicity = Var("?isPFJet()?chargedHadronMultiplicity():-1","int16", doc="(Puppi-weighted) number of charged hadrons in the jet")
+  proc.fatJetTable.variables.neHadMultiplicity = Var("?isPFJet()?neutralHadronMultiplicity():-1","int16", doc="(Puppi-weighted) number of neutral hadrons in the jet")
+  proc.fatJetTable.variables.hfHadMultiplicity = Var("?isPFJet()?HFHadronMultiplicity():-1", "int16", doc="(Puppi-weighted) number of HF Hadrons in the jet")
+  proc.fatJetTable.variables.hfEMMultiplicity  = Var("?isPFJet()?HFEMMultiplicity():-1", "int16", doc="(Puppi-weighted) number of HF EMs in the jet")
+  proc.fatJetTable.variables.muMultiplicity    = Var("?isPFJet()?muonMultiplicity():-1", "int16", doc="(Puppi-weighted) number of muons in the jet")
+  proc.fatJetTable.variables.elMultiplicity    = Var("?isPFJet()?electronMultiplicity():-1", "int16", doc="(Puppi-weighted) number of electrons in the jet")
+  proc.fatJetTable.variables.phoMultiplicity   = Var("?isPFJet()?photonMultiplicity():-1", "int16", doc="(Puppi-weighted) number of photons in the jet")
 
   return proc
 #******************************************
