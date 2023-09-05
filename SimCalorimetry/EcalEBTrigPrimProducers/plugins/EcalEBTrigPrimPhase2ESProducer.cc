@@ -24,7 +24,7 @@ struct GzInputStream {
     if (gzf == Z_NULL) {
       eof = true;
 
-      edm::LogWarning("EcalTPG") << "Database file " << file << " not found!!!";
+      edm::LogWarning("EcalEBTPGESProducer") << "Database file " << file << " not found!!!";
     } else
       readLine();
   }
@@ -73,7 +73,6 @@ EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::Parame
 }
 
 EcalEBTrigPrimPhase2ESProducer::~EcalEBTrigPrimPhase2ESProducer() {
-  std::cout << " EcalEBTrigPrimPhase2ESProducer DTOR " << std::endl;
 }
 
 //
@@ -115,88 +114,12 @@ std::unique_ptr<EcalEBPhase2TPGLinearizationConst> EcalEBTrigPrimPhase2ESProduce
     param.i2cSub_x1 = (it->second)[7];
     prod->setValue(it->first, param);
 
-    //    std::cout << " EcalEBTrigPrimPhase2ESProducer::produceLinearizationConst " <<  param.mult_x10  << " " <<  param.mult_x1 << " " <<  param.shift_x10 << " " <<  param.shift_x1 << std::endl ;
+ 
   }
 
   return prod;
 }
 
-/*
-std::unique_ptr<EcalTPGSlidingWindow> EcalEBTrigPrimPhase2ESProducer::produceSlidingWindow(
-    const EcalTPGSlidingWindowRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGSlidingWindow>();
-  parseTextFile();
-  for (int subdet = 0; subdet < 2; subdet++) {
-    std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-    for (it = mapStrip_[subdet].begin(); it != mapStrip_[subdet].end(); it++) {
-      prod->setValue(it->first, (it->second)[0]);
-    }
-  }
-  return prod;
-}
-
-std::unique_ptr<EcalTPGFineGrainEBIdMap> EcalEBTrigPrimPhase2ESProducer::produceFineGrainEB(
-    const EcalTPGFineGrainEBIdMapRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGFineGrainEBIdMap>();
-  parseTextFile();
-  EcalTPGFineGrainConstEB fg;
-  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-  for (it = mapFg_.begin(); it != mapFg_.end(); it++) {
-    fg.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4]);
-    prod->setValue(it->first, fg);
-  }
-  return prod;
-}
-
-std::unique_ptr<EcalTPGFineGrainStripEE> EcalEBTrigPrimPhase2ESProducer::produceFineGrainEEstrip(
-    const EcalTPGFineGrainStripEERcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGFineGrainStripEE>();
-  parseTextFile();
-  // EE Strips
-  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-  for (it = mapStrip_[1].begin(); it != mapStrip_[1].end(); it++) {
-    EcalTPGFineGrainStripEE::Item item;
-    item.threshold = (it->second)[2];
-    item.lut = (it->second)[3];
-    prod->setValue(it->first, item);
-  }
-  // EB Strips
-  for (it = mapStrip_[0].begin(); it != mapStrip_[0].end(); it++) {
-    EcalTPGFineGrainStripEE::Item item;
-    item.threshold = (it->second)[2];
-    item.lut = (it->second)[3];
-    prod->setValue(it->first, item);
-  }
-  return prod;
-}
-
-std::unique_ptr<EcalTPGFineGrainTowerEE> EcalEBTrigPrimPhase2ESProducer::produceFineGrainEEtower(
-    const EcalTPGFineGrainTowerEERcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGFineGrainTowerEE>();
-  parseTextFile();
-  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-  for (it = mapTower_[1].begin(); it != mapTower_[1].end(); it++) {
-    prod->setValue(it->first, (it->second)[1]);
-  }
-  return prod;
-}
-
-std::unique_ptr<EcalTPGLutIdMap> EcalEBTrigPrimPhase2ESProducer::produceLUT(const EcalTPGLutIdMapRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGLutIdMap>();
-  parseTextFile();
-  EcalTPGLut lut;
-  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-  for (it = mapLut_.begin(); it != mapLut_.end(); it++) {
-    unsigned int lutArray[1024];
-    for (int i = 0; i < 1024; i++)
-      lutArray[i] = (it->second)[i];
-    lut.setLut(lutArray);
-    prod->setValue(it->first, lut);
-  }
-  return prod;
-}
-
-*/
 
 std::unique_ptr<EcalEBPhase2TPGAmplWeightIdMap> EcalEBTrigPrimPhase2ESProducer::produceAmpWeight(
     const EcalEBPhase2TPGAmplWeightIdMapRcd &iRecord) {
@@ -264,55 +187,12 @@ std::unique_ptr<EcalTPGWeightGroup> EcalEBTrigPrimPhase2ESProducer::produceWeigh
   return prod;
 }
 
-/*
-std::unique_ptr<EcalTPGWeightGroup> EcalEBTrigPrimPhase2ESProducer::produceWeightGroup(const EcalTPGWeightGroupRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGWeightGroup>();
-  parseTextFile();
-  int iI=0;
-  for (int subdet = 0; subdet < 1; subdet++) {
-    std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-    for (it = mapStrip_[subdet].begin(); it != mapStrip_[subdet].end(); it++) {
-      iI++;
-      prod->setValue(it->first, (it->second)[1]);
-      //      std::cout << " EcalEBTrigPrimPhase2ESProducer::produceWeightGroup   strip ID (?) " << it->first << " " << (it->second)[1] << " iI " << iI << std::endl;  
-    }
-  }
-  return prod;
-}
-*/
-
-/*
-std::unique_ptr<EcalTPGLutGroup> EcalEBTrigPrimPhase2ESProducer::produceLutGroup(const EcalTPGLutGroupRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGLutGroup>();
-  parseTextFile();
-  for (int subdet = 0; subdet < 2; subdet++) {
-    std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-    for (it = mapTower_[subdet].begin(); it != mapTower_[subdet].end(); it++) {
-      prod->setValue(it->first, (it->second)[0]);
-    }
-  }
-  return prod;
-}
-
-std::unique_ptr<EcalTPGFineGrainEBGroup> EcalEBTrigPrimPhase2ESProducer::produceFineGrainEBGroup(
-    const EcalTPGFineGrainEBGroupRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGFineGrainEBGroup>();
-  parseTextFile();
-  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-  for (it = mapTower_[0].begin(); it != mapTower_[0].end(); it++) {
-    prod->setValue(it->first, (it->second)[1]);
-  }
-  return prod;
-}
-
-
-*/
 
 std::unique_ptr<EcalTPGPhysicsConst> EcalEBTrigPrimPhase2ESProducer::producePhysicsConst(
     const EcalTPGPhysicsConstRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGPhysicsConst>();
-  std::cout << " EcalEBTrigPrimPhase2ESProducer::producePhysicsConst Needs updating if we want to keep it "
-            << std::endl;
+  // EcalEBTrigPrimPhase2ESProducer::producePhysicsConst Needs updating if we want to keep it 
+           
 
   parseTextFile();
   std::map<uint32_t, std::vector<float>>::const_iterator it;
@@ -335,7 +215,7 @@ std::unique_ptr<EcalTPGCrystalStatus> EcalEBTrigPrimPhase2ESProducer::produceBad
     const EcalTPGCrystalStatusRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGCrystalStatus>();
 
-  //std::cout << " EcalEBTrigPrimPhase2ESProducer::produceBadX This Needs to be updated, i.e. the channel status must be written out by the new ParamBuilder" << std::endl;
+
   parseTextFile();
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapXtal_.begin(); it != mapXtal_.end(); it++) {
@@ -346,43 +226,7 @@ std::unique_ptr<EcalTPGCrystalStatus> EcalEBTrigPrimPhase2ESProducer::produceBad
   return prod;
 }
 
-/*
-std::unique_ptr<EcalTPGStripStatus> EcalEBTrigPrimPhase2ESProducer::produceBadStrip(const EcalTPGStripStatusRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGStripStatus>();
-  // returns an empty map
-  return prod;
-}
 
-std::unique_ptr<EcalTPGTowerStatus> EcalEBTrigPrimPhase2ESProducer::produceBadTT(const EcalTPGTowerStatusRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGTowerStatus>();
-  parseTextFile();
-  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-  // Barrel
-  for (it = mapTower_[0].begin(); it != mapTower_[0].end(); it++) {
-    // set the BadTT status to 0
-    prod->setValue(it->first, 0);
-  }
-  // Endcap
-  for (it = mapTower_[1].begin(); it != mapTower_[1].end(); it++) {
-    // set the BadTT status to 0
-    prod->setValue(it->first, 0);
-  }
-
-  return prod;
-}
-
-std::unique_ptr<EcalTPGSpike> EcalEBTrigPrimPhase2ESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord) {
-  auto prod = std::make_unique<EcalTPGSpike>();
-  parseTextFile();
-  // Only need to do barrel
-  std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
-  for (it = mapTower_[0].begin(); it != mapTower_[0].end(); ++it) {
-    prod->setValue(it->first, (it->second)[2]);
-  }
-  return prod;
-}
-
-*/
 
 void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
   uint32_t id;
@@ -398,7 +242,7 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
     finalFileName = fileInPath.fullPath();
   } else {
     finalFileName = configFilename_;
-    std::cout << "Couldnt find database file via fileinpath trying with pathname directly!!" << std::endl;
+    edm::LogWarning("EcalEBTPGESProducer")  << "Couldnt find database file via fileinpath trying with pathname directly!!";
   }
 
   GzInputStream gis(finalFileName.c_str());
@@ -415,8 +259,7 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
       std::string st6;
       for (int i = 0; i < 12; i++) {
         gis >> std::hex >> data;
-        //	std::cout << " Parse ampl weight filling data " << data;
-        param.push_back(data);
+	param.push_back(data);
         /// debug
 
         if (flagPrint_) {
@@ -641,7 +484,7 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
         std::cout << " " << st5 << std::endl;
       }
 
-      // std::cout<<std::endl ;
+      
       mapXtal_[id] = param;
     }
 
@@ -682,7 +525,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
         }
       }
 
-      // std::cout<<std::endl ;
       mapStrip_[0][id] = param;
     }
 
@@ -723,7 +565,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
         }
       }
 
-      // std::cout<<std::endl ;
       mapStrip_[1][id] = param;
     }
 
