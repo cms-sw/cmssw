@@ -47,5 +47,6 @@ ticlTrackstersMerge = cms.EDProducer('TrackstersMergeProducer',
   eid_min_cluster_energy = cms.double(2.5),
   eid_n_layers = cms.int32(50),
   eid_n_clusters = cms.int32(10),
-  mightGet = cms.optional.untracked.vstring
+  mightGet = cms.optional.untracked.vstring,
+  useMTDTiming = cms.bool(False)
 )
