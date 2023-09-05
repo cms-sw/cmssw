@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalTBCommonData/interface/HGCalTBDDDConstants.h"
 
 #include "G4ThreeVector.hh"
 
@@ -14,7 +14,7 @@ class HGCNumberingScheme {
 public:
   enum HGCNumberingParameters { HGCCellSize };
 
-  HGCNumberingScheme(const HGCalDDDConstants& hgc, std::string& name);
+  HGCNumberingScheme(const HGCalTBDDDConstants& hgc, std::string& name);
   HGCNumberingScheme() = delete;
 
   ~HGCNumberingScheme();
@@ -35,7 +35,7 @@ public:
   std::pair<float, float> getLocalCoords(int cell, int layer);
 
 private:
-  const HGCalDDDConstants& hgcons_;
+  const HGCalTBDDDConstants& hgcons_;
 };
 
 #endif
