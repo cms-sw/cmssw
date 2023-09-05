@@ -8,14 +8,14 @@ using namespace ROOT::Math::VectorUtil;
 ////////////////////////////////////////////////////////////////////////////////
 //                             Constructor                                    //
 ////////////////////////////////////////////////////////////////////////////////
-EmDQM::EmDQM(const edm::ParameterSet &pset_) : pset(pset_) {
+EmDQM::EmDQM(const edm::ParameterSet &pset) {
   // are we running in automatic configuration mode with the HLTConfigProvider
   // or with a per path python config file
   autoConfMode_ = pset.getUntrackedParameter<bool>("autoConfMode", false);
 
   // set global parameters
-  triggerObject_ = pset_.getParameter<edm::InputTag>("triggerobject");
-  verbosity_ = pset_.getUntrackedParameter<unsigned int>("verbosity", 0);
+  triggerObject_ = pset.getParameter<edm::InputTag>("triggerobject");
+  verbosity_ = pset.getUntrackedParameter<unsigned int>("verbosity", 0);
   genEtaAcc_ = pset.getParameter<double>("genEtaAcc");
   genEtAcc_ = pset.getParameter<double>("genEtAcc");
   ptMax_ = pset.getUntrackedParameter<double>("PtMax", 1000.);

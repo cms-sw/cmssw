@@ -42,7 +42,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
                                   << HGCalGeometryMode::Hexagon8 << ":" << HGCalGeometryMode::Hexagon8Full << ":"
                                   << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"
                                   << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile << ":"
-                                  << HGCalGeometryMode::TrapezoidModule;
+                                  << HGCalGeometryMode::TrapezoidModule << ":" << HGCalGeometryMode::Hexagon8Cassette
+                                  << ":" << HGCalGeometryMode::TrapezoidCassette << ":"
+                                  << HGCalGeometryMode::Hexagon8CalibCell;
 #endif
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
@@ -98,7 +100,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" << php.levelT_[1] << " ZSide Level "
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
-                                    << php.waferMaskMode_ << " Zside " << php.waferZSide_ << " Layer Rotation "
+                                    << php.waferMaskMode_ << " ZSide " << php.waferZSide_ << " Layer Rotation "
                                     << convertRadToDeg(php.layerRotation_) << " Cassettes " << php.cassettes_
                                     << " UseSimWt " << php.useSimWt_;
 #endif

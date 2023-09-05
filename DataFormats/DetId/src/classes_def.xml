@@ -5,6 +5,7 @@
   <class name="std::vector<DetId>"/>
   <class name="edm::EDCollection<DetId>"/>
   <class name="std::map<DetId,DetId>"/>
+  <class name="edm::Wrapper<std::vector<DetId> >"/>
   <class name="edm::Wrapper<edm::EDCollection<DetId> >"/>
   <class name="std::vector<std::pair<DetId,float> >"/>  
   <class name="std::pair<DetId,float>"/>               

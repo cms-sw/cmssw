@@ -67,7 +67,8 @@ namespace reco {
 
     RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
         : RecoTauPiZeroBuilderPlugin(pset, std::move(iC)),
-          qcuts_(new RecoTauQualityCuts(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
+          qcuts_(std::make_unique<RecoTauQualityCuts>(
+              pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
           vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)) {
       inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
       etaAssociationDistance_ = pset.getParameter<double>("stripEtaAssociationDistance");

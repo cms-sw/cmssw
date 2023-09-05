@@ -5,6 +5,7 @@
 <use name="FWCore/Utilities"/>
 <use name="CoralBase"/>
 <use name="boost_serialization"/>
+<use name="CondFormats/DataRecord"/>
 <export>
   <lib name="1"/>
 </export>

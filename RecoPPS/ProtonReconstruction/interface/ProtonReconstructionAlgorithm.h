@@ -12,7 +12,6 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
 #include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
-#include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSet.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
@@ -36,12 +35,12 @@ public:
 
   /// run proton reconstruction using single-RP strategy
   reco::ForwardProton reconstructFromSingleRP(const CTPPSLocalTrackLiteRef &track,
-                                              const LHCInfo &lhcInfo,
+                                              const float energy,
                                               std::ostream &os) const;
 
   /// run proton reconstruction using multiple-RP strategy
   reco::ForwardProton reconstructFromMultiRP(const CTPPSLocalTrackLiteRefVector &tracks,
-                                             const LHCInfo &lhcInfo,
+                                             const float energy,
                                              std::ostream &os) const;
 
 private:

@@ -67,6 +67,13 @@ TEST_CASE("FileLocator with Rucio data catalog", "[filelocatorRucioDataCatalog]"
   aCatalog.volume = "FNAL_dCache_EOS";
   aCatalog.protocol = "XRootD";
   tmp.push_back(aCatalog);
+  //catalog for testing chained "rules"
+  aCatalog.site = "T1_US_FNAL";
+  aCatalog.subSite = "T1_US_FNAL";
+  aCatalog.storageSite = "T1_US_FNAL";
+  aCatalog.volume = "FNAL_dCache_EOS";
+  aCatalog.protocol = "root";
+  tmp.push_back(aCatalog);
 
   //create the services
   edm::ServiceToken tempToken(
@@ -81,15 +88,19 @@ TEST_CASE("FileLocator with Rucio data catalog", "[filelocatorRucioDataCatalog]"
 
   SECTION("prefix") {
     edm::ServiceRegistry::Operate operate(tempToken);
-    edm::CatalogAttributes tmp_cat;                   //empty catalog
-    edm::FileLocator fl(tmp_cat, 0, full_file_name);  //use the first catalog provided by site local config
+    //empty catalog
+    edm::CatalogAttributes tmp_cat;
+    //use the first catalog provided by site local config
+    edm::FileLocator fl(tmp_cat, 0, full_file_name);
     CHECK("root://cmsxrootd.fnal.gov/store/group/bha/bho" ==
           fl.pfn("/store/group/bha/bho", edm::CatalogType::RucioCatalog));
   }
   SECTION("rule") {
     edm::ServiceRegistry::Operate operate(tempToken);
-    edm::CatalogAttributes tmp_cat;                   //empty catalog
-    edm::FileLocator fl(tmp_cat, 1, full_file_name);  //use the second catalog provided by site local config
+    //empty catalog
+    edm::CatalogAttributes tmp_cat;
+    //use the second catalog provided by site local config
+    edm::FileLocator fl(tmp_cat, 1, full_file_name);
     const std::array<const char*, 7> lfn = {{"/bha/bho",
                                              "bha",
                                              "file:bha",
@@ -99,6 +110,29 @@ TEST_CASE("FileLocator with Rucio data catalog", "[filelocatorRucioDataCatalog]"
                                              "rfio:/bha/bho"}};
     CHECK("root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/group/bha/bho" ==
           fl.pfn("/store/group/bha/bho", edm::CatalogType::RucioCatalog));
+    for (auto file : lfn) {
+      CHECK("" == fl.pfn(file, edm::CatalogType::RucioCatalog));
+    }
+  }
+  SECTION("chainedrule") {
+    edm::ServiceRegistry::Operate operate(tempToken);
+    //empty catalog
+    edm::CatalogAttributes tmp_cat;
+    //use the third catalog provided by site local config above
+    edm::FileLocator fl(tmp_cat, 2, full_file_name);
+    const std::array<const char*, 7> lfn = {{"/bha/bho",
+                                             "bha",
+                                             "file:bha",
+                                             "file:/bha/bho",
+                                             "/castor/cern.ch/cms/bha/bho",
+                                             "rfio:/castor/cern.ch/cms/bha/bho",
+                                             "rfio:/bha/bho"}};
+    //one level chain between "root" and "second" protocols (see storage.json)
+    CHECK("root://host.domain//pnfs/cms/store/group/bha/bho" ==
+          fl.pfn("/store/group/bha/bho", edm::CatalogType::RucioCatalog));
+    //two levels chain between "root", "second" and "first" (see storage.json)
+    CHECK("root://host.domain//pnfs/cms/store/user/AAA/bho" ==
+          fl.pfn("/store/user/aaa/bho", edm::CatalogType::RucioCatalog));
     for (auto file : lfn) {
       CHECK("" == fl.pfn(file, edm::CatalogType::RucioCatalog));
     }

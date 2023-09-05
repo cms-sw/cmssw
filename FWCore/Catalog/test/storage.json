@@ -13,7 +13,39 @@
                   "pfn": "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/$1"
                }
             ]
-         }
+         },
+         {
+            "protocol": "first",
+            "rules": [
+               { "lfn": "/+store/user/aaa/(.*)",
+                 "pfn": "/store/user/AAA/$1"
+               },
+               { "lfn": "/+(.*)",
+                 "pfn": "$1"
+               }
+            ]
+         },
+         {
+             "protocol": "second",
+             "rules": [
+              { "lfn": "/+store/user/(.*)",
+                "pfn": "/cms/store/user/$1",
+                "chain": "first"
+              },
+              { "lfn": "/+store/(.*)",
+                "pfn": "/cms/store/$1"
+              }
+            ]
+          },
+          {
+            "protocol": "root",
+            "rules": [
+              { "lfn": "/+(.*)",
+                "pfn": "root://host.domain//pnfs/$1",
+                "chain": "second"
+              }
+            ]
+          }
       ],
       "type": "DISK",
       "rse": "T1_US_FNAL_Disk",

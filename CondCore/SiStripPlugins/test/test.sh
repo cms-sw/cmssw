@@ -129,11 +129,11 @@ getPayloadData.py \
     --test;
 
 ######################
-# Test SiStripTkMaps
+# Test SiStripBadStripFractionTH2PolyTkMap
 ######################
 getPayloadData.py \
     --plugin pluginSiStripBadStrip_PayloadInspector \
-    --plot plot_SiStripBadStripFractionTkMap \
+    --plot plot_SiStripBadStripFractionTH2PolyTkMap \
     --tag SiStripBadComponents_startupMC_for2017_v1_mc \
     --time_type Run \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \
@@ -142,7 +142,7 @@ getPayloadData.py \
 
 getPayloadData.py \
     --plugin pluginSiStripLorentzAngle_PayloadInspector \
-    --plot plot_SiStripLorentzAngleTkMap \
+    --plot plot_SiStripLorentzAngleTH2PolyTkMap \
     --tag  SiStripLorentzAngleDeco_GR10_v1_prompt \
     --time_type Run \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \

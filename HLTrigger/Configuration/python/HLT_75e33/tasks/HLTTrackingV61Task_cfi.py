@@ -10,21 +10,20 @@ from ..modules.highPtTripletStepSeeds_cfi import *
 from ..modules.highPtTripletStepTrackCandidates_cfi import *
 from ..modules.highPtTripletStepTrackCutClassifier_cfi import *
 from ..modules.highPtTripletStepTrackSelectionHighPurity_cfi import *
-from ..modules.highPtTripletStepTrackingRegions_cfi import *
+from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import *
 from ..modules.highPtTripletStepTracks_cfi import *
 from ..modules.initialStepSeeds_cfi import *
 from ..modules.initialStepTrackCandidates_cfi import *
 from ..modules.initialStepTrackCutClassifier_cfi import *
 from ..modules.initialStepTrackSelectionHighPurity_cfi import *
 from ..modules.initialStepTracks_cfi import *
-from ..modules.pixelFitterByHelixProjections_cfi import *
-from ..modules.pixelTrackFilterByKinematics_cfi import *
-from ..modules.pixelTracksHitDoublets_cfi import *
-from ..modules.pixelTracksHitSeeds_cfi import *
-from ..modules.pixelTracksSeedLayers_cfi import *
-from ..modules.pixelTracksTrackingRegions_cfi import *
-from ..modules.pixelTracks_cfi import *
-from ..modules.pixelVertices_cfi import *
+from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import *
+from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import *
+from ..modules.hltPhase2PixelTracksHitDoublets_cfi import *
+from ..modules.hltPhase2PixelTracksHitSeeds_cfi import *
+from ..modules.hltPhase2PixelTracksSeedLayers_cfi import *
+from ..modules.hltPhase2PixelTracks_cfi import *
+from ..modules.hltPhase2PixelVertices_cfi import *
 from ..modules.siPhase2Clusters_cfi import *
 from ..modules.siPixelClusterShapeCache_cfi import *
 from ..modules.siPixelClusters_cfi import *
@@ -44,21 +43,20 @@ HLTTrackingV61Task = cms.Task(
     highPtTripletStepTrackCandidates,
     highPtTripletStepTrackCutClassifier,
     highPtTripletStepTrackSelectionHighPurity,
-    highPtTripletStepTrackingRegions,
+    hltPhase2PixelTracksAndHighPtStepTrackingRegions,
     highPtTripletStepTracks,
     initialStepSeeds,
     initialStepTrackCandidates,
     initialStepTrackCutClassifier,
     initialStepTrackSelectionHighPurity,
     initialStepTracks,
-    pixelFitterByHelixProjections,
-    pixelTrackFilterByKinematics,
-    pixelTracks,
-    pixelTracksHitDoublets,
-    pixelTracksHitSeeds,
-    pixelTracksSeedLayers,
-    pixelTracksTrackingRegions,
-    pixelVertices,
+    hltPhase2PixelFitterByHelixProjections,
+    hltPhase2PixelTrackFilterByKinematics,
+    hltPhase2PixelTracks,
+    hltPhase2PixelTracksHitDoublets,
+    hltPhase2PixelTracksHitSeeds,
+    hltPhase2PixelTracksSeedLayers,
+    hltPhase2PixelVertices,
     siPhase2Clusters,
     siPixelClusterShapeCache,
     siPixelClusters,

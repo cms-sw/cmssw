@@ -67,6 +67,11 @@ GENERATE_SOA_VIEW(SoAFullDeviceConstViewTemplate,
 using SoAFullDeviceView =
     SoAFullDeviceViewTemplate<cms::soa::CacheLineSize::NvidiaGPU, cms::soa::AlignmentEnforcement::enforced>;
 
+// These SoAs validate that the generating macros do not get confused in the special case where there are
+// no columns and only scalar elements in the SoA.
+GENERATE_SOA_LAYOUT(TestSoALayoutNoColumn, SOA_SCALAR(double, r))
+GENERATE_SOA_LAYOUT(TestSoALayoutNoColumn2, SOA_SCALAR(double, r), SOA_SCALAR(double, r2))
+
 // Eigen cross product kernel (on store)
 __global__ void crossProduct(SoAHostDeviceView soa, const unsigned int numElements) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;

@@ -109,10 +109,17 @@ def customisePostEra_Run3_pp_on_PbPb(process):
     customisePostEra_Run3(process)
     return process
 
+def customisePostEra_Run3_pp_on_PbPb_2023(process):
+    customisePostEra_Run3_2023(process)
+    return process
+
 def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters(process):
     customisePostEra_Run3_pp_on_PbPb(process)
     return process
 
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2023(process):
+    customisePostEra_Run3_pp_on_PbPb_2023(process)
+    return process
 
 ##############################################################################
 def customisePPData(process):

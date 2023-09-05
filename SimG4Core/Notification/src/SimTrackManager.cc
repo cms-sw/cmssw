@@ -19,6 +19,7 @@
 #include "SimG4Core/Notification/interface/TmpSimVertex.h"
 #include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -162,6 +163,10 @@ void SimTrackManager::reallyStoreTracks() {
       }
     }
 
+    if (id >= static_cast<int>(PSimHit::k_tidOffset)) {
+      throw cms::Exception("SimTrackManager::reallyStoreTracks")
+          << " SimTrack ID " << id << " exceeds maximum allowed by PSimHit identifier" << PSimHit::k_tidOffset;
+    }
     TmpSimTrack* g4simtrack =
         new TmpSimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
     g4simtrack->copyCrossedBoundaryVars(trkH);

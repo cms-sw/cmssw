@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut0p07 = cms.EDProducer("L3MuonCombinedRelativeIsolationProducer",
     CaloDepositsLabel = cms.InputTag("notUsed"),
     CaloExtractorPSet = cms.PSet(
-        CaloTowerCollectionLabel = cms.InputTag("hltTowerMakerForAll"),
+        CaloTowerCollectionLabel = cms.InputTag("hltPhase2TowerMakerForAll"),
         ComponentName = cms.string('CaloExtractor'),
         DR_Max = cms.double(0.3),
         DR_Veto_E = cms.double(0.07),

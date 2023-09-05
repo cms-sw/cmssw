@@ -42,6 +42,7 @@ namespace edm {
     typedef std::map<std::string, Rules> ProtocolRules;
 
     void init_trivialCatalog(std::string const& catUrl, unsigned iCatalog);
+
     void parseRuleTrivialCatalog(tinyxml2::XMLElement* ruleNode, ProtocolRules& rules);
     //using data-access
     void init(edm::CatalogAttributes const& input_dataCatalog,
@@ -68,9 +69,11 @@ namespace edm {
 
     std::string m_fileType;
     std::string m_filename;
+    //TFC allows more than one protocols provided in a catalog, separated by a comma
+    //In new Rucio storage description, only one protocol is provided in a catalog
+    //This variable can be simplified in the future
     std::vector<std::string> m_protocols;
     std::string m_destination;
-    std::string m_prefix;
   };
 }  // namespace edm
 

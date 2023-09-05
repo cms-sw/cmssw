@@ -118,7 +118,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
     StaticRandomEngineSetUnset random(nullptr);
     m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
   });
-  m_masterThread = ms ? ms : s_masterThread;
+  m_masterThread = (nullptr != ms) ? ms : s_masterThread;
   assert(m_masterThread);
   m_masterThread->callConsumes(consumesCollector());
 
@@ -338,7 +338,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (0 < m_verbose) {
     edm::LogVerbatim("SimG4CoreApplication")
         << "Event is produced event " << e.id() << " streamID=" << e.streamID() << " threadID=" << id;
-    //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
+    //edm::LogWarning("SimG4CoreApplication") << "EventID=" << e.id() << " rand=" << G4UniformRand();
   }
 }
 

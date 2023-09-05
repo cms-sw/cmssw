@@ -24,18 +24,18 @@ namespace trackerTFP {
     unique_ptr<Demonstrator> produce(const DemonstratorRcd& rcd);
 
   private:
-    const ParameterSet* iConfig_;
+    const ParameterSet iConfig_;
     ESGetToken<Setup, SetupRcd> esGetToken_;
   };
 
-  ProducerDemonstrator::ProducerDemonstrator(const ParameterSet& iConfig) : iConfig_(&iConfig) {
+  ProducerDemonstrator::ProducerDemonstrator(const ParameterSet& iConfig) : iConfig_(iConfig) {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
   }
 
   unique_ptr<Demonstrator> ProducerDemonstrator::produce(const DemonstratorRcd& rcd) {
     const Setup* setup = &rcd.get(esGetToken_);
-    return make_unique<Demonstrator>(*iConfig_, setup);
+    return make_unique<Demonstrator>(iConfig_, setup);
   }
 
 }  // namespace trackerTFP

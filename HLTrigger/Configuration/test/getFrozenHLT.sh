@@ -1,11 +1,19 @@
 #!/bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake1 Fake2 2023v12"
-HLT_Fake="/dev/CMSSW_13_0_0/Fake"
-HLT_Fake1="/dev/CMSSW_13_0_0/Fake1"
-HLT_Fake2="/dev/CMSSW_13_0_0/Fake2"
-HLT_2023v12="/frozen/2023/2e34/v1.2/HLT"
+#  - if no explicit version, the most recent one is taken
+#  - to use explicit version, specify it in the entries below
+#  - to skip a given configuration, remove or comment the corresponding entry in the array TABLES
+#  - new configurations can be added by expanding the array TABLES
+#  - for new configurations, ensure that the corresponding "auto" GTs are defined in
+#     Configuration/HLT/python/autoCondHLT.py , and
+#     HLTrigger/Configuration/python/Tools/options.py
+declare -A TABLES=(
+  ["Fake"]="/dev/CMSSW_13_2_0/Fake"
+  ["Fake1"]="/dev/CMSSW_13_2_0/Fake1"
+  ["Fake2"]="/dev/CMSSW_13_2_0/Fake2"
+  ["2023v12"]="/frozen/2023/2e34/v1.2/CMSSW_13_2_X/HLT"
+)
 
 # command-line arguments
 VERBOSE=false # print extra messages to stdout
@@ -52,8 +60,8 @@ INITDIR="${PWD}"
 cd "${CMSSW_BASE}"/src/HLTrigger/Configuration/test
 
 # create cff fragments and cfg configs
-for TABLE in ${TABLES}; do
-  CONFIG=$(eval echo \$$(echo HLT_"${TABLE}"))
+for TABLE in "${!TABLES[@]}"; do
+  CONFIG="${TABLES[${TABLE}]}"
   echo "${TABLE} (config: ${CONFIG})"
 
   # cff fragment of each HLT menu (do not use any conditions or L1T override)
@@ -62,10 +70,10 @@ for TABLE in ${TABLES}; do
 
   # GlobalTag
   AUTOGT="auto:run3_hlt_${TABLE}"
-  if [ "${TABLE}" = "Fake1" ] || [ "${TABLE}" = "Fake2" ] || [ "${TABLE}" = "2018" ]; then
-    AUTOGT="auto:run2_hlt_${TABLE}"
-  elif [ "${TABLE}" = "Fake" ]; then
+  if [ "${TABLE}" = "Fake" ]; then
     AUTOGT="auto:run1_hlt_${TABLE}"
+  elif [ "${TABLE}" = "Fake1" ] || [ "${TABLE}" = "Fake2" ]; then
+    AUTOGT="auto:run2_hlt_${TABLE}"
   fi
 
   # standalone cfg file of each HLT menu

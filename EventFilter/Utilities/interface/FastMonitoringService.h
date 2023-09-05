@@ -294,6 +294,8 @@ namespace evf {
     std::atomic<bool> has_data_exception_ = false;
     std::vector<unsigned int> exceptionInLS_;
     std::vector<std::string> fastPathList_;
+
+    bool verbose_ = false;
   };
 
 }  // namespace evf

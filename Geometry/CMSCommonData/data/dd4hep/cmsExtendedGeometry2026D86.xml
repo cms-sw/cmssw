@@ -52,10 +52,10 @@
     <Include ref='Geometry/HcalCommonData/data/hcal/v2/hcalalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalbarrelalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalcablealgo/v2/hcalcablealgo.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/v1/hcalSimNumbering.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/v1/hcalRecNumbering.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/v2/hcalRecNumbering.xml'/>
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcal/v16/hgcal.xml'/>
@@ -97,7 +97,7 @@
     <Include ref='Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml'/>
     <Include ref='Geometry/EcalSimData/data/PhaseII/ecalsens.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/v1/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>

@@ -321,7 +321,11 @@ namespace edm {
 
     virtual TaskQueueAdaptor serializeRunModule() = 0;
 
-    bool shouldRethrowException(std::exception_ptr iPtr, ParentContext const& parentContext, bool isEvent) const;
+    bool shouldRethrowException(std::exception_ptr iPtr,
+                                ParentContext const& parentContext,
+                                bool isEvent,
+                                bool isTryToContinue) const;
+    void checkForShouldTryToContinue(ModuleDescription const&);
 
     template <bool IS_EVENT>
     bool setPassed() {
@@ -619,6 +623,7 @@ namespace edm {
     std::atomic<bool> workStarted_;
     bool ranAcquireWithoutException_;
     bool moduleValid_ = true;
+    bool shouldTryToContinue_ = false;
   };
 
   namespace {
@@ -1061,19 +1066,26 @@ namespace edm {
                                                          ParentContext const& parentContext,
                                                          typename T::Context const* context) {
     std::exception_ptr exceptionPtr;
+    bool shouldRun = true;
     if (iEPtr) {
-      if (shouldRethrowException(iEPtr, parentContext, T::isEvent_)) {
+      if (shouldRethrowException(iEPtr, parentContext, T::isEvent_, shouldTryToContinue_)) {
         exceptionPtr = iEPtr;
         setException<T::isEvent_>(exceptionPtr);
+        shouldRun = false;
       } else {
-        setPassed<T::isEvent_>();
+        if (not shouldTryToContinue_) {
+          setPassed<T::isEvent_>();
+          shouldRun = false;
+        }
       }
-      moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
-    } else {
+    }
+    if (shouldRun) {
       // Caught exception is propagated via WaitingTaskList
       CMS_SA_ALLOW try { runModule<T>(transitionInfo, streamID, parentContext, context); } catch (...) {
         exceptionPtr = std::current_exception();
       }
+    } else {
+      moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid, ParentContext(), nullptr);
     }
     waitingTasks_.doneWaiting(exceptionPtr);
     return exceptionPtr;
@@ -1166,7 +1178,7 @@ namespace edm {
       });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
-      if (shouldRethrowException(std::current_exception(), parentContext, T::isEvent_)) {
+      if (shouldRethrowException(std::current_exception(), parentContext, T::isEvent_, shouldTryToContinue_)) {
         assert(not cached_exception_);
         setException<T::isEvent_>(std::current_exception());
         std::rethrow_exception(cached_exception_);

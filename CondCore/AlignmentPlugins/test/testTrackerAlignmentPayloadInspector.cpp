@@ -71,5 +71,15 @@ int main(int argc, char** argv) {
       PI::mk_input("TrackerAlignment_2017_ultralegacymc_v2", 1, 1, "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1));
   edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo8.data();
 
+  PixelAlignmentCompareMapX histo9;
+  histo9.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo9.data();
+
+  PixelAlignmentCompareMapXTwoTags histo10;
+  histo10.process(
+      connectionString,
+      PI::mk_input("TrackerAlignment_2017_ultralegacymc_v2", 1, 1, "TrackerAlignment_Upgrade2017_realistic_v2", 1, 1));
+  edm::LogPrint("testTrackerAlignmentPayloadInspector") << histo10.data();
+
   Py_Finalize();
 }

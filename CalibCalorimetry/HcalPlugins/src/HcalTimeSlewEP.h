@@ -32,7 +32,14 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  const edm::ParameterSet& pset_;
+  struct M2Parameters {
+    float t0, m, tmaximum;
+  };
+  struct M3Parameters {
+    double cap, tspar0, tspar1, tspar2, tspar0_siPM, tspar1_siPM, tspar2_siPM;
+  };
+  std::vector<M2Parameters> m2parameters_;
+  std::vector<M3Parameters> m3parameters_;
 };
 
 #endif

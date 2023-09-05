@@ -114,8 +114,7 @@ steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedForma
 steps['RunHI2018AOD']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-04Apr2019-v1/AOD',label='hi2018aod',events=10000,location='STD',ls=Run2018HI)}
 
 Run2022HI={362321: [[112,112]]}
-steps['RunHI2022']={'INPUT':InputInfo(dataSet='/HITestRawPrime0/HIRun2022A-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
-steps['RunHI2022FullFormat']={'INPUT':InputInfo(dataSet='/HITestRaw0/HIRun2022A-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
+steps['RunHI2022']={'INPUT':InputInfo(dataSet='/HITestRaw0/HIRun2022A-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
 
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
@@ -2157,6 +2156,18 @@ steps['RAWPRIMEHI18']={ '--scenario':'pp',
                         '--process':'REHLT'
 }
 
+steps['RAWPRIMEHI22']={ '--scenario':'pp',
+                        '--conditions':'auto:run3_data_prompt',
+                        '-s':'REPACK:DigiToApproxClusterRaw',
+                        '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG',
+                        '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
+                        '--eventcontent':'REPACKRAW',
+                        '-n':'10',
+                        '--customise_commands':'\"process.rawPrimeDataRepacker.src=\'rawDataRepacker\'\"',
+                        '--repacked':'',
+                        '--process':'REHLT'
+}
+
 steps['RAWPRIMESIMHI18']={ '--scenario':'pp',
                            '--conditions':'auto:phase1_2022_realistic_hi',
                            '-s':'REPACK:DigiToApproxClusterRaw',
@@ -2165,7 +2176,7 @@ steps['RAWPRIMESIMHI18']={ '--scenario':'pp',
                            '--era':'Run2_2018_pp_on_AA',
                            '-n':'10',
                            '--procModifiers':'approxSiStripClusters',
-                           '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\';process.hltScalersRawToDigi.scalersInputTag=\'rawDataCollector\'\"',
+                           '--customise_commands':'\"process.hltSiStripRawToDigi.ProductLabel=\'rawDataCollector\';process.hltScalersRawToDigi.scalersInputTag=\'rawDataCollector\'\"',
                            '--process':'REHLT'
 }
 
@@ -2192,16 +2203,6 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '-n':'100'
 }
 
-steps['RAWPRIMEHI22']={ '--scenario':'pp',
-                        '--conditions':'auto:run3_data_prompt',
-                        '-s':'REPACK:DigiToApproxClusterRaw',
-                        '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG',
-                        '--eventcontent':'REPACKRAW',
-                        '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
-                        '-n':'10',
-                        '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\';process.hltScalersRawToDigi.scalersInputTag=\'rawDataCollector\'\"',
-                        '--process':'REHLT'
-}
 
 steps['RECOHID22APPROXCLUSTERS']=merge([{ '--scenario':'pp',
                                           '--conditions':'auto:run3_data_prompt',
@@ -3211,7 +3212,7 @@ steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptC
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
-steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip+PromptCalibProdSiPixelLAMCS',
+steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip+PromptCalibProdSiPixelLAMCS+PromptCalibProdSiStripLA',
                              '-n':1000,
                              '--scenario':'cosmics',
                              '--era':'Run3',
@@ -3323,6 +3324,12 @@ steps['ALCAHARVD3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripGains
                      '--scenario':'pp',
                      '--data':'',
                      '--filein':'file:PromptCalibProdSiStripGains.root'}
+
+steps['ALCAHARVD3COS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripLA']),
+                     '--conditions':'auto:run3_data_express',
+                     '--scenario':'cosmics',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiStripLA.root'}
 
 steps['ALCAHARVD3HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD3']])
 
@@ -4069,7 +4076,7 @@ for ds in defaultDataSets:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2018' in ds or 'postLS2' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2021' in ds or '2023' in ds:
+    elif '2021' in ds or '2023' in ds or '2024' in ds:
         if 'FS' not in ds:
             PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
         else:

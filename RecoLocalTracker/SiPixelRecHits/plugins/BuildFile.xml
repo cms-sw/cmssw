@@ -6,6 +6,7 @@
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/SiPixelRecHits"/>
 <use name="DataFormats/TrackerCommon"/>
+<use name="CondFormats/SiPixelTransient"/>
 <iftool name="cuda-gcc-support">
   <use name="cuda"/>
   <set name="cuda_src" value="*.cu"/>

@@ -1,0 +1,48 @@
+LFS: /eos/cms/store/group/alca_trackeralign/AlignmentValidation/AlignmentValidation/NewTool
+name: DMR_testFeatures
+
+alignments:
+    mp3707withSD:
+        color: kRed + 3  # ROOT color constants are translated into integers; additions and subtractions (the symbols '+' and '-') are evaulated
+        style: 2101
+        title: mp3707+SD
+        globaltag: 130X_dataRun3_HLT_v2
+        conditions:
+            TrackerAlignmentRcd:
+                connect: sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp3707/jobData/jobm/alignments_MP.db
+                tag: Alignments
+            TrackerSurfaceDeformationRcd:
+                connect: sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp3643/jobData/jobm4/alignments_MP.db
+                tag: Deformations
+
+validations:
+    DMR:
+        merge:
+            mergeJob:
+                methods:
+                - median
+                - rmsNorm
+                curves:
+                - plain
+                customrighttitle: "pp collisions (2023) 13.6 TeV"
+                legendoptions:
+                - mean
+                - rms
+                singles:
+                - singleJob
+                minimum: 10
+
+        single:
+            singleJob:
+                IOV:
+                - 370667
+                alignments:
+                - mp3707withSD
+                trackcollection: hltMergedTracks
+                vertexcollection: offlinePrimaryVertices
+                tthrbuilder: WithTrackAngle
+                usePixelQualityFlag: false
+                maxevents: 2000
+                maxtracks: 18000
+                dataset: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/datasetfiles/Collisions2023/310723/HLTMonitor_Run2023D-Express-v2_FEVTHLTALL/Dataset_Validation_HLTMonitor_Run2023D-Express-v2_FEVTHLTALL_since370667.txt
+                goodlumi: /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/datasetfiles/Collisions2023/310723/Collisions23_13p6TeV_366403_370790_DCSOnly_TkPx.json

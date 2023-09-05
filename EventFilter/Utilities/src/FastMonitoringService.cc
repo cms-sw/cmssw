@@ -133,7 +133,8 @@ namespace evf {
         fastName_("fastmoni"),
         slowName_("slowmoni"),
         filePerFwkStream_(iPS.getUntrackedParameter<bool>("filePerFwkStream", false)),
-        totalEventsProcessed_(0) {
+        totalEventsProcessed_(0),
+        verbose_(iPS.getUntrackedParameter<bool>("verbose")) {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);  //receiving information on number of threads
     reg.watchJobFailure(this, &FastMonitoringService::jobFailure);    //global
 
@@ -194,6 +195,7 @@ namespace evf {
         ->setComment("Modulo of sleepTime intervals on which fastmon file is written out");
     desc.addUntracked<bool>("filePerFwkStream", false)
         ->setComment("Switches on monitoring output per framework stream");
+    desc.addUntracked<bool>("verbose", false)->setComment("Set to use LogInfo messages from the monitoring thread");
     desc.setAllowAnything();
     descriptions.add("FastMonitoringService", desc);
   }
@@ -817,7 +819,7 @@ namespace evf {
         snapCounter_++;
       }
 
-      {
+      if (verbose_) {
         edm::LogInfo msg("FastMonitoringService");
         auto f = [&](std::vector<unsigned int> const& p) {
           for (unsigned int i = 0; i < nStreams_; i++) {
