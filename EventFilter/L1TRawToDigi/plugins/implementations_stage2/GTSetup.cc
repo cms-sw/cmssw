@@ -102,7 +102,7 @@ namespace l1t {
       muon_unp->setMuonCopy(amc - 1);
       egamma_unp->setEGammaCopy(amc - 1);
       etsum_unp->setEtSumCopy(amc - 1);
-      zdcsum_unp->setZDCSumCopy(amc - 1);
+      zdc_unp->setZDCSumCopy(amc - 1);
       jet_unp->setJetCopy(amc - 1);
       tau_unp->setTauCopy(amc - 1);
 
