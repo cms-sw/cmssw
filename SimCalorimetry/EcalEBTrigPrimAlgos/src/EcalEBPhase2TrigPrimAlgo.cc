@@ -122,7 +122,7 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBTrigPr
       if (debug_)
         std::cout << " Number of xTals " << nxstals << std::endl;
 
-      const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(dataFrames[0].id());
+      //const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(dataFrames[0].id());
 
       // loop over the xstals in a strip
 
