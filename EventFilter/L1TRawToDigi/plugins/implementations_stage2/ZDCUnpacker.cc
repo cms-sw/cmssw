@@ -10,15 +10,15 @@
 
 namespace l1t {
   namespace stage2 {
-    ZDCUnpacker::ZDCUnpacker() : ZDCSumCopy_(0) {}
+    ZDCUnpacker::ZDCUnpacker() : EtSumZDCCopy_(0) {}
 
     bool ZDCUnpacker::unpack(const Block& block, UnpackerCollections* coll) {
-      using namespace l1t::stage2::layer2;
+      using namespace l1t::stage2;
 
       LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
       int nBX = int(
-          ceil(block.header().getSize() / demux::nOutputFramePerBX));  // Since there 6 frames per demux output event
+          ceil(block.header().getSize() / layer2::demux::nOutputFramePerBX));  // Since there 6 frames per demux output event
       // expect the first four frames to be the first 4 EtSum objects reported per event (see CMS IN-2013/005)
 
       // Find the central, first and last BXs
@@ -30,7 +30,7 @@ namespace l1t {
         lastBX = ceil((double)nBX / 2.) - 1;
       }
 
-      auto res_ = static_cast<L1TObjectCollections*>(coll)->getZDCSums(ZDCSumCopy_);
+      auto res_ = static_cast<L1TObjectCollections*>(coll)->getZDCSums(EtSumZDCCopy_);
       res_->setBXRange(firstBX, lastBX);
 
       LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -38,7 +38,7 @@ namespace l1t {
       // Loop over multiple BX and fill EtSums collection
       for (int bx = firstBX; bx <= lastBX; bx++) {
         // ZDC -
-        int iFrame = (bx - firstBX) * demux::nOutputFramePerBX;
+        int iFrame = (bx - firstBX) * layer2::demux::nOutputFramePerBX;
 
         uint32_t raw_data = block.payload().at(iFrame +1); // ZDC - info is found on frame 1 of each bx
         

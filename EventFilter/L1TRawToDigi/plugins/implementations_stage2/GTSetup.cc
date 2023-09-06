@@ -56,7 +56,7 @@ namespace l1t {
       prod.produces<MuonShowerBxCollection>("MuonShower");
       prod.produces<EGammaBxCollection>("EGamma");
       prod.produces<EtSumBxCollection>("EtSum");
-      prod.produces<EtSumBxCollection>("ZDCSum"); // added addition EtSum collection for ZDC  unpacker 
+      prod.produces<EtSumBxCollection>("EtSumZDC");
       prod.produces<JetBxCollection>("Jet");
       prod.produces<TauBxCollection>("Tau");
       prod.produces<GlobalAlgBlkBxCollection>();
@@ -66,7 +66,7 @@ namespace l1t {
         prod.produces<MuonShowerBxCollection>("MuonShower" + std::to_string(i));
         prod.produces<EGammaBxCollection>("EGamma" + std::to_string(i));
         prod.produces<EtSumBxCollection>("EtSum" + std::to_string(i));
-        prod.produces<EtSumBxCollection>("ZDCSum" + std::to_string(i));
+        prod.produces<EtSumBxCollection>("EtSumZDC" + std::to_string(i));
         prod.produces<JetBxCollection>("Jet" + std::to_string(i));
         prod.produces<TauBxCollection>("Tau" + std::to_string(i));
       }
@@ -102,7 +102,7 @@ namespace l1t {
       muon_unp->setMuonCopy(amc - 1);
       egamma_unp->setEGammaCopy(amc - 1);
       etsum_unp->setEtSumCopy(amc - 1);
-      zdc_unp->setZDCSumCopy(amc - 1);
+      zdc_unp->setEtSumZDCCopy(amc - 1);
       jet_unp->setJetCopy(amc - 1);
       tau_unp->setTauCopy(amc - 1);
 
@@ -122,7 +122,7 @@ namespace l1t {
         res[16] = tau_unp;
         res[18] = tau_unp;
         res[20] = etsum_unp;
-        res[22] = zdc_unp;
+        
 
         if (amc == 1) {  // only unpack first uGT board for the external signal inputs (single copy)
           res[24] = ext_unp;
@@ -142,6 +142,8 @@ namespace l1t {
         res[45] = alg_unp;
         res[47] = alg_unp;
         res[49] = alg_unp;
+        
+        res[71] = zdc_unp;
       }
 
       return res;

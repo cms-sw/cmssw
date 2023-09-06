@@ -12,10 +12,10 @@ namespace l1t {
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 
-      virtual inline void setZDCSumCopy(const unsigned int copy) { ZDCSumCopy_ = copy; };
+      virtual inline void setEtSumZDCCopy(const unsigned int copy) { EtSumZDCCopy_ = copy; };
 
     private:
-      unsigned int ZDCSumCopy_;
+      unsigned int EtSumZDCCopy_;
     };
   }  // namespace stage2
 }  // namespace l1t
