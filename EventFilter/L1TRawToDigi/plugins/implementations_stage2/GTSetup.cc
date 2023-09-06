@@ -56,6 +56,7 @@ namespace l1t {
       prod.produces<MuonShowerBxCollection>("MuonShower");
       prod.produces<EGammaBxCollection>("EGamma");
       prod.produces<EtSumBxCollection>("EtSum");
+      prod.produces<EtSumBxCollection>("ZDC"); // added addition EtSum collection for ZDC  unpacker 
       prod.produces<JetBxCollection>("Jet");
       prod.produces<TauBxCollection>("Tau");
       prod.produces<GlobalAlgBlkBxCollection>();
@@ -65,6 +66,7 @@ namespace l1t {
         prod.produces<MuonShowerBxCollection>("MuonShower" + std::to_string(i));
         prod.produces<EGammaBxCollection>("EGamma" + std::to_string(i));
         prod.produces<EtSumBxCollection>("EtSum" + std::to_string(i));
+        prod.produces<EtSumBxCollection>("ZDC" + std::to_string(i));
         prod.produces<JetBxCollection>("Jet" + std::to_string(i));
         prod.produces<TauBxCollection>("Tau" + std::to_string(i));
       }
