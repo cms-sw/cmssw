@@ -56,7 +56,7 @@ namespace l1t {
       prod.produces<MuonShowerBxCollection>("MuonShower");
       prod.produces<EGammaBxCollection>("EGamma");
       prod.produces<EtSumBxCollection>("EtSum");
-      prod.produces<EtSumBxCollection>("ZDC"); // added addition EtSum collection for ZDC  unpacker 
+      prod.produces<EtSumBxCollection>("ZDCSum"); // added addition EtSum collection for ZDC  unpacker 
       prod.produces<JetBxCollection>("Jet");
       prod.produces<TauBxCollection>("Tau");
       prod.produces<GlobalAlgBlkBxCollection>();
@@ -66,7 +66,7 @@ namespace l1t {
         prod.produces<MuonShowerBxCollection>("MuonShower" + std::to_string(i));
         prod.produces<EGammaBxCollection>("EGamma" + std::to_string(i));
         prod.produces<EtSumBxCollection>("EtSum" + std::to_string(i));
-        prod.produces<EtSumBxCollection>("ZDC" + std::to_string(i));
+        prod.produces<EtSumBxCollection>("ZDCSum" + std::to_string(i));
         prod.produces<JetBxCollection>("Jet" + std::to_string(i));
         prod.produces<TauBxCollection>("Tau" + std::to_string(i));
       }
@@ -102,6 +102,7 @@ namespace l1t {
       muon_unp->setMuonCopy(amc - 1);
       egamma_unp->setEGammaCopy(amc - 1);
       etsum_unp->setEtSumCopy(amc - 1);
+      zdcsum_unp->setZDCSumCopy(amc - 1);
       jet_unp->setJetCopy(amc - 1);
       tau_unp->setTauCopy(amc - 1);
 
