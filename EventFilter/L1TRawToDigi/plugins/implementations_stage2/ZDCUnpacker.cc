@@ -10,7 +10,7 @@
 
 namespace l1t {
   namespace stage2 {
-    ZDCUnpacker::ZDCUnpacker() : EtSumCopy_(0) {}
+    ZDCUnpacker::ZDCUnpacker() : ZDCSumCopy_(0) {}
 
     bool ZDCUnpacker::unpack(const Block& block, UnpackerCollections* coll) {
       using namespace l1t::stage2::layer2;
@@ -30,7 +30,7 @@ namespace l1t {
         lastBX = ceil((double)nBX / 2.) - 1;
       }
 
-      auto res_ = static_cast<L1TObjectCollections*>(coll)->getEtSums(EtSumCopy_);
+      auto res_ = static_cast<L1TObjectCollections*>(coll)->getZDCSums(ZDCSumCopy_);
       res_->setBXRange(firstBX, lastBX);
 
       LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
