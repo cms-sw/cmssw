@@ -1,7 +1,7 @@
 ++ starting: constructing source: IntSource
-Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936b85708f83a8b2
+Module type=IntSource, Module label=source, Parameter Set ID=6f0b3d3a362a6270c801489bb066414a
 ++ finished: constructing source: IntSource
-Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936b85708f83a8b2
+Module type=IntSource, Module label=source, Parameter Set ID=6f0b3d3a362a6270c801489bb066414a
 ++++ starting: constructing module with label 'TriggerResults' id = 1
 ++++ finished: constructing module with label 'TriggerResults' id = 1
 ++++ starting: constructing module with label 'p' id = 2
@@ -11,9 +11,9 @@ Module type=IntSource, Module label=source, Parameter Set ID=031810a3ee2992e7936
 ++++ starting: constructing module with label 'intProducer' id = 4
 ++++ finished: constructing module with label 'intProducer' id = 4
 ++++ starting: constructing module with label 'a1' id = 5
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
 ++++ finished: constructing module with label 'a1' id = 5
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
 ++++ starting: constructing module with label 'a2' id = 6
 ++++ finished: constructing module with label 'a2' id = 6
 ++++ starting: constructing module with label 'a3' id = 7
@@ -21,9 +21,9 @@ Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62
 ++++ starting: constructing module with label 'out' id = 8
 ++++ finished: constructing module with label 'out' id = 8
 ++++ starting: constructing module with label 'intProducerA' id = 9
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ finished: constructing module with label 'intProducerA' id = 9
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ starting: constructing module with label 'intProducerB' id = 10
 ++++ finished: constructing module with label 'intProducerB' id = 10
 ++++ starting: constructing module with label 'intProducerBeginProcessBlock' id = 11
@@ -37,9 +37,9 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
 ++++ starting: begin job for module with label 'intProducerA' id = 9
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ finished: begin job for module with label 'intProducerA' id = 9
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ starting: begin job for module with label 'intProducerB' id = 10
 ++++ finished: begin job for module with label 'intProducerB' id = 10
 ++++ starting: begin job for module with label 'intProducerBeginProcessBlock' id = 11
@@ -53,9 +53,9 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ starting: begin job for module with label 'intProducer' id = 4
 ++++ finished: begin job for module with label 'intProducer' id = 4
 ++++ starting: begin job for module with label 'a1' id = 5
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
 ++++ finished: begin job for module with label 'a1' id = 5
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
 ++++ starting: begin job for module with label 'a2' id = 6
 ++++ finished: begin job for module with label 'a2' id = 6
 ++++ starting: begin job for module with label 'a3' id = 7
@@ -76,25 +76,25 @@ Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62
 StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: begin stream for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: begin stream for module: stream = 0 label = 'a2' id = 6
 ++++ finished: begin stream for module: stream = 0 label = 'a2' id = 6
@@ -112,25 +112,25 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: begin stream for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: begin stream for module: stream = 0 label = 'intProducerB' id = 10
 ++++ finished: begin stream for module: stream = 0 label = 'intProducerB' id = 10
@@ -146,7 +146,7 @@ ModuleCallingContext state = Running
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'a3' id = 7
 ++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'a2' id = 6
@@ -154,13 +154,13 @@ GlobalContext: transition = BeginProcessBlock
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'intProducerEndProcessBlock' id = 12
 ++++++++ starting: prefetching before processing begin ProcessBlock for module: label = 'intProducerBeginProcessBlock' id = 11
@@ -171,37 +171,37 @@ ModuleCallingContext state = Prefetching
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: begin process block for module: label = 'a1' id = 5
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: begin process block for module: label = 'a1' id = 5
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing begin ProcessBlock for module: label = 'intProducerEndProcessBlock' id = 12
 ++++++ starting: begin process block for module: label = 'intProducerEndProcessBlock' id = 12
@@ -216,21 +216,21 @@ ModuleCallingContext state = Running
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: begin process block
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: begin process block
 GlobalContext: transition = BeginProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ queuing: EventSetup synchronization run: 1 lumi: 0 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 0 event: 0
@@ -241,7 +241,7 @@ GlobalContext: transition = BeginProcessBlock
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing global begin Run for module: label = 'a3' id = 7
 ++++++++ starting: prefetching before processing global begin Run for module: label = 'a2' id = 6
@@ -249,49 +249,49 @@ GlobalContext: transition = BeginRun
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global begin Run for module: label = 'a1' id = 5
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: global begin run for module: label = 'a1' id = 5
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: global begin run for module: label = 'a1' id = 5
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global begin Run for module: label = 'a2' id = 6
 ++++++ starting: global begin run for module: label = 'a2' id = 6
@@ -303,21 +303,21 @@ ModuleCallingContext state = Running
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global begin run 1 : time = 1
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: global begin run 1 : time = 1
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
@@ -326,7 +326,7 @@ GlobalContext: transition = BeginRun
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: begin run for module: stream = 0 label = 'intProducerU' id = 13
 ++++++ finished: begin run for module: stream = 0 label = 'intProducerU' id = 13
@@ -336,25 +336,25 @@ StreamContext: StreamID = 0 transition = BeginRun
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: begin run for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: begin run for module: stream = 0 label = 'intProducer' id = 4
 ++++++ finished: begin run for module: stream = 0 label = 'intProducer' id = 4
@@ -362,21 +362,21 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 StreamContext: StreamID = 0 transition = BeginRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -384,7 +384,7 @@ StreamContext: StreamID = 0 transition = BeginRun
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing global begin LuminosityBlock for module: label = 'a3' id = 7
 ++++++++ starting: prefetching before processing global begin LuminosityBlock for module: label = 'a2' id = 6
@@ -392,49 +392,49 @@ GlobalContext: transition = BeginLuminosityBlock
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global begin LuminosityBlock for module: label = 'a1' id = 5
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: global begin lumi for module: label = 'a1' id = 5
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: global begin lumi for module: label = 'a1' id = 5
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global begin LuminosityBlock for module: label = 'a2' id = 6
 ++++++ starting: global begin lumi for module: label = 'a2' id = 6
@@ -446,27 +446,27 @@ ModuleCallingContext state = Running
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: begin lumi for module: stream = 0 label = 'intProducerU' id = 13
 ++++++ finished: begin lumi for module: stream = 0 label = 'intProducerU' id = 13
@@ -476,25 +476,25 @@ StreamContext: StreamID = 0 transition = BeginLuminosityBlock
 StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: begin lumi for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: begin lumi for module: stream = 0 label = 'intProducer' id = 4
 ++++++ finished: begin lumi for module: stream = 0 label = 'intProducer' id = 4
@@ -502,21 +502,21 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 StreamContext: StreamID = 0 transition = BeginLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: source event
 ++++ finished: source event
@@ -524,61 +524,61 @@ StreamContext: StreamID = 0 transition = BeginLuminosityBlock
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: processing path 'e' : stream = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = e pathID = 0 (EndPath)
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: processing path 'p' : stream = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a3' id = 7
 ++++++++++ starting: prefetching before processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a2' id = 6
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'intProducer' id = 4
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducer' id = 4
@@ -588,91 +588,91 @@ ModuleCallingContext state = Prefetching
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'a3' id = 7
 ++++++++ starting: processing event for module: stream = 0 label = 'a3' id = 7
@@ -686,12 +686,12 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
@@ -717,32 +717,32 @@ PathContext: pathName = p pathID = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = e pathID = 0 (EndPath)
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: source event
 ++++ finished: source event
@@ -750,61 +750,61 @@ StreamContext: StreamID = 0 transition = Event
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: processing path 'e' : stream = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = e pathID = 0 (EndPath)
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: processing path 'p' : stream = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a3' id = 7
 ++++++++++ starting: prefetching before processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a2' id = 6
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'intProducer' id = 4
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducer' id = 4
@@ -814,91 +814,91 @@ ModuleCallingContext state = Prefetching
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'a3' id = 7
 ++++++++ starting: processing event for module: stream = 0 label = 'a3' id = 7
@@ -912,12 +912,12 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
@@ -943,32 +943,32 @@ PathContext: pathName = p pathID = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = e pathID = 0 (EndPath)
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: source event
 ++++ finished: source event
@@ -976,61 +976,61 @@ StreamContext: StreamID = 0 transition = Event
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: processing path 'e' : stream = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = e pathID = 0 (EndPath)
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: processing path 'p' : stream = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a3' id = 7
 ++++++++++ starting: prefetching before processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a2' id = 6
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'intProducer' id = 4
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducer' id = 4
@@ -1040,91 +1040,91 @@ ModuleCallingContext state = Prefetching
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: processing event for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     PlaceInPathContext 1
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=354df018ce2f0160ec1374ad6edf1bc8
+    moduleDescription: Module type=TestFindProduct, Module label=a3, Parameter Set ID=9d7fece45bd24c3cee0db87f017e5a55
     PlaceInPathContext 3
     PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'a3' id = 7
 ++++++++ starting: processing event for module: stream = 0 label = 'a3' id = 7
@@ -1138,12 +1138,12 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = p pathID = 0
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
@@ -1169,32 +1169,32 @@ PathContext: pathName = p pathID = 0
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 PathContext: pathName = e pathID = 0 (EndPath)
     StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ queuing: EventSetup synchronization run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
@@ -1203,7 +1203,7 @@ StreamContext: StreamID = 0 transition = Event
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: end lumi for module: stream = 0 label = 'intProducerU' id = 13
 ++++++ finished: end lumi for module: stream = 0 label = 'intProducerU' id = 13
@@ -1213,25 +1213,25 @@ StreamContext: StreamID = 0 transition = EndLuminosityBlock
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: end lumi for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: end lumi for module: stream = 0 label = 'intProducer' id = 4
 ++++++ finished: end lumi for module: stream = 0 label = 'intProducer' id = 4
@@ -1239,27 +1239,27 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 StreamContext: StreamID = 0 transition = EndLuminosityBlock
     run: 1 lumi: 1 event: 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a3' id = 7
 ++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a2' id = 6
@@ -1267,49 +1267,49 @@ GlobalContext: transition = EndLuminosityBlock
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'a1' id = 5
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: global end lumi for module: label = 'a1' id = 5
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: global end lumi for module: label = 'a1' id = 5
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'a2' id = 6
 ++++++ starting: global end lumi for module: label = 'a2' id = 6
@@ -1321,27 +1321,27 @@ ModuleCallingContext state = Running
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global write lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = WriteLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: write lumi for module: label = 'out' id = 8
 ++++++ finished: write lumi for module: label = 'out' id = 8
@@ -1349,27 +1349,27 @@ GlobalContext: transition = WriteLuminosityBlock
 GlobalContext: transition = WriteLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global write lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = WriteLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: global write lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = WriteLuminosityBlock
     run: 1 luminosityBlock: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end run: stream = 0 run = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: end run for module: stream = 0 label = 'intProducerU' id = 13
 ++++++ finished: end run for module: stream = 0 label = 'intProducerU' id = 13
@@ -1379,25 +1379,25 @@ StreamContext: StreamID = 0 transition = EndRun
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: end run for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: end run for module: stream = 0 label = 'intProducer' id = 4
 ++++++ finished: end run for module: stream = 0 label = 'intProducer' id = 4
@@ -1405,27 +1405,27 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end run: stream = 0 run = 1 time = 0
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: end run: stream = 0 run = 1 time = 0
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global end run 1 : time = 15000001
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing global end Run for module: label = 'a3' id = 7
 ++++++++ starting: prefetching before processing global end Run for module: label = 'a2' id = 6
@@ -1433,49 +1433,49 @@ GlobalContext: transition = EndRun
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global end Run for module: label = 'a1' id = 5
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: global end run for module: label = 'a1' id = 5
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: global end run for module: label = 'a1' id = 5
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing global end Run for module: label = 'a2' id = 6
 ++++++ starting: global end run for module: label = 'a2' id = 6
@@ -1487,27 +1487,27 @@ ModuleCallingContext state = Running
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global end run 1 : time = 0
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: global end run 1 : time = 0
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global write run 1 : time = 15000001
 GlobalContext: transition = WriteRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: write run for module: label = 'out' id = 8
 ++++++ finished: write run for module: label = 'out' id = 8
@@ -1515,27 +1515,27 @@ GlobalContext: transition = WriteRun
 GlobalContext: transition = WriteRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: global write run 1 : time = 0
 GlobalContext: transition = WriteRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: global write run 1 : time = 0
 GlobalContext: transition = WriteRun
     run: 1 luminosityBlock: 0
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end process block
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'a3' id = 7
 ++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'a2' id = 6
@@ -1543,13 +1543,13 @@ GlobalContext: transition = EndProcessBlock
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'intProducerEndProcessBlock' id = 12
 ++++++++ starting: prefetching before processing end ProcessBlock for module: label = 'intProducerBeginProcessBlock' id = 11
@@ -1563,37 +1563,37 @@ ModuleCallingContext state = Prefetching
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Prefetching
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: end process block for module: label = 'a1' id = 5
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ finished: end process block for module: label = 'a1' id = 5
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++++ finished: prefetching before processing end ProcessBlock for module: label = 'a2' id = 6
 ++++++ starting: end process block for module: label = 'a2' id = 6
@@ -1605,55 +1605,55 @@ ModuleCallingContext state = Running
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: access input process block
 GlobalContext: transition = AccessInputProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: access input process block
 GlobalContext: transition = AccessInputProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: write process block
 GlobalContext: transition = WriteProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: write process block
 GlobalContext: transition = WriteProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end process block
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: end process block
 GlobalContext: transition = EndProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: write process block
 GlobalContext: transition = WriteProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++++ starting: write process block for module: label = 'out' id = 8
 ++++++ finished: write process block for module: label = 'out' id = 8
@@ -1661,21 +1661,21 @@ GlobalContext: transition = WriteProcessBlock
 GlobalContext: transition = WriteProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: write process block
 GlobalContext: transition = WriteProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: write process block
 GlobalContext: transition = WriteProcessBlock
     run: 0 luminosityBlock: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
-    parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: COPY 6f4335e86de793448be83fe14f12dcb7
+    parent ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 4
 ++++ finished: end stream for module: stream = 0 label = 'intProducer' id = 4
@@ -1683,25 +1683,25 @@ GlobalContext: transition = WriteProcessBlock
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: end stream for module: stream = 0 label = 'a1' id = 5
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+    moduleDescription: Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
     StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end stream for module: stream = 0 label = 'a2' id = 6
 ++++ finished: end stream for module: stream = 0 label = 'a2' id = 6
@@ -1719,25 +1719,25 @@ ModuleCallingContext state = Running
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ finished: end stream for module: stream = 0 label = 'intProducerA' id = 9
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 ModuleCallingContext state = Running
-    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+    moduleDescription: Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
     StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
-    ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
+    ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++++ starting: end stream for module: stream = 0 label = 'intProducerB' id = 10
 ++++ finished: end stream for module: stream = 0 label = 'intProducerB' id = 10
@@ -1750,9 +1750,9 @@ ModuleCallingContext state = Running
 ++++ starting: end stream for module: stream = 0 label = 'intVectorProducer' id = 14
 ++++ finished: end stream for module: stream = 0 label = 'intVectorProducer' id = 14
 ++++ starting: end job for module with label 'intProducerA' id = 9
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ finished: end job for module with label 'intProducerA' id = 9
-Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e8174cb2ccc12430661ba6d4
+Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ starting: end job for module with label 'intProducerB' id = 10
 ++++ finished: end job for module with label 'intProducerB' id = 10
 ++++ starting: end job for module with label 'intProducerBeginProcessBlock' id = 11
@@ -1766,10 +1766,10 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=38971365e81
 ++++ starting: end job for module with label 'intProducer' id = 4
 ++++ finished: end job for module with label 'intProducer' id = 4
 ++++ starting: end job for module with label 'a1' id = 5
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
 TestFindProduct sum = 530021
 ++++ finished: end job for module with label 'a1' id = 5
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=73b313a2727141f62e12cd7cf1a5b8dc
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
 ++++ starting: end job for module with label 'a2' id = 6
 TestFindProduct sum = 300
 ++++ finished: end job for module with label 'a2' id = 6
