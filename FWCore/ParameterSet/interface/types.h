@@ -12,7 +12,9 @@
 // prerequisite source files and headers
 
 #include <string>
+#include <string_view>
 #include <vector>
+#include <optional>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -73,10 +75,22 @@ namespace edm {
   // String
   bool decode(std::string&, std::string const&);
   bool encode(std::string&, std::string const&);
+  std::optional<std::string_view> decode_string_extent(std::string_view from);
 
   // vString
   bool decode(std::vector<std::string>&, std::string const&);
   bool encode(std::string&, std::vector<std::string> const&);
+  bool decode_element(std::string&, std::string const&);
+  bool encode_element(std::string&, std::string const&);
+  std::optional<std::string_view> decode_vstring_extent(std::string_view from);
+
+  // String old
+  bool decode_deprecated(std::string&, std::string const&);
+  bool encode_deprecated(std::string&, std::string const&);
+
+  // vString old
+  bool decode_deprecated(std::vector<std::string>&, std::string const&);
+  bool encode_deprecated(std::string&, std::vector<std::string> const&);
 
   // FileInPath
   bool decode(edm::FileInPath&, std::string const&);

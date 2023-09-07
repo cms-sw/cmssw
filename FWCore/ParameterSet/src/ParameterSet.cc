@@ -591,26 +591,28 @@ namespace edm {
   // ----------------------------------------------------------------------
 
   bool ParameterSet::fromString(std::string const& from) {
-    std::vector<std::string> temp;
-    if (!split(std::back_inserter(temp), from, '<', ';', '>'))
+    if (from.size() < 2 or from.front() != '<' or from.back() != '>') {
       return false;
+    }
+
+    std::string_view remaining = from;
+    remaining = remaining.substr(1, from.size() - 2);
 
     tbl_.clear();  // precaution
-    for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+    while (not remaining.empty()) {
       // locate required name/value separator
-      std::string::const_iterator q = find_in_all(*b, '=');
-      if (q == b->end())
+      auto q = remaining.find_first_of('=');
+      if (q == remaining.npos)
         return false;
 
       // form name unique to this ParameterSet
-      std::string name = std::string(b->begin(), q);
+      std::string name = std::string(remaining.substr(0, q));
       if (tbl_.find(name) != tbl_.end())
         return false;
 
-      std::string rep(q + 1, b->end());
+      remaining = remaining.substr(q + 1);
+      std::string rep(remaining.substr(0, remaining.find_first_of(';')));
       // entries are generically of the form tracked-type-rep
-      if (rep[0] == '-') {
-      }
       if (rep[1] == 'Q') {
         ParameterSetEntry psetEntry(rep);
         if (!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
@@ -635,11 +637,23 @@ namespace edm {
         }
       } else {
         // form value and insert name/value pair
-        Entry value(name, rep);
+        auto bounds = Entry::bounds(remaining, rep.size());
+        if (bounds.empty()) {
+          return false;
+        }
+        remaining = remaining.substr(bounds.size());
+        if (not remaining.empty() and remaining.front() != ';') {
+          return false;
+        }
+        Entry value(name, std::string(bounds));
         if (!tbl_.insert(std::make_pair(name, value)).second) {
           return false;
         }
       }
+      auto newStart = remaining.find_first_of(';');
+      if (newStart == remaining.npos)
+        break;
+      remaining = remaining.substr(newStart + 1);
     }
 
     return true;
@@ -980,11 +994,21 @@ namespace edm {
     Entry const& e_input = retrieve(name);
     switch (e_input.typeCode()) {
       case 't':  // InputTag
+      {
         return e_input.getInputTag();
-      case 'S':  // string
+      }
+      case 'S':  // string Hex
+      {
         std::string const& label = e_input.getString();
         deprecatedInputTagWarning(name, label);
         return InputTag(label);
+      }
+      case 'Z':  // string Raw
+      {
+        std::string const& label = e_input.getString();
+        deprecatedInputTagWarning(name, label);
+        return InputTag(label);
+      }
     }
     throw Exception(errors::Configuration, "ValueError")
         << "type of " << name << " is expected to be InputTag or string (deprecated)";
@@ -1552,11 +1576,21 @@ namespace edm {
     Entry const& e_input = retrieve(name);
     switch (e_input.typeCode()) {
       case 't':  // InputTag
+      {
         return e_input.getInputTag();
-      case 'S':  // string
+      }
+      case 'S':  // string Hex
+      {
         std::string const& label = e_input.getString();
         deprecatedInputTagWarning(name, label);
         return InputTag(label);
+      }
+      case 'Z':  // string Raw
+      {
+        std::string const& label = e_input.getString();
+        deprecatedInputTagWarning(name, label);
+        return InputTag(label);
+      }
     }
     throw Exception(errors::Configuration, "ValueError")
         << "type of " << name << " is expected to be InputTag or string (deprecated)";
