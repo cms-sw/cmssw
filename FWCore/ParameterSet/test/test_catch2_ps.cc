@@ -385,6 +385,33 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
   }
+  SECTION("deprecated") {
+    SECTION("string") {
+      std::string to;
+      std::string const value = "this is deprecated";
+      REQUIRE(edm::encode_deprecated(to, value));
+      std::string pset_encode;
+      pset_encode += "<label=+S(";
+      pset_encode += to;
+      pset_encode += ")>";
+      edm::ParameterSet pset(pset_encode);
+      pset.registerIt();
+      REQUIRE(pset.getParameter<std::string>("label") == value);
+    }
+    SECTION("vstring") {
+      std::string to;
+      std::string const value = "this is deprecated";
+      std::vector<std::string> const from(1, value);
+      REQUIRE(edm::encode_deprecated(to, from));
+      std::string pset_encode;
+      pset_encode += "<label=+s(";
+      pset_encode += to;
+      pset_encode += ")>";
+      edm::ParameterSet pset(pset_encode);
+      pset.registerIt();
+      REQUIRE(pset.getParameter<std::vector<std::string>>("label") == from);
+    }
+  }
   SECTION("eventID") {
     testbody<edm::EventID>(edm::EventID());
     testbody<edm::EventID>(edm::EventID::firstValidEvent());
