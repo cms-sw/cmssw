@@ -1193,6 +1193,23 @@ bool edm::encode(std::string& to, std::vector<std::string> const& from) {
 
 bool edm::encode_element(std::string& to, std::string const& from) { return encode(to, from); }
 
+bool edm::encode_deprecated(std::string& to, std::vector<std::string> const& from) {
+  to = "{";
+
+  std::string converted;
+  for (std::vector<std::string>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+    if (!encode_deprecated(converted, *b)) {
+      return false;
+    }
+
+    if (b != from.begin())
+      to += ",";
+    to += converted;
+  }
+
+  to += '}';
+  return true;
+}  // encode from vector<string>
 // ----------------------------------------------------------------------
 // ParameterSet
 // ----------------------------------------------------------------------
