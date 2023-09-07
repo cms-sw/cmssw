@@ -16,6 +16,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cassert>
+#include <optional>
 
 using namespace edm;
 
@@ -521,8 +522,42 @@ bool edm::encode(std::string& to, std::vector<double> const& from) {
 // ----------------------------------------------------------------------
 // String
 // ----------------------------------------------------------------------
+std::optional<std::string_view> edm::decode_string_extent(std::string_view from) {
+  std::size_t searchIndex = 0;
+  std::size_t indexEnd = 0;
+  while (std::string_view::npos != (indexEnd = from.find_first_of('\0', searchIndex))) {
+    if (indexEnd + 1 == from.size()) {
+      return from;
+    }
+    if (from[indexEnd + 1] == '\0') {
+      searchIndex = indexEnd + 2;
+    } else {
+      return from.substr(0, indexEnd + 1);
+    }
+  }
+  //didn't find an unpaired '\0'
+  return {};
+}
 
 bool edm::decode(std::string& to, std::string const& from) {
+  if (from.empty() or from.back() != '\0') {
+    return false;
+  }
+  to = from.substr(0, from.size() - 1);
+
+  std::size_t searchIndex = 0;
+  while (std::string::npos != (searchIndex = to.find_first_of('\0', searchIndex))) {
+    if (searchIndex == to.size() - 1 or to[searchIndex + 1] != '\0') {
+      //unpaired string
+      return false;
+    }
+    to.erase(searchIndex, 1);
+    ++searchIndex;
+  }
+  return true;
+}
+
+bool edm::decode_deprecated(std::string& to, std::string const& from) {
   /*std::cerr << "Decoding: " << from << '\n'; //DEBUG*/
   std::string::const_iterator b = from.begin(), e = from.end();
 
@@ -890,8 +925,19 @@ bool edm::encode(std::string& to, std::vector<edm::EventRange> const& from) {
 }
 
 // ----------------------------------------------------------------------
-
 bool edm::encode(std::string& to, std::string const& from) {
+  to = from;
+  //need to escape any nulls by making them pairs
+  std::size_t lastFound = 0;
+  while (std::string::npos != (lastFound = to.find_first_of('\0', lastFound))) {
+    to.insert(lastFound, 1, '\0');
+    lastFound += 2;
+  }
+  to += '\0';
+  return true;
+}
+
+bool edm::encode_deprecated(std::string& to, std::string const& from) {
   std::string::const_iterator b = from.begin(), e = from.end();
 
   enum escape_state { NONE, BACKSLASH, HEX, HEX1, OCT1, OCT2 };
@@ -1015,7 +1061,7 @@ bool edm::encode(std::string& to, std::string const& from) {
 // vString
 // ----------------------------------------------------------------------
 
-bool edm::decode(std::vector<std::string>& to, std::string const& from) {
+bool edm::decode_deprecated(std::vector<std::string>& to, std::string const& from) {
   std::vector<std::string> temp;
   if (!split(std::back_inserter(temp), from, '{', ',', '}'))
     return false;
@@ -1026,7 +1072,7 @@ bool edm::decode(std::vector<std::string>& to, std::string const& from) {
     // treat blank string specially
     if (*b == "XXX") {
       val = "";
-    } else if (!decode(val, *b)) {
+    } else if (!decode_deprecated(val, *b)) {
       return false;
     }
     to.push_back(val);
@@ -1035,17 +1081,104 @@ bool edm::decode(std::vector<std::string>& to, std::string const& from) {
   return true;
 }  // decode to vector<string>
 
+std::optional<std::string_view> edm::decode_vstring_extent(std::string_view from) {
+  if (from.size() < 2) {
+    return {};
+  }
+  if (from.front() != '{') {
+    return {};
+  }
+  if (from[1] == '}') {
+    return from.substr(0, 2);
+  }
+  if (from.size() < 3) {
+    return {};
+  }
+  if (from[1] != '\0') {
+    return {};
+  }
+  auto remaining = from.substr(2);
+  while (not remaining.empty()) {
+    auto strng = decode_string_extent(remaining);
+    if (not strng) {
+      return {};
+    }
+    remaining = remaining.substr(strng->size());
+    if (remaining.empty())
+      return {};
+    if (remaining.front() == '}') {
+      return from.substr(0, from.size() - remaining.size() + 1);
+    }
+    if (remaining.front() == ',') {
+      remaining = remaining.substr(1);
+    } else {
+      return {};
+    }
+  }
+  return {};
+}
+
+bool edm::decode(std::vector<std::string>& to, std::string const& from) {
+  if (from.size() < 2) {
+    return false;
+  }
+  if (from.front() != '{') {
+    return false;
+  }
+  if (from.back() != '}') {
+    return false;
+  }
+  to.clear();
+  if (from.size() == 2) {
+    //an empty vector
+    return true;
+  }
+  if (from[1] != '\0') {
+    return false;
+  }
+  auto remaining = from.substr(2, from.size() - 2 /*leading {/0*/ - 1 /*trailing } */);
+  while (not remaining.empty()) {
+    auto strng = decode_string_extent(remaining);
+    if (not strng) {
+      return false;
+    }
+    std::string val;
+    if (!decode_element(val, std::string(*strng))) {
+      return false;
+    }
+    to.emplace_back(std::move(val));
+
+    remaining = remaining.substr(strng->size());
+    if (remaining.empty())
+      break;
+    if (remaining.front() == ',') {
+      remaining = remaining.substr(1);
+    } else {
+      return false;
+    }
+  }
+  return true;
+}  // decode to vector<string>
+
+bool edm::decode_element(std::string& to, std::string const& from) { return decode(to, from); }
+
 // ----------------------------------------------------------------------
 
 bool edm::encode(std::string& to, std::vector<std::string> const& from) {
   to = "{";
 
+  //special cases
+  // empty vector : "{}"
+  // vector with one empty element: "{\0\0}"
+  // vector with one '}' element: "{\0}\0}"
+  // vector with two '}' elements: "{\0}\0,}\0}"
+  //needed to tell an empty vector from one with the first string being "}"
+  if (not from.empty()) {
+    to += '\0';
+  }
   std::string converted;
   for (std::vector<std::string>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
-    // treat blank string specially
-    if (b->empty()) {
-      converted = "XXX";
-    } else if (!encode(converted, *b)) {
+    if (!encode_element(converted, *b)) {
       return false;
     }
 
@@ -1057,6 +1190,8 @@ bool edm::encode(std::string& to, std::vector<std::string> const& from) {
   to += '}';
   return true;
 }  // encode from vector<string>
+
+bool edm::encode_element(std::string& to, std::string const& from) { return encode(to, from); }
 
 // ----------------------------------------------------------------------
 // ParameterSet

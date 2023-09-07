@@ -1,5 +1,5 @@
-<bin name="testParameterSet" file="ps_t.cppunit.cc">
-  <use name="cppunit"/>
+<bin name="testParameterSetCatch2" file="test_catch*.cc">
+  <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
 </bin>

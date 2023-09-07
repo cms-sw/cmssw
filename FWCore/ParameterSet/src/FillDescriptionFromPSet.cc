@@ -54,8 +54,8 @@ namespace {
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('D')] = &fillDescriptionFromParameter<double>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('d')] = &fillDescriptionFromParameter<std::vector<double>>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('B')] = &fillDescriptionFromParameter<bool>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('S')] = &fillDescriptionFromParameter<std::string>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('s')] =
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('Z')] = &fillDescriptionFromParameter<std::string>;
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('z')] =
         &fillDescriptionFromParameter<std::vector<std::string>>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('E')] = &fillDescriptionFromParameter<edm::EventID>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('e')] =

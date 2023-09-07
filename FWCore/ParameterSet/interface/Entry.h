@@ -168,20 +168,23 @@ namespace edm {
     void toString(std::string& result) const;
     void toDigest(cms::Digest& digest) const;
 
-    size_t sizeOfString() const { return rep.size() + 4; }
+    size_t sizeOfString() const { return rep_.size() + 4; }
 
     // access
-    bool isTracked() const { return tracked == '+'; }
+    bool isTracked() const { return tracked_ == '+'; }
 
-    char typeCode() const { return type; }
+    char typeCode() const { return type_; }
 
     friend std::ostream& operator<<(std::ostream& ost, Entry const& entry);
 
+    //empt string view denotes failure to find bounds
+    static std::string_view bounds(std::string_view, std::size_t iEndHint);
+
   private:
     std::string name_;
-    std::string rep;
-    char type;
-    char tracked;
+    std::string rep_;
+    char type_;
+    char tracked_;
 
     // verify class invariant
     void validate() const;
