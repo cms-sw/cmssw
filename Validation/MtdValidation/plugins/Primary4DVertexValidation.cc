@@ -124,6 +124,7 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
           closest_vertex_distance_z(-1.),
           nRecoTrk(0),
           num_matched_sim_tracks(0),
+          ndof(0.),
           recVtx(nullptr) {
       r = sqrt(x * x + y * y);
     };
@@ -133,6 +134,7 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
     double closest_vertex_distance_z;
     int nRecoTrk;
     int num_matched_sim_tracks;
+    double ndof;
     const reco::Vertex* recVtx;
     reco::VertexBaseRef recVtxRef;
     int OriginalIndex = -1;
@@ -928,6 +930,7 @@ std::vector<Primary4DVertexValidation::recoPrimaryVertex> Primary4DVertexValidat
     sv.recVtxRef = reco::VertexBaseRef(tVC, std::distance(tVC->begin(), v));
 
     sv.OriginalIndex = r;
+    sv.ndof = v->ndof();
     // this is a new vertex, add it to the list of reco-vertices
     recopv.push_back(sv);
     Primary4DVertexValidation::recoPrimaryVertex* vp = &recopv.back();
@@ -1239,307 +1242,309 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   //Loop on tracks
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
-    const reco::Vertex* vertex = recopv.at(iv).recVtx;
+    if(recopv.at(iv).ndof > selNdof_){
+      const reco::Vertex* vertex = recopv.at(iv).recVtx;
 
-    for (unsigned int iev = 0; iev < simpv.size(); iev++) {
-      auto vsim = simpv.at(iev).sim_vertex;
+      for (unsigned int iev = 0; iev < simpv.size(); iev++) {
+        auto vsim = simpv.at(iev).sim_vertex;
 
-      bool selectedVtxMatching = recopv.at(iv).sim == iev && simpv.at(iev).rec == iv &&
-                                 simpv.at(iev).eventId.bunchCrossing() == 0 && simpv.at(iev).eventId.event() == 0 &&
-                                 recopv.at(iv).OriginalIndex == 0;
-      if (selectedVtxMatching && !recopv.at(iv).is_signal()) {
-        edm::LogWarning("Primary4DVertexValidation")
-            << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(iev).eventId.bunchCrossing() << " "
-            << simpv.at(iev).eventId.event();
-      }
-      double vzsim = simpv.at(iev).z;
-      double vtsim = simpv.at(iev).t * simUnit_;
-
-      for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
-        if (trackAssoc[*iTrack] == -1) {
-          LogTrace("mtdTracks") << "Extended track not associated";
-          continue;
+        bool selectedVtxMatching = recopv.at(iv).sim == iev && simpv.at(iev).rec == iv &&
+                                   simpv.at(iev).eventId.bunchCrossing() == 0 && simpv.at(iev).eventId.event() == 0 &&
+                                   recopv.at(iv).OriginalIndex == 0;
+        if (selectedVtxMatching && !recopv.at(iv).is_signal()) {
+          edm::LogWarning("Primary4DVertexValidation")
+              << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(iev).eventId.bunchCrossing() << " "
+              << simpv.at(iev).eventId.event();
         }
+        double vzsim = simpv.at(iev).z;
+        double vtsim = simpv.at(iev).t * simUnit_;
 
-        if (vertex->trackWeight(*iTrack) < trackweightTh_)
-          continue;
-
-        bool noCrack = std::abs((*iTrack)->eta()) < trackMaxBtlEta_ || std::abs((*iTrack)->eta()) > trackMinEtlEta_;
-
-        bool selectRecoTrk = mvaRecSel(**iTrack, *vertex, t0Safe[*iTrack], sigmat0Safe[*iTrack]);
-        if (selectedVtxMatching && selectRecoTrk) {
-          if (noCrack) {
-            meMVATrackEffPtTot_->Fill((*iTrack)->pt());
-          }
-          meMVATrackEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
-        }
-
-        auto tp_info = getMatchedTP(*iTrack, vsim);
-        if (tp_info != nullptr) {
-          double mass = (*tp_info)->mass();
-          double tsim = (*tp_info)->parentVertex()->position().t() * simUnit_;
-          double tEst = timeFromTrueMass(mass, pathLength[*iTrack], momentum[*iTrack], time[*iTrack]);
-
-          double xsim = (*tp_info)->parentVertex()->position().x();
-          double ysim = (*tp_info)->parentVertex()->position().y();
-          double zsim = (*tp_info)->parentVertex()->position().z();
-          double xPCA = (*iTrack)->vx();
-          double yPCA = (*iTrack)->vy();
-          double zPCA = (*iTrack)->vz();
-
-          double dZ = zPCA - zsim;
-          double d3D = std::sqrt((xPCA - xsim) * (xPCA - xsim) + (yPCA - ysim) * (yPCA - ysim) + dZ * dZ);
-          // orient d3D according to the projection of RECO - SIM onto simulated momentum
-          if ((xPCA - xsim) * ((*tp_info)->px()) + (yPCA - ysim) * ((*tp_info)->py()) + dZ * ((*tp_info)->pz()) < 0.) {
-            d3D = -d3D;
+        for (auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
+          if (trackAssoc[*iTrack] == -1) {
+            LogTrace("mtdTracks") << "Extended track not associated";
+            continue;
           }
 
-          bool selectTP = mvaTPSel(**tp_info);
-
-          if (selectedVtxMatching && selectRecoTrk && selectTP) {
-            meMVATrackZposResTot_->Fill((*iTrack)->vz() - vzsim);
-            if (noCrack) {
-              meMVATrackMatchedEffPtTot_->Fill((*iTrack)->pt());
-            }
-            meMVATrackMatchedEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
-          }
-
-          if (sigmat0Safe[*iTrack] == -1)
+          if (vertex->trackWeight(*iTrack) < trackweightTh_)
             continue;
 
-          if (selectedVtxMatching && selectRecoTrk && selectTP) {
-            meMVATrackResTot_->Fill(t0Safe[*iTrack] - vtsim);
-            meMVATrackPullTot_->Fill((t0Safe[*iTrack] - vtsim) / sigmat0Safe[*iTrack]);
+          bool noCrack = std::abs((*iTrack)->eta()) < trackMaxBtlEta_ || std::abs((*iTrack)->eta()) > trackMinEtlEta_;
+
+          bool selectRecoTrk = mvaRecSel(**iTrack, *vertex, t0Safe[*iTrack], sigmat0Safe[*iTrack]);
+          if (selectedVtxMatching && selectRecoTrk) {
             if (noCrack) {
-              meMVATrackMatchedEffPtMtd_->Fill((*iTrack)->pt());
+              meMVATrackEffPtTot_->Fill((*iTrack)->pt());
             }
-            meMVATrackMatchedEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
-
-            unsigned int noPIDtype = 0;
-            if (probPi[*iTrack] == -1) {
-              noPIDtype = 1;
-            } else if (isnan(probPi[*iTrack])) {
-              noPIDtype = 2;
-            } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
-              noPIDtype = 3;
-            }
-            bool noPID = noPIDtype > 0;
-            bool isPi = !noPID && 1. - probPi[*iTrack] < minProbHeavy_;
-            bool isK = !noPID && !isPi && probK[*iTrack] > probP[*iTrack];
-            bool isP = !noPID && !isPi && !isK;
-
-            if ((isPi && std::abs(tMtd[*iTrack] - tofPi[*iTrack] - t0Pid[*iTrack]) > tol_) ||
-                (isK && std::abs(tMtd[*iTrack] - tofK[*iTrack] - t0Pid[*iTrack]) > tol_) ||
-                (isP && std::abs(tMtd[*iTrack] - tofP[*iTrack] - t0Pid[*iTrack]) > tol_)) {
-              edm::LogWarning("Primary4DVertexValidation")
-                  << "No match between mass hyp. and time: " << std::abs((*tp_info)->pdgId()) << " mass hyp pi/k/p "
-                  << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[*iTrack] << " " << t0Safe[*iTrack]
-                  << " tMtd - tof pi/K/p " << tMtd[*iTrack] - tofPi[*iTrack] << " " << tMtd[*iTrack] - tofK[*iTrack]
-                  << " " << tMtd[*iTrack] - tofP[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack]
-                  << " " << probP[*iTrack];
-            }
-
-            if (std::abs((*iTrack)->eta()) < trackMaxBtlEta_) {
-              meBarrelPIDp_->Fill((*iTrack)->p());
-              meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
-              if (std::abs((*tp_info)->pdgId()) == 211) {
-                if (noPID) {
-                  meBarrelTruePiNoPID_->Fill((*iTrack)->p());
-                } else if (isPi) {
-                  meBarrelTruePiAsPi_->Fill((*iTrack)->p());
-                } else if (isK) {
-                  meBarrelTruePiAsK_->Fill((*iTrack)->p());
-                } else if (isP) {
-                  meBarrelTruePiAsP_->Fill((*iTrack)->p());
-                } else {
-                  edm::LogWarning("Primary4DVertexValidation")
-                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                      << probP[*iTrack];
-                }
-              } else if (std::abs((*tp_info)->pdgId()) == 321) {
-                if (noPID) {
-                  meBarrelTrueKNoPID_->Fill((*iTrack)->p());
-                } else if (isPi) {
-                  meBarrelTrueKAsPi_->Fill((*iTrack)->p());
-                } else if (isK) {
-                  meBarrelTrueKAsK_->Fill((*iTrack)->p());
-                } else if (isP) {
-                  meBarrelTrueKAsP_->Fill((*iTrack)->p());
-                } else {
-                  edm::LogWarning("Primary4DVertexValidation")
-                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                      << probP[*iTrack];
-                }
-              } else if (std::abs((*tp_info)->pdgId()) == 2212) {
-                if (noPID) {
-                  meBarrelTruePNoPID_->Fill((*iTrack)->p());
-                } else if (isPi) {
-                  meBarrelTruePAsPi_->Fill((*iTrack)->p());
-                } else if (isK) {
-                  meBarrelTruePAsK_->Fill((*iTrack)->p());
-                } else if (isP) {
-                  meBarrelTruePAsP_->Fill((*iTrack)->p());
-                } else {
-                  edm::LogWarning("Primary4DVertexValidation")
-                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                      << probP[*iTrack];
-                }
-              }
-            } else if (std::abs((*iTrack)->eta()) > trackMinEtlEta_ && std::abs((*iTrack)->eta()) < trackMaxEtlEta_) {
-              meEndcapPIDp_->Fill((*iTrack)->p());
-              meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
-              if (std::abs((*tp_info)->pdgId()) == 211) {
-                if (noPID) {
-                  meEndcapTruePiNoPID_->Fill((*iTrack)->p());
-                } else if (isPi) {
-                  meEndcapTruePiAsPi_->Fill((*iTrack)->p());
-                } else if (isK) {
-                  meEndcapTruePiAsK_->Fill((*iTrack)->p());
-                } else if (isP) {
-                  meEndcapTruePiAsP_->Fill((*iTrack)->p());
-                } else {
-                  edm::LogWarning("Primary4DVertexValidation")
-                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                      << probP[*iTrack];
-                }
-              } else if (std::abs((*tp_info)->pdgId()) == 321) {
-                if (noPID) {
-                  meEndcapTrueKNoPID_->Fill((*iTrack)->p());
-                } else if (isPi) {
-                  meEndcapTrueKAsPi_->Fill((*iTrack)->p());
-                } else if (isK) {
-                  meEndcapTrueKAsK_->Fill((*iTrack)->p());
-                } else if (isP) {
-                  meEndcapTrueKAsP_->Fill((*iTrack)->p());
-                } else {
-                  edm::LogWarning("Primary4DVertexValidation")
-                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                      << probP[*iTrack];
-                }
-              } else if (std::abs((*tp_info)->pdgId()) == 2212) {
-                if (noPID) {
-                  meEndcapTruePNoPID_->Fill((*iTrack)->p());
-                } else if (isPi) {
-                  meEndcapTruePAsPi_->Fill((*iTrack)->p());
-                } else if (isK) {
-                  meEndcapTruePAsK_->Fill((*iTrack)->p());
-                } else if (isP) {
-                  meEndcapTruePAsP_->Fill((*iTrack)->p());
-                } else {
-                  edm::LogWarning("Primary4DVertexValidation")
-                      << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
-                      << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
-                      << probP[*iTrack];
-                }
-              }
-            }
-          }
-          meTrackResTot_->Fill(t0Safe[*iTrack] - tsim);
-          meTrackPullTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-          meTrackZposResTot_->Fill(dZ);
-          if ((*iTrack)->p() <= 2) {
-            meTrackResLowPTot_->Fill(t0Safe[*iTrack] - tsim);
-            meTrackPullLowPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-          } else {
-            meTrackResHighPTot_->Fill(t0Safe[*iTrack] - tsim);
-            meTrackPullHighPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+            meMVATrackEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
           }
 
-          if (mtdQualMVA[(*iTrack)] < mvaL_) {
-            meTrackZposRes_[0]->Fill(dZ);
-            meTrack3DposRes_[0]->Fill(d3D);
-            meTrackRes_[0]->Fill(t0Safe[*iTrack] - tsim);
-            meTrackPull_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+          auto tp_info = getMatchedTP(*iTrack, vsim);
+          if (tp_info != nullptr) {
+            double mass = (*tp_info)->mass();
+            double tsim = (*tp_info)->parentVertex()->position().t() * simUnit_;
+            double tEst = timeFromTrueMass(mass, pathLength[*iTrack], momentum[*iTrack], time[*iTrack]);
 
-            if (optionalPlots_) {
-              meTrackResMass_[0]->Fill(t0Safe[*iTrack] - tEst);
-              meTrackResMassTrue_[0]->Fill(tEst - tsim);
+            double xsim = (*tp_info)->parentVertex()->position().x();
+            double ysim = (*tp_info)->parentVertex()->position().y();
+            double zsim = (*tp_info)->parentVertex()->position().z();
+            double xPCA = (*iTrack)->vx();
+            double yPCA = (*iTrack)->vy();
+            double zPCA = (*iTrack)->vz();
+
+            double dZ = zPCA - zsim;
+            double d3D = std::sqrt((xPCA - xsim) * (xPCA - xsim) + (yPCA - ysim) * (yPCA - ysim) + dZ * dZ);
+            // orient d3D according to the projection of RECO - SIM onto simulated momentum
+            if ((xPCA - xsim) * ((*tp_info)->px()) + (yPCA - ysim) * ((*tp_info)->py()) + dZ * ((*tp_info)->pz()) < 0.) {
+              d3D = -d3D;
             }
 
-            if ((*iTrack)->p() <= 2) {
-              meTrackResLowP_[0]->Fill(t0Safe[*iTrack] - tsim);
-              meTrackPullLowP_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-            } else if ((*iTrack)->p() > 2) {
-              meTrackResHighP_[0]->Fill(t0Safe[*iTrack] - tsim);
-              meTrackPullHighP_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+            bool selectTP = mvaTPSel(**tp_info);
+
+            if (selectedVtxMatching && selectRecoTrk && selectTP) {
+              meMVATrackZposResTot_->Fill((*iTrack)->vz() - vzsim);
+              if (noCrack) {
+                meMVATrackMatchedEffPtTot_->Fill((*iTrack)->pt());
+              }
+              meMVATrackMatchedEffEtaTot_->Fill(std::abs((*iTrack)->eta()));
             }
 
-            if (optionalPlots_) {
-              if (std::abs((*tp_info)->pdgId()) == 2212) {
-                meTrackResMassProtons_[0]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackResMassTrueProtons_[0]->Fill(tEst - tsim);
-              } else if (std::abs((*tp_info)->pdgId()) == 211) {
-                meTrackResMassPions_[0]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackResMassTruePions_[0]->Fill(tEst - tsim);
+            if (sigmat0Safe[*iTrack] == -1)
+              continue;
+
+            if (selectedVtxMatching && selectRecoTrk && selectTP) {
+              meMVATrackResTot_->Fill(t0Safe[*iTrack] - vtsim);
+              meMVATrackPullTot_->Fill((t0Safe[*iTrack] - vtsim) / sigmat0Safe[*iTrack]);
+              if (noCrack) {
+                meMVATrackMatchedEffPtMtd_->Fill((*iTrack)->pt());
+              }
+              meMVATrackMatchedEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
+
+              unsigned int noPIDtype = 0;
+              if (probPi[*iTrack] == -1) {
+                noPIDtype = 1;
+              } else if (isnan(probPi[*iTrack])) {
+                noPIDtype = 2;
+              } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
+                noPIDtype = 3;
+              }
+              bool noPID = noPIDtype > 0;
+              bool isPi = !noPID && 1. - probPi[*iTrack] < minProbHeavy_;
+              bool isK = !noPID && !isPi && probK[*iTrack] > probP[*iTrack];
+              bool isP = !noPID && !isPi && !isK;
+
+              if ((isPi && std::abs(tMtd[*iTrack] - tofPi[*iTrack] - t0Pid[*iTrack]) > tol_) ||
+                  (isK && std::abs(tMtd[*iTrack] - tofK[*iTrack] - t0Pid[*iTrack]) > tol_) ||
+                  (isP && std::abs(tMtd[*iTrack] - tofP[*iTrack] - t0Pid[*iTrack]) > tol_)) {
+                edm::LogWarning("Primary4DVertexValidation")
+                    << "No match between mass hyp. and time: " << std::abs((*tp_info)->pdgId()) << " mass hyp pi/k/p "
+                    << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[*iTrack] << " " << t0Safe[*iTrack]
+                    << " tMtd - tof pi/K/p " << tMtd[*iTrack] - tofPi[*iTrack] << " " << tMtd[*iTrack] - tofK[*iTrack]
+                    << " " << tMtd[*iTrack] - tofP[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack]
+                    << " " << probP[*iTrack];
+              }
+
+              if (std::abs((*iTrack)->eta()) < trackMaxBtlEta_) {
+                meBarrelPIDp_->Fill((*iTrack)->p());
+                meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
+                if (std::abs((*tp_info)->pdgId()) == 211) {
+                  if (noPID) {
+                    meBarrelTruePiNoPID_->Fill((*iTrack)->p());
+                  } else if (isPi) {
+                    meBarrelTruePiAsPi_->Fill((*iTrack)->p());
+                  } else if (isK) {
+                    meBarrelTruePiAsK_->Fill((*iTrack)->p());
+                  } else if (isP) {
+                    meBarrelTruePiAsP_->Fill((*iTrack)->p());
+                  } else {
+                    edm::LogWarning("Primary4DVertexValidation")
+                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                        << probP[*iTrack];
+                  }
+                } else if (std::abs((*tp_info)->pdgId()) == 321) {
+                  if (noPID) {
+                    meBarrelTrueKNoPID_->Fill((*iTrack)->p());
+                  } else if (isPi) {
+                    meBarrelTrueKAsPi_->Fill((*iTrack)->p());
+                  } else if (isK) {
+                    meBarrelTrueKAsK_->Fill((*iTrack)->p());
+                  } else if (isP) {
+                    meBarrelTrueKAsP_->Fill((*iTrack)->p());
+                  } else {
+                    edm::LogWarning("Primary4DVertexValidation")
+                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                        << probP[*iTrack];
+                  }
+                } else if (std::abs((*tp_info)->pdgId()) == 2212) {
+                  if (noPID) {
+                    meBarrelTruePNoPID_->Fill((*iTrack)->p());
+                  } else if (isPi) {
+                    meBarrelTruePAsPi_->Fill((*iTrack)->p());
+                  } else if (isK) {
+                    meBarrelTruePAsK_->Fill((*iTrack)->p());
+                  } else if (isP) {
+                    meBarrelTruePAsP_->Fill((*iTrack)->p());
+                  } else {
+                    edm::LogWarning("Primary4DVertexValidation")
+                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                        << probP[*iTrack];
+                  }
+                }
+              } else if (std::abs((*iTrack)->eta()) > trackMinEtlEta_ && std::abs((*iTrack)->eta()) < trackMaxEtlEta_) {
+                meEndcapPIDp_->Fill((*iTrack)->p());
+                meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
+                if (std::abs((*tp_info)->pdgId()) == 211) {
+                  if (noPID) {
+                    meEndcapTruePiNoPID_->Fill((*iTrack)->p());
+                  } else if (isPi) {
+                    meEndcapTruePiAsPi_->Fill((*iTrack)->p());
+                  } else if (isK) {
+                    meEndcapTruePiAsK_->Fill((*iTrack)->p());
+                  } else if (isP) {
+                    meEndcapTruePiAsP_->Fill((*iTrack)->p());
+                  } else {
+                    edm::LogWarning("Primary4DVertexValidation")
+                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                        << probP[*iTrack];
+                  }
+                } else if (std::abs((*tp_info)->pdgId()) == 321) {
+                  if (noPID) {
+                    meEndcapTrueKNoPID_->Fill((*iTrack)->p());
+                  } else if (isPi) {
+                    meEndcapTrueKAsPi_->Fill((*iTrack)->p());
+                  } else if (isK) {
+                    meEndcapTrueKAsK_->Fill((*iTrack)->p());
+                  } else if (isP) {
+                    meEndcapTrueKAsP_->Fill((*iTrack)->p());
+                  } else {
+                    edm::LogWarning("Primary4DVertexValidation")
+                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                        << probP[*iTrack];
+                  }
+                } else if (std::abs((*tp_info)->pdgId()) == 2212) {
+                  if (noPID) {
+                    meEndcapTruePNoPID_->Fill((*iTrack)->p());
+                  } else if (isPi) {
+                    meEndcapTruePAsPi_->Fill((*iTrack)->p());
+                  } else if (isK) {
+                    meEndcapTruePAsK_->Fill((*iTrack)->p());
+                  } else if (isP) {
+                    meEndcapTruePAsP_->Fill((*iTrack)->p());
+                  } else {
+                    edm::LogWarning("Primary4DVertexValidation")
+                        << "No PID class: " << std::abs((*tp_info)->pdgId()) << " t0/t0safe " << t0Pid[*iTrack] << " "
+                        << t0Safe[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack] << " "
+                        << probP[*iTrack];
+                  }
+                }
               }
             }
-
-          } else if (mtdQualMVA[(*iTrack)] > mvaL_ && mtdQualMVA[(*iTrack)] < mvaH_) {
-            meTrackZposRes_[1]->Fill(dZ);
-            meTrack3DposRes_[1]->Fill(d3D);
-            meTrackRes_[1]->Fill(t0Safe[*iTrack] - tsim);
-            meTrackPull_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-
-            if (optionalPlots_) {
-              meTrackResMass_[1]->Fill(t0Safe[*iTrack] - tEst);
-              meTrackResMassTrue_[1]->Fill(tEst - tsim);
-            }
-
+            meTrackResTot_->Fill(t0Safe[*iTrack] - tsim);
+            meTrackPullTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+            meTrackZposResTot_->Fill(dZ);
             if ((*iTrack)->p() <= 2) {
-              meTrackResLowP_[1]->Fill(t0Safe[*iTrack] - tsim);
-              meTrackPullLowP_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-            } else if ((*iTrack)->p() > 2) {
-              meTrackResHighP_[1]->Fill(t0Safe[*iTrack] - tsim);
-              meTrackPullHighP_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+              meTrackResLowPTot_->Fill(t0Safe[*iTrack] - tsim);
+              meTrackPullLowPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+            } else {
+              meTrackResHighPTot_->Fill(t0Safe[*iTrack] - tsim);
+              meTrackPullHighPTot_->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
             }
 
-            if (optionalPlots_) {
-              if (std::abs((*tp_info)->pdgId()) == 2212) {
-                meTrackResMassProtons_[1]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackResMassTrueProtons_[1]->Fill(tEst - tsim);
-              } else if (std::abs((*tp_info)->pdgId()) == 211) {
-                meTrackResMassPions_[1]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackResMassTruePions_[1]->Fill(tEst - tsim);
+            if (mtdQualMVA[(*iTrack)] < mvaL_) {
+              meTrackZposRes_[0]->Fill(dZ);
+              meTrack3DposRes_[0]->Fill(d3D);
+              meTrackRes_[0]->Fill(t0Safe[*iTrack] - tsim);
+              meTrackPull_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+
+              if (optionalPlots_) {
+                meTrackResMass_[0]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackResMassTrue_[0]->Fill(tEst - tsim);
+              }
+
+              if ((*iTrack)->p() <= 2) {
+                meTrackResLowP_[0]->Fill(t0Safe[*iTrack] - tsim);
+                meTrackPullLowP_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+              } else if ((*iTrack)->p() > 2) {
+                meTrackResHighP_[0]->Fill(t0Safe[*iTrack] - tsim);
+                meTrackPullHighP_[0]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+              }
+
+              if (optionalPlots_) {
+                if (std::abs((*tp_info)->pdgId()) == 2212) {
+                  meTrackResMassProtons_[0]->Fill(t0Safe[*iTrack] - tEst);
+                  meTrackResMassTrueProtons_[0]->Fill(tEst - tsim);
+                } else if (std::abs((*tp_info)->pdgId()) == 211) {
+                  meTrackResMassPions_[0]->Fill(t0Safe[*iTrack] - tEst);
+                  meTrackResMassTruePions_[0]->Fill(tEst - tsim);
+                }
+              }
+
+            } else if (mtdQualMVA[(*iTrack)] > mvaL_ && mtdQualMVA[(*iTrack)] < mvaH_) {
+              meTrackZposRes_[1]->Fill(dZ);
+              meTrack3DposRes_[1]->Fill(d3D);
+              meTrackRes_[1]->Fill(t0Safe[*iTrack] - tsim);
+              meTrackPull_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+
+              if (optionalPlots_) {
+                meTrackResMass_[1]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackResMassTrue_[1]->Fill(tEst - tsim);
+              }
+
+              if ((*iTrack)->p() <= 2) {
+                meTrackResLowP_[1]->Fill(t0Safe[*iTrack] - tsim);
+                meTrackPullLowP_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+              } else if ((*iTrack)->p() > 2) {
+                meTrackResHighP_[1]->Fill(t0Safe[*iTrack] - tsim);
+                meTrackPullHighP_[1]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+              }
+
+              if (optionalPlots_) {
+                if (std::abs((*tp_info)->pdgId()) == 2212) {
+                  meTrackResMassProtons_[1]->Fill(t0Safe[*iTrack] - tEst);
+                  meTrackResMassTrueProtons_[1]->Fill(tEst - tsim);
+                } else if (std::abs((*tp_info)->pdgId()) == 211) {
+                  meTrackResMassPions_[1]->Fill(t0Safe[*iTrack] - tEst);
+                  meTrackResMassTruePions_[1]->Fill(tEst - tsim);
+                }
+              }
+
+            } else if (mtdQualMVA[(*iTrack)] > mvaH_) {
+              meTrackZposRes_[2]->Fill(dZ);
+              meTrack3DposRes_[2]->Fill(d3D);
+              meTrackRes_[2]->Fill(t0Safe[*iTrack] - tsim);
+              meTrackPull_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+
+              if (optionalPlots_) {
+                meTrackResMass_[2]->Fill(t0Safe[*iTrack] - tEst);
+                meTrackResMassTrue_[2]->Fill(tEst - tsim);
+              }
+
+              if ((*iTrack)->p() <= 2) {
+                meTrackResLowP_[2]->Fill(t0Safe[*iTrack] - tsim);
+                meTrackPullLowP_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+              } else if ((*iTrack)->p() > 2) {
+                meTrackResHighP_[2]->Fill(t0Safe[*iTrack] - tsim);
+                meTrackPullHighP_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
+              }
+
+              if (optionalPlots_) {
+                if (std::abs((*tp_info)->pdgId()) == 2212) {
+                  meTrackResMassProtons_[2]->Fill(t0Safe[*iTrack] - tEst);
+                  meTrackResMassTrueProtons_[2]->Fill(tEst - tsim);
+                } else if (std::abs((*tp_info)->pdgId()) == 211) {
+                  meTrackResMassPions_[2]->Fill(t0Safe[*iTrack] - tEst);
+                  meTrackResMassTruePions_[2]->Fill(tEst - tsim);
+                }
               }
             }
-
-          } else if (mtdQualMVA[(*iTrack)] > mvaH_) {
-            meTrackZposRes_[2]->Fill(dZ);
-            meTrack3DposRes_[2]->Fill(d3D);
-            meTrackRes_[2]->Fill(t0Safe[*iTrack] - tsim);
-            meTrackPull_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-
-            if (optionalPlots_) {
-              meTrackResMass_[2]->Fill(t0Safe[*iTrack] - tEst);
-              meTrackResMassTrue_[2]->Fill(tEst - tsim);
-            }
-
-            if ((*iTrack)->p() <= 2) {
-              meTrackResLowP_[2]->Fill(t0Safe[*iTrack] - tsim);
-              meTrackPullLowP_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-            } else if ((*iTrack)->p() > 2) {
-              meTrackResHighP_[2]->Fill(t0Safe[*iTrack] - tsim);
-              meTrackPullHighP_[2]->Fill((t0Safe[*iTrack] - tsim) / sigmat0Safe[*iTrack]);
-            }
-
-            if (optionalPlots_) {
-              if (std::abs((*tp_info)->pdgId()) == 2212) {
-                meTrackResMassProtons_[2]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackResMassTrueProtons_[2]->Fill(tEst - tsim);
-              } else if (std::abs((*tp_info)->pdgId()) == 211) {
-                meTrackResMassPions_[2]->Fill(t0Safe[*iTrack] - tEst);
-                meTrackResMassTruePions_[2]->Fill(tEst - tsim);
-              }
-            }
-          }
-        }  //if tp_info != nullptr
+          }  //if tp_info != nullptr
+        }
       }
-    }
+    } // ndof
   }
 
   int real = 0;
@@ -1555,30 +1560,32 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   meRecVerNumber_->Fill(recopv.size());
   for (unsigned int ir = 0; ir < recopv.size(); ir++) {
-    meRecoVtxVsLineDensity_->Fill(puLineDensity(recopv.at(ir).z));
-    meRecPVZ_->Fill(recopv.at(ir).z, 1. / puLineDensity(recopv.at(ir).z));
-    if (recopv.at(ir).recVtx->tError() > 0.) {
-      meRecPVT_->Fill(recopv.at(ir).recVtx->t());
-    }
-    if (debug_) {
-      edm::LogPrint("Primary4DVertexValidation") << "************* IR: " << ir;
-      edm::LogPrint("Primary4DVertexValidation")
-          << "z: " << recopv.at(ir).z << " corresponding to line density: " << puLineDensity(recopv.at(ir).z);
-      edm::LogPrint("Primary4DVertexValidation") << "is_real: " << recopv.at(ir).is_real();
-      edm::LogPrint("Primary4DVertexValidation") << "is_fake: " << recopv.at(ir).is_fake();
-      edm::LogPrint("Primary4DVertexValidation") << "is_signal: " << recopv.at(ir).is_signal();
-      edm::LogPrint("Primary4DVertexValidation") << "split_from: " << recopv.at(ir).split_from();
-      edm::LogPrint("Primary4DVertexValidation") << "other fake: " << recopv.at(ir).other_fake();
-    }
-    if (recopv.at(ir).is_real())
-      real++;
-    if (recopv.at(ir).is_fake())
-      fake++;
-    if (recopv.at(ir).other_fake())
-      other_fake++;
-    if (recopv.at(ir).split_from() != -1) {
-      split++;
-    }
+    if(recopv.at(ir).ndof > selNdof_){
+      meRecoVtxVsLineDensity_->Fill(puLineDensity(recopv.at(ir).z));
+      meRecPVZ_->Fill(recopv.at(ir).z, 1. / puLineDensity(recopv.at(ir).z));
+      if (recopv.at(ir).recVtx->tError() > 0.) {
+        meRecPVT_->Fill(recopv.at(ir).recVtx->t());
+      }
+      if (debug_) {
+        edm::LogPrint("Primary4DVertexValidation") << "************* IR: " << ir;
+        edm::LogPrint("Primary4DVertexValidation")
+            << "z: " << recopv.at(ir).z << " corresponding to line density: " << puLineDensity(recopv.at(ir).z);
+        edm::LogPrint("Primary4DVertexValidation") << "is_real: " << recopv.at(ir).is_real();
+        edm::LogPrint("Primary4DVertexValidation") << "is_fake: " << recopv.at(ir).is_fake();
+        edm::LogPrint("Primary4DVertexValidation") << "is_signal: " << recopv.at(ir).is_signal();
+        edm::LogPrint("Primary4DVertexValidation") << "split_from: " << recopv.at(ir).split_from();
+        edm::LogPrint("Primary4DVertexValidation") << "other fake: " << recopv.at(ir).other_fake();
+      }
+      if (recopv.at(ir).is_real())
+        real++;
+      if (recopv.at(ir).is_fake())
+        fake++;
+      if (recopv.at(ir).other_fake())
+        other_fake++;
+      if (recopv.at(ir).split_from() != -1) {
+        split++;
+      }
+    } // ndof
   }
 
   if (debug_) {
@@ -1587,6 +1594,9 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     edm::LogPrint("Primary4DVertexValidation") << "split_from: " << split;
     edm::LogPrint("Primary4DVertexValidation") << "other fake: " << other_fake;
   }
+  mePUvsRealV_->Fill(simpv.size(), real);
+  mePUvsOtherFakeV_->Fill(simpv.size(), other_fake);
+  mePUvsSplitV_->Fill(simpv.size(), split);
 
   //fill vertices histograms here in a new loop
   for (unsigned int is = 0; is < simpv.size(); is++) {
@@ -1607,42 +1617,41 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     }
 
     for (unsigned int ir = 0; ir < recopv.size(); ir++) {
-      if (recopv.at(ir).sim == is && simpv.at(is).rec == ir) {
-        meTimeRes_->Fill(recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_);
-        meTimePull_->Fill((recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_) / recopv.at(ir).recVtx->tError());
-        mePUvsRealV_->Fill(simpv.size(), real);
-        mePUvsOtherFakeV_->Fill(simpv.size(), other_fake);
-        mePUvsSplitV_->Fill(simpv.size(), split);
-        meMatchQual_->Fill(recopv.at(ir).matchQuality - 0.5);
-        if (ir == 0) {  //signal vertex plots
-          meTimeSignalRes_->Fill(recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_);
-          meTimeSignalPull_->Fill((recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_) /
-                                  recopv.at(ir).recVtx->tError());
-          if (optionalPlots_) {
-            meRecoPosInSimCollection_->Fill(recopv.at(ir).sim);
-            meRecoPosInRecoOrigCollection_->Fill(recopv.at(ir).OriginalIndex);
+      if(recopv.at(ir).ndof > selNdof_){
+        if (recopv.at(ir).sim == is && simpv.at(is).rec == ir) {
+          meTimeRes_->Fill(recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_);
+          meTimePull_->Fill((recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_) / recopv.at(ir).recVtx->tError());
+          meMatchQual_->Fill(recopv.at(ir).matchQuality - 0.5);
+          if (ir == 0) {  //signal vertex plots
+            meTimeSignalRes_->Fill(recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_);
+            meTimeSignalPull_->Fill((recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_) /
+                                    recopv.at(ir).recVtx->tError());
+            if (optionalPlots_) {
+              meRecoPosInSimCollection_->Fill(recopv.at(ir).sim);
+              meRecoPosInRecoOrigCollection_->Fill(recopv.at(ir).OriginalIndex);
+            }
           }
-        }
-        if (simpv.at(is).eventId.bunchCrossing() == 0 && simpv.at(is).eventId.event() == 0) {
-          if (!recopv.at(ir).is_signal()) {
-            edm::LogWarning("Primary4DVertexValidation")
-                << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(is).eventId.bunchCrossing() << " "
-                << simpv.at(is).eventId.event();
-          }
-          meRecoPVPosSignal_->Fill(
-              recopv.at(ir).OriginalIndex);  // position in reco vtx correction associated to sim signal
-          if (!signal_is_highest_pt) {
-            meRecoPVPosSignalNotHighestPt_->Fill(
+          if (simpv.at(is).eventId.bunchCrossing() == 0 && simpv.at(is).eventId.event() == 0) {
+            if (!recopv.at(ir).is_signal()) {
+              edm::LogWarning("Primary4DVertexValidation")
+                  << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(is).eventId.bunchCrossing() << " "
+                  << simpv.at(is).eventId.event();
+            }
+            meRecoPVPosSignal_->Fill(
                 recopv.at(ir).OriginalIndex);  // position in reco vtx correction associated to sim signal
+            if (!signal_is_highest_pt) {
+              meRecoPVPosSignalNotHighestPt_->Fill(
+                  recopv.at(ir).OriginalIndex);  // position in reco vtx correction associated to sim signal
+            }
+          }
+
+          if (debug_) {
+            edm::LogPrint("Primary4DVertexValidation") << "*** Matching RECO: " << ir << "with SIM: " << is << " ***";
+            edm::LogPrint("Primary4DVertexValidation") << "Match Quality is " << recopv.at(ir).matchQuality;
+            edm::LogPrint("Primary4DVertexValidation") << "****";
           }
         }
-
-        if (debug_) {
-          edm::LogPrint("Primary4DVertexValidation") << "*** Matching RECO: " << ir << "with SIM: " << is << " ***";
-          edm::LogPrint("Primary4DVertexValidation") << "Match Quality is " << recopv.at(ir).matchQuality;
-          edm::LogPrint("Primary4DVertexValidation") << "****";
-        }
-      }
+      } // ndof
     }
   }
 
