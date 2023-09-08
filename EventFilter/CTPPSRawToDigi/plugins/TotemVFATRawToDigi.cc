@@ -29,6 +29,7 @@
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSRawToDigiErrorSummary.h"
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
@@ -63,6 +64,7 @@ private:
 
   pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
+  CTPPSRawToDigiErrorSummary errSummary;
 
   template <typename DigiType>
   void run(edm::Event &, const edm::EventSetup &);
@@ -76,7 +78,8 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
       subSystem(ssUndefined),
       fedIds(conf.getParameter<vector<unsigned int>>("fedIds")),
       rawDataUnpacker(conf.getParameterSet("RawUnpacking")),
-      rawToDigiConverter(conf.getParameterSet("RawToDigi")) {
+      rawToDigiConverter(conf.getParameterSet("RawToDigi")),
+      errSummary("TotemVFATRawToDigi", "[TotemVFATRawToDigi]", false) {
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 
   // validate chosen subSystem
@@ -170,7 +173,8 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   // get DAQ mapping
   ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
   if (!mapping.isValid() || mapping.failedToGet()) {
-    LogError("TotemVFATRawToDigi") << "TotemVFATRawToDigi: no mapping found for " << subSystemName;
+    throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi")
+        << "No DAQMapping found for " << subSystemName << "." << endl;
   }
 
   // get analysis mask to mask channels
@@ -179,7 +183,7 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   if (analysisMaskHandle.isValid() && !analysisMaskHandle.failedToGet()) {
     analysisMask = *analysisMaskHandle;
   } else {
-    LogWarning("TotemVFATRawToDigi") << "TotemVFATRawToDigi: no mask found for " << subSystemName;
+    errSummary.add(fmt::format("No AnalysisMask found for {0}", subSystemName), "");
     analysisMask = TotemAnalysisMask();
   }
 
@@ -209,7 +213,10 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   event.put(make_unique<DetSetVector<TotemVFATStatus>>(conversionStatus), subSystemName);
 }
 
-void TotemVFATRawToDigi::endStream() { rawToDigiConverter.printSummaries(); }
+void TotemVFATRawToDigi::endStream() {
+  rawToDigiConverter.printSummaries();
+  errSummary.printSummary();
+}
 
 void TotemVFATRawToDigi::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // totemVFATRawToDigi

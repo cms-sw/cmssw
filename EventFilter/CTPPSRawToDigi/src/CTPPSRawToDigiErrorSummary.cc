@@ -1,9 +1,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelErrorSummary.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSRawToDigiErrorSummary.h"
 #include <iostream>
 #include <algorithm>
 
-void CTPPSPixelErrorSummary::add(const std::string& message, const std::string& details) {
+void CTPPSRawToDigiErrorSummary::add(const std::string& message, const std::string& details) {
   const auto eIt = m_errors.find(message);
   if (eIt == m_errors.end()) {
     m_errors.emplace(message, 1);
@@ -19,7 +19,7 @@ void CTPPSPixelErrorSummary::add(const std::string& message, const std::string& 
   }
 }
 
-void CTPPSPixelErrorSummary::printSummary() const {
+void CTPPSRawToDigiErrorSummary::printSummary() const {
   if (!m_errors.empty()) {
     std::stringstream message;
     message << m_name << " errors:";

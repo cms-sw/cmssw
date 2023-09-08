@@ -38,7 +38,7 @@ namespace {
 }  // namespace
 
 CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const& mapping,
-                                                 CTPPSPixelErrorSummary& eSummary)
+                                                 CTPPSRawToDigiErrorSummary& eSummary)
     : m_WordCounter(0),
       m_Mapping(mapping),
       m_ErrorSummary(eSummary)

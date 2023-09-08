@@ -1,12 +1,12 @@
-#ifndef EventFilter_CTPPSRawToDigi_CTPPSPixelErrorSummary
-#define EventFilter_CTPPSRawToDigi_CTPPSPixelErrorSummary
+#ifndef EventFilter_CTPPSRawToDigi_CTPPSRawToDigiErrorSummary
+#define EventFilter_CTPPSRawToDigi_CTPPSRawToDigiErrorSummary
 
 #include <string>
 #include <map>
 
-class CTPPSPixelErrorSummary {
+class CTPPSRawToDigiErrorSummary {
 public:
-  CTPPSPixelErrorSummary(const std::string& category, const std::string& name, bool debug = false)
+  CTPPSRawToDigiErrorSummary(const std::string& category, const std::string& name, bool debug = false)
       : m_debug(debug), m_category(category), m_name(name) {}
 
   void add(const std::string& message, const std::string& details = "");
