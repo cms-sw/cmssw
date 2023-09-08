@@ -220,7 +220,6 @@ void MTDDigiGeometryAnalyzer::checkRotation(const GeomDetUnit& det) {
 }
 
 void MTDDigiGeometryAnalyzer::checkPixelsAcceptance(const GeomDetUnit& det) {
-
   const Bounds& bounds = det.surface().bounds();
   const RectangularPlaneBounds* tb = dynamic_cast<const RectangularPlaneBounds*>(&bounds);
   if (tb == nullptr)
@@ -236,17 +235,16 @@ void MTDDigiGeometryAnalyzer::checkPixelsAcceptance(const GeomDetUnit& det) {
   const size_t maxindex = 100000;
   size_t inpixel(0);
   for (size_t index = 0; index < maxindex; index++) {
-    double ax = CLHEP::RandFlat::shoot(-width*0.5, width*0.5);
-    double ay = CLHEP::RandFlat::shoot(-length*0.5, length*0.5);
+    double ax = CLHEP::RandFlat::shoot(-width * 0.5, width * 0.5);
+    double ay = CLHEP::RandFlat::shoot(-length * 0.5, length * 0.5);
     LocalPoint hit(ax, ay, 0);
     if (topo.isInPixel(hit)) {
       inpixel++;
     }
   }
-  double acc = (double)inpixel/(double)maxindex;
-  double accerr = std::sqrt(acc*(1.-acc)/(double)maxindex);
-  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "Acceptance: "<< acc << " +/- " << accerr;
-
+  double acc = (double)inpixel / (double)maxindex;
+  double accerr = std::sqrt(acc * (1. - acc) / (double)maxindex);
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << "Acceptance: " << acc << " +/- " << accerr;
 }
 
 //define this as a plug-in
