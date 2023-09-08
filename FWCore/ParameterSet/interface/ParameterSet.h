@@ -21,6 +21,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <array>
 
@@ -53,7 +54,7 @@ namespace edm {
     ParameterSet();
 
     // construct from coded string.
-    explicit ParameterSet(std::string const& rep);
+    explicit ParameterSet(std::string_view rep);
 
     ~ParameterSet() = default;
     ParameterSet(ParameterSet const& other) = default;
@@ -255,10 +256,10 @@ namespace edm {
 
   private:
     // construct from coded string and id.
-    ParameterSet(std::string const& rep, ParameterSetID const& id);
+    ParameterSet(std::string_view rep, ParameterSetID const& id);
 
     // decode
-    bool fromString(std::string const&);
+    bool fromString(std::string_view);
 
     void toStringImp(std::string&, bool useAll) const;
 
