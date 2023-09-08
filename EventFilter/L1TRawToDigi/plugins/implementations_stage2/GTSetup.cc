@@ -83,8 +83,7 @@ namespace l1t {
           static_pointer_cast<l1t::stage2::EGammaUnpacker>(UnpackerFactory::get()->make("stage2::EGammaUnpacker"));
       auto etsum_unp =
           static_pointer_cast<l1t::stage2::EtSumUnpacker>(UnpackerFactory::get()->make("stage2::EtSumUnpacker"));
-      auto zdc_unp =
-          static_pointer_cast<l1t::stage2::ZDCUnpacker>(UnpackerFactory::get()->make("stage2::ZDCUnpacker"));
+      auto zdc_unp = static_pointer_cast<l1t::stage2::ZDCUnpacker>(UnpackerFactory::get()->make("stage2::ZDCUnpacker"));
       auto jet_unp = static_pointer_cast<l1t::stage2::JetUnpacker>(UnpackerFactory::get()->make("stage2::JetUnpacker"));
       auto tau_unp = static_pointer_cast<l1t::stage2::TauUnpacker>(UnpackerFactory::get()->make("stage2::TauUnpacker"));
 
@@ -122,7 +121,6 @@ namespace l1t {
         res[16] = tau_unp;
         res[18] = tau_unp;
         res[20] = etsum_unp;
-        
 
         if (amc == 1) {  // only unpack first uGT board for the external signal inputs (single copy)
           res[24] = ext_unp;
@@ -142,7 +140,7 @@ namespace l1t {
         res[45] = alg_unp;
         res[47] = alg_unp;
         res[49] = alg_unp;
-        
+
         res[71] = zdc_unp;
       }
 

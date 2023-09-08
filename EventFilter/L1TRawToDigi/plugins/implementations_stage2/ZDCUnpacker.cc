@@ -5,8 +5,9 @@
 
 #include "L1TObjectCollections.h"
 
-#include "L1TStage2Layer2Constants.h"
+// #include "L1TStage2Layer2Constants.h"
 #include "ZDCUnpacker.h"
+#include "GTSetup.h"
 
 namespace l1t {
   namespace stage2 {
@@ -14,11 +15,11 @@ namespace l1t {
 
     bool ZDCUnpacker::unpack(const Block& block, UnpackerCollections* coll) {
       using namespace l1t::stage2;
-
+      uint32_t zdc_mask = 0x3FF;
       LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
       int nBX = int(
-          ceil(block.header().getSize() / layer2::demux::nOutputFramePerBX));  // Since there 6 frames per demux output event
+          ceil(block.header().getSize() / zdc::nOutputFramePerBX));  // Since there 6 frames per demux output event
       // expect the first four frames to be the first 4 EtSum objects reported per event (see CMS IN-2013/005)
 
       // Find the central, first and last BXs
@@ -38,12 +39,12 @@ namespace l1t {
       // Loop over multiple BX and fill EtSums collection
       for (int bx = firstBX; bx <= lastBX; bx++) {
         // ZDC -
-        int iFrame = (bx - firstBX) * layer2::demux::nOutputFramePerBX;
+        int iFrame = (bx - firstBX) * zdc::nOutputFramePerBX;
 
         uint32_t raw_data = block.payload().at(iFrame +1); // ZDC - info is found on frame 1 of each bx
         
         l1t::EtSum zdcm{l1t::EtSum::kZDCM};
-        zdcm.setHwPt(raw_data & 0xFFFF);
+        zdcm.setHwPt(raw_data & zdc_mask);
         zdcm.setP4(l1t::CaloTools::p4Demux(&zdcm));
 
         LogDebug("L1T") << "ZDC -: pT " << zdcm.hwPt() << " bx " << bx;
@@ -54,7 +55,7 @@ namespace l1t {
         raw_data = block.payload().at(iFrame +2); // ZDC + info is found on frame 2 of each bx
 
         l1t::EtSum zdcp{l1t::EtSum::kZDCP};
-        zdcp.setHwPt(raw_data & 0xFFFF);
+        zdcp.setHwPt(raw_data & zdc_mask);
         zdcp.setP4(l1t::CaloTools::p4Demux(&zdcp));
 
         LogDebug("L1T") << "ZDC +: pT " << zdcp.hwPt() << " bx " << bx;
