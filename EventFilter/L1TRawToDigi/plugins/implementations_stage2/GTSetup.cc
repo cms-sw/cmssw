@@ -12,8 +12,11 @@
 
 #include "GTSetup.h"
 
+const unsigned int l1t::stage2::zdc::nOutputFramePerBX = 6;
+
 namespace l1t {
   namespace stage2 {
+
     std::unique_ptr<PackerTokens> GTSetup::registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) {
       return std::unique_ptr<PackerTokens>(new GTTokens(cfg, cc));
     }

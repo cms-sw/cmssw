@@ -18,8 +18,8 @@ namespace l1t {
       uint32_t zdc_mask = 0x3FF;
       LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-      int nBX = int(
-          ceil(block.header().getSize() / zdc::nOutputFramePerBX));  // Since there 6 frames per demux output event
+      int nBX =
+          int(ceil(block.header().getSize() / zdc::nOutputFramePerBX));  // Since there 6 frames per demux output event
       // expect the first four frames to be the first 4 EtSum objects reported per event (see CMS IN-2013/005)
 
       // Find the central, first and last BXs
@@ -41,8 +41,8 @@ namespace l1t {
         // ZDC -
         int iFrame = (bx - firstBX) * zdc::nOutputFramePerBX;
 
-        uint32_t raw_data = block.payload().at(iFrame +1); // ZDC - info is found on frame 1 of each bx
-        
+        uint32_t raw_data = block.payload().at(iFrame + 1);  // ZDC - info is found on frame 1 of each bx
+
         l1t::EtSum zdcm{l1t::EtSum::kZDCM};
         zdcm.setHwPt(raw_data & zdc_mask);
         zdcm.setP4(l1t::CaloTools::p4Demux(&zdcm));
@@ -50,9 +50,9 @@ namespace l1t {
         LogDebug("L1T") << "ZDC -: pT " << zdcm.hwPt() << " bx " << bx;
 
         res_->push_back(bx, zdcm);
-        
+
         // ZDC +
-        raw_data = block.payload().at(iFrame +2); // ZDC + info is found on frame 2 of each bx
+        raw_data = block.payload().at(iFrame + 2);  // ZDC + info is found on frame 2 of each bx
 
         l1t::EtSum zdcp{l1t::EtSum::kZDCP};
         zdcp.setHwPt(raw_data & zdc_mask);
@@ -61,7 +61,6 @@ namespace l1t {
         LogDebug("L1T") << "ZDC +: pT " << zdcp.hwPt() << " bx " << bx;
 
         res_->push_back(bx, zdcp);
-
       }
 
       return true;
