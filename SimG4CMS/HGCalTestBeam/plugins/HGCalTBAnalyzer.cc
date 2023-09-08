@@ -24,8 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalTBCommonData/interface/HGCalTBDDDConstants.h"
+#include "Geometry/HGCalGeometry/interface/HGCalTBGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -74,8 +74,8 @@ private:
 
   edm::Service<TFileService> fs_;
   std::unique_ptr<AHCalGeometry> ahcalGeom_;
-  const HGCalDDDConstants* hgcons_[2];
-  const HGCalGeometry* hgeom_[2];
+  const HGCalTBDDDConstants* hgcons_[2];
+  const HGCalTBGeometry* hgeom_[2];
   const bool ifEE_, ifFH_, ifBH_, ifBeam_;
   const bool doSimHits_, doDigis_, doRecHits_;
   const bool doTree_, doTreeCell_;
@@ -102,10 +102,10 @@ private:
   const edm::EDGetTokenT<HGCRecHitCollection> tok_hitrEE_, tok_hitrFH_, tok_hitrBH_;
   const edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHEE_, tok_hgcPHFH_;
   const edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHBH_, tok_hgcPHCMSE_, tok_hgcPHBeam_;
-  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDEE_;
-  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomEE_;
-  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDFH_;
-  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomFH_;
+  const edm::ESGetToken<HGCalTBDDDConstants, IdealGeometryRecord> tokDDDEE_;
+  const edm::ESGetToken<HGCalTBGeometry, IdealGeometryRecord> tokGeomEE_;
+  const edm::ESGetToken<HGCalTBDDDConstants, IdealGeometryRecord> tokDDDFH_;
+  const edm::ESGetToken<HGCalTBGeometry, IdealGeometryRecord> tokGeomFH_;
 
   TTree* tree_;
   TH1D *hSimHitE_[4], *hSimHitT_[4];
@@ -209,14 +209,14 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
       tok_hgcPHBH_(consumes<edm::PassiveHitContainer>(labelPassiveBH_)),
       tok_hgcPHCMSE_(consumes<edm::PassiveHitContainer>(labelPassiveCMSE_)),
       tok_hgcPHBeam_(consumes<edm::PassiveHitContainer>(labelPassiveBeam_)),
-      tokDDDEE_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+      tokDDDEE_(esConsumes<HGCalTBDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", detectorEE_))),
-      tokGeomEE_(
-          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))),
-      tokDDDFH_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+      tokGeomEE_(esConsumes<HGCalTBGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorEE_))),
+      tokDDDFH_(esConsumes<HGCalTBDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", detectorFH_))),
-      tokGeomFH_(
-          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_))) {
+      tokGeomFH_(esConsumes<HGCalTBGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorFH_))) {
   usesResource("TFileService");
   ahcalGeom_ = std::make_unique<AHCalGeometry>(iConfig);
 
@@ -907,7 +907,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       ///id: reco and ID[id]: sim ID
       wafer = HGCalDetId(ID[id]).wafer();
       double layer = HGCalDetId(id).layer();
-      double thickness = hgcons_[type]->cellThickness(layer, wafer, 0);
+      double thickness = hgcons_[type]->cellThickness(layer, wafer);
       if (debug)
         edm::LogVerbatim("HGCSim") << "wafer is : depth (reco) " << wafer << " " << Depth[id]
                                    << "\ntype : layer : wafer thickness " << type << " " << layer << " " << thickness
