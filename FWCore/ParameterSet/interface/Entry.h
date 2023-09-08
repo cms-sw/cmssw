@@ -153,9 +153,9 @@ namespace edm {
     std::vector<ParameterSet> getVPSet() const;
 
     // coded string
-    Entry(std::string const& name, std::string const&);
-    Entry(std::string const& name, std::string const& type, std::string const& value, bool is_tracked);
-    Entry(std::string const& name, std::string const& type, std::vector<std::string> const& value, bool is_tracked);
+    Entry(std::string name, std::string_view);
+    Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked);
+    Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked);
 
     ~Entry() = default;
     Entry(Entry const&) = default;
@@ -190,7 +190,7 @@ namespace edm {
     void validate() const;
 
     // decode
-    bool fromString(std::string::const_iterator b, std::string::const_iterator e);
+    bool fromString(std::string_view::const_iterator b, std::string_view::const_iterator e);
 
     // helpers to throw exceptions
     void throwValueError(char const* expectedType) const;

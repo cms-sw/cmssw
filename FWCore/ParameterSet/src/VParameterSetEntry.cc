@@ -18,16 +18,16 @@ namespace edm {
     }
   }
 
-  VParameterSetEntry::VParameterSetEntry(std::string const& rep)
+  VParameterSetEntry::VParameterSetEntry(std::string_view rep)
       : tracked_(rep[0] == '+'), theVPSet_(), theIDs_(new std::vector<ParameterSetID>) {
     assert(rep[0] == '+' || rep[0] == '-');
-    std::vector<std::string> temp;
+    std::vector<std::string_view> temp;
     // need a substring that starts at the '{'
-    std::string bracketedRepr(rep.begin() + 2, rep.end());
+    std::string_view bracketedRepr = rep.substr(2);
     split(std::back_inserter(temp), bracketedRepr, '{', ',', '}');
     theIDs_->reserve(temp.size());
-    for (std::vector<std::string>::const_iterator i = temp.begin(), e = temp.end(); i != e; ++i) {
-      theIDs_->push_back(ParameterSetID(*i));
+    for (std::vector<std::string_view>::const_iterator i = temp.begin(), e = temp.end(); i != e; ++i) {
+      theIDs_->push_back(ParameterSetID(std::string(*i)));
     }
   }
 
