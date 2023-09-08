@@ -93,20 +93,16 @@ bool edm::encode(std::string& to, bool from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode(std::vector<bool>& to, std::string_view from) {
-  std::vector<std::string_view> temp;
-  if (!split(std::back_inserter(temp), from, '{', ',', '}')) {
-    return false;
-  }
-
   to.clear();
-  for (auto t : temp) {
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
     bool val = false;
     if (!decode(val, t)) {
       return false;
     }
     to.push_back(val);
-  }
-  return true;
+    return true;
+  });
 }  // decode to vector<bool>
 
 // ----------------------------------------------------------------------
@@ -216,21 +212,16 @@ bool edm::encode(std::string& to, long long from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode(std::vector<int>& to, std::string_view from) {
-  std::vector<std::string_view> temp;
-  if (!split(std::back_inserter(temp), from, '{', ',', '}')) {
-    return false;
-  }
-
   to.clear();
-  for (auto t : temp) {
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
     int val = 0;
     if (!decode(val, t)) {
       return false;
     }
     to.push_back(val);
-  }
-
-  return true;
+    return true;
+  });
 }  // decode to vector<int>
 
 // ----------------------------------------------------------------------
@@ -363,20 +354,16 @@ bool edm::encode(std::string& to, unsigned long long from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode(std::vector<unsigned int>& to, std::string_view from) {
-  std::vector<std::string_view> temp;
-  if (!split(std::back_inserter(temp), from, '{', ',', '}')) {
-    return false;
-  }
   to.clear();
-  for (auto t : temp) {
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
     unsigned int val = 0;
     if (!decode(val, t)) {
       return false;
     }
     to.push_back(val);
-  }
-
-  return true;
+    return true;
+  });
 }  // decode to vector<unsigned int>
 
 // ----------------------------------------------------------------------
@@ -404,20 +391,16 @@ bool edm::encode(std::string& to, std::vector<unsigned int> const& from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode(std::vector<unsigned long long>& to, std::string_view from) {
-  std::vector<std::string_view> temp;
-  if (!split(std::back_inserter(temp), from, '{', ',', '}')) {
-    return false;
-  }
   to.clear();
-  for (auto t : temp) {
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
     unsigned long long val = 0ULL;
     if (!decode(val, t)) {
       return false;
     }
     to.push_back(val);
-  }
-
-  return true;
+    return true;
+  });
 }  // decode to vector<unsigned int>
 
 // ----------------------------------------------------------------------
@@ -485,19 +468,15 @@ bool edm::encode(std::string& to, double from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode(std::vector<double>& to, std::string_view from) {
-  std::vector<std::string_view> temp;
-  if (!split(std::back_inserter(temp), from, '{', ',', '}'))
-    return false;
-
   to.clear();
-  for (auto t : temp) {
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
     double val;
     if (!decode(val, t))
       return false;
     to.push_back(val);
-  }
-
-  return true;
+    return true;
+  });
 }  // decode to vector<double>
 
 // ----------------------------------------------------------------------
@@ -1063,12 +1042,9 @@ bool edm::encode_deprecated(std::string& to, std::string const& from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode_deprecated(std::vector<std::string>& to, std::string_view from) {
-  std::vector<std::string_view> temp;
-  if (!split(std::back_inserter(temp), from, '{', ',', '}'))
-    return false;
-
   to.clear();
-  for (auto t : temp) {
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
     std::string val;
     // treat blank string specially
     if (t == "XXX") {
@@ -1077,9 +1053,8 @@ bool edm::decode_deprecated(std::vector<std::string>& to, std::string_view from)
       return false;
     }
     to.push_back(val);
-  }
-
-  return true;
+    return true;
+  });
 }  // decode to vector<string>
 
 std::optional<std::string_view> edm::decode_vstring_extent(std::string_view from) {
@@ -1232,20 +1207,16 @@ bool edm::encode(std::string& to, ParameterSet const& from) {
 // ----------------------------------------------------------------------
 
 bool edm::decode(std::vector<ParameterSet>& to, std::string_view from) {
-  std::vector<std::string_view> temp;
-  if (!split(std::back_inserter(temp), from, '{', ',', '}'))
-    return false;
-
   to.clear();
-  for (auto t : temp) {
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
     ParameterSet val;
     if (!decode(val, t)) {
       return false;
     }
     to.push_back(val);
-  }
-
-  return true;
+    return true;
+  });
 }  // decode to vector<ParameterSet>
 
 // ----------------------------------------------------------------------
