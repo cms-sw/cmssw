@@ -26,7 +26,7 @@ namespace edm {
     ParameterSetEntry();
     ParameterSetEntry(ParameterSet const& pset, bool isTracked);
     ParameterSetEntry(ParameterSetID const& id, bool isTracked);
-    explicit ParameterSetEntry(std::string const& rep);
+    explicit ParameterSetEntry(std::string_view rep);
 
     ~ParameterSetEntry() = default;
     ParameterSetEntry(ParameterSetEntry const&) = default;
