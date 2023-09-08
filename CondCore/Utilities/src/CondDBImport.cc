@@ -331,6 +331,8 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(SiStripPedestals)
         IMPORT_PAYLOAD_CASE(SiStripThreshold)
         IMPORT_PAYLOAD_CASE(DTCELinkId)
+        IMPORT_PAYLOAD_CASE(TotemAnalysisMask)
+        IMPORT_PAYLOAD_CASE(TotemDAQMapping)
         IMPORT_PAYLOAD_CASE(TrackerDetToDTCELinkCablingMap)
         IMPORT_PAYLOAD_CASE(TrackProbabilityCalibration)
         IMPORT_PAYLOAD_CASE(cond::BaseKeyed)
