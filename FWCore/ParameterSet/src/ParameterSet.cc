@@ -61,7 +61,7 @@ namespace edm {
   // ----------------------------------------------------------------------
   // from coded string
 
-  ParameterSet::ParameterSet(std::string const& code) : tbl_(), psetTable_(), vpsetTable_(), id_() {
+  ParameterSet::ParameterSet(std::string_view code) : tbl_(), psetTable_(), vpsetTable_(), id_() {
     if (!fromString(code)) {
       throw Exception(errors::Configuration, "InvalidInput")
           << "The encoded configuration string "
@@ -73,7 +73,7 @@ namespace edm {
   // ----------------------------------------------------------------------
   // from coded string and ID.
 
-  ParameterSet::ParameterSet(std::string const& code, ParameterSetID const& id)
+  ParameterSet::ParameterSet(std::string_view code, ParameterSetID const& id)
       : tbl_(), psetTable_(), vpsetTable_(), id_(id) {
     if (!fromString(code)) {
       throw Exception(errors::Configuration, "InvalidInput")
@@ -590,7 +590,7 @@ namespace edm {
 
   // ----------------------------------------------------------------------
 
-  bool ParameterSet::fromString(std::string const& from) {
+  bool ParameterSet::fromString(std::string_view from) {
     if (from.size() < 2 or from.front() != '<' or from.back() != '>') {
       return false;
     }
@@ -611,7 +611,7 @@ namespace edm {
         return false;
 
       remaining = remaining.substr(q + 1);
-      std::string rep(remaining.substr(0, remaining.find_first_of(';')));
+      std::string_view rep = remaining.substr(0, remaining.find_first_of(';'));
       // entries are generically of the form tracked-type-rep
       if (rep[1] == 'Q') {
         ParameterSetEntry psetEntry(rep);
@@ -645,7 +645,7 @@ namespace edm {
         if (not remaining.empty() and remaining.front() != ';') {
           return false;
         }
-        Entry value(name, std::string(bounds));
+        Entry value(name, bounds);
         if (!tbl_.insert(std::make_pair(name, value)).second) {
           return false;
         }

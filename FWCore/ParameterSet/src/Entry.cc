@@ -205,7 +205,7 @@ static constexpr const std::array<std::string_view, 255> s_table = fillTable();
 
 static constexpr std::string_view typeFromCode(char iCode) { return s_table[iCode]; }
 
-static char codeFromType(const std::string& iType) {
+static char codeFromType(std::string_view iType) {
   auto itFound = std::lower_bound(s_types.begin(), s_types.end(), iType);
   if (itFound == s_types.end() or *itFound != iType) {
     throw edm::Exception(edm::errors::Configuration) << "bad type name used for Entry : " << iType;
@@ -708,14 +708,14 @@ namespace edm {
   // ----------------------------------------------------------------------
   // coded string
 
-  Entry::Entry(std::string const& name, std::string const& code) : name_(name), rep_(), type_('?'), tracked_('?') {
+  Entry::Entry(std::string name, std::string_view code) : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
     if (!fromString(code.begin(), code.end()))
       throwEncodeError("coded string");
     validate();
   }
 
-  Entry::Entry(std::string const& name, std::string const& type, std::string const& value, bool is_tracked)
-      : name_(name), rep_(), type_('?'), tracked_('?') {
+  Entry::Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked)
+      : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
     std::string codedString(is_tracked ? "-" : "+");
 
     codedString += codeFromType(type);
@@ -723,14 +723,15 @@ namespace edm {
     codedString += value;
     codedString += ')';
 
-    if (!fromString(codedString.begin(), codedString.end())) {
+    std::string_view v = codedString;
+    if (!fromString(v.begin(), v.end())) {
       throw Exception(errors::Configuration) << "bad encoded Entry string " << codedString;
     }
     validate();
   }
 
-  Entry::Entry(std::string const& name, std::string const& type, std::vector<std::string> const& value, bool is_tracked)
-      : name_(name), rep_(), type_('?'), tracked_('?') {
+  Entry::Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked)
+      : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
     std::string codedString(is_tracked ? "-" : "+");
 
     codedString += codeFromType(type);
@@ -748,7 +749,8 @@ namespace edm {
     codedString += '}';
     codedString += ')';
 
-    if (!fromString(codedString.begin(), codedString.end())) {
+    std::string_view v = codedString;
+    if (!fromString(v.begin(), v.end())) {
       throw Exception(errors::Configuration) << "bad encoded Entry string " << codedString;
     }
     validate();
@@ -810,7 +812,7 @@ namespace edm {
 
   // ----------------------------------------------------------------------
 
-  bool Entry::fromString(std::string::const_iterator const b, std::string::const_iterator const e) {
+  bool Entry::fromString(std::string_view::const_iterator const b, std::string_view::const_iterator const e) {
     if (static_cast<unsigned int>(e - b) < 4u || b[2] != '(' || e[-1] != ')')
 
       return false;

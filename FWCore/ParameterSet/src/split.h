@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
 
-#include <string>
+#include <string_view>
 
 // ----------------------------------------------------------------------
 // contents
@@ -25,7 +25,7 @@ namespace edm {
   FwdIter contextual_find_not(FwdIter b, FwdIter e, char first, char sep, char last);
 
   template <class OutIter>
-  bool split(OutIter result, std::string const& string_to_split, char first, char sep, char last);
+  bool split(OutIter result, std::string_view string_to_split, char first, char sep, char last);
 
 }  // namespace edm
 
@@ -65,9 +65,9 @@ FwdIter edm::contextual_find_not(FwdIter b, FwdIter e, char /* first */, char se
 // split()
 
 template <class OutIter>
-bool edm::split(OutIter dest, std::string const& s, char first, char sep, char last) {
-  typedef std::string::const_iterator str_c_iter;
-  str_c_iter b = s.begin(), e = s.end();
+bool edm::split(OutIter dest, std::string_view s, char first, char sep, char last) {
+  using str_c_iter = std::string_view::const_iterator;
+  str_c_iter b = s.cbegin(), e = s.cend();
 
   if (static_cast<unsigned int>(e - b) < 2u)
     return false;
@@ -93,7 +93,7 @@ bool edm::split(OutIter dest, std::string const& s, char first, char sep, char l
     eoi = contextual_find(boi, e, first, sep, last);
 
     // copy the item formed from characters in [boi..eoi):
-    *dest++ = std::string(boi, eoi);
+    *dest++ = std::string_view(boi, eoi - boi);
   }  // for
 
   return true;
