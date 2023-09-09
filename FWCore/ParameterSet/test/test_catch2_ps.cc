@@ -275,6 +275,14 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     SECTION("null begin") { testbody<std::string>(std::string("\0ab", 3U)); }
     SECTION("null end") { testbody<std::string>(std::string("ab\0", 3U)); }
     SECTION(":") { testbody<std::string>("ab:c"); }
+    SECTION("existsAs") {
+      std::string s = "some value";
+      edm::ParameterSet p1;
+      p1.addParameter<std::string>("s", s);
+      p1.registerIt();
+      REQUIRE(p1.existsAs<std::string>("s"));
+      REQUIRE(not p1.existsAs<std::string>("not_here"));
+    }
   }
   SECTION("vstring") {
     SECTION("simple") {
@@ -383,6 +391,15 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       p1.addParameter<std::vector<std::string>>("vs", vs);
       p1.registerIt();
       std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
+    }
+    SECTION("existsAs") {
+      std::vector<std::string> vs;
+      vs.push_back("some value");
+      edm::ParameterSet p1;
+      p1.addParameter<std::vector<std::string>>("vs", vs);
+      p1.registerIt();
+      REQUIRE(p1.existsAs<std::vector<std::string>>("vs"));
+      REQUIRE(not p1.existsAs<std::vector<std::string>>("not_here"));
     }
   }
   SECTION("deprecated") {
