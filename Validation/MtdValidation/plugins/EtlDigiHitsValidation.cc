@@ -100,9 +100,6 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  //auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  //const MTDTopology* topology = topologyHandle.product();
-
   auto etlDigiHitsHandle = makeValid(iEvent.getHandle(etlDigiHitsToken_));
 
   // --- Loop over the ETL DIGI hits
@@ -111,6 +108,8 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   for (size_t i = 0; i < 4; i++) {
     ndigiPerLGAD_[i].clear();
   }
+
+  size_t index(0);
 
   for (const auto& dataFrame : *etlDigiHitsHandle) {
     // --- Get the on-time sample
@@ -147,6 +146,9 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       edm::LogWarning("EtlDigiHitsValidation") << "Unknown ETL DetId configuration: " << detId;
       continue;
     }
+
+    index++;
+    LogDebug("EtlDigiHitsValidation") << "Digi # " << index << " DetId " << detId.rawId() << " idet " << idet;
 
     meHitCharge_[idet]->Fill(sample.data());
     meHitTime_[idet]->Fill(sample.toa());

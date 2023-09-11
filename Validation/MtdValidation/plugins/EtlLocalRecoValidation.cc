@@ -179,9 +179,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  //auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  //const MTDTopology* topology = topologyHandle.product();
-
   auto const& cpe = iSetup.getData(cpeToken_);
 
   auto etlRecHitsHandle = makeValid(iEvent.getHandle(etlRecHitsToken_));
@@ -335,6 +332,8 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meNhits_[i]->Fill(std::log10(n_reco_etl[i]));
   }
 
+  size_t index(0);
+
   // --- Loop over the ETL RECO clusters ---
   for (const auto& DetSetClu : *etlRecCluHandle) {
     for (const auto& cluster : DetSetClu) {
@@ -373,6 +372,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         edm::LogWarning("EtlLocalRecoValidation") << "Unknown ETL DetId configuration: " << cluId;
         continue;
       }
+
+      index++;
+      LogDebug("EtlLocalRecoValidation") << "Cluster # " << index << " DetId " << cluId.rawId() << " idet " << idet;
 
       meCluEnergy_[idet]->Fill(cluster.energy());
       meCluTime_[idet]->Fill(cluster.time());

@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -1027,8 +1025,13 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
 
   TransientTrackingRecHit::ConstRecHitContainer output;
   bestHit = MTDHitMatchingInfo();
-  for (const DetLayer* ilay : layers)
+  for (const DetLayer* ilay : layers) {
+    LogTrace("TrackExtenderWithMTD") << "Hit search: BTL layer at R= "
+                                     << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
+
     fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+  }
+
   return output;
 }
 
@@ -1057,6 +1060,8 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
 
     if (tsos.globalPosition().z() * diskZ < 0)
       continue;  // only propagate to the disk that's on the same side
+
+    LogTrace("TrackExtenderWithMTD") << "Hit search: ETL disk at Z = " << diskZ;
 
     fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   }
@@ -1117,7 +1122,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
   if (!hitsInLayer.empty()) {
     //check hits to pass minimum quality matching requirements
     auto const& firstHit = *hitsInLayer.begin();
-    LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: estChi2= " << firstHit.estChi2
+    LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: matching trial 1: estChi2= " << firstHit.estChi2
                                      << " timeChi2= " << firstHit.timeChi2;
     if (firstHit.estChi2 < spaceChi2Cut && firstHit.timeChi2 < timeChi2Cut) {
       hitMatched = true;
@@ -1133,7 +1138,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
     find_hits(0, false);
     if (!hitsInLayer.empty()) {
       auto const& firstHit = *hitsInLayer.begin();
-      LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: estChi2= " << firstHit.estChi2
+      LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: matching trial 2: estChi2= " << firstHit.estChi2
                                        << " timeChi2= " << firstHit.timeChi2;
       if (firstHit.timeChi2 < timeChi2Cut) {
         if (firstHit.estChi2 < spaceChi2Cut) {
@@ -1145,6 +1150,15 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
       }
     }
   }
+
+#ifdef EDM_ML_DEBUG
+  if (hitMatched) {
+    LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: matched hit with time: " << bestHit.hit->time()
+                                     << " +/- " << bestHit.hit->timeError();
+  } else {
+    LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: no matched hit";
+  }
+#endif
 }
 
 //below is unfortunately ripped from other places but
@@ -1223,6 +1237,9 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       }
     }
 
+    LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: selected #hits " << ihitcount << " from ETL "
+                                     << ietlcount;
+
     auto ihit1 = trajWithMtd.measurements().cbegin();
     if (ihitcount == 1) {
       const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
@@ -1263,12 +1280,17 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
             thiterror = 1.f / (err1 + err2);
             thit = (tofInfo.dt * err1 + mtdhit2->time() * err2) * thiterror;
             thiterror = std::sqrt(thiterror);
-            LogDebug("TrackExtenderWithMTD")
+            LogTrace("TrackExtenderWithMTD")
                 << "TrackExtenderWithMTD: p trk = " << p.mag() << " ETL hits times/errors: " << mtdhit1->time()
                 << " +/- " << mtdhit1->timeError() << " , " << mtdhit2->time() << " +/- " << mtdhit2->timeError()
                 << " extrapolated time1: " << tofInfo.dt << " +/- " << tofInfo.dterror << " average = " << thit
                 << " +/- " << thiterror;
             validmtd = true;
+          } else {
+            LogTrace("TrackExtenderWithMTD")
+                << "TrackExtenderWithMTD: issue with layer2 extrapolation to layer1, time difference "
+                << (tofInfo.dt - mtdhit2->time()) << " larger than maximal uncertainty "
+                << (err1 + err2) * etlTimeChi2Cut_;
           }
         }
       }

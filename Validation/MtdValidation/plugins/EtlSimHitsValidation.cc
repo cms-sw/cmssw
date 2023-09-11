@@ -104,9 +104,6 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  //auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  //const MTDTopology* topology = topologyHandle.product();
-
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
 
@@ -117,7 +114,13 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   int idet = 999;
 
+  size_t index(0);
+
   for (auto const& simHit : etlSimHits) {
+    index++;
+    LogDebug("EtlSimHitsValidation") << "SimHit # " << index << " detId " << simHit.detUnitId() << " ene "
+                                     << simHit.energyLoss() << " tof " << simHit.tof() << " tId " << simHit.trackId();
+
     // --- Use only hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
       continue;
@@ -152,6 +155,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
     }
+    LogDebug("EtlSimHitsValidation") << "Registered in idet " << idet;
 
   }  // simHit loop
 
@@ -161,6 +165,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   for (int idet = 0; idet < 4; ++idet) {  //two disks per side
     meNhits_[idet]->Fill(m_etlHits[idet].size());
+    LogDebug("EtlSimHitsValidation") << "idet " << idet << " #hits " << m_etlHits[idet].size();
 
     for (auto const& hit : m_etlTrkPerCell[idet]) {
       meNtrkPerCell_[idet]->Fill((hit.second).size());

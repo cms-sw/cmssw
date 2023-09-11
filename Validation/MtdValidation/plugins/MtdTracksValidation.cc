@@ -546,6 +546,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
 
+      LogDebug("MtdTracksValidation") << "Track p/pt = " << track.p() << " " << track.pt() << " eta " << track.eta()
+                                      << " BTL " << isBTL << " ETL " << isETL << " 2disks " << twoETLdiscs;
+
       // TrackingParticle based matching
 
       const reco::TrackBaseRef trkrefb(trackref);
@@ -555,6 +558,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       meTrackEtaTot_->Fill(std::abs(trackGen.eta()));
       if (tp_info != nullptr && mvaTPSel(**tp_info)) {
         const bool withMTD = (m_tp2detid.find(*tp_info) != m_tp2detid.end());
+        LogDebug("MtdTracksValidation") << "Matched with selected TP, MTD sim hits association: " << withMTD;
         if (noCrack) {
           meTrackMatchedTPEffPtTot_->Fill(trackGen.pt());
           if (withMTD) {
