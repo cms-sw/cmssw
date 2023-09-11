@@ -2410,10 +2410,9 @@ bool l1t::TriggerMenuParser::parseEnergySumZdc(L1TUtmCondition condEnergySumZdc,
   std::string type = l1t2string(condEnergySumZdc.getType());
   std::string name = l1t2string(condEnergySumZdc.getName());
 
-  std::cout << "\n ****************************************** "
-            //LogDebug("TriggerMenuParser") << "\n ****************************************** "
-            << "\n      (in parseEnergySumZdc) "
-            << "\n condition = " << condition << "\n type      = " << type << "\n name      = " << name << std::endl;
+  LogDebug("TriggerMenuParser")
+      << "\n ******************************************\n      (in parseEnergySumZdc)\n condition = " << condition
+      << "\n type      = " << type << "\n name      = " << name;
 
   // determine object type
   GlobalObject energySumObjType;
@@ -2486,12 +2485,9 @@ bool l1t::TriggerMenuParser::parseEnergySumZdc(L1TUtmCondition condEnergySumZdc,
     objParameter[cnt].etHighThreshold = upperThresholdInd;
 
     // Output for debugging
-    std::cout
-        << "\n      EnergySumZdc ET high threshold (hex) for energy sum object "
-        << cnt
-        //LogDebug("TriggerMenuParser") << "\n      EnergySumZdc ET high threshold (hex) for energy sum object " << cnt
-        << " = " << std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold
-        << std::dec << std::endl;
+    LogDebug("TriggerMenuParser") << "\n      EnergySumZdc ET high threshold (hex) for energy sum object " << cnt
+                                  << " = " << std::hex << objParameter[cnt].etLowThreshold << " - "
+                                  << objParameter[cnt].etHighThreshold << std::dec;
 
     cnt++;
   }  //end loop over objects
