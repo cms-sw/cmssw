@@ -9,6 +9,8 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #endif
@@ -115,9 +117,7 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
       ptCut_(edm::vector_transform(iConfig.getParameter<std::vector<double>>("ptCut"), l1ct::Scales::makePtFromFloat)),
       nFinalSort_(iConfig.getParameter<uint32_t>("nFinalSort")),
       debug_(iConfig.getUntrackedParameter<bool>("debug", false)),
-      fakePuppi_(iConfig.existsAs<bool>("fakePuppi") ? iConfig.getParameter<bool>("fakePuppi")
-                                                     : false)  // it's only for debug, but still better be tracked
-{
+      fakePuppi_(iConfig.getParameter<bool>("fakePuppi")) {
   if (absEtaBins_.size() + 1 != ptSlopeNe_.size())
     throw cms::Exception("Configuration", "size mismatch for ptSlopes parameter");
   if (absEtaBins_.size() + 1 != ptSlopePh_.size())
@@ -151,6 +151,36 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
     finalSortAlgo_ = SortAlgo::FoldedHybrid;
   else
     throw cms::Exception("Configuration", "unsupported finalSortAlgo '" + sortAlgo + "'");
+}
+
+edm::ParameterSetDescription l1ct::LinPuppiEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<uint32_t>("nTrack");
+  description.add<uint32_t>("nIn");
+  description.add<uint32_t>("nOut");
+  description.add<uint32_t>("nVtx", 1);
+  description.add<double>("dZ");
+  description.add<double>("dr");
+  description.add<double>("drMin");
+  description.add<double>("ptMax");
+  description.add<std::vector<double>>("absEtaCuts");
+  description.add<std::vector<double>>("ptCut");
+  description.add<std::vector<double>>("ptSlopes");
+  description.add<std::vector<double>>("ptSlopesPhoton");
+  description.add<std::vector<double>>("ptZeros");
+  description.add<std::vector<double>>("ptZerosPhoton");
+  description.add<std::vector<double>>("alphaSlopes");
+  description.add<std::vector<double>>("alphaZeros");
+  description.add<std::vector<double>>("alphaCrop");
+  description.add<std::vector<double>>("priors");
+  description.add<std::vector<double>>("priorsPhoton");
+  description.add<uint32_t>("nFinalSort");
+  description.ifValue(
+      edm::ParameterDescription<std::string>("finalSortAlgo", "Insertion", true),
+      edm::allowedValues<std::string>("Insertion", "BitonicRUFL", "BitonicHLS", "Hybrid", "FoldedHybrid"));
+  description.add<bool>("fakePuppi", false);
+  description.addUntracked<bool>("debug", false);
+  return description;
 }
 #endif
 

@@ -9,6 +9,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #endif
 
 namespace l1ct {
@@ -22,6 +23,12 @@ namespace l1ct {
         : PFTkEGSorterEmulator(iConfig.getParameter<uint32_t>("nObjToSort"),
                                iConfig.getParameter<uint32_t>("nObjSorted")) {}
 
+    static edm::ParameterSetDescription getParameterSetDescription() {
+      edm::ParameterSetDescription description;
+      description.add<uint32_t>("nObjToSort");
+      description.add<uint32_t>("nObjSorted");
+      return description;
+    }
 #endif
 
     virtual ~PFTkEGSorterEmulator() {}

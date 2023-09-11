@@ -8,11 +8,20 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::PFAlgoDummyEmulator::PFAlgoDummyEmulator(const edm::ParameterSet& iConfig)
     : PFAlgoEmulatorBase(
           0, iConfig.getParameter<uint32_t>("nCalo"), iConfig.getParameter<uint32_t>("nMu"), 0, 0, 0, 0, 0) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
+}
+
+edm::ParameterSetDescription l1ct::PFAlgoDummyEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<unsigned int>("nCalo");
+  description.add<unsigned int>("nMu");
+  description.addUntracked<bool>("debug", false);
+  return description;
 }
 #endif
 

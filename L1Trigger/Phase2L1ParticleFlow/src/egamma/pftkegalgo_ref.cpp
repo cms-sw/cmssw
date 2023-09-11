@@ -13,6 +13,7 @@ using namespace l1ct;
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
     : nTRACK(pset.getParameter<uint32_t>("nTRACK")),
@@ -45,17 +46,83 @@ l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
       compIDparams(pset.getParameter<edm::ParameterSet>("compositeParametersTkEle")),
       debug(pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
 
+edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<unsigned int>("nTRACK");
+  description.add<unsigned int>("nTRACK_EGIN");
+  description.add<unsigned int>("nEMCALO_EGIN");
+  description.add<unsigned int>("nEM_EGOUT");
+  description.add<bool>("doBremRecovery", false);
+  description.add<bool>("writeBeforeBremRecovery", false);
+  description.add<bool>("filterHwQuality", false);
+  description.add<int>("caloHwQual", 4);
+  description.add<bool>("doEndcapHwQual", false);
+  description.add<double>("dEtaMaxBrem", 0.02);
+  description.add<double>("dPhiMaxBrem", 0.1);
+  description.add<std::vector<double>>("absEtaBoundaries",
+                                       {
+                                           0.0,
+                                           0.9,
+                                           1.5,
+                                       });
+  description.add<std::vector<double>>("dEtaValues",
+                                       {
+                                           0.025,
+                                           0.015,
+                                           0.01,
+                                       });
+  description.add<std::vector<double>>("dPhiValues",
+                                       {
+                                           0.07,
+                                           0.07,
+                                           0.07,
+                                       });
+  description.add<double>("caloEtMin", 0.0);
+  description.add<double>("trkQualityPtMin", 10.0);
+  description.add<bool>("writeEGSta", false);
+  description.add<edm::ParameterSetDescription>("tkIsoParametersTkEm", IsoParameters::getParameterSetDescription());
+  description.add<edm::ParameterSetDescription>("tkIsoParametersTkEle", IsoParameters::getParameterSetDescription());
+  description.add<edm::ParameterSetDescription>("pfIsoParametersTkEm", IsoParameters::getParameterSetDescription());
+  description.add<edm::ParameterSetDescription>("pfIsoParametersTkEle", IsoParameters::getParameterSetDescription());
+  description.add<bool>("doTkIso", true);
+  description.add<bool>("doPfIso", true);
+  description.add<unsigned int>("hwIsoTypeTkEle", 0);
+  description.add<unsigned int>("hwIsoTypeTkEm", 2);
+  description.add<bool>("doCompositeTkEle", false);
+  description.add<unsigned int>("nCompCandPerCluster", 3);
+  description.add<edm::ParameterSetDescription>("compositeParametersTkEle",
+                                                CompIDParameters::getParameterSetDescription());
+  return description;
+}
+
 l1ct::PFTkEGAlgoEmuConfig::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
     : IsoParameters(pset.getParameter<double>("tkQualityPtMin"),
                     pset.getParameter<double>("dZ"),
                     pset.getParameter<double>("dRMin"),
                     pset.getParameter<double>("dRMax")) {}
 
+edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::IsoParameters::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<double>("tkQualityPtMin");
+  description.add<double>("dZ", 0.6);
+  description.add<double>("dRMin");
+  description.add<double>("dRMax");
+  description.add<double>("tkQualityChi2Max");
+  return description;
+}
+
 l1ct::PFTkEGAlgoEmuConfig::CompIDParameters::CompIDParameters(const edm::ParameterSet &pset)
     : CompIDParameters(pset.getParameter<double>("loose_wp"),
                        pset.getParameter<double>("tight_wp"),
                        pset.getParameter<std::string>("model")) {}
 
+edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::CompIDParameters::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<double>("loose_wp", -0.732422);
+  description.add<double>("tight_wp", 0.214844);
+  description.add<std::string>("model", "L1Trigger/Phase2L1ParticleFlow/data/compositeID.json");
+  return description;
+}
 #endif
 
 PFTkEGAlgoEmulator::PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config)

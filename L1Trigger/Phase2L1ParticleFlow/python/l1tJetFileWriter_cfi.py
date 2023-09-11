@@ -7,5 +7,6 @@ l1tSeededConeJetFileWriter = cms.EDAnalyzer('L1CTJetFileWriter',
   TMUX = cms.uint32(6),
   maxLinesPerFile = cms.uint32(1024),
   outputFilename = cms.string("L1CTSCJetsPatterns"),
-  format = cms.string("EMP")
+  format = cms.string("EMPv2"),
+  outputFileExtension = cms.string("txt.gz")
 )

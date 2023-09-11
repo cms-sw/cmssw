@@ -52,8 +52,12 @@ namespace l1ct {
                                               unsigned int outii,
                                               unsigned int pauseii,
                                               bool useAlsoVtxCoords);
+    // note: this one will work only in CMSSW
+    BufferedFoldedMultififoRegionizerEmulator(const edm::ParameterSet& iConfig);
 
     ~BufferedFoldedMultififoRegionizerEmulator() override;
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     void initSectorsAndRegions(const RegionizerDecodedInputs& in, const std::vector<PFInputRegion>& out) override;
 

@@ -7,7 +7,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -137,6 +138,8 @@ namespace l1ct {
           fakePuppi_(false) {}
 
     LinPuppiEmulator(const edm::ParameterSet &iConfig);
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     // charged
     void linpuppi_chs_ref(const PFRegionEmu &region,
