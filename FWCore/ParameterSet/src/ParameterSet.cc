@@ -761,6 +761,13 @@ namespace edm {
     if (code == 'q') {
       return getParameterSetVectorNames(output, trackiness);
     }
+    //deal with string encoding change by also looking for old code values
+    if (code == 'z') {
+      count += getNamesByCode_('s', trackiness, output);
+    }
+    if (code == 'Z') {
+      count += getNamesByCode_('S', trackiness, output);
+    }
     table::const_iterator it = tbl_.begin();
     table::const_iterator end = tbl_.end();
     while (it != end) {
