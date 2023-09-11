@@ -414,6 +414,7 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       edm::ParameterSet pset(pset_encode);
       pset.registerIt();
       REQUIRE(pset.getParameter<std::string>("label") == value);
+      REQUIRE(pset.existsAs<std::string>("label"));
     }
     SECTION("vstring") {
       std::string to;
@@ -427,6 +428,7 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       edm::ParameterSet pset(pset_encode);
       pset.registerIt();
       REQUIRE(pset.getParameter<std::vector<std::string>>("label") == from);
+      REQUIRE(pset.existsAs<std::vector<std::string>>("label"));
     }
   }
   SECTION("eventID") {
