@@ -2,16 +2,12 @@
 #include <iostream>
 
 EcalEBPhase2TriggerPrimitiveDigi::EcalEBPhase2TriggerPrimitiveDigi() : size_(0), data_(MAXSAMPLES) {}
-//EcalTriggerPrimitiveDigi::EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id) : id_(id),
-//size_(0), data_(MAXSAMPLES) {
-//}
+
 
 EcalEBPhase2TriggerPrimitiveDigi::EcalEBPhase2TriggerPrimitiveDigi(const EBDetId& id) : id_(id), size_(0), data_(MAXSAMPLES) {}
 
 void EcalEBPhase2TriggerPrimitiveDigi::setSample(int i, const EcalEBPhase2TriggerPrimitiveSample& sam) {
-  //  std::cout << " In setSample  i " << i << "  sam " << sam << std::endl;
   data_[i] = sam;
-  //  std::cout << " In setSample data_[i] " << data_[i] << std::endl;
 }
 
 int EcalEBPhase2TriggerPrimitiveDigi::sampleOfInterest() const {
