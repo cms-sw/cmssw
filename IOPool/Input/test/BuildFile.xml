@@ -9,6 +9,12 @@
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
   </library>
- 
+
+  <library file="GetTriggerNamesAnalyzer.cc" name="GetTriggerNamesAnalyzer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+  </library>
+
  <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
 </environment>
