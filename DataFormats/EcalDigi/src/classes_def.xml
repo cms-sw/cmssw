@@ -20,15 +20,20 @@
    <class name="EcalTriggerPrimitiveSample" ClassVersion="10">
     <version ClassVersion="10" checksum="251958438"/>
    </class>
-   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="14">
-    <version ClassVersion="14" checksum="4281210940"/>
-    <version ClassVersion="13" checksum="4171161153"/>
+   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="15">
+    <version ClassVersion="15" checksum="4171161153"/>
+   </class>
+   <class name="EcalEBPhase2TriggerPrimitiveSample" ClassVersion="0">
+    <version ClassVersion="0" checksum="124268305"/>
    </class>
    <class name="EcalTriggerPrimitiveDigi" ClassVersion="12">
     <version ClassVersion="12" checksum="3058718200"/>
    </class>
    <class name="EcalEBTriggerPrimitiveDigi" ClassVersion="14">
     <version ClassVersion="14" checksum="3583827889"/>
+   </class>
+   <class name="EcalEBPhase2TriggerPrimitiveDigi" ClassVersion="-1">
+    <version ClassVersion="-1" checksum="1841666275"/>
    </class>
 
    <class name="EcalPseudoStripInputSample" ClassVersion="10">
@@ -73,6 +78,7 @@
    <class name="std::vector<EESrFlag>"/>
    <class name="std::vector<EcalTriggerPrimitiveDigi>"/>
    <class name="std::vector<EcalEBTriggerPrimitiveDigi>"/>
+   <class name="std::vector<EcalEBPhase2TriggerPrimitiveDigi>"/>
    <class name="std::vector<EcalPseudoStripInputDigi>"/>
    <class name="std::vector<EcalPnDiodeDigi>"/>
    <class name="std::vector<EcalMatacqDigi>"/>
@@ -118,6 +124,8 @@
    <class name="edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EcalEBTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalEBTriggerPrimitiveDigi> >"/>
    <class name="edm::StrictWeakOrdering<EcalEBTriggerPrimitiveDigi>" /> <!-- Root6 -->
+   <class name="edm::SortedCollection<EcalEBPhase2TriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalEBPhase2TriggerPrimitiveDigi> >"/>
+   <class name="edm::StrictWeakOrdering<EcalEBPhase2TriggerPrimitiveDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> >"/>
    <class name="edm::StrictWeakOrdering<EcalPseudoStripInputDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EBSrFlag,edm::StrictWeakOrdering<EBSrFlag> >"/>
@@ -130,6 +138,7 @@
    <class name="edm::Wrapper<edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> > >" splitLevel="0" id="C3D41492-2914-2291-7C22-BBE6D77043F7"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > >" splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalEBTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalEBTriggerPrimitiveDigi> > >" splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalEBPhase2TriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalEBPhase2TriggerPrimitiveDigi> > >" splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> > >" splitLevel="0" id=""/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalTimeDigi,edm::StrictWeakOrdering<EcalTimeDigi> > >" splitLevel="0" id=""/> 
    <class name="edm::Wrapper<edm::SortedCollection<EBSrFlag,edm::StrictWeakOrdering<EBSrFlag> > >" splitLevel="0" id="C0D3A113-A36C-40F1-A388-28ECE47DCBA5"/>

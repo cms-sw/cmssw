@@ -9,6 +9,7 @@
 #include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveDigi.h"
+#include "DataFormats/EcalDigi/interface/EcalEBPhase2TriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTrigPrimCompactColl.h"
 #include "DataFormats/EcalDigi/interface/EcalPseudoStripInputDigi.h"
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
@@ -121,6 +122,7 @@ inline void swap(EBDigiCollectionPh2& lhs, EBDigiCollectionPh2& rhs) { lhs.swap(
 typedef edm::SortedCollection<EcalTimeDigi> EcalTimeDigiCollection;
 typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
 typedef edm::SortedCollection<EcalEBTriggerPrimitiveDigi> EcalEBTrigPrimDigiCollection;
+typedef edm::SortedCollection<EcalEBPhase2TriggerPrimitiveDigi> EcalEBPhase2TrigPrimDigiCollection;
 
 typedef edm::SortedCollection<EcalPseudoStripInputDigi> EcalPSInputDigiCollection;
 typedef edm::SortedCollection<EBSrFlag> EBSrFlagCollection;

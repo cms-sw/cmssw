@@ -6,7 +6,7 @@
  Description: forPhase II 
  It consumes the new Phase2 digis based on the new EB electronics
  and plugs in the main steering algo for TP emulation
- It produces the EcalEBTrigPrimDigiCollection
+ It produces the EcalEBPhase2TrigPrimDigiCollection
 */
 
 #include <memory>

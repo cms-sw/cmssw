@@ -39,7 +39,7 @@
 
 class EcalTrigTowerDetId;
 class ETPCoherenceTest;
-class EcalEBTriggerPrimitiveSample;
+class EcalEBPhase2TriggerPrimitiveSample;
 class CaloSubdetectorGeometry;
 class EBDataFrame_Ph2;
 
@@ -52,7 +52,7 @@ public:
 
   virtual ~EcalEBPhase2TrigPrimAlgo();
 
-  void run(const EBDigiCollectionPh2 *col, EcalEBTrigPrimDigiCollection &result);
+  void run(const EBDigiCollectionPh2 *col, EcalEBPhase2TrigPrimDigiCollection &result);
 
   void setPointers(const EcalLiteDTUPedestalsMap *ecaltpPed,
                    const EcalEBPhase2TPGLinearizationConstMap *ecaltpLin,
@@ -110,8 +110,8 @@ private:
   std::vector<std::vector<std::pair<int, std::vector<EBDataFrame_Ph2> > > > towerMapEB_;
   std::vector<std::vector<std::pair<int, std::vector<EEDataFrame> > > > towerMapEE_;
   std::vector<std::pair<int, EcalTrigTowerDetId> > hitTowers_;
-  std::vector<EcalEBTriggerPrimitiveSample> towtp_;
-  std::vector<EcalEBTriggerPrimitiveSample> towtp2_;
+  std::vector<EcalEBPhase2TriggerPrimitiveSample> towtp_;
+  std::vector<EcalEBPhase2TriggerPrimitiveSample> towtp2_;
 
   enum { nbMaxStrips_ = 5 };
   enum { nbMaxXtals_ = 5 };

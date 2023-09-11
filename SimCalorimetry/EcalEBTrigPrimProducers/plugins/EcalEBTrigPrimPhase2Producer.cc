@@ -49,7 +49,7 @@ EcalEBTrigPrimPhase2Producer::EcalEBTrigPrimPhase2Producer(const edm::ParameterS
   theEcalTPGWeightGroup_Token_ = esConsumes<EcalTPGWeightGroup, EcalTPGWeightGroupRcd, edm::Transition::BeginRun>();
 
   //register your products
-  produces<EcalEBTrigPrimDigiCollection>();
+  produces<EcalEBPhase2TrigPrimDigiCollection>();
 }
 
 void EcalEBTrigPrimPhase2Producer::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
@@ -125,8 +125,8 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
               << " =================> Treating event  " << nEvent_ << ", Number of EB digis "
               << barrelDigiHandle.product()->size() << std::endl;
 
-  auto pOut = std::make_unique<EcalEBTrigPrimDigiCollection>();
-  auto pOutTcp = std::make_unique<EcalEBTrigPrimDigiCollection>();
+  auto pOut = std::make_unique<EcalEBPhase2TrigPrimDigiCollection>();
+  auto pOutTcp = std::make_unique<EcalEBPhase2TrigPrimDigiCollection>();
 
   //std::cout << " Event number " << e.id().event() << std::endl;
 

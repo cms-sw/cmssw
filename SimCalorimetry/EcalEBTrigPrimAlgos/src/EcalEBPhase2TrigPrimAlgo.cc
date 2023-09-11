@@ -79,14 +79,14 @@ EcalEBPhase2TrigPrimAlgo::~EcalEBPhase2TrigPrimAlgo() {
   delete spike_tagger_;
 }
 
-void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBTrigPrimDigiCollection &result) {
+void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2TrigPrimDigiCollection &result) {
   //typedef typename Coll::Digi Digi;
   if (debug_) {
     std::cout << "  EcalEBPhase2TrigPrimAlgo: Testing that the algorythm with digis is well plugged " << std::endl;
     std::cout << "  EcalEBPhase2TrigPrimAlgo: digi size " << digi->size() << std::endl;
   }
 
-  EcalEBTriggerPrimitiveDigi tp;
+  EcalEBPhase2TriggerPrimitiveDigi tp;
   int firstSample = binOfMaximum_ - 1 - nrSamples_ / 2;
   int lastSample = binOfMaximum_ - 1 + nrSamples_ / 2;
 
@@ -137,7 +137,7 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBTrigPr
                     << " iPhi " << myid.iphi() << std::endl;
         }
 
-        tp = EcalEBTriggerPrimitiveDigi(myid);
+        tp = EcalEBPhase2TriggerPrimitiveDigi(myid);
         tp.setSize(nrSamples_);
 
         iChannel++;
@@ -269,7 +269,7 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBTrigPr
             std::cout << "TrigPrimAlgo etInADCt " << outEt_[iSample] << " outTime " << time << std::endl;
           }
 
-          tp.setSample(nSam, EcalEBTriggerPrimitiveSample(etInADC, isASpike, time));
+          tp.setSample(nSam, EcalEBPhase2TriggerPrimitiveSample(etInADC, isASpike, time));
           nSam++;
         }
 
