@@ -3,8 +3,8 @@
 
 EcalEBPhase2TriggerPrimitiveDigi::EcalEBPhase2TriggerPrimitiveDigi() : size_(0), data_(MAXSAMPLES) {}
 
-
-EcalEBPhase2TriggerPrimitiveDigi::EcalEBPhase2TriggerPrimitiveDigi(const EBDetId& id) : id_(id), size_(0), data_(MAXSAMPLES) {}
+EcalEBPhase2TriggerPrimitiveDigi::EcalEBPhase2TriggerPrimitiveDigi(const EBDetId& id)
+    : id_(id), size_(0), data_(MAXSAMPLES) {}
 
 void EcalEBPhase2TriggerPrimitiveDigi::setSample(int i, const EcalEBPhase2TriggerPrimitiveSample& sam) {
   data_[i] = sam;
