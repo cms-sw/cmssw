@@ -230,7 +230,7 @@ public:
   // Obtain the neighbour's DetId
   const uint32_t getNeighbourDetId(const DetId detId, const uint32_t direction) {
     // desired order for PF: NORTH, SOUTH, EAST, WEST, NORTHEAST, SOUTHWEST, SOUTHEAST, NORTHWEST
-    if (detId == 0)
+    if (detId == DetId(0))
       return 0;
 
     if (direction == 0)                        // NORTH
