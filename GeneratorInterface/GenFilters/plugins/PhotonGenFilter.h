@@ -28,13 +28,11 @@ private:
   // Private member variables and functions
 
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
-  std::vector<int> particleID;
-  std::vector<double> ptMin;
-  std::vector<double> etaMin;
-  std::vector<double> etaMax;
-  std::vector<double> drMin;
-  std::vector<int> status;
-  const double betaBoost;
-};
+  double ptMin;
+  double etaMin;
+  double etaMax;
+  double drMin;
+  double ptThreshold;
+  };
 
 #endif
