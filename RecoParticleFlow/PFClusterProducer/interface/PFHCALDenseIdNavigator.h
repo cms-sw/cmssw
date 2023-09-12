@@ -176,7 +176,6 @@ public:
 
   // Print out neighbour DetId's
   void printNeighbourInfo(const std::vector<unsigned int> vDenseIdHcal) {
-
     // Print neighbour definitions
     for (auto denseid : vDenseIdHcal) {
       std::vector<DetId> neighbours(9, DetId(0));
