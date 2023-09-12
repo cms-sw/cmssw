@@ -18,14 +18,12 @@ namespace l1t {
       uint32_t zdc_mask = 0x3FF;
       LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-      int nBX =
-          int(ceil(block.header().getSize() / zdc::nOutputFramePerBX));
+      int nBX = int(ceil(block.header().getSize() / zdc::nOutputFramePerBX));
       // expect the first four frames to be the first 4 EtSum objects reported per event (see CMS IN-2013/005)
 
       // Find the central, first and last BXs
       int firstBX = (nBX / 2) - nBX + 1;
-      int lastBX = nBX/2;
-
+      int lastBX = nBX / 2;
 
       auto res_ = static_cast<L1TObjectCollections*>(coll)->getZDCSums(EtSumZDCCopy_);
       res_->setBXRange(firstBX, lastBX);
