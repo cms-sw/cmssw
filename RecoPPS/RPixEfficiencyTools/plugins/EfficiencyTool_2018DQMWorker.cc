@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -295,7 +296,7 @@ private:
   edm::EDGetTokenT<reco::ForwardProtonCollection> multiRP_protonsToken_;
 
   // Prescale parameters
-  std::string processName_, triggerName_;
+  std::string processName_, triggerPattern_, hltName_;
   HLTPrescaleProvider hltPrescaleProvider_;
 };
 
@@ -371,10 +372,11 @@ EfficiencyTool_2018DQMWorker::EfficiencyTool_2018DQMWorker(const edm::ParameterS
         xBinEdges[detId].push_back(nBinsX_small * mapXbinSize_small + (i - nBinsX_small) * mapXbinSize_large);
     }
   }
+  debug_ = iConfig.getUntrackedParameter<bool>("debug");
 
   // Prescale parameters
   processName_ = iConfig.getParameter<std::string>("processName");
-  triggerName_ = iConfig.getParameter<std::string>("triggerName");
+  triggerPattern_ = iConfig.getParameter<std::string>("triggerPattern");
 }
 
 EfficiencyTool_2018DQMWorker::~EfficiencyTool_2018DQMWorker() {}
@@ -901,14 +903,34 @@ void EfficiencyTool_2018DQMWorker::dqmBeginRun(edm::Run const & iRun, edm::Event
   bool changed(true);
   if (hltPrescaleProvider_.init(iRun, iSetup, processName_, changed)) {
     HLTConfigProvider const& hltConfig = hltPrescaleProvider_.hltConfigProvider();
-    // if init returns TRUE, initialisation has succeeded!
+    const std::vector<std::string> triggerNames(hltConfig.triggerNames());
+
+    // Do the matching to find out the HLT name
+    if (edm::is_glob(triggerPattern_)) {  // handle triggerPattern_ with wildcards (*,?)
+      std::vector<std::vector<std::string>::const_iterator> matches = edm::regexMatch(triggerNames, triggerPattern_);
+      if (matches.empty()) {
+        throw cms::Exception("PPS") 
+          << "requested trigger pattern [" << triggerPattern_ << "] does not match any HLT paths";
+      }
+      if (matches.size() > 1) {
+        throw cms::Exception("PPS") 
+          << "requested trigger pattern [" << triggerPattern_ << "] matches more than one HLT path";
+      }
+      hltName_ = *matches[0];
+      if(debug_)
+        std::cout << "Matched HLT path name: " << hltName_ << std::endl;
+      
+    } else {  // take full HLT path name given
+      hltName_ = triggerPattern_;
+    }
+
     if (changed) {
       edm::LogInfo("PPS") << "HLT configuration changed between runs";
       const unsigned int n(hltConfig.size());
-      const unsigned int triggerIndex(hltConfig.triggerIndex(triggerName_));
+      const unsigned int triggerIndex(hltConfig.triggerIndex(triggerPattern_));
       if (triggerIndex >= n) {
         edm::LogInfo("PPS") << "prescalePlotter::analyze:"
-                       << " TriggerName " << triggerName_ << " not available in (new) config!" << endl;
+                       << " TriggerName " << triggerPattern_ << " not available in (new) config!" << endl;
         edm::LogInfo("PPS") << "Available TriggerNames are: " << endl;
         hltConfig.dump("Triggers");
       }
@@ -925,7 +947,7 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
   Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelLocalTracks;
   iEvent.getByToken(pixelLocalTrackToken_, pixelLocalTracks);
 
-  const auto prescales(hltPrescaleProvider_.prescaleValuesInDetail<double,double>(iEvent, iSetup, triggerName_));
+  const auto prescales(hltPrescaleProvider_.prescaleValuesInDetail<double,double>(iEvent, iSetup, hltName_));
 
   int ls = iEvent.getLuminosityBlock().id().luminosityBlock();
 
