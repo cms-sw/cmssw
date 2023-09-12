@@ -8,11 +8,11 @@ namespace l1t {
     class ZDCUnpacker : public Unpacker {
     public:
       ZDCUnpacker();
-      ~ZDCUnpacker() override{};
+      ~ZDCUnpacker() override = default;
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 
-      virtual inline void setEtSumZDCCopy(const unsigned int copy) { EtSumZDCCopy_ = copy; };
+      inline void setEtSumZDCCopy(const unsigned int copy) { EtSumZDCCopy_ = copy; };
 
     private:
       unsigned int EtSumZDCCopy_;
