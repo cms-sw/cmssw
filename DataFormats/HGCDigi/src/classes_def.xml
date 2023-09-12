@@ -15,5 +15,6 @@
    <class name="HGCDataFrame<DetId,HGCSample>"/>
    <class name="std::vector<HGCDataFrame<DetId,HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<DetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<DetId,HGCSample> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<DetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<DetId,HGCSample> > > >" />
 
 </lcgdict>

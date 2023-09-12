@@ -4,6 +4,7 @@
    <class name="FTLDataFrame"/>
    <class name="std::vector<FTLDataFrame>"/>
    <class name="FTLDigiCollection"/>
+   <class name="edm::Wrapper<FTLDigiCollection>" />
    <class name="BTLSample"/>
    <class name="std::vector<BTLSample>"/>
    <class name="ETLSample"/>
@@ -11,13 +12,16 @@
    <class name="BTLDataFrame"/>
    <class name="std::vector<BTLDataFrame>"/>
    <class name="BTLDigiCollection"/>
+   <class name="edm::Wrapper<BTLDigiCollection>"/>
    <class name="ETLDataFrame"/>
    <class name="std::vector<ETLDataFrame>"/>
    <class name="ETLDigiCollection"/>
+   <class name="edm::Wrapper<ETLDigiCollection>"/>   
 
    <class name="PMTDSimAccumulator"/>
    <class name="PMTDSimAccumulator::Data"/>
    <class name="PMTDSimAccumulator::DetIdSize"/>
    <class name="std::vector<PMTDSimAccumulator::Data>"/>
    <class name="std::vector<PMTDSimAccumulator::DetIdSize>"/>
+   <class name="edm::Wrapper<PMTDSimAccumulator>"/>
 </lcgdict>
