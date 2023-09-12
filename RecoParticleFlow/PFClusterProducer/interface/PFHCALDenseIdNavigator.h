@@ -93,7 +93,7 @@ public:
       unsigned index = getIdx(denseid_c);
       neighboursHcal_[index] = neighbours;
 
-    }  // for denseid vDenseIdHcal
+    }  // loop over vDenseIdHcal
 
     if (debug) {
       backwardCompatibilityCheck(vDenseIdHcal);
@@ -176,9 +176,8 @@ public:
 
   // Print out neighbour DetId's
   void printNeighbourInfo(const std::vector<unsigned int> vDenseIdHcal) {
-    //
-    // Print final neighbour definitions
-    //
+
+    // Print neighbour definitions
     for (auto denseid : vDenseIdHcal) {
       std::vector<DetId> neighbours(9, DetId(0));
 
