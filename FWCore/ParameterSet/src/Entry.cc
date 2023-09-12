@@ -760,7 +760,19 @@ namespace edm {
     if (iView.size() < 4) {
       return {};
     }
-    if (iView[1] != kTstringRaw and iView[1] != kTvstringRaw) {
+    if (iView[1] == kTPSet) {
+      auto extent = edm::decode_pset_extent(iView.substr(3));
+      if (not extent) {
+        return {};
+      }
+      return iView.substr(0, extent->size() + 3 + 1);
+    } else if (iView[1] == kTvPSet) {
+      auto extent = edm::decode_vpset_extent(iView.substr(3));
+      if (not extent) {
+        return {};
+      }
+      return iView.substr(0, extent->size() + 3 + 1);
+    } else if (iView[1] != kTstringRaw and iView[1] != kTvstringRaw) {
       return iView.substr(0, iEndHint);
     }
     if (iView[1] == kTstringRaw) {
