@@ -147,10 +147,12 @@ namespace edm {
   // ParameterSet
   bool decode(ParameterSet&, std::string_view);
   bool encode(std::string&, ParameterSet const&);
+  std::optional<std::string_view> decode_pset_extent(std::string_view from);
 
   // vPSet
   bool decode(std::vector<ParameterSet>&, std::string_view);
   bool encode(std::string&, std::vector<ParameterSet> const&);
+  std::optional<std::string_view> decode_vpset_extent(std::string_view from);
 
 }  // namespace edm
 

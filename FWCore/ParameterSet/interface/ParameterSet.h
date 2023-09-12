@@ -254,6 +254,9 @@ namespace edm {
     // return ID of empty parameter set without registering it.
     static ParameterSetID emptyParameterSetID();
 
+    // returns empty if cannot find extent
+    static std::string_view extent(std::string_view);
+
   private:
     // construct from coded string and id.
     ParameterSet(std::string_view rep, ParameterSetID const& id);

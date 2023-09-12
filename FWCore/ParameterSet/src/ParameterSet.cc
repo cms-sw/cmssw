@@ -604,7 +604,6 @@ namespace edm {
       auto q = remaining.find_first_of('=');
       if (q == remaining.npos)
         return false;
-
       // form name unique to this ParameterSet
       std::string name = std::string(remaining.substr(0, q));
       if (tbl_.find(name) != tbl_.end())
@@ -623,18 +622,6 @@ namespace edm {
         if (!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
           return false;
         }
-      } else if (rep[1] == 'P') {
-        Entry value(name, rep);
-        ParameterSetEntry psetEntry(value.getPSet(), value.isTracked());
-        if (!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
-          return false;
-        }
-      } else if (rep[1] == 'p') {
-        Entry value(name, rep);
-        VParameterSetEntry vpsetEntry(value.getVPSet(), value.isTracked());
-        if (!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
-          return false;
-        }
       } else {
         // form value and insert name/value pair
         auto bounds = Entry::bounds(remaining, rep.size());
@@ -646,8 +633,20 @@ namespace edm {
           return false;
         }
         Entry value(name, bounds);
-        if (!tbl_.insert(std::make_pair(name, value)).second) {
-          return false;
+        if (rep[1] == 'P') {
+          ParameterSetEntry psetEntry(value.getPSet(), value.isTracked());
+          if (!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
+            return false;
+          }
+        } else if (rep[1] == 'p') {
+          VParameterSetEntry vpsetEntry(value.getVPSet(), value.isTracked());
+          if (!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
+            return false;
+          }
+        } else {
+          if (!tbl_.insert(std::make_pair(name, value)).second) {
+            return false;
+          }
         }
       }
       auto newStart = remaining.find_first_of(';');
@@ -658,6 +657,42 @@ namespace edm {
 
     return true;
   }  // from_string()
+
+  // ----------------------------------------------------------------------
+  std::string_view ParameterSet::extent(std::string_view from) {
+    if (from.size() < 2 or from.front() != '<') {
+      return {};
+    }
+
+    std::string_view remaining = from;
+    remaining.remove_prefix(1);
+    while (not remaining.empty() and remaining[0] != '>') {
+      auto start_index = remaining.find_first_of('=');
+      if (remaining.npos == start_index) {
+        return {};
+      }
+      remaining.remove_prefix(start_index + 1);
+      auto end_index = remaining.find_first_of(";>");
+      if (remaining.npos == end_index) {
+        return {};
+      }
+      auto bounds = edm::Entry::bounds(remaining, end_index);
+      if (bounds.empty()) {
+        return {};
+      }
+      remaining.remove_prefix(bounds.size());
+      if (not remaining.empty() and remaining[0] == ';') {
+        remaining.remove_prefix(1);
+      }
+    }
+    if (remaining.empty()) {
+      return {};
+    }
+    from.remove_suffix(remaining.size() - 1);
+    return from;
+  }
+
+  // ----------------------------------------------------------------------
 
   std::vector<FileInPath>::size_type ParameterSet::getAllFileInPaths(std::vector<FileInPath>& output) const {
     std::vector<FileInPath>::size_type count = 0;
