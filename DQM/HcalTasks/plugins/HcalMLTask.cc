@@ -238,9 +238,9 @@ void HcalMLTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::E
                                                                                            (float)flagDecisionThr);
 
   std::vector<std::vector<std::vector<float>>> digiHcal3DHist_ANOMALY_FLAG_HB =
-      dqmadObj_HB->ONNXOutputToDQMHistMap(ad_HBmodel_output_vectors, 7);
+      dqmadObj_HB->ONNXOutputToDQMHistMap(ad_HBmodel_output_vectors, 4, 64, 7);
   std::vector<std::vector<std::vector<float>>> digiHcal3DHist_ANOMALY_FLAG_HE =
-      dqmadObj_HE->ONNXOutputToDQMHistMap(ad_HEmodel_output_vectors, 7);
+      dqmadObj_HE->ONNXOutputToDQMHistMap(ad_HEmodel_output_vectors, 7, 64, 7);
 
   int NHB_MLbadflags_ = 0, NHE_MLbadflags_ = 0;
   for (const auto& plane : digiHcal3DHist_ANOMALY_FLAG_HB)
