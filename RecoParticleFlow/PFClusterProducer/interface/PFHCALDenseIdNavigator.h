@@ -142,7 +142,7 @@ public:
               << "This neighbour does not have a valid neighbour information (another subdetector?). Ignore: "
               << detid.det() << " " << hid.ieta() << " " << hid.iphi() << " " << hid.depth() << " " << neighbour.det()
               << " " << hidn.ieta() << " " << hidn.iphi() << " " << hidn.depth();
-          neighboursHcal_[index][ineighbour] = DetId(0);  // not a valid neighbour. set to a DetId(0)
+          neighboursHcal_[index][ineighbour] = DetId(0);  // Not a valid neighbour. Set to DetId(0)
           continue;
         }
         if (getIdx(denseidNeighbour) >= neighboursHcal_.size())
