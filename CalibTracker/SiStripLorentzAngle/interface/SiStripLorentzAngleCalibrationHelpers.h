@@ -23,18 +23,16 @@ namespace siStripLACalibration {
     if (detid.subDetector() == SiStripDetId::TIB) {
       subdet = "TIB";
       layer = tTopo->layer(mod);
-    }
-
-    if (detid.subDetector() == SiStripDetId::TOB) {
+    } else if (detid.subDetector() == SiStripDetId::TOB) {
       subdet = "TOB";
       layer = tTopo->layer(mod);
     }
 
-    std::string type = (detid.stereo() ? "s" : "a");
-    std::string d_l_t = Form("%s_L%d%s", subdet.c_str(), layer, type.c_str());
-
     if (layer == 0)
       return subdet;
+
+    std::string type = (detid.stereo() ? "s" : "a");
+    std::string d_l_t = Form("%s_L%d%s", subdet.c_str(), layer, type.c_str());
     return d_l_t;
   }
 

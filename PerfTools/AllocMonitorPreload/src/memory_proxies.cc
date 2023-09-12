@@ -12,6 +12,10 @@
 #if !defined(__x86_64__) && !defined(__i386__)
 #define USE_LOCAL_MALLOC
 #endif
+#if defined(__GLIBC__) && (__GLIBC__ == 2) && (__GLIBC_MINOR__ < 28)
+//needed for sl7
+#define USE_LOCAL_MALLOC
+#endif
 
 namespace {
   std::atomic<bool>& alloc_monitor_running_state() {

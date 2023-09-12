@@ -5,7 +5,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -36,6 +37,8 @@ namespace l1ct {
     PFAlgo3Emulator(const edm::ParameterSet& iConfig);
 
     ~PFAlgo3Emulator() override {}
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     void run(const PFInputRegion& in, OutputRegion& out) const override;
 

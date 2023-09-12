@@ -4,13 +4,22 @@ using namespace l1ct;
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::EGInputSelectorEmuConfig::EGInputSelectorEmuConfig(const edm::ParameterSet &pset)
     : idMask(pset.getParameter<uint32_t>("emIDMask")),
       nHADCALO_IN(pset.getParameter<uint32_t>("nHADCALO_IN")),
       nEMCALO_OUT(pset.getParameter<uint32_t>("nEMCALO_OUT")),
-      debug(pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
+      debug(pset.getUntrackedParameter<uint32_t>("debug")) {}
 
+edm::ParameterSetDescription l1ct::EGInputSelectorEmuConfig::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<unsigned int>("emIDMask", 30);
+  description.add<unsigned int>("nHADCALO_IN");
+  description.add<unsigned int>("nEMCALO_OUT");
+  description.addUntracked<uint32_t>("debug", 0);
+  return description;
+}
 #endif
 
 void EGInputSelectorEmulator::toFirmware(const PFInputRegion &in, HadCaloObj hadcalo[/*nCALO*/]) const {

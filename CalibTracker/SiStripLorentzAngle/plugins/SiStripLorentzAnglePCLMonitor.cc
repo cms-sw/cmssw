@@ -44,7 +44,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -248,13 +247,15 @@ void SiStripLorentzAnglePCLMonitor::analyze(const edm::Event& iEvent, const edm:
     iHists_.h1_["track_eta"]->Fill(track->eta());
     iHists_.h1_["track_phi"]->Fill(track->phi());
     iHists_.h1_["track_validhits"]->Fill(track->numberOfValidHits());
-    iHists_.h1_["track_chi2ndof"]->Fill((track->chi2() / track->ndof()));
-    iHists_.h2_["track_chi2xhits"]->Fill((track->chi2() / track->ndof()), track->numberOfValidHits());
+
+    const auto normChi2 = track->ndof() > 0 ? track->chi2() / track->ndof() : -1.;
+    iHists_.h1_["track_chi2ndof"]->Fill(normChi2);
+    iHists_.h2_["track_chi2xhits"]->Fill(normChi2, track->numberOfValidHits());
     iHists_.h2_["track_ptxhits"]->Fill(track->pt(), track->numberOfValidHits());
     iHists_.h2_["track_etaxhits"]->Fill(track->eta(), track->numberOfValidHits());
-    iHists_.h2_["track_ptxchi2"]->Fill(track->pt(), (track->chi2() / track->ndof()));
+    iHists_.h2_["track_ptxchi2"]->Fill(track->pt(), normChi2);
     iHists_.h2_["track_ptxeta"]->Fill(track->pt(), track->eta());
-    iHists_.h2_["track_etaxchi2"]->Fill(track->eta(), (track->chi2() / track->ndof()));
+    iHists_.h2_["track_etaxchi2"]->Fill(track->eta(), normChi2);
 
     edm::LogInfo("SiStripLorentzAnglePCLMonitor")
         << " track pT()" << track->pt() << " track eta()" << track->eta() << std::endl;

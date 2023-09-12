@@ -5,7 +5,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
 
@@ -26,6 +27,8 @@ namespace l1ct {
     PFAlgo2HGCEmulator(const edm::ParameterSet& iConfig);
 
     ~PFAlgo2HGCEmulator() override {}
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     void run(const PFInputRegion& in, OutputRegion& out) const override;
 

@@ -6,6 +6,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #endif
 
 l1ct::PFAlgoEmulatorBase::~PFAlgoEmulatorBase() {}
@@ -41,6 +42,14 @@ void l1ct::PFAlgoEmulatorBase::loadPtErrBins(const edm::ParameterSet &iConfig) {
   for (auto &v : resol.getParameter<std::vector<double>>("offset"))
     offs.push_back(v);
   loadPtErrBins(absetas.size(), &absetas[0], &scales[0], &offs[0]);
+}
+
+void l1ct::PFAlgoEmulatorBase::addCaloResolutionParameterSetDescription(edm::ParameterSetDescription &to) {
+  edm::ParameterSetDescription description;
+  description.add<std::vector<double>>("etaBins");
+  description.add<std::vector<double>>("offset");
+  description.add<std::vector<double>>("scale");
+  to.add<edm::ParameterSetDescription>("caloResolution", description);
 }
 
 #endif
