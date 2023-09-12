@@ -239,6 +239,9 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     minTracksInTagPot=cms.untracked.int32(options.minTracksInTagPot),  
     recoInfo=cms.untracked.int32(options.recoInfo),
     debug=cms.untracked.bool(True),
+    processName = cms.string("HLT"),
+    triggerName = cms.string("HLT_PPSMaxTracksPerRP4_v2"),
+    stageL1Trigger = cms.uint32(2),
 )
 
 #SETUP OUTPUT

@@ -6,7 +6,7 @@
 <use name="DataFormats/CTPPSDetId"/>
 <use name="DataFormats/CTPPSDigi"/>
 <use name="DataFormats/CTPPSReco"/>
-
+<use name="HLTrigger/HLTcore"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
 <use name="Geometry/Records"/>
