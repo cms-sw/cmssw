@@ -226,8 +226,8 @@ private:
   MonitorElement* meExtraPhiAtBTL_;
   MonitorElement* meExtraPhiAtBTLmatched_;
   MonitorElement* meExtraBTLeneInCone_;
-  MonitorElement* meExtraBTLfailExtenderEta_;
-  MonitorElement* meExtraBTLfailExtenderPt_;
+  MonitorElement* meExtraMTDfailExtenderEta_;
+  MonitorElement* meExtraMTDfailExtenderPt_;
 };
 
 // ------------ constructor and destructor --------------
@@ -613,13 +613,13 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             if (nlayers == 2) {
               meExtraEtaEtl2Mtd_->Fill(trackGen.eta());
             }
-            if (accept.first && accept.second && !isBTL) {
+            if (accept.first && accept.second && !(isBTL || isETL)) {
               edm::LogInfo("MtdTracksValidation")
                   << "MtdTracksValidation: extender fail in " << iEvent.id().run() << " " << iEvent.id().event()
                   << " pt= " << trackGen.pt() << " eta= " << trackGen.eta();
-              meExtraBTLfailExtenderEta_->Fill(std::abs(trackGen.eta()));
+              meExtraMTDfailExtenderEta_->Fill(std::abs(trackGen.eta()));
               if (noCrack) {
-                meExtraBTLfailExtenderPt_->Fill(trackGen.pt());
+                meExtraMTDfailExtenderPt_->Fill(trackGen.pt());
               }
             }
           }
@@ -1005,16 +1005,16 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                      180.);
     meExtraBTLeneInCone_ = ibook.book1D(
         "ExtraBTLeneInCone", "BTL reconstructed energy in cone arounnd extrapolated track; E [MeV]", 100, 0., 50.);
-    meExtraBTLfailExtenderEta_ =
-        ibook.book1D("ExtraBTLfailExtenderEta",
-                     "Eta of tracks extrapolated to BTL with no track extender match to hits; track eta",
+    meExtraMTDfailExtenderEta_ =
+        ibook.book1D("ExtraMTDfailExtenderEta",
+                     "Eta of tracks extrapolated to MTD with no track extender match to hits; track eta",
                      66,
                      0.,
                      3.3);
     ;
-    meExtraBTLfailExtenderPt_ =
-        ibook.book1D("ExtraBTLfailExtenderPt",
-                     "Pt of tracks extrapolated to BTL with no track extender match to hits; track pt [GeV] ",
+    meExtraMTDfailExtenderPt_ =
+        ibook.book1D("ExtraMTDfailExtenderPt",
+                     "Pt of tracks extrapolated to MTD with no track extender match to hits; track pt [GeV] ",
                      110,
                      0.,
                      11.);

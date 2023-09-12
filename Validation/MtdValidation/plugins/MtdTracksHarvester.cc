@@ -56,8 +56,8 @@ private:
   MonitorElement* meExtraEtaEff_;
   MonitorElement* meExtraEtaEtl2Eff_;
   MonitorElement* meExtraPhiAtBTLEff_;
-  MonitorElement* meExtraBTLfailExtenderEtaEff_;
-  MonitorElement* meExtraBTLfailExtenderPtEff_;
+  MonitorElement* meExtraMTDfailExtenderEtaEff_;
+  MonitorElement* meExtraMTDfailExtenderPtEff_;
 };
 
 // ------------ constructor and destructor --------------
@@ -146,8 +146,8 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   MonitorElement* meExtraPhiAtBTL = igetter.get(folder_ + "ExtraPhiAtBTL");
   MonitorElement* meExtraPhiAtBTLmatched = igetter.get(folder_ + "ExtraPhiAtBTLmatched");
   MonitorElement* meExtraBTLeneInCone = igetter.get(folder_ + "ExtraBTLeneInCone");
-  MonitorElement* meExtraBTLfailExtenderEta = igetter.get(folder_ + "ExtraBTLfailExtenderEta");
-  MonitorElement* meExtraBTLfailExtenderPt = igetter.get(folder_ + "ExtraBTLfailExtenderPt");
+  MonitorElement* meExtraMTDfailExtenderEta = igetter.get(folder_ + "ExtraMTDfailExtenderEta");
+  MonitorElement* meExtraMTDfailExtenderPt = igetter.get(folder_ + "ExtraMTDfailExtenderPt");
 
   if (!meBTLTrackEffEtaTot || !meBTLTrackEffPhiTot || !meBTLTrackEffPtTot || !meBTLTrackEffEtaMtd ||
       !meBTLTrackEffPhiMtd || !meBTLTrackEffPtMtd || !meETLTrackEffEtaTotZneg || !meETLTrackEffPhiTotZneg ||
@@ -491,8 +491,8 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
     computeEfficiency1D(meExtraEtaEtl2Mtd, meTrackMatchedTPEffEtaTot, meExtraEtaEtl2Eff_);
   }
 
-  if (meExtraPhiAtBTL && meExtraPhiAtBTLmatched && meExtraBTLeneInCone && meExtraBTLfailExtenderEta &&
-      meExtraBTLfailExtenderPt) {
+  if (meExtraPhiAtBTL && meExtraPhiAtBTLmatched && meExtraBTLeneInCone && meExtraMTDfailExtenderEta &&
+      meExtraMTDfailExtenderPt) {
     meExtraPhiAtBTLEff_ = ibook.book1D("ExtraPhiAtBTLEff",
                                        "Efficiency to match hits at BTL surface",
                                        meExtraPhiAtBTL->getNbinsX(),
@@ -503,23 +503,23 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
 
     normalize(meExtraBTLeneInCone, 1.);
 
-    meExtraBTLfailExtenderEtaEff_ =
-        ibook.book1D("ExtraBTLfailExtenderEtaEff",
-                     "Track extrapolated at BTL surface no extender efficiency VS Eta;Eta;Efficiency",
+    meExtraMTDfailExtenderEtaEff_ =
+        ibook.book1D("ExtraMTDfailExtenderEtaEff",
+                     "Track extrapolated at MTD surface no extender efficiency VS Eta;Eta;Efficiency",
                      meTrackMatchedTPEffEtaTot->getNbinsX(),
                      meTrackMatchedTPEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
                      meTrackMatchedTPEffEtaTot->getTH1()->GetXaxis()->GetXmax());
-    meExtraBTLfailExtenderEtaEff_->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meExtraBTLfailExtenderEta, meTrackMatchedTPEffEtaTot, meExtraBTLfailExtenderEtaEff_);
+    meExtraMTDfailExtenderEtaEff_->getTH1()->SetMinimum(0.);
+    computeEfficiency1D(meExtraMTDfailExtenderEta, meTrackMatchedTPEffEtaTot, meExtraMTDfailExtenderEtaEff_);
 
-    meExtraBTLfailExtenderPtEff_ =
-        ibook.book1D("ExtraBTLfailExtenderPtEff",
-                     "Track extrapolated at BTL surface no extender efficiency VS Pt;Pt [GeV];Efficiency",
+    meExtraMTDfailExtenderPtEff_ =
+        ibook.book1D("ExtraMTDfailExtenderPtEff",
+                     "Track extrapolated at MTD surface no extender efficiency VS Pt;Pt [GeV];Efficiency",
                      meTrackMatchedTPEffPtTot->getNbinsX(),
                      meTrackMatchedTPEffPtTot->getTH1()->GetXaxis()->GetXmin(),
                      meTrackMatchedTPEffPtTot->getTH1()->GetXaxis()->GetXmax());
-    meExtraBTLfailExtenderPtEff_->getTH1()->SetMinimum(0.);
-    computeEfficiency1D(meExtraBTLfailExtenderPt, meTrackMatchedTPEffPtTot, meExtraBTLfailExtenderPtEff_);
+    meExtraMTDfailExtenderPtEff_->getTH1()->SetMinimum(0.);
+    computeEfficiency1D(meExtraMTDfailExtenderPt, meTrackMatchedTPEffPtTot, meExtraMTDfailExtenderPtEff_);
   }
 }
 
