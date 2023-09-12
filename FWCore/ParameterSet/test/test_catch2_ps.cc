@@ -752,6 +752,60 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     REQUIRE(vpset1[0].getParameter<int>("int1") == 1);
     REQUIRE(vpset1[1].getParameter<int>("int2") == 2);
     REQUIRE(vpset1[2].getParameter<int>("int3") == 3);
+    SECTION("deprecated pset encoding") {
+      //Used in Utilities/StorageFactory
+      char const* const psetChar =
+          "<destinations=-s({63657272})"                                  // cerr
+          ";cerr=-P(<noTimeStamps=-B(true);threshold=-S(5741524e494e47)"  // WARNING
+          ";WARNING=-P(<limit=-I(+0)>);default=-P(<limit=-I(-1)>)>)>";
+      edm::ParameterSet pset(psetChar);
+      pset.registerIt();
+      {
+        auto p = pset.getUntrackedParameter<std::vector<std::string>>("destinations");
+        REQUIRE(p.size() == 1);
+        REQUIRE(p[0] == "cerr");
+        REQUIRE(not pset.exists("threshold"));
+      }
+      {
+        auto p = pset.getUntrackedParameter<edm::ParameterSet>("cerr");
+        REQUIRE(p.getUntrackedParameter<bool>("noTimeStamps"));
+        REQUIRE(p.getUntrackedParameter<std::string>("threshold") == "WARNING");
+        {
+          auto p2 = p.getUntrackedParameter<edm::ParameterSet>("WARNING");
+          REQUIRE(p2.getUntrackedParameter<int>("limit") == 0);
+          REQUIRE(not p2.exists("default"));
+        }
+        {
+          auto p3 = p.getUntrackedParameter<edm::ParameterSet>("default");
+          REQUIRE(p3.getUntrackedParameter<int>("limit") == -1);
+        }
+      }
+    }
+    SECTION("deprecated vstring encoding") {
+      char const* const psetChar =
+          "<empty=-p({});"
+          "simple=-p({<a=-I(+0)>,<a=-I(+1)>,<b=-i({+1,+2})>});"
+          "recurse=-p({<r=-p({<a=-I(+0)>,<a=-I(+1)>})>})"
+          ">";
+      edm::ParameterSet pset(psetChar);
+      pset.registerIt();
+      {
+        auto empty = pset.getUntrackedParameter<std::vector<edm::ParameterSet>>("empty");
+        REQUIRE(empty.empty());
+      }
+      {
+        auto simple = pset.getUntrackedParameter<std::vector<edm::ParameterSet>>("simple");
+        REQUIRE(simple.size() == 3);
+        REQUIRE(simple[0].getUntrackedParameter<int>("a") == 0);
+        REQUIRE(simple[1].getUntrackedParameter<int>("a") == 1);
+        REQUIRE(simple[2].getUntrackedParameter<std::vector<int>>("b").size() == 2);
+      }
+      {
+        auto recurse = pset.getUntrackedParameter<std::vector<edm::ParameterSet>>("recurse");
+        REQUIRE(recurse.size() == 1);
+        REQUIRE(recurse[0].getUntrackedParameter<std::vector<edm::ParameterSet>>("r").size() == 2);
+      }
+    }
   }
 
   SECTION("Registration") {
