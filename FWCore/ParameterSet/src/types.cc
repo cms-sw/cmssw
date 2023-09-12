@@ -1203,20 +1203,53 @@ bool edm::encode(std::string& to, ParameterSet const& from) {
 }  // encode from ParameterSet
 
 // ----------------------------------------------------------------------
+
+std::optional<std::string_view> edm::decode_pset_extent(std::string_view from) {
+  auto e = ParameterSet::extent(from);
+  if (e.empty()) {
+    return {};
+  }
+  return e;
+}
+
+// ----------------------------------------------------------------------
 // vPSet
 // ----------------------------------------------------------------------
-
+#include <iostream>
 bool edm::decode(std::vector<ParameterSet>& to, std::string_view from) {
   to.clear();
-  to.reserve(std::count(from.begin(), from.end(), ','));
-  return split(from, '{', ',', '}', [&to](auto t) {
-    ParameterSet val;
-    if (!decode(val, t)) {
+  if (from.size() < 2) {
+    return false;
+  }
+  if (from[0] != '{') {
+    return false;
+  }
+  if (from.back() != '}') {
+    return false;
+  }
+
+  to.reserve(std::count(from.begin(), from.end(), ',') + 1);
+
+  auto remaining = from.substr(1, from.size() - 2);
+  while (not remaining.empty()) {
+    auto extent = ParameterSet::extent(remaining);
+    if (extent.empty()) {
       return false;
     }
-    to.push_back(val);
-    return true;
-  });
+    ParameterSet val;
+    if (!decode(val, extent)) {
+      return false;
+    }
+    to.push_back(std::move(val));
+    remaining.remove_prefix(extent.size());
+    if (not remaining.empty()) {
+      if (remaining[0] != ',') {
+        return false;
+      }
+      remaining.remove_prefix(1);
+    }
+  }
+  return true;
 }  // decode to vector<ParameterSet>
 
 // ----------------------------------------------------------------------
@@ -1239,3 +1272,38 @@ bool edm::encode(std::string& to, std::vector<ParameterSet> const& from) {
 }  // encode from vector<ParameterSet>
 
 // ----------------------------------------------------------------------
+
+#include <iostream>
+std::optional<std::string_view> edm::decode_vpset_extent(std::string_view from) {
+  if (from.size() < 2) {
+    return {};
+  }
+  if (from.front() != '{') {
+    return {};
+  }
+  if (from[1] == '}') {
+    return from.substr(0, 2);
+  }
+  if (from.size() < 3) {
+    return {};
+  }
+  auto remaining = from.substr(1);
+  while (not remaining.empty()) {
+    auto extent = decode_pset_extent(remaining);
+    if (not extent) {
+      return {};
+    }
+    remaining.remove_prefix(extent->size());
+    if (remaining.empty())
+      return {};
+    if (remaining.front() == '}') {
+      return from.substr(0, from.size() - remaining.size() + 1);
+    }
+    if (remaining.front() == ',') {
+      remaining = remaining.substr(1);
+    } else {
+      return {};
+    }
+  }
+  return {};
+}
