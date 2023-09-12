@@ -33,6 +33,6 @@ private:
   double etaMax;
   double drMin;
   double ptThreshold;
-  };
+};
 
 #endif

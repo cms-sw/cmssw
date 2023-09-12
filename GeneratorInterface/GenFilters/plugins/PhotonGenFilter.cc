@@ -15,7 +15,6 @@ PhotonGenFilter::PhotonGenFilter(const edm::ParameterSet &iConfig)
   etaMax = iConfig.getUntrackedParameter<double>("MaxEta", 2.4);
   drMin = iConfig.getUntrackedParameter<double>("drMin", 0.1);
   ptThreshold = iConfig.getUntrackedParameter<double>("ptThreshold", 2.);
-
 }
 
 PhotonGenFilter::~PhotonGenFilter() {
@@ -30,34 +29,35 @@ bool PhotonGenFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::Event
 
   for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
        ++p) {
-      if ((*p)->pdg_id() == 22) {
-        if ((*p)->momentum().perp() > ptMin && (*p)->status() == 1 && (*p)->momentum().eta() > etaMin &&
-            (*p)->momentum().eta() < etaMax) {
-            bool accepted_photon = true;
-            double phi = (*p)->momentum().phi();
-            double eta = (*p)->momentum().eta();
-            for (HepMC::GenEvent::particle_const_iterator q = myGenEvent->particles_begin(); q != myGenEvent->particles_end(); ++q) {
-              if (&p != &q) {
-                if ((*q)->momentum().perp() > ptThreshold && (*q)->pdg_id() != 22 &&
-                    (*q)->status() == 1)  // && abs((*q)->charge()) > 0)
-                {
-                  double phi2 = (*p)->momentum().phi();
-                  double deltaphi = fabs(phi - phi2);
-                  if (deltaphi > M_PI)
-                    deltaphi = 2. * M_PI - deltaphi;
-                  double eta2 = (*p)->momentum().eta();
-                  double deltaeta = fabs(eta - eta2);
-                  double deltaR = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
-                  if (deltaR < drMin)
-                    accepted_photon = false;
-                }
-              }
+    if ((*p)->pdg_id() == 22) {
+      if ((*p)->momentum().perp() > ptMin && (*p)->status() == 1 && (*p)->momentum().eta() > etaMin &&
+          (*p)->momentum().eta() < etaMax) {
+        bool accepted_photon = true;
+        double phi = (*p)->momentum().phi();
+        double eta = (*p)->momentum().eta();
+        for (HepMC::GenEvent::particle_const_iterator q = myGenEvent->particles_begin();
+             q != myGenEvent->particles_end();
+             ++q) {
+          if (&p != &q) {
+            if ((*q)->momentum().perp() > ptThreshold && (*q)->pdg_id() != 22 &&
+                (*q)->status() == 1)  // && abs((*q)->charge()) > 0)
+            {
+              double phi2 = (*p)->momentum().phi();
+              double deltaphi = fabs(phi - phi2);
+              if (deltaphi > M_PI)
+                deltaphi = 2. * M_PI - deltaphi;
+              double eta2 = (*p)->momentum().eta();
+              double deltaeta = fabs(eta - eta2);
+              double deltaR = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
+              if (deltaR < drMin)
+                accepted_photon = false;
             }
-            if (accepted_photon)
-              return true;
+          }
         }
+        if (accepted_photon)
+          return true;
       }
-    
+    }
   }
 
   // Implementation for event filtering
