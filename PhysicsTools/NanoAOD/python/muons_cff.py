@@ -119,6 +119,11 @@ run2_muon_2016.toModify(
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
 )
 
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
+muonBSConstrain = cms.EDProducer("MuonBeamspotConstraintValueMapProducer",
+    src = cms.InputTag("linkedObjects","muons"),
+)
+
 muonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","muons"),
     name = cms.string("Muon"),
