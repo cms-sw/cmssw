@@ -90,7 +90,7 @@ public:
   void reserve(std::size_t dets, std::size_t clusters);
   Filler beginDet(unsigned int detId);
 
-  const_iterator begin() const { return const_iterator(clusters_.empty() ? nullptr : this); }
+  const_iterator begin() const { return clusters_.empty() ? end() : const_iterator(this); }
   const_iterator cbegin() const { return begin(); }
   const_iterator end() const { return const_iterator(); }
   const_iterator cend() const { return end(); }
