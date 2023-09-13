@@ -144,7 +144,7 @@ namespace l1t {
         res[47] = alg_unp;
         res[49] = alg_unp;
 
-        res[71] = zdc_unp;
+        res[142] = zdc_unp;
       }
 
       return res;
