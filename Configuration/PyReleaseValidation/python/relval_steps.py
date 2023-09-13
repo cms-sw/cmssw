@@ -548,7 +548,6 @@ steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',lab
 steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS100)}
 steps['RunMuonEG2022D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS100)}
 
-
 Run2022E={359694: [[1, 50]]}
 Run2022E_LS100={359694: [[1, 100]]}
 Run2022E_LS200={359694: [[1, 200]]}
@@ -566,6 +565,9 @@ Run2022FCosmics_LS24={360336: [[24, 24]]}
 Run2022FCosmics={360333: [[1,105]]}
 steps['RunCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-v1/RAW',label='2022F',events=100000,location='STD', ls=Run2022FCosmics_LS24)}
 steps['RunSiPixelCalCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-SiPixelCalCosmics-PromptReco-v1/ALCARECO',label='2022F',events=100000,location='STD', ls=Run2022FCosmics)}
+
+# reMINIAOD for 2022
+steps['RunJetMET2022D_reMINI']={'INPUT':InputInfo(dataSet='/JetMET/Run2022D-16Jun2023-v1/AOD',label='rmaod',events=100000,location='STD', ls=Run2022D_LS25)}
 
 #### run3 ####
 Run2023B={366727: [[1, 244]]}
@@ -3899,6 +3901,28 @@ stepReMiniAODData17 = merge([{'--era' : 'Run2_2017,run2_miniAOD_94XFall17'},step
 steps['REMINIAOD_data2017'] = stepReMiniAODData17
 steps['REMINIAOD_data2017UL'] = merge([{'--era' : 'Run2_2017'},steps['REMINIAOD_data2016UL']])
 steps['REMINIAOD_data2018UL'] = merge([{'--era' : 'Run2_2018'},steps['REMINIAOD_data2016UL']])
+
+# reMINI 2022
+steps['REMINIAOD_data2022']=merge([{'-s':'PAT',
+                                    '--process' : 'PAT',
+                                    '--datatier':'MINIAOD',
+                                    '--eventcontent':'MINIAOD',
+                                    '-n':100,
+                                    '--data' : '',
+                                    '--scenario' : 'pp',
+                                    '--conditions' : 'auto:run3_data',
+                                    '--era':'Run3,run3_miniAOD_12X'
+                                }])
+steps['REMININANO_data2022'] = merge([{'-s' : 'PAT,NANO,DQM:@nanoAODDQM',
+                                       '--process' : 'PATnano',
+                                       '--era' : 'Run3,run3_miniAOD_12X',
+                                       '--conditions' : 'auto:run3_data',
+                                       '--data' : '',
+                                       '--scenario' : 'pp',
+                                       '--eventcontent' : 'MINIAOD,NANOEDMAOD,DQM',
+                                       '--datatier' : 'MINIAOD,NANOAOD,DQMIO'
+                                       }])
+
 
 # Not sure whether the customisations are in the dict as "--customise" or "--era" so try to
 # remove both. Currently premixing uses "--customise" and everything else uses "--era".
