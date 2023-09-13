@@ -204,6 +204,10 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     particleNetMonitoringHLT          # HIG: monitoring of HLT PNET taggers (incl. comparisons to Offline PNET)
 )
 
+# remove Strip HLT monitoring in the phase-2 sequence
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(offlineHLTSource4HLTMonitorPD, offlineHLTSource4HLTMonitorPD.copyAndExclude([ sistripMonitorHLTsequence]))
+
 # sequences run @tier0 on HLTMonitor PD
 OfflineHLTMonitoring = cms.Sequence(
     offlineHLTSource4HLTMonitorPD
