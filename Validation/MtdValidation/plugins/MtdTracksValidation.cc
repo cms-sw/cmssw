@@ -611,7 +611,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             }
             meExtraEtaMtd_->Fill(std::abs(trackGen.eta()));
             if (nlayers == 2) {
-              meExtraEtaEtl2Mtd_->Fill(trackGen.eta());
+              meExtraEtaEtl2Mtd_->Fill(std::abs(trackGen.eta()));
             }
             if (accept.first && accept.second && !(isBTL || isETL)) {
               edm::LogInfo("MtdTracksValidation")
