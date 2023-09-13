@@ -1242,7 +1242,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   //Loop on tracks
   for (unsigned int iv = 0; iv < recopv.size(); iv++) {
-    if(recopv.at(iv).ndof > selNdof_){
+    if (recopv.at(iv).ndof > selNdof_) {
       const reco::Vertex* vertex = recopv.at(iv).recVtx;
 
       for (unsigned int iev = 0; iev < simpv.size(); iev++) {
@@ -1294,7 +1294,8 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             double dZ = zPCA - zsim;
             double d3D = std::sqrt((xPCA - xsim) * (xPCA - xsim) + (yPCA - ysim) * (yPCA - ysim) + dZ * dZ);
             // orient d3D according to the projection of RECO - SIM onto simulated momentum
-            if ((xPCA - xsim) * ((*tp_info)->px()) + (yPCA - ysim) * ((*tp_info)->py()) + dZ * ((*tp_info)->pz()) < 0.) {
+            if ((xPCA - xsim) * ((*tp_info)->px()) + (yPCA - ysim) * ((*tp_info)->py()) + dZ * ((*tp_info)->pz()) <
+                0.) {
               d3D = -d3D;
             }
 
@@ -1339,8 +1340,8 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                     << "No match between mass hyp. and time: " << std::abs((*tp_info)->pdgId()) << " mass hyp pi/k/p "
                     << isPi << " " << isK << " " << isP << " t0/t0safe " << t0Pid[*iTrack] << " " << t0Safe[*iTrack]
                     << " tMtd - tof pi/K/p " << tMtd[*iTrack] - tofPi[*iTrack] << " " << tMtd[*iTrack] - tofK[*iTrack]
-                    << " " << tMtd[*iTrack] - tofP[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " " << probK[*iTrack]
-                    << " " << probP[*iTrack];
+                    << " " << tMtd[*iTrack] - tofP[*iTrack] << " Prob pi/K/p " << probPi[*iTrack] << " "
+                    << probK[*iTrack] << " " << probP[*iTrack];
               }
 
               if (std::abs((*iTrack)->eta()) < trackMaxBtlEta_) {
@@ -1544,7 +1545,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           }  //if tp_info != nullptr
         }
       }
-    } // ndof
+    }  // ndof
   }
 
   int real = 0;
@@ -1560,7 +1561,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   meRecVerNumber_->Fill(recopv.size());
   for (unsigned int ir = 0; ir < recopv.size(); ir++) {
-    if(recopv.at(ir).ndof > selNdof_){
+    if (recopv.at(ir).ndof > selNdof_) {
       meRecoVtxVsLineDensity_->Fill(puLineDensity(recopv.at(ir).z));
       meRecPVZ_->Fill(recopv.at(ir).z, 1. / puLineDensity(recopv.at(ir).z));
       if (recopv.at(ir).recVtx->tError() > 0.) {
@@ -1585,7 +1586,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
       if (recopv.at(ir).split_from() != -1) {
         split++;
       }
-    } // ndof
+    }  // ndof
   }
 
   if (debug_) {
@@ -1617,7 +1618,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     }
 
     for (unsigned int ir = 0; ir < recopv.size(); ir++) {
-      if(recopv.at(ir).ndof > selNdof_){
+      if (recopv.at(ir).ndof > selNdof_) {
         if (recopv.at(ir).sim == is && simpv.at(is).rec == ir) {
           meTimeRes_->Fill(recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_);
           meTimePull_->Fill((recopv.at(ir).recVtx->t() - simpv.at(is).t * simUnit_) / recopv.at(ir).recVtx->tError());
@@ -1651,7 +1652,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             edm::LogPrint("Primary4DVertexValidation") << "****";
           }
         }
-      } // ndof
+      }  // ndof
     }
   }
 
