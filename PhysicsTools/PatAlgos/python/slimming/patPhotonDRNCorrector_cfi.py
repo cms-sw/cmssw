@@ -7,8 +7,8 @@ patPhotonsDRN = patPhotonDRNCorrectionProducer.clone(
                             Client = patPhotonDRNCorrectionProducer.Client.clone(
                               mode = 'Async',
                               allowedTries = 1,
-                              modelName = 'photonObjectEnsemble',
-                              modelConfigPath = 'RecoEgamma/EgammaPhotonProducers/data/models/photonObjectEnsemble/config.pbtxt',
+                              modelName = 'photonObjectCombined',
+                              modelConfigPath = 'RecoEgamma/EgammaPhotonProducers/data/models/photonObjectCombined/config.pbtxt',
                               timeout = 10
                             )
     )
