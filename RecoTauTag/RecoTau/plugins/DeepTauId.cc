@@ -20,6 +20,7 @@
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
+#include "RecoTauTag/RecoTau/interface/TauWPThreshold.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/View.h"
@@ -27,7 +28,6 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include <TF1.h>
 #include <map>
 #include "RecoTauTag/RecoTau/interface/DeepTauScaling.h"
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -45,55 +45,6 @@ namespace deep_tau {
     FootprintCorrection,
     PhotonPtSumOutsideSignalCone,
     PUcorrPtSum
-  };
-
-  class TauWPThreshold {
-  public:
-    explicit TauWPThreshold(const std::string& cut_str) {
-      bool simple_value = false;
-      try {
-        size_t pos = 0;
-        value_ = std::stod(cut_str, &pos);
-        simple_value = (pos == cut_str.size());
-      } catch (std::invalid_argument&) {
-      } catch (std::out_of_range&) {
-      }
-      if (!simple_value) {
-        static const std::string prefix =
-            "[&](double *x, double *p) { const int decayMode = p[0];"
-            "const double pt = p[1]; const double eta = p[2];";
-        static const int n_params = 3;
-        static const auto handler = [](int, Bool_t, const char*, const char*) -> void {};
-
-        std::string fn_str = prefix;
-        if (cut_str.find("return") == std::string::npos)
-          fn_str += " return " + cut_str + ";}";
-        else
-          fn_str += cut_str + "}";
-        auto old_handler = SetErrorHandler(handler);
-        fn_ = std::make_unique<TF1>("fn_", fn_str.c_str(), 0, 1, n_params);
-        SetErrorHandler(old_handler);
-        if (!fn_->IsValid())
-          throw cms::Exception("TauWPThreshold: invalid formula") << "Invalid WP cut formula = '" << cut_str << "'.";
-      }
-    }
-    double operator()(const reco::BaseTau& tau, bool isPFTau) const {
-      if (!fn_) {
-        return value_;
-      }
-
-      if (isPFTau)
-        fn_->SetParameter(0, dynamic_cast<const reco::PFTau&>(tau).decayMode());
-      else
-        fn_->SetParameter(0, dynamic_cast<const pat::Tau&>(tau).decayMode());
-      fn_->SetParameter(1, tau.pt());
-      fn_->SetParameter(2, tau.eta());
-      return fn_->Eval(0);
-    }
-
-  private:
-    std::unique_ptr<TF1> fn_;
-    double value_;
   };
 
   class DeepTauCache {
@@ -951,7 +902,7 @@ public:
   using ElectronCollection = pat::ElectronCollection;
   using MuonCollection = pat::MuonCollection;
   using LorentzVectorXYZ = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>;
-  using Cutter = deep_tau::TauWPThreshold;
+  using Cutter = tau::TauWPThreshold;
   using CutterPtr = std::unique_ptr<Cutter>;
   using WPList = std::vector<CutterPtr>;
 
