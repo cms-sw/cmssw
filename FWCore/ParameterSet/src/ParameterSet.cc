@@ -605,7 +605,7 @@ namespace edm {
       if (q == remaining.npos)
         return false;
       // form name unique to this ParameterSet
-      std::string name = std::string(remaining.substr(0, q));
+      auto name = remaining.substr(0, q);
       if (tbl_.find(name) != tbl_.end())
         return false;
 
@@ -614,12 +614,12 @@ namespace edm {
       // entries are generically of the form tracked-type-rep
       if (rep[1] == 'Q') {
         ParameterSetEntry psetEntry(rep);
-        if (!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
+        if (!psetTable_.emplace(name, psetEntry).second) {
           return false;
         }
       } else if (rep[1] == 'q') {
         VParameterSetEntry vpsetEntry(rep);
-        if (!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
+        if (!vpsetTable_.emplace(name, vpsetEntry).second) {
           return false;
         }
       } else {
@@ -632,19 +632,19 @@ namespace edm {
         if (not remaining.empty() and remaining.front() != ';') {
           return false;
         }
-        Entry value(name, bounds);
+        Entry value(std::string(name), bounds);
         if (rep[1] == 'P') {
           ParameterSetEntry psetEntry(value.getPSet(), value.isTracked());
-          if (!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
+          if (!psetTable_.emplace(name, psetEntry).second) {
             return false;
           }
         } else if (rep[1] == 'p') {
           VParameterSetEntry vpsetEntry(value.getVPSet(), value.isTracked());
-          if (!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
+          if (!vpsetTable_.emplace(name, vpsetEntry).second) {
             return false;
           }
         } else {
-          if (!tbl_.insert(std::make_pair(name, value)).second) {
+          if (!tbl_.emplace(name, value).second) {
             return false;
           }
         }

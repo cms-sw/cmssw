@@ -1221,11 +1221,11 @@ namespace edm {
       }
       case kTvstringRaw: {
         os << "{";
-        std::string start = "'";
-        std::string const between(",'");
+        std::string_view start = "'";
+        std::string_view const between(",'");
         std::vector<std::string> strings = entry.getVString();
-        for (std::vector<std::string>::const_iterator it = strings.begin(), itEnd = strings.end(); it != itEnd; ++it) {
-          os << start << *it << "'";
+        for (auto const& s : strings) {
+          os << start << s << "'";
           start = between;
         }
         os << "}";
@@ -1237,11 +1237,11 @@ namespace edm {
       }
       case kTvstringHex: {
         os << "{";
-        std::string start = "'";
-        std::string const between(",'");
+        std::string_view start = "'";
+        std::string_view const between(",'");
         std::vector<std::string> strings = entry.getVString();
-        for (std::vector<std::string>::const_iterator it = strings.begin(), itEnd = strings.end(); it != itEnd; ++it) {
-          os << start << *it << "'";
+        for (auto const& s : strings) {
+          os << start << s << "'";
           start = between;
         }
         os << "}";

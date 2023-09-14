@@ -177,7 +177,7 @@ namespace edm {
 
     friend std::ostream& operator<<(std::ostream& ost, Entry const& entry);
 
-    //empt string view denotes failure to find bounds
+    //empty string view denotes failure to find bounds
     static std::string_view bounds(std::string_view, std::size_t iEndHint);
 
   private:
