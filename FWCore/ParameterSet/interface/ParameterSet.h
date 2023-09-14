@@ -230,13 +230,13 @@ namespace edm {
 
     std::vector<ParameterSet> popVParameterSet(std::string const& name);
 
-    typedef std::map<std::string, Entry> table;
+    typedef std::map<std::string, Entry, std::less<>> table;
     table const& tbl() const { return tbl_; }
 
-    typedef std::map<std::string, ParameterSetEntry> psettable;
+    typedef std::map<std::string, ParameterSetEntry, std::less<>> psettable;
     psettable const& psetTable() const { return psetTable_; }
 
-    typedef std::map<std::string, VParameterSetEntry> vpsettable;
+    typedef std::map<std::string, VParameterSetEntry, std::less<>> vpsettable;
     vpsettable const& vpsetTable() const { return vpsetTable_; }
 
     ParameterSet* getPSetForUpdate(std::string const& name, bool& isTracked);

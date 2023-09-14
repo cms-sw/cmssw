@@ -1215,7 +1215,6 @@ std::optional<std::string_view> edm::decode_pset_extent(std::string_view from) {
 // ----------------------------------------------------------------------
 // vPSet
 // ----------------------------------------------------------------------
-#include <iostream>
 bool edm::decode(std::vector<ParameterSet>& to, std::string_view from) {
   to.clear();
   if (from.size() < 2) {
@@ -1273,7 +1272,6 @@ bool edm::encode(std::string& to, std::vector<ParameterSet> const& from) {
 
 // ----------------------------------------------------------------------
 
-#include <iostream>
 std::optional<std::string_view> edm::decode_vpset_extent(std::string_view from) {
   if (from.size() < 2) {
     return {};

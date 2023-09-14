@@ -84,11 +84,11 @@ namespace edm {
   bool encode_element(std::string&, std::string const&);
   std::optional<std::string_view> decode_vstring_extent(std::string_view from);
 
-  // String old
+  // String old, kept for backwards compatibility
   bool decode_deprecated(std::string&, std::string_view);
   bool encode_deprecated(std::string&, std::string const&);
 
-  // vString old
+  // vString old, kept for backwards compatibility
   bool decode_deprecated(std::vector<std::string>&, std::string_view);
   bool encode_deprecated(std::string&, std::vector<std::string> const&);
 

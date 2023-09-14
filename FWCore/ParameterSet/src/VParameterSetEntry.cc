@@ -12,11 +12,7 @@ namespace edm {
   VParameterSetEntry::VParameterSetEntry() : tracked_(false), theVPSet_(), theIDs_() {}
 
   VParameterSetEntry::VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked)
-      : tracked_(isTracked), theVPSet_(new std::vector<ParameterSet>), theIDs_() {
-    for (std::vector<ParameterSet>::const_iterator i = vpset.begin(), e = vpset.end(); i != e; ++i) {
-      theVPSet_->push_back(*i);
-    }
-  }
+      : tracked_(isTracked), theVPSet_(new std::vector<ParameterSet>(vpset)), theIDs_() {}
 
   VParameterSetEntry::VParameterSetEntry(std::string_view rep)
       : tracked_(rep[0] == '+'), theVPSet_(), theIDs_(new std::vector<ParameterSetID>) {
@@ -26,8 +22,8 @@ namespace edm {
     std::string_view bracketedRepr = rep.substr(2);
     split(std::back_inserter(temp), bracketedRepr, '{', ',', '}');
     theIDs_->reserve(temp.size());
-    for (std::vector<std::string_view>::const_iterator i = temp.begin(), e = temp.end(); i != e; ++i) {
-      theIDs_->push_back(ParameterSetID(std::string(*i)));
+    for (auto const& id : temp) {
+      theIDs_->emplace_back(std::string(id));
     }
   }
 

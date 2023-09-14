@@ -72,10 +72,7 @@ namespace {
     std::vector<std::string> names = ps.getParameterNames();
     REQUIRE(names.empty());
 
-    // The following causes failure, because of an apparent GCC bug in comparing bools!
-    //T value;
-    // Instead, we use this more verbose initialization...
-    T value = T();
+    T value{};
     preal.template addParameter<T>("x", value);
     names = ps.getParameterNames();
     REQUIRE(names.size() == 1);
@@ -179,6 +176,11 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       auto ret = edm::decode_vstring_extent(std::string_view("{\0\0}", 4));
       REQUIRE(ret);
       CHECK(*ret == std::string_view("{\0\0}", 4));
+    }
+    SECTION("one string with a null") {
+      auto ret = edm::decode_vstring_extent(std::string_view("{\0\0\0\0}", 6));
+      REQUIRE(ret);
+      CHECK(*ret == std::string_view("{\0\0\0\0}", 6));
     }
     SECTION("one empty string, stuff after") {
       auto ret = edm::decode_vstring_extent(std::string_view("{\0\0})aa", 6));
@@ -292,10 +294,6 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       vs.push_back("TWO");
       vs.push_back("three");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("vstring with empty strings") {
       std::vector<std::string> vs;
@@ -304,27 +302,15 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       vs.push_back("");
       vs.push_back("three");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("empty vstring") {
       std::vector<std::string> vs;
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("with one empty string") {
       std::vector<std::string> vs;
       vs.push_back("");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("special characters") {
       //special characters
@@ -333,64 +319,36 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
       vs.push_back("1");
       vs.push_back("three");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("leading '}'") {
       std::vector<std::string> vs;
       vs.push_back("}");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("leading ','") {
       std::vector<std::string> vs;
       vs.push_back(",");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("leading '<'") {
       std::vector<std::string> vs;
       vs.push_back("<");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("leading '>'") {
       std::vector<std::string> vs;
       vs.push_back(">");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("leading ';'") {
       std::vector<std::string> vs;
       vs.push_back(";");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("leading ':'") {
       std::vector<std::string> vs;
       vs.push_back(":");
       testbody<std::vector<std::string>>(vs);
-      edm::ParameterSet p1;
-      p1.addParameter<std::vector<std::string>>("vs", vs);
-      p1.registerIt();
-      std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string>>("vs");
     }
     SECTION("existsAs") {
       std::vector<std::string> vs;
@@ -752,6 +710,7 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     REQUIRE(vpset1[0].getParameter<int>("int1") == 1);
     REQUIRE(vpset1[1].getParameter<int>("int2") == 2);
     REQUIRE(vpset1[2].getParameter<int>("int3") == 3);
+
     SECTION("deprecated pset encoding") {
       //Used in Utilities/StorageFactory
       char const* const psetChar =
