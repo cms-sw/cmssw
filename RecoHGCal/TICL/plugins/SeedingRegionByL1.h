@@ -35,6 +35,7 @@ namespace ticl {
     double maxAbsEta_;                    // maximum |eta| of L1 TkEm objects
     std::vector<double> endcapScalings_;  // pT scaling factors for endcap
     int quality_;                         // hwQual
+    bool qualityIsMask_;                  // is hwQual to be applied as a mask
 
     double tkEmOfflineEt(double et) const;
   };
