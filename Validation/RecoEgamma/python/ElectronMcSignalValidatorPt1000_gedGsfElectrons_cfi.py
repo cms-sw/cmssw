@@ -64,7 +64,7 @@ electronMcSignalValidatorPt1000 = DQMEDAnalyzer('ElectronMcSignalValidator',
   MaxAbsEta = cms.double(2.5),
   MaxAbsEtaExtended = cms.double(3.0),
   MatchingID = cms.vint32(11,-11),
-  MatchingMotherID = cms.vint32(23,24,-24,32),
+  MatchingMotherID = cms.vint32(23,24,-24,32,990),
   histosCfg = cms.PSet(electronMcSignalHistosCfg)
 )
 
