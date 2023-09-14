@@ -8,6 +8,7 @@ std::ostream& operator<<(std::ostream& os, const ETLDetId& id) {
      << " Ring        : " << id.mtdRR() << "    "
      << " Disc/Side/Sector = " << id.nDisc() << " " << id.discSide() << " " << id.sector() << std::endl
      << " Module      : " << id.module() << std::endl
-     << " Module type : " << id.modType() << std::endl;
+     << " Module type : " << id.modType() << std::endl
+     << " Sensor      : " << id.sensor() << std::endl;
   return os;
 }

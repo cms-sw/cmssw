@@ -209,7 +209,7 @@ GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildSubdet(FilteredView& 
     subdet->setGeographicalID(BTLDetId(0, 0, 0, 0, 0));
   } else if (thisDet == GeometricTimingDet::ETL) {
     const uint32_t side = subdet->translation().z() > 0 ? 1 : 0;
-    subdet->setGeographicalID(ETLDetId(side, 0, 0, 0));
+    subdet->setGeographicalID(ETLDetId(side, 0, 0, 0, 0));
   } else {
     throw cms::Exception("CmsMTDConstruction") << " ERROR - I was expecting a SubDet, I got a " << fv.name();
   }
@@ -248,6 +248,11 @@ GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildLayer(FilteredView& f
 template <class FilteredView>
 bool CmsMTDConstruction<FilteredView>::isBTLV2(FilteredView& fv) {
   return (fv.name().substr(0, 9) == "BTLModule");
+}
+
+template <class FilteredView>
+bool CmsMTDConstruction<FilteredView>::isETLpreV8(FilteredView& fv) {
+  return (fv.name().find("EModule") != std::string::npos);
 }
 
 template class CmsMTDConstruction<DDFilteredView>;

@@ -71,6 +71,8 @@ upgradeKeys[2026] = [
     '2026D103PU',
     '2026D104',
     '2026D104PU',
+    '2026D105',
+    '2026D105PU',
 ]
 
 # pre-generation of WF numbers
@@ -2823,6 +2825,16 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
+<<<<<<< HEAD
+=======
+    '2026D105' : {
+        'Geom' : 'Extended2026D104',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T25',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+>>>>>>> 5bd8a0ba0d1 (ETL Geometry v8)
 }
 
 # standard PU sequences
