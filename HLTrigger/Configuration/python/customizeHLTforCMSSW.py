@@ -234,14 +234,6 @@ def customiseForOffline(process):
     return process
 
 
-def customizeHLTfor42514(process):
-    for p in esproducers_by_type(process, 'SiPixelTemplateDBObjectESProducer'):
-        process.load('RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi')
-        break
-
-    return process
-
-
 def customizeHLTfor42497(process):
     for producer in esproducers_by_type(process, 'SiPixelQualityESProducer'):
         producer.siPixelQualityFromDbLabel = cms.string('')
@@ -264,7 +256,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customizeHLTfor42514(process)
     process = customizeHLTfor42497(process)
 
     return process
