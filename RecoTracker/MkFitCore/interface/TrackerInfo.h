@@ -5,6 +5,7 @@
 #include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <unordered_map>
 
