@@ -77,6 +77,8 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
+  inline bool isCalibrated() { return doMissCalibrate; }
+
 protected:
   template <typename T>
   void clusterizeDetUnitT(const T& input,
