@@ -23,7 +23,7 @@ l1Menus = {
     '2023v12'      : ( ','.join( [ 'L1Menu_Collisions2023_v1_2_0_xml'                        ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-06-13 14:12:00.000"] ), ),
     'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2022_v1_1_0-d1_xml'            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2022-10-26 10:46:29.000"] ), ),
     'PIon'         : ( ','.join( [ 'L1Menu_HeavyIons2016_v3_m2_xml'                          ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-11-22 11:11:00.000"] ), ),
-    'PRef'         : ( ','.join( [ 'L1Menu_CollisionsPPRef2023_v1_0_0_xml'                   ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-08-30 08:07:26.000"] ), ),
+    'PRef'         : ( ','.join( [ 'L1Menu_CollisionsPPRef2023_v1_1_1_xml'                   ,l1tMenuRecord,connectionString,l1tMenuLabel, "2023-09-14 08:56:16.000"] ), ),
 }
 
 hltGTs = {
