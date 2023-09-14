@@ -138,8 +138,7 @@ bool L1TTkEmFilter::hltFilter(edm::Event& iEvent,
     if (applyQual1_) {
       if (qual1IsMask_) {
         passQuality = (itkEm->hwQual() & quality1_);
-      }
-      else {
+      } else {
         passQuality = (itkEm->hwQual() == quality1_);
       }
     } else
@@ -153,7 +152,8 @@ bool L1TTkEmFilter::hltFilter(edm::Event& iEvent,
         passIsolation = true;
     }
 
-    if (offlinePt >= min_Pt_ && std::fabs(itkEm->eta()) < max_AbsEta1_ && std::fabs(itkEm->eta()) >= min_AbsEta1_ && passQuality && passIsolation) {
+    if (offlinePt >= min_Pt_ && std::fabs(itkEm->eta()) < max_AbsEta1_ && std::fabs(itkEm->eta()) >= min_AbsEta1_ &&
+        passQuality && passIsolation) {
       ntrkEm++;
       l1t::TkEmRef ref1(l1t::TkEmRef(tkEms1, distance(atrkEms, itkEm)));
       filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkEm, ref1);
@@ -171,8 +171,7 @@ bool L1TTkEmFilter::hltFilter(edm::Event& iEvent,
     if (applyQual2_) {
       if (qual2IsMask_) {
         passQuality = (itkEm->hwQual() & quality2_);
-      }
-      else {
+      } else {
         passQuality = (itkEm->hwQual() == quality2_);
       }
     } else
@@ -185,7 +184,8 @@ bool L1TTkEmFilter::hltFilter(edm::Event& iEvent,
         passIsolation = true;
     }
 
-    if (offlinePt >= min_Pt_ && std::fabs(itkEm->eta()) <= max_AbsEta2_ && std::fabs(itkEm->eta()) >= min_AbsEta2_ && passQuality && passIsolation) {
+    if (offlinePt >= min_Pt_ && std::fabs(itkEm->eta()) <= max_AbsEta2_ && std::fabs(itkEm->eta()) >= min_AbsEta2_ &&
+        passQuality && passIsolation) {
       ntrkEm++;
       l1t::TkEmRef ref2(l1t::TkEmRef(tkEms2, distance(atrkEms, itkEm)));
       filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkEm, ref2);
