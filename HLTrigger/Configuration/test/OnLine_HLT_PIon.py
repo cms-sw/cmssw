@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_2_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_13_2_0/PIon/V21 (CMSSW_13_2_1)
+# /dev/CMSSW_13_2_0/PIon/V46 (CMSSW_13_2_3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V21')
+  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V46')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -1469,19 +1469,14 @@ process.streams = cms.PSet(
     'ZeroBias' )
 )
 process.datasets = cms.PSet( 
-  HLTPhysics = cms.vstring( 'HLT_Physics_v9' ),
-  OnlineMonitor = cms.vstring( 'HLT_Physics_v9',
+  HLTPhysics = cms.vstring( 'HLT_Physics_v10' ),
+  OnlineMonitor = cms.vstring( 'HLT_Physics_v10',
     'HLT_Random_v3',
-    'HLT_ZeroBias_v8' ),
+    'HLT_ZeroBias_v9' ),
   ZeroBias = cms.vstring( 'HLT_Random_v3',
-    'HLT_ZeroBias_v8' )
+    'HLT_ZeroBias_v9' )
 )
 
-process.hltESSTfGraphRecord = cms.ESSource( "EmptyESSource",
-    recordName = cms.string( "TfGraphRecord" ),
-    iovIsRunNotTime = cms.bool( True ),
-    firstValid = cms.vuint32( 1 )
-)
 process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "CSCChannelMapperRecord" ),
     iovIsRunNotTime = cms.bool( True ),
@@ -1645,6 +1640,11 @@ process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     firstValid = cms.vuint32( 1 )
 )
+process.hltESSTfGraphRecord = cms.ESSource( "EmptyESSource",
+    recordName = cms.string( "TfGraphRecord" ),
+    iovIsRunNotTime = cms.bool( True ),
+    firstValid = cms.vuint32( 1 )
+)
 process.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
     RunType = cms.string( "Run3" ),
     PitchSimY = cms.double( 0.15 ),
@@ -1661,11 +1661,6 @@ process.ppsPixelTopologyESSource = cms.ESSource( "PPSPixelTopologyESSource",
     appendToDataLabel = cms.string( "" )
 )
 
-process.hltESPTrackSelectionTfCKF = cms.ESProducer( "TfGraphDefProducer",
-  ComponentName = cms.string( "hltESPTrackSelectionTfCKF" ),
-  FileName = cms.FileInPath( "RecoTracker/FinalTrackSelectors/data/TrackTfClassifier/CKF_Run3_12_5_0_pre5.pb" ),
-  appendToDataLabel = cms.string( "" )
-)
 process.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
@@ -1886,6 +1881,9 @@ process.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMate
 process.RPCGeometryESModule = cms.ESProducer( "RPCGeometryESModule",
   fromDDD = cms.untracked.bool( False ),
   fromDD4hep = cms.untracked.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+process.SiPixelTemplateStoreESProducer = cms.ESProducer( "SiPixelTemplateStoreESProducer",
   appendToDataLabel = cms.string( "" )
 )
 process.SiStripClusterizerConditionsESProducer = cms.ESProducer( "SiStripClusterizerConditionsESProducer",
@@ -3259,6 +3257,36 @@ process.hltESPPixelCPEFast = cms.ESProducer( "PixelCPEFastESProducerPhase1",
   MagneticFieldRecord = cms.ESInputTag( "","" ),
   appendToDataLabel = cms.string( "" )
 )
+process.hltESPPixelCPEFastHIon = cms.ESProducer( "PixelCPEFastESProducerHIonPhase1",
+  LoadTemplatesFromDB = cms.bool( True ),
+  Alpha2Order = cms.bool( True ),
+  ClusterProbComputationFlag = cms.int32( 0 ),
+  useLAWidthFromDB = cms.bool( True ),
+  lAOffset = cms.double( 0.0 ),
+  lAWidthBPix = cms.double( 0.0 ),
+  lAWidthFPix = cms.double( 0.0 ),
+  doLorentzFromAlignment = cms.bool( False ),
+  useLAFromDB = cms.bool( True ),
+  xerr_barrel_l1 = cms.vdouble( 0.00115, 0.0012, 8.8E-4 ),
+  yerr_barrel_l1 = cms.vdouble( 0.00375, 0.0023, 0.0025, 0.0025, 0.0023, 0.0023, 0.0021, 0.0021, 0.0024 ),
+  xerr_barrel_ln = cms.vdouble( 0.00115, 0.0012, 8.8E-4 ),
+  yerr_barrel_ln = cms.vdouble( 0.00375, 0.0023, 0.0025, 0.0025, 0.0023, 0.0023, 0.0021, 0.0021, 0.0024 ),
+  xerr_endcap = cms.vdouble( 0.002, 0.002 ),
+  yerr_endcap = cms.vdouble( 0.0021 ),
+  xerr_barrel_l1_def = cms.double( 0.0103 ),
+  yerr_barrel_l1_def = cms.double( 0.0021 ),
+  xerr_barrel_ln_def = cms.double( 0.0103 ),
+  yerr_barrel_ln_def = cms.double( 0.0021 ),
+  xerr_endcap_def = cms.double( 0.002 ),
+  yerr_endcap_def = cms.double( 7.5E-4 ),
+  EdgeClusterErrorX = cms.double( 50.0 ),
+  EdgeClusterErrorY = cms.double( 85.0 ),
+  UseErrorsFromTemplates = cms.bool( True ),
+  TruncatePixelCharge = cms.bool( True ),
+  ComponentName = cms.string( "hltESPPixelCPEFastHIon" ),
+  MagneticFieldRecord = cms.ESInputTag( "","" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   LoadTemplatesFromDB = cms.bool( True ),
   Alpha2Order = cms.bool( True ),
@@ -3642,6 +3670,11 @@ process.hltESPTrackAlgoPriorityOrder = cms.ESProducer( "TrackAlgoPriorityOrderES
   algoOrder = cms.vstring(  ),
   appendToDataLabel = cms.string( "" )
 )
+process.hltESPTrackSelectionTfCKF = cms.ESProducer( "TfGraphDefProducer",
+  ComponentName = cms.string( "hltESPTrackSelectionTfCKF" ),
+  FileName = cms.FileInPath( "RecoTracker/FinalTrackSelectors/data/TrackTfClassifier/CKF_Run3_12_5_0_pre5.pb" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.hltESPTrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
   usePhase2Stacks = cms.bool( False ),
   trackerGeometryLabel = cms.untracked.string( "" ),
@@ -3921,6 +3954,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    EtSumZdcInputTag = cms.InputTag( 'hltGtStage2Digis','EtSumZDC' ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
     AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
     GetPrescaleColumnFromData = cms.bool( False ),
@@ -3968,7 +4002,8 @@ process.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
-    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' )
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1EtSumZdcInputTag = cms.InputTag( 'hltGtStage2Digis','EtSumZDC' )
 )
 process.hltPreZeroBias = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -4017,7 +4052,7 @@ process.hltDatasetHLTPhysics = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
-    triggerConditions = cms.vstring( 'HLT_Physics_v9' )
+    triggerConditions = cms.vstring( 'HLT_Physics_v10' )
 )
 process.hltPreDatasetHLTPhysics = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -4029,9 +4064,9 @@ process.hltDatasetOnlineMonitor = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
-    triggerConditions = cms.vstring( 'HLT_Physics_v9',
+    triggerConditions = cms.vstring( 'HLT_Physics_v10',
       'HLT_Random_v3',
-      'HLT_ZeroBias_v8' )
+      'HLT_ZeroBias_v9' )
 )
 process.hltPreDatasetOnlineMonitor = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -4044,7 +4079,7 @@ process.hltDatasetZeroBias = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
     triggerConditions = cms.vstring( 'HLT_Random_v3',
-      'HLT_ZeroBias_v8' )
+      'HLT_ZeroBias_v9' )
 )
 process.hltPreDatasetZeroBias = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -4127,8 +4162,8 @@ process.HLTriggerFirstPath = cms.Path( process.hltGetRaw + process.hltPSetMap + 
 process.Status_OnCPU = cms.Path( process.statusOnGPU + ~process.statusOnGPUFilter )
 process.Status_OnGPU = cms.Path( process.statusOnGPU + process.statusOnGPUFilter )
 process.HLT_Random_v3 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
-process.HLT_Physics_v9 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
-process.HLT_ZeroBias_v8 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
+process.HLT_Physics_v10 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
+process.HLT_ZeroBias_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.Dataset_HLTPhysics = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetHLTPhysics + process.hltPreDatasetHLTPhysics )
@@ -4145,7 +4180,7 @@ process.DQMOutput = cms.FinalPath( process.dqmOutput + process.hltOutputDQM )
 process.PhysicsCommissioningOutput = cms.FinalPath( process.hltOutputPhysicsCommissioning )
 
 
-process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_Random_v3, process.HLT_Physics_v9, process.HLT_ZeroBias_v8, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_HLTPhysics, process.Dataset_OnlineMonitor, process.Dataset_ZeroBias, process.DQMOutput, process.PhysicsCommissioningOutput, ))
+process.schedule = cms.Schedule( *(process.HLTriggerFirstPath, process.Status_OnCPU, process.Status_OnGPU, process.HLT_Random_v3, process.HLT_Physics_v10, process.HLT_ZeroBias_v9, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.Dataset_HLTPhysics, process.Dataset_OnlineMonitor, process.Dataset_ZeroBias, process.DQMOutput, process.PhysicsCommissioningOutput, ))
 
 
 # source module (EDM inputs)
