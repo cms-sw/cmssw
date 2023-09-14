@@ -18,6 +18,9 @@
 #define TYPE_TO_NAME(type) \
   case k_##type:           \
     return #type
+#define TYPE_TO_NAME2(e_val, type) \
+  case e_val:                      \
+    return #type
 
 namespace edm {
 
@@ -40,8 +43,8 @@ namespace edm {
   TYPE_TO_ENUM(double, k_double)
   TYPE_TO_ENUM(std::vector<double>, k_vdouble)
   TYPE_TO_ENUM(bool, k_bool)
-  TYPE_TO_ENUM(std::string, k_string)
-  TYPE_TO_ENUM(std::vector<std::string>, k_vstring)
+  TYPE_TO_ENUM(std::string, k_stringRaw)
+  TYPE_TO_ENUM(std::vector<std::string>, k_vstringRaw)
   TYPE_TO_ENUM(EventID, k_EventID)
   TYPE_TO_ENUM(std::vector<EventID>, k_VEventID)
   TYPE_TO_ENUM(LuminosityBlockID, k_LuminosityBlockID)
@@ -74,8 +77,8 @@ namespace edm {
       TYPE_TO_NAME(double);
       TYPE_TO_NAME(vdouble);
       TYPE_TO_NAME(bool);
-      TYPE_TO_NAME(string);
-      TYPE_TO_NAME(vstring);
+      TYPE_TO_NAME2(k_stringRaw, string);
+      TYPE_TO_NAME2(k_vstringRaw, vstring);
       TYPE_TO_NAME(EventID);
       TYPE_TO_NAME(VEventID);
       TYPE_TO_NAME(LuminosityBlockID);

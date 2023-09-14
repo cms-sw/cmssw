@@ -118,15 +118,9 @@ bool edm::split(std::string_view s, char first, char sep, char last, FUNC f) {
     return false;
 
   // invariant:  we've found all items in [b..boi)
-  for (str_c_iter  //boi = std::find_if(b, e, is_not_a(sep))
-           boi = contextual_find_not(b, e, first, sep, last),
-           eoi;
-       boi != e
-       //; boi = std::find_if(eoi, e, is_not_a(sep))
-       ;
+  for (str_c_iter boi = contextual_find_not(b, e, first, sep, last), eoi; boi != e;
        boi = contextual_find_not(eoi, e, first, sep, last)) {
     // find end of current item:
-    //eoi = std::find_if(boi, e, is_a(sep));
     eoi = contextual_find(boi, e, first, sep, last);
 
     // copy the item formed from characters in [boi..eoi):
