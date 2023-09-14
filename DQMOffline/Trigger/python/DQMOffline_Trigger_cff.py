@@ -49,7 +49,6 @@ from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 from DQMOffline.Trigger.TrackToTrackMonitoring_cff import *
 
-
 # hcal
 from DQMOffline.Trigger.HCALMonitoring_cff import *
 
@@ -58,6 +57,9 @@ from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 
 # pixel
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
+
+# phase2 tracker
+from DQMOffline.Trigger.SiTrackerPhase2_OfflineMonitoring_cff import *
 
 # B2G
 from DQMOffline.Trigger.B2GMonitoring_cff import *
@@ -204,9 +206,17 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     particleNetMonitoringHLT          # HIG: monitoring of HLT PNET taggers (incl. comparisons to Offline PNET)
 )
 
+_offlineHLTSource4HLTMonitorPDPh2 = cms.Sequence(
+    dqmInfoHLTMon *
+    HLTtrackerphase2DQMSource *           # phase-2 IT and OT clusters
+    trackingMonitorHLT *                  # tracking
+    hltToOfflineTrackValidatorSequence *  # Relative Online to Offline performace
+    vertexingMonitorHLT                   # vertexing
+)
+
 # remove Strip HLT monitoring in the phase-2 sequence
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toReplaceWith(offlineHLTSource4HLTMonitorPD, offlineHLTSource4HLTMonitorPD.copyAndExclude([ sistripMonitorHLTsequence]))
+phase2_tracker.toReplaceWith(offlineHLTSource4HLTMonitorPD,_offlineHLTSource4HLTMonitorPDPh2)
 
 # sequences run @tier0 on HLTMonitor PD
 OfflineHLTMonitoring = cms.Sequence(
