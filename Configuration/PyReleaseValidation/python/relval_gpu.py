@@ -42,7 +42,6 @@ for numWF in numWFIB:
         continue
     workflows[numWF] = _upgrade_workflows[numWF]
 
-
 # data WFs to run in IB:
 
 # data 2023 Patatrack pixel-only triplets:   RunJetMET2022D on GPU (optional), RunJetMET2022D GPU-vs-CPU validation, RunJetMET2022D profiling
@@ -102,5 +101,11 @@ workflows[141.008524] = ['Run3-2023_JetMET2023B_RecoHCALOnlyGPU_Profiling',[
                             'RECODR3_reHLT_HCALOnlyGPUProfiling'
                         ]]
 
+workflows[141.008583] = ['Run3-2023_JetMET2023B_GPUValidation',[
+                            'RunJetMET2023B',
+                            'RecoData_Patatrack_AllGPU_Validation_2023',
+                            'HARVESTData_Patatrack_AllGPU_Validation_2023'
+                        ]]
+
 # 2023 HIon MC Patatrack pixel-only quadruplets on HydjetQ_MinBias_5362GeV_2023_ppReco on GPU (optional)
-workflows[160.502] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_PatatrackGPU','MINIHI2023PROD']]
+workflows[160.03502] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','RECOHI2023PPRECOMB_PatatrackGPU','MINIHI2023PROD']]
