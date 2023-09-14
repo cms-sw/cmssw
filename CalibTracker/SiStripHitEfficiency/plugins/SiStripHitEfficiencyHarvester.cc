@@ -324,66 +324,11 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
             t_isTaggedIneff = false;
             t_threshold = 0;
             tree->Fill();
-          }
-        }
-
-        //Put any module into the TKMap
-        tkMap.fill(det, 1. - eff);
-        tkMapEff.fill(det, eff);
-        tkMapNum.fill(det, num);
-        tkMapDen.fill(det, denom);
-
-        layerTotal[layer] += denom;
-        layerFound[layer] += num;
-
-        // for the summary
-        // Have to do the decoding for which side to go on (ugh)
-        if (layer <= bounds::k_LayersAtTOBEnd) {
-          goodlayerfound[layer] += num;
-          goodlayertotal[layer] += denom;
-        } else if (layer > bounds::k_LayersAtTOBEnd && layer <= bounds::k_LayersAtTIDEnd) {
-          if (tTopo_->tidSide(det) == 1) {
-            goodlayerfound[layer] += num;
-            goodlayertotal[layer] += denom;
-          } else if (tTopo_->tidSide(det) == 2) {
-            goodlayerfound[layer + 3] += num;
-            goodlayertotal[layer + 3] += denom;
-          }
-        } else if (layer > bounds::k_LayersAtTIDEnd && layer <= bounds::k_LayersAtTECEnd) {
-          if (tTopo_->tecSide(det) == 1) {
-            goodlayerfound[layer + 3] += num;
-            goodlayertotal[layer + 3] += denom;
-          } else if (tTopo_->tecSide(det) == 2) {
-            goodlayerfound[layer + 3 + nTEClayers_] += num;
-            goodlayertotal[layer + 3 + nTEClayers_] += denom;
-          }
-        }
-      }  // if the module is good!
-
-      //Do the one where we don't exclude bad modules!
-      if (layer <= bounds::k_LayersAtTOBEnd) {
-        alllayerfound[layer] += num;
-        alllayertotal[layer] += denom;
-      } else if (layer > bounds::k_LayersAtTOBEnd && layer <= bounds::k_LayersAtTIDEnd) {
-        if (tTopo_->tidSide(det) == 1) {
-          alllayerfound[layer] += num;
-          alllayertotal[layer] += denom;
-        } else if (tTopo_->tidSide(det) == 2) {
-          alllayerfound[layer + 3] += num;
-          alllayertotal[layer + 3] += denom;
-        }
-      } else if (layer > bounds::k_LayersAtTIDEnd && layer <= bounds::k_LayersAtTECEnd) {
-        if (tTopo_->tecSide(det) == 1) {
-          alllayerfound[layer + 3] += num;
-          alllayertotal[layer + 3] += denom;
-        } else if (tTopo_->tecSide(det) == 2) {
-          alllayerfound[layer + 3 + nTEClayers_] += num;
-          alllayertotal[layer + 3 + nTEClayers_] += denom;
-        }
-      }
-
-    }  // if denom
-  }    // loop on DetIds
+          }  // if storing tree
+        }    // if not autoInefModTagging
+      }      // if there are no bad APVs
+    }        // if denom
+  }          // loop on DetIds
 
   if (autoIneffModTagging_) {
     for (unsigned int i = 1; i <= k_LayersAtTECEnd; i++) {
@@ -397,14 +342,14 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
       hEffInLayer[i]->getTH1()->GetXaxis()->SetRange(1, hEffInLayer[i]->getNbinsX() + 1);
 
       for (auto det : stripDetIds_) {
-        // use only the "good" modules
-        if (stripQuality_->getBadApvs(det) == 0 && calibData_.checkFedError(det)) {
-          const auto layer = ::checkLayer(det, tTopo_.get());
-          if (layer == i) {
-            const auto num = h_module_found->getValue(det);
-            const auto denom = h_module_total->getValue(det);
-            if (denom) {
-              assert(num <= denom);  // can't have this happen
+        const auto layer = ::checkLayer(det, tTopo_.get());
+        if (layer == i) {
+          const auto num = h_module_found->getValue(det);
+          const auto denom = h_module_total->getValue(det);
+          if (denom) {
+            assert(num <= denom);  // can't have this happen
+            // use only the "good" modules
+            if (stripQuality_->getBadApvs(det) == 0 && calibData_.checkFedError(det)) {
               const auto eff = num / denom;
               const auto eff_up = TEfficiency::Bayesian(denom, num, .99, 1, 1, true);
 
@@ -441,12 +386,66 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
                 t_threshold = layer_min_eff;
                 tree->Fill();
               }  // if storing tree
-            }    // if denom
-          }      // layer = i
-        }        // if there are no bad APVs
-      }          // loop on detids
-    }            // loop on layers
-  }              // if auto tagging
+
+              //Put modules into the TKMap
+              tkMap.fill(det, 1. - eff);
+              tkMapEff.fill(det, eff);
+              tkMapNum.fill(det, num);
+              tkMapDen.fill(det, denom);
+
+              layerTotal[layer] += denom;
+              layerFound[layer] += num;
+
+              // for the summary
+              // Have to do the decoding for which side to go on (ugh)
+              if (layer <= bounds::k_LayersAtTOBEnd) {
+                goodlayerfound[layer] += num;
+                goodlayertotal[layer] += denom;
+              } else if (layer <= bounds::k_LayersAtTIDEnd) {
+                if (tTopo_->tidSide(det) == 1) {
+                  goodlayerfound[layer] += num;
+                  goodlayertotal[layer] += denom;
+                } else if (tTopo_->tidSide(det) == 2) {
+                  goodlayerfound[layer + 3] += num;
+                  goodlayertotal[layer + 3] += denom;
+                }
+              } else if (layer <= bounds::k_LayersAtTECEnd) {
+                if (tTopo_->tecSide(det) == 1) {
+                  goodlayerfound[layer + 3] += num;
+                  goodlayertotal[layer + 3] += denom;
+                } else if (tTopo_->tecSide(det) == 2) {
+                  goodlayerfound[layer + 3 + nTEClayers_] += num;
+                  goodlayertotal[layer + 3 + nTEClayers_] += denom;
+                }
+              }
+            }  // if the module is good!
+
+            //Do the one where we don't exclude bad modules!
+            if (layer <= bounds::k_LayersAtTOBEnd) {
+              alllayerfound[layer] += num;
+              alllayertotal[layer] += denom;
+            } else if (layer <= bounds::k_LayersAtTIDEnd) {
+              if (tTopo_->tidSide(det) == 1) {
+                alllayerfound[layer] += num;
+                alllayertotal[layer] += denom;
+              } else if (tTopo_->tidSide(det) == 2) {
+                alllayerfound[layer + 3] += num;
+                alllayertotal[layer + 3] += denom;
+              }
+            } else if (layer <= bounds::k_LayersAtTECEnd) {
+              if (tTopo_->tecSide(det) == 1) {
+                alllayerfound[layer + 3] += num;
+                alllayertotal[layer + 3] += denom;
+              } else if (tTopo_->tecSide(det) == 2) {
+                alllayerfound[layer + 3 + nTEClayers_] += num;
+                alllayertotal[layer + 3 + nTEClayers_] += denom;
+              }
+            }
+          }  // if denom
+        }    // layer = i
+      }      // loop on detids
+    }        // loop on layers
+  }          // if auto tagging
 
   tkMap.save(true, 0, 0, "SiStripHitEffTKMap_NEW.png");
   tkMapBad.save(true, 0, 0, "SiStripHitEffTKMapBad_NEW.png");
