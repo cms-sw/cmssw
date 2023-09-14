@@ -8,7 +8,8 @@ ticlSeedingL1 = cms.EDProducer("TICLSeedingRegionProducer",
         maxAbsEta = cms.double(4.0),
         minAbsEta = cms.double(1.3),
         minPt = cms.double(5.0),
-        quality = cms.int32(5),
+        quality = cms.int32(4),
+        qualityIsMask = cms.bool(True),
         type = cms.string('SeedingRegionByL1')
     )
 )

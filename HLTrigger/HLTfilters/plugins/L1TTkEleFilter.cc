@@ -35,8 +35,10 @@ L1TTkEleFilter::L1TTkEleFilter(const edm::ParameterSet& iConfig)
       tkEleToken2_(consumes<TkEleCollection>(l1TkEleTag2_)) {
   min_Pt_ = iConfig.getParameter<double>("MinPt");
   min_N_ = iConfig.getParameter<int>("MinN");
-  min_Eta_ = iConfig.getParameter<double>("MinEta");
-  max_Eta_ = iConfig.getParameter<double>("MaxEta");
+  min_AbsEta1_ = iConfig.getParameter<double>("MinAbsEta1");
+  max_AbsEta1_ = iConfig.getParameter<double>("MaxAbsEta1");
+  min_AbsEta2_ = iConfig.getParameter<double>("MinAbsEta2");
+  max_AbsEta2_ = iConfig.getParameter<double>("MaxAbsEta2");
   scalings_ = iConfig.getParameter<edm::ParameterSet>("Scalings");
   barrelScalings_ = scalings_.getParameter<std::vector<double> >("barrel");
   endcapScalings_ = scalings_.getParameter<std::vector<double> >("endcap");
@@ -65,8 +67,10 @@ void L1TTkEleFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
   makeHLTFilterDescription(desc);
   desc.add<double>("MinPt", -1.0);
-  desc.add<double>("MinEta", -5.0);
-  desc.add<double>("MaxEta", 5.0);
+  desc.add<double>("MinAbsEta1", 0.0);
+  desc.add<double>("MaxAbsEta1", 1.479);
+  desc.add<double>("MinAbsEta2", 1.479);
+  desc.add<double>("MaxAbsEta2", 5.0);
   desc.add<int>("MinN", 1);
   desc.add<edm::InputTag>("inputTag1", edm::InputTag("L1TkElectrons1"));
   desc.add<edm::InputTag>("inputTag2", edm::InputTag("L1TkElectrons2"));
@@ -133,9 +137,9 @@ bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
 
     if (applyQual1_) {
       if (qual1IsMask_)
-        passQuality = (itkEle->EGRef()->hwQual() & quality1_);
+        passQuality = (itkEle->hwQual() & quality1_);
       else
-        passQuality = (itkEle->EGRef()->hwQual() == quality1_);
+        passQuality = (itkEle->hwQual() == quality1_);
     } else
       passQuality = true;
 
@@ -147,8 +151,7 @@ bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
         passIsolation = true;
     }
 
-    if (offlinePt >= min_Pt_ && itkEle->eta() <= max_Eta_ && itkEle->eta() >= min_Eta_ && passQuality &&
-        passIsolation) {
+    if (offlinePt >= min_Pt_ && std::fabs(itkEle->eta()) < max_AbsEta1_ && std::fabs(itkEle->eta()) >= min_AbsEta1_ && passQuality && passIsolation) {
       ntrkEle++;
       l1t::TkElectronRef ref1(l1t::TkElectronRef(tkEles1, distance(atrkEles, itkEle)));
       filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkEle, ref1);
@@ -165,9 +168,9 @@ bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
 
     if (applyQual2_) {
       if (qual2IsMask_)
-        passQuality = (itkEle->EGRef()->hwQual() & quality2_);
+        passQuality = (itkEle->hwQual() & quality2_);
       else
-        passQuality = (itkEle->EGRef()->hwQual() == quality2_);
+        passQuality = (itkEle->hwQual() == quality2_);
     } else
       passQuality = true;
 
@@ -178,8 +181,7 @@ bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
         passIsolation = true;
     }
 
-    if (offlinePt >= min_Pt_ && itkEle->eta() <= max_Eta_ && itkEle->eta() >= min_Eta_ && passQuality &&
-        passIsolation) {
+    if (offlinePt >= min_Pt_ && std::fabs(itkEle->eta()) <= max_AbsEta2_ && std::fabs(itkEle->eta()) >= min_AbsEta2_ && passQuality && passIsolation) {
       ntrkEle++;
       l1t::TkElectronRef ref2(l1t::TkElectronRef(tkEles2, distance(atrkEles, itkEle)));
       filterproduct.addObject(trigger::TriggerObjectType::TriggerL1TkEle, ref2);
