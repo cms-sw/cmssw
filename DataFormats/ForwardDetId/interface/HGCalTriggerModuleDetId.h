@@ -94,7 +94,7 @@ public:
   static const int kHGCalLayerMask = 0x1F;
   static const int kHGCalTypeOffset = 19;
   static const int kHGCalTypeMask = 0x3;
-  static const int kHGCalZsideOffset = 24;
+  static const int kHGCalZsideOffset = 21;
   static const int kHGCalZsideMask = 0x1;
   static const int kHGCalTriggerSubdetOffset = 22;
   static const int kHGCalTriggerSubdetMask = 0x3;
