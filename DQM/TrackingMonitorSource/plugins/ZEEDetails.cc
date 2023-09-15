@@ -1,27 +1,128 @@
-#include "TFile.h"
-#include "TH1.h"
-#include "TMath.h"
-#include <iostream>
+// system includes
 #include <fstream>
-#include "TSystem.h"
+#include <iostream>
+#include <map>
+#include <memory>
+#include <ostream>
+#include <set>
+#include <string>
+#include <vector>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/Handle.h"
+// user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "DQM/TrackingMonitorSource/interface/ZEEDetails.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
+
+// ROOT includes
+#include "TFile.h"
 #include "TLorentzVector.h"
-#include <string>
-#include <ostream>
+#include "TMath.h"
+
+class ZEEDetails : public DQMEDAnalyzer {
+public:
+  ZEEDetails(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
+  const std::string moduleName_;
+  const std::string folderName_;
+
+  const edm::InputTag electronTag_;
+  const edm::InputTag bsTag_;
+  const edm::InputTag puSummaryTag_;
+  const edm::InputTag vertexTag_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puSummaryToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+
+  const double maxEta_;
+  const double minPt_;
+  const double maxDeltaPhiInEB_;
+  const double maxDeltaEtaInEB_;
+  const double maxHOEEB_;
+  const double maxSigmaiEiEEB_;
+  const double maxDeltaPhiInEE_;
+  const double maxDeltaEtaInEE_;
+  const double maxHOEEE_;
+  const double maxSigmaiEiEEE_;
+  const double maxNormChi2_;
+  const double maxD0_;
+  const double maxDz_;
+  const int minPixelHits_;
+  const int minStripHits_;
+  const double maxIso_;
+  const double minPtHighest_;
+  const double minInvMass_;
+  const double maxInvMass_;
+  const std::string trackQuality_;
+  std::vector<float> vpu_;
+  std::vector<float> vtrack_;
+  const bool isMC_;
+  const bool doPUCorrection_;
+  const std::string puScaleFactorFile_;
+
+  MonitorElement* Zpt_;
+  MonitorElement* ZInvMass_;
+  MonitorElement* EoverP_;
+};
+
+void ZEEDetails::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("moduleName", "ZEEDetails");
+  desc.addUntracked<std::string>("folderName", "ElectronTracks");
+  desc.addUntracked<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<edm::InputTag>("puTag", edm::InputTag("addPileupInfo"));
+  desc.addUntracked<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.addUntracked<double>("maxEta", 2.4);
+  desc.addUntracked<double>("minPt", 5);
+  desc.addUntracked<double>("maxDeltaPhiInEB", 0.15);
+  desc.addUntracked<double>("maxDeltaEtaInEB", 0.007);
+  desc.addUntracked<double>("maxHOEEB", 0.12);
+  desc.addUntracked<double>("maxSigmaiEiEEB", 0.01);
+  desc.addUntracked<double>("maxDeltaPhiInEE", 0.1);
+  desc.addUntracked<double>("maxDeltaEtaInEE", 0.009);
+  desc.addUntracked<double>("maxHOEEB_", .10);
+  desc.addUntracked<double>("maxSigmaiEiEEE", 0.03);
+  desc.addUntracked<double>("maxNormChi2", 10);
+  desc.addUntracked<double>("maxD0", 0.02);
+  desc.addUntracked<double>("maxDz", 20.);
+  desc.addUntracked<uint32_t>("minPixelHits", 1);
+  desc.addUntracked<uint32_t>("minStripHits", 8);
+  desc.addUntracked<double>("maxIso", 0.3);
+  desc.addUntracked<double>("minPtHighest", 24);
+  desc.addUntracked<double>("minInvMass", 60);
+  desc.addUntracked<double>("maxInvMass", 120);
+  desc.addUntracked<std::string>("trackQuality", "highPurity");
+  desc.addUntracked<bool>("isMC", false);
+  desc.addUntracked<bool>("doPUCorrection", false);
+  desc.addUntracked<std::string>("puScaleFactorFile", "PileupScaleFactor.root");
+  descriptions.addWithDefaultLabel(desc);
+}
 
 ZEEDetails::ZEEDetails(const edm::ParameterSet& ps)
     : moduleName_(ps.getUntrackedParameter<std::string>("moduleName", "ZEEDetails")),
