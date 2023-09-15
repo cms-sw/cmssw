@@ -33,11 +33,12 @@ namespace ticl {
                     const edm::ESHandle<Propagator> propH) override;
 
     void linkTracksters(const edm::Handle<std::vector<reco::Track>>,
-                        const edm::ValueMap<float> &,
-                        const edm::ValueMap<float> &,
-                        const edm::ValueMap<float> &,
+                        const edm::Handle<edm::ValueMap<float>>,
+                        const edm::Handle<edm::ValueMap<float>>,
+                        const edm::Handle<edm::ValueMap<float>>,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
+                        const bool useMTDTiming,
                         std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
 
@@ -66,7 +67,8 @@ namespace ticl {
                                  const Trackster &trackster,
                                  const float &tkTime,
                                  const float &tkTimeErr,
-                                 const float &tkTimeQual);
+                                 const float &tkTimeQual,
+                                 bool useMTDTiming);
 
     void recordTrackster(const unsigned ts,  // trackster index
                          const std::vector<Trackster> &tracksters,

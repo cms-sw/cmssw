@@ -33,11 +33,12 @@ namespace ticl {
                             const edm::ESHandle<Propagator> propH) = 0;
 
     virtual void linkTracksters(const edm::Handle<std::vector<reco::Track>> tkH,
-                                const edm::ValueMap<float>& tkTime,
-                                const edm::ValueMap<float>& tkTimeErr,
-                                const edm::ValueMap<float>& tkTimeQual,
+                                const edm::Handle<edm::ValueMap<float>> tkTime_h,
+                                const edm::Handle<edm::ValueMap<float>> tkTimeErr_h,
+                                const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
                                 const std::vector<reco::Muon>& muons,
                                 const edm::Handle<std::vector<Trackster>> tsH,
+                                const bool useMTDTiming,
                                 std::vector<TICLCandidate>& resultTracksters,
                                 std::vector<TICLCandidate>& resultFromTracks) = 0;
 
