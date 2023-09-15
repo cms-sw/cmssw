@@ -77,23 +77,23 @@
   </bin>
 
   <test name="testFWCoreIntegrationTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py"/>
-  <test name="testFWCoreIntegrationTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --async_"/>
-  <test name="testFWCoreIntegrationTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath"/>
-  <test name="testFWCoreIntegrationTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --async_"/>
-  <test name="testFWCoreIntegrationTransform_noTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform"/>
-  <test name="testFWCoreIntegrationTransform_noTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform --async_"/>
-  <test name="testFWCoreIntegrationTransform_noTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform --onPath"/>
-  <test name="testFWCoreIntegrationTransform_noTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noTransform --onPath --aysync_"/>
-  <test name="testFWCoreIntegrationTransform_stream" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream"/>
-  <test name="testFWCoreIntegrationTransform_stream_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --async_"/>
-  <test name="testFWCoreIntegrationTransform_stream_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --onPath"/>
-  <test name="testFWCoreIntegrationTransform_stream_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --onPath --async_"/>
-  <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut"/>
-  <test name="testFWCoreIntegrationTransform_noPut_async" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut --async_"/>
-  <test name="testFWCoreIntegrationTransform_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
-  <test name="testFWCoreIntegrationTransform_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
-  <test name="testFWCoreIntegrationTransform_onPath_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
-  <test name="testFWCoreIntegrationTransform_onPath_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async_"/>
+  <test name="testFWCoreIntegrationTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath"/>
+  <test name="testFWCoreIntegrationTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --async_"/>
+  <test name="testFWCoreIntegrationTransform_noTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --async_"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --onPath"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --onPath --aysync_"/>
+  <test name="testFWCoreIntegrationTransform_stream" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream"/>
+  <test name="testFWCoreIntegrationTransform_stream_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --async_"/>
+  <test name="testFWCoreIntegrationTransform_stream_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --onPath"/>
+  <test name="testFWCoreIntegrationTransform_stream_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --onPath --async_"/>
+  <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noPut"/>
+  <test name="testFWCoreIntegrationTransform_noPut_async" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noPut --async_"/>
+  <test name="testFWCoreIntegrationTransform_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_onPath_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_onPath_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --onPath --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
 
   <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>
 
@@ -114,20 +114,20 @@
   <test name="TestFrameworkExceptionHandling" command="run_TestFrameworkExceptionHandling.sh ${value}" for="1,9"/>
   <test name="TestFWCoreIntegrationTryToContinuePath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinuePathMessage" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py 2>&amp;1 | fgrep 'applying TryToContinue on Exception'"/>
-  <test name="TestFWCoreIntegrationTryToContinueTask" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --useTask"/>
-  <test name="TestFWCoreIntegrationTryToContinueRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
-  <test name="TestFWCoreIntegrationTryToContinueLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationTryToContinueTask" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py --useTask"/>
+  <test name="TestFWCoreIntegrationTryToContinueRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationTryToContinueLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
   <test name="TestFWCoreIntegrationShouldTryToContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py"/>
   <test name="TestFWCoreIntegrationShouldTryToContinueMessage" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py 2>&amp;1 | fgrep 'Begin TryToContinue Exception'"/>
-  <test name="TestFWCoreIntegrationShouldTryToContinueRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
-  <test name="TestFWCoreIntegrationShouldTryToContinueLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
-  <test name="TestFWCoreIntegrationShouldTryToContinueIndirect" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --indirect"/>
-  <test name="TestFWCoreIntegrationShouldTryToContinueIndirectRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --indirect --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
-  <test name="TestFWCoreIntegrationShouldTryToContinueIndirectLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --indirect --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueIndirect" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py --indirect"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueIndirectRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py --indirect --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueIndirectLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py --indirect --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
   <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_exception_output_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_source_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py"/>
-  <test name="TestFWCoreIntegrationTryToContinueESProducerContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py -- --continueAnalyzer"/>
+  <test name="TestFWCoreIntegrationTryToContinueESProducerContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py --continueAnalyzer"/>
 
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>

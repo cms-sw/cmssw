@@ -363,18 +363,18 @@ test name="TestFWCoreFrameworkDeleteEarly" command="test_deleteEarly.sh"/>
 <test name="testFWCoreFrameworkBadScheduleException6" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 6; grep -v 'Fatal Exception' test_bad_schedule_6.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_6.log -"/>
 <test name="testFWCoreFrameworkBadScheduleException7" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_bad_schedule_exception_message_cfg.py 7; grep -v 'Fatal Exception' test_bad_schedule_7.log | diff -q ${LOCALTOP}/src/FWCore/Framework/test/unit_test_outputs/test_bad_schedule_7.log -"/>
 <test name="testFWCoreFrameworkConditionalTask" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --"/>
-<test name="testFWCoreFrameworkConditionalTask_filterSucceeds" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --filterSucceeds"/>
-<test name="testFWCoreFrameworkConditionalTask_reverseDependencies" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --reverseDependencies"/>
-<test name="testFWCoreFrameworkConditionalTask_testAlias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testAlias"/>
-<test name="testFWCoreFrameworkConditionalTask_testAlias_aliasWithStar" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testAlias --aliasWithStar"/>
-<test name="testFWCoreFrameworkConditionalTask_testView" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView"/>
-<test name="testFWCoreFrameworkConditionalTask_testView_testAlias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView --testAlias"/>
-<test name="testFWCoreFrameworkConditionalTask_testView_testAlias_aliasWithStar" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView --testAlias --aliasWithStar"/>
+<test name="testFWCoreFrameworkConditionalTask_filterSucceeds" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --filterSucceeds"/>
+<test name="testFWCoreFrameworkConditionalTask_reverseDependencies" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --reverseDependencies"/>
+<test name="testFWCoreFrameworkConditionalTask_testAlias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --testAlias"/>
+<test name="testFWCoreFrameworkConditionalTask_testAlias_aliasWithStar" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --testAlias --aliasWithStar"/>
+<test name="testFWCoreFrameworkConditionalTask_testView" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --testView"/>
+<test name="testFWCoreFrameworkConditionalTask_testView_testAlias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --testView --testAlias"/>
+<test name="testFWCoreFrameworkConditionalTask_testView_testAlias_aliasWithStar" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py --testView --testAlias --aliasWithStar"/>
 <test name="testFWCoreFrameworkModuleSynchLumiBoundary" command="run_module_synch_lumiboundary.sh"/>
 <test name="testFWCoreFrameworkGetByType_getterOfProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py"/>
-<test name="testFWCoreFrameworkGetByType_getterOfProduct_alias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py -- --useEDAlias"/>
+<test name="testFWCoreFrameworkGetByType_getterOfProduct_alias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py --useEDAlias"/>
 
-<test name="testFWCoreFrameworkOptionsNumberOfThreadsType" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_wrongOptionsType_cfg.py -- --name=numberOfThreads --value='cms.untracked.uint32(1)'"/>
+<test name="testFWCoreFrameworkOptionsNumberOfThreadsType" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_wrongOptionsType_cfg.py --name=numberOfThreads --value='cms.untracked.uint32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionsNumberOfThreadsType" command="run_wrongOptionsType.sh numberOfThreads 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionsNumberOfStreamsType" command="run_wrongOptionsType.sh numberOfStreams 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionssizeOfStackForThreadsInKBType" command="run_wrongOptionsType.sh sizeOfStackForThreadsInKB 'cms.untracked.int32(1024)'"/>
