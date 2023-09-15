@@ -38,6 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecChi2Algo.h"
@@ -216,8 +217,10 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   grpsToken_ = c.esConsumes<EcalWeightXtalGroups, EcalWeightXtalGroupsRcd>();
   wgtsToken_ = c.esConsumes<EcalTBWeights, EcalTBWeightsRcd>();
   timeCorrBiasToken_ = c.esConsumes<EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd>();
-  itimeToken_ = c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>();
-  offtimeToken_ = c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>();
+  itimeToken_ =
+      c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>(ps.getParameter<edm::ESInputTag>("timeCalibTag"));
+  offtimeToken_ = c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>(
+      ps.getParameter<edm::ESInputTag>("timeOffsetTag"));
 
   // algorithm to be used for timing
   auto const& timeAlgoName = ps.getParameter<std::string>("timealgo");
@@ -760,6 +763,8 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
                                                              true) and
               edm::ParameterDescription<std::vector<double>>("EBamplitudeFitParameters", {1.138, 1.652}, true) and
               edm::ParameterDescription<std::vector<double>>("EEamplitudeFitParameters", {1.890, 1.400}, true) and
+              edm::ParameterDescription<edm::ESInputTag>("timeCalibTag", edm::ESInputTag(), true) and
+              edm::ParameterDescription<edm::ESInputTag>("timeOffsetTag", edm::ESInputTag(), true) and
               edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
               edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true) and
               edm::ParameterDescription<double>("EEtimeFitLimits_Lower", 0.2, true) and
