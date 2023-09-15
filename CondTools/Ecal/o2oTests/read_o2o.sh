@@ -15,5 +15,5 @@ export POOL_CATALOG=relationalcatalog_oracle://${SERVERNAME}/${SCHEMA}
 
 # cmsRun
 CONFFILE=load_o2o.cfg
-COMMAND="cmsRun --parameter-set $CONFFILE"
+COMMAND="cmsRun $CONFFILE"
 runx "$COMMAND" 1 # time the command (1 trial)
