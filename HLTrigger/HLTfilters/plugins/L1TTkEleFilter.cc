@@ -151,7 +151,7 @@ bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
         passIsolation = true;
     }
 
-    if (offlinePt >= min_Pt_ && std::fabs(itkEle->eta()) < max_AbsEta1_ && std::fabs(itkEle->eta()) >= min_AbsEta1_ &&
+    if (offlinePt >= min_Pt_ && std::abs(itkEle->eta()) < max_AbsEta1_ && std::abs(itkEle->eta()) >= min_AbsEta1_ &&
         passQuality && passIsolation) {
       ntrkEle++;
       l1t::TkElectronRef ref1(l1t::TkElectronRef(tkEles1, distance(atrkEles, itkEle)));
@@ -182,7 +182,7 @@ bool L1TTkEleFilter::hltFilter(edm::Event& iEvent,
         passIsolation = true;
     }
 
-    if (offlinePt >= min_Pt_ && std::fabs(itkEle->eta()) <= max_AbsEta2_ && std::fabs(itkEle->eta()) >= min_AbsEta2_ &&
+    if (offlinePt >= min_Pt_ && std::abs(itkEle->eta()) <= max_AbsEta2_ && std::abs(itkEle->eta()) >= min_AbsEta2_ &&
         passQuality && passIsolation) {
       ntrkEle++;
       l1t::TkElectronRef ref2(l1t::TkElectronRef(tkEles2, distance(atrkEles, itkEle)));
