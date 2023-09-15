@@ -24,6 +24,7 @@ def applySubstructure( process, postfix="" ) :
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+    from Configuration.Eras.Modifier_run3_miniAOD_12X_cff import run3_miniAOD_12X
     if postfix=='':
       # Avoid recomputing the PUPPI collections that are present in AOD
       _rerun_puppijets_task = task.copy()
@@ -31,8 +32,8 @@ def applySubstructure( process, postfix="" ) :
                                 getattr(process,'ak8PFJetsPuppiConstituents'),
                                 getattr(process,'ak8PFJetsPuppiSoftDrop'),
                                 getattr(process,'ak8PFJetsPuppiSoftDropMass'))
-      (_run2_miniAOD_ANY | pA_2016 ).toReplaceWith(task, _rerun_puppijets_task)
-      (_run2_miniAOD_ANY | pA_2016 ).toModify(getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
+      (_run2_miniAOD_ANY | pA_2016 | run3_miniAOD_12X ).toReplaceWith(task, _rerun_puppijets_task)
+      (_run2_miniAOD_ANY | pA_2016 | run3_miniAOD_12X ).toModify(getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
         cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4'))
     else:
       task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
