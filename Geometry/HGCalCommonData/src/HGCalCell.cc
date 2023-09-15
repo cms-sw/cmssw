@@ -349,16 +349,16 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(int32_t u, int32_t v, int32_t nc
       cellx = 7;
       cellt = HGCalCell::truncatedCell;
     } else if ((v - u) == (ncell - 1)) {
-      cellx = 10;
+      cellx = 8;
       cellt = HGCalCell::extendedCell;
     } else if (v == (2 * ncell - 1)) {
-      cellx = 8;
+      cellx = 9;
       cellt = HGCalCell::truncatedCell;
     } else if (u == (2 * ncell - 1)) {
-      cellx = 11;
+      cellx = 10;
       cellt = HGCalCell::extendedCell;
     } else if ((u - v) == ncell) {
-      cellx = 9;
+      cellx = 11;
       cellt = HGCalCell::truncatedCell;
     } else if (v == 0) {
       cellx = 12;
@@ -482,22 +482,22 @@ std::pair<int32_t, int32_t> HGCalCell::cellType(int32_t u, int32_t v, int32_t nc
       cellx = 6;
       cellt = HGCalCell::cornerCell;
     } else if (v == 0) {
-      cellx = 10;
+      cellx = 7;
       cellt = HGCalCell::extendedCell;
     } else if ((u - v) == ncell) {
-      cellx = 7;
-      cellt = HGCalCell::truncatedCell;
-    } else if (u == (2 * ncell - 1)) {
-      cellx = 11;
-      cellt = HGCalCell::extendedCell;
-    } else if (v == (2 * ncell - 1)) {
       cellx = 8;
       cellt = HGCalCell::truncatedCell;
+    } else if (u == (2 * ncell - 1)) {
+      cellx = 9;
+      cellt = HGCalCell::extendedCell;
+    } else if (v == (2 * ncell - 1)) {
+      cellx = 10;
+      cellt = HGCalCell::truncatedCell;
     } else if ((v - u) == (ncell - 1)) {
-      cellx = 12;
+      cellx = 11;
       cellt = HGCalCell::extendedCell;
     } else if (u == 0) {
-      cellx = 9;
+      cellx = 12;
       cellt = HGCalCell::truncatedCell;
     }
     switch (placementIndex) {
