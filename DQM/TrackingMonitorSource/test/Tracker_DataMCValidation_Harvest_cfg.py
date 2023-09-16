@@ -49,14 +49,13 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '132X_mcRun3_2023_realistic_v2', '')
 
 # Path and EndPath definitions
 process.edmtome_step = cms.Path(process.EDMtoME)
 process.validationprodHarvesting = cms.Path(process.hltpostvalidation_prod+process.postValidation_gen)
 process.validationHarvesting = cms.Path(process.postValidation+process.hltpostvalidation+process.postValidation_gen)
 process.dqmHarvestingPOGMC = cms.Path(process.DQMOffline_SecondStep_PrePOGMC)
-process.validationHarvestingFS = cms.Path(process.HarvestingFastSim)
 process.validationpreprodHarvesting = cms.Path(process.postValidation_preprod+process.hltpostvalidation_preprod+process.postValidation_gen)
 process.validationHarvestingHI = cms.Path(process.postValidationHI)
 process.genHarvesting = cms.Path(process.postValidation_gen)
