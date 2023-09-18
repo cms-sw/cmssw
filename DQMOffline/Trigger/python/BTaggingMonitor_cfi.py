@@ -76,7 +76,6 @@ hltBTVmonitoring = topMonitoring.clone(
     electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
     muons     = "muons", # while pfIsolatedMuonsEI are reco::PFCandidate !     
     
-    #btagAlgos = ["pfCombinedSecondaryVertexV2BJetTags"],
     btagAlgos = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb'], 
     workingpoint = -1., #no cut applied
     
