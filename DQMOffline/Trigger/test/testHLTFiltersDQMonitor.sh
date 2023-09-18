@@ -9,5 +9,5 @@ function die {
 # run test job
 TESTDIR="${LOCALTOP}"/src/DQMOffline/Trigger/test
 
-cmsRun "${TESTDIR}"/testHLTFiltersDQMonitor_cfg.py -- -t 4 -n 128 \
+cmsRun "${TESTDIR}"/testHLTFiltersDQMonitor_cfg.py -t 4 -n 128 \
   || die "Failure running testHLTFiltersDQMonitor_cfg.py" $?

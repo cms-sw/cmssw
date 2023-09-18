@@ -20,11 +20,11 @@ Test of the DQM plugin `HLTFiltersDQMonitor`.
 
   - To execute cmsRun with `testHLTFiltersDQMonitor_cfg.py` (example)
     ```sh
-    cmsRun "${CMSSW_BASE}"/src/DQMOffline/Trigger/test/testHLTFiltersDQMonitor_cfg.py -- -t 4 -s 0 -o tmp.root -n 100
+    cmsRun "${CMSSW_BASE}"/src/DQMOffline/Trigger/test/testHLTFiltersDQMonitor_cfg.py -t 4 -s 0 -o tmp.root -n 100
     ```
 
   - To create a bare ROOT file from the DQMIO output of `testHLTFiltersDQMonitor_cfg.py`,
     run the harvesting step as follows
     ```sh
-    cmsRun "${CMSSW_BASE}"/src/DQMOffline/Trigger/test/harvesting_cfg.py -- -i file:tmp.root
+    cmsRun "${CMSSW_BASE}"/src/DQMOffline/Trigger/test/harvesting_cfg.py -i file:tmp.root
     ```
