@@ -175,6 +175,39 @@ void* aligned_alloc(size_t alignment, size_t size) noexcept {
       [](auto ret) { return malloc_usable_size(ret); });
 }
 
+//used by tensorflow
+int posix_memalign(void** memptr, size_t alignment, size_t size) noexcept {
+  CMS_SA_ALLOW static const auto original = get<decltype(&::posix_memalign)>("posix_memalign");
+  if (not alloc_monitor_running_state()) {
+    return original(memptr, alignment, size);
+  }
+
+  auto& reg = AllocMonitorRegistry::instance();
+  int ret;
+  reg.allocCalled(
+      size,
+      [&ret, memptr, alignment, size]() {
+        ret = original(memptr, alignment, size);
+        return *memptr;
+      },
+      [](auto ret) { return malloc_usable_size(ret); });
+  return ret;
+}
+
+//used by libc
+void* memalign(size_t alignment, size_t size) noexcept {
+  CMS_SA_ALLOW static const auto original = get<decltype(&::memalign)>("memalign");
+  if (not alloc_monitor_running_state()) {
+    return original(alignment, size);
+  }
+
+  auto& reg = AllocMonitorRegistry::instance();
+  return reg.allocCalled(
+      size,
+      [alignment, size]() { return original(alignment, size); },
+      [](auto ret) { return malloc_usable_size(ret); });
+}
+
 void free(void* ptr) noexcept {
   CMS_SA_ALLOW static const auto original = get<decltype(&::free)>("free");
   // ignore memory allocated from our static array at startup

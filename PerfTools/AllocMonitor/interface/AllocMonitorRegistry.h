@@ -57,6 +57,8 @@ namespace cms::perftools {
     friend void* ::calloc(size_t, size_t) noexcept;
     friend void* ::realloc(void*, size_t) noexcept;
     friend void* ::aligned_alloc(size_t, size_t) noexcept;
+    friend int ::posix_memalign(void**, size_t, size_t) noexcept;
+    friend void* ::memalign(size_t, size_t) noexcept;
     friend void ::free(void*) noexcept;
 
     friend void* ::operator new(std::size_t size);

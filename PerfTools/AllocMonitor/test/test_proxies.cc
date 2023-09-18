@@ -182,15 +182,48 @@ int main() {
         exit(1);
       }
 
-      p = aligned_alloc(128, 32);
-      if (requested != 32) {
+      p = aligned_alloc(128, 128 * 3);
+      if (requested != 128 * 3) {
         auto r = requested;
-        std::cout << "aligned_alloc request size wrong, got " << r << " expected " << 32;
+        std::cout << "aligned_alloc request size wrong, got " << r << " expected " << 128 * 3;
         exit(1);
       }
       free(p);
       if (total != 0) {
         std::cout << "aligned_alloc request not cleaned up";
+        exit(1);
+      }
+
+      p = memalign(256, 24);
+      if (requested != 24) {
+        auto r = requested;
+        std::cout << "aligned_alloc request size wrong, got " << r << " expected " << 24;
+        exit(1);
+      }
+      free(p);
+      if (total != 0) {
+        std::cout << "aligned_alloc request not cleaned up";
+        exit(1);
+      }
+
+      p = nullptr;
+      auto ret = posix_memalign(&p, 128, 64);
+      if (p == nullptr) {
+        std::cout << "posix_memalign failed to allocate ";
+        exit(1);
+      }
+      if (ret != 0) {
+        std::cout << "posix_memalign returned failed valued " << ret;
+        exit(1);
+      }
+      if (requested != 64) {
+        auto r = requested;
+        std::cout << "posix_memalign request size wrong, got " << r << " expected " << 64;
+        exit(1);
+      }
+      free(p);
+      if (total != 0) {
+        std::cout << "posix_memalign request not cleaned up";
         exit(1);
       }
     }
