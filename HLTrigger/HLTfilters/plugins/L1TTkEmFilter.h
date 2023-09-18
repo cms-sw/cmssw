@@ -40,8 +40,10 @@ private:
 
   double min_Pt_;                            // min pt cut
   int min_N_;                                // min number of candidates above pT cut
-  double min_Eta_;                           //min eta cut
-  double max_Eta_;                           //max eta cut
+  double min_AbsEta1_;                       //min eta cut
+  double max_AbsEta1_;                       //max eta cut
+  double min_AbsEta2_;                       //min eta cut
+  double max_AbsEta2_;                       //max eta cut
   edm::ParameterSet scalings_;               // all scalings. An indirection level allows extra flexibility
   std::vector<double> barrelScalings_;       // barrel scalings
   std::vector<double> endcapScalings_;       // endcap scalings
