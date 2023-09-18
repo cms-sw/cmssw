@@ -3,7 +3,7 @@ import sys
 
 process = cms.Process("READ")
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[2]))
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[1]))
 process.maxEvents.input = 1
 
 process.testReadFEDRawDataCollection = cms.EDAnalyzer("TestReadFEDRawDataCollection",

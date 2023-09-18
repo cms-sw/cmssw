@@ -8,7 +8,7 @@ from sys import argv
 process = cms.Process("TESTRECO")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.maxEvents.input = int(argv[2])
+process.maxEvents.input = int(argv[1])
 
 runToLumi = [111,222,333,444,555]
 

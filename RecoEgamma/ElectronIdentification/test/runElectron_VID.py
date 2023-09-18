@@ -46,8 +46,8 @@ inputFilesMiniAOD = cms.untracked.vstring(
 # You can list here either AOD or miniAOD files, but not both types mixed
 #
 
-print(sys.argv[2])
-useAOD = bool(int(sys.argv[2]))
+print(sys.argv[1])
+useAOD = bool(int(sys.argv[1]))
 
 if useAOD == True :
     inputFiles = inputFilesAOD
@@ -74,7 +74,7 @@ else :
 switchOnVIDElectronIdProducer(process, dataFormat)
 
 # define which IDs we want to produce
-my_id_modules = [sys.argv[3]]
+my_id_modules = [sys.argv[2]]
 
 #add them to the VID producer
 for idmod in my_id_modules:

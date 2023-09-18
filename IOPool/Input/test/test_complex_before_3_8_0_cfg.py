@@ -19,7 +19,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:"+sys.argv[2])
+    fileNames = cms.untracked.vstring("file:"+sys.argv[1])
 )
 
 process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
