@@ -7,10 +7,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description="Test SwitchProdu
 parser.add_argument("--disableTest2", help="Disable 'test2' case of the SwitchProducerTest", action="store_true")
 parser.add_argument("--wildcardOnOtherModule", help="Use the wildcard for alias from another module", action="store_true")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 enableTest2 = not args.disableTest2
 class SwitchProducerTest(cms.SwitchProducer):

@@ -24,20 +24,20 @@ fi
 
 echo "*************************************************"
 echo "CUDA producer configuration with SwitchProducer, automatic"
-cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py -- --silent || die "cmsRun testCUDASwitch_cfg.py --silent" $?
+cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py --silent || die "cmsRun testCUDASwitch_cfg.py --silent" $?
 
 echo "*************************************************"
 echo "CUDA producer configuration with SwitchProducer, force CPU"
-cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py -- --silent --accelerator="cpu" || die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=\"\"" $?
+cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py --silent --accelerator="cpu" || die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=\"\"" $?
 
 if [ "x${TARGET}" == "xgpu" ]; then
     echo "*************************************************"
     echo "CUDA producer configuration with SwitchProducer, force GPU"
-    cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py -- --silent --accelerator="gpu-nvidia" || die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=gpu-nvidia" $?
+    cmsRun ${TEST_DIR}/testCUDASwitch_cfg.py --silent --accelerator="gpu-nvidia" || die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=gpu-nvidia" $?
 elif [ "x${TARGET}" == "xcpu" ]; then
     echo "*************************************************"
     echo "CUDA producer configuration with SwitchProducer, force GPU, should fail"
-    cmsRun -j testCUDATest_jobreport.xml ${TEST_DIR}/testCUDASwitch_cfg.py -- --silent --accelerator="gpu-nvidia" && die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=gpu-nvidia did not fail" 1
+    cmsRun -j testCUDATest_jobreport.xml ${TEST_DIR}/testCUDASwitch_cfg.py --silent --accelerator="gpu-nvidia" && die "cmsRun testCUDASwitch_cfg.py --silent --accelerator=gpu-nvidia did not fail" 1
     EXIT_CODE=$(edmFjrDump --exitCode testCUDATest_jobreport.xml)
     if [ "x${EXIT_CODE}" != "x8035" ]; then
         echo "Test (that was expected to fail) reported exit code ${EXIT_CODE} instead of expected 8035"

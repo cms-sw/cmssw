@@ -11,10 +11,7 @@ parser.add_argument("--setInModule", type=str, default="", help="Set the default
 parser.add_argument("--accelerators", type=str, help="Comma-separated string for accelerators to enable")
 parser.add_argument("--expectOther", action="store_true", help="Set this if the 'other' variant is expected to get run")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 class ModuleTypeResolverTest:
     def __init__(self, accelerators):
