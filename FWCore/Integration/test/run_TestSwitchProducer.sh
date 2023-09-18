@@ -84,7 +84,7 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "*************************************************"
   echo "SwitchProducer in a ConditionalTask, test EDAlias with a wildcard pattern, other module having the wildcard"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py --patternOnOtherModule || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py --patternOnOtherModule" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasWildcard_cfg.py --wildcardOnOtherModule || die "cmsRun ${test}ConditionalTaskEDAliasWildcard_cfg.py --wildcardOnOtherModule" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a ConditionalTask, test EDAlias with an a wildcard, case test2 disabled"

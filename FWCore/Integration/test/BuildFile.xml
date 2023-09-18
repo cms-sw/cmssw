@@ -83,7 +83,7 @@
   <test name="testFWCoreIntegrationTransform_noTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform"/>
   <test name="testFWCoreIntegrationTransform_noTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --async_"/>
   <test name="testFWCoreIntegrationTransform_noTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --onPath"/>
-  <test name="testFWCoreIntegrationTransform_noTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --onPath --aysync_"/>
+  <test name="testFWCoreIntegrationTransform_noTransform_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --noTransform --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_stream" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream"/>
   <test name="testFWCoreIntegrationTransform_stream_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --async_"/>
   <test name="testFWCoreIntegrationTransform_stream_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py --stream --onPath"/>
