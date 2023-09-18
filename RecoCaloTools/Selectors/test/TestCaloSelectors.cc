@@ -11,6 +11,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
+#include <functional>
 
 class TestCaloSelectors : public edm::one::EDAnalyzer<> {
 public:

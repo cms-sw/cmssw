@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include <memory>
+#include <functional>
 
 /** \class CaloConeSelector
   *  
