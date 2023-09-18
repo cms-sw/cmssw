@@ -645,6 +645,11 @@ approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
                                   'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
+phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
+                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                            'keep *_hltPhase2PixelTracks_*_*',
+                            'keep *_hltPhase2PixelVertices_*_*'
+                        ])
 phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + ['keep recoMuons_muons1stStep_*_*'])
 
