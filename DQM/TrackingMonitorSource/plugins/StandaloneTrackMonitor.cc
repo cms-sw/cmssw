@@ -10,6 +10,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -343,8 +344,6 @@ private:
   MonitorElement* Zpt_;
   MonitorElement* ZInvMass_;
 
-  unsigned long long m_cacheID_;
-
   std::vector<int> lumivec1;
   std::vector<int> lumivec2;
   std::vector<float> vpu_;
@@ -630,9 +629,9 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                              TrackPtHistoPar_.getParameter<double>("Xmax"));
     trackPt_ZoomH_ = ibook.book1D("trackPt_Zoom", "Track Pt", 100, 60, 70);
     trackPterrH_ = ibook.book1D("trackPterr", "Track Pt Error", 100, 0.0, 100.0);
-    trackqOverpH_ = ibook.book1D("trackqOverp", "q Over p", 40, -10.0, 10.0);
-    trackqOverperrH_ = ibook.book1D("trackqOverperr", "q Over p Error", 50, 0.0, 25.0);
-    trackChargeH_ = ibook.book1D("trackCharge", "Track Charge", 50, -5, 5);
+    trackqOverpH_ = ibook.book1D("trackqOverp", "q Over p", 100, -0.5, 0.5);
+    trackqOverperrH_ = ibook.book1D("trackqOverperr", "q Over p Error", 50, 0.0, 0.5);
+    trackChargeH_ = ibook.book1D("trackCharge", "Track Charge", 3, -1.5, 1.5);
     trackChi2H_ = ibook.book1D("trackChi2", "Chi2", 100, 0.0, 100.0);
     tracknDOFH_ = ibook.book1D("tracknDOF", "nDOF", 100, 0.0, 100.0);
     trackChi2ProbH_ = ibook.book1D("trackChi2Prob", "Chi2prob", 50, 0.0, 1.0);
@@ -641,7 +640,20 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     trackChi2bynDOFH_ = ibook.book1D("trackChi2bynDOF", "Chi2 Over nDOF", 100, 0.0, 10.0);
     trackalgoH_ = ibook.book1D("trackalgo", "Track Algo", 46, 0.0, 46.0);
     trackorigalgoH_ = ibook.book1D("trackorigalgo", "Track Original Algo", 46, 0.0, 46.0);
+
+    for (size_t ibin = 0; ibin < reco::TrackBase::algoSize - 1; ibin++) {
+      trackalgoH_->setBinLabel(ibin + 1, reco::TrackBase::algoNames[ibin], 1);
+      trackorigalgoH_->setBinLabel(ibin + 1, reco::TrackBase::algoNames[ibin], 1);
+    }
+
     trackStoppingSourceH_ = ibook.book1D("trackstoppingsource", "Track Stopping Source", 12, 0.0, 12.0);
+
+    // DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h
+    size_t StopReasonNameSize = static_cast<size_t>(StopReason::SIZE);
+    for (unsigned int i = 0; i < StopReasonNameSize; ++i) {
+      trackStoppingSourceH_->setBinLabel(i + 1, StopReasonName::StopReasonName[i], 1);
+    }
+
     DistanceOfClosestApproachToPVH_ =
         ibook.book1D("DistanceOfClosestApproachToPV", "DistanceOfClosestApproachToPV", 1000, -1.0, 1.0);
     DistanceOfClosestApproachToPVZoomedH_ =
@@ -724,12 +736,12 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     nMissingExpectedOuterHitsH_ =
         ibook.book1D("nMissingExpectedOuterHits", "No. of Missing Expected Outer Hits", 10, -0.5, 9.5);
 
-    beamSpotXYposH_ = ibook.book1D("beamSpotXYpos", "XY position of beam spot", 40, -4.0, 4.0);
-    beamSpotXYposerrH_ = ibook.book1D("beamSpotXYposerr", "Error in XY position of beam spot", 20, 0.0, 4.0);
-    beamSpotZposH_ = ibook.book1D("beamSpotZpos", "Z position of beam spot", 100, -20.0, 20.0);
-    beamSpotZposerrH_ = ibook.book1D("beamSpotZposerr", "Error in Z position of beam spot", 50, 0.0, 5.0);
+    beamSpotXYposH_ = ibook.book1D("beamSpotXYpos", "d_{xy} w.r.t beam spot", 100, -1.0, 1.0);
+    beamSpotXYposerrH_ = ibook.book1D("beamSpotXYposerr", "error on d_{xy} w.r.t beam spot", 50, 0.0, 0.25);
+    beamSpotZposH_ = ibook.book1D("beamSpotZpos", "d_{z} w.r.t beam spot", 100, -20.0, 20.0);
+    beamSpotZposerrH_ = ibook.book1D("beamSpotZposerr", "error on d_{z} w.r.t. beam spot", 50, 0.0, 0.25);
 
-    vertexXposH_ = ibook.book1D("vertexXpos", "Vertex X position", 100, 0.05, 0.15);
+    vertexXposH_ = ibook.book1D("vertexXpos", "Vertex X position", 100, -0.1, 0.1);
     vertexYposH_ = ibook.book1D("vertexYpos", "Vertex Y position", 200, -0.1, 0.1);
     vertexZposH_ = ibook.book1D("vertexZpos", "Vertex Z position", 100, -20.0, 20.0);
     nVertexH_ = ibook.book1D("nVertex", "# of vertices", 120, -0.5, 119.5);
@@ -886,7 +898,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                        0.0,
                                        "g");
   nValidHitsVsnVtxH_ =
-      ibook.bookProfile("nValidHitsVsnVtx", "Number of Valid Hits Vs Number of Vertex", 100, 0., 50., 0.0, 0.0, "g");
+      ibook.bookProfile("nValidHitsVsnVtx", "Number of Valid Hits Vs Number of Vertex", 100, 0., 100., 0.0, 0.0, "g");
   nValidHitsVsEtaH_ = ibook.bookProfile("nValidHitsVsEta",
                                         "Number of Hits Vs Eta",
                                         TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
@@ -1184,7 +1196,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           10.0,
                                            "g");
   trackChi2oNDFVsPhiH_ = ibook.bookProfile("trackChi2oNDFVsPhi",
                                            "chi2/ndof of Tracks Vs Phi",
@@ -1192,7 +1204,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                            TrackPhiHistoPar_.getParameter<double>("Xmin"),
                                            TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           10.0,
                                            "g");
 
   trackChi2probVsEtaH_ = ibook.bookProfile("trackChi2probVsEta",
@@ -1201,7 +1213,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           1.0,
                                            "g");
   trackChi2probVsPhiH_ = ibook.bookProfile("trackChi2probVsPhi",
                                            "chi2 probability of Tracks Vs Phi",
@@ -1209,7 +1221,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                            TrackPhiHistoPar_.getParameter<double>("Xmin"),
                                            TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           1.0,
                                            "g");
 
   trackIperr3dVsEtaH_ =
