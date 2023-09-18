@@ -133,8 +133,10 @@ process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineB
 #
 # Strip FED check
 #
+rawDataCollectorLabel = 'rawDataCollector'
+
 process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
-process.siStripFEDCheck.RawDataTag = "rawDataCollector"
+process.siStripFEDCheck.RawDataTag = rawDataCollectorLabel
 process.siStripFEDCheck.DirName    = 'SiStrip/FEDIntegrity_SM/'
 process.siStripFEDCheck.doPLOTfedsPresent       = False # already produced by fedtest
 process.siStripFEDCheck.doPLOTfedFatalErrors    = False # already produced by fedtest
@@ -253,7 +255,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     # Client config for cosmic data
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_Cosmic_cff")
-    process.SiStripAnalyserCosmic.RawDataTag = "rawDataCollector"
+    process.SiStripAnalyserCosmic.RawDataTag = rawDataCollectorLabel
     process.SiStripAnalyserCosmic.TkMapCreationFrequency  = -1
     process.SiStripAnalyserCosmic.ShiftReportFrequency = -1
     process.SiStripAnalyserCosmic.StaticUpdateFrequency = 5
@@ -261,7 +263,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyserCosmic)
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_Cosmic_cff")
-    process.TrackingAnalyserCosmic.RawDataTag           = "rawDataCollector"
+    process.TrackingAnalyserCosmic.RawDataTag           = rawDataCollectorLabel
     process.TrackingAnalyserCosmic.ShiftReportFrequency = -1
     process.TrackingAnalyserCosmic.StaticUpdateFrequency = 5
     process.TrackingClient = cms.Sequence( process.TrackingAnalyserCosmic )
@@ -348,7 +350,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
-    process.SiStripAnalyser.RawDataTag = "rawDataCollector"
+    process.SiStripAnalyser.RawDataTag = rawDataCollectorLabel
     process.SiStripAnalyser.MonitorSiStrip_PSet.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
@@ -357,7 +359,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
     process.TrackingAnalyser.ShiftReportFrequency = -1
     process.TrackingAnalyser.StaticUpdateFrequency = 5
-    process.TrackingAnalyser.RawDataTag = "rawDataCollector"
+    process.TrackingAnalyser.RawDataTag = rawDataCollectorLabel
     if offlineTesting :
         process.TrackingAnalyser.verbose = True
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
@@ -453,14 +455,14 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
-    process.SiStripAnalyser.RawDataTag = "rawDataCollector"
+    process.SiStripAnalyser.RawDataTag = rawDataCollectorLabel
     process.SiStripAnalyser.MonitorSiStrip_PSet.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
     ### TRACKING
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
     process.TrackingAnalyser.ShiftReportFrequency = -1
     process.TrackingAnalyser.StaticUpdateFrequency = 5
-    process.TrackingAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+    process.TrackingAnalyser.RawDataTag = cms.untracked.InputTag(rawDataCollectorLabel)
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
 
     # Reco for pp collisions
@@ -512,68 +514,74 @@ if (process.runType.getRunType() == process.runType.hpu_run):
                          process.TrackingClient
                          )
 
-process.castorDigis.InputLabel = "rawDataCollector"
-process.csctfDigis.producer = "rawDataCollector"
-process.dttfDigis.DTTF_FED_Source = "rawDataCollector"
-process.ecalDigis.cpu.InputLabel = "rawDataCollector"
-process.ecalPreshowerDigis.sourceTag = "rawDataCollector"
-process.gctDigis.inputLabel = "rawDataCollector"
-process.gtDigis.DaqGtInputTag = "rawDataCollector"
-process.hcalDigis.InputLabel = "rawDataCollector"
-process.muonCSCDigis.InputObjects = "rawDataCollector"
-process.muonDTDigis.inputLabel = "rawDataCollector"
-process.muonRPCDigis.InputLabel = "rawDataCollector"
-process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
-process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
-process.siStripDigis.ProductLabel = "rawDataCollector"
-process.siStripFEDMonitor.RawDataTag = "rawDataCollector"
+process.castorDigis.InputLabel = rawDataCollectorLabel
+process.csctfDigis.producer = rawDataCollectorLabel
+process.dttfDigis.DTTF_FED_Source = rawDataCollectorLabel
+process.ecalDigis.cpu.InputLabel = rawDataCollectorLabel
+process.ecalPreshowerDigis.sourceTag = rawDataCollectorLabel
+process.gctDigis.inputLabel = rawDataCollectorLabel
+process.gtDigis.DaqGtInputTag = rawDataCollectorLabel
+process.hcalDigis.InputLabel = rawDataCollectorLabel
+process.muonCSCDigis.InputObjects = rawDataCollectorLabel
+process.muonDTDigis.inputLabel = rawDataCollectorLabel
+process.muonRPCDigis.InputLabel = rawDataCollectorLabel
+process.scalersRawToDigi.scalersInputTag = rawDataCollectorLabel
+process.siPixelDigis.cpu.InputLabel = rawDataCollectorLabel
+process.siStripDigis.ProductLabel = rawDataCollectorLabel
+process.siStripFEDMonitor.RawDataTag = rawDataCollectorLabel
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
 print("Running with run type = ", process.runType.getRunType())
+
 ### HEAVY ION SETTING
-if (process.runType.getRunType() == process.runType.hi_run):
-    process.castorDigis.InputLabel = "rawDataRepacker"
-    process.csctfDigis.producer = "rawDataRepacker"
-    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
-    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
-    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
-    process.gctDigis.inputLabel = "rawDataRepacker"
-    process.hcalDigis.InputLabel = "rawDataRepacker"
-    process.muonCSCDigis.InputObjects = "rawDataRepacker"
-    process.muonDTDigis.inputLabel = "rawDataRepacker"
-    process.muonRPCDigis.InputLabel = "rawDataRepacker"
-    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
-    process.siStripDigis.ProductLabel = "rawDataRepacker"
-    process.siStripFEDMonitor.RawDataTag = "rawDataRepacker"
+if process.runType.getRunType() == process.runType.hi_run:
+    rawDataRepackerLabel = 'rawDataRepacker'
+    process.castorDigis.InputLabel = rawDataRepackerLabel
+    process.csctfDigis.producer = rawDataRepackerLabel
+    process.dttfDigis.DTTF_FED_Source = rawDataRepackerLabel
+    process.ecalDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
+    process.gctDigis.inputLabel = rawDataRepackerLabel
+    process.hcalDigis.InputLabel = rawDataRepackerLabel
+    process.muonCSCDigis.InputObjects = rawDataRepackerLabel
+    process.muonDTDigis.inputLabel = rawDataRepackerLabel
+    process.muonRPCDigis.InputLabel = rawDataRepackerLabel
+    process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
+    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siStripDigis.ProductLabel = rawDataRepackerLabel
+    process.siStripFEDMonitor.RawDataTag = rawDataRepackerLabel
 
     if ((process.runType.getRunType() == process.runType.hi_run) and live):
         process.source.SelectEvents = [
-            'HLT_HICentralityVeto*',
-#            'HLT_HIMinimumBias*',
-#            'HLT_HIZeroBias*'
+#            'HLT_HICentralityVeto*', # present in 2018 and 2022 HIon menus
+            'HLT_HIMinimumBias*',     # replaced HLT_HICentralityVeto starting from the 2023 HIon menu
+#            'HLT_HIZeroBias*',       # present in DQM stream of HIon menu, but not used in this client
             'HLT_HIPhysics*'
-            ]
+        ]
 
     process.SiStripMonitorDigi.UseDCSFiltering = False
     process.SiStripMonitorClusterReal.UseDCSFiltering = False
 
-    process.MonitorTrackResiduals_gentk.Tracks                 = 'initialStepTracksPreSplitting'
-    process.MonitorTrackResiduals_gentk.trajectoryInput        = 'initialStepTracksPreSplitting'
-    process.TrackMon_gentk.TrackProducer    = 'initialStepTracksPreSplitting'
-    process.TrackMon_gentk.allTrackProducer = 'initialStepTracksPreSplitting'
-    process.SiStripMonitorTrack_gentk.TrackProducer = 'initialStepTracksPreSplitting'
+    process.MonitorTrackResiduals_gentk.Tracks          = 'initialStepTracksPreSplitting'
+    process.MonitorTrackResiduals_gentk.trajectoryInput = 'initialStepTracksPreSplitting'
+    process.TrackMon_gentk.TrackProducer                = 'initialStepTracksPreSplitting'
+    process.TrackMon_gentk.allTrackProducer             = 'initialStepTracksPreSplitting'
+    process.SiStripMonitorTrack_gentk.TrackProducer     = 'initialStepTracksPreSplitting'
 
-    process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
+    process.SiStripSources_TrkReco = cms.Sequence(
+        process.SiStripMonitorTrack_gentk
+      * process.MonitorTrackResiduals_gentk
+      * process.TrackMon_gentk
+    )
 
     ### STRIP
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
     process.SiStripAnalyser.TkMapCreationFrequency  = -1
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
-    process.SiStripAnalyser.RawDataTag = "rawDataRepacker"
+    process.SiStripAnalyser.RawDataTag = rawDataRepackerLabel
     process.SiStripAnalyser.MonitorSiStrip_PSet.MonitorSiStripBackPlaneCorrection = False
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
@@ -582,8 +590,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
     process.TrackingAnalyser.ShiftReportFrequency = -1
     process.TrackingAnalyser.StaticUpdateFrequency = 5
-    process.TrackingAnalyser.RawDataTag = "rawDataRepacker"
-    if offlineTesting :
+    process.TrackingAnalyser.RawDataTag = rawDataRepackerLabel
+    if offlineTesting:
         process.TrackingAnalyser.verbose = True
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
 
@@ -602,14 +610,14 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # Reco for pp collisions
 
     process.load('RecoTracker.IterativeTracking.InitialStepPreSplitting_cff')
-    '''process.InitialStepPreSplitting.remove(process.initialStepTrackRefsForJetsPreSplitting)
-    process.InitialStepPreSplitting.remove(process.caloTowerForTrkPreSplitting)
-    process.InitialStepPreSplitting.remove(process.ak4CaloJetsForTrkPreSplitting)
-    process.InitialStepPreSplitting.remove(process.jetsForCoreTrackingPreSplitting)
-    process.InitialStepPreSplitting.remove(process.siPixelClusters)
-    process.InitialStepPreSplitting.remove(process.siPixelRecHits)
-    process.InitialStepPreSplitting.remove(process.MeasurementTrackerEvent)
-    process.InitialStepPreSplitting.remove(process.siPixelClusterShapeCache)'''
+#    process.InitialStepPreSplitting.remove(process.initialStepTrackRefsForJetsPreSplitting)
+#    process.InitialStepPreSplitting.remove(process.caloTowerForTrkPreSplitting)
+#    process.InitialStepPreSplitting.remove(process.ak4CaloJetsForTrkPreSplitting)
+#    process.InitialStepPreSplitting.remove(process.jetsForCoreTrackingPreSplitting)
+#    process.InitialStepPreSplitting.remove(process.siPixelClusters)
+#    process.InitialStepPreSplitting.remove(process.siPixelRecHits)
+#    process.InitialStepPreSplitting.remove(process.MeasurementTrackerEvent)
+#    process.InitialStepPreSplitting.remove(process.siPixelClusterShapeCache)
 
     process.InitialStepPreSplittingTask.remove(process.initialStepTrackRefsForJetsPreSplitting)
     process.InitialStepPreSplittingTask.remove(process.caloTowerForTrkPreSplitting)
@@ -625,17 +633,15 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # Select events based on the pixel cluster multiplicity
     import  HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
-        inputTag  = 'siPixelClusters',
+        inputTag = 'siPixelClusters',
         minClusters = 1,
         maxClusters = 50000
-        )
+    )
 
     # BaselineValidator Module
     from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import siStripDigis as _siStripDigis
-    process.siStripDigisNoZS=_siStripDigis.clone(
-        ProductLabel = "rawDataCollector")
-    process.SiStripBaselineValidator.srcProcessedRawDigi =  'siStripDigisNoZS:ZeroSuppressed'
-
+    process.siStripDigisNoZS = _siStripDigis.clone( ProductLabel = rawDataCollectorLabel )
+    process.SiStripBaselineValidator.srcProcessedRawDigi = 'siStripDigisNoZS:ZeroSuppressed'
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
@@ -643,7 +649,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
     from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
     process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
 
-    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
+    process.RecoForDQM_TrkReco = cms.Sequence(
+        process.offlineBeamSpot
+      * process.MeasurementTrackerEventPreSplitting
+      * process.siPixelClusterShapeCachePreSplitting
+      * process.recopixelvertexing
+      * process.InitialStepPreSplitting
+    )
 
     process.p = cms.Path(
         process.scalersRawToDigi*
@@ -670,8 +682,10 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     # append the approximate clusters monitoring for the HI run case
     from DQM.SiStripMonitorApproximateCluster.SiStripMonitorApproximateCluster_cfi import SiStripMonitorApproximateCluster
-    process.siStripApproximateClusterComparator = SiStripMonitorApproximateCluster.clone(compareClusters = True,
-                                                                                         ClustersProducer = "hltSiStripClusterizerForRawPrime")
+    process.siStripApproximateClusterComparator = SiStripMonitorApproximateCluster.clone(
+        compareClusters = True,
+        ClustersProducer = "hltSiStripClusterizerForRawPrime"
+    )
     process.p.insert(process.p.index(process.TrackingClient)+1,process.siStripApproximateClusterComparator)
 
 ### process customizations included here
