@@ -1,23 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-if len(sys.argv)>2:
-    sqlitename =sys.argv[2]
+if len(sys.argv)>1:
+    sqlitename =sys.argv[1]
 else:
     sqlitename = "CTPPSRPRealAlignment.db"
 
-if len(sys.argv) > 3:
-    runno = int(sys.argv[3])
+if len(sys.argv) > 2:
+    runno = int(sys.argv[2])
 else:
     runno=1
 
-if len(sys.argv) >4 :
-    tagname = sys.argv[4]
+if len(sys.argv) >3 :
+    tagname = sys.argv[3]
 else:
     tagname="CTPPSRPAlignment_real"
 
-if len(sys.argv) > 5:
-    rcdname=sys.argv[5]
+if len(sys.argv) > 4:
+    rcdname=sys.argv[4]
 else:
     rcdname="RPRealAlignmentRecord"
 

@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('test')
 
 import sys
-if len(sys.argv)>2:
-    startrun = int(sys.argv[2])
+if len(sys.argv)>1:
+    startrun = int(sys.argv[1])
 else:
     startrun = 1
 process.source = cms.Source("EmptyIOVSource",

@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-infile_name = sys.argv[2]
-outfile_name = '/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_0_0_pre3_singlegconv/src/RecoParticleFlow/Configuration/test/%s/superClusterDump_%i.root'%(sys.argv[5],int(sys.argv[3]))
-nevents = int(sys.argv[4])
+infile_name = sys.argv[1]
+outfile_name = '/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_0_0_pre3_singlegconv/src/RecoParticleFlow/Configuration/test/%s/superClusterDump_%i.root'%(sys.argv[4],int(sys.argv[2]))
+nevents = int(sys.argv[3])
 
 
 process = cms.Process("REPROD")

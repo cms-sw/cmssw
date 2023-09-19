@@ -12,7 +12,7 @@ import os
 from subprocess import *
 
 # arguments
-key=str(sys.argv[2])
+key=str(sys.argv[1])
 
 
 # CMSSW process proper

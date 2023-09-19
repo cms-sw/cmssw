@@ -24,10 +24,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-##runnumber = sys.argv[2][4:-5] 
-#runnumber = sys.argv[2]
-#rundir = sys.argv[3]
-#histodir = sys.argv[4]
+#runnumber = sys.argv[1]
+#rundir = sys.argv[2]
+#histodir = sys.argv[3]
 
 #print 'RUN = '+runnumber
 #print 'Input file = '+rundir+'/run'+runnumber+'/USC_'+runnumber+'.root'
