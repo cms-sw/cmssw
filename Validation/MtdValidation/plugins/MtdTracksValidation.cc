@@ -126,8 +126,6 @@ private:
   static constexpr double etaMatchCut_ = 0.05;
   static constexpr double cluDRradius_ = 0.05;  // to cluster rechits around extrapolated track
 
-  bool optionalPlots_;
-
   const reco::RecoToSimCollection* r2s_;
   const reco::SimToRecoCollection* s2r_;
 
@@ -226,8 +224,8 @@ private:
   MonitorElement* meExtraPhiAtBTL_;
   MonitorElement* meExtraPhiAtBTLmatched_;
   MonitorElement* meExtraBTLeneInCone_;
-  MonitorElement* meExtraBTLfailExtenderEta_;
-  MonitorElement* meExtraBTLfailExtenderPt_;
+  MonitorElement* meExtraMTDfailExtenderEta_;
+  MonitorElement* meExtraMTDfailExtenderPt_;
 };
 
 // ------------ constructor and destructor --------------
@@ -236,8 +234,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
       trackMinPt_(iConfig.getParameter<double>("trackMinimumPt")),
       trackMaxBtlEta_(iConfig.getParameter<double>("trackMaximumBtlEta")),
       trackMinEtlEta_(iConfig.getParameter<double>("trackMinimumEtlEta")),
-      trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")),
-      optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")) {
+      trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
@@ -588,39 +585,37 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
         }
 
-        if (optionalPlots_) {
-          size_t nlayers(0);
-          float extrho(0.);
-          float exteta(0.);
-          float extphi(0.);
-          float selvar(0.);
-          auto accept = checkAcceptance(trackGen, iEvent, iSetup, nlayers, extrho, exteta, extphi, selvar);
-          if (accept.first && std::abs(exteta) < trackMaxBtlEta_) {
-            meExtraPhiAtBTL_->Fill(angle_units::operators::convertRadToDeg(extphi));
-            meExtraBTLeneInCone_->Fill(selvar);
+        size_t nlayers(0);
+        float extrho(0.);
+        float exteta(0.);
+        float extphi(0.);
+        float selvar(0.);
+        auto accept = checkAcceptance(trackGen, iEvent, iSetup, nlayers, extrho, exteta, extphi, selvar);
+        if (accept.first && std::abs(exteta) < trackMaxBtlEta_) {
+          meExtraPhiAtBTL_->Fill(angle_units::operators::convertRadToDeg(extphi));
+          meExtraBTLeneInCone_->Fill(selvar);
+        }
+        if (accept.second) {
+          if (std::abs(exteta) < trackMaxBtlEta_) {
+            meExtraPhiAtBTLmatched_->Fill(angle_units::operators::convertRadToDeg(extphi));
           }
-          if (accept.second) {
-            if (std::abs(exteta) < trackMaxBtlEta_) {
-              meExtraPhiAtBTLmatched_->Fill(angle_units::operators::convertRadToDeg(extphi));
-            }
-            if (noCrack) {
-              meExtraPtMtd_->Fill(trackGen.pt());
-              if (nlayers == 2) {
-                meExtraPtEtl2Mtd_->Fill(trackGen.pt());
-              }
-            }
-            meExtraEtaMtd_->Fill(std::abs(trackGen.eta()));
+          if (noCrack) {
+            meExtraPtMtd_->Fill(trackGen.pt());
             if (nlayers == 2) {
-              meExtraEtaEtl2Mtd_->Fill(trackGen.eta());
+              meExtraPtEtl2Mtd_->Fill(trackGen.pt());
             }
-            if (accept.first && accept.second && !isBTL) {
-              edm::LogInfo("MtdTracksValidation")
-                  << "MtdTracksValidation: extender fail in " << iEvent.id().run() << " " << iEvent.id().event()
-                  << " pt= " << trackGen.pt() << " eta= " << trackGen.eta();
-              meExtraBTLfailExtenderEta_->Fill(std::abs(trackGen.eta()));
-              if (noCrack) {
-                meExtraBTLfailExtenderPt_->Fill(trackGen.pt());
-              }
+          }
+          meExtraEtaMtd_->Fill(std::abs(trackGen.eta()));
+          if (nlayers == 2) {
+            meExtraEtaEtl2Mtd_->Fill(std::abs(trackGen.eta()));
+          }
+          if (accept.first && accept.second && !(isBTL || isETL)) {
+            edm::LogInfo("MtdTracksValidation")
+                << "MtdTracksValidation: extender fail in " << iEvent.id().run() << " " << iEvent.id().event()
+                << " pt= " << trackGen.pt() << " eta= " << trackGen.eta();
+            meExtraMTDfailExtenderEta_->Fill(std::abs(trackGen.eta()));
+            if (noCrack) {
+              meExtraMTDfailExtenderPt_->Fill(trackGen.pt());
             }
           }
         }
@@ -942,11 +937,9 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackMatchedEffPtMtd_ = ibook.book1D(
       "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to GEN with time; track pt [GeV] ", 110, 0., 11.);
 
-  if (optionalPlots_) {
-    meExtraPtMtd_ = ibook.book1D("ExtraPtMtd", "Pt of tracks extrapolated to hits; track pt [GeV] ", 110, 0., 11.);
-    meExtraPtEtl2Mtd_ = ibook.book1D(
-        "ExtraPtEtl2Mtd", "Pt of tracks extrapolated to hits, 2 ETL layers; track pt [GeV] ", 110, 0., 11.);
-  }
+  meExtraPtMtd_ = ibook.book1D("ExtraPtMtd", "Pt of tracks extrapolated to hits; track pt [GeV] ", 110, 0., 11.);
+  meExtraPtEtl2Mtd_ =
+      ibook.book1D("ExtraPtEtl2Mtd", "Pt of tracks extrapolated to hits, 2 ETL layers; track pt [GeV] ", 110, 0., 11.);
 
   meTrackPtTot_ = ibook.book1D("TrackPtTot", "Pt of tracks ; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtTot_ =
@@ -967,11 +960,9 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
       "MVAMatchedEffEtaMtd", "Eta of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
 
-  if (optionalPlots_) {
-    meExtraEtaMtd_ = ibook.book1D("ExtraEtaMtd", "Eta of tracks extrapolated to hits; track eta ", 66, 0., 3.3);
-    meExtraEtaEtl2Mtd_ =
-        ibook.book1D("ExtraEtaEtl2Mtd", "Eta of tracks extrapolated to hits, 2 ETL layers; track eta ", 66, 0., 3.3);
-  }
+  meExtraEtaMtd_ = ibook.book1D("ExtraEtaMtd", "Eta of tracks extrapolated to hits; track eta ", 66, 0., 3.3);
+  meExtraEtaEtl2Mtd_ =
+      ibook.book1D("ExtraEtaEtl2Mtd", "Eta of tracks extrapolated to hits, 2 ETL layers; track eta ", 66, 0., 3.3);
 
   meTrackEtaTot_ = ibook.book1D("TrackEtaTot", "Eta of tracks ; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaTot_ =
@@ -994,31 +985,28 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackZposResTot_ = ibook.book1D(
       "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 
-  if (optionalPlots_) {
-    meExtraPhiAtBTL_ =
-        ibook.book1D("ExtraPhiAtBTL", "Phi at BTL surface of extrapolated tracks; phi [deg]", 720, -180., 180.);
-    meExtraPhiAtBTLmatched_ =
-        ibook.book1D("ExtraPhiAtBTLmatched",
-                     "Phi at BTL surface of extrapolated tracksi matched with BTL hits; phi [deg]",
-                     720,
-                     -180.,
-                     180.);
-    meExtraBTLeneInCone_ = ibook.book1D(
-        "ExtraBTLeneInCone", "BTL reconstructed energy in cone arounnd extrapolated track; E [MeV]", 100, 0., 50.);
-    meExtraBTLfailExtenderEta_ =
-        ibook.book1D("ExtraBTLfailExtenderEta",
-                     "Eta of tracks extrapolated to BTL with no track extender match to hits; track eta",
-                     66,
-                     0.,
-                     3.3);
-    ;
-    meExtraBTLfailExtenderPt_ =
-        ibook.book1D("ExtraBTLfailExtenderPt",
-                     "Pt of tracks extrapolated to BTL with no track extender match to hits; track pt [GeV] ",
-                     110,
-                     0.,
-                     11.);
-  }
+  meExtraPhiAtBTL_ =
+      ibook.book1D("ExtraPhiAtBTL", "Phi at BTL surface of extrapolated tracks; phi [deg]", 720, -180., 180.);
+  meExtraPhiAtBTLmatched_ = ibook.book1D("ExtraPhiAtBTLmatched",
+                                         "Phi at BTL surface of extrapolated tracksi matched with BTL hits; phi [deg]",
+                                         720,
+                                         -180.,
+                                         180.);
+  meExtraBTLeneInCone_ = ibook.book1D(
+      "ExtraBTLeneInCone", "BTL reconstructed energy in cone arounnd extrapolated track; E [MeV]", 100, 0., 50.);
+  meExtraMTDfailExtenderEta_ =
+      ibook.book1D("ExtraMTDfailExtenderEta",
+                   "Eta of tracks extrapolated to MTD with no track extender match to hits; track eta",
+                   66,
+                   0.,
+                   3.3);
+  ;
+  meExtraMTDfailExtenderPt_ =
+      ibook.book1D("ExtraMTDfailExtenderPt",
+                   "Pt of tracks extrapolated to MTD with no track extender match to hits; track pt [GeV] ",
+                   110,
+                   0.,
+                   11.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
