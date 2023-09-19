@@ -1,26 +1,62 @@
 // W->lnu Event Selector
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
+// user includes
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+// ROOT includes
 #include "TLorentzVector.h"
-#include "TH1.h"
 #include "TMath.h"
 
-#include "DQM/TrackingMonitorSource/interface/WtoLNuSelector.h"
+class WtoLNuSelector : public edm::stream::EDFilter<> {
+public:
+  explicit WtoLNuSelector(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  double getMt(const TLorentzVector& vlep, const reco::PFMET& obj);
+
+private:
+  // module config parameters
+  const edm::InputTag electronTag_;
+  const edm::InputTag bsTag_;
+  const edm::InputTag muonTag_;
+  const edm::InputTag pfmetTag_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_;
+};
+
+void WtoLNuSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<edm::InputTag>("muonInputTag", edm::InputTag("muons"));
+  desc.addUntracked<edm::InputTag>("pfmetTag", edm::InputTag("pfMetT1T2Txy"));
+  descriptions.addWithDefaultLabel(desc);
+}
 
 WtoLNuSelector::WtoLNuSelector(const edm::ParameterSet& ps)
     : electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),

@@ -1,56 +1,56 @@
+// system includes
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
+// user includes
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "TLorentzVector.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+// ROOT includes
 #include "TFile.h"
 #include "TH1.h"
+#include "TLorentzVector.h"
 #include "TMath.h"
 #include "TPRegexp.h"
 
-#include <string>
-#include <vector>
-#include <map>
-#include <set>
+using MVACollection = std::vector<float>;
+using QualityMaskCollection = std::vector<unsigned char>;
 
 class StandaloneTrackMonitor : public DQMEDAnalyzer {
 public:
   StandaloneTrackMonitor(const edm::ParameterSet&);
-  using MVACollection = std::vector<float>;
-  using QualityMaskCollection = std::vector<unsigned char>;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
@@ -65,11 +65,10 @@ protected:
                   edm::EventSetup const& iSetup,
                   const TrackerGeometry& tkGeom,
                   double wfac = 1);
-  void endJob();
 
 private:
-  std::string moduleName_;
-  std::string folderName_;
+  const std::string moduleName_;
+  const std::string folderName_;
 
   SiStripClusterInfo siStripClusterInfo_;
 
@@ -95,7 +94,7 @@ private:
   const std::string trackScaleFactorFile_;
   const std::vector<std::string> mvaProducers_;
   const edm::InputTag mvaTrackTag_;
-  edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
+  const edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
   const edm::InputTag tcProducer_;
   const std::string algoName_;
 
@@ -103,10 +102,10 @@ private:
   int chi2it = 0, chi2itGt = 0, chi2itLt = 0;
   const bool verbose_;
   std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
-  std::string histname;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transTrackToken_;
   const edm::ParameterSet TrackEtaHistoPar_;
+  const edm::ParameterSet TrackPhiHistoPar_;
   const edm::ParameterSet TrackPtHistoPar_;
   const TrackerGeometry* tkGeom_ = nullptr;
 
@@ -345,14 +344,64 @@ private:
   MonitorElement* Zpt_;
   MonitorElement* ZInvMass_;
 
-  unsigned long long m_cacheID_;
-
   std::vector<int> lumivec1;
   std::vector<int> lumivec2;
   std::vector<float> vpu_;
   std::vector<float> vtrack_;
   std::map<uint32_t, std::set<const SiStripCluster*> > clusterMap_;
 };
+
+void StandaloneTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("moduleName", "StandaloneTrackMonitor");
+  desc.addUntracked<std::string>("folderName", "highPurityTracks");
+  desc.addUntracked<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.addUntracked<edm::InputTag>("puTag", edm::InputTag("addPileupInfo"));
+  desc.addUntracked<edm::InputTag>("clusterTag", edm::InputTag("siStripClusters"));
+  desc.addUntracked<edm::InputTag>("PFJetsCollection", edm::InputTag("ak4PFJetsCHS"));
+
+  desc.addUntracked<std::string>("trackQuality", "highPurity");
+  desc.addUntracked<bool>("doPUCorrection", false);
+  desc.addUntracked<bool>("doTrackCorrection", false);
+  desc.addUntracked<bool>("isMC", false);
+  desc.addUntracked<bool>("haveAllHistograms", false);
+  desc.addUntracked<std::string>("puScaleFactorFile", "PileupScaleFactor.root");
+  desc.addUntracked<std::string>("trackScaleFactorFile", "PileupScaleFactor.root");
+  desc.addUntracked<std::vector<std::string> >("MVAProducers");
+  desc.addUntracked<edm::InputTag>("TrackProducerForMVA");
+
+  desc.addUntracked<edm::InputTag>("TCProducer");
+  desc.addUntracked<std::string>("AlgoName");
+  desc.addUntracked<bool>("verbose", false);
+
+  {
+    edm::ParameterSetDescription TrackEtaHistoPar;
+    TrackEtaHistoPar.add<int>("Xbins", 60);
+    TrackEtaHistoPar.add<double>("Xmin", -3.0);
+    TrackEtaHistoPar.add<double>("Xmax", 3.0);
+    desc.add<edm::ParameterSetDescription>("trackEtaH", TrackEtaHistoPar);
+  }
+
+  {
+    edm::ParameterSetDescription TrackPtHistoPar;
+    TrackPtHistoPar.add<int>("Xbins", 60);
+    TrackPtHistoPar.add<double>("Xmin", 0.0);
+    TrackPtHistoPar.add<double>("Xmax", 100.0);
+    desc.add<edm::ParameterSetDescription>("trackPtH", TrackPtHistoPar);
+  }
+
+  {
+    edm::ParameterSetDescription TrackPhiHistoPar;
+    TrackPhiHistoPar.add<int>("Xbins", 100);
+    TrackPhiHistoPar.add<double>("Xmin", -M_PI);
+    TrackPhiHistoPar.add<double>("Xmax", M_PI);
+    desc.add<edm::ParameterSetDescription>("trackPhiH", TrackPhiHistoPar);
+  }
+
+  descriptions.add("standaloneTrackMonitorDefault", desc);
+}
 
 // -----------------------------
 // constructors and destructor
@@ -390,6 +439,7 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
       transTrackToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord, edm::Transition::Event>(
           edm::ESInputTag{"", "TransientTrackBuilder"})),
       TrackEtaHistoPar_(ps.getParameter<edm::ParameterSet>("trackEtaH")),
+      TrackPhiHistoPar_(ps.getParameter<edm::ParameterSet>("trackPhiH")),
       TrackPtHistoPar_(ps.getParameter<edm::ParameterSet>("trackPtH")) {
   for (const auto& v : mvaProducers_) {
     mvaQualityTokens_.push_back(std::make_tuple(consumes<MVACollection>(edm::InputTag(v, "MVAValues")),
@@ -579,9 +629,9 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                              TrackPtHistoPar_.getParameter<double>("Xmax"));
     trackPt_ZoomH_ = ibook.book1D("trackPt_Zoom", "Track Pt", 100, 60, 70);
     trackPterrH_ = ibook.book1D("trackPterr", "Track Pt Error", 100, 0.0, 100.0);
-    trackqOverpH_ = ibook.book1D("trackqOverp", "q Over p", 40, -10.0, 10.0);
-    trackqOverperrH_ = ibook.book1D("trackqOverperr", "q Over p Error", 50, 0.0, 25.0);
-    trackChargeH_ = ibook.book1D("trackCharge", "Track Charge", 50, -5, 5);
+    trackqOverpH_ = ibook.book1D("trackqOverp", "q Over p", 100, -0.5, 0.5);
+    trackqOverperrH_ = ibook.book1D("trackqOverperr", "q Over p Error", 50, 0.0, 0.5);
+    trackChargeH_ = ibook.book1D("trackCharge", "Track Charge", 3, -1.5, 1.5);
     trackChi2H_ = ibook.book1D("trackChi2", "Chi2", 100, 0.0, 100.0);
     tracknDOFH_ = ibook.book1D("tracknDOF", "nDOF", 100, 0.0, 100.0);
     trackChi2ProbH_ = ibook.book1D("trackChi2Prob", "Chi2prob", 50, 0.0, 1.0);
@@ -590,7 +640,20 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     trackChi2bynDOFH_ = ibook.book1D("trackChi2bynDOF", "Chi2 Over nDOF", 100, 0.0, 10.0);
     trackalgoH_ = ibook.book1D("trackalgo", "Track Algo", 46, 0.0, 46.0);
     trackorigalgoH_ = ibook.book1D("trackorigalgo", "Track Original Algo", 46, 0.0, 46.0);
+
+    for (size_t ibin = 0; ibin < reco::TrackBase::algoSize - 1; ibin++) {
+      trackalgoH_->setBinLabel(ibin + 1, reco::TrackBase::algoNames[ibin], 1);
+      trackorigalgoH_->setBinLabel(ibin + 1, reco::TrackBase::algoNames[ibin], 1);
+    }
+
     trackStoppingSourceH_ = ibook.book1D("trackstoppingsource", "Track Stopping Source", 12, 0.0, 12.0);
+
+    // DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h
+    size_t StopReasonNameSize = static_cast<size_t>(StopReason::SIZE);
+    for (unsigned int i = 0; i < StopReasonNameSize; ++i) {
+      trackStoppingSourceH_->setBinLabel(i + 1, StopReasonName::StopReasonName[i], 1);
+    }
+
     DistanceOfClosestApproachToPVH_ =
         ibook.book1D("DistanceOfClosestApproachToPV", "DistanceOfClosestApproachToPV", 1000, -1.0, 1.0);
     DistanceOfClosestApproachToPVZoomedH_ =
@@ -673,12 +736,12 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     nMissingExpectedOuterHitsH_ =
         ibook.book1D("nMissingExpectedOuterHits", "No. of Missing Expected Outer Hits", 10, -0.5, 9.5);
 
-    beamSpotXYposH_ = ibook.book1D("beamSpotXYpos", "XY position of beam spot", 40, -4.0, 4.0);
-    beamSpotXYposerrH_ = ibook.book1D("beamSpotXYposerr", "Error in XY position of beam spot", 20, 0.0, 4.0);
-    beamSpotZposH_ = ibook.book1D("beamSpotZpos", "Z position of beam spot", 100, -20.0, 20.0);
-    beamSpotZposerrH_ = ibook.book1D("beamSpotZposerr", "Error in Z position of beam spot", 50, 0.0, 5.0);
+    beamSpotXYposH_ = ibook.book1D("beamSpotXYpos", "d_{xy} w.r.t beam spot", 100, -1.0, 1.0);
+    beamSpotXYposerrH_ = ibook.book1D("beamSpotXYposerr", "error on d_{xy} w.r.t beam spot", 50, 0.0, 0.25);
+    beamSpotZposH_ = ibook.book1D("beamSpotZpos", "d_{z} w.r.t beam spot", 100, -20.0, 20.0);
+    beamSpotZposerrH_ = ibook.book1D("beamSpotZposerr", "error on d_{z} w.r.t. beam spot", 50, 0.0, 0.25);
 
-    vertexXposH_ = ibook.book1D("vertexXpos", "Vertex X position", 100, 0.05, 0.15);
+    vertexXposH_ = ibook.book1D("vertexXpos", "Vertex X position", 100, -0.1, 0.1);
     vertexYposH_ = ibook.book1D("vertexYpos", "Vertex Y position", 200, -0.1, 0.1);
     vertexZposH_ = ibook.book1D("vertexZpos", "Vertex Z position", 100, -20.0, 20.0);
     nVertexH_ = ibook.book1D("nVertex", "# of vertices", 120, -0.5, 119.5);
@@ -835,7 +898,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                        0.0,
                                        "g");
   nValidHitsVsnVtxH_ =
-      ibook.bookProfile("nValidHitsVsnVtx", "Number of Valid Hits Vs Number of Vertex", 100, 0., 50., 0.0, 0.0, "g");
+      ibook.bookProfile("nValidHitsVsnVtx", "Number of Valid Hits Vs Number of Vertex", 100, 0., 100., 0.0, 0.0, "g");
   nValidHitsVsEtaH_ = ibook.bookProfile("nValidHitsVsEta",
                                         "Number of Hits Vs Eta",
                                         TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
@@ -917,17 +980,17 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   nValidHitsPixVsPhiH_ = ibook.bookProfile("nValidHitsPixVsPhi",
                                            "Number of Valid Hits in Pixel Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsPixBVsPhiH_ = ibook.bookProfile("nValidHitsPixBVsPhi",
                                             "Number of Valid Hits in Pixel Barrel Vs Phi",
-                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                            TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                            TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
@@ -941,41 +1004,41 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                             "g");
   nValidHitsStripVsPhiH_ = ibook.bookProfile("nValidHitsStripVsPhi",
                                              "Number of Valid Hits in SiStrip Vs Phi",
-                                             TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                             TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                             TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                             TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                             TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                             TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                              0.0,
                                              0.0,
                                              "g");
   nValidHitsTIBVsPhiH_ = ibook.bookProfile("nValidHitsTIBVsPhi",
                                            "Number of Valid Hits in TIB Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTOBVsPhiH_ = ibook.bookProfile("nValidHitsTOBVsPhi",
                                            "Number of Valid Hits in TOB Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTECVsPhiH_ = ibook.bookProfile("nValidHitsTECVsPhi",
                                            "Number of Valid Hits in TEC Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
   nValidHitsTIDVsPhiH_ = ibook.bookProfile("nValidHitsTIDVsPhi",
                                            "Number of Valid Hits in TID Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
@@ -1047,17 +1110,17 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   nLostHitsPixVsPhiH_ = ibook.bookProfile("nLostHitsPixVsPhi",
                                           "Number of Lost Hits in Pixel Vs Phi",
-                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                          TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsPixBVsPhiH_ = ibook.bookProfile("nLostHitsPixBVsPhi",
                                            "Number of Lost Hits in Pixel Barrel Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
                                            0.0,
                                            "g");
@@ -1071,41 +1134,41 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                            "g");
   nLostHitsStripVsPhiH_ = ibook.bookProfile("nLostHitsStripVsPhi",
                                             "Number of Lost Hits in SiStrip Vs Phi",
-                                            TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                            TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                            TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                            TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                             0.0,
                                             0.0,
                                             "g");
   nLostHitsTIBVsPhiH_ = ibook.bookProfile("nLostHitsTIBVsPhi",
                                           "Number of Lost Hits in TIB Vs Phi",
-                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                          TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTOBVsPhiH_ = ibook.bookProfile("nLostHitsTOBVsPhi",
                                           "Number of Lost Hits in TOB Vs Phi",
-                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                          TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTECVsPhiH_ = ibook.bookProfile("nLostHitsTECVsPhi",
                                           "Number of Lost Hits in TEC Vs Phi",
-                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                          TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
   nLostHitsTIDVsPhiH_ = ibook.bookProfile("nLostHitsTIDVsPhi",
                                           "Number of Lost Hits in TID Vs Phi",
-                                          TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                          TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                          TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                          TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                           0.0,
                                           0.0,
                                           "g");
@@ -1133,15 +1196,15 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           10.0,
                                            "g");
   trackChi2oNDFVsPhiH_ = ibook.bookProfile("trackChi2oNDFVsPhi",
                                            "chi2/ndof of Tracks Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           10.0,
                                            "g");
 
   trackChi2probVsEtaH_ = ibook.bookProfile("trackChi2probVsEta",
@@ -1150,15 +1213,15 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                            TrackEtaHistoPar_.getParameter<double>("Xmin"),
                                            TrackEtaHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           1.0,
                                            "g");
   trackChi2probVsPhiH_ = ibook.bookProfile("trackChi2probVsPhi",
                                            "chi2 probability of Tracks Vs Phi",
-                                           TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                                           TrackEtaHistoPar_.getParameter<double>("Xmax"),
+                                           TrackPhiHistoPar_.getParameter<int32_t>("Xbins"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmin"),
+                                           TrackPhiHistoPar_.getParameter<double>("Xmax"),
                                            0.0,
-                                           0.0,
+                                           1.0,
                                            "g");
 
   trackIperr3dVsEtaH_ =
@@ -1301,8 +1364,6 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
       double nAllTrackerHits = hitp.numberOfAllTrackerHits(reco::HitPattern::TRACK_HITS);
 
       double trackdeltaR = std::numeric_limits<double>::max();
-      ;
-
       TLorentzVector track1;
       track1.SetPtEtaPhiM(track.pt(), track.eta(), track.phi(), 0.);
       for (auto const& TRACK : *tracks) {
@@ -1817,7 +1878,6 @@ void StandaloneTrackMonitor::addClusterToMap(uint32_t detid, const SiStripCluste
     s.insert(cluster);
   }
 }
-void StandaloneTrackMonitor::endJob() {}
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(StandaloneTrackMonitor);

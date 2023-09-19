@@ -1,16 +1,83 @@
+// system includes
+#include <memory>
+
+// user includes
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// ROOT includes
 #include "TLorentzVector.h"
 
-#include "DQM/TrackingMonitorSource/interface/ZtoMMMuonTrackProducer.h"
+class ZtoMMMuonTrackProducer : public edm::global::EDProducer<> {
+public:
+  explicit ZtoMMMuonTrackProducer(const edm::ParameterSet&);
+  ~ZtoMMMuonTrackProducer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
+
+private:
+  // ----------member data ---------------------------
+  const edm::InputTag muonTag_;
+  const edm::InputTag bsTag_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+
+  const double maxEta_;
+  const double minPt_;
+  const double maxNormChi2_;
+  const double maxD0_;
+  const double maxDz_;
+  const int minPixelHits_;
+  const int minStripHits_;
+  const int minChambers_;
+  const int minMatches_;
+  const int minMatchedStations_;
+  const double maxIso_;
+  const double minPtHighest_;
+  const double minInvMass_;
+  const double maxInvMass_;
+};
 
 using namespace std;
 using namespace edm;
+
+void ZtoMMMuonTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<edm::InputTag>("muonInputTag", edm::InputTag("muons"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<double>("maxEta", 2.4);
+  desc.addUntracked<double>("minPt", 5);
+  desc.addUntracked<double>("maxNormChi2", 1000);
+  desc.addUntracked<double>("maxD0", 0.02);
+  desc.addUntracked<double>("maxDz", 20.);
+  desc.addUntracked<uint32_t>("minPixelHits", 1);
+  desc.addUntracked<uint32_t>("minStripHits", 8);
+  desc.addUntracked<uint32_t>("minChambers", 2);
+  desc.addUntracked<uint32_t>("minMatches", 2);
+  desc.addUntracked<double>("minMatchedStations", 2);
+  desc.addUntracked<double>("maxIso", 0.3);
+  desc.addUntracked<double>("minPtHighest", 24);
+  desc.addUntracked<double>("minInvMass", 60);
+  desc.addUntracked<double>("maxInvMass", 120);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 ZtoMMMuonTrackProducer::ZtoMMMuonTrackProducer(const edm::ParameterSet& ps)
     : muonTag_(ps.getUntrackedParameter<edm::InputTag>("muonInputTag", edm::InputTag("muons"))),
@@ -34,8 +101,6 @@ ZtoMMMuonTrackProducer::ZtoMMMuonTrackProducer(const edm::ParameterSet& ps)
   produces<reco::TrackCollection>("");
 }
 
-ZtoMMMuonTrackProducer::~ZtoMMMuonTrackProducer() {}
-
 void ZtoMMMuonTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
 
@@ -54,7 +119,7 @@ void ZtoMMMuonTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
         continue;
       if (!mu.isPFMuon())
         continue;
-      if (std::fabs(mu.eta()) >= maxEta_)
+      if (std::abs(mu.eta()) >= maxEta_)
         continue;
       if (mu.pt() < minPt_)
         continue;
@@ -69,10 +134,10 @@ void ZtoMMMuonTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent,
       reco::TrackRef tk = mu.innerTrack();
       if (beamSpot.isValid()) {
         double trkd0 = -(tk->dxy(beamSpot->position()));
-        if (std::fabs(trkd0) >= maxD0_)
+        if (std::abs(trkd0) >= maxD0_)
           continue;
         double trkdz = tk->dz(beamSpot->position());
-        if (std::fabs(trkdz) >= maxDz_)
+        if (std::abs(trkdz) >= maxDz_)
           continue;
       } else {
         edm::LogError("ZtoMMMuonTrackProducer") << "Error >> Failed to get BeamSpot for label: " << bsTag_;

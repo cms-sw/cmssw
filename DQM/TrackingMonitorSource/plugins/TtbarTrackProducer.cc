@@ -1,15 +1,160 @@
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/Common/interface/Handle.h"
+// system includes
+#include <memory>
+
+// user includes
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+
+// Electron selector
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
+// Muon Selector
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+// Jet Selector
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
+// b-jet Selector
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
+// Met Selector
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+
+// ROOT includes
 #include "TLorentzVector.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
+class TtbarTrackProducer : public edm::global::EDProducer<> {
+public:
+  explicit TtbarTrackProducer(const edm::ParameterSet&);
+  ~TtbarTrackProducer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-#include "DQM/TrackingMonitorSource/interface/TtbarTrackProducer.h"
+  void produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
+
+private:
+  // ----------member data ---------------------------
+
+  const edm::InputTag electronTag_;
+  const edm::InputTag jetsTag_;
+  const edm::InputTag bjetsTag_;
+  const edm::InputTag pfmetTag_;
+  const edm::InputTag muonTag_;
+  const edm::InputTag bsTag_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+  const edm::EDGetTokenT<reco::PFJetCollection> jetsToken_;
+  const edm::EDGetTokenT<reco::JetTagCollection> bjetsToken_;
+  const edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+
+  const double maxEtaEle_;
+  const double maxEtaMu_;
+  const double minPt_;
+  const double maxDeltaPhiInEB_;
+  const double maxDeltaEtaInEB_;
+  const double maxHOEEB_;
+  const double maxSigmaiEiEEB_;
+  const double maxDeltaPhiInEE_;
+  const double maxDeltaEtaInEE_;
+  const double maxHOEEE_;
+  const double maxSigmaiEiEEE_;
+
+  const double minChambers_;
+
+  const double minEta_Jets_;
+
+  const double btagFactor_;
+
+  const double maxNormChi2_;
+  const double maxD0_;
+  const double maxDz_;
+  const int minPixelHits_;
+  const int minStripHits_;
+  const double maxIsoEle_;
+  const double maxIsoMu_;
+  const double minPtHighestMu_;
+  const double minPtHighestEle_;
+  const double minPtHighest_Jets_;
+  const double minPt_Jets_;
+  const double minInvMass_;
+  const double maxInvMass_;
+  const double minMet_;
+  const double maxMet_;
+  const double minWmass_;
+  const double maxWmass_;
+};
+
+void TtbarTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"));
+  desc.addUntracked<edm::InputTag>("jetsInputTag", edm::InputTag("ak4PFJetsCHS"));
+  desc.addUntracked<edm::InputTag>("bjetsInputTag", edm::InputTag("pfDeepCSVJetTags", "probb"));
+  desc.addUntracked<edm::InputTag>("pfmetTag", edm::InputTag("pfMet"));
+  desc.addUntracked<edm::InputTag>("muonInputTag", edm::InputTag("muons"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<double>("maxEtaEle", 2.4);
+  desc.addUntracked<double>("maxEtaMu", 2.1);
+  desc.addUntracked<double>("minPt", 5);
+
+  // for Electron only
+  desc.addUntracked<double>("maxDeltaPhiInEB", .15);
+  desc.addUntracked<double>("maxDeltaEtaInEB", .007);
+  desc.addUntracked<double>("maxHOEEB", .12);
+  desc.addUntracked<double>("maxSigmaiEiEEB", .01);
+  desc.addUntracked<double>("maxDeltaPhiInEE", .1);
+  desc.addUntracked<double>("maxDeltaEtaInEE", .009);
+  desc.addUntracked<double>("maxHOEEB_", .10);
+  desc.addUntracked<double>("maxSigmaiEiEEE", .03);
+
+  // for Muon only
+  desc.addUntracked<uint32_t>("minChambers", 2);
+
+  // for Jets only
+  desc.addUntracked<double>("minEta_Jets", 3.0);
+
+  // for b-tag only
+  desc.addUntracked<double>("btagFactor", 0.6);
+
+  desc.addUntracked<double>("maxNormChi2", 10);
+  desc.addUntracked<double>("maxD0", 0.02);
+  desc.addUntracked<double>("maxDz", 20.);
+  desc.addUntracked<uint32_t>("minPixelHits", 1);
+  desc.addUntracked<uint32_t>("minStripHits", 8);
+  desc.addUntracked<double>("maxIsoEle", 0.5);
+  desc.addUntracked<double>("maxIsoMu", 0.3);
+  desc.addUntracked<double>("minPtHighestMu", 24);
+  desc.addUntracked<double>("minPtHighestEle", 32);
+  desc.addUntracked<double>("minPtHighest_Jets", 30);
+  desc.addUntracked<double>("minPt_Jets", 20);
+  desc.addUntracked<double>("minInvMass", 140);
+  desc.addUntracked<double>("maxInvMass", 200);
+  desc.addUntracked<double>("minMet", 50);
+  desc.addUntracked<double>("maxMet", 80);
+  desc.addUntracked<double>("minWmass", 50);
+  desc.addUntracked<double>("maxWmass", 130);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 using namespace std;
 using namespace edm;
@@ -28,8 +173,8 @@ TtbarTrackProducer::TtbarTrackProducer(const edm::ParameterSet& ps)
       pfmetToken_(consumes<reco::PFMETCollection>(pfmetTag_)),
       muonToken_(consumes<reco::MuonCollection>(muonTag_)),
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),
-      maxEtaEle_(ps.getUntrackedParameter<double>("maxEta", 2.4)),
-      maxEtaMu_(ps.getUntrackedParameter<double>("maxEta", 2.1)),
+      maxEtaEle_(ps.getUntrackedParameter<double>("maxEtaEle", 2.4)),
+      maxEtaMu_(ps.getUntrackedParameter<double>("maxEtaMu", 2.1)),
       minPt_(ps.getUntrackedParameter<double>("minPt", 5)),
 
       // for Electron only
@@ -56,8 +201,8 @@ TtbarTrackProducer::TtbarTrackProducer(const edm::ParameterSet& ps)
       maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
       minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),
       minStripHits_(ps.getUntrackedParameter<uint32_t>("minStripHits", 8)),
-      maxIsoEle_(ps.getUntrackedParameter<double>("maxIso", 0.5)),
-      maxIsoMu_(ps.getUntrackedParameter<double>("maxIso", 0.3)),
+      maxIsoEle_(ps.getUntrackedParameter<double>("maxIsoEle", 0.5)),
+      maxIsoMu_(ps.getUntrackedParameter<double>("maxIsoMu", 0.3)),
       minPtHighestMu_(ps.getUntrackedParameter<double>("minPtHighestMu", 24)),
       minPtHighestEle_(ps.getUntrackedParameter<double>("minPtHighestEle", 32)),
       minPtHighest_Jets_(ps.getUntrackedParameter<double>("minPtHighest_Jets", 30)),
@@ -70,8 +215,6 @@ TtbarTrackProducer::TtbarTrackProducer(const edm::ParameterSet& ps)
       maxWmass_(ps.getUntrackedParameter<double>("maxWmass", 130)) {
   produces<reco::TrackCollection>("");
 }
-
-TtbarTrackProducer::~TtbarTrackProducer() {}
 
 void TtbarTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
