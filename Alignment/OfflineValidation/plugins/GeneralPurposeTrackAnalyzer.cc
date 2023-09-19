@@ -99,6 +99,7 @@ public:
       latencyToken_ = esConsumes<edm::Transition::BeginRun>();
     }
 
+    coord_ = std::nullopt;
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
@@ -165,7 +166,7 @@ private:
 
   edm::ESHandle<MagneticField> magneticField_;
 
-  SiPixelCoordinates coord_;
+  std::optional<SiPixelCoordinates> coord_;
 
   edm::Service<TFileService> fs;
 
@@ -391,11 +392,11 @@ private:
               continue;
             auto const &cluster = *clustp;
             int row = cluster.x() - 0.5, col = cluster.y() - 0.5;
-            int rocId = coord_.roc(detId, std::make_pair(row, col));
 
             if (phase_ == SiPixelPI::phase::zero) {
               pmap->fill(detid_db, 1);
             } else if (phase_ == SiPixelPI::phase::one) {
+              int rocId = coord_->roc(detId, std::make_pair(row, col));
               rocsToMask.set(rocId);
               pixelrocsmap_->fillSelectedRocs(detid_db, rocsToMask, 1);
 
@@ -775,12 +776,17 @@ private:
     conditionsMap_[run.run()].first = mode;
     conditionsMap_[run.run()].second = B_;
 
+    // if phase-2 return, there is no phase-2 implementation of SiPixelCoordinates
+    if (phase_ > SiPixelPI::phase::one)
+      return;
+
     // init the sipixel coordinates
     const TrackerTopology *trackerTopology = &setup.getData(trackerTopologyTokenBR_);
     const SiPixelFedCablingMap *siPixelFedCablingMap = &setup.getData(siPixelFedCablingMapTokenBR_);
 
+    coord_ = coord_.value_or(SiPixelCoordinates());
     // Pixel Phase-1 helper class
-    coord_.init(trackerTopology, trackerGeometry, siPixelFedCablingMap);
+    coord_->init(trackerTopology, trackerGeometry, siPixelFedCablingMap);
   }
 
   //*************************************************************
