@@ -150,11 +150,9 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
   if (debug_)
     std::cout << "EcalTPG Printing only non zero TP " << std::endl;
 
-
   int nXstal = 0;
   for (unsigned int i = 0; i < pOut->size(); ++i) {
     nXstal++;
-   
 
     if (debug_) {
       for (int isam = 0; isam < (*pOut)[i].size(); ++isam) {
@@ -166,11 +164,9 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
                     << std::endl;
         }
       }
-    }  
+    }
 
-
-  }   // End loop over crystals
-
+  }  // End loop over crystals
 
   if (debug_) {
     std::cout << "EcalTPG"
@@ -179,9 +175,10 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
               << " Non zero primitives were " << nonZeroTP << std::endl;
   }
 
-   edm::LogInfo("EcalEBTrigPrimPhase2Producer")  << "EcalTPG"
-            << "\n =================> For Barrel , " << pOut->size() << " TP  Digis were produced (including zero ones)"
-            << " Non zero primitives were " << nonZeroTP << std::endl;
+  edm::LogInfo("EcalEBTrigPrimPhase2Producer")
+      << "EcalTPG"
+      << "\n =================> For Barrel , " << pOut->size() << " TP  Digis were produced (including zero ones)"
+      << " Non zero primitives were " << nonZeroTP << std::endl;
 
   // put result into the Event
   e.put(std::move(pOut));

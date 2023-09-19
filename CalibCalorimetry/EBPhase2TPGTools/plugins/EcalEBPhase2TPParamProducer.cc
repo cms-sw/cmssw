@@ -132,7 +132,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
       peds_ = &(*itped);
 
     } else {
-      edm::LogWarning("EcalEBPhase2TPParamProducer")  << " could not find EcalLiteDTUPedestal entry for " << id ;
+      edm::LogWarning("EcalEBPhase2TPParamProducer") << " could not find EcalLiteDTUPedestal entry for " << id;
     }
 
     int shift, mult;
@@ -143,8 +143,9 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
     for (unsigned int i = 0; i < ecalPh2::NGAINS; ++i) {
       ok = computeLinearizerParam(theta, gainRatio_[i], calibCoeff, shift, mult);
       if (!ok) {
-	edm::LogWarning("EcalEBPhase2TPParamProducer") << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " " << id.rawId();
-                  
+        edm::LogWarning("EcalEBPhase2TPParamProducer")
+            << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " " << id.rawId();
+
         shift_ = 0;
         tmpPedByGain = 0;
         mult_ = 0;
@@ -155,7 +156,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
         shift_ = shift;
         mult_ = mult;
         tmpPedByGain = (int)(peds_->mean(i) + 0.5);
-	toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult_ << " 0x" << shift_ << " " << i2cSub_[i]
+        toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult_ << " 0x" << shift_ << " " << i2cSub_[i]
                          << std::endl;
       }
     }
@@ -317,7 +318,6 @@ bool EcalEBPhase2TPParamProducer::computeLinearizerParam(
   bool result;
 
   double factor = (16383 * (xtal_LSB_ * gainRatio * calibCoeff * sin(theta))) / Et_sat_;
- 
 
   //first with shift_ = 0
   //add 0.5 (for rounding) and set to int

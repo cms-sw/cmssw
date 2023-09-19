@@ -96,7 +96,7 @@ private:
 
   int mult_;
   int shift_;
-  
+
   static constexpr double gainRatio_[ecalPh2::NGAINS] = {1., 10.};
 };
 
