@@ -17,6 +17,6 @@ hltIter2Phase2L3FromL1TkMuonCkfTrackCandidates = cms.EDProducer("CkfTrackCandida
     doSeedingRegionRebuilding = cms.bool(False),
     maxNSeeds = cms.uint32(100000),
     maxSeedsBeforeCleaning = cms.uint32(1000),
-    src = cms.InputTag("hltIter2Phase2L3FromL1TkMuonPixelSeeds"),
+    src = cms.InputTag("hltIter2Phase2L3FromL1TkMuonPixelSeedsFiltered"),
     useHitsSplitting = cms.bool(False)
 )
