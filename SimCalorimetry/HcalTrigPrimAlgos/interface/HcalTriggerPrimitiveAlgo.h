@@ -38,6 +38,8 @@ public:
                            int numberOfFilterPresamplesHEQIE11,
                            int numberOfSamplesHF,
                            int numberOfPresamplesHF,
+                           int numberOfSamplesZDC,
+                           int numberOfPresamplesZDC,
                            bool useTDCInMinBiasBits,
                            uint32_t minSignalThreshold = 0,
                            uint32_t PMT_NoiseThreshold = 0);
@@ -96,6 +98,7 @@ private:
   /// adds the signal to the map
   void addSignal(const HBHEDataFrame& frame);
   void addSignal(const HFDataFrame& frame);
+  //void addSignal(const ZDCDataFrame& frame);
   void addSignal(const QIE10DataFrame& frame);
   void addSignal(const QIE11DataFrame& frame);
   void addSignal(const IntegerCaloSamples& samples);
@@ -129,6 +132,8 @@ private:
                       const int HF_LUMI_SHIFT,
                       const HcalFeatureBit* HCALFEM);
 
+  void analyzeZDC(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
+
   // Member initialized by constructor
   const HcaluLUTTPGCoder* incoder_;
   const HcalTPGCompressor* outcoder_;
@@ -148,6 +153,8 @@ private:
   int numberOfFilterPresamplesHEQIE11_;
   int numberOfSamplesHF_;
   int numberOfPresamplesHF_;
+  int numberOfSamplesZDC_;
+  int numberOfPresamplesZDC_;
   bool useTDCInMinBiasBits_;
   uint32_t minSignalThreshold_;
   uint32_t PMT_NoiseThreshold_;
@@ -246,6 +253,7 @@ private:
   // Consider CaloTPGTranscoderULUT.h for values
   static const int QIE10_MAX_LINEARIZATION_ET = 0x7FF;
   static const int QIE11_MAX_LINEARIZATION_ET = 0x7FF;
+  static const int QIE10_ZDC_MAX_LINEARIZATION_ET = 0x3FF;
 };
 
 template <typename... Digis>
@@ -289,7 +297,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
   for (auto& item : theSumMap) {
     result.push_back(HcalTriggerPrimitiveDigi(item.first));
     HcalTrigTowerDetId detId(item.second.id());
-    if (detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) {
+    if (detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version()) && detId.ietaAbs() < 42) {
       if (detId.version() == 0) {
         analyzeHF(item.second, result.back(), RCTScaleShift);
       } else if (detId.version() == 1) {
@@ -300,6 +308,8 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       } else {
         // Things are going to go poorly
       }
+    } else if (detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version()) && detId.ietaAbs() > 41) {
+      analyzeZDC(item.second, result.back());
     } else {
       // Determine which energy reconstruction path to take based on the
       // fine-grain availability:
