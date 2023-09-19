@@ -197,12 +197,12 @@ int main() {
       p = memalign(256, 24);
       if (requested != 24) {
         auto r = requested;
-        std::cout << "aligned_alloc request size wrong, got " << r << " expected " << 24;
+        std::cout << "memalign request size wrong, got " << r << " expected " << 24;
         exit(1);
       }
       free(p);
       if (total != 0) {
-        std::cout << "aligned_alloc request not cleaned up";
+        std::cout << "memalign request not cleaned up";
         exit(1);
       }
 
