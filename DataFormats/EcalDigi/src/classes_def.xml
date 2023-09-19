@@ -20,11 +20,11 @@
    <class name="EcalTriggerPrimitiveSample" ClassVersion="10">
     <version ClassVersion="10" checksum="251958438"/>
    </class>
-   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="15">
-    <version ClassVersion="15" checksum="4171161153"/>
+   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="14">
+    <version ClassVersion="14" checksum="4171161153"/>
    </class>
-   <class name="EcalEBPhase2TriggerPrimitiveSample" ClassVersion="0">
-    <version ClassVersion="0" checksum="124268305"/>
+   <class name="EcalEBPhase2TriggerPrimitiveSample" ClassVersion="3">
+    <version ClassVersion="3" checksum="124268305"/>
    </class>
    <class name="EcalTriggerPrimitiveDigi" ClassVersion="12">
     <version ClassVersion="12" checksum="3058718200"/>
@@ -32,8 +32,8 @@
    <class name="EcalEBTriggerPrimitiveDigi" ClassVersion="14">
     <version ClassVersion="14" checksum="3583827889"/>
    </class>
-   <class name="EcalEBPhase2TriggerPrimitiveDigi" ClassVersion="-1">
-    <version ClassVersion="-1" checksum="1841666275"/>
+   <class name="EcalEBPhase2TriggerPrimitiveDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="1841666275"/>
    </class>
 
    <class name="EcalPseudoStripInputSample" ClassVersion="10">

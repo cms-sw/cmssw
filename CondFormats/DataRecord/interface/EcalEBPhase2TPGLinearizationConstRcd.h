@@ -1,5 +1,5 @@
-#ifndef ECALEBPHASE2TPGLINCONSTRCD_H
-#define ECALEBPHASE2TPGLINCONSTRCD_H
+#ifndef EcalEBPhase2TPGLinearizationConstRcd_h
+#define EcalEBPhase2TPGLinearizationConstRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class EcalEBPhase2TPGLinearizationConstRcd

@@ -1,5 +1,5 @@
-#ifndef ECALEBPHASE2TPGAMPLWEIGHTIDMAPRCD_H
-#define ECALEBPHASE2TPGAMPLWEIGHTIDMAPRCD_H
+#ifndef EcalEBPhase2TPGAmplWeightIdMapRcd_h
+#define EcalEBPhase2TPGAmplWeightIdMapRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class EcalEBPhase2TPGAmplWeightIdMapRcd

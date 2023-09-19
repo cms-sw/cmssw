@@ -132,7 +132,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
       peds_ = &(*itped);
 
     } else {
-      std::cout << " could not find EcalLiteDTUPedestal entry for " << id << std::endl;
+      edm::LogWarning("EcalEBPhase2TPParamProducer")  << " could not find EcalLiteDTUPedestal entry for " << id ;
     }
 
     int shift, mult;
@@ -143,8 +143,8 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
     for (unsigned int i = 0; i < ecalPh2::NGAINS; ++i) {
       ok = computeLinearizerParam(theta, gainRatio_[i], calibCoeff, shift, mult);
       if (!ok) {
-        std::cout << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " " << id.rawId()
-                  << "\n";
+	edm::LogWarning("EcalEBPhase2TPParamProducer") << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " " << id.rawId();
+                  
         shift_ = 0;
         tmpPedByGain = 0;
         mult_ = 0;
@@ -155,8 +155,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
         shift_ = shift;
         mult_ = mult;
         tmpPedByGain = (int)(peds_->mean(i) + 0.5);
-        std::cout << " (int)(peds_->mean(i) " << std::dec << (int)peds_->mean(i) << std::endl;
-        toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult_ << " 0x" << shift_ << " " << i2cSub_[i]
+	toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult_ << " 0x" << shift_ << " " << i2cSub_[i]
                          << std::endl;
       }
     }
@@ -235,7 +234,6 @@ std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(
       if (type == 2)
         tmpWeightVec.push_back(round(GMat(3, iClock) * multToInt_));  // time weights
     } else {
-      //      std::cout << "NotFound: pushing weights " << iSample << " of val " << 0 << std::endl;
       if (type == 1)
         tmpWeightVec.push_back(0);  // amp weights
       if (type == 2)
@@ -249,7 +247,7 @@ std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(
 void EcalEBPhase2TPParamProducer::getNumericalDeriv(TGraph graph, TGraph& deriv) {
   UInt_t numPoints = graph.GetN();
   if (numPoints != NPoints_) {
-    std::cout << "Error! Wrong amount of points in pulse graph!\n";
+    edm::LogWarning("EcalEBPhase2TPParamProducer") << "Error! Wrong amount of points in pulse graph! ";
   }
   Double_t xval;
   Double_t yval;
@@ -319,7 +317,7 @@ bool EcalEBPhase2TPParamProducer::computeLinearizerParam(
   bool result;
 
   double factor = (16383 * (xtal_LSB_ * gainRatio * calibCoeff * sin(theta))) / Et_sat_;
-  std::cout << " gMatCorr_ " << gMatCorr_ << " factor " << factor << std::endl;
+ 
 
   //first with shift_ = 0
   //add 0.5 (for rounding) and set to int

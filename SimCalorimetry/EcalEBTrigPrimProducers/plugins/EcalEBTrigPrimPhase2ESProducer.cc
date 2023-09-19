@@ -20,11 +20,10 @@ struct GzInputStream {
   bool eof;
   GzInputStream(const char *file) : eof(false) {
     gzf = gzopen(file, "rb");
-    std::cout << " New weight file " << file << std::endl;
+    edm::LogInfo("EcalEBTrigPrimPhase2ESProducer") << " New weight file " << file;
     if (gzf == Z_NULL) {
       eof = true;
-
-      edm::LogWarning("EcalEBTPGESProducer") << "Database file " << file << " not found!!!";
+      edm::LogWarning("EcalEBTrigPrimPhase2ESProducer") << "Database file " << file << " not found!!!";
     } else
       readLine();
   }
