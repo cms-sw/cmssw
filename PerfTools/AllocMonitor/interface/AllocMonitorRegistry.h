@@ -120,12 +120,12 @@ namespace cms::perftools {
       return a;
     }
     template <typename DEALLOC, typename ACT>
-    void deallocCalled(DEALLOC iDealloc, ACT iGetActual) {
+    void deallocCalled(void* iPtr, DEALLOC iDealloc, ACT iGetActual) {
       [[maybe_unused]] Guard g = makeGuard();
-      if (g.running()) {
-        deallocCalled_(iGetActual());
+      if (g.running() and iPtr != nullptr) {
+        deallocCalled_(iGetActual(iPtr));
       }
-      iDealloc();
+      iDealloc(iPtr);
     }
 
     AllocMonitorRegistry();

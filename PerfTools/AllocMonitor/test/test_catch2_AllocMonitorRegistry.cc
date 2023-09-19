@@ -12,7 +12,8 @@ namespace cms::perftools {
     }
 
     void callDealloc(size_t iActual) {
-      reg_.deallocCalled([]() {}, [iActual]() { return iActual; });
+      reg_.deallocCalled(
+          reinterpret_cast<void*>(1), [](auto) {}, [iActual](auto) { return iActual; });
     }
 
     template <typename A>
@@ -22,7 +23,12 @@ namespace cms::perftools {
 
     template <typename D>
     void callDealloc(size_t iActual, D&& iDealloc) {
-      reg_.deallocCalled(std::forward<D>(iDealloc), [iActual]() { return iActual; });
+      reg_.deallocCalled(reinterpret_cast<void*>(1), std::forward<D>(iDealloc), [iActual](auto) { return iActual; });
+    }
+
+    void callDeallocNull() {
+      reg_.deallocCalled(
+          nullptr, [](auto) {}, [](auto) { return 0; });
     }
 
     AllocMonitorRegistry reg_;
@@ -111,6 +117,27 @@ TEST_CASE("Test API for AllocMonitorRegistry", "[AllocMonitorRegistry]") {
     s_stopped = false;
     s_calls = 0;
   }
+  SECTION("Null delete") {
+    {
+      AllocTester t;
+      CHECK(s_started == false);
+      CHECK(s_stopped == false);
+
+      auto tester = t.reg_.createAndRegisterMonitor<TestCallMonitor>(1);
+      CHECK(s_started == true);
+      CHECK(s_stopped == false);
+      CHECK(1 == s_calls);
+      CHECK(tester != nullptr);
+
+      t.callDeallocNull();
+      CHECK(1 == s_calls);
+      t.reg_.deregisterMonitor(tester);
+      CHECK(2 == s_calls);
+    }
+    s_started = false;
+    s_stopped = false;
+    s_calls = 0;
+  }
   SECTION("Recursion in monitor") {
     CHECK(0 == s_calls);
     CHECK(s_started == false);
@@ -162,7 +189,7 @@ TEST_CASE("Test API for AllocMonitorRegistry", "[AllocMonitorRegistry]") {
       });
       CHECK(2 == s_calls);
 
-      t.callDealloc(1, [&t]() { t.callDealloc(1); });
+      t.callDealloc(1, [&t](auto) { t.callDealloc(1); });
       CHECK(3 == s_calls);
 
       t.reg_.deregisterMonitor(tester);

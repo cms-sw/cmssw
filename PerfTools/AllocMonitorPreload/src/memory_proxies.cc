@@ -155,7 +155,8 @@ void* realloc(void* ptr, size_t size) noexcept {
   }
   size_t used = malloc_usable_size(ret);
   if (used != oldsize) {
-    reg.deallocCalled([]() {}, [oldsize]() { return oldsize; });
+    reg.deallocCalled(
+        ptr, [](auto) {}, [oldsize](auto) { return oldsize; });
     reg.allocCalled(
         size, []() { return nullptr; }, [used](auto) { return used; });
   }
@@ -218,7 +219,8 @@ void free(void* ptr) noexcept {
     }
 
     auto& reg = AllocMonitorRegistry::instance();
-    reg.deallocCalled([ptr]() { original(ptr); }, [ptr]() { return malloc_usable_size(ptr); });
+    reg.deallocCalled(
+        ptr, [](auto ptr) { original(ptr); }, [](auto ptr) { return malloc_usable_size(ptr); });
   }
 }
 }  // extern "C"
@@ -250,7 +252,8 @@ void operator delete(void* ptr) noexcept {
   }
 
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr]() { original(ptr); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [](auto ptr) { original(ptr); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdlPv
 
 void* operator new[](std::size_t size) {
@@ -272,7 +275,8 @@ void operator delete[](void* ptr) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr]() { original(ptr); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [](auto ptr) { original(ptr); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdaPv
 
 void* operator new(std::size_t size, std::align_val_t al) {
@@ -360,7 +364,8 @@ void operator delete(void* ptr, std::align_val_t al) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, al]() { original(ptr, al); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [al](auto ptr) { original(ptr, al); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdlPvSt11align_val_t
 
 void operator delete[](void* ptr, std::align_val_t al) noexcept {
@@ -371,7 +376,8 @@ void operator delete[](void* ptr, std::align_val_t al) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, al]() { original(ptr, al); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [al](auto ptr) { original(ptr, al); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdaPvSt11align_val_t
 
 void operator delete(void* ptr, std::size_t sz) noexcept {
@@ -382,7 +388,8 @@ void operator delete(void* ptr, std::size_t sz) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, sz]() { original(ptr, sz); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [sz](auto ptr) { original(ptr, sz); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdlPvm
 
 void operator delete[](void* ptr, std::size_t sz) noexcept {
@@ -393,7 +400,8 @@ void operator delete[](void* ptr, std::size_t sz) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, sz]() { original(ptr, sz); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [sz](auto ptr) { original(ptr, sz); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdaPvm
 
 void operator delete(void* ptr, std::size_t sz, std::align_val_t al) noexcept {
@@ -405,7 +413,8 @@ void operator delete(void* ptr, std::size_t sz, std::align_val_t al) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, sz, al]() { original(ptr, sz, al); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [sz, al](auto ptr) { original(ptr, sz, al); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdlPvmSt11align_val_t
 
 void operator delete[](void* ptr, std::size_t sz, std::align_val_t al) noexcept {
@@ -417,7 +426,8 @@ void operator delete[](void* ptr, std::size_t sz, std::align_val_t al) noexcept 
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, sz, al]() { original(ptr, sz, al); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [sz, al](auto ptr) { original(ptr, sz, al); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdaPvmSt11align_val_t
 
 void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {
@@ -429,7 +439,8 @@ void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, &tag]() { original(ptr, tag); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [&tag](auto ptr) { original(ptr, tag); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdlPvRKSt9nothrow_t
 
 void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {
@@ -441,7 +452,8 @@ void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, &tag]() { original(ptr, tag); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [&tag](auto ptr) { original(ptr, tag); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdaPvRKSt9nothrow_t
 
 void operator delete(void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept {
@@ -453,7 +465,8 @@ void operator delete(void* ptr, std::align_val_t al, const std::nothrow_t& tag) 
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, al, &tag]() { original(ptr, al, tag); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [al, &tag](auto ptr) { original(ptr, al, tag); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdlPvSt11align_val_tRKSt9nothrow_t
 
 void operator delete[](void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept {
@@ -465,7 +478,8 @@ void operator delete[](void* ptr, std::align_val_t al, const std::nothrow_t& tag
     return;
   }
   auto& reg = AllocMonitorRegistry::instance();
-  reg.deallocCalled([ptr, al, &tag]() { original(ptr, al, tag); }, [ptr]() { return malloc_usable_size(ptr); });
+  reg.deallocCalled(
+      ptr, [al, &tag](auto ptr) { original(ptr, al, tag); }, [](auto ptr) { return malloc_usable_size(ptr); });
 }  //_ZdaPvSt11align_val_tRKSt9nothrow_t
 
 #endif

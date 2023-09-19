@@ -120,10 +120,8 @@ public:
 
     iAR.watchPreEvent([this](auto const&) { nEventsStarted_.fetch_add(1, std::memory_order_acq_rel); });
     iAR.watchPostEvent([this](auto const&) { nEventsFinished_.fetch_add(1, std::memory_order_acq_rel); });
-    iAR.watchPreGlobalBeginRun(
-        [this](auto const&) { nRunsStarted_.fetch_add(1, std::memory_order_acq_rel); });
-    iAR.watchPreGlobalBeginLumi(
-        [this](auto const&) { nLumisStarted_.fetch_add(1, std::memory_order_acq_rel); });
+    iAR.watchPreGlobalBeginRun([this](auto const&) { nRunsStarted_.fetch_add(1, std::memory_order_acq_rel); });
+    iAR.watchPreGlobalBeginLumi([this](auto const&) { nLumisStarted_.fetch_add(1, std::memory_order_acq_rel); });
     iAR.watchPreEndJob([adaptor, this]() {
       continueRunning_ = false;
       thread_.join();
