@@ -93,16 +93,13 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/trackdnn_source_cfi"
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_AK4PFPuppiJet520_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle23_12_Iso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_PMS2_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_PMS2_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele26_WP70_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele26_WP70_Unseeded_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele115_NonIso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele32_WPTight_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele32_WPTight_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_IsoMu24_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu37_Mu27_FromL1TkMuon_cfi")
@@ -114,9 +111,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFHT330PT30_QuadPFPup
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFPuppiHT1070_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_PFPuppiMETTypeOne140_PFPuppiMHT140_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Photon108EB_TightID_TightIso_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Photon108EB_TightID_TightIso_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Photon187_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Photon187_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_TriMu_10_5_5_DZ_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/L1T_DoubleNNTau52_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/L1T_DoublePFPuppiJets112_2p4_DEta1p6_cfi")
@@ -136,10 +131,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/L1T_TkIsoEle28_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/L1T_TkIsoEm22TkIsoEm12_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/L1T_TkIsoEm36_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/L1T_TripleTkMuon_5_3_3_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_BTV_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_Unseeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_JME_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfBaseTrajectoryFilter_block_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ckfBaseTrajectoryFilterP5_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfTrajectoryBuilder_cfi")
@@ -270,6 +261,7 @@ fragment.schedule = cms.Schedule(*[
     fragment.L1T_TkIsoEle22TkEm12,
 
     fragment.HLT_Ele32_WPTight_L1Seeded,
+    fragment.HLT_Ele115_NonIso_L1Seeded,
     fragment.HLT_Ele26_WP70_L1Seeded,
     fragment.HLT_Photon108EB_TightID_TightIso_L1Seeded,
     fragment.HLT_Photon187_L1Seeded,
