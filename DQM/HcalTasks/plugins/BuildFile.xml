@@ -1,4 +1,5 @@
 <use name="FWCore/Framework"/>
+<use name="PhysicsTools/ONNXRuntime"/>
 <use name="rootmath"/>
 <use name="DQM/HcalTasks"/>
 <flags EDM_PLUGIN="1"/>

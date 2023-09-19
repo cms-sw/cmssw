@@ -1,5 +1,4 @@
 <use name="CondCore/ESSources"/>
-<use name="CondFormats/SerializationHelper"/>
 <use name="CondFormats/Calibration"/>
 <use name="CondFormats/DTObjects"/>
 <flags EDM_PLUGIN="1"/>
