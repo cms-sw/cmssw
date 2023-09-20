@@ -46,7 +46,8 @@ private:
 
   edm::EDGetToken collectionTokens_[ecaldqm::nCollections];           // list of EDGetTokens
   std::vector<std::pair<Processor, ecaldqm::Collections>> schedule_;  // schedule of collections to run
-  bool allowMissingCollections_;                                      // when true, skip missing collections silently
+  std::vector<std::string> skipCollections_;  // list of collections to explicitly remove from schedule
+  bool allowMissingCollections_;              // when true, skip missing collections and log as warning
   int processedEvents_;
 
   /* TASK TIME PROFILING */

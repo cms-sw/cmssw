@@ -28,6 +28,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
     : DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::EcalLSCache>>(),
       ecaldqm::EcalDQMonitor(_ps),
       schedule_(),
+      skipCollections_(_ps.getUntrackedParameter<std::vector<std::string>>("skipCollections")),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
       processedEvents_(0),
       lastResetTime_(0),
@@ -92,6 +93,7 @@ void EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions& _descs)
   collectionTags.addWildcardUntracked<edm::InputTag>("*");
   desc.add("collectionTags", collectionTags);
 
+  desc.addUntracked<std::vector<std::string>>("skipCollections", std::vector<std::string>());
   desc.addUntracked<bool>("allowMissingCollections", true);
   desc.addUntracked<double>("resetInterval", 0.);
 
