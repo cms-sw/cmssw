@@ -98,7 +98,9 @@ namespace theLHCInfoPerFillImpl {
       auto energy = row.get<float>("energy");
       auto creationTime = row.get<boost::posix_time::ptime>("start_time");
       auto stableBeamStartTime = row.get<boost::posix_time::ptime>("start_stable_beam");
-      auto beamDumpTime = row.get<boost::posix_time::ptime>("end_time");
+      std::string endTimeStr = row.get<std::string>("end_time");
+      auto beamDumpTime =
+          (endTimeStr == "null") ? 0 : cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
       auto injectionScheme = row.get<std::string>("injection_scheme");
       targetPayload = std::make_unique<LHCInfoPerFill>();
       targetPayload->setFillNumber(currentFill);
@@ -114,7 +116,7 @@ namespace theLHCInfoPerFillImpl {
       targetPayload->setEnergy(energy);
       targetPayload->setCreationTime(cond::time::from_boost(creationTime));
       targetPayload->setBeginTime(cond::time::from_boost(stableBeamStartTime));
-      targetPayload->setEndTime(cond::time::from_boost(beamDumpTime));
+      targetPayload->setEndTime(beamDumpTime);
       targetPayload->setInjectionScheme(injectionScheme);
       ret = true;
     }
