@@ -51,6 +51,7 @@ namespace hgcal {
     unsigned int getLayer(ForwardSubdetector type) const;
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
+    int getLayerType(const DetId& id) const;
     std::pair<int, int> getWafer(const DetId&) const;
     std::pair<int, int> getCell(const DetId&) const;
 

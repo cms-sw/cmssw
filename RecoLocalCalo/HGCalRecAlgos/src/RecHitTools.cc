@@ -63,6 +63,17 @@ namespace {
     return ddd;
   }
 
+  enum LayerType {
+    CE_E_120 = 0,
+    CE_E_200 = 1,
+    CE_E_300 = 2,
+    CE_H_120 = 3,
+    CE_H_200 = 4,
+    CE_H_300 = 5,
+    CE_H_SCINT = 6,
+    EnumSize = 7
+  };
+
 }  // namespace
 
 void RecHitTools::setGeometry(const CaloGeometry& geom) {
@@ -423,6 +434,40 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   }
   //new geometry is always false
   return ishalf;
+}
+
+int RecHitTools::getLayerType(const DetId& id) const {
+  auto layer_number = getLayerWithOffset(id);
+  auto thickness = getSiThickIndex(id);
+  auto geomNose =
+      static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
+  auto isNose = geomNose ? true : false;
+  auto isEELayer = (layer_number <= lastLayerEE(isNose));
+  auto isScint = isScintillator(id);
+  int layerType = -1;
+
+  if (isScint) {
+    layerType = CE_H_SCINT;
+  }
+  if (isEELayer) {
+    if (thickness == 0) {
+      layerType = CE_E_120;
+    } else if (thickness == 1) {
+      layerType = CE_E_200;
+    } else if (thickness == 2) {
+      layerType = CE_E_300;
+    }
+  } else {
+    if (thickness == 0) {
+      layerType = CE_H_120;
+    } else if (thickness == 1) {
+      layerType = CE_H_200;
+    } else if (thickness == 2) {
+      layerType = CE_H_300;
+    }
+  }
+  assert(layerType != -1);
+  return layerType;
 }
 
 bool RecHitTools::isSilicon(const DetId& id) const {
