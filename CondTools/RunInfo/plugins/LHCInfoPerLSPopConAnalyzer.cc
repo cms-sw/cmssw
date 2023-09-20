@@ -280,14 +280,18 @@ public:
         oms.connect(m_omsBaseUrl);
         auto query = oms.query("fills");
         query->addOutputVar("end_time");
+        query->addOutputVar("start_time");
         query->filterEQ("fill_number", m_prevPayload->fillNumber());
         bool foundFill = query->execute();
         if (foundFill) {
           auto result = query->result();
 
           if (!result.empty()) {
-            auto endFillTime = (*result.begin()).get<boost::posix_time::ptime>("end_time");
-            m_prevEndFillTime = cond::time::from_boost(endFillTime);
+            std::string endTimeStr = (*result.begin()).get<std::string>("end_time");
+            m_prevEndFillTime =
+                (endTimeStr == "null")
+                    ? 0
+                    : cond::time::from_boost((*result.begin()).get<boost::posix_time::ptime>("end_time"));
             auto startFillTime = (*result.begin()).get<boost::posix_time::ptime>("start_time");
             m_prevStartFillTime = cond::time::from_boost(startFillTime);
           } else {
@@ -425,7 +429,9 @@ private:
       auto row = *queryResult.begin();
       auto currentFill = row.get<unsigned short>("fill_number");
       m_startFillTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_time"));
-      m_endFillTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
+      std::string endTimeStr = row.get<std::string>("end_time");
+      m_endFillTime =
+          (endTimeStr == "null") ? 0 : cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
       m_startStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("start_stable_beam"));
       m_endStableBeamTime = cond::time::from_boost(row.get<boost::posix_time::ptime>("end_stable_beam"));
       targetPayload = std::make_unique<LHCInfoPerLS>();
@@ -494,6 +500,7 @@ private:
     }
     return nlumi;
   }
+
   bool getCTPPSData(cond::persistency::Session& session,
                     const boost::posix_time::ptime& beginFillTime,
                     const boost::posix_time::ptime& endFillTime) {

@@ -27,7 +27,7 @@ function assert_found_fills {
 
 rm -f lhcinfo_pop_unit_test.db
 
-echo "testing LHCInfoPerFillPopConAnalyzer in EndFill mode for startTime=\"2022-10-24 01:00:00.000\" endTime=\"2022-10-24 20:00:00.000\"" 
+echo "testing LHCInfoPerFillPopConAnalyzer in endFill mode for startTime=\"2022-10-24 01:00:00.000\" endTime=\"2022-10-24 20:00:00.000\"" 
 cmsRun ${SCRIPTS_DIR}/LHCInfoPerFillPopConAnalyzer.py mode=endFill \
     destinationConnection="sqlite_file:lhcinfo_pop_unit_test.db" \
     startTime="2022-10-24 01:00:00.000" endTime="2022-10-24 20:00:00.000" \
@@ -54,7 +54,7 @@ assert_equal 70 `cat ls_end_test2.log | grep -E '^Since ' | \
     wc -l` "LHCInfoPerLSPopConAnalyzer in endFill mode written wrong number of payloads"
 assert_found_fills ls_end_test2.log "LHCInfoPerLSPopConAnalyzer in endFill mode" 7967
 
-echo "testing LHCInfoPerFillPopConAnalyzer in DuringFill mode for startTime=\"2022-10-24 01:00:00.000\" endTime=\"2022-10-24 20:00:00.000\"" 
+echo "testing LHCInfoPerFillPopConAnalyzer in duringFill mode for startTime=\"2022-10-24 01:00:00.000\" endTime=\"2022-10-24 20:00:00.000\"" 
 cmsRun ${SCRIPTS_DIR}/LHCInfoPerFillPopConAnalyzer.py mode=duringFill \
     destinationConnection="sqlite_file:lhcinfo_pop_unit_test.db" \
     startTime="2022-10-24 01:00:00.000" endTime="2022-10-24 20:00:00.000" \
