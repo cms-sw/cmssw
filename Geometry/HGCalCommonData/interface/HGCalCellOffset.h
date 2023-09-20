@@ -11,14 +11,14 @@ public:
   HGCalCellOffset(double waferSize, int32_t nFine, int32_t nCoarse, double guardRingOffset_, double mouseBiteCut_);
 
   std::pair<double, double> cellOffsetUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
-
+  double cellAreaUV(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
 
 private:
   const double sqrt3_ = std::sqrt(3.0);
   const double sqrt3By2_ = (0.5 * sqrt3_);
   std::vector<std::vector<std::vector<double>>> offsetX, offsetY;
   int32_t ncell_[2];
-  double cellX_[2], cellY_[2], cellArea[2][3];
+  double cellX_[2], cellY_[2], fullArea[2], cellArea[2][3];
   std::unique_ptr<HGCalCell> hgcalcell;
 };
 
