@@ -222,7 +222,7 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
       bool l2off = (splitClustDirSet.empty());
 
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      // DeepCore 2.1.3 Threshold checks:
+      // DeepCore 2.2.1 Threshold checks:
       */
       std::vector<GlobalVector> splitClustDirSet = splittedClusterDirections(jet, tTopo, pixelCPE, jetVertex, 2, inputPixelClusters_);
       bool l2off = (splitClustDirSet.empty()); // no adc BPIX2 
