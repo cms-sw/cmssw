@@ -97,6 +97,7 @@ public:
     auto fileName = iPS.getUntrackedParameter<std::string>("filename");
     auto interval = iPS.getUntrackedParameter<unsigned long long>("millisecondsPerMeasurement");
 
+    threadShutDown_ = false;
     thread_ = std::thread([this, fileName, interval, adaptor]() {
       auto const start = std::chrono::steady_clock::now();
       std::ofstream fs(fileName);
@@ -125,8 +126,15 @@ public:
     iAR.watchPreEndJob([adaptor, this]() {
       continueRunning_ = false;
       thread_.join();
+      threadShutDown_ = true;
       cms::perftools::AllocMonitorRegistry::instance().deregisterMonitor(adaptor);
     });
+  }
+  ~PeriodicAllocMonitor() {
+    if (not threadShutDown_) {
+      continueRunning_ = false;
+      thread_.join();
+    }
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
@@ -144,6 +152,7 @@ private:
   std::atomic<std::size_t> nEventsStarted_ = 0;
   std::atomic<std::size_t> nEventsFinished_ = 0;
   std::atomic<bool> continueRunning_ = true;
+  bool threadShutDown_ = true;
 };
 
 DEFINE_FWK_SERVICE(PeriodicAllocMonitor);
