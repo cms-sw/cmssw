@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_2_0/PIon --cff --data --type PIon
 
-# /dev/CMSSW_13_2_0/PIon/V46 (CMSSW_13_2_3)
+# /dev/CMSSW_13_2_0/PIon/V64 (CMSSW_13_2_3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V46')
+  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V64')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -1463,8 +1463,6 @@ fragment.HLTPSetHighPtTripletStepTrajectoryBuilderForDmesonPPOnAA = cms.PSet(
 )
 fragment.streams = cms.PSet( 
   DQM = cms.vstring( 'OnlineMonitor' ),
-  Express = cms.vstring(  ),
-  ExpressCosmics = cms.vstring(  ),
   PhysicsCommissioning = cms.vstring( 'HLTPhysics',
     'ZeroBias' )
 )
