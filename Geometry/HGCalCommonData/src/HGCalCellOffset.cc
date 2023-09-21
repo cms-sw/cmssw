@@ -14,8 +14,8 @@ HGCalCellOffset::HGCalCellOffset(
     cellX_[k] = waferSize / (3 * ncell_[k]);
     cellY_[k] = sqrt3By2_ * cellX_[k];
     fullArea[k] = 3 * sqrt3By2_ * cellY_[k];
-    std::vector<std::vector<double>> tempOffsetX;
-    std::vector<std::vector<double>> tempOffsetY;
+    //std::array<std::array<double, 6>, 3> tempOffsetX;
+    //std::array<std::array<double, 6>, 3> tempOffsetY;
     // For formulas used please refer to https://indico.cern.ch/event/1297259/contributions/5455745/attachments/2667954/4722855/Cell_centroid.pdf
     for (int j = 0; j < 3; ++j) {  // j refers to type of cell : corner, truncated, extended
       if (j == 0) {                // Offset for corner cells
@@ -50,18 +50,22 @@ HGCalCellOffset::HGCalCellOffset(
         // (x, y) coordinates of offset for 6 corners of wafer starting from bottomCorner in clockwise direction
         // offset_x = -1^(i%2)*(Offset_magnitude_X * cos(60*i) - Offset_magnitude_Y * sin(60*i)) i in (0-6)
         // offset_x = (Offset_magnitude_Y * cos(60*i) + Offset_magnitude_X * sin(60*i)) i in (0-6)
-        tempOffsetX.emplace_back(std::vector<double>({xMag,
-                                                      -1.0 * (0.5 * xMag - sqrt3By2_ * yMag),
-                                                      (-0.5 * xMag + sqrt3By2_ * yMag),
-                                                      xMag,
-                                                      (-0.5 * xMag - sqrt3By2_ * yMag),
-                                                      -1.0 * (0.5 * xMag + sqrt3By2_ * yMag)}));
-        tempOffsetY.emplace_back(std::vector<double>({yMag,
-                                                      (0.5 * yMag + sqrt3By2_ * xMag),
-                                                      (-0.5 * yMag - sqrt3By2_ * xMag),
-                                                      -yMag,
-                                                      (-0.5 * yMag + sqrt3By2_ * xMag),
-                                                      (0.5 * yMag - sqrt3By2_ * xMag)}));
+        std::array<double, 6> tempOffsetX = {{xMag,
+                                              -1.0 * (0.5 * xMag - sqrt3By2_ * yMag),
+                                              (-0.5 * xMag + sqrt3By2_ * yMag),
+                                              xMag,
+                                              (-0.5 * xMag - sqrt3By2_ * yMag),
+                                              -1.0 * (0.5 * xMag + sqrt3By2_ * yMag)}};
+        std::array<double, 6> tempOffsetY = {{yMag,
+                                              (0.5 * yMag + sqrt3By2_ * xMag),
+                                              (-0.5 * yMag - sqrt3By2_ * xMag),
+                                              -yMag,
+                                              (-0.5 * yMag + sqrt3By2_ * xMag),
+                                              (0.5 * yMag - sqrt3By2_ * xMag)}};
+        for (int i = 0; i < 6; ++i) {
+          offsetX[k][j][i] = tempOffsetX[i];
+          offsetY[k][j][i] = tempOffsetY[i];
+        }
       } else if (j == 1) {                                                 // Offset for truncated cells
         double totalArea = (5.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
         double cutArea =
@@ -72,10 +76,14 @@ HGCalCellOffset::HGCalCellOffset(
         // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
         // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
         // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
-        tempOffsetX.emplace_back(
-            std::vector<double>({-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}));
-        tempOffsetY.emplace_back(std::vector<double>(
-            {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}));
+        std::array<double, 6> tempOffsetX = {
+            {-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}};
+        std::array<double, 6> tempOffsetY = {
+            {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetX[k][j][i] = tempOffsetX[i];
+          offsetY[k][j][i] = tempOffsetY[i];
+        }
       } else if (j == 2) {                                                 //Offset for truncated cells
         double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
         double cutArea =
@@ -87,14 +95,16 @@ HGCalCellOffset::HGCalCellOffset(
         // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
         // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
         // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
-        tempOffsetX.emplace_back(
-            std::vector<double>({-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}));
-        tempOffsetY.emplace_back(std::vector<double>(
-            {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}));
+        std::array<double, 6> tempOffsetX = {
+            {-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}};
+        std::array<double, 6> tempOffsetY = {
+            {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}};
+        for (int i = 0; i < 6; ++i) {
+          offsetX[k][j][i] = tempOffsetX[i];
+          offsetY[k][j][i] = tempOffsetY[i];
+        }
       }
     }
-    offsetX.emplace_back(tempOffsetX);
-    offsetY.emplace_back(tempOffsetY);
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCellOffset initialized with waferSize " << waferSize << " number of cells "
