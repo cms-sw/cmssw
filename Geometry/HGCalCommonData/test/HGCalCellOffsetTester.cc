@@ -102,19 +102,17 @@ void HGCalCellOffsetTester::analyze(const edm::Event&, const edm::EventSetup&) {
         //Only allowing (U, V) inside a wafer
         std::pair<double, double> xy1 = wafer2.cellUV2XY2(ui, vi, placeIndex_, waferType_);
         std::pair<double, double> xyOffset = offset.cellOffsetUV2XY1(ui, vi, placeIndex_, waferType_);
-        outFile1 << xy1.first << "    " << xy1.second << std::endl;
-        outFile2 << (xy1.first + xyOffset.first) << "    " << (xy1.second + xyOffset.second) << std::endl;
         std::pair<int32_t, int32_t> uv1 =
             wafer.cellUVFromXY1(xy1.first, xy1.second, placeIndex_, waferType_, true, false);
         std::pair<int32_t, int32_t> uv5 =
             wafer.cellUVFromXY1(xy1.first, xy1.second, placeIndex_, waferType_, partialType_, true, false);
         std::string comment = ((uv1.first != ui) || (uv1.second != vi) || (uv5.first != ui) || (uv5.second != vi))
-                                  ? " ***** ERROR *****"
+                                  ? " ***** ERROR (u, v) from the methods dosent match *****"
                                   : "";
         edm::LogVerbatim("HGCalGeom") << "u = " << ui << " v = " << vi << " type = " << waferType_
                                       << " placement index " << placeIndex_ << " u " << uv5.first << " v " << uv5.second
                                       << " x " << xy1.first << " ,y " << xy1.second << " xoff " << xyOffset.first
-                                      << " ,yoff " << xyOffset.second;
+                                      << " ,yoff " << xyOffset.second << comment;
       }
     }
   }

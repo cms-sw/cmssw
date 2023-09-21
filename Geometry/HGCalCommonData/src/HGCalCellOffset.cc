@@ -9,16 +9,17 @@ HGCalCellOffset::HGCalCellOffset(
     double waferSize, int32_t nFine, int32_t nCoarse, double guardRingOffset_, double mouseBiteCut_) {
   ncell_[0] = nFine;
   ncell_[1] = nCoarse;
-  hgcalcell = std::make_unique<HGCalCell>(waferSize, nFine, nCoarse);
-  for (int k = 0; k < 2; ++k) {
+  hgcalcell_ = std::make_unique<HGCalCell>(waferSize, nFine, nCoarse);
+  for (int k = 0; k < 2; ++k) {  // k refers to type of wafer fine or coarse
     cellX_[k] = waferSize / (3 * ncell_[k]);
     cellY_[k] = sqrt3By2_ * cellX_[k];
     fullArea[k] = 3 * sqrt3By2_ * cellY_[k];
     std::vector<std::vector<double>> tempOffsetX;
     std::vector<std::vector<double>> tempOffsetY;
-    for (int j = 0; j < 3; ++j) {
-      if (j == 0) {
-        double totalArea = (11.0 * sqrt3_ / 8.0) * std::pow(cellY_[k], 2);
+    // For formulas used please refer to https://indico.cern.ch/event/1297259/contributions/5455745/attachments/2667954/4722855/Cell_centroid.pdf
+    for (int j = 0; j < 3; ++j) {  // j refers to type of cell : corner, truncated, extended
+      if (j == 0) {                // Offset for corner cells
+        double totalArea = (11.0 * sqrt3_ / 8.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
         double cutArea1 = (cellY_[k] * sqrt3_ * guardRingOffset_) - (std::pow(guardRingOffset_, 2) / (2 * sqrt3_));
         double cutArea2 = (cellY_[k] * sqrt3By2_ * guardRingOffset_) - (std::pow(guardRingOffset_, 2) / (2 * sqrt3_));
         double cutArea3 = sqrt3_ * std::pow((mouseBiteCut_ - (guardRingOffset_ / sqrt3By2_)), 2);
@@ -40,11 +41,15 @@ HGCalCellOffset::HGCalCellOffset(
         double x3 = 0.5 * cellY_[k];
         double y3 = (cellY_[k] * sqrt3By2_) - (2 * mouseBiteCut_ / 3) - (guardRingOffset_ / (3 * sqrt3By2_));
         cellArea[k][j] = totalArea - cutArea1 - cutArea2 - cutArea3;
+        // Magnitude of offset of bottom corner cell in forward wafer
         double xMag = ((35.0 * cellY_[k] / 132.0) * totalArea - (cutArea1 * x1) - (cutArea2 * x2) - (cutArea3 * x3)) /
                       (cellArea[k][j]);
         double yMag =
             ((5.0 * cellY_[k] / (44.0 * sqrt3_)) * totalArea - (cutArea1 * y1) - (cutArea2 * y2) - (cutArea3 * y3)) /
             (cellArea[k][j]);
+        // (x, y) coordinates of offset for 6 corners of wafer starting from bottomCorner in clockwise direction
+        // offset_x = -1^(i%2)*(Offset_magnitude_X * cos(60*i) - Offset_magnitude_Y * sin(60*i)) i in (0-6)
+        // offset_x = (Offset_magnitude_Y * cos(60*i) + Offset_magnitude_X * sin(60*i)) i in (0-6)
         tempOffsetX.emplace_back(std::vector<double>({xMag,
                                                       -1.0 * (0.5 * xMag - sqrt3By2_ * yMag),
                                                       (-0.5 * xMag + sqrt3By2_ * yMag),
@@ -57,23 +62,31 @@ HGCalCellOffset::HGCalCellOffset(
                                                       -yMag,
                                                       (-0.5 * yMag + sqrt3By2_ * xMag),
                                                       (0.5 * yMag - sqrt3By2_ * xMag)}));
-      } else if (j == 1) {
-        double totalArea = (5.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);
-        double cutArea = cellY_[k] * sqrt3_ * guardRingOffset_;
+      } else if (j == 1) {                                                 // Offset for truncated cells
+        double totalArea = (5.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
+        double cutArea =
+            cellY_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
         cellArea[k][j] = totalArea - cutArea;
         double offMag = (((-2.0 / 15.0) * totalArea * cellY_[k]) - ((cellY_[k] - (0.5 * guardRingOffset_)) * cutArea)) /
-                        (cellArea[k][j]);
+                        (cellArea[k][j]);  // Magnitude of offset
+        // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
+        // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
+        // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
         tempOffsetX.emplace_back(
             std::vector<double>({-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}));
         tempOffsetY.emplace_back(std::vector<double>(
             {-sqrt3By2_ * offMag, 0.0, sqrt3By2_ * offMag, sqrt3By2_ * offMag, 0.0, -sqrt3By2_ * offMag}));
-      } else if (j == 2) {
-        double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);
-        double cutArea = cellY_[k] * sqrt3_ * guardRingOffset_;
+      } else if (j == 2) {                                                 //Offset for truncated cells
+        double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
+        double cutArea =
+            cellY_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
         cellArea[k][j] = totalArea - cutArea;
-        double offMag =
+        double offMag =  // Magnitude of offset
             (((5.0 / 42.0) * totalArea * cellY_[k]) - ((cellY_[k] - (0.5 * guardRingOffset_))) * (cutArea)) /
             (cellArea[k][j]);
+        // (x, y) coordinates of offset for 6 sides of wafer starting from bottom left edge in clockwise direction
+        // offset_x = -Offset_magnitude * sin(30 + 60*i) i in (0-6)
+        // offset_y = -Offset_magnitude * cos(30 + 60*i) i in (0-6)
         tempOffsetX.emplace_back(
             std::vector<double>({-0.5 * offMag, -offMag, -0.5 * offMag, 0.5 * offMag, offMag, 0.5 * offMag}));
         tempOffsetY.emplace_back(std::vector<double>(
@@ -94,19 +107,21 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(int32_t u, int32_t v
   if (type != 0)
     type = 1;
   double x_off(0), y_off(0);
-  std::pair<int, int> cell = hgcalcell->cellType(u, v, ncell_[type], placementIndex);
+  std::pair<int, int> cell = hgcalcell_->cellType(u, v, ncell_[type], placementIndex);
   int cellPos = cell.first;
   int cellType = cell.second;
   if (cellType == HGCalCell::truncatedCell || cellType == HGCalCell::extendedCell) {
-    x_off = offsetX[type][cellType - 1][cellPos - 1];
-    y_off = offsetY[type][cellType - 1][cellPos - 1];
+    x_off = offsetX[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomLeftEdge];
+    y_off = offsetY[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomLeftEdge];
   } else if (cellType == HGCalCell::cornerCell) {
+    // The offset fo corner cells, is flipped along y-axis for 60 degree rotation of wafer
+    // and from forward to backward wafers
     if (((placementIndex >= HGCalCell::cellPlacementExtra) && (placementIndex % 2 == 0)) ||
         ((placementIndex < HGCalCell::cellPlacementExtra) && (placementIndex % 2 == 1))) {
-      cellPos = 11 + (17 - cellPos) % 6;
+      cellPos = HGCalCell::bottomCorner + (6 + HGCalCell::bottomCorner - cellPos) % 6;
     }
-    x_off = offsetX[type][cellType - 1][cellPos - 11];
-    y_off = offsetY[type][cellType - 1][cellPos - 11];
+    x_off = offsetX[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomCorner];
+    y_off = offsetY[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomCorner];
     if (((placementIndex >= HGCalCell::cellPlacementExtra) && (placementIndex % 2 == 0)) ||
         ((placementIndex < HGCalCell::cellPlacementExtra) && (placementIndex % 2 == 1))) {
       x_off = -1 * x_off;
@@ -123,12 +138,12 @@ double HGCalCellOffset::cellAreaUV(int32_t u, int32_t v, int32_t placementIndex,
   if (type != 0)
     type = 1;
   double area(0);
-  std::pair<int, int> cell = hgcalcell->cellType(u, v, ncell_[type], placementIndex);
+  std::pair<int, int> cell = hgcalcell_->cellType(u, v, ncell_[type], placementIndex);
   int cellType = cell.second;
   if (cellType == HGCalCell::fullCell) {
     area = fullArea[type];
   } else {
-    area = cellArea[type][cellType - 1];
+    area = cellArea[type][cellType - HGCalCell::cornerCell];
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCellOffset in wafer with placement index " << placementIndex << " type "

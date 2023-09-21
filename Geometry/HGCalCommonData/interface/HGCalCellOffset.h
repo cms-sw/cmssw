@@ -19,7 +19,7 @@ private:
   std::vector<std::vector<std::vector<double>>> offsetX, offsetY;
   int32_t ncell_[2];
   double cellX_[2], cellY_[2], fullArea[2], cellArea[2][3];
-  std::unique_ptr<HGCalCell> hgcalcell;
+  std::unique_ptr<HGCalCell> hgcalcell_;
 };
 
 #endif
