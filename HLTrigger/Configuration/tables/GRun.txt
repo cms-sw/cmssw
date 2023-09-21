@@ -757,7 +757,6 @@ PhysicsJetMET0Output                   # CMSHLT-2431, CMSHLT-2596
 PhysicsJetMET1Output                   # CMSHLT-2431, CMSHLT-2596
 PhysicsMuon0Output                     # CMSHLT-2431, CMSHLT-2596
 PhysicsMuon1Output                     # CMSHLT-2431, CMSHLT-2596
-PhysicsReservedDoubleMuonLowMassOutput # CMSHLT-2431
 PhysicsScoutingPFMonitorOutput # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603, CMSHLT-2231
 ScoutingPFOutput               # CMSHLT-548, CMSHLT-2231
 DQMOutput
