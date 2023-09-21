@@ -12,7 +12,10 @@
 <use   name="L1Trigger/L1CaloTrigger"/>
 <use   name="DataFormats/L1THGCal"/>
 <use   name="L1Trigger/L1TCalorimeter"/>
+<use   name="L1Trigger/Phase2L1ParticleFlow"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="PhysicsTools/TensorFlow"/>
 <use   name="root"/>
 <use   name="boost"/>
+<use   name="roottmva"/>
 <flags EDM_PLUGIN="1"/>
