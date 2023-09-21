@@ -16,6 +16,7 @@ import re
 import collections
 from subprocess import Popen,PIPE
 import FWCore.ParameterSet.DictTypes as DictTypes
+from FWCore.ParameterSet.OrderedSet import OrderedSet
 class Options:
     pass
 
@@ -2052,7 +2053,7 @@ class ConfigBuilder(object):
         self.expandMapping(postSequenceList,autoDQM,index=1)
 
         if len(set(sequenceList))!=len(sequenceList):
-            sequenceList=list(set(sequenceList))
+            sequenceList=list(OrderedSet(sequenceList))
             print("Duplicate entries for DQM:, using",sequenceList)
 
         pathName='dqmoffline_step'
@@ -2099,7 +2100,7 @@ class ConfigBuilder(object):
         self.expandMapping(harvestingList,combined_mapping,index=-1)
 
         if len(set(harvestingList))!=len(harvestingList):
-            harvestingList=list(set(harvestingList))
+            harvestingList=list(OrderedSet(harvestingList))
             print("Duplicate entries for HARVESTING, using",harvestingList)
 
         for name in harvestingList:
