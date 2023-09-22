@@ -10,17 +10,17 @@
 
 /* Base Class Headers */
 #include <functional>
+#include <vector>
 
 /* Collaborating Class Declarations */
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-typedef edm::RangeMap<DTChamberId, edm::OwnVector<DTRecSegment4D> > DTRecSegment4DCollection;
+using DTRecSegment4DCollection = edm::RangeMap<DTChamberId, std::vector<DTRecSegment4D>>;
 
 #include "DataFormats/Common/interface/Ref.h"
-typedef edm::Ref<DTRecSegment4DCollection> DTRecSegment4DRef;
+using DTRecSegment4DRef = edm::Ref<DTRecSegment4DCollection>;
 
 #endif

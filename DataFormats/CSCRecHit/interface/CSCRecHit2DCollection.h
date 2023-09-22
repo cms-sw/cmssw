@@ -6,13 +6,15 @@
  * The collection of CSCRecHit2D's. See \ref CSCRecHit2DCollection.h for details.
  *
  */
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+#include <vector>
 
-#include <DataFormats/Common/interface/RangeMap.h>
-#include <DataFormats/Common/interface/ClonePolicy.h>
-#include <DataFormats/Common/interface/OwnVector.h>
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 
-typedef edm::RangeMap<CSCDetId, edm::OwnVector<CSCRecHit2D> > CSCRecHit2DCollection;
+#include "DataFormats/Common/interface/RangeMap.h"
+#include "DataFormats/Common/interface/ClonePolicy.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+
+using CSCRecHit2DCollection = edm::RangeMap<CSCDetId, std::vector<CSCRecHit2D> >;
 
 #endif
