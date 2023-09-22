@@ -113,6 +113,80 @@ namespace l1ttrackjet {
     return PassQuality;
   }
 
+  // Eta binning following the hardware logic
+  inline unsigned int eta_bin_firmwareStyle(int eta_word){
+    //Function that reads in 15-bit eta word (in two's complement) and returns the index of eta bin in which it belongs
+    //Logic follows exactly according to the firmware
+    //We will first determine if eta is pos/neg from the first bit. Each half of the grid is then split into four coarse bins. Bits 2&3 determine which coarse bin to assign 
+    //The coarse bins are split into 5 fine bins, final 13 bits determine which of these coarse bins this track needs to assign
+    
+    int eta_coarse = 0;
+    int eta_fine = 0;
+
+    if (eta_word & (1<<15)){ //If eta is negative (first/leftmost bit is 1) 
+      //Second and third bits contain information about which of four coarse bins
+      eta_coarse = 5*((eta_word&(3<<13))>>13); 
+    }
+    else { //else eta is positive (first/leftmost bit is 0)
+      eta_coarse = 5*(4 + ((eta_word&(3<<13))>>13));
+    }
+
+    //Now get the fine bin index. The numbers correspond to the decimal representation of fine bin edges in binary
+    int j = eta_word & 8191;
+    if (j < 1638)
+      eta_fine = 0;
+    else if (j < 3276)
+      eta_fine = 1;
+    else if (j < 4914)
+      eta_fine = 2;
+    else if (j < 6552)
+      eta_fine = 3;
+    else
+      eta_fine = 4;
+
+    //Final eta bin is coarse bin index + fine bin index, subtract 8 to make eta_bin at eta=-2.4 have index=0 
+    int eta_ = (eta_coarse + eta_fine) - 8;
+    return eta_;
+  }
+
+  // Phi binning following the hardware logic
+  inline unsigned int phi_bin_firmwareStyle(int phi_sector_raw, int phi_word){
+    //Function that reads in decimal integers phi_sector_raw and phi_word and returns the index of phi bin in which it belongs
+    //phi_sector_raw is integer 0-8 correspoding to one of 9 phi sectors
+    //phi_word is 12 bit word representing the phi value measured w.r.t the center of the sector
+
+    int phi_coarse = 3*phi_sector_raw; //phi_coarse is index of phi coarse binning (sector edges)
+    int phi_fine = 0; //phi_fine is index of fine bin inside sectors. Each sector contains 3 fine bins
+
+    //Determine fine bin. First bit is sign, next 11 bits determine fine bin
+    //303 is distance from 0 to first fine bin edge
+    //2047 is eleven 1's, use the &2047 to extract leftmost 11 bits.
+    
+    if (phi_word & (1<<11)){ //if phi is negative (first bit 1) 
+      //Since negative, we 'flip' the phi word, then check if it is in fine bin 0 or 1
+      if ((2047 - (phi_word & 2047)) > 303){
+        phi_fine = 0;
+      }
+      else if ((2047 - (phi_word & 2047)) < 303){
+        phi_fine = 1;
+      }
+    }
+    else{ //else phi is positive (first bit 0)
+      //positive phi, no 'flip' necessary. Just check if in  fine bin 1 or 2
+      if ((phi_word & 2047) < 303){
+        phi_fine = 1;
+      }
+      else if((phi_word & 2047) > 303){
+        phi_fine = 2;
+      }
+    }
+
+    // Final operation is a shift by pi (half a grid) to make bin at index=0 at -pi
+    int phi_bin_ = (phi_coarse + phi_fine + 12) % 27;
+
+    return phi_bin_;
+  }
+
   // L1 clustering (in eta)
   template <typename T, typename Pt, typename Eta, typename Phi>
   inline std::vector<T> L1_clustering(T *phislice, int etaBins_, Eta etaStep_) {
