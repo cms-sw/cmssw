@@ -83,7 +83,7 @@ namespace edm {
         "edm::AssociationMap<edm::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
     static std::regex const reToVector("edm::AssociationVector<(.*), *(.*), *edm::Ref.*,.*>");
     //NOTE: if the item within a clone policy is a template, this substitution will probably fail
-    static std::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::ClonePolicy<([^>]*)> >");
+    static std::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::(Clone|Copy)Policy<([^>]*)> >");
     //NOTE: If container is a template with one argument which is its 'type' then can simplify name
     static std::regex const reToRefs1(
         "edm::RefVector< *(.*)< *(.*) *>, *\\2 *, *edm::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");

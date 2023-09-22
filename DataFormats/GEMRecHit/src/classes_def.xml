@@ -12,6 +12,8 @@
   <class name="edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >" splitLevel="0"/>
   <class name="edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> > >" splitLevel="0"/>
+  <class name="edm::RangeMap<GEMDetId, std::vector<GEMRecHit>, edm::CopyPolicy<GEMRecHit> >" splitLevel="0"/>
+  <class name="edm::Wrapper<edm::RangeMap<GEMDetId, std::vector<GEMRecHit>, edm::CopyPolicy<GEMRecHit> > >" splitLevel="0"/>
 
   <class name="ME0RecHit" splitLevel="0" ClassVersion="11">
   <version ClassVersion="11" checksum="3948270793"/>
@@ -44,9 +46,12 @@
   </ioread>
   </class>
   <class name="std::vector<GEMSegment*>" splitLevel="0"/>
+  <class name="std::vector<GEMSegment>"/>
   <class name="edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >" splitLevel="0"/>
   <class name="edm::RangeMap<GEMDetId,edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >,edm::ClonePolicy<GEMSegment> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<GEMDetId,edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >,edm::ClonePolicy<GEMSegment> > >" splitLevel="0"/>
+  <class name="edm::RangeMap<GEMDetId,std::vector<GEMSegment>,edm::CopyPolicy<GEMSegment> >" splitLevel="0"/>
+  <class name="edm::Wrapper<edm::RangeMap<GEMDetId,std::vector<GEMSegment>,edm::CopyPolicy<GEMSegment> > >" splitLevel="0"/>
   <class name="GEMSegmentRef" splitLevel="0"/>
 
   <class name="ME0Segment" ClassVersion="13">

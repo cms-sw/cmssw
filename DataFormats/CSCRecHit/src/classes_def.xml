@@ -17,6 +17,8 @@
   <class name="edm::ClonePolicy<CSCRecHit2D>"/> <!-- Root6 -->
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
+  <class name="edm::RangeMap<CSCDetId,std::vector<CSCRecHit2D>,edm::CopyPolicy<CSCRecHit2D> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,std::vector<CSCRecHit2D>,edm::CopyPolicy<CSCRecHit2D> > >"/>
 
   <class name="std::vector<CSCSegment>"/>
   <class name="std::vector<CSCSegment*>"/>
@@ -26,8 +28,10 @@
   </class>
   <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"/>
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
+  <class name="edm::RangeMap<CSCDetId,std::vector<CSCSegment>,edm::CopyPolicy<CSCSegment> >"/>
   <class name="edm::ClonePolicy<CSCSegment>"/> <!-- Root6 -->
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,std::vector<CSCSegment>,edm::CopyPolicy<CSCSegment> > >"/>
   <class name="CSCSegmentRef"/>
 </selection>
 

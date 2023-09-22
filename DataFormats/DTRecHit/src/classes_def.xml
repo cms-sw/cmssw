@@ -51,6 +51,7 @@
    <version ClassVersion="11" checksum="3765797874"/>
    <version ClassVersion="10" checksum="2324947244"/>
   </class>
+  <class name="std::vector<DTRecSegment4D>"/>
   <class name="std::vector<DTRecSegment4D*>"/>
   <class name="std::map<DTChamberId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::pair<DTChamberId,std::pair<unsigned int,unsigned int> >"/>
@@ -60,6 +61,8 @@
   <class name="edm::ClonePolicy<DTRecSegment4D>" /> <!-- Root6 -->
   <class name="edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> > >"/>
+  <class name="edm::RangeMap <DTChamberId, std::vector<DTRecSegment4D>,edm::CopyPolicy<DTRecSegment4D> >"/>
+  <class name="edm::Wrapper<edm::RangeMap <DTChamberId, std::vector<DTRecSegment4D>,edm::CopyPolicy<DTRecSegment4D> > >"/>
   <class name="DTRecSegment4DRef"/>
 </selection>
 <exclusion>
