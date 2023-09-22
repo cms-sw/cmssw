@@ -22,12 +22,6 @@ from EventFilter.EcalRawToDigi.ecalElectronicsMappingGPUESProducer_cfi import ec
 from EventFilter.EcalRawToDigi.ecalRawToDigiGPU_cfi import ecalRawToDigiGPU as _ecalRawToDigiGPU
 ecalDigisGPU = _ecalRawToDigiGPU.clone()
 
-# disable the ECAL unpacker collections that are not available in the GPU unpacker
-gpu.toModify(ecalDigis.cpu,
-    headerUnpacking = False,
-    memUnpacking = False
-)
-
 # extend the SwitchProducer to add a case to copy the ECAL digis from GPU to CPU and covert them from SoA to legacy format
 from EventFilter.EcalRawToDigi.ecalCPUDigisProducer_cfi import ecalCPUDigisProducer as _ecalCPUDigisProducer
 gpu.toModify(ecalDigis,
