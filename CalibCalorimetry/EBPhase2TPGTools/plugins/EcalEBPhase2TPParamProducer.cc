@@ -25,7 +25,7 @@ EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const
       phaseShift_(pSet.getParameter<double>("phaseShift")),
       nWeightGroups_(pSet.getParameter<unsigned int>("nWeightGroups")),
       theEcalTPGPedestals_Token_(esConsumes(edm::ESInputTag("", ""))),
-      Et_sat_(pSet.getParameter<double>("Et_sat")),
+      et_sat_(pSet.getParameter<double>("Et_sat")),
       xtal_LSB_(pSet.getParameter<double>("xtal_LSB")),
       binOfMaximum_(pSet.getParameter<unsigned int>("binOfMaximum"))
 
@@ -35,20 +35,23 @@ EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const
   const TString* inFileName = new TString(inFile_);
   TFile* inFile = new TFile(*inFileName, "READ");
   inFile->GetObject("average-pulse", thePulse_);
+  delete inFile;
 }
 
 EcalEBPhase2TPParamProducer::~EcalEBPhase2TPParamProducer() { gzclose(out_file_); }
 
-void EcalEBPhase2TPParamProducer::beginJob() {
-  using namespace edm;
-  using namespace std;
-}
+void EcalEBPhase2TPParamProducer::beginJob() {}
 
 void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   using namespace edm;
   using namespace std;
-  theBarrelGeometry_ = &evtSetup.getData(theBarrelGeometryToken_);
-  theEcalTPPedestals_ = &evtSetup.getData(theEcalTPGPedestals_Token_);
+
+  const CaloSubdetectorGeometry* theBarrelGeometry = nullptr;
+  const EcalLiteDTUPedestalsMap* theEcalTPPedestals = nullptr;
+  const EcalLiteDTUPedestals* peds = nullptr;
+
+  theBarrelGeometry = &evtSetup.getData(theBarrelGeometryToken_);
+  theEcalTPPedestals = &evtSetup.getData(theEcalTPGPedestals_Token_);
   std::string tmpStringConv;
   const char* tmpStringOut;
 
@@ -97,7 +100,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
   toCompressStream.str(std::string());
 
   //  fill  map between xTals and groups. If each xTal is a group there is a one-to-one map
-  const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::vector<DetId>& ebCells = theBarrelGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
   std::map<int, int> mapXtalToGroup;
 
   int iGroup = 0;
@@ -124,22 +127,20 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
   for (const auto& it : ebCells) {
     EBDetId id(it);
     toCompressStream << "LINCONST " << dec << id.rawId() << std::endl;
-    double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta();
-    EcalLiteDTUPedestalsMap::const_iterator itped = theEcalTPPedestals_->getMap().find(id);
-    //std::map<uint32_t,std::vector<uint>>  linCoeffsMap;
+    double theta = theBarrelGeometry->getGeometry(id)->getPosition().theta();
+    EcalLiteDTUPedestalsMap::const_iterator itped = theEcalTPPedestals->getMap().find(id);
 
-    if (itped != theEcalTPPedestals_->end()) {
-      peds_ = &(*itped);
+    if (itped != theEcalTPPedestals->end()) {
+      peds = &(*itped);
 
     } else {
       edm::LogWarning("EcalEBPhase2TPParamProducer") << " could not find EcalLiteDTUPedestal entry for " << id;
     }
 
     int shift, mult;
-    bool calibCoeff = 1.;
+    float calibCoeff = 1.;
     bool ok;
     int tmpPedByGain;
-    std::vector<uint> linCoeffs;
     for (unsigned int i = 0; i < ecalPh2::NGAINS; ++i) {
       ok = computeLinearizerParam(theta, gainRatio_[i], calibCoeff, shift, mult);
       if (!ok) {
@@ -155,7 +156,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
       } else {
         shift_ = shift;
         mult_ = mult;
-        tmpPedByGain = (int)(peds_->mean(i) + 0.5);
+        tmpPedByGain = (int)(peds->mean(i) + 0.5);
         toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult_ << " 0x" << shift_ << " " << i2cSub_[i]
                          << std::endl;
       }
@@ -205,17 +206,13 @@ std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(
   getNumericalDeriv(*thePulse_, *pulseDot_);
   getPulseSampleSet(*pulseDot_, phaseShift, sampleDotSet);
 
-  unsigned int FMatColumns;
-  if (useBXPlusOne)
-    FMatColumns = 6;
-  else
-    FMatColumns = 4;
+  unsigned int fMatColumns = useBXPlusOne ? 6 : 4;
 
-  TMatrix FMat(clockSampleSet.size(), FMatColumns);
-  fillFMat(clockSampleSet, useBXPlusOne, sampleSet, sampleDotSet, FMat, binOfMaximum);
-  TMatrix GMat(FMatColumns, clockSampleSet.size());
+  TMatrix fMat(clockSampleSet.size(), fMatColumns);
+  fillFMat(clockSampleSet, useBXPlusOne, sampleSet, sampleDotSet, fMat, binOfMaximum);
+  TMatrix gMat(fMatColumns, clockSampleSet.size());
 
-  getGMatrix(FMat, scaleMatrixBy, GMat);
+  getGMatrix(fMat, scaleMatrixBy, gMat);
 
   std::vector<int> tmpWeightVec;
   std::vector<int> tmpTimeWeightVec;
@@ -231,9 +228,9 @@ std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(
     }
     if (inSampleSet) {
       if (type == 1)
-        tmpWeightVec.push_back(round(GMat(2, iClock) * multToInt_));  // amp weights
+        tmpWeightVec.push_back(round(gMat(2, iClock) * multToInt_));  // amp weights
       if (type == 2)
-        tmpWeightVec.push_back(round(GMat(3, iClock) * multToInt_));  // time weights
+        tmpWeightVec.push_back(round(gMat(3, iClock) * multToInt_));  // time weights
     } else {
       if (type == 1)
         tmpWeightVec.push_back(0);  // amp weights
@@ -270,54 +267,54 @@ void EcalEBPhase2TPParamProducer::fillFMat(std::vector<UInt_t> clockSampleSet,
                                            bool useThirdPulse,
                                            std::vector<float> sampleSet,
                                            std::vector<float> sampleDotSet,
-                                           TMatrix& FMat,
+                                           TMatrix& fMat,
                                            uint binOfMaximum) {
   Int_t iShift = 8 - binOfMaximum;
   for (UInt_t i = 0; i < clockSampleSet.size(); i++) {
     Int_t tmpClockToSample = clockSampleSet[i] + iShift;
-    FMat(i, 0) = sampleSet[tmpClockToSample];
-    FMat(i, 1) = sampleDotSet[tmpClockToSample];
+    fMat(i, 0) = sampleSet[tmpClockToSample];
+    fMat(i, 1) = sampleDotSet[tmpClockToSample];
     if (tmpClockToSample > 4) {
-      FMat(i, 2) = sampleSet[tmpClockToSample - 4];
-      FMat(i, 3) = sampleDotSet[tmpClockToSample - 4];
+      fMat(i, 2) = sampleSet[tmpClockToSample - 4];
+      fMat(i, 3) = sampleDotSet[tmpClockToSample - 4];
     }
     if (clockSampleSet[i] > 8 && useThirdPulse) {
-      FMat(i, 4) = sampleSet[tmpClockToSample - 8];
-      FMat(i, 5) = sampleDotSet[tmpClockToSample - 8];
+      fMat(i, 4) = sampleSet[tmpClockToSample - 8];
+      fMat(i, 5) = sampleDotSet[tmpClockToSample - 8];
     }
   }
 }
 
-void EcalEBPhase2TPParamProducer::getGMatrix(TMatrix FMat, float scaleMatrixBy, TMatrix& GMat) {
-  TMatrix FT = FMat;
+void EcalEBPhase2TPParamProducer::getGMatrix(TMatrix fMat, float scaleMatrixBy, TMatrix& gMat) {
+  TMatrix FT = fMat;
   FT.T();
   TMatrix tmpFT = FT;
-  TMatrix FTDotF = TMatrix(tmpFT, TMatrix::kMult, FMat);
+  TMatrix FTDotF = TMatrix(tmpFT, TMatrix::kMult, fMat);
   TMatrix InvFTDotF = FTDotF;
 
   //Possible for this bit to fail depending on the sample set and phase shift
   InvFTDotF.Invert();
 
   TMatrix tmpMat(InvFTDotF, TMatrix::kMult, FT);
-  GMat = tmpMat;
-  GMat *= scaleMatrixBy;
+  gMat = tmpMat;
+  gMat *= scaleMatrixBy;
 }
 
 void EcalEBPhase2TPParamProducer::getPulseSampleSet(TGraph pulseGraph,
                                                     float phaseShift,
                                                     std::vector<float>& sampleSet) {
   for (UInt_t i = 0; i < 16; i++) {
-    double t = (6.25 * i) + phaseShift;
-    double y = pulseGraph.Eval(t + offset_) * norm_;
+    float t = (6.25 * i) + phaseShift;
+    float y = pulseGraph.Eval(t + offset_) * norm_;
     sampleSet.push_back(y);
   }
 }
 
 bool EcalEBPhase2TPParamProducer::computeLinearizerParam(
     double theta, double gainRatio, double calibCoeff, int& shift, int& mult) {
-  bool result;
+  bool result = false;
 
-  double factor = (16383 * (xtal_LSB_ * gainRatio * calibCoeff * sin(theta))) / Et_sat_;
+  double factor = (16383 * (xtal_LSB_ * gainRatio * calibCoeff * sin(theta))) / et_sat_;
 
   //first with shift_ = 0
   //add 0.5 (for rounding) and set to int
@@ -325,12 +322,13 @@ bool EcalEBPhase2TPParamProducer::computeLinearizerParam(
   //and shift_ with a max bit length of 4
   mult = (int)(factor + 0.5);
   for (shift = 0; shift < 15; shift++) {
-    if (mult >= 128 && mult < 256)
-      return mult;
+    if (mult >= 128 && mult < 256) {
+      result = true;
+      break;
+    }
     factor *= 2;
     mult = (int)(factor + 0.5);
   }
-  return false;
 
   return result;
 }

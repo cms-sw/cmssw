@@ -1,5 +1,5 @@
-#ifndef EcalEBPhase2TPGTimeWeightIdMapRcd_h
-#define EcalEBPhase2TPGTimeWeightIdMapRcd_h
+#ifndef CondFormats_DataRecord_EcalEBPhase2TPGTimeWeightIdMapRcd_h
+#define CondFormats_DataRecord_EcalEBPhase2TPGTimeWeightIdMapRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class EcalEBPhase2TPGTimeWeightIdMapRcd

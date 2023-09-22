@@ -1,5 +1,5 @@
-#ifndef EcalEBPhase2TPGPedestalsRcd_h
-#define EcalEBPhase2TPGPedestalsRcd_h
+#ifndef CondFormats_DataRecord_EcalEBPhase2TPGPedestalsRcd_h
+#define CondFormats_DataRecord_EcalEBPhase2TPGPedestalsRcd_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 class EcalEBPhase2TPGPedestalsRcd

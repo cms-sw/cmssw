@@ -1,13 +1,10 @@
-#ifndef ECALEBPHASE2TPPARAMPRODUCER_H
-#define ECALEBPHASE2TPPARAMPRODUCER_H
+#ifndef CalibCalorimetry_EBPhase2TPGTools_EcalEBPhase2TPParamProducer_h
+#define CalibCalorimetry_EBPhase2TPGTools_EcalEBPhase2TPParamProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -59,40 +56,30 @@ private:
   //
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, int& shift, int& mult);
 
-  edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> theBarrelGeometryToken_;
-  std::string inFile_;
-  std::string outFile_;
-  int nSamplesToUse_;
-  bool useBXPlusOne_;
-  double phaseShift_;
-  unsigned int nWeightGroups_;
-  edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> theEcalTPGPedestals_Token_;
-
-  const CaloSubdetectorGeometry* theBarrelGeometry_ = nullptr;
-  const EcalLiteDTUPedestalsMap* theEcalTPPedestals_ = nullptr;
-  const EcalLiteDTUPedestals* peds_ = nullptr;
+  const edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> theBarrelGeometryToken_;
+  const std::string inFile_;
+  const std::string outFile_;
+  const int nSamplesToUse_;
+  const bool useBXPlusOne_;
+  const double phaseShift_;
+  const unsigned int nWeightGroups_;
+  const edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> theEcalTPGPedestals_Token_;
 
   gzFile out_file_;
   TGraph* thePulse_;
   TGraph* pulseDot_;
 
-  UInt_t NCrystals_ = 61200;
   const UInt_t NPoints_ = 1599;  //With the CMSSW pulse
-  std::vector<float> sampleSet_;
-  std::vector<float> sampleDotSet_;
 
-  float norm_ = 1 / 503.109;  // with the CMSSW pulse shape
-
-  float offset_ = 0.;  // with the CMSSW pulse shape
+  static constexpr float norm_ = 1 / 503.109;  // with the CMSSW pulse shape
+  static constexpr float offset_ = 0.;         // with the CMSSW pulse shape
   int multToInt_ = 0x1000;
 
   int i2cSub_[2] = {0, 0};
 
-  double Et_sat_;
-  double xtal_LSB_;
-  unsigned int binOfMaximum_;
-  double calibCoeff_;
-  double gMatCorr_;
+  const double et_sat_;
+  const double xtal_LSB_;
+  const unsigned int binOfMaximum_;
 
   int mult_;
   int shift_;
