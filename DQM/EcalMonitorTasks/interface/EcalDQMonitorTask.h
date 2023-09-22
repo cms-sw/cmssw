@@ -46,8 +46,16 @@ private:
 
   edm::EDGetToken collectionTokens_[ecaldqm::nCollections];           // list of EDGetTokens
   std::vector<std::pair<Processor, ecaldqm::Collections>> schedule_;  // schedule of collections to run
+
   std::vector<std::string> skipCollections_;  // list of collections to explicitly remove from schedule
-  bool allowMissingCollections_;              // when true, skip missing collections and log as warning
+                                              // note: skipping a collection here will result in
+                                              // EcalDQMonitorTask not consuming it, which may lead the
+                                              // module producing the collection to not run at all
+
+  bool allowMissingCollections_;  // when true (default), skip missing collections and log as warning
+                                  // note: collections skipped by the parameter skipCollections will
+                                  // bypass this check and not issue warnings
+
   int processedEvents_;
 
   /* TASK TIME PROFILING */
