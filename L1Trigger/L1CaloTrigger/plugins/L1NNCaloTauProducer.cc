@@ -60,7 +60,7 @@ Created: Tue May 30th 2023
 class l1tNNCaloTauProducer : public edm::stream::EDProducer<> {
 public:
   explicit l1tNNCaloTauProducer(const edm::ParameterSet&);
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   //----edm control---
@@ -259,7 +259,8 @@ l1tNNCaloTauProducer::l1tNNCaloTauProducer(const edm::ParameterSet& iConfig)
 
   // Settings output
   edm::LogInfo("Settings") << "EtaRestriction = " << EtaRestriction << " , CB_CE_split = " << CB_CE_split
-                           << " , EtMinForSeeding = " << EtMinForSeeding << " , HcalTpEtMin = " << HcalEtMinForClustering
+                           << " , EtMinForSeeding = " << EtMinForSeeding
+                           << " , HcalTpEtMin = " << HcalEtMinForClustering
                            << " , EcalTpEtMin = " << EcalEtMinForClustering << std::endl;
 }
 
@@ -293,7 +294,8 @@ void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eS
     l1CaloTowers.push_back(l1Hit);
   }
   if (warnings != 0) {
-    edm::LogWarning("BrokenTowers") << " ** WARNING : FOUND " << warnings << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
+    edm::LogWarning("BrokenTowers") << " ** WARNING : FOUND " << warnings
+                                    << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
   }
 
   iEvent.getByToken(hgcalTowersToken, hgcalTowersHandle);
@@ -808,7 +810,7 @@ float l1tNNCaloTauProducer::inputScaler(float inputF, std::string feature) {
   return (inputF - mean) / std;
 }
 
-void l1tNNCaloTauProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void l1tNNCaloTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // VARIABLES FOR HGCAL PU BDT
   std::vector<edm::ParameterSet> variables;
   edm::ParameterSet set1;
@@ -839,16 +841,18 @@ void l1tNNCaloTauProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
   VsPuId.add<bool>("isPUFilter", true);
   VsPuId.add<std::string>("preselection", "");
   VsPuId.add<std::string>("method", "BDT");
-  VsPuId.add<std::string>("weightsFile", "L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz");
+  VsPuId.add<std::string>(
+      "weightsFile", "L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz");
   VsPuId.add<std::string>("wp", "-0.10");
 
   // DESCRIPTIONS
   edm::ParameterSetDescription desc;
   desc.setComment("Phase2 NN CaloTau (TauMinator) producer plugin.");
-  
-  desc.add<edm::InputTag>("l1CaloTowers", edm::InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection",""));
-  desc.add<edm::InputTag>("hgcalTowers", edm::InputTag("l1tHGCalTowerProducer","HGCalTowerProcessor"));
-  desc.add<edm::InputTag>("HgcalClusters", edm::InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"));
+
+  desc.add<edm::InputTag>("l1CaloTowers", edm::InputTag("l1tEGammaClusterEmuProducer", "L1CaloTowerCollection", ""));
+  desc.add<edm::InputTag>("hgcalTowers", edm::InputTag("l1tHGCalTowerProducer", "HGCalTowerProcessor"));
+  desc.add<edm::InputTag>("HgcalClusters",
+                          edm::InputTag("l1tHGCalBackEndLayer2Producer", "HGCalBackendLayer2Processor3DClustering"));
 
   desc.add<std::string>("preEmId", "hOverE < 0.3 && hOverE >= 0");
   desc.add<edm::ParameterSetDescription>("VsPuId", VsPuId);
