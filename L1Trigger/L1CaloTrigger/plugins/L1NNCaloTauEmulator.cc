@@ -177,8 +177,6 @@ private:
   template <int W, int I, ap_q_mode _AP_Q, ap_o_mode _AP_O>
   ap_ufixed<W, I> ap_abs(ap_fixed<W, I, _AP_Q, _AP_O> x);
 
-  // void TauCollectionFiller();
-
   //----tokens and handles----
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> l1TowersToken;
   edm::Handle<l1tp2::CaloTowerCollection> l1CaloTowerHandle;
@@ -338,6 +336,8 @@ private:
       meanz = Cluster.meanz;
     }
   };
+
+  l1t::Tau MakeTauCandidate(bool isBarrel, int clNxMIdx, std::vector<tensorflow::Tensor> outputsIdent, std::vector<tensorflow::Tensor> outputsCalib, std::vector<InputTowerCluster_pstn> clustersNxM_pstn);
 };
 
 /*
@@ -798,83 +798,15 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
 
   // Fill the output collection of L1 taus with the barrel candidates
   for (int clNxMIdx = 0; clNxMIdx < Nclusters_CB; clNxMIdx++) {
-    int seedIeta = l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIeta;
-    int seedIphi = l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIphi;
-
-    if (seedIeta > intEtaRestriction) {
-      continue;
-    }
-
-    float tau_IDscore = DNN_CBoutputsIdent[0].matrix<float>()(0, clNxMIdx);
-    float tau_calibPt = DNN_CBoutputsCalib[0].matrix<float>()(0, clNxMIdx);
-    float tau_eta = floatIEta(seedIeta);
-    float tau_phi = floatIPhi(seedIphi);
-
-    // Assign increasing quality to higher scoring candidates
-    int quality = 0;
-    // 99% WP
-    if (tau_IDscore > IdWp99_CB) {
-      quality = 1;
-    }
-    // 95% WP
-    if (tau_IDscore > IdWp95_CB) {
-      quality = 2;
-    }
-    // 90% WP
-    if (tau_IDscore > IdWp90_CB) {
-      quality = 3;
-    }
-
-    reco::Candidate::PolarLorentzVector tauP4 = reco::Candidate::PolarLorentzVector(tau_calibPt, tau_eta, tau_phi, 0);
-
-    // store ID score multiplied by 10E4 to have good precision even using the Phase1 tau int iso format
-    // (this is stored just in case for possible additional offline studies)
-    // tau initialisation =  (p4,    pt,          eta,     phi,     qual,    iso)
-    l1t::Tau l1Tau = l1t::Tau(tauP4, tau_calibPt, tau_eta, tau_phi, quality, tau_IDscore * 10E4);
-    l1Tau.setTowerIEta(seedIeta);
-    l1Tau.setTowerIPhi(seedIphi);
-
+    l1t::Tau l1Tau = MakeTauCandidate(true, clNxMIdx, DNN_CBoutputsIdent, DNN_CBoutputsCalib, l1TowerClustersNxM_CB_pstn);
+    if (l1Tau.pt()<0) { continue; }
     L1NNCaloTauCollectionBXV->push_back(0, l1Tau);
   }
 
   // Fill the output collection of L1 taus with the endcap candidates
   for (int clNxMIdx = 0; clNxMIdx < Nclusters_CE; clNxMIdx++) {
-    int seedIeta = l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIeta;
-    int seedIphi = l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIphi;
-
-    if (seedIeta > intEtaRestriction) {
-      continue;
-    }
-
-    float tau_IDscore = DNN_CEoutputsIdent[0].matrix<float>()(0, clNxMIdx);
-    float tau_calibPt = DNN_CEoutputsCalib[0].matrix<float>()(0, clNxMIdx);
-    float tau_eta = floatIEta(seedIeta);
-    float tau_phi = floatIPhi(seedIphi);
-
-    // Assign increasing quality to higher scoring candidates
-    int quality = 0;
-    // 99% WP
-    if (tau_IDscore > IdWp99_CE) {
-      quality = 1;
-    }
-    // 95% WP
-    if (tau_IDscore > IdWp95_CE) {
-      quality = 2;
-    }
-    // 90% WP
-    if (tau_IDscore > IdWp90_CE) {
-      quality = 3;
-    }
-
-    reco::Candidate::PolarLorentzVector tauP4 = reco::Candidate::PolarLorentzVector(tau_calibPt, tau_eta, tau_phi, 0);
-
-    // store ID score multiplied by 10E4 to have good precision even using the Phase1 tau int iso format
-    // (this is stored just in case for possible additional offline studies)
-    // tau initialisation =  (p4,    pt,          eta,     phi,     qual,    iso)
-    l1t::Tau l1Tau = l1t::Tau(tauP4, tau_calibPt, tau_eta, tau_phi, quality, tau_IDscore * 10E4);
-    l1Tau.setTowerIEta(seedIeta);
-    l1Tau.setTowerIPhi(seedIphi);
-
+    l1t::Tau l1Tau = MakeTauCandidate(false, clNxMIdx, DNN_CEoutputsIdent, DNN_CEoutputsCalib, l1TowerClustersNxM_CE_pstn);
+    if (l1Tau.pt()<0) { continue; }
     L1NNCaloTauCollectionBXV->push_back(0, l1Tau);
   }
 
@@ -1015,6 +947,62 @@ float l1tNNCaloTauEmulator::floatIPhi(IPhi_t phi) {
 
   // shift by half a tower to consider the tower center instead of the edge
   return fphi > 0 ? fphi - IETAPHI_LSB / 2 : fphi + IETAPHI_LSB / 2;
+}
+
+l1t::Tau l1tNNCaloTauEmulator::MakeTauCandidate(bool isBarrel, int clNxMIdx, std::vector<tensorflow::Tensor> outputsIdent, std::vector<tensorflow::Tensor> outputsCalib, std::vector<l1tNNCaloTauEmulator::InputTowerCluster_pstn> clustersNxM_pstn) {
+    int seedIeta = clustersNxM_pstn[clNxMIdx].seedIeta;
+    int seedIphi = clustersNxM_pstn[clNxMIdx].seedIphi;
+
+    if (seedIeta > intEtaRestriction) {
+      return l1t::Tau(reco::Candidate::PolarLorentzVector(-1, 0, 0, 0), -1, 0, 0, 0, 0);;
+    }
+
+    float tau_IDscore = outputsIdent[0].matrix<float>()(0, clNxMIdx);
+    float tau_calibPt = outputsCalib[0].matrix<float>()(0, clNxMIdx);
+    float tau_eta = floatIEta(seedIeta);
+    float tau_phi = floatIPhi(seedIphi);
+
+    // Assign increasing quality to higher scoring candidates
+    int quality = 0;
+    if (isBarrel) {
+      // 99% WP
+      if (tau_IDscore > IdWp99_CB) {
+        quality = 1;
+      }
+      // 95% WP
+      if (tau_IDscore > IdWp95_CB) {
+        quality = 2;
+      }
+      // 90% WP
+      if (tau_IDscore > IdWp90_CB) {
+        quality = 3;
+      }
+    }
+    else {
+      // 99% WP
+      if (tau_IDscore > IdWp99_CE) {
+        quality = 1;
+      }
+      // 95% WP
+      if (tau_IDscore > IdWp95_CE) {
+        quality = 2;
+      }
+      // 90% WP
+      if (tau_IDscore > IdWp90_CE) {
+        quality = 3;
+      }
+    }
+
+    reco::Candidate::PolarLorentzVector tauP4 = reco::Candidate::PolarLorentzVector(tau_calibPt, tau_eta, tau_phi, 0);
+
+    // store ID score multiplied by 10E4 to have good precision even using the Phase1 tau int iso format
+    // (this is stored just in case for possible additional offline studies)
+    // tau initialisation =  (p4,    pt,          eta,     phi,     qual,    iso)
+    l1t::Tau l1Tau = l1t::Tau(tauP4, tau_calibPt, tau_eta, tau_phi, quality, tau_IDscore * 10E4);
+    l1Tau.setTowerIEta(seedIeta);
+    l1Tau.setTowerIPhi(seedIphi);
+
+    return l1Tau;
 }
 
 void l1tNNCaloTauEmulator::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
