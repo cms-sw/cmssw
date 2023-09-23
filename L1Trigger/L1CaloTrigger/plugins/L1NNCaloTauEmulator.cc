@@ -49,6 +49,7 @@ Created: Tue June 7th 2023
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -75,6 +76,7 @@ Created: Tue June 7th 2023
 class l1tNNCaloTauEmulator : public edm::stream::EDProducer<> {
 public:
   explicit l1tNNCaloTauEmulator(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   // ----fixed LSBs, Nbits, scales, and types----
@@ -1013,6 +1015,78 @@ float l1tNNCaloTauEmulator::floatIPhi(IPhi_t phi) {
 
   // shift by half a tower to consider the tower center instead of the edge
   return fphi > 0 ? fphi - IETAPHI_LSB / 2 : fphi + IETAPHI_LSB / 2;
+}
+
+void l1tNNCaloTauEmulator::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  // VARIABLES FOR HGCAL PU BDT
+  std::vector<edm::ParameterSet> variables;
+  edm::ParameterSet set1;
+  set1.addParameter<std::string>("name", "eMax");
+  set1.addParameter<std::string>("value", "eMax()");
+  variables.push_back(set1);
+  edm::ParameterSet set2;
+  set2.addParameter<std::string>("name", "eMaxOverE");
+  set2.addParameter<std::string>("value", "eMax()/energy()");
+  variables.push_back(set2);
+  edm::ParameterSet set3;
+  set3.addParameter<std::string>("name", "sigmaPhiPhiTot");
+  set3.addParameter<std::string>("value", "sigmaPhiPhiTot()");
+  variables.push_back(set3);
+  edm::ParameterSet set4;
+  set4.addParameter<std::string>("name", "sigmaRRTot");
+  set4.addParameter<std::string>("value", "sigmaRRTot()");
+  variables.push_back(set4);
+  edm::ParameterSet set5;
+  set5.addParameter<std::string>("name", "triggerCells90percent");
+  set5.addParameter<std::string>("value", "triggerCells90percent()");
+  variables.push_back(set5);
+
+  // // PSET FOR HGCAL PU BDT
+  edm::ParameterSetDescription tmp;
+  edm::ParameterSetDescription VsPuId;
+  VsPuId.addVPSet("variables", tmp, variables);
+  VsPuId.add<bool>("isPUFilter", true);
+  VsPuId.add<std::string>("preselection", "");
+  VsPuId.add<std::string>("method", "BDT");
+  VsPuId.add<std::string>("weightsFile", "L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz");
+  VsPuId.add<std::string>("wp", "-0.10");
+
+  // DESCRIPTIONS
+  edm::ParameterSetDescription desc;
+  desc.setComment("Phase2 NN CaloTau (TauMinator) producer plugin.");
+  
+  desc.add<edm::InputTag>("l1CaloTowers", edm::InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection",""));
+  desc.add<edm::InputTag>("hgcalTowers", edm::InputTag("l1tHGCalTowerProducer","HGCalTowerProcessor"));
+  desc.add<edm::InputTag>("HgcalClusters", edm::InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"));
+
+  desc.add<std::string>("preEmId", "hOverE < 0.3 && hOverE >= 0");
+  desc.add<edm::ParameterSetDescription>("VsPuId", VsPuId);
+
+  desc.add<double>("EcalEtMinForClustering", 0.);
+  desc.add<double>("HcalEtMinForClustering", 0.);
+  desc.add<double>("EtMinForSeeding", 2.5);
+  desc.add<double>("EtaRestriction", 2.4);
+  desc.add<double>("CB_CE_split", 1.55);
+  desc.add<double>("PuidThr", -0.10);
+
+  desc.add<std::string>("CNNmodel_CB_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/v22/CNNmodel_CB.pb");
+  desc.add<std::string>("DNNident_CB_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/v22/DNNident_CB.pb");
+  desc.add<std::string>("DNNcalib_CB_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/v22/DNNcalib_CB.pb");
+  desc.add<std::string>("CNNmodel_CE_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/v22/CNNmodel_CE.pb");
+  desc.add<std::string>("DNNident_CE_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/v22/DNNident_CE.pb");
+  desc.add<std::string>("DNNcalib_CE_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/v22/DNNcalib_CE.pb");
+  desc.add<std::string>("FeatScaler_CE_path", "L1Trigger/L1CaloTrigger/data/Phase2_NNCaloTaus/Cl3dFeatScaler_CE.json");
+
+  desc.add<double>("IdWp90_CB", 0.7060);
+  desc.add<double>("IdWp95_CB", 0.3432);
+  desc.add<double>("IdWp99_CB", 0.0337);
+  desc.add<double>("IdWp90_CE", 0.5711);
+  desc.add<double>("IdWp95_CE", 0.2742);
+  desc.add<double>("IdWp99_CE", 0.0394);
+
+  desc.add<bool>("DEBUG", false);
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(l1tNNCaloTauEmulator);
