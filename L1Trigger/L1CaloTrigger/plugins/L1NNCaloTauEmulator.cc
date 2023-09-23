@@ -76,7 +76,7 @@ Created: Tue June 7th 2023
 class l1tNNCaloTauEmulator : public edm::stream::EDProducer<> {
 public:
   explicit l1tNNCaloTauEmulator(const edm::ParameterSet&);
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // ----fixed LSBs, Nbits, scales, and types----
@@ -337,7 +337,11 @@ private:
     }
   };
 
-  l1t::Tau MakeTauCandidate(bool isBarrel, int clNxMIdx, std::vector<tensorflow::Tensor> outputsIdent, std::vector<tensorflow::Tensor> outputsCalib, std::vector<InputTowerCluster_pstn> clustersNxM_pstn);
+  l1t::Tau MakeTauCandidate(bool isBarrel,
+                            int clNxMIdx,
+                            std::vector<tensorflow::Tensor> outputsIdent,
+                            std::vector<tensorflow::Tensor> outputsCalib,
+                            std::vector<InputTowerCluster_pstn> clustersNxM_pstn);
 };
 
 /*
@@ -418,9 +422,10 @@ l1tNNCaloTauEmulator::l1tNNCaloTauEmulator(const edm::ParameterSet& iConfig)
   // Settings output
   edm::LogInfo("Settings") << "EtaRestriction = " << EtaRestriction << " (" << intEtaRestriction << ")"
                            << " , CB_CE_split = " << CB_CE_split << "(" << intCB_CE_split
-                           << ") , EtMinForSeeding = " << EtMinForSeeding << " , HcalTpEtMin = " << HcalEtMinForClustering
-                           << " , EcalTpEtMin = " << EcalEtMinForClustering << " , PuidThr = " << PuidThr << "(" << intPuidThr << ")"
-                           << std::endl;
+                           << ") , EtMinForSeeding = " << EtMinForSeeding
+                           << " , HcalTpEtMin = " << HcalEtMinForClustering
+                           << " , EcalTpEtMin = " << EcalEtMinForClustering << " , PuidThr = " << PuidThr << "("
+                           << intPuidThr << ")" << std::endl;
 }
 
 void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eSetup) {
@@ -451,7 +456,8 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
     l1CaloTowers.push_back(l1Hit);
   }
   if (warnings != 0) {
-    edm::LogWarning("BrokenTowers") << " ** WARNING : FOUND " << warnings << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
+    edm::LogWarning("BrokenTowers") << " ** WARNING : FOUND " << warnings
+                                    << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
   }
 
   iEvent.getByToken(hgcalTowersToken, hgcalTowersHandle);
@@ -592,7 +598,7 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
       }
 
       dIEtaPhi_t d_iEta = tower_dIEta(l1CaloTower.towerIeta, clNxM_pstn.seedIeta);
-      dIEtaPhi_t d_iPhi = dPhi<dIEtaPhi_t,IPhi_t>(l1CaloTower.towerIphi, clNxM_pstn.seedIphi);
+      dIEtaPhi_t d_iPhi = dPhi<dIEtaPhi_t, IPhi_t>(l1CaloTower.towerIphi, clNxM_pstn.seedIphi);
 
       // Stale tower for seeding if it would lead to overalp between clusters
       if ((ap_abs(d_iEta) <= IEta_dim - 1 && ap_abs(d_iPhi) <= IPhi_dim - 1)) {
@@ -625,7 +631,8 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
       }
 
       dIEtaPhi_t d_iEta = tower_dIEta(l1CaloTower.towerIeta, l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIeta);
-      dIEtaPhi_t d_iPhi = dPhi<dIEtaPhi_t,IPhi_t>(l1CaloTower.towerIphi, l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIphi);
+      dIEtaPhi_t d_iPhi =
+          dPhi<dIEtaPhi_t, IPhi_t>(l1CaloTower.towerIphi, l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIphi);
       int hitIdx = d_iEta * 9 + d_iPhi + seedIdx;
 
       // Cluster all towers in a NxM towers mask
@@ -677,7 +684,8 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
       }
 
       dIEtaPhi_t d_iEta = tower_dIEta(l1CaloTower.towerIeta, l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIeta);
-      dIEtaPhi_t d_iPhi = dPhi<dIEtaPhi_t,IPhi_t>(l1CaloTower.towerIphi, l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIphi);
+      dIEtaPhi_t d_iPhi =
+          dPhi<dIEtaPhi_t, IPhi_t>(l1CaloTower.towerIphi, l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIphi);
       int hitIdx = d_iEta * 9 + d_iPhi + seedIdx;
 
       // Cluster all towers in a NxM towers mask
@@ -798,15 +806,21 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
 
   // Fill the output collection of L1 taus with the barrel candidates
   for (int clNxMIdx = 0; clNxMIdx < Nclusters_CB; clNxMIdx++) {
-    l1t::Tau l1Tau = MakeTauCandidate(true, clNxMIdx, DNN_CBoutputsIdent, DNN_CBoutputsCalib, l1TowerClustersNxM_CB_pstn);
-    if (l1Tau.pt()<0) { continue; }
+    l1t::Tau l1Tau =
+        MakeTauCandidate(true, clNxMIdx, DNN_CBoutputsIdent, DNN_CBoutputsCalib, l1TowerClustersNxM_CB_pstn);
+    if (l1Tau.pt() < 0) {
+      continue;
+    }
     L1NNCaloTauCollectionBXV->push_back(0, l1Tau);
   }
 
   // Fill the output collection of L1 taus with the endcap candidates
   for (int clNxMIdx = 0; clNxMIdx < Nclusters_CE; clNxMIdx++) {
-    l1t::Tau l1Tau = MakeTauCandidate(false, clNxMIdx, DNN_CEoutputsIdent, DNN_CEoutputsCalib, l1TowerClustersNxM_CE_pstn);
-    if (l1Tau.pt()<0) { continue; }
+    l1t::Tau l1Tau =
+        MakeTauCandidate(false, clNxMIdx, DNN_CEoutputsIdent, DNN_CEoutputsCalib, l1TowerClustersNxM_CE_pstn);
+    if (l1Tau.pt() < 0) {
+      continue;
+    }
     L1NNCaloTauCollectionBXV->push_back(0, l1Tau);
   }
 
@@ -845,7 +859,7 @@ l1tNNCaloTauEmulator::dEtaPhi_t l1tNNCaloTauEmulator::tw2cl_dPhi(EtaPhi_t iPhi_1
   fineiPhi_2 = fineiPhi_2 > EtaPhi_t(0) ? EtaPhi_t(fineiPhi_2 - (IETAPHI_LSB / ETAPHI_LSB) / 2)
                                         : EtaPhi_t(fineiPhi_2 + (IETAPHI_LSB / ETAPHI_LSB) / 2);
 
-  return dPhi<dEtaPhi_t,EtaPhi_t>(iPhi_1, fineiPhi_2);
+  return dPhi<dEtaPhi_t, EtaPhi_t>(iPhi_1, fineiPhi_2);
 }
 
 l1tNNCaloTauEmulator::dEtaPhi_t l1tNNCaloTauEmulator::tw2cl_dEta(EtaPhi_t iEta_1, IEta_t iEta_2) {
@@ -949,63 +963,68 @@ float l1tNNCaloTauEmulator::floatIPhi(IPhi_t phi) {
   return fphi > 0 ? fphi - IETAPHI_LSB / 2 : fphi + IETAPHI_LSB / 2;
 }
 
-l1t::Tau l1tNNCaloTauEmulator::MakeTauCandidate(bool isBarrel, int clNxMIdx, std::vector<tensorflow::Tensor> outputsIdent, std::vector<tensorflow::Tensor> outputsCalib, std::vector<l1tNNCaloTauEmulator::InputTowerCluster_pstn> clustersNxM_pstn) {
-    int seedIeta = clustersNxM_pstn[clNxMIdx].seedIeta;
-    int seedIphi = clustersNxM_pstn[clNxMIdx].seedIphi;
+l1t::Tau l1tNNCaloTauEmulator::MakeTauCandidate(
+    bool isBarrel,
+    int clNxMIdx,
+    std::vector<tensorflow::Tensor> outputsIdent,
+    std::vector<tensorflow::Tensor> outputsCalib,
+    std::vector<l1tNNCaloTauEmulator::InputTowerCluster_pstn> clustersNxM_pstn) {
+  int seedIeta = clustersNxM_pstn[clNxMIdx].seedIeta;
+  int seedIphi = clustersNxM_pstn[clNxMIdx].seedIphi;
 
-    if (seedIeta > intEtaRestriction) {
-      return l1t::Tau(reco::Candidate::PolarLorentzVector(-1, 0, 0, 0), -1, 0, 0, 0, 0);;
+  if (seedIeta > intEtaRestriction) {
+    return l1t::Tau(reco::Candidate::PolarLorentzVector(-1, 0, 0, 0), -1, 0, 0, 0, 0);
+    ;
+  }
+
+  float tau_IDscore = outputsIdent[0].matrix<float>()(0, clNxMIdx);
+  float tau_calibPt = outputsCalib[0].matrix<float>()(0, clNxMIdx);
+  float tau_eta = floatIEta(seedIeta);
+  float tau_phi = floatIPhi(seedIphi);
+
+  // Assign increasing quality to higher scoring candidates
+  int quality = 0;
+  if (isBarrel) {
+    // 99% WP
+    if (tau_IDscore > IdWp99_CB) {
+      quality = 1;
     }
-
-    float tau_IDscore = outputsIdent[0].matrix<float>()(0, clNxMIdx);
-    float tau_calibPt = outputsCalib[0].matrix<float>()(0, clNxMIdx);
-    float tau_eta = floatIEta(seedIeta);
-    float tau_phi = floatIPhi(seedIphi);
-
-    // Assign increasing quality to higher scoring candidates
-    int quality = 0;
-    if (isBarrel) {
-      // 99% WP
-      if (tau_IDscore > IdWp99_CB) {
-        quality = 1;
-      }
-      // 95% WP
-      if (tau_IDscore > IdWp95_CB) {
-        quality = 2;
-      }
-      // 90% WP
-      if (tau_IDscore > IdWp90_CB) {
-        quality = 3;
-      }
+    // 95% WP
+    if (tau_IDscore > IdWp95_CB) {
+      quality = 2;
     }
-    else {
-      // 99% WP
-      if (tau_IDscore > IdWp99_CE) {
-        quality = 1;
-      }
-      // 95% WP
-      if (tau_IDscore > IdWp95_CE) {
-        quality = 2;
-      }
-      // 90% WP
-      if (tau_IDscore > IdWp90_CE) {
-        quality = 3;
-      }
+    // 90% WP
+    if (tau_IDscore > IdWp90_CB) {
+      quality = 3;
     }
+  } else {
+    // 99% WP
+    if (tau_IDscore > IdWp99_CE) {
+      quality = 1;
+    }
+    // 95% WP
+    if (tau_IDscore > IdWp95_CE) {
+      quality = 2;
+    }
+    // 90% WP
+    if (tau_IDscore > IdWp90_CE) {
+      quality = 3;
+    }
+  }
 
-    reco::Candidate::PolarLorentzVector tauP4 = reco::Candidate::PolarLorentzVector(tau_calibPt, tau_eta, tau_phi, 0);
+  reco::Candidate::PolarLorentzVector tauP4 = reco::Candidate::PolarLorentzVector(tau_calibPt, tau_eta, tau_phi, 0);
 
-    // store ID score multiplied by 10E4 to have good precision even using the Phase1 tau int iso format
-    // (this is stored just in case for possible additional offline studies)
-    // tau initialisation =  (p4,    pt,          eta,     phi,     qual,    iso)
-    l1t::Tau l1Tau = l1t::Tau(tauP4, tau_calibPt, tau_eta, tau_phi, quality, tau_IDscore * 10E4);
-    l1Tau.setTowerIEta(seedIeta);
-    l1Tau.setTowerIPhi(seedIphi);
+  // store ID score multiplied by 10E4 to have good precision even using the Phase1 tau int iso format
+  // (this is stored just in case for possible additional offline studies)
+  // tau initialisation =  (p4,    pt,          eta,     phi,     qual,    iso)
+  l1t::Tau l1Tau = l1t::Tau(tauP4, tau_calibPt, tau_eta, tau_phi, quality, tau_IDscore * 10E4);
+  l1Tau.setTowerIEta(seedIeta);
+  l1Tau.setTowerIPhi(seedIphi);
 
-    return l1Tau;
+  return l1Tau;
 }
 
-void l1tNNCaloTauEmulator::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void l1tNNCaloTauEmulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // VARIABLES FOR HGCAL PU BDT
   std::vector<edm::ParameterSet> variables;
   edm::ParameterSet set1;
@@ -1036,16 +1055,18 @@ void l1tNNCaloTauEmulator::fillDescriptions(edm::ConfigurationDescriptions &desc
   VsPuId.add<bool>("isPUFilter", true);
   VsPuId.add<std::string>("preselection", "");
   VsPuId.add<std::string>("method", "BDT");
-  VsPuId.add<std::string>("weightsFile", "L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz");
+  VsPuId.add<std::string>(
+      "weightsFile", "L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz");
   VsPuId.add<std::string>("wp", "-0.10");
 
   // DESCRIPTIONS
   edm::ParameterSetDescription desc;
   desc.setComment("Phase2 NN CaloTau (TauMinator) producer plugin.");
-  
-  desc.add<edm::InputTag>("l1CaloTowers", edm::InputTag("l1tEGammaClusterEmuProducer","L1CaloTowerCollection",""));
-  desc.add<edm::InputTag>("hgcalTowers", edm::InputTag("l1tHGCalTowerProducer","HGCalTowerProcessor"));
-  desc.add<edm::InputTag>("HgcalClusters", edm::InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"));
+
+  desc.add<edm::InputTag>("l1CaloTowers", edm::InputTag("l1tEGammaClusterEmuProducer", "L1CaloTowerCollection", ""));
+  desc.add<edm::InputTag>("hgcalTowers", edm::InputTag("l1tHGCalTowerProducer", "HGCalTowerProcessor"));
+  desc.add<edm::InputTag>("HgcalClusters",
+                          edm::InputTag("l1tHGCalBackEndLayer2Producer", "HGCalBackendLayer2Processor3DClustering"));
 
   desc.add<std::string>("preEmId", "hOverE < 0.3 && hOverE >= 0");
   desc.add<edm::ParameterSetDescription>("VsPuId", VsPuId);
