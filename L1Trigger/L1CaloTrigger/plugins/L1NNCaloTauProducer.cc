@@ -256,9 +256,9 @@ l1tNNCaloTauProducer::l1tNNCaloTauProducer(const edm::ParameterSet& iConfig)
   produces<BXVector<l1t::Tau>>("L1NNCaloTauCollectionBXV");
 
   // Settings output
-  std::cout << "EtaRestriction = " << EtaRestriction << " , CB_CE_split = " << CB_CE_split
-            << " , EtMinForSeeding = " << EtMinForSeeding << " , HcalTpEtMin = " << HcalEtMinForClustering
-            << " , EcalTpEtMin = " << EcalEtMinForClustering << std::endl;
+  edm::LogInfo("Settings") << "EtaRestriction = " << EtaRestriction << " , CB_CE_split = " << CB_CE_split
+                           << " , EtMinForSeeding = " << EtMinForSeeding << " , HcalTpEtMin = " << HcalEtMinForClustering
+                           << " , EcalTpEtMin = " << EcalEtMinForClustering << std::endl;
 }
 
 void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eSetup) {
@@ -291,7 +291,7 @@ void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eS
     l1CaloTowers.push_back(l1Hit);
   }
   if (warnings != 0) {
-    std::cout << " ** WARNING : FOUND " << warnings << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
+    edm::LogWarning("BrokenTowers") << " ** WARNING : FOUND " << warnings << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
   }
 
   iEvent.getByToken(hgcalTowersToken, hgcalTowersHandle);
@@ -758,7 +758,7 @@ void l1tNNCaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& eS
 }  // End of produce function
 
 int l1tNNCaloTauProducer::tower_dIPhi(int& iPhi_1, int& iPhi_2) const {
-  int PI = 36;
+  const int PI = 36;
   int result = iPhi_1 - iPhi_2;
   if (result > PI) {
     result -= 2 * PI;
@@ -782,7 +782,7 @@ int l1tNNCaloTauProducer::tower_dIEta(int& iEta_1, int& iEta_2) const {
 }
 
 int l1tNNCaloTauProducer::endcap_iphi(float& phi) const {
-  float phi_step = 0.0872664;
+  const float phi_step = 0.0872664;
   if (phi > 0) {
     return floor(phi / phi_step) + 1;
   } else {
@@ -791,7 +791,7 @@ int l1tNNCaloTauProducer::endcap_iphi(float& phi) const {
 }
 
 int l1tNNCaloTauProducer::endcap_ieta(float& eta) const {
-  float eta_step = 0.0845;
+  const float eta_step = 0.0845;
   return floor(abs(eta) / eta_step) * std::copysign(1, eta);
 }
 

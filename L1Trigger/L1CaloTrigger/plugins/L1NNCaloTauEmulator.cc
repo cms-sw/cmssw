@@ -145,9 +145,9 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   //----private functions----
-  dIEtaPhi_t tower_dIPhi(IPhi_t iPhi_1, IPhi_t iPhi_2);
+  template <class outPrecision, class inPrecision>
+  outPrecision dPhi(inPrecision iPhi_1, inPrecision iPhi_2);
   dIEtaPhi_t tower_dIEta(IEta_t iEta_1, IEta_t iEta_2);
-  dEtaPhi_t dPhi(EtaPhi_t iPhi_1, EtaPhi_t iPhi_2);
   dEtaPhi_t tw2cl_dPhi(EtaPhi_t iPhi_1, IPhi_t iPhi_2);
   dEtaPhi_t tw2cl_dEta(EtaPhi_t iEta_1, IEta_t iEta_2);
   IEta_t makeEndcapHwIEta(float eta);
@@ -174,6 +174,8 @@ private:
   ap_int<W> ap_abs(ap_int<W> x);
   template <int W, int I, ap_q_mode _AP_Q, ap_o_mode _AP_O>
   ap_ufixed<W, I> ap_abs(ap_fixed<W, I, _AP_Q, _AP_O> x);
+
+  // void TauCollectionFiller();
 
   //----tokens and handles----
   edm::EDGetTokenT<l1tp2::CaloTowerCollection> l1TowersToken;
@@ -272,15 +274,11 @@ private:
     Et_t towerEm = 0.;
     Et_t towerHad = 0.;
     Et_t l1egTowerEt = 0.;
-    // IEta_t ieta = 0; // DEBUG ONLY
-    // IPhi_t iphi = 0; // DEBUG ONLY
 
     void fill(SimpleTowerHit Tower) {
       towerEm = Tower.towerEm;
       towerHad = Tower.towerHad;
       l1egTowerEt = Tower.l1egTowerEt;
-      // ieta = Tower.towerIeta; // DEBUG ONLY
-      // iphi = Tower.towerIphi; // DEBUG ONLY
     }
   };
 
@@ -320,7 +318,6 @@ private:
   public:
     Pt_t pt;
     EtaPhi_t eta;
-    // EtaPhi_t phi; // DEBUG ONLY
     ShowLen_t showerlength;
     ShowLen_t coreshowerlength;
     ShapeFeat_t spptot;
@@ -331,7 +328,6 @@ private:
     void fill(SimpleHGCluster Cluster) {
       pt = Cluster.pt;
       eta = Cluster.eta;
-      // phi = Cluster.phi; // DEBUG ONLY
       showerlength = Cluster.showerlength;
       coreshowerlength = Cluster.coreshowerlength;
       spptot = Cluster.spptot;
@@ -340,37 +336,6 @@ private:
       meanz = Cluster.meanz;
     }
   };
-
-  /*  // output structure of taus
-  struct NNCaloTau {
-    Et_t hwPt;
-    Et_t hwSeedPt;
-    IEta_t hwEta;
-    IPhi_t hwPhi;
-    
-    ap_uint<2> quality;
-    ap_uint<9> IDscore;
-
-    inline CALOtoGT_pt(Et_t x) { return (l1gt::pt_t)x; }
-    inline CALOtoGT_eta(IEta_t x) { return x * (IETAPHI_LSB / l1gt::Scales::ETAPHI_LSB);  }
-    inline CALOtoGT_phi(IPhi_t x) { return x * (IETAPHI_LSB / l1gt::Scales::ETAPHI_LSB);  }
-
-    l1gt::Tau toGT() const {
-      l1gt::Tau tau;
-      tau.valid = hwPt != 0;
-      tau.v3.pt = CALOtoGT_pt(hwPt);
-      tau.v3.phi = CALOtoGT_phi(hwPhi);
-      tau.v3.eta = CALOtoGT_eta(hwEta);
-      tau.seed_pt = CALOtoGT_pt(hwSeedPt);
-      tau.seed_z0 = 0;
-      tau.charge = 0;
-      tau.type = 0;
-      tau.isolation = 0;
-      tau.id0 = quality;
-      tau.id1 = 0;
-    }
-    
-  }; */
 };
 
 /*
@@ -449,11 +414,11 @@ l1tNNCaloTauEmulator::l1tNNCaloTauEmulator(const edm::ParameterSet& iConfig)
   produces<BXVector<l1t::Tau>>("L1NNCaloTauCollectionBXV");
 
   // Settings output
-  std::cout << "EtaRestriction = " << EtaRestriction << " (" << intEtaRestriction << ")"
-            << " , CB_CE_split = " << CB_CE_split << "(" << intCB_CE_split
-            << ") , EtMinForSeeding = " << EtMinForSeeding << " , HcalTpEtMin = " << HcalEtMinForClustering
-            << " , EcalTpEtMin = " << EcalEtMinForClustering << " , PuidThr = " << PuidThr << "(" << intPuidThr << ")"
-            << std::endl;
+  edm::LogInfo("Settings") << "EtaRestriction = " << EtaRestriction << " (" << intEtaRestriction << ")"
+                           << " , CB_CE_split = " << CB_CE_split << "(" << intCB_CE_split
+                           << ") , EtMinForSeeding = " << EtMinForSeeding << " , HcalTpEtMin = " << HcalEtMinForClustering
+                           << " , EcalTpEtMin = " << EcalEtMinForClustering << " , PuidThr = " << PuidThr << "(" << intPuidThr << ")"
+                           << std::endl;
 }
 
 void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eSetup) {
@@ -484,7 +449,7 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
     l1CaloTowers.push_back(l1Hit);
   }
   if (warnings != 0) {
-    std::cout << " ** WARNING : FOUND " << warnings << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
+    edm::LogWarning("BrokenTowers") << " ** WARNING : FOUND " << warnings << " TOWERS WITH towerIeta=-1016 AND towerIphi=-962" << std::endl;
   }
 
   iEvent.getByToken(hgcalTowersToken, hgcalTowersHandle);
@@ -625,7 +590,7 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
       }
 
       dIEtaPhi_t d_iEta = tower_dIEta(l1CaloTower.towerIeta, clNxM_pstn.seedIeta);
-      dIEtaPhi_t d_iPhi = tower_dIPhi(l1CaloTower.towerIphi, clNxM_pstn.seedIphi);
+      dIEtaPhi_t d_iPhi = dPhi<dIEtaPhi_t,IPhi_t>(l1CaloTower.towerIphi, clNxM_pstn.seedIphi);
 
       // Stale tower for seeding if it would lead to overalp between clusters
       if ((ap_abs(d_iEta) <= IEta_dim - 1 && ap_abs(d_iPhi) <= IPhi_dim - 1)) {
@@ -658,7 +623,7 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
       }
 
       dIEtaPhi_t d_iEta = tower_dIEta(l1CaloTower.towerIeta, l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIeta);
-      dIEtaPhi_t d_iPhi = tower_dIPhi(l1CaloTower.towerIphi, l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIphi);
+      dIEtaPhi_t d_iPhi = dPhi<dIEtaPhi_t,IPhi_t>(l1CaloTower.towerIphi, l1TowerClustersNxM_CB_pstn[clNxMIdx].seedIphi);
       int hitIdx = d_iEta * 9 + d_iPhi + seedIdx;
 
       // Cluster all towers in a NxM towers mask
@@ -710,7 +675,7 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
       }
 
       dIEtaPhi_t d_iEta = tower_dIEta(l1CaloTower.towerIeta, l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIeta);
-      dIEtaPhi_t d_iPhi = tower_dIPhi(l1CaloTower.towerIphi, l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIphi);
+      dIEtaPhi_t d_iPhi = dPhi<dIEtaPhi_t,IPhi_t>(l1CaloTower.towerIphi, l1TowerClustersNxM_CE_pstn[clNxMIdx].seedIphi);
       int hitIdx = d_iEta * 9 + d_iPhi + seedIdx;
 
       // Cluster all towers in a NxM towers mask
@@ -866,7 +831,6 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
     l1t::Tau l1Tau = l1t::Tau(tauP4, tau_calibPt, tau_eta, tau_phi, quality, tau_IDscore * 10E4);
     l1Tau.setTowerIEta(seedIeta);
     l1Tau.setTowerIPhi(seedIphi);
-    // l1Tau.setRawEt(clNxM.rawEt); // FIXME : not really needed tbh
 
     L1NNCaloTauCollectionBXV->push_back(0, l1Tau);
   }
@@ -908,7 +872,6 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
     l1t::Tau l1Tau = l1t::Tau(tauP4, tau_calibPt, tau_eta, tau_phi, quality, tau_IDscore * 10E4);
     l1Tau.setTowerIEta(seedIeta);
     l1Tau.setTowerIPhi(seedIphi);
-    // l1Tau.setRawEt(clNxM.rawEt); // FIXME : not really needed tbh
 
     L1NNCaloTauCollectionBXV->push_back(0, l1Tau);
   }
@@ -918,13 +881,14 @@ void l1tNNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eS
 
 }  // End of produce function
 
-l1tNNCaloTauEmulator::dIEtaPhi_t l1tNNCaloTauEmulator::tower_dIPhi(IPhi_t iPhi_1, IPhi_t iPhi_2) {
-  dIEtaPhi_t dphi = iPhi_1 - iPhi_2;
+template <class outPrecision, class inPrecision>
+outPrecision l1tNNCaloTauEmulator::dPhi(inPrecision iPhi_1, inPrecision iPhi_2) {
+  outPrecision dphi = iPhi_1 - iPhi_2;
 
-  dIEtaPhi_t dphi0 = dphi > dIEtaPhi_t(INTPHI_PI) ? dIEtaPhi_t(dphi - INTPHI_2PI) : dphi;
-  dIEtaPhi_t dphi1 = dphi <= dIEtaPhi_t(-INTPHI_PI) ? dIEtaPhi_t(dphi + INTPHI_2PI) : dphi;
+  outPrecision dphi0 = dphi > outPrecision(INTPHI_PI) ? outPrecision(dphi - INTPHI_2PI) : dphi;
+  outPrecision dphi1 = dphi <= outPrecision(-INTPHI_PI) ? outPrecision(dphi + INTPHI_2PI) : dphi;
 
-  dIEtaPhi_t result = dphi > dIEtaPhi_t(0) ? dphi0 : dphi1;
+  outPrecision result = dphi > outPrecision(0) ? dphi0 : dphi1;
 
   return result;
 }
@@ -939,17 +903,6 @@ l1tNNCaloTauEmulator::dIEtaPhi_t l1tNNCaloTauEmulator::tower_dIEta(IEta_t iEta_1
   return result;
 }
 
-l1tNNCaloTauEmulator::dEtaPhi_t l1tNNCaloTauEmulator::dPhi(EtaPhi_t iPhi_1, EtaPhi_t iPhi_2) {
-  dEtaPhi_t dphi = iPhi_1 - iPhi_2;
-
-  dEtaPhi_t dphi0 = dphi > dEtaPhi_t(FINEINTPHI_PI) ? dEtaPhi_t(FINEINTPHI_2PI - dphi) : dphi;
-  dEtaPhi_t dphi1 = dphi < dEtaPhi_t(-FINEINTPHI_PI) ? dEtaPhi_t(FINEINTPHI_2PI + dphi) : dphi;
-
-  dEtaPhi_t result = dphi > dEtaPhi_t(0) ? dphi0 : dphi1;
-
-  return result;
-}
-
 l1tNNCaloTauEmulator::dEtaPhi_t l1tNNCaloTauEmulator::tw2cl_dPhi(EtaPhi_t iPhi_1, IPhi_t iPhi_2) {
   EtaPhi_t shiftediPhi_2 = iPhi_2 <= IPhi_t(36) ? EtaPhi_t(iPhi_2) : EtaPhi_t(iPhi_2 - INTPHI_2PI + 1);
 
@@ -958,7 +911,7 @@ l1tNNCaloTauEmulator::dEtaPhi_t l1tNNCaloTauEmulator::tw2cl_dPhi(EtaPhi_t iPhi_1
   fineiPhi_2 = fineiPhi_2 > EtaPhi_t(0) ? EtaPhi_t(fineiPhi_2 - (IETAPHI_LSB / ETAPHI_LSB) / 2)
                                         : EtaPhi_t(fineiPhi_2 + (IETAPHI_LSB / ETAPHI_LSB) / 2);
 
-  return dPhi(iPhi_1, fineiPhi_2);
+  return dPhi<dEtaPhi_t,EtaPhi_t>(iPhi_1, fineiPhi_2);
 }
 
 l1tNNCaloTauEmulator::dEtaPhi_t l1tNNCaloTauEmulator::tw2cl_dEta(EtaPhi_t iEta_1, IEta_t iEta_2) {
