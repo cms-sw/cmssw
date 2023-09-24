@@ -15,15 +15,18 @@
 //
 
 #include <string>
+// for string manipulations
+#include <fmt/printf.h>
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -101,6 +104,12 @@ private:
   MonitorElement* h_deltaCharge_{nullptr};
   MonitorElement* h_deltaFirstStrip_{nullptr};
   MonitorElement* h_deltaEndStrip_{nullptr};
+
+  MonitorElement* h2_CompareBarycenter_{nullptr};
+  MonitorElement* h2_CompareSize_{nullptr};
+  MonitorElement* h2_CompareCharge_{nullptr};
+  MonitorElement* h2_CompareFirstStrip_{nullptr};
+  MonitorElement* h2_CompareEndStrip_{nullptr};
 
   // Event Data
   edm::EDGetTokenT<SiStripApproximateClusterCollection> approxClustersToken_;
@@ -222,6 +231,13 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
           h_deltaCharge_->Fill(closestCluster->charge() - convertedCluster.charge());
           h_deltaFirstStrip_->Fill(closestCluster->firstStrip() - convertedCluster.firstStrip());
           h_deltaEndStrip_->Fill(closestCluster->endStrip() - convertedCluster.endStrip());
+
+          h2_CompareBarycenter_->Fill(closestCluster->barycenter(), convertedCluster.barycenter());
+          h2_CompareSize_->Fill(closestCluster->size(), convertedCluster.size());
+          h2_CompareCharge_->Fill(closestCluster->charge(), convertedCluster.charge());
+          h2_CompareFirstStrip_->Fill(closestCluster->firstStrip(), convertedCluster.firstStrip());
+          h2_CompareEndStrip_->Fill(closestCluster->endStrip(), convertedCluster.endStrip());
+
           // monitoring plots
           matchedClusters.fill(cluster);
           h_isMatched_->Fill(1);
@@ -251,6 +267,7 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
     matchedClusters.book(ibook, fmt::format("{}/MatchedClusters", folder_));
     unMatchedClusters.book(ibook, fmt::format("{}/UnmatchedClusters", folder_));
 
+    // 1D histograms
     ibook.setCurrentFolder(fmt::format("{}/ClusterComparisons", folder_));
     h_deltaBarycenter_ =
         ibook.book1D("deltaBarycenter", "#Delta barycenter;#Delta barycenter;cluster pairs", 101, -50.5, 50.5);
@@ -261,6 +278,66 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D("deltaFirstStrip", "#Delta FirstStrip; #Delta firstStrip;cluster pairs", 101, -50.5, 50.5);
     h_deltaEndStrip_ =
         ibook.book1D("deltaEndStrip", "#Delta EndStrip; #Delta endStrip; cluster pairs", 101, -50.5, 50.5);
+
+    // geometric constants
+    constexpr int maxNStrips = 6 * sistrip::STRIPS_PER_APV;
+    constexpr float minStrip = -0.5f;
+    constexpr float maxStrip = maxNStrips - 0.5f;
+
+    // cluster constants
+    constexpr float maxCluSize = 50;
+    constexpr float maxCluCharge = 700;
+
+    // 2D histograms (use TH2I for counts to limit memory allocation)
+    std::string toRep = "SiStrip Cluster Barycenter";
+    h2_CompareBarycenter_ = ibook.book2I("compareBarycenter",
+                                         fmt::sprintf("; %s;Approx %s", toRep, toRep),
+                                         maxNStrips,
+                                         minStrip,
+                                         maxStrip,
+                                         maxNStrips,
+                                         minStrip,
+                                         maxStrip);
+
+    toRep = "SiStrip Cluster Size";
+    h2_CompareSize_ = ibook.book2I("compareSize",
+                                   fmt::sprintf("; %s;Approx %s", toRep, toRep),
+                                   maxCluSize,
+                                   -0.5f,
+                                   maxCluSize - 0.5f,
+                                   maxCluSize,
+                                   -0.5f,
+                                   maxCluSize - 0.5f);
+
+    toRep = "SiStrip Cluster Charge";
+    h2_CompareCharge_ = ibook.book2I("compareCharge",
+                                     fmt::sprintf("; %s;Approx %s", toRep, toRep),
+                                     maxCluCharge,
+                                     -0.5f,
+                                     maxCluCharge - 0.5f,
+                                     maxCluCharge,
+                                     -0.5f,
+                                     maxCluCharge - 0.5f);
+
+    toRep = "SiStrip Cluster First Strip number";
+    h2_CompareFirstStrip_ = ibook.book2I("compareFirstStrip",
+                                         fmt::sprintf("; %s;Approx %s", toRep, toRep),
+                                         maxNStrips,
+                                         minStrip,
+                                         maxStrip,
+                                         maxNStrips,
+                                         minStrip,
+                                         maxStrip);
+
+    toRep = "SiStrip Cluster Last Strip number";
+    h2_CompareEndStrip_ = ibook.book2I("compareLastStrip",
+                                       fmt::sprintf("; %s;Approx %s", toRep, toRep),
+                                       maxNStrips,
+                                       minStrip,
+                                       maxStrip,
+                                       maxNStrips,
+                                       minStrip,
+                                       maxStrip);
 
     h_isMatched_ = ibook.book1D("isClusterMatched", "cluster matching;is matched?;#clusters", 3, -1.5, 1.5);
     h_isMatched_->getTH1F()->GetXaxis()->SetBinLabel(1, "Not matched");
