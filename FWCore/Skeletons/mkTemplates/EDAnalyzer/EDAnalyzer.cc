@@ -135,8 +135,8 @@ void __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   //Specify that only 'tracks' is allowed
   //To use, remove the default given above and uncomment below
-  //ParameterSetDescription desc;
-  //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
+  //edm::ParameterSetDescription desc;
+  //desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("ctfWithMaterialTracks"));
   //descriptions.addWithDefaultLabel(desc);
 }
 
