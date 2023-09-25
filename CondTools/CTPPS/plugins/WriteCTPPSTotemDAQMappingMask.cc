@@ -30,7 +30,7 @@
 class WriteCTPPSTotemDAQMappingMask : public edm::one::EDAnalyzer<> {
 public:
   WriteCTPPSTotemDAQMappingMask(const edm::ParameterSet &ps);
-  ~WriteCTPPSTotemDAQMappingMask() override {}
+  ~WriteCTPPSTotemDAQMappingMask() override = default;
 
 private:
   const cond::Time_t daqMappingIov_;
@@ -59,7 +59,8 @@ WriteCTPPSTotemDAQMappingMask::WriteCTPPSTotemDAQMappingMask(const edm::Paramete
 void WriteCTPPSTotemDAQMappingMask::analyze(const edm::Event &, edm::EventSetup const &es) {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-  if (auto mappingHandle = es.getHandle(tokenMapping_)) {
+  auto mappingHandle = es.getHandle(tokenMapping_);
+  if (!recordMap_.empty() && mappingHandle.isValid() && !mappingHandle.failedToGet()) {
     const auto &mapping = es.getData(tokenMapping_);
     std::stringstream output;
     mapping.print(output, label_);
@@ -73,10 +74,11 @@ void WriteCTPPSTotemDAQMappingMask::analyze(const edm::Event &, edm::EventSetup 
     }
 
   } else {
-    edm::LogError("WriteCTPPSTotemDAQMappingMask mapping") << "WriteCTPPSTotemDAQMappingMask: No mapping found";
+    edm::LogWarning("WriteCTPPSTotemDAQMappingMask mapping") << "WriteCTPPSTotemDAQMappingMask: No mapping found";
   }
 
-  if (auto maskHandle = es.getHandle(tokenAnalysisMask_)) {
+  auto maskHandle = es.getHandle(tokenAnalysisMask_);
+  if (!recordMask_.empty() && maskHandle.isValid() && !maskHandle.failedToGet()) {
     const auto &analysisMask = es.getData(tokenAnalysisMask_);
     edm::LogInfo("WriteCTPPSTotemDAQMappingMask mask") << analysisMask;
 
@@ -87,7 +89,7 @@ void WriteCTPPSTotemDAQMappingMask::analyze(const edm::Event &, edm::EventSetup 
           << "WriteCTPPSTotemDAQMappingMask: PoolDBService not availible. Data not written.";
     }
   } else {
-    edm::LogError("WriteCTPPSTotemDAQMappingMask mask") << "WriteCTPPSTotemDAQMappingMask: No analysis mask found";
+    edm::LogWarning("WriteCTPPSTotemDAQMappingMask mask") << "WriteCTPPSTotemDAQMappingMask: No analysis mask found";
   }
 }
 
