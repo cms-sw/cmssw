@@ -24,6 +24,21 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
+# Temporary override the tag for ECAL timing calibrations and timing offsets so that the online DQM uses the conditions for CC timing.
+# Should be removed once the HLT GTs contain both, the reco and HLT conditions.
+process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(record = cms.string("EcalTimeCalibConstantsRcd"),
+        tag = cms.string("EcalTimeCalibConstants_v01_prompt"),
+        label = cms.untracked.string(''),
+        connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    ),
+    cms.PSet(record = cms.string("EcalTimeOffsetConstantRcd"),
+        tag = cms.string("EcalTimeOffsetConstant_v01_express"),
+        label = cms.untracked.string(''),
+        connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    )
+)
+
 process.load("FWCore.Modules.preScaler_cfi")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
