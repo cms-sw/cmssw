@@ -354,7 +354,7 @@ namespace sistrip {
               scope_work_registry_.push_back(regItem);
             }
           } else {  // Unknown readout mode! => assume scope mode
-            warnings_.add(fmt::format("Unknown FED readout mode ({0})! Assuming SCOPE MODE...", mode));
+            warnings_.add(fmt::format("Unknown FED readout mode ({0})! Assuming SCOPE MODE...", int(mode)));
             Registry regItem(key, 0, scope_work_digis_.size(), 0);
             st_ch = fedchannelunpacker::unpackScope(fedChannel, std::back_inserter(scope_work_digis_));
             if (regItem.index != scope_work_digis_.size()) {
