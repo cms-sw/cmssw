@@ -13,9 +13,9 @@
   <class name="edm::RefProd<std::vector<SimTrack> >"/>
   <class name="edm::Ref<std::vector<SimTrack>,SimTrack,edm::refhelper::FindUsingAdvance<std::vector<SimTrack>,SimTrack> >"/>
   <class name="edm::RefVector<std::vector<SimTrack>,SimTrack,edm::refhelper::FindUsingAdvance<std::vector<SimTrack>,SimTrack> >"/>
-		<class name="UniqueSimTrackId"/>
-		<class name="std::pair<unsigned int, EncodedEventId>"/>
-		<class name="std::pair<UniqueSimTrackId, edm::Ref<std::vector<TrackingParticle>, TrackingParticle, edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>, TrackingParticle> > >"/>
+  <class name="UniqueSimTrackId"/>
+  <class name="std::pair<unsigned int, EncodedEventId>"/>
+  <class name="std::pair<UniqueSimTrackId, edm::Ref<std::vector<TrackingParticle>, TrackingParticle, edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>, TrackingParticle> > >"/>
   <class name="std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>"/>
   <class name="edm::Wrapper<std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>>"/>
   <class name="SimTrackToTPMap"/>
