@@ -12,13 +12,13 @@ import sys
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-fnames = ["root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL17NanoAODv9/DYJetsToLL_M-500to700_TuneCP5_13TeV-amcatnloFXFX-pythia8/NANOAODSIM/106X_mc2017_realistic_v9-v1/30000/B0F32031-B096-254E-9E65-68206AD35B5F.root"]
+fnames = ["file:/eos/cms/store/group/cat/datasets/NANOAODSIM/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v2/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/7B930101-EB91-4F4E-9B90-0861460DBD94.root"]
 
 p = PostProcessor(outputDir=".",
                   inputFiles=fnames,
                   cut="Jet_pt>150",
                   modules=[exampleModuleConstr()],
                   provenance=True,
-                  maxEntries=5000, #just read the first maxEntries events
+                  maxEntries=50000, #just read the first maxEntries events
                   )
 p.run()
