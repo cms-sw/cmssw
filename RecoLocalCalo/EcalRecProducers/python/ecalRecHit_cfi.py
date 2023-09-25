@@ -30,6 +30,10 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBLaserMAX = cms.double(3.0),
     EELaserMAX = cms.double(8.0),
 
+    # to select timing conditions record
+    timeCalibTag = cms.ESInputTag('', ''),
+    timeOffsetTag = cms.ESInputTag('', ''),
+
     # useful if time is not calculated, as at HLT                        
     skipTimeCalib = cms.bool(False),                         
 
