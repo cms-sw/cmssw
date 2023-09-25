@@ -114,7 +114,7 @@ process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
 # Customize for other type of runs
 
 # Cosmic run
-if (process.runType.getRunType() == process.runType.cosmic_run):
+if process.runType.getRunType() == process.runType.cosmic_run:
     # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
     process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
     process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
@@ -124,45 +124,47 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     process.l1tStage2EventInfoClient.DisableL1Systems = ["EMTF", "OMTF", "BMTF", "uGMT"]
 
 # Heavy-Ion run
-if (process.runType.getRunType() == process.runType.hi_run):
-    process.onlineMetaDataDigis.onlineMetaDataInputLabel = "rawDataRepacker"
-    process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = "rawDataRepacker"
-    process.castorDigis.InputLabel = "rawDataRepacker"
-    process.ctppsDiamondRawToDigi.rawDataTag = "rawDataRepacker"
-    process.ctppsPixelDigis.inputLabel = "rawDataRepacker"
-    process.ecalDigis.cpu.InputLabel = "rawDataRepacker"
-    process.ecalPreshowerDigis.sourceTag = "rawDataRepacker"
-    process.hcalDigis.InputLabel = "rawDataRepacker"
-    process.muonCSCDigis.InputObjects = "rawDataRepacker"
-    process.muonDTDigis.inputLabel = "rawDataRepacker"
-    process.muonRPCDigis.InputLabel = "rawDataRepacker"
-    process.muonGEMDigis.InputLabel = "rawDataRepacker"
-    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
-    process.siStripDigis.ProductLabel = "rawDataRepacker"
-    process.tcdsDigis.InputLabel = "rawDataRepacker"
-    process.tcdsRawToDigi.InputLabel = "rawDataRepacker"
-    process.totemRPRawToDigi.rawDataTag = "rawDataRepacker"
-    process.totemTimingRawToDigi.rawDataTag = "rawDataRepacker"
-    process.csctfDigis.producer = "rawDataRepacker"
-    process.dttfDigis.DTTF_FED_Source = "rawDataRepacker"
-    process.gctDigis.inputLabel = "rawDataRepacker"
-    process.gtDigis.DaqGtInputTag = "rawDataRepacker"
-    process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
-    process.bmtfDigis.InputLabel = "rawDataRepacker"
-    process.omtfStage2Digis.inputLabel = "rawDataRepacker"
-    process.emtfStage2Digis.InputLabel = "rawDataRepacker"
-    process.gmtStage2Digis.InputLabel = "rawDataRepacker"
-    process.caloLayer1Digis.InputLabel = "rawDataRepacker"
-    process.caloStage1Digis.InputLabel = "rawDataRepacker"
-    process.caloStage2Digis.InputLabel = "rawDataRepacker"
-    process.gtStage2Digis.InputLabel = "rawDataRepacker"
-    process.l1tStage2CaloLayer1.fedRawDataLabel = "rawDataRepacker"
-    process.l1tStage2BmtfZeroSupp.rawData = "rawDataRepacker"
-    process.l1tStage2BmtfZeroSuppFatEvts.rawData = "rawDataRepacker"
-    process.selfFatEventFilter.rawInput = "rawDataRepacker"
-    process.rpcTwinMuxRawToDigi.inputTag = "rawDataRepacker"
-    process.rpcCPPFRawToDigi.inputTag = "rawDataRepacker"
+if process.runType.getRunType() == process.runType.hi_run:
+    process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
+    rawDataRepackerLabel = 'rawDataRepacker'
+    process.onlineMetaDataDigis.onlineMetaDataInputLabel = rawDataRepackerLabel
+    process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = rawDataRepackerLabel
+    process.castorDigis.InputLabel = rawDataRepackerLabel
+    process.ctppsDiamondRawToDigi.rawDataTag = rawDataRepackerLabel
+    process.ctppsPixelDigis.inputLabel = rawDataRepackerLabel
+    process.ecalDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
+    process.hcalDigis.InputLabel = rawDataRepackerLabel
+    process.muonCSCDigis.InputObjects = rawDataRepackerLabel
+    process.muonDTDigis.inputLabel = rawDataRepackerLabel
+    process.muonRPCDigis.InputLabel = rawDataRepackerLabel
+    process.muonGEMDigis.InputLabel = rawDataRepackerLabel
+    process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
+    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siStripDigis.ProductLabel = rawDataRepackerLabel
+    process.tcdsDigis.InputLabel = rawDataRepackerLabel
+    process.tcdsRawToDigi.InputLabel = rawDataRepackerLabel
+    process.totemRPRawToDigi.rawDataTag = rawDataRepackerLabel
+    process.totemTimingRawToDigi.rawDataTag = rawDataRepackerLabel
+    process.csctfDigis.producer = rawDataRepackerLabel
+    process.dttfDigis.DTTF_FED_Source = rawDataRepackerLabel
+    process.gctDigis.inputLabel = rawDataRepackerLabel
+    process.gtDigis.DaqGtInputTag = rawDataRepackerLabel
+    process.twinMuxStage2Digis.DTTM7_FED_Source = rawDataRepackerLabel
+    process.bmtfDigis.InputLabel = rawDataRepackerLabel
+    process.omtfStage2Digis.inputLabel = rawDataRepackerLabel
+    process.emtfStage2Digis.InputLabel = rawDataRepackerLabel
+    process.gmtStage2Digis.InputLabel = rawDataRepackerLabel
+    process.caloLayer1Digis.InputLabel = rawDataRepackerLabel
+    process.caloStage1Digis.InputLabel = rawDataRepackerLabel
+    process.caloStage2Digis.InputLabel = rawDataRepackerLabel
+    process.gtStage2Digis.InputLabel = rawDataRepackerLabel
+    process.l1tStage2CaloLayer1.fedRawDataLabel = rawDataRepackerLabel
+    process.l1tStage2BmtfZeroSupp.rawData = rawDataRepackerLabel
+    process.l1tStage2BmtfZeroSuppFatEvts.rawData = rawDataRepackerLabel
+    process.selfFatEventFilter.rawInput = rawDataRepackerLabel
+    process.rpcTwinMuxRawToDigi.inputTag = rawDataRepackerLabel
+    process.rpcCPPFRawToDigi.inputTag = rawDataRepackerLabel
 
 #--------------------------------------------------
 # L1T Online DQM Schedule
