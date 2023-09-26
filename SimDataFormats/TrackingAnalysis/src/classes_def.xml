@@ -34,4 +34,10 @@
 
   <class name="std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> >" />
   <class name="std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double>" />
+  <class name="UniqueSimTrackId"/>
+  <class name="std::pair<UniqueSimTrackId, edm::Ref<std::vector<TrackingParticle>, TrackingParticle, edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>, TrackingParticle> > >"/>
+  <class name="std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>"/>
+  <class name="edm::Wrapper<std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>>"/>
+  <class name="SimTrackToTPMap"/>
+  <class name="edm::Wrapper<SimTrackToTPMap>"/>
 </lcgdict>

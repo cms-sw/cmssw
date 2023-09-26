@@ -15,7 +15,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "SimDataFormats/Track/interface/UniqueSimTrackId.h"
+#include "SimDataFormats/TrackingAnalysis/interface/UniqueSimTrackId.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

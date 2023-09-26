@@ -30,10 +30,11 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
-#include "SimDataFormats/Track/interface/UniqueSimTrackId.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/UniqueSimTrackId.h"
+
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "RecoHGCal/TICL/interface/commons.h"
