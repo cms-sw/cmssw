@@ -99,7 +99,7 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
     unsigned int unitID = hits[i].detID;
     edepositHAD = hits[i].DeHad;
     edepositEM = hits[i].DeEM;
-    currentID.setID(unitID, time, primaryID, 0);
+    currentID[0].setID(unitID, time, primaryID, 0);
     processHit(aStep);
 
 #ifdef EDM_ML_DEBUG
