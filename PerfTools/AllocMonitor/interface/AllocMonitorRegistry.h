@@ -57,6 +57,8 @@ namespace cms::perftools {
     friend void* ::calloc(size_t, size_t) noexcept;
     friend void* ::realloc(void*, size_t) noexcept;
     friend void* ::aligned_alloc(size_t, size_t) noexcept;
+    friend int ::posix_memalign(void**, size_t, size_t) noexcept;
+    friend void* ::memalign(size_t, size_t) noexcept;
     friend void ::free(void*) noexcept;
 
     friend void* ::operator new(std::size_t size);
@@ -118,12 +120,12 @@ namespace cms::perftools {
       return a;
     }
     template <typename DEALLOC, typename ACT>
-    void deallocCalled(DEALLOC iDealloc, ACT iGetActual) {
+    void deallocCalled(void* iPtr, DEALLOC iDealloc, ACT iGetActual) {
       [[maybe_unused]] Guard g = makeGuard();
-      if (g.running()) {
-        deallocCalled_(iGetActual());
+      if (g.running() and iPtr != nullptr) {
+        deallocCalled_(iGetActual(iPtr));
       }
-      iDealloc();
+      iDealloc(iPtr);
     }
 
     AllocMonitorRegistry();

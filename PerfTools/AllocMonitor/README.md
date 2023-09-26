@@ -77,3 +77,25 @@ bin is a power of 2 larger than the previous. The histograms made are
 - Amount of bytes actually returned by all deallocation calls
 
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
+
+### PeriodicAllocMonitor
+This service registers a monitor when the service is created (after python parsing is finished but before any modules
+have been loaded into cmsRun) and prints its accumulated information to the specified file at specified intervals. Both
+the file name and  interval are specified by setting parameters of the service in the configuration. The parameters are
+- filename: name of file to which to write reports
+- millisecondsPerMeasurement: number of milliseconds to wait between making each report
+
+The output file contains the following information on each line
+- The time, in milliseconds, since the service was created
+- The total number of Runs which have been started in the job
+- The total number of LuminosityBlocks which have been started
+- The total number of Events which have been started
+- The total number of Events which have finished
+- Total amount of bytes requested by all allocation calls since the service started
+- The maximum amount of _used_ (i.e. actual size) allocated memory that has been seen up to this point in the job
+- The amount of _used_ memory allocated at the time the report was made.
+- The largest single allocation request that has been seen up to the time of the report
+- Number of calls made to allocation functions
+- Number of calls made to deallocation functions
+
+This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
