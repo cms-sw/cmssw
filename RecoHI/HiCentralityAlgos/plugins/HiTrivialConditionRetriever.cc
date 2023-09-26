@@ -74,7 +74,6 @@ std::unique_ptr<CentralityTable> HiTrivialConditionRetriever::produceTable(const
   ifstream in(edm::FileInPath(inputFileName_).fullPath().c_str());
   string line;
 
-  int i = 0;
   while (getline(in, line)) {
     if (line.empty() || line[0] == '#') {
       continue;
@@ -84,7 +83,6 @@ std::unique_ptr<CentralityTable> HiTrivialConditionRetriever::produceTable(const
     ss >> thisBin.bin_edge >> thisBin.n_part.mean >> thisBin.n_part.var >> thisBin.n_coll.mean >> thisBin.n_coll.var >>
         thisBin.n_hard.mean >> thisBin.n_hard.var >> thisBin.b.mean >> thisBin.b.var;
     CT->m_table.push_back(thisBin);
-    i++;
   }
 
   return CT;
