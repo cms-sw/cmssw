@@ -29,7 +29,6 @@ phase1Pixel.toModify(siPixelDigiErrors,
     UsePhase1 = True
 )
 
-
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 (gpu & ~phase2_tracker).toReplaceWith(siPixelDigisTask, cms.Task(
@@ -42,3 +41,6 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
     # SwitchProducer wrapping the legacy pixel digis producer or an alias combining the pixel digis information converted from SoA
     siPixelDigisTask.copy()
 ))
+
+# Remove siPixelDigis until we have phase2 pixel digis
+phase2_tracker.toReplaceWith(siPixelDigisTask, cms.Task()) #FIXME
