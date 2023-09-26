@@ -30,10 +30,10 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/UniqueSimTrackId.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/Track/interface/UniqueSimTrackId.h"
 
 #include <unordered_set>
 
