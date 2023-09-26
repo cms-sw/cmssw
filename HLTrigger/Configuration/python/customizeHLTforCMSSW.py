@@ -237,6 +237,16 @@ def customizeHLTfor42497(process):
     return process
 
 
+def customizeHLTfor42869(process):
+    for prod in producers_by_type(process, 'EcalUncalibRecHitProducer'):
+        if prod.algoPSet.timealgo == "RatioMethod":
+            prod.algoPSet.timeCalibTag = cms.ESInputTag('', 'HLT')
+            prod.algoPSet.timeOffsetTag = cms.ESInputTag('', 'HLT')
+    for prod in producers_by_type(process, 'EcalUncalibRecHitProducerGPU'):
+        prod.timeCalibTag = cms.ESInputTag('', 'HLT')
+        prod.timeOffsetTag = cms.ESInputTag('', 'HLT')
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -247,5 +257,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor42514(process)
     process = customizeHLTfor42497(process)
+    process = customizeHLTfor42869(process)
 
     return process
