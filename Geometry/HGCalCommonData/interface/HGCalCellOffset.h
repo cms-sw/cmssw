@@ -16,9 +16,9 @@ public:
 private:
   const double sqrt3_ = std::sqrt(3.0);
   const double sqrt3By2_ = (0.5 * sqrt3_);
-  std::array<std::array<std::array<double, 6>, 3>, 2> offsetX, offsetY;
+  std::array<std::array<std::array<double, 6>, 4>, 2> offsetX, offsetY;
   int32_t ncell_[2];
-  double cellX_[2], cellY_[2], fullArea[2], cellArea[2][3];
+  double cellX_[2], cellY_[2], fullArea[2], cellArea[2][4];
   std::unique_ptr<HGCalCell> hgcalcell_;
 };
 

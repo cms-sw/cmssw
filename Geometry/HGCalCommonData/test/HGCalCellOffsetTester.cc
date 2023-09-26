@@ -59,7 +59,6 @@ private:
   const double waferSize_;
   const int waferType_;
   const int placeIndex_;
-  const int partialType_;
   const double mouseBiteCut_;
   const double guardRingOffset_;
 };
@@ -68,7 +67,6 @@ HGCalCellOffsetTester::HGCalCellOffsetTester(const edm::ParameterSet& iC)
     : waferSize_(iC.getParameter<double>("waferSize")),
       waferType_(iC.getParameter<int>("waferType")),
       placeIndex_(iC.getParameter<int>("cellPlacementIndex")),
-      partialType_(iC.getParameter<int>("partialType")),
       mouseBiteCut_(iC.getParameter<double>("mouseBiteCut")),
       guardRingOffset_(iC.getParameter<double>("guardRingOffset")) {
   edm::LogVerbatim("HGCalGeom") << "Test positions for wafer of size " << waferSize_ << " Type " << waferType_
@@ -81,7 +79,6 @@ void HGCalCellOffsetTester::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("waferSize", 166.4408);
   desc.add<int>("waferType", 0);
   desc.add<int>("cellPlacementIndex", 3);
-  desc.add<int>("partialType", 0);
   desc.add<double>("mouseBiteCut", 0.0);
   desc.add<double>("guardRingOffset", 0.0);
   descriptions.add("hgcalCellOffsetTester", desc);
@@ -104,13 +101,10 @@ void HGCalCellOffsetTester::analyze(const edm::Event&, const edm::EventSetup&) {
         std::pair<double, double> xyOffset = offset.cellOffsetUV2XY1(ui, vi, placeIndex_, waferType_);
         std::pair<int32_t, int32_t> uv1 =
             wafer.cellUVFromXY1(xy1.first, xy1.second, placeIndex_, waferType_, true, false);
-        std::pair<int32_t, int32_t> uv5 =
-            wafer.cellUVFromXY1(xy1.first, xy1.second, placeIndex_, waferType_, partialType_, true, false);
-        std::string comment = ((uv1.first != ui) || (uv1.second != vi) || (uv5.first != ui) || (uv5.second != vi))
-                                  ? " ***** ERROR (u, v) from the methods dosent match *****"
-                                  : "";
+        std::string comment =
+            ((uv1.first != ui) || (uv1.second != vi)) ? " ***** ERROR (u, v) from the methods dosent match *****" : "";
         edm::LogVerbatim("HGCalGeom") << "u = " << ui << " v = " << vi << " type = " << waferType_
-                                      << " placement index " << placeIndex_ << " u " << uv5.first << " v " << uv5.second
+                                      << " placement index " << placeIndex_ << " u " << uv1.first << " v " << uv1.second
                                       << " x " << xy1.first << " ,y " << xy1.second << " xoff " << xyOffset.first
                                       << " ,yoff " << xyOffset.second << comment;
       }

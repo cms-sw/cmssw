@@ -13,12 +13,15 @@ HGCalCellOffset::HGCalCellOffset(
   for (int k = 0; k < 2; ++k) {  // k refers to type of wafer fine or coarse
     cellX_[k] = waferSize / (3 * ncell_[k]);
     cellY_[k] = sqrt3By2_ * cellX_[k];
-    fullArea[k] = 3 * sqrt3By2_ * cellY_[k];
-    //std::array<std::array<double, 6>, 3> tempOffsetX;
-    //std::array<std::array<double, 6>, 3> tempOffsetY;
     // For formulas used please refer to https://indico.cern.ch/event/1297259/contributions/5455745/attachments/2667954/4722855/Cell_centroid.pdf
-    for (int j = 0; j < 3; ++j) {  // j refers to type of cell : corner, truncated, extended
-      if (j == 0) {                // Offset for corner cells
+    for (int j = 0; j < 4; ++j) {  // j refers to type of cell : corner, truncated, extended
+      if (j == HGCalCell::fullCell) {
+        for (int i = 0; i < 6; ++i) {
+          offsetX[k][j][i] = 0.0;
+          offsetY[k][j][i] = 0.0;
+          cellArea[k][j] = 3 * sqrt3By2_ * cellY_[k];
+        }
+      } else if (j == HGCalCell::cornerCell) {                              // Offset for corner cells
         double totalArea = (11.0 * sqrt3_ / 8.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
         double cutArea1 = (cellY_[k] * sqrt3_ * guardRingOffset_) - (std::pow(guardRingOffset_, 2) / (2 * sqrt3_));
         double cutArea2 = (cellY_[k] * sqrt3By2_ * guardRingOffset_) - (std::pow(guardRingOffset_, 2) / (2 * sqrt3_));
@@ -66,7 +69,7 @@ HGCalCellOffset::HGCalCellOffset(
           offsetX[k][j][i] = tempOffsetX[i];
           offsetY[k][j][i] = tempOffsetY[i];
         }
-      } else if (j == 1) {                                                 // Offset for truncated cells
+      } else if (j == HGCalCell::truncatedCell) {                          // Offset for truncated cells
         double totalArea = (5.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
         double cutArea =
             cellY_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
@@ -84,7 +87,7 @@ HGCalCellOffset::HGCalCellOffset(
           offsetX[k][j][i] = tempOffsetX[i];
           offsetY[k][j][i] = tempOffsetY[i];
         }
-      } else if (j == 2) {                                                 //Offset for truncated cells
+      } else if (j == HGCalCell::extendedCell) {                           //Offset for extended cells
         double totalArea = (7.0 * sqrt3_ / 4.0) * std::pow(cellY_[k], 2);  // Area of cell without any dead zone
         double cutArea =
             cellY_[k] * sqrt3_ * guardRingOffset_;  // Area of inactive region form guardring and other effects
@@ -121,8 +124,8 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(int32_t u, int32_t v
   int cellPos = cell.first;
   int cellType = cell.second;
   if (cellType == HGCalCell::truncatedCell || cellType == HGCalCell::extendedCell) {
-    x_off = offsetX[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomLeftEdge];
-    y_off = offsetY[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomLeftEdge];
+    x_off = offsetX[type][cellType][cellPos - HGCalCell::bottomLeftEdge];
+    y_off = offsetY[type][cellType][cellPos - HGCalCell::bottomLeftEdge];
   } else if (cellType == HGCalCell::cornerCell) {
     // The offset fo corner cells, is flipped along y-axis for 60 degree rotation of wafer
     // and from forward to backward wafers
@@ -130,8 +133,8 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(int32_t u, int32_t v
         ((placementIndex < HGCalCell::cellPlacementExtra) && (placementIndex % 2 == 1))) {
       cellPos = HGCalCell::bottomCorner + (6 + HGCalCell::bottomCorner - cellPos) % 6;
     }
-    x_off = offsetX[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomCorner];
-    y_off = offsetY[type][cellType - HGCalCell::cornerCell][cellPos - HGCalCell::bottomCorner];
+    x_off = offsetX[type][cellType][cellPos - HGCalCell::bottomCorner];
+    y_off = offsetY[type][cellType][cellPos - HGCalCell::bottomCorner];
     if (((placementIndex >= HGCalCell::cellPlacementExtra) && (placementIndex % 2 == 0)) ||
         ((placementIndex < HGCalCell::cellPlacementExtra) && (placementIndex % 2 == 1))) {
       x_off = -1 * x_off;
@@ -150,11 +153,7 @@ double HGCalCellOffset::cellAreaUV(int32_t u, int32_t v, int32_t placementIndex,
   double area(0);
   std::pair<int, int> cell = hgcalcell_->cellType(u, v, ncell_[type], placementIndex);
   int cellType = cell.second;
-  if (cellType == HGCalCell::fullCell) {
-    area = fullArea[type];
-  } else {
-    area = cellArea[type][cellType - HGCalCell::cornerCell];
-  }
+  area = cellArea[type][cellType];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCellOffset in wafer with placement index " << placementIndex << " type "
                                 << type << " for cell u " << u << " v " << v << " Area " << area;
