@@ -212,6 +212,7 @@ namespace pixelgpudetails {
         if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
           if constexpr (debug)
             printf("...2nd errorType=29 error, skip\n");
+          break;
         }
         errorFound = true;
         break;
