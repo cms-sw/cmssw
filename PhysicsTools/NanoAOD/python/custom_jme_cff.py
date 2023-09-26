@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
-from CommonTools.PileupAlgos.Puppi_cff import puppi
-
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdCalculator, pileupJetId
 from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
@@ -124,28 +122,28 @@ nanoInfo_recojets = {
 }
 
 GENJETVARS = cms.PSet(P4Vars,
-  nConstituents   = jetTable.variables.nConstituents,
+  nConstituents   = jetPuppiTable.variables.nConstituents,
 )
 PFJETVARS = cms.PSet(P4Vars,
-  rawFactor       = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
-  area            = jetTable.variables.area,
-  chHEF           = jetTable.variables.chHEF,
-  neHEF           = jetTable.variables.neHEF,
-  chEmEF          = jetTable.variables.chEmEF,
-  neEmEF          = jetTable.variables.neEmEF,
-  muEF            = jetTable.variables.muEF,
-  hfHEF           = Var("HFHadronEnergyFraction()",float,doc = "hadronic energy fraction in HF",precision = 6),
-  hfEmEF          = Var("HFEMEnergyFraction()",float,doc = "electromagnetic energy fraction in HF",precision = 6),
-  nMuons          = jetTable.variables.nMuons,
-  nElectrons      = jetTable.variables.nElectrons,
-  nConstituents   = jetTable.variables.nConstituents,
-  nConstChHads    = Var("chargedHadronMultiplicity()",int,doc="number of charged hadrons in the jet"),
-  nConstNeuHads   = Var("neutralHadronMultiplicity()",int,doc="number of neutral hadrons in the jet"),
-  nConstHFHads    = Var("HFHadronMultiplicity()", int,doc="number of HF hadrons in the jet"),
-  nConstHFEMs     = Var("HFEMMultiplicity()",int,doc="number of HF EMs in the jet"),
-  nConstMuons     = Var("muonMultiplicity()",int,doc="number of muons in the jet"),
-  nConstElecs     = Var("electronMultiplicity()",int,doc="number of electrons in the jet"),
-  nConstPhotons   = Var("photonMultiplicity()",int,doc="number of photons in the jet"),
+  rawFactor     = jetPuppiTable.variables.rawFactor,
+  area          = jetPuppiTable.variables.area,
+  chHEF         = jetPuppiTable.variables.chHEF,
+  neHEF         = jetPuppiTable.variables.neHEF,
+  chEmEF        = jetPuppiTable.variables.chEmEF,
+  neEmEF        = jetPuppiTable.variables.neEmEF,
+  muEF          = jetPuppiTable.variables.muEF,
+  hfHEF         = Var("HFHadronEnergyFraction()",float,doc="hadronic Energy Fraction in HF",precision= 6),
+  hfEmEF        = Var("HFEMEnergyFraction()",float,doc="electromagnetic Energy Fraction in HF",precision= 6),
+  nMuons        = jetPuppiTable.variables.nMuons,
+  nElectrons    = jetPuppiTable.variables.nElectrons,
+  nConstituents = jetPuppiTable.variables.nConstituents,
+  chHadMultiplicity = Var("chargedHadronMultiplicity()","int16",doc="(Puppi-weighted) number of charged hadrons in the jet"),
+  neHadMultiplicity = Var("neutralHadronMultiplicity()","int16",doc="(Puppi-weighted) number of neutral hadrons in the jet"),
+  hfHadMultiplicity = Var("HFHadronMultiplicity()", "int16",doc="(Puppi-weighted) number of HF hadrons in the jet"),
+  hfEMMultiplicity  = Var("HFEMMultiplicity()","int16",doc="(Puppi-weighted) number of HF EMs in the jet"),
+  muMultiplicity    = Var("muonMultiplicity()","int16",doc="(Puppi-weighted) number of muons in the jet"),
+  elMultiplicity    = Var("electronMultiplicity()","int16",doc="(Puppi-weighted) number of electrons in the jet"),
+  phoMultiplicity   = Var("photonMultiplicity()","int16",doc="(Puppi-weighted) number of photons in the jet"),
 )
 PUIDVARS = cms.PSet(
   puId_dR2Mean    = Var("?(pt>=10)?userFloat('puId_dR2Mean'):-1",float,doc="pT^2-weighted average square distance of jet constituents from the jet axis (PileUp ID BDT input variable)", precision=14),
@@ -160,12 +158,12 @@ PUIDVARS = cms.PSet(
   puId_pull       = Var("?(pt>=10)?userFloat('puId_pull'):-1",float,doc="magnitude of pull vector (PileUp ID BDT input variable)", precision=14),
   puId_jetR       = Var("?(pt>=10)?userFloat('puId_jetR'):-1",float,doc="fraction of jet pT carried by the leading constituent (PileUp ID BDT input variable)", precision=14),
   puId_jetRchg    = Var("?(pt>=10)?userFloat('puId_jetRchg'):-1",float,doc="fraction of jet pT carried by the leading charged constituent (PileUp ID BDT input variable)", precision=14),
-  puId_nCharged   = Var("?(pt>=10)?userInt('puId_nCharged'):-1",int,doc="number of charged constituents (PileUp ID BDT input variable)"),
+  puId_nCharged   = Var("?(pt>=10)?userInt('puId_nCharged'):-1","int16",doc="number of charged constituents (PileUp ID BDT input variable)"),
 )
 QGLVARS = cms.PSet(
   qgl_axis2       =  Var("?(pt>=10)?userFloat('qgl_axis2'):-1",float,doc="ellipse minor jet axis (Quark vs Gluon likelihood input variable)", precision=14),
   qgl_ptD         =  Var("?(pt>=10)?userFloat('qgl_ptD'):-1",float,doc="pT-weighted average pT of constituents (Quark vs Gluon likelihood input variable)", precision=14),
-  qgl_mult        =  Var("?(pt>=10)?userInt('qgl_mult'):-1", int,doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)"),
+  qgl_mult        =  Var("?(pt>=10)?userInt('qgl_mult'):-1", "int16",doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)"),
 )
 BTAGVARS = cms.PSet(
   btagDeepB = Var("?(pt>=15)&&((bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0)?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
@@ -200,8 +198,8 @@ PARTICLENETAK4VARS = cms.PSet(
 )
 
 CALOJETVARS = cms.PSet(P4Vars,
-  area      = jetTable.variables.area,
-  rawFactor = jetTable.variables.rawFactor,
+  area      = jetPuppiTable.variables.area,
+  rawFactor = jetPuppiTable.variables.rawFactor,
   emf       = Var("emEnergyFraction()", float, doc = "electromagnetic energy fraction", precision = 10),
 )
 
@@ -233,7 +231,7 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   setattr(proc, tightJetId, proc.tightJetId.clone(
       src = jetSrc,
       filterParams = proc.tightJetId.filterParams.clone(
-        version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
+        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
       ),
     )
   )
@@ -242,9 +240,21 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   setattr(proc, tightJetIdLepVeto, proc.tightJetIdLepVeto.clone(
       src = jetSrc,
       filterParams = proc.tightJetIdLepVeto.filterParams.clone(
-        version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
+        version = "RUN3WINTER22{}".format("PUPPI" if isPUPPIJet else "CHS")
       ),
     )
+  )
+
+  run3_jme_Winter22runsBCDEprompt.toModify(
+    getattr(proc, tightJetId).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN3WINTER22{}runsBCDEprompt".format("PUPPI" if isPUPPIJet else "CHS")
+  )
+
+  (run2_jme_2017 | run2_jme_2018 | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    getattr(proc, tightJetId).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL{}".format("PUPPI" if isPUPPIJet else "CHS")
   )
 
   run2_jme_2016.toModify(
@@ -284,7 +294,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName
       vertexes  = "offlineSlimmedPrimaryVertices",
       inputIsCorrected = True,
       applyJec  = False,
-      srcConstituentWeights = "packedPFCandidatespuppi" if "PUPPI" in jetName.upper() else ""
+      srcConstituentWeights = "packedpuppi" if "PUPPI" in jetName.upper() else ""
     )
   )
   getattr(proc,jetTaskName).add(getattr(proc, puJetIdVarsCalculator))
@@ -354,7 +364,7 @@ def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName="
       )
     )
     if isPUPPIJet:
-      getattr(proc,QGLTagger).srcConstituentWeights = cms.InputTag("packedPFCandidatespuppi")
+      getattr(proc,QGLTagger).srcConstituentWeights = cms.InputTag("packedpuppi")
 
   #
   # Save variables as userFloats and userInts for each jet
@@ -654,7 +664,7 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.corrT1METJetPuppiTable.cut = "pt>=8 && pt<15 && abs(eta)<9.9"
 
   #
-  # Jet table 
+  # Jet table
   #
   # For Run-2 eras, the main AK4 jet collection in NanoAOD is the CHS collection
   run2_nanoAOD_ANY.toModify(
@@ -665,7 +675,7 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
     name = "JetPuppi",
     src = cms.InputTag("finalJetsPuppi")
   )
-  
+
   #
   # Jet table documentation
   #
@@ -679,15 +689,13 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   #
   # Add variables
   #
-  proc.jetPuppiTable.variables.hfHEF         = PFJETVARS.hfHEF
-  proc.jetPuppiTable.variables.hfEmEF        = PFJETVARS.hfEmEF
-  proc.jetPuppiTable.variables.nConstChHads  = PFJETVARS.nConstChHads
-  proc.jetPuppiTable.variables.nConstNeuHads = PFJETVARS.nConstNeuHads
-  proc.jetPuppiTable.variables.nConstHFHads  = PFJETVARS.nConstHFHads
-  proc.jetPuppiTable.variables.nConstHFEMs   = PFJETVARS.nConstHFEMs
-  proc.jetPuppiTable.variables.nConstMuons   = PFJETVARS.nConstMuons
-  proc.jetPuppiTable.variables.nConstElecs   = PFJETVARS.nConstElecs
-  proc.jetPuppiTable.variables.nConstPhotons = PFJETVARS.nConstPhotons
+  proc.jetPuppiTable.variables.chHadMultiplicity = PFJETVARS.chHadMultiplicity
+  proc.jetPuppiTable.variables.neHadMultiplicity = PFJETVARS.neHadMultiplicity
+  proc.jetPuppiTable.variables.hfHadMultiplicity = PFJETVARS.hfHadMultiplicity
+  proc.jetPuppiTable.variables.hfEMMultiplicity  = PFJETVARS.hfEMMultiplicity
+  proc.jetPuppiTable.variables.muMultiplicity    = PFJETVARS.muMultiplicity
+  proc.jetPuppiTable.variables.elMultiplicity    = PFJETVARS.elMultiplicity
+  proc.jetPuppiTable.variables.phoMultiplicity   = PFJETVARS.phoMultiplicity
 
   #
   # Add variables for pileup jet ID studies.
@@ -774,6 +782,11 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   """
   print("custom_jme_cff::ReclusterAK4CHSJets: Recluster AK4 PF CHS jets")
 
+  bTagDiscriminatorsForAK4CHS = cms.PSet(
+    foo = cms.vstring(_pfParticleNetAK4JetTagsAll)
+  )
+  bTagDiscriminatorsForAK4CHS = bTagDiscriminatorsForAK4CHS.foo.value()
+
   #
   # Recluster AK4 CHS jets
   #
@@ -781,7 +794,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
     "jet" : "ak4pfchs",
     "inputCollection" : "",
     "genJetsCollection": "AK4GenJetsNoNu",
-    "bTagDiscriminators": bTagDiscriminatorsForAK4,
+    "bTagDiscriminators": bTagDiscriminatorsForAK4CHS,
     "minPtFastjet" : 0.,
   }
   recoJetInfo = recoJA.addRecoJetCollection(proc, **cfg)
@@ -801,15 +814,15 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   finalJetsCut = ""
   if runOnMC:
-    finalJetsCut = "(pt >= 8) || ((pt < 8) && (genJetFwdRef().backRef().isNonnull()))"
+    finalJetsCut = "(pt >= 10) || ((pt < 10) && (genJetFwdRef().backRef().isNonnull()))"
   else:
-    finalJetsCut = "(pt >= 8)"
+    finalJetsCut = "(pt >= 10)"
 
   proc.finalJets.cut = finalJetsCut
   #
   # Add a minimum pt cut for corrT1METJets.
   #
-  proc.corrT1METJetTable.cut = "pt>=8 && pt<15 && abs(eta)<9.9"
+  proc.corrT1METJetTable.cut = "pt>=10 && pt<15 && abs(eta)<9.9"
 
   #
   # Jet table cut
@@ -832,9 +845,9 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   # Jet table documentation
   #
-  jetTableDoc = "AK4 PF CHS jets with JECs applied. Jets with pt >= 8 GeV are stored."
+  jetTableDoc = "AK4 PF CHS jets with JECs applied. Jets with pt >= 10 GeV are stored."
   if runOnMC:
-    jetTableDoc += "For jets with pt < 8 GeV, only those matched to AK4 Gen jets are stored."
+    jetTableDoc += "For jets with pt < 10 GeV, only those matched to AK4 Gen jets are stored."
   proc.jetTable.doc   = jetTableDoc
 
   proc.jetTable.variables.rawFactor.precision = 10
@@ -842,15 +855,13 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   #
   # Add variables
   #
-  proc.jetTable.variables.hfHEF         = PFJETVARS.hfHEF
-  proc.jetTable.variables.hfEmEF        = PFJETVARS.hfEmEF
-  proc.jetTable.variables.nConstChHads  = PFJETVARS.nConstChHads
-  proc.jetTable.variables.nConstNeuHads = PFJETVARS.nConstNeuHads
-  proc.jetTable.variables.nConstHFHads  = PFJETVARS.nConstHFHads
-  proc.jetTable.variables.nConstHFEMs   = PFJETVARS.nConstHFEMs
-  proc.jetTable.variables.nConstMuons   = PFJETVARS.nConstMuons
-  proc.jetTable.variables.nConstElecs   = PFJETVARS.nConstElecs
-  proc.jetTable.variables.nConstPhotons = PFJETVARS.nConstPhotons
+  proc.jetTable.variables.chHadMultiplicity = PFJETVARS.chHadMultiplicity
+  proc.jetTable.variables.neHadMultiplicity = PFJETVARS.neHadMultiplicity
+  proc.jetTable.variables.hfHadMultiplicity = PFJETVARS.hfHadMultiplicity
+  proc.jetTable.variables.hfEMMultiplicity  = PFJETVARS.hfEMMultiplicity
+  proc.jetTable.variables.muMultiplicity    = PFJETVARS.muMultiplicity
+  proc.jetTable.variables.elMultiplicity    = PFJETVARS.elMultiplicity
+  proc.jetTable.variables.phoMultiplicity   = PFJETVARS.phoMultiplicity
 
   #
   # Add charged energy fraction from other primary vertices
@@ -862,46 +873,6 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.chFPV2EF = Var("userFloat('chFPV2EF')", float, doc="charged fromPV==2 Energy Fraction (component of the total charged Energy Fraction).", precision= 6)
   proc.jetTable.variables.chFPV3EF = Var("userFloat('chFPV3EF')", float, doc="charged fromPV==3 Energy Fraction (component of the total charged Energy Fraction).", precision= 6)
 
-  #
-  # Add variables for pileup jet ID studies.
-  #
-  proc = AddPileUpJetIDVars(proc,
-    jetName = jetName,
-    jetSrc = "updatedJets",
-    jetTableName = "jetTable",
-    jetTaskName = "jetTask"
-  )
-  #
-  # Add variables for quark guon likelihood tagger studies.
-  # Save variables as userFloats and userInts in each jet
-  #
-  proc.updatedJetsWithUserData.userFloats.qgl_axis2 = cms.InputTag("qgtagger:axis2")
-  proc.updatedJetsWithUserData.userFloats.qgl_ptD   = cms.InputTag("qgtagger:ptD")
-  proc.updatedJetsWithUserData.userInts.qgl_mult    = cms.InputTag("qgtagger:mult")
-  #
-  # Save quark gluon likelihood input variables variables
-  #
-  proc.jetTable.variables.qgl_axis2 =  QGLVARS.qgl_axis2
-  proc.jetTable.variables.qgl_ptD   =  QGLVARS.qgl_ptD
-  proc.jetTable.variables.qgl_mult  =  QGLVARS.qgl_mult
-  #
-  # Save standard b-tagging and c-tagging variables
-  #
-  proc.jetTable.variables.btagDeepB = BTAGVARS.btagDeepB
-  proc.jetTable.variables.btagDeepCvL = BTAGVARS.btagDeepCvL
-  proc.jetTable.variables.btagDeepCvB = BTAGVARS.btagDeepCvB
-  #
-  # Save DeepJet b-tagging and c-tagging variables
-  #
-  proc.jetTable.variables.btagDeepFlavB    = DEEPJETVARS.btagDeepFlavB
-  proc.jetTable.variables.btagDeepFlavCvL  = DEEPJETVARS.btagDeepFlavCvL
-  proc.jetTable.variables.btagDeepFlavCvB  = DEEPJETVARS.btagDeepFlavCvB
-  #
-  # Save DeepJet raw score for gluon and light quarks
-  #
-  proc.jetTable.variables.btagDeepFlavG   = DEEPJETVARS.btagDeepFlavG
-  proc.jetTable.variables.btagDeepFlavUDS = DEEPJETVARS.btagDeepFlavUDS
-  proc.jetTable.variables.btagDeepFlavQG  = DEEPJETVARS.btagDeepFlavQG
   #
   # Save RobustParTAK4 b-tagging and c-tagging variables
   #
@@ -934,7 +905,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
 
   #
   # Since AK4 Puppi jet is the main AK4 jet collection for Run-3, disable
-  # b-jets/c-jets NN-based mass regression for AK4 CHS.  
+  # b-jets/c-jets NN-based mass regression for AK4 CHS.
   #
   (~run2_nanoAOD_ANY).toReplaceWith(
     proc.jetUserDataTask,
@@ -1069,13 +1040,13 @@ def AddVariablesForAK8PuppiJets(proc):
   proc.fatJetTable.variables.muEF   = Var("?isPFJet()?muonEnergyFraction():-1", float, doc="muon Energy Fraction", precision = 6)
   proc.fatJetTable.variables.hfHEF  = Var("?isPFJet()?HFHadronEnergyFraction():-1", float, doc="energy fraction in forward hadronic calorimeter", precision = 6)
   proc.fatJetTable.variables.hfEmEF = Var("?isPFJet()?HFEMEnergyFraction():-1", float, doc="energy fraction in forward EM calorimeter", precision = 6)
-  proc.fatJetTable.variables.nConstChHads   = Var("?isPFJet()?chargedHadronMultiplicity():-1",int, doc="number of charged hadrons in the jet")
-  proc.fatJetTable.variables.nConstNeuHads  = Var("?isPFJet()?neutralHadronMultiplicity():-1",int, doc="number of neutral hadrons in the jet")
-  proc.fatJetTable.variables.nConstHFHads   = Var("?isPFJet()?HFHadronMultiplicity():-1", int, doc="number of HF Hadrons in the jet")
-  proc.fatJetTable.variables.nConstHFEMs    = Var("?isPFJet()?HFEMMultiplicity():-1", int, doc="number of HF EMs in the jet")
-  proc.fatJetTable.variables.nConstMuons    = Var("?isPFJet()?muonMultiplicity():-1", int, doc="number of muons in the jet")
-  proc.fatJetTable.variables.nConstElecs    = Var("?isPFJet()?electronMultiplicity():-1", int, doc="number of electrons in the jet")
-  proc.fatJetTable.variables.nConstPhotons  = Var("?isPFJet()?photonMultiplicity():-1", int, doc="number of photons in the jet")
+  proc.fatJetTable.variables.chHadMultiplicity = Var("?isPFJet()?chargedHadronMultiplicity():-1","int16", doc="(Puppi-weighted) number of charged hadrons in the jet")
+  proc.fatJetTable.variables.neHadMultiplicity = Var("?isPFJet()?neutralHadronMultiplicity():-1","int16", doc="(Puppi-weighted) number of neutral hadrons in the jet")
+  proc.fatJetTable.variables.hfHadMultiplicity = Var("?isPFJet()?HFHadronMultiplicity():-1", "int16", doc="(Puppi-weighted) number of HF Hadrons in the jet")
+  proc.fatJetTable.variables.hfEMMultiplicity  = Var("?isPFJet()?HFEMMultiplicity():-1", "int16", doc="(Puppi-weighted) number of HF EMs in the jet")
+  proc.fatJetTable.variables.muMultiplicity    = Var("?isPFJet()?muonMultiplicity():-1", "int16", doc="(Puppi-weighted) number of muons in the jet")
+  proc.fatJetTable.variables.elMultiplicity    = Var("?isPFJet()?electronMultiplicity():-1", "int16", doc="(Puppi-weighted) number of electrons in the jet")
+  proc.fatJetTable.variables.phoMultiplicity   = Var("?isPFJet()?photonMultiplicity():-1", "int16", doc="(Puppi-weighted) number of photons in the jet")
 
   return proc
 #******************************************
@@ -1158,6 +1129,7 @@ def ReclusterAK4GenJets(proc, genJA):
   #
   cfg = {
     "jet" : "ak4gen",
+    "minPtFastjet" : 5.
   }
   genJetInfo = genJA.addGenJetCollection(proc, **cfg)
 
@@ -1173,7 +1145,7 @@ def ReclusterAK4GenJets(proc, genJA):
   #
   proc.genJetTable.src = selectedGenJets
   proc.genJetTable.cut = "" # No cut specified here. Save all gen jets after clustering
-  proc.genJetTable.doc = "AK4 Gen jets (made with visible genparticles) with pt > 3 GeV" # default pt cut after clustering is 3 GeV
+  proc.genJetTable.doc = "AK4 Gen jets (made with visible genparticles) with pt > 5 GeV"
 
   genJetFlavourAssociationName = "genJet{}FlavourAssociation".format(genJetName)
   setattr(proc, genJetFlavourAssociationName, genJetFlavourAssociation.clone(
@@ -1196,6 +1168,7 @@ def AddNewAK8GenJetsForJEC(proc, genJA):
   #
   cfg = {
     "jet" : "ak8gen",
+    "minPtFastjet" : 10.
   }
   genJetInfo = genJA.addGenJetCollection(proc, **cfg)
 
@@ -1205,7 +1178,7 @@ def AddNewAK8GenJetsForJEC(proc, genJA):
   genJetSizeNr       = genJetInfo.jetSizeNr
   genJetFinalColl    = "{}{}{}".format(genJetAlgo.upper(), genJetSize, "GenJetsNoNu")
   genJetTablePrefix  = "GenJetAK8ForJEC"
-  genJetTableDoc     = "AK8 Gen jets (made with visible genparticles) with pt > 3 GeV. Reclustered for JEC studies."
+  genJetTableDoc     = "AK8 Gen jets (made with visible genparticles) with pt > 10 GeV. Reclustered for JEC studies."
 
   SaveGenJets(proc, genJetName, genJetAlgo, genJetSizeNr, genJetFinalColl, genJetTablePrefix, genJetTableDoc, runOnMC=False)
 
@@ -1294,10 +1267,6 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   ###########################################################################
   process = AddNewAK8PuppiJetsForJEC(process, recoJA, runOnMC)
   ###########################################################################
-  # Build a AK8CHS jet collection for JEC studies
-  ###########################################################################
-  process = AddNewAK8CHSJets(process, recoJA, runOnMC)
-  ###########################################################################
   # Recluster AK4 CHS jets and replace "slimmedJets"
   ###########################################################################
   process = ReclusterAK4CHSJets(process, recoJA, runOnMC)
@@ -1337,7 +1306,7 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     jmeNano_addAK4CHS_switch = False,
     jmeNano_addAK4Puppi_switch = True
   )
-  process = addAK4JetTasks(process, 
+  process = addAK4JetTasks(process,
     addAK4CHSJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4CHS_switch,
     addAK4PuppiJetTasks = jmeNano_addAK4JetTasks_switch.jmeNano_addAK4Puppi_switch,
   )
