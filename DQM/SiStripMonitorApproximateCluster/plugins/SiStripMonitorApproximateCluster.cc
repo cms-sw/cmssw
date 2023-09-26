@@ -48,8 +48,11 @@ namespace siStripRawPrime {
     void fill(const SiStripApproximateCluster& cluster) {
       h_barycenter_->Fill(cluster.barycenter());
       h_width_->Fill(cluster.width());
+      h_charge_->Fill(cluster.width() * cluster.avgCharge());  // see SiStripCluster constructor
       h_avgCharge_->Fill(cluster.avgCharge());
       h_isSaturated_->Fill(cluster.isSaturated() ? 1 : -1);
+      h_passFilter_->Fill(cluster.filter() ? 1 : -1);
+      h_passPeakFilter_->Fill(cluster.peakFilter() ? 1 : -1);
     }
 
     void book(dqm::implementation::DQMStore::IBooker& ibook, const std::string& folder) {
@@ -57,11 +60,24 @@ namespace siStripRawPrime {
       h_barycenter_ =
           ibook.book1D("clusterBarycenter", "cluster barycenter;cluster barycenter;#clusters", 7680., 0., 7680.);
       h_width_ = ibook.book1D("clusterWidth", "cluster width;cluster width;#clusters", 128, -0.5, 127.5);
-      h_avgCharge_ =
-          ibook.book1D("clusterAvgCharge", "average strip charge;average strip charge;#clusters", 256, -0.5, 255.5);
+      h_avgCharge_ = ibook.book1D(
+          "clusterAvgCharge", "average strip charge;average strip charge [ADC counts];#clusters", 256, -0.5, 255.5);
+
+      h_charge_ = ibook.book1D(
+          "clusterCharge", "total cluster charge;total cluster charge [ADC counts];#clusters", 300, -0.5, 2999.5);
+
       h_isSaturated_ = ibook.book1D("clusterSaturation", "cluster saturation;is saturated?;#clusters", 3, -1.5, 1.5);
-      h_isSaturated_->getTH1F()->GetXaxis()->SetBinLabel(1, "Not saturated");
-      h_isSaturated_->getTH1F()->GetXaxis()->SetBinLabel(3, "Saturated");
+      h_isSaturated_->setBinLabel(1, "Not saturated");
+      h_isSaturated_->setBinLabel(3, "Saturated");
+
+      h_passFilter_ = ibook.book1D("filter", "filter;passes filter?;#clusters", 3, -1.5, 1.5);
+      h_passFilter_->setBinLabel(1, "No");
+      h_passFilter_->setBinLabel(3, "Yes");
+
+      h_passPeakFilter_ = ibook.book1D("peakFilter", "peak filter;passes peak filter?;#clusters", 3, -1.5, 1.5);
+      h_passPeakFilter_->setBinLabel(1, "No");
+      h_passPeakFilter_->setBinLabel(3, "Yes");
+
       isBooked_ = true;
     }
 
@@ -71,7 +87,10 @@ namespace siStripRawPrime {
     dqm::reco::MonitorElement* h_barycenter_;
     dqm::reco::MonitorElement* h_width_;
     dqm::reco::MonitorElement* h_avgCharge_;
+    dqm::reco::MonitorElement* h_charge_;
     dqm::reco::MonitorElement* h_isSaturated_;
+    dqm::reco::MonitorElement* h_passFilter_;
+    dqm::reco::MonitorElement* h_passPeakFilter_;
     bool isBooked_;
   };
 }  // namespace siStripRawPrime
@@ -285,8 +304,8 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
     constexpr float maxStrip = maxNStrips - 0.5f;
 
     // cluster constants
-    constexpr float maxCluSize = 50;
-    constexpr float maxCluCharge = 700;
+    constexpr float maxCluSize = 100;
+    constexpr float maxCluCharge = 3000;
 
     // 2D histograms (use TH2I for counts to limit memory allocation)
     std::string toRep = "SiStrip Cluster Barycenter";
@@ -312,10 +331,10 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
     toRep = "SiStrip Cluster Charge";
     h2_CompareCharge_ = ibook.book2I("compareCharge",
                                      fmt::sprintf("; %s;Approx %s", toRep, toRep),
-                                     maxCluCharge,
+                                     (maxCluCharge / 5),
                                      -0.5f,
                                      maxCluCharge - 0.5f,
-                                     maxCluCharge,
+                                     (maxCluCharge / 5),
                                      -0.5f,
                                      maxCluCharge - 0.5f);
 
@@ -340,8 +359,8 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
                                        maxStrip);
 
     h_isMatched_ = ibook.book1D("isClusterMatched", "cluster matching;is matched?;#clusters", 3, -1.5, 1.5);
-    h_isMatched_->getTH1F()->GetXaxis()->SetBinLabel(1, "Not matched");
-    h_isMatched_->getTH1F()->GetXaxis()->SetBinLabel(3, "Matched");
+    h_isMatched_->setBinLabel(1, "Not matched");
+    h_isMatched_->setBinLabel(3, "Matched");
   }
 }
 
