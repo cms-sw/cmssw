@@ -75,7 +75,7 @@ plots:
 QCD_plots:
 	rm -Rf plots
 	python3 test/compare.py \
-	    --sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD/${DQM_MC}.root \
+		--sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD/${DQM_MC}.root \
 		--doResponsePlots --doOffsetPlots --doMETPlots --doPFCandPlots
 
 QCDPU_plots:
