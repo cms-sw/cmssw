@@ -445,7 +445,7 @@ hgcal::RecoToSimCollectionSimTracksters TSToSimTSAssociatorByEnergyScoreImpl::as
   for (size_t tsId = 0; tsId < stsInTrackster.size(); ++tsId) {
     for (auto& stPair : stsInTrackster[tsId]) {
       LogDebug("TSToSimTSAssociatorByEnergyScoreImpl") << "Trackster Id:\t" << tsId << "\tSimTrackster id:\t"
-                                                       << stPair.first << "\tscore:\t" << stPair.second << "\n";
+                                                       << stPair.first << "\tscore:\t" << stPair.second.second << "\n";
       // Fill AssociationMap
       returnValue.insert(
           edm::Ref<ticl::TracksterCollection>(tCH, tsId),                            // Ref to TS
