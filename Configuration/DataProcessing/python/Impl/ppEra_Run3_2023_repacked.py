@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-_ppEra_Run3_2023_
+_ppEra_Run3_2023_repacked_
 
 Scenario supporting proton collisions for 2023 with updated HCAL Barrel thresholds
 
