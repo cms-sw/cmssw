@@ -19,3 +19,5 @@ process = cms.Process("TEST")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents.input = args.maxEvents
+
+print('TestArgParse')

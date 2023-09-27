@@ -379,10 +379,7 @@ test name="TestFWCoreFrameworkDeleteEarly" command="test_deleteEarly.sh"/>
 <test name="testFWCoreFrameworkWrongOptionsNumberOfStreamsType" command="run_wrongOptionsType.sh numberOfStreams 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionssizeOfStackForThreadsInKBType" command="run_wrongOptionsType.sh sizeOfStackForThreadsInKB 'cms.untracked.int32(1024)'"/>
 
-<test name="testFWCoreFrameworkConfigSuffix" command="cp ${LOCALTOP}/src/FWCore/Framework/test/test_argparse.py test_argparse.notpy; cmsRun -n 1 test_argparse.notpy"/>
-<test name="testFWCoreFrameworkConfigDash" command="cp -- ${LOCALTOP}/src/FWCore/Framework/test/test_argparse.py -test_argparse.py; cmsRun -n 1 -- -test_argparse.py"/>
-<test name="testFWCoreFrameworkConfigCmd" command="cmsRun -c &quot;import FWCore.ParameterSet.Config as cms; process = cms.Process('Test'); process.source=cms.Source('EmptySource'); process.maxEvents.input=10&quot;"/>
-
+<test name="testFWCoreFrameworkCmsRunParser" command="run_cmsRun_parser.sh"/>
 <test name="testFWCoreFrameworkCmsRunVarparsing" command="run_cmsRun_varparsing.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgparse" command="run_cmsRun_argparse.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgv" command="run_cmsRun_argv.sh"/>

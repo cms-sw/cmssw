@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
 
       context = "Processing command line arguments";
       std::string descString(argv[0]);
-      descString += " [options] config_file [python options]\nAllowed options";
+      descString += " [options] [--] config_file [python options]\nAllowed options";
       boost::program_options::options_description desc(descString);
 
       // clang-format off
@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
           kSizeOfStackForThreadCommandOpt,
           boost::program_options::value<unsigned int>(),
           "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing")(
-          kCmdCommandOpt, boost::program_options::value<std::string>(), "config passed in as string (config_file [python options] will be ignored)");
+          kCmdCommandOpt, boost::program_options::value<std::string>(), "config passed in as string (cannot be used with config_file)");
       // clang-format on
 
       // anything at the end will be ignored, and sent to python
@@ -252,9 +252,16 @@ int main(int argc, char* argv[]) {
 
       std::string cmdString;
       std::string fileName;
-      if (vm.count(kCmdOpt))
+      if (vm.count(kCmdOpt)) {
         cmdString = vm[kCmdOpt].as<std::string>();
-      else if (!vm.count(kParameterSetOpt)) {
+        if (vm.count(kParameterSetOpt)) {
+          edm::LogAbsolute("CommandLineProcessing") << "cmsRun: Error while trying to process command line arguments:\n"
+                                                    << "cannot use '-c [command line input]' with 'config_file'\n"
+                                                    << "For usage and an options list, please do 'cmsRun --help'.";
+          edm::HaltMessageLogging();
+          return edm::errors::CommandLineProcessing;
+        }
+      } else if (!vm.count(kParameterSetOpt)) {
         edm::LogAbsolute("ConfigFileNotFound") << "cmsRun: No configuration file given.\n"
                                                << "For usage and an options list, please do 'cmsRun --help'.";
         edm::HaltMessageLogging();
@@ -292,8 +299,13 @@ int main(int argc, char* argv[]) {
       jobRep.reset(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(std::move(jobRepPtr)));
       edm::ServiceToken jobReportToken = edm::ServiceRegistry::createContaining(jobRep);
 
-      context = "Processing the python configuration file named ";
-      context += !fileName.empty() ? fileName : cmdString;
+      if (!fileName.empty()) {
+        context = "Processing the python configuration file named ";
+        context += fileName;
+      } else {
+        context = "Processing the python configuration from command line ";
+        context += cmdString;
+      }
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
         std::unique_ptr<edm::ParameterSet> parameterSet;

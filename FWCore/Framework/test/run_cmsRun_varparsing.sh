@@ -1,26 +1,10 @@
 #!/bin/bash
 
-# Pass in name and status
-function die { echo $1: status $2 ;  exit $2; }
-
 LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
-
-function doTest() {
-	TEST="$1"
-	CMD="$2"
-	PATTERN="$3"
-	PATTERN2="$4"
-	LOG="log_test$TEST.log"
-	$CMD >& $LOG || die "Test $TEST: failure running $CMD" $?
-	OUT="$(cat $LOG)"
-	[[ "$OUT" == *"$PATTERN"* ]] || die "Test $TEST: incorrect output from $CMD" $?
-	if [ -n "$PATTERN2" ]; then
-		(grep -qF "$PATTERN2" $LOG) || die "Test $TEST: incorrect output from $CMD" $?
-	fi
-}
+source "${LOCAL_TEST_DIR}/help_cmsRun_tests.sh"
 
 # test cmsRun help
-doTest 1 "cmsRun --help ${LOCAL_TEST_DIR}/test_varparsing.py" "cmsRun [options] config_file [python options]"
+doTest 1 "cmsRun --help ${LOCAL_TEST_DIR}/test_varparsing.py" "cmsRun [options] [--] config_file [python options]"
 
 # test python help
 doTest 2 "cmsRun ${LOCAL_TEST_DIR}/test_varparsing.py --help" "Singletons:
@@ -40,7 +24,7 @@ Options:
 # test nonexistent flag
 TEST=3
 CMD="cmsRun ${LOCAL_TEST_DIR}/test_varparsing.py nonexistent=foo"
-$CMD >& log_test$TEST.log && die "Test $TEST: no error from $CMD" $?
+$CMD >& log_test$TEST.log && die "Test $TEST: no error from $CMD" 1
 (head -n 1 log_test$TEST.log | grep -qF "Error:  'nonexistent' not registered.") || die "Test $TEST: incorrect output from $CMD" $?
 
 # test cmsRun args
