@@ -45,11 +45,33 @@ void EcalDQMonitorTask::runOnCollection(edm::Event const& _evt,
 
 void EcalDQMonitorTask::formSchedule(std::vector<ecaldqm::Collections> const& _preSchedule,
                                      edm::ParameterSet const& _tagPSet) {
+  std::vector<ecaldqm::Collections> collectionsToSkip;
+  for (const auto& skipColName : skipCollections_) {
+    for (unsigned iCol = 0; iCol <= ecaldqm::nCollections; iCol++) {
+      if (iCol == ecaldqm::nCollections)
+        throw cms::Exception("InvalidConfiguration")
+            << moduleName_ << "::formSchedule: Collection name " << skipColName << " in skipCollections does not exist";
+      if (skipColName == ecaldqm::collectionName[iCol]) {
+        collectionsToSkip.push_back(ecaldqm::Collections(iCol));
+        break;
+      }
+    }
+  }
+
   for (std::vector<ecaldqm::Collections>::const_iterator colItr(_preSchedule.begin()); colItr != _preSchedule.end();
        ++colItr) {
     std::pair<Processor, ecaldqm::Collections> sch;
 
     edm::InputTag tag(_tagPSet.getUntrackedParameter<edm::InputTag>(ecaldqm::collectionName[*colItr]));
+
+    auto skipItr = std::find(collectionsToSkip.begin(), collectionsToSkip.end(), *colItr);
+    if (skipItr != collectionsToSkip.end()) {
+      if (verbosity_ > 0)
+        edm::LogInfo("EcalDQM") << moduleName_ << ": Skipping collection " << ecaldqm::collectionName[*colItr]
+                                << " and removing from schedule";
+      collectionsToSkip.erase(skipItr);
+      continue;
+    }
 
     switch (*colItr) {
       case ecaldqm::kSource:
@@ -152,4 +174,8 @@ void EcalDQMonitorTask::formSchedule(std::vector<ecaldqm::Collections> const& _p
 
     schedule_.push_back(sch);
   }
+  for (const auto& colNotSkipped : collectionsToSkip)
+    edm::LogWarning("EcalDQM") << moduleName_
+                               << "::formSchedule: Collection: " << ecaldqm::collectionName[colNotSkipped]
+                               << " is not in the schedule but was listed to be skipped";
 }

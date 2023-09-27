@@ -61,46 +61,46 @@ namespace ecaldqm {
       case kEBCpuDigi:
         if (collection_data && runGpuTask_ && enableDigi_)
           runOnCpuDigis(*static_cast<EBDigiCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableDigi_;
         break;
       case kEECpuDigi:
         if (collection_data && runGpuTask_ && enableDigi_)
           runOnCpuDigis(*static_cast<EEDigiCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableDigi_;
         break;
       case kEBGpuDigi:
         if (collection_data && runGpuTask_ && enableDigi_)
           runOnGpuDigis(*static_cast<EBDigiCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableDigi_;
         break;
       case kEEGpuDigi:
         if (collection_data && runGpuTask_ && enableDigi_)
           runOnGpuDigis(*static_cast<EEDigiCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableDigi_;
         break;
       case kEBCpuUncalibRecHit:
       case kEECpuUncalibRecHit:
         if (collection_data && runGpuTask_ && enableUncalib_)
           runOnCpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableUncalib_;
         break;
       case kEBGpuUncalibRecHit:
       case kEEGpuUncalibRecHit:
         if (collection_data && runGpuTask_ && enableUncalib_)
           runOnGpuUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableUncalib_;
         break;
       case kEBCpuRecHit:
       case kEECpuRecHit:
         if (collection_data && runGpuTask_ && enableRecHit_)
           runOnCpuRecHits(*static_cast<EcalRecHitCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableRecHit_;
         break;
       case kEBGpuRecHit:
       case kEEGpuRecHit:
         if (collection_data && runGpuTask_ && enableRecHit_)
           runOnGpuRecHits(*static_cast<EcalRecHitCollection const*>(collection_data), collection);
-        return runGpuTask_;
+        return enableRecHit_;
         break;
       default:
         break;

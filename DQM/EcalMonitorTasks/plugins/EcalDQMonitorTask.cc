@@ -28,6 +28,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
     : DQMOneEDAnalyzer<edm::LuminosityBlockCache<ecaldqm::EcalLSCache>>(),
       ecaldqm::EcalDQMonitor(_ps),
       schedule_(),
+      skipCollections_(_ps.getUntrackedParameter<std::vector<std::string>>("skipCollections")),
       allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
       processedEvents_(0),
       lastResetTime_(0),
@@ -92,6 +93,7 @@ void EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions& _descs)
   collectionTags.addWildcardUntracked<edm::InputTag>("*");
   desc.add("collectionTags", collectionTags);
 
+  desc.addUntracked<std::vector<std::string>>("skipCollections", std::vector<std::string>());
   desc.addUntracked<bool>("allowMissingCollections", true);
   desc.addUntracked<double>("resetInterval", 0.);
 
@@ -158,8 +160,15 @@ void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _
 
   std::set<ecaldqm::DQWorker*> enabledTasks;
 
+  bool eventTypeFiltering(false);
   edm::Handle<EcalRawDataCollection> dcchsHndl;
-  if (_evt.getByToken(collectionTokens_[ecaldqm::kEcalRawData], dcchsHndl)) {
+
+  if (std::find(skipCollections_.begin(), skipCollections_.end(), "EcalRawData") != skipCollections_.end()) {
+    if (verbosity_ > 2)
+      edm::LogInfo("EcalDQM") << "EcalRawDataCollection is being skipped. No event-type filtering will be applied";
+
+  } else if (_evt.getByToken(collectionTokens_[ecaldqm::kEcalRawData], dcchsHndl)) {
+    eventTypeFiltering = true;
     // determine event type (called run type in DCCHeader for some reason) for each FED
     std::stringstream ss;
     if (verbosity_ > 2)
@@ -192,8 +201,10 @@ void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _
       return;
   } else {
     edm::LogWarning("EcalDQM") << "EcalRawDataCollection does not exist. No event-type filtering will be applied";
-    executeOnWorkers_([&enabledTasks](ecaldqm::DQWorker* worker) { enabledTasks.insert(worker); }, "");
   }
+
+  if (!eventTypeFiltering)
+    executeOnWorkers_([&enabledTasks](ecaldqm::DQWorker* worker) { enabledTasks.insert(worker); }, "");
 
   ++processedEvents_;
 
