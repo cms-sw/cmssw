@@ -74,16 +74,3 @@
 <library file="LHCInfoPerLSWriter.cc" name="LHCInfoPerLSWriter">
   <flags EDM_PLUGIN="1"/>
 </library>
-
-<library file="LHCInfoPerLSAnalyzer.cc" name="LHCInfoPerLSAnalyzer">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="LHCInfoPerFillWriter.cc" name="LHCInfoPerFillWriter">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-
-<library file="LHCInfoPerFillAnalyzer.cc" name="LHCInfoPerFillAnalyzer">
-  <flags EDM_PLUGIN="1"/>
-</library>
