@@ -330,7 +330,7 @@
 
 <test name="TestFWCoreFrameworkInputTagFailure" command="test_InputTag_cache_failure.sh"/>
 
-test name="TestFWCoreFrameworkDeleteEarly" command="test_deleteEarly.sh"/>
+<test name="TestFWCoreFrameworkDeleteEarly" command="test_deleteEarly.sh"/>
 
 <test name="TestFWCoreFrameworkEarlyTerminationSignal" command="test_earlyTerminationSignal.sh"/>
 
