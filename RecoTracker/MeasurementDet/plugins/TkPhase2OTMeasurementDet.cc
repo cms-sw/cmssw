@@ -8,7 +8,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
 TkPhase2OTMeasurementDet::TkPhase2OTMeasurementDet(const GeomDet* gdet, Phase2OTMeasurementConditionSet& conditions)
-    : MeasurementDet(gdet), theDetConditions(&conditions) {
+    : MeasurementDet(gdet), theDetConditions(&conditions), index_(0) {
   if (dynamic_cast<const PixelGeomDetUnit*>(gdet) == nullptr) {
     throw MeasurementDetException(
         "TkPhase2OTMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
