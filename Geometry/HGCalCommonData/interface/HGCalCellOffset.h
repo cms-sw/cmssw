@@ -3,7 +3,8 @@
 
 #include <cmath>
 #include <cstdint>
-#include <vector>
+#include <array>
+#include <memory>
 #include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 
 class HGCalCellOffset {
