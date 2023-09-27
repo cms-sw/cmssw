@@ -23,6 +23,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -84,6 +85,7 @@ namespace siStripRawPrime {
     bool isBooked() { return isBooked_; }
 
   private:
+    // approximate clusters
     dqm::reco::MonitorElement* h_barycenter_;
     dqm::reco::MonitorElement* h_width_;
     dqm::reco::MonitorElement* h_avgCharge_;
@@ -91,6 +93,7 @@ namespace siStripRawPrime {
     dqm::reco::MonitorElement* h_isSaturated_;
     dqm::reco::MonitorElement* h_passFilter_;
     dqm::reco::MonitorElement* h_passPeakFilter_;
+
     bool isBooked_;
   };
 }  // namespace siStripRawPrime
@@ -116,6 +119,9 @@ private:
   siStripRawPrime::monitorApproxCluster matchedClusters{};
   siStripRawPrime::monitorApproxCluster unMatchedClusters{};
 
+  // FED errors
+  dqm::reco::MonitorElement* h_numberFEDErrors_;
+
   // for comparisons
   MonitorElement* h_isMatched_{nullptr};
   MonitorElement* h_deltaBarycenter_{nullptr};
@@ -131,7 +137,9 @@ private:
   MonitorElement* h2_CompareEndStrip_{nullptr};
 
   // Event Data
-  edm::EDGetTokenT<SiStripApproximateClusterCollection> approxClustersToken_;
+  const edm::EDGetTokenT<SiStripApproximateClusterCollection> approxClustersToken_;
+  const edm::EDGetTokenT<DetIdVector> stripFEDErrorsToken_;
+
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> stripClustersToken_;
   const edmNew::DetSetVector<SiStripCluster>* stripClusterCollection_;
 
@@ -146,8 +154,9 @@ SiStripMonitorApproximateCluster::SiStripMonitorApproximateCluster(const edm::Pa
     : folder_(iConfig.getParameter<std::string>("folder")),
       compareClusters_(iConfig.getParameter<bool>("compareClusters")),
       // Poducer name of input StripClusterCollection
-      approxClustersToken_(consumes<SiStripApproximateClusterCollection>(
-          iConfig.getParameter<edm::InputTag>("ApproxClustersProducer"))) {
+      approxClustersToken_(
+          consumes<SiStripApproximateClusterCollection>(iConfig.getParameter<edm::InputTag>("ApproxClustersProducer"))),
+      stripFEDErrorsToken_(consumes<DetIdVector>(iConfig.getParameter<edm::InputTag>("SiStripFEDErrorVector"))) {
   tkGeomToken_ = esConsumes();
   if (compareClusters_) {
     stripClustersToken_ =
@@ -167,12 +176,23 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
   const auto& tkGeom = &iSetup.getData(tkGeomToken_);
   const auto tkDets = tkGeom->dets();
 
-  // get collection of DetSetVector of clusters from Event
+  // get SiStripApproximateClusterCollection from Event
   edm::Handle<SiStripApproximateClusterCollection> approx_cluster_detsetvector;
   iEvent.getByToken(approxClustersToken_, approx_cluster_detsetvector);
   if (!approx_cluster_detsetvector.isValid()) {
     edm::LogError("SiStripMonitorApproximateCluster")
         << "SiStripApproximate cluster collection is not valid!" << std::endl;
+
+    // if approximate clusters collection not available, then early return
+    return;
+  }
+
+  // get the DetIdVector of the SiStrip FED Errors
+  edm::Handle<DetIdVector> sistripFEDErrorsVector;
+  iEvent.getByToken(stripFEDErrorsToken_, sistripFEDErrorsVector);
+  if (!sistripFEDErrorsVector.isValid()) {
+    edm::LogError("SiStripMonitorApproximateCluster")
+        << " DetIdVector collection of SiStrip FED errors is not valid!" << std::endl;
 
     // if approximate clusters collection not available, then early return
     return;
@@ -271,13 +291,17 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
   }    // loop on the detset vector
 
   h_nclusters_->Fill(nApproxClusters);
+  h_numberFEDErrors_->Fill((*sistripFEDErrorsVector).size());
 }
 
 void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
                                                       edm::Run const& run,
                                                       edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
-  h_nclusters_ = ibook.book1D("numberOfClusters", "total N. of clusters;N. of clusters;#clusters", 500., 0., 500000.);
+  h_nclusters_ = ibook.book1D("numberOfClusters", "total N. of clusters;N. of clusters;# events", 500., 0., 500000.);
+  h_numberFEDErrors_ = ibook.book1D(
+      "numberOfFEDErrors", "number of SiStrip modules in FED Error;N. of Modules in Error; #events", 100, 0, 1000);
+
   allClusters.book(ibook, folder_);
 
   //  for comparisons
@@ -371,6 +395,8 @@ void SiStripMonitorApproximateCluster::fillDescriptions(edm::ConfigurationDescri
   desc.add<bool>("compareClusters", false)->setComment("if true, will compare with regualr Strip clusters");
   desc.add<edm::InputTag>("ApproxClustersProducer", edm::InputTag("hltSiStripClusters2ApproxClusters"))
       ->setComment("approxmate clusters collection");
+  desc.add<edm::InputTag>("SiStripFEDErrorVector", edm::InputTag("hltSiStripRawToDigi"))
+      ->setComment("SiStrip FED Errors collection");
   desc.add<edm::InputTag>("ClustersProducer", edm::InputTag("hltSiStripClusterizerForRawPrime"))
       ->setComment("regular clusters collection");
   desc.add<std::string>("folder", "SiStripApproximateClusters")->setComment("Top Level Folder");
