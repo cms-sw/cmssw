@@ -216,14 +216,22 @@ if __name__ == '__main__':
         if len(listoffiles)==1 and option.merged:
             mergedfile = open(beam_file)
             alllines = mergedfile.readlines()
-            npayloads = len(alllines)/23
+            npayloads = int(len(alllines)/23)
             for i in range(0,npayloads):
                 block = alllines[i * 23: (i+1)*23]
-                #line = block[2]
-                #atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
-                line = block[0]
-                atime = line.split()[1]
-                sortedlist[atime] = block
+                arun  = ''
+                atime = ''
+                alumi = ''
+                for line in block:
+                    if line.find('Runnumber') != -1:
+                        arun = line.split()[1]
+                    if line.find("EndTimeOfFit") != -1:
+                        atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
+                    if line.find("LumiRange") != -1:
+                        alumi = line.split()[3]
+                    if line.find('Type') != -1 and line.split()[1] != '2':
+                        continue
+                sortedlist[int(pack(int(arun), int(alumi)))] = block
             break
 
         tmpfile = open(beam_file)
@@ -291,7 +299,7 @@ if __name__ == '__main__':
         beam_file = sortedlist[key]
         tmp_datafilename = workflowdirTmp+"tmp_datafile.txt"
         if option.merged:
-            tmpfile = file(tmp_datafilename,'w')
+            tmpfile = open(tmp_datafilename,'w')
             tmpfile.writelines(sortedlist[key])
             tmpfile.close()
             beam_file = tmp_datafilename
