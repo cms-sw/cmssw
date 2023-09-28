@@ -49,7 +49,7 @@
 
    <class name="susybsm::MuonSegment" ClassVersion="11">
     <version ClassVersion="10" checksum="3541168201"/>
-    <version ClassVersion="11" checksum="312144579"/>
+    <version ClassVersion="11" checksum="841063529"/>
    </class>
    <class name="susybsm::MuonSegmentCollection"/>
    <class name="susybsm::MuonSegmentRef"/>

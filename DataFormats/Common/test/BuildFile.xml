@@ -35,7 +35,7 @@
 <bin file="Ref_t.cpp">
 </bin>
 
-<bin file="ThinnedRefSet_t.cpp">
+<bin name ="DataFormatsCommonCatch2Tests" file="ThinnedRefSet_t.cpp,IdToHitRange_t.cpp">
   <use name="catch2"/>
 </bin>
 
