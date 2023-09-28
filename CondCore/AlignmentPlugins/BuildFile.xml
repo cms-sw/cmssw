@@ -1,3 +1,4 @@
+<use name="Alignment/CommonAlignment"/>
 <use name="CondCore/ESSources"/>
 <use name="CondFormats/Alignment"/>
 <use name="CondFormats/AlignmentRecord"/>

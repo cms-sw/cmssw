@@ -3,22 +3,17 @@
 <!-- Email christopher.mc.ginn@cern.ch or cfmcginn on github for issues -->
 
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/HcalDigi"/>
-<use name="CalibFormats/CaloTPG"/>
 <use name="DataFormats/L1Trigger"/>
-<use name="DataFormats/L1CaloTrigger"/>
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/L1TZDC"/>
-<use name="CondTools/L1Trigger"/>
 <library file="*.cc" name="L1TriggerL1TZDCPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
