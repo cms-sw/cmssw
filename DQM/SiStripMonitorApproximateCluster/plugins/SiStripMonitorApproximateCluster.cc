@@ -223,7 +223,10 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
     if (compareClusters_) {
       edmNew::DetSetVector<SiStripCluster>::const_iterator isearch =
           stripClusterCollection_->find(detid);  // search clusters of same detid
-      strip_clusters_detset = (*isearch);
+
+      // protect against a missing match
+      if (isearch != stripClusterCollection_->end())
+        strip_clusters_detset = (*isearch);
     }
 
     for (const auto& cluster : detClusters) {
