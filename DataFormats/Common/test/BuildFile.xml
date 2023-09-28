@@ -10,7 +10,7 @@
 
 <test name="TestTriggerResultsFormat" command="TestTriggerResultsFormat.sh"/>
 
-<bin name="testDataFormatsCommon" file="testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,ref_t.catch2.cc,DetSetRefVector_t.catch2.cc,reftobasevector_t.catch2.cc,cloningptr_t.catch2.cc,ptr_t.catch2.cc,containermask_t.catch2.cc,reftobaseprod_t.catch2.cc,handle_t.catch2.cc">
+<bin name="testDataFormatsCommon" file="testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,ref_t.catch2.cc,DetSetRefVector_t.catch2.cc,reftobasevector_t.catch2.cc,cloningptr_t.catch2.cc,ptr_t.catch2.cc,containermask_t.catch2.cc,reftobaseprod_t.catch2.cc,handle_t.catch2.cc,IdToHitRange_t.cpp">
   <use name="catch2"/>
   <use name="boost"/>
   <use name="DataFormats/Common"/>

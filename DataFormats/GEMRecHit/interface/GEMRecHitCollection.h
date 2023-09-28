@@ -7,14 +7,11 @@
  *  \author M. Maggi - INFN Bari
  */
 
-#include <vector>
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include <functional>
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
-using GEMRecHitCollection = edm::RangeMap<GEMDetId, std::vector<GEMRecHit>, edm::CopyPolicy<GEMRecHit>>;
+using GEMRecHitCollection = edm::IdToHitRange<GEMDetId, GEMRecHit>;
 ;
 
 #endif

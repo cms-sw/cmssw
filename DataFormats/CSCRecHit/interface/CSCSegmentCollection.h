@@ -8,13 +8,12 @@
  *  \author Matteo Sani
  */
 
-#include <vector>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 
-#include "DataFormats/Common/interface/RangeMap.h"
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
-using CSCSegmentCollection = edm::RangeMap<CSCDetId, std::vector<CSCSegment> >;
+using CSCSegmentCollection = edm::IdToHitRange<CSCDetId, CSCSegment>;
 
 #include "DataFormats/Common/interface/Ref.h"
 using CSCSegmentRef = edm::Ref<CSCSegmentCollection>;

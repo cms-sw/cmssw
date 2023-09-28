@@ -15,6 +15,8 @@
   <class name="edm::ClonePolicy<io_v1::DTRecHit1DPair>" /> <!-- Root6 -->
   <class name="edm::RangeMap <DTLayerId,edm::OwnVector<io_v1::DTRecHit1DPair,edm::ClonePolicy<io_v1::DTRecHit1DPair> >,edm::ClonePolicy<io_v1::DTRecHit1DPair> >"/> 
   <class name="edm::Wrapper<edm::RangeMap <DTLayerId, edm::OwnVector<io_v1::DTRecHit1DPair,edm::ClonePolicy<io_v1::DTRecHit1DPair> >,edm::ClonePolicy<io_v1::DTRecHit1DPair> > >"/>
+  <class name="edm::IdToHitRange <DTLayerId,io_v1::DTRecHit1DPair>"/> 
+  <class name="edm::Wrapper<edm::IdToHitRange <DTLayerId, io_v1::DTRecHit1DPair> >"/>
   <class name="std::vector<io_v1::DTRecHit1D>"/>
   <class name="std::vector<io_v1::DTRecHit1DPair>"/>
   <class name="DTSLRecCluster" ClassVersion="3">
@@ -53,8 +55,8 @@
   <class name="edm::RangeMap <DTChamberId, edm::OwnVector<io_v1::DTRecSegment4D,edm::ClonePolicy<io_v1::DTRecSegment4D> >,edm::ClonePolicy<io_v1::DTRecSegment4D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTChamberId, edm::OwnVector<io_v1::DTRecSegment4D,edm::ClonePolicy<io_v1::DTRecSegment4D> >,edm::ClonePolicy<io_v1::DTRecSegment4D> > >"/>
   <class name="edm::refhelper::FindUsingAdvance<edm::RangeMap<DTChamberId,edm::OwnVector<io_v1::DTRecSegment4D,edm::ClonePolicy<io_v1::DTRecSegment4D> >,edm::ClonePolicy<io_v1::DTRecSegment4D> >,io_v1::DTRecSegment4D>"/>
-  <class name="edm::RangeMap <DTChamberId, std::vector<io_v1::DTRecSegment4D>,edm::CopyPolicy<io_v1::DTRecSegment4D> >"/>
-  <class name="edm::Wrapper<edm::RangeMap <DTChamberId, std::vector<io_v1::DTRecSegment4D>,edm::CopyPolicy<io_v1::DTRecSegment4D> > >"/>
+  <class name="edm::IdToHitRange <DTChamberId, io_v1::DTRecSegment4D>"/>
+  <class name="edm::Wrapper<edm::IdToHitRange <DTChamberId, io_v1::DTRecSegment4D> >"/>
   <class name="DTRecSegment4DRef"/>
 </selection>
 <exclusion>

@@ -13,8 +13,8 @@
   <class name="edm::ClonePolicy<io_v1::CSCRecHit2D>"/> <!-- Root6 -->
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCRecHit2D,edm::ClonePolicy<io_v1::CSCRecHit2D> >,edm::ClonePolicy<io_v1::CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCRecHit2D,edm::ClonePolicy<io_v1::CSCRecHit2D> >,edm::ClonePolicy<io_v1::CSCRecHit2D> > >"/>
-  <class name="edm::RangeMap<CSCDetId,std::vector<io_v1::CSCRecHit2D>,edm::CopyPolicy<io_v1::CSCRecHit2D> >"/>
-  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,std::vector<io_v1::CSCRecHit2D>,edm::CopyPolicy<io_v1::CSCRecHit2D> > >"/>
+  <class name="edm::IdToHitRange<CSCDetId,io_v1::CSCRecHit2D>"/>
+  <class name="edm::Wrapper<edm::IdToHitRange<CSCDetId,io_v1::CSCRecHit2D>>"/>
 
   <class name="std::vector<io_v1::CSCSegment>"/>
   <class name="std::vector<io_v1::CSCSegment*>"/>
@@ -23,10 +23,10 @@
   </class>
   <class name="edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >"  rntupleStreamerMode="true" />
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >,edm::ClonePolicy<io_v1::CSCSegment> >"/>
-  <class name="edm::RangeMap<CSCDetId,std::vector<io_v1::CSCSegment>,edm::CopyPolicy<io_v1::CSCSegment> >"/>
+  <class name="edm::IdToHitRange<CSCDetId,io_v1::CSCSegment>"/>
   <class name="edm::ClonePolicy<io_v1::CSCSegment>"/> <!-- Root6 -->
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >,edm::ClonePolicy<io_v1::CSCSegment> > >"/>
-  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,std::vector<io_v1::CSCSegment>,edm::CopyPolicy<io_v1::CSCSegment> > >"/>
+  <class name="edm::Wrapper<edm::IdToHitRange<CSCDetId,io_v1::CSCSegment>>"/>
   <class name="edm::refhelper::FindUsingAdvance<edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >,edm::ClonePolicy<io_v1::CSCSegment> >,io_v1::CSCSegment>"/>
   <class name="CSCSegmentRef"/>
 </selection>

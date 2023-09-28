@@ -6,14 +6,11 @@
  *
  *  \author M. Maggi - INFN Bari
  */
-#include <vector>
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include <functional>
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
-using RPCRecHitCollection = edm::RangeMap<RPCDetId, std::vector<RPCRecHit>, edm::CopyPolicy<RPCRecHit>>;
+using RPCRecHitCollection = edm::IdToHitRange<RPCDetId, RPCRecHit>;
 
 #endif

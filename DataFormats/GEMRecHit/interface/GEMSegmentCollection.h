@@ -7,14 +7,12 @@
  *
  *  \author Piet Verwilligen
  */
-#include <vector>
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMRecHit/interface/GEMSegment.h"
 
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
-using GEMSegmentCollection = edm::RangeMap<GEMDetId, std::vector<GEMSegment>>;
+using GEMSegmentCollection = edm::IdToHitRange<GEMDetId, GEMSegment>;
 
 #include "DataFormats/Common/interface/Ref.h"
 using GEMSegmentRef = edm::Ref<GEMSegmentCollection>;

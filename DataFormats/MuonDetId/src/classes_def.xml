@@ -2,20 +2,27 @@
   <class name="io_v1::DTChamberId" ClassVersion="3">
    <version ClassVersion="3" checksum="1257923137"/>
   </class>
+  <class name="std::vector<io_v1::DTChamberId>"/>
   <class name="DTSuperLayerId" ClassVersion="3">
    <version ClassVersion="3" checksum="3470745491"/>
   </class>
   <class name="io_v1::DTLayerId" ClassVersion="3">
    <version ClassVersion="3" checksum="3526757438"/>
   </class>
+  <class name="std::vector<io_v1::DTLayerId>"/>
   <class name="DTWireId" ClassVersion="3">
    <version ClassVersion="3" checksum="246044974"/>
   </class>
   <class name="io_v1::CSCDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="1824319951"/>
   </class>
+  <class name="std::vector<io_v1::CSCDetId>"/>
   <class name="io_v1::RPCDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="4000743947"/>
+  </class>
+  <class name="std::vector<RPCDetId>"/>
+  <class name="RPCDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2362875019"/>
   </class>
   <class name="RPCCompDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="2407084845"/>
@@ -32,6 +39,7 @@
   <class name="io_v1::GEMDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="1825028539"/>
   </class>
+  <class name="std::vector<io_v1::GEMDetId>"/>
   <class name="GEMSubDetId" ClassVersion="3">
     <version ClassVersion="3" checksum="6356029"/>
   </class>
