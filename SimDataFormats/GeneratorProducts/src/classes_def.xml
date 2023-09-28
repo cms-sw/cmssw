@@ -206,11 +206,12 @@
 	<class name="LHERunInfoProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="2098560362"/>
  </class>
-	<class name="LHEEventProduct" ClassVersion="13">
+	<class name="LHEEventProduct" ClassVersion="14">
   <version ClassVersion="10" checksum="1026978494"/>
   <version ClassVersion="11" checksum="619154414"/>
   <version ClassVersion="12" checksum="259352862"/>
   <version ClassVersion="13" checksum="3927731647"/>
+  <version ClassVersion="14" checksum="395176982"/>
  </class>
  <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
     <![CDATA[npLO_ = -99;]]>

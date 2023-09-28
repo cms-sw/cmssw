@@ -33,6 +33,7 @@ class LHEEventProduct {
 	  scales_ = std::move(other.scales_);
 	  npLO_ = std::move(other.npLO_);
 	  npNLO_ = std::move(other.npNLO_);
+	  evtnum_ = std::move(other.evtnum_);
 	}
 	LHEEventProduct& operator=(LHEEventProduct&& other) {
 	  hepeup_ = std::move(other.hepeup_);
@@ -43,6 +44,7 @@ class LHEEventProduct {
 	  scales_ = std::move(other.scales_);
 	  npLO_ = std::move(other.npLO_);
 	  npNLO_ = std::move(other.npNLO_);
+	  evtnum_ = std::move(other.evtnum_);
 	  return *this;
 	}
 	~LHEEventProduct() {}
@@ -61,9 +63,11 @@ class LHEEventProduct {
 	
         int npLO() const { return npLO_; }
         int npNLO() const { return npNLO_; }
+        int evtnum() const { return evtnum_; }
         
         void setNpLO(int n) { npLO_ = n; }
-        void setNpNLO(int n) { npNLO_ = n; }	
+        void setNpNLO(int n) { npNLO_ = n; }
+        void setEvtNum(int n) { evtnum_ = n; }	
 	
 	const lhef::HEPEUP &hepeup() const { return hepeup_; }
 	const PDF *pdf() const { return pdf_.get(); }
@@ -125,6 +129,7 @@ class LHEEventProduct {
         std::vector<float>              scales_; //scale value used to exclude EWK-produced partons from matching
         int                             npLO_; //number of partons for LO process (used to steer matching/merging)
         int                             npNLO_; //number of partons for NLO process (used to steer matching/merging)
+        int                             evtnum_; //The number of the event (needed to ensure the correct LHE events are saved for MG +Herwig)
 };
 
 #endif // GeneratorEvent_LHEInterface_LHEEventProduct_h

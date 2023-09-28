@@ -153,6 +153,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
         int                             npLO;
         int                             npNLO;
         std::vector<float>              scales;
+        int                             evtnum=-1;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -234,7 +235,11 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
         
         scales.push_back(scaleval);
       }
+    } else if( name == "event_num" ) {
+      const char *evtnumstr = XMLSimpleStr(attributes.getValue(XMLString::transcode("num")));
+      sscanf(evtnumstr,"%d",&evtnum);
     }
+    
     xmlEventNodes.push_back(elem);
     return;
   } else if (mode == kInit) {
@@ -576,12 +581,14 @@ LHEReader::~LHEReader()
 	  lheevent->addWeight(gen::WeightsInfo(info[i].first,num));
 	}
 	lheevent->setNpLO(handler->npLO);
-        lheevent->setNpNLO(handler->npNLO);
-        //fill scales
-        if (!handler->scales.empty()) {
-          lheevent->setScales(handler->scales);
-        }
-        return lheevent;
+    lheevent->setNpNLO(handler->npNLO);
+    lheevent->setEvtNum(handler->evtnum);
+    handler->evtnum = -1;
+    //fill scales
+    if (!handler->scales.empty()) {
+      lheevent->setScales(handler->scales);
+    }
+    return lheevent;
 	}
       }
     }

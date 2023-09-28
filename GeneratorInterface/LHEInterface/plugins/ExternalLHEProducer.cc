@@ -188,7 +188,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (!partonLevel_) {
     throw edm::Exception(edm::errors::EventGenerationFailure) << "No lhe event found in ExternalLHEProducer::produce().  "
     << "The likely cause is that the lhe file contains fewer events than were requested, which is possible "
-    << "in case of phase space integration or uneweighting efficiency problems.";
+    << "in case of phase space integration or unweighting efficiency problems.";
   }
 
   std::unique_ptr<LHEEventProduct> product(
@@ -203,6 +203,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 boost::bind(&LHEEventProduct::addWeight,
                             product.get(), _1));
   product->setScales(partonLevel_->scales());
+  product->setEvtNum(partonLevel_->evtnum());
   if (nPartonMapping_.empty()) {
     product->setNpLO(partonLevel_->npLO());
     product->setNpNLO(partonLevel_->npNLO());

@@ -9,6 +9,9 @@ import sys
 import os
 import re
 
+import addLHEnumbers
+
+
 class BaseLHEMerger(object):
     """Base class of the LHE merge schemes"""
 
@@ -28,7 +31,6 @@ class DefaultLHEMerger(BaseLHEMerger):
         super(DefaultLHEMerger, self).__init__(input_files, output_file)
 
         self.bypass_check = kwargs.get('bypass_check', False)
-        self.number_events = kwargs.get('number_events', False)
         # line-by-line iterator for each input file
         self._f = [self.file_iterator(name) for name in self.input_files]
         self._header_str = []
@@ -63,7 +65,7 @@ class DefaultLHEMerger(BaseLHEMerger):
             % ', '.join([str(len(lines)) for lines in self._header_lines]))
         assert all([
             len(self._header_lines[0]) == len(lines) for lines in self._header_lines]
-            ), inconsistent_error_info % "line number not matches"
+            ), inconsistent_error_info % "line number does not match"
         inconsistent_lines_set = [set() for _ in self._header_lines]
         for line_zip in zip(*self._header_lines):
             if any([k in line_zip[0] for k in allow_diff_keys]):
@@ -223,8 +225,6 @@ class DefaultLHEMerger(BaseLHEMerger):
                         line = next(self._f[i])
                         if re.search('\s*</event>', line):
                             nevent += 1
-                            if self.number_events:
-                                _fwtmp.write("<event num> " + str(sum(self._nevent) + nevent) +  "</event num>\n")
                         if re.search('\s*</LesHouchesEvents>', line):
                             break
                         _fwtmp.write(line)
@@ -256,7 +256,7 @@ class DefaultLHEMerger(BaseLHEMerger):
                     sign = lambda x: -1 if x < 0 else 1
                     for line in ftmp:
                         event_line += 1
-                        if re.search('\s*<event.*>', line):
+                        if re.search('\s*<event.*>', line) and not re.search('\s*<event_num.*>', line):
                             event_line = 0
                         if event_line == 1:
                             # modify the XWGTUP appeared in the first line of the
@@ -397,6 +397,10 @@ def main(argv = None):
     if not os.path.exists(os.path.dirname(os.path.realpath(args.output_file))):
         os.makedirs(os.path.dirname(os.path.realpath(args.output_file)))
 
+    if args.number_events:
+        offset = 0
+        for input_file in input_files:
+            offset += addLHEnumbers.number_events(input_file, offset=offset)
     # Check arguments
     assert len(input_files) > 0, 'Input LHE files should be more than 0.'
     if len(input_files) == 1:
@@ -414,7 +418,7 @@ def main(argv = None):
         lhe_merger = ExternalCppLHEMerger(input_files, args.output_file)
     else:
         lhe_merger = DefaultLHEMerger(
-            input_files, args.output_file, bypass_check=args.bypass_check, number_events=args.number_events)
+            input_files, args.output_file, bypass_check=args.bypass_check)
 
     # Do merging
     lhe_merger.merge()
