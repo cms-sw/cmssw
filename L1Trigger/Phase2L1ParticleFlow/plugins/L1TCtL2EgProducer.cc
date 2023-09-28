@@ -403,7 +403,7 @@ l1t::TkEm L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoObjEmu &egiso, cons
   tkem.setPFIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIso));
   tkem.setPFIsolPV(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIsoPV));
   tkem.setPuppiIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PuppiIso));
-  tkem.setEgBinaryWord(gteg.pack());
+  tkem.setEgBinaryWord(gteg.pack(), l1t::TkEm::HWEncoding::GT);
   return tkem;
 }
 
@@ -422,7 +422,7 @@ l1t::TkElectron L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoEleObjEmu &eg
   tkele.setHwQual(gteg.quality);
   tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
   tkele.setPuppiIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso));
-  tkele.setEgBinaryWord(gteg.pack());
+  tkele.setEgBinaryWord(gteg.pack(), l1t::TkElectron::HWEncoding::GT);
   tkele.setIdScore(egele.idScore);
   return tkele;
 }

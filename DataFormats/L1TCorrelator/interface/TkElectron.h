@@ -46,6 +46,13 @@ namespace l1t {
     void setTrackCurvature(double trackCurvature) { trackCurvature_ = trackCurvature; }
     void setIdScore(float score) { idScore_ = score; }
 
+    l1gt::Electron hwObj() const {
+      if (encoding() != HWEncoding::GT) {
+        throw cms::Exception("RuntimeError") << "TkElectron::hwObj : encoding is not in GT format!" << std::endl;
+      }
+      return l1gt::Electron::unpack_ap(egBinaryWord<l1gt::Electron::BITWIDTH>());
+    }
+
   private:
     edm::Ptr<L1TTTrackType> trkPtr_;
     float trkzVtx_;

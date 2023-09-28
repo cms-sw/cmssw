@@ -1190,7 +1190,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       tkem.setHwQual(egiso.hwQual);
       tkem.setPFIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIso));
       tkem.setPFIsolPV(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIsoPV));
-      tkem.setEgBinaryWord(egiso.pack());
+      tkem.setEgBinaryWord(egiso.pack(), l1t::TkEm::HWEncoding::CT);
       tkems->push_back(tkem);
       npho_obj.push_back(tkems->size() - 1);
     }
@@ -1218,7 +1218,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
                             egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
       tkele.setHwQual(egele.hwQual);
       tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
-      tkele.setEgBinaryWord(egele.pack());
+      tkele.setEgBinaryWord(egele.pack(), l1t::TkElectron::HWEncoding::CT);
       tkele.setIdScore(egele.idScore);
       tkeles->push_back(tkele);
       nele_obj.push_back(tkeles->size() - 1);
