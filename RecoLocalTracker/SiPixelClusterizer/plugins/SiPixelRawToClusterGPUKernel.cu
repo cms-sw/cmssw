@@ -212,6 +212,7 @@ namespace pixelgpudetails {
         if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
           if constexpr (debug)
             printf("...2nd errorType=29 error, skip\n");
+          break;
         }
         errorFound = true;
         break;
@@ -323,7 +324,8 @@ namespace pixelgpudetails {
       skipROC = (roc < pixelgpudetails::maxROCIndex) ? false : (errorType != 0);
       if (includeErrors and skipROC) {
         uint32_t rID = getErrRawID<debug>(fedId, ww, errorType, cablingMap);
-        err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
+        if (rID != 0xffffffff)  // store errors only for valid DetIds
+          err->push_back(SiPixelErrorCompact{rID, ww, errorType, fedId});
         continue;
       }
 
