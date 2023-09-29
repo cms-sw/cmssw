@@ -32,8 +32,10 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       addPedestalUncertaintyEE = cms.double(0.),
 
       # decide which algorithm to be use to calculate the jitter
-      timealgo = cms.string("crossCorrelationMethod"),
+      timealgo = cms.string("RatioMethod"),
 
+      timeCalibTag = cms.ESInputTag(),
+      timeOffsetTag = cms.ESInputTag(),
       # for ratio method
       EBtimeFitParameters = cms.vdouble(-2.015452e+00, 3.130702e+00, -1.234730e+01, 4.188921e+01, -8.283944e+01, 9.101147e+01, -5.035761e+01, 1.105621e+01),
       EEtimeFitParameters = cms.vdouble(-2.390548e+00, 3.553628e+00, -1.762341e+01, 6.767538e+01, -1.332130e+02, 1.407432e+02, -7.541106e+01, 1.620277e+01),
@@ -50,10 +52,10 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       # for kOutOfTime flag
       EBtimeNconst      = cms.double(28.5),
       EEtimeNconst      = cms.double(31.8),
-      outOfTimeThresholdGain12pEB    = cms.double(2.5),      # times estimated precision
-      outOfTimeThresholdGain12mEB    = cms.double(2.5),      # times estimated precision
-      outOfTimeThresholdGain61pEB    = cms.double(2.5),      # times estimated precision
-      outOfTimeThresholdGain61mEB    = cms.double(2.5),      # times estimated precision
+      outOfTimeThresholdGain12pEB    = cms.double(5),      # times estimated precision
+      outOfTimeThresholdGain12mEB    = cms.double(5),      # times estimated precision
+      outOfTimeThresholdGain61pEB    = cms.double(5),      # times estimated precision
+      outOfTimeThresholdGain61mEB    = cms.double(5),      # times estimated precision
       outOfTimeThresholdGain12pEE    = cms.double(1000),   # times estimated precision
       outOfTimeThresholdGain12mEE    = cms.double(1000),   # times estimated precision
       outOfTimeThresholdGain61pEE    = cms.double(1000),   # times estimated precision
@@ -71,3 +73,17 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       crossCorrelationMinTimeToBeLateMax = cms.double(5)
    )
 )
+
+# use CC timing method for Run3 and Phase 2 (carried over from Run3 era)
+from Configuration.Eras.Modifier_run3_ecal_cff import run3_ecal
+run3_ecal.toModify(ecalMultiFitUncalibRecHit,
+    algoPSet = dict(timealgo = 'crossCorrelationMethod',
+        outOfTimeThresholdGain12pEB = 2.5,
+        outOfTimeThresholdGain12mEB = 2.5,
+        outOfTimeThresholdGain61pEB = 2.5,
+        outOfTimeThresholdGain61mEB = 2.5,
+        timeCalibTag = cms.ESInputTag('', 'CC'),
+        timeOffsetTag = cms.ESInputTag('', 'CC')
+    )
+)
+
