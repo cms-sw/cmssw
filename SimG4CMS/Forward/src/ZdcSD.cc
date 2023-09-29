@@ -104,12 +104,12 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardSim") << "ZdcSD: Final Hit number:" << i << "-->"
-                                   << "New HitID: " << currentHit->getUnitID()
-                                   << " New Hit trackID: " << currentHit->getTrackID()
-                                   << " New EM Energy: " << currentHit->getEM() / GeV
-                                   << " New HAD Energy: " << currentHit->getHadr() / GeV
-                                   << " New HitEntryPoint: " << currentHit->getEntryLocal()
-                                   << " New IncidentEnergy: " << currentHit->getIncidentEnergy() / GeV
+                                   << "New HitID: " << currentHit[0]->getUnitID()
+                                   << " New Hit trackID: " << currentHit[0]->getTrackID()
+                                   << " New EM Energy: " << currentHit[0]->getEM() / GeV
+                                   << " New HAD Energy: " << currentHit[0]->getHadr() / GeV
+                                   << " New HitEntryPoint: " << currentHit[0]->getEntryLocal()
+                                   << " New IncidentEnergy: " << currentHit[0]->getIncidentEnergy() / GeV
                                    << " New HitPosition: " << posGlobal;
 #endif
   }
