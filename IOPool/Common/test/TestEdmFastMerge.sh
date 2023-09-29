@@ -69,4 +69,4 @@ egrep -v "<GUID>|<PFN>|^$" $LOCAL_TEST_DIR/proper_Rfjr_output > $LOCAL_TMP_DIR/p
 egrep -v "<GUID>|<PFN>|^$" $LOCAL_TMP_DIR/TestFastMergeRFJR.xml  > $LOCAL_TMP_DIR/TestFastMergeRFJR_filtered.xml
 diff $LOCAL_TMP_DIR/proper_Rfjr_output_filtered $LOCAL_TMP_DIR/TestFastMergeRFJR_filtered.xml || die 'output run framework job report is wrong for proper_Rfjr_output_filtered' $?
 
-cmsRun -p ${LOCAL_TEST_DIR}/ReadFastMergeTestOutput_cfg.py || die 'Failure using ReadFastMergeTestOutput_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/ReadFastMergeTestOutput_cfg.py || die 'Failure using ReadFastMergeTestOutput_cfg.py' $?

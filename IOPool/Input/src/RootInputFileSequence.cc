@@ -242,8 +242,9 @@ namespace edm {
     std::vector<std::string> const& fNames = fileNames();
 
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
-    std::list<std::string> exInfo;
     {
+      std::list<std::string> exInfo;
+      std::list<std::string> additionalMessage;
       std::unique_ptr<InputSource::FileOpenSentry> sentry(
           input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_) : nullptr);
       edm::Service<edm::storage::StatisticsSenderService> service;
@@ -252,14 +253,15 @@ namespace edm {
       }
       for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
         try {
+          usedFallback_ = (it != fNames.begin());
           std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
           filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
-          usedFallback_ = (it != fNames.begin());
           break;
         } catch (cms::Exception const& e) {
           if (!skipBadFiles && std::next(it) == fNames.end()) {
             InputFile::reportSkippedFile((*it), logicalFileName());
-            Exception ex(errors::FileOpenError, "", e);
+            errors::ErrorCodes errorCode = usedFallback_ ? errors::FallbackFileOpenError : errors::FileOpenError;
+            Exception ex(errorCode, "", e);
             ex.addContext("Calling RootInputFileSequence::initTheFile()");
             std::ostringstream out;
             out << "Input file " << (*it) << " could not be opened.";
@@ -267,9 +269,23 @@ namespace edm {
             //report previous exceptions when use other names to open file
             for (auto const& s : exInfo)
               ex.addAdditionalInfo(s);
+            //report more information of the earlier file open failures in a log message
+            if (not additionalMessage.empty()) {
+              edm::LogWarning l("RootInputFileSequence");
+              for (auto const& msg : additionalMessage) {
+                l << msg << "\n";
+              }
+            }
             throw ex;
           } else {
             exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
+            additionalMessage.push_back(fmt::format(
+                "Input file {} could not be opened, and fallback was attempted.\nAdditional information:", *it));
+            char c = 'a';
+            for (auto const& ai : e.additionalInfo()) {
+              additionalMessage.push_back(fmt::format("  [{}] {}", c, ai));
+              ++c;
+            }
           }
         }
       }

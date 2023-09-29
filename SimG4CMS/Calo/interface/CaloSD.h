@@ -68,6 +68,7 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
   void reset() override;
 
+  void Initialize(G4HCofThisEvent* HCE, int k);
   bool isItFineCalo(const G4VTouchable* touch);
 
 protected:
@@ -78,10 +79,10 @@ protected:
   G4ThreeVector setToLocal(const G4ThreeVector&, const G4VTouchable*) const;
   G4ThreeVector setToGlobal(const G4ThreeVector&, const G4VTouchable*) const;
 
-  bool hitExists(const G4Step*);
-  bool checkHit();
-  CaloG4Hit* createNewHit(const G4Step*, const G4Track*);
-  void updateHit(CaloG4Hit*);
+  bool hitExists(const G4Step*, int k);
+  bool checkHit(int k = 0);
+  CaloG4Hit* createNewHit(const G4Step*, const G4Track*, int k);
+  void updateHit(CaloG4Hit*, int k);
   void resetForNewPrimary(const G4Step*);
   double getAttenuation(const G4Step* aStep, double birk1, double birk2, double birk3) const;
 
@@ -103,8 +104,8 @@ protected:
   virtual int getTrackID(const G4Track*);
   virtual int setTrackID(const G4Step*);
   virtual uint16_t getDepth(const G4Step*);
-  double getResponseWt(const G4Track*);
-  int getNumberOfHits();
+  double getResponseWt(const G4Track*, int k = 0);
+  int getNumberOfHits(int k = 0);
   void ignoreRejection() { ignoreReject = true; }
 
   inline void setParameterized(bool val) { isParameterized = val; }
@@ -112,19 +113,19 @@ protected:
 
   inline void processHit(const G4Step* step) {
     // check if it is in the same unit and timeslice as the previous one
-    if (currentID == previousID) {
-      updateHit(currentHit);
+    if (currentID[0] == previousID[0]) {
+      updateHit(currentHit[0], 0);
     } else if (!checkHit()) {
-      currentHit = createNewHit(step, step->GetTrack());
+      currentHit[0] = createNewHit(step, step->GetTrack(), 0);
     }
   }
 
-  inline void setNumberCheckedHits(int val) { nCheckedHits = val; }
+  inline void setNumberCheckedHits(int val, int k = 0) { nCheckedHits[k] = val; }
   void printDetectorLevels(const G4VTouchable*) const;
 
 private:
-  void storeHit(CaloG4Hit*);
-  bool saveHit(CaloG4Hit*);
+  void storeHit(CaloG4Hit*, int k = 0);
+  bool saveHit(CaloG4Hit*, int k = 0);
   void cleanHitCollection();
 
 protected:
@@ -139,11 +140,11 @@ protected:
   float incidentEnergy;
   float edepositEM, edepositHAD;
 
-  CaloHitID currentID, previousID;
+  CaloHitID currentID[2], previousID[2];
 
   double energyCut, tmaxHit, eminHit;
 
-  CaloG4Hit* currentHit;
+  CaloG4Hit* currentHit[2];
 
   bool suppressHeavy;
   double kmaxIon, kmaxNeutron, kmaxProton;
@@ -160,10 +161,10 @@ private:
 
   const SimTrackManager* m_trackManager;
 
-  std::unique_ptr<CaloSlaveSD> slave;
-  std::unique_ptr<CaloMeanResponse> meanResponse;
+  std::unique_ptr<CaloSlaveSD> slave[2];
+  std::unique_ptr<CaloMeanResponse> meanResponse[2];
 
-  CaloG4HitCollection* theHC;
+  CaloG4HitCollection* theHC[2];
 
   bool ignoreTrackID;
   bool isParameterized;
@@ -171,23 +172,24 @@ private:
   bool useMap;  // use map for comparison of ID
   bool corrTOFBeam;
 
-  int hcID;
+  int hcID[2];
   int primAncestor;
-  int cleanIndex;
-  int totalHits;
-  int primIDSaved;   // ID of the last saved primary
-  int nCheckedHits;  // number of last hits to compare ID
+  int cleanIndex[2];
+  int totalHits[2];
+  int primIDSaved[2];   // ID of the last saved primary
+  int nCheckedHits[2];  // number of last hits to compare ID
 
   float timeSlice;
   double eminHitD;
   double correctT;
   bool doFineCalo_;
   double eMinFine_;
+  int nHC_;
 
-  std::map<CaloHitID, CaloG4Hit*> hitMap;
+  std::map<CaloHitID, CaloG4Hit*> hitMap[2];
   std::map<int, TrackWithHistory*> tkMap;
   std::unordered_map<unsigned int, unsigned int> boundaryCrossingParentMap_;
-  std::vector<std::unique_ptr<CaloG4Hit>> reusehit;
+  std::vector<std::unique_ptr<CaloG4Hit>> reusehit[2];
   std::vector<Detector> fineDetectors_;
   bool doFineCaloThisStep_;
 };

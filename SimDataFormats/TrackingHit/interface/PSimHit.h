@@ -14,6 +14,8 @@ class TrackingSlaveSD;  // for friend declaration only
 
 class PSimHit {
 public:
+  static constexpr unsigned int k_tidOffset = 200000000;
+
   PSimHit() : theDetUnitId(0) {}
 
   PSimHit(const Local3DPoint& entry,
@@ -104,6 +106,15 @@ public:
    *  to which the PSimHit belongs.
    */
   unsigned int trackId() const { return theTrackId; }
+
+  /** In case te SimTrack ID is incremented by the k_tidOffset for hit category definition, this
+   * methods returns the original theTrackId value directly.
+   */
+  unsigned int originalTrackId() const { return theTrackId % k_tidOffset; }
+
+  unsigned int offsetTrackId() const { return theTrackId / k_tidOffset; }
+
+  static unsigned int addTrackIdOffset(unsigned int tId, unsigned int offset) { return offset * k_tidOffset + tId; }
 
   EncodedEventId eventId() const { return theEventId; }
 

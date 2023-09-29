@@ -8,6 +8,6 @@ conddb --yes --db pro copy TrackerAlignment_Upgrade2017_design_v4 --destdb myfil
 conddb --yes --db pro copy TrackerAlignmentErrorsExtended_Upgrade2017_design_v0 --destdb myfile.db
 
 echo " TESTING Primary Vertex Validation run-by-run submission ..."
-submitPVValidationJobs.py -j UNIT_TEST -D /HLTPhysics/Run2016C-TkAlMinBias-07Dec2018-v1/ALCARECO \
+submitPVValidationJobs.py -j UNIT_TEST -D /HLTPhysics/Run2023D-TkAlMinBias-PromptReco-v2/ALCARECO \
   -i ${CMSSW_BASE}/src/Alignment/OfflineValidation/test/testPVValidation_Relvals_DATA.ini -r --unitTest || die "Failure running PV Validation run-by-run submission" $?
 

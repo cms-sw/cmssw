@@ -22,7 +22,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
+#include "RecoTracker/PixelSeeding/interface/OrderedHitTriplets.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"

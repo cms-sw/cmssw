@@ -122,6 +122,7 @@ private:
 
   MonitorElement* meTPullvsE_;
   MonitorElement* meTPullvsEta_;
+  MonitorElement* meUnmatchedRecHit_;
 
   MonitorElement* meNclusters_;
 
@@ -289,6 +290,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   // --- Loop over the BTL RECO hits
   unsigned int n_reco_btl = 0;
+  unsigned int n_reco_btl_nosimhit = 0;
   for (const auto& recHit : *btlRecHitsHandle) {
     BTLDetId detId = recHit.id();
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
@@ -330,6 +332,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meHitTvsZ_->Fill(global_point.z(), recHit.time());
 
     // Resolution histograms
+    LogDebug("BtlLocalRecoValidation") << "RecoHit DetId= " << detId.rawId()
+                                       << " sim hits in id= " << m_btlSimHits.count(detId.rawId());
     if (m_btlSimHits.count(detId.rawId()) == 1 && m_btlSimHits[detId.rawId()].energy > hitMinEnergy_) {
       float longpos_res = recHit.position() - convertMmToCm(m_btlSimHits[detId.rawId()].x);
       float time_res = recHit.time() - m_btlSimHits[detId.rawId()].time;
@@ -353,14 +357,25 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       meTPullvsEta_->Fill(std::abs(global_point_sim.eta()), time_res / recHit.timeError());
       meTPullvsE_->Fill(m_btlSimHits[detId.rawId()].energy, time_res / recHit.timeError());
+    } else if (m_btlSimHits.count(detId.rawId()) == 0) {
+      n_reco_btl_nosimhit++;
+      LogDebug("BtlLocalRecoValidation") << "BTL rec hit with no corresponding sim hit in crystal, DetId= "
+                                         << detId.rawId() << " geoId= " << geoId.rawId() << " ene= " << recHit.energy()
+                                         << " time= " << recHit.time();
     }
 
     n_reco_btl++;
 
   }  // recHit loop
 
-  if (n_reco_btl > 0)
-    meNhits_->Fill(log10(n_reco_btl));
+  if (n_reco_btl > 0) {
+    meNhits_->Fill(std::log10(n_reco_btl));
+  }
+  if (n_reco_btl_nosimhit == 0) {
+    meUnmatchedRecHit_->Fill(-1.5);
+  } else {
+    meUnmatchedRecHit_->Fill(std::log10(n_reco_btl_nosimhit));
+  }
 
   // --- Loop over the BTL RECO clusters ---
   unsigned int n_clus_btl(0);
@@ -749,6 +764,9 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     -5.,
                                     5.,
                                     "S");
+
+  meUnmatchedRecHit_ = ibook.book1D(
+      "UnmatchedRecHit", "log10(#BTL crystals with rechits but no simhit);log10(#BTL rechits)", 80, -2., 6.);
 
   meNclusters_ = ibook.book1D("BtlNclusters", "Number of BTL RECO clusters;log_{10}(N_{RECO})", 100, 0., 5.25);
   meCluTime_ = ibook.book1D("BtlCluTime", "BTL cluster time ToA;ToA [ns]", 250, 0, 25);

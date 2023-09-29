@@ -1,0 +1,15 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="PhysicsTools/NanoAOD"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/Records"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DTRecHit"/>
+<use name="DataFormats/L1DTTrackFinder"/>
+<use name="boost"/>
+
+<export>
+   <lib name="1"/>
+</export>
+

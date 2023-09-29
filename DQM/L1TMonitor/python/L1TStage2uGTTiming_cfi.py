@@ -33,12 +33,12 @@ l1tStage2uGTTiming = DQMEDAnalyzer('L1TStage2uGTTiming',
         "L1_SingleEG15er2p5",
         "L1_SingleEG26er2p5",
         "L1_SingleLooseIsoEG28er1p5",
-        "L1_SingleJet60",
-        "L1_SingleJet60er2p5",
-        "L1_SingleJet60_FWD3p0",
+        "L1_SingleJet35",
+        "L1_SingleJet35er2p5",
+        "L1_SingleJet35_FWD2p5",
         "L1_ETMHF100",
         "L1_HTT120er",
-        "L1_ETT1200"
+        "L1_ETT1600"
     ),
     useAlgoDecision = cms.untracked.string("initial")
 )

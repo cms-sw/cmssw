@@ -15,6 +15,7 @@ namespace L1Analysis {
       tfMuonShowerBx.clear();
       tfMuonShowerOneNominal.clear();
       tfMuonShowerOneTight.clear();
+      tfMuonShowerOneLoose.clear();
       tfMuonShowerTwoLoose.clear();
       tfMuonShowerEndcap.clear();
       tfMuonShowerSector.clear();
@@ -24,6 +25,7 @@ namespace L1Analysis {
     std::vector<short int> tfMuonShowerBx;
     std::vector<short int> tfMuonShowerOneNominal;
     std::vector<short int> tfMuonShowerOneTight;
+    std::vector<short int> tfMuonShowerOneLoose;
     std::vector<short int> tfMuonShowerTwoLoose;
     std::vector<short int> tfMuonShowerEndcap;
     std::vector<short int> tfMuonShowerSector;

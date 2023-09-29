@@ -508,7 +508,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //Get  EB RecHits
   edm::Handle<EBRecHitCollection> TheEBRecHits;
   iEvent.getByToken(IT_EBRecHit, TheEBRecHits);
-  int EBHits = 0;
   if (TheEBRecHits.isValid()) {
     for (EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin(); iEBRecHit != TheEBRecHits->end();
          iEBRecHit++) {
@@ -519,7 +518,6 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       int ieta = EcalId.ieta();
       if (!StandardDQM)
         hExtra_EcalToF->Fill(ieta, iEBRecHit->time());
-      EBHits++;
     }
   }
 

@@ -9,10 +9,11 @@ MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
 WMF_DICT_PCM := ../WriteMemFileDict_rdict.pcm
 SHELL_DICT_PCM := ../ShellDict_rdict.pcm
+ROOTOUT := WriteMemFileDict.cc ShellDict.cc
 
 TGTS := ${LIB_CMS} ${MAIN}
 ifdef WITH_ROOT
-TGTS += ${WRMEMF} ${WMF_DICT_PCM}
+TGTS += ${WRMEMF} ${WMF_DICT_PCM} ${SHELL_DICT_PCM}
 endif
 
 .PHONY: all clean distclean
@@ -22,13 +23,14 @@ all: ${TGTS}
 SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
-WriteMemFileDict.cc ${WMF_DICT_PCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
+WriteMemFileDict.cc: ${SACMS}/tkNtuple/DictsLinkDef.h
 	rootcling -I=${SRCDIR} -f WriteMemFileDict.cc $<
+${WMF_DICT_PCM}: WriteMemFileDict.cc
 	mv WriteMemFileDict_rdict.pcm ${WMF_DICT_PCM}
-
 SRCS += ShellDict.cc
-ShellDict.cc ${SHELL_DICT_PCM}: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+ShellDict.cc: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
 	rootcling -I=${SRCDIR} -f ShellDict.cc ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+${SHELL_DICT_PCM}: ShellDict.cc
 	mv ShellDict_rdict.pcm ${SHELL_DICT_PCM}
 endif
 SRCB := $(notdir ${SRCS})
@@ -44,7 +46,7 @@ include ${DEPS}
 endif
 
 clean-local:
-	-rm -f ${TGTS} *.d *.o *.om *.so *.pcm
+	-rm -f ${TGTS} *.d *.o *.om *.so *.pcm ${ROOTOUT}
 	-rm -rf main.dSYM
 	-rm -rf plotting/*.so plotting/*.d plotting/*.pcm
 

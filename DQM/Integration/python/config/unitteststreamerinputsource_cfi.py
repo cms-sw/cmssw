@@ -1,12 +1,23 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from builtins import range
-import os
+import os, sys
 import FWCore.ParameterSet.Config as cms
 
 # Parameters for runType
 import FWCore.ParameterSet.VarParsing as VarParsing
 from .dqmPythonTypes import *
+
+'''
+check that the input directory exists and there are files in it
+'''
+def checkInputFolder(streamer_folder):
+  if not (os.path.exists(streamer_folder) and os.path.isdir(os.path.join(streamer_folder))):
+    raise IOError("Input folder '%s' does not exist in CMSSW_SEARCH_PATH" % streamer_folder)
+
+  items = os.listdir(dqm_streamer_folder)
+  if not items:
+    raise IOError("Input folder '%s' does not contain any file" % streamer_folder)
 
 # Dedine and register options
 options = VarParsing.VarParsing("analysis")
@@ -79,7 +90,9 @@ options.parseArguments()
 
 # Read streamer files from https://github.com/cms-data/DQM-Integration
 dqm_integration_data = [os.path.join(dir,'DQM/Integration/data') for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,'DQM/Integration/data'))][0]
-print("Reading streamer files from:\n ", dqm_integration_data)
+dqm_streamer_folder = os.path.join(dqm_integration_data,'run'+str(options.runNumber))
+print("Reading streamer files from:\n ",dqm_streamer_folder)
+checkInputFolder(dqm_streamer_folder)
 
 # Set the process source
 source = cms.Source("DQMStreamerReader",

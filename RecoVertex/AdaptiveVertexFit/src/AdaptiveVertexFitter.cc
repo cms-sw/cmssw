@@ -469,7 +469,6 @@ CachingVertex<5> AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack>& 
   sortByDistanceToRefPoint(globalVTracks, priorSeed.position());
 
   // main loop through all the VTracks
-  int lpStep = 0;
   int step = 0;
 
   CachingVertex<5> initialVertex = returnVertex;
@@ -498,7 +497,6 @@ CachingVertex<5> AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack>& 
       if (gsfIntermediarySmoothing_)
         returnVertex = theSmoother->smooth(returnVertex);
       globalVTracks = reLinearizeTracks(globalVTracks, returnVertex);
-      lpStep++;
     } else if (step) {
       // reweight, if it is not the first step
       // cout << "[AdaptiveVertexFit] reweight at " << returnVertex.position() << endl;

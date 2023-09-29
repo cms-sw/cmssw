@@ -47,7 +47,7 @@ public:
   }
 
   // destructor
-  ~EcalUncalibRecHitRecAnalFitAlgo<C>() override{};
+  ~EcalUncalibRecHitRecAnalFitAlgo() override{};
 
   /// Compute parameters
   EcalUncalibratedRecHit makeRecHit(const C& dataFrame,

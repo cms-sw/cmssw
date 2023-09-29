@@ -112,6 +112,22 @@
   <test name="TestFWCoreIntegrationDelayedReaderTest" command="delayedreader_throw_test.sh"/>
 
   <test name="TestFrameworkExceptionHandling" command="run_TestFrameworkExceptionHandling.sh ${value}" for="1,9"/>
+  <test name="TestFWCoreIntegrationTryToContinuePath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py"/>
+  <test name="TestFWCoreIntegrationTryToContinuePathMessage" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py 2>&amp;1 | fgrep 'applying TryToContinue on Exception'"/>
+  <test name="TestFWCoreIntegrationTryToContinueTask" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --useTask"/>
+  <test name="TestFWCoreIntegrationTryToContinueRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationTryToContinueLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_cfg.py -- --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueMessage" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py 2>&amp;1 | fgrep 'Begin TryToContinue Exception'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueIndirect" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --indirect"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueIndirectRun" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --indirect --inRun 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationShouldTryToContinueIndirectLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_cfg.py -- --indirect --inLumi 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_exception_output_cfg.py"/>
+  <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_source_cfg.py"/>
+  <test name="TestFWCoreIntegrationTryToContinueESProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py"/>
+  <test name="TestFWCoreIntegrationTryToContinueESProducerContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py -- --continueAnalyzer"/>
 
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>

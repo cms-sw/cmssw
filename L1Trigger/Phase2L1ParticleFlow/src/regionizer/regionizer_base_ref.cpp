@@ -6,9 +6,18 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 l1ct::RegionizerEmulator::RegionizerEmulator(const edm::ParameterSet& iConfig)
     : useAlsoVtxCoords_(iConfig.getParameter<bool>("useAlsoVtxCoords")),
-      debug_(iConfig.getUntrackedParameter<bool>("debug", false)) {}
+      debug_(iConfig.getUntrackedParameter<bool>("debug")) {}
+
+edm::ParameterSetDescription l1ct::RegionizerEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription description;
+  description.add<bool>("useAlsoVtxCoords", true);
+  description.addUntracked<bool>("debug", false);
+  return description;
+}
 #endif
 
 l1ct::RegionizerEmulator::~RegionizerEmulator() {}

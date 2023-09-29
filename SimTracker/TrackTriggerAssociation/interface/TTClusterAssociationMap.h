@@ -183,7 +183,6 @@ bool TTClusterAssociationMap<T>::isGenuine(TTClusterRefT<T> aCluster) const {
     return false;
 
   /// If we are here, it means there are some TrackingParticles
-  unsigned int nullTPs = 0;
   unsigned int goodDifferentTPs = 0;
   std::vector<const TrackingParticle*> tpAddressVector;
 
@@ -198,7 +197,6 @@ bool TTClusterAssociationMap<T>::isGenuine(TTClusterRefT<T> aCluster) const {
 
     /// Count the NULL TrackingParticles
     if (curTP.isNull()) {
-      //      nullTPs++;
       tp_mom.push_back(0);
     } else {
       tp_mom.push_back(curTP.get()->p4().pt());
@@ -214,9 +212,7 @@ bool TTClusterAssociationMap<T>::isGenuine(TTClusterRefT<T> aCluster) const {
     TrackingParticlePtr curTP = theseTrackingParticles.at(itp);
 
     /// Count the NULL TrackingParticles
-    if (tp_mom.at(itp) <= 0.01 * tp_tot) {
-      nullTPs++;
-    } else {
+    if (tp_mom.at(itp) > 0.01 * tp_tot) {
       /// Store the pointers (addresses) of the TrackingParticle
       /// to be able to count how many different there are
       tpAddressVector.push_back(curTP.get());
@@ -284,7 +280,6 @@ bool TTClusterAssociationMap<T>::isCombinatoric(TTClusterRefT<T> aCluster) const
   return true;
 
   /// If we are here, it means there are some TrackingParticles
-  unsigned int nullTPs = 0;
   unsigned int goodDifferentTPs = 0;
   std::vector<const TrackingParticle*> tpAddressVector;
 
@@ -294,9 +289,7 @@ bool TTClusterAssociationMap<T>::isCombinatoric(TTClusterRefT<T> aCluster) const
     TrackingParticlePtr curTP = theseTrackingParticles.at(itp);
 
     /// Count the NULL TrackingParticles
-    if (curTP.isNull()) {
-      nullTPs++;
-    } else {
+    if (!curTP.isNull()) {
       /// Store the pointers (addresses) of the TrackingParticle
       /// to be able to count how many different there are
       tpAddressVector.push_back(curTP.get());
@@ -308,9 +301,6 @@ bool TTClusterAssociationMap<T>::isCombinatoric(TTClusterRefT<T> aCluster) const
   tpAddressVector.erase(std::unique(tpAddressVector.begin(), tpAddressVector.end()), tpAddressVector.end());
   goodDifferentTPs = tpAddressVector.size();
 
-  /// COMBINATORIC means no NULLs and more than one good TP
-  /// OR, in alternative, only one good TP but non-zero NULLS
-  //return ( ( nullTPs == 0 && goodDifferentTPs > 1 ) || ( nullTPs > 0 && goodDifferentTPs > 0 ) );
   return (goodDifferentTPs > 1);
 }
 

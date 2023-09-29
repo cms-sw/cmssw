@@ -60,7 +60,7 @@ private:
   CLHEP::HepVector temp_;
 
 public:
-  EcalUncalibRecHitFixedAlphaBetaAlgo<C>()
+  EcalUncalibRecHitFixedAlphaBetaAlgo()
       : fAlpha_(0.),
         fBeta_(0.),
         fAmp_max_(-1.),
@@ -84,7 +84,7 @@ public:
     MinAmpl_ = 16;
     dyn_pedestal = true;
   }
-  EcalUncalibRecHitFixedAlphaBetaAlgo<C>(int n_iter, int n_bef_max = 1, int n_aft_max = 3, float sigma_ped = 1.1)
+  EcalUncalibRecHitFixedAlphaBetaAlgo(int n_iter, int n_bef_max = 1, int n_aft_max = 3, float sigma_ped = 1.1)
       : fAlpha_(0.), fBeta_(0.), fAmp_max_(-1.), fTim_max_(-1), fPed_max_(0), alfabeta_(0), DM1_(3), temp_(3) {
     fNb_iter_ = n_iter;
     fNum_samp_bef_max_ = n_bef_max;
@@ -102,7 +102,7 @@ public:
     dyn_pedestal = true;
   };
 
-  ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() override{};
+  ~EcalUncalibRecHitFixedAlphaBetaAlgo() override{};
   EcalUncalibratedRecHit makeRecHit(const C& dataFrame,
                                     const double* pedestals,
                                     const double* gainRatios,

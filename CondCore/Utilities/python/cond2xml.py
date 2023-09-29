@@ -76,41 +76,45 @@ class CondXmlProcessor(object):
         return 
 
     def discover(self, payloadType):
-
         libName = 'pluginUtilities_payload2xml.so'
-        # first search: developer area or main release
-        libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
-        devLibDir = libDir
-        libPath = os.path.join( devLibDir, libName )
-        releaseBase = os.environ["CMSSW_RELEASE_BASE"]
-        devCheckout = (releaseBase != '')
-        if not devCheckout:
+
+        isReadOnlyRel = (os.environ['CMSSW_RELEASE_BASE'] == '')
+        if isReadOnlyRel:
             logging.debug('Looks like the current working environment is a read-only release')
-        if not os.path.exists( libPath ) and devCheckout:
-            # main release ( for dev checkouts )
-            libDir = os.path.join( releaseBase, 'lib', os.environ["SCRAM_ARCH"] )
+
+        # first search CMSSW_BASE (developer area), then CMSSW_RELEASE_BASE (release base),
+        # and finally CMSSW_FULL_RELEASE_BASE (full release base, defined only for patch releases)
+        foundLib = False
+        for cmsswBase in ['CMSSW_BASE', 'CMSSW_RELEASE_BASE', 'CMSSW_FULL_RELEASE_BASE']:
+            # Skip to next in case one is not defined or is empty
+            if not (cmsswBase in os.environ and os.environ[cmsswBase] != ''):
+                continue
+            libDir = os.path.join( os.environ[cmsswBase], 'lib', os.environ['SCRAM_ARCH'] )
             libPath = os.path.join( libDir, libName )
-            if not os.path.exists( libPath ):
-                if "CMSSW_FULL_RELEASE_BASE" in os.environ:
-                    libDir = os.path.join( os.environ["CMSSW_FULL_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
-                    libPath = os.path.join( libDir, libName )
-        if not os.path.exists( libPath ):
-            # it should never happen!
-            raise Exception('No built-in library %s found with XML converters.' %libPath)
-        logging.debug("Importing built-in library %s" %libPath)
+            if cmsswBase == 'CMSSW_BASE':
+                devLibDir = libDir
+            foundLib = os.path.isfile( libPath )
+            if foundLib:
+                logging.debug('Found built-in library with XML converters: %s' %libPath)
+                break
+        if not foundLib:
+            # this should never happen !!
+            raise Exception('No built-in library found with XML converters (library name: %s).' %libName)
+
+        logging.debug('Importing built-in library %s' %libPath)
         module = importlib.import_module( libName.replace('.so', '') )
         functors = dir(module)
         funcName = payloadType+'2xml'
         if funcName in functors:
             logging.info('XML converter for payload class %s found in the built-in library.' %payloadType)
             return getattr( module, funcName)
-        if not devCheckout:
-            # give-up if it is a read-only release...
-            raise Exception('No XML converter suitable for payload class %s has been found in the built-in library.')
+        if isReadOnlyRel:
+            # give up if it is a read-only release...
+            raise Exception('No XML converter suitable for payload class %s has been found in the built-in library.' %payloadType)
         libName = 'plugin%s.so' %localLibName( payloadType )
         libPath = os.path.join( devLibDir, libName )
         if os.path.exists( libPath ):
-            logging.info('Found local library with XML converter for class %s' %payloadType )
+            logging.info('Found local library with XML converter for class %s' %payloadType)
             module = importlib.import_module( libName.replace('.so', '') )
             return getattr( module, funcName)
         logging.warning('No XML converter for payload class %s found in the built-in library.' %payloadType)
@@ -189,8 +193,8 @@ class CondXmlProcessor(object):
             obj = xmlConverter()
             resultXML = obj.write( data )
             if destFile is None:
-                print(resultXML)    
+                print(resultXML)   
             else:
-                with open(destFile, 'w') as outFile:
+                with open(destFile, 'a') as outFile:
                     outFile.write(resultXML)
-                    outFile.close()
+                    

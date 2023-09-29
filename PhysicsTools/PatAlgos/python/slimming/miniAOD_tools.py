@@ -30,7 +30,6 @@ def miniAOD_customizeCommon(process):
     process.patMuons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("muonPUPPINoLeptonsIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
 
     process.patMuons.computeMiniIso = True
-    process.patMuons.computeMuonMVA = True
     process.patMuons.computeMuonIDMVA = True
     process.patMuons.computeSoftMuonMVA = True
 
@@ -41,8 +40,7 @@ def miniAOD_customizeCommon(process):
     run2_muon_2016.toModify( process.patMuons, effectiveAreaVec = [0.0735,0.0619,0.0465,0.0433,0.0577])
     run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
-    run2_muon_2016.toModify( process.patMuons, mvaTrainingFile = "RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
-
+    
     process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -419,9 +417,10 @@ def miniAOD_customizeCommon(process):
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJets_cfi')
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+    from Configuration.Eras.Modifier_run3_miniAOD_12X_cff import run3_miniAOD_12X
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
-    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA).toReplaceWith(task, _rerun_puppijets_task)
+    (_run2_miniAOD_ANY | pA_2016 | pp_on_AA | run3_miniAOD_12X).toReplaceWith(task, _rerun_puppijets_task)
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -439,7 +438,7 @@ def miniAOD_customizeCommon(process):
     def _add_jetsPuppi(process):
         from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
         noDeepFlavourDiscriminators = [x.value() if isinstance(x, cms.InputTag) else x for x in process.patJets.discriminatorSources 
-                                       if not "DeepFlavour" in str(x)]
+                                       if (not "DeepFlavour" in str(x) and not "Transformer" in str(x))]
         addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                          jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
                          pfCandidates = cms.InputTag("particleFlow"),
@@ -477,7 +476,7 @@ def miniAOD_customizeCommon(process):
         process.load('RecoMET.METProducers.pfMetPuppi_cfi')
         _rerun_puppimet_task = task.copy()
         _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
-        (_run2_miniAOD_ANY | pA_2016 | pp_on_AA).toReplaceWith(task, _rerun_puppimet_task)
+        (_run2_miniAOD_ANY | pA_2016 | pp_on_AA | run3_miniAOD_12X).toReplaceWith(task, _rerun_puppimet_task)
     
         runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
                                             jetCollUnskimmed="slimmedJetsPuppi",

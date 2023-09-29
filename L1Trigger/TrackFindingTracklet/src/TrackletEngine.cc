@@ -95,7 +95,7 @@ void TrackletEngine::execute() {
         countall++;
         const VMStubTE& outervmstub = outervmstubs_->getVMStubTEBinned(ibin, j);
 
-        int rzbin = outervmstub.vmbits().bits(0, 3);
+        int rzbin = outervmstub.vmbits().bits(0, N_RZBITS);
 
         FPGAWord iphiinnerbin = innervmstub.finephi();
         FPGAWord iphiouterbin = outervmstub.finephi();
@@ -103,12 +103,16 @@ void TrackletEngine::execute() {
         unsigned int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
 
         if (iSeed_ >= 4) {  //Also use r-position
-          int ir = ((ibin & 3) << 1) + (rzbin >> 2);
-          index = (index << 3) + ir;
+
+          int nrbits = 3;                          // Number of bits used for r position in disk LUT
+          int ibinmask = (1 << (nrbits - 1)) - 1;  // Mask of two least significant bits
+
+          int ir = ((ibin & ibinmask) << 1) + (rzbin >> (N_RZBITS - 1));
+          index += (ir << (outerphibits_ + innerphibits_));
         }
 
         if (start != ibin)
-          rzbin += 8;
+          rzbin += (1 << N_RZBITS);
         if ((rzbin < rzbinfirst) || (rzbin - rzbinfirst > rzdiffmax)) {
           continue;
         }

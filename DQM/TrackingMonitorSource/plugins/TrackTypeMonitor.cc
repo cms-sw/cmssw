@@ -1,27 +1,127 @@
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+// system includes
+#include <string>
+#include <vector>
+#include <map>
+#include <tuple>
+#include <set>
+
+// user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DQM/TrackingMonitorSource/interface/TrackTypeMonitor.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+// ROOT includes
 #include "TFile.h"
 #include "TH1.h"
 #include "TMath.h"
 #include "TPRegexp.h"
+
+class TrackTypeMonitor : public DQMEDAnalyzer {
+public:
+  TrackTypeMonitor(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
+  void fillHistograms(const reco::Track& track, int indx);
+
+  const edm::ParameterSet parameters_;
+
+  const std::string moduleName_;
+  const std::string folderName_;
+  const bool verbose_;
+
+  const edm::InputTag muonTag_;
+  const edm::InputTag electronTag_;
+  const edm::InputTag trackTag_;
+  const edm::InputTag bsTag_;
+  const edm::InputTag vertexTag_;
+
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+
+  const std::string trackQuality_;
+
+  std::vector<MonitorElement*> trackEtaHList_;
+  std::vector<MonitorElement*> trackPhiHList_;
+  std::vector<MonitorElement*> trackPHList_;
+  std::vector<MonitorElement*> trackPtHList_;
+  std::vector<MonitorElement*> trackPterrHList_;
+  std::vector<MonitorElement*> trackqOverpHList_;
+  std::vector<MonitorElement*> trackChi2bynDOFHList_;
+  std::vector<MonitorElement*> nTracksHList_;
+  std::vector<MonitorElement*> trackdzHList_;
+
+  MonitorElement* hcounterH_;
+  MonitorElement* dphiH_;
+  MonitorElement* drH_;
+
+  unsigned long long m_cacheID_;
+};
+
+void TrackTypeMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.addUntracked<std::string>("ModuleName", "TrackTypeMonitor");
+  desc.addUntracked<std::string>("FolderName", "highPurityTracks");
+  desc.addUntracked<bool>("verbose", false);
+  desc.addUntracked<edm::InputTag>("muonInputTag", edm::InputTag("muons"));
+  desc.addUntracked<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"));
+  desc.addUntracked<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.addUntracked<std::string>("trackQuality", "highPurity");
+
+  std::map<std::string, std::tuple<int, double, double> > listOfPS = {{"TrackEtaPar", {60, -3.0, 3.0}},
+                                                                      {"TrackPhiPar", {100, -4.0, 4.0}},
+                                                                      {"TrackPPar", {100, 0., 100.}},
+                                                                      {"TrackPtPar", {100, 0., 100.}},
+                                                                      {"TrackPterrPar", {100, 0., 100.}},
+                                                                      {"TrackqOverpPar", {100, -10., 10.}},
+                                                                      {"TrackdzPar", {100, -100., 100.}},
+                                                                      {"TrackChi2bynDOFPar", {100, 0.0, 10.0}},
+                                                                      {"nTracksPar", {100, -0.5, 99.5}}};
+
+  for (const auto& [key, pSet] : listOfPS) {
+    edm::ParameterSetDescription PSetToAdd;
+    PSetToAdd.add<int>("Xbins", std::get<0>(pSet));
+    PSetToAdd.add<double>("Xmin", std::get<1>(pSet));
+    PSetToAdd.add<double>("Xmax", std::get<2>(pSet));
+    desc.add<edm::ParameterSetDescription>(key, PSetToAdd);
+  }
+
+  descriptions.addWithDefaultLabel(desc);
+}
 
 template <class T>
 class PtComparator {
@@ -277,7 +377,7 @@ void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& 
 
   if (muonColl.isValid()) {
     for (auto const& muo : *muonColl) {
-      if (muo.isGlobalMuon() && muo.isPFMuon() && std::fabs(muo.eta()) <= 2.1 && muo.pt() > 1) {
+      if (muo.isGlobalMuon() && muo.isPFMuon() && std::abs(muo.eta()) <= 2.1 && muo.pt() > 1) {
         reco::TrackRef gtrkref = muo.globalTrack();
         if (!gtrkref.isNonnull())
           continue;
@@ -310,7 +410,7 @@ void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& 
         const reco::MuonPFIsolation& pfIso04 = muo.pfIsolationR04();
         double absiso = pfIso04.sumChargedParticlePt +
                         std::max(0.0, pfIso04.sumNeutralHadronEt + pfIso04.sumPhotonEt - 0.5 * pfIso04.sumPUPt);
-        if (chbyndof < 10 && std::fabs(trkd0) < 0.02 && std::fabs(trkdz) < 20 && nPixelHits > 1 && nStripHits > 8 &&
+        if (chbyndof < 10 && std::abs(trkd0) < 0.02 && std::abs(trkdz) < 20 && nPixelHits > 1 && nStripHits > 8 &&
             nChambers > 2 && nMatches > 2 && nMatchedStations > 2 && absiso / muo.pt() < 0.3) {
           isoTrkList.push_back(gtk);
           fillHistograms(*gtk, 0);
@@ -337,10 +437,10 @@ void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       double deltaEtaIn = ele.deltaEtaSuperClusterTrackAtVtx();
 
       if (ele.isEB()) {
-        if (std::fabs(deltaPhiIn) >= .15 && std::fabs(deltaEtaIn) >= .007 && hOverE >= .12 && sigmaee >= .01)
+        if (std::abs(deltaPhiIn) >= .15 && std::abs(deltaEtaIn) >= .007 && hOverE >= .12 && sigmaee >= .01)
           continue;
       } else if (ele.isEE()) {
-        if (std::fabs(deltaPhiIn) >= .10 && std::fabs(deltaEtaIn) >= .009 && hOverE >= .10 && sigmaee >= .03)
+        if (std::abs(deltaPhiIn) >= .10 && std::abs(deltaEtaIn) >= .009 && hOverE >= .10 && sigmaee >= .03)
           continue;
       }
       hcounterH_->Fill(1);
@@ -362,7 +462,7 @@ void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& 
         continue;
       hcounterH_->Fill(2);
 
-      if (std::fabs(trkd0) >= 0.02 || std::fabs(trkdz) >= 20)
+      if (std::abs(trkd0) >= 0.02 || std::abs(trkdz) >= 20)
         continue;
       hcounterH_->Fill(3);
 
@@ -415,8 +515,8 @@ void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& 
       // now classify primary and underlying tracks using vertex information
       double dxy = track.dxy(vit.position());
       double dz = track.dz(vit.position());
-      if (std::fabs(dxy) < 0.02 && std::fabs(dz) < 20) {  // primary tracks
-                                                          // remove tracks associated to the identified particles
+      if (std::abs(dxy) < 0.02 && std::abs(dz) < 20) {  // primary tracks
+                                                        // remove tracks associated to the identified particles
         double drmin = 999;
         for (auto const& tk : isoTrkList) {
           double dr = deltaR(track.eta(), track.phi(), tk->eta(), tk->phi());
@@ -452,7 +552,7 @@ void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& 
     for (auto const& obj : nisoTrkList) {
       if (obj->pt() > 5) {
         double dphi = deltaPhi(isoTrk->phi(), obj->phi());
-        dphiH_->Fill(std::fabs(dphi));
+        dphiH_->Fill(std::abs(dphi));
 
         double dr = deltaR(isoTrk->eta(), isoTrk->phi(), obj->eta(), obj->phi());
         drH_->Fill(dr);

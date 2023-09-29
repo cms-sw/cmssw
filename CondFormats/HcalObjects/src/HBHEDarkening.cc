@@ -16,9 +16,9 @@
 HBHEDarkening::HBHEDarkening(int ieta_shift,
                              float drdA,
                              float drdB,
-                             const std::map<int, std::vector<std::vector<float>>>& dosemaps,
-                             const std::vector<LumiYear>& years)
-    : ieta_shift_(ieta_shift), drdA_(drdA), drdB_(drdB), dosemaps_(dosemaps), years_(years) {
+                             std::map<int, std::vector<std::vector<float>>> dosemaps,
+                             std::vector<LumiYear> years)
+    : ieta_shift_(ieta_shift), drdA_(drdA), drdB_(drdB), dosemaps_(std::move(dosemaps)), years_(std::move(years)) {
   //finish initializing years
   std::sort(years_.begin(), years_.end());
   //sum up int lumi

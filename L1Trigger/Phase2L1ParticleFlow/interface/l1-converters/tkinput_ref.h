@@ -7,7 +7,8 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
   class TrackInputEmulator {
@@ -22,14 +23,26 @@ namespace l1ct {
     };
 
     TrackInputEmulator(const edm::ParameterSet &iConfig);
-    TrackInputEmulator(Region = Region::Endcap, Encoding encoding = Encoding::Stepping, bool bitwise = true);
+    TrackInputEmulator(Region = Region::Endcap,
+                       Encoding encoding = Encoding::Stepping,
+                       bool bitwise = true,
+                       bool slim = true);
+
+    static edm::ParameterSetDescription getParameterSetDescription();
 
     std::pair<l1ct::TkObjEmu, bool> decodeTrack(ap_uint<96> tkword, const l1ct::PFRegionEmu &sector) const {
-      return decodeTrack(tkword, sector, bitwise_);
+      return decodeTrack(tkword, sector, bitwise_, slim_);
     }
     std::pair<l1ct::TkObjEmu, bool> decodeTrack(ap_uint<96> tkword,
                                                 const l1ct::PFRegionEmu &sector,
-                                                bool bitwise) const;
+                                                bool bitwise) const {
+      return decodeTrack(tkword, sector, bitwise, slim_);
+    }
+
+    std::pair<l1ct::TkObjEmu, bool> decodeTrack(ap_uint<96> tkword,
+                                                const l1ct::PFRegionEmu &sector,
+                                                bool bitwise,
+                                                bool slim) const;
 
     //== Unpackers ==
     static bool valid(const ap_uint<96> &tkword) { return tkword[95]; }
@@ -151,6 +164,15 @@ namespace l1ct {
     const std::vector<int> &tanlLUT() const { return tanlLUT_; }
     const std::vector<l1ct::pt_t> &ptLUT() const { return ptLUT_; }
 
+    unsigned int countSetBits(unsigned int n) const {
+      unsigned int count = 0;
+      while (n) {
+        n &= (n - 1);
+        count++;
+      }
+      return count;
+    }
+
   protected:
     // utilities
     template <int N>
@@ -174,6 +196,9 @@ namespace l1ct {
 
     /// Whether to run the bitwise accurate or floating point conversions
     bool bitwise_;
+
+    /// Whether to unpack and populate also nstubs and various chi2 variables (needed for CompibedID in the endcap)
+    bool slim_;
 
     /// Main constants
     float rInvToPt_, phiScale_, z0Scale_;

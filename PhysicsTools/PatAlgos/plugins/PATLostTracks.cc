@@ -312,6 +312,8 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
   cands.back().setCovarianceVersion(covarianceVersion_);
   cands.back().setLostInnerHits(lostHits);
   if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX) {
+    cands.back().setTrkAlgo(static_cast<uint8_t>(trk->algo()), static_cast<uint8_t>(trk->originalAlgo()));
+    cands.back().setFirstHit(trk->hitPattern().getHitPattern(reco::HitPattern::TRACK_HITS, 0));
     if (useLegacySetup_ || std::abs(id) == 11 || trkStatus == TrkStatus::VTX) {
       cands.back().setTrackProperties(*trk, covariancePackingSchemas_[4], covarianceVersion_);
     } else {

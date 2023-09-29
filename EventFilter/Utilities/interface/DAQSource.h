@@ -146,7 +146,7 @@ private:
   tbb::concurrent_queue<std::unique_ptr<RawInputFile>> fileQueue_;
 
   std::mutex mReader_;
-  std::vector<std::condition_variable*> cvReader_;
+  std::vector<std::unique_ptr<std::condition_variable>> cvReader_;
   std::vector<unsigned int> tid_active_;
 
   std::atomic<bool> quit_threads_;
@@ -159,7 +159,6 @@ private:
   std::list<std::pair<int, std::unique_ptr<InputFile>>> filesToDelete_;
   std::mutex fileDeleteLock_;
   std::vector<int> streamFileTracker_;
-  unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 
   //supervisor thread wakeup
@@ -192,6 +191,10 @@ public:
       : InputFile(status, lumi, name, deleteFile, rawFd, fileSize, rawHeaderSize, nChunks, nEvents, nullptr),
         sourceParent_(parent) {}
   bool advance(unsigned char*& dataPosition, const size_t size);
+  void advance(const size_t size) {
+    chunkPosition_ += size;
+    bufferPosition_ += size;
+  }
 
 private:
   DAQSource* sourceParent_;

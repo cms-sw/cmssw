@@ -166,8 +166,8 @@ namespace trklet {
           if (frame.first.isNonnull())
             tracks.insert(frame.first);
         nTracksRegion += tracks.size();
-        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int& sum, const TTTrackRef& ttTrackRef) {
-          return sum += (int)ttTrackRef->getStubRefs().size();
+        nStubsRegion += accumulate(tracks.begin(), tracks.end(), 0, [](int sum, const TTTrackRef& ttTrackRef) {
+          return sum + (int)ttTrackRef->getStubRefs().size();
         });
         set<TTTrackRef> tracksLost;
         for (const FrameTrack& frame : lost)

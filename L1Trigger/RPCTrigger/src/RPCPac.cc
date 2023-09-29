@@ -96,11 +96,11 @@ RPCPacMuon RPCPac::runTrackPatternsGroup(const RPCLogCone& cone) const {
 RPCPacMuon RPCPac::runEnergeticPatternsGroups(const RPCLogCone& cone) const {
   RPCPacMuon bestMuon;
   unsigned short firedPlanes = 0;
-  int firedPlanesCount = 0;
+  // int firedPlanesCount = 0;
   RPCPacData::TEPatternsGroupList::const_iterator iEGroup = m_pacData->m_EnergeticPatternsGroupList.begin();
   for (; iEGroup != m_pacData->m_EnergeticPatternsGroupList.end(); iEGroup++) {
     firedPlanes = 0;
-    firedPlanesCount = 0;
+    // firedPlanesCount = 0;
     unsigned short one = 1;
     for (int logPlane = RPCConst::m_FIRST_PLANE;
          logPlane < RPCConst::m_USED_PLANES_COUNT[std::abs(m_ConeCrdnts.m_Tower)];
@@ -114,7 +114,7 @@ RPCPacMuon RPCPac::runEnergeticPatternsGroups(const RPCLogCone& cone) const {
           int strip = itLP->first;
           if (iEGroup->m_GroupShape.getLogStripState(logPlane, strip)) {
             firedPlanes = firedPlanes | one;
-            firedPlanesCount++;
+            // firedPlanesCount++;
             break;
           }
         }

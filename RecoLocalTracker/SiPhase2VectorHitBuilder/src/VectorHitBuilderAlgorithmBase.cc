@@ -48,9 +48,7 @@ double VectorHitBuilderAlgorithmBase::computeParallaxCorrection(const PixelGeomD
 
 void VectorHitBuilderAlgorithmBase::printClusters(const edmNew::DetSetVector<Phase2TrackerCluster1D>& clusters) const {
   int nCluster = 0;
-  int numberOfDSV = 0;
   for (const auto& DSViter : clusters) {
-    ++numberOfDSV;
     // Loop over the clusters in the detector unit
     for (const auto& clustIt : DSViter) {
       nCluster++;

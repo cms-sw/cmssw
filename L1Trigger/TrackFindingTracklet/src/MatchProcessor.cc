@@ -1,3 +1,15 @@
+//////////////////////////////////////////////////////////////////
+// MatchProcessor
+//
+// This module is the combined version of the PR+ME+MC
+// See more in execute()
+//
+// Variables such as `best_ideltaphi_barrel` store the "global"
+// best value for delta phi, r, z, and r*phi, for instances
+// where the same tracklet has multiple stub pairs. This allows
+// us to find the truly best match
+//////////////////////////////////////////////////////////////////
+
 #include "L1Trigger/TrackFindingTracklet/interface/MatchProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
@@ -21,6 +33,11 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
       rphicut2Stable_(settings),
       rcutPStable_(settings),
       rcut2Stable_(settings),
+      alphainner_(settings),
+      alphaouter_(settings),
+      rSSinner_(settings),
+      rSSouter_(settings),
+      diskRadius_(settings),
       fullmatches_(12),
       rinvbendlut_(settings),
       luttable_(settings),
@@ -47,6 +64,8 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
   nrbits_ = 5;
   nphiderbits_ = 6;
 
+  nrprojbits_ = 8;
+
   if (!barrel_) {
     rinvbendlut_.initProjectionBend(
         global->ITC_L1L2()->der_phiD_final.K(), layerdisk_ - N_LAYER, nrbits_, nphiderbits_);
@@ -65,6 +84,11 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
     rphicut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sphi, region);
     rcutPStable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::diskPSr, region);
     rcut2Stable_.initmatchcut(layerdisk_, TrackletLUT::MatchType::disk2Sr, region);
+    alphainner_.initmatchcut(layerdisk_, TrackletLUT::MatchType::alphainner, region);
+    alphaouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::alphaouter, region);
+    rSSinner_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSinner, region);
+    rSSouter_.initmatchcut(layerdisk_, TrackletLUT::MatchType::rSSouter, region);
+    diskRadius_.initProjectionDiskRadius(nrprojbits_);
   }
 
   for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
@@ -86,6 +110,14 @@ MatchProcessor::MatchProcessor(string name, Settings const& settings, Globals* g
     tmpME.setimeu(iME);
     matchengines_.push_back(tmpME);
   }
+
+  // Pick some initial large values
+  best_ideltaphi_barrel = 0xFFFF;
+  best_ideltaz_barrel = 0xFFFF;
+  best_ideltaphi_disk = 0xFFFF;
+  best_ideltar_disk = 0xFFFF;
+  curr_tracklet = nullptr;
+  next_tracklet = nullptr;
 }
 
 void MatchProcessor::addOutput(MemoryBase* memory, string output) {
@@ -368,12 +400,30 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
         }
         assert(projrinv >= 0);
 
-        unsigned int slot = proj->proj(layerdisk_).fpgarzbin1projvm().value();
-        bool second = proj->proj(layerdisk_).fpgarzbin2projvm().value();
-
         unsigned int projfinephi =
             (fpgaphi.value() >> (fpgaphi.nbits() - (nvmbits_ + NFINEPHIBITS))) & ((1 << NFINEPHIBITS) - 1);
-        int projfinerz = proj->proj(layerdisk_).fpgafinerzvm().value();
+
+        unsigned int slot;
+        bool second;
+        int projfinerz;
+
+        if (barrel_) {
+          slot = proj->proj(layerdisk_).fpgarzbin1projvm().value();
+          second = proj->proj(layerdisk_).fpgarzbin2projvm().value();
+          projfinerz = proj->proj(layerdisk_).fpgafinerzvm().value();
+        } else {
+          //The -1 here is due to not using the full range of bits. Should be fixed.
+          unsigned int ir = proj->proj(layerdisk_).fpgarzproj().value() >>
+                            (proj->proj(layerdisk_).fpgarzproj().nbits() - nrprojbits_ - 1);
+          unsigned int word = diskRadius_.lookup(ir);
+
+          slot = (word >> 1) & ((1 << N_RZBITS) - 1);
+          if (proj->proj(layerdisk_).fpgarzprojder().value() < 0) {
+            slot += (1 << N_RZBITS);
+          }
+          second = word & 1;
+          projfinerz = word >> 4;
+        }
 
         bool isPSseed = proj->PSseed();
 
@@ -440,7 +490,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
   }
 }
 
-bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, bool, unsigned int) {
+bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, bool, unsigned int istep) {
   const L1TStub* stub = fpgastub->l1tstub();
 
   if (layerdisk_ < N_LAYER) {
@@ -487,6 +537,18 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     double dzapprox = z - (proj.rzprojapprox() + dr * proj.rzprojderapprox());
 
     int seedindex = tracklet->getISeed();
+    curr_tracklet = next_tracklet;
+    next_tracklet = tracklet;
+
+    // Do we have a new tracklet?
+    bool newtracklet = (istep == 0 || tracklet != curr_tracklet);
+    if (istep == 0)
+      best_ideltar_disk = (1 << (fpgastub->r().nbits() - 1));  // Set to the maximum possible
+    // If so, replace the "best" values with the cut tables
+    if (newtracklet) {
+      best_ideltaphi_barrel = (int)phimatchcuttable_.lookup(seedindex);
+      best_ideltaz_barrel = (int)zmatchcuttable_.lookup(seedindex);
+    }
 
     assert(phimatchcuttable_.lookup(seedindex) > 0);
     assert(zmatchcuttable_.lookup(seedindex) > 0);
@@ -516,9 +578,13 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
           << zmatchcuttable_.lookup(seedindex) * settings_.kz() << endl;
     }
 
-    bool imatch = (std::abs(ideltaphi) <= phimatchcuttable_.lookup(seedindex)) &&
-                  (ideltaz << dzshift_ < zmatchcuttable_.lookup(seedindex)) &&
-                  (ideltaz << dzshift_ >= -zmatchcuttable_.lookup(seedindex));
+    bool imatch = (std::abs(ideltaphi) <= best_ideltaphi_barrel && (ideltaz << dzshift_ < best_ideltaz_barrel) &&
+                   (ideltaz << dzshift_ >= -best_ideltaz_barrel));
+    // Update the "best" values
+    if (imatch) {
+      best_ideltaphi_barrel = std::abs(ideltaphi);
+      best_ideltaz_barrel = std::abs(ideltaz);
+    }
 
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
@@ -672,6 +738,16 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
       idrcut = rcut2Stable_.lookup(seedindex);
     }
 
+    curr_tracklet = next_tracklet;
+    next_tracklet = tracklet;
+    // Do we have a new tracklet?
+    bool newtracklet = (istep == 0 || tracklet != curr_tracklet);
+    // If so, replace the "best" values with the cut tables
+    if (newtracklet) {
+      best_ideltaphi_disk = idrphicut;
+      best_ideltar_disk = idrcut;
+    }
+
     double drphicut = idrphicut * settings_.kphi() * settings_.kr();
     double drcut = idrcut * settings_.krprojshiftdisk();
 
@@ -686,7 +762,12 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     }
 
     bool match = (std::abs(drphi) < drphicut) && (std::abs(deltar) < drcut);
-    bool imatch = (std::abs(ideltaphi * irstub) < idrphicut) && (std::abs(ideltar) < idrcut);
+    bool imatch = (std::abs(ideltaphi * irstub) < best_ideltaphi_disk) && (std::abs(ideltar) < best_ideltar_disk);
+    // Update the "best" values
+    if (imatch) {
+      best_ideltaphi_disk = std::abs(ideltaphi) * irstub;
+      best_ideltar_disk = std::abs(ideltar);
+    }
 
     if (settings_.debugTracklet()) {
       edm::LogVerbatim("Tracklet") << "imatch match disk: " << imatch << " " << match << " " << std::abs(ideltaphi)

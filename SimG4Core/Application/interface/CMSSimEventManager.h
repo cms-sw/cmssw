@@ -21,7 +21,7 @@ class G4Event;
 class EventAction;
 class StackingAction;
 class TrackingAction;
-class SteppingAction;
+class G4UserSteppingAction;
 class G4SDManager;
 class G4StateManager;
 class G4PrimaryTransformer;
@@ -44,7 +44,7 @@ public:
   void SetUserAction(EventAction* ptr);
   void SetUserAction(StackingAction* ptr);
   void SetUserAction(TrackingAction* ptr);
-  void SetUserAction(SteppingAction* ptr);
+  void SetUserAction(G4UserSteppingAction* ptr);
 
   CMSSimEventManager(const CMSSimEventManager& right) = delete;
   CMSSimEventManager& operator=(const CMSSimEventManager& right) = delete;

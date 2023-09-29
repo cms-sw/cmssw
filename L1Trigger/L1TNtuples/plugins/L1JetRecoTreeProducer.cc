@@ -36,8 +36,10 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 // ROOT output stuff
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -67,6 +69,8 @@ private:
 
   void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
   void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr);
+  void doPUPPIJets(edm::Handle<reco::PFJetCollection> puppiJets);
+  void doCorrPUPPIJets(edm::Handle<std::vector<pat::Jet> > corrPuppiJets);
   void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
   void doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets, edm::Handle<reco::JetCorrector> caloJetCorr);
   void doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet);
@@ -74,8 +78,12 @@ private:
 
   void doPFMet(edm::Handle<reco::PFMETCollection> pfMet);
   void doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet, edm::Handle<reco::MuonCollection>);
+  void doPUPPIMetNoMu(edm::Handle<reco::PFMETCollection> puppiMet, edm::Handle<reco::MuonCollection>);
+
+  void doZPt(edm::Handle<reco::MuonCollection> muons, edm::Handle<std::vector<pat::Jet> > corrPuppiJets);
 
   bool pfJetID(const reco::PFJet& jet);
+  bool puppiJetID(const pat::Jet& jet);
   bool caloJetID(const reco::CaloJet& jet);
 
 public:
@@ -88,12 +96,15 @@ private:
 
   // EDM input tags
   edm::EDGetTokenT<reco::PFJetCollection> pfJetToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> puppiJetToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > corrPuppiJetToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID> > caloJetIDToken_;
   edm::EDGetTokenT<reco::JetCorrector> pfJECToken_;
   edm::EDGetTokenT<reco::JetCorrector> caloJECToken_;
 
   edm::EDGetTokenT<reco::PFMETCollection> pfMetToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> puppiMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> caloMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> caloMetBEToken_;
 
@@ -101,6 +112,8 @@ private:
 
   // debug stuff
   bool pfJetsMissing_;
+  bool puppiJetsMissing_;
+  bool corrPuppiJetsMissing_;
   double jetptThreshold_;
   double jetetaMax_;
   unsigned int maxCl_;
@@ -113,19 +126,22 @@ private:
   bool caloJetsMissing_;
   bool caloJetIDMissing_;
   bool pfMetMissing_;
+  bool puppiMetMissing_;
   bool caloMetMissing_;
   bool caloMetBEMissing_;
-
   bool muonsMissing_;
 };
 
 L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig)
     : pfJetsMissing_(false),
+      puppiJetsMissing_(false),
+      corrPuppiJetsMissing_(false),
       pfJetCorrMissing_(false),
       caloJetCorrMissing_(false),
       caloJetsMissing_(false),
       caloJetIDMissing_(false),
       pfMetMissing_(false),
+      puppiMetMissing_(false),
       caloMetMissing_(false),
       caloMetBEMissing_(false),
       muonsMissing_(false) {
@@ -133,6 +149,9 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig)
       consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken", edm::InputTag("ak4CaloJets")));
   pfJetToken_ =
       consumes<reco::PFJetCollection>(iConfig.getUntrackedParameter("pfJetToken", edm::InputTag("ak4PFJetsCHS")));
+  puppiJetToken_ = consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("puppiJetToken"));
+  corrPuppiJetToken_ = consumes<std::vector<pat::Jet> >(
+      iConfig.getUntrackedParameter("corrPuppiJetToken", edm::InputTag("patJetsCorrectedPuppiJets")));
   caloJetIDToken_ =
       consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("caloJetIDToken", edm::InputTag("ak4JetID")));
   pfJECToken_ = consumes<reco::JetCorrector>(
@@ -141,6 +160,8 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig)
       "caloJECToken", edm::InputTag("ak4CaloL1FastL2L3ResidualCorrector")));
 
   pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken", edm::InputTag("pfMetT1")));
+  puppiMetToken_ =
+      consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("puppiMetToken", edm::InputTag("pfMetPuppi")));
   caloMetToken_ =
       consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetToken", edm::InputTag("caloMet")));
   caloMetBEToken_ =
@@ -182,6 +203,14 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByToken(pfJetToken_, pfJets);
 
+  // get puppi jets
+  edm::Handle<reco::PFJetCollection> puppiJets;
+  iEvent.getByToken(puppiJetToken_, puppiJets);
+
+  // get corrected puppi jets
+  edm::Handle<std::vector<pat::Jet> > corrPuppiJets;
+  iEvent.getByToken(corrPuppiJetToken_, corrPuppiJets);
+
   // get calo jets
   edm::Handle<reco::CaloJetCollection> caloJets;
   iEvent.getByToken(caloJetToken_, caloJets);
@@ -189,6 +218,10 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   //get sums
   edm::Handle<reco::PFMETCollection> pfMet;
   iEvent.getByToken(pfMetToken_, pfMet);
+
+  //get sums
+  edm::Handle<reco::PFMETCollection> puppiMet;
+  iEvent.getByToken(puppiMetToken_, puppiMet);
 
   // get jet ID
   edm::Handle<edm::ValueMap<reco::JetID> > jetsID;
@@ -230,6 +263,30 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
       edm::LogWarning("MissingProduct") << "PF Jet Corrector not found.  Branch will not be filled" << std::endl;
     }
     pfJetCorrMissing_ = true;
+  }
+
+  if (puppiJets.isValid()) {
+    jet_data->puppi_nUncorrJets = 0;
+
+    doPUPPIJets(puppiJets);
+
+  } else {
+    if (!puppiJetsMissing_) {
+      edm::LogWarning("MissingProduct") << "PUPPIJets not found.  Branch will not be filled" << std::endl;
+    }
+    puppiJetsMissing_ = true;
+  }
+
+  if (corrPuppiJets.isValid()) {
+    jet_data->puppi_nJets = 0;
+
+    doCorrPUPPIJets(corrPuppiJets);
+
+  } else {
+    if (!corrPuppiJetsMissing_) {
+      edm::LogWarning("MissingProduct") << "Corrected PUPPIJets not found.  Branch will not be filled" << std::endl;
+    }
+    corrPuppiJetsMissing_ = true;
   }
 
   if (caloJets.isValid()) {
@@ -280,6 +337,23 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
     pfMetMissing_ = true;
   }
 
+  if (puppiMet.isValid()) {
+    if (muons.isValid()) {
+      doPUPPIMetNoMu(puppiMet, muons);
+
+    } else {
+      if (!muonsMissing_) {
+        edm::LogWarning("MissingProduct") << "Muons not found.  PUPPIMetNoMu branch will not be filled" << std::endl;
+      }
+      muonsMissing_ = true;
+    }
+  } else {
+    if (!puppiMetMissing_) {
+      edm::LogWarning("MissingProduct") << "PUPPIMet not found.  Branch will not be filled" << std::endl;
+    }
+    puppiMetMissing_ = true;
+  }
+
   if (caloMet.isValid()) {
     doCaloMet(caloMet);
 
@@ -298,6 +372,23 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
       edm::LogWarning("MissingProduct") << "CaloMetBE not found. Branch will not be filled" << std::endl;
     }
     caloMetBEMissing_ = true;
+  }
+
+  if (muons.isValid()) {
+    if (puppiJets.isValid()) {
+      doZPt(muons, corrPuppiJets);
+
+    } else {
+      if (!puppiJetsMissing_) {
+        edm::LogWarning("MissingProduct") << "PUPPIJets not found.  Branch will not be filled" << std::endl;
+      }
+      puppiJetsMissing_ = true;
+    }
+  } else {
+    if (!muonsMissing_) {
+      edm::LogWarning("MissingProduct") << "Muons not found.  ZPt branch will not be filled" << std::endl;
+    }
+    muonsMissing_ = true;
   }
 
   tree_->Fill();
@@ -401,6 +492,67 @@ void L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJet
   met_data->mHtPhi = tv2.Phi();
 }
 
+void L1JetRecoTreeProducer::doPUPPIJets(edm::Handle<reco::PFJetCollection> puppiJets) {
+  for (auto it = puppiJets->begin(); it != puppiJets->end() && jet_data->puppi_nUncorrJets < maxJet_; ++it) {
+    if (!puppiJetID(*it))
+      continue;
+    jet_data->puppi_et.push_back(it->et());
+    jet_data->puppi_nUncorrJets++;
+  }
+}
+
+void L1JetRecoTreeProducer::doCorrPUPPIJets(edm::Handle<std::vector<pat::Jet> > corrPuppiJets) {
+  float mHx = 0;
+  float mHy = 0;
+
+  met_data->puppi_Ht = 0;
+  met_data->puppi_mHt = -999.;
+  met_data->puppi_mHtPhi = -999.;
+
+  for (auto it = corrPuppiJets->begin(); it != corrPuppiJets->end() && jet_data->puppi_nJets < maxJet_; ++it) {
+    if (!puppiJetID(*it))
+      continue;
+
+    jet_data->puppi_etCorr.push_back(it->et());
+    jet_data->puppi_eta.push_back(it->eta());
+    jet_data->puppi_phi.push_back(it->phi());
+    jet_data->puppi_e.push_back(it->energy());
+
+    jet_data->puppi_chef.push_back(it->chargedHadronEnergyFraction());
+    jet_data->puppi_nhef.push_back(it->neutralHadronEnergyFraction());
+    jet_data->puppi_pef.push_back(it->photonEnergyFraction());
+    jet_data->puppi_eef.push_back(it->electronEnergyFraction());
+    jet_data->puppi_mef.push_back(it->muonEnergyFraction());
+    jet_data->puppi_hfhef.push_back(it->HFHadronEnergyFraction());
+    jet_data->puppi_hfemef.push_back(it->HFEMEnergyFraction());
+    jet_data->puppi_chMult.push_back(it->chargedHadronMultiplicity());
+    jet_data->puppi_nhMult.push_back(it->neutralHadronMultiplicity());
+    jet_data->puppi_phMult.push_back(it->photonMultiplicity());
+    jet_data->puppi_elMult.push_back(it->electronMultiplicity());
+    jet_data->puppi_muMult.push_back(it->muonMultiplicity());
+    jet_data->puppi_hfhMult.push_back(it->HFHadronMultiplicity());
+    jet_data->puppi_hfemMult.push_back(it->HFEMMultiplicity());
+
+    jet_data->puppi_cemef.push_back(it->chargedEmEnergyFraction());
+    jet_data->puppi_cmef.push_back(it->chargedMuEnergyFraction());
+    jet_data->puppi_nemef.push_back(it->neutralEmEnergyFraction());
+    jet_data->puppi_cMult.push_back(it->chargedMultiplicity());
+    jet_data->puppi_nMult.push_back(it->neutralMultiplicity());
+
+    jet_data->puppi_nJets++;
+
+    if (it->pt() > jetptThreshold_ && std::abs(it->eta()) < jetetaMax_) {
+      mHx += -1. * it->px();
+      mHy += -1. * it->py();
+      met_data->puppi_Ht += it->pt();
+    }
+  }
+
+  TVector2 tv2 = TVector2(mHx, mHy);
+  met_data->puppi_mHt = tv2.Mod();
+  met_data->puppi_mHtPhi = tv2.Phi();
+}
+
 void L1JetRecoTreeProducer::doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets,
                                           edm::Handle<reco::JetCorrector> caloJetCorr) {
   float caloCorrFactor = 1.;
@@ -468,6 +620,37 @@ void L1JetRecoTreeProducer::doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet
   met_data->pfMetNoMuPy = thePFMetNoMu.py();
 }
 
+void L1JetRecoTreeProducer::doPUPPIMetNoMu(edm::Handle<reco::PFMETCollection> puppiMet,
+                                           edm::Handle<reco::MuonCollection> muons) {
+  const reco::PFMETCollection* metCol = puppiMet.product();
+  const reco::PFMET theMet = metCol->front();
+  reco::PFMET thePUPPIMetNoMu = metCol->front();
+
+  double puppiMetNoMuPx = theMet.px();
+  double puppiMetNoMuPy = theMet.py();
+
+  double muPx(0.), muPy(0.);
+
+  for (auto it = muons->begin(); it != muons->end(); ++it) {
+    if (it->isPFMuon()) {
+      muPx += it->px();
+      muPy += it->py();
+    }
+  }
+
+  puppiMetNoMuPx += muPx;
+  puppiMetNoMuPy += muPy;
+
+  math::XYZTLorentzVector puppiMetNoMuP4(puppiMetNoMuPx, puppiMetNoMuPy, 0, hypot(puppiMetNoMuPx, puppiMetNoMuPy));
+
+  thePUPPIMetNoMu.setP4(puppiMetNoMuP4);
+
+  met_data->puppi_metNoMu = thePUPPIMetNoMu.et();
+  met_data->puppi_metNoMuPhi = thePUPPIMetNoMu.phi();
+  met_data->puppi_metNoMuPx = thePUPPIMetNoMu.px();
+  met_data->puppi_metNoMuPy = thePUPPIMetNoMu.py();
+}
+
 void L1JetRecoTreeProducer::doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet) {
   const reco::CaloMETCollection* metCol = caloMet.product();
   const reco::CaloMET theMet = metCol->front();
@@ -486,23 +669,86 @@ void L1JetRecoTreeProducer::doCaloMetBE(edm::Handle<reco::CaloMETCollection> cal
   met_data->caloSumEtBE = theMet.sumEt();
 }
 
+void L1JetRecoTreeProducer::doZPt(edm::Handle<reco::MuonCollection> muons,
+                                  edm::Handle<std::vector<pat::Jet> > corrPuppiJets) {
+  bool passPuppiJetPtCut = false;
+
+  for (auto it = corrPuppiJets->begin(); it != corrPuppiJets->end(); ++it) {
+    if (!puppiJetID(*it))
+      continue;
+    if (it->muonEnergyFraction() > 0.5 || it->chargedEmEnergyFraction() > 0.5)
+      continue;
+    if (it->pt() > 30)
+      passPuppiJetPtCut = true;
+  }
+
+  if (!passPuppiJetPtCut || muons->size() < 2) {
+    met_data->zPt = -999;
+    return;
+  }
+
+  reco::Muon muon1;
+  reco::Muon muon2;
+
+  float zMass = 91.2;
+  float diMuMass = 0;
+  float closestDiff = 999.;
+  bool found2PFMuons = false;
+
+  for (auto it1 = muons->begin(); it1 != muons->end(); ++it1) {
+    if (!it1->isPFMuon())
+      continue;
+    for (auto it2 = std::next(it1); it2 != muons->end(); ++it2) {
+      if (!it2->isPFMuon())
+        continue;
+      if (it1->charge() != (-1 * it2->charge()))
+        continue;
+
+      found2PFMuons = true;
+      diMuMass = (it1->p4() + it2->p4()).M();
+      float diff = abs(diMuMass - zMass);
+      if (diff < closestDiff) {
+        closestDiff = diff;
+        muon1 = *it1;
+        muon2 = *it2;
+      }
+    }
+  }
+
+  diMuMass = (muon1.p4() + muon2.p4()).M();
+  if (abs(diMuMass - zMass) > 30 || !found2PFMuons) {
+    met_data->zPt = -999;
+    return;
+  }
+
+  float zPt = (muon1.p4() + muon2.p4()).pt();
+  met_data->zPt = zPt;
+}
+
 bool L1JetRecoTreeProducer::pfJetID(const reco::PFJet& jet) {
   bool tmp = true;
-  if (std::abs(jet.eta()) < 2.7) {
+  if (std::abs(jet.eta()) <= 2.6) {
     tmp &= jet.neutralHadronEnergyFraction() < 0.9;
     tmp &= jet.neutralEmEnergyFraction() < 0.9;
     tmp &= (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1;
     tmp &= jet.muonEnergyFraction() < 0.8;
-    tmp &= jet.chargedHadronEnergyFraction() > 0.0;
+    tmp &= jet.chargedHadronEnergyFraction() > 0.01;
     tmp &= jet.chargedMultiplicity() > 0;
-    tmp &= jet.chargedEmEnergyFraction() < 0.9;
+    tmp &= jet.chargedEmEnergyFraction() < 0.8;
+  }
+  if (std::abs(jet.eta()) > 2.6 && std::abs(jet.eta()) <= 2.7) {
+    tmp &= jet.neutralHadronEnergyFraction() < 0.9;
+    tmp &= jet.neutralEmEnergyFraction() < 0.99;
+    tmp &= jet.muonEnergyFraction() < 0.8;
+    tmp &= jet.chargedMultiplicity() > 0;
+    tmp &= jet.chargedEmEnergyFraction() < 0.8;
   }
   if (std::abs(jet.eta()) > 2.7 && std::abs(jet.eta()) < 3.0) {
-    tmp &= jet.neutralEmEnergyFraction() > 0.01;
-    tmp &= jet.neutralHadronEnergyFraction() < 0.98;
-    tmp &= jet.neutralMultiplicity() > 2;
+    tmp &= jet.neutralEmEnergyFraction() < 0.99;
+    tmp &= jet.neutralMultiplicity() > 1;
   }
   if (std::abs(jet.eta()) > 3.0) {
+    tmp &= jet.neutralHadronEnergyFraction() > 0.2;
     tmp &= jet.neutralEmEnergyFraction() < 0.9;
     tmp &= jet.neutralMultiplicity() > 10;
   }
@@ -510,6 +756,35 @@ bool L1JetRecoTreeProducer::pfJetID(const reco::PFJet& jet) {
   // our custom selection
   //tmp &= jet.muonMultiplicity() == 0;
   //tmp &= jet.electronMultiplicity() == 0;
+
+  return tmp;
+}
+
+//https://twiki.cern.ch/twiki/bin/view/CMS/JetID13p6TeV
+bool L1JetRecoTreeProducer::puppiJetID(const pat::Jet& jet) {
+  bool tmp = true;
+  if (std::abs(jet.eta()) <= 2.6) {
+    tmp &= jet.neutralHadronEnergyFraction() < 0.9;
+    tmp &= jet.neutralEmEnergyFraction() < 0.9;
+    tmp &= (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1;
+    tmp &= jet.muonEnergyFraction() < 0.8;
+    tmp &= jet.chargedHadronEnergyFraction() > 0.01;
+    tmp &= jet.chargedMultiplicity() > 0;
+    tmp &= jet.chargedEmEnergyFraction() < 0.8;
+  }
+  if (std::abs(jet.eta()) > 2.6 && std::abs(jet.eta()) <= 2.7) {
+    tmp &= jet.neutralHadronEnergyFraction() < 0.9;
+    tmp &= jet.neutralEmEnergyFraction() < 0.99;
+    tmp &= jet.muonEnergyFraction() < 0.8;
+    tmp &= jet.chargedEmEnergyFraction() < 0.8;
+  }
+  if (std::abs(jet.eta()) > 2.7 && std::abs(jet.eta()) <= 3.0) {
+    tmp &= jet.neutralHadronEnergyFraction() < 0.9999;
+  }
+  if (std::abs(jet.eta()) > 3.0) {
+    tmp &= jet.neutralEmEnergyFraction() < 0.9;
+    tmp &= jet.neutralMultiplicity() > 2;
+  }
 
   return tmp;
 }

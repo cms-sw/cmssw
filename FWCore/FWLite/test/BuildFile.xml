@@ -1,7 +1,10 @@
 <use name="cppunit"/>
 <bin name="testFWCoreFWLite" file="ref_t.cppunit.cpp">
+  <flags PRE_TEST="refTestFWCoreFWLite"/>
   <use name="FWCore/FWLite"/>
   <use name="DataFormats/TestObjects"/>
 </bin>
 
 <test name="TestRunnerFWCoreFWLite" command="run_all_t.sh"/>
+
+<test name="refTestFWCoreFWLite" command="RefTest.sh"/>

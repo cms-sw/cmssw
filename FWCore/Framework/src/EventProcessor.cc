@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/maker/InputSourceFactory.h"
@@ -726,7 +726,7 @@ namespace edm {
       throw;
     }
     espController_->finishConfiguration();
-    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices(), *processBlockHelper_);
+    schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
     if (looper_) {
       constexpr bool mustPrefetchMayGet = true;
       auto const processBlockLookup = preg_->productLookup(InProcess);
@@ -737,7 +737,7 @@ namespace edm {
       looper_->updateLookup(InRun, *runLookup, mustPrefetchMayGet);
       looper_->updateLookup(InLumi, *lumiLookup, mustPrefetchMayGet);
       looper_->updateLookup(InEvent, *eventLookup, mustPrefetchMayGet);
-      looper_->updateLookup(esp_->recordsToProxyIndices());
+      looper_->updateLookup(esp_->recordsToResolverIndices());
     }
     // toerror.succeeded(); // should we add this?
     for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });
@@ -851,6 +851,9 @@ namespace edm {
     // Look for a shutdown signal
     if (shutdown_flag.load(std::memory_order_acquire)) {
       returnValue = true;
+      edm::LogSystem("ShutdownSignal") << "an external signal was sent to shutdown the job early.";
+      edm::Service<edm::JobReport> jr;
+      jr->reportShutdownSignal();
       returnCode = epSignal;
     }
     return returnValue;
@@ -882,7 +885,9 @@ namespace edm {
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
+    actReg_->beginProcessingSignal_();
+    auto endSignal = [](ActivityRegistry* iReg) { iReg->endProcessingSignal_(); };
+    std::unique_ptr<ActivityRegistry, decltype(endSignal)> guard(actReg_.get(), endSignal);
     try {
       FilesProcessor fp(fileModeNoMerge_);
 
@@ -1021,7 +1026,7 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToProxyIndices());
+      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToResolverIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetupImpl());
       looper_->setModuleChanger(nullptr);
@@ -1176,7 +1181,7 @@ namespace edm {
 
     auto status = std::make_shared<RunProcessingStatus>(preallocations_.numberOfStreams(), iHolder);
 
-    chain::first([this, &status, &iSync](auto nextTask) {
+    chain::first([this, &status, iSync](auto nextTask) {
       espController_->runOrQueueEventSetupForInstanceAsync(iSync,
                                                            nextTask,
                                                            status->endIOVWaitingTasks(),
@@ -1185,7 +1190,7 @@ namespace edm {
                                                            actReg_.get(),
                                                            serviceToken_,
                                                            forceESCacheClearOnNewRun_);
-    }) | chain::then([this, status, iSync](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, status](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         if (iException) {
           WaitingTaskHolder copyHolder(nextTask);
@@ -1193,7 +1198,6 @@ namespace edm {
           // Finish handling the exception in the task pushed to runQueue_
         }
         ServiceRegistry::Operate operate(serviceToken_);
-        actReg_->postESSyncIOVSignal_.emit(iSync);
 
         runQueue_->pushAndPause(
             *nextTask.group(),
@@ -1431,17 +1435,12 @@ namespace edm {
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
-    }) | chain::then([this, iRunStatus, ts](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
       if (iException) {
         iRunStatus->setEndingEventSetupSucceeded(false);
         handleEndRunExceptions(*iException, nextTask);
       }
       ServiceRegistry::Operate operate(serviceToken_);
-      CMS_SA_ALLOW try { actReg_->postESSyncIOVSignal_.emit(ts); } catch (...) {
-        WaitingTaskHolder copyHolder(nextTask);
-        copyHolder.doneWaiting(std::current_exception());
-      }
-
       streamQueuesInserter_.push(*nextTask.group(), [this, nextTask]() mutable {
         for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
           CMS_SA_ALLOW try {
@@ -1636,16 +1635,13 @@ namespace edm {
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
-    }) | chain::then([this, status, iRunStatus, iSync](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, status, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         //the call to doneWaiting will cause the count to decrement
         if (iException) {
           WaitingTaskHolder copyHolder(nextTask);
           copyHolder.doneWaiting(*iException);
         }
-
-        ServiceRegistry::Operate operate(serviceToken_);
-        actReg_->postESSyncIOVSignal_.emit(iSync);
 
         lumiQueue_->pushAndPause(
             *nextTask.group(),

@@ -8,6 +8,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -74,12 +75,14 @@ private:
   bool useFirstMeas_;
   bool useLastMeas_;
   bool useAllHitsFromTracksWithMissingHits_;
+  bool doMissingHitsRecovery_;
 
   const edm::EDGetTokenT<reco::TrackCollection> combinatorialTracks_token_;
   const edm::EDGetTokenT<std::vector<Trajectory> > trajectories_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_token_;
-  const edm::EDGetTokenT<DetIdCollection> digis_token_;
+  const edm::EDGetTokenT<DetIdCollection> digisCol_token_;
+  const edm::EDGetTokenT<DetIdVector> digisVec_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
   // ES tokens
@@ -103,6 +106,8 @@ private:
   bool DEBUG;
   unsigned int whatlayer;
 
+  std::vector<unsigned int> hitRecoveryCounters;
+  std::vector<unsigned int> hitTotalCounters;
 // Tree declarations
 // Trajectory positions for modules included in the study
 #ifdef ExtendedCALIBTree
@@ -113,6 +118,8 @@ private:
   int nLostHits;
   float p, chi2;
 #endif
+  int totalNbHits;
+  std::vector<int> missHitPerLayer;
   float TrajGlbX, TrajGlbY, TrajGlbZ;
   float TrajLocX, TrajLocY, TrajLocAngleX, TrajLocAngleY;
   float TrajLocErrX, TrajLocErrY;

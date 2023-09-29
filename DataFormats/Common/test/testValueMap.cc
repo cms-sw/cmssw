@@ -43,6 +43,7 @@ void testValueMap::dummy() {
   const double& x = v[edm::Ref<CKey>()];
   double y = x;
   ++y;
+  std::cout << "numberOfAssociations:" << y << std::endl;
   ++f;
   edm::Ref<Assoc> r;
   v.erase(edm::Ref<CKey>());

@@ -39,11 +39,8 @@
 #include "G4GammaGeneralProcess.hh"
 #include "G4LossTableManager.hh"
 
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1110
 #include "G4ProcessManager.hh"
 #include "G4TransportationWithMsc.hh"
-#endif
 
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
@@ -78,6 +75,15 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
   fG4HepEmActive = p.getParameter<bool>("G4HepEmActive");
+  if (fG4HepEmActive) {
+    // At the moment, G4HepEm supports only one configuration of MSC, so use
+    // the most generic parameters everywhere.
+    param->SetMscRangeFactor(fRangeFactor);
+    param->SetMscGeomFactor(fGeomFactor);
+    param->SetMscSafetyFactor(fSafetyFactor);
+    param->SetMscLambdaLimit(fLambdaLimit);
+    param->SetMscStepLimitType(fStepLimitType);
+  }
 }
 
 void CMSEmStandardPhysics::ConstructParticle() {
@@ -150,7 +156,6 @@ void CMSEmStandardPhysics::ConstructProcess() {
     msc3->SetLocked(true);
   }
 
-#if G4VERSION_NUMBER >= 1110
   G4TransportationWithMscType transportationWithMsc = param->TransportationWithMsc();
   if (transportationWithMsc != G4TransportationWithMscType::fDisabled) {
     // Remove default G4Transportation and replace with G4TransportationWithMsc.
@@ -176,9 +181,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
       transportWithMsc->AddMscModel(msc3, -1, bRegion);
     }
     procManager->AddProcess(transportWithMsc, -1, 0, 0);
-  } else
-#endif
-  {
+  } else {
     // Multiple scattering is registered as a separate process
     G4eMultipleScattering* msc = new G4eMultipleScattering;
     msc->SetEmModel(msc1);
@@ -225,7 +228,6 @@ void CMSEmStandardPhysics::ConstructProcess() {
     msc3->SetLocked(true);
   }
 
-#if G4VERSION_NUMBER >= 1110
   if (transportationWithMsc != G4TransportationWithMscType::fDisabled) {
     G4ProcessManager* procManager = particle->GetProcessManager();
     // Remove default G4Transportation and replace with G4TransportationWithMsc.
@@ -250,9 +252,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
       transportWithMsc->AddMscModel(msc3, -1, bRegion);
     }
     procManager->AddProcess(transportWithMsc, -1, 0, 0);
-  } else
-#endif
-  {
+  } else {
     // Register as a separate process.
     G4eMultipleScattering* msc = new G4eMultipleScattering;
     msc->SetEmModel(msc1);
@@ -279,13 +279,11 @@ void CMSEmStandardPhysics::ConstructProcess() {
   ph->RegisterProcess(new G4eplusAnnihilation(), particle);
   ph->RegisterProcess(ss, particle);
 
-#if G4VERSION_NUMBER >= 1110
   if (fG4HepEmActive) {
     auto* hepEmTM = new CMSHepEmTrackingManager(highEnergyLimit);
     G4Electron::Electron()->SetTrackingManager(hepEmTM);
     G4Positron::Positron()->SetTrackingManager(hepEmTM);
   }
-#endif
 
   // generic ion
   particle = G4GenericIon::GenericIon();

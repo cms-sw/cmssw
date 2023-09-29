@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
+#include "SimG4Core/Application/interface/SteppingTrackStatus.h"
 
 #include "G4LogicalVolume.hh"
 #include "G4Region.hh"
@@ -14,24 +15,11 @@
 #include <string>
 #include <vector>
 
-class SimTrackManager;
 class CMSSteppingVerbose;
-
-enum TrackStatus {
-  sAlive = 0,
-  sKilledByProcess = 1,
-  sDeadRegion = 2,
-  sOutOfTime = 3,
-  sLowEnergy = 4,
-  sLowEnergyInVacuum = 5,
-  sEnergyDepNaN = 6,
-  sVeryForward = 7,
-  sNumberOfSteps = 8
-};
 
 class SteppingAction : public G4UserSteppingAction {
 public:
-  explicit SteppingAction(SimTrackManager*, const CMSSteppingVerbose*, const edm::ParameterSet&, bool hasW);
+  explicit SteppingAction(const CMSSteppingVerbose*, const edm::ParameterSet&, bool hasW);
   ~SteppingAction() override = default;
 
   void UserSteppingAction(const G4Step* aStep) final;
@@ -47,7 +35,6 @@ private:
   bool isLowEnergy(const G4LogicalVolume*, const G4Track*) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
 
-  SimTrackManager* trackManager_;
   const G4VPhysicalVolume* tracker{nullptr};
   const G4VPhysicalVolume* calo{nullptr};
   const CMSSteppingVerbose* steppingVerbose;

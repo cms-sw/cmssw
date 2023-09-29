@@ -63,9 +63,10 @@ void L1TStage2uGMTInputBxDistributions::bookHistograms(DQMStore::IBooker& ibooke
       ibooker.setCurrentFolder(monitorDir_ + "/EMTFInput/Muon showers");
 
       ugmtEMTFShowerTypeOccupancyPerBx =
-          ibooker.book2D("ugmtEMTFShowerTypeOccupancyPerBx", "Shower type occupancy per BX", 7, -3.5, 3.5, 2, 1, 3);
+          ibooker.book2D("ugmtEMTFShowerTypeOccupancyPerBx", "Shower type occupancy per BX", 7, -3.5, 3.5, 3, 1, 4);
       ugmtEMTFShowerTypeOccupancyPerBx->setAxisTitle("BX", 1);
       ugmtEMTFShowerTypeOccupancyPerBx->setAxisTitle("Shower type", 2);
+      ugmtEMTFShowerTypeOccupancyPerBx->setBinLabel(IDX_LOOSE_SHOWER, "Loose", 2);
       ugmtEMTFShowerTypeOccupancyPerBx->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
       ugmtEMTFShowerTypeOccupancyPerBx->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
 
@@ -214,6 +215,11 @@ void L1TStage2uGMTInputBxDistributions::analyze(const edm::Event& e, const edm::
             ugmtEMTFShowerSectorOccupancyPerBx->Fill(
                 itBX, shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
             ugmtEMTFShowerTypeOccupancyPerBx->Fill(itBX, IDX_TIGHT_SHOWER);
+          }
+          if (shower->isOneLooseInTime()) {
+            ugmtEMTFShowerSectorOccupancyPerBx->Fill(
+                itBX, shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
+            ugmtEMTFShowerTypeOccupancyPerBx->Fill(itBX, IDX_LOOSE_SHOWER);
           }
         }
       }

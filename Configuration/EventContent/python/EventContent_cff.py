@@ -56,7 +56,7 @@ from RecoBTau.Configuration.RecoBTau_EventContent_cff import *
 from RecoBTag.Configuration.RecoBTag_EventContent_cff import *
 from RecoTauTag.Configuration.RecoTauTag_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_EventContent_cff import *
+from RecoTracker.Configuration.RecoPixelVertexing_EventContent_cff import *
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
@@ -180,7 +180,8 @@ RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
 approxSiStripClusters.toModify(RAWEventContent,
                               outputCommands = RAWEventContent.outputCommands+[
-                                  'keep *_hltSiStripClusters2ApproxClusters_*_*'
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*',
+                                  'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
 
 #
@@ -622,7 +623,8 @@ FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputComman
 FEVTDEBUGEventContent.outputCommands.extend(SimFastTimingFEVTDEBUG.outputCommands)
 approxSiStripClusters.toModify(FEVTDEBUGEventContent,
                               outputCommands = FEVTDEBUGEventContent.outputCommands+[
-                                  'keep *_hltSiStripClusters2ApproxClusters_*_*'
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*',
+                                  'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
 #
 #
@@ -640,8 +642,16 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                                  'keep *_hltSiStripClusters2ApproxClusters_*_*'
+                                  'keep *_hltSiStripClusters2ApproxClusters_*_*',
+                                  'keep DetIds_hltSiStripRawToDigi_*_*'
                               ])
+phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
+                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                            'keep *_hltPhase2PixelTracks_*_*',
+                            'keep *_hltPhase2PixelVertices_*_*'
+                        ])
+phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + ['keep recoMuons_muons1stStep_*_*'])
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 
@@ -876,6 +886,7 @@ MINIAODSIMEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
+MINIAODSIMEventContent.outputCommands.extend(HLTScouting.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),

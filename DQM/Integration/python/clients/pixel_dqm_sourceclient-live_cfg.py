@@ -128,12 +128,16 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
     process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-    process.load("RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
+    process.load("RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+
+# for running offline enhance the time validity of the online beamspot in DB
+if ((not live) or process.isDqmPlayback.value): 
+  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
 
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
@@ -223,7 +227,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
     process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
     process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 

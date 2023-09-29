@@ -14,7 +14,7 @@ process.load('DQM/Physics/qcdLowPtDQM_cfi')
 process.GlobalTag.globaltag = 'STARTUP3X_V8D::All'
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring("ProductNotFound")
+    TryToContinue = cms.untracked.vstring("ProductNotFound")
 )
 
 process.maxEvents = cms.untracked.PSet(

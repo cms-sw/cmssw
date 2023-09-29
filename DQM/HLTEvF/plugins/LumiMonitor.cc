@@ -226,7 +226,6 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
 
       // Count the number of clusters with at least a minimum
       // number of pixels per cluster and at least a minimum charge.
-      size_t tot = 0;
       for (auto pixCluDet = pixelClusters->begin(); pixCluDet != pixelClusters->end(); ++pixCluDet) {
         DetId detid = pixCluDet->detId();
         size_t subdetid = detid.subdetId();
@@ -237,7 +236,6 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
         }
 
         for (auto pixClu = pixCluDet->begin(); pixClu != pixCluDet->end(); ++pixClu) {
-          ++tot;
           if ((pixClu->size() >= minNumberOfPixelsPerCluster_) and (pixClu->charge() >= minPixelClusterCharge_)) {
             ++pixel_clusters;
           }

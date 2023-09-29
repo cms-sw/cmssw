@@ -445,7 +445,6 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string& name, const e
   theFile = TFile::Open(fullPath.c_str());
 
   // Open the trees
-  unsigned fileNb = 0;
   for (unsigned iname = 0; iname < theHadronNA.size(); ++iname) {
     for (unsigned iene = 0; iene < theHadronEN.size(); ++iene) {
       std::ostringstream filename;
@@ -453,7 +452,6 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string& name, const e
       filename << "NuclearInteractionsVal_" << theHadronNA[iname] << "_E" << theEne << ".root";
       theFileNames[iname][iene] = filename.str();
 
-      ++fileNb;
       std::string treeName = "NuclearInteractions_" + theHadronNA[iname] + "_E" + std::to_string(int(theEne));
       theTrees[iname][iene] = (TTree*)theFile->Get(treeName.c_str());
 

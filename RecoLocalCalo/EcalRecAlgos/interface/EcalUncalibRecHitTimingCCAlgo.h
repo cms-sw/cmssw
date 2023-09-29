@@ -23,8 +23,6 @@ public:
                        const EcalPedestals::Item* aped,
                        const EcalMGPAGainRatio* aGain,
                        const FullSampleVector& fullpulse,
-                       EcalUncalibratedRecHit& uncalibRecHit,
-                       float& errOnTime,
                        const float targetTimePrecision,
                        const bool correctForOOT = true) const;
 

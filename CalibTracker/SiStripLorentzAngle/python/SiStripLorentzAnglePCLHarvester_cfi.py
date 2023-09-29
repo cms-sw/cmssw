@@ -1,0 +1,4 @@
+import FWCore.ParameterSet.Config as cms
+from CalibTracker.SiStripLorentzAngle.siStripLorentzAnglePCLHarvester_cfi import siStripLorentzAnglePCLHarvester
+
+SiStripLorentzAnglePCLHarvester = siStripLorentzAnglePCLHarvester.clone()

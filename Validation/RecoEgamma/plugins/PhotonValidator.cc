@@ -1190,11 +1190,11 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   //
   histname = "ecalRecHitSumEtConeDR04";
   h_ecalRecHitSumEtConeDR04_[0][0] =
-      iBooker.book1D(histname + "All", "ecalRecHitSumEtDR04: All Ecal", etBin, etMin, 20.);
+      iBooker.book1D(histname + "All", "ecalRecHitSumEtDR04: All Ecal", etBin, etMin, 50.);
   h_ecalRecHitSumEtConeDR04_[0][1] =
-      iBooker.book1D(histname + "Barrel", "ecalRecHitSumEtDR04: Barrel ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Barrel", "ecalRecHitSumEtDR04: Barrel ", etBin, etMin, 50.);
   h_ecalRecHitSumEtConeDR04_[0][2] =
-      iBooker.book1D(histname + "Endcap", "ecalRecHitSumEtDR04: Endcap ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Endcap", "ecalRecHitSumEtDR04: Endcap ", etBin, etMin, 50.);
   //
 
   if (!isRunCentrally_) {
@@ -1295,20 +1295,20 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   //
   histname = "hcalTowerSumEtConeDR04";
   h_hcalTowerSumEtConeDR04_[0][0] =
-      iBooker.book1D(histname + "All", "hcalTowerSumEtConeDR04: All Ecal", etBin, etMin, 20.);
+      iBooker.book1D(histname + "All", "hcalTowerSumEtConeDR04: All Ecal", etBin, etMin, 50.);
   h_hcalTowerSumEtConeDR04_[0][1] =
-      iBooker.book1D(histname + "Barrel", "hcalTowerSumEtConeDR04: Barrel ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Barrel", "hcalTowerSumEtConeDR04: Barrel ", etBin, etMin, 50.);
   h_hcalTowerSumEtConeDR04_[0][2] =
-      iBooker.book1D(histname + "Endcap", "hcalTowerSumEtConeDR04: Endcap ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Endcap", "hcalTowerSumEtConeDR04: Endcap ", etBin, etMin, 50.);
   //
   histname = "hcalTowerBcSumEtConeDR04";
   if (!isRunCentrally_)
     h_hcalTowerBcSumEtConeDR04_[0][0] =
-        iBooker.book1D(histname + "All", "hcalTowerBcSumEtConeDR04: All Ecal", etBin, etMin, 20.);
+        iBooker.book1D(histname + "All", "hcalTowerBcSumEtConeDR04: All Ecal", etBin, etMin, 50.);
   h_hcalTowerBcSumEtConeDR04_[0][1] =
-      iBooker.book1D(histname + "Barrel", "hcalTowerBcSumEtConeDR04: Barrel ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Barrel", "hcalTowerBcSumEtConeDR04: Barrel ", etBin, etMin, 50.);
   h_hcalTowerBcSumEtConeDR04_[0][2] =
-      iBooker.book1D(histname + "Endcap", "hcalTowerBcSumEtConeDR04: Endcap ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Endcap", "hcalTowerBcSumEtConeDR04: Endcap ", etBin, etMin, 50.);
 
   //
   if (!isRunCentrally_) {
@@ -2032,6 +2032,10 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
       iBooker.book1D(histname + "Barrel", "dR(pho,cand) Neutral Hadrons :  Barrel", etBin, etMin, 0.7);
   h_dRPhoPFcand_NeuHad_Cleaned_[2] =
       iBooker.book1D(histname + "Endcap", "dR(pho,cand) Neutral Hadrons :  Endcap", etBin, etMin, 0.7);
+  h_dRPhoPFcand_NeuHad_Cleaned_[3] =
+      iBooker.book1D(histname + "Barrel_1", "dR(pho,cand) Neutral Hadrons :  Barrel |eta| <=1", etBin, etMin, 0.7);
+  h_dRPhoPFcand_NeuHad_Cleaned_[4] =
+      iBooker.book1D(histname + "Barrel_2", "dR(pho,cand) Neutral Hadrons :  Barrel |eta | > 1", etBin, etMin, 0.7);
   histname = "dRPhoPFcand_Pho_Cleaned";
   h_dRPhoPFcand_Pho_Cleaned_[0] =
       iBooker.book1D(histname + "All", "dR(pho,cand) Photons : All Ecal", etBin, etMin, 0.7);
@@ -2069,6 +2073,7 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
       iBooker.book1D(histname + "Barrel", "dR(pho,cand) Charged Hadrons :  Barrel", etBin, etMin, 0.7);
   h_dRPhoPFcand_ChHad_unCleaned_[2] =
       iBooker.book1D(histname + "Endcap", "dR(pho,cand) Charged Hadrons :  Endcap", etBin, etMin, 0.7);
+
   histname = "dRPhoPFcand_NeuHad_unCleaned";
   h_dRPhoPFcand_NeuHad_unCleaned_[0] =
       iBooker.book1D(histname + "All", "dR(pho,cand) Neutral Hadrons :  All Ecal", etBin, etMin, 0.7);
@@ -2076,6 +2081,11 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
       iBooker.book1D(histname + "Barrel", "dR(pho,cand) Neutral Hadrons :  Barrel", etBin, etMin, 0.7);
   h_dRPhoPFcand_NeuHad_unCleaned_[2] =
       iBooker.book1D(histname + "Endcap", "dR(pho,cand) Neutral Hadrons :  Endcap", etBin, etMin, 0.7);
+  h_dRPhoPFcand_NeuHad_unCleaned_[3] =
+      iBooker.book1D(histname + "Barrel_1", "dR(pho,cand) Neutral Hadrons :  Barrel |eta| <=1  ", etBin, etMin, 0.7);
+  h_dRPhoPFcand_NeuHad_unCleaned_[4] =
+      iBooker.book1D(histname + "Barrel_2", "dR(pho,cand) Neutral Hadrons :  Barrel |eta| > 1", etBin, etMin, 0.7);
+
   histname = "dRPhoPFcand_Pho_unCleaned";
   h_dRPhoPFcand_Pho_unCleaned_[0] =
       iBooker.book1D(histname + "All", "dR(pho,cand) Photons:  All Ecal", etBin, etMin, 0.7);
@@ -2257,26 +2267,26 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   //
   histname = "ecalRecHitSumEtConeDR04";
   h_ecalRecHitSumEtConeDR04_miniAOD_[0][0] =
-      iBooker.book1D(histname + "All_miniAOD", "ecalRecHitSumEtDR04: All Ecal", etBin, etMin, 20.);
+      iBooker.book1D(histname + "All_miniAOD", "ecalRecHitSumEtDR04: All Ecal", etBin, etMin, 50.);
   h_ecalRecHitSumEtConeDR04_miniAOD_[0][1] =
-      iBooker.book1D(histname + "Barrel_miniAOD", "ecalRecHitSumEtDR04: Barrel ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Barrel_miniAOD", "ecalRecHitSumEtDR04: Barrel ", etBin, etMin, 50.);
   h_ecalRecHitSumEtConeDR04_miniAOD_[0][2] =
-      iBooker.book1D(histname + "Endcap_miniAOD", "ecalRecHitSumEtDR04: Endcap ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Endcap_miniAOD", "ecalRecHitSumEtDR04: Endcap ", etBin, etMin, 50.);
   histname = "hcalTowerSumEtConeDR04";
   h_hcalTowerSumEtConeDR04_miniAOD_[0][0] =
-      iBooker.book1D(histname + "All_miniAOD", "hcalTowerSumEtConeDR04: All Ecal", etBin, etMin, 20.);
+      iBooker.book1D(histname + "All_miniAOD", "hcalTowerSumEtConeDR04: All Ecal", etBin, etMin, 50.);
   h_hcalTowerSumEtConeDR04_miniAOD_[0][1] =
-      iBooker.book1D(histname + "Barrel_miniAOD", "hcalTowerSumEtConeDR04: Barrel ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Barrel_miniAOD", "hcalTowerSumEtConeDR04: Barrel ", etBin, etMin, 50.);
   h_hcalTowerSumEtConeDR04_miniAOD_[0][2] =
-      iBooker.book1D(histname + "Endcap_miniAOD", "hcalTowerSumEtConeDR04: Endcap ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Endcap_miniAOD", "hcalTowerSumEtConeDR04: Endcap ", etBin, etMin, 50.);
   //
   histname = "hcalTowerBcSumEtConeDR04";
   h_hcalTowerBcSumEtConeDR04_miniAOD_[0][0] =
-      iBooker.book1D(histname + "All_miniAOD", "hcalTowerBcSumEtConeDR04: All Ecal", etBin, etMin, 20.);
+      iBooker.book1D(histname + "All_miniAOD", "hcalTowerBcSumEtConeDR04: All Ecal", etBin, etMin, 50.);
   h_hcalTowerBcSumEtConeDR04_miniAOD_[0][1] =
-      iBooker.book1D(histname + "Barrel_miniAOD", "hcalTowerBcSumEtConeDR04: Barrel ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Barrel_miniAOD", "hcalTowerBcSumEtConeDR04: Barrel ", etBin, etMin, 50.);
   h_hcalTowerBcSumEtConeDR04_miniAOD_[0][2] =
-      iBooker.book1D(histname + "Endcap_miniAOD", "hcalTowerBcSumEtConeDR04: Endcap ", etBin, etMin, 20.);
+      iBooker.book1D(histname + "Endcap_miniAOD", "hcalTowerBcSumEtConeDR04: Endcap ", etBin, etMin, 50.);
   histname = "isoTrkSolidConeDR04";
   h_isoTrkSolidConeDR04_miniAOD_[0][0] =
       iBooker.book1D(histname + "All_miniAOD", "isoTrkSolidConeDR04: All Ecal", etBin, etMin, etMax * 0.1);
@@ -3231,35 +3241,6 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     //// Get the In Out  CKF tracks from conversions
     e.getByToken(conversionIOTrackPr_Token_, inOutTrkHandle);
 
-    // Loop over Out In Tracks
-    int iTrk = 0;
-    int nHits = 0;
-    for (View<reco::Track>::const_iterator iTk = outInTrkHandle->begin(); iTk != outInTrkHandle->end(); iTk++) {
-      h_OIinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
-        if ((*itHits)->isValid()) {
-          nHits++;
-        }
-      }
-
-      iTrk++;
-    }
-
-    // Loop over In Out Tracks Barrel
-    iTrk = 0;
-    for (View<reco::Track>::const_iterator iTk = inOutTrkHandle->begin(); iTk != inOutTrkHandle->end(); iTk++) {
-      h_IOinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
-      nHits = 0;
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
-        if ((*itHits)->isValid()) {
-          nHits++;
-        }
-      }
-      iTrk++;
-    }
-
   }  // if !fastSim
 
   //////////////////// Get the MC truth
@@ -3591,6 +3572,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       mcPhi_ = phiNormalization(mcPhi);
       mcEta_ = (*mcPho).fourMomentum().pseudoRapidity();
       mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z());
+
       mcConvR_ = (*mcPho).vertex().perp();
       mcConvX_ = (*mcPho).vertex().x();
       mcConvY_ = (*mcPho).vertex().y();
@@ -3724,7 +3706,9 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       if (!matched)
         continue;
 
-      bool phoIsInBarrel = false;
+      bool phoIsInBarrel = false;   // full barrel
+      bool phoIsInBarrel1 = false;  // |eta| <=1
+      bool phoIsInBarrel2 = false;  // |eta| >1
       bool phoIsInEndcap = false;
       bool phoIsInEndcapP = false;
       bool phoIsInEndcapM = false;
@@ -3739,6 +3723,11 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
           phoIsInEndcapP = true;
         if (matchingPho->superCluster()->position().eta() < 0)
           phoIsInEndcapM = true;
+      }
+      if (fabs(matchingPho->superCluster()->position().eta()) <= 1) {
+        phoIsInBarrel1 = true;
+      } else if (fabs(matchingPho->superCluster()->position().eta()) > 1) {
+        phoIsInBarrel2 = true;
       }
 
       edm::Handle<EcalRecHitCollection> ecalRecHitHandle;
@@ -4174,11 +4163,19 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
             if (type == reco::PFCandidate::h0) {
               SumPtIsoValNh += pfCandRef->pt();
               h_dRPhoPFcand_NeuHad_unCleaned_[0]->Fill(dR);
-              if (phoIsInBarrel)
+              if (phoIsInBarrel) {
                 h_dRPhoPFcand_NeuHad_unCleaned_[1]->Fill(dR);
-              else
-                h_dRPhoPFcand_NeuHad_unCleaned_[2]->Fill(dR);
+                if (phoIsInBarrel1) {
+                  h_dRPhoPFcand_NeuHad_unCleaned_[3]->Fill(dR);
+                }
+                if (phoIsInBarrel2) {
+                  h_dRPhoPFcand_NeuHad_unCleaned_[4]->Fill(dR);
+                }
+              } else {
+                h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+              }
             }
+
             if (type == reco::PFCandidate::gamma) {
               SumPtIsoValPh += pfCandRef->pt();
               h_dRPhoPFcand_Pho_unCleaned_[0]->Fill(dR);
@@ -4187,6 +4184,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
               else
                 h_dRPhoPFcand_Pho_unCleaned_[2]->Fill(dR);
             }
+
             ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
             bool skip = false;
             for (std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[matchingPho].begin();
@@ -4210,10 +4208,17 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
             if (type == reco::PFCandidate::h0) {
               SumPtIsoValCleanNh += pfCandRef->pt();
               h_dRPhoPFcand_NeuHad_Cleaned_[0]->Fill(dR);
-              if (phoIsInBarrel)
+              if (phoIsInBarrel) {
                 h_dRPhoPFcand_NeuHad_Cleaned_[1]->Fill(dR);
-              else
+                if (phoIsInBarrel1) {
+                  h_dRPhoPFcand_NeuHad_Cleaned_[3]->Fill(dR);
+                }
+                if (phoIsInBarrel2) {
+                  h_dRPhoPFcand_NeuHad_Cleaned_[4]->Fill(dR);
+                }
+              } else {
                 h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+              }
             }
             if (type == reco::PFCandidate::gamma) {
               SumPtIsoValCleanPh += pfCandRef->pt();

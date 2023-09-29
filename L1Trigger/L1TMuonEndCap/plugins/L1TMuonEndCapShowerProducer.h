@@ -7,7 +7,7 @@
   in the endcap muon system.
 
   The logic is executed in the SectorProcessorShower class. Multiple options
-  are defined: "OneNominal", "TwoLoose"
+  are defined: "OneLoose", "TwoLoose", "OneNominal", "OneTight" 
  */
 
 // system include files
@@ -33,7 +33,6 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  const edm::ParameterSet& config_;
   edm::EDGetToken tokenCSCShower_;
   emtf::sector_array<SectorProcessorShower> sector_processors_shower_;
 };

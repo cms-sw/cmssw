@@ -3,7 +3,6 @@
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
-#include "SimG4Core/Application/interface/SteppingAction.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,6 +13,7 @@
 #include "G4PrimaryTransformer.hh"
 #include "G4TrackingManager.hh"
 #include "G4TrackStatus.hh"
+#include "G4UserSteppingAction.hh"
 
 #include "G4SDManager.hh"
 #include "G4StateManager.hh"
@@ -107,6 +107,4 @@ void CMSSimEventManager::SetUserAction(TrackingAction* ptr) {
   m_defTrackManager->SetUserAction((G4UserTrackingAction*)ptr);
 }
 
-void CMSSimEventManager::SetUserAction(SteppingAction* ptr) {
-  m_defTrackManager->SetUserAction((G4UserSteppingAction*)ptr);
-}
+void CMSSimEventManager::SetUserAction(G4UserSteppingAction* ptr) { m_defTrackManager->SetUserAction(ptr); }

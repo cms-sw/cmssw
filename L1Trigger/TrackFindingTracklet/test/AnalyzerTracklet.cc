@@ -174,8 +174,8 @@ namespace trklet {
     for (int region = 0; region < setup_->numRegions(); region++) {
       const vector<TTTrackRef>& ttTrackRefs = ttTrackRefsRegions[region];
       const int nStubs =
-          accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int& sum, const TTTrackRef& ttTrackRef) {
-            return sum += ttTrackRef->getStubRefs().size();
+          accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int sum, const TTTrackRef& ttTrackRef) {
+            return sum + ttTrackRef->getStubRefs().size();
           });
       const int nTracks = ttTrackRefs.size();
       hisChannel_->Fill(nTracks);

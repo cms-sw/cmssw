@@ -522,7 +522,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
         double dZ0 = 9999.;
         double dZ_tmp = 9999.;
         for (unsigned vtx_i = 0; vtx_i < allvtx.size(); vtx_i++) {
-          auto iv = allvtx[vtx_i];
+          const auto& iv = allvtx[vtx_i];
 
           if (iv.isFake())
             continue;
@@ -571,10 +571,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     float dphi = reco::deltaPhi(*icand, *jet);
     sum_deta += deta * weight2;
     sum_dphi += dphi * weight2;
-    if (sumW2 > 0) {
-      ave_deta = sum_deta / sumW2;
-      ave_dphi = sum_dphi / sumW2;
-    }
+  }
+  if (sumW2 > 0) {
+    ave_deta = sum_deta / sumW2;
+    ave_dphi = sum_dphi / sumW2;
   }
 
   // // Finalize all variables

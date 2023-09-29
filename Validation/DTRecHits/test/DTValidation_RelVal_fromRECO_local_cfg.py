@@ -74,7 +74,7 @@ process.seg4dvalidation.local = True
 
 
 process.options = cms.untracked.PSet(
-    #FailPath = cms.untracked.vstring('ProductNotFound'),
+    #TryToContinue = cms.untracked.vstring('ProductNotFound'),
     makeTriggerResults = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(True)
 )

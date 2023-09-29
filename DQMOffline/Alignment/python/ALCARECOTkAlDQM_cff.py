@@ -83,7 +83,8 @@ ALCARECOTkAlDiMuonAndVertexVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi
 
 ALCARECOTkAlDiMuonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
     muonTracks = 'ALCARECO'+__trackCollName,
-    FolderName = "AlCaReco/"+__selectionName
+    FolderName = "AlCaReco/"+__selectionName,
+    DiMuMassConfig = dict(maxDeltaEta = 3.5)
 )
 
 ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM + ALCARECOTkAlDiMuonMassBiasDQM)
@@ -163,7 +164,12 @@ ALCARECOTkAlJpsiMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuon
     decayMotherName = "J/#psi",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
-    maxSVdist = 50
+    maxSVdist = 50,
+    CosPhi3DConfig = dict(maxDeltaEta = 1.3),
+    SVDistConfig = dict(maxDeltaEta = 1.3),
+    SVDistSigConfig = dict(maxDeltaEta = 1.3),
+    SVDist3DConfig = dict(maxDeltaEta = 1.3),
+    SVDist3DSigConfig = dict(maxDeltaEta = 1.3)
 )
 
 ALCARECOTkAlJpsiMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(
@@ -233,7 +239,12 @@ ALCARECOTkAlUpsilonMuMuVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiM
     decayMotherName = "#Upsilon",
     vertices = 'offlinePrimaryVertices',
     FolderName = "AlCaReco/"+__selectionName,
-    maxSVdist = 50
+    maxSVdist = 50,
+    CosPhi3DConfig = dict(maxDeltaEta = 1.6),
+    SVDistConfig = dict(maxDeltaEta = 1.6),
+    SVDistSigConfig = dict(maxDeltaEta = 1.6),
+    SVDist3DConfig = dict(maxDeltaEta = 1.6),
+    SVDist3DSigConfig = dict(maxDeltaEta = 1.6)
 )
 
 ALCARECOTkAlUpsilonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiMuonMassBiasMonitor.clone(

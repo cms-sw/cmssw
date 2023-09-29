@@ -270,14 +270,24 @@ bool l1t::MuonRawDigiTranslator::showerFired(uint32_t shower_word, int fedId, in
   return false;
 }
 
-std::array<uint32_t, 4> l1t::MuonRawDigiTranslator::getPackedShowerDataWords(const MuonShower& shower,
-                                                                             const int fedId,
-                                                                             const int fwId) {
-  std::array<uint32_t, 4> res{};
+std::array<std::array<uint32_t, 4>, 2> l1t::MuonRawDigiTranslator::getPackedShowerDataWords(const MuonShower& shower,
+                                                                                            const int fedId,
+                                                                                            const int fwId) {
+  std::array<std::array<uint32_t, 4>, 2> res{};
   if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionFirstWithShowers) ||
       (fedId == kUgtFedId && fwId >= kUgtFwVersionFirstWithShowers)) {
-    res.at(0) = shower.isOneNominalInTime() ? (1 << showerShift_) : 0;
-    res.at(1) = shower.isOneTightInTime() ? (1 << showerShift_) : 0;
+    res.at(0).at(0) = shower.isOneNominalInTime() ? (1 << showerShift_) : 0;
+    res.at(0).at(1) = shower.isOneTightInTime() ? (1 << showerShift_) : 0;
+  }
+  if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionShowersFrom2023_patched) ||
+      (fedId == kUgtFedId && fwId >= kUgtFwVersionShowersFrom2023)) {
+    res.at(1).at(1) = shower.isTwoLooseDiffSectorsInTime()
+                          ? (1 << showerShift_)
+                          : 0;  // The two loose shower is on the second link in the second muon word.
+  } else if (fedId == kUgmtFedId && fwId >= kUgmtFwVersionShowersFrom2023) {
+    res.at(1).at(0) = shower.isTwoLooseDiffSectorsInTime()
+                          ? (1 << showerShift_)
+                          : 0;  // uGMT was briefly transmitting it on the first link instead.
   }
   return res;
 }

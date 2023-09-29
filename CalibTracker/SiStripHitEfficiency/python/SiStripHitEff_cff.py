@@ -36,7 +36,12 @@ anEff = cms.EDAnalyzer("HitEff",
                        useFirstMeas = cms.untracked.bool(False),
                        useLastMeas = cms.untracked.bool(False),
                        # use or not all hits when some missing hits in the trajectory (bias), default is false
-                       useAllHitsFromTracksWithMissingHits = cms.untracked.bool(False)
+                       useAllHitsFromTracksWithMissingHits = cms.untracked.bool(False),
+                       doMissingHitsRecovery = cms.untracked.bool(False)
                        )
 
 hiteff = cms.Sequence( anEff )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(anEff,useAllHitsFromTracksWithMissingHits = True,
+                     doMissingHitsRecovery = True)

@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 #include "SimG4CMS/Forward/interface/MtdSD.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -6,6 +8,7 @@
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
 #include "Geometry/MTDCommonData/interface/ETLNumberingScheme.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "G4Track.hh"
 #include "G4Step.hh"
@@ -13,7 +16,6 @@
 
 #include <iostream>
 
-//#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
@@ -39,6 +41,11 @@ MtdSD::MtdSD(const std::string& name,
   }
   if (scheme)
     setNumberingScheme(scheme);
+
+  energyCut = m_p.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;     //default must be 0.5
+  energyHistoryCut = m_p.getParameter<double>("EnergyThresholdForHistoryInGeV") * CLHEP::GeV;  //default must be 0.05
+
+  setCuts(energyCut, energyHistoryCut);
 
   double newTimeFactor = 1. / m_p.getParameter<double>("TimeSliceUnit");
   edm::LogVerbatim("MtdSim") << "New time factor = " << newTimeFactor;
@@ -89,4 +96,42 @@ void MtdSD::getBaseNumber(const G4Step* aStep) {
 #endif
     }
   }
+}
+
+int MtdSD::getTrackID(const G4Track* aTrack) {
+  int theID = aTrack->GetTrackID();
+  TrackInformation* trkInfo = cmsTrackInformation(aTrack);
+  const G4String& rname = aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
+  if (trkInfo != nullptr) {
+#ifdef EDM_ML_DEBUG
+    trkInfo->Print();
+#endif
+    if (rname == "FastTimerRegionSensBTL") {
+      theID = trkInfo->mcTruthID();
+      if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
+      } else if (trkInfo->isInTrkFromBackscattering()) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
+      } else if (trkInfo->isBTLlooper()) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idloopOffset);
+      }
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
+                                 << " BTL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
+#endif
+    } else if (rname == "FastTimerRegionSensETL") {
+      theID = trkInfo->getIDonCaloSurface();
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
+                                 << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
+#endif
+    } else {
+      throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;
+    }
+  } else {
+#ifdef EDM_ML_DEBUG
+    edm::LogWarning("MtdSim") << "MtdSD: Problem with primaryID **** set by force to TkID **** " << theID;
+#endif
+  }
+  return theID;
 }

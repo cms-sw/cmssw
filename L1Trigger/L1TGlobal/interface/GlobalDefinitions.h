@@ -26,7 +26,7 @@
 
 namespace l1t {
   /// board types in GT
-  enum L1GtBoardType { MP7, BoardNull };
+  enum L1GtBoardType { MP7, BoardNull, L1GtBoardTypeInvalid = -1 };
 
   struct L1GtBoardTypeStringToEnum {
     const char* label;
@@ -78,7 +78,10 @@ namespace l1t {
     TypeAsymEt,
     TypeAsymHt,
     TypeAsymEtHF,
-    TypeAsymHtHF
+    TypeAsymHtHF,
+    TypeZDCP,
+    TypeZDCM,
+    GtConditionTypeInvalid = -1
   };
 
   struct GtConditionTypeStringToEnum {
@@ -100,6 +103,8 @@ namespace l1t {
     CondCorrelationWithOverlapRemoval,
     CondCorrelationThreeBody,
     CondMuonShower,
+    CondEnergySumZdc,
+    GtConditionCategoryInvalid = -1
   };
 
   struct GtConditionCategoryStringToEnum {

@@ -507,7 +507,7 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
   spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections, false);
 
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
        trkDetItr++, nTracks++) {
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
@@ -524,7 +524,6 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
 #endif
     if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
       double t_p = pTrack->p();
-      nselTracks++;
       int nRH_eMipDR(0), nNearTRKs(0);
       double eMipDR = spr::eCone_ecal(geo,
                                       barrelRecHitsHandle,

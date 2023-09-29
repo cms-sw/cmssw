@@ -34,16 +34,18 @@
 //        double getCorr(entry): Entry # (in the file) dependent correction
 //        bool absent(entry) : if correction factor absent
 //        bool present(entry): or present (relevant for ML motivated)
-// CalibSelectRBX(rbx, debug)
-//      A class for selecting a given Read Out Box and provides
-//        bool isItRBX(detId): if it/they is in the chosen RBX
-//        bool isItRBX(ieta, iphi): if it is in the chosen RBX
+// CalibSelectRBX(rbxFile, debug)
+//      A class for selecting a given set of Read Out Box's and provides
+//        bool isItRBX(detId): if it/they is in the chosen RBXs
+//        bool isItRBX(ieta, iphi): if it is in the chosen RBXs
 // CalibDuplicate(infile, flag, debug)
 //      A class for either rejecting duplicate entries or giving depth
 //        dependent weight. flag is 0 for keeping a list of duplicate
-//        emtries; 1 is to keep depth dependent weight for each ieta
+//        emtries; 1 is to keep depth dependent weight for each ieta;
+//        2 is to keep a list of ieta, iphi for channels to be selected.
 //        bool isDuplicate(entry): if it is a duplicate entry
 //        double getWeight(ieta, depth): get the dependent weight
+//        bool select(int ieta, int iphi): channels to be selected
 // void CalibCorrTest(infile, flag)
 //      Tests a file which contains correction factors used by CalibCorr
 //////////////////////////////////////////////////////////////////////////////
@@ -160,6 +162,50 @@ unsigned int repackId(int eta, int depth) {
   unsigned int id =
       (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
   return id;
+}
+
+unsigned int repackId(int subdet, int ieta, int iphi, int depth) {
+  unsigned int id = ((subdet & 0x7) << 25);
+  id |= ((0x1000000) | ((depth & 0xF) << 20) | ((ieta > 0) ? (0x80000 | (ieta << 10)) : ((-ieta) << 10)) |
+         (iphi & 0x3FF));
+  return id;
+}
+
+bool ifHB(int ieta, int depth) { return ((std::abs(ieta) < 16) || ((std::abs(ieta) == 16) && (depth != 4))); }
+
+int truncateDepth(int ieta, int depth, int truncateFlag) {
+  int d(depth);
+  if (truncateFlag == 5) {
+    d = (depth == 1) ? 1 : 2;
+  } else if (truncateFlag == 4) {
+    d = ifHB(ieta, depth) ? ((depth == 1) ? 1 : 2) : depth;
+  } else if (truncateFlag == 3) {
+    d = (!ifHB(ieta, depth)) ? ((depth == 1) ? 1 : 2) : depth;
+  } else if (truncateFlag == 2) {
+    d = 1;
+  } else if (truncateFlag == 1) {
+    d = ((std::abs(ieta) == 15) || (std::abs(ieta) == 16)) ? 1 : depth;
+  }
+  return d;
+}
+
+double threshold(int subdet, int depth, int form) {
+  double cutHE[7] = {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2};
+  double cutHB[3][4] = {{0.1, 0.2, 0.3, 0.3}, {0.25, 0.25, 0.3, 0.3}, {0.4, 0.3, 0.3, 0.3}};
+  double thr(0);
+  if (form > 0) {
+    if (subdet == 2)
+      thr = cutHE[depth - 1];
+    else
+      thr = cutHB[form - 1][depth - 1];
+  }
+  return thr;
+}
+
+double threshold(unsigned int detId, int form) {
+  int subdet = ((detId >> 25) & (0x7));
+  int depth = ((detId & 0x1000000) == 0) ? ((detId >> 14) & 0x1F) : ((detId >> 20) & 0xF);
+  return threshold(subdet, depth, form);
 }
 
 double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, bool debug = false) {
@@ -510,7 +556,7 @@ private:
 
 class CalibSelectRBX {
 public:
-  CalibSelectRBX(int rbx, bool debug = false);
+  CalibSelectRBX(const char* rbxFile, bool debug = false);
   ~CalibSelectRBX() {}
 
   bool isItRBX(const unsigned int);
@@ -519,8 +565,7 @@ public:
 
 private:
   bool debug_;
-  int subdet_, zside_;
-  std::vector<int> phis_;
+  std::vector<int> zsphis_;
 };
 
 class CalibDuplicate {
@@ -530,13 +575,15 @@ public:
 
   bool isDuplicate(long entry);
   double getWeight(const unsigned int);
-  bool doCorr() { return ((flag_ != 1) && ok_); }
+  bool doCorr() { return ((flag_ == 1) && ok_); }
+  bool select(int ieta, int iphi);
 
 private:
   int flag_;
   double debug_, ok_;
   std::vector<Long64_t> entries_;
   std::map<int, std::vector<double> > weights_;
+  std::vector<std::pair<int, int> > etaphi_;
 };
 
 CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale, bool etamax, bool marina, bool debug)
@@ -979,33 +1026,61 @@ unsigned int CalibCorr::correctDetId(const unsigned int& detId) {
   return id;
 }
 
-CalibSelectRBX::CalibSelectRBX(int rbx, bool debug) : debug_(debug) {
-  zside_ = (rbx > 0) ? 1 : -1;
-  subdet_ = (std::abs(rbx) / 100) % 10;
-  if (subdet_ != 1)
-    subdet_ = 2;
-  int iphis = std::abs(rbx) % 100;
-  if (iphis > 0 && iphis <= 18) {
-    for (int i = 0; i < 4; ++i) {
-      int iphi = (iphis - 2) * 4 + 3 + i;
-      if (iphi < 1)
-        iphi += 72;
-      phis_.push_back(iphi);
+CalibSelectRBX::CalibSelectRBX(const char* rbxFile, bool debug) : debug_(debug) {
+  std::cout << "Enters CalibSelectRBX for " << rbxFile << std::endl;
+  unsigned int all(0), good(0);
+  std::vector<int> rbxs;
+  std::ifstream fInput(rbxFile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << rbxFile << std::endl;
+  } else {
+    char buffer[1024];
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0, 1) == "#") {
+        continue;  //ignore other comments
+      } else {
+        std::vector<std::string> items = splitString(bufferString);
+        if (items.size() != 1) {
+          std::cout << "Ignore  line: " << buffer << " Size " << items.size() << std::endl;
+        } else {
+          ++good;
+          int rbx = std::atoi(items[0].c_str());
+          rbxs.push_back(rbx);
+          int zside = (rbx > 0) ? 1 : -1;
+          int subdet = (std::abs(rbx) / 100) % 10;
+          if (subdet != 1)
+            subdet = 2;
+          int iphis = std::abs(rbx) % 100;
+          if (iphis > 0 && iphis <= 18) {
+            for (int i = 0; i < 4; ++i) {
+              int iphi = (iphis - 2) * 4 + 3 + i;
+              if (iphi < 1)
+                iphi += 72;
+              int zsphi = zside * (subdet * 100 + iphi);
+              zsphis_.push_back(zsphi);
+            }
+          }
+        }
+      }
     }
+    fInput.close();
   }
-  std::cout << "Select RBX " << rbx << " ==> Subdet " << subdet_ << " zside " << zside_ << " with " << phis_.size()
-            << " iphi values:";
-  for (unsigned int i = 0; i < phis_.size(); ++i)
-    std::cout << " " << phis_[i];
+  std::cout << "Select a set of RBXs " << rbxs.size() << " by reading " << all << ":" << good << " records from "
+            << rbxFile << " with " << zsphis_.size() << " iphi values:";
+  for (unsigned int i = 0; i < zsphis_.size(); ++i)
+    std::cout << " " << zsphis_[i];
   std::cout << std::endl;
 }
 
 bool CalibSelectRBX::isItRBX(const unsigned int detId) {
   bool ok(true);
-  if (phis_.size() == 4) {
+  if (zsphis_.size() > 0) {
     int subdet, ieta, zside, depth, iphi;
     unpackDetId(detId, subdet, zside, ieta, iphi, depth);
-    ok = ((subdet == subdet_) && (zside == zside_) && (std::find(phis_.begin(), phis_.end(), iphi) != phis_.end()));
+    int zsphi = zside * (subdet * 100 + iphi);
+    ok = (std::find(zsphis_.begin(), zsphis_.end(), zsphi) != zsphis_.end());
 
     if (debug_) {
       std::cout << "isItRBX:subdet|zside|iphi " << subdet << ":" << zside << ":" << iphi << " OK " << ok << std::endl;
@@ -1016,14 +1091,16 @@ bool CalibSelectRBX::isItRBX(const unsigned int detId) {
 
 bool CalibSelectRBX::isItRBX(const std::vector<unsigned int>* detId) {
   bool ok(true);
-  if (phis_.size() == 4) {
+  if (zsphis_.size() > 0) {
     ok = true;
     for (unsigned int i = 0; i < detId->size(); ++i) {
       int subdet, ieta, zside, depth, iphi;
       unpackDetId((*detId)[i], subdet, zside, ieta, iphi, depth);
-      ok = ((subdet == subdet_) && (zside == zside_) && (std::find(phis_.begin(), phis_.end(), iphi) != phis_.end()));
+      int zsphi = zside * (subdet * 100 + iphi);
+      ok = (std::find(zsphis_.begin(), zsphis_.end(), zsphi) != zsphis_.end());
       if (debug_) {
-        std::cout << "isItRBX: subdet|zside|iphi " << subdet << ":" << zside << ":" << iphi << std::endl;
+        std::cout << "isItRBX: subdet|zside|iphi " << subdet << ":" << zside << ":" << iphi << " OK " << ok
+                  << std::endl;
       }
       if (ok)
         break;
@@ -1036,12 +1113,14 @@ bool CalibSelectRBX::isItRBX(const std::vector<unsigned int>* detId) {
 
 bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
   bool ok(true);
-  if (phis_.size() == 4) {
+  if (zsphis_.size() == 4) {
     int zside = (ieta > 0) ? 1 : -1;
     int subd1 = (std::abs(ieta) <= 16) ? 1 : 2;
     int subd2 = (std::abs(ieta) >= 16) ? 2 : 1;
-    ok = (((subd1 == subdet_) || (subd2 == subdet_)) && (zside == zside_) &&
-          (std::find(phis_.begin(), phis_.end(), iphi) != phis_.end()));
+    int zsphi1 = zside * (subd1 * 100 + iphi);
+    int zsphi2 = zside * (subd2 * 100 + iphi);
+    ok = ((std::find(zsphis_.begin(), zsphis_.end(), zsphi1) != zsphis_.end()) ||
+          (std::find(zsphis_.begin(), zsphis_.end(), zsphi2) != zsphis_.end()));
   }
   if (debug_) {
     std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok << std::endl;
@@ -1050,7 +1129,7 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
 }
 
 CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(flag), debug_(debug), ok_(false) {
-  if (flag_ == 1) {
+  if (flag_ == 0) {
     if (strcmp(fname, "") != 0) {
       std::ifstream infile(fname);
       if (!infile.is_open()) {
@@ -1071,11 +1150,11 @@ CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(
     } else {
       std::cout << "No duplicate events in the input file" << std::endl;
     }
-  } else {
+  } else if (flag_ == 1) {
     if (strcmp(fname, "") != 0) {
       std::ifstream infile(fname);
       if (!infile.is_open()) {
-        std::cout << "Cannot open duplicate file " << fname << std::endl;
+        std::cout << "Cannot open depth dependence file " << fname << std::endl;
       } else {
         unsigned int all(0), good(0);
         char buffer[1024];
@@ -1116,6 +1195,44 @@ CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(
           ok_ = true;
       }
     }
+  } else {
+    flag_ = 2;
+    if (strcmp(fname, "") != 0) {
+      std::ifstream infile(fname);
+      if (!infile.is_open()) {
+        std::cout << "Cannot open rejection file " << fname << std::endl;
+      } else {
+        unsigned int all(0), good(0);
+        char buffer[1024];
+        while (infile.getline(buffer, 1024)) {
+          ++all;
+          std::string bufferString(buffer);
+          if (bufferString.substr(0, 1) == "#") {
+            continue;  //ignore other comments
+          } else {
+            std::vector<std::string> items = splitString(bufferString);
+            if (items.size() != 2) {
+              std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+              for (unsigned int k = 0; k < items.size(); ++k)
+                std::cout << " [" << k << "] : " << items[k];
+              std::cout << std::endl;
+            } else {
+              ++good;
+              int ieta = std::atoi(items[0].c_str());
+              int iphi = std::atoi(items[1].c_str());
+              etaphi_.push_back(std::pair<int, int>(ieta, iphi));
+              if (debug_)
+                std::cout << "Select channels with iEta " << ieta << " iPhi " << iphi << std::endl;
+            }
+          }
+        }
+        infile.close();
+        std::cout << "Reads total of " << all << " and " << good << " good records of rejection candidates from "
+                  << fname << std::endl;
+        if (good > 0)
+          ok_ = true;
+      }
+    }
   }
 }
 
@@ -1141,6 +1258,15 @@ double CalibDuplicate::getWeight(unsigned int detId) {
     }
   }
   return wt;
+}
+
+bool CalibDuplicate::select(int ieta, int iphi) {
+  bool flag(false);
+  if ((ok_) && (flag_ == 2))
+    flag = (std::find(etaphi_.begin(), etaphi_.end(), std::pair<int, int>(ieta, iphi)) != etaphi_.end());
+  if (debug_)
+    std::cout << "Input " << ieta << ":" << iphi << " Flags " << ok_ << ":" << flag_ << ":" << flag << std::endl;
+  return flag;
 }
 
 void CalibCorrTest(const char* infile, int flag) {

@@ -12,6 +12,10 @@
 //      Defaults: numb=50, type=3, append=true, fiteta=true, iname=3,
 //                debug=false
 //
+//             Same as FitHistExtend with summary of each ieta/depth
+//  FitHistExtended2(infile, outfile, prefix, numb, append, iname, debug);
+//      Defaults: numb=50, append=true, iname=3, debug=false
+//
 //             For RBX dependence in sets of histograms from CalibMonitor
 //  FitHistRBX(infile, outfile, prefix, append, iname);
 //      Defaults: append=true, iname=2
@@ -130,6 +134,12 @@
 //         Type, lower and higher edge of momentum
 //         Mean response and its error for the 4 regions
 //         Width of response and uts error for the 4 regions
+//
+//            For plotting depth dependent correction factors from muon study
+//  PlotDepthCorrFactor(infile, text, prefix, dataMC, drawStatBox, save)
+//      Defaults prefix = "", dataMC = true, drawStatBox = true, save = 0
+//      Format for the input file: ieta and correcrion factor with its
+//             uncertainty for each depth
 //
 //  where:
 //  infile   (std::string)  = Name of the input ROOT file
@@ -880,6 +890,215 @@ void FitHistExtended(const char* infile,
               hists.push_back(hist3);
             }
             //            results meaner0 = fitTwoGauss(hist, debug);
+            results meaner0 = fitOneGauss(hist, true, debug);
+            value = meaner0.mean;
+            error = meaner0.errmean;
+            double rms;
+            std::pair<double, double> meaner = GetMean(hist, 0.2, 2.0, rms);
+            if (debug) {
+              std::cout << "Fit " << value << ":" << error << ":" << hist->GetMeanError() << " Mean " << meaner.first
+                        << ":" << meaner.second << std::endl;
+            }
+          }
+          hists.push_back(hist);
+        }
+      }
+    }
+    TFile* theFile(0);
+    if (append) {
+      if (debug) {
+        std::cout << "Open file " << outfile << " in append mode" << std::endl;
+      }
+      theFile = new TFile(outfile, "UPDATE");
+    } else {
+      if (debug) {
+        std::cout << "Open file " << outfile << " in recreate mode" << std::endl;
+      }
+      theFile = new TFile(outfile, "RECREATE");
+    }
+
+    theFile->cd();
+    for (unsigned int i = 0; i < hists.size(); ++i) {
+      TH1D* hnew = (TH1D*)hists[i]->Clone();
+      if (debug) {
+        std::cout << "Write Histogram " << hnew->GetTitle() << std::endl;
+      }
+      hnew->Write();
+    }
+    theFile->Close();
+    file->Close();
+  }
+}
+
+void FitHistExtended2(const char* infile,
+                      const char* outfile,
+                      std::string prefix,
+                      int numb = 50,
+                      bool append = true,
+                      int iname = 3,
+                      bool debug = false) {
+  std::string sname("ratio"), lname("Z"), wname("W"), ename("etaB");
+  double xbins[99];
+  int ixbin[99];
+  int neta = numb / 2;
+  for (int k = 0; k < neta; ++k) {
+    xbins[k] = (k - neta) - 0.5;
+    xbins[numb - k] = (neta - k) + 0.5;
+    ixbin[k] = (k - neta);
+    ixbin[numb - k] = (neta - k);
+  }
+  xbins[neta] = 0;
+  ixbin[neta] = 0;
+  TFile* file = new TFile(infile);
+  std::vector<TH1D*> hists;
+  char name[200];
+  if (debug) {
+    std::cout << infile << " " << file << std::endl;
+  }
+  if (file != nullptr) {
+    sprintf(name, "%s%s%d0", prefix.c_str(), sname.c_str(), iname);
+    TH1D* hist0 = (TH1D*)file->FindObjectAny(name);
+    bool ok = (hist0 != nullptr);
+    if (debug) {
+      std::cout << name << " Pointer " << hist0 << " " << ok << std::endl;
+    }
+    if (ok) {
+      TH1D *histo(0), *histw(0);
+      if (numb > 0) {
+        sprintf(name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
+        histo = new TH1D(name, hist0->GetTitle(), numb, xbins);
+        sprintf(name, "%s%s%d", prefix.c_str(), wname.c_str(), iname);
+        histw = new TH1D(name, hist0->GetTitle(), numb, xbins);
+        if (debug)
+          std::cout << name << " " << histo->GetNbinsX() << std::endl;
+      }
+      int nv1(100), nv2(0);
+      int jmin(numb), jmax(0);
+      for (int j = 0; j <= numb; ++j) {
+        sprintf(name, "%s%s%d%d", prefix.c_str(), sname.c_str(), iname, j);
+        TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+        if (debug) {
+          std::cout << "Get Histogram for " << name << " at " << hist1 << std::endl;
+        }
+        double value(0), error(0), total(0), width(0), werror(0);
+        if (hist1 == nullptr) {
+          value = 1.0;
+        } else {
+          TH1D* hist = (TH1D*)hist1->Clone();
+          if (debug)
+            std::cout << "Histogram " << name << ":" << (hist->GetName()) << " with " << (hist->GetEntries())
+                      << " entries" << std::endl;
+          if (hist->GetEntries() > 0) {
+            value = hist->GetMean();
+            error = hist->GetRMS();
+            for (int i = 1; i <= hist->GetNbinsX(); ++i)
+              total += hist->GetBinContent(i);
+            std::pair<double, double> rmserr = GetWidth(hist, 0.2, 2.0);
+            width = rmserr.first;
+            werror = rmserr.second;
+          }
+          if (total > 4) {
+            if (nv1 > j)
+              nv1 = j;
+            if (nv2 < j)
+              nv2 = j;
+            if (j == 0) {
+              sprintf(name, "%sOne", hist1->GetName());
+              TH1D* hist2 = (TH1D*)hist1->Clone(name);
+              fitOneGauss(hist2, true, debug);
+              hists.push_back(hist2);
+              results meaner = fitOneGauss(hist, true, debug);
+              value = meaner.mean;
+              error = meaner.errmean;
+              width = meaner.width;
+              werror = meaner.errwidth;
+            } else {
+              results meaner = fitOneGauss(hist, true, debug);
+              value = meaner.mean;
+              error = meaner.errmean;
+              width = meaner.width;
+              werror = meaner.errwidth;
+            }
+            if (j != 0) {
+              if (j < jmin)
+                jmin = j;
+              if (j > jmax)
+                jmax = j;
+            }
+            double wbyv0 = width / value;
+            double wverr0 = wbyv0 * std::sqrt((werror * werror) / (width * width) + (error * error) / (value * value));
+            if (ixbin[j] != 0)
+              std::cout << ixbin[j] << " MPV " << value << " +- " << error << " Width/MPV " << wbyv0 << " +- " << wverr0
+                        << std::endl;
+          }
+          hists.push_back(hist);
+        }
+        if (debug) {
+          std::cout << "Hist " << j << " Value " << value << " +- " << error << std::endl;
+        }
+        if (j != 0) {
+          double wbyv = width / value;
+          double wverr = wbyv * std::sqrt((werror * werror) / (width * width) + (error * error) / (value * value));
+          histo->SetBinContent(j, value);
+          histo->SetBinError(j, error);
+          histw->SetBinContent(j, wbyv);
+          histw->SetBinError(j, wverr);
+        }
+      }
+      if (histo != nullptr) {
+        if (histo->GetEntries() > 2) {
+          if (debug) {
+            std::cout << "Jmin/max " << jmin << ":" << jmax << ":" << histo->GetNbinsX() << std::endl;
+          }
+          double LowEdge = histo->GetBinLowEdge(jmin);
+          double HighEdge = histo->GetBinLowEdge(jmax) + histo->GetBinWidth(jmax);
+          TFitResultPtr Fit = histo->Fit("pol0", "+QRWLS", "", LowEdge, HighEdge);
+          if (debug) {
+            std::cout << "Fit to Pol0: " << Fit->Value(0) << " +- " << Fit->FitResult::Error(0) << " in range " << nv1
+                      << ":" << xbins[nv1] << ":" << nv2 << ":" << xbins[nv2] << std::endl;
+          }
+          histo->GetXaxis()->SetTitle("i#eta");
+          histo->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
+          histo->GetYaxis()->SetRangeUser(0.4, 1.6);
+          histw->GetXaxis()->SetTitle("i#eta");
+          histw->GetYaxis()->SetTitle("MPV/Width(E_{HCAL}/(p-E_{ECAL}))");
+          histw->GetYaxis()->SetRangeUser(0.0, 0.5);
+        }
+        hists.push_back(histo);
+        hists.push_back(histw);
+      } else {
+        hists.push_back(hist0);
+      }
+
+      //Barrel,Endcap
+      for (int j = 1; j <= 4; ++j) {
+        sprintf(name, "%s%s%d%d", prefix.c_str(), ename.c_str(), iname, j);
+        TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+        if (debug) {
+          std::cout << "Get Histogram for " << name << " at " << hist1 << std::endl;
+        }
+        if (hist1 != nullptr) {
+          TH1D* hist = (TH1D*)hist1->Clone();
+          double value(0), error(0), total(0), width(0), werror(0);
+          if (hist->GetEntries() > 0) {
+            value = hist->GetMean();
+            error = hist->GetRMS();
+            for (int i = 1; i <= hist->GetNbinsX(); ++i)
+              total += hist->GetBinContent(i);
+          }
+          if (total > 4) {
+            sprintf(name, "%sOne", hist1->GetName());
+            TH1D* hist2 = (TH1D*)hist1->Clone(name);
+            results meanerr = fitOneGauss(hist2, true, debug);
+            value = meanerr.mean;
+            error = meanerr.errmean;
+            width = meanerr.width;
+            werror = meanerr.errwidth;
+            double wbyv = width / value;
+            double wverr = wbyv * std::sqrt((werror * werror) / (width * width) + (error * error) / (value * value));
+            std::cout << hist2->GetName() << " MPV " << value << " +- " << error << " Width " << width << " +- "
+                      << werror << " W/M " << wbyv << " +- " << wverr << std::endl;
+            hists.push_back(hist2);
             results meaner0 = fitOneGauss(hist, true, debug);
             value = meaner0.mean;
             error = meaner0.errmean;
@@ -2220,8 +2439,8 @@ void PlotHistCorrFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[6] = {1, 6, 4, 2, 7, 9};
-    int mtype[6] = {20, 24, 22, 23, 21, 33};
+    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
+    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype, depths;
@@ -2318,7 +2537,7 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(k1);
           depths.push_back(j + 1);
         }
-        if (k1 == 0)
+        if (k1 <= 1)
           nline += hists.size();
         else
           ++nline;
@@ -2356,9 +2575,9 @@ void PlotHistCorrFactors(char* infile1,
         }
         sprintf(name, "Depth %d (%s)", depths[k], texts[k1].c_str());
       } else {
-        sprintf(name, "Depth %d (%s Mean = %5.3f)", depths[k], texts[k1].c_str(), fitr[k]);
+        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depths[k], text1.c_str(), texts[k1].c_str(), fitr[k]);
       }
-      if ((depths[k] == 1) || (k1 == 0))
+      if ((depths[k] == 1) || (k1 <= 1))
         legend->AddEntry(hists[k], name, "lp");
     }
     legend->Draw("same");
@@ -3527,5 +3746,323 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
       sprintf(cname, "%s.C", canvas->GetName());
       canvas->Print(cname);
     }
+  }
+}
+
+void PlotDepthCorrFactor(char* infile,
+                         std::string text,
+                         std::string prefix = "",
+                         bool dataMC = true,
+                         bool drawStatBox = true,
+                         int save = 0) {
+  std::map<int, cfactors> cfacs;
+  int etamin(100), etamax(-100), maxdepth(0);
+  std::ifstream ifile(infile);
+  if (!ifile.is_open()) {
+    std::cout << "Cannot open duplicate file " << infile << std::endl;
+  } else {
+    unsigned int all(0), good(0);
+    char buffer[1024];
+    while (ifile.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0, 1) == "#") {
+        continue;  //ignore other comments
+      } else {
+        std::vector<std::string> items = splitString(bufferString);
+        if (items.size() < 3) {
+          std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+          for (unsigned int k = 0; k < items.size(); ++k)
+            std::cout << " [" << k << "] : " << items[k];
+          std::cout << std::endl;
+        } else {
+          ++good;
+          int ieta = std::atoi(items[0].c_str());
+          if (ieta < etamin)
+            etamin = ieta;
+          if (ieta > etamax)
+            etamax = ieta;
+          unsigned int k(1);
+          int depth(0);
+          std::cout << "ieta " << ieta;
+          while (k < items.size()) {
+            ++depth;
+            double corrf = std::atof(items[k].c_str());
+            double dcorr = std::atof(items[k + 1].c_str());
+            if (depth > maxdepth)
+              maxdepth = depth;
+            if ((depth == 1) && ((std::abs(ieta) == 17) || (std::abs(ieta) == 18))) {
+            } else {
+              int detId = repackId(ieta, depth);
+              cfacs[detId] = cfactors(ieta, depth, corrf, dcorr);
+              std::cout << " Depth " << depth << " " << corrf << " +- " << dcorr;
+            }
+            k += 2;
+          }
+          std::cout << std::endl;
+        }
+      }
+    }
+    ifile.close();
+    std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
+              << infile << " Eta range " << etamin << ":" << etamax << " maxdepth " << maxdepth << std::endl;
+  }
+
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);
+  if (drawStatBox) {
+    gStyle->SetOptStat(10);
+    gStyle->SetOptFit(10);
+  } else {
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit(0);
+  }
+  int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int nbin = etamax - etamin + 1;
+  std::vector<TH1D*> hists;
+  std::vector<int> entries;
+  char name[100];
+  double dy(0);
+  int fits(0);
+  for (int j = 0; j < maxdepth; ++j) {
+    sprintf(name, "hd%d", j + 1);
+    TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
+    int nent(0);
+    for (std::map<int, cfactors>::const_iterator itr = cfacs.begin(); itr != cfacs.end(); ++itr) {
+      if ((itr->second).depth == j + 1) {
+        int ieta = (itr->second).ieta;
+        int bin = ieta - etamin + 1;
+        float val = (itr->second).corrf;
+        float dvl = (itr->second).dcorr;
+        h->SetBinContent(bin, val);
+        h->SetBinError(bin, dvl);
+        nent++;
+      }
+    }
+    h->SetLineColor(colors[j]);
+    h->SetMarkerColor(colors[j]);
+    h->SetMarkerStyle(mtype[j]);
+    h->GetXaxis()->SetTitle("i#eta");
+    h->GetYaxis()->SetTitle("Depth Dependent Correction Factor");
+    h->GetYaxis()->SetLabelOffset(0.005);
+    h->GetYaxis()->SetTitleOffset(1.20);
+    h->GetYaxis()->SetRangeUser(0.0, 2.0);
+    hists.push_back(h);
+    entries.push_back(nent);
+    dy += 0.025;
+  }
+  sprintf(name, "c_%sCorrFactor", prefix.c_str());
+  TCanvas* pad = new TCanvas(name, name, 700, 500);
+  pad->SetRightMargin(0.10);
+  pad->SetTopMargin(0.10);
+  double yh = 0.90;
+  // double yl = yh - 0.025 * hists.size() - dy - 0.01;
+  double yl = 0.15;
+  TLegend* legend = new TLegend(0.35, yl, 0.65, yl + 0.04 * hists.size());
+  legend->SetFillColor(kWhite);
+  for (unsigned int k = 0; k < hists.size(); ++k) {
+    if (k == 0)
+      hists[k]->Draw("");
+    else
+      hists[k]->Draw("sames");
+    pad->Update();
+    TPaveStats* st1 = (TPaveStats*)hists[k]->GetListOfFunctions()->FindObject("stats");
+    if (st1 != nullptr) {
+      dy = 0.025;
+      st1->SetLineColor(colors[k]);
+      st1->SetTextColor(colors[k]);
+      st1->SetY1NDC(yh - dy);
+      st1->SetY2NDC(yh);
+      st1->SetX1NDC(0.70);
+      st1->SetX2NDC(0.90);
+      yh -= dy;
+    }
+    sprintf(name, "Depth %d (%s)", k + 1, text.c_str());
+    legend->AddEntry(hists[k], name, "lp");
+  }
+  legend->Draw("same");
+  pad->Update();
+  if (fits < 1) {
+    double xmin = hists[0]->GetBinLowEdge(1);
+    int nbin = hists[0]->GetNbinsX();
+    double xmax = hists[0]->GetBinLowEdge(nbin) + hists[0]->GetBinWidth(nbin);
+    TLine* line = new TLine(xmin, 1.0, xmax, 1.0);
+    line->SetLineColor(9);
+    line->SetLineWidth(2);
+    line->SetLineStyle(2);
+    line->Draw("same");
+    pad->Modified();
+    pad->Update();
+  }
+  char txt1[30];
+  double xmax = (dataMC) ? 0.33 : 0.44;
+  TPaveText* txt2 = new TPaveText(0.11, 0.85, xmax, 0.89, "blNDC");
+  txt2->SetFillColor(0);
+  if (dataMC)
+    sprintf(txt1, "CMS Preliminary");
+  else
+    sprintf(txt1, "CMS Simulation Preliminary");
+  txt2->AddText(txt1);
+  txt2->Draw("same");
+  pad->Modified();
+  pad->Update();
+  if (save > 0) {
+    sprintf(name, "%s.pdf", pad->GetName());
+    pad->Print(name);
+  } else if (save < 0) {
+    sprintf(name, "%s.C", pad->GetName());
+    pad->Print(name);
+  }
+}
+
+void DrawHistPhiSymmetry(TH1D* hist0, bool dataMC, bool drawStatBox, bool save) {
+  char name[30], namep[30], txt1[30];
+  TH1D* hist = (TH1D*)(hist0->Clone());
+  sprintf(namep, "c_%s", hist->GetName());
+  TCanvas* pad = new TCanvas(namep, namep, 700, 500);
+  pad->SetRightMargin(0.10);
+  pad->SetTopMargin(0.10);
+  hist->GetXaxis()->SetTitleSize(0.04);
+  hist->GetXaxis()->SetTitle(hist->GetTitle());
+  hist->GetYaxis()->SetTitle("Channels");
+  hist->GetYaxis()->SetLabelOffset(0.005);
+  hist->GetYaxis()->SetTitleSize(0.04);
+  hist->GetYaxis()->SetLabelSize(0.035);
+  hist->GetYaxis()->SetTitleOffset(1.10);
+  hist->Draw();
+  pad->Update();
+  if (drawStatBox) {
+    TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
+    if (st1 != nullptr) {
+      st1->SetY1NDC(0.70);
+      st1->SetY2NDC(0.90);
+      st1->SetX1NDC(0.65);
+      st1->SetX2NDC(0.90);
+    }
+    pad->Modified();
+    pad->Update();
+  }
+  TPaveText* txt2 = new TPaveText(0.11, 0.85, 0.44, 0.89, "blNDC");
+  txt2->SetFillColor(0);
+  if (dataMC)
+    sprintf(txt1, "CMS Preliminary");
+  else
+    sprintf(txt1, "CMS Simulation Preliminary");
+  txt2->AddText(txt1);
+  txt2->Draw("same");
+  pad->Modified();
+  pad->Update();
+  if (save) {
+    sprintf(name, "%s.pdf", pad->GetName());
+    pad->Print(name);
+  }
+}
+
+void PlotPhiSymmetryResults(
+    char* infile, bool dataMC = true, bool drawStatBox = true, bool debug = false, bool save = false) {
+  const int maxDepthHB(4), maxDepthHE(7);
+  const double cfacMin(0.70), cfacMax(1.5);
+  const int nbin = (100.0 * (cfacMax - cfacMin));
+  std::vector<TH1D*> histHB, histHE;
+  char name[20], title[80];
+  for (int k = 0; k < maxDepthHB; ++k) {
+    sprintf(name, "HB%d", k);
+    sprintf(title, "Correction factor for depth %d of HB", k);
+    TH1D* h = new TH1D(name, title, nbin, cfacMin, cfacMax);
+    histHB.push_back(h);
+    if (debug)
+      std::cout << "Book " << h->GetName() << " Title " << h->GetTitle() << " range " << nbin << ":" << cfacMin << ":"
+                << cfacMax << std::endl;
+  }
+  for (int k = 0; k < maxDepthHE; ++k) {
+    sprintf(name, "HE%d", k);
+    sprintf(title, "Correction factor for depth %d of HE", k);
+    TH1D* h = new TH1D(name, title, nbin, cfacMin, cfacMax);
+    histHE.push_back(h);
+    if (debug)
+      std::cout << "Book " << h->GetName() << " Title " << h->GetTitle() << " range " << nbin << ":" << cfacMin << ":"
+                << cfacMax << std::endl;
+  }
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    char buffer[1024];
+    int all(0), good(0);
+    std::map<int, int> kount;
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0, 1) == "#") {
+        continue;  //ignore other comments
+      } else {
+        std::vector<std::string> items = splitString(bufferString);
+        if (items.size() < 5) {
+          for (unsigned int k = 0; k < items.size(); ++k)
+            std::cout << " [" << k << "] : " << items[k];
+          std::cout << std::endl;
+        } else {
+          ++good;
+          int subdet = std::atoi(items[0].c_str());
+          int ieta = std::atoi(items[1].c_str());
+          int depth = std::atoi(items[3].c_str());
+          double corrf = std::atof(items[4].c_str());
+          if ((debug) && (good % 100 == 0))
+            std::cout << "Subdet " << subdet << " Depth " << depth << " Corr " << corrf << std::endl;
+          if ((corrf < cfacMin) || (corrf > cfacMax))
+            std::cout << "Outlier: " << buffer << std::endl;
+          if (subdet == 1) {
+            if (depth <= maxDepthHB)
+              histHB[depth - 1]->Fill(corrf);
+          } else if (subdet == 2) {
+            if (depth <= maxDepthHE)
+              histHE[depth - 1]->Fill(corrf);
+          }
+          if ((subdet == 1) || (subdet == 2)) {
+            int indx = (ieta > 0) ? (ieta * 10 + depth) : (10000 + 10 * (-ieta) + depth);
+            if (kount.find(indx) == kount.end())
+              kount[indx] = 1;
+            else
+              ++kount[indx];
+          }
+        }
+      }
+    }
+    fInput.close();
+    std::cout << "Reads total of " << all << " and " << good << " good records of phi-symmetry factors from " << infile
+              << std::endl;
+    for (std::map<int, int>::iterator itr = kount.begin(); itr != kount.end(); ++itr) {
+      int depth = (itr->first) % 10;
+      int ieta = ((itr->first) / 10) % 100;
+      int nphi = itr->second;
+      bool miss = (((ieta <= 20) && (nphi != 72)) || ((ieta > 20) && (nphi != 36)));
+      if (itr->first >= 10000)
+        ieta = -ieta;
+      if (debug || miss)
+        std::cout << "Tower[" << ieta << ":" << depth << "] has " << nphi << " entries" << std::endl;
+    }
+  }
+
+  // Now plot the histograms
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(111110);
+  gStyle->SetOptFit(0);
+
+  // HB first
+  for (unsigned int k = 0; k < histHB.size(); ++k) {
+    DrawHistPhiSymmetry(histHB[k], dataMC, drawStatBox, save);
+  }
+
+  // Then HE
+  for (unsigned int k = 0; k < histHE.size(); ++k) {
+    DrawHistPhiSymmetry(histHE[k], dataMC, drawStatBox, save);
   }
 }

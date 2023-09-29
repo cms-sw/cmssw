@@ -5,14 +5,19 @@
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
   class GMTMuonDecoderEmulator {
   public:
     GMTMuonDecoderEmulator(float z0Scale, float dxyScale);
     GMTMuonDecoderEmulator(const edm::ParameterSet &iConfig);
+
     ~GMTMuonDecoderEmulator();
+
+    static edm::ParameterSetDescription getParameterSetDescription();
+
     l1ct::MuObjEmu decode(const ap_uint<64> &in) const;
 
   protected:

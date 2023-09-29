@@ -161,16 +161,16 @@ void TestOnlineMetaDataRecord::testOnlineLuminosityRecord_v2() {
 }
 
 void TestOnlineMetaDataRecord::testCTPPSRecord_v2() {
-  const unsigned char* payload = readPayload("dump_run000001_event00013761_fed1022.txt");
+  const unsigned char* payload = readPayload("dump_run000001_event6135_fed1022.txt");
   const online::Data_v2* data_v2 = reinterpret_cast<online::Data_v2 const*>(payload + FEDHeader::length);
   CTPPSRecord ctpps(data_v2->ctpps);
   std::cout << ctpps << std::endl;
 
   // DIP timestamp is in milliseconds
   const uint64_t ts = ctpps.timestamp().unixTime() * 1000UL + ctpps.timestamp().microsecondOffset() / 1000;
-  CPPUNIT_ASSERT_EQUAL(static_cast<uint64_t>(0x1616b5a0e5f), ts);
-  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::bad, ctpps.status(CTPPSRecord::RomanPot::RP_45_210_FR_BT));
-  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::ok, ctpps.status(CTPPSRecord::RomanPot::RP_45_220_FR_TP));
-  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::warning, ctpps.status(CTPPSRecord::RomanPot::RP_45_220_NR_TP));
-  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::unused, ctpps.status(CTPPSRecord::RomanPot::RP_56_220_NR_TP));
+  CPPUNIT_ASSERT_EQUAL(static_cast<uint64_t>(0x18799D62E9A), ts);
+  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::unused, ctpps.status(CTPPSRecord::RomanPot::RP_45_210_FR_BT));
+  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::unused, ctpps.status(CTPPSRecord::RomanPot::RP_45_220_FR_TP));
+  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::unused, ctpps.status(CTPPSRecord::RomanPot::RP_45_220_NR_TP));
+  CPPUNIT_ASSERT_EQUAL(CTPPSRecord::Status::bad, ctpps.status(CTPPSRecord::RomanPot::RP_56_220_NR_HR));
 }

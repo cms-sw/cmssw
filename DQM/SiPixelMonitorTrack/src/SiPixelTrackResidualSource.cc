@@ -908,13 +908,11 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::Ev
   if (!TracksForRes.isValid())
     return;
 
-  int kk = -1;
   //----------------------------------------------------------------------------
   // Residuals:
   //
   for (reco::TrackCollection::const_iterator iTrack = TracksForRes->begin(); iTrack != TracksForRes->end(); ++iTrack) {
     // count
-    kk++;
     // Calculate minimal track pt before curling
     // cpt = cqRB = 0.3*R[m]*B[T] = 1.14*R[m] for B=3.8T
     // D = 2R = 2*pt/1.14

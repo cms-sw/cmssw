@@ -102,6 +102,12 @@ void Phase2ITMonitorCluster::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Getting the clusters
   const auto& itPixelClusterHandle = iEvent.getHandle(itPixelClusterToken_);
+
+  if (!itPixelClusterHandle.isValid()) {
+    edm::LogWarning("Phase2ITMonitorCluster") << "No SiPixelCluster Collection found in the event. Skipping!";
+    return;
+  }
+
   // Number of clusters
   std::map<std::string, unsigned int> nClsmap;
   unsigned int nclusGlobal = 0;

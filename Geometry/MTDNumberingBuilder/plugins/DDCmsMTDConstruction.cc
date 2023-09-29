@@ -165,11 +165,7 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
         limit = num + 1;
       }
     } else if ((thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
-      if (theCmsMTDConstruction.isETLtdr(fv)) {
-        limit = num;
-      } else {
-        limit = num + 1;
-      }
+      limit = num;
     }
     if (num != limit && limit > 0) {
       continue;

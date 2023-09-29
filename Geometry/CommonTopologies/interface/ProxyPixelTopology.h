@@ -23,6 +23,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 
+#include <memory>
+
 class Plane;
 
 class ProxyPixelTopology final : public PixelTopology {

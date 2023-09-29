@@ -3,8 +3,6 @@
 
 #if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wint-in-bool-context"
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #endif
 #include <ap_int.h>
@@ -30,11 +28,13 @@ namespace l1gt {
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
-  typedef ap_fixed<11, 9> iso_t;
+  typedef ap_ufixed<11, 9> iso_t;
   typedef ap_uint<4> egquality_t;
 
   // tau fields
   typedef ap_ufixed<10, 8> tauseed_pt_t;
+  typedef ap_uint<10> tau_rawid_t;
+  typedef std::array<uint64_t, 2> PackedTau;
 
   namespace Scales {
     const int INTPHI_PI = 1 << (phi_t::width - 1);
@@ -185,12 +185,12 @@ namespace l1gt {
     z0_t seed_z0;
     ap_uint<1> charge;
     ap_uint<2> type;
-    iso_t isolation;
+    tau_rawid_t isolation;
     ap_uint<2> id0;
     ap_uint<2> id1;
 
     static const int BITWIDTH = 128;
-    inline ap_uint<BITWIDTH> pack() const {
+    inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
@@ -204,6 +204,44 @@ namespace l1gt {
       pack_into_bits(ret, start, id1);
       return ret;
     }
+
+    inline PackedTau pack() const {
+      PackedTau packed;
+      ap_uint<BITWIDTH> bits = this->pack_ap();
+      packed[0] = bits(63, 0);
+      packed[1] = bits(127, 64);
+      return packed;
+    }
+
+    inline static Tau unpack_ap(const ap_uint<BITWIDTH> &src) {
+      Tau ret;
+      ret.initFromBits(src);
+      return ret;
+    }
+
+    inline static Tau unpack(const PackedTau &src) {
+      ap_uint<BITWIDTH> bits;
+      bits(63, 0) = src[0];
+      bits(127, 64) = src[1];
+
+      return unpack_ap(bits);
+    }
+
+    inline void initFromBits(const ap_uint<BITWIDTH> &src) {
+      unsigned int start = 0;
+      unpack_from_bits(src, start, valid);
+      unpack_from_bits(src, start, v3.pt);
+      unpack_from_bits(src, start, v3.phi);
+      unpack_from_bits(src, start, v3.eta);
+      unpack_from_bits(src, start, seed_pt);
+      unpack_from_bits(src, start, seed_z0);
+      unpack_from_bits(src, start, charge);
+      unpack_from_bits(src, start, type);
+      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, id0);
+      unpack_from_bits(src, start, id1);
+    }
+
   };  // struct Tau
 
   struct Electron {
@@ -226,6 +264,36 @@ namespace l1gt {
       pack_into_bits(ret, start, z0);
       return ret;
     }
+
+    inline void initFromBits(const ap_uint<BITWIDTH> &src) {
+      unsigned int start = 0;
+      unpack_from_bits(src, start, valid);
+      unpack_from_bits(src, start, v3.pt);
+      unpack_from_bits(src, start, v3.phi);
+      unpack_from_bits(src, start, v3.eta);
+      unpack_from_bits(src, start, quality);
+      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, charge);
+      unpack_from_bits(src, start, z0);
+    }
+
+    inline static Electron unpack_ap(const ap_uint<BITWIDTH> &src) {
+      Electron ret;
+      ret.initFromBits(src);
+      return ret;
+    }
+
+    inline static Electron unpack(const std::array<uint64_t, 2> &src, int parity) {
+      ap_uint<BITWIDTH> bits;
+      if (parity == 0) {
+        bits(63, 0) = src[0];
+        bits(95, 64) = src[1];
+      } else {
+        bits(63, 0) = src[1];
+        bits(95, 64) = (src[0] >> 32);
+      }
+      return unpack_ap(bits);
+    }
   };
 
   struct Photon {
@@ -234,7 +302,8 @@ namespace l1gt {
     egquality_t quality;
     iso_t isolation;
 
-    inline ap_uint<96> pack() const {
+    static const int BITWIDTH = 96;
+    inline ap_uint<BITWIDTH> pack() const {
       ap_uint<96> ret(0);
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
@@ -242,6 +311,34 @@ namespace l1gt {
       pack_into_bits(ret, start, quality);
       pack_into_bits(ret, start, isolation);
       return ret;
+    }
+
+    inline void initFromBits(const ap_uint<BITWIDTH> &src) {
+      unsigned int start = 0;
+      unpack_from_bits(src, start, valid);
+      unpack_from_bits(src, start, v3.pt);
+      unpack_from_bits(src, start, v3.phi);
+      unpack_from_bits(src, start, v3.eta);
+      unpack_from_bits(src, start, quality);
+      unpack_from_bits(src, start, isolation);
+    }
+
+    inline static Photon unpack_ap(const ap_uint<BITWIDTH> &src) {
+      Photon ret;
+      ret.initFromBits(src);
+      return ret;
+    }
+
+    inline static Photon unpack(const std::array<uint64_t, 2> &src, int parity) {
+      ap_uint<BITWIDTH> bits;
+      if (parity == 0) {
+        bits(63, 0) = src[0];
+        bits(95, 64) = src[1];
+      } else {
+        bits(63, 0) = src[1];
+        bits(95, 64) = (src[0] >> 32);
+      }
+      return unpack_ap(bits);
     }
   };
 

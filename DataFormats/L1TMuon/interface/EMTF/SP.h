@@ -23,7 +23,7 @@ namespace l1t {
             quality_GMT(-99),
             phi_GMT(-99),
             bx(-99),
-            hmt(-99),
+            mus(-99),
             mode(-99),
             eta_GMT(-99),
             pt_GMT(-99),
@@ -60,7 +60,7 @@ namespace l1t {
       void set_quality_GMT(int bits) { quality_GMT = bits; }
       void set_phi_GMT(int bits) { phi_GMT = bits; }
       void set_bx(int bits) { bx = bits; }
-      void set_hmt(int bits) { hmt = bits; }
+      void set_mus(int bits) { mus = bits; }
       void set_mode(int bits) { mode = bits; }
       void set_eta_GMT(int bits) { eta_GMT = bits; }
       void set_pt_GMT(int bits) { pt_GMT = bits; }
@@ -118,7 +118,7 @@ namespace l1t {
       unsigned long Pt_LUT_addr() const { return pt_LUT_addr; }
       int Format_errors() const { return format_errors; }
       uint64_t Dataword() const { return dataword; }
-      int HMT() const { return hmt; }
+      int MUS() const { return mus; }
 
     private:
       int hl;
@@ -131,7 +131,7 @@ namespace l1t {
       int quality_GMT;
       int phi_GMT;
       int bx;
-      int hmt;
+      int mus;
       int mode;
       int eta_GMT;
       int pt_GMT;

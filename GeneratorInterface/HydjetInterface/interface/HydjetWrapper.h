@@ -25,7 +25,9 @@ void hyjver_(int&, int&, int&, int&);
 #define HYJVER hyjver_
 
 extern "C" {
-extern struct { double psi3; } hypsi3_;
+extern struct {
+  double psi3;
+} hypsi3_;
 }
 #define hypsi3 hypsi3_
 

@@ -48,11 +48,14 @@ class CreateHistoMax(object):
             nBins_X2=histoMax_C3d_seeding_params.nBins_X2_histo_multicluster,
             binSumsHisto=histoMax_C3d_seeding_params.binSumsHisto,
             seed_threshold=histoMax_C3d_seeding_params.threshold_histo_multicluster,
+            seeds_norm_by_area=histoMax_C3d_seeding_params.seeds_norm_by_area,
             shape_threshold=histoMax_C3d_clustering_params.shape_threshold,
             shape_distance=histoMax_C3d_clustering_params.shape_distance,
             ):
         self.clustering_parameters = histoMax_C3d_clustering_params.clone()
-        self.seeding_parameters = histoMax_C3d_seeding_params.clone()
+        self.seeding_parameters = histoMax_C3d_seeding_params.clone(
+                seeds_norm_by_area=seeds_norm_by_area
+                )
         set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto, seed_threshold)
         set_histomax_clustering_params(self.clustering_parameters, distance, shape_threshold, shape_distance)
 
@@ -72,13 +75,16 @@ class CreateHistoMaxVariableDr(object):
             nBins_X2=histoMax_C3d_seeding_params.nBins_X2_histo_multicluster,
             binSumsHisto=histoMax_C3d_seeding_params.binSumsHisto,
             seed_threshold=histoMax_C3d_seeding_params.threshold_histo_multicluster,
+            seeds_norm_by_area=histoMax_C3d_seeding_params.seeds_norm_by_area,
             shape_threshold=histoMaxVariableDR_C3d_params.shape_threshold,
             shape_distance=histoMaxVariableDR_C3d_params.shape_distance,
             ):
         self.clustering_parameters= histoMax_C3d_clustering_params.clone(
                 dR_multicluster_byLayer_coefficientA = distances
                 )
-        self.seeding_parameters = histoMax_C3d_seeding_params.clone()
+        self.seeding_parameters = histoMax_C3d_seeding_params.clone(
+                seeds_norm_by_area=seeds_norm_by_area
+                )
         set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto, seed_threshold)
         set_histomax_clustering_params(self.clustering_parameters, 0, shape_threshold, shape_distance)
 

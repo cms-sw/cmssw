@@ -1,88 +1,58 @@
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
-#include "SimG4Core/Notification/interface/GenParticleInfoExtractor.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/GenParticleInfo.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VProcess.hh"
+#include "G4DynamicParticle.hh"
+#include "G4PrimaryParticle.hh"
+#include "G4ThreeVector.hh"
 
 #include <iostream>
 
 G4ThreadLocal G4Allocator<TrackWithHistory>* fpTrackWithHistoryAllocator = nullptr;
 
-//#define DEBUG
-
-TrackWithHistory::TrackWithHistory(const G4Track* g4trk)
-    : trackID_(0),
-      particleID_(0),
-      parentID_(0),
-      momentum_(math::XYZVectorD(0., 0., 0.)),
-      totalEnergy_(0),
-      vertexPosition_(math::XYZVectorD(0., 0., 0.)),
-      globalTime_(0),
-      localTime_(0),
-      properTime_(0),
-      creatorProcess_(nullptr),
-      weight_(0),
-      storeTrack_(false),
-      saved_(false) {
-  if (g4trk != nullptr) {
-    TrackInformationExtractor extractor;
-    trackID_ = g4trk->GetTrackID();
-    particleID_ = G4TrackToParticleID::particleID(g4trk);
-    parentID_ = g4trk->GetParentID();
-    momentum_ = math::XYZVectorD(g4trk->GetMomentum().x(), g4trk->GetMomentum().y(), g4trk->GetMomentum().z());
-    totalEnergy_ = g4trk->GetTotalEnergy();
-    vertexPosition_ = math::XYZVectorD(g4trk->GetPosition().x(), g4trk->GetPosition().y(), g4trk->GetPosition().z());
-    globalTime_ = g4trk->GetGlobalTime();
-    localTime_ = g4trk->GetLocalTime();
-    properTime_ = g4trk->GetProperTime();
-    creatorProcess_ = g4trk->GetCreatorProcess();
-    storeTrack_ = extractor(g4trk).storeTrack();
-    saved_ = false;
-    crossedBoundary_ = false;
-    genParticleID_ = extractGenID(g4trk);
-    // V.I. weight is computed in the same way as before
-    // without usage of G4Track::GetWeight()
-    weight_ = 10000 * genParticleID_;
-#ifdef DEBUG
-    LogDebug("TrackInformation") << " TrackWithHistory : created history for " << trackID_ << " with mother "
-                                 << parentID_;
-#endif
+TrackWithHistory::TrackWithHistory(const G4Track* g4trk, int pID) {
+  trackID_ = g4trk->GetTrackID();
+  pdgID_ = G4TrackToParticleID::particleID(g4trk);
+  parentID_ = pID;
+  auto mom = g4trk->GetMomentum();
+  momentum_ = math::XYZVectorD(mom.x(), mom.y(), mom.z());
+  totalEnergy_ = g4trk->GetTotalEnergy();
+  auto pos = g4trk->GetPosition();
+  vertexPosition_ = math::XYZVectorD(pos.x(), pos.y(), pos.z());
+  time_ = g4trk->GetGlobalTime();
+  auto p = g4trk->GetCreatorProcess();
+  procType_ = (nullptr != p) ? p->GetProcessSubType() : 0;
+  TrackInformation* trkinfo = static_cast<TrackInformation*>(g4trk->GetUserInformation());
+  storeTrack_ = trkinfo->storeTrack();
+  auto vgprimary = g4trk->GetDynamicParticle()->GetPrimaryParticle();
+  if (vgprimary != nullptr) {
+    auto priminfo = static_cast<GenParticleInfo*>(vgprimary->GetUserInformation());
+    if (nullptr != priminfo) {
+      genParticleID_ = priminfo->id();
+    }
   }
+  // V.I. weight is computed in the same way as before
+  // without usage of G4Track::GetWeight()
+  weight_ = 10000 * genParticleID_;
 }
 
-void TrackWithHistory::checkAtEnd(const G4Track* gt) {
-  math::XYZVectorD vposdir(gt->GetVertexPosition().x(), gt->GetVertexPosition().y(), gt->GetVertexPosition().z());
-  math::XYZVectorD vmomdir(
-      gt->GetVertexMomentumDirection().x(), gt->GetVertexMomentumDirection().y(), gt->GetVertexMomentumDirection().z());
-  bool ok = true;
-  double epsilon = 1.e-6;
-  double eps2 = epsilon * epsilon;
-  if ((vertexPosition_ - vposdir).Mag2() > eps2) {
-    edm::LogWarning("TrackInformation") << "TrackWithHistory vertex position check failed"
-                                        << "\nAt construction: " << vertexPosition_ << "\nAt end:          " << vposdir;
-    ok = false;
+TrackWithHistory::TrackWithHistory(const G4PrimaryParticle* ptr, int trackID, const math::XYZVectorD& pos, double time) {
+  trackID_ = trackID;
+  pdgID_ = G4TrackToParticleID::particleID(ptr, trackID_);
+  parentID_ = trackID;
+  auto mom = ptr->GetMomentum();
+  momentum_ = math::XYZVectorD(mom.x(), mom.y(), mom.z());
+  totalEnergy_ = ptr->GetTotalEnergy();
+  vertexPosition_ = math::XYZVectorD(pos.x(), pos.y(), pos.z());
+  time_ = time;
+  storeTrack_ = true;
+  auto priminfo = static_cast<GenParticleInfo*>(ptr->GetUserInformation());
+  if (nullptr != priminfo) {
+    genParticleID_ = priminfo->id();
   }
-  math::XYZVectorD dirDiff = momentum_.Unit() - vmomdir;
-  if (dirDiff.Mag2() > eps2 && momentum_.Unit().R() > eps2) {
-    edm::LogWarning("TrackInformation") << "TrackWithHistory momentum direction check failed"
-                                        << "\nAt construction: " << momentum_.Unit()
-                                        << "\nAt end:          " << vmomdir;
-    ok = false;
-  }
-
-  if (!ok)
-    G4Exception("TrackWithHistory::checkAtEnd()", "mc001", FatalException, "check at track end failed");
-}
-
-int TrackWithHistory::extractGenID(const G4Track* gt) const {
-  void* vgprimary = gt->GetDynamicParticle()->GetPrimaryParticle();
-  if (vgprimary == nullptr)
-    return -1;
-  // replace old-style cast with appropriate new-style cast...
-  G4PrimaryParticle* gprimary = (G4PrimaryParticle*)vgprimary;
-  GenParticleInfoExtractor ext;
-  return ext(gprimary).id();
+  weight_ = 10000. * genParticleID_;
 }

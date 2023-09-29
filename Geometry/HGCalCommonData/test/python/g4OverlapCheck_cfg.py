@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheck_cfg.py type=V17 tol=0.01
 #
-#   Options for type V16, V17, Wafer, WaferFR, WaferPR
+#   Options for type V16, V17, V17ng, V18, Wafer, WaferFR, WaferPR
 #               tol 1.0, 0.1, 0.01, 0.0
 #
 ###############################################################################
@@ -17,7 +17,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, Wafer, WaferFR, WaferPR")
+                  "type of operations: V16, V17, V7ng, V18, Wafer, WaferFR, WaferPR")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -42,17 +42,25 @@ print("Output file:   ", outFile)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load(geomFile)
+process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff')
+process.load('SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff')
+process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
+process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
+process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
+process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
+process.load('Geometry.MuonNumbering.muonGeometryConstants_cff')
+process.load('Geometry.MuonNumbering.muonOffsetESProducer_cff')
+process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff')
 
-#if hasattr(process,'MessageLogger'):
+if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.SimG4CoreGeometry=dict()
-#    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
 
 # enable Geant4 overlap check 
 process.g4SimHits.CheckGeometry = True
-process.g4SimHits.OnlySDs = ['DreamSensitiveDetector']
 
 # Geant4 geometry check 
 process.g4SimHits.G4CheckOverlap.OutputBaseName = outFile

@@ -536,3 +536,4 @@ void PixelCPEFast<TrackerTraits>::fillPSetDescription(edm::ParameterSetDescripti
 
 template class PixelCPEFast<pixelTopology::Phase1>;
 template class PixelCPEFast<pixelTopology::Phase2>;
+template class PixelCPEFast<pixelTopology::HIonPhase1>;

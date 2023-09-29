@@ -81,7 +81,6 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile) {
   if (linkTagsNum == 0)
     std::cout << "Number of Cells in file is 0 - probably bad file format" << std::endl;
 
-  int count = 0;
   for (unsigned int i = 0; i < linkTagsNum; i++) {
     DOMNode* linkNode = doc->getElementsByTagName(_toDOMS("Cell"))->item(i);
     ///Get ME name
@@ -101,7 +100,6 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile) {
     DetId cell = parseCellEntry(attributes);
 
     if (cell != DetId(0)) {
-      count++;
       caloMap_.addCell(cell, scalingfactor);
     } else {
       //		std::cout << "Null received" << std::endl;

@@ -2,12 +2,14 @@
 #define multififo_regionizer_ref_h
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pfeginput_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_elements_ref.h"
 #include <memory>
 
 namespace edm {
   class ParameterSet;
-}
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace l1ct {
   class EGInputSelectorEmulator;
@@ -19,12 +21,15 @@ namespace l1ct {
   public:
     MultififoRegionizerEmulator(unsigned int nendcaps,
                                 unsigned int nclocks,
+                                unsigned int ntklinks,
+                                unsigned int ncalolinks,
                                 unsigned int ntk,
                                 unsigned int ncalo,
                                 unsigned int nem,
                                 unsigned int nmu,
                                 bool streaming,
                                 unsigned int outii,
+                                unsigned int pauseii,
                                 bool useAlsoVtxCoords);
 
     enum class BarrelSetup { Full54, Full27, Central18, Central9, Phi18, Phi9 };
@@ -40,11 +45,16 @@ namespace l1ct {
                                 unsigned int outii,
                                 unsigned int pauseii,
                                 bool useAlsoVtxCoords);
-
-    // note: this one will work only in CMSSW
+    // note: these ones will work only in CMSSW
     MultififoRegionizerEmulator(const edm::ParameterSet& iConfig);
+    MultififoRegionizerEmulator(const std::string& barrelSetup, const edm::ParameterSet& iConfig);
 
     ~MultififoRegionizerEmulator() override;
+
+    static edm::ParameterSetDescription getParameterSetDescription();
+    static edm::ParameterSetDescription getParameterSetDescriptionBarrel();
+
+    static BarrelSetup parseBarrelSetup(const std::string& setup);
 
     void setEgInterceptMode(bool afterFifo, const l1ct::EGInputSelectorEmuConfig& interceptorConfig);
     void initSectorsAndRegions(const RegionizerDecodedInputs& in, const std::vector<PFInputRegion>& out) override;
@@ -86,16 +96,35 @@ namespace l1ct {
                   PFInputRegion& out);
 
     // link emulation from decoded inputs (for simulation)
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::TkObjEmu>& links);
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::HadCaloObjEmu>& links);
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::EmCaloObjEmu>& links);
-    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<l1ct::MuObjEmu>& links);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::TkObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::HadCaloObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::EmCaloObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::MuObjEmu>& links,
+                   std::vector<bool>& valid);
+    template <typename T>
+    void fillLinks(unsigned int iclock, const RegionizerDecodedInputs& in, std::vector<T>& links) {
+      std::vector<bool> unused;
+      fillLinks(iclock, in, links, unused);
+    }
 
     // convert links to firmware
     void toFirmware(const std::vector<l1ct::TkObjEmu>& emu, TkObj fw[/*NTK_SECTORS*NTK_LINKS*/]);
     void toFirmware(const std::vector<l1ct::HadCaloObjEmu>& emu, HadCaloObj fw[/*NCALO_SECTORS*NCALO_LINKS*/]);
     void toFirmware(const std::vector<l1ct::EmCaloObjEmu>& emu, EmCaloObj fw[/*NCALO_SECTORS*NCALO_LINKS*/]);
     void toFirmware(const std::vector<l1ct::MuObjEmu>& emu, MuObj fw[/*NMU_LINKS*/]);
+
+    void reset();
 
   private:
     const unsigned int NTK_SECTORS, NCALO_SECTORS;  // max objects per sector per clock cycle
@@ -113,7 +142,10 @@ namespace l1ct {
     std::vector<l1ct::multififo_regionizer::Route> tkRoutes_, caloRoutes_, emCaloRoutes_, muRoutes_;
 
     template <typename T>
-    void fillCaloLinks_(unsigned int iclock, const std::vector<DetectorSector<T>>& in, std::vector<T>& links);
+    void fillCaloLinks(unsigned int iclock,
+                       const std::vector<DetectorSector<T>>& in,
+                       std::vector<T>& links,
+                       std::vector<bool>& valid);
   };
 
 }  // namespace l1ct

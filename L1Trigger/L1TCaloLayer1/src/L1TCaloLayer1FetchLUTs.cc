@@ -32,6 +32,7 @@ bool L1TCaloLayer1FetchLUTs(
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &eLUT,
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &hLUT,
     std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > &hfLUT,
+    std::vector<unsigned long long int> &hcalFBLUT,
     std::vector<unsigned int> &ePhiMap,
     std::vector<unsigned int> &hPhiMap,
     std::vector<unsigned int> &hfPhiMap,
@@ -40,6 +41,7 @@ bool L1TCaloLayer1FetchLUTs(
     bool useECALLUT,
     bool useHCALLUT,
     bool useHFLUT,
+    bool useHCALFBLUT,
     int fwVersion) {
   int hfValid = 1;
   const HcalTrigTowerGeometry &pG = iSetup.getData(iTokens.geom_);
@@ -128,6 +130,26 @@ bool L1TCaloLayer1FetchLUTs(
                                                "scale factors in CaloParams!  Please check conditions setup.";
     return false;
   }
+
+  // HCAL FB LUT will be a 1*28 array:
+  //   ieta = 28 eta scale factors (1 .. 28)
+  //   So, index = ieta
+  auto fbLUTUpper = caloParams.layer1HCalFBLUTUpper();
+  auto fbLUTLower = caloParams.layer1HCalFBLUTLower();
+  // Only check for HCAL FB LUT if useHCALFBLUT = true
+  if (useHCALFBLUT) {
+    if (fbLUTUpper.size() != nCalEtaBins) {
+      edm::LogError("L1TCaloLayer1FetchLUTs")
+          << "caloParams.layer1HCalFBLUTUpper().size() " << fbLUTUpper.size() << " != " << nCalEtaBins << " !!";
+      return false;
+    }
+    if (fbLUTLower.size() != nCalEtaBins) {
+      edm::LogError("L1TCaloLayer1FetchLUTs")
+          << "caloParams.layer1HCalFBLUTLower().size() " << fbLUTLower.size() << " != " << nCalEtaBins << " !!";
+      return false;
+    }
+  }
+
   // get energy scale to convert input from ECAL - this should be linear with LSB = 0.5 GeV
   const double ecalLSB = 0.5;
 
@@ -152,7 +174,7 @@ bool L1TCaloLayer1FetchLUTs(
   // Make ECal LUT
   for (uint32_t phiBin = 0; phiBin < numEcalPhiBins; phiBin++) {
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT;
-    eLUT.push_back(phiLUT);
+
     for (uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
       for (uint32_t fb = 0; fb < nCalSideBins; fb++) {
         for (uint32_t ecalInput = 0; ecalInput <= 0xFF; ecalInput++) {
@@ -194,16 +216,17 @@ bool L1TCaloLayer1FetchLUTs(
             value |= (et_log2 << 12);
           }
           value |= (fb << 10);
-          eLUT[phiBin][etaBin][fb][ecalInput] = value;
+          phiLUT[etaBin][fb][ecalInput] = value;
         }
       }
     }
+
+    eLUT.push_back(phiLUT);
   }
 
   // Make HCal LUT
   for (uint32_t phiBin = 0; phiBin < numHcalPhiBins; phiBin++) {
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> phiLUT;
-    hLUT.push_back(phiLUT);
     for (uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
       int caloEta = etaBin + 1;
       int iPhi = 3;
@@ -258,16 +281,18 @@ bool L1TCaloLayer1FetchLUTs(
             value |= (et_log2 << 12);
           }
           value |= (fb << 10);
-          hLUT[phiBin][etaBin][fb][hcalInput] = value;
+          phiLUT[etaBin][fb][hcalInput] = value;
         }
       }
     }
+
+    hLUT.push_back(phiLUT);
   }
 
   // Make HF LUT
   for (uint32_t phiBin = 0; phiBin < numHFPhiBins; phiBin++) {
     std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> phiLUT;
-    hfLUT.push_back(phiLUT);
+
     for (uint32_t etaBin = 0; etaBin < nHfEtaBins; etaBin++) {
       int caloEta = etaBin + 30;
       int iPhi = 3;
@@ -326,9 +351,19 @@ bool L1TCaloLayer1FetchLUTs(
             }
           }
         }
-        hfLUT[phiBin][etaBin][etCode] = value;
+        phiLUT[etaBin][etCode] = value;
       }
     }
+    hfLUT.push_back(phiLUT);
+  }
+
+  // Make HCal FB LUT
+  for (uint32_t etaBin = 0; etaBin < nCalEtaBins; etaBin++) {
+    uint64_t value = 0xFFFFFFFFFFFFFFFF;
+    if (useHCALFBLUT) {
+      value = (((uint64_t)fbLUTUpper.at(etaBin)) << 32) | fbLUTLower.at(etaBin);
+    }
+    hcalFBLUT.push_back(value);
   }
 
   // plus/minus, 18 CTP7, 4 iPhi each

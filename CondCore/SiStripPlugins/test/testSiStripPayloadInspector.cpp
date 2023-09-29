@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
 
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising SiStripTkMaps plots " << std::endl;
 
-  SiStripBadStripFractionTkMap histoTkMap;
+  SiStripBadStripFractionTH2PolyTkMap histoTkMap;
   histoTkMap.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiStripPayloadInspector") << histoTkMap.data() << std::endl;
 

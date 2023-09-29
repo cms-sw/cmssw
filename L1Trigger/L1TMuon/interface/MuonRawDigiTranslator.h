@@ -28,7 +28,9 @@ namespace l1t {
                                             int muInBx);
     static void generate64bitDataWord(
         const Muon& mu, uint32_t& raw_data_spare, uint64_t& dataword, int fedId, int fwId, int muInBx);
-    static std::array<uint32_t, 4> getPackedShowerDataWords(const MuonShower& shower, int fedId, int fwId);
+    static std::array<std::array<uint32_t, 4>, 2> getPackedShowerDataWords(const MuonShower& shower,
+                                                                           int fedId,
+                                                                           int fwId);
     static int calcHwEta(const uint32_t& raw, unsigned absEtaShift, unsigned etaSignShift);
 
     static constexpr unsigned ptMask_ = 0x1FF;
@@ -69,6 +71,10 @@ namespace l1t {
     static constexpr int kUgtFwVersionUntilRun3Start = 0x1130;
     static constexpr int kUgmtFwVersionFirstWithShowers = 0x7000000;
     static constexpr int kUgtFwVersionFirstWithShowers = 0x113B;
+    static constexpr int kUgmtFwVersionShowersFrom2023 = 0x8000000;
+    static constexpr int kUgmtFwVersionShowersFrom2023_patched =
+        0x8000001;  // This fixed a miscommunication wrt the link used for the two loose shower bit
+    static constexpr int kUgtFwVersionShowersFrom2023 = 0x1150;
 
   private:
     static void fillMuonStableQuantities(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);

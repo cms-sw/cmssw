@@ -41,7 +41,7 @@ set InputGenSimPRef3 = $InputGenSimGRun3
 set InputLHCRawGRun0 = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 set InputLHCRawGRun1 = /store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
 set InputLHCRawGRun2 = /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = /store/data/Run2022B/HLTPhysics/RAW/v1/000/355/456/00000/69b26b27-4bd1-4524-bc18-45f7b9b5e076.root
+set InputLHCRawGRun3 = /store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/370/293/00000/2ef73d2a-1fb7-4dac-9961-149525f9e887.root
 set InputLHCRawHIon1 = /store/hidata/HIRun2015/HIHardProbes/RAW/v1/000/263/718/00000/08057733-02A5-E511-9C7D-02163E014606.root
 set InputLHCRawHIon2 = /store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/0E2CC5D5-9D87-7348-9219-B00CD718C847.root
 set InputLHCRawHIon3 = /store/hidata/HIRun2022A/HITestRaw0/RAW/v1/000/362/321/00000/f467ee64-fc64-47a6-9d8a-7ca73ebca2bd.root
@@ -74,9 +74,9 @@ set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp2017  = " --era=Run2_2017 "
 set EraRun2pp2018  = " --era=Run2_2018 "
 set EraRun2HI      = " --era=Run2_2018_pp_on_AA "
-set EraRun3pp      = " --era=Run3 "
-set EraRun3HI      = " --era=Run3_pp_on_PbPb "
- 
+set EraRun3pp      = " --era=Run3_2023 "
+set EraRun3HI      = " --era=Run3_pp_on_PbPb_2023 "
+
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
 set XL1TPP2 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -134,7 +134,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef 2022v15 Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef 2023v12 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -144,7 +144,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( 2022v15 )
+    set tables = ( 2023v12 )
   else
     set tables = ( $1 )
   endif
@@ -218,11 +218,11 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
-    else if ( $table == 2022v15 ) then
+    else if ( $table == 2023v12 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2022v15
-      set GTAG = ${BASE3}_2022v15
-      set RTAG = ${RECO3}_2022v15
+      set XHLT = HLT:2023v12
+      set GTAG = ${BASE3}_2023v12
+      set RTAG = ${RECO3}_2023v12
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

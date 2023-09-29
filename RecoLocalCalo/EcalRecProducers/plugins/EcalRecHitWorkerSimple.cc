@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
@@ -84,8 +85,10 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet& ps, edm:
 
   icalToken_ = c.esConsumes<EcalIntercalibConstants, EcalIntercalibConstantsRcd>();
   if (!skipTimeCalib_) {
-    itimeToken_ = c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>();
-    offtimeToken_ = c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>();
+    itimeToken_ = c.esConsumes<EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>(
+        ps.getParameter<edm::ESInputTag>("timeCalibTag"));
+    offtimeToken_ = c.esConsumes<EcalTimeOffsetConstant, EcalTimeOffsetConstantRcd>(
+        ps.getParameter<edm::ESInputTag>("timeOffsetTag"));
   }
   agcToken_ = c.esConsumes<EcalADCToGeVConstant, EcalADCToGeVConstantRcd>();
   chStatusToken_ = c.esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();

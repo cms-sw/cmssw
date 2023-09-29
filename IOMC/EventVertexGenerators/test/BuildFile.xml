@@ -10,8 +10,4 @@
     <flags EDM_PLUGIN="1"/>
   </library>
 
-  <library file="BoostTester.cc" name="VtxSmearingBoostTest">
-    <flags EDM_PLUGIN="1"/>
-  </library>
-
 </environment>

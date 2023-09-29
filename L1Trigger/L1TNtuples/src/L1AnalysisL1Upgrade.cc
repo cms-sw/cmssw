@@ -133,6 +133,7 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuonShower(const l1t::MuonShowerBxColle
         l1upgrade_.muonShowerOneNominal.push_back(it->isOneNominalInTime());
         l1upgrade_.muonShowerOneTight.push_back(it->isOneTightInTime());
         l1upgrade_.muonShowerTwoLoose.push_back(it->isTwoLooseInTime());
+        l1upgrade_.muonShowerTwoLooseDiffSectors.push_back(it->isTwoLooseDiffSectorsInTime());
         l1upgrade_.nMuonShowers++;
       }
     }
@@ -152,6 +153,23 @@ void L1Analysis::L1AnalysisL1Upgrade::SetSum(const l1t::EtSumBxCollection& sums,
       l1upgrade_.sumIPhi.push_back(it->hwPhi());
       l1upgrade_.sumBx.push_back(ibx);
       l1upgrade_.nSums++;
+    }
+  }
+}
+
+void L1Analysis::L1AnalysisL1Upgrade::SetSumZDC(const l1t::EtSumBxCollection& sumsZDC, unsigned maxL1Upgrade) {
+  for (int ibx = sumsZDC.getFirstBX(); ibx <= sumsZDC.getLastBX(); ++ibx) {
+    for (l1t::EtSumBxCollection::const_iterator it = sumsZDC.begin(ibx);
+         it != sumsZDC.end(ibx) && l1upgrade_.nSumsZDC < maxL1Upgrade;
+         it++) {
+      int type = static_cast<int>(it->getType());
+      l1upgrade_.sumZDCType.push_back(type);
+      l1upgrade_.sumZDCEt.push_back(it->et());
+      l1upgrade_.sumZDCPhi.push_back(it->phi());
+      l1upgrade_.sumZDCIEt.push_back(it->hwPt());
+      l1upgrade_.sumZDCIPhi.push_back(it->hwPhi());
+      l1upgrade_.sumZDCBx.push_back(ibx);
+      l1upgrade_.nSumsZDC++;
     }
   }
 }

@@ -117,42 +117,49 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(RegionalMuonCand& 
                        useEmtfDisplacementInfo);
 }
 
-bool l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
-    RegionalMuonShower& muShower, std::vector<uint32_t> bxPayload, int proc, tftype tf, bool useEmtfShowers) {
-  if (useEmtfShowers && (tf == emtf_pos || tf == emtf_neg)) {
-    muShower.setTFIdentifiers(proc, tf);
+bool l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonShower(RegionalMuonShower& muShower,
+                                                                const std::vector<uint32_t> bxPayload,
+                                                                const int proc,
+                                                                const tftype tf,
+                                                                const bool useEmtfNominalTightShowers,
+                                                                const bool useEmtfLooseShowers) {
+  muShower.setTFIdentifiers(proc, tf);
+  bool showerValid{false};
+  if (useEmtfNominalTightShowers && (tf == emtf_pos || tf == emtf_neg)) {
+    muShower.setOneNominalInTime(((bxPayload[kEmtfShowerStandardFrame] >> kEmtfShowerOneNominalShift) & 1) == 1);
+    muShower.setOneTightInTime(((bxPayload[kEmtfShowerStandardFrame] >> kEmtfShowerOneTightShift) & 1) == 1);
 
-    muShower.setOneNominalInTime(((bxPayload[emtfShowerInTimeFrame_] >> emtfShowerOneNominalShift_) & 1) == 1);
-    muShower.setOneNominalOutOfTime(((bxPayload[emtfShowerOOTFrame_] >> emtfShowerOneNominalShift_) & 1) == 1);
-    muShower.setOneTightInTime(((bxPayload[emtfShowerInTimeFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
-    muShower.setOneTightOutOfTime(((bxPayload[emtfShowerOOTFrame_] >> emtfShowerOneTightShift_) & 1) == 1);
-
-    return muShower.isValid();
-  } else {
-    return false;
+    showerValid = muShower.isValid();
   }
+  if (useEmtfLooseShowers && (tf == emtf_pos || tf == emtf_neg)) {
+    muShower.setOneLooseInTime(((bxPayload[kEmtfShowerExtendedFrame] >> kEmtfShowerOneLooseShift) & 1) == 1);
+
+    showerValid = muShower.isValid();
+  }
+  return showerValid;
 }
 
 void l1t::RegionalMuonRawDigiTranslator::generatePackedShowerPayload(const RegionalMuonShower& shower,
                                                                      std::array<uint32_t, 6>& payload,
-                                                                     const bool useEmtfShowers) {
-  if (!useEmtfShowers || !shower.isValid()) {
+                                                                     const bool useEmtfNominalTightShowers,
+                                                                     const bool useEmtfLooseShowers) {
+  if (!useEmtfNominalTightShowers || !useEmtfLooseShowers || !shower.isValid()) {
     return;
   }
   // First we check whether we're going to overwrite something in the payload.
-  if ((((payload.at(emtfShowerInTimeFrame_) >> emtfShowerOneNominalShift_) & emtfShowerMask_) != 0) ||
-      (((payload.at(emtfShowerInTimeFrame_) >> emtfShowerOneTightShift_) & emtfShowerMask_) != 0) ||
-      (((payload.at(emtfShowerOOTFrame_) >> emtfShowerOneNominalShift_) & emtfShowerMask_) != 0) ||
-      (((payload.at(emtfShowerOOTFrame_) >> emtfShowerOneTightShift_) & emtfShowerMask_) != 0)) {
+  if ((((payload.at(kEmtfShowerStandardFrame) >> kEmtfShowerOneNominalShift) & kEmtfShowerMask) != 0) ||
+      (((payload.at(kEmtfShowerStandardFrame) >> kEmtfShowerOneTightShift) & kEmtfShowerMask) != 0) ||
+      (((payload.at(kEmtfShowerExtendedFrame) >> kEmtfShowerOneLooseShift) & kEmtfShowerMask) != 0)) {
     edm::LogError("L1T") << "Check constants for RegionalMuonShower fields! It looks like we're in danger of "
-                            "overwriting muon data in the packer! InTimeFrame is "
-                         << payload.at(emtfShowerInTimeFrame_) << ", OOTFrame is " << payload.at(emtfShowerOOTFrame_);
+                            "overwriting muon data in the packer! StandardFrame is "
+                         << payload.at(kEmtfShowerStandardFrame) << ", ExtendedFrame is "
+                         << payload.at(kEmtfShowerExtendedFrame);
     return;
   }
-  payload.at(emtfShowerInTimeFrame_) |= (shower.isOneNominalInTime() & 1) << emtfShowerOneNominalShift_ |
-                                        (shower.isOneTightInTime() & 1) << emtfShowerOneTightShift_;
-  payload.at(emtfShowerOOTFrame_) |= (shower.isOneNominalOutOfTime() & 1) << emtfShowerOneNominalShift_ |
-                                     (shower.isOneTightOutOfTime() & 1) << emtfShowerOneTightShift_;
+  payload.at(kEmtfShowerStandardFrame) |= (shower.isOneNominalInTime() & 1) << kEmtfShowerOneNominalShift |
+                                          (shower.isOneTightInTime() & 1) << kEmtfShowerOneTightShift;
+  payload.at(kEmtfShowerExtendedFrame) |= (shower.isOneNominalOutOfTime() & 1) << kEmtfShowerOneNominalShift |
+                                          (shower.isOneTightOutOfTime() & 1) << kEmtfShowerOneTightShift;
 }
 
 void l1t::RegionalMuonRawDigiTranslator::generatePackedDataWords(const RegionalMuonCand& mu,

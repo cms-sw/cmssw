@@ -6,13 +6,13 @@
 
 HcalSimulationConstants::HcalSimulationConstants(const HcalSimulationParameters* hsp) : hspar_(hsp) {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom")
-      << "HcalSimulationConstants::HcalSimulationConstants (const HcalSimulationParameters* hsp) constructor\n";
+  edm::LogVerbatim("HCalGeom")
+      << "HcalSimulationConstants::HcalSimulationConstants (const HcalSimulationParameters* hsp) constructor";
 #endif
 }
 
 HcalSimulationConstants::~HcalSimulationConstants() {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalSimulationConstants::destructed!!!\n";
+  edm::LogVerbatim("HCalGeom") << "HcalSimulationConstants::destructed!!!";
 #endif
 }

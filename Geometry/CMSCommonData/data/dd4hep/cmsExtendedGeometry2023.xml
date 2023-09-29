@@ -234,7 +234,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2021/v1/hcalSimNumbering.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2021/hcalRecNumbering.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/2021/v1/hcalRecNumbering.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb2/2021/v1/mb2.xml'/>
@@ -243,7 +243,7 @@
     <Include ref='Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2021/v3/mf.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/rpcf/2021/v1/rpcf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/rpcf/2021/v2/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem21/2023/v1/gem21.xml'/>
@@ -261,7 +261,7 @@
     <Include ref='Geometry/ForwardCommonData/data/lumimaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumirotations.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/zdc/2021/v2/zdc.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box.xml'/>
@@ -353,7 +353,7 @@
     <Include ref='Geometry/VeryForwardData/data/CTPPS_Pixel_2021/Assembly/v2/CTPPS_Pixel_Assembly_Box_Real_123.xml'/>
     <Include ref='Geometry/VeryForwardData/data/CTPPS_2021/RP_Dist_Beam_Cent/Simu/v1/RP_Dist_Beam_Cent.xml'/>
     <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v1/hcalsenspmf.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalsens/2021/v2/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>

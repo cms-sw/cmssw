@@ -54,6 +54,9 @@ public:
   /// Returns the CRC.
   VFATFrame::word getCRC() const { return data[0]; }
 
+  /// Returns the CRC, for non-reversed TOTEM T2.
+  VFATFrame::word getCRCT2() const { return data[11]; }
+
   /// Sets presence flags.
   void setPresenceFlags(uint8_t v) { presenceFlags = v; }
 
@@ -85,10 +88,18 @@ public:
   /// Returns false if any of the groups (in BC, EC and ID words) is present but wrong.
   bool checkFootprint() const;
 
+  /// Checks the fixed bits in the frame, for the TOTEM T2 non-inverse word ordering.
+  /// Returns false if any of the groups (in BC, EC and ID words) is present but wrong.
+  bool checkFootprintT2() const;
+
   /// Checks the validity of frame (CRC and daqErrorFlags).
   /// Returns false if daqErrorFlags is non-zero.
   /// Returns false if the CRC is present and invalid.
   virtual bool checkCRC() const;
+
+  /// Checks the validity of Totem T2 non-reversed CRC.
+  /// Returns false if the CRC is present and invalid.
+  virtual bool checkCRCT2() const;
 
   /// Checks if channel number 'channel' was active.
   /// Returns positive number if it was active, 0 otherwise.
@@ -103,6 +114,9 @@ public:
   /// Prints the frame.
   /// If binary is true, binary format is used.
   void Print(bool binary = false) const;
+
+  //Follow the VFAT2 manual format, not reversed
+  void PrintT2(bool binary = false) const;
 
   /// internaly used to check CRC
   static word calculateCRC(word crc_in, word dato);

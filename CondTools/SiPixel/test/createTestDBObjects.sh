@@ -19,6 +19,9 @@ cmsRun ${SCRAM_TEST_PATH}/SiPixelGenErrorDBObjectUploader_Phase2_cfg.py MagField
 echo -e "TESTING Pixel 2D Template DB code for Phase-2 ..."
 cmsRun  ${SCRAM_TEST_PATH}/SiPixel2DTemplateDBObjectUploader_Phase2_cfg.py MagField=3.8 Version=1 Append=mc_25x100_IT615 Map=${SCRAM_TEST_PATH}/../data/phase2_T21_mapping_den.csv TemplateFilePath=CalibTracker/SiPixelESProducers/data/Phase2_IT_v6.1.5_25x100_irradiated_v2_mc denominator=True || die "Failure running SiPixel2DTemplateDBObjectUploader_Phase2_cfg.py" $?
 
+echo -e "TESTING Pixel LorentzAngle DB for Phase-2 ..."
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelLorentzAngleDBLoader_Phase2_cfg.py geometry=T25
+
 echo -e "TESTING SiPixelVCal DB codes ... \n\n"
 
 echo -e "TESTING Writing SiPixelVCal DB object ...\n\n"
@@ -55,6 +58,47 @@ cmsRun  ${SCRAM_TEST_PATH}/SiPixelBadModuleByHandBuilder_cfg.py || die "Failure 
 
 echo -e "TESTING Reading SiPixelQuality DB object ...\n\n"
 cmsRun  ${SCRAM_TEST_PATH}/SiPixelBadModuleReader_cfg.py || die "Failure running SiPixelBadModuleReader_cfg.py" $?
+
+echo -e "TESTING Writing SiPixelQuality DB object from ROC list \n\n"
+
+cat <<@EOF >> inputListOfROCs.txt
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 0
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 1
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 2
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 3
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 4
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 5
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 6
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 7
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 8
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 9
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 10
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 11
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 12
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 13
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 14
+BPix_BmI_SEC7_LYR3_LDR18F_MOD1_ROC 15
+@EOF
+
+echo -e "TESTING Writing SiPixelQuality DB object from input ROC list ...\n\n"
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelBadModuleByHandBuilderFromROCList_cfg.py inputROCList=inputListOfROCs.txt || die "Failure running SiPixelBadModuleByHandBuilderFromROCList_cfg.py" $?
+
+if conddb --db SiPixelQualityTest.db list SiPixelQualityTest | grep -q "Run"; then
+    echo "Found 'Run' in the output. No error."
+else
+    echo "Error: 'Run' not found in the output."
+    exit 1
+fi
+
+echo -e "TESTING Writing SiPixelQuality DB object from input ROC list (by LS IOVs) ...\n\n"
+cmsRun  ${SCRAM_TEST_PATH}/SiPixelBadModuleByHandBuilderFromROCList_cfg.py  inputROCList=inputListOfROCs.txt byLumi=True outputTagName=SiPixelQualityTestByLumi || die "Failure running SiPixelBadModuleByHandBuilderFromROCList_cfg.py byLumi=True" $?
+
+if conddb --db SiPixelQualityTest.db list SiPixelQualityTestByLumi | grep -q "Lumi"; then
+    echo "Found 'Lumi' in the output. No error."
+else
+    echo "Error: 'Lumi' not found in the output."
+    exit 1
+fi
 
 echo -e "TESTING SiPixelQualityProbabilities codes ...\n\n"
 

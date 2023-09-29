@@ -305,8 +305,6 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
   seedEnergy = -999.;
 
   std::vector<std::pair<DetId, float> > PhotonHit_DetIds = photon->superCluster()->hitsAndFractions();
-  int ncrys = 0;
-
   std::vector<std::pair<DetId, float> >::const_iterator detitr;
   for (detitr = PhotonHit_DetIds.begin(); detitr != PhotonHit_DetIds.end(); ++detitr) {
     if (((*detitr).first).det() == DetId::Ecal && ((*detitr).first).subdetId() == EcalBarrel) {
@@ -333,8 +331,6 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
           std::cout << "Current max Seed = " << SeedE << "   seedIphi = " << seedIphi << "  ieta= " << seedIeta
                     << std::endl;
       }
-
-      ncrys++;
 
     }  //check if in Barrel
 

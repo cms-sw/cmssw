@@ -18,16 +18,16 @@
 //
 //   1. There is a single mutex that is a data member of CondDBESSource.
 //   This is locked near the beginning of setIntervalFor and also
-//   near the beginning of ::DataProxy::prefetch so that these functions
-//   will never run concurrently. All the ::DataProxy objects have a
-//   pointer to this mutex stored in their ESSourceDataProxyTemplate
+//   near the beginning of ::ProductResolver::prefetch so that these functions
+//   will never run concurrently. All the ::ProductResolver objects have a
+//   pointer to this mutex stored in their ESSourceProductResolverTemplate
 //   base class.
 //
 //   2. CondDBESSource contains a single SerialTaskQueue. The tasks
 //   that run the prefetch function are placed in this SerialTaskQueue.
-//   This allows only one ::DataProxy::prefetch function to run at a
-//   time. All the ::DataProxy objects have a pointer to this SerialTaskQueue
-//   stored in their ESSourceDataProxyTemplate base class. Note that
+//   This allows only one ::ProductResolver::prefetch function to run at a
+//   time. All the ::ProductResolver objects have a pointer to this SerialTaskQueue
+//   stored in their ESSourceProductResolverTemplate base class. Note that
 //   locking the mutex is inside the task that runs prefetch.
 //   Since these tasks are serialized by the SerialTaskQueue,
 //   the mutex will never be locked by another prefetch call
@@ -35,32 +35,32 @@
 //   setIntervalFor calls from each other and from prefetch calls.
 //
 //   3. An ESSource is not allowed to get data from the EventSetup
-//   while its DataProxy prefetch function runs, preventing deadlocks
+//   while its ProductResolver prefetch function runs, preventing deadlocks
 //   and ensuring the mutex does not need to be recursive.
 //
-//   4. The WaitingTaskList in ESSourceDataProxyBase (a base class of
-//   ::DataProxy) is used to notify other tasks waiting for prefetch
+//   4. The WaitingTaskList in ESSourceProductResolverBase (a base class of
+//   ::ProductResolver) is used to notify other tasks waiting for prefetch
 //   to complete that the data is available (other tasks created and
 //   managed by the Framework).
 //
-//   5. There is an atomic<bool> in ESSourceDataProxyBase which
+//   5. There is an atomic<bool> in ESSourceProductResolverBase which
 //   prevents the prefetch function being run more than once for the
-//   same IOV and DataProxy.
+//   same IOV and ProductResolver.
 //
 //   6. The Framework ensures calls are sequenced such that a call to
 //   setIntervalFor is made and completes, then all related calls to
-//   DataProxy::initializeForNewIOV are made before another call to
+//   ProductResolver::initializeForNewIOV are made before another call to
 //   setIntervalFor is made.  It is configurable how many
 //   IOVs can be running concurrently. The Framework will not call
 //   initializeForNewIOV or start running a new IOV unless the
 //   number of active IOVs is less than that configured number.
 //
 //   7. The Framework guarantees that after a call is made to
-//   DataProxy::initializeForNewIOV for a particular
-//   EventSetupRecordKey and iovIndex, all calls to DataProxy::make
+//   ProductResolver::initializeForNewIOV for a particular
+//   EventSetupRecordKey and iovIndex, all calls to ProductResolver::make
 //   associated with that whose data is requested will be completed
 //   and processing of luminosity blocks associated with that will
-//   be completed before another call to DataProxy::initializeForNewIOV
+//   be completed before another call to ProductResolver::initializeForNewIOV
 //   is made for that EventSetupRecordKey and iovIndex.
 
 // system include files
@@ -72,7 +72,7 @@
 // user include files
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
@@ -81,15 +81,15 @@ namespace edm {
 }
 
 namespace cond {
-  class DataProxyWrapperBase;
+  class ProductResolverWrapperBase;
 }
 
-class CondDBESSource : public edm::eventsetup::DataProxyProvider, public edm::EventSetupRecordIntervalFinder {
+class CondDBESSource : public edm::eventsetup::ESProductResolverProvider, public edm::EventSetupRecordIntervalFinder {
 public:
   using DataKey = edm::eventsetup::DataKey;
   using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
-  typedef std::shared_ptr<cond::DataProxyWrapperBase> ProxyP;
-  typedef std::multimap<std::string, ProxyP> ProxyMap;
+  typedef std::shared_ptr<cond::ProductResolverWrapperBase> ResolverP;
+  typedef std::multimap<std::string, ResolverP> ResolverMap;
 
   typedef enum { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN } RefreshPolicy;
 
@@ -99,7 +99,7 @@ public:
 protected:
   void setIntervalFor(const EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
-  KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) override;
+  KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
   void initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) override;
 
@@ -112,8 +112,8 @@ private:
   std::string m_connectionString;
   std::string m_frontierKey;
 
-  // Container of DataProxy, implemented as multi-map keyed by records
-  ProxyMap m_proxies;
+  // Container of ProductResolver, implemented as multi-map keyed by records
+  ResolverMap m_resolvers;
 
   typedef std::map<std::string, cond::GTEntry_t> TagCollection;
   // the collections of tag, record/label used in this ESSource

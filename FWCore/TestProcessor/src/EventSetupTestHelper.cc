@@ -14,7 +14,7 @@
 
 // user include files
 #include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
-#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/ESProductResolver.h"
 
 namespace edm {
   namespace test {
@@ -56,24 +56,24 @@ namespace edm {
       oIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
     }
 
-    eventsetup::DataProxyProvider::KeyedProxiesVector EventSetupTestHelper::registerProxies(
+    eventsetup::ESProductResolverProvider::KeyedResolversVector EventSetupTestHelper::registerResolvers(
         const eventsetup::EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
-      KeyedProxiesVector keyedProxiesVector;
+      KeyedResolversVector keyedResolversVector;
       for (auto const& p : proxies_) {
         if (p.recordKey_ == iRecordKey) {
-          keyedProxiesVector.emplace_back(p.dataKey_, p.proxy_);
+          keyedResolversVector.emplace_back(p.dataKey_, p.resolver_);
         }
       }
-      return keyedProxiesVector;
+      return keyedResolversVector;
     }
 
-    std::shared_ptr<eventsetup::DataProxy> EventSetupTestHelper::getProxy(unsigned int iIndex) {
-      return proxies_[iIndex].proxy_;
+    std::shared_ptr<eventsetup::ESProductResolver> EventSetupTestHelper::getResolver(unsigned int iIndex) {
+      return proxies_[iIndex].resolver_;
     }
 
     void EventSetupTestHelper::resetAllProxies() {
       for (auto const& p : proxies_) {
-        p.proxy_->invalidate();
+        p.resolver_->invalidate();
       }
     }
 

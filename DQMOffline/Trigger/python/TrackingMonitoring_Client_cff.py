@@ -46,6 +46,9 @@ TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
         "Eff_dzWRTpv         'Relative Efficiency vs dzWRTpv;d_{z};relative efficiency'         ref_matched_dzWRTpv     ref_dzWRTpv     eff",
         "Eff_charge          'Relative Efficiency vs charge;charge;relative efficiency'         ref_matched_charge      ref_charge      eff",
         "Eff_hits            'Relative Efficiency vs hits;number of hits;relative efficiency'   ref_matched_hits        ref_hits        eff",
+        "Eff_OnlineLumi      'Relative Efficiency vs OnlineLumi;OnlineLumi E30 [Hz cm^{-2}];relative efficiency' ref_matched_onlinelumi ref_onlinelumi  eff",
+        "Eff_LS              'Relative Efficiency vs LS;LS;relative efficiency'                 ref_matched_ls          ref_ls          eff",
+        "Eff_PU              'Relative Efficiency vs PU;PU;relative efficiency'                 ref_matched_PU          ref_PU          eff",
 
         "FakeRate_pt         'Relative Fake Rate vs Pt;#P_T;relative fake rate'                 mon_unMatched_pt        mon_pt          eff",
         "FakeRate_eta        'Relative Fake Rate vs Eta;#eta;relative fake rate'                mon_unMatched_eta       mon_eta         eff",
@@ -56,6 +59,9 @@ TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
         "FakeRate_dzWRTpv    'Relative Fake Rate vs dzWRTpv;d_{z};relative fake rate'           mon_unMatched_dzWRTpv   mon_dzWRTpv     eff",
         "FakeRate_charge     'Relative Fake Rate vs charge;charge;relative fake rate'           mon_unMatched_charge    mon_charge      eff",
         "FakeRate_hits       'Relative Fake Rate vs hits;number of hits;relative fake rate'     mon_unMatched_hits      mon_hits        eff",
+        "FakeRate_OnlineLumi 'Relative Fake Rate vs OnlineLumi;OnlineLumi E30 [Hz cm^{-2}];relative efficiency' mon_unMatched_onlinelumi mon_onlinelumi  eff",
+        "FakeRate_LS         'Relative Fake Rate vs LS;LS;relative efficiency'                  mon_unMatched_ls        mon_ls          eff",
+        "FakeRate_PU         'Relative Fake Rate vs PU;PU;relative efficiency'                  mon_unMatched_PU        mon_PU          eff",
     ),
 )
 
@@ -64,7 +70,7 @@ trackEfficiencyMonitoringClientHLT = cms.Sequence(
 )
 
 def _modifyForRun3Default(efffromhitpattern):
-    efffromhitpattern.subDirs = ["HLT/Tracking/pixelTracks/HitEffFromHitPattern*", "HLT/Tracking/tracks/HitEffFromHitPattern*"]
+    efffromhitpattern.subDirs = ["HLT/Tracking/pixelTracks/HitEffFromHitPattern*", "HLT/Tracking/tracks/HitEffFromHitPattern*", "HLT/Tracking/doubletRecoveryTracks/HitEffFromHitPattern*"] #, "HLT/Tracking/iter0HP/HitEffFromHitPattern*"
 
 def _modifyForRun3EGM(efffromhitpattern):
     efffromhitpattern.subDirs = ["HLT/EGM/Tracking/GSF/HitEffFromHitPattern*"]

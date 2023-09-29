@@ -68,10 +68,10 @@ void ESProducerLooper::setIntervalFor(const EventSetupRecordKey&, const IOVSyncV
 
 //use this to 'snoop' on what records are being used by the Producer
 void ESProducerLooper::registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord,
-                                              std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
+                                              std::unique_ptr<eventsetup::ESProductResolverFactoryBase> iFactory,
                                               const std::string& iLabel) {
   findingRecordWithKey(iRecord);
-  ESProxyFactoryProducer::registerFactoryWithKey(iRecord, std::move(iFactory), iLabel);
+  ESProductResolverFactoryProducer::registerFactoryWithKey(iRecord, std::move(iFactory), iLabel);
 }
 
 //

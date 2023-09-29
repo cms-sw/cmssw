@@ -68,7 +68,9 @@ namespace l1t {
       jetPUSUsePhiRingFlag = 47,
       metPhiCalibration = 48,
       metHFPhiCalibration = 49,
-      NUM_CALOPARAMNODES = 50
+      layer1HCalFBUpper = 50,
+      layer1HCalFBLower = 51,
+      NUM_CALOPARAMNODES = 52
     };
 
     CaloParamsHelperO2O() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -549,6 +551,8 @@ namespace l1t {
     std::vector<double> layer1ECalScaleFactors() { return pnode_[layer1ECal].dparams_; }
     std::vector<double> layer1HCalScaleFactors() { return pnode_[layer1HCal].dparams_; }
     std::vector<double> layer1HFScaleFactors() { return pnode_[layer1HF].dparams_; }
+    std::vector<unsigned> layer1HCalFBLUTUpper() { return pnode_[layer1HCalFBUpper].uparams_; }
+    std::vector<unsigned> layer1HCalFBLUTLower() { return pnode_[layer1HCalFBLower].uparams_; }
     std::vector<int> layer1ECalScaleETBins() { return pnode_[layer1ECal].iparams_; }
     std::vector<int> layer1HCalScaleETBins() { return pnode_[layer1HCal].iparams_; }
     std::vector<int> layer1HFScaleETBins() { return pnode_[layer1HF].iparams_; }
@@ -558,6 +562,8 @@ namespace l1t {
     void setLayer1ECalScaleFactors(const std::vector<double> params) { pnode_[layer1ECal].dparams_ = params; }
     void setLayer1HCalScaleFactors(const std::vector<double> params) { pnode_[layer1HCal].dparams_ = params; }
     void setLayer1HFScaleFactors(const std::vector<double> params) { pnode_[layer1HF].dparams_ = params; }
+    void setLayer1HCalFBLUTUpper(const std::vector<unsigned> params) { pnode_[layer1HCalFBUpper].uparams_ = params; }
+    void setLayer1HCalFBLUTLower(const std::vector<unsigned> params) { pnode_[layer1HCalFBLower].uparams_ = params; }
     void setLayer1ECalScaleETBins(const std::vector<int> params) { pnode_[layer1ECal].iparams_ = params; }
     void setLayer1HCalScaleETBins(const std::vector<int> params) { pnode_[layer1HCal].iparams_ = params; }
     void setLayer1HFScaleETBins(const std::vector<int> params) { pnode_[layer1HF].iparams_ = params; }

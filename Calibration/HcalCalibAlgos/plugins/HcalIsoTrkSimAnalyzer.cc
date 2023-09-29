@@ -887,7 +887,7 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
                                                    const HcalRespCorrs* respCorrs) {
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   t_nTrk = trackIDs.size();
   t_rhoh = (tower.isValid()) ? rhoh(tower) : 0;
   for (auto const& trkDetItr : trackIDs) {
@@ -930,7 +930,6 @@ std::array<int, 3> HcalIsoTrkSimAnalyzer::fillTree(std::vector<math::XYZTLorentz
     t_qltyFlag = (t_selectTk && trkDetItr.okECAL && trkDetItr.okHCAL);
     bool notMuon = notaMuon(pTrack);
     if (t_qltyFlag && notMuon) {
-      nselTracks++;
       int nNearTRKs(0);
       ////////////////////////////////-MIP STUFF-//////////////////////////////
       std::vector<DetId> eIds;

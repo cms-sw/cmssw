@@ -36,15 +36,8 @@ siStripQualityESProducer.PrintDebugOutput = cms.bool(False)
 # Default is "False".
 siStripQualityESProducer.UseEmptyRunInfo = cms.bool(False)
 
-from CalibTracker.SiPixelESProducers.SiPixelQualityESProducer_cfi import *
-siPixelQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-        cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
-                  tag    = cms.string("")
-                  ),
-        cms.PSet( record = cms.string("SiPixelDetVOffRcd"),
-                  tag    = cms.string("")
-                  )
-        )
+from CalibTracker.SiPixelESProducers.siPixelQualityESProducer_cfi import *
+from CalibTracker.SiPixelESProducers.siPixelQualityForRawToDigiESProducer_cfi import *
 
 # Multiple scattering parametrisation
 from RecoTracker.TkMSParametrization.multipleScatteringParametrisationMakerESProducer_cfi import *

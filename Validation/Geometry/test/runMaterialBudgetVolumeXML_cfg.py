@@ -1,15 +1,47 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runMaterialBudgetVolumeXML_cfg.py type=DDD
+#
+#   Options for type DDD, DD4hep
+#
+###############################################################################
+import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "DDD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: DDD, DD4hep")
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
-process = cms.Process('PROD',Run3_DDD)
-process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
-#from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
-#process = cms.Process('PROD',Run3_dd4hep)
-#process.load("Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff")
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('PROD',Phase2C11)
-#process.load("Configuration.Geometry.GeometryExtended2026D77Reco_cff")
+if (options.type == "DDD"):
+    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+    process = cms.Process('PROD',Run3_DDD)
+    geomFile = "Configuration.Geometry.GeometryExtended2021Reco_cff"
+    fileName = "matbdgRun3dddXML.root"
+else:
+    from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+    process = cms.Process('PROD',Run3_dd4hep)
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff"
+    fileName = "matbdgRun3ddhepXML.root"
 
+print("Geometry file Name: ", geomFile)
+print("Root file Name:     ", fileName)
+
+process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -34,10 +66,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdgRun3dddXML.root')
-#   fileName = cms.string('matbdgRun3dd4hepXML.root')
-#   fileName = cms.string('matbdgPhase2XML.root')
-)
+                                   fileName = cms.string(fileName))
 
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'

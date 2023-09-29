@@ -155,6 +155,8 @@ private:
   int variable_PairPt_nbins_;
 
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
+
+  TH1F* th1f_mass;
   TH2D* th2d_mass_variables_[varNumber_];  // actual histograms
   std::string variables_name_[varNumber_] = {
       "CosThetaCS", "DeltaEta", "EtaMinus", "EtaPlus", "PhiCS", "PhiMinus", "PhiPlus", "Pt"};
@@ -175,37 +177,35 @@ void DiMuonValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const reco::TrackCollection& tC = iEvent.get(theTrackCollectionToken_);
 
   DiMuonValid::LV LV_mother(0., 0., 0., 0.);
-  //for (reco::TrackCollection::const_iterator track1 = tC.begin(); track1 != tC.end(); track1++) {
-  for (const auto& track1 : tC) {
-    DiMuonValid::LV LV_track1(track1.px(),
-                              track1.py(),
-                              track1.pz(),
-                              sqrt((track1.p() * track1.p()) + mu_mass2_));  //old 106
+  for (reco::TrackCollection::const_iterator track1 = tC.begin(); track1 != tC.end(); track1++) {
+    DiMuonValid::LV LV_track1(track1->px(),
+                              track1->py(),
+                              track1->pz(),
+                              sqrt((track1->p() * track1->p()) + mu_mass2_));  //old 106
 
-    for (const auto& track2 : tC) {
-      if (&track1 == &track2) {
-        continue;
-      }  // discard the same track
-
-      if (track1.charge() == track2.charge()) {
+    for (reco::TrackCollection::const_iterator track2 = track1 + 1; track2 != tC.end(); track2++) {
+      if (track1->charge() == track2->charge()) {
         continue;
       }  // only reconstruct opposite charge pair
 
-      DiMuonValid::LV LV_track2(track2.px(), track2.py(), track2.pz(), sqrt((track2.p() * track2.p()) + mu_mass2_));
+      DiMuonValid::LV LV_track2(
+          track2->px(), track2->py(), track2->pz(), sqrt((track2->p() * track2->p()) + mu_mass2_));
 
       LV_mother = LV_track1 + LV_track2;
       double mother_mass = LV_mother.M();
+      th1f_mass->Fill(mother_mass);
+
       double mother_pt = LV_mother.Pt();
 
-      int charge1 = track1.charge();
-      double etaMu1 = track1.eta();
-      double phiMu1 = track1.phi();
-      double ptMu1 = track1.pt();
+      int charge1 = track1->charge();
+      double etaMu1 = track1->eta();
+      double phiMu1 = track1->phi();
+      double ptMu1 = track1->pt();
 
-      int charge2 = track2.charge();
-      double etaMu2 = track2.eta();
-      double phiMu2 = track2.phi();
-      double ptMu2 = track2.pt();
+      int charge2 = track2->charge();
+      double etaMu2 = track2->eta();
+      double phiMu2 = track2->phi();
+      double ptMu2 = track2->pt();
 
       if (charge1 < 0) {  // use Mu+ for charge1, Mu- for charge2
         std::swap(charge1, charge2);
@@ -263,6 +263,8 @@ void DiMuonValidation::beginJob() {
     fs->file().SetCompressionSettings(compressionSettings_);
   }
 
+  th1f_mass = fs->make<TH1F>("hMass", "mass;m_{#mu#mu} [GeV];events", 200, 0., 200.);
+
   for (int i = 0; i < varNumber_; i++) {
     std::string th2d_name = fmt::sprintf("th2d_mass_%s", variables_name_[i].c_str());
     th2d_mass_variables_[i] = fs->make<TH2D>(th2d_name.c_str(),
@@ -288,10 +290,10 @@ void DiMuonValidation::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("Pair_mass_min", 60);
   desc.add<double>("Pair_mass_max", 120);
   desc.add<int>("Pair_mass_nbins", 120);
-  desc.add<double>("Pair_etaminpos", 60);
-  desc.add<double>("Pair_etamaxpos", 60);
-  desc.add<double>("Pair_etaminneg", 60);
-  desc.add<double>("Pair_etamaxneg", 60);
+  desc.add<double>("Pair_etaminpos", -2.4);
+  desc.add<double>("Pair_etamaxpos", 2.4);
+  desc.add<double>("Pair_etaminneg", -2.4);
+  desc.add<double>("Pair_etamaxneg", 2.4);
 
   desc.add<double>("Variable_CosThetaCS_xmin", -1.);
   desc.add<double>("Variable_CosThetaCS_xmax", 1.);

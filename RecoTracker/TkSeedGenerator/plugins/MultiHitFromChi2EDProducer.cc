@@ -11,7 +11,7 @@
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
+#include "RecoTracker/PixelSeeding/interface/LayerTriplets.h"
 #include "MultiHitGeneratorFromChi2.h"
 
 class MultiHitFromChi2EDProducer : public edm::stream::EDProducer<> {

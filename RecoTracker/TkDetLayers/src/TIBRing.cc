@@ -111,16 +111,15 @@ void TIBRing::groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
                                      const MeasurementEstimator& est,
                                      vector<DetGroup>& result) const {
   vector<DetGroup> closestResult;
-  SubRingCrossings crossings;
-  crossings = computeCrossings(tsos, prop.propagationDirection());
-  if (!crossings.isValid_)
+  auto crossings = computeCrossings(tsos, prop.propagationDirection());
+  if (not crossings)
     return;
 
   typedef CompatibleDetToGroupAdder Adder;
-  Adder::add(*theDets[theBinFinder.binIndex(crossings.closestIndex)], tsos, prop, est, closestResult);
+  Adder::add(*theDets[theBinFinder.binIndex(crossings->closestIndex)], tsos, prop, est, closestResult);
 
   if (closestResult.empty()) {
-    Adder::add(*theDets[theBinFinder.binIndex(crossings.nextIndex)], tsos, prop, est, result);
+    Adder::add(*theDets[theBinFinder.binIndex(crossings->nextIndex)], tsos, prop, est, result);
     return;
   }
 
@@ -128,11 +127,11 @@ void TIBRing::groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
   float window = computeWindowSize(closestGel.det(), closestGel.trajectoryState(), est);
 
   float detWidth = closestGel.det()->surface().bounds().width();
-  if (crossings.nextDistance < detWidth + window) {
+  if (crossings->nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
-    if (Adder::add(*theDets[theBinFinder.binIndex(crossings.nextIndex)], tsos, prop, est, nextResult)) {
+    if (Adder::add(*theDets[theBinFinder.binIndex(crossings->nextIndex)], tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide::barrelSide(tsos, prop);
-      if (crossings.closestIndex < crossings.nextIndex) {
+      if (crossings->closestIndex < crossings->nextIndex) {
         DetGroupMerger::orderAndMergeTwoLevels(
             std::move(closestResult), std::move(nextResult), result, theHelicity, crossingSide);
       } else {
@@ -148,7 +147,7 @@ void TIBRing::groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
 
   // only loop over neighbors (other than closest and next) if window is BIG
   if (window > 0.5f * detWidth) {
-    searchNeighbors(tsos, prop, est, crossings, window, result);
+    searchNeighbors(tsos, prop, est, *crossings, window, result);
   }
 }
 
@@ -194,8 +193,8 @@ void TIBRing::searchNeighbors(const TrajectoryStateOnSurface& tsos,
   }
 }
 
-TIBRing::SubRingCrossings TIBRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
-                                                    PropagationDirection propDir) const {
+std::optional<TIBRing::SubRingCrossings> TIBRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
+                                                                   PropagationDirection propDir) const {
   typedef HelixBarrelPlaneCrossing2OrderLocal Crossing;
   typedef MeasurementEstimator::Local2DVector Local2DVector;
 
@@ -207,7 +206,7 @@ TIBRing::SubRingCrossings TIBRing::computeCrossings(const TrajectoryStateOnSurfa
       startPos, startDir, rho, propDir, specificSurface(), HelixBarrelCylinderCrossing::bestSol);
 
   if (!cylCrossing.hasSolution())
-    return SubRingCrossings();
+    return std::nullopt;
 
   GlobalPoint cylPoint(cylCrossing.position());
   GlobalVector cylDir(cylCrossing.direction());

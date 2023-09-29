@@ -7,7 +7,7 @@
 //
 /**\class edm::eventsetup::Callback
 
- Description: Functional object used as the 'callback' for the CallbackProxy
+ Description: Functional object used as the 'callback' for the CallbackESProductResolver
 
  Usage: Produces data objects for ESProducers in EventSetup system
 
@@ -60,7 +60,9 @@ namespace edm {
         return Base::prefetchAsyncImpl(
             [this](auto&& group, auto&& token, auto&& record, auto&& es) {
               constexpr bool emitPostPrefetchingSignal = true;
-              return Base::makeProduceTask(group, token, record, es, emitPostPrefetchingSignal);
+              auto produceFunctor = [this](TRecord const& record) { return (*Base::produceFunction())(record); };
+              return Base::makeProduceTask(
+                  group, token, record, es, emitPostPrefetchingSignal, std::move(produceFunctor));
             },
             std::move(iTask),
             iRecord,

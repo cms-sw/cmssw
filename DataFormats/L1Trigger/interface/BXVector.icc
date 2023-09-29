@@ -1,7 +1,11 @@
+#include <cassert>
+
+// FIXME: these 3 lines are required by other packages
 #include <vector>
 #include <iostream>
-#include <cassert>
 using namespace std;
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <class T>
 BXVector<T>::BXVector(unsigned size,  // number of objects per BX
@@ -129,11 +133,17 @@ unsigned BXVector<T>::size(int bx) const {
 // add element with given BX index
 template <class T>
 void BXVector<T>::push_back(int bx, T object) {
-  data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + size(bx), object);
-  for (unsigned k = 0; k < itrs_.size(); k++) {
-    if (k > indexFromBX(bx)) {
-      itrs_[k]++;
+  if (bx >= bxFirst_ && bx <= bxLast_) {
+    data_.insert(data_.begin() + itrs_[indexFromBX(bx)] + size(bx), object);
+    for (unsigned k = 0; k < itrs_.size(); k++) {
+      if (k > indexFromBX(bx)) {
+        itrs_[k]++;
+      }
     }
+  } else {
+    edm::LogWarning("BXVectorBXViolation")
+        << "Something attempted to push to a BXVector BX that does not exist. The data will be ignored. bx: " << bx
+        << " bxFirst: " << bxFirst_ << " bxLast: " << bxLast_;
   }
 }
 
@@ -211,15 +221,27 @@ unsigned BXVector<T>::indexFromBX(int bx) const {
 // check to see if bx is empty
 template <class T>
 bool BXVector<T>::isEmpty(int bx) const {
-  if (itrs_[indexFromBX(bx)] == data_.size()) {
+  if (bx < bxFirst_) {
     return true;
   }
 
-  if (indexFromBX(bx + 1) >= itrs_.size()) {
+  auto const index_bx = indexFromBX(bx);
+
+  if (index_bx >= itrs_.size()) {
+    return true;
+  }
+
+  if (itrs_[index_bx] == data_.size()) {
+    return true;
+  }
+
+  auto const index_bxPlus1 = indexFromBX(bx + 1);
+
+  if (index_bxPlus1 >= itrs_.size()) {
     return false;
   }
 
-  if (itrs_[indexFromBX(bx)] == itrs_[indexFromBX(bx + 1)]) {
+  if (itrs_[index_bx] == itrs_[index_bxPlus1]) {
     return true;
   }
 

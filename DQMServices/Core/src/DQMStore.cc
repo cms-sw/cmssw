@@ -99,15 +99,30 @@ namespace dqm::implementation {
       MonitorElementData medata;
       medata.key_.path_ = path;
       medata.key_.kind_ = kind;
-      medata.key_.scope_ = this->scope_;
+
+      const auto& MEs = store_->getMEsToSave();
+
+      if (not MEs.empty() && not store_->getMode()) {
+        bool pathInList = false;
+        for (const auto& thepath : MEs) {
+          if (fullpath == thepath) {
+            medata.key_.scope_ = MonitorElementData::Scope::LUMI;
+            pathInList = true;
+            break;
+          }
+        }
+        if (not pathInList)
+          medata.key_.scope_ = this->scope_;
+      } else
+        medata.key_.scope_ = this->scope_;
 
       // will be (0,0) ( = prototype) in the common case.
       // This branching is for harvesting, where we have run/lumi in the booker.
-      if (this->scope_ == MonitorElementData::Scope::JOB) {
+      if (medata.key_.scope_ == MonitorElementData::Scope::JOB) {
         medata.key_.id_ = edm::LuminosityBlockID();
-      } else if (this->scope_ == MonitorElementData::Scope::RUN) {
+      } else if (medata.key_.scope_ == MonitorElementData::Scope::RUN) {
         medata.key_.id_ = edm::LuminosityBlockID(this->runlumi_.run(), 0);
-      } else if (this->scope_ == MonitorElementData::Scope::LUMI) {
+      } else if (medata.key_.scope_ == MonitorElementData::Scope::LUMI) {
         // In the messy case of legacy-booking a LUMI ME in beginRun (or
         // similar), where we don't have a valid lumi number yet, make sure to
         // book a prototype instead.
@@ -669,7 +684,7 @@ namespace dqm::implementation {
         for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
              ipath != store_->MEsToSave_.end();
              ++ipath) {
-          std::string nameToSave = *ipath;
+          const std::string& nameToSave = *ipath;
           // option 1 (used in the past): inclusive selection
           // (store all MEs that contain any of the requested patterns)
           // if (name.find(nameToSave) != std::string::npos) {
@@ -766,6 +781,7 @@ namespace dqm::implementation {
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
     MEsToSave_ = pset.getUntrackedParameter<std::vector<std::string>>("MEsToSave", std::vector<std::string>());
     trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");
+    onlineMode_ = pset.getUntrackedParameter<bool>("onlineMode", false);
 
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be

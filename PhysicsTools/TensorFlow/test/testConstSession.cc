@@ -33,12 +33,12 @@ void testConstSession::test() {
   tensorflow::Backend backend = tensorflow::Backend::cpu;
 
   // load the graph
-  tensorflow::setLogging();
+  tensorflow::Options options{backend};
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  const tensorflow::Session* session = tensorflow::createSession(graphDef, backend);
+  const tensorflow::Session* session = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
 
   // example evaluation

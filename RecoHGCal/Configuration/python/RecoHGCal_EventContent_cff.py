@@ -38,7 +38,7 @@ def customiseHGCalOnlyEventContent(process):
         outputModule.outputCommands = ['drop *_*_*_*']
         outputModule.outputCommands.extend(ticl_outputCommads)
         outputModule.outputCommands.extend(['keep *_HGCalRecHit_*_*',
-                                            'keep *_hgcalLayerClusters_*_*',
+                                            'keep *_hgcalMergeLayerClusters_*_*',
                                             'keep CaloParticles_mix_*_*',
                                             'keep SimClusters_mix_*_*',
                                             'keep recoTracks_generalTracks_*_*',

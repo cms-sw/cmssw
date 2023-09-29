@@ -94,6 +94,10 @@ int main(int argc, char** argv) {
   histo9.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo9.data() << std::endl;
 
+  SiPixelQualityBadFractionMap histo9bis;
+  histo9bis.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo9bis.data() << std::endl;
+
   // SiPixelGainCalibrationOffline
 
   tag = "SiPixelGainCalibration_2009runs_express";
@@ -155,6 +159,10 @@ int main(int argc, char** argv) {
   SiPixelTemplateLAFPixMap histo19;
   histo19.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo19.data() << std::endl;
+
+  SiPixelTemplateQScaleMap histoQscale;
+  histoQscale.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histoQscale.data() << std::endl;
 
   // SiPixelVCal
 
@@ -228,6 +236,10 @@ int main(int argc, char** argv) {
   SiPixelDynamicInefficiencyPUParametrization histo29;
   histo29.process(connectionString, PI::mk_input(tag2, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo29.data() << std::endl;
+
+  SiPixelDynamicInefficiencyPUParamComparisonTwoTags histo30;
+  histo30.process(connectionString, PI::mk_input(tag, start, end, tag2, start2, start2));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo30.data() << std::endl;
 
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3

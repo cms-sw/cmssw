@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -38,9 +39,7 @@ ZdcSD::ZdcSD(const std::string& name,
   zdcHitEnergyCut = m_ZdcSD.getParameter<double>("ZdcHitEnergyCut") * GeV;
   thFibDir = m_ZdcSD.getParameter<double>("FiberDirection");
   verbosity = m_ZdcSD.getParameter<int>("Verbosity");
-  int verbn = verbosity / 10;
   verbosity %= 10;
-  setNumberingScheme(new ZdcNumberingScheme(verbn));
 
   edm::LogVerbatim("ForwardSim") << "***************************************************\n"
                                  << "*                                                 *\n"
@@ -100,7 +99,7 @@ bool ZdcSD::getFromLibrary(const G4Step* aStep) {
     unsigned int unitID = hits[i].detID;
     edepositHAD = hits[i].DeHad;
     edepositEM = hits[i].DeEM;
-    currentID.setID(unitID, time, primaryID, 0);
+    currentID[0].setID(unitID, time, primaryID, 0);
     processHit(aStep);
 
 #ifdef EDM_ML_DEBUG
@@ -302,13 +301,4 @@ double ZdcSD::getEnergyDeposit(const G4Step* aStep) {
   return NCherPhot;
 }
 
-uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme.get() == nullptr ? 0 : numberingScheme.get()->getUnitID(aStep));
-}
-
-void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
-  if (scheme != nullptr) {
-    edm::LogVerbatim("ForwardSim") << "ZdcSD: updates numbering scheme for " << GetName();
-    numberingScheme.reset(scheme);
-  }
-}
+uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) { return ZdcNumberingScheme::getUnitID(aStep); }

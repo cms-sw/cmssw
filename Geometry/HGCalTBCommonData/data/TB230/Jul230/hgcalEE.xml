@@ -1,0 +1,372 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalEE.xml" eval="true">
+  <Constant name="absorbH"    value="0.5*[hgcal:WaferW]"/>
+  <Constant name="absorbW"    value="[hgcal:WaferW]*[hgcal:tan30deg]"/>
+  <Constant name="moduleT"    value="[hgcal:ModuleThicknessEE]"/>
+  <Constant name="crateT"     value="2.1*mm"/>
+  <Constant name="airGap0"    value="80.0*mm"/>
+  <Constant name="airGap1"    value="1.0*mm"/>
+  <Constant name="airGap2"    value="3.0*mm"/>
+  <Constant name="airGap3"    value="20.0*mm"/>
+  <Constant name="airGap4"    value="10.0*mm"/>
+  <Constant name="airGap5"    value="20.0*mm"/>
+  <Constant name="airGap6"    value="365.40*mm"/>
+  <Constant name="absPb1T"    value="5.0*mm"/>
+  <Constant name="absPb2T"    value="2.0*mm"/>
+  <Constant name="zShift"     value="0.5*([absPb1T]+[airGap1])"/>
+  <Constant name="zposAl1"    value="([hgcal:zHGCalEE1]+0.5*[crateT])"/>
+  <Constant name="zposGap0"   value="([zposAl1]+0.5*([crateT]+[airGap0]))"/>
+  <Constant name="zposAbs1"   value="([zposGap0]+0.5*([airGap0]+[absPb1T]))"/>
+  <Constant name="zposGap1"   value="([zposAbs1]+[zShift])"/>
+  <Constant name="zposAbs2"   value="([zposGap1]+[zShift])"/>
+  <Constant name="zposGap2"   value="([zposAbs2]+[zShift])"/>
+  <Constant name="zposAbs3"   value="([zposGap2]+[zShift])"/>
+  <Constant name="zposGap3"   value="([zposAbs3]+[zShift])"/>
+  <Constant name="zposAbs4"   value="([zposGap3]+[zShift])"/>
+  <Constant name="zposGap4"   value="([zposAbs4]+[zShift])"/>
+  <Constant name="zposAbs5"   value="([zposGap4]+[zShift])"/>
+  <Constant name="zposGap5"   value="([zposAbs5]+[zShift])"/>
+  <Constant name="zposAbs6"   value="([zposGap5]+[zShift])"/>
+  <Constant name="zposGap6"   value="([zposAbs6]+[zShift])"/>
+  <Constant name="zposAbs7"   value="([zposGap6]+[zShift])"/>
+  <Constant name="zposGap7"   value="([zposAbs7]+[zShift])"/>
+  <Constant name="zposAbs8"   value="([zposGap7]+[zShift])"/>
+  <Constant name="zposGap8"   value="([zposAbs8]+[zShift])"/>
+  <Constant name="zposAbs9"   value="([zposGap8]+[zShift])"/>
+  <Constant name="zposGap9"   value="([zposAbs9]+[zShift])"/>
+  <Constant name="zposAbs10"  value="([zposGap9]+[zShift])"/>
+  <Constant name="zposGap10"  value="([zposAbs10]+[zShift])"/>
+  <Constant name="zposAbs11"  value="([zposGap10]+[zShift])"/>
+  <Constant name="zposGap11"  value="([zposAbs11]+[zShift])"/>
+  <Constant name="zposAbs12"  value="([zposGap11]+[zShift])"/>
+  <Constant name="zposGap12"  value="([zposAbs12]+[zShift])"/>
+  <Constant name="zposAbs13"  value="([zposGap12]+[zShift])"/>
+  <Constant name="zposGap13"  value="([zposAbs13]+[zShift])"/>
+  <Constant name="zposAbs14"  value="([zposGap13]+[zShift])"/>
+  <Constant name="zposGap15"  value="([zposAbs14]+0.5*([absPb1T]+[airGap2]))"/>
+  <Constant name="zposAbs15"  value="([zposGap15]+0.5*([airGap2]+[absPb2T]))"/>
+  <Constant name="zposGap16"  value="([zposAbs15]+0.5*([absPb2T]+[airGap3]))"/>
+  <Constant name="zposMod1"   value="([zposGap16]+0.5*([airGap3]+[moduleT]))"/>
+  <Constant name="zposGap17"  value="([zposMod1]+0.5*([moduleT]+[airGap4]))"/>
+  <Constant name="zposAbs17"  value="([zposGap17]+0.5*([airGap4]+[absPb2T]))"/>
+  <Constant name="zposGap18"  value="([zposAbs17]+0.5*([absPb2T]+[airGap5]))"/>
+  <Constant name="zposMod2"   value="([zposGap18]+0.5*([airGap5]+[moduleT]))"/>
+  <Constant name="zposGap19"  value="([zposMod2]+0.5*([moduleT]+[airGap6]))"/>
+  <Constant name="zposAl2"    value="([zposGap19]+0.5*([airGap6]+[crateT]))"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalEE.xml" eval="true">
+  <Box name="HGCalEELayer"   dx="[absorbW]" dy="[absorbH]" dz="0.5*[moduleT]"/>
+  <Box name="HGCalEEAlCover" dx="[absorbW]" dy="[absorbH]" dz="0.5*[crateT]"/>
+  <Box name="HGCalEEAirGap0" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap0]"/>
+  <Box name="HGCalEEAirGap1" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap1]"/>
+  <Box name="HGCalEEAirGap2" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap2]"/>
+  <Box name="HGCalEEAirGap3" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap3]"/>
+  <Box name="HGCalEEAirGap4" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap4]"/>
+  <Box name="HGCalEEAirGap5" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap5]"/>
+  <Box name="HGCalEEAirGap6" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap6]"/>
+  <Box name="HGCalEEAbsPb1"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[absPb1T]"/>
+  <Box name="HGCalEEAbsPb2"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[absPb2T]"/>
+</SolidSection>
+
+<LogicalPartSection label="hgcalEE.xml">
+  <LogicalPart name="HGCalEELayerF1" category="unspecified">
+    <rSolid name="HGCalEELayer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEELayerF2" category="unspecified">
+    <rSolid name="HGCalEELayer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAlCover" category="unspecified">
+    <rSolid name="HGCalEEAlCover"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAbsPb1" category="unspecified">
+    <rSolid name="HGCalEEAbsPb1"/>
+    <rMaterial name="materials:Lead"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAbsPb2" category="unspecified">
+    <rSolid name="HGCalEEAbsPb2"/>
+    <rMaterial name="materials:Lead"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAirGap0" category="unspecified">
+    <rSolid name="HGCalEEAirGap0"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAirGap1" category="unspecified">
+    <rSolid name="HGCalEEAirGap1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAirGap2" category="unspecified">
+    <rSolid name="HGCalEEAirGap2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAirGap3" category="unspecified">
+    <rSolid name="HGCalEEAirGap3"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAirGap4" category="unspecified">
+    <rSolid name="HGCalEEAirGap4"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAirGap5" category="unspecified">
+    <rSolid name="HGCalEEAirGap5"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEEAirGap6" category="unspecified">
+    <rSolid name="HGCalEEAirGap6"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalEE.xml">
+  <PosPart copyNumber="1">
+   <rParent name="hgcalEE:HGCalEELayerF1"/>
+   <rChild name="hgcalwafer:HGCalEEWafer06Coarse2"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcalEE:HGCalEELayerF2"/>
+   <rChild name="hgcalwafer:HGCalEEWafer06Coarse2"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAlCover"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAl1]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAlCover"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAl2]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEELayerF1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposMod1]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEELayerF2"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposMod2]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap0"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap0]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap1]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap2]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap3]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap4]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap5]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap6]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap7]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap8]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="9">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap9]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="10">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap10]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="11">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap11]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="12">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap12]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="13">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap13]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap2"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap15]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap3"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap16]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap4"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap17]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap5"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap18]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAirGap6"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposGap19]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs1]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs2]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs3]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs4]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs5]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs6]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="7">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs7]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="8">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs8]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="9">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs9]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="10">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs10]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="11">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs11]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="12">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs12]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="13">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs13]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="14">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb1"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs14]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb2"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs15]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEEAbsPb2"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposAbs17]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

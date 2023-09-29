@@ -18,6 +18,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/DetId/interface/DetIdVector.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -41,6 +42,7 @@
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -73,7 +75,7 @@ private:
                    const TrackerGeometry* tkgeom,
                    const StripClusterParameterEstimator& stripCPE,
                    const SiStripQuality& stripQuality,
-                   const DetIdCollection& fedErrorIds,
+                   const DetIdVector& fedErrorIds,
                    const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                    const edmNew::DetSetVector<SiStripCluster>& theClusters,
                    int bunchCrossing,
@@ -92,7 +94,8 @@ private:
   const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> clusters_token_;
-  const edm::EDGetTokenT<DetIdCollection> digis_token_;
+  const edm::EDGetTokenT<DetIdCollection> digisCol_token_;
+  const edm::EDGetTokenT<DetIdVector> digisVec_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
   // event setup tokens
@@ -117,6 +120,7 @@ private:
   bool useFirstMeas_;
   bool useLastMeas_;
   bool useAllHitsFromTracksWithMissingHits_;
+  bool doMissingHitsRecovery_;
   unsigned int clusterMatchingMethod_;
   float resXSig_;
   float clusterTracjDist_;
@@ -129,6 +133,12 @@ private:
 
   // output file
   std::set<uint32_t> badModules_;
+
+  // for the missing hits recovery
+  std::vector<unsigned int> hitRecoveryCounters;
+  std::vector<unsigned int> hitTotalCounters;
+  int totalNbHits;
+  std::vector<int> missHitPerLayer;
 
   struct EffME1 {
     EffME1() : hTotal(nullptr), hFound(nullptr) {}
@@ -152,6 +162,14 @@ private:
       hTotal->fill(id, weight);
       if (found) {
         hFound->fill(id, weight);
+      }
+    }
+
+    bool check(uint32_t id) {
+      if (hTotal->getValue(id) < hFound->getValue(id)) {
+        return false;
+      } else {
+        return true;
       }
     }
 
@@ -187,7 +205,8 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       trajTrackAsso_token_(consumes<TrajTrackAssociationCollection>(conf.getParameter<edm::InputTag>("trajectories"))),
       clusters_token_(
           consumes<edmNew::DetSetVector<SiStripCluster>>(conf.getParameter<edm::InputTag>("siStripClusters"))),
-      digis_token_(consumes<DetIdCollection>(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digisCol_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
+      digisVec_token_(consumes(conf.getParameter<edm::InputTag>("siStripDigis"))),
       trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       tTopoToken_(esConsumes()),
       tkGeomToken_(esConsumes()),
@@ -208,6 +227,7 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       useFirstMeas_(conf.getParameter<bool>("useFirstMeas")),
       useLastMeas_(conf.getParameter<bool>("useLastMeas")),
       useAllHitsFromTracksWithMissingHits_(conf.getParameter<bool>("useAllHitsFromTracksWithMissingHits")),
+      doMissingHitsRecovery_(conf.getParameter<bool>("doMissingHitsRecovery")),
       clusterMatchingMethod_(conf.getParameter<int>("ClusterMatchingMethod")),
       resXSig_(conf.getParameter<double>("ResXSig")),
       clusterTracjDist_(conf.getParameter<double>("ClusterTrajDist")),
@@ -216,6 +236,11 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       bunchX_(conf.getUntrackedParameter<int>("BunchCrossing", 0)),
       showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
       showTOB6TEC9_(conf.getUntrackedParameter<bool>("ShowTOB6TEC9", false)) {
+  hitRecoveryCounters.resize(k_END_OF_LAYERS, 0);
+  hitTotalCounters.resize(k_END_OF_LAYERS, 0);
+  missHitPerLayer.resize(k_END_OF_LAYERS, 0);
+  totalNbHits = 0;
+
   nTEClayers_ = (showRings_ ? 7 : 9);  // number of rings or wheels
 
   const std::string badModulesFile = conf.getUntrackedParameter<std::string>("BadModulesFile", "");
@@ -424,11 +449,23 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> theClusters;
   e.getByToken(clusters_token_, theClusters);
 
-  edm::Handle<DetIdCollection> fedErrorIds;
-  e.getByToken(digis_token_, fedErrorIds);
+  // get the list of module IDs with FED-detected errors
+  //  - In Aug-2023, the data format was changed from DetIdCollection to DetIdVector.
+  //  - To provide some level of backward-compatibility,
+  //    the plugin checks for both types giving preference to the new format.
+  //  - If only the old format is available, the collection is
+  //    converted to the new format, then used downstream.
+  auto const& fedErrorIdsCol_h = e.getHandle(digisCol_token_);
+  auto const& fedErrorIdsVec_h = e.getHandle(digisVec_token_);
+  if (not fedErrorIdsCol_h.isValid() and not fedErrorIdsVec_h.isValid()) {
+    throw cms::Exception("InvalidProductSiStripDetIdsWithFEDErrors")
+        << "no valid product for SiStrip DetIds with FED errors (see parameter \"siStripDigis\"), "
+           "neither for new format (DetIdVector) nor old format (DetIdCollection)";
+  }
+  auto const& fedErrorIds = fedErrorIdsVec_h.isValid() ? *fedErrorIdsVec_h : fedErrorIdsCol_h->as_vector();
 
   // fill the calibData with the FEDErrors
-  for (const auto& fedErr : *fedErrorIds) {
+  for (const auto& fedErr : fedErrorIds) {
     // fill the TkHistoMap occupancy map
     calibData_.FEDErrorOccupancy->fill(fedErr.rawId(), 1.);
 
@@ -477,13 +514,65 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
       const bool highPurity = trajTrack.val->quality(reco::TrackBase::TrackQuality::highPurity);
       auto TMeas = trajTrack.key->measurements();
+      totalNbHits += int(TMeas.size());
 
+      /*
       const bool hasMissingHits = std::any_of(std::begin(TMeas), std::end(TMeas), [](const auto& tm) {
         return tm.recHit()->getType() == TrackingRecHit::Type::missing;
       });
+      */
+
+      // Check whether the trajectory has some missing hits
+      bool hasMissingHits{false};
+      int previous_layer{999};
+      std::vector<unsigned int> missedLayers;
+
+      for (const auto& itm : TMeas) {
+        auto theHit = itm.recHit();
+        unsigned int iidd = theHit->geographicalId().rawId();
+        int layer = ::checkLayer(iidd, tTopo);
+        int missedLayer = layer + 1;
+        int diffPreviousLayer = (layer - previous_layer);
+        if (doMissingHitsRecovery_) {
+          //Layers from TIB + TOB
+          if (diffPreviousLayer == -2 && missedLayer > k_LayersStart && missedLayer < k_LayersAtTOBEnd) {
+            missHitPerLayer[missedLayer] += 1;
+            hasMissingHits = true;
+          }
+          //Layers from TID
+          else if (diffPreviousLayer == -2 && (missedLayer > k_LayersAtTOBEnd + 1 && missedLayer <= k_LayersAtTIDEnd)) {
+            missHitPerLayer[missedLayer] += 1;
+            hasMissingHits = true;
+          }
+          //Layers from TEC
+          else if (diffPreviousLayer == -2 && missedLayer > k_LayersAtTIDEnd && missedLayer <= k_LayersAtTECEnd) {
+            missHitPerLayer[missedLayer] += 1;
+            hasMissingHits = true;
+          }
+
+          //##### TID Layer 11 in transition TID -> TIB : layer is in TIB, previous layer  = 12
+          if ((layer > k_LayersStart && layer <= k_LayersAtTIBEnd) && (previous_layer == 12)) {
+            missHitPerLayer[11] += 1;
+            hasMissingHits = true;
+          }
+
+          //##### TEC Layer 14 in transition TEC -> TOB : layer is in TOB, previous layer =  15
+          if ((layer > k_LayersAtTIBEnd && layer <= k_LayersAtTOBEnd) && (previous_layer == 15)) {
+            missHitPerLayer[14] += 1;
+            hasMissingHits = true;
+          }
+        }
+        if (theHit->getType() == TrackingRecHit::Type::missing)
+          hasMissingHits = true;
+
+        if (hasMissingHits)
+          missedLayers.push_back(layer);
+        previous_layer = layer;
+      }
 
       // Loop on each measurement and take into consideration
       //--------------------------------------------------------
+      unsigned int prev_TKlayers = 0;
       for (auto itm = TMeas.cbegin(); itm != TMeas.cend(); ++itm) {
         const auto theInHit = (*itm).recHit();
 
@@ -506,11 +595,19 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         // Test first and last points of the trajectory
         // the list of measurements starts from outer layers  !!! This could change -> should add a check
-        if ((!useFirstMeas_ && (itm == (TMeas.end() - 1))) || (!useLastMeas_ && (itm == (TMeas.begin()))) ||
-            // In case of missing hit in the track, check whether to use the other hits or not.
-            (!useAllHitsFromTracksWithMissingHits_ && hasMissingHits &&
-             theInHit->getType() != TrackingRecHit::Type::missing))
+        bool isFirstMeas = (itm == (TMeas.end() - 1));
+        bool isLastMeas = (itm == (TMeas.begin()));
+
+        if (!useFirstMeas_ && isFirstMeas)
           continue;
+        if (!useLastMeas_ && isLastMeas)
+          continue;
+
+        // In case of missing hit in the track, check whether to use the other hits or not.
+        if (hasMissingHits && theInHit->getType() != TrackingRecHit::Type::missing &&
+            !useAllHitsFromTracksWithMissingHits_)
+          continue;
+
         // If Trajectory measurement from TOB 6 or TEC 9, skip it because it's always valid they are filled later
         if (TKlayers == bounds::k_LayersAtTOBEnd || TKlayers == bounds::k_LayersAtTECEnd) {
           LogDebug("SiStripHitEfficiencyWorker") << "skipping original TM for TOB 6 or TEC 9";
@@ -539,6 +636,125 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         } else {
           //only add one TM for the single surface and the other will be added in the next iteration
           TMs.emplace_back(*itm, tTopo, tkgeom, propagator);
+        }
+
+        bool missingHitAdded{false};
+        std::vector<TrajectoryMeasurement> tmpTmeas;
+        unsigned int misLayer = TKlayers + 1;
+        //Use bool doMissingHitsRecovery to add possible missing hits based on actual/previous hit
+        if (doMissingHitsRecovery_) {
+          if (int(TKlayers) - int(prev_TKlayers) == -2) {
+            const DetLayer* detlayer = itm->layer();
+            const LayerMeasurements layerMeasurements{measTracker, *measurementTrackerEvent};
+            const TrajectoryStateOnSurface tsos = itm->updatedState();
+            std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, prop, chi2Estimator);
+
+            if (misLayer > k_LayersAtTIDEnd && misLayer < k_LayersAtTECEnd) {  //TEC
+              std::vector<ForwardDetLayer const*> negTECLayers = measTracker.geometricSearchTracker()->negTecLayers();
+              std::vector<ForwardDetLayer const*> posTECLayers = measTracker.geometricSearchTracker()->posTecLayers();
+              const DetLayer* tecLayerneg = negTECLayers[misLayer - k_LayersAtTIDEnd - 1];
+              const DetLayer* tecLayerpos = posTECLayers[misLayer - k_LayersAtTIDEnd - 1];
+              if (tTopo->tecSide(iidd) == 1) {
+                tmpTmeas = layerMeasurements.measurements(*tecLayerneg, tsos, prop, chi2Estimator);
+              } else if (tTopo->tecSide(iidd) == 2) {
+                tmpTmeas = layerMeasurements.measurements(*tecLayerpos, tsos, prop, chi2Estimator);
+              }
+            }
+
+            else if (misLayer == (k_LayersAtTIDEnd - 1) ||
+                     misLayer == k_LayersAtTIDEnd) {  // This is for TID layers 12 and 13
+              std::vector<ForwardDetLayer const*> negTIDLayers = measTracker.geometricSearchTracker()->negTidLayers();
+              std::vector<ForwardDetLayer const*> posTIDLayers = measTracker.geometricSearchTracker()->posTidLayers();
+              const DetLayer* tidLayerneg = negTIDLayers[misLayer - k_LayersAtTOBEnd - 1];
+              const DetLayer* tidLayerpos = posTIDLayers[misLayer - k_LayersAtTOBEnd - 1];
+
+              if (tTopo->tidSide(iidd) == 1) {
+                tmpTmeas = layerMeasurements.measurements(*tidLayerneg, tsos, prop, chi2Estimator);
+              } else if (tTopo->tidSide(iidd) == 2) {
+                tmpTmeas = layerMeasurements.measurements(*tidLayerpos, tsos, prop, chi2Estimator);
+              }
+            }
+
+            if (misLayer > k_LayersStart && misLayer < k_LayersAtTOBEnd) {  // Barrel
+
+              std::vector<BarrelDetLayer const*> barrelTIBLayers = measTracker.geometricSearchTracker()->tibLayers();
+              std::vector<BarrelDetLayer const*> barrelTOBLayers = measTracker.geometricSearchTracker()->tobLayers();
+
+              if (misLayer > k_LayersStart && misLayer <= k_LayersAtTIBEnd) {
+                const DetLayer* tibLayer = barrelTIBLayers[misLayer - k_LayersStart - 1];
+                tmpTmeas = layerMeasurements.measurements(*tibLayer, tsos, prop, chi2Estimator);
+              } else if (misLayer > k_LayersAtTIBEnd && misLayer < k_LayersAtTOBEnd) {
+                const DetLayer* tobLayer = barrelTOBLayers[misLayer - k_LayersAtTIBEnd - 1];
+                tmpTmeas = layerMeasurements.measurements(*tobLayer, tsos, prop, chi2Estimator);
+              }
+            }
+          }
+          if ((int(TKlayers) > k_LayersStart && int(TKlayers) <= k_LayersAtTIBEnd) && int(prev_TKlayers) == 12) {
+            const DetLayer* detlayer = itm->layer();
+            const LayerMeasurements layerMeasurements{measTracker, *measurementTrackerEvent};
+            const TrajectoryStateOnSurface tsos = itm->updatedState();
+            std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, prop, chi2Estimator);
+            std::vector<ForwardDetLayer const*> negTIDLayers = measTracker.geometricSearchTracker()->negTidLayers();
+            std::vector<ForwardDetLayer const*> posTIDLayers = measTracker.geometricSearchTracker()->posTidLayers();
+
+            const DetLayer* tidLayerneg = negTIDLayers[k_LayersStart];
+            const DetLayer* tidLayerpos = posTIDLayers[k_LayersStart];
+            if (tTopo->tidSide(iidd) == 1) {
+              tmpTmeas = layerMeasurements.measurements(*tidLayerneg, tsos, prop, chi2Estimator);
+            } else if (tTopo->tidSide(iidd) == 2) {
+              tmpTmeas = layerMeasurements.measurements(*tidLayerpos, tsos, prop, chi2Estimator);
+            }
+          }
+
+          if ((int(TKlayers) > k_LayersAtTIBEnd && int(TKlayers) <= k_LayersAtTOBEnd) && int(prev_TKlayers) == 15) {
+            const DetLayer* detlayer = itm->layer();
+            const LayerMeasurements layerMeasurements{measTracker, *measurementTrackerEvent};
+            const TrajectoryStateOnSurface tsos = itm->updatedState();
+            std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, prop, chi2Estimator);
+
+            std::vector<ForwardDetLayer const*> negTECLayers = measTracker.geometricSearchTracker()->negTecLayers();
+            std::vector<ForwardDetLayer const*> posTECLayers = measTracker.geometricSearchTracker()->posTecLayers();
+
+            const DetLayer* tecLayerneg = negTECLayers[k_LayersStart];
+            const DetLayer* tecLayerpos = posTECLayers[k_LayersStart];
+            if (tTopo->tecSide(iidd) == 1) {
+              tmpTmeas = layerMeasurements.measurements(*tecLayerneg, tsos, prop, chi2Estimator);
+            } else if (tTopo->tecSide(iidd) == 2) {
+              tmpTmeas = layerMeasurements.measurements(*tecLayerpos, tsos, prop, chi2Estimator);
+            }
+          }
+
+          if (!tmpTmeas.empty()) {
+            TrajectoryMeasurement TM_tmp(tmpTmeas.back());
+            unsigned int iidd_tmp = TM_tmp.recHit()->geographicalId().rawId();
+            if (iidd_tmp != 0) {
+              LogDebug("SiStripHitEfficiency:HitEff") << " hit actually being added to TM vector";
+              if ((!useAllHitsFromTracksWithMissingHits_ || (!useFirstMeas_ && isFirstMeas)))
+                TMs.clear();
+              if (::isDoubleSided(iidd_tmp, tTopo)) {
+                TMs.push_back(TrajectoryAtInvalidHit(TM_tmp, tTopo, tkgeom, propagator, 1));
+                TMs.push_back(TrajectoryAtInvalidHit(TM_tmp, tTopo, tkgeom, propagator, 2));
+              } else
+                TMs.push_back(TrajectoryAtInvalidHit(TM_tmp, tTopo, tkgeom, propagator));
+              missingHitAdded = true;
+              hitRecoveryCounters[misLayer] += 1;
+            }
+          }
+        }
+
+        prev_TKlayers = TKlayers;
+        if (!useFirstMeas_ && isFirstMeas && !missingHitAdded)
+          continue;
+        if (!useLastMeas_ && isLastMeas)
+          continue;
+        bool hitsWithBias = false;
+        for (auto ilayer : missedLayers) {
+          if (ilayer < TKlayers)
+            hitsWithBias = true;
+        }
+        if (hasMissingHits && theInHit->getType() != TrackingRecHit::Type::missing && !missingHitAdded &&
+            hitsWithBias && !useAllHitsFromTracksWithMissingHits_) {
+          continue;
         }
 
         //////////////////////////////////////////////
@@ -626,7 +842,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                       tkgeom,
                       stripcpe,
                       stripQuality,
-                      *fedErrorIds,
+                      fedErrorIds,
                       commonModeDigis,
                       *theClusters,
                       e.bunchCrossing(),
@@ -647,7 +863,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
                                              const TrackerGeometry* tkgeom,
                                              const StripClusterParameterEstimator& stripCPE,
                                              const SiStripQuality& stripQuality,
-                                             const DetIdCollection& fedErrorIds,
+                                             const DetIdVector& fedErrorIds,
                                              const edm::Handle<edm::DetSetVector<SiStripRawDigi>>& commonModeDigis,
                                              const edmNew::DetSetVector<SiStripCluster>& theClusters,
                                              int bunchCrossing,
@@ -987,6 +1203,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       // efficiency without bad modules excluded
       if (TKlayers) {
         h_module.fill(iidd, !badflag);
+        assert(h_module.check(iidd));
       }
 
       /* Used in SiStripHitEffFromCalibTree:
@@ -1023,6 +1240,7 @@ void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::string>("dqmDir", "AlCaReco/SiStripHitEfficiency");
   desc.add<bool>("UseOnlyHighPurityTracks", true);
   desc.add<bool>("cutOnTracks", false);
+  desc.add<bool>("doMissingHitsRecovery", false);
   desc.add<bool>("useAllHitsFromTracksWithMissingHits", false);
   desc.add<bool>("useFirstMeas", false);
   desc.add<bool>("useLastMeas", false);

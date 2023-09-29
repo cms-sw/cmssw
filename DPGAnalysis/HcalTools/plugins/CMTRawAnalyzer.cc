@@ -2788,10 +2788,6 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       int mcountmin3 = 0;
       int mcountmin6 = 0;
       int mcountmin8 = 0;
-      int pnnbins1 = 0;
-      int pnnbins3 = 0;
-      int pnnbins6 = 0;
-      int pnnbins8 = 0;
       int pnnmin1 = 999999999;
       int pnnmin3 = 999999999;
       int pnnmin6 = 999999999;
@@ -3929,7 +3925,6 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                 if (pcountmin1 < pnnmin1)
                   pnnmin1 = pcountmin1;
                 pcountmin1 = 0;
-                pnnbins1++;
               }
               if (mcountmin1 > 0) {
                 if (mcountmin1 < mnnmin1)
@@ -3944,7 +3939,6 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                 if (pcountmin3 < pnnmin3)
                   pnnmin3 = pcountmin3;
                 pcountmin3 = 0;
-                pnnbins3++;
               }
               if (mcountmin3 > 0) {
                 if (mcountmin3 < mnnmin3)
@@ -3959,7 +3953,6 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                 if (pcountmin8 < pnnmin8)
                   pnnmin8 = pcountmin8;
                 pcountmin8 = 0;
-                pnnbins8++;
               }
               if (mcountmin8 > 0) {
                 if (mcountmin8 < mnnmin8)
@@ -3974,7 +3967,6 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                 if (pcountmin6 < pnnmin6)
                   pnnmin6 = pcountmin6;
                 pcountmin6 = 0;
-                pnnbins6++;
               }
               if (mcountmin6 > 0) {
                 if (mcountmin6 < mnnmin6)
@@ -5367,9 +5359,6 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     //////////////////////////////////////////////////////////////////////////
     //	  //	  //	  //	  //	  //	  //sumamplitudes:
-    int testcount1 = 0;
-    int testcount2 = 0;
-    int testcount3 = 0;
     ////////////////////////////////////////  // k0, k2, k3 loops LOOPS  //////////   /////  ///// NO k1 loop over depthes !!!
     for (int k0 = 0; k0 < nsub; k0++) {
       int sumofchannels = 0;
@@ -5378,13 +5367,6 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       double sumamplitudesubdet0 = 0.;
       for (int k2 = 0; k2 < neta; k2++) {
         for (int k3 = 0; k3 < nphi; k3++) {
-          if (amplitudechannel[k0][0][k2][k3] != 0. && amplitudechannel[k0][1][k2][k3] != 0.)
-            testcount1++;
-          if (amplitudechannel[k0][0][k2][k3] != 0. && amplitudechannel[k0][1][k2][k3] == 0.)
-            testcount2++;
-          if (amplitudechannel[k0][0][k2][k3] == 0. && amplitudechannel[k0][1][k2][k3] != 0.)
-            testcount3++;
-
           // HB
           if (k0 == 0) {
             double sumamplitudechannel_HB = amplitudechannel[k0][0][k2][k3] + amplitudechannel[k0][1][k2][k3];

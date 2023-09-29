@@ -227,7 +227,7 @@ namespace l1t {
         jet.setHwEta(CaloTools::caloEta(mpEta));
         jet.setHwPhi((raw_data >> 6) & 0x7F);
         jet.setHwPt((raw_data >> 13) & 0xFFFF);
-        jet.setHwQual((raw_data >> 29) & 0x1);
+        jet.setHwQual((raw_data >> 30) & 0x1);
 
         if (jet.hwPt() == 0)
           continue;

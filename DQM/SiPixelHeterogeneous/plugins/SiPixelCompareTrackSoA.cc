@@ -221,17 +221,17 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     hCharge_->Fill(helper::charge(tsoaCPU.view(), it), helper::charge(tsoaGPU.view(), closestTkidx));
     hnHits_->Fill(helper::nHits(tsoaCPU.view(), it), helper::nHits(tsoaGPU.view(), closestTkidx));
     hnLayers_->Fill(tsoaCPU.view()[it].nLayers(), tsoaGPU.view()[closestTkidx].nLayers());
-    hpt_->Fill(tsoaCPU.view()[it].pt(), tsoaGPU.view()[closestTkidx].pt());
-    hptLogLog_->Fill(tsoaCPU.view()[it].pt(), tsoaGPU.view()[closestTkidx].pt());
+    hpt_->Fill(ptCPU, tsoaGPU.view()[closestTkidx].pt());
+    hptLogLog_->Fill(ptCPU, tsoaGPU.view()[closestTkidx].pt());
     heta_->Fill(etaCPU, tsoaGPU.view()[closestTkidx].eta());
-    hphi_->Fill(etaCPU, helper::phi(tsoaGPU.view(), closestTkidx));
+    hphi_->Fill(phiCPU, helper::phi(tsoaGPU.view(), closestTkidx));
     hz_->Fill(zipCPU, helper::zip(tsoaGPU.view(), closestTkidx));
     htip_->Fill(tipCPU, helper::tip(tsoaGPU.view(), closestTkidx));
-    hptdiffMatched_->Fill(tsoaCPU.view()[it].pt() - tsoaGPU.view()[closestTkidx].pt());
+    hptdiffMatched_->Fill(ptCPU - tsoaGPU.view()[closestTkidx].pt());
     hCurvdiffMatched_->Fill((helper::charge(tsoaCPU.view(), it) / tsoaCPU.view()[it].pt()) -
                             (helper::charge(tsoaGPU.view(), closestTkidx) / tsoaGPU.view()[closestTkidx].pt()));
     hetadiffMatched_->Fill(etaCPU - tsoaGPU.view()[closestTkidx].eta());
-    hphidiffMatched_->Fill(reco::deltaPhi(etaCPU, helper::phi(tsoaGPU.view(), closestTkidx)));
+    hphidiffMatched_->Fill(reco::deltaPhi(phiCPU, helper::phi(tsoaGPU.view(), closestTkidx)));
     hzdiffMatched_->Fill(zipCPU - helper::zip(tsoaGPU.view(), closestTkidx));
     htipdiffMatched_->Fill(tipCPU - helper::tip(tsoaGPU.view(), closestTkidx));
     hpt_eta_tkAllCPUMatched_->Fill(etaCPU, tsoaCPU.view()[it].pt());  //matched to gpu
@@ -309,6 +309,8 @@ void SiPixelCompareTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions&
 
 using SiPixelPhase1CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::Phase1>;
 using SiPixelPhase2CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::Phase2>;
+using SiPixelHIonPhase1CompareTrackSoA = SiPixelCompareTrackSoA<pixelTopology::HIonPhase1>;
 
 DEFINE_FWK_MODULE(SiPixelPhase1CompareTrackSoA);
 DEFINE_FWK_MODULE(SiPixelPhase2CompareTrackSoA);
+DEFINE_FWK_MODULE(SiPixelHIonPhase1CompareTrackSoA);

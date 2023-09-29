@@ -53,7 +53,7 @@ public:
                        unsigned sector,
                        unsigned subsector,
                        unsigned chamber,
-                       const edm::ParameterSet& conf);
+                       CSCBaseboard::Parameters& conf);
 
   /** Default destructor. */
   ~CSCAnodeLCTProcessor() override = default;
@@ -66,7 +66,7 @@ public:
 
   // This is the main routine for normal running.  It gets wire times
   // from the wire digis and then passes them on to another run() function.
-  std::vector<CSCALCTDigi> run(const CSCWireDigiCollection* wiredc);
+  std::vector<CSCALCTDigi> run(const CSCWireDigiCollection* wiredc, CSCChamber const* chamber);
 
   // This version of the run() function can either be called in a standalone
   // test, being passed the time array, or called by the run() function above.

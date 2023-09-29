@@ -1,13 +1,9 @@
-#ifndef __RecoLocalCalo_HGCRecProducers_HGCalMultiClusterProducer_H__
-#define __RecoLocalCalo_HGCRecProducers_HGCalMultiClusterProducer_H__
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
@@ -20,10 +16,6 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCal3DClustering.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
@@ -45,8 +37,6 @@ private:
   bool doSharing;
   HGCalClusteringAlgoBase::VerbosityLevel verbosity;
 };
-
-DEFINE_FWK_MODULE(HGCalMultiClusterProducer);
 
 HGCalMultiClusterProducer::HGCalMultiClusterProducer(const edm::ParameterSet& ps)
     : doSharing(ps.getParameter<bool>("doSharing")),
@@ -70,7 +60,7 @@ HGCalMultiClusterProducer::HGCalMultiClusterProducer(const edm::ParameterSet& ps
 void HGCalMultiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("HGCLayerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("HGCLayerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.addUntracked<unsigned int>("verbosity", 3);
   desc.add<bool>("doSharing", false);
   desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
@@ -82,7 +72,7 @@ void HGCalMultiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
                                     5.0,
                                 });
   desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
-  desc.add<edm::InputTag>("HGCLayerClustersSharing", edm::InputTag("hgcalLayerClusters", "sharing"));
+  desc.add<edm::InputTag>("HGCLayerClustersSharing", edm::InputTag("hgcalMergeLayerClusters", "sharing"));
   desc.add<unsigned int>("minClusters", 3);
   descriptions.add("hgcalMultiClusters", desc);
 }
@@ -122,4 +112,5 @@ void HGCalMultiClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
     evt.put(std::move(multiclusters_sharing), "sharing");
 }
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HGCalMultiClusterProducer);

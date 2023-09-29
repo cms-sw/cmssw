@@ -3,14 +3,19 @@
   <class name="TrackingRecHitSoAHostPhase1" persistent="false"/>
   <class name="edm::Wrapper<TrackingRecHitSoAHostPhase1>" persistent="false"/>
 
+  <class name="TrackingRecHitSoAHostHIonPhase1" persistent="false"/>
+  <class name="edm::Wrapper<TrackingRecHitSoAHostHIonPhase1>" persistent="false"/>
+
   <class name="TrackingRecHitSoAHostPhase2" persistent="false"/>
   <class name="edm::Wrapper<TrackingRecHitSoAHostPhase2>" persistent="false"/>
 
-  <class name="TrackingRecHitSoADevicePhase1" persistent="false"/>
   <class name="cms::cuda::Product<TrackingRecHitSoADevicePhase1>" persistent="false"/>
   <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHitSoADevicePhase1>>" persistent="false"/>
 
   <class name="cms::cuda::Product<TrackingRecHitSoADevicePhase2>" persistent="false"/>
   <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHitSoADevicePhase2>>" persistent="false"/>
+
+  <class name="cms::cuda::Product<TrackingRecHitSoADeviceHIonPhase1>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<TrackingRecHitSoADeviceHIonPhase1>>" persistent="false"/>
 
 </lcgdict>

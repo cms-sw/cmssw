@@ -465,7 +465,9 @@ struct HcalBarrelAlgo {
 
       //!!!!!!!!!!!!!!!!!Should be zero. And removed as soon as
       //vertical walls are allowed in SolidPolyhedra
+#ifdef EDM_ML_DEBUG
       int nsec = 2;
+#endif
       std::vector<double> pgonZ, pgonRmin, pgonRmax;
       // index 0
       pgonZ.emplace_back(0);
@@ -481,7 +483,9 @@ struct HcalBarrelAlgo {
           pgonZ.emplace_back(zoff[in] + rout * ttheta[in]);
           pgonRmin.emplace_back(pgonRmax[1]);
           pgonRmax.emplace_back(pgonRmax[1]);
+#ifdef EDM_ML_DEBUG
           nsec++;
+#endif
         }
       } else {
         if (in == 3) {
@@ -494,24 +498,32 @@ struct HcalBarrelAlgo {
           pgonZ.emplace_back(zoff[in] + rmax[in] * ttheta[in]);
           pgonRmin.emplace_back(pgonRmin[2]);
           pgonRmax.emplace_back(pgonRmax[2]);
+#ifdef EDM_ML_DEBUG
           nsec += 2;
+#endif
         } else {
           //index 2
           pgonZ.emplace_back(zoff[in] + rmax[in] * ttheta[in]);
           pgonRmin.emplace_back(rmax[in]);
           pgonRmax.emplace_back(pgonRmax[1]);
+#ifdef EDM_ML_DEBUG
           nsec++;
+#endif
           if (in == 0) {
             pgonZ.emplace_back(zoff[out] + rmax[in] * ttheta[out]);
             pgonRmin.emplace_back(pgonRmin[2]);
             pgonRmax.emplace_back(pgonRmax[2]);
+#ifdef EDM_ML_DEBUG
             nsec++;
+#endif
           }
           if (in <= 1) {
             pgonZ.emplace_back(zoff[out] + rout * ttheta[out]);
             pgonRmin.emplace_back(rout);
             pgonRmax.emplace_back(rout);
+#ifdef EDM_ML_DEBUG
             nsec++;
+#endif
           }
         }
       }

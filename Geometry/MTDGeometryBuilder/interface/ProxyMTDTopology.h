@@ -23,6 +23,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetType.h"
 
+#include <memory>
+
 class Plane;
 
 class ProxyMTDTopology final : public PixelTopology {

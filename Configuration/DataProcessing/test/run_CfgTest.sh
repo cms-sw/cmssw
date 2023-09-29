@@ -37,7 +37,7 @@ do
 done
 
 
-declare -a arr=("AlCaLumiPixels" "AlCaTestEnable" "cosmicsEra_Run2_2018" "hcalnzsEra_Run2_2018" "ppEra_Run2_2018" "hcalnzsEra_Run2_2018_highBetaStar" "hcalnzsEra_Run2_2018_pp_on_AA" "ppEra_Run2_2018_highBetaStar" "ppEra_Run2_2018_pp_on_AA" "cosmicsHybridEra_Run2_2018" "cosmicsEra_Run3" "hcalnzsEra_Run3" "ppEra_Run3" "AlCaLumiPixels_Run3" "AlCaPhiSymEcal_Nano" "AlCaPPS_Run3" "ppEra_Run3_pp_on_PbPb" "hcalnzsEra_Run3_pp_on_PbPb" "ppEra_Run3_pp_on_PbPb_approxSiStripClusters")
+declare -a arr=("AlCaLumiPixels" "AlCaTestEnable" "cosmicsEra_Run2_2018" "hcalnzsEra_Run2_2018" "ppEra_Run2_2018" "hcalnzsEra_Run2_2018_highBetaStar" "hcalnzsEra_Run2_2018_pp_on_AA" "ppEra_Run2_2018_highBetaStar" "ppEra_Run2_2018_pp_on_AA" "cosmicsHybridEra_Run2_2018" "cosmicsEra_Run3" "hcalnzsEra_Run3" "ppEra_Run3" "AlCaLumiPixels_Run3" "AlCaPhiSymEcal_Nano" "AlCaPPS_Run3" "ppEra_Run3_pp_on_PbPb" "hcalnzsEra_Run3_pp_on_PbPb" "ppEra_Run3_pp_on_PbPb_approxSiStripClusters" "ppEra_Run3_2023" "ppEra_Run3_pp_on_PbPb_2023" "ppEra_Run3_pp_on_PbPb_approxSiStripClusters_2023")
 for scenario in "${arr[@]}"
 do
      runTest "${SCRAM_TEST_PATH}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
@@ -57,11 +57,11 @@ do
      runTest "${SCRAM_TEST_PATH}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias --PhysicsSkim=@SingleMuon"
 done
 
-declare -a arr=("ppEra_Run3")
+declare -a arr=("ppEra_Run3" "ppEra_Run3_2023" "ppEra_Run3_2023_repacked")
 for scenario in "${arr[@]}"
 do
      runTest "${SCRAM_TEST_PATH}/RunPromptReco.py --scenario $scenario --reco --aod --miniaod --nanoaod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
-     runTest "${SCRAM_TEST_PATH}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcareco TkAlMinBias+SiStripCalMinBias --PhysicsSkim=@Muon"
+     runTest "${SCRAM_TEST_PATH}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcareco TkAlMinBias+SiStripCalMinBias --PhysicsSkim=@Muon0"
 done
 
 

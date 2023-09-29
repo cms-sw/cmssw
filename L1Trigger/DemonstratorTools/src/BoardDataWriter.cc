@@ -9,12 +9,14 @@ namespace l1t::demo {
 
   BoardDataWriter::BoardDataWriter(FileFormat format,
                                    const std::string& path,
+                                   const std::string& fileExt,
                                    const size_t framesPerBX,
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
                                    const ChannelMap_t& channelSpecs)
       : fileFormat_(format),
-        filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + ".txt"; }),
+        boardDataFileID_("CMSSW"),
+        filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + "." + fileExt; }),
         framesPerBX_(framesPerBX),
         boardTMUX_(tmux),
         maxFramesPerFile_(maxFramesPerFile),
@@ -24,6 +26,8 @@ namespace l1t::demo {
         channelMap_(channelSpecs) {
     if (channelMap_.empty())
       throw std::runtime_error("BoardDataWriter channel map cannnot be empty");
+    if (fileExt != "txt" && fileExt != "txt.gz" && fileExt != "txt.xz")
+      throw std::runtime_error("BoardDataWriter fileExt must be one of txt, txt.gz, txt.xz");
 
     for (const auto& [id, value] : channelMap_) {
       const auto& [spec, indices] = value;
@@ -50,12 +54,16 @@ namespace l1t::demo {
 
   BoardDataWriter::BoardDataWriter(FileFormat format,
                                    const std::string& path,
+                                   const std::string& fileExt,
                                    const size_t framesPerBX,
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
                                    const std::map<LinkId, std::vector<size_t>>& channelMap,
                                    const std::map<std::string, ChannelSpec>& channelSpecs)
-      : BoardDataWriter(format, path, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
+      : BoardDataWriter(
+            format, path, fileExt, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
+
+  void BoardDataWriter::setBoardDataFileID(const std::string& aId) { boardDataFileID_ = aId; }
 
   void BoardDataWriter::addEvent(const EventData& eventData) {
     // Check that data is supplied for each channel
@@ -90,9 +98,9 @@ namespace l1t::demo {
 
       // Override flags for start & end of event
       BoardData::Channel::iterator it(boardData_.at(chanIndex).end() - 1);
-      it->end = true;
+      it->endOfPacket = true;
       it -= (channelData.size() - 1);
-      it->start = true;
+      it->startOfPacket = true;
 
       // Pad link with non-valid frames
       boardData_.at(chanIndex).insert(
@@ -113,6 +121,19 @@ namespace l1t::demo {
     // Pad any channels that aren't full with invalid frames
     for (auto& x : boardData_)
       x.second.resize(maxFramesPerFile_);
+
+    // For each channel: Assert start_of_orbit for first clock cycle that start is asserted
+    for (auto& x : boardData_) {
+      for (auto& frame : x.second) {
+        if (frame.startOfPacket) {
+          frame.startOfOrbit = true;
+          break;
+        }
+      }
+    }
+
+    // Set ID field for board data files
+    boardData_.name(boardDataFileID_);
 
     // Write board data object to file
     const std::string filePath = filePathGen_(fileNames_.size());

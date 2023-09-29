@@ -23,7 +23,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -152,6 +151,7 @@ private:
   float tkMapMin_;
   float effPlotMin_;
   TString title_;
+  bool storeModEff_;
 
   unsigned int nTEClayers;
 
@@ -159,8 +159,14 @@ private:
   TH1F* instLumiHisto;
   TH1F* PUHisto;
 
+  TH1F* bxHisto_cutOnTracks;
+  TH1F* instLumiHisto_cutOnTracks;
+  TH1F* PUHisto_cutOnTracks;
+
   // for association of informations of the hitEff tree and the event infos tree
   map<pair<unsigned int, unsigned int>, array<double, 3> > eventInfos;
+  // for using events after number of tracks cut
+  map<pair<unsigned int, unsigned int>, bool> event_used;
 
   vector<hit> hits[23];
   vector<TH2F*> HotColdMaps;
@@ -215,6 +221,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   tkMapMin_ = conf.getUntrackedParameter<double>("TkMapMin", 0.9);
   effPlotMin_ = conf.getUntrackedParameter<double>("EffPlotMin", 0.9);
   title_ = conf.getParameter<std::string>("Title");
+  storeModEff_ = conf.getUntrackedParameter<bool>("StoreModuleEff", false);
   detInfo_ = SiStripDetInfoFileReader::read(fileInPath_.fullPath());
 
   nTEClayers = 9;  // number of wheels
@@ -259,7 +266,11 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 
   bxHisto = fs->make<TH1F>("bx", "bx", 3600, 0, 3600);
   instLumiHisto = fs->make<TH1F>("instLumi", "inst. lumi.", 250, 0, 25000);
-  PUHisto = fs->make<TH1F>("PU", "PU", 200, 0, 200);
+  PUHisto = fs->make<TH1F>("PU", "PU", 300, 0, 300);
+
+  bxHisto_cutOnTracks = fs->make<TH1F>("bx_cutOnTracks", "bx", 3600, 0, 3600);
+  instLumiHisto_cutOnTracks = fs->make<TH1F>("instLumi_cutOnTracks", "inst. lumi.", 250, 0, 25000);
+  PUHisto_cutOnTracks = fs->make<TH1F>("PU_cutOnTracks", "PU", 300, 0, 300);
 
   for (int l = 0; l < 35; l++) {
     goodlayertotal[l] = 0;
@@ -354,6 +365,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         PUHisto->Fill(PU);
 
         eventInfos[make_pair(run, evt)] = array<double, 3>{{(double)bx, instLumi, PU}};
+        event_used[make_pair(run, evt)] = false;
       }
     }
 
@@ -388,6 +400,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     LOGPRINT << "Successfully loaded analyze function with " << nevents << " events!\n";
 
     map<pair<unsigned int, unsigned int>, array<double, 3> >::iterator itEventInfos;
+    map<pair<unsigned int, unsigned int>, bool>::iterator itEventUsed;
 
     //Loop through all of the events
     for (int j = 0; j < nevents; j++) {
@@ -430,6 +443,10 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
           instLumi = InstLumiLf->GetValue();  // branch not filled by default
         if (PULf != nullptr)
           PU = PULf->GetValue();  // branch not filled by default
+        // Mark new event
+        itEventUsed = event_used.find(make_pair(run, evt));
+        if (itEventUsed == event_used.end())
+          event_used[make_pair(run, evt)] = false;
       }
       int CM = -100;
       if (useCM_)
@@ -442,6 +459,18 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
           bx = itEventInfos->second[0];
           instLumi = itEventInfos->second[1];
           PU = itEventInfos->second[2];
+        }
+      }
+
+      // Fill event info for events from the anEff tree
+      // They can differ from the eventInfo tree due to an optional cut on the #tracks when filling the anEff tree
+      itEventUsed = event_used.find(make_pair(run, evt));
+      if (itEventUsed != event_used.end()) {
+        if (itEventUsed->second == false) {
+          bxHisto_cutOnTracks->Fill(bx);
+          instLumiHisto_cutOnTracks->Fill(instLumi);
+          PUHisto_cutOnTracks->Fill(PU);
+          itEventUsed->second = true;
         }
       }
 
@@ -1004,6 +1033,22 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
 
 void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
   LOGPRINT << "Entering TKMap generation!\n";
+
+  TTree* tree = nullptr;
+  unsigned int t_DetId, t_found, t_total;
+  unsigned char t_layer;
+  bool t_isTaggedIneff;
+  float t_threshold;
+  if (storeModEff_) {
+    tree = fs->make<TTree>("ModEff", "ModEff");
+    tree->Branch("DetId", &t_DetId, "DetId/i");
+    tree->Branch("Layer", &t_layer, "Layer/b");
+    tree->Branch("FoundHits", &t_found, "FoundHits/i");
+    tree->Branch("AllHits", &t_total, "AllHits/i");
+    tree->Branch("IsTaggedIneff", &t_isTaggedIneff, "IsTaggedIneff/O");
+    tree->Branch("TagThreshold", &t_threshold, "TagThreshold/F");
+  }
+
   tkmap = new TrackerMap("  Detector Inefficiency  ");
   tkmapbad = new TrackerMap("  Inefficient Modules  ");
   tkmapeff = new TrackerMap(title_.Data());
@@ -1052,6 +1097,16 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
         }
       }
 
+      if (storeModEff_) {
+        t_DetId = ih.first;
+        t_layer = i;
+        t_found = mynum;
+        t_total = myden;
+        t_isTaggedIneff = false;
+        t_threshold = 0;
+        tree->Fill();
+      }
+
       //Put any module into the TKMap
       tkmap->fill(ih.first, 1. - myeff);
       tkmapeff->fill(ih.first, myeff);
@@ -1089,9 +1144,11 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
           //We have a bad module, put it in the list!
           BadModules[ih.first] = myeff;
           tkmapbad->fillc(ih.first, 255, 0, 0);
+          t_isTaggedIneff = true;
         } else {
           //Fill the bad list with empty results for every module
           tkmapbad->fillc(ih.first, 255, 255, 255);
+          t_isTaggedIneff = false;
         }
         if (myeff_up < layer_min_eff + 0.08)  // printing message also for modules slighly above (8%) the limit
           LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << ih.first
@@ -1099,6 +1156,15 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
         if (myden < nModsMin_) {
           LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << ih.first
                    << " layer " << i << " is under occupancy at " << myden;
+        }
+
+        if (storeModEff_) {
+          t_DetId = ih.first;
+          t_layer = i;
+          t_found = mynum;
+          t_total = myden;
+          t_threshold = layer_min_eff;
+          tree->Fill();
         }
       }
     }
@@ -1109,6 +1175,8 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
   tkmapnum->save(true, 0, 0, "SiStripHitEffTKMapNum.png");
   tkmapden->save(true, 0, 0, "SiStripHitEffTKMapDen.png");
   LOGPRINT << "Finished TKMap Generation\n";
+  if (storeModEff_)
+    LOGPRINT << "Modules efficiencies stored in tree\n";
 }
 
 void SiStripHitEffFromCalibTree::makeSQLite() {
@@ -1369,6 +1437,7 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   leg->Draw("same");
 
   c7->SaveAs("Summary.png");
+  c7->SaveAs("Summary.C");
 }
 
 void SiStripHitEffFromCalibTree::makeSummaryVsBx() {

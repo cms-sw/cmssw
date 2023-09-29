@@ -30,82 +30,75 @@ namespace tensorflow {
   typedef std::pair<std::string, Tensor> NamedTensor;
   typedef std::vector<NamedTensor> NamedTensorList;
 
+  struct Options {
+    int _nThreads;
+    Backend _backend;
+    SessionOptions _options;
+
+    Options(Backend backend) : _nThreads{1}, _backend{backend} {
+      setThreading(_nThreads);
+      setBackend(_backend);
+    };
+
+    Options() : _nThreads{1}, _backend{Backend::cpu} {
+      setThreading(_nThreads);
+      setBackend(_backend);
+    };
+
+    // updates the config of sessionOptions so that it uses nThreads
+    void setThreading(int nThreads = 1);
+
+    // Set the backend option cpu/cuda
+    // The gpu memory is set to "allow_growth" to avoid TF getting all the CUDA memory at once.
+    void setBackend(Backend backend = Backend::cpu);
+
+    SessionOptions& getSessionOptions() { return _options; };
+    int getNThreads() const { return _nThreads; };
+    Backend getBackend() const { return _backend; };
+  };
+
   // set the tensorflow log level
   void setLogging(const std::string& level = "3");
 
-  // updates the config of sessionOptions so that it uses nThreads
-  void setThreading(SessionOptions& sessionOptions, int nThreads = 1);
-
-  // deprecated
-  // updates the config of sessionOptions so that it uses nThreads, prints a deprecation warning
-  // since the threading configuration is done per run() call as of 2.1
-  void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool);
-
-  // Set the backend option cpu/cuda
-  // The gpu memory is set to "allow_growth" to avoid TF getting all the CUDA memory at once.
-  void setBackend(SessionOptions& sessionOptions, Backend backend = Backend::cpu);
+  // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag and
+  // predefined options
+  // transfers ownership
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag = kSavedModelTagServe);
 
   // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag and
-  // predefined sessionOptions
+  // user provided options
   // transfers ownership
-  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions);
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, Options& options);
 
   // deprecated in favor of loadMetaGraphDef
-  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions);
-
-  // loads a meta graph definition saved at exportDir using the SavedModel interface for a tag and
-  // nThreads
-  // transfers ownership
-  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir,
-                                 const std::string& tag = kSavedModelTagServe,
-                                 Backend backend = Backend::cpu,
-                                 int nThreads = 1);
-
-  // deprecated in favor of loadMetaGraphDef
-  MetaGraphDef* loadMetaGraph(const std::string& exportDir,
-                              const std::string& tag = kSavedModelTagServe,
-                              Backend backend = Backend::cpu,
-                              int nThreads = 1);
+  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, Options& Options);
 
   // loads a graph definition saved as a protobuf file at pbFile
   // transfers ownership
   GraphDef* loadGraphDef(const std::string& pbFile);
 
-  // return a new, empty session using predefined sessionOptions
-  // transfers ownership
-  Session* createSession(SessionOptions& sessionOptions);
+  // return a new, empty session using the predefined options
+  Session* createSession();
 
-  // return a new, empty session with nThreads and selected backend
+  // return a new, empty session using user provided options
   // transfers ownership
-  Session* createSession(Backend backend = Backend::cpu, int nThreads = 1);
+  Session* createSession(Options& options);
 
   // return a new session that will contain an already loaded meta graph whose exportDir must be
   // given in order to load and initialize the variables, sessionOptions are predefined
   // an error is thrown when metaGraphDef is a nullptr or when the graph has no nodes
   // transfers ownership
-  Session* createSession(const MetaGraphDef* metaGraphDef,
-                         const std::string& exportDir,
-                         SessionOptions& sessionOptions);
-
-  // return a new session that will contain an already loaded meta graph whose exportDir must be given
-  // in order to load and initialize the variables, threading options are inferred from nThreads
-  // an error is thrown when metaGraphDef is a nullptr or when the graph has no nodes
-  // transfers ownership
-  Session* createSession(const MetaGraphDef* metaGraphDef,
-                         const std::string& exportDir,
-                         Backend backend = Backend::cpu,
-                         int nThreads = 1);
+  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, Options& options);
 
   // return a new session that will contain an already loaded graph def, sessionOptions are predefined
   // an error is thrown when graphDef is a nullptr or when the graph has no nodes
   // transfers ownership
-  Session* createSession(const GraphDef* graphDef, SessionOptions& sessionOptions);
+  Session* createSession(const GraphDef* graphDef);
 
-  // return a new session that will contain an already loaded graph def, threading options are
-  // inferred from nThreads
+  // return a new session that will contain an already loaded graph def, sessionOptions are user defined
   // an error is thrown when graphDef is a nullptr or when the graph has no nodes
   // transfers ownership
-  Session* createSession(const GraphDef* graphDef, Backend backend = Backend::cpu, int nThreads = 1);
+  Session* createSession(const GraphDef* graphDef, Options& options);
 
   // closes a session, calls its destructor, resets the pointer, and returns true on success
   bool closeSession(Session*& session);

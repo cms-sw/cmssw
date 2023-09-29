@@ -135,6 +135,8 @@ namespace phase1PixelTopology {
   constexpr int nPairs = 13 + 2 + 4;
   constexpr uint16_t numberOfModules = 1856;
 
+  constexpr uint32_t maxNumClustersPerModules = 1024;
+
   constexpr uint32_t max_ladder_bpx0 = 12;
   constexpr uint32_t first_ladder_bpx0 = 0;
   constexpr float module_length_bpx0 = 6.7f;
@@ -207,6 +209,8 @@ namespace phase2PixelTopology {
   constexpr uint32_t numberOfLayers = 28;
   constexpr int nPairs = 23 + 6 + 14 + 8 + 4;  // include far forward layer pairs
   constexpr uint16_t numberOfModules = 3892;
+
+  constexpr uint32_t maxNumClustersPerModules = 1024;
 
   HOST_DEVICE_CONSTANT uint8_t layerPairs[2 * nPairs] = {
 
@@ -282,6 +286,35 @@ namespace phase2PixelTopology {
                                              9.0, 9.0, 8.0, 8.0, 8.0, 11.0, 9.0, 9.0, 9.0, 8.0, 8.0, 8.0, 11.0};
 }  // namespace phase2PixelTopology
 
+namespace phase1HIonPixelTopology {
+  // Storing here the needed constants different w.r.t. pp Phase1 topology.
+  // All the other defined by inheritance in the HIon topology struct.
+  using pixelTopology::phi0p09;
+
+  constexpr uint32_t maxNumClustersPerModules = 2048;
+
+  HOST_DEVICE_CONSTANT int16_t phicuts[phase1PixelTopology::nPairs]{phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09,
+                                                                    phi0p09};
+
+}  // namespace phase1HIonPixelTopology
+
 namespace pixelTopology {
 
   struct Phase2 {
@@ -290,6 +323,7 @@ namespace pixelTopology {
     using tindex_type = uint32_t;  // for tuples
     using cindex_type = uint32_t;  // for cells
 
+    static constexpr uint32_t maxNumberOfHits = 256 * 1024;
     static constexpr uint32_t maxCellNeighbors = 64;
     static constexpr uint32_t maxCellTracks = 302;
     static constexpr uint32_t maxHitsOnTrack = 15;
@@ -316,6 +350,8 @@ namespace pixelTopology {
     static constexpr uint16_t last_barrel_detIndex = 504;
 
     static constexpr uint32_t maxPixInModule = 6000;
+    static constexpr uint32_t maxNumClustersPerModules = phase2PixelTopology::maxNumClustersPerModules;
+    static constexpr uint32_t maxHitsInModule = phase2PixelTopology::maxNumClustersPerModules;
 
     static constexpr float moduleLength = 4.345f;
     static constexpr float endcapCorrection = 0.0f;
@@ -331,8 +367,6 @@ namespace pixelTopology {
     static constexpr float bigPixYCorrection = 0.0f;
 
     static constexpr float dzdrFact = 8 * 0.0285 / 0.015;  // from dz/dr to "DY"
-    static constexpr float z0Cut = 7.5f;
-    static constexpr float doubletHardPt = 0.8f;
 
     static constexpr int minYsizeB1 = 25;
     static constexpr int minYsizeB2 = 15;
@@ -382,6 +416,7 @@ namespace pixelTopology {
     using tindex_type = uint16_t;  // for tuples
     using cindex_type = uint32_t;  // for cells
 
+    static constexpr uint32_t maxNumberOfHits = 48 * 1024;
     static constexpr uint32_t maxCellNeighbors = 36;
     static constexpr uint32_t maxCellTracks = 48;
     static constexpr uint32_t maxHitsOnTrack = 10;
@@ -407,6 +442,8 @@ namespace pixelTopology {
     static constexpr uint16_t last_barrel_detIndex = 1184;
 
     static constexpr uint32_t maxPixInModule = 6000;
+    static constexpr uint32_t maxNumClustersPerModules = phase1PixelTopology::maxNumClustersPerModules;
+    static constexpr uint32_t maxHitsInModule = phase1PixelTopology::maxNumClustersPerModules;
 
     static constexpr float moduleLength = 6.7f;
     static constexpr float endcapCorrection = 1.5f;
@@ -422,8 +459,6 @@ namespace pixelTopology {
     static constexpr float bigPixYCorrection = 8.0f;
 
     static constexpr float dzdrFact = 8 * 0.0285 / 0.015;  // from dz/dr to "DY"
-    static constexpr float z0Cut = 12.f;
-    static constexpr float doubletHardPt = 0.5f;
 
     static constexpr int minYsizeB1 = 36;
     static constexpr int minYsizeB2 = 28;
@@ -506,14 +541,36 @@ namespace pixelTopology {
     }
   };
 
+  struct HIonPhase1 : public Phase1 {
+    // Storing here the needed constants different w.r.t. pp Phase1 topology.
+    // All the other defined by inheritance in the HIon topology struct.
+
+    using tindex_type = uint32_t;  // for tuples
+
+    static constexpr uint32_t maxCellNeighbors = 90;
+    static constexpr uint32_t maxCellTracks = 90;
+    static constexpr uint32_t maxNumberOfTuples = 256 * 1024;
+    static constexpr uint32_t maxNumberOfDoublets = 6 * 512 * 1024;
+    static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
+    static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
+
+    static constexpr uint32_t maxPixInModule = 10000;
+
+    static constexpr uint32_t maxNumOfActiveDoublets =
+        maxNumberOfDoublets / 4;  //TODO need to think a better way to avoid this duplication
+    static constexpr uint32_t maxCellsPerHit = 256;
+
+    static constexpr uint32_t maxNumClustersPerModules = phase1HIonPixelTopology::maxNumClustersPerModules;
+    static constexpr uint32_t maxHitsInModule = phase1HIonPixelTopology::maxNumClustersPerModules;
+
+    static constexpr char const *nameModifier = "HIonPhase1";
+  };
+
   template <typename T>
   using isPhase1Topology = typename std::enable_if<std::is_base_of<Phase1, T>::value>::type;
 
   template <typename T>
   using isPhase2Topology = typename std::enable_if<std::is_base_of<Phase2, T>::value>::type;
-
-  // struct HIonPhase1 : public Phase1 {
-  //     static constexpr uint32_t maxNumberOfDoublets=3*1024*1024;};
 
 }  // namespace pixelTopology
 

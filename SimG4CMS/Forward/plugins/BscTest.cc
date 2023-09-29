@@ -1,6 +1,3 @@
-// -*- C++ -*-
-//
-
 // system include files
 #include <cmath>
 #include <iostream>
@@ -17,7 +14,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -121,9 +117,6 @@ private:
   void update(const EndOfTrack* trk) override;
   void update(const EndOfEvent* evt) override;
 
-  //UHB_Analysis* UserNtuples;
-  BscNumberingScheme* theBscNumberingScheme;
-
   int iev;
   int itrk;
   G4double entot0, tracklength0;
@@ -179,7 +172,6 @@ BscTest::BscTest(const edm::ParameterSet& p) {
   }
   // Initialization:
 
-  theBscNumberingScheme = new BscNumberingScheme();
   bsceventntuple = new TNtuple("NTbscevent", "NTbscevent", "evt");
   whichevent = 0;
   TheHistManager = new BscAnalysisHistManager(fDataLabel);
@@ -191,7 +183,6 @@ BscTest::BscTest(const edm::ParameterSet& p) {
 
 BscTest::~BscTest() {
   //  delete UserNtuples;
-  delete theBscNumberingScheme;
 
   TFile bscOutputFile("newntbsc.root", "RECREATE");
   edm::LogVerbatim("BscTest") << "Bsc output root file has been created";

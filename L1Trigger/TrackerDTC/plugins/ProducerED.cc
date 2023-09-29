@@ -115,8 +115,8 @@ namespace trackerDTC {
       }
     }
     // store ED products
-    iEvent.emplace(edPutTokenAccepted_, move(productAccepted));
-    iEvent.emplace(edPutTokenLost_, move(productLost));
+    iEvent.emplace(edPutTokenAccepted_, std::move(productAccepted));
+    iEvent.emplace(edPutTokenLost_, std::move(productLost));
   }
 
 }  // namespace trackerDTC

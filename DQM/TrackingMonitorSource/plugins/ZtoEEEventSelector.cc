@@ -1,23 +1,88 @@
 // Z->ee Filter
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/Common/interface/Handle.h"
+
+// user includes
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TLorentzVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
-#include "DQM/TrackingMonitorSource/interface/ZtoEEEventSelector.h"
+// ROOT includes
+#include "TLorentzVector.h"
+
+class ZtoEEEventSelector : public edm::stream::EDFilter<> {
+public:
+  explicit ZtoEEEventSelector(const edm::ParameterSet&);
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  // module config parameters
+  const edm::InputTag electronTag_;
+  const edm::InputTag bsTag_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+
+  const double maxEta_;
+  const double minPt_;
+  const double maxDeltaPhiInEB_;
+  const double maxDeltaEtaInEB_;
+  const double maxHOEEB_;
+  const double maxSigmaiEiEEB_;
+  const double maxDeltaPhiInEE_;
+  const double maxDeltaEtaInEE_;
+  const double maxHOEEE_;
+  const double maxSigmaiEiEEE_;
+  const double maxNormChi2_;
+  const double maxD0_;
+  const double maxDz_;
+  const int minPixelHits_;
+  const int minStripHits_;
+  const double maxIso_;
+  const double minPtHighest_;
+  const double minInvMass_;
+  const double maxInvMass_;
+};
 
 using namespace std;
 using namespace edm;
+
+void ZtoEEEventSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"));
+  desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<double>("maxEta", 2.4);
+  desc.addUntracked<double>("minPt", 5);
+  desc.addUntracked<double>("maxDeltaPhiInEB", .15);
+  desc.addUntracked<double>("maxDeltaEtaInEB", .007);
+  desc.addUntracked<double>("maxHOEEB", .12);
+  desc.addUntracked<double>("maxSigmaiEiEEB", .01);
+  desc.addUntracked<double>("maxDeltaPhiInEE", .1);
+  desc.addUntracked<double>("maxDeltaEtaInEE", .009);
+  desc.addUntracked<double>("maxHOEEB_", .10);
+  desc.addUntracked<double>("maxSigmaiEiEEE", .03);
+  desc.addUntracked<double>("maxNormChi2", 1000);
+  desc.addUntracked<double>("maxD0", 0.02);
+  desc.addUntracked<double>("maxDz", 20.);
+  desc.addUntracked<uint32_t>("minPixelHits", 1);
+  desc.addUntracked<uint32_t>("minStripHits", 8);
+  desc.addUntracked<double>("maxIso", 0.3);
+  desc.addUntracked<double>("minPtHighest", 24);
+  desc.addUntracked<double>("minInvMass", 60);
+  desc.addUntracked<double>("maxInvMass", 120);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 ZtoEEEventSelector::ZtoEEEventSelector(const edm::ParameterSet& ps)
     : electronTag_(ps.getUntrackedParameter<edm::InputTag>("electronInputTag", edm::InputTag("gedGsfElectrons"))),
@@ -34,7 +99,7 @@ ZtoEEEventSelector::ZtoEEEventSelector(const edm::ParameterSet& ps)
       maxDeltaEtaInEE_(ps.getUntrackedParameter<double>("maxDeltaEtaInEE", .009)),
       maxHOEEE_(ps.getUntrackedParameter<double>("maxHOEEB_", .10)),
       maxSigmaiEiEEE_(ps.getUntrackedParameter<double>("maxSigmaiEiEEE", .03)),
-      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 10)),
+      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 1000)),
       maxD0_(ps.getUntrackedParameter<double>("maxD0", 0.02)),
       maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
       minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),

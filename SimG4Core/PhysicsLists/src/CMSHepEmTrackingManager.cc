@@ -1,6 +1,3 @@
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1100
-
 #include "SimG4Core/PhysicsLists/interface/CMSHepEmTrackingManager.h"
 
 #include "G4EventManager.hh"
@@ -63,5 +60,3 @@ void CMSHepEmTrackingManager::HandOverOneTrack(G4Track* aTrack) {
     delete aTrack;
   }
 }
-
-#endif

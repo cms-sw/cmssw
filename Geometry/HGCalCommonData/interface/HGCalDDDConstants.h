@@ -40,8 +40,12 @@ public:
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
   std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
-  bool cassetteShiftScintillator(int layer, int iphi) const;
-  bool cassetteShiftSilicon(int layer, int waferU, int waferV) const;
+  bool cassetteMode() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+            (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
+  }
+  bool cassetteShiftScintillator(int zside, int layer, int iphi) const;
+  bool cassetteShiftSilicon(int zside, int layer, int waferU, int waferV) const;
   int cassetteTile(int iphi) const {
     return (HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_));
   }
@@ -83,6 +87,7 @@ public:
   int getTypeHex(int layer, int waferU, int waferV) const;
   std::pair<double, double> getXY(int layer, double x, double y, bool forwd) const;
   inline int getUVMax(int type) const { return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_); }
+  double guardRingOffset(bool reco) const;
   bool isHalfCell(int waferType, int cell) const;
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
   bool isValidHex8(int lay, int waferU, int waferV, bool fullAndPart) const;
@@ -127,6 +132,7 @@ public:
   std::pair<double, double> rangeZ(bool reco) const;
   std::pair<int, int> rowColumnWafer(const int wafer) const;
   inline int sectors() const { return hgpar_->nSectors_; }
+  double sensorSizeOffset(bool reco) const;
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
   int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const;
@@ -165,14 +171,15 @@ public:
   inline bool waferHexagon8() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
             (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
-            (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+            (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
   }
   inline bool waferHexagon8File() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
-            (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+            (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
   }
   inline bool waferHexagon8Module() const {
-    return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+    return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
+            (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
   }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
@@ -185,8 +192,8 @@ public:
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
   inline unsigned int waferFileSize() const { return hgpar_->waferInfoMap_.size(); }
   int waferFileIndex(unsigned int kk) const;
-  std::tuple<int, int, int> waferFileInfo(unsigned int kk) const;
-  std::tuple<int, int, int> waferFileInfoFromIndex(int kk) const;
+  std::tuple<int, int, int, int> waferFileInfo(unsigned int kk) const;
+  std::tuple<int, int, int, int> waferFileInfoFromIndex(int kk) const;
   inline bool waferFileInfoExist(int kk) const {
     return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end());
   }

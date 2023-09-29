@@ -82,7 +82,7 @@ if __name__ == '__main__':
                      158.01, #reMiniAOD of 2018 HI MC with pp-like reco
                      312.0, #2021/Run3 HI MC Pyquen_ZeemumuJets_pt10 with pp-like reco
                      1306.0, #SingleMu Pt1 UP15
-                     2500.601, #test NanoAOD from existing MINI
+                     2500.4, #test NanoAOD from existing MINI
                      1330, #Run2 2015/2016 MC Zmm
                      135.4, #Run 2 2015/2016 Zee ttbar fastsim
                      10042.0, #2017 ZMM
@@ -92,21 +92,21 @@ if __name__ == '__main__':
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
                      11634.914, #2021 DDD ttbar reading geometry from the DB
                      11634.0, #2021 ttbar (switching to DD4hep by default)
-                     11634.7, #2021 ttbar mkFit
-                     11834.0, #2021 ttbar PU
                      13234.0, #2021 ttbar fastsim
-                     13434.0, #2021 ttbar PU fastsim
                      12434.0, #2023 ttbar
-                     20834.0, #2026D88 ttbar (2022 new baseline)
-                     20834.75, #2026D88 ttbar with HLT75e33
-                     20834.76, #2026D88 ttbar with HLT75e33 in the same step as DIGI+L1
-                     #20834.911, #2026D88 ttbar DD4hep XML
-                     21034.999, #2026D88 ttbar premixing stage1+stage2, PU50
-                     20896.0, #CE_E_Front_120um D88
-                     20900.0, #CE_H_Coarse_Scint D88
+                     12634.0, #2023 ttbar PU
+                     12434.7, #2023 ttbar mkFit
+                     14034.0, #2023 ttbar fastsim
+                     14234.0, #2023 ttbar PU fastsim
+                     24834.0, #2026D98 ttbar (Phase-2 baseline)
+                     24834.911, #2026D98 ttbar DD4hep XML
+                     25034.999, #2026D98 ttbar premixing stage1+stage2, PU50
+                     24896.0, #CE_E_Front_120um D98
+                     24900.0, #CE_H_Coarse_Scint D98
                      23234.0, #2026D94 ttbar (exercise with HFNose)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
+                     141.044 # 2023D JetMET PD
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -151,6 +151,12 @@ if __name__ == '__main__':
     parser.add_argument('--nStreams',
                         help='number of streams to use in cmsRun.',
                         dest='nStreams',
+                        type=int,
+                        default=0)
+    
+    parser.add_argument('--nEvents',
+                        help='number of events to process in cmsRun. If 0 will use the standard 10 events.',
+                        dest='nEvents',
                         type=int,
                         default=0)
     

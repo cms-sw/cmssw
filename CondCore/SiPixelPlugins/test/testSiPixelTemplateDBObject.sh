@@ -91,6 +91,17 @@ getPayloadData.py \
 mv *.png $W_DIR/plots_Template/HeaderTitles.png
 
 getPayloadData.py \
+    --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
+    --plot plot_SiPixelTemplateQScaleMap \
+    --tag SiPixelTemplateDBObject38Tv3_express \
+    --time_type Run \
+    --iovs '{"start_iov": "326083", "end_iov": "326083"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/plots_Template/QScaleMap.png
+
+getPayloadData.py \
     --plugin pluginSiPixel2DTemplateDBObject_PayloadInspector \
     --plot plot_SiPixel2DTemplateHeaderTable \
     --tag SiPixel2DTemplateDBObject_38T_v1_express \

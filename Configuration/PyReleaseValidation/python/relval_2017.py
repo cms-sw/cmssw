@@ -10,8 +10,6 @@ workflows = Matrix()
 
 from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
 
-#just define all of them
-
 #WFs to run in IB:
 #   2017 (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
 #        (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
@@ -34,10 +32,6 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design)
 #        (TTbar trackingOnly, pixelTrackingOnly, trackingMkFit, trackdnn)
 #        (TTbar with JME NanoAOD)
-#        (Patatrack pixel-only: ZMM - on CPU: quadruplets, triplets)
-#        (Patatrack pixel-only: TTbar - on CPU: quadruplets, triplets)
-#        (Patatrack ECAL-only: TTbar - on CPU)
-#        (Patatrack HCAL-only: TTbar - on CPU)
 #        (TTbar 0T, TTbar PU 0T)
 #        (TTbar FastSim, TTbar FastSim PU, MinBiasFS for mixing)
 #        (TTbar PU MLPF ecal_deepsc)
@@ -46,7 +40,12 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (QCD 1.8TeV DeepCore)
 #        (TTbar DigiNoHLT)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
-#        (TTbar FastSim)
+#        (TTbar trackingMkFit)
+#        (Patatrack pixel-only: TTbar - on CPU: quadruplets, triplets)
+#        (Patatrack ECAL-only: TTbar - on CPU)
+#        (Patatrack HCAL-only: TTbar - on CPU)
+#        (Patatrack pixel-only: ZMM - on CPU: quadruplets, triplets)
+#        (TTbar FastSim, TTbar FastSim PU, MinBiasFS for mixing))
 #   2024 (TTbar, TTbar PU, TTbar PU premix)
 numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
            10042.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0,
@@ -70,10 +69,6 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            #11725.0,11925.0,
            11634.1,11634.5,11634.7,11634.71,11634.72,11634.91,
            11634.15,
-           11650.501,11650.505,
-           11634.501,11634.505,
-           11634.511,
-           11634.521,
            11634.24,11834.24,
            13234.0,13434.0,13240.303,
            11834.13, 11834.19,
@@ -82,8 +77,15 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            11723.17,
            11634.601,
            12434.0,12634.0,12634.99,
-           14034.0,
+           12434.7,
+           12434.501,12434.505,
+           12434.511,
+           12434.521,
+           12450.501,12450.505,
+           14034.0,14234.0,14040.303,
            12834.0,13034.0,13034.99,]
+
 for numWF in numWFIB:
-    if not numWF in _upgrade_workflows: continue
+    if not numWF in _upgrade_workflows:
+        continue
     workflows[numWF] = _upgrade_workflows[numWF]

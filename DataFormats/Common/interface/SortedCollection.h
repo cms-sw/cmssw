@@ -28,7 +28,7 @@ unreliable if such duplicate entries are made.
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/fillPtrVector.h"
 #include "DataFormats/Common/interface/FillView.h"
-#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/setPtr.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"

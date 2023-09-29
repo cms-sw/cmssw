@@ -1,7 +1,8 @@
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
-#include "SimG4Core/Notification/interface/G4SimVertex.h"
-#include "SimG4Core/Notification/interface/G4SimTrack.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimVertex.h"
+#include "SimG4Core/Notification/interface/TmpSimTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -19,9 +20,7 @@ EventAction::EventAction(const edm::ParameterSet& p,
       m_SteppingVerbose(sv),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_printRandom(p.getParameter<bool>("PrintRandomSeed")),
-      m_debug(p.getUntrackedParameter<bool>("debug", false)) {
-  m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
-}
+      m_debug(p.getUntrackedParameter<bool>("debug", false)) {}
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
   m_trackManager->reset();
@@ -56,15 +55,14 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
     return;
   }
 
-  m_trackManager->storeTracks(m_runInterface->simEvent());
+  m_trackManager->storeTracks();
 
   // dispatch now end of event
   EndOfEvent e(anEvent);
   m_endOfEventSignal(&e);
 
   // delete transient objects
-  m_trackManager->deleteTracks();
-  m_trackManager->cleanTkCaloStateInfoMap();
+  m_trackManager->reset();
 }
 
 void EventAction::abortEvent() { m_runInterface->abortEvent(); }

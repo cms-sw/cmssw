@@ -115,12 +115,10 @@ void FedTimingHistograms::histoAnalysis(bool debug) {
   std::map<uint32_t, FedTimingAnalysis>::iterator ianal = data_.begin();
   for (; ianal != data_.end(); ianal++) {
     ianal->second.max(time_max);
-    static uint16_t cntr = 0;
     if (debug) {
       std::stringstream ss;
       ianal->second.print(ss);
       cout << ss.str() << endl;
-      cntr++;
     }
   }
 }

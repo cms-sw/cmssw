@@ -38,6 +38,7 @@ int main() {
   std::atomic<int> canStart{kNThreads};
   std::atomic<int> canStartEval{kNThreads};
   std::atomic<bool> failed{false};
+  std::atomic<int> threadID{-1};
   std::vector<std::thread> threads;
 
   TThread::Initialize();
@@ -47,12 +48,21 @@ int main() {
   //Have to avoid having Streamers modify themselves after they have been used
   TVirtualStreamerInfo::Optimize(false);
 
+  std::string const cut(" pt >= 1 & momentum().x() > 0.5 & quality('highPurity') ");
+  StringCutObjectSelector<reco::Track> selectShared(cut, false);
+  StringCutObjectSelector<reco::Track> selectSharedLazy(cut, true);
   for (int i = 0; i < kNThreads; ++i) {
-    threads.emplace_back([&canStart, &canStartEval, &failed]() {
+    threads.emplace_back([&canStart, &canStartEval, &failed, &selectShared, &selectSharedLazy, &threadID]() {
+      auto id = ++threadID;
+      bool sharedTestShouldSucceed = ((id % 2) == 0);
       try {
         static thread_local TThread guard;
-        reco::Track trk(
-            20., 20., reco::Track::Point(), reco::Track::Vector(1., 1., 1.), +1, reco::Track::CovarianceMatrix{});
+        reco::Track trk(20.,
+                        20.,
+                        reco::Track::Point(),
+                        reco::Track::Vector(sharedTestShouldSucceed ? 1. : 0., 1., 1.),
+                        +1,
+                        reco::Track::CovarianceMatrix{});
         trk.setQuality(reco::Track::highPurity);
         std::string const cut(" pt >= 1 & quality('highPurity') ");
         //std::cout <<cut<<std::endl;
@@ -73,6 +83,14 @@ int main() {
         }
         if (not select(trk)) {
           std::cout << "selection failed" << std::endl;
+          failed = true;
+        }
+        if (sharedTestShouldSucceed != selectShared(trk)) {
+          std::cout << "selection shared failed, expected " << sharedTestShouldSucceed << std::endl;
+          failed = true;
+        }
+        if (sharedTestShouldSucceed != selectSharedLazy(trk)) {
+          std::cout << "selection shared lazy failed, expected " << sharedTestShouldSucceed << std::endl;
           failed = true;
         }
       } catch (cms::Exception const& exception) {

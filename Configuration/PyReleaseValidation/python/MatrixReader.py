@@ -185,7 +185,6 @@ class MatrixReader(object):
                     self.relvalModule.steps,
                     [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
                     )
-            
 
         for num, wfInfo in self.relvalModule.workflows.items():
             commands=[]
@@ -248,8 +247,7 @@ class MatrixReader(object):
                             stepList.pop(0)
                         #print "\t\tmod",stepList
                         break
-                                                        
-                                                    
+
             for (stepI,step) in enumerate(stepList):
                 stepName=step
                 if self.relvalModule.steps[stepName] is None:
@@ -258,7 +256,7 @@ class MatrixReader(object):
                     #cannot put a certain number of things in wm
                     if stepName in ['SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
-                    
+
                 #replace stepName is needed
                 #if stepName in self.replaceStep
                 if len(name) > 0 : name += '+'

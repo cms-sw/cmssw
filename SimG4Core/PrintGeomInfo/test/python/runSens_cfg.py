@@ -40,8 +40,6 @@ print("Geometry file: ", geomFile)
 process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.MessageLogger.cerr.enable = False
-process.MessageLogger.files.SensDet = dict(extension="txt")
 process.MessageLogger.G4cout=dict()
 
 process.maxEvents = cms.untracked.PSet(
@@ -91,6 +89,7 @@ process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmea
 process.g4SimHits.UseMagneticField        = False
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-	Name           = cms.untracked.string('*'),
+	Name           = cms.string('*'),
+        DD4Hep         = cms.bool(False),
 	type           = cms.string('PrintSensitive')
 ))

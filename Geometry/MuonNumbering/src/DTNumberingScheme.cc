@@ -51,21 +51,15 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
   //   // however allows for 0 in wire, layer, superlayer!!!)
   //
   //   if ((wire_id < 1) || (wire_id > 100)) {
-  //     std::cout << "DTNumberingScheme: ";
-  //     std::cout << "wire id out of range: ";
-  //     std::cout << wire_id <<std::endl;
+  //     edm::LogVerbatim("MuonNumbering") << "DTNumberingScheme: wire id out of range: " << wire_id;
   //   }
 
   //   if ((layer_id < 1) || (layer_id > 4)) {
-  //     std::cout << "DTNumberingScheme: ";
-  //     std::cout << "layer id out of range: ";
-  //     std::cout << layer_id <<std::endl;
+  //     edm::LogVerbatim("MuonNumbering") << "DTNumberingScheme: layer id out of range: " << layer_id;
   //   }
 
   //   if ((superlayer_id < 1) || (superlayer_id > 3)) {
-  //     std::cout << "DTNumberingScheme: ";
-  //     std::cout << "super-layer id out of range: ";
-  //     std::cout << superlayer_id <<std::endl;
+  //     edm::LogVerbatim("MuonNumbering") << "DTNumberingScheme: super-layer id out of range: " << superlayer_id;
   //   }
 
   return getDetId(num);
@@ -84,21 +78,15 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
 
   // These ranges are enforced by DTWireId
   //   if ((sector_id < 1) || (sector_id > 14)) {
-  //     std::cout << "DTNumberingScheme: ";
-  //     std::cout << "sector id out of range: ";
-  //     std::cout << sector_id <<std::endl;
+  //     edm::LogVerbatim("MuonNumbering") << "DTNumberingScheme: sector id out of range: " << sector_id;
   //   }
 
   //   if ((station_id < 1) || (station_id > 4)) {
-  //     std::cout << "DTNumberingScheme: ";
-  //     std::cout << "station id out of range: ";
-  //     std::cout << station_id <<std::endl;
+  //     edm::LogVerbatim("MuonNumbering") << "DTNumberingScheme: station id out of range: " << station_id;
   //   }
 
   //   if ((wheel_id < -2) || (wheel_id > 2)) {
-  //     std::cout << "DTNumberingScheme: ";
-  //     std::cout << "wheel id out of range: ";
-  //     std::cout << wheel_id <<std::endl;
+  //     edm::LogVerbatim("MuonNumbering") << "DTNumberingScheme: wheel id out of range: " << wheel_id;
   //   }
 
   DTWireId id(wheel_id, station_id, sector_id, superlayer_id, layer_id, wire_id);

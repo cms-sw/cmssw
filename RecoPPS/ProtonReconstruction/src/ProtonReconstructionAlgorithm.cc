@@ -169,7 +169,7 @@ double ProtonReconstructionAlgorithm::newtonGoalFcn(double xi,
 //----------------------------------------------------------------------------------------------------
 
 reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const CTPPSLocalTrackLiteRefVector &tracks,
-                                                                          const LHCInfo &lhcInfo,
+                                                                          const float energy,
                                                                           std::ostream &os) const {
   // make sure optics is available for all tracks
   for (const auto &it : tracks) {
@@ -391,7 +391,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
   const FP::Point vertex(0., vtx_y, 0.);
   const double cos_th_sq = 1. - th_x * th_x - th_y * th_y;
   const double cos_th = (cos_th_sq > 0.) ? sqrt(cos_th_sq) : 1.;
-  const double p = lhcInfo.energy() * (1. - xi);
+  const double p = energy * (1. - xi);
   const FP::Vector momentum(-p * th_x,  // the signs reflect change LHC --> CMS convention
                             +p * th_y,
                             sign_z * p * cos_th);
@@ -403,7 +403,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
 //----------------------------------------------------------------------------------------------------
 
 reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromSingleRP(const CTPPSLocalTrackLiteRef &track,
-                                                                           const LHCInfo &lhcInfo,
+                                                                           const float energy,
                                                                            std::ostream &os) const {
   CTPPSDetId rpId(track->rpId());
 
@@ -441,7 +441,7 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromSingleRP(const
   const FP::Point vertex(0., 0., 0.);
   const double cos_th_sq = 1. - th_y * th_y;
   const double cos_th = (cos_th_sq > 0.) ? sqrt(cos_th_sq) : 1.;
-  const double p = lhcInfo.energy() * (1. - xi);
+  const double p = energy * (1. - xi);
   const FP::Vector momentum(0., p * th_y, sign_z * p * cos_th);
 
   FP::CovarianceMatrix cm;

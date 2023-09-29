@@ -85,17 +85,19 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     UseCommandBaseScorer = cms.bool(False),
     StoreRndmSeeds = cms.bool(False),
     RestoreRndmSeeds = cms.bool(False),
-    PhysicsTablesDirectory = cms.untracked.string('PhysicsTables'),
+    PhysicsTablesDirectory = cms.untracked.string(''),
     StorePhysicsTables = cms.untracked.bool(False),
     RestorePhysicsTables = cms.untracked.bool(False),
     UseParametrisedEMPhysics = cms.untracked.bool(True),
     ThresholdForGeometryExceptions = cms.double(0.1), ## in GeV
     TraceExceptions = cms.bool(False),
-    DefaultVoxelDensity = cms.double(2.0),
-    VoxelRegions = cms.vstring(),
-    VoxelDensityPerRegion = cms.vdouble(),
     CheckGeometry = cms.untracked.bool(False),
     OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'),
+    Init = cms.PSet(
+        DefaultVoxelDensity = cms.double(2.0),
+        VoxelRegions = cms.vstring(),
+        VoxelDensityPerRegion = cms.vdouble()
+    ),
     G4CheckOverlap = cms.untracked.PSet(
         OutputBaseName = cms.string('2022'),
         MaterialFlag = cms.bool(True),
@@ -193,8 +195,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         G4MscStepLimit = cms.string("UseSafety"),
         G4GammaGeneralProcess = cms.bool(True),
         G4ElectronGeneralProcess = cms.bool(False),
-        G4TransportWithMSC = cms.int32(0),  # 1 - fEnabled, 2 - fMultipleSteps
-        PhotoeffectBelowKShell = cms.bool(True),
+        G4TransportWithMSC = cms.int32(2),  # 1 - fEnabled, 2 - fMultipleSteps
+        PhotoeffectBelowKShell = cms.bool(False),
         G4HepEmActive = cms.bool(False),
         G4MuonPairProductionByMuon = cms.bool(False),
         ReadMuonData = cms.bool(False), 
@@ -518,6 +520,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
         CheckID          = cms.untracked.bool(True),
+        EnergyThresholdForPersistencyInGeV = cms.double(1e9), # keep temporarily old behaviour
+        EnergyThresholdForHistoryInGeV = cms.double(1e9) # keep temporarily old behaviour)
     ),
     HGCSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
@@ -678,6 +682,13 @@ phase2_timing.toModify( g4SimHits, ECalSD = dict(
 )
 
 ##
+## For ECAL component study
+##
+from Configuration.ProcessModifiers.ecal_component_cff import ecal_component
+from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff import ecal_component_finely_sampled_waveforms
+(ecal_component | ecal_component_finely_sampled_waveforms).toModify(g4SimHits,ECalSD = dict(StoreLayerTimeSim = True, SlopeLightYield = 0.0))
+
+##
 ## Change CALO Thresholds
 ##
 from Configuration.Eras.Modifier_h2tb_cff import h2tb
@@ -704,7 +715,7 @@ dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
-                       OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
+                       OnlySDs = ['ZdcSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
                        LHCTransport = False, 
                        MuonSD = dict( 
                        HaveDemoChambers = False ) 

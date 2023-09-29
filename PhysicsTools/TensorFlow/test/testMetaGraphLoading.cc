@@ -33,20 +33,20 @@ void testMetaGraphLoading::test() {
   tensorflow::Backend backend = tensorflow::Backend::cpu;
 
   // load the graph
-  tensorflow::setLogging();
+  tensorflow::Options options{backend};
   tensorflow::MetaGraphDef* metaGraphDef = tensorflow::loadMetaGraphDef(exportDir);
   CPPUNIT_ASSERT(metaGraphDef != nullptr);
 
   // create a new, empty session
-  tensorflow::Session* session1 = tensorflow::createSession(backend);
+  tensorflow::Session* session1 = tensorflow::createSession(options);
   CPPUNIT_ASSERT(session1 != nullptr);
 
   // create a new session, using the meta graph
-  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir, backend);
+  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir, options);
   CPPUNIT_ASSERT(session2 != nullptr);
 
   // check for exception
-  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir, backend), cms::Exception);
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir, options), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});

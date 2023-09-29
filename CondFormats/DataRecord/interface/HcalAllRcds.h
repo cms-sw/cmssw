@@ -7,6 +7,7 @@
 #include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"

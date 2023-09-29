@@ -156,6 +156,9 @@ private:
   std::vector<double> neighbour_weights_;
   std::vector<double> smoothing_ecal_;
   std::vector<double> smoothing_hcal_;
+  bool seeds_norm_by_area_;
+
+  float area_10pct_;
 
   HGCalTriggerTools triggerTools_;
   Navigator navigator_;

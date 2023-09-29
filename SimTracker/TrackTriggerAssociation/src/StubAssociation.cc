@@ -43,10 +43,10 @@ namespace tt {
       }
     }
     // count matched TPs
-    auto sum = [this](int& sum, const pair<TPPtr, set<int>>& p) {
-      return sum += ((int)p.second.size() < setup_->tpMinLayers() ? 0 : 1);
+    auto acc = [this](int sum, const pair<TPPtr, set<int>>& p) {
+      return sum + ((int)p.second.size() < setup_->tpMinLayers() ? 0 : 1);
     };
-    const int nTPs = accumulate(m.begin(), m.end(), 0, sum);
+    const int nTPs = accumulate(m.begin(), m.end(), 0, acc);
     vector<TPPtr> tpPtrs;
     tpPtrs.reserve(nTPs);
     // fill and return matched TPs

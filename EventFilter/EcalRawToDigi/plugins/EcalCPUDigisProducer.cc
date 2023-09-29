@@ -7,6 +7,7 @@
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -53,6 +54,9 @@ private:
   edm::EDPutTokenT<EBSrFlagCollection> ebSrFlagToken_;
   edm::EDPutTokenT<EESrFlagCollection> eeSrFlagToken_;
 
+  // dummy ECAL raw data collection
+  edm::EDPutTokenT<EcalRawDataCollection> ecalRawDataToken_;
+
   // dummy integrity for xtal data
   edm::EDPutTokenT<EBDetIdCollection> ebIntegrityGainErrorsToken_;
   edm::EDPutTokenT<EBDetIdCollection> ebIntegrityGainSwitchErrorsToken_;
@@ -73,6 +77,12 @@ private:
   // dummy TCC collections
   edm::EDPutTokenT<EcalTrigPrimDigiCollection> ecalTriggerPrimitivesToken_;
   edm::EDPutTokenT<EcalPSInputDigiCollection> ecalPseudoStripInputsToken_;
+
+  // dummy mem integrity collections
+  edm::EDPutTokenT<EcalElectronicsIdCollection> ecalIntegrityMemTtIdErrorsToken_;
+  edm::EDPutTokenT<EcalElectronicsIdCollection> ecalIntegrityMemBlockSizeErrorsToken_;
+  edm::EDPutTokenT<EcalElectronicsIdCollection> ecalIntegrityMemChIdErrorsToken_;
+  edm::EDPutTokenT<EcalElectronicsIdCollection> ecalIntegrityMemGainErrorsToken_;
 
   // FIXME better way to pass pointers from acquire to produce?
   std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> idsebtmp, idseetmp;
@@ -109,6 +119,9 @@ EcalCPUDigisProducer::EcalCPUDigisProducer(const edm::ParameterSet& ps)
       ebSrFlagToken_{dummyProduces<EBSrFlagCollection>()},
       eeSrFlagToken_{dummyProduces<EESrFlagCollection>()},
 
+      // dummy ECAL raw data collection
+      ecalRawDataToken_{dummyProduces<EcalRawDataCollection>()},
+
       // dummy integrity for xtal data
       ebIntegrityGainErrorsToken_{dummyProduces<EBDetIdCollection>("EcalIntegrityGainErrors")},
       ebIntegrityGainSwitchErrorsToken_{dummyProduces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors")},
@@ -129,7 +142,15 @@ EcalCPUDigisProducer::EcalCPUDigisProducer(const edm::ParameterSet& ps)
 
       // dummy TCC collections
       ecalTriggerPrimitivesToken_{dummyProduces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives")},
-      ecalPseudoStripInputsToken_{dummyProduces<EcalPSInputDigiCollection>("EcalPseudoStripInputs")}
+      ecalPseudoStripInputsToken_{dummyProduces<EcalPSInputDigiCollection>("EcalPseudoStripInputs")},
+
+      // dummy mem integrity collections
+      ecalIntegrityMemTtIdErrorsToken_{dummyProduces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors")},
+      ecalIntegrityMemBlockSizeErrorsToken_{
+          dummyProduces<EcalElectronicsIdCollection>("EcalIntegrityMemBlockSizeErrors")},
+      ecalIntegrityMemChIdErrorsToken_{dummyProduces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors")},
+      ecalIntegrityMemGainErrorsToken_{dummyProduces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors")}
+
 // constructor body
 {}
 
@@ -191,6 +212,8 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
     // dummy collections
     event.emplace(ebSrFlagToken_);
     event.emplace(eeSrFlagToken_);
+    // dummy ECAL raw data collection
+    event.emplace(ecalRawDataToken_);
     // dummy integrity for xtal data
     event.emplace(ebIntegrityGainErrorsToken_);
     event.emplace(ebIntegrityGainSwitchErrorsToken_);
@@ -208,6 +231,11 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
     // dummy TCC collections
     event.emplace(ecalTriggerPrimitivesToken_);
     event.emplace(ecalPseudoStripInputsToken_);
+    // dummy mem integrity collections
+    event.emplace(ecalIntegrityMemTtIdErrorsToken_);
+    event.emplace(ecalIntegrityMemBlockSizeErrorsToken_);
+    event.emplace(ecalIntegrityMemChIdErrorsToken_);
+    event.emplace(ecalIntegrityMemGainErrorsToken_);
   }
 }
 

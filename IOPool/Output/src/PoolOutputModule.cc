@@ -476,7 +476,7 @@ namespace edm {
             "Set ROOT auto flush stored data size (in bytes) for event TTree. The value sets how large the compressed "
             "buffer is allowed to get. The uncompressed buffer can be quite a bit larger than this depending on the "
             "average compression ratio. The value of -1 just uses ROOT's default value. The value of 0 turns off this "
-            "feature.");
+            "feature. A value of -N changes the behavior to flush after every Nth event.");
     desc.addUntracked<int>("splitLevel", 99)->setComment("Default ROOT branch split level in output file.");
     desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))
         ->setComment(

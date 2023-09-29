@@ -116,7 +116,7 @@ void OnlineBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(monitorName_ + "Validation");
   //Book histograms
   bsChoice_ = ibooker.bookProfile("bsChoice",
-                                  "BS Choice (+1): HLT - (-1): Legacy - (-10): Fake BS - (0): No Transient ",
+                                  "BS Choice: +1=HLT / -1=Legacy / -10=Fake (fallback to PCL) / 0=No Transient ",
                                   lastLumi - firstLumi + 1,
                                   firstLumi - 0.5,
                                   lastLumi + 0.5,
@@ -172,11 +172,12 @@ std::function<std::string(BSparameters, BeamSpotOnlineObjects)> myStringFunctor 
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLuminosityBlock(
+std::shared_ptr<onlinebeammonitor::BeamSpotInfo> OnlineBeamMonitor::globalBeginLuminosityBlock(
     const LuminosityBlock& iLumi, const EventSetup& iSetup) const {
   // Always create a beamspot group for each lumi weather we have results or not! Each Beamspot will be of unknown type!
 
-  processedLumis_.push_back(iLumi.id().luminosityBlock());
+  auto beamSpotInfo = std::make_shared<onlinebeammonitor::BeamSpotInfo>();
+
   //Read BeamSpot from DB
   ESHandle<BeamSpotOnlineObjects> bsHLTHandle;
   ESHandle<BeamSpotOnlineObjects> bsLegacyHandle;
@@ -214,9 +215,10 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       }
     }
 
-    beamSpotsMap_["HLT"] = BeamSpot(apoint, spotDB.sigmaZ(), spotDB.dxdz(), spotDB.dydz(), spotDB.beamWidthX(), matrix);
+    beamSpotInfo->beamSpotsMap_["HLT"] =
+        BeamSpot(apoint, spotDB.sigmaZ(), spotDB.dxdz(), spotDB.dydz(), spotDB.beamWidthX(), matrix);
 
-    BeamSpot* aSpot = &(beamSpotsMap_["HLT"]);
+    BeamSpot* aSpot = &(beamSpotInfo->beamSpotsMap_["HLT"]);
 
     aSpot->setBeamWidthY(spotDB.beamWidthY());
     aSpot->setEmittanceX(spotDB.emittanceX());
@@ -254,10 +256,10 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       }
     }
 
-    beamSpotsMap_["Legacy"] =
+    beamSpotInfo->beamSpotsMap_["Legacy"] =
         BeamSpot(apoint, spotDB.sigmaZ(), spotDB.dxdz(), spotDB.dydz(), spotDB.beamWidthX(), matrix);
 
-    BeamSpot* aSpot = &(beamSpotsMap_["Legacy"]);
+    BeamSpot* aSpot = &(beamSpotInfo->beamSpotsMap_["Legacy"]);
 
     aSpot->setBeamWidthY(spotDB.beamWidthY());
     aSpot->setEmittanceX(spotDB.emittanceX());
@@ -288,10 +290,10 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       }
     }
 
-    beamSpotsMap_["Transient"] =
+    beamSpotInfo->beamSpotsMap_["Transient"] =
         BeamSpot(apoint, spotDB.sigmaZ(), spotDB.dxdz(), spotDB.dydz(), spotDB.beamWidthX(), matrix);
 
-    BeamSpot* aSpot = &(beamSpotsMap_["Transient"]);
+    BeamSpot* aSpot = &(beamSpotInfo->beamSpotsMap_["Transient"]);
 
     aSpot->setBeamWidthY(spotDB.beamWidthY());
     aSpot->setEmittanceX(spotDB.emittanceX());
@@ -316,16 +318,16 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       }
       //int lastLumiAnalyzed_ = iLumi.id().luminosityBlock();
 
-      if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
-        if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
-            beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
+      if (beamSpotInfo->beamSpotsMap_.find("Transient") != beamSpotInfo->beamSpotsMap_.end()) {
+        if (beamSpotInfo->beamSpotsMap_.find("HLT") != beamSpotInfo->beamSpotsMap_.end() &&
+            beamSpotInfo->beamSpotsMap_["Transient"].x0() == beamSpotInfo->beamSpotsMap_["HLT"].x0()) {
           // lastLumiAnalyzed_ = lastLumiHLT_;
           startTimeStamp_ = startTimeStampHLT_;
           stopTimeStamp_ = stopTimeStampHLT_;
           lumiRange_ = lumiRangeHLT_;
 
-        } else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() &&
-                   beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
+        } else if (beamSpotInfo->beamSpotsMap_.find("Legacy") != beamSpotInfo->beamSpotsMap_.end() &&
+                   beamSpotInfo->beamSpotsMap_["Transient"].x0() == beamSpotInfo->beamSpotsMap_["Legacy"].x0()) {
           //lastLumiAnalyzed_ = lastLumiLegacy_;
           startTimeStamp_ = startTimeStampLegacy_;
           stopTimeStamp_ = stopTimeStampLegacy_;
@@ -368,19 +370,22 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   } else {
     LogInfo("OnlineBeamMonitor") << "Database BeamSpot is not valid at lumi: " << iLumi.id().luminosityBlock();
   }
-  return nullptr;
+  return beamSpotInfo;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void OnlineBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
+  processedLumis_.push_back(iLumi.id().luminosityBlock());
+  auto beamSpotInfo = luminosityBlockCache(iLumi.index());
+
   //Setting up the choice
-  if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
-    if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
-        beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
+  if (beamSpotInfo->beamSpotsMap_.find("Transient") != beamSpotInfo->beamSpotsMap_.end()) {
+    if (beamSpotInfo->beamSpotsMap_.find("HLT") != beamSpotInfo->beamSpotsMap_.end() &&
+        beamSpotInfo->beamSpotsMap_["Transient"].x0() == beamSpotInfo->beamSpotsMap_["HLT"].x0()) {
       bsChoice_->Fill(iLumi.id().luminosityBlock(), 1);
       bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
-    } else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() &&
-               beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
+    } else if (beamSpotInfo->beamSpotsMap_.find("Legacy") != beamSpotInfo->beamSpotsMap_.end() &&
+               beamSpotInfo->beamSpotsMap_["Transient"].x0() == beamSpotInfo->beamSpotsMap_["Legacy"].x0()) {
       bsChoice_->Fill(iLumi.id().luminosityBlock(), -1);
       bsChoice_->setBinError(iLumi.id().luminosityBlock(), 0.05);
     } else {
@@ -398,7 +403,7 @@ void OnlineBeamMonitor::globalEndLuminosityBlock(const LuminosityBlock& iLumi, c
   MonitorElement* histo = nullptr;
   for (const auto& itV : varNamesV_) {
     resultsMap.clear();
-    for (const auto& itBS : beamSpotsMap_) {
+    for (const auto& itBS : beamSpotInfo->beamSpotsMap_) {
       if (itBS.second.type() == BeamSpot::Tracker) {
         if (itV == "x") {
           resultsMap[itBS.first] = pair<double, double>(itBS.second.x0(), itBS.second.x0Error());

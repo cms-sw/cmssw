@@ -22,7 +22,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/FitUtils.h"
+#include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -103,7 +103,6 @@ void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
   auto const& detIndices = tsoa.view().detIndices();
   auto maxTracks = tsoa.view().metadata().size();
 
-  int32_t nt = 0;
   for (int32_t it = 0; it < maxTracks; ++it) {
     auto nHits = trackHelper::nHits(tsoa.view(), it);
     if (nHits == 0)
@@ -114,7 +113,6 @@ void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
       continue;  // FIXME
     if (nHits < minNumberOfHits_)
       continue;
-    ++nt;
 
     // fill hits with invalid just to hold the detId
     auto b = detIndices.begin(it);

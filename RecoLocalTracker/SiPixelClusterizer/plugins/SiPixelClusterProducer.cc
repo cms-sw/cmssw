@@ -58,12 +58,15 @@ SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf)
   trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
   const auto& payloadType = conf.getParameter<std::string>("payloadType");
+
   if (payloadType == "HLT")
     theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationForHLTService>(conf, consumesCollector());
   else if (payloadType == "Offline")
     theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationOfflineService>(conf, consumesCollector());
   else if (payloadType == "Full")
     theSiPixelGainCalibration_ = std::make_unique<SiPixelGainCalibrationService>(conf, consumesCollector());
+  else if (payloadType == "None")
+    theSiPixelGainCalibration_ = nullptr;
 
   //--- Make the algorithm(s) according to what the user specified
   //--- in the ParameterSet.
@@ -80,7 +83,7 @@ void SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<std::string>("ClusterMode", "PixelThresholdClusterizer");
   desc.add<int>("maxNumberOfClusters", -1)->setComment("-1 means no limit");
   desc.add<std::string>("payloadType", "Offline")
-      ->setComment("Options: HLT - column granularity, Offline - gain:col/ped:pix");
+      ->setComment("Options: HLT - column granularity, Offline - gain:col/ped:pix, None: no gain calibrations");
 
   PixelThresholdClusterizer::fillPSetDescription(desc);
   SiPixelGainCalibrationServiceBase::fillPSetDescription(desc);  // no-op, but in principle the structures are there...
@@ -93,7 +96,8 @@ void SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 //---------------------------------------------------------------------------
 void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   //Setup gain calibration service
-  theSiPixelGainCalibration_->setESObjects(es);
+  if (theSiPixelGainCalibration_.get())
+    theSiPixelGainCalibration_->setESObjects(es);
 
   // Step A.1: get input data
   edm::Handle<SiPixelClusterCollectionNew> inputClusters;
@@ -124,7 +128,7 @@ void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   output->shrink_to_fit();
 
   // set sequential identifier
-  for (auto& clusters : *output) {
+  for (auto clusters : *output) {
     uint16_t id = 0;
     for (auto& cluster : clusters) {
       cluster.setOriginalId(id++);
@@ -141,7 +145,9 @@ void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 void SiPixelClusterProducer::setupClusterizer(const edm::ParameterSet& conf) {
   if (clusterMode_ == "PixelThresholdReclusterizer" || clusterMode_ == "PixelThresholdClusterizer") {
     clusterizer_ = std::make_unique<PixelThresholdClusterizer>(conf);
-    clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
+    if (theSiPixelGainCalibration_.get()) {
+      clusterizer_->setSiPixelGainCalibrationService(theSiPixelGainCalibration_.get());
+    }
   } else {
     throw cms::Exception("Configuration") << "[SiPixelClusterProducer]:"
                                           << " choice " << clusterMode_ << " is invalid.\n"
@@ -157,13 +163,10 @@ template <typename T>
 void SiPixelClusterProducer::run(const T& input,
                                  const edm::ESHandle<TrackerGeometry>& geom,
                                  edmNew::DetSetVector<SiPixelCluster>& output) {
-  int numberOfDetUnits = 0;
   int numberOfClusters = 0;
 
   // Iterate on detector units
   for (auto const& dsv : input) {
-    ++numberOfDetUnits;
-
     //  LogDebug takes very long time, get rid off.
     //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << dsv.id;
 
@@ -200,12 +203,9 @@ void SiPixelClusterProducer::run(const T& input,
       break;
     }
   }  // end of DetUnit loop
-
-  //LogDebug ("SiPixelClusterProducer") << " Executing "
-  //      << clusterMode_ << " resulted in " << numberOfClusters
-  //      << " SiPixelClusters in " << numberOfDetUnits << " DetUnits.";
 }
 
+#include "PixelThresholdClusterizer.icc"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

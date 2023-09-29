@@ -3,6 +3,7 @@
 // Description: Sensitive Detector class for High Granularity Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/FastMath.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "SimG4CMS/Calo/interface/HGCalSD.h"
@@ -25,6 +26,8 @@
 
 //#define EDM_ML_DEBUG
 
+using namespace angle_units::operators;
+
 HGCalSD::HGCalSD(const std::string& name,
                  const HGCalDDDConstants* hgc,
                  const SensitiveDetectorCatalog& clg,
@@ -41,9 +44,11 @@ HGCalSD::HGCalSD(const std::string& name,
       levelT1_(99),
       levelT2_(99),
       useSimWt_(0),
-      tan30deg_(std::tan(30.0 * CLHEP::deg)) {
+      tan30deg_(std::tan(30.0 * CLHEP::deg)),
+      cos30deg_(std::cos(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
   guardRing_.reset(nullptr);
+  guardRingPartial_.reset(nullptr);
   mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
@@ -57,6 +62,7 @@ HGCalSD::HGCalSD(const std::string& name,
   missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
   checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
   verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
+  dd4hep_ = p.getParameter<bool>("g4GeometryDD4hepSource");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -151,6 +157,9 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     moduleLev = 2;
   }
   int module = touch->GetReplicaNumber(moduleLev);
+  if (verbose_ && (cell == -1))
+    edm::LogVerbatim("HGCSim") << "Top " << touch->GetVolume(0)->GetName() << " Module "
+                               << touch->GetVolume(moduleLev)->GetName();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
                              << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
@@ -180,7 +189,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     if (fiducialCut_) {
       int layertype = hgcons_->layerType(layer);
       int frontBack = HGCalTypes::layerFrontBack(layertype);
-      if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
+      if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) ||
+          guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
         id = 0;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
@@ -200,23 +210,34 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 #endif
   if ((id != 0) && checkID_) {
     HGCSiliconDetId hid1(id);
-    bool cshift = (hgcons_->cassetteShiftSilicon(hid1.layer(), hid1.waferU(), hid1.waferV()));
+    bool cshift = (hgcons_->cassetteShiftSilicon(hid1.zside(), hid1.layer(), hid1.waferU(), hid1.waferV()));
     std::string_view pid = (cshift ? "HGCSim" : "HGCalSim");
     bool debug = (verbose_ > 0) ? true : false;
     auto xy = hgcons_->locateCell(hid1, debug);
     double xx = (hid1.zside() > 0) ? xy.first : -xy.first;
     double dx = xx - (hitPoint.x() / CLHEP::cm);
     double dy = xy.second - (hitPoint.y() / CLHEP::cm);
-    double diff = std::sqrt(dx * dx + dy * dy);
-    constexpr double tol = 2.0;
+    double diff = (dx * dx + dy * dy);
+    constexpr double tol = 2.0 * 2.0;
     bool valid1 = hgcons_->isValidHex8(hid1.layer(), hid1.waferU(), hid1.waferV(), hid1.cellU(), hid1.cellV(), true);
     if ((diff > tol) || (!valid1))
       pid = "HGCalError";
     auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
-    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
-                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xx << ", " << xy.second
-                          << ") distance " << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first
-                          << ":" << partn.second << " CassetteShift " << cshift;
+    int indx = HGCalWaferIndex::waferIndex(layer, hid1.waferU(), hid1.waferV());
+    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " Layer:Module:Cell:ModuleLev " << layer << ":"
+                          << module << ":" << cell << ":" << moduleLev << " SimWt:history " << useSimWt_ << ":"
+                          << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << " input position: ("
+                          << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << ":"
+                          << convertRadToDeg(std::atan2(hitPoint.y(), hitPoint.x())) << "); position from ID (" << xx
+                          << ", " << xy.second << ") distance " << dx << ":" << dy << ":" << std::sqrt(diff)
+                          << " Valid " << valid1 << " Wafer type|rotation " << partn.first << ":" << partn.second
+                          << " Part:Orient:Cassette " << std::get<1>(hgcons_->waferFileInfo(indx)) << ":"
+                          << std::get<2>(hgcons_->waferFileInfo(indx)) << ":"
+                          << std::get<3>(hgcons_->waferFileInfo(indx)) << " CassetteShift " << cshift;
+    if ((diff > tol) || (!valid1)) {
+      printDetectorLevels(touch);
+      hgcons_->locateCell(hid1, true);
+    }
   }
   return id;
 }
@@ -227,26 +248,37 @@ void HGCalSD::update(const BeginOfJob* job) {
     slopeMin_ = hgcons_->minSlope();
     levelT1_ = hgcons_->levelTop(0);
     levelT2_ = hgcons_->levelTop(1);
+    if (dd4hep_) {
+      ++levelT1_;
+      ++levelT2_;
+    }
     useSimWt_ = hgcons_->getParameter()->useSimWt_;
     int useOffset = hgcons_->getParameter()->useOffset_;
     double waferSize = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
-    mouseBiteCut_ = waferSize * tan30deg_ - mouseBite;
+    double guardRingOffset = hgcons_->guardRingOffset(false);
+    double sensorSizeOffset = hgcons_->sensorSizeOffset(false);
     if (useOffset > 0) {
       rejectMB_ = true;
       fiducialCut_ = true;
     }
+    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset + sensorSizeOffset / cos30deg_) : mouseBite;
+    mouseBiteCut_ = waferSize * tan30deg_ - mouseBiteNew;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize << ":" << mouseBite << " useOffset " << useOffset;
+                               << waferSize << ":" << mouseBite << ":" << guardRingOffset << ":" << sensorSizeOffset
+                               << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset
+                               << " dd4hep " << dd4hep_;
 #endif
 
     numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, missingFile_);
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
-    if (fiducialCut_)
+    if (fiducialCut_) {
       guardRing_ = std::make_unique<HGCGuardRing>(*hgcons_);
+      guardRingPartial_ = std::make_unique<HGCGuardRingPartial>(*hgcons_);
+    }
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

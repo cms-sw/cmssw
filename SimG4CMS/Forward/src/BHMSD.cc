@@ -13,7 +13,7 @@ BHMSD::BHMSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : TimingSD(name, clg, manager), numberingScheme(nullptr) {
+    : TimingSD(name, clg, manager) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BHMSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
@@ -23,11 +23,8 @@ BHMSD::BHMSD(const std::string& name,
   if (verbn > 0) {
     edm::LogVerbatim("BHMSim") << "name = " << name << " and new BHMNumberingScheme";
   }
-  numberingScheme = new BHMNumberingScheme();
 }
 
-BHMSD::~BHMSD() { delete numberingScheme; }
+BHMSD::~BHMSD() {}
 
-uint32_t BHMSD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
-}
+uint32_t BHMSD::setDetUnitId(const G4Step* aStep) { return BHMNumberingScheme::getUnitID(aStep); }

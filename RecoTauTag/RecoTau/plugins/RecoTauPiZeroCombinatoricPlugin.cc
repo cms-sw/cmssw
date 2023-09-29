@@ -78,8 +78,8 @@ namespace reco {
       // Find all possible combinations
       for (ComboGenerator::iterator combo = generator.begin(); combo != generator.end(); ++combo) {
         const Candidate::LorentzVector totalP4;
-        std::unique_ptr<RecoTauPiZero> piZero(
-            new RecoTauPiZero(0, totalP4, Candidate::Point(0, 0, 0), 111, 10001, true, RecoTauPiZero::kCombinatoric));
+        auto piZero = std::make_unique<RecoTauPiZero>(
+            0, totalP4, Candidate::Point(0, 0, 0), 111, 10001, true, RecoTauPiZero::kCombinatoric);
         // Add our daughters from this combination
         for (auto candidate = combo->combo_begin(); candidate != combo->combo_end(); ++candidate) {
           piZero->addDaughter(*candidate);

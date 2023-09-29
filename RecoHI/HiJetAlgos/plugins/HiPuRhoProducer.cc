@@ -132,7 +132,6 @@ private:
   std::vector<fastjet::PseudoJet> fjOriginalInputs_;  // to back-up unsubtracted fastjet inputs
 
   CaloGeometry const* geo_ = nullptr;  // geometry
-  std::vector<HcalDetId> allgeomid_;   // all det ids in the geometry
 
   int ietamax_;                                 // maximum eta in geometry
   int ietamin_;                                 // minimum eta in geometry
@@ -245,7 +244,6 @@ void HiPuRhoProducer::setupGeometryMap(edm::Event& iEvent, const edm::EventSetup
   for (auto const& did : alldid) {
     if (did.det() == DetId::Hcal) {
       HcalDetId hid = HcalDetId(did);
-      allgeomid_.push_back(did);
       towermap_.push_back({hid.ieta(), hid.iphi(), geo_->getPosition(did).eta(), geo_->getPosition(did).phi()});
       if (hid.ieta() != ietaold) {
         ietaold = hid.ieta();

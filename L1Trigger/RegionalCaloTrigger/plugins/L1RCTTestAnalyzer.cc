@@ -135,7 +135,6 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
     h_emCandTimeSample->Fill((*em).bx());
     if ((*em).bx() == 0) {
-      unsigned short n_emcands = 0;
       // std::cout << std::endl << "rank: " << (*em).rank() ;
 
       if ((*em).rank() > 0) {
@@ -175,7 +174,6 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
           if (crate < 9) {
             eta_bin = -eta_bin;
           }
-          n_emcands++;
 
           //		   std::cout << /* "rank: " << (*em).rank() << */ "
           // eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: "

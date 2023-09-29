@@ -1,4 +1,5 @@
 // user includes
+#include "Alignment/OfflineValidation/interface/FitWithRooFit.h"
 #include "DQMOffline/Alignment/interface/DiMuonMassBiasClient.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,6 +20,8 @@
 //-----------------------------------------------------------------------------------
 DiMuonMassBiasClient::DiMuonMassBiasClient(edm::ParameterSet const& iConfig)
     : TopFolder_(iConfig.getParameter<std::string>("FolderName")),
+      useTH1s_(iConfig.getParameter<bool>("useTH1s")),
+      useBWtimesCB_(iConfig.getParameter<bool>("useBWtimesCB")),
       fitBackground_(iConfig.getParameter<bool>("fitBackground")),
       useRooCBShape_(iConfig.getParameter<bool>("useRooCBShape")),
       useRooCMSShape_(iConfig.getParameter<bool>("useRooCMSShape")),
@@ -85,12 +88,12 @@ void DiMuonMassBiasClient::bookMEs(DQMStore::IBooker& iBooker)
     const auto& xmax = ME->getAxisMax(1);
 
     MonitorElement* meanToBook =
-        iBooker.book1D(("Mean" + key), (title + ";" + xtitle + ";" + ytitle), nxbins, xmin, xmax);
-    meanProfiles_.insert({key, meanToBook});
+        iBooker.book1D(("Mean" + key), (title + ";#LT M_{#mu^{-}#mu^{+}} #GT [GeV];" + ytitle), nxbins, xmin, xmax);
+    meanHistos_.insert({key, meanToBook});
 
     MonitorElement* sigmaToBook =
         iBooker.book1D(("Sigma" + key), (title + ";" + xtitle + ";" + "#sigma of " + ytitle), nxbins, xmin, xmax);
-    widthProfiles_.insert({key, sigmaToBook});
+    widthHistos_.insert({key, sigmaToBook});
   }
 }
 
@@ -114,45 +117,167 @@ void DiMuonMassBiasClient::getMEsToHarvest(DQMStore::IGetter& iGetter)
 }
 
 //-----------------------------------------------------------------------------------
+void DiMuonMassBiasClient::fitAndFillProfile(std::pair<std::string, MonitorElement*> toHarvest,
+                                             DQMStore::IBooker& iBooker)
+//-----------------------------------------------------------------------------------
+{
+  const auto& key = toHarvest.first;
+  const auto& ME = toHarvest.second;
+
+  if (debugMode_)
+    edm::LogPrint("DiMuonMassBiasClient") << "dealing with key: " << key << std::endl;
+
+  if (ME == nullptr) {
+    edm::LogError("DiMuonMassBiasClient") << "could not find MonitorElement for key: " << key << std::endl;
+    return;
+  }
+
+  const auto& title = ME->getTitle();
+  const auto& xtitle = ME->getAxisTitle(1);
+  const auto& ytitle = ME->getAxisTitle(2);
+
+  const auto& nxbins = ME->getNbinsX();
+  const auto& xmin = ME->getAxisMin(1);
+  const auto& xmax = ME->getAxisMax(1);
+
+  TProfile* p_mean = new TProfile(("Mean" + key).c_str(),
+                                  (title + ";" + xtitle + ";#LT M_{#mu^{-}#mu^{+}} #GT [GeV]").c_str(),
+                                  nxbins,
+                                  xmin,
+                                  xmax,
+                                  "g");
+
+  TProfile* p_width = new TProfile(
+      ("Sigma" + key).c_str(), (title + ";" + xtitle + ";#sigma of " + ytitle).c_str(), nxbins, xmin, xmax, "g");
+
+  p_mean->Sumw2();
+  p_width->Sumw2();
+
+  TH2F* bareHisto = ME->getTH2F();
+  for (int bin = 1; bin <= nxbins; bin++) {
+    const auto& xaxis = bareHisto->GetXaxis();
+    const auto& low_edge = xaxis->GetBinLowEdge(bin);
+    const auto& high_edge = xaxis->GetBinUpEdge(bin);
+
+    if (debugMode_)
+      edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << " range: (" << std::setprecision(2)
+                                            << low_edge << "," << std::setprecision(2) << high_edge << ")";
+
+    TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
+    Proj->SetTitle(Form("%s #in (%.2f,%.2f), bin: %i", Proj->GetTitle(), low_edge, high_edge, bin));
+
+    diMuonMassBias::fitOutputs results = useBWtimesCB_ ? fitBWTimesCB(Proj) : fitLineShape(Proj, fitBackground_);
+
+    if (results.isInvalid()) {
+      edm::LogWarning("DiMuonMassBiasClient") << "the current bin has invalid data" << std::endl;
+      continue;
+    }
+
+    // fill the mean profiles
+    const Measurement1D& bias = results.getBias();
+
+    // ============================================= DISCLAIMER ================================================
+    // N.B. this is sort of a hack in order to fill arbitrarily both central values and error bars of a TProfile.
+    // Choosing the option "g" in the constructor the bin error will be 1/sqrt(W(j)), where W(j) is the sum of weights.
+    // Filling the sum of weights with the 1 / err^2, the bin error automatically becomes "err".
+    // In order to avoid the central value to be shifted, that's divided by 1 / err^2 as well.
+    // For more information, please consult the https://root.cern.ch/doc/master/classTProfile.html
+
+    p_mean->SetBinContent(bin, bias.value() / (bias.error() * bias.error()));
+    p_mean->SetBinEntries(bin, 1. / (bias.error() * bias.error()));
+
+    if (debugMode_)
+      LogDebug("DiMuonBassBiasClient") << " Bin: " << bin << " value:  " << bias.value() << " from profile ( "
+                                       << p_mean->GetBinContent(bin) << ") - error:  " << bias.error()
+                                       << "  from profile ( " << p_mean->GetBinError(bin) << " )";
+
+    // fill the width profiles
+    const Measurement1D& width = results.getWidth();
+
+    // see discussion above
+    p_width->SetBinContent(bin, width.value() / (width.error() * width.error()));
+    p_width->SetBinEntries(bin, 1. / (width.error() * width.error()));
+  }
+
+  // now book the profiles
+  iBooker.setCurrentFolder(TopFolder_ + "/DiMuonMassBiasMonitor/MassBias/Profiles");
+  MonitorElement* meanToBook = iBooker.bookProfile(p_mean->GetName(), p_mean);
+  meanProfiles_.insert({key, meanToBook});
+
+  MonitorElement* sigmaToBook = iBooker.bookProfile(p_width->GetName(), p_width);
+  widthProfiles_.insert({key, sigmaToBook});
+
+  delete p_mean;
+  delete p_width;
+}
+
+//-----------------------------------------------------------------------------------
+void DiMuonMassBiasClient::fitAndFillHisto(std::pair<std::string, MonitorElement*> toHarvest,
+                                           DQMStore::IBooker& iBooker)
+//-----------------------------------------------------------------------------------
+{
+  const auto& key = toHarvest.first;
+  const auto& ME = toHarvest.second;
+
+  if (debugMode_)
+    edm::LogPrint("DiMuonMassBiasClient") << "dealing with key: " << key << std::endl;
+
+  if (ME == nullptr) {
+    edm::LogError("DiMuonMassBiasClient") << "could not find MonitorElement for key: " << key << std::endl;
+    return;
+  }
+
+  TH2F* bareHisto = ME->getTH2F();
+  for (int bin = 1; bin <= ME->getNbinsX(); bin++) {
+    const auto& xaxis = bareHisto->GetXaxis();
+    const auto& low_edge = xaxis->GetBinLowEdge(bin);
+    const auto& high_edge = xaxis->GetBinUpEdge(bin);
+
+    if (debugMode_)
+      edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << " range: (" << std::setprecision(2)
+                                            << low_edge << "," << std::setprecision(2) << high_edge << ")";
+    TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
+    Proj->SetTitle(Form("%s #in (%.2f,%.2f), bin: %i", Proj->GetTitle(), low_edge, high_edge, bin));
+
+    diMuonMassBias::fitOutputs results = useBWtimesCB_ ? fitBWTimesCB(Proj) : fitLineShape(Proj, fitBackground_);
+
+    if (results.isInvalid()) {
+      edm::LogWarning("DiMuonMassBiasClient") << "the current bin has invalid data" << std::endl;
+      continue;
+    }
+
+    // fill the mean profiles
+    const Measurement1D& bias = results.getBias();
+    meanHistos_[key]->setBinContent(bin, bias.value());
+    meanHistos_[key]->setBinError(bin, bias.error());
+
+    // fill the width profiles
+    const Measurement1D& width = results.getWidth();
+    widthHistos_[key]->setBinContent(bin, width.value());
+    widthHistos_[key]->setBinError(bin, width.error());
+  }
+}
+
+//-----------------------------------------------------------------------------------
 void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 //-----------------------------------------------------------------------------------
 {
   edm::LogInfo("DiMuonMassBiasClient") << "DiMuonMassBiasClient::endLuminosityBlock";
 
   getMEsToHarvest(igetter);
-  bookMEs(ibooker);
 
-  for (const auto& [key, ME] : harvestTargets_) {
-    if (debugMode_)
-      edm::LogPrint("DiMuonMassBiasClient") << "dealing with key: " << key << std::endl;
-    TH2F* bareHisto = ME->getTH2F();
-    for (int bin = 1; bin <= ME->getNbinsX(); bin++) {
-      const auto& xaxis = bareHisto->GetXaxis();
-      const auto& low_edge = xaxis->GetBinLowEdge(bin);
-      const auto& high_edge = xaxis->GetBinUpEdge(bin);
+  // book the histograms upfront
+  if (useTH1s_) {
+    bookMEs(ibooker);
+  }
 
-      if (debugMode_)
-        edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << " range: (" << std::setprecision(2)
-                                              << low_edge << "," << std::setprecision(2) << high_edge << ")";
-      TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
-      Proj->SetTitle(Form("%s #in (%.2f,%.2f), bin: %i", Proj->GetTitle(), low_edge, high_edge, bin));
-
-      diMuonMassBias::fitOutputs results = fitLineShape(Proj);
-
-      if (results.isInvalid()) {
-        edm::LogWarning("DiMuonMassBiasClient") << "the current bin has invalid data" << std::endl;
-        continue;
-      }
-
-      // fill the mean profiles
-      const Measurement1D& bias = results.getBias();
-      meanProfiles_[key]->setBinContent(bin, bias.value());
-      meanProfiles_[key]->setBinError(bin, bias.error());
-
-      // fill the width profiles
-      const Measurement1D& width = results.getWidth();
-      widthProfiles_[key]->setBinContent(bin, width.value());
-      widthProfiles_[key]->setBinError(bin, width.error());
+  for (const auto& element : harvestTargets_) {
+    if (!useTH1s_) {
+      // if using profiles
+      this->fitAndFillProfile(element, ibooker);
+    } else {
+      // if using histograms
+      this->fitAndFillHisto(element, ibooker);
     }
   }
 }
@@ -219,7 +344,7 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitLineShape(TH1* hist, const b
   RooRealVar b("N_{b}", "Number of background events", 0, hist->GetEntries() / 10.);
   RooRealVar s("N_{s}", "Number of signal events", 0, hist->GetEntries());
 
-  if (fitBackground_) {
+  if (fitBackground) {
     RooArgList listPdf;
     if (useRooCBShape_) {
       if (useRooCMSShape_) {
@@ -293,11 +418,96 @@ diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitLineShape(TH1* hist, const b
 }
 
 //-----------------------------------------------------------------------------------
+diMuonMassBias::fitOutputs DiMuonMassBiasClient::fitBWTimesCB(TH1* hist) const
+//-----------------------------------------------------------------------------------
+{
+  if (hist->GetEntries() < diMuonMassBias::minimumHits) {
+    edm::LogWarning("DiMuonMassBiasClient") << " Input histogram:" << hist->GetName() << " has not enough entries ("
+                                            << hist->GetEntries() << ") for a meaningful Voigtian fit!\n"
+                                            << "Skipping!";
+
+    return diMuonMassBias::fitOutputs(Measurement1D(0., 0.), Measurement1D(0., 0.));
+  }
+
+  TCanvas* c1 = new TCanvas();
+  if (debugMode_) {
+    c1->Clear();
+    c1->SetLeftMargin(0.15);
+    c1->SetRightMargin(0.10);
+  }
+
+  // silence messages
+  RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
+
+  Double_t xMean = 91.1876;
+  Double_t xMin = hist->GetXaxis()->GetXmin();
+  Double_t xMax = hist->GetXaxis()->GetXmax();
+
+  if (debugMode_) {
+    edm::LogPrint("DiMuonMassBiasClient") << "fitting range: (" << xMin << "-" << xMax << ")" << std::endl;
+  }
+
+  double sigma(2.);
+  double sigmaMin(0.1);
+  double sigmaMax(10.);
+
+  double sigma2(0.1);
+  double sigma2Min(0.);
+  double sigma2Max(10.);
+
+  std::unique_ptr<FitWithRooFit> fitter = std::make_unique<FitWithRooFit>();
+
+  bool useChi2(false);
+
+  fitter->useChi2_ = useChi2;
+  fitter->initMean(xMean, xMin, xMax);
+  fitter->initSigma(sigma, sigmaMin, sigmaMax);
+  fitter->initSigma2(sigma2, sigma2Min, sigma2Max);
+  fitter->initAlpha(1.5, 0.05, 10.);
+  fitter->initN(1, 0.01, 100.);
+  fitter->initFGCB(0.4, 0., 1.);
+  fitter->initGamma(2.4952, 0., 10.);
+  fitter->gamma()->setConstant(kTRUE);
+  fitter->initMean2(0., -20., 20.);
+  fitter->mean2()->setConstant(kTRUE);
+  fitter->initSigma(1.2, 0., 5.);
+  fitter->initAlpha(1.5, 0.05, 10.);
+  fitter->initN(1, 0.01, 100.);
+  fitter->initExpCoeffA0(-1., -10., 10.);
+  fitter->initExpCoeffA1(0., -10., 10.);
+  fitter->initExpCoeffA2(0., -2., 2.);
+  fitter->initFsig(0.9, 0., 1.);
+  fitter->initA0(0., -10., 10.);
+  fitter->initA1(0., -10., 10.);
+  fitter->initA2(0., -10., 10.);
+  fitter->initA3(0., -10., 10.);
+  fitter->initA4(0., -10., 10.);
+  fitter->initA5(0., -10., 10.);
+  fitter->initA6(0., -10., 10.);
+
+  fitter->fit(hist, "breitWignerTimesCB", "exponential", xMin, xMax, false);
+
+  TString histName = hist->GetName();
+
+  if (debugMode_) {
+    c1->Print("fit_debug" + histName + ".pdf");
+  }
+  delete c1;
+
+  Measurement1D resultM(fitter->mean()->getValV(), fitter->mean()->getError());
+  Measurement1D resultW(fitter->sigma()->getValV(), fitter->sigma()->getError());
+
+  return diMuonMassBias::fitOutputs(resultM, resultW);
+}
+
+//-----------------------------------------------------------------------------------
 void DiMuonMassBiasClient::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 //-----------------------------------------------------------------------------------
 {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "DiMuonMassBiasMonitor");
+  desc.add<bool>("useTH1s", false);
+  desc.add<bool>("useBWtimesCB", false);
   desc.add<bool>("fitBackground", false);
   desc.add<bool>("useRooCMSShape", false);
   desc.add<bool>("useRooCBShape", false);

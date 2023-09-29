@@ -11,12 +11,12 @@ rivetAnalyzer = cms.EDAnalyzer('RivetAnalyzer',
   weightCap = cms.double(0.),
   NLOSmearing = cms.double(0.),
   skipMultiWeights = cms.bool(False),
+  setIgnoreBeams = cms.bool(False),
   selectMultiWeights = cms.string(''),
   deselectMultiWeights = cms.string(''),
   setNominalWeightName = cms.string(''),
   LHECollection = cms.InputTag('externalLHEProducer'),
   CrossSection = cms.double(-1),
   DoFinalize = cms.bool(True),
-  ProduceDQMOutput = cms.bool(False),
   OutputFile = cms.string('out.yoda')
 )

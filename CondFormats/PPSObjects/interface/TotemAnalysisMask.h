@@ -11,9 +11,9 @@
 #define CondFormats_PPSObjects_TotemAnalysisMask
 
 #include "CondFormats/PPSObjects/interface/TotemSymbId.h"
-
-#include <set>
+#include "CondFormats/Serialization/interface/Serializable.h"
 #include <map>
+#include <set>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -29,6 +29,8 @@ public:
 
   /// list of channels to be masked
   std::set<unsigned char> maskedChannels;
+
+  COND_SERIALIZABLE;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -40,7 +42,12 @@ class TotemAnalysisMask {
 public:
   std::map<TotemSymbID, TotemVFATAnalysisMask> analysisMask;
 
-  void insert(const TotemSymbID &sid, const TotemVFATAnalysisMask &vam);
+  void insert(const TotemSymbID& sid, const TotemVFATAnalysisMask& vam);
+  void print(std::ostream& os) const;
+
+  COND_SERIALIZABLE;
 };
+
+std::ostream& operator<<(std::ostream& os, TotemAnalysisMask mask);
 
 #endif

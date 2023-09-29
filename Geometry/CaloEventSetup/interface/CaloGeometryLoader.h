@@ -29,9 +29,9 @@ public:
   static constexpr double k_ScaleFromDDD = 0.1;
   static constexpr double k_ScaleFromDD4hep = (1.0 / dd4hep::cm);
 
-  CaloGeometryLoader<T>() {}
+  virtual ~CaloGeometryLoader() = default;
 
-  virtual ~CaloGeometryLoader<T>() = default;
+  CaloGeometryLoader() = default;
 
   PtrType load(const DDCompactView* cpv, const Alignments* alignments = nullptr, const Alignments* globals = nullptr);
   PtrType load(const cms::DDCompactView* cpv,

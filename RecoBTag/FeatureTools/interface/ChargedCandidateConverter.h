@@ -15,10 +15,13 @@ namespace btagbtvdeep {
   void commonCandidateToFeatures(const CandidateType* c_pf,
                                  const reco::Jet& jet,
                                  const TrackInfoBuilder& track_info,
+                                 const bool& isWeightedJet,
                                  const float& drminpfcandsv,
                                  const float& jetR,
+                                 const float& puppiw,
                                  ChargedCandidateFeatures& c_pf_features,
-                                 const bool flip = false) {
+                                 const bool flip = false,
+                                 const float& distminpfcandsv = 0) {
     float trackSip2dVal = track_info.getTrackSip2dVal();
     float trackSip2dSig = track_info.getTrackSip2dSig();
     float trackSip3dVal = track_info.getTrackSip3dVal();
@@ -31,9 +34,15 @@ namespace btagbtvdeep {
     }
 
     c_pf_features.deltaR = reco::deltaR(*c_pf, jet);
-    c_pf_features.ptrel = catch_infs_and_bound(c_pf->pt() / jet.pt(), 0, -1, 0, -1);
-    c_pf_features.ptrel_noclip = c_pf->pt() / jet.pt();
-    c_pf_features.erel = c_pf->energy() / jet.energy();
+
+    float constituentWeight = 1.;
+    if (isWeightedJet)
+      constituentWeight = puppiw;
+
+    c_pf_features.ptrel = catch_infs_and_bound((c_pf->pt() * constituentWeight) / jet.pt(), 0, -1, 0, -1);
+    c_pf_features.ptrel_noclip = (c_pf->pt() * constituentWeight) / jet.pt();
+    c_pf_features.erel = (c_pf->energy() * constituentWeight) / jet.energy();
+
     const float etasign = jet.eta() > 0 ? 1 : -1;
     c_pf_features.etarel = etasign * (c_pf->eta() - jet.eta());
 
@@ -50,30 +59,44 @@ namespace btagbtvdeep {
     c_pf_features.btagPf_trackJetDistVal = catch_infs_and_bound(track_info.getTrackJetDistVal(), 0, -20, 1);
 
     c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv, 0, -1. * jetR, 0, -1. * jetR);
+    c_pf_features.distminsv = distminpfcandsv;
 
     std::pair<float, float> drSubjetFeatures = getDRSubjetFeatures(jet, c_pf);
     c_pf_features.drsubjet1 = drSubjetFeatures.first;
     c_pf_features.drsubjet2 = drSubjetFeatures.second;
+
+    c_pf_features.pt = c_pf->pt();
+    c_pf_features.eta = c_pf->eta();
+    c_pf_features.phi = c_pf->phi();
+    c_pf_features.e = c_pf->energy();
+    c_pf_features.px = c_pf->px();
+    c_pf_features.py = c_pf->py();
+    c_pf_features.pz = c_pf->pz();
   }
 
   void packedCandidateToFeatures(const pat::PackedCandidate* c_pf,
                                  const pat::Jet& jet,
                                  const TrackInfoBuilder& track_info,
+                                 const bool isWeightedJet,
                                  const float drminpfcandsv,
                                  const float jetR,
+                                 const float puppiw,
                                  ChargedCandidateFeatures& c_pf_features,
-                                 const bool flip = false);
+                                 const bool flip = false,
+                                 const float distminpfcandsv = 0);
 
   void recoCandidateToFeatures(const reco::PFCandidate* c_pf,
                                const reco::Jet& jet,
                                const TrackInfoBuilder& track_info,
+                               const bool isWeightedJet,
                                const float drminpfcandsv,
                                const float jetR,
                                const float puppiw,
                                const int pv_ass_quality,
                                const reco::VertexRef& pv,
                                ChargedCandidateFeatures& c_pf_features,
-                               const bool flip = false);
+                               const bool flip = false,
+                               const float distminpfcandsv = 0);
 
 }  // namespace btagbtvdeep
 

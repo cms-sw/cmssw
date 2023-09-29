@@ -102,7 +102,6 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1Clusters_cfi import *
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackResiduals_cfi import *
 
-
 # Raw data errors
 from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
 

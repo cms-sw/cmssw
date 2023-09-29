@@ -315,7 +315,6 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
   }
   ev.getByToken(trigEvToken_, handleTriggerEvent);
   const trigger::TriggerObjectCollection& toc(handleTriggerEvent->getObjects());
-  size_t nMuHLT = 0;
   std::vector<reco::Particle> HLTMuMatched;
   for (size_t ia = 0; ia < handleTriggerEvent->sizeFilters(); ++ia) {
     std::string fullname = handleTriggerEvent->filterTag(ia).encode();
@@ -337,7 +336,6 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
           hlt_sel = true;
           nhlt++;
           HLTMuMatched.push_back(toc[*ki].particle());
-          nMuHLT++;
         }
       }
     }

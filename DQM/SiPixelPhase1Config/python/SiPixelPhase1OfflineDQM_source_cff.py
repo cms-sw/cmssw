@@ -24,8 +24,7 @@ from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 from DQM.SiPixelPhase1Summary.SiPixelBarycenter_cfi import *
 
 
-
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 from DQM.SiPixelPhase1Track.SiPixelPhase1EfficiencyExtras_cfi import *
 

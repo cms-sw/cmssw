@@ -57,7 +57,7 @@ globalPrevalidationTracking = cms.Sequence(
 globalPrevalidation = cms.Sequence(
     globalPrevalidationTracking
   * photonPrevalidationSequence
-  * produceDenoms
+  #* produceDenoms
   * prebTagSequenceMC
 )
 
@@ -102,7 +102,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + L1Validator
                                  + bdHadronTrackValidationSeq
 )
-
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(globalValidation, globalValidation.copyAndExclude([

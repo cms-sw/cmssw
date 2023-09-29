@@ -99,6 +99,7 @@ public:
       latencyToken_ = esConsumes<edm::Transition::BeginRun>();
     }
 
+    coord_ = std::nullopt;
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
@@ -165,7 +166,7 @@ private:
 
   edm::ESHandle<MagneticField> magneticField_;
 
-  SiPixelCoordinates coord_;
+  std::optional<SiPixelCoordinates> coord_;
 
   edm::Service<TFileService> fs;
 
@@ -273,6 +274,15 @@ private:
   TH1D *hdzPV;
   TH1D *hrun;
   TH1D *hlumi;
+
+  TH1F *h_BSx0;
+  TH1F *h_BSy0;
+  TH1F *h_BSz0;
+  TH1F *h_Beamsigmaz;
+  TH1F *h_BeamWidthX;
+  TH1F *h_BeamWidthY;
+  TH1F *h_BSdxdz;
+  TH1F *h_BSdydz;
 
   std::vector<TH1 *> vTrackHistos_;
   std::vector<TH1 *> vTrackProfiles_;
@@ -382,11 +392,11 @@ private:
               continue;
             auto const &cluster = *clustp;
             int row = cluster.x() - 0.5, col = cluster.y() - 0.5;
-            int rocId = coord_.roc(detId, std::make_pair(row, col));
 
             if (phase_ == SiPixelPI::phase::zero) {
               pmap->fill(detid_db, 1);
             } else if (phase_ == SiPixelPI::phase::one) {
+              int rocId = coord_->roc(detId, std::make_pair(row, col));
               rocsToMask.set(rocId);
               pixelrocsmap_->fillSelectedRocs(detid_db, rocsToMask, 1);
 
@@ -646,12 +656,31 @@ private:
       edm::Handle<reco::BeamSpot> beamSpotHandle = event.getHandle(beamspotToken_);
       if (beamSpotHandle.isValid()) {
         beamSpot = *beamSpotHandle;
-        math::XYZPoint point(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
+
+        double BSx0 = beamSpot.x0();
+        double BSy0 = beamSpot.y0();
+        double BSz0 = beamSpot.z0();
+        double Beamsigmaz = beamSpot.sigmaZ();
+        double Beamdxdz = beamSpot.dxdz();
+        double Beamdydz = beamSpot.dydz();
+        double BeamWidthX = beamSpot.BeamWidthX();
+        double BeamWidthY = beamSpot.BeamWidthY();
+
+        math::XYZPoint point(BSx0, BSy0, BSz0);
         double dxy = track->dxy(point);
         double dz = track->dz(point);
         hdxyBS->Fill(dxy);
         hd0BS->Fill(-dxy);
         hdzBS->Fill(dz);
+
+        h_BSx0->Fill(BSx0);
+        h_BSy0->Fill(BSy0);
+        h_BSz0->Fill(BSz0);
+        h_Beamsigmaz->Fill(Beamsigmaz);
+        h_BeamWidthX->Fill(BeamWidthX);
+        h_BeamWidthY->Fill(BeamWidthY);
+        h_BSdxdz->Fill(Beamdxdz);
+        h_BSdydz->Fill(Beamdydz);
       }
 
       //dxy with respect to the primary vertex
@@ -747,12 +776,17 @@ private:
     conditionsMap_[run.run()].first = mode;
     conditionsMap_[run.run()].second = B_;
 
+    // if phase-2 return, there is no phase-2 implementation of SiPixelCoordinates
+    if (phase_ > SiPixelPI::phase::one)
+      return;
+
     // init the sipixel coordinates
     const TrackerTopology *trackerTopology = &setup.getData(trackerTopologyTokenBR_);
     const SiPixelFedCablingMap *siPixelFedCablingMap = &setup.getData(siPixelFedCablingMapTokenBR_);
 
+    coord_ = coord_.value_or(SiPixelCoordinates());
     // Pixel Phase-1 helper class
-    coord_.init(trackerTopology, trackerGeometry, siPixelFedCablingMap);
+    coord_->init(trackerTopology, trackerGeometry, siPixelFedCablingMap);
   }
 
   //*************************************************************
@@ -842,6 +876,15 @@ private:
         book<TH1D>("h_PhiOverlapMinus", "hPhiOverlapMinus (-1.4<#eta<-0.8);track #phi;tracks", 100, -M_PI, M_PI);
     hPhiEndcapPlus = book<TH1D>("h_PhiEndcapPlus", "hPhiEndcapPlus (#eta>1.4);track #phi;track", 100, -M_PI, M_PI);
     hPhiEndcapMinus = book<TH1D>("h_PhiEndcapMinus", "hPhiEndcapMinus (#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
+
+    h_BSx0 = book<TH1F>("h_BSx0", "x-coordinate of reco beamspot;x^{BS}_{0};n_{events}", 100, -0.1, 0.1);
+    h_BSy0 = book<TH1F>("h_BSy0", "y-coordinate of reco beamspot;y^{BS}_{0};n_{events}", 100, -0.1, 0.1);
+    h_BSz0 = book<TH1F>("h_BSz0", "z-coordinate of reco beamspot;z^{BS}_{0};n_{events}", 100, -1., 1.);
+    h_Beamsigmaz = book<TH1F>("h_Beamsigmaz", "z-coordinate beam width;#sigma_{Z}^{beam};n_{events}", 100, 0., 1.);
+    h_BeamWidthX = book<TH1F>("h_BeamWidthX", "x-coordinate beam width;#sigma_{X}^{beam};n_{events}", 100, 0., 0.01);
+    h_BeamWidthY = book<TH1F>("h_BeamWidthY", "y-coordinate beam width;#sigma_{Y}^{beam};n_{events}", 100, 0., 0.01);
+    h_BSdxdz = book<TH1F>("h_BSdxdz", "BeamSpot dxdz;beamspot dx/dz;n_{events}", 100, -0.0003, 0.0003);
+    h_BSdydz = book<TH1F>("h_BSdydz", "BeamSpot dydz;beamspot dy/dz;n_{events}", 100, -0.0003, 0.0003);
 
     if (!isCosmics_) {
       hPhp = book<TH1D>("h_P_hp", "Momentum (high purity);track momentum [GeV];tracks", 100, 0., 100.);
@@ -1039,6 +1082,7 @@ private:
     }
 
     std::vector<int> theRuns_;
+    theRuns_.reserve(conditionsMap_.size());
     for (const auto &it : conditionsMap_) {
       theRuns_.push_back(it.first);
     }

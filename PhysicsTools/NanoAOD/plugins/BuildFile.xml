@@ -27,3 +27,8 @@
 <library file="*.cc" name="PhysicsToolsNanoAODPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
+  <use name="rootntuple"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+

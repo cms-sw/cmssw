@@ -654,10 +654,10 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
             //loop over all trigger filters in event (i.e. filters passed)
             for (unsigned int ifilter = 0; ifilter < triggerEvent.sizeFilters(); ++ifilter) {
               std::vector<int> Keys;
-              std::string label = triggerEvent.filterTag(ifilter).label();
+              auto const label = triggerEvent.filterLabel(ifilter);
               //loop over keys to objects passing this filter
               for (unsigned int imodule = 0; imodule < moduleLabels.size(); imodule++) {
-                if (label.find(moduleLabels[imodule]) != std::string::npos) {
+                if (label.find(moduleLabels[imodule]) != label.npos) {
 #ifdef EDM_ML_DEBUG
                   if (debug_)
                     edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;
@@ -786,7 +786,7 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
                                                        HcalIsoTrkEventVariables& hocalibEvent,
                                                        const edm::EventID& eventId) {
   int nSave(0), nLoose(0), nTight(0);
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   double rhohEV = (tower.isValid()) ? rhoh(tower) : 0;
 
   //Loop over tracks
@@ -884,7 +884,6 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
       flag += 8;
 #endif
     if (isoTk.qltyFlag_ && notMuon) {
-      nselTracks++;
       int nNearTRKs(0);
       ////////////////////////////////-MIP STUFF-//////////////////////////////
       std::vector<DetId> eIds;

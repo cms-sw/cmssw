@@ -341,6 +341,18 @@ other solution : change this dataPath name to work directly in afs, ex. :
     findingRecord<EcalTimeCalibErrorsRcd>();
   }
 
+  // sim component shape
+  getSimComponentShapeFromFile_ = ps.getUntrackedParameter<bool>("getSimComponentShapeFromFile", false);
+  producedEcalSimComponentShape_ = ps.getUntrackedParameter<bool>("producedEcalSimComponentShape", true);
+  std::vector<std::string> vComponentShapes;
+  EBSimComponentShapeFiles_ =
+      ps.getUntrackedParameter<std::vector<std::string> >("EBSimComponentShapeFiles", vComponentShapes);
+
+  if (producedEcalSimComponentShape_) {  // user asks to produce constants
+    setWhatProduced(this, &EcalTrivialConditionRetriever::getEcalSimComponentShapeFromConfiguration);
+    findingRecord<EcalSimComponentShapeRcd>();
+  }
+
   // sim pulse shape
   getSimPulseShapeFromFile_ = ps.getUntrackedParameter<bool>("getSimPulseShapeFromFile", false);
   producedEcalSimPulseShape_ = ps.getUntrackedParameter<bool>("producedEcalSimPulseShape", true);
@@ -3541,6 +3553,40 @@ std::unique_ptr<EcalSimPulseShape> EcalTrivialConditionRetriever::getEcalSimPuls
   copy(EBshape.begin(), EBshape.end(), back_inserter(result->barrel_shape));
   copy(EEshape.begin(), EEshape.end(), back_inserter(result->endcap_shape));
   copy(APDshape.begin(), APDshape.end(), back_inserter(result->apd_shape));
+
+  return result;
+}
+
+std::unique_ptr<EcalSimComponentShape> EcalTrivialConditionRetriever::getEcalSimComponentShapeFromConfiguration(
+    const EcalSimComponentShapeRcd&) {
+  auto result = std::make_unique<EcalSimComponentShape>();
+
+  // save time interval to be used for the pulse shape
+  result->time_interval = sim_pulse_shape_TI_;
+
+  // containers to store the shape info
+  std::vector<std::vector<float> > EBshapes;
+
+  // --- get the shapes from the user provided txt files
+  if (!EBSimComponentShapeFiles_.empty()) {
+    int iShape(0);
+    for (auto filename : EBSimComponentShapeFiles_) {
+      std::ifstream shapeEBFile;
+      EBshapes.emplace_back();
+      shapeEBFile.open(EBSimComponentShapeFiles_[iShape].c_str());
+      float ww;
+      while (shapeEBFile >> ww)
+        EBshapes[iShape].push_back(ww);
+      shapeEBFile.close();
+      ++iShape;
+    }
+  }
+
+  // --- save threshold
+  result->barrel_thresh = sim_pulse_shape_EB_thresh_;
+
+  // --- copy
+  copy(EBshapes.begin(), EBshapes.end(), back_inserter(result->barrel_shapes));
 
   return result;
 }

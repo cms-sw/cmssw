@@ -68,7 +68,7 @@ namespace edm {
   }  // SecondaryEventProvider::SecondaryEventProvider
 
   void SecondaryEventProvider::beginJob(ProductRegistry const& iRegistry,
-                                        eventsetup::ESRecordsToProxyIndices const& iIndices) {
+                                        eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
     ProcessBlockHelper dummyProcessBlockHelper;
     workerManager_.beginJob(iRegistry, iIndices, dummyProcessBlockHelper);
   }

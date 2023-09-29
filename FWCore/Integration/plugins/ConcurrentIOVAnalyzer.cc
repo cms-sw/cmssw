@@ -45,15 +45,27 @@ namespace edmtest {
     edm::ESGetToken<IOVTestInfo, ESTestRecordI> const esTokenFromESProducer_;
     edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenFromAcquireIntESProducer_;
     std::vector<int> expectedESAcquireTestResults_;
+    edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenUniquePtrTestValue_;
+    int expectedUniquePtrTestValue_;
+    edm::ESGetToken<ESTestDataI, ESTestRecordI> esTokenOptionalTestValue_;
+    int expectedOptionalTestValue_;
   };
 
   ConcurrentIOVAnalyzer::ConcurrentIOVAnalyzer(edm::ParameterSet const& pset)
       : checkExpectedValues_{pset.getUntrackedParameter<bool>("checkExpectedValues")},
         esTokenFromESSource_{esConsumes(pset.getUntrackedParameter<edm::ESInputTag>("fromSource"))},
         esTokenFromESProducer_{esConsumes(edm::ESInputTag("", "fromESProducer"))},
-        expectedESAcquireTestResults_{pset.getUntrackedParameter<std::vector<int>>("expectedESAcquireTestResults")} {
+        expectedESAcquireTestResults_{pset.getUntrackedParameter<std::vector<int>>("expectedESAcquireTestResults")},
+        expectedUniquePtrTestValue_{pset.getUntrackedParameter<int>("expectedUniquePtrTestValue")},
+        expectedOptionalTestValue_{pset.getUntrackedParameter<int>("expectedOptionalTestValue")} {
     if (!expectedESAcquireTestResults_.empty()) {
       esTokenFromAcquireIntESProducer_ = esConsumes(edm::ESInputTag("", "fromAcquireIntESProducer"));
+    }
+    if (expectedUniquePtrTestValue_ != 0) {
+      esTokenUniquePtrTestValue_ = esConsumes(edm::ESInputTag("", "uniquePtr"));
+    }
+    if (expectedOptionalTestValue_ != 0) {
+      esTokenOptionalTestValue_ = esConsumes(edm::ESInputTag("", "optional"));
     }
   }
 
@@ -92,6 +104,21 @@ namespace edmtest {
             << " unexpected value for EventSetup acquire test.\n"
             << "Expected = " << expectedESAcquireTestResults_[cacheIdentifier] << " result = " << testResult
             << " cacheIdentifier = " << cacheIdentifier << "\n";
+      }
+    }
+
+    if (expectedUniquePtrTestValue_ != 0) {
+      if (eventSetup.getData(esTokenUniquePtrTestValue_).value() != expectedUniquePtrTestValue_) {
+        throw cms::Exception("TestFailure")
+            << "ConcurrentIOVAnalyzer::analyze,"
+            << " value for unique_ptr test from EventSetup does not match expected value";
+      }
+    }
+
+    if (expectedOptionalTestValue_ != 0) {
+      if (eventSetup.getData(esTokenOptionalTestValue_).value() != expectedOptionalTestValue_) {
+        throw cms::Exception("TestFailure") << "ConcurrentIOVAnalyzer::analyze,"
+                                            << " value for optional test from EventSetup does not match expected value";
       }
     }
 
@@ -163,6 +190,8 @@ namespace edmtest {
     desc.addUntracked<bool>("checkExpectedValues", true);
     desc.addUntracked<edm::ESInputTag>("fromSource", edm::ESInputTag("", ""));
     desc.addUntracked<std::vector<int>>("expectedESAcquireTestResults", std::vector<int>());
+    desc.addUntracked<int>("expectedUniquePtrTestValue", 0);
+    desc.addUntracked<int>("expectedOptionalTestValue", 0);
     descriptions.addDefault(desc);
   }
 }  // namespace edmtest

@@ -53,6 +53,8 @@ l1t::GlobalObject l1TGtObjectStringToEnum(const std::string& label) {
                                                                             {"CENT6", gtCentrality6},
                                                                             {"CENT7", gtCentrality7},
                                                                             {"External", gtExternal},
+                                                                            {"ZDCP", gtZDCP},
+                                                                            {"ZDCM", gtZDCM},
                                                                             {"ObjNull", ObjNull},
                                                                             {nullptr, (GlobalObject)-1}};
 
@@ -198,6 +200,14 @@ std::string l1t::l1TGtObjectEnumToString(const GlobalObject& gtObject) {
 
     case gtExternal: {
       gtObjectString = "External";
+    } break;
+
+    case gtZDCP: {
+      gtObjectString = "ZDCP";
+    } break;
+
+    case gtZDCM: {
+      gtObjectString = "ZDCM";
     } break;
 
     case ObjNull: {

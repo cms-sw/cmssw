@@ -30,7 +30,7 @@ using namespace edm;
 //
 ModuleChanger::ModuleChanger(Schedule* iSchedule,
                              ProductRegistry const* iRegistry,
-                             eventsetup::ESRecordsToProxyIndices iIndices)
+                             eventsetup::ESRecordsToProductResolverIndices iIndices)
     : schedule_(iSchedule), registry_(iRegistry), indices_(std::move(iIndices)) {}
 
 // ModuleChanger::ModuleChanger(const ModuleChanger& rhs)

@@ -107,8 +107,7 @@ namespace gs {
           return false;
         char *endptr;
         // Compiler can complain about unused result of "strtoul"
-        unsigned long dummy = strtoul(prefix + vstart, &endptr, 10);
-        ++dummy;
+        strtoul(prefix + vstart, &endptr, 10);
         if (endptr != prefix + i)
           return false;
       }

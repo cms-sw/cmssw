@@ -24,7 +24,7 @@ template <class C>
 class EcalUncalibRecHitRecWeightsAlgo {
 public:
   // destructor
-  virtual ~EcalUncalibRecHitRecWeightsAlgo<C>(){};
+  virtual ~EcalUncalibRecHitRecWeightsAlgo(){};
 
   /// Compute parameters
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame,

@@ -198,7 +198,7 @@ runfilter(){
   cd ${MTCC_OUTPUT_DIR};
   echo "##### RUNNING THE RECONSTRUCTION USING THE CFG FILE ${FILTER_CFG}"
   cat ${FILTER_CFG}
-  cmsRun  -p ${FILTER_CFG}
+  cmsRun ${FILTER_CFG}
   echo "filter jobstatus: $?";
 }
 

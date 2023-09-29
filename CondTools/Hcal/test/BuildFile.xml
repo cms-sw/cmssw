@@ -31,6 +31,8 @@
   <flags PRE_TEST = "write_HFPhase1PMTParams"/>
 </test>
 
+<test name="HcalPFCuts_unittest" command="pfcuts_db_io_test.sh"/>
+
 <library file="HcalConditionsTest.cc" name="testCondToolsConTHcal">
  <flags EDM_PLUGIN="1"/>
 </library>

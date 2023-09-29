@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineLegacy'
 BSOnlineJobName = 'BeamSpotOnlineLegacy'
-BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+BSOnlineOmsServiceUrl = 'http://cmsoms-eventing.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
 import sys
@@ -91,6 +91,11 @@ else:
 # Swap offline <-> online BeamSpot as in Express and HLT
 import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
+
+# for running offline enhance the time validity of the online beamspot in DB
+if ((not live) or process.isDqmPlayback.value): 
+  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
+
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
@@ -121,7 +126,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
   src = 'siPixelClustersPreSplitting'
 )
@@ -329,11 +334,11 @@ process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
 
 process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
 process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
-process.dqmBeamMonitor.PVFitter.errorScale = 1.0
+process.dqmBeamMonitor.PVFitter.errorScale = 1.2
 
 #----------------------------
 # Pixel tracks/vertices reco
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoTracker.Configuration.RecoPixelVertexing_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
 process.pixelVertices = pixelVertices.clone(
   TkFilterParameters = dict( minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin)
@@ -435,14 +440,7 @@ else:
 print("Configured frontierKey", options.runUniqueKey)
 
 #--------
-# Do no run on events with pixel or strip with HV off
-
-process.stripTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
-    DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
-    DcsStatusLabel = cms.untracked.InputTag( "scalersRawToDigi" ),
-    DebugOn = cms.untracked.bool( False ),
-    DetectorType = cms.untracked.string( "sistrip" )
-)
+# Do no run on events with pixel with HV off
 
 process.pixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
     DCSRecordLabel = cms.untracked.InputTag( "onlineMetaDataDigis" ),
@@ -458,7 +456,6 @@ if (not process.runType.getRunType() == process.runType.hi_run):
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
                        * process.pixelTrackerHVOn
-                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.dqmcommon
@@ -470,7 +467,6 @@ else:
                        * process.tcdsDigis
                        * process.onlineMetaDataDigis
                        * process.pixelTrackerHVOn
-                       * process.stripTrackerHVOn
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.filter_step # the only extra: pix-multi filter
