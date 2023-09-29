@@ -46,7 +46,7 @@ namespace evf {
 
   class EvFOutputJSONWriter {
   public:
-    EvFOutputJSONWriter(edm::ParameterSet const& ps,
+    EvFOutputJSONWriter(edm::StreamerOutputModuleCommon::Parameters const& commonParameters,
                         edm::SelectedProducts const* selections,
                         std::string const& streamLabel,
                         std::string const& moduleLabel);
@@ -92,7 +92,7 @@ namespace evf {
 
     Trig getTriggerResults(edm::EDGetTokenT<edm::TriggerResults> const& token, edm::EventForOutput const& e) const;
 
-    edm::ParameterSet const& ps_;
+    edm::StreamerOutputModuleCommon::Parameters commonParameters_;
     std::string streamLabel_;
     edm::EDGetTokenT<edm::TriggerResults> trToken_;
     edm::EDGetTokenT<edm::SendJobHeader::ParameterSetMap> psetToken_;
