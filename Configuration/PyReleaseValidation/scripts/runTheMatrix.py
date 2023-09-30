@@ -585,12 +585,28 @@ if __name__ == '__main__':
                     stdout = stdout,
                     stderr = stderr)
 
-
             def complete_runWorkflow(self, text, line, start_idx, end_idx):
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
                     return self.matrices_.keys()
+
+            def help_runWorkflow(self):
+              print("\n".join(["runWorkflow workflow_class workflow_id\n",
+                "This command will launch a new and independent process that invokes",
+                "the command:\n",
+                "runTheMatrix.py -w workflow_class -l workflow_id",
+                "\nYou can specify just one workflow_class and workflow_id per invocation.",
+                "The job will continue even after quitting the interactive session.",
+                "stdout and stderr of the new process will be automatically",
+                "redirected to 2 logfiles whose names contain the workflow_class",
+                "and workflow_id. Mutiple command can be issued one after the other.",
+                "The working directory of the new process will be the directory",
+                "from which the interactive session has started.",
+                "Autocompletion is available for workflow_class, but",
+                "not for workflow_id. Supplying a wrong workflow_class or",
+                "a non-existing workflow_id for a valid workflow_class",
+                "will trigger an error and no process will be invoked."]))
 
             def help_searchInWorkflow(self):
                 print("\n".join(["searchInWorkflow wfl_name search_regexp\n",
