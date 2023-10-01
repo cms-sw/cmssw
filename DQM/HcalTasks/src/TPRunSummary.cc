@@ -138,6 +138,13 @@ namespace hcaldqm {
     for (auto& it_hashcrate : _vhashCrates) {
       flag::Flag fSum("TP");
       HcalElectronicsId eid(it_hashcrate);
+
+      // skip monitoring for ZDC crate for now (Oct. 1 2023), the Hcal DQM group need to discuss with the ZDC group on the monitoring settings.
+      if (HcalGenericDetId(_emap->lookup(eid)).isHcalZDCDetId()) {
+        sumflags.push_back(fSum);
+        continue;
+      }
+
       HcalDetId did = HcalDetId(_emap->lookup(eid));
 
       if (did.subdet() == HcalBarrel || did.subdet() == HcalEndcap || did.subdet() == HcalForward) {
