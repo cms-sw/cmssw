@@ -75,7 +75,6 @@ hgcal::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
       assert(multiplicities[j] > 0.f);
       const auto& v = lcsInSimTrackster[j];
       float fraction = 1.f / multiplicities[j];
-
       for (const auto& haf : layerClusters[v].hitsAndFractions()) {
         detIdSimTSId_Map[haf.first].emplace_back(i, haf.second * fraction);
       }
