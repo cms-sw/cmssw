@@ -36,8 +36,8 @@ namespace edm {
     static inline const char* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
     static inline const char* const kHelpOpt = "help";
     static inline const char* const kHelpCommandOpt = "help,h";
-    static inline const char* const kStrictOpt = "strict";    
+    static inline const char* const kStrictOpt = "strict";
   };
-}
+}  // namespace edm
 
 #endif

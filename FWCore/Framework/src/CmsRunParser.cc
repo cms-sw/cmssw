@@ -47,11 +47,13 @@ namespace {
     }
     return result;
   }
-}
+}  // namespace
 
 namespace edm {
-  CmsRunParser::CmsRunParser(const char* name) : desc_(std::string(name) + " [options] [--] config_file [python options]\nAllowed options"), all_options_("All Options") {
-      // clang-format off
+  CmsRunParser::CmsRunParser(const char* name)
+      : desc_(std::string(name) + " [options] [--] config_file [python options]\nAllowed options"),
+        all_options_("All Options") {
+    // clang-format off
       desc_.add_options()(kHelpCommandOpt, "produce help message")(
           kJobreportCommandOpt,
           boost::program_options::value<std::string>(),
@@ -67,46 +69,47 @@ namespace edm {
           boost::program_options::value<unsigned int>(),
           "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing")(
           kCmdCommandOpt, boost::program_options::value<std::string>(), "config passed in as string (cannot be used with config_file)");
-      // clang-format on
+    // clang-format on
 
-      // anything at the end will be ignored, and sent to python
-      pos_options_.add(kParameterSetOpt, 1).add(kPythonOpt, -1);
+    // anything at the end will be ignored, and sent to python
+    pos_options_.add(kParameterSetOpt, 1).add(kPythonOpt, -1);
 
-      // This --fwk option is not used anymore, but I'm leaving it around as
-      // it might be useful again in the future for code development
-      // purposes.  We originally used it when implementing the boost
-      // state machine code.
-      boost::program_options::options_description hidden("hidden options");
-      hidden.add_options()("fwk", "For use only by Framework Developers")(
-          kParameterSetOpt, boost::program_options::value<std::string>(), "configuration file")(
-          kPythonOpt,
-          boost::program_options::value<std::vector<std::string>>(),
-          "options at the end to be passed to python");
+    // This --fwk option is not used anymore, but I'm leaving it around as
+    // it might be useful again in the future for code development
+    // purposes.  We originally used it when implementing the boost
+    // state machine code.
+    boost::program_options::options_description hidden("hidden options");
+    hidden.add_options()("fwk", "For use only by Framework Developers")(
+        kParameterSetOpt, boost::program_options::value<std::string>(), "configuration file")(
+        kPythonOpt,
+        boost::program_options::value<std::vector<std::string>>(),
+        "options at the end to be passed to python");
 
-      all_options_.add(desc_).add(hidden);
+    all_options_.add(desc_).add(hidden);
   }
   CmsRunParser::MapOrExit CmsRunParser::parse(int argc, char* argv[]) const {
-      boost::program_options::variables_map vm;
-      try {
-        store(boost::program_options::command_line_parser(argc, argv)
-                  .extra_style_parser(final_opts_parser)
-                  .options(all_options_)
-                  .positional(pos_options_)
-                  .run(), vm);
-        notify(vm);
-      } catch (boost::program_options::error const& iException) {
-        edm::LogAbsolute("CommandLineProcessing")
-            << "cmsRun: Error while trying to process command line arguments:\n"
-            << iException.what() << "\nFor usage and an options list, please do 'cmsRun --help'.";
-        return MapOrExit(edm::errors::CommandLineProcessing);
-      }
+    boost::program_options::variables_map vm;
+    try {
+      store(boost::program_options::command_line_parser(argc, argv)
+                .extra_style_parser(final_opts_parser)
+                .options(all_options_)
+                .positional(pos_options_)
+                .run(),
+            vm);
+      notify(vm);
+    } catch (boost::program_options::error const& iException) {
+      edm::LogAbsolute("CommandLineProcessing")
+          << "cmsRun: Error while trying to process command line arguments:\n"
+          << iException.what() << "\nFor usage and an options list, please do 'cmsRun --help'.";
+      return MapOrExit(edm::errors::CommandLineProcessing);
+    }
 
-      if (vm.count(kHelpOpt)) {
-        std::cout << desc_ << std::endl;
-        edm::HaltMessageLogging();
-        return MapOrExit(0);
-      }
+    if (vm.count(kHelpOpt)) {
+      std::cout << desc_ << std::endl;
+      edm::HaltMessageLogging();
+      return MapOrExit(0);
+    }
 
-      return MapOrExit(vm);
+    return MapOrExit(vm);
   }
-}
+}  // namespace edm
