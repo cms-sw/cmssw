@@ -30,7 +30,7 @@ class ecalPh2 {
 public:
   static constexpr double Samp_Period = 6.25;               // ADC sampling period in ns
   static constexpr unsigned int NGAINS = ecalph2::NGAINS;   // Number of CATIA gains
-  static constexpr const float *gains = ecalph2::gains;     // CATIA gain values
+  static constexpr const float* gains = ecalph2::gains;     // CATIA gain values
   static constexpr unsigned int gainId1 = 1;                // Position of gain 1 in gains array
   static constexpr unsigned int gainId10 = 0;               // Position of gain 10 in gains array
   static constexpr unsigned int sampleSize = 16;            // Number of samples per event
@@ -49,7 +49,7 @@ class ecalPh1 {
 public:
   static constexpr double Samp_Period = 25.;               // ADC sampling period in ns
   static constexpr unsigned int NGAINS = ecalph1::NGAINS;  // Number of MGPA gains including a zero gain
-  static constexpr const float *gains = ecalph1::gains;    // MGPA gain values including a zero gain
+  static constexpr const float* gains = ecalph1::gains;    // MGPA gain values including a zero gain
   static constexpr unsigned int sampleSize = 10;           // Number of samples per event
   static constexpr unsigned int NBITS = 12;                // Number of available bits
   static constexpr unsigned int kNOffsets = 2000;          // Number of time offsets generated for APD pulse shape
