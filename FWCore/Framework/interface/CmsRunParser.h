@@ -11,6 +11,15 @@ namespace edm {
     using MapOrExit = std::variant<boost::program_options::variables_map, int>;
     CmsRunParser(const char* name);
     MapOrExit parse(int argc, char* argv[]) const;
+    //variant helpers
+    static bool hasVM(const MapOrExit& output) {
+      return std::holds_alternative<boost::program_options::variables_map>(output);
+    }
+    static boost::program_options::variables_map getVM(const MapOrExit& output) {
+      return std::get<boost::program_options::variables_map>(output);
+    }
+    static bool hasExit(const MapOrExit& output) { return std::holds_alternative<int>(output); }
+    static int getExit(const MapOrExit& output) { return std::get<int>(output); }
 
   private:
     boost::program_options::options_description desc_;

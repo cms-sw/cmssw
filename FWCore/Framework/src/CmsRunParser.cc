@@ -110,6 +110,14 @@ namespace edm {
       return MapOrExit(0);
     }
 
+    //special handling of python options
+    if (vm.count(kPythonOpt)) {
+      const auto& pythonOptValues = vm[kPythonOpt].as<std::vector<std::string>>();
+      //omit default arg
+      if (pythonOptValues.size() == 1 and pythonOptValues[0] == kPythonOptDefault)
+        vm.erase(kPythonOpt);
+    }
+
     return MapOrExit(vm);
   }
 }  // namespace edm

@@ -130,9 +130,9 @@ int main(int argc, char* argv[]) {
 
       const auto& parserOutput = parser.parse(argc, argv);
       //return with exit code from parser
-      if (std::holds_alternative<int>(parserOutput))
-        return std::get<int>(parserOutput);
-      auto vm = std::get<boost::program_options::variables_map>(parserOutput);
+      if (edm::CmsRunParser::hasExit(parserOutput))
+        return edm::CmsRunParser::getExit(parserOutput);
+      auto vm = edm::CmsRunParser::getVM(parserOutput);
 
       std::string cmdString;
       std::string fileName;
@@ -155,9 +155,6 @@ int main(int argc, char* argv[]) {
       std::vector<std::string> pythonOptValues;
       if (vm.count(edm::CmsRunParser::kPythonOpt)) {
         pythonOptValues = vm[edm::CmsRunParser::kPythonOpt].as<std::vector<std::string>>();
-        //omit default arg
-        if (pythonOptValues.size() == 1 and pythonOptValues[0] == edm::CmsRunParser::kPythonOptDefault)
-          pythonOptValues.clear();
       }
       pythonOptValues.insert(pythonOptValues.begin(), fileName);
 
