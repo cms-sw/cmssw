@@ -163,7 +163,7 @@ double CastorSD::getEnergyDeposit(const G4Step* aStep) {
   */
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardSim") << "CastorSD::getEnergyDeposit: for ID=" << theTrack->GetTrackID()
-                                 << " LV: " << currntLV->GetName() << " isHad:" << isHad << " pdg=" << parCode
+                                 << " LV: " << currentLV->GetName() << " isHad:" << isHad << " pdg=" << parCode
                                  << " castorPID=" << trkInfo.getCastorHitPID() << " sl= " << stepl
                                  << " Edep= " << aStep->GetTotalEnergyDeposit();
 #endif
