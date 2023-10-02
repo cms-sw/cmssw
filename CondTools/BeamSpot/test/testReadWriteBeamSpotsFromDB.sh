@@ -41,7 +41,8 @@ printf "TESTING reading BeamSpotObjectRcd DB object ...\n\n"
 cmsRun ${SCRAM_TEST_PATH}/BeamSpotRcdPrinter_cfg.py || die "Failure running BeamSpotRcdPrinter" $?
 
 printf "TESTING converting BeamSpotOnlineObjects from BeamSpotObjects ...\n\n"
-cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineFromOfflineConverter_cfg.py unitTest=True || die "Failure running BeamSpotRcdPrinter" $?
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineFromOfflineConverter_cfg.py unitTest=True startRun=325172 startLumi=458 || die "Failure running single-IOV BeamSpotOnlineFromOfflineConverter" $?
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineFromOfflineConverter_cfg.py unitTest=True startRun=325172 startLumi=398 || die "Failure running multi-IOV BeamSpotOnlineFromOfflineConverter" $?
 
 printf "TESTING Reading SimBeamSpotObjectsRcd DB object ...\n\n"
 cmsRun ${SCRAM_TEST_PATH}/BeamProfile2DBReader_cfg.py unitTest=True || die "Failure reading payload for SimBeamSpotObjectsRcd" $?
