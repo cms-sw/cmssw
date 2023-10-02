@@ -190,7 +190,7 @@ namespace edm {
     }
 
     bool exists_(ParameterSet const& pset) const final {
-      return pset.existsAs<std::string>(typeLabel_, typeLabelIsTracked_);
+      CMS_SA_ALLOW return pset.existsAs<std::string>(typeLabel_, typeLabelIsTracked_);
     }
 
     bool partiallyExists_(ParameterSet const& pset) const final { return exists_(pset); }
@@ -200,9 +200,10 @@ namespace edm {
   private:
     std::string findType(edm::ParameterSet const& iPSet) const {
       if (typeLabelIsTracked_) {
-        if (iPSet.existsAs<std::string>(typeLabel_) || defaultType_.empty()) {
+        CMS_SA_ALLOW if (iPSet.existsAs<std::string>(typeLabel_) || defaultType_.empty()) {
           return iPSet.getParameter<std::string>(typeLabel_);
-        } else {
+        }
+        else {
           return defaultType_;
         }
       }
