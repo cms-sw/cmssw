@@ -31,10 +31,11 @@ protected:
                       edm::ValidityInterval&) override;
 
 private:
-  edm::ParameterSet const& pset_;
+  std::vector<int> pulseOffsets_;
 };
 
-HcalMahiPulseOffsetsGPUESProducer::HcalMahiPulseOffsetsGPUESProducer(edm::ParameterSet const& pset) : pset_{pset} {
+HcalMahiPulseOffsetsGPUESProducer::HcalMahiPulseOffsetsGPUESProducer(edm::ParameterSet const& pset)
+    : pulseOffsets_(pset.getParameter<std::vector<int>>("pulseOffsets")) {
   setWhatProduced(this);
   findingRecord<JobConfigurationGPURecord>();
 }
@@ -52,7 +53,7 @@ void HcalMahiPulseOffsetsGPUESProducer::fillDescriptions(edm::ConfigurationDescr
 }
 
 std::unique_ptr<HcalMahiPulseOffsetsGPU> HcalMahiPulseOffsetsGPUESProducer::produce(JobConfigurationGPURecord const&) {
-  return std::make_unique<HcalMahiPulseOffsetsGPU>(pset_);
+  return std::make_unique<HcalMahiPulseOffsetsGPU>(pulseOffsets_);
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(HcalMahiPulseOffsetsGPUESProducer);
