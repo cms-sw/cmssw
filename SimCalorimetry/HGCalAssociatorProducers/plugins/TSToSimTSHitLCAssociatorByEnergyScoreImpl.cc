@@ -72,8 +72,10 @@ hgcal::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
     const auto& lcsInSimTrackster = simTSs[i].vertices();
     const auto& multiplicities = simTSs[i].vertex_multiplicity();
     for (size_t j = 0; j < lcsInSimTrackster.size(); ++j) {
+      assert(multiplicities[j] > 0.f);
       const auto& v = lcsInSimTrackster[j];
       float fraction = 1.f / multiplicities[j];
+
       for (const auto& haf : layerClusters[v].hitsAndFractions()) {
         detIdSimTSId_Map[haf.first].emplace_back(i, haf.second * fraction);
       }
@@ -86,6 +88,7 @@ hgcal::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
     const auto& lcsInSimTrackster = tracksters[i].vertices();
     const auto& multiplicities = tracksters[i].vertex_multiplicity();
     for (size_t j = 0; j < lcsInSimTrackster.size(); ++j) {
+      assert(multiplicities[j] > 0.f);
       const auto& v = lcsInSimTrackster[j];
       float fraction = 1.f / multiplicities[j];
       for (const auto& haf : layerClusters[v].hitsAndFractions()) {
