@@ -128,23 +128,11 @@ int main(int argc, char* argv[]) {
       context = "Processing command line arguments";
       edm::CmsRunParser parser(argv[0]);
 
-      boost::program_options::variables_map vm;
-      try {
-        store(parser.parse(argc,argv), vm);
-        notify(vm);
-      } catch (boost::program_options::error const& iException) {
-        edm::LogAbsolute("CommandLineProcessing")
-            << "cmsRun: Error while trying to process command line arguments:\n"
-            << iException.what() << "\nFor usage and an options list, please do 'cmsRun --help'.";
-        return edm::errors::CommandLineProcessing;
-      }
-
-      if (vm.count(edm::CmsRunParser::kHelpOpt)) {
-        std::cout << parser.desc() << std::endl;
-        if (!vm.count(edm::CmsRunParser::kParameterSetOpt))
-          edm::HaltMessageLogging();
-        return 0;
-      }
+      const auto& parserOutput = parser.parse(argc, argv);
+      //return with exit code from parser
+      if (std::holds_alternative<int>(parserOutput))
+        return std::get<int>(parserOutput);
+      auto vm = std::get<boost::program_options::variables_map>(parserOutput);
 
       std::string cmdString;
       std::string fileName;

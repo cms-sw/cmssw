@@ -1,7 +1,10 @@
 #include "FWCore/Framework/interface/CmsRunParser.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 namespace {
   //additional_parser is documented at https://www.boost.org/doc/libs/1_83_0/doc/html/program_options/howto.html#id-1.3.30.6.3
@@ -82,11 +85,28 @@ namespace edm {
 
       all_options_.add(desc_).add(hidden);
   }
-  boost::program_options::parsed_options CmsRunParser::parse(int argc, char* argv[]) const {
-    return boost::program_options::command_line_parser(argc, argv)
+  CmsRunParser::MapOrExit CmsRunParser::parse(int argc, char* argv[]) const {
+      boost::program_options::variables_map vm;
+      try {
+        store(boost::program_options::command_line_parser(argc, argv)
                   .extra_style_parser(final_opts_parser)
                   .options(all_options_)
                   .positional(pos_options_)
-                  .run();
+                  .run(), vm);
+        notify(vm);
+      } catch (boost::program_options::error const& iException) {
+        edm::LogAbsolute("CommandLineProcessing")
+            << "cmsRun: Error while trying to process command line arguments:\n"
+            << iException.what() << "\nFor usage and an options list, please do 'cmsRun --help'.";
+        return MapOrExit(edm::errors::CommandLineProcessing);
+      }
+
+      if (vm.count(kHelpOpt)) {
+        std::cout << desc_ << std::endl;
+        edm::HaltMessageLogging();
+        return MapOrExit(0);
+      }
+
+      return MapOrExit(vm);
   }
 }

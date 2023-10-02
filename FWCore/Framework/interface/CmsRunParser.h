@@ -3,14 +3,14 @@
 
 #include "boost/program_options.hpp"
 
-#include <string_view>
+#include <variant>
 
 namespace edm {
   class CmsRunParser {
   public:
+    using MapOrExit = std::variant<boost::program_options::variables_map, int>;
     CmsRunParser(const char* name);
-    boost::program_options::parsed_options parse(int argc, char* argv[]) const;
-    const boost::program_options::options_description desc() const { return desc_; }
+    MapOrExit parse(int argc, char* argv[]) const;
 
   private:
     boost::program_options::options_description desc_;
