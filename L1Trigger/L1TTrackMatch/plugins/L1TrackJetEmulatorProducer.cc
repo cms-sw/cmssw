@@ -212,7 +212,6 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
     return;
   }
 
-
   TrackJetEmulationMaxZBin mzb;
   mzb.znum = 0;
   mzb.nclust = 0;
@@ -266,12 +265,11 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
 
     TrackJetEmulationEtaPhiBin epbins[phiBins_][etaBins_];
 
-    std::copy(&epbins_default[0][0], &epbins_default[0][0] + phiBins_ * etaBins_, &epbins[0][0]);  
+    std::copy(&epbins_default[0][0], &epbins_default[0][0] + phiBins_ * etaBins_, &epbins[0][0]);
 
     L1clusters.clear();
     L2clusters.clear();
     for (unsigned int k = 0; k < L1TrkPtrs_.size(); ++k) {
-
       z0_intern trkZ = L1TrkPtrs_[k]->getZ0Word();
 
       if (zmax < trkZ)
@@ -285,34 +283,34 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
       ap_uint<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1> ptEmulationBits = L1TrkPtrs_[k]->getRinvWord();
       pt_intern trkpt;
       trkpt.V = ptEmulationBits.range();
-      
+
       // d0
       d0_intern abs_trkD0 = L1TrkPtrs_[k]->getD0Word();
 
       // nstubs
       int trk_nstubs = (int)L1TrkPtrs_[k]->getStubRefs().size();
-      
+
       // Phi bin
-      int i = phi_bin_firmwareStyle(L1TrkPtrs_[k]->phiSector(),L1TrkPtrs_[k]->getPhiWord()); //Function defined in L1TrackJetClustering.h
+      int i = phi_bin_firmwareStyle(L1TrkPtrs_[k]->phiSector(),
+                                    L1TrkPtrs_[k]->getPhiWord());  //Function defined in L1TrackJetClustering.h
 
       // Eta bin
-      int j = eta_bin_firmwareStyle(L1TrkPtrs_[k]->getTanlWord()); //Function defined in L1TrackJetClustering.h
+      int j = eta_bin_firmwareStyle(L1TrkPtrs_[k]->getTanlWord());  //Function defined in L1TrackJetClustering.h
 
       if (trkpt < pt_intern(trkPtMax_))
-	epbins[i][j].pTtot += trkpt;
+        epbins[i][j].pTtot += trkpt;
       else
-	epbins[i][j].pTtot += pt_intern(trkPtMax_);
+        epbins[i][j].pTtot += pt_intern(trkPtMax_);
       if ((abs_trkD0 >
-	   DoubleToBit(d0CutNStubs5_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
-	   trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
-	  (abs_trkD0 >
-	   DoubleToBit(d0CutNStubs4_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
-	   trk_nstubs == 4 && d0CutNStubs4_ >= 0))
-	epbins[i][j].nxtracks += 1;
+               DoubleToBit(d0CutNStubs5_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
+           trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
+          (abs_trkD0 >
+               DoubleToBit(d0CutNStubs4_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
+           trk_nstubs == 4 && d0CutNStubs4_ >= 0))
+        epbins[i][j].nxtracks += 1;
 
       epbins[i][j].trackidx.push_back(k);
       ++epbins[i][j].ntracks;
-
     }
     //End Firmware style clustering
 
