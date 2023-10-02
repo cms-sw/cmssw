@@ -97,7 +97,7 @@ private:
   TH1D *hSimHitE_[4], *hSimHitEn_[4], *hSimHitT_[4], *hBeam_;
   TProfile *hSimHitLng_[3], *hSimHitLng1_[3];
   TProfile* hSimHitLng2_[3];
-  TProfile2D *hSimHitLat_[3];
+  TProfile2D* hSimHitLat_[3];
   std::vector<TH1D*> hSimHitLayEn1EE_, hSimHitLayEn2EE_;
   std::vector<TH1D*> hSimHitLayEn1FH_, hSimHitLayEn2FH_;
   std::vector<TH1D*> hSimHitLayEn1BH_, hSimHitLayEn2BH_;
@@ -192,7 +192,9 @@ HGCalTB23Analyzer::HGCalTB23Analyzer(const edm::ParameterSet& iConfig)
   ////This stochastic for 300um = 4*3.84/E_MIP=15.5ns/E_MIP and 200um = 4*2.56/E_MIPs=10.24ns/E_MIP
   idBeams_ = (iConfig.getParameter<std::vector<int>>("idBeams"));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer:: SimHits = " << doSimHits_  << " useDets " << ifEE_ << ":" << ifFH_ << ":" << ifBH_ << ":" << ifBeam_ << " zFront " << zFrontEE_ << ":" << zFrontFH_ << ":" << zFrontBH_ << " IdBeam " << idBeams_.size() << ":";
+  edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer:: SimHits = " << doSimHits_ << " useDets " << ifEE_ << ":" << ifFH_
+                             << ":" << ifBH_ << ":" << ifBeam_ << " zFront " << zFrontEE_ << ":" << zFrontFH_ << ":"
+                             << zFrontBH_ << " IdBeam " << idBeams_.size() << ":";
   for (unsigned int k = 0; k < idBeams_.size(); ++k)
     edm::LogVerbatim("HGCSim") << " [" << k << "] " << idBeams_[k];
   edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer:: DoPassive " << doPassive_ << ":" << doPassiveEE_ << ":"
@@ -280,7 +282,7 @@ void HGCalTB23Analyzer::beginJob() {
       book = ifBH_;
       det = detectorBH_;
     }
-    
+
     if (doSimHits_ && book) {
       sprintf(name, "SimHitEn%s", det.c_str());
       sprintf(title, "Sim Hit Energy for %s", det.c_str());
@@ -350,7 +352,7 @@ void HGCalTB23Analyzer::beginJob() {
       tree_->Branch("simHitCellEnBH", &simHitCellEnBH_);
       tree_->Branch("simHitCellIdBeam", &simHitCellIdBeam_);
       tree_->Branch("simHitCellEnBeam", &simHitCellEnBeam_);
-      
+
       tree_->Branch("simHitCellColBH", &simHitCellColBH_);
       tree_->Branch("simHitCellRowBH", &simHitCellRowBH_);
       tree_->Branch("simHitCellLayerBH", &simHitCellLayerBH_);
@@ -365,7 +367,7 @@ void HGCalTB23Analyzer::beginJob() {
       //tree_->Branch("simHitCellTimeLastHitBH", &simHitCellTimeLastHitBH_);
     }
   }
-  
+
   if (doPassive_ && doTree_) {
     if (doPassiveEE_) {
       tree_->Branch("hgcPassiveEEEnergy", &hgcPassiveEEEnergy_);
@@ -412,7 +414,7 @@ void HGCalTB23Analyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
   } else {
     hgcons_[0] = nullptr;
   }
-  
+
   if (ifFH_) {
     hgcons_[1] = &iSetup.getData(tokDDDFH_);
     for (unsigned int l = 0; l < hgcons_[1]->layers(false); ++l) {
@@ -432,7 +434,7 @@ void HGCalTB23Analyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
   } else {
     hgcons_[1] = nullptr;
   }
-  
+
   if (ifBH_) {
     for (int l = 0; l < ahcalGeom_->maxDepth(); ++l) {
       sprintf(name, "SimHitEnA%d%s", l, detectorBH_.c_str());
@@ -443,7 +445,7 @@ void HGCalTB23Analyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
       hSimHitLayEn2BH_.push_back(fs_->make<TH1D>(name, title, 100000, 0., 0.2));
     }
   }
-  
+
   if (ifBeam_) {
     for (unsigned int l = 0; l < idBeams_.size(); ++l) {
       sprintf(name, "SimHitEna%d%s", l, detectorBeam_.c_str());
@@ -750,7 +752,7 @@ void HGCalTB23Analyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, do
       double layer = HGCSiliconDetId(id).layer();
       double thickness = hgcons_[type]->cellThickness(layer, waferU, waferV);
       if (debug)
-        edm::LogVerbatim("HGCSim") << "wafer is : depth (reco) " << waferU <<":" << waferV << " " << Depth[id]
+        edm::LogVerbatim("HGCSim") << "wafer is : depth (reco) " << waferU << ":" << waferV << " " << Depth[id]
                                    << "\ntype : layer : wafer thickness " << type << " " << layer << " " << thickness
                                    << "\nID(sim) and id(reco) " << std::hex << ID[id] << " " << id << std::dec;
       if (thickness == 300) {
@@ -956,7 +958,7 @@ void HGCalTB23Analyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, do
 }
 
 void HGCalTB23Analyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const& SimTk,
-                                       edm::Handle<edm::SimVertexContainer> const& SimVtx) {
+                                         edm::Handle<edm::SimVertexContainer> const& SimVtx) {
   xBeam_ = yBeam_ = zBeam_ = pBeam_ = -9999;
   nBeamMC_ = thetaBeam_ = phiBeam_ = -9999;
   int nParBeam = 0;
