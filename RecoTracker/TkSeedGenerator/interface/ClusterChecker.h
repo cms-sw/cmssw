@@ -42,7 +42,7 @@ private:
   bool doACheck_;
   edm::InputTag clusterCollectionInputTag_;
   edm::InputTag pixelClusterCollectionInputTag_;
-  unsigned int maxNrOfCosmicClusters_;
+  unsigned int maxNrOfStripClusters_;
   unsigned int maxNrOfPixelClusters_;
   StringCutObjectSelector<reco::utils::ClusterTotals> selector_;
   unsigned int ignoreDetsAboveNClusters_;

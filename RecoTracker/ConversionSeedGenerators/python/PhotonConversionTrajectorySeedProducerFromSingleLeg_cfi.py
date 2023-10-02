@@ -45,7 +45,7 @@ from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
     OrderedHitsFactoryPSet = dict(maxElement = 10000),
     ClusterCheckPSet = dict(
-        MaxNumberOfCosmicClusters = 150000,
+        MaxNumberOfStripClusters = 150000,
         MaxNumberOfPixelClusters = 20000,
         cut = "strip < 150000 && pixel < 20000 && (strip < 20000 + 7* pixel)"
     )
@@ -54,7 +54,7 @@ trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg,
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg,
     ClusterCheckPSet = dict(
-        MaxNumberOfCosmicClusters = 1000000,
+        MaxNumberOfStripClusters = 1000000,
         MaxNumberOfPixelClusters = 100000,
         cut = None
     ),

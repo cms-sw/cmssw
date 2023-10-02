@@ -88,7 +88,7 @@ process.hltTrackSeedMultiplicityFilter = cms.EDFilter( "HLTTrackSeedMultiplicity
 
 process.hltRegionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
-        MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+        MaxNumberOfStripClusters = cms.uint32( 50000 ),
         ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
         doClusterCheck = cms.bool( False ),
         PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
