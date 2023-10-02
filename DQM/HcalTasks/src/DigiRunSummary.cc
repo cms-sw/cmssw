@@ -151,6 +151,15 @@ namespace hcaldqm {
     vtmpflags[fLED] = flag::Flag("LEDMisfire");
     for (std::vector<uint32_t>::const_iterator it = _vhashCrates.begin(); it != _vhashCrates.end(); ++it) {
       HcalElectronicsId eid(*it);
+
+      // skip monitoring for ZDC crate for now (Oct. 1 2023), the Hcal DQM group need to discuss with the ZDC group on the monitoring flags settings.
+      if (HcalGenericDetId(_emap->lookup(eid)).isHcalZDCDetId()) {
+        for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
+          ft->reset();
+        lssum._vflags.push_back(vtmpflags);
+        continue;
+      }
+
       HcalDetId did = HcalDetId(_emap->lookup(eid));
 
       //	reset all the tmp flags to fNA
@@ -335,6 +344,13 @@ namespace hcaldqm {
       flag::Flag ffDead("Dead");
       flag::Flag ffUniSlotHF("UniSlotHF");
       HcalElectronicsId eid(it_crate);
+
+      // skip monitoring for ZDC crate for now (Oct. 1 2023), the Hcal DQM group need to discuss with the ZDC group on the monitoring flags settings.
+      if (HcalGenericDetId(_emap->lookup(eid)).isHcalZDCDetId()) {
+        sumflags.push_back(fSumRun);
+        continue;
+      }
+
       HcalDetId did = HcalDetId(_emap->lookup(eid));
 
       //	ITERATE OVER EACH LS
