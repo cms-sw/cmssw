@@ -20,9 +20,25 @@ namespace edm {
 
   class StreamerOutputModuleCommon {
   public:
-    explicit StreamerOutputModuleCommon(ParameterSet const& ps,
+    struct Parameters {
+      Strings hltTriggerSelections;
+      std::string compressionAlgoStr;
+      int compressionLevel;
+      int lumiSectionInterval;
+      bool useCompression;
+    };
+
+    static Parameters parameters(ParameterSet const& ps);
+
+    explicit StreamerOutputModuleCommon(Parameters const& p,
                                         SelectedProducts const* selections,
                                         std::string const& moduleLabel);
+
+    explicit StreamerOutputModuleCommon(ParameterSet const& ps,
+                                        SelectedProducts const* selections,
+                                        std::string const& moduleLabel)
+        : StreamerOutputModuleCommon(parameters(ps), selections, moduleLabel) {}
+
     ~StreamerOutputModuleCommon();
     static void fillDescription(ParameterSetDescription& desc);
 
