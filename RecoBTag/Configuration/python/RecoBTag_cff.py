@@ -66,6 +66,7 @@ pfBTaggingTask = cms.Task(
     pfGhostTrackVertexTagInfos,
     pfGhostTrackBJetTags,
     pfDeepCSVTask,
+    pfDeepFlavourTask,
 
     # soft lepton tag infos and algos
     softPFMuonsTagInfos,
@@ -94,7 +95,7 @@ btagging = cms.Sequence(btaggingTask)
 ## modifying b-tagging task in Run3 adding ParticleNet inferece
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 _pfBTaggingTask_run3 = cms.Task(
-    # Keep all the infos and DeepCSV
+    # Keep all the infos and DeepCSV and DeepFlavour
     pfImpactParameterTagInfos,
     pfTrackCountingHighEffBJetTags,
     pfJetProbabilityBJetTags,
@@ -105,6 +106,7 @@ _pfBTaggingTask_run3 = cms.Task(
     pfInclusiveSecondaryVertexFinderTagInfos,
     pfGhostTrackVertexTagInfos,
     pfDeepCSVTask,
+    pfDeepFlavourTask,
 
     softPFMuonsTagInfos,
     softPFElectronsTagInfos,
