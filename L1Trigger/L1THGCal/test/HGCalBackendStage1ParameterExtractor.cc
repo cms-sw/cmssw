@@ -261,16 +261,16 @@ uint32_t HGCalBackendStage1ParameterExtractor::getTCaddress(int& tc_ueta, int& t
   // transform HGCalHSc TC coordinates to define a TC address in [0,47]
   if (isScintillator) {  // HGCalHSc
     tc_vphi = (tc_vphi - 1) % 4;
-    if (tc_ueta <= 3) {
-      tc_ueta = tc_ueta;
-    } else if (tc_ueta <= 9) {
-      tc_ueta = tc_ueta - 4;
-    } else if (tc_ueta <= 13) {
-      tc_ueta = tc_ueta - 10;
-    } else if (tc_ueta <= 17) {
-      tc_ueta = tc_ueta - 14;
-    } else {
-      tc_ueta = tc_ueta - 18;
+    if (tc_ueta > 3) {
+      if (tc_ueta <= 9) {
+        tc_ueta = tc_ueta - 4;
+      } else if (tc_ueta <= 13) {
+        tc_ueta = tc_ueta - 10;
+      } else if (tc_ueta <= 17) {
+        tc_ueta = tc_ueta - 14;
+      } else {
+        tc_ueta = tc_ueta - 18;
+      }
     }
   }
 
