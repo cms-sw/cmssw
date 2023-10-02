@@ -1,8 +1,18 @@
+<use name="DataFormats/DetId"/>
+
 <iftool name="cuda-gcc-support">
   <bin name="test_detid" file="test_detid.cu">
     <use name="cuda"/>
-    <use name="DataFormats/DetId"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
   </bin>
 
 </iftool>
+
+<library name="testVectorDetId" file="TestReadVectorDetId.cc,TestWriteVectorDetId.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="TestVectorDetId" command="TestVectorDetId.sh"/>
