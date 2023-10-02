@@ -25,7 +25,7 @@ void check(TClass &cl, TList &streamerInfoList) {
     return;
   if (0 == name.compare(0, strlen("pair<"), "pair<"))
     return;
-  //std::cout << "check TClass: " << name << std::endl;
+  std::cout << "check TClass: " << name << std::endl;
   bool found = streamerInfoList.FindObject(cl.GetName()) != 0;
   if (!found)
     std::cout << "Missing: " << cl.GetName() << '\n';

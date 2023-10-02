@@ -320,6 +320,11 @@ namespace edmtest {
     VectorVectorElementNonSplit();
     VectorVectorElementNonSplit(int a, int b);
 #if defined DataFormats_TestObjects_USE_OLD
+    // This version of the class is forced to be non-split because
+    // it has only one data member. The unit test this is used by
+    // was developed in response to a ROOT bug in the version of ROOT
+    // associated with CMSSW_13_0_0. This bug only affected non split
+    // classes and this class was necessary to reproduce it.
     int a_;
 #else
     int a_;

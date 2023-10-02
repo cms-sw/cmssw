@@ -19,8 +19,20 @@ cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py || die 'Failure using 
 
 # For each StreamerInfo in the input file, test for existence of StreamerInfo for
 # nested classes (members, base, elements of containers).
-root.exe -b -l -q file:SchemaEvolutionTest.root "${LOCAL_TEST_DIR}/testForStreamerInfo.C(gFile)" | sort -u | grep Missing > testForStreamerInfo1.log
+root.exe -b -l -q file:SchemaEvolutionTest.root "${LOCAL_TEST_DIR}/testForStreamerInfo.C(gFile)" | sort -u > testForStreamerInfo1.log
 grep "Missing" testForStreamerInfo1.log && die "Missing nested streamer info" 1
+grep "SchemaEvolutionChangeOrder" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionChangeOrder in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionAddMember" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionAddMember in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionRemoveMember" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionRemoveMember in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionMoveToBase" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionMoveToBase" in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionChangeType" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionChangeType in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionAddBase" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionAddBase in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionPointerToMember" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionPointerToMember in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionPointerToUniquePtr" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionPointerToUniquePtr in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionCArrayToStdArray" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionCArrayToStdArray in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionVectorToList" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionVectorToList in testForStreamerInfo1.log' $?
+grep "SchemaEvolutionMapToUnorderedMap" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionMapToUnorderedMap in testForStreamerInfo1.log' $?
+grep "VectorVectorElementNonSplit" testForStreamerInfo1.log || die 'Failure cannot find VectorVectorElementNonSplit in testForStreamerInfo1.log' $?
 
 # Then we read permanently saved data files from the cms-data
 # repository. When these data files were written, the working area
