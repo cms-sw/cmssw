@@ -221,6 +221,24 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrajectoryFilterForElectr
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cff")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cff")
 
+# Load and configure the FastTimerService
+fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
+fragment.FastTimerService.enableDQM = False
+fragment.FastTimerService.enableDQMbyModule = False
+fragment.FastTimerService.enableDQMbyPath = False
+fragment.FastTimerService.jsonFileName = 'Phase2Timing_resources.json'
+
+# Load and configure the ThroughputService
+fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
+fragment.ThroughputService.eventRange = 1000
+fragment.ThroughputService.eventResolution = 50
+fragment.ThroughputService.printEventSummary = True
+fragment.ThroughputService.enableDQM = False
+
+# Cusotmize the output as well
+if fragment.HLTriggerFinalPath.contains(fragment.hltTriggerSummaryAOD):
+    fragment.HLTriggerFinalPath.remove(fragment.hltTriggerSummaryAOD)
+
 fragment.schedule = cms.Schedule(*[
 
     fragment.L1T_SinglePFPuppiJet230off,
