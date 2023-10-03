@@ -11,15 +11,10 @@
 #include <iosfwd>
 #include <string>
 
-//hls4ml
-/* #include "ap_fixed.h" */
-/* #include "hls4ml/emulator.h" */
-
 // user include files
 //   base classes
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-//#include "DataFormats/L1Trigger/interface/AXOL1TL.h"
 
 // forward declarations
 class GlobalCondition;
@@ -67,15 +62,6 @@ namespace l1t {
   private:
     /// copy function for copy constructor and operator=
     void copy(const AXOL1TLCondition& cp);
-
-    /// load  candidates
-    ////* const l1t::L1Candidate* getCandidate(const int bx, const int indexCand) const;
-    /// load muon candidates
-    ///* const l1t::AXOL1TL* getCandidate(const int bx, const int indexCand) const; */
-
-    /// function to check a single object if it matches a condition
-    /* const bool checkObjectParameter(const int iCondition, const float AXOL1TLscore) const; */
-    ///* const bool checkObjectParameter(const int iCondition, const l1t::MuonShower& cand, const unsigned int index) const; */  //muonshowers version
 
     /// pointer to a AXOL1TLTemplate
     const AXOL1TLTemplate* m_gtAXOL1TLTemplate;

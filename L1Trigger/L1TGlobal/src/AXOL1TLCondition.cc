@@ -1,15 +1,12 @@
  /**
- * \class CorrCondition
+ * \class AXOL1TLCondition
  *
  *
- * Description: evaluation of a correlation condition.
+ * Description: evaluation of a condition for axol1tl anomaly detection algorithm
  *
- * Implementation:
- *    <TODO: enter implementation details>
+ * Author: Melissa Quinnan
  *
- *\new features: Dragana Pilipovic
- *                - updated for invariant mass over delta R condition*
- */
+ **/
 
 // this class header
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
@@ -26,11 +23,11 @@
 
 // user include files
 //   base classes
-#include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"  //new
+#include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h" 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuCondition.h"
-#include "L1Trigger/L1TGlobal/interface/AXOL1TLCondition.h"  //new
+#include "L1Trigger/L1TGlobal/interface/AXOL1TLCondition.h"  
 #include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
@@ -96,8 +93,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   cout << "Considering BX " << useBx << std::endl;
 
   //HLS4ML stuff
-  std::string AXOL1TLmodelversion = "L1Trigger/L1TGlobal/test/GTADModel_v1";
-  // std::string AXOL1TLmodelversion = "GTADModel_v1";//maybe put the version in simGtStage2Digis_cfi.py instead?
+  std::string AXOL1TLmodelversion = "GTADModel_v1";
   cout << "loading model... "<< AXOL1TLmodelversion << std::endl;
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
@@ -156,7 +152,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   std::fill(ADModelInput, ADModelInput + NInputs, fillzero);
 
   //then fill the object vectors  
-  //NOTE assume candidates are sorted by pt, need to check that this is actually the case ??
+  //NOTE assume candidates are already sorted by pt
   //loop over EtSums first, easy because there is max 1 of them 
   if (NCandEtSum>0){ //check if not empty
     for (int iEtSum = 0; iEtSum < NCandEtSum; iEtSum++) {    
@@ -208,22 +204,6 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
     ADModelInput[index++] = JetInput[idJ];
   }
 
- //debug printouts
- // cout << "------------------ Inputs (first element)-----------------" << std::endl;
- // cout << "ETSum input [0]" << EtSumInput[0] << std::endl;
- // cout << "Egamma input[0] " << EgammaInput[0] << std::endl;
- // cout << "Mu input [0]" << MuInput[0] << std::endl;
- // cout << "Jet input[0] " << JetInput[0] << std::endl;
- // cout << "input vector[0]" << ADModelInput[0] << std::endl;
- 
- cout << "------------------ Inputs (all elements)-----------------" << std::endl;
- cout << "ADModelInput: [";
- for (int i = 0; i < NInputs; i++) {
-   cout << ADModelInput[i] << ", ";
- }
- cout << "]" << std::endl;
- // cout << "Jet input[-1] " << JetInput[JVecSize-1] << std::endl;
-
  //now run the inference
  model->prepare_input(ADModelInput);  //scaling internal here
  model->predict();
@@ -231,21 +211,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
 
  result = ADModelResult.first;
  loss = ADModelResult.second;
- // score = loss; //what is the right dataformat?
- // score = (loss).to_integer();
- score = ((loss).to_float())*16.0;  //must check if this is the right way to get the threshold
-
- cout << "------------------ outputs -----------------" << std::endl;
- int NResults = sizeof(result) / sizeof(result[0]);
- cout << "ADModelResult: [";
- for (int i = 0; i < NResults; i++) {
-   cout << result[i] << ", ";
- }
- cout << "]" << std::endl; 
- cout << "loss: " << loss << std::endl;
- cout << "score float(loss*16) :" << score << std::endl;
- cout << "----------------------------------" << std::endl;
-
+ score = ((loss).to_float())*16.0;  //scaling to match threshold
 
  //number of objects/thrsholds to check
  int iCondition = 0;   // number of conditions: there is only one
@@ -255,73 +221,19 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
    return false;
  }
  
- //may have to check that score is in the right format-convert to hex?
  const AXOL1TLTemplate::ObjectParameter objPar = (*(m_gtAXOL1TLTemplate->objectParameter()))[iCondition];
- // score = objPar.minAXOL1TLThreshold;
 
- // Definition in CondFormats/L1TObjects/interface/L1GtCondition.h:
  // condGEqVal indicates the operator used for the condition (>=, =): true for >=
  bool condGEqVal = m_gtAXOL1TLTemplate->condGEq();
-
- cout << "\n AXOL1TLTemplate::ObjectParameter (utm objects, checking which condition is parsed): "
-      << "condGEqVal: " << condGEqVal << " (true for >= )  " << std::endl
-      << "score: " << score << std::endl
-      << "nObjInCond: " << nObjInCond << std::endl
-      << "objPar.minAXOL1TLThreshold: " << objPar.minAXOL1TLThreshold << std::endl
-      << std::hex << "\n\t AXOL1TL minimum = 0x " << objPar.minAXOL1TLThreshold << "\n\t AXOL1TL1 = 0x "
-      << std::hex << "\n\t AXOL1TL maximum = 0x " << objPar.maxAXOL1TLThreshold << "\n\t AXOL1TL1 = 0x " << std::endl;
-
- // for (int i = 0; i < nObjInCond; i++) { //only 1 object
-
  bool passCondition = false;
- //   const bool ConditionEvaluation::checkThreshold(const Type1& thresholdL,
- //                                                  const Type1& thresholdH,
- //                                                  const Type2& value,
- //                                                  const bool condGEqValue) const {
+
  passCondition = checkCut(objPar.minAXOL1TLThreshold, score, condGEqVal); 
 
  condResult |= passCondition; //condresult true if passCondition true else it is false 
- if (passCondition) {
-   cout
-     << "===> AXOCondition::evaluateCondition, PASS! This event passed the condition." << std::endl;
- } else
-   cout
-     << "===> AXOCondition::evaluateCondition, FAIL! This event failed the condition." << std::endl;
-    // }//obj in condition loop
-  cout << "condResult: " << condResult << std::endl;
 
   //return result
   return condResult;
 }
-
-//for condition number iCondition (threshold) check if score passes that threshold
-// const bool l1t::AXOL1TLCondition::checkObjectParameter(const int iCondition, const float AXOL1TLscore) const {
-
-//   //number of objects/thrsholds to check
-//   int nObjInCond = m_gtAXOL1TLTemplate->nrObjects();
-
-//   if (iCondition >= nObjInCond || iCondition < 0) {
-//     return false;
-//   }
-
-//   //may have to check that score is in the right format-convert to hex?
-//   const AXOL1TLTemplate::ObjectParameter objPar = (*(m_gtAXOL1TLTemplate->objectParameter()))[iCondition];
-
-//   cout << "\n AXOL1TLTemplate::ObjectParameter (utm objects, checking which condition is parsed): "
-//                         << std::hex << "\n\t AXOL1TL minimum = 0x " << objPar.minAXOL1TLThreshold << "\n\t AXOL1TL1 = 0x "
-//                         << std::hex << "\n\t AXOL1TL maximum = 0x " << objPar.maxAXOL1TLThreshold << "\n\t AXOL1TL1 = 0x " << std::endl;
-
-//   // cout << "\n l1t::AXOL1TL (uGT emulator bits): "
-//   //                       << "\n\t AXOL1TL score = " << AXOL1TLscore << std::endl; //is this right?
-
-//   // Check if passes threshold
-//   if (AXOL1TLscore < objPar.minAXOL1TLThreshold) {
-//     cout << "\t\t event failed AXOL1TL anomaly threshold" << std::endl;
-//     return false;
-//   }
-  
-//   return true;
-// }
 
 void l1t::AXOL1TLCondition::print(std::ostream& myCout) const {
   myCout << "Dummy Print for AXOL1TLCondition" << std::endl;
