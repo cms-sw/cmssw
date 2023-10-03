@@ -379,7 +379,13 @@
 <test name="testFWCoreFrameworkWrongOptionsNumberOfStreamsType" command="run_wrongOptionsType.sh numberOfStreams 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionssizeOfStackForThreadsInKBType" command="run_wrongOptionsType.sh sizeOfStackForThreadsInKB 'cms.untracked.int32(1024)'"/>
 
-<test name="testFWCoreFrameworkCmsRunParser" command="run_cmsRun_parser.sh"/>
+<bin file="test_catch2_main.cc,test_catch2_CmsRunParser.cc" name="TestFWCoreFrameworkCmsRunParser">
+  <use name="catch2"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<test name="testFWCoreFrameworkCmsRunParsing" command="run_cmsRun_parsing.sh"/>
 <test name="testFWCoreFrameworkCmsRunVarparsing" command="run_cmsRun_varparsing.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgparse" command="run_cmsRun_argparse.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgv" command="run_cmsRun_argv.sh"/>

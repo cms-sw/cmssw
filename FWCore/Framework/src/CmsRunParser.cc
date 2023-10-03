@@ -87,7 +87,7 @@ namespace edm {
 
     all_options_.add(desc_).add(hidden);
   }
-  CmsRunParser::MapOrExit CmsRunParser::parse(int argc, char* argv[]) const {
+  CmsRunParser::MapOrExit CmsRunParser::parse(int argc, const char* argv[]) const {
     boost::program_options::variables_map vm;
     try {
       store(boost::program_options::command_line_parser(argc, argv)

@@ -85,7 +85,7 @@ namespace {
   };
 }  // namespace
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
   edm::TimingServiceBase::jobStarted();
 
   int returnCode = 0;

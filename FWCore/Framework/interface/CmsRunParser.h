@@ -10,7 +10,7 @@ namespace edm {
   public:
     using MapOrExit = std::variant<boost::program_options::variables_map, int>;
     CmsRunParser(const char* name);
-    MapOrExit parse(int argc, char* argv[]) const;
+    MapOrExit parse(int argc, const char* argv[]) const;
     //variant helpers
     static bool hasVM(const MapOrExit& output) {
       return std::holds_alternative<boost::program_options::variables_map>(output);
