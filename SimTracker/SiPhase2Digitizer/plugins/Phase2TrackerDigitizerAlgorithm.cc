@@ -997,7 +997,7 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
     signal_in_adc = theAdcFullScale_;
   } else {
     if (thePhase2ReadoutMode_ == -1) {
-      temp_signal = std::min(static_cast<int>(signal_in_elec / theElectronPerADC_), theAdcFullScale_);
+      temp_signal = std::min(static_cast<int>(std::round(signal_in_elec / theElectronPerADC_)), theAdcFullScale_);
     } else {
       // calculate the kink point and the slope
       int dualslope_param = std::min(std::abs(thePhase2ReadoutMode_), max_limit);
@@ -1005,7 +1005,8 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
       // C-ROC: first valid ToT code above threshold is 0b0000
       temp_signal = std::floor((signal_in_elec - threshold) / theElectronPerADC_);
       if (temp_signal > kink_point)
-        temp_signal = std::floor((temp_signal - kink_point) / (pow(2, dualslope_param - 1))) + kink_point;
+        temp_signal =
+            static_cast<int>(std::floor((temp_signal - kink_point) / (pow(2, dualslope_param - 1)))) + kink_point;
     }
     signal_in_adc = std::min(temp_signal, theAdcFullScale_);
     LogTrace("Phase2TrackerDigitizerAlgorithm")

@@ -233,11 +233,17 @@ _premixStage1ModifyDict = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        Phase2ReadoutMode = -1,
+        AdcFullScale = 255,
+        AddXTalk = False,
     ),
     Pixel3DDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        Phase2ReadoutMode = -1,
+        AdcFullScale = 255,
+        AddXTalk = False,
     ),
     PSPDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
