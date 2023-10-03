@@ -1285,10 +1285,9 @@ class Process(object):
               iFinalPath.resolve(self.__dict__)
               finalpathValidator.setLabel(finalpathname)
               iFinalPath.visit(finalpathValidator)
-              if finalpathValidator.filtersOnFinalpaths or finalpathValidator.producersOnFinalpaths:
-                  names = [p.label_ for p in finalpathValidator.filtersOnFinalpaths]
-                  names.extend( [p.label_ for p in finalpathValidator.producersOnFinalpaths])
-                  raise RuntimeError("FinalPath %s has non OutputModules %s" % (finalpathname, ",".join(names)))
+              filtersOrProducers = finalpathValidator.filtersOnFinalpaths + finalpathValidator.producersOnFinalpaths
+              if filtersOrProducers:
+                  raise RuntimeError("FinalPath %s has non OutputModules %s" % (finalpathname, ",".join(filtersOrProducers)))
               modulesOnFinalPath.extend(iFinalPath.moduleNames())
           for m in modulesOnFinalPath:
             mod = getattr(self, m)
