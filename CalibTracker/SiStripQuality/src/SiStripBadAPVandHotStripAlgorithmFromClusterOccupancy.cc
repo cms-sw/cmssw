@@ -1137,9 +1137,8 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::initializeDQMHistogr
       if (j != 0) {
         histoTitle += " " + layerName[i] + " " + oss.str();
       }
-      tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6., 1000, -1., 3.);
+      tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 100, 0., 6., 100, -1., 3.);
       medianVsAbsoluteOccupancy[i][j] = tmp->getTH2F();
-      medianVsAbsoluteOccupancy[i][j]->Rebin2D(10, 10);
       medianVsAbsoluteOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Abs. Occupancy)");
       medianVsAbsoluteOccupancy[i][j]->GetYaxis()->SetTitle("log_{10}(Median Occupancy)");
       //
