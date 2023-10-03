@@ -9,6 +9,9 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="xerces-c"/>
+<use name="hls"/>
+<use name="hls4mlEmulatorExtras"/>
+<use name="AXOL1TL"/>
 <export>
   <lib name="1"/>
 </export>

@@ -36,6 +36,7 @@
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
@@ -59,6 +60,7 @@ public:
               const std::vector<std::vector<CaloTemplate> >&,
               const std::vector<std::vector<EnergySumTemplate> >&,
               const std::vector<std::vector<EnergySumZdcTemplate> >&,
+	      const std::vector<std::vector<AXOL1TLTemplate> >&,
               const std::vector<std::vector<ExternalTemplate> >&,
               const std::vector<std::vector<CorrelationTemplate> >&,
               const std::vector<std::vector<CorrelationThreeBodyTemplate> >&,
@@ -139,6 +141,12 @@ public:
 
   void setVecEnergySumZdcTemplate(const std::vector<std::vector<EnergySumZdcTemplate> >&);
 
+  //
+  inline const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTemplate() const { return m_vecAXOL1TLTemplate; }
+
+  void setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >&);
+
+  
   //
   inline const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplate() const {
     return m_vecExternalTemplate;
@@ -241,7 +249,8 @@ private:
   std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
   std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
   std::vector<std::vector<EnergySumZdcTemplate> > m_vecEnergySumZdcTemplate;
-
+  std::vector<std::vector<AXOL1TLTemplate> > m_vecAXOL1TLTemplate;
+  
   std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
   std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
