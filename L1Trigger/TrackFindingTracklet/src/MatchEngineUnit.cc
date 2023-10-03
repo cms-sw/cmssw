@@ -15,9 +15,9 @@ MatchEngineUnit::MatchEngineUnit(const Settings& settings,
   imeu_ = -1;
   barrel_ = barrel;
   layerdisk_ = layerdisk;
-  good__ = false;
-  good__t = false;
-  good___ = false;
+  good_in = false;
+  good_pipeline = false;
+  good_out = false;
   ir2smin_ = 0;
   if (layerdisk_ >= N_LAYER) {
     double rmin2s = (layerdisk_ < N_LAYER + 2) ? settings_.rDSSinner(0) : settings_.rDSSouter(0);
@@ -70,36 +70,36 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   isPSseed_ = isPSseed;
   proj_ = proj;
 
-  good__ = false;
+  good_in = false;
 }
 
 void MatchEngineUnit::step() {
-  good__ = !idle() && !almostfullsave_;
+  good_in = !idle() && !almostfullsave_;
 
-  if (!good__)
+  if (!good_in)
     return;
 
   unsigned int slot = (phibin_ + use_[iuse_].second) * nrzbins_ + rzbin_ + use_[iuse_].first;
 
-  projfinerz__ = projfinerz_ - (1 << NFINERZBITS) * use_[iuse_].first;
-  projfinephi__ = projfinephi_;
+  projfinerz_in = projfinerz_ - (1 << NFINERZBITS) * use_[iuse_].first;
+  projfinephi_in = projfinephi_;
   if (use_[iuse_].second == 0) {
     if (shift_ == -1) {
-      projfinephi__ -= (1 << NFINEPHIBITS);
+      projfinephi_in -= (1 << NFINEPHIBITS);
     }
   } else {
     //When we get here shift_ is either 1 or -1
     if (shift_ == 1) {
-      projfinephi__ += (1 << NFINEPHIBITS);
+      projfinephi_in += (1 << NFINEPHIBITS);
     }
   }
 
-  vmstub__ = vmstubsmemory_->getVMStubMEBin(slot, istub_);
-  rzbin__ = rzbin_ + use_[iuse_].first;
+  vmstub_in = vmstubsmemory_->getVMStubMEBin(slot, istub_);
+  rzbin_in = rzbin_ + use_[iuse_].first;
 
-  isPSseed__ = isPSseed_;
-  projrinv__ = projrinv_;
-  proj__ = proj_;
+  isPSseed_in = isPSseed_;
+  projrinv_in = projrinv_;
+  proj_in = proj_;
 
   istub_++;
   if (istub_ >= vmstubsmemory_->nStubsBin(slot)) {
@@ -113,24 +113,24 @@ void MatchEngineUnit::step() {
 }
 
 void MatchEngineUnit::processPipeline() {
-  if (good___) {
-    int stubfinerz = vmstub___.finerz().value();
-    int stubfinephi = vmstub___.finephi().value();
+  if (good_out) {
+    int stubfinerz = vmstub_out.finerz().value();
+    int stubfinephi = vmstub_out.finephi().value();
     bool isPSmodule = false;
 
     if (barrel_) {
       isPSmodule = layerdisk_ < N_PSLAYER;
     } else {
       const int absz = (1 << settings_.MEBinsBits()) - 1;
-      unsigned int irstub = ((rzbin___ & absz) << NFINERZBITS) + stubfinerz;
+      unsigned int irstub = ((rzbin_out & absz) << NFINERZBITS) + stubfinerz;
 
       //Verify that ir2smin_ is initialized and check if irstub is less than radius of innermost 2s module
       assert(ir2smin_ > 0);
       isPSmodule = irstub < ir2smin_;
     }
-    assert(isPSmodule == vmstub___.isPSmodule());
+    assert(isPSmodule == vmstub_out.isPSmodule());
 
-    int deltaphi = stubfinephi - projfinephi___;
+    int deltaphi = stubfinephi - projfinephi_out;
 
     constexpr int idphicut = 3;
 
@@ -141,14 +141,14 @@ void MatchEngineUnit::processPipeline() {
     int diskps = (!barrel_) && isPSmodule;
 
     //here we always use the larger number of bits for the bend
-    unsigned int index = (diskps << (nbits + NRINVBITS)) + (projrinv___ << nbits) + vmstub___.bend().value();
+    unsigned int index = (diskps << (nbits + NRINVBITS)) + (projrinv_out << nbits) + vmstub_out.bend().value();
 
     //Check if stub z position consistent
-    int idrz = stubfinerz - projfinerz___;
+    int idrz = stubfinerz - projfinerz_out;
     bool pass;
 
     if (barrel_) {
-      if (isPSseed___) {
+      if (isPSseed_out) {
         constexpr int drzcut = 1;
         pass = std::abs(idrz) <= drzcut;
       } else {
@@ -167,39 +167,39 @@ void MatchEngineUnit::processPipeline() {
 
     bool goodpair = (pass && dphicut) && luttable_.lookup(index);
 
-    std::pair<Tracklet*, const Stub*> tmppair(proj___, vmstub___.stub());
+    std::pair<Tracklet*, const Stub*> tmppair(proj_out, vmstub_out.stub());
 
     if (goodpair) {
       candmatches_.store(tmppair);
     }
   }
 
-  proj___ = proj__t;
-  projfinephi___ = projfinephi__t;
-  projfinerz___ = projfinerz__t;
-  projrinv___ = projrinv__t;
-  isPSseed___ = isPSseed__t;
-  good___ = good__t;
-  vmstub___ = vmstub__t;
-  rzbin___ = rzbin__t;
+  proj_out = proj_pipeline;
+  projfinephi_out = projfinephi_pipeline;
+  projfinerz_out = projfinerz_pipeline;
+  projrinv_out = projrinv_pipeline;
+  isPSseed_out = isPSseed_pipeline;
+  good_out = good_pipeline;
+  vmstub_out = vmstub_pipeline;
+  rzbin_out = rzbin_pipeline;
 
-  proj__t = proj__;
-  projfinephi__t = projfinephi__;
-  projfinerz__t = projfinerz__;
-  projrinv__t = projrinv__;
-  isPSseed__t = isPSseed__;
-  good__t = good__;
-  vmstub__t = vmstub__;
-  rzbin__t = rzbin__;
+  proj_pipeline = proj_in;
+  projfinephi_pipeline = projfinephi_in;
+  projfinerz_pipeline = projfinerz_in;
+  projrinv_pipeline = projrinv_in;
+  isPSseed_pipeline = isPSseed_in;
+  good_pipeline = good_in;
+  vmstub_pipeline = vmstub_in;
+  rzbin_pipeline = rzbin_in;
 }
 
 void MatchEngineUnit::reset() {
   candmatches_.reset();
   idle_ = true;
   istub_ = 0;
-  good__ = false;
-  good__t = false;
-  good___ = false;
+  good_in = false;
+  good_pipeline = false;
+  good_out = false;
 }
 
 int MatchEngineUnit::TCID() const {
@@ -207,16 +207,16 @@ int MatchEngineUnit::TCID() const {
     return peek().first->TCID();
   }
 
-  if (good___) {
-    return proj___->TCID();
+  if (good_out) {
+    return proj_out->TCID();
   }
 
-  if (good__t) {
-    return proj__t->TCID();
+  if (good_pipeline) {
+    return proj_pipeline->TCID();
   }
 
-  if (good__) {
-    return proj__->TCID();
+  if (good_in) {
+    return proj_in->TCID();
   }
 
   if (idle_) {
