@@ -3,7 +3,7 @@ import sys
 
 process = cms.Process("READ")
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[2]))
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[1]))
 
 process.testReadVectorDetId = cms.EDAnalyzer("TestReadVectorDetId",
     expectedTestValue = cms.uint32(21),
