@@ -980,13 +980,14 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
     uint32_t rp = rpId.rp();
     uint32_t station = rpId.station();
 
+    h1NumberOfTracks_[rpId]->Fill(rpPixeltrack.size(), weight);
+    
     for (const auto &pixeltrack : rpPixeltrack) {
       if (Cut(pixeltrack, arm, station))
         continue;
       if (!pixeltrack.isValid())
         continue;
 
-      h1NumberOfTracks_[rpId]->Fill(rpPixeltrack.size(), weight);
 
       float pixelX0 = pixeltrack.x0();
       float pixelY0 = pixeltrack.y0();
