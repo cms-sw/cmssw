@@ -40,7 +40,8 @@ process.source = cms.Source("PoolSource",
             "drop l1tPFClusters_*_*_*",
             "drop l1tPFTracks_*_*_*",
             "drop l1tPFCandidates_*_*_*",
-            "drop l1tTkPrimaryVertexs_*_*_*")
+            "drop l1tTkPrimaryVertexs_*_*_*"),
+    skipEvents = cms.untracked.uint32(0),
 )
 
 process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
@@ -63,10 +64,13 @@ from L1Trigger.Phase2L1GMT.gmt_cfi import l1tStandaloneMuons
 process.l1tSAMuonsGmt = l1tStandaloneMuons.clone()
 
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
-l1ctLayer2SCJetsProducts = cms.untracked.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
-                                                         mht  = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT")),
-                                                cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),)
-                                                         ])
+l1ctLayer2SCJetsProducts = cms.VPSet([cms.PSet(jets = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12),
+                                               mht  = cms.InputTag("l1tSC4PFL1PuppiCorrectedEmulatorMHT"),
+                                               nSums = cms.uint32(2)),
+                                      cms.PSet(jets = cms.InputTag("l1tSC8PFL1PuppiCorrectedEmulator"),
+                                               nJets = cms.uint32(12))
+                                      ])
 process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(collections = l1ctLayer2SCJetsProducts)
 
 process.l1tLayer1BarrelTDR = process.l1tLayer1Barrel.clone()

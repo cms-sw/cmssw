@@ -1,4 +1,5 @@
 #include <memory>
+#include <numeric>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,7 +32,7 @@ public:
 private:
   // ----------constants, enums and typedefs ---------
   std::vector<edm::ParameterSet> collections_;
-  unsigned nJets_;
+
   size_t nFramesPerBX_;
   size_t ctl2BoardTMUX_;
   size_t gapLengthOutput_;
@@ -41,23 +42,20 @@ private:
   // ----------member functions ----------------------
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets);
-  std::vector<ap_uint<64>> encodeSums(const std::vector<l1t::EtSum> jets);
+  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets, unsigned nJets);
+  std::vector<ap_uint<64>> encodeSums(const std::vector<l1t::EtSum> jets, unsigned nSums);
 
   l1t::demo::BoardDataWriter fileWriterOutputToGT_;
   std::vector<std::pair<edm::EDGetTokenT<edm::View<l1t::PFJet>>, edm::EDGetTokenT<edm::View<l1t::EtSum>>>> tokens_;
   std::vector<std::pair<bool, bool>> tokensToWrite_;
-  //std::vector<edm::EDGetTokenT<edm::View<l1t::PFJet>>> jetsTokens_;
-  //std::vector<edm::EDGetTokenT<edm::View<l1t::EtSum>>> mhtTokens_;
+  std::vector<unsigned> nJets_;
+  std::vector<unsigned> nSums_;
 };
 
 L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
-    : collections_(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet>>("collections",
-                                                                                 std::vector<edm::ParameterSet>())),
-      nJets_(iConfig.getParameter<unsigned>("nJets")),
+    : collections_(iConfig.getParameter<std::vector<edm::ParameterSet>>("collections")),
       nFramesPerBX_(iConfig.getParameter<unsigned>("nFramesPerBX")),
       ctl2BoardTMUX_(iConfig.getParameter<unsigned>("TMUX")),
-      gapLengthOutput_(ctl2BoardTMUX_ * nFramesPerBX_ - 2 * (nJets_ + 1) * collections_.size()),
       maxLinesPerFile_(iConfig.getParameter<unsigned>("maxLinesPerFile")),
       channelSpecsOutputToGT_{{{"jets", 0}, {{ctl2BoardTMUX_, gapLengthOutput_}, {0}}}},
       fileWriterOutputToGT_(l1t::demo::parseFileFormat(iConfig.getParameter<std::string>("format")),
@@ -70,18 +68,24 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
   for (const auto& pset : collections_) {
     edm::EDGetTokenT<edm::View<l1t::PFJet>> jetToken;
     edm::EDGetTokenT<edm::View<l1t::EtSum>> mhtToken;
+    unsigned nJets = pset.getParameter<unsigned>("nJets");
+    unsigned nSums = pset.getParameter<unsigned>("nSums");
+    nJets_.push_back(nJets);
+    nSums_.push_back(nSums);
     bool writeJetToken(false), writeMhtToken(false);
-    if (pset.exists("jets")) {
+    if (nJets > 0) {
       jetToken = consumes<edm::View<l1t::PFJet>>(pset.getParameter<edm::InputTag>("jets"));
       writeJetToken = true;
     }
-    if (pset.exists("mht")) {
+    if (nSums > 0) {
       mhtToken = consumes<edm::View<l1t::EtSum>>(pset.getParameter<edm::InputTag>("mht"));
       writeMhtToken = true;
     }
     tokens_.push_back(std::make_pair(jetToken, mhtToken));
     tokensToWrite_.push_back(std::make_pair(writeJetToken, writeMhtToken));
   }
+  gapLengthOutput_ = ctl2BoardTMUX_ * nFramesPerBX_ - 2 * std::accumulate(nJets_.begin(), nJets_.end(), 0) - std::accumulate(nSums_.begin(), nSums_.end(), 0);
+
 }
 
 void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -93,7 +97,6 @@ void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (tokensToWrite_.at(iCollection).first) {
       const auto& jetToken = tokens_.at(iCollection).first;
       // 2) Encode jet information onto vectors containing link data
-      // TODO remove the sort here and sort the input collection where it's created
       const edm::View<l1t::PFJet>& jets = iEvent.get(jetToken);
       std::vector<l1t::PFJet> sortedJets;
       sortedJets.reserve(jets.size());
@@ -101,7 +104,7 @@ void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       std::stable_sort(
           sortedJets.begin(), sortedJets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.hwPt() > j.hwPt()); });
-      const auto outputJets(encodeJets(sortedJets));
+      const auto outputJets(encodeJets(sortedJets, nJets_.at(iCollection)));
       link_words.insert(link_words.end(), outputJets.begin(), outputJets.end());
     }
 
@@ -111,8 +114,7 @@ void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
       const edm::View<l1t::EtSum>& mht = iEvent.get(mhtToken);
       std::vector<l1t::EtSum> orderedSums;
       std::copy(mht.begin(), mht.end(), std::back_inserter(orderedSums));
-      // TODO: reorder the sums checking the EtSumType
-      const auto outputSums(encodeSums(orderedSums));
+      const auto outputSums(encodeSums(orderedSums, nSums_.at(iCollection)));
       link_words.insert(link_words.end(), outputSums.begin(), outputSums.end());
     }
   }
@@ -128,13 +130,13 @@ void L1CTJetFileWriter::endJob() {
   fileWriterOutputToGT_.flush();
 }
 
-std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets) {
+std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets, const unsigned nJets) {
   std::vector<ap_uint<64>> jet_words;
-  for (unsigned i = 0; i < nJets_; i++) {
+  for (unsigned i = 0; i < nJets; i++) {
     l1t::PFJet j;
     if (i < jets.size()) {
       j = jets.at(i);
-    } else {  // pad up to nJets_ with null jets
+    } else {  // pad up to nJets with null jets
       l1t::PFJet j(0, 0, 0, 0, 0, 0);
     }
     jet_words.push_back(j.encodedJet()[0]);
@@ -143,21 +145,24 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PF
   return jet_words;
 }
 
-std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::EtSum> sums) {
-  // Send MHT first, then MET
-  // Need two l1t::EtSum for each MHT, MET (four total)
-  // No MET consumed for now - send 0s on second word
+std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::EtSum> sums, unsigned nSums) {
+  // Need two l1t::EtSum for each GT Sum
   std::vector<ap_uint<64>> sum_words;
-  int valid = sums.at(0).pt() > 0;
-  // TODO this is not going to be bit exact
-  l1gt::Sum ht;
-  ht.valid = valid;
-  ht.vector_pt.V = sums.at(1).hwPt();
-  ht.vector_phi.V = sums.at(1).hwPhi();
-  ht.scalar_pt.V = sums.at(0).hwPt();
-  //l1gt::Sum ht{valid, sums.at(1).pt(), sums.at(1).phi() / l1gt::Scales::ETAPHI_LSB, sums.at(0).pt()};
-  sum_words.push_back(ht.pack());
-  sum_words.push_back(0);
+  for(unsigned i = 0; i < nSums; i++){
+    if(2*i < sums.size()){
+      l1gt::Sum gtSum;
+      gtSum.valid = 1; // if the sums are sent at all, they are valid
+      gtSum.vector_pt.V = sums.at(2*i+1).hwPt();
+      gtSum.vector_phi.V = sums.at(2*i+1).hwPhi();
+      gtSum.scalar_pt.V = sums.at(2*i).hwPt();
+      sum_words.push_back(gtSum.pack());
+    }else{
+      l1gt::Sum gtSum;
+      gtSum.clear();
+      gtSum.valid = 1; // if the sums are sent at all, they are valid      
+      sum_words.push_back(gtSum.pack());
+    }
+  }
   return sum_words;
 }
 
@@ -168,7 +173,9 @@ void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descrip
     edm::ParameterSetDescription vpsd1;
     vpsd1.addOptional<edm::InputTag>("jets");
     vpsd1.addOptional<edm::InputTag>("mht");
-    desc.addVPSetUntracked("collections", vpsd1);
+    vpsd1.add<uint>("nJets", 0);
+    vpsd1.add<uint>("nSums", 0);
+    desc.addVPSet("collections", vpsd1);
   }
   desc.add<std::string>("outputFilename");
   desc.add<std::string>("outputFileExtension", "txt");
