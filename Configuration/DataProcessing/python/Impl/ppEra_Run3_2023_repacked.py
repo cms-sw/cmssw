@@ -11,7 +11,7 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
+from Configuration.Eras.Era_Run3_2023_ZDC_cff import Run3_2023_ZDC
 
 from Configuration.DataProcessing.Impl.pp import pp
 
@@ -21,14 +21,14 @@ class ppEra_Run3_2023_repacked(pp):
         self.recoSeq=''
         self.cbSc='pp'
         self.isRepacked=True
-        self.eras=Run3_2023
+        self.eras=Run3_2023_ZDC
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3_2023' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3_2023' ]
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3_2023' ]
     """
     _ppEra_Run3_2023_
 
-    Implement configuration building for data processing for proton
-    collision data taking for Run3_2023
+    Implement configuration building for data processing for PbPb collisions with pp reco
+    collision data taking for Run3_2023_ZDC
 
     """
