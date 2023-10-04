@@ -377,7 +377,7 @@ void DRNCorrectionProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetu
       const auto& part = particles_->at(iPart);
       if (!skip(part)) {
         mu = correction(out[0][0 + 11 * i]);
-        sigma = resolution(out[0][6 + 11*i]);
+        sigma = resolution(out[0][6 + 11 * i]);
         ++i;
 
         rawE = part.superCluster()->rawEnergy();
