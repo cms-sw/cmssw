@@ -155,12 +155,9 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::Et
       gtSum.vector_pt.V = sums.at(2*i+1).hwPt();
       gtSum.vector_phi.V = sums.at(2*i+1).hwPhi();
       gtSum.scalar_pt.V = sums.at(2*i).hwPt();
-      sum_words.push_back(gtSum.pack());
+      sum_words.push_back(gtSum.pack_ap());
     }else{
-      l1gt::Sum gtSum;
-      gtSum.clear();
-      gtSum.valid = 1; // if the sums are sent at all, they are valid      
-      sum_words.push_back(gtSum.pack());
+      sum_words.push_back(0);
     }
   }
   return sum_words;

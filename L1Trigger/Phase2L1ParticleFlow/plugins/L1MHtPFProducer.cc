@@ -43,15 +43,14 @@ void L1MhtPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
   // Get the jets from the event
   l1t::PFJetCollection edmJets = iEvent.get(jetsToken);
 
+  std::vector<l1ct::Jet> hwJets = convertEDMToHW(edmJets);  // convert to the emulator format
   // Apply pT and eta selections
-  l1t::PFJetCollection edmJetsFiltered;
-  std::copy_if(edmJets.begin(), edmJets.end(), std::back_inserter(edmJetsFiltered), [&](auto jet) {
-    return jet.pt() > minJetPt && std::abs(jet.eta()) < maxJetEta;
+  std::vector<l1ct::Jet> hwJetsFiltered;
+  std::copy_if(hwJets.begin(), hwJets.end(), std::back_inserter(hwJetsFiltered), [&](auto jet) {
+    return jet.hwPt > l1ct::Scales::makePtFromFloat(minJetPt) && std::abs(jet.hwEta) < l1ct::Scales::makeGlbEta(maxJetEta);
   });
-
-  // Run the emulation
-  std::vector<l1ct::Jet> hwJets = convertEDMToHW(edmJetsFiltered);  // convert to the emulator format
-  l1ct::Sum hwSums = htmht(hwJets);                                 // call the emulator
+ 
+  l1ct::Sum hwSums = htmht(hwJetsFiltered);                         // call the emulator
   std::vector<l1t::EtSum> edmSums = convertHWToEDM(hwSums);         // convert back to edm format
 
   // Put the sums in the event

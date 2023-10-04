@@ -153,7 +153,7 @@ namespace l1gt {
     }
 
     static const int BITWIDTH = 64;
-    inline ap_uint<BITWIDTH> pack() const {
+    inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret(0);
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
@@ -161,6 +161,11 @@ namespace l1gt {
       pack_into_bits(ret, start, vector_phi);
       pack_into_bits(ret, start, scalar_pt);
       return ret;
+    }
+
+    inline uint64_t pack() const {
+      ap_uint<BITWIDTH> x = pack_ap();
+      return (uint64_t) x;
     }
 
     inline static Sum unpack_ap(const ap_uint<BITWIDTH> &src) {
