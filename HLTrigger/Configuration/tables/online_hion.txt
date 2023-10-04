@@ -10,6 +10,7 @@ HLT_HIPhysics_v*
 HLT_HIPhysicsForZS_v*
 DST_Physics_v*
 HLT_HIRandom_v*
+HLT_HIRandom_HighRate_v*                                # CMSHLT-2944
 AlCa_EcalPhiSymForHI_v*
 HLT_HIHcalNZS_v*
 HLT_HIHcalPhiSym_v*
@@ -20,9 +21,12 @@ AlCa_EcalEtaEBonlyForHI_v*
 AlCa_EcalEtaEEonlyForHI_v*
 HLT_HICentrality30100_FirstCollisionAfterAbortGap_v*
 HLT_HIZeroBias_v*
+HLT_HIZeroBias_HighRate_v*                              # CMSHLT-2944
 HLT_HIZeroBias_FirstCollisionAfterAbortGap_v*
-HLT_HIPuAK4CaloJet40Eta5p1_v*
-HLT_HIPuAK4CaloJet60Eta5p1_v*
+HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_v*		# CMSHKT-2922
+HLT_HIPuAK4CaloJet40Eta5p1_MinBiasHF1AND_ZDC2nOR_v*	# CMSHLT-2922
+HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_v*		# CMSHLT-2922
+HLT_HIPuAK4CaloJet60Eta5p1_MinBiasHF1AND_ZDC2nOR_v*	# CMSHLT-2922
 HLT_HIPuAK4CaloJet80Eta5p1_v*
 HLT_HIPuAK4CaloJet100Eta5p1_v*
 HLT_HIPuAK4CaloJet120Eta5p1_v*
@@ -65,11 +69,11 @@ HLT_HIUPC_DoubleEG2_NotMBHF2AND_v*                                         # CMS
 HLT_HIUPC_DoubleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
 HLT_HIUPC_DoubleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
-HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelTrack_v*                          # CMSHLT-2471
-HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_MaxPixelTrack_v*                      # CMSHLT-2471
+HLT_HIUPC_DoubleMuCosmic_BptxAND_MaxPixelCluster1000_v*                    # CMSHLT-2926
+HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v*                # CMSHLT-2926
 HLT_HIUPC_DoubleMuCosmic_NotMBHF2AND_v*                                    # CMSHLT-2471
-HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelTrack_v*                            # CMSHLT-2471
-HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelTrack_v*                        # CMSHLT-2471
+HLT_HIUPC_DoubleMuOpen_BptxAND_MaxPixelCluster1000_v*                      # CMSHLT-2926
+HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v*                  # CMSHLT-2926
 HLT_HIUPC_DoubleMuOpen_NotMBHF2AND_v*                                      # CMSHLT-2471
 HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity20400_v*                          # CMSHLT-2471
 HLT_HIUPC_MBHF1AND_PixelTrackMultiplicity30400_v*                          # CMSHLT-2471
@@ -86,20 +90,20 @@ HLT_HIUPC_SingleEG3_NotMBHF2OR_v*                                          # CMS
 HLT_HIUPC_SingleEG5_BptxAND_SinglePixelTrack_MaxPixelTrack_v*              # CMSHLT-2471
 HLT_HIUPC_SingleEG5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v*          # CMSHLT-2471
 HLT_HIUPC_SingleEG5_NotMBHF2AND_v*                                         # CMSHLT-2471
-HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelTrack_v*                          # CMSHLT-2471
-HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelTrack_v*                      # CMSHLT-2471
+HLT_HIUPC_SingleMuCosmic_BptxAND_MaxPixelCluster1000_v*                    # CMSHLT-2926
+HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_MaxPixelCluster1000_v*                # CMSHLT-2926
 HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_v*                                    # CMSHLT-2471
-HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelTrack_v*                       # CMSHLT-2471
+HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelCluster1000_v*                 # CMSHLT-2926
 HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v*                                     # CMSHLT-2471
-HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelTrack_v*                            # CMSHLT-2471
-HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelTrack_v*                        # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster1000_v*                      # CMSHLT-2926
+HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v*                  # CMSHLT-2926
 HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v*                                      # CMSHLT-2471
-HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelTrack_v*                         # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelCluster1000_v*                   # CMSHLT-2926
 HLT_HIUPC_SingleMuOpen_NotMBHF2OR_v*                                       # CMSHLT-2471
-HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_MaxPixelTrack_v*     # CMSHLT-2471
-HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_MaxPixelTrack_v* # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_MaxPixelCluster1000_v* # CMSHLT-2926
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_MaxPixelCluster1000_v* # CMSHLT-2926
 HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v*               # CMSHLT-2471
-HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelTrack_v*  # CMSHLT-2471
+HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_MaxPixelCluster1000_v*  # CMSHLT-2926
 HLT_HIUPC_SingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2OR_v*                # CMSHLT-2471
 HLT_HIUPC_ZDC1nOR_MinPixelCluster400_MaxPixelCluster10000_v*               # CMSHLT-2471
 HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster400_v*              # CMSHLT-2471
@@ -134,10 +138,18 @@ HLT_HICsAK4PFJet100Eta1p5_Beamspot_v* # CMSHLT-2882
 HLT_HICsAK4PFJet120Eta2p1_v*          # CMSHLT-2882
 HLT_HIDoubleGEDPhoton20_v*            # CMSHLT-2882
 HLT_HIUPC_NotMBHF2_v*                 # CMSHLT-2882
-HLT_HIUPC_SingleJet8_NotMBHF2_v*      # CMSHLT-2882
-HLT_HIUPC_SingleJet12_NotMBHF2_v*     # CMSHLT-2882
-HLT_HIUPC_SingleJet16_NotMBHF2_v*     # CMSHLT-2882
-HLT_HIUPC_SingleJet24_NotMBHF2_v*     # CMSHLT-2882
+HLT_HIUPC_SingleJet8_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
+HLT_HIUPC_SingleJet12_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
+HLT_HIUPC_SingleJet16_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
+HLT_HIUPC_SingleJet20_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
+HLT_HIUPC_SingleJet24_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
+HLT_HIUPC_SingleJet28_ZDC1nXOR_MaxPixelCluster50000_v*	# CMSHLT-2912
+HLT_HIUPC_SingleJet8_NotMBHF2AND_MaxPixelCluster50000_v*  # CMSHLT-2912
+HLT_HIUPC_SingleJet12_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
+HLT_HIUPC_SingleJet16_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
+HLT_HIUPC_SingleJet20_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
+HLT_HIUPC_SingleJet28_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
+HLT_HIUPC_SingleJet24_NotMBHF2AND_MaxPixelCluster50000_v* # CMSHLT-2912
 HLT_HIL1DoubleMu0_MaxDr3p5_Open_v*    # CMSHLT-2882
 HLT_HIL1DoubleMu0_v*                  # CMSHLT-2882
 HLT_HIL1DoubleMu0_SQ_v*               # CMSHLT-2882
@@ -181,14 +193,15 @@ HLT_HIL3SingleMu5_SinglePuAK4CaloJet80_v* # CMSHLT-2906
 HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v* # CMSHLT-2905
 HLT_HIDmesonPPOnAATrackingGlobal_Dpt45_v* # CMSHLT-2905
 HLT_HIDmesonPPOnAATrackingGlobal_Dpt60_v* # CMSHLT-2905
-HLT_HIDmesonPPOnAATrackingGlobalBypass_v* # CMSHLT-2905
 
 HLT_HIEphemeralPhysics_v*  # CMSHLT-2915
 HLT_HIEphemeralZeroBias_v* # CMSHLT-2915
 
 HLT_HIMinimumBiasHF1AND_v*                 # CMSHLT-2521, CMSHLT-2914
+HLT_HIMinimumBiasHF1AND_copy_v*            # CMSHLT-2939
 HLT_HIMinimumBiasHF1AND_Beamspot_v*        # CMSHLT-2914
 HLT_HIMinimumBiasHF1ANDZDC2nOR_v*          # CMSHLT-2914
+HLT_HIMinimumBiasHF1ANDZDC2nOR_copy_v*     # CMSHLT-2939
 HLT_HIMinimumBiasHF1ANDZDC2nOR_Beamspot_v* # CMSHLT-2914
 
 HLTriggerFinalPath
@@ -214,6 +227,23 @@ PhysicsHICommissioningOutput
 PhysicsHIForward0Output          # CMSHLT-2882, CMSHLT-2913
 PhysicsHIForward1Output          # CMSHLT-2882, CMSHLT-2913
 PhysicsHIForward2Output          # CMSHLT-2882, CMSHLT-2913
+PhysicsHIForward3Output          # CMSHLT-2936
+PhysicsHIForward4Output          # CMSHLT-2936
+PhysicsHIForward5Output          # CMSHLT-2936
+PhysicsHIForward6Output          # CMSHLT-2936
+PhysicsHIForward7Output          # CMSHLT-2936
+PhysicsHIForward8Output          # CMSHLT-2936
+PhysicsHIForward9Output          # CMSHLT-2936
+PhysicsHIForward10Output         # CMSHLT-2936
+PhysicsHIForward11Output         # CMSHLT-2936
+PhysicsHIForward12Output         # CMSHLT-2936
+PhysicsHIForward13Output         # CMSHLT-2936
+PhysicsHIForward14Output         # CMSHLT-2936
+PhysicsHIForward15Output         # CMSHLT-2936
+PhysicsHIForward16Output         # CMSHLT-2936
+PhysicsHIForward17Output         # CMSHLT-2936
+PhysicsHIForward18Output         # CMSHLT-2936
+PhysicsHIForward19Output         # CMSHLT-2936
 PhysicsHIMinimumBias0Output      # CMSHLT-2882, CMSHLT-2913
 PhysicsHIMinimumBias1Output      # CMSHLT-2882, CMSHLT-2913
 PhysicsHIMinimumBias2Output      # CMSHLT-2882, CMSHLT-2913

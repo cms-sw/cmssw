@@ -71,7 +71,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioningRawPrime_datasetCommissioningRawPrime_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioningRawPrime_datasetCommissioningRawPrime_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioningRawPrime_datasetCommissioningRawPrime_selector.throw      = cms.bool(False)
-streamPhysicsCommissioningRawPrime_datasetCommissioningRawPrime_selector.triggerConditions = cms.vstring('HLT_PPRefZeroBiasRawPrime_v1')
+streamPhysicsCommissioningRawPrime_datasetCommissioningRawPrime_selector.triggerConditions = cms.vstring('HLT_PPRefZeroBiasRawPrime_v3')
 
 
 # stream PhysicsPPRefDoubleMuon0
