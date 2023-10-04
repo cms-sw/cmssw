@@ -2282,66 +2282,6 @@ streamPhysicsMuon1_datasetMuon1_selector.triggerConditions = cms.vstring(
 )
 
 
-# stream PhysicsReservedDoubleMuonLowMass
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsReservedDoubleMuonLowMass_datasetReservedDoubleMuonLowMass_selector
-streamPhysicsReservedDoubleMuonLowMass_datasetReservedDoubleMuonLowMass_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsReservedDoubleMuonLowMass_datasetReservedDoubleMuonLowMass_selector.l1tResults = cms.InputTag('')
-streamPhysicsReservedDoubleMuonLowMass_datasetReservedDoubleMuonLowMass_selector.throw      = cms.bool(False)
-streamPhysicsReservedDoubleMuonLowMass_datasetReservedDoubleMuonLowMass_selector.triggerConditions = cms.vstring(
-    'HLT_Dimuon0_Jpsi3p5_Muon2_v11',
-    'HLT_Dimuon0_Jpsi_L1_4R_0er1p5R_v13',
-    'HLT_Dimuon0_Jpsi_L1_NoOS_v13',
-    'HLT_Dimuon0_Jpsi_NoVertexing_L1_4R_0er1p5R_v13',
-    'HLT_Dimuon0_Jpsi_NoVertexing_NoOS_v13',
-    'HLT_Dimuon0_Jpsi_NoVertexing_v14',
-    'HLT_Dimuon0_Jpsi_v14',
-    'HLT_Dimuon0_LowMass_L1_0er1p5R_v13',
-    'HLT_Dimuon0_LowMass_L1_0er1p5_v14',
-    'HLT_Dimuon0_LowMass_L1_4R_v13',
-    'HLT_Dimuon0_LowMass_L1_4_v14',
-    'HLT_Dimuon0_LowMass_L1_TM530_v12',
-    'HLT_Dimuon0_LowMass_v14',
-    'HLT_Dimuon0_Upsilon_L1_4p5_v15',
-    'HLT_Dimuon0_Upsilon_L1_4p5er2p0M_v13',
-    'HLT_Dimuon0_Upsilon_L1_4p5er2p0_v15',
-    'HLT_Dimuon0_Upsilon_Muon_NoL1Mass_v12',
-    'HLT_Dimuon0_Upsilon_NoVertexing_v13',
-    'HLT_Dimuon12_Upsilon_y1p4_v8',
-    'HLT_Dimuon14_Phi_Barrel_Seagulls_v13',
-    'HLT_Dimuon18_PsiPrime_noCorrL1_v12',
-    'HLT_Dimuon18_PsiPrime_v20',
-    'HLT_Dimuon24_Phi_noCorrL1_v12',
-    'HLT_Dimuon24_Upsilon_noCorrL1_v12',
-    'HLT_Dimuon25_Jpsi_noCorrL1_v12',
-    'HLT_Dimuon25_Jpsi_v20',
-    'HLT_DoubleMu2_Jpsi_DoubleTrk1_Phi1p05_v12',
-    'HLT_DoubleMu3_DoubleEle7p5_CaloIdL_TrackIdL_Upsilon_v10',
-    'HLT_DoubleMu3_TkMu_DsTau3Mu_v10',
-    'HLT_DoubleMu3_Trk_Tau3mu_NoL1Mass_v12',
-    'HLT_DoubleMu3_Trk_Tau3mu_v18',
-    'HLT_DoubleMu4_3_Bs_v21',
-    'HLT_DoubleMu4_3_Jpsi_v21',
-    'HLT_DoubleMu4_JpsiTrkTrk_Displaced_v13',
-    'HLT_DoubleMu4_Jpsi_Displaced_v13',
-    'HLT_DoubleMu4_Jpsi_NoVertexing_v13',
-    'HLT_DoubleMu4_MuMuTrk_Displaced_v21',
-    'HLT_DoubleMu5_Upsilon_DoubleEle3_CaloIdL_TrackIdL_v10',
-    'HLT_Mu25_TkMu0_Phi_v14',
-    'HLT_Mu30_TkMu0_Psi_v7',
-    'HLT_Mu30_TkMu0_Upsilon_v7',
-    'HLT_Mu4_L1DoubleMu_v7',
-    'HLT_Mu7p5_L2Mu2_Jpsi_v16',
-    'HLT_Mu7p5_L2Mu2_Upsilon_v16',
-    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1_v10',
-    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_v10',
-    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_Tau15_Charge1_v10',
-    'HLT_Tau3Mu_Mu7_Mu1_TkMu1_Tau15_v10',
-    'HLT_Trimuon5_3p5_2_Upsilon_Muon_v11',
-    'HLT_TrimuonOpen_5_3p5_2_Upsilon_Muon_v9'
-)
-
-
 # stream PhysicsScoutingPFMonitor
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector
