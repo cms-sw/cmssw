@@ -31,6 +31,7 @@
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineHLTObjectsRcd.h"
 #include "CondFormats/DataRecord/interface/BeamSpotOnlineLegacyObjectsRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -57,6 +58,7 @@ private:
 
   // ----------member data ---------------------------
   const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsToken_;
+  edm::ESWatcher<BeamSpotObjectsRcd> bsWatcher_;
 
   // parameters that can't be copied from the BeamSpotObject
   const int lastAnalyzedLumi_, lastAnalyzedRun_, lastAnalyzedFill_;
@@ -70,6 +72,7 @@ private:
   uint32_t fIOVStartLumi_;
   cond::Time_t fnewSince_;
   bool fuseNewSince_;
+  std::string fLabel_;
 };
 
 //
@@ -102,6 +105,7 @@ BeamSpotOnlineFromOfflineConverter::BeamSpotOnlineFromOfflineConverter(const edm
     fuseNewSince_ = false;
     edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "useNewSince = False";
   }
+  fLabel_ = (fIsHLT_) ? "BeamSpotOnlineHLTObjectsRcd" : "BeamSpotOnlineLegacyObjectsRcd";
 }
 
 //
@@ -115,56 +119,60 @@ cond::Time_t BeamSpotOnlineFromOfflineConverter::pack(uint32_t fIOVStartRun, uin
 
 // ------------ method called for each event  ------------
 void BeamSpotOnlineFromOfflineConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const std::string fLabel = (fIsHLT_) ? "BeamSpotOnlineHLTObjectsRcd" : "BeamSpotOnlineLegacyObjectsRcd";
-  const BeamSpotObjects* inputSpot = &iSetup.getData(bsToken_);
+  if (bsWatcher_.check(iSetup)) {
+    const BeamSpotObjects* inputSpot = &iSetup.getData(bsToken_);
 
-  BeamSpotOnlineObjects abeam;
-  abeam.copyFromBeamSpotObject(*inputSpot);
-  abeam.setLastAnalyzedLumi(lastAnalyzedLumi_);
-  abeam.setLastAnalyzedRun(lastAnalyzedRun_);
-  abeam.setLastAnalyzedFill(lastAnalyzedFill_);
-  abeam.setStartTimeStamp(std::time(nullptr));
-  abeam.setEndTimeStamp(std::time(nullptr));
-  abeam.setNumTracks(numTracks_);
-  abeam.setNumPVs(numPVs_);
-  abeam.setUsedEvents(numUsedEvents_);
-  abeam.setMaxPVs(numMaxPVs_);
-  abeam.setMeanPV(meanPVs_);
-  abeam.setMeanErrorPV(meanPVError_);
-  abeam.setRmsPV(rmsPV_);
-  abeam.setRmsErrorPV(rmsPVError_);
-  abeam.setStartTime(startTime_);
-  abeam.setEndTime(endTime_);
-  abeam.setLumiRange(lumiRange_);
+    BeamSpotOnlineObjects abeam;
+    abeam.copyFromBeamSpotObject(*inputSpot);
+    abeam.setLastAnalyzedLumi(lastAnalyzedLumi_);
+    abeam.setLastAnalyzedRun(lastAnalyzedRun_);
+    abeam.setLastAnalyzedFill(lastAnalyzedFill_);
+    abeam.setStartTimeStamp(std::time(nullptr));
+    abeam.setEndTimeStamp(std::time(nullptr));
+    abeam.setNumTracks(numTracks_);
+    abeam.setNumPVs(numPVs_);
+    abeam.setUsedEvents(numUsedEvents_);
+    abeam.setMaxPVs(numMaxPVs_);
+    abeam.setMeanPV(meanPVs_);
+    abeam.setMeanErrorPV(meanPVError_);
+    abeam.setRmsPV(rmsPV_);
+    abeam.setRmsErrorPV(rmsPVError_);
+    abeam.setStartTime(startTime_);
+    abeam.setEndTime(endTime_);
+    abeam.setLumiRange(lumiRange_);
 
-  // Set the creation time of the payload to the current time
-  auto creationTime =
-      std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  abeam.setCreationTime(creationTime);
+    // Set the creation time of the payload to the current time
+    auto creationTime =
+        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch())
+            .count();
+    abeam.setCreationTime(creationTime);
 
-  edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << " Writing results to DB...";
-  edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << abeam;
+    edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << " Writing results to DB...";
+    edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << abeam;
 
-  edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if (poolDbService.isAvailable()) {
-    edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "poolDBService available";
-    if (poolDbService->isNewTagRequest(fLabel)) {
-      edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "new tag requested";
-      if (fuseNewSince_) {
-        edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "Using a new Since: " << fnewSince_;
-        poolDbService->createOneIOV<BeamSpotOnlineObjects>(abeam, fnewSince_, fLabel);
-      } else
-        poolDbService->createOneIOV<BeamSpotOnlineObjects>(abeam, poolDbService->beginOfTime(), fLabel);
-    } else {
-      edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "no new tag requested";
-      if (fuseNewSince_) {
-        edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "Using a new Since: " << fnewSince_;
-        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(abeam, fnewSince_, fLabel);
-      } else
-        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(abeam, poolDbService->currentTime(), fLabel);
+    edm::Service<cond::service::PoolDBOutputService> poolDbService;
+    if (poolDbService.isAvailable()) {
+      edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "poolDBService available";
+      if (poolDbService->isNewTagRequest(fLabel_)) {
+        edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "new tag requested";
+        if (fuseNewSince_) {
+          edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "Using a new Since: " << fnewSince_;
+          poolDbService->createOneIOV<BeamSpotOnlineObjects>(abeam, fnewSince_, fLabel_);
+        } else
+          poolDbService->createOneIOV<BeamSpotOnlineObjects>(abeam, poolDbService->beginOfTime(), fLabel_);
+      } else {
+        edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "no new tag requested";
+        if (fuseNewSince_) {
+          cond::Time_t thisSince = BeamSpotOnlineFromOfflineConverter::pack(
+              iEvent.getLuminosityBlock().run(), iEvent.getLuminosityBlock().luminosityBlock());
+          edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "Using a new Since: " << thisSince;
+          poolDbService->appendOneIOV<BeamSpotOnlineObjects>(abeam, thisSince, fLabel_);
+        } else
+          poolDbService->appendOneIOV<BeamSpotOnlineObjects>(abeam, poolDbService->currentTime(), fLabel_);
+      }
     }
+    edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "[BeamSpotOnlineFromOfflineConverter] analyze done \n";
   }
-  edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "[BeamSpotOnlineFromOfflineConverter] analyze done \n";
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
