@@ -23,8 +23,14 @@ bTagDeepJet  = [
   'pfDeepFlavourJetTags:probc','pfDeepFlavourJetTags:probuds','pfDeepFlavourJetTags:probg'
 ]
 from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
 from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll
-bTagDiscriminatorsForAK4 = cms.PSet(foo = cms.vstring(bTagDeepJet+_pfParticleNetAK4JetTagsAll+_pfParticleTransformerAK4JetTagsAll))
+bTagDiscriminatorsForAK4 = cms.PSet(foo = cms.vstring(
+  bTagDeepJet+
+  _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll+_pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll+
+  _pfParticleTransformerAK4JetTagsAll
+))
 run2_nanoAOD_ANY.toModify(
   bTagDiscriminatorsForAK4,
   foo = bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll
@@ -736,15 +742,6 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.btagRobustParTAK4B   = ROBUSTPARTAK4VARS.btagRobustParTAK4B
   proc.jetPuppiTable.variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
   proc.jetPuppiTable.variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
-  #
-  # Add ParticleNetAK4 scores
-  #
-  proc.jetPuppiTable.variables.particleNetAK4_B        = PARTICLENETAK4VARS.particleNetAK4_B
-  proc.jetPuppiTable.variables.particleNetAK4_CvsL     = PARTICLENETAK4VARS.particleNetAK4_CvsL
-  proc.jetPuppiTable.variables.particleNetAK4_CvsB     = PARTICLENETAK4VARS.particleNetAK4_CvsB
-  proc.jetPuppiTable.variables.particleNetAK4_QvsG     = PARTICLENETAK4VARS.particleNetAK4_QvsG
-  proc.jetPuppiTable.variables.particleNetAK4_G        = PARTICLENETAK4VARS.particleNetAK4_G
-  proc.jetPuppiTable.variables.particleNetAK4_puIdDisc = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
 
   #
   # For Run-2 eras, don't need to save the low pt AK4 Puppi jet table for MET
@@ -782,8 +779,11 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   """
   print("custom_jme_cff::ReclusterAK4CHSJets: Recluster AK4 PF CHS jets")
 
+  from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+  from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+
   bTagDiscriminatorsForAK4CHS = cms.PSet(
-    foo = cms.vstring(_pfParticleNetAK4JetTagsAll)
+    foo = cms.vstring(_pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll+_pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll)
   )
   bTagDiscriminatorsForAK4CHS = bTagDiscriminatorsForAK4CHS.foo.value()
 
@@ -874,20 +874,22 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.chFPV3EF = Var("userFloat('chFPV3EF')", float, doc="charged fromPV==3 Energy Fraction (component of the total charged Energy Fraction).", precision= 6)
 
   #
-  # Save RobustParTAK4 b-tagging and c-tagging variables
+  # Remove these tagger branches since for CHS, we just want to store
+  # one tagger only.
   #
-  proc.jetTable.variables.btagRobustParTAK4B   = ROBUSTPARTAK4VARS.btagRobustParTAK4B
-  proc.jetTable.variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
-  proc.jetTable.variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
-  #
-  # Add ParticleNetAK4 scores
-  #
-  proc.jetTable.variables.particleNetAK4_B          = PARTICLENETAK4VARS.particleNetAK4_B
-  proc.jetTable.variables.particleNetAK4_CvsL       = PARTICLENETAK4VARS.particleNetAK4_CvsL
-  proc.jetTable.variables.particleNetAK4_CvsB       = PARTICLENETAK4VARS.particleNetAK4_CvsB
-  proc.jetTable.variables.particleNetAK4_QvsG       = PARTICLENETAK4VARS.particleNetAK4_QvsG
-  proc.jetTable.variables.particleNetAK4_G          = PARTICLENETAK4VARS.particleNetAK4_G
-  proc.jetTable.variables.particleNetAK4_puIdDisc   = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
+  for varNames in proc.jetTable.variables.parameterNames_():
+    if "btagDeepFlav" in varNames or "btagRobustParT" in varNames:
+      delattr(proc.jetTable.variables, varNames)
+
+  proc.jetTable.variables.btagPNetB = Var("?pt>15 && bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="ParticleNet b vs. udscg")
+  proc.jetTable.variables.btagPNetCvL = Var("?pt>15 && bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsL')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsL'):-1",float,precision=10,doc="ParticleNet c vs. udsg")
+  proc.jetTable.variables.btagPNetCvB = Var("?pt>15 && bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsB')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsB'):-1",float,precision=10,doc="ParticleNet c vs. b")
+  proc.jetTable.variables.btagPNetQvG = Var("?pt>15 && abs(eta())<2.5?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:QvsG'):bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags:QvsG')",float,precision=10,doc="ParticleNet q (udsbc) vs. g")
+  proc.jetTable.variables.btagPNetTauVJet = Var("?pt>15 && bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:TauVsJet')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:TauVsJet'):-1",float,precision=10,doc="ParticleNet tau vs. jet")
+  proc.jetTable.variables.PNetRegPtRawCorr = Var("?pt>15 && abs(eta())<2.5?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptcorr'):bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptcorr')",float,precision=10,doc="ParticleNet universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT")
+  proc.jetTable.variables.PNetRegPtRawCorrNeutrino = Var("?pt>15 && abs(eta())<2.5?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptnu'):bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptnu')",float,precision=10,doc="ParticleNet universal flavor-aware pT regression neutrino correction, relative to visible. To apply full regression, multiply raw jet pT by both PNetRegPtRawCorr and PNetRegPtRawCorrNeutrino.")
+  proc.jetTable.variables.PNetRegPtRawRes = Var("?pt>15 && abs(eta())<2.5?0.5*(bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptreshigh')-bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptreslow')):0.5*(bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptreshigh')-bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptreslow'))",float,precision=10,doc="ParticleNet universal flavor-aware jet pT resolution estimator, (q84 - q16)/2")
+
 
   #Adding hf shower shape producer to the jet sequence. By default this producer is not automatically rerun at the NANOAOD step
   #The following lines make sure it is.
