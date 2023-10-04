@@ -153,9 +153,9 @@ namespace edm {
     std::vector<ParameterSet> getVPSet() const;
 
     // coded string
-    Entry(std::string const& name, std::string const&);
-    Entry(std::string const& name, std::string const& type, std::string const& value, bool is_tracked);
-    Entry(std::string const& name, std::string const& type, std::vector<std::string> const& value, bool is_tracked);
+    Entry(std::string name, std::string_view);
+    Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked);
+    Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked);
 
     ~Entry() = default;
     Entry(Entry const&) = default;
@@ -168,26 +168,29 @@ namespace edm {
     void toString(std::string& result) const;
     void toDigest(cms::Digest& digest) const;
 
-    size_t sizeOfString() const { return rep.size() + 4; }
+    size_t sizeOfString() const { return rep_.size() + 4; }
 
     // access
-    bool isTracked() const { return tracked == '+'; }
+    bool isTracked() const { return tracked_ == '+'; }
 
-    char typeCode() const { return type; }
+    char typeCode() const { return type_; }
 
     friend std::ostream& operator<<(std::ostream& ost, Entry const& entry);
 
+    //empty string view denotes failure to find bounds
+    static std::string_view bounds(std::string_view, std::size_t iEndHint);
+
   private:
     std::string name_;
-    std::string rep;
-    char type;
-    char tracked;
+    std::string rep_;
+    char type_;
+    char tracked_;
 
     // verify class invariant
     void validate() const;
 
     // decode
-    bool fromString(std::string::const_iterator b, std::string::const_iterator e);
+    bool fromString(std::string_view::const_iterator b, std::string_view::const_iterator e);
 
     // helpers to throw exceptions
     void throwValueError(char const* expectedType) const;

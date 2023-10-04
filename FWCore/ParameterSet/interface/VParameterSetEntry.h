@@ -26,7 +26,7 @@ namespace edm {
     // default ctor for serialization
     VParameterSetEntry();
     VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked);
-    VParameterSetEntry(std::string const& rep);
+    VParameterSetEntry(std::string_view rep);
 
     ~VParameterSetEntry() = default;
     VParameterSetEntry(VParameterSetEntry const&) = default;

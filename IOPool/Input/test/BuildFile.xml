@@ -6,7 +6,13 @@
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
   </library>
- 
+
+  <library file="GetTriggerNamesAnalyzer.cc" name="GetTriggerNamesAnalyzer">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+  </library>
+
  <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
  <test name="TestIOPoolInputNoParentDictionary" command="testNoParentDictionary.sh"/>
  <test name="TestFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>

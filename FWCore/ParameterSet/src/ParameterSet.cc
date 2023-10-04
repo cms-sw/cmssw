@@ -61,7 +61,7 @@ namespace edm {
   // ----------------------------------------------------------------------
   // from coded string
 
-  ParameterSet::ParameterSet(std::string const& code) : tbl_(), psetTable_(), vpsetTable_(), id_() {
+  ParameterSet::ParameterSet(std::string_view code) : tbl_(), psetTable_(), vpsetTable_(), id_() {
     if (!fromString(code)) {
       throw Exception(errors::Configuration, "InvalidInput")
           << "The encoded configuration string "
@@ -73,7 +73,7 @@ namespace edm {
   // ----------------------------------------------------------------------
   // from coded string and ID.
 
-  ParameterSet::ParameterSet(std::string const& code, ParameterSetID const& id)
+  ParameterSet::ParameterSet(std::string_view code, ParameterSetID const& id)
       : tbl_(), psetTable_(), vpsetTable_(), id_(id) {
     if (!fromString(code)) {
       throw Exception(errors::Configuration, "InvalidInput")
@@ -590,60 +590,109 @@ namespace edm {
 
   // ----------------------------------------------------------------------
 
-  bool ParameterSet::fromString(std::string const& from) {
-    std::vector<std::string> temp;
-    if (!split(std::back_inserter(temp), from, '<', ';', '>'))
+  bool ParameterSet::fromString(std::string_view from) {
+    if (from.size() < 2 or from.front() != '<' or from.back() != '>') {
       return false;
+    }
+
+    std::string_view remaining = from;
+    remaining = remaining.substr(1, from.size() - 2);
 
     tbl_.clear();  // precaution
-    for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+    while (not remaining.empty()) {
       // locate required name/value separator
-      std::string::const_iterator q = find_in_all(*b, '=');
-      if (q == b->end())
+      auto q = remaining.find_first_of('=');
+      if (q == remaining.npos)
         return false;
-
       // form name unique to this ParameterSet
-      std::string name = std::string(b->begin(), q);
+      auto name = remaining.substr(0, q);
       if (tbl_.find(name) != tbl_.end())
         return false;
 
-      std::string rep(q + 1, b->end());
+      remaining = remaining.substr(q + 1);
+      std::string_view rep = remaining.substr(0, remaining.find_first_of(';'));
       // entries are generically of the form tracked-type-rep
-      if (rep[0] == '-') {
-      }
       if (rep[1] == 'Q') {
         ParameterSetEntry psetEntry(rep);
-        if (!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
+        if (!psetTable_.emplace(name, psetEntry).second) {
           return false;
         }
       } else if (rep[1] == 'q') {
         VParameterSetEntry vpsetEntry(rep);
-        if (!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
-          return false;
-        }
-      } else if (rep[1] == 'P') {
-        Entry value(name, rep);
-        ParameterSetEntry psetEntry(value.getPSet(), value.isTracked());
-        if (!psetTable_.insert(std::make_pair(name, psetEntry)).second) {
-          return false;
-        }
-      } else if (rep[1] == 'p') {
-        Entry value(name, rep);
-        VParameterSetEntry vpsetEntry(value.getVPSet(), value.isTracked());
-        if (!vpsetTable_.insert(std::make_pair(name, vpsetEntry)).second) {
+        if (!vpsetTable_.emplace(name, vpsetEntry).second) {
           return false;
         }
       } else {
         // form value and insert name/value pair
-        Entry value(name, rep);
-        if (!tbl_.insert(std::make_pair(name, value)).second) {
+        auto bounds = Entry::bounds(remaining, rep.size());
+        if (bounds.empty()) {
           return false;
         }
+        remaining = remaining.substr(bounds.size());
+        if (not remaining.empty() and remaining.front() != ';') {
+          return false;
+        }
+        Entry value(std::string(name), bounds);
+        if (rep[1] == 'P') {
+          ParameterSetEntry psetEntry(value.getPSet(), value.isTracked());
+          if (!psetTable_.emplace(name, psetEntry).second) {
+            return false;
+          }
+        } else if (rep[1] == 'p') {
+          VParameterSetEntry vpsetEntry(value.getVPSet(), value.isTracked());
+          if (!vpsetTable_.emplace(name, vpsetEntry).second) {
+            return false;
+          }
+        } else {
+          if (!tbl_.emplace(name, value).second) {
+            return false;
+          }
+        }
       }
+      auto newStart = remaining.find_first_of(';');
+      if (newStart == remaining.npos)
+        break;
+      remaining = remaining.substr(newStart + 1);
     }
 
     return true;
   }  // from_string()
+
+  // ----------------------------------------------------------------------
+  std::string_view ParameterSet::extent(std::string_view from) {
+    if (from.size() < 2 or from.front() != '<') {
+      return {};
+    }
+
+    std::string_view remaining = from;
+    remaining.remove_prefix(1);
+    while (not remaining.empty() and remaining[0] != '>') {
+      auto start_index = remaining.find_first_of('=');
+      if (remaining.npos == start_index) {
+        return {};
+      }
+      remaining.remove_prefix(start_index + 1);
+      auto end_index = remaining.find_first_of(";>");
+      if (remaining.npos == end_index) {
+        return {};
+      }
+      auto bounds = edm::Entry::bounds(remaining, end_index);
+      if (bounds.empty()) {
+        return {};
+      }
+      remaining.remove_prefix(bounds.size());
+      if (not remaining.empty() and remaining[0] == ';') {
+        remaining.remove_prefix(1);
+      }
+    }
+    if (remaining.empty()) {
+      return {};
+    }
+    from.remove_suffix(remaining.size() - 1);
+    return from;
+  }
+
+  // ----------------------------------------------------------------------
 
   std::vector<FileInPath>::size_type ParameterSet::getAllFileInPaths(std::vector<FileInPath>& output) const {
     std::vector<FileInPath>::size_type count = 0;
@@ -746,6 +795,13 @@ namespace edm {
     }
     if (code == 'q') {
       return getParameterSetVectorNames(output, trackiness);
+    }
+    //deal with string encoding change by also looking for old code values
+    if (code == 'z') {
+      count += getNamesByCode_('s', trackiness, output);
+    }
+    if (code == 'Z') {
+      count += getNamesByCode_('S', trackiness, output);
     }
     table::const_iterator it = tbl_.begin();
     table::const_iterator end = tbl_.end();
@@ -980,11 +1036,21 @@ namespace edm {
     Entry const& e_input = retrieve(name);
     switch (e_input.typeCode()) {
       case 't':  // InputTag
+      {
         return e_input.getInputTag();
-      case 'S':  // string
+      }
+      case 'S':  // string Hex
+      {
         std::string const& label = e_input.getString();
         deprecatedInputTagWarning(name, label);
         return InputTag(label);
+      }
+      case 'Z':  // string Raw
+      {
+        std::string const& label = e_input.getString();
+        deprecatedInputTagWarning(name, label);
+        return InputTag(label);
+      }
     }
     throw Exception(errors::Configuration, "ValueError")
         << "type of " << name << " is expected to be InputTag or string (deprecated)";
@@ -1552,11 +1618,21 @@ namespace edm {
     Entry const& e_input = retrieve(name);
     switch (e_input.typeCode()) {
       case 't':  // InputTag
+      {
         return e_input.getInputTag();
-      case 'S':  // string
+      }
+      case 'S':  // string Hex
+      {
         std::string const& label = e_input.getString();
         deprecatedInputTagWarning(name, label);
         return InputTag(label);
+      }
+      case 'Z':  // string Raw
+      {
+        std::string const& label = e_input.getString();
+        deprecatedInputTagWarning(name, label);
+        return InputTag(label);
+      }
     }
     throw Exception(errors::Configuration, "ValueError")
         << "type of " << name << " is expected to be InputTag or string (deprecated)";

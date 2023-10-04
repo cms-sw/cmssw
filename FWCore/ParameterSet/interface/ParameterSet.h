@@ -21,6 +21,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <array>
 
@@ -53,7 +54,7 @@ namespace edm {
     ParameterSet();
 
     // construct from coded string.
-    explicit ParameterSet(std::string const& rep);
+    explicit ParameterSet(std::string_view rep);
 
     ~ParameterSet() = default;
     ParameterSet(ParameterSet const& other) = default;
@@ -229,13 +230,13 @@ namespace edm {
 
     std::vector<ParameterSet> popVParameterSet(std::string const& name);
 
-    typedef std::map<std::string, Entry> table;
+    typedef std::map<std::string, Entry, std::less<>> table;
     table const& tbl() const { return tbl_; }
 
-    typedef std::map<std::string, ParameterSetEntry> psettable;
+    typedef std::map<std::string, ParameterSetEntry, std::less<>> psettable;
     psettable const& psetTable() const { return psetTable_; }
 
-    typedef std::map<std::string, VParameterSetEntry> vpsettable;
+    typedef std::map<std::string, VParameterSetEntry, std::less<>> vpsettable;
     vpsettable const& vpsetTable() const { return vpsetTable_; }
 
     ParameterSet* getPSetForUpdate(std::string const& name, bool& isTracked);
@@ -253,12 +254,15 @@ namespace edm {
     // return ID of empty parameter set without registering it.
     static ParameterSetID emptyParameterSetID();
 
+    // returns empty if cannot find extent
+    static std::string_view extent(std::string_view);
+
   private:
     // construct from coded string and id.
-    ParameterSet(std::string const& rep, ParameterSetID const& id);
+    ParameterSet(std::string_view rep, ParameterSetID const& id);
 
     // decode
-    bool fromString(std::string const&);
+    bool fromString(std::string_view);
 
     void toStringImp(std::string&, bool useAll) const;
 
