@@ -12,8 +12,8 @@ run3_ecal.toModify(ecalMultiFitUncalibRecHit,
         outOfTimeThresholdGain12mEB = 2.5,
         outOfTimeThresholdGain61pEB = 2.5,
         outOfTimeThresholdGain61mEB = 2.5,
-        timeCalibTag = cms.ESInputTag('', 'CC'),
-        timeOffsetTag = cms.ESInputTag('', 'CC')
+        timeCalibTag = ':CC',
+        timeOffsetTag = ':CC'
     )
 )
 
