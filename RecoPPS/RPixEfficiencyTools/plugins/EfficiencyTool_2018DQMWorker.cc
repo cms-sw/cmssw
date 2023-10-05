@@ -973,14 +973,15 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
   h1CrossingAngle_->Fill(dataLHCInfo.crossingAngle(), weight);
 
   for (const auto &rpPixeltrack : *pixelLocalTracks) {
-    if ((uint32_t)minTracksPerEvent_ > rpPixeltrack.size() || rpPixeltrack.size() > (uint32_t)maxTracksPerEvent)
-      continue;
     CTPPSPixelDetId rpId = CTPPSPixelDetId(rpPixeltrack.detId());
     uint32_t arm = rpId.arm();
     uint32_t rp = rpId.rp();
     uint32_t station = rpId.station();
 
     h1NumberOfTracks_[rpId]->Fill(rpPixeltrack.size(), weight);
+    
+    if ((uint32_t)minTracksPerEvent_ > rpPixeltrack.size() || rpPixeltrack.size() > (uint32_t)maxTracksPerEvent)
+      continue;
     
     for (const auto &pixeltrack : rpPixeltrack) {
       if (Cut(pixeltrack, arm, station))
