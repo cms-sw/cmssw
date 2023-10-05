@@ -11,7 +11,7 @@
   <class name="edm::Wrapper<std::vector<l1t::TkEtMiss> >"/>
 
   <class name="l1t::TkEm" ClassVersion="6">
-   <version ClassVersion="6" checksum="2264937788"/>
+   <version ClassVersion="6" checksum="3709420594"/>
    <version ClassVersion="5" checksum="2211175625"/>
    <version ClassVersion="4" checksum="1043577432"/>
    <version ClassVersion="3" checksum="2161257944"/>
@@ -23,6 +23,12 @@
   <class name="edm::RefProd<l1t::TkEmCollection>" />
   <class name="l1t::RegionalOutput<l1t::TkEmCollection>" />
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::TkEmCollection>>" />
+
+  <ioread sourceClass="l1t::TkEm" targetClass="l1t::TkEm" version="[-5]" target="" source="edm::Ref<l1t::EGammaBxCollection> egRef_" include="DataFormats/Common/interface/RefToPtr.h">
+  <![CDATA[
+   newObj->setEgCaloPtr(edm::refToPtr(onfile.egRef_));
+  ]]>
+  </ioread>
 
   <class name="l1t::TkEGTau" ClassVersion="3">
    <version ClassVersion="3" checksum="3759113668"/>
@@ -45,8 +51,9 @@
   <class name="edm::Wrapper<std::vector<l1t::L1CaloTkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau> >"/>
 
-  <class name="l1t::TkElectron" ClassVersion="7">
-   <version ClassVersion="7" checksum="3405419557"/>
+  <class name="l1t::TkElectron" ClassVersion="8">
+   <version ClassVersion="8" checksum="3565138561"/>
+   <version ClassVersion="7" checksum="3055953431"/>
    <version ClassVersion="6" checksum="3899336964"/>
    <version ClassVersion="5" checksum="965807884"/>
    <version ClassVersion="4" checksum="3922083203"/>

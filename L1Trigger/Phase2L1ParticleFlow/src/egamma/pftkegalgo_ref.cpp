@@ -443,7 +443,6 @@ void PFTkEGAlgoEmulator::eg_algo(const PFRegionEmu &region,
     }
 
     // 2. create EG objects with brem recovery
-    // NOTE: duplicating the object is suboptimal but this is done for keeping things as in TDR code...
     addEgObjsToPF(egstas, egobjs, egeleobjs, emcalo, track, ic, calo.hwEmID, ptBremReco, itk, bdt, components);
   }
 }
@@ -544,16 +543,16 @@ void PFTkEGAlgoEmulator::addEgObjsToPF(std::vector<EGObjEmu> &egstas,
                                        const int tk_idx,
                                        const id_score_t bdtScore,
                                        const std::vector<unsigned int> &components) const {
-  int sta_idx = -1;
+  int src_idx = -1;
   if (writeEgSta()) {
     addEGStaToPF(egstas, emcalo[calo_idx], hwQual, ptCorr, components);
-    sta_idx = egstas.size() - 1;
+    src_idx = egstas.size() - 1;
   }
   EGIsoObjEmu &egobj = addEGIsoToPF(egobjs, emcalo[calo_idx], hwQual, ptCorr);
-  egobj.sta_idx = sta_idx;
+  egobj.src_idx = src_idx;
   if (tk_idx != -1) {
     EGIsoEleObjEmu &eleobj = addEGIsoEleToPF(egeleobjs, emcalo[calo_idx], track[tk_idx], hwQual, ptCorr, bdtScore);
-    eleobj.sta_idx = sta_idx;
+    eleobj.src_idx = src_idx;
   }
 }
 

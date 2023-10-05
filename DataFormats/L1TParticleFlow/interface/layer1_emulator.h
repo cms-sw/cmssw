@@ -158,14 +158,16 @@ namespace l1ct {
 
   struct EGIsoObjEmu : public EGIsoObj {
     const l1t::PFCluster *srcCluster;
-    // we use an index to the standalone object needed to retrieve a Ref when putting
-    int sta_idx;
+
+    // NOTE: we use an index to the persistable RefPtr when we reshuffle collections
+    // this way we avoid complex object in the object interface which needs to be used in standalone programs
+    int src_idx;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
       EGIsoObj::clear();
       srcCluster = nullptr;
-      sta_idx = -1;
+      src_idx = -1;
       clearIsoVars();
     }
 
@@ -193,15 +195,17 @@ namespace l1ct {
   struct EGIsoEleObjEmu : public EGIsoEleObj {
     const l1t::PFCluster *srcCluster = nullptr;
     const l1t::PFTrack *srcTrack = nullptr;
-    // we use an index to the standalone object needed to retrieve a Ref when putting
-    int sta_idx;
+
+    // NOTE: we use an index to the persistable RefPtr when we reshuffle collections
+    // this way we avoid complex object in the object interface which needs to be used in standalone programs
+    int src_idx;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
       EGIsoEleObj::clear();
       srcCluster = nullptr;
       srcTrack = nullptr;
-      sta_idx = -1;
+      src_idx = -1;
       clearIsoVars();
     }
 

@@ -11,14 +11,14 @@ using namespace l1t;
 TkElectron::TkElectron() {}
 
 TkElectron::TkElectron(const LorentzVector& p4,
-                       const edm::Ref<EGammaBxCollection>& egRef,
+                       const edm::Ptr<L1Candidate>& egCaloPtr,
                        const edm::Ptr<L1TTTrackType>& trackPtr,
                        float tkisol)
-    : TkEm(p4, egRef, tkisol, -999),
-      trkPtr_(trackPtr)
-
-{
+    : TkEm(p4, egCaloPtr, tkisol, -999), trkPtr_(trackPtr) {
   if (trkPtr_.isNonnull()) {
     setTrkzVtx(trkPtr()->POCA().z());
   }
 }
+
+TkElectron::TkElectron(const LorentzVector& p4, float tkisol)
+    : TkElectron(p4, edm::Ptr<L1Candidate>(nullptr, 0), edm::Ptr<L1TTTrackType>(nullptr, 0), tkisol) {}

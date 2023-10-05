@@ -5,17 +5,19 @@
 //
 
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
+// FIXME: can remove
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 using namespace l1t;
 
 TkEm::TkEm() {}
 
-TkEm::TkEm(const LorentzVector& p4, const edm::Ref<EGammaBxCollection>& egRef, float tkisol)
-    : TkEm(p4, egRef, tkisol, -999) {}
+TkEm::TkEm(const LorentzVector& p4, float tkisol, float tkisolPV)
+    : TkEm(p4, edm::Ptr<L1Candidate>(nullptr, 0), tkisol, tkisolPV) {}
 
-TkEm::TkEm(const LorentzVector& p4, const edm::Ref<EGammaBxCollection>& egRef, float tkisol, float tkisolPV)
+TkEm::TkEm(const LorentzVector& p4, const edm::Ptr<L1Candidate>& egCaloPtr, float tkisol, float tkisolPV)
     : L1Candidate(p4),
-      egRef_(egRef),
+      egCaloPtr_(egCaloPtr),
       trkIsol_(tkisol),
       trkIsolPV_(tkisolPV),
       pfIsol_(-999),

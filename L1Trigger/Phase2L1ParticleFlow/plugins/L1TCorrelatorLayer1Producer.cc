@@ -157,12 +157,9 @@ private:
   std::unique_ptr<std::vector<l1t::PFTrack>> fetchDecodedTracks() const;
   void putPuppi(edm::Event &iEvent) const;
 
-  void putEgStaObjects(edm::Event &iEvent,
-                       const std::string &egLablel,
-                       std::vector<edm::Ref<BXVector<l1t::EGamma>>> &egsta_refs);
+  void putEgStaObjects(edm::Event &iEvent, const std::string &egLablel) const;
   void putEgObjects(edm::Event &iEvent,
                     const bool writeEgSta,
-                    const std::vector<edm::Ref<BXVector<l1t::EGamma>>> &egsta_refs,
                     const std::string &tkEmLabel,
                     const std::string &tkEmPerBoardLabel,
                     const std::string &tkEleLabel,
@@ -576,7 +573,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   // get a global reference to the EGSta before being mixed among differente regions
   std::vector<edm::Ref<BXVector<l1t::EGamma>>> egsta_refs;
   if (l1tkegalgo_->writeEgSta()) {
-    putEgStaObjects(iEvent, "L1Eg", egsta_refs);
+    putEgStaObjects(iEvent, "L1Eg");
   }
 
   // l1tkegsorter_->setDebug(true);
@@ -592,7 +589,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   putPuppi(iEvent);
 
   // save the EG objects
-  putEgObjects(iEvent, l1tkegalgo_->writeEgSta(), egsta_refs, "L1TkEm", "L1TkEmPerBoard", "L1TkEle", "L1TkElePerBoard");
+  putEgObjects(iEvent, l1tkegalgo_->writeEgSta(), "L1TkEm", "L1TkEmPerBoard", "L1TkEle", "L1TkElePerBoard");
 
   // Then go do the multiplicities
   for (int i = 0; i <= l1muType; ++i) {
@@ -1102,21 +1099,12 @@ void L1TCorrelatorLayer1Producer::putPuppi(edm::Event &iEvent) const {
   iEvent.put(std::move(reg), "PuppiRegional");
 }
 
-// NOTE: as a side effect we change the "sta_idx" of TkEle and TkEm objects to an index of the
-// vector of refs, for this reason this is not const. We could make this more explicit via arguments
-void L1TCorrelatorLayer1Producer::putEgStaObjects(edm::Event &iEvent,
-                                                  const std::string &egLablel,
-                                                  std::vector<edm::Ref<BXVector<l1t::EGamma>>> &egsta_refs) {
+void L1TCorrelatorLayer1Producer::putEgStaObjects(edm::Event &iEvent, const std::string &egLablel) const {
   auto egs = std::make_unique<BXVector<l1t::EGamma>>();
-  edm::RefProd<BXVector<l1t::EGamma>> ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(egLablel);
-
-  edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
   // FIXME: in case more BXes are introduced shuld probably use egs->key(egs->end(bx));
 
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
     const auto &reg = event_.pfinputs[ir].region;
-
-    std::vector<unsigned int> ref_pos(event_.out[ir].egsta.size());
 
     // EG standalone objects
     for (unsigned int ieg = 0, neg = event_.out[ir].egsta.size(); ieg < neg; ++ieg) {
@@ -1127,20 +1115,6 @@ void L1TCorrelatorLayer1Producer::putEgStaObjects(edm::Event &iEvent,
           reco::Candidate::PolarLorentzVector(p.floatPt(), reg.floatGlbEta(p.hwEta), reg.floatGlbPhi(p.hwPhi), 0.));
       eg.setHwQual(p.hwQual);
       egs->push_back(0, eg);
-      egsta_refs.push_back(edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++));
-      ref_pos[ieg] = egsta_refs.size() - 1;
-    }
-
-    for (auto &egiso : event_.out[ir].egphoton) {
-      if (egiso.hwPt == 0)
-        continue;
-      egiso.sta_idx = ref_pos[egiso.sta_idx];
-    }
-
-    for (auto &egele : event_.out[ir].egelectron) {
-      if (egele.hwPt == 0)
-        continue;
-      egele.sta_idx = ref_pos[egele.sta_idx];
     }
   }
 
@@ -1149,7 +1123,6 @@ void L1TCorrelatorLayer1Producer::putEgStaObjects(edm::Event &iEvent,
 
 void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
                                                const bool writeEgSta,
-                                               const std::vector<edm::Ref<BXVector<l1t::EGamma>>> &egsta_refs,
                                                const std::string &tkEmLabel,
                                                const std::string &tkEmPerBoardLabel,
                                                const std::string &tkEleLabel,
@@ -1172,19 +1145,10 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       if (egiso.hwPt == 0)
         continue;
 
-      edm::Ref<BXVector<l1t::EGamma>> ref_egsta;
-      if (writeEgSta) {
-        ref_egsta = egsta_refs[egiso.sta_idx];
-      } else {
-        auto egptr = egiso.srcCluster->constituentsAndFractions()[0].first;
-        ref_egsta =
-            edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
-      }
-
       reco::Candidate::PolarLorentzVector mom(egiso.floatPt(), egiso.floatEta(), egiso.floatPhi(), 0.);
 
       l1t::TkEm tkem(reco::Candidate::LorentzVector(mom),
-                     ref_egsta,
+                     egiso.srcCluster->constituentsAndFractions()[0].first,
                      egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIso),
                      egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIsoPV));
       tkem.setHwQual(egiso.hwQual);
@@ -1201,19 +1165,10 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       if (egele.hwPt == 0)
         continue;
 
-      edm::Ref<BXVector<l1t::EGamma>> ref_egsta;
-      if (writeEgSta) {
-        ref_egsta = egsta_refs[egele.sta_idx];
-      } else {
-        auto egptr = egele.srcCluster->constituentsAndFractions()[0].first;
-        ref_egsta =
-            edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
-      }
-
       reco::Candidate::PolarLorentzVector mom(egele.floatPt(), egele.floatEta(), egele.floatPhi(), 0.);
 
       l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom),
-                            ref_egsta,
+                            egele.srcCluster->constituentsAndFractions()[0].first,
                             edm::refToPtr(egele.srcTrack->track()),
                             egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
       tkele.setHwQual(egele.hwQual);

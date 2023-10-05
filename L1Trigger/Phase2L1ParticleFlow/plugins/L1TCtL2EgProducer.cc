@@ -44,16 +44,13 @@ private:
 
   void endJob() override;
 
-  struct RefRemapper {
-    typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
+  typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
+  typedef std::vector<std::pair<edm::Ptr<l1t::L1Candidate>, edm::Ptr<L1TTTrackType>>> ConstituentPtrVector;
 
-    BXVector<edm::Ref<BXVector<l1t::EGamma>>> oldRefs;
-    std::map<edm::Ref<BXVector<l1t::EGamma>>, edm::Ref<BXVector<l1t::EGamma>>> old2newRefMap;
-    std::vector<std::pair<edm::Ref<l1t::EGammaBxCollection>, edm::Ptr<L1TTTrackType>>> origRefAndPtr;
-  };
-
-  void convertToEmu(const l1t::TkElectron &tkele, RefRemapper &refRemapper, l1ct::OutputBoard &boarOut) const;
-  void convertToEmu(const l1t::TkEm &tkele, RefRemapper &refRemapper, l1ct::OutputBoard &boarOut) const;
+  void convertToEmu(const l1t::TkElectron &tkele,
+                    ConstituentPtrVector &constituentsPtrs,
+                    l1ct::OutputBoard &boarOut) const;
+  void convertToEmu(const l1t::TkEm &tkele, ConstituentPtrVector &constituentsPtrs, l1ct::OutputBoard &boarOut) const;
   void convertToPuppi(const l1t::PFCandidateCollection &l1PFCands, l1ct::PuppiObjs &puppiObjs) const;
 
   template <class T>
@@ -115,24 +112,12 @@ private:
   template <class TT, class T>
   void merge(const PFInstanceInputs<T> &instance,
              edm::Event &iEvent,
-             RefRemapper &refRemapper,
+             ConstituentPtrVector &constituentsPtrs,
              std::unique_ptr<TT> &out) const {
     edm::Handle<T> handle;
     for (const auto &tokenAndChannel : instance.tokensAndChannels()) {
       iEvent.getByToken(tokenAndChannel.first, handle);
-      populate(out, handle, tokenAndChannel.second, refRemapper);
-    }
-    remapRefs(iEvent, out, refRemapper);
-  }
-
-  template <class TT>
-  void remapRefs(edm::Event &iEvent, std::unique_ptr<TT> &out, RefRemapper &refRemapper) const {}
-
-  void remapRefs(edm::Event &iEvent, std::unique_ptr<BXVector<l1t::EGamma>> &out, RefRemapper &refRemapper) const {
-    edm::RefProd<BXVector<l1t::EGamma>> ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(tkEGInstanceLabel_);
-    edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
-    for (std::size_t ix = 0; ix < out->size(); ix++) {
-      refRemapper.old2newRefMap[refRemapper.oldRefs[ix]] = edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++);
+      populate(out, handle, tokenAndChannel.second, constituentsPtrs);
     }
   }
 
@@ -140,7 +125,7 @@ private:
   void populate(std::unique_ptr<T> &out,
                 const edm::Handle<TT> &in,
                 const std::vector<int> &links,
-                RefRemapper &refRemapper) const {
+                ConstituentPtrVector &constituentsPtrs) const {
     assert(links.size() == in->nRegions());
     for (unsigned int iBoard = 0, nBoard = in->nRegions(); iBoard < nBoard; ++iBoard) {
       auto region = in->region(iBoard);
@@ -149,7 +134,7 @@ private:
         continue;
       // std::cout << "Board eta: " << in->eta(iBoard) << " phi: " << in->phi(iBoard) << " link: " << linkID << std::endl;
       for (const auto &obj : region) {
-        convertToEmu(obj, refRemapper, out->at(linkID));
+        convertToEmu(obj, constituentsPtrs, out->at(linkID));
       }
     }
   }
@@ -157,36 +142,31 @@ private:
   void populate(std::unique_ptr<BXVector<l1t::EGamma>> &out,
                 const edm::Handle<BXVector<l1t::EGamma>> &in,
                 const std::vector<int> &links,
-                RefRemapper &refRemapper) const {
-    edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
+                ConstituentPtrVector &constituentsPtrs) const {
     for (int bx = in->getFirstBX(); bx <= in->getLastBX(); bx++) {
       for (auto egee_itr = in->begin(bx); egee_itr != in->end(bx); egee_itr++) {
         out->push_back(bx, *egee_itr);
-        // this to ensure that the old ref and the new object have the same
-        // index in the BXVector collection so that we can still match them no
-        // matter which BX we will insert next
-        refRemapper.oldRefs.push_back(bx, edm::Ref<BXVector<l1t::EGamma>>(in, idx++));
       }
     }
   }
 
   template <class Tout, class Tin>
   void putEgObjects(edm::Event &iEvent,
-                    const RefRemapper &refRemapper,
+                    const ConstituentPtrVector &constituentsPtrs,
                     const std::string &label,
                     const std::vector<Tin> emulated) const {
     auto egobjs = std::make_unique<Tout>();
     for (const auto &emu : emulated) {
       if (emu.hwPt == 0)
         continue;
-      auto obj = convertFromEmu(emu, refRemapper);
+      auto obj = convertFromEmu(emu, constituentsPtrs);
       egobjs->push_back(obj);
     }
     iEvent.put(std::move(egobjs), label);
   }
 
-  l1t::TkEm convertFromEmu(const l1ct::EGIsoObjEmu &emu, const RefRemapper &refRemapper) const;
-  l1t::TkElectron convertFromEmu(const l1ct::EGIsoEleObjEmu &emu, const RefRemapper &refRemapper) const;
+  l1t::TkEm convertFromEmu(const l1ct::EGIsoObjEmu &emu, const ConstituentPtrVector &constituentsPtrs) const;
+  l1t::TkElectron convertFromEmu(const l1ct::EGIsoEleObjEmu &emu, const ConstituentPtrVector &constituentsPtrs) const;
 
   PFInstanceInputs<BXVector<l1t::EGamma>> tkEGInputs_;
   PFInstanceInputs<l1t::TkEmRegionalOutput> tkEmInputs_;
@@ -283,16 +263,16 @@ std::vector<ap_uint<64>> L1TCtL2EgProducer::encodeLayer1EgObjs(unsigned int nObj
 }
 
 void L1TCtL2EgProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &) const {
-  RefRemapper refmapper;
+  ConstituentPtrVector constituents;
 
   auto outEgs = std::make_unique<BXVector<l1t::EGamma>>();
-  merge(tkEGInputs_, iEvent, refmapper, outEgs);
+  merge(tkEGInputs_, iEvent, constituents, outEgs);
   iEvent.put(std::move(outEgs), tkEGInstanceLabel_);
 
   auto boards = std::make_unique<std::vector<l1ct::OutputBoard>>(l2egsorter.nInputBoards());
 
-  merge(tkEleInputs_, iEvent, refmapper, boards);
-  merge(tkEmInputs_, iEvent, refmapper, boards);
+  merge(tkEleInputs_, iEvent, constituents, boards);
+  merge(tkEmInputs_, iEvent, constituents, boards);
 
   if (doInPtrn_) {
     l1t::demo::EventData inData;
@@ -321,8 +301,8 @@ void L1TCtL2EgProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
     outPtrnWrt_->addEvent(outData);
   }
 
-  putEgObjects<l1t::TkEmCollection>(iEvent, refmapper, tkEmInstanceLabel_, out_photons_emu);
-  putEgObjects<l1t::TkElectronCollection>(iEvent, refmapper, tkEleInstanceLabel_, out_eles_emu);
+  putEgObjects<l1t::TkEmCollection>(iEvent, constituents, tkEmInstanceLabel_, out_photons_emu);
+  putEgObjects<l1t::TkElectronCollection>(iEvent, constituents, tkEleInstanceLabel_, out_eles_emu);
 }
 
 void L1TCtL2EgProducer::endJob() {
@@ -334,47 +314,40 @@ void L1TCtL2EgProducer::endJob() {
 }
 
 void L1TCtL2EgProducer::convertToEmu(const l1t::TkElectron &tkele,
-                                     RefRemapper &refRemapper,
+                                     ConstituentPtrVector &constituentsPtrs,
                                      l1ct::OutputBoard &boarOut) const {
   EGIsoEleObjEmu emu;
   emu.initFromBits(tkele.egBinaryWord<EGIsoEleObj::BITWIDTH>());
   emu.srcCluster = nullptr;
   emu.srcTrack = nullptr;
-  auto refEg = tkele.EGRef();
-  const auto newref = refRemapper.old2newRefMap.find(refEg);
-  if (newref != refRemapper.old2newRefMap.end()) {
-    refEg = newref->second;
-  }
-  refRemapper.origRefAndPtr.push_back(std::make_pair(refEg, tkele.trkPtr()));
-  emu.sta_idx = refRemapper.origRefAndPtr.size() - 1;
+
+  // FIXME: this is hugly
+  constituentsPtrs.push_back(std::make_pair(tkele.egCaloPtr(), tkele.trkPtr()));
+  emu.src_idx = constituentsPtrs.size() - 1;
+
   // NOTE: The emulator and FW data-format stores absolute iso while the CMSSW object stores relative iso
   emu.setHwIso(EGIsoEleObjEmu::IsoType::TkIso, l1ct::Scales::makeIso(tkele.trkIsol() * tkele.pt()));
   emu.setHwIso(EGIsoEleObjEmu::IsoType::PfIso, l1ct::Scales::makeIso(tkele.pfIsol() * tkele.pt()));
   emu.setHwIso(EGIsoEleObjEmu::IsoType::PuppiIso, l1ct::Scales::makeIso(tkele.puppiIsol() * tkele.pt()));
-  // std::cout << "[convertToEmu] TkEle pt: " << emu.hwPt << " eta: " << emu.hwEta << " phi: " << emu.hwPhi << " staidx: " << emu.sta_idx << std::endl;
+  // std::cout << "[convertToEmu] TkEle pt: " << emu.hwPt << " eta: " << emu.hwEta << " phi: " << emu.hwPhi << " staidx: " << emu.src_idx << std::endl;
   boarOut.egelectron.push_back(emu);
 }
 
 void L1TCtL2EgProducer::convertToEmu(const l1t::TkEm &tkem,
-                                     RefRemapper &refRemapper,
+                                     ConstituentPtrVector &constituentsPtrs,
                                      l1ct::OutputBoard &boarOut) const {
   EGIsoObjEmu emu;
   emu.initFromBits(tkem.egBinaryWord<EGIsoObj::BITWIDTH>());
   emu.srcCluster = nullptr;
-  auto refEg = tkem.EGRef();
-  const auto newref = refRemapper.old2newRefMap.find(refEg);
-  if (newref != refRemapper.old2newRefMap.end()) {
-    refEg = newref->second;
-  }
-  refRemapper.origRefAndPtr.push_back(std::make_pair(refEg, edm::Ptr<RefRemapper::L1TTTrackType>(nullptr, 0)));
-  emu.sta_idx = refRemapper.origRefAndPtr.size() - 1;
+  constituentsPtrs.push_back(std::make_pair(tkem.egCaloPtr(), edm::Ptr<L1TTTrackType>(nullptr, 0)));
+  emu.src_idx = constituentsPtrs.size() - 1;
   // NOTE: The emulator and FW data-format stores absolute iso while the CMSSW object stores relative iso
   emu.setHwIso(EGIsoObjEmu::IsoType::TkIso, l1ct::Scales::makeIso(tkem.trkIsol() * tkem.pt()));
   emu.setHwIso(EGIsoObjEmu::IsoType::PfIso, l1ct::Scales::makeIso(tkem.pfIsol() * tkem.pt()));
   emu.setHwIso(EGIsoObjEmu::IsoType::PuppiIso, l1ct::Scales::makeIso(tkem.puppiIsol() * tkem.pt()));
   emu.setHwIso(EGIsoObjEmu::IsoType::TkIsoPV, l1ct::Scales::makeIso(tkem.trkIsolPV() * tkem.pt()));
   emu.setHwIso(EGIsoObjEmu::IsoType::PfIsoPV, l1ct::Scales::makeIso(tkem.pfIsolPV() * tkem.pt()));
-  // std::cout << "[convertToEmu] TkEM pt: " << emu.hwPt << " eta: " << emu.hwEta << " phi: " << emu.hwPhi << " staidx: " << emu.sta_idx << std::endl;
+  // std::cout << "[convertToEmu] TkEM pt: " << emu.hwPt << " eta: " << emu.hwEta << " phi: " << emu.hwPhi << " staidx: " << emu.src_idx << std::endl;
   boarOut.egphoton.push_back(emu);
 }
 
@@ -386,15 +359,16 @@ void L1TCtL2EgProducer::convertToPuppi(const l1t::PFCandidateCollection &l1PFCan
   }
 }
 
-l1t::TkEm L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoObjEmu &egiso, const RefRemapper &refRemapper) const {
-  // std::cout << "[convertFromEmu] TkEm pt: " << egiso.hwPt << " eta: " << egiso.hwEta << " phi: " << egiso.hwPhi << " staidx: " << egiso.sta_idx << std::endl;
+l1t::TkEm L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoObjEmu &egiso,
+                                            const ConstituentPtrVector &constituentsPtrs) const {
+  // std::cout << "[convertFromEmu] TkEm pt: " << egiso.hwPt << " eta: " << egiso.hwEta << " phi: " << egiso.hwPhi << " staidx: " << egiso.src_idx << std::endl;
   // NOTE: the TkEM object is created with the accuracy as in GT object (not the Correlator internal one)!
   const auto gteg = egiso.toGT();
   reco::Candidate::PolarLorentzVector mom(
       l1gt::Scales::floatPt(gteg.v3.pt), l1gt::Scales::floatEta(gteg.v3.eta), l1gt::Scales::floatPhi(gteg.v3.phi), 0.);
   // NOTE: The emulator and FW data-format stores absolute iso while the CMSSW object stores relative iso
   l1t::TkEm tkem(reco::Candidate::LorentzVector(mom),
-                 refRemapper.origRefAndPtr[egiso.sta_idx].first,
+                 constituentsPtrs[egiso.src_idx].first,
                  egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIso),
                  egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIsoPV));
   tkem.setHwQual(gteg.quality);
@@ -406,16 +380,16 @@ l1t::TkEm L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoObjEmu &egiso, cons
 }
 
 l1t::TkElectron L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoEleObjEmu &egele,
-                                                  const RefRemapper &refRemapper) const {
-  // std::cout << "[convertFromEmu] TkEle pt: " << egele.hwPt << " eta: " << egele.hwEta << " phi: " << egele.hwPhi << " staidx: " << egele.sta_idx << std::endl;
+                                                  const ConstituentPtrVector &constituentsPtrs) const {
+  // std::cout << "[convertFromEmu] TkEle pt: " << egele.hwPt << " eta: " << egele.hwEta << " phi: " << egele.hwPhi << " staidx: " << egele.src_idx << std::endl;
   // NOTE: the TkElectron object is created with the accuracy as in GT object (not the Correlator internal one)!
   const auto gteg = egele.toGT();
   reco::Candidate::PolarLorentzVector mom(
       l1gt::Scales::floatPt(gteg.v3.pt), l1gt::Scales::floatEta(gteg.v3.eta), l1gt::Scales::floatPhi(gteg.v3.phi), 0.);
   // NOTE: The emulator and FW data-format stores absolute iso while the CMSSW object stores relative iso
   l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom),
-                        refRemapper.origRefAndPtr[egele.sta_idx].first,
-                        refRemapper.origRefAndPtr[egele.sta_idx].second,
+                        constituentsPtrs[egele.src_idx].first,
+                        constituentsPtrs[egele.src_idx].second,
                         egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
   tkele.setHwQual(gteg.quality);
   tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
