@@ -160,6 +160,10 @@ _pp_on_AA_extraCommands = [
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
 
+_zdc_extraCommands = ['keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*']
+from Configuration.ProcessModifiers.storeZDCDigis_cff import storeZDCDigis
+storeZDCDigis.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _zdc_extraCommands)
+
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
 )
