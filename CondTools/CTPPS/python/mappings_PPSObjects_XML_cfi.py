@@ -149,10 +149,25 @@ totemT2 = {
   ]
 }
 
+analysisMask = {
+  "dbConnect": "sqlite_file:CTPPS_AnalysisMask.db",
+  "subSystemName": "",
+  "multipleChannelsPerPayload": False,
+  "configuration": [
+    {
+      "sampicSubDetId": cms.uint32(7),
+      "validityRange" : cms.EventRange("1:min - 999999999:max"),
+      "mappingFileNames": cms.vstring(),
+      "maskFileNames" : cms.vstring()
+    }
+  ]
+}
+
 filesMap = {
   "TotemTiming": totemTiming,
   "TimingDiamond":timingDiamond,
   "TrackingStrip": trackingStrip, 
-  "TotemT2":totemT2
+  "TotemT2":totemT2,
+  "AnalysisMask": analysisMask
 }
 
