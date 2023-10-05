@@ -972,6 +972,12 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
   // re-initialise algorithm upon crossing-angle change
   h1CrossingAngle_->Fill(dataLHCInfo.crossingAngle(), weight);
 
+  // search for rps missing from the track collection (because they are empty) and fill the multiplicity
+  for (const auto &rpIdAndHist : h1NumberOfTracks_){
+    if (pixelLocalTracks->find(rpIdAndHist.first) == pixelLocalTracks->end())
+      rpIdAndHist.second->Fill(0, weight);
+  }
+
   for (const auto &rpPixeltrack : *pixelLocalTracks) {
     CTPPSPixelDetId rpId = CTPPSPixelDetId(rpPixeltrack.detId());
     uint32_t arm = rpId.arm();
@@ -979,7 +985,7 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
     uint32_t station = rpId.station();
 
     h1NumberOfTracks_[rpId]->Fill(rpPixeltrack.size(), weight);
-    
+        
     if ((uint32_t)minTracksPerEvent_ > rpPixeltrack.size() || rpPixeltrack.size() > (uint32_t)maxTracksPerEvent)
       continue;
     
