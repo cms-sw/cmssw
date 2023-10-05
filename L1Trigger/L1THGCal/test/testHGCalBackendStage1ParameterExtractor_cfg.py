@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-process = cms.Process('SIM',Phase2C9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('SIM',Phase2C17I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -49,7 +49,7 @@ from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V11_Imp3
 process = custom_geometry_V11_Imp3(process)
 
 # Fetch stage 1 truncation parameters
-from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import stage1truncation_proc
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import stage1truncation_proc
 
 
 # setup options
@@ -86,7 +86,7 @@ process.hgcalbackendstage1parameterextractor = cms.EDAnalyzer(
     outJSONname = cms.string(opt.outputJSON),
     testedFpga = cms.int32(opt.fpgaId),
     BackendStage1Params = stage1truncation_proc.truncation_parameters,
-    TriggerGeometryParam = process.hgcalTriggerGeometryESProducer.TriggerGeometry,
+    TriggerGeometryParam = process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry,
     TCcoord_UV = cms.PSet(
         TCu = cms.vuint32(ordered_tcu),
         TCv = cms.vuint32(ordered_tcv)
