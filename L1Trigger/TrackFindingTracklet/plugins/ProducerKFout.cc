@@ -71,7 +71,7 @@ namespace trklet {
     vector<int> tqBins_;
     double tqTanlScale_;
     double tqZ0Scale_;
-    double ap_fixed_rescale = 32.0;
+    static constexpr double ap_fixed_rescale = 32.0;
 
     // For convenience and keeping readable code, accessed many times
     int numWorkers_;

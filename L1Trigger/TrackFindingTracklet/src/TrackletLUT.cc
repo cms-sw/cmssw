@@ -483,8 +483,6 @@ void TrackletLUT::initTPlut(bool fillInner,
     }
   }
 
-  nbits_ = 8;
-
   positive_ = false;
   nbits_ = 1;
   char cTP = 'A' + iTP;

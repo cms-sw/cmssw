@@ -136,7 +136,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
           if (inputtrackfits_[i]->nStublists() == 0)
             continue;
           if (inputtrackfits_[i]->nStublists() != inputtrackfits_[i]->nTracks())
-            throw "Number of stublists and tracks don't match up!";
+            throw cms::Exception("LogicError")
+                << __FILE__ << " " << __LINE__ << " Number of stublists and tracks don't match up! ";
           for (unsigned int j = 0; j < inputtrackfits_[i]->nStublists(); j++) {
             if (isTrackInBin(findOverlapRinvBins(inputtrackfits_[i]->getTrack(j)), bin)) {
               if (!isTrackInBin(findOverlapPhiBins(inputtrackfits_[i]->getTrack(j)), phiBin))
@@ -163,7 +164,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
                 seedRank.push_back(ranks[curSeed]);
 
               if (stublist.size() != stubidslist.size())
-                throw "Number of stubs and stubids don't match up!";
+                throw cms::Exception("LogicError")
+                    << __FILE__ << " " << __LINE__ << " Number of stubs and stubids don't match up! ";
 
               trackInfo.emplace_back(i, false);
               trackBinInfo.emplace_back(false);
