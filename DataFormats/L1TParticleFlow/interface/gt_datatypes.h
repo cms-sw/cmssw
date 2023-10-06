@@ -165,7 +165,7 @@ namespace l1gt {
 
     inline uint64_t pack() const {
       ap_uint<BITWIDTH> x = pack_ap();
-      return (uint64_t) x;
+      return (uint64_t)x;
     }
 
     inline static Sum unpack_ap(const ap_uint<BITWIDTH> &src) {

@@ -47,11 +47,12 @@ void L1MhtPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
   // Apply pT and eta selections
   std::vector<l1ct::Jet> hwJetsFiltered;
   std::copy_if(hwJets.begin(), hwJets.end(), std::back_inserter(hwJetsFiltered), [&](auto jet) {
-    return jet.hwPt > l1ct::Scales::makePtFromFloat(minJetPt) && std::abs(jet.hwEta) < l1ct::Scales::makeGlbEta(maxJetEta);
+    return jet.hwPt > l1ct::Scales::makePtFromFloat(minJetPt) &&
+           std::abs(jet.hwEta) < l1ct::Scales::makeGlbEta(maxJetEta);
   });
- 
-  l1ct::Sum hwSums = htmht(hwJetsFiltered);                         // call the emulator
-  std::vector<l1t::EtSum> edmSums = convertHWToEDM(hwSums);         // convert back to edm format
+
+  l1ct::Sum hwSums = htmht(hwJetsFiltered);                  // call the emulator
+  std::vector<l1t::EtSum> edmSums = convertHWToEDM(hwSums);  // convert back to edm format
 
   // Put the sums in the event
   std::unique_ptr<std::vector<l1t::EtSum>> mhtCollection(new std::vector<l1t::EtSum>(0));

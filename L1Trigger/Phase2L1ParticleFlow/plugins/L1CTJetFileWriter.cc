@@ -84,8 +84,8 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
     tokens_.push_back(std::make_pair(jetToken, mhtToken));
     tokensToWrite_.push_back(std::make_pair(writeJetToken, writeMhtToken));
   }
-  gapLengthOutput_ = ctl2BoardTMUX_ * nFramesPerBX_ - 2 * std::accumulate(nJets_.begin(), nJets_.end(), 0) - std::accumulate(nSums_.begin(), nSums_.end(), 0);
-
+  gapLengthOutput_ = ctl2BoardTMUX_ * nFramesPerBX_ - 2 * std::accumulate(nJets_.begin(), nJets_.end(), 0) -
+                     std::accumulate(nSums_.begin(), nSums_.end(), 0);
 }
 
 void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -148,15 +148,15 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PF
 std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::EtSum> sums, unsigned nSums) {
   // Need two l1t::EtSum for each GT Sum
   std::vector<ap_uint<64>> sum_words;
-  for(unsigned i = 0; i < nSums; i++){
-    if(2*i < sums.size()){
+  for (unsigned i = 0; i < nSums; i++) {
+    if (2 * i < sums.size()) {
       l1gt::Sum gtSum;
-      gtSum.valid = 1; // if the sums are sent at all, they are valid
-      gtSum.vector_pt.V = sums.at(2*i+1).hwPt();
-      gtSum.vector_phi.V = sums.at(2*i+1).hwPhi();
-      gtSum.scalar_pt.V = sums.at(2*i).hwPt();
+      gtSum.valid = 1;  // if the sums are sent at all, they are valid
+      gtSum.vector_pt.V = sums.at(2 * i + 1).hwPt();
+      gtSum.vector_phi.V = sums.at(2 * i + 1).hwPhi();
+      gtSum.scalar_pt.V = sums.at(2 * i).hwPt();
       sum_words.push_back(gtSum.pack_ap());
-    }else{
+    } else {
       sum_words.push_back(0);
     }
   }
