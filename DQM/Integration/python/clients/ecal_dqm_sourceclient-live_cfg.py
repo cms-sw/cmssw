@@ -52,6 +52,13 @@ process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
 
 ### Individual module setups ###
 
+# Use the ratio timing method for the online DQM
+process.ecalMultiFitUncalibRecHit.cpu.algoPSet.timealgo = cms.string("RatioMethod")
+process.ecalMultiFitUncalibRecHit.cpu.algoPSet.outOfTimeThresholdGain12pEB = cms.double(5.)
+process.ecalMultiFitUncalibRecHit.cpu.algoPSet.outOfTimeThresholdGain12mEB = cms.double(5.)
+process.ecalMultiFitUncalibRecHit.cpu.algoPSet.outOfTimeThresholdGain61pEB = cms.double(5.)
+process.ecalMultiFitUncalibRecHit.cpu.algoPSet.outOfTimeThresholdGain61mEB = cms.double(5.)
+
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
     cosmics = cms.untracked.uint32(1),
     physics = cms.untracked.uint32(1),
