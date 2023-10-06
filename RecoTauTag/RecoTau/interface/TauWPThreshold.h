@@ -48,19 +48,17 @@ namespace tau {
     }
 
     double operator()(const reco::BaseTau& tau, bool isPFTau) const {
-      const int dm = isPFTau ? dynamic_cast<const reco::PFTau&>(tau).decayMode()
-                             : dynamic_cast<const pat::Tau&>(tau).decayMode();
+      const int dm =
+          isPFTau ? dynamic_cast<const reco::PFTau&>(tau).decayMode() : dynamic_cast<const pat::Tau&>(tau).decayMode();
       return (*this)(dm, tau.pt(), tau.eta());
     }
 
-    double operator()(const reco::Candidate& tau) const {
-      return (*this)(-1, tau.pt(), tau.eta());
-    }
+    double operator()(const reco::Candidate& tau) const { return (*this)(-1, tau.pt(), tau.eta()); }
 
   private:
     std::unique_ptr<TF1> fn_;
     double value_;
   };
-}
+}  // namespace tau
 
 #endif
