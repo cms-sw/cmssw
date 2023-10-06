@@ -302,7 +302,7 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
       }
       if (sign == -1 && pdgId != 25 && pdgId != 35 && pdgId != 36 && pdgId != 37 && pdgId != 1000039) {
         tmp = "anti_" + name;
-        if (nullptr != theParticleTable->FindParticle(-pdgId)) {
+        if (theParticleTable->FindParticle(-pdgId) == nullptr) {
           edm::LogVerbatim("SimG4CoreCustomPhysics")
               << "CustomParticleFactory: Calling addCustomParticle for antiparticle with pdgId: " << -pdgId << ", mass "
               << mass << " GeV, name " << tmp;
