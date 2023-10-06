@@ -152,9 +152,15 @@ class PostProcessor:
                 fnames = fname.split(',')
                 fname, ffnames = fnames[0], fnames[1:]
 
+            fname = fname.strip()
+
+            # Convert LFN to PFN if needed; this requires edmFileUtil to be present in $PATH
+            if fname.startswith('/store/') :
+                fname = subprocess.check_output(['edmFileUtil', '-d', '-f '+fname]).decode("utf-8").strip()
+
             # open input file
             if self.prefetch:
-                ftoread, toBeDeleted = self.prefetchFile(fname.strip())
+                ftoread, toBeDeleted = self.prefetchFile(fname)
                 inFile = ROOT.TFile.Open(ftoread)
             else:
                 inFile = ROOT.TFile.Open(fname)

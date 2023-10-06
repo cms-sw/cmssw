@@ -42,7 +42,8 @@ class ExampleAnalysis(Module):
 
 
 preselection = "Jet_pt[0] > 250"
-files = ["root://cms-xrd-global.cern.ch//store/group/cat/datasets/NANOAODSIM/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v2/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/7B930101-EB91-4F4E-9B90-0861460DBD94.root"]
+files = ["root://eoscms.cern.ch//eos/cms/store/user/cmsbuild/store/group/cat/datasets/NANOAODSIM/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v2/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/7B930101-EB91-4F4E-9B90-0861460DBD94.root"]
+
 p = PostProcessor(".",
                   files,
                   cut=preselection,
