@@ -56,7 +56,7 @@ namespace trklet {
 
     bool idle() const { return idle_; }
 
-    bool active() const { return !idle_ || good_in || good_out || !empty(); }
+    bool active() const { return !idle_ || good__ || good____ || !empty(); }
 
     void setAlmostFull();
 
@@ -80,7 +80,7 @@ namespace trklet {
     VMStubsMEMemory* vmstubsmemory_;
 
     unsigned int nrzbins_;
-    unsigned int rzbin_, rzbin_in, rzbin_out, rzbin_pipeline;
+    unsigned int rzbin_, rzbin__, rzbin____, rzbin___;
     unsigned int phibin_;
     int shift_;
 
@@ -110,14 +110,14 @@ namespace trklet {
 
     //Various manually pipelined variables
     //Each _ represents a layer of pipelining
-    //e.g., good_in is set and one iteration later good_out is updated
-    VMStubME vmstub_in, vmstub_pipeline, vmstub_out;
-    bool isPSseed_in, isPSseed_pipeline, isPSseed_out;
-    bool good_in, good_pipeline, good_out;
-    int projfinerz_in, projfinerz_pipeline, projfinerz_out;
-    int projfinephi_in, projfinephi_pipeline, projfinephi_out;
-    int projrinv_in, projrinv_pipeline, projrinv_out;
-    Tracklet *proj_in, *proj_pipeline, *proj_out;
+    //e.g., good__ is set and one iteration later good____ is updated
+    VMStubME vmstub__, vmstub___, vmstub____;
+    bool isPSseed__, isPSseed___, isPSseed____;
+    bool good__, good___, good____;
+    int projfinerz__, projfinerz___, projfinerz____;
+    int projfinephi__, projfinephi___, projfinephi____;
+    int projrinv__, projrinv___, projrinv____;
+    Tracklet *proj__, *proj___, *proj____;
 
     //save the candidate matches
     CircularBuffer<std::pair<Tracklet*, const Stub*>> candmatches_;
