@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <sstream>
 
 //#define EDM_ML_DEBUG
 
@@ -44,6 +45,7 @@ HGCalSD::HGCalSD(const std::string& name,
       levelT1_(99),
       levelT2_(99),
       useSimWt_(0),
+      calibCells_(false),
       tan30deg_(std::tan(30.0 * CLHEP::deg)),
       cos30deg_(std::cos(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
@@ -279,6 +281,36 @@ void HGCalSD::update(const BeginOfJob* job) {
       guardRing_ = std::make_unique<HGCGuardRing>(*hgcons_);
       guardRingPartial_ = std::make_unique<HGCGuardRingPartial>(*hgcons_);
     }
+
+    //Now for calibration cells
+    calibCellRHD_ = hgcons_->calibCellRad(true);
+    calibCellRLD_ = hgcons_->calibCellRad(false);
+    calibCellFullHD_ = hgcons_->calibCells(true, true);
+    calibCellPartHD_ = hgcons_->calibCells(true, false);
+    calibCellFullLD_ = hgcons_->calibCells(false, true);
+    calibCellPartLD_ = hgcons_->calibCells(false, false);
+    calibCells_ = ((!calibCellFullHD_.empty()) || (!calibCellPartHD_.empty()));
+    calibCells_ |= ((!calibCellFullLD_.empty()) || (!calibCellPartLD_.empty()));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "HGCalSD::Calibration cells initialized with  flag " << calibCells_;
+    edm::LogVerbatim("HGCSim") << " Radii " << calibCellRHD_ << ":" << calibCellRLD_;
+    std::ostringstream st1;
+    for (const auto& cell : calibCellFullHD_)
+      st1 << " " << cell;
+    edm::LogVerbatim("HGCSim") << calibCellFullHD_.size() << " cells for High Density full wafers: " << st1.str();
+    std::ostringstream st2;
+    for (const auto& cell : calibCellPartHD_)
+      st2 << " " << cell;
+    edm::LogVerbatim("HGCSim") << calibCellPartHD_.size() << " cells for High Density partial wafers: " << st2.str();
+    std::ostringstream st3;
+    for (const auto& cell : calibCellFullLD_)
+      st3 << " " << cell;
+    edm::LogVerbatim("HGCSim") << calibCellFullLD_.size() << " cells for Low Density full wafers: " << st3.str();
+    std::ostringstream st4;
+    for (const auto& cell : calibCellPartLD_)
+      st4 << " " << cell;
+    edm::LogVerbatim("HGCSim") << calibCellPartLD_.size() << " cells for Low Density partial wafers: " << st4.str();
+#endif
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
