@@ -232,7 +232,6 @@ void TriggerMenu::buildGtConditionMap() {
   for (std::vector<std::vector<CaloTemplate> >::iterator itCondOnChip = m_vecCaloTemplate.begin();
        itCondOnChip != m_vecCaloTemplate.end();
        itCondOnChip++) {
-    
     chipNr++;
 
     for (std::vector<CaloTemplate>::iterator itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
@@ -298,7 +297,6 @@ void TriggerMenu::buildGtConditionMap() {
     }
   }
 
-  
   /// DMP: Comment out unused templates for now
   //
   //
@@ -419,7 +417,7 @@ void TriggerMenu::setVecEnergySumZdcTemplate(
   m_vecEnergySumZdcTemplate = vecEnergySumZdcTempl;
 }
 
-void TriggerMenu::setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTempl) { 
+void TriggerMenu::setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTempl) {
   m_vecAXOL1TLTemplate = vecAXOL1TLTempl;
 }
 

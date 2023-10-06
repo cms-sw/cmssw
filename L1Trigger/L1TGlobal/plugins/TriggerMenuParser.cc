@@ -143,8 +143,7 @@ void l1t::TriggerMenuParser::setVecEnergySumZdcTemplate(
   m_vecEnergySumZdcTemplate = vecEnergySumZdcTempl;
 }
 
-void l1t::TriggerMenuParser::setVecAXOL1TLTemplate(
-    const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTempl) {
+void l1t::TriggerMenuParser::setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTempl) {
   m_vecAXOL1TLTemplate = vecAXOL1TLTempl;
 }
 
@@ -325,7 +324,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
           //parse AXOL1TL
         } else if (condition.getType() == esConditionType::AnomalyDetectionTrigger) {
           parseAXOL1TL(condition, chipNr);
-	  
+
           //parse Muons
         } else if (condition.getType() == esConditionType::SingleMuon ||
                    condition.getType() == esConditionType::DoubleMuon ||
@@ -2707,7 +2706,6 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const L1TUtmObject* corrESum, un
   return true;
 }
 
-
 /**                                                                                                                                                            
  * parseEnergySumCorr Parse an "energy sum" correlation condition and insert an entry to the conditions map                                                    
  *                                                                                                                                                             
@@ -2729,19 +2727,21 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
 
   LogDebug("TriggerMenuParser") << " ****************************************** " << std::endl
                                 << "     (in parseAXOL1TL) " << std::endl
-                                << " condition = " << condition << std::endl
+                                << " condition = " << condition
+                                << std::endl
                                 // << " particle  = " << particle << std::endl
                                 << " type      = " << type << std::endl
                                 << " name      = " << name << std::endl;
 
   int nrObj = 1;
-  GtConditionType cType = TypeAXOL1TL; 
+  GtConditionType cType = TypeAXOL1TL;
 
   std::vector<AXOL1TLTemplate::ObjectParameter> objParameter(nrObj);
 
   if (int(condAXOL1TL.getObjects().size()) != nrObj) {
     edm::LogError("TriggerMenuParser") << " condAXOL1TL objects: nrObj = " << nrObj
-                                       << "condAXOL1TL.getObjects().size() = " << condAXOL1TL.getObjects().size() << std::endl;
+                                       << "condAXOL1TL.getObjects().size() = " << condAXOL1TL.getObjects().size()
+                                       << std::endl;
     return false;
   }
 
@@ -2758,17 +2758,17 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   for (size_t kk = 0; kk < cuts.size(); kk++) {
     const L1TUtmCut& cut = cuts.at(kk);
 
-    switch (cut.getCutType()) { 
-    case esCutType::AnomalyScore:
-      lowerThresholdInd = cut.getMinimum().value;
-      upperThresholdInd = cut.getMaximum().value;
-      break;
-    default:
-      break; 
-    } //end switch
-  } //end cut loop
+    switch (cut.getCutType()) {
+      case esCutType::AnomalyScore:
+        lowerThresholdInd = cut.getMinimum().value;
+        upperThresholdInd = cut.getMaximum().value;
+        break;
+      default:
+        break;
+    }  //end switch
+  }    //end cut loop
 
-  //fill object params 
+  //fill object params
   objParameter[0].minAXOL1TLThreshold = lowerThresholdInd;
   objParameter[0].maxAXOL1TLThreshold = upperThresholdInd;
 
@@ -2796,7 +2796,6 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
 
   return true;
 }
-
 
 /**
  * parseExternal Parse an External condition and

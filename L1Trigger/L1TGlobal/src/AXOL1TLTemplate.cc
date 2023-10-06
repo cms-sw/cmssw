@@ -60,7 +60,7 @@ void AXOL1TLTemplate::copy(const AXOL1TLTemplate& cp) {
   m_condName = cp.condName();
   m_condCategory = cp.condCategory();
   m_condType = cp.condType();
-  m_objectType = cp.objectType(); //not needed for AXOL1TL
+  m_objectType = cp.objectType();  //not needed for AXOL1TL
   m_condGEq = cp.condGEq();
   m_condChipNr = cp.condChipNr();
   m_condRelativeBx = cp.condRelativeBx();

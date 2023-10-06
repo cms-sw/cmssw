@@ -662,7 +662,7 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
             edm::LogWarning("L1TGlobal") << "axol1tlCondition " << myCout.str();
           }
           //delete axol1tlCCondition;
-  
+
         } break;
 
         case CondExternal: {

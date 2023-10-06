@@ -156,7 +156,7 @@ namespace l1t {
     //
     inline const std::vector<std::vector<AXOL1TLTemplate> >& vecAXOL1TLTemplate() const { return m_vecAXOL1TLTemplate; }
     void setVecAXOL1TLTemplate(const std::vector<std::vector<AXOL1TLTemplate> >&);
-    
+
     //
     inline const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplate() const {
       return m_vecExternalTemplate;
@@ -308,7 +308,7 @@ namespace l1t {
     bool parseEnergySumZdc(L1TUtmCondition condEnergySumZdcs, unsigned int chipNr = 0, const bool corrFlag = false);
 
     bool parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned int chipNr = 0);
-    
+
     bool parseEnergySumCorr(const L1TUtmObject* corrESum, unsigned int chipNr = 0);
 
     bool parseExternal(L1TUtmCondition condExt, unsigned int chipNr = 0);
