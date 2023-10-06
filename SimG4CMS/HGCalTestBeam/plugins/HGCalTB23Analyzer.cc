@@ -75,7 +75,6 @@ private:
   const std::string detectorEE_, detectorFH_;
   const std::string detectorBH_, detectorBeam_;
   const double zFrontEE_, zFrontFH_, zFrontBH_;
-  const int sampleIndex_;
   const double gev2mip200_, gev2mip300_, stoc_smear_time_200_, stoc_smear_time_300_;
   std::vector<int> idBeams_;
   const edm::InputTag labelGen_;
@@ -150,7 +149,6 @@ HGCalTB23Analyzer::HGCalTB23Analyzer(const edm::ParameterSet& iConfig)
       zFrontEE_(iConfig.getParameter<double>("zFrontEE")),
       zFrontFH_(iConfig.getParameter<double>("zFrontFH")),
       zFrontBH_(iConfig.getParameter<double>("zFrontBH")),
-      sampleIndex_(iConfig.getParameter<int>("sampleIndex")),
       gev2mip200_(iConfig.getUntrackedParameter<double>("gev2mip200", 57.0e-6)),
       gev2mip300_(iConfig.getUntrackedParameter<double>("gev2mip300", 85.5e-6)),
       stoc_smear_time_200_(iConfig.getUntrackedParameter<double>("stoc_smear_time_200", 10.24)),

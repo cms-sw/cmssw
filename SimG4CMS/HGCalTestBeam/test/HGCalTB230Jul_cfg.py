@@ -18,7 +18,7 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#process.load('SimG4CMS.HGCalTestBeam.HGCalTB23Analyzer_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB23Analyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -99,14 +99,14 @@ process.g4SimHits.HGCSD.RotatedWafer    = False
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-#process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
+process.analysis_step = cms.Path(process.HGCalTB23Analyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
 				process.simulation_step,
-#			        process.analysis_step,
+			        process.analysis_step,
 				process.endjob_step,
 				process.RAWSIMoutput_step,
 				)
