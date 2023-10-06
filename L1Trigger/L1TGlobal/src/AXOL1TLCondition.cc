@@ -88,15 +88,12 @@ void l1t::AXOL1TLCondition::setuGtB(const GlobalBoard* ptrGTB) { m_gtGTB = ptrGT
 const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   bool condResult = false;
   int useBx = bxEval + m_gtAXOL1TLTemplate->condRelativeBx();
-  cout << "Considering BX " << useBx << std::endl;
 
   //HLS4ML stuff
   std::string AXOL1TLmodelversion = "GTADModel_v1";
-  cout << "loading model... " << AXOL1TLmodelversion << std::endl;
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
   model = loader.load_model();
-  cout << "model loaded! " << std::endl;
 
   // //pointers to objects
   const BXVector<const l1t::Muon*>* candMuVec = m_gtGTB->getCandL1Mu();
@@ -110,10 +107,10 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   const int NEtSums = 1;
 
   //number of indices in vector is #objects * 3 for et, eta, phi
-  const int MuVecSize = NMuons * 3;      //so 12
-  const int JVecSize = NJets * 3;        //so 30
-  const int EGVecSize = NEgammas * 3;    //so 12
-  const int EtSumVecSize = NEtSums * 3;  //so 3
+  const int MuVecSize = 12;  //NMuons * 3;      //so 12
+  const int JVecSize = 30;   //NJets * 3;        //so 30
+  const int EGVecSize = 12;  //NEgammas * 3;    //so 12
+  const int EtSumVecSize = 3; //NEtSums * 3;    //so 3
 
   //total # inputs in vector is (4+10+4+1)*3 = 57
   const int NInputs = 57;

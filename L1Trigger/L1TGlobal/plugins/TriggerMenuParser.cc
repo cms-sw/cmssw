@@ -1072,7 +1072,7 @@ bool l1t::TriggerMenuParser::parseMuon(L1TUtmCondition condMu, unsigned int chip
   std::string particle = "muon";  //l1t2string( condMu.objectType() );
   std::string type = l1t2string(condMu.getType());
   std::string name = l1t2string(condMu.getName());
-  int nrObj = -1;
+  const int nrObj = -1;
 
   GtConditionType cType = l1t::TypeNull;
 
@@ -2729,7 +2729,6 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
                                 << "     (in parseAXOL1TL) " << std::endl
                                 << " condition = " << condition
                                 << std::endl
-                                // << " particle  = " << particle << std::endl
                                 << " type      = " << type << std::endl
                                 << " name      = " << name << std::endl;
 

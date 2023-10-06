@@ -190,8 +190,6 @@ namespace l1t {
 
     if (condGEqValue) {
       if (value >= (Type2)thresholdL && (Type1)value < thresholdH) {
-        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
-        //    << std::endl;
 
         return true;
       }
@@ -200,8 +198,6 @@ namespace l1t {
 
     } else {
       if (value == (Type2)thresholdL) {
-        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
-        //    << std::endl;
 
         return true;
       }
@@ -223,8 +219,6 @@ namespace l1t {
 
     if (condGEqValue) {
       if (value >= (Type2)cutL) {
-        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= cut"
-        //    << std::endl;
 
         return true;
       }
@@ -233,8 +227,6 @@ namespace l1t {
 
     } else {
       if (value == (Type2)cutL) {
-        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = cut"
-        //    << std::endl;
 
         return true;
       }
