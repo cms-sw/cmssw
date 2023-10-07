@@ -1,2 +1,8 @@
 <!-- test access to EDM files used in HLT-AddOnTests and HLT-Validation tests -->
 <test name="testAccessToEDMInputsOfHLTTests" command="testAccessToEDMInputsOfHLTTests.sh"/>
+
+<!-- test script hltPrintMenuVersions -->
+<test name="test_hltPrintMenuVersions" command="test_hltPrintMenuVersions.sh"/>
+
+<!-- test script hltMenuContentToCSVs -->
+<test name="test_hltMenuContentToCSVs" command="test_hltMenuContentToCSVs.sh"/>
