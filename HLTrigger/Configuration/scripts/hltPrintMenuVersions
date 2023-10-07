@@ -134,10 +134,10 @@ if __name__ == '__main__':
         do_twiki_edits = opts.do_twiki_edits
     )
 
-    if len(hltMenuVersions):
-        for (configuration, description) in hltMenuVersions:
-            print(f'   * ={configuration}=: {description}')
-    else:
-        print('No Configuration Found !!')
+    if len(hltMenuVersions) == 0:
+        print('No Configuration Found !!\n')
+        raise SystemExit(1)
 
+    for (configuration, description) in hltMenuVersions:
+        print(f'   * ={configuration}=: {description}')
     print()
