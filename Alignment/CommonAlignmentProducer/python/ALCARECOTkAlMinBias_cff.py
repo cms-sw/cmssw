@@ -49,13 +49,24 @@ seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT*~ALCARECOTkAlMinBia
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOTkAlMinBiasHLT,
-                                      eventSetupPathsKey='TkAlMinBiasHI'
-)
-
 (pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOTkAlMinBias,
                                     trackQualities = cms.vstring("highPurity")
 )
+
+pp_on_XeXe_2017.toModify(ALCARECOTkAlMinBiasHLT,
+                         eventSetupPathsKey='TkAlMinBiasHI')
+
+import HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi
+ALCARECOTkAlMinBiasTriggerResultsHI = HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi.triggerResultsFilterFromDB.clone(
+    eventSetupPathsKey = 'TkAlMinBiasHI',
+    usePathStatus = False,
+    hltResults = 'TriggerResults::HLT',
+    l1tResults = '', # leaving empty (not interested in L1T results)
+    throw = False # tolerate triggers stated above, but not available
+)
+
+seqALCARECOTkAlMinBiasHI = cms.Sequence(ALCARECOTkAlMinBiasTriggerResultsHI*~ALCARECOTkAlMinBiasNOTHLT+ALCARECOTkAlMinBiasDCSFilter+ALCARECOTkAlMinBias)
+pp_on_AA.toReplaceWith(seqALCARECOTkAlMinBias,seqALCARECOTkAlMinBiasHI)
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(ALCARECOTkAlMinBias, etaMin = -4, etaMax = 4)

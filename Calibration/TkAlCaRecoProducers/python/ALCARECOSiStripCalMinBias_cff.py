@@ -42,7 +42,18 @@ seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*DCSStat
 
 ## customizations for the pp_on_AA eras
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify(ALCARECOSiStripCalMinBiasHLT,
+                         eventSetupPathsKey='SiStripCalMinBiasHI')
+
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-(pp_on_XeXe_2017 | pp_on_AA).toModify(ALCARECOSiStripCalMinBiasHLT,
-                                    eventSetupPathsKey='SiStripCalMinBiasHI'
+import HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi
+ALCARECOSiStripCalMinBiasTriggerResultsHI = HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi.triggerResultsFilterFromDB.clone(
+    eventSetupPathsKey = 'SiStripCalMinBiasHI',
+    usePathStatus = False,
+    hltResults = 'TriggerResults::HLT',
+    l1tResults = '', # leaving empty (not interested in L1T results)
+    throw = False # tolerate triggers stated above, but not available
 )
+
+seqALCARECOSiStripCalMinBiasHI = cms.Sequence(ALCARECOSiStripCalMinBiasTriggerResultsHI*DCSStatusForSiStripCalMinBias*ALCARECOSiStripCalMinBias)
+pp_on_AA.toReplaceWith(seqALCARECOSiStripCalMinBias,seqALCARECOSiStripCalMinBiasHI)
