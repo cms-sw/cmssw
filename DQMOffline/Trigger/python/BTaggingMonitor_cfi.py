@@ -72,11 +72,11 @@ hltBTVmonitoring = topMonitoring.clone(
         phiBinning2D = [-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416],
     ),
     met       = "pfMet", # pfMet  
-    jets      = "ak4PFJetsCHS", # ak4PFJets, ak4PFJetsCHS, ak4PFJets
+    jets      = "ak4PFJetsPuppi", #ak4PFJetsCHS,  ak4PFJets, ak4PFJetsCHS, ak4PFJets
     electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
     muons     = "muons", # while pfIsolatedMuonsEI are reco::PFCandidate !     
     
-    btagAlgos = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb'], 
+    btagAlgos = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb","pfDeepFlavourJetTags:problepb"],
     workingpoint = -1., #no cut applied
     
     HTdefinition = 'pt>30 & abs(eta)<2.5',
