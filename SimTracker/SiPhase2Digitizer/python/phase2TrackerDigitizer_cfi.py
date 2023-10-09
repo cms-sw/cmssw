@@ -221,10 +221,15 @@ phase2TrackerDigitizer = cms.PSet(
 # - do not add noisy pixels (to be done in stage2)
 # - do not apply inefficiency (to be done in stage2)
 # - disable threshold smearing
+# - disable x-talk simulatiom
 #
-# For outer tracker
-# - force analog readout to get the ADCs
-#
+# For both Inner and Outer tracker
+# - force analog readout to get Full Charge  ADCs 
+# - for Inner Tracker Dual Slope signal scaling NOT used here to avoid any singal loss.
+#   At step 2 Dual Slope signal scaling is used as default. To keep the full precision
+#   ADCFull scaling is also changed to 255 for Inner Tracker
+# 
+# - 
 # NOTE: It is currently assumed that all sub-digitizers have the same ElectronPerAdc.
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 _premixStage1ModifyDict = dict(
@@ -233,27 +238,38 @@ _premixStage1ModifyDict = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
+        AdcFullScale = 255,
     ),
     Pixel3DDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
+        AdcFullScale = 255,
     ),
     PSPDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
     ),
     PSSDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
         Phase2ReadoutMode = -1,
     ),
     SSDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        AddXTalk = False,
+        Phase2ReadoutMode = -1,
     ),
 )
 
