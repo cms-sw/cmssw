@@ -224,7 +224,7 @@ void SiPixelPhase1RawDataErrorComparator::analyze(const edm::Event& iEvent, cons
     }
   }
 
-  edm::LogPrint(kName) << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU;
+  LogDebug(kName) << " on gpu found: " << errorsOnGPU << " on cpu found: " << errorsOnCPU;
 
   h_totFEDErrors_->Fill(errorsOnCPU, errorsOnGPU);
 
@@ -274,14 +274,14 @@ void SiPixelPhase1RawDataErrorComparator::bookHistograms(DQMStore::IBooker& iBoo
   h_totFEDErrors_ = make2DIfLog(iBook,
                                 true,
                                 true,
-                                "nTotalFEDError",
-                                "n. of total Pixel FEDError per event; CPU; GPU",
-                                500,
+                                "nTotalFEDErrors",
+                                "n. of total Pixel FEDErrors per event; CPU; GPU",
+                                200,
                                 log10(0.5),
-                                log10(5000.5),
-                                500,
+                                log10(1000.),
+                                200,
                                 log10(0.5),
-                                log10(5000.5));
+                                log10(1000.));
 
   for (const auto& element : errorCodeToStringMap) {
     h_nFEDErrors_[element.first] = iBook.book2I(fmt::sprintf("nFED%i_Errors", element.first),

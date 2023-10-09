@@ -221,12 +221,22 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
 
     // starts here comaparison with regular clusters
     if (compareClusters_) {
+      if (stripClusterCollection_->empty()) {
+        edm::LogWarning("SiStripMonitorApproximateCluster")
+            << "Input SiStrip Cluster collecction was empty, skipping event! " << std::endl;
+        return;
+      }
+
       edmNew::DetSetVector<SiStripCluster>::const_iterator isearch =
           stripClusterCollection_->find(detid);  // search clusters of same detid
 
       // protect against a missing match
-      if (isearch != stripClusterCollection_->end())
+      if (isearch != stripClusterCollection_->end()) {
         strip_clusters_detset = (*isearch);
+      } else {
+        edm::LogWarning("SiStripMonitorApproximateCluster")
+            << "No edmNew::DetSet<SiStripCluster> was found for detid " << detid << std::endl;
+      }
     }
 
     for (const auto& cluster : detClusters) {

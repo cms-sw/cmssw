@@ -13,7 +13,8 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring('siStripDigis',
                                                                          'siStripClusters',
                                                                          'siStripZeroSuppression',
-                                                                         'SiStripClusterizer'),
+                                                                         'SiStripClusterizer',
+                                                                         'siStripApproximateClusterComparator'),
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
                                     destinations = cms.untracked.vstring('cout')
                                     )
@@ -35,15 +36,15 @@ offlineTesting=not live
 #-----------------------------
 # for live online DQM in P5
 if (unitTest):
-    process.load("DQM.Integration.config.unittestinputsource_cfi")
-    from DQM.Integration.config.unittestinputsource_cfi import options
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 elif (live):
-    process.load("DQM.Integration.config.inputsource_cfi")
-    from DQM.Integration.config.inputsource_cfi import options
+  process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
 # for testing in lxplus
 elif(offlineTesting):
-    process.load("DQM.Integration.config.fileinputsource_cfi")
-    from DQM.Integration.config.fileinputsource_cfi import options
+  process.load("DQM.Integration.config.fileinputsource_cfi")
+  from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 # DQM Live Environment
@@ -86,7 +87,10 @@ elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     #you may need to set manually the GT in the line below
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_hlt', '')
+
+
+print("Will process with GlobalTag %s",process.GlobalTag.globaltag.value())
 
 #--------------------------------------------
 # Patch to avoid using Run Info information in reconstruction
@@ -177,7 +181,7 @@ else :
 
 process.DQMCommon = cms.Sequence(process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
 
-print("Running with run type = ", process.runType.getRunType())
+print("Running with run type = ", process.runType.getRunTypeName())
 
 ### HEAVY ION SETTING
 if process.runType.getRunType() == process.runType.hi_run:
