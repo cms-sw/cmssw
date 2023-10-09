@@ -109,7 +109,9 @@ namespace {
     postEvent = 'e',
     postESModulePrefetching = 'q',
     preESModule = 'N',
-    postESModule = 'n'
+    postESModule = 'n',
+    preFrameworkTransition = 'F',
+    postFrameworkTransition = 'f'
   };
 
   enum class Phase : short {
@@ -260,7 +262,7 @@ using edm::service::StallMonitor;
 using namespace std::chrono;
 
 StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-    : file_{iPS.getUntrackedParameter<std::string>("fileName", filename_default)},
+    : file_{iPS.getUntrackedParameter<std::string>("fileName")},
       validFile_{file_},
       stallThreshold_{
           std::chrono::round<duration_t>(duration<double>(iPS.getUntrackedParameter<double>("stallThreshold")))} {
@@ -334,6 +336,58 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     iRegistry.preallocateSignal_.connect(
         [this](service::SystemBounds const& iBounds) { numStreams_ = iBounds.maxNumberOfStreams(); });
 
+    bool recordFrameworkTransitions = iPS.getUntrackedParameter<bool>("recordFrameworkTransitions");
+    if (recordFrameworkTransitions) {
+      {
+        auto preGlobal = [this](GlobalContext const& gc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::preFrameworkTransition>(
+              numStreams_, gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), toTransition(gc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPreGlobalBeginRun(preGlobal);
+        iRegistry.watchPreGlobalBeginLumi(preGlobal);
+        iRegistry.watchPreGlobalEndLumi(preGlobal);
+        iRegistry.watchPreGlobalEndRun(preGlobal);
+      }
+      {
+        auto postGlobal = [this](GlobalContext const& gc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::postFrameworkTransition>(
+              numStreams_, gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), toTransition(gc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPostGlobalBeginRun(postGlobal);
+        iRegistry.watchPostGlobalBeginLumi(postGlobal);
+        iRegistry.watchPostGlobalEndLumi(postGlobal);
+        iRegistry.watchPostGlobalEndRun(postGlobal);
+      }
+      {
+        auto preStream = [this](StreamContext const& sc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::preFrameworkTransition>(
+              stream_id(sc), sc.eventID().run(), sc.eventID().luminosityBlock(), toTransition(sc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPreStreamBeginRun(preStream);
+        iRegistry.watchPreStreamBeginLumi(preStream);
+        iRegistry.watchPreStreamEndLumi(preStream);
+        iRegistry.watchPreStreamEndRun(preStream);
+      }
+      {
+        auto postStream = [this](StreamContext const& sc) {
+          auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+          auto msg = assembleMessage<step::postFrameworkTransition>(
+              stream_id(sc), sc.eventID().run(), sc.eventID().luminosityBlock(), toTransition(sc), t);
+          file_.write(std::move(msg));
+        };
+        iRegistry.watchPostStreamBeginRun(postStream);
+        iRegistry.watchPostStreamBeginLumi(postStream);
+        iRegistry.watchPostStreamEndLumi(postStream);
+        iRegistry.watchPostStreamEndRun(postStream);
+      }
+    }
+
     std::ostringstream oss;
     oss << "# Transition       Symbol\n";
     oss << "#----------------- ------\n";
@@ -375,6 +429,12 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
         << "  <StreamID> <ESModule ID> <TransitionType> <Time since beginJob (ms)>\n"
         << "# postESModuleTransition        " << step::postESModule
         << "  <StreamID> <ESModule ID> <TransitionType> <Time since beginJob (ms)>\n";
+    if (recordFrameworkTransitions) {
+      oss << "# preFrameworkTransition        " << step::preFrameworkTransition
+          << " <Stream ID> <Run#> <LumiBlock#> <Transition type> <Time since beginJob (ms)>\n"
+          << "# postFrameworkTransition       " << step::postFrameworkTransition
+          << " <Stream ID> <Run#> <LumiBlock#> <Transition type> <Time since beginJob (ms)>\n";
+    }
     file_.write(oss.str());
   }
 }
@@ -391,6 +451,10 @@ void StallMonitor::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ->setComment(
           "Threshold (in seconds) used to classify modules as stalled.\n"
           "Microsecond granularity allowed.");
+  desc.addUntracked<bool>("recordFrameworkTransitions", false)
+      ->setComment(
+          "When writing a file, include the framework state transitions:\n"
+          " stream and global, begin and end, Run and LuminosityBlock.");
   descriptions.add("StallMonitor", desc);
   descriptions.setComment(
       "This service keeps track of various times in event-processing to determine which modules are stalling.");
