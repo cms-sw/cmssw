@@ -24,7 +24,7 @@ pp_on_AA.toModify(trackerClusterCheck,
                doClusterCheck=True, 
                cut = "strip < 1000000 && pixel < 150000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)",
                MaxNumberOfPixelClusters = 150000,
-               MaxNumberOfCosmicClusters = 500000
+               MaxNumberOfStripClusters = 500000
                )
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
@@ -32,6 +32,6 @@ egamma_lowPt_exclusive.toModify(trackerClusterCheck,
                doClusterCheck=True,
                cut = "strip < 1000 && pixel < 300 ",
                MaxNumberOfPixelClusters = 300,
-               MaxNumberOfCosmicClusters = 1000
+               MaxNumberOfStripClusters = 1000
                )
 

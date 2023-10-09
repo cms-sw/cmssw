@@ -80,7 +80,7 @@ combinatorialcosmicseedfinderP5Top = combinatorialcosmicseedfinderP5.clone(
     SeedsFromPositiveY      = True,
     SeedsFromNegativeY      = False,
     ClusterCollectionLabel  = 'siStripClustersTop',
-    MaxNumberOfCosmicClusters = 150,
+    MaxNumberOfStripClusters = 150,
 
     OrderedHitsFactoryPSets = {0: dict(LayerSrc = "combinatorialcosmicseedingtripletsP5Top"),
                                1: dict(LayerSrc = "combinatorialcosmicseedingpairsTOBP5Top"),
@@ -106,7 +106,7 @@ simpleCosmicBONSeedsTop = simpleCosmicBONSeeds.clone(
     NegativeYOnly    = False,
     ClusterCheckPSet = dict(
 	ClusterCollectionLabel    = 'siStripClustersTop',
-	MaxNumberOfCosmicClusters = 150,
+	MaxNumberOfStripClusters = 150,
     ),
     TripletsSrc      = 'simpleCosmicBONSeedingLayersTop',
 )
@@ -180,7 +180,7 @@ combinatorialcosmicseedfinderP5Bottom = combinatorialcosmicseedfinderP5.clone(
     SeedsFromPositiveY      = False,
     SeedsFromNegativeY      = True,
     ClusterCollectionLabel    = 'siStripClustersBottom',
-    MaxNumberOfCosmicClusters = 150,
+    MaxNumberOfStripClusters = 150,
     OrderedHitsFactoryPSets = {0: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingtripletsP5Bottom"),
                                1: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingpairsTOBP5Bottom"),
                                2: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingpairsTECposP5Bottom"),
@@ -204,7 +204,7 @@ simpleCosmicBONSeedsBottom = simpleCosmicBONSeeds.clone(
     NegativeYOnly    = True,
     ClusterCheckPSet = dict(
 	ClusterCollectionLabel    = 'siStripClustersBottom',
-        MaxNumberOfCosmicClusters = 150
+        MaxNumberOfStripClusters = 150
     ),
     TripletsSrc      = 'simpleCosmicBONSeedingLayersBottom'
 )
@@ -253,7 +253,7 @@ cosmicseedfinderP5Top = cosmicseedfinderP5.clone(
     ClusterCollectionLabel    = 'siStripClustersTop',
     PositiveYOnly             = True,
     NegativeYOnly             = False,
-    MaxNumberOfCosmicClusters = 150
+    MaxNumberOfStripClusters = 150
 )
 
 cosmicCandidateFinderP5Top = cosmicCandidateFinderP5.clone(
@@ -283,7 +283,7 @@ cosmicseedfinderP5Bottom = cosmicseedfinderP5.clone(
     ClusterCollectionLabel    = 'siStripClustersBottom',
     PositiveYOnly             = False,
     NegativeYOnly             = True,
-    MaxNumberOfCosmicClusters = 150
+    MaxNumberOfStripClusters = 150
 )
 
 cosmicCandidateFinderP5Bottom = cosmicCandidateFinderP5.clone(
