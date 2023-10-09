@@ -40,6 +40,9 @@ TriggerResultsFilterFromDB::~TriggerResultsFilterFromDB() { delete m_expression;
 
 void TriggerResultsFilterFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  // # use HLTPathStatus results
+  desc.add<bool>("usePathStatus", false)
+      ->setComment("Read the HLT results from the TriggerResults (false) or from the current job's PathStatus (true).");
   // # HLT results   - set to empty to ignore HLT
   desc.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults"));
   // # L1 uGT results - set to empty to ignore L1T
