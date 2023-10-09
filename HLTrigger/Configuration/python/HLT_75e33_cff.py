@@ -290,7 +290,8 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_Diphoton30_23_IsoCaloId_L1Seeded,
 
     fragment.HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1,
-    fragment.HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1,
+    ### Removed temporarily until solution of https://github.com/cms-sw/cmssw/issues/42862
+    #fragment.HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1,
 
     ### Removed temporarily until final decision on L1T tau Phase-2
     #fragment.L1T_DoubleNNTau52,
