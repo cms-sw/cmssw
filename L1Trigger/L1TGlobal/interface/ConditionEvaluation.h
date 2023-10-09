@@ -190,7 +190,6 @@ namespace l1t {
 
     if (condGEqValue) {
       if (value >= (Type2)thresholdL && (Type1)value < thresholdH) {
-
         return true;
       }
 
@@ -198,7 +197,6 @@ namespace l1t {
 
     } else {
       if (value == (Type2)thresholdL) {
-
         return true;
       }
 
@@ -219,7 +217,6 @@ namespace l1t {
 
     if (condGEqValue) {
       if (value >= (Type2)cutL) {
-
         return true;
       }
 
@@ -227,7 +224,6 @@ namespace l1t {
 
     } else {
       if (value == (Type2)cutL) {
-
         return true;
       }
 

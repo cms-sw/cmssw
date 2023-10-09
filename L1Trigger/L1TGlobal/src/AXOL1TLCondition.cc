@@ -104,13 +104,13 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   const int NMuons = 4;
   const int NJets = 10;
   const int NEgammas = 4;
-  const int NEtSums = 1;
+  //const int NEtSums = 1;
 
   //number of indices in vector is #objects * 3 for et, eta, phi
-  const int MuVecSize = 12;  //NMuons * 3;      //so 12
-  const int JVecSize = 30;   //NJets * 3;        //so 30
-  const int EGVecSize = 12;  //NEgammas * 3;    //so 12
-  const int EtSumVecSize = 3; //NEtSums * 3;    //so 3
+  const int MuVecSize = 12;    //NMuons * 3;      //so 12
+  const int JVecSize = 30;     //NJets * 3;        //so 30
+  const int EGVecSize = 12;    //NEgammas * 3;    //so 12
+  const int EtSumVecSize = 3;  //NEtSums * 3;    //so 3
 
   //total # inputs in vector is (4+10+4+1)*3 = 57
   const int NInputs = 57;
