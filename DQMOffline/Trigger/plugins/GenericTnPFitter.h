@@ -9,6 +9,7 @@
 #include "RooGlobalFunc.h"
 #include "RooCategory.h"
 #include "RooSimultaneous.h"
+#include "RooFitResult.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"

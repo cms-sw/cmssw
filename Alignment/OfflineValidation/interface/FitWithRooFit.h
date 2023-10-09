@@ -15,6 +15,7 @@
 #include "RooDataHist.h"
 #include "RooAddPdf.h"
 #include "RooChebychev.h"
+#include "RooFitResult.h"
 #include "RooGenericPdf.h"
 #include "RooGaussModel.h"
 #include "RooAddModel.h"
