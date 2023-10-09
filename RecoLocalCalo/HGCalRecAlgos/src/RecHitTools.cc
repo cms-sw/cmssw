@@ -63,7 +63,7 @@ namespace {
     return ddd;
   }
 
-  enum LayerType {
+  enum CellType {
     CE_E_120 = 0,
     CE_E_200 = 1,
     CE_E_300 = 2,
@@ -436,7 +436,7 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   return ishalf;
 }
 
-int RecHitTools::getLayerType(const DetId& id) const {
+int RecHitTools::getCellType(const DetId& id) const {
   auto layer_number = getLayerWithOffset(id);
   auto thickness = getSiThickIndex(id);
   auto geomNose =
