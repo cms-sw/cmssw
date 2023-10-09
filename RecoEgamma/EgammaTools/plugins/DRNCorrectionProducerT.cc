@@ -211,42 +211,42 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
    * gx: (rho, H/E) additional high-level features.
    * batch{SB}: graph models require explicitely passing the particle index for each vertex
    */
-  auto& inputxECAL = iInput.at("xECAL");
+  auto& inputxECAL = iInput.at("xECAL__0");
   inputxECAL.setShape(0, nHitsECAL);
   auto dataxECAL = inputxECAL.allocate<float>();
   auto& vdataxECAL = (*dataxECAL)[0];
 
-  auto& inputfECAL = iInput.at("fECAL");
+  auto& inputfECAL = iInput.at("fECAL__1");
   inputfECAL.setShape(0, nHitsECAL);
   auto datafECAL = inputfECAL.allocate<int64_t>();
   auto& vdatafECAL = (*datafECAL)[0];
 
-  auto& inputGainECAL = iInput.at("gainECAL");
+  auto& inputGainECAL = iInput.at("gain__2");
   inputGainECAL.setShape(0, nHitsECAL);
   auto dataGainECAL = inputGainECAL.allocate<int64_t>();
   auto& vdataGainECAL = (*dataGainECAL)[0];
 
-  auto& inputGx = iInput.at("gx");
+  auto& inputGx = iInput.at("graph_x__5");
   inputGx.setShape(0, nValidPart_);
   auto dataGx = inputGx.allocate<float>();
   auto& vdataGx = (*dataGx)[0];
 
-  auto& inputBatchECAL = iInput.at("batchECAL");
+  auto& inputBatchECAL = iInput.at("xECAL_batch__6");
   inputBatchECAL.setShape(0, nHitsECAL);
   auto dataBatchECAL = inputBatchECAL.allocate<int64_t>();
   auto& vdataBatchECAL = (*dataBatchECAL)[0];
 
-  auto& inputxES = iInput.at("xES");
+  auto& inputxES = iInput.at("xES__3");
   inputxES.setShape(0, nHitsES);
   auto dataxES = inputxES.allocate<float>();
   auto& vdataxES = (*dataxES)[0];
 
-  auto& inputfES = iInput.at("fES");
+  auto& inputfES = iInput.at("fES__4");
   inputfES.setShape(0, nHitsES);
   auto datafES = inputfES.allocate<int64_t>();
   auto& vdatafES = (*datafES)[0];
 
-  auto& inputBatchES = iInput.at("batchES");
+  auto& inputBatchES = iInput.at("xES_batch__7");
   inputBatchES.setShape(0, nHitsES);
   auto dataBatchES = inputBatchES.allocate<int64_t>();
   auto& vdataBatchES = (*dataBatchES)[0];
@@ -346,6 +346,7 @@ void DRNCorrectionProducerT<T>::acquire(edm::Event const& iEvent, edm::EventSetu
   /*
    * Convert input tensors to server data format
    */
+
   inputxECAL.toServer(dataxECAL);
   inputfECAL.toServer(datafECAL);
   inputGainECAL.toServer(dataGainECAL);
@@ -368,16 +369,15 @@ void DRNCorrectionProducerT<T>::produce(edm::Event& iEvent, const edm::EventSetu
   //if there are no particles, the fromServer() call will fail
   //but we can just put() an empty valueMap
   if (nPart_) {
-    const auto& muOut = iOutput.at("mu").fromServer<float>();
-    const auto& sigmaOut = iOutput.at("sigma").fromServer<float>();
+    const auto& out = iOutput.at("combined_output__0").fromServer<float>();
 
     unsigned i = 0;
     float mu, sigma, Epred, sigmaPred, rawE;
     for (unsigned iPart = 0; iPart < nPart_; ++iPart) {
       const auto& part = particles_->at(iPart);
       if (!skip(part)) {
-        mu = correction(muOut[0][0 + 6 * i]);
-        sigma = resolution(sigmaOut[0][0 + 5 * i]);
+        mu = correction(out[0][0 + 11 * i]);
+        sigma = resolution(out[0][6 + 11 * i]);
         ++i;
 
         rawE = part.superCluster()->rawEnergy();
