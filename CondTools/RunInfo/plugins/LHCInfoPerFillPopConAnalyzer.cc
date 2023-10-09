@@ -98,7 +98,9 @@ namespace theLHCInfoPerFillImpl {
       auto energy = row.get<float>("energy");
       auto creationTime = row.get<boost::posix_time::ptime>("start_time");
       auto stableBeamStartTime = row.get<boost::posix_time::ptime>("start_stable_beam");
-      auto beamDumpTime = row.get<boost::posix_time::ptime>("end_time");
+      std::string endTimeStr = row.get<std::string>("end_time");
+      auto beamDumpTime =
+          (endTimeStr == "null") ? 0 : cond::time::from_boost(row.get<boost::posix_time::ptime>("end_time"));
       auto injectionScheme = row.get<std::string>("injection_scheme");
       targetPayload = std::make_unique<LHCInfoPerFill>();
       targetPayload->setFillNumber(currentFill);
@@ -114,7 +116,7 @@ namespace theLHCInfoPerFillImpl {
       targetPayload->setEnergy(energy);
       targetPayload->setCreationTime(cond::time::from_boost(creationTime));
       targetPayload->setBeginTime(cond::time::from_boost(stableBeamStartTime));
-      targetPayload->setEndTime(cond::time::from_boost(beamDumpTime));
+      targetPayload->setEndTime(beamDumpTime);
       targetPayload->setInjectionScheme(injectionScheme);
       ret = true;
     }
@@ -354,7 +356,7 @@ public:
           boost::posix_time::ptime flumiStop = cond::time::to_boost(m_tmpBuffer.back().first);
           edm::LogInfo(m_name) << "First lumi starts at " << flumiStart << " last lumi starts at " << flumiStop;
           session.transaction().start(true);
-          getCTTPSData(session, startSampleTime, endSampleTime);
+          getCTPPSData(session, startSampleTime, endSampleTime);
           session.transaction().commit();
           session2.transaction().start(true);
           getEcalData(session2, startSampleTime, endSampleTime, updateEcal);
@@ -497,7 +499,7 @@ private:
     }
   }
 
-  bool getCTTPSData(cond::persistency::Session& session,
+  bool getCTPPSData(cond::persistency::Session& session,
                     const boost::posix_time::ptime& beginFillTime,
                     const boost::posix_time::ptime& endFillTime) {
     //run the fifth query against the CTPPS schema
