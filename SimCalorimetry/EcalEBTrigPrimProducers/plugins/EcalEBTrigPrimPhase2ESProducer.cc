@@ -233,7 +233,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
     finalFileName = fileInPath.fullPath();
   } else {
     finalFileName = filename;
-    ;
     edm::LogWarning("EcalEBTPGESProducer")
         << "Couldnt find database file via fileinpath trying with pathname directly!!";
   }
