@@ -12,9 +12,10 @@
   <Constant name="airGap3"    value="20.0*mm"/>
   <Constant name="airGap4"    value="10.0*mm"/>
   <Constant name="airGap5"    value="20.0*mm"/>
-  <Constant name="airGap6"    value="365.40*mm"/>
+  <Constant name="airGap6"    value="353.40*mm"/>
   <Constant name="absPb1T"    value="5.0*mm"/>
   <Constant name="absPb2T"    value="2.0*mm"/>
+  <Constant name="CuPlateT"   value="6.0*mm"/>
   <Constant name="zShift"     value="0.5*([absPb1T]+[airGap1])"/>
   <Constant name="zposAl1"    value="([hgcal:zHGCalEE1]+0.5*[crateT])"/>
   <Constant name="zposGap0"   value="([zposAl1]+0.5*([crateT]+[airGap0]))"/>
@@ -49,26 +50,29 @@
   <Constant name="zposAbs15"  value="([zposGap15]+0.5*([airGap2]+[absPb2T]))"/>
   <Constant name="zposGap16"  value="([zposAbs15]+0.5*([absPb2T]+[airGap3]))"/>
   <Constant name="zposMod1"   value="([zposGap16]+0.5*([airGap3]+[moduleT]))"/>
-  <Constant name="zposGap17"  value="([zposMod1]+0.5*([moduleT]+[airGap4]))"/>
+  <Constant name="zposCu1"    value="([zposMod1]+0.5*([moduleT]+[CuPlateT]))"/>
+  <Constant name="zposGap17"  value="([zposCu1]+0.5*([CuPlateT]+[airGap4]))"/>
   <Constant name="zposAbs17"  value="([zposGap17]+0.5*([airGap4]+[absPb2T]))"/>
   <Constant name="zposGap18"  value="([zposAbs17]+0.5*([absPb2T]+[airGap5]))"/>
   <Constant name="zposMod2"   value="([zposGap18]+0.5*([airGap5]+[moduleT]))"/>
-  <Constant name="zposGap19"  value="([zposMod2]+0.5*([moduleT]+[airGap6]))"/>
+  <Constant name="zposCu2"    value="([zposMod2]+0.5*([moduleT]+[CuPlateT]))"/>
+  <Constant name="zposGap19"  value="([zposCu2]+0.5*([CuPlateT]+[airGap6]))"/>
   <Constant name="zposAl2"    value="([zposGap19]+0.5*([airGap6]+[crateT]))"/>
 </ConstantsSection>
 
 <SolidSection label="hgcalEE.xml" eval="true">
-  <Box name="HGCalEELayer"   dx="[absorbW]" dy="[absorbH]" dz="0.5*[moduleT]"/>
-  <Box name="HGCalEEAlCover" dx="[absorbW]" dy="[absorbH]" dz="0.5*[crateT]"/>
-  <Box name="HGCalEEAirGap0" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap0]"/>
-  <Box name="HGCalEEAirGap1" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap1]"/>
-  <Box name="HGCalEEAirGap2" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap2]"/>
-  <Box name="HGCalEEAirGap3" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap3]"/>
-  <Box name="HGCalEEAirGap4" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap4]"/>
-  <Box name="HGCalEEAirGap5" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap5]"/>
-  <Box name="HGCalEEAirGap6" dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap6]"/>
-  <Box name="HGCalEEAbsPb1"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[absPb1T]"/>
-  <Box name="HGCalEEAbsPb2"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[absPb2T]"/>
+  <Box name="HGCalEELayer"    dx="[absorbW]" dy="[absorbH]" dz="0.5*[moduleT]"/>
+  <Box name="HGCalEEAlCover"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[crateT]"/>
+  <Box name="HGCalEEAirGap0"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap0]"/>
+  <Box name="HGCalEEAirGap1"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap1]"/>
+  <Box name="HGCalEEAirGap2"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap2]"/>
+  <Box name="HGCalEEAirGap3"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap3]"/>
+  <Box name="HGCalEEAirGap4"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap4]"/>
+  <Box name="HGCalEEAirGap5"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap5]"/>
+  <Box name="HGCalEEAirGap6"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[airGap6]"/>
+  <Box name="HGCalEEAbsPb1"   dx="[absorbW]" dy="[absorbH]" dz="0.5*[absPb1T]"/>
+  <Box name="HGCalEEAbsPb2"   dx="[absorbW]" dy="[absorbH]" dz="0.5*[absPb2T]"/>
+  <Box name="HGCalEECuPlate"  dx="[absorbW]" dy="[absorbH]" dz="0.5*[CuPlateT]"/>
 </SolidSection>
 
 <LogicalPartSection label="hgcalEE.xml">
@@ -91,6 +95,10 @@
   <LogicalPart name="HGCalEEAbsPb2" category="unspecified">
     <rSolid name="HGCalEEAbsPb2"/>
     <rMaterial name="materials:Lead"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEECuPlate" category="unspecified">
+    <rSolid name="HGCalEECuPlate"/>
+    <rMaterial name="materials:Copper"/>
   </LogicalPart>
   <LogicalPart name="HGCalEEAirGap0" category="unspecified">
     <rSolid name="HGCalEEAirGap0"/>
@@ -155,6 +163,18 @@
    <rParent name="hgcal:HGCalEE"/>
    <rChild name="hgcalEE:HGCalEELayerF2"/>
    <Translation x="0.0*mm" y="0.0*mm" z="[zposMod2]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEECuPlate"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposCu1]"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcal:HGCalEE"/>
+   <rChild name="hgcalEE:HGCalEECuPlate"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="[zposCu2]"/>
    <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">
