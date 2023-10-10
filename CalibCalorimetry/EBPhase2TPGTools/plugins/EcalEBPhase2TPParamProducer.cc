@@ -17,23 +17,23 @@
 #include <iomanip>
 
 EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const& pSet)
-    : theBarrelGeometryToken_(esConsumes(edm::ESInputTag("", "EcalBarrel"))),
-      inFile_(pSet.getUntrackedParameter<std::string>("inputFile")),
-      outFile_(pSet.getUntrackedParameter<std::string>("outputFile")),
-      nSamplesToUse_(pSet.getParameter<unsigned int>("nSamplesToUse")),
-      useBXPlusOne_(pSet.getParameter<bool>("useBXPlusOne")),
-      phaseShift_(pSet.getParameter<double>("phaseShift")),
-      nWeightGroups_(pSet.getParameter<unsigned int>("nWeightGroups")),
-      theEcalTPGPedestals_Token_(esConsumes(edm::ESInputTag("", ""))),
-      et_sat_(pSet.getParameter<double>("Et_sat")),
-      xtal_LSB_(pSet.getParameter<double>("xtal_LSB")),
-      binOfMaximum_(pSet.getParameter<unsigned int>("binOfMaximum"))
+  : theBarrelGeometryToken_(esConsumes(edm::ESInputTag("", "EcalBarrel"))),
+    inFile_(pSet.getUntrackedParameter<std::string>("inputFile")),
+    outFile_(pSet.getUntrackedParameter<std::string>("outputFile")),
+    nSamplesToUse_(pSet.getParameter<unsigned int>("nSamplesToUse")),
+    useBXPlusOne_(pSet.getParameter<bool>("useBXPlusOne")),
+    phaseShift_(pSet.getParameter<double>("phaseShift")),
+    nWeightGroups_(pSet.getParameter<unsigned int>("nWeightGroups")),
+    theEcalTPGPedestals_Token_(esConsumes(edm::ESInputTag("EcalLiteDTUPedestals",""))),
+    et_sat_(pSet.getParameter<double>("Et_sat")),
+    xtal_LSB_(pSet.getParameter<double>("xtal_LSB")),
+    binOfMaximum_(pSet.getParameter<unsigned int>("binOfMaximum"))
 
 {
   out_file_ = gzopen(outFile_.c_str(), "wb");
 
-  const TString* inFileName = new TString(inFile_);
-  TFile* inFile = new TFile(*inFileName, "READ");
+  TFile* inFile = new TFile(inFile_.c_str(), "READ");
+
   inFile->GetObject("average-pulse", thePulse_);
   delete inFile;
 }
@@ -41,6 +41,22 @@ EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const
 EcalEBPhase2TPParamProducer::~EcalEBPhase2TPParamProducer() { gzclose(out_file_); }
 
 void EcalEBPhase2TPParamProducer::beginJob() {}
+
+
+void EcalEBPhase2TPParamProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("inputFile");
+  desc.addUntracked<std::string>("outputFile");
+  desc.add<unsigned int>("nSamplesToUse",8);
+  desc.add<bool>("useBXPlusOne",false);
+  desc.add<double>("phaseShift",2.581);
+  desc.add<unsigned int>("nWeightGroups",61200);
+  desc.add<double>("Et_sat",1998.36);
+  desc.add<double>("xtal_LSB",0.0488);
+  desc.add<unsigned int>("binOfMaximum",6);
+}
+
+
 
 void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   using namespace edm;
@@ -60,10 +76,11 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
   std::vector<int> timeWeights[nWeightGroups_];
 
   for (unsigned int iGr = 0; iGr < nWeightGroups_; iGr++) {
-    ampWeights[iGr] = computeWeights(nSamplesToUse_, useBXPlusOne_, phaseShift_, binOfMaximum_, 1);
-    timeWeights[iGr] = computeWeights(nSamplesToUse_, useBXPlusOne_, phaseShift_, binOfMaximum_, 2);
+    ampWeights[iGr] = computeWeights(1);
+    timeWeights[iGr] = computeWeights(2);
   }
 
+  
   /* write to compressed file  */
   std::stringstream toCompressStream("");
   for (unsigned int iGr = 0; iGr < nWeightGroups_; iGr++) {
@@ -111,6 +128,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
     iGroup++;
   }
 
+
   //write to file
 
   for (std::map<int, int>::const_iterator it = mapXtalToGroup.begin(); it != mapXtalToGroup.end(); it++) {
@@ -122,6 +140,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
   gzwrite(out_file_, tmpStringOut, std::strlen(tmpStringOut));
   toCompressStream.str(std::string());
 
+  
   /////////////////////////////////////
 
   for (const auto& it : ebCells) {
@@ -129,35 +148,36 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
     toCompressStream << "LINCONST " << dec << id.rawId() << std::endl;
     double theta = theBarrelGeometry->getGeometry(id)->getPosition().theta();
     EcalLiteDTUPedestalsMap::const_iterator itped = theEcalTPPedestals->getMap().find(id);
+    
 
     if (itped != theEcalTPPedestals->end()) {
       peds = &(*itped);
-
+      
     } else {
       edm::LogWarning("EcalEBPhase2TPParamProducer") << " could not find EcalLiteDTUPedestal entry for " << id;
     }
 
     int shift, mult;
-    float calibCoeff = 1.;
+    double calibCoeff = 1.;
     bool ok;
     int tmpPedByGain;
     for (unsigned int i = 0; i < ecalPh2::NGAINS; ++i) {
+      
       ok = computeLinearizerParam(theta, gainRatio_[i], calibCoeff, shift, mult);
       if (!ok) {
         edm::LogWarning("EcalEBPhase2TPParamProducer")
             << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " " << id.rawId();
 
-        shift_ = 0;
+        shift = 0;
         tmpPedByGain = 0;
-        mult_ = 0;
+        mult = 0;
         toCompressStream << " 0x0"
                          << " 0x0"
                          << " 0x0" << std::endl;
       } else {
-        shift_ = shift;
-        mult_ = mult;
+
         tmpPedByGain = (int)(peds->mean(i) + 0.5);
-        toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult_ << " 0x" << shift_ << " " << i2cSub_[i]
+        toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult << " 0x" << shift << " " << i2cSub_[i]
                          << std::endl;
       }
     }
@@ -168,19 +188,19 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
   toCompressStream.str(std::string());
 }
 
-std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(
-    int nSamples, bool useBXPlusOne, float phaseShift, uint binOfMaximum, int type) {
+std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(int type) {
+ 
   std::vector<float> sampleSet;
   std::vector<float> sampleDotSet;
   std::vector<unsigned int> clockSampleSet;
   double scaleMatrixBy = 1.;
 
-  switch (nSamples) {
+  switch (nSamplesToUse_) {
     case 12:
       clockSampleSet = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
       break;
     case 8:
-      switch (binOfMaximum) {
+      switch (binOfMaximum_) {
         case 8:
           clockSampleSet = {2, 3, 4, 5, 6, 7, 8, 9};
           break;
@@ -190,7 +210,7 @@ std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(
       }
       break;
     case 6:
-      switch (binOfMaximum) {
+      switch (binOfMaximum_) {
         case 8:
           clockSampleSet = {3, 4, 6, 7, 8, 9};
           break;
@@ -201,17 +221,19 @@ std::vector<int> EcalEBPhase2TPParamProducer::computeWeights(
       break;
   }
 
-  getPulseSampleSet(*thePulse_, phaseShift, sampleSet);
+  
+  getPulseSampleSet(*thePulse_, phaseShift_, sampleSet);
   pulseDot_ = new TGraph();
   getNumericalDeriv(*thePulse_, *pulseDot_);
-  getPulseSampleSet(*pulseDot_, phaseShift, sampleDotSet);
+  getPulseSampleSet(*pulseDot_, phaseShift_, sampleDotSet);
 
-  unsigned int fMatColumns = useBXPlusOne ? 6 : 4;
+  unsigned int fMatColumns = useBXPlusOne_ ? 6 : 4;
 
   TMatrix fMat(clockSampleSet.size(), fMatColumns);
-  fillFMat(clockSampleSet, useBXPlusOne, sampleSet, sampleDotSet, fMat, binOfMaximum);
+  fillFMat(clockSampleSet, useBXPlusOne_, sampleSet, sampleDotSet, fMat, binOfMaximum_);
   TMatrix gMat(fMatColumns, clockSampleSet.size());
 
+  
   getGMatrix(fMat, scaleMatrixBy, gMat);
 
   std::vector<int> tmpWeightVec;
@@ -312,6 +334,7 @@ void EcalEBPhase2TPParamProducer::getPulseSampleSet(TGraph pulseGraph,
 
 bool EcalEBPhase2TPParamProducer::computeLinearizerParam(
     double theta, double gainRatio, double calibCoeff, int& shift, int& mult) {
+
   bool result = false;
 
   double factor = (16383 * (xtal_LSB_ * gainRatio * calibCoeff * sin(theta))) / et_sat_;
@@ -329,8 +352,11 @@ bool EcalEBPhase2TPParamProducer::computeLinearizerParam(
     factor *= 2;
     mult = (int)(factor + 0.5);
   }
-
+  
   return result;
+
+
+
 }
 
 // DEfine this module as a plug-in

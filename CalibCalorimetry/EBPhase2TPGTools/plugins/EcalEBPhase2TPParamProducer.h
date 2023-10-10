@@ -39,10 +39,12 @@ public:
   ~EcalEBPhase2TPParamProducer() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   void beginJob() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  std::vector<int> computeWeights(
-      int nSamples, bool useBXPlusOne, float phaseShift, unsigned int binOfMaximum, int type);
+
+  std::vector<int> computeWeights(int type);
+
 
   void getNumericalDeriv(TGraph graph, TGraph& deriv);
   void fillFMat(std::vector<unsigned int> clockSampleSet,
@@ -80,10 +82,6 @@ private:
   const double et_sat_;
   const double xtal_LSB_;
   const unsigned int binOfMaximum_;
-
-  int mult_;
-  int shift_;
-
   static constexpr double gainRatio_[ecalPh2::NGAINS] = {1., 10.};
 };
 

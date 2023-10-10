@@ -53,7 +53,7 @@ GzInputStream &operator>>(GzInputStream &gis, T &var) {
 
 EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::ParameterSet &iConfig)
     : dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile", "")),
-      configFilename_(iConfig.getUntrackedParameter<std::string>("WeightTextFile", "")),
+      configFilename_(iConfig.getParameter<edm::FileInPath>("WeightTextFile")),
       flagPrint_(iConfig.getParameter<bool>("WriteInFile")) {
   parseWeightsFile();
 
@@ -224,14 +224,14 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
   std::vector<unsigned int> param;
 
   int data;
-  std::string filename = configFilename_;
+  std::string filename = configFilename_.fullPath();;
   std::string finalFileName;
-  size_t slash = configFilename_.find('/');
+  size_t slash = filename.find('/');
   if (slash != 0) {
     edm::FileInPath fileInPath(filename);
     finalFileName = fileInPath.fullPath();
   } else {
-    finalFileName = configFilename_;
+    finalFileName = filename;;
     edm::LogWarning("EcalEBTPGESProducer")
         << "Couldnt find database file via fileinpath trying with pathname directly!!";
   }

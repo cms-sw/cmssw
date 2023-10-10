@@ -52,8 +52,9 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
     setInput(addout[i]);
 
     if (debug_) {
+      std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int> buffer_ " << std::endl;;
       for (unsigned int j = 0; j < 12; j++) {
-        std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int> buffer_ " << buffer_[j];
+        std::cout << " buffer_ "  << buffer_[j];
       }
       std::cout << "  " << std::endl;
     }
@@ -163,10 +164,8 @@ void EcalEBPhase2TimeReconstructor::setParameters(uint32_t raw,
     //std::cout << "peak flag settings" << std::endl;
     for (int i = 0; i < 12; ++i) {
       weights_[i] = (params_[i] & 0x8000) ? (int)(params_[i] | 0xffff8000) : (int)(params_[i]);
-
-      //    std::cout << " EcalEBPhase2TimeReconstructor::setParameters time weights after the cooking " << weights_[i] << std::endl;
     }
-    std::cout << std::endl;
+    
   } else
     edm::LogWarning("EcalTPG")
         << " EcalEBPhase2TimeReconstructor::setParameters could not find EcalTPGGroupsMap entry for " << raw;

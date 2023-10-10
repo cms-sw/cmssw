@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
@@ -64,7 +65,8 @@ private:
 
   // ----------member data ---------------------------
   std::string dbFilename_;
-  std::string configFilename_;
+  //  std::string configFilename_;
+  const edm::FileInPath configFilename_;
   bool flagPrint_;
   std::map<uint32_t, std::vector<uint32_t>> mapXtal_;
   std::map<uint32_t, std::vector<uint32_t>> mapStrip_[2];
