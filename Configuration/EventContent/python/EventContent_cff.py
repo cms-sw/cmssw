@@ -643,6 +643,12 @@ approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*'
                               ])
 
+phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
+                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                            'keep *_hltPhase2PixelTracks_*_*',
+                            'keep *_hltPhase2PixelVertices_*_*'
+                        ])
+
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 
 (premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, 
