@@ -36,7 +36,7 @@ namespace lhef {
 LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
   runInfo(runInfo), weights_(0), counted(false), 
-  readAttemptCounter(0), npLO_(-99), npNLO_(-99)
+  readAttemptCounter(0), npLO_(-99), npNLO_(-99), evtnum_(-1)
   
 {
 	hepeup.NUP = 0;
@@ -116,7 +116,7 @@ LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
 	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0),
-        npLO_(-99), npNLO_(-99)
+        npLO_(-99), npNLO_(-99), evtnum_(-1)
 {
 }
 
@@ -126,7 +126,7 @@ LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
                    const std::vector<std::string> &comments) :
 	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : nullptr),
 	comments(comments), counted(false), readAttemptCounter(0),
-	npLO_(-99), npNLO_(-99)
+	npLO_(-99), npNLO_(-99), evtnum_(-1)
 {
 }
 
@@ -138,7 +138,7 @@ LHEEvent::LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	comments(product.comments_begin(), product.comments_end()),
 	counted(false), readAttemptCounter(0),
 	originalXWGTUP_(product.originalXWGTUP()), scales_(product.scales()),
-	npLO_(product.npLO()), npNLO_(product.npNLO())
+	npLO_(product.npLO()), npNLO_(product.npNLO()), evtnum_(product.evtnum())
 {
 }
 
