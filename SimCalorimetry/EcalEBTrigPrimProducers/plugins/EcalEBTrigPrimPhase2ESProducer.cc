@@ -224,14 +224,16 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
   std::vector<unsigned int> param;
 
   int data;
-  std::string filename = configFilename_.fullPath();;
+  std::string filename = configFilename_.fullPath();
+  ;
   std::string finalFileName;
   size_t slash = filename.find('/');
   if (slash != 0) {
     edm::FileInPath fileInPath(filename);
     finalFileName = fileInPath.fullPath();
   } else {
-    finalFileName = filename;;
+    finalFileName = filename;
+    ;
     edm::LogWarning("EcalEBTPGESProducer")
         << "Couldnt find database file via fileinpath trying with pathname directly!!";
   }

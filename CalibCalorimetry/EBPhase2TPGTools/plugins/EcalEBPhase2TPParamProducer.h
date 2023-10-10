@@ -42,9 +42,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-
   std::vector<int> computeWeights(int type);
-
 
   void getNumericalDeriv(TGraph graph, TGraph& deriv);
   void fillFMat(std::vector<unsigned int> clockSampleSet,

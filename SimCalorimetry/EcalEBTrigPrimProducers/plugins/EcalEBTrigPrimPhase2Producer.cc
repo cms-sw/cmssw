@@ -120,7 +120,6 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
                                << labels.productInstance << "!!!";
   }
 
-
   if (debug_)
     std::cout << "EcalTPG"
               << " =================> Treating event  " << nEvent_ << ", Number of EB digis "
