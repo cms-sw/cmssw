@@ -4,12 +4,12 @@
 <test name="GetTestDQMOfflineConfigurationFile" command="edmCopyUtil ${INFILE} $(LOCALTOP)/tmp/"/>
 
 <!-- To make the tests run in parallel, we chunk up the work into arbitrary sets of 10 sequences. -->
-<test name="TestDQMOfflineConfiguration" command="runtests.sh   ${step_value} ${value} file://${LOCALTOP}/tmp/${INFILE_NAME}" for="0,290,10">
+<test name="TestDQMOfflineConfiguration" command="runtests.sh   ${step_value} ${value} file://${LOCALTOP}/tmp/${INFILE_NAME}" for="0,300,10">
   <flags PRE_TEST="GetTestDQMOfflineConfigurationFile"/>
 </test>
 
 <!-- To make sure we actually got all sequences, the last check checks that there are no sequences beyond the last test -->
 <!-- This might need to updated when the number of distinct sequences grows, add more rows above and change the number here. -->
-<test name="TestDQMOfflineConfigurationGotAll" command="cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION --infile file://${LOCALTOP}/tmp/${INFILE_NAME} --limit 50 --offset 300 --threads 1 | grep 'Analyzing 0 seqs'">
+<test name="TestDQMOfflineConfigurationGotAll" command="cmsswSequenceInfo.py --runTheMatrix --steps DQM,VALIDATION --infile file://${LOCALTOP}/tmp/${INFILE_NAME} --limit 50 --offset 310 --threads 1 | grep 'Analyzing 0 seqs'">
   <flags PRE_TEST="GetTestDQMOfflineConfigurationFile"/>
 </test>
