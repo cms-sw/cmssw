@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
   }
 
   // Get the python configuration
-  ProcessDescImpl builder(argv[1]);
+  ProcessDescImpl builder(argv[1], true);
   edm::ParameterSet const& shyftParameters =
       builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("wplusjetsAnalysis");
   edm::ParameterSet const& inputs = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("inputs");

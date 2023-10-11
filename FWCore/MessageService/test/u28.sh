@@ -7,7 +7,7 @@ status=0
   
 rm -f u28_output.log   
 
-cmsRun -p ${SCRAM_TEST_PATH}/u28_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u28_cfg.py || exit $?
  
 for file in u28_output.log
 do

@@ -93,7 +93,7 @@ void testmakepset::secsourceAux() {
   std::string config(kTest);
 
   // Create the ParameterSet object from this configuration string.
-  PyBind11ProcessDesc builder(config);
+  PyBind11ProcessDesc builder(config, false);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
 
   CPPUNIT_ASSERT(nullptr != ps.get());
@@ -149,7 +149,7 @@ void testmakepset::usingBlockAux() {
 
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
-  PyBind11ProcessDesc builder(config);
+  PyBind11ProcessDesc builder(config, false);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
   CPPUNIT_ASSERT(nullptr != ps.get());
 
@@ -199,7 +199,7 @@ void testmakepset::fileinpathAux() {
   bool localArea = false;
   // Create the ParameterSet object from this configuration string.
   {
-    PyBind11ProcessDesc builder(config);
+    PyBind11ProcessDesc builder(config, false);
     std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
     CPPUNIT_ASSERT(nullptr != ps.get());
 
@@ -277,7 +277,7 @@ void testmakepset::fileinpathAux() {
 
   std::string config2(kTest2);
   // Create the ParameterSet object from this configuration string.
-  PyBind11ProcessDesc builder2(config2);
+  PyBind11ProcessDesc builder2(config2, false);
   unlink(tmpout.c_str());
   std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
 
@@ -357,7 +357,7 @@ void testmakepset::typesTest() {
 
   std::string config2(kTest);
   // Create the ParameterSet object from this configuration string.
-  PyBind11ProcessDesc builder2(config2);
+  PyBind11ProcessDesc builder2(config2, false);
   std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
   edm::ParameterSet const& test = ps2->getParameterSet("p");
 

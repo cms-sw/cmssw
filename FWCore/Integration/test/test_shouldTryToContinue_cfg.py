@@ -9,10 +9,7 @@ parser.add_argument("--indirect", help="Apply shouldTryToContinue to module depe
 parser.add_argument("--inRun", action = "store_true", help="Throw exception in Run")
 parser.add_argument("--inLumi", action = "store_true", help="Throw exception in Lumi")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("TEST")
 

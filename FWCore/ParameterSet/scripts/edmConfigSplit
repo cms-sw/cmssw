@@ -2,22 +2,17 @@
 
 import sys
 import os
-import imp
 import argparse
 
+from FWCore.ParameterSet.processFromFile import processFromFile
 from FWCore.ParameterSet.Mixins import PrintOptions
 
-# customise the HelpFormatter to show additional parameters in the usage line
-class PartialHelpFormatter(argparse.HelpFormatter):
-  def _format_usage(self, usage, actions, groups, prefix):
-    partial = super(PartialHelpFormatter, self)._format_usage(usage, actions, groups, prefix).strip()
-    return partial + ' [--] [OPTIONS ...]\n\n'
-
-
-parser = argparse.ArgumentParser(formatter_class = PartialHelpFormatter,
+parser = argparse.ArgumentParser(
   description = '%(prog)s splits the given CMSSW configuration file into one file per top-level object, and outputs the configuration for the main process object.',
-  epilog = 'Additional options and arguments are passed to the configuration file unchanged (e.g. for use by VarParsing.py).')
-parser.add_argument('file', metavar = 'FILE', type = argparse.FileType('r'))
+)
+parser.add_argument('file', metavar = 'FILE')
+parser.add_argument("configArgs",
+  nargs=argparse.REMAINDER, help="arguments that will be passed to Python configuration file")
 
 parser.add_argument('-o', '--output',
   metavar = 'OUT',
@@ -34,19 +29,12 @@ parser.add_argument('-s', '--subdirectories',
   default = False,
   help = 'create subdirectories for different modules categories')
 
-args, other = parser.parse_known_args()
-
-# delete all arguments, so they are not "seen" by the confguration file being split
-del sys.argv[1:]
-sys.argv.append(args.file.name)
-sys.argv.extend(other)
+args = parser.parse_args()
 
 # make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
 sys.path.append(os.getcwd())
 
-cfo = imp.load_source("pycfg", args.file.name, args.file)
-process = cfo.process
-args.file.close()
+process = processFromFile(args.file, args.configArgs)
 
 options = PrintOptions()
 options.useSubdirectories = args.subdirectories

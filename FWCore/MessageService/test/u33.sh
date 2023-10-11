@@ -7,7 +7,7 @@ status=0
   
 rm -f u33_all.log
 
-cmsRun -p ${SCRAM_TEST_PATH}/u33_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u33_cfg.py || exit $?
  
 for file in u33_all.log
 do

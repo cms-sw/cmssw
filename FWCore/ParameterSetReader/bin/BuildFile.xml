@@ -3,6 +3,3 @@
 <use name="FWCore/ParameterSetReader"/>
 <bin file="edmConfigHash.cpp">
 </bin>
-
-<bin file="edmParameterSetDump.cpp">
-</bin>

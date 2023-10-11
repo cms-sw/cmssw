@@ -90,7 +90,7 @@ namespace edm {
       //Setup various singletons
       (void)oneTimeInitialization();
 
-      ProcessDescImpl desc(iConfig.pythonConfiguration());
+      ProcessDescImpl desc(iConfig.pythonConfiguration(), false);
 
       auto psetPtr = desc.parameterSet();
       moduleTypeResolverMaker_ = makeModuleTypeResolverMaker(*psetPtr);

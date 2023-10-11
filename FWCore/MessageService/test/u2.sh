@@ -7,7 +7,7 @@ status=0
 if [ "$UBSAN_OPTIONS" != "" ] ; then export UBSAN_OPTIONS="log_path=ubsan.log:${UBSAN_OPTIONS}"; fi
 rm -f  u2_warnings.log u2_cerr.mout 
 
-cmsRun -p ${SCRAM_TEST_PATH}/u2_cfg.py 2> ./u2_cerr.mout || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u2_cfg.py 2> ./u2_cerr.mout || exit $?
 sed -n '/Disabling gnu++: clang has no __float128 support on this target!/!p' u2_cerr.mout > tmpf && mv tmpf u2_cerr.mout # remove clang output
 
 for file in u2_warnings.log u2_cerr.mout

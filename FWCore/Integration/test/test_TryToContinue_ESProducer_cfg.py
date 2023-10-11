@@ -7,10 +7,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test TryToContin
 
 parser.add_argument("--continueAnalyzer", help="Apply shouldTryToContinue to module dependent on module that fails.", action="store_true")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("Demo")
 

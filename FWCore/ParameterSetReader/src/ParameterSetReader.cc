@@ -3,13 +3,13 @@
 #include "FWCore/PythonParameterSet/interface/MakePyBind11ParameterSets.h"
 
 std::unique_ptr<edm::ParameterSet> edm::getPSetFromConfig(const std::string& config) {
-  return PyBind11ProcessDesc(config).parameterSet();
+  return PyBind11ProcessDesc(config, false).parameterSet();
 }
 
 //its really the stuff in MakePythonParameterSets that should be in the different namespace
 //I'll do that if this setup is ok
-std::unique_ptr<edm::ParameterSet> edm::readConfig(std::string const& config, int argc, char* argv[]) {
-  return edm::cmspybind11::readConfig(config, argc, argv);
+std::unique_ptr<edm::ParameterSet> edm::readConfig(std::string const& config, const std::vector<std::string>& args) {
+  return edm::cmspybind11::readConfig(config, args);
 }
 
 std::unique_ptr<edm::ParameterSet> edm::readConfig(std::string const& config) {

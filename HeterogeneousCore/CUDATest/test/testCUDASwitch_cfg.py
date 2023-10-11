@@ -9,10 +9,7 @@ parser.add_argument("--silent", help="Silence printouts", action="store_true")
 parser.add_argument("--includeAnalyzer", help="Include an EDAnalyzer", action="store_true")
 parser.add_argument("--accelerator", type=str, help="String for accelerator to enable")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("Test")
 process.load("FWCore.MessageService.MessageLogger_cfi")

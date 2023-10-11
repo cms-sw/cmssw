@@ -12,11 +12,7 @@ parser.add_argument("--filter", action="store_true")
 parser.add_argument("--tracer", help="add Tracer service", action="store_true")
 
 print(sys.argv)
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
-
+args = parser.parse_args()
 
 process = cms.Process("TEST")
 

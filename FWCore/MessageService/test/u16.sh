@@ -7,7 +7,7 @@ status=0
   
 rm -f u16_errors.mmlog u16_altWarnings.log u16_infos.mmlog u16_altDebugs.mmlog u16_default.log u16_job_report.mmxml u16_statistics.mslog 
 
-cmsRun -e -j u16_job_report.mmxml -p ${SCRAM_TEST_PATH}/u16_cfg.py || exit $?
+cmsRun -e -j u16_job_report.mmxml ${SCRAM_TEST_PATH}/u16_cfg.py || exit $?
  
 for file in u16_errors.mmlog u16_altWarnings.log u16_infos.mmlog u16_altDebugs.mmlog u16_default.log u16_job_report.mmxml u16_statistics.mslog  
 do

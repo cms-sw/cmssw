@@ -7,7 +7,7 @@ status=0
   
 rm -f u34_warnings.log
 
-cmsRun -p ${SCRAM_TEST_PATH}/u34_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u34_cfg.py || exit $?
  
 for file in u34_warnings.log
 do

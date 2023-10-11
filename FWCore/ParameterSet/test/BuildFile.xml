@@ -17,3 +17,6 @@
   <use name="cppunit"/>
   <use name="FWCore/ParameterSet"/>
 </bin>
+
+<test name="testFWCoreParameterSetEdmConfigDump" command="run_edmConfigDump.sh"/>
+<test name="testFWCoreParameterSetEdmConfigSplit" command="run_edmConfigSplit.sh"/>

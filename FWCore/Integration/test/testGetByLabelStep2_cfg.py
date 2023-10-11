@@ -9,10 +9,7 @@ parser.add_argument("--noConsumes", help="Do not call consumes", action="store_t
 parser.add_argument("--thing", help="Add producer and consumer for Thing", action="store_true")
 parser.add_argument("--otherInt", help="Add another producer and consumer for int", action="store_true")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("TESTANA")
 process.maxEvents.input = -1

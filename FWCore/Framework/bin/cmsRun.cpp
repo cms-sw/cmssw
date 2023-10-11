@@ -3,6 +3,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about it.
 ----------------------------------------------------------------------*/
 
+#include "FWCore/Framework/interface/CmsRunParser.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -30,7 +31,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 
 #include "TError.h"
 
-#include "boost/program_options.hpp"
 #include "oneapi/tbb/task_arena.h"
 
 #include <cstring>
@@ -40,24 +40,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include <memory>
 #include <string>
 #include <vector>
-
-//Command line parameters
-static char const* const kParameterSetOpt = "parameter-set";
-static char const* const kPythonOpt = "pythonOptions";
-static char const* const kParameterSetCommandOpt = "parameter-set,p";
-static char const* const kJobreportCommandOpt = "jobreport,j";
-static char const* const kJobreportOpt = "jobreport";
-static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
-static const char* const kEnableJobreportOpt = "enablejobreport";
-static char const* const kJobModeCommandOpt = "mode,m";
-static char const* const kJobModeOpt = "mode";
-static char const* const kNumberOfThreadsCommandOpt = "numThreads,n";
-static char const* const kNumberOfThreadsOpt = "numThreads";
-static char const* const kSizeOfStackForThreadCommandOpt = "sizeOfStackForThreadsInKB,s";
-static char const* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
-static char const* const kHelpOpt = "help";
-static char const* const kHelpCommandOpt = "help,h";
-static char const* const kStrictOpt = "strict";
 
 // -----------------------------------------------
 namespace {
@@ -101,10 +83,9 @@ namespace {
   private:
     edm::EventProcessor* ep_;
   };
-
 }  // namespace
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
   edm::TimingServiceBase::jobStarted();
 
   int returnCode = 0;
@@ -116,7 +97,7 @@ int main(int argc, char* argv[]) {
                                                          edm::s_defaultSizeOfStackForThreadsInKB * 1024);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
-  std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
+  std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport>> jobRep;
   EventProcessorWithSentry proc;
 
   try {
@@ -145,74 +126,39 @@ int main(int argc, char* argv[]) {
           std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
 
       context = "Processing command line arguments";
-      std::string descString(argv[0]);
-      descString += " [options] [--";
-      descString += kParameterSetOpt;
-      descString += "] config_file \nAllowed options";
-      boost::program_options::options_description desc(descString);
+      edm::CmsRunParser parser(argv[0]);
 
-      // clang-format off
-      desc.add_options()(kHelpCommandOpt, "produce help message")(
-          kParameterSetCommandOpt, boost::program_options::value<std::string>(), "configuration file")(
-          kJobreportCommandOpt,
-          boost::program_options::value<std::string>(),
-          "file name to use for a job report file: default extension is .xml")(
-          kEnableJobreportCommandOpt, "enable job report files (if any) specified in configuration file")(
-          kJobModeCommandOpt,
-          boost::program_options::value<std::string>(),
-          "Job Mode for MessageLogger defaults - default mode is grid")(
-          kNumberOfThreadsCommandOpt,
-          boost::program_options::value<unsigned int>(),
-          "Number of threads to use in job (0 is use all CPUs)")(
-          kSizeOfStackForThreadCommandOpt,
-          boost::program_options::value<unsigned int>(),
-          "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing");
-      // clang-format on
+      const auto& parserOutput = parser.parse(argc, argv);
+      //return with exit code from parser
+      if (edm::CmsRunParser::hasExit(parserOutput))
+        return edm::CmsRunParser::getExit(parserOutput);
+      auto vm = edm::CmsRunParser::getVM(parserOutput);
 
-      // anything at the end will be ignored, and sent to python
-      boost::program_options::positional_options_description p;
-      p.add(kParameterSetOpt, 1).add(kPythonOpt, -1);
-
-      // This --fwk option is not used anymore, but I'm leaving it around as
-      // it might be useful again in the future for code development
-      // purposes.  We originally used it when implementing the boost
-      // state machine code.
-      boost::program_options::options_description hidden("hidden options");
-      hidden.add_options()("fwk", "For use only by Framework Developers")(
-          kPythonOpt,
-          boost::program_options::value<std::vector<std::string> >(),
-          "options at the end to be passed to python");
-
-      boost::program_options::options_description all_options("All Options");
-      all_options.add(desc).add(hidden);
-
-      boost::program_options::variables_map vm;
-      try {
-        store(boost::program_options::command_line_parser(argc, argv).options(all_options).positional(p).run(), vm);
-        notify(vm);
-      } catch (boost::program_options::error const& iException) {
-        edm::LogAbsolute("CommandLineProcessing")
-            << "cmsRun: Error while trying to process command line arguments:\n"
-            << iException.what() << "\nFor usage and an options list, please do 'cmsRun --help'.";
-        return edm::errors::CommandLineProcessing;
-      }
-
-      if (vm.count(kHelpOpt)) {
-        std::cout << desc << std::endl;
-        if (!vm.count(kParameterSetOpt))
+      std::string cmdString;
+      std::string fileName;
+      if (vm.count(edm::CmsRunParser::kCmdOpt)) {
+        cmdString = vm[edm::CmsRunParser::kCmdOpt].as<std::string>();
+        if (vm.count(edm::CmsRunParser::kParameterSetOpt)) {
+          edm::LogAbsolute("CommandLineProcessing") << "cmsRun: Error while trying to process command line arguments:\n"
+                                                    << "cannot use '-c [command line input]' with 'config_file'\n"
+                                                    << "For usage and an options list, please do 'cmsRun --help'.";
           edm::HaltMessageLogging();
-        return 0;
-      }
-
-      if (!vm.count(kParameterSetOpt)) {
+          return edm::errors::CommandLineProcessing;
+        }
+      } else if (!vm.count(edm::CmsRunParser::kParameterSetOpt)) {
         edm::LogAbsolute("ConfigFileNotFound") << "cmsRun: No configuration file given.\n"
                                                << "For usage and an options list, please do 'cmsRun --help'.";
         edm::HaltMessageLogging();
         return edm::errors::ConfigFileNotFound;
+      } else
+        fileName = vm[edm::CmsRunParser::kParameterSetOpt].as<std::string>();
+      std::vector<std::string> pythonOptValues;
+      if (vm.count(edm::CmsRunParser::kPythonOpt)) {
+        pythonOptValues = vm[edm::CmsRunParser::kPythonOpt].as<std::vector<std::string>>();
       }
-      std::string fileName(vm[kParameterSetOpt].as<std::string>());
+      pythonOptValues.insert(pythonOptValues.begin(), fileName);
 
-      if (vm.count(kStrictOpt)) {
+      if (vm.count(edm::CmsRunParser::kStrictOpt)) {
         //edm::setStrictParsing(true);
         edm::LogSystem("CommandLineProcessing") << "Strict configuration processing is now done from python";
       }
@@ -221,9 +167,9 @@ int main(int argc, char* argv[]) {
       // Decide whether to enable creation of job report xml file
       //  We do this first so any errors will be reported
       std::string jobReportFile;
-      if (vm.count(kJobreportOpt)) {
-        jobReportFile = vm[kJobreportOpt].as<std::string>();
-      } else if (vm.count(kEnableJobreportOpt)) {
+      if (vm.count(edm::CmsRunParser::kJobreportOpt)) {
+        jobReportFile = vm[edm::CmsRunParser::kJobreportOpt].as<std::string>();
+      } else if (vm.count(edm::CmsRunParser::kEnableJobreportOpt)) {
         jobReportFile = "FrameworkJobReport.xml";
       }
       jobReportStreamPtr = jobReportFile.empty() ? nullptr : std::make_unique<std::ofstream>(jobReportFile.c_str());
@@ -234,15 +180,32 @@ int main(int argc, char* argv[]) {
       jobRep.reset(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(std::move(jobRepPtr)));
       edm::ServiceToken jobReportToken = edm::ServiceRegistry::createContaining(jobRep);
 
-      context = "Processing the python configuration file named ";
-      context += fileName;
+      if (!fileName.empty()) {
+        context = "Processing the python configuration file named ";
+        context += fileName;
+      } else {
+        context = "Processing the python configuration from command line ";
+        context += cmdString;
+      }
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        std::unique_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
-        processDesc.reset(new edm::ProcessDesc(std::move(parameterSet)));
+        std::unique_ptr<edm::ParameterSet> parameterSet;
+        if (!fileName.empty())
+          parameterSet = edm::readConfig(fileName, pythonOptValues);
+        else
+          edm::makeParameterSets(cmdString, parameterSet);
+        processDesc = std::make_shared<edm::ProcessDesc>(std::move(parameterSet));
       } catch (edm::Exception const&) {
         throw;
       } catch (cms::Exception& iException) {
+        //check for "SystemExit: 0" on second line
+        const std::string& sysexit0("SystemExit: 0");
+        const auto& msg = iException.message();
+        size_t pos2 = msg.find('\n');
+        if (pos2 != std::string::npos and (msg.size() - (pos2 + 1)) > sysexit0.size() and
+            msg.compare(pos2 + 1, sysexit0.size(), sysexit0) == 0)
+          return 0;
+
         edm::Exception e(edm::errors::ConfigFileReadError, "", iException);
         throw e;
       }
@@ -264,11 +227,11 @@ int main(int argc, char* argv[]) {
         auto threadsInfo = threadOptions(*pset);
 
         // check the command line options
-        if (vm.count(kNumberOfThreadsOpt)) {
-          threadsInfo.nThreads_ = vm[kNumberOfThreadsOpt].as<unsigned int>();
+        if (vm.count(edm::CmsRunParser::kNumberOfThreadsOpt)) {
+          threadsInfo.nThreads_ = vm[edm::CmsRunParser::kNumberOfThreadsOpt].as<unsigned int>();
         }
-        if (vm.count(kSizeOfStackForThreadOpt)) {
-          threadsInfo.stackSize_ = vm[kSizeOfStackForThreadOpt].as<unsigned int>();
+        if (vm.count(edm::CmsRunParser::kSizeOfStackForThreadOpt)) {
+          threadsInfo.stackSize_ = vm[edm::CmsRunParser::kSizeOfStackForThreadOpt].as<unsigned int>();
         }
 
         // if needed, re-initialise TBB
@@ -290,8 +253,8 @@ int main(int argc, char* argv[]) {
 
       context = "Setting MessageLogger defaults";
       // Decide what mode of hardcoded MessageLogger defaults to use
-      if (vm.count(kJobModeOpt)) {
-        std::string jobMode = vm[kJobModeOpt].as<std::string>();
+      if (vm.count(edm::CmsRunParser::kJobModeOpt)) {
+        std::string jobMode = vm[edm::CmsRunParser::kJobModeOpt].as<std::string>();
         edm::MessageDrop::instance()->jobMode = jobMode;
       }
 

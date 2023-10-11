@@ -7,7 +7,7 @@ status=0
   
 rm -f  u12_warnings.log u12_placeholder.log  
 
-cmsRun -p ${SCRAM_TEST_PATH}/u12_cfg.py || exit $?
+cmsRun ${SCRAM_TEST_PATH}/u12_cfg.py || exit $?
  
 for file in  u12_warnings.log    
 do

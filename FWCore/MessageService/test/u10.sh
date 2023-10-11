@@ -7,7 +7,7 @@ status=0
   
 rm -f u10_warnings.log u10_job_report.xml
 
-cmsRun -j u10_job_report.xml -p ${SCRAM_TEST_PATH}/u10_cfg.py || exit $?
+cmsRun -j u10_job_report.xml ${SCRAM_TEST_PATH}/u10_cfg.py || exit $?
  
 for file in u10_warnings.log u10_job_report.xml
 do
