@@ -44,18 +44,18 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
                                               const reco::GsfPFRecTrack& gsfpfrectk) {
   found_ = false;
 
-  LogDebug("ConvBremPFTrackFinder")  << "runConvBremFinder:: Entering ";
+  LogDebug("ConvBremPFTrackFinder") << "runConvBremFinder:: Entering ";
 
-  const reco::GsfTrackRef& refGsf = gsfpfrectk.gsfTrackRef(); 
+  const reco::GsfTrackRef& refGsf = gsfpfrectk.gsfTrackRef();
   float refGsfEta = refGsf->eta();
   float refGsfPt = refGsf->pt();
   float refGsfPhi = refGsf->phi();
   float gsfR = sqrt(refGsf->innerPosition().x() * refGsf->innerPosition().x() +
-		    refGsf->innerPosition().y() * refGsf->innerPosition().y());
+                    refGsf->innerPosition().y() * refGsf->innerPosition().y());
   // direction of the Gsf track
-  GlobalVector direction(refGsf->innerMomentum().x(), refGsf->innerMomentum().y(), refGsf->innerMomentum().z());   
+  GlobalVector direction(refGsf->innerMomentum().x(), refGsf->innerMomentum().y(), refGsf->innerMomentum().z());
   float refGsfPtMode = refGsf->ptMode();
- 
+
   const reco::PFRecTrackRef& pfTrackRef = gsfpfrectk.kfPFRecTrackRef();
   vector<PFBrem> primPFBrem = gsfpfrectk.PFRecBrem();
 
@@ -76,10 +76,11 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
     PFRecTrackRef pfRecTrRef(thePfRecTrackCol, ipft);
     TrackRef trackRef = pfRecTrRef->trackRef();
     reco::TrackBaseRef selTrackBaseRef(trackRef);
-    
-    LogDebug("ConvBremPFTrackFinder") << "runConvBremFinder:: pushing_back High Purity " << pft->trackRef()->pt() << " eta,phi "
-				      << pft->trackRef()->eta() << ", " << pft->trackRef()->phi() << " Memory Address Ref  " << &*trackRef
-				      << " Memory Address BaseRef  " << &*selTrackBaseRef;
+
+    LogDebug("ConvBremPFTrackFinder") << "runConvBremFinder:: pushing_back High Purity " << pft->trackRef()->pt()
+                                      << " eta,phi " << pft->trackRef()->eta() << ", " << pft->trackRef()->phi()
+                                      << " Memory Address Ref  " << &*trackRef << " Memory Address BaseRef  "
+                                      << &*selTrackBaseRef;
     AllPFRecTracks.push_back(pfRecTrRef);
   }
 
@@ -103,23 +104,26 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
         bool notFound = true;
         for (unsigned iPF = 0; iPF < AllPFRecTracks.size(); iPF++) {
           reco::TrackBaseRef selTrackBaseRef(AllPFRecTracks[iPF]->trackRef());
-	  
-	  LogDebug("ConvBremPFTrackFinder") << "## Track 1 HP pt " << AllPFRecTracks[iPF]->trackRef()->pt() << " eta, phi "
-					    << AllPFRecTracks[iPF]->trackRef()->eta() << ", " << AllPFRecTracks[iPF]->trackRef()->phi()
-					    << " Memory Address Ref  " << &(*AllPFRecTracks[iPF]->trackRef()) << " Memory Address BaseRef  "
-					    << &*selTrackBaseRef;
-	  LogDebug("ConvBremPFTrackFinder") << "** Track 2 CONV pt " << compPFTkRef->trackRef()->pt() << " eta, phi "
-					    << compPFTkRef->trackRef()->eta() << ", " << compPFTkRef->trackRef()->phi() << " Memory Address Ref "
-					    << &*compPFTkRef->trackRef() << " Memory Address BaseRef " << &*newTrackBaseRef;
+
+          LogDebug("ConvBremPFTrackFinder")
+              << "## Track 1 HP pt " << AllPFRecTracks[iPF]->trackRef()->pt() << " eta, phi "
+              << AllPFRecTracks[iPF]->trackRef()->eta() << ", " << AllPFRecTracks[iPF]->trackRef()->phi()
+              << " Memory Address Ref  " << &(*AllPFRecTracks[iPF]->trackRef()) << " Memory Address BaseRef  "
+              << &*selTrackBaseRef;
+          LogDebug("ConvBremPFTrackFinder")
+              << "** Track 2 CONV pt " << compPFTkRef->trackRef()->pt() << " eta, phi "
+              << compPFTkRef->trackRef()->eta() << ", " << compPFTkRef->trackRef()->phi() << " Memory Address Ref "
+              << &*compPFTkRef->trackRef() << " Memory Address BaseRef " << &*newTrackBaseRef;
           //if(selTrackBaseRef == newTrackBaseRef ||  AllPFRecTracks[iPF]->trackRef()== compPFTkRef->trackRef()) {
           if (AllPFRecTracks[iPF]->trackRef() == compPFTkRef->trackRef()) {
-	    LogDebug("ConvBremPFTrackFinder") << "  SAME BREM REF " << endl;
+            LogDebug("ConvBremPFTrackFinder") << "  SAME BREM REF " << endl;
             notFound = false;
           }
         }
         if (notFound) {
-	  LogDebug("ConvBremPFTrackFinder") << "runConvBremFinder:: pushing_back Conversions " << compPFTkRef->trackRef()->pt() << " eta,phi "
-					    << compPFTkRef->trackRef()->eta() << " phi " << compPFTkRef->trackRef()->phi();
+          LogDebug("ConvBremPFTrackFinder")
+              << "runConvBremFinder:: pushing_back Conversions " << compPFTkRef->trackRef()->pt() << " eta,phi "
+              << compPFTkRef->trackRef()->eta() << " phi " << compPFTkRef->trackRef()->phi();
           AllPFRecTracks.push_back(compPFTkRef);
         }
       }
@@ -147,8 +151,9 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
             notFound = false;
         }
         if (notFound) {
-	  LogDebug("ConvBremPFTrackFinder") << "runConvBremFinder:: pushing_back displaced Vertex pt " << newPFRecTrackRef->trackRef()->pt()
-					    << " eta,phi " << newPFRecTrackRef->trackRef()->eta() << ", " << newPFRecTrackRef->trackRef()->phi();
+          LogDebug("ConvBremPFTrackFinder")
+              << "runConvBremFinder:: pushing_back displaced Vertex pt " << newPFRecTrackRef->trackRef()->pt()
+              << " eta,phi " << newPFRecTrackRef->trackRef()->eta() << ", " << newPFRecTrackRef->trackRef()->phi();
           AllPFRecTracks.push_back(newPFRecTrackRef);
         }
       }
@@ -176,8 +181,9 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
             notFound = false;
         }
         if (notFound) {
-	  LogDebug("ConvBremPFTrackFinder") << "runConvBremFinder:: pushing_back V0 " << newPFRecTrackRef->trackRef()->pt() << " eta,phi "
-					    << newPFRecTrackRef->trackRef()->eta() << ", " << newPFRecTrackRef->trackRef()->phi();
+          LogDebug("ConvBremPFTrackFinder")
+              << "runConvBremFinder:: pushing_back V0 " << newPFRecTrackRef->trackRef()->pt() << " eta,phi "
+              << newPFRecTrackRef->trackRef()->eta() << ", " << newPFRecTrackRef->trackRef()->phi();
           AllPFRecTracks.push_back(newPFRecTrackRef);
         }
       }
@@ -217,9 +223,9 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
         continue;
       double bremEta = atPrimECAL.momentum().Eta();
       double bremPhi = atPrimECAL.momentum().Phi();
-            
+
       double deta = std::abs(bremEta - secEta);
-      double dphi = std::abs(::deltaPhi(bremPhi,secPhi));
+      double dphi = std::abs(::deltaPhi(bremPhi, secPhi));
       double DR2 = deta * deta + dphi * dphi;
 
       double detaPos = std::abs(bremEta - posEta);
@@ -239,7 +245,7 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
         minDPhiBremKFPos = std::abs(dphiPos);
       }
     }
-  
+
     // secR
     secR = sqrt(trkRef->innerPosition().x() * trkRef->innerPosition().x() +
                 trkRef->innerPosition().y() * trkRef->innerPosition().y());
@@ -248,9 +254,8 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
     // Moreover if the secR is internal with respect to the GSF track by two pixel layers discard it.
     if ((minDPhiBremKF < 0.1 || minDPhiBremKFPos < 0.1) && (minDEtaBremKF < 0.02 || minDEtaBremKFPos < 0.02) &&
         secR > (gsfR - 8)) {
-  
       LogDebug("ConvBremPFTrackFinder") << "runConvBremFinder:: OK Find track and BREM close "
-					<< " MinDphi " << minDPhiBremKF << " MinDeta " << minDEtaBremKF;
+                                        << " MinDphi " << minDPhiBremKF << " MinDeta " << minDEtaBremKF;
 
       float MinDist = std::numeric_limits<float>::max();
       float EE_calib = 0.;
@@ -270,7 +275,7 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
           MinDist = dist;
           EE_calib = cache->pfcalib_->energyEm(*clus, 0.0, 0.0, false);
         }
-      } 
+      }
       if (MinDist > 0. && MinDist < 100000.) {
         // compute all the input variables for conv brem selection
 
@@ -350,21 +355,18 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
           mvaValue = cache->gbrEndcapsHighPt_->GetClassifier(vars);
           cutvalue = mvaBremConvCutEndcapsHighPt_;
         }
-	
-	LogDebug("ConvBremPFTrackFinder") << "Gsf track Pt, Eta " << refGsfPt << " " << refGsfEta;
-	LogDebug("ConvBremPFTrackFinder") << "Cutvalue " << cutvalue;
+
+        LogDebug("ConvBremPFTrackFinder") << "Gsf track Pt, Eta " << refGsfPt << " " << refGsfEta;
+        LogDebug("ConvBremPFTrackFinder") << "Cutvalue " << cutvalue;
 
         if ((kfhitcounter - nHITS1) <= 3 && nHITS1 > 3)
           mvaValue = 2;  // this means duplicates tracks, very likely not physical
 
-        LogDebug("ConvBremPFTrackFinder") << " The input variables for conv brem tracks identification "
-					  << " secR          " << secR << " gsfR " << gsfR
-					  << " N shared hits " << nHITS1 
-					  << " sTIP          " << sTIP
-					  << " detaBremKF    " << detaBremKF
-					  << " E/pout        " << Epout
-					  << " ptRatioKFGsf  " << ptRatioGsfKF
-					  << " ***** MVA ***** " << mvaValue;
+        LogDebug("ConvBremPFTrackFinder")
+            << " The input variables for conv brem tracks identification "
+            << " secR          " << secR << " gsfR " << gsfR << " N shared hits " << nHITS1 << " sTIP          " << sTIP
+            << " detaBremKF    " << detaBremKF << " E/pout        " << Epout << " ptRatioKFGsf  " << ptRatioGsfKF
+            << " ***** MVA ***** " << mvaValue;
 
         if (mvaValue > cutvalue) {
           found_ = true;
