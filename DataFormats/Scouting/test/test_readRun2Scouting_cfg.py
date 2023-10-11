@@ -9,10 +9,7 @@ parser.add_argument("--trackVersion", type=int, help="track data format version 
 parser.add_argument("--vertexVersion", type=int, help="vertex data format version (default: 3)", default=3)
 parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun2Scouting.root)", default="testRun2Scouting.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun2Scouting2.root)", default="testRun2Scouting2.root")
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("READ")
 

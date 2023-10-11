@@ -7,10 +7,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test Run 3 Scout
 parser.add_argument("--electronVersion", type=int, help="electron data format version (default: 6)", default=6)
 parser.add_argument("--inputFile", type=str, help="Input file name (default: testRun3Scouting.root)", default="testRun3Scouting.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: testRun3Scouting2.root)", default="testRun3Scouting2.root")
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("READ")
 

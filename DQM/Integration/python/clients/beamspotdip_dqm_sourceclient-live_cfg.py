@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 import sys
 import os
 from shutil import copy
-configFile = os.path.dirname(sys.argv[1]) + "/log4cplus.properties"
+configFile = os.path.dirname(sys.argv[0]) + "/log4cplus.properties"
 print("copying " + configFile + " to local")
 copy(configFile,".")
 

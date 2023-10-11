@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import sys
 
 #find the path to the config file
-path = "/".join(sys.argv[1].split('/')[0:-1])
+path = "/".join(sys.argv[0].split('/')[0:-1])
 if not path:
     path = '.'
 

@@ -63,17 +63,17 @@ cmsRun ${LOCAL_TEST_DIR}/test_readRun2Scouting_cfg.py || die "Failure using test
 
 file=testRun2Scouting_v3_v2_v2_v3_v2_v2_v2_CMSSW_8_0_7.root
 inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
-argsPassedToPython="-- --inputFile $inputfile --outputFileName testRun2Scouting2_CMSSW_8_0_7.root --muonVersion 2 --trackVersion 0 --vertexVersion 2"
+argsPassedToPython="--inputFile $inputfile --outputFileName testRun2Scouting2_CMSSW_8_0_7.root --muonVersion 2 --trackVersion 0 --vertexVersion 2"
 cmsRun ${LOCAL_TEST_DIR}/test_readRun2Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 
 file=testRun2Scouting_v3_v2_v3_v3_v2_v2_v3_CMSSW_9_4_0.root
 inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
-argsPassedToPython="-- --inputFile $inputfile --outputFileName testRun2Scouting2_CMSSW_9_4_0.root --muonVersion 3 --trackVersion 0 --vertexVersion 3"
+argsPassedToPython="--inputFile $inputfile --outputFileName testRun2Scouting2_CMSSW_9_4_0.root --muonVersion 3 --trackVersion 0 --vertexVersion 3"
 cmsRun ${LOCAL_TEST_DIR}/test_readRun2Scouting_cfg.py  $argsPassedToPython || die "Failed to read old file $file" $?
 
 file=testRun2Scouting_v3_v2_v3_v3_v2_v2_v2_v3_CMSSW_10_2_0.root
 inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
-argsPassedToPython="-- --inputFile $inputfile --outputFileName testRun2Scouting2_CMSSW_10_2_0.root --muonVersion 3 --trackVersion 2 --vertexVersion 3"
+argsPassedToPython="--inputFile $inputfile --outputFileName testRun2Scouting2_CMSSW_10_2_0.root --muonVersion 3 --trackVersion 2 --vertexVersion 3"
 cmsRun ${LOCAL_TEST_DIR}/test_readRun2Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 
 exit 0

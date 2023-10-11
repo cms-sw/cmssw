@@ -144,7 +144,7 @@ process.testmerge = cms.EDAnalyzer("TestMergeResults",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:"+sys.argv[2]),
+    fileNames = cms.untracked.vstring("file:"+sys.argv[1]),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 

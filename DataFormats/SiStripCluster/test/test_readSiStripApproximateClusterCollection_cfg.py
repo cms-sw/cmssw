@@ -3,7 +3,7 @@ import sys
 
 process = cms.Process("READ")
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[2]))
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:"+sys.argv[1]))
 
 process.testReadSiStripApproximateClusterCollection = cms.EDAnalyzer("TestReadSiStripApproximateClusterCollection",
     expectedIntegralValues = cms.vuint32(11, 21, 31, 41, 51, 62, 73),

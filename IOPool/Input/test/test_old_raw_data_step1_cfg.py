@@ -4,7 +4,7 @@ import sys
 process = cms.Process("TEST")
 
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring("file:"+sys.argv[2])
+   fileNames = cms.untracked.vstring("file:"+sys.argv[1])
 )
 
 process.getTriggerNames = cms.EDAnalyzer("edmtest::GetTriggerNamesAnalyzer")

@@ -7,10 +7,7 @@ parser.add_argument("--guid", type=str, help="GUID that overrides")
 parser.add_argument("--maxSize", type=int, default=None, help="Set maximum file size")
 parser.add_argument("--input", type=str, default=[], nargs="*", help="Optional list of input files")
 
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("TESTOUTPUTGUID")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")

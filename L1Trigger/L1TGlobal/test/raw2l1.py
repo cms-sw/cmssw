@@ -31,8 +31,6 @@ reemul = True
 # Argument parsing
 # vvv
 
-if len(sys.argv) > 1 and sys.argv[1].endswith('.py'):
-    sys.argv.pop(0)
 if len(sys.argv) == 2 and ':' in sys.argv[1]:
     argv = sys.argv[1].split(':')
 else:
