@@ -159,6 +159,9 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
   produces<edm::PCaloHitContainer>("HGCHitsEE");
   produces<edm::PCaloHitContainer>("HGCHitsHEfront");
   produces<edm::PCaloHitContainer>("HGCHitsHEback");
+  produces<edm::PCaloHitContainer>("CalibrationHGCHitsEE");
+  produces<edm::PCaloHitContainer>("CalibrationHGCHitsHEfront");
+  produces<edm::PCaloHitContainer>("CalibrationHGCHitsHEback");
 
   produces<edm::PSimHitContainer>("MuonDTHits");
   produces<edm::PSimHitContainer>("MuonCSCHits");
