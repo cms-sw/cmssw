@@ -27,25 +27,23 @@
 #include "FWCore/Utilities/interface/OStreamColumn.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StdPairHasher.h"
-#include "oneapi/tbb/concurrent_unordered_map.h"
 
+#include "monitor_file_utilities.h"
+
+#include "oneapi/tbb/concurrent_unordered_map.h"
 #include <atomic>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 
+using namespace edm::service::monitor_file_utilities;
+
 namespace {
 
   using duration_t = std::chrono::microseconds;
   using clock_t = std::chrono::steady_clock;
   auto now = clock_t::now;
-
-  inline auto stream_id(edm::StreamContext const& cs) { return cs.streamID().value(); }
-
-  inline auto module_id(edm::ModuleCallingContext const& mcc) { return mcc.moduleDescription()->id(); }
-
-  inline auto module_id(edm::ESModuleCallingContext const& mcc) { return mcc.componentDescription()->id_; }
 
   //===============================================================
   class StallStatistics {
@@ -81,19 +79,6 @@ namespace {
     std::atomic<rep_t> totalTime_{};
     std::atomic<rep_t> maxTime_{};
   };
-
-  //===============================================================
-  // Message-assembly utilities
-  template <typename T>
-  std::enable_if_t<std::is_integral<T>::value> concatenate(std::ostream& os, T const t) {
-    os << ' ' << t;
-  }
-
-  template <typename H, typename... T>
-  std::enable_if_t<std::is_integral<H>::value> concatenate(std::ostream& os, H const h, T const... t) {
-    os << ' ' << h;
-    concatenate(os, t...);
-  }
 
   enum class step : char {
     preSourceEvent = 'S',
@@ -499,39 +484,13 @@ void StallMonitor::postBeginJob() {
 
   if (validFile_) {
     {
-      std::size_t const width{std::to_string(moduleLabels_.size()).size()};
-      OStreamColumn col0{"Module ID", width};
-      std::string const lastCol{"Module label"};
-
       std::ostringstream oss;
-      oss << "\n#  " << col0 << space << lastCol << '\n';
-      oss << "#  " << std::string(col0.width() + space.size() + lastCol.size(), '-') << '\n';
-
-      for (std::size_t i{}; i < moduleLabels_.size(); ++i) {
-        auto const& label = moduleLabels_[i];
-        if (label.empty())
-          continue;  // See comment in filling of moduleLabels_;
-        oss << "#M " << std::setw(width) << std::left << col0(i) << space << std::left << moduleLabels_[i] << '\n';
-      }
-      oss << '\n';
+      moduleIdToLabel(oss, moduleLabels_, 'M', "Module ID", "Module label");
       file_.write(oss.str());
     }
     {
-      std::size_t const width{std::to_string(esModuleLabels_.size()).size()};
-      OStreamColumn col0{"ESModule ID", width};
-      std::string const lastCol{"ESModule label"};
-
       std::ostringstream oss;
-      oss << "\n#  " << col0 << space << lastCol << '\n';
-      oss << "#  " << std::string(col0.width() + space.size() + lastCol.size(), '-') << '\n';
-
-      for (std::size_t i{}; i < esModuleLabels_.size(); ++i) {
-        auto const& label = esModuleLabels_[i];
-        if (label.empty())
-          continue;  // See comment in filling of moduleLabels_;
-        oss << "#N " << std::setw(width) << std::left << col0(i) << space << std::left << esModuleLabels_[i] << '\n';
-      }
-      oss << '\n';
+      moduleIdToLabel(oss, esModuleLabels_, 'N', "ESModule ID", "ESModule label");
       file_.write(oss.str());
     }
   }
