@@ -142,6 +142,14 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
     myTracks.emplace_back(&muonTrk);
   }
 
+#ifdef EDM_ML_DEBUG
+  for (const auto& track : myTracks) {
+    edm::LogVerbatim("DiMuonVertexMonitor") << __PRETTY_FUNCTION__ << " pT: " << track->pt() << " GeV"
+                                            << " , pT error: " << track->ptError() << " GeV"
+                                            << " , eta: " << track->eta() << " , phi: " << track->phi() << std::endl;
+  }
+#endif
+
   const TransientTrackBuilder* theB = &iSetup.getData(ttbESToken_);
   TransientVertex mumuTransientVtx;
   std::vector<reco::TransientTrack> tks;
@@ -160,6 +168,17 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   TLorentzVector p4_tplus(tplus->px(), tplus->py(), tplus->pz(), sqrt((tplus->p() * tplus->p()) + mumass2));
   TLorentzVector p4_tminus(tminus->px(), tminus->py(), tminus->pz(), sqrt((tminus->p() * tminus->p()) + mumass2));
+
+#ifdef EDM_ML_DEBUG
+  // Define a lambda function to convert TLorentzVector to a string
+  auto tLorentzVectorToString = [](const TLorentzVector& vector) {
+    return std::to_string(vector.Px()) + " " + std::to_string(vector.Py()) + " " + std::to_string(vector.Pz()) + " " +
+           std::to_string(vector.E());
+  };
+
+  edm::LogVerbatim("DiMuonVertexMonitor") << "mu+" << tLorentzVectorToString(p4_tplus) << std::endl;
+  edm::LogVerbatim("DiMuonVertexMonitor") << "mu-" << tLorentzVectorToString(p4_tminus) << std::endl;
+#endif
 
   const auto& Zp4 = p4_tplus + p4_tminus;
   float track_invMass = Zp4.M();
@@ -211,6 +230,14 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
       mumuTransientVtx.position().x(), mumuTransientVtx.position().y(), mumuTransientVtx.position().z());
   const math::XYZPoint deltaVtx(
       theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DiMuonVertexMonitor") << "mm vertex position:" << aTransientVertex.position().x() << ","
+                                          << aTransientVertex.position().y() << "," << aTransientVertex.position().z();
+
+  edm::LogVerbatim("DiMuonVertexMonitor") << "main vertex position:" << TheMainVertex.position().x() << ","
+                                          << TheMainVertex.position().y() << "," << TheMainVertex.position().z();
+#endif
 
   if (theMainVtx.isValid()) {
     // fill the impact parameter plots
@@ -288,6 +315,11 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
       // inverted
       hCosPhiInv_->Fill(-cosphi);
       hCosPhiInv3D_->Fill(-cosphi3D);
+
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DiMuonVertexMonitor")
+          << "distance " << distance * cmToum << " cosphi3D:" << cosphi3D << std::endl;
+#endif
 
       // unbalance
       hCosPhiUnbalance_->Fill(cosphi, 1.);

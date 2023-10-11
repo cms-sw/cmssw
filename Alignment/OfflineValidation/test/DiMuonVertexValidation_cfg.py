@@ -96,6 +96,17 @@ elif options.era=='2017':
 elif options.era=='2018':
     print("===> running era 2018")
     process = cms.Process('Analysis',eras.Run2_2018)
+elif options.era=='2022':
+    print("===> running era 2022")
+    process = cms.Process('Analysis',eras.Run3)
+elif options.era=='2023':
+    print("===> running era 2023")
+    process = cms.Process('Analysis',eras.Run3_2023)
+
+###################################################################
+# Set the process to run multi-threaded
+###################################################################
+process.options.numberOfThreads = 8
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
