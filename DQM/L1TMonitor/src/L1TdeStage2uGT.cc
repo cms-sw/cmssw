@@ -99,6 +99,11 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
 
     hsummary = "dataEmulSummary_" + bxt.str();
 
+    bool foundInitalMismatchDataNoEmul{false};
+    bool foundInitalMismatchEmulNoData{false};
+    bool foundFinalMismatchDataNoEmul{false};
+    bool foundFinalMismatchEmulNoData{false};
+    // Looping over the algo blocks from each trigger board
     std::vector<GlobalAlgBlk>::const_iterator it_data, it_emul;
     for (it_data = dataCollection->begin(ibx), it_emul = emulCollection->begin(ibx);
          it_data != dataCollection->end(ibx) && it_emul != emulCollection->end(ibx);
@@ -131,15 +136,17 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
         if (it_data->getAlgoDecisionInitial(algoBit) != it_emul->getAlgoDecisionInitial(algoBit)) {
           if (it_data->getAlgoDecisionInitial(algoBit)) {
             hname = "DataNoEmul_" + bxt.str();
-            fillHist(m_SummaryHistograms, hsummary, float(NInitalMismatchDataNoEmul), 1.);
+            foundInitalMismatchDataNoEmul = true;
             wt = 1;
           } else {
             hname = "EmulatorNoData_" + bxt.str();
-            fillHist(m_SummaryHistograms, hsummary, float(NInitalMismatchEmulNoData), 1.);
+            foundInitalMismatchEmulNoData = true;
             wt = -1;
           }
           fillHist(m_HistNamesInitial, hname, float(algoBit), 1.);
-          initDecisionMismatches_vs_LS->Fill(float(lumi), wt);
+          initDecisionMismatches_vs_LS->Fill(
+              float(lumi),
+              wt);  // TODO: I think this weight makes things confusing. If we have uncorrelated no emu and a few no data mismatches it would look like we have fewer mismatches than we actually do.
         }
 
         // Check final decisions
@@ -157,21 +164,35 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
           if (unprescaled) {
             if (it_data->getAlgoDecisionFinal(algoBit)) {
               hname = "DataNoEmul_" + bxt.str();
-              fillHist(m_SummaryHistograms, hsummary, float(NFinalMismatchDataNoEmul), 1.);
+              foundFinalMismatchDataNoEmul = true;
               wt = 1;
             } else {
               hname = "EmulatorNoData_" + bxt.str();
-              fillHist(m_SummaryHistograms, hsummary, float(NFinalMismatchEmulNoData), 1.);
+              foundFinalMismatchEmulNoData = true;
               wt = -1;
             }
             fillHist(m_HistNamesFinal, hname, float(algoBit), 1.);
-            finalDecisionMismatches_vs_LS->Fill(float(lumi), wt);
+            finalDecisionMismatches_vs_LS->Fill(
+                float(lumi),
+                wt);  // TODO: I think this weight makes things confusing. If we have uncorrelated no emu and a few no data mismatches it would look like we have fewer mismatches than we actually do.
           }
         }
 
       }  // end loop over algoBits
     }    // end loop over globalalgblk vector
-  }      // endof loop over BX collections
+    if (foundInitalMismatchDataNoEmul) {
+      fillHist(m_SummaryHistograms, hsummary, float(NInitalMismatchDataNoEmul), 1.);
+    }
+    if (foundInitalMismatchEmulNoData) {
+      fillHist(m_SummaryHistograms, hsummary, float(NInitalMismatchEmulNoData), 1.);
+    }
+    if (foundFinalMismatchDataNoEmul) {
+      fillHist(m_SummaryHistograms, hsummary, float(NFinalMismatchDataNoEmul), 1.);
+    }
+    if (foundFinalMismatchEmulNoData) {
+      fillHist(m_SummaryHistograms, hsummary, float(NFinalMismatchEmulNoData), 1.);
+    }
+  }  // endof loop over BX collections
 }
 
 void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
