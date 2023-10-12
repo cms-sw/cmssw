@@ -4265,21 +4265,29 @@ params::measurement getTheRangeUser(TH1F *thePlot, Limits *lims, bool tag)
     Double_t m_dzPhiMax      = 40;
     Double_t m_dxyEtaMax     = 40;
     Double_t m_dzEtaMax      = 40;
+    Double_t m_dxyPtMax      = 40;
+    Double_t m_dzPtMax       = 40;
     
     Double_t m_dxyPhiNormMax = 0.5;
     Double_t m_dzPhiNormMax  = 0.5;
     Double_t m_dxyEtaNormMax = 0.5;
     Double_t m_dzEtaNormMax  = 0.5;
+    Double_t m_dxyPtNormMax  = 0.5;
+    Double_t m_dzPtNormMax   = 0.5;
     
     Double_t w_dxyPhiMax     = 150;
     Double_t w_dzPhiMax      = 150;
     Double_t w_dxyEtaMax     = 150;
     Double_t w_dzEtaMax      = 1000;
+    Double_t w_dxyPtMax      = 150;
+    Double_t w_dzPtMax       = 150;
     
     Double_t w_dxyPhiNormMax = 1.8;
     Double_t w_dzPhiNormMax  = 1.8;
     Double_t w_dxyEtaNormMax = 1.8;
     Double_t w_dzEtaNormMax  = 1.8;   
+    Double_t w_dxyPtNormMax  = 1.8;
+    Double_t w_dzPtNormMax   = 1.8;
   */
 
   params::measurement result;
