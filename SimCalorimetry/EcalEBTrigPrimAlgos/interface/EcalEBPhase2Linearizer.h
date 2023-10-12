@@ -1,5 +1,5 @@
-#ifndef ECAL_EBPHASE2_LINEARIZER_H
-#define ECAL_EBPHASE2_LINEARIZER_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2Linearizer_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2Linearizer_h
 
 #include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -42,7 +42,7 @@ private:
 
   int setInput(const EcalLiteDTUSample &RawSam);
 
-  int doIt();
+  int doOutput();
 
 public:
   EcalEBPhase2Linearizer(bool debug);

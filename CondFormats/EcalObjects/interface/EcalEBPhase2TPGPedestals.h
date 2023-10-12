@@ -1,5 +1,5 @@
-#ifndef EcalEBPhase2TPGPedestals_h
-#define EcalEBPhase2TPGPedestals_h
+#ifndef CondFormats_EcalObjects_EcalEBPhase2TPGPedestals_h
+#define CondFormats_EcalObjects_EcalEBPhase2TPGPedestals_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 

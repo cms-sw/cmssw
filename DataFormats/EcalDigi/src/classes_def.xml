@@ -23,8 +23,8 @@
    <class name="EcalEBTriggerPrimitiveSample" ClassVersion="13">
     <version ClassVersion="13" checksum="4171161153"/>
    </class>
-   <class name="EcalEBPhase2TriggerPrimitiveSample" ClassVersion="3">
-    <version ClassVersion="3" checksum="124268305"/>
+   <class name="EcalEBPhase2TriggerPrimitiveSample" ClassVersion="4">
+    <version ClassVersion="4" checksum="362263034"/>
    </class>
    <class name="EcalTriggerPrimitiveDigi" ClassVersion="12">
     <version ClassVersion="12" checksum="3058718200"/>

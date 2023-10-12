@@ -1,5 +1,5 @@
-#ifndef ECALEBPHASE2TRIGGERPRIMITIVEDIGI_H
-#define ECALEBPHASE2TRIGGERPRIMITIVEDIGI_H 1
+#ifndef DataFormats_EcalDigi_EcalEBPhase2TriggerPrimitiveDigi_h
+#define DataFormats_EcalDigi_EcalEBPhase2TriggerPrimitiveDigi_h
 
 #include <ostream>
 #include <vector>

@@ -59,10 +59,10 @@ public:
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   std::unique_ptr<EcalEBPhase2TrigPrimAlgo> algo_;
-  bool barrelOnly_;
   bool debug_;
   bool famos_;
   int nEvent_;

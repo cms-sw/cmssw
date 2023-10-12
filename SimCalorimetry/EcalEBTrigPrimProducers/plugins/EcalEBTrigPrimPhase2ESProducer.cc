@@ -1,6 +1,7 @@
 
 // user include files
 #include "EcalEBTrigPrimPhase2ESProducer.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 #include <TMath.h>
 #include <fstream>
@@ -51,6 +52,9 @@ GzInputStream &operator>>(GzInputStream &gis, T &var) {
 // constructors and destructor
 //
 
+const  int EcalEBTrigPrimPhase2ESProducer::maxSamplesUsed_=12;
+const  int EcalEBTrigPrimPhase2ESProducer::nLinConst_=8;
+
 EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::ParameterSet &iConfig)
     : dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile", "")),
       configFilename_(iConfig.getParameter<edm::FileInPath>("WeightTextFile")),
@@ -65,6 +69,7 @@ EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::Parame
   setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceTimeWeight);
   setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceWeightGroup);
   setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceBadX);
+  // the following commented lines as a reminder for items which might need to be implemented for Phase2
   //setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::producePhysicsConst);
   //setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceBadStrip);
   //setWhatProduced(this, &EcalEBTrigPrimPhase2ESProducer::produceBadTT);
@@ -249,7 +254,7 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
       param.clear();
 
       std::string st6;
-      for (int i = 0; i < 12; i++) {
+      for (int i = 0; i < maxSamplesUsed_; i++) {
         gis >> std::hex >> data;
         param.push_back(data);
         /// debug
@@ -285,7 +290,7 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
       param.clear();
 
       std::string st6;
-      for (int i = 0; i < 12; i++) {
+      for (int i = 0; i < maxSamplesUsed_; i++) {
         gis >> std::hex >> data;
         //std::cout << " Parse time weight filling data " << data;
         param.push_back(data);
@@ -345,7 +350,7 @@ void EcalEBTrigPrimPhase2ESProducer::parseWeightsFile() {
       std::string st6;
       std::string st7;
 
-      for (int i = 0; i < 8; i++) {
+      for (int i = 0; i < nLinConst_; i++) {
         gis >> std::hex >> data;
         param.push_back(data);
 
@@ -606,6 +611,8 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
   }
 }
 
+
+/// This method is not used at all, however is a reminder that something alike will probably be needed once the mapping EB to BCPs will be in place
 std::vector<int> EcalEBTrigPrimPhase2ESProducer::getRange(
     int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip) {
   std::vector<int> range;
@@ -619,22 +626,8 @@ std::vector<int> EcalEBTrigPrimPhase2ESProducer::getRange(
     range.push_back(6);   // stripNbMax
     range.push_back(1);   // xtalNbMin
     range.push_back(6);   // xtalNbMax
-  } else {
-    // Endcap eta >0
-    if (subdet > 0) {
-      range.push_back(73);   // tccNbMin
-      range.push_back(109);  // tccNbMax
-    } else {                 // endcap eta <0
-      range.push_back(1);    // tccNbMin
-      range.push_back(37);   // tccNbMax
-    }
-    range.push_back(1);   // towerNbMin
-    range.push_back(29);  // towerNbMax
-    range.push_back(1);   // stripNbMin
-    range.push_back(6);   // stripNbMax
-    range.push_back(1);   // xtalNbMin
-    range.push_back(6);   // xtalNbMax
-  }
+  } 
+
 
   if (tccNb > 0) {
     range[0] = tccNb;
@@ -656,39 +649,3 @@ std::vector<int> EcalEBTrigPrimPhase2ESProducer::getRange(
   return range;
 }
 
-// bool EcalEBTrigPrimPhase2ESProducer::getNextString(gzFile &gzf){
-//   size_t blank;
-//   if (bufpos_==0) {
-//     gzgets(gzf,buf_,80);
-//     if (gzeof(gzf)) return true;
-//     bufString_=std::string(buf_);
-//   }
-//   int  pos=0;
-//   pos =bufpos_;
-//   // look for next non-blank
-//   while (pos<bufString_.size()) {
-//     if (!bufString_.compare(pos,1," ")) pos++;
-//     else break;
-//   }
-//   blank=bufString_.find(" ",pos);
-//   size_t end = blank;
-//   if (blank==std::string::npos) end=bufString_.size();
-//   sub_=bufString_.substr(pos,end-pos);
-//   bufpos_= blank;
-//   if (blank==std::string::npos) bufpos_=0;
-//   return false;
-// }
-//
-// int EcalEBTrigPrimPhase2ESProducer::converthex() {
-//   // converts hex dec string sub to hexa
-//   //FIXME:: find something better (istrstream?)!!!!
-//
-//   std::string chars("0123456789abcdef");
-//   int hex=0;
-//   for (size_t i=2;i<sub_.length();++i) {
-//     size_t f=chars.find(sub_[i]);
-//     if (f==std::string::npos) break;  //FIXME: length is 4 for 0x3!!
-//     hex=hex*16+chars.find(sub_[i]);
-//   }
-//   return hex;
-// }

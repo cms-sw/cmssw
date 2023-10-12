@@ -1,10 +1,15 @@
 #include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBPhase2AmplitudeReconstructor.h>
 #include "CondFormats/EcalObjects/interface/EcalEBPhase2TPGAmplWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
-
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
+
+const  int EcalEBPhase2AmplitudeReconstructor::maxSamplesUsed_=12;
+
+
 
 EcalEBPhase2AmplitudeReconstructor::EcalEBPhase2AmplitudeReconstructor(bool debug)
     : debug_(debug), inputsAlreadyIn_(0), shift_(13) {}
@@ -16,41 +21,43 @@ int EcalEBPhase2AmplitudeReconstructor::setInput(int input) {
     std::cout << "ERROR IN INPUT OF AMPLITUDE FILTER" << std::endl;
     return -1;
   }
-  if (inputsAlreadyIn_ < 12) {
+
+  if (inputsAlreadyIn_ < maxSamplesUsed_ ) {
     if (debug_)
       std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn_<5 input " << input << std::endl;
     buffer_[inputsAlreadyIn_] = input;
     inputsAlreadyIn_++;
   } else {
-    for (int i = 0; i < 11; i++) {
+
+    for (int i = 0; i < (maxSamplesUsed_-1) ; i++) {
       buffer_[i] = buffer_[i + 1];
       if (debug_)
         std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl;
     }
-    buffer_[11] = input;
+    buffer_[maxSamplesUsed_-1] = input;
   }
   return 1;
 }
 
 void EcalEBPhase2AmplitudeReconstructor::process(std::vector<int> &linout, std::vector<int> &output) {
   inputsAlreadyIn_ = 0;
-  for (unsigned int i = 0; i < 12; i++) {
+  for (unsigned int i = 0; i < maxSamplesUsed_; i++) {
     buffer_[i] = 0;
   }
 
   for (unsigned int i = 0; i < linout.size(); i++) {
     setInput(linout[i]);
     if (debug_) {
-      for (unsigned int j = 0; j < 12; j++) {
+      for (unsigned int j = 0; j < maxSamplesUsed_; j++) {
         std::cout << " buffer_ " << buffer_[j];
       }
       std::cout << "  " << std::endl;
     }
 
-    if (i == 11) {
+    if (i == (maxSamplesUsed_-1)) {
       process();
       output[0] = processedOutput_;
-    } else if (i == 15) {
+    } else if (i == (ecalPh2::sampleSize-1)) {
       process();
       output[1] = processedOutput_;
     }
@@ -60,10 +67,10 @@ void EcalEBPhase2AmplitudeReconstructor::process(std::vector<int> &linout, std::
 
 void EcalEBPhase2AmplitudeReconstructor::process() {
   processedOutput_ = 0;
-  if (inputsAlreadyIn_ < 12)
+  if (inputsAlreadyIn_ < maxSamplesUsed_)
     return;
   int64_t tmpIntOutput = 0;
-  for (int i = 0; i < 12; i++) {
+  for (int i = 0; i < maxSamplesUsed_; i++) {
     tmpIntOutput += (weights_[i] * buffer_[i]);
     if (debug_)
       std::cout << " AmplitudeFilter buffer " << buffer_[i] << " weight " << weights_[i] << std::endl;
@@ -84,7 +91,7 @@ void EcalEBPhase2AmplitudeReconstructor::process() {
 void EcalEBPhase2AmplitudeReconstructor::setParameters(uint32_t raw,
                                                        const EcalEBPhase2TPGAmplWeightIdMap *ecaltpgWeightMap,
                                                        const EcalTPGWeightGroup *ecaltpgWeightGroup) {
-  uint32_t params_[12];
+  uint32_t params_[maxSamplesUsed_];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
   if (debug_)
     std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters groupmap size " << groupmap.size()
@@ -118,12 +125,12 @@ void EcalEBPhase2AmplitudeReconstructor::setParameters(uint32_t raw,
     // we have to transform negative coded in 13 bits into negative coded in 32 bits
     // maybe this should go into the getValue method??
 
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < maxSamplesUsed_; ++i) {
       weights_[i] = (params_[i] & 0x1000) ? (int)(params_[i] | 0xfffff000) : (int)(params_[i]);
     }
 
     if (debug_) {
-      for (int i = 0; i < 12; ++i) {
+      for (int i = 0; i < maxSamplesUsed_ ; ++i) {
         std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters weights after the cooking " << weights_[i]
                   << std::endl;
       }

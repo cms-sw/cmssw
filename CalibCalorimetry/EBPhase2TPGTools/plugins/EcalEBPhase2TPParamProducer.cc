@@ -16,6 +16,11 @@
 #include <fstream>
 #include <iomanip>
 
+
+const  int EcalEBPhase2TPParamProducer::linTopRange_=16383;
+
+
+
 EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const& pSet)
     : theBarrelGeometryToken_(esConsumes(edm::ESInputTag("", "EcalBarrel"))),
       inFile_(pSet.getUntrackedParameter<std::string>("inputFile")),
@@ -147,7 +152,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
       peds = &(*itped);
 
     } else {
-      edm::LogWarning("EcalEBPhase2TPParamProducer") << " could not find EcalLiteDTUPedestal entry for " << id;
+      edm::LogError("EcalEBPhase2TPParamProducer") << " could not find EcalLiteDTUPedestal entry for " << id;
     }
 
     int shift, mult;
@@ -313,8 +318,8 @@ void EcalEBPhase2TPParamProducer::getGMatrix(TMatrix fMat, float scaleMatrixBy, 
 void EcalEBPhase2TPParamProducer::getPulseSampleSet(TGraph pulseGraph,
                                                     float phaseShift,
                                                     std::vector<float>& sampleSet) {
-  for (UInt_t i = 0; i < 16; i++) {
-    float t = (6.25 * i) + phaseShift;
+  for (UInt_t i = 0; i < ecalPh2::sampleSize; i++) {
+    float t = (ecalPh2::Samp_Period * i) + phaseShift;
     float y = pulseGraph.Eval(t + offset_) * norm_;
     sampleSet.push_back(y);
   }
@@ -324,8 +329,8 @@ bool EcalEBPhase2TPParamProducer::computeLinearizerParam(
     double theta, double gainRatio, double calibCoeff, int& shift, int& mult) {
   bool result = false;
 
-  double factor = (16383 * (xtal_LSB_ * gainRatio * calibCoeff * sin(theta))) / et_sat_;
-
+  //  linTopRange_ 16383 = (2**14)-1  is setting the top of the range for the linearizer output
+  double factor = (linTopRange_ * (xtal_LSB_ * gainRatio * calibCoeff * sin(theta))) / et_sat_;
   //first with shift_ = 0
   //add 0.5 (for rounding) and set to int
   //Here we are getting mult with a max bit length of 8

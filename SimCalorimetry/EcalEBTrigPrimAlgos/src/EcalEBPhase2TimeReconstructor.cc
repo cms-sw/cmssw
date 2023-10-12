@@ -1,13 +1,15 @@
 #include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBPhase2TimeReconstructor.h>
 #include "CondFormats/EcalObjects/interface/EcalEBPhase2TPGTimeWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
-
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+const  int EcalEBPhase2TimeReconstructor::maxSamplesUsed_=12;
+
 EcalEBPhase2TimeReconstructor::EcalEBPhase2TimeReconstructor(bool debug)
-    : debug_(debug), inputsAlreadyIn_(0), shift_(12) {}
+    : debug_(debug), inputsAlreadyIn_(0), shift_(maxSamplesUsed_) {}
 
 EcalEBPhase2TimeReconstructor::~EcalEBPhase2TimeReconstructor() {}
 
@@ -16,18 +18,18 @@ int EcalEBPhase2TimeReconstructor::setInput(int input) {
     std::cout << "ERROR IN INPUT OF TIME FILTER" << std::endl;
     return -1;
   }
-  if (inputsAlreadyIn_ < 12) {
+  if (inputsAlreadyIn_ < maxSamplesUsed_ ) {
     if (debug_)
       std::cout << " EcalEBPhase2TimeReconstructor::setInput inputsAlreadyIn_<5 input " << input << std::endl;
     buffer_[inputsAlreadyIn_] = input;
     inputsAlreadyIn_++;
   } else {
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < (maxSamplesUsed_-1); i++) {
       buffer_[i] = buffer_[i + 1];
       if (debug_)
         std::cout << " EcalEBPhase2TimeReconstructor::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl;
     }
-    buffer_[11] = input;
+    buffer_[maxSamplesUsed_-1] = input;
     inputsAlreadyIn_++;
   }
   return 1;
@@ -37,7 +39,7 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
                                             std::vector<int> &ampRecoOutput,
                                             std::vector<int64_t> &output) {
   inputsAlreadyIn_ = 0;
-  for (unsigned int i = 0; i < 12; i++) {
+  for (unsigned int i = 0; i < maxSamplesUsed_; i++) {
     buffer_[i] = 0;
   }
 
@@ -54,13 +56,13 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
     if (debug_) {
       std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int> buffer_ " << std::endl;
       ;
-      for (unsigned int j = 0; j < 12; j++) {
+      for (unsigned int j = 0; j < maxSamplesUsed_; j++) {
         std::cout << " buffer_ " << buffer_[j];
       }
       std::cout << "  " << std::endl;
     }
 
-    if (i == 11) {
+    if (i == (maxSamplesUsed_-1)) {
       if (debug_)
         std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int>)    i = 11 " << std::endl;
       process();
@@ -71,7 +73,7 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
       if (debug_)
         std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int>)    after setting the output "
                   << output[0] << std::endl;
-    } else if (i == 15) {
+    } else if (i == (ecalPh2::sampleSize-1) ) {
       if (debug_)
         std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int>)    i = 15 " << std::endl;
       process();

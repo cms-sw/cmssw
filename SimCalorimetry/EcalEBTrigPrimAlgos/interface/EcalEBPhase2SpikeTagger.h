@@ -1,5 +1,5 @@
-#ifndef ECAL_EBPHASE2_SPIKETAGGER_H
-#define ECAL_EBPHASE2_SPIKETAGGER_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2SpikeTagger_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2SpikeTagger_h
 
 #include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"

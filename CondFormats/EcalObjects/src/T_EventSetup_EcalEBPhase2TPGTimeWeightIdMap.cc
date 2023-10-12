@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Author:      Nancy Marinelli
-// $Id: T_EventSetup_EcalTPGTimeWeightIdMap.cc $
+// $Id:  T_EventSetup_EcalEBPhase2TPGTimeWeightIdMap.cc $
 //
 
 // system include files

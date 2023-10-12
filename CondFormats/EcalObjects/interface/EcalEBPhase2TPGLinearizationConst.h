@@ -1,5 +1,5 @@
-#ifndef EcalEBPhase2TPGLinearizationConst_h
-#define EcalEBPhase2TPGLinearizationConst_h
+#ifndef CondFormats_EcalObjects_EcalEBPhase2TPGLinearizationConst_h
+#define CondFormats_EcalObjects_EcalEBPhase2TPGLinearizationConst_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 

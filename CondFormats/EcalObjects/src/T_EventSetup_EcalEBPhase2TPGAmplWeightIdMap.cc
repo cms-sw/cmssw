@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Author:      Chris Jones
-// Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_EcalTPGWeightIdMap.cc,v 1.1 2007/06/22 13:08:30 paganini Exp $
+// Author:      Nancy Marinelli
+// Created:     
+// $Id: T_EventSetup_EcalEBPhase2TPGAmplWeightIdMap.cc $
 //
 
 // system include files

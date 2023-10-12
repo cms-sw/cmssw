@@ -1,5 +1,5 @@
-#ifndef EcalEBPhase2TPGAmplWeights_h
-#define EcalEBPhase2TPGAmplWeights_h
+#ifndef CondFormats_EcalObjects_EcalEBPhase2TPGAmplWeights_h
+#define CondFormats_EcalObjects_EcalEBPhase2TPGAmplWeights_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 

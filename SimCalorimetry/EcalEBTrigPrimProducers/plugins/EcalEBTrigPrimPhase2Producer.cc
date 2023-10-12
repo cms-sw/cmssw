@@ -13,6 +13,7 @@
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
 
+// We keep these lines for future posssible necessary additions
 //#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 //#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
 //#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
@@ -24,8 +25,7 @@
 #include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBPhase2TrigPrimAlgo.h"
 
 EcalEBTrigPrimPhase2Producer::EcalEBTrigPrimPhase2Producer(const edm::ParameterSet& iConfig)
-    : barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
-      debug_(iConfig.getParameter<bool>("Debug")),
+    : debug_(iConfig.getParameter<bool>("Debug")),
       famos_(iConfig.getParameter<bool>("Famos")),
       binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")) {
   tokenEBdigi_ = consumes<EBDigiCollectionPh2>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
@@ -64,6 +64,17 @@ void EcalEBTrigPrimPhase2Producer::beginRun(edm::Run const& run, edm::EventSetup
   nEvent_ = 0;
 }
 
+
+void EcalEBTrigPrimPhase2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("Debug",false);
+  desc.add<bool>("Famos",false);
+  desc.add<int>("BinOfMaximum",6);   // this needs to be at the same value used for the Phase2 LiteDTU digis ! 
+  desc.add<edm::InputTag>("barrelEcalDigis",edm::InputTag("simEcalUnsuppressedDigis"));
+
+}
+
+
 unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup const& setup) {
   // get parameter records for xtals
   auto theEcalEBPhase2TPGLinearization_handle = setup.getHandle(theEcalEBPhase2TPGLinearization_Token_);
@@ -88,7 +99,7 @@ unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup cons
   //
   edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWeightGroup_handle = setup.getHandle(theEcalTPGWeightGroup_Token_);
   const EcalTPGWeightGroup* ecaltpgWeightGroup = theEcalTPGWeightGroup_handle.product();
-  //
+  // These commented out lines are for reminder for possible needed implementations
   //edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle = setup.getHandle(theEcalTPGTowerStatus_Token_);
   //const EcalTPGTowerStatus* ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
   //
@@ -119,6 +130,7 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
     edm::LogWarning("EcalTPG") << " Couldnt find Barrel digis " << labels.module << " and label "
                                << labels.productInstance << "!!!";
   }
+  const auto* ebdigi = barrelDigiHandle.product();
 
   if (debug_)
     std::cout << "EcalTPG"
@@ -126,14 +138,8 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
               << barrelDigiHandle.product()->size() << std::endl;
 
   auto pOut = std::make_unique<EcalEBPhase2TrigPrimDigiCollection>();
-  auto pOutTcp = std::make_unique<EcalEBPhase2TrigPrimDigiCollection>();
-
-  //std::cout << " Event number " << e.id().event() << std::endl;
 
   // invoke algorithm
-
-  const EBDigiCollectionPh2* ebdigi = nullptr;
-  ebdigi = barrelDigiHandle.product();
   algo_->run(ebdigi, *pOut);
 
   if (debug_) {
@@ -141,8 +147,6 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
               << " For Barrel  " << pOut->size() << " TP  Digis were produced" << std::endl;
   }
 
-  std::cout << "produce"
-            << " For Barrel  " << pOut->size() << " TP  Digis were produced" << std::endl;
 
   //  debug prints if TP >0
   int nonZeroTP = 0;

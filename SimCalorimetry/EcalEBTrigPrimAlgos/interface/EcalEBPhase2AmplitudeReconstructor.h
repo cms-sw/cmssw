@@ -1,5 +1,5 @@
-#ifndef ECAL_EB_PHASE2_AMPLITUDE_RECONSTRUCTOR_H
-#define ECAL_EB_PHASE2_AMPLITUDE_RECONSTRUCTOR_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2AmplitudeReconstructor_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2AmplitudeReconstructor_h
 
 #include <vector>
 #include <cstdint>
@@ -23,8 +23,9 @@ private:
   int shift_;
   int setInput(int input);
   void process();
-
   int processedOutput_;
+  static const  int maxSamplesUsed_;
+
 
 public:
   EcalEBPhase2AmplitudeReconstructor(bool debug);

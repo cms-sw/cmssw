@@ -1,5 +1,5 @@
-#ifndef EcalEBPhase2TrigPrimAlgo_h
-#define EcalEBPhase2TrigPrimAlgo_h
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2TrigPrimAlgo_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2TrigPrimAlgo_h
 /** \class EcalEBPhase2TrigPrimAlgo
 \author L. Lutton, N. Marinelli - Univ. of Notre Dame
   Description: forPhase II                                                       
@@ -81,7 +81,7 @@ private:
 
   int findStripNr(const EBDetId &id);
 
-  // FIXME: temporary until hashedIndex works alsom for endcap
+  
   int getIndex(const EBDigiCollectionPh2 *, EcalTrigTowerDetId &id) { return id.hashedIndex(); }
   // mind that eta is continuous between barrel+endcap
   //  int getIndex(const  EEDigiCollectionPh2 *, EcalTrigTowerDetId& id) {
@@ -93,7 +93,7 @@ private:
   const EcalTrigTowerConstituentsMap *eTTmap_ = nullptr;
   const CaloGeometry *theGeometry_ = nullptr;
 
-  float threshold;
+
   int binOfMaximum_;
   int maxNrSamples_;
 
@@ -102,13 +102,11 @@ private:
 
   int nrTowers_;  // nr of towers found by fillmap method
   static const unsigned int maxNrTowers_;
-  static const unsigned int maxNrSamplesOut_;
   static const unsigned int nrSamples_;
 
   // data structures kept during the whole run
   std::vector<std::vector<int> > striptp_;
   std::vector<std::vector<std::pair<int, std::vector<EBDataFrame_Ph2> > > > towerMapEB_;
-  std::vector<std::vector<std::pair<int, std::vector<EEDataFrame> > > > towerMapEE_;
   std::vector<std::pair<int, EcalTrigTowerDetId> > hitTowers_;
   std::vector<EcalEBPhase2TriggerPrimitiveSample> towtp_;
   std::vector<EcalEBPhase2TriggerPrimitiveSample> towtp2_;

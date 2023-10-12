@@ -1,5 +1,5 @@
-#ifndef ECAL_EB_PHASE2_TIME_RECONSTRUCTOR_H
-#define ECAL_EB_PHASE2_TIME_RECONSTRUCTOR_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2TimeReconstructor_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2TimeReconstructor_h
 
 #include <vector>
 #include <cstdint>
@@ -24,7 +24,7 @@ private:
   bool extraShift_[2] = {false, false};
   int setInput(int input);
   void process();
-
+  static const  int maxSamplesUsed_;
   int processedOutput_;
 
   uint64_t invAmpAr_[512] = {

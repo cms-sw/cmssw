@@ -1,5 +1,5 @@
-#ifndef EcalEBPhase2TPGAmplWeightIdMap_h
-#define EcalEBPhase2TPGAmplWeightIdMap_h
+#ifndef CondFormats_EcalObjects_EcalEBPhase2TPGAmplWeightIdMap_h
+#define CondFormats_EcalObjects_EcalEBPhase2TPGAmplWeightIdMap_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 

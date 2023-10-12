@@ -1,5 +1,5 @@
-#ifndef DIGIECAL_EBDATAFRAME_PH2_H
-#define DIGIECAL_EBDATAFRAME_PH2_H
+#ifndef DataFormats_EcalDigi_EBDataFrame_Ph2_h
+#define DataFormats_EcalDigi_EBDataFrame_Ph2_h
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"

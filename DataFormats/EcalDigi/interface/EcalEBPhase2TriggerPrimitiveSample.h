@@ -1,5 +1,5 @@
-#ifndef ECALEBPHASE2TRIGGERPRIMITIVESAMPLE_H
-#define ECALEBPHASE2TRIGGERPRIMITIVESAMPLE_H 1
+#ifndef DataFormats_EcalDig_EcalEBPhase2TriggerPrimitiveSample_h
+#define DataFormats_EcalDig_EcalEBPhase2TriggerPrimitiveSample_h
 
 #include <ostream>
 #include <cstdint>
@@ -18,7 +18,7 @@ public:
   EcalEBPhase2TriggerPrimitiveSample(int encodedEt, bool isASpike, int timing);
 
   ///Set data
-  void setValue(uint32_t data) { theSample = data; }
+  void setValue(uint32_t data) { theSample_ = data; }
   // The sample is a 18 bit word defined as:
   //
   //     o o o o o    o     o o o o o o o o o o o o
@@ -28,20 +28,20 @@ public:
   //
 
   /// get the raw word
-  uint32_t raw() const { return theSample & 0x3ffff; }
+  uint32_t raw() const { return theSample_ & 0x3ffff; }
 
   /// get the encoded Et (12 bits)
-  int encodedEt() const { return (theSample & 0x3ffff) & 0xFFF; }
+  int encodedEt() const { return (theSample_ & 0x3ffff) & 0xFFF; }
 
-  bool l1aSpike() const { return (theSample & 0x3ffff & 0x1000) != 0; }
+  bool l1aSpike() const { return (theSample_ & 0x3ffff & 0x1000) != 0; }
 
-  int time() const { return (theSample & 0x3ffff) >> 13; }
+  int time() const { return (theSample_ & 0x3ffff) >> 13; }
 
   /// for streaming
-  uint32_t operator()() { return theSample & 0x3ffff; }
+  uint32_t operator()() { return theSample_ & 0x3ffff; }
 
 private:
-  uint32_t theSample;
+  uint32_t theSample_;
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalEBPhase2TriggerPrimitiveSample& samp);

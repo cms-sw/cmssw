@@ -46,7 +46,7 @@ void EcalEBPhase2Linearizer::setParameters(EBDetId detId,
   }
 }
 
-int EcalEBPhase2Linearizer::doIt() {
+int EcalEBPhase2Linearizer::doOutput() {
   int tmpIntOut;
   if (uncorrectedSample_) {
     tmpIntOut = (uncorrectedSample_ - base_ + I2CSub_);  //Substract base. Add I2C
@@ -82,12 +82,6 @@ int EcalEBPhase2Linearizer::setInput(const EcalLiteDTUSample &RawSam)
     I2CSub_ = linConsts_->i2cSub_x1;
   }
 
-  /*
-  base_ = coeff_ & 0xFFF;
-  shift_ = (coeff_ & 0xF000) >> 12;
-  mult_ = (coeff_ & 0xFF0000) >> 16;
-  */
-
   return 1;
 }
 
@@ -103,7 +97,7 @@ void EcalEBPhase2Linearizer::process(const EBDigiCollectionPh2::Digi &df, std::v
   for (int i = 0; i < df.size(); i++) {
     EcalLiteDTUSample thisSample = df[i];
     setInput(thisSample);
-    output_percry[i] = doIt();
+    output_percry[i] = doOutput();
   }
 
   if (debug_) {

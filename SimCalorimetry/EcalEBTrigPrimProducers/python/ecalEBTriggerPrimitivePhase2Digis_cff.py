@@ -9,6 +9,7 @@ from SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitivePhase2Digis_cf
 #
 
 
-#Common
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify( simEcalEBTriggerPrimitivePhase2Digis, BarrelOnly = cms.bool(True) )
+
+from Configuration.Eras.Modifier_phase2_ecalTP_devel_cff import phase2_ecalTP_devel
+phase2_ecalTP_devel.toModify( simEcalEBTriggerPrimitivePhase2Digis) 
+

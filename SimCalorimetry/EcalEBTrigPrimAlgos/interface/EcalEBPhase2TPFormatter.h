@@ -1,5 +1,5 @@
-#ifndef ECAL_EB_PHASE2_TP_FORMATTER_H
-#define ECAL_EB_PHASE2_TP_FORMATTER_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2TPFormatter_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBPhase2TPFormatter_h
 
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveSample.h"
 
