@@ -5,6 +5,7 @@ from DQM.TrackingMonitorSource.standaloneTrackMonitorDefault_cfi import standalo
 standaloneTrackMonitor = standaloneTrackMonitorDefault.clone(
     moduleName        = "StandaloneTrackMonitor",
     folderName        = "highPurityTracks",
+    isRECO            = False,
     vertexTag         = "selectedPrimaryVertices", # "offlinePrimaryVertices",
     puTag             = "addPileupInfo",
     clusterTag        = "siStripClusters",

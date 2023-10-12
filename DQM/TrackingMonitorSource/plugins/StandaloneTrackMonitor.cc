@@ -20,6 +20,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -36,6 +37,9 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 
 // ROOT includes
 #include "TFile.h"
@@ -67,8 +71,12 @@ protected:
                   double wfac = 1);
 
 private:
+  const reco::Vertex* findClosestVertex(const TransientVertex aTransVtx, const reco::VertexCollection* vertices)
+      const;  //same as in /DQMOffline/Alignment/src/DiMuonVertexSelector.cc
   const std::string moduleName_;
   const std::string folderName_;
+
+  const bool isRECO_;
 
   SiStripClusterInfo siStripClusterInfo_;
 
@@ -162,6 +170,13 @@ private:
   MonitorElement* sip2dToPVWtH_;
   MonitorElement* sipDxyToPVH_;
   MonitorElement* sipDzToPVH_;
+
+  MonitorElement* ip3dToPV2validpixelhitsH_;
+  MonitorElement* ip3dToBS2validpixelhitsH_;
+  MonitorElement* iperr3dToPV2validpixelhitsH_;
+  MonitorElement* iperr3dToBS2validpixelhitsH_;
+  MonitorElement* sip3dToPV2validpixelhitsH_;
+  MonitorElement* sip3dToBS2validpixelhitsH_;
 
   MonitorElement* nallHitsH_;
   MonitorElement* ntrackerHitsH_;
@@ -344,6 +359,8 @@ private:
   MonitorElement* Zpt_;
   MonitorElement* ZInvMass_;
 
+  MonitorElement* cosPhi3DdileptonH_;
+
   std::vector<int> lumivec1;
   std::vector<int> lumivec2;
   std::vector<float> vpu_;
@@ -355,6 +372,7 @@ void StandaloneTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("moduleName", "StandaloneTrackMonitor");
   desc.addUntracked<std::string>("folderName", "highPurityTracks");
+  desc.addUntracked<bool>("isRECO", false);
   desc.addUntracked<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"));
   desc.addUntracked<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"));
   desc.addUntracked<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"));
@@ -409,6 +427,7 @@ void StandaloneTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& de
 StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
     : moduleName_(ps.getUntrackedParameter<std::string>("moduleName", "StandaloneTrackMonitor")),
       folderName_(ps.getUntrackedParameter<std::string>("folderName", "highPurityTracks")),
+      isRECO_(ps.getUntrackedParameter<bool>("isRECO", false)),
       siStripClusterInfo_(consumesCollector()),
       trackTag_(ps.getUntrackedParameter<edm::InputTag>("trackInputTag", edm::InputTag("generalTracks"))),
       bsTag_(ps.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
@@ -572,6 +591,14 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
   hOffTrkClusChargeThickH_ = nullptr;
   hOffTrkClusWidthThickH_ = nullptr;
 
+  cosPhi3DdileptonH_ = nullptr;
+  ip3dToPV2validpixelhitsH_ = nullptr;
+  ip3dToBS2validpixelhitsH_ = nullptr;
+  iperr3dToPV2validpixelhitsH_ = nullptr;
+  iperr3dToBS2validpixelhitsH_ = nullptr;
+  sip3dToPV2validpixelhitsH_ = nullptr;
+  sip3dToBS2validpixelhitsH_ = nullptr;
+
   // Read pileup weight factors
 
   if (isMC_ && doPUCorrection_ && doTrackCorrection_) {
@@ -668,21 +695,41 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D("trackDeltaRwrtClosestTrack", "min#DeltaR(considered track,other tracks)", 500, 0, 10);
 
     ip2dToPVH_ = ibook.book1D("ip2dToPV", "IP in 2d To PV", 1000, -1.0, 1.0);
-    iperr2dToPVH_ = ibook.book1D("iperr2dToPV", "IP error in 2d To PV", 50, 0, 4);
-    iperr2dToPVWtH_ = ibook.book1D("iperr2dToPVWt", "IP error in 2d To PV", 50, 0, 4);
+    unsigned int niperrbins = 100;
+    float iperrbinning[niperrbins + 1];
+    float miniperr = 0.0001, maxiperr = 5;
+    iperrbinning[0] = miniperr;
+    for (unsigned int i = 1; i != niperrbins + 1; i++) {
+      iperrbinning[i] = iperrbinning[i - 1] * pow(maxiperr / miniperr, 1. / niperrbins);
+    }
+    iperr2dToPVH_ = ibook.book1D("iperr2dToPV", "IP error in 2d To PV", niperrbins, iperrbinning);
+    iperr2dToPVWtH_ = ibook.book1D("iperr2dToPVWt", "IP error in 2d To PV", niperrbins, iperrbinning);
 
     ip3dToPVH_ = ibook.book1D("ip3dToPV", "IP in 3d To PV", 200, -20, 20);
     ip3dToBSH_ = ibook.book1D("ip3dToBS", "IP in 3d To BS", 200, -20, 20);
-    iperr3dToPVH_ = ibook.book1D("iperr3dToPV", "IP error in 3d To PV", 100, 0, 5);
-    iperr3dToBSH_ = ibook.book1D("iperr3dToBS", "IP error in 3d To BS", 100, 0, 5);
+    iperr3dToPVH_ = ibook.book1D("iperr3dToPV", "IP error in 3d To PV", niperrbins, iperrbinning);
+    iperr3dToBSH_ = ibook.book1D("iperr3dToBS", "IP error in 3d To BS", niperrbins, iperrbinning);
     sip3dToPVH_ = ibook.book1D("sip3dToPV", "IP significance in 3d To PV", 200, -10, 10);
     sip3dToBSH_ = ibook.book1D("sip3dToBS", "IP significance in 3d To BS", 200, -10, 10);
 
+    ip3dToPV2validpixelhitsH_ =
+        ibook.book1D("ip3dToPV2validpixelhits", "IP in 3d To PV (nValidPixelHits>2)", 200, -0.20, 0.20);
+    ip3dToBS2validpixelhitsH_ =
+        ibook.book1D("ip3dToBS2validpixelhits", "IP in 3d To BS (nValidPixelHits>2)", 200, -0.20, 0.20);
+    iperr3dToPV2validpixelhitsH_ = ibook.book1D(
+        "iperr3dToPV2validpixelhits", "IP error in 3d To PV (nValidPixelHits>2)", niperrbins, iperrbinning);
+    iperr3dToBS2validpixelhitsH_ = ibook.book1D(
+        "iperr3dToBS2validpixelhits", "IP error in 3d To BS (nValidPixelHits>2)", niperrbins, iperrbinning);
+    sip3dToPV2validpixelhitsH_ =
+        ibook.book1D("sip3dToPV2validpixelhits", "IP significance in 3d To PV (nValidPixelHits>2)", 200, -10, 10);
+    sip3dToBS2validpixelhitsH_ =
+        ibook.book1D("sip3dToBS2validpixelhits", "IP significance in 3d To BS (nValidPixelHits>2)", 200, -10, 10);
+
     ip2dToBSH_ = ibook.book1D("ip2dToBS", "IP in 2d To BS", 1000, -1., 1.);  //Beamspot
-    iperr2dToBSH_ = ibook.book1D("iperr2dToBS", "IP error in 2d To BS", 50, 0, 4);
+    iperr2dToBSH_ = ibook.book1D("iperr2dToBS", "IP error in 2d To BS", niperrbins, iperrbinning);
     sip2dToBSH_ = ibook.book1D("sip2dToBS", "IP significance in 2d To BS", 200, -10, 10);
 
-    iperr3dToPVWtH_ = ibook.book1D("iperr3dToPVWt", "IP error in 3d To PV", 100, 0, 5);
+    iperr3dToPVWtH_ = ibook.book1D("iperr3dToPVWt", "IP error in 3d To PV", niperrbins, iperrbinning);
     sip2dToPVH_ = ibook.book1D("sip2dToPV", "IP significance in 2d To PV", 200, -10, 10);
 
     sip2dToPVWtH_ = ibook.book1D("sip2dToPVWt", "IP significance in 2d To PV", 200, -10, 10);
@@ -768,6 +815,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1D("Jet_chargedMultiplicity", "Jet charged Hadron Multiplicity", 201, -0.5, 200.5);
     Zpt_ = ibook.book1D("Zpt", "Z-boson transverse momentum", 100, 0, 100);
     ZInvMass_ = ibook.book1D("ZInvMass", "m_{ll}", 120, 75, 105);
+    cosPhi3DdileptonH_ = ibook.book1D("cosPhi3Ddilepton", "cos#Phi_{3D,ll}", 202, -1.01, 1.01);
   }
   if (isMC_) {
     bunchCrossingH_ = ibook.book1D("bunchCrossing", "Bunch Crossing", 60, 0, 60.0);
@@ -1341,18 +1389,24 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
 
   // Get MVA and quality mask collections
   int ntracks = 0;
+  std::vector<TLorentzVector> list;
+
+  const TransientTrackBuilder* theB = &iSetup.getData(transTrackToken_);
+  TransientVertex mumuTransientVtx;
+  std::vector<reco::TransientTrack> tks;
 
   if (tracks.isValid()) {
     if (verbose_)
       edm::LogInfo("StandaloneTrackMonitor") << "Total # of Tracks: " << tracks->size();
     reco::Track::TrackQuality quality = reco::Track::qualityByName(trackQuality_);
 
-    std::vector<TLorentzVector> list;
-
     for (auto const& track : *tracks) {
       if (!track.quality(quality))
         continue;
       ++ntracks;
+
+      reco::TransientTrack trajectory = theB->build(track);
+      tks.push_back(trajectory);
 
       double eta = track.eta();
       double theta = track.theta();
@@ -1364,18 +1418,18 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
       double nAllTrackerHits = hitp.numberOfAllTrackerHits(reco::HitPattern::TRACK_HITS);
 
       double trackdeltaR = std::numeric_limits<double>::max();
-      TLorentzVector track1;
-      track1.SetPtEtaPhiM(track.pt(), track.eta(), track.phi(), 0.);
+      double muonmass = 0.1056583745;
+      TLorentzVector trackpmu;
+      trackpmu.SetPtEtaPhiM(track.pt(), track.eta(), track.phi(), muonmass);
       for (auto const& TRACK : *tracks) {
         if (&track == &TRACK)
           continue;
-        TLorentzVector track2;
-        track2.SetPtEtaPhiM(TRACK.pt(), TRACK.eta(), TRACK.phi(), 0.);
-        if (track1.DeltaR(track2) < trackdeltaR)
-          trackdeltaR = track1.DeltaR(track2);
+        double tmpdr = reco::deltaR(track.eta(), track.phi(), TRACK.eta(), TRACK.phi());
+        if (tmpdr < trackdeltaR)
+          trackdeltaR = tmpdr;
       }
 
-      list.push_back(track1);
+      list.push_back(trackpmu);
 
       double nValidTrackerHits = hitp.numberOfValidTrackerHits();
       double nValidPixelHits = hitp.numberOfValidPixelHits();
@@ -1624,26 +1678,28 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
         vertexZposH_->Fill(vz, wfac);
 
         int nPixBarrel = 0, nPixEndcap = 0, nStripTIB = 0, nStripTOB = 0, nStripTEC = 0, nStripTID = 0;
-        for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); ++it) {
-          const TrackingRecHit& hit = (**it);
-          if (hit.isValid()) {
-            if (hit.geographicalId().det() == DetId::Tracker) {
-              int subdetId = hit.geographicalId().subdetId();
-              if (subdetId == PixelSubdetector::PixelBarrel)
-                ++nPixBarrel;
-              else if (subdetId == PixelSubdetector::PixelEndcap)
-                ++nPixEndcap;
-              else if (subdetId == StripSubdetector::TIB)
-                ++nStripTIB;
-              else if (subdetId == StripSubdetector::TOB)
-                ++nStripTOB;
-              else if (subdetId == StripSubdetector::TEC)
-                ++nStripTEC;
-              else if (subdetId == StripSubdetector::TID)
-                ++nStripTID;
+        if (isRECO_) {
+          for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); ++it) {
+            const TrackingRecHit& hit = (**it);
+            if (hit.isValid()) {
+              if (hit.geographicalId().det() == DetId::Tracker) {
+                int subdetId = hit.geographicalId().subdetId();
+                if (subdetId == PixelSubdetector::PixelBarrel)
+                  ++nPixBarrel;
+                else if (subdetId == PixelSubdetector::PixelEndcap)
+                  ++nPixEndcap;
+                else if (subdetId == StripSubdetector::TIB)
+                  ++nStripTIB;
+                else if (subdetId == StripSubdetector::TOB)
+                  ++nStripTOB;
+                else if (subdetId == StripSubdetector::TEC)
+                  ++nStripTEC;
+                else if (subdetId == StripSubdetector::TID)
+                  ++nStripTID;
 
-              // Find on-track clusters
-              processHit(hit, iSetup, tkGeom, wfac);
+                // Find on-track clusters
+                processHit(hit, iSetup, tkGeom, wfac);
+              }
             }
           }
         }
@@ -1684,6 +1740,15 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
         sip2dToPVWtH_->Fill(sip2dToPV, wfac);
         sipDxyToPVH_->Fill(sipDxyToPV, wfac);
         sipDzToPVH_->Fill(sipDzToPV, wfac);
+
+        if (nValidPixelHits >= 2) {
+          ip3dToPV2validpixelhitsH_->Fill(ip3dToPV, wfac);
+          iperr3dToPV2validpixelhitsH_->Fill(iperr3dToPV, wfac);
+          ip3dToBS2validpixelhitsH_->Fill(ip3dToBS, wfac);
+          iperr3dToBS2validpixelhitsH_->Fill(iperr3dToBS, wfac);
+          sip3dToPV2validpixelhitsH_->Fill(sip3dToPV, wfac);
+          sip3dToBS2validpixelhitsH_->Fill(sip3dToBS, wfac);
+        }
 
         trackIperr3dVsEta2DH_->Fill(eta, iperr3dToPV, wfac);
         trackSip2dVsEta2DH_->Fill(eta, sip2dToPV, wfac);
@@ -1735,11 +1800,6 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
         nlostTIDHitsH_->Fill(nLostStripTIDHits, wfac);
         nlostTECHitsH_->Fill(nLostStripTECHits, wfac);
       }
-
-      if (list.size() >= 2) {
-        Zpt_->Fill((list[0] + list[1]).Pt(), wfac);
-        ZInvMass_->Fill((list[0] + list[1]).Mag(), wfac);
-      }
     }
   } else {
     edm::LogError("StandaloneTrackMonitor") << "Error! Failed to get reco::Track collection, " << trackTag_;
@@ -1756,6 +1816,40 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
       Jet_eta_->Fill(jet.eta(), wfac);
       Jet_energy_->Fill(jet.energy(), wfac);
       Jet_chargedMultiplicity_->Fill(jet.chargedHadronMultiplicity(), wfac);
+    }
+    if (list.size() >= 2) {
+      TLorentzVector Zp = list[0] + list[1];
+      Zpt_->Fill(Zp.Pt(), wfac);
+      ZInvMass_->Fill(Zp.Mag(), wfac);
+      KalmanVertexFitter kalman(true);
+      mumuTransientVtx = kalman.vertex(tks);
+      if (mumuTransientVtx.isValid()) {
+        const reco::Vertex* theClosestVertex;
+        edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
+        if (vertexHandle.isValid()) {
+          const reco::VertexCollection* vertices = vertexHandle.product();
+          theClosestVertex = this->findClosestVertex(mumuTransientVtx, vertices);
+          reco::Vertex theMainVtx;
+          if (theClosestVertex == nullptr) {
+            theMainVtx = vertexHandle.product()->front();
+          } else {
+            theMainVtx = *theClosestVertex;
+          }
+          if (theMainVtx.isValid()) {
+            const math::XYZPoint theMainVtxPos(
+                theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
+            const math::XYZPoint myVertex(
+                mumuTransientVtx.position().x(), mumuTransientVtx.position().y(), mumuTransientVtx.position().z());
+            const math::XYZPoint deltaVtx(
+                theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
+            double cosphi3D =
+                (Zp.Px() * deltaVtx.x() + Zp.Py() * deltaVtx.y() + Zp.Pz() * deltaVtx.z()) /
+                (sqrt(Zp.Px() * Zp.Px() + Zp.Py() * Zp.Py() + Zp.Pz() * Zp.Pz()) *
+                 sqrt(deltaVtx.x() * deltaVtx.x() + deltaVtx.y() * deltaVtx.y() + deltaVtx.z() * deltaVtx.z()));
+            cosPhi3DdileptonH_->Fill(cosphi3D, wfac);
+          }
+        }
+      }
     }
   }
 
@@ -1878,6 +1972,36 @@ void StandaloneTrackMonitor::addClusterToMap(uint32_t detid, const SiStripCluste
     s.insert(cluster);
   }
 }
+
+const reco::Vertex* StandaloneTrackMonitor::findClosestVertex(
+    const TransientVertex aTransVtx,
+    const reco::VertexCollection* vertices) const {  //same as in /DQMOffline/Alignment/src/DiMuonVertexSelector.cc
+  reco::Vertex* defaultVtx = nullptr;
+
+  if (!aTransVtx.isValid())
+    return defaultVtx;
+
+  // find the closest vertex to the secondary vertex in 3D
+  VertexDistance3D vertTool3D;
+  float minD = 9999.;
+  int closestVtxIndex = 0;
+  int counter = 0;
+  for (const auto& vtx : *vertices) {
+    double dist3D = vertTool3D.distance(aTransVtx, vtx).value();
+    if (dist3D < minD) {
+      minD = dist3D;
+      closestVtxIndex = counter;
+    }
+    counter++;
+  }
+
+  if ((*vertices).at(closestVtxIndex).isValid()) {
+    return &(vertices->at(closestVtxIndex));
+  } else {
+    return defaultVtx;
+  }
+}
+
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(StandaloneTrackMonitor);
