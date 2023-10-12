@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <G4VTouchable.hh>
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
@@ -22,7 +23,6 @@ class EndOfTrack;
 class G4Step;
 
 class G4StepPoint;
-class G4VTouchable;
 class G4VPhysicalVolume;
 class G4LogicalVolume;
 class G4TouchableHistory;
