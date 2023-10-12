@@ -232,11 +232,11 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
       theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DiMuonVertexMonitor") << "mm vertex position:" << aTransientVertex.position().x() << ","
-                                          << aTransientVertex.position().y() << "," << aTransientVertex.position().z();
+  edm::LogVerbatim("DiMuonVertexMonitor") << "mm vertex position:" << mumuTransientVtx.position().x() << ","
+                                          << mumuTransientVtx.position().y() << "," << mumuTransientVtx.position().z();
 
-  edm::LogVerbatim("DiMuonVertexMonitor") << "main vertex position:" << TheMainVertex.position().x() << ","
-                                          << TheMainVertex.position().y() << "," << TheMainVertex.position().z();
+  edm::LogVerbatim("DiMuonVertexMonitor") << "main vertex position:" << theMainVtx.position().x() << ","
+                                          << theMainVtx.position().y() << "," << theMainVtx.position().z();
 #endif
 
   if (theMainVtx.isValid()) {
