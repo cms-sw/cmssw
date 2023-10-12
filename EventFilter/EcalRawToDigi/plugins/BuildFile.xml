@@ -1,13 +1,11 @@
 <use name="root"/>
-<use name="CUDADataFormats/EcalDigi" />
 <use name="CondFormats/DataRecord"/>
+<use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Scalers"/>
 <use name="EventFilter/EcalRawToDigi"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="Utilities/StorageFactory"/>
 <iftool name="cuda-gcc-support">
   <use name="cuda"/>
@@ -16,5 +14,17 @@
   <set name="cuda_src" value=""/>
 </iftool>
 <library file="*.cc ${cuda_src}" name="EventFilterEcalRawToDigiPlugins">
+  <use name="CUDADataFormats/EcalDigi" />
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="EventFilterEcalRawToDigiPluginsPortable">
+  <use name="alpaka"/>    
+  <use name="DataFormats/DetId"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -9,14 +9,12 @@ else:
   from Configuration.Eras.Era_Run3_cff import Run3
   process = cms.Process("SiStripMonitor", Run3)
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siStripDigis',
-                                         'siStripClusters',
-                                         'siStripZeroSuppression',
-                                         'SiStripClusterizer'),
-    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
-    destinations = cms.untracked.vstring('cout')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.debugModules = cms.untracked.vstring('siStripDigis',
+                                                           'siStripClusters',
+                                                           'siStripZeroSuppression',
+                                                           'SiStripClusterizer')
+process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR'))
 
 live=True
 unitTest=False
@@ -517,7 +515,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
 process.castorDigis.InputLabel = rawDataCollectorLabel
 process.csctfDigis.producer = rawDataCollectorLabel
 process.dttfDigis.DTTF_FED_Source = rawDataCollectorLabel
-process.ecalDigis.cpu.InputLabel = rawDataCollectorLabel
+process.ecalDigisCPU.InputLabel = rawDataCollectorLabel
 process.ecalPreshowerDigis.sourceTag = rawDataCollectorLabel
 process.gctDigis.inputLabel = rawDataCollectorLabel
 process.gtDigis.DaqGtInputTag = rawDataCollectorLabel
@@ -541,7 +539,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.castorDigis.InputLabel = rawDataRepackerLabel
     process.csctfDigis.producer = rawDataRepackerLabel
     process.dttfDigis.DTTF_FED_Source = rawDataRepackerLabel
-    process.ecalDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.ecalDigisCPU.InputLabel = rawDataRepackerLabel
     process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
     process.gctDigis.inputLabel = rawDataRepackerLabel
     process.hcalDigis.InputLabel = rawDataRepackerLabel

@@ -91,7 +91,7 @@ void EcalCPURecHitProducer::acquire(edm::Event const& event,
                             cudaMemcpyDeviceToHost,
                             ctx.stream()));
   //
-  //     ./CUDADataFormats/EcalRecHitSoA/interface/RecoTypes.h:using StorageScalarType = float;
+  //     ./DataFormats/EcalRecHit/interface/RecoTypes.h:using StorageScalarType = float;
   //
 
   cudaCheck(cudaMemcpyAsync(recHitsEB_.energy.data(),
