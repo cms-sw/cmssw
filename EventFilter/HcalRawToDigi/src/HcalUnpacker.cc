@@ -8,7 +8,7 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
-
+#include <iomanip>
 //#define DebugLog
 
 namespace HcalUnpacker_impl {
@@ -708,6 +708,14 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw,
     if (amc13->AMCSegmented(iamc)) {
       if (!silent)
         edm::LogWarning("Invalid Data") << "Unpacker cannot handle segmented data observed on iamc " << iamc
+                                        << " of AMC13 with source id " << amc13->sourceId();
+      report.countSpigotFormatError();
+      continue;
+    }
+
+    if (!amc13->AMCLengthOk(iamc)) {
+      if (!silent)
+        edm::LogWarning("Invalid Data") << "Length mismatch between uHTR and AMC13 observed on iamc " << iamc
                                         << " of AMC13 with source id " << amc13->sourceId();
       report.countSpigotFormatError();
       continue;
