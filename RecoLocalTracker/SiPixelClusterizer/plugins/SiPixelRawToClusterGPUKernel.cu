@@ -191,13 +191,11 @@ namespace pixelgpudetails {
       case (26): {
         if constexpr (debug)
           printf("Gap word found (errorType = 26)\n");
-        errorFound = true;
         break;
       }
       case (27): {
         if constexpr (debug)
           printf("Dummy word found (errorType = 27)\n");
-        errorFound = true;
         break;
       }
       case (28): {
@@ -227,6 +225,7 @@ namespace pixelgpudetails {
         if (stateMatch != 1 && stateMatch != 8) {
           if constexpr (debug)
             printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
+          break;
         }
         if (stateMatch == 1)
           errorType = 40;  // 1=Overflow -> 40, 8=number of ROCs -> 30
