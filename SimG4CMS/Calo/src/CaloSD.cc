@@ -390,7 +390,8 @@ void CaloSD::EndOfEvent(G4HCofThisEvent*) {
     if (theHC[k] == nullptr)
       edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << " with no entries";
     else
-      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << " with " << theHC[0]->entries() << " entries";
+      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << " with " << theHC[0]->entries()
+                                  << " entries";
   }
 #endif
 }
