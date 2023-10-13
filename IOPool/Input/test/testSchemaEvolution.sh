@@ -87,7 +87,7 @@ grep "VectorVectorElementNonSplit" testForStreamerInfo1.log || die 'Failure cann
 
 file=SchemaEvolutionTestOLD13_2_3.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
-cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py -- --inputFile "$inputfile" || die "Failed to read old file $file" $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" || die "Failed to read old file $file" $?
 
 file=SchemaEvolutionTestOLD13_0_0.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
@@ -98,7 +98,7 @@ inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath
 # Lets keep this code around because it may be useful if we need to
 # do additional work related to data files written using an executable
 # built from code having the bug.
-#cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py -- --inputFile "$inputfile" || die "Failed to read old file $file" $?
+#cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" || die "Failed to read old file $file" $?
 #root.exe -b -l -q file:$inputfile "${LOCAL_TEST_DIR}/testForStreamerInfo.C(gFile)" | sort -u | grep Missing > testForStreamerInfo2.log
 #grep "Missing" testForStreamerInfo2.log && die "Missing nested streamer info" 1
 

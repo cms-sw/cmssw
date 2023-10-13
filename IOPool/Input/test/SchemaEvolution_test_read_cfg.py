@@ -6,10 +6,7 @@ parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test ROOT Schema
 
 parser.add_argument("--inputFile", type=str, help="Input file name (default: SchemaEvolutionTest.root)", default="SchemaEvolutionTest.root")
 parser.add_argument("--outputFileName", type=str, help="Output file name (default: SchemaEvolutionTest2.root)", default="SchemaEvolutionTest2.root")
-argv = sys.argv[:]
-if '--' in argv:
-    argv.remove("--")
-args, unknown = parser.parse_known_args(argv)
+args = parser.parse_args()
 
 process = cms.Process("READ")
 
