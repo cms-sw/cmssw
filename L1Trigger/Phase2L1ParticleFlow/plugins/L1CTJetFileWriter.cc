@@ -43,7 +43,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
   std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets, unsigned nJets);
-  std::vector<ap_uint<64>> encodeSums(const std::vector<l1t::EtSum> jets, unsigned nSums);
+  std::vector<ap_uint<64>> encodeSums(const std::vector<l1t::EtSum> sums, unsigned nSums);
 
   l1t::demo::BoardDataWriter fileWriterOutputToGT_;
   std::vector<std::pair<edm::EDGetTokenT<edm::View<l1t::PFJet>>, edm::EDGetTokenT<edm::View<l1t::EtSum>>>> tokens_;
@@ -81,8 +81,8 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
       mhtToken = consumes<edm::View<l1t::EtSum>>(pset.getParameter<edm::InputTag>("mht"));
       writeMhtToken = true;
     }
-    tokens_.push_back(std::make_pair(jetToken, mhtToken));
-    tokensToWrite_.push_back(std::make_pair(writeJetToken, writeMhtToken));
+    tokens_.emplace_back(jetToken, mhtToken);
+    tokensToWrite_.emplace_back(writeJetToken, writeMhtToken);
   }
   gapLengthOutput_ = ctl2BoardTMUX_ * nFramesPerBX_ - 2 * std::accumulate(nJets_.begin(), nJets_.end(), 0) -
                      std::accumulate(nSums_.begin(), nSums_.end(), 0);
@@ -131,16 +131,12 @@ void L1CTJetFileWriter::endJob() {
 }
 
 std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets, const unsigned nJets) {
-  std::vector<ap_uint<64>> jet_words;
-  for (unsigned i = 0; i < nJets; i++) {
-    l1t::PFJet j;
-    if (i < jets.size()) {
-      j = jets.at(i);
-    } else {  // pad up to nJets with null jets
-      l1t::PFJet j(0, 0, 0, 0, 0, 0);
-    }
-    jet_words.push_back(j.encodedJet()[0]);
-    jet_words.push_back(j.encodedJet()[1]);
+  // Encode up to nJets jets, padded with 0s
+  std::vector<ap_uint<64>> jet_words(2 * nJets, 0);  // allocate 2 words per jet
+  for (unsigned i = 0; i < std::min(nJets, (uint)jets.size()); i++) {
+    l1t::PFJet j = jets.at(i);
+    jet_words[2 * i] = j.encodedJet()[0];
+    jet_words[2 * i + 1] = j.encodedJet()[1];
   }
   return jet_words;
 }
