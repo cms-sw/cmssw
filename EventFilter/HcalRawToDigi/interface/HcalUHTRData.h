@@ -99,7 +99,8 @@ public:
   inline uint32_t slot() const { return uint32_t(m_raw64[1] >> 8) & 0xF; }
   /** \brief Get the presamples */
   inline uint32_t presamples() const { return uint32_t(m_raw64[1] >> 12) & 0xF; }
-
+  /** \brief Get the length from the uHTR header */
+  inline uint32_t length64_uhtr() const { return uint32_t(m_raw64[0]) & 0xFFFFF; }
   /** \brief Was this channel passed as part of Mark&Pass ZS?*/
   bool wasMarkAndPassZS(int fiber, int fiberchan) const;
   /** \brief Was this channel passed as part of Mark&Pass ZS?*/
