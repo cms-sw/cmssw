@@ -583,7 +583,13 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
   if (std::abs(d0approx) > settings_.maxd0()) {
     if (settings_.debugTracklet())
-      edm::LogVerbatim("Tracklet") << "Failed tracklet d0 cut " << d0approx;
+      edm::LogVerbatim("Tracklet") << "Failed tracklet approx d0 cut " << d0approx;
+    success = false;
+  }
+
+  if (std::abs(d0) > settings_.maxd0()) {
+    if (settings_.debugTracklet())
+      edm::LogVerbatim("Tracklet") << "Failed tracklet exact d0 cut " << d0;
     success = false;
   }
 
