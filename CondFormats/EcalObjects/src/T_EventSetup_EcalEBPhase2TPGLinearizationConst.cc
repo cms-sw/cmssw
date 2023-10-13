@@ -3,8 +3,8 @@
 // Implementation:
 //     create all the 'infrastructure' needed to get into the Context
 //
-// Author:      Nancy Marinelli 
-// Created:    
+// Author:      Nancy Marinelli
+// Created:
 // $Id: T_EventSetup_EcalEBPhase2TPGLinearizationConst.cc $
 //
 

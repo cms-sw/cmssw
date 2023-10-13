@@ -7,9 +7,7 @@
 
 #include <iostream>
 
-const  int EcalEBPhase2AmplitudeReconstructor::maxSamplesUsed_=12;
-
-
+const int EcalEBPhase2AmplitudeReconstructor::maxSamplesUsed_ = 12;
 
 EcalEBPhase2AmplitudeReconstructor::EcalEBPhase2AmplitudeReconstructor(bool debug)
     : debug_(debug), inputsAlreadyIn_(0), shift_(13) {}
@@ -22,19 +20,18 @@ int EcalEBPhase2AmplitudeReconstructor::setInput(int input) {
     return -1;
   }
 
-  if (inputsAlreadyIn_ < maxSamplesUsed_ ) {
+  if (inputsAlreadyIn_ < maxSamplesUsed_) {
     if (debug_)
       std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn_<5 input " << input << std::endl;
     buffer_[inputsAlreadyIn_] = input;
     inputsAlreadyIn_++;
   } else {
-
-    for (int i = 0; i < (maxSamplesUsed_-1) ; i++) {
+    for (int i = 0; i < (maxSamplesUsed_ - 1); i++) {
       buffer_[i] = buffer_[i + 1];
       if (debug_)
         std::cout << " EcalEBPhase2AmplitudeReconstructor::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl;
     }
-    buffer_[maxSamplesUsed_-1] = input;
+    buffer_[maxSamplesUsed_ - 1] = input;
   }
   return 1;
 }
@@ -54,10 +51,10 @@ void EcalEBPhase2AmplitudeReconstructor::process(std::vector<int> &linout, std::
       std::cout << "  " << std::endl;
     }
 
-    if (i == (maxSamplesUsed_-1)) {
+    if (i == (maxSamplesUsed_ - 1)) {
       process();
       output[0] = processedOutput_;
-    } else if (i == (ecalPh2::sampleSize-1)) {
+    } else if (i == (ecalPh2::sampleSize - 1)) {
       process();
       output[1] = processedOutput_;
     }
@@ -130,7 +127,7 @@ void EcalEBPhase2AmplitudeReconstructor::setParameters(uint32_t raw,
     }
 
     if (debug_) {
-      for (int i = 0; i < maxSamplesUsed_ ; ++i) {
+      for (int i = 0; i < maxSamplesUsed_; ++i) {
         std::cout << " EcalEBPhase2AmplitudeReconstructor::setParameters weights after the cooking " << weights_[i]
                   << std::endl;
       }

@@ -52,8 +52,8 @@ GzInputStream &operator>>(GzInputStream &gis, T &var) {
 // constructors and destructor
 //
 
-const  int EcalEBTrigPrimPhase2ESProducer::maxSamplesUsed_=12;
-const  int EcalEBTrigPrimPhase2ESProducer::nLinConst_=8;
+const int EcalEBTrigPrimPhase2ESProducer::maxSamplesUsed_ = 12;
+const int EcalEBTrigPrimPhase2ESProducer::nLinConst_ = 8;
 
 EcalEBTrigPrimPhase2ESProducer::EcalEBTrigPrimPhase2ESProducer(const edm::ParameterSet &iConfig)
     : dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile", "")),
@@ -611,7 +611,6 @@ void EcalEBTrigPrimPhase2ESProducer::parseTextFile() {
   }
 }
 
-
 /// This method is not used at all, however is a reminder that something alike will probably be needed once the mapping EB to BCPs will be in place
 std::vector<int> EcalEBTrigPrimPhase2ESProducer::getRange(
     int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip) {
@@ -626,8 +625,7 @@ std::vector<int> EcalEBTrigPrimPhase2ESProducer::getRange(
     range.push_back(6);   // stripNbMax
     range.push_back(1);   // xtalNbMin
     range.push_back(6);   // xtalNbMax
-  } 
-
+  }
 
   if (tccNb > 0) {
     range[0] = tccNb;
@@ -648,4 +646,3 @@ std::vector<int> EcalEBTrigPrimPhase2ESProducer::getRange(
 
   return range;
 }
-

@@ -24,8 +24,7 @@ private:
   int setInput(int input);
   void process();
   int processedOutput_;
-  static const  int maxSamplesUsed_;
-
+  static const int maxSamplesUsed_;
 
 public:
   EcalEBPhase2AmplitudeReconstructor(bool debug);

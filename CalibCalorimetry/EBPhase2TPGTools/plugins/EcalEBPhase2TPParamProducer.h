@@ -81,9 +81,8 @@ private:
   const double xtal_LSB_;
   const unsigned int binOfMaximum_;
   static constexpr double gainRatio_[ecalPh2::NGAINS] = {1., 10.};
-  static const  int linTopRange_;;
-
-
+  static const int linTopRange_;
+  ;
 };
 
 #endif

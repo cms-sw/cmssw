@@ -4,7 +4,7 @@
 //     create all the 'infrastructure' needed to get into the Context
 //
 // Author:      Nancy Marinelli
-// Created:    
+// Created:
 // $Id: T_EventSetup_EcalEBPhase2TPGPedestals.cc $
 //
 

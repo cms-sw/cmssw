@@ -29,8 +29,8 @@
 
 //----------------------------------------------------------------------
 
-const unsigned int EcalEBPhase2TrigPrimAlgo::nrSamples_ = ecalPh2::sampleSize; // 16 samples
-const unsigned int EcalEBPhase2TrigPrimAlgo::maxNrTowers_ = 2448;  // number of towers in EB
+const unsigned int EcalEBPhase2TrigPrimAlgo::nrSamples_ = ecalPh2::sampleSize;  // 16 samples
+const unsigned int EcalEBPhase2TrigPrimAlgo::maxNrTowers_ = 2448;               // number of towers in EB
 
 EcalEBPhase2TrigPrimAlgo::EcalEBPhase2TrigPrimAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
                                                    const CaloGeometry *theGeometry,
@@ -196,7 +196,8 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2
         }
 
         if (debug_) {
-          std::cout << " Ampl " << " ";
+          std::cout << " Ampl "
+                    << " ";
           for (unsigned int ix = 0; ix < filt_out_.size(); ix++) {
             std::cout << std::dec << filt_out_[ix] << " ";
           }
@@ -211,19 +212,19 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2
           std::cout << " Time "
                     << " ";
           for (unsigned int ix = 0; ix < time_out_.size(); ix++) {
-	    std::cout << std::dec << time_out_[ix] << " ";
-	  }
+            std::cout << std::dec << time_out_[ix] << " ";
+          }
           std::cout << std::endl;
-	}
+        }
 
-	if (debug_) {
+        if (debug_) {
           std::cout << "EcalEBPhase2TrigPrimAlgo output of timefinder is a vector of size: " << std::dec
                     << time_out_.size() << std::endl;
           for (unsigned int ix = 0; ix < time_out_.size(); ix++) {
             std::cout << std::dec << time_out_[ix] << " ";
           }
           std::cout << std::endl;
-	}
+        }
 
         this->getTPFormatter()->process(filt_out_, time_out_, outEt_, outTime_);
 

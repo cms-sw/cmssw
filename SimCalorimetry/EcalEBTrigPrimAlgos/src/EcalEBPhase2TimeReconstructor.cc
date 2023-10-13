@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-const  int EcalEBPhase2TimeReconstructor::maxSamplesUsed_=12;
+const int EcalEBPhase2TimeReconstructor::maxSamplesUsed_ = 12;
 
 EcalEBPhase2TimeReconstructor::EcalEBPhase2TimeReconstructor(bool debug)
     : debug_(debug), inputsAlreadyIn_(0), shift_(maxSamplesUsed_) {}
@@ -18,18 +18,18 @@ int EcalEBPhase2TimeReconstructor::setInput(int input) {
     std::cout << "ERROR IN INPUT OF TIME FILTER" << std::endl;
     return -1;
   }
-  if (inputsAlreadyIn_ < maxSamplesUsed_ ) {
+  if (inputsAlreadyIn_ < maxSamplesUsed_) {
     if (debug_)
       std::cout << " EcalEBPhase2TimeReconstructor::setInput inputsAlreadyIn_<5 input " << input << std::endl;
     buffer_[inputsAlreadyIn_] = input;
     inputsAlreadyIn_++;
   } else {
-    for (int i = 0; i < (maxSamplesUsed_-1); i++) {
+    for (int i = 0; i < (maxSamplesUsed_ - 1); i++) {
       buffer_[i] = buffer_[i + 1];
       if (debug_)
         std::cout << " EcalEBPhase2TimeReconstructor::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl;
     }
-    buffer_[maxSamplesUsed_-1] = input;
+    buffer_[maxSamplesUsed_ - 1] = input;
     inputsAlreadyIn_++;
   }
   return 1;
@@ -62,7 +62,7 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
       std::cout << "  " << std::endl;
     }
 
-    if (i == (maxSamplesUsed_-1)) {
+    if (i == (maxSamplesUsed_ - 1)) {
       if (debug_)
         std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int>)    i = 11 " << std::endl;
       process();
@@ -73,7 +73,7 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
       if (debug_)
         std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int>)    after setting the output "
                   << output[0] << std::endl;
-    } else if (i == (ecalPh2::sampleSize-1) ) {
+    } else if (i == (ecalPh2::sampleSize - 1)) {
       if (debug_)
         std::cout << "  EcalEBPhase2TimeReconstructor::process(std::vector<int>)    i = 15 " << std::endl;
       process();

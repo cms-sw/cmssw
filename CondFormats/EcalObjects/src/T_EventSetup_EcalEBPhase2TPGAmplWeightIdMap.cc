@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Author:      Nancy Marinelli
-// Created:     
+// Created:
 // $Id: T_EventSetup_EcalEBPhase2TPGAmplWeightIdMap.cc $
 //
 

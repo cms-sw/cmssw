@@ -16,10 +16,7 @@
 #include <fstream>
 #include <iomanip>
 
-
-const  int EcalEBPhase2TPParamProducer::linTopRange_=16383;
-
-
+const int EcalEBPhase2TPParamProducer::linTopRange_ = 16383;
 
 EcalEBPhase2TPParamProducer::EcalEBPhase2TPParamProducer(edm::ParameterSet const& pSet)
     : theBarrelGeometryToken_(esConsumes(edm::ESInputTag("", "EcalBarrel"))),
@@ -153,6 +150,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
 
     } else {
       edm::LogError("EcalEBPhase2TPParamProducer") << " could not find EcalLiteDTUPedestal entry for " << id;
+      throw std::exception();
     }
 
     int shift, mult;

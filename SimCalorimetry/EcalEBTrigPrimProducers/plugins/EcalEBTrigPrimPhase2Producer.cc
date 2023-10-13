@@ -64,16 +64,13 @@ void EcalEBTrigPrimPhase2Producer::beginRun(edm::Run const& run, edm::EventSetup
   nEvent_ = 0;
 }
 
-
 void EcalEBTrigPrimPhase2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("Debug",false);
-  desc.add<bool>("Famos",false);
-  desc.add<int>("BinOfMaximum",6);   // this needs to be at the same value used for the Phase2 LiteDTU digis ! 
-  desc.add<edm::InputTag>("barrelEcalDigis",edm::InputTag("simEcalUnsuppressedDigis"));
-
+  desc.add<bool>("Debug", false);
+  desc.add<bool>("Famos", false);
+  desc.add<int>("BinOfMaximum", 6);  // this needs to be at the same value used for the Phase2 LiteDTU digis !
+  desc.add<edm::InputTag>("barrelEcalDigis", edm::InputTag("simEcalUnsuppressedDigis"));
 }
-
 
 unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup const& setup) {
   // get parameter records for xtals
@@ -146,7 +143,6 @@ void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup&
     std::cout << "produce"
               << " For Barrel  " << pOut->size() << " TP  Digis were produced" << std::endl;
   }
-
 
   //  debug prints if TP >0
   int nonZeroTP = 0;

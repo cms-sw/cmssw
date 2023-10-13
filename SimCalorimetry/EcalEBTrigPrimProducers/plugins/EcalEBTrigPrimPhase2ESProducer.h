@@ -78,8 +78,6 @@ private:
   std::map<uint32_t, std::vector<float>> mapPhys_;
   static const int maxSamplesUsed_;
   static const int nLinConst_;
-
-
 };
 
 #endif

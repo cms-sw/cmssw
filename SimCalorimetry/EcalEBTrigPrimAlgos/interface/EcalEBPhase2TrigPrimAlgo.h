@@ -81,7 +81,6 @@ private:
 
   int findStripNr(const EBDetId &id);
 
-  
   int getIndex(const EBDigiCollectionPh2 *, EcalTrigTowerDetId &id) { return id.hashedIndex(); }
   // mind that eta is continuous between barrel+endcap
   //  int getIndex(const  EEDigiCollectionPh2 *, EcalTrigTowerDetId& id) {
@@ -92,7 +91,6 @@ private:
 
   const EcalTrigTowerConstituentsMap *eTTmap_ = nullptr;
   const CaloGeometry *theGeometry_ = nullptr;
-
 
   int binOfMaximum_;
   int maxNrSamples_;

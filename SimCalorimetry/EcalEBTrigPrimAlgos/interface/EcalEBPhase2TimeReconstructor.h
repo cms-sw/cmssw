@@ -24,7 +24,7 @@ private:
   bool extraShift_[2] = {false, false};
   int setInput(int input);
   void process();
-  static const  int maxSamplesUsed_;
+  static const int maxSamplesUsed_;
   int processedOutput_;
 
   uint64_t invAmpAr_[512] = {
