@@ -454,9 +454,9 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
         if (m_verbosity) {
           LogDebug("L1TGlobal") << "\n >>>>>> THREE-MUON EVENT!" << std::endl;
           LogDebug("L1TGlobal") << ">>>>>> Object involved in the three-body correlation condition are ["
-                                << l1TGtObjectEnumToString(cndObjTypeVec[0]) << ", "
-                                << l1TGtObjectEnumToString(cndObjTypeVec[1]) << ", "
-                                << l1TGtObjectEnumToString(cndObjTypeVec[2]) << "] with collection indices ["
+                                << l1t::GlobalObjectEnumToString(cndObjTypeVec[0]) << ", "
+                                << l1t::GlobalObjectEnumToString(cndObjTypeVec[1]) << ", "
+                                << l1t::GlobalObjectEnumToString(cndObjTypeVec[2]) << "] with collection indices ["
                                 << obj0Index << ", " << obj1Index << obj2Index << "] "
                                 << " having: \n"
                                 << "     Et  values  = [" << etIndex0 << ", " << etIndex1 << ", " << etIndex2 << "]\n"
@@ -464,8 +464,7 @@ const bool l1t::CorrThreeBodyCondition::evaluateCondition(const int bxEval) cons
                                 << "]\n"
                                 << "     eta indices = [" << etaIndex0 << ", " << etaIndex1 << ", " << etaIndex2
                                 << "]\n"
-                                << "     charge values = [" << chrg0 << ", " << chrg1 << ", " << chrg2 << "]\n"
-                                << std::endl;
+                                << "     charge values = [" << chrg0 << ", " << chrg1 << ", " << chrg2 << "]\n";
         }
 
         // Now perform the desired correlation on these three objects:
