@@ -111,18 +111,18 @@ void DiMuonHistograms::bookHistograms(DQMStore::IBooker& ibooker,
     TightTightMuon.push_back(ibooker.book1D("TightTightMuon" + EtaName[iEtaRegion],
                                             "InvMass_{Tight,Tight}" + EtaName[iEtaRegion],
                                             nBin[iEtaRegion],
-                                            LowMassMin,
-                                            LowMassMax));
+                                            HighMassMin,
+                                            HighMassMax));
     MediumMediumMuon.push_back(ibooker.book1D("MediumMediumMuon" + EtaName[iEtaRegion],
                                               "InvMass_{Medium,Medium}" + EtaName[iEtaRegion],
                                               nBin[iEtaRegion],
-                                              LowMassMin,
-                                              LowMassMax));
+                                              HighMassMin,
+                                              HighMassMax));
     LooseLooseMuon.push_back(ibooker.book1D("LooseLooseMuon" + EtaName[iEtaRegion],
                                             "InvMass_{Loose,Loose}" + EtaName[iEtaRegion],
                                             nBin[iEtaRegion],
-                                            LowMassMin,
-                                            LowMassMax));
+                                            HighMassMin,
+                                            HighMassMax));
     //Fraction of bad hits in the tracker track to the total
     TightTightMuonBadFrac.push_back(ibooker.book1D(
         "TightTightMuonBadFrac" + EtaName[iEtaRegion], "BadFrac_{Tight,Tight}" + EtaName[iEtaRegion], 10, 0, 0.4));
