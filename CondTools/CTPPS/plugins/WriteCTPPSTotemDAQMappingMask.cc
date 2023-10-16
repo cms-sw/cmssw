@@ -43,16 +43,13 @@ private:
   void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
-using namespace std;
-using namespace edm;
-
 //----------------------------------------------------------------------------------------------------
 
 WriteCTPPSTotemDAQMappingMask::WriteCTPPSTotemDAQMappingMask(const edm::ParameterSet &ps)
     : daqMappingIov_(ps.getParameter<unsigned long long>("daqMappingIov")),
-      recordMap_(ps.getParameter<string>("recordMap")),
-      recordMask_(ps.getParameter<string>("recordMask")),
-      label_(ps.getParameter<string>("label")),
+      recordMap_(ps.getParameter<std::string>("recordMap")),
+      recordMask_(ps.getParameter<std::string>("recordMask")),
+      label_(ps.getParameter<std::string>("label")),
       tokenMapping_(esConsumes<TotemDAQMapping, TotemReadoutRcd>(edm::ESInputTag("", label_))),
       tokenAnalysisMask_(esConsumes<TotemAnalysisMask, TotemReadoutRcd>(edm::ESInputTag("", label_))) {}
 
