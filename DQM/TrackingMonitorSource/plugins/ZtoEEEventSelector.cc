@@ -79,8 +79,8 @@ void ZtoEEEventSelector::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<uint32_t>("minStripHits", 8);
   desc.addUntracked<double>("maxIso", 0.3);
   desc.addUntracked<double>("minPtHighest", 24);
-  desc.addUntracked<double>("minInvMass", 60);
-  desc.addUntracked<double>("maxInvMass", 120);
+  desc.addUntracked<double>("minInvMass", 75);
+  desc.addUntracked<double>("maxInvMass", 105);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -106,8 +106,8 @@ ZtoEEEventSelector::ZtoEEEventSelector(const edm::ParameterSet& ps)
       minStripHits_(ps.getUntrackedParameter<uint32_t>("minStripHits", 8)),
       maxIso_(ps.getUntrackedParameter<double>("maxIso", 0.3)),
       minPtHighest_(ps.getUntrackedParameter<double>("minPtHighest", 24)),
-      minInvMass_(ps.getUntrackedParameter<double>("minInvMass", 60)),
-      maxInvMass_(ps.getUntrackedParameter<double>("maxInvMass", 120)) {}
+      minInvMass_(ps.getUntrackedParameter<double>("minInvMass", 75)),
+      maxInvMass_(ps.getUntrackedParameter<double>("maxInvMass", 105)) {}
 
 bool ZtoEEEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // Read Electron Collection
