@@ -61,7 +61,7 @@ defaultOptions.hltProcess = ''
 defaultOptions.eventcontent = None
 defaultOptions.datatier = None
 defaultOptions.inlineEventContent = True
-defaultOptions.inlineObjets =''
+defaultOptions.inlineObjects =''
 defaultOptions.hideGen=False
 from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey,VtxSmearedHIDefaultKey
 defaultOptions.beamspot=None
@@ -793,7 +793,7 @@ class ConfigBuilder(object):
                 #the file is local
                 self.process.load(mixingDict['file'])
                 print("inlining mixing module configuration")
-                self._options.inlineObjets+=',mix'
+                self._options.inlineObjects+=',mix'
             else:
                 self.loadAndRemember(mixingDict['file'])
 
@@ -1403,7 +1403,7 @@ class ConfigBuilder(object):
         __import__(loadFragment)
         self.process.load(loadFragment)
         ##inline the modules
-        self._options.inlineObjets+=','+stepSpec
+        self._options.inlineObjects+=','+stepSpec
 
         getattr(self.process,stepSpec).nEvents = int(self._options.number)
 
@@ -1452,13 +1452,13 @@ class ConfigBuilder(object):
                 for name in genModules:
                     theObject = getattr(generatorModule,name)
                     if isinstance(theObject, cmstypes._Module):
-                        self._options.inlineObjets=name+','+self._options.inlineObjets
+                        self._options.inlineObjects=name+','+self._options.inlineObjects
                         if theObject.type_() in noConcurrentLumiGenerators:
                             print("Setting numberOfConcurrentLuminosityBlocks=1 because of generator {}".format(theObject.type_()))
                             self._options.nConcurrentLumis = "1"
                             self._options.nConcurrentIOVs = "1"
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
-                        self._options.inlineObjets+=','+name
+                        self._options.inlineObjects+=','+name
 
             if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly' or stepSpec == 'pgen_smear':
                 if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
@@ -1708,8 +1708,8 @@ class ConfigBuilder(object):
 
         expander=PrintAllModules()
         getattr(self.process,filterSeq).visit( expander )
-        self._options.inlineObjets+=','+expander.inliner
-        self._options.inlineObjets+=','+filterSeq
+        self._options.inlineObjects+=','+expander.inliner
+        self._options.inlineObjects+=','+filterSeq
 
         ## put the filtering path in the schedule
         self.scheduleSequence(filterSeq,'filtering_step')
@@ -2285,7 +2285,7 @@ class ConfigBuilder(object):
             self.pythonCfgCode += command + "\n"
 
         #comma separated list of objects that deserve to be inlined in the configuration (typically from a modified config deep down)
-        for object in self._options.inlineObjets.split(','):
+        for object in self._options.inlineObjects.split(','):
             if not object:
                 continue
             if not hasattr(self.process,object):
