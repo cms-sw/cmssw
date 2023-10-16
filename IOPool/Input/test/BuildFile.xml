@@ -13,7 +13,16 @@
     <use name="FWCore/ParameterSet"/>
   </library>
 
- <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
- <test name="TestIOPoolInputNoParentDictionary" command="testNoParentDictionary.sh"/>
- <test name="TestFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
+  <library name="SchemaEvolutionTest" file="SchemaEvolutionTestRead.cc,SchemaEvolutionTestWrite.cc">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/TestObjects"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Utilities"/>
+  </library>
+
+  <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
+  <test name="TestIOPoolInputNoParentDictionary" command="testNoParentDictionary.sh"/>
+  <test name="TestFileOpenErrorExitCode" command="testFileOpenErrorExitCode.sh"/>
+  <test name="TestIOPoolInputSchemaEvolution" command="testSchemaEvolution.sh"/>
 </environment>
