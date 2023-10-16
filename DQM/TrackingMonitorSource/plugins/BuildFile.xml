@@ -10,6 +10,7 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="RecoLocalTracker/SiStripClusterizer"/>
+<use name="RecoVertex/KalmanVertexFit"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/IPTools"/>
