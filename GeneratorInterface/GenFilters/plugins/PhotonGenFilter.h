@@ -22,6 +22,7 @@ public:
   ~PhotonGenFilter() override;
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  bool hasAncestor(HepMC::GenParticle* particle, std::function<bool(int)> check,bool isWorBFromDecayCheck=false,bool isWorBPromptCheck=false) const;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
