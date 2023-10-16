@@ -13,8 +13,8 @@ namespace edm {
     class RefVectorHolderBase {
     public:
       virtual ~RefVectorHolderBase() {}
-      typedef size_t size_type;
-      typedef RefHolderBase value_type;
+      using size_type = size_t;
+      using value_type = RefHolderBase;
       void swap(RefVectorHolderBase&) {}  // nothing to swap
       virtual bool empty() const = 0;
       virtual size_type size() const = 0;
@@ -29,7 +29,7 @@ namespace edm {
       // to allow dictionary to compile
       //    protected:
       struct const_iterator_imp {
-        typedef ptrdiff_t difference_type;
+        using difference_type = ptrdiff_t;
         const_iterator_imp() {}
         virtual ~const_iterator_imp() {}
         virtual const_iterator_imp* clone() const = 0;
@@ -44,9 +44,12 @@ namespace edm {
         virtual difference_type difference(const_iterator_imp const*) const = 0;
       };
 
-      struct const_iterator : public std::iterator<std::random_access_iterator_tag, void*> {
-        typedef std::shared_ptr<RefHolderBase> value_type;
-        typedef std::ptrdiff_t difference_type;
+      struct const_iterator {
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = std::shared_ptr<RefHolderBase>;
+        using pointer = void**;
+        using reference = void*&;
+        using difference_type = std::ptrdiff_t;
         const_iterator() : i(nullptr) {}
         const_iterator(const_iterator_imp* it) : i(it) {}
         const_iterator(const_iterator const& it) : i(it.isValid() ? it.i->clone() : nullptr) {}
