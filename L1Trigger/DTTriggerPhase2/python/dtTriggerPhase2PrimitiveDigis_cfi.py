@@ -6,7 +6,6 @@ from L1Trigger.DTTriggerPhase2.PseudoBayesGrouping_cfi            import PseudoB
 
 dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                digiTag = cms.InputTag("CalibratedDigis"),
-                                               trigger_with_sl = cms.int32(4),
                                                tanPhiTh = cms.double(1.), 
                                                tanPhiThw2max = cms.double(1.3), 
                                                tanPhiThw2min = cms.double(0.5), 
@@ -26,10 +25,22 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                df_extended = cms.int32(0), # DF: 0 for standard, 1 for extended, 2 for both 
                                                max_primitives = cms.int32(999),
 
+                                               output_mixer = cms.bool(False),
+                                               output_latpredictor = cms.bool(False),
+                                               output_slfitter = cms.bool(False),
+                                               output_slfilter = cms.bool(False),
+                                               output_confirmed = cms.bool(False),
+                                               output_matcher = cms.bool(False),
+
                                                ttrig_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_z.txt'),
+                                               lut_sl1 = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/fitterlut_sl1.dat'),
+                                               lut_sl2 = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/fitterlut_slx.dat'),
+                                               lut_sl3 = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/fitterlut_sl3.dat'),
+                                               lut_2sl = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/fitterlut_2sl.dat'),
                                                shift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_x.txt'),
                                                shift_theta_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/theta_shift.txt'),
+                                               maxdrift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/drift_time_per_chamber.txt'),
                                                global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt'),
                                                algo = cms.int32(0), # 0 = STD gr., 2 = Hough transform, 1 = PseudoBayes Approach
 

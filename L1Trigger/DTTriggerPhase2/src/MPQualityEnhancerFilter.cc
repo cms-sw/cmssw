@@ -120,11 +120,7 @@ void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths
           bestI = i;
         }
       }
-      bool add_paths = (i == (int)(inMPaths.size() - 1));
-      if (!add_paths) {
-        add_paths = areCousins(inMPaths[i], inMPaths[i + 1]) == 0;
-      }
-      if (!add_paths) {
+      if (areCousins(inMPaths[i], inMPaths[i + 1]) != 0) {
         primo_index++;
       } else {  //areCousing==0
         if (oneof4) {

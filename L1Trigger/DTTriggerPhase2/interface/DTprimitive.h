@@ -37,6 +37,11 @@ public:
   const int superLayerId() const { return superLayerId_; };
   const cmsdt::LATERAL_CASES laterality() const { return laterality_; };
 
+  bool operator==(const DTPrimitive& dtp) {
+    return (tdcTimeStamp() == dtp.tdcTimeStamp() && channelId() == dtp.channelId() && layerId() == dtp.layerId() &&
+            cameraId() == dtp.cameraId() && cameraId() == dtp.cameraId() && superLayerId() == dtp.superLayerId());
+  }
+
 private:
   int cameraId_;                     // Chamber ID
   int superLayerId_;                 // SL ID
