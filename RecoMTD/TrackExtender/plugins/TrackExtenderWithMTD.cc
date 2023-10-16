@@ -1268,6 +1268,19 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
                 << " +/- " << thiterror;
             validmtd = true;
           }
+	  // if back extrapolated time of the outermost measurement not compatible with the innermost, keep the one with smallest error 
+	  else {
+	    if ( err1 <= err2 ) {
+	      thit = tofInfo.dt;
+	      thiterror = tofInfo.dterror;
+	      validmtd = true;
+	    }
+	    else {
+	      thit = mtdhit2->time();
+	      thiterror = mtdhit2->timeError();
+	      validmtd = true;
+	    }
+	  }
         }
       }
     } else {
