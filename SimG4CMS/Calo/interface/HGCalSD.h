@@ -54,7 +54,10 @@ private:
   bool storeAllG4Hits_;
   bool fiducialCut_, rejectMB_, waferRot_, checkID_;
   int useSimWt_, verbose_;
-  bool dd4hep_;
+  bool dd4hep_, calibCells_;
+  double calibCellRHD_, calibCellRLD_;
+  std::vector<int> calibCellFullHD_, calibCellPartHD_;
+  std::vector<int> calibCellFullLD_, calibCellPartLD_;
   const double tan30deg_, cos30deg_;
   std::vector<double> angles_;
   std::string missingFile_;

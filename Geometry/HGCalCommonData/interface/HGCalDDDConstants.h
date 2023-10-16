@@ -40,6 +40,14 @@ public:
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
   std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
+  std::vector<int> calibCells(bool hd, bool full) const {
+    if (hd) {
+      return (full ? hgpar_->calibCellFullHD_ : hgpar_->calibCellPartHD_);
+    } else {
+      return (full ? hgpar_->calibCellFullLD_ : hgpar_->calibCellPartLD_);
+    }
+  }
+  double calibCellRad(bool hd) const { return (hd ? hgpar_->calibCellRHD_ : hgpar_->calibCellRLD_); }
   bool cassetteMode() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
             (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
