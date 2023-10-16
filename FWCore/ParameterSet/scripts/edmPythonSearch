@@ -3,34 +3,28 @@
 from __future__ import print_function
 from FWCore.ParameterSet.TreeCrawler import getImportTree, Color
 import sys, os
-import optparse
-usage = "%prog [searchString] [configFile]"
-parser = optparse.OptionParser(usage)
-
-(options, args) = parser.parse_args()
-
-if len(args) != 2:
-    parser.error("wrong number of arguments")
-else:
-    filename = args[1]
-    pattern = args[0]
+from argparse import ArgumentParser
+parser = ArgumentParser()
+parser.add_argument("searchString",type=str)
+parser.add_argument("configFile",type=str)
+options = parser.parse_args()
 
 sys.path.append(os.environ["PWD"])
 path = sys.path[:]
 
 # get the import tree
-importTree = getImportTree(filename, path)  
+importTree = getImportTree(options.configFile, path)
 
 # search the tree
 result = []
-importTree.search(pattern,result)
+importTree.search(options.searchString,result)
 
 # sort the output by file name
-result.sort(key= lambda x: x.filename)
+result.sort(key= lambda x: x.options.configFile)
 dumpStack = True
 # dump to screen
 for item in result:
-    print(item.line.replace(pattern,Color.hilight+pattern+Color.none))
+    print(item.line.replace(options.searchString,Color.hilight+options.searchString+Color.none))
     print("%s (line: %s)"  %(item.filename, item.number))
     if dumpStack and hasattr(item, 'stacks'):
        # make a set of strings, so it's unique
@@ -39,10 +33,3 @@ for item in result:
           froms.add('From ' + ' -> '.join(stack))
        print('\n'.join(froms))
     print('\n')
-                
-
-
-
-
-
-

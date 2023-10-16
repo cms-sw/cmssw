@@ -219,15 +219,12 @@ def printParameterSet(spacing, psetName, pset, depth):
                 print(spacing+psetName+".add"+trackiness+"Parameter<"+t+'>("'+l+'", '+c(p)+");")
                 
 
-import optparse
-usage = "%prog [configuration file name]"
-parser = optparse.OptionParser(usage=usage)
+from argparse import ArgumentParser
+parser = ArgumentParser()
+parser.add_argument("config_file",type=str)
+options = parser.parse_args()
 
-(options, args) = parser.parse_args()
-if len(args) != 1:
-    parser.error("wrong number of arguments")
-
-filename = args[0]
+filename = options.config_file
 
 f = open(filename,'r').read()
 

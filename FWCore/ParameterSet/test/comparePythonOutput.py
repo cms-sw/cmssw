@@ -4,15 +4,18 @@
 #  dictionaries or escape characters
 
 from __future__ import print_function
-from sys import argv
-from sys import exit
-if len(argv) < 3:
-    print("usage: ",argv[0]," <file1> <file2>")
-    exit(-1)
-cfg1 = eval(file(argv[1]).read())
-cfg2 = eval(file(argv[2]).read())
+import sys
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("file1",type=str)
+parser.add_argument("file2",type=str)
+options = parser.parse_args()
+
+cfg1 = eval(file(options.file1).read())
+cfg2 = eval(file(options.file2).read())
 if cfg1 != cfg2:
-    print(argv[1], " and ", argv[2], " do not match")
+    print(options.file1, " and ", options.file2, " do not match")
     k1 = set(cfg1.keys())
     k2 = set(cfg2.keys()) 
     if k1-k2 :
@@ -28,5 +31,5 @@ if cfg1 != cfg2:
           else:
             print("The value of key ", key , " does not match")
 
-    exit(-1)
+    sys.exit(-1)
 print("matched")    
