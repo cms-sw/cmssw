@@ -22,7 +22,7 @@
       <use name="DataFormats/TestObjects"/>
 </library>
 
-  <library file="AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc, TableTestModules.cc, TestGlobalOutput.cc, TestLimitedOutput.cc, TestOneOutput.cc, PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc,ExceptionThrowingProducer.cc,ProdigalAnalyzer.cc,IntSource.cc,ViewAnalyzer.cc,TestFindProduct.cc,ManyProductProducer.cc,TestParentage.cc,HierarchicalEDProducer.cc,ThrowingSource.cc, DelayedReaderThrowingSource.cc,TestHistoryKeeping.cc,PathAnalyzer.cc" name="FWCoreIntegrationSomeTestModules">
+  <library file="AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc, TableTestModules.cc, TestGlobalOutput.cc, TestLimitedOutput.cc, TestOneOutput.cc, PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc,ExceptionThrowingProducer.cc,ProdigalAnalyzer.cc,IntSource.cc,ViewAnalyzer.cc,TestFindProduct.cc,ManyProductProducer.cc,TestParentage.cc,HierarchicalEDProducer.cc,ThrowingSource.cc, DelayedReaderThrowingSource.cc,TestHistoryKeeping.cc,PathAnalyzer.cc,SourceWithWaits.cc" name="FWCoreIntegrationSomeTestModules">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
