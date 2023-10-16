@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 namespace edm {
   class HepMCProduct;
@@ -22,7 +23,10 @@ public:
   ~PhotonGenFilter() override;
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  bool hasAncestor(HepMC::GenParticle* particle, std::function<bool(int)> check,bool isWorBFromDecayCheck=false,bool isWorBPromptCheck=false) const;
+  bool hasAncestor(HepMC::GenParticle* particle,
+                   std::function<bool(int)> check,
+                   bool isWorBFromDecayCheck = false,
+                   bool isWorBPromptCheck = false) const;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
