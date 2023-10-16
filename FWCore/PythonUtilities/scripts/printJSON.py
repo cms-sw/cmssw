@@ -2,21 +2,18 @@
 
 from __future__ import print_function
 import sys
-import optparse
+from argparse import ArgumentParser
 from FWCore.PythonUtilities.LumiList import LumiList
-
 
 if __name__ == '__main__':
     
-    parser = optparse.OptionParser ("Usage: %prog alpha.json")
-    parser.add_option ('--range', dest='range', action='store_true',
-                       help='Print out run range only')
-    # required parameters
-    (options, args) = parser.parse_args()
-    if len (args) != 1:
-        raise RuntimeError("Must provide exactly one input file")
+    parser = ArgumentParser()
+    parser.add_argument('--range', dest='range', default=False, action='store_true',
+                         help='Print out run range only')
+    parser.add_argument("alpha_json", metavar="alpha.json", type=str)
+    options = parser.parse_args()
 
-    alphaList = LumiList (filename = args[0])  # Read in first  JSON file
+    alphaList = LumiList (filename = options.alpha_json) # Read in first JSON file
     if options.range:
         keys = alphaList.compactList.keys()
         minRun = min (keys)

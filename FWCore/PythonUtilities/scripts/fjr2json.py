@@ -6,21 +6,19 @@ from FWCore.PythonUtilities.LumiList   import LumiList
 from pprint import pprint
 
 import ast
-import optparse
+from argparse import ArgumentParser
 import sys
-
 
 if __name__ == '__main__':
 
-    parser = optparse.OptionParser ("Usage: %prog [--options] job1.fjr [job2.fjr...]")
-    parser.add_option ('--output', dest='output', type='string',
-                       help='Save output to file OUTPUT')
-    (options, args) = parser.parse_args()
-    if not args:
-        raise RuntimeError("Must provide at least one input file")
+    parser = ArgumentParser()
+    parser.add_argument('--output', dest='output', type=str,
+                        help='Save output to file OUTPUT')
+    parser.add_argument("job_fjr", metavar="job.fjr", nargs='+', type=str)
+    options = parser.parse_args()
 
     runsLumisDict = {}
-    for fjr in args:
+    for fjr in options.job_fjr:
         try:
             obj = xml2obj (filename=fjr)
         except:

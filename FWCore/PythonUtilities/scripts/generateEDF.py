@@ -8,7 +8,7 @@ from past.utils import old_div
 from builtins import range
 import sys
 import re
-import optparse
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pprint import pprint
 import array
 import ROOT
@@ -558,74 +558,68 @@ if __name__ == '__main__':
     ## command line options ##
     ##########################
     allowedEDF = ['time', 'instLum', 'instIntLum']
-    parser = optparse.OptionParser ("Usage: %prog [options] lumi.csv events.txt output.png", description='Script for generating EDF curves. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideGenerateEDF for more details.')
-    plotGroup  = optparse.OptionGroup (parser, "Plot Options")
-    rangeGroup = optparse.OptionGroup (parser, "Range Options")
-    inputGroup = optparse.OptionGroup (parser, "Input Options")
-    modeGroup  = optparse.OptionGroup (parser, "Mode Options")
-    plotGroup.add_option ('--title', dest='title', type='string',
-                          default = 'Empirical Distribution Function',
-                          help = 'title of plot (default %default)')
-    plotGroup.add_option ('--predicted', dest='pred', type='float',
-                          default = 0,
-                          help = 'factor by which predicted curve is greater than observed')
-    plotGroup.add_option ('--predLabel', dest='predLabel', type='string',
-                          default = 'Predicted',
-                          help = 'label of predicted in legend')
-    plotGroup.add_option ('--noDataPoints', dest='noDataPoints',
-                          action='store_true',
-                          help="Draw lines but no points for data")
-    rangeGroup.add_option ('--minRun', dest='minRun', type='int', default=0,
-                           help='Minimum run number to consider')
-    rangeGroup.add_option ('--maxRun', dest='maxRun', type='int', default=0,
-                           help='Maximum run number to consider')
-    rangeGroup.add_option ('--minIntLum', dest='minIntLum', type='float', default=0,
-                           help='Minimum integrated luminosity to consider')
-    rangeGroup.add_option ('--maxIntLum', dest='maxIntLum', type='float', default=0,
-                           help='Maximum integrated luminosity to consider')
-    rangeGroup.add_option ('--resetExpected', dest='resetExpected',
-                           action='store_true',
-                           help='Reset expected from total yield to highest point considered')
-    rangeGroup.add_option ('--breakExpectedIntLum', dest='breakExpectedIntLum',
-                           type='string', action='append', default=[],
-                           help='Break expected curve into pieces at integrated luminosity boundaries')
-    inputGroup.add_option ('--ignoreNoLumiEvents', dest='ignore',
-                           action='store_true',
-                           help = 'Ignore (with a warning) events that do not have a lumi section')
-    inputGroup.add_option ('--noWarnings', dest='noWarnings',
-                           action='store_true',
-                           help = 'Do not print warnings about missing luminosity information')
-    inputGroup.add_option ('--runEventLumi', dest='relOrder',
-                           action='store_true',
-                           help = 'Parse event list assuming Run, Event #, Lumi# order')
-    inputGroup.add_option ('--weights', dest='weights', action='store_true',
-                           help = 'Read fourth column as a weight')
-    modeGroup.add_option ('--print', dest='printValues', action='store_true',
-                          help = 'Print X and Y values of EDF plot')
-    modeGroup.add_option ('--runsWithLumis', dest='runsWithLumis',
-                          type='string',action='append', default=[],
-                          help='Print out run and lumi sections corresponding to integrated luminosities provided and then exits')
-    modeGroup.add_option ('--edfMode', dest='edfMode', type='string',
-                          default='time',
-                          help="EDF Mode %s (default '%%default')" % allowedEDF)
-    parser.add_option_group (plotGroup)
-    parser.add_option_group (rangeGroup)
-    parser.add_option_group (inputGroup)
-    parser.add_option_group (modeGroup)
-    (options, args) = parser.parse_args()
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter, usage='%(prog)s [options] lumi.csv events.txt output.png', description='Script for generating EDF curves. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideGenerateEDF for more details.')
+    plotGroup  = parser.add_argument_group("Plot Options")
+    rangeGroup = parser.add_argument_group("Range Options")
+    inputGroup = parser.add_argument_group("Input Options")
+    modeGroup  = parser.add_argument_group("Mode Options")
+    plotGroup.add_argument('--title', dest='title', type=str,
+                           default = 'Empirical Distribution Function',
+                           help = 'title of plot')
+    plotGroup.add_argument('--predicted', dest='pred', type=float,
+                           default = 0,
+                           help = 'factor by which predicted curve is greater than observed')
+    plotGroup.add_argument('--predLabel', dest='predLabel', type=str,
+                           default = 'Predicted',
+                           help = 'label of predicted in legend')
+    plotGroup.add_argument('--noDataPoints', dest='noDataPoints',
+                           default = False, action='store_true',
+                           help="Draw lines but no points for data")
+    rangeGroup.add_argument('--minRun', dest='minRun', type=int, default=0,
+                            help='Minimum run number to consider')
+    rangeGroup.add_argument('--maxRun', dest='maxRun', type=int, default=0,
+                            help='Maximum run number to consider')
+    rangeGroup.add_argument('--minIntLum', dest='minIntLum', type=float, default=0,
+                            help='Minimum integrated luminosity to consider')
+    rangeGroup.add_argument('--maxIntLum', dest='maxIntLum', type=float, default=0,
+                            help='Maximum integrated luminosity to consider')
+    rangeGroup.add_argument('--resetExpected', dest='resetExpected',
+                            default = False, action='store_true',
+                            help='Reset expected from total yield to highest point considered')
+    rangeGroup.add_argument('--breakExpectedIntLum', dest='breakExpectedIntLum',
+                            type=str, action='append', default=[],
+                            help='Break expected curve into pieces at integrated luminosity boundaries')
+    inputGroup.add_argument('--ignoreNoLumiEvents', dest='ignore',
+                            default = False, action='store_true',
+                            help = 'Ignore (with a warning) events that do not have a lumi section')
+    inputGroup.add_argument('--noWarnings', dest='noWarnings',
+                            default = False,action='store_true',
+                            help = 'Do not print warnings about missing luminosity information')
+    inputGroup.add_argument('--runEventLumi', dest='relOrder',
+                            default = False, action='store_true',
+                            help = 'Parse event list assuming Run, Event #, Lumi# order')
+    inputGroup.add_argument('--weights', dest='weights', default = False, action='store_true',
+                            help = 'Read fourth column as a weight')
+    modeGroup.add_argument('--print', dest='printValues', default = False, action='store_true',
+                           help = 'Print X and Y values of EDF plot')
+    modeGroup.add_argument('--runsWithLumis', dest='runsWithLumis',
+                           type=str,action='append', default=[],
+                           help='Print out run and lumi sections corresponding to integrated luminosities provided and then exits')
+    modeGroup.add_argument('--edfMode', dest='edfMode', type=str,
+                           default='time',
+                           help="EDF Mode", choices=allowedEDF)
+    parser.add_argument("lumi_csv", metavar="lumi.csv", type=str)
+    parser.add_argument("events_txt", metavar="events.txt", type=str, nargs='?')
+    parser.add_argument("output_png", metavar="output.png", type=str, nargs='?')
+    options = parser.parse_args()
 
-    if options.edfMode not in allowedEDF:
-        raise RuntimeError("edfMode (currently '%s') must be one of %s" \
-              % (options.edfMode, allowedEDF))
-
-    if len (args) != 3 and not (options.runsWithLumis and len(args) >= 1):
-        raise RuntimeError("Must provide lumi.csv, events.txt, and output.png")
-
+    if not options.runsWithLumis and (options.events_txt is None or options.output_png is None):
+        parser.error("Must provide lumi.csv, events.txt, and output.png")
 
     ##########################
     ## load Luminosity info ##
     ##########################
-    cont = LumiInfoCont (args[0], **options.__dict__)
+    cont = LumiInfoCont (options.lumi_csv, **options.__dict__)
     cont.minRun    = options.minRun
     cont.maxRun    = options.maxRun
     cont.minIntLum = options.minIntLum
@@ -683,6 +677,6 @@ if __name__ == '__main__':
     ## make EDF plots ##
     ####################
     if options.edfMode != 'time' and not cont.xingInfo:
-        raise RuntimeError("'%s' does not have Xing info" % args[0])
-    eventsDict, totalWeight = loadEvents (args[1], cont, options)
-    makeEDFplot (cont, eventsDict, totalWeight, args[2], options)
+        raise RuntimeError("'%s' does not have Xing info" % options.lumi_csv)
+    eventsDict, totalWeight = loadEvents (options.events_txt, cont, options)
+    makeEDFplot (cont, eventsDict, totalWeight, options.output_png, options)

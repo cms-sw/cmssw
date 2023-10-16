@@ -2,30 +2,27 @@
 
 from __future__ import print_function
 import sys
-import optparse
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import re
 from FWCore.PythonUtilities.LumiList import LumiList
 
-
 if __name__ == '__main__':
     
-    parser = optparse.OptionParser ("Usage: %prog input.csv")
-    parser.add_option ('--output', dest='output', type='string',
-                       help='Save output to file OUTPUT')
-    parser.add_option ('--runIndex', dest='runIndex', type='int',
-                       default = 0,
-                       help='column to be converted to run number (default %default)')
-    parser.add_option ('--lumiIndex', dest='lumiIndex', type='int',
-                       default = 1,
-                       help='column to be converted to lumi section number (default %default)')
-    # required parameters
-    (options, args) = parser.parse_args()
-    if len (args) != 1:
-        raise RuntimeError("Must provide exactly one input file")
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--output', dest='output', type=str,
+                        help='Save output to file OUTPUT')
+    parser.add_argument('--runIndex', dest='runIndex', type=int,
+                        default = 0,
+                        help='column to be converted to run number')
+    parser.add_argument('--lumiIndex', dest='lumiIndex', type=int,
+                        default = 1,
+                        help='column to be converted to lumi section number')
+    parser.add_argument("input", metavar="input.csv", type=str)
+    options = parser.parse_args()
 
     sepRE = re.compile (r'[\s,;:]+')
     runLumiDict = {}    
-    events = open (args[0], 'r')
+    events = open (options.input, 'r')
     runIndex, lumiIndex = options.runIndex, options.lumiIndex
     minPieces = max (runIndex, lumiIndex) + 1
     for line in events:

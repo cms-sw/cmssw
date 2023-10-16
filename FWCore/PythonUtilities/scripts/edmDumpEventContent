@@ -5,7 +5,7 @@ from builtins import object
 import os
 import sys
 import copy
-import optparse
+from argparse import ArgumentParser
 import re
 import copy
 import subprocess
@@ -159,41 +159,34 @@ class Branch (object):
 #branches = ''
 if __name__ == "__main__":
 
-    parser = optparse.OptionParser \
-             ("usage: %prog [options] templates.root" \
-              "\nPrints out info on edm file.")
-    parser.add_option ('--name', dest='name', action='store_true',
-                       help='print out only branch names')
-    parser.add_option ('--all',  dest='all',  action='store_true',
-                       help='Print out everything: type, module, label, '\
-                       'process, and branch name')
-    parser.add_option ('--lfn', dest='lfn', action='store_true',
-                       help="Force LFN2PFN translation (usually not necessary)")
-    parser.add_option ('--lumi', dest='lumi', action='store_true',
-                       help="Look at 'lumi' tree")
-    parser.add_option ('--run', dest='run', action='store_true',
-                       help="Look at 'run' tree")
-    parser.add_option ("--regex", dest='regex', action="append",
-                       type="string", default=[],
-                       help="Filter results based on regex")    
-    parser.add_option ('--skipping', dest='skipping', action='store_true',
-                       help="Print out branches being skipped")
-    parser.add_option ('--forceColumns', dest='forceColumns',
-                       action='store_true',
-                       help="Forces printouts to be in nice columns")
-    options, args = parser.parse_args()
-    if not args:
-        print(parser.print_usage())
-        sys.exit()
-    filename = expandFilename (args[0], options)
+    parser = ArgumentParser(description="Prints out info on edm file.")
+    nameAllGroup = parser.add_mutually_exclusive_group()
+    nameAllGroup.add_argument('--name', dest='name', action='store_true',
+                              help='print out only branch names')
+    nameAllGroup.add_argument('--all',  dest='all',  action='store_true',
+                              help='Print out everything: type, module, label, '\
+                              'process, and branch name')
+    parser.add_argument('--lfn', dest='lfn', action='store_true',
+                        help="Force LFN2PFN translation (usually not necessary)")
+    lumiRunGroup = parser.add_mutually_exclusive_group()
+    lumiRunGroup.add_argument('--lumi', dest='lumi', action='store_true',
+                              help="Look at 'lumi' tree")
+    lumiRunGroup.add_argument('--run', dest='run', action='store_true',
+                              help="Look at 'run' tree")
+    parser.add_argument("--regex", dest='regex', action="append",
+                        type=str, default=[],
+                        help="Filter results based on regex")
+    parser.add_argument('--skipping', dest='skipping', action='store_true',
+                        help="Print out branches being skipped")
+    parser.add_argument('--forceColumns', dest='forceColumns',
+                        action='store_true',
+                        help="Forces printouts to be in nice columns")
+    parser.add_argument("templates", metavar="templates.root", type=str)
+    options = parser.parse_args()
+    filename = expandFilename (options.templates, options)
     ###################
     # process options #
     ###################
-    # check for illegal combinations
-    if options.name and options.all:
-        raise RuntimeError("Can notuse '--name' and '--all' options together.")
-    if options.lumi and options.run:
-        raise RuntimeError("Can not use '--lumi' and '--run' options together.")
     if options.name:
         Branch.mode = 'name'
     elif options.all:
@@ -211,14 +204,12 @@ if __name__ == "__main__":
         regexList.append( re.compile( regexString, re.IGNORECASE ) )
     # Because PyRoot is, well, greedy, we want to make sure we have
     # setup and parsed the command line options before importing ROOT
-    # otherwise ROOT will try and do this for us.  This "feature" can
-    # be turned of in Root 5.24 or later, but CMSSW uses 5.22.
-    import PhysicsTools.PythonAnalysis as cmstools
+    # otherwise ROOT will try and do this for us.
     import ROOT
     ROOT.gROOT.SetBatch() # setting batch mode
-    # Here we turn of stderr so that we don't get all of the errors
+    # Here we turn off stderr so that we don't get all of the errors
     # saying we don't have a dictionary for all of the objects in the
-    # root file.  When we've loaded the file, we're turn it back
+    # root file.  When we've loaded the file, we turn it back on
     oldStderr = os.dup( sys.stderr.fileno() )
     newStderr = open ( '/dev/null', 'w')
     os.dup2( newStderr.fileno(), sys.stderr.fileno() )
