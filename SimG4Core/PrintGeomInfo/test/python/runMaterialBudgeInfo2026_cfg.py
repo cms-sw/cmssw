@@ -1,8 +1,10 @@
 #######################################################9########################
 # Way to use this:
-#   cmsRun runMaterialBudgetInfo_cfg.py type=DDD detector=Tracker
+#   cmsRun runMaterialBudgetInfo2026_cfg.py type=DDD geometry=D98 detector=Tracker
 #
 #   Options for type DDD, DD4hep
+#   Options for geometry D86, D88, D91, D92, D93, D95, D96, D97, D98, D99,
+#                        D100, D101
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,6 +19,11 @@ options.register('type',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "type of operations: DDD, DD4hep")
+options.register('geometry',
+                 "D92",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D86, D88, D91, D92, D93, D95, D96, D97, D98, D99, D100, D101")
 options.register('detector',
                  "Tracker",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -30,14 +37,15 @@ print(options)
 #####p###############################################################
 # Use the options
 
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+
 if (options.type == "DDD"):
-    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
-    process = cms.Process("PrintMaterialBudget",Run3_DDD)
-    geomFile = "Configuration.Geometry.GeometryExtended2021Reco_cff"
+    process = cms.Process("PrintMaterialBudget",Phase2C17I13M9)
+    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 else:
-    from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
-    process = cms.Process("PrintMaterialBudget",Run3_dd4hep)
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff"
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    process = cms.Process("PrintMaterialBudget",Phase2C17I13M9,dd4hep)
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
 
 print("Geometry file Name: ", geomFile)
 print("Detector          : ", options.detector)
