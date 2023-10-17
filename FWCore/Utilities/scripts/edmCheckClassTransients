@@ -50,14 +50,14 @@ def checkTrans(templname,name):
     return nerrs
 
 #Setup the options
-from optparse import OptionParser
-oparser = OptionParser()
-oparser.add_option("-l","--lib", dest="library",
-                   help="specify the library to load")
-oparser.add_option("-f","--rootmap", dest="rmfiles", action="append", default=[],
-                   help="specify the rootmap file(s) to read")
+from argparse import ArgumentParser
+oparser = ArgumentParser()
+oparser.add_argument("-l","--lib", dest="library", type=str,
+                     help="specify the library to load")
+oparser.add_argument("-f","--rootmap", dest="rmfiles", action="append", type=str, default=[],
+                     help="specify the rootmap file(s) to read")
 
-(options,args)=oparser.parse_args()
+options=oparser.parse_args()
 
 #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
 import ROOT

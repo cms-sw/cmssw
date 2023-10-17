@@ -1,6 +1,5 @@
 #!  /usr/bin/env python3
 from __future__ import print_function
-from optparse import OptionParser
 from sys import version_info
 if version_info[0] > 2:
     atol = int
@@ -153,18 +152,18 @@ def checkClass(name,version,versionsToChecksums):
     return (noError,classVersion,classChecksum)
 
 #Setup the options
-from optparse import OptionParser
-oparser = OptionParser()
-oparser.add_option("-d","--check_dictionaries", dest="checkdict",action="store_true",default=False,
-                   help="check that all required dictionaries are loaded")
-oparser.add_option("-l","--lib", dest="library",
-                   help="specify the library to load. If not set classes are found using the PluginManager")
-oparser.add_option("-x","--xml_file", dest="xmlfile",default="./classes_def.xml",
-                   help="the classes_def.xml file to read")
-oparser.add_option("-g","--generate_new",dest="generate", action="store_true",default=False,
-                   help="instead of issuing errors, generate a new classes_def.xml file.")
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+oparser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+oparser.add_argument("-d","--check_dictionaries", dest="checkdict",action="store_true",default=False,
+                     help="check that all required dictionaries are loaded")
+oparser.add_argument("-l","--lib", dest="library", type=str,
+                     help="specify the library to load. If not set classes are found using the PluginManager")
+oparser.add_argument("-x","--xml_file", dest="xmlfile",default="./classes_def.xml", type=str,
+                     help="the classes_def.xml file to read")
+oparser.add_argument("-g","--generate_new",dest="generate", action="store_true",default=False,
+                     help="instead of issuing errors, generate a new classes_def.xml file.")
 
-(options,args)=oparser.parse_args()
+options=oparser.parse_args()
 
 #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
 import ROOT
