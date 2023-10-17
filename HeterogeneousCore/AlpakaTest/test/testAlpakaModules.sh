@@ -5,21 +5,21 @@ function die { echo Failed $1: status $2 ; exit $2 ; }
 TEST_DIR=${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test
 
 if [ "$#" != "1" ]; then
-    die "Need exactly 1 argument ('cpu', 'cuda'), got $#" 1
+    die "Need exactly 1 argument ('cpu' or 'cuda'), got $#" 1
 fi
-if [ "$1" = "cuda" ]; then
-    TARGET=cuda
-elif [ "$1" = "cpu" ]; then
-    # In non-_GPU_ IBs, if CUDA is enabled, run the GPU-targeted tests
-    cudaIsEnabled
-    CUDA_ENABLED=$?
-    if [ "${CUDA_ENABLED}" = "0" ]; then
-        TARGET=cuda
-    else
-        TARGET=cpu
-    fi
+if [[ "$1" =~ ^(cpu|cuda)$ ]]; then
+    TARGET=$1
 else
-    die "Argument needs to be 'cpu' or 'cuda', got $1" 1
+    die "Argument needs to be 'cpu' or 'cuda', got '$1'" 1
+fi
+
+# Some of the CPU-only tests fail if run on machine with GPU
+if [ "$TARGET" == "cpu" ]; then
+    cudaIsEnabled
+    if [ "$?" == "0" ]; then
+        echo "Test target is 'cpu', but NVIDIA GPU is detected. Ignoring the CPU tests."
+        exit 0
+    fi
 fi
 
 function runSuccess {
