@@ -95,7 +95,6 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
       bxt << "BX" << ibx;
     }
     std::string hname, hsummary;
-    float wt;
 
     hsummary = "dataEmulSummary_" + bxt.str();
 
@@ -137,16 +136,13 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
           if (it_data->getAlgoDecisionInitial(algoBit)) {
             hname = "DataNoEmul_" + bxt.str();
             foundInitalMismatchDataNoEmul = true;
-            wt = 1;
+            initDecisionMismatchesDnoE_vs_LS->Fill(float(lumi));
           } else {
             hname = "EmulatorNoData_" + bxt.str();
             foundInitalMismatchEmulNoData = true;
-            wt = -1;
+            initDecisionMismatchesEnoD_vs_LS->Fill(float(lumi));
           }
           fillHist(m_HistNamesInitial, hname, float(algoBit), 1.);
-          initDecisionMismatches_vs_LS->Fill(
-              float(lumi),
-              wt);  // TODO: I think this weight makes things confusing. If we have uncorrelated no emu and a few no data mismatches it would look like we have fewer mismatches than we actually do.
         }
 
         // Check final decisions
@@ -165,16 +161,13 @@ void L1TdeStage2uGT::analyze(const edm::Event& event, const edm::EventSetup& es)
             if (it_data->getAlgoDecisionFinal(algoBit)) {
               hname = "DataNoEmul_" + bxt.str();
               foundFinalMismatchDataNoEmul = true;
-              wt = 1;
+              finalDecisionMismatchesDnoE_vs_LS->Fill(float(lumi));
             } else {
               hname = "EmulatorNoData_" + bxt.str();
               foundFinalMismatchEmulNoData = true;
-              wt = -1;
+              finalDecisionMismatchesEnoD_vs_LS->Fill(float(lumi));
             }
             fillHist(m_HistNamesFinal, hname, float(algoBit), 1.);
-            finalDecisionMismatches_vs_LS->Fill(
-                float(lumi),
-                wt);  // TODO: I think this weight makes things confusing. If we have uncorrelated no emu and a few no data mismatches it would look like we have fewer mismatches than we actually do.
           }
         }
 
@@ -241,13 +234,23 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
 
     // book initial decisions histograms
     ibooker.setCurrentFolder(histFolder_ + "/InitialDecisionMismatches");
-    initDecisionMismatches_vs_LS = ibooker.book1D("initialDecisionMismatches_vs_LS",
-                                                  "uGT initial decision mismatches vs Luminosity Segment",
-                                                  numLS_,
-                                                  0.,
-                                                  double(numLS_));
-    initDecisionMismatches_vs_LS->setAxisTitle("Events with Initial Decision Mismatch", /* axis */ 2);
-    initDecisionMismatches_vs_LS->setAxisTitle("Luminosity Segment");
+    initDecisionMismatchesDnoE_vs_LS =
+        ibooker.book1D("initialDecisionMismatchesDnoE_vs_LS",
+                       "uGT initial decision mismatches (Data, but no emu) vs Luminosity Segment",
+                       numLS_,
+                       0.,
+                       double(numLS_));
+    initDecisionMismatchesDnoE_vs_LS->setAxisTitle("Events with Initial Decision Mismatch", /* axis */ 2);
+    initDecisionMismatchesDnoE_vs_LS->setAxisTitle("Luminosity Segment");
+
+    initDecisionMismatchesEnoD_vs_LS =
+        ibooker.book1D("initialDecisionMismatchesEnoD_vs_LS",
+                       "uGT initial decision mismatches (Emu, but no data) vs Luminosity Segment",
+                       numLS_,
+                       0.,
+                       double(numLS_));
+    initDecisionMismatchesEnoD_vs_LS->setAxisTitle("Events with Initial Decision Mismatch", /* axis */ 2);
+    initDecisionMismatchesEnoD_vs_LS->setAxisTitle("Luminosity Segment");
 
     hname = "DataNoEmul_" + bxt.str();
     htitle = "uGT data-emul mismatch -- Data fired but not Emulator --" + bxn.str();
@@ -259,13 +262,23 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
 
     // book final decisions histograms
     ibooker.setCurrentFolder(histFolder_ + "/FinalDecisionMismatches");
-    finalDecisionMismatches_vs_LS = ibooker.book1D("finalDecisionMismatches_vs_LS",
-                                                   "uGT final decision mismatches vs Luminosity Segment",
-                                                   numLS_,
-                                                   0.,
-                                                   double(numLS_));
-    finalDecisionMismatches_vs_LS->setAxisTitle("Events with Final Decision Mismatch", /* axis */ 2);
-    finalDecisionMismatches_vs_LS->setAxisTitle("Luminosity Segment");
+    finalDecisionMismatchesDnoE_vs_LS =
+        ibooker.book1D("finalDecisionMismatchesDnoE_vs_LS",
+                       "uGT final decision mismatches (Data, but no emu) vs Luminosity Segment",
+                       numLS_,
+                       0.,
+                       double(numLS_));
+    finalDecisionMismatchesDnoE_vs_LS->setAxisTitle("Events with Final Decision Mismatch", /* axis */ 2);
+    finalDecisionMismatchesDnoE_vs_LS->setAxisTitle("Luminosity Segment");
+
+    finalDecisionMismatchesEnoD_vs_LS =
+        ibooker.book1D("finalDecisionMismatchesEnoD_vs_LS",
+                       "uGT final decision mismatches (Emu, but no data) vs Luminosity Segment",
+                       numLS_,
+                       0.,
+                       double(numLS_));
+    finalDecisionMismatchesEnoD_vs_LS->setAxisTitle("Events with Final Decision Mismatch", /* axis */ 2);
+    finalDecisionMismatchesEnoD_vs_LS->setAxisTitle("Luminosity Segment");
 
     hname = "DataNoEmul_" + bxt.str();
     htitle = "uGT data-emul mismatch -- Data fired but not Emulator --" + bxn.str();
