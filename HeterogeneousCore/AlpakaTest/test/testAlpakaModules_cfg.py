@@ -5,7 +5,8 @@ import argparse
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test various Alpaka module types')
 
 parser.add_argument("--accelerators", type=str, help="Set process.options.accelerators (comma-separated string, default is to use default)", default="")
-parser.add_argument("--moduleBackend", type=str, help="Set Alpaka backend for module instances", default="")
+parser.add_argument("--moduleBackend", type=str, help="Set Alpaka backend via module instances", default="")
+parser.add_argument("--processAcceleratorBackend", type=str, help="Set Alpaka backend via ProcessAcceleratorAlpaka", default="")
 parser.add_argument("--expectBackend", type=str, help="Expect this backend to run")
 parser.add_argument("--run", type=int, help="Run number (default: 1)", default=1)
 
@@ -105,6 +106,8 @@ process.alpakaStreamSynchronizingConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     expectSize = cms.int32(10)
 )
 
+if args.processAcceleratorBackend != "":
+    process.ProcessAcceleratorAlpaka.setBackend(args.processAcceleratorBackend)
 if args.moduleBackend != "":
     for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD",
                  "GlobalProducer", "StreamProducer", "StreamInstanceProducer", "StreamSynchronizingProducer"]:
