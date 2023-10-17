@@ -320,7 +320,6 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     printTrform(phgp);
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
-
   }
 
   auto finish = std::chrono::high_resolution_clock::now();
