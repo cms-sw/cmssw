@@ -3,7 +3,6 @@
 #  ignoring trivial differences like order within
 #  dictionaries or escape characters
 
-from __future__ import print_function
 import sys
 from argparse import ArgumentParser
 

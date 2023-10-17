@@ -1,5 +1,4 @@
 #!  /usr/bin/env python3
-from __future__ import print_function
 from sys import version_info
 if version_info[0] > 2:
     atol = int

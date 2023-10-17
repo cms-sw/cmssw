@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 from FWCore.PythonUtilities.XML2Python import xml2obj
 from FWCore.PythonUtilities.LumiList   import LumiList
 from pprint import pprint
