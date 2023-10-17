@@ -12,6 +12,10 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
+// This header is not used by PortableCollection, but is included here to automatically
+// provide its content to users of ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection.
+#include "HeterogeneousCore/AlpakaInterface/interface/AssertDeviceMatchesHostCollection.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
@@ -21,19 +25,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename T>
   using PortableCollection = ::PortableHostCollection<T>;
 
-  // check that the portable device collection for the host device is the same as the portable host collection
-#define ASSERT_DEVICE_MATCHES_HOST_COLLECTION(DEVICE_COLLECTION, HOST_COLLECTION)       \
-  static_assert(std::is_same_v<alpaka_serial_sync::DEVICE_COLLECTION, HOST_COLLECTION>, \
-                "The device collection for the host device and the host collection must be the same type!");
-
 #else
 
   // generic SoA-based product in device memory
   template <typename T>
   using PortableCollection = ::PortableDeviceCollection<T, Device>;
-
-  // the portable device collections for the non-host devices do not require any checks
-#define ASSERT_DEVICE_MATCHES_HOST_COLLECTION(DEVICE_COLLECTION, HOST_COLLECTION)
 
 #endif  // ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
 
