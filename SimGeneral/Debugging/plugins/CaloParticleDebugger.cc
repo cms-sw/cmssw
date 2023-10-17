@@ -309,6 +309,8 @@ void CaloParticleDebugger::fillSimHits(std::map<int, float>& detIdToTotalSimEner
   hgtopo[1] = &(fhgeom->topology());
   if (bhgeomnew)
     hgtopo[2] = &(bhgeomnew->topology());
+  else
+    hgtopo[2] = nullptr;
 
   for (unsigned i = 0; i < 3; ++i) {
     if (hgtopo[i])
