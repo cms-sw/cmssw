@@ -7,8 +7,15 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 
 template <typename T>
-class bistream_iterator : public std::iterator<std::input_iterator_tag, T, ptrdiff_t, const T*, const T&> {
+class bistream_iterator {
 public:
+  // C++17 compliant iterator definition
+  using iterator_category = std::input_iterator_tag;
+  using value_type = T;
+  using difference_type = std::ptrdiff_t;
+  using pointer = T*;
+  using reference = T&;
+
   bistream_iterator() : stream_(0) {}
 
   bistream_iterator(binary_ifstream& s) : stream_(&s) { read(); }
