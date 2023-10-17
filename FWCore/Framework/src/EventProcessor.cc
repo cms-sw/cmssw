@@ -695,8 +695,6 @@ namespace edm {
       schedule_->initializeEarlyDelete(branchesToDeleteEarly, referencesToBranches, modulesToSkip, *preg_);
     }
 
-    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
-
     if (preallocations_.numberOfLuminosityBlocks() > 1) {
       throwAboutModulesRequiringLuminosityBlockSynchronization();
     }
@@ -719,13 +717,16 @@ namespace edm {
     //if(looper_) {
     //   looper_->beginOfJob(es);
     //}
+    espController_->finishConfiguration();
+    actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
+    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
     try {
       convertException::wrap([&]() { input_->doBeginJob(); });
     } catch (cms::Exception& ex) {
       ex.addContext("Calling beginJob for the source");
       throw;
     }
-    espController_->finishConfiguration();
+
     schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_);
     if (looper_) {
       constexpr bool mustPrefetchMayGet = true;
