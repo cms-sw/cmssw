@@ -24,7 +24,6 @@ if len(args.accelerators) != 0:
     process.options.accelerators = args.accelerators.split(",")
 
 process.load('Configuration.StandardSequences.Accelerators_cff')
-process.load("HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi")
 process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
 
 process.alpakaESRecordASource = cms.ESSource("EmptyESSource",
@@ -63,7 +62,8 @@ process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
     eventSetupSource = cms.ESInputTag("alpakaESProducerA", "appendedLabel"),
     size = dict(
         alpaka_serial_sync = 10,
-        alpaka_cuda_async = 20
+        alpaka_cuda_async = 20,
+        alpaka_rocm_async = 30,
     )
 )
 process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
@@ -71,7 +71,8 @@ process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
     eventSetupSource = cms.ESInputTag("alpakaESProducerB", "explicitLabel"),
     size = cms.PSet(
         alpaka_serial_sync = cms.int32(5),
-        alpaka_cuda_async = cms.int32(25)
+        alpaka_cuda_async = cms.int32(25),
+        alpaka_rocm_async = cms.int32(125),
     )
 )
 process.alpakaStreamInstanceProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
@@ -80,7 +81,8 @@ process.alpakaStreamInstanceProducer = cms.EDProducer("TestAlpakaStreamProducer@
     productInstanceName = cms.string("testInstance"),
     size = cms.PSet(
         alpaka_serial_sync = cms.int32(6),
-        alpaka_cuda_async = cms.int32(36)
+        alpaka_cuda_async = cms.int32(36),
+        alpaka_rocm_async = cms.int32(216),
     )
 )
 process.alpakaStreamSynchronizingProducer = cms.EDProducer("TestAlpakaStreamSynchronizingProducer@alpaka",
@@ -125,6 +127,14 @@ if args.expectBackend == "cuda_async":
     setExpect(process.alpakaStreamConsumer, size=25)
     setExpect(process.alpakaStreamInstanceConsumer, size=36)
     setExpect(process.alpakaStreamSynchronizingConsumer, size=20)
+elif args.expectBackend == "rocm_async":
+    def setExpect(m, size):
+        m.expectSize = size
+        m.expectBackend = "ROCmAsync"
+    setExpect(process.alpakaGlobalConsumer, size = 30)
+    setExpect(process.alpakaStreamConsumer, size = 125)
+    setExpect(process.alpakaStreamInstanceConsumer, size = 216)
+    setExpect(process.alpakaStreamSynchronizingConsumer, size = 30)
 
 process.output = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('testAlpaka.root'),

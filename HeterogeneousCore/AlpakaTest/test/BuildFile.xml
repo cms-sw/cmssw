@@ -9,3 +9,7 @@
   <!-- dependence only to trigger the unit test when NVIDIA GPU is (expected to be) present -->
   <use name="cuda"/>
 </test>
+<test name="testHeterogeneousCoreAlpakaTestModulesROCm" command="testAlpakaModules.sh rocm">
+  <!-- dependence only to trigger the unit test when AMD GPU is (expected to be) present -->
+  <use name="rocm"/>
+</test>
