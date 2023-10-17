@@ -1,5 +1,5 @@
-#ifndef EcalEBTrigPrimPhase2Producer_h
-#define EcalEBTrigPrimPhase2Producer_h
+#ifndef SimCalorimetry_EcalEBTrigPrimProducers_EcalEBTrigPrimPhase2Producer_h
+#define SimCalorimetry_EcalEBTrigPrimProducers_EcalEBTrigPrimPhase2Producer_h
 
 /** \class EcalEBTrigPrimPhase2Producer 
 \author L. Lutton, N. Marinelli - Univ. of Notre Dame

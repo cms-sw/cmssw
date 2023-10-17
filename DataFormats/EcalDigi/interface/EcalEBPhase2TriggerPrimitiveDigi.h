@@ -35,7 +35,8 @@ public:
   void setSample(int i, const EcalEBPhase2TriggerPrimitiveSample& sam);
   void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
 
-  static const int MAXSAMPLES = 20;
+  static const int MAXSAMPLES =
+      20;  // This is the number of digi samples one wants to put in the TP digis. In Phase I was 5, but this setting was used. In the end in Phase I one one sample, corresponding to BC0 was filled. For Phase2 we have not decided yet. We leave this setting as it is while we decide what to do
 
   /// get the 10 bits Et of interesting sample
   int encodedEt() const;

@@ -75,6 +75,8 @@ EcalEBPhase2TrigPrimAlgo::~EcalEBPhase2TrigPrimAlgo() {
   delete amplitude_reconstructor_;
   delete time_reconstructor_;
   delete spike_tagger_;
+  delete tpFormatter_;
+  delete theMapping_;
 }
 
 void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2TrigPrimDigiCollection &result) {

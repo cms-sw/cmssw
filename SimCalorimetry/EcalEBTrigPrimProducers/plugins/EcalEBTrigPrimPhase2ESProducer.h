@@ -11,9 +11,9 @@
 
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
-
-//#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
+// commented lines are for a reminder that in future we might need to implement something alike
+//#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
 //#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
 #include "CondFormats/DataRecord/interface/EcalEBPhase2TPGLinearizationConstRcd.h"

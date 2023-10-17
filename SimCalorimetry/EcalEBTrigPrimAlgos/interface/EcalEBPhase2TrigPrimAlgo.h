@@ -94,8 +94,6 @@ private:
 
   int binOfMaximum_;
   int maxNrSamples_;
-
-  bool barrelOnly_;
   bool debug_;
 
   int nrTowers_;  // nr of towers found by fillmap method

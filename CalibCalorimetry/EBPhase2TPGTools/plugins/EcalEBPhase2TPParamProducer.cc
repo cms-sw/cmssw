@@ -150,7 +150,7 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
 
     } else {
       edm::LogError("EcalEBPhase2TPParamProducer") << " could not find EcalLiteDTUPedestal entry for " << id;
-      throw std::exception();
+      throw cms::Exception("could not find pedestals");
     }
 
     int shift, mult;
@@ -160,15 +160,10 @@ void EcalEBPhase2TPParamProducer::analyze(const edm::Event& evt, const edm::Even
     for (unsigned int i = 0; i < ecalPh2::NGAINS; ++i) {
       ok = computeLinearizerParam(theta, gainRatio_[i], calibCoeff, shift, mult);
       if (!ok) {
-        edm::LogWarning("EcalEBPhase2TPParamProducer")
+        edm::LogError("EcalEBPhase2TPParamProducer")
             << "unable to compute the parameters for SM=" << id.ism() << " xt=" << id.ic() << " " << id.rawId();
+        throw cms::Exception("unable to compute the parameters");
 
-        shift = 0;
-        tmpPedByGain = 0;
-        mult = 0;
-        toCompressStream << " 0x0"
-                         << " 0x0"
-                         << " 0x0" << std::endl;
       } else {
         tmpPedByGain = (int)(peds->mean(i) + 0.5);
         toCompressStream << std::hex << " 0x" << tmpPedByGain << " 0x" << mult << " 0x" << shift << " " << i2cSub_[i]

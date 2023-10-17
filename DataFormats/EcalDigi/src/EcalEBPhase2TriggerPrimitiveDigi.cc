@@ -11,6 +11,7 @@ void EcalEBPhase2TriggerPrimitiveDigi::setSample(int i, const EcalEBPhase2Trigge
 }
 
 int EcalEBPhase2TriggerPrimitiveDigi::sampleOfInterest() const {
+  // sample  of interest to be save in the TP digis
   if (size_ == 1)
     return 0;
   else if (size_ == 5)

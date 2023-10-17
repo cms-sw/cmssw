@@ -16,17 +16,23 @@ void EcalEBPhase2SpikeTagger::setParameters(EBDetId detId,
     std::cout << " EcalEBPhase2SpikeTagger::setParameters " << std::endl;
 
   EcalLiteDTUPedestalsMap::const_iterator itped = ecaltpPed->getMap().find(detId);
-  if (itped != ecaltpPed->end())
+  if (itped != ecaltpPed->end()) {
     peds_ = &(*itped);
-  else
-    std::cout << " could not find EcalLiteDTUPedestal entry for " << detId << std::endl;
+  } else {
+    edm::LogError("EcalEBPhase2SpikeTagger::setParameters")
+        << " could not find EcalLiteDTUPedestal entry for " << detId;
+    throw cms::Exception("EcalEBPhase2SpikeTagger::setParameters could not find pedestals");
+  }
 
   const EcalEBPhase2TPGLinearizationConstMap& linMap = ecaltpLin->getMap();
   EcalEBPhase2TPGLinearizationConstMapIterator it = linMap.find(detId.rawId());
   if (it != linMap.end()) {
     linConsts_ = &(*it);
-  } else
-    std::cout << " could not find EcalEBPhase2TPGLinearizationConstMap entry for " << detId.rawId() << std::endl;
+  } else {
+    edm::LogError("EcalEBPhase2SpikeTagger::setParameters")
+        << " could not find EcalEBPhase2TPGLinearizationConstMap  entry for " << detId.rawId();
+    throw cms::Exception("EcalEBPhase2SpikeTagger::setParameters could not find pedestals");
+  }
 }
 
 bool EcalEBPhase2SpikeTagger::process(const std::vector<int>& linInput) {
