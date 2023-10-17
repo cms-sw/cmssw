@@ -6,6 +6,7 @@ DET_TO_CHECK=("TotemTiming" "TimingDiamond" "TrackingStrip" "TotemT2")
 MASK_DATA="AnalysisMask"
 TEST_DIR=$CMSSW_BASE/src/CondTools/CTPPS/test
 PRINTER_SCRIPT=$CMSSW_BASE/src/CalibPPS/ESProducers/test/script_test_many_writeTotemDAQMapping.py
+[ -e ${PRINTER_SCRIPT} ] || PRINTER_SCRIPT=$CMSSW_RELEASE_BASE/src/CalibPPS/ESProducers/test/script_test_many_writeTotemDAQMapping.py
 
 # ---------------
 python3 ${TEST_DIR}/script-ctpps-write-many-XML-to-SQLite.py False "${DET_TO_CHECK[@]}" || die 'Failed in script-ctpps-write-many-XML-to-SQLite.py' $?
