@@ -370,12 +370,13 @@ process.dqmBeamMonitor.jetTrigger  = [
          "HLT_PixelClusters"]
 
 # for HI only: select events based on the pixel cluster multiplicity
+# This is done to limit the combinatorics that must be resolved during track reconstruction
 if (process.runType.getRunType() == process.runType.hi_run):
     import HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
         inputTag  = 'siPixelClustersPreSplitting',
         minClusters = 150,
-        maxClusters = 50000 # was 10000
+        maxClusters = 70000 # was 50000
     )
        
     process.filter_step = cms.Sequence( process.siPixelDigis
