@@ -33,26 +33,28 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   constexpr HGCSiliconDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  constexpr HGCSiliconDetId(DetId::Detector det, int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV): DetId(det, ForwardEmpty) {
+  constexpr HGCSiliconDetId(
+      DetId::Detector det, int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV)
+      : DetId(det, ForwardEmpty) {
     int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
     int waferUsign = (waferU >= 0) ? 0 : 1;
     int waferVsign = (waferV >= 0) ? 0 : 1;
     int zside = (zp < 0) ? 1 : 0;
     id_ |= (((cellU & kHGCalCellUMask) << kHGCalCellUOffset) | ((cellV & kHGCalCellVMask) << kHGCalCellVOffset) |
-	    ((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
-	    ((waferUsign & kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
-	    ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
-	    ((waferVsign & kHGCalWaferVSignMask) << kHGCalWaferVSignOffset) |
-	    ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
-	    ((type & kHGCalTypeMask) << kHGCalTypeOffset));
+            ((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
+            ((waferUsign & kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
+            ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
+            ((waferVsign & kHGCalWaferVSignMask) << kHGCalWaferVSignOffset) |
+            ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
+            ((type & kHGCalTypeMask) << kHGCalTypeOffset));
   }
 
   /** Constructor from a generic cell id */
   constexpr HGCSiliconDetId(const DetId& gen) {
     if (!gen.null()) {
       if ((gen.det() != HGCalEE) && (gen.det() != HGCalHSi)) {
-	throw cms::Exception("Invalid DetId")
-          << "Cannot initialize HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
+        throw cms::Exception("Invalid DetId")
+            << "Cannot initialize HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
       }
     }
     id_ = gen.rawId();
@@ -62,8 +64,8 @@ public:
   constexpr HGCSiliconDetId& operator=(const DetId& gen) {
     if (!gen.null()) {
       if ((gen.det() != HGCalEE) && (gen.det() != HGCalHSi)) {
-	throw cms::Exception("Invalid DetId")
-	<< "Cannot assign HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
+        throw cms::Exception("Invalid DetId")
+            << "Cannot assign HGCSiliconDetId from " << std::hex << gen.rawId() << std::dec;
       }
     }
     id_ = gen.rawId();
@@ -71,7 +73,9 @@ public:
   }
 
   /** Converter for a geometry cell id */
-  constexpr HGCSiliconDetId geometryCell() const { return HGCSiliconDetId(det(), zside(), 0, layer(), waferU(), waferV(), 0, 0); }
+  constexpr HGCSiliconDetId geometryCell() const {
+    return HGCSiliconDetId(det(), zside(), 0, layer(), waferU(), waferV(), 0, 0);
+  }
   constexpr HGCSiliconDetId moduleId() const {
     return HGCSiliconDetId(det(), zside(), type(), layer(), waferU(), waferV(), 0, 0);
   }
@@ -105,8 +109,12 @@ public:
   /// get the wafer #'s in u,v or in x,y
   constexpr int waferUAbs() const { return (id_ >> kHGCalWaferUOffset) & kHGCalWaferUMask; }
   constexpr int waferVAbs() const { return (id_ >> kHGCalWaferVOffset) & kHGCalWaferVMask; }
-  constexpr int waferU() const { return (((id_ >> kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -waferUAbs() : waferUAbs()); }
-  constexpr int waferV() const { return (((id_ >> kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -waferVAbs() : waferVAbs()); }
+  constexpr int waferU() const {
+    return (((id_ >> kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -waferUAbs() : waferUAbs());
+  }
+  constexpr int waferV() const {
+    return (((id_ >> kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -waferVAbs() : waferVAbs());
+  }
   constexpr std::pair<int, int> waferUV() const { return std::pair<int, int>(waferU(), waferV()); }
   constexpr int waferX() const { return (-2 * waferU() + waferV()); }
   constexpr int waferY() const { return (2 * waferV()); }

@@ -176,8 +176,8 @@ void CaloSD::newCollection(const std::string& name, edm::ParameterSet const& p) 
   for (unsigned int k = 0; k < hcn_.size(); ++k) {
     if (name == hcn_[k]) {
       if (k < useResMap_.size() && useResMap_[k] > 0) {
-	meanResponse[1] = std::make_unique<CaloMeanResponse>(p);
-	break;
+        meanResponse[1] = std::make_unique<CaloMeanResponse>(p);
+        break;
       }
     }
   }
@@ -367,7 +367,7 @@ bool CaloSD::isItFineCalo(const G4VTouchable* touch) {
       G4LogicalVolume* lv = touch->GetVolume(ii)->GetLogicalVolume();
       ok = (lv == detector.lv);
 #ifdef EDM_ML_DEBUG
-      std::string name1 = (lv == 0) ? "Unknown" : lv->GetName();
+      std::string name1 = (lv == nullptr) ? "Unknown" : lv->GetName();
       edm::LogVerbatim("CaloSim") << "CaloSD: volume " << name1 << ":" << detector.name << " at Level "
                                   << detector.level << " Flag " << ok;
 #endif
@@ -384,7 +384,7 @@ void CaloSD::Initialize(G4HCofThisEvent* HCE, int k) {
   if (k == 0) {
     detName_[0] = GetName();
     collName_[0] = collectionName[0];
-  } 
+  }
   totalHits[k] = 0;
 
 #ifdef EDM_ML_DEBUG

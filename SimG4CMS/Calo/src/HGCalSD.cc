@@ -318,8 +318,9 @@ void HGCalSD::update(const BeginOfJob* job) {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
   if (calibCells_) {
-    newCollection(("Calibration"+myName_), ps_);
-    cellOffset_ = std::make_unique<HGCalCellOffset>(waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
+    newCollection(("Calibration" + myName_), ps_);
+    cellOffset_ = std::make_unique<HGCalCellOffset>(
+        waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
   }
 }
 
@@ -363,7 +364,8 @@ bool HGCalSD::calibCell(const uint32_t& id, double& frac) {
       flag = (std::find(calibCellPartLD_.begin(), calibCellPartLD_.end(), indx) != calibCellPartLD_.end());
   }
   if (flag) {
-    int32_t place = HGCalCell::cellPlacementIndex(zside, HGCalTypes::layerFrontBack(hgcons_->layerType(layer)), info.orient);
+    int32_t place =
+        HGCalCell::cellPlacementIndex(zside, HGCalTypes::layerFrontBack(hgcons_->layerType(layer)), info.orient);
     int32_t type = hd ? 0 : 1;
     double num = hd ? (M_PI * calibCellRHD_ * calibCellRHD_) : (M_PI * calibCellRLD_ * calibCellRLD_);
     double bot = cellOffset_->cellAreaUV(cellU, cellV, place, type);

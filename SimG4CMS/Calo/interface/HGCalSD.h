@@ -40,11 +40,11 @@ protected:
 private:
   uint32_t setDetUnitId(int, int, int, int, G4ThreeVector &);
   bool isItinFidVolume(const G4ThreeVector &);
-  bool calibCell(const uint32_t& id, double& frac);
+  bool calibCell(const uint32_t &id, double &frac);
 
   std::string myName_;
   const HGCalDDDConstants *hgcons_;
-  edm::ParameterSet const& ps_;
+  edm::ParameterSet const &ps_;
   std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
   std::unique_ptr<HGCGuardRing> guardRing_;
   std::unique_ptr<HGCGuardRingPartial> guardRingPartial_;
