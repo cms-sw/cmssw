@@ -19,7 +19,7 @@
 // Original Author:  Alexx Perloff
 //         Created:  Thu, 16 Dec 2021 19:02:50 GMT
 // Derivative Author: Nick Manganelli
-//         Created: Thu, 16 Feb 2023 16:03:32 GMT
+//         Created: Thu, 14 Oct 2023 16:32:32 GMT
 //
 //
 
@@ -28,6 +28,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>  //FIXME
 
 // Xilinx HLS includes
 #include <ap_fixed.h>
@@ -62,6 +63,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
 
 //
 // class declaration
@@ -148,17 +150,54 @@ private:
     std::vector<double> deltaZMaxEtaBounds_;
     std::vector<double> deltaZMax_;
   };
+  struct TTTrackWordLinkLimitSelector {
+    TTTrackWordLinkLimitSelector(const unsigned int fwNTrackSetsTVA) : fwNTrackSetsTVA_(fwNTrackSetsTVA) {
+      //create a counter for all 18 GTT input links, 2 per phiSector of the TrackFindingProcessors
+      for (int idx = 0; idx < 18; idx++) {
+        processedTracksPerLink_.push_back(0);
+      }
+    }
+    TTTrackWordLinkLimitSelector(const edm::ParameterSet& cfg)
+        : fwNTrackSetsTVA_(cfg.template getParameter<unsigned int>("fwNTrackSetsTVA")) {
+      for (int idx = 0; idx < 18; idx++) {
+        processedTracksPerLink_.push_back(0);
+      }
+    }
+    bool operator()(const TTTrackType& t) {
+      //use same method as in L1Trigger/DemonstratorTools/src/codecs_tracks.cc method getTrackWords(...)
+      unsigned int gttLinkID = (t.eta() >= 0 ? 1 : 0) + (2 * t.phiSector());
+      //increment the counter of processed tracks
+      processedTracksPerLink_.at(gttLinkID)++;
+      //fwNTrackSetsTVA_ tracks may be processed in firmware, no more (<= used intentionally to match the off-by-one indexing versus LibHLS)
+      return processedTracksPerLink_[gttLinkID] <= fwNTrackSetsTVA_;
+    }
+    void print() {
+      std::cout << "Processed track link counters:\t[";
+      for (int idx = 0; idx < 18; idx++) {
+        std::cout << processedTracksPerLink_.at(idx) << ", ";
+      }
+      std::cout << "]" << std::endl;
+    }
+
+  private:
+    unsigned int fwNTrackSetsTVA_;
+    std::vector<unsigned int> processedTracksPerLink_;
+  };
 
   // ----------member data ---------------------------
   const bool processSimulatedTracks_, processEmulatedTracks_;
+  const edm::EDGetTokenT<TTTrackCollectionType> l1TracksToken_;
   const edm::EDGetTokenT<l1t::VertexCollection> l1VerticesToken_;
   const edm::EDGetTokenT<TTTrackRefCollectionType> l1SelectedTracksToken_;
   const edm::EDGetTokenT<l1t::VertexWordCollection> l1VerticesEmulationToken_;
   const edm::EDGetTokenT<TTTrackRefCollectionType> l1SelectedTracksEmulationToken_;
   const std::string outputCollectionName_;
+  const std::string outputVertexCollectionName_;
   const edm::ParameterSet cutSet_;
   std::vector<double> deltaZMaxEtaBounds_, deltaZMax_;
   const double useDisplacedTracksDeltaZOverride_;
+  // corresponds to N_TRACK_SETS_TVA in LibHLS https://gitlab.cern.ch/GTT/LibHLS/-/blob/master/DataFormats/Track/interface/TrackConstants.h
+  const unsigned int fwNTrackSetsTVA_;
   int debug_;
 };
 
@@ -168,6 +207,7 @@ private:
 L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::ParameterSet& iConfig)
     : processSimulatedTracks_(iConfig.getParameter<bool>("processSimulatedTracks")),
       processEmulatedTracks_(iConfig.getParameter<bool>("processEmulatedTracks")),
+      l1TracksToken_(consumes<TTTrackCollectionType>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
       l1VerticesToken_(processSimulatedTracks_
                            ? consumes<l1t::VertexCollection>(iConfig.getParameter<edm::InputTag>("l1VerticesInputTag"))
                            : edm::EDGetTokenT<l1t::VertexCollection>()),
@@ -184,11 +224,13 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
                                                 "l1SelectedTracksEmulationInputTag"))
                                           : edm::EDGetTokenT<TTTrackRefCollectionType>()),
       outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")),
+      outputVertexCollectionName_(iConfig.getParameter<std::string>("outputVertexCollectionName")),
       cutSet_(iConfig.getParameter<edm::ParameterSet>("cutSet")),
 
       deltaZMaxEtaBounds_(cutSet_.getParameter<std::vector<double>>("deltaZMaxEtaBounds")),
       deltaZMax_(cutSet_.getParameter<std::vector<double>>("deltaZMax")),
       useDisplacedTracksDeltaZOverride_(iConfig.getParameter<double>("useDisplacedTracksDeltaZOverride")),
+      fwNTrackSetsTVA_(iConfig.getParameter<unsigned int>("fwNTrackSetsTVA")),
       debug_(iConfig.getParameter<int>("debug")) {
   // Confirm the the configuration makes sense
   if (!processSimulatedTracks_ && !processEmulatedTracks_) {
@@ -206,8 +248,10 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
   // Get additional input tags and define the EDM output based on the previous configuration parameters
   if (processSimulatedTracks_)
     produces<TTTrackRefCollectionType>(outputCollectionName_);
-  if (processEmulatedTracks_)
+  if (processEmulatedTracks_) {
     produces<TTTrackRefCollectionType>(outputCollectionName_ + "Emulation");
+    produces<l1t::VertexWordCollection>(outputVertexCollectionName_ + "Emulation");
+  }
 }
 
 L1TrackVertexAssociationProducer::~L1TrackVertexAssociationProducer() {}
@@ -340,8 +384,9 @@ void L1TrackVertexAssociationProducer::printTrackInfo(edm::LogInfo& log,
 void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto vTTTrackAssociatedOutput = std::make_unique<TTTrackRefCollectionType>();
   auto vTTTrackAssociatedEmulationOutput = std::make_unique<TTTrackRefCollectionType>();
+  auto vL1UnconvertedVerticesEmulationOutput = std::make_unique<l1t::VertexWordCollection>();
 
-  // TTTrackCollectionHandle l1TracksHandle;
+  TTTrackCollectionHandle l1TracksHandle;
   edm::Handle<TTTrackRefCollectionType> l1SelectedTracksHandle;
   edm::Handle<TTTrackRefCollectionType> l1SelectedTracksEmulationHandle;
   edm::Handle<l1t::VertexCollection> l1VerticesHandle;
@@ -349,45 +394,107 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
 
   l1t::Vertex leadingVertex;
   l1t::VertexWord leadingEmulationVertex;
+  l1t::VertexWord loopEmulationVertex;
+
+  TTTrackWordLinkLimitSelector linkLimitSel(fwNTrackSetsTVA_);     //stateful functor for simulated tracks
+  TTTrackWordLinkLimitSelector linkLimitSelEmu(fwNTrackSetsTVA_);  //stateful functor for emulated tracks
 
   TTTrackDeltaZMaxSelector deltaZSel(deltaZMaxEtaBounds_, deltaZMax_);
   TTTrackWordDeltaZMaxSelector deltaZSelEmu(deltaZMaxEtaBounds_, deltaZMax_);
 
+  iEvent.getByToken(l1TracksToken_, l1TracksHandle);
+  size_t nOutputApproximate = l1TracksHandle->size();
+  size_t nOutputVerticesEmulation = 0;
+
+  // test adding the nTracksIn and nTracksOut, and updating the sumPt fields of processed vertices
   if (processSimulatedTracks_) {
     iEvent.getByToken(l1SelectedTracksToken_, l1SelectedTracksHandle);
     iEvent.getByToken(l1VerticesToken_, l1VerticesHandle);
-    size_t nOutputApproximate = l1SelectedTracksHandle->size();
     leadingVertex = l1VerticesHandle->at(0);
     if (debug_ >= 2) {
       edm::LogInfo("L1TrackVertexAssociationProducer") << "leading vertex z0 = " << leadingVertex.z0();
     }
     vTTTrackAssociatedOutput->reserve(nOutputApproximate);
-    for (const auto& trackword : *l1SelectedTracksHandle) {
-      auto track = l1tVertexFinder::L1Track(edm::refToPtr(trackword));
-      // Select tracks based on the floating point TTTrack
-      if (deltaZSel(*trackword, leadingVertex)) {
-        vTTTrackAssociatedOutput->push_back(trackword);
-      }
-    }
-    iEvent.put(std::move(vTTTrackAssociatedOutput), outputCollectionName_);
   }
   if (processEmulatedTracks_) {
     iEvent.getByToken(l1SelectedTracksEmulationToken_, l1SelectedTracksEmulationHandle);
     iEvent.getByToken(l1VerticesEmulationToken_, l1VerticesEmulationHandle);
-    size_t nOutputApproximateEmulation = l1SelectedTracksEmulationHandle->size();
+    nOutputVerticesEmulation = l1VerticesEmulationHandle->size();
     leadingEmulationVertex = l1VerticesEmulationHandle->at(0);
     if (debug_ >= 2) {
       edm::LogInfo("L1TrackVertexAssociationProducer")
           << "leading emulation vertex z0 = " << leadingEmulationVertex.z0();
     }
-    vTTTrackAssociatedEmulationOutput->reserve(nOutputApproximateEmulation);
-    for (const auto& trackword : *l1SelectedTracksEmulationHandle) {
-      // Select tracks based on the bitwise accurate TTTrack_TrackWord
-      if (deltaZSelEmu(*trackword, leadingEmulationVertex)) {
-        vTTTrackAssociatedEmulationOutput->push_back(trackword);
+    vTTTrackAssociatedEmulationOutput->reserve(nOutputApproximate);
+    vL1UnconvertedVerticesEmulationOutput->reserve(nOutputVerticesEmulation);
+  }
+  std::vector<l1t::VertexWord::vtxmultiplicity_t> l1VerticesEmulationNTracksIn(nOutputVerticesEmulation, 0);
+  std::vector<l1t::VertexWord::vtxsumpt_t> l1VerticesEmulationAssociatedSumPt(nOutputVerticesEmulation, 0);
+  std::vector<l1t::VertexWord::vtxinversemult_t> l1VerticesEmulationNTracksOut(nOutputVerticesEmulation, 0);
+  for (size_t i = 0; i < nOutputApproximate; i++) {
+    const auto& track = l1TracksHandle->at(i);
+    l1t::VertexWord::vtxsumpt_t tkpt = 0;
+    tkpt.V = track.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1,
+				  TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
+    l1t::VertexWord::vtxsumpt_t pt_tmp = tkpt;
+    if (processSimulatedTracks_) {
+      // Limit the number of processed tracks according to the firmware capability: must be run on non-selected tracks (i.e. GTTConverted tracks)
+      bool passLinkLimit = linkLimitSel(track);
+      // Only match Selected tracks, by testing that the track is in the SelectedTracks collection
+      auto itr = std::find_if(l1SelectedTracksHandle->begin(), l1SelectedTracksHandle->end(), [track](const auto& ref) {
+        return (*ref).getTrackWord() == track.getTrackWord();
+      });
+      bool passSelection = (itr != l1SelectedTracksHandle->end());
+      // Associate tracks based on the simulation delta Z
+      if (passLinkLimit && passSelection && deltaZSel(track, leadingVertex)) {
+        vTTTrackAssociatedOutput->push_back(TTTrackRef(l1TracksHandle, i));
       }
-    }
+    } //end if (processSimulatedTracks_)
+    if (processEmulatedTracks_) {
+      // Limit the number of processed tracks according to the firmware capability: must be run on non-selected tracks (i.e. GTTConverted tracks)
+      bool passLinkLimitEmu = linkLimitSelEmu(track);
+      // Only match Selected tracks, by testing that the track is in the SelectedTracks collection
+      auto itrEmu = std::find_if(l1SelectedTracksEmulationHandle->begin(),
+                                 l1SelectedTracksEmulationHandle->end(),
+                                 [track](const auto& ref) { return (*ref).getTrackWord() == track.getTrackWord(); });
+      bool passSelectionEmu = (itrEmu != l1SelectedTracksEmulationHandle->end());
+      // Associated tracks based on the bitwise accurate TTTrack_TrackWord
+      if (passLinkLimitEmu && passSelectionEmu) {
+	//In HLS this loop could be unrolled
+	for (unsigned int ive = 0; ive < nOutputVerticesEmulation; ive++) {
+	  if (deltaZSelEmu(track, l1VerticesEmulationHandle->at(ive))) {
+	    if (ive == 0)
+	      vTTTrackAssociatedEmulationOutput->push_back(TTTrackRef(l1TracksHandle, i));
+	    l1VerticesEmulationNTracksIn[ive]++;
+	    l1VerticesEmulationAssociatedSumPt[ive] += pt_tmp;
+	  }
+	  else
+	    l1VerticesEmulationNTracksOut[ive]++;
+	} //end loop over emulation vertices
+      } //end block for satisfying LinkLimitEmu and SelectionEmu criteria
+    } //end if (processEmulatedTracks_)
+  } //end loop over input converted tracks
+
+  if (processSimulatedTracks_) {
+    linkLimitSel.print(); //FIXME
+    iEvent.put(std::move(vTTTrackAssociatedOutput), outputCollectionName_);
+  }
+
+  if (processEmulatedTracks_) {
+    linkLimitSelEmu.print(); //FIXME
     iEvent.put(std::move(vTTTrackAssociatedEmulationOutput), outputCollectionName_ + "Emulation");
+    // test making the unconverted, fully-filled vertices
+    for (unsigned int ive = 0; ive < nOutputVerticesEmulation; ive++) {
+      loopEmulationVertex = l1VerticesEmulationHandle->at(ive);
+      vL1UnconvertedVerticesEmulationOutput->emplace_back(l1t::VertexWord::vtxvalid_t(loopEmulationVertex.validWord()),
+							  l1t::VertexWord::vtxz0_t(loopEmulationVertex.z0Word()),
+							  l1t::VertexWord::vtxmultiplicity_t(l1VerticesEmulationNTracksIn[ive]),
+							  l1t::VertexWord::vtxsumpt_t(l1VerticesEmulationAssociatedSumPt[ive]),
+							  l1t::VertexWord::vtxquality_t(0),
+							  l1t::VertexWord::vtxinversemult_t(l1VerticesEmulationNTracksOut[ive]),
+							  l1t::VertexWord::vtxunassigned_t(0));
+    } //end loop over emulation vertices
+    iEvent.put(std::move(vL1UnconvertedVerticesEmulationOutput), outputVertexCollectionName_ + "Emulation");
   }
 
   if (processSimulatedTracks_ && processEmulatedTracks_ && debug_ >= 2) {
@@ -401,6 +508,7 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TrackVertexAssociationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("l1TracksInputTag", edm::InputTag("l1tGTTInputProducer", "Level1TTTracksConverted"));
   desc.add<edm::InputTag>("l1SelectedTracksInputTag",
                           edm::InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"));
   desc.add<edm::InputTag>("l1SelectedTracksEmulationInputTag",
@@ -409,6 +517,7 @@ void L1TrackVertexAssociationProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<edm::InputTag>("l1VerticesEmulationInputTag",
                           edm::InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"));
   desc.add<std::string>("outputCollectionName", "Level1TTTracksSelectedAssociated");
+  desc.add<std::string>("outputVertexCollectionName", "L1VerticesUnconverted");
   {
     edm::ParameterSetDescription descCutSet;
     descCutSet.add<std::vector<double>>("deltaZMaxEtaBounds", {0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4})
@@ -425,6 +534,7 @@ void L1TrackVertexAssociationProducer::fillDescriptions(edm::ConfigurationDescri
       ->setComment("return selected tracks after cutting on the floating point values");
   desc.add<bool>("processEmulatedTracks", true)
       ->setComment("return selected tracks after cutting on the bitwise emulated values");
+  desc.add<unsigned int>("fwNTrackSetsTVA", 94)->setComment("firmware limit on processed tracks per GTT input link");
   desc.add<int>("debug", 0)->setComment("Verbosity levels: 0, 1, 2, 3");
   descriptions.addWithDefaultLabel(desc);
 }
