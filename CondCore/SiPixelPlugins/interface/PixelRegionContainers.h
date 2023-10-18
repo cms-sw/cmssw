@@ -297,9 +297,8 @@ namespace PixelRegions {
       if (m_theMap.find(myId) != m_theMap.end()) {
         m_theMap[myId]->Fill(value);
       } else {
-        edm::LogError("PixelRegionContainers")
-            << detid << " :=> " << myId << " is not a recongnized PixelId enumerator! \n"
-            << m_trackerTopo->print(detid);
+        throw cms::Exception("LogicError") << detid << " :=> " << myId << " is not a recongnized PixelId enumerator! \n"
+                                           << m_trackerTopo->print(detid);
       }
     }
 
