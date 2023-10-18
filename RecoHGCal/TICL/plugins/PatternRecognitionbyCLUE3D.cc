@@ -744,22 +744,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       }      // End of loop on eta bins
     }        // End of loop on layers
 
-    bool foundNearestInFiducialVolume = (i_delta != maxDelta);
-    if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
-      edm::LogVerbatim("PatternRecognitionbyCLUE3D")
-          << "i_delta: " << i_delta << " passed: " << foundNearestInFiducialVolume << " " << i_nearestHigher.first
-          << " " << i_nearestHigher.second << " distances: " << nearest_distances.first << ", "
-          << nearest_distances.second;
-    }
-    if (foundNearestInFiducialVolume) {
-      clustersOnLayer.delta[i] = nearest_distances;
-      clustersOnLayer.nearestHigher[i] = i_nearestHigher;
-    } else {
-      // otherwise delta is guaranteed to be larger outlierDeltaFactor_*delta_c
-      // we can safely maximize delta to be maxDelta
-      clustersOnLayer.delta[i] = std::make_pair(maxDelta, std::numeric_limits<int>::max());
-      clustersOnLayer.nearestHigher[i] = {-1, -1};
-    }
+	clustersOnLayer.delta[i] = nearest_distances;
+	clustersOnLayer.nearestHigher[i] = i_nearestHigher;
   }  // End of loop on clusters
 }
 
