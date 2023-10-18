@@ -78,10 +78,10 @@ namespace spr {
       dR = fabs(Rec * ce1 * sqrt(1. / z / z - 1.));
     else
       dR = 999999.;
-    return dR;
     if (debug)
       edm::LogVerbatim("IsoTrack") << "getDistInCMatHcal: between (" << eta1 << ", " << phi1 << ") and (" << eta2
                                    << ", " << phi2 << " is " << dR;
+    return dR;
   }
 
   void getEtaPhi(HBHERecHitCollection::const_iterator hit,

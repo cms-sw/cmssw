@@ -333,7 +333,7 @@ namespace hcaldqm {
     }
 
     std::string name_FED(HcalElectronicsId const &eid) {
-      char name[10];
+      char name[15];
       sprintf(name, "FED%d", eid.isVMEid() ? eid.dccid() + 700 : utilities::crate2fed(eid.crateId(), eid.slot()));
       return std::string(name);
     }

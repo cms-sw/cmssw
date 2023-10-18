@@ -223,7 +223,6 @@ namespace {
 
     std::pair<bool, float> getFromPayload(RunInfo& payload) override {
       bool isRealRun = ((payload.m_run) != -1);
-      float fieldIntensity = RunInfoPI::theBField(payload.m_avg_current);
 
       switch (param) {
         case RunInfoPI::m_start_current:
@@ -237,12 +236,12 @@ namespace {
         case RunInfoPI::m_min_current:
           return std::make_pair(isRealRun, payload.m_min_current);
         case RunInfoPI::m_BField:
-          return std::make_pair(isRealRun, fieldIntensity);
+          return std::make_pair(isRealRun, RunInfoPI::theBField(payload.m_avg_current));
         default:
           edm::LogWarning("LogicError") << "Unknown parameter: " << param;
           break;
       }
-
+      return std::make_pair(isRealRun, -1.0);
     }  // payload
 
     /************************************************/
