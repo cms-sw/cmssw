@@ -283,7 +283,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FED() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[12];
       for (int i = 0; i < FED_TOTAL_NUM; i++) {
         HcalElectronicsId eid = getEid_FED(i);
         sprintf(name, "%d", eid.isVMEid() ? eid.dccid() + 700 : utilities::crate2fed(eid.crateId(), eid.slot()));
@@ -294,7 +294,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FEDuTCA() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[12];
       for (int i = 0; i < FED_uTCA_NUM; i++) {
         HcalElectronicsId eid = getEid_FEDuTCA(i);
         sprintf(name, "%d", utilities::crate2fed(eid.crateId(), eid.slot()));
@@ -305,7 +305,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FEDVME() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[12];
       for (int i = 0; i < FED_VME_NUM; i++) {
         sprintf(name, "%d", getEid_FEDVME(i).dccid() + 700);
         labels.push_back(std::string(name));
@@ -423,7 +423,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FEDVMESpigot() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < FED_VME_NUM; i++)
         for (int j = 0; j < SPIGOT_NUM; j++) {
           if (j > 0) {
@@ -440,7 +440,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FiberuTCAFiberCh() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < FIBER_uTCA_NUM; i++)
         for (int j = 0; j < FIBERCH_NUM; j++) {
           if (j > 0) {
@@ -457,7 +457,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FiberVMEFiberCh() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < FIBER_VME_NUM; i++)
         for (int j = 0; j < FIBERCH_NUM; j++) {
           if (j > 0) {
@@ -473,7 +473,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_SLB() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < SLB_NUM; i++) {
         HcalElectronicsId eid = getEid_SLB(i);
         sprintf(name, "%d", eid.slbSiteNumber());
@@ -485,7 +485,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_SLBCh() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < SLBCH_NUM; i++) {
         HcalElectronicsId eid = getEid_SLBCh(i);
         sprintf(name, "%d", eid.slbChannelIndex());
@@ -497,7 +497,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_SLBSLBCh() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < SLB_NUM; i++)
         for (int j = 0; j < SLBCH_NUM; j++) {
           HcalElectronicsId eid = getEid_SLBSLBCh(i * SLBCH_NUM + j);
@@ -510,7 +510,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FiberuTCATP() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < TPFIBER_NUM; i++) {
         HcalElectronicsId eid = getEid_FiberuTCATP(i);
         sprintf(name, "%d", eid.fiberIndex());
@@ -522,7 +522,7 @@ namespace hcaldqm {
 
     std::vector<std::string> getLabels_FiberChuTCATP() {
       std::vector<std::string> labels;
-      char name[10];
+      char name[23];
       for (int i = 0; i < TPFIBERCH_NUM; i++) {
         HcalElectronicsId eid = getEid_FiberChuTCATP(i);
         sprintf(name, "%d", eid.fiberChanId());
