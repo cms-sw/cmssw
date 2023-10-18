@@ -85,10 +85,10 @@ defaultOptions.runsAndWeightsForMCIntegerWeights = None
 defaultOptions.runsScenarioForMCIntegerWeights = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
-defaultOptions.nThreads = '1'
-defaultOptions.nStreams = '0'
-defaultOptions.nConcurrentLumis = '0'
-defaultOptions.nConcurrentIOVs = '0'
+defaultOptions.nThreads = 1
+defaultOptions.nStreams = 0
+defaultOptions.nConcurrentLumis = 0
+defaultOptions.nConcurrentIOVs = 0
 defaultOptions.accelerators = None
 
 # some helper routines
@@ -1350,8 +1350,8 @@ class ConfigBuilder(object):
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
                 if shortName in AlCaNoConcurrentLumis:
                     print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
-                    self._options.nConcurrentLumis = "1"
-                    self._options.nConcurrentIOVs = "1"
+                    self._options.nConcurrentLumis = 1
+                    self._options.nConcurrentIOVs = 1
                 output = self.addExtraStream(name,alcastream, workflow = workflow)
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)
@@ -1454,8 +1454,8 @@ class ConfigBuilder(object):
                         self._options.inlineObjects=name+','+self._options.inlineObjects
                         if theObject.type_() in noConcurrentLumiGenerators:
                             print("Setting numberOfConcurrentLuminosityBlocks=1 because of generator {}".format(theObject.type_()))
-                            self._options.nConcurrentLumis = "1"
-                            self._options.nConcurrentIOVs = "1"
+                            self._options.nConcurrentLumis = 1
+                            self._options.nConcurrentIOVs = 1
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
                         self._options.inlineObjects+=','+name
 
@@ -2343,7 +2343,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        overrideThreads = (self._options.nThreads != "1")
+        overrideThreads = (self._options.nThreads != 1)
         overrideConcurrentLumis = (self._options.nConcurrentLumis != defaultOptions.nConcurrentLumis)
         overrideConcurrentIOVs = (self._options.nConcurrentIOVs != defaultOptions.nConcurrentIOVs)
 
