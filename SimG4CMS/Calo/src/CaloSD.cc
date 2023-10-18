@@ -386,10 +386,13 @@ void CaloSD::EndOfEvent(G4HCofThisEvent*) {
   cleanHitCollection();
 
 #ifdef EDM_ML_DEBUG
-  if (theHC[0] == nullptr)
-    edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered with no entries";
-  else
-    edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered with " << theHC[0]->entries() << " entries";
+  for (int k = 0; k < nHC_; ++k) {
+    if (theHC[k] == nullptr)
+      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << " with no entries";
+    else
+      edm::LogVerbatim("CaloSim") << "CaloSD: EndofEvent entered for container " << k << " with " << theHC[0]->entries()
+                                  << " entries";
+  }
 #endif
 }
 
