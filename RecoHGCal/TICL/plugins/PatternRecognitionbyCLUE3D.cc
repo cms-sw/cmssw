@@ -569,6 +569,16 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "OtherEta: " << clustersLayer.eta[layerandSoa.second];
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "OtherPhi: " << clustersLayer.phi[layerandSoa.second];
             }
+
+			bool onSameCluster = clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx;
+			if (onSameLayer && !densityOnSameLayer_ && !onSameCluster) {
+			  if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
+                edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Skipping different cluster " << otherClusterIdx
+															   << "in the same layer " << currentLayer;
+              }
+			  continue;
+			}
+			
             bool reachable = false;
             if (useAbsoluteProjectiveScale_) {
               if (useClusterDimensionXY_) {
@@ -617,11 +627,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
               edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Cluster radius: " << clustersOnLayer.radius[i];
             }
             if (reachable) {
-              float factor_same_layer_different_cluster = (onSameLayer && !densityOnSameLayer_) ? 0.f : 1.f;
-              auto energyToAdd = (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx
-                                      ? 1.f
-                                      : kernelDensityFactor_ * factor_same_layer_different_cluster) *
-                                 clustersLayer.energy[layerandSoa.second];
+              auto energyToAdd = (onSameCluster ? 1.f : kernelDensityFactor_) * clustersLayer.energy[layerandSoa.second];
               clustersOnLayer.rho[i] += energyToAdd;
               clustersOnLayer.z_extension[i] = deltaLayersZ;
               if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
