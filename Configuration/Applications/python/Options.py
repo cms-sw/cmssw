@@ -11,15 +11,16 @@ from Configuration.Applications.ConfigBuilder import ConfigBuilder, defaultOptio
 import traceback
 # Prepare a parser to read the options
 usage=\
-"""%(prog)s [options].
+"""%(prog)s <TYPE> [options].
 Example:
 
-%(prog)s -s RAW2DIGI,RECO --conditions STARTUP_V4::All --eventcontent RECOSIM
+%(prog)s reco -s RAW2DIGI,RECO --conditions STARTUP_V4::All --eventcontent RECOSIM
 """
 parser = ArgumentParser(usage=usage, formatter_class=ArgumentDefaultsHelpFormatter)
 
 expertSettings = parser.add_argument_group('===============\n  Expert Options', 'Caution: please use only if you know what you are doing.')
 
+parser.add_argument("evt_type", metavar="TYPE", nargs='?', type=str)
 parser.add_argument("-s", "--step",
                     help="The desired step. The possible values are: "+\
                          "GEN,SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION,HARVESTING, NONE or ALL.",

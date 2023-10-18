@@ -423,9 +423,9 @@ class ConfigBuilder(object):
 
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
-        self.process.maxEvents.input = int(self._options.number)
+        self.process.maxEvents.input = self._options.number
         if self._options.number_out:
-            self.process.maxEvents.output = int(self._options.number_out)
+            self.process.maxEvents.output = self._options.number_out
         self.addedObjects.append(("","maxEvents"))
 
     def addSource(self):
@@ -1404,7 +1404,7 @@ class ConfigBuilder(object):
         ##inline the modules
         self._options.inlineObjects+=','+stepSpec
 
-        getattr(self.process,stepSpec).nEvents = int(self._options.number)
+        getattr(self.process,stepSpec).nEvents = self._options.number
 
         #schedule it
         self.process.lhe_step = cms.Path( getattr( self.process,stepSpec)  )
@@ -2351,16 +2351,16 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             if overrideThreads:
-                self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
-                self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
-                self.process.options.numberOfThreads = int(self._options.nThreads)
-                self.process.options.numberOfStreams = int(self._options.nStreams)
+                self.pythonCfgCode +="process.options.numberOfThreads = {}\n".format(self._options.nThreads)
+                self.pythonCfgCode +="process.options.numberOfStreams = {}\n".format(self._options.nStreams)
+                self.process.options.numberOfThreads = self._options.nThreads
+                self.process.options.numberOfStreams = self._options.nStreams
             if overrideConcurrentLumis:
-                self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
-                self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
+                self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = {}\n".format(self._options.nConcurrentLumis)
+                self.process.options.numberOfConcurrentLuminosityBlocks = self._options.nConcurrentLumis
             if overrideConcurrentIOVs:
-                self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
-                self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+                self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = {}\n".format(self._options.nConcurrentIOVs)
+                self.process.options.eventSetup.numberOfConcurrentIOVs = self._options.nConcurrentIOVs
 
         if self._options.accelerators is not None:
             accelerators = self._options.accelerators.split(',')
