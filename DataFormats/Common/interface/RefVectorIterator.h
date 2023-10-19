@@ -17,18 +17,21 @@ Note: this is actually a *const_iterator*
 namespace edm {
 
   template <typename C, typename T = typename Ref<C>::value_type, typename F = typename Ref<C>::finder_type>
-  class RefVectorIterator : public std::iterator<std::random_access_iterator_tag, Ref<C, T, F> > {
+  class RefVectorIterator {
   public:
-    typedef Ref<C, T, F> value_type;
-    typedef Ref<C, T, F> const const_reference;  // Otherwise boost::iterator_reference assumes '*it' returns 'Ref &'
-    typedef const_reference reference;  // This to prevent compilation of code that tries to modify the RefVector
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = Ref<C, T, F>;
+    using const_reference = Ref<C, T, F> const;  // Otherwise boost::iterator_reference assumes '*it' returns 'Ref &'
+    using reference = const_reference;  // This to prevent compilation of code that tries to modify the RefVector
                                         // through this iterator
-    typedef typename value_type::key_type key_type;
+    using pointer = Ref<C, T, F> const*;
+    using key_type = typename value_type::key_type;
 
-    typedef RefVectorIterator<C, T, F> iterator;
-    typedef std::ptrdiff_t difference;
-    typedef typename std::vector<key_type>::const_iterator keyIter;
-    typedef typename std::vector<void const*>::const_iterator MemberIter;
+    using iterator = RefVectorIterator<C, T, F>;
+    using difference = std::ptrdiff_t;
+    using difference_type = difference;
+    using keyIter = typename std::vector<key_type>::const_iterator;
+    using MemberIter = typename std::vector<void const*>::const_iterator;
 
     RefVectorIterator() : refVector_(nullptr), nestedRefVector_(nullptr), iter_(0) {}
 

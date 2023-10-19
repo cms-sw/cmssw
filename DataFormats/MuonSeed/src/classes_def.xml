@@ -14,7 +14,6 @@
       <class name="edm::RefProd<std::vector<L2MuonTrajectorySeed> >"/>
       <class name="edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
       <class name="edm::RefVectorIterator<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
-      <class pattern="std::iterator<*edm::Ref*L2MuonTrajectorySeed*>"/>
     
       <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
       <class name="edm::reftobase::Holder<L2MuonTrajectorySeed,edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
@@ -44,7 +43,6 @@
       <class name="edm::RefProd<std::vector<L3MuonTrajectorySeed> >"/>
       <class name="edm::RefVector<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> >"/>
       <class name="edm::RefVectorIterator<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> >"/>
-      <class pattern="std::iterator<*edm::Ref*L3MuonTrajectorySeed*>"/>
     
       <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> > >"/>
       <class name="edm::reftobase::Holder<L3MuonTrajectorySeed,edm::Ref<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L3MuonTrajectorySeed>,L3MuonTrajectorySeed> > >"/>

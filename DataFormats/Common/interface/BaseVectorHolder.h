@@ -14,9 +14,10 @@ namespace edm {
     template <typename T>
     class BaseVectorHolder {
     public:
-      typedef size_t size_type;
-      typedef T element_type;
-      typedef RefToBase<T> base_ref_type;
+      using size_type = size_t;
+      using element_type = T;
+      using base_ref_type = RefToBase<T>;
+
       BaseVectorHolder() {}
       virtual ~BaseVectorHolder() {}
       virtual BaseVectorHolder* clone() const = 0;
@@ -36,7 +37,7 @@ namespace edm {
       // to allow dictionary to compile
       //    protected:
       struct const_iterator_imp {
-        typedef ptrdiff_t difference_type;
+        using difference_type = ptrdiff_t;
         const_iterator_imp() {}
         virtual ~const_iterator_imp() {}
         virtual const_iterator_imp* clone() const = 0;
@@ -51,10 +52,12 @@ namespace edm {
         virtual difference_type difference(const_iterator_imp const*) const = 0;
       };
 
-      struct const_iterator : public std::iterator<std::random_access_iterator_tag, RefToBase<T> > {
-        typedef base_ref_type value_type;
-        typedef std::unique_ptr<value_type> pointer;
-        typedef std::ptrdiff_t difference_type;
+      struct const_iterator {
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = base_ref_type;
+        using pointer = std::unique_ptr<value_type>;
+        using difference_type = std::ptrdiff_t;
+        using reference = base_ref_type&;
 
         const_iterator() : i(nullptr) {}
         const_iterator(const_iterator_imp* it) : i(it) {}
