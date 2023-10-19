@@ -97,7 +97,7 @@ public:
     out.addColumnValue<float>("pudensity", pudensity, "PU vertices / mm");
     out.addColumnValue<float>("gpudensity", gpudensity, "Generator-level PU vertices / mm");
     if (savePtHatMax_) {
-      out.addColumnValue<float>("pthatmax", pthatmax, "Maximum pt-hat");
+      out.addColumnValue<float>("pthatmax", pthatmax, "Maximum pt-hat", 10);
     }
   }
 
