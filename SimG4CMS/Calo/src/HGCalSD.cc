@@ -19,6 +19,7 @@
 #include "G4VProcess.hh"
 #include "G4Trap.hh"
 
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -40,7 +41,9 @@ HGCalSD::HGCalSD(const std::string& name,
              manager,
              static_cast<float>(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
+      myName_(name),
       hgcons_(hgc),
+      ps_(p),
       slopeMin_(0),
       levelT1_(99),
       levelT2_(99),
@@ -52,6 +55,7 @@ HGCalSD::HGCalSD(const std::string& name,
   guardRing_.reset(nullptr);
   guardRingPartial_.reset(nullptr);
   mouseBite_.reset(nullptr);
+  cellOffset_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit_ = m_HGC.getParameter<double>("EminHit") * CLHEP::MeV;
@@ -72,13 +76,12 @@ HGCalSD::HGCalSD(const std::string& name,
   }
 
   //this is defined in the hgcsens.xml
-  G4String myName = name;
   mydet_ = DetId::Forward;
   nameX_ = "HGCal";
-  if (myName.find("HitsEE") != std::string::npos) {
+  if (myName_.find("HitsEE") != std::string::npos) {
     mydet_ = DetId::HGCalEE;
     nameX_ = "HGCalEESensitive";
-  } else if (myName.find("HitsHEfront") != std::string::npos) {
+  } else if (myName_.find("HitsHEfront") != std::string::npos) {
     mydet_ = DetId::HGCalHSi;
     nameX_ = "HGCalHESiliconSensitive";
   }
@@ -256,20 +259,20 @@ void HGCalSD::update(const BeginOfJob* job) {
     }
     useSimWt_ = hgcons_->getParameter()->useSimWt_;
     int useOffset = hgcons_->getParameter()->useOffset_;
-    double waferSize = hgcons_->waferSize(false);
+    waferSize_ = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
-    double guardRingOffset = hgcons_->guardRingOffset(false);
+    guardRingOffset_ = hgcons_->guardRingOffset(false);
     double sensorSizeOffset = hgcons_->sensorSizeOffset(false);
     if (useOffset > 0) {
       rejectMB_ = true;
       fiducialCut_ = true;
     }
-    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset + sensorSizeOffset / cos30deg_) : mouseBite;
-    mouseBiteCut_ = waferSize * tan30deg_ - mouseBiteNew;
+    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset_ + sensorSizeOffset / cos30deg_) : mouseBite;
+    mouseBiteCut_ = waferSize_ * tan30deg_ - mouseBiteNew;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize << ":" << mouseBite << ":" << guardRingOffset << ":" << sensorSizeOffset
+                               << waferSize_ << ":" << mouseBite << ":" << guardRingOffset_ << ":" << sensorSizeOffset
                                << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset
                                << " dd4hep " << dd4hep_;
 #endif
@@ -314,6 +317,10 @@ void HGCalSD::update(const BeginOfJob* job) {
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
+  if (calibCells_) {
+    newCollection(("Calibration"+myName_), ps_);
+    cellOffset_ = std::make_unique<HGCalCellOffset>(waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
+  }
 }
 
 void HGCalSD::initRun() {}
@@ -333,4 +340,34 @@ uint32_t HGCalSD::setDetUnitId(int layer, int module, int cell, int iz, G4ThreeV
   if (hgcons_->waferHexagon8File() || (id == 0))
     ignoreRejection();
   return id;
+}
+
+bool HGCalSD::calibCell(const uint32_t& id, double& frac) {
+  bool flag(false);
+  frac = 1;
+  int type, zside, layer, waferU, waferV, cellU, cellV;
+  HGCSiliconDetId(id).unpack(type, zside, layer, waferU, waferV, cellU, cellV);
+  HGCalParameters::waferInfo info = hgcons_->waferInfo(layer, waferU, waferV);
+  bool hd = HGCalTypes::waferHD(info.type);
+  bool full = HGCalTypes::waferFull(info.part);
+  int indx = 100 * cellU + cellV;
+  if (hd) {
+    if (full)
+      flag = (std::find(calibCellFullHD_.begin(), calibCellFullHD_.end(), indx) != calibCellFullHD_.end());
+    else
+      flag = (std::find(calibCellPartHD_.begin(), calibCellPartHD_.end(), indx) != calibCellPartHD_.end());
+  } else {
+    if (full)
+      flag = (std::find(calibCellFullLD_.begin(), calibCellFullLD_.end(), indx) != calibCellFullLD_.end());
+    else
+      flag = (std::find(calibCellPartLD_.begin(), calibCellPartLD_.end(), indx) != calibCellPartLD_.end());
+  }
+  if (flag) {
+    int32_t place = HGCalCell::cellPlacementIndex(zside, HGCalTypes::layerFrontBack(hgcons_->layerType(layer)), info.orient);
+    int32_t type = hd ? 0 : 1;
+    double num = hd ? (M_PI * calibCellRHD_ * calibCellRHD_) : (M_PI * calibCellRLD_ * calibCellRLD_);
+    double bot = cellOffset_->cellAreaUV(cellU, cellV, place, type);
+    frac = (bot > 0 && bot < num) ? (num / bot) : 1.0;
+  }
+  return flag;
 }
