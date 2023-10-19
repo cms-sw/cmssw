@@ -385,6 +385,23 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
       if (debug)
         std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else if (type == 10) {  // MAHI (Jan, 2023)
+      const double CONST_COR_COEF[6] = {0.987967, 0.983376, 0.954840, 0.676950, 0.513111, 0.430349};
+      const double LINEAR_COR_COEF[6] = {-0.0399269, -0.101755, -0.156848, -0.0969012 - 0.107831, -0.0911755};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0133473, 0.00727513, 0.00863409, 0.00727055};
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
+      const int PU_IETA_4 = 26;
+      const int PU_IETA_5 = 27;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
+      if (d2p > deltaCut)
+        fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
+      if (debug)
+        std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
+                  << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
     } else {  // Mahi 22pu (Jan, 2022)
       const double CONST_COR_COEF[6] = {0.995902, 0.991240, 0.981019, 0.788052, 0.597956, 0.538731};
       const double LINEAR_COR_COEF[6] = {-0.0540563, -0.104361, -0.215936, -0.147801, -0.160845, -0.154359};
