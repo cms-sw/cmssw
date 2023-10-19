@@ -145,6 +145,17 @@ run2_nanoAOD_ANY.toModify(
     plots = _SubJet_EarlyRun3_plots
 )
 
+
+_Pileup_pre13X_plots = cms.VPSet()
+for plot in nanoDQM.vplots.Pileup.plots:
+    if 'pthatmax' not in plot.name.value():
+        _Pileup_pre13X_plots.append(plot)
+
+(run2_nanoAOD_ANY | run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    nanoDQM.vplots.Pileup,
+    plots = _Pileup_pre13X_plots
+)
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")

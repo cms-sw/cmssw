@@ -709,6 +709,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('pudensity', 'pudensity', 5, -0.5, 4.5, 'PU vertices / mm'),
                 Plot1D('sumEOOT', 'sumEOOT', 20, 0, 800, 'number of early out of time pileup'),
                 Plot1D('sumLOOT', 'sumLOOT', 20, 0, 300, 'number of late out of time pileup'),
+                Plot1D('pthatmax','pthatmax',20, 0, 400, 'Maximum pt-hat'),
             )
         ),
         PuppiMET = cms.PSet(
