@@ -6,7 +6,7 @@
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
 namespace cms::alpakatest {
-  // Model 1
+  // PortableCollection-based model
   GENERATE_SOA_LAYOUT(AlpakaESTestSoALayoutA, SOA_COLUMN(int, z))
   GENERATE_SOA_LAYOUT(AlpakaESTestSoALayoutC, SOA_COLUMN(int, x))
   GENERATE_SOA_LAYOUT(AlpakaESTestSoALayoutD, SOA_COLUMN(int, y))

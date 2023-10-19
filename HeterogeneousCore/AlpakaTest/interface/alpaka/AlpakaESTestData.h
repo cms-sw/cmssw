@@ -8,7 +8,7 @@
 #include "HeterogeneousCore/AlpakaTest/interface/AlpakaESTestSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  // Model 1
+  // PortableCollection-based model
   using AlpakaESTestDataAHost = cms::alpakatest::AlpakaESTestDataAHost;
   using AlpakaESTestDataADevice = PortableCollection<cms::alpakatest::AlpakaESTestSoAA>;
 

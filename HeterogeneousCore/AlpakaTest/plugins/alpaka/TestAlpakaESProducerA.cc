@@ -11,9 +11,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
-   * This class demonstrates and ESProducer on the data model 1 that
-   * consumes a standard host ESProduct and converts the data into
-   * PortableCollection, and implicitly transfers the data product to device
+   * This class demonstrates an ESProducer that uses the
+   * PortableCollection-based data model, and that consumes a standard
+   * host ESProduct and converts the data into PortableCollection, and
+   * implicitly transfers the data product to device
    */
   class TestAlpakaESProducerA : public ESProducer {
   public:
