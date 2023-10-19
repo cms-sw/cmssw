@@ -74,7 +74,7 @@ namespace {
     __syncthreads();
     radixSort<float, 2>(z, order, sws, elements);
     __syncthreads();
-
+    
     //verify
     for (unsigned int itrack = firstElement; itrack < (elements - 1); itrack += gridSize) {
       auto ntrack = order[itrack];
