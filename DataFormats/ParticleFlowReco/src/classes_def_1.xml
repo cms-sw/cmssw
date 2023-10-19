@@ -53,7 +53,6 @@
   <class name="edm::Wrapper<std::vector<reco::ConvBremSeed> >"/>
   <class name="edm::RefVector<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
-  <class name="edm::RefToBase<reco::ConvBremSeed>"/>
   <class name="edm::reftobase::BaseHolder<reco::ConvBremSeed>" />
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
   <class name="edm::reftobase::Holder<reco::ConvBremSeed,edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>

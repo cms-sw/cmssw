@@ -4,7 +4,6 @@
        <version ClassVersion="11" checksum="541533207"/>
        <version ClassVersion="10" checksum="2502730614"/>
       </class>
-      <class name="edm::RefToBase<L2MuonTrajectorySeed>"/>
       <class name="edm::reftobase::BaseHolder<L2MuonTrajectorySeed>" />
       <class name="edm::reftobase::IndirectHolder<L2MuonTrajectorySeed>" />
     
@@ -33,7 +32,6 @@
        <version ClassVersion="11" checksum="981061883"/>
        <version ClassVersion="10" checksum="2200485484"/>
       </class>
-      <class name="edm::RefToBase<L3MuonTrajectorySeed>"/>
       <class name="edm::reftobase::BaseHolder<L3MuonTrajectorySeed>" />
       <class name="edm::reftobase::IndirectHolder<L3MuonTrajectorySeed>" />
     
