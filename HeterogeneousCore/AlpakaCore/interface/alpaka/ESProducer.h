@@ -2,6 +2,7 @@
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_ESProducer_h
 
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProduct.h"
@@ -49,9 +50,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto tokenPtr = std::make_shared<edm::ESGetToken<TProduct, TRecord>>();
         auto ccDev = setWhatProducedDevice<TRecord>(
             [tokenPtr](device::Record<TRecord> const& iRecord) {
-              auto handle = iRecord.getTransientHandle(*tokenPtr);
               using CopyT = cms::alpakatools::CopyToDevice<TProduct>;
-              return std::optional{CopyT::copyAsync(iRecord.queue(), *handle)};
+              try {
+                auto handle = iRecord.getTransientHandle(*tokenPtr);
+                return std::optional{CopyT::copyAsync(iRecord.queue(), *handle)};
+              } catch (edm::eventsetup::MakeDataException& e) {
+                return std::optional<decltype(CopyT::copyAsync(std::declval<Queue&>(), std::declval<TProduct>()))>();
+              }
             },
             label);
         *tokenPtr = ccDev.consumes(edm::ESInputTag{moduleLabel_, label.default_ + appendToDataLabel_});
