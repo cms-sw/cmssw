@@ -107,7 +107,6 @@
   <class name="edm::Wrapper<std::vector<reco::ElectronSeed> >"/>
   <class name="edm::RefVector<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
-  <class name="edm::RefToBase<reco::ElectronSeed>"/>
   <class name="edm::reftobase::BaseHolder<reco::ElectronSeed>" />
   <class name="edm::reftobase::IndirectHolder<reco::ElectronSeed>" />
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>

@@ -25,8 +25,8 @@ namespace reco {
   typedef edm::RefToBase<NamedCompositeCandidate> NamedCompositeCandidateBaseRef;
   /// vector of references to objects in the same  collection of Candidate objects
   typedef edm::RefVector<NamedCompositeCandidateCollection> NamedCompositeCandidateRefVector;
-  /// vector of references to objects in the same collection of Candidate objects via base type
-  typedef edm::RefToBaseVector<NamedCompositeCandidate> NamedCompositeCandidateBaseRefVector;
+  //  /// vector of references to objects in the same collection of Candidate objects via base type
+  //  typedef edm::RefToBaseVector<NamedCompositeCandidate> NamedCompositeCandidateBaseRefVector;
   /// reference to a collection of Candidate objects
   typedef edm::RefProd<NamedCompositeCandidateCollection> NamedCompositeCandidateRefProd;
   /// vector of references to objects in the same collection of Candidate objects via base type
