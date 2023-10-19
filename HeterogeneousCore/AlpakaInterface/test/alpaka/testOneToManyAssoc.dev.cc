@@ -17,9 +17,9 @@ constexpr uint32_t MaxAssocs = 4 * MaxTk;
 using namespace cms::alpakatools;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
-using Assoc = OneToManyAssoc<uint16_t, MaxElem, MaxAssocs>;
-using SmallAssoc = OneToManyAssoc<uint16_t, 128, MaxAssocs>;
-using Multiplicity = OneToManyAssoc<uint16_t, 8, MaxTk>;
+using Assoc = OneToManyAssocRandomAccess<uint16_t, MaxElem, MaxAssocs>;
+using SmallAssoc = OneToManyAssocRandomAccess<uint16_t, 128, MaxAssocs>;
+using Multiplicity = OneToManyAssocRandomAccess<uint16_t, 8, MaxTk>;
 using TK = std::array<uint16_t, 4>;
 
 namespace {
@@ -206,11 +206,11 @@ int main() {
     const auto blocksPerGrid4N = divide_up_by(4 * N, threadsPerBlockOrElementsPerThread);
     const auto workDiv4N = make_workdiv<Acc1D>(blocksPerGrid4N, threadsPerBlockOrElementsPerThread);
 
-    launchZero<Acc1D>(a_d.data(), queue);
+    Assoc:: template launchZero<Acc1D>(a_d.data(), queue);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv4N, count(), v_d.data(), a_d.data(), N));
 
-    launchFinalize<Acc1D>(a_d.data(), queue);
+    Assoc:: template launchFinalize<Acc1D>(a_d.data(), queue);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(WorkDiv1D{1u, 1u, 1u}, verify(), a_d.data()));
 
@@ -247,7 +247,7 @@ int main() {
                     alpaka::createTaskKernel<Acc1D>(workDiv, fillBulk(), dc_d.data(), v_d.data(), a_d.data(), N));
 
     alpaka::enqueue(
-        queue, alpaka::createTaskKernel<Acc1D>(workDiv, cms::alpakatools::finalizeBulk(), dc_d.data(), a_d.data()));
+        queue, alpaka::createTaskKernel<Acc1D>(workDiv, Assoc:: template finalizeBulk(), dc_d.data(), a_d.data()));
 
     alpaka::enqueue(queue,
                     alpaka::createTaskKernel<Acc1D>(WorkDiv1D{1u, 1u, 1u}, verifyBulk(), a_d.data(), dc_d.data()));

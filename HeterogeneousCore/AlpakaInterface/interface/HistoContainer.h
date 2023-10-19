@@ -63,37 +63,37 @@ namespace cms {
                                                                   uint32_t totSize,
                                                                   uint32_t nthreads,
                                                                   TQueue &queue) {
-      launchZero<TAcc>(h, queue);
+      Histo:: template launchZero<TAcc>(h, queue);
 
       const auto threadsPerBlockOrElementsPerThread = nthreads;
       const auto blocksPerGrid = divide_up_by(totSize, nthreads);
       const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
 
       alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, offsets);
-      launchFinalize<TAcc>(h, queue);
+      Histo:: template launchFinalize<TAcc>(h, queue);
 
       alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, offsets);
     }
 
     template <typename TAcc, typename Histo, typename T, typename TQueue>
     inline __attribute__((always_inline)) void fillManyFromVector(Histo *__restrict__ h,
-                                                                  OneToManyAssocView<typename Histo::Base> hv,
+                                                                  typename Histo::View hv,
                                                                   uint32_t nh,
                                                                   T const *v,
                                                                   uint32_t const *offsets,
                                                                   uint32_t totSize,
                                                                   uint32_t nthreads,
                                                                   TQueue &queue) {
-      launchZero<TAcc>(hv, queue);
+      Histo:: template launchZero<TAcc>(hv, queue);
 
       const auto threadsPerBlockOrElementsPerThread = nthreads;
       const auto blocksPerGrid = divide_up_by(totSize, nthreads);
       const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
 
-      alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, offsets);
-      launchFinalize<TAcc>(h, queue);
+      alpaka::exec<TAcc>(queue, workDiv, /* Histo:: */ countFromVector(), h, nh, v, offsets);
+      Histo:: template launchFinalize<TAcc>(h, queue);
 
-      alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, offsets);
+      alpaka::exec<TAcc>(queue, workDiv, /* Histo:: */ fillFromVector(), h, nh, v, offsets);
     }
 
     // iteratate over N bins left and right of the one containing "v"
@@ -126,9 +126,9 @@ namespace cms {
               typename I = uint32_t,  // type stored in the container (usually an index in a vector of the input values)
               uint32_t NHISTS = 1     // number of histos stored
               >
-    class HistoContainer : public OneToManyAssoc<I, NHISTS * NBINS + 1, SIZE> {
+    class HistoContainer : public OneToManyAssocRandomAccess<I, NHISTS * NBINS + 1, SIZE> {
     public:
-      using Base = OneToManyAssoc<I, NHISTS * NBINS + 1, SIZE>;
+      using Base = OneToManyAssocRandomAccess<I, NHISTS * NBINS + 1, SIZE>;
       using View = typename Base::View;
       using Counter = typename Base::Counter;
       using index_type = typename Base::index_type;

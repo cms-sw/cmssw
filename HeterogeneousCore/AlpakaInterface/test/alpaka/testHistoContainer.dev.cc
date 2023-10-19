@@ -36,7 +36,7 @@ void checkContents(Hist* h,
       if (j % 2)
         k = *(h->begin(ii) + (h->end(ii) - h->begin(ii)) / 2);
 #ifndef NDEBUG
-      auto bk = h->bin(v[k]);
+      [[maybe_unused]] auto bk = h->bin(v[k]);
 #endif
       ALPAKA_ASSERT_OFFLOAD(bk == i);
       ALPAKA_ASSERT_OFFLOAD(k < offsets[j + 1]);

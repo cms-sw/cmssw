@@ -22,131 +22,29 @@ namespace {
 namespace cms {
   namespace alpakatools {
 
-    template <typename Assoc>
-    struct OneToManyAssocView {
-      using Counter = typename Assoc::Counter;
-      using index_type = typename Assoc::index_type;
-
-      Assoc *assoc = nullptr;
-      Counter *offStorage = nullptr;
-      index_type *contentStorage = nullptr;
-      int32_t offSize = -1;
-      int32_t contentSize = -1;
-    };
-
-    // this MUST BE DONE in a single block (or in two kernels!)
-    struct zeroAndInit {
-      template <typename TAcc, typename Assoc>
-      ALPAKA_FN_ACC void operator()(const TAcc &acc, OneToManyAssocView<Assoc> view) const {
-        auto h = view.assoc;
-        ALPAKA_ASSERT_OFFLOAD((1 == alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0]));
-        ALPAKA_ASSERT_OFFLOAD((0 == alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0]));
-
-        auto first = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0];
-
-        if (0 == first) {
-          h->psws = 0;
-          h->initStorage(view);
-        }
-        alpaka::syncBlockThreads(acc);
-        // TODO use for_each_element_in_grid_strided (or similar)
-        for (int i = first, nt = h->totOnes(); i < nt;
-             i += alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0]) {
-          h->off[i] = 0;
-        }
-      }
-    };
-
-    template <typename TAcc, typename Assoc, typename TQueue>
-    inline __attribute__((always_inline)) void launchZero(Assoc *h, TQueue &queue) {
-      typename Assoc::View view = {h, nullptr, nullptr, -1, -1};
-      launchZero<TAcc>(view, queue);
-    }
-
-    template <typename TAcc, typename Assoc, typename TQueue>
-    inline __attribute__((always_inline)) void launchZero(OneToManyAssocView<Assoc> view, TQueue &queue) {
-      if constexpr (Assoc::ctCapacity() < 0) {
-        ALPAKA_ASSERT_OFFLOAD(view.contentStorage);
-        ALPAKA_ASSERT_OFFLOAD(view.contentSize > 0);
-      }
-      if constexpr (Assoc::ctNOnes() < 0) {
-        ALPAKA_ASSERT_OFFLOAD(view.offStorage);
-        ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
-      }
-#if !defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
-      auto nthreads = 1024;
-      auto nblocks = 1;  // MUST BE ONE as memory is initialize in thread 0 (alternative is two kernels);
-      auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
-      alpaka::exec<TAcc>(queue, workDiv, zeroAndInit{}, view);
-#else
-      auto h = view.assoc;
-      ALPAKA_ASSERT_OFFLOAD(h);
-      h->initStorage(view);
-      h->zero();
-      h->psws = 0;
-#endif
-    }
-
-    template <typename TAcc, typename Assoc, typename TQueue>
-    inline __attribute__((always_inline)) void launchFinalize(Assoc *h, TQueue &queue) {
-      typename Assoc::View view = {h, nullptr, nullptr, -1, -1};
-      launchFinalize<TAcc>(view, queue);
-    }
-
-    template <typename TAcc, typename Assoc, typename TQueue>
-    inline __attribute__((always_inline)) void launchFinalize(OneToManyAssocView<Assoc> view, TQueue &queue) {
-      auto h = view.assoc;
-      ALPAKA_ASSERT_OFFLOAD(h);
-#if !defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
-      using Counter = typename Assoc::Counter;
-      Counter *poff = (Counter *)((char *)(h) + offsetof(Assoc, off));
-      auto nOnes = Assoc::ctNOnes();
-      if constexpr (Assoc::ctNOnes() < 0) {
-        ALPAKA_ASSERT_OFFLOAD(view.offStorage);
-        ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
-        nOnes = view.offSize;
-        poff = view.offStorage;
-      }
-      ALPAKA_ASSERT_OFFLOAD(nOnes > 0);
-      int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(Assoc, psws));
-      auto nthreads = 1024;
-      auto nblocks = (nOnes + nthreads - 1) / nthreads;
-      auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
-      alpaka::exec<TAcc>(queue,
-                         workDiv,
-                         multiBlockPrefixScan<Counter>(),
-                         poff,
-                         poff,
-                         nOnes,
-                         nblocks,
-                         ppsws,
-                         alpaka::getWarpSizes(alpaka::getDev(queue))[0]);
-#else
-      h->finalize();
-#endif
-    }
-
-    struct finalizeBulk {
-      template <typename TAcc, typename Assoc>
-      ALPAKA_FN_ACC void operator()(const TAcc &acc, AtomicPairCounter const *apc, Assoc *__restrict__ assoc) const {
-        assoc->bulkFinalizeFill(acc, *apc);
-      }
-    };
-
     template <typename I,    // type stored in the container (usually an index in a vector of the input values)
               int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
               int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
               >
-    class OneToManyAssoc {
+    class OneToManyAssocBase {
     public:
-      using View = OneToManyAssocView<OneToManyAssoc<I, ONES, SIZE>>;
       using Counter = uint32_t;
 
-      using CountersOnly = OneToManyAssoc<I, ONES, 0>;
+      using CountersOnly = OneToManyAssocBase<I, ONES, 0>;
 
       using index_type = I;
 
+      struct View {
+//        using OneToManyAssocBase::Counter;
+//        using OneToManyAssocBase::index_type;
 
+        OneToManyAssocBase *assoc = nullptr;
+        Counter *offStorage = nullptr;
+        index_type *contentStorage = nullptr;
+        int32_t offSize = -1;
+        int32_t contentSize = -1;
+      };
+      
       static constexpr int32_t ctNOnes() { return ONES; }
       constexpr auto totOnes() const { return off.capacity(); }
       constexpr auto nOnes() const { return totOnes() - 1; }
@@ -204,54 +102,60 @@ namespace cms {
         content[w - 1] = j;
       }
 
-      template <typename TAcc>
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) int32_t bulkFill(const TAcc &acc,
-                                                                                AtomicPairCounter &apc,
-                                                                                index_type const *v,
-                                                                                uint32_t n) {
-        auto c = apc.inc_add(acc, n);
-        if (int(c.first) >= nOnes())
-          return -int32_t(c.first);
-        off[c.first] = c.second;
-        for (uint32_t j = 0; j < n; ++j)
-          content[c.second + j] = v[j];
-        return c.first;
-      }
+      // this MUST BE DONE in a single block (or in two kernels!)
+      struct zeroAndInit {
+        template <typename TAcc>
+        ALPAKA_FN_ACC void operator()(const TAcc &acc, View view) const {
+          auto h = view.assoc;
+          ALPAKA_ASSERT_OFFLOAD((1 == alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0]));
+          ALPAKA_ASSERT_OFFLOAD((0 == alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0]));
 
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void bulkFinalize(AtomicPairCounter const &apc) {
-        off[apc.get().first] = apc.get().second;
-      }
+          auto first = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0];
 
-      template <typename TAcc>
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void bulkFinalizeFill(TAcc &acc,
-                                                                                     AtomicPairCounter const &apc) {
-        int f = apc.get().first;
-        auto s = apc.get().second;
-        if (f >= nOnes()) {  // overflow!
-          off[nOnes()] = uint32_t(off[nOnes() - 1]);
-          return;
+          if (0 == first) {
+            h->psws = 0;
+            h->initStorage(view);
+          }
+          alpaka::syncBlockThreads(acc);
+          // TODO use for_each_element_in_grid_strided (or similar)
+          for (int i = first, nt = h->totOnes(); i < nt;
+               i += alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0]) {
+            h->off[i] = 0;
+          }
         }
-        auto first = f + alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
-        for (int i = first; i < totOnes(); i += alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0]) {
-          off[i] = s;
+      };
+
+      template <typename TAcc, typename TQueue>
+      static inline __attribute__((always_inline)) void launchZero(OneToManyAssocBase *h, TQueue &queue) {
+        View view = {h, nullptr, nullptr, -1, -1};
+        launchZero<TAcc>(view, queue);
+      }
+
+      template <typename TAcc, typename TQueue>
+      static inline __attribute__((always_inline)) void launchZero(View view, TQueue &queue) {
+        if constexpr (ctCapacity() < 0) {
+          ALPAKA_ASSERT_OFFLOAD(view.contentStorage);
+          ALPAKA_ASSERT_OFFLOAD(view.contentSize > 0);
         }
-      }
-
-      template <typename TAcc>
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize(TAcc &acc, Counter *ws = nullptr) {
-        ALPAKA_ASSERT_OFFLOAD(off[totOnes() - 1] == 0);
-        blockPrefixScan(acc, off.data(), totOnes(), ws);
-        ALPAKA_ASSERT_OFFLOAD(off[totOnes() - 1] == off[totOnes() - 2]);
-      }
-
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize() {
-        // Single thread finalize.
-        for (uint32_t i = 1; toSigned2(i) < totOnes(); ++i)
-          off[i] += off[i - 1];
+        if constexpr (ctNOnes() < 0) {
+          ALPAKA_ASSERT_OFFLOAD(view.offStorage);
+          ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
+        }
+  #if !defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
+        auto nthreads = 1024;
+        auto nblocks = 1;  // MUST BE ONE as memory is initialize in thread 0 (alternative is two kernels);
+        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
+        alpaka::exec<TAcc>(queue, workDiv, zeroAndInit{}, view);
+  #else
+        auto h = view.assoc;
+        ALPAKA_ASSERT_OFFLOAD(h);
+        h->initStorage(view);
+        h->zero();
+        h->psws = 0;
+  #endif
       }
 
       constexpr auto size() const {
-        //printf ("In OneToManyAssoc::size(): totOnes()=%d, size = %d\n", totOnes(), off[totOnes() - 1]);
         return uint32_t(off[totOnes() - 1]);
       }
       constexpr auto size(uint32_t b) const { return off[b + 1] - off[b]; }
@@ -266,6 +170,118 @@ namespace cms {
       int32_t psws;  // prefix-scan working space
       FlexiStorage<index_type, SIZE> content;
     };
+    
+    template <typename I,    // type stored in the container (usually an index in a vector of the input values)
+              int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
+              int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
+              >
+    class OneToManyAssocSequential: public OneToManyAssocBase<I, ONES, SIZE> {
+    public:
+      using index_type = typename OneToManyAssocBase<I, ONES, SIZE>::index_type;
+      
+      template <typename TAcc>
+      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) int32_t bulkFill(const TAcc &acc,
+                                                                                AtomicPairCounter &apc,
+                                                                                index_type const *v,
+                                                                                uint32_t n) {
+        auto c = apc.inc_add(acc, n);
+        if (int(c.first) >= this->nOnes())
+          return -int32_t(c.first);
+        this->off[c.first] = c.second;
+        for (uint32_t j = 0; j < n; ++j)
+          this->content[c.second + j] = v[j];
+        return c.first;
+      }
+
+      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void bulkFinalize(AtomicPairCounter const &apc) {
+        this->off[apc.get().first] = apc.get().second;
+      }
+
+      template <typename TAcc>
+      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void bulkFinalizeFill(TAcc &acc,
+                                                                                     AtomicPairCounter const &apc) {
+        int f = apc.get().first;
+        auto s = apc.get().second;
+        if (f >= this->nOnes()) {  // overflow!
+          this->off[this->nOnes()] = uint32_t(this->off[this->nOnes() - 1]);
+          return;
+        }
+        auto first = f + alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
+        for (int i = first; i < this->totOnes(); i += alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0]) {
+          this->off[i] = s;
+        }
+      }
+      
+      struct finalizeBulk {
+        template <typename TAcc>
+        ALPAKA_FN_ACC void operator()(const TAcc &acc, AtomicPairCounter const *apc, OneToManyAssocSequential *__restrict__ assoc) const {
+          assoc->bulkFinalizeFill(acc, *apc);
+        }
+      };
+    };
+    
+    template <typename I,    // type stored in the container (usually an index in a vector of the input values)
+              int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
+              int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
+              >
+    class OneToManyAssocRandomAccess: public OneToManyAssocBase<I, ONES, SIZE> {
+    public:
+      using Counter = typename OneToManyAssocBase<I, ONES, SIZE>::Counter;
+      using View = typename OneToManyAssocBase<I, ONES, SIZE>::View;
+      
+      template <typename TAcc>
+      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize(TAcc &acc, Counter *ws = nullptr) {
+        ALPAKA_ASSERT_OFFLOAD(this->off[totOnes() - 1] == 0);
+        blockPrefixScan(acc, this->off.data(), this->totOnes(), ws);
+        ALPAKA_ASSERT_OFFLOAD(this->off[totOnes() - 1] == this->off[totOnes() - 2]);
+      }
+
+      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize() {
+        // Single thread finalize.
+        for (uint32_t i = 1; toSigned2(i) < this->totOnes(); ++i)
+          this->off[i] += this->off[i - 1];
+      }
+      
+      
+      template <typename TAcc, typename TQueue>
+      static inline __attribute__((always_inline)) void launchFinalize(OneToManyAssocRandomAccess *h, TQueue &queue) {
+        View view = {h, nullptr, nullptr, -1, -1};
+        launchFinalize<TAcc>(view, queue);
+      }
+
+      template <typename TAcc, typename TQueue>
+      static inline __attribute__((always_inline)) void launchFinalize(View view, TQueue &queue) {
+        auto h = view.assoc;
+        ALPAKA_ASSERT_OFFLOAD(h);
+  #if !defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
+        Counter *poff = (Counter *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, off));
+        auto nOnes = ctNOnes();
+        if constexpr (ctNOnes() < 0) {
+          ALPAKA_ASSERT_OFFLOAD(view.offStorage);
+          ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
+          nOnes = view.offSize;
+          poff = view.offStorage;
+        }
+        ALPAKA_ASSERT_OFFLOAD(nOnes > 0);
+        int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, psws));
+        auto nthreads = 1024;
+        auto nblocks = (nOnes + nthreads - 1) / nthreads;
+        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
+        alpaka::exec<TAcc>(queue,
+                           workDiv,
+                           multiBlockPrefixScan<Counter>(),
+                           poff,
+                           poff,
+                           nOnes,
+                           nblocks,
+                           ppsws,
+                           alpaka::getWarpSizes(alpaka::getDev(queue))[0]);
+  #else
+        h->finalize();
+  #endif
+      }
+    };
+
 
   }  // namespace alpakatools
 }  // namespace cms
