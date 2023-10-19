@@ -54,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using ParamsOnDevice = pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>;
 
   public:
-    CAHitNtupletGenerator(const edm::ParameterSet& cfg); 
+    CAHitNtupletGenerator(const edm::ParameterSet& cfg);
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc);
     static void fillDescriptionsCommon(edm::ParameterSetDescription& desc);
@@ -76,7 +76,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void launchKernels(const HitsConstView& hh, bool useRiemannFit, Queue& queue) const;
 
     Params m_params;
-
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

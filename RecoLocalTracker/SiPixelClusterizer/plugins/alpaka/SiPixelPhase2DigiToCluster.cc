@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::EDPutToken<SiPixelClustersCollection> clusterPutToken_;
 
     Algo Algo_;
-    
+
     const bool includeErrors_;
     const SiPixelClusterThresholds clusterThresholds_;
     uint32_t nDigis_ = 0;
@@ -74,10 +74,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
         clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                            iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
-                          static_cast<float>(iConfig.getParameter<double>("ElectronPerADCGain")),
-                          static_cast<int8_t>(iConfig.getParameter<int>("Phase2ReadoutMode")),
-                          static_cast<uint16_t>(iConfig.getParameter<uint32_t>("Phase2DigiBaseline")),
-                          static_cast<uint8_t>(iConfig.getParameter<uint32_t>("Phase2KinkADC"))} {
+                           static_cast<float>(iConfig.getParameter<double>("ElectronPerADCGain")),
+                           static_cast<int8_t>(iConfig.getParameter<int>("Phase2ReadoutMode")),
+                           static_cast<uint16_t>(iConfig.getParameter<uint32_t>("Phase2DigiBaseline")),
+                           static_cast<uint8_t>(iConfig.getParameter<uint32_t>("Phase2KinkADC"))} {
     if (includeErrors_) {
       digiErrorPutToken_ = produces();
     }
@@ -87,7 +87,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
 
     desc.add<bool>("IncludeErrors", true);
-    desc.add<int32_t>("clusterThreshold_layer1", pixelClustering::clusterThresholdPhase2LayerOne); //FIXME (fix the CUDA)
+    desc.add<int32_t>("clusterThreshold_layer1",
+                      pixelClustering::clusterThresholdPhase2LayerOne);  //FIXME (fix the CUDA)
     desc.add<int32_t>("clusterThreshold_otherLayers", pixelClustering::clusterThresholdPhase2OtherLayers);
     desc.add<double>("ElectronPerADCGain", 1500.);
     desc.add<int32_t>("Phase2ReadoutMode", 3);
@@ -149,7 +150,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
       return;
     }
-    
+
     digis_d.setNModulesDigis(Algo_.nModules(), nDigis_);
 
     iEvent.emplace(digiPutToken_, std::move(digis_d));

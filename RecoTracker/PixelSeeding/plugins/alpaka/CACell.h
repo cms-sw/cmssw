@@ -177,20 +177,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto z1 = otherCell.inner_z(hh);
       auto isBarrel = otherCell.outer_detIndex(hh) < TrackerTraits::last_barrel_detIndex;
       // TODO tune CA cuts below (theta and dca)
-      bool aligned =
-          areAlignedRZ(r1,
-                       z1,
-                       ri,
-                       zi,
-                       ro,
-                       zo,
-                       ptmin,
-                       isBarrel ? caThetaCutBarrel : caThetaCutForward);  
+      bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, isBarrel ? caThetaCutBarrel : caThetaCutForward);
       return (aligned && dcaCut(hh,
                                 otherCell,
                                 otherCell.inner_detIndex(hh) < TrackerTraits::last_bpix1_detIndex ? dcaCutInnerTriplet
                                                                                                   : dcaCutOuterTriplet,
-                                hardCurvCut));  
+                                hardCurvCut));
     }
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) static bool areAlignedRZ(

@@ -41,12 +41,12 @@ using TrackSoAView = typename TrackSoA<TrackerTraits>::template TrackSoAHeteroge
 template <typename TrackerTraits>
 using TrackSoAConstView = typename TrackSoA<TrackerTraits>::template TrackSoAHeterogeneousLayout<>::ConstView;
 
-  // State at the Beam spot
-  // phi,tip,1/pt,cotan(theta),zip
+// State at the Beam spot
+// phi,tip,1/pt,cotan(theta),zip
 //  template <typename TrackerTraits>
 //  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE constexpr float charge(const TrackSoAConstView<TrackerTraits>& tracks, int32_t i) {
 //    float v = tracks[i].state()(2);
 //    return float((0.0f < v) - (v < 0.0f));
-//  }   
-  
+//  }
+
 #endif

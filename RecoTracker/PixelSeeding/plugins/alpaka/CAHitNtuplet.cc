@@ -44,7 +44,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-  
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
     const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, PixelCPEFastParamsRecord> cpeToken_;
     const device::EDGetToken<HitsOnDevice> tokenHit_;
@@ -59,9 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
         tokenHit_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
-        deviceAlgo_(iConfig) {
-
-  }
+        deviceAlgo_(iConfig) {}
 
   template <typename TrackerTraits>
   void CAHitNtupletAlpaka<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

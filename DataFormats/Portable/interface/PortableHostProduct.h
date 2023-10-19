@@ -22,18 +22,14 @@ public:
 
   PortableHostProduct(alpaka_common::DevHost const& host)
       // allocate pageable host memory
-      : buffer_{cms::alpakatools::make_host_buffer<Product>()},
-        product_{buffer_->data()}
-  {
+      : buffer_{cms::alpakatools::make_host_buffer<Product>()}, product_{buffer_->data()} {
     assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
   }
 
   template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   PortableHostProduct(TQueue const& queue)
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
-      : buffer_{cms::alpakatools::make_host_buffer<Product>(queue)},
-        product_{buffer_->data()}
-  {
+      : buffer_{cms::alpakatools::make_host_buffer<Product>(queue)}, product_{buffer_->data()} {
     assert(reinterpret_cast<uintptr_t>(product_) % alignof(Product) == 0);
   }
 
@@ -78,7 +74,7 @@ public:
     }
     std::cerr << "struct content at " << newObj->product_ << std::endl;
     if (newObj->product_) {
-      std::cerr << "id:  " << newObj->product_->id  << std::endl;
+      std::cerr << "id:  " << newObj->product_->id << std::endl;
     }
     newObj->~PortableHostProduct();
     // use the global "host" object returned by cms::alpakatools::host()
@@ -91,7 +87,7 @@ public:
     }
     std::cerr << "struct content at " << newObj->product_ << std::endl;
     if (newObj->product_) {
-      std::cerr << "id:  " << newObj->product_->id  << std::endl;
+      std::cerr << "id:  " << newObj->product_->id << std::endl;
     }
   }
 

@@ -71,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     };
 // #define THREE_KERNELS
 #ifndef THREE_KERNELS
-    class vertexFinderOneKernel { //FIXME: CUDA do not have the split here
+    class vertexFinderOneKernel {  //FIXME: CUDA do not have the split here
     public:
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(const TAcc& acc,
@@ -87,8 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
         fitVertices(acc, pdata, pws, maxChi2ForFirstFit);
         alpaka::syncBlockThreads(acc);
-        if (doSplit)
-        {
+        if (doSplit) {
           splitVertices(acc, pdata, pws, maxChi2ForSplit);
           alpaka::syncBlockThreads(acc);
           fitVertices(acc, pdata, pws, maxChi2ForFinalFit);
@@ -160,14 +159,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (oneKernel_) {
         // implemented only for density clustesrs
 #ifndef THREE_KERNELS
-        alpaka::exec<Acc1D>(
-            queue, finderSorterWorkDiv, vertexFinderOneKernel{}, soa, ws_d.view(), doSplitting_, minT, eps, errmax, chi2max);
+        alpaka::exec<Acc1D>(queue,
+                            finderSorterWorkDiv,
+                            vertexFinderOneKernel{},
+                            soa,
+                            ws_d.view(),
+                            doSplitting_,
+                            minT,
+                            eps,
+                            errmax,
+                            chi2max);
 #else
         alpaka::exec<Acc1D>(
             queue, finderSorterWorkDiv, vertexFinderOneKernel{}, soa, ws_d.view(), minT, eps, errmax, chi2max);
 
         // one block per vertex...
-        if (doSplitting_) //FIXME: CUDA doesn't have this
+        if (doSplitting_)  //FIXME: CUDA doesn't have this
           alpaka::exec<Acc1D>(queue, splitterFitterWorkDiv, splitVerticesKernel{}, soa, ws_d.view(), maxChi2ForSplit);
         alpaka::exec<Acc1D>(queue, finderSorterWorkDiv{}, soa, ws_d.view());
 #endif
@@ -191,7 +198,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, fitVerticesKernel{}, soa, ws_d.view(), maxChi2ForFinalFit);
         }
-          alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, sortByPt2Kernel{}, soa, ws_d.view());
+        alpaka::exec<Acc1D>(queue, finderSorterWorkDiv, sortByPt2Kernel{}, soa, ws_d.view());
       }
 
       return vertices;

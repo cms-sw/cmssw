@@ -232,7 +232,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           //////////////////////////////////////////////////////////
           // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
           //////////////////////////////////////////////////////////
-          counters_{cms::alpakatools::make_device_buffer<Counters>(queue)}, 
+          counters_{cms::alpakatools::make_device_buffer<Counters>(queue)},
 
           // workspace
           device_hitToTuple_{cms::alpakatools::make_device_buffer<HitToTuple>(queue)},
@@ -271,7 +271,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       auto cellCuts_h = cms::alpakatools::make_host_view(m_params.cellCuts_);
       alpaka::memcpy(queue, device_cellCuts_, cellCuts_h);
-      
+
       cms::alpakatools::launchZero<Acc1D>(device_tupleMultiplicity_.data(), queue);
       cms::alpakatools::launchZero<Acc1D>(device_hitToTuple_.data(), queue);
     }

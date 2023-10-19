@@ -18,7 +18,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using PixelCPEFastParamsCollection = PixelCPEFastParamsHost<TrackerTraits>;
 #else
   template <typename TrackerTraits>
-  using PixelCPEFastParamsCollection = PixelCPEFastParamsDevice<Device,TrackerTraits>;
+  using PixelCPEFastParamsCollection = PixelCPEFastParamsDevice<Device, TrackerTraits>;
 #endif
   template <typename TrackerTraits>
   using PixelCPEFastParams = PixelCPEFastParamsCollection<TrackerTraits>;
@@ -34,7 +34,7 @@ namespace cms::alpakatools {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, PixelCPEFastParamsHost<TrackerTraits> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      PixelCPEFastParamsDevice<TDevice,TrackerTraits> dstData (queue);//srcData->metadata().size(), queue);
+      PixelCPEFastParamsDevice<TDevice, TrackerTraits> dstData(queue);  //srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }

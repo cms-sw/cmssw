@@ -64,7 +64,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t nActualPairs,
                                     const uint32_t maxNumOfDoublets,
                                     CellCutsT<TrackerTraits> cuts) const {
-
         doubletsFromHisto<TrackerTraits>(
             acc, nActualPairs, maxNumOfDoublets, cells, nCells, cellNeighbors, cellTracks, hh, *isOuterHitOfCell, cuts);
       }

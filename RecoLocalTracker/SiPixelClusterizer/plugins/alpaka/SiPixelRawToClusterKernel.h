@@ -127,15 +127,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         WordFedAppender();
         ~WordFedAppender() = default;
 
-        WordFedAppender(uint32_t words) 
-          :word_{cms::alpakatools::make_host_buffer<unsigned int[], Platform>(words)},
-          fedId_{cms::alpakatools::make_host_buffer<unsigned char[], Platform>(words)} {};
+        WordFedAppender(uint32_t words)
+            : word_{cms::alpakatools::make_host_buffer<unsigned int[], Platform>(words)},
+              fedId_{cms::alpakatools::make_host_buffer<unsigned char[], Platform>(words)} {};
 
-
-        void initializeWordFed(int fedId,
-                              unsigned int wordCounterGPU,
-                              const uint32_t *src,
-                              unsigned int length) {
+        void initializeWordFed(int fedId, unsigned int wordCounterGPU, const uint32_t* src, unsigned int length) {
           std::memcpy(word_.data() + wordCounterGPU, src, sizeof(uint32_t) * length);
           std::memset(fedId_.data() + wordCounterGPU / 2, fedId - 1200, length / 2);
         }
@@ -155,18 +151,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       SiPixelRawToClusterKernel(SiPixelRawToClusterKernel&&) = delete;
       SiPixelRawToClusterKernel& operator=(const SiPixelRawToClusterKernel&) = delete;
       SiPixelRawToClusterKernel& operator=(SiPixelRawToClusterKernel&&) = delete;
-  
+
       void makePhase1ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
-                             const SiPixelMappingSoAConstView& cablingMap,
-                             const unsigned char* modToUnp,
-                             const SiPixelGainCalibrationForHLTSoAConstView& gains,
-                             const WordFedAppender& wordFed,
-                             const uint32_t wordCounter,
-                             const uint32_t fedCounter,
-                             bool useQualityInfo,
-                             bool includeErrors,
-                             bool debug,
-                             Queue& queue);
+                                   const SiPixelMappingSoAConstView& cablingMap,
+                                   const unsigned char* modToUnp,
+                                   const SiPixelGainCalibrationForHLTSoAConstView& gains,
+                                   const WordFedAppender& wordFed,
+                                   const uint32_t wordCounter,
+                                   const uint32_t fedCounter,
+                                   bool useQualityInfo,
+                                   bool includeErrors,
+                                   bool debug,
+                                   Queue& queue);
 
       void makePhase2ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
                                    SiPixelDigisSoAv2View& digis_view,

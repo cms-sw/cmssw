@@ -148,9 +148,9 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
       spc.abort();
   };
 
-  #ifdef GPU_DEBUG
-  std::cout << "Dumping all digis. nDigis = "<< nDigis << std::endl;
-  #endif
+#ifdef GPU_DEBUG
+  std::cout << "Dumping all digis. nDigis = " << nDigis << std::endl;
+#endif
 
   for (uint32_t i = 0; i < nDigis; i++) {
     // check for uninitialized digis
@@ -165,9 +165,9 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
     assert(digis.rawIdArr(i) > 109999);
 #endif
     if (detId != digis.rawIdArr(i)) {
-      #ifdef GPU_DEBUG
-      std::cout << ">> Closed module --"<< detId << "; nclus = " << nclus <<std::endl;
-      #endif
+#ifdef GPU_DEBUG
+      std::cout << ">> Closed module --" << detId << "; nclus = " << nclus << std::endl;
+#endif
       // new module
       fillClusters(detId);
 #ifdef EDM_ML_DEBUG
@@ -186,15 +186,10 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
     }
     PixelDigi dig(digis.pdigi(i));
 
-    #ifdef GPU_DEBUG
-    std::cout << i << ";" 
-              << digis.rawIdArr(i) << ";"
-              << digis.clus(i) << ";"
-              << digis.pdigi(i) << ";"
-              << digis.adc(i) << ";"
-              << dig.row() << ";"
-              << dig.column() << std::endl;
-    #endif
+#ifdef GPU_DEBUG
+    std::cout << i << ";" << digis.rawIdArr(i) << ";" << digis.clus(i) << ";" << digis.pdigi(i) << ";" << digis.adc(i)
+              << ";" << dig.row() << ";" << dig.column() << std::endl;
+#endif
 
     if (storeDigis_)
       (*detDigis).data.emplace_back(dig);

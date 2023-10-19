@@ -195,10 +195,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
-    
+
     desc.add<std::vector<int>>(
-           "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
-       ->setComment("Cuts in phi for cells");
+            "phiCuts",
+            std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
+        ->setComment("Cuts in phi for cells");
   }
 
   template <>
@@ -224,17 +225,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     trackQualityCuts.add<double>("quadrupletMaxTip", 0.5)->setComment("Max |Tip| for quadruplets, in cm");
     trackQualityCuts.add<double>("quadrupletMaxZip", 6.)->setComment("Max |Zip| for quadruplets, in cm");
 
-   desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
+    desc.add<edm::ParameterSetDescription>("trackQualityCuts", trackQualityCuts)
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply "
             "\"region "
             "cuts\" based on the fit results (pT, Tip, Zip).");
-    
 
-   desc.add<std::vector<int>>(
-           "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
-       ->setComment("Cuts in phi for cells");
-
+    desc.add<std::vector<int>>(
+            "phiCuts",
+            std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
+        ->setComment("Cuts in phi for cells");
   }
 
   template <>
@@ -256,10 +256,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ->setComment(
             "Quality cuts based on the results of the track fit:\n  - apply cuts based on the fit results (pT, Tip, "
             "Zip).");
-    
+
     desc.add<std::vector<int>>(
-           "phiCuts", std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::end(phase2PixelTopology::phicuts)))
-       ->setComment("Cuts in phi for cells");
+            "phiCuts",
+            std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::end(phase2PixelTopology::phicuts)))
+        ->setComment("Cuts in phi for cells");
   }
 
   template <typename TrackerTraits>
@@ -270,7 +271,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("ptmin", 0.9f)->setComment("Cut on minimum pt");
     desc.add<double>("CAThetaCutBarrel", 0.002f)->setComment("Cut on RZ alignement for Barrel");
     desc.add<double>("CAThetaCutForward", 0.003f)->setComment("Cut on RZ alignment for Forward");
-    desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
+    desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))
+        ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
     desc.add<double>("dcaCutInnerTriplet", 0.15f)->setComment("Cut on origin radius when the inner hit is on BPix1");
     desc.add<double>("dcaCutOuterTriplet", 0.25f)->setComment("Cut on origin radius when the outer hit is on BPix1");
     desc.add<bool>("earlyFishbone", true);

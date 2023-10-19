@@ -15,8 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class BeamSpotDeviceProducer : public global::EDProducer<> {
   public:
     BeamSpotDeviceProducer(edm::ParameterSet const& config)
-        : legacyToken_{consumes(config.getParameter<edm::InputTag>("src"))},
-          deviceToken_{produces()} {}
+        : legacyToken_{consumes(config.getParameter<edm::InputTag>("src"))}, deviceToken_{produces()} {}
 
     void produce(edm::StreamID, device::Event& event, device::EventSetup const& setup) const override {
       reco::BeamSpot const& beamspot = event.get(legacyToken_);
@@ -34,7 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       hostProduct->emittanceY = beamspot.emittanceY();
       hostProduct->betaStar = beamspot.betaStar();
 
-      if constexpr(std::is_same_v<Device, alpaka::DevCpu>) {
+      if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
         event.emplace(deviceToken_, std::move(hostProduct));
       } else {
         BeamSpotDeviceProduct deviceProduct{event.queue()};

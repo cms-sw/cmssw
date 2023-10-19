@@ -22,7 +22,8 @@ namespace pixelClustering {
         const TAcc& acc,
         SiPixelDigisSoAv2View digi_view,
         SiPixelClustersSoAView clus_view,
-        SiPixelClusterThresholds clusterThresholds,  // charge cut on cluster in electrons (for layer 1 and for other layers)
+        SiPixelClusterThresholds
+            clusterThresholds,  // charge cut on cluster in electrons (for layer 1 and for other layers)
         const uint32_t numElements) const {
       constexpr int startBPIX2 = TrackerTraits::layerStart[1];
       constexpr int32_t maxNumClustersPerModules = TrackerTraits::maxNumClustersPerModules;
@@ -54,10 +55,10 @@ namespace pixelClustering {
         const uint32_t threadIdxLocal(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
         if (threadIdxLocal == 0 && nclus > maxNumClustersPerModules)
           printf("Warning too many clusters in module %d in block %d: %d > %d\n",
-                thisModuleId,
-                module,
-                nclus,
-                maxNumClustersPerModules);
+                 thisModuleId,
+                 module,
+                 nclus,
+                 maxNumClustersPerModules);
 
         // Stride = block size.
         const uint32_t blockDimension(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u]);
@@ -86,11 +87,11 @@ namespace pixelClustering {
           nclus = maxNumClustersPerModules;
         }
 
-  #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
         if (thisModuleId % 100 == 1)
           if (threadIdxLocal == 0)
             printf("start cluster charge cut for module %d in block %d\n", thisModuleId, module);
-  #endif
+#endif
 
         ALPAKA_ASSERT_OFFLOAD(nclus <= maxNumClustersPerModules);
         cms::alpakatools::for_each_element_in_block_strided(acc, nclus, [&](uint32_t i) { charge[i] = 0; });
@@ -116,16 +117,15 @@ namespace pixelClustering {
         auto chargeCut = clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < startBPIX2);
         bool allGood = true;
 
-        cms::alpakatools::for_each_element_in_block_strided(
-            acc, nclus, [&](uint32_t i) { 
-              newclusId[i] = ok[i] = (charge[i] > chargeCut) ? 1 : 0; 
-              if (ok[i]==0)
-                allGood = allGood && false;
+        cms::alpakatools::for_each_element_in_block_strided(acc, nclus, [&](uint32_t i) {
+          newclusId[i] = ok[i] = (charge[i] > chargeCut) ? 1 : 0;
+          if (ok[i] == 0)
+            allGood = allGood && false;
 
-              // #ifdef GPU_DEBUG
-              // printf("module %d -> chargeCut = %d; cluster %d; charge = %d; ok = %s\n",thisModuleId, chargeCut,i,charge[i],ok[i] > 0 ? " -> good" : "-> cut");
-              // #endif
-              });
+          // #ifdef GPU_DEBUG
+          // printf("module %d -> chargeCut = %d; cluster %d; charge = %d; ok = %s\n",thisModuleId, chargeCut,i,charge[i],ok[i] > 0 ? " -> good" : "-> cut");
+          // #endif
+        });
         alpaka::syncBlockThreads(acc);
 
         // if all clusters above threshold do nothing
@@ -135,22 +135,19 @@ namespace pixelClustering {
         // renumber
         auto& ws = alpaka::declareSharedVar<uint16_t[32], __COUNTER__>(acc);
         constexpr uint32_t maxThreads = 1024;
-        auto minClust = std::min(nclus,maxThreads);
+        auto minClust = std::min(nclus, maxThreads);
 
         cms::alpakatools::blockPrefixScan(acc, newclusId, minClust, ws);
 
         if constexpr (maxNumClustersPerModules > maxThreads)  //only if needed
         {
-
           for (uint32_t offset = maxThreads; offset < nclus; offset += maxThreads) {
             cms::alpakatools::blockPrefixScan(acc, newclusId + offset, nclus - offset, ws);
-            
-            cms::alpakatools::for_each_element_in_block_strided(
-            acc, nclus - offset, [&](uint32_t i) { 
-              uint32_t prevBlockEnd = ((i + offset/ maxThreads) * maxThreads) - 1;
+
+            cms::alpakatools::for_each_element_in_block_strided(acc, nclus - offset, [&](uint32_t i) {
+              uint32_t prevBlockEnd = ((i + offset / maxThreads) * maxThreads) - 1;
               newclusId[i] += newclusId[prevBlockEnd];
-            } 
-              );
+            });
             alpaka::syncBlockThreads(acc);
           }
         }
@@ -163,11 +160,15 @@ namespace pixelClustering {
         clus_view[thisModuleId].clusInModule() = newclusId[nclus - 1];
         // alpaka::syncBlockThreads(acc);
 
-        #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
         if (thisModuleId % 100 == 1)
           if (threadIdxLocal == 0)
-            printf("module %d -> chargeCut = %d; nclus (pre cut) = %d; nclus (after cut) = %d\n",thisModuleId, chargeCut,nclus,clus_view[thisModuleId].clusInModule());
-        #endif
+            printf("module %d -> chargeCut = %d; nclus (pre cut) = %d; nclus (after cut) = %d\n",
+                   thisModuleId,
+                   chargeCut,
+                   nclus,
+                   clus_view[thisModuleId].clusInModule());
+#endif
         // // mark bad cluster again
         // cms::alpakatools::for_each_element_in_block_strided(acc, nclus, [&](uint32_t i) {
         //   if (0 == ok[i])

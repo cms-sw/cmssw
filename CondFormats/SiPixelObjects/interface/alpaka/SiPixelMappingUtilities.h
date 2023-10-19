@@ -10,8 +10,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   struct SiPixelMappingUtilities {
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool hasQuality(
-        const SiPixelMappingSoAConstView& view) {
+    ALPAKA_FN_HOST_ACC ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool hasQuality(const SiPixelMappingSoAConstView& view) {
       return view.hasQuality();
     }
 

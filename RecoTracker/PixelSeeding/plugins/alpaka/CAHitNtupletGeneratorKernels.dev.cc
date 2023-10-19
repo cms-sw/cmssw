@@ -114,11 +114,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     numberOfBlocks = cms::alpakatools::divide_up_by(HitContainer::totbins(), blockSize);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
 
-    alpaka::exec<Acc1D>(queue,
-                        workDiv1D,
-                        cms::alpakatools::finalizeBulk{},
-                        this->device_hitTuple_apc_,
-                        &tracks_view.hitIndices());
+    alpaka::exec<Acc1D>(
+        queue, workDiv1D, cms::alpakatools::finalizeBulk{}, this->device_hitTuple_apc_, &tracks_view.hitIndices());
 
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
@@ -236,7 +233,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // at least one block!
       int blocks = std::max(1u, cms::alpakatools::divide_up_by(nhits, threadsPerBlock));
       const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
-      
+
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           initDoublets<TrackerTraits>{},
@@ -415,7 +412,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     if (this->m_params.doStats_) {
       // counters (add flag???)
-   
+
       numberOfBlocks = cms::alpakatools::divide_up_by(HitToTuple::capacity(), blockSize);
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
       alpaka::exec<Acc1D>(queue,
@@ -466,7 +463,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 #endif
   }
-/*
+  /*
 template <typename TrackerTraits>
 void CAHitNtupletGeneratorKernels<TrackerTraits>::printCounters() {
     auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1,1);

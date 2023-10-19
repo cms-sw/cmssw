@@ -59,7 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       TrackingRecHitAlpakaCollection<TrackerTraits> hits_d(nHits, offsetBPIX2, clusters_d->clusModuleStart(), queue);
 
       int activeModulesWithDigis = digis_d.nModules();
-     
+
       // protect from empty events
       if (activeModulesWithDigis) {
         int threadsPerBlock = 128;
@@ -76,7 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             cpeParams,
                             bs_d,
                             digis_d.view(),
-                            digis_d.nDigis(), 
+                            digis_d.nDigis(),
                             clusters_d.view(),
                             hits_d.view());
 #ifdef GPU_DEBUG

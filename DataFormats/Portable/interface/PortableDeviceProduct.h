@@ -25,16 +25,14 @@ public:
 
   PortableDeviceProduct(TDev const& device)
       // allocate global device memory
-      : buffer_{cms::alpakatools::make_device_buffer<Product>(device)}
-  {
+      : buffer_{cms::alpakatools::make_device_buffer<Product>(device)} {
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % alignof(Product) == 0);
   }
 
   template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   PortableDeviceProduct(TQueue const& queue)
       // allocate global device memory with queue-ordered semantic
-      : buffer_{cms::alpakatools::make_device_buffer<Product>(queue)}
-  {
+      : buffer_{cms::alpakatools::make_device_buffer<Product>(queue)} {
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % alignof(Product) == 0);
   }
 

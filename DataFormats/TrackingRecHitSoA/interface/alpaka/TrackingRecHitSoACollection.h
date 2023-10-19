@@ -28,8 +28,8 @@ namespace cms::alpakatools {
   template <typename TrackerTraits>
   struct CopyToHost<ALPAKA_ACCELERATOR_NAMESPACE::TrackingRecHitAlpakaCollection<TrackerTraits>> {
     template <typename TQueue>
-    static auto copyAsync(TQueue& queue,
-                          ALPAKA_ACCELERATOR_NAMESPACE::TrackingRecHitAlpakaCollection<TrackerTraits> const& deviceData) {
+    static auto copyAsync(
+        TQueue& queue, ALPAKA_ACCELERATOR_NAMESPACE::TrackingRecHitAlpakaCollection<TrackerTraits> const& deviceData) {
       TrackingRecHitHost<TrackerTraits> hostData(deviceData.view().metadata().size(), queue);
       alpaka::memcpy(queue, hostData.buffer(), deviceData.buffer());
       return hostData;

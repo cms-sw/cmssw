@@ -130,7 +130,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("VCaltoElectronGain_L1", 50.f);
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
-    
+
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {
       edm::ParameterSetDescription psd0;
@@ -250,16 +250,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
     }
     Algo_.makePhase1ClustersAsync(clusterThresholds_,
-                            hMap.const_view(),
-                            modulesToUnpack,
-                            dGains.const_view(),
-                            wordFedAppender,
-                            wordCounter,
-                            fedCounter,
-                            useQuality_,
-                            includeErrors_,
-                            edm::MessageDrop::instance()->debugEnabled,
-                            iEvent.queue());
+                                  hMap.const_view(),
+                                  modulesToUnpack,
+                                  dGains.const_view(),
+                                  wordFedAppender,
+                                  wordCounter,
+                                  fedCounter,
+                                  useQuality_,
+                                  includeErrors_,
+                                  edm::MessageDrop::instance()->debugEnabled,
+                                  iEvent.queue());
   }
 
   template <typename TrackerTraits>

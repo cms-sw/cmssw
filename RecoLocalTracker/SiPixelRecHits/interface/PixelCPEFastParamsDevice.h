@@ -12,14 +12,12 @@
 template <typename TDev, typename TrackerTraits>
 class PixelCPEFastParamsDevice {
 public:
-
   using Buffer = cms::alpakatools::device_buffer<TDev, pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>;
   using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>;
 
   template <typename TQueue>
-  PixelCPEFastParamsDevice (TQueue queue) : 
-  buffer_(cms::alpakatools::make_device_buffer<pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>(queue))
-  {} 
+  PixelCPEFastParamsDevice(TQueue queue)
+      : buffer_(cms::alpakatools::make_device_buffer<pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>(queue)) {}
 
   Buffer buffer() { return buffer_; }
   ConstBuffer buffer() const { return buffer_; }
@@ -28,7 +26,6 @@ public:
   auto size() const { return alpaka::getExtentProduct(buffer_); }
 
 private:
-
   Buffer buffer_;
 };
 

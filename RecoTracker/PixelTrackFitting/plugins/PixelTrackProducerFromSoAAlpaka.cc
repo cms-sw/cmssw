@@ -118,9 +118,9 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
                                                  reco::TrackBase::highPurity};
   assert(reco::TrackBase::highPurity == recoQuality[int(pixelTrack::Quality::highPurity)]);
 
-  #ifdef GPU_DEBUG
-    std::cout << "Converting soa helix in reco tracks" << std::endl;
-  #endif
+#ifdef GPU_DEBUG
+  std::cout << "Converting soa helix in reco tracks" << std::endl;
+#endif
 
   auto indToEdmP = std::make_unique<IndToEdm>();
   auto &indToEdm = *indToEdmP;
@@ -244,9 +244,9 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
     // filter???
     tracks.emplace_back(track.release(), hits);
   }
-  #ifdef GPU_DEBUG
-    std::cout << "processed " << nt << " good tuples " << tracks.size() << "out of " << indToEdm.size() << std::endl;
-  #endif
+#ifdef GPU_DEBUG
+  std::cout << "processed " << nt << " good tuples " << tracks.size() << "out of " << indToEdm.size() << std::endl;
+#endif
   // store tracks
   storeTracks(iEvent, tracks, httopo);
   iEvent.put(std::move(indToEdmP));

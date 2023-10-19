@@ -64,8 +64,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
-    void launchRiemannKernels(const HitConstView &hv, ParamsOnDevice const* cpeParams, uint32_t nhits, uint32_t maxNumberOfTuples, Queue &queue);
-    void launchBrokenLineKernels(const HitConstView &hv, ParamsOnDevice const* cpeParams, uint32_t nhits, uint32_t maxNumberOfTuples, Queue &queue);
+    void launchRiemannKernels(const HitConstView &hv,
+                              ParamsOnDevice const *cpeParams,
+                              uint32_t nhits,
+                              uint32_t maxNumberOfTuples,
+                              Queue &queue);
+    void launchBrokenLineKernels(const HitConstView &hv,
+                                 ParamsOnDevice const *cpeParams,
+                                 uint32_t nhits,
+                                 uint32_t maxNumberOfTuples,
+                                 Queue &queue);
 
     void allocate(TupleMultiplicity const *tupleMultiplicity, OutputSoAView &helix_fit_results);
     void deallocate();

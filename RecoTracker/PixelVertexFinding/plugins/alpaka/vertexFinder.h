@@ -60,11 +60,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ZVertexCollection makeAsync(Queue &queue, const TkSoAConstView &tracks_view, float ptMin, float ptMax) const;
 
     private:
-      const bool oneKernel_; // run everything (cluster,fit,split,sort) in one kernel. Uses only density clusterizer
-      const bool useDensity_; // use density clusterizer
-      const bool useDBSCAN_; // use DBScan clusterizer
-      const bool useIterative_; // use iterative clusterizer
-      const bool doSplitting_; //run vertex splitting 
+      const bool oneKernel_;     // run everything (cluster,fit,split,sort) in one kernel. Uses only density clusterizer
+      const bool useDensity_;    // use density clusterizer
+      const bool useDBSCAN_;     // use DBScan clusterizer
+      const bool useIterative_;  // use iterative clusterizer
+      const bool doSplitting_;   //run vertex splitting
 
       int minT;       // min number of neighbours to be "core"
       float eps;      // max absolute distance to cluster

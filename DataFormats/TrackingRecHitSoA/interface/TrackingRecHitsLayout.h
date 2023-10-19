@@ -50,13 +50,10 @@ struct TrackingRecHitAlpakaSoA {
 };
 
 template <typename TrackerTraits>
-using TrackingRecHitAlpakaLayout =
-    typename TrackingRecHitAlpakaSoA<TrackerTraits>::template Layout<>;
+using TrackingRecHitAlpakaLayout = typename TrackingRecHitAlpakaSoA<TrackerTraits>::template Layout<>;
 template <typename TrackerTraits>
-using TrackingRecHitAlpakaSoAView =
-    typename TrackingRecHitAlpakaSoA<TrackerTraits>::template Layout<>::View;
+using TrackingRecHitAlpakaSoAView = typename TrackingRecHitAlpakaSoA<TrackerTraits>::template Layout<>::View;
 template <typename TrackerTraits>
-using TrackingRecHitAlpakaSoAConstView =
-    typename TrackingRecHitAlpakaSoA<TrackerTraits>::template Layout<>::ConstView;
+using TrackingRecHitAlpakaSoAConstView = typename TrackingRecHitAlpakaSoA<TrackerTraits>::template Layout<>::ConstView;
 
 #endif

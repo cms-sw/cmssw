@@ -10,6 +10,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // simplified representation of the beamspot data, in device global memory
   using BeamSpotDeviceProduct = PortableProduct<BeamSpotPOD>;
 
-}
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #endif  // DataFormats_BeamSpot_interface_alpaka_BeamSpotDeviceProduct_h

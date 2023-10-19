@@ -15,8 +15,8 @@
 #include "FWCore/Utilities/interface/mplVector.h"
 
 class PixelCPEFastParamsRecord
-    : public edm::eventsetup::DependentRecordImplementation<PixelCPEFastParamsRecord, 
-                                                                            edm::mpl::Vector<TrackerDigiGeometryRecord,
+    : public edm::eventsetup::DependentRecordImplementation<PixelCPEFastParamsRecord,
+                                                            edm::mpl::Vector<TrackerDigiGeometryRecord,
                                                                              IdealMagneticFieldRecord,
                                                                              SiPixelLorentzAngleRcd,
                                                                              SiPixelGenErrorDBObjectRcd,

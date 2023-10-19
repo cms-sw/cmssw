@@ -16,13 +16,13 @@
 //-----------------------------------------------------------------------------
 template <typename TrackerTraits>
 PixelCPEFastParamsHost<TrackerTraits>::PixelCPEFastParamsHost(edm::ParameterSet const& conf,
-                                          const MagneticField* mag,
-                                          const TrackerGeometry& geom,
-                                          const TrackerTopology& ttopo,
-                                          const SiPixelLorentzAngle* lorentzAngle,
-                                          const SiPixelGenErrorDBObject* genErrorDBObject,
-                                          const SiPixelLorentzAngle* lorentzAngleWidth)
-    : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth), 
+                                                              const MagneticField* mag,
+                                                              const TrackerGeometry& geom,
+                                                              const TrackerTopology& ttopo,
+                                                              const SiPixelLorentzAngle* lorentzAngle,
+                                                              const SiPixelGenErrorDBObject* genErrorDBObject,
+                                                              const SiPixelLorentzAngle* lorentzAngleWidth)
+    : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth),
       buffer_(cms::alpakatools::make_host_buffer<pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>>()) {
   // Use errors from templates or from GenError
   if (useErrorsFromTemplates_) {
@@ -35,10 +35,8 @@ PixelCPEFastParamsHost<TrackerTraits>::PixelCPEFastParamsHost(edm::ParameterSet 
   fillParamsForDevice();
 }
 
-
 template <typename TrackerTraits>
 void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
-  
   // this code executes only once per job, computation inefficiency is not an issue
   // many code blocks are repeated: better keep the computation local and self oconsistent as blocks may in future move around, be deleted ...
   // It is valid only for Phase1 and the version of GenError in DB used in late 2018 and in 2021
@@ -50,8 +48,10 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 
   buffer_->commonParams().numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
 
-  LogDebug("PixelCPEFastParamsHost") << "pitch & thickness " << buffer_->commonParams().thePitchX << ' ' << buffer_->commonParams().thePitchY
-                           << "  " << buffer_->commonParams().theThicknessB << ' ' << buffer_->commonParams().theThicknessE;
+  LogDebug("PixelCPEFastParamsHost") << "pitch & thickness " << buffer_->commonParams().thePitchX << ' '
+                                     << buffer_->commonParams().thePitchY << "  "
+                                     << buffer_->commonParams().theThicknessB << ' '
+                                     << buffer_->commonParams().theThicknessE;
 
   // zero average geometry
   memset(&buffer_->averageGeometry(), 0, sizeof(pixelTopology::AverageGeometryT<TrackerTraits>));
@@ -64,7 +64,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   float pl = 0;
   int nl = 0;
 
-  assert(m_DetParams.size()<=TrackerTraits::numberOfModules);
+  assert(m_DetParams.size() <= TrackerTraits::numberOfModules);
   for (auto i = 0U; i < m_DetParams.size(); ++i) {
     auto& p = m_DetParams[i];
     auto& g = buffer_->detParams(i);
@@ -92,16 +92,17 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     if (oldLayer != g.layer) {
       oldLayer = g.layer;
       LogDebug("PixelCPEFastParamsHost") << "new layer at " << i << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- "))
-                               << g.layer << " starting at " << g.rawId << '\n'
-                               << "old layer had " << nl << " ladders";
+                                         << g.layer << " starting at " << g.rawId << '\n'
+                                         << "old layer had " << nl << " ladders";
       nl = 0;
     }
     if (oldLadder != ladder) {
       oldLadder = ladder;
-      LogDebug("PixelCPEFastParamsHost") << "new ladder at " << i << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- "))
-                               << ladder << " starting at " << g.rawId << '\n'
-                               << "old ladder ave z,r,p mz " << zl / 8.f << " " << rl / 8.f << " " << pl / 8.f << ' '
-                               << miz << ' ' << mxz;
+      LogDebug("PixelCPEFastParamsHost") << "new ladder at " << i
+                                         << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- ")) << ladder
+                                         << " starting at " << g.rawId << '\n'
+                                         << "old ladder ave z,r,p mz " << zl / 8.f << " " << rl / 8.f << " " << pl / 8.f
+                                         << ' ' << miz << ' ' << mxz;
       rl = 0;
       zl = 0;
       pl = 0;
@@ -161,8 +162,9 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     auto m = 10000.f;
     for (float qclus = 15000; qclus < 35000; qclus += 15000) {
       errorFromTemplates(p, cp, qclus);
-      LogDebug("PixelCPEFastParamsHost") << i << ' ' << qclus << ' ' << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1
-                               << ' ' << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2;
+      LogDebug("PixelCPEFastParamsHost") << i << ' ' << qclus << ' ' << cp.pixmx << ' ' << m * cp.sigmax << ' '
+                                         << m * cp.sx1 << ' ' << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1
+                                         << ' ' << m * cp.sy2;
     }
     LogDebug("PixelCPEFastParamsHost") << i << ' ' << m * std::sqrt(lape.xx()) << ' ' << m * std::sqrt(lape.yy());
 #endif  // EDM_ML_DEBUG
@@ -188,8 +190,9 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       errorFromTemplates(p, cp, 20000.f);
       g.sigmax[ix] = toMicron(cp.sigmax);
       g.sigmax1[ix] = toMicron(cp.sx1);
-      LogDebug("PixelCPEFastParamsHost") << "sigmax vs x " << i << ' ' << x << ' ' << cp.cotalpha << ' ' << int(g.sigmax[ix])
-                               << ' ' << int(g.sigmax1[ix]) << ' ' << 10000.f * cp.sigmay << std::endl;
+      LogDebug("PixelCPEFastParamsHost") << "sigmax vs x " << i << ' ' << x << ' ' << cp.cotalpha << ' '
+                                         << int(g.sigmax[ix]) << ' ' << int(g.sigmax1[ix]) << ' ' << 10000.f * cp.sigmay
+                                         << std::endl;
     }
 #ifdef EDM_ML_DEBUG
     // sample yerr as function of position
@@ -205,8 +208,8 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       cp.cotbeta = gvy * gvz;
       cp.cotalpha = gvx * gvz;
       errorFromTemplates(p, cp, 20000.f);
-      LogDebug("PixelCPEFastParamsHost") << "sigmay vs y " << i << ' ' << y << ' ' << cp.cotbeta << ' ' << 10000.f * cp.sigmay
-                               << std::endl;
+      LogDebug("PixelCPEFastParamsHost") << "sigmay vs y " << i << ' ' << y << ' ' << cp.cotbeta << ' '
+                                         << 10000.f * cp.sigmay << std::endl;
     }
 #endif  // EDM_ML_DEBUG
 
@@ -227,9 +230,10 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       g.yfact[k] = cp.sigmay;
       g.minCh[k++] = qclus;
 #ifdef EDM_ML_DEBUG
-      LogDebug("PixelCPEFastParamsHost") << i << ' ' << g.rawId << ' ' << cp.cotalpha << ' ' << qclus << ' ' << cp.qBin_ << ' '
-                               << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' ' << m * cp.sx2 << ' '
-                               << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2 << std::endl;
+      LogDebug("PixelCPEFastParamsHost") << i << ' ' << g.rawId << ' ' << cp.cotalpha << ' ' << qclus << ' ' << cp.qBin_
+                                         << ' ' << cp.pixmx << ' ' << m * cp.sigmax << ' ' << m * cp.sx1 << ' '
+                                         << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2
+                                         << std::endl;
 #endif  // EDM_ML_DEBUG
     }
 
@@ -259,8 +263,9 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       cp.cotbeta = std::copysign(ys * (buffer_->commonParams().thePitchY / (8.f * thickness)), aveCB);
       errorFromTemplates(p, cp, 20000.f);
       g.sigmay[iy] = toMicron(cp.sigmay);
-      LogDebug("PixelCPEFastParamsHost") << "sigmax/sigmay " << i << ' ' << (ys + 4.f) / 8.f << ' ' << cp.cotalpha << '/'
-                               << cp.cotbeta << ' ' << 10000.f * cp.sigmax << '/' << int(g.sigmay[iy]) << std::endl;
+      LogDebug("PixelCPEFastParamsHost") << "sigmax/sigmay " << i << ' ' << (ys + 4.f) / 8.f << ' ' << cp.cotalpha
+                                         << '/' << cp.cotbeta << ' ' << 10000.f * cp.sigmax << '/' << int(g.sigmay[iy])
+                                         << std::endl;
     }
   }  // loop over det
 
@@ -313,10 +318,10 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 #ifdef EDM_ML_DEBUG
   for (int jl = 0, nl = numberOfLaddersInBarrel; jl < nl; ++jl) {
     LogDebug("PixelCPEFastParamsHost") << jl << ':' << aveGeom.ladderR[jl] << '/'
-                             << std::sqrt(aveGeom.ladderX[jl] * aveGeom.ladderX[jl] +
-                                          aveGeom.ladderY[jl] * aveGeom.ladderY[jl])
-                             << ',' << aveGeom.ladderZ[jl] << ',' << aveGeom.ladderMinZ[jl] << ','
-                             << aveGeom.ladderMaxZ[jl] << '\n';
+                                       << std::sqrt(aveGeom.ladderX[jl] * aveGeom.ladderX[jl] +
+                                                    aveGeom.ladderY[jl] * aveGeom.ladderY[jl])
+                                       << ',' << aveGeom.ladderZ[jl] << ',' << aveGeom.ladderMinZ[jl] << ','
+                                       << aveGeom.ladderMaxZ[jl] << '\n';
   }
   LogDebug("PixelCPEFastParamsHost") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
@@ -326,14 +331,16 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   memcpy(buffer_->layerGeometry().layerStart,
          TrackerTraits::layerStart,
          sizeof(pixelCPEforDevice::LayerGeometryT<TrackerTraits>::layerStart));
-  memcpy(buffer_->layerGeometry().layer, pixelTopology::layer<TrackerTraits>.data(), pixelTopology::layer<TrackerTraits>.size());
+  memcpy(buffer_->layerGeometry().layer,
+         pixelTopology::layer<TrackerTraits>.data(),
+         pixelTopology::layer<TrackerTraits>.size());
   buffer_->layerGeometry().maxModuleStride = pixelTopology::maxModuleStride<TrackerTraits>;
 }
 
 template <typename TrackerTraits>
 void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& theDetParam,
-                                                     ClusterParamGeneric& theClusterParam,
-                                                     float qclus) const {
+                                                               ClusterParamGeneric& theClusterParam,
+                                                               float qclus) const {
   float locBz = theDetParam.bz;
   float locBx = theDetParam.bx;
   LogDebug("PixelCPEFastParamsHost") << "PixelCPEFastParamsHost::localPosition(...) : locBz = " << locBz;
@@ -380,14 +387,12 @@ void PixelCPEFastParamsHost<TrackerTraits>::errorFromTemplates(DetParam const& t
   theClusterParam.sigmay = theClusterParam.sigmay * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy1 = theClusterParam.sy1 * pixelCPEforDevice::micronsToCm;
   theClusterParam.sy2 = theClusterParam.sy2 * pixelCPEforDevice::micronsToCm;
-  
-
 }
 
 template <>
 void PixelCPEFastParamsHost<pixelTopology::Phase2>::errorFromTemplates(DetParam const& theDetParam,
-                                                             ClusterParamGeneric& theClusterParam,
-                                                             float qclus) const {
+                                                                       ClusterParamGeneric& theClusterParam,
+                                                                       float qclus) const {
   theClusterParam.qBin_ = 0.0f;
 }
 
@@ -398,7 +403,7 @@ void PixelCPEFastParamsHost<pixelTopology::Phase2>::errorFromTemplates(DetParam 
 //-----------------------------------------------------------------------------
 template <typename TrackerTraits>
 LocalPoint PixelCPEFastParamsHost<TrackerTraits>::localPosition(DetParam const& theDetParam,
-                                                      ClusterParam& theClusterParamBase) const {
+                                                                ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   if (useErrorsFromTemplates_) {
@@ -438,8 +443,8 @@ LocalPoint PixelCPEFastParamsHost<TrackerTraits>::localPosition(DetParam const& 
   theClusterParam.sigmax = cp.xerr[0];
   theClusterParam.sigmay = cp.yerr[0];
 
-  LogDebug("PixelCPEFastParamsHost") << " in PixelCPEFastParamsHost:localPosition - pos = " << xPos << " " << yPos << " size "
-                           << cp.maxRow[0] - cp.minRow[0] << ' ' << cp.maxCol[0] - cp.minCol[0];
+  LogDebug("PixelCPEFastParamsHost") << " in PixelCPEFastParamsHost:localPosition - pos = " << xPos << " " << yPos
+                                     << " size " << cp.maxRow[0] - cp.minRow[0] << ' ' << cp.maxCol[0] - cp.minCol[0];
 
   //--- Now put the two together
   LocalPoint pos_in_local(xPos, yPos);
@@ -453,7 +458,7 @@ LocalPoint PixelCPEFastParamsHost<TrackerTraits>::localPosition(DetParam const& 
 //-------------------------------------------------------------------------
 template <typename TrackerTraits>
 LocalError PixelCPEFastParamsHost<TrackerTraits>::localError(DetParam const& theDetParam,
-                                                   ClusterParam& theClusterParamBase) const {
+                                                             ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   auto xerr = theClusterParam.sigmax;

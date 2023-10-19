@@ -14,7 +14,7 @@ namespace pixelTrack {
     auto ret = static_cast<Quality>(qp);
     if (ret == pixelTrack::Quality::notQuality)
       throw std::invalid_argument(name + "is not a pixelTrack::Quality!");
-  
+
     return ret;
   }
 

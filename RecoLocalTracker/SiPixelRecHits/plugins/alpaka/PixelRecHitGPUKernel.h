@@ -34,10 +34,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       using ParamsOnDevice = pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>;
 
       TrackingRecHitAlpakaCollection<TrackerTraits> makeHitsAsync(SiPixelDigisCollection const& digis_d,
-                                                              SiPixelClustersCollection const& clusters_d,
-                                                              BeamSpotPOD const* bs_d,
-                                                              ParamsOnDevice const* cpeParams,
-                                                              Queue queue) const;
+                                                                  SiPixelClustersCollection const& clusters_d,
+                                                                  BeamSpotPOD const* bs_d,
+                                                                  ParamsOnDevice const* cpeParams,
+                                                                  Queue queue) const;
     };
   }  // namespace pixelgpudetails
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

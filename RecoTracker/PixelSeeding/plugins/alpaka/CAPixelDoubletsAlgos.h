@@ -39,7 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct CellCutsT {
       using H = HitsConstView<TrackerTraits>;
       using T = TrackerTraits;
-      
+
       CellCutsT() = default;
 
       CellCutsT(const bool doClusterCut,
@@ -64,7 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       bool doPtCut_;
       bool idealConditions_;  //this is actually not used by phase2
 
-      float z0Cut_; //FIXME: check if could be const now
+      float z0Cut_;  //FIXME: check if could be const now
       float ptCut_;
 
       int phiCuts[T::nPairs];
@@ -146,7 +146,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
       const float minRadius = hardPtCut * 87.78f;
       const float minRadius2T4 = 4.f * minRadius * minRadius;
-      
+
       using PhiBinner = typename TrackingRecHitAlpakaSoA<TrackerTraits>::PhiBinner;
 
       auto const& __restrict__ phiBinner = hh.phiBinner();
@@ -189,7 +189,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t firstElementIdxY = firstElementIdxNoStrideY;
 
       for (uint32_t j = firstElementIdxY; j < ntot; j += gridDimensionY) {
-
         while (j >= innerLayerCumulativeSize[pairLayerId++])
           ;
         --pairLayerId;  // move to lower_bound ??
@@ -271,7 +270,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // Here we parallelize in X
           uint32_t firstElementIdxX = firstElementIdxNoStrideX;
           for (uint32_t pIndex = firstElementIdxX; pIndex < maxpIndex; pIndex += blockDimensionX) {
-
             auto oi = p[pIndex];  // auto oi = __ldg(p); is not allowed since __ldg is device-only
             ALPAKA_ASSERT_OFFLOAD(oi >= offsets[outer]);
             ALPAKA_ASSERT_OFFLOAD(oi < offsets[outer + 1]);

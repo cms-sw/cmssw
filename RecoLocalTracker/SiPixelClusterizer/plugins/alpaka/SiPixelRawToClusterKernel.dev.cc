@@ -458,103 +458,107 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // end of Raw to Digi kernel operator()
     };   // end of Raw to Digi struct
 
-  template <typename TrackerTraits>
-  struct fillHitsModuleStart {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc &acc, SiPixelClustersSoAView clus_view) const {
-      ALPAKA_ASSERT_OFFLOAD(TrackerTraits::numberOfModules < 2048);  // easy to extend at least till 32*1024
+    template <typename TrackerTraits>
+    struct fillHitsModuleStart {
+      template <typename TAcc>
+      ALPAKA_FN_ACC void operator()(const TAcc &acc, SiPixelClustersSoAView clus_view) const {
+        ALPAKA_ASSERT_OFFLOAD(TrackerTraits::numberOfModules < 2048);  // easy to extend at least till 32*1024
 
-      constexpr int nMaxModules = TrackerTraits::numberOfModules;
-      constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
+        constexpr int nMaxModules = TrackerTraits::numberOfModules;
+        constexpr uint32_t maxHitsInModule = TrackerTraits::maxHitsInModule;
 
 #ifndef NDEBUG
-      [[maybe_unused]] const uint32_t blockIdxLocal(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
-      ALPAKA_ASSERT_OFFLOAD(0 == blockIdxLocal);
-      [[maybe_unused]] const uint32_t gridDimension(alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
-      ALPAKA_ASSERT_OFFLOAD(1 == gridDimension);
+        [[maybe_unused]] const uint32_t blockIdxLocal(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
+        ALPAKA_ASSERT_OFFLOAD(0 == blockIdxLocal);
+        [[maybe_unused]] const uint32_t gridDimension(alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
+        ALPAKA_ASSERT_OFFLOAD(1 == gridDimension);
 #endif
 
-      // limit to maxHitsInModule;
-      cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules, [&](uint32_t i) {
-        clus_view[i + 1].clusModuleStart() = std::min(maxHitsInModule, clus_view[i].clusInModule());
-      });
+        // limit to maxHitsInModule;
+        cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules, [&](uint32_t i) {
+          clus_view[i + 1].clusModuleStart() = std::min(maxHitsInModule, clus_view[i].clusInModule());
+        });
 
-      constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
-      constexpr auto leftModules = isPhase2 ? 1024 : nMaxModules - 1024;
+        constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
+        constexpr auto leftModules = isPhase2 ? 1024 : nMaxModules - 1024;
 
-      auto &&ws = alpaka::declareSharedVar<uint32_t[32], __COUNTER__>(acc);
+        auto &&ws = alpaka::declareSharedVar<uint32_t[32], __COUNTER__>(acc);
 
-      cms::alpakatools::blockPrefixScan(
-          acc, clus_view.clusModuleStart() + 1, clus_view.clusModuleStart() + 1, 1024, ws);
-
-      cms::alpakatools::blockPrefixScan(
-          acc, clus_view.clusModuleStart() + 1024 + 1, clus_view.clusModuleStart() + 1024 + 1, leftModules, ws);
-
-      if constexpr (isPhase2) {
         cms::alpakatools::blockPrefixScan(
-            acc, clus_view.clusModuleStart() + 2048 + 1, clus_view.clusModuleStart() + 2048 + 1, 1024, ws);
+            acc, clus_view.clusModuleStart() + 1, clus_view.clusModuleStart() + 1, 1024, ws);
+
         cms::alpakatools::blockPrefixScan(
-            acc, clus_view.clusModuleStart() + 3072 + 1, clus_view.clusModuleStart() + 3072 + 1, nMaxModules - 3072, ws);
-      }
+            acc, clus_view.clusModuleStart() + 1024 + 1, clus_view.clusModuleStart() + 1024 + 1, leftModules, ws);
 
-      constexpr auto lastModule = isPhase2 ? 2049u : nMaxModules + 1;
-      cms::alpakatools::for_each_element_in_block_strided(acc, lastModule, 1025u, [&](uint32_t i) {
-        clus_view[i].clusModuleStart() += clus_view[1024].clusModuleStart();
-      });
-      alpaka::syncBlockThreads(acc);
+        if constexpr (isPhase2) {
+          cms::alpakatools::blockPrefixScan(
+              acc, clus_view.clusModuleStart() + 2048 + 1, clus_view.clusModuleStart() + 2048 + 1, 1024, ws);
+          cms::alpakatools::blockPrefixScan(acc,
+                                            clus_view.clusModuleStart() + 3072 + 1,
+                                            clus_view.clusModuleStart() + 3072 + 1,
+                                            nMaxModules - 3072,
+                                            ws);
+        }
 
-      if constexpr (isPhase2) {
-        cms::alpakatools::for_each_element_in_block_strided(acc, 3073u, 2049u, [&](uint32_t i) {
-          clus_view[i].clusModuleStart() += clus_view[2048].clusModuleStart();
+        constexpr auto lastModule = isPhase2 ? 2049u : nMaxModules + 1;
+        cms::alpakatools::for_each_element_in_block_strided(acc, lastModule, 1025u, [&](uint32_t i) {
+          clus_view[i].clusModuleStart() += clus_view[1024].clusModuleStart();
         });
         alpaka::syncBlockThreads(acc);
 
-        cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, 3073u, [&](uint32_t i) {
-          clus_view[i].clusModuleStart() += clus_view[3072].clusModuleStart();
-        });
-        alpaka::syncBlockThreads(acc);
-      }
+        if constexpr (isPhase2) {
+          cms::alpakatools::for_each_element_in_block_strided(acc, 3073u, 2049u, [&](uint32_t i) {
+            clus_view[i].clusModuleStart() += clus_view[2048].clusModuleStart();
+          });
+          alpaka::syncBlockThreads(acc);
+
+          cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, 3073u, [&](uint32_t i) {
+            clus_view[i].clusModuleStart() += clus_view[3072].clusModuleStart();
+          });
+          alpaka::syncBlockThreads(acc);
+        }
 #ifdef GPU_DEBUG
-      ALPAKA_ASSERT_OFFLOAD(0 == clus_view[0].moduleStart());
-      auto c0 = std::min(maxHitsInModule, clus_view[1].clusModuleStart());
-      ALPAKA_ASSERT_OFFLOAD(c0 == clus_view[1].moduleStart());
-      ALPAKA_ASSERT_OFFLOAD(clus_view[1024].moduleStart() >= clus_view[1023].moduleStart());
-      ALPAKA_ASSERT_OFFLOAD(clus_view[1025].moduleStart() >= clus_view[1024].moduleStart());
-      ALPAKA_ASSERT_OFFLOAD(clus_view[nMaxModules].moduleStart() >= clus_view[1025].moduleStart());
+        ALPAKA_ASSERT_OFFLOAD(0 == clus_view[0].moduleStart());
+        auto c0 = std::min(maxHitsInModule, clus_view[1].clusModuleStart());
+        ALPAKA_ASSERT_OFFLOAD(c0 == clus_view[1].moduleStart());
+        ALPAKA_ASSERT_OFFLOAD(clus_view[1024].moduleStart() >= clus_view[1023].moduleStart());
+        ALPAKA_ASSERT_OFFLOAD(clus_view[1025].moduleStart() >= clus_view[1024].moduleStart());
+        ALPAKA_ASSERT_OFFLOAD(clus_view[nMaxModules].moduleStart() >= clus_view[1025].moduleStart());
 
-      cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, [&](uint32_t i) {
-        if (0 != i)
-          ALPAKA_ASSERT_OFFLOAD(clus_view[i].moduleStart() >= clus_view[i - i].moduleStart());
-        // Check BPX2 (1), FP1 (4)
-        constexpr auto bpix2 = TrackerTraits::layerStart[1];
-        constexpr auto fpix1 = TrackerTraits::layerStart[4];
-        if (i == bpix2 || i == fpix1)
-          printf("moduleStart %d %d\n", i, clus_view[i].moduleStart());
-      });
+        cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, [&](uint32_t i) {
+          if (0 != i)
+            ALPAKA_ASSERT_OFFLOAD(clus_view[i].moduleStart() >= clus_view[i - i].moduleStart());
+          // Check BPX2 (1), FP1 (4)
+          constexpr auto bpix2 = TrackerTraits::layerStart[1];
+          constexpr auto fpix1 = TrackerTraits::layerStart[4];
+          if (i == bpix2 || i == fpix1)
+            printf("moduleStart %d %d\n", i, clus_view[i].moduleStart());
+        });
 #endif
-      // avoid overflow
-      constexpr auto MAX_HITS = TrackerTraits::maxNumberOfHits; 
-      cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, [&](uint32_t i) {
-        if (clus_view[i].clusModuleStart() > MAX_HITS)
-          clus_view[i].clusModuleStart() = MAX_HITS;
-      });
+        // avoid overflow
+        constexpr auto MAX_HITS = TrackerTraits::maxNumberOfHits;
+        cms::alpakatools::for_each_element_in_block_strided(acc, nMaxModules + 1, [&](uint32_t i) {
+          if (clus_view[i].clusModuleStart() > MAX_HITS)
+            clus_view[i].clusModuleStart() = MAX_HITS;
+        });
 
-    }  // end of fillHitsModuleStart kernel operator()
-  };   // end of fillHitsModuleStart struct
+      }  // end of fillHitsModuleStart kernel operator()
+    };   // end of fillHitsModuleStart struct
 
     // Interface to outside
     template <typename TrackerTraits>
-    void SiPixelRawToClusterKernel<TrackerTraits>::makePhase1ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
-                                                      const SiPixelMappingSoAConstView &cablingMap,
-                                                      const unsigned char *modToUnp,
-                                                      const SiPixelGainCalibrationForHLTSoAConstView &gains,
-                                                      const WordFedAppender &wordFed,
-                                                      const uint32_t wordCounter,
-                                                      const uint32_t fedCounter,
-                                                      bool useQualityInfo,
-                                                      bool includeErrors,
-                                                      bool debug,
-                                                      Queue &queue) {
+    void SiPixelRawToClusterKernel<TrackerTraits>::makePhase1ClustersAsync(
+        const SiPixelClusterThresholds clusterThresholds,
+        const SiPixelMappingSoAConstView &cablingMap,
+        const unsigned char *modToUnp,
+        const SiPixelGainCalibrationForHLTSoAConstView &gains,
+        const WordFedAppender &wordFed,
+        const uint32_t wordCounter,
+        const uint32_t fedCounter,
+        bool useQualityInfo,
+        bool includeErrors,
+        bool debug,
+        Queue &queue) {
       nDigis = wordCounter;
 
 #ifdef GPU_DEBUG
@@ -607,7 +611,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::wait(queue);
         std::cout << "RawToDigi_kernel was run smoothly!" << std::endl;
 #endif
-
       }
       // End of Raw2Digi and passing data for clustering
 
@@ -628,12 +631,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                            threadsPerBlockOrElementsPerThread);
         const auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlockOrElementsPerThread);
 
-        alpaka::exec<Acc1D>(queue, workDiv, calibDigis(), clusterThresholds, digis_d->view(), clusters_d->view(), gains, wordCounter);
+        alpaka::exec<Acc1D>(
+            queue, workDiv, calibDigis(), clusterThresholds, digis_d->view(), clusters_d->view(), gains, wordCounter);
 
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
-        std::cout << "countModules kernel launch with " << blocks << " blocks of "
-                  << threadsPerBlockOrElementsPerThread << " threadsPerBlockOrElementsPerThread\n";
+        std::cout << "countModules kernel launch with " << blocks << " blocks of " << threadsPerBlockOrElementsPerThread
+                  << " threadsPerBlockOrElementsPerThread\n";
 #endif
 
         alpaka::exec<Acc1D>(
@@ -642,8 +646,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto moduleStartFirstElement =
             cms::alpakatools::make_device_view(alpaka::getDev(queue), clusters_d->view().moduleStart(), 1u);
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
-        const auto threadsPerBlockFindClus = 512;//((TrackerTraits::maxPixInModule / 16 + 128 - 1) / 128) * 128;  /// should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
-        const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockFindClus);
+        const auto threadsPerBlockFindClus =
+            512;  //((TrackerTraits::maxPixInModule / 16 + 128 - 1) / 128) * 128;  /// should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
+        const auto workDivMaxNumModules =
+            cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockFindClus);
         // NB: With present findClus() / chargeCut() algorithm,
         // threadPerBlock (GPU) or elementsPerThread (CPU) = 256 show optimal performance.
         // Though, it does not have to be the same number for CPU/GPU cases.
@@ -653,12 +659,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   << " threadsPerBlockOrElementsPerThread\n";
 #endif
 
-        alpaka::exec<Acc1D>(queue,
-                            workDivMaxNumModules,
-                            findClus<TrackerTraits>(),
-                            digis_d->view(),
-                            clusters_d->view(),
-                            wordCounter);
+        alpaka::exec<Acc1D>(
+            queue, workDivMaxNumModules, findClus<TrackerTraits>(), digis_d->view(), clusters_d->view(), wordCounter);
 
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
@@ -679,8 +681,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // MUST be ONE block
         const auto workDivOneBlock = cms::alpakatools::make_workdiv<Acc1D>(1u, 1024u);
-        alpaka::exec<Acc1D>(
-            queue, workDivOneBlock, fillHitsModuleStart<TrackerTraits>(), clusters_d->view());
+        alpaka::exec<Acc1D>(queue, workDivOneBlock, fillHitsModuleStart<TrackerTraits>(), clusters_d->view());
 
         // last element holds the number of all clusters
         const auto clusModuleStartLastElement = cms::alpakatools::make_device_view(
@@ -698,24 +699,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto nModules_Clusters_h_2 = cms::alpakatools::make_host_view(nModules_Clusters_h.data() + 2, 1u);
         alpaka::memcpy(queue, nModules_Clusters_h_2, bpix2ClusterStart);
 
-        #ifdef GPU_DEBUG
-	      alpaka::wait(queue);   
+#ifdef GPU_DEBUG
+        alpaka::wait(queue);
         std::cout << "SiPixelClusterizerAlpaka results:" << std::endl
-        << " > no. of digis: " << nDigis << std::endl
-        << " > no. of active modules: " << nModules_Clusters_h[0] << std::endl
-        << " > no. of clusters: " << nModules_Clusters_h[1] << std::endl
-        << " > bpix2 offset: " << nModules_Clusters_h[2] << std::endl;
-        #endif
-    
+                  << " > no. of digis: " << nDigis << std::endl
+                  << " > no. of active modules: " << nModules_Clusters_h[0] << std::endl
+                  << " > no. of clusters: " << nModules_Clusters_h[1] << std::endl
+                  << " > bpix2 offset: " << nModules_Clusters_h[2] << std::endl;
+#endif
+
       }  // end clusterizer scope
     }
 
-    template<typename TrackerTraits>
-    void SiPixelRawToClusterKernel<TrackerTraits>::makePhase2ClustersAsync(const SiPixelClusterThresholds clusterThresholds,
-                                                            SiPixelDigisSoAv2View &digis_view,
-                                                            const uint32_t numDigis,
-                                                            Queue &queue) {
-      
+    template <typename TrackerTraits>
+    void SiPixelRawToClusterKernel<TrackerTraits>::makePhase2ClustersAsync(
+        const SiPixelClusterThresholds clusterThresholds,
+        SiPixelDigisSoAv2View &digis_view,
+        const uint32_t numDigis,
+        Queue &queue) {
       using namespace pixelClustering;
       using pixelTopology::Phase2;
       nDigis = numDigis;
@@ -726,20 +727,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cms::alpakatools::divide_up_by(std::max<int>(numDigis, numberOfModules), threadsPerBlockOrElementsPerThread);
       const auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlockOrElementsPerThread);
 
-      alpaka::exec<Acc1D>(queue, workDiv, calibPixel::calibDigisPhase2{}, clusterThresholds, digis_view, clusters_d->view(), numDigis);
+      alpaka::exec<Acc1D>(
+          queue, workDiv, calibPixel::calibDigisPhase2{}, clusterThresholds, digis_view, clusters_d->view(), numDigis);
 
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
-      std::cout << "countModules kernel launch with " << blocks << " blocks of "
-                << threadsPerBlockOrElementsPerThread << " threadsPerBlockOrElementsPerThread\n";
+      std::cout << "countModules kernel launch with " << blocks << " blocks of " << threadsPerBlockOrElementsPerThread
+                << " threadsPerBlockOrElementsPerThread\n";
 #endif
-      alpaka::exec<Acc1D>(queue, workDiv, countModules<pixelTopology::Phase2>(), digis_view, clusters_d->view(), numDigis);
+      alpaka::exec<Acc1D>(
+          queue, workDiv, countModules<pixelTopology::Phase2>(), digis_view, clusters_d->view(), numDigis);
 
       auto moduleStartFirstElement =
           cms::alpakatools::make_device_view(alpaka::getDev(queue), clusters_d->view().moduleStart(), 1u);
       alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
-      const auto threadsPerBlockFindClus = ((TrackerTraits::maxPixInModule / 16 + 128 - 1) / 128) * 128;  /// should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
+      const auto threadsPerBlockFindClus =
+          ((TrackerTraits::maxPixInModule / 16 + 128 - 1) / 128) *
+          128;  /// should be larger than maxPixInModule/16 aka (maxPixInModule/maxiter in the kernel)
       const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockFindClus);
 
 #ifdef GPU_DEBUG
@@ -769,8 +774,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // MUST be ONE block
       const auto workDivOneBlock = cms::alpakatools::make_workdiv<Acc1D>(1u, 1024u);
-      alpaka::exec<Acc1D>(
-          queue, workDivOneBlock, fillHitsModuleStart<TrackerTraits>(), clusters_d->view());
+      alpaka::exec<Acc1D>(queue, workDivOneBlock, fillHitsModuleStart<TrackerTraits>(), clusters_d->view());
 
       // last element holds the number of all clusters
       const auto clusModuleStartLastElement = cms::alpakatools::make_device_view(
@@ -787,20 +791,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto nModules_Clusters_h_2 = cms::alpakatools::make_host_view(nModules_Clusters_h.data() + 2, 1u);
       alpaka::memcpy(queue, nModules_Clusters_h_2, bpix2ClusterStart);
 
-      #ifdef GPU_DEBUG
-      	alpaka::wait(queue);
-        std::cout << "SiPixelPhase2DigiToCluster: results \n" 
+#ifdef GPU_DEBUG
+      alpaka::wait(queue);
+      std::cout << "SiPixelPhase2DigiToCluster: results \n"
                 << " > no. of digis: " << numDigis << std::endl
                 << " > no. of active modules: " << nModules_Clusters_h[0] << std::endl
                 << " > no. of clusters: " << nModules_Clusters_h[1] << std::endl
                 << " > bpix2 offset: " << nModules_Clusters_h[2] << std::endl;
-      #endif 
+#endif
     }  //
 
     template class SiPixelRawToClusterKernel<pixelTopology::Phase1>;
     template class SiPixelRawToClusterKernel<pixelTopology::Phase2>;
     template class SiPixelRawToClusterKernel<pixelTopology::HIonPhase1>;
-    
-  }    // namespace pixelDetails
+
+  }  // namespace pixelDetails
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

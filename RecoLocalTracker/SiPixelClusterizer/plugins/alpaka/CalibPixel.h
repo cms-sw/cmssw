@@ -48,7 +48,6 @@ namespace calibPixel {
       cms::alpakatools::for_each_element_in_grid_strided(acc, numElements, [&](uint32_t i) {
         auto dvgi = view[i];
         if (dvgi.moduleId() != InvId) {
-      
           bool isDeadColumn = false, isNoisyColumn = false;
           int row = dvgi.xx();
           int col = dvgi.yy();
@@ -61,18 +60,26 @@ namespace calibPixel {
             printf("bad pixel at %d in %d\n", i, dvgi.moduleId());
           } else {
             float vcal = dvgi.adc() * gain - pedestal * gain;
-            
+
             float conversionFactor = dvgi.moduleId() < 96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
             float offset = dvgi.moduleId() < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
-            #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
             auto old_adc = dvgi.adc();
-            #endif
+#endif
             dvgi.adc() = std::max(100, int(vcal * conversionFactor + offset));
-            #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
             if (threadIdxGlobal == 0)
-                  printf("module %d pixel %d -> old_adc = %d; vcal = %.2f; conversionFactor = %.2f; offset = %.2f; new_adc = %d \n",
-                                dvgi.moduleId(), i, old_adc,vcal,conversionFactor,offset,dvgi.adc());
-            #endif
+              printf(
+                  "module %d pixel %d -> old_adc = %d; vcal = %.2f; conversionFactor = %.2f; offset = %.2f; new_adc = "
+                  "%d \n",
+                  dvgi.moduleId(),
+                  i,
+                  old_adc,
+                  vcal,
+                  conversionFactor,
+                  offset,
+                  dvgi.adc());
+#endif
           }
         }
       });
@@ -84,18 +91,17 @@ namespace calibPixel {
                                   SiPixelClusterThresholds clusterThresholds,
                                   SiPixelDigisSoAv2View view,
                                   SiPixelClustersSoAView clus_view,
-                                  int numElements
-    ) const {
+                                  int numElements) const {
       const float ElectronPerADCGain = clusterThresholds.electronPerADCGain;
       const int8_t Phase2ReadoutMode = clusterThresholds.phase2ReadoutMode;
       const uint16_t Phase2DigiBaseline = clusterThresholds.phase2DigiBaseline;
       const uint8_t Phase2KinkADC = clusterThresholds.phase2KinkADC;
-      
+
       const uint32_t threadIdxGlobal(alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u]);
       // zero for next kernels...
       if (0 == threadIdxGlobal)
         clus_view[0].clusModuleStart() = clus_view[0].moduleStart() = 0;
-        
+
       cms::alpakatools::for_each_element_in_grid_strided(
           acc, phase2PixelTopology::numberOfModules, [&](uint32_t i) { clus_view[i].clusInModule() = 0; });
       cms::alpakatools::for_each_element_in_grid_strided(acc, numElements, [&](uint32_t i) {
