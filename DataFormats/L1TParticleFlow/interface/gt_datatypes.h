@@ -24,7 +24,8 @@ namespace l1gt {
   typedef ap_ufixed<16, 11, AP_RND_CONV, AP_SAT> pt_t;
   typedef ap_fixed<13, 13, AP_RND_CONV> phi_t;
   typedef ap_fixed<14, 14, AP_RND_CONV, AP_SAT> eta_t;
-  typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;
+  // While bitwise identical to the l1ct::z0_t value, we store z0 in mm to profit of ap_fixed goodies
+  typedef ap_fixed<10, 9, AP_RND_CONV, AP_SAT> z0_t;  // NOTE: mm instead of cm!!!
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
@@ -41,9 +42,11 @@ namespace l1gt {
     const float INTPT_LSB = 1.0 / (1 << (pt_t::width - pt_t::iwidth));
     const int INTPHI_TWOPI = 2 * INTPHI_PI;
     constexpr float ETAPHI_LSB = M_PI / INTPHI_PI;
+    constexpr float Z0_UNITS = 0.1;  // 1 L1 unit is 1 mm, while CMS standard units are cm
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatEta(eta_t eta) { return eta.to_float() * ETAPHI_LSB; }
     inline float floatPhi(phi_t phi) { return phi.to_float() * ETAPHI_LSB; }
+    inline float floatZ0(z0_t z0) { return z0.to_float() * Z0_UNITS; }
   }  // namespace Scales
 
   struct ThreeVector {
