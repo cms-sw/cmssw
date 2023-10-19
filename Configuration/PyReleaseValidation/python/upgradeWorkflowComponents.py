@@ -1857,7 +1857,7 @@ upgradeWFs['ecalDevelGPU'] = UpgradeWorkflow_ecalDevel(
 
 # ECAL component
 class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
-    def __init__(self, suffix, offset, ecalMod,
+    def __init__(self, suffix, offset, ecalTPPh2, ecalMod,
                  steps = [
                      'GenSim',
                      'GenSimHLBeamSpot',
@@ -1875,12 +1875,20 @@ class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
                      'DigiTrigger',
                  ]):
         super(UpgradeWorkflow_ECalComponent, self).__init__(steps, PU, suffix, offset)
+        self.__ecalTPPh2 = ecalTPPh2
         self.__ecalMod = ecalMod
-    
+
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Sim' in step or 'Digi' in step:
+        stepDict[stepName][k] = deepcopy(stepDict[step][k])
+        if 'Sim' in step:
             if self.__ecalMod is not None:
                 stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
+        if 'Digi' in step:
+            if self.__ecalMod is not None:
+                stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
+            if self.__ecalTPPh2 is not None:
+                mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
+                stepDict[stepName][k] = merge([mods, stepDict[step][k]])
 
     def condition(self, fragment, stepList, key, hasHarvest):
         return ('2021' in key or '2023' in key or '2026' in key)
@@ -1888,12 +1896,35 @@ class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
 upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
     suffix = '_ecalComponent',
     offset = 0.631,
+    ecalTPPh2 = None,
     ecalMod = 'ecal_component',
 )
 
 upgradeWFs['ECALComponentFSW'] = UpgradeWorkflow_ECalComponent(
     suffix = '_ecalComponentFSW',
     offset = 0.632,
+    ecalTPPh2 = None,
+    ecalMod = 'ecal_component_finely_sampled_waveforms',
+)
+
+upgradeWFs['ECALTPPh2'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2',
+    offset = 0.633,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
+    ecalMod = None,
+)
+
+upgradeWFs['ECALTPPh2Component'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2Component',
+    offset = 0.634,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
+    ecalMod = 'ecal_component',
+)
+
+upgradeWFs['ECALTPPh2ComponentFSW'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2ComponentFSW',
+    offset = 0.635,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
     ecalMod = 'ecal_component_finely_sampled_waveforms',
 )
 
