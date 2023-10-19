@@ -21,12 +21,8 @@ namespace reco {
   typedef edm::View<VertexCompositeCandidate> VertexCompositeCandidateView;
   /// persistent reference to an object in a collection of Candidate objects
   typedef edm::Ref<VertexCompositeCandidateCollection> VertexCompositeCandidateRef;
-  //  /// persistent reference to an object in a collection of Candidate objects
-  //  typedef edm::RefToBase<VertexCompositeCandidate> VertexCompositeCandidateBaseRef;
   /// vector of references to objects in the same  collection of Candidate objects
   typedef edm::RefVector<VertexCompositeCandidateCollection> VertexCompositeCandidateRefVector;
-  //  /// vector of references to objects in the same collection of Candidate objects via base type
-  //  typedef edm::RefToBaseVector<VertexCompositeCandidate> VertexCompositeCandidateBaseRefVector;
   /// reference to a collection of Candidate objects
   typedef edm::RefProd<VertexCompositeCandidateCollection> VertexCompositeCandidateRefProd;
   /// vector of references to objects in the same collection of Candidate objects via base type
