@@ -152,6 +152,23 @@ run3_nanoAOD_124.toModify(
                  from_raw=True, wp_thrs=WORKING_POINTS_v2p5["jet"])
 )
 
+tauSignalCands = cms.EDProducer("PATTauSignalCandidatesProducer",
+    src = tauTable.src,
+    storeLostTracks = cms.bool(True)
+)
+
+tauSignalCandsTable = simpleCandidateFlatTableProducer.clone(
+    src = cms.InputTag("tauSignalCands"),
+    cut = cms.string("pt > 0."),
+    name = cms.string("TauProd"),
+    doc = cms.string("tau signal candidates"),
+    variables = cms.PSet(
+        P3Vars,
+        pdgId = Var("pdgId", int, doc="PDG code assigned by the event reconstruction (not by MC truth)"),
+        tauIdx = Var("status", "int16", doc="index of the mother tau"),
+        #trkPt = Var("?daughter(0).hasTrackDetails()?daughter(0).bestTrack().pt():0", float, precision=-1, doc="pt of associated track"), #MB: better to store ratio over cand pt?
+    )
+)
 
 tauGenJetsForNano = tauGenJets.clone(
     GenParticles = "finalGenParticles",
@@ -220,6 +237,8 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 tauTask = cms.Task(finalTaus)
 tauTablesTask = cms.Task(tauTable)
+tauSignalCandsTask = cms.Task(tauSignalCands,tauSignalCandsTable)
+tauTablesTask.add(tauSignalCandsTask)
 
 genTauTask = cms.Task(tauGenJetsForNano,tauGenJetsSelectorAllHadronsForNano,genVisTaus,genVisTauTable)
 tauMCTask = cms.Task(genTauTask,tausMCMatchLepTauForTable,tausMCMatchHadTauForTable,tauMCTable)
