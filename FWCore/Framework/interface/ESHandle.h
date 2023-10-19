@@ -37,7 +37,7 @@ namespace edm {
         : data_(iData), description_(desc) {}
 
     ///Used when the attempt to get the data failed
-    ESHandleBase(std::shared_ptr<ESHandleExceptionFactory>&& iWhyFailed) : whyFailedFactory_(std::move(iWhyFailed)) {}
+    ESHandleBase(std::shared_ptr<ESHandleExceptionFactory> iWhyFailed) : whyFailedFactory_(std::move(iWhyFailed)) {}
 
     edm::eventsetup::ComponentDescription const* description() const;
 
@@ -80,7 +80,7 @@ namespace edm {
     ESHandle() = default;
     ESHandle(T const* iData) : ESHandleBase(iData, nullptr) {}
     ESHandle(T const* iData, edm::eventsetup::ComponentDescription const* desc) : ESHandleBase(iData, desc) {}
-    ESHandle(std::shared_ptr<ESHandleExceptionFactory>&&);
+    ESHandle(std::shared_ptr<ESHandleExceptionFactory>);
 
     // ---------- const member functions ---------------------
     T const* product() const { return static_cast<T const*>(productStorage()); }
@@ -93,7 +93,7 @@ namespace edm {
   };
 
   template <class T>
-  ESHandle<T>::ESHandle(std::shared_ptr<edm::ESHandleExceptionFactory>&& iWhyFailed)
+  ESHandle<T>::ESHandle(std::shared_ptr<edm::ESHandleExceptionFactory> iWhyFailed)
       : ESHandleBase(std::move(iWhyFailed)) {}
 
   // Free swap function
