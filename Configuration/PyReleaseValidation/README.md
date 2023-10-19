@@ -68,7 +68,7 @@ The offsets currently in use are:
 * 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
 * 0.631: ECAL component-method based digis
 * 0.632: ECAL component-method based finely-sampled waveforms
-* 0.634: ECAL phase2 Trigger Primitive
+* 0.633: ECAL phase2 Trigger Primitive
 * 0.634: ECAL phase2 Trigger Primitive + component-method based digis
 * 0.635: ECAL phase2 Trigger Primitive + component-method based finely-sampled waveforms
 * 0.75: Phase-2 HLT
