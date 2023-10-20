@@ -200,7 +200,6 @@ private:
 
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
-
 };
 
 #endif  // L1TGlobalProducer_h

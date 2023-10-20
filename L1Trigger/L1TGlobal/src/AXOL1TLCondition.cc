@@ -94,7 +94,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   hls4mlEmulator::ModelLoader loader(AXOL1TLmodelversion);
   std::shared_ptr<hls4mlEmulator::Model> model;
   model = loader.load_model();
-  cout << "loading model... "<< AXOL1TLmodelversion << std::endl;
+  cout << "loading model... " << AXOL1TLmodelversion << std::endl;
 
   // //pointers to objects
   const BXVector<const l1t::Muon*>* candMuVec = m_gtGTB->getCandL1Mu();
@@ -244,7 +244,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   return condResult;
 }
 
-//in order to set model version from config 
+//in order to set model version from config
 void l1t::AXOL1TLCondition::setModelVersion(const std::string modelversionname) {
   m_AXOL1TLmodelversion = modelversionname;
 }

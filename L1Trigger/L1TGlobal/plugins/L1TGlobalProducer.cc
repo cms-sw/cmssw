@@ -628,7 +628,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   //for getting model version to the condition class, later will come from the menu
   //used in runGTL
   m_uGtBrd->setAXOL1TLModelVersion(m_AXOL1TLModelVersion);
-  
+
   if (m_useMuonShowers)
     m_uGtBrd->receiveMuonShowerObjectData(iEvent, m_muShowerInputToken, receiveMuShower, m_nrL1MuShower);
 

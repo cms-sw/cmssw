@@ -76,7 +76,6 @@ namespace l1t {
 
     //to set modelversion from globalboard<-globalproducer<-config
     std::string m_AXOL1TLmodelversion = "NONE";
-    
   };
 
 }  // namespace l1t
