@@ -231,9 +231,9 @@ namespace cms {
       
       template <typename TAcc>
       ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize(TAcc &acc, Counter *ws = nullptr) {
-        ALPAKA_ASSERT_OFFLOAD(this->off[totOnes() - 1] == 0);
+        ALPAKA_ASSERT_OFFLOAD(this->off[this->totOnes() - 1] == 0);
         blockPrefixScan(acc, this->off.data(), this->totOnes(), ws);
-        ALPAKA_ASSERT_OFFLOAD(this->off[totOnes() - 1] == this->off[totOnes() - 2]);
+        ALPAKA_ASSERT_OFFLOAD(this->off[this->totOnes() - 1] == this->off[this->totOnes() - 2]);
       }
 
       ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize() {
@@ -251,12 +251,13 @@ namespace cms {
 
       template <typename TAcc, typename TQueue>
       static inline __attribute__((always_inline)) void launchFinalize(View view, TQueue &queue) {
-        auto h = view.assoc;
+        // View stores a base pointer, we need to upcast back...
+        auto h = static_cast<OneToManyAssocRandomAccess *>(view.assoc);
         ALPAKA_ASSERT_OFFLOAD(h);
   #if !defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
         Counter *poff = (Counter *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, off));
-        auto nOnes = ctNOnes();
-        if constexpr (ctNOnes() < 0) {
+        auto nOnes = OneToManyAssocRandomAccess::ctNOnes();
+        if constexpr (OneToManyAssocRandomAccess::ctNOnes() < 0) {
           ALPAKA_ASSERT_OFFLOAD(view.offStorage);
           ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
           nOnes = view.offSize;
