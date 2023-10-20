@@ -161,6 +161,7 @@ namespace l1ttrackjet {
     //303 is distance from 0 to first fine bin edge
     //2047 is eleven 1's, use the &2047 to extract leftmost 11 bits.
 
+    //The allowed range for phi goes further than the edges of bin 0 or 2 (bit value 909). There's an apparent risk of phi being > 909, however this will always mean the track is in the next link (i.e. track beyond bin 2 in this link means track is actually in bin 0 of adjacent link)
     if (phi_word & (1 << 11)) {  //if phi is negative (first bit 1)
       //Since negative, we 'flip' the phi word, then check if it is in fine bin 0 or 1
       if ((2047 - (phi_word & 2047)) > 303) {
