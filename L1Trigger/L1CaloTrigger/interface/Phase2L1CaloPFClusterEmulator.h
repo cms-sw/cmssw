@@ -119,7 +119,7 @@ namespace gctpf {
   }
 
   inline float getEt(float temp[nTowerEtaSLR][nTowerPhiSLR], int eta, int phi) {
-    float et_sumEta[3];
+    float et_sumEta[3] = {0., 0., 0.};
 
     for (int i = 0; i < (nTowerEtaSLR - 2); i++) {
       for (int j = 0; j < (nTowerPhiSLR - 2); j++) {
