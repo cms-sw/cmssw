@@ -46,12 +46,12 @@
 #include "TSystem.h"
 #include "TTree.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class HGCalTB23Analyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HGCalTB23Analyzer(edm::ParameterSet const&);
-  ~HGCalTB23Analyzer() override;
+  ~HGCalTB23Analyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -216,8 +216,6 @@ HGCalTB23Analyzer::HGCalTB23Analyzer(const edm::ParameterSet& iConfig)
     edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer:: Detector " << detectorBeam_ << " with tags " << labelHitBeam_;
 #endif
 }
-
-HGCalTB23Analyzer::~HGCalTB23Analyzer() {}
 
 void HGCalTB23Analyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -737,7 +735,7 @@ void HGCalTB23Analyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, do
   }
 
   if (type < 2) {  //store only for EE and FH
-    edm::LogVerbatim("HGCSim") << "HGCalTAnalyzer:: " << map_hitWafer.size() << " wafers are hit in type " << type;
+    edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer:: " << map_hitWafer.size() << " wafers are hit in type " << type;
     for (auto itr = map_hitWafer.begin(); itr != map_hitWafer.end(); ++itr)
       edm::LogVerbatim("HGCSim") << "Wafer: " << itr->first << " Deposited Energy " << itr->second;
     ///now sort the vector of each cell hits
