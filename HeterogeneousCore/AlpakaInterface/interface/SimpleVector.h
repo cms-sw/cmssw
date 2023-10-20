@@ -21,7 +21,7 @@ namespace cms::alpakatools {
       m_data = data;
     }
 
-    inline constexpr int push_back_unsafe(const T &element) {
+    constexpr int push_back_unsafe(const T &element) {
       auto previousSize = m_size;
       m_size++;
       if (previousSize < m_capacity) {
