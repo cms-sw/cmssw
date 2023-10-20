@@ -2,11 +2,6 @@
 #define HeterogeneousCore_AlpakaInterface_interface_prefixScan_h
 // Active version
 
-#include <algorithm>
-#include <cstdint>
-
-#include <time.h>
-
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
