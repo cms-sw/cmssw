@@ -167,8 +167,8 @@ namespace cms {
       constexpr index_type const *end(uint32_t b) const { return content.data() + off[b + 1]; }
 
       FlexiStorage<Counter, ONES> off;
-      int32_t psws;  // prefix-scan working space
       FlexiStorage<index_type, SIZE> content;
+      int32_t psws;  // prefix-scan working space
     };
     
     template <typename I,    // type stored in the container (usually an index in a vector of the input values)
