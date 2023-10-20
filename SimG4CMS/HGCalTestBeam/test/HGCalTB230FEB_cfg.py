@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 
-process = cms.Process('SIM')
+process = cms.Process('SIM', hgcaltb)
 
 # import of standard configurations
 process.load("FWCore.MessageService.MessageLogger_cfi")
