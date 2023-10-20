@@ -66,7 +66,7 @@ namespace cms::alpakatools {
             typename T,  // shall be interger
             int NS,      // number of significant bytes to use in sorting
             typename RF>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void radixSortImpl(
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void radixSortImpl(
       const TAcc& acc, T const* __restrict__ a, uint16_t* ind, uint16_t* ind2, uint32_t size, RF reorder) {
 #if (defined(ALPAKA_ACC_GPU_CUDA_ENABLED) && defined(__CUDA_ARCH__)) || \
     (defined(ALPAKA_ACC_GPU_HIP_ENABLED) && defined(__HIP_DEVICE_COMPILE__))
@@ -220,7 +220,7 @@ namespace cms::alpakatools {
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<std::is_unsigned<T>::value, T>::type* = nullptr>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void radixSort(
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void radixSort(
       const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
     radixSortImpl<TAcc, T, NS>(acc, a, ind, ind2, size, dummyReorder<TAcc, T>);
   }
@@ -229,7 +229,7 @@ namespace cms::alpakatools {
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, T>::type* = nullptr>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void radixSort(
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void radixSort(
       const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
     radixSortImpl<TAcc, T, NS>(acc, a, ind, ind2, size, reorderSigned<TAcc, T>);
   }
@@ -238,7 +238,7 @@ namespace cms::alpakatools {
             typename T,
             int NS = sizeof(T),  // number of significant bytes to use in sorting
             typename std::enable_if<std::is_floating_point<T>::value, T>::type* = nullptr>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void radixSort(
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void radixSort(
       const TAcc& acc, T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
     static_assert(sizeof(T) == sizeof(int), "radixSort with the wrong type size");
     using I = int;

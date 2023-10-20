@@ -56,7 +56,7 @@ namespace cms {
     };
 
     template <typename TAcc, typename Histo, typename T, typename TQueue>
-    inline __attribute__((always_inline)) void fillManyFromVector(Histo *__restrict__ h,
+    ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
                                                                   uint32_t nh,
                                                                   T const *v,
                                                                   uint32_t const *offsets,
@@ -76,7 +76,7 @@ namespace cms {
     }
 
     template <typename TAcc, typename Histo, typename T, typename TQueue>
-    inline __attribute__((always_inline)) void fillManyFromVector(Histo *__restrict__ h,
+    ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
                                                                   typename Histo::View hv,
                                                                   uint32_t nh,
                                                                   T const *v,

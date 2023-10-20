@@ -126,13 +126,13 @@ namespace cms {
       };
 
       template <typename TAcc, typename TQueue>
-      static inline __attribute__((always_inline)) void launchZero(OneToManyAssocBase *h, TQueue &queue) {
+      ALPAKA_FN_INLINE static void launchZero(OneToManyAssocBase *h, TQueue &queue) {
         View view = {h, nullptr, nullptr, -1, -1};
         launchZero<TAcc>(view, queue);
       }
 
       template <typename TAcc, typename TQueue>
-      static inline __attribute__((always_inline)) void launchZero(View view, TQueue &queue) {
+      ALPAKA_FN_INLINE static void launchZero(View view, TQueue &queue) {
         if constexpr (ctCapacity() < 0) {
           ALPAKA_ASSERT_OFFLOAD(view.contentStorage);
           ALPAKA_ASSERT_OFFLOAD(view.contentSize > 0);
@@ -180,7 +180,7 @@ namespace cms {
       using index_type = typename OneToManyAssocBase<I, ONES, SIZE>::index_type;
       
       template <typename TAcc>
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) int32_t bulkFill(const TAcc &acc,
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int32_t bulkFill(const TAcc &acc,
                                                                                 AtomicPairCounter &apc,
                                                                                 index_type const *v,
                                                                                 uint32_t n) {
@@ -193,12 +193,12 @@ namespace cms {
         return c.first;
       }
 
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void bulkFinalize(AtomicPairCounter const &apc) {
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void bulkFinalize(AtomicPairCounter const &apc) {
         this->off[apc.get().first] = apc.get().second;
       }
 
       template <typename TAcc>
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void bulkFinalizeFill(TAcc &acc,
+      ALPAKA_FN_HOST_ACC  ALPAKA_FN_INLINE void bulkFinalizeFill(TAcc &acc,
                                                                                      AtomicPairCounter const &apc) {
         int f = apc.get().first;
         auto s = apc.get().second;
@@ -230,13 +230,13 @@ namespace cms {
       using View = typename OneToManyAssocBase<I, ONES, SIZE>::View;
       
       template <typename TAcc>
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize(TAcc &acc, Counter *ws = nullptr) {
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize(TAcc &acc, Counter *ws = nullptr) {
         ALPAKA_ASSERT_OFFLOAD(this->off[this->totOnes() - 1] == 0);
         blockPrefixScan(acc, this->off.data(), this->totOnes(), ws);
         ALPAKA_ASSERT_OFFLOAD(this->off[this->totOnes() - 1] == this->off[this->totOnes() - 2]);
       }
 
-      ALPAKA_FN_HOST_ACC inline __attribute__((always_inline)) void finalize() {
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize() {
         // Single thread finalize.
         for (uint32_t i = 1; toSigned2(i) < this->totOnes(); ++i)
           this->off[i] += this->off[i - 1];
@@ -244,13 +244,13 @@ namespace cms {
       
       
       template <typename TAcc, typename TQueue>
-      static inline __attribute__((always_inline)) void launchFinalize(OneToManyAssocRandomAccess *h, TQueue &queue) {
+      ALPAKA_FN_INLINE static void launchFinalize(OneToManyAssocRandomAccess *h, TQueue &queue) {
         View view = {h, nullptr, nullptr, -1, -1};
         launchFinalize<TAcc>(view, queue);
       }
 
       template <typename TAcc, typename TQueue>
-      static inline __attribute__((always_inline)) void launchFinalize(View view, TQueue &queue) {
+      ALPAKA_FN_INLINE static void launchFinalize(View view, TQueue &queue) {
         // View stores a base pointer, we need to upcast back...
         auto h = static_cast<OneToManyAssocRandomAccess *>(view.assoc);
         ALPAKA_ASSERT_OFFLOAD(h);
