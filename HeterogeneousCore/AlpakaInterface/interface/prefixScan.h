@@ -133,17 +133,12 @@ namespace cms {
           ws = alpaka::getDynSharedMem<T>(acc);
         }
         ALPAKA_ASSERT_OFFLOAD(warpSize == static_cast<std::size_t>(alpaka::warp::getSize(acc)));
-#ifdef __CUDA_ARCH__
-        // TODO ALPAKA_ASSERT_OFFLOAD(sizeof(T) * gridDim.x <= dynamic_smem_size());  // size of psum below
-#endif
         [[maybe_unused]] const auto elementsPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Elems>(acc)[0u];
-        [[maybe_unused]] const auto elementsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
-        [[maybe_unused]] const auto elementsPerThread = alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u];
-        [[maybe_unused]] const auto threadsPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
-        [[maybe_unused]] const auto threadsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
-        [[maybe_unused]] const auto blocksPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
-        [[maybe_unused]] const auto blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
-        [[maybe_unused]] const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
+        const auto elementsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
+        const auto threadsPerBlock = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+        const auto blocksPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
+        const auto blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
+        const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
         ALPAKA_ASSERT_OFFLOAD(elementsPerGrid >= size);
         // first each block does a scan
         [[maybe_unused]] int off = elementsPerBlock * blockIdx;
