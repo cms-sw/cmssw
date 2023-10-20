@@ -59,6 +59,11 @@ namespace l1t {
 
     void setuGtB(const GlobalBoard*);
 
+    //get / set AXOL1TL model version
+    inline const std::string gtModelVerion() const { return m_AXOL1TLmodelversion; }
+
+    void setModelVersion(const std::string modelversionname);
+
   private:
     /// copy function for copy constructor and operator=
     void copy(const AXOL1TLCondition& cp);
@@ -68,6 +73,10 @@ namespace l1t {
 
     /// pointer to uGt GlobalBoard, to be able to get the trigger objects
     const GlobalBoard* m_gtGTB;
+
+    //to set modelversion from globalboard<-globalproducer<-config
+    std::string m_AXOL1TLmodelversion = "NONE";
+    
   };
 
 }  // namespace l1t

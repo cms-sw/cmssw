@@ -204,6 +204,8 @@ namespace l1t {
     void setResetPSCountersEachLumiSec(bool val) { m_resetPSCountersEachLumiSec = val; }
     void setSemiRandomInitialPSCounters(bool val) { m_semiRandomInitialPSCounters = val; }
 
+    void setAXOL1TLModelVersion(std::string axol1tlModelVersion);
+
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
 
@@ -242,6 +244,8 @@ namespace l1t {
     int m_bxFirst_;
     int m_bxLast_;
 
+    std::string m_axol1tlModelVersion = "NULL";
+    
     std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlAlgorithmOR;
     std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlDecisionWord;
 
