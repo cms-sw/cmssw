@@ -57,21 +57,21 @@
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>  
-  <flags CXX_FLAGS="-g -DGPU_DEBUG"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
 <bin file="alpaka/VertexFinder_t.cc alpaka/VertexFinder_t.dev.cc" name="deviceVertexFinderDBSCAN_t">
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>  
-  <flags CXX_FLAGS="-g -DGPU_DEBUG -DUSE_DBSCAN"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG -DUSE_DBSCAN"/>
 </bin>
 
 <bin file="alpaka/VertexFinder_t.cc alpaka/VertexFinder_t.dev.cc" name="deviceVertexFinderIterative_t">
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>  
-  <flags CXX_FLAGS="-g -DGPU_DEBUG -DUSE_ITERATIVE"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG -DUSE_ITERATIVE"/>
 </bin>
 
 
