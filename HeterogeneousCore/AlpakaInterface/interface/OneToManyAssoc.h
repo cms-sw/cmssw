@@ -141,18 +141,18 @@ namespace cms {
           ALPAKA_ASSERT_OFFLOAD(view.offStorage);
           ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
         }
-  #if !defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
-        auto nthreads = 1024;
-        auto nblocks = 1;  // MUST BE ONE as memory is initialize in thread 0 (alternative is two kernels);
-        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
-        alpaka::exec<TAcc>(queue, workDiv, zeroAndInit{}, view);
-  #else
-        auto h = view.assoc;
-        ALPAKA_ASSERT_OFFLOAD(h);
-        h->initStorage(view);
-        h->zero();
-        h->psws = 0;
-  #endif
+        if constexpr (!requires_single_thread_per_block_v<TAcc>) {
+          auto nthreads = 1024;
+          auto nblocks = 1;  // MUST BE ONE as memory is initialize in thread 0 (alternative is two kernels);
+          auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
+          alpaka::exec<TAcc>(queue, workDiv, zeroAndInit{}, view);
+        } else {
+          auto h = view.assoc;
+          ALPAKA_ASSERT_OFFLOAD(h);
+          h->initStorage(view);
+          h->zero();
+          h->psws = 0;
+        }
       }
 
       constexpr auto size() const {
@@ -254,32 +254,32 @@ namespace cms {
         // View stores a base pointer, we need to upcast back...
         auto h = static_cast<OneToManyAssocRandomAccess *>(view.assoc);
         ALPAKA_ASSERT_OFFLOAD(h);
-  #if !defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
-        Counter *poff = (Counter *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, off));
-        auto nOnes = OneToManyAssocRandomAccess::ctNOnes();
-        if constexpr (OneToManyAssocRandomAccess::ctNOnes() < 0) {
-          ALPAKA_ASSERT_OFFLOAD(view.offStorage);
-          ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
-          nOnes = view.offSize;
-          poff = view.offStorage;
+        if constexpr (!requires_single_thread_per_block_v<TAcc>) {
+          Counter *poff = (Counter *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, off));
+          auto nOnes = OneToManyAssocRandomAccess::ctNOnes();
+          if constexpr (OneToManyAssocRandomAccess::ctNOnes() < 0) {
+            ALPAKA_ASSERT_OFFLOAD(view.offStorage);
+            ALPAKA_ASSERT_OFFLOAD(view.offSize > 0);
+            nOnes = view.offSize;
+            poff = view.offStorage;
+          }
+          ALPAKA_ASSERT_OFFLOAD(nOnes > 0);
+          int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, psws));
+          auto nthreads = 1024;
+          auto nblocks = (nOnes + nthreads - 1) / nthreads;
+          auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
+          alpaka::exec<TAcc>(queue,
+                             workDiv,
+                             multiBlockPrefixScan<Counter>(),
+                             poff,
+                             poff,
+                             nOnes,
+                             nblocks,
+                             ppsws,
+                             alpaka::getWarpSizes(alpaka::getDev(queue))[0]);
+        } else {
+          h->finalize();
         }
-        ALPAKA_ASSERT_OFFLOAD(nOnes > 0);
-        int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, psws));
-        auto nthreads = 1024;
-        auto nblocks = (nOnes + nthreads - 1) / nthreads;
-        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
-        alpaka::exec<TAcc>(queue,
-                           workDiv,
-                           multiBlockPrefixScan<Counter>(),
-                           poff,
-                           poff,
-                           nOnes,
-                           nblocks,
-                           ppsws,
-                           alpaka::getWarpSizes(alpaka::getDev(queue))[0]);
-  #else
-        h->finalize();
-  #endif
       }
     };
 

@@ -139,17 +139,17 @@ int main() {
     auto queue = Queue(device);
     const auto warpSize = alpaka::getWarpSizes(device)[0];
     // WARP PREFIXSCAN (OBVIOUSLY GPU-OqNLY)
-#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) || defined(ALPAKA_ACC_GPU_HIP_ENABLED)
-    std::cout << "warp level" << std::endl;
+    if constexpr (!requires_single_thread_per_block_v<Acc1D>) {
+      std::cout << "warp level" << std::endl;
 
-    const auto threadsPerBlockOrElementsPerThread = 32;
-    const auto blocksPerGrid = 1;
-    const auto workDivWarp = make_workdiv<Acc1D>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
+      const auto threadsPerBlockOrElementsPerThread = 32;
+      const auto blocksPerGrid = 1;
+      const auto workDivWarp = make_workdiv<Acc1D>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
 
-    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivWarp, testWarpPrefixScan<int>(), 32));
-    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivWarp, testWarpPrefixScan<int>(), 16));
-    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivWarp, testWarpPrefixScan<int>(), 5));
-#endif
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivWarp, testWarpPrefixScan<int>(), 32));
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivWarp, testWarpPrefixScan<int>(), 16));
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivWarp, testWarpPrefixScan<int>(), 5));
+    }
 
     // PORTABLE BLOCK PREFIXSCAN
     std::cout << "block level" << std::endl;
