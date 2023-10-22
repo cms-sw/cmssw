@@ -76,13 +76,13 @@ void CTPPSRPAlignmentInfoAnalyzer::analyze(const edm::Event& iEvent, const edm::
                            &eS = iSetup,
                            &tAI = tokenAlignmentIdeal_,
                            &tAR = tokenAlignmentReal_,
-                           &tAM = tokenAlignmentMisaligned_]() -> const CTPPSRPAlignmentCorrectionsData* {
+                           &tAM = tokenAlignmentMisaligned_]() -> const CTPPSRPAlignmentCorrectionsData {
     if (r == "CTPPSRPAlignmentCorrectionsDataRcd") {
-      return &eS.getData(tAI);
+      return eS.getData(tAI);
     } else if (r == "RPRealAlignmentRecord") {
-      return &eS.getData(tAR);
+      return eS.getData(tAR);
     } else {
-      return &eS.getData(tAM);
+      return eS.getData(tAM);
     }
   }();
 
