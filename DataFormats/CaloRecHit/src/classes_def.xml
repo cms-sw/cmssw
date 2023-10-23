@@ -11,7 +11,7 @@
   <class name="edm::Wrapper<std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > > >"/>
   <class name="std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > >"/>
   <class name="std::pair<unsigned long, edm::Ptr<reco::CaloCluster> >"/>
-  <class name="edm::RefToBase<CaloRecHit>"/>
+  <class name="edm::Ptr<CaloRecHit>"/>
   <class name="edm::Ptr<reco::CaloCluster>"/>
   <class name="edm::PtrVector<reco::CaloCluster>"/>
   <class name="edm::Wrapper<edm::PtrVector<reco::CaloCluster> >"/>

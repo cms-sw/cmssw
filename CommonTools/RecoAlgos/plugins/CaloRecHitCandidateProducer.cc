@@ -49,7 +49,7 @@ namespace reco {
         math::RhoEtaPhiVector p(1, eta, phi);
         p *= (energy / p.r());
         CaloRecHitCandidate *c = new CaloRecHitCandidate(Candidate::LorentzVector(p.x(), p.y(), p.z(), energy));
-        c->setCaloRecHit(RefToBase<CaloRecHit>(Ref<HitCollection>(hits, idx)));
+        c->setCaloRecHit(Ptr<CaloRecHit>(hits, idx));
         cands->push_back(c);
       }
       evt.put(std::move(cands));
