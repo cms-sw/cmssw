@@ -16,9 +16,6 @@ class AlignmentClusterFlag {
 public:
   AlignmentClusterFlag();
   AlignmentClusterFlag(const DetId &id);
-  AlignmentClusterFlag(const AlignmentClusterFlag &ahf);
-
-  ~AlignmentClusterFlag();
 
   bool isTaken() const;
   bool isOverlap() const;

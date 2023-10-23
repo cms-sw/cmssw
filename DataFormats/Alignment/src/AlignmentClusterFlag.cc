@@ -4,13 +4,6 @@ AlignmentClusterFlag::AlignmentClusterFlag() : detId_(0), hitFlag_(0) {}
 
 AlignmentClusterFlag::AlignmentClusterFlag(const DetId &id) : detId_(id), hitFlag_(0) {}
 
-AlignmentClusterFlag::AlignmentClusterFlag(const AlignmentClusterFlag &acf)
-    : detId_(acf.detId_), hitFlag_(acf.hitFlag_) {}
-
-AlignmentClusterFlag::~AlignmentClusterFlag() {
-  //
-}
-
 bool AlignmentClusterFlag::isTaken() const { return ((hitFlag_ & (1 << 0)) != 0); }
 
 bool AlignmentClusterFlag::isOverlap() const { return ((hitFlag_ & (1 << 1)) != 0); }
