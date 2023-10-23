@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-curl -s -k https://cms-pdmv.cern.ch/mcm/public/restapi/requests/get_fragment/BTV-RunIISummer20UL17GEN-00002 --retry 3 --create-dirs -o GIP8/BTV-RunIISummer20UL17GEN-00002-fragment.py
+curl -L -s -k https://cms-pdmv.cern.ch/mcm/public/restapi/requests/get_fragment/BTV-RunIISummer20UL17GEN-00002 --retry 3 --create-dirs -o GIP8/BTV-RunIISummer20UL17GEN-00002-fragment.py
 touch GIP8/__init__.py
 export PYTHONPATH="${PWD}${PYTHONPATH:+:$PYTHONPATH}"
 
