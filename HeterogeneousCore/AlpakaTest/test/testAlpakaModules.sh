@@ -44,23 +44,38 @@ function runFailure {
 }
 
 runSuccess "--accelerators=cpu --expectBackend=serial_sync"
+runSuccess "--processAcceleratorBackend=serial_sync --expectBackend=serial_sync"
 runSuccess "--moduleBackend=serial_sync --expectBackend=serial_sync"
 
 if [ "${TARGET}" == "cpu" ]; then
     runSuccess "--expectBackend=serial_sync"
 
     runFailure "--accelerators=gpu-nvidia --expectBackend=cuda_async"
+    runFailure "--processAcceleratorBackend=cuda_async --expectBackend=cuda_async"
     runFailure "--moduleBackend=cuda_async --expectBackend=cuda_async"
+
+    runFailure "--processAcceleratorBackend=cuda_async --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "--processAcceleratorBackend=serial_sync --moduleBackend=cuda_async --expectBackend=cuda_async"
 
     runSuccessHostAndDevice "--expectBackend=serial_sync"
 
 elif [ "${TARGET}" == "cuda" ]; then
     runSuccess "--expectBackend=cuda_async"
     runSuccess "--accelerators=gpu-nvidia --expectBackend=cuda_async"
+    runSuccess "--processAcceleratorBackend=cuda_async --expectBackend=cuda_async"
     runSuccess "--moduleBackend=cuda_async --expectBackend=cuda_async"
 
+    runSuccess "--processAcceleratorBackend=cuda_async --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runSuccess "--processAcceleratorBackend=serial_sync --moduleBackend=cuda_async --expectBackend=cuda_async"
+
+    runFailure "--accelerators=gpu-nvidia --processAcceleratorBackend=serial_sync --expectBackend=serial_sync"
     runFailure "--accelerators=gpu-nvidia --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "--accelerators=gpu-nvidia --processAcceleratorBackend=cuda_async --moduleBackend=serial_sync --expectBackend=serial_sync"
+    runFailure "--accelerators=gpu-nvidia --processAcceleratorBackend=serial_sync --moduleBackend=cuda_async --expectBackend=cuda_async"
+    runFailure "--accelerators=cpu --processAcceleratorBackend=cuda_async --expectBackend=cuda_async"
     runFailure "--accelerators=cpu --moduleBackend=cuda_async --expectBackend=cuda_async"
+    runFailure "--accelerators=cpu --processAcceleratorBackend=serial_sync --moduleBackend=cuda_async --expectBackend=cuda_async"
+    runFailure "--accelerators=cpu --processAcceleratorBackend=cuda_async --moduleBackend=serial_sync --expectBackend=serial_sync"
 
     runSuccessHostAndDevice "--expectBackend=cuda_async"
 

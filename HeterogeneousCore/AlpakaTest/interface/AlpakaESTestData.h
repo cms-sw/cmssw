@@ -8,12 +8,12 @@
 #include "HeterogeneousCore/AlpakaTest/interface/AlpakaESTestSoA.h"
 
 namespace cms::alpakatest {
-  // Model 1
+  // PortableCollection-based model
   using AlpakaESTestDataAHost = PortableHostCollection<AlpakaESTestSoAA>;
   using AlpakaESTestDataCHost = PortableHostCollection<AlpakaESTestSoAC>;
   using AlpakaESTestDataDHost = PortableHostCollection<AlpakaESTestSoAD>;
 
-  // Model 2
+  // Template-over-device model
   template <typename TDev>
   class AlpakaESTestDataB {
   public:
@@ -35,6 +35,9 @@ namespace cms::alpakatest {
 }  // namespace cms::alpakatest
 
 namespace cms::alpakatools {
+  // Explicit specialization is needed for the template-over-device model
+  //
+  // PortableCollection-based model gets this for free from PortableCollection itself
   template <>
   struct CopyToDevice<cms::alpakatest::AlpakaESTestDataB<alpaka_common::DevHost>> {
     template <typename TQueue>
