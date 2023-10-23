@@ -1,0 +1,33 @@
+<lcgdict>
+  <class name="reco::CaloRecHitSoA"/>
+  <class name="reco::CaloRecHitSoA::View"/>
+  <class name="reco::CaloRecHitHostCollection"/>
+  <read
+    sourceClass="reco::CaloRecHitHostCollection"
+    targetClass="reco::CaloRecHitHostCollection"
+    version="[1-]"
+    source="reco::CaloRecHitSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    reco::CaloRecHitHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<reco::CaloRecHitHostCollection>" splitLevel="0"/>
+
+  <class name="reco::PFRecHitSoA"/>
+  <class name="reco::PFRecHitSoA::View"/>
+  <class name="reco::PFRecHitHostCollection"/>
+  <read
+    sourceClass="reco::PFRecHitHostCollection"
+    targetClass="reco::PFRecHitHostCollection"
+    version="[1-]"
+    source="reco::PFRecHitSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    reco::PFRecHitHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<reco::PFRecHitHostCollection>" splitLevel="0"/>
+</lcgdict>
