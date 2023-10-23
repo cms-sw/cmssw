@@ -798,10 +798,12 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 bool MuonIdProducer::isGoodTrackerMuon(const reco::Muon& muon) {
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
+  // NoArbitration checks for CSC/DT segments only, also use ME0 segments
+  int numMatches = muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) + muon.numberOfMatches(reco::Muon::NoArbitration);
   if (addExtraSoftMuons_ && muon.pt() < 5 && std::abs(muon.eta()) < 1.5 &&
-      muon.numberOfMatches(reco::Muon::NoArbitration) >= 1)
+      numMatches >= 1)
     return true;
-  return (muon.numberOfMatches(reco::Muon::NoArbitration) >= minNumberOfMatches_);
+  return (numMatches >= minNumberOfMatches_);
 }
 
 bool MuonIdProducer::isGoodCaloMuon(const reco::CaloMuon& caloMuon) {
