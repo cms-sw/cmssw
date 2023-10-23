@@ -57,8 +57,8 @@ CaloSD::CaloSD(const std::string& name,
   tmaxHit = m_CaloSD.getParameter<double>("TmaxHit") * CLHEP::ns;
   std::vector<double> eminHits = m_CaloSD.getParameter<std::vector<double>>("EminHits");
   std::vector<double> tmaxHits = m_CaloSD.getParameter<std::vector<double>>("TmaxHits");
-  std::vector<std::string> hcn = m_CaloSD.getParameter<std::vector<std::string>>("HCNames");
-  std::vector<int> useResMap = m_CaloSD.getParameter<std::vector<int>>("UseResponseTables");
+  hcn_ = m_CaloSD.getParameter<std::vector<std::string>>("HCNames");
+  useResMap_ = m_CaloSD.getParameter<std::vector<int>>("UseResponseTables");
   std::vector<double> eminHitX = m_CaloSD.getParameter<std::vector<double>>("EminHitsDepth");
   suppressHeavy = m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon = m_CaloSD.getParameter<double>("IonThreshold") * CLHEP::MeV;
@@ -82,20 +82,21 @@ CaloSD::CaloSD(const std::string& name,
   SetVerboseLevel(verbn);
   for (int k = 0; k < 2; ++k)
     meanResponse[k].reset(nullptr);
-  for (unsigned int k = 0; k < hcn.size(); ++k) {
-    if (name == hcn[k]) {
+  for (unsigned int k = 0; k < hcn_.size(); ++k) {
+    if (name == hcn_[k]) {
       if (k < eminHits.size())
         eminHit = eminHits[k] * CLHEP::MeV;
       if (k < eminHitX.size())
         eminHitD = eminHitX[k] * CLHEP::MeV;
       if (k < tmaxHits.size())
         tmaxHit = tmaxHits[k] * CLHEP::ns;
-      if (k < useResMap.size() && useResMap[k] > 0) {
+      if (k < useResMap_.size() && useResMap_[k] > 0) {
         meanResponse[0] = std::make_unique<CaloMeanResponse>(p);
         break;
       }
     }
   }
+  detName_[0] = name;
   slave[0] = std::make_unique<CaloSlaveSD>(name);
   slave[1].reset(nullptr);
 
@@ -168,6 +169,23 @@ CaloSD::CaloSD(const std::string& name,
 }
 
 CaloSD::~CaloSD() {}
+
+void CaloSD::newCollection(const std::string& name, edm::ParameterSet const& p) {
+  nHC_ = 2;
+  detName_[1] = collName_[1] = name;
+  for (unsigned int k = 0; k < hcn_.size(); ++k) {
+    if (name == hcn_[k]) {
+      if (k < useResMap_.size() && useResMap_[k] > 0) {
+        meanResponse[1] = std::make_unique<CaloMeanResponse>(p);
+        break;
+      }
+    }
+  }
+  slave[1] = std::make_unique<CaloSlaveSD>(name);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloSim") << "CaloSD:: Initialise a second collection for " << name;
+#endif
+}
 
 G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
@@ -349,7 +367,7 @@ bool CaloSD::isItFineCalo(const G4VTouchable* touch) {
       G4LogicalVolume* lv = touch->GetVolume(ii)->GetLogicalVolume();
       ok = (lv == detector.lv);
 #ifdef EDM_ML_DEBUG
-      std::string name1 = (lv == 0) ? "Unknown" : lv->GetName();
+      std::string name1 = (lv == nullptr) ? "Unknown" : lv->GetName();
       edm::LogVerbatim("CaloSim") << "CaloSD: volume " << name1 << ":" << detector.name << " at Level "
                                   << detector.level << " Flag " << ok;
 #endif
@@ -363,18 +381,22 @@ bool CaloSD::isItFineCalo(const G4VTouchable* touch) {
 void CaloSD::Initialize(G4HCofThisEvent* HCE) { Initialize(HCE, 0); }
 
 void CaloSD::Initialize(G4HCofThisEvent* HCE, int k) {
+  if (k == 0) {
+    detName_[0] = GetName();
+    collName_[0] = collectionName[0];
+  }
   totalHits[k] = 0;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloSim") << "CaloSD : Initialize called for " << GetName();
+  edm::LogVerbatim("CaloSim") << "CaloSD : Initialize called for " << detName_[k];
 #endif
 
   //This initialization is performed at the beginning of an event
   //------------------------------------------------------------
-  theHC[k] = new CaloG4HitCollection(GetName(), collectionName[0]);
+  theHC[k] = new CaloG4HitCollection(detName_[k], collName_[k]);
 
   if (hcID[k] < 0) {
-    hcID[k] = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+    hcID[k] = G4SDManager::GetSDMpointer()->GetCollectionID(collName_[k]);
   }
   //theHC ownership is transfered here to HCE
   HCE->AddHitsCollection(hcID[k], theHC[k]);
