@@ -17,7 +17,8 @@ process.testAnalyzer = cms.EDAnalyzer('TestAlpakaAnalyzer',
 
 # analyse the second product
 process.testAnalyzerSerial = cms.EDAnalyzer('TestAlpakaAnalyzer',
-    source = cms.InputTag('testProducerSerial')
+    source = cms.InputTag('testProducerSerial'),
+    expectBackend = cms.string('SerialSync')
 )
 
 process.cuda_path = cms.Path(process.testAnalyzer)

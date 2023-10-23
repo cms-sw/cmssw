@@ -78,7 +78,12 @@ public:
   TestAlpakaAnalyzer(edm::ParameterSet const& config)
       : source_{config.getParameter<edm::InputTag>("source")},
         token_{consumes(source_)},
-        expectSize_(config.getParameter<int>("expectSize")) {}
+        expectSize_{config.getParameter<int>("expectSize")} {
+    if (std::string const& eb = config.getParameter<std::string>("expectBackend"); not eb.empty()) {
+      expectBackend_ = cms::alpakatools::toBackend(eb);
+      backendToken_ = consumes(edm::InputTag(source_.label(), "backend", source_.process()));
+    }
+  }
 
   void analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const override {
     portabletest::TestHostCollection const& product = event.get(token_);
@@ -134,6 +139,14 @@ public:
       assert(vi.id() == i);
       assert(vi.m() == matrix * i);
     }
+
+    if (expectBackend_) {
+      auto backend = static_cast<cms::alpakatools::Backend>(event.get(backendToken_));
+      if (expectBackend_ != backend) {
+        throw cms::Exception("Assert") << "Expected input backend " << cms::alpakatools::toString(*expectBackend_)
+                                       << ", got " << cms::alpakatools::toString(backend);
+      }
+    }
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -141,12 +154,18 @@ public:
     desc.add<edm::InputTag>("source");
     desc.add<int>("expectSize", -1)
         ->setComment("Expected size of the input collection. Values < 0 mean the check is not performed. Default: -1");
+    desc.add<std::string>("expectBackend", "")
+        ->setComment(
+            "Expected backend of the input collection. Empty value means to not perform the check. Default: empty "
+            "string");
     descriptions.addWithDefaultLabel(desc);
   }
 
 private:
   const edm::InputTag source_;
   const edm::EDGetTokenT<portabletest::TestHostCollection> token_;
+  edm::EDGetTokenT<unsigned short> backendToken_;
+  std::optional<cms::alpakatools::Backend> expectBackend_;
   const int expectSize_;
 };
 
