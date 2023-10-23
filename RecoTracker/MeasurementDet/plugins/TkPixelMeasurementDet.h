@@ -85,10 +85,10 @@ public:
   void setIndex(int i) { index_ = i; }
 
 private:
-  unsigned int id_;
+  unsigned int id_ {};
   std::vector<LocalPoint> badRocPositions_;
 
-  int index_;
+  int index_ {};
   PxMeasurementConditionSet* theDetConditions;
   PxMeasurementConditionSet& conditionSet() { return *theDetConditions; }
   const PxMeasurementConditionSet& conditionSet() const { return *theDetConditions; }
