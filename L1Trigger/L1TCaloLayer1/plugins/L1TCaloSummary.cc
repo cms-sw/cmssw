@@ -69,7 +69,7 @@ using namespace std;
 // class declaration
 //
 
-template<class INPUT, class OUTPUT>
+template <class INPUT, class OUTPUT>
 class L1TCaloSummary : public edm::stream::EDProducer<> {
 public:
   explicit L1TCaloSummary(const edm::ParameterSet&);
@@ -82,7 +82,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   //void endJob() override;
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override {};
+  void beginRun(edm::Run const&, edm::EventSetup const&) override{};
 
   void print();
 
@@ -123,7 +123,7 @@ private:
 //
 // constructors and destructor
 //
-template<class INPUT, class OUTPUT>
+template <class INPUT, class OUTPUT>
 L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
     : nPumBins(iConfig.getParameter<unsigned int>("nPumBins")),
       pumLUT(nPumBins, std::vector<std::vector<uint32_t>>(2, std::vector<uint32_t>(13))),
@@ -216,7 +216,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
     modelInput[14 * i.gctPhi() + (i.gctEta() - 4)] = i.et();
   }
   //Extract model output
-  OUTPUT modelResult[1] = {OUTPUT("0.0",10)}; //the 10 here refers to the fact that we read in "0.0" as a decimal number
+  OUTPUT modelResult[1] = {
+      OUTPUT("0.0", 10)};  //the 10 here refers to the fact that we read in "0.0" as a decimal number
   model->prepare_input(modelInput);
   model->predict();
   model->read_result(modelResult);
@@ -300,8 +301,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::fillDescriptions(edm::ConfigurationDescripti
   descriptions.addDefault(desc);
 }
 
-typedef L1TCaloSummary<ap_ufixed<10,10>, ap_fixed<11, 5>> L1TCaloSummaryCICADAv1;
-typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16,8>> L1TCaloSummaryCICADAv2;
+typedef L1TCaloSummary<ap_ufixed<10, 10>, ap_fixed<11, 5>> L1TCaloSummaryCICADAv1;
+typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8>> L1TCaloSummaryCICADAv2;
 //define type version plugins
 DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv1);
 DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv2);
