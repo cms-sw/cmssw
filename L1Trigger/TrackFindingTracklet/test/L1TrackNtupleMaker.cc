@@ -328,6 +328,113 @@ L1TrackNtupleMaker::~L1TrackNtupleMaker() {}
 void L1TrackNtupleMaker::endJob() {
   // things to be done at the exit of the event Loop
   edm::LogVerbatim("Tracklet") << "L1TrackNtupleMaker::endJob";
+
+  // clean up
+  delete m_trk_pt;
+  delete m_trk_eta;
+  delete m_trk_phi;
+  delete m_trk_z0;
+  delete m_trk_d0;
+  delete m_trk_chi2;
+  delete m_trk_chi2_dof;
+  delete m_trk_chi2rphi;
+  delete m_trk_chi2rphi_dof;
+  delete m_trk_chi2rz;
+  delete m_trk_chi2rz_dof;
+  delete m_trk_bendchi2;
+  delete m_trk_nstub;
+  delete m_trk_lhits;
+  delete m_trk_dhits;
+  delete m_trk_seed;
+  delete m_trk_hitpattern;
+  delete m_trk_lhits_hitpattern;
+  delete m_trk_dhits_hitpattern;
+  delete m_trk_nPSstub_hitpattern;
+  delete m_trk_n2Sstub_hitpattern;
+  delete m_trk_nLostPSstub_hitpattern;
+  delete m_trk_nLost2Sstub_hitpattern;
+  delete m_trk_nLoststub_V1_hitpattern;
+  delete m_trk_nLoststub_V2_hitpattern;
+  delete m_trk_phiSector;
+  delete m_trk_etaSector;
+  delete m_trk_genuine;
+  delete m_trk_loose;
+  delete m_trk_unknown;
+  delete m_trk_combinatoric;
+  delete m_trk_fake;
+  delete m_trk_MVA1;
+  delete m_trk_matchtp_pdgid;
+  delete m_trk_matchtp_pt;
+  delete m_trk_matchtp_eta;
+  delete m_trk_matchtp_phi;
+  delete m_trk_matchtp_z0;
+  delete m_trk_matchtp_dxy;
+  delete m_trk_matchtp_d0;
+  delete m_trk_injet;
+  delete m_trk_injet_highpt;
+  delete m_trk_injet_vhighpt;
+
+  delete m_tp_pt;
+  delete m_tp_eta;
+  delete m_tp_phi;
+  delete m_tp_dxy;
+  delete m_tp_d0;
+  delete m_tp_z0;
+  delete m_tp_d0_prod;
+  delete m_tp_z0_prod;
+  delete m_tp_pdgid;
+  delete m_tp_nmatch;
+  delete m_tp_nstub;
+  delete m_tp_eventid;
+  delete m_tp_charge;
+  delete m_tp_injet;
+  delete m_tp_injet_highpt;
+  delete m_tp_injet_vhighpt;
+
+  delete m_matchtrk_pt;
+  delete m_matchtrk_eta;
+  delete m_matchtrk_phi;
+  delete m_matchtrk_z0;
+  delete m_matchtrk_d0;
+  delete m_matchtrk_chi2;
+  delete m_matchtrk_chi2_dof;
+  delete m_matchtrk_chi2rphi;
+  delete m_matchtrk_chi2rphi_dof;
+  delete m_matchtrk_chi2rz;
+  delete m_matchtrk_chi2rz_dof;
+  delete m_matchtrk_bendchi2;
+  delete m_matchtrk_MVA1;
+  delete m_matchtrk_nstub;
+  delete m_matchtrk_dhits;
+  delete m_matchtrk_lhits;
+  delete m_matchtrk_seed;
+  delete m_matchtrk_hitpattern;
+  delete m_matchtrk_injet;
+  delete m_matchtrk_injet_highpt;
+  delete m_matchtrk_injet_vhighpt;
+
+  delete m_allstub_x;
+  delete m_allstub_y;
+  delete m_allstub_z;
+  delete m_allstub_isBarrel;
+  delete m_allstub_layer;
+  delete m_allstub_isPSmodule;
+  delete m_allstub_trigDisplace;
+  delete m_allstub_trigOffset;
+  delete m_allstub_trigPos;
+  delete m_allstub_trigBend;
+  delete m_allstub_matchTP_pdgid;
+  delete m_allstub_matchTP_pt;
+  delete m_allstub_matchTP_eta;
+  delete m_allstub_matchTP_phi;
+  delete m_allstub_genuine;
+
+  delete m_jet_eta;
+  delete m_jet_phi;
+  delete m_jet_pt;
+  delete m_jet_tp_sumpt;
+  delete m_jet_trk_sumpt;
+  delete m_jet_matchtrk_sumpt;
 }
 
 ////////////
