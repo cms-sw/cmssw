@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 
-process = cms.Process('SIM')
+process = cms.Process('SIM', hgcaltb)
 
 # import of standard configurations
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -25,10 +26,12 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
     process.MessageLogger.HGCSim=dict()
     process.MessageLogger.CaloSim=dict()
     process.MessageLogger.FlatThetaGun=dict()
-#   process.MessageLogger.FlatEvtVtx=dict()
+    process.MessageLogger.FlatEvtVtx=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -72,8 +75,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MinE = cms.double(9.99),
-        MaxE = cms.double(10.01),
+        MinE = cms.double(99.99),
+        MaxE = cms.double(100.01),
         MinTheta = cms.double(0.0),
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
@@ -84,8 +87,8 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single electron E 10')
 )
-process.VtxSmeared.MinZ = 0.0
-process.VtxSmeared.MaxZ = 0.0
+process.VtxSmeared.MinZ = -100.0
+process.VtxSmeared.MaxZ = -100.0
 #process.VtxSmeared.MinX = -1.0
 #process.VtxSmeared.MaxX =  1.0
 #process.VtxSmeared.MinY = -1.0
@@ -94,6 +97,18 @@ process.g4SimHits.OnlySDs = ['HGCalSensitiveDetector', 'HcalTB06BeamDetector']
 process.g4SimHits.HGCSD.Detectors = 1
 process.g4SimHits.HGCSD.RejectMouseBite = False
 process.g4SimHits.HGCSD.RotatedWafer    = False
+
+process.g4SimHits.CaloTrkProcessing.TestBeam = True
+process.g4SimHits.HCalSD.ForTBHCAL = True
+process.g4SimHits.NonBeamEvent = True
+process.g4SimHits.UseMagneticField = False
+
+process.g4SimHits.EventVerbose = 2
+process.g4SimHits.SteppingVerbosity = 2
+process.g4SimHits.StepVerboseThreshold= 0.1
+process.g4SimHits.VerboseEvents = [1]
+process.g4SimHits.VertexNumber = []
+process.g4SimHits.VerboseTracks =[]
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
