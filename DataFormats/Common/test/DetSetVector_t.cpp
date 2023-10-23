@@ -305,13 +305,13 @@ void work() {
   assert(c.size() == 3);
 
   coll_type another;
-  c.swap(another);
+  std::swap(c, another);
   assert(c.empty());
   assert(another.size() == 3);
   sanity_check(c);
   sanity_check(another);
 
-  c.swap(another);
+  std::swap(c, another);
   assert(c.size() == 3);
 
   {

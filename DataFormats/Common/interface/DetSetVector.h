@@ -121,10 +121,6 @@ namespace edm {
     /// to modify the DSV, but you should not count on them)
     explicit DetSetVector(std::vector<DetSet<T> >& input, bool alreadySorted = false);
 
-    void swap(DetSetVector& other);
-
-    DetSetVector& operator=(DetSetVector const& other);
-
     ///  Insert the given DetSet.
     // What should happen if there is already a DetSet with this
     // DetId? Right now, it is up to the user *not* to do this. If you
@@ -199,21 +195,6 @@ namespace edm {
     _sets.swap(input);
     if (!alreadySorted)
       _sort();
-  }
-
-  template <class T>
-  inline void DetSetVector<T>::swap(DetSetVector<T>& other) {
-    _sets.swap(other._sets);
-    bool tmp = _alreadySorted;
-    _alreadySorted = other._alreadySorted;
-    other._alreadySorted = tmp;
-  }
-
-  template <class T>
-  inline DetSetVector<T>& DetSetVector<T>::operator=(DetSetVector<T> const& other) {
-    DetSetVector<T> temp(other);
-    swap(temp);
-    return *this;
   }
 
   template <class T>
@@ -381,12 +362,6 @@ namespace edm {
   struct has_fillView<edm::DetSetVector<T> > {
     static bool const value = true;
   };
-
-  // Free swap function
-  template <class T>
-  inline void swap(DetSetVector<T>& a, DetSetVector<T>& b) {
-    a.swap(b);
-  }
 
 }  // namespace edm
 

@@ -31,23 +31,9 @@ namespace edm {
 
     OrphanHandleBase(void const* iProd, ProductID const& iId) : product_(iProd), id_(iId) { assert(iProd); }
 
-    ~OrphanHandleBase() {}
-
     void clear() {
       product_ = nullptr;
       id_ = ProductID();
-    }
-
-    void swap(OrphanHandleBase& other) {
-      using std::swap;
-      swap(product_, other.product_);
-      std::swap(id_, other.id_);
-    }
-
-    OrphanHandleBase& operator=(OrphanHandleBase const& rhs) {
-      OrphanHandleBase temp(rhs);
-      this->swap(temp);
-      return *this;
     }
 
     bool isValid() const { return product_ && id_ != ProductID(); }
@@ -62,8 +48,6 @@ namespace edm {
     ProductID id_;
   };
 
-  // Free swap function
-  inline void swap(OrphanHandleBase& a, OrphanHandleBase& b) { a.swap(b); }
 }  // namespace edm
 
 #endif
