@@ -91,6 +91,15 @@ namespace SiPixelPI {
       }
     }
 
+    const void print(std::stringstream& ss) {
+      ss << "---------------------------------------------------------------\n"
+         << "                        PhaseInfo Data                       \n\n"
+         << " Phase :    " << phase() << "\n"
+         << " DetSide:   " << m_detsize << "\n"
+         << " pathToXML: " << pathToTopoXML() << "\n"
+         << "-------------------------------------------------------------\n\n";
+    }
+
     const bool isPhase1Comparison(const PhaseInfo& theOtherPhase) const {
       if (phase() == phase::one || theOtherPhase.phase() == phase::one)
         return true;
@@ -110,6 +119,15 @@ namespace SiPixelPI {
   private:
     size_t m_detsize;
   };
+
+  //============================================================================
+  // add ostream for PhaseInfo
+  inline std::ostream& operator<<(std::ostream& os, PhaseInfo phInfo) {
+    std::stringstream ss;
+    phInfo.print(ss);
+    os << ss.str();
+    return os;
+  }
 
   //============================================================================
   inline std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
