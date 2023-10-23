@@ -611,7 +611,9 @@ public:
       return lay + 33;
     if (det == 3 && part == 2)
       return lay + 37;
-    return -1;  // This can never happen: det and part are comprised between 1 and 3
+    std::cout << "Error in TrackerMap: this can never happen as det and part are comprised between 1 and 3, while they are " 
+              << det << " and " << part << " respectively" << std::endl;
+    return lay;
   }
 
   std::string layername(int layer) {
