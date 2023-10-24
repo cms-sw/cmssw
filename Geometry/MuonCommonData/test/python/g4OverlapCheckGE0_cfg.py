@@ -6,7 +6,7 @@
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -41,6 +41,9 @@ else:
     geomFile = "Geometry.MuonCommonData.cmsExtendedGeometry2026D99XML_cfi"
 
 baseName = "cms2026" + options.geometry + "DDD"
+
+print("Geometry file Name: ", geomFile)
+print("Base file Name:     ", baseName)
 
 process.load(geomFile)
 if (options.geometry == "Test"):
