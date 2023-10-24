@@ -72,12 +72,6 @@ namespace edm {
       m_data.swap(rh.m_data);
     }
 
-    DataFrameContainer& operator=(DataFrameContainer const& rhs) {
-      DataFrameContainer temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
-
     void swap(IdContainer& iic, DataContainer& idc) {
       m_ids.swap(iic);
       m_data.swap(idc);
@@ -200,15 +194,5 @@ namespace edm {
   inline void swap(DataFrameContainer& lhs, DataFrameContainer& rhs) { lhs.swap(rhs); }
 
 }  // namespace edm
-
-// The standard allows us to specialize std::swap for non-templates.
-// This ensures that DataFrameContainer::swap() will be used in algorithms.
-
-namespace std {
-  template <>
-  inline void swap(edm::DataFrameContainer& lhs, edm::DataFrameContainer& rhs) {
-    lhs.swap(rhs);
-  }
-}  // namespace std
 
 #endif  // DataFormats_Common_DataFrameContainer_h

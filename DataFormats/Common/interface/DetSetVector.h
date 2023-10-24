@@ -123,8 +123,6 @@ namespace edm {
 
     void swap(DetSetVector& other);
 
-    DetSetVector& operator=(DetSetVector const& other);
-
     ///  Insert the given DetSet.
     // What should happen if there is already a DetSet with this
     // DetId? Right now, it is up to the user *not* to do this. If you
@@ -207,13 +205,6 @@ namespace edm {
     bool tmp = _alreadySorted;
     _alreadySorted = other._alreadySorted;
     other._alreadySorted = tmp;
-  }
-
-  template <class T>
-  inline DetSetVector<T>& DetSetVector<T>::operator=(DetSetVector<T> const& other) {
-    DetSetVector<T> temp(other);
-    swap(temp);
-    return *this;
   }
 
   template <class T>

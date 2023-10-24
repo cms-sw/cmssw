@@ -74,12 +74,6 @@ namespace edm {
     void reset(const unsigned int i) { at(i).reset(); }
     /// swap function
     void swap(HLTGlobalStatus& other) { paths_.swap(other.paths_); }
-    /// copy assignment implemented with swap()
-    HLTGlobalStatus& operator=(HLTGlobalStatus const& rhs) {
-      HLTGlobalStatus temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
 
   private:
     /// Global state variable calculated on the fly
@@ -118,15 +112,5 @@ namespace edm {
   }
 
 }  // namespace edm
-
-// The standard allows us to specialize std::swap for non-templates.
-// This ensures that HLTGlobalStatus::swap() will be used in algorithms.
-
-namespace std {
-  template <>
-  inline void swap(edm::HLTGlobalStatus& lhs, edm::HLTGlobalStatus& rhs) {
-    lhs.swap(rhs);
-  }
-}  // namespace std
 
 #endif  // DataFormats_Common_HLTGlobalStatus_h

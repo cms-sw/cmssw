@@ -194,9 +194,6 @@ namespace edm {
     /// swap member function
     void swap(RangeMap<ID, C, P>& other);
 
-    /// copy assignment
-    RangeMap& operator=(RangeMap const& rhs);
-
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
 
@@ -211,13 +208,6 @@ namespace edm {
   inline void RangeMap<ID, C, P>::swap(RangeMap<ID, C, P>& other) {
     collection_.swap(other.collection_);
     map_.swap(other.map_);
-  }
-
-  template <typename ID, typename C, typename P>
-  inline RangeMap<ID, C, P>& RangeMap<ID, C, P>::operator=(RangeMap<ID, C, P> const& rhs) {
-    RangeMap<ID, C, P> temp(rhs);
-    this->swap(temp);
-    return *this;
   }
 
   // free swap function
