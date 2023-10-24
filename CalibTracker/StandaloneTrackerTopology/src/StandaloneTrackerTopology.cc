@@ -38,13 +38,31 @@ namespace {
             const auto subDet = std::stoi(att_name.substr(SubdetName.size()));
             switch (subDet) {
               case PixelSubdetector::PixelBarrel:  // layer, ladder module
-                pxbVals_.layerStartBit_ = vals[0];
-                pxbVals_.ladderStartBit_ = vals[1];
-                pxbVals_.moduleStartBit_ = vals[2];
 
-                pxbVals_.layerMask_ = vals[3];
-                pxbVals_.ladderMask_ = vals[4];
-                pxbVals_.moduleMask_ = vals[5];
+                /*
+		  In the case of the phase-2 IT there is an additional layer of hierarcy, due ot split sensors in Layer 1
+		  What follows is a ugly hack, but at least is consistent with TrackerTopologyEP.cc
+		*/
+
+                if (vals.size() > 6) {  // Phase 2: extra hierarchy level for 3D sensors
+                  pxbVals_.layerStartBit_ = vals[0];
+                  pxbVals_.ladderStartBit_ = vals[1];
+                  pxbVals_.moduleStartBit_ = vals[2];
+                  pxbVals_.doubleStartBit_ = vals[3];
+
+                  pxbVals_.layerMask_ = vals[4];
+                  pxbVals_.ladderMask_ = vals[5];
+                  pxbVals_.moduleMask_ = vals[6];
+                  pxbVals_.doubleMask_ = vals[7];
+                } else {  // Phase-0 or Phase-1
+                  pxbVals_.layerStartBit_ = vals[0];
+                  pxbVals_.ladderStartBit_ = vals[1];
+                  pxbVals_.moduleStartBit_ = vals[2];
+
+                  pxbVals_.layerMask_ = vals[3];
+                  pxbVals_.ladderMask_ = vals[4];
+                  pxbVals_.moduleMask_ = vals[5];
+                }
 
                 foundPXB = true;
                 break;
