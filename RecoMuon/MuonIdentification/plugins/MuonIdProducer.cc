@@ -1141,7 +1141,9 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
   // if a muon was exclusively TrackerMuon check if it can be a calo muon
   for (reco::MuonCollection::iterator muon = muons->begin(); muon != muons->end();) {
     if (muon->isTrackerMuon()) {
-      if (muon->numberOfMatches(arbitration) < minNumberOfMatches_) {
+      int numMatches = muon->numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) +
+        muon->numberOfMatches(arbitration);
+      if (numMatches < minNumberOfMatches_) {
         // TrackerMuon failed arbitration
         // If not any other base type - erase the element
         // (PFMuon is not a base type)
