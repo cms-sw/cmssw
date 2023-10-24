@@ -229,7 +229,7 @@ namespace Phase2Tracker {
         }
 
         edm::DetSetVector<Phase2TrackerDigi> proc_raw_dsv(sorted_and_merged, true);
-        pr->swap(proc_raw_dsv);
+        std::swap(pr, proc_raw_dsv);
         event.put(std::unique_ptr<edm::DetSetVector<Phase2TrackerDigi>>(pr), "ProcessedRaw");
         delete buffer;
       }
