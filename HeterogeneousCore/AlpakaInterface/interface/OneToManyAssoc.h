@@ -13,12 +13,6 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/FlexiStorage.h"
 
-namespace {
-  template <typename T>
-  ALPAKA_FN_HOST_ACC typename std::make_signed<T>::type toSigned2(T v) {
-    return static_cast<typename std::make_signed<T>::type>(v);
-  }
-}  // namespace
 namespace cms {
   namespace alpakatools {
 
@@ -73,7 +67,7 @@ namespace cms {
 
       template <typename TAcc>
       ALPAKA_FN_ACC ALPAKA_FN_INLINE void add(const TAcc &acc, CountersOnly const &co) {
-        for (uint32_t i = 0; toSigned2(i) < totOnes(); ++i) {
+        for (uint32_t i = 0; static_cast<int>(i) < totOnes(); ++i) {
           alpaka::atomicAdd(acc, off.data() + i, co.off[i], alpaka::hierarchy::Blocks{});
         }
       }
@@ -238,7 +232,7 @@ namespace cms {
 
       ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize() {
         // Single thread finalize.
-        for (uint32_t i = 1; toSigned2(i) < this->totOnes(); ++i)
+        for (uint32_t i = 1; static_cast<int>(i) < this->totOnes(); ++i)
           this->off[i] += this->off[i - 1];
       }
       
