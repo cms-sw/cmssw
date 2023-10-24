@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import json
 
-from optparse import OptionParser
-parser = OptionParser(usage="%prog [options] job1 job2 ...")
-parser.add_option("-f", "--format", dest="fmt", default="txt", help="output format")
-parser.add_option("-H", "--header", dest="header", action="store_true", default=False, help="print headers")
-parser.add_option("--base", dest="base", default="{}.json,{}_timing_report.json", help="coma separated base name for size and timing files")
-parser.add_option("--ref", dest="ref", default="ref/", help="path to the reference files")
-(options, args) = parser.parse_args()
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+parser.add_argument("-f", "--format", dest="fmt", default="txt", help="output format")
+parser.add_argument("-H", "--header", dest="header", action="store_true", default=False, help="print headers")
+parser.add_argument("--base", dest="base", default="{}.json,{}_timing_report.json", help="comma-separated base name for size and timing files")
+parser.add_argument("--ref", dest="ref", default="ref/", help="path to the reference files")
+parser.add_argument("job", type=str, nargs='+')
+options = parser.parse_args()
 
 headers = [ 'Sample' , 'kb/ev' , 'ref kb/ev' , 'diff kb/ev' , 'ev/s/thd' , 'ref ev/s/thd' , 'diff rate' , 'mem/thd' , 'ref mem/thd' ]
 start, sep, end = "", "\t", ""
@@ -20,7 +21,7 @@ def prow(x):
 first = True
 
 size_pattern,timing_pattern = options.base.split(',')
-for job in args:
+for job in options.job:
 
     label = job
     size_json=size_pattern.format(job)
