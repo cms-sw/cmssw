@@ -7,53 +7,48 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 if __name__ == "__main__":
-    from optparse import OptionParser
-    parser = OptionParser(usage="%prog [options] outputDir inputFiles")
-    parser.add_option("-s", "--postfix", dest="postfix", type="string", default=None,
-                      help="Postfix which will be appended to the file name (default: _Friend for friends, _Skim for skims)")
-    parser.add_option("-J", "--json", dest="json", type="string",
-                      default=None, help="Select events using this JSON file")
-    parser.add_option("-c", "--cut", dest="cut", type="string",
-                      default=None, help="Cut string")
-    parser.add_option("-b", "--branch-selection", dest="branchsel",
-                      type="string", default=None, help="Branch selection")
-    parser.add_option("--bi", "--branch-selection-input", dest="branchsel_in",
-                      type="string", default=None, help="Branch selection input")
-    parser.add_option("--bo", "--branch-selection-output", dest="branchsel_out",
-                      type="string", default=None, help="Branch selection output")
-    parser.add_option("--friend", dest="friend", action="store_true", default=False,
-                      help="Produce friend trees in output (current default is to produce full trees)")
-    parser.add_option("--full", dest="friend", action="store_false", default=False,
-                      help="Produce full trees in output (this is the current default)")
-    parser.add_option("--noout", dest="noOut", action="store_true",
-                      default=False, help="Do not produce output, just run modules")
-    parser.add_option("-P", "--prefetch", dest="prefetch", action="store_true", default=False,
-                      help="Prefetch input files locally instead of accessing them via xrootd")
-    parser.add_option("--long-term-cache", dest="longTermCache", action="store_true", default=False,
-                      help="Keep prefetched files across runs instead of deleting them at the end")
-    parser.add_option("-N", "--max-entries", dest="maxEntries", type="long", default=None,
-                      help="Maximum number of entries to process from any single given input tree")
-    parser.add_option("--first-entry", dest="firstEntry", type="long", default=0,
-                      help="First entry to process in the three (to be used together with --max-entries)")
-    parser.add_option("--justcount", dest="justcount", default=False,
-                      action="store_true", help="Just report the number of selected events")
-    parser.add_option("-I", "--import", dest="imports", type="string", default=[], action="append",
-                      nargs=2, help="Import modules (python package, comma-separated list of ")
-    parser.add_option("-z", "--compression", dest="compression", type="string",
-                      default=("LZMA:9"), help="Compression: none, or (algo):(level) ")
-
-    (options, args) = parser.parse_args()
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument("-s", "--postfix", dest="postfix", type=str, default=None,
+                        help="Postfix which will be appended to the file name (default: _Friend for friends, _Skim for skims)")
+    parser.add_argument("-J", "--json", dest="json", type=str,
+                        default=None, help="Select events using this JSON file")
+    parser.add_argument("-c", "--cut", dest="cut", type=str,
+                        default=None, help="Cut string")
+    parser.add_argument("-b", "--branch-selection", dest="branchsel",
+                        type=str, default=None, help="Branch selection")
+    parser.add_argument("--bi", "--branch-selection-input", dest="branchsel_in",
+                        type=str, default=None, help="Branch selection input")
+    parser.add_argument("--bo", "--branch-selection-output", dest="branchsel_out",
+                        type=str, default=None, help="Branch selection output")
+    parser.add_argument("--friend", dest="friend", action="store_true", default=False,
+                        help="Produce friend trees in output (current default is to produce full trees)")
+    parser.add_argument("--full", dest="friend", action="store_false", default=False,
+                        help="Produce full trees in output (this is the current default)")
+    parser.add_argument("--noout", dest="noOut", action="store_true",
+                        default=False, help="Do not produce output, just run modules")
+    parser.add_argument("-P", "--prefetch", dest="prefetch", action="store_true", default=False,
+                        help="Prefetch input files locally instead of accessing them via xrootd")
+    parser.add_argument("--long-term-cache", dest="longTermCache", action="store_true", default=False,
+                        help="Keep prefetched files across runs instead of deleting them at the end")
+    parser.add_argument("-N", "--max-entries", dest="maxEntries", type=int, default=None,
+                        help="Maximum number of entries to process from any single given input tree")
+    parser.add_argument("--first-entry", dest="firstEntry", type=int, default=0,
+                        help="First entry to process in the three (to be used together with --max-entries)")
+    parser.add_argument("--justcount", dest="justcount", default=False,
+                        action="store_true", help="Just report the number of selected events")
+    parser.add_argument("-I", "--import", dest="imports", type=str, default=[], action="append",
+                        nargs=2, help="Import modules (python package, comma-separated list of ")
+    parser.add_argument("-z", "--compression", dest="compression", type=str,
+                        default=("LZMA:9"), help="Compression: none, or (algo):(level) ")
+    parser.add_argument("outputDir", type=str)
+    parser.add_argument("inputFile", type=str, nargs='+')
+    options = parser.parse_args()
 
     if options.friend:
         if options.cut or options.json:
             raise RuntimeError(
                 "Can't apply JSON or cut selection when producing friends")
-
-    if len(args) < 2:
-        parser.print_help()
-        sys.exit(1)
-    outdir = args[0]
-    args = args[1:]
 
     modules = []
     for mod, names in options.imports:
@@ -76,7 +71,7 @@ if __name__ == "__main__":
     if options.branchsel != None:
         options.branchsel_in = options.branchsel
         options.branchsel_out = options.branchsel
-    p = PostProcessor(outdir, args,
+    p = PostProcessor(options.outputDir, options.inputFile,
                       cut=options.cut,
                       branchsel=options.branchsel_in,
                       modules=modules,
