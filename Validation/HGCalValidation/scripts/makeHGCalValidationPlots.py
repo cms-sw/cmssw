@@ -43,7 +43,7 @@ def main(opts):
     filenames = [(f, f.replace(".root", "")) for f in opts.files]
     sample = SimpleSample(opts.subdirprefix[0], opts.html_sample, filenames)
   
-    val = SimpleValidation([sample], opts.outputDir[0])
+    val = SimpleValidation([sample], opts.outputDir[0], nProc=opts.jobs)
     if opts.separate:
         val = SeparateValidation([sample], opts.outputDir[0])
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name[0])   
@@ -144,6 +144,8 @@ if __name__ == "__main__":
                         help="Choose output plots collections among possible choices")    
     parser.add_argument("--extended", action="store_true", default = False,
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
+    parser.add_argument("--jobs", default=0, type=int,
+                        help="Number of jobs to run in parallel for generating plots. Default is 0 i.e. run number of cpu cores jobs.")
     parser.add_argument("--verbose", action="store_true", default = False,
                         help="Be verbose")
 

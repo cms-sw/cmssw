@@ -36,7 +36,7 @@ def main(opts):
     if opts.verbose:
         plotting.verbose = True
 
-    val = SimpleValidation([sample], opts.outputDir)
+    val = SimpleValidation([sample], opts.outputDir, nProc=opts.jobs)
     htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
 
     limitProcessing = LimitTrackAlgo(opts.limit_tracking_algo, includePtCut=opts.ptcut)
@@ -110,6 +110,8 @@ if __name__ == "__main__":
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", default="",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
+    parser.add_argument("--jobs", default=0, type=int,
+                        help="Number of jobs to run in parallel for generating plots. Default is 0 i.e. run number of cpu cores jobs.")
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
 
