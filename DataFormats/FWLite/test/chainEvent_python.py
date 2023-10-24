@@ -3,7 +3,6 @@
 from __future__ import print_function
 from builtins import range
 from DataFormats.FWLite import Events, Handle
-import optparse
 
 print("starting python test")
 
