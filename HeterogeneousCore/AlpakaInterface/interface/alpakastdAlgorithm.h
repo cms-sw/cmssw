@@ -8,7 +8,8 @@
 #include <alpaka/alpaka.hpp>
 
 // reimplementation of std algorithms able to compile with Alpaka,
-// mostly by declaring them constexpr
+// mostly by declaring them constexpr (until C++20, which will make it
+// constexpr by default. TODO: drop when moving to C++20)
 
 namespace alpaka_std {
 
