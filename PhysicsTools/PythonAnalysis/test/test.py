@@ -10,7 +10,7 @@ if __name__=="__main__":
 
         def setUp(self):
             self._r=filereader()
-            self._d=difference(str(2))
+            self._d=difference(2)
 
         def testStartswith(self):
             """ Check the method startswith() of class filereader

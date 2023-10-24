@@ -9,20 +9,18 @@
 #
 # author:  Annapaola de Cosa
 
-from optparse import OptionParser
+from argparse import ArgumentParser
 import sys
 from subprocess import Popen, PIPE, STDOUT
 from PhysicsTools.PythonAnalysis.readProv import *
 from PhysicsTools.PythonAnalysis.diffProv import *
 
-
-usage = "usage: %prog filename1 filename2"
-parser = OptionParser(usage=usage, version="%prog 0.1")
-parser.add_option("-v", "--verbosity_level", dest="verbose", help="[0] to print short message [1], to print details about the differences of modules common to both files, [2] to print all the details about the differences between the two files")
-(options, args) = parser.parse_args()
-
-if len(args) != 2:
-    parser.error('Please specify two EDM files to compare')
+parser = ArgumentParser()
+parser.add_argument('--version', action='version', version='%(prog)s 0.1')
+parser.add_argument("-v", "--verbosity_level", dest="verbose", choices=(0,1,2), help="[0] to print short message [1], to print details about the differences of modules common to both files, [2] to print all the details about the differences between the two files")
+parser.add_argument("filename1",type=str)
+parser.add_argument("filename2",type=str)
+options = parser.parse_args()
 
 def provenance(args):
     cmd="edmProvDump "+args    
@@ -37,15 +35,11 @@ def provenance(args):
     file.write(provenance)
 
     return s
-try:
-    prov1=provenance(args[0])
-    prov2=provenance(args[1])
-except IndexError:
-    print "Specify input file names\nType 'edmProvDiff -h' to visualize the arguments needed"     
+
+prov1=provenance(options.filename1)
+prov2=provenance(options.filename2)
 f=filereader()
 module1=f.readfile(prov1)
 module2=f.readfile(prov2)
 d=difference(options.verbose)
-d.module_diff(module1,module2,args[0],args[1])
-
-                                                            
+d.module_diff(module1,module2,options.filename1,options.filename2)
