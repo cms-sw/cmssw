@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 __version__ = "$Revision: 1.19 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
@@ -62,7 +61,7 @@ defaultOptions.hltProcess = ''
 defaultOptions.eventcontent = None
 defaultOptions.datatier = None
 defaultOptions.inlineEventContent = True
-defaultOptions.inlineObjets =''
+defaultOptions.inlineObjects =''
 defaultOptions.hideGen=False
 from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey,VtxSmearedHIDefaultKey
 defaultOptions.beamspot=None
@@ -87,10 +86,10 @@ defaultOptions.runsAndWeightsForMCIntegerWeights = None
 defaultOptions.runsScenarioForMCIntegerWeights = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
-defaultOptions.nThreads = '1'
-defaultOptions.nStreams = '0'
-defaultOptions.nConcurrentLumis = '0'
-defaultOptions.nConcurrentIOVs = '0'
+defaultOptions.nThreads = 1
+defaultOptions.nStreams = 0
+defaultOptions.nConcurrentLumis = 0
+defaultOptions.nConcurrentIOVs = 0
 defaultOptions.accelerators = None
 
 # some helper routines
@@ -425,9 +424,9 @@ class ConfigBuilder(object):
 
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
-        self.process.maxEvents.input = int(self._options.number)
+        self.process.maxEvents.input = self._options.number
         if self._options.number_out:
-            self.process.maxEvents.output = int(self._options.number_out)
+            self.process.maxEvents.output = self._options.number_out
         self.addedObjects.append(("","maxEvents"))
 
     def addSource(self):
@@ -794,7 +793,7 @@ class ConfigBuilder(object):
                 #the file is local
                 self.process.load(mixingDict['file'])
                 print("inlining mixing module configuration")
-                self._options.inlineObjets+=',mix'
+                self._options.inlineObjects+=',mix'
             else:
                 self.loadAndRemember(mixingDict['file'])
 
@@ -1352,8 +1351,8 @@ class ConfigBuilder(object):
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
                 if shortName in AlCaNoConcurrentLumis:
                     print("Setting numberOfConcurrentLuminosityBlocks=1 because of AlCa sequence {}".format(shortName))
-                    self._options.nConcurrentLumis = "1"
-                    self._options.nConcurrentIOVs = "1"
+                    self._options.nConcurrentLumis = 1
+                    self._options.nConcurrentIOVs = 1
                 output = self.addExtraStream(name,alcastream, workflow = workflow)
                 self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
                 self.AlCaPaths.append(shortName)
@@ -1404,9 +1403,9 @@ class ConfigBuilder(object):
         __import__(loadFragment)
         self.process.load(loadFragment)
         ##inline the modules
-        self._options.inlineObjets+=','+stepSpec
+        self._options.inlineObjects+=','+stepSpec
 
-        getattr(self.process,stepSpec).nEvents = int(self._options.number)
+        getattr(self.process,stepSpec).nEvents = self._options.number
 
         #schedule it
         self.process.lhe_step = cms.Path( getattr( self.process,stepSpec)  )
@@ -1453,13 +1452,13 @@ class ConfigBuilder(object):
                 for name in genModules:
                     theObject = getattr(generatorModule,name)
                     if isinstance(theObject, cmstypes._Module):
-                        self._options.inlineObjets=name+','+self._options.inlineObjets
+                        self._options.inlineObjects=name+','+self._options.inlineObjects
                         if theObject.type_() in noConcurrentLumiGenerators:
                             print("Setting numberOfConcurrentLuminosityBlocks=1 because of generator {}".format(theObject.type_()))
-                            self._options.nConcurrentLumis = "1"
-                            self._options.nConcurrentIOVs = "1"
+                            self._options.nConcurrentLumis = 1
+                            self._options.nConcurrentIOVs = 1
                     elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
-                        self._options.inlineObjets+=','+name
+                        self._options.inlineObjects+=','+name
 
             if stepSpec == self.GENDefaultSeq or stepSpec == 'pgen_genonly' or stepSpec == 'pgen_smear':
                 if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
@@ -1709,8 +1708,8 @@ class ConfigBuilder(object):
 
         expander=PrintAllModules()
         getattr(self.process,filterSeq).visit( expander )
-        self._options.inlineObjets+=','+expander.inliner
-        self._options.inlineObjets+=','+filterSeq
+        self._options.inlineObjects+=','+expander.inliner
+        self._options.inlineObjects+=','+filterSeq
 
         ## put the filtering path in the schedule
         self.scheduleSequence(filterSeq,'filtering_step')
@@ -2286,7 +2285,7 @@ class ConfigBuilder(object):
             self.pythonCfgCode += command + "\n"
 
         #comma separated list of objects that deserve to be inlined in the configuration (typically from a modified config deep down)
-        for object in self._options.inlineObjets.split(','):
+        for object in self._options.inlineObjects.split(','):
             if not object:
                 continue
             if not hasattr(self.process,object):
@@ -2345,7 +2344,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        overrideThreads = (self._options.nThreads != "1")
+        overrideThreads = (self._options.nThreads != 1)
         overrideConcurrentLumis = (self._options.nConcurrentLumis != defaultOptions.nConcurrentLumis)
         overrideConcurrentIOVs = (self._options.nConcurrentIOVs != defaultOptions.nConcurrentIOVs)
 
@@ -2353,16 +2352,16 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
             if overrideThreads:
-                self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
-                self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
-                self.process.options.numberOfThreads = int(self._options.nThreads)
-                self.process.options.numberOfStreams = int(self._options.nStreams)
+                self.pythonCfgCode +="process.options.numberOfThreads = {}\n".format(self._options.nThreads)
+                self.pythonCfgCode +="process.options.numberOfStreams = {}\n".format(self._options.nStreams)
+                self.process.options.numberOfThreads = self._options.nThreads
+                self.process.options.numberOfStreams = self._options.nStreams
             if overrideConcurrentLumis:
-                self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
-                self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
+                self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = {}\n".format(self._options.nConcurrentLumis)
+                self.process.options.numberOfConcurrentLuminosityBlocks = self._options.nConcurrentLumis
             if overrideConcurrentIOVs:
-                self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
-                self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+                self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = {}\n".format(self._options.nConcurrentIOVs)
+                self.process.options.eventSetup.numberOfConcurrentIOVs = self._options.nConcurrentIOVs
 
         if self._options.accelerators is not None:
             accelerators = self._options.accelerators.split(',')
