@@ -93,9 +93,9 @@ public:
       tauPtCorr = &event.get(tauPtCorrToken_);
 
     if (taus.size() != tauTags.size())
-      throw cms::Exception("Inconsistent Data", "PNetTauTagFilter::hltFilter") << "taus.size() != tauTags.size()";
+      throw cms::Exception("Inconsistent Data", "TauTagFilter::hltFilter") << "taus.size() != tauTags.size()";
     if (usePtCorr_ && taus.size() != tauPtCorr->size())
-      throw cms::Exception("Inconsistent Data", "PNetTauTagFilter::hltFilter") << "taus.size() != tauPtCorr.size()";
+      throw cms::Exception("Inconsistent Data", "TauTagFilter::hltFilter") << "taus.size() != tauPtCorr.size()";
 
     for (size_t tau_idx = 0; tau_idx < taus.size(); ++tau_idx) {
       const auto& tau = taus[tau_idx];
@@ -133,7 +133,7 @@ private:
         } else if (seedType == trigger::TriggerJet) {
           extractMomenta<std::vector<reco::PFJetRef>>(seeds, seedType, seed_p4s);
         } else
-          throw cms::Exception("Invalid seed type", "PNetTauTagFilter::hltFilter")
+          throw cms::Exception("Invalid seed type", "TauTagFilter::extractMomenta")
               << "Unsupported seed type: " << seedType;
       }
     }
