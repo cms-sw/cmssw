@@ -534,6 +534,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         RejectMouseBite  = cms.bool(False),
         RotatedWafer     = cms.bool(False),
         CornerMinMask    = cms.int32(0),
+        HitCollection    = cms.int32(1),
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),
         WaferSize        = cms.untracked.double(123.7),
         MouseBite        = cms.untracked.double(2.5),
@@ -735,4 +736,10 @@ hgcaltb.toModify(g4SimHits,
                      TestBeam = True ),
                  HCalSD = dict(
                      ForTBHCAL = True)
+)
+
+from Configuration.Eras.Modifier_phase2_hgcalV18_cff import phase2_hgcalV18
+phase2_hgcalV18.toModify(g4SimHits,
+                 HGCSD = dict(
+                     HitCollection = 2)
 )

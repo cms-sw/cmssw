@@ -24,7 +24,7 @@ void HGCMouseBite::init(const std::vector<double>& angle) {
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCMosueBite with cut at " << cut_ << " with mode " << modeUV_ << " along "
-                             << angle.size() << " axes";
+                             << angle.size() << " axes TB Flag " << ifTB_ << " Rot " << rot_;
   for (unsigned int k = 0; k < angle.size(); ++k)
     edm::LogVerbatim("HGCSim") << "Axis[" << k << "] " << angle[k] << " with projections " << projXY_[k].first << ":"
                                << projXY_[k].second;

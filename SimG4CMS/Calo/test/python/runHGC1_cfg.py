@@ -24,8 +24,12 @@ print(options)
 
 ####################################################################
 
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-process = cms.Process("PROD",Phase2C11)
+if (options.geometry == "V18"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("PROD",Phase2C22I13M9)
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("PROD",Phase2C17I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "Reco_cff"
 print("Geometry file: ", geomFile)
@@ -46,6 +50,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.G4cout = dict()
     process.MessageLogger.G4cerr = dict()
     process.MessageLogger.HGCSim = dict()
+    process.MessageLogger.CaloSim = dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
