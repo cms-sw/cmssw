@@ -306,6 +306,50 @@ process.hltParticleFlowAlpakaToLegacyPFRecHits = cms.EDProducer("LegacyPFRecHitP
 )
 
 
+#####################################
+##       PFRecHit validation       ##
+#####################################
+# Validate legacy format from legacy module vs SoA format from Alpaka module
+# This is the main Alpaka vs legacy test
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.hltParticleFlowPFRecHitComparison = DQMEDAnalyzer("PFRecHitProducerTest",
+    #caloRecHits = cms.untracked.InputTag("hltParticleFlowRecHitToSoA"),
+    pfRecHitsSource1 = cms.untracked.InputTag("hltParticleFlowRecHit"),
+    pfRecHitsSource2 = cms.untracked.InputTag("hltParticleFlowPFRecHitAlpaka"),
+    pfRecHitsType1 = cms.untracked.string("legacy"),
+    pfRecHitsType2 = cms.untracked.string("alpaka"),
+    title = cms.untracked.string("Legacy vs Alpaka"),
+    dumpFirstEvent = cms.untracked.bool(args.debug == 1),
+    dumpFirstError = cms.untracked.bool(args.debug == -1),
+    strictCompare = cms.untracked.bool(True)
+)
+
+# Validate legacy format from legacy module vs legacy format from Alpaka module
+process.hltParticleFlowAlpakaToLegacyPFRecHitsComparison1 = DQMEDAnalyzer("PFRecHitProducerTest",
+    pfRecHitsSource1 = cms.untracked.InputTag("hltParticleFlowRecHit"),
+    pfRecHitsSource2 = cms.untracked.InputTag("hltParticleFlowAlpakaToLegacyPFRecHits"),
+    pfRecHitsType1 = cms.untracked.string("legacy"),
+    pfRecHitsType2 = cms.untracked.string("legacy"),
+    title = cms.untracked.string("Legacy vs Legacy-from-Alpaka"),
+    dumpFirstEvent = cms.untracked.bool(args.debug == 2),
+    dumpFirstError = cms.untracked.bool(args.debug == -2),
+    strictCompare = cms.untracked.bool(True)
+)
+
+# Validate SoA format from Alpaka module vs legacy format from Alpaka module
+# This tests the SoA-to-legacy conversion module
+process.hltParticleFlowAlpakaToLegacyPFRecHitsComparison2 = DQMEDAnalyzer("PFRecHitProducerTest",
+    pfRecHitsSource1 = cms.untracked.InputTag("hltParticleFlowPFRecHitAlpaka"),
+    pfRecHitsSource2 = cms.untracked.InputTag("hltParticleFlowAlpakaToLegacyPFRecHits"),
+    pfRecHitsType1 = cms.untracked.string("alpaka"),
+    pfRecHitsType2 = cms.untracked.string("legacy"),
+    title = cms.untracked.string("Alpaka vs Legacy-from-Alpaka"),
+    dumpFirstEvent = cms.untracked.bool(args.debug == 3),
+    dumpFirstError = cms.untracked.bool(args.debug == -3),
+    strictCompare = cms.untracked.bool(True)
+)
+
+
 # Additional customization
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltParticleFlowRecHitToSoA_*_*')
@@ -319,7 +363,10 @@ else:  # ecal
     path += process.hltParticleFlowRecHitEBToSoA   # Convert legacy calorimeter hits to SoA (ECAL barrel)
     path += process.hltParticleFlowRecHitEEToSoA   # Convert legacy calorimeter hits to SoA (ECAL endcap)
 path += process.hltParticleFlowPFRecHitAlpaka      # Construct PFRecHits SoA
+path += process.hltParticleFlowPFRecHitComparison  # Validate Alpaka vs CPU
 path += process.hltParticleFlowAlpakaToLegacyPFRecHits             # Convert Alpaka PFRecHits SoA to legacy format
+path += process.hltParticleFlowAlpakaToLegacyPFRecHitsComparison1  # Validate legacy-format-from-alpaka vs regular legacy format
+path += process.hltParticleFlowAlpakaToLegacyPFRecHitsComparison2  # Validate Alpaka format vs legacy-format-from-alpaka
 
 process.PFRecHitAlpakaValidationTask = cms.EndPath(path)
 process.schedule = cms.Schedule(process.PFRecHitAlpakaValidationTask)
