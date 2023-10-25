@@ -44,12 +44,11 @@ CaloSD::CaloSD(const std::string& name,
       ignoreTrackID(ignoreTkID),
       timeSlice(timeSliceUnit),
       eminHitD(0.) {
-
   initCalo(name, "", p);
 }
 
 CaloSD::CaloSD(const std::string& name,
-	       const std::string& newcollName,
+               const std::string& newcollName,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager,
@@ -63,7 +62,6 @@ CaloSD::CaloSD(const std::string& name,
       ignoreTrackID(ignoreTkID),
       timeSlice(timeSliceUnit),
       eminHitD(0.) {
-
   initCalo(name, newcollName, p);
 }
 
@@ -210,7 +208,7 @@ void CaloSD::newCollection(const std::string& name, edm::ParameterSet const& p) 
   edm::LogVerbatim("CaloSim") << "CaloSD:: Initialise a second collection for " << name;
   for (int k = 0; k < nHC_; ++k)
     edm::LogVerbatim("CaloSim") << "Detector[" << k << "]" << detName_ << " collection " << collName_[k];
-  
+
 #endif
 }
 
@@ -408,10 +406,9 @@ bool CaloSD::isItFineCalo(const G4VTouchable* touch) {
   return ok;
 }
 
-void CaloSD::Initialize(G4HCofThisEvent* HCE) { 
-
+void CaloSD::Initialize(G4HCofThisEvent* HCE) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD : Initialize called for " << detName_;
+  edm::LogVerbatim("CaloSim") << "CaloSD : Initialize called for " << detName_;
 #endif
 
   for (int k = 0; k < nHC_; ++k) {
@@ -427,7 +424,8 @@ void CaloSD::Initialize(G4HCofThisEvent* HCE) {
     //theHC ownership is transfered here to HCE
     HCE->AddHitsCollection(hcID[k], theHC[k]);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD : Add hits collection for " << hcID[k] << " for " << k << ":" << detName_ << ":" << collName_[k];
+    edm::LogVerbatim("CaloSim") << "CaloSD : Add hits collection for " << hcID[k] << " for " << k << ":" << detName_
+                                << ":" << collName_[k];
 #endif
   }
 }
@@ -934,7 +932,7 @@ int CaloSD::setTrackID(const G4Step* aStep) {
 
 uint16_t CaloSD::getDepth(const G4Step*) { return 0; }
 
-void CaloSD::processSecondHit(const G4Step*, const G4Track*) { }
+void CaloSD::processSecondHit(const G4Step*, const G4Track*) {}
 
 bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
   double emin(eminHit);

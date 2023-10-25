@@ -36,7 +36,7 @@ protected:
   void update(const BeginOfJob *) override;
   void initRun() override;
   bool filterHit(CaloG4Hit *, double) override;
-  void processSecondHit(const G4Step*, const G4Track*) override;
+  void processSecondHit(const G4Step *, const G4Track *) override;
 
 private:
   uint32_t setDetUnitId(int, int, int, int, G4ThreeVector &);

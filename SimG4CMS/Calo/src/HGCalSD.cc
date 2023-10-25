@@ -36,7 +36,7 @@ HGCalSD::HGCalSD(const std::string& name,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
     : CaloSD(name,
-	     ("Calibration"+name),
+             ("Calibration" + name),
              clg,
              p,
              manager,
@@ -144,7 +144,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   fraction_ = 1.0;
   calibCell_ = false;
   int dn = touch->GetHistoryDepth();
-  
+
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "DepthsTop: " << dn << ":" << levelT1_ << ":" << levelT2_;
   printDetectorLevels(touch);
@@ -153,7 +153,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   G4ThreeVector hitPoint = preStepPoint->GetPosition();
   float globalZ = touch->GetTranslation(0).z();
   int iz(globalZ > 0 ? 1 : -1);
-  
+
   int layer(0), moduleLev(-1), cell(-1);
   if (useSimWt_ > 0) {
     layer = touch->GetReplicaNumber(2);
@@ -188,7 +188,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   // The following statement should be examined later before elimination
   if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.)
     return 0;
-  
+
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
   if ((rejectMB_ || fiducialCut_) && id != 0) {
     auto uv = HGCSiliconDetId(id).waferUV();
@@ -197,7 +197,12 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 #endif
     G4ThreeVector local = (touch->GetHistory()->GetTransform(dn - moduleLev).TransformPoint(hitPoint));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "Global Point " << hitPoint << " Down0 " << touch->GetHistory()->GetTransform(dn).TransformPoint(hitPoint) << " Down1 " << touch->GetHistory()->GetTransform(dn-1).TransformPoint(hitPoint) << " Down2 " << touch->GetHistory()->GetTransform(dn-2).TransformPoint(hitPoint) << " Down3 " << touch->GetHistory()->GetTransform(dn-3).TransformPoint(hitPoint) << " Local " << local;
+    edm::LogVerbatim("HGCSim") << "Global Point " << hitPoint << " Down0 "
+                               << touch->GetHistory()->GetTransform(dn).TransformPoint(hitPoint) << " Down1 "
+                               << touch->GetHistory()->GetTransform(dn - 1).TransformPoint(hitPoint) << " Down2 "
+                               << touch->GetHistory()->GetTransform(dn - 2).TransformPoint(hitPoint) << " Down3 "
+                               << touch->GetHistory()->GetTransform(dn - 3).TransformPoint(hitPoint) << " Local "
+                               << local;
 #endif
     if (fiducialCut_) {
       int layertype = hgcons_->layerType(layer);
@@ -252,10 +257,10 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       hgcons_->locateCell(hid1, true);
     }
   }
-  
+
   if ((id != 0) && calibCells_)
     calibCell_ = calibCell(id);
-  
+
   return id;
 }
 
@@ -345,7 +350,7 @@ bool HGCalSD::filterHit(CaloG4Hit* aHit, double time) {
 void HGCalSD::processSecondHit(const G4Step* aStep, const G4Track* theTrack) {
   if (calibCell_) {
     float edEM(edepositEM), edHad(edepositHAD);
-    currentID[1] = currentID[0]; 
+    currentID[1] = currentID[0];
     edepositEM *= fraction_;
     edepositHAD *= fraction_;
     if (!hitExists(aStep, 1)) {
@@ -366,7 +371,7 @@ uint32_t HGCalSD::setDetUnitId(int layer, int module, int cell, int iz, G4ThreeV
   }
   if (hgcons_->waferHexagon8File() || (id == 0))
     ignoreRejection();
-  
+
   return id;
 }
 
@@ -397,12 +402,13 @@ bool HGCalSD::calibCell(const uint32_t& id) {
     double bot = cellOffset_->cellAreaUV(cellU, cellV, place, type, true);
     fraction_ = (bot > 0 && bot > num) ? (num / bot) : 1.0;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << HGCSiliconDetId(id) << " CalibrationCell flag " << flag << " and fraction " << num << ":" << bot << ":" << fraction_;
+    edm::LogVerbatim("HGCSim") << HGCSiliconDetId(id) << " CalibrationCell flag " << flag << " and fraction " << num
+                               << ":" << bot << ":" << fraction_;
 #endif
   } else {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << HGCSiliconDetId(id) << " CalibrationCell flag " << flag;
 #endif
   }
- return flag;
+  return flag;
 }

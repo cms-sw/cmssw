@@ -52,7 +52,7 @@ public:
          float timeSlice = 1.,
          bool ignoreTkID = false);
   CaloSD(const std::string& aSDname,
-	 const std::string& newcolname,
+         const std::string& newcolname,
          const SensitiveDetectorCatalog& clg,
          edm::ParameterSet const& p,
          const SimTrackManager*,

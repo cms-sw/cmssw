@@ -36,7 +36,10 @@ SensitiveDetector::SensitiveDetector(const std::string& iname, const SensitiveDe
                                         << ss.str() << " with collection " << iname;
 }
 
-SensitiveDetector::SensitiveDetector(const std::string& iname, const std::string& newcollname, const SensitiveDetectorCatalog& clg, bool calo)
+SensitiveDetector::SensitiveDetector(const std::string& iname,
+                                     const std::string& newcollname,
+                                     const SensitiveDetectorCatalog& clg,
+                                     bool calo)
     : G4VSensitiveDetector(iname), m_isCalo(calo) {
   // for CMS hits
   m_namesOfSD.push_back(iname);
