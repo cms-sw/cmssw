@@ -272,6 +272,34 @@ else:  # ecal
     process.hltParticleFlowRecHitParamsESProducer = cms.ESProducer(alpaka_backend_str % "PFRecHitECALParamsESProducer",
         cleaningThreshold = cms.double(2))
 
+# Construct PFRecHitSoA
+if hcal:
+    process.hltParticleFlowPFRecHitAlpaka = cms.EDProducer(alpaka_backend_str % "PFRecHitSoAProducerHCAL",
+        producers = cms.VPSet(
+            cms.PSet(
+                src = cms.InputTag("hltParticleFlowRecHitToSoA"),
+                params = cms.ESInputTag("hltParticleFlowRecHitParamsESProducer:"),
+            )
+        ),
+        topology = cms.ESInputTag("hltParticleFlowRecHitTopologyESProducer:"),
+        synchronise = cms.untracked.bool(args.synchronise)
+    )
+else:  # ecal
+    process.hltParticleFlowPFRecHitAlpaka = cms.EDProducer(alpaka_backend_str % "PFRecHitSoAProducerECAL",
+        producers = cms.VPSet(
+            cms.PSet(
+                src = cms.InputTag("hltParticleFlowRecHitEBToSoA"),
+                params = cms.ESInputTag("hltParticleFlowRecHitParamsESProducer:")
+            ),
+            cms.PSet(
+                src = cms.InputTag("hltParticleFlowRecHitEEToSoA"),
+                params = cms.ESInputTag("hltParticleFlowRecHitParamsESProducer:")
+            )
+        ),
+        topology = cms.ESInputTag("hltParticleFlowRecHitTopologyESProducer:"),
+        synchronise = cms.untracked.bool(args.synchronise)
+    )
+
 
 # Additional customization
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
@@ -285,6 +313,7 @@ if hcal:
 else:  # ecal
     path += process.hltParticleFlowRecHitEBToSoA   # Convert legacy calorimeter hits to SoA (ECAL barrel)
     path += process.hltParticleFlowRecHitEEToSoA   # Convert legacy calorimeter hits to SoA (ECAL endcap)
+path += process.hltParticleFlowPFRecHitAlpaka      # Construct PFRecHits SoA
 
 process.PFRecHitAlpakaValidationTask = cms.EndPath(path)
 process.schedule = cms.Schedule(process.PFRecHitAlpakaValidationTask)
