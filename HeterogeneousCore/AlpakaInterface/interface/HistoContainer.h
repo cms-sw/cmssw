@@ -57,41 +57,41 @@ namespace cms {
 
     template <typename TAcc, typename Histo, typename T, typename TQueue>
     ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
-                                                                  uint32_t nh,
-                                                                  T const *v,
-                                                                  uint32_t const *offsets,
-                                                                  uint32_t totSize,
-                                                                  uint32_t nthreads,
-                                                                  TQueue &queue) {
-      Histo:: template launchZero<TAcc>(h, queue);
+                                             uint32_t nh,
+                                             T const *v,
+                                             uint32_t const *offsets,
+                                             uint32_t totSize,
+                                             uint32_t nthreads,
+                                             TQueue &queue) {
+      Histo::template launchZero<TAcc>(h, queue);
 
       const auto threadsPerBlockOrElementsPerThread = nthreads;
       const auto blocksPerGrid = divide_up_by(totSize, nthreads);
       const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
 
       alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, offsets);
-      Histo:: template launchFinalize<TAcc>(h, queue);
+      Histo::template launchFinalize<TAcc>(h, queue);
 
       alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, offsets);
     }
 
     template <typename TAcc, typename Histo, typename T, typename TQueue>
     ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
-                                                                  typename Histo::View hv,
-                                                                  uint32_t nh,
-                                                                  T const *v,
-                                                                  uint32_t const *offsets,
-                                                                  uint32_t totSize,
-                                                                  uint32_t nthreads,
-                                                                  TQueue &queue) {
-      Histo:: template launchZero<TAcc>(hv, queue);
+                                             typename Histo::View hv,
+                                             uint32_t nh,
+                                             T const *v,
+                                             uint32_t const *offsets,
+                                             uint32_t totSize,
+                                             uint32_t nthreads,
+                                             TQueue &queue) {
+      Histo::template launchZero<TAcc>(hv, queue);
 
       const auto threadsPerBlockOrElementsPerThread = nthreads;
       const auto blocksPerGrid = divide_up_by(totSize, nthreads);
       const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
 
       alpaka::exec<TAcc>(queue, workDiv, /* Histo:: */ countFromVector(), h, nh, v, offsets);
-      Histo:: template launchFinalize<TAcc>(h, queue);
+      Histo::template launchFinalize<TAcc>(h, queue);
 
       alpaka::exec<TAcc>(queue, workDiv, /* Histo:: */ fillFromVector(), h, nh, v, offsets);
     }

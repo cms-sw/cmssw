@@ -29,16 +29,13 @@ namespace cms {
       using index_type = I;
 
       struct View {
-//        using OneToManyAssocBase::Counter;
-//        using OneToManyAssocBase::index_type;
-
         OneToManyAssocBase *assoc = nullptr;
         Counter *offStorage = nullptr;
         index_type *contentStorage = nullptr;
         int32_t offSize = -1;
         int32_t contentSize = -1;
       };
-      
+
       static constexpr int32_t ctNOnes() { return ONES; }
       constexpr auto totOnes() const { return off.capacity(); }
       constexpr auto nOnes() const { return totOnes() - 1; }
@@ -149,9 +146,7 @@ namespace cms {
         }
       }
 
-      constexpr auto size() const {
-        return uint32_t(off[totOnes() - 1]);
-      }
+      constexpr auto size() const { return uint32_t(off[totOnes() - 1]); }
       constexpr auto size(uint32_t b) const { return off[b + 1] - off[b]; }
 
       constexpr index_type const *begin() const { return content.data(); }
@@ -164,20 +159,18 @@ namespace cms {
       FlexiStorage<index_type, SIZE> content;
       int32_t psws;  // prefix-scan working space
     };
-    
+
     template <typename I,    // type stored in the container (usually an index in a vector of the input values)
               int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
               int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
               >
-    class OneToManyAssocSequential: public OneToManyAssocBase<I, ONES, SIZE> {
+    class OneToManyAssocSequential : public OneToManyAssocBase<I, ONES, SIZE> {
     public:
       using index_type = typename OneToManyAssocBase<I, ONES, SIZE>::index_type;
-      
+
       template <typename TAcc>
-      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int32_t bulkFill(const TAcc &acc,
-                                                                                AtomicPairCounter &apc,
-                                                                                index_type const *v,
-                                                                                uint32_t n) {
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int32_t
+      bulkFill(const TAcc &acc, AtomicPairCounter &apc, index_type const *v, uint32_t n) {
         auto c = apc.inc_add(acc, n);
         if (int(c.first) >= this->nOnes())
           return -int32_t(c.first);
@@ -192,8 +185,7 @@ namespace cms {
       }
 
       template <typename TAcc>
-      ALPAKA_FN_HOST_ACC  ALPAKA_FN_INLINE void bulkFinalizeFill(TAcc &acc,
-                                                                                     AtomicPairCounter const &apc) {
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void bulkFinalizeFill(TAcc &acc, AtomicPairCounter const &apc) {
         int f = apc.get().first;
         auto s = apc.get().second;
         if (f >= this->nOnes()) {  // overflow!
@@ -205,24 +197,26 @@ namespace cms {
           this->off[i] = s;
         }
       }
-      
+
       struct finalizeBulk {
         template <typename TAcc>
-        ALPAKA_FN_ACC void operator()(const TAcc &acc, AtomicPairCounter const *apc, OneToManyAssocSequential *__restrict__ assoc) const {
+        ALPAKA_FN_ACC void operator()(const TAcc &acc,
+                                      AtomicPairCounter const *apc,
+                                      OneToManyAssocSequential *__restrict__ assoc) const {
           assoc->bulkFinalizeFill(acc, *apc);
         }
       };
     };
-    
+
     template <typename I,    // type stored in the container (usually an index in a vector of the input values)
               int32_t ONES,  // number of "Ones"  +1. If -1 is initialized at runtime using external storage
               int32_t SIZE   // max number of element. If -1 is initialized at runtime using external storage
               >
-    class OneToManyAssocRandomAccess: public OneToManyAssocBase<I, ONES, SIZE> {
+    class OneToManyAssocRandomAccess : public OneToManyAssocBase<I, ONES, SIZE> {
     public:
       using Counter = typename OneToManyAssocBase<I, ONES, SIZE>::Counter;
       using View = typename OneToManyAssocBase<I, ONES, SIZE>::View;
-      
+
       template <typename TAcc>
       ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize(TAcc &acc, Counter *ws = nullptr) {
         ALPAKA_ASSERT_OFFLOAD(this->off[this->totOnes() - 1] == 0);
@@ -235,8 +229,7 @@ namespace cms {
         for (uint32_t i = 1; static_cast<int>(i) < this->totOnes(); ++i)
           this->off[i] += this->off[i - 1];
       }
-      
-      
+
       template <typename TAcc, typename TQueue>
       ALPAKA_FN_INLINE static void launchFinalize(OneToManyAssocRandomAccess *h, TQueue &queue) {
         View view = {h, nullptr, nullptr, -1, -1};
@@ -276,7 +269,6 @@ namespace cms {
         }
       }
     };
-
 
   }  // namespace alpakatools
 }  // namespace cms

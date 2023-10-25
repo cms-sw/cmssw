@@ -209,11 +209,11 @@ int main() {
     const auto blocksPerGrid4N = divide_up_by(4 * N, threadsPerBlockOrElementsPerThread);
     const auto workDiv4N = make_workdiv<Acc1D>(blocksPerGrid4N, threadsPerBlockOrElementsPerThread);
 
-    AssocRandomAccess:: template launchZero<Acc1D>(ara_d.data(), queue);
+    AssocRandomAccess::template launchZero<Acc1D>(ara_d.data(), queue);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv4N, count(), v_d.data(), ara_d.data(), N));
 
-    AssocRandomAccess:: template launchFinalize<Acc1D>(ara_d.data(), queue);
+    AssocRandomAccess::template launchFinalize<Acc1D>(ara_d.data(), queue);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(WorkDiv1D{1u, 1u, 1u}, verify(), ara_d.data()));
 
@@ -270,8 +270,8 @@ int main() {
     alpaka::enqueue(queue,
                     alpaka::createTaskKernel<Acc1D>(workDiv, fillBulk(), dc_d.data(), v_d.data(), sa_d.data(), N));
 
-    alpaka::enqueue(
-        queue, alpaka::createTaskKernel<Acc1D>(workDiv, SmallAssoc::finalizeBulk(), dc_d.data(), sa_d.data()));
+    alpaka::enqueue(queue,
+                    alpaka::createTaskKernel<Acc1D>(workDiv, SmallAssoc::finalizeBulk(), dc_d.data(), sa_d.data()));
 
     alpaka::enqueue(queue,
                     alpaka::createTaskKernel<Acc1D>(WorkDiv1D{1u, 1u, 1u}, verifyBulk(), sa_d.data(), dc_d.data()));
@@ -299,8 +299,8 @@ int main() {
     auto m2_d = make_device_buffer<Multiplicity>(queue);
     alpaka::memset(queue, m2_d, 0);
 
-    Multiplicity:: template launchZero<Acc1D>(m1_d.data(), queue);
-    Multiplicity:: template launchZero<Acc1D>(m2_d.data(), queue);
+    Multiplicity::template launchZero<Acc1D>(m1_d.data(), queue);
+    Multiplicity::template launchZero<Acc1D>(m2_d.data(), queue);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv4N, countMulti(), v_d.data(), m1_d.data(), N));
 
@@ -312,8 +312,8 @@ int main() {
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivTotBins, verifyMulti(), m1_d.data(), m2_d.data()));
 
-    Multiplicity:: launchFinalize<Acc1D>(m1_d.data(), queue);
-    Multiplicity:: launchFinalize<Acc1D>(m2_d.data(), queue);
+    Multiplicity::launchFinalize<Acc1D>(m1_d.data(), queue);
+    Multiplicity::launchFinalize<Acc1D>(m2_d.data(), queue);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDivTotBins, verifyMulti(), m1_d.data(), m2_d.data()));
 
