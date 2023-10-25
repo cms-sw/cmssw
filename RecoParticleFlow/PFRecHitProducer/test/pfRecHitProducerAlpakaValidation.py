@@ -249,6 +249,29 @@ else:  # ecal
         synchronise = cms.untracked.bool(args.synchronise)
     )
 
+# Construct topology and cut parameter information
+process.pfRecHitTopologyRecordSource = cms.ESSource('EmptyESSource',
+    recordName = cms.string(f'PFRecHit{CAL}TopologyRecord'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+if hcal:
+    # This is not necessary for ECAL, since an existing record can be reused
+    process.pfRecHitParamsRecordSource = cms.ESSource('EmptyESSource',
+        recordName = cms.string(f'PFRecHit{CAL}ParamsRecord'),
+        iovIsRunNotTime = cms.bool(True),
+        firstValid = cms.vuint32(1)
+    )
+process.hltParticleFlowRecHitTopologyESProducer = cms.ESProducer(alpaka_backend_str % f"PFRecHit{CAL}TopologyESProducer")
+if hcal:
+    process.hltParticleFlowRecHitParamsESProducer = cms.ESProducer(alpaka_backend_str % "PFRecHitHCALParamsESProducer",
+        energyThresholdsHB = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
+        energyThresholdsHE = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
+    )
+else:  # ecal
+    process.hltParticleFlowRecHitParamsESProducer = cms.ESProducer(alpaka_backend_str % "PFRecHitECALParamsESProducer",
+        cleaningThreshold = cms.double(2))
+
 
 # Additional customization
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
