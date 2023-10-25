@@ -160,7 +160,7 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
 
   //anomaly trigger loading
   model = loader.load_model();
-  produces<float>("anomalyScore");
+  produces<float>("CICADAScore");
 }
 
 //
@@ -174,7 +174,7 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
 
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
 
-  std::unique_ptr<float> anomalyScore = std::make_unique<float>();
+  std::unique_ptr<float> CICADAScore = std::make_unique<float>();
 
   UCTGeometry g;
 
@@ -222,7 +222,7 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   model->predict();
   model->read_result(modelResult);
 
-  *anomalyScore = modelResult[0].to_float();
+  *CICADAScore = modelResult[0].to_float();
 
   summaryCard.setRegionData(inputRegions);
 
@@ -288,7 +288,7 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
 
   iEvent.put(std::move(bJetCands), "Boosted");
   //Write out anomaly score
-  iEvent.put(std::move(anomalyScore), "anomalyScore");
+  iEvent.put(std::move(CICADAScore), "CICADAScore");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
