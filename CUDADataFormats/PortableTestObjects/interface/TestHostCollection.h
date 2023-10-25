@@ -8,6 +8,7 @@ namespace cudatest {
 
   // Eigen matrix
   using Matrix = portabletest::Matrix;
+  using Array = portabletest::Array;
 
   // SoA with x, y, z, id fields, r scalar, m matrix, in host memory
   using TestHostCollection = cms::cuda::PortableHostCollection<portabletest::TestSoA>;

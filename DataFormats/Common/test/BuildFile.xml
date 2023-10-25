@@ -68,3 +68,7 @@
 
 <bin name="testMultiAssociation" file="testRunner.cpp,testMultiAssociation.cc">
 </bin>
+
+<bin file="StdArray_t.cpp">
+  <use name="catch2"/>
+</bin>
