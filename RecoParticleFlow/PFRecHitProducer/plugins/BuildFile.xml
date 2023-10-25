@@ -1,0 +1,17 @@
+<!-- alpaka-based portable plugins -->
+<library name="RecoParticleFlowPFRecHitProducersPluginsPortable" file="alpaka/*.cc">
+  <use name="CondFormats/EcalObjects"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/EcalDetId"/>
+  <use name="DataFormats/ParticleFlowReco"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/CaloTopology"/>
+  <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoParticleFlow/PFRecHitProducer"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
