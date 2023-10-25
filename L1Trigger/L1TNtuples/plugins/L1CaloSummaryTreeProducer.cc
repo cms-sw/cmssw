@@ -59,7 +59,7 @@ void L1CaloSummaryTreeProducer::analyze(const edm::Event& iEvent, const edm::Eve
   iEvent.getByToken(regionToken_, regions);
 
   if (regions.isValid()) {
-    for (auto itr : *regions) {
+    for (const auto& itr : *regions) {
       caloSummaryData_->modelInput[itr.gctPhi()][itr.gctEta() - 4] =
           itr.et();  //4 is subtracted off of the Eta to account for the 4+4 forward/backward HF regions that are not used in CICADA. These take offset the iEta by 4
     }
