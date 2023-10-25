@@ -42,11 +42,7 @@ struct finalize {
 TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestAtomicPair), s_tag) {
   SECTION("AtomicPairCounter") {
     auto const &devices = cms::alpakatools::devices<Platform>();
-    if (devices.empty()) {
-      std::cout << "No devices available on the platform " << EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE)
-                << ", the test will be skipped.\n";
-      return;
-    }
+    REQUIRE(!devices.empty());
     // run the test on each device
     for (auto const &device : devices) {
       std::cout << "Test AtomicPairCounter on " << alpaka::getName(device) << '\n';
