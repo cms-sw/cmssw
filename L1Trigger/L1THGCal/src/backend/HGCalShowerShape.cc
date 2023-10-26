@@ -565,9 +565,6 @@ int HGCalShowerShape::bitmap(const l1t::HGCalMulticluster& c3d, int start, int e
       layers[layer - 1] += id_tc.second->pt();  //shift by -1 because layer 0 doesn't exist
     }
   }
-  double tot = 0;
-  for (unsigned i = 0; i < layers.size(); ++i)
-    tot += layers[i];
   uint32_t bitmap = 0;
   const int bitmap_size = 32;
   if (start == 0) {
