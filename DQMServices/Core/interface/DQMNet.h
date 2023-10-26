@@ -16,7 +16,7 @@
 #include <list>
 #include <map>
 #include <set>
-#include <ext/hash_set>
+#include <unordered_set>
 
 // for definition of QValue
 #include "DataFormats/Histograms/interface/MonitorElementCollection.h"
@@ -383,7 +383,7 @@ public:
   struct ImplPeer;
 
   using DirMap = std::set<std::string>;
-  typedef __gnu_cxx::hash_set<ObjType, HashOp, HashEqual> ObjectMap;
+  typedef std::unordered_set<ObjType, HashOp, HashEqual> ObjectMap;
   typedef std::map<lat::Socket *, ImplPeer> PeerMap;
   struct ImplPeer : Peer {
     ImplPeer() = default;
