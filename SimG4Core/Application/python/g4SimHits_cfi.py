@@ -694,6 +694,8 @@ from Configuration.ProcessModifiers.ecal_component_finely_sampled_waveforms_cff 
 from Configuration.Eras.Modifier_h2tb_cff import h2tb
 h2tb.toModify(g4SimHits,
               OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalTB06BeamDetector', 'HcalSensitiveDetector'],
+              ECalSD = dict(
+                  TestBeam = True ),
               CaloSD = dict(
                   EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
                   TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] ),
@@ -723,5 +725,14 @@ phase2_common.toModify(g4SimHits,
 
 from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 hgcaltb.toModify(g4SimHits,
-                 OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector']
+                 OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector'],
+                 NonBeamEvent = True,
+                 UseMagneticField = False,
+                 CaloSD = dict(
+                     EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
+                     TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] ),
+                 CaloTrkProcessing = dict(
+                     TestBeam = True ),
+                 HCalSD = dict(
+                     ForTBHCAL = True)
 )

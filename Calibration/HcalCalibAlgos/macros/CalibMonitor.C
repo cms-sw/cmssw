@@ -6,7 +6,7 @@
 //                  dataMC, truncateFlag, useGen, scale, useScale, etalo, etahi,
 //                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbxFile,
 //                  exclude, etamax);
-//  c1.Loop(nmax);
+//  c1.Loop(nmax, debug);
 //  c1.savePlot(histFileName,append,all);
 //
 //        This will prepare a set of histograms which can be used for a
@@ -116,6 +116,7 @@
 //                               in the table is taken (default = false)
 //   nmax            (Long64_t)= maximum number of entries to be processed,
 //                               if -1, all entries to be processed (-1)
+//   debug           (bool)    = Debug flag (false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the histogram file to be opened
@@ -280,7 +281,7 @@ public:
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void Init(TChain *, const char *, const char *);
-  virtual void Loop(Long64_t nmax = -1);
+  virtual void Loop(Long64_t nmax = -1, bool debug = false);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
   bool goodTrack(double &eHcal, double &cut, const Long64_t &entry, bool debug);
@@ -848,7 +849,7 @@ Int_t CalibMonitor::Cut(Long64_t) {
   return 1;
 }
 
-void CalibMonitor::Loop(Long64_t nmax) {
+void CalibMonitor::Loop(Long64_t nmax, bool debug) {
   //   In a ROOT session, you can do:
   //      Root > .L CalibMonitor.C
   //      Root > CalibMonitor t
@@ -872,7 +873,6 @@ void CalibMonitor::Loop(Long64_t nmax) {
   // METHOD2: replace line
   //    fChain->GetEntry(jentry);       //read all branches
   //by  b_branchname->GetEntry(ientry); //read only this branch
-  const bool debug(false);
 
   if (fChain == 0)
     return;

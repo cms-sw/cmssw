@@ -60,6 +60,7 @@
 #include "G4ScoringManager.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4GDMLParser.hh"
+#include "G4Threading.hh"
 
 #include <atomic>
 #include <memory>
@@ -335,15 +336,20 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
       << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
 
   // geometry dump
-  auto writeFile = m_p.getUntrackedParameter<std::string>("FileNameGDML");
+  G4String writeFile = (G4String)m_p.getUntrackedParameter<std::string>("FileNameGDML");
   if (!writeFile.empty()) {
     std::call_once(applyOnceGDML, [this]() { m_dumpGDML = true; });
+    edm::LogVerbatim("SimG4CoreApplication") << "DumpGDML:" << m_dumpGDML;
     if (m_dumpGDML) {
+      G4int thID = G4Threading::G4GetThreadId();
+      edm::LogVerbatim("SimG4CoreApplication") << "ThreadID=" << thID;
+      G4Threading::G4SetThreadId(-1);
       G4GDMLParser gdml;
       gdml.SetRegionExport(true);
       gdml.SetEnergyCutsExport(true);
       gdml.SetSDExport(true);
       gdml.Write(writeFile, worldPV, true);
+      G4Threading::G4SetThreadId(thID);
     }
   }
 

@@ -53,10 +53,10 @@ bool HDQMSummary::put(const uint32_t& DetId, InputVector& input, std::vector<std
 const HDQMSummary::Range HDQMSummary::getRange(const uint32_t& DetId) const {
   RegistryIterator p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, HDQMSummary::StrictWeakOrdering());
   if (p == indexes_.end() || p->detid != DetId) {
+    edm::LogWarning("HDQMSummary") << "not in range";
     return HDQMSummary::Range(v_sum_.end(), v_sum_.end());
-    std::cout << "not in range " << std::endl;
-  } else
-    return HDQMSummary::Range(v_sum_.begin() + p->ibegin, v_sum_.begin() + p->ibegin + userDBContent_.size());
+  }
+  return HDQMSummary::Range(v_sum_.begin() + p->ibegin, v_sum_.begin() + p->ibegin + userDBContent_.size());
 }
 
 std::vector<uint32_t> HDQMSummary::getDetIds() const {

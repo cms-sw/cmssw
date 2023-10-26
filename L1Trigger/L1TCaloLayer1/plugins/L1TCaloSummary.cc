@@ -69,10 +69,11 @@ using namespace std;
 // class declaration
 //
 
+template <class INPUT, class OUTPUT>
 class L1TCaloSummary : public edm::stream::EDProducer<> {
 public:
   explicit L1TCaloSummary(const edm::ParameterSet&);
-  ~L1TCaloSummary() override;
+  ~L1TCaloSummary() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -81,7 +82,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   //void endJob() override;
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override{};
 
   void print();
 
@@ -122,7 +123,8 @@ private:
 //
 // constructors and destructor
 //
-L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
+template <class INPUT, class OUTPUT>
+L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
     : nPumBins(iConfig.getParameter<unsigned int>("nPumBins")),
       pumLUT(nPumBins, std::vector<std::vector<uint32_t>>(2, std::vector<uint32_t>(13))),
       caloScaleFactor(iConfig.getParameter<double>("caloScaleFactor")),
@@ -161,14 +163,13 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
   produces<float>("anomalyScore");
 }
 
-L1TCaloSummary::~L1TCaloSummary() {}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template <class INPUT, class OUTPUT>
+void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
@@ -192,8 +193,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   //Model input
   //This is done as a flat vector input, but future versions may involve 2D input
   //This will have to be handled later
-  //Would also be good to be able to configure the precision of the ap_fixed type
-  ap_ufixed<10, 10> modelInput[252];
+  INPUT modelInput[252];
   for (const L1CaloRegion& i : *regionCollection) {
     UCTRegionIndex r = g.getUCTRegionIndexFromL1CaloRegion(i.gctEta(), i.gctPhi());
     UCTTowerIndex t = g.getUCTTowerIndexFromL1CaloRegion(r, i.raw());
@@ -212,12 +212,12 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     //We take 4 off of the GCT eta/iEta.
     //iEta taken from this ranges from 4-17, (I assume reserving lower and higher for forward regions)
     //So our first index, index 0, is technically iEta=4, and so-on.
-    //CICADA v1 reads this as a flat vector
+    //CICADA reads this as a flat vector
     modelInput[14 * i.gctPhi() + (i.gctEta() - 4)] = i.et();
   }
   //Extract model output
-  //Would be good to be able to configure the precision of the result
-  ap_fixed<11, 5> modelResult[1] = {ap_fixed<11, 5>("0.0", 10)};
+  OUTPUT modelResult[1] = {
+      OUTPUT("0.0", 10)};  //the 10 here refers to the fact that we read in "0.0" as a decimal number
   model->prepare_input(modelInput);
   model->predict();
   model->read_result(modelResult);
@@ -291,44 +291,9 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   iEvent.put(std::move(anomalyScore), "anomalyScore");
 }
 
-void L1TCaloSummary::print() {}
-
-// ------------ method called once each job just before starting event loop  ------------
-//void L1TCaloSummary::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-//void L1TCaloSummary::endJob() {}
-
-// ------------ method called when starting to processes a run  ------------
-
-void L1TCaloSummary::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-  void
-  L1TCaloSummary::endRun(edm::Run const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-  void
-  L1TCaloSummary::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-  void
-  L1TCaloSummary::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-  }
-*/
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void L1TCaloSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <class INPUT, class OUTPUT>
+void L1TCaloSummary<INPUT, OUTPUT>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -336,5 +301,8 @@ void L1TCaloSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.addDefault(desc);
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TCaloSummary);
+typedef L1TCaloSummary<ap_ufixed<10, 10>, ap_fixed<11, 5>> L1TCaloSummaryCICADAv1;
+typedef L1TCaloSummary<ap_uint<10>, ap_ufixed<16, 8>> L1TCaloSummaryCICADAv2;
+//define type version plugins
+DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv1);
+DEFINE_FWK_MODULE(L1TCaloSummaryCICADAv2);

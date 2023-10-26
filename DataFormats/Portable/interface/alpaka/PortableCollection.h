@@ -12,6 +12,10 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
+// This header is not used by PortableCollection, but is included here to automatically
+// provide its content to users of ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection.
+#include "HeterogeneousCore/AlpakaInterface/interface/AssertDeviceMatchesHostCollection.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED

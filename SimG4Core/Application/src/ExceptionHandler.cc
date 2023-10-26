@@ -69,21 +69,14 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   }
 
   bool res = false;
-  switch (localSeverity) {
-    case FatalException:
-    case FatalErrorInArgument:
-    case RunMustBeAborted:
-    case EventMustBeAborted:
-      edm::LogWarning("SimG4CoreApplication") << es_banner << message.str() << ee_banner;
-      throw cms::Exception("Geant4 fatal exception");
-      res = m_trace;
-      break;
-
-    case JustWarning:
-      if (m_number < 20)
-        edm::LogWarning("SimG4CoreApplication")
-            << ws_banner << message.str() << "*** This is just a warning message. ***" << we_banner;
-      break;
+  if (localSeverity == JustWarning) {
+    if (m_number < 20)
+      edm::LogWarning("SimG4CoreApplication")
+          << ws_banner << message.str() << "*** This is just a warning message. ***" << we_banner;
+  } else {
+    edm::LogWarning("SimG4CoreApplication") << es_banner << message.str() << ee_banner;
+    throw cms::Exception("Geant4 fatal exception");
+    res = m_trace;
   }
   return res;
 }

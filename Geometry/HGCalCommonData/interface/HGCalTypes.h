@@ -122,8 +122,11 @@ public:
   // Translate from flat file format to CMSSW format of Layer type
   static int32_t layerType(int type);
   // Get the front-back index from the layer orientation index
-  static int32_t layerFrontBack(int32_t layerOrient) { return ((layerOrient == WaferCenterB) ? 1 : -1); }
-  static int32_t waferFrontBack(int32_t index) { return ((index == 0) ? -1 : 1); }
+  static constexpr int32_t layerFrontBack(int32_t layerOrient) { return ((layerOrient == WaferCenterB) ? 1 : -1); }
+  static constexpr int32_t waferFrontBack(int32_t index) { return ((index == 0) ? -1 : 1); }
+  // LD vs HD and Fullvs Partial wafer
+  static constexpr bool waferHD(int32_t type) { return ((type == WaferFineThin) || (type == WaferFineThick)); }
+  static constexpr bool waferFull(int32_t type) { return (type == WaferFull); }
 
 private:
   static constexpr int32_t facu_ = 1;

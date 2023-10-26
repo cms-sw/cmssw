@@ -26,9 +26,10 @@ if(len(sys.argv)>3):
   
 
 # For each file change the variable values in the config so that they match the selected XML file and then run the config
+test_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'test_writeTotemDAQMapping.py')
 for fileContent in filesToRead:
     for fileInfo in fileContent["configuration"]:
-        with open(f'{os.environ["CMSSW_BASE"]}/src/CalibPPS/ESProducers/test/test_writeTotemDAQMapping.py', 'r+') as f:        
+        with open(test_script, 'r+') as f:
             content = f.read()
             # replace values specific for selected detector
             content = re.sub(r'subSystemName =.*', f'subSystemName = "{fileContent["subSystemName"]}"', content)

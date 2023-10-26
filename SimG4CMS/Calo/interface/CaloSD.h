@@ -53,6 +53,7 @@ public:
          bool ignoreTkID = false);
   ~CaloSD() override;
 
+  void newCollection(const std::string& name, edm::ParameterSet const& p);
   G4bool ProcessHits(G4Step* step, G4TouchableHistory*) override;
   bool ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) override;
 
@@ -143,6 +144,8 @@ protected:
   CaloHitID currentID[2], previousID[2];
 
   double energyCut, tmaxHit, eminHit;
+  std::vector<std::string> hcn_;
+  std::vector<int> useResMap_;
 
   CaloG4Hit* currentHit[2];
 
@@ -185,6 +188,7 @@ private:
   bool doFineCalo_;
   double eMinFine_;
   int nHC_;
+  std::string detName_[2], collName_[2];
 
   std::map<CaloHitID, CaloG4Hit*> hitMap[2];
   std::map<int, TrackWithHistory*> tkMap;

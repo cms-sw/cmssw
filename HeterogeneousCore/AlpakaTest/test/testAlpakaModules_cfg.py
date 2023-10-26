@@ -5,7 +5,8 @@ import argparse
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test various Alpaka module types')
 
 parser.add_argument("--accelerators", type=str, help="Set process.options.accelerators (comma-separated string, default is to use default)", default="")
-parser.add_argument("--moduleBackend", type=str, help="Set Alpaka backend for module instances", default="")
+parser.add_argument("--moduleBackend", type=str, help="Set Alpaka backend via module instances", default="")
+parser.add_argument("--processAcceleratorBackend", type=str, help="Set Alpaka backend via ProcessAcceleratorAlpaka", default="")
 parser.add_argument("--expectBackend", type=str, help="Expect this backend to run")
 parser.add_argument("--run", type=int, help="Run number (default: 1)", default=1)
 
@@ -90,31 +91,40 @@ process.alpakaStreamSynchronizingProducer = cms.EDProducer("TestAlpakaStreamSync
 
 process.alpakaGlobalConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaGlobalProducer"),
-    expectSize = cms.int32(10)
+    expectSize = cms.int32(10),
+    expectBackend = cms.string("SerialSync")
 )
 process.alpakaStreamConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamProducer"),
-    expectSize = cms.int32(5)
+    expectSize = cms.int32(5),
+    expectBackend = cms.string("SerialSync")
 )
 process.alpakaStreamInstanceConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamInstanceProducer", "testInstance"),
-    expectSize = cms.int32(6)
+    expectSize = cms.int32(6),
+    expectBackend = cms.string("SerialSync")
 )
 process.alpakaStreamSynchronizingConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamSynchronizingProducer"),
-    expectSize = cms.int32(10)
+    expectSize = cms.int32(10),
+    expectBackend = cms.string("SerialSync")
 )
 
+if args.processAcceleratorBackend != "":
+    process.ProcessAcceleratorAlpaka.setBackend(args.processAcceleratorBackend)
 if args.moduleBackend != "":
     for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD",
                  "GlobalProducer", "StreamProducer", "StreamInstanceProducer", "StreamSynchronizingProducer"]:
         mod = getattr(process, "alpaka"+name)
         mod.alpaka = cms.untracked.PSet(backend = cms.untracked.string(args.moduleBackend))
 if args.expectBackend == "cuda_async":
-    process.alpakaGlobalConsumer.expectSize = 20
-    process.alpakaStreamConsumer.expectSize = 25
-    process.alpakaStreamInstanceConsumer.expectSize = 36
-    process.alpakaStreamSynchronizingConsumer.expectSize = 20
+    def setExpect(m, size):
+        m.expectSize = size
+        m.expectBackend = "CudaAsync"
+    setExpect(process.alpakaGlobalConsumer, size=20)
+    setExpect(process.alpakaStreamConsumer, size=25)
+    setExpect(process.alpakaStreamInstanceConsumer, size=36)
+    setExpect(process.alpakaStreamSynchronizingConsumer, size=20)
 
 process.output = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('testAlpaka.root'),
