@@ -53,7 +53,7 @@ private:
   static constexpr size_t kGapLength = 44;
   static constexpr size_t kVertexTMUX = 6;
   static constexpr size_t kVertexChanIndex = 0;
-  static constexpr size_t kEmptyFrames = 10;
+  static constexpr size_t kEmptyFrames = 0; //FIXME should be configurable!
 
   const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecs = {
       /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
