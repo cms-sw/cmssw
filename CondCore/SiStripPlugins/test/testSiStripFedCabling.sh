@@ -39,3 +39,12 @@ do
 
     mv *.png $W_DIR/results/SiStripFedCabling_${i}_Summary.png
 done
+
+getPayloadData.py \
+    --plugin pluginSiStripFedCabling_PayloadInspector \
+    --plot plot_SiStripFedCablingComparisonTrackerMapSingleTag \
+    --tag SiStripFedCabling_GR10_v1_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "375586", "end_iov": "400000"}' \
+    --db Prod \
+    --test ;
