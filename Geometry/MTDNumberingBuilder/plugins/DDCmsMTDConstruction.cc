@@ -1,5 +1,3 @@
-//#define EDM_ML_DEBUG
-
 #include "Geometry/MTDNumberingBuilder/plugins/DDCmsMTDConstruction.h"
 
 #include <utility>
@@ -50,56 +48,6 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   filter.add("mtd:");
   filter.add("btl:");
   filter.add("etl:");
-
-  std::vector<std::string> volnames = {"service",
-                                       "support",
-                                       "FSide",
-                                       "BSide",
-                                       "LSide",
-                                       "RSide",
-                                       "Between",
-                                       "SupportPlate",
-                                       "Shield",
-                                       "ThermalScreen",
-                                       "Aluminium_Disc",
-                                       "MIC6_Aluminium_Disc",
-                                       "ThermalPad",
-                                       "AlN",
-                                       "LairdFilm",
-                                       "ETROC",
-                                       "SensorModule",
-                                       "SensorModule_Front_Left",
-                                       "SensorModule_Front_Right",
-                                       "SensorModule_Back_Left",
-                                       "SensorModule_Back_Right",
-                                       "DiscSector",
-                                       "LGAD_Substrate",
-                                       "ConcentratorCard",
-                                       "PowerControlCard",
-                                       "CoolingPlate",
-                                       "FrontEndCard",
-                                       "FrontModerator",
-                                       "Cables",
-                                       "Cables1",
-                                       "Cables2",
-                                       "Cables3",
-                                       "Cables4",
-                                       "Cables5",
-                                       "Cables6",
-                                       "Cables7",
-                                       "PatchPanel",
-                                       "Notich_cables",
-                                       "ServicesExtVolume1",
-                                       "ServicesExtVolume2",
-                                       "glueLGAD",
-                                       "BumpBonds",
-                                       "ModulePCB",
-                                       "connectorsGap",
-                                       "ReadoutBoard",
-                                       "LGAD"};
-  for (auto const& theVol : volnames) {
-    filter.veto(theVol);
-  }
 
   DDFilteredView fv(cpv, filter);
 
