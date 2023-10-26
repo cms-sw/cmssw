@@ -130,7 +130,7 @@ bool HLTDeDxFilter::hltFilter(edm::Event& iEvent,
   }
   for (unsigned int i = 0; i < trackCollection.size(); i++) {
     reco::TrackRef track = reco::TrackRef(trackCollectionHandle, i);
-    if (pt[i] > minPT_ && fabs(eta[i]) >= minETA_ && fabs(eta[i]) < maxETA_ && dEdxTrack[track].numberOfMeasurements() > minNOM_ &&
+    if (pt[i] > minPT_ && std::abs(eta[i]) >= minETA_ && std::abs(eta[i]) < maxETA_ && dEdxTrack[track].numberOfMeasurements() > minNOM_ &&
         dEdxTrack[track].dEdx() > minDEDx_) {
       if (track->numberOfValidHits() < minNumValidHits_)
         continue;
