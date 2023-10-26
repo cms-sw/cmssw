@@ -17,3 +17,16 @@ run3_ecal.toModify(ecalMultiFitUncalibRecHit,
     )
 )
 
+# this overrides the modifications made by run3_ecal if both modifiers are active
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
+gpuValidationEcal.toModify(ecalMultiFitUncalibRecHit,
+    algoPSet = dict(timealgo = 'RatioMethod',
+        outOfTimeThresholdGain12pEB = 5.,
+        outOfTimeThresholdGain12mEB = 5.,
+        outOfTimeThresholdGain61pEB = 5.,
+        outOfTimeThresholdGain61mEB = 5.,
+        timeCalibTag = ':',
+        timeOffsetTag = ':'
+    )
+)
+
