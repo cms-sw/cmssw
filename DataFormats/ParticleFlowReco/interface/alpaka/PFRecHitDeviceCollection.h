@@ -13,4 +13,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::reco
 
+// check that the portable device collection for the host device is the same as the portable host collection
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(reco::PFRecHitDeviceCollection, reco::PFRecHitHostCollection);
+
 #endif  // DataFormats_ParticleFlowReco_interface_alpaka_PFRecHitDeviceCollection_h
