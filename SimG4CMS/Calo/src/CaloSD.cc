@@ -35,40 +35,18 @@ CaloSD::CaloSD(const std::string& name,
                edm::ParameterSet const& p,
                const SimTrackManager* manager,
                float timeSliceUnit,
-               bool ignoreTkID)
-    : SensitiveCaloDetector(name, clg),
+               bool ignoreTkID,
+               const std::string& newcollName)
+: SensitiveCaloDetector(name, clg, newcollName),
       G4VGFlashSensitiveDetector(),
       eminHit(0.),
-      nHC_(1),
       m_trackManager(manager),
       ignoreTrackID(ignoreTkID),
       timeSlice(timeSliceUnit),
       eminHitD(0.) {
-  initCalo(name, "", p);
-}
 
-CaloSD::CaloSD(const std::string& name,
-               const std::string& newcollName,
-               const SensitiveDetectorCatalog& clg,
-               edm::ParameterSet const& p,
-               const SimTrackManager* manager,
-               float timeSliceUnit,
-               bool ignoreTkID)
-    : SensitiveCaloDetector(name, newcollName, clg),
-      G4VGFlashSensitiveDetector(),
-      eminHit(0.),
-      nHC_(2),
-      m_trackManager(manager),
-      ignoreTrackID(ignoreTkID),
-      timeSlice(timeSliceUnit),
-      eminHitD(0.) {
-  initCalo(name, newcollName, p);
-}
-
-CaloSD::~CaloSD() {}
-
-void CaloSD::initCalo(const std::string& name, const std::string& newcollName, edm::ParameterSet const& p) {
   //Parameters
+  nHC_ = (newcollName.empty()) ? 1 : 2;
   for (int k = 0; k < 2; ++k) {
     currentHit[k] = nullptr;
     theHC[k] = nullptr;
@@ -193,6 +171,8 @@ void CaloSD::initCalo(const std::string& name, const std::string& newcollName, e
   }
 #endif
 }
+
+CaloSD::~CaloSD() {}
 
 void CaloSD::newCollection(const std::string& name, edm::ParameterSet const& p) {
   for (unsigned int k = 0; k < hcn_.size(); ++k) {

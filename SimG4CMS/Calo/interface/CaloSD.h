@@ -50,14 +50,8 @@ public:
          edm::ParameterSet const& p,
          const SimTrackManager*,
          float timeSlice = 1.,
-         bool ignoreTkID = false);
-  CaloSD(const std::string& aSDname,
-         const std::string& newcolname,
-         const SensitiveDetectorCatalog& clg,
-         edm::ParameterSet const& p,
-         const SimTrackManager*,
-         float timeSlice = 1.,
-         bool ignoreTkID = false);
+         bool ignoreTkID = false,
+         const std::string& newcolname = "");
   ~CaloSD() override;
 
   void newCollection(const std::string& name, edm::ParameterSet const& p);
@@ -133,7 +127,6 @@ protected:
   void printDetectorLevels(const G4VTouchable*) const;
 
 private:
-  void initCalo(const std::string& name1, const std::string& name2, edm::ParameterSet const& p);
   void storeHit(CaloG4Hit*, int k = 0);
   bool saveHit(CaloG4Hit*, int k = 0);
   void cleanHitCollection();

@@ -14,39 +14,18 @@
 
 #include <sstream>
 
-SensitiveDetector::SensitiveDetector(const std::string& iname, const SensitiveDetectorCatalog& clg, bool calo)
-    : G4VSensitiveDetector(iname), m_isCalo(calo) {
-  // for CMS hits
-  m_namesOfSD.push_back(iname);
-
-  // Geant4 hit collection
-  collectionName.insert(iname);
-
-  // register sensitive detector
-  G4SDManager* SDman = G4SDManager::GetSDMpointer();
-  SDman->AddNewDetector(this);
-
-  const std::vector<std::string_view>& lvNames = clg.logicalNames(iname);
-  std::stringstream ss;
-  for (auto& lvname : lvNames) {
-    this->AssignSD({lvname.data(), lvname.size()});
-    ss << " " << lvname << "\n";
-  }
-  edm::LogVerbatim("SensitiveDetector") << " <" << iname << "> : Assigns SD to " << lvNames.size() << " LVs "
-                                        << ss.str() << " with collection " << iname;
-}
-
 SensitiveDetector::SensitiveDetector(const std::string& iname,
-                                     const std::string& newcollname,
                                      const SensitiveDetectorCatalog& clg,
-                                     bool calo)
+                                     bool calo,
+                                     const std::string& newcollname)
     : G4VSensitiveDetector(iname), m_isCalo(calo) {
   // for CMS hits
   m_namesOfSD.push_back(iname);
 
   // Geant4 hit collection
   collectionName.insert(iname);
-  collectionName.insert(newcollname);
+  if (!newcollname.empty())
+    collectionName.insert(newcollname);
 
   // register sensitive detector
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
@@ -58,8 +37,12 @@ SensitiveDetector::SensitiveDetector(const std::string& iname,
     this->AssignSD({lvname.data(), lvname.size()});
     ss << " " << lvname << "\n";
   }
+  if (newcollname.empty())
+    ss << " Collection " << iname;
+  else
+    ss << " Collections " << iname << " and " << newcollname;
   edm::LogVerbatim("SensitiveDetector") << " <" << iname << "> : Assigns SD to " << lvNames.size() << " LVs "
-                                        << ss.str() << " with collections " << iname << " and " << newcollname;
+                                        << ss.str();
 }
 
 SensitiveDetector::~SensitiveDetector() {}
