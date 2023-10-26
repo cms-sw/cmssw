@@ -37,14 +37,13 @@ CaloSD::CaloSD(const std::string& name,
                float timeSliceUnit,
                bool ignoreTkID,
                const std::string& newcollName)
-: SensitiveCaloDetector(name, clg, newcollName),
+    : SensitiveCaloDetector(name, clg, newcollName),
       G4VGFlashSensitiveDetector(),
       eminHit(0.),
       m_trackManager(manager),
       ignoreTrackID(ignoreTkID),
       timeSlice(timeSliceUnit),
       eminHitD(0.) {
-
   //Parameters
   nHC_ = (newcollName.empty()) ? 1 : 2;
   for (int k = 0; k < 2; ++k) {
