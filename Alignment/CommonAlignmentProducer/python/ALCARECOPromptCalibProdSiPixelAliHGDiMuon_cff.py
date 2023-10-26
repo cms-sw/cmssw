@@ -19,13 +19,37 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
 # track selector for HighPurity tracks
 #-- AlignmentTrackSelector
 SiPixelAliHighPuritySelectorHGDimuon = SiPixelAliHighPuritySelector.clone(
-    src = 'ALCARECOTkAlZMuMu'
+    src = 'ALCARECOTkAlZMuMu',
+    etaMax = cms.double(3.0),
+    etaMin = cms.double(-3.0),
+    filter = cms.bool(True),
+    pMin = cms.double(8.0),
 )
 
 # track selection for alignment
 SiPixelAliTrackSelectorHGDimuon = SiPixelAliTrackSelector.clone(
-	src = 'SiPixelAliTrackFitterHGDimuon'
+    src = 'SiPixelAliTrackFitterHGDimuon',
+    applyMultiplicityFilter = cms.bool(True),
+    d0Max = cms.double(50.0),
+    d0Min = cms.double(-50.0),
+    etaMax = cms.double(3.0),
+    etaMin = cms.double(-3.0),
+    filter = cms.bool(True),
+    maxMultiplicity = cms.int32(2),
+    minHitChargeStrip = cms.double(20.0),
+    minHitIsolation = cms.double(0.01),
+    minMultiplicity = cms.int32(2),
+    nHighestPt = cms.int32(2),
+    nHitMin = cms.double(10),
+    pMin = cms.double(3.0),
+    ptMin = cms.double(15.0)
 )
+
+SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.applyChargeFilter = cms.bool(True)
+SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.applyMassrangeFilter = cms.bool(True)
+SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.maxXMass = cms.double(95.8)
+SiPixelAliTrackSelectorHGDimuon.TwoBodyDecaySelector.minXMass = cms.double(85.8)
+SiPixelAliTrackSelectorHGDimuon.minHitsPerSubDet.inPIXEL = cms.int32(1)
 
 # Ingredient: SiPixelAliTrackRefitter0
 # refitting
@@ -51,6 +75,8 @@ SiPixelAliMilleAlignmentProducerHGDimuon = SiPixelAliMilleAlignmentProducer.clon
 	binaryFile = 'milleBinaryHGDimuon_0.dat',
 	treeFile = 'treeFileHGDimuon.root',
 	monitorFile = 'millePedeMonitorHGDimuon.root',
+        minNumHits = cms.uint32(8),
+        skipGlobalPositionRcdCheck = cms.bool(True),
         TrajectoryFactory = cms.PSet(
             AllowZeroMaterial = cms.bool(False),
             Chi2Cut = cms.double(10000.0),
@@ -82,7 +108,9 @@ SiPixelAliMilleAlignmentProducerHGDimuon = SiPixelAliMilleAlignmentProducer.clon
 
 # Ingredient: SiPixelAliTrackerTrackHitFilter
 SiPixelAliTrackerTrackHitFilterHGDimuon = SiPixelAliTrackerTrackHitFilter.clone(
-	src = 'SiPixelAliTrackRefitterHGDimuon0'
+    src = 'SiPixelAliTrackRefitterHGDimuon0',
+    TrackAngleCut = cms.double(0.087),
+    minimumHits = cms.uint32(10)
 )
 
 # Ingredient: SiPixelAliSiPixelAliTrackFitter
