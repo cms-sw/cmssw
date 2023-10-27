@@ -1323,7 +1323,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               unsigned int noPIDtype = 0;
               if (probPi[*iTrack] == -1) {
                 noPIDtype = 1;
-              } else if (isnan(probPi[*iTrack])) {
+              } else if (std::isnan(probPi[*iTrack])) {
                 noPIDtype = 2;
               } else if (probPi[*iTrack] == 1 && probK[*iTrack] == 0 && probP[*iTrack] == 0) {
                 noPIDtype = 3;

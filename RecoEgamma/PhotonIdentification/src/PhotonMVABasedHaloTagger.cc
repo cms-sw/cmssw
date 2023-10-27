@@ -89,7 +89,7 @@ double PhotonMVABasedHaloTagger::calculateMVA(const reco::Photon* pho,
   ////set all the above calculated variables as input to the MVA
 
   const auto& vCov = lazyToolnoZS.localCovariances(*(pho->superCluster()->seed()));
-  double spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+  double spp = (std::isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
 
   ///https://cmssdt.cern.ch/lxr/source/RecoEgamma/ElectronIdentification/src/ElectronMVAEstimator.cc
 
