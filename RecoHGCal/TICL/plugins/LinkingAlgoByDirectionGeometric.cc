@@ -10,6 +10,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
 
 using namespace ticl;
 
@@ -36,10 +37,10 @@ void LinkingAlgoByDirectionGeometric::initialize(const HGCalDDDConstants *hgcons
   propagator_ = propH;
 }
 
-math::XYZVector LinkingAlgoByDirectionGeometric::propagateTrackster(const Trackster &t,
-                                                                    const unsigned idx,
-                                                                    float zVal,
-                                                                    std::array<TICLLayerTile, 2> &tracksterTiles) {
+Vector LinkingAlgoByDirectionGeometric::propagateTrackster(const Trackster &t,
+                                                           const unsigned idx,
+                                                           float zVal,
+                                                           std::array<TICLLayerTile, 2> &tracksterTiles) {
   // needs only the positive Z co-ordinate of the surface to propagate to
   // the correct sign is calculated inside according to the barycenter of trackster
   Vector const &baryc = t.barycenter();

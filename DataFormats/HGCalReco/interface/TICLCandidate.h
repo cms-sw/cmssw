@@ -53,7 +53,16 @@ public:
     return idProbabilities_[(int)type];
   }
 
+  inline const std::array<float, 8>& idProbabilities() const { return idProbabilities_; }
+
+  void zeroProbabilities() {
+    for (auto& p : idProbabilities_) {
+      p = 0.f;
+    }
+  }
+
   void setIdProbabilities(const std::array<float, 8>& idProbs) { idProbabilities_ = idProbs; }
+  inline void setIdProbability(ParticleType type, float value) { idProbabilities_[int(type)] = value; }
 
 private:
   float time_;
