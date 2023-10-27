@@ -48,3 +48,16 @@ getPayloadData.py \
     --iovs '{"start_iov": "375586", "end_iov": "400000"}' \
     --db Prod \
     --test ;
+
+mv *.png $W_DIR/results/SiStripFedCablingComparisonTrackerMapSingleTag.png
+
+getPayloadData.py \
+    --plugin pluginSiStripFedCabling_PayloadInspector \
+    --plot plot_SiStripUncabledChannels_TrackerMap \
+    --tag SiStripFedCabling_GR10_v1_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "400000", "end_iov": "400000"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/results/SiStripUncabledChannels_TrackerMap.png

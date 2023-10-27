@@ -75,6 +75,72 @@ namespace {
   };
 
   /************************************************
+    TrackerMap of uncabled modules
+  *************************************************/
+  class SiStripUncabledChannels_TrackerMap : public PlotImage<SiStripFedCabling, SINGLE_IOV> {
+  public:
+    SiStripUncabledChannels_TrackerMap()
+        : PlotImage<SiStripFedCabling, SINGLE_IOV>("Tracker Map SiStrip Fed Cabling") {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      std::shared_ptr<SiStripFedCabling> payload = fetchPayload(std::get<1>(iov));
+
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripFedCabling");
+      tmap->setPalette(1);
+      std::string titleMap =
+          "TrackerMap of SiStrip Fraction of uncabled channels per module, IOV : " + std::to_string(std::get<0>(iov));
+      tmap->setTitle(titleMap);
+
+      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+          edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+      std::unique_ptr<SiStripDetCabling> detCabling_ = std::make_unique<SiStripDetCabling>(*(payload.get()), &tTopo);
+
+      std::vector<uint32_t> activeDetIds;
+      detCabling_->addActiveDetectorsRawIds(activeDetIds);
+
+      const auto detInfo =
+          SiStripDetInfoFileReader::read(edm::FileInPath(SiStripDetInfoFileReader::kDefaultFile).fullPath());
+      std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
+
+      // first add the fully unconnected modules
+      for (const auto& detId : all_detids) {
+        if (!detCabling_->IsConnected(detId)) {
+          tmap->fill(detId, 1);
+        }
+      }
+
+      // then add the partially unconnected ones
+      for (const auto& detId : activeDetIds) {
+        float frac = calculateConnectedFraction(detCabling_.get(), detId);
+        if (frac != 1.f) {
+          tmap->fill(detId, frac);
+        }
+      }
+
+      std::string fileName(m_imageFileName);
+      tmap->save(true, 0., 1., fileName, 4500, 2400);
+
+      return true;
+    }
+
+  private:
+    // Function to calculate the number of connections for a given detId
+    int32_t calculateConnectedFraction(const SiStripDetCabling* detCabling, const uint32_t detId) {
+      float totAPVs = detCabling->nApvPairs(detId);
+      float n_conn{0};
+      for (uint32_t connDet_i = 0; connDet_i < detCabling->getConnections(detId).size(); connDet_i++) {
+        if (detCabling->getConnections(detId)[connDet_i] != nullptr &&
+            detCabling->getConnections(detId)[connDet_i]->isConnected() != 0) {
+          n_conn++;
+        }
+      }
+      return n_conn / totAPVs;
+    }
+  };
+
+  /************************************************
     TrackerMap of SiStrip FED Cabling difference between 2 payloads
   *************************************************/
 
@@ -379,6 +445,7 @@ namespace {
 
 PAYLOAD_INSPECTOR_MODULE(SiStripFedCabling) {
   PAYLOAD_INSPECTOR_CLASS(SiStripFedCabling_TrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripUncabledChannels_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripFedCablingComparisonTrackerMapSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiStripFedCablingComparisonTrackerMapTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripFedCabling_Summary);
