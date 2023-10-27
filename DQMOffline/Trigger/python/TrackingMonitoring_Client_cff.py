@@ -27,8 +27,6 @@ trackingForElectronsMonitorClientHLT = cms.Sequence(
     trackingForElectronsEffFromHitPatternHLT
 )
 
-
-
 TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
         "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurity",
@@ -64,6 +62,12 @@ TrackToTrackEfficiencies = DQMEDHarvester("DQMGenericClient",
         "FakeRate_PU         'Relative Fake Rate vs PU;PU;relative efficiency'                  mon_unMatched_PU        mon_PU          eff",
     ),
 )
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(TrackToTrackEfficiencies,
+                         subDirs = [
+                             "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurity",
+                             "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPV"])
 
 trackEfficiencyMonitoringClientHLT = cms.Sequence(
     TrackToTrackEfficiencies
