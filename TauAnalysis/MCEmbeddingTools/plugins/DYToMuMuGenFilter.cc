@@ -15,24 +15,16 @@
 class DYToMuMuGenFilter : public edm::stream::EDFilter<> {
 public:
   explicit DYToMuMuGenFilter(const edm::ParameterSet&);
-  ~DYToMuMuGenFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
 
   edm::InputTag inputTag_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
 
   edm::Handle<reco::GenParticleCollection> gen_handle;
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
 };
@@ -41,8 +33,6 @@ DYToMuMuGenFilter::DYToMuMuGenFilter(const edm::ParameterSet& iConfig) {
   inputTag_ = iConfig.getParameter<edm::InputTag>("inputTag");
   genParticleCollection_ = consumes<reco::GenParticleCollection>(inputTag_);
 }
-
-DYToMuMuGenFilter::~DYToMuMuGenFilter() {}
 
 bool DYToMuMuGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(genParticleCollection_, gen_handle);
@@ -81,11 +71,6 @@ bool DYToMuMuGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   return false;
 }
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void DYToMuMuGenFilter::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void DYToMuMuGenFilter::endStream() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DYToMuMuGenFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

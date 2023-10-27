@@ -39,19 +39,11 @@
 class MuMuForEmbeddingSelector : public edm::stream::EDProducer<> {
 public:
   explicit MuMuForEmbeddingSelector(const edm::ParameterSet&);
-  ~MuMuForEmbeddingSelector() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endStream() override;
-
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::CompositeCandidate>> ZmumuCandidates_;
@@ -87,11 +79,6 @@ MuMuForEmbeddingSelector::MuMuForEmbeddingSelector(const edm::ParameterSet& iCon
   //now do what ever other initialization is needed
 }
 
-MuMuForEmbeddingSelector::~MuMuForEmbeddingSelector() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -119,44 +106,6 @@ void MuMuForEmbeddingSelector::produce(edm::Event& iEvent, const edm::EventSetup
   prod->push_back(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>());
   iEvent.put(std::move(prod));
 }
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void MuMuForEmbeddingSelector::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void MuMuForEmbeddingSelector::endStream() {}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-MuMuForEmbeddingSelector::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-MuMuForEmbeddingSelector::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-MuMuForEmbeddingSelector::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-MuMuForEmbeddingSelector::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void MuMuForEmbeddingSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
