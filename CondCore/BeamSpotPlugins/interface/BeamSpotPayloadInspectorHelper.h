@@ -63,7 +63,7 @@ namespace beamSpotPI {
 
   /************************************************/
   // Function to convert cond::Time_t (in microseconds) to human-readable date string
-  std::string convertTimeToDateString(cond::Time_t timeValue, bool hasMicros = false, bool toUTC = true) {
+  inline std::string convertTimeToDateString(cond::Time_t timeValue, bool hasMicros = false, bool toUTC = true) {
     // Convert microseconds to seconds
     std::time_t unixTime = static_cast<std::time_t>(hasMicros ? timeValue / 1000000 : timeValue);
 
