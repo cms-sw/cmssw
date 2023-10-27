@@ -65,6 +65,10 @@ upgradeKeys[2026] = [
     '2026D100PU',
     '2026D101',
     '2026D101PU',
+    '2026D102',
+    '2026D102PU',
+    '2026D103',
+    '2026D103PU',
 ]
 
 # pre-generation of WF numbers
@@ -2765,13 +2769,27 @@ upgradeProperties[2026] = {
     },
     '2026D100' : {
         'Geom' : 'Extended2026D100',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T33',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T25',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     '2026D101' : {
         'Geom' : 'Extended2026D101',
+        'HLTmenu': '@relval2026',
+        'GT' : 'auto:phase2_realistic_T25',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D102' : {
+        'Geom' : 'Extended2026D102',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T33',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D103' : {
+        'Geom' : 'Extended2026D103',
         'HLTmenu': '@relval2026',
         'GT' : 'auto:phase2_realistic_T25',
         'Era' : 'Phase2C17I13M9',
