@@ -53,7 +53,7 @@ private:
   static constexpr size_t kGapLength = 44;
   static constexpr size_t kVertexTMUX = 6;
   static constexpr size_t kVertexChanIndex = 0;
-  static constexpr size_t kEmptyFrames = 0; //FIXME should be configurable!
+  static constexpr size_t kEmptyFrames = 0; // 10 does not match current file writing configuration
 
   const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecs = {
       /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
@@ -64,6 +64,7 @@ private:
 
   // ----------member data ---------------------------
   l1t::demo::BoardDataReader fileReader_;
+  std::string l1VertexCollectionName_;
 };
 
 //
@@ -76,8 +77,10 @@ GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
                   kFramesPerTMUXPeriod,
                   kVertexTMUX,
                   kEmptyFrames,
-                  kChannelSpecs) {
-  produces<l1t::VertexWordCollection>();
+                  kChannelSpecs),
+      l1VertexCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")) {
+  produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
+
 }
 
 // ------------ method called to produce the data  ------------
@@ -91,7 +94,7 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::LogInfo("GTTFileReader") << vertices.size() << " vertices found";
 
-  iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices));
+  iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices), "L1VerticesFirmware");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -102,6 +105,7 @@ void GTTFileReader::fillDescriptions(edm::ConfigurationDescriptions& description
                                      {
                                          "gttOutput_0.txt",
                                      });
+  desc.add<std::string>("l1VertexCollectionName", "L1VerticesFirmware");
   desc.addUntracked<std::string>("format", "APx");
   descriptions.add("GTTFileReader", desc);
 }
