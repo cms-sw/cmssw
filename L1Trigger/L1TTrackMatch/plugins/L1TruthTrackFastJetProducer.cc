@@ -68,13 +68,13 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // track selection criteria
-  const float trkZMax_;          // in [cm]
-  const float trkPtMin_;         // in [GeV]
-  const float trkEtaMax_;        // in [rad]
-  const int trkNStubMin_;        // minimum number of stubs
-  const int trkNPSStubMin_;      // minimum number of PS stubs
-  const double coneSize_;        // Use anti-kt with this cone size
-  const bool displaced_;         //use prompt/displaced tracks
+  const float trkZMax_;      // in [cm]
+  const float trkPtMin_;     // in [GeV]
+  const float trkEtaMax_;    // in [rad]
+  const int trkNStubMin_;    // minimum number of stubs
+  const int trkNPSStubMin_;  // minimum number of PS stubs
+  const double coneSize_;    // Use anti-kt with this cone size
+  const bool displaced_;     //use prompt/displaced tracks
 
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
@@ -95,7 +95,6 @@ L1TruthTrackFastJetProducer::L1TruthTrackFastJetProducer(const edm::ParameterSet
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
       ttTrackMCTruthToken_(consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> >(
           iConfig.getParameter<edm::InputTag>("MCTruthTrackInputTag"))) {
-
   if (displaced_)
     produces<TkJetCollection>("L1TruthTrackFastJetsExtended");
   else
@@ -162,10 +161,10 @@ void L1TruthTrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSe
 
     // check that trk is real and from hard interaction
     edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
-    if (my_tp.isNull()) // there is no tp match so the track is fake
+    if (my_tp.isNull())  // there is no tp match so the track is fake
       continue;
     int tp_eventid = my_tp->eventId().event();
-    if (tp_eventid > 0) // matched tp is from pileup
+    if (tp_eventid > 0)  // matched tp is from pileup
       continue;
 
     fastjet::PseudoJet psuedoJet(iterL1Track->momentum().x(),

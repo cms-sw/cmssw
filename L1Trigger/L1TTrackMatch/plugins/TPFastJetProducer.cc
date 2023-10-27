@@ -57,7 +57,6 @@ using namespace std;
 
 class TPFastJetProducer : public edm::stream::EDProducer<> {
 public:
-
   explicit TPFastJetProducer(const edm::ParameterSet&);
   ~TPFastJetProducer() override;
 
@@ -72,10 +71,10 @@ private:
   const float tpZMax_;
   const int tpNStubMin_;
   const int tpNStubLayerMin_;
-  const float coneSize_;        // Use anti-kt with this cone size
+  const float coneSize_;  // Use anti-kt with this cone size
 
-  edm::EDGetTokenT<std::vector<TrackingParticle> > trackingParticleToken_;
-  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_> > ttStubMCTruthToken_;
+  edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
+  edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> ttStubMCTruthToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
@@ -87,8 +86,10 @@ TPFastJetProducer::TPFastJetProducer(const edm::ParameterSet& iConfig)
       tpNStubMin_((int)iConfig.getParameter<int>("tp_nStubMin")),
       tpNStubLayerMin_((int)iConfig.getParameter<int>("tp_nStubLayerMin")),
       coneSize_((float)iConfig.getParameter<double>("coneSize")),
-      trackingParticleToken_(consumes<std::vector<TrackingParticle> >(iConfig.getParameter<edm::InputTag>("TrackingParticleInputTag"))),
-      ttStubMCTruthToken_(consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_> >(iConfig.getParameter<edm::InputTag>("MCTruthStubInputTag"))),
+      trackingParticleToken_(
+          consumes<std::vector<TrackingParticle>>(iConfig.getParameter<edm::InputTag>("TrackingParticleInputTag"))),
+      ttStubMCTruthToken_(consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>(
+          iConfig.getParameter<edm::InputTag>("MCTruthStubInputTag"))),
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   produces<TkJetCollection>("TPFastJets");
 }
@@ -106,7 +107,7 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<TrackingParticle>::const_iterator iterTP;
 
   // MC truth association maps
-  edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_> > MCTruthTTStubHandle;
+  edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTStubHandle;
   iEvent.getByToken(ttStubMCTruthToken_, MCTruthTTStubHandle);
 
   // Tracker Topology
@@ -127,8 +128,8 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     float tp_z0 = iterTP->z0();
     int tp_eventid = iterTP->eventId().event();
 
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
-      theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+        theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
     int nStubTP = (int)theStubRefs.size();
 
     // how many layers/disks have stubs?
@@ -170,18 +171,15 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       continue;
     if (fabs(tp_z0) > tpZMax_)
       continue;
-    if (tp_charge == 0.) // extra check that all tps are charged  
+    if (tp_charge == 0.)  // extra check that all tps are charged
       continue;
-    if (tp_eventid>0) // only select hard interaction tps
+    if (tp_eventid > 0)  // only select hard interaction tps
       continue;
 
-    fastjet::PseudoJet psuedoJet(iterTP->px(),
-                                 iterTP->py(),
-                                 iterTP->pz(),
-                                 iterTP->energy());
-    JetInputs.push_back(psuedoJet);                     // input tps for clustering
+    fastjet::PseudoJet psuedoJet(iterTP->px(), iterTP->py(), iterTP->pz(), iterTP->energy());
+    JetInputs.push_back(psuedoJet);                // input tps for clustering
     JetInputs.back().set_user_index(this_tp - 1);  // save tp index in the collection
-  }                                                     // end loop over tps
+  }                                                // end loop over tps
 
   fastjet::ClusterSequence cs(JetInputs, jet_def);  // define the output jet collection
   std::vector<fastjet::PseudoJet> JetOutputs =
@@ -192,7 +190,7 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         JetOutputs[ijet].px(), JetOutputs[ijet].py(), JetOutputs[ijet].pz(), JetOutputs[ijet].modp());
     float sumpt = 0;
     float avgZ = 0;
-    std::vector<edm::Ptr<TrackingParticle> > tpPtrs;
+    std::vector<edm::Ptr<TrackingParticle>> tpPtrs;
     std::vector<fastjet::PseudoJet> fjConstituents = fastjet::sorted_by_pt(cs.constituents(JetOutputs[ijet]));
 
     for (unsigned int i = 0; i < fjConstituents.size(); ++i) {
@@ -204,7 +202,7 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     avgZ = avgZ / sumpt;
     edm::Ref<JetBxCollection> jetRef;
-    std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> > dummyL1TrackPtrs; // can't create TkJet with tp references
+    std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>> dummyL1TrackPtrs;  // can't create TkJet with tp references
     TkJet tpJet(jetP4, dummyL1TrackPtrs, avgZ, fjConstituents.size(), 0, 0, 0, false);
     TPFastJets->push_back(tpJet);
   }  //end loop over Jet Outputs
