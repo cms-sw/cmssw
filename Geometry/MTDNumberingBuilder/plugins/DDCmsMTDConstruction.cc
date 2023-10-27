@@ -26,12 +26,13 @@ public:
   void veto(const std::string& veto) { veto_.emplace_back(veto); }
 
   bool accept(const DDExpandedView& ev) const final {
+    std::string currentName(ev.logicalPart().name().fullname());
     for (const auto& test : veto_) {
-      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
+      if (currentName.find(test) != std::string::npos)
         return false;
     }
     for (const auto& test : allowed_) {
-      if (ev.logicalPart().name().fullname().find(test) != std::string::npos)
+      if (currentName.find(test) != std::string::npos)
         return true;
     }
     return false;
@@ -48,6 +49,11 @@ std::unique_ptr<GeometricTimingDet> DDCmsMTDConstruction::construct(const DDComp
   filter.add("mtd:");
   filter.add("btl:");
   filter.add("etl:");
+
+  std::vector<std::string> volnames = {"FSide", "SupportPlate"};
+  for (auto const& theVol : volnames) {
+    filter.veto(theVol);
+  }
 
   DDFilteredView fv(cpv, filter);
 
