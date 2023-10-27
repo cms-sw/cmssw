@@ -13,6 +13,13 @@ hltTPClusterProducer = _tpClusterProducer.clone(
     stripClusterSrc = "hltSiStripRawToClustersFacility",
 )
 
+def _modifyForPhase2(tpClusterProducer):
+    tpClusterProducer.pixelClusterSrc = "siPixelClusters::HLT"
+    tpClusterProducer.phase2OTClusterSrc = "siPhase2Clusters::HLT"
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(hltTPClusterProducer, _modifyForPhase2)
+
 hltTrackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 hltTrackAssociatorByHits.cluster2TPSrc            = cms.InputTag("hltTPClusterProducer")
 hltTrackAssociatorByHits.UseGrouped               = cms.bool( False )
@@ -24,7 +31,6 @@ hltTrackAssociatorByDeltaR.method             = cms.string('momdr')
 hltTrackAssociatorByDeltaR.QCut               = cms.double(0.5)
 hltTrackAssociatorByDeltaR.ConsiderAllSimHits = cms.bool(True)
 
-
 # Note: the TrackAssociatorEDProducers defined below, and
 # tpToHLTtracksAssociationSequence sequence, are not currently needed
 # to run MTV for HLT, as it is configured to produce the
@@ -35,6 +41,8 @@ tpToHLTpixelTrackAssociation = _trackingParticleRecoTrackAsssociation.clone(
     associator = cms.InputTag('hltTrackAssociatorByHits'),
     ignoremissingtrackcollection = cms.untracked.bool(True)
 )
+
+phase2_tracker.toModify(tpToHLTpixelTrackAssociation, label_tr = "hltPhase2PixelTracks")
 
 tpToHLTiter0tracksAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = cms.InputTag("hltIter0PFlowCtfWithMaterialTracks"),
