@@ -1,30 +1,29 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
-import optparse
+from argparse import ArgumentParser
 import re
 from pprint import pprint
 
 commentRE = re.compile (r'#.*$')
 
 if __name__ == "__main__":
-    parser = optparse.OptionParser ("Usage: %prog file1.root [file2.root...]")
-    parser.add_option ('--loadFromFile', dest='loadFromFile', default=[],
-                       type='string',
-                       action='append', 
-                       help="Name of text file containing filenames" )
-    parser.add_option ('--prefix', dest='prefix', type='string',
-                       default='',
-                       help="Prefix to add to files" )
-
-    parser.add_option ('--bx', dest='bx', type='int',
-                       default='0',
-                       help="Bunch crossing to check (0 = in-time)" )
-    (options, args) = parser.parse_args()
-    import ROOT # stupid ROOT takes the arugments error
+    parser = ArgumentParser()
+    parser.add_argument('--loadFromFile', dest='loadFromFile', default=[],
+                        type=str,
+                        action='append', 
+                        help="Name of text file containing filenames" )
+    parser.add_argument('--prefix', dest='prefix', type=str,
+                        default='',
+                        help="Prefix to add to files" )
+    parser.add_argument('--bx', dest='bx', type=int,
+                        default='0',
+                        help="Bunch crossing to check (0 = in-time)" )
+    parser.add_argument("file", metavar="file.root", type=str, nargs='*')
+    options = parser.parse_args()
+    import ROOT # stupid ROOT takes the arguments error
     from DataFormats.FWLite import Events, Handle
 
-    listOfFiles = args[:]
+    listOfFiles = options.file
     for filename in options.loadFromFile:
         source = open (filename, 'r')
         for line in source:            

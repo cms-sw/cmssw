@@ -1,24 +1,19 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
-from FWCore.PythonUtilities.LumiList   import LumiList
-import optparse
-
+from FWCore.PythonUtilities.LumiList import LumiList
+from argparse import ArgumentParser
 
 if __name__ == '__main__':
-    
-    parser = optparse.OptionParser ("Usage: %prog [--options] edm1.root [edm2.root...]",
-                                    description='Runs over input EDM files and prints out a list of contained lumi sections')
-    parser.add_option ('--intLumi', dest='intLumi', action='store_true',
-                       help='print out total recorded and delivered integrated luminosity')
-    parser.add_option ('--output', dest='output', type='string',
-                       help='save lumi sections output to file OUTPUT')
-    (options, args) = parser.parse_args()
+    parser = ArgumentParser(description='Runs over input EDM files and prints out a list of contained lumi sections')
+    parser.add_argument('--intLumi', dest='intLumi', action='store_true',
+                        help='print out total recorded and delivered integrated luminosity')
+    parser.add_argument('--output', dest='output', type=str,
+                        help='save lumi sections output to file OUTPUT')
+    parser.add_argument("edm", metavar="edm.root", type=str, nargs='+')
+    options = parser.parse_args()
     # put this here after parsing the arguments since ROOT likes to
     # grab command line arguments even when it shouldn't.
     from DataFormats.FWLite import Lumis, Handle
-    if not args:
-        raise RuntimeError("Must provide at least one input file")
 
     # do we want to get the luminosity summary?
     if options.intLumi:
@@ -28,7 +23,7 @@ if __name__ == '__main__':
         handle, lable = None, None
 
     runsLumisDict = {}
-    lumis = Lumis (args)
+    lumis = Lumis (options.edm)
     delivered = recorded = 0
     for lum in lumis:
         runList = runsLumisDict.setdefault (lum.aux().run(), [])

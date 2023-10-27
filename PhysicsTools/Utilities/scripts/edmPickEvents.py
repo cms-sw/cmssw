@@ -6,13 +6,12 @@
 # Volker Adler       Apr  16, 2014
 # Raman Khurana      June 18, 2015
 # Dinko Ferencek     June 27, 2015
-from __future__ import print_function
 import os
 import sys
-import optparse
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import re
 
-from FWCore.PythonUtilities.LumiList   import LumiList
+from FWCore.PythonUtilities.LumiList import LumiList
 import json
 from pprint import pprint
 from datetime import datetime
@@ -235,47 +234,41 @@ config.Site.storageSite = "T2_US_Wisconsin"
 
 if __name__ == "__main__":
     email = guessEmail()
-    parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter, description='''This program
 facilitates picking specific events from a data set.  For full details, please visit
-https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
-    parser.add_option ('--output', dest='base', type='string',
-                       default='pickevents',
-                       help='Base name to use for output files (root, JSON, run and event list, etc.; default "%default")')
-    parser.add_option ('--runInteractive', dest='runInteractive', action='store_true',
-                       help = 'Call "cmsRun" command if possible.  Can take a long time.')
-    parser.add_option ('--printInteractive', dest='printInteractive', action='store_true',
-                       help = 'Print "cmsRun" command instead of running it.')
-    parser.add_option ('--maxEventsInteractive', dest='maxEventsInteractive', type='int',
-                       default=20,
-                       help = 'Maximum number of events allowed to be processed interactively.')
-    parser.add_option ('--crab', dest='crab', action='store_true',
-                       help = 'Force CRAB setup instead of interactive mode')
-    parser.add_option ('--crabCondor', dest='crabCondor', action='store_true',
-                       help = 'Tell CRAB to use Condor scheduler (FNAL or OSG sites).')
-    parser.add_option ('--email', dest='email', type='string',
-                       default='',
-                       help="Specify email for CRAB (default '%s')" % email )
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents''')
+    parser.add_argument('--output', dest='base', type=str,
+                        default='pickevents',
+                        help='Base name to use for output files (root, JSON, run and event list, etc.)")')
+    parser.add_argument('--runInteractive', dest='runInteractive', action='store_true',
+                        help = 'Call "cmsRun" command if possible.  Can take a long time.')
+    parser.add_argument('--printInteractive', dest='printInteractive', action='store_true',
+                        help = 'Print "cmsRun" command instead of running it.')
+    parser.add_argument('--maxEventsInteractive', dest='maxEventsInteractive', type=int,
+                        default=20,
+                        help = 'Maximum number of events allowed to be processed interactively.')
+    parser.add_argument('--crab', dest='crab', action='store_true',
+                        help = 'Force CRAB setup instead of interactive mode')
+    parser.add_argument('--crabCondor', dest='crabCondor', action='store_true',
+                        help = 'Tell CRAB to use Condor scheduler (FNAL or OSG sites).')
+    parser.add_argument('--email', dest='email', type=str,
+                        default=email,
+                        help="Specify email for CRAB")
     das_cli = ''
-    parser.add_option ('--das-client', dest='das_cli', type='string',
-                       default=das_cli,
-                       help="Specify das client to use (default '%s')" % das_cli )
-    (options, args) = parser.parse_args()
+    parser.add_argument('--das-client', dest='das_cli', type=str,
+                        default=das_cli,
+                        help="Specify das client to use")
+    parser.add_argument("dataset", type=str)
+    parser.add_argument("events", metavar="events_or_events.txt", type=str, nargs='+')
+    options = parser.parse_args()
 
-
-    if len(args) < 2:
-        parser.print_help()
-        sys.exit(0)
-
-    if not options.email:
-        options.email = email
-
-    Event.dataset = args.pop(0)
+    Event.dataset = options.dataset
     commentRE = re.compile (r'#.+$')
     colonRE   = re.compile (r':')
     eventList = []
-    if len (args) > 1 or colonRE.search (args[0]):
+    if len (options.events) > 1 or colonRE.search (options.events[0]):
         # events are coming in from the command line
-        for piece in args:
+        for piece in options.events:
             try:
                 event = Event (piece)
             except:
@@ -283,7 +276,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
             eventList.append (event)
     else:
         # read events from file
-        source = open(args[0], 'r')
+        source = open(options.events[0], 'r')
         for line in source:
             line = commentRE.sub ('', line)
             try:
