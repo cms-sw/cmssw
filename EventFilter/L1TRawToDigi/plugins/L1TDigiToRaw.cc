@@ -47,19 +47,11 @@ namespace l1t {
   class L1TDigiToRaw : public edm::stream::EDProducer<> {
   public:
     explicit L1TDigiToRaw(const edm::ParameterSet&);
-    ~L1TDigiToRaw() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    using edm::stream::EDProducer<>::consumes;
-
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;
-
-    void beginRun(edm::Run const&, edm::EventSetup const&) override{};
-    void endRun(edm::Run const&, edm::EventSetup const&) override{};
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
 
     // ----------member data ---------------------------
     int evtType_;
@@ -94,8 +86,6 @@ namespace l1t {
     slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 8);
     slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
   }
-
-  L1TDigiToRaw::~L1TDigiToRaw() {}
 
   // ------------ method called to produce the data  ------------
   void L1TDigiToRaw::produce(edm::Event& event, const edm::EventSetup& setup) {
