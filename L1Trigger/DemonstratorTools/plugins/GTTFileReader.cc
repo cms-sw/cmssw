@@ -51,7 +51,10 @@ private:
   // NOTE: At least some of the info from these constants will eventually come from config files
   static constexpr size_t kFramesPerTMUXPeriod = 9;
   static constexpr size_t kGapLength = 44;
+  static constexpr size_t kGapLengthInput = 6;
   static constexpr size_t kVertexTMUX = 6;
+  static constexpr size_t kGTTBoardTMUX = 6;
+  static constexpr size_t kTrackTMUX = 18;
   static constexpr size_t kVertexChanIndex = 0;
   static constexpr size_t kEmptyFrames = 0; // 10 does not match current file writing configuration
 
@@ -59,12 +62,39 @@ private:
       /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
       {{"vertices", 0}, {{kVertexTMUX, kGapLength}, {kVertexChanIndex}}}};
 
+  const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecsInput = {
+      /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
+      {{"tracks", 0}, {{kTrackTMUX, kGapLengthInput}, {0, 18, 36}}},
+      {{"tracks", 1}, {{kTrackTMUX, kGapLengthInput}, {1, 19, 37}}},
+      {{"tracks", 2}, {{kTrackTMUX, kGapLengthInput}, {2, 20, 38}}},
+      {{"tracks", 3}, {{kTrackTMUX, kGapLengthInput}, {3, 21, 39}}},
+      {{"tracks", 4}, {{kTrackTMUX, kGapLengthInput}, {4, 22, 40}}},
+      {{"tracks", 5}, {{kTrackTMUX, kGapLengthInput}, {5, 23, 41}}},
+      {{"tracks", 6}, {{kTrackTMUX, kGapLengthInput}, {6, 24, 42}}},
+      {{"tracks", 7}, {{kTrackTMUX, kGapLengthInput}, {7, 25, 43}}},
+      {{"tracks", 8}, {{kTrackTMUX, kGapLengthInput}, {8, 26, 44}}},
+      {{"tracks", 9}, {{kTrackTMUX, kGapLengthInput}, {9, 27, 45}}},
+      {{"tracks", 10}, {{kTrackTMUX, kGapLengthInput}, {10, 28, 46}}},
+      {{"tracks", 11}, {{kTrackTMUX, kGapLengthInput}, {11, 29, 47}}},
+      {{"tracks", 12}, {{kTrackTMUX, kGapLengthInput}, {12, 30, 48}}},
+      {{"tracks", 13}, {{kTrackTMUX, kGapLengthInput}, {13, 31, 49}}},
+      {{"tracks", 14}, {{kTrackTMUX, kGapLengthInput}, {14, 32, 50}}},
+      {{"tracks", 15}, {{kTrackTMUX, kGapLengthInput}, {15, 33, 51}}},
+      {{"tracks", 16}, {{kTrackTMUX, kGapLengthInput}, {16, 34, 52}}},
+      {{"tracks", 17}, {{kTrackTMUX, kGapLengthInput}, {17, 35, 53}}}
+  };
+  // const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsInput = {
+  //     /* interface name -> {link TMUX, inter-packet gap} */
+  //     {"tracks", {kTrackTMUX, kGapLengthInput}}};
+  
+
   // ----------member functions ----------------------
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   l1t::demo::BoardDataReader fileReader_;
   std::string l1VertexCollectionName_;
+  l1t::demo::BoardDataReader fileReaderInputTracks_;
 };
 
 //
@@ -78,7 +108,13 @@ GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
                   kVertexTMUX,
                   kEmptyFrames,
                   kChannelSpecs),
-      l1VertexCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")) {
+      l1VertexCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
+      fileReaderInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+      			     iConfig.getParameter<std::vector<std::string>>("filesInputTracks"),
+      			     kFramesPerTMUXPeriod,
+      			     kGTTBoardTMUX,
+      			     kEmptyFrames,
+      			     kChannelSpecsInput) {
   produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
 
 }
@@ -103,9 +139,13 @@ void GTTFileReader::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.add<std::vector<std::string>>("files",
                                      {
-                                         "gttOutput_0.txt",
+                                         "L1GTTOutputToCorrelator_0.txt",
                                      });
   desc.add<std::string>("l1VertexCollectionName", "L1VerticesFirmware");
+  desc.add<std::vector<std::string>>("filesInputTracks",
+                                     {
+                                         "L1GTTInputFile_0.txt",
+                                     });
   desc.addUntracked<std::string>("format", "APx");
   descriptions.add("GTTFileReader", desc);
 }
