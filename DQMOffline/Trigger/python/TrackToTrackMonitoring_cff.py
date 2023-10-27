@@ -22,6 +22,12 @@ hltMerged2highPurity = TrackToTrackComparisonHists.clone(
     monitoredPrimaryVertices = "hltVerticesPFSelector"
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltMerged2highPurity,
+                         topDirName               = "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurity",
+                         monitoredTrack           = "hltMergedTracksPPOnAA",
+                         monitoredPrimaryVertices = "hltVerticesPFFilterPPOnAA")                         
+
 hltMerged2highPurityPV = TrackToTrackComparisonHists.clone(
     dzWRTPvCut               = 0.1,
     monitoredTrack           = "hltMergedTracks",
@@ -32,6 +38,12 @@ hltMerged2highPurityPV = TrackToTrackComparisonHists.clone(
     referencePrimaryVertices = "offlinePrimaryVertices",
     monitoredPrimaryVertices = "hltVerticesPFSelector"
 )
+
+pp_on_PbPb_run3.toModify(hltMerged2highPurityPV,
+                         topDirName               = "HLT/Tracking/ValidationWRTOffline/hltMergedPPonAAWrtHighPurityPV",
+                         monitoredTrack           = "hltMergedTracksPPOnAA",
+                         monitoredPrimaryVertices = "hltVerticesPFFilterPPOnAA")                         
+
 hltToOfflineTrackValidatorSequence = cms.Sequence(
     cms.ignore(highPurityTracks)
     + hltMerged2highPurity
