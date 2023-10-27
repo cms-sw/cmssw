@@ -29,14 +29,29 @@ namespace l1t::demo::codecs {
     for (const auto& x : frames) {
       if (not x.test(VertexWord::kValidLSB))
         break;
+      VertexWord::vtxvalid_t validWord;
+      VertexWord::vtxz0_t z0Word;
+      VertexWord::vtxmultiplicity_t multWord;
+      VertexWord::vtxsumpt_t sumPtWord;
+      VertexWord::vtxquality_t qualityWord;
+      VertexWord::vtxinversemult_t inverseMultWord;
+      VertexWord::vtxunassigned_t unassignedWord;
 
-      VertexWord v(VertexWord::vtxvalid_t(1),
-                   VertexWord::vtxz0_t(x(VertexWord::kZ0MSB, VertexWord::kZ0LSB)),
-                   VertexWord::vtxmultiplicity_t(x(VertexWord::kNTrackInPVMSB, VertexWord::kNTrackInPVLSB)),
-                   VertexWord::vtxsumpt_t(x(VertexWord::kSumPtMSB, VertexWord::kSumPtLSB)),
-                   VertexWord::vtxquality_t(x(VertexWord::kQualityMSB, VertexWord::kQualityLSB)),
-                   VertexWord::vtxinversemult_t(x(VertexWord::kNTrackOutPVMSB, VertexWord::kNTrackOutPVLSB)),
-                   VertexWord::vtxunassigned_t(x(VertexWord::kUnassignedMSB, VertexWord::kUnassignedLSB)));
+      validWord.V = x(VertexWord::kValidMSB, VertexWord::kValidLSB);
+      z0Word.V = x(VertexWord::kZ0MSB, VertexWord::kZ0LSB);
+      multWord.V = x(VertexWord::kNTrackInPVMSB, VertexWord::kNTrackInPVLSB);
+      sumPtWord.V = x(VertexWord::kSumPtMSB, VertexWord::kSumPtLSB);
+      qualityWord.V = x(VertexWord::kQualityMSB, VertexWord::kQualityLSB);
+      inverseMultWord.V = x(VertexWord::kNTrackOutPVMSB, VertexWord::kNTrackOutPVLSB);
+      unassignedWord.V = x(VertexWord::kUnassignedMSB, VertexWord::kUnassignedLSB);
+
+      VertexWord v(validWord,
+                   z0Word,
+                   multWord,
+                   sumPtWord,
+                   qualityWord,
+                   qualityWord,
+                   unassignedWord);
       vertices.push_back(v);
     }
 
