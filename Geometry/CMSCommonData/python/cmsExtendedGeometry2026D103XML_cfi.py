@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# This config was generated automatically using generate2026Geometry.py
+# If you notice a mistake, please update the generating script, not just this config
+
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
@@ -53,8 +56,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalCommonData/data/hcalcablealgo/v2/hcalcablealgo.xml',
         'Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml',
         'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
-        'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
-        'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
+        'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/v1/hcalSimNumbering.xml',
+        'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/v2/hcalRecNumbering.xml',
         'Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml',
         'Geometry/HGCalCommonData/data/hgcal/v17/hgcal.xml',
         'Geometry/HGCalCommonData/data/hgcalcell/v17/hgcalcell.xml',
@@ -97,7 +100,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     cms.vstring(
         'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml',
         'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
-        'Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml',
+        'Geometry/HcalCommonData/data/hcalsens/NoHE/v1/hcalsenspmf.xml',
         'Geometry/HcalSimData/data/hf.xml',
         'Geometry/HcalSimData/data/hfpmt.xml',
         'Geometry/HcalSimData/data/hffibrebundle.xml',
