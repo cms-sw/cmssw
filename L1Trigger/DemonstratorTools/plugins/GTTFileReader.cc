@@ -34,6 +34,7 @@
 #include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "L1Trigger/DemonstratorTools/interface/BoardDataReader.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/vertices.h"
+#include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
 #include "L1Trigger/DemonstratorTools/interface/utilities.h"
 
 //
@@ -83,18 +84,18 @@ private:
       {{"tracks", 16}, {{kTrackTMUX, kGapLengthInput}, {16, 34, 52}}},
       {{"tracks", 17}, {{kTrackTMUX, kGapLengthInput}, {17, 35, 53}}}
   };
-  // const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsInput = {
-  //     /* interface name -> {link TMUX, inter-packet gap} */
-  //     {"tracks", {kTrackTMUX, kGapLengthInput}}};
   
+  typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
+  typedef std::vector<L1Track> TTTrackCollection;
 
   // ----------member functions ----------------------
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  l1t::demo::BoardDataReader fileReader_;
+  l1t::demo::BoardDataReader fileReaderOutputToCorrelator_;
   std::string l1VertexCollectionName_;
   l1t::demo::BoardDataReader fileReaderInputTracks_;
+  std::string l1TrackCollectionName_;
 };
 
 //
@@ -102,7 +103,7 @@ private:
 //
 
 GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
-    : fileReader_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+    : fileReaderOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                   iConfig.getParameter<std::vector<std::string>>("files"),
                   kFramesPerTMUXPeriod,
                   kVertexTMUX,
@@ -114,8 +115,10 @@ GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
       			     kFramesPerTMUXPeriod,
       			     kGTTBoardTMUX,
       			     kEmptyFrames,
-      			     kChannelSpecsInput) {
+      			     kChannelSpecsInput),
+      l1TrackCollectionName_(iConfig.getParameter<std::string>("l1TrackCollectionName")) {
   produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
+  produces<TTTrackCollection>(l1TrackCollectionName_);
 
 }
 
@@ -124,9 +127,23 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace l1t::demo::codecs;
 
-  l1t::demo::EventData eventData(fileReader_.getNextEvent());
+  l1t::demo::EventData correlatorEventData(fileReaderOutputToCorrelator_.getNextEvent());
+  l1t::demo::EventData inputEventData(fileReaderInputTracks_.getNextEvent());
 
-  l1t::VertexWordCollection vertices(decodeVertices(eventData.at({"vertices", 0})));
+  l1t::VertexWordCollection vertices(decodeVertices(correlatorEventData.at({"vertices", 0})));
+  auto inputTracks = std::make_unique<TTTrackCollection>();
+  for (size_t i = 0; i < 18; i++) {
+    auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
+    // std::cout << inputTracks.size() << " ";
+    // inputTracks->insert(inputTracks->end(), iTracks.begin(), iTracks.end());
+    for( auto& track: iTracks) {
+      // FIXME need valid bit check, many of these are zeros
+      std::cout << track.getTrackWord().to_string(16) << std::endl;
+      //l1tVertexFinder::L1Track(edm::refToPtr(
+      inputTracks->push_back(track);
+    }
+  }
+  std::cout << std::endl;
 
   edm::LogInfo("GTTFileReader") << vertices.size() << " vertices found";
 
@@ -146,6 +163,7 @@ void GTTFileReader::fillDescriptions(edm::ConfigurationDescriptions& description
                                      {
                                          "L1GTTInputFile_0.txt",
                                      });
+  desc.add<std::string>("l1TrackCollectionName", "Level1TTTracks");
   desc.addUntracked<std::string>("format", "APx");
   descriptions.add("GTTFileReader", desc);
 }
