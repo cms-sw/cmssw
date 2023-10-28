@@ -13,8 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-//#define DebugLog
-
 Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
     : steppingVerbose(sv), hasWatcher(hasW) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
@@ -168,13 +166,13 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromTtoBTL() && !trkinfo->isFromBTLtoT()) {
         trkinfo->setFromTtoBTL();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
                                          << " IdAtBTLentrance = " << trkinfo->mcTruthID();
 #endif
       } else {
         trkinfo->setBTLlooper();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
 #endif
       }
@@ -183,7 +181,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->isFromBTLtoT()) {
         trkinfo->setFromBTLtoT();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
 #endif
       }
@@ -209,7 +207,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
         TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
         if (!trkinfo->isInTrkFromBackscattering()) {
           trkinfo->setInTrkFromBackscattering();
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
           LogDebug("SimG4CoreApplication")
               << "Setting flag for backscattering from CALO " << trkinfo->isInTrkFromBackscattering();
 #endif
@@ -219,7 +217,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
     isKilled = true;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     PrintKilledTrack(theTrack, tstat);
 #endif
   }
