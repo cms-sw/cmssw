@@ -45,25 +45,15 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 
+#include "tracer_setupFile.h"
+
 #include <iostream>
 #include <vector>
-
 #include <string>
 #include <set>
+#include <optional>
 
 namespace edm {
-  class ConfigurationDescriptions;
-  class GlobalContext;
-  class HLTPathStatus;
-  class LuminosityBlock;
-  class ModuleCallingContext;
-  class ModuleDescription;
-  class PathContext;
-  class PathsAndConsumesOfModulesBase;
-  class ProcessContext;
-  class Run;
-  class StreamContext;
-
   namespace service {
     class Tracer {
     public:
@@ -262,6 +252,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
       dumpPathsAndConsumes_(iPS.getUntrackedParameter<bool>("dumpPathsAndConsumes")),
       printTimestamps_(iPS.getUntrackedParameter<bool>("printTimestamps")),
       dumpEventSetupInfo_(iPS.getUntrackedParameter<bool>("dumpEventSetupInfo")) {
+  tracer::setupFile(iPS.getUntrackedParameter<std::string>("fileName"), iRegistry);
+
   for (std::string& label : iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
     dumpContextForLabels_.insert(std::move(label));
 
@@ -488,6 +480,8 @@ void Tracer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       ->setComment(
           "Prints info 3 times when an event setup cache is filled, before the lock, after the lock, and after "
           "filling");
+  desc.addUntracked<std::string>("fileName", "")
+      ->setComment("If fileName is given, write a compact representation of tracer info to the file.");
   descriptions.add("Tracer", desc);
   descriptions.setComment(
       "This service prints each phase the framework is processing, e.g. constructing a module,running a module, etc.");

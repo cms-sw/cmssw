@@ -106,6 +106,7 @@ namespace edm {
     struct ComponentDescription;
     class DataKey;
     class EventSetupRecordKey;
+    class ESRecordsToProductResolverIndices;
   }  // namespace eventsetup
   namespace service {
     class SystemBounds;
@@ -144,6 +145,15 @@ namespace edm {
     Preallocate preallocateSignal_;
     void watchPreallocate(Preallocate::slot_type const& iSlot) { preallocateSignal_.connect(iSlot); }
     AR_WATCH_USING_METHOD_1(watchPreallocate)
+
+    typedef signalslot::Signal<void(eventsetup::ESRecordsToProductResolverIndices const&, ProcessContext const&)>
+        EventSetupConfiguration;
+    ///signal is emitted before beginJob
+    EventSetupConfiguration eventSetupConfigurationSignal_;
+    void watchEventSetupConfiguration(EventSetupConfiguration::slot_type const& iSlot) {
+      eventSetupConfigurationSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchEventSetupConfiguration)
 
     typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
     ///signal is emitted before all modules have gotten their beginJob called

@@ -1137,6 +1137,7 @@ namespace edm {
                 }
               }
             });
+        moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
         esPrefetchAsync(
             WaitingTaskHolder(*group, afterPrefetch), transitionInfo.eventSetupImpl(), T::transition_, serviceToken);
       } else {
