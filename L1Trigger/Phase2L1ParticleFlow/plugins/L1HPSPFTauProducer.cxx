@@ -102,15 +102,6 @@ void L1HPSPFTauProducer::produce(edm::StreamID,
     
   }
 
- 
-
-
-  //add iterator to add particles to selParticles collection
-  for(const auto& l1PFCand : particles){
-
-    selParticles->push_back(*l1PFCand);
-
-    }
 
   //get the jets
   std::vector<edm::Ptr<reco::CaloJet>> jets;
@@ -127,7 +118,6 @@ void L1HPSPFTauProducer::produce(edm::StreamID,
   std::sort(taus.begin(), taus.end(), [](l1t::PFTau i, l1t::PFTau j) { return (i.pt() > j.pt()); });
   newPFTauCollection->swap(taus);
   iEvent.put(std::move(newPFTauCollection), "HPSTaus");
-  iEvent.put(std::move(selParticles), "SelPFCands");
 
 }
 
