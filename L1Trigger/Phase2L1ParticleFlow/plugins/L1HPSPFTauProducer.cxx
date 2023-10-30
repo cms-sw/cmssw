@@ -106,7 +106,7 @@ void L1HPSPFTauProducer::produce(edm::StreamID,
 
 
   //add iterator to add particles to selParticles collection
-  for(auto l1PFCand : particles){
+  for(const auto& l1PFCand : particles){
 
     selParticles->push_back(*l1PFCand);
 
