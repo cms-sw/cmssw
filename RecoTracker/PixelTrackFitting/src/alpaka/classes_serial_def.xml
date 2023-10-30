@@ -1,4 +1,0 @@
-<lcgdict>
-  <class name="PixelFitter" persistent="false"/>
-  <class name="edm::Wrapper<PixelFitter>" persistent="false"/>
-</lcgdict>

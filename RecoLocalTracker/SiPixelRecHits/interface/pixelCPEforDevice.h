@@ -1,6 +1,7 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_interface_pixelCPEforDevice_h
 #define RecoLocalTracker_SiPixelRecHits_interface_pixelCPEforDevice_h
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstdint>

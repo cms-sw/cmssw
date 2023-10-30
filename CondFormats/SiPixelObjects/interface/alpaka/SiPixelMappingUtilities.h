@@ -6,6 +6,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelMappingLayout.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 

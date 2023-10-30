@@ -1,6 +1,6 @@
 #ifndef DataFormats_Vertex_ZVertexUtilities_h
 #define DataFormats_Vertex_ZVertexUtilities_h
-
+#include <alpaka/alpaka.hpp>
 #include "DataFormats/Vertex/interface/ZVertexLayout.h"
 #include "DataFormats/Vertex/interface/ZVertexDefinitions.h"
 
