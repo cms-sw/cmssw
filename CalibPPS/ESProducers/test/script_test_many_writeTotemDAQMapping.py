@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+import shutil
 
 # Script which reads data from DB/XML and writes them to file
 # Run with python3
@@ -26,7 +27,9 @@ if(len(sys.argv)>3):
   
 
 # For each file change the variable values in the config so that they match the selected XML file and then run the config
-test_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'test_writeTotemDAQMapping.py')
+test_script = 'test_writeTotemDAQMapping.py'
+orig_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),test_script)
+shutil.copyfile(orig_script, test_script)
 for fileContent in filesToRead:
     for fileInfo in fileContent["configuration"]:
         with open(test_script, 'r+') as f:
@@ -86,6 +89,4 @@ for fileContent in filesToRead:
             f.truncate()
             
             
-        subprocess.run(f'cmsRun {os.environ["CMSSW_BASE"]}/src/CalibPPS/ESProducers/test/test_writeTotemDAQMapping.py' , shell=True)
-
-    
+        subprocess.run(f'cmsRun ./{test_script}' , shell=True)
