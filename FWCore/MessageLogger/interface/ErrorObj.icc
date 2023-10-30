@@ -65,7 +65,7 @@ namespace edm {
   }
 
   inline ErrorObj& ErrorObj::vformat(std::string_view format, fmt::format_args args) {
-    auto str = fmt::vformat(format, std::move(args));
+    auto str = fmt::vformat(format, args);
     if (!str.empty())
       emitToken(str);
     return *this;

@@ -47,7 +47,7 @@ namespace edm {
     template <typename... Args>
     MessageSender& vformat(std::string_view fmt, fmt::format_args args) {
       if (valid())
-        errorobj_p->vformat(fmt, std::move(args));
+        errorobj_p->vformat(fmt, args);
       return *this;
     }
 
