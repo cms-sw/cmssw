@@ -104,7 +104,7 @@ void DDHGCalPassivePartial::execute(DDCompactView& cpv) {
       // First the mother
       std::string mother = parentName + placementIndexTags_[m] + tags_[k];
       std::vector<std::pair<double, double> > wxy =
-	HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0, false);
+          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0, false);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);

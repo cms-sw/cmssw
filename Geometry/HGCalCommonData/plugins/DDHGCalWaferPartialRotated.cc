@@ -129,7 +129,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       // First the mother
       std::string mother = parentName + placementIndexTags_[m] + waferTag_ + tags_[k];
       std::vector<std::pair<double, double> > wxy =
-	HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0, (waferMode_> 0));
+          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0, (waferMode_ > 0));
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -157,7 +157,8 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       double zi(-0.5 * thick_), thickTot(0.0);
       for (unsigned int l = 0; l < layers_.size(); l++) {
         unsigned int i = layers_[l];
-        wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, layerSizeOff_[i], 0.0, 0.0, (waferMode_> 0));
+        wxy = HGCalWaferMask::waferXY(
+            partialTypes_[k], placementIndex_[m], waferSize_, layerSizeOff_[i], 0.0, 0.0, (waferMode_ > 0));
         std::vector<double> xL, yL;
         for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
           xL.emplace_back(wxy[i0].first);

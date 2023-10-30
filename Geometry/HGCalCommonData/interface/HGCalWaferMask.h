@@ -50,23 +50,23 @@ public:
                            const bool& debug = false);
   // Gets the corners of the partial wafers from its type, orientation, zside
   // (Good for V15, V16 geometries)
-  static std::vector<std::pair<double, double> > waferXY(const int& part, 
-							 const int& orient, 
-							 const int& zside, 
-							 const double& waferSize, 
-							 const double& offset, 
-							 const double& xpos, 
-							 const double& ypos,
-							 const bool& v17);
+  static std::vector<std::pair<double, double> > waferXY(const int& part,
+                                                         const int& orient,
+                                                         const int& zside,
+                                                         const double& waferSize,
+                                                         const double& offset,
+                                                         const double& xpos,
+                                                         const double& ypos,
+                                                         const bool& v17);
   // Gets the corners of the partial wafers from its type, placement index
   // (Good for V17 geometry)
-  static std::vector<std::pair<double, double> > waferXY(const int& part, 
-							 const int& placement, 
-							 const double& wafersize, 
-							 const double& offset, 
-							 const double& xpos, 
-							 const double& ypos,
-							 const bool& v17);
+  static std::vector<std::pair<double, double> > waferXY(const int& part,
+                                                         const int& placement,
+                                                         const double& wafersize,
+                                                         const double& offset,
+                                                         const double& xpos,
+                                                         const double& ypos,
+                                                         const bool& v17);
 
 private:
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision

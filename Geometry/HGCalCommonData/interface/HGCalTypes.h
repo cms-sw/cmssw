@@ -95,7 +95,7 @@ public:
   static constexpr double c22 = 0.1944;
   static constexpr double c25 = 0.25;
   static constexpr double c27O = 0.275;
-  static constexpr double c27 = 0.3056; 
+  static constexpr double c27 = 0.3056;
   static constexpr double c50 = 0.5;
   static constexpr double c61O = 0.6125;
   static constexpr double c61 = 0.59722;

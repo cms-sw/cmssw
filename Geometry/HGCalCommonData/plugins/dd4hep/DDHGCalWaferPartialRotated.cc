@@ -88,7 +88,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       // First the mother
       std::string mother = parentName + placementIndexTags[m] + waferTag + tags[k];
       std::vector<std::pair<double, double>> wxy =
-          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0, (waferMode> 0));
+          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0, (waferMode > 0));
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -120,7 +120,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       double zi(-0.5 * thick), thickTot(0.0);
       for (unsigned int l = 0; l < layers.size(); l++) {
         unsigned int i = layers[l];
-        wxy = HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, layerSizeOff[i], 0.0, 0.0, (waferMode> 0));
+        wxy = HGCalWaferMask::waferXY(
+            partialTypes[k], placementIndex[m], waferSize, layerSizeOff[i], 0.0, 0.0, (waferMode > 0));
         std::vector<double> xL, yL;
         for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
           xL.emplace_back(wxy[i0].first);

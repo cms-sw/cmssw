@@ -18,7 +18,8 @@ HGCGuardRingPartial::HGCGuardRingPartial(const HGCalDDDConstants& hgc)
   c27_ = (v17OrLess_) ? HGCalTypes::c27O : HGCalTypes::c27;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCGuardRingPartial with wafer size " << waferSize_ << ", Offsets "
-                             << ":" << guardRingOffset_ << ":" << offset_ << ", and mode " << modeUV_ << " coefficients " << c22_ << ":" << c27_;
+                             << ":" << guardRingOffset_ << ":" << offset_ << ", and mode " << modeUV_
+                             << " coefficients " << c22_ << ":" << c27_;
 #endif
 }
 
