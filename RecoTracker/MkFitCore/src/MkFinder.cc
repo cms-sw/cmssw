@@ -373,6 +373,11 @@ namespace mkfit {
 
         m_XWsrResult[itrack] = L.is_within_z_sensitive_region(z, std::sqrt(dz * dz + edgeCorr * edgeCorr));
         assignbins(itrack, z, dz, phi, dphi, min_dq, max_dq, min_dphi, max_dphi);
+
+        // Relax propagation-fail detection to be in line with pre-43145.
+        if (m_FailFlag[itrack] && std::sqrt(r2) >= L.layer_info()->rin()) {
+          m_FailFlag[itrack] = 0;
+        }
       }
     } else  // endcap
     {
