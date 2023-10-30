@@ -26,23 +26,24 @@ from RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi impo
 # ECAL multifit running on GPU
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi import ecalUncalibRecHitProducerGPU as _ecalUncalibRecHitProducerGPU
 ecalMultiFitUncalibRecHitGPU = _ecalUncalibRecHitProducerGPU.clone(
-  digisLabelEB = cms.InputTag('ecalDigisGPU', 'ebDigis'),
-  digisLabelEE = cms.InputTag('ecalDigisGPU', 'eeDigis'),
+  digisLabelEB = 'ecalDigisGPU:ebDigis',
+  digisLabelEE = 'ecalDigisGPU:eeDigis',
 )
 
 # copy the uncalibrated rechits from GPU to CPU
 from RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi import ecalCPUUncalibRecHitProducer as _ecalCPUUncalibRecHitProducer
 ecalMultiFitUncalibRecHitSoA = _ecalCPUUncalibRecHitProducer.clone(
-  recHitsInLabelEB = cms.InputTag('ecalMultiFitUncalibRecHitGPU', 'EcalUncalibRecHitsEB'),
-  recHitsInLabelEE = cms.InputTag('ecalMultiFitUncalibRecHitGPU', 'EcalUncalibRecHitsEE'),
+  recHitsInLabelEB = 'ecalMultiFitUncalibRecHitGPU:EcalUncalibRecHitsEB',
+  recHitsInLabelEE = 'ecalMultiFitUncalibRecHitGPU:EcalUncalibRecHitsEE',
+  containsTimingInformation = True
 )
 
 # convert the uncalibrated rechits from SoA to legacy format
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitConvertGPU2CPUFormat_cfi import ecalUncalibRecHitConvertGPU2CPUFormat as _ecalUncalibRecHitConvertGPU2CPUFormat
 gpu.toModify(ecalMultiFitUncalibRecHit,
   cuda = _ecalUncalibRecHitConvertGPU2CPUFormat.clone(
-    recHitsLabelGPUEB = cms.InputTag('ecalMultiFitUncalibRecHitSoA', 'EcalUncalibRecHitsEB'),
-    recHitsLabelGPUEE = cms.InputTag('ecalMultiFitUncalibRecHitSoA', 'EcalUncalibRecHitsEE'),
+    recHitsLabelGPUEB = 'ecalMultiFitUncalibRecHitSoA:EcalUncalibRecHitsEB',
+    recHitsLabelGPUEE = 'ecalMultiFitUncalibRecHitSoA:EcalUncalibRecHitsEE',
   )
 )
 
