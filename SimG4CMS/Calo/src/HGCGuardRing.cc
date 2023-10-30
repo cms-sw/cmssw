@@ -9,6 +9,7 @@
 HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc)
     : hgcons_(hgc),
       modeUV_(hgcons_.geomMode()),
+      v17OrLess_(hgcons_.v17OrLess()),
       waferSize_(hgcons_.waferSize(false)),
       sensorSizeOffset_(hgcons_.getParameter()->sensorSizeOffset_),
       guardRingOffset_(hgcons_.getParameter()->guardRingOffset_) {
@@ -47,7 +48,7 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
       int orient = HGCalWaferType::getOrient(index, hgcons_.getParameter()->waferInfoMap_);
       if (modeUV_ == HGCalGeometryMode::Hexagon8Module) {
         std::vector<std::pair<double, double> > wxy =
-            HGCalWaferMask::waferXY(partial, orient, zside, waferSize_, offset_, 0.0, 0.0);
+            HGCalWaferMask::waferXY(partial, orient, zside, waferSize_, offset_, 0.0, 0.0, v17OrLess_);
         check = !(insidePolygon(point.x(), point.y(), wxy));
 #ifdef EDM_ML_DEBUG
         std::ostringstream st1;
@@ -60,7 +61,7 @@ bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int l
       } else {
         int placement = HGCalCell::cellPlacementIndex(zside, frontBack, orient);
         std::vector<std::pair<double, double> > wxy =
-            HGCalWaferMask::waferXY(partial, placement, waferSize_, offset_, 0.0, 0.0);
+            HGCalWaferMask::waferXY(partial, placement, waferSize_, offset_, 0.0, 0.0, v17OrLess_);
         check = !(insidePolygon(point.x(), point.y(), wxy));
 #ifdef EDM_ML_DEBUG
         std::ostringstream st1;
