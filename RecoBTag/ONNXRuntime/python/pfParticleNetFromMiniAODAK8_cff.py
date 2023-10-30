@@ -6,7 +6,6 @@ from RecoBTag.FeatureTools.ParticleNetFeatureEvaluator_cfi import ParticleNetFea
 from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8DiscriminatorsJetTags_cfi import pfParticleNetFromMiniAODAK8DiscriminatorsJetTags
 from RecoBTag.ONNXRuntime.particleNetSonicJetTagsProducer_cfi import particleNetSonicJetTagsProducer as _particleNetSonicJetTagsProducer
 from Configuration.ProcessModifiers.particleNetSonicTriton_cff import particleNetSonicTriton
-from Configuration.ProcessModifiers.particleNetPTSonicTriton_cff import particleNetPTSonicTriton
 
 pfParticleNetFromMiniAODAK8TagInfos = ParticleNetFeatureEvaluator.clone(
     jets = "slimmedJetsAK8",

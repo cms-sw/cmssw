@@ -46,7 +46,6 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetJetTags, _particleNetSonicJetT
     )
 )
 
-
 pfMassDecorrelatedParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/preprocess.json',

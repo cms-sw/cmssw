@@ -94,7 +94,29 @@ ParticleNetSonicJetTagsProducer::ParticleNetSonicJetTagsProducer(const edm::Para
     produces<JetTagCollection>(flav_name);
   }
 
-  emptyJets_.clear();
+  if (!countedInputs) {
+    int model_input_size = input_names_.size();
+    for (int n = 0; n < model_input_size; n++) {
+      if (prep_info_map_.at(input_names_.at(n)).var_names.at(0).find("pf") != std::string::npos) {
+        if (numParticleGroups_ == 0) {
+          particleNameExample_ = prep_info_map_.at(input_names_.at(n)).var_names.at(0);
+        }
+        numParticleGroups_++;
+      } else if (prep_info_map_.at(input_names_.at(n)).var_names.at(0).find("sv") != std::string::npos) {
+        if (numVertexGroups_ == 0) {
+          vertexNameExample_ = prep_info_map_.at(input_names_.at(n)).var_names.at(0);
+        }
+        numVertexGroups_++;
+      } else if (prep_info_map_.at(input_names_.at(n)).var_names.at(0).find("lt") != std::string::npos) {
+        if (numLostTrackGroups_ == 0) {
+          losttrackNameExample_ = prep_info_map_.at(input_names_.at(n)).var_names.at(0);
+        }
+        numLostTrackGroups_++;
+      }
+    }
+
+    countedInputs = true;
+  }
 }
 
 ParticleNetSonicJetTagsProducer::~ParticleNetSonicJetTagsProducer() {}
@@ -143,31 +165,8 @@ void ParticleNetSonicJetTagsProducer::acquire(edm::Event const &iEvent, edm::Eve
 
   emptyJets_.clear();
 
-  if (!countedInputs) {
-    int model_input_size = input_names_.size();
-    for (int n = 0; n < model_input_size; n++) {
-      if (prep_info_map_.at(input_names_.at(n)).var_names.at(0).find("pf") != std::string::npos) {
-        if (numParticleGroups_ == 0) {
-          particleNameExample_ = prep_info_map_.at(input_names_.at(n)).var_names.at(0);
-        }
-        numParticleGroups_++;
-      } else if (prep_info_map_.at(input_names_.at(n)).var_names.at(0).find("sv") != std::string::npos) {
-        if (numVertexGroups_ == 0) {
-          vertexNameExample_ = prep_info_map_.at(input_names_.at(n)).var_names.at(0);
-        }
-        numVertexGroups_++;
-      } else if (prep_info_map_.at(input_names_.at(n)).var_names.at(0).find("lt") != std::string::npos) {
-        if (numLostTrackGroups_ == 0) {
-          losttrackNameExample_ = prep_info_map_.at(input_names_.at(n)).var_names.at(0);
-        }
-        numLostTrackGroups_++;
-      }
-    }
-
-    countedInputs = true;
-  }
-
   if (!tag_infos->empty()) {
+    emptyJets_.reserve(tag_infos->size());
     unsigned int maxParticles = 0;
     unsigned int maxVertices = 0;
     unsigned int maxLT = 0;

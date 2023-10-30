@@ -5,7 +5,6 @@ from RecoBTag.ONNXRuntime.boostedJetONNXJetTagsProducer_cfi import boostedJetONN
 from RecoBTag.ONNXRuntime.Parameters.HiggsInteractionNet.V00.pfHiggsInteractionNetPreprocessParams_cfi import pfHiggsInteractionNetPreprocessParams
 from RecoBTag.ONNXRuntime.particleNetSonicJetTagsProducer_cfi import particleNetSonicJetTagsProducer as _particleNetSonicJetTagsProducer
 from Configuration.ProcessModifiers.particleNetSonicTriton_cff import particleNetSonicTriton
-from Configuration.ProcessModifiers.particleNetPTSonicTriton_cff import particleNetPTSonicTriton
 
 # modify default parameters for tag infos
 pfHiggsInteractionNetTagInfos = _pfDeepBoostedJetTagInfos.clone(
