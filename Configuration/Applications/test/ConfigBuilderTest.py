@@ -24,6 +24,7 @@ def prepareDQMSequenceOrder():
     return (options, process)
 
 if __name__=="__main__":
+    exit(1)
     import unittest
 
     class TestModuleCommand(unittest.TestCase):
