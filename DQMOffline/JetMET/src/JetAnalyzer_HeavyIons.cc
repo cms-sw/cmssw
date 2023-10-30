@@ -228,7 +228,10 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker &ibooker,
     mPFDeltaR_Scaled_R =
         ibooker.book1D("PFDeltaR_Scaled_R", "PF candidate DeltaR Divided by DeltaR square", 100, 0, 4);  //MZ
 
+    {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
     mSumPFPt = ibooker.book1D("SumPFPt", "Sum of initial PF p_{T}", 1000, -10000, 10000);
+    }      
     mSumPFPt_eta = ibooker.book2D("SumPFPt_etaBins", h2D_etabins_vs_pt);
 
     mSumSquaredPFPt = ibooker.book1D("SumSquaredPFPt", "Sum of initial PF p_{T} squared", 10000, 0, 10000);
