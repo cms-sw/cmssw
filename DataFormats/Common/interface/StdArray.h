@@ -53,7 +53,7 @@ namespace edm {
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     // Constructors
-
+#if __cplusplus < 202002L
     // default constructor
     constexpr StdArray() = default;
 
@@ -62,7 +62,7 @@ namespace edm {
 
     // move constructor
     constexpr StdArray(StdArray<T, N>&& init) = default;
-
+#endif
     // copy assignment operator
     constexpr StdArray& operator=(StdArray<T, N> const& init) = default;
 
