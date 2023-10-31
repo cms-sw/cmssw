@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 gemSegments = cms.EDProducer("GEMSegmentProducer",
+    enableGE0 = cms.bool(True),
+    enableGE12 = cms.bool(False),
     gemRecHitLabel = cms.InputTag("gemRecHits"),
     ge0_name = cms.string("GE0SegAlgoRU"),
     algo_name = cms.string("GEMSegmentAlgorithm"),

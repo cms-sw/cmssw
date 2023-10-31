@@ -10,6 +10,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullptr) {
+  // Segment building selection
+  enableGE0 = ps.getParameter<bool>("enableGE0");
+  enableGE12 = ps.getParameter<bool>("enableGE12");
+
   // Algo name
   segAlgoName = ps.getParameter<std::string>("algo_name");
   ge0AlgoName = ps.getParameter<std::string>("ge0_name");
@@ -93,9 +97,9 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
 
     // given the superchamber select the appropriate algo... and run it
     std::vector<GEMSegment> segv;
-    if (chamber->id().station() == 0)
+    if (enableGE0 and chamber->id().station() == 0)
       segv = ge0Algo->run(ensemble, gemRecHits);
-    else
+    else if (enableGE12)
       segv = segAlgo->run(ensemble, gemRecHits);
 #ifdef EDM_ML_DEBUG  // have lines below only compiled when in debug mode
     LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size();

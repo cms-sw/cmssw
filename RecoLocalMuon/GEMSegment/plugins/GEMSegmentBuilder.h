@@ -40,6 +40,8 @@ public:
   void setGeometry(const GEMGeometry* g);
 
 private:
+  bool enableGE0;
+  bool enableGE12;
   std::string segAlgoName;
   std::string ge0AlgoName;
   edm::ParameterSet segAlgoPSet;
