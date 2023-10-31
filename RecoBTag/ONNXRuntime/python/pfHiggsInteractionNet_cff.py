@@ -19,7 +19,7 @@ pfHiggsInteractionNetTagInfos = _pfDeepBoostedJetTagInfos.clone(
 pfHiggsInteractionNetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfHiggsInteractionNetTagInfos',
     preprocessParams = pfHiggsInteractionNetPreprocessParams,
-    model_path = 'RecoBTag/Combined/data/HiggsInteractionNet/V00/IN.onnx',
+    model_path = 'RecoBTag/Combined/data/HiggsInteractionNet/V00/modelfile/model.onnx',
     flav_names = [ 'probQCD', 'probHbb' ]
 )
 
