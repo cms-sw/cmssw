@@ -134,20 +134,36 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto inputTracks = std::make_unique<TTTrackCollection>();
   for (size_t i = 0; i < 18; i++) {
     auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
-    // std::cout << inputTracks.size() << " ";
-    // inputTracks->insert(inputTracks->end(), iTracks.begin(), iTracks.end());
-    for( auto& track: iTracks) {
-      // FIXME need valid bit check, many of these are zeros
-      std::cout << track.getTrackWord().to_string(16) << std::endl;
-      //l1tVertexFinder::L1Track(edm::refToPtr(
+    for( auto& trackword: iTracks) {
+      if (!trackword.getValidWord())
+	continue;
+      unsigned int etaSector = (trackword.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kTanlMSB, TTTrack_TrackWord::TrackBitLocations::kTanlMSB) ? 0 : 1);
+      unsigned int phiSector = (static_cast<unsigned int>(i) - etaSector) / 2;
+      L1Track track = L1Track(
+			     trackword.getValidWord(),
+			     trackword.getRinvWord(),
+			     trackword.getPhiWord(),
+			     trackword.getTanlWord(),
+			     trackword.getZ0Word(),
+			     trackword.getD0Word(),
+			     trackword.getChi2RPhiWord(),
+			     trackword.getChi2RZWord(),
+			     trackword.getBendChi2Word(),
+			     trackword.getHitPatternWord(),
+			     trackword.getMVAQualityWord(),
+			     trackword.getMVAOtherWord()
+			     );
+      track.setEtaSector(etaSector);
+      track.setPhiSector(phiSector);
+      track.trackWord_ = trackword.trackWord_;
       inputTracks->push_back(track);
     }
   }
-  std::cout << std::endl;
 
   edm::LogInfo("GTTFileReader") << vertices.size() << " vertices found";
 
-  iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices), "L1VerticesFirmware");
+  iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices), l1VertexCollectionName_);
+  iEvent.put(std::move(inputTracks), l1TrackCollectionName_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
