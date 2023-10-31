@@ -112,6 +112,7 @@ private:
   // ----------member data ---------------------------
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
   const std::string outputCollectionName_;
+  bool setTrackWordBits_;
   int debug_;
   std::vector<out_pt_t> pt_lut_;
   std::vector<out_eta_t> eta_lut_;
@@ -123,6 +124,7 @@ private:
 L1GTTInputProducer::L1GTTInputProducer(const edm::ParameterSet& iConfig)
     : l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
       outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")),
+      setTrackWordBits_(iConfig.getParameter<bool>("setTrackWordBits")),
       debug_(iConfig.getParameter<int>("debug")) {
   // Generate the required luts
   generate_eta_lut();
@@ -429,7 +431,7 @@ void L1GTTInputProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   vPtOutput->reserve(nOutput);
   vEtaOutput->reserve(nOutput);
   for (const auto& track : *l1TracksHandle) {
-    if (!(track.nFitPars() == Npars4 || track.nFitPars() == Npars5)) {
+    if (setTrackWordBits_ && !(track.nFitPars() == Npars4 || track.nFitPars() == Npars5)) {
       throw cms::Exception("nFitPars unknown")
           << "L1GTTInputProducer::produce method is called with numFitPars_ = " << track.nFitPars()
           << ". The only possible values are 4/5.";
@@ -439,12 +441,13 @@ void L1GTTInputProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     vTTTrackOutput->push_back(track);
     auto& currentTrackRef = vTTTrackOutput->back();
     if (debug_ >= 2) {
-      edm::LogInfo("L1GTTInputProducer") << "produce::word before anything "
+      edm::LogInfo("L1GTTInputProducer") << "produce::word before anything with setTrackWordBits_ = " << setTrackWordBits_ << ": " 
                                          << currentTrackRef.getTrackWord().to_string(2);
     }
 
     // Do an initial setting of the bits based on the floating point values
-    currentTrackRef.setTrackWordBits();
+    if(setTrackWordBits_)
+      currentTrackRef.setTrackWordBits();
     if (debug_ >= 2) {
       edm::LogInfo("L1GTTInputProducer") << "produce::word after initial setting of the track word "
                                          << currentTrackRef.getTrackWord().to_string(2);
@@ -531,6 +534,7 @@ void L1GTTInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("debug", 0)->setComment("Verbosity levels: 0, 1, 2, 3");
   desc.add<edm::InputTag>("l1TracksInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add<std::string>("outputCollectionName", "Level1TTTracksConverted");
+  desc.add<bool>("setTrackWordBits", true)->setComment("flag indicated whether the TTTrack_TrackWord should be set from float parameters or skipped (if TrackWord set by e.g. GTTFileReader decoding)");
   descriptions.addWithDefaultLabel(desc);
 }
 
