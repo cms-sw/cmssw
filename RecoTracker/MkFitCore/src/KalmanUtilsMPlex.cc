@@ -1359,7 +1359,7 @@ namespace mkfit {
       kalmanOperationEndcap(KFO_Update_Params, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     }
     for (int n = 0; n < NN; ++n) {
-      if (outPar.At(n, 3, 0) < 0) {
+      if (n < N_proc && outPar.At(n, 3, 0) < 0) {
         Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
         outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
       }

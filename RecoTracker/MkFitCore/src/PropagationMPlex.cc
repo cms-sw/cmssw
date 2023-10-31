@@ -690,9 +690,11 @@ namespace mkfit {
           hitsRl(n, 0, 0) = mat.radl;
           hitsXi(n, 0, 0) = mat.bbxi;
         }
-        const float zout = msZ.constAt(n, 0, 0);
-        const float zin = inPar.constAt(n, 2, 0);
-        propSign(n, 0, 0) = (std::abs(zout) > std::abs(zin) ? 1.f : -1.f);
+        if (n < N_proc) {
+          const float zout = msZ.constAt(n, 0, 0);
+          const float zin = inPar.constAt(n, 2, 0);
+          propSign(n, 0, 0) = (std::abs(zout) > std::abs(zin) ? 1.f : -1.f);
+        }
       }
       MPlexHV plNrm;
 #pragma omp simd
