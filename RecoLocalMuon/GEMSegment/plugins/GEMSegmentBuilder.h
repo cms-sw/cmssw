@@ -17,6 +17,7 @@
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 class GEMSegmentAlgorithmBase;
 
@@ -38,6 +39,8 @@ public:
   /** Cache pointer to geometry _for current event_
      */
   void setGeometry(const GEMGeometry* g);
+
+  void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   bool enableGE0;

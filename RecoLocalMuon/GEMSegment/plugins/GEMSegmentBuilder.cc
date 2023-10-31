@@ -11,8 +11,8 @@
 
 GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullptr) {
   // Segment building selection
-  enableGE0 = ps.getParameter<bool>("enableGE0");
-  enableGE12 = ps.getParameter<bool>("enableGE12");
+  enableGE0 = ps.existsAs<bool>("enableGE0") ? ps.getParameter<bool>("enableGE0") : true;
+  enableGE12 = ps.existsAs<bool>("enableGE12") ? ps.getParameter<bool>("enableGE12") : false;
 
   // Algo name
   segAlgoName = ps.getParameter<std::string>("algo_name");
@@ -30,6 +30,20 @@ GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullpt
   ge0Algo = GEMSegmentBuilderPluginFactory::get()->create(ge0AlgoName, ge0AlgoPSet);
 }
 GEMSegmentBuilder::~GEMSegmentBuilder() {}
+
+void GEMSegmentBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  edm::ParameterSetDescription ge0AlgoConfigDesc;
+  edm::ParameterSetDescription recAlgoConfigDesc;
+  desc.addOptional<bool>("enableGE0", true);
+  desc.addOptional<bool>("enableGE12", false);
+  desc.add<edm::InputTag>("gemRecHitsLabel", edm::InputTag("gemRecHits"));
+  desc.add<std::string>("ge0_name", "GE0SegAlgoRU");
+  desc.add<std::string>("algo_name", "GEMSegmentAlgorithm");
+  desc.add<edm::ParameterSetDescription>("ge0_pset", ge0AlgoConfigDesc);
+  desc.add<edm::ParameterSetDescription>("algo_pset", recAlgoConfigDesc);
+  descriptions.add("gemSegmentsDef", desc);
+}
 
 void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentCollection& oc) {
   edm::LogVerbatim("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] Total number of rechits in this event: "
