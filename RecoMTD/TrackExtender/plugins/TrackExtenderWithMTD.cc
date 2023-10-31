@@ -1287,10 +1287,16 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
                 << " +/- " << thiterror;
             validmtd = true;
           } else {
-            LogTrace("TrackExtenderWithMTD")
-                << "TrackExtenderWithMTD: issue with layer2 extrapolation to layer1, time difference "
-                << (tofInfo.dt - mtdhit2->time()) << " larger than maximal uncertainty "
-                << (err1 + err2) * etlTimeChi2Cut_;
+            // if back extrapolated time of the outermost measurement not compatible with the innermost, keep the one with smallest error
+            if (err1 <= err2) {
+              thit = tofInfo.dt;
+              thiterror = tofInfo.dterror;
+              validmtd = true;
+            } else {
+              thit = mtdhit2->time();
+              thiterror = mtdhit2->timeError();
+              validmtd = true;
+            }
           }
         }
       }
