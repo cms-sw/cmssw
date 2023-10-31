@@ -6,6 +6,8 @@
 
 #include "HLTrigger/JetMET/interface/HLTHPDFilter.h"
 
+#include <array>
+
 #include <cmath>
 
 #include <set>
@@ -104,7 +106,7 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(m_theRecHitCollectionToken, hbhe);
 
   // collect energies
-  float hpdEnergy[4][73];
+  std::array<std::array<float, 73>, 4> hpdEnergy;
   for (auto& i : hpdEnergy)
     for (size_t j = 0; j < 73; ++j)
       i[j] = 0;
