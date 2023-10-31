@@ -56,7 +56,8 @@ private:
     int run;
     int ls;
     double fX0, fY0, fZ0;
-    double fSigmaZ;
+    double fMeanX, fMeanY, fMeanZ;
+    double fSigmaX, fSigmaY, fSigmaZ;
     double fbetastar, femittance;
     double fPhi, fAlpha;
     double fTimeOffset;
@@ -102,6 +103,11 @@ void BeamProfile2DBReader::TheBSfromDB::init() {
   fX0 = dummy_double;
   fY0 = dummy_double;
   fZ0 = dummy_double;
+  fMeanX = dummy_double;
+  fMeanY = dummy_double;
+  fMeanZ = dummy_double;
+  fSigmaX = dummy_double;
+  fSigmaY = dummy_double;
   fSigmaZ = dummy_double;
   fbetastar = dummy_double;
   femittance = dummy_double;
@@ -130,6 +136,11 @@ void BeamProfile2DBReader::analyze(const edm::Event& iEvent, const edm::EventSet
     theBSfromDB_.fX0 = mybeamspot->x();
     theBSfromDB_.fY0 = mybeamspot->y();
     theBSfromDB_.fZ0 = mybeamspot->z();
+    theBSfromDB_.fMeanX = mybeamspot->meanX();
+    theBSfromDB_.fMeanY = mybeamspot->meanY();
+    theBSfromDB_.fMeanZ = mybeamspot->meanZ();
+    theBSfromDB_.fSigmaX = mybeamspot->sigmaX();
+    theBSfromDB_.fSigmaY = mybeamspot->sigmaY();
     theBSfromDB_.fSigmaZ = mybeamspot->sigmaZ();
     theBSfromDB_.fbetastar = mybeamspot->betaStar();
     theBSfromDB_.femittance = mybeamspot->emittance();
@@ -157,6 +168,11 @@ void BeamProfile2DBReader::beginJob() {
   bstree_->Branch("BSx0", &theBSfromDB_.fX0, "BSx0/F");
   bstree_->Branch("BSy0", &theBSfromDB_.fY0, "BSy0/F");
   bstree_->Branch("BSz0", &theBSfromDB_.fZ0, "BSz0/F");
+  bstree_->Branch("BSmeanX", &theBSfromDB_.fMeanX, "BSmeanX/F");
+  bstree_->Branch("BSmeanY", &theBSfromDB_.fMeanY, "BSmeanY/F");
+  bstree_->Branch("BSmeanZ", &theBSfromDB_.fMeanZ, "BSmeanZ/F");
+  bstree_->Branch("Beamsigmax", &theBSfromDB_.fSigmaX, "Beamsigmax/F");
+  bstree_->Branch("Beamsigmay", &theBSfromDB_.fSigmaY, "Beamsigmay/F");
   bstree_->Branch("Beamsigmaz", &theBSfromDB_.fSigmaZ, "Beamsigmaz/F");
   bstree_->Branch("BetaStar", &theBSfromDB_.fbetastar, "BetaStar/F");
   bstree_->Branch("Emittance", &theBSfromDB_.femittance, "Emittance/F");
