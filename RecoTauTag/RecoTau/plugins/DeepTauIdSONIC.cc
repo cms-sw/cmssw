@@ -204,12 +204,14 @@ void DeepTauIdSonicProducer::acquire(edm::Event const& iEvent, edm::EventSetup c
 }
 
 void DeepTauIdSonicProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) {
-  if (tau_indices_.empty()) {
-    edm::LogInfo("DeepTauIdSonicProducer") << "no tau sent to the server; skip this event in produce";
-    return;
-  }
   edm::Handle<TauCollection> taus;
   iEvent.getByToken(tausToken_, taus);
+
+  if (taus->empty()) {
+    std::vector<std::vector<float>> pred_all(0, std::vector<float>(deep_tau::NumberOfOutputs, 0.));
+    createOutputs(iEvent, pred_all, taus);
+    return;
+  }
 
   const auto& output_tauval = iOutput.at("main_output/Softmax");
   const auto& outputs_tauval = output_tauval.fromServer<float>();
