@@ -33,7 +33,7 @@ options.register('efficiencyFileName',
                 VarParsing.VarParsing.varType.string,
                 "efficiency ROOT file name - output of the EfficiencyTool_2018")
 options.register('sourceFileList',
-                '../test/testData_366186.dat',
+                '../test/testData_ALCAPPS_366186.dat',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "source file list name")

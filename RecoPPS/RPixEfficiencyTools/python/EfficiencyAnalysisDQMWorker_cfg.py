@@ -31,7 +31,7 @@ options.register('outputFileName',
                 VarParsing.VarParsing.varType.string,
                 "output ROOT file name")
 options.register('sourceFileList',
-                '../test/testData_366186.dat',
+                '../test/testData_ALCAPPS_366186.dat',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "source file list name")
@@ -172,7 +172,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 #CONFIGURE PROCESS
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 if options.useJsonFile == True:
     print("Using JSON file...")
@@ -196,7 +196,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 #SETUP INPUT
 process.source = cms.Source("PoolSource",
-    fileNames = inputFiles
+    fileNames = inputFiles,
+    inputCommands = cms.untracked.vstring(
+        'keep *',
+        # 'keep *_hltGtStage2Digis_*_*',
+        'drop *_*_*_RECO',
+        'keep *_*ctpps*_*_RECO',
+        'keep *_*Digi*_*_RECO',
+    )
 )
 
 #SETUP TAG FLEXIBILITY
@@ -238,10 +245,16 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     maxTracksInTagPot=cms.untracked.int32(options.maxTracksInTagPot),    
     minTracksInTagPot=cms.untracked.int32(options.minTracksInTagPot),  
     recoInfo=cms.untracked.int32(options.recoInfo),
-    debug=cms.untracked.bool(False),
+    debug=cms.untracked.bool(True),
+
+    # Configs for prescale provider
     processName = cms.string("HLT"),
     triggerPattern = cms.string("HLT_PPSMaxTracksPerRP4_v*"),
     stageL1Trigger = cms.uint32(2),
+    # l1tAlgBlkInputTag = cms.InputTag('hltGtStage2ObjectMap'),
+    # l1tExtBlkInputTag = cms.InputTag('hltGtStage2ObjectMap')
+    l1tAlgBlkInputTag = cms.InputTag('gtStage2Digis'),
+    l1tExtBlkInputTag = cms.InputTag('gtStage2Digis')
 )
 
 #SETUP OUTPUT
@@ -250,12 +263,30 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string(options.outputFileName)
 )
 
+process.fileOutput = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string(options.outputFileName),
+    outputCommands = cms.untracked.vstring(
+        'keep *',
+    )
+)
+
+# Filter only ZB events to be sure that we're getting the right prescale
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
+process.filterL1ZeroBias = triggerResultsFilter.clone(
+    hltResults = cms.InputTag('TriggerResults', '', 'HLT'),
+    l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
+    # l1tResults = cms.InputTag("gtStage2Digis", "", "HLT"),  # Adjust the InputTag accordingly
+    triggerConditions = cms.vstring("L1_ZeroBias"),  # Replace with the name of your L1 trigger
+)
+
 #SCHEDULE JOB
 process.path = cms.Path(
+    process.filterL1ZeroBias *
     process.worker
 )
 
 process.end_path = cms.EndPath(
+    # process.fileOutput
     process.dqmOutput
 )
 

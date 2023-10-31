@@ -929,7 +929,7 @@ void EfficiencyTool_2018DQMWorker::dqmBeginRun(edm::Run const & iRun, edm::Event
       const unsigned int n(hltConfig.size());
       const unsigned int triggerIndex(hltConfig.triggerIndex(triggerPattern_));
       if (triggerIndex >= n) {
-        edm::LogInfo("PPS") << "prescalePlotter::analyze:"
+        edm::LogInfo("PPS") << "EfficiencyTool_2018DQMWorker::dqmBeginRun:"
                        << " TriggerName " << triggerPattern_ << " not available in (new) config!" << endl;
         edm::LogInfo("PPS") << "Available TriggerNames are: " << endl;
         hltConfig.dump("Triggers");
@@ -952,16 +952,32 @@ void EfficiencyTool_2018DQMWorker::analyze(const edm::Event &iEvent, const edm::
   int ls = iEvent.getLuminosityBlock().id().luminosityBlock();
 
   // Print prescales
-  std::cout << "LS: " << ls << std::endl;
-  std::cout << "\tHLT prescale: " << prescales.second << std::endl;
-  std::cout << "\tL1 prescales: " << std::endl;
-  for (const auto &l1Prescale : prescales.first)
-    std::cout << "\t\t" << l1Prescale.first << ": " << l1Prescale.second << std::endl;
+  if (debug_){
+    std::cout << "LS: " << ls << std::endl;
+    std::cout << "\tHLT prescale: " << prescales.second << std::endl;
+    std::cout << "\tL1 prescales: " << std::endl;
 
-  // h1L1Prescale_->Fill(ls,prescales.first);
-  // h1HLTPrescale_->Fill(ls,prescales.second);
-  // double weight = prescales.first * prescales.second;
+  }
+
   double weight = 1.;
+
+  bool l1Prescale_found = false;
+  for (const auto &l1Prescale : prescales.first){
+    if (debug_)
+      std::cout << "\t\t" << l1Prescale.first << ": " << l1Prescale.second << std::endl;
+    if (l1Prescale.first == "L1_ZeroBias"){
+      h1L1Prescale_->Fill(ls, l1Prescale.second);
+      weight *= l1Prescale.second; // Correct for the L1 prescale value
+      l1Prescale_found = true;
+    }
+  }
+  if (!l1Prescale_found){
+    std::cout << "L1_ZeroBias prescale not found!" << std::endl;
+    return;
+  }
+
+  h1HLTPrescale_->Fill(ls,prescales.second);
+  // weight *= prescales.second; // Correct for the HLT prescale value
 
   if (!validBunchArray_[iEvent.eventAuxiliary().bunchCrossing()])
     return;
