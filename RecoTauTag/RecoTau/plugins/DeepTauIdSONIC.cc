@@ -1,9 +1,10 @@
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
+/*
+ * \class DeepTauIdSONIC
+ *
+ * Tau identification using Deep NN with SONIC
+ *
+ */
+
 #include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
 #include "RecoTauTag/RecoTau/interface/DeepTauIdBase.h"
 
@@ -247,7 +248,7 @@ void DeepTauIdSonicProducer::prepareInputsV2(TauCollection::const_reference& tau
                                              const reco::Vertex& pv,
                                              double rho,
                                              const TauFunc& tau_funcs) {
-  using namespace deep_tau::dnn_inputs_v2;
+  using namespace dnn_inputs_v2;
   CellGrid inner_grid(number_of_inner_cell, number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
   CellGrid outer_grid(number_of_outer_cell, number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
   auto tau_casted = dynamic_cast<const TauCastType&>(tau);
@@ -256,10 +257,8 @@ void DeepTauIdSonicProducer::prepareInputsV2(TauCollection::const_reference& tau
   fillGrids(tau_casted, *muons, inner_grid, outer_grid);
   fillGrids(tau_casted, pfCands, inner_grid, outer_grid);
 
-  //unsigned tauBlockSize = p_tauBlockInputs->size();
   p_tauBlockInputs->insert(p_tauBlockInputs->end(), TauBlockInputs::NumberOfInputs, 0.);
   std::vector<float>::iterator tauIter = p_tauBlockInputs->begin();
-  //std::vector<float>::iterator tauIter = p_tauBlockInputs->begin() + tauBlockSize;
 
   createTauBlockInputs<CandidateCastType>(tau_casted, tau_index, tau_ref, pv, rho, tau_funcs, tauIter);
 
@@ -314,29 +313,20 @@ void DeepTauIdSonicProducer::createConvFeatures(const TauCastType& tau,
                                                 std::vector<int64_t>* p_GridposInputs) {
   // fill in the block inputs with zeros
   int n_cells = 0;
-  int n_cell_oneside =
-      is_inner ? deep_tau::dnn_inputs_v2::number_of_inner_cell : deep_tau::dnn_inputs_v2::number_of_outer_cell;
+  int n_cell_oneside = is_inner ? dnn_inputs_v2::number_of_inner_cell : dnn_inputs_v2::number_of_outer_cell;
 
-  n_cells = is_inner ? (deep_tau::dnn_inputs_v2::number_of_inner_cell * deep_tau::dnn_inputs_v2::number_of_inner_cell)
-                     : (deep_tau::dnn_inputs_v2::number_of_outer_cell * deep_tau::dnn_inputs_v2::number_of_outer_cell);
+  n_cells = is_inner ? (dnn_inputs_v2::number_of_inner_cell * dnn_inputs_v2::number_of_inner_cell)
+                     : (dnn_inputs_v2::number_of_outer_cell * dnn_inputs_v2::number_of_outer_cell);
 
-  //unsigned egammaBlockSize = p_egammaBlockInputs->size();
-  //std::cout << "*** egammaBlockSize " << egammaBlockSize << std::endl;
   p_egammaBlockInputs->insert(
-      p_egammaBlockInputs->end(), n_cells * deep_tau::dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs, 0.);
-  //std::vector<float>::iterator egammaIter = p_egammaBlockInputs->begin() + egammaBlockSize;
+      p_egammaBlockInputs->end(), n_cells * dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs, 0.);
   std::vector<float>::iterator egammaIter = p_egammaBlockInputs->begin();
 
-  //unsigned muonBlockSize = p_muonBlockInputs->size();
-  p_muonBlockInputs->insert(
-      p_muonBlockInputs->end(), n_cells * deep_tau::dnn_inputs_v2::MuonBlockInputs::NumberOfInputs, 0.);
-  //std::vector<float>::iterator muonIter = p_muonBlockInputs->begin() + muonBlockSize;
+  p_muonBlockInputs->insert(p_muonBlockInputs->end(), n_cells * dnn_inputs_v2::MuonBlockInputs::NumberOfInputs, 0.);
   std::vector<float>::iterator muonIter = p_muonBlockInputs->begin();
 
-  //unsigned hadronBlockSize = p_hadronBlockInputs->size();
   p_hadronBlockInputs->insert(
-      p_hadronBlockInputs->end(), n_cells * deep_tau::dnn_inputs_v2::HadronBlockInputs::NumberOfInputs, 0.);
-  //std::vector<float>::iterator hadronIter = p_hadronBlockInputs->begin() + hadronBlockSize;
+      p_hadronBlockInputs->end(), n_cells * dnn_inputs_v2::HadronBlockInputs::NumberOfInputs, 0.);
   std::vector<float>::iterator hadronIter = p_hadronBlockInputs->begin();
 
   unsigned idx = 0;
@@ -356,14 +346,11 @@ void DeepTauIdSonicProducer::createConvFeatures(const TauCastType& tau,
         const int eta_index = grid.getEtaTensorIndex(cell_index);
         const int phi_index = grid.getPhiTensorIndex(cell_index);
         std::vector<float>::iterator egammaIterCell =
-            egammaIter +
-            (eta_index * n_cell_oneside + phi_index) * deep_tau::dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs;
+            egammaIter + (eta_index * n_cell_oneside + phi_index) * dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs;
         std::vector<float>::iterator muonIterCell =
-            muonIter +
-            (eta_index * n_cell_oneside + phi_index) * deep_tau::dnn_inputs_v2::MuonBlockInputs::NumberOfInputs;
+            muonIter + (eta_index * n_cell_oneside + phi_index) * dnn_inputs_v2::MuonBlockInputs::NumberOfInputs;
         std::vector<float>::iterator hadronIterCell =
-            hadronIter +
-            (eta_index * n_cell_oneside + phi_index) * deep_tau::dnn_inputs_v2::HadronBlockInputs::NumberOfInputs;
+            hadronIter + (eta_index * n_cell_oneside + phi_index) * dnn_inputs_v2::HadronBlockInputs::NumberOfInputs;
 
         createEgammaBlockInputs<CandidateCastType>(
             idx, tau, tau_index, tau_ref, pv, rho, electrons, pfCands, cell, tau_funcs, is_inner, egammaIterCell);

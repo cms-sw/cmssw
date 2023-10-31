@@ -7,36 +7,9 @@
  *         Christian Veelken, Tallinn
  */
 
-#include <Math/VectorUtil.h>
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "tensorflow/core/util/memmapped_file_system.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-#include "CommonTools/Utils/interface/StringObjectFunction.h"
-#include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
-#include "RecoTauTag/RecoTau/interface/TauWPThreshold.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "FWCore/Common/interface/Provenance.h"
-#include <map>
-#include "RecoTauTag/RecoTau/interface/DeepTauScaling.h"
 #include "RecoTauTag/RecoTau/interface/DeepTauIdBase.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
-
-#include <fstream>
-#include "oneapi/tbb/concurrent_unordered_set.h"
 
 namespace deep_tau {
   class DeepTauCache {
@@ -116,7 +89,7 @@ public:
   explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache)
       : DeepTauIdBase<DeepTauIdWrapper>(cfg), cache_(cache) {
     if (version_ == 2) {
-      using namespace deep_tau::dnn_inputs_v2;
+      using namespace dnn_inputs_v2;
       if (sub_version_ == 1) {
         tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, TauBlockInputs::NumberOfInputs});
@@ -445,7 +418,7 @@ private:
                         const edm::EventNumber_t& eventnr,
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
-    using namespace deep_tau::dnn_inputs_v2;
+    using namespace dnn_inputs_v2;
     if (debug_level >= 2) {
       std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleDescription().moduleLabel()
                 << ")>:" << std::endl;
@@ -579,15 +552,15 @@ private:
     eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
         tensorflow::DT_FLOAT,
         tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, deep_tau::dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs});
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs});
     muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
         tensorflow::DT_FLOAT,
         tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, deep_tau::dnn_inputs_v2::MuonBlockInputs::NumberOfInputs});
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::MuonBlockInputs::NumberOfInputs});
     hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
         tensorflow::DT_FLOAT,
         tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, deep_tau::dnn_inputs_v2::HadronBlockInputs::NumberOfInputs});
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::HadronBlockInputs::NumberOfInputs});
 
     eGammaTensor_[is_inner]->flat<float>().setZero();
     muonTensor_[is_inner]->flat<float>().setZero();
@@ -657,7 +630,7 @@ private:
                            unsigned batch_idx,
                            int eta_index,
                            int phi_index) {
-    for (int n = 0; n < deep_tau::dnn_inputs_v2::number_of_conv_features; ++n) {
+    for (int n = 0; n < dnn_inputs_v2::number_of_conv_features; ++n) {
       convTensor.tensor<float, 4>()(0, eta_index, phi_index, n) = features.tensor<float, 4>()(batch_idx, 0, 0, n);
     }
   }

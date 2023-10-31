@@ -8,34 +8,32 @@
  *
  */
 
-#include <Math/VectorUtil.h>
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "tensorflow/core/util/memmapped_file_system.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-#include "CommonTools/Utils/interface/StringObjectFunction.h"
-#include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include <TF1.h>
-#include <map>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 #include "RecoTauTag/RecoTau/interface/DeepTauScaling.h"
 #include "RecoTauTag/RecoTau/interface/TauWPThreshold.h"
-#include "FWCore/Utilities/interface/isFinite.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "tensorflow/core/util/memmapped_file_system.h"
 
+#include <Math/VectorUtil.h>
+#include <map>
 #include <fstream>
 #include "oneapi/tbb/concurrent_unordered_set.h"
 
@@ -50,6 +48,9 @@ namespace deep_tau {
   };
 
   constexpr int NumberOfOutputs = 4;
+}  // namespace deep_tau
+
+namespace {
 
   namespace dnn_inputs_v2 {
     constexpr int number_of_inner_cell = 11;
@@ -835,7 +836,7 @@ namespace deep_tau {
     std::map<CellIndex, Cell> cells;
     const bool disable_CellIndex_workaround_;
   };
-}  // namespace deep_tau
+}  // anonymous namespace
 
 template <class Producer>
 class DeepTauIdBase : public Producer {
@@ -851,12 +852,6 @@ public:
   using Cutter = tau::TauWPThreshold;
   using CutterPtr = std::unique_ptr<Cutter>;
   using WPList = std::vector<CutterPtr>;
-
-  using CellObjectType = deep_tau::CellObjectType;
-  using Cell = std::map<CellObjectType, size_t>;
-  using CellIndex = deep_tau::CellIndex;
-  using CellGrid = deep_tau::CellGrid;
-  using TauFunc = deep_tau::TauFunc;
 
   struct IDOutput {
     std::vector<size_t> num_, den_;
@@ -1072,7 +1067,7 @@ public:
       }
     }
     if (version_ == 2) {
-      using namespace deep_tau::dnn_inputs_v2;
+      using namespace dnn_inputs_v2;
       namespace sc = deep_tau::Scaling;
       tauInputs_indices_.resize(TauBlockInputs::NumberOfInputs);
       std::iota(std::begin(tauInputs_indices_), std::end(tauInputs_indices_), 0);
@@ -1082,7 +1077,6 @@ public:
       } else if (sub_version_ == 5) {
         std::sort(TauBlockInputs::varsToDrop.begin(), TauBlockInputs::varsToDrop.end());
         for (auto v : TauBlockInputs::varsToDrop) {
-          //tauInputs_indices_.at(v) = -1;  // set index to -1
           tauInputs_indices_.at(v) = TauBlockInputs::NumberOfInputs - TauBlockInputs::varsToDrop.size();
           for (std::size_t i = v + 1; i < TauBlockInputs::NumberOfInputs; ++i)
             tauInputs_indices_.at(i) -= 1;  // shift all the following indices by 1
@@ -1232,7 +1226,7 @@ protected:
 
     const auto addObject = [&](size_t n, double deta, double dphi, CellGrid& grid) {
       const auto& obj = objects.at(n);
-      const CellObjectType obj_type = deep_tau::GetCellObjectType(obj);
+      const CellObjectType obj_type = GetCellObjectType(obj);
       if (obj_type == CellObjectType::Other)
         return;
       CellIndex cell_index;
@@ -1269,9 +1263,9 @@ protected:
                             double rho,
                             TauFunc tau_funcs,
                             TauBlockType& tauBlockInputs) {
-    namespace dnn = deep_tau::dnn_inputs_v2::TauBlockInputs;
+    namespace dnn = dnn_inputs_v2::TauBlockInputs;
     namespace sc = deep_tau::Scaling;
-    namespace candFunc = deep_tau::candFunc;
+    namespace candFunc = candFunc;
     sc::FeatureT ft = sc::FeatureT::TauFlat;
     const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft, false));
 
@@ -1422,9 +1416,9 @@ protected:
                                TauFunc tau_funcs,
                                bool is_inner,
                                EgammaBlockType& egammaBlockInputs) {
-    namespace dnn = deep_tau::dnn_inputs_v2::EgammaBlockInputs;
+    namespace dnn = dnn_inputs_v2::EgammaBlockInputs;
     namespace sc = deep_tau::Scaling;
-    namespace candFunc = deep_tau::candFunc;
+    namespace candFunc = candFunc;
     sc::FeatureT ft_global = sc::FeatureT::GridGlobal;
     sc::FeatureT ft_PFe = sc::FeatureT::PfCand_electron;
     sc::FeatureT ft_PFg = sc::FeatureT::PfCand_gamma;
@@ -1475,7 +1469,7 @@ protected:
       get(dnn::pfCand_ele_deta) =
           sp.scale(ele_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_ele_deta - PFe_index_offset);
       get(dnn::pfCand_ele_dphi) =
-          sp.scale(deep_tau::dPhi(tau.polarP4(), ele_cand.polarP4()), dnn::pfCand_ele_dphi - PFe_index_offset);
+          sp.scale(dPhi(tau.polarP4(), ele_cand.polarP4()), dnn::pfCand_ele_dphi - PFe_index_offset);
       get(dnn::pfCand_ele_pvAssociationQuality) = sp.scale<int>(
           candFunc::getPvAssocationQuality(ele_cand), dnn::pfCand_ele_pvAssociationQuality - PFe_index_offset);
       get(dnn::pfCand_ele_puppiWeight) = is_inner ? sp.scale(candFunc::getPuppiWeight(ele_cand, 0.9906834f),
@@ -1536,7 +1530,7 @@ protected:
       get(dnn::pfCand_gamma_deta + fill_index_offset_PFg) =
           sp.scale(gamma_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_gamma_deta - PFg_index_offset);
       get(dnn::pfCand_gamma_dphi + fill_index_offset_PFg) =
-          sp.scale(deep_tau::dPhi(tau.polarP4(), gamma_cand.polarP4()), dnn::pfCand_gamma_dphi - PFg_index_offset);
+          sp.scale(dPhi(tau.polarP4(), gamma_cand.polarP4()), dnn::pfCand_gamma_dphi - PFg_index_offset);
       get(dnn::pfCand_gamma_pvAssociationQuality + fill_index_offset_PFg) = sp.scale<int>(
           candFunc::getPvAssocationQuality(gamma_cand), dnn::pfCand_gamma_pvAssociationQuality - PFg_index_offset);
       get(dnn::pfCand_gamma_fromPV + fill_index_offset_PFg) =
@@ -1606,7 +1600,7 @@ protected:
       get(dnn::ele_deta + fill_index_offset_e) =
           sp.scale(ele.polarP4().eta() - tau.polarP4().eta(), dnn::ele_deta - e_index_offset);
       get(dnn::ele_dphi + fill_index_offset_e) =
-          sp.scale(deep_tau::dPhi(tau.polarP4(), ele.polarP4()), dnn::ele_dphi - e_index_offset);
+          sp.scale(dPhi(tau.polarP4(), ele.polarP4()), dnn::ele_dphi - e_index_offset);
 
       float cc_ele_energy, cc_gamma_energy;
       int cc_n_gamma;
@@ -1707,10 +1701,10 @@ protected:
                              TauFunc tau_funcs,
                              bool is_inner,
                              MuonBlockType& muonBlockInputs) {
-    namespace dnn = deep_tau::dnn_inputs_v2::MuonBlockInputs;
+    namespace dnn = dnn_inputs_v2::MuonBlockInputs;
     namespace sc = deep_tau::Scaling;
-    namespace candFunc = deep_tau::candFunc;
-    using MuonHitMatchV2 = deep_tau::MuonHitMatchV2;
+    namespace candFunc = candFunc;
+    using MuonHitMatchV2 = MuonHitMatchV2;
     sc::FeatureT ft_global = sc::FeatureT::GridGlobal;
     sc::FeatureT ft_PFmu = sc::FeatureT::PfCand_muon;
     sc::FeatureT ft_mu = sc::FeatureT::Muon;
@@ -1748,7 +1742,7 @@ protected:
       get(dnn::pfCand_muon_deta) =
           sp.scale(muon_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_muon_deta - PFmu_index_offset);
       get(dnn::pfCand_muon_dphi) =
-          sp.scale(deep_tau::dPhi(tau.polarP4(), muon_cand.polarP4()), dnn::pfCand_muon_dphi - PFmu_index_offset);
+          sp.scale(dPhi(tau.polarP4(), muon_cand.polarP4()), dnn::pfCand_muon_dphi - PFmu_index_offset);
       get(dnn::pfCand_muon_pvAssociationQuality) = sp.scale<int>(
           candFunc::getPvAssocationQuality(muon_cand), dnn::pfCand_muon_pvAssociationQuality - PFmu_index_offset);
       get(dnn::pfCand_muon_fromPV) =
@@ -1807,7 +1801,7 @@ protected:
       get(dnn::muon_valid) = sp.scale(valid_index_muon, dnn::muon_valid - mu_index_offset);
       get(dnn::muon_rel_pt) = sp.scale(muon.polarP4().pt() / tau.polarP4().pt(), dnn::muon_rel_pt - mu_index_offset);
       get(dnn::muon_deta) = sp.scale(muon.polarP4().eta() - tau.polarP4().eta(), dnn::muon_deta - mu_index_offset);
-      get(dnn::muon_dphi) = sp.scale(deep_tau::dPhi(tau.polarP4(), muon.polarP4()), dnn::muon_dphi - mu_index_offset);
+      get(dnn::muon_dphi) = sp.scale(dPhi(tau.polarP4(), muon.polarP4()), dnn::muon_dphi - mu_index_offset);
       get(dnn::muon_dxy) = sp.scale(muon.dB(pat::Muon::PV2D), dnn::muon_dxy - mu_index_offset);
       get(dnn::muon_dxy_sig) =
           sp.scale(std::abs(muon.dB(pat::Muon::PV2D)) / muon.edB(pat::Muon::PV2D), dnn::muon_dxy_sig - mu_index_offset);
@@ -1864,9 +1858,9 @@ protected:
                                 TauFunc tau_funcs,
                                 bool is_inner,
                                 HadronBlockType& hadronBlockInputs) {
-    namespace dnn = deep_tau::dnn_inputs_v2::HadronBlockInputs;
+    namespace dnn = dnn_inputs_v2::HadronBlockInputs;
     namespace sc = deep_tau::Scaling;
-    namespace candFunc = deep_tau::candFunc;
+    namespace candFunc = candFunc;
     sc::FeatureT ft_global = sc::FeatureT::GridGlobal;
     sc::FeatureT ft_PFchH = sc::FeatureT::PfCand_chHad;
     sc::FeatureT ft_PFnH = sc::FeatureT::PfCand_nHad;
@@ -1904,7 +1898,7 @@ protected:
       get(dnn::pfCand_chHad_deta) =
           sp.scale(chH_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_chHad_deta - PFchH_index_offset);
       get(dnn::pfCand_chHad_dphi) =
-          sp.scale(deep_tau::dPhi(tau.polarP4(), chH_cand.polarP4()), dnn::pfCand_chHad_dphi - PFchH_index_offset);
+          sp.scale(dPhi(tau.polarP4(), chH_cand.polarP4()), dnn::pfCand_chHad_dphi - PFchH_index_offset);
       get(dnn::pfCand_chHad_leadChargedHadrCand) =
           sp.scale(&chH_cand == dynamic_cast<const CandidateCastType*>(tau.leadChargedHadrCand().get()),
                    dnn::pfCand_chHad_leadChargedHadrCand - PFchH_index_offset);
@@ -1982,7 +1976,7 @@ protected:
       get(dnn::pfCand_nHad_deta) =
           sp.scale(nH_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_nHad_deta - PFnH_index_offset);
       get(dnn::pfCand_nHad_dphi) =
-          sp.scale(deep_tau::dPhi(tau.polarP4(), nH_cand.polarP4()), dnn::pfCand_nHad_dphi - PFnH_index_offset);
+          sp.scale(dPhi(tau.polarP4(), nH_cand.polarP4()), dnn::pfCand_nHad_dphi - PFnH_index_offset);
       get(dnn::pfCand_nHad_puppiWeight) = is_inner ? sp.scale(candFunc::getPuppiWeight(nH_cand, 0.9798355f),
                                                               dnn::pfCand_nHad_puppiWeight - PFnH_index_offset)
                                                    : sp.scale(candFunc::getPuppiWeight(nH_cand, 0.7813260f),
@@ -2050,13 +2044,13 @@ protected:
     }
 
     pt_inner = n_inner != 0 ? p4_inner.Pt() : default_value;
-    dEta_inner = n_inner != 0 ? deep_tau::dEta(p4_inner, tau.p4()) : default_value;
-    dPhi_inner = n_inner != 0 ? deep_tau::dPhi(p4_inner, tau.p4()) : default_value;
+    dEta_inner = n_inner != 0 ? dEta(p4_inner, tau.p4()) : default_value;
+    dPhi_inner = n_inner != 0 ? dPhi(p4_inner, tau.p4()) : default_value;
     m_inner = n_inner != 0 ? p4_inner.mass() : default_value;
 
     pt_outer = n_outer != 0 ? p4_outer.Pt() : default_value;
-    dEta_outer = n_outer != 0 ? deep_tau::dEta(p4_outer, tau.p4()) : default_value;
-    dPhi_outer = n_outer != 0 ? deep_tau::dPhi(p4_outer, tau.p4()) : default_value;
+    dEta_outer = n_outer != 0 ? dEta(p4_outer, tau.p4()) : default_value;
+    dPhi_outer = n_outer != 0 ? dPhi(p4_outer, tau.p4()) : default_value;
     m_outer = n_outer != 0 ? p4_outer.mass() : default_value;
   }
 
@@ -2078,8 +2072,8 @@ protected:
     }
 
     pt = n != 0 ? p4.Pt() : default_value;
-    d_eta = n != 0 ? deep_tau::dEta(p4, tau.p4()) : default_value;
-    d_phi = n != 0 ? deep_tau::dPhi(p4, tau.p4()) : default_value;
+    d_eta = n != 0 ? dEta(p4, tau.p4()) : default_value;
+    d_phi = n != 0 ? dPhi(p4, tau.p4()) : default_value;
     m = n != 0 ? p4.mass() : default_value;
   }
 
