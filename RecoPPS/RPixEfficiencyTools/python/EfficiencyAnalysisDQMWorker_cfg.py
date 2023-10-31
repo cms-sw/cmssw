@@ -245,7 +245,7 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     maxTracksInTagPot=cms.untracked.int32(options.maxTracksInTagPot),    
     minTracksInTagPot=cms.untracked.int32(options.minTracksInTagPot),  
     recoInfo=cms.untracked.int32(options.recoInfo),
-    debug=cms.untracked.bool(True),
+    debug=cms.untracked.bool(False),
 
     # Configs for prescale provider
     processName = cms.string("HLT"),
@@ -274,8 +274,8 @@ process.fileOutput = cms.OutputModule("PoolOutputModule",
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
 process.filterL1ZeroBias = triggerResultsFilter.clone(
     hltResults = cms.InputTag('TriggerResults', '', 'HLT'),
-    l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
-    # l1tResults = cms.InputTag("gtStage2Digis", "", "HLT"),  # Adjust the InputTag accordingly
+    # l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
+    l1tResults = cms.InputTag("gtStage2Digis"),  # Adjust the InputTag accordingly
     triggerConditions = cms.vstring("L1_ZeroBias"),  # Replace with the name of your L1 trigger
 )
 

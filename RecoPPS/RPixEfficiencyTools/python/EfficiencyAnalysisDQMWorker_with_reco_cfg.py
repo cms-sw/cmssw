@@ -241,9 +241,14 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     minTracksInTagPot=cms.untracked.int32(options.minTracksInTagPot),  
     recoInfo=cms.untracked.int32(options.recoInfo),
     debug=cms.untracked.bool(False),
+    # Configs for prescale provider
     processName = cms.string("HLT"),
     triggerPattern = cms.string("HLT_PPSMaxTracksPerRP4_v*"),
     stageL1Trigger = cms.uint32(2),
+    # l1tAlgBlkInputTag = cms.InputTag('hltGtStage2ObjectMap'),
+    # l1tExtBlkInputTag = cms.InputTag('hltGtStage2ObjectMap')
+    l1tAlgBlkInputTag = cms.InputTag('gtStage2Digis'),
+    l1tExtBlkInputTag = cms.InputTag('gtStage2Digis')
 )
 
 #SETUP OUTPUT
@@ -264,9 +269,19 @@ process.recoPPSSequenceAlCaRecoProducer.remove(process.diamondSampicLocalReconst
 process.ctppsPixelClustersAlCaRecoProducer.tag='ctppsPixelDigis'
 process.ctppsDiamondRecHitsAlCaRecoProducer.digiTag='ctppsDiamondRawToDigi:TimingDiamond'
 
+# Filter only ZB events to be sure that we're getting the right prescale
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
+process.filterL1ZeroBias = triggerResultsFilter.clone(
+    hltResults = cms.InputTag('TriggerResults', '', 'HLT'),
+    # l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
+    l1tResults = cms.InputTag("gtStage2Digis"),  # Adjust the InputTag accordingly
+    triggerConditions = cms.vstring("L1_ZeroBias"),  # Replace with the name of your L1 trigger
+)
+
 #SCHEDULE JOB
 process.path = cms.Path(
-    process.recoPPSSequenceAlCaRecoProducer*
+    process.filterL1ZeroBias *
+    process.recoPPSSequenceAlCaRecoProducer *
     process.worker
 )
 
