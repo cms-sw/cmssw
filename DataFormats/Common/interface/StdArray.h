@@ -52,6 +52,8 @@ namespace edm {
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+    // Assignment operators
+
     // copy assignment operator
     constexpr StdArray& operator=(StdArray<T, N> const& init) = default;
 
