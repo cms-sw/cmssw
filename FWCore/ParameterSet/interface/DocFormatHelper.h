@@ -7,6 +7,8 @@
 
 #include <string>
 #include <iosfwd>
+#include <utility>
+#include <vector>
 
 namespace edm {
 
@@ -82,7 +84,11 @@ namespace edm {
     static int offsetTopLevelPSet() { return 2; }
     static int offsetSectionContent() { return 4; }
 
+    void addCategory(std::string const& pluginCategory, std::string const& section);
+    std::string sectionOfCategoryAlreadyPrinted(std::string const& pluginCategory) const;
+
   private:
+    std::vector<std::pair<std::string, std::string>> pluginCategoriesAlreadyPrinted_;
     bool brief_;
     size_t lineWidth_;
     int indentation_;
