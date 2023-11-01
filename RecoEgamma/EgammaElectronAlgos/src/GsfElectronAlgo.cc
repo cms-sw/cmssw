@@ -28,6 +28,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
 #include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <Math/Point3D.h>
 #include <memory>
