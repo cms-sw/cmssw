@@ -815,10 +815,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
     for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] =
-          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f;
+	(hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, hcalHelperCone->hcalCuts()) / scRef->energy() : 0.f;
 
       showerShape.hcalOverEcalBc[id] =
-          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1) / scRef->energy() : 0.f;
+	(hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, hcalHelperBc->hcalCuts()) / scRef->energy() : 0.f;
     }
     showerShape.invalidHcal = (hcalHelperBc != nullptr) ? !hcalHelperBc->hasActiveHcal(*scRef) : false;
     if (hcalHelperBc != nullptr)
@@ -930,9 +930,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.effSigmaRR = sigmaRR;
     for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
       full5x5_showerShape.hcalOverEcal[id] =
-          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1) / full5x5_e5x5 : 0.f;
+	(hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, hcalHelperCone->hcalCuts()) / full5x5_e5x5 : 0.f;
       full5x5_showerShape.hcalOverEcalBc[id] =
-          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1) / full5x5_e5x5 : 0.f;
+	(hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, hcalHelperBc->hcalCuts()) / full5x5_e5x5 : 0.f;
     }
     full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);

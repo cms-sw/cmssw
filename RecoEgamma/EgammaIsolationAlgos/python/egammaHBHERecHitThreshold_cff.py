@@ -7,11 +7,19 @@ egammaHBHERecHit = cms.PSet(
     recHitEThresholdHB = _thresholdsHBphase1,
     recHitEThresholdHE = _thresholdsHEphase1,
     maxHcalRecHitSeverity = cms.int32(9),
+    usePFCutsFromDB = cms.bool(False)
 )
 
-egammaHBHERecHit_2023 = egammaHBHERecHit.clone(
-    recHitEThresholdHB = _thresholdsHBphase1_2023
-)
+#egammaHBHERecHit_2023 = egammaHBHERecHit.clone(
+#    recHitEThresholdHB = _thresholdsHBphase1_2023
+#)
 
-from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
-run3_egamma_2023.toReplaceWith(egammaHBHERecHit,egammaHBHERecHit_2023)
+# from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
+# run3_egamma_2023.toReplaceWith(egammaHBHERecHit,egammaHBHERecHit_2023)
+
+from Configuration.Eras.Modifier_run3_egamma_cff import run3_egamma
+#from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+run3_egamma.toModify(egammaHBHERecHit,
+                     usePFCutsFromDB = True)
+
+

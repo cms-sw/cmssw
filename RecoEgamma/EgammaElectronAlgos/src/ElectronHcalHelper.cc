@@ -34,6 +34,7 @@ void ElectronHcalHelper::beginEvent(const edm::Event& evt, const edm::EventSetup
                                                      0.,
                                                      cfg_.eThresHB,
                                                      EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
+						     cfg_.hcalCuts,
                                                      cfg_.maxSeverityHB,
                                                      cfg_.eThresHE,
                                                      EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
@@ -51,6 +52,7 @@ void ElectronHcalHelper::beginEvent(const edm::Event& evt, const edm::EventSetup
                                                      0.,
                                                      cfg_.eThresHB,
                                                      EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
+						     cfg_.hcalCuts,
                                                      cfg_.maxSeverityHB,
                                                      cfg_.eThresHE,
                                                      EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
@@ -70,8 +72,8 @@ bool ElectronHcalHelper::hasActiveHcal(const reco::SuperCluster& sc) const {
              : true;
 }
 
-double ElectronHcalHelper::hcalESum(const SuperCluster& sc, int depth) const {
-  return (cfg_.onlyBehindCluster)     ? hcalIso_->getHcalESumBc(&sc, depth)
-         : (cfg_.hOverEConeSize > 0.) ? hcalIso_->getHcalESum(&sc, depth)
+double ElectronHcalHelper::hcalESum(const SuperCluster& sc, int depth, HcalPFCuts* hcalCuts) const {
+  return (cfg_.onlyBehindCluster)     ? hcalIso_->getHcalESumBc(&sc, depth, hcalCuts)
+    : (cfg_.hOverEConeSize > 0.) ? hcalIso_->getHcalESum(&sc, depth, hcalCuts)
                                       : 0.;
 }

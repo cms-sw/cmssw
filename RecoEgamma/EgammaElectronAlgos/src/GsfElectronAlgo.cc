@@ -26,6 +26,8 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ecalClusterEnergyUncertaintyElectronSpecific.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EgammaLocalCovParamDefaults.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include <Math/Point3D.h>
 #include <memory>
@@ -358,8 +360,8 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
   const float scale = full5x5 ? showerShape.e5x5 : theClus->energy();
 
   for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
-    showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id + 1) / scale;
-    showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id + 1) / scale;
+    showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id + 1, hcalHelperCone.hcalCuts()) / scale;
+    showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id + 1, hcalHelperBc.hcalCuts()) / scale;
   }
   showerShape.invalidHcal = !hcalHelperBc.hasActiveHcal(*theClus);
   showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*theClus);
@@ -502,6 +504,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           egHcalIsoConeSizeIn,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+	  hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -525,6 +528,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           egHcalIsoConeSizeIn,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+	  hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -548,6 +552,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           0.,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+	  hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -571,6 +576,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           0.,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+	  hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -1155,11 +1161,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     for (uint id = 0; id < dr03.hcalRecHitSumEt.size(); ++id) {
-      dr03.hcalRecHitSumEt[id] = eventData.hadIsolation03.getHcalEtSum(&ele, id + 1);
-      dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id + 1);
+      dr03.hcalRecHitSumEt[id] = eventData.hadIsolation03.getHcalEtSum(&ele, id + 1, hcalHelperCone_.hcalCuts());
+      dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id + 1, hcalHelperCone_.hcalCuts());
 
-      dr04.hcalRecHitSumEt[id] = eventData.hadIsolation04.getHcalEtSum(&ele, id + 1);
-      dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id + 1);
+      dr04.hcalRecHitSumEt[id] = eventData.hadIsolation04.getHcalEtSum(&ele, id + 1, hcalHelperCone_.hcalCuts());
+      dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id + 1, hcalHelperCone_.hcalCuts());
     }
 
     dr03.ecalRecHitSumEt = eventData.ecalBarrelIsol03.getEtSum(&ele);

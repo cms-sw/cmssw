@@ -371,7 +371,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     const reco::CaloCluster* pClus = &(*aClus);
     const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy() / cosh(sc->eta());
-    double HoE = hcalHelper.hcalESum(*sc, 0) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, hcalHelper.hcalCuts()) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
 

@@ -341,7 +341,7 @@ void ConvertedPhotonProducer::buildCollections(
       continue;
     const reco::CaloCluster* pClus = &(*aClus);
     auto const* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
-    double HoE = hcalHelper.hcalESum(*sc, 0) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, hcalHelper.hcalCuts()) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
     /////

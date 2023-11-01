@@ -22,21 +22,22 @@ double scaleToE(const double &eta) { return 1.; }
 double scaleToEt(const double &eta) { return std::sin(2. * std::atan(std::exp(-eta))); }
 
 EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
-                                         double extRadius,
-                                         InclusionRule intIncRule,
-                                         double intRadius,
-                                         const arrayHB &eThresHB,
-                                         const arrayHB &etThresHB,
-                                         int maxSeverityHB,
-                                         const arrayHE &eThresHE,
-                                         const arrayHE &etThresHE,
-                                         int maxSeverityHE,
-                                         const HBHERecHitCollection &mhbhe,
-                                         edm::ESHandle<CaloGeometry> caloGeometry,
-                                         edm::ESHandle<HcalTopology> hcalTopology,
-                                         edm::ESHandle<HcalChannelQuality> hcalChStatus,
-                                         edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputer,
-                                         edm::ESHandle<CaloTowerConstituentsMap> towerMap)
+					 double extRadius,
+					 InclusionRule intIncRule,
+					 double intRadius,
+					 const arrayHB &eThresHB,
+					 const arrayHB &etThresHB,
+					 HcalPFCuts* hcalCuts,
+					 int maxSeverityHB,
+					 const arrayHE &eThresHE,
+					 const arrayHE &etThresHE,
+					 int maxSeverityHE,
+					 const HBHERecHitCollection &mhbhe,
+					 edm::ESHandle<CaloGeometry> caloGeometry,
+					 edm::ESHandle<HcalTopology> hcalTopology,
+					 edm::ESHandle<HcalChannelQuality> hcalChStatus,
+					 edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputer,
+					 edm::ESHandle<CaloTowerConstituentsMap> towerMap)
     : extIncRule_(extIncRule),
       extRadius_(extRadius * extRadius),
       intIncRule_(intIncRule),
@@ -76,6 +77,7 @@ EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
                                          double intRadius,
                                          const arrayHB &eThresHB,
                                          const arrayHB &etThresHB,
+					 HcalPFCuts* hcalCuts,
                                          int maxSeverityHB,
                                          const arrayHE &eThresHE,
                                          const arrayHE &etThresHE,
@@ -126,10 +128,12 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
                                           int ieta,
                                           int iphi,
                                           int include_or_exclude,
-                                          double (*scale)(const double &)) const {
+                                          double (*scale)(const double &),
+					  HcalPFCuts* hcalCuts) const {
   const HcalDetId hid(hit.detid());
   const int hd = hid.depth(), he = hid.ieta(), hp = hid.iphi();
   const int h1 = hd - 1;
+  double thresholdE = 0.;
 
   if (include_or_exclude == -1 and (he != ieta or hp != iphi))
     return 0.;
@@ -145,9 +149,17 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
   const bool right_depth = (depth == 0 or hd == depth);
   if (!right_depth)
     return 0.;
+    
+  bool goodHBe = hid.subdet() == HcalBarrel and hit.energy() > eThresHB_[h1];
+  bool goodHEe = hid.subdet() == HcalEndcap and hit.energy() > eThresHE_[h1];
 
-  const bool goodHBe = hid.subdet() == HcalBarrel and hit.energy() > eThresHB_[h1];
-  const bool goodHEe = hid.subdet() == HcalEndcap and hit.energy() > eThresHE_[h1];
+  if (hcalCuts != nullptr) {
+    const HcalPFCut* cutValue = hcalCuts->getValues(hid.rawId());
+    thresholdE = cutValue->noiseThreshold();
+    goodHBe = hid.subdet() == HcalBarrel and hit.energy() > thresholdE;
+    goodHEe = hid.subdet() == HcalEndcap and hit.energy() > thresholdE;
+  }
+
   if (!(goodHBe or goodHEe))
     return 0.;
 
@@ -182,12 +194,13 @@ double EgammaHcalIsolation::getHcalSum(const GlobalPoint &pclu,
                                        int ieta,
                                        int iphi,
                                        int include_or_exclude,
-                                       double (*scale)(const double &)) const {
+                                       double (*scale)(const double &),
+				       HcalPFCuts* hcalCuts) const {
   double sum = 0.;
   const float pcluEta = pclu.eta();
   const float pcluPhi = pclu.phi();
   for (const auto &hit : mhbhe_)
-    sum += goodHitEnergy(pcluEta, pcluPhi, hit, depth, ieta, iphi, include_or_exclude, scale);
+    sum += goodHitEnergy(pcluEta, pcluPhi, hit, depth, ieta, iphi, include_or_exclude, scale, hcalCuts);
 
   return sum;
 }
