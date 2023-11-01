@@ -24,4 +24,6 @@ void LinkingAlgoByLeiden::linkTracksters(const edm::Handle<std::vector<reco::Tra
                                          const std::vector<reco::Muon> &muons,
                                          const edm::Handle<std::vector<Trackster>> tsH,
                                          std::vector<TICLCandidate> &resultLinked,
-                                         std::vector<TICLCandidate> &chargedHadronsFromTk) {}
+                                         std::vector<TICLCandidate> &chargedHadronsFromTk) {
+  std::cout << "Il mio bellissimo algoritmo" << '\n';
+}
