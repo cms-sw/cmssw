@@ -101,7 +101,7 @@ public:
   HcalPedestalWidth makePedestalWidth(HcalGenericDetId fId, bool eff, const HcalTopology* topo, double intlumi);
   HcalGain makeGain(HcalGenericDetId fId, bool fSmear = false) const;
   HcalGainWidth makeGainWidth(HcalGenericDetId fId) const;
-  HcalPFCut makePFCut(HcalGenericDetId fId) const;
+  HcalPFCut makePFCut(HcalGenericDetId fId, double intlumi, bool noHE) const;
   HcalZSThreshold makeZSThreshold(HcalGenericDetId fId) const;
   HcalQIECoder makeQIECoder(HcalGenericDetId fId) const;
   HcalCalibrationQIECoder makeCalibrationQIECoder(HcalGenericDetId fId) const;
