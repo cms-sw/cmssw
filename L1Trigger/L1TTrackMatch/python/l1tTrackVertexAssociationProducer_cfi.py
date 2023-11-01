@@ -8,7 +8,6 @@ l1tTrackVertexAssociationProducer = cms.EDProducer('L1TrackVertexAssociationProd
   l1VerticesInputTag = cms.InputTag("l1tVertexFinder", "L1Vertices"),
   l1VerticesEmulationInputTag = cms.InputTag("l1tVertexFinderEmulator", "L1VerticesEmulation"),
   outputCollectionName = cms.string("Level1TTTracksSelectedAssociated"),
-  outputVertexCollectionName = cms.string("L1VerticesUnconverted"),
   cutSet = cms.PSet(
                     #deltaZMaxEtaBounds = cms.vdouble(0.0, absEtaMax.value), # these values define the bin boundaries in |eta|
                     #deltaZMax = cms.vdouble(0.5), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
