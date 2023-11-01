@@ -118,6 +118,8 @@ namespace cms {
 
       template <typename TAcc, typename TQueue>
       ALPAKA_FN_INLINE static void launchZero(OneToManyAssocBase *h, TQueue &queue) {
+        static_assert(ONES > 0 && SIZE > 0,
+                      "Implicit view definition only valid for compile time sized OneToManyAssoc");
         View view = {h, nullptr, nullptr, -1, -1};
         launchZero<TAcc>(view, queue);
       }
