@@ -6,6 +6,8 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include "vdt/vdtMath.h"
 
@@ -92,8 +94,8 @@ public:
   Basic2DGenericPFlowPositionCalc(const Basic2DGenericPFlowPositionCalc&) = delete;
   Basic2DGenericPFlowPositionCalc& operator=(const Basic2DGenericPFlowPositionCalc&) = delete;
 
-  void calculateAndSetPosition(reco::PFCluster&) override;
-  void calculateAndSetPositions(reco::PFClusterCollection&) override;
+  void calculateAndSetPosition(reco::PFCluster&, HcalPFCuts*) override;
+  void calculateAndSetPositions(reco::PFClusterCollection&, HcalPFCuts*) override;
 
 private:
   const int _posCalcNCrystals;
@@ -103,7 +105,7 @@ private:
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcBarrel;
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcEndcap;
 
-  void calculateAndSetPositionActual(reco::PFCluster&) const;
+  void calculateAndSetPositionActual(reco::PFCluster&, HcalPFCuts*) const;
 };
 
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory, Basic2DGenericPFlowPositionCalc, "Basic2DGenericPFlowPositionCalc");
@@ -115,17 +117,19 @@ namespace {
   }
 }  // namespace
 
-void Basic2DGenericPFlowPositionCalc::calculateAndSetPosition(reco::PFCluster& cluster) {
-  calculateAndSetPositionActual(cluster);
+void Basic2DGenericPFlowPositionCalc::calculateAndSetPosition(reco::PFCluster& cluster, HcalPFCuts* hcalCuts) {
+  calculateAndSetPositionActual(cluster, hcalCuts);
 }
 
-void Basic2DGenericPFlowPositionCalc::calculateAndSetPositions(reco::PFClusterCollection& clusters) {
+void Basic2DGenericPFlowPositionCalc::calculateAndSetPositions(reco::PFClusterCollection& clusters,
+                                                               HcalPFCuts* hcalCuts) {
   for (reco::PFCluster& cluster : clusters) {
-    calculateAndSetPositionActual(cluster);
+    calculateAndSetPositionActual(cluster, hcalCuts);
   }
 }
 
-void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFCluster& cluster) const {
+void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFCluster& cluster,
+                                                                    HcalPFCuts* hcalCuts) const {
   if (!cluster.seed()) {
     throw cms::Exception("ClusterWithNoSeed") << " Found a cluster with no seed: " << cluster;
   }
@@ -231,8 +235,17 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
         int depth = std::get<1>(_logWeightDenom)[j];
 
         if ((cell_layer == PFLayer::HCAL_BARREL1 && detectorEnum == 1 && refhit.depth() == depth) ||
-            (cell_layer == PFLayer::HCAL_ENDCAP && detectorEnum == 2 && refhit.depth() == depth) || detectorEnum == 0)
+            (cell_layer == PFLayer::HCAL_ENDCAP && detectorEnum == 2 && refhit.depth() == depth) || detectorEnum == 0) {
           threshold = std::get<2>(_logWeightDenom)[j];
+        }
+      }
+
+      if (hcalCuts != nullptr) {  // this means, cutsFromDB is set to True in the producer code
+        if ((cell_layer == PFLayer::HCAL_BARREL1) || (cell_layer == PFLayer::HCAL_ENDCAP)) {
+          HcalDetId thisId = refhit.detId();
+          const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
+          threshold = 1. / (item->noiseThreshold());
+        }
       }
 
       if (ref_depth < 0)

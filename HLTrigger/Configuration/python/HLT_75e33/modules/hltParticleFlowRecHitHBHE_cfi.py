@@ -27,7 +27,8 @@ hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
                         )
                     )
                 ),
-                name = cms.string('PFRecHitQTestHCALThresholdVsDepth')
+                name = cms.string('PFRecHitQTestHCALThresholdVsDepth'),
+                usePFThresholdsFromDB = cms.bool(False)
             ),
             cms.PSet(
                 cleaningThresholds = cms.vdouble(0.0),
