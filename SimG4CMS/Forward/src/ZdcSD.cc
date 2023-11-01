@@ -90,7 +90,7 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     if (useShowerHits) {
       // check unitID
       unsigned int unitID = setDetUnitId(aStep);
-      if (unitID == 0) 
+      if (unitID == 0)
         return false;
 
       auto const theTrack = aStep->GetTrack();
@@ -132,14 +132,10 @@ const double EMIN = 1.75715 /*eV*/;                                    // Minimu
 const double ALPHA = /*1/137=*/0.0072973525693;                        // Fine structure constant
 const double HBARC = 6.582119514E-16 /*eV*s*/ * 2.99792458E8 /*m/s*/;  // hbar * c
 
-std::ofstream out("debug2.text");
-
 // Calculate the Cherenkov deposit corresponding to a G4Step
 double ZdcSD::calculateCherenkovDeposit(G4Step* aStep) {
   G4Material* material = aStep->GetTrack()->GetMaterial();
 
-  //if(aStep->GetPostStepPoint()->GetPhysicalVolume()->GetName() != "quartz")
-  //  return 0.0;
   if (material->GetName() != "quartz")
     return 0.0;  // 0 deposit if material is not quartz
   else {
@@ -160,9 +156,6 @@ double ZdcSD::calculateCherenkovDeposit(G4Step* aStep) {
 
     const G4ThreeVector particleDirection = (localPost - localPre) / (localPost - localPre).mag();
 
-    //if(pre.y() > 0)
-    //  out << localPre.x() << "," << localPre.y() << "," << localPre.z() << std::endl;
-
     const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
     int charge = round(aParticle->GetDefinition()->GetPDGCharge());
 
@@ -182,7 +175,6 @@ double ZdcSD::calculateCherenkovDeposit(G4Step* aStep) {
       // uniform refractive index in PMT range -> uniform energy distribution
       double photonE = EMIN + G4UniformRand() * (EMAX - EMIN);
       // UPDATE: taking into account dispersion relation -> energy distribution
-      //double photonE = generatePhotonEnergy(charge,beta,Emin);
 
       if (G4UniformRand() > pmtEfficiency(convertEnergyToWavelength(photonE)))
         continue;
