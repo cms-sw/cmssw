@@ -90,7 +90,7 @@ Hector::Hector(const edm::ParameterSet& param,
   }
 
   if (m_ZDCTransport && lengthzdc > 0. && lengthd1 > 0.) {
-    // construct beam line for ZDC:                                                                                           .
+    // construct beam line for ZDC:
     m_beamlineZDC1 = new H_BeamLine(1, lengthzdc + 0.1);   // (direction, length)
     m_beamlineZDC2 = new H_BeamLine(-1, lengthzdc + 0.1);  //
     m_beamlineZDC1->fill(b1.fullPath(), 1, "IP5");
@@ -100,7 +100,7 @@ Hector::Hector(const edm::ParameterSet& param,
     m_beamlineZDC1->calcMatrix();
     m_beamlineZDC2->calcMatrix();
 
-    // construct beam line for D1:                                                                                           .
+    // construct beam line for D1:
     m_beamlineD11 = new H_BeamLine(1, lengthd1 + 0.1);   // (direction, length)
     m_beamlineD12 = new H_BeamLine(-1, lengthd1 + 0.1);  //
     m_beamlineD11->fill(b1.fullPath(), 1, "IP5");
@@ -146,17 +146,6 @@ void Hector::clear() {
   m_isCharged.clear();
 }
 
-/*
-  bool Hector::isCharged(const HepMC::GenParticle * p){
-  const ParticleData * part = pdt->particle( p->pdg_id() );
-  if (part){
-  return part->charge()!=0;
-  }else{
-  // the new/improved particle table doesn't know anti-particles
-  return  pdt->particle( -p->pdg_id() )!=0;
-  }
-  }
-*/
 void Hector::add(const HepMC::GenEvent* evt, const edm::EventSetup& iSetup) {
   H_BeamParticle* h_p;
   unsigned int line;
@@ -375,11 +364,6 @@ void Hector::filterZDC(TRandom3* rootEngine) {
         }
       }
       // if stopfp420 charged particles
-      /*
-	else if ( ((*m_isCharged.find(line)).second) ){
-        m_isStoppedzdc[line] = false;// not stopped in propagating to FP420 and therefore in  propagation to ZDC too.
-        if(m_verbosity) edm::LogVerbatim("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " isStopped=" << (*m_isStoppedzdc.find(line)).second;
-	} */
       else {
         m_isStoppedzdc[line] = true;  // neutrals particles considered as stopped in propagating to ZDC
         if (m_verbosity)

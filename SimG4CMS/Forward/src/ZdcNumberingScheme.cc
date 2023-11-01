@@ -94,23 +94,20 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) {
     intindex = packZdcIndex(section, layer, fiber, channel, zside);
 #endif
 
-    bool true_for_positive_eta = true;
-    if (zside == -1)
-      true_for_positive_eta = false;
+    bool true_for_positive_eta = (zside != -1);
 
     HcalZDCDetId zdcId(section, true_for_positive_eta, channel);
     index = zdcId.rawId();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardSim") << "DetectorId: ";
-    edm::LogVerbatim("ForwardSim") << zdcId << std::endl;
+    edm::LogVerbatim("ForwardSim") << "DetectorId:\n" << zdcId;
 
     edm::LogVerbatim("ForwardSim") << "ZdcNumberingScheme:"
-                                   << "  getUnitID - # of levels = " << level << std::endl;
+                                   << "  getUnitID - # of levels = " << level;
     for (int ich = 0; ich < level; ich++)
       edm::LogVerbatim("ForwardSim") << "  " << ich << ": copyno " << copyno[ich] << " name=" << name[ich]
                                      << "  section " << section << " zside " << zside << " layer " << layer << " fiber "
                                      << fiber << " channel " << channel << "packedIndex =" << intindex
-                                     << " detId raw: " << index << std::endl;
+                                     << " detId raw: " << index;
 
 #endif
   }

@@ -76,9 +76,11 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   if (aStep == nullptr) {
     return true;
   } else {
+    /*
     if (useShowerLibrary) {
-      //getFromLibrary(aStep);
+      getFromLibrary(aStep);
     }
+    */
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ZdcSD") << "ZdcSD::" << GetName() << " ID= " << aStep->GetTrack()->GetTrackID()
                               << " prID= " << aStep->GetTrack()->GetParentID()
@@ -88,16 +90,15 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     if (useShowerHits) {
       // check unitID
       unsigned int unitID = setDetUnitId(aStep);
+      if (unitID == 0) 
+        return false;
+
       auto const theTrack = aStep->GetTrack();
       uint16_t depth = getDepth(aStep);
 
       double time = theTrack->GetGlobalTime() / nanosecond;
       int primaryID = getTrackID(theTrack);
-      if (unitID > 0) {
-        currentID[0].setID(unitID, time, primaryID, depth);
-      } else {
-        return false;
-      }
+      currentID[0].setID(unitID, time, primaryID, depth);
       double energy = calculateCherenkovDeposit(aStep);
       if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
         edepositEM = energy;
@@ -111,7 +112,6 @@ bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
         G4ThreeVector pre = aStep->GetPreStepPoint()->GetPosition();
         edm::LogVerbatim("ZdcSD") << pre.x() << " " << pre.y() << " " << pre.z();
 #endif
-        //while(!getchar());
         currentHit[0] = CaloSD::createNewHit(aStep, theTrack, 0);
       }
     }
