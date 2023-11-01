@@ -132,4 +132,40 @@
    <class name="edm::Wrapper<edm::SortedCollection<EESrFlag,edm::StrictWeakOrdering<EESrFlag> > >" splitLevel="0" id="CE18D35E-E4F5-4685-8D9A-213D9ACB0606"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> > >" id="8104DEE4-28BC-284A-8397-7EF8F5DBA1B1"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalMatacqDigi,edm::StrictWeakOrdering<EcalMatacqDigi> > >" id="09B54EAE-7A1A-B892-117A-EFE5E32AF982"/>
+
+   <class name="EcalDataArray"/>
+   <class name="EcalDigiSoA"/>
+   <class name="EcalDigiSoA::View"/>
+
+   <class name="EcalDigiHostCollection"/>
+   <read
+     sourceClass="EcalDigiHostCollection"
+     targetClass="EcalDigiHostCollection"
+     version="[1-]"
+     source="EcalDigiSoA layout_;"
+     target="buffer_,layout_,view_"
+     embed="false">
+   <![CDATA[
+     EcalDigiHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+   ]]>
+   </read>
+   <class name="edm::Wrapper<EcalDigiHostCollection>" splitLevel="0"/>
+
+   <class name="EcalDataArrayPhase2"/>
+   <class name="EcalDigiPhase2SoA"/>
+   <class name="EcalDigiPhase2SoA::View"/>
+
+   <class name="EcalDigiPhase2HostCollection"/>
+   <read
+     sourceClass="EcalDigiPhase2HostCollection"
+     targetClass="EcalDigiPhase2HostCollection"
+     version="[1-]"
+     source="EcalDigiPhase2SoA layout_;"
+     target="buffer_,layout_,view_"
+     embed="false">
+   <![CDATA[
+     EcalDigiPhase2HostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+   ]]>
+   </read>
+   <class name="edm::Wrapper<EcalDigiPhase2HostCollection>" splitLevel="0"/>
 </lcgdict>
