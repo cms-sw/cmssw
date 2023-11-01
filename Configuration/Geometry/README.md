@@ -69,6 +69,8 @@ Tracker:
 * T31: Phase2 tilted tracker. The tracker description is identical to T24/T21. The outer radius of the tracker volume is reduced to avoid a clash with the BTL geometry. The positions of the tracker components are not affected
 * T32: Phase2 tilted tracker. The tracker description is identical to T25. The outer radius of the tracker volume is reduced to avoid a clash with the BTL geometry (same as T31). The positions of the tracker components are not affected. This geometry is intended as a transition step towards a realistic configuration with 3D sensors in TBPX layer1.
 * T33: Phase2 tilted tracker. Identical to T32 apart from a more realistic description of the 3D sensors in TBPX layer1.
+* T34: Same as T32 with the exception of modified Tracker volume so that it touches CALO on the outer side and BeamPipe on the inner side
+* T35: Same as T33 with the exception of modified Tracker volume so that it touches CALO on the outer side and BeamPipe on the inner side
 
 Calorimeters:
 * C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables (used in 2026D49)
@@ -91,6 +93,7 @@ Muon system:
 * M8: same as M7 with changed number of strips for GE21
 * M9: same as M8 with GE0 replacing ME0
 * M10: same as M9 but with a realistic support structure for GE0, Shield structure modified in muonYoke
+* M11: same as M10 but with a corrected eta partition sizes for GE21
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
@@ -118,17 +121,19 @@ The script also handles the common and forward elements of the geometry:
 * F8: same as F6 or F7 without BRM
 
 Several detector combinations have been generated:
-* D86 = T24+C17+M10+I14+O8+F6
-* D88 = T24+C17+M10+I15+O9+F6
-* D91 = T30+C17+M10+I15+O9+F6
-* D92 = T24+C18+M10+I15+O9+F6
-* D93 = T24+C19+M10+I15+O9+F6
+* D86 = T24+C17+M10+I14+O8+F8
+* D88 = T24+C17+M10+I15+O9+F8
+* D91 = T30+C17+M10+I15+O9+F8
+* D92 = T24+C18+M10+I15+O9+F8
+* D93 = T24+C19+M10+I15+O9+F8
 * D94 = T24+C20+M10+I15+O9+F8
-* D95 = T31+C17+M10+I16+O9+F6
-* D96 = T31+C18+M10+I16+O9+F6
-* D97 = T25+C17+M10+I15+O9+F6
-* D98 = T32+C17+M10+I16+O9+F6 (Current Phase-2 baseline from CMSSW_13_2_0_pre2)
-* D99 = T32+C18+M10+I16+O9+F6
-* D100 = T33+C17+M10+I16+O9+F6
-* D101 = T32+C21+M10+I15+O9+F6
+* D95 = T31+C17+M10+I16+O9+F8
+* D96 = T31+C18+M10+I16+O9+F8
+* D97 = T25+C17+M10+I15+O9+F8
+* D98 = T32+C17+M10+I16+O9+F8 (Current Phase-2 baseline from CMSSW_13_2_0_pre2)
+* D99 = T32+C18+M10+I16+O9+F8
+* D100 = T34+C17+M11+I16+O9+F8
+* D101 = T34+C18+M11+I16+O9+F8
+* D102 = T35+C17+M11+I16+O9+F8
+* D103 = T34+C21+M11+I16+O9+F8
 
