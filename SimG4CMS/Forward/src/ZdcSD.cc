@@ -73,18 +73,18 @@ void ZdcSD::initRun() {
 bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
 
-  if (aStep == nullptr) 
+  if (aStep == nullptr)
     return false;
-  /*
+    /*
     if (useShowerLibrary) {
     getFromLibrary(aStep);
   }
   */
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ZdcSD") << "ZdcSD::" << GetName() << " ID= " << aStep->GetTrack()->GetTrackID()
-			    << " prID= " << aStep->GetTrack()->GetParentID()
-			    << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
-			    << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit();
+                            << " prID= " << aStep->GetTrack()->GetParentID()
+                            << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
+                            << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit();
 #endif
   if (useShowerHits) {
     // check unitID
