@@ -91,15 +91,11 @@ cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfil
 
 file=SchemaEvolutionTestOLD13_0_0.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
-# These fail because there was a bug in the version of ROOT associated with CMSSW_13_0_0
-# The bug caused StreamerInfo objects to missing from the ROOT file. In this case,
-# schema evolution fails and also the testForStreamerInfo.C script will find
-# missing StreamerInfo objects.
-# Lets keep this code around because it may be useful if we need to
-# do additional work related to data files written using an executable
-# built from code having the bug.
-#cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" || die "Failed to read old file $file" $?
-#root.exe -b -l -q file:$inputfile "${LOCAL_TEST_DIR}/testForStreamerInfo.C(gFile)" | sort -u | grep Missing > testForStreamerInfo2.log
-#grep "Missing" testForStreamerInfo2.log && die "Missing nested streamer info" 1
+# The test below would fail without the "--enableStreamerInfosFix"
+# because there was a bug in the version of ROOT associated with CMSSW_13_0_0.
+# The bug caused StreamerInfo objects to be missing from the ROOT file. In this case,
+# schema evolution fails without the fix and also the testForStreamerInfo.C script will
+# find missing StreamerInfo objects.
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile $inputfile --enableStreamerInfosFix || die "Failed to read old file $file with fix" $?
 
 exit 0
