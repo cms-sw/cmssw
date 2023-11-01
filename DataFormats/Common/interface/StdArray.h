@@ -52,23 +52,6 @@ namespace edm {
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    // Constructors
-
-    // default constructor
-    constexpr StdArray() = default;
-
-    // copy constructor
-    constexpr StdArray(StdArray<T, N> const& init) = default;
-
-    // move constructor
-    constexpr StdArray(StdArray<T, N>&& init) = default;
-
-    // copy assignment operator
-    constexpr StdArray& operator=(StdArray<T, N> const& init) = default;
-
-    // move assignment operator
-    constexpr StdArray& operator=(StdArray<T, N>&& init) = default;
-
     // Interoperability with std::array
 
     // copy assignment from an std::array
