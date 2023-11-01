@@ -43,8 +43,6 @@ public:
   using arrayHB = std::array<double, 4>;
   using arrayHE = std::array<double, 7>;
 
-  //using vectorH = std::vector<double>;
-
   // constructors
   EgammaHcalIsolation(InclusionRule extIncRule,
                       double extRadius,
