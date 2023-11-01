@@ -262,6 +262,22 @@ def customizeHLTfor42943(process):
 
     return process
 
+def customizeHLTfor43025(process):
+
+    for producer in producers_by_type(process, "PFClusterProducer"):
+        producer.usePFThresholdsFromDB = cms.bool(True)
+
+    for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
+        producer.usePFThresholdsFromDB = cms.bool(True)
+
+    for producer in producers_by_type(process, "PFRecHitProducer"):
+        if producer.producers[0].name.value() == 'PFHBHERecHitCreator':
+            producer.producers[0].qualityTests[0].usePFThresholdsFromDB = cms.bool(True)        
+        if producer.producers[0].name.value() == 'PFHFRecHitCreator':
+            producer.producers[0].qualityTests[1].usePFThresholdsFromDB = cms.bool(False)
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -272,5 +288,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customizeHLTfor42497(process)
     process = customizeHLTfor42943(process)
-
+    process = customizeHLTfor43025(process)
+    
     return process

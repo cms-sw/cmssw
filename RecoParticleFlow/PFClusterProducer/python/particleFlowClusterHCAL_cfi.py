@@ -9,6 +9,7 @@ _thresholdsHBphase1_2023 = cms.vdouble(0.4, 0.3, 0.3, 0.3)
 
 particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
        clustersSource = cms.InputTag("particleFlowClusterHBHE"),
+       usePFThresholdsFromDB = cms.bool(False),
        pfClusterBuilder =cms.PSet(
            algoName = cms.string("PFMultiDepthClusterizer"),
            nSigmaEta = cms.double(2.),
@@ -65,3 +66,9 @@ run3_egamma_2023.toModify(particleFlowClusterHCAL,
 particleFlowClusterHCALOnly = particleFlowClusterHCAL.clone(
     clustersSource = "particleFlowClusterHBHEOnly"
 )
+
+#--- Use DB conditions for cuts&seeds solely for Run3
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+(~phase2_common & run3_common).toModify( particleFlowClusterHCAL,
+                                     usePFThresholdsFromDB = True)

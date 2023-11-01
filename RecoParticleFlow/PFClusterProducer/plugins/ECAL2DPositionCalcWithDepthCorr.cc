@@ -48,8 +48,8 @@ public:
 
   void update(const edm::EventSetup& es) override;
 
-  void calculateAndSetPosition(reco::PFCluster&) override;
-  void calculateAndSetPositions(reco::PFClusterCollection&) override;
+  void calculateAndSetPosition(reco::PFCluster&, HcalPFCuts*) override;
+  void calculateAndSetPositions(reco::PFClusterCollection&, HcalPFCuts*) override;
 
 private:
   const double _param_T0_EB;
@@ -92,11 +92,11 @@ void ECAL2DPositionCalcWithDepthCorr::update(const edm::EventSetup& es) {
   }
 }
 
-void ECAL2DPositionCalcWithDepthCorr::calculateAndSetPosition(reco::PFCluster& cluster) {
+void ECAL2DPositionCalcWithDepthCorr::calculateAndSetPosition(reco::PFCluster& cluster, HcalPFCuts*) {
   calculateAndSetPositionActual(cluster);
 }
 
-void ECAL2DPositionCalcWithDepthCorr::calculateAndSetPositions(reco::PFClusterCollection& clusters) {
+void ECAL2DPositionCalcWithDepthCorr::calculateAndSetPositions(reco::PFClusterCollection& clusters, HcalPFCuts*) {
   for (reco::PFCluster& cluster : clusters) {
     calculateAndSetPositionActual(cluster);
   }

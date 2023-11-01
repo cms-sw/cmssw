@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltParticleFlowClusterHCAL = cms.EDProducer("PFMultiDepthClusterProducer",
     clustersSource = cms.InputTag("hltParticleFlowClusterHBHE"),
+    usePFThresholdsFromDB = cms.bool(False), 
     energyCorrector = cms.PSet(
 
     ),

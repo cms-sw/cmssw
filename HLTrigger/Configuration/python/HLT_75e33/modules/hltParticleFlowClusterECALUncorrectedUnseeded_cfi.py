@@ -111,6 +111,7 @@ hltParticleFlowClusterECALUncorrectedUnseeded = cms.EDProducer("PFClusterProduce
     ),
     recHitCleaners = cms.VPSet(),
     recHitsSource = cms.InputTag("hltParticleFlowRecHitECALUnseeded"),
+    usePFThresholdsFromDB = cms.bool(False),
     seedCleaners = cms.VPSet(cms.PSet(
         RecHitFlagsToBeExcluded = cms.vstring(),
         algoName = cms.string('FlagsCleanerECAL')
