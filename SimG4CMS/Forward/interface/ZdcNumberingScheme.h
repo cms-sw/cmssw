@@ -10,7 +10,6 @@
 #include "G4Step.hh"
 
 class ZdcNumberingScheme {
-
 public:
   ZdcNumberingScheme(int);
   ~ZdcNumberingScheme();
@@ -28,13 +27,11 @@ public:
   // unpacking Unit ID for Zdc (-z=1, +z=2)
   static void unpackZdcIndex(const unsigned int& idx, int& subDet, int& layer, int& fiber, int& channel, int& z);
 
-  int  detectorLevel(const G4Step*);
+  int detectorLevel(const G4Step*);
   void detectorLevel(const G4Step*, int&, std::vector<int>&, std::vector<G4String>&);
 
 private:
-
   int verbosity;
-
 };
 
 #endif
