@@ -65,7 +65,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (verbose && 0 == threadIdxLocal)
           printf("booked hist with %d bins, size %d for %d tracks\n", hist.nbins(), hist.capacity(), nt);
 
-        ALPAKA_ASSERT_OFFLOAD(nt <= hist.capacity());
+        ALPAKA_ASSERT_OFFLOAD(static_cast<int>(nt) <= hist.capacity());
 
         // fill hist  (bin shall be wider than "eps")
         for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
@@ -75,7 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           izt[i] = iz - INT8_MIN;
           ALPAKA_ASSERT_OFFLOAD(iz - INT8_MIN >= 0);
           ALPAKA_ASSERT_OFFLOAD(iz - INT8_MIN < 256);
-          hist.countHist(acc, izt[i]);
+          hist.count(acc, izt[i]);
           iv[i] = i;
           nn[i] = 0;
         }
@@ -90,7 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         ALPAKA_ASSERT_OFFLOAD(hist.size() == nt);
         for (auto i : cms::alpakatools::elements_with_stride(acc, nt)) {
-          hist.fillHist(acc, izt[i], uint16_t(i));
+          hist.fill(acc, izt[i], uint16_t(i));
         }
         alpaka::syncBlockThreads(acc);
 

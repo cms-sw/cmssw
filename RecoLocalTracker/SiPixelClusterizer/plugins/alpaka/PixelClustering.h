@@ -235,7 +235,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // fill histo
           cms::alpakatools::for_each_element_in_block_strided(acc, msize, firstPixel, [&](uint32_t i) {
             if (digi_view[i].moduleId() != ::pixelClustering::invalidModuleId) {  // skip invalid pixels
-              hist.countHist(acc, digi_view[i].yy());
+              hist.count(acc, digi_view[i].yy());
 #ifdef GPU_DEBUG
               alpaka::atomicAdd(acc, &totGood, 1u, alpaka::hierarchy::Blocks{});
 #endif
@@ -256,7 +256,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
           cms::alpakatools::for_each_element_in_block_strided(acc, msize, firstPixel, [&](uint32_t i) {
             if (digi_view[i].moduleId() != ::pixelClustering::invalidModuleId) {  // skip invalid pixels
-              hist.fillHist(acc, digi_view[i].yy(), i - firstPixel);
+              hist.fill(acc, digi_view[i].yy(), i - firstPixel);
             }
           });
           // Assume that we can cover the whole module with up to 16 blockDimension-wide iterations

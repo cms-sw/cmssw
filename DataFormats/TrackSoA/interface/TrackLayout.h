@@ -2,7 +2,7 @@
 #define DataFormats_Track_interface_TrackLayout_h
 
 #include <Eigen/Core>
-#include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/OneToManyAssoc.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
@@ -19,7 +19,7 @@ struct TrackSoA {
 
   using hindex_type = uint32_t;
 
-  using HitContainer = cms::alpakatools::OneToManyAssoc<hindex_type, S + 1, H * S>;
+  using HitContainer = cms::alpakatools::OneToManyAssocSequential<hindex_type, S + 1, H * S>;
 
   GENERATE_SOA_LAYOUT(TrackSoAHeterogeneousLayout,
                       SOA_COLUMN(Quality, quality),

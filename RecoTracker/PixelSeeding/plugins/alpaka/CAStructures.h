@@ -24,19 +24,20 @@ namespace caStructures {
   using OuterHitOfCellContainerT = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxCellsPerHit>;
 
   template <typename TrackerTraits>
-  using TupleMultiplicityT = cms::alpakatools::OneToManyAssoc<typename TrackerTraits::tindex_type,
-                                                              TrackerTraits::maxHitsOnTrack + 1,
-                                                              TrackerTraits::maxNumberOfTuples>;
+  using TupleMultiplicityT = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
+                                                                          TrackerTraits::maxHitsOnTrack + 1,
+                                                                          TrackerTraits::maxNumberOfTuples>;
 
   template <typename TrackerTraits>
-  using HitToTupleT = cms::alpakatools::OneToManyAssoc<typename TrackerTraits::tindex_type,
-                                                       TrackerTraits::maxNumberOfHits,
-                                                       TrackerTraits::maxHitsForContainers>;  // 3.5 should be enough
+  using HitToTupleT =
+      cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
+                                                   TrackerTraits::maxNumberOfHits,
+                                                   TrackerTraits::maxHitsForContainers>;  // 3.5 should be enough
 
   template <typename TrackerTraits>
-  using TuplesContainerT = cms::alpakatools::OneToManyAssoc<typename TrackerTraits::hindex_type,
-                                                            TrackerTraits::maxNumberOfTuples,
-                                                            TrackerTraits::maxHitsForContainers>;
+  using TuplesContainerT = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::hindex_type,
+                                                                        TrackerTraits::maxNumberOfTuples,
+                                                                        TrackerTraits::maxHitsForContainers>;
 
   template <typename TrackerTraits>
   struct OuterHitOfCellT {

@@ -3,6 +3,7 @@
 
 // #define GPU_DEBUG
 #include <alpaka/alpaka.hpp>
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include <cstdint>
 #include "CACell.h"
 #include "CAPixelDoublets.h"
@@ -213,8 +214,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HitsConstView = TrackingRecHitAlpakaSoAConstView<TrackerTraits>;
     using TkSoAView = TrackSoAView<TrackerTraits>;
 
-    using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
-    using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
+    using HitToTuple = caStructures::template HitToTupleT<TrackerTraits>;
+    using TupleMultiplicity = caStructures::template TupleMultiplicityT<TrackerTraits>;
+    struct Testttt {
+      TupleMultiplicity tm;
+    };
     using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
     using CellNeighbors = caStructures::CellNeighborsT<TrackerTraits>;
     using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
@@ -272,8 +276,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto cellCuts_h = cms::alpakatools::make_host_view(m_params.cellCuts_);
       alpaka::memcpy(queue, device_cellCuts_, cellCuts_h);
 
-      cms::alpakatools::launchZero<Acc1D>(device_tupleMultiplicity_.data(), queue);
-      cms::alpakatools::launchZero<Acc1D>(device_hitToTuple_.data(), queue);
+      [[maybe_unused]] TupleMultiplicity* tupleMultiplicityDeviceData = device_tupleMultiplicity_.data();
+      [[maybe_unused]] HitToTuple* hitToTupleDeviceData = device_hitToTuple_.data();
+      using TM = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
+                                                              TrackerTraits::maxHitsOnTrack + 1,
+                                                              TrackerTraits::maxNumberOfTuples>;
+      TM* tm = device_tupleMultiplicity_.data();
+      TM::template launchZero<Acc1D>(tm, queue);
+      // TODO: re-enable TupleMultiplicity:: template launchZero<Acc1D>(tupleMultiplicityDeviceData, queue);
+      // TODO: reneable HitToTuple::template launchZero<Acc1D>(hitToTupleDeviceData, queue);
     }
 
     ~CAHitNtupletGeneratorKernels() = default;

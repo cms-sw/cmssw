@@ -131,8 +131,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             printf("cellNeighbors overflow %d %d \n", cellNeighbors->capacity(), cellNeighbors->size());
           if (cellTracks && cellTracks->full())
             printf("cellTracks overflow\n");
-          if (int(hitToTuple->nbins()) < nHits)
-            printf("ERROR hitToTuple  overflow %d %d\n", hitToTuple->nbins(), nHits);
+          if (int(hitToTuple->nOnes()) < nHits)
+            printf("ERROR hitToTuple  overflow %d %d\n", hitToTuple->nOnes(), nHits);
 #ifdef GPU_DEBUG
           printf("size of cellNeighbors %d \n cellTracks %d \n hitToTuple %d \n",
                  cellNeighbors->size(),
@@ -481,7 +481,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                     TkSoAView<TrackerTraits> tracks_view,
                                     TupleMultiplicity<TrackerTraits> *tupleMultiplicity) const {
-        for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nbins())) {
+        for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
           auto nhits = tracks_view.hitIndices().size(it);
           if (nhits < 3)
             continue;
@@ -503,7 +503,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                     TkSoAView<TrackerTraits> tracks_view,
                                     TupleMultiplicity<TrackerTraits> *tupleMultiplicity) const {
-        for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nbins())) {
+        for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
           auto nhits = tracks_view.hitIndices().size(it);
           if (nhits < 3)
             continue;
@@ -525,7 +525,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                     TkSoAView<TrackerTraits> tracks_view,
                                     QualityCuts<TrackerTraits> cuts) const {
-        for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nbins())) {
+        for (auto it : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
           auto nhits = tracks_view.hitIndices().size(it);
           if (nhits == 0)
             break;  // guard
@@ -570,7 +570,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
       ALPAKA_FN_ACC void operator()(TAcc const &acc, TkSoAView<TrackerTraits> tracks_view, Counters *counters) const {
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
           if (tracks_view.hitIndices().size(idx) == 0)
             break;  //guard
           if (tracks_view[idx].quality() < Quality::loose)
@@ -590,7 +590,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                     TkSoAView<TrackerTraits> tracks_view,
                                     HitToTuple<TrackerTraits> *hitToTuple) const {
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
           if (tracks_view.hitIndices().size(idx) == 0)
             break;  // guard
           for (auto h = tracks_view.hitIndices().begin(idx); h != tracks_view.hitIndices().end(idx); ++h)
@@ -606,7 +606,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                     TkSoAView<TrackerTraits> tracks_view,
                                     HitToTuple<TrackerTraits> *hitToTuple) const {
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
           if (tracks_view.hitIndices().size(idx) == 0)
             break;  // guard
           for (auto h = tracks_view.hitIndices().begin(idx); h != tracks_view.hitIndices().end(idx); ++h)
@@ -623,13 +623,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     TkSoAView<TrackerTraits> tracks_view,
                                     HitsConstView<TrackerTraits> hh) const {
         // copy offsets
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().totbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().nOnes())) {
           tracks_view.detIndices().off[idx] = tracks_view.hitIndices().off[idx];
         }
         // fill hit indices
         for (auto idx : cms::alpakatools::elements_with_stride(acc, tracks_view.hitIndices().size())) {
-          ALPAKA_ASSERT_OFFLOAD(tracks_view.hitIndices().bins[idx] < (uint32_t)hh.metadata().size());
-          tracks_view.detIndices().bins[idx] = hh[tracks_view.hitIndices().bins[idx]].detectorIndex();
+          ALPAKA_ASSERT_OFFLOAD(tracks_view.hitIndices().content[idx] < (uint32_t)hh.metadata().size());
+          tracks_view.detIndices().content[idx] = hh[tracks_view.hitIndices().content[idx]].detectorIndex();
         }
       }
     };
@@ -661,7 +661,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     HitToTuple<TrackerTraits> const *__restrict__ hitToTuple,
                                     Counters *counters) const {
         auto &c = *counters;
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple->nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple->nOnes())) {
           if (hitToTuple->size(idx) == 0)
             continue;  // SHALL NOT BE break
           alpaka::atomicAdd(acc, &c.nUsedHits, 1ull, alpaka::hierarchy::Blocks{});
@@ -752,7 +752,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         auto &hitToTuple = *phitToTuple;
 
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
           if (hitToTuple.size(idx) < 2)
             continue;
 
@@ -814,7 +814,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         uint32_t l1end = hh.hitsLayerStart()[1];
 
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
           if (hitToTuple.size(idx) < 2)
             continue;
 
@@ -865,7 +865,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         auto &hitToTuple = *phitToTuple;
 
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
           if (hitToTuple.size(idx) < 2)
             continue;
 
@@ -926,7 +926,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         auto &hitToTuple = *phitToTuple;
 
-        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nbins())) {
+        for (auto idx : cms::alpakatools::elements_with_stride(acc, hitToTuple.nOnes())) {
           if (hitToTuple.size(idx) < 2)
             continue;
 
