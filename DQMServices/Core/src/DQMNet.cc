@@ -1213,7 +1213,7 @@ DQMBasicNet::DQMBasicNet(const std::string &appname /* = "" */) : DQMImplNet<DQM
 }
 
 /// Give a hint of how much capacity to allocate for local objects.
-void DQMBasicNet::reserveLocalSpace(uint32_t size) { local_->objs.resize(size); }
+void DQMBasicNet::reserveLocalSpace(uint32_t size) { local_->objs.reserve(size); }
 
 /// Update the network cache for an object.  The caller must call
 /// sendLocalChanges() later to push out the changes.
