@@ -45,13 +45,7 @@ namespace l1t::demo::codecs {
       inverseMultWord.V = x(VertexWord::kNTrackOutPVMSB, VertexWord::kNTrackOutPVLSB);
       unassignedWord.V = x(VertexWord::kUnassignedMSB, VertexWord::kUnassignedLSB);
 
-      VertexWord v(validWord,
-                   z0Word,
-                   multWord,
-                   sumPtWord,
-                   qualityWord,
-                   qualityWord,
-                   unassignedWord);
+      VertexWord v(validWord, z0Word, multWord, sumPtWord, qualityWord, qualityWord, unassignedWord);
       vertices.push_back(v);
     }
 

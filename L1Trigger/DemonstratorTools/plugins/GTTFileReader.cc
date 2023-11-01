@@ -57,7 +57,7 @@ private:
   static constexpr size_t kGTTBoardTMUX = 6;
   static constexpr size_t kTrackTMUX = 18;
   static constexpr size_t kVertexChanIndex = 0;
-  static constexpr size_t kEmptyFrames = 0; // 10 does not match current file writing configuration
+  static constexpr size_t kEmptyFrames = 0;  // 10 does not match current file writing configuration
 
   const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecs = {
       /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
@@ -82,9 +82,8 @@ private:
       {{"tracks", 14}, {{kTrackTMUX, kGapLengthInput}, {14, 32, 50}}},
       {{"tracks", 15}, {{kTrackTMUX, kGapLengthInput}, {15, 33, 51}}},
       {{"tracks", 16}, {{kTrackTMUX, kGapLengthInput}, {16, 34, 52}}},
-      {{"tracks", 17}, {{kTrackTMUX, kGapLengthInput}, {17, 35, 53}}}
-  };
-  
+      {{"tracks", 17}, {{kTrackTMUX, kGapLengthInput}, {17, 35, 53}}}};
+
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
   typedef std::vector<L1Track> TTTrackCollection;
 
@@ -104,22 +103,21 @@ private:
 
 GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
     : fileReaderOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
-                  iConfig.getParameter<std::vector<std::string>>("files"),
-                  kFramesPerTMUXPeriod,
-                  kVertexTMUX,
-                  kEmptyFrames,
-                  kChannelSpecs),
+                                    iConfig.getParameter<std::vector<std::string>>("files"),
+                                    kFramesPerTMUXPeriod,
+                                    kVertexTMUX,
+                                    kEmptyFrames,
+                                    kChannelSpecs),
       l1VertexCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
       fileReaderInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
-      			     iConfig.getParameter<std::vector<std::string>>("filesInputTracks"),
-      			     kFramesPerTMUXPeriod,
-      			     kGTTBoardTMUX,
-      			     kEmptyFrames,
-      			     kChannelSpecsInput),
+                             iConfig.getParameter<std::vector<std::string>>("filesInputTracks"),
+                             kFramesPerTMUXPeriod,
+                             kGTTBoardTMUX,
+                             kEmptyFrames,
+                             kChannelSpecsInput),
       l1TrackCollectionName_(iConfig.getParameter<std::string>("l1TrackCollectionName")) {
   produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
   produces<TTTrackCollection>(l1TrackCollectionName_);
-
 }
 
 // ------------ method called to produce the data  ------------
@@ -134,23 +132,21 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto inputTracks = std::make_unique<TTTrackCollection>();
   for (size_t i = 0; i < 18; i++) {
     auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
-    for( auto& trackword: iTracks) {
+    for (auto& trackword : iTracks) {
       if (!trackword.getValidWord())
-	continue;
-      L1Track track = L1Track(
-			     trackword.getValidWord(),
-			     trackword.getRinvWord(),
-			     trackword.getPhiWord(),
-			     trackword.getTanlWord(),
-			     trackword.getZ0Word(),
-			     trackword.getD0Word(),
-			     trackword.getChi2RPhiWord(),
-			     trackword.getChi2RZWord(),
-			     trackword.getBendChi2Word(),
-			     trackword.getHitPatternWord(),
-			     trackword.getMVAQualityWord(),
-			     trackword.getMVAOtherWord()
-			     );
+        continue;
+      L1Track track = L1Track(trackword.getValidWord(),
+                              trackword.getRinvWord(),
+                              trackword.getPhiWord(),
+                              trackword.getTanlWord(),
+                              trackword.getZ0Word(),
+                              trackword.getD0Word(),
+                              trackword.getChi2RPhiWord(),
+                              trackword.getChi2RZWord(),
+                              trackword.getBendChi2Word(),
+                              trackword.getHitPatternWord(),
+                              trackword.getMVAQualityWord(),
+                              trackword.getMVAOtherWord());
       //retrieve the eta (first) and phi (second) sectors for GTT, encoded in an std::pair
       auto sectors = (l1t::demo::codecs::sectorsEtaPhiFromGTTLinkID(i));
       track.setEtaSector(sectors.first);
