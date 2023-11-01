@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 import re
 import sys
+import time
 import shutil
 import subprocess
 import urllib.request
@@ -1187,11 +1188,14 @@ def _findDuplicates(lst):
     return list(found2)
 
 def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
+    plottingProcess = self._nProc
+    if plottingProcess<=0: plottingProcess = os.cpu_count()
     plotterInstance = plotter.readDirs(*self._openFiles)
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     proc = []
     iProc = 0
+    active_proc = []
 
     for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
         if sample is not None and not _processPlotsForSample(plotterFolder, sample):
@@ -1202,8 +1206,12 @@ def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
             os.makedirs(newdir, exist_ok=True)
 
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
+        while len(active_proc)>=plottingProcess:
+          time.sleep(0.1)
+          active_proc = [p for p in active_proc if p.is_alive()]
         p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
         proc.append((plotterFolder, dqmSubFolder, p))
+        active_proc.append(p)
         p.start()
         iProc += 1
 
@@ -1256,9 +1264,10 @@ class SimpleSample:
         return True
 
 class SimpleValidation:
-    def __init__(self, samples, newdir):
+    def __init__(self, samples, newdir, nProc=0):
         self._samples = samples
         self._newdir = newdir
+        self._nProc = nProc
         if not os.path.exists(newdir):
             os.makedirs(newdir)
 
@@ -1323,9 +1332,10 @@ class SimpleValidation:
 class SeparateValidation:
     #Similar to the SimpleValidation
     #To be used only if `--separate` option is on
-    def __init__(self, samples, newdir):
+    def __init__(self, samples, newdir, nProc=0):
         self._samples = samples
         self._newdir = newdir
+        self._nProc = nProc
         if not os.path.exists(newdir):
             os.makedirs(newdir)
 
