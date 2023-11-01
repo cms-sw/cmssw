@@ -10,7 +10,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 ZdcNumberingScheme::ZdcNumberingScheme(int iv) {
   verbosity = iv;
