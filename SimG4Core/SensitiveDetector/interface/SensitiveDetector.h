@@ -18,7 +18,10 @@ class G4VPhysicalVolume;
 
 class SensitiveDetector : public G4VSensitiveDetector {
 public:
-  explicit SensitiveDetector(const std::string& iname, const SensitiveDetectorCatalog&, bool calo);
+  explicit SensitiveDetector(const std::string& iname,
+                             const SensitiveDetectorCatalog&,
+                             bool calo,
+                             const std::string& newcollname = "");
 
   ~SensitiveDetector() override;
 

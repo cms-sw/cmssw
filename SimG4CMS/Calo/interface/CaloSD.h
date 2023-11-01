@@ -50,7 +50,8 @@ public:
          edm::ParameterSet const& p,
          const SimTrackManager*,
          float timeSlice = 1.,
-         bool ignoreTkID = false);
+         bool ignoreTkID = false,
+         const std::string& newcolname = "");
   ~CaloSD() override;
 
   void newCollection(const std::string& name, edm::ParameterSet const& p);
@@ -69,7 +70,6 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
   void reset() override;
 
-  void Initialize(G4HCofThisEvent* HCE, int k);
   bool isItFineCalo(const G4VTouchable* touch);
 
 protected:
@@ -105,6 +105,8 @@ protected:
   virtual int getTrackID(const G4Track*);
   virtual int setTrackID(const G4Step*);
   virtual uint16_t getDepth(const G4Step*);
+  virtual void processSecondHit(const G4Step*, const G4Track*);
+
   double getResponseWt(const G4Track*, int k = 0);
   int getNumberOfHits(int k = 0);
   void ignoreRejection() { ignoreReject = true; }
@@ -153,6 +155,8 @@ protected:
   double kmaxIon, kmaxNeutron, kmaxProton;
 
   bool forceSave;
+  int nHC_;
+  std::string detName_, collName_[2];
 
 private:
   struct Detector {
@@ -187,8 +191,6 @@ private:
   double correctT;
   bool doFineCalo_;
   double eMinFine_;
-  int nHC_;
-  std::string detName_[2], collName_[2];
 
   std::map<CaloHitID, CaloG4Hit*> hitMap[2];
   std::map<int, TrackWithHistory*> tkMap;

@@ -36,11 +36,12 @@ protected:
   void update(const BeginOfJob *) override;
   void initRun() override;
   bool filterHit(CaloG4Hit *, double) override;
+  void processSecondHit(const G4Step *, const G4Track *) override;
 
 private:
   uint32_t setDetUnitId(int, int, int, int, G4ThreeVector &);
   bool isItinFidVolume(const G4ThreeVector &);
-  bool calibCell(const uint32_t &id, double &frac);
+  bool calibCell(const uint32_t &id);
 
   std::string myName_;
   const HGCalDDDConstants *hgcons_;
@@ -66,6 +67,8 @@ private:
   const double tan30deg_, cos30deg_;
   std::vector<double> angles_;
   std::string missingFile_;
+  bool calibCell_;
+  double fraction_;
 };
 
 #endif  // HGCalSD_h

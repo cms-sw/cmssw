@@ -1,5 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCellOffset.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include <vector>
 #include <iostream>
 
@@ -147,13 +148,13 @@ std::pair<double, double> HGCalCellOffset::cellOffsetUV2XY1(int32_t u, int32_t v
   return std::make_pair(x_off, y_off);
 }
 
-double HGCalCellOffset::cellAreaUV(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
+double HGCalCellOffset::cellAreaUV(int32_t u, int32_t v, int32_t placementIndex, int32_t type, bool reco) {
   if (type != 0)
     type = 1;
   double area(0);
   std::pair<int, int> cell = hgcalcell_->cellType(u, v, ncell_[type], placementIndex);
   int cellType = cell.second;
-  area = cellArea[type][cellType];
+  area = reco ? cellArea[type][cellType] : HGCalParameters::k_ScaleToDDD2 * cellArea[type][cellType];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCellOffset in wafer with placement index " << placementIndex << " type "
                                 << type << " for cell u " << u << " v " << v << " Area " << area;

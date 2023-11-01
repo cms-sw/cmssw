@@ -35,16 +35,17 @@ CaloSD::CaloSD(const std::string& name,
                edm::ParameterSet const& p,
                const SimTrackManager* manager,
                float timeSliceUnit,
-               bool ignoreTkID)
-    : SensitiveCaloDetector(name, clg),
+               bool ignoreTkID,
+               const std::string& newcollName)
+    : SensitiveCaloDetector(name, clg, newcollName),
       G4VGFlashSensitiveDetector(),
       eminHit(0.),
       m_trackManager(manager),
       ignoreTrackID(ignoreTkID),
       timeSlice(timeSliceUnit),
-      eminHitD(0.),
-      nHC_(1) {
+      eminHitD(0.) {
   //Parameters
+  nHC_ = (newcollName.empty()) ? 1 : 2;
   for (int k = 0; k < 2; ++k) {
     currentHit[k] = nullptr;
     theHC[k] = nullptr;
@@ -96,7 +97,9 @@ CaloSD::CaloSD(const std::string& name,
       }
     }
   }
-  detName_[0] = name;
+  detName_ = name;
+  collName_[0] = name;
+  collName_[1] = newcollName;
   slave[0] = std::make_unique<CaloSlaveSD>(name);
   slave[1].reset(nullptr);
 
@@ -171,8 +174,6 @@ CaloSD::CaloSD(const std::string& name,
 CaloSD::~CaloSD() {}
 
 void CaloSD::newCollection(const std::string& name, edm::ParameterSet const& p) {
-  nHC_ = 2;
-  detName_[1] = collName_[1] = name;
   for (unsigned int k = 0; k < hcn_.size(); ++k) {
     if (name == hcn_[k]) {
       if (k < useResMap_.size() && useResMap_[k] > 0) {
@@ -184,6 +185,9 @@ void CaloSD::newCollection(const std::string& name, edm::ParameterSet const& p) 
   slave[1] = std::make_unique<CaloSlaveSD>(name);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD:: Initialise a second collection for " << name;
+  for (int k = 0; k < nHC_; ++k)
+    edm::LogVerbatim("CaloSim") << "Detector[" << k << "]" << detName_ << " collection " << collName_[k];
+
 #endif
 }
 
@@ -281,6 +285,9 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     edm::LogVerbatim("DoFineCalo") << "Not creating new hit, only updating " << shortreprID(currentHit[0]);
 #endif
   }
+
+  processSecondHit(aStep, theTrack);
+
   return true;
 }
 
@@ -378,28 +385,28 @@ bool CaloSD::isItFineCalo(const G4VTouchable* touch) {
   return ok;
 }
 
-void CaloSD::Initialize(G4HCofThisEvent* HCE) { Initialize(HCE, 0); }
-
-void CaloSD::Initialize(G4HCofThisEvent* HCE, int k) {
-  if (k == 0) {
-    detName_[0] = GetName();
-    collName_[0] = collectionName[0];
-  }
-  totalHits[k] = 0;
-
+void CaloSD::Initialize(G4HCofThisEvent* HCE) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloSim") << "CaloSD : Initialize called for " << detName_[k];
+  edm::LogVerbatim("CaloSim") << "CaloSD : Initialize called for " << detName_;
 #endif
 
-  //This initialization is performed at the beginning of an event
-  //------------------------------------------------------------
-  theHC[k] = new CaloG4HitCollection(detName_[k], collName_[k]);
+  for (int k = 0; k < nHC_; ++k) {
+    totalHits[k] = 0;
 
-  if (hcID[k] < 0) {
-    hcID[k] = G4SDManager::GetSDMpointer()->GetCollectionID(collName_[k]);
+    //This initialization is performed at the beginning of an event
+    //------------------------------------------------------------
+    theHC[k] = new CaloG4HitCollection(detName_, collName_[k]);
+
+    if (hcID[k] < 0) {
+      hcID[k] = G4SDManager::GetSDMpointer()->GetCollectionID(collName_[k]);
+    }
+    //theHC ownership is transfered here to HCE
+    HCE->AddHitsCollection(hcID[k], theHC[k]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloSim") << "CaloSD : Add hits collection for " << hcID[k] << " for " << k << ":" << detName_
+                                << ":" << collName_[k];
+#endif
   }
-  //theHC ownership is transfered here to HCE
-  HCE->AddHitsCollection(hcID[k], theHC[k]);
 }
 
 void CaloSD::EndOfEvent(G4HCofThisEvent*) {
@@ -453,6 +460,9 @@ G4ThreeVector CaloSD::setToGlobal(const G4ThreeVector& local, const G4VTouchable
 }
 
 bool CaloSD::hitExists(const G4Step* aStep, int k) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloSim") << "CaloSD: hitExists for " << k;
+#endif
   // Update if in the same detector, time-slice and for same track
   if (currentID[k] == previousID[k]) {
     updateHit(currentHit[k], k);
@@ -465,15 +475,20 @@ bool CaloSD::hitExists(const G4Step* aStep, int k) {
   // whether to update a hit or create a new hit is done in one place,
   // and only then perform the actual updating or creating of the hit.
 
-  // Reset entry point for new primary
-  posGlobal = aStep->GetPreStepPoint()->GetPosition();
-  if (currentID[k].trackID() != previousID[k].trackID()) {
-    resetForNewPrimary(aStep);
+  // Reset entry point for new primary (only for the primary hit)
+  if (k == 0) {
+    posGlobal = aStep->GetPreStepPoint()->GetPosition();
+    if (currentID[k].trackID() != previousID[k].trackID()) {
+      resetForNewPrimary(aStep);
+    }
   }
   return checkHit(k);
 }
 
 bool CaloSD::checkHit(int k) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloSim") << "CaloSD: checkHit for " << k;
+#endif
   //look in the HitContainer whether a hit with the same ID already exists:
   bool found = false;
   if (useMap) {
@@ -895,6 +910,8 @@ int CaloSD::setTrackID(const G4Step* aStep) {
 }
 
 uint16_t CaloSD::getDepth(const G4Step*) { return 0; }
+
+void CaloSD::processSecondHit(const G4Step*, const G4Track*) {}
 
 bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
   double emin(eminHit);
