@@ -10,6 +10,7 @@ gsfElectronProducer = _gsfProd.gsfElectronProducerDefault.clone(
     hbheRecHits = egammaHBHERecHit.hbheRecHits,
     recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
     recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    usePFThresholdsFromDB = egammaHBHERecHit.usePFThresholdsFromDB,
     maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity,
 
     pfECALClusIsolCfg = cms.PSet( 

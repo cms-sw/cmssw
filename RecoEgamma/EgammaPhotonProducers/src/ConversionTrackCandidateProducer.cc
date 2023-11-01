@@ -114,6 +114,10 @@ private:
 
   std::unique_ptr<ElectronHcalHelper> hcalHelper_;
 
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
+  HcalPFCuts const* hcalCuts = nullptr;
+
   void buildCollections(bool detector,
                         const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
                         const edm::Handle<edm::View<reco::CaloCluster>>& bcHandle,
@@ -162,6 +166,10 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSCAssociationCollection_ = config.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSCAssociationCollection_ = config.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
+  cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  }
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   maxHOverE_ = config.getParameter<double>("maxHOverE");
   minSCEt_ = config.getParameter<double>("minSCEt");
@@ -224,6 +232,10 @@ void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSet
   theTrajectoryBuilder_->setNavigationSchool(navigation);
   outInSeedFinder_.setNavigationSchool(navigation);
   inOutSeedFinder_.setNavigationSchool(navigation);
+
+  if (cutsFromDB) {
+    hcalCuts = &theEventSetup.getData(hcalCutsToken_);
+  }
 }
 
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -371,7 +383,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     const reco::CaloCluster* pClus = &(*aClus);
     const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy() / cosh(sc->eta());
-    double HoE = hcalHelper.hcalESum(*sc, 0) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, hcalCuts) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
 
@@ -454,6 +466,7 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<edm::InputTag>("hbheRecHits", {"hbhereco"});
   desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
+  desc.add<bool>("usePFThresholdsFromDB", false);
   desc.add<int>("maxHcalRecHitSeverity", 999999);
 
   desc.add<double>("minSCEt", 20.0);
