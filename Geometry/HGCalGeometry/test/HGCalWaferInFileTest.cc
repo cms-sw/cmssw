@@ -66,6 +66,7 @@ private:
   const std::string nameSense_, nameDetector_;
   const int verbosity_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
+  double c22_, c27_, c61_, c77_, c88_;
 };
 
 HGCalWaferInFileTest::HGCalWaferInFileTest(const edm::ParameterSet& iC)
@@ -73,6 +74,11 @@ HGCalWaferInFileTest::HGCalWaferInFileTest(const edm::ParameterSet& iC)
       nameDetector_(iC.getParameter<std::string>("NameDevice")),
       verbosity_(iC.getParameter<int>("Verbosity")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
+  c22_ = HGCalTypes::c22;
+  c27_ = HGCalTypes::c27;
+  c61_ = HGCalTypes::c61;
+  c77_ = HGCalTypes::c77;
+  c88_ = HGCalTypes::c88;
   edm::LogVerbatim("HGCalGeom") << "Test wafer characteristics for " << nameDetector_ << " using constants of "
                                 << nameSense_ << " with verbosity " << verbosity_;
 }
@@ -92,6 +98,13 @@ void HGCalWaferInFileTest::analyze(const edm::Event& iEvent, const edm::EventSet
   const auto& hgdc = geom->topology().dddConstants();
   double delX = 0.5 * hgdc.getParameter()->waferSize_;
   double delY = 2.0 * delX / std::sqrt(3.0);
+  if (hgdc.v17OrLess()) {
+    c22_ = HGCalTypes::c22O;
+    c27_ = HGCalTypes::c27O;
+    c61_ = HGCalTypes::c61O;
+    c77_ = HGCalTypes::c77O;
+    c88_ = HGCalTypes::c88O;
+  }
 
   edm::LogVerbatim("HGCalGeom") << nameDetector_ << "\nCheck Wafers in file are all valid for " << nameDetector_
                                 << std::endl;
@@ -288,8 +301,8 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
 
   static const int parts = 3;
   static const std::string c1[parts] = {"A1", "A2", "A3"};
-  double dx1[parts] = {HGCalTypes::c22 * delX, HGCalTypes::c50 * delX, HGCalTypes::c77 * delX};
-  double dy1[parts] = {-HGCalTypes::c88 * delY, -HGCalTypes::c75 * delY, -HGCalTypes::c61 * delY};
+  double dx1[parts] = {c22_ * delX, HGCalTypes::c50 * delX, c77_ * delX};
+  double dy1[parts] = {-c88_ * delY, -HGCalTypes::c75 * delY, -c61_ * delY};
   if ((((iok / 10000) % 10) == 1) && (((iok / 100000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx1[k];
@@ -316,7 +329,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
 
   static const std::string c2[parts] = {"B1", "B2", "B3"};
   double dx2[parts] = {HGCalTypes::c10 * delX, HGCalTypes::c10 * delX, HGCalTypes::c10 * delX};
-  double dy2[parts] = {-HGCalTypes::c27 * delY, 0.0, HGCalTypes::c27 * delY};
+  double dy2[parts] = {-c27_ * delY, 0.0, c27_ * delY};
   if ((((iok / 1000) % 10) == 1) && (((iok / 10000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx2[k];
@@ -342,8 +355,8 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   }
 
   static const std::string c3[parts] = {"C1", "C2", "C3"};
-  double dx3[parts] = {HGCalTypes::c77 * delX, HGCalTypes::c50 * delX, HGCalTypes::c22 * delX};
-  double dy3[parts] = {HGCalTypes::c61 * delY, HGCalTypes::c75 * delY, HGCalTypes::c88 * delY};
+  double dx3[parts] = {c77_ * delX, HGCalTypes::c50 * delX, c22_ * delX};
+  double dy3[parts] = {c61_ * delY, HGCalTypes::c75 * delY, c88_ * delY};
   if ((((iok / 100) % 10) == 1) && (((iok / 1000) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx3[k];
@@ -369,8 +382,8 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   }
 
   static const std::string c4[parts] = {"D1", "D2", "D3"};
-  double dx4[parts] = {-HGCalTypes::c22 * delX, -HGCalTypes::c50 * delX, -HGCalTypes::c77 * delX};
-  double dy4[parts] = {HGCalTypes::c88 * delY, HGCalTypes::c75 * delY, HGCalTypes::c61 * delY};
+  double dx4[parts] = {-c22_ * delX, -HGCalTypes::c50 * delX, -c77_ * delX};
+  double dy4[parts] = {c88_ * delY, HGCalTypes::c75 * delY, c61_ * delY};
   if ((((iok / 10) % 10) == 1) && (((iok / 100) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx4[k];
@@ -397,7 +410,7 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
 
   static const std::string c5[parts] = {"E1", "E2", "E3"};
   double dx5[parts] = {-delX, -delX, -delX};
-  double dy5[parts] = {HGCalTypes::c27 * delY, 0.0, -HGCalTypes::c27 * delY};
+  double dy5[parts] = {c27_ * delY, 0.0, -c27_ * delY};
   if ((((iok / 1) % 10) == 1) && (((iok / 10) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx5[k];
@@ -423,8 +436,8 @@ std::vector<std::string> HGCalWaferInFileTest::getPoints(
   }
 
   static const std::string c6[parts] = {"F1", "F2", "F3"};
-  double dx6[parts] = {-HGCalTypes::c77 * delX, -HGCalTypes::c50 * delX, -HGCalTypes::c22 * delX};
-  double dy6[parts] = {-HGCalTypes::c61 * delY, -HGCalTypes::c75 * delY, -HGCalTypes::c88 * delY};
+  double dx6[parts] = {-c77_ * delX, -HGCalTypes::c50 * delX, -c22_ * delX};
+  double dy6[parts] = {-c61_ * delY, -HGCalTypes::c75 * delY, -c88_ * delY};
   if ((((iok / 100000) % 10) == 1) && (((iok / 1) % 10) == 0)) {
     for (int k = 0; k < parts; ++k) {
       double xc1 = xpos + dx6[k];
@@ -507,30 +520,30 @@ std::pair<bool, std::string> HGCalWaferInFileTest::getPoints(double xpos,
                          -HGCalTypes::c50 * delX};
   double dy1[corners] = {
       -HGCalTypes::c75 * delY, 0.0, HGCalTypes::c75 * delY, HGCalTypes::c75 * delY, 0.0, -HGCalTypes::c75 * delY};
-  double dx2[corner2] = {HGCalTypes::c22 * delX,
-                         HGCalTypes::c77 * delX,
+  double dx2[corner2] = {c22_ * delX,
+                         c77_ * delX,
                          HGCalTypes::c10 * delX,
                          HGCalTypes::c10 * delX,
-                         HGCalTypes::c77 * delX,
-                         HGCalTypes::c22 * delX,
-                         -HGCalTypes::c22 * delX,
-                         -HGCalTypes::c77 * delX,
+                         c77_ * delX,
+                         c22_ * delX,
+                         -c22_ * delX,
+                         -c77_ * delX,
                          -HGCalTypes::c10 * delX,
                          -HGCalTypes::c10 * delX,
-                         -HGCalTypes::c77 * delX,
-                         -HGCalTypes::c22 * delX};
-  double dy2[corner2] = {-HGCalTypes::c88 * delY,
-                         -HGCalTypes::c61 * delY,
-                         -HGCalTypes::c27 * delY,
-                         HGCalTypes::c27 * delY,
-                         HGCalTypes::c61 * delY,
-                         HGCalTypes::c88 * delY,
-                         HGCalTypes::c88 * delY,
-                         HGCalTypes::c61 * delY,
-                         HGCalTypes::c27 * delY,
-                         -HGCalTypes::c27 * delY,
-                         -HGCalTypes::c61 * delY,
-                         -HGCalTypes::c88 * delY};
+                         -c77_ * delX,
+                         -c22_ * delX};
+  double dy2[corner2] = {-c88_ * delY,
+                         -c61_ * delY,
+                         -c27_ * delY,
+                         c27_ * delY,
+                         c61_ * delY,
+                         c88_ * delY,
+                         c88_ * delY,
+                         c61_ * delY,
+                         c27_ * delY,
+                         -c27_ * delY,
+                         -c61_ * delY,
+                         -c88_ * delY};
   bool ok(true);
   switch (part) {
     case (HGCalTypes::WaferThree): {

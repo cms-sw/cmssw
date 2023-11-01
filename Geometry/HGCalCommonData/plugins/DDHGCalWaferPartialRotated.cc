@@ -35,6 +35,7 @@ public:
 private:
   std::string material_;           // Material name for module with gap
   std::string waferTag_;           // Tag for type of wafer
+  int waferMode_;                  // Mode 1 for version 17 or earlier; else 0
   double thick_;                   // Module thickness
   double waferSize_;               // Wafer size
   double waferSepar_;              // Sensor separation
@@ -62,6 +63,7 @@ void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
                                             const DDStringVectorArguments& vsArgs) {
   material_ = sArgs["ModuleMaterial"];
   thick_ = nArgs["ModuleThickness"];
+  waferMode_ = static_cast<int>(nArgs["WaferMode"]);
   waferSize_ = nArgs["WaferSize"];
   waferThick_ = nArgs["WaferThickness"];
   waferTag_ = sArgs["WaferTag"];
@@ -69,7 +71,7 @@ void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
   waferSepar_ = nArgs["SensorSeparation"];
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: Module " << parent().name() << " made of " << material_
                                 << " T " << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_
-                                << " T " << waferThick_;
+                                << " T " << waferThick_ << " Mode " << waferMode_;
 #endif
   tags_ = vsArgs["Tags"];
   partialTypes_ = dbl_to_int(vArgs["PartialTypes"]);
@@ -127,7 +129,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       // First the mother
       std::string mother = parentName + placementIndexTags_[m] + waferTag_ + tags_[k];
       std::vector<std::pair<double, double> > wxy =
-          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0, (waferMode_ > 0));
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -155,7 +157,8 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       double zi(-0.5 * thick_), thickTot(0.0);
       for (unsigned int l = 0; l < layers_.size(); l++) {
         unsigned int i = layers_[l];
-        wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, layerSizeOff_[i], 0.0, 0.0);
+        wxy = HGCalWaferMask::waferXY(
+            partialTypes_[k], placementIndex_[m], waferSize_, layerSizeOff_[i], 0.0, 0.0, (waferMode_ > 0));
         std::vector<double> xL, yL;
         for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
           xL.emplace_back(wxy[i0].first);
