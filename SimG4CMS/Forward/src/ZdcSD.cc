@@ -73,47 +73,45 @@ void ZdcSD::initRun() {
 bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
 
-  if (aStep == nullptr) {
-    return true;
-  } else {
-    /*
+  if (aStep == nullptr) 
+    return false;
+  /*
     if (useShowerLibrary) {
-      getFromLibrary(aStep);
+    getFromLibrary(aStep);
+  }
+  */
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("ZdcSD") << "ZdcSD::" << GetName() << " ID= " << aStep->GetTrack()->GetTrackID()
+			    << " prID= " << aStep->GetTrack()->GetParentID()
+			    << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
+			    << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit();
+#endif
+  if (useShowerHits) {
+    // check unitID
+    unsigned int unitID = setDetUnitId(aStep);
+    if (unitID == 0)
+      return false;
+
+    auto const theTrack = aStep->GetTrack();
+    uint16_t depth = getDepth(aStep);
+
+    double time = theTrack->GetGlobalTime() / nanosecond;
+    int primaryID = getTrackID(theTrack);
+    currentID[0].setID(unitID, time, primaryID, depth);
+    double energy = calculateCherenkovDeposit(aStep);
+    if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
+      edepositEM = energy;
+      edepositHAD = 0;
+    } else {
+      edepositEM = 0;
+      edepositHAD = energy;
     }
-    */
+    if (!hitExists(aStep, 0) && edepositEM + edepositHAD > 0.) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ZdcSD") << "ZdcSD::" << GetName() << " ID= " << aStep->GetTrack()->GetTrackID()
-                              << " prID= " << aStep->GetTrack()->GetParentID()
-                              << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
-                              << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit();
+      G4ThreeVector pre = aStep->GetPreStepPoint()->GetPosition();
+      edm::LogVerbatim("ZdcSD") << pre.x() << " " << pre.y() << " " << pre.z();
 #endif
-    if (useShowerHits) {
-      // check unitID
-      unsigned int unitID = setDetUnitId(aStep);
-      if (unitID == 0)
-        return false;
-
-      auto const theTrack = aStep->GetTrack();
-      uint16_t depth = getDepth(aStep);
-
-      double time = theTrack->GetGlobalTime() / nanosecond;
-      int primaryID = getTrackID(theTrack);
-      currentID[0].setID(unitID, time, primaryID, depth);
-      double energy = calculateCherenkovDeposit(aStep);
-      if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
-        edepositEM = energy;
-        edepositHAD = 0;
-      } else {
-        edepositEM = 0;
-        edepositHAD = energy;
-      }
-      if (!hitExists(aStep, 0) && edepositEM + edepositHAD > 0.) {
-#ifdef EDM_ML_DEBUG
-        G4ThreeVector pre = aStep->GetPreStepPoint()->GetPosition();
-        edm::LogVerbatim("ZdcSD") << pre.x() << " " << pre.y() << " " << pre.z();
-#endif
-        currentHit[0] = CaloSD::createNewHit(aStep, theTrack, 0);
-      }
+      currentHit[0] = CaloSD::createNewHit(aStep, theTrack, 0);
     }
   }
   return true;
