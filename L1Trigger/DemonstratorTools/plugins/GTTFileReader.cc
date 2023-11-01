@@ -137,8 +137,6 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for( auto& trackword: iTracks) {
       if (!trackword.getValidWord())
 	continue;
-      unsigned int etaSector = (trackword.getTrackWord()(TTTrack_TrackWord::TrackBitLocations::kTanlMSB, TTTrack_TrackWord::TrackBitLocations::kTanlMSB) ? 0 : 1);
-      unsigned int phiSector = (static_cast<unsigned int>(i) - etaSector) / 2;
       L1Track track = L1Track(
 			     trackword.getValidWord(),
 			     trackword.getRinvWord(),
@@ -153,8 +151,10 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			     trackword.getMVAQualityWord(),
 			     trackword.getMVAOtherWord()
 			     );
-      track.setEtaSector(etaSector);
-      track.setPhiSector(phiSector);
+      //retrieve the eta (first) and phi (second) sectors for GTT, encoded in an std::pair
+      auto sectors = (l1t::demo::codecs::sectorsEtaPhiFromGTTLinkID(i));
+      track.setEtaSector(sectors.first);
+      track.setPhiSector(sectors.second);
       track.trackWord_ = trackword.trackWord_;
       inputTracks->push_back(track);
     }
