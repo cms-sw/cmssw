@@ -441,12 +441,12 @@ void L1GTTInputProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     vTTTrackOutput->push_back(track);
     auto& currentTrackRef = vTTTrackOutput->back();
     if (debug_ >= 2) {
-      edm::LogInfo("L1GTTInputProducer") << "produce::word before anything with setTrackWordBits_ = " << setTrackWordBits_ << ": " 
-                                         << currentTrackRef.getTrackWord().to_string(2);
+      edm::LogInfo("L1GTTInputProducer") << "produce::word before anything with setTrackWordBits_ = "
+                                         << setTrackWordBits_ << ": " << currentTrackRef.getTrackWord().to_string(2);
     }
 
     // Do an initial setting of the bits based on the floating point values
-    if(setTrackWordBits_)
+    if (setTrackWordBits_)
       currentTrackRef.setTrackWordBits();
     if (debug_ >= 2) {
       edm::LogInfo("L1GTTInputProducer") << "produce::word after initial setting of the track word "
@@ -534,7 +534,10 @@ void L1GTTInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("debug", 0)->setComment("Verbosity levels: 0, 1, 2, 3");
   desc.add<edm::InputTag>("l1TracksInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add<std::string>("outputCollectionName", "Level1TTTracksConverted");
-  desc.add<bool>("setTrackWordBits", true)->setComment("flag indicated whether the TTTrack_TrackWord should be set from float parameters or skipped (if TrackWord set by e.g. GTTFileReader decoding)");
+  desc.add<bool>("setTrackWordBits", true)
+      ->setComment(
+          "flag indicated whether the TTTrack_TrackWord should be set from float parameters or skipped (if TrackWord "
+          "set by e.g. GTTFileReader decoding)");
   descriptions.addWithDefaultLabel(desc);
 }
 
