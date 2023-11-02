@@ -4,6 +4,7 @@ from builtins import range
 from itertools import groupby
 from operator import attrgetter,itemgetter
 import sys
+import json
 from collections import defaultdict
 #----------------------------------------------
 def printHelp():
@@ -44,6 +45,7 @@ To Use: Add the Tracer Service to the cmsRun job use something like this
 #};
 
 
+kMicroToSec = 0.000001
 #Special names
 kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
@@ -68,6 +70,7 @@ class Phase (object):
   globalBeginRun = 5
   accessInputProcessBlock = 7
   beginProcessBlock = 8
+  openFile = 9
   beginStream = 10
   beginJob  = 11
   esSync = 12
@@ -75,6 +78,12 @@ class Phase (object):
   construction = 14
   startTracing = 15
 
+#used for json output
+class Activity (object):
+  prefetch = 0
+  acquire = 1
+  process = 2
+  delayedGet = 3
 
 def transitionName(transition):
     if transition == Phase.startTracing:
@@ -158,6 +167,32 @@ def transitionIndentLevel(transition):
     if transition == Phase.esSyncEnqueue or transition == Phase.esSync:
         return 1
     return None
+    
+def transitionIsGlobal(transition):
+    if transition == Phase.startTracing:
+        return True
+    if transition == Phase.construction or transition == Phase.destruction:
+        return True
+    if transition == Phase.endJob or transition == Phase.beginJob:
+        return True
+    if transition == Phase.beginProcessBlock or transition == Phase.endProcessBlock:
+        return True
+    if transition == Phase.accessInputProcessBlock:
+        return True
+    if transition == Phase.writeProcessBlock:
+        return True
+    if transition == Phase.globalBeginRun or Phase.globalEndRun == transition:
+        return True
+    if transition == Phase.globalWriteRun:
+        return True
+    if transition == Phase.globalBeginLumi or Phase.globalEndLumi == transition:
+        return True
+    if transition == Phase.globalWriteLumi:
+        return True
+    if transition == Phase.esSyncEnqueue or transition == Phase.esSync:
+        return True
+    return False
+
 
 def textPrefix_(time, indentLevel):
     #using 11 spaces for time should accomodate a job that runs 24 hrs
@@ -203,11 +238,100 @@ class FrameworkTransitionParser (object):
     def text(self, context):
         return f'{self.textPrefix()} {self.textSpecial()}: {self.textPostfix()}'
 
+def findMatchingTransition(sync, containers):
+    for i in range(len(containers)):
+        if containers[i][-1]["sync"] == sync:
+            return i
+    #need more exhausting search
+    for i in range(len(containers)):
+        for t in containers[i]:
+            if t["sync"] == sync:
+                return i
+
+    print("find failed",sync, containers)
+    return None
+
+def popQueuedTransitions(sync, container):
+    results = []
+    for i in range(len(container)):
+        if sync == container[i]["sync"]:
+            results.append(container[i])
+            results.append(container[i+1])
+            del container[i]
+            del container[i]
+            break
+    return results
+        
+            
 class PreFrameworkTransitionParser (FrameworkTransitionParser):
     def __init__(self, payload):
         super().__init__(payload)
     def textSpecial(self):
         return "starting"
+    def jsonInfo(self, counter, data):
+        if transitionIsGlobal(self.transition):
+            index = 0
+            if self.transition == Phase.startTracing:
+                data["globals"][0].append(jsonTransition(type=self.transition, id=index, sync=list(self.sync),start=0, finish=self.time ))
+                return
+            elif self.transition == Phase.esSync:
+                if self.sync[1] == 4294967295:
+                    #at end run transition
+                    index = findMatchingTransition(list(self.sync), data["globals"])
+                    container = data['globals'][index]
+                    container[-1]["finish"] = self.time*kMicroToSec
+                else:
+                    data['queued'][-1]["finish"] = self.time*kMicroToSec
+                    data['queued'].append( jsonTransition(type=self.transition, id = index, sync=list(self.sync), start=self.time , finish=0))
+                    return
+            elif self.transition==Phase.globalBeginRun:
+                index = self.index
+                #find associated es queued items
+                queued = data["queued"]
+                q = popQueuedTransitions(list(self.sync), queued)
+                globals = data['globals']
+                while index+1 > len(globals):
+                    globals.append([])
+                container = globals[index]
+                #find source, should be previous
+                last = container[-1]
+                if last["type"]==Phase.globalBeginRun and last["isSrc"]:
+                    last["sync"]=list(self.sync)
+                container.append(q[0])
+                container.append(q[1])
+            elif self.transition==Phase.globalBeginLumi:
+                index = self.index
+                #find associated es queued items
+                queued = data["queued"]
+                q = popQueuedTransitions(list(self.sync), queued)
+                globals = data['globals']
+                while index+1 > len(globals):
+                    globals.append([])
+                container = globals[index]
+                #find source, should be previous
+                last = container[-1]
+                if last["type"]==Phase.globalBeginRun and last["isSrc"]:
+                    last["sync"]=list(self.sync)
+                container.append(q[0])
+                container.append(q[1])
+            elif Phase.globalEndRun == self.transition or self.transition==Phase.globalBeginLumi or Phase.globalEndLumi == self.transition or self.transition==Phase.globalWriteRun or Phase.globalWriteLumi == self.transition:
+                index = findMatchingTransition(list(self.sync), data["globals"])
+            globals = data["globals"]
+            while index+1 > len(globals):
+                globals.append([])
+            container = globals[index]
+        else:
+            streams = data["streams"]
+            while len(streams) < self.index+1:
+                streams.append([])
+            container = streams[self.index]
+            if self.transition == Phase.Event:
+                #find source, should be previous
+                last = container[-1]
+                if last["type"]==Phase.Event and last["isSrc"]:
+                    last["sync"]=list(self.sync)
+            index = self.index
+        container.append( jsonTransition(type=self.transition, id = index, sync=list(self.sync), start=self.time , finish=0))
         
 
 class PostFrameworkTransitionParser (FrameworkTransitionParser):
@@ -215,12 +339,31 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
         super().__init__(payload)
     def textSpecial(self):
         return "finished"
+    def jsonInfo(self, counter, data):
+        if transitionIsGlobal(self.transition):
+            if self.transition == Phase.esSync and self.sync[1] != 4294967295:
+                data['queued'][-1]['finish']=self.time*kMicroToSec
+                return
+            index = findMatchingTransition(list(self.sync), data["globals"])
+            container = data["globals"][index]
+        else:
+            container = data["streams"][self.index]
+        container[-1]["finish"]=self.time*kMicroToSec
+
 
 class QueuingFrameworkTransitionParser (FrameworkTransitionParser):
     def __init__(self, payload):
         super().__init__(payload)
     def textSpecial(self):
         return "queuing"
+    def jsonInfo(self, counter, data):
+        index = -1
+        if self.sync[1] == 4294967295:
+            #find the mtching open run
+            index = findMatchingTransition([self.sync[0],0,0], data["globals"])
+            data["globals"][index].append( jsonTransition(type=self.transition, id = index, sync=list(self.sync), start=self.time , finish=0))
+        else:
+            data["queued"].append(jsonTransition(type=self.transition, id = index, sync=list(self.sync), start=self.time , finish=0))
 
 class SourceTransitionParser(object):
     def __init__(self, payload):
@@ -249,12 +392,48 @@ class PreSourceTransitionParser(SourceTransitionParser):
         super().__init__(payload)
     def textSpecial(self):
         return "starting"
+    def jsonInfo(self, counter, data):
+        if self.transition == Phase.construction:
+            index = counter.start()
+            container = data["globals"]
+        elif self.transition == Phase.Event:
+            index = self.index
+            container = data["streams"]
+        else:
+            container = data["globals"]
+            index = self.index
+        while len(container) < index+1:
+            container.append([])
+        container[index].append(jsonTransition(type=self.transition, id=index, sync=[0,0,0], start=self.time, finish=0, isSrc=True))
 
 class PostSourceTransitionParser(SourceTransitionParser):
     def __init__(self, payload):
         super().__init__(payload)
     def textSpecial(self):
         return "finished"
+    def jsonInfo(self, counter, data):
+        if self.transition == Phase.Event:
+            container = data["streams"]
+        elif self.transition == Phase.construction:
+            container = data["globals"]
+            pre = None
+            for i, g in enumerate(data['globals']):
+                for t in reversed(g):
+                    if t["type"] != Phase.construction:
+                        break
+                    if t["isSrc"]:
+                        pre = t
+                        break
+                if pre:
+                    pre["finish"]=self.time*kMicroToSec
+                    break
+            counter.finish(i)
+            return
+        else:
+            container = data["globals"]
+        index = self.index
+
+        container[index][-1]["finish"]=self.time*kMicroToSec
 
 class EDModuleTransitionParser(object):
     def __init__(self, payload, moduleNames):
@@ -279,66 +458,127 @@ class EDModuleTransitionParser(object):
         return f'{self.moduleName} during {transitionName(self.transition)} : id={self.index}'
     def text(self, context):
         return f'{self.textPrefix(context)} {self.textSpecial()}: {self.textPostfix()}'
+    def _preJson(self, activity, counter, data):
+        if transitionIsGlobal(self.transition):
+            container = data["modGlobals"]
+        else:
+            container = data["modStreams"]
+        index = self.index
+        while index+1 > len(container):
+            container.append([[]])
+        container = container[index]
+        #find open slot
+        foundOpenSlot = False
+        for slot in container:
+            if len(slot) == 0:
+                foundOpenSlot = True
+                break
+            if slot[-1]["finish"] != 0:
+                foundOpenSlot = True
+                break
+        if not foundOpenSlot:
+            container.append([])
+            slot = container[-1]
+        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, activity=activity, start=self.time))
+        return slot[-1]
+    def _postJson(self, counter, data):
+        if transitionIsGlobal(self.transition):
+            container = data["modGlobals"]
+        else:
+            container = data["modStreams"]
+        index = self.index
+        container = container[index]
+        #find slot containing the pre
+        for slot in container:
+            if slot[-1]["mod"] == self.moduleID:
+                slot[-1]["finish"]=self.time*kMicroToSec
+                return
+        print(f"failed to find {self.moduleID} for {self.transition} in {self.index} with {container}")
 
 class PreEDModuleTransitionParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "starting action"
+    def jsonInfo(self, counter, data):
+        return self._preJson(Activity.process, counter,data)
 
 class PostEDModuleTransitionParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "finished action"
-
+    def jsonInfo(self, counter, data):
+        return self._postJson(counter,data)
+        
 class PreEDModulePrefetchingParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "starting prefetch"
+    def jsonInfo(self, counter, data):
+        #the total time in prefetching isn't useful, but seeing the start is
+        kPrefetchLength = 2*kMicroToSec
+        entry = self._preJson(Activity.prefetch, counter,data)
+        entry["finish"]=entry["start"]+kPrefetchLength
+        return entry
+
 
 class PostEDModulePrefetchingParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "finished prefetch"
+    def jsonInfo(self, counter, data):
+        pass
 
 class PreEDModuleAcquireParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "starting acquire"
+    def jsonInfo(self, counter, data):
+        return self._preJson(Activity.acquire, counter,data)
 
 class PostEDModuleAcquireParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "finished acquire"
+    def jsonInfo(self, counter, data):
+        return self._postJson(counter,data)
 
 class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "starting delayed get"
+    def jsonInfo(self, counter, data):
+        return self._preJson(Activity.delayedGet, counter,data)
 
 class PostEDModuleEventDelayedGetParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "finished delayed get"
+    def jsonInfo(self, counter, data):
+        return self._postJson(counter,data)
 
 class PreEventReadFromSourceParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "starting read from source"
+    def jsonInfo(self, counter, data):
+        return self._preJson(Activity.process, counter,data)
 
 class PostEventReadFromSourceParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
         super().__init__(payload, names)
     def textSpecial(self):
         return "finished read from source"
+    def jsonInfo(self, counter, data):
+        return self._postJson(counter,data)
 
 class ESModuleTransitionParser(object):
     def __init__(self, payload, moduleNames, esModuleNames, recordNames):
@@ -366,42 +606,93 @@ class ESModuleTransitionParser(object):
         return f'esmodule {self.moduleName} in record {self.recordName} during {transitionName(self.transition)} : id={self.index}'
     def text(self, context):
         return f'{self.textPrefix(context)} {self.textSpecial()}: {self.textPostfix()}'
+    def _preJson(self, activity, counter, data):
+        if transitionIsGlobal(self.transition):
+            container = data["modGlobals"]
+        else:
+            container = data["modStreams"]
+        index = self.index
+        while index+1 > len(container):
+            container.append([[]])
+        container = container[index]
+        #find open slot
+        foundOpenSlot = False
+        for slot in container:
+            if len(slot) == 0:
+                foundOpenSlot = True
+                break
+            if slot[-1]["finish"] != 0:
+                foundOpenSlot = True
+                break
+        if not foundOpenSlot:
+            container.append([])
+            slot = container[-1]
+        slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=-1*self.moduleID, activity=activity, start=self.time))
+        return slot[-1]
+    def _postJson(self, counter, data):
+        if transitionIsGlobal(self.transition):
+            container = data["modGlobals"]
+        else:
+            container = data["modStreams"]
+        index = self.index
+        container = container[index]
+        #find slot containing the pre
+        for slot in container:
+            if slot[-1]["mod"] == -1*self.moduleID:
+                slot[-1]["finish"]=self.time*kMicroToSec
+                return
+        print(f"failed to find {-1*self.moduleID} for {self.transition} in {self.index} with {container}")
+
 
 class PreESModuleTransitionParser(ESModuleTransitionParser):
     def __init__(self, payload, names, esNames, recordNames):
         super().__init__(payload, names, esNames, recordNames)
     def textSpecial(self):
         return "starting action"
+    def jsonInfo(self, counter, data):
+        return self._preJson(Activity.process, counter,data)
 
 class PostESModuleTransitionParser(ESModuleTransitionParser):
     def __init__(self, payload, names, esNames, recordNames):
         super().__init__(payload, names, esNames, recordNames)
     def textSpecial(self):
         return "finished action"
+    def jsonInfo(self, counter, data):
+        return self._postJson(counter,data)
 
 class PreESModulePrefetchingParser(ESModuleTransitionParser):
     def __init__(self, payload, names, esNames, recordNames):
         super().__init__(payload, names, esNames, recordNames)
     def textSpecial(self):
         return "starting prefetch"
+    def jsonInfo(self, counter, data):
+        entry = self._preJson(Activity.prefetch, counter,data)
+        entry["finish"] = entry["start"]+2*kMicroToSec;
+        return entry
 
 class PostESModulePrefetchingParser(ESModuleTransitionParser):
     def __init__(self, payload, names, esNames, recordNames):
         super().__init__(payload, names, esNames, recordNames)
     def textSpecial(self):
         return "finished prefetch"
+    def jsonInfo(self, counter, data):
+        pass
 
 class PreESModuleAcquireParser(ESModuleTransitionParser):
     def __init__(self, payload, names, recordNames):
         super().__init__(payload, names, recordNames)
     def textSpecial(self):
         return "starting acquire"
+    def jsonInfo(self, counter, data):
+        return self._preJson(Activity.acquire, counter,data)
 
 class PostESModuleAcquireParser(ESModuleTransitionParser):
     def __init__(self, payload, names, esNames, recordNames):
         super().__init__(payload, names, esNames, recordNames)
     def textSpecial(self):
         return "finished acquire"
+    def jsonInfo(self, counter, data):
+        return self._postJson(counter,data)
 
 
 def lineParserFactory (step, payload, moduleNames, esModuleNames, recordNames, frameworkOnly):
@@ -527,6 +818,76 @@ def textOutput( parser ):
     for p in parser.processingSteps():
         print(p.text(context))
     
+class Counter(object):
+    def __init__(self):
+        self.activeSlots = [False]
+    def start(self):
+        if 0 != self.activeSlots.count(False):
+            index = self.activeSlots.index(False)
+            self.activeSlots[index]=True
+            return index
+        index = len(self.activeSlots)
+        self.activeSlots.append(True)
+        return  index
+    def finish(self, index):
+        self.activeSlots[index] = False
+
+
+def jsonTransition(type, id, sync, start, finish, isSrc=False):
+    return {"type": type, "id": id, "sync": sync, "start": start*kMicroToSec, "finish": finish*kMicroToSec, "isSrc":isSrc}
+
+def jsonModuleTransition(type, id, modID, activity, start, finish=0):
+    return {"type": type, "id": id, "mod": modID, "act": activity, "start": start*kMicroToSec, "finish": finish*kMicroToSec}
+
+def startTime(x):
+    return x["start"]
+def jsonInfo(parser):
+    counter = Counter()
+    data = {"globals": [[]], "streams" :[[]], "queued": []}
+    if not parser._frameworkOnly:
+        data["modGlobals"] = [[]]
+        data["modStreams"] = [[[]]]
+    for p in parser.processingSteps():
+        p.jsonInfo(counter, data)
+    #make sure everything is sorted
+    for g in data["globals"]:
+        g.sort(key=startTime)
+    del data["queued"]
+    final = {"transitions" : [] , "modules": [], "esModules": []}
+    final["transitions"].append({ "name":"Global", "slots": []})
+    globals = final["transitions"][-1]["slots"]
+    for i, g in enumerate(data["globals"]):
+        globals.append(g)
+        for mod in data["modGlobals"][i]:
+            globals.append(mod)
+    for i,s in enumerate(data["streams"]):
+        final["transitions"].append({"name": f"Stream {i}", "slots":[]})
+        stream = final["transitions"][-1]["slots"]
+        stream.append(s)
+        for mod in data["modStreams"][i]:
+            stream.append(mod)
+
+
+    if not parser._frameworkOnly:
+        max = 0
+        for k in parser._moduleNames.keys():
+            if k > max:
+                max = k
+        
+        final["modules"] =['']*(max+1)
+        final["modules"][0] = 'source'
+        for k,v in parser._moduleNames.items():
+            final["modules"][k]=v
+        
+        max = 0
+        for k in parser._esModuleNames.keys():
+            if k > max:
+                max = k
+        final["esModules"] = ['']*(max+1)
+        for k,v in parser._esModuleNames.items():
+            final["esModules"][k] = v
+    return final
+    
 #=======================================
 if __name__=="__main__":
     import argparse
@@ -543,7 +904,24 @@ if __name__=="__main__":
     parser.add_argument('-f', '--frameworkOnly',
                         action='store_true',
                         help='''Output only the framework transitions, excluding the individual module transitions.''')
+    parser.add_argument('-j', '--json',
+                        action='store_true',
+                        help='''Write output in json format.''' )
+    parser.add_argument('-w', '--web',
+                        action='store_true',
+                        help='''Writes data.js file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
+    
     args = parser.parse_args()
 
     parser = TracerCompactFileParser(args.filename, args.frameworkOnly)
-    textOutput(parser)
+    if args.json or args.web:
+        j = json.dumps(jsonInfo(parser))
+        if args.json:
+            print(j)
+        if args.web:
+            j ='export const data = ' + j
+            f=open('data.js', 'w')
+            f.write(j)
+            f.close()
+    else:
+        textOutput(parser)
