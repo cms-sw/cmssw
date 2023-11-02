@@ -58,10 +58,24 @@
   <class name="edm::Wrapper<TICLCandidate>" />
   <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
 
+<<<<<<< HEAD
   <class name="MtdSoA"/>
   <class name="MtdSoA::View"/>
 
   <class name="MtdHostCollection"/>
   <class name="edm::Wrapper<MtdHostCollection>" splitLevel="0"/>
 
+=======
+  <class name="Node">
+  </class>
+  <class name="std::vector<Node>" />
+  <class name="edm::Wrapper<Node>" />
+  <class name="edm::Wrapper<std::vector<Node> >" />
+
+  <class name="TICLGraph">
+  </class>
+  <class name="edm::Wrapper<TICLGraph>" />
+  <class name="std::vector<TICLGraph>" />
+  <class name="edm::Wrapper<std::vector<TICLGraph> >" />
+>>>>>>> 29617f37a14 (first implementation of ticlgraph for ticlv5)
 </lcgdict>

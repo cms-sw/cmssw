@@ -30,6 +30,7 @@ def customiseTICLFromReco(process):
                             process.TFESSource,
                             process.ticlLayerTileTask,
                             process.ticlIterationsTask,
+                            process.ticlGraphTask,
                             process.ticlTracksterMergeTask)
 # Validation
     process.TICL_ValidationProducers = cms.Task(process.hgcalRecHitMapProducer,

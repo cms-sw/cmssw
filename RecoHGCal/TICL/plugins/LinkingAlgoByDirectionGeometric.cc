@@ -41,6 +41,7 @@ Vector LinkingAlgoByDirectionGeometric::propagateTrackster(const Trackster &t,
                                                            const unsigned idx,
                                                            float zVal,
                                                            std::array<TICLLayerTile, 2> &tracksterTiles) {
+
   // needs only the positive Z co-ordinate of the surface to propagate to
   // the correct sign is calculated inside according to the barycenter of trackster
   Vector const &baryc = t.barycenter();
