@@ -32,6 +32,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/L1Trigger/interface/Vertex.h"
+#include "L1Trigger/DemonstratorTools/interface/GTTInterface.h"
 #include "L1Trigger/DemonstratorTools/interface/BoardDataReader.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/vertices.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
@@ -50,39 +51,41 @@ public:
 private:
   // ----------constants, enums and typedefs ---------
   // NOTE: At least some of the info from these constants will eventually come from config files
-  static constexpr size_t kFramesPerTMUXPeriod = 9;
-  static constexpr size_t kGapLength = 44;
-  static constexpr size_t kGapLengthInput = 6;
-  static constexpr size_t kVertexTMUX = 6;
-  static constexpr size_t kGTTBoardTMUX = 6;
-  static constexpr size_t kTrackTMUX = 18;
-  static constexpr size_t kVertexChanIndex = 0;
-  static constexpr size_t kEmptyFrames = 0;  // 10 does not match current file writing configuration
+  // static constexpr size_t kFramesPerTMUXPeriod = 9;
+  // static constexpr size_t kGapLength = 44;
+  // static constexpr size_t kGapLengthInput = 6;
+  // static constexpr size_t kVertexTMUX = 6;
+  // static constexpr size_t kGTTBoardTMUX = 6;
+  // static constexpr size_t kTrackTMUX = 18;
+  // static constexpr size_t kVertexChanIndex = 0;
+  static constexpr size_t kEmptyFramesOutputToCorrelator = 0;  // 10 does not match current file writing configuration
+  static constexpr size_t kEmptyFramesInput = 0;
+  static constexpr size_t kEmptyFramesOutputToGlobalTrigger = 0;
 
-  const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecs = {
-      /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
-      {{"vertices", 0}, {{kVertexTMUX, kGapLength}, {kVertexChanIndex}}}};
+  // const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecs = {
+  //     /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
+  //     {{"vertices", 0}, {{kGTTBoardTMUX, kGapLengthOutputToCorrelator}, {kVertexChanIndex}}}};
 
-  const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecsInput = {
-      /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
-      {{"tracks", 0}, {{kTrackTMUX, kGapLengthInput}, {0, 18, 36}}},
-      {{"tracks", 1}, {{kTrackTMUX, kGapLengthInput}, {1, 19, 37}}},
-      {{"tracks", 2}, {{kTrackTMUX, kGapLengthInput}, {2, 20, 38}}},
-      {{"tracks", 3}, {{kTrackTMUX, kGapLengthInput}, {3, 21, 39}}},
-      {{"tracks", 4}, {{kTrackTMUX, kGapLengthInput}, {4, 22, 40}}},
-      {{"tracks", 5}, {{kTrackTMUX, kGapLengthInput}, {5, 23, 41}}},
-      {{"tracks", 6}, {{kTrackTMUX, kGapLengthInput}, {6, 24, 42}}},
-      {{"tracks", 7}, {{kTrackTMUX, kGapLengthInput}, {7, 25, 43}}},
-      {{"tracks", 8}, {{kTrackTMUX, kGapLengthInput}, {8, 26, 44}}},
-      {{"tracks", 9}, {{kTrackTMUX, kGapLengthInput}, {9, 27, 45}}},
-      {{"tracks", 10}, {{kTrackTMUX, kGapLengthInput}, {10, 28, 46}}},
-      {{"tracks", 11}, {{kTrackTMUX, kGapLengthInput}, {11, 29, 47}}},
-      {{"tracks", 12}, {{kTrackTMUX, kGapLengthInput}, {12, 30, 48}}},
-      {{"tracks", 13}, {{kTrackTMUX, kGapLengthInput}, {13, 31, 49}}},
-      {{"tracks", 14}, {{kTrackTMUX, kGapLengthInput}, {14, 32, 50}}},
-      {{"tracks", 15}, {{kTrackTMUX, kGapLengthInput}, {15, 33, 51}}},
-      {{"tracks", 16}, {{kTrackTMUX, kGapLengthInput}, {16, 34, 52}}},
-      {{"tracks", 17}, {{kTrackTMUX, kGapLengthInput}, {17, 35, 53}}}};
+  // const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecsInput = {
+  //     /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
+  //     {{"tracks", 0}, {{kTrackTMUX, kGapLengthInput}, {0, 18, 36}}},
+  //     {{"tracks", 1}, {{kTrackTMUX, kGapLengthInput}, {1, 19, 37}}},
+  //     {{"tracks", 2}, {{kTrackTMUX, kGapLengthInput}, {2, 20, 38}}},
+  //     {{"tracks", 3}, {{kTrackTMUX, kGapLengthInput}, {3, 21, 39}}},
+  //     {{"tracks", 4}, {{kTrackTMUX, kGapLengthInput}, {4, 22, 40}}},
+  //     {{"tracks", 5}, {{kTrackTMUX, kGapLengthInput}, {5, 23, 41}}},
+  //     {{"tracks", 6}, {{kTrackTMUX, kGapLengthInput}, {6, 24, 42}}},
+  //     {{"tracks", 7}, {{kTrackTMUX, kGapLengthInput}, {7, 25, 43}}},
+  //     {{"tracks", 8}, {{kTrackTMUX, kGapLengthInput}, {8, 26, 44}}},
+  //     {{"tracks", 9}, {{kTrackTMUX, kGapLengthInput}, {9, 27, 45}}},
+  //     {{"tracks", 10}, {{kTrackTMUX, kGapLengthInput}, {10, 28, 46}}},
+  //     {{"tracks", 11}, {{kTrackTMUX, kGapLengthInput}, {11, 29, 47}}},
+  //     {{"tracks", 12}, {{kTrackTMUX, kGapLengthInput}, {12, 30, 48}}},
+  //     {{"tracks", 13}, {{kTrackTMUX, kGapLengthInput}, {13, 31, 49}}},
+  //     {{"tracks", 14}, {{kTrackTMUX, kGapLengthInput}, {14, 32, 50}}},
+  //     {{"tracks", 15}, {{kTrackTMUX, kGapLengthInput}, {15, 33, 51}}},
+  //     {{"tracks", 16}, {{kTrackTMUX, kGapLengthInput}, {16, 34, 52}}},
+  //     {{"tracks", 17}, {{kTrackTMUX, kGapLengthInput}, {17, 35, 53}}}};
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
   typedef std::vector<L1Track> TTTrackCollection;
@@ -104,17 +107,17 @@ private:
 GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
     : fileReaderOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                     iConfig.getParameter<std::vector<std::string>>("files"),
-                                    kFramesPerTMUXPeriod,
-                                    kVertexTMUX,
-                                    kEmptyFrames,
-                                    kChannelSpecs),
+                                    l1t::demo::kFramesPerTMUXPeriod,
+                                    l1t::demo::kGTTBoardTMUX,
+                                    kEmptyFramesOutputToCorrelator,
+                                    l1t::demo::kChannelMapOutputToCorrelator),
       l1VertexCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
       fileReaderInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                              iConfig.getParameter<std::vector<std::string>>("filesInputTracks"),
-                             kFramesPerTMUXPeriod,
-                             kGTTBoardTMUX,
-                             kEmptyFrames,
-                             kChannelSpecsInput),
+                             l1t::demo::kFramesPerTMUXPeriod,
+                             l1t::demo::kGTTBoardTMUX,
+                             kEmptyFramesInput,
+                             l1t::demo::kChannelMapInput),
       l1TrackCollectionName_(iConfig.getParameter<std::string>("l1TrackCollectionName")) {
   produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
   produces<TTTrackCollection>(l1TrackCollectionName_);
