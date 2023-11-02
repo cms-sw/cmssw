@@ -116,15 +116,15 @@ namespace cms {
         }
       };
 
-      template <typename TAcc, typename TQueue>
-      ALPAKA_FN_INLINE static void launchZero(OneToManyAssocBase *h, TQueue &queue) {
+      template <typename TAcc, typename Assoc, typename TQueue> // Overly relaxed template to prevent compilation when not needed
+      ALPAKA_FN_INLINE static void launchZero(Assoc *h, TQueue &queue) {
         static_assert(ONES > 0 && SIZE > 0,
                       "Implicit view definition only valid for compile time sized OneToManyAssoc");
         View view = {h, nullptr, nullptr, -1, -1};
         launchZero<TAcc>(view, queue);
       }
 
-      template <typename TAcc, typename TQueue>
+      template <typename TAcc, typename View, typename TQueue> // Overly relaxed template to prevent compilation when not needed
       ALPAKA_FN_INLINE static void launchZero(View view, TQueue &queue) {
         if constexpr (ctCapacity() < 0) {
           ALPAKA_ASSERT_OFFLOAD(view.contentStorage);
