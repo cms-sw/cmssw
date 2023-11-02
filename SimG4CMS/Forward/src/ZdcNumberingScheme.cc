@@ -15,12 +15,7 @@
 ZdcNumberingScheme::ZdcNumberingScheme(int iv) {
   verbosity = iv;
   if (verbosity > 0)
-    edm::LogVerbatim("ForwardSim") << "Creating ZDCNumberingScheme" << std::endl;
-}
-
-ZdcNumberingScheme::~ZdcNumberingScheme() {
-  if (verbosity > 0)
-    edm::LogVerbatim("ForwardSim") << " Deleting ZdcNumberingScheme" << std::endl;
+    edm::LogVerbatim("ForwardSim") << "Creating ZDCNumberingScheme";
 }
 
 void ZdcNumberingScheme::setVerbosity(const int iv) { verbosity = iv; }
@@ -124,7 +119,7 @@ unsigned ZdcNumberingScheme::packZdcIndex(int section, int layer, int fiber, int
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardSim") << "ZDC packing: section " << section << " layer  " << layer << " fiber " << fiber
-                                 << " channel " << channel << " zside " << z << "idx: " << idx << std::endl;
+                                 << " channel " << channel << " zside " << z << "idx: " << idx;
   int newsubdet, newlayer, newfiber, newchannel, newz;
   unpackZdcIndex(idx, newsubdet, newlayer, newfiber, newchannel, newz);
 #endif
@@ -142,7 +137,7 @@ void ZdcNumberingScheme::unpackZdcIndex(
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardSim") << "ZDC unpacking: idx:" << idx << " -> section " << section << " layer " << layer
-                                 << " fiber " << fiber << " channel " << channel << " zside " << z << std::endl;
+                                 << " fiber " << fiber << " channel " << channel << " zside " << z;
 #endif
 }
 

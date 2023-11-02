@@ -20,7 +20,7 @@ public:
 
   //  bool getFromLibrary(const G4Step * step) override;
 
-  double calculateCherenkovDeposit(G4Step *);
+  double calculateCherenkovDeposit(const G4Step *);
   double calculateMeanNumberOfPhotons(int, double, double);
   double photonEnergyDist(int, double, double);
   double generatePhotonEnergy(int, double, double);
@@ -28,7 +28,7 @@ public:
   double convertEnergyToWavelength(double);
 
   double calculateN2InvIntegral(double);
-  double evaluateFunction(const std::vector<double>, const std::vector<double>, double);
+  double evaluateFunction(const std::vector<double>&, const std::vector<double>&, double);
   double linearInterpolation(double, double, double, double, double);
 
 protected:

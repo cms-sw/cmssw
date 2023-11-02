@@ -73,12 +73,9 @@ void ZdcSD::initRun() {
 bool ZdcSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
 
-  if (aStep == nullptr)
-    return false;
-    /*
-    if (useShowerLibrary) {
+  /*
+    if (useShowerLibrary)
     getFromLibrary(aStep);
-  }
   */
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ZdcSD") << "ZdcSD::" << GetName() << " ID= " << aStep->GetTrack()->GetTrackID()
@@ -131,7 +128,7 @@ const double ALPHA = /*1/137=*/0.0072973525693;                        // Fine s
 const double HBARC = 6.582119514E-16 /*eV*s*/ * 2.99792458E8 /*m/s*/;  // hbar * c
 
 // Calculate the Cherenkov deposit corresponding to a G4Step
-double ZdcSD::calculateCherenkovDeposit(G4Step* aStep) {
+double ZdcSD::calculateCherenkovDeposit(const G4Step* aStep) {
   G4Material* material = aStep->GetTrack()->GetMaterial();
 
   if (material->GetName() != "quartz")
@@ -329,7 +326,7 @@ double ZdcSD::pmtEfficiency(double lambda) {
 
 // Evaluate a function given by set of datapoints
 // Linear interpolation is used to calculate function value between datapoints
-double ZdcSD::evaluateFunction(const std::vector<double> X, const std::vector<double> Y, double x) {
+double ZdcSD::evaluateFunction(const std::vector<double>& X, const std::vector<double>& Y, double x) {
   for (unsigned int i = 0; i < X.size() - 1; i++) {
     if (x > X[i] && x < X[i + 1]) {
 #ifdef EDM_ML_DEBUG
@@ -362,11 +359,7 @@ double ZdcSD::convertEnergyToWavelength(double energy) { return (1240.0 / energy
 /////////////////////////////////////////////////////////////////////
 
 uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
-  uint32_t returnNumber = 0;
-  if (numberingScheme != nullptr)
-    returnNumber = numberingScheme->getUnitID(aStep);
-  // edm: return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
-  return returnNumber;
+  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 int ZdcSD::setTrackID(G4Step* aStep) {

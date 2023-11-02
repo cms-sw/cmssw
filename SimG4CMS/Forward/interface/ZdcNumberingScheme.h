@@ -12,7 +12,7 @@
 class ZdcNumberingScheme {
 public:
   ZdcNumberingScheme(int);
-  ~ZdcNumberingScheme();
+  ~ZdcNumberingScheme() = default;
 
   void setVerbosity(const int);
 

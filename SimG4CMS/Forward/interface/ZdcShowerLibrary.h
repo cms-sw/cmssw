@@ -23,7 +23,7 @@ class ZdcShowerLibrary {
 public:
   //Constructor and Destructor
   ZdcShowerLibrary(const std::string& name, edm::ParameterSet const& p);
-  ~ZdcShowerLibrary();
+  ~ZdcShowerLibrary() = default;
 
   struct Hit {
     Hit() {}
@@ -37,7 +37,7 @@ public:
   };
 
   void initRun(G4ParticleTable* theParticleTable);
-  std::vector<Hit>& getHits(G4Step* aStep, bool& ok);
+  std::vector<Hit>& getHits(const G4Step* aStep, bool& ok);
   int getEnergyFromLibrary(const G4ThreeVector& posHit,
                            const G4ThreeVector& momDir,
                            double energy,

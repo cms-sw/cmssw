@@ -24,8 +24,6 @@ ZdcShowerLibrary::ZdcShowerLibrary(const std::string& name, edm::ParameterSet co
   hits.reserve(npe);
 }
 
-ZdcShowerLibrary::~ZdcShowerLibrary() {}
-
 void ZdcShowerLibrary::initRun(G4ParticleTable* theParticleTable) {
   G4String parName;
   emPDG = theParticleTable->FindParticle(parName = "e-")->GetPDGEncoding();
@@ -47,7 +45,7 @@ void ZdcShowerLibrary::initRun(G4ParticleTable* theParticleTable) {
                                 << ", anti_nu_mu = " << anumuPDG << ", anti_nu_tau = " << anutauPDG;
 }
 
-std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(G4Step* aStep, bool& ok) {
+std::vector<ZdcShowerLibrary::Hit>& ZdcShowerLibrary::getHits(const G4Step* aStep, bool& ok) {
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
   G4Track* track = aStep->GetTrack();
@@ -159,15 +157,15 @@ int ZdcShowerLibrary::getEnergyFromLibrary(const G4ThreeVector& hitPoint,
   energy = energy / GeV;
 
   edm::LogVerbatim("ZdcShower") << "\n ZdcShowerLibrary::getEnergyFromLibrary input/output variables:"
-                                << " phi: " << 59.2956 * momDir.phi() << " theta: " << 59.2956 * momDir.theta()
+                                << " phi: " << momDir.phi() / CLHEP::deg << " theta: " << momDir.theta() / CLHEP::deg
                                 << " xin : " << hitPoint.x() << " yin : " << hitPoint.y() << " zin : " << hitPoint.z()
                                 << " track en: " << energy << "(GeV)"
                                 << " section: " << section << " side: " << side << " channel: " << channel
                                 << " partID: " << parCode;
 
   // these varables are not used for now
-  //float phi   = 59.2956*momDir.phi();
-  //float theta = 59.2956*momDir.theta();
+  //float phi   = momDir.phi() / CLHEP::deg;
+  //float theta = momDir.theta() / CLHEP::deg;
   //float zin = hitPoint.z();
   //int isection = int(section);
   //int iside = (side)? 1 : 2;
