@@ -37,7 +37,7 @@ protected:
 private:
   int verbosity;
   bool useShowerLibrary, useShowerHits;
-  int setTrackID(G4Step *step);
+  int setTrackID(const G4Step *step);
   double thFibDir;
   double zdcHitEnergyCut;
   std::unique_ptr<ZdcShowerLibrary> showerLibrary;

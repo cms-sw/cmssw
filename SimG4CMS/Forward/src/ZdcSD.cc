@@ -362,7 +362,7 @@ uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
   return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
 }
 
-int ZdcSD::setTrackID(G4Step* aStep) {
+int ZdcSD::setTrackID(const G4Step* aStep) {
   auto const theTrack = aStep->GetTrack();
   TrackInformation* trkInfo = (TrackInformation*)(theTrack->GetUserInformation());
   int primaryID = trkInfo->getIDonCaloSurface();
