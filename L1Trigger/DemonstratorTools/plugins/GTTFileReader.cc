@@ -50,43 +50,6 @@ public:
 
 private:
   // ----------constants, enums and typedefs ---------
-  // NOTE: At least some of the info from these constants will eventually come from config files
-  // static constexpr size_t kFramesPerTMUXPeriod = 9;
-  // static constexpr size_t kGapLength = 44;
-  // static constexpr size_t kGapLengthInput = 6;
-  // static constexpr size_t kVertexTMUX = 6;
-  // static constexpr size_t kGTTBoardTMUX = 6;
-  // static constexpr size_t kTrackTMUX = 18;
-  // static constexpr size_t kVertexChanIndex = 0;
-  static constexpr size_t kEmptyFramesOutputToCorrelator = 0;  // 10 does not match current file writing configuration
-  static constexpr size_t kEmptyFramesInput = 0;
-  static constexpr size_t kEmptyFramesOutputToGlobalTrigger = 0;
-
-  // const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecs = {
-  //     /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
-  //     {{"vertices", 0}, {{kGTTBoardTMUX, kGapLengthOutputToCorrelator}, {kVertexChanIndex}}}};
-
-  // const l1t::demo::BoardDataReader::ChannelMap_t kChannelSpecsInput = {
-  //     /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
-  //     {{"tracks", 0}, {{kTrackTMUX, kGapLengthInput}, {0, 18, 36}}},
-  //     {{"tracks", 1}, {{kTrackTMUX, kGapLengthInput}, {1, 19, 37}}},
-  //     {{"tracks", 2}, {{kTrackTMUX, kGapLengthInput}, {2, 20, 38}}},
-  //     {{"tracks", 3}, {{kTrackTMUX, kGapLengthInput}, {3, 21, 39}}},
-  //     {{"tracks", 4}, {{kTrackTMUX, kGapLengthInput}, {4, 22, 40}}},
-  //     {{"tracks", 5}, {{kTrackTMUX, kGapLengthInput}, {5, 23, 41}}},
-  //     {{"tracks", 6}, {{kTrackTMUX, kGapLengthInput}, {6, 24, 42}}},
-  //     {{"tracks", 7}, {{kTrackTMUX, kGapLengthInput}, {7, 25, 43}}},
-  //     {{"tracks", 8}, {{kTrackTMUX, kGapLengthInput}, {8, 26, 44}}},
-  //     {{"tracks", 9}, {{kTrackTMUX, kGapLengthInput}, {9, 27, 45}}},
-  //     {{"tracks", 10}, {{kTrackTMUX, kGapLengthInput}, {10, 28, 46}}},
-  //     {{"tracks", 11}, {{kTrackTMUX, kGapLengthInput}, {11, 29, 47}}},
-  //     {{"tracks", 12}, {{kTrackTMUX, kGapLengthInput}, {12, 30, 48}}},
-  //     {{"tracks", 13}, {{kTrackTMUX, kGapLengthInput}, {13, 31, 49}}},
-  //     {{"tracks", 14}, {{kTrackTMUX, kGapLengthInput}, {14, 32, 50}}},
-  //     {{"tracks", 15}, {{kTrackTMUX, kGapLengthInput}, {15, 33, 51}}},
-  //     {{"tracks", 16}, {{kTrackTMUX, kGapLengthInput}, {16, 34, 52}}},
-  //     {{"tracks", 17}, {{kTrackTMUX, kGapLengthInput}, {17, 35, 53}}}};
-
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
   typedef std::vector<L1Track> TTTrackCollection;
 
@@ -94,92 +57,138 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
+  const bool processOutputToCorrelator_;
+  const bool processInputTracks_;
+  const bool processOutputToGlobalTrigger_;
+  const size_t kEmptyFramesOutputToCorrelator_;
+  const size_t kEmptyFramesInputTracks_;
+  const size_t kEmptyFramesOutputToGlobalTrigger_;
   l1t::demo::BoardDataReader fileReaderOutputToCorrelator_;
   std::string l1VertexCollectionName_;
   l1t::demo::BoardDataReader fileReaderInputTracks_;
   std::string l1TrackCollectionName_;
+  l1t::demo::BoardDataReader fileReaderOutputToGlobalTrigger_;
 };
 
-//
-// class implementation
-//
-
 GTTFileReader::GTTFileReader(const edm::ParameterSet& iConfig)
-    : fileReaderOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
-                                    iConfig.getParameter<std::vector<std::string>>("files"),
-                                    l1t::demo::kFramesPerTMUXPeriod,
-                                    l1t::demo::kGTTBoardTMUX,
-                                    kEmptyFramesOutputToCorrelator,
-                                    l1t::demo::kChannelMapOutputToCorrelator),
+    : processOutputToCorrelator_(iConfig.getParameter<bool>("processOutputToCorrelator")),
+      processInputTracks_(iConfig.getParameter<bool>("processInputTracks")),
+      processOutputToGlobalTrigger_(iConfig.getParameter<bool>("processOutputToGlobalTrigger")),
+      kEmptyFramesOutputToCorrelator_(iConfig.getUntrackedParameter<unsigned int>("kEmptyFramesOutputToCorrelator")),
+      kEmptyFramesInputTracks_(iConfig.getUntrackedParameter<unsigned int>("kEmptyFramesInputTracks")),
+      kEmptyFramesOutputToGlobalTrigger_(
+          iConfig.getUntrackedParameter<unsigned int>("kEmptyFramesOutputToGlobalTrigger")),
       l1VertexCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
-      fileReaderInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
-                             iConfig.getParameter<std::vector<std::string>>("filesInputTracks"),
-                             l1t::demo::kFramesPerTMUXPeriod,
-                             l1t::demo::kGTTBoardTMUX,
-                             kEmptyFramesInput,
-                             l1t::demo::kChannelMapInput),
       l1TrackCollectionName_(iConfig.getParameter<std::string>("l1TrackCollectionName")) {
-  produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
-  produces<TTTrackCollection>(l1TrackCollectionName_);
+  if (processOutputToCorrelator_) {
+    fileReaderOutputToCorrelator_ =
+        l1t::demo::BoardDataReader(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+                                   iConfig.getParameter<std::vector<std::string>>("filesOutputToCorrelator"),
+                                   l1t::demo::kFramesPerTMUXPeriod,
+                                   l1t::demo::kGTTBoardTMUX,
+                                   kEmptyFramesOutputToCorrelator_,
+                                   l1t::demo::kChannelMapOutputToCorrelator);
+    produces<l1t::VertexWordCollection>(l1VertexCollectionName_);
+  }
+  if (processInputTracks_) {
+    fileReaderInputTracks_ =
+        l1t::demo::BoardDataReader(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+                                   iConfig.getParameter<std::vector<std::string>>("filesInputTracks"),
+                                   l1t::demo::kFramesPerTMUXPeriod,
+                                   l1t::demo::kGTTBoardTMUX,
+                                   kEmptyFramesInputTracks_,
+                                   l1t::demo::kChannelMapInput);
+    produces<TTTrackCollection>(l1TrackCollectionName_);
+  }
+  if (processOutputToGlobalTrigger_) {
+    // fileReaderOutputToGlobalTrigger_ =
+    //   l1t::demo::BoardDataReader(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
+    // 				 iConfig.getParameter<std::vector<std::string>>("filesOutputToGlobalTrigger"),
+    // 				 l1t::demo::kFramesPerTMUXPeriod,
+    // 				 l1t::demo::kGTTBoardTMUX,
+    // 				 kEmptyFramesOutputToGlobalTrigger_,
+    // 				 l1t::demo::kChannelMapInput);
+    throw std::invalid_argument("Processing OutputToGlobalTrigger files has not been fully implemented and validated.");
+    // need to produce output collections for Prompt and Displaced Jets, HTMiss, ETMiss, Taus, Mesons, Vertices, and Isolated Tracks
+  }
 }
 
 // ------------ method called to produce the data  ------------
 void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace l1t::demo::codecs;
+  if ( processOutputToCorrelator_ ) {
+    l1t::demo::EventData correlatorEventData(fileReaderOutputToCorrelator_.getNextEvent());
+    l1t::VertexWordCollection vertices(decodeVertices(correlatorEventData.at({"vertices", 0})));
+    edm::LogInfo("GTTFileReader") << vertices.size() << " vertices found";
 
-  l1t::demo::EventData correlatorEventData(fileReaderOutputToCorrelator_.getNextEvent());
-  l1t::demo::EventData inputEventData(fileReaderInputTracks_.getNextEvent());
+    iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices), l1VertexCollectionName_);
+  } // end if ( processOutputToCorrelator_ )
 
-  l1t::VertexWordCollection vertices(decodeVertices(correlatorEventData.at({"vertices", 0})));
-  auto inputTracks = std::make_unique<TTTrackCollection>();
-  for (size_t i = 0; i < 18; i++) {
-    auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
-    for (auto& trackword : iTracks) {
-      if (!trackword.getValidWord())
-        continue;
-      L1Track track = L1Track(trackword.getValidWord(),
-                              trackword.getRinvWord(),
-                              trackword.getPhiWord(),
-                              trackword.getTanlWord(),
-                              trackword.getZ0Word(),
-                              trackword.getD0Word(),
-                              trackword.getChi2RPhiWord(),
-                              trackword.getChi2RZWord(),
-                              trackword.getBendChi2Word(),
-                              trackword.getHitPatternWord(),
-                              trackword.getMVAQualityWord(),
-                              trackword.getMVAOtherWord());
-      //retrieve the eta (first) and phi (second) sectors for GTT, encoded in an std::pair
-      auto sectors = (l1t::demo::codecs::sectorsEtaPhiFromGTTLinkID(i));
-      track.setEtaSector(sectors.first);
-      track.setPhiSector(sectors.second);
-      track.trackWord_ = trackword.trackWord_;
-      inputTracks->push_back(track);
-    }
-  }
+  if ( processInputTracks_ ) {
+    l1t::demo::EventData inputEventData(fileReaderInputTracks_.getNextEvent());
+    auto inputTracks = std::make_unique<TTTrackCollection>();
+    for (size_t i = 0; i < 18; i++) {
+      auto iTracks = decodeTracks(inputEventData.at({"tracks", i}));
+      for (auto& trackword : iTracks) {
+	if (!trackword.getValidWord())
+	  continue;
+	L1Track track = L1Track(trackword.getValidWord(),
+				trackword.getRinvWord(),
+				trackword.getPhiWord(),
+				trackword.getTanlWord(),
+				trackword.getZ0Word(),
+				trackword.getD0Word(),
+				trackword.getChi2RPhiWord(),
+				trackword.getChi2RZWord(),
+				trackword.getBendChi2Word(),
+				trackword.getHitPatternWord(),
+				trackword.getMVAQualityWord(),
+				trackword.getMVAOtherWord());
+	//retrieve the eta (first) and phi (second) sectors for GTT, encoded in an std::pair
+	auto sectors = (l1t::demo::codecs::sectorsEtaPhiFromGTTLinkID(i));
+	track.setEtaSector(sectors.first);
+	track.setPhiSector(sectors.second);
+	track.trackWord_ = trackword.trackWord_;
+	inputTracks->push_back(track);
+      } //end loop over trackwoards
+    } // end loop over GTT input links
+    iEvent.put(std::move(inputTracks), l1TrackCollectionName_);
+  } // end if ( processInputTracks_ )
 
-  edm::LogInfo("GTTFileReader") << vertices.size() << " vertices found";
-
-  iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices), l1VertexCollectionName_);
-  iEvent.put(std::move(inputTracks), l1TrackCollectionName_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void GTTFileReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // GTTFileReader
   edm::ParameterSetDescription desc;
-  desc.add<std::vector<std::string>>("files",
+  desc.add<bool>("processOutputToCorrelator")
+      ->setComment("boolean flag to load Correlator outputs via BoardDataReader and produce vertex collection");
+  desc.add<bool>("processInputTracks")
+      ->setComment("boolean flag to load track inputs via BoardDataReader and produce a TTTrack collection");
+  desc.add<bool>("processOutputToGlobalTrigger")
+      ->setComment(
+          "boolean flag to load Global Trigger outputs via BoardDataReader and produce Track Object collections");
+  desc.addUntracked<unsigned int>("kEmptyFramesOutputToCorrelator", 0)
+      ->setComment("empty frames to expect in OutputToCorrelator");
+  desc.addUntracked<unsigned int>("kEmptyFramesInputTracks", 0)->setComment("empty frames to expect in Track Input");
+  desc.addUntracked<unsigned int>("kEmptyFramesOutputToGlobalTrigger", 0)
+      ->setComment("empty frames to expect in OutputToGlobalTrigger");
+  desc.add<std::vector<std::string>>("filesOutputToCorrelator",
                                      {
                                          "L1GTTOutputToCorrelator_0.txt",
                                      });
-  desc.add<std::string>("l1VertexCollectionName", "L1VerticesFirmware");
   desc.add<std::vector<std::string>>("filesInputTracks",
                                      {
                                          "L1GTTInputFile_0.txt",
                                      });
-  desc.add<std::string>("l1TrackCollectionName", "Level1TTTracks");
+  desc.add<std::vector<std::string>>("filesOutputToGlobalTrigger",
+                                     {
+                                         "L1GTTOutputToGlobalTriggerFile_0.txt",
+                                     });
   desc.addUntracked<std::string>("format", "APx");
+  desc.add<std::string>("l1VertexCollectionName", "L1VerticesFirmware");
+  desc.add<std::string>("l1TrackCollectionName", "Level1TTTracks");
   descriptions.add("GTTFileReader", desc);
 }
 
