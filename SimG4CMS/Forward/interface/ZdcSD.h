@@ -28,7 +28,7 @@ public:
   double convertEnergyToWavelength(double);
 
   double calculateN2InvIntegral(double);
-  double evaluateFunction(const std::vector<double>&, const std::vector<double>&, double);
+  double evaluateFunction(const std::vector<double> &, const std::vector<double> &, double);
   double linearInterpolation(double, double, double, double, double);
 
 protected:
@@ -37,7 +37,7 @@ protected:
 private:
   int verbosity;
   bool useShowerLibrary, useShowerHits;
-  int setTrackID(const G4Step *step);
+  int setTrackID(const G4Step *step) override;
   double thFibDir;
   double zdcHitEnergyCut;
   std::unique_ptr<ZdcShowerLibrary> showerLibrary;

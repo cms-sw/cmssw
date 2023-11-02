@@ -359,7 +359,7 @@ double ZdcSD::convertEnergyToWavelength(double energy) { return (1240.0 / energy
 /////////////////////////////////////////////////////////////////////
 
 uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
 int ZdcSD::setTrackID(const G4Step* aStep) {
