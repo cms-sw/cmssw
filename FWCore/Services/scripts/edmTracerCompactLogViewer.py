@@ -49,6 +49,8 @@ kMicroToSec = 0.000001
 #Special names
 kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
+#this value is defined in the framework itself
+kLargestLumiNumber = 4294967295
 
 #these values must match the enum class Phase in tracer_setupFile.cc
 class Phase (object):
@@ -85,114 +87,86 @@ class Activity (object):
   process = 2
   delayedGet = 3
 
+transitionToNames_ = {
+    Phase.startTracing: 'start tracing',
+    Phase.construction: 'construction',
+    Phase.destruction: 'destruction',
+    Phase.beginJob: 'begin job',
+    Phase.endJob: 'end job',
+    Phase.beginStream: 'begin stream',
+    Phase.endStream: 'end stream',
+    Phase.beginProcessBlock: 'begin process block',
+    Phase.endProcessBlock: 'end process block',
+    Phase.accessInputProcessBlock: 'access input process block',
+    Phase.writeProcessBlock: 'write process block',
+    Phase.globalBeginRun: 'global begin run',
+    Phase.globalEndRun: 'global end run',
+    Phase.globalWriteRun: 'global write run',
+    Phase.streamBeginRun: 'stream begin run',
+    Phase.streamEndRun: 'stream end run',
+    Phase.globalBeginLumi: 'global begin lumi',
+    Phase.globalEndLumi: 'global end lumi',
+    Phase.globalWriteLumi: 'global write lumi',
+    Phase.streamBeginLumi: 'stream begin lumi',
+    Phase.streamEndLumi: 'stream end lumi',
+    Phase.esSyncEnqueue: 'EventSetup synchronization',
+    Phase.esSync: 'EventSetup synchronization',
+    Phase.Event: 'event'
+}
+
 def transitionName(transition):
-    if transition == Phase.startTracing:
-        return 'start tracing'
-    if transition == Phase.construction:
-        return 'construction'
-    if transition == Phase.destruction:
-        return 'destruction'
-    if transition == Phase.beginJob:
-        return 'begin job'
-    if transition == Phase.endJob:
-        return 'end job'
-    if transition == Phase.beginStream:
-        return 'begin stream'
-    if transition == Phase.endStream:
-        return 'end stream'
-    if transition == Phase.beginProcessBlock:
-        return 'begin process block'
-    if transition == Phase.endProcessBlock:
-        return 'end process block'
-    if transition == Phase.accessInputProcessBlock:
-        return 'access input process block'
-    if transition == Phase.writeProcessBlock:
-        return 'write process block'
-    if transition == Phase.globalBeginRun:
-        return 'global begin run'
-    if transition == Phase.globalEndRun:
-        return 'global end run'
-    if transition == Phase.globalWriteRun:
-        return 'global write run'
-    if transition == Phase.streamBeginRun:
-        return 'stream begin run'
-    if transition == Phase.streamEndRun:
-        return 'stream end run'
-    if transition == Phase.globalBeginLumi:
-        return 'global begin lumi'
-    if transition == Phase.globalEndLumi:
-        return 'global end lumi'
-    if transition == Phase.globalWriteLumi:
-        return 'global write lumi'
-    if transition == Phase.streamBeginLumi:
-        return 'stream begin lumi'
-    if transition == Phase.streamEndLumi:
-        return 'stream end lumi'
-    if transition == Phase.esSyncEnqueue:
-        return 'EventSetup synchronization'
-    if transition == Phase.esSync:
-        return 'EventSetup synchronization'
-    if transition == Phase.Event:
-        return 'event'
+    return transitionToNames_[transition]
 
+transitionToIndent_ = {
+    Phase.startTracing: 0,
+    Phase.construction: 0,
+    Phase.destruction: 0,
+    Phase.endJob: 0,
+    Phase.beginJob: 0,
+    Phase.beginStream: 0,
+    Phase.endStream: 0,
+    Phase.beginProcessBlock: 1,
+    Phase.endProcessBlock: 1,
+    Phase.accessInputProcessBlock: 1,
+    Phase.writeProcessBlock: 1,
+    Phase.globalBeginRun: 1,
+    Phase.globalEndRun: 1,
+    Phase.globalWriteRun: 1,
+    Phase.streamBeginRun: 1,
+    Phase.streamEndRun: 1,
+    Phase.globalBeginLumi: 2,
+    Phase.globalEndLumi: 2,
+    Phase.globalWriteLumi: 2,
+    Phase.streamBeginLumi: 2,
+    Phase.streamEndLumi: 2,
+    Phase.Event: 3,
+    Phase.esSyncEnqueue: 1,
+    Phase.esSync: 1
+}
 def transitionIndentLevel(transition):
-    if transition == Phase.startTracing:
-        return 0
-    if transition == Phase.construction or transition == Phase.destruction:
-        return 0
-    if transition == Phase.endJob or transition == Phase.beginJob:
-        return 0
-    if transition == Phase.beginStream or transition == Phase.endStream:
-        return 0
-    if transition == Phase.beginProcessBlock or transition == Phase.endProcessBlock:
-        return 1
-    if transition == Phase.accessInputProcessBlock:
-        return 1
-    if transition == Phase.writeProcessBlock:
-        return 1
-    if transition == Phase.globalBeginRun or Phase.globalEndRun == transition:
-        return 1
-    if transition == Phase.globalWriteRun:
-        return 1
-    if transition == Phase.streamBeginRun or Phase.streamEndRun == transition:
-        return 1
-    if transition == Phase.globalBeginLumi or Phase.globalEndLumi == transition:
-        return 2
-    if transition == Phase.globalWriteLumi:
-        return 2
-    if transition == Phase.streamBeginLumi or Phase.streamEndLumi == transition:
-        return 2
-    if transition == Phase.Event:
-        return 3
-    if transition == Phase.esSyncEnqueue or transition == Phase.esSync:
-        return 1
-    return None
-    
-def transitionIsGlobal(transition):
-    if transition == Phase.startTracing:
-        return True
-    if transition == Phase.construction or transition == Phase.destruction:
-        return True
-    if transition == Phase.endJob or transition == Phase.beginJob:
-        return True
-    if transition == Phase.beginProcessBlock or transition == Phase.endProcessBlock:
-        return True
-    if transition == Phase.accessInputProcessBlock:
-        return True
-    if transition == Phase.writeProcessBlock:
-        return True
-    if transition == Phase.globalBeginRun or Phase.globalEndRun == transition:
-        return True
-    if transition == Phase.globalWriteRun:
-        return True
-    if transition == Phase.globalBeginLumi or Phase.globalEndLumi == transition:
-        return True
-    if transition == Phase.globalWriteLumi:
-        return True
-    if transition == Phase.esSyncEnqueue or transition == Phase.esSync:
-        return True
-    return False
+    return transitionToIndent_[transition]
 
+globalTransitions_ = {
+    Phase.startTracing,
+    Phase.construction,
+    Phase.destruction,
+    Phase.endJob,
+    Phase.beginJob,
+    Phase.beginProcessBlock,
+    Phase.endProcessBlock,
+    Phase.accessInputProcessBlock,
+    Phase.writeProcessBlock,
+    Phase.globalBeginRun,
+    Phase.globalEndRun,
+    Phase.globalWriteRun,
+    Phase.globalBeginLumi,
+    Phase.globalEndLumi,
+    Phase.globalWriteLumi,
+    Phase.esSyncEnqueue,
+    Phase.esSync
+}
+def transitionIsGlobal(transition):
+    return transition in globalTransitions_;
 
 def textPrefix_(time, indentLevel):
     #using 11 spaces for time should accomodate a job that runs 24 hrs
@@ -262,7 +236,13 @@ def popQueuedTransitions(sync, container):
             break
     return results
         
-            
+transitionsToFindMatch_ = {
+    Phase.globalEndRun,
+    Phase.globalEndLumi,
+    Phase.globalWriteRun,
+    Phase.globalWriteLumi
+}
+
 class PreFrameworkTransitionParser (FrameworkTransitionParser):
     def __init__(self, payload):
         super().__init__(payload)
@@ -275,7 +255,7 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
                 data["globals"][0].append(jsonTransition(type=self.transition, id=index, sync=list(self.sync),start=0, finish=self.time ))
                 return
             elif self.transition == Phase.esSync:
-                if self.sync[1] == 4294967295:
+                if self.sync[1] == kLargestLumiNumber:
                     #at end run transition
                     index = findMatchingTransition(list(self.sync), data["globals"])
                     container = data['globals'][index]
@@ -310,11 +290,11 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
                 container = globals[index]
                 #find source, should be previous
                 last = container[-1]
-                if last["type"]==Phase.globalBeginRun and last["isSrc"]:
+                if last["type"]==Phase.globalBeginLumi and last["isSrc"]:
                     last["sync"]=list(self.sync)
                 container.append(q[0])
                 container.append(q[1])
-            elif Phase.globalEndRun == self.transition or self.transition==Phase.globalBeginLumi or Phase.globalEndLumi == self.transition or self.transition==Phase.globalWriteRun or Phase.globalWriteLumi == self.transition:
+            elif self.transition in transitionsToFindMatch_:
                 index = findMatchingTransition(list(self.sync), data["globals"])
             globals = data["globals"]
             while index+1 > len(globals):
@@ -341,7 +321,7 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
         return "finished"
     def jsonInfo(self, counter, data):
         if transitionIsGlobal(self.transition):
-            if self.transition == Phase.esSync and self.sync[1] != 4294967295:
+            if self.transition == Phase.esSync and self.sync[1] != kLargestLumiNumber:
                 data['queued'][-1]['finish']=self.time*kMicroToSec
                 return
             index = findMatchingTransition(list(self.sync), data["globals"])
@@ -358,7 +338,7 @@ class QueuingFrameworkTransitionParser (FrameworkTransitionParser):
         return "queuing"
     def jsonInfo(self, counter, data):
         index = -1
-        if self.sync[1] == 4294967295:
+        if self.sync[1] == kLargestLumiNumber:
             #find the mtching open run
             index = findMatchingTransition([self.sync[0],0,0], data["globals"])
             data["globals"][index].append( jsonTransition(type=self.transition, id = index, sync=list(self.sync), start=self.time , finish=0))
@@ -570,7 +550,9 @@ class PreEventReadFromSourceParser(EDModuleTransitionParser):
     def textSpecial(self):
         return "starting read from source"
     def jsonInfo(self, counter, data):
-        return self._preJson(Activity.process, counter,data)
+        slot = self._preJson(Activity.process, counter,data)
+        slot['isSrc'] = True
+        return slot
 
 class PostEventReadFromSourceParser(EDModuleTransitionParser):
     def __init__(self, payload, names):
@@ -858,6 +840,8 @@ def jsonInfo(parser):
     globals = final["transitions"][-1]["slots"]
     for i, g in enumerate(data["globals"]):
         globals.append(g)
+        if len(data["modGlobals"]) < i+1:
+            break
         for mod in data["modGlobals"][i]:
             globals.append(mod)
     for i,s in enumerate(data["streams"]):
