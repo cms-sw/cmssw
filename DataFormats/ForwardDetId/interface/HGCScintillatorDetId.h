@@ -28,19 +28,23 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   constexpr HGCScintillatorDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  constexpr HGCScintillatorDetId(int type, int layer, int ring, int phi, bool trigger = false, int sipm = 0)  : DetId(HGCalHSc, ForwardEmpty) {
+  constexpr HGCScintillatorDetId(int type, int layer, int ring, int phi, bool trigger = false, int sipm = 0)
+      : DetId(HGCalHSc, ForwardEmpty) {
     int zside = (ring < 0) ? 1 : 0;
     int itrig = trigger ? 1 : 0;
     int ringAbs = std::abs(ring);
-    id_ |= (((type & kHGCalTypeMask) << kHGCalTypeOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) | ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset) | ((itrig & kHGCalTriggerMask) << kHGCalTriggerOffset) | ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((ringAbs & kHGCalRadiusMask) << kHGCalRadiusOffset) | ((phi & kHGCalPhiMask) << kHGCalPhiOffset));
+    id_ |= (((type & kHGCalTypeMask) << kHGCalTypeOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
+            ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset) | ((itrig & kHGCalTriggerMask) << kHGCalTriggerOffset) |
+            ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((ringAbs & kHGCalRadiusMask) << kHGCalRadiusOffset) |
+            ((phi & kHGCalPhiMask) << kHGCalPhiOffset));
   }
 
   /** Constructor from a generic cell id */
   constexpr HGCScintillatorDetId(const DetId& gen) {
     if (!gen.null()) {
       if (gen.det() != HGCalHSc) {
-	throw cms::Exception("Invalid DetId")
-          << "Cannot initialize HGCScintillatorDetId from " << std::hex << gen.rawId() << std::dec;
+        throw cms::Exception("Invalid DetId")
+            << "Cannot initialize HGCScintillatorDetId from " << std::hex << gen.rawId() << std::dec;
       }
     }
     id_ = gen.rawId();
@@ -50,8 +54,8 @@ public:
   constexpr HGCScintillatorDetId& operator=(const DetId& gen) {
     if (!gen.null()) {
       if (gen.det() != HGCalHSc) {
-	throw cms::Exception("Invalid DetId")
-	<< "Cannot assign HGCScintillatorDetId from " << std::hex << gen.rawId() << std::dec;
+        throw cms::Exception("Invalid DetId")
+            << "Cannot assign HGCScintillatorDetId from " << std::hex << gen.rawId() << std::dec;
       }
     }
     id_ = gen.rawId();
@@ -107,7 +111,7 @@ public:
 
   /// get/set the sipm size
   constexpr int sipm() const { return (id_ >> kHGCalSiPMOffset) & kHGCalSiPMMask; }
-  constexpr void setSiPM(int sipm)  {
+  constexpr void setSiPM(int sipm) {
     id_ &= kHGCalSiPMMask0;
     id_ |= ((sipm & kHGCalSiPMMask) << kHGCalSiPMOffset);
   }
