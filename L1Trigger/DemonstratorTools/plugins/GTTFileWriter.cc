@@ -42,6 +42,7 @@
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 
 #include "L1Trigger/DemonstratorTools/interface/BoardDataWriter.h"
+#include "L1Trigger/DemonstratorTools/interface/GTTInterface.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/tracks.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/vertices.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/tkjets.h"
@@ -62,60 +63,60 @@ public:
 private:
   // ----------constants, enums and typedefs ---------
   // NOTE: At least some of the info from these constants will eventually come from config files
-  static constexpr size_t kFramesPerTMUXPeriod = 9;
-  static constexpr size_t kGapLengthInput = 6;
-  static constexpr size_t kGapLengthOutputToCorrelator = 44;
-  static constexpr size_t kGapLengthOutputToGlobalTriggerSums = 3;
-  static constexpr size_t kGapLengthOutputToGlobalTriggerTaus = 36;
-  static constexpr size_t kGapLengthOutputToGlobalTriggerMesons = 15;
-  static constexpr size_t kGapLengthOutputToGlobalTriggerVertices = 6;
-  static constexpr size_t kTrackTMUX = 18;
-  static constexpr size_t kGTTBoardTMUX = 6;
-  static constexpr size_t kMaxLinesPerFile = 1024;
+  // static constexpr size_t kFramesPerTMUXPeriod = 9;
+  // static constexpr size_t kGapLengthInput = 6;
+  // static constexpr size_t kGapLengthOutputToCorrelator = 44;
+  // static constexpr size_t kGapLengthOutputToGlobalTriggerSums = 3;
+  // static constexpr size_t kGapLengthOutputToGlobalTriggerTaus = 36;
+  // static constexpr size_t kGapLengthOutputToGlobalTriggerMesons = 15;
+  // static constexpr size_t kGapLengthOutputToGlobalTriggerVertices = 6;
+  // static constexpr size_t kTrackTMUX = 18;
+  // static constexpr size_t kGTTBoardTMUX = 6;
+  // static constexpr size_t kMaxLinesPerFile = 1024;
 
-  const std::map<l1t::demo::LinkId, std::vector<size_t>> kChannelIdsInput = {
-      /* logical channel within time slice -> vector of channel indices (one entry per time slice) */
-      {{"tracks", 0}, {0, 18, 36}},
-      {{"tracks", 1}, {1, 19, 37}},
-      {{"tracks", 2}, {2, 20, 38}},
-      {{"tracks", 3}, {3, 21, 39}},
-      {{"tracks", 4}, {4, 22, 40}},
-      {{"tracks", 5}, {5, 23, 41}},
-      {{"tracks", 6}, {6, 24, 42}},
-      {{"tracks", 7}, {7, 25, 43}},
-      {{"tracks", 8}, {8, 26, 44}},
-      {{"tracks", 9}, {9, 27, 45}},
-      {{"tracks", 10}, {10, 28, 46}},
-      {{"tracks", 11}, {11, 29, 47}},
-      {{"tracks", 12}, {12, 30, 48}},
-      {{"tracks", 13}, {13, 31, 49}},
-      {{"tracks", 14}, {14, 32, 50}},
-      {{"tracks", 15}, {15, 33, 51}},
-      {{"tracks", 16}, {16, 34, 52}},
-      {{"tracks", 17}, {17, 35, 53}}};
+  // const std::map<l1t::demo::LinkId, std::vector<size_t>> kChannelIdsInput = {
+  //     /* logical channel within time slice -> vector of channel indices (one entry per time slice) */
+  //     {{"tracks", 0}, {0, 18, 36}},
+  //     {{"tracks", 1}, {1, 19, 37}},
+  //     {{"tracks", 2}, {2, 20, 38}},
+  //     {{"tracks", 3}, {3, 21, 39}},
+  //     {{"tracks", 4}, {4, 22, 40}},
+  //     {{"tracks", 5}, {5, 23, 41}},
+  //     {{"tracks", 6}, {6, 24, 42}},
+  //     {{"tracks", 7}, {7, 25, 43}},
+  //     {{"tracks", 8}, {8, 26, 44}},
+  //     {{"tracks", 9}, {9, 27, 45}},
+  //     {{"tracks", 10}, {10, 28, 46}},
+  //     {{"tracks", 11}, {11, 29, 47}},
+  //     {{"tracks", 12}, {12, 30, 48}},
+  //     {{"tracks", 13}, {13, 31, 49}},
+  //     {{"tracks", 14}, {14, 32, 50}},
+  //     {{"tracks", 15}, {15, 33, 51}},
+  //     {{"tracks", 16}, {16, 34, 52}},
+  //     {{"tracks", 17}, {17, 35, 53}}};
 
-  const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsInput = {
-      /* interface name -> {link TMUX, inter-packet gap} */
-      {"tracks", {kTrackTMUX, kGapLengthInput}}};
+  // const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsInput = {
+  //     /* interface name -> {link TMUX, inter-packet gap} */
+  //     {"tracks", {kTrackTMUX, kGapLengthInput}}};
 
-  const std::map<l1t::demo::LinkId, std::pair<l1t::demo::ChannelSpec, std::vector<size_t>>>
-      kChannelSpecsOutputToCorrelator = {
-          /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
-          {{"vertices", 0}, {{kGTTBoardTMUX, kGapLengthOutputToCorrelator}, {0}}}};
+  // const std::map<l1t::demo::LinkId, std::pair<l1t::demo::ChannelSpec, std::vector<size_t>>>
+  //     kChannelSpecsOutputToCorrelator = {
+  //         /* logical channel within time slice -> {{link TMUX, inter-packet gap}, vector of channel indices} */
+  //         {{"vertices", 0}, {{kGTTBoardTMUX, kGapLengthOutputToCorrelator}, {0}}}};
 
-  const std::map<l1t::demo::LinkId, std::vector<size_t>> kChannelIdsOutputToGlobalTrigger = {
-      /* logical channel within time slice -> vector of channel indices (one entry per time slice) */
-      {{"sums", 0}, {0}},
-      {{"taus", 1}, {1}},
-      {{"mesons", 2}, {2}},
-      {{"vertices", 3}, {3}}};
+  // const std::map<l1t::demo::LinkId, std::vector<size_t>> kChannelIdsOutputToGlobalTrigger = {
+  //     /* logical channel within time slice -> vector of channel indices (one entry per time slice) */
+  //     {{"sums", 0}, {0}},
+  //     {{"taus", 1}, {1}},
+  //     {{"mesons", 2}, {2}},
+  //     {{"vertices", 3}, {3}}};
 
-  const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsOutputToGlobalTrigger = {
-      /* interface name -> {link TMUX, inter-packet gap} */
-      {"sums", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerSums}},
-      {"taus", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerTaus}},
-      {"mesons", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerMesons}},
-      {"vertices", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerVertices}}};
+  // const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsOutputToGlobalTrigger = {
+  //     /* interface name -> {link TMUX, inter-packet gap} */
+  //     {"sums", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerSums}},
+  //     {"taus", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerTaus}},
+  //     {"mesons", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerMesons}},
+  //     {"vertices", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerVertices}}};
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> Track_t;
   typedef std::vector<Track_t> TrackCollection_t;
@@ -165,51 +166,51 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
       fileWriterInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                              iConfig.getUntrackedParameter<std::string>("inputFilename"),
                              iConfig.getUntrackedParameter<std::string>("fileExtension"),
-                             kFramesPerTMUXPeriod,
-                             kGTTBoardTMUX,
-                             kMaxLinesPerFile,
-                             kChannelIdsInput,
-                             kChannelSpecsInput),
+                             l1t::demo::kFramesPerTMUXPeriod,
+                             l1t::demo::kGTTBoardTMUX,
+                             l1t::demo::kMaxLinesPerFile,
+                             l1t::demo::kChannelIdsInput,
+                             l1t::demo::kChannelSpecsInput),
       fileWriterConvertedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                  iConfig.getUntrackedParameter<std::string>("inputConvertedFilename"),
                                  iConfig.getUntrackedParameter<std::string>("fileExtension"),
-                                 kFramesPerTMUXPeriod,
-                                 kGTTBoardTMUX,
-                                 kMaxLinesPerFile,
-                                 kChannelIdsInput,
-                                 kChannelSpecsInput),
+                                 l1t::demo::kFramesPerTMUXPeriod,
+                                 l1t::demo::kGTTBoardTMUX,
+                                 l1t::demo::kMaxLinesPerFile,
+                                 l1t::demo::kChannelIdsInput,
+                                 l1t::demo::kChannelSpecsInput),
       fileWriterSelectedTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                 iConfig.getUntrackedParameter<std::string>("selectedTracksFilename"),
                                 iConfig.getUntrackedParameter<std::string>("fileExtension"),
-                                kFramesPerTMUXPeriod,
-                                kGTTBoardTMUX,
-                                kMaxLinesPerFile,
-                                kChannelIdsInput,
-                                kChannelSpecsInput),
+                                l1t::demo::kFramesPerTMUXPeriod,
+                                l1t::demo::kGTTBoardTMUX,
+                                l1t::demo::kMaxLinesPerFile,
+                                l1t::demo::kChannelIdsInput,
+                                l1t::demo::kChannelSpecsInput),
       fileWriterVertexAssociatedTracks_(
           l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
           iConfig.getUntrackedParameter<std::string>("vertexAssociatedTracksFilename"),
           iConfig.getUntrackedParameter<std::string>("fileExtension"),
-          kFramesPerTMUXPeriod,
-          kGTTBoardTMUX,
-          kMaxLinesPerFile,
-          kChannelIdsInput,
-          kChannelSpecsInput),
+          l1t::demo::kFramesPerTMUXPeriod,
+          l1t::demo::kGTTBoardTMUX,
+          l1t::demo::kMaxLinesPerFile,
+          l1t::demo::kChannelIdsInput,
+          l1t::demo::kChannelSpecsInput),
       fileWriterOutputToCorrelator_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                     iConfig.getUntrackedParameter<std::string>("outputCorrelatorFilename"),
                                     iConfig.getUntrackedParameter<std::string>("fileExtension"),
-                                    kFramesPerTMUXPeriod,
-                                    kGTTBoardTMUX,
-                                    kMaxLinesPerFile,
-                                    kChannelSpecsOutputToCorrelator),
+                                    l1t::demo::kFramesPerTMUXPeriod,
+                                    l1t::demo::kGTTBoardTMUX,
+                                    l1t::demo::kMaxLinesPerFile,
+                                    l1t::demo::kChannelMapOutputToCorrelator),
       fileWriterOutputToGlobalTrigger_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                                        iConfig.getUntrackedParameter<std::string>("outputGlobalTriggerFilename"),
                                        iConfig.getUntrackedParameter<std::string>("fileExtension"),
-                                       kFramesPerTMUXPeriod,
-                                       kGTTBoardTMUX,
-                                       kMaxLinesPerFile,
-                                       kChannelIdsOutputToGlobalTrigger,
-                                       kChannelSpecsOutputToGlobalTrigger) {}
+                                       l1t::demo::kFramesPerTMUXPeriod,
+                                       l1t::demo::kGTTBoardTMUX,
+                                       l1t::demo::kMaxLinesPerFile,
+                                       l1t::demo::kChannelIdsOutputToGlobalTrigger,
+                                       l1t::demo::kChannelSpecsOutputToGlobalTrigger) {}
 
 void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
