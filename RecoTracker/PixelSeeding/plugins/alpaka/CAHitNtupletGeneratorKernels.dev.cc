@@ -15,46 +15,48 @@
 // #define GPU_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  
+
   template <typename TrackerTraits>
-  CAHitNtupletGeneratorKernels<TrackerTraits>::CAHitNtupletGeneratorKernels(Params const& params, uint32_t nhits, Queue& queue)
-    : m_params(params),
-      //////////////////////////////////////////////////////////
-      // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
-      //////////////////////////////////////////////////////////
-      counters_{cms::alpakatools::make_device_buffer<Counters>(queue)},
+  CAHitNtupletGeneratorKernels<TrackerTraits>::CAHitNtupletGeneratorKernels(Params const &params,
+                                                                            uint32_t nhits,
+                                                                            Queue &queue)
+      : m_params(params),
+        //////////////////////////////////////////////////////////
+        // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
+        //////////////////////////////////////////////////////////
+        counters_{cms::alpakatools::make_device_buffer<Counters>(queue)},
 
-      // workspace
-      device_hitToTuple_{cms::alpakatools::make_device_buffer<HitToTuple>(queue)},
-      device_tupleMultiplicity_{cms::alpakatools::make_device_buffer<TupleMultiplicity>(queue)},
+        // workspace
+        device_hitToTuple_{cms::alpakatools::make_device_buffer<HitToTuple>(queue)},
+        device_tupleMultiplicity_{cms::alpakatools::make_device_buffer<TupleMultiplicity>(queue)},
 
-      // NB: In legacy, device_theCells_ and device_isOuterHitOfCell_ were allocated inside buildDoublets
-      device_theCells_{
-          cms::alpakatools::make_device_buffer<CACell[]>(queue, m_params.caParams_.maxNumberOfDoublets_)},
-      // in principle we can use "nhits" to heuristically dimension the workspace...
-      device_isOuterHitOfCell_{
-          cms::alpakatools::make_device_buffer<OuterHitOfCellContainer[]>(queue, std::max(1u, nhits))},
-      isOuterHitOfCell_{cms::alpakatools::make_device_buffer<OuterHitOfCell>(queue)},
+        // NB: In legacy, device_theCells_ and device_isOuterHitOfCell_ were allocated inside buildDoublets
+        device_theCells_{
+            cms::alpakatools::make_device_buffer<CACell[]>(queue, m_params.caParams_.maxNumberOfDoublets_)},
+        // in principle we can use "nhits" to heuristically dimension the workspace...
+        device_isOuterHitOfCell_{
+            cms::alpakatools::make_device_buffer<OuterHitOfCellContainer[]>(queue, std::max(1u, nhits))},
+        isOuterHitOfCell_{cms::alpakatools::make_device_buffer<OuterHitOfCell>(queue)},
 
-      device_theCellNeighbors_{cms::alpakatools::make_device_buffer<CellNeighborsVector>(queue)},
-      device_theCellTracks_{cms::alpakatools::make_device_buffer<CellTracksVector>(queue)},
-      // NB: In legacy, cellStorage_ was allocated inside buildDoublets
-      cellStorage_{cms::alpakatools::make_device_buffer<unsigned char[]>(
-          queue,
-          TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors) +
-              TrackerTraits::maxNumOfActiveDoublets * sizeof(CellTracks))},
-      device_cellCuts_{cms::alpakatools::make_device_buffer<CellCuts>(queue)},
-      device_theCellNeighborsContainer_{reinterpret_cast<CellNeighbors*>(cellStorage_.data())},
-      device_theCellTracksContainer_{reinterpret_cast<CellTracks*>(
-          cellStorage_.data() + TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors))},
+        device_theCellNeighbors_{cms::alpakatools::make_device_buffer<CellNeighborsVector>(queue)},
+        device_theCellTracks_{cms::alpakatools::make_device_buffer<CellTracksVector>(queue)},
+        // NB: In legacy, cellStorage_ was allocated inside buildDoublets
+        cellStorage_{cms::alpakatools::make_device_buffer<unsigned char[]>(
+            queue,
+            TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors) +
+                TrackerTraits::maxNumOfActiveDoublets * sizeof(CellTracks))},
+        device_cellCuts_{cms::alpakatools::make_device_buffer<CellCuts>(queue)},
+        device_theCellNeighborsContainer_{reinterpret_cast<CellNeighbors *>(cellStorage_.data())},
+        device_theCellTracksContainer_{reinterpret_cast<CellTracks *>(
+            cellStorage_.data() + TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors))},
 
-      // NB: In legacy, device_storage_ was allocated inside allocateOnGPU
-      device_storage_{
-          cms::alpakatools::make_device_buffer<cms::alpakatools::AtomicPairCounter::DoubleWord[]>(queue, 3u)},
-      device_hitTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter*>(device_storage_.data())},
-      device_hitToTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter*>(device_storage_.data() + 1)},
-      device_nCells_{cms::alpakatools::make_device_view(alpaka::getDev(queue),
-                                                        *reinterpret_cast<uint32_t*>(device_storage_.data() + 2))} {
+        // NB: In legacy, device_storage_ was allocated inside allocateOnGPU
+        device_storage_{
+            cms::alpakatools::make_device_buffer<cms::alpakatools::AtomicPairCounter::DoubleWord[]>(queue, 3u)},
+        device_hitTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_storage_.data())},
+        device_hitToTuple_apc_{reinterpret_cast<cms::alpakatools::AtomicPairCounter *>(device_storage_.data() + 1)},
+        device_nCells_{cms::alpakatools::make_device_view(alpaka::getDev(queue),
+                                                          *reinterpret_cast<uint32_t *>(device_storage_.data() + 2))} {
     alpaka::memset(queue, counters_, 0);
     alpaka::memset(queue, device_nCells_, 0);
     alpaka::memset(queue, cellStorage_, 0);
@@ -62,17 +64,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto cellCuts_h = cms::alpakatools::make_host_view(m_params.cellCuts_);
     alpaka::memcpy(queue, device_cellCuts_, cellCuts_h);
 
-    [[maybe_unused]] TupleMultiplicity* tupleMultiplicityDeviceData = device_tupleMultiplicity_.data();
-    [[maybe_unused]] HitToTuple* hitToTupleDeviceData = device_hitToTuple_.data();
+    [[maybe_unused]] TupleMultiplicity *tupleMultiplicityDeviceData = device_tupleMultiplicity_.data();
+    [[maybe_unused]] HitToTuple *hitToTupleDeviceData = device_hitToTuple_.data();
     using TM = cms::alpakatools::OneToManyAssocRandomAccess<typename TrackerTraits::tindex_type,
                                                             TrackerTraits::maxHitsOnTrack + 1,
                                                             TrackerTraits::maxNumberOfTuples>;
-    TM* tm = device_tupleMultiplicity_.data();
+    TM *tm = device_tupleMultiplicity_.data();
     TM::template launchZero<Acc1D>(tm, queue);
     // TODO: re-enable TupleMultiplicity:: template launchZero<Acc1D>(tupleMultiplicityDeviceData, queue);
     // TODO: reneable HitToTuple::template launchZero<Acc1D>(hitToTupleDeviceData, queue);
   }
-
 
   template <typename TrackerTraits>
   void CAHitNtupletGeneratorKernels<TrackerTraits>::launchKernels(const HitsConstView &hh,
