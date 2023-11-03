@@ -235,19 +235,18 @@ void Basic2DGenericPFlowClusterizer::growPFClusters(const reco::PFCluster& topo,
     double recHitEnergyNorm = 0.;
     auto const& recHitEnergyNormDepthPair = _recHitEnergyNorms.find(cell_layer)->second;
 
-    for (unsigned int j = 0; j < recHitEnergyNormDepthPair.second.size(); ++j) {
-      int depth = recHitEnergyNormDepthPair.first[j];
-      if ((cell_layer == PFLayer::HCAL_BARREL1 && refhit->depth() == depth) ||
-          (cell_layer == PFLayer::HCAL_ENDCAP && refhit->depth() == depth) ||
-          (cell_layer != PFLayer::HCAL_ENDCAP && cell_layer != PFLayer::HCAL_BARREL1))
-        recHitEnergyNorm = recHitEnergyNormDepthPair.second[j];
-    }
-
-    if (hcalCuts != nullptr) {  // this means, cutsFromDB is set to True in PFClusterProducer.cc
-      if ((cell_layer == PFLayer::HCAL_BARREL1) || (cell_layer == PFLayer::HCAL_ENDCAP)) {
-        HcalDetId thisId = refhit->detId();
-        const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
-        recHitEnergyNorm = item->noiseThreshold();
+    if (hcalCuts != nullptr &&  // this means, cutsFromDB is set to True in PFClusterProducer.cc
+        (cell_layer == PFLayer::HCAL_BARREL1 || cell_layer == PFLayer::HCAL_ENDCAP)) {
+      HcalDetId thisId = refhit->detId();
+      const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
+      recHitEnergyNorm = item->noiseThreshold();
+    } else {
+      for (unsigned int j = 0; j < recHitEnergyNormDepthPair.second.size(); ++j) {
+        int depth = recHitEnergyNormDepthPair.first[j];
+        if ((cell_layer == PFLayer::HCAL_BARREL1 && refhit->depth() == depth) ||
+            (cell_layer == PFLayer::HCAL_ENDCAP && refhit->depth() == depth) ||
+            (cell_layer != PFLayer::HCAL_ENDCAP && cell_layer != PFLayer::HCAL_BARREL1))
+          recHitEnergyNorm = recHitEnergyNormDepthPair.second[j];
       }
     }
 

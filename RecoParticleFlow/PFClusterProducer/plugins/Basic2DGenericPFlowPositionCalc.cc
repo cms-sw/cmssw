@@ -229,22 +229,22 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
       int cell_layer = (int)refhit.layer();
       float threshold = 0;
 
-      for (unsigned int j = 0; j < (std::get<2>(_logWeightDenom)).size(); ++j) {
-        // barrel is detecor type1
-        int detectorEnum = std::get<0>(_logWeightDenom)[j];
-        int depth = std::get<1>(_logWeightDenom)[j];
+      if (hcalCuts != nullptr &&  // this means, cutsFromDB is set to True in the producer code
+          (cell_layer == PFLayer::HCAL_BARREL1 || cell_layer == PFLayer::HCAL_ENDCAP)) {
+        HcalDetId thisId = refhit.detId();
+        const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
+        threshold = 1. / (item->noiseThreshold());
 
-        if ((cell_layer == PFLayer::HCAL_BARREL1 && detectorEnum == 1 && refhit.depth() == depth) ||
-            (cell_layer == PFLayer::HCAL_ENDCAP && detectorEnum == 2 && refhit.depth() == depth) || detectorEnum == 0) {
-          threshold = std::get<2>(_logWeightDenom)[j];
-        }
-      }
-
-      if (hcalCuts != nullptr) {  // this means, cutsFromDB is set to True in the producer code
-        if ((cell_layer == PFLayer::HCAL_BARREL1) || (cell_layer == PFLayer::HCAL_ENDCAP)) {
-          HcalDetId thisId = refhit.detId();
-          const HcalPFCut* item = hcalCuts->getValues(thisId.rawId());
-          threshold = 1. / (item->noiseThreshold());
+      } else {
+        for (unsigned int j = 0; j < (std::get<2>(_logWeightDenom)).size(); ++j) {
+          // barrel is detecor type1
+          int detectorEnum = std::get<0>(_logWeightDenom)[j];
+          int depth = std::get<1>(_logWeightDenom)[j];
+          if ((cell_layer == PFLayer::HCAL_BARREL1 && detectorEnum == 1 && refhit.depth() == depth) ||
+              (cell_layer == PFLayer::HCAL_ENDCAP && detectorEnum == 2 && refhit.depth() == depth) ||
+              detectorEnum == 0) {
+            threshold = std::get<2>(_logWeightDenom)[j];
+          }
         }
       }
 

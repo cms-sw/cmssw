@@ -62,11 +62,11 @@ run3_egamma_2023.toModify(particleFlowRecHitHBHE,
     producers = {0 : dict(qualityTests = {0 : dict(cuts = {0 : dict(threshold = _thresholdsHBphase1_2023) } ) } ) },
 )
 
-#--- Use DB conditions for cuts&seeds solely for Run3
+#--- Use DB conditions for cuts&seeds for Run3 and Phase2
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
-(~phase2_common & run3_common).toModify( particleFlowRecHitHBHE,
+(phase2_common | run3_common).toModify( particleFlowRecHitHBHE,
     producers = {0 : dict(qualityTests = {0 : dict(usePFThresholdsFromDB = True) } ) },
 )
 
