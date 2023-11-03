@@ -165,8 +165,8 @@ particleFlowClusterHBHEOnly = particleFlowClusterHBHE.clone(
     recHitsSource = "particleFlowRecHitHBHEOnly"
 )
 
-#--- Use DB conditions for cuts&seeds solely for Run3
+#--- Use DB conditions for cuts&seeds for Run3 and phase2
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-(~phase2_common & run3_common).toModify( particleFlowClusterHBHE,
+(phase2_common | run3_common).toModify( particleFlowClusterHBHE,
                                      usePFThresholdsFromDB = True)
