@@ -24,8 +24,6 @@ namespace cms {
     public:
       using Counter = uint32_t;
 
-      using CountersOnly = OneToManyAssocBase<I, ONES, 0>;
-
       using index_type = I;
 
       struct View {
@@ -63,13 +61,6 @@ namespace cms {
       }
 
       template <typename TAcc>
-      ALPAKA_FN_ACC ALPAKA_FN_INLINE void add(const TAcc &acc, CountersOnly const &co) {
-        for (uint32_t i = 0; static_cast<int>(i) < totOnes(); ++i) {
-          alpaka::atomicAdd(acc, off.data() + i, co.off[i], alpaka::hierarchy::Blocks{});
-        }
-      }
-
-      template <typename TAcc>
       ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicIncrement(const TAcc &acc, Counter &x) {
         return alpaka::atomicAdd(acc, &x, 1u, alpaka::hierarchy::Blocks{});
       }
@@ -77,20 +68,6 @@ namespace cms {
       template <typename TAcc>
       ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
         return alpaka::atomicSub(acc, &x, 1u, alpaka::hierarchy::Blocks{});
-      }
-
-      template <typename TAcc>
-      ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, I b) {
-        ALPAKA_ASSERT_OFFLOAD(b < static_cast<uint32_t>(nOnes()));
-        atomicIncrement(acc, off[b]);
-      }
-
-      template <typename TAcc>
-      ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, I b, index_type j) {
-        ALPAKA_ASSERT_OFFLOAD(b < static_cast<uint32_t>(nOnes()));
-        auto w = atomicDecrement(acc, off[b]);
-        ALPAKA_ASSERT_OFFLOAD(w > 0);
-        content[w - 1] = j;
       }
 
       // this MUST BE DONE in a single block (or in two kernels!)
@@ -222,6 +199,20 @@ namespace cms {
     public:
       using Counter = typename OneToManyAssocBase<I, ONES, SIZE>::Counter;
       using View = typename OneToManyAssocBase<I, ONES, SIZE>::View;
+      using CountersOnly = OneToManyAssocRandomAccess<I, ONES, 0>;
+
+      template <typename TAcc>
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, Counter b) {
+        ALPAKA_ASSERT_OFFLOAD(b < static_cast<uint32_t>(this->nOnes()));
+        this->atomicIncrement(acc, this->off[b]);
+      }
+
+      template <typename TAcc>
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE void add(const TAcc &acc, CountersOnly const &co) {
+        for (uint32_t i = 0; static_cast<int>(i) < this->totOnes(); ++i) {
+          alpaka::atomicAdd(acc, this->off.data() + i, co.off[i], alpaka::hierarchy::Blocks{});
+        }
+      }
 
       template <typename TAcc>
       ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void finalize(TAcc &acc, Counter *ws = nullptr) {
@@ -273,6 +264,13 @@ namespace cms {
         } else {
           h->finalize();
         }
+      }
+      template <typename TAcc>
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, Counter b, I j) {
+        ALPAKA_ASSERT_OFFLOAD(b < static_cast<uint32_t>(this->nOnes()));
+        auto w = this->atomicDecrement(acc, this->off[b]);
+        ALPAKA_ASSERT_OFFLOAD(w > 0);
+        this->content[w - 1] = j;
       }
     };
 
