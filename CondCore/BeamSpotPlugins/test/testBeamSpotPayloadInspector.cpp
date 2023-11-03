@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
   // SimBeamSpot
   std::string prepConnectionString("frontier://FrontierPrep/CMS_CONDITIONS");
 
-  tag = "SimBeamSpotObjects_Realistic25ns13p6TeVEOY2022Collision_v0_mc";
+  tag = "SimBeamSpot_Realistic25ns13p6TeVEOY2022CollisionVtxSmearingParameters_v1_mc";
   start = static_cast<unsigned long long>(1);
   end = static_cast<unsigned long long>(1);
 
@@ -98,8 +98,8 @@ int main(int argc, char** argv) {
   histoSimParametersDiff.process(prepConnectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testBeamSpotPayloadInspector") << histoSimParametersDiff.data() << std::endl;
 
-  tag1 = "SimBeamSpotObjects_Realistic25ns13p6TeVEOY2022Collision_v0_mc";
-  tag2 = "SimBeamSpotObjects_Realistic25ns13p6TeVEarly2023Collision_v0_mc";
+  tag1 = "SimBeamSpot_Realistic25ns13p6TeVEOY2022CollisionVtxSmearingParameters_v1_mc";
+  tag2 = "SimBeamSpot_Realistic25ns13p6TeVEarly2023CollisionVtxSmearingParameters_v1_mc";
   start = static_cast<unsigned long long>(1);
 
   SimBeamSpotParametersDiffTwoTags histoSimParametersDiffTwoTags;

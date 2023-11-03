@@ -35,7 +35,7 @@ public:
   BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator& p) = delete;
   /** Copy assignment operator */
   BetafuncEvtVtxGenerator& operator=(const BetafuncEvtVtxGenerator& rhs) = delete;
-  ~BetafuncEvtVtxGenerator() override;
+  ~BetafuncEvtVtxGenerator() override = default;
 
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 

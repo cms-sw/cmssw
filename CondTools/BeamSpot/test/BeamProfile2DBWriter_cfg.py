@@ -42,11 +42,22 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 from CondTools.BeamSpot.beamProfile2DBWriter_cfi import beamProfile2DBWriter
+# For the BetaFunc smearing (realistic Beamspot) set the following parameters:
+# - X0, Y0, Z0, SigmaZ, BetaStar, Emittance
 process.BeamProfile2DBWriter = beamProfile2DBWriter.clone(X0        = 0.0458532,
                                                           Y0        = -0.016966,
                                                           Z0        = -0.074992,
                                                           SigmaZ    = 3.6,
                                                           BetaStar  = 30.0,
                                                           Emittance = 3.931e-8,)
+
+# For the Gaussian smearing (ideal Beamspot) set the following parameters:
+# - MeanX, MeanY, MeanZ, SigmaX, SigmaY, SigmaZ
+#process.BeamProfile2DBWriter = beamProfile2DBWriter.clone(MeanX     = 0.0,
+#                                                          MeanY     = 0.0,
+#                                                          MeanZ     = 0.0,
+#                                                          SigmaX    = 0.0015,
+#                                                          SigmaY    = 0.0015,
+#                                                          SigmaZ    = 3.6,)
 
 process.p = cms.Path(process.BeamProfile2DBWriter)

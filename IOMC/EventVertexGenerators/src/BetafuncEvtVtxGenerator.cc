@@ -38,7 +38,7 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : B
     fSigmaZ = p.getParameter<double>("SigmaZ") * cm;
     fbetastar = p.getParameter<double>("BetaStar") * cm;
     femittance = p.getParameter<double>("Emittance") * cm;              // this is not the normalized emittance
-    fTimeOffset = p.getParameter<double>("TimeOffset") * ns * c_light;  // HepMC distance units are mm
+    fTimeOffset = p.getParameter<double>("TimeOffset") * ns * c_light;  // HepMC distance units are in mm
 
     setBoost(p.getParameter<double>("Alpha") * radian, p.getParameter<double>("Phi") * radian);
     if (fSigmaZ <= 0) {
@@ -52,8 +52,6 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : B
     beamToken_ = esConsumes<SimBeamSpotObjects, SimBeamSpotObjectsRcd, edm::Transition::BeginLuminosityBlock>();
   }
 }
-
-BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator() {}
 
 void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& iEventSetup) {
   update(iEventSetup);
