@@ -47,6 +47,9 @@ for _entry in [hltassociation]:
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(prevalidation,_prevalidation_fastsim)
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(prevalidation, prevalidation.copyAndExclude([cms.SequencePlaceholder("mix"),globalPrevalidation,metPreValidSeq,jetPreValidSeq]))
+
 validationNoHLT = cms.Sequence(
                                genvalid_all
                                *globaldigisanalyze
@@ -56,6 +59,9 @@ validationNoHLT = cms.Sequence(
 validationNoHLT.remove(condDataValidation) # foca d'ovatta !
 validation = cms.Sequence(validationNoHLT
                          *hltvalidation)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(validation, validation.copyAndExclude([validationNoHLT]))
 
 validationNoHLTHiMix = cms.Sequence(
                                genvalid_all_hiMix
