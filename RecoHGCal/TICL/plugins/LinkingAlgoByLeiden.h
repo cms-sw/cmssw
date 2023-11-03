@@ -27,16 +27,36 @@ namespace ticl {
     LinkingAlgoByLeiden(const edm::ParameterSet &conf);
     ~LinkingAlgoByLeiden() override;
 
+    void initialize(const HGCalDDDConstants *hgcons,
+                    const hgcal::RecHitTools rhtools,
+                    const edm::ESHandle<MagneticField> bfieldH,
+                    const edm::ESHandle<Propagator> propH) override;
+
     void linkTracksters(const edm::Handle<std::vector<reco::Track>>,
-                        const edm::ValueMap<float> &,
-                        const edm::ValueMap<float> &,
-                        const edm::ValueMap<float> &,
+                        const edm::Handle<edm::ValueMap<float>>,
+                        const edm::Handle<edm::ValueMap<float>>,
+                        const edm::Handle<edm::ValueMap<float>>,
                         const std::vector<reco::Muon> &,
                         const edm::Handle<std::vector<Trackster>>,
+                        const bool useMTDTiming,
                         std::vector<TICLCandidate> &,
                         std::vector<TICLCandidate> &) override;
-
+    static void fillPSetDescription(edm::ParameterSetDescription &desc);
   private:
+    void buildLayers();
+
+    const StringCutObjectSelector<reco::Track> cutTk_;
+    std::once_flag initializeGeometry_;
+
+    const HGCalDDDConstants *hgcons_;
+
+    std::unique_ptr<GeomDet> firstDisk_[2];
+    std::unique_ptr<GeomDet> interfaceDisk_[2];
+
+    hgcal::RecHitTools rhtools_;
+
+    edm::ESHandle<MagneticField> bfield_;
+    edm::ESHandle<Propagator> propagator_;
   };
 }  // namespace ticl
 #endif

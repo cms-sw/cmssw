@@ -13,17 +13,65 @@
 
 using namespace ticl;
 
-LinkingAlgoByLeiden::LinkingAlgoByLeiden(const edm::ParameterSet &conf) : LinkingAlgoBase(conf) {}
+LinkingAlgoByLeiden::LinkingAlgoByLeiden(const edm::ParameterSet &conf)
+    : LinkingAlgoBase(conf),
+      cutTk_(conf.getParameter<std::string>("cutTk")) {}
 
 LinkingAlgoByLeiden::~LinkingAlgoByLeiden() {}
 
+void LinkingAlgoByLeiden::buildLayers() {
+  // build disks at HGCal front & EM-Had interface for track propagation
+
+  float zVal = hgcons_->waferZ(1, true);
+  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
+
+  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
+  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
+
+  for (int iSide = 0; iSide < 2; ++iSide) {
+    float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
+    firstDisk_[iSide] =
+        std::make_unique<GeomDet>(Disk::build(Disk::PositionType(0, 0, zSide),
+                                              Disk::RotationType(),
+                                              SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
+                                      .get());
+
+    zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
+    interfaceDisk_[iSide] = std::make_unique<GeomDet>(
+        Disk::build(Disk::PositionType(0, 0, zSide),
+                    Disk::RotationType(),
+                    SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
+            .get());
+  }
+}
+
+void LinkingAlgoByLeiden::initialize(const HGCalDDDConstants *hgcons,
+                                                 const hgcal::RecHitTools rhtools,
+                                                 const edm::ESHandle<MagneticField> bfieldH,
+                                                 const edm::ESHandle<Propagator> propH) {
+  hgcons_ = hgcons;
+  rhtools_ = rhtools;
+  buildLayers();
+
+  bfield_ = bfieldH;
+  propagator_ = propH;
+}
+
 void LinkingAlgoByLeiden::linkTracksters(const edm::Handle<std::vector<reco::Track>> tkH,
-                                         const edm::ValueMap<float> &tkTime,
-                                         const edm::ValueMap<float> &tkTimeErr,
-                                         const edm::ValueMap<float> &tkTimeQual,
-                                         const std::vector<reco::Muon> &muons,
-                                         const edm::Handle<std::vector<Trackster>> tsH,
-                                         std::vector<TICLCandidate> &resultLinked,
-                                         std::vector<TICLCandidate> &chargedHadronsFromTk) {
+                                                     const edm::Handle<edm::ValueMap<float>> tkTime_h,
+                                                     const edm::Handle<edm::ValueMap<float>> tkTimeErr_h,
+                                                     const edm::Handle<edm::ValueMap<float>> tkTimeQual_h,
+                                                     const std::vector<reco::Muon> &muons,
+                                                     const edm::Handle<std::vector<Trackster>> tsH,
+                                                     const bool useMTDTiming,
+                                                     std::vector<TICLCandidate> &resultLinked,
+                                                     std::vector<TICLCandidate> &chargedHadronsFromTk) {
   std::cout << "Il mio bellissimo algoritmo" << '\n';
+}
+
+void LinkingAlgoByLeiden::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<std::string>("cutTk",
+                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
+  LinkingAlgoBase::fillPSetDescription(desc);
 }
