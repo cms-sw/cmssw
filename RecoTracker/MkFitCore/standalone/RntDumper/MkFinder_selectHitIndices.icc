@@ -1,0 +1,159 @@
+// Include-cc file for ntuple dumpers in MkFinder::selectHitIndices
+// To be included in cc file, outside of any namespace.
+
+#include "RecoTracker/MkFitCore/standalone/RntDumper/RntDumper.h"
+#include "RecoTracker/MkFitCore/standalone/RntDumper/RntStructs.h"
+
+#include "RecoTracker/MkFitCore/src/Matrix.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
+#include "RecoTracker/MkFitCore/src/MiniPropagators.h"
+
+#include <ROOT/RNTuple.hxx>
+#include <ROOT/RNTupleModel.hxx>
+
+#include <TTree.h>
+
+namespace {
+  namespace miprops = mkfit::mini_propagators;
+  using namespace mkfit;
+
+  RVec state2pos(const miprops::State &s) { return {s.x, s.y, s.z}; }
+  RVec state2mom(const miprops::State &s) { return {s.px, s.py, s.pz}; }
+  State state2state(const miprops::State &s) { return {state2pos(s), state2mom(s)}; }
+
+  RVec statep2pos(const miprops::StatePlex &s, int i) { return {s.x[i], s.y[i], s.z[i]}; }
+  RVec statep2mom(const miprops::StatePlex &s, int i) { return {s.px[i], s.py[i], s.pz[i]}; }
+  State statep2state(const miprops::StatePlex &s, int i) { return {statep2pos(s, i), statep2mom(s, i)}; }
+  PropState statep2propstate(const miprops::StatePlex &s, int i) {
+    return {statep2state(s, i), s.dalpha[i], s.fail_flag[i]};
+  }
+
+  RVec track2pos(const TrackBase &s) { return {s.x(), s.y(), s.z()}; }
+  RVec track2mom(const TrackBase &s) { return {s.px(), s.py(), s.pz()}; }
+  State track2state(const TrackBase &s) { return {track2pos(s), track2mom(s)}; }
+
+  SimSeedInfo evsi2ssinfo(const Event *ev, int seed_idx) {
+    SimSeedInfo ssi;
+    Event::SimLabelFromHits slfh = ev->simLabelForCurrentSeed(seed_idx);
+    if (slfh.is_set()) {
+      ssi.s_sim = track2state(ev->simTracks_[slfh.label]);
+      ssi.sim_lbl = slfh.label;
+      ssi.n_hits = slfh.n_hits;
+      ssi.n_match = slfh.n_match;
+      ssi.has_sim = true;
+    }
+    auto seed = ev->currentSeed(seed_idx);
+    ssi.s_seed = track2state(seed);
+    ssi.seed_lbl = seed.label();
+    ssi.seed_idx = seed_idx;
+    return ssi;
+  }
+
+  // --- === ---
+
+  struct RntIfc_selectHitIndices {
+    using RNTupleWriter = ROOT::Experimental::RNTupleWriter;
+
+    RntDumper *f_dumper;
+    const bool f_do_rnt;
+    const bool f_do_tree;
+    std::vector<int> f_h_idcs;
+    std::vector<int> f_h_remap;
+    int f_h_cnt;
+
+    RNTupleWriter *f_H_writer = nullptr;
+    TTree *f_H_tree = nullptr;
+    std::shared_ptr<HeaderLayer> h;
+    std::shared_ptr<std::vector<CandInfo>> ci;
+
+    RNTupleWriter *f_F_writer = nullptr;
+    TTree *f_F_tree = nullptr;
+    std::shared_ptr<HeaderLayer> f;
+    std::shared_ptr<std::vector<FailedPropInfo>> fpi;
+
+    RntIfc_selectHitIndices(bool rntp, bool treep) : f_do_rnt(rntp), f_do_tree(treep) {
+      f_dumper = RntDumper::Create("SelHitIdcs.root");
+
+      auto mh = f_dumper->CreateModel();
+      // Register branches -- entry objects used for both RNTuple and TTree!
+      h = mh->MakeField<HeaderLayer>("h");
+      ci = mh->MakeField<std::vector<CandInfo>>("ci");
+      if (f_do_rnt) {
+        f_H_writer = f_dumper->WritifyModel(mh, "H_rnt");  // setup for writing
+      }
+      if (f_do_tree) {
+        // printf("Addresses %p %p %p %p\n", h.get(), bso.get(), bsn.get(), lpi.get());
+        f_H_tree = new TTree("H_tree", "info from selectHitIndices");
+        f_H_tree->Branch("h", h.get());
+        f_H_tree->Branch("ci", ci.get());
+        f_dumper->RegisterTree(f_H_tree);
+      }
+
+      auto mf = f_dumper->CreateModel();
+      f = mf->MakeField<HeaderLayer>("f");
+      fpi = mf->MakeField<std::vector<FailedPropInfo>>("fpi");
+      if (f_do_rnt) {
+        f_F_writer = f_dumper->WritifyModel(mf, "F_rnt");  // setup for writing
+      }
+      if (f_do_tree) {
+        // printf("Addresses %p %p %p %p\n", h.get(), bso.get(), bsn.get(), lpi.get());
+        f_F_tree = new TTree("F_tree", "info on failed propagations from selectHitIndices");
+        f_F_tree->Branch("f", f.get());
+        f_F_tree->Branch("fpi", fpi.get());
+        f_dumper->RegisterTree(f_F_tree);
+      }
+    }
+
+    ~RntIfc_selectHitIndices() {}
+
+    void ResetH() {
+      ci->clear();
+      f_h_cnt = 0;
+    }
+    void ResetF() { fpi->clear(); }
+
+    void InnerIdcsReset(int maxN) {
+      f_h_idcs.clear();
+      std::vector<int> v(maxN, -666666);
+      f_h_remap.swap(v);
+    }
+    CandInfo &RegisterGoodProp(int i, const MPlexLV &ctr, const Event *ev, int seed_idx) {
+      f_h_idcs.push_back(i);
+      f_h_remap[i] = f_h_cnt;
+      ++f_h_cnt;
+      // for (auto i : f_h_idcs) {
+      //   auto gi = f_h_remap[i];
+      //   // use i for local access, gi for access into tree vectors
+      // }
+
+      mini_propagators::State c(ctr, i);
+      return ci->emplace_back(evsi2ssinfo(ev, seed_idx), state2state(c));
+    }
+    void RegisterFailedProp(int i, const MPlexLV &beg, const MPlexLV &end, const Event *ev, int seed_idx) {
+      mini_propagators::State b(beg, i), e(end, i);
+      fpi->emplace_back(evsi2ssinfo(ev, seed_idx), state2state(b), state2state(e));
+    }
+    int MapHIdx(int i) { return f_h_remap[i]; }
+
+    void FillH() {
+      for (auto &e : *ci)
+        e.nan_check();
+      if (f_do_rnt)
+        f_H_writer->Fill();
+      if (f_do_tree)
+        f_H_tree->Fill();
+    }
+    void FillF() {
+      if (fpi->empty())
+        return;
+      for (auto &e : *fpi)
+        e.nan_check();
+      if (f_do_rnt)
+        f_F_writer->Fill();
+      if (f_do_tree)
+        f_F_tree->Fill();
+    }
+  };
+
+  static RntIfc_selectHitIndices rnt_shi(false, true);
+}  // namespace

@@ -21,6 +21,7 @@ namespace mkfit {
     float getPar(int itrack, int i, int par) const { return m_Par[i].constAt(itrack, par, 0); }
 
     float radiusSqr(int itrack, int i) const { return hipo_sqr(getPar(itrack, i, 0), getPar(itrack, i, 1)); }
+    float radius(int itrack, int i) const { return hipo(getPar(itrack, i, 0), getPar(itrack, i, 1)); }
 
     //----------------------------------------------------------------------------
 

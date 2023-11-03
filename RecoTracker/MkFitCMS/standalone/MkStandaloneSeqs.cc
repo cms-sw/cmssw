@@ -159,7 +159,7 @@ namespace mkfit {
 
       if (mctrk < 0 || static_cast<size_t>(mctrk) >= event->simTracks_.size()) {
         ++m_cnt_nomc;
-        dprint("XX bad track idx " << mctrk << ", orig label was " << label);
+        dprintf("XX bad track idx %d, orig label was %d\n", mctrk, label);
       } else {
         auto &simtrack = event->simTracks_[mctrk];
         pTmc = simtrack.pT();

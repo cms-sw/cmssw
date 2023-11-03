@@ -110,9 +110,8 @@ namespace mkfit {
 
     const bool validation_on = (Config::sim_val || Config::quality_val);
 
+    TrackVec seeds1;
     if (validation_on) {
-      TrackVec seeds1;
-
       unsigned int algorithms[] = {4};  //only initialStep
 
       for (auto const &s : ev.seedTracks_) {
@@ -187,6 +186,10 @@ namespace mkfit {
 
     // ev.print_tracks(ev.candidateTracks_, true);
 
+    if (validation_on) {
+      ev.seedTracks_.swap(seeds1);
+    }
+
     return time;
   }
 
@@ -199,9 +202,8 @@ namespace mkfit {
 
     const bool validation_on = (Config::sim_val || Config::quality_val);
 
+    TrackVec seeds1;
     if (validation_on) {
-      TrackVec seeds1;
-
       unsigned int algorithms[] = {4};  //only initialStep
 
       for (auto const &s : ev.seedTracks_) {
@@ -226,6 +228,8 @@ namespace mkfit {
 
     bool seeds_sorted = false;
     // CCCC builder.PrepareSeeds();
+    ev.setCurrentSeedTracks(ev.seedTracks_);
+    ev.simLabelForCurrentSeed(0);
 
     builder.find_tracks_load_seeds(ev.seedTracks_, seeds_sorted);
 
@@ -248,6 +252,7 @@ namespace mkfit {
     check_nan_n_silly_candidates(ev);
 
     // first store candidate tracks
+    ev.candidateTracks_.clear();
     builder.export_best_comb_cands(ev.candidateTracks_);
 
     job.switch_to_backward();
@@ -272,9 +277,15 @@ namespace mkfit {
       StdSeq::root_val(&ev);
     }
 
+    ev.resetCurrentSeedTracks();
+
     builder.end_event();
 
     // ev.print_tracks(ev.candidateTracks_, true);
+
+    if (validation_on) {
+      ev.seedTracks_.swap(seeds1);
+    }
 
     return time;
   }
@@ -288,9 +299,8 @@ namespace mkfit {
 
     const bool validation_on = (Config::sim_val || Config::quality_val);
 
+    TrackVec seeds1;
     if (validation_on) {
-      TrackVec seeds1;
-
       unsigned int algorithms[] = {4};  //only initialStep
 
       for (auto const &s : ev.seedTracks_) {
@@ -315,6 +325,7 @@ namespace mkfit {
 
     bool seeds_sorted = false;
     // CCCC builder.PrepareSeeds();
+    ev.setCurrentSeedTracks(ev.seedTracks_);
 
     builder.find_tracks_load_seeds(ev.seedTracks_, seeds_sorted);
 
@@ -337,6 +348,7 @@ namespace mkfit {
     check_nan_n_silly_candidates(ev);
 
     // first store candidate tracks - needed for BH backward fit and root_validation
+    ev.candidateTracks_.clear();
     builder.export_best_comb_cands(ev.candidateTracks_);
 
     job.switch_to_backward();
@@ -365,9 +377,15 @@ namespace mkfit {
       StdSeq::root_val(&ev);
     }
 
+    ev.resetCurrentSeedTracks();
+
     builder.end_event();
 
     // ev.print_tracks(ev.candidateTracks_, true);
+
+    if (validation_on) {
+      ev.seedTracks_.swap(seeds1);
+    }
 
     return time;
   }
@@ -458,6 +476,8 @@ namespace mkfit {
       // Add protection in case no seeds are found for iteration
       if (seeds.size() <= 0)
         continue;
+      ev.setCurrentSeedTracks(seeds);
+      ev.simLabelForCurrentSeed(0);
 
       builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
@@ -546,6 +566,7 @@ namespace mkfit {
 
         builder.export_tracks(ev.fitTracks_);
       }
+      ev.resetCurrentSeedTracks();
 
       builder.end_event();
     }
