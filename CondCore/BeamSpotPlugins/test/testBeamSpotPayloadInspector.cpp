@@ -1,9 +1,10 @@
 #include <iostream>
 #include <sstream>
-#include "CondCore/Utilities/interface/PayloadInspector.h"
-#include "CondCore/BeamSpotPlugins/plugins/SimBeamSpot_PayloadInspector.cc"
 #include "CondCore/BeamSpotPlugins/plugins/BeamSpot_PayloadInspector.cc"
 #include "CondCore/BeamSpotPlugins/plugins/BeamSpotOnline_PayloadInspector.cc"
+#include "CondCore/BeamSpotPlugins/plugins/SimBeamSpot_PayloadInspector.cc"
+#include "CondCore/BeamSpotPlugins/plugins/SimBeamSpotHLLHC_PayloadInspector.cc"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -105,6 +106,27 @@ int main(int argc, char** argv) {
   SimBeamSpotParametersDiffTwoTags histoSimParametersDiffTwoTags;
   histoSimParametersDiffTwoTags.process(prepConnectionString, PI::mk_input(tag1, start, start, tag2, start, start));
   edm::LogPrint("testBeamSpotPayloadInspector") << histoSimParametersDiffTwoTags.data() << std::endl;
+
+  // SimBeamSpotHLLHC
+  tag = "SimBeamSpotHLLHC_test_tag_1_v0";
+
+  edm::LogPrint("testBeamSpotPayloadInspector") << "## Exercising SimBeamSpotHLLHC plots " << std::endl;
+
+  SimBeamSpotHLLHCParameters histoSimHLLHCParameters;
+  histoSimHLLHCParameters.process(prepConnectionString, PI::mk_input(tag, start, start));
+  edm::LogPrint("testBeamSpotPayloadInspector") << histoSimHLLHCParameters.data() << std::endl;
+
+  SimBeamSpotHLLHCParametersDiffSingleTag histoSimHLLHCParametersDiff;
+  histoSimHLLHCParametersDiff.process(prepConnectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testBeamSpotPayloadInspector") << histoSimHLLHCParametersDiff.data() << std::endl;
+
+  tag1 = "SimBeamSpotHLLHC_test_tag_1_v0";
+  tag2 = "SimBeamSpotHLLHC_test_tag_2_v0";
+
+  SimBeamSpotHLLHCParametersDiffTwoTags histoSimHLLHCParametersDiffTwoTags;
+  histoSimHLLHCParametersDiffTwoTags.process(prepConnectionString,
+                                             PI::mk_input(tag1, start, start, tag2, start, start));
+  edm::LogPrint("testBeamSpotPayloadInspector") << histoSimHLLHCParametersDiffTwoTags.data() << std::endl;
 
   Py_Finalize();
 }

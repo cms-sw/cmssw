@@ -15,3 +15,9 @@
   <use name="CondCore/CondDB"/>
   <use name="boost_python"/>
 </library>
+
+<library file="SimBeamSpotHLLHC_PayloadInspector.cc" name="SimBeamSpotHLLHC_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="boost_python"/>
+</library>
