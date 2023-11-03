@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 import FWCore.ParameterSet.VarParsing as VarParsing
-from Configuration.StandardSequences.Eras import eras
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 import sys
@@ -65,12 +64,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 #CONFIGURE PROCESS
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20000) )
 
-if options.useJsonFile == True:
-    import FWCore.PythonUtilities.LumiList as LumiList
-    jsonFileName = options.jsonFileName
-    print("Using JSON file:",jsonFileName)
-    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
-
 #SETUP GLOBAL TAG
 if options.globalTag != '':
     gt = options.globalTag
@@ -113,6 +106,12 @@ process.source = cms.Source("PoolSource",
         'keep *_*Digi*_*_RECO'
     )
 )
+
+if options.useJsonFile == True:
+    import FWCore.PythonUtilities.LumiList as LumiList
+    jsonFileName = options.jsonFileName
+    print("Using JSON file:",jsonFileName)
+    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(options.outputFileName),

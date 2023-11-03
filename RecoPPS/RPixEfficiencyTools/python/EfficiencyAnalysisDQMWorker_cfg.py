@@ -172,7 +172,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 #CONFIGURE PROCESS
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 if options.useJsonFile == True:
     print("Using JSON file...")
