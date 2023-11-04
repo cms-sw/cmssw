@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 cd ${LOCALTOP}
-curl -s -k https://cms-pdmv.cern.ch/mcm/public/restapi/requests/get_fragment/BTV-RunIISummer20UL17GEN-00002 --retry 3 --create-dirs -o ${LOCALTOP}/tmp/GIP8/BTV-RunIISummer20UL17GEN-00002-fragment.py
+curl -L -s -k https://cms-pdmv-prod.web.cern.ch/mcm/public/restapi/requests/get_fragment/BTV-RunIISummer20UL17GEN-00002 --retry 3 --create-dirs -o ${LOCALTOP}/tmp/GIP8/BTV-RunIISummer20UL17GEN-00002-fragment.py
 touch ${LOCALTOP}/tmp/GIP8/__init__.py
 export PYTHONPATH="${LOCALTOP}/tmp${PYTHONPATH:+:$PYTHONPATH}"
 
