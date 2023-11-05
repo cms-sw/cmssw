@@ -75,9 +75,9 @@ void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
     for (unsigned int i = 0; i < type_.size(); ++i) {
       DetId id;
       if (topology.isHFNose()) {
-	id = HFNoseDetId(1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
+        id = HFNoseDetId(1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
       } else if (detectorName_ == "HGCalEESensitive") {
-	id = HGCSiliconDetId(DetId::HGCalEE, 1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
+        id = HGCSiliconDetId(DetId::HGCalEE, 1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
       } else if (detectorName_ == "HGCalHESiliconSensitive") {
         id = HGCSiliconDetId(DetId::HGCalHSi, 1, type_[i], layer_[i], sec1_[i], sec2_[i], cell1_[i], cell2_[i]);
       } else if (detectorName_ == "HGCalHEScintillatorSensitive") {

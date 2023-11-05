@@ -467,8 +467,8 @@ bool HGCalTopology::valid(const DetId& idin) const {
   HGCalTopology::DecodedDetId id = decode(idin);
   bool flag;
   if (waferHexagon6()) {
-    flag = (idin.det() == det_ && idin.subdetId() == static_cast<int>(subdet_) && id.iCell1 >= 0 && id.iCell1 < cells_ &&
-            id.iLay > 0 && id.iLay <= layers_ && id.iSec1 >= 0 && id.iSec1 <= sectors_);
+    flag = (idin.det() == det_ && idin.subdetId() == static_cast<int>(subdet_) && id.iCell1 >= 0 &&
+            id.iCell1 < cells_ && id.iLay > 0 && id.iLay <= layers_ && id.iSec1 >= 0 && id.iSec1 <= sectors_);
     if (flag)
       flag = hdcons_.isValidHex(id.iLay, id.iSec1, id.iCell1, true);
   } else if (tileTrapezoid()) {
