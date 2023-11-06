@@ -37,8 +37,14 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   constexpr HGCSiliconDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  constexpr HGCSiliconDetId(
-      DetId::Detector det, int32_t zp, int32_t type, int32_t layer, int32_t waferU, int32_t waferV, int32_t cellU, int32_t cellV)
+  constexpr HGCSiliconDetId(DetId::Detector det,
+                            int32_t zp,
+                            int32_t type,
+                            int32_t layer,
+                            int32_t waferU,
+                            int32_t waferV,
+                            int32_t cellU,
+                            int32_t cellV)
       : DetId(det, ForwardEmpty) {
     int32_t waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
     int32_t waferUsign = (waferU >= 0) ? 0 : 1;
@@ -91,7 +97,10 @@ public:
   constexpr int32_t type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
   constexpr bool lowDensity() const { return ((type() == HGCalCoarseThin) || (type() == HGCalCoarseThick)); }
   constexpr bool highDensity() const { return ((type() == HGCalFine) || (type() == HGCalFineThick)); }
-  constexpr int32_t depletion() const { return ((type() == HGCalFine) ? HGCal0Depletion : ((type() == HGCalCoarseThick) ? HGCal2Depletion : HGCal1Depletion)); }
+  constexpr int32_t depletion() const {
+    return ((type() == HGCalFine) ? HGCal0Depletion
+                                  : ((type() == HGCalCoarseThick) ? HGCal2Depletion : HGCal1Depletion));
+  }
 
   /// get the z-side of the cell (1/-1)
   constexpr int32_t zside() const { return (((id_ >> kHGCalZsideOffset) & kHGCalZsideMask) ? -1 : 1); }
@@ -126,7 +135,8 @@ public:
   constexpr int32_t waferX() const { return (-2 * waferU() + waferV()); }
   constexpr int32_t waferY() const { return (2 * waferV()); }
   constexpr std::pair<int32_t, int32_t> waferXY() const { return std::pair<int32_t, int32_t>(waferX(), waferY()); }
-  constexpr void unpack(int32_t& ty, int32_t& zs, int32_t& ly, int32_t& wU, int32_t& wV, int32_t& cU, int32_t& cV) const {
+  constexpr void unpack(
+      int32_t& ty, int32_t& zs, int32_t& ly, int32_t& wU, int32_t& wV, int32_t& cU, int32_t& cV) const {
     ty = type();
     zs = zside();
     ly = layer();
@@ -151,7 +161,9 @@ public:
                ? cellV() / NT
                : ((cellU() < N && cellU() <= cellV()) ? ((cellV() - cellU()) / NT + cellU() / NT) : cellV() / NT);
   }
-  constexpr std::pair<int32_t, int32_t> triggerCellUV() const { return std::pair<int32_t, int32_t>(triggerCellU(), triggerCellV()); }
+  constexpr std::pair<int32_t, int32_t> triggerCellUV() const {
+    return std::pair<int32_t, int32_t>(triggerCellU(), triggerCellV());
+  }
 
   /// consistency check : no bits left => no overhead
   constexpr bool isEE() const { return (det() == HGCalEE); }
