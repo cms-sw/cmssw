@@ -34,9 +34,16 @@
    <version ClassVersion="11" checksum="3710487366"/>
    <version ClassVersion="10" checksum="4165221916"/>
   </class>
-  <class name="HcalZDCDetId" ClassVersion="11">
+  <class name="HcalZDCDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="3806242743"/>
    <version ClassVersion="11" checksum="3806242743"/>
    <version ClassVersion="10" checksum="927247167"/>
+   <ioread sourceClass = "HcalZDCDetId" version="[-11]" targetClass="HcalZDCDetId" source="" target="">
+    <![CDATA[
+      HcalZDCDetId tmp(HcalZDCDetId::newForm(newObj->rawId()));
+      *newObj=tmp;
+    ]]>
+   </ioread>
   </class>
   <class name="HcalCastorDetId" ClassVersion="11">
    <version ClassVersion="11" checksum="2854161010"/>
