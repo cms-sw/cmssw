@@ -57,7 +57,7 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, ReturnType g
     geom->allocatePar(ZdcGeometry::k_NumberOfParametersPerShape * ZdcGeometry::k_NumberOfShapes,
                       ZdcGeometry::k_NumberOfParametersPerShape);
 
-  edm::LogInfo("ZdcHardcodeGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
+  edm::LogVerbatim("ZdcGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();
 
   // for each new HcalZdcDetId, make a CaloCellGeometry
 
@@ -73,6 +73,7 @@ void ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId, ReturnType g
 
   const int channel(detId.channel());
 
+  edm::LogVerbatim("ZdcGeometry") << "ZDCGeometry::Cell: " << detId << " Section " << section << " channel " << channel;
   //********* Here are all the hardcoded numbers you need to know, in **cm**
   //********* Most are from the zdc.xml and zdclum.xml files ******
 
