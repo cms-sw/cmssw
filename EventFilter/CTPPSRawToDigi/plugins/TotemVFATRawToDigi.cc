@@ -170,7 +170,6 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
 
 template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
-
   // mapping and analysis mask
   ESHandle<TotemDAQMapping> mapping;
   ESHandle<TotemAnalysisMask> analysisMaskHandle;
@@ -190,14 +189,14 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   SimpleVFATFrameCollection vfatCollection;
   for (const auto &fedId : fedIds) {
     const FEDRawData &data = rawData->FEDData(fedId);
-    if (data.size() > 0){
+    if (data.size() > 0) {
       rawDataUnpacker.run(fedId, data, fedInfo, vfatCollection);
       data_exist = true;
     }
   }
 
   // get mapping records and do raw-to-digi conversion only if some data exists
-  if( data_exist ){
+  if (data_exist) {
     // get DAQ mapping
     mapping = es.getHandle(totemMappingToken);
     if (!mapping.isValid() || mapping.failedToGet()) {
