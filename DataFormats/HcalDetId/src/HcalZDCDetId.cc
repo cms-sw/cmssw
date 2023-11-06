@@ -1,7 +1,8 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 
 std::ostream& operator<<(std::ostream& s, const HcalZDCDetId& id) {
-  s << "(Det " << id.det() << ":" << DetId::Calo << " subdet " << id.subdetId() << ":" << HcalZDCDetId::SubdetectorId << " ZDC" << ((id.zside() == 1) ? ("+") : ("-"));
+  s << "(Det " << id.det() << ":" << DetId::Calo << " subdet " << id.subdetId() << ":" << HcalZDCDetId::SubdetectorId
+    << " ZDC" << ((id.zside() == 1) ? ("+") : ("-"));
   switch (id.section()) {
     case (HcalZDCDetId::EM):
       s << " EM ";

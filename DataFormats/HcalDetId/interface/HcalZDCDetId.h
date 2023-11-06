@@ -39,11 +39,14 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   constexpr HcalZDCDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from section, eta sign, and channel */
-  constexpr HcalZDCDetId(Section section, bool true_for_positive_eta, int32_t channel) {  id_ = packHcalZDCDetId(section, true_for_positive_eta, channel); }
+  constexpr HcalZDCDetId(Section section, bool true_for_positive_eta, int32_t channel) {
+    id_ = packHcalZDCDetId(section, true_for_positive_eta, channel);
+  }
   /** Constructor from a generic cell id */
   constexpr HcalZDCDetId(const DetId& gen) {
     if (!gen.null() && (gen.det() != Calo || gen.subdetId() != SubdetectorId)) {
-      throw cms::Exception("Invalid DetId") << "Cannot initialize ZDCDetId from " << std::hex << gen.rawId() << std::dec;
+      throw cms::Exception("Invalid DetId")
+          << "Cannot initialize ZDCDetId from " << std::hex << gen.rawId() << std::dec;
     }
     id_ = newForm(gen.rawId());
   }
@@ -122,7 +125,10 @@ public:
 
   constexpr uint32_t denseIndex() const {
     const int32_t se(section());
-    uint32_t di = (channel() - 1 + (se == RPD ? 2 * kDepRun1 + (zside() < 0 ? 0 : kDepRPD) : ((zside() < 0 ? 0 : kDepRun1) + (se == HAD ? kDepEM : (se == LUM ? kDepEM + kDepHAD : 0)))));
+    uint32_t di =
+        (channel() - 1 +
+         (se == RPD ? 2 * kDepRun1 + (zside() < 0 ? 0 : kDepRPD)
+                    : ((zside() < 0 ? 0 : kDepRun1) + (se == HAD ? kDepEM : (se == LUM ? kDepEM + kDepHAD : 0)))));
     return di;
   }
 
@@ -134,14 +140,14 @@ public:
       uint32_t dp(0);
       Section se(Unknown);
       if (di >= 2 * kDepRun1) {
-	lz = (di >= (kDepRun1 + kDepTot));
-	se = RPD;
-	dp = 1 + ((di - 2 * kDepRun1) % kDepRPD);
+        lz = (di >= (kDepRun1 + kDepTot));
+        se = RPD;
+        dp = 1 + ((di - 2 * kDepRun1) % kDepRPD);
       } else {
-	lz = (di >= kDepRun1);
-	uint32_t in = (di % kDepRun1);
-	se = (in < kDepEM ? EM : (in < kDepEM + kDepHAD ? HAD : LUM));
-	dp = (se == EM ? in + 1 : (se == HAD ? in - kDepEM + 1 : in - kDepEM - kDepHAD + 1));
+        lz = (di >= kDepRun1);
+        uint32_t in = (di % kDepRun1);
+        se = (in < kDepEM ? EM : (in < kDepEM + kDepHAD ? HAD : LUM));
+        dp = (se == EM ? in + 1 : (se == HAD ? in - kDepEM + 1 : in - kDepEM - kDepHAD + 1));
       }
       return HcalZDCDetId(se, lz, dp);
     } else {
@@ -150,8 +156,9 @@ public:
   }
 
   constexpr static bool validDetId(Section se, int32_t dp) {
-    bool flag = (dp >= 1 && (((se == EM) && (dp <= kDepEM)) || ((se == HAD) && (dp <= kDepHAD)) || ((se == LUM) && (dp <= kDepLUM)) || ((se == RPD) && (dp <= kDepRPD))));
-  return flag;
+    bool flag = (dp >= 1 && (((se == EM) && (dp <= kDepEM)) || ((se == HAD) && (dp <= kDepHAD)) ||
+                             ((se == LUM) && (dp <= kDepLUM)) || ((se == RPD) && (dp <= kDepRPD))));
+    return flag;
   }
 
 private:

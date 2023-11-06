@@ -54,9 +54,7 @@ unsigned int ZdcGeometry::alignmentTransformIndexLocal(const DetId& id) {
   return (0 > HcalZDCDetId(id).zside() ? 0 : 1);
 }
 
-unsigned int ZdcGeometry::alignmentTransformIndexGlobal(const DetId& /*id*/) {
-  return (unsigned int)DetId::Calo - 1; 
-}
+unsigned int ZdcGeometry::alignmentTransformIndexGlobal(const DetId& /*id*/) { return (unsigned int)DetId::Calo - 1; }
 
 void ZdcGeometry::localCorners(Pt3DVec& lc, const CCGFloat* pv, unsigned int /*i*/, Pt3D& ref) {
   IdealZDCTrapezoid::localCorners(lc, pv, ref);
