@@ -283,10 +283,10 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   //edm::Handle<VertexCollection> vertices;
   edm::Handle<std::vector<Vertex>> vertices;
 
-  try {
-    vertices = iEvent.getHandle(theVertexCollectionToken_);
-  } catch (cms::Exception& er) {
-    LogTrace("PrimaryVertexValidation") << "caught std::exception " << er.what() << std::endl;
+  vertices = iEvent.getHandle(theVertexCollectionToken_);
+  if (!vertices.isValid()) {
+    LogTrace("PrimaryVertexValidation") << "Handle missing product" << std::endl;
+    return;
   }
 
   std::vector<Vertex> vsorted = *(vertices);
