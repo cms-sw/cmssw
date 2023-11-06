@@ -246,7 +246,7 @@ void PFJetDQMPostProcessor::fitResponse(TH1F* hreso,
   TF1* fg = new TF1("mygaus", "gaus", fitlow, fithigh);
   TF1* fg2 = new TF1("fg2", "TMath::Gaus(x,[0],[1],true)*[2]", fitlow, fithigh);
 
-  hreso->Fit("mygaus", "RQN");
+  hreso->Fit("mygaus", "RQNL");
 
   fg2->SetParameter(0, fg->GetParameter(1));
   fg2->SetParameter(1, fg->GetParameter(2));
@@ -259,7 +259,7 @@ void PFJetDQMPostProcessor::fitResponse(TH1F* hreso,
   // (3) and number of bins (100)
   fg2->FixParameter(2, ngenjet * 3. / 100.);
 
-  hreso->Fit("fg2", "RQN");
+  hreso->Fit("fg2", "RQNL");
 
   fitlow = fg2->GetParameter(0) - 1.5 * fg2->GetParameter(1);
   fitlow = TMath::Max(15. / ptlow, fitlow);
