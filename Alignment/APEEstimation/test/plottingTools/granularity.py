@@ -35,3 +35,12 @@ phaseOneGranularity.names["Y"] = ["PIXEL",]
 
 # this name is used by default by other plotting tools
 standardGranularity = phaseOneGranularity
+
+# Granularity for Validation plots in ApeEstimator2 part of allData.root
+validationGranularity = Granularity()
+validationGranularity.sectors["X"].append( (1,8) ) # Only X is needed here, names are not required
+
+# By default, these 8 sectors are included for the ValidationSectors granularity:
+# BpixLayer1Out, BpixLayer3In, FpixMinusLayer1, TibLayer1RphiOut, TibLayer4In, TobLayer1StereoOut, TobLayer5Out, TecPlusRing7
+# This can be changed in apeEstimator_cfg or in SectorBuilder_cff
+# For these sectors, additional hit validation plots are created

@@ -15,6 +15,8 @@ class ValidationPlotter:
         self.markers = {}
         self.outPath = None
         self.granularity = standardGranularity
+        self.validationGranularity = validationGranularity
+
         self.order = []
         
     def addInputFile(self, label, inFile, color=None, marker=20):
@@ -120,7 +122,7 @@ class ValidationPlotter:
         if not twoDimensional:
             legend.Draw()
         
-        cmsText = ROOT.TLatex(0.16,0.96,title)
+        cmsText = ROOT.TLatex(0.26,0.96,title)
         cmsText.SetTextFont(42)
         cmsText.SetNDC()
         cmsText.Draw("same")
@@ -194,13 +196,35 @@ class ValidationPlotter:
             if self.markers[label] == 0:
                 hist.SetMarkerSize(0)
                 hist.SetLineWidth(2)
-            
+            fi.Close()
             if twoDimensional:
                 self.plotHist("tracks", histName+"_"+label, label, [(hist, label),], twoDimensional=True)
             else:
                 hists.append((hist, label))
         if len(hists) > 0:
             self.plotHist("tracks", histName, histName, hists, twoDimensional=twoDimensional)
+            
+    def makeHitsPlot(self, sectorNumber, histName, twoDimensional=False):
+        hists = []
+        for label in self.order:
+            fi = ROOT.TFile(self.inFiles[label], "READ")
+            sectorName = fi.Get("ApeEstimator2/Sector_{sector}/z_name".format(sector=sectorNumber)).GetTitle()
+            hist = fi.Get("ApeEstimator2/Sector_{sector}/{histName}".format(sector=sectorNumber,histName=histName))
+            hist.SetLineColor(self.colors[label])
+            hist.SetMarkerColor(self.colors[label])
+            hist.SetMarkerStyle(self.markers[label])
+            hist.SetDirectory(0)
+            fi.Close()
+            if self.markers[label] == 0:
+                hist.SetMarkerSize(0)
+                hist.SetLineWidth(2)
+            
+            if twoDimensional:
+                self.plotHist("hits"+"/{}".format(sectorName), histName+"_"+label, "{}: ".format(sectorName)+histName+" "+label, [(hist, label),], twoDimensional=True)
+            else:
+                hists.append((hist, label))
+        if len(hists) > 0:
+            self.plotHist("hits"+"/{}".format(sectorName), histName, "{}: ".format(sectorName)+histName, hists, twoDimensional=twoDimensional)
             
     
     
@@ -245,7 +269,23 @@ class ValidationPlotter:
         self.makeTrackPlot("h2_hitsStripVsTheta", twoDimensional=True)
         self.makeTrackPlot("h2_ptVsTheta", twoDimensional=True)
         
-        
+        rangeList = self.validationGranularity.sectors["X"]
+        for first, last in rangeList:
+            for i in range(first, last+1):
+                # Get list of plots per sector, as pixel sectors have different plots
+                # We get the list from one of the result files, the rest should have the same structure
+                directoryFile = ROOT.TFile(self.inFiles[self.order[0]], "READ")
+                directory = directoryFile.GetDirectory("ApeEstimator2/Sector_{}".format(i))
+                
+                for histObject in directory.GetListOfKeys():
+                    histName = histObject.GetName()
+                    if histName.startswith("h_"): # 1D hist
+                        self.makeHitsPlot(i, histName)
+                    elif histName.startswith("h2_"):
+                        self.makeHitsPlot(i, histName, twoDimensional=True)
+
+                directoryFile.Close()
+                
 
 def main():
     pass
