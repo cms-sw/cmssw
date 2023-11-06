@@ -106,17 +106,16 @@ else:
     print('Using alignment from GT.')
 
 if len(options.inputFiles) != 0:
-    inputFiles = cms.untracked.vstring(options.inputFiles)
+    # Add 'file:' in front of file names
+    inputFiles = []
+    for file_name in options.inputFiles:
+        inputFiles.append('file:'+file_name)
+    inputFiles = cms.untracked.vstring(inputFiles) 
 else:
-    # Example input file
-    inputFiles = cms.untracked.vstring(
-        [
-"/store/data/Run2023C/ZeroBias/AOD/PromptReco-v4/000/368/454/00000/3581759b-c29a-4422-ac31-7a14c172846f.root",
-        ]
-    )
-    
-#SETUP INPUT
+    inputFiles = cms.untracked.vstring('/store/data/Run2023C/ZeroBias/AOD/PromptReco-v4/000/368/454/00000/3581759b-c29a-4422-ac31-7a14c172846f.root')
 print('Input files:\n',inputFiles, sep='')
+
+#SETUP INPUT
 process.source = cms.Source("PoolSource",
     fileNames = inputFiles,
     # Drop everything from the prompt alcareco besides the digis at input

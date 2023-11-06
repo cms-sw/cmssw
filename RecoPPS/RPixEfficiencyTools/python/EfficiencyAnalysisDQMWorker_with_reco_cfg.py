@@ -25,6 +25,18 @@ process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring('Type Mismatch') # not crashing on this exception type
     )
 options = VarParsing.VarParsing('analysis')
+
+options.register('alignmentXMLName',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "Alignment XML file name")
+options.register('alignmentDBName',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "Alignmend DB file name")
+
 options.register('outputFileName',
                 'outputEfficiencyAnalysisDQMWorker.root',
                 VarParsing.VarParsing.multiplicity.singleton,
@@ -45,11 +57,6 @@ options.register('bunchSelection',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "bunches to be analyzed")
-options.register('useJsonFile',
-                '',
-                VarParsing.VarParsing.multiplicity.singleton,
-                VarParsing.VarParsing.varType.bool,
-                "Do not use JSON file")
 options.register('jsonFileName',
                 '',
                 VarParsing.VarParsing.multiplicity.singleton,
@@ -170,19 +177,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
 )
 
-
 #CONFIGURE PROCESS
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-
-if options.useJsonFile == True:
-    print("Using JSON file...")
-    import FWCore.PythonUtilities.LumiList as LumiList
-    if options.jsonFileName == '':
-        jsonFileName = 'test/JSONFiles/Run'+str(options.runNumber)+'.json'
-    else:
-        jsonFileName = options.jsonFileName
-    print(jsonFileName)
-    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
 #SETUP GLOBAL TAG
 if options.globalTag != '':
@@ -193,16 +189,51 @@ else:
 print('Using GT:',gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
-
 #SETUP INPUT
 process.source = cms.Source("PoolSource",
     fileNames = inputFiles, 
     inputCommands = cms.untracked.vstring(
         'keep *',
         'drop *_*_*_RECO',
-        'keep *_*Digi*_*_RECO'
+        'keep *_*Digi*_*_RECO',
+        'keep *_hltGtStage2Digis_*_*',
+        'keep *_gtStage2Digis_*_*',
     )
 )
+
+if options.jsonFileName:
+    print("Using JSON file...")
+    import FWCore.PythonUtilities.LumiList as LumiList
+    if options.jsonFileName == '':
+        jsonFileName = 'test/JSONFiles/Run'+str(options.runNumber)+'.json'
+    else:
+        jsonFileName = options.jsonFileName
+    print(jsonFileName)
+    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
+
+# Handle alignment inputs
+if options.alignmentXMLName and options.alignmentDBName:
+    print('ERROR: Both alignment XML and DB files specified. Please specify only one.')
+    sys.exit(1)
+
+if options.alignmentXMLName:
+    # Load alignments from XML  
+    print('Loading alignment from XML file:', options.alignmentXMLName)
+    process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
+    process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring(options.alignmentXMLName)
+    process.esPreferLocalAlignment = cms.ESPrefer("CTPPSRPAlignmentCorrectionsDataESSourceXML", "ctppsRPAlignmentCorrectionsDataESSourceXML")
+elif options.alignmentDBName:
+    # Load alignments from DB file
+    print('Loading alignment from DB file:', options.alignmentDBName)
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string("CTPPSRPAlignmentCorrectionsDataRcd"),
+            tag = cms.string("CTPPSRPAlignment_real"),
+            connect = cms.string("sqlite_file:"+options.alignmentDBName)
+        )
+    )
+else: 
+    print('Using alignment from GT.')
 
 #SETUP TRACK AND PROTON TAGS TO RUN ON ALCARECO
 trackTag = ('ctppsPixelLocalTracksAlCaRecoProducer','','EfficiencyAnalysisDQMWorker')
@@ -240,7 +271,7 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     maxTracksInTagPot=cms.untracked.int32(options.maxTracksInTagPot),    
     minTracksInTagPot=cms.untracked.int32(options.minTracksInTagPot),  
     recoInfo=cms.untracked.int32(options.recoInfo),
-    debug=cms.untracked.bool(False),
+    debug=cms.untracked.bool(True),
     # Configs for prescale provider
     processName = cms.string("HLT"),
     triggerPattern = cms.string("HLT_PPSMaxTracksPerRP4_v*"),
@@ -280,7 +311,7 @@ process.filterL1ZeroBias = triggerResultsFilter.clone(
 
 #SCHEDULE JOB
 process.path = cms.Path(
-    process.filterL1ZeroBias *
+    # process.filterL1ZeroBias *
     process.recoPPSSequenceAlCaRecoProducer *
     process.worker
 )
