@@ -102,6 +102,9 @@ namespace edm {
     preSourceSignal_.connect(std::cref(iOther.preSourceSignal_));
     postSourceSignal_.connect(std::cref(iOther.postSourceSignal_));
 
+    preSourceNextTransitionSignal_.connect(std::cref(iOther.preSourceNextTransitionSignal_));
+    postSourceNextTransitionSignal_.connect(std::cref(iOther.postSourceNextTransitionSignal_));
+
     preSourceLumiSignal_.connect(std::cref(iOther.preSourceLumiSignal_));
     postSourceLumiSignal_.connect(std::cref(iOther.postSourceLumiSignal_));
 
@@ -182,6 +185,9 @@ namespace edm {
 
     preEventSignal_.connect(std::cref(iOther.preEventSignal_));
     postEventSignal_.connect(std::cref(iOther.postEventSignal_));
+
+    preClearEventSignal_.connect(std::cref(iOther.preClearEventSignal_));
+    postClearEventSignal_.connect(std::cref(iOther.postClearEventSignal_));
 
     prePathEventSignal_.connect(std::cref(iOther.prePathEventSignal_));
     postPathEventSignal_.connect(std::cref(iOther.postPathEventSignal_));
@@ -343,6 +349,9 @@ namespace edm {
     copySlotsToFrom(preSourceSignal_, iOther.preSourceSignal_);
     copySlotsToFromReverse(postSourceSignal_, iOther.postSourceSignal_);
 
+    copySlotsToFrom(preSourceNextTransitionSignal_, iOther.preSourceNextTransitionSignal_);
+    copySlotsToFromReverse(postSourceNextTransitionSignal_, iOther.postSourceNextTransitionSignal_);
+
     copySlotsToFrom(preSourceLumiSignal_, iOther.preSourceLumiSignal_);
     copySlotsToFromReverse(postSourceLumiSignal_, iOther.postSourceLumiSignal_);
 
@@ -408,6 +417,9 @@ namespace edm {
 
     copySlotsToFrom(preEventSignal_, iOther.preEventSignal_);
     copySlotsToFromReverse(postEventSignal_, iOther.postEventSignal_);
+
+    copySlotsToFrom(preClearEventSignal_, iOther.preClearEventSignal_);
+    copySlotsToFromReverse(postClearEventSignal_, iOther.postClearEventSignal_);
 
     copySlotsToFrom(prePathEventSignal_, iOther.prePathEventSignal_);
     copySlotsToFromReverse(postPathEventSignal_, iOther.postPathEventSignal_);

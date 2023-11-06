@@ -189,6 +189,22 @@ namespace edm {
     void watchJobFailure(JobFailure::slot_type const& iSlot) { jobFailureSignal_.connect_front(iSlot); }
     AR_WATCH_USING_METHOD_0(watchJobFailure)
 
+    /// signal is emitted before the source is requested to find the next transition
+    typedef signalslot::Signal<void()> PreSourceNextTransition;
+    PreSourceNextTransition preSourceNextTransitionSignal_;
+    void watchPreSourceNextTransition(PreSourceNextTransition::slot_type const& iSlot) {
+      preSourceNextTransitionSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_0(watchPreSourceNextTransition)
+
+    /// signal is emitted after the source has returned the next transition
+    typedef signalslot::Signal<void()> PostSourceNextTransition;
+    PostSourceNextTransition postSourceNextTransitionSignal_;
+    void watchPostSourceNextTransition(PostSourceNextTransition::slot_type const& iSlot) {
+      postSourceNextTransitionSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_0(watchPostSourceNextTransition)
+
     /// signal is emitted before the source starts creating an Event
     typedef signalslot::Signal<void(StreamID)> PreSourceEvent;
     PreSourceEvent preSourceSignal_;
@@ -501,6 +517,18 @@ namespace edm {
     PostEvent postEventSignal_;
     void watchPostEvent(PostEvent::slot_type const& iSlot) { postEventSignal_.connect_front(iSlot); }
     AR_WATCH_USING_METHOD_1(watchPostEvent)
+
+    typedef signalslot::Signal<void(StreamContext const&)> PreClearEvent;
+    /// signal is emitted before the data products in the Event are cleared
+    PreClearEvent preClearEventSignal_;
+    void watchPreClearEvent(PreClearEvent::slot_type const& iSlot) { preClearEventSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPreClearEvent)
+
+    typedef signalslot::Signal<void(StreamContext const&)> PostClearEvent;
+    /// signal is emitted after all data products in the Event have been cleared
+    PostClearEvent postClearEventSignal_;
+    void watchPostClearEvent(PostClearEvent::slot_type const& iSlot) { postClearEventSignal_.connect_front(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPostClearEvent)
 
     /// signal is emitted before starting to process a Path for an event
     typedef signalslot::Signal<void(StreamContext const&, PathContext const&)> PrePathEvent;
