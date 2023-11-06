@@ -56,6 +56,60 @@ struct VectorAddKernel3D {
   }
 };
 
+/* This is not an efficient approach; it is only a test of using dynamic shared memory,
+ * split block and element loops, and block-level synchronisation
+ */
+
+struct VectorAddBlockKernel {
+  template <typename TAcc, typename T>
+  ALPAKA_FN_ACC void operator()(
+      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
+    // block size
+    auto const blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
+    // get the dynamic shared memory buffer
+    T* buffer = alpaka::getDynSharedMem<T>(acc);
+    // the outer loop is needed to repeat the "block" as many times as needed to cover the whole problem space
+    // the inner loop is needed for backends that use more than one element per thread
+    for (auto block : cms::alpakatools::blocks_with_stride(acc, size)) {
+      // read the first set of data into shared memory
+      for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
+        buffer[index.local] = in1[index.global];
+      }
+      // synchronise all threads in the block
+      alpaka::syncBlockThreads(acc);
+      // add the second set of data into shared memory
+      for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
+        buffer[index.local] += in2[index.global];
+      }
+      // synchronise all threads in the block
+      alpaka::syncBlockThreads(acc);
+      // store the results into global memory
+      for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
+        out[index.global] = buffer[index.local];
+      }
+    }
+  }
+};
+
+namespace alpaka::trait {
+  // specialize the BlockSharedMemDynSizeBytes trait to specify the amount of
+  // block shared dynamic memory for the VectorAddBlockKernel kernel
+  template <typename TAcc>
+  struct BlockSharedMemDynSizeBytes<VectorAddBlockKernel, TAcc> {
+    // the size in bytes of the shared memory allocated for a block
+    template <typename T>
+    ALPAKA_FN_HOST_ACC static std::size_t getBlockSharedMemDynSizeBytes(VectorAddBlockKernel const& /* kernel */,
+                                                                        Vec1D threads,
+                                                                        Vec1D elements,
+                                                                        T const* __restrict__ /* in1 */,
+                                                                        T const* __restrict__ /* in2 */,
+                                                                        T* __restrict__ /* out */,
+                                                                        size_t size) {
+      return static_cast<std::size_t>(threads[0] * elements[0] * sizeof(T));
+    }
+  };
+}  // namespace alpaka::trait
+
 // test the 1-dimensional kernel on all devices
 template <typename TKernel>
 void testVectorAddKernel(std::size_t problem_size, std::size_t grid_size, std::size_t block_size, TKernel kernel) {
@@ -232,5 +286,15 @@ TEST_CASE("Test alpaka kernels for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESP
     // this relies on the kernel to check the size of the "problem space" and avoid accessing out-of-bounds data
     std::cout << "Test 3D vector addition with large block size\n";
     testVectorAddKernelND<Dim3D>({5, 5, 5}, {1, 1, 1}, {8, 8, 8}, VectorAddKernel3D{});
+
+    // launch the 1-dimensional kernel with a small block size and a small number of blocks;
+    // this relies on the kernel to loop over the "problem space" and do more work per block
+    std::cout << "Test 1D vector block-level addition with small block size, using scalar dimensions\n";
+    testVectorAddKernel(10000, 32, 32, VectorAddBlockKernel{});
+
+    // launch the 1-dimensional kernel with a large block size and a single block;
+    // this relies on the kernel to check the size of the "problem space" and avoid accessing out-of-bounds data
+    std::cout << "Test 1D vector block-level addition with large block size, using scalar dimensions\n";
+    testVectorAddKernel(100, 1, 1024, VectorAddBlockKernel{});
   }
 }
