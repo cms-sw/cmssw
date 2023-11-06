@@ -115,12 +115,14 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.pfAbsIso03_neu = Var("pfIsolationR03().sumNeutralHadronEt",float,doc="PF absolute isolation dR=0.3, neutral component")
     proc.muonTable.variables.pfAbsIso03_pho = Var("pfIsolationR03().sumPhotonEt",float,doc="PF absolute isolation dR=0.3, photon component")
     proc.muonTable.variables.pfAbsIso03_sumPU = Var("pfIsolationR03().sumPUPt",float,doc="PF absolute isolation dR=0.3, pu component (no deltaBeta corrections)")
+    proc.muonTable.variables.absTrkiso03 = Var("userFloat('absTrkiso03')",float,doc="Realtive Tracker Iso with cone size 0.3")
     
     # Spark Tool Iso 04 variables
     proc.muonTable.variables.pfAbsIso04_chg = Var("pfIsolationR04().sumChargedHadronPt",float,doc="PF absolute isolation dR=0.4, charged component")
     proc.muonTable.variables.pfAbsIso04_neu = Var("pfIsolationR04().sumNeutralHadronEt",float,doc="PF absolute isolation dR=0.4, neutral component")
     proc.muonTable.variables.pfAbsIso04_pho = Var("pfIsolationR04().sumPhotonEt",float,doc="PF absolute isolation dR=0.4, photon component")
     proc.muonTable.variables.pfAbsIso04_sumPU = Var("pfIsolationR04().sumPUPt",float,doc="PF absolute isolation dR=0.4, pu component (no deltaBeta corrections)")
+    proc.muonTable.variables.absTrkiso04 = Var("userFloat('absTrkiso04')",float,doc="Realtive Tracker Iso with cone size 0.4")
 
     #Mini PF Isolation
     proc.muonTable.variables.miniPFAbsIso_chg = Var("userFloat('miniIsoChg')",float,doc="mini PF absolute isolation, charged component")
@@ -134,19 +136,17 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.pfAbsIso03_all = Var("(pfIsolationR03().sumChargedHadronPt + max(pfIsolationR03().sumNeutralHadronEt + pfIsolationR03().sumPhotonEt - pfIsolationR03().sumPUPt/2,0.0))",float,doc="PF absolute isolation dR=0.3, total (deltaBeta corrections)")
     proc.muonTable.variables.pfAbsIso04_all = Var("(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))",float,doc="PF absolute isolation dR=0.4, total (deltaBeta corrections)")
     proc.muonTable.variables.jetAbsIso = Var("?userCand('jetForLepJetVar').isNonnull()?(1./userFloat('ptRatio'))-1.:(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))",float,doc="Absolute isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)",precision=8)
-    proc.muonTable.variables.relTrkiso4 = Var("userFloat('relTrkiso4')",float,doc="Realtive Tracker Iso with cone size 0.4")
 
     # Muon Quality Variables
     proc.muonTable.variables.expectedMatchedStations = Var("expectedNnumberOfMatchedStations()",int,doc="Expected Number of Matched stations")
     proc.muonTable.variables.RPCLayers = Var("numberOfMatchedRPCLayers()",int,doc="Number of RPC Layers")
     proc.muonTable.variables.stationMask = Var("stationMask()","uint8",doc="Number of masked station")
     proc.muonTable.variables.nShowers = Var("numberOfShowers()",int,doc="Number of Showers")
-    proc.muonTable.variables.muonHits = Var("? globalTrack().isNonnull() ? globalTrack().hitPattern().numberOfValidMuonHits() : ?  innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().hitPattern().numberOfValidMuonHits() :-99",float,doc="Number of valid Muon Hits from either globalTrack or innerTrack")
-    ## For completeness I save here also the muonHits for the outer tracker also
-    proc.muonTable.variables.outerTrackMuonHits = Var("? outerTrack().isNonnull() ? outerTrack().hitPattern().numberOfValidMuonHits() : -99", float, doc = "Number of valid Muon Hits from OuterTrack")
     ##
+   
+
+    # Hits related variables 
     proc.muonTable.variables.pixelLayers = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().hitPattern().pixelLayersWithMeasurement() : -99", float,doc="Number of Pixel Layers") # No of tracker layers are already saved in the standard NanoAODs
-    proc.muonTable.variables.validFraction = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().validFraction() : -99", float, doc="Inner Track Valid Fraction")
     proc.muonTable.variables.pixelHits = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().hitPattern().numberOfValidPixelHits() : -99", float, doc="Numbr of valid pixel hits")
     proc.muonTable.variables.muonStations = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().hitPattern().muonStationsWithValidHits() : -99", float, doc="No of valid hits in muon stations")
     proc.muonTable.variables.DTHits = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().hitPattern().numberOfValidMuonDTHits() : -99", float, doc="No of valid hits in DT")
@@ -161,24 +161,80 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.trkChi2_innerTrack = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().normalizedChi2() : -99",float,doc="Normalized Chi Square from outerTrack ")
    
 
-    #pt, ptErr, eta, phi, charge for different tracks
-    ## ptErr in standard NanoAOD are saved from bestTrack()
-    ## For Spark tool it is needed from innerTrack. For completeness outerTrack
-    ## variables are also saved
+    #Inner Track related variables
     proc.muonTable.variables.innerTrack_ptErr = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().ptError()/innerTrack().pt() : -99", float, doc="InnerTrack Pt Error")
+    proc.muonTable.variables.innerTrack_pt = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().pt(): -99", float, doc="InnerTrack Pt")
+    proc.muonTable.variables.innerTrack_eta = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().eta(): -99", float, doc="InnerrTrack Eta")
+    proc.muonTable.variables.innerTrack_phi = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().phi(): -99", float, doc="InnerTrack Phi")
+    proc.muonTable.variables.innerTrack_charge = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().charge(): -99", float, doc="InnerTrack charge")
+    proc.muonTable.variables.innerTrackMuonHits = Var("? innerTrack().isNonnull() ? innerTrack().hitPattern().numberOfValidMuonHits() : -99", float, doc = "Number of valid Muon Hits from InnerTrack")
+    proc.muonTable.variables.innerTrack_validFraction = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().validFraction() : -99", float, doc="Inner Track Valid Fraction")
+    ## Pixellayers and PixelHits are already defined in the section related to the hits
+    ## Chi2 is already defined in the Chi2 related section
+    
+    #Dxy Dz variables as of Spark tool
+    proc.muonTable.variables.innerTrackDxy = Var("? userInt('isGoodVertex') ? userFloat('innerTrackDxy') : -99.9",float,doc = "dxy from Primary Vertex calculated with Inner Track")
+    proc.muonTable.variables.innerTrackDz = Var("? userInt('isGoodVertex') ? userFloat('innerTrackDz') : -99.9",float,doc= "dz from Primary Vertex calculated with Inner Track")
+
+
+    # Outer Track related variables
     proc.muonTable.variables.outerTrack_ptErr = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().ptError()/outerTrack().pt() : -99", float, doc="OuterTrack Pt Error")
     proc.muonTable.variables.outerTrack_pt = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().pt(): -99", float, doc="OuterTrack Pt")
     proc.muonTable.variables.outerTrack_eta = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().eta(): -99", float, doc="OuterTrack Eta")
     proc.muonTable.variables.outerTrack_phi = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().phi(): -99", float, doc="OuterTrack Phi")
     proc.muonTable.variables.outerTrack_charge = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().charge(): -99", float, doc="OuterTrack charge")
-    proc.muonTable.variables.innerTrack_charge = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().charge(): -99", float, doc="OuterTrack charge")
+    proc.muonTable.variables.outerTrackMuonHits = Var("? outerTrack().isNonnull() ? outerTrack().hitPattern().numberOfValidMuonHits() : -99", float, doc = "Number of valid Muon Hits from OuterTrack")
+    ## Muonstations, DTHits and CSCHits are already defined in the Hits related section
+    ## Chi2 is already defined in the Chi2 related section
 
+    #Global track realted variables
+    proc.muonTable.variables.muonHits = Var("? globalTrack().isNonnull() ? globalTrack().hitPattern().numberOfValidMuonHits() : ?  innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().hitPattern().numberOfValidMuonHits() :-99",float,doc="Number of valid Muon Hits from either globalTrack or innerTrack")
+    proc.muonTable.variables.globalTrack_ptErr = Var("? globalTrack().isNonnull() ? globalTrack().ptError()/globalTrack().pt() : -99", float, doc="GlobalTrack Pt Error")
+    proc.muonTable.variables.globalTrack_pt = Var("? globalTrack().isNonnull() ? globalTrack().pt(): -99", float, doc="GlobalTrack Pt")
+    proc.muonTable.variables.globalTrack_eta = Var("? globalTrack().isNonnull() ? globalTrack().eta(): -99", float, doc="GlobalTrack Eta")
+    proc.muonTable.variables.globalTrack_phi = Var("? globalTrack().isNonnull() ? globalTrack().phi(): -99", float, doc="GlobalTrack Phi")
+    proc.muonTable.variables.globalTrack_charge = Var("? globalTrack().isNonnull() ? globalTrack().charge(): -99", float, doc="GlobalTrack charge")
+
+    #muonBestTrack related varaibles
+    ## tightCharge from muonBestTrack is already saved in deafult nanoAOD
+    proc.muonTable.variables.best_pt = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().pt(): -99", float, doc="MuonBestTrack Pt")
+    proc.muonTable.variables.best_pterr = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().ptError() : -99", float, doc = "pTerr from MuonBestTrack")
+    proc.muonTable.variables.best_eta = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().eta(): -99", float, doc="MuonBestrack Eta")
+    proc.muonTable.variables.best_phi = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().phi(): -99", float, doc="MuonBestTrack Phi")
+    proc.muonTable.variables.best_charge = Var("? muonBestTrack().isNonnull() && muonBestTrack().isAvailable() ? muonBestTrack().charge(): -99", float, doc="MuonBestTrack charge")
 
     # TuneP related variables
-    proc.muonTable.variables.tuneP_pt = Var("? tunePMuonBestTrack().isNonnull() ? tunePMuonBestTrack().pt() : -99", float, doc = "pT from tunePMuonBestTrack")
-    proc.muonTable.variables.tuneP_pterr = Var("? tunePMuonBestTrack().isNonnull() ? tunePMuonBestTrack().ptError() : -99", float, doc = "pTerr from tunePMuonBestTrack")
-    proc.muonTable.variables.tuneP_muonHits = Var("? tunePMuonBestTrack().isNonnull() ? tunePMuonBestTrack().hitPattern().numberOfValidMuonHits() : -99", int, doc="No of valid muon hists from tunePMuonBestTrack")
-   
+    proc.muonTable.variables.tuneP_pt = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().pt() : -99", float, doc = "pT from tunePMuonBestTrack")
+    proc.muonTable.variables.tuneP_pterr = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().ptError() : -99", float, doc = "pTerr from tunePMuonBestTrack")
+    proc.muonTable.variables.tuneP_eta = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().eta(): -99", float, doc="tunePMuonBestTrack Eta")
+    proc.muonTable.variables.tuneP_phi = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().phi(): -99", float, doc="tunePMuonBestTrack Phi")
+    proc.muonTable.variables.tuneP_charge = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().charge(): -99", float, doc="tunePMuonBestTrack() charge")
+    proc.muonTable.variables.tuneP_muonHits = Var("? tunePMuonBestTrack().isNonnull() && tunePMuonBestTrack().isAvailable() ? tunePMuonBestTrack().hitPattern().numberOfValidMuonHits() : -99", int, doc="No of valid muon hists from tunePMuonBestTrack")
+
+    # tpfms Track
+    proc.muonTable.variables.tpfms_pt = Var("? tpfmsTrack().isNonnull() && tpfmsTrack().isAvailable() ? tpfmsTrack().pt() : -99", float, doc = "pT from tpfmsTrack")
+    proc.muonTable.variables.tpfms_pterr = Var("? tpfmsTrack().isNonnull() && tpfmsTrack().isAvailable() ? tpfmsTrack().ptError() : -99", float, doc = "pTerr from tpfmsTrack")
+    proc.muonTable.variables.tpfms_eta = Var("? tpfmsTrack().isNonnull() && tpfmsTrack().isAvailable() ? tpfmsTrack().eta(): -99", float, doc="tpfmsTrack Eta")
+    proc.muonTable.variables.tpfms_phi = Var("? tpfmsTrack().isNonnull() && tpfmsTrack().isAvailable() ? tpfmsTrack().phi(): -99", float, doc="tpfmsTrack Phi")
+    proc.muonTable.variables.tpfms_charge = Var("? tpfmsTrack().isNonnull() && tpfmsTrack().isAvailable() ? tpfmsTrack().charge(): -99", float, doc="tpfmsTrack charge")
+    proc.muonTable.variables.tpfms_muonHits = Var("? tpfmsTrack().isNonnull() && tpfmsTrack().isAvailable() ? tpfmsTrack().hitPattern().numberOfValidMuonHits() : -99", int, doc="No of valid muon hists from tpfmsTrack")
+
+
+    #picky Track
+    proc.muonTable.variables.picky_pt = Var("? pickyTrack().isNonnull() && pickyTrack().isAvailable() ? pickyTrack().pt() : -99", float, doc = "pT from pickyTrack")
+    proc.muonTable.variables.picky_pterr = Var("? pickyTrack().isNonnull() && pickyTrack().isAvailable() ? pickyTrack().ptError() : -99", float, doc = "pTerr from pickyTrack")
+    proc.muonTable.variables.picky_eta = Var("? pickyTrack().isNonnull() && pickyTrack().isAvailable() ? pickyTrack().eta(): -99", float, doc="pickyTrack Eta")
+    proc.muonTable.variables.picky_phi = Var("? pickyTrack().isNonnull() && pickyTrack().isAvailable() ? pickyTrack().phi(): -99", float, doc="pickyTrack Phi")
+    proc.muonTable.variables.picky_charge = Var("? pickyTrack().isNonnull() && pickyTrack().isAvailable() ? pickyTrack().charge(): -99", float, doc="pickyTrack charge")
+    proc.muonTable.variables.picky_muonHits = Var("? pickyTrack().isNonnull() && pickyTrack().isAvailable() ? pickyTrack().hitPattern().numberOfValidMuonHits() : -99", int, doc="No of valid muon hists from pickyTrack")
+    
+    #dyt Track
+    proc.muonTable.variables.dyt_pt = Var("? dytTrack().isNonnull() && dytTrack().isAvailable() ? dytTrack().pt() : -99", float, doc = "pT from dytTrack")
+    proc.muonTable.variables.dyt_pterr = Var("? dytTrack().isNonnull() && dytTrack().isAvailable() ? dytTrack().ptError() : -99", float, doc = "pTerr from dytTrack")
+    proc.muonTable.variables.dyt_eta = Var("? dytTrack().isNonnull() && dytTrack().isAvailable() ? dytTrack().eta(): -99", float, doc="dytTrack Eta")
+    proc.muonTable.variables.dyt_phi = Var("? dytTrack().isNonnull() && dytTrack().isAvailable() ? dytTrack().phi(): -99", float, doc="dytTrack Phi")
+    proc.muonTable.variables.dyt_charge = Var("? dytTrack().isNonnull() && dytTrack().isAvailable() ? dytTrack().charge(): -99", float, doc="dytTrack charge")
+    proc.muonTable.variables.dyt_muonHits = Var("? dytTrack().isNonnull() && dytTrack().isAvailable() ? dytTrack().hitPattern().numberOfValidMuonHits() : -99", int, doc="No of valid muon hists from dytTrack")  
 
     #CombinedQuality Variables
     proc.muonTable.variables.positionChi2 = Var("combinedQuality().chi2LocalPosition", float, doc="chi2 Local Position")
@@ -203,9 +259,6 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.jetDF = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probbb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:probb')+userCand('jetForLepJetVar').bDiscriminator('pfDeepFlavourJetTags:problepb'),0.0):0.0",float,doc="b-tagging discriminator of the jet matched to the lepton, for muon MVA")
     proc.muonTable.variables.jetCSVv2 = Var("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedSecondaryVertexV2BJetTags'),0.0):0.0",float,doc="CSVv2 b-tagging discriminator of the jet matched to the lepton, for muon MVA")
     
-    #Dxy Dz variables as of Spark tool
-    proc.muonTable.variables.innerTrackDxy = Var("? userInt('isGoodVertex') ? userFloat('innerTrackDxy') : -99.9",float,doc = "dxy from Primary Vertex calculated with Inner Track")
-    proc.muonTable.variables.innerTrackDz = Var("? userInt('isGoodVertex') ? userFloat('innerTrackDz') : -99.9",float,doc= "dz from Primary Vertex calculated with Inner Track")
 
     #nSegments
     proc.muonTable.variables.nsegments = Var("userInt('nsegments')", int, doc = "nsegments as of Spark-tool")
@@ -223,7 +276,9 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.simPt = Var("? simPt() ? simPt(): -99",float,doc="simPt")
     proc.muonTable.variables.simEta = Var("? simEta() ? simEta(): -99",float,doc="simEta")
     proc.muonTable.variables.simPhi = Var("? simPhi() ? simPhi(): -99",float,doc='simPhi')
-    
+   
+    #ID Variables
+    proc.muonTable.variables.isRPC = Var("isRPCMuon",bool,doc="muon is RPC muon") 
     
     return proc
 
