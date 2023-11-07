@@ -81,8 +81,6 @@ void BeamProfileHLLHC2DBWriter::endJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BeamProfileHLLHC2DBWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("recordName", "SimBeamSpotHLLHCObjectsRcd")
       ->setComment("name of the record to use for the PoolDBOutputService");
