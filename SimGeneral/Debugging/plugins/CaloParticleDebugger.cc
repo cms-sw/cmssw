@@ -125,7 +125,7 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
 
   edm::Handle<std::vector<SimTrack>> simTracksH;
   edm::Handle<std::vector<reco::GenParticle>> genParticlesH;
-  edm::Handle<std::vector<int> > genBarcodesH;
+  edm::Handle<std::vector<int>> genBarcodesH;
   edm::Handle<std::vector<SimVertex>> simVerticesH;
   edm::Handle<std::vector<TrackingParticle>> trackingParticlesH;
   edm::Handle<std::vector<CaloParticle>> caloParticlesH;
@@ -156,22 +156,21 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
   std::map<int, float> detIdToTotalSimEnergy;
   fillSimHits(detIdToTotalSimEnergy, iEvent, iSetup);
 
-
   std::map<int, int> trackid_to_track_index;
   LogVerbatim("CaloParticleDebuggerSimTracks") << "\n\n**Printing SimTracks information **";
   LogVerbatim("CaloParticleDebuggerSimTracks") << "IDX\tTrackId\tPDGID\tMOMENTUM(x,y,z,E)\tVertexIdx\tGenPartIdx";
-  for (size_t i=0; i < tracks.size(); ++i) {
+  for (size_t i = 0; i < tracks.size(); ++i) {
     auto const& t = tracks[i];
-    LogVerbatim("CaloParticleDebuggerSimTracks") << i << "\t" << t.trackId() << "\t" << t
-        << "  Crossed  Boundary: " << t.crossedBoundary() << "  Position Boundary: " << t.getPositionAtBoundary()
-        << "  Momentum Boundary: " << t.getMomentumAtBoundary() << "  Vtx:               " << t.vertIndex()
-        << "  Momemtum Origin:   " << t.momentum();
+    LogVerbatim("CaloParticleDebuggerSimTracks")
+        << i << "\t" << t.trackId() << "\t" << t << "  Crossed  Boundary: " << t.crossedBoundary()
+        << "  Position Boundary: " << t.getPositionAtBoundary() << "  Momentum Boundary: " << t.getMomentumAtBoundary()
+        << "  Vtx:               " << t.vertIndex() << "  Momemtum Origin:   " << t.momentum();
     trackid_to_track_index[t.trackId()] = i;
   }
 
   LogVerbatim("CaloParticleDebuggerGenParticles") << "\n\n**Printing GenParticles information **";
   LogVerbatim("CaloParticleDebuggerGenParticles") << "BARCODE\tPDGID\tMOMENTUM(x,y,z)\tVertex(x,y,z)";
-  for (size_t i=0; i < genParticles.size(); ++i) {
+  for (size_t i = 0; i < genParticles.size(); ++i) {
     auto const& gp = genParticles[i];
     LogVerbatim("CaloParticleDebuggerGenParticles")
         << genBarcodes[i] << "\t" << gp.pdgId() << "\t" << gp.momentum() << "\t" << gp.vertex();
@@ -179,31 +178,30 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
 
   LogVerbatim("CaloParticleDebuggerSimVertices") << "\n\n**Printing SimVertex information **";
   LogVerbatim("CaloParticleDebuggerSimVertices") << "IDX\tPOSITION(x,y,z)\tPARENT_INDEX\tVERTEX_ID";
-  for (size_t i=0; i < vertices.size(); ++i) {
+  for (size_t i = 0; i < vertices.size(); ++i) {
     auto const& v = vertices[i];
     LogVerbatim("CaloParticleDebuggerSimVertices") << i << "\t" << v;
   }
 
   LogVerbatim("CaloParticleDebuggerTrackingParticles") << "\n\n**Printing TrackingParticles information **";
-  for (size_t i=0; i < trackingpart.size(); ++i) {
+  for (size_t i = 0; i < trackingpart.size(); ++i) {
     auto const& tp = trackingpart[i];
     LogVerbatim("CaloParticleDebuggerTrackingParticles") << i << "\t" << tp;
   }
 
   LogVerbatim("CaloParticleDebuggerCaloParticles") << "\n\n**Printing CaloParticles information **";
-  for (size_t i=0; i < calopart.size(); ++i) {
+  for (size_t i = 0; i < calopart.size(); ++i) {
     auto const& cp = calopart[i];
-    LogVerbatim("CaloParticleDebuggerCaloParticles")
-        << "\n\n"
-        << i << "\tType: " << cp.pdgId()
-        << "\tEnergy: " << cp.energy() << "\tBarcode: " << cp.g4Tracks()[0].genpartIndex()
-        << " G4_trackID: " << cp.g4Tracks()[0].trackId();  // << cp ;
+    LogVerbatim("CaloParticleDebuggerCaloParticles") << "\n\n"
+                                                     << i << "\tType: " << cp.pdgId() << "\tEnergy: " << cp.energy()
+                                                     << "\tBarcode: " << cp.g4Tracks()[0].genpartIndex()
+                                                     << " G4_trackID: " << cp.g4Tracks()[0].trackId();  // << cp ;
     double total_sim_energy = 0.;
     double total_cp_energy = 0.;
     LogVerbatim("CaloParticleDebuggerCaloParticles") << "--> Overall simclusters in CP: " << cp.simClusters().size();
     // All the next mess just to print the simClusters ordered
     auto const& simcs = cp.simClusters();
-    for (size_t j=0; j < simcs.size(); ++j) {
+    for (size_t j = 0; j < simcs.size(); ++j) {
       LogVerbatim("CaloParticleDebuggerCaloParticles") << *(simcs[j]);
     }
 
@@ -220,12 +218,11 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   LogVerbatim("CaloParticleDebuggerSimClusters") << "\n\n**Printing SimClusters information **";
-  for (size_t i=0; i < simclusters.size(); ++i) {
+  for (size_t i = 0; i < simclusters.size(); ++i) {
     auto const& simcl = simclusters[i];
     LogVerbatim("CaloParticleDebuggerSimClusters")
         << "\n\n"
-        << i << "\tType: " << simcl.pdgId()
-        << "\tEnergy: " << simcl.energy() << "\tKey: " << i;  // << simcl ;
+        << i << "\tType: " << simcl.pdgId() << "\tEnergy: " << simcl.energy() << "\tKey: " << i;  // << simcl ;
     auto const& simtrack = simcl.g4Tracks()[0];
     LogVerbatim("CaloParticleDebuggerSimClusters") << "  Crossed  Boundary: " << simtrack.crossedBoundary()
                                                    << "  Position Boundary: " << simtrack.getPositionAtBoundary()
