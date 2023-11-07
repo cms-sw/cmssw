@@ -151,7 +151,6 @@ public:
   static std::pair<bool, int> convertTypeCode(std::string_view typecode) {
     if (typecode.size() < 5)
       throw cms::Exception("InvalidHGCALTypeCode") << typecode << " is invalid for decoding readout cell type";
-
     bool isSiPM = {typecode.find("TM") != std::string::npos ? true : false};
     int celltype;
     if (isSiPM) {

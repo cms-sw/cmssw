@@ -72,6 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int i2 = pmap.getIntAttr("v", row);
           uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, captureblockidx, econdidx, 0, 0).raw();
           uint32_t detid(0);
+
           if (!isSiPM) {
             int zp(zside > 0 ? 1 : -1);
             DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
@@ -90,7 +91,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           module.fedid() = fedid;
           module.slinkidx() = pmap.getIntAttr("slinkidx", row);
           module.captureblock() = pmap.getIntAttr("captureblock", row);
-          ;
           module.econdidx() = econdidx;
           module.captureblockidx() = captureblockidx;
           module.eleid() = eleid;
