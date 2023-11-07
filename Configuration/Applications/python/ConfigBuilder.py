@@ -1012,7 +1012,7 @@ class ConfigBuilder(object):
         self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
         self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
         self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
-        self.P2L1GTDefaultCFF = 'Configuration/StandardSequences/SimPhase2L1GlobalTriggerEmulator_cff'
+        self.L1P2GTDefaultCFF = 'Configuration/StandardSequences/SimPhase2L1GlobalTriggerEmulator_cff'
         self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
@@ -1051,7 +1051,7 @@ class ConfigBuilder(object):
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
         self.L1DefaultSeq=None
-        self.P2L1GTDefaultSeq=None
+        self.L1P2GTDefaultSeq=None
         self.L1REPACKDefaultSeq='GT'
         self.HARVESTINGDefaultSeq=None
         self.ALCAHARVESTDefaultSeq=None
@@ -1597,9 +1597,9 @@ class ConfigBuilder(object):
     
     # create the L1 GT step
     # We abuse the stepSpec a bit as a way to specify a menu
-    def prepare_P2L1GT(self, stepSpec=None):
+    def prepare_L1P2GT(self, stepSpec=None):
         """ Run the GT emulation sequence on top of the L1 emulation step """
-        self.loadAndRemember(self.P2L1GTDefaultCFF)
+        self.loadAndRemember(self.L1P2GTDefaultCFF)
         self.scheduleSequence('l1tGTProducerSequence', 'Phase2L1GTProducer')
         self.scheduleSequence('l1tGTAlgoBlockProducerSequence', 'Phase2L1GTAlgoBlockProducer')
         if stepSpec == None:
