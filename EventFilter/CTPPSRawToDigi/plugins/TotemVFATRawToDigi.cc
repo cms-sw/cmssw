@@ -170,22 +170,10 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
 
 template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
-  // get DAQ mapping
-  ESHandle<TotemDAQMapping> mapping = es.getHandle(totemMappingToken);
-  if (!mapping.isValid() || mapping.failedToGet()) {
-    throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi")
-        << "No DAQMapping found for " << subSystemName << "." << endl;
-  }
-
-  // get analysis mask to mask channels
+  // mapping and analysis mask
+  ESHandle<TotemDAQMapping> mapping;
+  ESHandle<TotemAnalysisMask> analysisMaskHandle;
   TotemAnalysisMask analysisMask;
-  ESHandle<TotemAnalysisMask> analysisMaskHandle = es.getHandle(analysisMaskToken);
-  if (analysisMaskHandle.isValid() && !analysisMaskHandle.failedToGet()) {
-    analysisMask = *analysisMaskHandle;
-  } else {
-    errSummary.add(fmt::format("No AnalysisMask found for {0}", subSystemName), "");
-    analysisMask = TotemAnalysisMask();
-  }
 
   // raw data handle
   edm::Handle<FEDRawDataCollection> rawData;
@@ -197,15 +185,37 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   DetSetVector<TotemVFATStatus> conversionStatus;
 
   // raw-data unpacking
+  bool data_exist = false;
   SimpleVFATFrameCollection vfatCollection;
   for (const auto &fedId : fedIds) {
     const FEDRawData &data = rawData->FEDData(fedId);
-    if (data.size() > 0)
+    if (data.size() > 0) {
       rawDataUnpacker.run(fedId, data, fedInfo, vfatCollection);
+      data_exist = true;
+    }
   }
 
-  // raw-to-digi conversion
-  rawToDigiConverter.run(vfatCollection, *mapping, analysisMask, digi, conversionStatus);
+  // get mapping records and do raw-to-digi conversion only if some data exists
+  if (data_exist) {
+    // get DAQ mapping
+    mapping = es.getHandle(totemMappingToken);
+    if (!mapping.isValid() || mapping.failedToGet()) {
+      throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi")
+          << "No DAQMapping found for " << subSystemName << "." << endl;
+    }
+
+    // get analysis mask to mask channels
+    analysisMaskHandle = es.getHandle(analysisMaskToken);
+    if (analysisMaskHandle.isValid() && !analysisMaskHandle.failedToGet()) {
+      analysisMask = *analysisMaskHandle;
+    } else {
+      errSummary.add(fmt::format("No AnalysisMask found for {0}", subSystemName), "");
+      analysisMask = TotemAnalysisMask();
+    }
+
+    // raw-to-digi conversion
+    rawToDigiConverter.run(vfatCollection, *mapping, analysisMask, digi, conversionStatus);
+  }
 
   // commit products to event
   event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystemName);
