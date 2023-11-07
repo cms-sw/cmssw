@@ -38,6 +38,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <vector>
 
@@ -46,6 +49,7 @@ public:
   ConvertedPhotonProducer(const edm::ParameterSet& ps);
 
   void beginRun(edm::Run const&, const edm::EventSetup& es) final;
+  void endRun(edm::Run const&, const edm::EventSetup& es) override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
@@ -74,6 +78,11 @@ private:
   edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> inOutTrackSCAssociationCollection_;
 
   edm::EDGetTokenT<reco::TrackCollection> generalTrackProducer_;
+
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
+  HcalPFCuts* paramPF;
 
   // Register the product
   edm::EDPutTokenT<reco::ConversionCollection> convertedPhotonCollectionPutToken_;
@@ -159,6 +168,12 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   // instantiate the Track Pair Finder algorithm
   likelihoodCalc_.setWeightsFile(edm::FileInPath{likelihoodWeights_.c_str()}.fullPath().c_str());
 
+  cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB){
+    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  }
+
   ElectronHcalHelper::Configuration cfgCone;
   cfgCone.hOverEConeSize = hOverEConeSize_;
   if (cfgCone.hOverEConeSize > 0) {
@@ -181,6 +196,19 @@ void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const&
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   transientTrackBuilder_ = &theEventSetup.getData(transientTrackToken_);
+
+  if (cutsFromDB) {
+    const HcalTopology& htopo = theEventSetup.getData(htopoToken_);
+    const HcalPFCuts& hcalCuts = theEventSetup.getData(hcalCutsToken_);
+
+    std::unique_ptr<HcalPFCuts> paramPF_;
+    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
+    paramPF_->setTopo(&htopo);
+    paramPF = paramPF_.release();
+  } else {  //Conditions from config file
+    paramPF = nullptr;
+  }
+
 }
 
 void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -341,7 +369,7 @@ void ConvertedPhotonProducer::buildCollections(
       continue;
     const reco::CaloCluster* pClus = &(*aClus);
     auto const* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
-    double HoE = hcalHelper.hcalESum(*sc, 0, hcalHelper.hcalCuts()) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, paramPF) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
     /////
@@ -636,3 +664,5 @@ void ConvertedPhotonProducer::getCircleCenter(const reco::TrackRef& tk, double r
   x0 = x1 + r * sin(phi) * charge;
   y0 = y1 - r * cos(phi) * charge;
 }
+
+void ConvertedPhotonProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }

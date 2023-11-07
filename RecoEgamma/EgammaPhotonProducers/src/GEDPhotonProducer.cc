@@ -291,6 +291,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
       hcalHelperCone_(nullptr),
       hcalHelperBc_(nullptr) {
 
+  //Retrieve HCAL PF thresholds - from config or from DB
   cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
   if (cutsFromDB){
     htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
