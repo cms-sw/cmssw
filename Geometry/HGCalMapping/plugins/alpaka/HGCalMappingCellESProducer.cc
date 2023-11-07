@@ -10,8 +10,8 @@
 
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
-#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -45,11 +45,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       //
-      std::optional<HGCalMappingCellParamHostCollection> produce(const HGCalElectronicsMappingRcd& iRecord) {
+      std::optional<HGCalMappingCellParamHost> produce(const HGCalElectronicsMappingRcd& iRecord) {
         //get cell indexer
         const HGCalMappingCellIndexer& cellIndexer = iRecord.get(cellIndexTkn_);
         const uint32_t size = cellIndexer.maxDenseIndex();  // channel-level size
-        HGCalMappingCellParamHostCollection cellParams(size, cms::alpakatools::host());
+        HGCalMappingCellParamHost cellParams(size, cms::alpakatools::host());
         for (uint32_t i = 0; i < size; i++)
           cellParams.view()[i].valid() = false;
 
@@ -114,7 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             cell.eleid() = HGCalElectronicsId(false, 0, 0, 0, chip * 2 + half, seq).raw();
             cell.detid() = detid;
           }  //end loop over entities
-        }    //end loop over cell types
+        }  //end loop over cell types
 
         return cellParams;
       }  // end of produce()
