@@ -101,7 +101,6 @@ private:
 
   const bool track_match_PV_;
   const bool dt_sig_track_;
-  const bool dt_distributions_;
   const bool optionalPlots_;
 
   const float min_dR_cut;
@@ -753,44 +752,6 @@ private:
   MonitorElement* meEle_phi_MTD_4sigma_Bkg_EE_;
   // Background histograms end
 
-  // histograms for dt distributions in pT/eta bins
-
-  MonitorElement* meEle_dt_general_pT_1;
-  MonitorElement* meEle_dt_general_pT_2;
-  MonitorElement* meEle_dt_general_pT_3;
-  MonitorElement* meEle_dt_general_pT_4;
-  MonitorElement* meEle_dt_general_pT_5;
-  MonitorElement* meEle_dt_general_pT_6;
-  MonitorElement* meEle_dt_general_pT_7;
-  MonitorElement* meEle_dt_general_pT_8;
-  MonitorElement* meEle_dt_general_pT_9;
-
-  MonitorElement* meEle_dtSignif_general_pT_1;
-  MonitorElement* meEle_dtSignif_general_pT_2;
-  MonitorElement* meEle_dtSignif_general_pT_3;
-  MonitorElement* meEle_dtSignif_general_pT_4;
-  MonitorElement* meEle_dtSignif_general_pT_5;
-  MonitorElement* meEle_dtSignif_general_pT_6;
-  MonitorElement* meEle_dtSignif_general_pT_7;
-  MonitorElement* meEle_dtSignif_general_pT_8;
-  MonitorElement* meEle_dtSignif_general_pT_9;
-
-  MonitorElement* meEle_dt_general_eta_1;
-  MonitorElement* meEle_dt_general_eta_2;
-  MonitorElement* meEle_dt_general_eta_3;
-  MonitorElement* meEle_dt_general_eta_4;
-  MonitorElement* meEle_dt_general_eta_5;
-  MonitorElement* meEle_dt_general_eta_6;
-  MonitorElement* meEle_dt_general_eta_7;
-
-  MonitorElement* meEle_dtSignif_general_eta_1;
-  MonitorElement* meEle_dtSignif_general_eta_2;
-  MonitorElement* meEle_dtSignif_general_eta_3;
-  MonitorElement* meEle_dtSignif_general_eta_4;
-  MonitorElement* meEle_dtSignif_general_eta_5;
-  MonitorElement* meEle_dtSignif_general_eta_6;
-  MonitorElement* meEle_dtSignif_general_eta_7;
-
   // promt part for histogram vectors
   std::vector<MonitorElement*> Ntracks_EB_list_Sig;
   std::vector<MonitorElement*> ch_iso_EB_list_Sig;
@@ -906,6 +867,7 @@ private:
 };
 
 // ------------ constructor and destructor --------------
+
 MtdEleIsoValidation::MtdEleIsoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       trackMinPt_(iConfig.getParameter<double>("trackMinimumPt")),
@@ -914,7 +876,6 @@ MtdEleIsoValidation::MtdEleIsoValidation(const edm::ParameterSet& iConfig)
       rel_iso_cut_(iConfig.getParameter<double>("rel_iso_cut")),
       track_match_PV_(iConfig.getParameter<bool>("optionTrackMatchToPV")),
       dt_sig_track_(iConfig.getParameter<bool>("option_dtToTrack")),
-      dt_distributions_(iConfig.getParameter<bool>("option_dtDistributions")),
       optionalPlots_(iConfig.getParameter<bool>("option_plots")),
       min_dR_cut(iConfig.getParameter<double>("min_dR_cut")),
       max_dR_cut(iConfig.getParameter<double>("max_dR_cut")),
@@ -1010,8 +971,8 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   for (const auto& ele : localEleCollection) {
     bool ele_Promt = false;
 
-    float ele_track_source_dz = fabs(ele.gsfTrack()->dz(Vtx_chosen.position()));
-    float ele_track_source_dxy = fabs(ele.gsfTrack()->dxy(Vtx_chosen.position()));
+    float ele_track_source_dz = std::abs(ele.gsfTrack()->dz(Vtx_chosen.position()));
+    float ele_track_source_dxy = std::abs(ele.gsfTrack()->dxy(Vtx_chosen.position()));
 
     const reco::TrackRef ele_TrkRef = ele.core()->ctfTrack();
     double tsim_ele = -1.;
@@ -1021,7 +982,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     // selecting "good" RECO electrons
     // PARAM
-    if (ele.pt() < 10 || fabs(ele.eta()) > 2.4 || ele_track_source_dz > max_dz_vtx_cut ||
+    if (ele.pt() < 10 || std::abs(ele.eta()) > 2.4 || ele_track_source_dz > max_dz_vtx_cut ||
         ele_track_source_dxy > max_dxy_vtx_cut)
       continue;
 
@@ -1073,13 +1034,13 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           // All selected electron information for efficiency plots later
           meEle_pt_tot_Sig_EB_->Fill(ele.pt());
           meEle_pt_sim_tot_Sig_EB_->Fill(ele_sim_pt);
-          meEle_eta_tot_Sig_EB_->Fill(ele.eta());
+          meEle_eta_tot_Sig_EB_->Fill(std::abs(ele.eta()));
           meEle_phi_tot_Sig_EB_->Fill(ele.phi());
         } else {
           // All selected electron information for efficiency plots later
           meEle_pt_tot_Sig_EE_->Fill(ele.pt());
           meEle_pt_sim_tot_Sig_EE_->Fill(ele_sim_pt);
-          meEle_eta_tot_Sig_EE_->Fill(ele.eta());
+          meEle_eta_tot_Sig_EE_->Fill(std::abs(ele.eta()));
           meEle_phi_tot_Sig_EE_->Fill(ele.phi());
         }
       } else {
@@ -1087,12 +1048,12 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         if (Barrel_ele) {
           meEle_pt_tot_Bkg_EB_->Fill(ele.pt());
           meEle_pt_sim_tot_Bkg_EB_->Fill(ele_sim_pt);
-          meEle_eta_tot_Bkg_EB_->Fill(ele.eta());
+          meEle_eta_tot_Bkg_EB_->Fill(std::abs(ele.eta()));
           meEle_phi_tot_Bkg_EB_->Fill(ele.phi());
         } else {
           meEle_pt_tot_Bkg_EE_->Fill(ele.pt());
           meEle_pt_sim_tot_Bkg_EE_->Fill(ele_sim_pt);
-          meEle_eta_tot_Bkg_EE_->Fill(ele.eta());
+          meEle_eta_tot_Bkg_EE_->Fill(std::abs(ele.eta()));
           meEle_phi_tot_Bkg_EE_->Fill(ele.phi());
         }
       }
@@ -1131,7 +1092,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         if (trackGen.pt() < min_pt_cut) {
           continue;
         }
-        if (fabs(trackGen.vz() - ele.gsfTrack()->vz()) > max_dz_cut) {
+        if (std::abs(trackGen.vz() - ele.gsfTrack()->vz()) > max_dz_cut) {
           continue;
         }
 
@@ -1143,7 +1104,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
 
         double dR = reco::deltaR(trackGen.momentum(), EleSigTrackMomentumAtVtx);
-        double deta = fabs(trackGen.eta() - EleSigTrackEtaAtVtx);
+        double deta = std::abs(trackGen.eta() - EleSigTrackEtaAtVtx);
 
         // restrict to tracks in the isolation cone
         if (dR < min_dR_cut || dR > max_dR_cut || deta < min_strip_cut)
@@ -1193,8 +1154,8 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           double dt_sim_sigTrk_signif = 0;
 
           // MTD SIM CASE
-          if (fabs(tsim_trk) > 0 && fabs(tsim_ele) > 0 && trk_ptSim > 0) {
-            dt_sim_sigTrk = fabs(tsim_trk - tsim_ele);
+          if (std::abs(tsim_trk) > 0 && std::abs(tsim_ele) > 0 && trk_ptSim > 0) {
+            dt_sim_sigTrk = std::abs(tsim_trk - tsim_ele);
             dt_sim_sigTrk_signif = dt_sim_sigTrk / std::sqrt(avg_sim_PUtrack_t_err * avg_sim_PUtrack_t_err +
                                                              avg_sim_sigTrk_t_err * avg_sim_sigTrk_t_err);
 
@@ -1231,7 +1192,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
           // MTD reco case
           if (TrkMTDTimeErr > 0 && ele_sigTrkTimeErr > 0) {
-            dt_sigTrk = fabs(TrkMTDTime - ele_sigTrkTime);
+            dt_sigTrk = std::abs(TrkMTDTime - ele_sigTrkTime);
             dt_sigTrk_signif =
                 dt_sigTrk / std::sqrt(TrkMTDTimeErr * TrkMTDTimeErr + ele_sigTrkTimeErr * ele_sigTrkTimeErr);
 
@@ -1268,7 +1229,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             meEle_no_dt_check_->Fill(0);
           }
 
-          if (dt_distributions_) {
+          if (optionalPlots_) {
             for (long unsigned int i = 0; i < (pT_bins_dt_distrb.size() - 1); i++) {
               //stuff general pT
               if (ele.pt() > pT_bins_dt_distrb[i] && ele.pt() < pT_bins_dt_distrb[i + 1]) {
@@ -1279,7 +1240,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
             for (long unsigned int i = 0; i < (eta_bins_dt_distrib.size() - 1); i++) {
               //stuff general eta
-              if (fabs(ele.eta()) > eta_bins_dt_distrib[i] && fabs(ele.eta()) < eta_bins_dt_distrib[i + 1]) {
+              if (std::abs(ele.eta()) > eta_bins_dt_distrib[i] && std::abs(ele.eta()) < eta_bins_dt_distrib[i + 1]) {
                 general_eta_list[i]->Fill(dt_sigTrk);
                 general_eta_Signif_list[i]->Fill(dt_sigTrk_signif);
               }
@@ -1295,8 +1256,8 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           double dt_sim_vtx_signif = 0;
 
           // MTD SIM case
-          if (fabs(tsim_trk) > 0 && Vtx_chosen.tError() > 0 && trk_ptSim > 0) {
-            dt_sim_vtx = fabs(tsim_trk - Vtx_chosen.t());
+          if (std::abs(tsim_trk) > 0 && Vtx_chosen.tError() > 0 && trk_ptSim > 0) {
+            dt_sim_vtx = std::abs(tsim_trk - Vtx_chosen.t());
             dt_sim_vtx_signif = dt_sim_vtx / std::sqrt(avg_sim_PUtrack_t_err * avg_sim_PUtrack_t_err +
                                                        Vtx_chosen.tError() * Vtx_chosen.tError());
             if (optionalPlots_) {
@@ -1330,7 +1291,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
           // MTD RECO case
           if (TrkMTDTimeErr > 0 && Vtx_chosen.tError() > 0) {
-            dt_vtx = fabs(TrkMTDTime - Vtx_chosen.t());
+            dt_vtx = std::abs(TrkMTDTime - Vtx_chosen.t());
             dt_vtx_signif =
                 dt_vtx / std::sqrt(TrkMTDTimeErr * TrkMTDTimeErr + Vtx_chosen.tError() * Vtx_chosen.tError());
 
@@ -1367,7 +1328,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           }
 
           // Optional dt distribution plots
-          if (dt_distributions_) {
+          if (optionalPlots_) {
             for (long unsigned int i = 0; i < (pT_bins_dt_distrb.size() - 1); i++) {
               //stuff general pT
               if (ele.pt() > pT_bins_dt_distrb[i] && ele.pt() < pT_bins_dt_distrb[i + 1]) {
@@ -1378,7 +1339,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
             for (long unsigned int i = 0; i < (eta_bins_dt_distrib.size() - 1); i++) {
               //stuff general eta
-              if (fabs(ele.eta()) > eta_bins_dt_distrib[i] && fabs(ele.eta()) < eta_bins_dt_distrib[i + 1]) {
+              if (std::abs(ele.eta()) > eta_bins_dt_distrib[i] && std::abs(ele.eta()) < eta_bins_dt_distrib[i + 1]) {
                 general_eta_list[i]->Fill(dt_vtx);
                 general_eta_Signif_list[i]->Fill(dt_vtx_signif);
               }
@@ -1437,14 +1398,14 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
           if (rel_pT_sum_noMTD < rel_iso_cut_) {  // filling hists for iso efficiency calculations
             meEle_pt_noMTD_Sig_EB_->Fill(ele.pt());
-            meEle_eta_noMTD_Sig_EB_->Fill(ele.eta());
+            meEle_eta_noMTD_Sig_EB_->Fill(std::abs(ele.eta()));
             meEle_phi_noMTD_Sig_EB_->Fill(ele.phi());
           }
           if (optionalPlots_) {
             for (long unsigned int k = 0; k < Ntracks_EB_list_Sig.size(); k++) {
               if (rel_pT_sum_MTD[k] < rel_iso_cut_) {
                 Ele_pT_MTD_EB_list_Sig[k]->Fill(ele.pt());
-                Ele_eta_MTD_EB_list_Sig[k]->Fill(ele.eta());
+                Ele_eta_MTD_EB_list_Sig[k]->Fill(std::abs(ele.eta()));
                 Ele_phi_MTD_EB_list_Sig[k]->Fill(ele.phi());
 
                 Ele_pT_sim_MTD_EB_list_Sig[k]->Fill(ele_sim_pt);
@@ -1460,7 +1421,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           for (long unsigned int k = 0; k < Ntracks_EB_list_Significance_Sig.size(); k++) {
             if (rel_pT_sum_MTD_significance[k] < rel_iso_cut_) {
               Ele_pT_MTD_EB_list_Significance_Sig[k]->Fill(ele.pt());
-              Ele_eta_MTD_EB_list_Significance_Sig[k]->Fill(ele.eta());
+              Ele_eta_MTD_EB_list_Significance_Sig[k]->Fill(std::abs(ele.eta()));
               Ele_phi_MTD_EB_list_Significance_Sig[k]->Fill(ele.phi());
             }
             if (optionalPlots_ and rel_pT_sum_sim_MTD_significance[k] < rel_iso_cut_)
@@ -1501,14 +1462,14 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
           if (rel_pT_sum_noMTD < rel_iso_cut_) {  // filling hists for iso efficiency calculations
             meEle_pt_noMTD_Sig_EE_->Fill(ele.pt());
-            meEle_eta_noMTD_Sig_EE_->Fill(ele.eta());
+            meEle_eta_noMTD_Sig_EE_->Fill(std::abs(ele.eta()));
             meEle_phi_noMTD_Sig_EE_->Fill(ele.phi());
           }
           if (optionalPlots_) {
             for (long unsigned int k = 0; k < Ntracks_EE_list_Sig.size(); k++) {
               if (rel_pT_sum_MTD[k] < rel_iso_cut_) {
                 Ele_pT_MTD_EE_list_Sig[k]->Fill(ele.pt());
-                Ele_eta_MTD_EE_list_Sig[k]->Fill(ele.eta());
+                Ele_eta_MTD_EE_list_Sig[k]->Fill(std::abs(ele.eta()));
                 Ele_phi_MTD_EE_list_Sig[k]->Fill(ele.phi());
 
                 Ele_pT_sim_MTD_EE_list_Sig[k]->Fill(ele_sim_pt);
@@ -1523,7 +1484,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           for (long unsigned int k = 0; k < Ntracks_EE_list_Significance_Sig.size(); k++) {
             if (rel_pT_sum_MTD_significance[k] < rel_iso_cut_) {
               Ele_pT_MTD_EE_list_Significance_Sig[k]->Fill(ele.pt());
-              Ele_eta_MTD_EE_list_Significance_Sig[k]->Fill(ele.eta());
+              Ele_eta_MTD_EE_list_Significance_Sig[k]->Fill(std::abs(ele.eta()));
               Ele_phi_MTD_EE_list_Significance_Sig[k]->Fill(ele.phi());
 
               if (optionalPlots_ and rel_pT_sum_sim_MTD_significance[k] < rel_iso_cut_)
@@ -1565,14 +1526,14 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
           if (rel_pT_sum_noMTD < rel_iso_cut_) {  // filling hists for iso efficiency calculations
             meEle_pt_noMTD_Bkg_EB_->Fill(ele.pt());
-            meEle_eta_noMTD_Bkg_EB_->Fill(ele.eta());
+            meEle_eta_noMTD_Bkg_EB_->Fill(std::abs(ele.eta()));
             meEle_phi_noMTD_Bkg_EB_->Fill(ele.phi());
           }
           if (optionalPlots_) {
             for (long unsigned int k = 0; k < Ntracks_EB_list_Bkg.size(); k++) {
               if (rel_pT_sum_MTD[k] < rel_iso_cut_) {
                 Ele_pT_MTD_EB_list_Bkg[k]->Fill(ele.pt());
-                Ele_eta_MTD_EB_list_Bkg[k]->Fill(ele.eta());
+                Ele_eta_MTD_EB_list_Bkg[k]->Fill(std::abs(ele.eta()));
                 Ele_phi_MTD_EB_list_Bkg[k]->Fill(ele.phi());
 
                 Ele_pT_sim_MTD_EB_list_Bkg[k]->Fill(ele_sim_pt);
@@ -1587,7 +1548,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           for (long unsigned int k = 0; k < Ntracks_EB_list_Significance_Bkg.size(); k++) {
             if (rel_pT_sum_MTD_significance[k] < rel_iso_cut_) {
               Ele_pT_MTD_EB_list_Significance_Bkg[k]->Fill(ele.pt());
-              Ele_eta_MTD_EB_list_Significance_Bkg[k]->Fill(ele.eta());
+              Ele_eta_MTD_EB_list_Significance_Bkg[k]->Fill(std::abs(ele.eta()));
               Ele_phi_MTD_EB_list_Significance_Bkg[k]->Fill(ele.phi());
 
               if (optionalPlots_ and rel_pT_sum_sim_MTD_significance[k] < rel_iso_cut_)
@@ -1628,14 +1589,14 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
           if (rel_pT_sum_noMTD < rel_iso_cut_) {  // filling hists for iso efficiency calculations
             meEle_pt_noMTD_Bkg_EE_->Fill(ele.pt());
-            meEle_eta_noMTD_Bkg_EE_->Fill(ele.eta());
+            meEle_eta_noMTD_Bkg_EE_->Fill(std::abs(ele.eta()));
             meEle_phi_noMTD_Bkg_EE_->Fill(ele.phi());
           }
           if (optionalPlots_) {
             for (long unsigned int k = 0; k < Ntracks_EE_list_Bkg.size(); k++) {
               if (rel_pT_sum_MTD[k] < rel_iso_cut_) {
                 Ele_pT_MTD_EE_list_Bkg[k]->Fill(ele.pt());
-                Ele_eta_MTD_EE_list_Bkg[k]->Fill(ele.eta());
+                Ele_eta_MTD_EE_list_Bkg[k]->Fill(std::abs(ele.eta()));
                 Ele_phi_MTD_EE_list_Bkg[k]->Fill(ele.phi());
 
                 Ele_pT_sim_MTD_EE_list_Bkg[k]->Fill(ele_sim_pt);
@@ -1651,7 +1612,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           for (long unsigned int k = 0; k < Ntracks_EE_list_Significance_Bkg.size(); k++) {
             if (rel_pT_sum_MTD_significance[k] < rel_iso_cut_) {
               Ele_pT_MTD_EE_list_Significance_Bkg[k]->Fill(ele.pt());
-              Ele_eta_MTD_EE_list_Significance_Bkg[k]->Fill(ele.eta());
+              Ele_eta_MTD_EE_list_Significance_Bkg[k]->Fill(std::abs(ele.eta()));
               Ele_phi_MTD_EE_list_Significance_Bkg[k]->Fill(ele.phi());
 
               if (optionalPlots_ and rel_pT_sum_sim_MTD_significance[k] < rel_iso_cut_)
@@ -1667,6 +1628,14 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 // ------------ method for histogram booking ------------
 void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
+
+  // for regular Validation use a reduced binning, for detailed analysis and ROC curves use the larger one
+  int nbin_1 = 40;
+  int nbin_2 = 40;
+  if (optionalPlots_) {
+    nbin_1 = 1000;
+    nbin_2 = 2000;
+  }
 
   // histogram booking
 
@@ -1702,14 +1671,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meEleISO_chIso_Sig_EB_ = ibook.book1D(
       "Ele_chIso_sum_Sig_EB",
       "Track pT sum in isolation cone around electron track after basic cuts - Signal Barrel;p_{T} (GeV);Counts",
-      2000,
+      nbin_2,
       0,
       20);
 
   meEleISO_rel_chIso_Sig_EB_ = ibook.book1D(
       "Ele_rel_chIso_sum_Sig_EB",
       "Track relative pT sum in isolation cone around electron track after basic cuts - Signal Barrel;Isolation;Counts",
-      1000,
+      nbin_1,
       0,
       4);
   if (optionalPlots_) {
@@ -1723,13 +1692,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_1_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_1_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_1_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_1_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
     // gen
@@ -1743,14 +1712,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_gen_Sig_EB_ = ibook.book1D("Ele_chIso_sum_gen_Sig_EB",
                                               "Track pT sum in isolation cone around electron track after basic cuts "
                                               "using genInfo - Signal Barrel;p_{T} (GeV);Counts",
-                                              2000,
+                                              nbin_2,
                                               0,
                                               20);
 
     meEleISO_rel_chIso_gen_Sig_EB_ = ibook.book1D("Ele_rel_chIso_sum_gen_Sig_EB",
                                                   "Track relative pT sum in isolation cone around electron track after "
                                                   "basic cuts using genInfo - Signal Barrel;Isolation;Counts",
-                                                  1000,
+                                                  nbin_1,
                                                   0,
                                                   4);
 
@@ -1764,13 +1733,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_2_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_2_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_2_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_2_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1783,13 +1752,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_3_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_3_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_3_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_3_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1802,13 +1771,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_4_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_4_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_4_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_4_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1821,13 +1790,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_5_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_5_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_5_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_5_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1840,13 +1809,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_6_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_6_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_6_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_6_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1859,13 +1828,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_7_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_7_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_7_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_7_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1879,13 +1848,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_1_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_1_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_1_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_1_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1899,13 +1868,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_2_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_2_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_2_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_2_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1918,13 +1887,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_3_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_3_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_3_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_3_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1937,13 +1906,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_4_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_4_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_4_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_4_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1956,13 +1925,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_5_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_5_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_5_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_5_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1975,13 +1944,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_6_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_6_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_6_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_6_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -1994,13 +1963,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_7_Sig_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_7_Sig_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_7_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_7_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
   }
@@ -2015,14 +1984,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_4sigma_Sig_EB",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 4 sigma compatibiliy - Signal Barrel;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_4sigma_Sig_EB_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_4sigma_Sig_EB",
                    "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 4 sigma "
                    "compatibiliy - Signal Barrel;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -2037,14 +2006,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_3sigma_Sig_EB",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 3 sigma compatibiliy - Signal Barrel;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_3sigma_Sig_EB_ = ibook.book1D("Ele_rel_chIso_sum_MTD_3sigma_Sig_EB",
                                                        "Track relative pT sum in isolation cone around electron track "
                                                        "after basic cuts with MTD - 3 sigma;Isolation;Counts"
                                                        "compatibiliy - Signal Barrel",
-                                                       1000,
+                                                       nbin_1,
                                                        0,
                                                        4);
 
@@ -2059,14 +2028,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_2sigma_Sig_EB",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 2 sigma compatibiliy - Signal Barrel;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_2sigma_Sig_EB_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_2sigma_Sig_EB",
                    "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 2 sigma "
                    "compatibiliy - Signal Barrel;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -2079,14 +2048,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_pT_sim_tot_Sig_EB", "Electron SIM pT tot - Signal Barrel;p_{T} (GeV);Counts", 30, 10, 100);
 
   meEle_eta_tot_Sig_EB_ =
-      ibook.book1D("Ele_eta_tot_Sig_EB", "Electron eta tot - Signal Barrel;#eta;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_eta_tot_Sig_EB", "Electron eta tot - Signal Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_eta_noMTD_Sig_EB_ =
-      ibook.book1D("Ele_eta_noMTD_Sig_EB", "Electron eta noMTD - Signal Barrel;#eta;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_eta_noMTD_Sig_EB", "Electron eta noMTD - Signal Barrel;#eta;Counts", 32, 0., 1.6);
 
   meEle_phi_tot_Sig_EB_ =
-      ibook.book1D("Ele_phi_tot_Sig_EB", "Electron phi tot - Signal Barrel;#phi;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_tot_Sig_EB", "Electron phi tot - Signal Barrel;#phi;Counts", 64, -3.2, 3.2);
   meEle_phi_noMTD_Sig_EB_ =
-      ibook.book1D("Ele_phi_noMTD_Sig_EB", "Electron phi noMTD - Signal Barrel;#phi;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_noMTD_Sig_EB", "Electron phi noMTD - Signal Barrel;#phi;Counts", 64, -3.2, 3.2);
 
   if (optionalPlots_) {
     meEleISO_Ntracks_MTD_sim_4sigma_Sig_EB_ =
@@ -2100,14 +2069,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_4sigma_Sig_EB",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD - 4 sigma compatibiliy - Signal Barrel;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_4sigma_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_4sigma_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 4 sigma "
         "compatibiliy - Signal Barrel;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2122,14 +2091,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_3sigma_Sig_EB",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD - 3 sigma compatibiliy - Signal Barrel;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_3sigma_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_3sigma_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 3 sigma "
         "compatibiliy - Signal Barrel;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2144,51 +2113,51 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_2sigma_Sig_EB",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD - 2 sigma compatibiliy - Signal Barrel;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_2sigma_Sig_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_2sigma_Sig_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 2 sigma "
         "compatibiliy - Signal Barrel;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
     meEle_pt_gen_Sig_EB_ =
         ibook.book1D("Ele_pT_gen_Sig_EB", "Electron pT genInfo - Signal Barrel;p_{T} (GeV);Counts", 30, 10, 100);
     meEle_eta_gen_Sig_EB_ =
-        ibook.book1D("Ele_eta_gen_Sig_EB", "Electron eta genInfo - Signal Barrel;#eta;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_eta_gen_Sig_EB", "Electron eta genInfo - Signal Barrel;#eta;Counts", 32, 0., 1.6);
     meEle_phi_gen_Sig_EB_ =
-        ibook.book1D("Ele_phi_gen_Sig_EB", "Electron phi genInfo - Signal Barrel;#phi;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_phi_gen_Sig_EB", "Electron phi genInfo - Signal Barrel;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_1_Sig_EB_ = ibook.book1D("Ele_pT_MTD_1_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_1_Sig_EB_ = ibook.book1D("Ele_eta_MTD_1_Sig_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_1_Sig_EB_ = ibook.book1D("Ele_phi_MTD_1_Sig_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_1_Sig_EB_ = ibook.book1D("Ele_eta_MTD_1_Sig_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_1_Sig_EB_ = ibook.book1D("Ele_phi_MTD_1_Sig_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_2_Sig_EB_ = ibook.book1D("Ele_pT_MTD_2_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_2_Sig_EB_ = ibook.book1D("Ele_eta_MTD_2_Sig_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_2_Sig_EB_ = ibook.book1D("Ele_phi_MTD_2_Sig_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_2_Sig_EB_ = ibook.book1D("Ele_eta_MTD_2_Sig_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_2_Sig_EB_ = ibook.book1D("Ele_phi_MTD_2_Sig_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_3_Sig_EB_ = ibook.book1D("Ele_pT_MTD_3_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_3_Sig_EB_ = ibook.book1D("Ele_eta_MTD_3_Sig_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_3_Sig_EB_ = ibook.book1D("Ele_phi_MTD_3_Sig_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_3_Sig_EB_ = ibook.book1D("Ele_eta_MTD_3_Sig_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_3_Sig_EB_ = ibook.book1D("Ele_phi_MTD_3_Sig_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_4_Sig_EB_ = ibook.book1D("Ele_pT_MTD_4_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_4_Sig_EB_ = ibook.book1D("Ele_eta_MTD_4_Sig_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_4_Sig_EB_ = ibook.book1D("Ele_phi_MTD_4_Sig_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_4_Sig_EB_ = ibook.book1D("Ele_eta_MTD_4_Sig_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_4_Sig_EB_ = ibook.book1D("Ele_phi_MTD_4_Sig_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_5_Sig_EB_ = ibook.book1D("Ele_pT_MTD_5_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_5_Sig_EB_ = ibook.book1D("Ele_eta_MTD_5_Sig_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_5_Sig_EB_ = ibook.book1D("Ele_phi_MTD_5_Sig_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_5_Sig_EB_ = ibook.book1D("Ele_eta_MTD_5_Sig_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_5_Sig_EB_ = ibook.book1D("Ele_phi_MTD_5_Sig_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_6_Sig_EB_ = ibook.book1D("Ele_pT_MTD_6_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_6_Sig_EB_ = ibook.book1D("Ele_eta_MTD_6_Sig_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_6_Sig_EB_ = ibook.book1D("Ele_phi_MTD_6_Sig_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_6_Sig_EB_ = ibook.book1D("Ele_eta_MTD_6_Sig_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_6_Sig_EB_ = ibook.book1D("Ele_phi_MTD_6_Sig_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_7_Sig_EB_ = ibook.book1D("Ele_pT_MTD_7_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_7_Sig_EB_ = ibook.book1D("Ele_eta_MTD_7_Sig_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_7_Sig_EB_ = ibook.book1D("Ele_phi_MTD_7_Sig_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_7_Sig_EB_ = ibook.book1D("Ele_eta_MTD_7_Sig_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_7_Sig_EB_ = ibook.book1D("Ele_phi_MTD_7_Sig_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_sim_MTD_1_Sig_EB_ =
         ibook.book1D("Ele_pT_sim_MTD_1_Sig_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
@@ -2212,14 +2181,11 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    30,
                    10,
                    100);
-  meEle_eta_MTD_4sigma_Sig_EB_ = ibook.book1D("Ele_eta_MTD_4sigma_Sig_EB",
-                                              "Electron eta MTD - 4 sigma compatibility - Signal Barrel;#eta;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
+  meEle_eta_MTD_4sigma_Sig_EB_ = ibook.book1D(
+      "Ele_eta_MTD_4sigma_Sig_EB", "Electron eta MTD - 4 sigma compatibility - Signal Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_phi_MTD_4sigma_Sig_EB_ = ibook.book1D("Ele_phi_MTD_4sigma_Sig_EB",
                                               "Electron phi MTD - 4 sigma compatibility - Signal Barrel;#phi;Counts",
-                                              128,
+                                              64,
                                               -3.2,
                                               3.2);
 
@@ -2229,14 +2195,11 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    30,
                    10,
                    100);
-  meEle_eta_MTD_3sigma_Sig_EB_ = ibook.book1D("Ele_eta_MTD_3sigma_Sig_EB",
-                                              "Electron eta MTD - 3 sigma compatibility - Signal Barrel;#eta;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
+  meEle_eta_MTD_3sigma_Sig_EB_ = ibook.book1D(
+      "Ele_eta_MTD_3sigma_Sig_EB", "Electron eta MTD - 3 sigma compatibility - Signal Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_phi_MTD_3sigma_Sig_EB_ = ibook.book1D("Ele_phi_MTD_3sigma_Sig_EB",
                                               "Electron phi MTD - 3 sigma compatibility - Signal Barrel;#phi;Counts",
-                                              128,
+                                              64,
                                               -3.2,
                                               3.2);
 
@@ -2246,14 +2209,11 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    30,
                    10,
                    100);
-  meEle_eta_MTD_2sigma_Sig_EB_ = ibook.book1D("Ele_eta_MTD_2sigma_Sig_EB",
-                                              "Electron eta MTD - 2 sigma compatibility - Signal Barrel;#eta;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
+  meEle_eta_MTD_2sigma_Sig_EB_ = ibook.book1D(
+      "Ele_eta_MTD_2sigma_Sig_EB", "Electron eta MTD - 2 sigma compatibility - Signal Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_phi_MTD_2sigma_Sig_EB_ = ibook.book1D("Ele_phi_MTD_2sigma_Sig_EB",
                                               "Electron phi MTD - 2 sigma compatibility - Signal Barrel;#phi;Counts",
-                                              128,
+                                              64,
                                               -3.2,
                                               3.2);
 
@@ -2266,13 +2226,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meEleISO_chIso_Sig_EE_ = ibook.book1D(
       "Ele_chIso_sum_Sig_EE",
       "Track pT sum in isolation cone around electron track after basic cuts - Signal Endcap;p_{T} (GeV);Counts",
-      2000,
+      nbin_2,
       0,
       20);
   meEleISO_rel_chIso_Sig_EE_ = ibook.book1D(
       "Ele_rel_chIso_sum_Sig_EE",
       "Track relative pT sum in isolation cone around electron track after basic cuts - Signal Endcap;Isolation;Counts",
-      1000,
+      nbin_1,
       0,
       4);
 
@@ -2305,13 +2265,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_1_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_1_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_1_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_1_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2324,13 +2284,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_2_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_2_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_2_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_2_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2343,13 +2303,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_gen_Sig_EE_ =
         ibook.book1D("Ele_chIso_sum_gen_Sig_EE",
                      "Track pT sum in isolation cone around electron track after basic cuts - Signal Endcap",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_gen_Sig_EE_ =
         ibook.book1D("Ele_rel_chIso_sum_gen_Sig_EE",
                      "Track relative pT sum in isolation cone around electron track after basic cuts - Signal Endcap",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
@@ -2362,13 +2322,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_3_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_3_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_3_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_3_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2381,13 +2341,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_4_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_4_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_4_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_4_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2400,13 +2360,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_5_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_5_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_5_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_5_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2419,13 +2379,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_6_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_6_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_6_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_6_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2438,13 +2398,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_7_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_7_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_7_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_7_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2457,13 +2417,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_1_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_1_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_1_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_1_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2476,13 +2436,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_2_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_2_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_2_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_2_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2495,13 +2455,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_3_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_3_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_3_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_3_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2514,13 +2474,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_4_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_4_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_4_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_4_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2533,13 +2493,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_5_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_5_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_5_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_5_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2552,13 +2512,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_6_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_6_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_6_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_6_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2571,13 +2531,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_7_Sig_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_7_Sig_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_7_Sig_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_7_Sig_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
   }
@@ -2592,14 +2552,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_4sigma_Sig_EE",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 4 sigma significance - Signal Endcap;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_4sigma_Sig_EE_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_4sigma_Sig_EE",
                    "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 4 sigma "
                    "significance - Signal Endcap;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -2614,14 +2574,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_3sigma_Sig_EE",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 3 sigma significance - Signal Endcap;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_3sigma_Sig_EE_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_3sigma_Sig_EE",
                    "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 3 sigma "
                    "significance - Signal Endcap;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -2636,14 +2596,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_2sigma_Sig_EE",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 2 sigma significance - Signal Endcap;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_2sigma_Sig_EE_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_2sigma_Sig_EE",
                    "Track relative pT sum in isolation cone around electron track after basic cuts with MTD - 2 sigma "
                    "significance - Signal Endcap;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -2656,14 +2616,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_pT_sim_tot_Sig_EE", "Electron pT tot - Signal Endcap;p_{T} (GeV);Counts", 30, 10, 100);
 
   meEle_eta_tot_Sig_EE_ =
-      ibook.book1D("Ele_eta_tot_Sig_EE", "Electron eta tot - Signal Endcap;#eta;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_eta_tot_Sig_EE", "Electron eta tot - Signal Endcap;#eta;Counts", 32, 1.6, 3.2);
   meEle_eta_noMTD_Sig_EE_ =
-      ibook.book1D("Ele_eta_noMTD_Sig_EE", "Electron eta noMTD - Signal Endcap;#eta;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_eta_noMTD_Sig_EE", "Electron eta noMTD - Signal Endcap;#eta;Counts", 32, 1.6, 3.2);
 
   meEle_phi_tot_Sig_EE_ =
-      ibook.book1D("Ele_phi_tot_Sig_EE", "Electron phi tot - Signal Endcap;#phi;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_tot_Sig_EE", "Electron phi tot - Signal Endcap;#phi;Counts", 64, -3.2, 3.2);
   meEle_phi_noMTD_Sig_EE_ =
-      ibook.book1D("Ele_phi_noMTD_Sig_EE", "Electron phi noMTD - Signal Endcap;#phi;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_noMTD_Sig_EE", "Electron phi noMTD - Signal Endcap;#phi;Counts", 64, -3.2, 3.2);
 
   if (optionalPlots_) {
     meEleISO_Ntracks_MTD_sim_4sigma_Sig_EE_ =
@@ -2677,14 +2637,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_4sigma_Sig_EE",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 4 sigma significance - Signal Endcap;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_4sigma_Sig_EE_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_4sigma_Sig_EE",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 4 "
                      "sigma significance - Signal Endcap;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
@@ -2699,14 +2659,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_3sigma_Sig_EE",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 3 sigma significance - Signal Endcap;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_3sigma_Sig_EE_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_3sigma_Sig_EE",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 3 "
                      "sigma significance - Signal Endcap;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
@@ -2721,50 +2681,50 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_2sigma_Sig_EE",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 2 sigma significance - Signal Endcap;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_2sigma_Sig_EE_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_2sigma_Sig_EE",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 2 "
                      "sigma significance - Signal Endcap;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
     meEle_pt_MTD_1_Sig_EE_ = ibook.book1D("Ele_pT_MTD_1_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_1_Sig_EE_ = ibook.book1D("Ele_eta_MTD_1_Sig_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_1_Sig_EE_ = ibook.book1D("Ele_phi_MTD_1_Sig_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_1_Sig_EE_ = ibook.book1D("Ele_eta_MTD_1_Sig_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_1_Sig_EE_ = ibook.book1D("Ele_phi_MTD_1_Sig_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
     meEle_pt_gen_Sig_EE_ =
         ibook.book1D("Ele_pT_gen_Sig_EE", "Electron pT genInfo - Signal Endcap;p_{T} (GeV);Counts", 30, 10, 100);
     meEle_eta_gen_Sig_EE_ =
-        ibook.book1D("Ele_eta_gen_Sig_EE", "Electron eta genInfo - Signal Endcap;#eta;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_eta_gen_Sig_EE", "Electron eta genInfo - Signal Endcap;#eta;Counts", 32, 1.6, 3.2);
     meEle_phi_gen_Sig_EE_ =
-        ibook.book1D("Ele_phi_gen_Sig_EE", "Electron phi genInfo - Signal Endcap;#phi;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_phi_gen_Sig_EE", "Electron phi genInfo - Signal Endcap;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_2_Sig_EE_ = ibook.book1D("Ele_pT_MTD_2_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_2_Sig_EE_ = ibook.book1D("Ele_eta_MTD_2_Sig_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_2_Sig_EE_ = ibook.book1D("Ele_phi_MTD_2_Sig_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_2_Sig_EE_ = ibook.book1D("Ele_eta_MTD_2_Sig_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_2_Sig_EE_ = ibook.book1D("Ele_phi_MTD_2_Sig_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_3_Sig_EE_ = ibook.book1D("Ele_pT_MTD_3_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_3_Sig_EE_ = ibook.book1D("Ele_eta_MTD_3_Sig_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_3_Sig_EE_ = ibook.book1D("Ele_phi_MTD_3_Sig_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_3_Sig_EE_ = ibook.book1D("Ele_eta_MTD_3_Sig_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_3_Sig_EE_ = ibook.book1D("Ele_phi_MTD_3_Sig_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_4_Sig_EE_ = ibook.book1D("Ele_pT_MTD_4_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_4_Sig_EE_ = ibook.book1D("Ele_eta_MTD_4_Sig_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_4_Sig_EE_ = ibook.book1D("Ele_phi_MTD_4_Sig_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_4_Sig_EE_ = ibook.book1D("Ele_eta_MTD_4_Sig_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_4_Sig_EE_ = ibook.book1D("Ele_phi_MTD_4_Sig_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_5_Sig_EE_ = ibook.book1D("Ele_pT_MTD_5_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_5_Sig_EE_ = ibook.book1D("Ele_eta_MTD_5_Sig_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_5_Sig_EE_ = ibook.book1D("Ele_phi_MTD_5_Sig_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_5_Sig_EE_ = ibook.book1D("Ele_eta_MTD_5_Sig_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_5_Sig_EE_ = ibook.book1D("Ele_phi_MTD_5_Sig_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_6_Sig_EE_ = ibook.book1D("Ele_pT_MTD_6_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_6_Sig_EE_ = ibook.book1D("Ele_eta_MTD_6_Sig_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_6_Sig_EE_ = ibook.book1D("Ele_phi_MTD_6_Sig_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_6_Sig_EE_ = ibook.book1D("Ele_eta_MTD_6_Sig_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_6_Sig_EE_ = ibook.book1D("Ele_phi_MTD_6_Sig_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_7_Sig_EE_ = ibook.book1D("Ele_pT_MTD_7_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_7_Sig_EE_ = ibook.book1D("Ele_eta_MTD_7_Sig_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_7_Sig_EE_ = ibook.book1D("Ele_phi_MTD_7_Sig_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_7_Sig_EE_ = ibook.book1D("Ele_eta_MTD_7_Sig_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_7_Sig_EE_ = ibook.book1D("Ele_phi_MTD_7_Sig_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_sim_MTD_1_Sig_EE_ =
         ibook.book1D("Ele_pT_sim_MTD_1_Sig_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
@@ -2807,16 +2767,10 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    30,
                    10,
                    100);
-  meEle_eta_MTD_4sigma_Sig_EE_ = ibook.book1D("Ele_eta_MTD_4sigma_Sig_EE",
-                                              "Electron eta MTD - 4 sigma significance - Signal Endcap;#eta;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
-  meEle_phi_MTD_4sigma_Sig_EE_ = ibook.book1D("Ele_phi_MTD_4sigma_Sig_EE",
-                                              "Electron phi MTD - 4 sigma significance - Signal Endcap;#phi;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
+  meEle_eta_MTD_4sigma_Sig_EE_ = ibook.book1D(
+      "Ele_eta_MTD_4sigma_Sig_EE", "Electron eta MTD - 4 sigma significance - Signal Endcap;#eta;Counts", 32, 1.6, 3.2);
+  meEle_phi_MTD_4sigma_Sig_EE_ = ibook.book1D(
+      "Ele_phi_MTD_4sigma_Sig_EE", "Electron phi MTD - 4 sigma significance - Signal Endcap;#phi;Counts", 64, -3.2, 3.2);
 
   meEle_pt_MTD_3sigma_Sig_EE_ =
       ibook.book1D("Ele_pT_MTD_3sigma_Sig_EE",
@@ -2824,16 +2778,10 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    30,
                    10,
                    100);
-  meEle_eta_MTD_3sigma_Sig_EE_ = ibook.book1D("Ele_eta_MTD_3sigma_Sig_EE",
-                                              "Electron eta MTD - 3 sigma significance - Signal Endcap;#eta;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
-  meEle_phi_MTD_3sigma_Sig_EE_ = ibook.book1D("Ele_phi_MTD_3sigma_Sig_EE",
-                                              "Electron phi MTD - 3 sigma significance - Signal Endcap;#phi;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
+  meEle_eta_MTD_3sigma_Sig_EE_ = ibook.book1D(
+      "Ele_eta_MTD_3sigma_Sig_EE", "Electron eta MTD - 3 sigma significance - Signal Endcap;#eta;Counts", 32, 1.6, 3.2);
+  meEle_phi_MTD_3sigma_Sig_EE_ = ibook.book1D(
+      "Ele_phi_MTD_3sigma_Sig_EE", "Electron phi MTD - 3 sigma significance - Signal Endcap;#phi;Counts", 64, -3.2, 3.2);
 
   meEle_pt_MTD_2sigma_Sig_EE_ =
       ibook.book1D("Ele_pT_MTD_2sigma_Sig_EE",
@@ -2841,16 +2789,10 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    30,
                    10,
                    100);
-  meEle_eta_MTD_2sigma_Sig_EE_ = ibook.book1D("Ele_eta_MTD_2sigma_Sig_EE",
-                                              "Electron eta MTD - 2 sigma significance - Signal Endcap;#eta;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
-  meEle_phi_MTD_2sigma_Sig_EE_ = ibook.book1D("Ele_phi_MTD_2sigma_Sig_EE",
-                                              "Electron phi MTD - 2 sigma significance - Signal Endcap;#phi;Counts",
-                                              128,
-                                              -3.2,
-                                              3.2);
+  meEle_eta_MTD_2sigma_Sig_EE_ = ibook.book1D(
+      "Ele_eta_MTD_2sigma_Sig_EE", "Electron eta MTD - 2 sigma significance - Signal Endcap;#eta;Counts", 32, 1.6, 3.2);
+  meEle_phi_MTD_2sigma_Sig_EE_ = ibook.book1D(
+      "Ele_phi_MTD_2sigma_Sig_EE", "Electron phi MTD - 2 sigma significance - Signal Endcap;#phi;Counts", 64, -3.2, 3.2);
 
   // background
   meEleISO_Ntracks_Bkg_EB_ = ibook.book1D(
@@ -2862,13 +2804,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meEleISO_chIso_Bkg_EB_ = ibook.book1D(
       "Ele_chIso_sum_Bkg_EB",
       "Track pT sum in isolation cone around electron track after basic cuts - Bkg Barrel;p_{T} (GeV);Counts",
-      2000,
+      nbin_2,
       0,
       20);
   meEleISO_rel_chIso_Bkg_EB_ = ibook.book1D(
       "Ele_rel_chIso_sum_Bkg_EB",
       "Track relative pT sum in isolation cone around electron track after basic cuts - Bkg Barrel;Isolation;Counts",
-      1000,
+      nbin_1,
       0,
       4);
   if (optionalPlots_) {
@@ -2881,13 +2823,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_1_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_1_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_1_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_1_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2900,13 +2842,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_2_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_2_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_2_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_2_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
     meEleISO_Ntracks_gen_Bkg_EB_ = ibook.book1D("Ele_Iso_Ntracks_gen_Bkg_EB",
@@ -2918,13 +2860,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_gen_Bkg_EB_ = ibook.book1D("Ele_chIso_sum_gen_Bkg_EB",
                                               "Track pT sum in isolation cone around electron track after basic cuts "
                                               "using genInfo - Bkg Barrel;p_{T} (GeV);Counts",
-                                              2000,
+                                              nbin_2,
                                               0,
                                               20);
     meEleISO_rel_chIso_gen_Bkg_EB_ = ibook.book1D("Ele_rel_chIso_sum_gen_Bkg_EB",
                                                   "Track relative pT sum in isolation cone around electron track after "
                                                   "basic cuts using genInfo - Bkg Barrel;Isolation;Counts",
-                                                  1000,
+                                                  nbin_1,
                                                   0,
                                                   4);
     meEleISO_Ntracks_MTD_3_Bkg_EB_ =
@@ -2936,13 +2878,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_3_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_3_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_3_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_3_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2955,13 +2897,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_4_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_4_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_4_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_4_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2974,13 +2916,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_5_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_5_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_5_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_5_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -2993,13 +2935,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_6_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_6_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_6_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_6_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3012,13 +2954,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_7_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_7_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_7_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_7_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3031,13 +2973,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_1_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_1_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_1_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_1_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3050,13 +2992,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_2_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_2_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_2_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_2_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3069,13 +3011,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_3_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_3_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_3_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_3_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3088,13 +3030,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_4_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_4_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_4_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_4_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3107,13 +3049,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_5_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_5_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_5_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_5_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3126,13 +3068,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_6_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_6_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_6_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_6_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3145,13 +3087,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_7_Bkg_EB_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_7_Bkg_EB",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_7_Bkg_EB_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_7_Bkg_EB",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
   }
@@ -3166,14 +3108,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_4sigma_Bkg_EB",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 4 sigma significance - Bkg Barrel;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_4sigma_Bkg_EB_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_4sigma_Bkg_EB",
                    "Track relative pT sum in isolation cone around electron track "
                    "after basic cuts with MTD - 4 sigma significance - Bkg Barrel;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -3188,14 +3130,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_3sigma_Bkg_EB",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 3 sigma significance - Bkg Barrel;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_3sigma_Bkg_EB_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_3sigma_Bkg_EB",
                    "Track relative pT sum in isolation cone around electron track "
                    "after basic cuts with MTD - 3 sigma significance - Bkg Barrel;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -3210,14 +3152,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_2sigma_Bkg_EB",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 2 sigma significance - Bkg Barrel;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_2sigma_Bkg_EB_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_2sigma_Bkg_EB",
                    "Track relative pT sum in isolation cone around electron track "
                    "after basic cuts with MTD - 2 sigma significance - Bkg Barrel;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -3229,15 +3171,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meEle_pt_sim_tot_Bkg_EB_ =
       ibook.book1D("Ele_pT_sim_tot_Bkg_EB", "Electron pT tot - Bkg Barrel;p_{T} (GeV);Counts", 30, 10, 100);
 
-  meEle_eta_tot_Bkg_EB_ =
-      ibook.book1D("Ele_eta_tot_Bkg_EB", "Electron eta tot - Bkg Barrel;#eta;Counts", 128, -3.2, 3.2);
+  meEle_eta_tot_Bkg_EB_ = ibook.book1D("Ele_eta_tot_Bkg_EB", "Electron eta tot - Bkg Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_eta_noMTD_Bkg_EB_ =
-      ibook.book1D("Ele_eta_noMTD_Bkg_EB", "Electron eta noMTD - Bkg Barrel;#eta;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_eta_noMTD_Bkg_EB", "Electron eta noMTD - Bkg Barrel;#eta;Counts", 32, 0., 1.6);
 
   meEle_phi_tot_Bkg_EB_ =
-      ibook.book1D("Ele_phi_tot_Bkg_EB", "Electron phi tot - Bkg Barrel;#phi;#Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_tot_Bkg_EB", "Electron phi tot - Bkg Barrel;#phi;#Counts", 64, -3.2, 3.2);
   meEle_phi_noMTD_Bkg_EB_ =
-      ibook.book1D("Ele_phi_noMTD_Bkg_EB", "Electron phi noMTD - Bkg Barrel;#phi;#Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_noMTD_Bkg_EB", "Electron phi noMTD - Bkg Barrel;#phi;#Counts", 64, -3.2, 3.2);
 
   if (optionalPlots_) {
     meEleISO_Ntracks_MTD_sim_4sigma_Bkg_EB_ =
@@ -3251,14 +3192,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_4sigma_Bkg_EB",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 4 sigma significance - Bkg Barrel;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_4sigma_Bkg_EB_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_4sigma_Bkg_EB",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 4 "
                      "sigma significance - Bkg Barrel;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
@@ -3273,14 +3214,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_3sigma_Bkg_EB",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 3 sigma significance - Bkg Barrel;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_3sigma_Bkg_EB_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_3sigma_Bkg_EB",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 3 "
                      "sigma significance - Bkg Barrel;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
@@ -3295,50 +3236,50 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_2sigma_Bkg_EB",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 2 sigma significance - Bkg Barrel;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_2sigma_Bkg_EB_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_2sigma_Bkg_EB",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 2 "
                      "sigma significance - Bkg Barrel;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
     meEle_pt_MTD_1_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_1_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_1_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_1_Bkg_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_1_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_1_Bkg_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_1_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_1_Bkg_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_1_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_1_Bkg_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
     meEle_pt_gen_Bkg_EB_ =
         ibook.book1D("Ele_pT_gen_Bkg_EB", "Electron pT genInfo - Bkg Barrel;p_{T} (GeV);Counts", 30, 10, 100);
     meEle_eta_gen_Bkg_EB_ =
-        ibook.book1D("Ele_eta_gen_Bkg_EB", "Electron eta genInfo - Bkg Barrel;#eta;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_eta_gen_Bkg_EB", "Electron eta genInfo - Bkg Barrel;#eta;Counts", 32, 0., 1.6);
     meEle_phi_gen_Bkg_EB_ =
-        ibook.book1D("Ele_phi_gen_Bkg_EB", "Electron phi genInfo - Bkg Barrel;#phi;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_phi_gen_Bkg_EB", "Electron phi genInfo - Bkg Barrel;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_2_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_2_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_2_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_2_Bkg_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_2_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_2_Bkg_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_2_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_2_Bkg_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_2_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_2_Bkg_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_3_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_3_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_3_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_3_Bkg_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_3_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_3_Bkg_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_3_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_3_Bkg_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_3_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_3_Bkg_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_4_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_4_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_4_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_4_Bkg_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_4_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_4_Bkg_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_4_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_4_Bkg_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_4_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_4_Bkg_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_5_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_5_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_5_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_5_Bkg_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_5_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_5_Bkg_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_5_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_5_Bkg_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_5_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_5_Bkg_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_6_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_6_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_6_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_6_Bkg_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_6_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_6_Bkg_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_6_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_6_Bkg_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_6_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_6_Bkg_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_7_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_7_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_7_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_7_Bkg_EB", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_7_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_7_Bkg_EB", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_7_Bkg_EB_ = ibook.book1D("Ele_eta_MTD_7_Bkg_EB", "Electron eta MTD;#eta;Counts", 32, 0., 1.6);
+    meEle_phi_MTD_7_Bkg_EB_ = ibook.book1D("Ele_phi_MTD_7_Bkg_EB", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_sim_MTD_1_Bkg_EB_ =
         ibook.book1D("Ele_pT_sim_MTD_1_Bkg_EB", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
@@ -3361,9 +3302,9 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                              10,
                                              100);
   meEle_eta_MTD_4sigma_Bkg_EB_ = ibook.book1D(
-      "Ele_eta_MTD_4sigma_Bkg_EB", "Electron eta MTD - 4 sigma compatibility - Bkg Barrel;#eta;Counts", 128, -3.2, 3.2);
+      "Ele_eta_MTD_4sigma_Bkg_EB", "Electron eta MTD - 4 sigma compatibility - Bkg Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_phi_MTD_4sigma_Bkg_EB_ = ibook.book1D(
-      "Ele_phi_MTD_4sigma_Bkg_EB", "Electron phi MTD - 4 sigma compatibility - Bkg Barrel;#phi;Counts", 128, -3.2, 3.2);
+      "Ele_phi_MTD_4sigma_Bkg_EB", "Electron phi MTD - 4 sigma compatibility - Bkg Barrel;#phi;Counts", 64, -3.2, 3.2);
 
   meEle_pt_MTD_3sigma_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_3sigma_Bkg_EB",
                                              "Electron pT MTD - 3 sigma compatibility - Bkg Barrel;p_{T} (GeV);Counts",
@@ -3371,9 +3312,9 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                              10,
                                              100);
   meEle_eta_MTD_3sigma_Bkg_EB_ = ibook.book1D(
-      "Ele_eta_MTD_3sigma_Bkg_EB", "Electron eta MTD - 3 sigma compatibility - Bkg Barrel;#eta;Counts", 128, -3.2, 3.2);
+      "Ele_eta_MTD_3sigma_Bkg_EB", "Electron eta MTD - 3 sigma compatibility - Bkg Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_phi_MTD_3sigma_Bkg_EB_ = ibook.book1D(
-      "Ele_phi_MTD_3sigma_Bkg_EB", "Electron phi MTD - 3 sigma compatibility - Bkg Barrel;#phi;Counts", 128, -3.2, 3.2);
+      "Ele_phi_MTD_3sigma_Bkg_EB", "Electron phi MTD - 3 sigma compatibility - Bkg Barrel;#phi;Counts", 64, -3.2, 3.2);
 
   meEle_pt_MTD_2sigma_Bkg_EB_ = ibook.book1D("Ele_pT_MTD_2sigma_Bkg_EB",
                                              "Electron pT MTD - 2 sigma compatibility - Bkg Barrel;p_{T} (GeV);Counts",
@@ -3381,9 +3322,9 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                              10,
                                              100);
   meEle_eta_MTD_2sigma_Bkg_EB_ = ibook.book1D(
-      "Ele_eta_MTD_2sigma_Bkg_EB", "Electron eta MTD - 2 sigma compatibility - Bkg Barrel;#eta;Counts", 128, -3.2, 3.2);
+      "Ele_eta_MTD_2sigma_Bkg_EB", "Electron eta MTD - 2 sigma compatibility - Bkg Barrel;#eta;Counts", 32, 0., 1.6);
   meEle_phi_MTD_2sigma_Bkg_EB_ = ibook.book1D(
-      "Ele_phi_MTD_2sigma_Bkg_EB", "Electron phi MTD - 2 sigma compatibility - Bkg Barrel;#phi;Counts", 128, -3.2, 3.2);
+      "Ele_phi_MTD_2sigma_Bkg_EB", "Electron phi MTD - 2 sigma compatibility - Bkg Barrel;#phi;Counts", 64, -3.2, 3.2);
 
   meEleISO_Ntracks_Bkg_EE_ = ibook.book1D(
       "Ele_Iso_Ntracks_Bkg_EE",
@@ -3394,13 +3335,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meEleISO_chIso_Bkg_EE_ = ibook.book1D(
       "Ele_chIso_sum_Bkg_EE",
       "Track pT sum in isolation cone around electron track after basic cuts - Bkg Endcap;p_{T} (GeV);Counts",
-      2000,
+      nbin_2,
       0,
       20);
   meEleISO_rel_chIso_Bkg_EE_ = ibook.book1D(
       "Ele_rel_chIso_sum_Bkg_EE",
       "Track relative pT sum in isolation cone around electron track after basic cuts - Bkg Endcap;Isolation;Counts",
-      1000,
+      nbin_1,
       0,
       4);
   if (optionalPlots_) {
@@ -3432,13 +3373,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_1_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_1_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_1_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_1_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3451,13 +3392,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_2_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_2_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_2_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_2_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
     meEleISO_Ntracks_gen_Bkg_EE_ = ibook.book1D("Ele_Iso_Ntracks_gen_Bkg_EE",
@@ -3469,13 +3410,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_gen_Bkg_EE_ = ibook.book1D("Ele_chIso_sum_gen_Bkg_EE",
                                               "Track pT sum in isolation cone around electron track after basic cuts "
                                               "using genInfo - Bkg Endcap;p_{T} (GeV);Counts",
-                                              2000,
+                                              nbin_2,
                                               0,
                                               20);
     meEleISO_rel_chIso_gen_Bkg_EE_ = ibook.book1D("Ele_rel_chIso_sum_gen_Bkg_EE",
                                                   "Track relative pT sum in isolation cone around electron track after "
                                                   "basic cuts using genInfo - Bkg Endcap;Isolation;Counts",
-                                                  1000,
+                                                  nbin_1,
                                                   0,
                                                   4);
 
@@ -3488,13 +3429,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_3_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_3_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_3_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_3_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3507,13 +3448,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_4_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_4_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_4_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_4_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3526,13 +3467,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_5_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_5_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_5_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_5_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3545,13 +3486,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_6_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_6_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_6_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_6_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3564,13 +3505,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_7_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_7_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_7_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_7_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3583,13 +3524,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_1_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_1_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_1_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_1_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3602,13 +3543,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_2_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_2_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_2_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_2_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3621,13 +3562,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_3_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_3_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_3_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_3_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3640,13 +3581,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_4_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_4_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_4_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_4_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3659,13 +3600,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_5_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_5_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_5_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_5_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3678,13 +3619,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_6_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_6_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_6_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_6_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
 
@@ -3697,13 +3638,13 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     meEleISO_chIso_MTD_sim_7_Bkg_EE_ = ibook.book1D(
         "Ele_chIso_sum_MTD_sim_7_Bkg_EE",
         "Track pT sum in isolation cone around electron track after basic cuts with MTD;p_{T} (GeV);Counts",
-        2000,
+        nbin_2,
         0,
         20);
     meEleISO_rel_chIso_MTD_sim_7_Bkg_EE_ = ibook.book1D(
         "Ele_rel_chIso_sum_MTD_sim_7_Bkg_EE",
         "Track relative pT sum in isolation cone around electron track after basic cuts with MTD;Isolation;Counts",
-        1000,
+        nbin_1,
         0,
         4);
   }
@@ -3718,14 +3659,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_4sigma_Bkg_EE",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 4 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_4sigma_Bkg_EE_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_4sigma_Bkg_EE",
                    "Track relative pT sum in isolation cone around electron track "
                    "after basic cuts with MTD - 4 sigma compatibility - Bkg Endcap;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -3740,14 +3681,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_3sigma_Bkg_EE",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 3 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_3sigma_Bkg_EE_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_3sigma_Bkg_EE",
                    "Track relative pT sum in isolation cone around electron track "
                    "after basic cuts with MTD - 3 sigma compatibility - Bkg Endcap;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -3762,14 +3703,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("Ele_chIso_sum_MTD_2sigma_Bkg_EE",
                    "Track pT sum in isolation cone around electron track after basic "
                    "cuts with MTD - 2 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
-                   2000,
+                   nbin_2,
                    0,
                    20);
   meEleISO_rel_chIso_MTD_2sigma_Bkg_EE_ =
       ibook.book1D("Ele_rel_chIso_sum_MTD_2sigma_Bkg_EE",
                    "Track relative pT sum in isolation cone around electron track "
                    "after basic cuts with MTD - 2 sigma compatibility - Bkg Endcap;Isolation;Counts",
-                   1000,
+                   nbin_1,
                    0,
                    4);
 
@@ -3781,15 +3722,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meEle_pt_sim_tot_Bkg_EE_ =
       ibook.book1D("Ele_pT_sim_tot_Bkg_EE", "Electron pT tot - Bkg Endcap;p_{T} (GeV);Counts", 30, 10, 100);
 
-  meEle_eta_tot_Bkg_EE_ =
-      ibook.book1D("Ele_eta_tot_Bkg_EE", "Electron eta tot - Bkg Endcap;#eta;Counts", 128, -3.2, 3.2);
+  meEle_eta_tot_Bkg_EE_ = ibook.book1D("Ele_eta_tot_Bkg_EE", "Electron eta tot - Bkg Endcap;#eta;Counts", 32, 1.6, 3.2);
   meEle_eta_noMTD_Bkg_EE_ =
-      ibook.book1D("Ele_eta_noMTD_Bkg_EE", "Electron eta noMTD - Bkg Endcap;#eta;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_eta_noMTD_Bkg_EE", "Electron eta noMTD - Bkg Endcap;#eta;Counts", 32, 1.6, 3.2);
 
   meEle_phi_tot_Bkg_EE_ =
-      ibook.book1D("Ele_phi_tot_Bkg_EE", "Electron phi tot - Bkg Endcap;#phi;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_tot_Bkg_EE", "Electron phi tot - Bkg Endcap;#phi;Counts", 64, -3.2, 3.2);
   meEle_phi_noMTD_Bkg_EE_ =
-      ibook.book1D("Ele_phi_noMTD_Bkg_EE", "Electron phi noMTD - Bkg Endcap;#phi;Counts", 128, -3.2, 3.2);
+      ibook.book1D("Ele_phi_noMTD_Bkg_EE", "Electron phi noMTD - Bkg Endcap;#phi;Counts", 64, -3.2, 3.2);
   if (optionalPlots_) {
     meEleISO_Ntracks_MTD_sim_4sigma_Bkg_EE_ =
         ibook.book1D("Ele_Iso_Ntracks_MTD_sim_4sigma_Bkg_EE",
@@ -3802,14 +3742,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_4sigma_Bkg_EE",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 4 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_4sigma_Bkg_EE_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_4sigma_Bkg_EE",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 4 "
                      "sigma compatibility - Bkg Endcap;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
@@ -3824,14 +3764,14 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_3sigma_Bkg_EE",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 3 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_3sigma_Bkg_EE_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_3sigma_Bkg_EE",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 3 "
                      "sigma compatibility - Bkg Endcap;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
@@ -3846,50 +3786,50 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         ibook.book1D("Ele_chIso_sum_MTD_sim_2sigma_Bkg_EE",
                      "Track pT sum in isolation cone around electron track after "
                      "basic cuts with MTD SIM - 2 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
-                     2000,
+                     nbin_2,
                      0,
                      20);
     meEleISO_rel_chIso_MTD_sim_2sigma_Bkg_EE_ =
         ibook.book1D("Ele_rel_chIso_sum_MTD_sim_2sigma_Bkg_EE",
                      "Track relative pT sum in isolation cone around electron track after basic cuts with MTD SIM - 2 "
                      "sigma compatibility - Bkg Endcap;Isolation;Counts",
-                     1000,
+                     nbin_1,
                      0,
                      4);
 
     meEle_pt_MTD_1_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_1_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_1_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_1_Bkg_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_1_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_1_Bkg_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_1_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_1_Bkg_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_1_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_1_Bkg_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
     meEle_pt_gen_Bkg_EE_ =
         ibook.book1D("Ele_pT_gen_Bkg_EE", "Electron pT genInfo - Bkg Endcap;p_{T} (GeV);Counts", 30, 10, 100);
     meEle_eta_gen_Bkg_EE_ =
-        ibook.book1D("Ele_eta_gen_Bkg_EE", "Electron eta genInfo - Bkg Endcap;#eta;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_eta_gen_Bkg_EE", "Electron eta genInfo - Bkg Endcap;#eta;Counts", 32, 1.6, 3.2);
     meEle_phi_gen_Bkg_EE_ =
-        ibook.book1D("Ele_phi_gen_Bkg_EE", "Electron phi genInfo - Bkg Endcap;#phi;Counts", 128, -3.2, 3.2);
+        ibook.book1D("Ele_phi_gen_Bkg_EE", "Electron phi genInfo - Bkg Endcap;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_2_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_2_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_2_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_2_Bkg_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_2_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_2_Bkg_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_2_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_2_Bkg_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_2_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_2_Bkg_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_3_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_3_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_3_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_3_Bkg_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_3_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_3_Bkg_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_3_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_3_Bkg_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_3_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_3_Bkg_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_4_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_4_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_4_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_4_Bkg_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_4_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_4_Bkg_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_4_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_4_Bkg_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_4_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_4_Bkg_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_5_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_5_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_5_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_5_Bkg_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_5_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_5_Bkg_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_5_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_5_Bkg_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_5_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_5_Bkg_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_6_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_6_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_6_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_6_Bkg_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_6_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_6_Bkg_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_6_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_6_Bkg_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_6_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_6_Bkg_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_MTD_7_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_7_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
-    meEle_eta_MTD_7_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_7_Bkg_EE", "Electron eta MTD;#eta;Counts", 128, -3.2, 3.2);
-    meEle_phi_MTD_7_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_7_Bkg_EE", "Electron phi MTD;#phi;Counts", 128, -3.2, 3.2);
+    meEle_eta_MTD_7_Bkg_EE_ = ibook.book1D("Ele_eta_MTD_7_Bkg_EE", "Electron eta MTD;#eta;Counts", 32, 1.6, 3.2);
+    meEle_phi_MTD_7_Bkg_EE_ = ibook.book1D("Ele_phi_MTD_7_Bkg_EE", "Electron phi MTD;#phi;Counts", 64, -3.2, 3.2);
 
     meEle_pt_sim_MTD_1_Bkg_EE_ =
         ibook.book1D("Ele_pT_sim_MTD_1_Bkg_EE", "Electron pT MTD;p_{T} (GeV);Counts", 30, 10, 100);
@@ -3913,9 +3853,9 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                              10,
                                              100);
   meEle_eta_MTD_4sigma_Bkg_EE_ = ibook.book1D(
-      "Ele_eta_MTD_4sigma_Bkg_EE", "Electron eta MTD - 4 sigma compatibility - Bkg Endcapi;#eta;Counts", 128, -3.2, 3.2);
+      "Ele_eta_MTD_4sigma_Bkg_EE", "Electron eta MTD - 4 sigma compatibility - Bkg Endcapi;#eta;Counts", 32, 1.6, 3.2);
   meEle_phi_MTD_4sigma_Bkg_EE_ = ibook.book1D(
-      "Ele_phi_MTD_4sigma_Bkg_EE", "Electron phi MTD - 4 sigma compatibility - Bkg Endcap;#phi;Counts", 128, -3.2, 3.2);
+      "Ele_phi_MTD_4sigma_Bkg_EE", "Electron phi MTD - 4 sigma compatibility - Bkg Endcap;#phi;Counts", 64, -3.2, 3.2);
 
   meEle_pt_MTD_3sigma_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_3sigma_Bkg_EE",
                                              "Electron pT MTD - 3 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
@@ -3923,9 +3863,9 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                              10,
                                              100);
   meEle_eta_MTD_3sigma_Bkg_EE_ = ibook.book1D(
-      "Ele_eta_MTD_3sigma_Bkg_EE", "Electron eta MTD - 3 sigma compatibility - Bkg Endcap;#eta;Counts", 128, -3.2, 3.2);
+      "Ele_eta_MTD_3sigma_Bkg_EE", "Electron eta MTD - 3 sigma compatibility - Bkg Endcap;#eta;Counts", 32, 1.6, 3.2);
   meEle_phi_MTD_3sigma_Bkg_EE_ = ibook.book1D(
-      "Ele_phi_MTD_3sigma_Bkg_EE", "Electron phi MTD - 3 sigma compatibility - Bkg Endcap;#phi;Counts", 128, -3.2, 3.2);
+      "Ele_phi_MTD_3sigma_Bkg_EE", "Electron phi MTD - 3 sigma compatibility - Bkg Endcap;#phi;Counts", 64, -3.2, 3.2);
 
   meEle_pt_MTD_2sigma_Bkg_EE_ = ibook.book1D("Ele_pT_MTD_2sigma_Bkg_EE",
                                              "Electron pT MTD - 2 sigma compatibility - Bkg Endcap;p_{T} (GeV);Counts",
@@ -3933,9 +3873,9 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                              10,
                                              100);
   meEle_eta_MTD_2sigma_Bkg_EE_ = ibook.book1D(
-      "Ele_eta_MTD_2sigma_Bkg_EE", "Electron eta MTD - 2 sigma compatibility - Bkg Endcap;#eta;Counts", 128, -3.2, 3.2);
+      "Ele_eta_MTD_2sigma_Bkg_EE", "Electron eta MTD - 2 sigma compatibility - Bkg Endcap;#eta;Counts", 32, 1.6, 3.2);
   meEle_phi_MTD_2sigma_Bkg_EE_ = ibook.book1D(
-      "Ele_phi_MTD_2sigma_Bkg_EE", "Electron phi MTD - 2 sigma compatibility - Bkg Endcap;#phi;Counts", 128, -3.2, 3.2);
+      "Ele_phi_MTD_2sigma_Bkg_EE", "Electron phi MTD - 2 sigma compatibility - Bkg Endcap;#phi;Counts", 64, -3.2, 3.2);
 
   if (optionalPlots_) {
     meEle_pt_sim_MTD_4sigma_Bkg_EE_ =
@@ -3957,167 +3897,6 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                      10,
                      100);
   }
-
-  meEle_dt_general_pT_1 = ibook.book1D("Iso_track_dt_general_pT_10_20",
-                                       "Iso cone track dt distribution in pT bin 10-20 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_2 = ibook.book1D("Iso_track_dt_general_pT_20_30",
-                                       "Iso cone track dt distribution in pT bin 20-30 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_3 = ibook.book1D("Iso_track_dt_general_pT_30_40",
-                                       "Iso cone track dt distribution in pT bin 30-40 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_4 = ibook.book1D("Iso_track_dt_general_pT_40_50",
-                                       "Iso cone track dt distribution in pT bin 40-50 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_5 = ibook.book1D("Iso_track_dt_general_pT_50_60",
-                                       "Iso cone track dt distribution in pT bin 50-60 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_6 = ibook.book1D("Iso_track_dt_general_pT_60_70",
-                                       "Iso cone track dt distribution in pT bin 60-70 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_7 = ibook.book1D("Iso_track_dt_general_pT_70_80",
-                                       "Iso cone track dt distribution in pT bin 70-80 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_8 = ibook.book1D("Iso_track_dt_general_pT_80_90",
-                                       "Iso cone track dt distribution in pT bin 80-90 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-  meEle_dt_general_pT_9 = ibook.book1D("Iso_track_dt_general_pT_90_100",
-                                       "Iso cone track dt distribution in pT bin 90-100 GeV ;Time (ns);Counts",
-                                       100,
-                                       0,
-                                       1);
-
-  meEle_dtSignif_general_pT_1 = ibook.book1D("Iso_track_dtSignif_general_pT_10_20",
-                                             "Iso cone track dt distribution in pT bin 10-20 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_2 = ibook.book1D("Iso_track_dtSignif_general_pT_20_30",
-                                             "Iso cone track dt distribution in pT bin 20-30 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_3 = ibook.book1D("Iso_track_dtSignif_general_pT_30_40",
-                                             "Iso cone track dt distribution in pT bin 30-40 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_4 = ibook.book1D("Iso_track_dtSignif_general_pT_40_50",
-                                             "Iso cone track dt distribution in pT bin 40-50 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_5 = ibook.book1D("Iso_track_dtSignif_general_pT_50_60",
-                                             "Iso cone track dt distribution in pT bin 50-60 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_6 = ibook.book1D("Iso_track_dtSignif_general_pT_60_70",
-                                             "Iso cone track dt distribution in pT bin 60-70 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_7 = ibook.book1D("Iso_track_dtSignif_general_pT_70_80",
-                                             "Iso cone track dt distribution in pT bin 70-80 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_8 = ibook.book1D("Iso_track_dtSignif_general_pT_80_90",
-                                             "Iso cone track dt distribution in pT bin 80-90 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-  meEle_dtSignif_general_pT_9 = ibook.book1D("Iso_track_dtSignif_general_pT_90_100",
-                                             "Iso cone track dt distribution in pT bin 90-100 GeV ;Time (ns);Counts",
-                                             1000,
-                                             0,
-                                             10);
-
-  meEle_dt_general_eta_1 = ibook.book1D(
-      "Iso_track_dt_general_eta_0_05", "Iso cone track dt distribution in eta bin 0.0-0.5 ;Time (ns);Counts", 100, 0, 1);
-  meEle_dt_general_eta_2 = ibook.book1D("Iso_track_dt_general_eta_05_10",
-                                        "Iso cone track dt distribution in eta bin 0.5-1.0 ;Time (ns);Counts",
-                                        100,
-                                        0,
-                                        1);
-  meEle_dt_general_eta_3 = ibook.book1D("Iso_track_dt_general_eta_10_15",
-                                        "Iso cone track dt distribution in eta bin 1.0-1.5 ;Time (ns);Counts",
-                                        100,
-                                        0,
-                                        1);
-  meEle_dt_general_eta_4 = ibook.book1D("Iso_track_dt_general_eta_15_20",
-                                        "Iso cone track dt distribution in eta bin 1.5-2.0 ;Time (ns);Counts",
-                                        100,
-                                        0,
-                                        1);
-  meEle_dt_general_eta_5 = ibook.book1D("Iso_track_dt_general_eta_20_24",
-                                        "Iso cone track dt distribution in eta bin 2.0-2.4 ;Time (ns);Counts",
-                                        100,
-                                        0,
-                                        1);
-  meEle_dt_general_eta_6 = ibook.book1D("Iso_track_dt_general_eta_24_27",
-                                        "Iso cone track dt distribution in eta bin 2.4-2.7 ;Time (ns);Counts",
-                                        100,
-                                        0,
-                                        1);
-  meEle_dt_general_eta_7 = ibook.book1D("Iso_track_dt_general_eta_27_30",
-                                        "Iso cone track dt distribution in eta bin 2.7-3.0 ;Time (ns);Counts",
-                                        100,
-                                        0,
-                                        1);
-
-  meEle_dtSignif_general_eta_1 = ibook.book1D("Iso_track_dtSignif_general_eta_0_05",
-                                              "Iso cone track dt distribution in eta bin 0.0-0.5 ;Time (ns);Counts",
-                                              1000,
-                                              0,
-                                              10);
-  meEle_dtSignif_general_eta_2 = ibook.book1D("Iso_track_dtSignif_general_eta_05_10",
-                                              "Iso cone track dt distribution in eta bin 0.5-1.0 ;Time (ns);Counts",
-                                              1000,
-                                              0,
-                                              10);
-  meEle_dtSignif_general_eta_3 = ibook.book1D("Iso_track_dtSignif_general_eta_10_15",
-                                              "Iso cone track dt distribution in eta bin 1.0-1.5 ;Time (ns);Counts",
-                                              1000,
-                                              0,
-                                              10);
-  meEle_dtSignif_general_eta_4 = ibook.book1D("Iso_track_dtSignif_general_eta_15_20",
-                                              "Iso cone track dt distribution in eta bin 1.5-2.0 ;Time (ns);Counts",
-                                              1000,
-                                              0,
-                                              10);
-  meEle_dtSignif_general_eta_5 = ibook.book1D("Iso_track_dtSignif_general_eta_20_24",
-                                              "Iso cone track dt distribution in eta bin 2.0-2.4 ;Time (ns);Counts",
-                                              1000,
-                                              0,
-                                              10);
-  meEle_dtSignif_general_eta_6 = ibook.book1D("Iso_track_dtSignif_general_eta_24_27",
-                                              "Iso cone track dt distribution in eta bin 2.4-2.7 ;Time (ns);Counts",
-                                              1000,
-                                              0,
-                                              10);
-  meEle_dtSignif_general_eta_7 = ibook.book1D("Iso_track_dtSignif_general_eta_27_30",
-                                              "Iso cone track dt distribution in eta bin 2.7-3.0 ;Time (ns);Counts",
-                                              1000,
-                                              0,
-                                              10);
 
   // defining vectors for more efficient hist filling
   // Promt part
@@ -4541,42 +4320,6 @@ void MtdEleIsoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     Ele_pT_sim_MTD_EE_list_Significance_Bkg = {
         meEle_pt_sim_MTD_4sigma_Bkg_EE_, meEle_pt_sim_MTD_3sigma_Bkg_EE_, meEle_pt_sim_MTD_2sigma_Bkg_EE_};
   }
-  // dt distribution hist vecotrs
-
-  general_pT_list = {meEle_dt_general_pT_1,
-                     meEle_dt_general_pT_2,
-                     meEle_dt_general_pT_3,
-                     meEle_dt_general_pT_4,
-                     meEle_dt_general_pT_5,
-                     meEle_dt_general_pT_6,
-                     meEle_dt_general_pT_7,
-                     meEle_dt_general_pT_8,
-                     meEle_dt_general_pT_9};
-
-  general_pT_Signif_list = {meEle_dtSignif_general_pT_1,
-                            meEle_dtSignif_general_pT_2,
-                            meEle_dtSignif_general_pT_3,
-                            meEle_dtSignif_general_pT_4,
-                            meEle_dtSignif_general_pT_5,
-                            meEle_dtSignif_general_pT_6,
-                            meEle_dtSignif_general_pT_7,
-                            meEle_dtSignif_general_pT_8,
-                            meEle_dtSignif_general_pT_9};
-  general_eta_list = {meEle_dt_general_eta_1,
-                      meEle_dt_general_eta_2,
-                      meEle_dt_general_eta_3,
-                      meEle_dt_general_eta_4,
-                      meEle_dt_general_eta_5,
-                      meEle_dt_general_eta_6,
-                      meEle_dt_general_eta_7};
-
-  general_eta_Signif_list = {meEle_dtSignif_general_eta_1,
-                             meEle_dtSignif_general_eta_2,
-                             meEle_dtSignif_general_eta_3,
-                             meEle_dtSignif_general_eta_4,
-                             meEle_dtSignif_general_eta_5,
-                             meEle_dtSignif_general_eta_6,
-                             meEle_dtSignif_general_eta_7};
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -4603,7 +4346,6 @@ void MtdEleIsoValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("rel_iso_cut", 0.08);
   desc.add<bool>("optionTrackMatchToPV", false);
   desc.add<bool>("option_dtToTrack", true);  // default is dt with track, if false will do dt to vertex
-  desc.add<bool>("option_dtDistributions", false);
   desc.add<bool>("option_plots", false);
   desc.add<double>("min_dR_cut", 0.01);
   desc.add<double>("max_dR_cut", 0.3);
