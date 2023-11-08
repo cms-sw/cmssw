@@ -32,11 +32,11 @@ autoCond = {
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              :    '133X_dataRun2_HLT_relval_v2',
     # GlobalTag for Run3 HLT: identical to the online GT (132X_dataRun3_HLT_v2) but with snapshot at 2023-10-04 21:27:37 (UTC)
-    'run3_hlt'                     :    '133X_dataRun3_HLT_frozen_v1',
+    'run3_hlt'                     :    '133X_dataRun3_HLT_frozen_v2',
     # GlobalTag for Run3 data relvals (express GT) - 132X_dataRun3_Express_v4 with Ecal CC timing tags and snapshot at 2023-10-04 21:27:37 (UTC)
-    'run3_data_express'            :    '133X_dataRun3_Express_frozen_v1',
+    'run3_data_express'            :    '133X_dataRun3_Express_frozen_v2',
     # GlobalTag for Run3 data relvals (prompt GT) - 132X_dataRun3_Prompt_v4 with Ecal CC timing tags and snapshot at 2023-10-04 21:27:37 (UTC)
-    'run3_data_prompt'             :    '133X_dataRun3_Prompt_frozen_v1',
+    'run3_data_prompt'             :    '133X_dataRun3_Prompt_frozen_v2',
     # GlobalTag for Run3 offline data reprocessing - snapshot at 2023-10-19 12:00:00 (UTC)
     'run3_data'                    :    '133X_dataRun3_v4',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currenlty for 2022FG - snapshot at 2023-10-19 12:00:00 (UTC)
