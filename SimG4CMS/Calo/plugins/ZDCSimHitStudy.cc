@@ -35,7 +35,7 @@ protected:
   void endJob() override {}
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
-  void analyzeHits(const std::vector<PCaloHit>&);
+  void analyzeHits(const std::vector<PCaloHit> &);
 
 private:
   const std::string g4Label_;
@@ -55,7 +55,8 @@ ZDCSimHitStudy::ZDCSimHitStudy(const edm::ParameterSet &ps)
       toks_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, hitLab_})) {
   usesResource(TFileService::kSharedResource);
 
-  edm::LogVerbatim("HitStudy") << "HOSimHitStudy::Module Label: " << g4Label_ << "   Hits: " << hitLab_  << "   MaxEnergy: " << maxEnergy_  << " time Cut " << tCut_;
+  edm::LogVerbatim("HitStudy") << "HOSimHitStudy::Module Label: " << g4Label_ << "   Hits: " << hitLab_
+                               << "   MaxEnergy: " << maxEnergy_ << " time Cut " << tCut_;
 }
 
 void ZDCSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -78,14 +79,13 @@ void ZDCSimHitStudy::beginJob() {
   hit_ = tfile->make<TH1F>("Hits", "Number of Hits", 100, 0., 100);
   edep_ = tfile->make<TH1F>("Edep", "Deposited Energy (GeV)", 1000, 0., ymax);
   eTot_ = tfile->make<TH1F>("ETot", "Total Energy in a time window (GeV)", 1000, 0., ymax);
-  eTotT_ = tfile->make<TH1F>("ETotT", "Total Energy (GeV)", 1000, 0., ymax); 
+  eTotT_ = tfile->make<TH1F>("ETotT", "Total Energy (GeV)", 1000, 0., ymax);
   time_ = tfile->make<TH1F>("Time", "Hit Time (ns)", 2000, 0., 2000);
   indx_ = tfile->make<TH1F>("Indx", "Hit ID", 100, 0., 100);
 }
 
 void ZDCSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
   edm::LogVerbatim("HitStudy") << "ZDCSimHitStudy::Run = " << e.id().run() << " Event = " << e.id().event();
-
 
   bool getHits = false;
   std::vector<PCaloHit> zdcHits;
@@ -102,7 +102,7 @@ void ZDCSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
   analyzeHits(zdcHits);
 }
 
-void ZDCSimHitStudy::analyzeHits(const std::vector<PCaloHit>& zdcHits) {
+void ZDCSimHitStudy::analyzeHits(const std::vector<PCaloHit> &zdcHits) {
   //initialize
   double etot(0), etotT(0);
   int nHit = zdcHits.size();
@@ -115,7 +115,11 @@ void ZDCSimHitStudy::analyzeHits(const std::vector<PCaloHit>& zdcHits) {
     if (time < tCut_)
       etot += edep;
     if (verbose_)
-      edm::LogVerbatim("HitStudy") << "ZDCSimHitStudy:: Hit " << i << " Section:" << HcalZDCDetId(id).section() << " zside:" << HcalZDCDetId(id).zside() << " depth:" << HcalZDCDetId(id).depth() << " channel:" << HcalZDCDetId(id).channel() << " dense:" << HcalZDCDetId(id).denseIndex() << " edep:" << edep << " time:" << time;
+      edm::LogVerbatim("HitStudy") << "ZDCSimHitStudy:: Hit " << i << " Section:" << HcalZDCDetId(id).section()
+                                   << " zside:" << HcalZDCDetId(id).zside() << " depth:" << HcalZDCDetId(id).depth()
+                                   << " channel:" << HcalZDCDetId(id).channel()
+                                   << " dense:" << HcalZDCDetId(id).denseIndex() << " edep:" << edep
+                                   << " time:" << time;
     time_->Fill(time);
     edep_->Fill(edep);
     indx_->Fill(indx);
@@ -125,7 +129,8 @@ void ZDCSimHitStudy::analyzeHits(const std::vector<PCaloHit>& zdcHits) {
   hit_->Fill(nHit);
 
   if (verbose_)
-    edm::LogVerbatim("HitStudy") << "ZDCSimHitStudy::analyzeHits: Hits in ZDC " << nHit << " Energy deposits " << etot << ":" << etotT;
+    edm::LogVerbatim("HitStudy") << "ZDCSimHitStudy::analyzeHits: Hits in ZDC " << nHit << " Energy deposits " << etot
+                                 << ":" << etotT;
 }
 
 //define this as a plug-in
