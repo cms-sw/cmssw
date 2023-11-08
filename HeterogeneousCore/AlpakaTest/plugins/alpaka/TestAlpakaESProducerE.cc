@@ -9,6 +9,8 @@
 #include "HeterogeneousCore/AlpakaTest/interface/ESTestData.h"
 #include "HeterogeneousCore/AlpakaTest/interface/alpaka/AlpakaESTestData.h"
 
+#include <cmath>
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
    * This class demonstrates an ESProducer that uses the
@@ -16,9 +18,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    * host ESProduct and converts the data into PortableCollection, and
    * implicitly transfers the data product to device
    */
-  class TestAlpakaESProducerA : public ESProducer {
+  class TestAlpakaESProducerE : public ESProducer {
   public:
-    TestAlpakaESProducerA(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
+    TestAlpakaESProducerE(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       auto cc = setWhatProduced(this);
       token_ = cc.consumes();
     }
@@ -28,22 +30,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       descriptions.addWithDefaultLabel(desc);
     }
 
-    std::unique_ptr<AlpakaESTestDataAHost> produce(AlpakaESTestRecordA const& iRecord) {
+    std::optional<AlpakaESTestDataEHost> produce(AlpakaESTestRecordC const& iRecord) {
       auto const& input = iRecord.get(token_);
 
-      int const size = 10;
+      int const edatasize = 2;
+      AlpakaESTestDataEHost::EDataCollection data(edatasize, cms::alpakatools::host());
+      for (int i = 0; i < edatasize; ++i) {
+        data.view()[i].val2() = i * 10 + 1;
+      }
+
+      int const esize = 5;
       // TODO: pinned allocation?
       // TODO: cached allocation?
-      auto product = std::make_unique<AlpakaESTestDataAHost>(size, cms::alpakatools::host());
-      for (int i = 0; i < size; ++i) {
-        product->view()[i].z() = input.value() - i;
+      AlpakaESTestDataEHost::ECollection e(esize, cms::alpakatools::host());
+      for (int i = 0; i < esize; ++i) {
+        e.view()[i].val() = std::abs(input.value()) + i * 2;
+        e.view()[i].ind() = i % edatasize;
       }
-      return product;
+      return AlpakaESTestDataEHost(std::move(e), std::move(data));
     }
 
   private:
-    edm::ESGetToken<cms::alpakatest::ESTestDataA, AlpakaESTestRecordA> token_;
+    edm::ESGetToken<cms::alpakatest::ESTestDataC, AlpakaESTestRecordC> token_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(TestAlpakaESProducerA);
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(TestAlpakaESProducerE);

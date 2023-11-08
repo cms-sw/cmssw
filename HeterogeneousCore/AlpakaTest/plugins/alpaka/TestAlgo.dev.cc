@@ -82,4 +82,54 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue, workDiv, TestAlgoStructKernel{}, object.data(), x, y, z, id);
   }
 
+  class TestAlgoKernelUpdate {
+  public:
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+                                  portabletest::TestDeviceCollection::ConstView input,
+                                  AlpakaESTestDataEDevice::ConstView esData,
+                                  portabletest::TestDeviceCollection::View output) const {
+      // global index of the thread within the grid
+      const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
+
+      // set this only once in the whole kernel grid
+      if (thread == 0) {
+        output.r() = input.r();
+      }
+
+      // make a strided loop over the kernel grid, covering up to "size" elements
+      for (int32_t i : elements_with_stride(acc, output.metadata().size())) {
+        // just to test it compiles
+        double x = input[i].x();
+        if (i < esData.size()) {
+          x += esData.val(i) + esData.val2(i);
+        }
+        // zero it back so the AlpakaTestAnalyzer assert doesn't fire
+        x -= x * 1.0;
+        output[i] = {x, input[i].y(), input[i].z(), input[i].id(), input[i].flags(), input[i].m()};
+      }
+    }
+  };
+
+  portabletest::TestDeviceCollection TestAlgo::update(Queue& queue,
+                                                      portabletest::TestDeviceCollection const& input,
+                                                      AlpakaESTestDataEDevice const& esData) const {
+    portabletest::TestDeviceCollection collection{input->metadata().size(), queue};
+
+    // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
+    uint32_t items = 64;
+
+    // use as many groups as needed to cover the whole problem
+    uint32_t groups = divide_up_by(collection->metadata().size(), items);
+
+    // map items to
+    //   - threads with a single element per thread on a GPU backend
+    //   - elements within a single thread on a CPU backend
+    auto workDiv = make_workdiv<Acc1D>(groups, items);
+
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernelUpdate{}, input.view(), esData.view(), collection.view());
+
+    return collection;
+  }
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
