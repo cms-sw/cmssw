@@ -274,8 +274,8 @@ process.fileOutput = cms.OutputModule("PoolOutputModule",
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter
 process.filterL1ZeroBias = triggerResultsFilter.clone(
     hltResults = cms.InputTag('TriggerResults', '', 'HLT'),
-    # l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
-    l1tResults = cms.InputTag("gtStage2Digis"),  # Adjust the InputTag accordingly
+    l1tResults = cms.InputTag("hltGtStage2ObjectMap", "", "HLT"),  # Adjust the InputTag accordingly
+    # l1tResults = cms.InputTag("gtStage2Digis"),  # Adjust the InputTag accordingly
     triggerConditions = cms.vstring("L1_ZeroBias"),  # Replace with the name of your L1 trigger
 )
 
