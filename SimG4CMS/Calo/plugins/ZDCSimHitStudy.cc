@@ -87,13 +87,11 @@ void ZDCSimHitStudy::beginJob() {
 void ZDCSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
   edm::LogVerbatim("HitStudy") << "ZDCSimHitStudy::Run = " << e.id().run() << " Event = " << e.id().event();
 
-  bool getHits = false;
-  std::vector<PCaloHit> zdcHits;
   const edm::Handle<edm::PCaloHitContainer> &hitsCalo = e.getHandle(toks_calo_);
-  if (hitsCalo.isValid())
-    getHits = true;
+  bool getHits = (hitsCalo.isValid());
   edm::LogVerbatim("HitStudy") << "HOSimHitStudy::Input flag " << hitLab_ << " getHits flag " << getHits;
 
+  std::vector<PCaloHit> zdcHits;
   if (getHits) {
     zdcHits.insert(zdcHits.end(), hitsCalo->begin(), hitsCalo->end());
     unsigned int isiz = zdcHits.size();
