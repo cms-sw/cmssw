@@ -90,8 +90,8 @@ namespace l1ct {
     id_score_t hwIDScore;
     bool hwCharge;
 
-    phi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
-    eta_t hwVtxEta() const { return hwEta + hwDEta; }
+    glbphi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
+    glbeta_t hwVtxEta() const { return hwEta + hwDEta; }
 
     inline bool operator==(const EGIsoEleObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwQual == other.hwQual &&
@@ -164,10 +164,11 @@ namespace l1ct {
       l1gt::Electron ele;
       ele.valid = hwPt != 0;
       ele.v3.pt = CTtoGT_pt(hwPt);
-      ele.v3.phi = CTtoGT_phi(hwPhi);
-      ele.v3.eta = CTtoGT_eta(hwEta);
+      ele.v3.phi = CTtoGT_phi(hwVtxPhi());
+      ele.v3.eta = CTtoGT_eta(hwVtxEta());
       ele.quality = hwQual;
-      ele.charge = hwCharge;
+      // NOTE: GT:  0 = positive, 1 = negative, CT: 0 = negative, 1 = positive
+      ele.charge = !hwCharge;
       ele.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
       ele.isolation = hwIso;
       return ele;

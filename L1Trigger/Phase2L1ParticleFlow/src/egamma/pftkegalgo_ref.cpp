@@ -107,7 +107,6 @@ edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::IsoParameters::getParame
   description.add<double>("dZ", 0.6);
   description.add<double>("dRMin");
   description.add<double>("dRMax");
-  description.add<double>("tkQualityChi2Max");
   return description;
 }
 

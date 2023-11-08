@@ -396,6 +396,7 @@ l1t::TkElectron L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoEleObjEmu &eg
   tkele.setPuppiIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso));
   tkele.setEgBinaryWord(gteg.pack(), l1t::TkElectron::HWEncoding::GT);
   tkele.setIdScore(egele.floatIDScore());
+  tkele.setCharge(egele.intCharge());
   return tkele;
 }
 

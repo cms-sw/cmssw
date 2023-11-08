@@ -1165,7 +1165,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       if (egele.hwPt == 0)
         continue;
 
-      reco::Candidate::PolarLorentzVector mom(egele.floatPt(), egele.floatEta(), egele.floatPhi(), 0.);
+      reco::Candidate::PolarLorentzVector mom(egele.floatPt(), egele.floatVtxEta(), egele.floatVtxPhi(), 0.);
 
       l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom),
                             egele.srcCluster->constituentsAndFractions()[0].first,
@@ -1175,6 +1175,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
       tkele.setEgBinaryWord(egele.pack(), l1t::TkElectron::HWEncoding::CT);
       tkele.setIdScore(egele.floatIDScore());
+      tkele.setCharge(egele.intCharge());
       tkeles->push_back(tkele);
       nele_obj.push_back(tkeles->size() - 1);
     }
