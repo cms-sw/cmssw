@@ -7,7 +7,6 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/Portable/interface/PortableObject.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
@@ -78,14 +77,5 @@ private:
   std::optional<Buffer> buffer_;  //!
   Product* product_;
 };
-
-// Make PortableObject<T, TDev> alias template to work also
-// independently of ALPAKA_ACCELERATOR_NAMESPACE
-namespace traits {
-  template <typename T>
-  struct PortableObjectTrait<T, alpaka::DevCpu> {
-    using ProductType = PortableHostObject<T>;
-  };
-}  // namespace traits
 
 #endif  // DataFormats_Portable_interface_PortableHostObject_h
