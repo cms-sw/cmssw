@@ -1,3 +1,20 @@
+# This test originally demonstrated a problem
+# reported online. The problem has since been
+# fixed by a modification in the function
+# EventProcessor::handleNextEventForStreamAsync.
+# I've left unmodified a description of the
+# problem below. It is still interesting to keep
+# this configuration around and running as it
+# still demonstrates the circumstances in a
+# way that none of the other tests replicate
+# and shows that the problem is fixed if one
+# examines the log output. Note that it is not
+# coded as a pass/fail test because the timing
+# could vary and we don't want a test that
+# occasionally fails. It might sometimes still
+# exhibit the problem behavior if for example
+# a thread hangs.
+
 # Demonstrates a problem first noticed online. Say there
 # are 3 lumis. The first and last lumis have events.
 # The middle one has no events. We are using
