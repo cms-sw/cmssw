@@ -117,8 +117,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
       edm::LogWarning("SimG4CoreApplication")
           << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
           << " E(MeV)=" << ekin << " Nstep=" << theTrack->GetCurrentStepNumber()
-          << " is killed due to limit on number of steps;/n  PV:"
-	  << preStep->GetPhysicalVolume()->GetName() << " at "
+          << " is killed due to limit on number of steps;/n  PV:" << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)=" << aStep->GetStepLength();
     }
   }
@@ -154,8 +153,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
     // kill low-energy in vacuum
     if (sAlive == tstat && killBeamPipe) {
-      if (ekin < theCriticalEnergyForVacuum &&
-          theTrack->GetDefinition()->GetPDGCharge() != 0.0 &&
+      if (ekin < theCriticalEnergyForVacuum && theTrack->GetDefinition()->GetPDGCharge() != 0.0 &&
           lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
         tstat = sLowEnergyInVacuum;
       }
@@ -213,20 +211,22 @@ bool SteppingAction::initPointer() {
   }
 
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-  
+
   ekinVolumes.resize(numberEkins, nullptr);
   for (auto const& lvcite : *lvs) {
     const G4String& lvname = lvcite->GetName();
-    if (lvname == "CMStoZDC") { m_CMStoZDC = lvcite; }
+    if (lvname == "CMStoZDC") {
+      m_CMStoZDC = lvcite;
+    }
     for (unsigned int i = 0; i < numberEkins; ++i) {
       if (lvname == (G4String)(ekinNames[i])) {
-	ekinVolumes[i] = lvcite;
-	break;
+        ekinVolumes[i] = lvcite;
+        break;
       }
     }
   }
   edm::LogVerbatim("SimG4CoreApplication")
-    << "SteppingAction: pointer for Tracker: " << tracker << "; Calo: " << calo << "; to CMStoZDC: " << m_CMStoZDC;
+      << "SteppingAction: pointer for Tracker: " << tracker << "; Calo: " << calo << "; to CMStoZDC: " << m_CMStoZDC;
   for (unsigned int i = 0; i < numberEkins; ++i) {
     edm::LogVerbatim("SimG4CoreApplication") << ekinVolumes[i]->GetName() << " with pointer " << ekinVolumes[i];
   }
