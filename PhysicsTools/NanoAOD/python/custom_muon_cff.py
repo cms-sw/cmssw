@@ -115,14 +115,14 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.pfAbsIso03_neu = Var("pfIsolationR03().sumNeutralHadronEt",float,doc="PF absolute isolation dR=0.3, neutral component")
     proc.muonTable.variables.pfAbsIso03_pho = Var("pfIsolationR03().sumPhotonEt",float,doc="PF absolute isolation dR=0.3, photon component")
     proc.muonTable.variables.pfAbsIso03_sumPU = Var("pfIsolationR03().sumPUPt",float,doc="PF absolute isolation dR=0.3, pu component (no deltaBeta corrections)")
-    proc.muonTable.variables.absTrkiso03 = Var("userFloat('absTrkiso03')",float,doc="Realtive Tracker Iso with cone size 0.3")
+    proc.muonTable.variables.absTrkIso03 = Var("userFloat('absTrkiso03')",float,doc="Realtive Tracker Iso with cone size 0.3")
     
     # Spark Tool Iso 04 variables
     proc.muonTable.variables.pfAbsIso04_chg = Var("pfIsolationR04().sumChargedHadronPt",float,doc="PF absolute isolation dR=0.4, charged component")
     proc.muonTable.variables.pfAbsIso04_neu = Var("pfIsolationR04().sumNeutralHadronEt",float,doc="PF absolute isolation dR=0.4, neutral component")
     proc.muonTable.variables.pfAbsIso04_pho = Var("pfIsolationR04().sumPhotonEt",float,doc="PF absolute isolation dR=0.4, photon component")
     proc.muonTable.variables.pfAbsIso04_sumPU = Var("pfIsolationR04().sumPUPt",float,doc="PF absolute isolation dR=0.4, pu component (no deltaBeta corrections)")
-    proc.muonTable.variables.absTrkiso04 = Var("userFloat('absTrkiso04')",float,doc="Realtive Tracker Iso with cone size 0.4")
+    proc.muonTable.variables.absTrkIso04 = Var("userFloat('absTrkiso04')",float,doc="Realtive Tracker Iso with cone size 0.4")
 
     #Mini PF Isolation
     proc.muonTable.variables.miniPFAbsIso_chg = Var("userFloat('miniIsoChg')",float,doc="mini PF absolute isolation, charged component")
