@@ -51,6 +51,7 @@ public:
   ConversionTrackCandidateProducer(const edm::ParameterSet& ps);
 
   void beginRun(edm::Run const&, edm::EventSetup const& es) final;
+  void endRun(edm::Run const&, edm::EventSetup const& es) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -114,6 +115,11 @@ private:
 
   std::unique_ptr<ElectronHcalHelper> hcalHelper_;
 
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
+  HcalPFCuts* paramPF;
+
   void buildCollections(bool detector,
                         const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
                         const edm::Handle<edm::View<reco::CaloCluster>>& bcHandle,
@@ -162,6 +168,11 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSCAssociationCollection_ = config.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSCAssociationCollection_ = config.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
+  cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB){
+    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  }
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   maxHOverE_ = config.getParameter<double>("maxHOverE");
   minSCEt_ = config.getParameter<double>("minSCEt");
@@ -224,6 +235,19 @@ void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSet
   theTrajectoryBuilder_->setNavigationSchool(navigation);
   outInSeedFinder_.setNavigationSchool(navigation);
   inOutSeedFinder_.setNavigationSchool(navigation);
+
+  if (cutsFromDB) {
+    const HcalTopology& htopo = theEventSetup.getData(htopoToken_);
+    const HcalPFCuts& hcalCuts = theEventSetup.getData(hcalCutsToken_);
+
+    std::unique_ptr<HcalPFCuts> paramPF_;
+    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
+    paramPF_->setTopo(&htopo);
+    paramPF = paramPF_.release();
+  } else {  //Conditions from config file
+    paramPF = nullptr;
+  }
+
 }
 
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -371,7 +395,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     const reco::CaloCluster* pClus = &(*aClus);
     const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy() / cosh(sc->eta());
-    double HoE = hcalHelper.hcalESum(*sc, 0, hcalHelper.hcalCuts()) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, paramPF) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
 
@@ -454,6 +478,7 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<edm::InputTag>("hbheRecHits", {"hbhereco"});
   desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
+  desc.add<bool>("usePFThresholdsFromDB", false);
   desc.add<int>("maxHcalRecHitSeverity", 999999);
 
   desc.add<double>("minSCEt", 20.0);
@@ -496,3 +521,5 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
 }
+
+void ConversionTrackCandidateProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }

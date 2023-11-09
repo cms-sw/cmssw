@@ -132,6 +132,8 @@ public:
   static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*){};
 
   // ------------ method called to produce the data  ------------
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
@@ -166,6 +168,11 @@ private:
   float extetaboundary_;
 
   std::vector<tensorflow::Session*> tfSessions_;
+
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
+  HcalPFCuts* paramPF;
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -210,6 +217,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
   desc.add<int>("maxHcalRecHitSeverity", 999999);
   desc.add<bool>("hcalRun2EffDepth", false);
+  desc.add<bool>("usePFThresholdsFromDB", false);
 
   // Isolation algos configuration
   desc.add("trkIsol03Cfg", EleTkIsolFromCands::pSetDescript());
@@ -400,6 +408,21 @@ namespace {
   }
 };  // namespace
 
+
+void GsfElectronProducer::beginRun(const edm::Run& run, const edm::EventSetup& es){
+  if (cutsFromDB) {
+    const HcalTopology& htopo = es.getData(htopoToken_);
+    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
+
+    std::unique_ptr<HcalPFCuts> paramPF_;
+    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
+    paramPF_->setTopo(&htopo);
+    paramPF = paramPF_.release();
+  } else {  //Conditions from config file
+    paramPF = nullptr;
+  }
+}
+
 GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache* gcache)
     : cutsCfg_{makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))},
       ecalSeedingParametersChecked_(false),
@@ -409,6 +432,13 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       resetMvaValuesUsingPFCandidates_(cfg.getParameter<bool>("resetMvaValuesUsingPFCandidates")) {
   if (resetMvaValuesUsingPFCandidates_) {
     egmPFCandidateCollection_ = consumes(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
+  }
+
+  //Retrieve HCAL PF thresholds - from config or from DB
+  cutsFromDB = cfg.getParameter<bool>("usePFThresholdsFromDB");
+  if (cutsFromDB){
+    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
   }
 
   inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
@@ -740,7 +770,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     }
   }
 
-  auto electrons = algo_->completeElectrons(event, setup, globalCache());
+  auto electrons = algo_->completeElectrons(event, setup, globalCache(), paramPF);
   if (resetMvaValuesUsingPFCandidates_) {
     const auto gsfMVAInputMap = matchWithPFCandidates(event.get(egmPFCandidateCollection_));
     for (auto& el : electrons) {
@@ -775,5 +805,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
   event.emplace(electronPutToken_, std::move(electrons));
 }
 
+
+void GsfElectronProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GsfElectronProducer);

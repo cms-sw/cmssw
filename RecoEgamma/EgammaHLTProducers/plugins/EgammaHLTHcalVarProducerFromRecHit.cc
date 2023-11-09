@@ -32,12 +32,17 @@ A rho correction can be applied
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 class EgammaHLTHcalVarProducerFromRecHit : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTHcalVarProducerFromRecHit(const edm::ParameterSet &);
 
 public:
+  //void beginRun(edm::Run const &, edm::EventSetup const &);
+  //void endRun(edm::Run const &, edm::EventSetup const &);
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -67,6 +72,13 @@ private:
   const edm::ESGetToken<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd> hcalSevLvlComputerToken_;
   const edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> caloTowerConstituentsMapToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> putToken_;
+
+  //Get HCAL thresholds from GT
+  // bool cutsFromDB;
+  // std::unique_ptr<HcalPFCuts> paramPF_;
+  HcalPFCuts* paramPF = nullptr;
+  // edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  // edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
 };
 
 EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm::ParameterSet &config)
@@ -95,7 +107,8 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
       hcalChannelQualityToken_{esConsumes(edm::ESInputTag("", "withTopo"))},
       hcalSevLvlComputerToken_{esConsumes()},
       caloTowerConstituentsMapToken_{esConsumes()},
-      putToken_{produces<reco::RecoEcalCandidateIsolationMap>()} {
+      putToken_{produces<reco::RecoEcalCandidateIsolationMap>()}{//, 
+      //cutsFromDB(config.getParameter<bool>("usePFThresholdsFromDB")){ //Retrieve HCAL PF thresholds - from config or from DB
   if (doRhoCorrection_) {
     if (absEtaLowEdges_.size() != effectiveAreas_.size()) {
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
@@ -111,6 +124,11 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
       }
     }
   }
+
+  // if (cutsFromDB){
+  //   htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  //   hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  // }
 }
 
 void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -127,6 +145,7 @@ void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDesc
   desc.add<std::vector<double> >("etThresHB", {0, 0, 0, 0});
   desc.add<std::vector<double> >("eThresHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
   desc.add<std::vector<double> >("etThresHE", {0, 0, 0, 0, 0, 0, 0});
+  desc.add<bool>("usePFThresholdsFromDB", true);
   desc.add<double>("innerCone", 0);
   desc.add<double>("outerCone", 0.14);
   desc.add<int>("depth", 0);
@@ -138,6 +157,18 @@ void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDesc
   desc.add<std::vector<double> >("absEtaLowEdges", {0.0, 1.479});   // Barrel, Endcap
   descriptions.add("hltEgammaHLTHcalVarProducerFromRecHit", desc);
 }
+
+// void EgammaHLTHcalVarProducerFromRecHit::beginRun(edm::Run const &run, edm::EventSetup const &es) {
+//   if (cutsFromDB) {
+//     const HcalTopology &htopo = es.getData(htopoToken_);
+//     const HcalPFCuts &hcalCuts = es.getData(hcalCutsToken_);
+//     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
+//     paramPF_->setTopo(&htopo);
+//     paramPF = paramPF_.release();
+//   } else {  //Conditions from config file
+//     paramPF = nullptr;
+//   }
+// }
 
 void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                  edm::Event &iEvent,
@@ -163,7 +194,7 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
     EgammaHcalIsolation::InclusionRule external;
     EgammaHcalIsolation::InclusionRule internal;
 
-    if (useSingleTower_) {
+    if (useSingleTower_) { 
       if (!doEtSum_) {  //this is single tower based H/E
         external = EgammaHcalIsolation::InclusionRule::isBehindClusterSeed;
         internal = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
@@ -182,6 +213,7 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                            innerCone_,
                                                            eThresHB_,
                                                            etThresHB_,
+							   paramPF,
                                                            maxSeverityHB_,
                                                            eThresHE_,
                                                            etThresHE_,
@@ -193,17 +225,19 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                            iSetup.getData(hcalSevLvlComputerToken_),
                                                            iSetup.getData(caloTowerConstituentsMapToken_));
 
+
+    //paramPF = nullptr;
     if (useSingleTower_) {
       if (doEtSum_) {  //this is cone-based HCAL isolation with single tower based footprint removal
-        isol = thisHcalVar_.getHcalEtSumBc(recoEcalCandRef.get(), depth_);  //depth=0 means all depths
+        isol = thisHcalVar_.getHcalEtSumBc(recoEcalCandRef.get(), depth_, paramPF);  //depth=0 means all depths
       } else {                                                              //this is single tower based H/E
-        isol = thisHcalVar_.getHcalESumBc(recoEcalCandRef.get(), depth_);   //depth=0 means all depths
+        isol = thisHcalVar_.getHcalESumBc(recoEcalCandRef.get(), depth_, paramPF);   //depth=0 means all depths
       }
     } else {           //useSingleTower_=False means H/E is cone-based.
       if (doEtSum_) {  //hcal iso
-        isol = thisHcalVar_.getHcalEtSum(recoEcalCandRef.get(), depth_);  //depth=0 means all depths
+        isol = thisHcalVar_.getHcalEtSum(recoEcalCandRef.get(), depth_, paramPF);  //depth=0 means all depths
       } else {  // doEtSum_=False means sum up energy, this is for H/E
-        isol = thisHcalVar_.getHcalESum(recoEcalCandRef.get(), depth_);  //depth=0 means all depths
+        isol = thisHcalVar_.getHcalESum(recoEcalCandRef.get(), depth_, paramPF);  //depth=0 means all depths
       }
     }
 
@@ -224,6 +258,8 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
 
   iEvent.emplace(putToken_, isoMap);
 }
+
+//void EgammaHLTHcalVarProducerFromRecHit::endRun(edm::Run const &run, edm::EventSetup const &es) { delete paramPF; }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EgammaHLTHcalVarProducerFromRecHit);

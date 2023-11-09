@@ -314,7 +314,8 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
                                                                      EventData const& eventData,
                                                                      CaloTopology const& topology,
                                                                      CaloGeometry const& geometry,
-                                                                     EcalPFRecHitThresholds const& thresholds) const {
+                                                                     EcalPFRecHitThresholds const& thresholds,
+								     HcalPFCuts* hcalCuts) const {
   using ClusterTools = EcalClusterToolsT<full5x5>;
   reco::GsfElectron::ShowerShape showerShape;
 
@@ -361,8 +362,8 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
   const float scale = full5x5 ? showerShape.e5x5 : theClus->energy();
 
   for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
-    showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id + 1, hcalHelperCone.hcalCuts()) / scale;
-    showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id + 1, hcalHelperBc.hcalCuts()) / scale;
+    showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id + 1, hcalCuts) / scale;
+    showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id + 1, hcalCuts) / scale;
   }
   showerShape.invalidHcal = !hcalHelperBc.hasActiveHcal(*theClus);
   showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*theClus);
@@ -669,7 +670,8 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
 
 reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const& event,
                                                                edm::EventSetup const& eventSetup,
-                                                               const GsfElectronAlgo::HeavyObjectCache* hoc) {
+                                                               const GsfElectronAlgo::HeavyObjectCache* hoc,
+							       HcalPFCuts* hcalCuts) {
   reco::GsfElectronCollection electrons;
 
   auto const& magneticField = eventSetup.getData(magneticFieldToken_);
@@ -732,7 +734,8 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
                    hoc,
                    ctfTrackTable.value(),
                    gsfTrackTable.value(),
-                   thresholds);
+                   thresholds,
+		   hcalCuts);
 
   }  // loop over tracks
   return electrons;
@@ -866,7 +869,8 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      const GsfElectronAlgo::HeavyObjectCache* hoc,
                                      egamma::conv::TrackTableView ctfTable,
                                      egamma::conv::TrackTableView gsfTable,
-                                     EcalPFRecHitThresholds const& thresholds) {
+                                     EcalPFRecHitThresholds const& thresholds,
+				     HcalPFCuts* hcalCuts) {
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
@@ -996,9 +1000,9 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   reco::GsfElectron::ShowerShape full5x5_showerShape;
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     showerShape = calculateShowerShape<false>(
-        electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds);
+	electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds, hcalCuts);
     full5x5_showerShape = calculateShowerShape<true>(
-        electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds);
+	electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds, hcalCuts);
   }
 
   //====================================================
@@ -1162,11 +1166,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     for (uint id = 0; id < dr03.hcalRecHitSumEt.size(); ++id) {
-      dr03.hcalRecHitSumEt[id] = eventData.hadIsolation03.getHcalEtSum(&ele, id + 1, hcalHelperCone_.hcalCuts());
-      dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id + 1, hcalHelperCone_.hcalCuts());
+      dr03.hcalRecHitSumEt[id] = eventData.hadIsolation03.getHcalEtSum(&ele, id + 1, hcalCuts);
+      dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id + 1, hcalCuts);
 
-      dr04.hcalRecHitSumEt[id] = eventData.hadIsolation04.getHcalEtSum(&ele, id + 1, hcalHelperCone_.hcalCuts());
-      dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id + 1, hcalHelperCone_.hcalCuts());
+      dr04.hcalRecHitSumEt[id] = eventData.hadIsolation04.getHcalEtSum(&ele, id + 1, hcalCuts);
+      dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id + 1, hcalCuts);
     }
 
     dr03.ecalRecHitSumEt = eventData.ecalBarrelIsol03.getEtSum(&ele);

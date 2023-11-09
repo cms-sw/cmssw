@@ -29,11 +29,16 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 class ElectronSeedProducer : public edm::stream::EDProducer<> {
 public:
   explicit ElectronSeedProducer(const edm::ParameterSet&);
 
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) final;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -56,6 +61,11 @@ private:
 
   bool allowHGCal_;
   std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
+
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
+  HcalPFCuts* paramPF;
 };
 
 using namespace reco;
@@ -102,6 +112,11 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
     maxHOverEEndcaps_ = conf.getParameter<double>("maxHOverEEndcaps");
   }
 
+  if (cutsFromDB){
+    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  }
+
   ElectronSeedGenerator::Tokens esg_tokens;
   esg_tokens.token_bs = beamSpotTag_;
   esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
@@ -113,6 +128,20 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
 
   //register your products
   produces<ElectronSeedCollection>();
+}
+
+void ElectronSeedProducer::beginRun(const edm::Run& run, const edm::EventSetup& es){
+  if (cutsFromDB) {
+    const HcalTopology& htopo = es.getData(htopoToken_);
+    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
+
+    std::unique_ptr<HcalPFCuts> paramPF_;
+    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
+    paramPF_->setTopo(&htopo);
+    paramPF = paramPF_.release();
+  } else {  //Conditions from config file
+    paramPF = nullptr;
+  }
 }
 
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
@@ -174,7 +203,7 @@ SuperClusterRefVector ElectronSeedProducer::filterClusters(
     if (scl.energy() / cosh(sclEta) > SCEtCut_) {
       if (applyHOverECut_) {
         bool hoeVeto = false;
-        double had = hcalHelper_->hcalESum(scl, 0);
+        double had = hcalHelper_->hcalESum(scl, 0, paramPF);
         double scle = scl.energy();
         int det_group = scl.seed()->hitsAndFractions()[0].first.det();
         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId();
@@ -222,6 +251,7 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
   desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
   desc.add<int>("maxHcalRecHitSeverity", 999999);
+  desc.add<bool>("usePFThresholdsFromDB", false);
 
   // H/E equivalent for HGCal
   desc.add<bool>("allowHGCal", false);
@@ -230,6 +260,7 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   psd4.add<edm::InputTag>("HGCFHInput", {"HGCalRecHit", "HGCHEFRecHits"});
   psd4.add<edm::InputTag>("HGCBHInput", {"HGCalRecHit", "HGCHEBRecHits"});
   desc.add<edm::ParameterSetDescription>("HGCalConfig", psd4);
+
 
   // r/z windows
   desc.add<double>("nSigmasDeltaZ1", 5.0);      // in case beam spot is used for the matching
@@ -260,6 +291,8 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   descriptions.add("ecalDrivenElectronSeedsDefault", desc);
 }
+
+void ElectronSeedProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ElectronSeedProducer);
