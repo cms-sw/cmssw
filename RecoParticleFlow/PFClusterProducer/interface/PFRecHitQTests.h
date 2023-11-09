@@ -264,8 +264,7 @@ public:
         psets_(iConfig.getParameter<std::vector<edm::ParameterSet>>("cuts")),
         cutsFromDB(iConfig.getParameter<bool>("usePFThresholdsFromDB")) {
     if (cutsFromDB) {
-      htopoToken_ = cc.esConsumes<HcalTopology, HcalRecNumberingRecord>();
-      hcalCutsToken_ = cc.esConsumes<HcalPFCuts, HcalPFCutsRcd>();
+      hcalCutsToken_ = cc.esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
     }
     for (auto& pset : psets_) {
       depths_.push_back(pset.getParameter<std::vector<int>>("depth"));
@@ -279,7 +278,6 @@ public:
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
     if (cutsFromDB) {
-      htopo = &iSetup.getData(htopoToken_);
       hcalCuts = &iSetup.getData(hcalCutsToken_);
     }
   }
@@ -305,7 +303,6 @@ protected:
   std::vector<std::vector<int>> depths_;
   std::vector<std::vector<double>> thresholds_;
   std::vector<int> detector_;
-  const HcalTopology* htopo;
   const HcalPFCuts* hcalCuts;
 
   bool test(unsigned aDETID, double energy, double time, bool& clean) {
@@ -314,7 +311,6 @@ protected:
     if (cutsFromDB) {
       std::unique_ptr<HcalPFCuts> paramPF_;
       paramPF_ = std::make_unique<HcalPFCuts>(*hcalCuts);
-      paramPF_->setTopo(htopo);
       item = paramPF_->getValues(detid.rawId());
     }
 

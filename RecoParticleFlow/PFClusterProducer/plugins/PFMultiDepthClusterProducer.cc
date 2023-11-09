@@ -11,7 +11,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 #include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <memory>
 
@@ -31,7 +30,6 @@ public:
 private:
   // inputs
   edm::EDGetTokenT<reco::PFClusterCollection> _clustersLabel;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   // options
   // the actual algorithm
@@ -63,8 +61,7 @@ PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet
   edm::ConsumesCollector&& cc = consumesCollector();
 
   if (cutsFromDB) {
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
 
   if (!pfcConf.empty()) {
@@ -83,12 +80,10 @@ PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet
 
 void PFMultiDepthClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   if (cutsFromDB) {
-    const HcalTopology& htopo = es.getData(htopoToken_);
     const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
 
     std::unique_ptr<HcalPFCuts> paramPF_;
     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF_->setTopo(&htopo);
     paramPF = paramPF_.release();
   } else {
     paramPF = nullptr;
