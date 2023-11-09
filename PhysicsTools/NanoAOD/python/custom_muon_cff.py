@@ -167,9 +167,10 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.innerTrack_eta = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().eta(): -99", float, doc="InnerrTrack Eta")
     proc.muonTable.variables.innerTrack_phi = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().phi(): -99", float, doc="InnerTrack Phi")
     proc.muonTable.variables.innerTrack_charge = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().charge(): -99", float, doc="InnerTrack charge")
-    proc.muonTable.variables.innerTrackMuonHits = Var("? innerTrack().isNonnull() ? innerTrack().hitPattern().numberOfValidMuonHits() : -99", float, doc = "Number of valid Muon Hits from InnerTrack")
+    proc.muonTable.variables.innerTrack_MuonHits = Var("? innerTrack().isNonnull() ? innerTrack().hitPattern().numberOfValidMuonHits() : -99", float, doc = "Number of valid Muon Hits from InnerTrack")
     proc.muonTable.variables.innerTrack_validFraction = Var("? innerTrack().isNonnull() && innerTrack().isAvailable() ? innerTrack().validFraction() : -99", float, doc="Inner Track Valid Fraction")
     ## Pixellayers and PixelHits are already defined in the section related to the hits
+    ## TrackerLayers are already defined in standard NanoAOD
     ## Chi2 is already defined in the Chi2 related section
     
     #Dxy Dz variables as of Spark tool
@@ -183,7 +184,7 @@ def AddVariablesForMuon(proc):
     proc.muonTable.variables.outerTrack_eta = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().eta(): -99", float, doc="OuterTrack Eta")
     proc.muonTable.variables.outerTrack_phi = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().phi(): -99", float, doc="OuterTrack Phi")
     proc.muonTable.variables.outerTrack_charge = Var("? outerTrack().isNonnull() && outerTrack().isAvailable() ? outerTrack().charge(): -99", float, doc="OuterTrack charge")
-    proc.muonTable.variables.outerTrackMuonHits = Var("? outerTrack().isNonnull() ? outerTrack().hitPattern().numberOfValidMuonHits() : -99", float, doc = "Number of valid Muon Hits from OuterTrack")
+    proc.muonTable.variables.outerTrack_MuonHits = Var("? outerTrack().isNonnull() ? outerTrack().hitPattern().numberOfValidMuonHits() : -99", float, doc = "Number of valid Muon Hits from OuterTrack")
     ## Muonstations, DTHits and CSCHits are already defined in the Hits related section
     ## Chi2 is already defined in the Chi2 related section
 
