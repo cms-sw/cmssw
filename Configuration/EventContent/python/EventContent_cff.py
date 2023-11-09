@@ -238,6 +238,7 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
 from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
@@ -640,6 +641,19 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
+
+pp_on_PbPb_run3.toModify(FEVTDEBUGHLTEventContent,
+                         outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                             'keep *_hltMergedTracksPPOnAA_*_*',
+                             'keep *_hltVerticesPFFilterPPOnAA_*_*',
+                             'keep *_hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA_*_*',
+                             'keep *_hltPixelTracksPPOnAA_*_*',
+                             'keep *_hltPixelVerticesPPOnAA_*_*',
+                             'keep *_hltTrimmedPixelVerticesPPOnAA_*_*',
+                             'keep *_hltSiPixelClustersAfterSplittingPPOnAA_*_*',
+                             'keep *_hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression_*_*'
+                        ])
+
 approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',

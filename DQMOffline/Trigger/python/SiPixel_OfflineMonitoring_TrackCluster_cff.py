@@ -433,6 +433,10 @@ hltSiPixelPhase1TrackClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackCluster
         geometry   = hltSiPixelPhase1Geometry
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltSiPixelPhase1TrackClustersAnalyzer,
+                         clusters   = "hltSiPixelClustersAfterSplittingPPOnAA")
+
 hltSiPixelPhase1TrackClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1TrackClustersConf,
         geometry   = hltSiPixelPhase1Geometry

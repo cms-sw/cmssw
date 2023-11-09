@@ -27,6 +27,11 @@ pixelTracksMonitoringHLT = trackingMonHLT.clone(
     doEffFromHitPatternVsLUMI = False
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(pixelTracksMonitoringHLT,
+                         TrackProducer    = 'hltPixelTracksPPOnAA',
+                         allTrackProducer = 'hltPixelTracksPPOnAA')
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(pixelTracksMonitoringHLT,
                         TrackProducer    = 'hltPhase2PixelTracks',
@@ -101,7 +106,10 @@ iterHLTTracksMonitoringHLT = trackingMonHLT.clone(
     doSIPPlots                = cms.bool(True)
 )
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+pp_on_PbPb_run3.toModify(iterHLTTracksMonitoringHLT,
+                         TrackProducer    = 'hltMergedTracksPPOnAA',
+                         allTrackProducer = 'hltMergedTracksPPOnAA')
+
 phase2_tracker.toModify(iterHLTTracksMonitoringHLT,
                         TrackProducer    = cms.InputTag("generalTracks","","HLT"),
                         allTrackProducer = cms.InputTag("generalTracks","","HLT"))
@@ -147,6 +155,10 @@ doubletRecoveryHPTracksMonitoringHLT = trackingMonHLT.clone(
     doEffFromHitPatternVsBX   = False,
     doEffFromHitPatternVsLUMI = False
 )
+
+pp_on_PbPb_run3.toModify(doubletRecoveryHPTracksMonitoringHLT,
+                         TrackProducer    = 'hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA',
+                         allTrackProducer = 'hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA')
 
 ############
 #### EGM tracks
