@@ -148,7 +148,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                           reco::Photon::FiducialFlags& phofid,
                                           reco::Photon::IsolationVariables& phoisolR1,
                                           reco::Photon::IsolationVariables& phoisolR2,
-					  HcalPFCuts* hcalCuts) const {
+                                          HcalPFCuts* hcalCuts) const {
   //Get fiducial flags. This does not really belong here
   bool isEBPho = false;
   bool isEEPho = false;
@@ -364,9 +364,9 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                   &hcalSev = *hcalSevLvlComputer,
                   &towerMap,
                   &hbheRecHits,
-		  hcalCuts](double outer, double inner, int depth) {
+                  hcalCuts](double outer, double inner, int depth) {
       return calculateHcalRecHitIso<false>(
-	  pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, inner, depth, hcalCuts);
+          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, inner, depth, hcalCuts);
     };
 
     auto fbc = [this,
@@ -377,9 +377,9 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                 &hcalSev = *hcalSevLvlComputer,
                 &towerMap,
                 &hbheRecHits,
-		hcalCuts](double outer, int depth) {
+                hcalCuts](double outer, int depth) {
       return calculateHcalRecHitIso<true>(
-	  pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, 0., depth, hcalCuts);
+          pho, caloGeometry, hcalTopo, hcalQual, hcalSev, towerMap, hbheRecHits, outer, 0., depth, hcalCuts);
     };
 
     for (size_t id = 0; id < phoisolR1.hcalRecHitSumEt.size(); ++id) {
@@ -542,7 +542,7 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                                          double RCone,
                                                          double RConeInner,
                                                          int depth,
-							 HcalPFCuts* hcalCuts) const {
+                                                         HcalPFCuts* hcalCuts) const {
   const EgammaHcalIsolation::arrayHB e04{{0., 0., 0., 0.}};
   const EgammaHcalIsolation::arrayHE e07{{0., 0., 0., 0., 0., 0., 0.}};
 
@@ -553,7 +553,7 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                        RConeInner,
                                        hcalIsoEThresHB_,
                                        e04,
-				       hcalCuts,
+                                       hcalCuts,
                                        maxHcalSeverity_,
                                        hcalIsoEThresHE_,
                                        e07,
@@ -573,7 +573,7 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                        RConeInner,
                                        hcalIsoEThresHB_,
                                        e04,
-				       hcalCuts,
+                                       hcalCuts,
                                        maxHcalSeverity_,
                                        hcalIsoEThresHE_,
                                        e07,

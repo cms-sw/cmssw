@@ -169,7 +169,6 @@ private:
 
   std::vector<tensorflow::Session*> tfSessions_;
 
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts* paramPF;
@@ -408,15 +407,11 @@ namespace {
   }
 };  // namespace
 
-
-void GsfElectronProducer::beginRun(const edm::Run& run, const edm::EventSetup& es){
+void GsfElectronProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   if (cutsFromDB) {
-    const HcalTopology& htopo = es.getData(htopoToken_);
     const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-
     std::unique_ptr<HcalPFCuts> paramPF_;
     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF_->setTopo(&htopo);
     paramPF = paramPF_.release();
   } else {  //Conditions from config file
     paramPF = nullptr;
@@ -436,9 +431,8 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
 
   //Retrieve HCAL PF thresholds - from config or from DB
   cutsFromDB = cfg.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB){
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
 
   inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
@@ -804,7 +798,6 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
   // final filling
   event.emplace(electronPutToken_, std::move(electrons));
 }
-
 
 void GsfElectronProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }
 #include "FWCore/Framework/interface/MakerMacros.h"

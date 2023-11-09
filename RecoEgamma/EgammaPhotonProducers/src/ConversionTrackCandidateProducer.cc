@@ -115,7 +115,6 @@ private:
 
   std::unique_ptr<ElectronHcalHelper> hcalHelper_;
 
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts* paramPF;
@@ -169,9 +168,8 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   InOutTrackSCAssociationCollection_ = config.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
   cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB){
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   maxHOverE_ = config.getParameter<double>("maxHOverE");
@@ -237,17 +235,13 @@ void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSet
   inOutSeedFinder_.setNavigationSchool(navigation);
 
   if (cutsFromDB) {
-    const HcalTopology& htopo = theEventSetup.getData(htopoToken_);
     const HcalPFCuts& hcalCuts = theEventSetup.getData(hcalCutsToken_);
-
     std::unique_ptr<HcalPFCuts> paramPF_;
     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF_->setTopo(&htopo);
     paramPF = paramPF_.release();
   } else {  //Conditions from config file
     paramPF = nullptr;
   }
-
 }
 
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {

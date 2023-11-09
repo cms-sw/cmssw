@@ -99,10 +99,10 @@ public:
   void endStream() override;
 
 private:
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts* paramPF;
+  //HcalPFCuts const* hcalCuts = nullptr;
 
   class RecoStepInfo {
   public:
@@ -290,12 +290,10 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
       ecalPFRechitThresholdsToken_{esConsumes()},
       hcalHelperCone_(nullptr),
       hcalHelperBc_(nullptr) {
-
   //Retrieve HCAL PF thresholds - from config or from DB
   cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB){
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
 
   if (recoStep_.isFinal()) {
@@ -489,17 +487,16 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
   }
 }
 
-void GEDPhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& es){
+void GEDPhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   if (cutsFromDB) {
-    const HcalTopology& htopo = es.getData(htopoToken_);
-    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-
+    const HcalPFCuts& hcalCuts = eventSetup.getData(hcalCutsToken_);
     std::unique_ptr<HcalPFCuts> paramPF_;
     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF_->setTopo(&htopo);
     paramPF = paramPF_.release();
+    //hcalCuts = &eventSetup.getData(hcalCutsToken_);
   } else {  //Conditions from config file
     paramPF = nullptr;
+    //hcalCuts = nullptr;
   }
 }
 
@@ -847,10 +844,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
     for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
       showerShape.hcalOverEcal[id] =
-	(hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, paramPF) / scRef->energy() : 0.f;
+          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, paramPF) / scRef->energy() : 0.f;
 
       showerShape.hcalOverEcalBc[id] =
-	(hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, paramPF) / scRef->energy() : 0.f;
+          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, paramPF) / scRef->energy() : 0.f;
     }
     showerShape.invalidHcal = (hcalHelperBc != nullptr) ? !hcalHelperBc->hasActiveHcal(*scRef) : false;
     if (hcalHelperBc != nullptr)
@@ -962,9 +959,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.effSigmaRR = sigmaRR;
     for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
       full5x5_showerShape.hcalOverEcal[id] =
-	(hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, paramPF) / full5x5_e5x5 : 0.f;
+          (hcalHelperCone != nullptr) ? hcalHelperCone->hcalESum(*scRef, id + 1, paramPF) / full5x5_e5x5 : 0.f;
       full5x5_showerShape.hcalOverEcalBc[id] =
-	(hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, paramPF) / full5x5_e5x5 : 0.f;
+          (hcalHelperBc != nullptr) ? hcalHelperBc->hcalESum(*scRef, id + 1, paramPF) / full5x5_e5x5 : 0.f;
     }
     full5x5_showerShape.pre7DepthHcal = false;
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);

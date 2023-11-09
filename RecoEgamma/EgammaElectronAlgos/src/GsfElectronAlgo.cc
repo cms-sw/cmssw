@@ -315,7 +315,7 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
                                                                      CaloTopology const& topology,
                                                                      CaloGeometry const& geometry,
                                                                      EcalPFRecHitThresholds const& thresholds,
-								     HcalPFCuts* hcalCuts) const {
+                                                                     HcalPFCuts* hcalCuts) const {
   using ClusterTools = EcalClusterToolsT<full5x5>;
   reco::GsfElectron::ShowerShape showerShape;
 
@@ -506,7 +506,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           egHcalIsoConeSizeIn,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
-	  hcalHelperCone_.hcalCuts(),
+          hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -530,7 +530,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           egHcalIsoConeSizeIn,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
-	  hcalHelperCone_.hcalCuts(),
+          hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -554,7 +554,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           0.,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
-	  hcalHelperCone_.hcalCuts(),
+          hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -578,7 +578,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
           0.,
           EgammaHcalIsolation::arrayHB{{0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHB{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
-	  hcalHelperCone_.hcalCuts(),
+          hcalHelperCone_.hcalCuts(),
           hcalHelperCone_.maxSeverityHB(),
           EgammaHcalIsolation::arrayHE{{0., 0., 0., 0., 0., 0., 0.}},
           EgammaHcalIsolation::arrayHE{{egHcalIsoPtMin,
@@ -671,7 +671,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
 reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const& event,
                                                                edm::EventSetup const& eventSetup,
                                                                const GsfElectronAlgo::HeavyObjectCache* hoc,
-							       HcalPFCuts* hcalCuts) {
+                                                               HcalPFCuts* hcalCuts) {
   reco::GsfElectronCollection electrons;
 
   auto const& magneticField = eventSetup.getData(magneticFieldToken_);
@@ -735,7 +735,7 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
                    ctfTrackTable.value(),
                    gsfTrackTable.value(),
                    thresholds,
-		   hcalCuts);
+                   hcalCuts);
 
   }  // loop over tracks
   return electrons;
@@ -870,7 +870,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      egamma::conv::TrackTableView ctfTable,
                                      egamma::conv::TrackTableView gsfTable,
                                      EcalPFRecHitThresholds const& thresholds,
-				     HcalPFCuts* hcalCuts) {
+                                     HcalPFCuts* hcalCuts) {
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
@@ -999,10 +999,22 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   reco::GsfElectron::ShowerShape showerShape;
   reco::GsfElectron::ShowerShape full5x5_showerShape;
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
-    showerShape = calculateShowerShape<false>(
-	electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds, hcalCuts);
-    full5x5_showerShape = calculateShowerShape<true>(
-	electronData.superClusterRef, hcalHelperCone_, hcalHelperBc_, eventData, topology, geometry, thresholds, hcalCuts);
+    showerShape = calculateShowerShape<false>(electronData.superClusterRef,
+                                              hcalHelperCone_,
+                                              hcalHelperBc_,
+                                              eventData,
+                                              topology,
+                                              geometry,
+                                              thresholds,
+                                              hcalCuts);
+    full5x5_showerShape = calculateShowerShape<true>(electronData.superClusterRef,
+                                                     hcalHelperCone_,
+                                                     hcalHelperBc_,
+                                                     eventData,
+                                                     topology,
+                                                     geometry,
+                                                     thresholds,
+                                                     hcalCuts);
   }
 
   //====================================================

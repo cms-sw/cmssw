@@ -62,7 +62,6 @@ private:
   bool allowHGCal_;
   std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
 
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts* paramPF;
@@ -112,9 +111,8 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
     maxHOverEEndcaps_ = conf.getParameter<double>("maxHOverEEndcaps");
   }
 
-  if (cutsFromDB){
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
 
   ElectronSeedGenerator::Tokens esg_tokens;
@@ -130,14 +128,11 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   produces<ElectronSeedCollection>();
 }
 
-void ElectronSeedProducer::beginRun(const edm::Run& run, const edm::EventSetup& es){
+void ElectronSeedProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   if (cutsFromDB) {
-    const HcalTopology& htopo = es.getData(htopoToken_);
     const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-
     std::unique_ptr<HcalPFCuts> paramPF_;
     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF_->setTopo(&htopo);
     paramPF = paramPF_.release();
   } else {  //Conditions from config file
     paramPF = nullptr;
@@ -260,7 +255,6 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   psd4.add<edm::InputTag>("HGCFHInput", {"HGCalRecHit", "HGCHEFRecHits"});
   psd4.add<edm::InputTag>("HGCBHInput", {"HGCalRecHit", "HGCHEBRecHits"});
   desc.add<edm::ParameterSetDescription>("HGCalConfig", psd4);
-
 
   // r/z windows
   desc.add<double>("nSigmasDeltaZ1", 5.0);      // in case beam spot is used for the matching

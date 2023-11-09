@@ -76,7 +76,7 @@ private:
   //Get HCAL thresholds from GT
   // bool cutsFromDB;
   // std::unique_ptr<HcalPFCuts> paramPF_;
-  HcalPFCuts* paramPF = nullptr;
+  HcalPFCuts *paramPF = nullptr;
   // edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   // edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
 };
@@ -107,8 +107,8 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
       hcalChannelQualityToken_{esConsumes(edm::ESInputTag("", "withTopo"))},
       hcalSevLvlComputerToken_{esConsumes()},
       caloTowerConstituentsMapToken_{esConsumes()},
-      putToken_{produces<reco::RecoEcalCandidateIsolationMap>()}{//, 
-      //cutsFromDB(config.getParameter<bool>("usePFThresholdsFromDB")){ //Retrieve HCAL PF thresholds - from config or from DB
+      putToken_{produces<reco::RecoEcalCandidateIsolationMap>()} {  //,
+  //cutsFromDB(config.getParameter<bool>("usePFThresholdsFromDB")){ //Retrieve HCAL PF thresholds - from config or from DB
   if (doRhoCorrection_) {
     if (absEtaLowEdges_.size() != effectiveAreas_.size()) {
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
@@ -194,7 +194,7 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
     EgammaHcalIsolation::InclusionRule external;
     EgammaHcalIsolation::InclusionRule internal;
 
-    if (useSingleTower_) { 
+    if (useSingleTower_) {
       if (!doEtSum_) {  //this is single tower based H/E
         external = EgammaHcalIsolation::InclusionRule::isBehindClusterSeed;
         internal = EgammaHcalIsolation::InclusionRule::withinConeAroundCluster;
@@ -213,7 +213,7 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                            innerCone_,
                                                            eThresHB_,
                                                            etThresHB_,
-							   paramPF,
+                                                           paramPF,
                                                            maxSeverityHB_,
                                                            eThresHE_,
                                                            etThresHE_,
@@ -225,12 +225,11 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                            iSetup.getData(hcalSevLvlComputerToken_),
                                                            iSetup.getData(caloTowerConstituentsMapToken_));
 
-
     //paramPF = nullptr;
     if (useSingleTower_) {
       if (doEtSum_) {  //this is cone-based HCAL isolation with single tower based footprint removal
         isol = thisHcalVar_.getHcalEtSumBc(recoEcalCandRef.get(), depth_, paramPF);  //depth=0 means all depths
-      } else {                                                              //this is single tower based H/E
+      } else {                                                                       //this is single tower based H/E
         isol = thisHcalVar_.getHcalESumBc(recoEcalCandRef.get(), depth_, paramPF);   //depth=0 means all depths
       }
     } else {           //useSingleTower_=False means H/E is cone-based.

@@ -38,7 +38,7 @@ public:
     int maxSeverityHB;
     EgammaHcalIsolation::arrayHE eThresHE;
     int maxSeverityHE;
-    HcalPFCuts* hcalCuts;
+    HcalPFCuts *hcalCuts;
   };
 
   ElectronHcalHelper(const Configuration &cfg, edm::ConsumesCollector &&cc);
@@ -46,11 +46,11 @@ public:
   void beginEvent(const edm::Event &evt, const edm::EventSetup &eventSetup);
 
   inline auto hcalTowersBehindClusters(const reco::SuperCluster &sc) const { return egamma::towersOf(sc, *towerMap_); }
-  double hcalESum(const reco::SuperCluster &, int depth, HcalPFCuts* hcalCuts) const;
+  double hcalESum(const reco::SuperCluster &, int depth, HcalPFCuts *hcalCuts) const;
   double hOverEConeSize() const { return cfg_.hOverEConeSize; }
   int maxSeverityHB() const { return cfg_.maxSeverityHB; }
   int maxSeverityHE() const { return cfg_.maxSeverityHE; }
-  HcalPFCuts* hcalCuts() const { return cfg_.hcalCuts; }
+  HcalPFCuts *hcalCuts() const { return cfg_.hcalCuts; }
 
   // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E
   bool hasActiveHcal(const reco::SuperCluster &sc) const;

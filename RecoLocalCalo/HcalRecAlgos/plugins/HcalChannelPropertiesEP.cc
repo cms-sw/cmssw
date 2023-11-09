@@ -125,7 +125,7 @@ public:
   }
 
   ReturnType3 produce3(const HcalPFCutsRcd& rcd) {
-    const HcalTopology& htopo = rcd.getRecord<HcalRecNumberingRecord>().get(topoToken3_);
+    const HcalTopology& htopo = rcd.get(topoToken3_);
     const HcalPFCuts& cuts = rcd.get(pfcutsToken_);
 
     ReturnType3 prod = std::make_unique<HcalPFCuts>(cuts);

@@ -42,7 +42,6 @@
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-
 #include <vector>
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
@@ -117,7 +116,6 @@ private:
   std::unique_ptr<ElectronHcalHelper> hcalHelperBc_;
   bool hcalRun2EffDepth_;
 
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts* paramPF;
@@ -151,9 +149,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
 
   //Retrieve HCAL PF thresholds - from config or from DB
   cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB){
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
 
   //AA
@@ -258,15 +255,11 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   produces<reco::PhotonCollection>(PhotonCollection_);
 }
 
-
-void PhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& es){
+void PhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   if (cutsFromDB) {
-    const HcalTopology& htopo = es.getData(htopoToken_);
     const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-
     std::unique_ptr<HcalPFCuts> paramPF_;
     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF_->setTopo(&htopo);
     paramPF = paramPF_.release();
   } else {  //Conditions from config file
     paramPF = nullptr;

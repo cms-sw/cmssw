@@ -79,7 +79,6 @@ private:
 
   edm::EDGetTokenT<reco::TrackCollection> generalTrackProducer_;
 
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts* paramPF;
@@ -169,9 +168,8 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   likelihoodCalc_.setWeightsFile(edm::FileInPath{likelihoodWeights_.c_str()}.fullPath().c_str());
 
   cutsFromDB = config.getParameter<bool>("usePFThresholdsFromDB");
-  if (cutsFromDB){
-    htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
 
   ElectronHcalHelper::Configuration cfgCone;
@@ -198,17 +196,13 @@ void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const&
   transientTrackBuilder_ = &theEventSetup.getData(transientTrackToken_);
 
   if (cutsFromDB) {
-    const HcalTopology& htopo = theEventSetup.getData(htopoToken_);
     const HcalPFCuts& hcalCuts = theEventSetup.getData(hcalCutsToken_);
-
     std::unique_ptr<HcalPFCuts> paramPF_;
     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF_->setTopo(&htopo);
     paramPF = paramPF_.release();
   } else {  //Conditions from config file
     paramPF = nullptr;
   }
-
 }
 
 void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
