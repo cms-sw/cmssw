@@ -42,6 +42,7 @@ The script also handles the common and forward elements of the geometry:
 * O5: as O6, but with trackermaterial removed (they are in T5, T6, T7, T8)
 * O6: 2021 baseline
 * F1: 2021 baseline
+* F2: same as F1 with modified file from ZDC group
 
 Several detector combinations have been generated:
 * 2021 = T3+C1+M1+P7+O6+F1
@@ -50,7 +51,12 @@ Several detector combinations have been generated:
 * 2021FlatMinus10Percent = T6+C1+M1+P7+O5+F1
 * 2021FlatPlus05Percent = T7+C1+M1+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M1+P7+O5+F1
-* 2023 = T3+C1+M2+P7+O6+F1
+* 2023 = T3+C1+M2+P7+O6+F2
+* 2023ZeroMaterial = T4+C1+M1+P7+O4+F2
+* 2023FlatMinus05Percent = T5+C1+M1+P7+O5+F2
+* 2023FlatMinus10Percent = T6+C1+M1+P7+O5+F2
+* 2023FlatPlus05Percent = T7+C1+M1+P7+O5+F2
+* 2023FlatPlus10Percent = T8+C1+M1+P7+O5+F2
 
 # Phase 2 Geometries
 
