@@ -15,7 +15,6 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-
 namespace btagbtvdeep {
 
   constexpr static int qualityMap[8] = {1, 0, 1, 1, 4, 4, 5, 6};

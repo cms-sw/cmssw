@@ -140,7 +140,6 @@ public:
 private:
   void checkEventSetup(const edm::EventSetup& iSetup);
 
-  const edm::ParameterSet& m_config;
   edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> token_trackBuilder;
   edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability2DRcd> token_calib2D;
@@ -189,28 +188,28 @@ private:
 //
 template <class Container, class Base, class Helper>
 IPProducer<Container, Base, Helper>::IPProducer(const edm::ParameterSet& iConfig)
-    : m_config(iConfig), m_helper(iConfig, consumesCollector()) {
+    : m_helper(iConfig, consumesCollector()) {
   m_calibrationCacheId3D = 0;
   m_calibrationCacheId2D = 0;
 
-  token_primaryVertex = consumes<reco::VertexCollection>(m_config.getParameter<edm::InputTag>("primaryVertex"));
+  token_primaryVertex = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"));
   token_trackBuilder =
       esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"));
   token_calib2D = esConsumes<TrackProbabilityCalibration, BTagTrackProbability2DRcd>();
   token_calib3D = esConsumes<TrackProbabilityCalibration, BTagTrackProbability3DRcd>();
 
-  m_computeProbabilities = m_config.getParameter<bool>("computeProbabilities");
-  m_computeGhostTrack = m_config.getParameter<bool>("computeGhostTrack");
-  m_ghostTrackPriorDeltaR = m_config.getParameter<double>("ghostTrackPriorDeltaR");
-  m_cutPixelHits = m_config.getParameter<int>("minimumNumberOfPixelHits");
-  m_cutTotalHits = m_config.getParameter<int>("minimumNumberOfHits");
-  m_cutMaxTIP = m_config.getParameter<double>("maximumTransverseImpactParameter");
-  m_cutMinPt = m_config.getParameter<double>("minimumTransverseMomentum");
-  m_cutMaxChiSquared = m_config.getParameter<double>("maximumChiSquared");
-  m_cutMaxLIP = m_config.getParameter<double>("maximumLongitudinalImpactParameter");
-  m_directionWithTracks = m_config.getParameter<bool>("jetDirectionUsingTracks");
-  m_directionWithGhostTrack = m_config.getParameter<bool>("jetDirectionUsingGhostTrack");
-  m_useTrackQuality = m_config.getParameter<bool>("useTrackQuality");
+  m_computeProbabilities = iConfig.getParameter<bool>("computeProbabilities");
+  m_computeGhostTrack = iConfig.getParameter<bool>("computeGhostTrack");
+  m_ghostTrackPriorDeltaR = iConfig.getParameter<double>("ghostTrackPriorDeltaR");
+  m_cutPixelHits = iConfig.getParameter<int>("minimumNumberOfPixelHits");
+  m_cutTotalHits = iConfig.getParameter<int>("minimumNumberOfHits");
+  m_cutMaxTIP = iConfig.getParameter<double>("maximumTransverseImpactParameter");
+  m_cutMinPt = iConfig.getParameter<double>("minimumTransverseMomentum");
+  m_cutMaxChiSquared = iConfig.getParameter<double>("maximumChiSquared");
+  m_cutMaxLIP = iConfig.getParameter<double>("maximumLongitudinalImpactParameter");
+  m_directionWithTracks = iConfig.getParameter<bool>("jetDirectionUsingTracks");
+  m_directionWithGhostTrack = iConfig.getParameter<bool>("jetDirectionUsingGhostTrack");
+  m_useTrackQuality = iConfig.getParameter<bool>("useTrackQuality");
 
   if (m_computeGhostTrack)
     produces<reco::TrackCollection>("ghostTracks");

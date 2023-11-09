@@ -25,5 +25,13 @@
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/VertexTools"/>
 <library file="*.cc" name="PhysicsToolsNanoAODPlugins">
+  <use name="DataFormats/VertexReco"/>
+  <use name="CommonTools/Utils"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="CommonTools/CandAlgos"/>
+  <use name="RecoBTag/FeatureTools"/>
+  <use name="RecoJets/JetAlgorithms"/>
+  <use name="TrackingTools/Records"/>
+  <use name="roottmva"/>
   <flags EDM_PLUGIN="1"/>
 </library>
