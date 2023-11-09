@@ -20,7 +20,7 @@ public:
   void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                  const std::vector<bool>& mask,
                  std::vector<bool>& seedable,
-                 HcalPFCuts*) override;
+                 const HcalPFCuts*) override;
 
 private:
   const int _nNeighbours;
@@ -96,7 +96,7 @@ LocalMaximumSeedFinder::LocalMaximumSeedFinder(const edm::ParameterSet& conf)
 void LocalMaximumSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                                        const std::vector<bool>& mask,
                                        std::vector<bool>& seedable,
-                                       HcalPFCuts* hcalCuts) {
+                                       const HcalPFCuts* hcalCuts) {
   auto nhits = input->size();
   initDynArray(bool, nhits, usable, true);
   //need to run over energy sorted rechits

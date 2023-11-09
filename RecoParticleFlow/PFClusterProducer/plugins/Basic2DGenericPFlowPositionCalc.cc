@@ -94,8 +94,8 @@ public:
   Basic2DGenericPFlowPositionCalc(const Basic2DGenericPFlowPositionCalc&) = delete;
   Basic2DGenericPFlowPositionCalc& operator=(const Basic2DGenericPFlowPositionCalc&) = delete;
 
-  void calculateAndSetPosition(reco::PFCluster&, HcalPFCuts*) override;
-  void calculateAndSetPositions(reco::PFClusterCollection&, HcalPFCuts*) override;
+  void calculateAndSetPosition(reco::PFCluster&, const HcalPFCuts*) override;
+  void calculateAndSetPositions(reco::PFClusterCollection&, const HcalPFCuts*) override;
 
 private:
   const int _posCalcNCrystals;
@@ -105,7 +105,7 @@ private:
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcBarrel;
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalcEndcap;
 
-  void calculateAndSetPositionActual(reco::PFCluster&, HcalPFCuts*) const;
+  void calculateAndSetPositionActual(reco::PFCluster&, const HcalPFCuts*) const;
 };
 
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory, Basic2DGenericPFlowPositionCalc, "Basic2DGenericPFlowPositionCalc");
@@ -117,19 +117,19 @@ namespace {
   }
 }  // namespace
 
-void Basic2DGenericPFlowPositionCalc::calculateAndSetPosition(reco::PFCluster& cluster, HcalPFCuts* hcalCuts) {
+void Basic2DGenericPFlowPositionCalc::calculateAndSetPosition(reco::PFCluster& cluster, const HcalPFCuts* hcalCuts) {
   calculateAndSetPositionActual(cluster, hcalCuts);
 }
 
 void Basic2DGenericPFlowPositionCalc::calculateAndSetPositions(reco::PFClusterCollection& clusters,
-                                                               HcalPFCuts* hcalCuts) {
+                                                               const HcalPFCuts* hcalCuts) {
   for (reco::PFCluster& cluster : clusters) {
     calculateAndSetPositionActual(cluster, hcalCuts);
   }
 }
 
 void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFCluster& cluster,
-                                                                    HcalPFCuts* hcalCuts) const {
+                                                                    const HcalPFCuts* hcalCuts) const {
   if (!cluster.seed()) {
     throw cms::Exception("ClusterWithNoSeed") << " Found a cluster with no seed: " << cluster;
   }

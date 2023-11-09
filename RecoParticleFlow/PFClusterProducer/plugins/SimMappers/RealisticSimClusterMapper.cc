@@ -51,7 +51,7 @@ public:
                      const std::vector<bool>&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection&,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 
 private:
   hgcal::RecHitTools rhtools_;
@@ -111,7 +111,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                                               const std::vector<bool>& rechitMask,
                                               const std::vector<bool>& seedable,
                                               reco::PFClusterCollection& output,
-                                              HcalPFCuts* hcalCuts) {
+                                              const HcalPFCuts* hcalCuts) {
   const SimClusterCollection& simClusters = *simClusterH_;
   auto const& hits = *input;
   RealisticHitToClusterAssociator realisticAssociator;

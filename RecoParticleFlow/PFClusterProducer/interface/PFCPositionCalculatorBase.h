@@ -29,9 +29,9 @@ public:
   virtual void update(const edm::EventSetup&) {}
 
   // here we transform one PFCluster to use the new position calculation
-  virtual void calculateAndSetPosition(reco::PFCluster&, HcalPFCuts*) = 0;
+  virtual void calculateAndSetPosition(reco::PFCluster&, const HcalPFCuts*) = 0;
   // here you call a loop inside to transform the whole vector
-  virtual void calculateAndSetPositions(reco::PFClusterCollection&, HcalPFCuts*) = 0;
+  virtual void calculateAndSetPositions(reco::PFClusterCollection&, const HcalPFCuts*) = 0;
 
   const std::string& name() const { return _algoName; }
 
