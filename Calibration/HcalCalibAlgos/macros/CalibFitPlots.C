@@ -4079,7 +4079,7 @@ void PlotPhiSymmetryResults(
 }
 
 void PlotHistCorrRatio(char* infile1,
-		       std::string text1,
+                       std::string text1,
                        char* infile2,
                        std::string text2,
                        int depth1,
@@ -4141,9 +4141,9 @@ void PlotHistCorrRatio(char* infile1,
       double sumNum(0), sumDen(0);
       int npt(0);
       for (std::map<int, cfactors>::const_iterator itr = cfacs[ih].begin(); itr != cfacs[ih].end(); ++itr) {
-	int ieta = (itr->second).ieta;
+        int ieta = (itr->second).ieta;
         if ((ieta >= etamin) && (ieta <= etamax) && ((itr->second).depth == depth1)) {
-	  ++npt;
+          ++npt;
           int bin = ieta - etamin + 1;
           for (std::map<int, cfactors>::const_iterator ktr = cfacs[ih].begin(); ktr != cfacs[ih].end(); ++ktr) {
             if (((ktr->second).ieta == ieta) && ((ktr->second).depth == depth2)) {
@@ -4152,7 +4152,9 @@ void PlotHistCorrRatio(char* infile1,
               float val = (itr->second).corrf / (ktr->second).corrf;
               float dvl = val * sqrt(er1 * er1 + er2 * er2);
               double temp1 = ((itr->second).corrf > 1.0) ? 1.0 / (itr->second).corrf : (itr->second).corrf;
-              double temp2 = ((itr->second).corrf > 1.0) ? (itr->second).dcorr / ((itr->second).corrf * (itr->second).corrf) : (itr->second).dcorr;
+              double temp2 = ((itr->second).corrf > 1.0)
+                                 ? (itr->second).dcorr / ((itr->second).corrf * (itr->second).corrf)
+                                 : (itr->second).dcorr;
               h->SetBinContent(bin, val);
               h->SetBinError(bin, dvl);
               sumNum += (std::abs(1 - temp1) / (temp2 * temp2));
@@ -4174,10 +4176,10 @@ void PlotHistCorrRatio(char* infile1,
       h->GetYaxis()->SetTitleOffset(1.20);
       h->GetYaxis()->SetRangeUser(0.0, 3.0);
       if (doFit) {
-	TF1* func = new TF1(name, "pol0", etamin, etamax);
-	func->SetLineColor(colors[ih]);
-	func->SetLineStyle(styles[ih]);
-	h->Fit(func, "+QWLR", "");
+        TF1* func = new TF1(name, "pol0", etamin, etamax);
+        func->SetLineColor(colors[ih]);
+        func->SetLineStyle(styles[ih]);
+        h->Fit(func, "+QWLR", "");
       }
       hists.push_back(h);
       sumNum = (sumDen > 0) ? (sumNum / sumDen) : 0;
@@ -4198,19 +4200,19 @@ void PlotHistCorrRatio(char* infile1,
       if (k == 0)
         hists[k]->Draw("");
       else
-         hists[k]->Draw("sames");
+        hists[k]->Draw("sames");
       pad->Update();
       if (doFit) {
-	TPaveStats* st1 = (TPaveStats*)hists[k]->GetListOfFunctions()->FindObject("stats");
-	if (st1 != nullptr) {
-	  st1->SetLineColor(colors[k]);
-	  st1->SetTextColor(colors[k]);
-	  yh = 0.90 - 0.070 * k;
-	  st1->SetY1NDC(yh - 0.07);
-	  st1->SetY2NDC(yh);
-	  st1->SetX1NDC(0.65);
-	  st1->SetX2NDC(0.90);
-	}
+        TPaveStats* st1 = (TPaveStats*)hists[k]->GetListOfFunctions()->FindObject("stats");
+        if (st1 != nullptr) {
+          st1->SetLineColor(colors[k]);
+          st1->SetTextColor(colors[k]);
+          yh = 0.90 - 0.070 * k;
+          st1->SetY1NDC(yh - 0.07);
+          st1->SetY2NDC(yh);
+          st1->SetX1NDC(0.65);
+          st1->SetX2NDC(0.90);
+        }
       }
       pad->Update();
       sprintf(name, "%s (Mean dev. = %5.3f)", texts[k].c_str(), fitr[k]);
