@@ -33,15 +33,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
+// For DevHost the specialisation is already done in the PortableHostCollection.h
+#ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
 namespace traits {
 
   // specialise the trait for the device provided by the ALPAKA_ACCELERATOR_NAMESPACE
   template <typename T>
-  class PortableObjectTrait<T, ALPAKA_ACCELERATOR_NAMESPACE::Device> {
+  struct PortableObjectTrait<T, ALPAKA_ACCELERATOR_NAMESPACE::Device> {
     using ProductType = ALPAKA_ACCELERATOR_NAMESPACE::PortableObject<T>;
   };
 
 }  // namespace traits
+#endif
 
 namespace cms::alpakatools {
   template <typename TProduct, typename TDevice>

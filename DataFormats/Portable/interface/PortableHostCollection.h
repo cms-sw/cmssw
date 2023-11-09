@@ -6,6 +6,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Portable/interface/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
@@ -85,5 +86,14 @@ private:
   Layout layout_;                 //
   View view_;                     //!
 };
+
+// Make PortableCollection<T, TDev> alias template to work also
+// independently of ALPAKA_ACCELERATOR_NAMESPACE
+namespace traits {
+  template <typename T>
+  struct PortableCollectionTrait<T, alpaka::DevCpu> {
+    using CollectionType = PortableHostCollection<T>;
+  };
+}  // namespace traits
 
 #endif  // DataFormats_Portable_interface_PortableHostCollection_h

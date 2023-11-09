@@ -3,13 +3,13 @@
 
 #include <type_traits>
 
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
+#include <alpaka/alpaka.hpp>
 
 namespace traits {
 
   // trait for a generic SoA-based product
   template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
-  class PortableObjectTrait;
+  struct PortableObjectTrait;
 
 }  // namespace traits
 
