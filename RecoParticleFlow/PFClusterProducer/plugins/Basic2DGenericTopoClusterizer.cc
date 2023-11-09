@@ -18,7 +18,7 @@ public:
                      const std::vector<bool>&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection&,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 
 private:
   const bool _useCornerCells;
@@ -27,7 +27,7 @@ private:
                         unsigned int,              //present rechit
                         std::vector<bool>&,        // hit usage state
                         reco::PFCluster&,          // the topocluster
-                        HcalPFCuts*);
+                        const HcalPFCuts*);
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DGenericTopoClusterizer, "Basic2DGenericTopoClusterizer");
@@ -48,7 +48,7 @@ void Basic2DGenericTopoClusterizer::buildClusters(const edm::Handle<reco::PFRecH
                                                   const std::vector<bool>& rechitMask,
                                                   const std::vector<bool>& seedable,
                                                   reco::PFClusterCollection& output,
-                                                  HcalPFCuts* hcalCuts) {
+                                                  const HcalPFCuts* hcalCuts) {
   auto const& hits = *input;
   std::vector<bool> used(hits.size(), false);
   std::vector<unsigned int> seeds;
@@ -80,7 +80,7 @@ void Basic2DGenericTopoClusterizer::buildTopoCluster(const edm::Handle<reco::PFR
                                                      unsigned int kcell,
                                                      std::vector<bool>& used,
                                                      reco::PFCluster& topocluster,
-                                                     HcalPFCuts* hcalCuts) {
+                                                     const HcalPFCuts* hcalCuts) {
   auto const& cell = (*input)[kcell];
   int cell_layer = (int)cell.layer();
   if (cell_layer == PFLayer::HCAL_BARREL2 && std::abs(cell.positionREP().eta()) > 0.34) {

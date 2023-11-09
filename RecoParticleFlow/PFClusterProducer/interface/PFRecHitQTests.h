@@ -278,7 +278,7 @@ public:
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
     if (cutsFromDB) {
-      hcalCuts = &iSetup.getData(hcalCutsToken_);
+      paramPF = &iSetup.getData(hcalCutsToken_);
     }
   }
 
@@ -303,15 +303,13 @@ protected:
   std::vector<std::vector<int>> depths_;
   std::vector<std::vector<double>> thresholds_;
   std::vector<int> detector_;
-  const HcalPFCuts* hcalCuts;
+  HcalPFCuts const* paramPF = nullptr;
 
   bool test(unsigned aDETID, double energy, double time, bool& clean) {
     HcalDetId detid(aDETID);
     const HcalPFCut* item = nullptr;
     if (cutsFromDB) {
-      std::unique_ptr<HcalPFCuts> paramPF_;
-      paramPF_ = std::make_unique<HcalPFCuts>(*hcalCuts);
-      item = paramPF_->getValues(detid.rawId());
+      item = paramPF->getValues(detid.rawId());
     }
 
     for (unsigned int d = 0; d < detector_.size(); ++d) {

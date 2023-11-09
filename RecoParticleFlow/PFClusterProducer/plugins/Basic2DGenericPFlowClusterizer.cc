@@ -34,7 +34,7 @@ public:
   void buildClusters(const reco::PFClusterCollection&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection& outclus,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 
 private:
   const unsigned _maxIterations;
@@ -51,7 +51,7 @@ private:
   void seedPFClustersFromTopo(const reco::PFCluster&,
                               const std::vector<bool>&,
                               reco::PFClusterCollection&,
-                              HcalPFCuts*) const;
+                              const HcalPFCuts*) const;
 
   void growPFClusters(const reco::PFCluster&,
                       const std::vector<bool>&,
@@ -59,7 +59,7 @@ private:
                       const unsigned iter,
                       double dist,
                       reco::PFClusterCollection&,
-                      HcalPFCuts*) const;
+                      const HcalPFCuts*) const;
 
   void prunePFClusters(reco::PFClusterCollection&) const;
 };
@@ -141,7 +141,7 @@ Basic2DGenericPFlowClusterizer::Basic2DGenericPFlowClusterizer(const edm::Parame
 void Basic2DGenericPFlowClusterizer::buildClusters(const reco::PFClusterCollection& input,
                                                    const std::vector<bool>& seedable,
                                                    reco::PFClusterCollection& output,
-                                                   HcalPFCuts* hcalCuts) {
+                                                   const HcalPFCuts* hcalCuts) {
   reco::PFClusterCollection clustersInTopo;
   for (const auto& topocluster : input) {
     clustersInTopo.clear();
@@ -172,7 +172,7 @@ void Basic2DGenericPFlowClusterizer::buildClusters(const reco::PFClusterCollecti
 void Basic2DGenericPFlowClusterizer::seedPFClustersFromTopo(const reco::PFCluster& topo,
                                                             const std::vector<bool>& seedable,
                                                             reco::PFClusterCollection& initialPFClusters,
-                                                            HcalPFCuts* hcalCuts) const {
+                                                            const HcalPFCuts* hcalCuts) const {
   const auto& recHitFractions = topo.recHitFractions();
   for (const auto& rhf : recHitFractions) {
     if (!seedable[rhf.recHitRef().key()])
@@ -195,7 +195,7 @@ void Basic2DGenericPFlowClusterizer::growPFClusters(const reco::PFCluster& topo,
                                                     const unsigned iter,
                                                     double diff,
                                                     reco::PFClusterCollection& clusters,
-                                                    HcalPFCuts* hcalCuts) const {
+                                                    const HcalPFCuts* hcalCuts) const {
   if (iter >= _maxIterations) {
     LOGDRESSED("Basic2DGenericPFlowClusterizer:growAndStabilizePFClusters")
         << "reached " << _maxIterations << " iterations, terminated position "

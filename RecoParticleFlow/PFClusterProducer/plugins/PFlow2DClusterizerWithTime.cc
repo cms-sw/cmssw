@@ -36,7 +36,7 @@ public:
   void buildClusters(const reco::PFClusterCollection&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection& outclus,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 
 private:
   const unsigned _maxIterations;
@@ -61,7 +61,7 @@ private:
   void seedPFClustersFromTopo(const reco::PFCluster&,
                               const std::vector<bool>&,
                               reco::PFClusterCollection&,
-                              HcalPFCuts*) const;
+                              const HcalPFCuts*) const;
 
   void growPFClusters(const reco::PFCluster&,
                       const std::vector<bool>&,
@@ -69,7 +69,7 @@ private:
                       const unsigned iter,
                       double dist,
                       reco::PFClusterCollection&,
-                      HcalPFCuts* hcalCuts) const;
+                      const HcalPFCuts* hcalCuts) const;
   void clusterTimeResolution(reco::PFCluster& cluster, double& res) const;
   void clusterTimeResolutionFromSeed(reco::PFCluster& cluster, double& res) const;
   double dist2Time(const reco::PFCluster&, const reco::PFRecHitRef&, int cell_layer, double prev_timeres2) const;
@@ -154,7 +154,7 @@ PFlow2DClusterizerWithTime::PFlow2DClusterizerWithTime(const edm::ParameterSet& 
 void PFlow2DClusterizerWithTime::buildClusters(const reco::PFClusterCollection& input,
                                                const std::vector<bool>& seedable,
                                                reco::PFClusterCollection& output,
-                                               HcalPFCuts* hcalCuts) {
+                                               const HcalPFCuts* hcalCuts) {
   reco::PFClusterCollection clustersInTopo;
   for (const auto& topocluster : input) {
     clustersInTopo.clear();
@@ -185,7 +185,7 @@ void PFlow2DClusterizerWithTime::buildClusters(const reco::PFClusterCollection& 
 void PFlow2DClusterizerWithTime::seedPFClustersFromTopo(const reco::PFCluster& topo,
                                                         const std::vector<bool>& seedable,
                                                         reco::PFClusterCollection& initialPFClusters,
-                                                        HcalPFCuts* hcalCuts) const {
+                                                        const HcalPFCuts* hcalCuts) const {
   const auto& recHitFractions = topo.recHitFractions();
   for (const auto& rhf : recHitFractions) {
     if (!seedable[rhf.recHitRef().key()])
@@ -208,7 +208,7 @@ void PFlow2DClusterizerWithTime::growPFClusters(const reco::PFCluster& topo,
                                                 const unsigned iter,
                                                 double diff,
                                                 reco::PFClusterCollection& clusters,
-                                                HcalPFCuts* hcalCuts) const {
+                                                const HcalPFCuts* hcalCuts) const {
   if (iter >= _maxIterations) {
     LOGDRESSED("PFlow2DClusterizerWithTime:growAndStabilizePFClusters")
         << "reached " << _maxIterations << " iterations, terminated position "

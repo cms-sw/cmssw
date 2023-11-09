@@ -31,7 +31,7 @@ public:
                      const std::vector<bool>&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection&,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 
 private:
   bool filterByTracksterPID_;
@@ -58,7 +58,7 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
                                                 const std::vector<bool>& rechitMask,
                                                 const std::vector<bool>& seedable,
                                                 reco::PFClusterCollection& output,
-                                                HcalPFCuts*) {
+                                                const HcalPFCuts*) {
   auto const& hits = *input;
 
   const auto& tracksters = *trackstersH_;

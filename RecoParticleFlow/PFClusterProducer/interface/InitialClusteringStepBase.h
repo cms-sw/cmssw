@@ -92,7 +92,7 @@ public:
                              const std::vector<bool>& mask,   // mask flags
                              const std::vector<bool>& seeds,  // seed flags
                              reco::PFClusterCollection&,      //output
-                             HcalPFCuts*) = 0;
+                             const HcalPFCuts*) = 0;
 
   std::ostream& operator<<(std::ostream& o) const {
     o << "InitialClusteringStep with algo \"" << _algoName << "\" located " << _nSeeds << " seeds and built "

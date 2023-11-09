@@ -27,8 +27,8 @@ public:
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
   Cluster3DPCACalculator& operator=(const Cluster3DPCACalculator&) = delete;
 
-  void calculateAndSetPosition(reco::PFCluster&, HcalPFCuts*) override;
-  void calculateAndSetPositions(reco::PFClusterCollection&, HcalPFCuts*) override;
+  void calculateAndSetPosition(reco::PFCluster&, const HcalPFCuts*) override;
+  void calculateAndSetPositions(reco::PFClusterCollection&, const HcalPFCuts*) override;
 
 private:
   const bool updateTiming_;
@@ -41,12 +41,12 @@ private:
 
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory, Cluster3DPCACalculator, "Cluster3DPCACalculator");
 
-void Cluster3DPCACalculator::calculateAndSetPosition(reco::PFCluster& cluster, HcalPFCuts* cuts) {
+void Cluster3DPCACalculator::calculateAndSetPosition(reco::PFCluster& cluster, const HcalPFCuts* cuts) {
   pca_ = std::make_unique<TPrincipal>(3, "D");
   calculateAndSetPositionActual(cluster);
 }
 
-void Cluster3DPCACalculator::calculateAndSetPositions(reco::PFClusterCollection& clusters, HcalPFCuts* cuts) {
+void Cluster3DPCACalculator::calculateAndSetPositions(reco::PFClusterCollection& clusters, const HcalPFCuts* cuts) {
   for (reco::PFCluster& cluster : clusters) {
     pca_ = std::make_unique<TPrincipal>(3, "D");
     calculateAndSetPositionActual(cluster);

@@ -13,7 +13,7 @@ public:
                      const std::vector<bool>&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection&,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, Basic2DClusterForEachSeed, "Basic2DClusterForEachSeed");
@@ -22,7 +22,7 @@ void Basic2DClusterForEachSeed::buildClusters(const edm::Handle<reco::PFRecHitCo
                                               const std::vector<bool>& rechitMask,
                                               const std::vector<bool>& seedable,
                                               reco::PFClusterCollection& output,
-                                              HcalPFCuts*) {
+                                              const HcalPFCuts*) {
   auto const& hits = *input;
 
   // loop over seeds and make clusters

@@ -28,7 +28,7 @@ public:
   void buildClusters(const reco::PFClusterCollection&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection& outclus,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 
 private:
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
@@ -93,7 +93,7 @@ PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, 
 void PFMultiDepthClusterizer::buildClusters(const reco::PFClusterCollection& input,
                                             const std::vector<bool>& seedable,
                                             reco::PFClusterCollection& output,
-                                            HcalPFCuts* hcalCuts) {
+                                            const HcalPFCuts* hcalCuts) {
   std::vector<double> etaRMS2(input.size(), 0.0);
   std::vector<double> phiRMS2(input.size(), 0.0);
 

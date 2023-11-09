@@ -18,7 +18,7 @@ public:
   virtual void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                          const std::vector<bool>& mask,
                          std::vector<bool>& seedable,
-                         HcalPFCuts*) = 0;
+                         const HcalPFCuts*) = 0;
 
   const std::string& name() const { return _algoName; }
 

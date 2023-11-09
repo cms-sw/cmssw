@@ -44,7 +44,7 @@ public:
   virtual void buildClusters(const reco::PFClusterCollection& topos,
                              const std::vector<bool>& seedable,
                              reco::PFClusterCollection& outclus,
-                             HcalPFCuts*) = 0;
+                             const HcalPFCuts*) = 0;
 
   std::ostream& operator<<(std::ostream& o) const {
     o << "PFClusterBuilder with algo \"" << _algoName << "\" located " << _nSeeds << " seeds and built "

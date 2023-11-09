@@ -26,7 +26,7 @@ public:
                      const std::vector<bool>&,
                      const std::vector<bool>&,
                      reco::PFClusterCollection&,
-                     HcalPFCuts*) override;
+                     const HcalPFCuts*) override;
 
 private:
   edm::EDGetTokenT<SimClusterCollection> _simClusterToken;
@@ -53,7 +53,7 @@ void GenericSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitColl
                                             const std::vector<bool>& rechitMask,
                                             const std::vector<bool>& seedable,
                                             reco::PFClusterCollection& output,
-                                            HcalPFCuts* hcalCuts) {
+                                            const HcalPFCuts* hcalCuts) {
   const SimClusterCollection& simClusters = *_simClusterH;
   auto const& hits = *input;
 

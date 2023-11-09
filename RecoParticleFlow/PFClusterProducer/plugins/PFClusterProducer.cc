@@ -21,7 +21,6 @@ public:
   ~PFClusterProducer() override = default;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -29,7 +28,7 @@ private:
   edm::EDGetTokenT<reco::PFRecHitCollection> _rechitsLabel;
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
-  HcalPFCuts* paramPF;
+  HcalPFCuts const* paramPF = nullptr;
 
   // options
   const bool _prodInitClusters;
@@ -119,12 +118,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
 
 void PFClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   if (cutsFromDB) {
-    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-    std::unique_ptr<HcalPFCuts> paramPF_;
-    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF = paramPF_.release();
-  } else {  // if (cutsFromDB) condition ends
-    paramPF = nullptr;
+    paramPF = &es.getData(hcalCutsToken_);
   }
   _initialClustering->update(es);
   if (_pfClusterBuilder)
@@ -186,5 +180,3 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     e.put(std::move(initialClusters), "initialClusters");
   e.put(std::move(pfClusters));
 }
-
-void PFClusterProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }

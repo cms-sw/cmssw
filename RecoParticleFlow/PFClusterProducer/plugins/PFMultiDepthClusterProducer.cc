@@ -24,7 +24,6 @@ public:
   ~PFMultiDepthClusterProducer() override = default;
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -36,7 +35,7 @@ private:
   std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
   std::unique_ptr<PFClusterEnergyCorrectorBase> _energyCorrector;
   bool cutsFromDB;
-  HcalPFCuts* paramPF;
+  HcalPFCuts const* paramPF = nullptr;
 };
 
 DEFINE_FWK_MODULE(PFMultiDepthClusterProducer);
@@ -80,13 +79,7 @@ PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet
 
 void PFMultiDepthClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   if (cutsFromDB) {
-    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-
-    std::unique_ptr<HcalPFCuts> paramPF_;
-    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF = paramPF_.release();
-  } else {
-    paramPF = nullptr;
+    paramPF = &es.getData(hcalCutsToken_);
   }
   _pfClusterBuilder->update(es);
 }
@@ -108,5 +101,3 @@ void PFMultiDepthClusterProducer::produce(edm::Event& e, const edm::EventSetup& 
   }
   e.put(std::move(pfClusters));
 }
-
-void PFMultiDepthClusterProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }

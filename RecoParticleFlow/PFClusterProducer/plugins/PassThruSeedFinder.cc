@@ -11,7 +11,7 @@ public:
   void findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                  const std::vector<bool>& mask,
                  std::vector<bool>& seedable,
-                 HcalPFCuts*) override;
+                 const HcalPFCuts*) override;
 
 private:
 };
@@ -24,6 +24,6 @@ PassThruSeedFinder::PassThruSeedFinder(const edm::ParameterSet& conf) : SeedFind
 void PassThruSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollection>& input,
                                    const std::vector<bool>& mask,
                                    std::vector<bool>& seedable,
-                                   HcalPFCuts*) {
+                                   const HcalPFCuts*) {
   seedable = std::vector<bool>(input->size(), true);
 }
