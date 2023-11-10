@@ -19,15 +19,11 @@ namespace ticl {
     ~ClusterFilterBySize() override{};
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
-                const TICLClusterFilterMask& availableLayerClusters,
                 std::vector<float>& layerClustersMask,
                 hgcal::RecHitTools& rhtools) const override {
-      auto filteredLayerClusters = std::make_unique<TICLClusterFilterMask>();
-      for (auto const& cl : availableLayerClusters) {
-        if (layerClusters[cl.first].hitsAndFractions().size() <= max_cluster_size_) {
-          filteredLayerClusters->emplace_back(cl);
-        } else {
-          layerClustersMask[cl.first] = 0.;
+      for (size_t i = 0; i < layerClusters.size(); i++) {
+        if (layerClusters[i].hitsAndFractions().size() > max_cluster_size_) {
+          layerClustersMask[i] = 0.;
         }
       }
     }

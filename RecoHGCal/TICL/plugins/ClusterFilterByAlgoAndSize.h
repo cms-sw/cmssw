@@ -22,19 +22,13 @@ namespace ticl {
     ~ClusterFilterByAlgoAndSize() override{};
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
-                const TICLClusterFilterMask& availableLayerClusters,
                 std::vector<float>& layerClustersMask,
                 hgcal::RecHitTools& rhtools) const override {
-      auto filteredLayerClusters = std::make_unique<TICLClusterFilterMask>();
-      for (auto const& cl : availableLayerClusters) {
-        auto const& layerCluster = layerClusters[cl.first];
-        if (find(algo_number_.begin(), algo_number_.end(), layerCluster.algo()) != algo_number_.end() and
-            layerCluster.hitsAndFractions().size() <= max_cluster_size_ and
-            (layerCluster.hitsAndFractions().size() >= min_cluster_size_ or
-             (!(rhtools.isSilicon(layerCluster.hitsAndFractions()[0].first))))) {
-          filteredLayerClusters->emplace_back(cl);
-        } else {
-          layerClustersMask[cl.first] = 0.;
+      for (size_t i = 0; i < layerClusters.size(); i++) {
+        if ((find(algo_number_.begin(), algo_number_.end(), layerClusters[i].algo()) == algo_number_.end()) 
+        or (layerClusters[i].hitsAndFractions().size() > max_cluster_size_) 
+        or ((layerClusters[i].hitsAndFractions().size() < min_cluster_size_) and (rhtools.isSilicon(layerClusters[i].hitsAndFractions()[0].first)))) {
+          layerClustersMask[i] = 0.;
         }
       }
     }

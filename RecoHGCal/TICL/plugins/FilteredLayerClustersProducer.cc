@@ -74,7 +74,6 @@ void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescripti
 void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<std::vector<reco::CaloCluster>> clusterHandle;
   edm::Handle<std::vector<float>> inputClustersMaskHandle;
-  auto availableLayerClusters = std::make_unique<ticl::TICLClusterFilterMask>();
   evt.getByToken(clusters_token_, clusterHandle);
   evt.getByToken(clustersMask_token_, inputClustersMaskHandle);
   const auto& inputClusterMask = *inputClustersMaskHandle;
@@ -83,16 +82,8 @@ void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSet
   auto layerClustersMask = std::make_unique<std::vector<float>>(inputClusterMask);
 
   const auto& layerClusters = *clusterHandle;
-  auto numLayerClusters = layerClusters.size();
-  availableLayerClusters->reserve(numLayerClusters);
-  for (unsigned int i = 0; i < numLayerClusters; ++i) {
-    if (inputClusterMask[i] > 0.f) {
-      availableLayerClusters->emplace_back(std::make_pair(i, inputClusterMask[i]));
-    }
-  }
-
   if (theFilter_) {
-    theFilter_->filter(layerClusters, *availableLayerClusters, *layerClustersMask, rhtools_);
+    theFilter_->filter(layerClusters, *layerClustersMask, rhtools_);
   }
 
   evt.put(std::move(layerClustersMask), iteration_label_);
