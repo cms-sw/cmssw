@@ -326,7 +326,7 @@ namespace cms::soa {
  */
 #define _DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME)                 \
   if constexpr (Metadata::BOOST_PP_CAT(ColumnTypeOf_, LOCAL_NAME) != cms::soa::SoAColumnType::scalar) \
-    LOCAL_NAME() = other.LOCAL_NAME();
+    LOCAL_NAME() = _soa_impl_other.LOCAL_NAME();
 
 #define _DECLARE_VIEW_ELEMENT_VALUE_COPY(R, DATA, LAYOUT_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL LAYOUT_MEMBER_NAME)
@@ -388,16 +388,16 @@ namespace cms::soa {
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                          \
-  LOCAL_NAME(size_type index) {                                                                                        \
+  LOCAL_NAME(size_type _soa_impl_index) {                                                                              \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
-      if (index >= base_type::elements_)                                                                               \
+      if (_soa_impl_index >= base_type::elements_)                                                                     \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #LOCAL_NAME "(size_type index)")                       \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                        \
                 template RestrictQualifier<restrictQualify>(const_cast_SoAParametersImpl(                              \
-                    base_type:: BOOST_PP_CAT(LOCAL_NAME, Parameters_)))(index);                                        \
+                    base_type:: BOOST_PP_CAT(LOCAL_NAME, Parameters_)))(_soa_impl_index);                              \
   }
 // clang-format on
 
@@ -426,15 +426,15 @@ namespace cms::soa {
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                          \
                 template RestrictQualifier<restrictQualify>::ParamReturnType                                           \
-  LOCAL_NAME(size_type index) const {                                                                                  \
+  LOCAL_NAME(size_type _soa_impl_index) const {                                                                        \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
-      if (index >= elements_)                                                                                          \
+      if (_soa_impl_index >= elements_)                                                                                \
         SOA_THROW_OUT_OF_RANGE("Out of range index in const " #LOCAL_NAME "(size_type index)")                         \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                          \
-                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(LOCAL_NAME, Parameters_))(index);             \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(LOCAL_NAME, Parameters_))(_soa_impl_index);   \
   }
 // clang-format on
 
@@ -469,10 +469,10 @@ namespace cms::soa {
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      NAME() = value.NAME;                                                                                             \
+      NAME() = _soa_impl_value.NAME;                                                                                   \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      NAME() = value.NAME;                                                                                             \
+      NAME() = _soa_impl_value.NAME;                                                                                   \
 )
 // clang-format on
 
@@ -554,7 +554,7 @@ namespace cms::soa {
       Metadata(const Metadata&) = delete;                                                                              \
                                                                                                                        \
     private:                                                                                                           \
-      SOA_HOST_DEVICE SOA_INLINE Metadata(const VIEW& parent) : parent_(parent) {}                                     \
+      SOA_HOST_DEVICE SOA_INLINE Metadata(const VIEW& _soa_impl_parent) : parent_(_soa_impl_parent) {}                 \
       const VIEW& parent_;                                                                                             \
     };                                                                                                                 \
                                                                                                                        \
@@ -570,11 +570,13 @@ namespace cms::soa {
         : base_type{_ITERATE_ON_ALL_COMMA(_DECLARE_LAYOUT_LIST, BOOST_PP_EMPTY(), LAYOUTS_LIST)} {}                    \
                                                                                                                        \
     /* Constructor relying on individually provided column addresses */                                                \
-    SOA_HOST_ONLY VIEW(size_type elements,                                                                             \
+    SOA_HOST_ONLY VIEW(size_type _soa_impl_elements,                                                                   \
                         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS,                          \
                                               BOOST_PP_EMPTY(),                                                        \
                                               VALUE_LIST))                                                             \
-        : base_type{elements, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_LIST, BOOST_PP_EMPTY(), VALUE_LIST)} {}       \
+        : base_type{_soa_impl_elements,                                                                                \
+                    _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_LIST, BOOST_PP_EMPTY(), VALUE_LIST)                     \
+          } {}                                                                                                         \
                                                                                                                        \
     /* Copiable */                                                                                                     \
     VIEW(VIEW const&) = default;                                                                                       \
@@ -595,11 +597,11 @@ namespace cms::soa {
     /* AoS-like accessor (mutable) */                                                                                  \
     struct element {                                                                                                   \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      element(size_type index, /* Declare parameters */                                                                \
+      element(size_type _soa_impl_index, /* Declare parameters */                                                      \
               _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_VALUE_ARG, BOOST_PP_EMPTY(), VALUE_LIST))                    \
-          : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEM_MEMBER_INIT, index, VALUE_LIST) {}                                \
+          : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEM_MEMBER_INIT, _soa_impl_index, VALUE_LIST) {}                      \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      element& operator=(const element& other) {                                                                       \
+      element& operator=(const element& _soa_impl_other) {                                                             \
         _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, VALUE_LIST)                                               \
         return *this;                                                                                                  \
       }
@@ -611,12 +613,12 @@ namespace cms::soa {
     };                                                                                                                 \
                                                                                                                        \
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
-    element operator[](size_type index) {                                                                              \
+    element operator[](size_type _soa_impl_index) {                                                                    \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (index >= base_type::elements_)                                                                             \
+        if (_soa_impl_index >= base_type::elements_)                                                                   \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #VIEW "::operator[]")                                        \
       }                                                                                                                \
-      return element{index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};                  \
+      return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};        \
     }                                                                                                                  \
                                                                                                                        \
     /* inherit const accessors from ConstView */                                                                       \
@@ -702,7 +704,7 @@ namespace cms::soa {
       Metadata(const Metadata&) = delete;                                                                              \
                                                                                                                        \
     private:                                                                                                           \
-      SOA_HOST_DEVICE SOA_INLINE Metadata(const CONST_VIEW& parent) : parent_(parent) {}                               \
+      SOA_HOST_DEVICE SOA_INLINE Metadata(const CONST_VIEW& _soa_impl_parent) : parent_(_soa_impl_parent) {}           \
       const CONST_VIEW& parent_;                                                                                       \
     };                                                                                                                 \
                                                                                                                        \
@@ -723,9 +725,10 @@ namespace cms::soa {
           _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, VALUE_LIST) {}                                   \
                                                                                                                        \
     /* Constructor relying on individually provided column addresses */                                                \
-    SOA_HOST_ONLY CONST_VIEW(size_type elements,                                                                       \
+    SOA_HOST_ONLY CONST_VIEW(size_type _soa_impl_elements,                                                             \
                         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS, const, VALUE_LIST))      \
-        : elements_(elements), _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN, ~, VALUE_LIST) {}     \
+        : elements_(_soa_impl_elements),                                                                               \
+          _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN, ~, VALUE_LIST) {}                          \
                                                                                                                        \
     /* Copiable */                                                                                                     \
     CONST_VIEW(CONST_VIEW const&) = default;                                                                           \
@@ -741,9 +744,9 @@ namespace cms::soa {
     /* AoS-like accessor (const) */                                                                                    \
     struct const_element {                                                                                             \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      const_element(size_type index, /* Declare parameters */                                                          \
+      const_element(size_type _soa_impl_index, /* Declare parameters */                                                \
                     _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, const, VALUE_LIST))                   \
-          : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, index, VALUE_LIST) {}                          \
+          : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, _soa_impl_index, VALUE_LIST) {}                \
       _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_ACCESSOR, ~, VALUE_LIST)                                             \
                                                                                                                        \
     private:                                                                                                           \
@@ -751,12 +754,14 @@ namespace cms::soa {
     };                                                                                                                 \
                                                                                                                        \
     SOA_HOST_DEVICE SOA_INLINE                                                                                         \
-    const_element operator[](size_type index) const {                                                                  \
+    const_element operator[](size_type _soa_impl_index) const {                                                        \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-        if (index >= elements_)                                                                                        \
+        if (_soa_impl_index >= elements_)                                                                              \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #CONST_VIEW "::operator[]")                                  \
       }                                                                                                                \
-      return const_element{index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};      \
+      return const_element{                                                                                            \
+        _soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)                 \
+      };                                                                                                               \
     }                                                                                                                  \
                                                                                                                        \
     /* const accessors */                                                                                              \
@@ -809,7 +814,7 @@ namespace cms::soa {
                                                                                                                        \
    /* Extra operator=() for mutable element to emulate the aggregate initialisation syntax */                          \
    SOA_HOST_DEVICE SOA_INLINE constexpr element & operator=(const typename                                             \
-       BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element value) {                                            \
+       BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element _soa_impl_value) {                                  \
      _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT, ~, __VA_ARGS__)                                               \
      return *this;                                                                                                     \
    }                                                                                                                   \
