@@ -125,7 +125,7 @@ namespace gctobj {
     GCTtower_t GCTtower[nBarrelEta / 2][nBarrelPhi];
   } GCTintTowers_t;
 
-  int getPeakBinOf3(float et0, float et1, float et2) {
+  inline int getPeakBinOf3(float et0, float et1, float et2) {
     int x;
     float temp;
     if (et0 > et1) {
@@ -141,7 +141,7 @@ namespace gctobj {
     return x;
   }
 
-  int getEtCenterOf3(float et0, float et1, float et2) {
+  inline int getEtCenterOf3(float et0, float et1, float et2) {
     float etSum = et0 + et1 + et2;
     float iEtSum = 0.5 * et0 + 1.5 * et1 + 2.5 * et2;
     int iAve = 0xEEF;
@@ -154,7 +154,8 @@ namespace gctobj {
     return iAve;
   }
 
-  void makeST(const float GCTintTowers[nBarrelEta / 2][nBarrelPhi], GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
+  inline void makeST(const float GCTintTowers[nBarrelEta / 2][nBarrelPhi],
+                     GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
     float et_sumEta[nSTEta][nSTPhi][3];
     float stripEta[nSTEta][nSTPhi][3];
     float stripPhi[nSTEta][nSTPhi][3];
@@ -207,8 +208,8 @@ namespace gctobj {
     }
   }
 
-  void makeST_hgcal(const float hgcalTowers[nHgcalEta / 2][nHgcalPhi],
-                    GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
+  inline void makeST_hgcal(const float hgcalTowers[nHgcalEta / 2][nHgcalPhi],
+                           GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
     float et_sumEta[nSTEta][nSTPhi][3];
     float stripEta[nSTEta][nSTPhi][3];
     float stripPhi[nSTEta][nSTPhi][3];
@@ -263,7 +264,7 @@ namespace gctobj {
     }
   }
 
-  void makeST_hf(const float hfTowers[nHfEta / 2][nHfPhi], GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
+  inline void makeST_hf(const float hfTowers[nHfEta / 2][nHfPhi], GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
     float et_sumEta[nSTEta][nSTPhi][3];
     float stripEta[nSTEta][nSTPhi][3];
     float stripPhi[nSTEta][nSTPhi][3];
@@ -319,13 +320,13 @@ namespace gctobj {
     }
   }
 
-  GCTsupertower_t bestOf2(const GCTsupertower_t& calotp0, const GCTsupertower_t& calotp1) {
+  inline GCTsupertower_t bestOf2(const GCTsupertower_t& calotp0, const GCTsupertower_t& calotp1) {
     GCTsupertower_t x;
     x = (calotp0.et > calotp1.et) ? calotp0 : calotp1;
     return x;
   }
 
-  GCTsupertower_t getPeakBin24N(const etaStrip_t& etaStrip) {
+  inline GCTsupertower_t getPeakBin24N(const etaStrip_t& etaStrip) {
     GCTsupertower_t best01 = bestOf2(etaStrip.cr[0], etaStrip.cr[1]);
     GCTsupertower_t best23 = bestOf2(etaStrip.cr[2], etaStrip.cr[3]);
     GCTsupertower_t best45 = bestOf2(etaStrip.cr[4], etaStrip.cr[5]);
@@ -356,7 +357,7 @@ namespace gctobj {
     return bestOf24;
   }
 
-  towerMax getPeakBin6N(const etaStripPeak_t& etaStrip) {
+  inline towerMax getPeakBin6N(const etaStripPeak_t& etaStrip) {
     towerMax x;
 
     GCTsupertower_t best01 = bestOf2(etaStrip.pk[0], etaStrip.pk[1]);
@@ -378,7 +379,7 @@ namespace gctobj {
     return x;
   }
 
-  jetInfo getJetPosition(GCTsupertower_t temp[nSTEta][nSTPhi]) {
+  inline jetInfo getJetPosition(GCTsupertower_t temp[nSTEta][nSTPhi]) {
     etaStripPeak_t etaStripPeak;
     jetInfo jet;
 
@@ -407,7 +408,7 @@ namespace gctobj {
     return jet;
   }
 
-  jetInfo getJetValues(GCTsupertower_t tempX[nSTEta][nSTPhi], int seed_eta, int seed_phi) {
+  inline jetInfo getJetValues(GCTsupertower_t tempX[nSTEta][nSTPhi], int seed_eta, int seed_phi) {
     float temp[nSTEta + 2][nSTPhi + 2];
     float eta_slice[3];
     jetInfo jet_tmp;
@@ -466,7 +467,7 @@ namespace gctobj {
     return jet_tmp;
   }
 
-  jetInfo getRegion(GCTsupertower_t temp[nSTEta][nSTPhi]) {
+  inline jetInfo getRegion(GCTsupertower_t temp[nSTEta][nSTPhi]) {
     jetInfo jet_tmp, jet;
     jet_tmp = getJetPosition(temp);
     int seed_phi = jet_tmp.phi;
@@ -487,7 +488,7 @@ namespace gctobj {
     return jet_tmp;
   }
 
-  bool compareByEt(l1tp2::Phase2L1CaloJet i, l1tp2::Phase2L1CaloJet j) { return (i.jetEt() > j.jetEt()); };
+  inline bool compareByEt(l1tp2::Phase2L1CaloJet i, l1tp2::Phase2L1CaloJet j) { return (i.jetEt() > j.jetEt()); };
 
 }  // namespace gctobj
 

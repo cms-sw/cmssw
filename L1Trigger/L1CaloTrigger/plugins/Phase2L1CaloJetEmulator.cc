@@ -41,12 +41,12 @@
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloJetEmulator.h"
 #include <ap_int.h>
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <stdio.h>
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloJetEmulator.h"
 
 //
 // class declaration
