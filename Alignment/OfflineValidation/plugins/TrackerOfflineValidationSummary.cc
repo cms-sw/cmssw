@@ -692,28 +692,26 @@ std::pair<float, float> TrackerOfflineValidationSummary::fitResiduals(TH1* hist)
   float mean = hist->GetMean();
   float sigma = hist->GetRMS();
 
-  try {  // for < CMSSW_2_2_0 since ROOT warnings from fit are converted to exceptions
-    // Remove the try/catch for more recent CMSSW!
-    // first fit: two RMS around mean
-    TF1 func("tmp", "gaus", mean - 2. * sigma, mean + 2. * sigma);
-    if (0 == hist->Fit(&func, "QNR")) {  // N: do not blow up file by storing fit!
-      mean = func.GetParameter(1);
-      sigma = func.GetParameter(2);
-      // second fit: three sigma of first fit around mean of first fit
-      func.SetRange(mean - 3. * sigma, mean + 3. * sigma);
-      // I: integral gives more correct results if binning is too wide
-      // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-      if (0 == hist->Fit(&func, "Q0LR")) {
-        if (hist->GetFunction(func.GetName())) {  // Take care that it is later on drawn:
-          hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
-        }
-        fitResult.first = func.GetParameter(1);
-        fitResult.second = func.GetParameter(2);
+  // Remove the try/catch for more recent CMSSW!
+  // first fit: two RMS around mean
+  TF1 func("tmp", "gaus", mean - 2. * sigma, mean + 2. * sigma);
+  if (0 == hist->Fit(&func, "QNR")) {  // N: do not blow up file by storing fit!
+    mean = func.GetParameter(1);
+    sigma = func.GetParameter(2);
+    // second fit: three sigma of first fit around mean of first fit
+    func.SetRange(mean - 3. * sigma, mean + 3. * sigma);
+    // I: integral gives more correct results if binning is too wide
+    // L: Likelihood can treat empty bins correctly (if hist not weighted...)
+    if (0 == hist->Fit(&func, "Q0LR")) {
+      if (hist->GetFunction(func.GetName())) {  // Take care that it is later on drawn:
+        hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
       }
+      fitResult.first = func.GetParameter(1);
+      fitResult.second = func.GetParameter(2);
     }
-  } catch (cms::Exception const& e) {
+  } else {
     edm::LogWarning("Alignment") << "@SUB=TrackerOfflineValidation::fitResiduals"
-                                 << "Caught this exception during ROOT fit: " << e.what();
+                                 << "fit performed not successfully.";
   }
   return fitResult;
 }
