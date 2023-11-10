@@ -81,5 +81,5 @@ private:
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
   ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                     const edm::Handle<SimClusterCollection> &sCCH) const;
+                                    const edm::Handle<SimClusterCollection> &sCCH) const;
 };

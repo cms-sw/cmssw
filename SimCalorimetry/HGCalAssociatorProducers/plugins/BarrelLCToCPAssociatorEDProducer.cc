@@ -23,7 +23,6 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-
 class BarrelLCToCPAssociatorEDProducer : public edm::global::EDProducer<> {
 public:
   explicit BarrelLCToCPAssociatorEDProducer(const edm::ParameterSet &);

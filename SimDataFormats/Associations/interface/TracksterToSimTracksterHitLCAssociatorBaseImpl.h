@@ -32,10 +32,10 @@ namespace ticl {
     virtual ~TracksterToSimTracksterHitLCAssociatorBaseImpl();
 
     ticl::association_t makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                         const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                         const edm::Handle<SimClusterCollection> &sCCH,
-                                         const edm::Handle<CaloParticleCollection> &cPCH,
-                                         const edm::Handle<ticl::TracksterCollection> &sTCH) const;
+                                        const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                        const edm::Handle<SimClusterCollection> &sCCH,
+                                        const edm::Handle<CaloParticleCollection> &cPCH,
+                                        const edm::Handle<ticl::TracksterCollection> &sTCH) const;
 
     /// Associate a Trackster to SimClusters
     virtual ticl::RecoToSimCollectionSimTracksters associateRecoToSim(

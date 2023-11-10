@@ -16,26 +16,25 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class BarrelLCToSCAssociatorEDProducer : public edm::global::EDProducer<> {
-  public:
-    explicit BarrelLCToSCAssociatorEDProducer(const edm::ParameterSet&);
-    ~BarrelLCToSCAssociatorEDProducer() override;
+public:
+  explicit BarrelLCToSCAssociatorEDProducer(const edm::ParameterSet &);
+  ~BarrelLCToSCAssociatorEDProducer() override;
 
-  private:
-    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+private:
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-    edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
-    edm::EDGetTokenT<reco::CaloClusterCollection> LCCollectionToken_;
-    edm::EDGetTokenT<ticl::LayerClusterToSimClusterAssociator> associatorToken_;
+  edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
+  edm::EDGetTokenT<reco::CaloClusterCollection> LCCollectionToken_;
+  edm::EDGetTokenT<ticl::LayerClusterToSimClusterAssociator> associatorToken_;
 };
 
-BarrelLCToSCAssociatorEDProducer::BarrelLCToSCAssociatorEDProducer(const edm::ParameterSet& pset) {
+BarrelLCToSCAssociatorEDProducer::BarrelLCToSCAssociatorEDProducer(const edm::ParameterSet &pset) {
   produces<ticl::SimToRecoCollectionWithSimClusters>();
   produces<ticl::RecoToSimCollectionWithSimClusters>();
 
   SCCollectionToken_ = consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"));
   LCCollectionToken_ = consumes<reco::CaloClusterCollection>(pset.getParameter<edm::InputTag>("label_lcl"));
-  associatorToken_ =
-      consumes<ticl::LayerClusterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
+  associatorToken_ = consumes<ticl::LayerClusterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
 }
 
 BarrelLCToSCAssociatorEDProducer::~BarrelLCToSCAssociatorEDProducer() {}
@@ -63,4 +62,3 @@ void BarrelLCToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent
 }
 
 DEFINE_FWK_MODULE(BarrelLCToSCAssociatorEDProducer);
-

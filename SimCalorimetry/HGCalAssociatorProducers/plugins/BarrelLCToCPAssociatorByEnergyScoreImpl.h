@@ -33,26 +33,25 @@ namespace ticl {
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToCaloParticle;
   typedef std::vector<std::vector<ticl::caloParticleOnLayer>> caloParticleToLayerCluster;
   typedef std::tuple<layerClusterToCaloParticle, caloParticleToLayerCluster> association;
-} //namespace ticl
+}  //namespace ticl
 
 class BarrelLCToCPAssociatorByEnergyScoreImpl : public ticl::LayerClusterToCaloParticleAssociatorBaseImpl {
-  public:
-    explicit BarrelLCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-					       bool,
-					       const std::unordered_map<DetId, const reco::PFRecHit*> *);
-    
-    ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-						  const edm::Handle<CaloParticleCollection> &cPCH) const override;
+public:
+  explicit BarrelLCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
+                                                   bool,
+                                                   const std::unordered_map<DetId, const reco::PFRecHit *> *);
 
-    ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-						  const edm::Handle<CaloParticleCollection> &cPCH) const override;
+  ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                               const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
-  private:
-    const bool hardScatterOnly_;
-    const std::unordered_map<DetId, const reco::PFRecHit *> *hitMap_;
-    unsigned layers_;
-    edm::EDProductGetter const *productGetter_;
-    ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
-				       const edm::Handle<CaloParticleCollection> &cPCH) const;
+  ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                               const edm::Handle<CaloParticleCollection> &cPCH) const override;
+
+private:
+  const bool hardScatterOnly_;
+  const std::unordered_map<DetId, const reco::PFRecHit *> *hitMap_;
+  unsigned layers_;
+  edm::EDProductGetter const *productGetter_;
+  ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                    const edm::Handle<CaloParticleCollection> &cPCH) const;
 };
-

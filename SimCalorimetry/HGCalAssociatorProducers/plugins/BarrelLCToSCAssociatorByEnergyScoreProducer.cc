@@ -29,7 +29,6 @@ private:
 BarrelLCToSCAssociatorByEnergyScoreProducer::BarrelLCToSCAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const reco::PFRecHit *>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")) {
-
   // Register the product
   produces<ticl::LayerClusterToSimClusterAssociator>();
 }
@@ -37,13 +36,12 @@ BarrelLCToSCAssociatorByEnergyScoreProducer::BarrelLCToSCAssociatorByEnergyScore
 BarrelLCToSCAssociatorByEnergyScoreProducer::~BarrelLCToSCAssociatorByEnergyScoreProducer() {}
 
 void BarrelLCToSCAssociatorByEnergyScoreProducer::produce(edm::StreamID,
-                                                    edm::Event &iEvent,
-                                                    const edm::EventSetup &es) const {
-
+                                                          edm::Event &iEvent,
+                                                          const edm::EventSetup &es) const {
   const auto hitMap = &iEvent.get(hitMap_);
 
   auto impl =
-      std::make_unique<BarrelLCToSCAssociatorByEnergyScoreImpl>(iEvent.productGetter(), hardScatterOnly_,  hitMap);
+      std::make_unique<BarrelLCToSCAssociatorByEnergyScoreImpl>(iEvent.productGetter(), hardScatterOnly_, hitMap);
   auto toPut = std::make_unique<ticl::LayerClusterToSimClusterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }

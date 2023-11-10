@@ -42,8 +42,8 @@ namespace ticl {
 class BarrelLCToSCAssociatorByEnergyScoreImpl : public ticl::LayerClusterToSimClusterAssociatorBaseImpl {
 public:
   explicit BarrelLCToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                             bool,
-                                             const std::unordered_map<DetId, const reco::PFRecHit *> *);
+                                                   bool,
+                                                   const std::unordered_map<DetId, const reco::PFRecHit *> *);
 
   ticl::RecoToSimCollectionWithSimClusters associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCH,
@@ -59,5 +59,5 @@ private:
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
   ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                     const edm::Handle<SimClusterCollection> &sCCH) const;
+                                    const edm::Handle<SimClusterCollection> &sCCH) const;
 };

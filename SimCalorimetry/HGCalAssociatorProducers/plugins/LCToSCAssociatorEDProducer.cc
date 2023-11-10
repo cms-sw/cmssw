@@ -48,8 +48,7 @@ LCToSCAssociatorEDProducer::LCToSCAssociatorEDProducer(const edm::ParameterSet &
 
   SCCollectionToken_ = consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"));
   LCCollectionToken_ = consumes<reco::CaloClusterCollection>(pset.getParameter<edm::InputTag>("label_lcl"));
-  associatorToken_ =
-      consumes<ticl::LayerClusterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
+  associatorToken_ = consumes<ticl::LayerClusterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
 }
 
 LCToSCAssociatorEDProducer::~LCToSCAssociatorEDProducer() {}

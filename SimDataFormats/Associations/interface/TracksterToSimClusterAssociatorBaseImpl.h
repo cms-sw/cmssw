@@ -33,16 +33,14 @@ namespace ticl {
     virtual ~TracksterToSimClusterAssociatorBaseImpl();
 
     /// Associate a Trackster to SimClusters
-    virtual ticl::RecoToSimCollectionTracksters associateRecoToSim(
-        const edm::Handle<ticl::TracksterCollection> &tCH,
-        const edm::Handle<reco::CaloClusterCollection> &lCCH,
-        const edm::Handle<SimClusterCollection> &sCCH) const;
+    virtual ticl::RecoToSimCollectionTracksters associateRecoToSim(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                                   const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                                   const edm::Handle<SimClusterCollection> &sCCH) const;
 
     /// Associate a SimCluster to Tracksters
-    virtual ticl::SimToRecoCollectionTracksters associateSimToReco(
-        const edm::Handle<ticl::TracksterCollection> &tCH,
-        const edm::Handle<reco::CaloClusterCollection> &lCCH,
-        const edm::Handle<SimClusterCollection> &sCCH) const;
+    virtual ticl::SimToRecoCollectionTracksters associateSimToReco(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                                   const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                                   const edm::Handle<SimClusterCollection> &sCCH) const;
   };
 }  // namespace ticl
 

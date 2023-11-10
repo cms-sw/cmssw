@@ -70,10 +70,10 @@ public:
                                              const std::unordered_map<DetId, const HGCRecHit *> *);
 
   ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<CaloParticleCollection> &cPCH) const override;
+                                               const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
   ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                const edm::Handle<CaloParticleCollection> &cPCH) const override;
+                                               const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
 private:
   const bool hardScatterOnly_;
@@ -82,5 +82,5 @@ private:
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
   ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                     const edm::Handle<CaloParticleCollection> &cPCH) const;
+                                    const edm::Handle<CaloParticleCollection> &cPCH) const;
 };
