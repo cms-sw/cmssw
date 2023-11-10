@@ -20,7 +20,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "LayerClusterToSimClusterAssociatorBaseImpl.h"
 
-namespace hgcal {
+namespace ticl {
 
   typedef edm::AssociationMap<
       edm::OneToManyWithQualityGeneric<ticl::TracksterCollection, reco::CaloClusterCollection, std::pair<float, float>>>
@@ -37,23 +37,23 @@ namespace hgcal {
     virtual ~LayerClusterToSimTracksterAssociatorBaseImpl();
 
     /// Associate a LayerCluster to SimTracksters
-    virtual hgcal::RecoToSimTracksterCollection associateRecoToSim(
+    virtual ticl::RecoToSimTracksterCollection associateRecoToSim(
         const edm::Handle<reco::CaloClusterCollection> &cCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH,
         const edm::Handle<CaloParticleCollection> &cPCH,
-        const hgcal::RecoToSimCollection &lCToCPs,
+        const ticl::RecoToSimCollection &lCToCPs,
         const edm::Handle<SimClusterCollection> &sCCH,
-        const hgcal::RecoToSimCollectionWithSimClusters &lCToSCs) const;
+        const ticl::RecoToSimCollectionWithSimClusters &lCToSCs) const;
 
     /// Associate a SimTrackster to LayerClusters
-    virtual hgcal::SimTracksterToRecoCollection associateSimToReco(
+    virtual ticl::SimTracksterToRecoCollection associateSimToReco(
         const edm::Handle<reco::CaloClusterCollection> &cCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH,
         const edm::Handle<CaloParticleCollection> &cPCH,
-        const hgcal::SimToRecoCollection &cPToLCs,
+        const ticl::SimToRecoCollection &cPToLCs,
         const edm::Handle<SimClusterCollection> &sCCH,
-        const hgcal::SimToRecoCollectionWithSimClusters &sCToLCs) const;
+        const ticl::SimToRecoCollectionWithSimClusters &sCToLCs) const;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

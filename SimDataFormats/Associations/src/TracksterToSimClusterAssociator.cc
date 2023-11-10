@@ -2,6 +2,6 @@
 
 #include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociator.h"
 
-hgcal::TracksterToSimClusterAssociator::TracksterToSimClusterAssociator(
-    std::unique_ptr<hgcal::TracksterToSimClusterAssociatorBaseImpl> ptr)
+ticl::TracksterToSimClusterAssociator::TracksterToSimClusterAssociator(
+    std::unique_ptr<ticl::TracksterToSimClusterAssociatorBaseImpl> ptr)
     : m_impl(std::move(ptr)) {}

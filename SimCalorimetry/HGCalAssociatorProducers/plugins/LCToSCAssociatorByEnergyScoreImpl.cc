@@ -12,7 +12,7 @@ LCToSCAssociatorByEnergyScoreImpl::LCToSCAssociatorByEnergyScoreImpl(
   layers_ = recHitTools_->lastLayerBH();
 }
 
-hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
+ticl::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<SimClusterCollection>& sCCH) const {
   // Get collections
   const auto& clusters = *cCCH.product();
@@ -39,7 +39,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
   // among other the information to compute the SimCluster-To-LayerCluster score. It is one of the two objects that
   // build the output of the makeConnections function.
   // lcsInSimCluster[scId][layerId]
-  hgcal::simClusterToLayerCluster lcsInSimCluster;
+  ticl::simClusterToLayerCluster lcsInSimCluster;
   lcsInSimCluster.resize(nSimClusters);
   for (unsigned int i = 0; i < nSimClusters; ++i) {
     lcsInSimCluster[i].resize(layers_ * 2);
@@ -55,7 +55,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
   // contributed to that hit by storing the SimCluster id and the fraction of the hit. Observe here
   // that in contrast to the CaloParticle case there is no merging and summing of the fractions, which
   // in the CaloParticle's case was necessary due to the multiple SimClusters of a single CaloParticle.
-  std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToSimClusterId_Map;
+  std::unordered_map<DetId, std::vector<ticl::detIdInfoInCluster>> detIdToSimClusterId_Map;
   for (const auto& scId : sCIndices) {
     const auto& hits_and_fractions = simClusters[scId].hits_and_fractions();
     for (const auto& it_haf : hits_and_fractions) {
@@ -67,7 +67,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
       if (itcheck != hitMap_->end()) {
         auto hit_find_it = detIdToSimClusterId_Map.find(hitid);
         if (hit_find_it == detIdToSimClusterId_Map.end()) {
-          detIdToSimClusterId_Map[hitid] = std::vector<hgcal::detIdInfoInCluster>();
+          detIdToSimClusterId_Map[hitid] = std::vector<ticl::detIdInfoInCluster>();
         }
         detIdToSimClusterId_Map[hitid].emplace_back(scId, it_haf.second);
 
@@ -125,12 +125,12 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
   // Fill detIdToLayerClusterId_Map and scsInLayerCluster; update lcsInSimCluster
   // The detIdToLayerClusterId_Map is used to connect a hit Detid (key) with all the LayerClusters that
   // contributed to that hit by storing the LayerCluster id and the fraction of the corresponding hit.
-  std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToLayerClusterId_Map;
+  std::unordered_map<DetId, std::vector<ticl::detIdInfoInCluster>> detIdToLayerClusterId_Map;
   // scsInLayerCluster together with lcsInSimCluster are the two objects that are used to build the
   // output of the makeConnections function. scsInLayerCluster connects a LayerCluster with
   // all the SimClusters that share at least one cell with the LayerCluster and for each pair (LC,SC)
   // it stores the score.
-  hgcal::layerClusterToSimCluster scsInLayerCluster;  //[lcId][scId]->(score)
+  ticl::layerClusterToSimCluster scsInLayerCluster;  //[lcId][scId]->(score)
   scsInLayerCluster.resize(nLayerClusters);
 
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
@@ -146,7 +146,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
 
       auto hit_find_in_LC = detIdToLayerClusterId_Map.find(rh_detid);
       if (hit_find_in_LC == detIdToLayerClusterId_Map.end()) {
-        detIdToLayerClusterId_Map[rh_detid] = std::vector<hgcal::detIdInfoInCluster>();
+        detIdToLayerClusterId_Map[rh_detid] = std::vector<ticl::detIdInfoInCluster>();
       }
       detIdToLayerClusterId_Map[rh_detid].emplace_back(lcId, rhFraction);
 
@@ -377,7 +377,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
         if (hitWithSC) {
           auto findHitIt = std::find(detIdToSimClusterId_Map[rh_detid].begin(),
                                      detIdToSimClusterId_Map[rh_detid].end(),
-                                     hgcal::detIdInfoInCluster{scPair.first, 0.f});
+                                     ticl::detIdInfoInCluster{scPair.first, 0.f});
           if (findHitIt != detIdToSimClusterId_Map[rh_detid].end())
             scFraction = findHitIt->fraction;
         }
@@ -461,7 +461,7 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
           if (hitWithLC) {
             auto findHitIt = std::find(detIdToLayerClusterId_Map[sc_hitDetId].begin(),
                                        detIdToLayerClusterId_Map[sc_hitDetId].end(),
-                                       hgcal::detIdInfoInCluster{layerClusterId, 0.f});
+                                       ticl::detIdInfoInCluster{layerClusterId, 0.f});
             if (findHitIt != detIdToLayerClusterId_Map[sc_hitDetId].end())
               lcFraction = findHitIt->fraction;
           }
@@ -496,9 +496,9 @@ hgcal::association LCToSCAssociatorByEnergyScoreImpl::makeConnections(
   return {scsInLayerCluster, lcsInSimCluster};
 }
 
-hgcal::RecoToSimCollectionWithSimClusters LCToSCAssociatorByEnergyScoreImpl::associateRecoToSim(
+ticl::RecoToSimCollectionWithSimClusters LCToSCAssociatorByEnergyScoreImpl::associateRecoToSim(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<SimClusterCollection>& sCCH) const {
-  hgcal::RecoToSimCollectionWithSimClusters returnValue(productGetter_);
+  ticl::RecoToSimCollectionWithSimClusters returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, sCCH);
 
   const auto& scsInLayerCluster = std::get<0>(links);
@@ -516,9 +516,9 @@ hgcal::RecoToSimCollectionWithSimClusters LCToSCAssociatorByEnergyScoreImpl::ass
   return returnValue;
 }
 
-hgcal::SimToRecoCollectionWithSimClusters LCToSCAssociatorByEnergyScoreImpl::associateSimToReco(
+ticl::SimToRecoCollectionWithSimClusters LCToSCAssociatorByEnergyScoreImpl::associateSimToReco(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<SimClusterCollection>& sCCH) const {
-  hgcal::SimToRecoCollectionWithSimClusters returnValue(productGetter_);
+  ticl::SimToRecoCollectionWithSimClusters returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, sCCH);
   const auto& lcsInSimCluster = std::get<1>(links);
   for (size_t scId = 0; scId < lcsInSimCluster.size(); ++scId) {

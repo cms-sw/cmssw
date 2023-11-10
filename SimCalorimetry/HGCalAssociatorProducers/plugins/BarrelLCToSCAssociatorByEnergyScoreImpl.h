@@ -16,7 +16,7 @@ namespace edm {
   class EDProductGetter;
 }
 
-namespace hgcal {
+namespace ticl {
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
     long unsigned int clusterId;
@@ -35,31 +35,29 @@ namespace hgcal {
   };
 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToSimCluster;
-  typedef std::vector<std::vector<hgcal::simClusterOnCLayer>> simClusterToLayerCluster;
+  typedef std::vector<std::vector<ticl::simClusterOnCLayer>> simClusterToLayerCluster;
   typedef std::tuple<layerClusterToSimCluster, simClusterToLayerCluster> association;
-}  // namespace hgcal
+}  // namespace ticl
 
-class BarrelLCToSCAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToSimClusterAssociatorBaseImpl {
+class BarrelLCToSCAssociatorByEnergyScoreImpl : public ticl::LayerClusterToSimClusterAssociatorBaseImpl {
 public:
   explicit BarrelLCToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                              bool,
-                                             std::shared_ptr<hgcal::RecHitTools>,
                                              const std::unordered_map<DetId, const reco::PFRecHit *> *);
 
-  hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(
+  ticl::RecoToSimCollectionWithSimClusters associateRecoToSim(
       const edm::Handle<reco::CaloClusterCollection> &cCH,
       const edm::Handle<SimClusterCollection> &sCCH) const override;
 
-  hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(
+  ticl::SimToRecoCollectionWithSimClusters associateSimToReco(
       const edm::Handle<reco::CaloClusterCollection> &cCH,
       const edm::Handle<SimClusterCollection> &sCCH) const override;
 
 private:
   const bool hardScatterOnly_;
-  std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   const std::unordered_map<DetId, const reco::PFRecHit *> *hitMap_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
-  hgcal::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
+  ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
                                      const edm::Handle<SimClusterCollection> &sCCH) const;
 };

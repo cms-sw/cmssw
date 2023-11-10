@@ -11,11 +11,11 @@
 
 // forward declarations
 
-namespace hgcal {
+namespace ticl {
 
   class TracksterToSimTracksterAssociator {
   public:
-    TracksterToSimTracksterAssociator(std::unique_ptr<hgcal::TracksterToSimTracksterAssociatorBaseImpl>);
+    TracksterToSimTracksterAssociator(std::unique_ptr<ticl::TracksterToSimTracksterAssociatorBaseImpl>);
     TracksterToSimTracksterAssociator() = default;
     TracksterToSimTracksterAssociator(TracksterToSimTracksterAssociator &&) = default;
     TracksterToSimTracksterAssociator &operator=(TracksterToSimTracksterAssociator &&) = default;
@@ -27,7 +27,7 @@ namespace hgcal {
 
     // ---------- const member functions ---------------------
     /// Associate a Trackster to SimClusters
-    hgcal::RecoToSimCollectionSimTracksters associateRecoToSim(
+    ticl::RecoToSimCollectionSimTracksters associateRecoToSim(
         const edm::Handle<ticl::TracksterCollection> &tCH,
         const edm::Handle<reco::CaloClusterCollection> &lCCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH) const {
@@ -35,7 +35,7 @@ namespace hgcal {
     };
 
     /// Associate a SimCluster to Tracksters
-    hgcal::SimToRecoCollectionSimTracksters associateSimToReco(
+    ticl::SimToRecoCollectionSimTracksters associateSimToReco(
         const edm::Handle<ticl::TracksterCollection> &tCH,
         const edm::Handle<reco::CaloClusterCollection> &lCCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH) const {
@@ -46,6 +46,6 @@ namespace hgcal {
     // ---------- member data --------------------------------
     std::unique_ptr<TracksterToSimTracksterAssociatorBaseImpl> m_impl;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

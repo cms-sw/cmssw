@@ -25,19 +25,19 @@ namespace SimDataFormats_Associations {
 
     edm::Wrapper<reco::VertexToTrackingVertexAssociator> dummy4;
 
-    edm::Wrapper<hgcal::LayerClusterToCaloParticleAssociator> dummy5;
+    edm::Wrapper<ticl::LayerClusterToCaloParticleAssociator> dummy5;
 
-    edm::Wrapper<hgcal::LayerClusterToSimClusterAssociator> dummy6;
+    edm::Wrapper<ticl::LayerClusterToSimClusterAssociator> dummy6;
 
-    edm::Wrapper<hgcal::TracksterToSimClusterAssociator> dummy7;
+    edm::Wrapper<ticl::TracksterToSimClusterAssociator> dummy7;
 
     edm::Wrapper<hgcal::MultiClusterToCaloParticleAssociator> dummy8;
 
-    edm::Wrapper<hgcal::TracksterToSimTracksterAssociator> dummy9;
+    edm::Wrapper<ticl::TracksterToSimTracksterAssociator> dummy9;
 
-    edm::Wrapper<hgcal::TracksterToSimTracksterHitLCAssociator> dummy10;
+    edm::Wrapper<ticl::TracksterToSimTracksterHitLCAssociator> dummy10;
 
-    edm::Wrapper<hgcal::LayerClusterToSimTracksterAssociator> dummy11;
+    edm::Wrapper<ticl::LayerClusterToSimTracksterAssociator> dummy11;
 
     reco::VertexSimToRecoCollection vstrc;
     reco::VertexSimToRecoCollection::const_iterator vstrci;

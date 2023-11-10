@@ -7,13 +7,12 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace edm {
   class EDProductGetter;
 }
 
-namespace hgcal {
+namespace ticl {
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
     long unsigned int clusterId;
@@ -32,30 +31,28 @@ namespace hgcal {
   };
 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToCaloParticle;
-  typedef std::vector<std::vector<hgcal::caloParticleOnLayer>> caloParticleToLayerCluster;
+  typedef std::vector<std::vector<ticl::caloParticleOnLayer>> caloParticleToLayerCluster;
   typedef std::tuple<layerClusterToCaloParticle, caloParticleToLayerCluster> association;
-} //namespace hgcal
+} //namespace ticl
 
-class BarrelLCToCPAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
+class BarrelLCToCPAssociatorByEnergyScoreImpl : public ticl::LayerClusterToCaloParticleAssociatorBaseImpl {
   public:
     explicit BarrelLCToCPAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
 					       bool,
-					       std::shared_ptr<hgcal::RecHitTools>,
 					       const std::unordered_map<DetId, const reco::PFRecHit*> *);
     
-    hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
+    ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
 						  const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
-    hgcal::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
+    ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
 						  const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
   private:
     const bool hardScatterOnly_;
-    std::shared_ptr<hgcal::RecHitTools> recHitTools_;
     const std::unordered_map<DetId, const reco::PFRecHit *> *hitMap_;
     unsigned layers_;
     edm::EDProductGetter const *productGetter_;
-    hgcal::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
+    ticl::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
 				       const edm::Handle<CaloParticleCollection> &cPCH) const;
 };
 

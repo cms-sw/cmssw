@@ -12,14 +12,13 @@
 BarrelLCToCPAssociatorByEnergyScoreImpl::BarrelLCToCPAssociatorByEnergyScoreImpl(
   edm::EDProductGetter const& productGetter,
   bool hardScatterOnly,
-  std::shared_ptr<hgcal::RecHitTools> recHitTools,
   const std::unordered_map<DetId, const reco::PFRecHit*>* hitMap)
-  : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), productGetter_(&productGetter) {
+  : hardScatterOnly_(hardScatterOnly), hitMap_(hitMap), productGetter_(&productGetter) {
   
   layers_ = 6;
 }
 
-hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
+ticl::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
   const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
     const auto& clusters = *cCCH.product();
     const auto& caloParticles = *cPCH.product();
@@ -29,7 +28,7 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
     removeCPFromPU(caloParticles, cPIndices, hardScatterOnly_);
     auto nCaloParticles = cPIndices.size();
 
-    hgcal::caloParticleToLayerCluster cPOnLayer;
+    ticl::caloParticleToLayerCluster cPOnLayer;
     cPOnLayer.resize(nCaloParticles);
     for (unsigned int i = 0; i < nCaloParticles; ++i) {
       cPOnLayer[i].resize(layers_);
@@ -40,7 +39,7 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
       }
     }
 
-    std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToCaloParticleId_Map;
+    std::unordered_map<DetId, std::vector<ticl::detIdInfoInCluster>> detIdToCaloParticleId_Map;
     for (const auto& cpId : cPIndices) {
       const SimClusterRefVector& simClusterRefVector = caloParticles[cpId].simClusters();
       for (const auto& it_sc : simClusterRefVector) {
@@ -58,12 +57,12 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
 	      if(itcheck != hitMap_->end()) {
 	        auto hit_find_it = detIdToCaloParticleId_Map.find(hitid);
 	        if (hit_find_it == detIdToCaloParticleId_Map.end()) {
-	          detIdToCaloParticleId_Map[hitid] = std::vector<hgcal::detIdInfoInCluster>();
+	          detIdToCaloParticleId_Map[hitid] = std::vector<ticl::detIdInfoInCluster>();
 	          detIdToCaloParticleId_Map[hitid].emplace_back(cpId, it_haf.second);
 	        } else {
 	          auto findHitIt = std::find(detIdToCaloParticleId_Map[hitid].begin(),
 					  detIdToCaloParticleId_Map[hitid].end(),
-					  hgcal::detIdInfoInCluster{cpId, it_haf.second});
+					  ticl::detIdInfoInCluster{cpId, it_haf.second});
 	          if (findHitIt != detIdToCaloParticleId_Map[hitid].end()) {
 		          findHitIt->fraction += it_haf.second;
 	          } else {
@@ -123,8 +122,8 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
   }
 #endif
 
-  std::unordered_map<DetId, std::vector<hgcal::detIdInfoInCluster>> detIdToLayerClusterId_Map;
-  hgcal::layerClusterToCaloParticle cpsInLayerCluster;
+  std::unordered_map<DetId, std::vector<ticl::detIdInfoInCluster>> detIdToLayerClusterId_Map;
+  ticl::layerClusterToCaloParticle cpsInLayerCluster;
   cpsInLayerCluster.resize(nLayerClusters);
 
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
@@ -143,7 +142,7 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
 
       auto hit_find_in_LC = detIdToLayerClusterId_Map.find(rh_detid);
       if (hit_find_in_LC == detIdToLayerClusterId_Map.end()) {
-        detIdToLayerClusterId_Map[rh_detid] = std::vector<hgcal::detIdInfoInCluster>();
+        detIdToLayerClusterId_Map[rh_detid] = std::vector<ticl::detIdInfoInCluster>();
       }
       detIdToLayerClusterId_Map[rh_detid].emplace_back(lcId, rhFraction);
 
@@ -195,7 +194,7 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
         if (!hitWithNoCP) {
           auto findHitIt = std::find(detIdToCaloParticleId_Map[rh_detid].begin(),
                                      detIdToCaloParticleId_Map[rh_detid].end(),
-                                     hgcal::detIdInfoInCluster{cpPair.first, 0.f});
+                                     ticl::detIdInfoInCluster{cpPair.first, 0.f});
         if (findHitIt != detIdToCaloParticleId_Map[rh_detid].end())
           cpFraction = findHitIt->fraction;
         }
@@ -235,7 +234,7 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
 	        if (!hitWithNoLC) {
 	          auto findHitIt = std::find(detIdToLayerClusterId_Map[cp_hitDetId].begin(),
 					  detIdToLayerClusterId_Map[cp_hitDetId].end(),
-					  hgcal::detIdInfoInCluster{layerClusterId, 0.f});
+					  ticl::detIdInfoInCluster{layerClusterId, 0.f});
 	        if (findHitIt != detIdToLayerClusterId_Map[cp_hitDetId].end())
 		        lcFraction = findHitIt->fraction;
 	        }
@@ -248,14 +247,14 @@ hgcal::association BarrelLCToCPAssociatorByEnergyScoreImpl::makeConnections(
   return {cpsInLayerCluster, cPOnLayer};
 }
 
-hgcal::RecoToSimCollection BarrelLCToCPAssociatorByEnergyScoreImpl::associateRecoToSim(
+ticl::RecoToSimCollection BarrelLCToCPAssociatorByEnergyScoreImpl::associateRecoToSim(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  hgcal::RecoToSimCollection returnValue(productGetter_);
+  ticl::RecoToSimCollection returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, cPCH);
 
   const auto& cpsInLayerCluster = std::get<0>(links);
   for (size_t lcId = 0; lcId < cpsInLayerCluster.size(); ++lcId) {
-    for (auto& cpPair : cpsInLayerCluster[lcId]) {
+    for (const auto& cpPair : cpsInLayerCluster[lcId]) {
       returnValue.insert(edm::Ref<reco::CaloClusterCollection>(cCCH, lcId),
 			 std::make_pair(edm::Ref<CaloParticleCollection>(cPCH, cpPair.first),
 			 cpPair.second)
@@ -265,15 +264,15 @@ hgcal::RecoToSimCollection BarrelLCToCPAssociatorByEnergyScoreImpl::associateRec
   return returnValue;
 }
 
-hgcal::SimToRecoCollection BarrelLCToCPAssociatorByEnergyScoreImpl::associateSimToReco(
+ticl::SimToRecoCollection BarrelLCToCPAssociatorByEnergyScoreImpl::associateSimToReco(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  hgcal::SimToRecoCollection returnValue(productGetter_);
+  ticl::SimToRecoCollection returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, cPCH);
 
   const auto& cPOnLayer = std::get<1>(links);
   for (size_t cpId = 0; cpId < cPOnLayer.size(); ++cpId) {
     for (size_t layerId = 0; layerId < cPOnLayer[cpId].size(); ++layerId) {
-      for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
+      for (const auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
 	      returnValue.insert(
 	        edm::Ref<CaloParticleCollection>(cPCH, cpId),
 	        std::make_pair(edm::Ref<reco::CaloClusterCollection>(cCCH, lcPair.first),

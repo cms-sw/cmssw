@@ -36,7 +36,7 @@ LCToCPAssociatorByEnergyScoreProducer::LCToCPAssociatorByEnergyScoreProducer(con
   rhtools_.reset(new hgcal::RecHitTools());
 
   // Register the product
-  produces<hgcal::LayerClusterToCaloParticleAssociator>();
+  produces<ticl::LayerClusterToCaloParticleAssociator>();
 }
 
 LCToCPAssociatorByEnergyScoreProducer::~LCToCPAssociatorByEnergyScoreProducer() {}
@@ -51,7 +51,7 @@ void LCToCPAssociatorByEnergyScoreProducer::produce(edm::StreamID,
 
   auto impl =
       std::make_unique<LCToCPAssociatorByEnergyScoreImpl>(iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap);
-  auto toPut = std::make_unique<hgcal::LayerClusterToCaloParticleAssociator>(std::move(impl));
+  auto toPut = std::make_unique<ticl::LayerClusterToCaloParticleAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 
