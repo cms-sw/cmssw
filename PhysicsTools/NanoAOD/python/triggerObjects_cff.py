@@ -375,7 +375,7 @@ l1PreFiringEventWeightTable = globalVariablesTableProducer.clone(
 l1bits=cms.EDProducer("L1TriggerResultsConverter",
                        src=cms.InputTag("gtStage2Digis"),
                        legacyL1=cms.bool(False),
-                       storeUnprefireableBit=cms.bool(True),
+                       storeUnprefireableBits=cms.bool(True),
                        src_ext=cms.InputTag("simGtExtUnprefireable"))
 
 triggerObjectTablesTask = cms.Task( unpackedPatTrigger,triggerObjectTable,l1bits)
