@@ -11,17 +11,30 @@ hltPixelVerticesMonitoring = hltVerticesMonitoring.clone(
     ndof          = 1,
     useHPforAlignmentPlots = False
 )
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(hltPixelVerticesMonitoring,
+                        vertexLabel = "hltPixelVerticesPPOnAA")
+
 hltTrimmedPixelVerticesMonitoring = hltVerticesMonitoring.clone(
     TopFolderName = "HLT/Vertexing/hltTrimmedPixelVertices",
     vertexLabel   = "hltTrimmedPixelVertices",
     ndof          = 1,
     useHPforAlignmentPlots = False
 )
+
+pp_on_PbPb_run3.toModify(hltTrimmedPixelVerticesMonitoring,
+                         vertexLabel = "hltTrimmedPixelVerticesPPOnAA")
+
 hltVerticesPFFilterMonitoring = hltVerticesMonitoring.clone(
     TopFolderName = "HLT/Vertexing/hltVerticesPFFilter",
     vertexLabel   = "hltVerticesPFFilter",
     useHPforAlignmentPlots = False
 )
+
+pp_on_PbPb_run3.toModify(hltVerticesPFFilterMonitoring,
+                         vertexLabel   = cms.InputTag("hltVerticesPFFilterPPOnAA"))
+
 hltVerticesL3PFBjetsMonitoring = hltVerticesMonitoring.clone(
     TopFolderName = "HLT/Vertexing/hltVerticesL3PFBjets",
     vertexLabel   = "hltVerticesL3PFBjets",
