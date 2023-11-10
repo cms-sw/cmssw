@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal, ticlSeedingGlobalHFNose
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
-from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
 
 # CLUSTER FILTERING/MASKING
 
