@@ -13,9 +13,10 @@ using namespace std;
 
 FEDRawData::FEDRawData() {}
 
-FEDRawData::FEDRawData(size_t newsize) : data_(newsize) {
-  if (newsize % 8 != 0)
-    throw cms::Exception("DataCorrupt") << "FEDRawData::resize: " << newsize << " is not a multiple of 8 bytes."
+FEDRawData::FEDRawData(size_t newsize, size_t wordsize) : data_(newsize) {
+  if (newsize % wordsize != 0)
+    throw cms::Exception("DataCorrupt") << "FEDRawData::resize: " << newsize << " is not a multiple of "
+                                        << wordsize << " bytes."
                                         << endl;
 }
 
@@ -25,13 +26,14 @@ const unsigned char *FEDRawData::data() const { return data_.data(); }
 
 unsigned char *FEDRawData::data() { return data_.data(); }
 
-void FEDRawData::resize(size_t newsize) {
+void FEDRawData::resize(size_t newsize, size_t wordsize) {
   if (size() == newsize)
     return;
 
   data_.resize(newsize);
 
-  if (newsize % 8 != 0)
-    throw cms::Exception("DataCorrupt") << "FEDRawData::resize: " << newsize << " is not a multiple of 8 bytes."
+  if (newsize % wordsize != 0)
+    throw cms::Exception("DataCorrupt") << "FEDRawData::resize: " << newsize << " is not a multiple of "
+                                        << wordsize << " bytes."
                                         << endl;
 }
