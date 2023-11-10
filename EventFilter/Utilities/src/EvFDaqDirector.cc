@@ -40,6 +40,7 @@ namespace evf {
       : base_dir_(pset.getUntrackedParameter<std::string>("baseDir")),
         bu_base_dir_(pset.getUntrackedParameter<std::string>("buBaseDir")),
         bu_base_dirs_all_(pset.getUntrackedParameter<std::vector<std::string>>("buBaseDirsAll")),
+        bu_base_dirs_nSources_(pset.getUntrackedParameter<std::vector<int>>("buBaseDirsNumStreams")),
         run_(pset.getUntrackedParameter<unsigned int>("runNumber")),
         useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker")),
         fileBrokerHostFromCfg_(pset.getUntrackedParameter<bool>("fileBrokerHostFromCfg", true)),
@@ -143,6 +144,23 @@ namespace evf {
                                        << fileBrokerUseLocalLock_;
       } catch (const std::exception&) {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerUseLockParamPtr);
+      }
+    }
+
+    // set number of streams in each BU's ramdisk
+    if (!bu_base_dirs_nSources_.size()){
+      // default is 1 stream per ramdisk
+      for(unsigned int i=0; i<bu_base_dirs_all_.size(); i++){
+        bu_base_dirs_nSources_.push_back(1);
+      }
+    } else if (bu_base_dirs_nSources_.size() != bu_base_dirs_all_.size()){
+      throw cms::Exception("DaqDirector")
+          << " Error while setting number of sources: size mismatch with BU base directory vector"; 
+    } else {
+      for(unsigned int i=0; i<bu_base_dirs_all_.size(); i++){
+        bu_base_dirs_nSources_.push_back(bu_base_dirs_nSources_[i]);
+        edm::LogInfo("EvFDaqDirector") << "Setting " << bu_base_dirs_nSources_[i] << " sources"
+                                       << " for ramdisk " << bu_base_dirs_all_[i];
       }
     }
 
@@ -365,6 +383,8 @@ namespace evf {
     desc.addUntracked<std::string>("buBaseDir", ".")->setComment("BU base ramdisk directory ");
     desc.addUntracked<std::vector<std::string>>("buBaseDirsAll", std::vector<std::string>())
         ->setComment("BU base ramdisk directories for multi-file DAQSource models");
+    desc.addUntracked<std::vector<int>>("buBaseDirsNumStreams", std::vector<int>())
+        ->setComment("Number of streams for each BU base ramdisk directories for multi-file DAQSource models");
     desc.addUntracked<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
     desc.addUntracked<bool>("useFileBroker", false)
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
