@@ -225,14 +225,19 @@ if options.alignmentXMLName:
 elif options.alignmentDBName:
     # Load alignments from DB file
     print('Loading alignment from DB file:', options.alignmentDBName)
-    process.GlobalTag.toGet = cms.VPSet(
-        cms.PSet(
+    from CondCore.CondDB.CondDB_cfi import *
+    ppsAlignmentDB = CondDB.clone()
+    ppsAlignmentDB.connect = cms.string("sqlite_file:"+options.alignmentDBName)
+    process.ppsAlignment = cms.ESSource("PoolDBESSource",ppsAlignmentDB,
+        toGet = cms.VPSet(
+            cms.PSet(
             record = cms.string("RPRealAlignmentRecord"),
             tag = cms.string("CTPPSRPAlignment_real"),
-            connect = cms.string("sqlite_file:"+options.alignmentDBName),
             label = cms.untracked.string("")
+            )
         )
     )
+    process.es_prefer_ppsAlignment = cms.ESPrefer("PoolDBESSource","ppsAlignment")
 else: 
     print('Using alignment from GT.')
 
