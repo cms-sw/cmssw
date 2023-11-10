@@ -13,15 +13,11 @@ from DQMServices.Core.DQMStore_cfi import *
 def _addProcessAccelerators(process):
     process.load("Configuration.StandardSequences.Accelerators_cff")
 
-def _addProcessAcceleratorsAlpaka(process):
-    process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
-
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (gpu | pixelNtupletFit | alpaka).makeProcessModifier(_addProcessAccelerators)
-modifyConfigurationStandardSequencesServicesAddProcessAcceleratorsAlpaka_ = alpaka.makeProcessModifier(_addProcessAcceleratorsAlpaka)
 
 # load TritonService when SONIC workflow is enabled
 def _addTritonService(process):
