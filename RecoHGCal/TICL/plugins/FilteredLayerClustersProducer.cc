@@ -56,7 +56,6 @@ void FilteredLayerClustersProducer::beginRun(edm::Run const&, edm::EventSetup co
 }
 
 void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // hgcalMultiClusters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("LayerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("LayerClustersInputMask",

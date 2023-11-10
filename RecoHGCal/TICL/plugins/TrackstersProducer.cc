@@ -22,8 +22,6 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
 #include "RecoHGCal/TICL/plugins/PatternRecognitionPluginFactory.h"
-#include "PatternRecognitionbyCA.h"
-#include "PatternRecognitionbyMultiClusters.h"
 
 #include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
