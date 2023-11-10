@@ -97,9 +97,10 @@ elif options.alignmentDBName:
     print('Loading alignment from DB file:', options.alignmentDBName)
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(
-            record = cms.string("CTPPSRPAlignmentCorrectionsDataRcd"),
+            record = cms.string("RPRealAlignmentRecord"),
             tag = cms.string("CTPPSRPAlignment_real"),
-            connect = cms.string("sqlite_file:"+options.alignmentDBName)
+            connect = cms.string("sqlite_file:"+options.alignmentDBName),
+            label = cms.untracked.string("")
         )
     )
 else: 
