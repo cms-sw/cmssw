@@ -88,19 +88,17 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
   G4Track* theTrack = aStep->GetTrack();
   TrackStatus tstat = (theTrack->GetTrackStatus() == fAlive) ? sAlive : sKilledByProcess;
+  const double ekin = theTrack->GetKineticEnergy();
 
-  if (theTrack->GetKineticEnergy() < 0.0) {
+  if (ekin < 0.0) {
     if (nWarnings < 2) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
           << "SteppingAction::UserSteppingAction: Track #" << theTrack->GetTrackID() << " "
-          << theTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / MeV;
+          << theTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << ekin;
     }
     theTrack->SetKineticEnergy(0.0);
   }
-
-  const G4StepPoint* preStep = aStep->GetPreStepPoint();
-  const G4StepPoint* postStep = aStep->GetPostStepPoint();
 
   // the track is killed by the process
   if (tstat == sKilledByProcess) {
@@ -110,17 +108,20 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     return;
   }
 
+  const G4StepPoint* preStep = aStep->GetPreStepPoint();
+  const G4StepPoint* postStep = aStep->GetPostStepPoint();
   if (sAlive == tstat && theTrack->GetCurrentStepNumber() > maxNumberOfSteps) {
     tstat = sNumberOfSteps;
     if (nWarnings < 5) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
           << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
-          << " is killed due to limit on number of steps;/n  PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
-          << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
+          << " E(MeV)=" << ekin << " Nstep=" << theTrack->GetCurrentStepNumber()
+          << " is killed due to limit on number of steps;/n  PV:" << preStep->GetPhysicalVolume()->GetName() << " at "
+          << theTrack->GetPosition() << " StepLen(mm)=" << aStep->GetStepLength();
     }
   }
+
   const double time = theTrack->GetGlobalTime();
 
   // check Z-coordinate
@@ -129,13 +130,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   }
 
   // check G4Region
-  if (sAlive == tstat) {
+  if (sAlive == tstat || sVeryForward == tstat) {
     // next logical volume and next region
     const G4LogicalVolume* lv = postStep->GetPhysicalVolume()->GetLogicalVolume();
     const G4Region* theRegion = lv->GetRegion();
 
     // kill in dead regions
-    if (isInsideDeadRegion(theRegion))
+    if (lv != m_CMStoZDC && isInsideDeadRegion(theRegion))
       tstat = sDeadRegion;
 
     // kill out of time
@@ -152,8 +153,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
     // kill low-energy in vacuum
     if (sAlive == tstat && killBeamPipe) {
-      if (theTrack->GetKineticEnergy() < theCriticalEnergyForVacuum &&
-          theTrack->GetDefinition()->GetPDGCharge() != 0.0 && lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
+      if (ekin < theCriticalEnergyForVacuum && theTrack->GetDefinition()->GetPDGCharge() != 0.0 &&
+          lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
         tstat = sLowEnergyInVacuum;
       }
     }
@@ -183,7 +184,7 @@ bool SteppingAction::isLowEnergy(const G4LogicalVolume* lv, const G4Track* theTr
   const double ekin = theTrack->GetKineticEnergy();
   int pCode = theTrack->GetDefinition()->GetPDGEncoding();
 
-  for (auto& vol : ekinVolumes) {
+  for (auto const& vol : ekinVolumes) {
     if (lv == vol) {
       for (unsigned int i = 0; i < numberPart; ++i) {
         if (pCode == ekinPDG[i]) {
@@ -208,24 +209,26 @@ bool SteppingAction::initPointer() {
     if (tracker && calo)
       break;
   }
-  edm::LogVerbatim("SimG4CoreApplication")
-      << "SteppingAction: pointer for Tracker " << tracker << " and for Calo " << calo;
 
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-  if (numberEkins > 0) {
-    ekinVolumes.resize(numberEkins, nullptr);
-    for (auto const& lvcite : *lvs) {
-      const G4String& lvname = lvcite->GetName();
-      for (unsigned int i = 0; i < numberEkins; ++i) {
-        if (lvname == (G4String)(ekinNames[i])) {
-          ekinVolumes[i] = lvcite;
-          break;
-        }
-      }
+
+  ekinVolumes.resize(numberEkins, nullptr);
+  for (auto const& lvcite : *lvs) {
+    const G4String& lvname = lvcite->GetName();
+    if (lvname == "CMStoZDC") {
+      m_CMStoZDC = lvcite;
     }
     for (unsigned int i = 0; i < numberEkins; ++i) {
-      edm::LogVerbatim("SimG4CoreApplication") << ekinVolumes[i]->GetName() << " with pointer " << ekinVolumes[i];
+      if (lvname == (G4String)(ekinNames[i])) {
+        ekinVolumes[i] = lvcite;
+        break;
+      }
     }
+  }
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "SteppingAction: pointer for Tracker: " << tracker << "; Calo: " << calo << "; to CMStoZDC: " << m_CMStoZDC;
+  for (unsigned int i = 0; i < numberEkins; ++i) {
+    edm::LogVerbatim("SimG4CoreApplication") << ekinVolumes[i]->GetName() << " with pointer " << ekinVolumes[i];
   }
 
   if (numberPart > 0) {

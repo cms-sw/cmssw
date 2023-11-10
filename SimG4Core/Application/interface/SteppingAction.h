@@ -37,7 +37,8 @@ private:
 
   const G4VPhysicalVolume* tracker{nullptr};
   const G4VPhysicalVolume* calo{nullptr};
-  const CMSSteppingVerbose* steppingVerbose;
+  const CMSSteppingVerbose* steppingVerbose{nullptr};
+  const G4LogicalVolume* m_CMStoZDC{nullptr};
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;
@@ -66,7 +67,7 @@ private:
 
 inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
   bool res = false;
-  for (auto& region : deadRegions) {
+  for (auto const& region : deadRegions) {
     if (reg == region) {
       res = true;
       break;
