@@ -209,8 +209,8 @@ void PPSAlignmentHarvester::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("overwrite_sh_x", true);
   desc.add<std::string>("text_results_path", "./alignment_results.txt");
   desc.add<bool>("write_sqlite_results", false);
-  desc.add<bool>("x_ali_rel_final_slope_fixed", true);
-  desc.add<bool>("y_ali_final_slope_fixed", true);
+  desc.add<bool>("x_ali_rel_final_slope_fixed", false);
+  desc.add<bool>("y_ali_final_slope_fixed", false);
   desc.add<double>("x_corr_min", -1'000'000.);
   desc.add<double>("x_corr_max", 1'000'000.);
   desc.add<double>("y_corr_min", -1'000'000.);
