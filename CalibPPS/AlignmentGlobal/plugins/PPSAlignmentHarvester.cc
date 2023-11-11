@@ -952,15 +952,15 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff->SetLineColor(2);
       h_y_cen_vs_x->Fit(ff.get(), "Q", "", x_min, x_max);
 
-      const double a = ff->GetParameter(1), a_unc = ff->GetParError(1); // slope
-      const double b = ff->GetParameter(0), b_unc = ff->GetParError(0); // intercept
+      const double a = ff->GetParameter(1), a_unc = ff->GetParError(1);  // slope
+      const double b = ff->GetParameter(0), b_unc = ff->GetParError(0);  // intercept
 
       edm::LogInfo("PPSAlignmentHarvester")
           << "[y_alignment] " << rpc.name_ << ":\n"
           << std::fixed << std::setprecision(3) << "    x_min = " << x_min << ", x_max = " << x_max << "\n"
           << "    sh_x = " << sh_x << ", slope (fix) = " << slope << ", slope (fitted) = " << a;
 
-	  // vertical shift y -> y - b
+      // vertical shift y -> y - b
       CTPPSRPAlignmentCorrectionData rpResult(0., 0., -b, b_unc, 0., 0., 0., 0., 0., 0., 0., 0.);
       yAliResults_.setRPCorrection(rpc.id_, rpResult);
 
@@ -971,7 +971,7 @@ void PPSAlignmentHarvester::yAlignment(DQMStore::IBooker& iBooker,
       ff_sl_fix->SetLineColor(4);
       h_y_cen_vs_x->Fit(ff_sl_fix.get(), "Q+", "", x_min, x_max);
 
-      const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0); // intercept
+      const double b_fs = ff_sl_fix->GetParameter(0), b_fs_unc = ff_sl_fix->GetParError(0);  // intercept
 
       CTPPSRPAlignmentCorrectionData rpResult_sl_fix(0., 0., -b_fs, b_fs_unc, 0., 0., 0., 0., 0., 0., 0., 0.);
       yAliResultsSlopeFixed_.setRPCorrection(rpc.id_, rpResult_sl_fix);
