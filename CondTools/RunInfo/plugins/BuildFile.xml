@@ -55,11 +55,27 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="LHCInfoPerLSTester.cc" name="LHCInfoPerLSTester">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerLSCsvAnalyzer.cc" name="LHCInfoPerLSCsvAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="LHCInfoPerFillWriter.cc" name="LHCInfoPerFillWriter">
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="LHCInfoPerFillAnalyzer.cc" name="LHCInfoPerFillAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoPerFillTester.cc" name="LHCInfoPerFillTester">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LHCInfoAnalyzer.cc" name="LHCInfoAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>
 
