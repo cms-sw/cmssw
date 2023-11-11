@@ -103,16 +103,16 @@ private:
   const edm::EDGetTokenT<std::vector<ticl::Trackster>> simTracksters_CP_token_;
   const edm::EDGetTokenT<std::vector<ticl::Trackster>> simTracksters_PU_token_;
   const edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidate_token_;
-  const edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> tsRecoToSimSC_token_;
-  const edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> tsSimToRecoSC_token_;
-  const edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> tsRecoToSimCP_token_;
-  const edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> tsSimToRecoCP_token_;
-  const edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> MergeRecoToSimSC_token_;
-  const edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> MergeSimToRecoSC_token_;
-  const edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> MergeRecoToSimCP_token_;
-  const edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> MergeSimToRecoCP_token_;
-  const edm::EDGetTokenT<hgcal::RecoToSimCollectionSimTracksters> MergeRecoToSimPU_token_;
-  const edm::EDGetTokenT<hgcal::SimToRecoCollectionSimTracksters> MergeSimToRecoPU_token_;
+  const edm::EDGetTokenT<ticl::RecoToSimCollectionSimTracksters> tsRecoToSimSC_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionSimTracksters> tsSimToRecoSC_token_;
+  const edm::EDGetTokenT<ticl::RecoToSimCollectionSimTracksters> tsRecoToSimCP_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionSimTracksters> tsSimToRecoCP_token_;
+  const edm::EDGetTokenT<ticl::RecoToSimCollectionSimTracksters> MergeRecoToSimSC_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionSimTracksters> MergeSimToRecoSC_token_;
+  const edm::EDGetTokenT<ticl::RecoToSimCollectionSimTracksters> MergeRecoToSimCP_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionSimTracksters> MergeSimToRecoCP_token_;
+  const edm::EDGetTokenT<ticl::RecoToSimCollectionSimTracksters> MergeRecoToSimPU_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionSimTracksters> MergeSimToRecoPU_token_;
   const edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
 
@@ -739,24 +739,24 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       simTICLCandidate_token_(
           consumes<std::vector<TICLCandidate>>(ps.getParameter<edm::InputTag>("simTICLCandidates"))),
       tsRecoToSimSC_token_(
-          consumes<hgcal::RecoToSimCollectionSimTracksters>(ps.getParameter<edm::InputTag>("recoToSimAssociatorSC"))),
+          consumes<ticl::RecoToSimCollectionSimTracksters>(ps.getParameter<edm::InputTag>("recoToSimAssociatorSC"))),
       tsSimToRecoSC_token_(
-          consumes<hgcal::SimToRecoCollectionSimTracksters>(ps.getParameter<edm::InputTag>("simToRecoAssociatorSC"))),
+          consumes<ticl::SimToRecoCollectionSimTracksters>(ps.getParameter<edm::InputTag>("simToRecoAssociatorSC"))),
       tsRecoToSimCP_token_(
-          consumes<hgcal::RecoToSimCollectionSimTracksters>(ps.getParameter<edm::InputTag>("recoToSimAssociatorCP"))),
+          consumes<ticl::RecoToSimCollectionSimTracksters>(ps.getParameter<edm::InputTag>("recoToSimAssociatorCP"))),
       tsSimToRecoCP_token_(
-          consumes<hgcal::SimToRecoCollectionSimTracksters>(ps.getParameter<edm::InputTag>("simToRecoAssociatorCP"))),
-      MergeRecoToSimSC_token_(consumes<hgcal::RecoToSimCollectionSimTracksters>(
+          consumes<ticl::SimToRecoCollectionSimTracksters>(ps.getParameter<edm::InputTag>("simToRecoAssociatorCP"))),
+      MergeRecoToSimSC_token_(consumes<ticl::RecoToSimCollectionSimTracksters>(
           ps.getParameter<edm::InputTag>("MergerecoToSimAssociatorSC"))),
-      MergeSimToRecoSC_token_(consumes<hgcal::SimToRecoCollectionSimTracksters>(
+      MergeSimToRecoSC_token_(consumes<ticl::SimToRecoCollectionSimTracksters>(
           ps.getParameter<edm::InputTag>("MergesimToRecoAssociatorSC"))),
-      MergeRecoToSimCP_token_(consumes<hgcal::RecoToSimCollectionSimTracksters>(
+      MergeRecoToSimCP_token_(consumes<ticl::RecoToSimCollectionSimTracksters>(
           ps.getParameter<edm::InputTag>("MergerecoToSimAssociatorCP"))),
-      MergeSimToRecoCP_token_(consumes<hgcal::SimToRecoCollectionSimTracksters>(
+      MergeSimToRecoCP_token_(consumes<ticl::SimToRecoCollectionSimTracksters>(
           ps.getParameter<edm::InputTag>("MergesimToRecoAssociatorCP"))),
-      MergeRecoToSimPU_token_(consumes<hgcal::RecoToSimCollectionSimTracksters>(
+      MergeRecoToSimPU_token_(consumes<ticl::RecoToSimCollectionSimTracksters>(
           ps.getParameter<edm::InputTag>("MergerecoToSimAssociatorPU"))),
-      MergeSimToRecoPU_token_(consumes<hgcal::SimToRecoCollectionSimTracksters>(
+      MergeSimToRecoPU_token_(consumes<ticl::SimToRecoCollectionSimTracksters>(
           ps.getParameter<edm::InputTag>("MergesimToRecoAssociatorPU"))),
       simclusters_token_(consumes(ps.getParameter<edm::InputTag>("simclusters"))),
       caloparticles_token_(consumes(ps.getParameter<edm::InputTag>("caloparticles"))),
@@ -1198,51 +1198,51 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   const auto& simTICLCandidates = *simTICLCandidates_h;
 
   // trackster reco to sim SC
-  edm::Handle<hgcal::RecoToSimCollectionSimTracksters> tsRecoToSimSC_h;
+  edm::Handle<ticl::RecoToSimCollectionSimTracksters> tsRecoToSimSC_h;
   event.getByToken(tsRecoToSimSC_token_, tsRecoToSimSC_h);
   auto const& tsRecoSimSCMap = *tsRecoToSimSC_h;
 
   // sim simTrackster SC to reco trackster
-  edm::Handle<hgcal::SimToRecoCollectionSimTracksters> tsSimToRecoSC_h;
+  edm::Handle<ticl::SimToRecoCollectionSimTracksters> tsSimToRecoSC_h;
   event.getByToken(tsSimToRecoSC_token_, tsSimToRecoSC_h);
   auto const& tsSimToRecoSCMap = *tsSimToRecoSC_h;
 
   // trackster reco to sim CP
-  edm::Handle<hgcal::RecoToSimCollectionSimTracksters> tsRecoToSimCP_h;
+  edm::Handle<ticl::RecoToSimCollectionSimTracksters> tsRecoToSimCP_h;
   event.getByToken(tsRecoToSimCP_token_, tsRecoToSimCP_h);
   auto const& tsRecoSimCPMap = *tsRecoToSimCP_h;
 
   // sim simTrackster CP to reco trackster
-  edm::Handle<hgcal::SimToRecoCollectionSimTracksters> tsSimToRecoCP_h;
+  edm::Handle<ticl::SimToRecoCollectionSimTracksters> tsSimToRecoCP_h;
   event.getByToken(tsSimToRecoCP_token_, tsSimToRecoCP_h);
   auto const& tsSimToRecoCPMap = *tsSimToRecoCP_h;
 
-  edm::Handle<hgcal::RecoToSimCollectionSimTracksters> mergetsRecoToSimSC_h;
+  edm::Handle<ticl::RecoToSimCollectionSimTracksters> mergetsRecoToSimSC_h;
   event.getByToken(MergeRecoToSimSC_token_, mergetsRecoToSimSC_h);
   auto const& MergetsRecoSimSCMap = *mergetsRecoToSimSC_h;
 
   // sim simTrackster SC to reco trackster
-  edm::Handle<hgcal::SimToRecoCollectionSimTracksters> mergetsSimToRecoSC_h;
+  edm::Handle<ticl::SimToRecoCollectionSimTracksters> mergetsSimToRecoSC_h;
   event.getByToken(MergeSimToRecoSC_token_, mergetsSimToRecoSC_h);
   auto const& MergetsSimToRecoSCMap = *mergetsSimToRecoSC_h;
 
   // trackster reco to sim CP
-  edm::Handle<hgcal::RecoToSimCollectionSimTracksters> mergetsRecoToSimCP_h;
+  edm::Handle<ticl::RecoToSimCollectionSimTracksters> mergetsRecoToSimCP_h;
   event.getByToken(MergeRecoToSimCP_token_, mergetsRecoToSimCP_h);
   auto const& MergetsRecoSimCPMap = *mergetsRecoToSimCP_h;
 
   // sim simTrackster CP to reco trackster
-  edm::Handle<hgcal::SimToRecoCollectionSimTracksters> mergetsSimToRecoCP_h;
+  edm::Handle<ticl::SimToRecoCollectionSimTracksters> mergetsSimToRecoCP_h;
   event.getByToken(MergeSimToRecoCP_token_, mergetsSimToRecoCP_h);
   auto const& MergetsSimToRecoCPMap = *mergetsSimToRecoCP_h;
 
   // trackster reco to sim PU
-  edm::Handle<hgcal::RecoToSimCollectionSimTracksters> mergetsRecoToSimPU_h;
+  edm::Handle<ticl::RecoToSimCollectionSimTracksters> mergetsRecoToSimPU_h;
   event.getByToken(MergeRecoToSimPU_token_, mergetsRecoToSimPU_h);
   auto const& MergetsRecoSimPUMap = *mergetsRecoToSimPU_h;
 
   // sim simTrackster PU to reco trackster
-  edm::Handle<hgcal::SimToRecoCollectionSimTracksters> mergetsSimToRecoPU_h;
+  edm::Handle<ticl::SimToRecoCollectionSimTracksters> mergetsSimToRecoPU_h;
   event.getByToken(MergeSimToRecoPU_token_, mergetsSimToRecoPU_h);
   auto const& MergetsSimToRecoPUMap = *mergetsSimToRecoPU_h;
 
