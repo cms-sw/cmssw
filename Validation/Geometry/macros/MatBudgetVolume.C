@@ -84,8 +84,20 @@ int styleLay[nlay] = {20, 20, 20, 20, 20, 21, 22, 23, 24, 25, 26, 27, 32, 34};
 int legends[nlay] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 std::string title[nlay] = {
     "Beam Pipe", "", "", "", "", "Tracker", "ECAL", "HCAL", "HGCAL", "HF", "Magnet", "MUON", "Forward", "HFNose"};
-std::string names[nlay] = {
-    "BEAM", "BEAM1", "BEAM2", "BEAM3", "BEAM4", "Tracker", "ECAL", "HCal", "CALOEC", "VCAL", "MGNT", "MUON", "OQUA", "HFNoseVol"};
+std::string names[nlay] = {"BEAM",
+                           "BEAM1",
+                           "BEAM2",
+                           "BEAM3",
+                           "BEAM4",
+                           "Tracker",
+                           "ECAL",
+                           "HCal",
+                           "CALOEC",
+                           "VCAL",
+                           "MGNT",
+                           "MUON",
+                           "OQUA",
+                           "HFNoseVol"};
 
 void etaPhiPlot(TString fileName, std::string plot, bool drawLeg, bool ifEta, double maxEta, std::string tag) {
   TFile *hcalFile = new TFile(fileName);

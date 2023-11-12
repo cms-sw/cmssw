@@ -86,7 +86,8 @@ MaterialBudgetVolume::MaterialBudgetVolume(const edm::ParameterSet& p) : init_(f
   zMax_ = m_p.getParameter<double>("zMax") * CLHEP::m;
 
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetVolume: Studies Material budget for " << lvNames_.size()
-                                     << " volumes with addLevel " << iaddLevel_ << " and with rMax " << rMax_ << " mm; zMax " << zMax_ << " mm";
+                                     << " volumes with addLevel " << iaddLevel_ << " and with rMax " << rMax_
+                                     << " mm; zMax " << zMax_ << " mm";
   std::ostringstream st1;
   for (unsigned int k = 0; k < lvNames_.size(); ++k)
     st1 << " [" << k << "] " << lvNames_[k] << " at " << lvLevel_[k];
