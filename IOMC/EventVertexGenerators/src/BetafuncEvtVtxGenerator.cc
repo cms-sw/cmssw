@@ -24,10 +24,7 @@ ________________________________________________________________________
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-//#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
-
-#include <iostream>
 
 BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p), boost_(4, 4) {
   readDB_ = p.getParameter<bool>("readDB");
@@ -140,3 +137,17 @@ void BetafuncEvtVtxGenerator::sigmaZ(double s) {
 }
 
 TMatrixD const* BetafuncEvtVtxGenerator::GetInvLorentzBoost() const { return &boost_; }
+
+void BetafuncEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("X0Incm", 0.0);
+  desc.add<double>("Y0Incm", 0.0);
+  desc.add<double>("Z0Incm", 0.0);
+  desc.add<double>("SigmaZIncm", 0.0);
+  desc.add<double>("BetaStarIncm", 0.0);
+  desc.add<double>("EmittanceIncm", 0.0);
+  desc.add<double>("TimeOffsetInns", 0.0);
+  desc.add<edm::InputTag>("src");
+  desc.add<bool>("readDB");
+  descriptions.add("BetafuncEvtVtxGenerator", desc);
+}

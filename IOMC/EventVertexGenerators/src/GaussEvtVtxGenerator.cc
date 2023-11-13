@@ -1,14 +1,10 @@
-
-
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-//#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
 GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p) {
@@ -94,4 +90,18 @@ void GaussEvtVtxGenerator::sigmaZ(double s) {
     throw cms::Exception("LogicError") << "Error in GaussEvtVtxGenerator::sigmaZ: "
                                        << "Illegal resolution in Z (negative)";
   }
+}
+
+void GaussEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("MeanXIncm", 0.0);
+  desc.add<double>("MeanYIncm", 0.0);
+  desc.add<double>("MeanZIncm", 0.0);
+  desc.add<double>("SigmaXIncm", 0.0);
+  desc.add<double>("SigmaYIncm", 0.0);
+  desc.add<double>("SigmaZIncm", 0.0);
+  desc.add<double>("TimeOffsetInns", 0.0);
+  desc.add<edm::InputTag>("src");
+  desc.add<bool>("readDB");
+  descriptions.add("GaussEvtVtxGenerator", desc);
 }
