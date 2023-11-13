@@ -27,7 +27,6 @@ EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
                                          double intRadius,
                                          const arrayHB &eThresHB,
                                          const arrayHB &etThresHB,
-                                         const HcalPFCuts *hcalCuts,
                                          int maxSeverityHB,
                                          const arrayHE &eThresHE,
                                          const arrayHE &etThresHE,
@@ -77,7 +76,6 @@ EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
                                          double intRadius,
                                          const arrayHB &eThresHB,
                                          const arrayHB &etThresHB,
-                                         const HcalPFCuts *hcalCuts,
                                          int maxSeverityHB,
                                          const arrayHE &eThresHE,
                                          const arrayHE &etThresHE,
@@ -134,7 +132,6 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
   const int hd = hid.depth(), he = hid.ieta(), hp = hid.iphi();
   const int h1 = hd - 1;
   double thresholdE = 0.;
-  double thresholdEt = 0.;
 
   if (include_or_exclude == -1 and (he != ieta or hp != iphi))
     return 0.;
@@ -181,15 +178,8 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
   bool recovered = hcalSevLvlComputer_.recoveredRecHit(did, flag);
 
   const double het = hit.energy() * scaleToEt(phitEta);
-  bool goodHB = goodHBe and (severity <= maxSeverityHB_ or recovered) and het > etThresHB_[h1];  // To clarify if also Et has to be modified or not
-  bool goodHE = goodHEe and (severity <= maxSeverityHE_ or recovered) and het > etThresHE_[h1];
-
-  if (hcalCuts != nullptr) {
-    const HcalPFCut *cutValue = hcalCuts->getValues(hid.rawId());
-    thresholdEt = cutValue->noiseThreshold();
-    goodHB = goodHBe and (severity <= maxSeverityHB_ or recovered) and het > thresholdEt;
-    goodHE = goodHEe and (severity <= maxSeverityHE_ or recovered) and het > thresholdEt;
-  }
+  const bool goodHB = goodHBe and (severity <= maxSeverityHB_ or recovered) and het > etThresHB_[h1];
+  const bool goodHE = goodHEe and (severity <= maxSeverityHE_ or recovered) and het > etThresHE_[h1];
 
   if (goodHB or goodHE)
     return hit.energy() * scale(phitEta);

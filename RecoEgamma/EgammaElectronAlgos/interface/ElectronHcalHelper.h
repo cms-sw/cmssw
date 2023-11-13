@@ -38,7 +38,7 @@ public:
     int maxSeverityHB;
     EgammaHcalIsolation::arrayHE eThresHE;
     int maxSeverityHE;
-    const HcalPFCuts* hcalCuts;
+    //const HcalPFCuts* hcalCuts;
   };
 
   ElectronHcalHelper(const Configuration &cfg, edm::ConsumesCollector &&cc);
@@ -50,7 +50,7 @@ public:
   double hOverEConeSize() const { return cfg_.hOverEConeSize; }
   int maxSeverityHB() const { return cfg_.maxSeverityHB; }
   int maxSeverityHE() const { return cfg_.maxSeverityHE; }
-  const HcalPFCuts *hcalCuts() const { return cfg_.hcalCuts; }
+  //const HcalPFCuts *hcalCuts() const { return cfg_.hcalCuts; }
 
   // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E
   bool hasActiveHcal(const reco::SuperCluster &sc) const;

@@ -128,7 +128,9 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
 }
 
 void ElectronSeedProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  if (cutsFromDB) { hcalCuts = &iSetup.getData(hcalCutsToken_); }
+  if (cutsFromDB) {
+    hcalCuts = &iSetup.getData(hcalCutsToken_);
+  }
 }
 
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {

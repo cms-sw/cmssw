@@ -407,7 +407,9 @@ namespace {
 };  // namespace
 
 void GsfElectronProducer::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
-  if (cutsFromDB) { hcalCuts = &setup.getData(hcalCutsToken_); }
+  if (cutsFromDB) {
+    hcalCuts = &setup.getData(hcalCutsToken_);
+  }
 }
 
 GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache* gcache)

@@ -256,7 +256,9 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
 }
 
 void PhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& theEventSetup) {
-  if (cutsFromDB) { hcalCuts = &theEventSetup.getData(hcalCutsToken_); }
+  if (cutsFromDB) {
+    hcalCuts = &theEventSetup.getData(hcalCutsToken_);
+  }
 }
 
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {

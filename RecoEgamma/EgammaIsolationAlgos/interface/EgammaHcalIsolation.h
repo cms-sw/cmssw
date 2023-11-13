@@ -50,7 +50,6 @@ public:
                       double intRadius,
                       const arrayHB &eThresHB,
                       const arrayHB &etThresHB,
-                      const HcalPFCuts *hcalCuts,
                       int maxSeverityHB,
                       const arrayHE &eThresHE,
                       const arrayHE &etThresHE,
@@ -68,7 +67,6 @@ public:
                       double intRadius,
                       const arrayHB &eThresHB,
                       const arrayHB &etThresHB,
-                      const HcalPFCuts *hcalCuts,
                       int maxSeverityHB,
                       const arrayHE &eThresHE,
                       const arrayHE &etThresHE,
@@ -133,20 +131,36 @@ public:
 
     return getHcalEtSumBc(sc->position(), depth, tower.ieta(), tower.iphi(), 0, hcalCuts);
   }
-  double getHcalESumBc(
-      const math::XYZPoint &p, int depth, int ieta, int iphi, int include_or_exclude, const HcalPFCuts *hcalCuts) const {
+  double getHcalESumBc(const math::XYZPoint &p,
+                       int depth,
+                       int ieta,
+                       int iphi,
+                       int include_or_exclude,
+                       const HcalPFCuts *hcalCuts) const {
     return getHcalESumBc(GlobalPoint(p.x(), p.y(), p.z()), depth, ieta, iphi, include_or_exclude, hcalCuts);
   }
-  double getHcalEtSumBc(
-      const math::XYZPoint &p, int depth, int ieta, int iphi, int include_or_exclude, const HcalPFCuts *hcalCuts) const {
+  double getHcalEtSumBc(const math::XYZPoint &p,
+                        int depth,
+                        int ieta,
+                        int iphi,
+                        int include_or_exclude,
+                        const HcalPFCuts *hcalCuts) const {
     return getHcalEtSumBc(GlobalPoint(p.x(), p.y(), p.z()), depth, ieta, iphi, include_or_exclude, hcalCuts);
   }
-  double getHcalESumBc(
-      const GlobalPoint &pclu, int depth, int ieta, int iphi, int include_or_exclude, const HcalPFCuts *hcalCuts) const {
+  double getHcalESumBc(const GlobalPoint &pclu,
+                       int depth,
+                       int ieta,
+                       int iphi,
+                       int include_or_exclude,
+                       const HcalPFCuts *hcalCuts) const {
     return getHcalSum(pclu, depth, ieta, iphi, include_or_exclude, &scaleToE, hcalCuts);
   }
-  double getHcalEtSumBc(
-      const GlobalPoint &pclu, int depth, int ieta, int iphi, int include_or_exclude, const HcalPFCuts *hcalCuts) const {
+  double getHcalEtSumBc(const GlobalPoint &pclu,
+                        int depth,
+                        int ieta,
+                        int iphi,
+                        int include_or_exclude,
+                        const HcalPFCuts *hcalCuts) const {
     return getHcalSum(pclu, depth, ieta, iphi, include_or_exclude, &scaleToEt, hcalCuts);
   }
 

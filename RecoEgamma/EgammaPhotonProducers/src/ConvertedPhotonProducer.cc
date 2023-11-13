@@ -194,7 +194,9 @@ void ConvertedPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const&
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   transientTrackBuilder_ = &theEventSetup.getData(transientTrackToken_);
 
-  if (cutsFromDB) { hcalCuts = &theEventSetup.getData(hcalCutsToken_); }
+  if (cutsFromDB) {
+    hcalCuts = &theEventSetup.getData(hcalCutsToken_);
+  }
 }
 
 void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {

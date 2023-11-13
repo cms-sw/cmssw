@@ -486,7 +486,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
 }
 
 void GEDPhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  if (cutsFromDB) { hcalCuts = &eventSetup.getData(hcalCutsToken_); }
+  if (cutsFromDB) {
+    hcalCuts = &eventSetup.getData(hcalCutsToken_);
+  }
 }
 
 std::unique_ptr<CacheData> GEDPhotonProducer::initializeGlobalCache(const edm::ParameterSet& config) {

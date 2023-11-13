@@ -233,7 +233,9 @@ void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSet
   outInSeedFinder_.setNavigationSchool(navigation);
   inOutSeedFinder_.setNavigationSchool(navigation);
 
-  if (cutsFromDB) { hcalCuts = &theEventSetup.getData(hcalCutsToken_); }
+  if (cutsFromDB) {
+    hcalCuts = &theEventSetup.getData(hcalCutsToken_);
+  }
 }
 
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {

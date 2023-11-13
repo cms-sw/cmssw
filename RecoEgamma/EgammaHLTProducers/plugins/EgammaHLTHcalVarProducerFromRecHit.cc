@@ -41,8 +41,7 @@ public:
   explicit EgammaHLTHcalVarProducerFromRecHit(const edm::ParameterSet &);
 
 public:
-  //void beginRun(edm::Run const &, edm::EventSetup const &);
-  //void endRun(edm::Run const &, edm::EventSetup const &);
+  void beginRun(edm::Run const &, edm::EventSetup const &);
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -74,11 +73,9 @@ private:
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> putToken_;
 
   //Get HCAL thresholds from GT
-  // bool cutsFromDB;
-  // std::unique_ptr<HcalPFCuts> paramPF_;
-  HcalPFCuts *paramPF = nullptr;
-  // edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
-  // edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
+  HcalPFCuts const *hcalCuts = nullptr;
 };
 
 EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm::ParameterSet &config)
@@ -107,8 +104,9 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
       hcalChannelQualityToken_{esConsumes(edm::ESInputTag("", "withTopo"))},
       hcalSevLvlComputerToken_{esConsumes()},
       caloTowerConstituentsMapToken_{esConsumes()},
-      putToken_{produces<reco::RecoEcalCandidateIsolationMap>()} {  //,
-  //cutsFromDB(config.getParameter<bool>("usePFThresholdsFromDB")){ //Retrieve HCAL PF thresholds - from config or from DB
+      putToken_{produces<reco::RecoEcalCandidateIsolationMap>()},
+      cutsFromDB(
+          config.getParameter<bool>("usePFThresholdsFromDB")) {  //Retrieve HCAL PF thresholds - from config or from DB
   if (doRhoCorrection_) {
     if (absEtaLowEdges_.size() != effectiveAreas_.size()) {
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
@@ -125,10 +123,9 @@ EgammaHLTHcalVarProducerFromRecHit::EgammaHLTHcalVarProducerFromRecHit(const edm
     }
   }
 
-  // if (cutsFromDB){
-  //   htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  //   hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>();
-  // }
+  if (cutsFromDB) {
+    hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
+  }
 }
 
 void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -158,17 +155,11 @@ void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDesc
   descriptions.add("hltEgammaHLTHcalVarProducerFromRecHit", desc);
 }
 
-// void EgammaHLTHcalVarProducerFromRecHit::beginRun(edm::Run const &run, edm::EventSetup const &es) {
-//   if (cutsFromDB) {
-//     const HcalTopology &htopo = es.getData(htopoToken_);
-//     const HcalPFCuts &hcalCuts = es.getData(hcalCutsToken_);
-//     paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-//     paramPF_->setTopo(&htopo);
-//     paramPF = paramPF_.release();
-//   } else {  //Conditions from config file
-//     paramPF = nullptr;
-//   }
-// }
+void EgammaHLTHcalVarProducerFromRecHit::beginRun(edm::Run const &run, edm::EventSetup const &iSetup) {
+  if (cutsFromDB) {
+    hcalCuts = &iSetup.getData(hcalCutsToken_);
+  }
+}
 
 void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                  edm::Event &iEvent,
@@ -213,7 +204,6 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                            innerCone_,
                                                            eThresHB_,
                                                            etThresHB_,
-                                                           paramPF,
                                                            maxSeverityHB_,
                                                            eThresHE_,
                                                            etThresHE_,
@@ -225,18 +215,17 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
                                                            iSetup.getData(hcalSevLvlComputerToken_),
                                                            iSetup.getData(caloTowerConstituentsMapToken_));
 
-    //paramPF = nullptr;
     if (useSingleTower_) {
       if (doEtSum_) {  //this is cone-based HCAL isolation with single tower based footprint removal
-        isol = thisHcalVar_.getHcalEtSumBc(recoEcalCandRef.get(), depth_, paramPF);  //depth=0 means all depths
-      } else {                                                                       //this is single tower based H/E
-        isol = thisHcalVar_.getHcalESumBc(recoEcalCandRef.get(), depth_, paramPF);   //depth=0 means all depths
+        isol = thisHcalVar_.getHcalEtSumBc(recoEcalCandRef.get(), depth_, hcalCuts);  //depth=0 means all depths
+      } else {                                                                        //this is single tower based H/E
+        isol = thisHcalVar_.getHcalESumBc(recoEcalCandRef.get(), depth_, hcalCuts);   //depth=0 means all depths
       }
     } else {           //useSingleTower_=False means H/E is cone-based.
       if (doEtSum_) {  //hcal iso
-        isol = thisHcalVar_.getHcalEtSum(recoEcalCandRef.get(), depth_, paramPF);  //depth=0 means all depths
+        isol = thisHcalVar_.getHcalEtSum(recoEcalCandRef.get(), depth_, hcalCuts);  //depth=0 means all depths
       } else {  // doEtSum_=False means sum up energy, this is for H/E
-        isol = thisHcalVar_.getHcalESum(recoEcalCandRef.get(), depth_, paramPF);  //depth=0 means all depths
+        isol = thisHcalVar_.getHcalESum(recoEcalCandRef.get(), depth_, hcalCuts);  //depth=0 means all depths
       }
     }
 
@@ -257,8 +246,6 @@ void EgammaHLTHcalVarProducerFromRecHit::produce(edm::StreamID,
 
   iEvent.emplace(putToken_, isoMap);
 }
-
-//void EgammaHLTHcalVarProducerFromRecHit::endRun(edm::Run const &run, edm::EventSetup const &es) { delete paramPF; }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EgammaHLTHcalVarProducerFromRecHit);
