@@ -47,6 +47,8 @@ workflows[520]=['VHToHtt_NLO_Pow_13TeV_py8_taurhonu',['VHToH_Pow_LHE_13TeV','Had
 workflows[535]=['',['TTbar_13TeV_Pow_herwig7','HARVESTGEN']]
 workflows[537]=['',['DYToLL012Jets_5FS_TuneCH3_13TeV_amcatnloFxFx_herwig7','HARVESTGEN']]
 workflows[538]=['',['DYToLL01234Jets_5FS_TuneCH3_13TeV_madgraphMLM_herwig7','HARVESTGEN']]
+workflows[539]=['',['DY_TuneCH3_13TeV_herwig_madgraph_matchbox','HARVESTGEN']]
+
 # External Decays
 
 workflows[521]=['WTolNuJets_LO_Mad_13TeV_py8_Ta',['WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola','HARVESTGEN2']]
