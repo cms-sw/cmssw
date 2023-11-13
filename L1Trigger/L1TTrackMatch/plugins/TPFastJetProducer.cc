@@ -58,7 +58,7 @@ using namespace std;
 class TPFastJetProducer : public edm::stream::EDProducer<> {
 public:
   explicit TPFastJetProducer(const edm::ParameterSet&);
-  ~TPFastJetProducer() override;
+  ~TPFastJetProducer() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -93,9 +93,6 @@ TPFastJetProducer::TPFastJetProducer(const edm::ParameterSet& iConfig)
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   produces<TkJetCollection>("TPFastJets");
 }
-
-// destructor
-TPFastJetProducer::~TPFastJetProducer() {}
 
 // producer
 void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

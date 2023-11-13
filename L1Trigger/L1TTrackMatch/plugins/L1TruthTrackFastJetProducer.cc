@@ -60,7 +60,7 @@ public:
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
 
   explicit L1TruthTrackFastJetProducer(const edm::ParameterSet&);
-  ~L1TruthTrackFastJetProducer() override;
+  ~L1TruthTrackFastJetProducer() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -100,9 +100,6 @@ L1TruthTrackFastJetProducer::L1TruthTrackFastJetProducer(const edm::ParameterSet
   else
     produces<TkJetCollection>("L1TruthTrackFastJets");
 }
-
-// destructor
-L1TruthTrackFastJetProducer::~L1TruthTrackFastJetProducer() {}
 
 // producer
 void L1TruthTrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
