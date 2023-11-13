@@ -1,12 +1,8 @@
 #include <string>
-#include <tuple>
 #include <numeric>
 #include <vector>
-#include <map>
 #include <algorithm>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,7 +18,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -48,22 +43,12 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimDataFormats/Associations/interface/TrackToGenParticleAssociator.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "HepMC/GenRanges.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 // Adding header files for electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // eff vs PU test libraries
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -86,10 +71,6 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-
-  const bool mvaGenSel(const HepMC::GenParticle&, const float&);
-  const bool mvaRecSel(const reco::TrackBase&, const reco::Vertex&, const double&, const double&);
-  const bool mvaGenRecMatch(const HepMC::GenParticle&, const double&, const reco::TrackBase&);
 
   // ------------ member data ------------
 
@@ -122,20 +103,16 @@ private:
   static constexpr double avg_sim_PUtrack_t_err = 0.03465;
 
   edm::EDGetTokenT<reco::TrackCollection> GenRecTrackToken_;
-  edm::EDGetTokenT<reco::TrackCollection> RecTrackToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> RecVertexToken_;
 
   edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectronToken_EB_;
   edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectronToken_EE_;
   edm::EDGetTokenT<reco::GenParticleCollection> GenParticleToken_;
 
-  edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
-
   edm::EDGetTokenT<edm::ValueMap<float>> t0PidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> Sigmat0PidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
 
-  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
 
   // Signal histograms
@@ -888,7 +865,6 @@ MtdEleIsoValidation::MtdEleIsoValidation(const edm::ParameterSet& iConfig)
       min_strip_cut(iConfig.getParameter<double>("min_strip_cut")),
       min_track_mtd_mva_cut(iConfig.getParameter<double>("min_track_mtd_mva_cut")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
-  RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ =
       consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTag_vtx"));  // Vtx 4D collection
 
@@ -896,15 +872,11 @@ MtdEleIsoValidation::MtdEleIsoValidation(const edm::ParameterSet& iConfig)
       iConfig.getParameter<edm::InputTag>("inputEle_EB"));  // Barrel electron collection input/token
   GsfElectronToken_EE_ = consumes<reco::GsfElectronCollection>(
       iConfig.getParameter<edm::InputTag>("inputEle_EE"));  // Endcap electron collection input/token
-  GenParticleToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("inputGenP"));
 
-  HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
   t0PidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0PID"));
   Sigmat0PidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0PID"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
 
-  trackingParticleCollectionToken_ =
-      consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
   recoToSimAssociationToken_ =
       consumes<reco::RecoToSimCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
 }
@@ -931,9 +903,6 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   auto eleHandle_EE = makeValid(iEvent.getHandle(GsfElectronToken_EE_));
   reco::GsfElectronCollection eleColl_EE = *(eleHandle_EE.product());
-
-  auto GenPartHandle = makeValid(iEvent.getHandle(GenParticleToken_));
-  reco::GenParticleCollection GenPartColl = *(GenPartHandle.product());
 
   auto recoToSimH = makeValid(iEvent.getHandle(recoToSimAssociationToken_));
   const reco::RecoToSimCollection* r2s_ = recoToSimH.product();
@@ -4329,13 +4298,9 @@ void MtdEleIsoValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
 
   desc.add<std::string>("folder", "MTD/ElectronIso");
   desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTag_vtx", edm::InputTag("offlinePrimaryVertices4D"));
-  desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
   desc.add<edm::InputTag>("inputEle_EB", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("inputEle_EE", edm::InputTag("ecalDrivenGsfElectronsHGC"));
-  desc.add<edm::InputTag>("inputGenP", edm::InputTag("genParticles"));
-  desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
   desc.add<edm::InputTag>("t0PID", edm::InputTag("tofPID:t0"));
   desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0"));

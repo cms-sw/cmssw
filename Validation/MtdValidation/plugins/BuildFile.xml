@@ -29,4 +29,3 @@
 <use name="root"/>
 <use name="gsl"/>
 <flags EDM_PLUGIN="1"/>
-
