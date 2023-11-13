@@ -3,8 +3,8 @@
 
 #include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/interface/DAQSourceModels.h"
-#include "DataFormats/L1Scouting/interface/SDSRawDataCollection.h"
-#include "DataFormats/L1Scouting/interface/SDSNumbering.h"
+#include "DataFormats/L1ScoutingRawData/interface/SDSRawDataCollection.h"
+#include "DataFormats/L1ScoutingRawData/interface/SDSNumbering.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
