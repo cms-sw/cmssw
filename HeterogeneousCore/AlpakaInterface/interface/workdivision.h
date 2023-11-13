@@ -496,6 +496,30 @@ namespace cms::alpakatools {
     const Idx range_;
   };
 
+  /* once_per_grid
+   *
+   * `once_per_grid(acc)` returns true for a single thread within the kernel execution grid.
+   *
+   * Usually the condition is true for block 0 and thread 0, but these indices should not be relied upon.
+   */
+
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  ALPAKA_FN_ACC inline constexpr bool once_per_grid(TAcc const& acc) {
+    return alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc) == Vec<alpaka::Dim<TAcc>>::zeros();
+  }
+
+  /* once_per_block
+   *
+   * `once_per_block(acc)` returns true for a single thread within the block.
+   *
+   * Usually the condition is true for thread 0, but this index should not be relied upon.
+   */
+
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  ALPAKA_FN_ACC inline constexpr bool once_per_block(TAcc const& acc) {
+    return alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc) == Vec<alpaka::Dim<TAcc>>::zeros();
+  }
+
 }  // namespace cms::alpakatools
 
 #endif  // HeterogeneousCore_AlpakaInterface_interface_workdivision_h
