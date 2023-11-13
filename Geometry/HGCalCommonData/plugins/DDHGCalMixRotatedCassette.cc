@@ -595,7 +595,6 @@ void DDHGCalMixRotatedCassette::positionMix(const DDLogicalPart& glog,
 #endif
     }
     ++copyNumberCoverTop_;
-    zpos += hthickl;
   }
 
   // Make the bottom part next
