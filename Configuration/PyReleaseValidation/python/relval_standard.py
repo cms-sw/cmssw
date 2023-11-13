@@ -568,6 +568,9 @@ workflows[141.008505] = ['Run3-2023_JetMET2023B_RecoPixelOnlyTripletsCPU',['RunJ
 workflows[141.008511] = ['Run3-2023_JetMET2023B_RecoECALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_ECALOnlyCPU','HARVESTRUN3_ECALOnly']]
 workflows[141.008521] = ['Run3-2023_JetMET2023B_RecoHCALOnlyCPU',['RunJetMET2023B','HLTDR3_2023','RECODR3_reHLT_HCALOnlyCPU','HARVESTRUN3_HCALOnly']]
 
+### run3-2023 (2023 HI data RawPrime with re-HLT)
+workflows[142.0] = ['',['RunHIPhysicsRawPrime2023A','HLTDR3_HI2023ARawprime','RECOHIRUN3_reHLT_2023','HARVESTRUN3_HI2023A']]
+
 ### fastsim ###
 workflows[5.1] = ['TTbarFS', ['TTbarFS','HARVESTFS']]
 workflows[5.2] = ['SingleMuPt10FS', ['SingleMuPt10FS','HARVESTFS']]
