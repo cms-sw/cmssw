@@ -4,8 +4,37 @@
 
 `PortableHostCollection<T>` is a class template that wraps a SoA type `T` and an alpaka host buffer, which owns the
 memory where the SoA is allocated. The content of the SoA is persistent, while the buffer itself is transient.
-Specialisations of this template can be persisted, and can be read back also in "bare ROOT" mode, without any
-dictionaries.
+Specialisations of this template can be persisted, but requre specil ROOT read rules to read the data into a single
+memory buffer.
+
+The original way to declare these rules, now deprecated, is to add them to the `classes_def.xml` file. For example,
+to declare the read rules for `portabletest::TestHostCollection` based on the `portabletest::TestSoA` SoA, one
+would add to the same `classes_def.xml` file where `portabletest::TestHostCollection` is declared:
+```xml
+<read
+  sourceClass="portabletest::TestHostCollection"
+  targetClass="portabletest::TestHostCollection"
+  version="[1-]"
+  source="portabletest::TestSoA layout_;"
+  target="buffer_,layout_,view_"
+  embed="false">
+<![CDATA[
+  portabletest::TestHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+]]>
+```
+
+The new, recommended way to declare these rules is to create a `classes.cc` file along with `classes.h`, and use the
+`SET_PORTABLEHOSTCOLLECTION_READ_RULES`. For example, to declare the rules for `portabletest::TestHostCollection` one
+would create the file `classes.cc` with the content:
+```c++
+#include "DataFormats/Portable/interface/PortableHostCollectionReadRules.h"
+#include "DataFormats/PortableTestObjects/interface/TestHostCollection.h"
+
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
+```
+
+`PortableHostCollection<T>` can also be read back in "bare ROOT" mode, without any dictionaries.
+
 They have no implicit or explicit references to alpaka (neither as part of the class signature nor as part of its name).
 This could make it possible to read them back with different portability solutions in the future.
 
