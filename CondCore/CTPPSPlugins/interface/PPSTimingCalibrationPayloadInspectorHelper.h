@@ -19,173 +19,80 @@
 #include "TLatex.h"
 #include "TGraph.h"
 
-class PPSTimingCalibrationPI {
-public:
+namespace PPSTimingCalibrationPI {
   enum parameter { parameter0 = 0, parameter1 = 1, parameter2 = 2, parameter3 = 3 };
 
-  enum conditions_db { db0 = 0, db1 = 1 };
+  inline std::string getStringFromParamEnum(const parameter& parameter) {
+    const std::map<int, std::string> parameters = {{parameter0, "parameter 0"},
+                                                   {parameter1, "parameter 1"},
+                                                   {parameter2, "parameter 2"},
+                                                   {parameter3, "parameter 3"}};
 
-  enum conditions_plane { plane0 = 0, plane1 = 1, plane2 = 2, plane3 = 3 };
-
-  enum conditions_channel {
-    channel0 = 0,
-    channel1 = 1,
-    channel2 = 2,
-    channel3 = 3,
-    channel4 = 4,
-    channel5 = 5,
-    channel6 = 6,
-    channel7 = 7,
-    channel8 = 8,
-    channel9 = 9,
-    channel10 = 10,
-    channel11 = 11
-
-  };
-
-  static std::string getStringFromParamEnum(const parameter& parameter) {
-    switch (parameter) {
-      case 0:
-        return "parameter 0";
-      case 1:
-        return "parameter 1";
-      case 2:
-        return "parameter 2";
-      case 3:
-        return "parameter 3";
-
-      default:
-        return "not here";
+    auto it = parameters.find(parameter);
+    if (it != parameters.end()) {
+      return it->second;
+    } else {
+      return "no param";
     }
   }
 
-  static std::string getStringFromDbEnum(const conditions_db& db) {
-    switch (db) {
-      case 0:
-        return "db = 0";
-      case 1:
-        return "db = 1";
-
-      default:
-        return "not here";
-    }
-  }
-
-  static std::string getStringFromPlaneEnum(const conditions_plane& plane) {
-    switch (plane) {
-      case 0:
-        return "plane = 0";
-      case 1:
-        return "plane = 1";
-      case 2:
-        return "plane = 2";
-      case 3:
-        return "plane = 3";
-
-      default:
-        return "not here";
-    }
-  }
-
-  static std::string getStringFromChannelEnum(const conditions_channel& channel) {
-    switch (channel) {
-      case 0:
-        return "channel = 0";
-      case 1:
-        return "channel = 1";
-      case 2:
-        return "channel = 2";
-      case 3:
-        return "channel = 3";
-      case 4:
-        return "channel = 4";
-      case 5:
-        return "channel = 5";
-      case 6:
-        return "channel = 6";
-      case 7:
-        return "channel = 7";
-      case 8:
-        return "channel = 8";
-      case 9:
-        return "channel = 9";
-      case 10:
-        return "channel = 10";
-      case 11:
-        return "channel = 11";
-
-      default:
-        return "not here";
-    }
-  }
-};
+  const std::string ARM = "db (0,1)";
+  const std::string STATION = "station (1,2)";
+  const std::string PLANE = "plane (0-3)";
+  const std::string CHANNEL = "channel (0-11)";
+}  // namespace PPSTimingCalibrationPI
 
 /************************************************
     History plots
 *************************************************/
-template <PPSTimingCalibrationPI::conditions_db db,
-          PPSTimingCalibrationPI::conditions_plane plane,
-          PPSTimingCalibrationPI::conditions_channel channel,
-          PPSTimingCalibrationPI::parameter param,
-          class PayloadType>
+template <PPSTimingCalibrationPI::parameter param, class PayloadType>
 class ParametersPerRun : public cond::payloadInspector::HistoryPlot<PayloadType, float> {
 public:
   ParametersPerRun()
       : cond::payloadInspector::HistoryPlot<PayloadType, float>(
-            PPSTimingCalibrationPI::getStringFromParamEnum(param) + " " +
-                PPSTimingCalibrationPI::getStringFromDbEnum(db) + " " +
-                PPSTimingCalibrationPI::getStringFromPlaneEnum(plane) + " " +
-                PPSTimingCalibrationPI::getStringFromChannelEnum(channel) + " vs. Runs",
-            PPSTimingCalibrationPI::getStringFromParamEnum(param)) {}
+            "Parameter " + PPSTimingCalibrationPI::getStringFromParamEnum(param) + " vs. Runs",
+            PPSTimingCalibrationPI::getStringFromParamEnum(param)) {
+    cond::payloadInspector::PlotBase::addInputParam(PPSTimingCalibrationPI::ARM);
+    cond::payloadInspector::PlotBase::addInputParam(PPSTimingCalibrationPI::STATION);
+    cond::payloadInspector::PlotBase::addInputParam(PPSTimingCalibrationPI::PLANE);
+    cond::payloadInspector::PlotBase::addInputParam(PPSTimingCalibrationPI::CHANNEL);
+  }
 
-  float getFromPayload(PayloadType& payload) override { return payload.parameters(db, 1, plane, channel)[param]; }
-};
+  float getFromPayload(PayloadType& payload) override {
+    auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+    auto db = paramValues.find(PPSTimingCalibrationPI::ARM)->second;
+    auto station = paramValues.find(PPSTimingCalibrationPI::STATION)->second;
+    auto plane = paramValues.find(PPSTimingCalibrationPI::PLANE)->second;
+    auto channel = paramValues.find(PPSTimingCalibrationPI::CHANNEL)->second;
 
-/************************************************
-    X-Y correlation plots
-*************************************************/
-template <PPSTimingCalibrationPI::conditions_db db,
-          PPSTimingCalibrationPI::conditions_plane plane,
-          PPSTimingCalibrationPI::conditions_channel channel,
-          PPSTimingCalibrationPI::parameter param1,
-          PPSTimingCalibrationPI::parameter param2,
-          class PayloadType>
-class PpPCorrelation : public cond::payloadInspector::ScatterPlot<PayloadType, double, double> {
-public:
-  PpPCorrelation()
-      : cond::payloadInspector::ScatterPlot<PayloadType, double, double>(
-            "TimingCalibration " + PPSTimingCalibrationPI::getStringFromParamEnum(param1) + " vs. " +
-                PPSTimingCalibrationPI::getStringFromParamEnum(param2) + " on " +
-                PPSTimingCalibrationPI::getStringFromDbEnum(db) + " " +
-                PPSTimingCalibrationPI::getStringFromPlaneEnum(plane) + " " +
-                PPSTimingCalibrationPI::getStringFromChannelEnum(channel),
-            PPSTimingCalibrationPI::getStringFromParamEnum(param1),
-            PPSTimingCalibrationPI::getStringFromParamEnum(param2)) {}
-
-  std::tuple<double, double> getFromPayload(PayloadType& payload) override {
-    return std::make_tuple(payload.parameters(db, 1, plane, channel)[param1],
-                           payload.parameters(db, 1, plane, channel)[param2]);
+    return payload.parameters(std::stoi(db), std::stoi(station), std::stoi(plane), std::stoi(channel))[param];
   }
 };
 
 /************************************************
-    Other plots
+    Image plots
 *************************************************/
-template <PPSTimingCalibrationPI::conditions_db db,
-          PPSTimingCalibrationPI::conditions_plane plane,
-          PPSTimingCalibrationPI::parameter param,
-          class PayloadType>
+template <PPSTimingCalibrationPI::parameter param, class PayloadType>
 class ParametersPerChannel : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
 public:
   ParametersPerChannel()
       : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
-            "PPSTimingCalibration parameters per channel") {}
+            "PPSTimingCalibration parameters per channel") {
+    cond::payloadInspector::PlotBase::addInputParam(PPSTimingCalibrationPI::ARM);
+    cond::payloadInspector::PlotBase::addInputParam(PPSTimingCalibrationPI::STATION);
+    cond::payloadInspector::PlotBase::addInputParam(PPSTimingCalibrationPI::PLANE);
+  }
 
   bool fill() override {
     auto tag = cond::payloadInspector::PlotBase::getTag<0>();
     auto tagname = tag.name;
     auto iov = tag.iovs.back();
     auto m_payload = this->fetchPayload(std::get<1>(iov));
+
+    auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+    auto db = paramValues.find(PPSTimingCalibrationPI::ARM)->second;
+    auto station = paramValues.find(PPSTimingCalibrationPI::STATION)->second;
+    auto plane = paramValues.find(PPSTimingCalibrationPI::PLANE)->second;
 
     if (m_payload != nullptr) {
       TCanvas canvas(
@@ -196,14 +103,14 @@ public:
       Double_t x[n];
       Double_t y[n];
       for (int i = 0; i < n; i++) {
-        y[i] = m_payload->parameters(db, 1, plane, i)[param];
+        y[i] = m_payload->parameters(std::stoi(db), std::stoi(station), std::stoi(plane), i)[param];
         x[i] = i;
       }
 
       TGraph* graph = new TGraph(n, x, y);
-      graph->SetTitle(("PPSTimingCalibration " + PPSTimingCalibrationPI::getStringFromDbEnum(db) + " " +
-                       PPSTimingCalibrationPI::getStringFromPlaneEnum(plane) + " " +
-                       PPSTimingCalibrationPI::getStringFromParamEnum(param) + " per channel; channel; parameter")
+      graph->SetTitle(("PPSTimingCalibration db = " + db + ", " + "station = " + station + ", " + "plane = " + plane +
+                       ", " + PPSTimingCalibrationPI::getStringFromParamEnum(param) + " PER channel; channel; " +
+                       PPSTimingCalibrationPI::getStringFromParamEnum(param))
                           .c_str());
       graph->SetMarkerColor(2);
       graph->SetMarkerSize(1.5);
