@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 # First register all the hit matching algorithms, then specify preferred ones at end.
 
 # The stub windows used has been optimized for for PU200 events
-# We use by default the tight tuning
+# We use by default the new modified tight tuning
 #
-# Definition is presented here:
+# more details can be found in:
 #
-# https://indico.cern.ch/event/681577/#4-update-of-the-track-trigger
-#
-# This script is adapted to the very last Tilted Tracker geometry to date (tracker T5)
-# This version was tested on CMSSW 10_0_0_pre1
+# https://indico.cern.ch/event/1219718/contributions/5131439/attachments/2547947/4388175/Reza_15Nov2022.pdf
+# https://indico.cern.ch/event/1261747/contributions/5331753/attachments/2624385/4538593/Reza_13March2023.pdf
+# This script is adapted to the very last Tilted Tracker geometry (D76)
+# This version was tested on CMSSW_13_3_0_pre2
 # 
 
    # PU200 new modified tight tuning
