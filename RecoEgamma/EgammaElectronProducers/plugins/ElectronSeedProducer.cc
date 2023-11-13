@@ -38,7 +38,6 @@ public:
   explicit ElectronSeedProducer(const edm::ParameterSet&);
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) final;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -64,7 +63,7 @@ private:
 
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
-  HcalPFCuts* paramPF;
+  HcalPFCuts const* hcalCuts = nullptr;
 };
 
 using namespace reco;
@@ -128,15 +127,8 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
   produces<ElectronSeedCollection>();
 }
 
-void ElectronSeedProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
-  if (cutsFromDB) {
-    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-    std::unique_ptr<HcalPFCuts> paramPF_;
-    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF = paramPF_.release();
-  } else {  //Conditions from config file
-    paramPF = nullptr;
-  }
+void ElectronSeedProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
+  if (cutsFromDB) { hcalCuts = &iSetup.getData(hcalCutsToken_); }
 }
 
 void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
@@ -198,7 +190,7 @@ SuperClusterRefVector ElectronSeedProducer::filterClusters(
     if (scl.energy() / cosh(sclEta) > SCEtCut_) {
       if (applyHOverECut_) {
         bool hoeVeto = false;
-        double had = hcalHelper_->hcalESum(scl, 0, paramPF);
+        double had = hcalHelper_->hcalESum(scl, 0, hcalCuts);
         double scle = scl.energy();
         int det_group = scl.seed()->hitsAndFractions()[0].first.det();
         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId();
@@ -285,8 +277,6 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   descriptions.add("ecalDrivenElectronSeedsDefault", desc);
 }
-
-void ElectronSeedProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ElectronSeedProducer);

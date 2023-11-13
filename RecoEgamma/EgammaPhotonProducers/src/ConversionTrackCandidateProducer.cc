@@ -51,7 +51,6 @@ public:
   ConversionTrackCandidateProducer(const edm::ParameterSet& ps);
 
   void beginRun(edm::Run const&, edm::EventSetup const& es) final;
-  void endRun(edm::Run const&, edm::EventSetup const& es) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -117,7 +116,7 @@ private:
 
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
-  HcalPFCuts* paramPF;
+  HcalPFCuts const* hcalCuts = nullptr;
 
   void buildCollections(bool detector,
                         const edm::Handle<edm::View<reco::CaloCluster>>& scHandle,
@@ -234,14 +233,7 @@ void ConversionTrackCandidateProducer::beginRun(edm::Run const& r, edm::EventSet
   outInSeedFinder_.setNavigationSchool(navigation);
   inOutSeedFinder_.setNavigationSchool(navigation);
 
-  if (cutsFromDB) {
-    const HcalPFCuts& hcalCuts = theEventSetup.getData(hcalCutsToken_);
-    std::unique_ptr<HcalPFCuts> paramPF_;
-    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF = paramPF_.release();
-  } else {  //Conditions from config file
-    paramPF = nullptr;
-  }
+  if (cutsFromDB) { hcalCuts = &theEventSetup.getData(hcalCutsToken_); }
 }
 
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -389,7 +381,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     const reco::CaloCluster* pClus = &(*aClus);
     const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy() / cosh(sc->eta());
-    double HoE = hcalHelper.hcalESum(*sc, 0, paramPF) / sc->energy();
+    double HoE = hcalHelper.hcalESum(*sc, 0, hcalCuts) / sc->energy();
     if (HoE >= maxHOverE_)
       continue;
 
@@ -515,5 +507,3 @@ void ConversionTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescri
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
 }
-
-void ConversionTrackCandidateProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }

@@ -50,7 +50,6 @@ public:
   PhotonProducer(const edm::ParameterSet& ps);
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
@@ -119,6 +118,7 @@ private:
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
   HcalPFCuts* paramPF;
+  HcalPFCuts const* hcalCuts = nullptr;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -255,15 +255,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   produces<reco::PhotonCollection>(PhotonCollection_);
 }
 
-void PhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
-  if (cutsFromDB) {
-    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-    std::unique_ptr<HcalPFCuts> paramPF_;
-    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF = paramPF_.release();
-  } else {  //Conditions from config file
-    paramPF = nullptr;
-  }
+void PhotonProducer::beginRun(const edm::Run& run, const edm::EventSetup& theEventSetup) {
+  if (cutsFromDB) { hcalCuts = &theEventSetup.getData(hcalCutsToken_); }
 }
 
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -461,7 +454,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     // Calculate fiducial flags and isolation variable. Blocked are filled from the isolationCalculator
     reco::Photon::FiducialFlags fiducialFlags;
     reco::Photon::IsolationVariables isolVarR03, isolVarR04;
-    photonIsolationCalculator_.calculate(&newCandidate, evt, es, fiducialFlags, isolVarR04, isolVarR03, paramPF);
+    photonIsolationCalculator_.calculate(&newCandidate, evt, es, fiducialFlags, isolVarR04, isolVarR03, hcalCuts);
     newCandidate.setFiducialVolumeFlags(fiducialFlags);
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03);
 
@@ -475,8 +468,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.sigmaEtaEta = sigmaEtaEta;
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
     for (uint id = 0; id < showerShape.hcalOverEcal.size(); ++id) {
-      showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1, paramPF) / scRef->energy();
-      showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1, paramPF) / scRef->energy();
+      showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1, hcalCuts) / scRef->energy();
+      showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1, hcalCuts) / scRef->energy();
     }
     showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
     showerShape.pre7DepthHcal = false;
@@ -492,8 +485,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.sigmaEtaEta = full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta = full5x5_sigmaIetaIeta;
     for (uint id = 0; id < full5x5_showerShape.hcalOverEcal.size(); ++id) {
-      full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1, paramPF) / full5x5_e5x5;
-      full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1, paramPF) / full5x5_e5x5;
+      full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1, hcalCuts) / full5x5_e5x5;
+      full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1, hcalCuts) / full5x5_e5x5;
     }
     full5x5_showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
     full5x5_showerShape.pre7DepthHcal = false;
@@ -543,5 +536,3 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       outputPhotonCollection.push_back(newCandidate);
   }
 }
-
-void PhotonProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }

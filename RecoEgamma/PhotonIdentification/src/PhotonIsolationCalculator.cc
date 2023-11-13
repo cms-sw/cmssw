@@ -148,7 +148,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
                                           reco::Photon::FiducialFlags& phofid,
                                           reco::Photon::IsolationVariables& phoisolR1,
                                           reco::Photon::IsolationVariables& phoisolR2,
-                                          HcalPFCuts* hcalCuts) const {
+                                          const HcalPFCuts* hcalCuts) const {
   //Get fiducial flags. This does not really belong here
   bool isEBPho = false;
   bool isEEPho = false;
@@ -542,7 +542,7 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                                          double RCone,
                                                          double RConeInner,
                                                          int depth,
-                                                         HcalPFCuts* hcalCuts) const {
+                                                         const HcalPFCuts* hcalCuts) const {
   const EgammaHcalIsolation::arrayHB e04{{0., 0., 0., 0.}};
   const EgammaHcalIsolation::arrayHE e07{{0., 0., 0., 0., 0., 0., 0.}};
 

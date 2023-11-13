@@ -133,7 +133,6 @@ public:
 
   // ------------ method called to produce the data  ------------
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
@@ -171,7 +170,7 @@ private:
 
   edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
   bool cutsFromDB;
-  HcalPFCuts* paramPF;
+  HcalPFCuts const* hcalCuts = nullptr;
 };
 
 void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -407,15 +406,8 @@ namespace {
   }
 };  // namespace
 
-void GsfElectronProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
-  if (cutsFromDB) {
-    const HcalPFCuts& hcalCuts = es.getData(hcalCutsToken_);
-    std::unique_ptr<HcalPFCuts> paramPF_;
-    paramPF_ = std::make_unique<HcalPFCuts>(hcalCuts);
-    paramPF = paramPF_.release();
-  } else {  //Conditions from config file
-    paramPF = nullptr;
-  }
+void GsfElectronProducer::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
+  if (cutsFromDB) { hcalCuts = &setup.getData(hcalCutsToken_); }
 }
 
 GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache* gcache)
@@ -764,7 +756,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     }
   }
 
-  auto electrons = algo_->completeElectrons(event, setup, globalCache(), paramPF);
+  auto electrons = algo_->completeElectrons(event, setup, globalCache(), hcalCuts);
   if (resetMvaValuesUsingPFCandidates_) {
     const auto gsfMVAInputMap = matchWithPFCandidates(event.get(egmPFCandidateCollection_));
     for (auto& el : electrons) {
@@ -799,6 +791,5 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
   event.emplace(electronPutToken_, std::move(electrons));
 }
 
-void GsfElectronProducer::endRun(const edm::Run& run, const edm::EventSetup& es) { delete paramPF; }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GsfElectronProducer);

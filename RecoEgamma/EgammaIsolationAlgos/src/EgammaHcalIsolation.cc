@@ -27,7 +27,7 @@ EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
                                          double intRadius,
                                          const arrayHB &eThresHB,
                                          const arrayHB &etThresHB,
-                                         HcalPFCuts *hcalCuts,
+                                         const HcalPFCuts *hcalCuts,
                                          int maxSeverityHB,
                                          const arrayHE &eThresHE,
                                          const arrayHE &etThresHE,
@@ -77,7 +77,7 @@ EgammaHcalIsolation::EgammaHcalIsolation(InclusionRule extIncRule,
                                          double intRadius,
                                          const arrayHB &eThresHB,
                                          const arrayHB &etThresHB,
-                                         HcalPFCuts *hcalCuts,
+                                         const HcalPFCuts *hcalCuts,
                                          int maxSeverityHB,
                                          const arrayHE &eThresHE,
                                          const arrayHE &etThresHE,
@@ -129,7 +129,7 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
                                           int iphi,
                                           int include_or_exclude,
                                           double (*scale)(const double &),
-                                          HcalPFCuts *hcalCuts) const {
+                                          const HcalPFCuts *hcalCuts) const {
   const HcalDetId hid(hit.detid());
   const int hd = hid.depth(), he = hid.ieta(), hp = hid.iphi();
   const int h1 = hd - 1;
@@ -181,8 +181,7 @@ double EgammaHcalIsolation::goodHitEnergy(float pcluEta,
   bool recovered = hcalSevLvlComputer_.recoveredRecHit(did, flag);
 
   const double het = hit.energy() * scaleToEt(phitEta);
-  bool goodHB = goodHBe and (severity <= maxSeverityHB_ or recovered) and
-                het > etThresHB_[h1];  // To clarify if also Et has to be modified or not
+  bool goodHB = goodHBe and (severity <= maxSeverityHB_ or recovered) and het > etThresHB_[h1];  // To clarify if also Et has to be modified or not
   bool goodHE = goodHEe and (severity <= maxSeverityHE_ or recovered) and het > etThresHE_[h1];
 
   if (hcalCuts != nullptr) {
@@ -204,7 +203,7 @@ double EgammaHcalIsolation::getHcalSum(const GlobalPoint &pclu,
                                        int iphi,
                                        int include_or_exclude,
                                        double (*scale)(const double &),
-                                       HcalPFCuts *hcalCuts) const {
+                                       const HcalPFCuts *hcalCuts) const {
   double sum = 0.;
   const float pcluEta = pclu.eta();
   const float pcluPhi = pclu.phi();

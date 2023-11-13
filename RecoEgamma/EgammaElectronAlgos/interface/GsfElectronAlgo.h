@@ -226,7 +226,7 @@ public:
   reco::GsfElectronCollection completeElectrons(edm::Event const& event,
                                                 edm::EventSetup const& eventSetup,
                                                 const HeavyObjectCache* hoc,
-                                                HcalPFCuts* hcalCuts);
+                                                const HcalPFCuts* hcalCuts);
 
 private:
   // internal structures
@@ -260,7 +260,7 @@ private:
                       egamma::conv::TrackTableView ctfTable,
                       egamma::conv::TrackTableView gsfTable,
                       EcalPFRecHitThresholds const& thresholds,
-                      HcalPFCuts* hcalCuts);
+                      const HcalPFCuts* hcalCuts);
 
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 
@@ -272,7 +272,7 @@ private:
                                                       CaloTopology const& topology,
                                                       CaloGeometry const& geometry,
                                                       EcalPFRecHitThresholds const& thresholds,
-                                                      HcalPFCuts* hcalCuts) const;
+                                                      const HcalPFCuts* hcalCuts) const;
   reco::GsfElectron::SaturationInfo calculateSaturationInfo(const reco::SuperClusterRef&,
                                                             EventData const& eventData) const;
 

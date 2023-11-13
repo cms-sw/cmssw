@@ -17,10 +17,8 @@ egammaHBHERecHit = cms.PSet(
 # from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
 # run3_egamma_2023.toReplaceWith(egammaHBHERecHit,egammaHBHERecHit_2023)
 
-from Configuration.Eras.Modifier_run3_egamma_cff import run3_egamma
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-from Configuration.Eras.Modifier_run3_hcal_cff import run3_hcal
-run3_hcal.toModify(egammaHBHERecHit,
+from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
+hcalPfCutsFromDB.toModify(egammaHBHERecHit,
                    usePFThresholdsFromDB = True)
 
 

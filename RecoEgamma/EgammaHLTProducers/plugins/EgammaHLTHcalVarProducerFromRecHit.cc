@@ -145,7 +145,7 @@ void EgammaHLTHcalVarProducerFromRecHit::fillDescriptions(edm::ConfigurationDesc
   desc.add<std::vector<double> >("etThresHB", {0, 0, 0, 0});
   desc.add<std::vector<double> >("eThresHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
   desc.add<std::vector<double> >("etThresHE", {0, 0, 0, 0, 0, 0, 0});
-  desc.add<bool>("usePFThresholdsFromDB", true);
+  desc.add<bool>("usePFThresholdsFromDB", false);
   desc.add<double>("innerCone", 0);
   desc.add<double>("outerCone", 0.14);
   desc.add<int>("depth", 0);

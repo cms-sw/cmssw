@@ -315,7 +315,7 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
                                                                      CaloTopology const& topology,
                                                                      CaloGeometry const& geometry,
                                                                      EcalPFRecHitThresholds const& thresholds,
-                                                                     HcalPFCuts* hcalCuts) const {
+                                                                     const HcalPFCuts* hcalCuts) const {
   using ClusterTools = EcalClusterToolsT<full5x5>;
   reco::GsfElectron::ShowerShape showerShape;
 
@@ -671,7 +671,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
 reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const& event,
                                                                edm::EventSetup const& eventSetup,
                                                                const GsfElectronAlgo::HeavyObjectCache* hoc,
-                                                               HcalPFCuts* hcalCuts) {
+                                                               const HcalPFCuts* hcalCuts) {
   reco::GsfElectronCollection electrons;
 
   auto const& magneticField = eventSetup.getData(magneticFieldToken_);
@@ -870,7 +870,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      egamma::conv::TrackTableView ctfTable,
                                      egamma::conv::TrackTableView gsfTable,
                                      EcalPFRecHitThresholds const& thresholds,
-                                     HcalPFCuts* hcalCuts) {
+                                     const HcalPFCuts* hcalCuts) {
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
