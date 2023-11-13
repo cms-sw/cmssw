@@ -71,6 +71,14 @@ struct VectorAddBlockKernel {
     // the outer loop is needed to repeat the "block" as many times as needed to cover the whole problem space
     // the inner loop is needed for backends that use more than one element per thread
     for (auto block : cms::alpakatools::blocks_with_stride(acc, size)) {
+      // only one thread per block: initialise the shared memory
+      if (cms::alpakatools::once_per_block(acc)) {
+        // not really necessary, just to show how to use "once_per_block"
+        for (Idx local = 0; local < blockSize; ++local)
+          buffer[local] = 0.;
+      }
+      // synchronise all threads in the block
+      alpaka::syncBlockThreads(acc);
       // read the first set of data into shared memory
       for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
         buffer[index.local] = in1[index.global];
@@ -86,6 +94,49 @@ struct VectorAddBlockKernel {
       // store the results into global memory
       for (auto index : cms::alpakatools::elements_in_block(acc, block, size)) {
         out[index.global] = buffer[index.local];
+      }
+    }
+  }
+};
+
+/* Run all operations in a single thread.
+ * Written in an inefficient way to test "once_per_grid".
+ */
+
+struct VectorAddKernelSerial {
+  template <typename TAcc, typename T>
+  ALPAKA_FN_ACC void operator()(
+      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
+    // the operations are performed by a single thread
+    if (cms::alpakatools::once_per_grid(acc)) {
+      for (Idx index = 0; index < size; ++index) {
+        out[index] += in1[index];
+        out[index] += in2[index];
+      }
+    }
+  }
+};
+
+/* Run all operations in one thread per block.
+ * Written in an inefficient way to test "once_per_block".
+ */
+
+struct VectorAddKernelBlockSerial {
+  template <typename TAcc, typename T>
+  ALPAKA_FN_ACC void operator()(
+      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
+    // block size
+    auto const blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
+    // the loop is used to repeat the "block" as many times as needed to cover the whole problem space
+    for (auto block : cms::alpakatools::blocks_with_stride(acc, size)) {
+      // the operations are performed by a single thread in each "logical" block
+      const auto first = blockSize * block;
+      const auto range = std::min<size_t>(first + blockSize, size);
+      if (cms::alpakatools::once_per_block(acc)) {
+        for (Idx index = first; index < range; ++index) {
+          out[index] += in1[index];
+          out[index] += in2[index];
+        }
       }
     }
   }
@@ -296,5 +347,25 @@ TEST_CASE("Test alpaka kernels for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESP
     // this relies on the kernel to check the size of the "problem space" and avoid accessing out-of-bounds data
     std::cout << "Test 1D vector block-level addition with large block size, using scalar dimensions\n";
     testVectorAddKernel(100, 1, 1024, VectorAddBlockKernel{});
+
+    // launch the 1-dimensional kernel with a small block size and a small number of blocks;
+    // this relies on the kernel to loop over the "problem space" and do more work per block
+    std::cout << "Test 1D vector single-threaded serial addition with small block size, using scalar dimensions\n";
+    testVectorAddKernel(10000, 32, 32, VectorAddKernelSerial{});
+
+    // launch the 1-dimensional kernel with a large block size and a single block;
+    // this relies on the kernel to check the size of the "problem space" and avoid accessing out-of-bounds data
+    std::cout << "Test 1D vector single-threaded seria addition with large block size, using scalar dimensions\n";
+    testVectorAddKernel(100, 1, 1024, VectorAddKernelSerial{});
+
+    // launch the 1-dimensional kernel with a small block size and a small number of blocks;
+    // this relies on the kernel to loop over the "problem space" and do more work per block
+    std::cout << "Test 1D vector block-level serial addition with small block size, using scalar dimensions\n";
+    testVectorAddKernel(10000, 32, 32, VectorAddKernelBlockSerial{});
+
+    // launch the 1-dimensional kernel with a large block size and a single block;
+    // this relies on the kernel to check the size of the "problem space" and avoid accessing out-of-bounds data
+    std::cout << "Test 1D vector block-level serial addition with large block size, using scalar dimensions\n";
+    testVectorAddKernel(100, 1, 1024, VectorAddKernelBlockSerial{});
   }
 }
