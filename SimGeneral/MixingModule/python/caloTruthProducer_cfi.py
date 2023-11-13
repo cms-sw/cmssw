@@ -57,7 +57,11 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(
     caloParticles, 
     simHitCollections = cms.PSet(
-        hgc = caloParticles.simHitCollections.hgc,
+        hgc = cms.VInputTag(
+            cms.InputTag('g4SimHits', 'HGCHitsEE'),
+            cms.InputTag('g4SimHits', 'HGCHitsHEfront'),
+            cms.InputTag('g4SimHits', 'HGCHitsHEback'),
+        ),
         hcal = cms.VInputTag(cms.InputTag('g4SimHits', 'HcalHits')),
         ecal = cms.VInputTag(
             cms.InputTag('g4SimHits', 'EcalHitsEB')
