@@ -124,19 +124,17 @@ void L1TruthTrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSe
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > l1track_ptr(TTTrackHandle, this_l1track);
     this_l1track++;
-    float trk_pt = iterL1Track->momentum().perp();
-    float trk_z0 = iterL1Track->z0();
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
         theStubs = iterL1Track->getStubRefs();
-    int trk_nstub = (int)theStubs.size();
-
+    
     // standard quality cuts
-    if (std::abs(trk_z0) > trkZMax_)
+    if (std::abs(iterL1Track->z0()) > trkZMax_)
       continue;
     if (std::abs(iterL1Track->momentum().eta()) > trkEtaMax_)
       continue;
-    if (trk_pt < trkPtMin_)
+    if (iterL1Track->momentum().perp() < trkPtMin_)
       continue;
+    int trk_nstub = (int)theStubs.size();
     if (trk_nstub < trkNStubMin_)
       continue;
 

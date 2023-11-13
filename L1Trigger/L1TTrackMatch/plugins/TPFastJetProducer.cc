@@ -119,12 +119,6 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     edm::Ptr<TrackingParticle> tp_ptr(TrackingParticleHandle, this_tp);
     this_tp++;
 
-    float tp_pt = iterTP->pt();
-    float tp_eta = iterTP->eta();
-    float tp_charge = iterTP->charge();
-    float tp_z0 = iterTP->z0();
-    int tp_eventid = iterTP->eventId().event();
-
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
     int nStubTP = (int)theStubRefs.size();
@@ -158,19 +152,19 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     // tp quality cuts to match L1 tracks
-    if (tp_pt < tpPtMin_)
+    if (iterTP->pt() < tpPtMin_)
       continue;
-    if (fabs(tp_eta) > tpEtaMax_)
+    if (fabs(iterTP->eta()) > tpEtaMax_)
       continue;
     if (nStubTP < tpNStubMin_)
       continue;
     if (nStubLayerTP < tpNStubLayerMin_)
       continue;
-    if (fabs(tp_z0) > tpZMax_)
+    if (fabs(iterTP->z0()) > tpZMax_)
       continue;
-    if (tp_charge == 0.)  // extra check that all tps are charged
+    if (iterTP->charge() == 0.)  // extra check that all tps are charged
       continue;
-    if (tp_eventid > 0)  // only select hard interaction tps
+    if (iterTP->eventId().event() > 0)  // only select hard interaction tps
       continue;
 
     fastjet::PseudoJet psuedoJet(iterTP->px(), iterTP->py(), iterTP->pz(), iterTP->energy());
