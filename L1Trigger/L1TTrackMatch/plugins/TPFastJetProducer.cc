@@ -208,11 +208,17 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 void TPFastJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // The following says we do not know what parameters are allowed so do no validation
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("TrackingParticleInputTag", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("MCTruthStubInputTag", edm::InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"));
+  desc.add<double>("tp_ptMin", 2.0);
+  desc.add<double>("tp_etaMax", 2.4);
+  desc.add<double>("tp_zMax", 15.);
+  desc.add<int>("tp_nStubMin", 4);
+  desc.add<int>("tp_nStubLayerMin", 4);
+  desc.add<double>("coneSize", 0.4);
+  descriptions.add("tpFastJets", desc);
 }
 
 //define this as a plug-in

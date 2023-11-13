@@ -204,11 +204,18 @@ void L1TruthTrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSe
 }
 
 void L1TruthTrackFastJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // The following says we do not know what parameters are allowed so do no validation
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.add<edm::InputTag>("MCTruthTrackInputTag", edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
+  desc.add<double>("trk_zMax", 15.);
+  desc.add<double>("trk_ptMin", 2.0);
+  desc.add<double>("trk_etaMax", 2.4);
+  desc.add<int>("trk_nStubMin", 4);
+  desc.add<int>("trk_nPSStubMin", -1);
+  desc.add<double>("coneSize", 0.4);
+  desc.add<bool>("displaced", false);
+  descriptions.add("l1tTruthTrackFastJets", desc);
 }
 
 //define this as a plug-in
