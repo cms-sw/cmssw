@@ -10,6 +10,7 @@ namespace l1ct {
   class MiddleBufferMultififoRegionizerEmulator : public RegionizerEmulator {
   public:
     MiddleBufferMultififoRegionizerEmulator(unsigned int nclocks,
+                                            unsigned int nbuffers,
                                             unsigned int etabufferDepth,
                                             unsigned int ntklinks,
                                             unsigned int nHCalLinks,
@@ -86,11 +87,12 @@ namespace l1ct {
   protected:
     const unsigned int NTK_SECTORS, NCALO_SECTORS;
     const unsigned int NTK_LINKS, HCAL_LINKS, ECAL_LINKS, NMU_LINKS;
-    unsigned int nclocks_, etabuffer_depth_, ntk_, ncalo_, nem_, nmu_, outii_, pauseii_, nregions_pre_, nregions_post_;
+    unsigned int nclocks_, nbuffers_, etabuffer_depth_, ntk_, ncalo_, nem_, nmu_, outii_, pauseii_, nregions_pre_,
+        nregions_post_;
     bool streaming_;
     bool init_;
     unsigned int iclock_;
-
+    std::vector<l1ct::PFRegionEmu> mergedRegions_, outputRegions_;
     multififo_regionizer::Regionizer<l1ct::TkObjEmu> tkRegionizerPre_, tkRegionizerPost_;
     multififo_regionizer::Regionizer<l1ct::HadCaloObjEmu> hadCaloRegionizerPre_, hadCaloRegionizerPost_;
     multififo_regionizer::Regionizer<l1ct::EmCaloObjEmu> emCaloRegionizerPre_, emCaloRegionizerPost_;

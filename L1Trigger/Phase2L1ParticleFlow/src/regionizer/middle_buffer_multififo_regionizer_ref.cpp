@@ -13,6 +13,7 @@
 
 l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEmulator(const edm::ParameterSet& iConfig)
     : MiddleBufferMultififoRegionizerEmulator(iConfig.getParameter<uint32_t>("nClocks"),
+                                              iConfig.getParameter<uint32_t>("nBuffers"),
                                               iConfig.getParameter<uint32_t>("etaBufferDepth"),
                                               iConfig.getParameter<uint32_t>("nTkLinks"),
                                               iConfig.getParameter<uint32_t>("nHCalLinks"),
@@ -31,6 +32,7 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
 edm::ParameterSetDescription l1ct::MiddleBufferMultififoRegionizerEmulator::getParameterSetDescription() {
   edm::ParameterSetDescription description;
   description.add<uint32_t>("nClocks", 162);
+  description.add<uint32_t>("nBuffers", 54);
   description.add<uint32_t>("etaBufferDepth", 54);
   description.add<uint32_t>("nTkLinks", 1);
   description.add<uint32_t>("nHCalLinks", 1);
@@ -47,6 +49,7 @@ edm::ParameterSetDescription l1ct::MiddleBufferMultififoRegionizerEmulator::getP
 #endif
 
 l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEmulator(unsigned int nclocks,
+                                                                                       unsigned int nbuffers,
                                                                                        unsigned int etabufferDepth,
                                                                                        unsigned int ntklinks,
                                                                                        unsigned int nHCalLinks,
@@ -67,6 +70,7 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       ECAL_LINKS(nECalLinks),
       NMU_LINKS(1),
       nclocks_(nclocks),
+      nbuffers_(nbuffers),
       etabuffer_depth_(etabufferDepth),
       ntk_(ntk),
       ncalo_(ncalo),
@@ -87,10 +91,11 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       emCaloRegionizerPost_(nem, (nem + outii - 1) / outii, true, outii, pauseii),
       muRegionizerPre_(nmu, nmu, false, outii, pauseii),
       muRegionizerPost_(nmu, std::max(1u, (nmu + outii - 1) / outii), true, outii, pauseii),
-      tkBuffers_(ntk ? nregions_post_ : 0),
-      hadCaloBuffers_(ncalo ? nregions_post_ : 0),
-      emCaloBuffers_(nem ? nregions_post_ : 0),
-      muBuffers_(nmu ? nregions_post_ : 0) {
+      tkBuffers_(ntk ? nbuffers_ : 0),
+      hadCaloBuffers_(ncalo ? nbuffers_ : 0),
+      emCaloBuffers_(nem ? nbuffers_ : 0),
+      muBuffers_(nmu ? nbuffers_ : 0) {
+  assert(nbuffers_ == nregions_post_ || nbuffers_ == nregions_pre_);
   unsigned int phisectors = 9, etaslices = 3;
   for (unsigned int ietaslice = 0; ietaslice < etaslices && ntk > 0; ++ietaslice) {
     for (unsigned int ie = 0; ie < 2; ++ie) {  // 0 = negative, 1 = positive
@@ -145,6 +150,9 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const 
 
   std::vector<PFInputRegion> mergedRegions;
   unsigned int neta = 3, nphi = 9;
+  mergedRegions.reserve(nregions_pre_);
+  mergedRegions_.reserve(nregions_pre_);
+  outputRegions_.reserve(nregions_post_);
   for (unsigned int ieta = 0; ieta < neta; ++ieta) {
     for (unsigned int iphi = 0; iphi < nphi; ++iphi) {
       const PFRegionEmu& reg0 = out[(2 * ieta + 0) * nphi + iphi].region;
@@ -156,32 +164,47 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const 
                                  reg0.floatPhiHalfWidth() * 2,
                                  reg0.floatEtaExtra(),
                                  reg0.floatPhiExtra());
+      mergedRegions_.push_back(mergedRegions.back().region);
+      outputRegions_.push_back(reg0);
+      outputRegions_.push_back(reg1);
       if (debug_) {
         dbgCout() << "Created region with etaCenter " << mergedRegions.back().region.hwEtaCenter.to_int()
                   << ", halfWidth " << mergedRegions.back().region.hwEtaHalfWidth.to_int() << "\n";
       }
-      for (int i = 0; i < 2; ++i) {
-        unsigned int iout = (2 * ieta + i) * nphi + iphi;
-        const l1ct::PFRegionEmu& from = mergedRegions.back().region;
-        const l1ct::PFRegionEmu& to = out[iout].region;
-        l1ct::glbeta_t etaMin = to.hwEtaCenter - to.hwEtaHalfWidth - to.hwEtaExtra - from.hwEtaCenter;
-        l1ct::glbeta_t etaMax = to.hwEtaCenter + to.hwEtaHalfWidth + to.hwEtaExtra - from.hwEtaCenter;
-        l1ct::glbeta_t etaShift = from.hwEtaCenter - to.hwEtaCenter;
-        l1ct::glbphi_t phiMin = -to.hwPhiHalfWidth - to.hwPhiExtra;
-        l1ct::glbphi_t phiMax = +to.hwPhiHalfWidth + to.hwPhiExtra;
-        l1ct::glbphi_t phiShift = 0;
+      if (nbuffers_ == nregions_post_) {
+        for (int i = 0; i < 2; ++i) {
+          unsigned int iout = (2 * ieta + i) * nphi + iphi;
+          const l1ct::PFRegionEmu& from = mergedRegions.back().region;
+          const l1ct::PFRegionEmu& to = out[iout].region;
+          l1ct::glbeta_t etaMin = to.hwEtaCenter - to.hwEtaHalfWidth - to.hwEtaExtra - from.hwEtaCenter;
+          l1ct::glbeta_t etaMax = to.hwEtaCenter + to.hwEtaHalfWidth + to.hwEtaExtra - from.hwEtaCenter;
+          l1ct::glbeta_t etaShift = from.hwEtaCenter - to.hwEtaCenter;
+          l1ct::glbphi_t phiMin = -to.hwPhiHalfWidth - to.hwPhiExtra;
+          l1ct::glbphi_t phiMax = +to.hwPhiHalfWidth + to.hwPhiExtra;
+          l1ct::glbphi_t phiShift = 0;
+          if (ntk_ > 0)
+            tkBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::TkObjEmu>(
+                etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+          if (ncalo_ > 0)
+            hadCaloBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>(
+                etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+          if (nem_ > 0)
+            emCaloBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::EmCaloObjEmu>(
+                etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+          if (nmu_ > 0)
+            muBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>(
+                etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+        }
+      } else if (nbuffers_ == nregions_pre_) {
+        unsigned int iout = ieta * nphi + iphi;
         if (ntk_ > 0)
-          tkBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::TkObjEmu>(
-              etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+          tkBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::TkObjEmu>(etabuffer_depth_);
         if (ncalo_ > 0)
-          hadCaloBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>(
-              etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+          hadCaloBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>(etabuffer_depth_);
         if (nem_ > 0)
-          emCaloBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::EmCaloObjEmu>(
-              etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+          emCaloBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::EmCaloObjEmu>(etabuffer_depth_);
         if (nmu_ > 0)
-          muBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>(
-              etabuffer_depth_, etaMin, etaMax, etaShift, phiMin, phiMax, phiShift);
+          muBuffers_[iout] = l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>(etabuffer_depth_);
       }
     }
   }
@@ -265,8 +288,8 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
   for (unsigned int ieta = 0; ieta < neta; ++ieta) {
     for (unsigned int iphi = 0; iphi < nphi; ++iphi) {
       unsigned int iin = ieta * nphi + iphi;
-      for (int i = 0; i < 2; ++i) {
-        unsigned int iout = (2 * ieta + i) * nphi + iphi;
+      for (int i = 0, n = nbuffers_ == nregions_pre_ ? 1 : 2; i < n; ++i) {
+        unsigned int iout = (n * ieta + i) * nphi + iphi;
         if (ntk_)
           tkBuffers_[iout].maybe_push(pre_out_tk[iin]);
         if (ncalo_)
@@ -294,15 +317,54 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
   std::vector<l1ct::HadCaloObjEmu> bufferOut_hadCalo(ncalo_ ? nregions_post_ : 0);
   std::vector<l1ct::EmCaloObjEmu> bufferOut_emCalo(nem_ ? nregions_post_ : 0);
   std::vector<l1ct::MuObjEmu> bufferOut_mu(nmu_ ? nregions_post_ : 0);
-  for (unsigned int i = 0; i < nregions_post_; ++i) {
-    if (ntk_)
-      bufferOut_tk[i] = tkBuffers_[i].pop();
-    if (ncalo_)
-      bufferOut_hadCalo[i] = hadCaloBuffers_[i].pop();
-    if (nem_)
-      bufferOut_emCalo[i] = emCaloBuffers_[i].pop();
-    if (nmu_)
-      bufferOut_mu[i] = muBuffers_[i].pop();
+  if (nbuffers_ == nregions_post_) {  // just copy directly
+    for (unsigned int i = 0; i < nregions_post_; ++i) {
+      if (ntk_)
+        bufferOut_tk[i] = tkBuffers_[i].pop();
+      if (ncalo_)
+        bufferOut_hadCalo[i] = hadCaloBuffers_[i].pop();
+      if (nem_)
+        bufferOut_emCalo[i] = emCaloBuffers_[i].pop();
+      if (nmu_)
+        bufferOut_mu[i] = muBuffers_[i].pop();
+    }
+  } else if (nbuffers_ == nregions_pre_) {  // propagate and copy
+    unsigned int neta = 3, nphi = 9;
+    for (unsigned int ieta = 0; ieta < neta; ++ieta) {
+      for (unsigned int iphi = 0; iphi < nphi; ++iphi) {
+        unsigned int iin = ieta * nphi + iphi;
+        const l1ct::PFRegionEmu& from = mergedRegions_[iin];
+        l1ct::TkObjEmu tk = ntk_ ? tkBuffers_[iin].pop() : l1ct::TkObjEmu();
+        l1ct::HadCaloObjEmu calo = ncalo_ ? hadCaloBuffers_[iin].pop() : l1ct::HadCaloObjEmu();
+        l1ct::EmCaloObjEmu em = nem_ ? emCaloBuffers_[iin].pop() : l1ct::EmCaloObjEmu();
+        l1ct::MuObjEmu mu = nmu_ ? muBuffers_[iin].pop() : l1ct::MuObjEmu();
+        for (int i = 0; i < 2; ++i) {
+          const l1ct::PFRegionEmu& to = outputRegions_[2 * iin + i];
+          unsigned int iout = (2 * ieta + i) * nphi + iphi;
+          l1ct::glbeta_t etaMin = to.hwEtaCenter - to.hwEtaHalfWidth - to.hwEtaExtra - from.hwEtaCenter;
+          l1ct::glbeta_t etaMax = to.hwEtaCenter + to.hwEtaHalfWidth + to.hwEtaExtra - from.hwEtaCenter;
+          l1ct::glbeta_t etaShift = from.hwEtaCenter - to.hwEtaCenter;
+          l1ct::glbphi_t phiMin = -to.hwPhiHalfWidth - to.hwPhiExtra;
+          l1ct::glbphi_t phiMax = +to.hwPhiHalfWidth + to.hwPhiExtra;
+          if (tk.hwPt > 0 && l1ct::multififo_regionizer::local_eta_phi_window(tk, etaMin, etaMax, phiMin, phiMax)) {
+            bufferOut_tk[iout] = tk;
+            bufferOut_tk[iout].hwEta += etaShift;
+          }
+          if (calo.hwPt > 0 && l1ct::multififo_regionizer::local_eta_phi_window(calo, etaMin, etaMax, phiMin, phiMax)) {
+            bufferOut_hadCalo[iout] = calo;
+            bufferOut_hadCalo[iout].hwEta += etaShift;
+          }
+          if (em.hwPt > 0 && l1ct::multififo_regionizer::local_eta_phi_window(em, etaMin, etaMax, phiMin, phiMax)) {
+            bufferOut_emCalo[iout] = em;
+            bufferOut_emCalo[iout].hwEta += etaShift;
+          }
+          if (mu.hwPt > 0 && l1ct::multififo_regionizer::local_eta_phi_window(mu, etaMin, etaMax, phiMin, phiMax)) {
+            bufferOut_mu[iout] = mu;
+            bufferOut_mu[iout].hwEta += etaShift;
+          }
+        }
+      }
+    }
   }
   if (ntk_)
     tkRegionizerPost_.muxonly_step(newEvent, /*flush=*/true, bufferOut_tk, out_tk);
