@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
@@ -48,7 +49,6 @@ DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
 */
 unsigned int ZdcGeometry::alignmentTransformIndexLocal(const DetId& id) {
   const CaloGenericDetId gid(id);
-
   assert(gid.isZDC());
 
   return (0 > HcalZDCDetId(id).zside() ? 0 : 1);
@@ -66,7 +66,6 @@ void ZdcGeometry::newCell(const GlobalPoint& f1,
                           const CCGFloat* parm,
                           const DetId& detId) {
   const CaloGenericDetId cgid(detId);
-
   assert(cgid.isZDC());
 
   const unsigned int di(cgid.denseIndex());
@@ -77,6 +76,8 @@ void ZdcGeometry::newCell(const GlobalPoint& f1,
 
 const CaloCellGeometry* ZdcGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
+  if (m_cellVec.size() < index)
+    return nullptr;
   const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (m_cellVec.size() < index || nullptr == cell->param() ? nullptr : cell);
+  return (((cell == nullptr) || (nullptr == cell->param())) ? nullptr : cell);
 }

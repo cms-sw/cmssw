@@ -58,6 +58,8 @@ public:
                const DetId& detId) override;
 
 protected:
+  unsigned int indexFor(const DetId& id) const override { return HcalZDCDetId(id).denseIndex(); }
+
   // Modify the RawPtr class
   const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
 
