@@ -915,13 +915,11 @@ class Process(object):
             returnValue += item.dumpPython(options)+'\n\n'
         return returnValue
 
-    def _dumpPythonList(self, d, options):
+    def _dumpPythonList(self, d, options, ignored=[]):
         returnValue = ''
-        if isinstance(d, DictTypes.SortedKeysDict):
-            for name,item in d.items():
-                returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
-        else:
-            for name,item in sorted(d.items()):
+        iterable = d.items() if isinstance(d, DictTypes.SortedKeysDict) else sorted(d.items())
+        for name,item in iterable:
+            if name not in ignored:
                 returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
 
@@ -1050,35 +1048,36 @@ class Process(object):
             result[name] = subfolder, value.dumpPythonAs(name, options) + '\n'
         return result
 
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options=PrintOptions(), prune=False):
         """return a string containing the equivalent process defined using python"""
         specialImportRegistry._reset()
+        unusedAttributes = set(self._unusedAttributes()) if prune else []
         header = "import FWCore.ParameterSet.Config as cms"
         result = "process = cms.Process(\""+self.__name+"\")\n\n"
         if self.source_():
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
             result += "process.looper = "+self.looper_().dumpPython()
-        result+=self._dumpPythonList(self.psets, options)
-        result+=self._dumpPythonList(self.vpsets, options)
+        result+=self._dumpPythonList(self.psets, options, unusedAttributes)
+        result+=self._dumpPythonList(self.vpsets, options, unusedAttributes)
         result+=self._dumpPythonSubProcesses(self.subProcesses_(), options)
-        result+=self._dumpPythonList(self.producers_(), options)
-        result+=self._dumpPythonList(self.switchProducers_(), options)
-        result+=self._dumpPythonList(self.filters_() , options)
-        result+=self._dumpPythonList(self.analyzers_(), options)
-        result+=self._dumpPythonList(self.outputModules_(), options)
-        result+=self._dumpPythonList(self.services_(), options)
-        result+=self._dumpPythonList(self.processAccelerators_(), options)
-        result+=self._dumpPythonList(self.es_producers_(), options)
-        result+=self._dumpPythonList(self.es_sources_(), options)
+        result+=self._dumpPythonList(self.producers_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.switchProducers_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.filters_() , options, unusedAttributes)
+        result+=self._dumpPythonList(self.analyzers_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.outputModules_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.services_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.processAccelerators_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.es_producers_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.es_sources_(), options, unusedAttributes)
         result+=self._dumpPython(self.es_prefers_(), options)
-        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.tasks), options)
-        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.conditionaltasks), options)
-        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.sequences), options)
-        result+=self._dumpPythonList(self.paths_(), options)
-        result+=self._dumpPythonList(self.endpaths_(), options)
-        result+=self._dumpPythonList(self.finalpaths_(), options)
-        result+=self._dumpPythonList(self.aliases_(), options)
+        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.tasks), options, unusedAttributes)
+        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.conditionaltasks), options, unusedAttributes)
+        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.sequences), options, unusedAttributes)
+        result+=self._dumpPythonList(self.paths_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.endpaths_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.finalpaths_(), options, unusedAttributes)
+        result+=self._dumpPythonList(self.aliases_(), options, unusedAttributes)
         if not self.schedule_() == None:
             result += 'process.schedule = ' + self.schedule.dumpPython(options)
         imports = specialImportRegistry.getSpecialImports()
@@ -1349,6 +1348,11 @@ class Process(object):
                 task.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
 
     def prune(self,verbose=False,keepUnresolvedSequencePlaceholders=False):
+        for attr in self._unusedAttributes(verbose, keepUnresolvedSequencePlaceholders):
+            if hasattr(self, attr):
+                delattr(self, attr)
+
+    def _unusedAttributes(self,verbose=False,keepUnresolvedSequencePlaceholders=False):
         """ Remove clutter from the process that we think is unnecessary:
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
@@ -1358,8 +1362,10 @@ class Process(object):
 #        for name in self.psets_():
 #            if getattr(self,name).isTracked():
 #                delattr(self, name)
+        result = []
         for name in self.vpsets_():
-            delattr(self, name)
+            # delattr(self, name)
+            result.append(name)
         #first we need to resolve any SequencePlaceholders being used
         self.resolve(keepUnresolvedSequencePlaceholders)
         usedModules = set()
@@ -1375,7 +1381,7 @@ class Process(object):
             names.update(set(self.finalpaths))
             unneededPaths = names - schedNames
             for n in unneededPaths:
-                delattr(self,n)
+                result.append(n)
             for t in self.schedule_().tasks():
                 tv.enter(t)
                 t.visit(tv)
@@ -1386,22 +1392,22 @@ class Process(object):
             pths.extend(self.finalpaths.values())
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
-        unneededModules = self._pruneModules(self.producers_(), usedModules)
-        unneededModules.update(self._pruneModules(self.switchProducers_(), usedModules))
-        unneededModules.update(self._pruneModules(self.filters_(), usedModules))
-        unneededModules.update(self._pruneModules(self.analyzers_(), usedModules))
+        unneededModules = []
+        unneededModules += self._pruneModules(self.producers_(), usedModules)
+        unneededModules += self._pruneModules(self.switchProducers_(), usedModules)
+        unneededModules += self._pruneModules(self.filters_(), usedModules)
+        unneededModules += self._pruneModules(self.analyzers_(), usedModules)
+        result += unneededModules
+        unneededModules = set(unneededModules)
         #remove sequences and tasks that do not appear in remaining paths and endpaths
         seqs = list()
         sv = SequenceVisitor(seqs)
-        for p in self.paths.values():
-            p.visit(sv)
-            p.visit(tv)
-        for p in self.endpaths.values():
-            p.visit(sv)
-            p.visit(tv)
-        for p in self.finalpaths.values():
-            p.visit(sv)
-            p.visit(tv)
+        removedSoFar = set(result)
+        for pathDict in (self.paths, self.endpaths, self.finalpaths):
+            for label, p in pathDict.items():
+                if label not in removedSoFar:
+                    p.visit(sv)
+                    p.visit(tv)
         def removeUnneeded(seqOrTasks, allSequencesOrTasks):
             _keepSet = set(( s for s in seqOrTasks if s.hasLabel_()))
             _availableSet = set(allSequencesOrTasks.values())
@@ -1409,21 +1415,40 @@ class Process(object):
             _unneededLabels = []
             for s in _unneededSet:
                 _unneededLabels.append(s.label_())
-                delattr(self,s.label_())
+                result.append(s.label_())
             return _unneededLabels
         unneededSeqLabels = removeUnneeded(seqs, self.sequences)
         unneededTaskLabels = removeUnneeded(tasks, self.tasks)
+        # remove unreferenced psets
+        referencedPsets = set()
+        # get object attributes not starting with '_'
+        def get_attributes(obj):
+            return iter((k, v) for k, v in obj.__dict__.items() if not k.startswith('_'))
+        # find attribute by name in object or child objects (recursive)
+        def find_attribute(obj, name):
+            values = []
+            for k, v in get_attributes(obj):
+                if k == name:
+                    values.append(v)
+                else:
+                    values += find_attribute(v, name)
+            return values
+        for attribute, value in get_attributes(self):
+            if not isinstance(value, PSet) and attribute not in result:
+                for s in find_attribute(value, 'refToPSet_'):
+                    referencedPsets.add(s.value())
+        result += self._pruneModules(self.psets_(), referencedPsets)
         if verbose:
             print("prune removed the following:")
             print("  modules:"+",".join(unneededModules))
             print("  tasks:"+",".join(unneededTaskLabels))
             print("  sequences:"+",".join(unneededSeqLabels))
             print("  paths/endpaths/finalpaths:"+",".join(unneededPaths))
+        return result
+
     def _pruneModules(self, d, scheduledNames):
         moduleNames = set(d.keys())
         junk = moduleNames - scheduledNames
-        for name in junk:
-            delattr(self, name)
         return junk
 
     def fillProcessDesc(self, processPSet):

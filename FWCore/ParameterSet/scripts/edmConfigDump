@@ -23,12 +23,9 @@ parser.add_argument("configArgs",
 options = parser.parse_args()
 cmsProcess = processFromFile(options.filename, options.configArgs)
 
-if options.prune:
-    cmsProcess.prune(options.pruneVerbose)
-
 if options.output is not None:
     with open(options.output, "w") as f:
-        f.write(cmsProcess.dumpPython())
+        f.write(cmsProcess.dumpPython(prune=options.prune))
 else:
-    print(cmsProcess.dumpPython())
+    print(cmsProcess.dumpPython(prune=options.prune))
 
