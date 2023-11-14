@@ -38,8 +38,8 @@ RHStopTracer::RHStopTracer(edm::ParameterSet const& p) {
   rePartName = mTraceParticleName;
   setMT(true);
 
-  edm::LogVerbatim("SimG4CoreCustomPhysics") << "RHStopTracer::RHStopTracer " << mTraceParticleName
-                                             << " Eth(GeV)= " << mTraceEnergy;
+  edm::LogVerbatim("SimG4CoreCustomPhysics")
+      << "RHStopTracer::RHStopTracer " << mTraceParticleName << " Eth(GeV)= " << mTraceEnergy;
 }
 
 void RHStopTracer::update(const BeginOfRun* fRun) {
