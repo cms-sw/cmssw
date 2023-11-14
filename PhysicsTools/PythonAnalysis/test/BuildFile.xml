@@ -144,5 +144,5 @@
 <test name="run-pylint" command="pylint -h"/>
 
 <bin name="testTorch" file="testTorch.cc">
-  <use name="torch"/>
+  <use name="pytorch"/>
 </bin>
