@@ -592,10 +592,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     ZdcSD = cms.PSet(
         Verbosity = cms.int32(0),
-        UseShowerLibrary = cms.bool(True),
-        UseShowerHits = cms.bool(False),
+        UseShowerLibrary = cms.bool(False),
+        UseShowerHits = cms.bool(True),
         FiberDirection = cms.double(45.0),
-        ZdcHitEnergyCut = cms.double(10.0)
+        ZdcHitEnergyCut = cms.double(1.0)
     ),
     ZdcShowerLibrary = cms.PSet(
         Verbosity = cms.untracked.int32(0)
