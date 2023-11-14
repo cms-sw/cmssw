@@ -39,6 +39,7 @@ cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True input
 
 printf "TESTING reading BeamSpotObjectRcd DB object ...\n\n"
 cmsRun ${SCRAM_TEST_PATH}/BeamSpotRcdPrinter_cfg.py || die "Failure running BeamSpotRcdPrinter" $?
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotRcdRead_cfg.py || die "Failure running BeamSpotRcdRead" $?
 
 printf "TESTING converting BeamSpotOnlineObjects from BeamSpotObjects ...\n\n"
 cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineFromOfflineConverter_cfg.py unitTest=True startRun=325172 startLumi=458 || die "Failure running single-IOV BeamSpotOnlineFromOfflineConverter" $?
