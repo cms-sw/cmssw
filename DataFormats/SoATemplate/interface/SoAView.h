@@ -604,6 +604,11 @@ namespace cms::soa {
       element& operator=(const element& _soa_impl_other) {                                                             \
         _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, VALUE_LIST)                                               \
         return *this;                                                                                                  \
+      }                                                                                                                \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      element& operator=(const const_element& _soa_impl_other) {                                                       \
+        _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, VALUE_LIST)                                               \
+        return *this;                                                                                                  \
       }
 // clang-format on
 
