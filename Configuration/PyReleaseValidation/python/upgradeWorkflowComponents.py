@@ -1761,7 +1761,7 @@ upgradeWFs['L1Complete'] = UpgradeWorkflow_L1Complete(
         'DigiTrigger',
     ],
     suffix = '_L1Complete',
-    offset = 0.1001
+    offset = 0.78
 )
 
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
