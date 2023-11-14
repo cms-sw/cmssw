@@ -43,6 +43,7 @@ private:
   edm::EDGetTokenT<GEMDigiCollection> digi_token;
   edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
   bool useDBEMap_;
+  bool simulatePulseStretching_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,7 +52,8 @@ DEFINE_FWK_MODULE(GEMDigiToRawModule);
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
     : event_type_(pset.getParameter<int>("eventType")),
       digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
-      useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
+      useDBEMap_(pset.getParameter<bool>("useDBEMap")),
+      simulatePulseStretching_(pset.getParameter<bool>("simulatePulseStretching")) {
   produces<FEDRawDataCollection>();
   if (useDBEMap_) {
     gemChMapToken_ = esConsumes<GEMChMap, GEMChMapRcd, edm::Transition::BeginRun>();
@@ -63,6 +65,7 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonGEMDigis"));
   desc.add<int>("eventType", 0);
   desc.add<bool>("useDBEMap", false);
+  desc.add<bool>("simulatePulseStretching", false);
   descriptions.add("gemPackerDefault", desc);
 }
 
@@ -106,6 +109,8 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     const GEMDigiCollection::Range& digis = etaPart.second;
     for (auto digi = digis.first; digi != digis.second; ++digi) {
       int bx = digi->bx();
+      if (simulatePulseStretching_)
+        bx = 0;
       auto search = gemBxMap.find(bx);
       if (search != gemBxMap.end()) {
         search->second.insertDigi(gemId, *digi);
