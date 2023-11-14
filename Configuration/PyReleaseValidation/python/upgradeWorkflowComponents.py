@@ -1753,11 +1753,9 @@ class UpgradeWorkflow_L1Complete(UpgradeWorkflow):
 
 upgradeWFs['L1Complete'] = UpgradeWorkflow_L1Complete(
     steps = [
-        'Digi',
-        'DigiTrigger'
+        'DigiTrigger',
     ],
     PU = [
-        'Digi',
         'DigiTrigger',
     ],
     suffix = '_L1Complete',
