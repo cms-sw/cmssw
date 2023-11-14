@@ -126,7 +126,7 @@ void L1TruthTrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSe
     this_l1track++;
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
         theStubs = iterL1Track->getStubRefs();
-    
+
     // standard quality cuts
     if (std::abs(iterL1Track->z0()) > trkZMax_)
       continue;
