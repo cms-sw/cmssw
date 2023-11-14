@@ -34,6 +34,14 @@ public:
 
   static constexpr int32_t SubdetectorId = 2;
 
+  static constexpr int32_t kDepEM = 5;
+  static constexpr int32_t kDepHAD = 4;
+  static constexpr int32_t kDepLUM = 2;
+  static constexpr int32_t kDepRPD = 16;
+  static constexpr int32_t kDepRun1 = (kDepEM + kDepHAD + kDepLUM);
+  static constexpr int32_t kDepTot = (kDepRun1 + kDepRPD);
+  static constexpr int32_t kDepRun3 = kDepTot;
+
   /** Create a null cellid*/
   constexpr HcalZDCDetId() : DetId() {}
   /** Create cellid from raw id (0=invalid tower id) */
@@ -162,16 +170,6 @@ public:
   }
 
 private:
-  enum {
-    kDepEM = 5,
-    kDepHAD = 4,
-    kDepLUM = 2,
-    kDepRPD = 16,
-    kDepRun1 = kDepEM + kDepHAD + kDepLUM,
-    kDepTot = kDepRun1 + kDepRPD,
-    kDepRun3 = kDepTot
-  };
-
   constexpr static uint32_t packHcalZDCDetId(const Section& se, const bool& zside, const int32_t& channel) {
     uint32_t id = DetId(DetId::Calo, SubdetectorId);
     id |= kZDCnewFormat;

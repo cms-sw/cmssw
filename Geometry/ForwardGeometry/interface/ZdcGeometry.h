@@ -57,6 +57,11 @@ public:
                const CCGFloat* parm,
                const DetId& detId) override;
 
+  void getSummary(CaloSubdetectorGeometry::TrVec& tVec,
+		  CaloSubdetectorGeometry::IVec& iVec,
+		  CaloSubdetectorGeometry::DimVec& dVec,
+		  CaloSubdetectorGeometry::IVec& dins) const override;
+
 protected:
   unsigned int indexFor(const DetId& id) const override { return HcalZDCDetId(id).denseIndex(); }
 

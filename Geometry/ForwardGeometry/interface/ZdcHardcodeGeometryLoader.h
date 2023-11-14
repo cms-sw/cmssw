@@ -23,6 +23,7 @@ public:
 
   virtual ReturnType load(DetId::Detector det, int subdet);
   ReturnType load();
+  void setAddRPD(bool flag) { m_zdcAddRPD = flag; }
 
 private:
   void init();
@@ -31,7 +32,7 @@ private:
 
   ZdcTopology* theTopology;
   const ZdcTopology* extTopology;
-
+  bool m_zdcAddRPD;
   float theEMSectiondX;
   float theEMSectiondY;
   float theEMSectiondZ;
