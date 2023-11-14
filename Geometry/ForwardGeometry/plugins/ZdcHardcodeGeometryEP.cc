@@ -19,7 +19,11 @@
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP(const edm::ParameterSet& ps) : m_loader(nullptr), m_topology(), m_applyAlignment(ps.getParameter<bool>("applyAlignment")), m_zdcAddRPD(ps.getParameter<bool>("zdcAddRPD")) {
+ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP(const edm::ParameterSet& ps)
+    : m_loader(nullptr),
+      m_topology(),
+      m_applyAlignment(ps.getParameter<bool>("applyAlignment")),
+      m_zdcAddRPD(ps.getParameter<bool>("zdcAddRPD")) {
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this, ZdcGeometry::producerTag());
@@ -30,7 +34,7 @@ ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP(const edm::ParameterSet& ps) : m_lo
   //		    edm::es::Label( "ZDC" ) );
 }
 
-ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP() { }
+ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP() {}
 
 //
 // member functions

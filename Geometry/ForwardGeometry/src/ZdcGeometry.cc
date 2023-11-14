@@ -76,7 +76,8 @@ void ZdcGeometry::newCell(const GlobalPoint& f1,
                           const DetId& detId) {
   const CaloGenericDetId cgid(detId);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ZDCGeom") << "ZDCGeometry " << HcalZDCDetId(detId) << " Generic ID " << std::hex << cgid.rawId() << std::dec << " ZDC? " << cgid.isZDC();
+  edm::LogVerbatim("ZDCGeom") << "ZDCGeometry " << HcalZDCDetId(detId) << " Generic ID " << std::hex << cgid.rawId()
+                              << std::dec << " ZDC? " << cgid.isZDC();
 #endif
   assert(cgid.isZDC());
 
@@ -95,9 +96,9 @@ const CaloCellGeometry* ZdcGeometry::getGeometryRawPtr(uint32_t index) const {
 }
 
 void ZdcGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
-			     CaloSubdetectorGeometry::IVec& iVec,
-			     CaloSubdetectorGeometry::DimVec& dVec,
-			     CaloSubdetectorGeometry::IVec& /*dins*/) const {
+                             CaloSubdetectorGeometry::IVec& iVec,
+                             CaloSubdetectorGeometry::DimVec& dVec,
+                             CaloSubdetectorGeometry::IVec& /*dins*/) const {
   tVec.reserve(m_validIds.size() * numberOfTransformParms());
   iVec.reserve(numberOfShapes() == 1 ? 1 : m_validIds.size());
   dVec.reserve(numberOfShapes() * numberOfParametersPerShape());
@@ -112,7 +113,8 @@ void ZdcGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
     Tr3D tr;
     std::shared_ptr<const CaloCellGeometry> ptr(cellGeomPtr(i));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ZDCGeom") << "ZDCGeometry:Summary " << i << ":" << HcalZDCDetId::kSizeForDenseIndexingRun1 << " Pointer " << ptr << ":" << (nullptr != ptr);
+    edm::LogVerbatim("ZDCGeom") << "ZDCGeometry:Summary " << i << ":" << HcalZDCDetId::kSizeForDenseIndexingRun1
+                                << " Pointer " << ptr << ":" << (nullptr != ptr);
 #endif
     if (i < static_cast<int32_t>(HcalZDCDetId::kSizeForDenseIndexingRun1))
       assert(nullptr != ptr);
@@ -120,8 +122,8 @@ void ZdcGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
       ptr->getTransform(tr, (Pt3DVec*)nullptr);
 
       if (Tr3D() == tr) {  // for preshower there is no rotation
-	const GlobalPoint& gp(ptr->getPosition());
-	tr = HepGeom::Translate3D(gp.x(), gp.y(), gp.z());
+        const GlobalPoint& gp(ptr->getPosition());
+        tr = HepGeom::Translate3D(gp.x(), gp.y(), gp.z());
       }
 
       const CLHEP::Hep3Vector tt(tr.getTranslation());
@@ -129,34 +131,35 @@ void ZdcGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
       tVec.emplace_back(tt.y());
       tVec.emplace_back(tt.z());
       if (6 == numberOfTransformParms()) {
-	const CLHEP::HepRotation rr(tr.getRotation());
-	const ROOT::Math::Transform3D rtr(rr.xx(), rr.xy(), rr.xz(), tt.x(), rr.yx(), rr.yy(), rr.yz(), tt.y(), rr.zx(), rr.zy(), rr.zz(), tt.z());
-	ROOT::Math::EulerAngles ea;
-	rtr.GetRotation(ea);
-	tVec.emplace_back(ea.Phi());
-	tVec.emplace_back(ea.Theta());
-	tVec.emplace_back(ea.Psi());
+        const CLHEP::HepRotation rr(tr.getRotation());
+        const ROOT::Math::Transform3D rtr(
+            rr.xx(), rr.xy(), rr.xz(), tt.x(), rr.yx(), rr.yy(), rr.yz(), tt.y(), rr.zx(), rr.zy(), rr.zz(), tt.z());
+        ROOT::Math::EulerAngles ea;
+        rtr.GetRotation(ea);
+        tVec.emplace_back(ea.Phi());
+        tVec.emplace_back(ea.Theta());
+        tVec.emplace_back(ea.Psi());
       }
 
       const CCGFloat* par(ptr->param());
 
       unsigned int ishape(9999);
       for (unsigned int ivv(0); ivv != parVecVec().size(); ++ivv) {
-	bool ok(true);
-	const CCGFloat* pv(&(*parVecVec()[ivv].begin()));
-	for (unsigned int k(0); k != numberOfParametersPerShape(); ++k) {
-	  ok = ok && (fabs(par[k] - pv[k]) < 1.e-6);
-	}
-	if (ok) {
-	  ishape = ivv;
-	  break;
-	}
+        bool ok(true);
+        const CCGFloat* pv(&(*parVecVec()[ivv].begin()));
+        for (unsigned int k(0); k != numberOfParametersPerShape(); ++k) {
+          ok = ok && (fabs(par[k] - pv[k]) < 1.e-6);
+        }
+        if (ok) {
+          ishape = ivv;
+          break;
+        }
       }
       assert(9999 != ishape);
 
       const unsigned int nn((numberOfShapes() == 1) ? (unsigned int)1 : m_validIds.size());
       if (iVec.size() < nn)
-	iVec.emplace_back(ishape);
+        iVec.emplace_back(ishape);
     }
   }
 }

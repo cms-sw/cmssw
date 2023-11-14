@@ -100,7 +100,9 @@ public:
 
   virtual void initializeParms() { return; }
 
-  virtual bool valid(const DetId& id) const { return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end()); }
+  virtual bool valid(const DetId& id) const {
+    return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
+  }
 
 protected:
   virtual unsigned int indexFor(const DetId& id) const;

@@ -21,7 +21,7 @@ public:
   ~ZdcHardcodeGeometryEP() override;
 
   using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
-  
+
   ReturnType produce(const ZDCGeometryRecord&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);

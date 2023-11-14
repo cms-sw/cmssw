@@ -42,13 +42,13 @@ public:
   /** VME Constructor from slb channel,slb site,spigot,dccid */
   constexpr HcalElectronicsId(int slbChan, int slbSite, int spigot, int dccid, int crate, int slot, int tb)
       : hcalElectronicsId_(
-            (uint32_t)((slbChan & 0x3) | (((slbSite)&0x7) << 2) | ((spigot & 0xF) << 5) | ((dccid & 0x1F) << 9))) {
+            (uint32_t)((slbChan & 0x3) | (((slbSite) & 0x7) << 2) | ((spigot & 0xF) << 5) | ((dccid & 0x1F) << 9))) {
     hcalElectronicsId_ |= ((tb & 0x1) << 19) | ((slot & 0x1f) << 14) | ((crate & 0x3f) << 20);
     hcalElectronicsId_ |= 0x02000000;
   }
   /** uTCA constructor */
   constexpr HcalElectronicsId(int crate, int slot, int fiber, int fc, bool isTrigger)
-      : hcalElectronicsId_((int)((fc & 0xF) | (((fiber)&0x1F) << 4) | ((slot & 0xF) << 9) | ((crate & 0x3F) << 13))) {
+      : hcalElectronicsId_((int)((fc & 0xF) | (((fiber) & 0x1F) << 4) | ((slot & 0xF) << 9) | ((crate & 0x3F) << 13))) {
     if (isTrigger)
       hcalElectronicsId_ |= 0x02000000;
     hcalElectronicsId_ |= 0x04000000;
@@ -71,9 +71,13 @@ public:
   }
 
   /// get subtype for this channel (valid for uTCA only)
-  constexpr int32_t subtype() const { return (isUTCAid()) ? static_cast<int32_t>((hcalElectronicsId_ >> 21) & 0x1F) : (-1); }
+  constexpr int32_t subtype() const {
+    return (isUTCAid()) ? static_cast<int32_t>((hcalElectronicsId_ >> 21) & 0x1F) : (-1);
+  }
   /// get the fiber channel id (which of channels on a fiber)
-  constexpr int32_t fiberChanId() const { return (isVMEid()) ? static_cast<int32_t>(hcalElectronicsId_ & 0x3) : (hcalElectronicsId_ & 0xF); }
+  constexpr int32_t fiberChanId() const {
+    return (isVMEid()) ? static_cast<int32_t>(hcalElectronicsId_ & 0x3) : (hcalElectronicsId_ & 0xF);
+  }
   /// get the fiber index.  For VME 1-8 (which of eight fibers carried by a spigot), for uTCA fibers are zero-based
   constexpr int32_t fiberIndex() const {
     return (isVMEid()) ? (((hcalElectronicsId_ >> 2) & 0x7) + 1) : ((hcalElectronicsId_ >> 4) & 0x1F);
@@ -100,7 +104,9 @@ public:
     return (isVMEid()) ? ((hcalElectronicsId_ >> 14) & 0x1F) : ((hcalElectronicsId_ >> 9) & 0xF);
   }
   /// get the htr top/bottom (1=top/0=bottom), valid for VME
-  constexpr int32_t htrTopBottom() const { return (isVMEid()) ? static_cast<int32_t>((hcalElectronicsId_ >> 19) & 0x1) : (-1); }
+  constexpr int32_t htrTopBottom() const {
+    return (isVMEid()) ? static_cast<int32_t>((hcalElectronicsId_ >> 19) & 0x1) : (-1);
+  }
   /// get the readout VME crate number
   constexpr int32_t readoutVMECrateId() const { return crateId(); }
   /// get the readout VME crate number
@@ -109,7 +115,7 @@ public:
   }
   /// get a fast, compact, unique index for linear lookups
   constexpr int32_t linearIndex() const {
-    return (isVMEid()) ? ((hcalElectronicsId_)&0x3FFF) : ((hcalElectronicsId_)&0x7FFFF);
+    return (isVMEid()) ? ((hcalElectronicsId_) & 0x3FFF) : ((hcalElectronicsId_) & 0x7FFFF);
   }
 
   static const int maxLinearIndex = 0x7FFFF;  //

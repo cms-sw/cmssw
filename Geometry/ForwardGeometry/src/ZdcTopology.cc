@@ -161,8 +161,9 @@ bool ZdcTopology::validRaw(const HcalZDCDetId& id) const {
     ok = false;
   else if (id.channel() <= 0)
     ok = false;
-  else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section()== HcalZDCDetId::LUM))
-//else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section()== HcalZDCDetId::LUM || id.section()== HcalZDCDetId::RPD))
+  else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD ||
+             id.section() == HcalZDCDetId::LUM))
+    //else if (!(id.section() == HcalZDCDetId::EM || id.section() == HcalZDCDetId::HAD || id.section()== HcalZDCDetId::LUM || id.section()== HcalZDCDetId::RPD))
     ok = false;
   else if (id.section() == HcalZDCDetId::EM && id.channel() > HcalZDCDetId::kDepEM)
     ok = false;
