@@ -858,6 +858,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 200 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 200);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -907,6 +910,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 200 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 200);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -952,6 +958,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 200 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 200);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -1153,6 +1162,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 2 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 2);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -1201,6 +1213,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 1 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 1);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
@@ -1245,6 +1260,9 @@ namespace {
           // looping over the EB channels, via the dense-index, mapped into EBDetId's
           if (payload->barrelItems().empty())
             return false;
+          // set to 0.5 for ieta 0 (no crystal)
+          for (int iphi = MIN_IPHI; iphi < MAX_IPHI + 1; iphi++)
+            fillWithValue(iphi, 0, 0.5);
           for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
             uint32_t rawid = EBDetId::unhashIndex(cellid);
 
