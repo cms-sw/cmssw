@@ -134,7 +134,7 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PF
   // Encode up to nJets jets, padded with 0s
   std::vector<ap_uint<64>> jet_words(2 * nJets, 0);  // allocate 2 words per jet
   for (unsigned i = 0; i < std::min(nJets, (uint)jets.size()); i++) {
-    l1t::PFJet j = jets.at(i);
+    const l1t::PFJet& j = jets.at(i);
     jet_words[2 * i] = j.encodedJet()[0];
     jet_words[2 * i + 1] = j.encodedJet()[1];
   }
