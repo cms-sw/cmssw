@@ -110,6 +110,8 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
     maxHOverEEndcaps_ = conf.getParameter<double>("maxHOverEEndcaps");
   }
 
+  //Retrieve HCAL PF thresholds - from config or from DB
+  cutsFromDB = conf.getParameter<bool>("usePFThresholdsFromDB");
   if (cutsFromDB) {
     hcalCutsToken_ = esConsumes<HcalPFCuts, HcalPFCutsRcd, edm::Transition::BeginRun>(edm::ESInputTag("", "withTopo"));
   }
