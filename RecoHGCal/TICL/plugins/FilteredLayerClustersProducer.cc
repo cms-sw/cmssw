@@ -62,7 +62,7 @@ void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescripti
                           edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask"));
   desc.add<std::string>("iteration_label", "iterationLabelGoesHere");
   desc.add<std::string>("clusterFilter", "ClusterFilterByAlgoAndSize");
-  desc.add<std::vector<int>>("algo_number", {reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had});  // 6,7
+  desc.add<std::vector<int>>("algo_number", {reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had, reco::CaloCluster::hgcal_scintillator });  // 6,7,8
   desc.add<int>("min_cluster_size", 0);
   desc.add<int>("max_cluster_size", 9999);
   desc.add<int>("min_layerId", 0);

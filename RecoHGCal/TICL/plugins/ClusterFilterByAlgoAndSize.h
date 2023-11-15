@@ -16,7 +16,7 @@ namespace ticl {
   public:
     ClusterFilterByAlgoAndSize(const edm::ParameterSet& ps)
         : ClusterFilterBase(ps),
-          algo_number_(ps.getParameter<std::vector<int>>("algo_number")),
+          algo_number_(ps.getParameter<std::vector<int>>("algo_number")), // hgcal_em = 6, hgcal_had = 7, hgcal_scintillator = 8, hfnose = 9
           min_cluster_size_(ps.getParameter<int>("min_cluster_size")),
           max_cluster_size_(ps.getParameter<int>("max_cluster_size")) {}
     ~ClusterFilterByAlgoAndSize() override{};
