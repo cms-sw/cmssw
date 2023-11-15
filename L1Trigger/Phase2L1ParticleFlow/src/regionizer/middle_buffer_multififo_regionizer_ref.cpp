@@ -226,7 +226,8 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const 
     assert(in.emcalo.size() == NCALO_SECTORS);
     emCaloRegionizerPre_.initSectors(in.emcalo);
     emCaloRegionizerPre_.initRegions(mergedRegions);
-    emCaloRegionizerPre_.initRouting(emCaloRoutes_);
+    if (ECAL_LINKS)
+      emCaloRegionizerPre_.initRouting(emCaloRoutes_);
     emCaloRegionizerPost_.initRegions(out);
   }
   if (nmu_) {
@@ -261,8 +262,16 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
     ret = muRegionizerPre_.step(newEvent, links_mu, pre_out_mu, false);
   if (ncalo_)
     ret = hadCaloRegionizerPre_.step(newEvent, links_hadCalo, pre_out_hadCalo, false);
-  if (nem_)
-    ret = emCaloRegionizerPre_.step(newEvent, links_emCalo, pre_out_emCalo, false);
+  if (nem_) {
+    if (ECAL_LINKS) {
+      ret = emCaloRegionizerPre_.step(newEvent, links_emCalo, pre_out_emCalo, false);
+    } else if (ncalo_) {
+      pre_out_emCalo.resize(pre_out_hadCalo.size());
+      for (unsigned int i = 0, n = pre_out_hadCalo.size(); i < n; ++i) {
+        decode(pre_out_hadCalo[i], pre_out_emCalo[i]);
+      }
+    }
+  }
 
   // in the no-streaming case, we just output the pre-regionizer
   if (!streaming_) {
@@ -427,6 +436,34 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillCaloLinks_(unsigned int 
     }
   }
 }
+void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
+    unsigned int iclock,
+    const std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>>& em_in,
+    const std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& had_in,
+    std::vector<l1ct::HadCaloObjEmu>& links,
+    std::vector<bool>& valid) {
+  assert(ECAL_LINKS == 0 && HCAL_LINKS == 1 && ncalo_ != 0 && nem_ != 0);
+  links.resize(NCALO_SECTORS);
+  valid.resize(links.size());
+  // for the moment we assume the first 54 clocks are for EM, the rest for HAD
+  const unsigned int NCLK_EM = 54;
+  for (unsigned int is = 0; is < NCALO_SECTORS; ++is) {
+    links[is].clear();
+    if (iclock < NCLK_EM) {
+      valid[is] = true;
+      if (iclock < em_in[is].size()) {
+        encode(em_in[is][iclock], links[is]);
+      }
+    } else {
+      if (iclock - NCLK_EM < had_in[is].size()) {
+        encode(had_in[is][iclock - NCLK_EM], links[is]);
+        valid[is] = true;
+      } else {
+        valid[is] = false;
+      }
+    }
+  }  // sectors
+}
 
 void l1ct::MiddleBufferMultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                               const l1ct::RegionizerDecodedInputs& in,
@@ -434,7 +471,10 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillLinks(unsigned int icloc
                                                               std::vector<bool>& valid) {
   if (ncalo_ == 0)
     return;
-  fillCaloLinks_(iclock, in.hadcalo, links, valid);
+  if (nem_ != 0 && ECAL_LINKS == 0 && HCAL_LINKS == 1)
+    fillSharedCaloLinks(iclock, in.emcalo, in.hadcalo, links, valid);
+  else
+    fillCaloLinks_(iclock, in.hadcalo, links, valid);
 }
 
 void l1ct::MiddleBufferMultififoRegionizerEmulator::fillLinks(unsigned int iclock,
@@ -556,4 +596,36 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedI
   }
 
   reset();
+}
+
+void l1ct::MiddleBufferMultififoRegionizerEmulator::encode(const l1ct::EmCaloObjEmu& from, l1ct::HadCaloObjEmu& to) {
+  assert(!from.hwEmID[5]);
+  to.hwPt = from.hwPt;
+  to.hwEmPt = from.hwPtErr;
+  to.hwEta = from.hwEta;
+  to.hwPhi = from.hwPhi;
+  to.hwEmID[5] = true;
+  to.hwEmID(4, 0) = from.hwEmID(4, 0);
+  to.src = from.src;
+}
+void l1ct::MiddleBufferMultififoRegionizerEmulator::encode(const l1ct::HadCaloObjEmu& from, l1ct::HadCaloObjEmu& to) {
+  assert(!from.hwEmID[5]);
+  to = from;
+}
+void l1ct::MiddleBufferMultififoRegionizerEmulator::decode(l1ct::HadCaloObjEmu& had, l1ct::EmCaloObjEmu& em) {
+  if (had.hwPt && had.hwEmID[5]) {
+    em.hwPt = had.hwPt;
+    em.hwPtErr = had.hwEmPt;
+    em.hwEta = had.hwEta;
+    em.hwPhi = had.hwPhi;
+    em.hwEmID[5] = 0;
+    em.hwEmID(4, 0) = had.hwEmID(4, 0);
+    em.hwSrrTot = 0;
+    em.hwMeanZ = 0;
+    em.hwHoe = 0;
+    em.src = had.src;
+    had.clear();
+  } else {
+    em.clear();
+  }
 }

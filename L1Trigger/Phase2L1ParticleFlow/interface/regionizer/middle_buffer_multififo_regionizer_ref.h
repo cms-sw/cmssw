@@ -56,6 +56,7 @@ namespace l1ct {
       std::vector<bool> unused;
       fillLinks(iclock, in, links, unused);
     }
+
     void destream(int iclock,
                   const std::vector<l1ct::TkObjEmu>& tk_out,
                   const std::vector<l1ct::EmCaloObjEmu>& em_out,
@@ -108,6 +109,16 @@ namespace l1ct {
                         const std::vector<DetectorSector<T>>& in,
                         std::vector<T>& links,
                         std::vector<bool>& valid);
+
+    void fillSharedCaloLinks(unsigned int iclock,
+                             const std::vector<DetectorSector<l1ct::EmCaloObjEmu>>& em_in,
+                             const std::vector<DetectorSector<l1ct::HadCaloObjEmu>>& had_in,
+                             std::vector<l1ct::HadCaloObjEmu>& links,
+                             std::vector<bool>& valid);
+
+    void encode(const l1ct::EmCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
+    void encode(const l1ct::HadCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
+    void decode(l1ct::HadCaloObjEmu& had, l1ct::EmCaloObjEmu& em);
   };
 }  // namespace l1ct
 
