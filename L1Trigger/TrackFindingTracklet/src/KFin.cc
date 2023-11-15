@@ -167,7 +167,7 @@ namespace trklet {
       }
     }
     // store helper
-    auto frameTrack = [this](Track* track) { return track->frame_; };
+    auto frameTrack = [](Track* track) { return track->frame_; };
     auto frameStub = [this](Track* track, int layer) {
       auto equal = [layer](Stub* stub) { return stub->channel_ == layer; };
       const auto it = find_if(track->stubs_.begin(), track->stubs_.end(), equal);
