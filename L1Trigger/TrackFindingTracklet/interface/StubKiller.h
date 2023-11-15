@@ -9,8 +9,6 @@
 #include "TRandom3.h"
 #include "TMath.h"
 
-using namespace std;
-
 class StubKiller {
 public:
   StubKiller();
@@ -21,7 +19,7 @@ public:
                   const TrackerGeometry* trackerGeometry);
 
   bool killStub(const TTStub<Ref_Phase2TrackerDigi_>* stub,
-                const vector<int> layersToKill,
+                const std::vector<int> layersToKill,
                 const double minPhiToKill,
                 const double maxPhiToKill,
                 const double minZToKill,
@@ -35,7 +33,7 @@ public:
 
   bool killStubInDeadModule(const TTStub<Ref_Phase2TrackerDigi_>* stub);
 
-  map<DetId, float> getListOfDeadModules() { return deadModules_; }
+  std::map<DetId, float> getListOfDeadModules() { return deadModules_; }
 
 private:
   void chooseModulesToKill();
@@ -45,7 +43,7 @@ private:
   const TrackerTopology* trackerTopology_;
   const TrackerGeometry* trackerGeometry_;
 
-  vector<int> layersToKill_;
+  std::vector<int> layersToKill_;
   double minPhiToKill_;
   double maxPhiToKill_;
   double minZToKill_;
@@ -56,7 +54,7 @@ private:
   double fractionOfStubsToKillEverywhere_;
   double fractionOfModulesToKillEverywhere_;
 
-  map<DetId, float> deadModules_;
+  std::map<DetId, float> deadModules_;
 };
 
 #endif
