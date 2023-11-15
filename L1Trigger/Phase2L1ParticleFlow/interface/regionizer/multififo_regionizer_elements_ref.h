@@ -115,9 +115,7 @@ namespace l1ct {
         iwrite_ = 1 - iwrite_;
         items_[iwrite_].clear();
       }
-      void readNewEvent() {
-        iread_ = 1 - iread_;
-      }
+      void readNewEvent() { iread_ = 1 - iread_; }
       T pop();
       unsigned int writeSize() const { return items_[iwrite_].size(); }
       unsigned int readSize() const { return items_[iread_].size(); }

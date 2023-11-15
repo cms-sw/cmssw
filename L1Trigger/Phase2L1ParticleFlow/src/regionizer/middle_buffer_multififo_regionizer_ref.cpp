@@ -32,11 +32,11 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
 edm::ParameterSetDescription l1ct::MiddleBufferMultififoRegionizerEmulator::getParameterSetDescription() {
   edm::ParameterSetDescription description;
   description.add<uint32_t>("nClocks", 162);
-  description.add<uint32_t>("nBuffers", 54);
+  description.add<uint32_t>("nBuffers", 27);
   description.add<uint32_t>("etaBufferDepth", 54);
   description.add<uint32_t>("nTkLinks", 1);
   description.add<uint32_t>("nHCalLinks", 1);
-  description.add<uint32_t>("nECalLinks", 1);
+  description.add<uint32_t>("nECalLinks", 0);
   description.add<uint32_t>("nTrack", 22);
   description.add<uint32_t>("nCalo", 15);
   description.add<uint32_t>("nEmCalo", 12);
