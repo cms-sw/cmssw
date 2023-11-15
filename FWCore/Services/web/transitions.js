@@ -93,7 +93,6 @@ window.onload = () => {
     
     //const response = await fetch("./data.json");
     //const data = await response.json();
-    const bar = document.querySelector('.split__bar');
     const left = document.querySelector('.name_div');
     const div = document.querySelector('.graph_div');
     const bottom = document.querySelector('.time_div');
@@ -121,20 +120,6 @@ window.onload = () => {
     let graph_vertical_offset = 0.;
     let minVisibleTime = 0.;
     let timeZoomFactor = 1.0;
-    
-    bar.addEventListener('mousedown', (e) => {
-        mouse_is_down = true;
-    })
-    
-    document.addEventListener('mousemove', (e) => {
-        if (!mouse_is_down) return;
-        
-        left.style.width = `${e.clientX}px`;
-    })
-    
-    document.addEventListener('mouseup', () => {
-        mouse_is_down = false;
-    })
     
     function maxTime() {
         let maxTime = 0;
@@ -471,7 +456,15 @@ window.onload = () => {
         graph_mouseDown = false;
     }
     
-    
+    window.addEventListener('resize',function(){
+		graph_context.canvas.width = graph.clientWidth;
+		graph_context.canvas.height = graph.clientHeight;
+		name_context.canvas.width = name_view.clientWidth;
+		name_context.canvas.height = name_view.clientHeight;
+		time_context.canvas.width = time_view.clientWidth;
+		time_context.canvas.height = time_view.clientHeight;
+		drawGraph();
+	}, false);
     graph.addEventListener('mousedown', graph_onMouseDown)
     graph.addEventListener('mousemove', graph_onMouseMove)
     graph.addEventListener('mouseup', graph_onMouseUp)
