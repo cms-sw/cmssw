@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_CALOGEOMETRY_CALOSUBDETECTORGEOMETRY_H
 #define GEOMETRY_CALOGEOMETRY_CALOSUBDETECTORGEOMETRY_H 1
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <set>
@@ -98,6 +99,10 @@ public:
   virtual void getSummary(TrVec& trVector, IVec& iVector, DimVec& dimVector, IVec& dinsVector) const;
 
   virtual void initializeParms() { return; }
+
+  virtual bool valid(const DetId& id) const {
+    return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
+  }
 
 protected:
   virtual unsigned int indexFor(const DetId& id) const;

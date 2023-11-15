@@ -23,7 +23,10 @@ ZdcHardcodeGeometryLoader::ReturnType ZdcHardcodeGeometryLoader::load(DetId::Det
     fill(HcalZDCDetId::EM, hg);
     fill(HcalZDCDetId::LUM, hg);
     fill(HcalZDCDetId::HAD, hg);
-    //      fill(HcalZDCDetId::RPD ,hg ); // line will be needed in next version of code, but is commented out for now in order to ensure run1 compatability.
+    if (m_zdcAddRPD)
+      fill(
+          HcalZDCDetId::RPD,
+          hg);  // line will be needed in next version of code, but is commented out for now in order to ensure run1 compatability.
   }
   return hg;
 }
@@ -33,7 +36,8 @@ ZdcHardcodeGeometryLoader::ReturnType ZdcHardcodeGeometryLoader::load() {
   fill(HcalZDCDetId::EM, hg);
   fill(HcalZDCDetId::LUM, hg);
   fill(HcalZDCDetId::HAD, hg);
-  //   fill(HcalZDCDetId::RPD ,hg );
+  if (m_zdcAddRPD)
+    fill(HcalZDCDetId::RPD, hg);
   return hg;
 }
 
