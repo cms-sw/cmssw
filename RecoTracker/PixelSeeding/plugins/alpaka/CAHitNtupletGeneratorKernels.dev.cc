@@ -71,8 +71,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                             TrackerTraits::maxNumberOfTuples>;
     TM *tm = device_tupleMultiplicity_.data();
     TM::template launchZero<Acc1D>(tm, queue);
-    // TODO: re-enable TupleMultiplicity:: template launchZero<Acc1D>(tupleMultiplicityDeviceData, queue);
-    // TODO: reneable HitToTuple::template launchZero<Acc1D>(hitToTupleDeviceData, queue);
+    TupleMultiplicity:: template launchZero<Acc1D>(tupleMultiplicityDeviceData, queue);
+    HitToTuple::template launchZero<Acc1D>(hitToTupleDeviceData, queue);
   }
 
   template <typename TrackerTraits>
