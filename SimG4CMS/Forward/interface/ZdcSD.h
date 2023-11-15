@@ -9,6 +9,8 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 class ZdcSD : public CaloSD {
 public:
@@ -18,7 +20,10 @@ public:
   bool ProcessHits(G4Step *step, G4TouchableHistory *tHistory) override;
   uint32_t setDetUnitId(const G4Step *step) override;
 
-  //  bool getFromLibrary(const G4Step * step) override;
+protected:
+  double getEnergyDeposit(const G4Step *) override;
+  bool getFromLibrary(const G4Step *) override;
+  void initRun() override;
 
   double calculateCherenkovDeposit(const G4Step *);
   double calculateMeanNumberOfPhotons(int, double, double);
@@ -31,13 +36,11 @@ public:
   double evaluateFunction(const std::vector<double> &, const std::vector<double> &, double);
   double linearInterpolation(double, double, double, double, double);
 
-protected:
-  void initRun() override;
+  int setTrackID(const G4Step *step) override;
 
 private:
   int verbosity;
   bool useShowerLibrary, useShowerHits;
-  int setTrackID(const G4Step *step) override;
   double thFibDir;
   double zdcHitEnergyCut;
   std::unique_ptr<ZdcShowerLibrary> showerLibrary;
