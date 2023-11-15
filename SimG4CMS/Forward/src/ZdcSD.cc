@@ -29,7 +29,7 @@
 #include "G4Poisson.hh"
 #include "G4TwoVector.hh"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 ZdcSD::ZdcSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
