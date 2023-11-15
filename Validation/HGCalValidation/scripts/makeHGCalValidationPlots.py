@@ -132,7 +132,7 @@ if __name__ == "__main__":
                         help="Disable ratio pads")
     parser.add_argument("--separate", action="store_true", default = False,
                         help="Save all plots separately instead of grouping them")
-    parser.add_argument("--png", action="store_true",
+    parser.add_argument("--png", action="store_true", default = True,
                         help="Save plots in PNG instead of PDF")
     parser.add_argument("--no-html", action="store_true", default = False,
                         help="Disable HTML page generation")
