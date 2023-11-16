@@ -247,6 +247,7 @@ private:
   std::vector<int>* m_allstub_isBarrel;  // stub is in barrel (1) or in disk (0)
   std::vector<int>* m_allstub_layer;
   std::vector<int>* m_allstub_isPSmodule;
+  std::vector<int>* m_allstub_isTiltedBarrel;
 
   std::vector<float>* m_allstub_trigDisplace;
   std::vector<float>* m_allstub_trigOffset;
@@ -541,6 +542,7 @@ void L1TrackNtupleMaker::beginJob() {
   m_allstub_isBarrel = new std::vector<int>;
   m_allstub_layer = new std::vector<int>;
   m_allstub_isPSmodule = new std::vector<int>;
+  m_allstub_isTiltedBarrel = new std::vector<int>;
   m_allstub_trigDisplace = new std::vector<float>;
   m_allstub_trigOffset = new std::vector<float>;
   m_allstub_trigPos = new std::vector<float>;
@@ -662,6 +664,7 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("allstub_isBarrel", &m_allstub_isBarrel);
     eventTree->Branch("allstub_layer", &m_allstub_layer);
     eventTree->Branch("allstub_isPSmodule", &m_allstub_isPSmodule);
+    eventTree->Branch("allstub_isTiltedBarrel", &m_allstub_isTiltedBarrel);
 
     eventTree->Branch("allstub_trigDisplace", &m_allstub_trigDisplace);
     eventTree->Branch("allstub_trigOffset", &m_allstub_trigOffset);
@@ -798,6 +801,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_allstub_isBarrel->clear();
     m_allstub_layer->clear();
     m_allstub_isPSmodule->clear();
+    m_allstub_isTiltedBarrel->clear();
 
     m_allstub_trigDisplace->clear();
     m_allstub_trigOffset->clear();
@@ -904,6 +908,11 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (topol->nrows() == 960)
           isPSmodule = 1;
 
+        const unsigned int tobSide = tTopo->tobSide(detid); // nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3
+        int isTiltedBarrel = 0;
+	if (isBarrel == 1 && (tobSide == 1 || tobSide == 2))
+          isTiltedBarrel = 1;
+
         MeasurementPoint coords = tempStubPtr->clusterRef(0)->findAverageLocalCoordinatesCentered();
         LocalPoint clustlp = topol->localPosition(coords);
         GlobalPoint posStub = theGeomDet->surface().toGlobal(clustlp);
@@ -924,6 +933,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         m_allstub_isBarrel->push_back(isBarrel);
         m_allstub_layer->push_back(layer);
         m_allstub_isPSmodule->push_back(isPSmodule);
+        m_allstub_isTiltedBarrel->push_back(isTiltedBarrel);
 
         m_allstub_trigDisplace->push_back(trigDisplace);
         m_allstub_trigOffset->push_back(trigOffset);
