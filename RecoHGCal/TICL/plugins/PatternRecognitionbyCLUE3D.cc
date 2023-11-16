@@ -597,7 +597,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                                         clustersOnLayer.radius[i] * clustersOnLayer.radius[i]);
               } else {
                 // Still differentiate between silicon and Scintillator.
-                // Silicon has yet to be studied further.
+                // Scintillator has yet to be studied further.
                 if (clustersOnLayer.isSilicon[i]) {
                   reachable = isReachable(clustersOnLayer.r_over_absz[i] * clustersOnLayer.z[i],
                                           clustersLayer.r_over_absz[layerandSoa.second] * clustersOnLayer.z[i],
