@@ -72,7 +72,7 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
 
 void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
   fastStep.KillPrimaryTrack();
-  fastStep.SetPrimaryTrackPathLength(0.0);
+  fastStep.ProposePrimaryTrackPathLength(0.0);
   auto track = fastTrack.GetPrimaryTrack();
   G4double energy = track->GetKineticEnergy() * scaleFactor;
 
