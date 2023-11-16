@@ -1,7 +1,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/BeamSpot/interface/BeamSpotHostProduct.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpotPOD.h"
-#include "DataFormats/BeamSpot/interface/alpaka/BeamSpotDeviceProduct.h"
+#include "DataFormats/BeamSpot/interface/alpaka/BeamSpotDevice.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -20,7 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID, device::Event& event, device::EventSetup const& setup) const override {
       reco::BeamSpot const& beamspot = event.get(legacyToken_);
 
-      BeamSpotHostProduct hostProduct{event.queue()};
+      BeamSpotHost hostProduct{event.queue()};
       hostProduct->x = beamspot.x0();
       hostProduct->y = beamspot.y0();
       hostProduct->z = beamspot.z0();
@@ -36,7 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
         event.emplace(deviceToken_, std::move(hostProduct));
       } else {
-        BeamSpotDeviceProduct deviceProduct{event.queue()};
+        BeamSpotDevice deviceProduct{event.queue()};
         alpaka::memcpy(event.queue(), deviceProduct.buffer(), hostProduct.const_buffer());
         event.emplace(deviceToken_, std::move(deviceProduct));
       }
@@ -50,7 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::EDGetTokenT<reco::BeamSpot> legacyToken_;
-    const device::EDPutToken<BeamSpotDeviceProduct> deviceToken_;
+    const device::EDPutToken<BeamSpotDevice> deviceToken_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

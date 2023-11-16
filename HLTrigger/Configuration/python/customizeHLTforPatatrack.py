@@ -175,7 +175,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     # consumes
     #  - reco::BeamSpot
     # produces
-    #  - BeamSpotDeviceProduct
+    #  - BeamSpotDevice
     process.hltOnlineBeamSpotDevice = cms.EDProducer('BeamSpotDeviceProducer@alpaka',
         src = cms.InputTag('hltOnlineBeamSpot'),
         alpaka = cms.untracked.PSet(
@@ -248,7 +248,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
 
     # alpaka EDProducer
     # consumes
-    #  - BeamSpotDeviceProduct
+    #  - BeamSpotDevice
     #  - SiPixelClustersSoA
     #  - SiPixelDigisCollection
     # produces

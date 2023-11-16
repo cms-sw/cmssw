@@ -1,5 +1,5 @@
 #include "DataFormats/BeamSpot/interface/BeamSpotPOD.h"
-#include "DataFormats/BeamSpot/interface/alpaka/BeamSpotDeviceProduct.h"
+#include "DataFormats/BeamSpot/interface/alpaka/BeamSpotDevice.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersDevice.h"
 #include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersCollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisDevice.h"
@@ -48,7 +48,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID streamID, device::Event& iEvent, const device::EventSetup& iSetup) const override;
 
     const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, PixelCPEFastParamsRecord> cpeToken_;
-    const device::EDGetToken<BeamSpotDeviceProduct> tBeamSpot;
+    const device::EDGetToken<BeamSpotDevice> tBeamSpot;
     const device::EDGetToken<SiPixelClustersCollection> tokenClusters_;
     const device::EDGetToken<SiPixelDigisCollection> tokenDigi_;
     const device::EDPutToken<TrackingRecHitAlpakaCollection<TrackerTraits>> tokenHit_;
