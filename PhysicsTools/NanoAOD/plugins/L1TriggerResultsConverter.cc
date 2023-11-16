@@ -184,8 +184,7 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
       //Checks if any other seed was fired in BX-1 or -2
       else if (result_bxmin1) {
         l1FinalOR_bxmin1 = true;
-      }
-      else if (result_bxmin2) {
+      } else if (result_bxmin2) {
         l1FinalOR_bxmin2 = true;
       }
     }
