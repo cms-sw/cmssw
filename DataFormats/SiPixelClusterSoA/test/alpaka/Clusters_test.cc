@@ -1,5 +1,4 @@
 #include <alpaka/alpaka.hpp>
-#include <unistd.h>
 
 #include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersCollection.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersDevice.h"

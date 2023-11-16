@@ -2,17 +2,6 @@
   <class name="SiPixelClustersSoA"/>
   <class name="SiPixelClustersSoA::View"/>
   <class name="PortableHostCollection<SiPixelClustersSoA>"/>
-  <read
-    sourceClass="PortableHostCollection<SiPixelClustersSoA>"
-    targetClass="PortableHostCollection<SiPixelClustersSoA>"
-    version="[1-]"
-    source="SiPixelClustersSoA layout_;"
-    target="buffer_"
-    embed="false">
-  <![CDATA[
-    PortableHostCollection<SiPixelClustersSoA>::ROOTReadStreamer(newObj, onfile.layout_);
-  ]]>
-  </read>
 
   <class name="SiPixelClustersHost"/>
   <class name="edm::Wrapper<SiPixelClustersHost>" splitLevel="0"/>

@@ -2,5 +2,5 @@
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="DataFormats/SiPixelClusterSoa" source_only="1"/>
-<flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
 </bin>

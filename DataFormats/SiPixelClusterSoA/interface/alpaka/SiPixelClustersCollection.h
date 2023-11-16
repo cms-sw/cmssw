@@ -1,8 +1,6 @@
 #ifndef DataFormats_SiPixelClusterSoA_interface_alpaka_SiPixelClustersCollection_h
 #define DataFormats_SiPixelClusterSoA_interface_alpaka_SiPixelClustersCollection_h
 
-#include <cstdint>
-
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
@@ -13,18 +11,14 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-  using SiPixelClustersCollection = SiPixelClustersHost;
-#else
-  using SiPixelClustersCollection = SiPixelClustersDevice<Device>;
-#endif
+using SiPixelClustersCollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, SiPixelClustersHost, SiPixelClustersDevice<Device>>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 namespace cms::alpakatools {
-  template <>
-  struct CopyToHost<ALPAKA_ACCELERATOR_NAMESPACE::SiPixelClustersCollection> {
+  template <typename TDevice>
+  struct CopyToHost<SiPixelClustersDevice<TDevice>> {
     template <typename TQueue>
-    static auto copyAsync(TQueue &queue, ALPAKA_ACCELERATOR_NAMESPACE::SiPixelClustersCollection const &srcData) {
+    static auto copyAsync(TQueue &queue, SiPixelClustersDevice<TDevice> const &srcData) {
       SiPixelClustersHost dstData(srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       dstData.setNClusters(srcData.nClusters(), srcData.offsetBPIX2());
@@ -33,4 +27,5 @@ namespace cms::alpakatools {
   };
 }  // namespace cms::alpakatools
 
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(SiPixelClustersCollection, SiPixelClustersHost);
 #endif  // DataFormats_SiPixelClusterSoA_interface_alpaka_SiPixelClustersCollection_h

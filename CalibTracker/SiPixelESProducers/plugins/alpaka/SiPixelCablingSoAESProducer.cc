@@ -32,8 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     SiPixelCablingSoAESProducer(edm::ParameterSet const& iConfig)
         : ESProducer(iConfig), useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
-      auto const& component = iConfig.getParameter<std::string>("appendToDataLabel");
-      auto cc = setWhatProduced(this, component);
+      auto cc = setWhatProduced(this);
       cablingMapToken_ = cc.consumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingMapLabel")});
       if (useQuality_) {
         qualityToken_ = cc.consumes();
@@ -43,7 +42,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<std::string>("appendToDataLabel", "");
       desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");
       desc.add<bool>("UseQualityInfo", false);
       descriptions.addWithDefaultLabel(desc);
@@ -56,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto qualityInfo = iRecord.getTransientHandle(qualityToken_);
         quality = qualityInfo.product();
       }
-      bool hasQuality = quality != nullptr;
+
       auto geom = iRecord.getTransientHandle(geometryToken_);
       SiPixelMappingHost product(pixelgpudetails::MAX_SIZE, cms::alpakatools::host());
       std::vector<unsigned int> const& fedIds = cablingMap->fedIds();
@@ -70,7 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       auto mapView = product.view();
 
-      mapView.hasQuality() = hasQuality;
+      mapView.hasQuality() = useQuality_;
       for (unsigned int fed = startFed; fed <= endFed; fed++) {
         for (unsigned int link = 1; link <= pixelgpudetails::MAX_LINK; link++) {
           for (unsigned int roc = 1; roc <= pixelgpudetails::MAX_ROC; roc++) {
@@ -140,7 +138,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
     edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> qualityToken_;
     edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geometryToken_;
-    bool useQuality_;
+    const bool useQuality_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
