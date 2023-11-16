@@ -1012,6 +1012,7 @@ class ConfigBuilder(object):
         self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
         self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
         self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
+        self.L1P2GTDefaultCFF = 'Configuration/StandardSequences/SimPhase2L1GlobalTriggerEmulator_cff'
         self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
@@ -1050,6 +1051,7 @@ class ConfigBuilder(object):
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
         self.L1DefaultSeq=None
+        self.L1P2GTDefaultSeq=None
         self.L1REPACKDefaultSeq='GT'
         self.HARVESTINGDefaultSeq=None
         self.ALCAHARVESTDefaultSeq=None
@@ -1571,6 +1573,40 @@ class ConfigBuilder(object):
         _,_repackSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.REPACKDefaultCFF)
         self.scheduleSequence(_repackSeq,'digi2repack_step')
         return
+
+    def loadPhase2GTMenu(self, menuFile: str):
+        import importlib
+        menuPath = f'L1Trigger.Configuration.Phase2GTMenus.{menuFile}'
+        menuModule = importlib.import_module(menuPath)
+        
+        theMenu = menuModule.menu
+        triggerPaths = [] #we get a list of paths in each of these files to schedule
+
+        for triggerPathFile in theMenu:
+            self.loadAndRemember(triggerPathFile) #this load and remember will set the algo variable of the algoblock later
+
+            triggerPathModule = importlib.import_module(triggerPathFile)
+            for objName in dir(triggerPathModule):
+                obj = getattr(triggerPathModule, objName)
+                objType = type(obj)
+                if objType == cms.Path:
+                    triggerPaths.append(objName)
+        
+        triggerScheduleList = [getattr(self.process, name) for name in triggerPaths] #get the actual paths to put in the schedule
+        self.schedule.extend(triggerScheduleList) #put them in the schedule for later
+    
+    # create the L1 GT step
+    # We abuse the stepSpec a bit as a way to specify a menu
+    def prepare_L1P2GT(self, stepSpec=None):
+        """ Run the GT emulation sequence on top of the L1 emulation step """
+        self.loadAndRemember(self.L1P2GTDefaultCFF)
+        self.scheduleSequence('l1tGTProducerSequence', 'Phase2L1GTProducer')
+        self.scheduleSequence('l1tGTAlgoBlockProducerSequence', 'Phase2L1GTAlgoBlockProducer')
+        if stepSpec == None:
+            defaultMenuFile = "prototype_2023_v1_0_0"
+            self.loadPhase2GTMenu(menuFile = defaultMenuFile)
+        else:
+            self.loadPhase2GTMenu(menuFile = stepSpec)
 
     def prepare_L1(self, stepSpec = None):
         """ Enrich the schedule with the L1 simulation step"""

@@ -78,6 +78,7 @@ namespace {
     globalBeginRun = 5,
     accessInputProcessBlock = 7,
     beginProcessBlock = 8,
+    openFile = 9,
     beginStream = 10,
     beginJob = 11,
     esSync = 12,
@@ -352,7 +353,6 @@ namespace edm::service::tracer {
       auto const t = duration_cast<duration_t>(now() - beginTime).count();
       sourceCtr.endConstruction = t;
     });
-    //iRegistry.watchPreModuleDestruction([&moduleLabels](auto& md) { moduleLabels[md.id()] = ""; });
 
     auto recordIndices = std::make_shared<std::vector<std::type_index>>();
     iRegistry.watchEventSetupConfiguration(
@@ -417,6 +417,9 @@ namespace edm::service::tracer {
             }
           };
           {
+            std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
+              return l.beginConstruction < r.beginConstruction;
+            });
             int id = 0;
             for (auto const& ctr : *moduleCtrDtrPtr) {
               if (ctr.beginConstruction != 0) {
@@ -432,6 +435,9 @@ namespace edm::service::tracer {
               ++id;
             }
             id = 0;
+            std::sort(moduleCtrDtrPtr->begin(), moduleCtrDtrPtr->end(), [](auto const& l, auto const& r) {
+              return l.beginDestruction < r.beginDestruction;
+            });
             for (auto const& dtr : *moduleCtrDtrPtr) {
               if (dtr.beginDestruction != 0) {
                 handleSource(dtr.beginDestruction);
@@ -598,6 +604,18 @@ namespace edm::service::tracer {
       });
     }
     {
+      iRegistry.watchPreOpenFile([logFile, beginTime](std::string const&) {
+        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto msg = assembleMessage<Step::preSourceTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::openFile), 0, t);
+        logFile->write(std::move(msg));
+      });
+      iRegistry.watchPostOpenFile([logFile, beginTime](std::string const&) {
+        auto const t = duration_cast<duration_t>(now() - beginTime).count();
+        auto msg = assembleMessage<Step::postSourceTransition>(
+            static_cast<std::underlying_type_t<Phase>>(Phase::openFile), 0, t);
+        logFile->write(std::move(msg));
+      });
       iRegistry.watchPreSourceEvent([logFile, beginTime](StreamID id) {
         auto const t = duration_cast<duration_t>(now() - beginTime).count();
         auto msg = assembleMessage<Step::preSourceTransition>(
@@ -746,6 +764,7 @@ namespace edm::service::tracer {
         << "# esSync                  " << Phase::esSync << "\n"
         << "# beginJob                " << Phase::beginJob << "\n"
         << "# beginStream             " << Phase::beginStream << "\n"
+        << "# openFile                " << Phase::openFile << "\n"
         << "# beginProcessBlock       " << Phase::beginProcessBlock << "\n"
         << "# accessInputProcessBlock " << Phase::accessInputProcessBlock << "\n"
         << "# globalBeginRun          " << Phase::globalBeginRun << "\n"
@@ -762,7 +781,8 @@ namespace edm::service::tracer {
         << "# endProcessBlock         " << Phase::endProcessBlock << "\n"
         << "# writeProcessBlock       " << Phase::writeProcessBlock << "\n"
         << "# endStream               " << Phase::endStream << "\n"
-        << "# endJob                  " << Phase::endJob << "\n\n";
+        << "# endJob                  " << Phase::endJob << "\n"
+        << "# destruction             " << Phase::destruction << "\n\n";
     oss << "# Step                       Symbol Entries\n"
         << "# -------------------------- ------ ------------------------------------------\n"
         << "# preSourceTransition           " << Step::preSourceTransition

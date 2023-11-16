@@ -4,8 +4,9 @@
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"
 #include "DataFormats/L1TParticleFlow/interface/pf.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/conifer.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/inversion.h"
+
+#include "conifer.h"
 
 namespace edm {
   class ParameterSet;

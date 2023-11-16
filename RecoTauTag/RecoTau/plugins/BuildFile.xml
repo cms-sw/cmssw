@@ -20,6 +20,7 @@
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/HcalTowerAlgo"/>
   <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/SonicTriton"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
   <use name="PhysicsTools/TensorFlow"/>

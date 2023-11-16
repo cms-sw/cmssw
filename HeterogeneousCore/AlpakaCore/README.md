@@ -443,3 +443,30 @@ process.ProcessAcceleratorAlpaka.setBackend("serial_sync") # or "cuda_async" or 
 process.options.accelerators = ["cpu"] # or "gpu-nvidia" or "gpu-amd"
 ```
 
+
+## Unit tests
+
+Unit tests that depend on Alpaka and define `<flags ALPAKA_BACKENDS="1"/>`, e.g. as a binary along
+```xml
+<bin name="<unique test binary name>" file="<comma-separated list of files">
+  <use name="alpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+```
+or as a command (e.g. `cmsRun` or a shell script) to run
+
+```xml
+<test name="<unique name of the test>" command="<command to run>">
+  <use name="alpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</test>
+```
+
+will be run as part of `scram build runtests` according to the
+availability of the hardware:
+- `serial_sync` version is run always
+- `cuda_async` version is run if NVIDIA GPU is present (i.e. `cudaIsEnabled` returns 0)
+- `rocm_async` version is run if AMD GPU is present (i.e. `rocmIsEnabled` returns 0)
+
+Tests for specific backend (or hardware) can be explicitly specified to be run by setting `USER_UNIT_TESTS=cuda` or `USER_UNIT_TESTS=rocm` environment variable. Tests not depending on the hardware are skipped. If the corresponding hardware is not available, the tests will fail.
+

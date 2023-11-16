@@ -12,7 +12,7 @@
 #include <string>
 
 void testCell(int type) {
-  int N = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
+  int N = (type == 0) ? HGCSiliconDetId::HGCalHighDensityN : HGCSiliconDetId::HGCalLowDensityN;
   const int waferu(0), waferv(0), layer(1), zside(1);
   std::map<std::pair<int, int>, int> triggers;
   int ntot(0);
@@ -125,7 +125,7 @@ void testScint(int layer) {
 }
 
 void testTriggerCell(int type) {
-  int N = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
+  int N = (type == 0) ? HGCSiliconDetId::HGCalHighDensityN : HGCSiliconDetId::HGCalLowDensityN;
   const int waferu(0), waferv(0), layer(1);
   std::string error[2] = {"ERROR", "OK"};
   int ntot(0), nerror(0);

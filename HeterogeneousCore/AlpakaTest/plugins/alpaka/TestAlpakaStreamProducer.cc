@@ -52,6 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ParameterSetDescription psetSize;
       psetSize.add<int32_t>("alpaka_serial_sync");
       psetSize.add<int32_t>("alpaka_cuda_async");
+      psetSize.add<int32_t>("alpaka_rocm_async");
       desc.add("size", psetSize);
 
       descriptions.addWithDefaultLabel(desc);

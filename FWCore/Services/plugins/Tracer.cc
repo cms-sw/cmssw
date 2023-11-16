@@ -254,6 +254,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
       dumpEventSetupInfo_(iPS.getUntrackedParameter<bool>("dumpEventSetupInfo")) {
   tracer::setupFile(iPS.getUntrackedParameter<std::string>("fileName"), iRegistry);
 
+  if (not iPS.getUntrackedParameter<bool>("useMessageLogger"))
+    return;
   for (std::string& label : iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
     dumpContextForLabels_.insert(std::move(label));
 
@@ -480,6 +482,8 @@ void Tracer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       ->setComment(
           "Prints info 3 times when an event setup cache is filled, before the lock, after the lock, and after "
           "filling");
+  desc.addUntracked<bool>("useMessageLogger", true)
+      ->setComment("If true, information is sent via the MessageLogger. Only use false if `fileName` is used.");
   desc.addUntracked<std::string>("fileName", "")
       ->setComment("If fileName is given, write a compact representation of tracer info to the file.");
   descriptions.add("Tracer", desc);

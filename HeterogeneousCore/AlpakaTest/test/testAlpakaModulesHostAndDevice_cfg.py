@@ -39,7 +39,8 @@ process.alpakaESProducerA = cms.ESProducer("TestAlpakaESProducerA@alpaka")
 process.producer = cms.EDProducer("TestAlpakaGlobalProducerOffset@alpaka",
     xvalue = cms.PSet(
         alpaka_serial_sync = cms.double(1.0),
-        alpaka_cuda_async = cms.double(2.0)
+        alpaka_cuda_async = cms.double(2.0),
+        alpaka_rocm_async = cms.double(3.0),
     )
 )
 process.producerHost = process.producer.clone(
@@ -55,6 +56,8 @@ process.compare = cms.EDAnalyzer("TestAlpakaHostDeviceCompare",
 )
 if args.expectBackend == "cuda_async":
     process.compare.expectedXdiff = -1.0
+elif args.expectBackend == "rocm_async":
+    process.compare.expectedXdiff = -2.0
 
 process.t = cms.Task(process.producer, process.producerHost)
 process.p = cms.Path(process.compare, process.t)
