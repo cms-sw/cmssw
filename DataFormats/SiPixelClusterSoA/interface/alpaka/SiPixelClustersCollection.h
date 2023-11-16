@@ -11,7 +11,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-using SiPixelClustersCollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, SiPixelClustersHost, SiPixelClustersDevice<Device>>;
+  using SiPixelClustersCollection =
+      std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, SiPixelClustersHost, SiPixelClustersDevice<Device>>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 namespace cms::alpakatools {
