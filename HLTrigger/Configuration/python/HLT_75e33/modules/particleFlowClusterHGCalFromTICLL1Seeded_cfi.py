@@ -25,7 +25,7 @@ particleFlowClusterHGCalFromTICLL1Seeded = cms.EDProducer("PFClusterProducer",
     ),
     recHitCleaners = cms.VPSet(),
     recHitsSource = cms.InputTag("particleFlowRecHitHGCL1Seeded"),
-    usePFThresholdsFromDB = cms.bool(False),
+    usePFThresholdsFromDB = cms.bool(False), # this needs to be True only for HBHE
     seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string('PassThruSeedFinder'),

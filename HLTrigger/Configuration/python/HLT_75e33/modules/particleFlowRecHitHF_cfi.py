@@ -32,7 +32,7 @@ particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
                     threshold = cms.vdouble(1.2, 1.8)
                 )),
                 name = cms.string('PFRecHitQTestHCALThresholdVsDepth'),
-                usePFThresholdsFromDB = cms.bool(False)
+                usePFThresholdsFromDB = cms.bool(False) # this needs to be True only for HBHE
             )
         ),
         src = cms.InputTag("hfreco"),
