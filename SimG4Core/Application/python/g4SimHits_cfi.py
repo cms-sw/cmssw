@@ -653,7 +653,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
 ## Change the HFShowerLibrary file from Run 2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( g4SimHits, ZDCSD = dict(
+run2_common.toModify( g4SimHits, ZdcSD = dict(
     UseShowerLibrary = False,
     UseShowerHits = True,
     ZdcHitEnergyCut = 1.0 ) )
