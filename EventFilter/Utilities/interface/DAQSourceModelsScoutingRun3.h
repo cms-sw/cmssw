@@ -127,7 +127,7 @@ private:
 
   // keep track of valid (=aligned) orbits from different data sources
   std::vector<std::pair<int, int>> sourceValidOrbitPair_;
-  unsigned int currOrbit = 0xFFFFFFFF;
+  unsigned int currOrbit_ = 0xFFFFFFFF;
 
   std::vector<bool> completedBlocks_;
 };

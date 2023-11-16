@@ -55,7 +55,7 @@ void DataModeScoutingRun3::readEvent(edm::EventPrincipal& eventPrincipal) {
   edm::Timestamp tstamp(time);
 
   // set provenance helpers
-  uint32_t hdrEventID = currOrbit;
+  uint32_t hdrEventID = currOrbit_;
   edm::EventID eventID = edm::EventID(daqSource_->eventRunNumber(), daqSource_->currentLumiSection(), hdrEventID);
   edm::EventAuxiliary aux(eventID, daqSource_->processGUID(), tstamp, events_[0]->isRealData(), edm::EventAuxiliary::PhysicsTrigger);
 
@@ -126,7 +126,7 @@ bool DataModeScoutingRun3::makeEvents() {
   // clear events and reset current orbit
   events_.clear();
   sourceValidOrbitPair_.clear();
-  currOrbit = 0xFFFFFFFF; // max uint
+  currOrbit_ = 0xFFFFFFFF; // max uint
   assert(!blockCompleted_);
 
   // create current "events" (= orbits) list from each data source,
@@ -145,8 +145,8 @@ bool DataModeScoutingRun3::makeEvents() {
           << " of size:" << events_.back()->size() << " bytes does not fit into the buffer or has corrupted header";
    
     // find the minimum orbit for the current event between all files
-    if ((events_.back()->event()<currOrbit) && (!completedBlocks_[i])){
-      currOrbit = events_.back()->event();
+    if ((events_.back()->event()<currOrbit_) && (!completedBlocks_[i])){
+      currOrbit_ = events_.back()->event();
     }
   }
 
@@ -159,7 +159,7 @@ bool DataModeScoutingRun3::makeEvents() {
       continue;
     }
 
-    if(events_[evt_idx]->event() != currOrbit){
+    if(events_[evt_idx]->event() != currOrbit_){
       // current source (=i-th source) doesn't contain the expected orbit. 
       // skip it, and move to the next orbit
     } else {
