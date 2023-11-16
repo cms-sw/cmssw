@@ -138,6 +138,8 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     const auto& resultsProd = iEvent.get(token_);
     if (not resultsProd.isEmpty(0)) {
       wordp = &resultsProd.at(0, 0).getAlgoDecisionFinal();
+    }
+    if (not resultsProd.isEmpty(-1)) {
       wordp_bxmin1 = &resultsProd.at(-1, 0).getAlgoDecisionFinal();
     }
     if (store_unprefireable_bits_) {
