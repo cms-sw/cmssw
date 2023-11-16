@@ -121,6 +121,7 @@ void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const&
       names_.push_back("L1_UnprefireableEvent_TriggerRules");
       names_.push_back("L1_UnprefireableEvent_FirstBxInTrain");
       names_.push_back("L1_FinalOR_BXmin1");
+      names_.push_back("L1_FinalOR_BXmin2");
     }
   }
 }
@@ -130,9 +131,11 @@ void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const&
 void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const std::vector<bool>* wordp = nullptr;
   const std::vector<bool>* wordp_bxmin1 = nullptr;
+  const std::vector<bool>* wordp_bxmin2 = nullptr;
   bool unprefireable_bit_triggerrules = false;
   bool unprefireable_bit_firstbxintrain = false;
   bool l1FinalOR_bxmin1 = false;
+  bool l1FinalOR_bxmin2 = false;
 
   if (!legacyL1_) {
     const auto& resultsProd = iEvent.get(token_);
@@ -141,6 +144,9 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     }
     if (not resultsProd.isEmpty(-1)) {
       wordp_bxmin1 = &resultsProd.at(-1, 0).getAlgoDecisionFinal();
+    }
+    if (not resultsProd.isEmpty(-2)) {
+      wordp_bxmin2 = &resultsProd.at(-2, 0).getAlgoDecisionFinal();
     }
     if (store_unprefireable_bits_) {
       auto handleExtResults = iEvent.getHandle(token_ext_);
@@ -165,6 +171,7 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     unsigned int const index = indices_[nidx];
     bool result = wordp ? wordp->at(index) : false;
     bool result_bxmin1 = wordp_bxmin1 ? wordp_bxmin1->at(index) : false;
+    bool result_bxmin2 = wordp_bxmin2 ? wordp_bxmin2->at(index) : false;
     if (not mask_.empty())
       result &= (mask_.at(index) != 0);
     l1bitsAsHLTStatus[nidx] = edm::HLTPathStatus(result ? edm::hlt::Pass : edm::hlt::Fail);
@@ -174,9 +181,12 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     if (!legacyL1_) {
       if (names_[nidx] == "L1_FirstBunchBeforeTrain")
         unprefireable_bit_firstbxintrain = result_bxmin1;
-      //If any other seed was fired in BX-1 there is some prefiring
+      //Checks if any other seed was fired in BX-1 or -2
       else if (result_bxmin1) {
         l1FinalOR_bxmin1 = true;
+      }
+      else if (result_bxmin2) {
+        l1FinalOR_bxmin2 = true;
       }
     }
   }
@@ -186,6 +196,7 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     l1bitsAsHLTStatus[indices_size + 1] =
         edm::HLTPathStatus(unprefireable_bit_firstbxintrain ? edm::hlt::Pass : edm::hlt::Fail);
     l1bitsAsHLTStatus[indices_size + 2] = edm::HLTPathStatus(l1FinalOR_bxmin1 ? edm::hlt::Pass : edm::hlt::Fail);
+    l1bitsAsHLTStatus[indices_size + 3] = edm::HLTPathStatus(l1FinalOR_bxmin2 ? edm::hlt::Pass : edm::hlt::Fail);
   }
   //mimic HLT trigger bits for L1
   auto out = std::make_unique<edm::TriggerResults>(l1bitsAsHLTStatus, names_);
