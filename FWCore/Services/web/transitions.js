@@ -167,9 +167,7 @@ window.onload = () => {
         let offset = kRowHeight/2 + graph_vertical_offset;
         for( let grouping of data.transitions ) {
             name_context.fillText(grouping.name, 0, offset);
-            for( let slot in grouping.slots ) {
-                offset += slot.length*kRowHeight;
-            }
+            offset += grouping.slots.length*kRowHeight;
         }
     }
     
