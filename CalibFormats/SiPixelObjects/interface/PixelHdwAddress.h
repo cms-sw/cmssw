@@ -46,8 +46,6 @@ namespace pos {
 
     friend std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc);
 
-    const PixelHdwAddress& operator=(const PixelHdwAddress& aROC);
-
     bool operator()(const PixelHdwAddress& roc1, const PixelHdwAddress& roc2) const;
 
     // Checks for equality of all parts except the ROC numbers and portaddress.
