@@ -46,7 +46,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outFile)
 )
 
-process.load("SimG4CMS.Calo.zdcSimHitStudy_cfi")
+process.load("SimG4CMS.Forward.zdcSimHitStudy_cfi")
 
 process.zdcSimHitStudy.Verbose = True
  
