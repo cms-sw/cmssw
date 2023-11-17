@@ -21,4 +21,4 @@ TkElectron::TkElectron(const LorentzVector& p4,
 }
 
 TkElectron::TkElectron(const LorentzVector& p4, float tkisol)
-    : TkElectron(p4, edm::Ptr<L1Candidate>(nullptr, 0), edm::Ptr<L1TTTrackType>(nullptr, 0), tkisol) {}
+    : TkElectron(p4, edm::Ptr<L1Candidate>(), edm::Ptr<L1TTTrackType>(), tkisol) {}

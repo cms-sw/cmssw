@@ -13,7 +13,7 @@ using namespace l1t;
 TkEm::TkEm() {}
 
 TkEm::TkEm(const LorentzVector& p4, float tkisol, float tkisolPV)
-    : TkEm(p4, edm::Ptr<L1Candidate>(nullptr, 0), tkisol, tkisolPV) {}
+    : TkEm(p4, edm::Ptr<L1Candidate>(), tkisol, tkisolPV) {}
 
 TkEm::TkEm(const LorentzVector& p4, const edm::Ptr<L1Candidate>& egCaloPtr, float tkisol, float tkisolPV)
     : L1Candidate(p4),

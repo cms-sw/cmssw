@@ -321,7 +321,6 @@ void L1TCtL2EgProducer::convertToEmu(const l1t::TkElectron &tkele,
   emu.srcCluster = nullptr;
   emu.srcTrack = nullptr;
 
-  // FIXME: this is hugly
   constituentsPtrs.push_back(std::make_pair(tkele.egCaloPtr(), tkele.trkPtr()));
   emu.src_idx = constituentsPtrs.size() - 1;
 
@@ -339,7 +338,7 @@ void L1TCtL2EgProducer::convertToEmu(const l1t::TkEm &tkem,
   EGIsoObjEmu emu;
   emu.initFromBits(tkem.egBinaryWord<EGIsoObj::BITWIDTH>());
   emu.srcCluster = nullptr;
-  constituentsPtrs.push_back(std::make_pair(tkem.egCaloPtr(), edm::Ptr<L1TTTrackType>(nullptr, 0)));
+  constituentsPtrs.push_back(std::make_pair(tkem.egCaloPtr(), edm::Ptr<L1TTTrackType>()));
   emu.src_idx = constituentsPtrs.size() - 1;
   // NOTE: The emulator and FW data-format stores absolute iso while the CMSSW object stores relative iso
   emu.setHwIso(EGIsoObjEmu::IsoType::TkIso, l1ct::Scales::makeIso(tkem.trkIsol() * tkem.pt()));
