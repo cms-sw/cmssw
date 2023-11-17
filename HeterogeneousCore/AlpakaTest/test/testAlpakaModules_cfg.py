@@ -54,6 +54,9 @@ process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka",
     srcA = cms.ESInputTag("", "appendedLabel"),
     srcB = cms.ESInputTag("", "explicitLabel"),
 )
+process.alpakaESProducerNull = cms.ESProducer("TestAlpakaESProducerNull@alpaka",
+    appendToDataLabel = cms.string("null"),
+)
 
 process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
 
@@ -111,12 +114,16 @@ process.alpakaStreamSynchronizingConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     expectSize = cms.int32(10),
     expectBackend = cms.string("SerialSync")
 )
+process.alpakaNullESConsumer = cms.EDProducer("TestAlpakaGlobalProducerNullES@alpaka",
+    eventSetupSource = cms.ESInputTag("", "null")
+)
 
 if args.processAcceleratorBackend != "":
     process.ProcessAcceleratorAlpaka.setBackend(args.processAcceleratorBackend)
 if args.moduleBackend != "":
-    for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD",
-                 "GlobalProducer", "StreamProducer", "StreamInstanceProducer", "StreamSynchronizingProducer"]:
+    for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD", "ESProducerNull",
+                 "GlobalProducer", "StreamProducer", "StreamInstanceProducer", "StreamSynchronizingProducer",
+                 "NullESConsumer"]:
         mod = getattr(process, "alpaka"+name)
         mod.alpaka = cms.untracked.PSet(backend = cms.untracked.string(args.moduleBackend))
 if args.expectBackend == "cuda_async":
@@ -157,7 +164,8 @@ process.p = cms.Path(
     process.alpakaGlobalConsumer+
     process.alpakaStreamConsumer+
     process.alpakaStreamInstanceConsumer+
-    process.alpakaStreamSynchronizingConsumer,
+    process.alpakaStreamSynchronizingConsumer+
+    process.alpakaNullESConsumer,
     process.t
 )
 process.ep = cms.EndPath(process.output)
