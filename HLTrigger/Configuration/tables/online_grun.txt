@@ -687,16 +687,10 @@ HLT_Photon32_OneProng32_M50To105_v*                              # CMSHLT-2727
 HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_OneProng_v*                  # CMSHLT-2872
 HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_OneProng_CrossL1_v* # CMSHLT-2872
 HLT_VBF_DiPFJet110_40_Mjj1050_v*                                # CMSHLT-2874
-HLT_VBF_DiPFJet110_40_Mjj1050_TriplePFJet_v*                    # CMSHLT-2874
 HLT_VBF_DiPFJet125_45_Mjj1050_v*                                # CMSHLT-2874
-HLT_VBF_DiPFJet125_45_Mjj1050_TriplePFJet_v*                    # CMSHLT-2874
-HLT_VBF_DiPFJet75_45_Mjj650_DiPFJet60_JetMatchingQuadJet_v*     # CMSHLT-2874
-HLT_VBF_DiPFJet75_45_Mjj650_DiPFJet60_JetMatchingFiveJet_v*     # CMSHLT-2874
-HLT_VBF_DiPFJet75_45_Mjj650_DiPFJet60_JetMatchingSixJet_v*      # CMSHLT-2874
+HLT_VBF_DiPFJet75_45_Mjj650_DiPFJet60_v*                        # CMSHLT-2887
 HLT_VBF_DiPFJet80_45_Mjj550_PFMETNoMu85_v*                      # CMSHLT-2874
-HLT_VBF_DiPFJet80_45_Mjj550_PFMETNoMu85_TriplePFJet_v*          # CMSHLT-2874
 HLT_VBF_DiPFJet95_45_Mjj650_Mu3_TrkIsoVVL_v*                    # CMSHLT-2874
-HLT_VBF_DiPFJet95_45_Mjj650_Mu3_TrkIsoVVL_TriplePFJet_v*        # CMSHLT-2874
 HLT_VBF_DiPFJet45_Mjj550_MediumDeepTauPFTauHPS45_L2NN_eta2p1_v* # CMSHLT-2874
 HLT_VBF_DiPFJet50_Mjj550_Photon22_v*                            # CMSHLT-2874
 HLT_VBF_DiPFJet50_Mjj500_Ele22_eta2p1_WPTight_Gsf_v*            # CMSHLT-2874

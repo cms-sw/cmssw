@@ -642,18 +642,6 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 
-pp_on_PbPb_run3.toModify(FEVTDEBUGHLTEventContent,
-                         outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                             'keep *_hltMergedTracksPPOnAA_*_*',
-                             'keep *_hltVerticesPFFilterPPOnAA_*_*',
-                             'keep *_hltDoubletRecoveryPFlowTrackSelectionHighPurityPPOnAA_*_*',
-                             'keep *_hltPixelTracksPPOnAA_*_*',
-                             'keep *_hltPixelVerticesPPOnAA_*_*',
-                             'keep *_hltTrimmedPixelVerticesPPOnAA_*_*',
-                             'keep *_hltSiPixelClustersAfterSplittingPPOnAA_*_*',
-                             'keep *_hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression_*_*'
-                        ])
-
 approxSiStripClusters.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                                   'keep *_hltSiStripClusters2ApproxClusters_*_*',
