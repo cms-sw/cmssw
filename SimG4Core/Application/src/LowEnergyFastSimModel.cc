@@ -28,7 +28,7 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
   fPositron = G4Positron::Positron();
   fMaterial = nullptr;
   auto table = G4Material::GetMaterialTable();
-  for (auto const & mat : *table) {
+  for (auto const& mat : *table) {
     G4String nam = mat->GetName();
     size_t n = nam.size();
     if (n > 4) {
