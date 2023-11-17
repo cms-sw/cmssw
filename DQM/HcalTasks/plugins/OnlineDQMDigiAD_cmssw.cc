@@ -10,7 +10,6 @@
 // #include "FWCore/Utilities/interface/Exception.h"
 // #include "FWCore/Utilities/interface/thread_safety_macros.h"
 // #include "FWCore/Framework/interface/Event.h"
-// #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
