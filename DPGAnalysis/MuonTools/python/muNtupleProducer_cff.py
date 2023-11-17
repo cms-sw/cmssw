@@ -9,7 +9,7 @@ from DPGAnalysis.MuonTools.nano_mu_reco_cff import *
 from DPGAnalysis.MuonTools.nano_mu_l1t_cff import *
 from DPGAnalysis.MuonTools.nano_mu_l1t_cff import *
 
-muNtupleProducer = cms.Sequence(lhcInfoTableProducer
+muDPGNanoProducer = cms.Sequence(lhcInfoTableProducer
                                 + lumiTableProducer
                                 + muDigiProducers 
                                 + muLocalRecoProducers 
@@ -17,7 +17,7 @@ muNtupleProducer = cms.Sequence(lhcInfoTableProducer
                                 + muL1TriggerProducers
                                )
                                
-def nanoAOD_customizeCommon(process) :
+def muDPGNanoCustomize(process) :
      
      if hasattr(process, "dtrpcPointFlatTableProducer") and \
         hasattr(process, "cscrpcPointFlatTableProducer") and \

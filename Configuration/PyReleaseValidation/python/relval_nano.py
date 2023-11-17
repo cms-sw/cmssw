@@ -152,14 +152,14 @@ steps['NANO_data13.0']=merge([{'--era':'Run3',
 steps['NANO_data13.0_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
                                      steps['NANO_data13.0']])
 
-steps['muDPGANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:DPGAnalysis/MuonTools/muNtupleProducer_cff.muNtupleProducer',
+steps['muDPGNANO_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPG',
                                    '--conditions':'auto:run3_data',
                                    '-n' : '100',
                                    '--era' : 'Run3',
                                    '--datatier':'NANOAOD',
                                    '--eventcontent':'NANOAOD'}])
 
-steps['muDPGANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muNtupleProducerBkg',
+steps['muDPGNANOBkg_data13.0']=merge([{'-s' : 'RAW2DIGI,NANO:@MUDPGBKG',
                                    '--conditions':'auto:run3_data',
                                    '-n' : '100',
                                    '--era' : 'Run3',
@@ -228,8 +228,8 @@ workflows[_wfn()] = ['NANOmc130X', ['TTBarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO
 _wfn.subnext()
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0', 'HRV_NANO_data']]
 workflows[_wfn()] = ['NANOdata130Xrun3', ['MuonEG2023MINIAOD13.0', 'NANO_data13.0_prompt', 'HRV_NANO_data']]
-workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGANO_data13.0']]
-workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGANOBkg_data13.0']]
+workflows[_wfn()] = ['muDPGNANO130Xrun3', ['ZMuSkim2023DRAWRECO13.0', 'muDPGNANO_data13.0']]
+workflows[_wfn()] = ['muDPGNANOBkg130Xrun3', ['ZeroBias2023DRAW13.0', 'muDPGNANOBkg_data13.0']]
 
 _wfn.next()
 ################

@@ -28,6 +28,11 @@ autoNANO = {
     # L1 flavours: add tables through customize, supposed to be combined with PHYS
     'L1' : {'customize': 'nanoL1TrigObjCustomize'},
     'L1FULL' : {'customize': 'nanoL1TrigObjCustomizeFull'},
+    # MUDPG flavours: use their own sequence 
+    'MUDPG' : {'sequence': 'muDPGNanoProducer',
+               'customize': 'muDPGNanoCustomize'},
+    'MUDPGBKG' : {'sequence': 'muDPGNanoProducerBkg',
+                  'customize': 'muDPGNanoBkgCustomize'},
     # PromptReco config: PHYS+L1
     'Prompt' : {'sequence': '@PHYS', 
                 'customize': '@PHYS+@L1'}
