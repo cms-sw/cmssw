@@ -25,9 +25,7 @@ public:
                   const uint16_t cellInfo,
                   const std::vector<uint8_t>& samples,
                   const TotemTimingEventInfo& totemTimingEventInfo);
-  TotemTimingDigi(const TotemTimingDigi& digi);
   TotemTimingDigi();
-  ~TotemTimingDigi(){};
 
   /// Digis are equal if they have all the same values, NOT checking the samples!
   bool operator==(const TotemTimingDigi& digi) const;

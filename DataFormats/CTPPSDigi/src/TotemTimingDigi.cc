@@ -22,15 +22,6 @@ TotemTimingDigi::TotemTimingDigi(const uint8_t hwId,
       samples_(samples),
       totemTimingEventInfo_(totemTimingEventInfo) {}
 
-TotemTimingDigi::TotemTimingDigi(const TotemTimingDigi& digi)
-    : hwId_(digi.hwId_),
-      fpgaTimestamp_(digi.fpgaTimestamp_),
-      timestampA_(digi.timestampA_),
-      timestampB_(digi.timestampB_),
-      cellInfo_(digi.cellInfo_),
-      samples_(digi.samples_),
-      totemTimingEventInfo_(digi.totemTimingEventInfo_) {}
-
 TotemTimingDigi::TotemTimingDigi() : hwId_(0), fpgaTimestamp_(0), timestampA_(0), timestampB_(0), cellInfo_(0) {}
 
 // Comparison
