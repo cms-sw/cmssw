@@ -106,8 +106,8 @@ namespace edm {
                                                               RunNumber_t,
                                                               LuminosityBlockNumber_t,
                                                               EventNumber_t) {
-    if (newItemType == InputSource::IsRun ||
-        (newItemType == InputSource::IsLumi && previousItemType != InputSource::IsRun)) {
+    if (newItemType == InputSource::ItemType::IsRun ||
+        (newItemType == InputSource::ItemType::IsLumi && previousItemType != InputSource::ItemType::IsRun)) {
       if (firstTime_) {
         firstTime_ = false;
       } else {
@@ -125,8 +125,8 @@ namespace edm {
       }
       bool sameRunNumber = (indexOfNextRunNumber_ != 0U && run == setRunNumberForEachLumi_[indexOfNextRunNumber_ - 1]);
       if (!sameRunNumber) {
-        fakeNewRun_ = (newItemType != InputSource::IsRun);
-        return InputSource::IsRun;
+        fakeNewRun_ = (newItemType != InputSource::ItemType::IsRun);
+        return InputSource::ItemType::IsRun;
       }
     }
     return newItemType;
@@ -174,7 +174,7 @@ namespace edm {
                                                                            RunNumber_t,
                                                                            LuminosityBlockNumber_t iLumi,
                                                                            EventNumber_t) {
-    if (newItemType == InputSource::IsLumi && previousItemType != InputSource::IsRun) {
+    if (newItemType == InputSource::ItemType::IsLumi && previousItemType != InputSource::ItemType::IsRun) {
       auto run = findRunFromLumi(iLumi);
       if (run == 0) {
         throw Exception(errors::Configuration, "PoolSource")
@@ -183,7 +183,7 @@ namespace edm {
       if (lastUsedRunNumber_ != run) {
         fakeNewRun_ = true;
         lastUsedRunNumber_ = run;
-        return InputSource::IsRun;
+        return InputSource::ItemType::IsRun;
       }
     }
     return newItemType;

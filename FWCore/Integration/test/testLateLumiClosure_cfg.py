@@ -56,7 +56,8 @@ process.Tracer = cms.Service("Tracer",
 )
 
 process.source = cms.Source("SourceWithWaits",
-    timePerLumi = cms.untracked.uint32(1),
+    timePerLumi = cms.untracked.double(1),
+    sleepAfterStartOfRun = cms.untracked.double(0.25),
     eventsPerLumi = cms.untracked.vuint32(4,0,5),
     lumisPerRun = cms.untracked.uint32(100)
 )

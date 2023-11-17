@@ -35,7 +35,7 @@ namespace edm {
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     virtual void reset_();
     void rewind_() override;
-    ItemType getNextItemType() override;
+    ItemTypeInfo getNextItemType() override;
     void closeFile_() final;
     std::shared_ptr<FileBlock> readFile_() final;
     virtual void genuineCloseFile() {}

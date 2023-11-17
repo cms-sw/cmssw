@@ -112,7 +112,7 @@ namespace edm {
     };
 
   protected:
-    ItemType getNextItemType() override;
+    ItemTypeInfo getNextItemType() override;
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     void readEvent_(EventPrincipal& eventPrincipal) override;
@@ -153,7 +153,7 @@ namespace edm {
     std::map<edm::ProductID, size_t> productIDToWrapperIndex_;
     std::vector<size_t> streamToCacheIndex_;
     size_t nextEventIndex_ = 0;
-    ItemType presentState_ = IsFile;
+    ItemType presentState_ = ItemType::IsFile;
     unsigned long long eventIndex_ = 0;
   };
 }  // namespace edm
@@ -344,17 +344,17 @@ std::shared_ptr<WrapperBase> RepeatingCachedRootSource::getProduct(unsigned int 
   return cachedWrappers_[streamToCacheIndex_[iStreamIndex]][branchIDToWrapperIndex_.find(k)->second];
 }
 
-RepeatingCachedRootSource::ItemType RepeatingCachedRootSource::getNextItemType() {
+RepeatingCachedRootSource::ItemTypeInfo RepeatingCachedRootSource::getNextItemType() {
   auto v = presentState_;
   switch (presentState_) {
-    case IsFile:
-      presentState_ = IsRun;
+    case ItemType::IsFile:
+      presentState_ = ItemType::IsRun;
       break;
-    case IsRun:
-      presentState_ = IsLumi;
+    case ItemType::IsRun:
+      presentState_ = ItemType::IsLumi;
       break;
-    case IsLumi:
-      presentState_ = IsEvent;
+    case ItemType::IsLumi:
+      presentState_ = ItemType::IsEvent;
       break;
     default:
       break;

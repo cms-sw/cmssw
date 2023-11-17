@@ -80,9 +80,6 @@ ModuleCallingContext state = Running
 ++++ finished: source run
 ++++ starting: global begin run 1 : time = 1000000
 ++++ finished: global begin run 1 : time = 1000000
-++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
-++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
-++++ post: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ starting: begin run: stream = 0 run = 1 time = 1000000
 ++++++ starting: begin run for module: stream = 0 label = 'one' id = 4
 StreamContext: StreamID = 0 transition = BeginRun
@@ -109,6 +106,9 @@ ModuleCallingContext state = Running
     ProcessContext: TEST cf65ff121f7d0ed0d094247b80407269
 
 ++++ finished: begin run: stream = 0 run = 1 time = 1000000
+++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
+++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1000000
