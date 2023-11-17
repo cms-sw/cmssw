@@ -668,10 +668,10 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
       }
     }
     std::array<std::array<double, 12>, 12> Eta{};
-    for (size_t counterLayer = 0; counterLayer < 12; counterLayer++) {
+    for (size_t counterLayer = 0; counterLayer < Eta.size(); counterLayer++) {
       if (counterLayer > 7 && st == 4)
         continue;
-      for (size_t counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
+      for (size_t counterLayer2 = 0; counterLayer2 < Eta[counterLayer].size(); counterLayer2++) {
         if (counterLayer2 > 7 && st == 4)
           continue;
         if ((counterLayer2 < 4 && counterLayer < 4) || (counterLayer2 > 3 && counterLayer > 3)) {
