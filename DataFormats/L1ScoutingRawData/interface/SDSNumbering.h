@@ -1,5 +1,5 @@
-#ifndef L1Scouting_SDSNumbering_h
-#define L1Scouting_SDSNumbering_h
+#ifndef L1ScoutingRawData_SDSNumbering_h
+#define L1ScoutingRawData_SDSNumbering_h
 
 /**
   *
@@ -23,4 +23,4 @@ class SDSNumbering {
     };
 };
 
-#endif // L1Scouting_SDSNumbering_h
+#endif // L1ScoutingRawData_SDSNumbering_h

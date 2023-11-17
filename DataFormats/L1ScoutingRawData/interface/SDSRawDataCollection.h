@@ -1,5 +1,5 @@
-#ifndef L1Scouting_SDSRawDataCollection_h
-#define L1Scouting_SDSRawDataCollection_h
+#ifndef L1ScoutingRawData_SDSRawDataCollection_h
+#define L1ScoutingRawData_SDSRawDataCollection_h
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -35,4 +35,4 @@ class SRDCollection: public edm::DoNotRecordParents {
 
 inline void swap(SRDCollection& a, SRDCollection& b) { a.swap(b); }
 
-#endif // L1Scouting_SDSRawDataCollection_h
+#endif // L1ScoutingRawData_SDSRawDataCollection_h
