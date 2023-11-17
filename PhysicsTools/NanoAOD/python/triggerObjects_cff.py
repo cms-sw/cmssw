@@ -63,7 +63,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEle*WPTight*TrackIsoFilter*')","1e (WPTight)"),
                 mksel("filter('hltEle*WPLoose*TrackIsoFilter')","1e (WPLoose)"),
                 mksel("filter('*OverlapFilter*IsoEle*PFTau*')","OverlapFilter PFTau"),
-                mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVL*Filter')","2e"),
+                mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter')","2e (Leg 1)"),
+                mksel("filter('hltEle*Ele*CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter')","2e (Leg 2)"),
                 mksel("filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*')","1e-1mu"),
                 mksel("filter('hlt*OverlapFilterIsoEle*PFTau*')","1e-1tau"),
                 mksel("filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter')","3e"),
@@ -73,6 +74,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltEle*CaloIdVTGsfTrkIdTGsfDphiFilter')","1e (CaloIdVT_GsfTrkIdT)"),
                 mksel("path('HLT_Ele*PFJet*')","1e (PFJet)"),
                 mksel(["hltEG175HEFilter","hltEG200HEFilter"],"1e (Photon175_OR_Photon200)"),
+                mksel("filter('hltEle*CaloIdLMWPMS2Filter')","2e (CaloIdL_MW seeded)"),
                 mksel("filter('hltDiEle*CaloIdLMWPMS2UnseededFilter')","2e (CaloIdL_MW unseeded)")
                 )
         ),
