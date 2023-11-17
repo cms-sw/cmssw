@@ -54,31 +54,33 @@ kLargestLumiNumber = 4294967295
 
 #these values must match the enum class Phase in tracer_setupFile.cc
 class Phase (object):
-  destruction = -14
-  endJob = -11
-  endStream = -10
-  writeProcessBlock = -9
-  endProcessBlock = -8
-  globalWriteRun = -6
-  globalEndRun = -5
+  destruction = -15
+  endJob = -12
+  endStream = -11
+  writeProcessBlock = -10
+  endProcessBlock = -9
+  globalWriteRun = -7
+  globalEndRun = -6
   streamEndRun = -4
-  globalWriteLumi = -3
-  globalEndLumi = -2
-  streamEndLumi = -1
+  globalWriteLumi = -4
+  globalEndLumi = -3
+  streamEndLumi = -2
+  clearEvent = -1
   Event = 0
-  streamBeginLumi = 1
-  globalBeginLumi = 2
-  streamBeginRun = 4
-  globalBeginRun = 5
-  accessInputProcessBlock = 7
-  beginProcessBlock = 8
-  openFile = 9
-  beginStream = 10
-  beginJob  = 11
-  esSync = 12
-  esSyncEnqueue = 13
-  construction = 14
-  startTracing = 15
+  streamBeginLumi = 2
+  globalBeginLumi = 3
+  streamBeginRun = 5
+  globalBeginRun = 6
+  accessInputProcessBlock = 8
+  beginProcessBlock = 9
+  openFile = 10
+  beginStream = 11
+  beginJob  = 12
+  esSync = 13
+  esSyncEnqueue = 14
+  getNextTransition = 15
+  construction = 16
+  startTracing = 17
 
 #used for json output
 class Activity (object):
@@ -111,7 +113,9 @@ transitionToNames_ = {
     Phase.streamEndLumi: 'stream end lumi',
     Phase.esSyncEnqueue: 'EventSetup synchronization',
     Phase.esSync: 'EventSetup synchronization',
-    Phase.Event: 'event'
+    Phase.Event: 'event',
+    Phase.clearEvent: 'clear event',
+    Phase.getNextTransition: 'get next transition'
 }
 
 def transitionName(transition):
@@ -140,8 +144,10 @@ transitionToIndent_ = {
     Phase.streamBeginLumi: 2,
     Phase.streamEndLumi: 2,
     Phase.Event: 3,
+    Phase.clearEvent: 3,
     Phase.esSyncEnqueue: 1,
-    Phase.esSync: 1
+    Phase.esSync: 1,
+    Phase.getNextTransition: 1
 }
 def transitionIndentLevel(transition):
     return transitionToIndent_[transition]
@@ -163,7 +169,8 @@ globalTransitions_ = {
     Phase.globalEndLumi,
     Phase.globalWriteLumi,
     Phase.esSyncEnqueue,
-    Phase.esSync
+    Phase.esSync,
+    Phase.getNextTransition
 }
 def transitionIsGlobal(transition):
     return transition in globalTransitions_;
@@ -348,6 +355,10 @@ class QueuingFrameworkTransitionParser (FrameworkTransitionParser):
 class SourceTransitionParser(object):
     def __init__(self, payload):
         self.transition = int(payload[0])
+        if self.transition == Phase.getNextTransition:
+            self.time = int(payload[1])
+            self.index = -1
+            return
         self.index = int(payload[1])
         self.time = int(payload[2])
     def indentLevel(self):
@@ -358,6 +369,8 @@ class SourceTransitionParser(object):
         if self.transition == Phase.Event:
             return 3
         if self.transition == Phase.construction:
+            return 1
+        if self.transition == Phase.getNextTransition:
             return 1
         return None
     def textPrefix(self):
@@ -376,6 +389,9 @@ class PreSourceTransitionParser(SourceTransitionParser):
         if self.transition == Phase.construction:
             index = counter.start()
             container = data["globals"]
+        elif self.transition == Phase.getNextTransition:
+            data['nextTrans'].append(jsonTransition(type=self.transition, id=self.index, sync=[0,0,0], start=self.time, finish=0, isSrc=True))
+            return
         elif self.transition == Phase.Event:
             index = self.index
             container = data["streams"]
@@ -384,6 +400,26 @@ class PreSourceTransitionParser(SourceTransitionParser):
             index = self.index
         while len(container) < index+1:
             container.append([])
+        nextTrans = data['nextTrans']
+        if nextTrans:
+            data['nextTrans'] = []
+            for t in nextTrans:
+                t['id']=index
+                #find proper time order in the container
+                transStartTime = t['start']
+                inserted = False
+                for i in range(-1, -1*len(container[index]), -1):
+                    if transStartTime > container[index][i]['start']:
+                        if i == -1:
+                            container[index].append(t)
+                            inserted = True
+                            break
+                        else:
+                            container[index].insert(i+1,t)
+                            inserted = True
+                            break
+                if not inserted:
+                    container[index].insert(0,t)
         container[index].append(jsonTransition(type=self.transition, id=index, sync=[0,0,0], start=self.time, finish=0, isSrc=True))
 
 class PostSourceTransitionParser(SourceTransitionParser):
@@ -394,6 +430,9 @@ class PostSourceTransitionParser(SourceTransitionParser):
     def jsonInfo(self, counter, data):
         if self.transition == Phase.Event:
             container = data["streams"]
+        elif self.transition == Phase.getNextTransition:
+            data['nextTrans'][-1]['finish'] = self.time*kMicroToSec
+            return
         elif self.transition == Phase.construction:
             container = data["globals"]
             pre = None
@@ -570,13 +609,14 @@ class ESModuleTransitionParser(object):
         self.moduleName = esModuleNames[self.moduleID]
         self.recordID = int(payload[3])
         self.recordName = recordNames[self.recordID]
-        self.requestingModuleID = int(payload[4])
+        self.callID = int(payload[4])
+        self.requestingModuleID = int(payload[5])
         self.requestingModuleName = None
         if self.requestingModuleID < 0 :
             self.requestingModuleName = esModuleNames[-1*self.requestingModuleID]
         else:
             self.requestingModuleName = moduleNames[self.requestingModuleID]
-        self.time = int(payload[5])
+        self.time = int(payload[6])
     def baseIndentLevel(self):
         return transitionIndentLevel(self.transition)
     def textPrefix(self, context):
@@ -610,6 +650,7 @@ class ESModuleTransitionParser(object):
             container.append([])
             slot = container[-1]
         slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=-1*self.moduleID, activity=activity, start=self.time))
+        slot[-1]['callID']=self.callID
         return slot[-1]
     def _postJson(self, counter, data):
         if transitionIsGlobal(self.transition):
@@ -620,8 +661,9 @@ class ESModuleTransitionParser(object):
         container = container[index]
         #find slot containing the pre
         for slot in container:
-            if slot[-1]["mod"] == -1*self.moduleID:
+            if slot[-1]["mod"] == -1*self.moduleID and slot[-1]['callID'] == self.callID:
                 slot[-1]["finish"]=self.time*kMicroToSec
+                del slot[-1]['callID']
                 return
         print(f"failed to find {-1*self.moduleID} for {self.transition} in {self.index} with {container}")
 
@@ -825,7 +867,7 @@ def startTime(x):
     return x["start"]
 def jsonInfo(parser):
     counter = Counter()
-    data = {"globals": [[]], "streams" :[[]], "queued": []}
+    data = {"globals": [[]], "streams" :[[]], "queued": [], "nextTrans": []}
     if not parser._frameworkOnly:
         data["modGlobals"] = [[]]
         data["modStreams"] = [[[]]]
@@ -835,6 +877,7 @@ def jsonInfo(parser):
     for g in data["globals"]:
         g.sort(key=startTime)
     del data["queued"]
+    del data['nextTrans']
     final = {"transitions" : [] , "modules": [], "esModules": []}
     final["transitions"].append({ "name":"Global", "slots": []})
     globals = final["transitions"][-1]["slots"]

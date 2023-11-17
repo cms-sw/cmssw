@@ -1,33 +1,36 @@
 import {data} from './data.js';
 //import data from './data.json' assert { type: 'json' };
 
-const kBoxHeight = 30;
-const kRowHeight = 40;
+const kBoxHeight = 15;
+const kRowHeight = 20;
 
-const kTypeOffset = 14
+const kTypeOffset = 16
 const kSourceColor = "#DD00DD";
 const typeToColor = [
     "#000000", //destructor
+    0, // unused -15
+    0, //unused -14
     0, //unused -13
-    0, //unused -12
     "#FF0000", //endjob
     "#FF7777", //endstream
     "#BBBBBB", //write process block
     "#FFFFFF", //end process block
-    0, //unused -7
+    0, //unused -8
     "#0000BB", //write end run
     "#0000FF", //global end run
     "#0000FF", //stream end run
     "#00BB00", //write end lumi
     "#00FF00", //global end lumi
     "#00FF00", //stream end lumi
+    "#CCCC00", //clear event
     "#FFFF00", //event
+    0, //unused 1
     "#007700", //stream begin lumi
     "#007700", //global begin lumi
-    0, //unused 3
+    0, //unused 4
     "#000077", //stream begin run
     "#000077", //global begin run
-    0, //unused 6
+    0, //unused 7
     "#BBBBBB", //access input process block
     "#FFFFFF", //begin process block
     kSourceColor, //open file
@@ -35,32 +38,38 @@ const typeToColor = [
     "#FF0000", //begin job
     "#00FFFF", //sync
     "#007777", //sync enqueue
+    kSourceColor, // getNextTransition
     "#DD00DD", //construction
     "#FF0000", //startup
 ]
 
+const overlappingTransitions =[15]
+
 const typeToName = [
     "destructor",
+    0, //unused -15
+    0, //unused -14
     0, //unused -13
-    0, //unused -12
     "end job",
     "end stream",
     "write process block",
     "end process block",
-    0, //unused -7
+    0, //unused -8
     "write end run",
     "global end run", //global end run
     "stream end run", //stream end run
     "write end lumi", //write end lumi
     "global end lumi", //global end lumi
     "stream end lumi", //stream end lumi
+    "clear event",
     "event", //event
+    0, //unused 1
     "stream begin lumi", //stream begin lumi
     "global begin lumi", //global begin lumi
-    0, //unused 3
+    0, //unused 4
     "stream begin run", //stream begin run
     "global begin run", //global begin run
-    0, //unused 6
+    0, //unused 7
     "access input process block", //access input process block
     "begin process block", //begin process block
     "open file",
@@ -68,6 +77,7 @@ const typeToName = [
     "begin job", //begin job
     "EventSetup synch", //sync
     "EventSetup sych enqueue", //sync enqueue
+    "find next transition",
     "construction", //construction
     "startup", //startup
 ]
@@ -83,7 +93,6 @@ window.onload = () => {
     
     //const response = await fetch("./data.json");
     //const data = await response.json();
-    const bar = document.querySelector('.split__bar');
     const left = document.querySelector('.name_div');
     const div = document.querySelector('.graph_div');
     const bottom = document.querySelector('.time_div');
@@ -111,20 +120,6 @@ window.onload = () => {
     let graph_vertical_offset = 0.;
     let minVisibleTime = 0.;
     let timeZoomFactor = 1.0;
-    
-    bar.addEventListener('mousedown', (e) => {
-        mouse_is_down = true;
-    })
-    
-    document.addEventListener('mousemove', (e) => {
-        if (!mouse_is_down) return;
-        
-        left.style.width = `${e.clientX}px`;
-    })
-    
-    document.addEventListener('mouseup', () => {
-        mouse_is_down = false;
-    })
     
     function maxTime() {
         let maxTime = 0;
@@ -172,9 +167,7 @@ window.onload = () => {
         let offset = kRowHeight/2 + graph_vertical_offset;
         for( let grouping of data.transitions ) {
             name_context.fillText(grouping.name, 0, offset);
-            for( let slot in grouping.slots ) {
-                offset += slot.length*kRowHeight;
-            }
+            offset += grouping.slots.length*kRowHeight;
         }
     }
     
@@ -257,20 +250,24 @@ window.onload = () => {
         
         let offset = graph_vertical_offset;
         for( let grouping of data.transitions) {
+            if (offset > graph.height) break;
             for( let slot of grouping.slots ) {
-                for( let transition of slot) {
-                    if (maxVisibleTime < transition.start) {
-                        break;
+                if (offset > graph.height) break;
+                if (offset+kBoxHeight >= 0) {
+                    for( let transition of slot) {
+                        if (maxVisibleTime < transition.start) {
+                            break;
+                        }
+                        if (minVisibleTime > transition.finish) {
+                            continue;
+                        }
+                        if(transition == selected_item) {
+                            graph_context.fillStyle = "white";
+                        } else {
+                            graph_context.fillStyle = colorToUse(transition);
+                        }
+                        graph_context.fillRect(scale*(transition.start-minVisibleTime), offset, scale*(transition.finish-transition.start), kBoxHeight);
                     }
-                    if (minVisibleTime > transition.finish) {
-                        continue;
-                    }
-                    if(transition == selected_item) {
-                        graph_context.fillStyle = "white";
-                    } else {
-                        graph_context.fillStyle = colorToUse(transition);
-                    }
-                    graph_context.fillRect(scale*(transition.start-minVisibleTime), offset, scale*(transition.finish-transition.start), kBoxHeight);
                 }
                 offset += kRowHeight;
             }
@@ -375,6 +372,25 @@ window.onload = () => {
         }
         return t.toFixed(6)+"s";
     }
+    
+    function updateSelectedView(item) {
+        if ('isSrc' in item) {
+            if (item.isSrc) {
+                if(item.mod) {
+                    selected_view.innerHTML ="Selected: source reading data product: for module "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
+
+                } else {
+                    selected_view.innerHTML = "Selected: source "+typeToName[item.type+kTypeOffset]+" id: "+item.id+" run: "+item.sync[0]
+                    +" lumi: "+item.sync[1]+ " event: "+item.sync[2]+" start: "+item.start.toFixed(6)+"s finish:"+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
+                }
+            } else {
+                selected_view.innerHTML = "Selected: "+typeToName[item.type+kTypeOffset]+" id: "+item.id+" run: "+item.sync[0]
+                +" lumi: "+item.sync[1]+ " event: "+item.sync[2]+" start: "+item.start.toFixed(6)+"s finish:"+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
+            }
+        } else {
+            selected_view.innerHTML ="Selected: module : "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
+        }
+    }
     function doSelection(items, x) {
         let time = x/kInitPixelsPerSecond/timeZoomFactor+minVisibleTime;
         //console.log(time);
@@ -383,34 +399,24 @@ window.onload = () => {
             drawGraph();
             return;
         }
+        selected_item = null;
         for( let item of items) {
             if (time < item.start) {
-                doUnselection();
                 break;
             }
             if (time > item.start && time < item.finish) {
                 selected_item = item;
-                if ('isSrc' in item) {
-                    if (item.isSrc) {
-                        if(item.mod) {
-                            selected_view.innerHTML ="Selected: source reading data product: for module "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
-                            break;
-
-                        } else {
-                            selected_view.innerHTML = "Selected: source "+typeToName[item.type+kTypeOffset]+" id: "+item.id+" run: "+item.sync[0]
-                            +" lumi: "+item.sync[1]+ " event: "+item.sync[2]+" start: "+item.start.toFixed(6)+"s finish:"+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
-                            break;
-                        }
-                    } else {
-                        selected_view.innerHTML = "Selected: "+typeToName[item.type+kTypeOffset]+" id: "+item.id+" run: "+item.sync[0]
-                        +" lumi: "+item.sync[1]+ " event: "+item.sync[2]+" start: "+item.start.toFixed(6)+"s finish:"+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
-                        break;
-                    }
+                if ( overlappingTransitions.includes(selected_item.type)) {
+                    continue;
                 } else {
-                    selected_view.innerHTML ="Selected: module : "+item.mod+" "+moduleIdToName(item.mod)+ " while "+activityToName[item.act]+" "+typeToName[item.type+kTypeOffset] +" start: "+item.start.toFixed(6)+"s finish: "+item.finish.toFixed(6)+"s duration: "+duration(item.finish-item.start);
                     break;
                 }
             }
+        }
+        if (selected_item) {
+            updateSelectedView(selected_item);
+        } else {
+            doUnselection();
         }
         drawGraph();
     }
@@ -448,7 +454,15 @@ window.onload = () => {
         graph_mouseDown = false;
     }
     
-    
+    window.addEventListener('resize',function(){
+		graph_context.canvas.width = graph.clientWidth;
+		graph_context.canvas.height = graph.clientHeight;
+		name_context.canvas.width = name_view.clientWidth;
+		name_context.canvas.height = name_view.clientHeight;
+		time_context.canvas.width = time_view.clientWidth;
+		time_context.canvas.height = time_view.clientHeight;
+		drawGraph();
+	}, false);
     graph.addEventListener('mousedown', graph_onMouseDown)
     graph.addEventListener('mousemove', graph_onMouseMove)
     graph.addEventListener('mouseup', graph_onMouseUp)
