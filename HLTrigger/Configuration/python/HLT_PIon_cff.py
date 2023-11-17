@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_2_0/PIon --cff --data --type PIon
 
-# /dev/CMSSW_13_2_0/PIon/V64 (CMSSW_13_2_3)
+# /dev/CMSSW_13_2_0/PIon/V73 (CMSSW_13_2_3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V64')
+  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V73')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -3740,10 +3740,6 @@ fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
 fragment.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-fragment.hltPreHLTAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
-    offset = cms.uint32( 0 ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
-)
 fragment.hltL1TGlobalSummary = cms.EDAnalyzer( "L1TGlobalSummary",
     AlgInputTag = cms.InputTag( "hltGtStage2Digis" ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -3828,7 +3824,7 @@ fragment.HLT_Random_v3 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hl
 fragment.HLT_Physics_v10 = cms.Path( fragment.HLTBeginSequenceL1Fat + fragment.hltPrePhysics + fragment.HLTEndSequence )
 fragment.HLT_ZeroBias_v9 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBias + fragment.hltPreZeroBias + fragment.HLTEndSequence )
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltFEDSelectorTCDS + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
-fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
+fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 fragment.Dataset_HLTPhysics = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetHLTPhysics + fragment.hltPreDatasetHLTPhysics )
 fragment.Dataset_OnlineMonitor = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetOnlineMonitor + fragment.hltPreDatasetOnlineMonitor )
 fragment.Dataset_ZeroBias = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetZeroBias + fragment.hltPreDatasetZeroBias )
