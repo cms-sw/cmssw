@@ -15,16 +15,6 @@ namespace pat {
 
     PFIsolation(float ch, float nh, float ph, float pu) : chiso_(ch), nhiso_(nh), phiso_(ph), puiso_(pu) {}
 
-    ~PFIsolation() {}
-
-    PFIsolation& operator=(const PFIsolation& iso) {
-      chiso_ = iso.chiso_;
-      nhiso_ = iso.nhiso_;
-      phiso_ = iso.phiso_;
-      puiso_ = iso.puiso_;
-      return *this;
-    }
-
     float chargedHadronIso() const { return chiso_; }
     float neutralHadronIso() const { return nhiso_; }
     float photonIso() const { return phiso_; }
