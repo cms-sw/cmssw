@@ -105,8 +105,6 @@ namespace edm {
 
     void swap(View& other);
 
-    View& operator=(View const& rhs);
-
     size_type capacity() const;
 
     // Most non-const member functions not present.
@@ -292,13 +290,6 @@ namespace edm {
   template <typename T>
   std::unique_ptr<ViewBase> View<T>::doClone() const {
     return std::unique_ptr<ViewBase>{new View(*this)};
-  }
-
-  template <typename T>
-  inline View<T>& View<T>::operator=(View<T> const& rhs) {
-    View<T> temp(rhs);
-    this->swap(temp);
-    return *this;
   }
 
   template <typename T>
