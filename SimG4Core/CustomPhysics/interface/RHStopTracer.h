@@ -22,7 +22,7 @@ class RHStopTracer : public SimProducer,
                      public Observer<const EndOfTrack *> {
 public:
   RHStopTracer(edm::ParameterSet const &p);
-  ~RHStopTracer() override;
+  ~RHStopTracer() override = default;
   void update(const BeginOfRun *) override;
   void update(const BeginOfEvent *) override;
   void update(const BeginOfTrack *) override;
