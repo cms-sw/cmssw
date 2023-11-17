@@ -42,7 +42,7 @@
 #include "EventFilter/CTPPSRawToDigi/interface/ElectronicIndex.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
-#include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelErrorSummary.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CTPPSRawToDigiErrorSummary.h"
 
 #include <cstdint>
 #include <vector>
@@ -67,7 +67,8 @@ public:
 
   typedef std::unordered_map<cms_uint32_t, DetDigis> Digis;
 
-  CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const& mapping, CTPPSPixelErrorSummary&);
+  CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const& mapping,
+                          CTPPSRawToDigiErrorSummary&);
 
   void setErrorStatus(bool theErrorStatus);
 
@@ -117,7 +118,7 @@ private:
   int m_allDetDigis;
   int m_hasDetDigis;
   CTPPSPixelIndices m_Indices;
-  CTPPSPixelErrorSummary& m_ErrorSummary;
+  CTPPSRawToDigiErrorSummary& m_ErrorSummary;
 };
 
 #endif
