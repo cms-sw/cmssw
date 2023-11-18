@@ -1098,6 +1098,11 @@ namespace mkfit {
         // from intra-layer to inter-layer.
         // mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, true);
 
+        // For prop-to-plane propagate from the last hit, not layer center.
+        if (Config::usePropToPlane) {
+          mkfndr->inputTracksAndHitIdx(eoccs.refCandidates(), seed_cand_idx, itrack, end, false);
+        }
+
         dprint("make new candidates");
         cloner.begin_iteration();
 
@@ -1118,7 +1123,7 @@ namespace mkfit {
 
         mkfndr->inputTracksAndHits(eoccs.refCandidates(), layer_of_hits, seed_cand_update_idx, itrack, end, true);
 
-        mkfndr->updateWithLoadedHit(end - itrack, fnd_foos);
+        mkfndr->updateWithLoadedHit(end - itrack, layer_of_hits, fnd_foos);
 
         // copy_out the updated track params, errors only (hit-idcs and chi2 already set)
         mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, false);
