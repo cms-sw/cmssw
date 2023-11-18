@@ -879,6 +879,7 @@ MINIAODEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
+MINIAODEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
 
 MINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -887,7 +888,7 @@ MINIAODSIMEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
-MINIAODSIMEventContent.outputCommands.extend(HLTScouting.outputCommands)
+MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
