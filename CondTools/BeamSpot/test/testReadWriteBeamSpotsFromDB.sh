@@ -38,7 +38,7 @@ printf "TESTING Reading BeamSpotOnlineHLTObjectsRcd DB object ...\n\n"
 cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True inputRecord=BeamSpotOnlineHLTObjectsRcd || die "Failure reading payload for BeamSpotOnlineHLTObjectsRcd" $?
 
 printf "TESTING reading BeamSpotObjectRcd DB object ...\n\n"
-cmsRun ${SCRAM_TEST_PATH}/BeamSpotRcdPrinter_cfg.py || die "Failure running BeamSpotRcdPrinter" $?
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotRcdPrinter_cfg.py startIOV=1406713458589700 endIOV=1614147494085159 verbose=False || die "Failure running BeamSpotRcdPrinter" $?
 cmsRun ${SCRAM_TEST_PATH}/BeamSpotRcdRead_cfg.py || die "Failure running BeamSpotRcdRead" $?
 
 printf "TESTING converting BeamSpotOnlineObjects from BeamSpotObjects ...\n\n"
