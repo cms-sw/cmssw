@@ -171,7 +171,7 @@ void HLTL1TMatchedJetsVBFFilter<T>::fillJetIndices(std::vector<unsigned int>& ou
   int i2 = -1;
   double m2jj_max = -1;
 
-  for (unsigned int i = 0; i < jetIndices.size() - 1; i++) {
+  for (unsigned int i = 0; i < jetIndices.size(); i++) {
     auto const& jet1 = jets[jetIndices[i]];
 
     for (unsigned int j = i + 1; j < jetIndices.size(); j++) {
