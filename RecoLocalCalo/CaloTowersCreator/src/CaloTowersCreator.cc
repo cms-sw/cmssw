@@ -154,7 +154,6 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf)
             conf.getParameter<double>("MomEBDepth"),
             conf.getParameter<double>("MomEEDepth"),
             conf.getParameter<int>("HcalPhase")),
-      //conf.getParameter<bool>("usePFThresholdsFromDB")),
 
       ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
       allowMissingInputs_(conf.getParameter<bool>("AllowMissingInputs")),
