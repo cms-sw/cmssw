@@ -26,6 +26,10 @@
 #include <tuple>
 
 #include <map>
+
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
+
 class CaloTowerTopology;
 class HcalTopology;
 class CaloGeometry;
@@ -158,6 +162,7 @@ public:
                    const HcalTopology* htopo,
                    const CaloGeometry* geo);
 
+  void setThresFromDB(const HcalPFCuts* cuts);
   // pass the containers of channels status from the event record (stored in DB)
   // these are called in  CaloTowersCreator
   void setHcalChStatusFromDB(const HcalChannelQuality* s) { theHcalChStatus = s; }
@@ -317,6 +322,7 @@ private:
   double theHOEScale;
   double theHF1EScale;
   double theHF2EScale;
+  const HcalPFCuts* hcalCuts;
   const CaloTowerTopology* theTowerTopology;
   const HcalTopology* theHcalTopology;
   const CaloGeometry* theGeometry;
