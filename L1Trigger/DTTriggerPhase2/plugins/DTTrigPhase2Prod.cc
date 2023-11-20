@@ -1272,6 +1272,8 @@ void DTTrigPhase2Prod::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::FileInPath>("shift_theta_filename", edm::FileInPath("L1Trigger/DTTriggerPhase2/data/theta_shift.txt"));
   desc.add<edm::FileInPath>("global_coords_filename",
                             edm::FileInPath("L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt"));
+  desc.add<edm::FileInPath>("laterality_filename",
+                            edm::FileInPath("L1Trigger/DTTriggerPhase2/data/lat_predictions.dat"));
   desc.add<int>("algo", 0);
   desc.add<int>("minHits4Fit", 3);
   desc.add<bool>("splitPathPerSL", true);

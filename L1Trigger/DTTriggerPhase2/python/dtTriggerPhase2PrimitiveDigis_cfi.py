@@ -42,6 +42,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                shift_theta_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/theta_shift.txt'),
                                                maxdrift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/drift_time_per_chamber.txt'),
                                                global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt'),
+                                               laterality_filename  = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/lat_predictions.dat'),
                                                algo = cms.int32(0), # 0 = STD gr., 2 = Hough transform, 1 = PseudoBayes Approach
 
                                                minHits4Fit = cms.int32(3),

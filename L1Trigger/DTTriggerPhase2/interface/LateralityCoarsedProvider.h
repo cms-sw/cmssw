@@ -40,9 +40,11 @@ private:
   void analyze(MuonPathPtr &inMPath, std::vector<lat_vector> &lateralities);
   std::vector<short> coarsify_times(MuonPathPtr &inMPath);
   void fill_lat_combinations();
+  std::vector<std::vector<short>> convertString(std::string chain);
   // Private attributes
   const bool debug_;
   std::vector<lat_coarsed_combination> lat_combinations;
+  edm::FileInPath laterality_filename_;
 };
 
 #endif
