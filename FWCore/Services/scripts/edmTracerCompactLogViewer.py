@@ -661,7 +661,7 @@ class ESModuleTransitionParser(object):
         container = container[index]
         #find slot containing the pre
         for slot in container:
-            if slot[-1]["mod"] == -1*self.moduleID and slot[-1]['callID'] == self.callID:
+            if slot[-1]["mod"] == -1*self.moduleID and slot[-1].get('callID',0) == self.callID:
                 slot[-1]["finish"]=self.time*kMicroToSec
                 del slot[-1]['callID']
                 return
