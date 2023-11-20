@@ -3,8 +3,8 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsLayout.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitSoAHost.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
 
 using namespace pixelTopology;
 

@@ -1,6 +1,6 @@
 #include <alpaka/alpaka.hpp>
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
-#include "DataFormats/Vertex/interface/alpaka/ZVertexUtilities.h"
+#include "DataFormats/VertexSoA/interface/alpaka/ZVertexUtilities.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "PixelVertexWorkSpaceUtilitiesAlpaka.h"

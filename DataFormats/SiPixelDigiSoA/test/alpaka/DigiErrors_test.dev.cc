@@ -1,5 +1,5 @@
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsDevice.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsCollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsSoACollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsHost.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"

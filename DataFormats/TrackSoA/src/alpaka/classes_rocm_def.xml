@@ -1,10 +1,10 @@
 <lcgdict>
   <class name="alpaka_rocm_async::PortableCollection<TrackLayout<pixelTopology::Phase1>>" persistent="false"/>
-  <class name="alpaka_rocm_async::pixelTrack::TrackSoACollectionPhase1" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TrackSoACollectionPhase1>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TrackSoACollectionPhase1>>" persistent="false"/>
+  <class name="alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase1" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase1>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase1>>" persistent="false"/>
   <class name="alpaka_rocm_async::PortableCollection<TrackLayout<pixelTopology::Phase2>>" persistent="false"/>
-  <class name="alpaka_rocm_async::pixelTrack::TrackSoACollectionPhase2" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TrackSoACollectionPhase2>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TrackSoACollectionPhase2>>" persistent="false"/>
+  <class name="alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase2" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase2>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::pixelTrack::TracksSoACollectionPhase2>>" persistent="false"/>
 </lcgdict>

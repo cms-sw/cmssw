@@ -132,12 +132,13 @@ namespace pixelgpudetails {
       assert(nModules_Clusters_h[2] <= nModules_Clusters_h[1]);
       clusters_d.setNClusters(nModules_Clusters_h[1], nModules_Clusters_h[2]);
 
+      #ifdef GPU_DEBUG
       std::cout << "SiPixelClusterizerCUDA results:" << std::endl
                 << " > no. of digis: " << nDigis << std::endl
                 << " > no. of active modules: " << nModules_Clusters_h[0] << std::endl
                 << " > no. of clusters: " << nModules_Clusters_h[1] << std::endl
                 << " > bpix2 offset: " << nModules_Clusters_h[2] << std::endl;
-
+      #endif
       // need to explicitly deallocate while the associated CUDA
       // stream is still alive
       //

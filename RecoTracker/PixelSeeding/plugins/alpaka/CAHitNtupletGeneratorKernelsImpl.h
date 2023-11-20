@@ -15,7 +15,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsLayout.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 
 #include "CAStructures.h"
 #include "CAHitNtupletGeneratorKernels.h"

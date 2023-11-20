@@ -23,12 +23,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/TrackSoA/interface/TrackSoAHost.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
 
 template <typename T>
 class SiPixelMonitorTrackSoAAlpaka : public DQMEDAnalyzer {
 public:
-  using PixelTrackHeterogeneous = TrackSoAHost<T>;
+  using PixelTrackHeterogeneous = TracksHost<T>;
   explicit SiPixelMonitorTrackSoAAlpaka(const edm::ParameterSet&);
   ~SiPixelMonitorTrackSoAAlpaka() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;

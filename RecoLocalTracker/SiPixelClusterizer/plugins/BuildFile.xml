@@ -1,8 +1,8 @@
 <use name="boost_serialization"/>
-<use name="DataFormats/SiPixelClusterSoA"/>
-<use name="DataFormats/SiPixelDigiSoA"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/SiPixelClusterSoA"/>
+<use name="DataFormats/SiPixelDigiSoA"/>
 <use name="EventFilter/SiPixelRawToDigi"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>

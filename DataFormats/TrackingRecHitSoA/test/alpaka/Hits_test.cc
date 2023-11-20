@@ -1,6 +1,6 @@
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitSoAHost.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitSoADevice.h"
-#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
@@ -19,7 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace testTrackingRecHitSoA {
 
     template <typename TrackerTraits>
-    void runKernels(TrackingRecHitAlpakaSoAView<TrackerTraits>& hits, Queue& queue);
+    void runKernels(TrackingRecHitSoAView<TrackerTraits>& hits, Queue& queue);
 
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -38,7 +38,7 @@ int main() {
     for (size_t i = 0; i < pixelTopology::Phase1::numberOfModules + 1; i++) {
       moduleStart[i] = i * 2;
     }
-    TrackingRecHitAlpakaCollection<pixelTopology::Phase1> tkhit(nHits, offset, &moduleStart[0], queue);
+    TrackingRecHitsSoACollection<pixelTopology::Phase1> tkhit(nHits, offset, &moduleStart[0], queue);
 
     testTrackingRecHitSoA::runKernels<pixelTopology::Phase1>(tkhit.view(), queue);
     alpaka::wait(queue);

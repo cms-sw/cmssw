@@ -1,4 +1,4 @@
-#include "DataFormats/Vertex/interface/ZVertexSoAHost.h"
+#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/TrackReco/interface/Track.h"

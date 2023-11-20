@@ -3,13 +3,13 @@
 
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
-#include "DataFormats/TrackSoA/interface/TrackLayout.h"
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
 
 // Methods that operate on View and ConstView of the TrackSoA, and cannot be class methods.
 template <typename TrackerTraits>
 struct TracksUtilities {
-  using TrackSoAView = typename TrackSoA<TrackerTraits>::template TrackSoAHeterogeneousLayout<>::View;
-  using TrackSoAConstView = typename TrackSoA<TrackerTraits>::template TrackSoAHeterogeneousLayout<>::ConstView;
+  using TrackSoAView = typename TrackSoA<TrackerTraits>::template Layout<>::View;
+  using TrackSoAConstView = typename TrackSoA<TrackerTraits>::template Layout<>::ConstView;
   using hindex_type = typename TrackSoA<TrackerTraits>::hindex_type;
 
   // State at the Beam spot
@@ -107,8 +107,8 @@ namespace pixelTrack {
 
   template <typename TrackerTraits>
   struct QualityCutsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> {
-    using TrackSoAView = typename TrackSoA<TrackerTraits>::template TrackSoAHeterogeneousLayout<>::View;
-    using TrackSoAConstView = typename TrackSoA<TrackerTraits>::template TrackSoAHeterogeneousLayout<>::ConstView;
+    using TrackSoAView = typename TrackSoA<TrackerTraits>::template Layout<>::View;
+    using TrackSoAConstView = typename TrackSoA<TrackerTraits>::template Layout<>::ConstView;
     using tracksHelper = TracksUtilities<TrackerTraits>;
     float chi2Coeff[4];
     float chi2MaxPt;  // GeV
@@ -170,8 +170,8 @@ namespace pixelTrack {
 
   template <typename TrackerTraits>
   struct QualityCutsT<TrackerTraits, pixelTopology::isPhase2Topology<TrackerTraits>> {
-    using TrackSoAView = typename TrackSoA<TrackerTraits>::template TrackSoAHeterogeneousLayout<>::View;
-    using TrackSoAConstView = typename TrackSoA<TrackerTraits>::template TrackSoAHeterogeneousLayout<>::ConstView;
+    using TrackSoAView = typename TrackSoA<TrackerTraits>::template Layout<>::View;
+    using TrackSoAConstView = typename TrackSoA<TrackerTraits>::template Layout<>::ConstView;
     using tracksHelper = TracksUtilities<TrackerTraits>;
 
     float maxChi2;

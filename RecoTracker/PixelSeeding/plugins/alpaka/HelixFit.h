@@ -3,7 +3,7 @@
 
 #include <alpaka/alpaka.hpp>
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsLayout.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitResult.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -48,10 +48,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class HelixFit {
   public:
-    using TrackingRecHitSoAs = TrackingRecHitAlpakaSoA<TrackerTraits>;
+    using TrackingRecHitSoAs = TrackingRecHitSoA<TrackerTraits>;
 
-    using HitView = TrackingRecHitAlpakaSoAView<TrackerTraits>;
-    using HitConstView = TrackingRecHitAlpakaSoAConstView<TrackerTraits>;
+    using HitView = TrackingRecHitSoAView<TrackerTraits>;
+    using HitConstView = TrackingRecHitSoAConstView<TrackerTraits>;
 
     using Tuples = typename TrackSoA<TrackerTraits>::HitContainer;
     using OutputSoAView = TrackSoAView<TrackerTraits>;

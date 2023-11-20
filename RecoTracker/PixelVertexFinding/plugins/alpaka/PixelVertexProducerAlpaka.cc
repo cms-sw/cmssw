@@ -18,10 +18,10 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 
-#include "DataFormats/TrackSoA/interface/alpaka/TrackSoACollection.h"
-#include "DataFormats/TrackSoA/interface/TrackSoADevice.h"
-#include "DataFormats/Vertex/interface/alpaka/ZVertexSoACollection.h"
-#include "DataFormats/Vertex/interface/ZVertexSoADevice.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include "DataFormats/TrackSoA/interface/TracksDevice.h"
+#include "DataFormats/VertexSoA/interface/alpaka/ZVertexSoACollection.h"
+#include "DataFormats/VertexSoA/interface/ZVertexDevice.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 
 #include "vertexFinder.h"
@@ -34,8 +34,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   class PixelVertexProducerAlpaka : public global::EDProducer<> {
-    using TkSoADevice = TrackSoACollection<TrackerTraits>;
-    using GPUAlgo = vertexFinder::Producer<TrackerTraits>;
+    using TkSoADevice = TracksSoACollection<TrackerTraits>;
+    using Algo = vertexFinder::Producer<TrackerTraits>;
 
   public:
     explicit PixelVertexProducerAlpaka(const edm::ParameterSet& iConfig);
@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::EDGetToken<TkSoADevice> tokenDeviceTrack_;
     device::EDPutToken<ZVertexCollection> tokenDeviceVertex_;
 
-    const GPUAlgo gpuAlgo_;
+    const Algo Algo_;
 
     // Tracking cuts before sending tracks to vertex algo
     const float ptMin_;
@@ -61,7 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   PixelVertexProducerAlpaka<TrackerTraits>::PixelVertexProducerAlpaka(const edm::ParameterSet& conf)
-      : gpuAlgo_(conf.getParameter<bool>("oneKernel"),
+      : Algo_(conf.getParameter<bool>("oneKernel"),
                  conf.getParameter<bool>("useDensity"),
                  conf.getParameter<bool>("useDBSCAN"),
                  conf.getParameter<bool>("useIterative"),
@@ -105,9 +105,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void PixelVertexProducerAlpaka<TrackerTraits>::produceOnGPU(edm::StreamID streamID,
                                                               device::Event& iEvent,
                                                               const device::EventSetup& iSetup) const {
-    auto const& hTracks = iEvent.get(tokenDeviceTrack_);
+    auto const& dTracks = iEvent.get(tokenDeviceTrack_);
 
-    iEvent.emplace(tokenDeviceVertex_, gpuAlgo_.makeAsync(iEvent.queue(), hTracks.view(), ptMin_, ptMax_));
+    iEvent.emplace(tokenDeviceVertex_, Algo_.makeAsync(iEvent.queue(), dTracks.view(), ptMin_, ptMax_));
   }
 
   template <typename TrackerTraits>

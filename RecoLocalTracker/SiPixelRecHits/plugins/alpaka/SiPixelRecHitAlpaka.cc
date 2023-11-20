@@ -1,11 +1,11 @@
 #include "DataFormats/BeamSpot/interface/BeamSpotPOD.h"
 #include "DataFormats/BeamSpot/interface/alpaka/BeamSpotDevice.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersDevice.h"
-#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersCollection.h"
+#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisDevice.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisCollection.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitSoADevice.h"
-#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitSoACollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -31,7 +31,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/alpaka/PixelCPEFastParamsCollection.h"
 
-#include "PixelRecHitGPUKernel.h"
+#include "PixelRecHitKernel.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
@@ -42,18 +42,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    using ParamsOnGPU = pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits>;
-
   private:
     void produce(edm::StreamID streamID, device::Event& iEvent, const device::EventSetup& iSetup) const override;
 
     const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, PixelCPEFastParamsRecord> cpeToken_;
     const device::EDGetToken<BeamSpotDevice> tBeamSpot;
-    const device::EDGetToken<SiPixelClustersCollection> tokenClusters_;
-    const device::EDGetToken<SiPixelDigisCollection> tokenDigi_;
-    const device::EDPutToken<TrackingRecHitAlpakaCollection<TrackerTraits>> tokenHit_;
+    const device::EDGetToken<SiPixelClustersSoACollection> tokenClusters_;
+    const device::EDGetToken<SiPixelDigisSoACollection> tokenDigi_;
+    const device::EDPutToken<TrackingRecHitsSoACollection<TrackerTraits>> tokenHit_;
 
-    const pixelgpudetails::PixelRecHitGPUKernel<TrackerTraits> gpuAlgo_;
+    const pixelgpudetails::PixelRecHitKernel<TrackerTraits> Algo_;
   };
 
   template <typename TrackerTraits>
@@ -91,7 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& bs = iEvent.get(tBeamSpot);
 
     iEvent.emplace(tokenHit_,
-                   gpuAlgo_.makeHitsAsync(digis, clusters, bs.data(), fcpe.const_buffer().data(), iEvent.queue()));
+                   Algo_.makeHitsAsync(digis, clusters, bs.data(), fcpe.const_buffer().data(), iEvent.queue()));
   }
   using SiPixelRecHitAlpakaPhase1 = SiPixelRecHitAlpaka<pixelTopology::Phase1>;
   using SiPixelRecHitAlpakaPhase2 = SiPixelRecHitAlpaka<pixelTopology::Phase2>;

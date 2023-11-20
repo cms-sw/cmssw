@@ -6,7 +6,7 @@
 
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
-#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoAv2.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelClusterThresholds.h"
@@ -20,7 +20,7 @@ namespace pixelClustering {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(
         const TAcc& acc,
-        SiPixelDigisSoAv2View digi_view,
+        SiPixelDigisSoAView digi_view,
         SiPixelClustersSoAView clus_view,
         SiPixelClusterThresholds
             clusterThresholds,  // charge cut on cluster in electrons (for layer 1 and for other layers)

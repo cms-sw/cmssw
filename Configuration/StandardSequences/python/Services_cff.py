@@ -20,8 +20,7 @@ from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
-modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (gpu | pixelNtupletFit ).makeProcessModifier(_addProcessAccelerators)
-
+modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (gpu | pixelNtupletFit | alpaka).makeProcessModifier(_addProcessAccelerators)
 modifyConfigurationStandardSequencesServicesAddProcessAcceleratorsAlpaka_ = alpaka.makeProcessModifier(_addProcessAcceleratorsAlpaka)
 
 

@@ -1,4 +1,3 @@
-<use name="alpaka"/>
 <use name="rootcore"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Portable"/>

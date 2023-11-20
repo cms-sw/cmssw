@@ -1,6 +1,6 @@
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersCollection.h"
+#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersDevice.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersHost.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
@@ -29,7 +29,7 @@ int main() {
   {
     // Instantiate tracks on device. PortableDeviceCollection allocates
     // SoA on device automatically.
-    SiPixelClustersCollection clusters_d(100, queue);
+    SiPixelClustersSoACollection clusters_d(100, queue);
     testClusterSoA::runKernels(clusters_d.view(), queue);
 
     // Instantate tracks on host. This is where the data will be

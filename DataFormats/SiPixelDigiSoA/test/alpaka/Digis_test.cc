@@ -4,8 +4,8 @@
 
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisDevice.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisHost.h"
-#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoAv2.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisCollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
@@ -18,7 +18,7 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace testDigisSoA {
 
-    void runKernels(SiPixelDigisSoAv2View digis_view, Queue& queue);
+    void runKernels(SiPixelDigisSoAView digis_view, Queue& queue);
 
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -32,7 +32,7 @@ int main() {
   {
     // Instantiate tracks on device. PortableDeviceCollection allocates
     // SoA on device automatically.
-    SiPixelDigisCollection digis_d(1000, queue);
+    SiPixelDigisSoACollection digis_d(1000, queue);
     testDigisSoA::runKernels(digis_d.view(), queue);
 
     // Instantate tracks on host. This is where the data will be

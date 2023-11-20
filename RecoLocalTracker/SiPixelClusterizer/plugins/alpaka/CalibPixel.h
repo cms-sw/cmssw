@@ -14,7 +14,7 @@
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsSoA.h"
-#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoAv2.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
@@ -30,7 +30,7 @@ namespace calibPixel {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   SiPixelClusterThresholds clusterThresholds,
-                                  SiPixelDigisSoAv2View view,
+                                  SiPixelDigisSoAView view,
                                   SiPixelClustersSoAView clus_view,
                                   const SiPixelGainCalibrationForHLTSoAConstView gains,
                                   int numElements) const {
@@ -89,7 +89,7 @@ namespace calibPixel {
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   SiPixelClusterThresholds clusterThresholds,
-                                  SiPixelDigisSoAv2View view,
+                                  SiPixelDigisSoAView view,
                                   SiPixelClustersSoAView clus_view,
                                   int numElements) const {
       const float ElectronPerADCGain = clusterThresholds.electronPerADCGain;

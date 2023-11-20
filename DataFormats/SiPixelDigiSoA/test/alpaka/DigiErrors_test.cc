@@ -4,7 +4,7 @@
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsDevice.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsHost.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsSoA.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsCollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsSoACollection.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
@@ -31,7 +31,7 @@ int main() {
   {
     // Instantiate tracks on device. PortableDeviceCollection allocates
     // SoA on device automatically.
-    SiPixelDigiErrorsCollection digiErrors_d(1000, queue);
+    SiPixelDigiErrorsSoACollection digiErrors_d(1000, queue);
     testDigisSoA::runKernels(digiErrors_d.view(), queue);
 
     // Instantate tracks on host. This is where the data will be

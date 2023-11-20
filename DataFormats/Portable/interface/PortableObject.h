@@ -4,6 +4,9 @@
 #include <type_traits>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
+// This header is not used by PortableObject, but is included here to automatically
+// provide its content to users of ALPAKA_ACCELERATOR_NAMESPACE::PortableObject.
+#include "HeterogeneousCore/AlpakaInterface/interface/AssertDeviceMatchesHostCollection.h"
 
 namespace traits {
 

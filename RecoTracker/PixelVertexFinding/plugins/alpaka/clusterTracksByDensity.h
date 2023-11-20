@@ -5,7 +5,7 @@
 #include <cmath>
 #include <cstdint>
 #include <alpaka/alpaka.hpp>
-#include "DataFormats/Vertex/interface/ZVertexLayout.h"
+#include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "../PixelVertexWorkSpaceLayout.h"

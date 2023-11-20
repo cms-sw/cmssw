@@ -188,8 +188,8 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     #  - FEDRawDataCollection
     # produces (* optional)
     #  - SiPixelClustersSoA
-    #  - SiPixelDigisCollection
-    #  - SiPixelDigiErrorsCollection *
+    #  - SiPixelDigisSoACollection
+    #  - SiPixelDigiErrorsSoACollection *
     #  - SiPixelFormatterErrors *
     process.hltSiPixelClusters = cms.EDProducer('SiPixelRawToClusterPhase1@alpaka',
         mightGet = cms.optional.untracked.vstring,
@@ -250,9 +250,9 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     # consumes
     #  - BeamSpotDevice
     #  - SiPixelClustersSoA
-    #  - SiPixelDigisCollection
+    #  - SiPixelDigisSoACollection
     # produces
-    #  - TrackingRecHitAlpakaCollection<TrackerTraits>
+    #  - TrackingRecHitsSoACollection<TrackerTraits>
     process.hltSiPixelRecHits = cms.EDProducer('SiPixelRecHitAlpakaPhase1@alpaka',
         beamSpot = cms.InputTag('hltOnlineBeamSpotDevice'),
         src = cms.InputTag('hltSiPixelClusters'),
@@ -332,7 +332,7 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
 
     # alpaka EDProducer
     # consumes
-    #  - TrackingRecHitAlpakaCollection<TrackerTraits>
+    #  - TrackingRecHitsSoACollection<TrackerTraits>
     # produces
     #  - TkSoADevice
     process.hltPixelTracks = cms.EDProducer('CAHitNtupletAlpakaPhase1@alpaka',

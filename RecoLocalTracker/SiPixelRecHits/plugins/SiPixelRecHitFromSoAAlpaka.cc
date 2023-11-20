@@ -7,8 +7,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitSoAHost.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsLayout.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,7 +26,7 @@
 
 template <typename TrackerTraits>
 class SiPixelRecHitFromSoAAlpaka : public edm::global::EDProducer<> {
-  using HitModuleStartArray = typename TrackingRecHitAlpakaSoA<TrackerTraits>::HitModuleStartArray;
+  using HitModuleStartArray = typename TrackingRecHitSoA<TrackerTraits>::HitModuleStartArray;
   using hindex_type = typename TrackerTraits::hindex_type;
   using HMSstorage = typename std::vector<hindex_type>;
 

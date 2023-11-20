@@ -3,6 +3,6 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DeviceProduct.h"
-#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersCollection.h"
+#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 
 #endif  // DataFormats_SiPixelClusterSoA_src_alpaka_classes_rocm_h

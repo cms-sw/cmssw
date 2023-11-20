@@ -5,8 +5,8 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsSoA.h"
-#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoAv2.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsCollection.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisCollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsSoACollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
 
 #endif  // DataFormats_SiPixelDigiSoA_src_alpaka_classes_cuda_h

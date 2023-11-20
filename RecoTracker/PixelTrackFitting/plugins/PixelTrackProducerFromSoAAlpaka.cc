@@ -3,7 +3,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
-#include "DataFormats/TrackSoA/interface/TrackSoAHost.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -38,7 +38,7 @@
 
 template <typename TrackerTraits>
 class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
-  using TkSoAHost = TrackSoAHost<TrackerTraits>;
+  using TkSoAHost = TracksHost<TrackerTraits>;
   using tracksHelpers = TracksUtilities<TrackerTraits>;
   using HMSstorage = std::vector<uint32_t>;
 

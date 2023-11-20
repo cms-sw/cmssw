@@ -21,7 +21,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Vertex/interface/ZVertexSoAHost.h"
+#include "DataFormats/VertexSoA/interface/ZVertexHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class SiPixelMonitorVertexSoAAlpaka : public DQMEDAnalyzer {

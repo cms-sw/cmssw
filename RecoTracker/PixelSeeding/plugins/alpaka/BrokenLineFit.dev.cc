@@ -7,7 +7,7 @@
 #include <alpaka/alpaka.hpp>
 #include <cstdint>
 
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsLayout.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(TAcc const &acc,
                                   Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
                                   TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
-                                  TrackingRecHitAlpakaSoAConstView<TrackerTraits> hh,
+                                  TrackingRecHitSoAConstView<TrackerTraits> hh,
                                   pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *__restrict__ cpeParams,
                                   typename TrackerTraits::tindex_type *__restrict__ ptkids,
                                   double *__restrict__ phits,
@@ -244,7 +244,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchBrokenLineKernels(
-      const TrackingRecHitAlpakaSoAConstView<TrackerTraits> &hv,
+      const TrackingRecHitSoAConstView<TrackerTraits> &hv,
       pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
       uint32_t hitsInFit,
       uint32_t maxNumberOfTuples,

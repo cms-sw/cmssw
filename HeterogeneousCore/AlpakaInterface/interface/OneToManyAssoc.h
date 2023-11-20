@@ -251,7 +251,14 @@ namespace cms {
           int32_t *ppsws = (int32_t *)((char *)(h) + offsetof(OneToManyAssocRandomAccess, psws));
           auto nthreads = 1024;
           auto nblocks = (nOnes + nthreads - 1) / nthreads;
-          auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
+          auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads); 
+          
+          auto numberOfWarps = 32; 
+          #ifndef ALPAKA_ACC_GPU_CUDA_ENABLED
+        printf("uhm"); 
+     		  numberOfWarps = alpaka::getWarpSizes(alpaka::getDev(queue))[0];
+          #endif
+
           alpaka::exec<TAcc>(queue,
                              workDiv,
                              multiBlockPrefixScan<Counter>(),
@@ -260,7 +267,7 @@ namespace cms {
                              nOnes,
                              nblocks,
                              ppsws,
-                             alpaka::getWarpSizes(alpaka::getDev(queue))[0]);
+                             numberOfWarps);
         } else {
           h->finalize();
         }

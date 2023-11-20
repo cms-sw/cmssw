@@ -4,13 +4,13 @@
 #include <utility>
 #include <vector>
 
-#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersCollection.h"
+#include "DataFormats/SiPixelClusterSoA/interface/alpaka/SiPixelClustersSoACollection.h"
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersDevice.h"
 #include "DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsCollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsSoACollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsDevice.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisDevice.h"
-#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisCollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
 
 #include "CondFormats/SiPixelObjects/interface/alpaka/SiPixelMappingDevice.h"
 #include "CondFormats/SiPixelObjects/interface/alpaka/SiPixelMappingUtilities.h"
@@ -64,9 +64,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     edm::EDGetTokenT<FEDRawDataCollection> rawGetToken_;
     edm::EDPutTokenT<SiPixelFormatterErrors> fmtErrorToken_;
-    device::EDPutToken<SiPixelDigisCollection> digiPutToken_;
-    device::EDPutToken<SiPixelDigiErrorsCollection> digiErrorPutToken_;
-    device::EDPutToken<SiPixelClustersCollection> clusterPutToken_;
+    device::EDPutToken<SiPixelDigisSoACollection> digiPutToken_;
+    device::EDPutToken<SiPixelDigiErrorsSoACollection> digiErrorPutToken_;
+    device::EDPutToken<SiPixelClustersSoACollection> clusterPutToken_;
 
     edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher_;
     const device::ESGetToken<SiPixelMappingDevice, SiPixelMappingSoARecord> mapToken_;

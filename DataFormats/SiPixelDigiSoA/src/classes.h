@@ -5,6 +5,6 @@
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsHost.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsSoA.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisHost.h"
-#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoAv2.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
 
 #endif  // DataFormats_SiPixelClusterSoA_src_classes_h

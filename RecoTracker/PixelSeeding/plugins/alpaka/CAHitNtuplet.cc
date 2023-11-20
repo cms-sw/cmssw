@@ -1,9 +1,9 @@
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/TrackSoA/interface/TrackSoAHost.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TrackSoACollection.h"
-#include "DataFormats/TrackSoA/interface/TrackSoADevice.h"
-#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitSoACollection.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include "DataFormats/TrackSoA/interface/TracksDevice.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -28,12 +28,12 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class CAHitNtupletAlpaka : public stream::EDProducer<> {
-    using HitsConstView = TrackingRecHitAlpakaSoAConstView<TrackerTraits>;
-    using HitsOnDevice = TrackingRecHitAlpakaCollection<TrackerTraits>;
+    using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+    using HitsOnDevice = TrackingRecHitsSoACollection<TrackerTraits>;
     using HitsOnHost = TrackingRecHitHost<TrackerTraits>;
 
-    using TkSoAHost = TrackSoAHost<TrackerTraits>;
-    using TkSoADevice = TrackSoACollection<TrackerTraits>;
+    using TkSoAHost = TracksHost<TrackerTraits>;
+    using TkSoADevice = TracksSoACollection<TrackerTraits>;
 
     using Algo = CAHitNtupletGenerator<TrackerTraits>;
 

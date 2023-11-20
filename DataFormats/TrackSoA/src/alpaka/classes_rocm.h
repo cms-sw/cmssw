@@ -4,9 +4,9 @@
 
 #include "DataFormats/Common/interface/DeviceProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/TrackSoA/interface/TrackLayout.h"
-#include "DataFormats/TrackSoA/interface/alpaka/TrackSoACollection.h"
-#include "DataFormats/TrackSoA/interface/TrackSoADevice.h"
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 using namespace pixelTopology;

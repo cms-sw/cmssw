@@ -18,7 +18,7 @@
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="DataFormats/SiPixelClusterSoA"/>
 <use name="DataFormats/TrackSoA"/>
-<use name="DataFormats/Vertex"/>
+<use name="DataFormats/VertexSoA"/>
 <use name="PhysicsTools/TensorFlow"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>

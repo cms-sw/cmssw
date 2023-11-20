@@ -56,8 +56,6 @@ from DQM.SiPixelHeterogeneous.siPixelPhase1CompareTrackSoAAlpaka_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelPhase2CompareTrackSoAAlpaka_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelHIonPhase1CompareTrackSoAAlpaka_cfi import *
 from DQM.SiPixelHeterogeneous.siPixelCompareVertexSoAAlpaka_cfi import *
-# from DQM.SiPixelHeterogeneous.siPixelPhase1RawDataErrorComparator_cfi import *
-# from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
 
 # digi errors
 SiPixelPhase1RawDataConfForCPU = copy.deepcopy(SiPixelPhase1RawDataConf)

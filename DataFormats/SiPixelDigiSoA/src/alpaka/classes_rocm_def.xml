@@ -1,15 +1,15 @@
 <lcgdict>
-  <!-- SiPixelDigisSoAv2-related collections -->
-  <class name="alpaka_rocm_async::PortableCollection<SiPixelDigisSoAv2>" persistent="false"/>
-  <!-- SiPixelDigisCollection inherits from PortableCollection<SiPixelDigisSoAv2> -->
-  <class name="alpaka_rocm_async::SiPixelDigisCollection" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_rocm_async::SiPixelDigisCollection>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::SiPixelDigisCollection>>" persistent="false"/>
+  <!-- SiPixelDigisSoA-related collections -->
+  <class name="alpaka_rocm_async::PortableCollection<SiPixelDigisSoA>" persistent="false"/>
+  <!-- SiPixelDigisSoACollection inherits from PortableCollection<SiPixelDigisSoA> -->
+  <class name="alpaka_rocm_async::SiPixelDigisSoACollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::SiPixelDigisSoACollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::SiPixelDigisSoACollection>>" persistent="false"/>
 
   <!-- SiPixelDigiErrors-related collections -->
   <class name="alpaka_rocm_async::PortableCollection<SiPixelDigiErrorsSoA>" persistent="false"/>
-  <!-- SiPixelDigiErrorsCollection inherits from PortableCollection<SiPixelDigiErrorsSoA> -->
-  <class name="alpaka_rocm_async::SiPixelDigiErrorsCollection" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_rocm_async::SiPixelDigiErrorsCollection>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::SiPixelDigiErrorsCollection>>" persistent="false"/>
+  <!-- SiPixelDigiErrorsSoACollection inherits from PortableCollection<SiPixelDigiErrorsSoA> -->
+  <class name="alpaka_rocm_async::SiPixelDigiErrorsSoACollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::SiPixelDigiErrorsSoACollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::SiPixelDigiErrorsSoACollection>>" persistent="false"/>
 </lcgdict>

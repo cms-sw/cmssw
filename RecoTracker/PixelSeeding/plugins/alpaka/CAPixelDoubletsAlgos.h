@@ -10,7 +10,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsLayout.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "CAStructures.h"
@@ -147,7 +147,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const float minRadius = hardPtCut * 87.78f;
       const float minRadius2T4 = 4.f * minRadius * minRadius;
 
-      using PhiBinner = typename TrackingRecHitAlpakaSoA<TrackerTraits>::PhiBinner;
+      using PhiBinner = typename TrackingRecHitSoA<TrackerTraits>::PhiBinner;
 
       auto const& __restrict__ phiBinner = hh.phiBinner();
       uint32_t const* __restrict__ offsets = hh.hitsLayerStart().data();

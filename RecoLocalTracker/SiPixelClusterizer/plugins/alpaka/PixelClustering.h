@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct countModules {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                    SiPixelDigisSoAv2View digi_view,
+                                    SiPixelDigisSoAView digi_view,
                                     SiPixelClustersSoAView clus_view,
                                     const unsigned int numElements) const {
         [[maybe_unused]] constexpr int nMaxModules = TrackerTraits::numberOfModules;
@@ -122,7 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct findClus {
       template <typename TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                    SiPixelDigisSoAv2View digi_view,
+                                    SiPixelDigisSoAView digi_view,
                                     SiPixelClustersSoAView clus_view,
                                     const unsigned int numElements) const {
         constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;

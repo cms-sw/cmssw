@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // DataFormats
-#include "DataFormats/TrackSoA/interface/TrackSoAHost.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 
 namespace {
@@ -68,7 +68,7 @@ namespace {
 template <typename T>
 class SiPixelCompareTrackSoAAlpaka : public DQMEDAnalyzer {
 public:
-  using PixelTrackSoA = TrackSoAHost<T>;
+  using PixelTrackSoA = TracksHost<T>;
 
   explicit SiPixelCompareTrackSoAAlpaka(const edm::ParameterSet&);
   ~SiPixelCompareTrackSoAAlpaka() override = default;

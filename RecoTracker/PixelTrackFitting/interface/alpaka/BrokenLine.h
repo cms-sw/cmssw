@@ -121,7 +121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       scalar tempC = -rho * y0 + tempSmallU * cosPhi;
       scalar tempB = rho * x0 + tempSmallU * sinPhi;
       scalar tempA = 2. * deltaOrth + rho * (riemannFit::sqr(deltaOrth) + riemannFit::sqr(deltaPara));
-      scalar tempU = alpaka::math::sin(acc, 1. + rho * tempA);
+      scalar tempU = alpaka::math::sqrt(acc, 1. + rho * tempA);
 
       // Intermediate computations for the error matrix transform
       scalar xi = 1. / (riemannFit::sqr(tempB) + riemannFit::sqr(tempC));

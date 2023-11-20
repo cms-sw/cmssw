@@ -9,7 +9,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/radixSort.h"
-#include "DataFormats/Vertex/interface/ZVertexLayout.h"
+#include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "RecoTracker/PixelVertexFinding/plugins/PixelVertexWorkSpaceLayout.h"
 
 #include "vertexFinder.h"

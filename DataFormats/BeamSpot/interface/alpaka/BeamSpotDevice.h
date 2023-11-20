@@ -17,3 +17,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(BeamSpotDevice, BeamSpotHost);
 
 #endif  // DataFormats_BeamSpot_interface_alpaka_BeamSpotDevice_h
+
+// check that the portable device collection for the host device is the same as the portable host collection
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(BeamSpotDevice, BeamSpotHost);
