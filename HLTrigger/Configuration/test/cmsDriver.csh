@@ -34,6 +34,7 @@ set InputGenSimPIon2 = $InputGenSimGRun2
 set InputGenSimPRef2 = $InputGenSimGRun2
 set InputGenSimPIon3 = $InputGenSimGRun3
 set InputGenSimPRef3 = $InputGenSimGRun3
+set InputGenSimSpec3 = $InputGenSimGRun3
 
 #
 # RAW input files for Real-Data tests
@@ -49,6 +50,7 @@ set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
 set InputLHCRawPIon3 = $InputLHCRawGRun3
 set InputLHCRawPRef3 = $InputLHCRawGRun3
+set InputLHCRawSpec3 = $InputLHCRawGRun3
 
 #
 # GlobalTags to be used
@@ -134,9 +136,9 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef 2023v12 Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef Special 2023v12 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
-    set tables = ( GRun HIon PIon PRef )
+    set tables = ( GRun HIon PIon PRef Special )
   else if ( ($1 == dev) || ($1 == DEV) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == full) || ($1 == FULL) ) then
@@ -270,6 +272,19 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
+    else if ( $table == Special ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:Special
+      set GTAG = ${BASE3}_Special
+      set RTAG = ${RECO3}_Special
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimSpec3
+      set InputLHCRaw = $InputLHCRawSpec3
+      set Era  = $EraRun3pp
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi      
     else
       # unsupported
       continue

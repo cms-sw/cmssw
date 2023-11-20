@@ -17,6 +17,7 @@ declare -A TABLES=(
   ["HIon"]="${CONFDBDIR}/HIon"
   ["PIon"]="${CONFDBDIR}/PIon"
   ["PRef"]="${CONFDBDIR}/PRef"
+  ["Special"]="${CONFDBDIR}/Special"
 )
 
 # command-line arguments
