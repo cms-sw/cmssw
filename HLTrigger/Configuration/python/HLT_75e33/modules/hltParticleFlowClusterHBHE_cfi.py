@@ -10,7 +10,8 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),
                 detector = cms.string('HCAL_BARREL1'),
-                gatheringThreshold = cms.vdouble(0.8, 1.2, 1.2, 1.2),
+                #Run3 thresholds. Will be overwritten with valid aging customisation
+                gatheringThreshold = cms.vdouble(0.1, 0.2, 0.3, 0.3),
                 gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
             ),
             cms.PSet(
@@ -39,7 +40,8 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
                 cms.PSet(
                     depths = cms.vint32(1, 2, 3, 4),
                     detector = cms.string('HCAL_BARREL1'),
-                    logWeightDenominator = cms.vdouble(0.8, 1.2, 1.2, 1.2)
+                    #Run3 thresholds. Will be overwritten with valid aging customisation
+                    logWeightDenominator = cms.vdouble(0.1, 0.2, 0.3, 0.3)
                 ),
                 cms.PSet(
                     depths = cms.vint32(
@@ -70,7 +72,8 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
                 cms.PSet(
                     depths = cms.vint32(1, 2, 3, 4),
                     detector = cms.string('HCAL_BARREL1'),
-                    logWeightDenominator = cms.vdouble(0.8, 1.2, 1.2, 1.2)
+                    #Run3 thresholds. Will be overwritten with valid aging customisation
+                    logWeightDenominator = cms.vdouble(0.1, 0.2, 0.3, 0.3)
                 ),
                 cms.PSet(
                     depths = cms.vint32(
@@ -92,7 +95,8 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),
                 detector = cms.string('HCAL_BARREL1'),
-                recHitEnergyNorm = cms.vdouble(0.8, 1.2, 1.2, 1.2)
+                #Run3 thresholds. Will be overwritten with valid aging customisation
+                recHitEnergyNorm = cms.vdouble(0.1, 0.2, 0.3, 0.3)
             ),
             cms.PSet(
                 depths = cms.vint32(
@@ -134,6 +138,7 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
     ),
     recHitCleaners = cms.VPSet(),
     recHitsSource = cms.InputTag("hltParticleFlowRecHitHBHE"),
+    usePFThresholdsFromDB = cms.bool(True),
     seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string('LocalMaximumSeedFinder'),
@@ -142,7 +147,8 @@ hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),
                 detector = cms.string('HCAL_BARREL1'),
-                seedingThreshold = cms.vdouble(1.0, 1.5, 1.5, 1.5),
+                #Run3 thresholds. Will be overwritten with valid aging customisation
+                seedingThreshold = cms.vdouble(0.125, 0.250, 0.350, 0.350),
                 seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
             ),
             cms.PSet(

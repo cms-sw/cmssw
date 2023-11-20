@@ -19,6 +19,7 @@ _seedingThresholdsHBphase1_2023 = cms.vdouble(0.6, 0.5, 0.5, 0.5)
 particleFlowClusterHBHE = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHBHE"),
+    usePFThresholdsFromDB = cms.bool(False),
     recHitCleaners = cms.VPSet(),
     seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
@@ -35,7 +36,7 @@ particleFlowClusterHBHE = cms.EDProducer(
                         seedingThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
                         )
               ),
-        nNeighbours = cms.int32(4)
+        nNeighbours = cms.int32(4),
     ),
     initialClusteringStep = cms.PSet(
         algoName = cms.string("Basic2DGenericTopoClusterizer"),    
@@ -163,3 +164,8 @@ run3_egamma_2023.toModify(particleFlowClusterHBHE,
 particleFlowClusterHBHEOnly = particleFlowClusterHBHE.clone(
     recHitsSource = "particleFlowRecHitHBHEOnly"
 )
+
+#--- Use DB conditions for cuts&seeds for Run3 and phase2
+from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
+hcalPfCutsFromDB.toModify( particleFlowClusterHBHE,
+                           usePFThresholdsFromDB = True)

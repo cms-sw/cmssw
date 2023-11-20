@@ -5,6 +5,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 class GenericSimClusterMapper : public InitialClusteringStepBase {
   typedef GenericSimClusterMapper B2DGT;
@@ -23,7 +25,8 @@ public:
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
                      const std::vector<bool>&,
                      const std::vector<bool>&,
-                     reco::PFClusterCollection&) override;
+                     reco::PFClusterCollection&,
+                     const HcalPFCuts*) override;
 
 private:
   edm::EDGetTokenT<SimClusterCollection> _simClusterToken;
@@ -49,7 +52,8 @@ void GenericSimClusterMapper::updateEvent(const edm::Event& ev) { ev.getByToken(
 void GenericSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
                                             const std::vector<bool>& rechitMask,
                                             const std::vector<bool>& seedable,
-                                            reco::PFClusterCollection& output) {
+                                            reco::PFClusterCollection& output,
+                                            const HcalPFCuts* hcalCuts) {
   const SimClusterCollection& simClusters = *_simClusterH;
   auto const& hits = *input;
 

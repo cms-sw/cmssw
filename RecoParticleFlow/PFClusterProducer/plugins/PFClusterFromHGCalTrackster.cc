@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 class PFClusterFromHGCalTrackster : public InitialClusteringStepBase {
 public:
@@ -28,7 +30,8 @@ public:
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
                      const std::vector<bool>&,
                      const std::vector<bool>&,
-                     reco::PFClusterCollection&) override;
+                     reco::PFClusterCollection&,
+                     const HcalPFCuts*) override;
 
 private:
   bool filterByTracksterPID_;
@@ -54,7 +57,8 @@ void PFClusterFromHGCalTrackster::updateEvent(const edm::Event& ev) {
 void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
                                                 const std::vector<bool>& rechitMask,
                                                 const std::vector<bool>& seedable,
-                                                reco::PFClusterCollection& output) {
+                                                reco::PFClusterCollection& output,
+                                                const HcalPFCuts*) {
   auto const& hits = *input;
 
   const auto& tracksters = *trackstersH_;

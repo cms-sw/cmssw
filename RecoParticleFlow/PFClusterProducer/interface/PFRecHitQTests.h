@@ -10,6 +10,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
+#include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
 #include <iostream>
 
@@ -258,7 +260,12 @@ public:
   PFRecHitQTestHCALThresholdVsDepth() {}
 
   PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : PFRecHitQTestBase(iConfig, cc), psets_(iConfig.getParameter<std::vector<edm::ParameterSet>>("cuts")) {
+      : PFRecHitQTestBase(iConfig, cc),
+        psets_(iConfig.getParameter<std::vector<edm::ParameterSet>>("cuts")),
+        cutsFromDB(iConfig.getParameter<bool>("usePFThresholdsFromDB")) {
+    if (cutsFromDB) {
+      hcalCutsToken_ = cc.esConsumes<HcalPFCuts, HcalPFCutsRcd>(edm::ESInputTag("", "withTopo"));
+    }
     for (auto& pset : psets_) {
       depths_.push_back(pset.getParameter<std::vector<int>>("depth"));
       thresholds_.push_back(pset.getParameter<std::vector<double>>("threshold"));
@@ -269,7 +276,11 @@ public:
     }
   }
 
-  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {}
+  void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
+    if (cutsFromDB) {
+      paramPF = &iSetup.getData(hcalCutsToken_);
+    }
+  }
 
   bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override { return true; }
   bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override {
@@ -292,16 +303,22 @@ protected:
   std::vector<std::vector<int>> depths_;
   std::vector<std::vector<double>> thresholds_;
   std::vector<int> detector_;
+  HcalPFCuts const* paramPF = nullptr;
 
   bool test(unsigned aDETID, double energy, double time, bool& clean) {
     HcalDetId detid(aDETID);
+    const HcalPFCut* item = nullptr;
+    if (cutsFromDB) {
+      item = paramPF->getValues(detid.rawId());
+    }
 
     for (unsigned int d = 0; d < detector_.size(); ++d) {
       if (detid.subdet() != detector_[d])
         continue;
       for (unsigned int i = 0; i < thresholds_[d].size(); ++i) {
         if (detid.depth() == depths_[d][i]) {
-          if (energy < thresholds_[d][i]) {
+          float thres = cutsFromDB ? item->noiseThreshold() : thresholds_[d][i];
+          if (energy < thres) {
             clean = false;
             return false;
           }
@@ -311,6 +328,11 @@ protected:
     }
     return true;
   }
+
+private:
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd> hcalCutsToken_;
+  bool cutsFromDB;
 };
 
 //
