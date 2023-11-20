@@ -26,9 +26,7 @@ public:
                        const uint8_t numberOfSamples,
                        const uint8_t offsetOfSamples,
                        const uint8_t pllInfo);
-  TotemTimingEventInfo(const TotemTimingEventInfo& eventInfo);
   TotemTimingEventInfo();
-  ~TotemTimingEventInfo(){};
 
   /// Digis are equal if they have all the same values, NOT checking the samples!
   bool operator==(const TotemTimingEventInfo& eventInfo) const;
