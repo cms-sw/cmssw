@@ -2212,6 +2212,10 @@ namespace edm {
   }
 
   void EventProcessor::handleNextEventForStreamAsync(WaitingTaskHolder iTask, unsigned int iStreamIndex) {
+    if (streamLumiStatus_[iStreamIndex]->haveStartedNextLumiOrEndedRun()) {
+      streamEndLumiAsync(iTask, iStreamIndex);
+      return;
+    }
     auto group = iTask.group();
     sourceResourcesAcquirer_.serialQueueChain().push(*group, [this, iTask = std::move(iTask), iStreamIndex]() mutable {
       CMS_SA_ALLOW try {
