@@ -653,6 +653,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
 ## Change the HFShowerLibrary file from Run 2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( g4SimHits, ZdcSD = dict(
+    UseShowerLibrary = False,
+    UseShowerHits = True,
+    ZdcHitEnergyCut = 1.0 ) )
 
 ##
 ## Change HCAL numbering scheme in 2017
@@ -678,9 +682,8 @@ pp_on_PbPb_run3.toModify( g4SimHits, LHCTransport = False )
 ##
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( g4SimHits, ECalSD = dict(
-                             StoreLayerTimeSim = True,
-                             TimeSliceUnit = 0.001 )
-)
+    StoreLayerTimeSim = True,
+    TimeSliceUnit = 0.001 ) )
 
 ##
 ## For ECAL component study
