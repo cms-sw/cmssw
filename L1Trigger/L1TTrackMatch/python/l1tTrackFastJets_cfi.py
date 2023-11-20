@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tTrackFastJets = cms.EDProducer("L1TrackFastJetProducer",
-    L1TrackInputTag = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"),
+    L1TrackInputTag = cms.InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"),
     L1PrimaryVertexTag=cms.InputTag("l1tVertexFinder", "L1Vertices"),
     trk_zMax = cms.double(15.),       # max track z0 [cm]
     trk_chi2dofMax = cms.double(10.), # max track chi2/dof
@@ -19,7 +19,7 @@ l1tTrackFastJets = cms.EDProducer("L1TrackFastJetProducer",
 )
 
 l1tTrackFastJetsExtended = cms.EDProducer("L1TrackFastJetProducer",
-    L1TrackInputTag = cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+    L1TrackInputTag = cms.InputTag("l1tTrackVertexAssociationProducerExtendedForJets", "Level1TTTracksExtendedSelectedAssociated"),
     L1PrimaryVertexTag=cms.InputTag("l1tVertexFinder", "L1Vertices"),
     trk_zMax = cms.double(15.),       # max track z0 [cm]
     trk_chi2dofMax = cms.double(40.),    # max track chi2 for extended tracks

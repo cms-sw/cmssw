@@ -9,6 +9,7 @@
 #include <memory>
 
 // user include files
+#include "DataFormats/Common/interface/RefVector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,6 +53,7 @@ class L1TrackFastJetProducer : public edm::stream::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
+  typedef edm::RefVector<L1TTTrackCollectionType> L1TTTrackRefCollectionType;
 
   explicit L1TrackFastJetProducer(const edm::ParameterSet&);
   ~L1TrackFastJetProducer() override;
@@ -78,7 +80,7 @@ private:
   const float trkChi2dofTightChi2_;
   const bool displaced_;  //use prompt/displaced tracks
 
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
+  const EDGetTokenT<L1TTTrackRefCollectionType> trackToken_;
   edm::EDGetTokenT<VertexCollection> pvToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
@@ -98,8 +100,7 @@ L1TrackFastJetProducer::L1TrackFastJetProducer(const edm::ParameterSet& iConfig)
       trkPtTightChi2_((float)iConfig.getParameter<double>("trk_ptTightChi2")),
       trkChi2dofTightChi2_((float)iConfig.getParameter<double>("trk_chi2dofTightChi2")),
       displaced_(iConfig.getParameter<bool>("displaced")),
-      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
-          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+      trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
       pvToken_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
   if (displaced_)
@@ -116,9 +117,8 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::unique_ptr<TkJetCollection> L1TrackFastJets(new TkJetCollection);
 
   // L1 tracks
-  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > TTTrackHandle;
+  edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
-  std::vector<TTTrack<Ref_Phase2TrackerDigi_> >::const_iterator iterL1Track;
 
   // Tracker Topology
   const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
@@ -130,9 +130,9 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::vector<fastjet::PseudoJet> JetInputs;
 
   float recoVtx = L1PrimaryVertexHandle->begin()->z0();
-  unsigned int this_l1track = 0;
-  for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
-    this_l1track++;
+  for (unsigned int this_l1track = 0; this_l1track < TTTrackHandle->size(); this_l1track++) {
+    edm::Ptr<L1TTTrackType> iterL1Track(TTTrackHandle, this_l1track);
+
     float trk_pt = iterL1Track->momentum().perp();
     float trk_z0 = iterL1Track->z0();
     float trk_chi2dof = iterL1Track->chi2Red();
@@ -179,7 +179,7 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
                                  iterL1Track->momentum().z(),
                                  iterL1Track->momentum().mag());
     JetInputs.push_back(psuedoJet);                     // input tracks for clustering
-    JetInputs.back().set_user_index(this_l1track - 1);  // save track index in the collection
+    JetInputs.back().set_user_index(this_l1track);  // save track index in the collection
   }                                                     // end loop over tracks
 
   fastjet::ClusterSequence cs(JetInputs, jet_def);  // define the output jet collection
