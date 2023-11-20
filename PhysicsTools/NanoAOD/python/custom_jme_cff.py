@@ -150,6 +150,10 @@ PFJETVARS = cms.PSet(P4Vars,
   muMultiplicity    = Var("muonMultiplicity()","int16",doc="(Puppi-weighted) number of muons in the jet"),
   elMultiplicity    = Var("electronMultiplicity()","int16",doc="(Puppi-weighted) number of electrons in the jet"),
   phoMultiplicity   = Var("photonMultiplicity()","int16",doc="(Puppi-weighted) number of photons in the jet"),
+  #MC-only variables
+  partonFlavour     = Var("partonFlavour()", "int16", doc="flavour from parton matching"),
+  hadronFlavour     = Var("hadronFlavour()", "uint8", doc="flavour from hadron ghost clustering"),
+  genJetIdx         = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1", "int16", doc="index of matched gen jet"),
 )
 PUIDVARS = cms.PSet(
   puId_dR2Mean    = Var("?(pt>=10)?userFloat('puId_dR2Mean'):-1",float,doc="pT^2-weighted average square distance of jet constituents from the jet axis (PileUp ID BDT input variable)", precision=14),
@@ -561,9 +565,9 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
       name = cms.string(jetTablePrefix),
       extension = cms.bool(True), # this is an extension table
       variables = cms.PSet(
-        partonFlavour = Var("partonFlavour()", int, doc="flavour from parton matching"),
-        hadronFlavour = Var("hadronFlavour()", int, doc="flavour from hadron ghost clustering"),
-        genJetIdx = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1", int, doc="index of matched gen jet"),
+      partonFlavour = PFJETVARS.partonFlavour,
+      hadronFlavour = PFJETVARS.hadronFlavour,
+      genJetIdx = PFJETVARS.genJetIdx,
       )
     )
   )
@@ -755,13 +759,14 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   # Save MC-only jet variables in jet table
   #
   if runOnMC:
-
     jetMCTableName = "jet{}MCTable".format(jetName)
     setattr(proc, jetMCTableName, proc.jetMCTable.clone(
         src = proc.jetPuppiTable.src,
         name = proc.jetPuppiTable.name
       )
     )
+    getattr(proc,jetMCTableName).variables.genJetIdx = PFJETVARS.genJetIdx
+
     jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
     setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTableName)))
 
@@ -949,6 +954,8 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
         name = proc.jetTable.name
       )
     )
+    getattr(proc,jetMCTableName).variables.genJetIdx = PFJETVARS.genJetIdx
+
     jetMCTableTaskName = "jet{}MCTablesTask".format(jetName)
     setattr(proc, jetMCTableTaskName, cms.Task(getattr(proc,jetMCTableName)))
 
@@ -1194,6 +1201,12 @@ def AddVariablesForAK8GenJets(proc):
   proc.genJetAK8Table.variables.nConstituents = GENJETVARS.nConstituents
   return proc
 
+def ModifyAK4JetMCTable(proc):
+  # Remove the genjet pt selection when saving the genJetIdx, which is
+  # the default in main Nano
+  proc.jetMCTable.variables.genJetIdx = PFJETVARS.genJetIdx
+  return proc
+
 #===========================================================================
 #
 # Misc. functions
@@ -1241,6 +1254,10 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     # Recluster AK8 GEN jets
     ############################################################################
     process = AddNewAK8GenJetsForJEC(process, genJA)
+    ############################################################################
+    # Modify jetMCTable
+    ############################################################################
+    process = ModifyAK4JetMCTable(process)
     ###########################################################################
     # Recluster AK4 GEN jets
     ###########################################################################
