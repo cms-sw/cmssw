@@ -91,7 +91,10 @@ public:
                                                                         std::string _tag,
                                                                         bool split_by_crate = true);
 
-  std::map<int, std::shared_ptr<LutXml> > getZdcLutXml(std::string _tag, bool split_by_crate = true);
+  std::map<int, std::shared_ptr<LutXml> > getZdcLutXml(const HcalTPGCoder& _coder,
+                                                       std::string _tag,
+                                                       bool split_by_crate = true,
+                                                       bool ootpu_lut = false);
 
   std::map<int, std::shared_ptr<LutXml> > getHEFineGrainLUTs(std::string _tag, bool split_by_crate = true);
 
