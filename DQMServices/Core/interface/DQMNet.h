@@ -4,7 +4,6 @@
 #include "classlib/iobase/Socket.h"
 #include "classlib/iobase/IOSelector.h"
 #include "classlib/iobase/Pipe.h"
-#include "classlib/utils/Signal.h"
 #include "classlib/utils/Error.h"
 #include "classlib/utils/Time.h"
 #include <pthread.h>
