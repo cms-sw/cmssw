@@ -552,8 +552,7 @@ namespace mkfit {
     MPlexLL temp;
     MultHelixProp(errorProp, outErr, temp);
     MultHelixPropTransp(errorProp, temp, outErr);
-    // MultHelixPropFull(errorProp, outErr, temp);
-    // MultHelixPropTranspFull(errorProp, temp, outErr);
+    // can replace with: MultHelixPropFull(errorProp, outErr, temp); MultHelixPropTranspFull(errorProp, temp, outErr);
 
     if (pflags.apply_material) {
       MPlexQF hitsRl;
@@ -679,13 +678,11 @@ namespace mkfit {
     }
 #endif
 
-     // Matriplex version of:
-     // result.errors = ROOT::Math::Similarity(errorProp, outErr);
-     MPlexLL temp;
-     MultHelixPropEndcap(errorProp, outErr, temp);
-     MultHelixPropTranspEndcap(errorProp, temp, outErr);
-     // MultHelixPropFull(errorProp, outErr, temp);
-     // MultHelixPropTranspFull(errorProp, temp, outErr);
+    // Matriplex version of: result.errors = ROOT::Math::Similarity(errorProp, outErr);
+    MPlexLL temp;
+    MultHelixPropEndcap(errorProp, outErr, temp);
+    MultHelixPropTranspEndcap(errorProp, temp, outErr);
+    // can replace with: MultHelixPropFull(errorProp, outErr, temp); MultHelixPropTranspFull(errorProp, temp, outErr);
 
     if (pflags.apply_material) {
       MPlexQF hitsRl;
