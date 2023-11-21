@@ -120,7 +120,6 @@ process.source = cms.Source("DAQSource",
 
 )
 
-
 fuDir = options.fuBaseDir+("/run%06d" % options.runNumber)
 buDir = options.buBaseDir+("/run%06d" % options.runNumber)
 for d in fuDir, buDir, options.fuBaseDir, options.buBaseDir:
@@ -149,8 +148,6 @@ process.outputZB = cms.OutputModule("PoolOutputModule",
     #compressionAlgorithm = cms.untracked.string("ZSTD"),
     #compressionLevel = cms.untracked.int32(4)
 )
-
-
 
 rawToDigiTask = cms.Task(
   process.GmtUnpacker,process.CaloUnpacker

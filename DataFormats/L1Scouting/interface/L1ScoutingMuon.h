@@ -52,6 +52,22 @@ namespace scoutingRun3 {
     ScMuon & operator=(const ScMuon& other) = default;
     ScMuon & operator=(ScMuon&& other) = default;
 
+    void swap(ScMuon& other){
+      using std::swap;
+      swap(hwPt_, other.hwPt_);
+      swap(hwEta_, other.hwEta_);
+      swap(hwPhi_, other.hwPhi_);
+      swap(hwQual_, other.hwQual_);
+      swap(hwChrg_, other.hwChrg_);
+      swap(hwChrgv_, other.hwChrgv_);
+      swap(hwIso_, other.hwIso_);
+      swap(tfIndex_, other.tfIndex_);
+      swap(hwEtaAtVtx_, other.hwEtaAtVtx_);
+      swap(hwPhiAtVtx_, other.hwPhiAtVtx_);
+      swap(hwPtUnconstrained_, other.hwPtUnconstrained_);
+      swap(hwDXY_, other.hwDXY_);
+    }
+
     inline void setHwPt(int hwPt) { hwPt_= hwPt;}
     inline void setHwEta(int hwEta) { hwEta_= hwEta;}
     inline void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
@@ -59,43 +75,44 @@ namespace scoutingRun3 {
     inline void setHwChrg(int hwChrg) { hwChrg_= hwChrg;}
     inline void setHwChrgv(int hwChrgv) { hwChrgv_= hwChrgv;}
     inline void setHwIso(int hwIso) { hwIso_= hwIso;}
-    inline void setHfIndex(int tfIndex) { tfIndex_= tfIndex;}
+    inline void setTfIndex(int tfIndex) { tfIndex_= tfIndex;}
     inline void setHwEtaAtVtx(int hwEtaAtVtx) { hwEtaAtVtx_= hwEtaAtVtx;}
     inline void setHwPhiAtVtx(int hwPhiAtVtx) { hwPhiAtVtx_= hwPhiAtVtx;}
     inline void setHwPtUnconstrained(int hwPtUnconstrained) { hwPtUnconstrained_= hwPtUnconstrained;}
     inline void setHwDXY(int hwDXY) { hwDXY_= hwDXY;}
 
-    inline int getHwPt() const {return hwPt_;}
-    inline int getHwEta() const {return hwEta_;}
-    inline int getHwPhi() const {return hwPhi_;}
-    inline int getHwQual() const {return hwQual_;}
-    inline int getHwChrg() const {return hwChrg_;}
-    inline int getHwChrgv() const {return hwChrgv_;}
-    inline int getHwIso() const {return hwIso_;}
-    inline int getHfIndex() const {return tfIndex_;}
-    inline int getHwEtaAtVtx() const {return hwEtaAtVtx_;}
-    inline int getHwPhiAtVtx() const {return hwPhiAtVtx_;}
-    inline int getHwPtUnconstrained() const {return hwPtUnconstrained_;}
-    inline int getHwDXY() const {return hwDXY_;}
+    inline int hwPt() const {return hwPt_;}
+    inline int hwEta() const {return hwEta_;}
+    inline int hwPhi() const {return hwPhi_;}
+    inline int hwQual() const {return hwQual_;}
+    inline int hwCharge() const {return hwChrg_;}
+    inline int hwChargeValid() const {return hwChrgv_;}
+    inline int hwIso() const {return hwIso_;}
+    inline int hwIndex() const {return tfIndex_;}
+    inline int hwEtaAtVtx() const {return hwEtaAtVtx_;}
+    inline int hwPhiAtVtx() const {return hwPhiAtVtx_;}
+    inline int hwPtUnconstrained() const {return hwPtUnconstrained_;}
+    inline int hwDXY() const {return hwDXY_;}
+    inline int tfMuonIndex() const {return tfIndex_;}
     
-    inline float getPt() const {
-      return pt_scale_*(hwPt_-1);
-    }
-    inline float getEta()const {
-      return eta_scale_*hwEta_;
-    }
-    inline float getPhi() const {
-      return phi_scale_*hwPhi_;
-    }
-    inline float getPtUnconstrained() const {
-      return pt_scale_*(hwPtUnconstrained_-1);
-    }
-    inline float getEtaAtVtx() const {
-      return eta_scale_*hwEtaAtVtx_;
-    }
-    inline float getPhiAtVtx() const {
-      return phi_scale_*hwPhiAtVtx_;
-    }
+    // inline float pt() const {
+    //   return pt_scale_*(hwPt_-1);
+    // }
+    // inline float eta()const {
+    //   return eta_scale_*hwEta_;
+    // }
+    // inline float phi() const {
+    //   return phi_scale_*hwPhi_;
+    // }
+    // inline float ptUnconstrained() const {
+    //   return pt_scale_*(hwPtUnconstrained_-1);
+    // }
+    // inline float etaAtVtx() const {
+    //   return eta_scale_*hwEtaAtVtx_;
+    // }
+    // inline float phiAtVtx() const {
+    //   return phi_scale_*hwPhiAtVtx_;
+    // }
 
   private:
     int hwPt_;
@@ -112,11 +129,12 @@ namespace scoutingRun3 {
     int hwDXY_;
 
     // constants to convert from harware to physical quantities
-    static constexpr float pt_scale_              = 0.5;
-    static constexpr float ptunconstrained_scale_ = 1.0;
-    static constexpr float phi_scale_             = 2.*M_PI/576.;
-    static constexpr float eta_scale_             = 0.0870/8;
+    // static constexpr float pt_scale_              = 0.5;
+    // static constexpr float ptunconstrained_scale_ = 1.0;
+    // static constexpr float phi_scale_             = 2.*M_PI/576.;
+    // static constexpr float eta_scale_             = 0.0870/8;
   };
 
 } // namespace scoutingRun3
+
 #endif // DataFormats_L1Scouting_L1ScoutingMuon_h

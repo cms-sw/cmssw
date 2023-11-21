@@ -12,7 +12,7 @@ namespace scoutingRun3 {
     : hwEt_(0),
       hwEta_(0),
       hwPhi_(0),
-      iso_(0){}
+      hwIso_(0){}
 
     ScCaloObject(
       int hwEt,
@@ -22,44 +22,52 @@ namespace scoutingRun3 {
     : hwEt_(hwEt),
       hwEta_(hwEta),
       hwPhi_(hwPhi),
-      iso_(iso) {}
+      hwIso_(iso) {}
 
     ScCaloObject(const ScCaloObject& other) = default;
     ScCaloObject(ScCaloObject&& other) = default;
     ScCaloObject & operator=(const ScCaloObject& other) = default;
     ScCaloObject & operator=(ScCaloObject&& other) = default;
 
+    void swap(ScCaloObject& other){
+      using std::swap;
+      swap(hwEt_, other.hwEt_);
+      swap(hwEta_, other.hwEta_);
+      swap(hwPhi_, other.hwPhi_);
+      swap(hwIso_, other.hwIso_);
+    }
+
     inline void setHwEt(int hwEt) { hwEt_= hwEt;}
     inline void setHwEta(int hwEta) { hwEta_= hwEta;}
     inline void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
-    inline void setIso(int iso) { iso_= iso;}
+    inline void setHwIso(int hwIso) { hwIso_= hwIso;}
 
-    inline int getHwEt() const {return hwEt_;}
-    inline int getHwEta() const {return hwEta_;}
-    inline int getHwPhi() const {return hwPhi_;}
-    inline int getIso() const {return iso_;}
+    inline int hwEt() const {return hwEt_;}
+    inline int hwEta() const {return hwEta_;}
+    inline int hwPhi() const {return hwPhi_;}
+    inline int hwIso() const {return hwIso_;}
 
-    inline float getEt() const {
-      return et_scale_* hwEt_;
-    }
-    inline float getEta()const {
-      return eta_scale_*hwEta_;
-    }
-    inline float getPhi() const {
-      float fPhi = phi_scale_*hwPhi_;
-      fPhi = fPhi>=2.*M_PI ? fPhi-2.*M_PI : fPhi;
-      return fPhi;
-    }
+    // inline float Et() const {
+    //   return et_scale_* hwEt_;
+    // }
+    // inline float eta()const {
+    //   return eta_scale_*hwEta_;
+    // }
+    // inline float phi() const {
+    //   float fPhi = phi_scale_*hwPhi_;
+    //   fPhi = fPhi>=M_PI ? fPhi-2.*M_PI : fPhi;
+    //   return fPhi;
+    // }
 
   private:
     int hwEt_;
     int hwEta_;
     int hwPhi_;
-    int iso_;
+    int hwIso_;
 
-    static constexpr float phi_scale_ = 2.*M_PI/144.;
-    static constexpr float eta_scale_ = 0.0435;
-    static constexpr float et_scale_  = 0.5;
+    // static constexpr float phi_scale_ = 2.*M_PI/144.;
+    // static constexpr float eta_scale_ = 0.0435;
+    // static constexpr float et_scale_  = 0.5;
   };
 
   class ScJet: public ScCaloObject {
@@ -72,6 +80,7 @@ namespace scoutingRun3 {
       int hwPhi,
       int iso)
     : ScCaloObject(hwEt, hwEta ,hwPhi , iso) {}
+
   };
 
   class ScEGamma: public ScCaloObject {
@@ -119,30 +128,37 @@ namespace scoutingRun3 {
     ScEtSum & operator=(const ScEtSum& other) = default;
     ScEtSum & operator=(ScEtSum&& other) = default;
 
+    void swap(ScEtSum& other){
+      using std::swap;
+      swap(hwEt_, other.hwEt_);
+      swap(hwPhi_, other.hwPhi_);
+      swap(type_, other.type_);
+    }
+
     inline void setHwEt(int hwEt) { hwEt_= hwEt;}
     inline void setHwPhi(int hwPhi) { hwPhi_= hwPhi;}
     inline void setType(l1t::EtSum::EtSumType type) { type_= type;}
 
-    inline int getHwEt() const {return hwEt_;}
-    inline int getHwPhi() const {return hwPhi_;}
-    inline l1t::EtSum::EtSumType getType() const {return type_;}
+    inline int hwEt() const {return hwEt_;}
+    inline int hwPhi() const {return hwPhi_;}
+    inline l1t::EtSum::EtSumType type() const {return type_;}
 
-    inline float getEt() const {
-      return et_scale_* hwEt_;
-    }
-    inline float getPhi() const {
-      float fPhi = phi_scale_*hwPhi_;
-      fPhi = fPhi>=2.*M_PI ? fPhi-2.*M_PI : fPhi;
-      return fPhi;
-    }
+    // inline float Et() const {
+    //   return et_scale_* hwEt_;
+    // }
+    // inline float phi() const {
+    //   float fPhi = phi_scale_*hwPhi_;
+    //   fPhi = fPhi>=M_PI ? fPhi-2.*M_PI : fPhi;
+    //   return fPhi;
+    // }
 
   private:
     int hwEt_;
     int hwPhi_;
     l1t::EtSum::EtSumType type_;
 
-    static constexpr float phi_scale_ = 2.*M_PI/144.;
-    static constexpr float et_scale_  = 0.5; 
+    // static constexpr float phi_scale_ = 2.*M_PI/144.;
+    // static constexpr float et_scale_  = 0.5; 
   };
 
 } // namespace scoutingRun3

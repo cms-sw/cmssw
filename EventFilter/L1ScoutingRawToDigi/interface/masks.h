@@ -93,25 +93,6 @@ namespace demux {
     };
 }
 
-
-
-namespace bmtf {
-    struct masksStubs {
-        static constexpr uint64_t valid    = 0x0001;
-        static constexpr uint64_t phi      = 0x0fff;
-        static constexpr uint64_t phiB     = 0x03ff;
-        static constexpr uint64_t qual     = 0x0007;
-        static constexpr uint64_t eta      = 0x007f;
-        static constexpr uint64_t qeta     = 0x007f;
-        static constexpr uint64_t station  = 0x0003;
-        static constexpr uint64_t wheel    = 0x0007;
-        static constexpr uint64_t reserved = 0x0007;
-        static constexpr uint64_t bx       = 0xffff;
-    };
-}
-
-
-
 struct header_masks {
     static constexpr uint32_t bxmatch            = 0x00ff << header_shifts::bxmatch;
     static constexpr uint32_t mAcount            = 0x000f << header_shifts::mAcount;

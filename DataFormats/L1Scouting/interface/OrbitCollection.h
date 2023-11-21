@@ -21,39 +21,64 @@ namespace scoutingRun3 {
   template<class T>
   class OrbitCollection {
     public:
-      OrbitCollection(): bxOffsets_(3565, 0), bxData_(3565), nObjects_(0) {}
+      OrbitCollection(): bxOffsets_(3566, 0), data_(0) {}
 
       // append one object to vector at bx
-      void addBxObject(int bx, T& object) {
-        assert(bx<=3564);
-        bxData_[bx].emplace_back(object);
-        nObjects_ ++;
-      }
+      // void addBxObject(int bx, T& object) {
+      //   assert(bx<=3564);
+      //   bxData_[bx].push_back(object);
+      //   nObjects_ ++;
+      // }
 
-      // append objects to bx from an iterator
-      template <typename VI>
-      void addBxObjects(int bx, VI objectsBegin, VI objectsEnd){
-        assert(bx<=3564);
-        bxData_[bx].insert(bxData_[bx].end(), objectsBegin, objectsEnd);
-        nObjects_ += std::distance(objectsBegin, objectsEnd);
-      }      
+      // // append objects to bx from an iterator
+      // template <typename VI>
+      // void addBxObjects(int bx, VI objectsBegin, VI objectsEnd){
+      //   assert(bx<=3564);
+      //   bxData_[bx].insert(bxData_[bx].end(), objectsBegin, objectsEnd);
+      //   nObjects_ += std::distance(objectsBegin, objectsEnd);
+      // }      
 
-      // flatten bxData_ vector. Must be called at the end of the orbit.
-      void flatten(){
-        data_.reserve(nObjects_);
+      // // flatten bxData_ vector. Must be called at the end of the orbit.
+      // void flatten(){
+      //   data_.reserve(nObjects_);
+      //   bxOffsets_[0] = 0;
+      //   int bxIdx = 1;
+      //   for (auto &bxVec: bxData_){
+      //     data_.insert(data_.end(),
+      //       std::make_move_iterator(bxVec.begin()),
+      //       std::make_move_iterator(bxVec.end())
+      //     );
+      //     // increase offset by the currect vec size
+      //     bxOffsets_[bxIdx] = bxOffsets_[bxIdx-1] + bxVec.size();
+      //     bxIdx++;
+      //   }
+
+      //   bxData_.clear();
+      // }
+
+      // TEST
+      void fillAndClear(std::vector<std::vector<T>> &orbitBuffer, int nObjects=0){
+        data_.reserve(nObjects);
         bxOffsets_[0] = 0;
         int bxIdx = 1;
-        for (auto &bxVec: bxData_){
-          data_.insert(data_.end(),
-            std::make_move_iterator(bxVec.begin()),
-            std::make_move_iterator(bxVec.end())
-          );
+        for (auto &bxVec: orbitBuffer){
           // increase offset by the currect vec size
           bxOffsets_[bxIdx] = bxOffsets_[bxIdx-1] + bxVec.size();
+          // std::cout<<"IDX: " << bxIdx << ", size: "<< bxVec.size() << ", offset: "<<bxOffsets_[bxIdx]<<std::endl;
+
+          // if bxVec contains something, move it into the data_ vector
+          // and clear bxVec objects
+          if (bxVec.size()>0){
+            data_.insert(data_.end(),
+              std::make_move_iterator(bxVec.begin()),
+              std::make_move_iterator(bxVec.end())
+            );
+            bxVec.clear();
+          }
+
           bxIdx++;
         }
 
-        bxData_.clear();
       }
 
       // get number of objects stored in a BX
@@ -88,17 +113,11 @@ namespace scoutingRun3 {
       // Transient container used while filling the orbit collection.
       // Needed because data could be added to the collection with unsorted BX.
       // This will not be persisted (transient="true")
-      mutable std::vector<std::vector<T>> bxData_;
+      // mutable std::vector<std::vector<T>> bxData_;
 
       // count number of objects inserted into the collection
-      int nObjects_;
+      // int nObjects_;
   };
-
-  typedef OrbitCollection<l1t::Muon>    MuonOrbitCollection;
-  typedef OrbitCollection<l1t::Jet>     JetOrbitCollection;
-  typedef OrbitCollection<l1t::EGamma>  EGammaOrbitCollection;
-  typedef OrbitCollection<l1t::Tau>     TauOrbitCollection;
-  typedef OrbitCollection<l1t::EtSum>   EtSumOrbitCollection;
 
   typedef OrbitCollection<scoutingRun3::ScMuon>        ScMuonOrbitCollection;
   typedef OrbitCollection<scoutingRun3::ScJet>  ScJetOrbitCollection;

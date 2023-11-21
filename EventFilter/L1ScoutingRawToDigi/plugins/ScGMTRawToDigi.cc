@@ -5,12 +5,15 @@ ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   srcInputTag  = iConfig.getParameter<InputTag>( "srcInputTag" );
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 
-  //produces<scoutingRun3::MuonOrbitCollection>().setBranchAlias( "MuonOrbitCollection" );
+  // initialize orbit buffer for BX 1->3564;
+  orbitBuffer_ = std::vector<std::vector<scoutingRun3::ScMuon>>(3565);
+  for (auto &bxVec: orbitBuffer_){
+    bxVec.reserve(8);
+  }
+  nMuonsOrbit_ = 0;
+
   produces<scoutingRun3::ScMuonOrbitCollection>().setBranchAlias( "ScMuonOrbitCollection" );
   rawToken = consumes<SRDCollection>(srcInputTag);
-  
-  bx_muons.reserve(8);
-  //dummyLVec_.reset( new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>() );
 }
 
 ScGMTRawToDigi::~ScGMTRawToDigi() {};
@@ -24,29 +27,40 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(SDSNumbering::GmtSDSID);
   size_t orbitSize = sourceRawData.size();
 
-  //std::unique_ptr<scoutingRun3::MuonOrbitCollection> unpackedMuons(new scoutingRun3::MuonOrbitCollection);
   std::unique_ptr<scoutingRun3::ScMuonOrbitCollection> unpackedMuons(new scoutingRun3::ScMuonOrbitCollection);
 
   if((sourceRawData.size()==0) && debug_){
     std::cout << "No raw data for GMT FED\n";  
   }
 
-  unpackOrbit(unpackedMuons.get(), sourceRawData.data(), orbitSize); 
+  // unpackOrbit(unpackedMuons.get(), sourceRawData.data(), orbitSize); 
+  unpackOrbit(sourceRawData.data(), orbitSize); 
+
+  // fill orbit collection with move:
+  // move every bx vector into the orbit collection
+  unpackedMuons->fillAndClear(orbitBuffer_, nMuonsOrbit_);
+
+  // int idx = 0;
+  // for (auto &bxVec: orbitBuffer_){
+  //   std::cout << "Bx = " << idx << ", size = "<< bxVec.size() <<std::endl;
+  //   idx += 1;
+  // }
 
   // store collection in the event
   iEvent.put( std::move(unpackedMuons) );
 }
 
 void ScGMTRawToDigi::unpackOrbit(
-  //l1t::MuonBxCollection* muons, 
-  scoutingRun3::ScMuonOrbitCollection* muons,
+  //scoutingRun3::ScMuonOrbitCollection* muons,
   const unsigned char* buf, size_t len
   ){
   
   using namespace scoutingRun3;
-  size_t pos = 0;
 
-  //muons->setBXRange(0,3565);
+  // reset counters
+  nMuonsOrbit_ = 0;
+
+  size_t pos = 0;
   
   while (pos < len) {
     assert(pos+4 <= len);
@@ -67,24 +81,18 @@ void ScGMTRawToDigi::unpackOrbit(
     uint32_t bx = bl->bx;
    
     if (debug_){
-      std::cout  << " GMT Orbit " << orbit << ", BX -> "<< bx << ", nMuons -> " << mAcount+mBcount << std::endl;
+      std::cout  << "GMT Orbit " << orbit << ", BX -> "<< bx << ", nMuons -> " << mAcount+mBcount << std::endl;
     }
     
     // Unpack muons for this BX
-    
-    bx_muons.clear();
-    
-    // cuts should be applied
-    bool excludeIntermediate=true;
-    int ptcut=0;
-    unsigned int qualcut=0;
+    orbitBuffer_[bx].reserve(mAcount+mBcount);
 
     for (unsigned int i=0; i<mAcount+mBcount; i++) {
 
       uint32_t interm = (bl->mu[i].extra >> ugmt::shiftsMuon::interm) & ugmt::masksMuon::interm;
-      if (excludeIntermediate && (interm == 1)){
+      if (interm == 1){
         if (debug_){
-          std::cout << "Excluding intermediate muon\n";
+          std::cout << " -> Excluding intermediate muon\n";
         }
         continue;
       }
@@ -101,11 +109,11 @@ void ScGMTRawToDigi::unpackOrbit(
       // extract pt and quality and apply cut if required
       int32_t iptuncon = (bl->mu[i].s >> ugmt::shiftsMuon::ptuncon) & ugmt::masksMuon::ptuncon;
       int32_t ipt      = (bl->mu[i].f >> ugmt::shiftsMuon::pt)      & ugmt::masksMuon::pt;
-      if ((ipt-1) < ptcut) {
+      if ((ipt-1) < 0) {
           continue;
       }
       uint32_t qual = (bl->mu[i].f >> ugmt::shiftsMuon::qual) & ugmt::masksMuon::qual;
-      if (qual < qualcut) {
+      if (qual == 0) {
           continue;
       }
       
@@ -143,50 +151,8 @@ void ScGMTRawToDigi::unpackOrbit(
           ieta = ieta_u;
       }
 
-      // convert to physical units using scales
-      float fpt      = (ipt     -1) * ugmt::scales::pt_scale;                 // -1 since bin 0 is for invalid muons
-      float fptuncon = (iptuncon-1) * ugmt::scales::ptunconstrained_scale;    // -1 since bin 0 is for invalid muons
-      float fphi     = iphi         * ugmt::scales::phi_scale;
-      float fphiext  = iphiext      * ugmt::scales::phi_scale;
-      float feta     = ieta         * ugmt::scales::eta_scale;
-      float fetaext  = ietaext      * ugmt::scales::eta_scale;
-
-      if (fphiext>M_PI) fphiext = fphiext - 2.*M_PI;
-      if (fphi   >M_PI) fphi    = fphi    - 2.*M_PI;
-
-      // l1t::Muon muon;
-      // math::PtEtaPhiMLorentzVector vec{fpt, feta, fphi, 0.};
-
-      // muon.setP4(vec);
-      // muon.setHwPt(ipt);
-      // muon.setHwEta(ieta);
-      // muon.setHwPhi(iphi);
-      // muon.setHwQual(qual);
-      // muon.setHwCharge(chrg);
-      // muon.setHwChargeValid(chrg != 0);
-      // muon.setHwIso(iso);
-      // muon.setTfMuonIndex(index);
-      // muon.setHwEtaAtVtx(ietaext);
-      // muon.setHwPhiAtVtx(iphiext);
-      // muon.setEtaAtVtx(fetaext);
-      // muon.setPhiAtVtx(fphiext);
-      // muon.setHwPtUnconstrained(iptuncon);
-      // muon.setPtUnconstrained(fptuncon);
-      // muon.setHwDXY(idxy);
-
-      // ScMuon muon;
-
-      // muon.pt = ipt;
-      // muon.eta = ieta;
-      // muon.phi = iphi;
-      // muon.qual = qual;
-      // muon.chrg = chrg;
-      // muon.chrgv = chrg!=0;
-      // muon.iso = iso;
-      // muon.index = index;
-      // muon.etae = ietaext;
-      // muon.phie = iphiext;
-      // muon.ptUncon = iptuncon;
+      // increment muon counter
+      nMuonsOrbit_ ++;
 
       scoutingRun3::ScMuon muon(
         ipt,
@@ -203,26 +169,30 @@ void ScGMTRawToDigi::unpackOrbit(
         idxy
       );
 
-      muons->addBxObject(bx, muon);
+      //muons->addBxObject(bx, muon);
+      orbitBuffer_[bx].push_back(muon);
 
-      // if (debug_){
-      //   std::cout<<"--- Muon ---\n";
-      //   std::cout<<"\tPt  [GeV/Hw]: " << muon.pt()  << "/" << muon.hwPt() << "\n";
-      //   std::cout<<"\tEta [rad/Hw]: " << muon.eta() << "/" << muon.hwEta() << "\n";
-      //   std::cout<<"\tPhi [rad/Hw]: " << muon.phi() << "/" << muon.hwPhi() << "\n";
-      //   std::cout<<"\tCharge/valid: " << muon.hwCharge() << "/" << muon.hwChargeValid() << "\n";
-      //   std::cout<<"\tPhiVtx  [rad/Hw]: " << muon.phiAtVtx() << "/" << muon.hwPhiAtVtx() << "\n";
-      //   std::cout<<"\tEtaVtx  [rad/Hw]: " << muon.etaAtVtx() << "/" << muon.hwEtaAtVtx() << "\n";
-      //   std::cout<<"\tPt uncon[GeV/Hw]: " << muon.ptUnconstrained()  << "/" << muon.hwPtUnconstrained() << "\n";
-      //   std::cout<<"\tDxy: " << muon.hwDXY() << "\n";
-      //   std::cout<<"\tTF index: " << muon.tfMuonIndex() << "\n";
-      // }
+      if (debug_){
+        std::cout  <<  "--- Muon " << i << " ---\n";
+        std::cout  <<  "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n";
+        std::cout  <<  "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n";
+        std::cout  <<  "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
+        std::cout  <<  "  Pt  [GeV/Hw]: " << ugmt::fPt(muon.hwPt())  << "/" << muon.hwPt() << "\n";
+        std::cout  <<  "  Eta [rad/Hw]: " << ugmt::fEta(muon.hwEta()) << "/" << muon.hwEta() << "\n";
+        std::cout  <<  "  Phi [rad/Hw]: " << ugmt::fPhi(muon.hwPhi()) << "/" << muon.hwPhi() << "\n";
+        std::cout  <<  "  Charge/valid: " << muon.hwCharge() << "/" << muon.hwChargeValid() << "\n";
+        std::cout  <<  "  PhiVtx  [rad/Hw]: " << ugmt::fPhiAtVtx(muon.hwPhiAtVtx()) << "/" << muon.hwPhiAtVtx() << "\n";
+        std::cout  <<  "  EtaVtx  [rad/Hw]: " << ugmt::fEtaAtVtx(muon.hwEtaAtVtx()) << "/" << muon.hwEtaAtVtx() << "\n";
+        std::cout  <<  "  Pt uncon[GeV/Hw]: " << ugmt::fPtUnconstrained(muon.hwPtUnconstrained()) << "/" << muon.hwPtUnconstrained() << "\n";
+        std::cout  <<  "  Dxy: " << muon.hwDXY() << "\n";
+        std::cout  <<  "  TF index: " << muon.tfMuonIndex() << "\n";
+      }
 
     } // end of bx
 
   } // end orbit while loop
 
-  muons->flatten();
+  //muons->flatten();
 
 }
 

@@ -1,50 +1,29 @@
 <lcgdict>
-  <class name="scoutingRun3::MuonOrbitCollection">
-    <field name="bxData_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<scoutingRun3::MuonOrbitCollection>"/>
-  <class name="scoutingRun3::JetOrbitCollection">
-    <field name="bxData_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<scoutingRun3::JetOrbitCollection>"/>
-  <class name="scoutingRun3::EGammaOrbitCollection">
-    <field name="bxData_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<scoutingRun3::EGammaOrbitCollection>"/>
-  <class name="scoutingRun3::TauOrbitCollection">
-    <field name="bxData_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<scoutingRun3::TauOrbitCollection>"/>
-  <class name="scoutingRun3::EtSumOrbitCollection">
-    <field name="bxData_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<scoutingRun3::EtSumOrbitCollection>"/>
-
   <class name="scoutingRun3::ScMuon"/>
   <class name="std::vector<scoutingRun3::ScMuon>"/>
-  <class name="std::vector<std::vector<scoutingRun3::ScMuon>>"/>
+  <!-- <class name="std::vector<std::vector<scoutingRun3::ScMuon>>"/> -->
   <class name="scoutingRun3::ScMuonOrbitCollection"/>
   <class name="edm::Wrapper<scoutingRun3::ScMuonOrbitCollection>"/>
 
   <class name="scoutingRun3::ScCaloObject"/>
   <class name="std::vector<scoutingRun3::ScCaloObject>"/>
-  <class name="std::vector<std::vector<scoutingRun3::ScCaloObject>>"/>
+  <!-- <class name="std::vector<std::vector<scoutingRun3::ScCaloObject>>"/> -->
 
   <class name="scoutingRun3::ScJet"/>
   <class name="std::vector<scoutingRun3::ScJet>"/>
-  <class name="std::vector<std::vector<scoutingRun3::ScJet>>"/>
+  <!-- <class name="std::vector<std::vector<scoutingRun3::ScJet>>"/> -->
 
   <class name="scoutingRun3::ScEGamma"/>
   <class name="std::vector<scoutingRun3::ScEGamma>"/>
-  <class name="std::vector<std::vector<scoutingRun3::ScEGamma>>"/>
+  <!-- <class name="std::vector<std::vector<scoutingRun3::ScEGamma>>"/> -->
 
   <class name="scoutingRun3::ScTau"/>
   <class name="std::vector<scoutingRun3::ScTau>"/>
-  <class name="std::vector<std::vector<scoutingRun3::ScTau>>"/>
+  <!-- <class name="std::vector<std::vector<scoutingRun3::ScTau>>"/> -->
 
   <class name="scoutingRun3::ScEtSum"/>
   <class name="std::vector<scoutingRun3::ScEtSum>"/>
-  <class name="std::vector<std::vector<scoutingRun3::ScEtSum>>"/>
+  <!-- <class name="std::vector<std::vector<scoutingRun3::ScEtSum>>"/> -->
   
   <class name="scoutingRun3::ScJetOrbitCollection"/>
   <class name="edm::Wrapper<scoutingRun3::ScJetOrbitCollection>"/>

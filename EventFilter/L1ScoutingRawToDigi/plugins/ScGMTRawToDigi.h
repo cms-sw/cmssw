@@ -1,4 +1,3 @@
-#include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -18,6 +17,10 @@
 #include "EventFilter/L1ScoutingRawToDigi/interface/scales.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/masks.h"
 #include "EventFilter/L1ScoutingRawToDigi/interface/blocks.h"
+#include "EventFilter/L1ScoutingRawToDigi/interface/conversion.h"
+
+#include <memory>
+#include <vector>
 
 class ScGMTRawToDigi : public edm::stream::EDProducer<> {
 public:
@@ -27,21 +30,19 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  //void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  //void endStream() override;
 
   void unpackOrbit(
-    scoutingRun3::ScMuonOrbitCollection* muons,
-    //l1t::MuonBxCollection* muons,
+    //scoutingRun3::ScMuonOrbitCollection* muons,
     const unsigned char* buf, size_t len
   );
 
-  std::vector<l1t::Muon> bx_muons;
-  std::unique_ptr<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>> dummyLVec_;
+  // vector holding data for every bunch crossing before 
+  // filling the orbit collection
+  std::vector<std::vector<scoutingRun3::ScMuon>> orbitBuffer_;
+  int nMuonsOrbit_;
 
   bool debug_ = false;
-
   edm::InputTag srcInputTag;
   edm::EDGetToken rawToken;
 };
