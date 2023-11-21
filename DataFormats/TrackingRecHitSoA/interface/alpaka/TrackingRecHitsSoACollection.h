@@ -13,8 +13,9 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
-  using TrackingRecHitsSoACollection =
-      std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, TrackingRecHitHost<TrackerTraits>, TrackingRecHitDevice<TrackerTraits, Device>>;
+  using TrackingRecHitsSoACollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>,
+                                                          TrackingRecHitHost<TrackerTraits>,
+                                                          TrackingRecHitDevice<TrackerTraits, Device>>;
 
   //Classes definition for Phase1/Phase2, to make the classes_def lighter. Not actually used in the code.
   using TrackingRecHitSoAPhase1 = TrackingRecHitsSoACollection<pixelTopology::Phase1>;
@@ -27,13 +28,12 @@ namespace cms::alpakatools {
   template <typename TrackerTraits, typename TDevice>
   struct CopyToHost<TrackingRecHitDevice<TrackerTraits, TDevice>> {
     template <typename TQueue>
-    static auto copyAsync(
-        TQueue& queue, TrackingRecHitDevice<TrackerTraits, TDevice> const& deviceData) {
+    static auto copyAsync(TQueue& queue, TrackingRecHitDevice<TrackerTraits, TDevice> const& deviceData) {
       TrackingRecHitHost<TrackerTraits> hostData(deviceData.view().metadata().size(), queue);
       alpaka::memcpy(queue, hostData.buffer(), deviceData.buffer());
-      #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
       printf("TrackingRecHitsSoACollection: I'm copying to host.\n");
-      #endif
+#endif
       return hostData;
     }
   };

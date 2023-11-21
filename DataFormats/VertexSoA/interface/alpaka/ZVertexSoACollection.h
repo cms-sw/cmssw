@@ -27,9 +27,9 @@ namespace cms::alpakatools {
     static auto copyAsync(TQueue& queue, ZVertexDevice<TDevice> const& deviceData) {
       ZVertexHost hostData(queue);
       alpaka::memcpy(queue, hostData.buffer(), deviceData.buffer());
-      #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
       printf("ZVertexCollection: I'm copying to host.\n");
-      #endif
+#endif
       return hostData;
     }
   };

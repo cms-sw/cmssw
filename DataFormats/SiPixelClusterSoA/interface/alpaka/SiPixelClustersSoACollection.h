@@ -23,9 +23,9 @@ namespace cms::alpakatools {
       SiPixelClustersHost dstData(srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       dstData.setNClusters(srcData.nClusters(), srcData.offsetBPIX2());
-      #ifdef GPU_DEBUG //keeping this untiil copies are in the Tracer
+#ifdef GPU_DEBUG  //keeping this untiil copies are in the Tracer
       printf("SiPixelClustersSoACollection: I'm copying to host.\n");
-      #endif
+#endif
       return dstData;
     }
   };

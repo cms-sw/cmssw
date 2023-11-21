@@ -58,10 +58,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::exec<Acc1D>(queue, workDiv, ShowKernel<TrackerTraits>{}, view);
     }
 
-    template void runKernels<pixelTopology::Phase1>(TrackingRecHitSoAView<pixelTopology::Phase1>& view,
-                                                    Queue& queue);
-    template void runKernels<pixelTopology::Phase2>(TrackingRecHitSoAView<pixelTopology::Phase2>& view,
-                                                    Queue& queue);
+    template void runKernels<pixelTopology::Phase1>(TrackingRecHitSoAView<pixelTopology::Phase1>& view, Queue& queue);
+    template void runKernels<pixelTopology::Phase2>(TrackingRecHitSoAView<pixelTopology::Phase2>& view, Queue& queue);
 
   }  // namespace testTrackingRecHitSoA
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

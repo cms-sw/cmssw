@@ -19,8 +19,7 @@ public:
   explicit ZVertexHostSoA(TQueue queue) : PortableHostCollection<ZVertexLayout<>>(S, queue) {}
 
   // Constructor which specifies the DevHost
-  explicit ZVertexHostSoA(alpaka_common::DevHost const& host)
-      : PortableHostCollection<ZVertexLayout<>>(S, host) {}
+  explicit ZVertexHostSoA(alpaka_common::DevHost const& host) : PortableHostCollection<ZVertexLayout<>>(S, host) {}
 };
 
 using namespace ::zVertex;

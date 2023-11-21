@@ -18,8 +18,9 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
-  using TracksSoACollection =
-      std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, TracksHost<TrackerTraits>, TracksDevice<TrackerTraits, Device>>;
+  using TracksSoACollection = std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>,
+                                                 TracksHost<TrackerTraits>,
+                                                 TracksDevice<TrackerTraits, Device>>;
 
   //Classes definition for Phase1/Phase2/HIonPhase1, to make the classes_def lighter. Not actually used in the code.
   namespace pixelTrack {
@@ -33,13 +34,12 @@ namespace cms::alpakatools {
   template <typename TrackerTraits, typename TDevice>
   struct CopyToHost<TracksDevice<TrackerTraits, TDevice>> {
     template <typename TQueue>
-    static auto copyAsync(TQueue& queue,
-                          TracksDevice<TrackerTraits, TDevice> const& deviceData) {
+    static auto copyAsync(TQueue& queue, TracksDevice<TrackerTraits, TDevice> const& deviceData) {
       ::TracksHost<TrackerTraits> hostData(queue);
       alpaka::memcpy(queue, hostData.buffer(), deviceData.buffer());
-      #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
       printf("TracksSoACollection: I'm copying to host.\n");
-      #endif
+#endif
       return hostData;
     }
   };

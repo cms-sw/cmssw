@@ -62,14 +62,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   PixelVertexProducerAlpaka<TrackerTraits>::PixelVertexProducerAlpaka(const edm::ParameterSet& conf)
       : Algo_(conf.getParameter<bool>("oneKernel"),
-                 conf.getParameter<bool>("useDensity"),
-                 conf.getParameter<bool>("useDBSCAN"),
-                 conf.getParameter<bool>("useIterative"),
-                 conf.getParameter<bool>("doSplitting"),
-                 conf.getParameter<int>("minT"),
-                 conf.getParameter<double>("eps"),
-                 conf.getParameter<double>("errmax"),
-                 conf.getParameter<double>("chi2max")),
+              conf.getParameter<bool>("useDensity"),
+              conf.getParameter<bool>("useDBSCAN"),
+              conf.getParameter<bool>("useIterative"),
+              conf.getParameter<bool>("doSplitting"),
+              conf.getParameter<int>("minT"),
+              conf.getParameter<double>("eps"),
+              conf.getParameter<double>("errmax"),
+              conf.getParameter<double>("chi2max")),
         ptMin_(conf.getParameter<double>("PtMin")),  // 0.5 GeV
         ptMax_(conf.getParameter<double>("PtMax"))   // 75. GeV
   {

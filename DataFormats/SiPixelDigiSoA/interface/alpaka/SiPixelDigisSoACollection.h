@@ -5,7 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/Portable/interface/alpaka/PortableCollection.h" 
+#include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisDevice.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
@@ -13,7 +13,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-using SiPixelDigisSoACollection =
+  using SiPixelDigisSoACollection =
       std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, SiPixelDigisHost, SiPixelDigisDevice<Device>>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

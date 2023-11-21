@@ -103,7 +103,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           hrv_d.contentSize = nHits;
           hrv_d.contentStorage = hits_d.view().phiBinnerStorage();
 
-
           cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
                                                       hrv_d,
                                                       nLayers,

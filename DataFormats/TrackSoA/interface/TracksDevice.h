@@ -16,7 +16,7 @@ template <typename TrackerTraits, typename TDev>
 class TracksDevice : public PortableDeviceCollection<TrackLayout<TrackerTraits>, TDev> {
 public:
   static constexpr int32_t S = TrackerTraits::maxNumberOfTuples;  //TODO: this could be made configurable at runtime
-  TracksDevice() = default;                                     // necessary for ROOT dictionaries
+  TracksDevice() = default;                                       // necessary for ROOT dictionaries
 
   using PortableDeviceCollection<TrackLayout<TrackerTraits>, TDev>::view;
   using PortableDeviceCollection<TrackLayout<TrackerTraits>, TDev>::const_view;

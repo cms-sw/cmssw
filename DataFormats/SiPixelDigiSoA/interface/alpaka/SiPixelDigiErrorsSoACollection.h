@@ -14,7 +14,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-using SiPixelDigiErrorsSoACollection =
+  using SiPixelDigiErrorsSoACollection =
       std::conditional_t<std::is_same_v<Device, alpaka::DevCpu>, SiPixelDigiErrorsHost, SiPixelDigiErrorsDevice<Device>>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
@@ -26,9 +26,9 @@ namespace cms::alpakatools {
     static auto copyAsync(TQueue& queue, SiPixelDigiErrorsDevice<TDevice> const& srcData) {
       SiPixelDigiErrorsHost dstData(srcData.maxFedWords(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
-      #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
       printf("SiPixelDigiErrorsSoACollection: I'm copying to host.\n");
-      #endif
+#endif
       return dstData;
     }
   };
