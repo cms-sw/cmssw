@@ -22,7 +22,7 @@ class L1HPSPFTauProducer : public edm::global::EDProducer<> {
     
 public:
   explicit L1HPSPFTauProducer(const edm::ParameterSet&);
-  ~L1HPSPFTauProducer() override;
+  ~L1HPSPFTauProducer() {};
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 
@@ -120,8 +120,6 @@ void L1HPSPFTauProducer::produce(edm::StreamID,
   iEvent.put(std::move(newPFTauCollection), "HPSTaus");
 
 }
-
-L1HPSPFTauProducer::~L1HPSPFTauProducer() {}
 
 
 std::vector<l1t::PFTau> L1HPSPFTauProducer::processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& work, std::vector<edm::Ptr<reco::CaloJet>>& jwork) const{

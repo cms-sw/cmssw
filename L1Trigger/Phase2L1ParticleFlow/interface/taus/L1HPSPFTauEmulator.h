@@ -12,7 +12,7 @@ namespace L1HPSPFTauEmu {
 
   //mapping the eta phi onto bits
 
-  static float etaphi_base = 720. / 3.14159;
+  static float etaphi_base = 720. / M_PI;
   static float dz_base = 0.05;
   typedef ap_ufixed<16, 14> pt_t;
 
