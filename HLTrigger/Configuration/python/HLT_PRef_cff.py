@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_13_2_0/PRef --cff --data --type PRef
+# hltGetConfiguration /dev/CMSSW_13_3_0/PRef --cff --data --type PRef
 
-# /dev/CMSSW_13_2_0/PRef/V73 (CMSSW_13_2_3)
+# /dev/CMSSW_13_3_0/PRef/V11 (CMSSW_13_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_2_0/PRef/V73')
+  tableName = cms.string('/dev/CMSSW_13_3_0/PRef/V11')
 )
 
 fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -2181,7 +2181,10 @@ fragment.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
 )
 fragment.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer( "CTPPSInterpolatedOpticalFunctionsESSource",
   lhcInfoLabel = cms.string( "" ),
+  lhcInfoPerFillLabel = cms.string( "" ),
+  lhcInfoPerLSLabel = cms.string( "" ),
   opticsLabel = cms.string( "" ),
+  useNewLHCInfo = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 fragment.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
@@ -4007,6 +4010,7 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
+    AXOL1TLModelVersion = cms.string( "" ),
     useMuonShowers = cms.bool( True ),
     resetPSCountersEachLumiSec = cms.bool( True ),
     semiRandomInitialPSCounters = cms.bool( False ),
@@ -4157,6 +4161,8 @@ fragment.hltEcalUncalibRecHitGPU = cms.EDProducer( "EcalUncalibRecHitProducerGPU
     digisLabelEE = cms.InputTag( 'hltEcalDigisGPU','eeDigis' ),
     recHitsLabelEB = cms.string( "EcalUncalibRecHitsEB" ),
     recHitsLabelEE = cms.string( "EcalUncalibRecHitsEE" ),
+    timeCalibTag = cms.ESInputTag( "","" ),
+    timeOffsetTag = cms.ESInputTag( "","" ),
     EBtimeFitLimits_Lower = cms.double( 0.2 ),
     EBtimeFitLimits_Upper = cms.double( 1.4 ),
     EEtimeFitLimits_Lower = cms.double( 0.2 ),
@@ -4258,6 +4264,8 @@ fragment.hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     EELaserMAX = cms.double( 8.0 ),
     logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
     recoverEEIsolatedChannels = cms.bool( False ),
+    timeCalibTag = cms.ESInputTag( "","" ),
+    timeOffsetTag = cms.ESInputTag( "","" ),
     skipTimeCalib = cms.bool( False )
 )
 fragment.hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
@@ -7728,7 +7736,7 @@ fragment.hltDoubletRecoveryPixelLayersAndRegions = cms.EDProducer( "PixelInactiv
 )
 fragment.hltDoubletRecoveryPFlowPixelClusterCheck = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltMeasurementTrackerEvent" ),
     MaxNumberOfPixelClusters = cms.uint32( 40000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
@@ -14397,7 +14405,7 @@ fragment.hltFullIter0PixelTrackingRegionsPreSplittingPPRefForDmeson = cms.EDProd
 )
 fragment.hltFullIter0PixelClusterCheckPreSplittingPPRefForDmeson = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltHITrackingSiStripRawToClustersFacilityZeroSuppression" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
@@ -14632,7 +14640,7 @@ fragment.hltFullIter0PixelTrackingRegionsPPRefForDmeson = cms.EDProducer( "Globa
 )
 fragment.hltFullIter0PixelClusterCheckPPRefForDmeson = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -14860,7 +14868,7 @@ fragment.hltFullIter1PixelTrackingRegionsPPRefForDmeson = cms.EDProducer( "Globa
 )
 fragment.hltFullIter1PixelClusterCheckPPRefForDmeson = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -15064,7 +15072,7 @@ fragment.hltFullIter2PixelTrackingRegionsPPRefForDmeson = cms.EDProducer( "Globa
 )
 fragment.hltFullIter2PixelClusterCheckPPRefForDmeson = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -15266,7 +15274,7 @@ fragment.hltFullIter3PixelTrackingRegionsPPRef = cms.EDProducer( "GlobalTracking
 )
 fragment.hltFullIter3PixelClusterCheckPPRef = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -15453,7 +15461,7 @@ fragment.hltFullIter4PixelTrackingRegionsPPRef = cms.EDProducer( "GlobalTracking
 )
 fragment.hltFullIter4PixelClusterCheckPPRef = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( True ),
-    MaxNumberOfCosmicClusters = cms.uint32( 500000 ),
+    MaxNumberOfStripClusters = cms.uint32( 500000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 150000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -15650,7 +15658,7 @@ fragment.hltFullIter5PixelTrackingRegionsPPRef = cms.EDProducer( "GlobalTracking
 )
 fragment.hltFullIter5PixelClusterCheckPPRef = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( True ),
-    MaxNumberOfCosmicClusters = cms.uint32( 500000 ),
+    MaxNumberOfStripClusters = cms.uint32( 500000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 150000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -15791,7 +15799,7 @@ fragment.hltFullIter6MaskedMeasurementTrackerEventPPRef = cms.EDProducer( "Maske
 )
 fragment.hltFullIter6PixelClusterCheckPPRef = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( True ),
-    MaxNumberOfCosmicClusters = cms.uint32( 500000 ),
+    MaxNumberOfStripClusters = cms.uint32( 500000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 150000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -16036,7 +16044,7 @@ fragment.hltFullIter7MixedTrackingRegionsAPPRef = cms.EDProducer( "GlobalTrackin
 )
 fragment.hltFullIter7MixedClusterCheckPPRef = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -16379,7 +16387,7 @@ fragment.hltFullIter8PixelLessTrackingRegionsPPRef = cms.EDProducer( "GlobalTrac
 )
 fragment.hltFullIter8PixelLessClusterCheckPPRef = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -16592,7 +16600,7 @@ fragment.hltFullIter9TobTecTrackingRegionsTriplPPRef = cms.EDProducer( "GlobalTr
 )
 fragment.hltFullIter9TobTecClusterCheckPPRef = cms.EDProducer( "ClusterCheckerEDProducer",
     doClusterCheck = cms.bool( False ),
-    MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
+    MaxNumberOfStripClusters = cms.uint32( 50000 ),
     ClusterCollectionLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
     MaxNumberOfPixelClusters = cms.uint32( 10000 ),
     PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
@@ -16967,9 +16975,9 @@ fragment.hltFullIter10JetCoreRegionSeedsPPRef = cms.EDProducer( "SeedGeneratorFr
       MaxNumberOfPixelClusters = cms.uint32( 150000 ),
       cut = cms.string( "strip < 1000000 && pixel < 150000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)" ),
       PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClustersAfterSplittingPPRefForDmeson" ),
-      MaxNumberOfCosmicClusters = cms.uint32( 500000 ),
       doClusterCheck = cms.bool( True ),
-      ClusterCollectionLabel = cms.InputTag( "hltMeasurementTrackerEvent" )
+      ClusterCollectionLabel = cms.InputTag( "hltMeasurementTrackerEvent" ),
+      MaxNumberOfStripClusters = cms.uint32( 500000 )
     )
 )
 fragment.hltFullIter10CkfTrackCandidatesPPRef = cms.EDProducer( "CkfTrackCandidateMaker",
