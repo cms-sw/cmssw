@@ -58,7 +58,7 @@ using namespace std;
 class TPFastJetProducer : public edm::stream::EDProducer<> {
 public:
   explicit TPFastJetProducer(const edm::ParameterSet&);
-  ~TPFastJetProducer() = default;
+  ~TPFastJetProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
