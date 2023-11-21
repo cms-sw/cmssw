@@ -223,7 +223,7 @@ namespace {
                                     phaseID,
                                     iContext.componentDescription()->id_ + 1,
                                     recordIndex,
-                                    reinterpret_cast<std::uintptr_t>(&iContext),
+                                    iContext.callID(),
                                     requestingModuleID,
                                     t);
       logFile_->write(std::move(msg));

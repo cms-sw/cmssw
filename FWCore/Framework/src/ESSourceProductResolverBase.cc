@@ -38,7 +38,8 @@ void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(
     edm::eventsetup::EventSetupRecordImpl const& iRecord,
     edm::eventsetup::DataKey const& iKey,
     edm::ESParentContext const& iParent) {
-  edm::ESModuleCallingContext context(providerDescription(), ESModuleCallingContext::State::kRunning, iParent);
+  edm::ESModuleCallingContext context(
+      providerDescription(), reinterpret_cast<std::uintptr_t>(this), ESModuleCallingContext::State::kRunning, iParent);
   iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
   struct EndGuard {
     EndGuard(EventSetupRecordImpl const& iRecord, ESModuleCallingContext const& iContext)

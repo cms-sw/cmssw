@@ -17,6 +17,7 @@ Services as an argument to their callback functions.
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include <iosfwd>
+#include <cstdint>
 
 namespace edm {
 
@@ -34,9 +35,10 @@ namespace edm {
       kInvalid
     };
 
-    ESModuleCallingContext(edm::eventsetup::ComponentDescription const* moduleDescription);
+    ESModuleCallingContext(edm::eventsetup::ComponentDescription const* moduleDescription, std::uintptr_t id);
 
     ESModuleCallingContext(edm::eventsetup::ComponentDescription const* moduleDescription,
+                           std::uintptr_t id,
                            State state,
                            ESParentContext const& parent);
 
@@ -47,6 +49,10 @@ namespace edm {
     edm::eventsetup::ComponentDescription const* componentDescription() const { return componentDescription_; }
     State state() const { return state_; }
     Type type() const { return parent_.type(); }
+    /** Returns a unique id for this module to differentiate possibly concurrent calls to the module.
+	    The value returned may be large so not appropriate for an index lookup.
+	*/
+    std::uintptr_t callID() const { return id_; }
     ESParentContext const& parent() const { return parent_; }
     ModuleCallingContext const* moduleCallingContext() const { return parent_.moduleCallingContext(); }
     ESModuleCallingContext const* esmoduleCallingContext() const { return parent_.esmoduleCallingContext(); }
@@ -62,6 +68,7 @@ namespace edm {
   private:
     edm::eventsetup::ComponentDescription const* componentDescription_;
     ESParentContext parent_;
+    std::uintptr_t id_;
     State state_;
   };
 }  // namespace edm
