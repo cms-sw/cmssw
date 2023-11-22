@@ -173,6 +173,10 @@ void testRefToBaseProd::constructTest() {
 
     CPPUNIT_ASSERT(dummyPtr2.id() == pid);
     compareTo(dummyPtr2, dummyContainer);
+
+    RefToBaseProd<Dummy> dummyPtr3(std::move(dummyPtr2));
+    CPPUNIT_ASSERT(dummyPtr3.id() == pid);
+    compareTo(dummyPtr3, dummyContainer);
   }
 }
 
