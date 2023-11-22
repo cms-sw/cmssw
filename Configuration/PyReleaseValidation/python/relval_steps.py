@@ -1727,6 +1727,7 @@ steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER']=genvalid('sherpa_ttbar_2j_MENLOPS_
 steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenDQM)
 steps['DYToLL012Jets_5FS_TuneCH3_13TeV_amcatnloFxFx_herwig7']=genvalid('Configuration/Generator/python/DYToLL012Jets_5FS_TuneCH3_13TeV_amcatnloFxFx_herwig7_cff',merge([{'-n':'12'},step1LHEGenDQM]))
 steps['DYToLL01234Jets_5FS_TuneCH3_13TeV_madgraphMLM_herwig7']=genvalid('Configuration/Generator/python/DYToLL01234Jets_5FS_TuneCH3_13TeV_madgraphMLM_herwig7_cff',step1LHEGenDQM)
+steps['DY_TuneCH3_13TeV_herwig_madgraph_matchbox']=genvalid('Configuration/Generator/python/DY_TuneCH3_13TeV_herwig_madgraph_matchbox_cff',step1GenDefaults)
 
 
 # Heavy Ion
