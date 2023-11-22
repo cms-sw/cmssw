@@ -14,7 +14,7 @@ namespace {
   struct Dummy {
     int x, y, z;
   };
-}
+}  // namespace
 
 TEST_CASE("Test CopyToDevice for Alpaka buffers for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend",
           "[" EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) "]") {
