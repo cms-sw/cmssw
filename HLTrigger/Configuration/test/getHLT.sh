@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ConfDB directory hosting the HLT configurations
-CONFDBDIR="/dev/CMSSW_13_2_0"
+CONFDBDIR="/dev/CMSSW_13_3_0"
 
 # ConfDB configurations to use
 #  - if no explicit version, the most recent one is taken

@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_13_2_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
+# hltGetConfiguration /dev/CMSSW_13_3_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_13_2_0/PIon/V73 (CMSSW_13_2_3)
+# /dev/CMSSW_13_3_0/PIon/V11 (CMSSW_13_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_2_0/PIon/V73')
+  tableName = cms.string('/dev/CMSSW_13_3_0/PIon/V11')
 )
 
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
@@ -2014,7 +2014,10 @@ process.ctppsGeometryESModule = cms.ESProducer( "CTPPSGeometryESModule",
 )
 process.ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer( "CTPPSInterpolatedOpticalFunctionsESSource",
   lhcInfoLabel = cms.string( "" ),
+  lhcInfoPerFillLabel = cms.string( "" ),
+  lhcInfoPerLSLabel = cms.string( "" ),
   opticsLabel = cms.string( "" ),
+  useNewLHCInfo = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
 process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
@@ -3770,8 +3773,7 @@ process.siPixelGainCalibrationForHLTGPU = cms.ESProducer( "SiPixelGainCalibratio
   appendToDataLabel = cms.string( "" )
 )
 process.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
-  siPixelQualityLabel = cms.string( "" ),
-  siPixelQualityLabel_RawToDigi = cms.string( "" ),
+  siPixelQualityFromDbLabel = cms.string( "" ),
   ListOfRecordToMerge = cms.VPSet( 
     cms.PSet(  record = cms.string( "SiPixelQualityFromDbRcd" ),
       tag = cms.string( "" )
@@ -3959,6 +3961,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
+    AXOL1TLModelVersion = cms.string( "" ),
     useMuonShowers = cms.bool( True ),
     resetPSCountersEachLumiSec = cms.bool( True ),
     semiRandomInitialPSCounters = cms.bool( False ),
