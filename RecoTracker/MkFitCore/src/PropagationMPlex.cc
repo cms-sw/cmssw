@@ -548,6 +548,12 @@ namespace mkfit {
     }
 #endif
 
+    // MultHelixProp can be optimized for CCS coordinates, see GenMPlexOps.pl
+    MPlexLL temp;
+    MultHelixProp(errorProp, outErr, temp);
+    MultHelixPropTransp(errorProp, temp, outErr);
+    // can replace with: MultHelixPropFull(errorProp, outErr, temp); MultHelixPropTranspFull(errorProp, temp, outErr);
+
     if (pflags.apply_material) {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
@@ -580,13 +586,6 @@ namespace mkfit {
     }
 
     squashPhiMPlex(outPar, N_proc);  // ensure phi is between |pi|
-
-    // MultHelixProp can be optimized for CCS coordinates, see GenMPlexOps.pl
-    MPlexLL temp;
-    MultHelixProp(errorProp, outErr, temp);
-    MultHelixPropTransp(errorProp, temp, outErr);
-    // MultHelixPropFull(errorProp, outErr, temp);
-    // MultHelixPropTranspFull(errorProp, temp, outErr);
 
     // Matriplex version of:
     // result.errors = ROOT::Math::Similarity(errorProp, outErr);
@@ -679,6 +678,12 @@ namespace mkfit {
     }
 #endif
 
+    // Matriplex version of: result.errors = ROOT::Math::Similarity(errorProp, outErr);
+    MPlexLL temp;
+    MultHelixPropEndcap(errorProp, outErr, temp);
+    MultHelixPropTranspEndcap(errorProp, temp, outErr);
+    // can replace with: MultHelixPropFull(errorProp, outErr, temp); MultHelixPropTranspFull(errorProp, temp, outErr);
+
     if (pflags.apply_material) {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
@@ -735,14 +740,6 @@ namespace mkfit {
     }
 
     squashPhiMPlex(outPar, N_proc);  // ensure phi is between |pi|
-
-    // Matriplex version of:
-    // result.errors = ROOT::Math::Similarity(errorProp, outErr);
-    MPlexLL temp;
-    MultHelixPropEndcap(errorProp, outErr, temp);
-    MultHelixPropTranspEndcap(errorProp, temp, outErr);
-    // MultHelixPropFull(errorProp, outErr, temp);
-    // MultHelixPropTranspFull(errorProp, temp, outErr);
 
     // PROP-FAIL-ENABLE To keep physics changes minimal, we always restore the
     // state to input when propagation fails -- as was the default before.
